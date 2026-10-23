@@ -1,0 +1,252 @@
+extends SceneTree
+## Small native review probe for the shared run presentation. The controls are
+## production scenes; preference storage and Backup operations remain isolated.
+
+const PROFILE := preload("res://autoload/ProfileManager.gd")
+const LOCALIZATION := preload("res://autoload/LocalizationManager.gd")
+const INPUT := preload("res://autoload/InputManager.gd")
+const STORAGE := preload("res://scripts/infrastructure/storage/JsonFileStorage.gd")
+const FILES := preload("res://tests/support/FakeFileOps.gd")
+const SETTINGS := preload("res://scenes/apps/SettingsApp.tscn")
+const PAUSE := preload("res://scenes/overlay/PauseSurface.tscn")
+const BACKUP := preload("res://scenes/apps/BackupApp.tscn")
+const OPERATIONS := preload("res://tests/backup_ui/test_backup_ui.gd")
+const SETTINGS_THEME := preload("res://scripts/ui/SettingsTheme.gd")
+const PAUSE_THEME := preload("res://scripts/ui/pause/PauseTheme.gd")
+const BACKUP_THEME := preload("res://scripts/ui/backup/BackupTheme.gd")
+const COPY_KEYS := ["continue", "backup", "settings", "return", "title", "question", "warning", "cancel"]
+
+var _folder := ""
+var _viewport: SubViewport
+var _profile: Node
+var _localization: Node
+var _input: Node
+var _settings: Control
+var _pause: Control
+var _backup: Control
+var _port: RefCounted
+var _records: Array[Dictionary] = []
+var _failures: Array[String] = []
+var _checks := 0
+var _input_backup: Dictionary = {}
+
+
+func _initialize() -> void:
+	_run.call_deferred()
+
+
+func _run() -> void:
+	_folder = ProjectSettings.globalize_path("user://evidence/shared_run_presentation_native")
+	if not _check(DirAccess.make_dir_recursive_absolute(_folder) == OK, "create isolated output directory"):
+		await _finish()
+		return
+	for action: StringName in InputMap.get_actions():
+		_input_backup[action] = {"deadzone": InputMap.action_get_deadzone(action), "events": InputMap.action_get_events(action).duplicate(true)}
+	_viewport = SubViewport.new()
+	_viewport.size = Vector2i(640, 360)
+	_viewport.size_2d_override = Vector2i(1280, 720)
+	_viewport.size_2d_override_stretch = true
+	_viewport.gui_embed_subwindows = true
+	_viewport.transparent_bg = true
+	_viewport.handle_input_locally = true
+	_viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	root.add_child(_viewport)
+	_profile = PROFILE.new()
+	_localization = LOCALIZATION.new()
+	_input = INPUT.new()
+	for owner: Node in [_profile, _localization, _input]: root.add_child(owner)
+	if not _check(_profile.initialize(STORAGE.new("shared-run-presentation-probe.memory", FILES.new())).get("ok", false), "in-memory Profile") \
+			or not _check(_localization.initialize(_profile).get("ok", false), "Localization") \
+			or not _check(_input.initialize(_profile).get("ok", false), "Input"):
+		await _finish()
+		return
+	if not await _desktop_settings():
+		await _finish()
+		return
+	if not await _pause_hosts():
+		await _finish()
+		return
+	_check(_records.size() == 6, "six representative native captures")
+	await _finish()
+
+
+func _new_settings() -> Control:
+	var app: Control = SETTINGS.instantiate()
+	app.get_node("SettingsContent").configure_services({"profile": _profile, "localization": _localization,
+		"input": _input, "audio": null, "volume": null, "tts": null,
+		"profile_reset_admission": func() -> bool: return true})
+	app.get_node("LocalePresentationRoot").set("_localization", _localization)
+	return app
+
+
+func _desktop_settings() -> bool:
+	_settings = _new_settings()
+	_settings.position = Vector2(480, 64)
+	_settings.size = Vector2(800, 656)
+	if not _check(_settings.configure_run_presentation(&"after_hours", 1).get("ok", false), "Day 1 Settings context"):
+		return false
+	_viewport.add_child(_settings)
+	_settings.show_window()
+	await _frames()
+	var content: Control = _settings.settings_content
+	content.select_category("accessibility")
+	content.focus_rail()
+	if not await _capture("settings-day1", _settings, content, SETTINGS_THEME.build("en", 100, &"after_hours", false, "standard", 1), "Settings", "AfterHours", 1, false):
+		return false
+	if not _check(_settings.configure_run_presentation(&"midnight", 7).get("ok", false), "Day 7 Settings context"):
+		return false
+	if not await _capture("settings-day7", _settings, content, SETTINGS_THEME.build("en", 100, &"midnight", false, "standard", 7), "Settings", "Midnight", 7, false):
+		return false
+	_settings.queue_free()
+	await process_frame
+	_settings = null
+	return true
+
+
+func _pause_hosts() -> bool:
+	_pause = PAUSE.instantiate()
+	_settings = _new_settings()
+	_backup = BACKUP.instantiate()
+	_port = OPERATIONS.FakeBackupPort.new()
+	if not _check(_backup.configure_backup(_port, _localization, _profile, &"midnight", 7).get("ok", false), "isolated Backup port"):
+		return false
+	if not _check(_pause.set_host(&"settings", _settings) and _pause.set_host(&"backup", _backup), "actual Pause hosts"):
+		return false
+	_viewport.add_child(_pause)
+	var copy := {}
+	for key: String in COPY_KEYS: copy[key] = _localization.t("ui.pause." + key)
+	if not _check(_pause.configure_presentation("en", 100, "Midnight", false, "standard", false, 7) and _pause.configure_copy(copy), "Day 7 Pause presentation"):
+		return false
+	_pause.open_surface()
+	_pause.rows[&"settings"].grab_focus()
+	await _key(KEY_RIGHT)
+	if not _check(_pause.entered_action == &"settings", "entered Pause Settings"):
+		return false
+	var content: Control = _settings.settings_content
+	if not await _capture("pause-settings-day7", _settings, content, SETTINGS_THEME.build("en", 100, &"midnight", false, "standard", 7), "Settings", "Midnight", 7, false):
+		return false
+	_pause.leave_host()
+	if not _check(_pause.configure_presentation("en", 100, "AfterHours", false, "standard", false, 1), "Day 1 Pause presentation"):
+		return false
+	_pause.rows[&"backup"].grab_focus()
+	await _key(KEY_RIGHT)
+	if not _check(_pause.entered_action == &"backup", "entered Pause Backup"):
+		return false
+	_backup.mode_buttons.load.grab_focus()
+	await _key(KEY_ENTER)
+	_backup.drawer_buttons["slot:2"].grab_focus()
+	await _key(KEY_ENTER)
+	_backup.action_buttons.delete.grab_focus()
+	if not await _capture("pause-backup-day1", _backup, _backup.action_buttons.delete,
+			BACKUP_THEME.build("en", 100, &"after_hours", 1), "Backup", "AfterHours", 1, false):
+		return false
+	var records_before: Array = _port.records.duplicate(true)
+	await _key(KEY_ENTER)
+	if not _check(is_instance_valid(_backup.confirmation) and _backup.confirmation.cancel_button.has_focus(), "Delete confirmation and native Cancel focus"):
+		return false
+	var modal: Control = _backup.confirmation
+	var held_theme: Theme = _backup.theme
+	if not _check(_profile.set_preference(&"preferences.accessibility.high_contrast", true).get("ok", false), "High Contrast preference") \
+			or not _check(_pause.configure_presentation("en", 100, "Midnight", true, "standard", false, 7), "queued Day 7 Pause presentation"):
+		return false
+	if not _check(_backup.theme == held_theme and modal.theme == held_theme and modal.cancel_button.has_focus(), "modal retains old Backup theme and focus while new appearance is queued"):
+		return false
+	if not await _capture("pause-backup-confirmation-queued", _backup, modal.cancel_button, held_theme, "Backup", "AfterHours", 1, false):
+		return false
+	await _key(KEY_ESCAPE)
+	if not _check(not is_instance_valid(_backup.confirmation) and _backup.action_buttons.delete.has_focus(), "Cancel restores Delete focus"):
+		return false
+	if not _check(_port.records == records_before and _port.committed.is_empty() and _port.cancelled.size() == 1, "appearance and Cancel do not mutate Backup records"):
+		return false
+	if not await _capture("pause-backup-after-cancel-day7-high", _backup, _backup.action_buttons.delete,
+			BACKUP_THEME.build("en", 100, &"midnight", 7, true), "Backup", "Midnight", 7, true):
+		return false
+	return _check(_pause.theme.get_color("paper", "Pause") == PAUSE_THEME.build("en", 100, "Midnight", true, "standard", 7).get_color("paper", "Pause"), "Pause veil uses current High Contrast tuple")
+
+
+func _capture(name: String, host: Control, expected_focus: Control, expected_theme: Theme,
+		role_type: String, palette: String, day: int, high_contrast: bool) -> bool:
+	await _frames()
+	if not _check(host.get_global_rect() == Rect2(480, 64, 800, 656), name + ": exact shared workfield"):
+		return false
+	var focus: Control = _viewport.gui_get_focus_owner()
+	if not _check(focus != null and (expected_focus == focus or expected_focus.is_ancestor_of(focus)), name + ": native Focus owner"):
+		return false
+	var observed_theme: Theme = host.theme if role_type == "Backup" else (host.settings_content as Control).theme
+	for role: String in ["paper", "face", "ink", "focus", "paper_focus"]:
+		if not _check(observed_theme.get_color(role, role_type) == expected_theme.get_color(role, role_type), name + ": " + role + " theme role"):
+			return false
+	var pixels: Image = _viewport.get_texture().get_image()
+	if not _check(pixels != null and pixels.get_size() == Vector2i(640, 360), name + ": native 640x360 surface"):
+		return false
+	if is_instance_valid(_pause) and _pause.is_inside_tree():
+		var painted: Color = pixels.get_pixel(2, 2)
+		var declared: Color = _pause.theme.get_color("face", "Pause")
+		if not _check(absf(painted.r - declared.r) <= 1.1 / 255.0 and absf(painted.g - declared.g) <= 1.1 / 255.0
+				and absf(painted.b - declared.b) <= 1.1 / 255.0, name + ": native Pause action plane"):
+			return false
+	var file := name + ".png"
+	if not _check(pixels.save_png(_folder.path_join(file)) == OK, name + ": PNG capture"):
+		return false
+	_records.append({"file": file, "state": name, "palette": palette, "day": day,
+		"high_contrast": high_contrast, "locale": "en", "text_percent": 100,
+		"native_size": [640, 360], "logical_size": [1280, 720],
+		"workfield": [480, 64, 800, 656], "focus": str(focus.get_path()),
+		"paper": observed_theme.get_color("paper", role_type).to_html(false),
+		"face": observed_theme.get_color("face", role_type).to_html(false),
+		"pause_face": _pause.theme.get_color("face", "Pause").to_html(false) if is_instance_valid(_pause) else "",
+		"backup_prepared": _port.prepared.size() if _port != null else 0,
+		"backup_committed": _port.committed.size() if _port != null else 0,
+		"backup_cancelled": _port.cancelled.size() if _port != null else 0})
+	return true
+
+
+func _key(code: Key) -> void:
+	for pressed: bool in [true, false]:
+		var event := InputEventKey.new()
+		event.keycode = code
+		event.physical_keycode = code
+		event.pressed = pressed
+		_viewport.push_input(event, true)
+		await process_frame
+	await _frames()
+
+
+func _frames() -> void:
+	for frame: int in range(3): await RenderingServer.frame_post_draw
+
+
+func _check(ok: bool, label: String) -> bool:
+	_checks += 1
+	if not ok:
+		_failures.append(label)
+		push_error("SHARED_RUN_PRESENTATION_NATIVE_FAILED: " + label)
+	return ok
+
+
+func _finish() -> void:
+	if not _folder.is_empty() and DirAccess.dir_exists_absolute(_folder):
+		var report := FileAccess.open(_folder.path_join("summary.json"), FileAccess.WRITE)
+		if report != null:
+			report.store_string(JSON.stringify({"ok": _failures.is_empty() and _records.size() == 6,
+				"checks": _checks, "captures": _records.size(), "failures": _failures,
+				"scope": "Six English 100% native captures of real SettingsApp, PauseSurface, BackupApp and shared confirmation. Real Profile/Localization/Input with FakeFileOps and FakeBackupPort. Representative Day 1/Day 7 and one High Contrast handoff; all tuples are covered by GUT, not this probe. No player files, actual save/load, production lifecycle, assistive-technology or perceptual acceptance.",
+				"samples": _records}, "\t") + "\n")
+			report.close()
+		else:
+			_failures.append("write summary.json")
+	if is_instance_valid(_pause): _pause.close_surface()
+	if is_instance_valid(_viewport): _viewport.free()
+	for owner: Node in [_input, _localization, _profile]:
+		if is_instance_valid(owner): owner.free()
+	if not _input_backup.is_empty():
+		for action: StringName in InputMap.get_actions():
+			if not _input_backup.has(action): InputMap.erase_action(action)
+		for action: StringName in _input_backup:
+			if not InputMap.has_action(action): InputMap.add_action(action)
+			InputMap.action_set_deadzone(action, _input_backup[action].deadzone)
+			InputMap.action_erase_events(action)
+			for event: InputEvent in _input_backup[action].events: InputMap.action_add_event(action, event)
+	print("SHARED_RUN_PRESENTATION_NATIVE_", "VERIFIED" if _failures.is_empty() and _records.size() == 6 else "FAILED",
+		" captures=", _records.size(), " checks=", _checks, " evidence=", _folder)
+	quit(0 if _failures.is_empty() and _records.size() == 6 else 1)

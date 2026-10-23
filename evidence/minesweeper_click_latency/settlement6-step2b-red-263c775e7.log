@@ -1,0 +1,127 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/click-latency-3/.godot/phase2r_tests/fb273905-f399-4856-9e63-7c34882863f0/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+res://tests/unit/test_checkpoint_validation_reuse.gd
+* test_reuse_preserves_saved_bytes_and_every_disk_operation_across_three_commits
+* test_detached_candidate_normalization_matches_uncached_bytes_and_physical_trace
+* test_non_object_outgoing_values_match_uncached_failure_without_physical_mutation
+* test_schema_invalid_and_canonical_invalid_candidates_preserve_reference_precedence
+* test_cache_is_exact_text_success_only_and_detaches_nested_results
+* test_corrupt_next_final_and_backup_keep_existing_recovery_results_and_disk_trace
+* test_schema_valid_changed_reread_is_rejected_before_journal_commit
+* test_failed_reread_retry_has_a_fresh_validation_scope_and_commits_once
+* test_prepared_validation_is_not_reused_after_a_process_frame
+* test_new_prepare_and_released_custody_discard_prepared_validation
+* test_committed_documents_are_remembered_bounded_and_forgotten_on_capability_change
+* test_a_failed_commit_proves_nothing
+* test_mutated_outgoing_document_fails_and_retry_revalidates_preimage
+* test_storage_backup_proof_keeps_every_validation_and_disk_operation_without_copying_the_proof
+* test_three_bundle_seed_equals_a_strict_reparse_of_the_written_document
+* test_a_journal_bundle_mutated_between_prepare_and_commit_cannot_diverge_the_lease_from_the_bytes
+* test_an_edited_current_bundle_is_written_but_never_remembered_for_a_later_splice
+* test_witness_answers_a_proven_document_with_an_empty_value
+    [Failed]:  dwm-634.3: the port must declare _witness_document_text_validator() for the storage calls whose value it discards
+      at line 723
+* test_witness_validates_an_unknown_document_exactly_like_the_validator
+    [Failed]:  dwm-634.3: the port must declare _witness_document_text_validator()
+      at line 743
+* test_commit_and_rollback_hand_storage_the_witness
+    [Failed]:  commit() binds the witness -- expected the source to carry `_witness_document_text_validator.bind(validated_texts)`
+      at line 788
+    [Failed]:  commit() hands write_atomic() the witness -- expected the source to carry `AUTOSAVE_RELATIVE_PATH, outgoing_text, witness)`
+      at line 789
+    [Failed]:  commit() validates its own reread with the witness; it reads nothing but ok -- expected the source to carry `witness.call(reread_text)`
+      at line 791
+    [Failed]:  rollback() binds the witness -- expected the source to carry `_witness_document_text_validator.bind({})`
+      at line 794
+    [Failed]:  rollback() hands write_atomic() the witness -- expected the source to carry `str(descriptor.get("validated_text", "")), witness)`
+      at line 795
+    [Failed]:  rollback() hands reconcile() the witness -- expected the source to carry `reconcile(relative_path, witness)`
+      at line 797
+    [Failed]:  the read-repair reconcile takes the witness; only its refusal is read -- expected the source to carry `relative_path, _witness_document_text_validator.bind(validated_texts))`
+      at line 800
+* test_externally_corrupted_autosave_is_refused_and_rolled_back_like_the_reference
+18/21 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/unit/test_checkpoint_validation_reuse.gd
+    - Outside Tests
+        * [<Node#131617261336>(subsystem_animation.gd)]
+        * [<Node#131634038564>(subsystem_audio.gd)]
+        * [<Node#131650815796>]
+        * [<Node#131667593021>]
+        * [<Node#131684370243>(subsystem_backgrounds.gd)]
+        * [<Node#132221241156>(subsystem_choices.gd)]
+        * [<Timer#132238018373>]
+        * [<Node#132254795590>(subsystem_expression.gd)]
+        * [<Node#132288350027>(subsystem_glossary.gd)]
+        * [<Node#132305127244>(subsystem_history.gd)]
+        * [<Node#132321904461>(subsystem_input.gd)]
+        * [<Timer#132338681678>]
+        * [<Node#132355458895>(subsystem_jump.gd)]
+        * [<Node#132372236112>(subsystem_containers.gd)]
+        * [<Node#132389013329>(subsystem_portraits.gd)]
+        * [<Node#132925884242>(subsystem_save.gd)]
+        * [<Timer#132942661459>]
+        * [<Node#132959438676>(subsystem_settings.gd)]
+        * [<Node#132976215896>(subsystem_styles.gd)]
+        * [<Node#132992993113>(subsystem_text.gd)]
+        * [<Node#133076879198>(subsystem_text_input.gd)]
+        * [<Node#133093656415>(subsystem_variables.gd)]
+        * [<Node#133110433632>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#133127210849>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+res://tests/unit/test_checkpoint_validation_reuse.gd
+- test_witness_answers_a_proven_document_with_an_empty_value
+    [Failed]:  dwm-634.3: the port must declare _witness_document_text_validator() for the storage calls whose value it discards
+          at line 723
+- test_witness_validates_an_unknown_document_exactly_like_the_validator
+    [Failed]:  dwm-634.3: the port must declare _witness_document_text_validator()
+          at line 743
+- test_commit_and_rollback_hand_storage_the_witness
+    [Failed]:  commit() binds the witness -- expected the source to carry `_witness_document_text_validator.bind(validated_texts)`
+          at line 788
+    [Failed]:  commit() hands write_atomic() the witness -- expected the source to carry `AUTOSAVE_RELATIVE_PATH, outgoing_text, witness)`
+          at line 789
+    [Failed]:  commit() validates its own reread with the witness; it reads nothing but ok -- expected the source to carry `witness.call(reread_text)`
+          at line 791
+    [Failed]:  rollback() binds the witness -- expected the source to carry `_witness_document_text_validator.bind({})`
+          at line 794
+    [Failed]:  rollback() hands write_atomic() the witness -- expected the source to carry `str(descriptor.get("validated_text", "")), witness)`
+          at line 795
+    [Failed]:  rollback() hands reconcile() the witness -- expected the source to carry `reconcile(relative_path, witness)`
+          at line 797
+    [Failed]:  the read-repair reconcile takes the witness; only its refusal is read -- expected the source to carry `relative_path, _witness_document_text_validator.bind(validated_texts))`
+          at line 800
+
+Totals
+------
+Scripts               1
+Tests                21
+Passing Tests        18
+Failing Tests         3
+Asserts           531/540
+Orphans              24
+Time              3.044s
+
+
+---- 3 failing tests ----

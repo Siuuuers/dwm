@@ -1,0 +1,38 @@
+{
+  "base_commit": "d064c59bb610d7defa24beb5a42956bde55abd07",
+  "inventories": {
+    "game_state": {
+      "lf_sha256": "5c1b0c4d22b4e2c492a2bb25c9127f9e4b77b8359fe71c874fc0475f44eb8d4c",
+      "public_contract_unchanged": true,
+      "source_path": "evidence/phase_2r/runtime/game_state_surface.json"
+    },
+    "save_manager": {
+      "lf_sha256": "330421e7faa5e1ce31ed0f9b6365c1236bda5f2f9c8876862c6f735450bac8b5",
+      "public_contract_unchanged": true,
+      "source_path": "evidence/phase_2r/runtime/save_manager_surface.json"
+    }
+  },
+  "source_hash_normalization": "CRLF to LF only",
+  "source_lf_sha256": {
+    "localization/ui/en.json": "d6c1e375158b19198b6c532998e0cff42962f94446efa422e7741a85dbc59270",
+    "localization/ui/zh_CN.json": "23c63ea02a04a7029a160d92c8c78127ef5cac134ce97b6aa73321afba51a851",
+    "localization/ui/zh_HK.json": "b3b2d8ba9d7b7077b02d1067dcc97b0684888b5f1fec34b9a9e9bc52d924d202",
+    "scenes/ending/EndingScene.tscn": "d33c5d4fe1b4c6bde78f00d82c779fa13f0a9c3b409b3dbc3c82d7f1fa936e59",
+    "scripts/settings/SettingsPreferenceRegistry.gd": "81c51022179c426eaf9b406a3c725fcedf1c04c398711ee14eb3692d8e5fe525",
+    "scripts/ui/EndingScene.gd": "2a2a67cedffb623478dbbb92e7a72000a4981536043f553e6b0cde205bce6998",
+    "scripts/ui/LocalePresentationRoot.gd": "61747c30cf699ac298705a16ed360170943b9221b5c5a4621b08a70c643c476d",
+    "scripts/ui/SettingsTheme.gd": "8a4e480f8c69dfc5618b616b480239e61e1386040b0fcc14692f8579fd58ad31",
+    "scripts/ui/witnessed/WitnessedRunPresentation.gd": "32121b474dbbddf4057ceaa89e43fd8587063dfb747f4a8792b866081388bff2",
+    "scripts/ui/witnessed/WitnessedTransportButton.gd": "35d49f83d69c9eb6e6eeccfbc927ad02458b73b9cbc7ba6c2c02e2dea41620b2",
+    "tests/scene/test_ending_recovery_localization.gd": "b99ad1d23ee4d9be8ae974659912ea97cf72bc27b624a79838853a765573c30f",
+    "tests/unit/tooling/test_ui_literal_audit.gd": "5a2c0f3df42dc64a144c7f2917ae7ae019b0dc49667e3b8aa090a53a6370257a",
+    "tools/ending_recovery/Invoke-EndingRecoveryAccessibilityAction.ps1": "7c3d9a9a41d3d1c9564c18f8e8d06b074186590a900494186eae83f17ce5fad5",
+    "tools/ending_recovery/verify_ending_recovery.gd": "312f1e0c2cf9b5c93258edf6678a067fa985a46561af4aeb95cca262f7385903",
+    "tools/localization/UiLiteralAudit.gd": "5f46c90d9e5456e1882069358cb2cddc66084271da1156fbea97324bf65e1809"
+  },
+  "unchanged_excluded_overlap_sources": {
+    "autoload/GameState.gd": "5eebce451ba3623f870872e9a0c0484bbefa516e4d2cdf91bc67f2cc8588ce5e",
+    "autoload/SaveManager.gd": "e2909ca270d865939ca8f79ca9a9cea5b3ab092ceb418eef7671ea84b594fe24",
+    "scripts/ui/DatingScene.gd": "9525a77f4715f84a319c2e407df32c8a57e9d1876d0e3c3e26f29468f203f596"
+  }
+}

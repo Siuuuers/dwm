@@ -1,0 +1,103 @@
+{
+  "schema_version": 1,
+  "review_kind": "source_only_final_join_and_v3_auditor_review",
+  "reviewer": "f9_contract_review",
+  "reviewed_at_utc": "2026-10-02T07:51:55.151359+00:00",
+  "reviewed_files": [
+    {
+      "path": "/workspace/scratch/e169b180163f/join_settings_f9_acceptance.py",
+      "bytes": 14633,
+      "sha256": "93a3272f8ce1ba9960bd682008b50298b5c8fb2a16338a355145691d7d6e72e7"
+    },
+    {
+      "path": "/workspace/scratch/e169b180163f/audit_settings_load_journey_v3.py",
+      "bytes": 36830,
+      "sha256": "efbb297dc1ece082d3c637add08f60dd57db392f5070f004be0eb038414b269a"
+    },
+    {
+      "path": "/workspace/scratch/e169b180163f/audit_settings_load_journey_v2.py",
+      "bytes": 36285,
+      "sha256": "3d93bc8d80e2e8b561d9cb65ab0d00db37d7ddc47dc95334590560679dbceba2"
+    },
+    {
+      "path": "/workspace/scratch/e169b180163f/audit_settings_quick_journey.py",
+      "bytes": 34153,
+      "sha256": "3086cc010cc0c42551d6813755f6de299b79b607c1761158cba3404560693c1b"
+    },
+    {
+      "path": "/workspace/scratch/e169b180163f/audit_settings_load_inventory.py",
+      "bytes": 13000,
+      "sha256": "7b6e62ddcef5b0633a7b3c6fc8db5c6edd6be6bf6749d99ae6a7d28576043f5b"
+    },
+    {
+      "path": "/workspace/scratch/e169b180163f/settings_f5_review_adapters_v2/audit_coverage_test_discovery.py",
+      "bytes": 18005,
+      "sha256": "fe8d3c2b60d669c85c76e69ae712650f0eb474b79e13681691830ed4dee84798"
+    },
+    {
+      "path": "/workspace/scratch/e169b180163f/audit_physical_selector_journey.py",
+      "bytes": 35924,
+      "sha256": "df20b8cc91daedb3fbc909b376539369e04174e196e2f8496818593016af1d1c"
+    },
+    {
+      "path": "/workspace/scratch/e169b180163f/cloud_evidence.py",
+      "bytes": 38539,
+      "sha256": "7d0f4139bdb86ad760871713580277e9d8ea5440a6c269a7c6100362545aaa90"
+    }
+  ],
+  "decision": "Approve frozen helper bytes for actual canonical-run acceptance audit. No remaining source blocker. This review does not assert canonical Run130 has passed.",
+  "canonical_run_pending_from_parent": {
+    "number": 130,
+    "source": "41cc51992b74ec9472f7912e0eb8e1c39679af44",
+    "tested_checkout": "705ea660b4d6ee9f3376ae4660a3d50e65fe5502",
+    "status": "in progress when review requested"
+  },
+  "resolved_findings": [
+    {
+      "id": "fresh_raw_evidence_hashes",
+      "initial_gap": "Join compared stored artifact descriptors without rehashing actual retained F9/XML/process artifact bytes after component audits.",
+      "resolution": "Join now rehashes every generic artifact_inventory.files member with path containment and exact bytes/SHA checks before acceptance."
+    },
+    {
+      "id": "actual_api_same_run_jobs",
+      "initial_gap": "Selected API execution job rows were checked for name/status/success but not their actual run_id/head_sha.",
+      "resolution": "Each actual execution job now must equal claimed run.id and run.head_sha as well as name/completed/success."
+    },
+    {
+      "id": "discovery_parser_provenance",
+      "initial_gap": "Discovery/public auditor identity was bound but its invoked source parser identity was not rechecked.",
+      "resolution": "Join now requires both accepted_parser_identity receipts equal exact current canonical parser helper bytes."
+    }
+  ],
+  "join_findings": {
+    "run_and_source": "Requires successful completed pull_request on unchanged canonical windows-tests.yml, full source/checkout/baseline SHAs, source head match and generic source provenance equal [master,source] merge-parent record. Component run_id/run_attempt/source/checkout and workflow head must match. Audited source files are reread from source/checkout commit blobs.",
+    "complete_job_identity": "Requires exactly23 uniquely named successful jobs, exact set of twelve Windows registered suites plus public contracts plus ten explicitly named other jobs, each API execution identity tied to same run/head and hashed log. Every real checkout log must name exact checkout; only explicit seven-day aggregate has no checkout.",
+    "test_identity": "Complete registered suite set and source-selected/observed counts must agree. Exact script/test pair sets and selected XML evidence must match;13 XML files and generic counts agree. Both new native retirement case identities are mandatory.",
+    "component_provenance": "Component report file hashes, component auditor identities, invoked accepted parser and F5 helper identities, all declared metadata, source files, job/log records and artifact archive identities bound. Fresh artifact-member hashes close the post-audit mutation gap.",
+    "public_boundaries": "Both generated public inventories required; exact adopted artifact/source/checkout equality and unchanged contract declarations required. Public source owner bytes bound.",
+    "scope": "Original eight catalogue-v1 processes and F5 writer/reader are required via embedded audited component; physical catalogue-v2 remains independently required. Other canonical jobs are explicitly scoped to observed command/step success, without claiming independent payload semantics or all Beads completion."
+  },
+  "v3_findings": {
+    "inherited_checks": "Seven F9 semantic stages, real separate-frame input receipts, strict leak/error rejection, raw primary neutrality, exact16\u00d714 external recovery operations,64 reconstructed transaction markers and raw recovery endpoints retain v2 requirements.",
+    "new_native_source_bindings": [
+      "addons/dialogic/Modules/Text/event_text.gd",
+      "addons/dialogic/Core/DialogicGameHandler.gd",
+      "addons/dialogic/Resources/timeline.gd",
+      "tests/integration/test_narrative_pause_frontier.gd"
+    ],
+    "source_binding_behavior": "Each added source is hashed from source commit and required byte-identical in tested checkout. No runtime success is inferred solely from source hashes.",
+    "path_representation_correction": "F9 process user_dir may equal retained F5 user_dir exactly or exactly that string plus one trailing slash. No path component normalization, parent traversal, prefix matching or alternate directory admitted.",
+    "focus4_raw_confirmation": "Independently read actual Focus4 raw top result: F5 and F9 nested result user_dir end in DWM; process report ends in DWM/. All three name the same exact directory.",
+    "predecessor_preservation": "v3 records immutable v1 and v2 auditor identities and writes distinct v3 output; historical failures remain separate."
+  },
+  "validation": {
+    "python_ast_parse": "All eight reviewed Python files parsed with ast.parse, without generating bytecode or invoking engines.",
+    "engines_run_locally": false,
+    "actual_canonical_join_executed_by_reviewer": false
+  },
+  "limits": [
+    "Source review approves helper logic and exact bytes only; final success requires the actual canonical broad run and same-run component audits.",
+    "Join reuses completed component semantics and rehashes their input artifacts; it does not reexecute Godot/PowerShell or the entire historical independent auditor collection.",
+    "Retained ZIP API/provenance and extracted artifact bytes are bound via generic audit and fresh member hashes; no new arbitrary-filesystem or OS-crash guarantee is claimed."
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "schema_version": 3,
+  "content_version": 1,
+  "run_id": "committed-schedule-run",
+  "checkpoint_id": "committed-schedule-run:31",
+  "checkpoint_sequence": 31,
+  "lifecycle": {
+    "run_id": "committed-schedule-run",
+    "day": 5,
+    "state": "PLAYING",
+    "active_resolution_plan": null,
+    "ending_plan": null
+  },
+  "route_id": "main",
+  "active_app_id": null,
+  "narrative_checkpoint": {},
+  "gameplay": {
+    "narrative_variables": {},
+    "money": 410,
+    "coins": 12,
+    "stats": {"motivation": 2, "pressure": 4, "health": 5},
+    "friends": {"priscilla": true},
+    "date_unlocks": {"day:5:friend:priscilla": true}
+  },
+  "command_receipts": {},
+  "contacts": {},
+  "committed_schedule": {
+    "schema_version": 1,
+    "day": 5,
+    "registry_fingerprint": null,
+    "entries": [],
+    "commit_receipt": null
+  },
+  "dating": {},
+  "applied_effect_transaction_ids": [],
+  "applied_variable_transaction_ids": [],
+  "audio_context": {}
+}

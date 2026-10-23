@@ -1,0 +1,522 @@
+{
+  "actual_checkout": "f3b5e8910e8a7d401d6ac6e7ca4392d58787a920",
+  "component_audits": [
+    {
+      "bytes": 96639,
+      "path": "audit/generic-evidence-audit.json",
+      "sha256": "a74d70057cab346c5b810210f853281185d5f7332af1ee157b65bbdfc618834c"
+    },
+    {
+      "bytes": 3141,
+      "path": "audit/reading-trace-audit.json",
+      "sha256": "b50b7e351f6287b67bde6b902d3c939f95fbe0a5eb0cbefaa405af321ba19446"
+    },
+    {
+      "bytes": 6299,
+      "path": "audit/settings-storage-audit.json",
+      "sha256": "0b6966e6875e660f34219c4e44dd52dda6fdc48ee598fd7dfaf8bc007164d991"
+    },
+    {
+      "bytes": 641,
+      "path": "audit/public-inventory-review.json",
+      "sha256": "e7553f0739c4839506d1ae4f847cbe0f31f94aaefdf13a555eed700f7e34fd5c"
+    }
+  ],
+  "focused_acceptance_pass": true,
+  "full_gate_acceptance": false,
+  "gut": {
+    "case_executions": 1056,
+    "errors": 0,
+    "failures": 0,
+    "negative_xml_exclusions": [
+      {
+        "bytes": 31410,
+        "path": "artifacts/windows-settings-36894093464-1/ci/storage-refusal/empty/tests.xml",
+        "reason": "Expected negative storage-root refusal probe; excluded from ordinary GUT totals.",
+        "sha256": "cf6eff8a501a7f876b1e55d87ebe45b10606c713b1ee6c1e68c0e285f0a39a28"
+      },
+      {
+        "bytes": 31406,
+        "path": "artifacts/windows-settings-36894093464-1/ci/storage-refusal/whitespace/tests.xml",
+        "reason": "Expected negative storage-root refusal probe; excluded from ordinary GUT totals.",
+        "sha256": "63988c58e32aad97c373dd1e68479c7c6c0027706ce9fe60f97a7d59b539ef99"
+      }
+    ],
+    "script_executions": 93,
+    "skipped": 0,
+    "suites": [
+      {
+        "bytes": 2505,
+        "cases": 11,
+        "path": "artifacts/public-surfaces-36894093464-1/ci/public_surfaces.xml",
+        "run_attempt": 1,
+        "scripts": 1,
+        "sha256": "6b6cc21b7197c5d97e05c7624caa85110f9d4560eb0b518fbf3e3cf27e5c0176"
+      },
+      {
+        "bytes": 5449,
+        "cases": 22,
+        "path": "artifacts/windows-checkpoint_diagnostics-36894093464-1/ci/checkpoint_diagnostics.xml",
+        "run_attempt": 1,
+        "scripts": 4,
+        "sha256": "3a815307dcab6ee0c96236d2263ec7aaa493e99a719b3e65d21c085d1e6d8b16"
+      },
+      {
+        "bytes": 37791,
+        "cases": 167,
+        "path": "artifacts/windows-dating-36894093464-1/ci/dating.xml",
+        "run_attempt": 1,
+        "scripts": 12,
+        "sha256": "b1cbdaa743f04460ceade0febe38de460fc5c8a96029b8fdb77283c21255dad2"
+      },
+      {
+        "bytes": 43497,
+        "cases": 193,
+        "path": "artifacts/windows-persistence-36894093464-1/ci/persistence.xml",
+        "run_attempt": 1,
+        "scripts": 20,
+        "sha256": "e166d4ba27e343d07c2ee60175da7fbd43aa4bab7ca09c12e6d3e435c315766e"
+      },
+      {
+        "bytes": 75042,
+        "cases": 326,
+        "path": "artifacts/windows-reading_delivery-36894093464-1/ci/reading_delivery.xml",
+        "run_attempt": 1,
+        "scripts": 27,
+        "sha256": "dc6a865bfa9d722a7d5451c37a2c86062917ff0a1c678fdd2397e1d68cbad604"
+      },
+      {
+        "bytes": 76584,
+        "cases": 337,
+        "path": "artifacts/windows-settings-36894093464-1/ci/settings.xml",
+        "run_attempt": 1,
+        "scripts": 29,
+        "sha256": "9f2846eb0edd8ea7db22ffd970d8721470a13328628da5f3642b566801bbf6f3"
+      }
+    ],
+    "unique_cases": 1052,
+    "unique_identity": "testsuite.name + testcase.name",
+    "unique_scripts": 92,
+    "xml_count": 6
+  },
+  "infrastructure_attempts": {
+    "attempts": [
+      {
+        "actual_checkout_shas": [
+          "f3b5e8910e8a7d401d6ac6e7ca4392d58787a920"
+        ],
+        "checkout_verified_from_raw_log": true,
+        "conclusion": "failure",
+        "engine_import_or_journey_executed": false,
+        "gut": {
+          "case_executions": 1056,
+          "errors": 0,
+          "failures": 0,
+          "skipped": 0,
+          "unique_cases": 1052,
+          "unique_scripts": 92,
+          "xml_count": 6
+        },
+        "job_id": 110476606146,
+        "job_name": "Rendered durable Solo reading and fresh-process Load",
+        "log": "logs/110476606146.log",
+        "log_identity": {
+          "bytes": 35207,
+          "sha256": "d658d8d245030995589fb5dcd3de50da0a7b3ab17e1d0a8288b4b725264889b3"
+        },
+        "retry_scope": "Failed-job rerun only on unchanged source/workflow; successful executions remain original attempt1 evidence.",
+        "run_attempt": 1,
+        "run_id": 36894093464,
+        "schema_version": 1,
+        "skipped_steps": [
+          "Start and verify native Linux speech service",
+          "Import project",
+          "Exercise real Solo reading Save and fresh-process Load"
+        ],
+        "successful_windows_jobs": 6,
+        "tested_source": "f3b5e8910e8a7d401d6ac6e7ca4392d58787a920",
+        "timeout_marker": "##[error]The action 'Install Godot and software display' has timed out after 5 minutes.",
+        "workflow_head": "2001aae1530956c0c264e97f5b935ae26f315ab7"
+      }
+    ],
+    "retained_successful_execution_aliases": [
+      {
+        "identity_basis": "Equal name/status/conclusion/start/end times/runner_id/step records in raw filter=all API.",
+        "latest_api_job_id": 110480047719,
+        "name": "Windows / public API surface contracts",
+        "original_execution_attempt": 1,
+        "original_execution_job_id": 110476605365
+      },
+      {
+        "identity_basis": "Equal name/status/conclusion/start/end times/runner_id/step records in raw filter=all API.",
+        "latest_api_job_id": 110480048096,
+        "name": "Windows / persistence",
+        "original_execution_attempt": 1,
+        "original_execution_job_id": 110476605981
+      },
+      {
+        "identity_basis": "Equal name/status/conclusion/start/end times/runner_id/step records in raw filter=all API.",
+        "latest_api_job_id": 110480048292,
+        "name": "Windows / reading_delivery",
+        "original_execution_attempt": 1,
+        "original_execution_job_id": 110476605991
+      },
+      {
+        "identity_basis": "Equal name/status/conclusion/start/end times/runner_id/step records in raw filter=all API.",
+        "latest_api_job_id": 110480048445,
+        "name": "Windows / checkpoint_diagnostics",
+        "original_execution_attempt": 1,
+        "original_execution_job_id": 110476605787
+      },
+      {
+        "identity_basis": "Equal name/status/conclusion/start/end times/runner_id/step records in raw filter=all API.",
+        "latest_api_job_id": 110480095057,
+        "name": "Windows / dating",
+        "original_execution_attempt": 1,
+        "original_execution_job_id": 110476605852
+      },
+      {
+        "identity_basis": "Equal name/status/conclusion/start/end times/runner_id/step records in raw filter=all API.",
+        "latest_api_job_id": 110480109592,
+        "name": "Windows / settings",
+        "original_execution_attempt": 1,
+        "original_execution_job_id": 110476605497
+      }
+    ]
+  },
+  "limits": [
+    "Seven focused gates only; this does not replace the canonical 23-job full gate.",
+    "Focused public inventories were generated before validation; their exact bytes are reviewed for the subsequent candidate, not proof of an unchanged clean candidate inventory gate.",
+    "Six successful Windows jobs retain their original attempt1 execution identities; the journey succeeded on retry2 after attempt1 installer timeout.",
+    "Five-mode journey uses noncanonical English Solo fixtures; production catalogue remains outside this proof.",
+    "Original nine captures and sealed copies are hashes of nine scenes, not eighteen independent scenarios; no additional manual visual inspection is claimed.",
+    "Pause slot is physically retained and checked but not separately fresh-loaded; Quick is fresh-loaded.",
+    "Simulated durable FileOps and finite fixtures do not establish physical-crash, exhaustive-native-input or release readiness."
+  ],
+  "public_inventories": {
+    "game_state_surface.json": {
+      "bytes": 558291,
+      "changed_call_site_rows": 13,
+      "contract_records": 236,
+      "required_and_contract_fields_unchanged": true,
+      "sha256": "e749890db81010d187b7dfdd7b15c5fcea9ee2456f217a9b47e40b2bc49578ff"
+    },
+    "save_manager_surface.json": {
+      "bytes": 145973,
+      "changed_call_site_rows": 5,
+      "contract_records": 74,
+      "required_and_contract_fields_unchanged": true,
+      "sha256": "962ba20b70f789bd3f8dbda9b6512ada81d17fd5665de961af555d5fbd58e9b9"
+    }
+  },
+  "reading": [
+    {
+      "all_process_exits_zero": true,
+      "captures": [
+        {
+          "bytes": 6635,
+          "height": 720,
+          "path": "artifacts/reading-rail-36894093464-2/5829738e-dd5d-453b-8f70-909001be156e/captures/01-title.png",
+          "sha256": "42451a39c8a41a0b39f69b80a46894b1a01a99e250f6d43665d4c8c09414f2b9",
+          "width": 1280
+        },
+        {
+          "bytes": 353674,
+          "height": 720,
+          "path": "artifacts/reading-rail-36894093464-2/5829738e-dd5d-453b-8f70-909001be156e/captures/02-desktop.png",
+          "sha256": "850689e176ed00ac6d57e601cda5453664df7fe62d17bffd5c36bf0cbe2a4349",
+          "width": 1280
+        },
+        {
+          "bytes": 355371,
+          "height": 720,
+          "path": "artifacts/reading-rail-36894093464-2/5829738e-dd5d-453b-8f70-909001be156e/captures/03-minesweeper.png",
+          "sha256": "d0ee3347d1a65afad1c7bd6ad1d4da7589b115db0170ca669e8d1a1dd4a98ad5",
+          "width": 1280
+        },
+        {
+          "bytes": 7815,
+          "height": 720,
+          "path": "artifacts/reading-rail-36894093464-2/5829738e-dd5d-453b-8f70-909001be156e/captures/04-pre-history.png",
+          "sha256": "f8283c61d2186f7c16ada71669f84a604f5a96e028efc9e753475b9999100031",
+          "width": 1280
+        },
+        {
+          "bytes": 676988,
+          "height": 720,
+          "path": "artifacts/reading-rail-36894093464-2/5829738e-dd5d-453b-8f70-909001be156e/captures/05-dating-board.png",
+          "sha256": "788c65ba34eefb32e6f9058d2d245f8b622dbaae78b621de71b8548d36913e85",
+          "width": 1280
+        },
+        {
+          "bytes": 9019,
+          "height": 720,
+          "path": "artifacts/reading-rail-36894093464-2/5829738e-dd5d-453b-8f70-909001be156e/captures/06-post-history.png",
+          "sha256": "02aa35027dc32d55523f24fb3bdd5940904566e37926153c40c457ecde2a7bf6",
+          "width": 1280
+        },
+        {
+          "bytes": 1329134,
+          "height": 720,
+          "path": "artifacts/reading-rail-36894093464-2/5829738e-dd5d-453b-8f70-909001be156e/captures/07-post-save.png",
+          "sha256": "32e51d32609a4bbe0b857b3d45b4262500807dffbb0027a84b7f00cd9447607c",
+          "width": 1280
+        },
+        {
+          "bytes": 9019,
+          "height": 720,
+          "path": "artifacts/reading-rail-36894093464-2/5829738e-dd5d-453b-8f70-909001be156e/captures/08-restored-history.png",
+          "sha256": "02aa35027dc32d55523f24fb3bdd5940904566e37926153c40c457ecde2a7bf6",
+          "width": 1280
+        },
+        {
+          "bytes": 1329134,
+          "height": 720,
+          "path": "artifacts/reading-rail-36894093464-2/5829738e-dd5d-453b-8f70-909001be156e/captures/09-restored-line.png",
+          "sha256": "32e51d32609a4bbe0b857b3d45b4262500807dffbb0027a84b7f00cd9447607c",
+          "width": 1280
+        }
+      ],
+      "exact_witnesses": {
+        "durable_witness_count": 5,
+        "exact_repeat_seen": true,
+        "fresh_process_physical_profile_match": true,
+        "profile": {
+          "bytes": 12205,
+          "sha256": "acd310ed2a956b06570943c6ae6883bffd5aa10903ba5d3c025be4151c22f83e"
+        },
+        "recoverable_write_failures": 1,
+        "same_stable_line_new_revision_unseen": true
+      },
+      "limits": [
+        "Generic audit binds retained bytes, fresh processes and baseline restore receipts; independently review witness semantics and exact trace kinds.",
+        "Pause slot is retained and hashed; generic audit does not claim it was independently fresh-loaded."
+      ],
+      "modes": [
+        "write",
+        "read",
+        "repeat",
+        "variant",
+        "witness-read"
+      ],
+      "pause_slot": {
+        "bytes": 116785,
+        "sha256": "0d63e3cdf100192159d2a2b5be911576f355b06e2df6cb683a8ec290c39cec53"
+      },
+      "process_ids": {
+        "read": 4128,
+        "repeat": 4193,
+        "variant": 4261,
+        "witness-read": 4329,
+        "write": 4051
+      },
+      "quick": {
+        "bytes": 174393,
+        "sha256": "29f949f50a8cb666efc58a6b45c45facf008bde4e6d41165a6e44c8afbcada43"
+      },
+      "report": "artifacts/reading-rail-36894093464-2/result.json",
+      "report_identity": {
+        "bytes": 274238,
+        "sha256": "ffe57cbfcc1653ed55fa38594223e948a823633b2f7dd2eda5d7a82c0c2859d6"
+      },
+      "trace_entries": 28,
+      "trace_identity": {
+        "bytes": 156755,
+        "sha256": "aa0cde27a58b0359d444b833c838e02930c7bec7d6a7df2fa82fc4f26ac9d65f"
+      },
+      "write_read_seal": {
+        "before_mode": "repeat",
+        "file_count": 14,
+        "identity": {
+          "bytes": 2143,
+          "sha256": "9339c23fa0ae95de00086131fedaa7075ffa4bc36cd88b2478d8c70d6d60bd6d"
+        },
+        "sealed_after_mode": "read"
+      }
+    }
+  ],
+  "run_attempt": 2,
+  "run_id": 36894093464,
+  "schema_version": 1,
+  "selected_jobs": [
+    {
+      "checkout_exemption": null,
+      "checkout_shas": [
+        "f3b5e8910e8a7d401d6ac6e7ca4392d58787a920"
+      ],
+      "completed_at": "2026-10-01T16:54:28Z",
+      "conclusion": "success",
+      "execution_attempt": 2,
+      "execution_job_id": 110480045530,
+      "id": 110480045530,
+      "log": "logs/110480045530.log",
+      "log_identity": {
+        "bytes": 489004,
+        "sha256": "0268837dc93d6a2011abb7fc2da656f8ae8f8beb8af124a3a689f1cbff781949"
+      },
+      "name": "Rendered durable Solo reading and fresh-process Load",
+      "run_attempt": 2,
+      "started_at": "2026-10-01T16:51:36Z",
+      "status": "completed"
+    },
+    {
+      "checkout_exemption": null,
+      "checkout_shas": [
+        "f3b5e8910e8a7d401d6ac6e7ca4392d58787a920"
+      ],
+      "completed_at": "2026-10-01T16:48:00Z",
+      "conclusion": "success",
+      "execution_attempt": 1,
+      "execution_job_id": 110476605365,
+      "id": 110480047719,
+      "log": "logs/110476605365.log",
+      "log_identity": {
+        "bytes": 791883,
+        "sha256": "651559949ee96b0b5cc44aee64391170ec8edf28c6a0bf7ecad39691f7c1b021"
+      },
+      "name": "Windows / public API surface contracts",
+      "run_attempt": 2,
+      "started_at": "2026-10-01T16:43:14Z",
+      "status": "completed"
+    },
+    {
+      "checkout_exemption": null,
+      "checkout_shas": [
+        "f3b5e8910e8a7d401d6ac6e7ca4392d58787a920"
+      ],
+      "completed_at": "2026-10-01T16:45:04Z",
+      "conclusion": "success",
+      "execution_attempt": 1,
+      "execution_job_id": 110476605981,
+      "id": 110480048096,
+      "log": "logs/110476605981.log",
+      "log_identity": {
+        "bytes": 448323,
+        "sha256": "1307d85ea061f7e7e93b642a92aab26a9117006a9989d9933ff696b3d9db276d"
+      },
+      "name": "Windows / persistence",
+      "run_attempt": 2,
+      "started_at": "2026-10-01T16:43:14Z",
+      "status": "completed"
+    },
+    {
+      "checkout_exemption": null,
+      "checkout_shas": [
+        "f3b5e8910e8a7d401d6ac6e7ca4392d58787a920"
+      ],
+      "completed_at": "2026-10-01T16:46:48Z",
+      "conclusion": "success",
+      "execution_attempt": 1,
+      "execution_job_id": 110476605991,
+      "id": 110480048292,
+      "log": "logs/110476605991.log",
+      "log_identity": {
+        "bytes": 448697,
+        "sha256": "d664e701942aa1cbdf15ca218d3d5ff5f20c7889096c849c88dde9d4f270737e"
+      },
+      "name": "Windows / reading_delivery",
+      "run_attempt": 2,
+      "started_at": "2026-10-01T16:43:16Z",
+      "status": "completed"
+    },
+    {
+      "checkout_exemption": null,
+      "checkout_shas": [
+        "f3b5e8910e8a7d401d6ac6e7ca4392d58787a920"
+      ],
+      "completed_at": "2026-10-01T16:44:57Z",
+      "conclusion": "success",
+      "execution_attempt": 1,
+      "execution_job_id": 110476605787,
+      "id": 110480048445,
+      "log": "logs/110476605787.log",
+      "log_identity": {
+        "bytes": 445462,
+        "sha256": "a4f7895a4506ad34b1443f1f43ac87e912a81526e82cb64e3428b12468fef2e6"
+      },
+      "name": "Windows / checkpoint_diagnostics",
+      "run_attempt": 2,
+      "started_at": "2026-10-01T16:43:15Z",
+      "status": "completed"
+    },
+    {
+      "checkout_exemption": null,
+      "checkout_shas": [
+        "f3b5e8910e8a7d401d6ac6e7ca4392d58787a920"
+      ],
+      "completed_at": "2026-10-01T16:45:45Z",
+      "conclusion": "success",
+      "execution_attempt": 1,
+      "execution_job_id": 110476605852,
+      "id": 110480095057,
+      "log": "logs/110476605852.log",
+      "log_identity": {
+        "bytes": 445999,
+        "sha256": "49e75a80b9b6f8c5256f07417a991f9616ed471901cd73c2c6aba26c39902df5"
+      },
+      "name": "Windows / dating",
+      "run_attempt": 2,
+      "started_at": "2026-10-01T16:43:14Z",
+      "status": "completed"
+    },
+    {
+      "checkout_exemption": null,
+      "checkout_shas": [
+        "f3b5e8910e8a7d401d6ac6e7ca4392d58787a920"
+      ],
+      "completed_at": "2026-10-01T16:49:17Z",
+      "conclusion": "success",
+      "execution_attempt": 1,
+      "execution_job_id": 110476605497,
+      "id": 110480109592,
+      "log": "logs/110476605497.log",
+      "log_identity": {
+        "bytes": 450213,
+        "sha256": "4aef58502f44c6cdcfa6ff445594559689968c2dbdf469c932e9206b88a3140b"
+      },
+      "name": "Windows / settings",
+      "run_attempt": 2,
+      "started_at": "2026-10-01T16:43:15Z",
+      "status": "completed"
+    }
+  ],
+  "settings_storage": {
+    "ordinary_gut_passed": 337,
+    "refusals": [
+      {
+        "before_after_bytes_identical": true,
+        "case": "empty",
+        "expected_refusals": 80,
+        "inventory_entries": 12000,
+        "inventory_identity": {
+          "bytes": 1603487,
+          "sha256": "b7e63f541f430df07f11e66c318dc3b2d99bc8534df9abb4022e68ea85fd382c"
+        },
+        "storage_free_passes": 3
+      },
+      {
+        "before_after_bytes_identical": true,
+        "case": "whitespace",
+        "expected_refusals": 80,
+        "inventory_entries": 12000,
+        "inventory_identity": {
+          "bytes": 1603487,
+          "sha256": "b7e63f541f430df07f11e66c318dc3b2d99bc8534df9abb4022e68ea85fd382c"
+        },
+        "storage_free_passes": 3
+      }
+    ],
+    "simulated_fileops_equivalence": {
+      "assertions": 61180,
+      "distinct_snapshots": 94,
+      "failures": [],
+      "refusal_pairs": 30,
+      "restart_fault_pairs": 1604,
+      "restart_pairs": 2218,
+      "write_fault_pairs": 154,
+      "write_pairs": 14
+    }
+  },
+  "tested_source": "f3b5e8910e8a7d401d6ac6e7ca4392d58787a920",
+  "workflow_head": "2001aae1530956c0c264e97f5b935ae26f315ab7"
+}

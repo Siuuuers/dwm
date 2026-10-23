@@ -1,0 +1,8 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+FAIL: focus callback cannot revive a touch retired by hide/reopen
+FAIL: fresh tap follows synchronous focus callback cancellation
+CONTACTS_TOUCH_PROBE_FAILED checks=46 failures=2 opens=16

@@ -1,0 +1,20 @@
+{
+  "autoload/DialogicBridge.gd": "ca238c3e899e012c2575dde96a093d38da279cde549aa92d8c1f6036c48d69d1",
+  "evidence/phase_2r/handoff/desktop_contract.json": "d72f8d81f016476f5924317104bb26dd8af1fc9ed56086295e1a29ac4d77c178",
+  "evidence/phase_2r/handoff/minesweeper_contract.json": "43e2aad2f8681fdeb75404a465ce2c2e63526f11961aeb665fe9b65b94a993ec",
+  "evidence/phase_2r/runtime/game_state_surface.json": "700aef88cd0488a71f37b7ca97112edcc45b014997c0e271a24dda8c405772aa",
+  "evidence/phase_2r/runtime/save_manager_surface.json": "0ec726adaec1503d4b1a08c78c0e83efb98f53e225652de7b900c87f862710e6",
+  "localization/ui/en.json": "3f78cd9ca526e0183da53a49545f44d95edde6797bd1f02944b454aee54fa01a",
+  "localization/ui/zh_CN.json": "b501b8e7f8995f7e78f596ca8fb2c9e75440a949854a87be329cbebfd6889165",
+  "localization/ui/zh_HK.json": "27fbec3e7212b21d8ca7eefd1007558ce5889c374c5c358ded8a7802b2a2ae43",
+  "scenes/menu/GalleryScene.tscn": "b686eac8bc02d9cf12792b097c7e4615414255dbf5eb54f95d15743de6c7d820",
+  "scripts/application/ending/GalleryReplayOwner.gd": "e6f15cda23c415ab718c041301c148cd27e94c1bd6ea8d768fd9072fdcf1c793",
+  "scripts/ui/GalleryScene.gd": "c27929f911a8164fff69aac25c9c5a90a94c63e5606c28a2f147861eaf37638c",
+  "scripts/ui/gallery/GalleryCanvas.gd": "2d80e79ddc3c1fc445e715a3c3fb4635388fa19280028b807ab130b2b3bc784f",
+  "scripts/ui/gallery/GalleryReplayButton.gd": "aabec3cb327827c5ca53e058ace44ae2571fc1049762fbd8ff1142d87dffc984",
+  "scripts/ui/gallery/GalleryTheme.gd": "95c984a5da5766841c802bf131b9e319233febe11388f6093b434fede8389208",
+  "tests/integration/test_gallery_art_placements.gd": "6d8c1a6b1a9de122045d5d206bad784385ad01878d0288081f336d12ae144e8c",
+  "tests/integration/test_gallery_replay_status.gd": "a3d5be259eeeb44706829c1db35f32b48eac3cc87fea53054ecd5a40a7cc8118",
+  "tests/manual/verify_gallery_retry_native.gd": "d90890449431485921ffd8d9623efca926b2e7e576b421d88d6b7c804e7f269b",
+  "tests/unit/test_gallery_start_failure_phase.gd": "3ef7edf02d1537794a9eb8d98a2c7aeae7ada2c3d1f034fc0f102ecf7bdfdc83"
+}

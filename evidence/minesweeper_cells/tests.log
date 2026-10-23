@@ -1,0 +1,158 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2570)
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-ui-build/.godot/phase2r_tests/7a6e123d-810a-4c4b-86eb-4b9feead6b45/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+res://tests/unit/test_minesweeper_board_catalog.gd
+* test_closed_catalog_has_exact_current_host_dimensions
+* test_catalog_rejects_unknowns_and_fixed_host_difficulty_choices
+* test_catalog_results_are_detached
+* test_production_port_builds_schema_valid_specs_from_the_catalog
+4/4 passed.
+
+
+res://tests/unit/test_minesweeper_board_presentation_query.gd
+* test_unpaid_shell_uses_catalog_without_estimated_or_generated_mines
+* test_retained_dimensions_and_top_level_revision_are_literal
+* test_changing_hidden_mines_without_changing_public_facts_cannot_change_projection
+* test_estimate_is_signed_and_chord_depends_only_on_public_flags
+* test_blank_is_inspectable_without_a_press_state
+* test_preparation_publishes_only_the_bracket_locus_after_certification
+* test_suspended_custody_preserves_content_and_removes_all_contact
+* test_terminal_classification_is_public_before_durable_inspection_is_available
+* test_all_projected_cells_are_accepted_by_the_inert_renderer
+* test_projection_is_detached_and_has_no_private_metadata
+* test_corrupt_deep_owner_data_refuses_without_echoing_private_diagnostics
+11/11 passed.
+
+
+res://tests/unit/test_minesweeper_cell.gd
+* test_fixed_geometry_and_inert_grid_owned_input
+* test_exact_public_shape_and_contradictions_refuse_atomically
+* test_closed_visible_alphabet_accepts_lawful_forms
+* test_contact_gates_and_press_supersedes_hover
+* test_palette_roles_and_invalid_configuration_are_atomic
+* test_accessibility_exposes_only_current_public_mark_and_number
+* test_provisional_glyph_geometry_uses_whole_native_pixels_inside_aperture
+7/7 passed.
+
+
+res://tests/unit/test_minesweeper_worksheet_layout.gd
+* test_accepted_baseline_mounts_origins_and_conditional_axes
+* test_scroll_clamps_before_thumb_derivation_and_corner_is_separate
+* test_focus_correction_reveals_full_cell_without_fractional_motion
+* test_invalid_geometry_never_creates_a_partial_layout
+4/4 passed.
+
+
+res://tests/unit/test_minesweeper_grid.gd
+* test_strict_projection_builds_contiguous_exact_mount
+* test_invalid_projection_is_atomic_and_rejects_private_keys
+* test_roving_focus_moves_without_wrap_and_bracketed_repairs_first
+* test_modes_and_explicit_actions_never_infer_illegal_commands
+* test_paired_pointer_release_and_keyboard_emit_once_with_revision
+* test_pointer_focuses_read_only_cell_and_button_pair_must_match
+* test_accessibility_exposes_one_based_coordinate_and_visible_fact_only
+    2 Orphans
+        * [@Control@64:<Control#210772167133>(MinesweeperCell.gd)]
+        * [@Control@65:<Control#210822498793>(MinesweeperCell.gd)]
+* test_keyboard_f_toggles_mode_and_space_requests_new_board_without_cell_action
+* test_cross_cell_rules_reject_terminal_or_custody_contacts_atomically
+* test_joy_axis_navigation_is_edge_latched_until_neutral
+* test_confirm_is_shared_latched_and_blocks_pointer_and_space_until_release
+* test_custody_cancels_contact_and_removes_grid_focus
+    2 Orphans
+        * [@Control@85:<Control#213724957137>(MinesweeperCell.gd)]
+        * [@Control@86:<Control#213775288792>(MinesweeperCell.gd)]
+4 orphans
+12/12 passed.
+
+
+res://tests/unit/test_minesweeper_presentation_port.gd
+* test_pull_exposes_only_public_projection_and_pre_reveal_has_no_flag_action
+* test_valid_first_reveal_and_active_flag_use_real_coordinator_and_issuer
+* test_real_grid_routes_keyboard_and_pointer_actions_through_port_and_coordinator
+* test_unconfigured_invalid_and_stale_actions_allocate_nothing
+* test_same_revision_with_changed_full_identity_is_stale_before_allocation
+* test_replaying_an_old_public_revision_does_not_allocate_twice
+* test_live_entry_eligibility_is_rechecked_before_allocation
+* test_prepared_round_refuses_a_stale_caller_difficulty
+* test_owner_refusal_is_sanitized_and_refreshes_the_public_projection
+9/9 passed.
+
+
+res://tests/integration/test_minesweeper_first_reveal_transaction.gd
+* test_first_reveal_writes_a_durable_pre_board_autosave_with_the_charged_and_revealed_state
+* test_first_reveal_charges_exactly_once_across_a_retried_request
+* test_adapter_rejects_a_desktop_less_post_commit_snapshot_input
+* test_adapter_rejects_a_board_only_desktop_value
+* test_adapter_rejects_an_extra_desktop_key
+* test_restore_after_a_crash_between_checkpoint_commit_and_live_adoption_recovers_the_paid_first_reveal
+* test_first_reveal_falls_back_to_the_fake_checkpoint_when_durable_is_not_configured
+7/7 passed.
+
+
+res://tests/integration/test_desktop_completion_transaction.gd
+* test_complete_round_transacts_exactly_once_against_real_ports
+* test_complete_round_departure_commits_board_fate_against_real_ports
+* test_a_source_already_holding_the_gate_blocks_the_other_source_until_it_releases
+3/3 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/unit/test_minesweeper_board_catalog.gd
+    - Outside Tests
+        * [<Node#97089750753>(subsystem_animation.gd)]
+        * [<Node#97106527970>(subsystem_audio.gd)]
+        * [<Node#97123305187>]
+        * [<Node#97140082404>]
+        * [<Node#97156859621>(subsystem_backgrounds.gd)]
+        * [<Node#97693730534>(subsystem_choices.gd)]
+        * [<Timer#97710507751>]
+        * [<Node#97727284968>(subsystem_expression.gd)]
+        * [<Node#97760839405>(subsystem_glossary.gd)]
+        * [<Node#97777616622>(subsystem_history.gd)]
+        * [<Node#97794393839>(subsystem_input.gd)]
+        * [<Timer#97811171056>]
+        * [<Node#97827948273>(subsystem_jump.gd)]
+        * [<Node#97844725490>(subsystem_containers.gd)]
+        * [<Node#97861502707>(subsystem_portraits.gd)]
+        * [<Node#98398373620>(subsystem_save.gd)]
+        * [<Timer#98415150837>]
+        * [<Node#98431928054>(subsystem_settings.gd)]
+        * [<Node#98448705274>(subsystem_styles.gd)]
+        * [<Node#98465482491>(subsystem_text.gd)]
+        * [<Node#98549368576>(subsystem_text_input.gd)]
+        * [<Node#98566145793>(subsystem_variables.gd)]
+        * [<Node#98582923010>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#98599700227>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+Totals
+------
+Scripts               8
+Tests                57
+Passing Tests        57
+Asserts            2460
+Orphans              24
+Time              6.282s
+
+
+---- All tests passed! ----

@@ -1,0 +1,243 @@
+{
+  "captures": 18,
+  "checks": 207,
+  "failures": [],
+  "fixture": "Real injected desktop and draft owners, ordinary-action fixture names, isolated issuer, no player data or Done owner.",
+  "ok": true,
+  "samples": [
+    {
+      "draft_unchanged": true,
+      "font_size": 20,
+      "large_targets": false,
+      "locale": "en",
+      "native_size": [
+        400,
+        360
+      ],
+      "path": "renders/en-100-ordinary.png",
+      "percent": 100,
+      "selected_id": "transaction_id.c47a90e13a6b71cee54b400bee53ed7aaa26ea629178839b2e181954471ac7e9"
+    },
+    {
+      "draft_unchanged": true,
+      "font_size": 20,
+      "large_targets": true,
+      "locale": "en",
+      "native_size": [
+        400,
+        360
+      ],
+      "path": "renders/en-100-large.png",
+      "percent": 100,
+      "selected_id": "transaction_id.c47a90e13a6b71cee54b400bee53ed7aaa26ea629178839b2e181954471ac7e9"
+    },
+    {
+      "draft_unchanged": true,
+      "font_size": 25,
+      "large_targets": false,
+      "locale": "en",
+      "native_size": [
+        400,
+        360
+      ],
+      "path": "renders/en-125-ordinary.png",
+      "percent": 125,
+      "selected_id": "transaction_id.c47a90e13a6b71cee54b400bee53ed7aaa26ea629178839b2e181954471ac7e9"
+    },
+    {
+      "draft_unchanged": true,
+      "font_size": 25,
+      "large_targets": true,
+      "locale": "en",
+      "native_size": [
+        400,
+        360
+      ],
+      "path": "renders/en-125-large.png",
+      "percent": 125,
+      "selected_id": "transaction_id.c47a90e13a6b71cee54b400bee53ed7aaa26ea629178839b2e181954471ac7e9"
+    },
+    {
+      "draft_unchanged": true,
+      "font_size": 30,
+      "large_targets": false,
+      "locale": "en",
+      "native_size": [
+        400,
+        360
+      ],
+      "path": "renders/en-150-ordinary.png",
+      "percent": 150,
+      "selected_id": "transaction_id.c47a90e13a6b71cee54b400bee53ed7aaa26ea629178839b2e181954471ac7e9"
+    },
+    {
+      "draft_unchanged": true,
+      "font_size": 30,
+      "large_targets": true,
+      "locale": "en",
+      "native_size": [
+        400,
+        360
+      ],
+      "path": "renders/en-150-large.png",
+      "percent": 150,
+      "selected_id": "transaction_id.c47a90e13a6b71cee54b400bee53ed7aaa26ea629178839b2e181954471ac7e9"
+    },
+    {
+      "draft_unchanged": true,
+      "font_size": 20,
+      "large_targets": false,
+      "locale": "zh_CN",
+      "native_size": [
+        400,
+        360
+      ],
+      "path": "renders/zh_CN-100-ordinary.png",
+      "percent": 100,
+      "selected_id": "transaction_id.c47a90e13a6b71cee54b400bee53ed7aaa26ea629178839b2e181954471ac7e9"
+    },
+    {
+      "draft_unchanged": true,
+      "font_size": 20,
+      "large_targets": true,
+      "locale": "zh_CN",
+      "native_size": [
+        400,
+        360
+      ],
+      "path": "renders/zh_CN-100-large.png",
+      "percent": 100,
+      "selected_id": "transaction_id.c47a90e13a6b71cee54b400bee53ed7aaa26ea629178839b2e181954471ac7e9"
+    },
+    {
+      "draft_unchanged": true,
+      "font_size": 25,
+      "large_targets": false,
+      "locale": "zh_CN",
+      "native_size": [
+        400,
+        360
+      ],
+      "path": "renders/zh_CN-125-ordinary.png",
+      "percent": 125,
+      "selected_id": "transaction_id.c47a90e13a6b71cee54b400bee53ed7aaa26ea629178839b2e181954471ac7e9"
+    },
+    {
+      "draft_unchanged": true,
+      "font_size": 25,
+      "large_targets": true,
+      "locale": "zh_CN",
+      "native_size": [
+        400,
+        360
+      ],
+      "path": "renders/zh_CN-125-large.png",
+      "percent": 125,
+      "selected_id": "transaction_id.c47a90e13a6b71cee54b400bee53ed7aaa26ea629178839b2e181954471ac7e9"
+    },
+    {
+      "draft_unchanged": true,
+      "font_size": 30,
+      "large_targets": false,
+      "locale": "zh_CN",
+      "native_size": [
+        400,
+        360
+      ],
+      "path": "renders/zh_CN-150-ordinary.png",
+      "percent": 150,
+      "selected_id": "transaction_id.c47a90e13a6b71cee54b400bee53ed7aaa26ea629178839b2e181954471ac7e9"
+    },
+    {
+      "draft_unchanged": true,
+      "font_size": 30,
+      "large_targets": true,
+      "locale": "zh_CN",
+      "native_size": [
+        400,
+        360
+      ],
+      "path": "renders/zh_CN-150-large.png",
+      "percent": 150,
+      "selected_id": "transaction_id.c47a90e13a6b71cee54b400bee53ed7aaa26ea629178839b2e181954471ac7e9"
+    },
+    {
+      "draft_unchanged": true,
+      "font_size": 20,
+      "large_targets": false,
+      "locale": "zh_HK",
+      "native_size": [
+        400,
+        360
+      ],
+      "path": "renders/zh_HK-100-ordinary.png",
+      "percent": 100,
+      "selected_id": "transaction_id.c47a90e13a6b71cee54b400bee53ed7aaa26ea629178839b2e181954471ac7e9"
+    },
+    {
+      "draft_unchanged": true,
+      "font_size": 20,
+      "large_targets": true,
+      "locale": "zh_HK",
+      "native_size": [
+        400,
+        360
+      ],
+      "path": "renders/zh_HK-100-large.png",
+      "percent": 100,
+      "selected_id": "transaction_id.c47a90e13a6b71cee54b400bee53ed7aaa26ea629178839b2e181954471ac7e9"
+    },
+    {
+      "draft_unchanged": true,
+      "font_size": 25,
+      "large_targets": false,
+      "locale": "zh_HK",
+      "native_size": [
+        400,
+        360
+      ],
+      "path": "renders/zh_HK-125-ordinary.png",
+      "percent": 125,
+      "selected_id": "transaction_id.c47a90e13a6b71cee54b400bee53ed7aaa26ea629178839b2e181954471ac7e9"
+    },
+    {
+      "draft_unchanged": true,
+      "font_size": 25,
+      "large_targets": true,
+      "locale": "zh_HK",
+      "native_size": [
+        400,
+        360
+      ],
+      "path": "renders/zh_HK-125-large.png",
+      "percent": 125,
+      "selected_id": "transaction_id.c47a90e13a6b71cee54b400bee53ed7aaa26ea629178839b2e181954471ac7e9"
+    },
+    {
+      "draft_unchanged": true,
+      "font_size": 30,
+      "large_targets": false,
+      "locale": "zh_HK",
+      "native_size": [
+        400,
+        360
+      ],
+      "path": "renders/zh_HK-150-ordinary.png",
+      "percent": 150,
+      "selected_id": "transaction_id.c47a90e13a6b71cee54b400bee53ed7aaa26ea629178839b2e181954471ac7e9"
+    },
+    {
+      "draft_unchanged": true,
+      "font_size": 30,
+      "large_targets": true,
+      "locale": "zh_HK",
+      "native_size": [
+        400,
+        360
+      ],
+      "path": "renders/zh_HK-150-large.png",
+      "percent": 150,
+      "selected_id": "transaction_id.c47a90e13a6b71cee54b400bee53ed7aaa26ea629178839b2e181954471ac7e9"
+    }
+  ]
+}

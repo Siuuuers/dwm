@@ -1,0 +1,77 @@
+{
+  "repository": "Siuuuers/dwm",
+  "branch": "codex/windows-cloud-ux",
+  "pr": 1,
+  "parent": "2ea449e5fc77df0c9f3d4ae0fbe9c2fb89253363",
+  "tree": "15b4d084ba7d15a22143e97f90836a9e2ef0f7d8",
+  "commit": "8adbc832cc5098f0ba3f8a0ae470d4cffca27a37",
+  "blobs": [
+    {
+      "path": ".github/workflows/windows-tests.yml",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "cc06eab097db1bbc4b36edd0314886e8718cd933"
+    },
+    {
+      "path": "docs/agent/2026-09-21-session-handoff.md",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "7700563163e3f77e43bbbdd9f948fcd286eec339"
+    },
+    {
+      "path": "evidence/beads_cloud_review/performance/retained-history-run52.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "f3eb9e9cd45221ae25b703fd3aa244b268548df7"
+    },
+    {
+      "path": "evidence/beads_cloud_review/performance/run52-admission-invariants.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "1522717f54fa88e1bca914342f1342041aaed102"
+    },
+    {
+      "path": "evidence/beads_cloud_review/performance/run52-phase-summaries.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "689e9489184e8c89ab9cf313caf0ebccca29a524"
+    },
+    {
+      "path": "evidence/beads_cloud_review/resumed-public-cloud-run52.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "959364805b788db775abd5f59a4c7184fae60c3b"
+    },
+    {
+      "path": "tests/integration/test_dating_quick_commands.gd",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "3f100d9a30748840108f12fddbf1398242c98687"
+    },
+    {
+      "path": "tests/integration/test_desktop_bootstrap_wiring.gd",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "dc3518c43acebc7eae54906aad92a8cf0a715d4c"
+    },
+    {
+      "path": "tests/integration/verify_playable_startup.gd",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "a4ad64c30dfc7fc9a16e0bc894b151edc2b86060"
+    },
+    {
+      "path": "tests/unit/test_active_dating_backup_capture.gd",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "2edf9ed27b413939253eddacac1f36e3846d37a4"
+    },
+    {
+      "path": "tools/testing/Invoke-CloudTests.ps1",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "4381f84fcf87638e49befec81e8e46fd3f7bc7f9"
+    }
+  ],
+  "scope": "Public repository source/tree/commit evidence only; account and permission metadata excluded."
+}

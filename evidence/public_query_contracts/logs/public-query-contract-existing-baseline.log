@@ -1,0 +1,251 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/eb95ac04-1da0-4893-9d61-4db38f9baf4b/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+res://tests/unit/test_game_state.gd
+* test_reset_game_initial_values
+* test_run_serializer_excludes_permanent_profile_keys
+* test_reset_game_does_not_change_profile
+* test_change_stat_clamps
+* test_display_conversions
+* test_money_overdraft_rules
+* test_coin_spending_blocks_when_insufficient
+* test_advance_day_resets_and_ends
+* test_round_floor_defaults
+* test_two_app_rounds_without_supportz
+* test_one_supportz_gives_three_rounds
+* test_three_supportz_caps_floor
+* test_danger_penalty_and_reset
+* test_hospital_recovery
+* test_save_dict_is_json_safe
+* test_apply_save_dict_preserves_state
+* test_save_whitelist_includes_rng_seed
+* test_rng_seed_round_trips_through_save
+* test_check_immediate_faint_requires_sequela_and_danger
+    [Failed]:  danger without sequela does not faint
+      at line 222
+    [Failed]
+      at line 223
+* test_check_immediate_faint_sequela_and_low_health
+    [Failed]:  sequela + health<=0 faints
+      at line 232
+* test_check_immediate_faint_sequela_no_danger
+* test_should_route_sylvia_special_ending_thresholds
+    [Failed]:  >=2 skips enables Special Sylvia
+      at line 249
+* test_hospital_recovery_counts_sylvia_solo
+    [Failed]:  [0] expected to equal [1]:  one skipped Sylvia solo counted
+      at line 324
+* test_resolve_day7_sylvia_special_highest_precedence
+    [Failed]:  ["ending.alone"] expected to equal ["ending.sylvia.special"]:  Special Sylvia wins over priscilla_lavinia
+      at line 334
+    [Failed]:  [""] expected to equal ["ending.priscilla_lavinia"]:  priscilla_lavinia plays as epilogue
+      at line 335
+    [Failed]:  ["ending.alone"] expected to equal ["ending.sylvia.special"]:
+      at line 336
+    [Failed]:  [""] expected to equal ["ending.priscilla_lavinia"]:
+      at line 337
+* test_resolve_day7_priscilla_lavinia_primary_no_epilogue
+    [Failed]:  ["ending.alone"] expected to equal ["ending.priscilla_lavinia"]:
+      at line 346
+* test_resolve_day7_candidate_binary_tone_sweet
+    [Failed]:  ["ending.alone"] expected to equal ["ending.priscilla.sweet"]:  no dark points resolves Sweet
+      at line 358
+* test_resolve_day7_not_day7_returns_epilogue_key
+* test_contacts_bag_resets_to_stateless_defaults
+* test_identity_issuer_configuration_is_exact_and_replacement_fails
+* test_contact_commit_signals_emit_once_only_on_first_success
+* test_contact_proof_and_tampered_replay_failures_preserve_contacts_schedule_and_signals
+* test_group_reply_tampered_replay_preserves_contacts_schedule_and_signal_count
+* test_get_contact_view_delegates_to_module
+* test_contacts_survive_capture_and_rollback
+* test_contacts_restored_from_run_snapshot
+* test_new_run_snapshot_input_carries_contacts_defaults
+* test_reply_invitation_command_applies_and_is_idempotent
+* test_reply_invitation_rejects_empty_command_id
+* test_resolve_invitations_for_day_command_resolves_and_is_idempotent
+* test_resolve_invitations_for_day_rejects_empty_command_id
+* test_legacy_solo_open_choose_unlocks_date_on_invitation_day
+* test_legacy_choose_on_non_invitation_day_does_not_unlock
+* test_legacy_minesweeper_round_unlocks_contact_message
+* test_group_addable_only_after_reply_canon
+* test_migration_bridge_backfills_module_on_legacy_solo_flow
+* test_g1_minesweeper_round_generates_module_solo_offer
+* test_g2_round3_activates_module_group_on_group_day
+* test_g3_contact_open_assigns_group_inviter_via_module
+* test_g4_group_reply_routes_to_module_with_gate
+* test_open_contact_command_is_idempotent
+* test_open_contact_rejects_empty_command_id
+* test_request_next_ending_command_plays_primary_first
+    [Failed]:  ["ending.alone"] expected to equal ["ending.priscilla.sweet"]:
+      at line 668
+* test_request_next_ending_command_rejects_outside_ending
+* test_complete_ending_playback_stage_advances_the_primary
+* test_complete_ending_playback_stage_rejects_a_transaction_mismatch
+* test_complete_ending_playback_stage_rejects_outside_ending
+* test_record_gallery_unlocks_the_primary_and_reaches_gallery_recorded
+    [Failed]:  the primary ending is unlocked in the gallery
+      at line 732
+* test_full_no_epilogue_ending_flow_completes_the_run_to_menu
+* test_full_with_epilogue_ending_flow_records_both_endings
+    [Failed]:  ["ending.alone"] expected to equal ["ending.sylvia.special"]:
+      at line 768
+    [Failed]:  [""] expected to equal ["ending.priscilla_lavinia"]:
+      at line 769
+    [Failed]:  primary unlocked
+      at line 776
+    [Failed]:  epilogue unlocked
+      at line 777
+* test_ending_playback_resumes_after_a_state_round_trip
+* test_gallery_record_recovers_forward_after_a_partial_profile_failure
+    [Failed]:  [""] expected to equal ["ending.priscilla_lavinia"]:
+      at line 819
+    [Failed]:  ["ending_completion_custody_required"] expected to equal ["profile_ahead_profile_batch_failed"]:  surfaces the partial-batch failure
+      at line 833
+    [Failed]:  the retry records the epilogue and advances
+      at line 839
+    [Failed]:  ["EPILOGUE_PLAYED"] expected to equal ["GALLERY_RECORDED"]:
+      at line 840
+    [Failed]:  epilogue now recorded
+      at line 842
+* test_game_state_no_longer_owns_a_duplicate_schedule_effect_table
+51/62 passed.
+
+
+res://tests/unit/test_game_state_facade_contract.gd
+* test_configure_mutation_gate_matrix_without_side_effects
+* test_day_is_read_only_compatibility
+* test_prepare_new_run_snapshot_input_is_pure
+* test_request_schedule_done_delegates_through_production_port
+* test_schedule_commit_seams_are_narrow_reversible_and_silent
+* test_day7_terminal_via_facade_never_creates_day8
+* test_capture_schedule_warning_state_is_narrow_read_only_and_exact
+* test_capture_schedule_warning_state_facts_are_day_scoped_and_detached
+8/8 passed.
+
+
+res://tests/unit/test_seven_day_calendar.gd
+* test_all_twelve_solo_windows_and_round_orders_match_each_live_facade
+* test_all_six_ordinary_messages_keep_three_choices_and_day7_has_none
+* test_group_windows_are_exact_and_do_not_create_a_third_solo
+* test_day7_ending_delivery_remains_separate_from_ordinary_and_dating_windows
+* test_sylvia_achieved_third_round_offer_uses_tier_without_granting_a_round
+* test_calendar_results_are_detached_and_default_facades_use_the_active_day
+* test_invalid_calendar_queries_never_fabricate_an_invitation_or_ordinary_choice
+7/7 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/unit/test_game_state.gd
+    - Outside Tests
+        * [<Node#131617261336>(subsystem_animation.gd)]
+        * [<Node#131634038564>(subsystem_audio.gd)]
+        * [<Node#131650815796>]
+        * [<Node#131667593021>]
+        * [<Node#131684370243>(subsystem_backgrounds.gd)]
+        * [<Node#132221241156>(subsystem_choices.gd)]
+        * [<Timer#132238018373>]
+        * [<Node#132254795590>(subsystem_expression.gd)]
+        * [<Node#132288350027>(subsystem_glossary.gd)]
+        * [<Node#132305127244>(subsystem_history.gd)]
+        * [<Node#132321904461>(subsystem_input.gd)]
+        * [<Timer#132338681678>]
+        * [<Node#132355458895>(subsystem_jump.gd)]
+        * [<Node#132372236112>(subsystem_containers.gd)]
+        * [<Node#132389013329>(subsystem_portraits.gd)]
+        * [<Node#132925884242>(subsystem_save.gd)]
+        * [<Timer#132942661459>]
+        * [<Node#132959438676>(subsystem_settings.gd)]
+        * [<Node#132976215896>(subsystem_styles.gd)]
+        * [<Node#132992993113>(subsystem_text.gd)]
+        * [<Node#133076879198>(subsystem_text_input.gd)]
+        * [<Node#133093656415>(subsystem_variables.gd)]
+        * [<Node#133110433632>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#133127210849>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+res://tests/unit/test_game_state.gd
+- test_check_immediate_faint_requires_sequela_and_danger
+    [Failed]:  danger without sequela does not faint
+          at line 222
+    [Failed]:
+          at line 223
+- test_check_immediate_faint_sequela_and_low_health
+    [Failed]:  sequela + health<=0 faints
+          at line 232
+- test_should_route_sylvia_special_ending_thresholds
+    [Failed]:  >=2 skips enables Special Sylvia
+          at line 249
+- test_hospital_recovery_counts_sylvia_solo
+    [Failed]:  [0] expected to equal [1]:  one skipped Sylvia solo counted
+          at line 324
+- test_resolve_day7_sylvia_special_highest_precedence
+    [Failed]:  ["ending.alone"] expected to equal ["ending.sylvia.special"]:  Special Sylvia wins over priscilla_lavinia
+          at line 334
+    [Failed]:  [""] expected to equal ["ending.priscilla_lavinia"]:  priscilla_lavinia plays as epilogue
+          at line 335
+    [Failed]:  ["ending.alone"] expected to equal ["ending.sylvia.special"]:
+          at line 336
+    [Failed]:  [""] expected to equal ["ending.priscilla_lavinia"]:
+          at line 337
+- test_resolve_day7_priscilla_lavinia_primary_no_epilogue
+    [Failed]:  ["ending.alone"] expected to equal ["ending.priscilla_lavinia"]:
+          at line 346
+- test_resolve_day7_candidate_binary_tone_sweet
+    [Failed]:  ["ending.alone"] expected to equal ["ending.priscilla.sweet"]:  no dark points resolves Sweet
+          at line 358
+- test_request_next_ending_command_plays_primary_first
+    [Failed]:  ["ending.alone"] expected to equal ["ending.priscilla.sweet"]:
+          at line 668
+- test_record_gallery_unlocks_the_primary_and_reaches_gallery_recorded
+    [Failed]:  the primary ending is unlocked in the gallery
+          at line 732
+- test_full_with_epilogue_ending_flow_records_both_endings
+    [Failed]:  ["ending.alone"] expected to equal ["ending.sylvia.special"]:
+          at line 768
+    [Failed]:  [""] expected to equal ["ending.priscilla_lavinia"]:
+          at line 769
+    [Failed]:  primary unlocked
+          at line 776
+    [Failed]:  epilogue unlocked
+          at line 777
+- test_gallery_record_recovers_forward_after_a_partial_profile_failure
+    [Failed]:  [""] expected to equal ["ending.priscilla_lavinia"]:
+          at line 819
+    [Failed]:  ["ending_completion_custody_required"] expected to equal ["profile_ahead_profile_batch_failed"]:  surfaces the partial-batch failure
+          at line 833
+    [Failed]:  the retry records the epilogue and advances
+          at line 839
+    [Failed]:  ["EPILOGUE_PLAYED"] expected to equal ["GALLERY_RECORDED"]:
+          at line 840
+    [Failed]:  epilogue now recorded
+          at line 842
+
+Totals
+------
+Scripts               3
+Tests                77
+Passing Tests        66
+Failing Tests        11
+Asserts           727/749
+Orphans              24
+Time              0.751s
+
+
+---- 11 failing tests ----

@@ -1,0 +1,11 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+OpenGL API 3.3.0 - Build 31.0.101.4146 - Compatibility - Using Device: Intel - Intel(R) Iris(R) Xe Graphics
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+PLAYABLE_RENDER_CAPTURE: C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/e2e9e05a-f154-46a2-9586-bd80b9221700/appdata/Godot/app_userdata/DWM/evidence/playable/01-title.png
+PLAYABLE_RENDER_CAPTURE: C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/e2e9e05a-f154-46a2-9586-bd80b9221700/appdata/Godot/app_userdata/DWM/evidence/playable/02-desktop.png
+PLAYABLE_RENDER_CAPTURE: C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/e2e9e05a-f154-46a2-9586-bd80b9221700/appdata/Godot/app_userdata/DWM/evidence/playable/03-minesweeper.png
+PLAYABLE_STARTUP_PASS: actual startup -> New Account -> visible desktop -> Minesweeper -> first Reveal
+PLAYABLE_STARTUP_FAIL: round result: {"ok":true}

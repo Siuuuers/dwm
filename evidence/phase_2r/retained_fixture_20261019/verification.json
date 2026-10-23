@@ -1,0 +1,264 @@
+{
+  "archive_sha256": "343130eef1fcf87e3026e4e41c2b866f2275b80092dfd0312a3e646d3fcaa78d",
+  "archive_bytes": 64069,
+  "source": "3b98a73f1ee271bbc6e733c7665ad0a3e8e75db7",
+  "tree": "507c82e9315abe1732c29ba2b83fe5deae4f5036",
+  "members": [
+    {
+      "path": "ci/fixture-origin.json",
+      "bytes": 250,
+      "sha256": "3abe6235310cfb40e1169a2f29531085719b5be1818b17027113ede591d7ee72"
+    },
+    {
+      "path": "ci/fixture-source-manifest.json",
+      "bytes": 1048,
+      "sha256": "1408e7b8ca3f5d45610fd9a08c9c5e0ca2aaf89d498a2e6746c139bf981e602c"
+    },
+    {
+      "path": "ci/fixture-source/tests/support/RetainedFrozenContextFixture.gd",
+      "bytes": 2659,
+      "sha256": "6f78e1096eb8650f78a1381b5ac9a8ea26e6d3739051066318a27907418a69ae"
+    },
+    {
+      "path": "ci/fixture-source/tests/unit/test_frozen_run_context.gd",
+      "bytes": 30118,
+      "sha256": "6b598b4fb447ef4f914684cbad7088eb10c5a4f889a7e55abd5deab5210e52d4"
+    },
+    {
+      "path": "ci/fixture-source/tests/unit/test_retained_frozen_context_fixture.gd",
+      "bytes": 5645,
+      "sha256": "aaf4a1a3ca2652346d7b717d86823e857bf01daa264a18625fbbda25d38770d6"
+    },
+    {
+      "path": "ci/fixture-source/tests/unit/test_run_snapshot_schema.gd",
+      "bytes": 38555,
+      "sha256": "c9a52b465e6fb7aea33bba716d8a80d8c1ae95c685206e8e9659cd4d9673bdf7"
+    },
+    {
+      "path": "ci/fixture-source/tools/testing/Invoke-IsolatedGodot.ps1",
+      "bytes": 19919,
+      "sha256": "1fe67f2db677fb869ee82126834a83d519b77888328a690ec55bbb3fbda7fa5f"
+    },
+    {
+      "path": "ci/import.log",
+      "bytes": 222347,
+      "sha256": "afdb756a5bdb33620a21a6afa75ad0a091f2f4bcd6cef9b4147e7dd59d8ab75c"
+    },
+    {
+      "path": "ci/retained-fixture-1.jsonl",
+      "bytes": 832,
+      "sha256": "9016a6bef02f60af874bbe67f4ea1d817edcce22093bbf4a5cda1eac5c2181ab"
+    },
+    {
+      "path": "ci/retained-fixture-1.xml",
+      "bytes": 444,
+      "sha256": "56aa70bba7fcee43285e0321436edc2f40719008fbe80c20fec034f549b8303b"
+    },
+    {
+      "path": "ci/retained-fixture-2.jsonl",
+      "bytes": 837,
+      "sha256": "5c868910d33faea882e3350fa9a9f46e0e4daf7706038940b3cb9ee3c19d81e5"
+    },
+    {
+      "path": "ci/retained-fixture-2.xml",
+      "bytes": 449,
+      "sha256": "c4b5fddabb456164bfed566fc35bcd8394958d5064ec106537409ef8668084e4"
+    },
+    {
+      "path": "ci/retained-fixture-3.jsonl",
+      "bytes": 824,
+      "sha256": "e85a698c0134d1219fa2fc02a0e81f2be50669f6d6f3b29afc56b729bc1f9366"
+    },
+    {
+      "path": "ci/retained-fixture-3.xml",
+      "bytes": 436,
+      "sha256": "cabafc01920fae5fdf08dd966c1996d7bf3e8ac5d26c07c8ccea856ec614dec7"
+    },
+    {
+      "path": "ci/retained-fixture-4.jsonl",
+      "bytes": 834,
+      "sha256": "ff0c69e6a239455d0cbdc7f3986a6fb972ff5e75921f0abb6a81a2bc96d6c061"
+    },
+    {
+      "path": "ci/retained-fixture-4.xml",
+      "bytes": 446,
+      "sha256": "b10c339e9a0c2a9af282895c5baab76d3a1217be08e446069dbb2317aea19532"
+    },
+    {
+      "path": "ci/retained-fixture-5.jsonl",
+      "bytes": 849,
+      "sha256": "bc5b235b7674a6e9f95bc611b5ca09ebec1091564df06791a608bd1ded7bf18a"
+    },
+    {
+      "path": "ci/retained-fixture-5.xml",
+      "bytes": 461,
+      "sha256": "787563e5d8083966cdcb1614e924f87e876de6fdd0774e37d6cb9d211e64ce01"
+    },
+    {
+      "path": "ci/retained-fixture-6.jsonl",
+      "bytes": 848,
+      "sha256": "8eb70349bb1ac11af2de772ae2ccc01f7ec6f2b681a0e3de40c68ac4845acb11"
+    },
+    {
+      "path": "ci/retained-fixture-6.xml",
+      "bytes": 461,
+      "sha256": "0227464123894d63071c6a946b648973147d2cdfc6600fdd350ebd71c12309e5"
+    },
+    {
+      "path": "ci/retained-fixture-7.jsonl",
+      "bytes": 839,
+      "sha256": "513c00fae07941227fdb9069f3428b83c49cc2fa0001507943bb9313ff39317f"
+    },
+    {
+      "path": "ci/retained-fixture-7.xml",
+      "bytes": 452,
+      "sha256": "f02c449fb1c2af7a2e46b6d6b3989ad8ad4404a719c73534a840b2f349ce30bc"
+    },
+    {
+      "path": "ci/retained-fixture-8.jsonl",
+      "bytes": 751,
+      "sha256": "09e0d7788045e6e84c7c51cbd8da9701117b730fc08251e6f6da282c0a73f23b"
+    },
+    {
+      "path": "ci/retained-fixture-8.xml",
+      "bytes": 1305,
+      "sha256": "9071caf8938d5d08393dd32ed0e46d5ef3210fddef0cb763a8adaef110539f4d"
+    },
+    {
+      "path": "phase2r_logs/retained-fixture-1.log",
+      "bytes": 2058,
+      "sha256": "6c99c37f7be068da8eec98df18bfcd0df48e24e52942bdd48697bc9a67159375"
+    },
+    {
+      "path": "phase2r_logs/retained-fixture-2.log",
+      "bytes": 3720,
+      "sha256": "51b5194151d2a794c6595246217267f50857a2e35c9fb7be1c2c5634cf9db0b7"
+    },
+    {
+      "path": "phase2r_logs/retained-fixture-3.log",
+      "bytes": 3235,
+      "sha256": "b10fb5a3b6a036fc88a8dd0002e9f2ec8f5797314de36402039c53297368a122"
+    },
+    {
+      "path": "phase2r_logs/retained-fixture-4.log",
+      "bytes": 1704,
+      "sha256": "f9ddeb07347a42babdc464fea02b44251e28ea2b97e68165592376d32551ab6d"
+    },
+    {
+      "path": "phase2r_logs/retained-fixture-5.log",
+      "bytes": 2263,
+      "sha256": "81b03a3f204ca513f021a0cdb99d6c17014875c8db06d6036750a566d0b62350"
+    },
+    {
+      "path": "phase2r_logs/retained-fixture-6.log",
+      "bytes": 3379,
+      "sha256": "64bf45f0029b355bf66466334b459f30e6c4b9c792a03f23e669f4105ca6cc4c"
+    },
+    {
+      "path": "phase2r_logs/retained-fixture-7.log",
+      "bytes": 3856,
+      "sha256": "b5c5cde59faa0be642b8e9b1429297b6cbc31d4e35f934d138b183c704193881"
+    },
+    {
+      "path": "phase2r_logs/retained-fixture-8.log",
+      "bytes": 183181,
+      "sha256": "69eae2324c8e0a8c92f6f462469597fbfc87cea9d261aa5f2955fee18107fe8a"
+    }
+  ],
+  "cases": [
+    {
+      "name": "test_v6_does_not_backfill_absent_cache_and_v7_refuses_generated_dating_gap",
+      "assertions": 6
+    },
+    {
+      "name": "test_saved_dating_binds_run_board_and_effect_but_keeps_original_branch_and_tier",
+      "assertions": 8
+    },
+    {
+      "name": "test_present_dating_cache_is_exact_and_requires_its_reached_phases",
+      "assertions": 6
+    },
+    {
+      "name": "test_semantic_checkpoint_cannot_disagree_with_its_saved_canonical_projection",
+      "assertions": 6
+    },
+    {
+      "name": "test_strict_prepared_condition_candidate_requires_its_generated_dating_cache_without_repair",
+      "assertions": 7
+    },
+    {
+      "name": "test_strict_semantic_checkpoint_requires_both_discriminators_and_preserves_generic_restart",
+      "assertions": 11
+    },
+    {
+      "name": "test_v8_requires_generated_contact_context_before_preparing_a_detached_candidate",
+      "assertions": 7
+    },
+    {
+      "name": "test_empty_cache_identity_restored_before_lazy_current_scene_load",
+      "assertions": 10
+    },
+    {
+      "name": "test_populated_cache_identity_and_contents_restored",
+      "assertions": 15
+    },
+    {
+      "name": "test_failed_setup_and_reinstall_leave_cache_owner_unchanged",
+      "assertions": 54
+    },
+    {
+      "name": "test_dating_early_return_uses_real_suite_teardown",
+      "assertions": 14
+    },
+    {
+      "name": "test_both_historical_suites_restore_before_current_scene_in_same_process",
+      "assertions": 33
+    }
+  ],
+  "isolated_exits": [
+    {
+      "suite": "retained-fixture-1",
+      "exit_code": 0,
+      "test_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\09604b7d-92ee-4ab3-8625-44a32f8abbd8"
+    },
+    {
+      "suite": "retained-fixture-2",
+      "exit_code": 0,
+      "test_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\91a80bf9-39b2-4667-9d38-b5af2c5c9511"
+    },
+    {
+      "suite": "retained-fixture-3",
+      "exit_code": 0,
+      "test_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\a2ffd50e-899f-4b23-8d91-df6654a0ff07"
+    },
+    {
+      "suite": "retained-fixture-4",
+      "exit_code": 0,
+      "test_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\e598110f-4290-4f33-8a31-b72e57cd1d96"
+    },
+    {
+      "suite": "retained-fixture-5",
+      "exit_code": 0,
+      "test_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\1d07688e-678c-43ae-9bc6-344fcd6c7b94"
+    },
+    {
+      "suite": "retained-fixture-6",
+      "exit_code": 0,
+      "test_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\f253f1b2-a3bc-4bdd-8be1-1bf5f273f3d7"
+    },
+    {
+      "suite": "retained-fixture-7",
+      "exit_code": 0,
+      "test_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\8f32d105-c413-4afb-9927-69c2bda4a68a"
+    },
+    {
+      "suite": "retained-fixture-8",
+      "exit_code": 0,
+      "test_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\4d4c1152-1deb-4c89-9c45-e6ed36d240fd"
+    }
+  ],
+  "ok": true,
+  "tests": 12,
+  "assertions": 177,
+  "scope": "Selected retained-fixture and same-process cache-isolation tests only; no whole-suite/gameplay acceptance"
+}

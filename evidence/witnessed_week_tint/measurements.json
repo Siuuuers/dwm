@@ -1,0 +1,120 @@
+{
+	"captures": 6,
+	"checks": 105,
+	"failures": [],
+	"pixel_tolerance": "Day 1 and High Contrast flat roles, focus, solid glyph interiors and art are exact RGB8; only computed week-tint flat roles allow one RGB8 channel level.",
+	"renderer": "native OpenGL3 1280x720; inherited isolated root mount and restore",
+	"samples": [
+		{
+			"colour_preset": "standard",
+			"day": 1,
+			"file": "after-hours-day1.png",
+			"focus": true,
+			"glyph_interior_pixels": 744,
+			"high_contrast": false,
+			"palette": "AfterHours",
+			"retained": [
+				"Earlier synthetic caption.",
+				"Previous synthetic caption."
+			],
+			"role_points": {
+				"current": "(28, 608)",
+				"deep": "(2, 680)",
+				"field": "(2, 456)",
+				"rule": "(2, 448)"
+			},
+			"scroll": 0.0
+		},
+		{
+			"colour_preset": "standard",
+			"day": 7,
+			"file": "after-hours-day7.png",
+			"focus": true,
+			"glyph_interior_pixels": 744,
+			"high_contrast": false,
+			"palette": "AfterHours",
+			"retained": [
+				"Earlier synthetic caption.",
+				"Previous synthetic caption."
+			],
+			"role_points": {
+				"current": "(28, 608)",
+				"deep": "(2, 680)",
+				"field": "(2, 456)",
+				"rule": "(2, 448)"
+			},
+			"scroll": 0.0
+		},
+		{
+			"colour_preset": "standard",
+			"day": 7,
+			"file": "midnight-day7.png",
+			"focus": true,
+			"glyph_interior_pixels": 744,
+			"high_contrast": false,
+			"palette": "Midnight",
+			"retained": [
+				"Earlier synthetic caption.",
+				"Previous synthetic caption."
+			],
+			"role_points": {
+				"current": "(28, 608)",
+				"deep": "(2, 680)",
+				"field": "(2, 456)",
+				"rule": "(2, 448)"
+			},
+			"scroll": 0.0
+		},
+		{
+			"colour_preset": "standard",
+			"day": 7,
+			"file": "high-contrast-day7.png",
+			"focus": true,
+			"glyph_interior_pixels": 744,
+			"high_contrast": true,
+			"palette": "AfterHours",
+			"retained": [
+				"Earlier synthetic caption.",
+				"Previous synthetic caption."
+			],
+			"role_points": {
+				"current": "(28, 608)",
+				"deep": "(2, 680)",
+				"field": "(2, 456)",
+				"rule": "(2, 448)"
+			},
+			"scroll": 0.0
+		},
+		{
+			"colour_preset": "protan",
+			"day": 7,
+			"file": "protan-day7-scrolled.png",
+			"focus": true,
+			"glyph_interior_pixels": 6584,
+			"high_contrast": false,
+			"palette": "AfterHours",
+			"retained": [
+				"Earlier synthetic caption.",
+				"Previous synthetic caption."
+			],
+			"role_points": {
+				"current": "(28, 480)",
+				"deep": "(2, 680)",
+				"field": "(2, 456)",
+				"rule": "(2, 448)"
+			},
+			"scroll": 100.0
+		},
+		{
+			"art_pixel_unchanged": true,
+			"day": 7,
+			"file": "art-only-midnight-day7.png",
+			"palette": "Midnight",
+			"paused_custody_unchanged": true,
+			"synthetic_art": "e34db1",
+			"texture_identity_unchanged": true,
+			"token_unchanged": true
+		}
+	],
+	"scope": "Five synthetic three-leaf native Dialogic captions and one art-only hold; no authored story or assistive-technology acceptance"
+}

@@ -1,0 +1,105 @@
+{
+  "total_count": 1,
+  "jobs": [
+    {
+      "id": 110972229818,
+      "run_id": 37047435988,
+      "workflow_name": "Hospital original export artifact transport",
+      "head_branch": "codex/hospital-export-evidence-20261003",
+      "run_url": "https://api.github.com/repos/Siuuuers/dwm/actions/runs/37047435988",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOTaMFrc8AAAAZ1nXYug",
+      "head_sha": "35da7aad3d95253fa0530cdb664f1ef8773d78e9",
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/jobs/110972229818",
+      "html_url": "https://github.com/Siuuuers/dwm/actions/runs/37047435988/job/110972229818",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-10-02T18:26:26Z",
+      "started_at": "2026-10-02T18:26:28Z",
+      "completed_at": "2026-10-02T18:26:51Z",
+      "name": "Transport verified original Windows export evidence",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-10-02T18:26:29Z",
+          "completed_at": "2026-10-02T18:26:30Z"
+        },
+        {
+          "name": "Download original artifact ZIP with read-only workflow token",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-10-02T18:26:30Z",
+          "completed_at": "2026-10-02T18:26:37Z"
+        },
+        {
+          "name": "Verify original identity and CRC, split raw bytes, and verify reassembly",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-10-02T18:26:37Z",
+          "completed_at": "2026-10-02T18:26:38Z"
+        },
+        {
+          "name": "Upload original ZIP raw chunk 001",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-10-02T18:26:38Z",
+          "completed_at": "2026-10-02T18:26:40Z"
+        },
+        {
+          "name": "Upload original ZIP raw chunk 002",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-10-02T18:26:40Z",
+          "completed_at": "2026-10-02T18:26:42Z"
+        },
+        {
+          "name": "Upload original ZIP raw chunk 003",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-10-02T18:26:42Z",
+          "completed_at": "2026-10-02T18:26:46Z"
+        },
+        {
+          "name": "Upload original ZIP raw chunk 004",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7,
+          "started_at": "2026-10-02T18:26:46Z",
+          "completed_at": "2026-10-02T18:26:48Z"
+        },
+        {
+          "name": "Upload verified original and chunk identity manifest",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8,
+          "started_at": "2026-10-02T18:26:48Z",
+          "completed_at": "2026-10-02T18:26:49Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9,
+          "started_at": "2026-10-02T18:26:49Z",
+          "completed_at": "2026-10-02T18:26:49Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/Siuuuers/dwm/check-runs/110972229818",
+      "labels": [
+        "ubuntu-24.04"
+      ],
+      "runner_id": 1000001401,
+      "runner_name": "GitHub Actions 1000001401",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    }
+  ]
+}

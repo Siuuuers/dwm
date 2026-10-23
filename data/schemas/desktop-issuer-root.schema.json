@@ -1,0 +1,22 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"title": "desktop-issuer-root",
+	"type": "object",
+	"additionalProperties": false,
+	"required": [
+		"schema_version",
+		"namespace",
+		"next_counter",
+		"receipts",
+		"allocation_receipts",
+		"day_advance_allocation_receipts"
+	],
+	"properties": {
+		"schema_version": {"const": 1},
+		"namespace": {"type": "string", "minLength": 64},
+		"next_counter": {"type": "integer"},
+		"receipts": {"type": "object"},
+		"allocation_receipts": {"type": "object"},
+		"day_advance_allocation_receipts": {"type": "object"}
+	}
+}

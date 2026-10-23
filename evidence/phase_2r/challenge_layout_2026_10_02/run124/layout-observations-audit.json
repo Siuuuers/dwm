@@ -1,0 +1,336 @@
+{
+  "schema_version": 1,
+  "audit_pass": true,
+  "audit_scope": "Bounded existing English Solo board-entry geometry and corrected historical image interpretation",
+  "run": {
+    "conclusion": "success",
+    "event": "push",
+    "head_branch": "codex/cold-layout-cloud-20261002",
+    "head_sha": "8b1f4c02b8e222f582279bca20cc53577a3d4717",
+    "html_url": "https://github.com/Siuuuers/dwm/actions/runs/36958737203",
+    "id": 36958737203,
+    "run_attempt": 1,
+    "run_number": 124,
+    "status": "completed"
+  },
+  "source_boundary": {
+    "all_unlisted_paths_byte_identical": true,
+    "checkout_parents": [
+      "bd90107537f5a3ac089ac097c55368b6f33430c8"
+    ],
+    "explicit_allowed_difference_patterns": [],
+    "master": null,
+    "source": "965e262a2c74a25e1fea756635788ba23a755eca",
+    "source_checkout_differences": [],
+    "tested_checkout": "965e262a2c74a25e1fea756635788ba23a755eca"
+  },
+  "generic_audit_identity": {
+    "bytes": 68608,
+    "sha256": "7559ffb3af0417342305d9c16af99000ab30f57ab84683d78eac87d23efd0211"
+  },
+  "stage_counts": {
+    "original_reading_modes": 8,
+    "distinct_processes": 8,
+    "all_process_exits_zero": true,
+    "gut_case_executions": 0
+  },
+  "current_archive": {
+    "artifact_id": 11207436317,
+    "name": "reading-rail-36958737203-1",
+    "workflow_run": {
+      "id": 36958737203,
+      "repository_id": 1302529453,
+      "head_repository_id": 1302529453,
+      "head_branch": "codex/cold-layout-cloud-20261002",
+      "head_sha": "8b1f4c02b8e222f582279bca20cc53577a3d4717"
+    },
+    "zip": {
+      "bytes": 11046580,
+      "sha256": "07d91af33ed2a4d3526c994ad6bbc617f6f25e1bb993d3b27aeb801b58851117"
+    },
+    "manifest_digest_verified": true
+  },
+  "historical_archive": {
+    "artifact_id": 11203881876,
+    "name": "reading-rail-36950541601-1",
+    "workflow_run": {
+      "id": 36950541601,
+      "repository_id": 1302529453,
+      "head_repository_id": 1302529453,
+      "head_branch": "codex/windows-cloud-ux",
+      "head_sha": "cfb7616bfd498979bef520e1522cbbb712298aea"
+    },
+    "zip": {
+      "bytes": 11009231,
+      "sha256": "ec89202d8422302b7670a8dfa90a901f1013d402666a3208cd88a884e3783b0f"
+    },
+    "manifest_digest_verified": true
+  },
+  "layout_modes": [
+    {
+      "mode": "next",
+      "process_id": 4354,
+      "streams": {
+        "process": {
+          "total_samples": 134,
+          "visible_samples": 120,
+          "phase_counts": {
+            "pre_challenge": 14,
+            "challenge": 120
+          },
+          "all_visible_titles_enclosed": true,
+          "visible_focus_empty": true,
+          "visible_scroll_zero": true,
+          "title_rects": [
+            [
+              492.0,
+              12.0,
+              776.0,
+              36.0
+            ]
+          ],
+          "challenge_bands": [
+            [
+              384.0,
+              209.0
+            ]
+          ],
+          "first_visible": {
+            "sequence": 105,
+            "process_frame": 138,
+            "drawn_frame": 138
+          },
+          "last_visible": {
+            "sequence": 343,
+            "process_frame": 257,
+            "drawn_frame": 257
+          }
+        },
+        "post_draw": {
+          "total_samples": 134,
+          "visible_samples": 120,
+          "phase_counts": {
+            "pre_challenge": 14,
+            "challenge": 120
+          },
+          "all_visible_titles_enclosed": true,
+          "visible_focus_empty": true,
+          "visible_scroll_zero": true,
+          "title_rects": [
+            [
+              492.0,
+              12.0,
+              776.0,
+              36.0
+            ]
+          ],
+          "challenge_bands": [
+            [
+              384.0,
+              209.0
+            ]
+          ],
+          "first_visible": {
+            "sequence": 104,
+            "process_frame": 137,
+            "drawn_frame": 137
+          },
+          "last_visible": {
+            "sequence": 342,
+            "process_frame": 256,
+            "drawn_frame": 256
+          }
+        }
+      },
+      "visible_focus_or_scroll_events": 0,
+      "event_count": 74,
+      "raw_report": {
+        "zip_member": "ce0b13de-9c3f-495a-9524-207b9a7332bf/layout-next.json",
+        "bytes": 1485421,
+        "sha256": "c3c383dd14e925592218b8e30d6a79510009c25bb59935022afacc9184596bfb"
+      }
+    },
+    {
+      "mode": "next-read",
+      "process_id": 4422,
+      "streams": {
+        "process": {
+          "total_samples": 121,
+          "visible_samples": 120,
+          "phase_counts": {
+            "unmounted": 1,
+            "challenge": 120
+          },
+          "all_visible_titles_enclosed": true,
+          "visible_focus_empty": true,
+          "visible_scroll_zero": true,
+          "title_rects": [
+            [
+              492.0,
+              12.0,
+              776.0,
+              36.0
+            ]
+          ],
+          "challenge_bands": [
+            [
+              388.0,
+              209.0
+            ]
+          ],
+          "first_visible": {
+            "sequence": 85,
+            "process_frame": 13,
+            "drawn_frame": 13
+          },
+          "last_visible": {
+            "sequence": 323,
+            "process_frame": 132,
+            "drawn_frame": 132
+          }
+        },
+        "post_draw": {
+          "total_samples": 121,
+          "visible_samples": 120,
+          "phase_counts": {
+            "unmounted": 1,
+            "challenge": 120
+          },
+          "all_visible_titles_enclosed": true,
+          "visible_focus_empty": true,
+          "visible_scroll_zero": true,
+          "title_rects": [
+            [
+              492.0,
+              12.0,
+              776.0,
+              36.0
+            ]
+          ],
+          "challenge_bands": [
+            [
+              388.0,
+              209.0
+            ]
+          ],
+          "first_visible": {
+            "sequence": 84,
+            "process_frame": 12,
+            "drawn_frame": 12
+          },
+          "last_visible": {
+            "sequence": 322,
+            "process_frame": 131,
+            "drawn_frame": 131
+          }
+        }
+      },
+      "visible_focus_or_scroll_events": 0,
+      "event_count": 80,
+      "raw_report": {
+        "zip_member": "ce0b13de-9c3f-495a-9524-207b9a7332bf/layout-next-read.json",
+        "bytes": 1330143,
+        "sha256": "46396ea47d9e6ca0aa8e2362f0c07f0e883c4de36601e859fe52cf3ffd55cb72"
+      }
+    }
+  ],
+  "historical_image_comparisons": [
+    {
+      "name": "02-next-board.png",
+      "current_member": "ce0b13de-9c3f-495a-9524-207b9a7332bf/next/captures/02-next-board.png",
+      "historical_member": "cf218e76-237a-470b-8b44-835521d2c2c7/next/captures/02-next-board.png",
+      "raw_member_bytes_identical": true,
+      "current": {
+        "bytes": 673448,
+        "sha256": "5c836f06869380aa2cd0674ae0c0c03483d8f21ee5ff3db50a9e131629829552",
+        "dimensions": [
+          1280,
+          720
+        ],
+        "title_ink_sample_roi": [
+          710,
+          0,
+          390,
+          58
+        ],
+        "title_ink_y_bounds": [
+          21,
+          44
+        ]
+      },
+      "historical": {
+        "bytes": 673448,
+        "sha256": "5c836f06869380aa2cd0674ae0c0c03483d8f21ee5ff3db50a9e131629829552",
+        "dimensions": [
+          1280,
+          720
+        ],
+        "title_ink_sample_roi": [
+          710,
+          0,
+          390,
+          58
+        ],
+        "title_ink_y_bounds": [
+          21,
+          44
+        ]
+      }
+    },
+    {
+      "name": "03-next-restored-board.png",
+      "current_member": "ce0b13de-9c3f-495a-9524-207b9a7332bf/next/captures/03-next-restored-board.png",
+      "historical_member": "cf218e76-237a-470b-8b44-835521d2c2c7/next/captures/03-next-restored-board.png",
+      "raw_member_bytes_identical": true,
+      "current": {
+        "bytes": 673430,
+        "sha256": "aed01f2418e238d0695ca0b9997d5528122c8c1f8af22dd1956f9e67ed2ac1b7",
+        "dimensions": [
+          1280,
+          720
+        ],
+        "title_ink_sample_roi": [
+          710,
+          0,
+          390,
+          58
+        ],
+        "title_ink_y_bounds": [
+          21,
+          44
+        ]
+      },
+      "historical": {
+        "bytes": 673430,
+        "sha256": "aed01f2418e238d0695ca0b9997d5528122c8c1f8af22dd1956f9e67ed2ac1b7",
+        "dimensions": [
+          1280,
+          720
+        ],
+        "title_ink_sample_roi": [
+          710,
+          0,
+          390,
+          58
+        ],
+        "title_ink_y_bounds": [
+          21,
+          44
+        ]
+      }
+    }
+  ],
+  "historical_visual_correction": {
+    "finding": "The retained Run122 raw warm/cold PNGs contain the complete title and exactly match this run's corresponding PNGs.",
+    "prior_claim": "Cold board-null Load title clipping was reported from visual inspection.",
+    "disposition": "Corrected historical visual interpretation; no production layout defect or fix is established.",
+    "runtime_fix_claimed": false
+  },
+  "limitations": [
+    "Only the existing fixed English Solo board-entry fixture and current settings are observed.",
+    "Geometry containment plus raw PNG inspection does not establish every locale, text preset, resize, native Windows or accessibility case.",
+    "Warm and cold worksheet bands may differ; this audit does not require equal bands or pixel identity between warm and cold.",
+    "Upstream lazy minimum-size behavior and an initial eager probe do not establish a production cause or observer effect.",
+    "This audit does not close the reading parent, establish whole-game visual polish, or replace the separately bound broad gate."
+  ]
+}

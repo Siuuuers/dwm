@@ -1,0 +1,834 @@
+{
+  "accepted_f5_auditor_identity": {
+    "bytes": 34153,
+    "sha256": "3086cc010cc0c42551d6813755f6de299b79b607c1761158cba3404560693c1b"
+  },
+  "artifact_identity": {
+    "attempt": 1,
+    "id": 11214724712,
+    "name": "reading-rail-36980559297-1",
+    "verified_members": 133,
+    "workflow_head": "41cc51992b74ec9472f7912e0eb8e1c39679af44",
+    "zip_identity": {
+      "bytes": 11548459,
+      "sha256": "1e6dbff623e891e83ccc25647aa052717ff0880e126dcef6d4a9ef66b72ab750"
+    }
+  },
+  "audit_complete": true,
+  "auditor_identity": {
+    "bytes": 36830,
+    "sha256": "efbb297dc1ece082d3c637add08f60dd57db392f5070f004be0eb038414b269a"
+  },
+  "checkout": "705ea660b4d6ee9f3376ae4660a3d50e65fe5502",
+  "corrected_assertion": "Confirmed restore preserves primary Quick/Autosave/Profile bytes while executing the existing issuer-root and continuation recovery protocol; the prior zero-all-mutations assumption was incorrect.",
+  "job": {
+    "checkout_shas": [
+      "705ea660b4d6ee9f3376ae4660a3d50e65fe5502"
+    ],
+    "github_job": "rendered-journeys",
+    "job_id": 110755020157,
+    "log": "logs/110755020157.log",
+    "log_identity": {
+      "bytes": 498886,
+      "sha256": "65524ee61e471b2ebb9a24132cd74b960f675df0f95af945df610e41b8ad7155"
+    },
+    "name": "Rendered seven-day, ending, Gallery and Dating journeys"
+  },
+  "limitations": [
+    "Bounded noncanonical English catalogue-v1 Solo pre-challenge fixture: saved A, physically advanced partly revealed B, Cancel exact B, Confirm exact saved A.",
+    "Initial, paused-source and final Quick/Autosave/Profile primary files remain byte-neutral with no mutation attempts. Confirmed Load performs exactly sixteen existing internal recovery transactions; this is not zero filesystem writes.",
+    "Four raw recovery endpoints bind one appended completed restore and issuer allocation, preserving earlier records. All 224 FileOps receipts and 64 reconstructed marker hashes match the source-derived atomic sequence; intermediate journal payloads themselves are not retained or semantically decoded.",
+    "These bounded source-bound receipts do not establish arbitrary-filesystem or actual OS-crash behavior.",
+    "Original eight-mode catalogue-v1 and F5 pair are independently preserved; physical catalogue-v2 proof remains a separately required component.",
+    "The rendered F9 journey does not itself establish every blocked-owner input scenario; those need the registered cloud tests and actual XML discovery.",
+    "Linux software rendering does not establish native Windows all-input/accessibility, pixel-identical scrollback, production replay or final visual polish.",
+    "This component cannot replace the canonical broad gate or close unfinished Beads."
+  ],
+  "load_process_file_identities": {
+    "settings-load.log": {
+      "bytes": 21047,
+      "sha256": "b007a711324c1c525dfed5b70af74575f2df4209c3a478d2a505c81829f992b1"
+    },
+    "settings-load.process.json": {
+      "bytes": 1208,
+      "sha256": "ce1d06c7120b9f55804f798da24e8773263ed3776fb3b4706153a3ee45c6f1d3"
+    },
+    "settings-load.stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "settings-load.stdout.txt": {
+      "bytes": 21241,
+      "sha256": "0eca0035c5d96fc1b465dbd387ef97d492921e9fe72bb1c867670619d140c2d2"
+    }
+  },
+  "load_process_id": 4901,
+  "physical_input_protocol": {
+    "bytes": 738,
+    "distinct_contact_generations": [
+      1,
+      2
+    ],
+    "file": "artifacts/reading-rail-36980559297-1/e69399b6-5a5a-4dc2-9e15-8c98f9fc3415/settings-load/settings-load-input.json",
+    "frames": [
+      25,
+      26,
+      27,
+      28
+    ],
+    "fresh_released_accept_then_admitted_physical_back": true,
+    "packet_count": 4,
+    "sha256": "d4a0a16b9e86dd294df18b7c675367409f310cd00357f19485b52a74e5c8f4d4"
+  },
+  "predecessor_auditor_identity": {
+    "bytes": 22169,
+    "path": "audit_settings_load_journey.py",
+    "sha256": "9ed27f51a1936eabf03112ddb8adf101f10e89475e865197059071521e75251f"
+  },
+  "preserved_f5_and_original_audit": {
+    "artifact_identity": {
+      "attempt": 1,
+      "id": 11214724712,
+      "name": "reading-rail-36980559297-1",
+      "verified_members": 133,
+      "workflow_head": "41cc51992b74ec9472f7912e0eb8e1c39679af44",
+      "zip_identity": {
+        "bytes": 11548459,
+        "sha256": "1e6dbff623e891e83ccc25647aa052717ff0880e126dcef6d4a9ef66b72ab750"
+      }
+    },
+    "audit_complete": true,
+    "checkout": "705ea660b4d6ee9f3376ae4660a3d50e65fe5502",
+    "generic_audit_binding": {
+      "bytes": 510958,
+      "file": "audit/generic-evidence-audit.json",
+      "sha256": "a59bdd4251bd6ec08f313548646f7d8bbd3da4fe4aebbce0c2b155b1079e171f"
+    },
+    "isolation": {
+      "disjoint_profiles_verified": true,
+      "original": "/home/runner/work/dwm/dwm/.godot/phase2r_tests/baba2e49-818f-41b4-8459-54bebadf49b7",
+      "settings": "/home/runner/work/dwm/dwm/.godot/phase2r_tests/42d5968b-cf85-467a-835d-b9b653e29212",
+      "settings_user_dir": "/home/runner/work/dwm/dwm/.godot/phase2r_tests/42d5968b-cf85-467a-835d-b9b653e29212/data/godot/app_userdata/DWM"
+    },
+    "job": {
+      "checkout_shas": [
+        "705ea660b4d6ee9f3376ae4660a3d50e65fe5502"
+      ],
+      "github_job": "rendered-journeys",
+      "job_id": 110755020157,
+      "log": "logs/110755020157.log",
+      "log_identity": {
+        "bytes": 498886,
+        "sha256": "65524ee61e471b2ebb9a24132cd74b960f675df0f95af945df610e41b8ad7155"
+      },
+      "name": "Rendered seven-day, ending, Gallery and Dating journeys"
+    },
+    "metadata_identities": {
+      "artifact-manifest.json": {
+        "bytes": 18978,
+        "sha256": "d4209f8f9fd1e45b7e781f22bc334723ea73ce103b1d4857ff03f40c609c101e"
+      },
+      "artifacts-api.json": {
+        "bytes": 29539,
+        "sha256": "9d2c8d205765d960ed2782b76059f0a5d45b8910b25637d84d9ef49a8412f96f"
+      },
+      "jobs.json": {
+        "bytes": 95023,
+        "sha256": "1ae28c78b857f495afde3c32178743bb2bd795e7b7d423e6ce73f8a706e691ff"
+      },
+      "run.json": {
+        "bytes": 13423,
+        "sha256": "95b677943fca1cf6aba9b3d33493c325afc5f3d154023df2a71efef35562407b"
+      }
+    },
+    "original_process_ids": {
+      "next": 4629,
+      "next-read": 4695,
+      "next-unseen": 4561,
+      "read": 4299,
+      "repeat": 4364,
+      "variant": 4429,
+      "witness-read": 4497,
+      "write": 4227
+    },
+    "original_process_log_identities": {
+      "next": {
+        "next.log": {
+          "bytes": 25256,
+          "sha256": "10c1fc13b1ca75020cf3b6451e9a9ce5e8fa0e2350bb8b573b703f24ef4cfd0e"
+        },
+        "next.stderr.txt": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "next.stdout.txt": {
+          "bytes": 25450,
+          "sha256": "fecf5e663e226ae329034a8577c8f9d9a50cd0329662f61df95247d4c3e0a21e"
+        }
+      },
+      "next-read": {
+        "next-read.log": {
+          "bytes": 10918,
+          "sha256": "cd92331671faa04d48d0e7188b9f4fc35b83afce392075b000f040cb2990db30"
+        },
+        "next-read.stderr.txt": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "next-read.stdout.txt": {
+          "bytes": 11112,
+          "sha256": "52d16242d2eb6be7fa27f265b2006a69838d4593af16beb5880b0a9d28cff986"
+        }
+      },
+      "next-unseen": {
+        "next-unseen.log": {
+          "bytes": 19463,
+          "sha256": "f215957150618a263c9a41464b0ba1e589cdfb642b6be1ca88d4398e6f2579e9"
+        },
+        "next-unseen.stderr.txt": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "next-unseen.stdout.txt": {
+          "bytes": 19657,
+          "sha256": "43147be101c3af65c00ac1b7024e4d9567e63372cf5e52bbb3e6fb6e5075fc6a"
+        }
+      },
+      "read": {
+        "read.log": {
+          "bytes": 18319,
+          "sha256": "82ee8554d9d11432f15de06d7e1147e96b8d613438ce28502ec03b510e7ecc5d"
+        },
+        "read.stderr.txt": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "read.stdout.txt": {
+          "bytes": 18513,
+          "sha256": "4ab7b1638021c78db0d028a5ba8c3072d66b6b543984d3e33abd1626355ce5e9"
+        }
+      },
+      "repeat": {
+        "repeat.log": {
+          "bytes": 19232,
+          "sha256": "83600ba56326b00f3645c1d06c69bff4e42a7dc6fef370739bcbbfd9ce0bee35"
+        },
+        "repeat.stderr.txt": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "repeat.stdout.txt": {
+          "bytes": 19426,
+          "sha256": "0bfb167c5aba66ad36f255032cde59078eaf0a15629f58eb5697fc1e06391853"
+        }
+      },
+      "user-dir-proof": {
+        "user-dir-proof.log": {
+          "bytes": 203,
+          "sha256": "dbbd3d920fe16ba41eda056713780baa22f33ebd98ced8a2e4f81317f09636d8"
+        },
+        "user-dir-proof.stderr.txt": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "user-dir-proof.stdout.txt": {
+          "bytes": 203,
+          "sha256": "dbbd3d920fe16ba41eda056713780baa22f33ebd98ced8a2e4f81317f09636d8"
+        }
+      },
+      "variant": {
+        "variant.log": {
+          "bytes": 19233,
+          "sha256": "460c39180d201713986f86e8fd8448184d0c02f846c6ac8d32924865f03d36f7"
+        },
+        "variant.stderr.txt": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "variant.stdout.txt": {
+          "bytes": 19427,
+          "sha256": "d1f9449eb7f88b58b729197cc9af455716abded8940aaf52eb85c785478580ef"
+        }
+      },
+      "witness-read": {
+        "witness-read.log": {
+          "bytes": 9782,
+          "sha256": "c0936427ebe6b3376e6f6ed418c677138654ab7334f85abbdaa06ea3b6d867e0"
+        },
+        "witness-read.stderr.txt": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "witness-read.stdout.txt": {
+          "bytes": 9976,
+          "sha256": "b66ed743a7579dfff410edd5bce726616570917af1f8af5cc904334bf8576ad5"
+        }
+      },
+      "write": {
+        "write.log": {
+          "bytes": 30387,
+          "sha256": "cd7a1a0e463aaddfae674feab48fd80507a59f7999db223c6b98f299202018ef"
+        },
+        "write.stderr.txt": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "write.stdout.txt": {
+          "bytes": 30581,
+          "sha256": "97d3104c702d5cc9d2d795f10afd99fa4129862f4f092a1a8fb43377d7dfef99"
+        }
+      }
+    },
+    "original_process_receipt_identities": {
+      "next": {
+        "bytes": 1130,
+        "sha256": "7b92434eab9ab8d68f15bda14be7b32357ba1a325127f39bda2caef8677eadbc"
+      },
+      "next-read": {
+        "bytes": 1149,
+        "sha256": "dcdbea4b3386c4ceb2dcb353c1dcb463585bd387172e91d71b637ed27ccfb17f"
+      },
+      "next-unseen": {
+        "bytes": 1158,
+        "sha256": "82ce1015089c8b5e118a583d7eb42653b1e1d46a87eec750003bb2c98da9391b"
+      },
+      "read": {
+        "bytes": 1129,
+        "sha256": "2916ffbf2a2b98293d0769aefb443c9a46fad5892281b7fb35b0ab3f709f37c6"
+      },
+      "repeat": {
+        "bytes": 1137,
+        "sha256": "5305e3bd90b8ad219eac2058bdcdec23d47d92c6fd5dabfcac8d71e4eccf4bcf"
+      },
+      "user-dir-proof": {
+        "bytes": 816,
+        "sha256": "d2576b8bfd441724623526910a9ef11e834619eba75131b76fea7be5791c97ce"
+      },
+      "variant": {
+        "bytes": 1142,
+        "sha256": "7365df195d149f73924108c529ee781c8def9d3bb1927e0364ad7b5332ab60b6"
+      },
+      "witness-read": {
+        "bytes": 1160,
+        "sha256": "aa07cdea840c8da808e4b5ac9fe5759bdbdf4dc69d2d449062b99c9f3a9a230e"
+      },
+      "write": {
+        "bytes": 1134,
+        "sha256": "d786e90985d827f8b340c6bc8d7338d371f56439359f96a4caf6c15438b6fd11"
+      }
+    },
+    "original_write_read_seal": {
+      "all_sealed_and_retained_bytes_verified": true,
+      "before_mode": "repeat",
+      "file_count": 14,
+      "identity": {
+        "bytes": 2143,
+        "sha256": "7088b496aa339b2d69cdad7d22697dae9705f22282ba6df85ec5faadac6b0966"
+      },
+      "sealed_after_mode": "read"
+    },
+    "parent_report_identity": {
+      "bytes": 807855,
+      "sha256": "9440a21bb0b7aa79a4a58274d161f99bb366cd6988ff8ad1ab859c389bd3de78"
+    },
+    "process_ids": {
+      "settings-read": 4837,
+      "settings-write": 4771
+    },
+    "process_log_identities": {
+      "settings-read": {
+        "settings-read.log": {
+          "bytes": 17546,
+          "sha256": "8a2e91fac16349030a30ad51b93e0ffe63e95767fc5ac505f3cd4cbdb520bd38"
+        },
+        "settings-read.stderr.txt": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "settings-read.stdout.txt": {
+          "bytes": 17740,
+          "sha256": "4d7e80bf1ac67de1a09d849b63b37b8300551ff2ffd819a0e3543040a142ddd2"
+        }
+      },
+      "settings-write": {
+        "settings-write.log": {
+          "bytes": 19288,
+          "sha256": "ef8f5ee38fd0bbd14e5606e345826dde664ce306b70d26b8636dc0cd8496aa6e"
+        },
+        "settings-write.stderr.txt": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "settings-write.stdout.txt": {
+          "bytes": 19482,
+          "sha256": "448db3a19a578badc705d454423100f6d10c34c5604f56a51c2cecfdecea81e7"
+        }
+      },
+      "user-dir-proof": {
+        "user-dir-proof.log": {
+          "bytes": 203,
+          "sha256": "2fae297743036e2b0982b652b04c9044161c725fc256b6d0c4eaaff5b47673ed"
+        },
+        "user-dir-proof.stderr.txt": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "user-dir-proof.stdout.txt": {
+          "bytes": 203,
+          "sha256": "2fae297743036e2b0982b652b04c9044161c725fc256b6d0c4eaaff5b47673ed"
+        }
+      }
+    },
+    "process_receipt_identities": {
+      "settings-read": {
+        "bytes": 1210,
+        "sha256": "d562772e4846f992070dacdd0eb98502825fc6e2abb1621c87a1ed9f90bd46e1"
+      },
+      "settings-write": {
+        "bytes": 1215,
+        "sha256": "53339c1aed18e96e5b4d077f9c6223ca6f2dc4bb4e41767935bde4248215f7c9"
+      },
+      "user-dir-proof": {
+        "bytes": 861,
+        "sha256": "e36e2f1f01e4d91988db113b08b14228280239cb07238605550b2d21856dd50f"
+      }
+    },
+    "raw_quick_identity": {
+      "bytes": 116962,
+      "sha256": "fe759a9d3e39186d9e81d9873bf98cbb6f4edf938ba5b832dccd23f8acbd3c58"
+    },
+    "reconstructed_transaction_marker_identity": {
+      "bytes": 224,
+      "sha256": "54beb2ac5938b5f5434b060fa11f5e38351db372e5e104ae195f1558596d09ad"
+    },
+    "run_attempt": 1,
+    "run_id": 36980559297,
+    "semantic_assertions": {
+      "autosave_profile_identity_receipts_unchanged": true,
+      "exact_canonical_source_preserved": true,
+      "exact_settings_host_focus_and_suspension_retained": true,
+      "fresh_restore_exact_and_silent": true,
+      "only_current_reveal_completed": true,
+      "original_eight_modes_and_seal_unchanged": true,
+      "partial_reveal_preserved_until_f5": true,
+      "single_quick_transaction_verified": true
+    },
+    "settings_write_seal": {
+      "all_sealed_and_retained_bytes_verified": true,
+      "before_mode": "settings-read",
+      "file_count": 3,
+      "identity": {
+        "bytes": 661,
+        "sha256": "94dae41f3210912ecf4f809d385f8ba726adc581d7f8ddf07394a3798e86e421"
+      },
+      "sealed_after_mode": "settings-write"
+    },
+    "source": "41cc51992b74ec9472f7912e0eb8e1c39679af44",
+    "source_files": {
+      "scripts/infrastructure/save/SaveDocumentSchema.gd": {
+        "bytes": 20958,
+        "sha256": "c7a18cea7a87699a1e69cef4ec2fc61f4ace858c9b45df5a6db622830e5e0540"
+      },
+      "scripts/infrastructure/storage/FileOps.gd": {
+        "bytes": 2570,
+        "sha256": "89aa45cf28b0c618f46c6c8b2b590227e8314c664624d8fb314069c133dc0895"
+      },
+      "scripts/infrastructure/storage/JsonFileStorage.gd": {
+        "bytes": 46885,
+        "sha256": "ad2691249d9c7a247147fdc76885044b6cd9f6ebaac1f7267b4c144586d2adab"
+      },
+      "scripts/ui/SettingsContent.gd": {
+        "bytes": 32527,
+        "sha256": "d4345b84da62154ca091db77877404562351e3fbaad17272fc8a727e4621070a"
+      },
+      "scripts/ui/SettingsResetConfirmation.gd": {
+        "bytes": 3788,
+        "sha256": "376caebf2633cdd5f98abea320551c424ca2c1c2ebb1a84913170d5dae6a3399"
+      },
+      "scripts/ui/pause/PauseQuickCommands.gd": {
+        "bytes": 14208,
+        "sha256": "c0ed31fb76ed67c5b83b97be74064eecd6be111a6fa3b26d2cb5da469a0c9b91"
+      },
+      "scripts/ui/pause/PauseSurface.gd": {
+        "bytes": 20799,
+        "sha256": "bdfb7a08014aa4f88918a9a1bf06cea8feb481b7aa7554be98f458397b1aefcd"
+      },
+      "scripts/validation/CanonicalJsonWriter.gd": {
+        "bytes": 8943,
+        "sha256": "925341fed6bbb64b2c28d22f269e92a2806f2170f4965eb412d9179cf3cd34f1"
+      },
+      "tests/fixtures/dialogic/solo_reading_rail_catalogue.json": {
+        "bytes": 1195,
+        "sha256": "ea0b92575aaa8807da5834415b383d471f07d3646278dfca8d6f21044343f664"
+      },
+      "tests/integration/verify_reading_rail_journey.gd": {
+        "bytes": 113307,
+        "sha256": "60f3e520a25b887cb38d9c8022d61b10bc17d688beae68220d604a71e6bab966"
+      },
+      "tools/evidence/print_user_dir.gd": {
+        "bytes": 122,
+        "sha256": "ae6476aca5d7036f90b7742d9c711e632eb30d234e63425011b146ca88375fb6"
+      },
+      "tools/testing/run_cloud_journeys.py": {
+        "bytes": 17327,
+        "sha256": "d4097de4ca375d82eea44e7cb5e30bac35d0eb3320fef54343620aa309e049a4"
+      },
+      "tools/testing/run_reading_rail_journey.py": {
+        "bytes": 69867,
+        "sha256": "df0e318b8f01e7a66c576f93b0841b964379e4747e8ca94f54aa8cc423884c6b"
+      }
+    },
+    "supplemental_report_identity": {
+      "bytes": 454455,
+      "sha256": "3a9f01aef218261c370d1c2ae3d5732ed5a3d30f1681ab132fbe14fab6eea4e4"
+    },
+    "trace_entries": 7,
+    "trace_identity": {
+      "bytes": 118900,
+      "sha256": "9d61af717b255e58e7b9d1c26b05ce824aca0e740e59c79c0b8e26c80b1436e6"
+    }
+  },
+  "raw_file_bindings": {
+    "autosave": {
+      "baseline": {
+        "bytes": 110606,
+        "file": "artifacts/reading-rail-36980559297-1/e69399b6-5a5a-4dc2-9e15-8c98f9fc3415/settings-load/settings-load-baseline-autosave.json",
+        "sha256": "151b947d5b7fb08479a8ffbdc086ae3b6fb1e5a15997998eff6dc41ca6e7057e"
+      },
+      "final": {
+        "bytes": 110606,
+        "file": "artifacts/reading-rail-36980559297-1/e69399b6-5a5a-4dc2-9e15-8c98f9fc3415/settings-load/final-autosave.json",
+        "sha256": "151b947d5b7fb08479a8ffbdc086ae3b6fb1e5a15997998eff6dc41ca6e7057e"
+      },
+      "input": {
+        "bytes": 110606,
+        "file": "artifacts/reading-rail-36980559297-1/e69399b6-5a5a-4dc2-9e15-8c98f9fc3415/settings-load/input-autosave.json",
+        "sha256": "151b947d5b7fb08479a8ffbdc086ae3b6fb1e5a15997998eff6dc41ca6e7057e"
+      }
+    },
+    "profile": {
+      "baseline": {
+        "bytes": 3351,
+        "file": "artifacts/reading-rail-36980559297-1/e69399b6-5a5a-4dc2-9e15-8c98f9fc3415/settings-load/settings-load-baseline-profile.json",
+        "sha256": "2f34023bed0f7b27a9b8dbe08c7bdf276c3f80585b6d2e78eac5b5c85b7dc824"
+      },
+      "final": {
+        "bytes": 3351,
+        "file": "artifacts/reading-rail-36980559297-1/e69399b6-5a5a-4dc2-9e15-8c98f9fc3415/settings-load/final-profile.json",
+        "sha256": "2f34023bed0f7b27a9b8dbe08c7bdf276c3f80585b6d2e78eac5b5c85b7dc824"
+      },
+      "input": {
+        "bytes": 3045,
+        "file": "artifacts/reading-rail-36980559297-1/e69399b6-5a5a-4dc2-9e15-8c98f9fc3415/settings-load/input-profile.json",
+        "sha256": "1a6c0d006b468e45a62a85873be8dc0431df8c319f059e9871c4c48cb265f69d"
+      }
+    },
+    "quick": {
+      "baseline": {
+        "bytes": 116962,
+        "file": "artifacts/reading-rail-36980559297-1/e69399b6-5a5a-4dc2-9e15-8c98f9fc3415/settings-load/settings-load-baseline-quick.json",
+        "sha256": "fe759a9d3e39186d9e81d9873bf98cbb6f4edf938ba5b832dccd23f8acbd3c58"
+      },
+      "final": {
+        "bytes": 116962,
+        "file": "artifacts/reading-rail-36980559297-1/e69399b6-5a5a-4dc2-9e15-8c98f9fc3415/settings-load/final-quick.json",
+        "sha256": "fe759a9d3e39186d9e81d9873bf98cbb6f4edf938ba5b832dccd23f8acbd3c58"
+      },
+      "input": {
+        "bytes": 116962,
+        "file": "artifacts/reading-rail-36980559297-1/e69399b6-5a5a-4dc2-9e15-8c98f9fc3415/settings-load/input-quick.json",
+        "sha256": "fe759a9d3e39186d9e81d9873bf98cbb6f4edf938ba5b832dccd23f8acbd3c58"
+      }
+    }
+  },
+  "recovery_bookkeeping_audit": {
+    "all_prior_operations_and_issuer_receipts_preserved": true,
+    "atomic_transactions": 16,
+    "fileops_observations": 224,
+    "new_issuer_receipts": 7,
+    "new_restore_transaction_id": "transaction_id.4f2a365c5e1e7792940807bf4def88b5508482d06b7fa7d2d335dfa15551b33d",
+    "participant_order": [
+      "run",
+      "desktop_consequence",
+      "desktop_board",
+      "schedule_view",
+      "profile",
+      "localization",
+      "audio",
+      "route",
+      "narrative"
+    ],
+    "raw_endpoint_bindings": {
+      "after": {
+        "continuation": {
+          "bytes": 69898,
+          "file": "artifacts/reading-rail-36980559297-1/e69399b6-5a5a-4dc2-9e15-8c98f9fc3415/settings-load/settings-load-recovery-after-continuation.json",
+          "sha256": "2ef34948f7b3600c240b3a7f19f666b9f013d13870ccae4e6940870b4206da70"
+        },
+        "issuer": {
+          "bytes": 37681,
+          "file": "artifacts/reading-rail-36980559297-1/e69399b6-5a5a-4dc2-9e15-8c98f9fc3415/settings-load/settings-load-recovery-after-issuer.json",
+          "sha256": "e4d9d6a88f5103dbb7907d412d0bef565df5b5d9a9085c0d3eb305f6750b7b9c"
+        }
+      },
+      "before": {
+        "continuation": {
+          "bytes": 53879,
+          "file": "artifacts/reading-rail-36980559297-1/e69399b6-5a5a-4dc2-9e15-8c98f9fc3415/settings-load/settings-load-recovery-before-continuation.json",
+          "sha256": "605dbf41cd880aab2cdd0ec096857ca84dc3cb1936809cd54cf878e5fb6aba89"
+        },
+        "issuer": {
+          "bytes": 28913,
+          "file": "artifacts/reading-rail-36980559297-1/e69399b6-5a5a-4dc2-9e15-8c98f9fc3415/settings-load/settings-load-recovery-before-issuer.json",
+          "sha256": "940d12d01ce1fa1ee28d098059d36dc4892121a3d76934d112b77a4c74411b3a"
+        }
+      }
+    },
+    "reconstructed_marker_writes": 64,
+    "retained_quick_source_locator": {
+      "bundle_id": "7c2d97f1e784594c4bddb1573e8c4dc01e33a09400feb9812d46cf51960e19a6",
+      "checkpoint_id": "run_id.1002097f4e2b4ed1692505bc1a0ffd3bb9f5a140b9de1404bfcae1ca17642d97:13",
+      "document_sha256": "d1f68ddc817e67a50092db70f5ac835d4cf2a663ab6b6360d5055abd3d784b0d",
+      "slot_id": "quick"
+    },
+    "terminal_stage": "completed"
+  },
+  "run_attempt": 1,
+  "run_id": 36980559297,
+  "schema_version": 1,
+  "semantic_assertions": {
+    "cancel_exact_partial_source_focus_scroll": true,
+    "fresh_confirm_saved_earlier_line": true,
+    "old_pause_settings_closed": true,
+    "primary_file_mutations": 0,
+    "raw_final": {
+      "autosave": {
+        "bytes": 110606,
+        "sha256": "151b947d5b7fb08479a8ffbdc086ae3b6fb1e5a15997998eff6dc41ca6e7057e"
+      },
+      "profile": {
+        "bytes": 3351,
+        "sha256": "2f34023bed0f7b27a9b8dbe08c7bdf276c3f80585b6d2e78eac5b5c85b7dc824"
+      },
+      "quick": {
+        "bytes": 116962,
+        "sha256": "fe759a9d3e39186d9e81d9873bf98cbb6f4edf938ba5b832dccd23f8acbd3c58"
+      }
+    },
+    "raw_input": {
+      "autosave": {
+        "bytes": 110606,
+        "sha256": "151b947d5b7fb08479a8ffbdc086ae3b6fb1e5a15997998eff6dc41ca6e7057e"
+      },
+      "profile": {
+        "bytes": 3045,
+        "sha256": "1a6c0d006b468e45a62a85873be8dc0431df8c319f059e9871c4c48cb265f69d"
+      },
+      "quick": {
+        "bytes": 116962,
+        "sha256": "fe759a9d3e39186d9e81d9873bf98cbb6f4edf938ba5b832dccd23f8acbd3c58"
+      }
+    },
+    "raw_paused_source": {
+      "autosave": {
+        "bytes": 110606,
+        "sha256": "151b947d5b7fb08479a8ffbdc086ae3b6fb1e5a15997998eff6dc41ca6e7057e"
+      },
+      "profile": {
+        "bytes": 3351,
+        "sha256": "2f34023bed0f7b27a9b8dbe08c7bdf276c3f80585b6d2e78eac5b5c85b7dc824"
+      },
+      "quick": {
+        "bytes": 116962,
+        "sha256": "fe759a9d3e39186d9e81d9873bf98cbb6f4edf938ba5b832dccd23f8acbd3c58"
+      }
+    },
+    "recovery_bookkeeping": {
+      "atomic_commits": 16,
+      "completed_participants": [
+        "audio",
+        "desktop_board",
+        "desktop_consequence",
+        "localization",
+        "narrative",
+        "profile",
+        "route",
+        "run",
+        "schedule_view"
+      ],
+      "intermediate_journal_semantics": "source-bound operation sequence; raw endpoints retained",
+      "operation_count": 224,
+      "primary_file_operation_attempts": 0,
+      "prior_recovery_records_preserved": true,
+      "raw_endpoints": {
+        "after": {
+          "continuation": {
+            "bytes": 69898,
+            "sha256": "2ef34948f7b3600c240b3a7f19f666b9f013d13870ccae4e6940870b4206da70"
+          },
+          "issuer": {
+            "bytes": 37681,
+            "sha256": "e4d9d6a88f5103dbb7907d412d0bef565df5b5d9a9085c0d3eb305f6750b7b9c"
+          }
+        },
+        "before": {
+          "continuation": {
+            "bytes": 53879,
+            "sha256": "605dbf41cd880aab2cdd0ec096857ca84dc3cb1936809cd54cf878e5fb6aba89"
+          },
+          "issuer": {
+            "bytes": 28913,
+            "sha256": "940d12d01ce1fa1ee28d098059d36dc4892121a3d76934d112b77a4c74411b3a"
+          }
+        }
+      },
+      "source_locator": {
+        "bundle_id": "7c2d97f1e784594c4bddb1573e8c4dc01e33a09400feb9812d46cf51960e19a6",
+        "checkpoint_id": "run_id.1002097f4e2b4ed1692505bc1a0ffd3bb9f5a140b9de1404bfcae1ca17642d97:13",
+        "document_sha256": "d1f68ddc817e67a50092db70f5ac835d4cf2a663ab6b6360d5055abd3d784b0d",
+        "slot_id": "quick"
+      },
+      "transaction_id": "transaction_id.4f2a365c5e1e7792940807bf4def88b5508482d06b7fa7d2d335dfa15551b33d"
+    },
+    "recovery_bookkeeping_mutations": 224,
+    "restored_speech_admissions": 0,
+    "saved_history_physical_app_restored": true,
+    "stage_observations": 7
+  },
+  "source": "41cc51992b74ec9472f7912e0eb8e1c39679af44",
+  "source_binding_predecessor_auditor_identity": {
+    "bytes": 36285,
+    "path": "audit_settings_load_journey_v2.py",
+    "sha256": "3d93bc8d80e2e8b561d9cb65ab0d00db37d7ddc47dc95334590560679dbceba2"
+  },
+  "source_files": {
+    "addons/dialogic/Core/DialogicGameHandler.gd": {
+      "bytes": 18668,
+      "sha256": "c05cd2e152b66133f5d1dae647d37b448f92bd9352ad73e73433892c4451a7b7"
+    },
+    "addons/dialogic/Modules/Text/event_text.gd": {
+      "bytes": 23498,
+      "sha256": "c70ec90ac26988a46102857f392499106bcd741cd97e02b14a854dd812835882"
+    },
+    "addons/dialogic/Resources/timeline.gd": {
+      "bytes": 5971,
+      "sha256": "b5557e0e8295c98707d0d5d125d0e48e20f60cff8df48330ba61586d5393d225"
+    },
+    "autoload/InputManager.gd": {
+      "bytes": 14842,
+      "sha256": "4b1972a334ea576c8364dad3e4361d9dccf4d583dce7382f8bb31f7a48ec7a40"
+    },
+    "autoload/SaveManager.gd": {
+      "bytes": 145022,
+      "sha256": "7572f6657d4e1cafbc04c19c44798ca69a872521b638f8075c51ff6c3c498a6b"
+    },
+    "scripts/application/backup/BackupPresentationPort.gd": {
+      "bytes": 9876,
+      "sha256": "2d4d1970dd1edee6178a5364504e071751967da32661257d969f4ffc167f2924"
+    },
+    "scripts/application/lifecycle/ProductionPauseController.gd": {
+      "bytes": 38360,
+      "sha256": "e03e48c1e518c9a024b502f2d6fcfdbe8568ddedd7ac937407bfa452a30af4b5"
+    },
+    "scripts/application/restore/DesktopIdentityAllocationRestoreParticipant.gd": {
+      "bytes": 9405,
+      "sha256": "aab911a92df16803b8b959e606585788ee7e9e03a146e4d3b9f71d48455337b6"
+    },
+    "scripts/infrastructure/identity/DesktopIssuerRootStore.gd": {
+      "bytes": 60692,
+      "sha256": "5f19265753d0deb4ac14096ef22eecf7a2b5af15e8412ab1cea32ce46e0dbd9c"
+    },
+    "scripts/infrastructure/save/DesktopContinuationOperationJournal.gd": {
+      "bytes": 64315,
+      "sha256": "05781cd5a69b45dd7a4519879bae299296dbfbfb8705b45c6af9f2be040e02e1"
+    },
+    "scripts/infrastructure/save/SaveDocumentSchema.gd": {
+      "bytes": 20958,
+      "sha256": "c7a18cea7a87699a1e69cef4ec2fc61f4ace858c9b45df5a6db622830e5e0540"
+    },
+    "scripts/infrastructure/storage/FileOps.gd": {
+      "bytes": 2570,
+      "sha256": "89aa45cf28b0c618f46c6c8b2b590227e8314c664624d8fb314069c133dc0895"
+    },
+    "scripts/infrastructure/storage/JsonFileStorage.gd": {
+      "bytes": 46885,
+      "sha256": "ad2691249d9c7a247147fdc76885044b6cd9f6ebaac1f7267b4c144586d2adab"
+    },
+    "scripts/ui/BackupApp.gd": {
+      "bytes": 39568,
+      "sha256": "40ef72dc013dc84c187a57e68318227d44dde340502efede40136d2f84a511df"
+    },
+    "scripts/ui/SettingsContent.gd": {
+      "bytes": 32527,
+      "sha256": "d4345b84da62154ca091db77877404562351e3fbaad17272fc8a727e4621070a"
+    },
+    "scripts/ui/SettingsPanelController.gd": {
+      "bytes": 26167,
+      "sha256": "110d1ecacf8cd0e2dc14119f4b7ef535dd39fed33e062953fbc689d0efc23d5d"
+    },
+    "scripts/ui/SettingsResetConfirmation.gd": {
+      "bytes": 3788,
+      "sha256": "376caebf2633cdd5f98abea320551c424ca2c1c2ebb1a84913170d5dae6a3399"
+    },
+    "scripts/ui/desktop/QuickStatusEdge.gd": {
+      "bytes": 5484,
+      "sha256": "4bda2d5770325d24c9a9d15c10d72ee8c8a49c407f1554d1d09c2250f178dd36"
+    },
+    "scripts/ui/pause/PauseQuickCommands.gd": {
+      "bytes": 14208,
+      "sha256": "c0ed31fb76ed67c5b83b97be74064eecd6be111a6fa3b26d2cb5da469a0c9b91"
+    },
+    "scripts/ui/pause/PauseSurface.gd": {
+      "bytes": 20799,
+      "sha256": "bdfb7a08014aa4f88918a9a1bf06cea8feb481b7aa7554be98f458397b1aefcd"
+    },
+    "scripts/ui/witnessed/WitnessedAcceptInput.gd": {
+      "bytes": 14185,
+      "sha256": "0a65c853c80210fc0b47e2afbf1eb5f800eb20077c3a0276a97e0bb18411a98c"
+    },
+    "scripts/validation/CanonicalJsonWriter.gd": {
+      "bytes": 8943,
+      "sha256": "925341fed6bbb64b2c28d22f269e92a2806f2170f4965eb412d9179cf3cd34f1"
+    },
+    "tests/fixtures/dialogic/solo_reading_rail_catalogue.json": {
+      "bytes": 1195,
+      "sha256": "ea0b92575aaa8807da5834415b383d471f07d3646278dfca8d6f21044343f664"
+    },
+    "tests/integration/test_narrative_pause_frontier.gd": {
+      "bytes": 57849,
+      "sha256": "1125410d82fb90e7f892137ec9becde64a8f43119de8745220eedf64cb12e8ae"
+    },
+    "tests/integration/verify_playable_startup.gd": {
+      "bytes": 107858,
+      "sha256": "5b15d92a0e14ff0c4bb8db37757b039fa81289c59fcf9576415613fa27d1fbc8"
+    },
+    "tests/integration/verify_reading_rail_journey.gd": {
+      "bytes": 113307,
+      "sha256": "60f3e520a25b887cb38d9c8022d61b10bc17d688beae68220d604a71e6bab966"
+    },
+    "tools/evidence/print_user_dir.gd": {
+      "bytes": 122,
+      "sha256": "ae6476aca5d7036f90b7742d9c711e632eb30d234e63425011b146ca88375fb6"
+    },
+    "tools/testing/run_cloud_journeys.py": {
+      "bytes": 17327,
+      "sha256": "d4097de4ca375d82eea44e7cb5e30bac35d0eb3320fef54343620aa309e049a4"
+    },
+    "tools/testing/run_reading_rail_journey.py": {
+      "bytes": 69867,
+      "sha256": "df0e318b8f01e7a66c576f93b0841b964379e4747e8ca94f54aa8cc423884c6b"
+    }
+  },
+  "supplemental_report": {
+    "bytes": 317526,
+    "file": "artifacts/reading-rail-36980559297-1/e69399b6-5a5a-4dc2-9e15-8c98f9fc3415/settings-load/result.json",
+    "sha256": "4d2d2b88a3552695e81c38598c9b132f05e6452160a53116e2dc1c1d74f24392"
+  },
+  "trace": {
+    "bytes": 180853,
+    "entries": 7,
+    "file": "artifacts/reading-rail-36980559297-1/e69399b6-5a5a-4dc2-9e15-8c98f9fc3415/settings-load/settings-load-transactions.jsonl",
+    "sha256": "c36e1cc243ecc25094d3a94a3e5280542929e735eafc557a88ccd3cbe9647c49"
+  },
+  "workflow_head": "41cc51992b74ec9472f7912e0eb8e1c39679af44"
+}

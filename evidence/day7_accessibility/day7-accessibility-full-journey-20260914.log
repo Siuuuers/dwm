@@ -1,0 +1,19 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+OpenGL API 3.3.0 - Build 31.0.101.4146 - Compatibility - Using Device: Intel - Intel(R) Iris(R) Xe Graphics
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+PLAYABLE_RENDER_CAPTURE: C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/34b64c54-ab21-4cf3-b382-b67088234932/appdata/Godot/app_userdata/DWM/evidence/playable/01-title.png
+PLAYABLE_RENDER_CAPTURE: C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/34b64c54-ab21-4cf3-b382-b67088234932/appdata/Godot/app_userdata/DWM/evidence/playable/02-desktop.png
+PLAYABLE_RENDER_CAPTURE: C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/34b64c54-ab21-4cf3-b382-b67088234932/appdata/Godot/app_userdata/DWM/evidence/playable/03-minesweeper.png
+PLAYABLE_STARTUP_PASS: actual startup -> New Account -> visible desktop -> Minesweeper -> first Reveal
+PLAYABLE_RENDER_CAPTURE: C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/34b64c54-ab21-4cf3-b382-b67088234932/appdata/Godot/app_userdata/DWM/evidence/playable/11-ordinary-lavinia-reply.png
+PLAYABLE_ORDINARY_REPLY_PASS: actual Contacts -> Lavinia A -> real Label draw -> three durable rows and one neutral echo
+PLAYABLE_DAY_PASS: completed round -> Home -> Schedule -> acknowledged warning -> Day 2
+PLAYABLE_SEVEN_DAY_PASS: public Schedule Done reaches Day 7 through every daily transition
+PLAYABLE_RENDER_CAPTURE: C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/34b64c54-ab21-4cf3-b382-b67088234932/appdata/Godot/app_userdata/DWM/evidence/playable/14-day7-paused-followup.png
+PLAYABLE_RENDER_CAPTURE: C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/34b64c54-ab21-4cf3-b382-b67088234932/appdata/Godot/app_userdata/DWM/evidence/playable/12-day7-followup.png
+PLAYABLE_RENDER_CAPTURE: C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/34b64c54-ab21-4cf3-b382-b67088234932/appdata/Godot/app_userdata/DWM/evidence/playable/15-day7-pause-autosave-confirmation.png
+PLAYABLE_RENDER_CAPTURE: C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/34b64c54-ab21-4cf3-b382-b67088234932/appdata/Godot/app_userdata/DWM/evidence/playable/13-day7-restored-echo.png
+PLAYABLE_ORDINARY_ECHO_PASS: real A reply -> witnessed Day 6 followup -> short foreground Auto -> guarded failed echo save -> Autosave Load -> final Auto hold -> fresh Next -> playable Day 7

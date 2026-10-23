@@ -1,0 +1,57 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+OpenGL API 3.3.0 - Build 31.0.101.4146 - Compatibility - Using Device: Intel - Intel(R) Iris(R) Xe Graphics
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2570)
+WITNESSED_CAPTION_PROTECTED_FRAME file=en100-AfterHours-standard-standard-stack.png frame_width=1248 height=60 changed_interior_pixels=0 first_changed=(-1, -1)
+WITNESSED_CAPTION_CAPTURE en100-AfterHours-standard-standard-stack.png field=[P: (0.0, 448.0), S: (1280.0, 208.0)] leaf=[P: (16.0, 596.0), S: (1248.0, 60.0)] font=20 scroll=0.0
+WITNESSED_CAPTION_PROTECTED_FRAME file=en125-AfterHours-standard-standard-stack.png frame_width=1248 height=66 changed_interior_pixels=0 first_changed=(-1, -1)
+WITNESSED_CAPTION_CAPTURE en125-AfterHours-standard-standard-stack.png field=[P: (0.0, 392.0), S: (1280.0, 264.0)] leaf=[P: (16.0, 590.0), S: (1248.0, 66.0)] font=25 scroll=0.0
+WITNESSED_CAPTION_PROTECTED_FRAME file=en150-AfterHours-standard-standard-stack.png frame_width=1248 height=72 changed_interior_pixels=0 first_changed=(-1, -1)
+WITNESSED_CAPTION_CAPTURE en150-AfterHours-standard-standard-stack.png field=[P: (0.0, 328.0), S: (1280.0, 328.0)] leaf=[P: (16.0, 584.0), S: (1248.0, 72.0)] font=30 scroll=0.0
+WITNESSED_CAPTION_PROTECTED_FRAME file=en150-AfterHours-standard-standard-overflow.png frame_width=1200 height=4352 changed_interior_pixels=0 first_changed=(-1, -1)
+WITNESSED_CAPTION_CAPTURE en150-AfterHours-standard-standard-overflow.png field=[P: (0.0, 328.0), S: (1280.0, 328.0)] leaf=[P: (16.0, 144.0), S: (1200.0, 4352.0)] font=30 scroll=328.0
+WITNESSED_CAPTION_PROTECTED_FRAME file=zh-CN100-AfterHours-standard-standard-stack.png frame_width=1248 height=62 changed_interior_pixels=0 first_changed=(-1, -1)
+WITNESSED_CAPTION_CAPTURE zh-CN100-AfterHours-standard-standard-stack.png field=[P: (0.0, 448.0), S: (1280.0, 208.0)] leaf=[P: (16.0, 594.0), S: (1248.0, 62.0)] font=20 scroll=0.0
+WITNESSED_CAPTION_PROTECTED_FRAME file=zh-CN125-AfterHours-standard-standard-stack.png frame_width=1248 height=70 changed_interior_pixels=0 first_changed=(-1, -1)
+WITNESSED_CAPTION_CAPTURE zh-CN125-AfterHours-standard-standard-stack.png field=[P: (0.0, 392.0), S: (1280.0, 264.0)] leaf=[P: (16.0, 586.0), S: (1248.0, 70.0)] font=25 scroll=0.0
+WITNESSED_CAPTION_PROTECTED_FRAME file=zh-CN150-AfterHours-standard-standard-stack.png frame_width=1248 height=76 changed_interior_pixels=0 first_changed=(-1, -1)
+WITNESSED_CAPTION_CAPTURE zh-CN150-AfterHours-standard-standard-stack.png field=[P: (0.0, 328.0), S: (1280.0, 328.0)] leaf=[P: (16.0, 580.0), S: (1248.0, 76.0)] font=30 scroll=0.0
+WITNESSED_CAPTION_PROTECTED_FRAME file=zh-CN150-AfterHours-standard-standard-overflow.png frame_width=1200 height=4124 changed_interior_pixels=0 first_changed=(-1, -1)
+WITNESSED_CAPTION_CAPTURE zh-CN150-AfterHours-standard-standard-overflow.png field=[P: (0.0, 328.0), S: (1280.0, 328.0)] leaf=[P: (16.0, 152.0), S: (1200.0, 4124.0)] font=30 scroll=328.0
+WITNESSED_CAPTION_PROTECTED_FRAME file=zh-HK100-AfterHours-standard-standard-stack.png frame_width=1248 height=62 changed_interior_pixels=0 first_changed=(-1, -1)
+WITNESSED_CAPTION_CAPTURE zh-HK100-AfterHours-standard-standard-stack.png field=[P: (0.0, 448.0), S: (1280.0, 208.0)] leaf=[P: (16.0, 594.0), S: (1248.0, 62.0)] font=20 scroll=0.0
+WITNESSED_CAPTION_PROTECTED_FRAME file=zh-HK125-AfterHours-standard-standard-stack.png frame_width=1248 height=70 changed_interior_pixels=0 first_changed=(-1, -1)
+WITNESSED_CAPTION_CAPTURE zh-HK125-AfterHours-standard-standard-stack.png field=[P: (0.0, 392.0), S: (1280.0, 264.0)] leaf=[P: (16.0, 586.0), S: (1248.0, 70.0)] font=25 scroll=0.0
+WITNESSED_CAPTION_PROTECTED_FRAME file=zh-HK150-AfterHours-standard-standard-stack.png frame_width=1248 height=76 changed_interior_pixels=0 first_changed=(-1, -1)
+WITNESSED_CAPTION_CAPTURE zh-HK150-AfterHours-standard-standard-stack.png field=[P: (0.0, 328.0), S: (1280.0, 328.0)] leaf=[P: (16.0, 580.0), S: (1248.0, 76.0)] font=30 scroll=0.0
+WITNESSED_CAPTION_PROTECTED_FRAME file=zh-HK150-AfterHours-standard-standard-overflow.png frame_width=1200 height=4124 changed_interior_pixels=0 first_changed=(-1, -1)
+WITNESSED_CAPTION_CAPTURE zh-HK150-AfterHours-standard-standard-overflow.png field=[P: (0.0, 328.0), S: (1280.0, 328.0)] leaf=[P: (16.0, 152.0), S: (1200.0, 4124.0)] font=30 scroll=328.0
+WITNESSED_CAPTION_PROTECTED_FRAME file=en100-AfterHours-standard-standard-stack.png frame_width=1248 height=64 changed_interior_pixels=0 first_changed=(-1, -1)
+WITNESSED_CAPTION_CAPTURE en100-AfterHours-standard-standard-stack.png field=[P: (0.0, 448.0), S: (1280.0, 208.0)] leaf=[P: (16.0, 592.0), S: (1248.0, 64.0)] font=20 scroll=0.0
+WITNESSED_CAPTION_PROTECTED_FRAME file=en125-AfterHours-standard-standard-stack.png frame_width=1248 height=66 changed_interior_pixels=0 first_changed=(-1, -1)
+WITNESSED_CAPTION_CAPTURE en125-AfterHours-standard-standard-stack.png field=[P: (0.0, 392.0), S: (1280.0, 264.0)] leaf=[P: (16.0, 590.0), S: (1248.0, 66.0)] font=25 scroll=0.0
+WITNESSED_CAPTION_PROTECTED_FRAME file=en150-AfterHours-standard-standard-stack.png frame_width=1248 height=72 changed_interior_pixels=0 first_changed=(-1, -1)
+WITNESSED_CAPTION_CAPTURE en150-AfterHours-standard-standard-stack.png field=[P: (0.0, 328.0), S: (1280.0, 328.0)] leaf=[P: (16.0, 584.0), S: (1248.0, 72.0)] font=30 scroll=0.0
+WITNESSED_CAPTION_PROTECTED_FRAME file=en150-AfterHours-standard-standard-overflow.png frame_width=1184 height=4352 changed_interior_pixels=0 first_changed=(-1, -1)
+WITNESSED_CAPTION_CAPTURE en150-AfterHours-standard-standard-overflow.png field=[P: (0.0, 328.0), S: (1280.0, 328.0)] leaf=[P: (16.0, 144.0), S: (1184.0, 4352.0)] font=30 scroll=328.0
+WITNESSED_CAPTION_PROTECTED_FRAME file=zh-CN100-AfterHours-standard-standard-stack.png frame_width=1248 height=64 changed_interior_pixels=0 first_changed=(-1, -1)
+WITNESSED_CAPTION_CAPTURE zh-CN100-AfterHours-standard-standard-stack.png field=[P: (0.0, 448.0), S: (1280.0, 208.0)] leaf=[P: (16.0, 592.0), S: (1248.0, 64.0)] font=20 scroll=0.0
+WITNESSED_CAPTION_PROTECTED_FRAME file=zh-CN125-AfterHours-standard-standard-stack.png frame_width=1248 height=70 changed_interior_pixels=0 first_changed=(-1, -1)
+WITNESSED_CAPTION_CAPTURE zh-CN125-AfterHours-standard-standard-stack.png field=[P: (0.0, 392.0), S: (1280.0, 264.0)] leaf=[P: (16.0, 586.0), S: (1248.0, 70.0)] font=25 scroll=0.0
+WITNESSED_CAPTION_PROTECTED_FRAME file=zh-CN150-AfterHours-standard-standard-stack.png frame_width=1248 height=76 changed_interior_pixels=0 first_changed=(-1, -1)
+WITNESSED_CAPTION_CAPTURE zh-CN150-AfterHours-standard-standard-stack.png field=[P: (0.0, 328.0), S: (1280.0, 328.0)] leaf=[P: (16.0, 580.0), S: (1248.0, 76.0)] font=30 scroll=0.0
+WITNESSED_CAPTION_PROTECTED_FRAME file=zh-CN150-AfterHours-standard-standard-overflow.png frame_width=1184 height=4124 changed_interior_pixels=0 first_changed=(-1, -1)
+WITNESSED_CAPTION_CAPTURE zh-CN150-AfterHours-standard-standard-overflow.png field=[P: (0.0, 328.0), S: (1280.0, 328.0)] leaf=[P: (16.0, 152.0), S: (1184.0, 4124.0)] font=30 scroll=328.0
+WITNESSED_CAPTION_PROTECTED_FRAME file=zh-HK100-AfterHours-standard-standard-stack.png frame_width=1248 height=64 changed_interior_pixels=0 first_changed=(-1, -1)
+WITNESSED_CAPTION_CAPTURE zh-HK100-AfterHours-standard-standard-stack.png field=[P: (0.0, 448.0), S: (1280.0, 208.0)] leaf=[P: (16.0, 592.0), S: (1248.0, 64.0)] font=20 scroll=0.0
+WITNESSED_CAPTION_PROTECTED_FRAME file=zh-HK125-AfterHours-standard-standard-stack.png frame_width=1248 height=70 changed_interior_pixels=0 first_changed=(-1, -1)
+WITNESSED_CAPTION_CAPTURE zh-HK125-AfterHours-standard-standard-stack.png field=[P: (0.0, 392.0), S: (1280.0, 264.0)] leaf=[P: (16.0, 586.0), S: (1248.0, 70.0)] font=25 scroll=0.0
+WITNESSED_CAPTION_PROTECTED_FRAME file=zh-HK150-AfterHours-standard-standard-stack.png frame_width=1248 height=76 changed_interior_pixels=0 first_changed=(-1, -1)
+WITNESSED_CAPTION_CAPTURE zh-HK150-AfterHours-standard-standard-stack.png field=[P: (0.0, 328.0), S: (1280.0, 328.0)] leaf=[P: (16.0, 580.0), S: (1248.0, 76.0)] font=30 scroll=0.0
+WITNESSED_CAPTION_PROTECTED_FRAME file=zh-HK150-AfterHours-standard-standard-overflow.png frame_width=1184 height=4124 changed_interior_pixels=0 first_changed=(-1, -1)
+WITNESSED_CAPTION_CAPTURE zh-HK150-AfterHours-standard-standard-overflow.png field=[P: (0.0, 328.0), S: (1280.0, 328.0)] leaf=[P: (16.0, 152.0), S: (1184.0, 4124.0)] font=30 scroll=328.0
+WITNESSED_TARGET_RENDER_VERIFIED captures=24 unfocused=6 evidence=C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-ui-build/.godot/phase2r_tests/2e2a93ae-396c-40e0-ad2b-a08a76bd858f/appdata/Godot/app_userdata/DWM/evidence/witnessed_targets

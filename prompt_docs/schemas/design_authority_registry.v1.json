@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "DWM closed design authority registry",
+  "type": "object",
+  "required": ["schema_version", "records"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {"const": 1},
+    "records": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "kind", "path"],
+        "additionalProperties": false,
+        "properties": {
+          "id": {"type": "string", "pattern": "^spec\\.[a-z0-9_.]+$"},
+          "kind": {"enum": ["design_specification", "design_amendment"]},
+          "path": {"type": "string", "pattern": "^docs/(?:design|superpowers/specs)/[^/]+\\.md$"}
+        }
+      }
+    }
+  }
+}

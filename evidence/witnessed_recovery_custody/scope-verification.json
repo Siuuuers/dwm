@@ -1,0 +1,30 @@
+{
+  "baseline_commit": "524409049977b593bc957275d56736e5230c3b88",
+  "protected_paths_unchanged": [
+    "autoload/GameState.gd",
+    "autoload/SaveManager.gd",
+    "scripts/ui/DatingScene.gd",
+    "evidence/phase_2r/runtime/game_state_required_surface.json",
+    "evidence/phase_2r/runtime/save_manager_required_surface.json"
+  ],
+  "changed_tracked_paths": [
+    "evidence/phase_2r/runtime/game_state_surface.json",
+    "evidence/phase_2r/runtime/save_manager_surface.json",
+    "scripts/application/lifecycle/ProductionPauseController.gd",
+    "scripts/ui/witnessed/WitnessedCaptionLayer.gd",
+    "scripts/ui/witnessed/WitnessedTransportRecovery.gd",
+    "tests/integration/test_dialogic_production_skip.gd",
+    "tests/integration/test_narrative_pause_frontier.gd",
+    "tests/scene/test_witnessed_transport_recovery.gd"
+  ],
+  "inventory_checks": {
+    "game_state": {
+      "only_source_references_changed": true,
+      "public_record_count": 239
+    },
+    "save_manager": {
+      "only_source_references_changed": true,
+      "public_record_count": 74
+    }
+  }
+}

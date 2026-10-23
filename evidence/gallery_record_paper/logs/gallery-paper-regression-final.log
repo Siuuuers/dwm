@@ -1,0 +1,314 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/bd4a9ee1-a36e-4ec5-b95f-f23b0ec3399f/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+res://tests/unit/test_gallery_record_paper.gd
+* test_long_copy_uses_even_natural_layout_and_optional_sentence_gap
+* test_actions_share_clipped_body_and_reveal_only_the_detached_ring
+* test_pointer_scrolls_are_consumed_at_boundaries_without_stealing_focus
+* test_focused_keyboard_scrolls_clamps_and_consumes_accept_without_activation
+* test_dpad_and_held_stick_repeat_then_retire_on_release_and_focus_loss
+* test_fit_copy_removes_focus_target_and_localizes_inert_labels
+* test_fractional_wheel_release_touch_and_retained_selector_preserve_focus_and_selection
+* test_accept_releases_visualize_hidden_focus_and_accessibility_callbacks_clamp
+* test_touch_drag_over_retained_actions_scrolls_without_activation_or_focus_theft
+9/9 passed.
+
+
+res://tests/integration/test_gallery_navigation.gd
+* test_single_version_spatial_and_sequential_navigation_reaches_replay_and_return
+* test_plural_versions_follow_record_selector_replay_spatial_and_tab_order
+* test_temporarily_unavailable_replay_query_keeps_record_and_history_while_repairing_focus
+* test_existing_practice_action_remains_in_the_reversible_tab_path
+* test_authoritative_refresh_disabling_replay_repairs_focus_to_fallback_record
+* test_screen_drag_over_row_scrolls_owner_and_cancels_held_pointer_selection
+* test_overflow_paper_owns_navigation_boundaries_and_retained_action_reveal
+* test_same_record_refresh_locale_and_replay_keep_paper_anchor_new_record_resets
+* test_overflow_loss_repairs_focus_and_pointer_selection_has_no_keyboard_ring
+* test_removed_overflow_record_returns_to_fallback_row_without_moving_its_paper
+* test_pointer_replay_focus_stays_hidden_through_refresh_and_replay_return
+11/11 passed.
+
+
+res://tests/unit/test_gallery_typography.gd
+* test_gallery_theme_uses_the_exact_regular_proportional_face_and_metrics_for_all_nine_tuples
+* test_actual_localized_record_captions_wrap_without_hidden_lines_or_missing_glyphs
+* test_real_locale_transaction_reprojects_mounted_gallery_face_and_language_copy
+3/3 passed.
+
+
+res://tests/integration/test_gallery_replay_status.gd
+* test_determinate_synchronous_start_failure_is_stable_and_retry_reuses_exact_signature_without_mutation
+* test_synchronous_early_terminal_result_is_not_overwritten_by_successful_begin_return
+* test_async_start_failure_retains_error_across_locales_and_version_change_clears_it
+* test_only_a_different_record_or_version_command_clears_error_without_starting_replay
+* test_unproved_refusal_and_post_start_replacement_do_not_claim_pre_session_retry
+* test_exit_clears_start_error_and_denied_cancel_retains_active_replay
+6/6 passed.
+
+
+res://tests/unit/test_gallery_start_failure_phase.gd
+* test_pre_admission_refusal_has_no_start_failure_phase_or_retry_identity
+* test_synchronous_physical_start_failure_returns_exact_retryable_start_identity
+* test_deferred_runtime_start_failure_emits_exact_retryable_start_identity
+* test_runtime_replacement_remains_generic_failure_without_retryable_start_phase
+* test_synchronous_reentrant_runtime_replacement_cannot_be_reclassified_as_start_failure
+5/5 passed.
+
+
+res://tests/unit/test_gallery_replay_owner.gd
+* test_canonical_completion_records_the_exact_label_then_gallery_has_no_canonical_effects
+* test_discovery_is_not_permission_for_an_unreached_signature
+* test_return_cancels_only_its_token_and_a_late_old_completion_cannot_close_replay
+* test_gallery_exceptional_variants_are_full_and_pair_alone_reject_solo_fields
+* test_public_record_titles_preserve_chinese_characters
+* test_public_gallery_selects_only_reached_versions_and_return_cancels_its_playback
+WARNING: Localization missing for key 'gallery.replay'
+   at: push_warning (core/variant/variant_utility.cpp:1034)
+   GDScript backtrace (most recent call first):
+       [0] _warn_once (res://autoload/LocalizationManager.gd:454)
+       [1] t (res://autoload/LocalizationManager.gd:204)
+       [2] _localized (res://scripts/ui/GalleryScene.gd:508)
+       [3] _refresh_replay_caption (res://scripts/ui/GalleryScene.gd:556)
+       [4] _refresh_presentation (res://scripts/ui/GalleryScene.gd:550)
+       [5] _ready (res://scripts/ui/GalleryScene.gd:234)
+       [6] add_child_autofree (res://addons/gut/test.gd:2784)
+       [7] test_public_gallery_selects_only_reached_versions_and_return_cancels_its_playback (res://tests/unit/test_gallery_replay_owner.gd:159)
+       [8] _run_test (res://addons/gut/gut.gd:622)
+       [9] _test_the_scripts (res://addons/gut/gut.gd:835)
+WARNING: Localization missing for key 'gallery.replay.playing'
+   at: push_warning (core/variant/variant_utility.cpp:1034)
+   GDScript backtrace (most recent call first):
+       [0] _warn_once (res://autoload/LocalizationManager.gd:454)
+       [1] t (res://autoload/LocalizationManager.gd:204)
+       [2] _localized (res://scripts/ui/GalleryScene.gd:508)
+       [3] _set_replay_status (res://scripts/ui/GalleryScene.gd:482)
+       [4] _on_replay_pressed (res://scripts/ui/GalleryScene.gd:433)
+       [5] test_public_gallery_selects_only_reached_versions_and_return_cancels_its_playback (res://tests/unit/test_gallery_replay_owner.gd:169)
+       [6] _run_test (res://addons/gut/gut.gd:622)
+       [7] _test_the_scripts (res://addons/gut/gut.gd:835)
+    3 Orphans
+        * [@Button@600:<Button#3760763964337>(GalleryRecordButton.gd)] + 2
+* test_deferred_start_failure_releases_gallery_without_canonical_failure_and_can_retry
+* test_nonending_replay_requires_milestone_and_exact_reached_signature
+* test_reached_date_renders_its_actual_phase_and_only_drawn_acknowledgment_finishes
+* test_pair_post_replay_is_readonly_and_old_card_cannot_finish_replacement
+* test_public_gallery_includes_reached_date_stages_without_new_ending_discoveries
+    9 Orphans
+        * [@Button@653:<Button#4064901335165>(GalleryRecordButton.gd)] + 2
+        * [@Button@659:<Button#4066159626390>(GalleryRecordButton.gd)] + 2
+        * [@Button@656:<Button#4065018776364>(GalleryRecordButton.gd)] + 2
+9 orphans
+11/11 passed.
+
+
+res://tests/integration/test_gallery_art_placements.gd
+* test_exact_reached_version_selects_authored_title_without_scene_media_or_mutation
+    6 Orphans
+        * [@Button@696:<Button#4163735915188>(GalleryRecordButton.gd)] + 2
+        * [@Button@693:<Button#4163618474821>(GalleryRecordButton.gd)] + 2
+* test_unreached_and_empty_records_keep_inert_title_semantics
+WARNING: Localization missing for key 'gallery.replay.unreached'
+   at: push_warning (core/variant/variant_utility.cpp:1034)
+   GDScript backtrace (most recent call first):
+       [0] _warn_once (res://autoload/LocalizationManager.gd:454)
+       [1] t (res://autoload/LocalizationManager.gd:204)
+       [2] _localized (res://scripts/ui/GalleryScene.gd:508)
+       [3] _set_replay_status (res://scripts/ui/GalleryScene.gd:482)
+       [4] _refresh_replay_selection (res://scripts/ui/GalleryScene.gd:387)
+       [5] _select_record (res://scripts/ui/GalleryScene.gd:339)
+       [6] _refresh_tiles (res://scripts/ui/GalleryScene.gd:299)
+       [7] _ready (res://scripts/ui/GalleryScene.gd:235)
+       [8] add_child_autofree (res://addons/gut/test.gd:2784)
+       [9] _mount (res://tests/integration/test_gallery_art_placements.gd:58)
+       [10] test_unreached_and_empty_records_keep_inert_title_semantics (res://tests/integration/test_gallery_art_placements.gd:117)
+       [11] _run_test (res://addons/gut/gut.gd:622)
+       [12] _test_the_scripts (res://addons/gut/gut.gd:835)
+WARNING: Localization missing for key 'gallery.empty'
+   at: push_warning (core/variant/variant_utility.cpp:1034)
+   GDScript backtrace (most recent call first):
+       [0] _warn_once (res://autoload/LocalizationManager.gd:454)
+       [1] t (res://autoload/LocalizationManager.gd:204)
+       [2] _localized (res://scripts/ui/GalleryScene.gd:508)
+       [3] _set_replay_status (res://scripts/ui/GalleryScene.gd:482)
+       [4] _refresh_tiles (res://scripts/ui/GalleryScene.gd:277)
+       [5] _ready (res://scripts/ui/GalleryScene.gd:235)
+       [6] add_child_autofree (res://addons/gut/test.gd:2784)
+       [7] test_unreached_and_empty_records_keep_inert_title_semantics (res://tests/integration/test_gallery_art_placements.gd:134)
+       [8] _run_test (res://addons/gut/gut.gd:622)
+       [9] _test_the_scripts (res://addons/gut/gut.gd:835)
+WARNING: Localization missing for key 'gallery.archive.unavailable'
+   at: push_warning (core/variant/variant_utility.cpp:1034)
+   GDScript backtrace (most recent call first):
+       [0] _warn_once (res://autoload/LocalizationManager.gd:454)
+       [1] t (res://autoload/LocalizationManager.gd:204)
+       [2] _localized (res://scripts/ui/GalleryScene.gd:508)
+       [3] _set_replay_status (res://scripts/ui/GalleryScene.gd:482)
+       [4] _refresh_tiles (res://scripts/ui/GalleryScene.gd:264)
+       [5] _ready (res://scripts/ui/GalleryScene.gd:235)
+       [6] add_child_autofree (res://addons/gut/test.gd:2784)
+       [7] _mount (res://tests/integration/test_gallery_art_placements.gd:58)
+       [8] test_unreached_and_empty_records_keep_inert_title_semantics (res://tests/integration/test_gallery_art_placements.gd:146)
+       [9] _run_test (res://addons/gut/gut.gd:622)
+       [10] _test_the_scripts (res://addons/gut/gut.gd:835)
+    3 Orphans
+        * [@Button@716:<Button#4195998501754>(GalleryRecordButton.gd)] + 2
+* test_record_title_uses_active_locale_font_and_wraps_fully
+3/3 passed.
+
+
+res://tests/integration/test_menu_gallery_host.gd
+* test_actual_entry_return_back_and_reopen_reuse_one_gallery
+* test_settings_capture_and_pending_commit_refuse_gallery_then_return_restores_settings_row
+* test_backup_confirmation_is_exclusive_and_one_back_only_cancels_it
+* test_visible_clear_restore_refreshes_and_hidden_publication_cannot_take_focus
+* test_native_dropdown_back_dismisses_only_modal_and_gallery_stays_refused
+* test_gallery_waits_for_settings_cleanup_and_login_cannot_race_transition
+6/6 passed.
+
+
+res://tests/unit/test_gallery_registrar.gd
+* test_discovery_order_is_detached_and_visible_copy_contains_no_private_class_or_replay_command
+* test_native_keyboard_controller_navigation_stops_at_bounds_and_skips_disabled_replay
+* test_pointer_selection_is_release_only_and_exit_return_or_target_loss_cannot_revive_press
+* test_wheel_and_trackpad_cancel_pointer_press_even_at_scroll_boundary
+* test_geometry_and_actual_wrapped_font_metrics_at_three_locales_and_sizes
+* test_refresh_preserves_selection_and_clear_gallery_has_true_empty_geometry
+* test_hidden_publications_and_navigation_refresh_do_not_mutate_shared_return
+* test_malformed_discovery_is_technical_failure_not_empty_or_partial_records
+* test_invalid_host_localization_refuses_atomically_and_rebinding_is_rejected
+* test_overflow_scroll_clamps_without_changing_selection_and_uses_standard_palettes
+10/10 passed.
+
+
+res://tests/unit/test_localization.gd
+* test_initialization_loads_manifest_and_returns_detached_selectable_records
+* test_alias_switch_commits_profile_before_signals_and_publishes_once
+* test_lookup_uses_registered_fallback_and_exact_placeholder_sets
+WARNING: Localization format for key 'hud.minesweeper_rounds'
+   at: push_warning (core/variant/variant_utility.cpp:1034)
+   GDScript backtrace (most recent call first):
+       [0] _warn_once (res://autoload/LocalizationManager.gd:454)
+       [1] t (res://autoload/LocalizationManager.gd:210)
+       [2] test_lookup_uses_registered_fallback_and_exact_placeholder_sets (res://tests/unit/test_localization.gd:114)
+       [3] _run_test (res://addons/gut/gut.gd:622)
+       [4] _test_the_scripts (res://addons/gut/gut.gd:835)
+WARNING: Localization missing for key 'missing.key'
+   at: push_warning (core/variant/variant_utility.cpp:1034)
+   GDScript backtrace (most recent call first):
+       [0] _warn_once (res://autoload/LocalizationManager.gd:454)
+       [1] t (res://autoload/LocalizationManager.gd:204)
+       [2] test_lookup_uses_registered_fallback_and_exact_placeholder_sets (res://tests/unit/test_localization.gd:116)
+       [3] _run_test (res://addons/gut/gut.gd:622)
+       [4] _test_the_scripts (res://addons/gut/gut.gd:835)
+[ExpectedError]
+* test_prepare_locale_is_detached_and_unknown_locale_mutates_nothing
+* test_pending_root_is_applied_during_initialization
+* test_pending_root_can_unregister_and_pending_failure_fails_initialization
+* test_ready_registration_applies_current_presentation_without_stale_state
+* test_root_apply_failure_rolls_back_prior_root_and_preserves_profile
+* test_profile_write_failure_rolls_back_all_roots_and_manager
+* test_initialization_canonicalizes_alias_and_removed_locale_to_durable_values
+* test_prepared_bundle_contains_only_candidate_fallback_chain
+* test_external_committed_language_change_applies_validated_memory_without_second_write
+* test_configured_mutation_gate_identity_survives_initialization
+* test_restore_apply_and_rollback_are_silent_and_detached
+* test_both_chinese_catalogs_translate_all_real_title_buttons_without_english_fallback
+* test_witnessed_transport_copy_is_catalog_owned_in_all_three_locales
+16/16 passed.
+
+
+res://tests/unit/test_localization_extraction.gd
+* test_every_immutable_subset_record_remains_in_catalogs_exactly
+* test_immutable_fingerprint_matches_exact_50_25_25_records
+* test_manifest_and_catalog_bundle_are_semantically_valid
+* test_manifest_rejects_duplicates_paths_and_cycles
+* test_placeholder_mismatch_rejects_bundle
+5/5 passed.
+
+
+res://tests/unit/tooling/test_public_surface_inventory.gd
+* test_public_surface_inventory_exists
+* test_build_produces_complete_sorted_records
+* test_validation_failure_matrix
+* test_reserved_symbol_rules
+* test_write_canonical_json_round_trip
+* test_game_state_required_surface_reservations
+* test_task3_required_surface_realizes_authenticated_contacts_and_retires_legacy_reply
+* test_task4_committed_schedule_seams_carry_their_exact_frozen_signatures
+* test_save_manager_required_surface_freezes_realized_facade
+* test_both_live_inventories_reproduce_every_canonical_byte
+* test_read_only_check_detects_call_site_dynamic_reference_and_signature_drift
+11/11 passed.
+
+
+res://tests/unit/tooling/test_doc_validator.gd
+* test_validator_error_matrix
+* test_accepted_decision_contract_and_index
+* test_authority_index_validation_rejects_invalid_bytes_that_decode_like_expected_text
+3/3 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/unit/test_gallery_record_paper.gd
+    - Outside Tests
+        * [<Node#131617261336>(subsystem_animation.gd)]
+        * [<Node#131634038564>(subsystem_audio.gd)]
+        * [<Node#131650815796>]
+        * [<Node#131667593021>]
+        * [<Node#131684370243>(subsystem_backgrounds.gd)]
+        * [<Node#132221241156>(subsystem_choices.gd)]
+        * [<Timer#132238018373>]
+        * [<Node#132254795590>(subsystem_expression.gd)]
+        * [<Node#132288350027>(subsystem_glossary.gd)]
+        * [<Node#132305127244>(subsystem_history.gd)]
+        * [<Node#132321904461>(subsystem_input.gd)]
+        * [<Timer#132338681678>]
+        * [<Node#132355458895>(subsystem_jump.gd)]
+        * [<Node#132372236112>(subsystem_containers.gd)]
+        * [<Node#132389013329>(subsystem_portraits.gd)]
+        * [<Node#132925884242>(subsystem_save.gd)]
+        * [<Timer#132942661459>]
+        * [<Node#132959438676>(subsystem_settings.gd)]
+        * [<Node#132976215896>(subsystem_styles.gd)]
+        * [<Node#132992993113>(subsystem_text.gd)]
+        * [<Node#133076879198>(subsystem_text_input.gd)]
+        * [<Node#133093656415>(subsystem_variables.gd)]
+        * [<Node#133110433632>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#133127210849>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+Totals
+------
+Scripts              13
+Tests                99
+Passing Tests        99
+Asserts            7128
+Orphans              24
+Time              33.965s
+
+
+---- All tests passed! ----

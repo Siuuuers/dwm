@@ -1,0 +1,3618 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/remaining-root-disposable-20260914/.godot/phase2r_tests/5ca017a1-4eaa-4715-9ec6-f66c0efcd9aa/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+ROOT_GUARD_PROBE {"mode":"empty","phase":"run","root":"C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\minesweeper-view-controls\\.godot\\phase2r_tests\\remaining-root-disposable-20260914\\.godot\\phase2r_tests\\5ca017a1-4eaa-4715-9ec6-f66c0efcd9aa\\dwm_test_root","snapshot":{"directories":["."],"errors":[],"exists":true,"files":{}}}
+
+
+res://tests/unit/test_application_bootstrap.gd
+* test_stage_order_runs_minesweeper_after_day_resolution_and_before_readiness
+* test_minesweeper_stage_rejects_a_missing_gate_without_partial_configuration
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 106
+* test_minesweeper_stage_rejects_missing_targets_without_partial_configuration
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 121
+* test_minesweeper_stage_rejects_an_unretained_checkpoint_port_without_partial_configuration
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 134
+* test_minesweeper_stage_rejects_unconfigured_checkpoint_providers
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 148
+* test_minesweeper_stage_rejects_a_gate_game_state_did_not_retain
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 161
+* test_minesweeper_stage_constructs_exactly_one_coordinator_over_production_adapters
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 176
+* test_identical_startup_replay_reuses_the_exact_same_round_graph
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 216
+* test_game_state_refuses_a_second_distinct_round_coordinator
+* test_round_facade_fails_closed_before_the_coordinator_is_installed
+* test_game_state_reports_only_its_gate_identity_never_the_gate
+* test_bootstrap_stage_and_this_suite_are_source_bound_by_uid
+5/12 passed.
+
+
+res://tests/unit/test_day_resolution_snapshot_production.gd
+* test_prepare_completion_emits_every_checkpoint_input_key
+* test_inner_snapshot_input_carries_the_live_lifecycle
+* test_no_stub_run_id_day_shape_remains
+* test_unconfigured_port_still_emits_a_valid_shape
+* test_configured_providers_supply_the_five_non_game_state_fields
+* test_configure_rejects_wrong_provider_sets_and_replacement
+* test_bundle_is_detached_from_live_state
+* test_real_checkpoint_port_accepts_the_produced_bundle
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 210
+* test_day_seven_ending_plan_survives_into_the_prepared_snapshot
+* test_checkpoint_carries_the_post_completion_lifecycle
+* test_commit_applies_the_exact_lifecycle_the_checkpoint_recorded
+* test_a_rejected_stage_never_reaches_live_state
+* test_active_plan_may_trail_the_day_by_exactly_one
+* test_active_plan_trailing_by_two_still_rejects
+* test_active_plan_ahead_of_the_day_still_rejects
+* test_both_validators_share_one_active_plan_day_window
+* test_a_snapshot_the_schema_accepts_also_restores_through_run_lifecycle
+* test_both_validators_reject_a_two_day_gap
+* test_daily_reset_is_detached_checkpointed_and_reversible
+* test_daily_reset_without_carried_condition_clears_today_effects
+* test_schedule_condition_is_detached_checkpointed_and_rolls_back_with_the_stage
+* test_schedule_condition_requires_carried_sequela_and_day7_bypasses_it
+21/22 passed.
+
+
+res://tests/unit/test_desktop_accessibility_contract.gd
+* test_debug_exposes_exactly_one_forced_cell_and_rejects_every_other_cell
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 67
+* test_debug_rejects_every_other_cell_before_any_live_mutation
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 112
+* test_supportz_exposes_one_neutral_accessible_name_and_no_effect_description
+* test_every_non_secret_shop_row_carries_no_secret_accessibility_label
+* test_the_purchase_request_shape_has_no_device_or_input_method_field
+* test_pointer_touch_keyboard_and_gamepad_confirm_produce_the_identical_request_shape
+4/6 passed.
+
+
+res://tests/unit/test_game_state_facade_contract.gd
+* test_configure_mutation_gate_matrix_without_side_effects
+* test_day_is_read_only_compatibility
+* test_prepare_new_run_snapshot_input_is_pure
+* test_request_schedule_done_delegates_through_production_port
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 145
+* test_schedule_commit_seams_are_narrow_reversible_and_silent
+* test_day7_terminal_via_facade_never_creates_day8
+* test_capture_schedule_warning_state_is_narrow_read_only_and_exact
+* test_capture_schedule_warning_state_facts_are_day_scoped_and_detached
+7/8 passed.
+
+
+res://tests/unit/test_game_state_schedule_commit_port.gd
+* test_zero_entries_derive_the_empty_done_row_and_charge_no_motivation
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the committed-Schedule fixture is unavailable
+      at line 327
+* test_entry_ordinals_follow_validated_slot_order_not_input_or_raw_slot
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the committed-Schedule fixture is unavailable
+      at line 371
+* test_seven_entries_with_two_dates_and_repeats_charge_one_motivation_each
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the committed-Schedule fixture is unavailable
+      at line 425
+* test_day7_accepts_empty_done_and_one_eligible_solo_at_slot_zero
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the committed-Schedule fixture is unavailable
+      at line 453
+* test_insufficient_motivation_stale_registry_and_source_tamper_yield_no_candidate
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the committed-Schedule fixture is unavailable
+      at line 478
+* test_forged_or_identifier_only_issuer_input_is_refused
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the committed-Schedule fixture is unavailable
+      at line 522
+* test_same_transaction_replay_is_byte_identical_and_changed_bytes_conflict
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the committed-Schedule fixture is unavailable
+      at line 563
+* test_every_row_projection_is_load_bearing_in_the_derived_identity
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the committed-Schedule fixture is unavailable
+      at line 594
+* test_prepare_and_capture_are_pure_and_silent
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the committed-Schedule fixture is unavailable
+      at line 661
+* test_commit_changes_only_motivation_and_committed_schedule_silently
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the committed-Schedule fixture is unavailable
+      at line 695
+* test_rollback_restores_exactly_the_backup_and_preserves_concurrent_changes
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the committed-Schedule fixture is unavailable
+      at line 723
+* test_stale_before_fingerprint_and_caller_mutation_after_prepare_are_refused
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the committed-Schedule fixture is unavailable
+      at line 753
+* test_publish_requires_current_state_and_is_at_most_once_across_restart
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the committed-Schedule fixture is unavailable
+      at line 778
+* test_a_changed_publication_byte_at_an_occupied_key_conflicts_without_a_signal
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the committed-Schedule fixture is unavailable
+      at line 823
+* test_new_run_and_rollback_cannot_erase_or_lower_the_external_record
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the committed-Schedule fixture is unavailable
+      at line 866
+* test_candidate_and_commit_bytes_are_independent_of_every_legacy_field
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the committed-Schedule fixture is unavailable
+      at line 896
+* test_new_modules_never_name_the_legacy_schedule_api
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the committed-Schedule fixture is unavailable
+      at line 946
+0/17 passed.
+
+
+res://tests/unit/test_hospital_presentation_port.gd
+* test_configure_is_idempotent_and_refuses_a_replacement_dependency
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+      at line 211
+* test_an_unconfigured_port_routes_nothing_and_starts_no_physical_presentation
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+      at line 226
+* test_the_hospital_port_refuses_a_dating_challenge_owner
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+      at line 237
+* test_an_incomplete_issuer_or_owner_is_refused
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+      at line 249
+* test_a_valid_intent_returns_the_canonical_command_and_nothing_else
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+      at line 262
+* test_the_request_member_set_is_exact
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+      at line 288
+* test_a_dating_route_is_refused_by_the_hospital_port
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+      at line 300
+* test_an_unregistered_locator_is_refused
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+      at line 310
+* test_the_hospital_context_member_set_and_kind_are_exact
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+      at line 319
+* test_hospital_context_arrays_must_be_sorted_and_unique
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+      at line 339
+* test_an_unverified_resolution_root_is_refused_before_any_physical_start
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+      at line 356
+* test_a_locally_derived_completion_id_is_refused
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+      at line 369
+* test_a_completion_child_of_the_wrong_kind_or_parent_is_refused
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+      at line 379
+* test_every_projected_field_binds_the_completion_child
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+      at line 401
+* test_a_changed_context_preimage_breaks_the_completion_binding
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+      at line 417
+* test_a_byte_identical_replay_returns_the_identical_command_and_token
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+      at line 433
+* test_a_drifted_replay_cannot_overwrite_the_stored_command
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+      at line 447
+* test_a_bypassed_binding_still_conflicts_on_command_identity
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+      at line 473
+* test_a_trusted_owner_completion_produces_the_exact_frozen_receipt_once
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+      at line 498
+* test_a_duplicate_owner_emission_returns_the_same_receipt_without_a_second_publication
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+      at line 528
+* test_a_scene_authored_receipt_never_reaches_a_stage
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+      at line 552
+* test_owner_receipt_drift_is_refused_before_any_stage_mutation
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+      at line 577
+* test_a_command_this_port_never_issued_is_refused
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+      at line 600
+* test_a_tampered_command_is_a_conflict_not_a_completion
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+      at line 615
+* test_the_complete_request_member_set_is_exact
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+      at line 634
+* test_an_owner_failure_publishes_exactly_one_failure_and_no_completion
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+      at line 644
+* test_an_emission_for_an_unknown_command_fails_rather_than_completing
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+      at line 653
+0/27 passed.
+
+
+res://tests/unit/test_schedule_view_controller.gd
+* test_an_unconfigured_controller_fails_closed
+* test_configure_accepts_the_live_fingerprint_and_rejects_a_stale_one
+* test_open_day_rejects_days_zero_and_eight
+* test_open_day_produces_the_canonical_empty_view
+* test_seven_ordinary_slots_fill_with_repeats_and_distinct_draft_ids
+* test_an_occupied_slot_and_an_out_of_range_slot_are_refused
+* test_a_reused_draft_entry_id_is_refused
+* test_a_non_repeatable_date_cannot_repeat
+* test_kind_and_participants_are_registry_derived
+* test_source_receipt_class_is_enforced_at_add_time
+* test_an_unregistered_action_is_refused
+* test_an_action_outside_its_day_window_is_refused
+* test_a_third_date_on_day_six_is_refused
+* test_group_and_solo_dates_exclude_each_other_in_both_orders
+* test_receipts_of_superseded_solos_do_not_linger
+* test_date_entry_seen_latches_and_removal_never_clears_it
+* test_day_seven_is_empty_or_one_solo_at_slot_zero
+* test_day_seven_refuses_off_day_actions_and_nonzero_slots
+* test_priscilla_may_occupy_any_day_four_slot
+* test_prepare_move_and_prepare_remove_change_only_their_entry
+* test_move_and_remove_refuse_unknown_and_colliding_targets
+* test_capture_and_rollback_round_trip_byte_equal
+* test_condition_departure_commit_appends_and_installs_the_after_view
+* test_a_byte_identical_retry_returns_unchanged
+* test_a_conflicting_retry_is_typed_and_leaves_no_partial_mutation
+* test_a_third_live_state_is_a_typed_conflict_without_partial_mutation
+* test_lookup_condition_departure_receipt_is_detached_and_typed_when_absent
+* test_the_ledger_survives_open_day_with_an_unchanged_optimistic_fingerprint
+* test_snapshot_is_detached
+* test_every_edit_leaves_motivation_and_the_committed_schedule_byte_equal
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 574
+* test_a_live_after_view_adopts_the_receipt_without_reapplying
+* test_a_malformed_condition_candidate_shape_is_refused
+* test_a_non_dictionary_transition_receipt_is_refused
+* test_an_invalid_after_view_is_refused_without_mutation
+* test_configure_refuses_null_dependencies
+34/35 passed.
+
+
+res://tests/unit/test_schedule_warning_receipts.gd
+* test_docket_commands_cannot_change_an_active_warning_or_its_view
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Schedule warning fixture is unavailable
+      at line 186
+* test_configure_warning_identity_is_one_time_and_typed
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Schedule warning fixture is unavailable
+      at line 241
+* test_activation_fails_closed_without_the_warning_identity
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Schedule warning fixture is unavailable
+      at line 262
+* test_activation_creates_the_exact_pending_record
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Schedule warning fixture is unavailable
+      at line 275
+* test_activation_with_no_eligible_warning_proceeds
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Schedule warning fixture is unavailable
+      at line 326
+* test_repeating_the_same_done_command_returns_the_same_activation
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Schedule warning fixture is unavailable
+      at line 340
+* test_a_different_done_command_while_open_rejects
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Schedule warning fixture is unavailable
+      at line 355
+* test_a_forged_transaction_root_is_refused
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Schedule warning fixture is unavailable
+      at line 368
+* test_activation_validates_the_context
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Schedule warning fixture is unavailable
+      at line 380
+* test_dismissal_consumes_with_an_exact_terminal_receipt
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Schedule warning fixture is unavailable
+      at line 393
+* test_navigation_success_stores_the_navigation_child
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Schedule warning fixture is unavailable
+      at line 444
+* test_failed_navigation_appends_an_attempt_and_keeps_the_activation
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Schedule warning fixture is unavailable
+      at line 473
+* test_an_identical_failed_navigation_retry_returns_the_original
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Schedule warning fixture is unavailable
+      at line 505
+* test_duplicate_successful_terminal_input_returns_the_original
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Schedule warning fixture is unavailable
+      at line 529
+* test_conflicting_transaction_reuse_fails_without_mutation
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Schedule warning fixture is unavailable
+      at line 549
+* test_resolution_shape_and_missing_pending_are_typed
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Schedule warning fixture is unavailable
+      at line 574
+* test_the_preimage_is_detached_from_live_owners
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Schedule warning fixture is unavailable
+      at line 596
+* test_a_terminal_reusing_the_activation_transaction_is_refused
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Schedule warning fixture is unavailable
+      at line 620
+* test_an_activation_reusing_a_terminal_transaction_is_refused
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Schedule warning fixture is unavailable
+      at line 633
+* test_a_different_intent_failed_navigation_retry_conflicts
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Schedule warning fixture is unavailable
+      at line 656
+* test_an_invalid_replacement_issuer_is_refused_as_invalid
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Schedule warning fixture is unavailable
+      at line 674
+0/21 passed.
+
+
+res://tests/integration/test_application_bootstrap.gd
+* test_project_autoload_order_is_the_exact_final_literal_sequence
+* test_master_stage_order_is_frozen
+* test_exactly_nine_targets_retain_one_shared_gate_identity
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 171
+* test_one_desktop_host_is_shared_by_route_restore_and_the_direct_checkpoint_provider
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 192
+* test_the_stable_active_app_callable_keeps_its_identity_and_returns_raw_json_values
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 209
+* test_the_retained_checkpoint_port_and_gate_are_shared_by_both_coordinators
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 234
+* test_exactly_one_day_changed_connection_dispatches_one_eviction_command
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 266
+* test_a_missing_eviction_port_latches_one_primitive_validated_fatal
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 302
+* test_each_stage_failure_returns_one_fatal_result_and_never_reaches_readiness
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 334
+* test_new_acc_storage_settles_before_profile_and_failure_stops_all_consumers
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 406
+2/10 passed.
+
+
+res://tests/integration/test_causal_day_advance_identity_recovery.gd
+* test_a_crash_before_the_root_commit_leaves_no_allocation
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_a_crash_after_the_root_commit_replays_the_same_bytes
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_recovery_is_idempotent_across_repeated_restarts
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_a_changed_request_under_a_committed_key_fails_closed
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_six_successive_advances_yield_days_two_through_seven_and_no_day_eight
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_each_source_day_allocates_a_distinct_target_identity
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+0/6 passed.
+
+
+res://tests/integration/test_committed_schedule_day_resolution.gd
+* test_a_real_nonempty_commit_starts_a_resolution_that_freezes_the_committed_order
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_a_nonempty_aggregate_is_revalidated_entry_by_entry_before_any_start
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_a_receipt_backed_empty_commit_starts_a_day_seven_resolution_with_no_substages
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_the_exact_real_schedule_survives_serialize_and_restore
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_publication_is_the_only_start_signal_and_replays_without_a_second_one
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_both_publication_kinds_land_in_the_one_shared_ledger_document
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_rollback_leaves_no_active_plan_and_no_executed_stage
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_a_same_resolution_replay_returns_the_existing_plan_and_a_rival_conflicts
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_the_production_state_port_begins_from_the_owners_real_committed_schedule
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_the_execute_stage_receipt_reads_entry_ids_from_the_committed_substages
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_a_replayed_substage_completion_is_reported_as_a_duplicate_with_its_stored_receipt
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_a_replayed_substage_completion_with_different_bytes_is_a_conflict
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_a_replayed_stage_completion_with_different_bytes_is_a_conflict
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_a_replayed_identical_stage_completion_is_a_duplicate_with_its_stored_receipt
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_the_presentation_seam_refuses_an_ordinary_substage_transaction
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_the_presentation_seam_refuses_a_never_presenting_stage_transaction
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_a_minted_hospital_envelope_cannot_settle_a_stage_that_never_began
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+0/17 passed.
+
+
+res://tests/integration/test_committed_schedule_effect_order.gd
+* test_each_committed_ordinary_entry_applies_its_registered_effects_exactly_once
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_repeated_ordinary_entries_apply_once_each_through_distinct_substage_ids
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_ordinary_effects_commit_before_the_hospital_and_date_stages
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_a_faint_supersedes_every_committed_date_before_any_board_runs
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_a_hospital_that_presented_records_the_faint_it_presented_on
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_without_a_faint_the_committed_dates_survive
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_a_superseded_sylvia_date_commits_its_witness_into_the_contacts_index
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_a_faint_without_a_sylvia_date_writes_no_witness
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_rolling_back_the_hospital_stage_restores_the_contacts_index
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+0/9 passed.
+
+
+res://tests/integration/test_committed_schedule_presentation_matrix.gd
+* test_the_surviving_date_variant_carries_its_exact_discriminator_tuple
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_the_hospital_variant_carries_its_exact_discriminator_tuple
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_the_hospital_source_set_contains_the_condition_id_with_and_without_misses
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_a_hospital_with_no_committed_date_still_names_its_condition_id
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_the_hospital_ancestry_children_are_exactly_the_matrix_rows
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_the_hospital_miss_ordinal_follows_committed_slot_order
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_every_projected_hospital_resolution_member_is_load_bearing
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_every_projected_hospital_miss_member_is_load_bearing
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_the_intent_child_is_exactly_the_matrix_row_p01_presentation_intent
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_every_projected_intent_member_is_load_bearing
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_the_intent_parent_and_ordinal_are_load_bearing
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_the_source_set_is_order_independent_but_membership_is_not
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_the_completion_child_is_exactly_the_matrix_row_p01_presentation_completion
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_the_completion_binds_its_intent_and_never_includes_itself
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_the_completion_names_the_top_level_stage_and_not_the_entry_substage
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_every_projected_completion_member_is_load_bearing
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_an_underivable_presentation_refuses_with_the_stage_still_pending
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_hospital_supersession_is_what_owes_the_pair_a_presentation
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_the_deferred_pair_variant_carries_its_exact_matrix_row
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_the_deferred_pair_settles_through_the_presentation_seam
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_a_dating_round_begins_during_the_deferred_pair_presentation
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_no_dating_round_begins_after_the_pair_presentation_completes
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_the_pair_evidence_ignores_scrambled_live_contacts
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+0/23 passed.
+
+
+res://tests/integration/test_committed_schedule_presentation_resume.gd
+* test_a_crash_before_or_after_intent_derivation_rebuilds_the_same_children
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_a_crash_never_renumbers_a_surviving_presentation
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_a_crash_after_the_route_command_replays_the_identical_command_and_token
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_a_duplicate_physical_completion_publishes_exactly_one_receipt
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_a_settled_completion_replays_the_identical_receipt_and_envelope
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_a_receipt_that_does_not_bind_the_command_never_reaches_a_stage
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_a_crash_after_the_stage_checkpoint_never_presents_again
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_a_superseded_date_never_presents_across_a_crash
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_the_presentation_seam_refuses_a_superseded_date_transaction
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_a_dating_round_begins_from_the_active_date_substage_evidence
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_a_superseded_date_substage_yields_no_dating_evidence
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_dating_evidence_names_the_active_date_not_a_settled_one
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_a_crash_across_the_hospital_presentation_restores_the_flag_with_the_plan
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+0/13 passed.
+
+
+res://tests/integration/test_day_resolution_disk_durability.gd
+* test_real_ports_resolve_a_day_without_rejecting_the_snapshot
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_real_day_resolution_writes_a_parsable_disk_autosave
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_disk_autosave_validates_as_a_save_document
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_persisted_snapshot_carries_the_live_lifecycle_and_ledger
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_persisted_snapshot_is_restorable_by_the_save_manager
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_real_coordinator_resolves_every_day_one_through_seven
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_day_seven_walk_stops_at_the_provenance_handoff_without_entering_ending
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_a_day_seven_crash_restores_the_same_run_on_day_seven
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+0/8 passed.
+
+
+res://tests/integration/test_desktop_action_matrix.gd
+* test_row_shop_lucky_charm_quote_matches_the_registry_record
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_row_shop_debug_key_quote_matches_the_registry_record
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_row_shop_supportz_quote_matches_the_registry_record_and_structured_cap
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_row_shop_lucky_charm_prepare_purchase_is_fail_closed
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_row_shop_debug_key_prepare_purchase_is_fail_closed
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_row_shop_supportz_prepare_purchase_is_fail_closed
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_row_minesweeper_round_complete_round_is_fail_closed
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_row_minesweeper_round_reveal_is_fail_closed
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+0/8 passed.
+
+
+res://tests/integration/test_desktop_board_persistence.gd
+* test_restore_remaps_board_identity_and_command_receipt_keys
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 159
+* test_restore_remaps_consequence_causal_day_pair
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 194
+* test_restore_rejects_a_corrupted_board_before_touching_live_state
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 219
+* test_restore_rejects_a_corrupted_consequence_receipt_before_live_mutation
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 234
+* test_a_completed_restore_leaves_no_incomplete_continuation
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 267
+0/5 passed.
+
+
+res://tests/integration/test_desktop_bootstrap_wiring.gd
+* test_the_probe_exists_and_returns_only_integers_and_booleans
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_the_probe_names_every_foundation_identity_step_8_1_requires
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_reading_the_probe_twice_is_stable_and_mutates_nothing
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_presentation_configuration_reconstructs_no_foundation_instance
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_identical_startup_replay_reuses_every_instance
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_a_swapped_issuer_is_visible_in_the_probe
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_the_probe_reports_hospital_ready_and_dating_deliberately_not_ready
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_the_producer_is_not_ready_before_the_desktop_graph_stage
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_an_unbuilt_foundation_reports_zero_rather_than_guessing
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_the_production_graph_wires_every_object_identity_and_readiness
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_the_desktop_publication_ledger_is_shared_by_causal_round_shop_and_board_fate
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_the_round_coordinator_and_board_fate_port_drive_the_exact_same_shared_board_state
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_the_consequence_coordinator_retains_the_exact_round_and_shop_source_objects
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_the_consequence_coordinator_holds_the_real_condition_departure_pair
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_snapshot_provider_instance_id_equals_game_state
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_the_probe_names_identity_allocation_plus_the_nine_participant_keys
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_identical_replay_of_the_production_graph_reuses_every_instance
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_the_production_graph_never_touches_the_retained_simulator_install_seam
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_the_desktop_graph_composes_the_condition_pair_and_flips_the_producer_ready
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_replaying_the_desktop_graph_reuses_the_condition_pair_and_dispatcher
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_gameplay_mount_uses_real_ports_and_first_reveal_persists_one_charge
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_fresh_graph_keeps_prior_day_two_autosave_after_failed_completion
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_fresh_graph_keeps_prior_autosave_after_failed_condition_departure
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_shop_purchase_saves_authored_effects_and_retries_without_a_second_charge
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_fresh_graph_keeps_prior_autosave_after_failed_ordinary_purchase
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_fresh_graph_keeps_prior_autosave_after_failed_special_purchase
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_shop_batch_and_public_gift_alias_commit_authored_values_and_inventory
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+0/27 passed.
+
+
+res://tests/integration/test_desktop_completion_transaction.gd
+* test_complete_round_transacts_exactly_once_against_real_ports
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 198
+* test_complete_round_departure_commits_board_fate_against_real_ports
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 259
+* test_a_source_already_holding_the_gate_blocks_the_other_source_until_it_releases
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 336
+0/3 passed.
+
+
+res://tests/integration/test_desktop_continuation_resume.gd
+* test_a_busy_gate_rejects_new_run_before_any_identity_is_minted_or_intent_is_written
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 362
+* test_a_busy_gate_rejects_restore_before_any_identity_is_minted_or_intent_is_written
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 382
+* test_crash_after_intent_committed_resumes_forward_to_completion
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 418
+* test_crash_after_allocation_resumes_forward_to_completion
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 434
+* test_crash_mid_participants_resumes_to_completion_on_a_fresh_boot
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 450
+* test_crash_after_participants_applied_resumes_to_completion
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 490
+* test_a_pre_allocation_restore_source_that_vanishes_aborts_with_a_typed_failure
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 517
+* test_restart_uses_frozen_dark_material_without_resampling_profile
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 593
+* test_restart_refuses_foreign_profile_bytes_without_overwriting_them
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 626
+0/9 passed.
+
+
+res://tests/integration/test_desktop_crash_recovery.gd
+* test_start_new_run_completes_against_the_real_profile_and_localization_pair
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_a_new_run_preserves_the_committed_global_profile_and_chains_its_locale
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_a_failed_new_run_leaves_a_genuinely_incomplete_continuation_that_reconciles_without_crashing
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_a_fresh_process_over_the_same_storage_boots_cleanly_after_a_failed_new_run
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_boot_itself_reconciles_before_returning_ok_not_only_when_called_a_second_time
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_the_bootstrap_retained_publication_ledger_survives_a_fresh_reload
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+0/6 passed.
+
+
+res://tests/integration/test_desktop_simulator_authority.gd
+* test_the_round_coordinator_never_receives_its_base_configure_in_production
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 124
+* test_no_production_class_defines_the_task5_shaped_checkpoint_or_generation_contract
+* test_the_shared_desktop_identity_context_is_a_real_but_blank_placeholder
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 157
+* test_two_independent_boots_mint_distinct_placeholder_run_and_branch_ids
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 173
+* test_the_shop_and_board_ports_share_the_exact_same_placeholder_context_object
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 186
+* test_logout_coordinator_is_never_constructed_by_the_production_graph
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 210
+* test_no_production_class_defines_the_stable_board_port_contract
+* test_the_production_graph_never_installs_into_the_retained_simulator_seam_either
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 239
+2/8 passed.
+
+
+res://tests/integration/test_hospital_dating_adapter_negative_contract.gd
+* test_the_committed_entry_contract_retired_the_old_nine_key_shape
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_every_retired_entry_field_is_refused_by_the_committed_validator
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_no_retired_field_reaches_the_adapter_over_a_real_committed_schedule
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_the_presentation_route_is_a_registry_fact_and_never_an_entry_field
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_twofriends_survives_only_as_a_stage_and_never_as_a_route
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_the_router_refuses_the_pseudo_route_and_the_stage_name_alike
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_the_walk_is_the_production_caller_of_route_presentation
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_the_real_router_satisfies_the_capability_the_coordinator_requires
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_the_legacy_pseudo_route_producer_has_no_caller_in_production
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_only_the_narrative_owner_may_start_a_dialogic_timeline
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_neither_presentation_port_exposes_a_timeline_start
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_no_presentation_adapter_names_a_gameplay_mutation_seam
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_the_comment_stripper_is_doing_real_work
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+0/13 passed.
+
+
+res://tests/integration/test_minesweeper_first_reveal_transaction.gd
+* test_first_reveal_writes_a_durable_pre_board_autosave_with_the_charged_and_revealed_state
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 341
+* test_first_reveal_charges_exactly_once_across_a_retried_request
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 365
+* test_adapter_rejects_a_desktop_less_post_commit_snapshot_input
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 381
+* test_adapter_rejects_a_board_only_desktop_value
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 399
+* test_adapter_rejects_an_extra_desktop_key
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 411
+* test_restore_after_a_crash_between_checkpoint_commit_and_live_adoption_recovers_the_paid_first_reveal
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 428
+* test_first_reveal_falls_back_to_the_fake_checkpoint_when_durable_is_not_configured
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 498
+0/7 passed.
+
+
+res://tests/integration/test_minesweeper_save_lock.gd
+* test_production_save_port_delegates_only_the_board_lock_owner
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 137
+* test_active_round_disables_save_silently_and_never_defers
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 164
+* test_completion_releases_the_lock_and_restores_capability
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 202
+* test_abort_releases_the_lock_without_publishing_a_result
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 220
+* test_a_failed_lock_acquisition_consumes_no_round_and_leaves_no_lock
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 236
+0/5 passed.
+
+
+res://tests/integration/test_minesweeper_shop_transaction.gd
+* test_lucky_charm_purchase_transacts_exactly_once_against_real_ports
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 124
+* test_a_second_purchase_within_the_same_prepared_purchase_conflicts
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 171
+* test_commit_rejects_before_causal_admission_leaving_currency_and_inventory_untouched
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 202
+* test_supportz_purchase_decrements_the_real_round_floor_and_spends_real_money
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 230
+0/4 passed.
+
+
+res://tests/integration/test_new_run_transaction.gd
+* test_start_new_run_rejects_bad_context
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 133
+* test_start_new_run_builds_day1_run_b
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 143
+* test_start_new_run_requires_identity_issuer
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 166
+* test_start_new_run_allocates_a_fresh_identity_per_call
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 194
+* test_start_new_run_requires_participants
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 209
+* test_finalize_failure_retains_new_run_and_retries_the_same_durable_identity
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 250
+* test_successful_finalization_keeps_new_checkpoint_instead_of_restoring_backup
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 278
+* test_predecision_failure_preserves_old_run_and_postdecision_failures_retain_recovery
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 296
+* test_durable_new_run_does_not_invoke_legacy_checkpoint_compensation
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 329
+* test_new_run_captures_pending_dark_once_and_consumes_it_before_live_publication
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 356
+* test_invalid_prepared_dark_facts_fail_before_durable_intent_and_release_gate
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 381
+* test_caller_cannot_override_captured_dark_intent
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 397
+0/12 passed.
+
+
+res://tests/integration/test_phase2r_schedule_desktop_handoff.gd
+* before_all
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 161
+* test_the_probe_is_read_from_the_real_public_seam_and_carries_only_primitives
+    [Risky]:  test_the_probe_is_read_from_the_real_public_seam_and_carries_only_primitives did not assert
+* test_the_snapshot_provider_role_is_the_live_game_state_in_this_same_boot
+    [Risky]:  test_the_snapshot_provider_role_is_the_live_game_state_in_this_same_boot did not assert
+* test_the_coordinator_holds_exactly_the_advance_port_the_probe_reports
+    [Risky]:  test_the_coordinator_holds_exactly_the_advance_port_the_probe_reports did not assert
+* test_every_declared_predecessor_role_is_a_nonzero_same_boot_integer
+    [Risky]:  test_every_declared_predecessor_role_is_a_nonzero_same_boot_integer did not assert
+* test_the_nine_restore_roles_are_nine_distinct_retained_participants
+    [Risky]:  test_the_nine_restore_roles_are_nine_distinct_retained_participants did not assert
+* test_the_round_and_shop_action_sources_are_two_different_owners
+    [Risky]:  test_the_round_and_shop_action_sources_are_two_different_owners did not assert
+* test_the_two_publication_ledgers_are_two_different_live_owners
+    [Risky]:  test_the_two_publication_ledgers_are_two_different_live_owners did not assert
+* test_the_guard_accepts_the_real_sealed_evidence_and_the_real_live_probe
+    [Risky]:  test_the_guard_accepts_the_real_sealed_evidence_and_the_real_live_probe did not assert
+* test_the_success_envelope_serializes_no_numeric_instance_id
+    [Risky]:  test_the_success_envelope_serializes_no_numeric_instance_id did not assert
+* test_the_guard_mutates_neither_seal_nor_probe
+    [Risky]:  test_the_guard_mutates_neither_seal_nor_probe did not assert
+* test_the_verdict_pins_the_sealed_bytes_of_the_suite_this_task_may_only_run
+    [Risky]:  test_the_verdict_pins_the_sealed_bytes_of_the_suite_this_task_may_only_run did not assert
+* test_the_verdict_reports_the_two_requirements_no_seal_attests
+    [Risky]:  test_the_verdict_reports_the_two_requirements_no_seal_attests did not assert
+* test_the_verdict_keeps_the_later_composition_with_its_later_owner
+    [Risky]:  test_the_verdict_keeps_the_later_composition_with_its_later_owner did not assert
+* test_the_verdict_records_the_one_lawful_forward_readiness_divergence
+    [Risky]:  test_the_verdict_records_the_one_lawful_forward_readiness_divergence did not assert
+* test_a_non_dictionary_input_is_refused
+    [Risky]:  test_a_non_dictionary_input_is_refused did not assert
+* test_a_relabelled_seal_subject_is_refused
+    [Risky]:  test_a_relabelled_seal_subject_is_refused did not assert
+* test_a_seal_pointing_at_another_commit_is_refused
+    [Risky]:  test_a_seal_pointing_at_another_commit_is_refused did not assert
+* test_a_seal_pointing_at_an_off_history_commit_is_refused
+    [Risky]:  test_a_seal_pointing_at_an_off_history_commit_is_refused did not assert
+* test_a_reachable_ancestor_carrying_the_wrong_subject_is_refused
+    [Risky]:  test_a_reachable_ancestor_carrying_the_wrong_subject_is_refused did not assert
+* test_a_malformed_declared_surface_digest_is_refused
+    [Risky]:  test_a_malformed_declared_surface_digest_is_refused did not assert
+* test_a_role_relation_set_that_is_not_the_frozen_six_is_refused
+    [Risky]:  test_a_role_relation_set_that_is_not_the_frozen_six_is_refused did not assert
+* test_two_ledgers_claiming_one_fixed_path_are_refused
+    [Risky]:  test_two_ledgers_claiming_one_fixed_path_are_refused did not assert
+* test_a_drifted_allocation_key_format_is_refused
+    [Risky]:  test_a_drifted_allocation_key_format_is_refused did not assert
+* test_an_allocator_receipt_missing_its_disposition_is_refused
+    [Risky]:  test_an_allocator_receipt_missing_its_disposition_is_refused did not assert
+* test_a_dropped_recipe_exclusion_is_refused
+    [Risky]:  test_a_dropped_recipe_exclusion_is_refused did not assert
+* test_a_gate_that_stops_attesting_preserved_schedule_keys_is_refused
+    [Risky]:  test_a_gate_that_stops_attesting_preserved_schedule_keys_is_refused did not assert
+* test_a_gate_whose_frozen_readiness_was_regenerated_is_refused
+    [Risky]:  test_a_gate_whose_frozen_readiness_was_regenerated_is_refused did not assert
+* test_a_seal_that_drops_a_consumed_binding_is_refused
+    [Risky]:  test_a_seal_that_drops_a_consumed_binding_is_refused did not assert
+* test_a_repointed_binding_digest_is_refused
+    [Risky]:  test_a_repointed_binding_digest_is_refused did not assert
+* test_a_fourth_allocator_seam_is_refused
+    [Risky]:  test_a_fourth_allocator_seam_is_refused did not assert
+* test_a_seal_without_command_records_is_refused
+    [Risky]:  test_a_seal_without_command_records_is_refused did not assert
+* test_a_repointed_test_log_digest_is_refused
+    [Risky]:  test_a_repointed_test_log_digest_is_refused did not assert
+* test_a_probe_missing_a_predecessor_member_is_refused
+    [Risky]:  test_a_probe_missing_a_predecessor_member_is_refused did not assert
+* test_an_unnamed_probe_key_is_refused
+    [Risky]:  test_an_unnamed_probe_key_is_refused did not assert
+* test_a_non_integer_predecessor_role_is_refused
+    [Risky]:  test_a_non_integer_predecessor_role_is_refused did not assert
+* test_an_unretained_predecessor_role_is_refused
+    [Risky]:  test_an_unretained_predecessor_role_is_refused did not assert
+* test_a_reordered_restore_order_is_refused
+    [Risky]:  test_a_reordered_restore_order_is_refused did not assert
+* test_a_missing_restore_role_is_refused
+    [Risky]:  test_a_missing_restore_role_is_refused did not assert
+* test_an_unretained_restore_role_is_refused
+    [Risky]:  test_an_unretained_restore_role_is_refused did not assert
+* test_one_object_serving_two_restore_roles_is_refused
+    [Risky]:  test_one_object_serving_two_restore_roles_is_refused did not assert
+* test_one_object_serving_both_action_sources_is_refused
+    [Risky]:  test_one_object_serving_both_action_sources_is_refused did not assert
+* test_a_flipped_sealed_role_verdict_is_refused
+    [Risky]:  test_a_flipped_sealed_role_verdict_is_refused did not assert
+* test_a_ledger_attestation_that_contradicts_the_probe_is_refused
+    [Risky]:  test_a_ledger_attestation_that_contradicts_the_probe_is_refused did not assert
+* test_one_live_object_serving_both_ledger_roles_is_refused
+    [Risky]:  test_one_live_object_serving_both_ledger_roles_is_refused did not assert
+* test_an_allocator_that_is_not_the_dot16_owner_is_refused
+    [Risky]:  test_an_allocator_that_is_not_the_dot16_owner_is_refused did not assert
+* test_a_raw_causal_day_issue_path_is_refused
+    [Risky]:  test_a_raw_causal_day_issue_path_is_refused did not assert
+* test_a_third_resolution_kind_is_refused
+    [Risky]:  test_a_third_resolution_kind_is_refused did not assert
+* test_a_caller_supplied_target_day_identity_is_refused
+    [Risky]:  test_a_caller_supplied_target_day_identity_is_refused did not assert
+* test_a_publication_delivered_twice_across_a_restart_is_refused
+    [Risky]:  test_a_publication_delivered_twice_across_a_restart_is_refused did not assert
+* test_an_undeclared_conflict_code_is_refused
+    [Risky]:  test_an_undeclared_conflict_code_is_refused did not assert
+* test_a_schedule_done_recipe_carrying_a_checkpoint_is_refused
+    [Risky]:  test_a_schedule_done_recipe_carrying_a_checkpoint_is_refused did not assert
+* test_a_changed_snapshot_input_shape_is_refused
+    [Risky]:  test_a_changed_snapshot_input_shape_is_refused did not assert
+* test_an_undeclared_desktop_snapshot_member_is_refused
+    [Risky]:  test_an_undeclared_desktop_snapshot_member_is_refused did not assert
+* test_a_regressed_schema_version_is_refused
+    [Risky]:  test_a_regressed_schema_version_is_refused did not assert
+* test_a_live_snapshot_version_that_disagrees_with_its_owner_is_refused
+    [Risky]:  test_a_live_snapshot_version_that_disagrees_with_its_owner_is_refused did not assert
+* test_a_readiness_fact_that_stopped_matching_its_seal_is_refused
+    [Risky]:  test_a_readiness_fact_that_stopped_matching_its_seal_is_refused did not assert
+* test_a_producer_regression_below_finished_deviation_5_is_refused
+    [Risky]:  test_a_producer_regression_below_finished_deviation_5_is_refused did not assert
+* test_a_requirement_split_that_overstates_its_evidence_is_refused
+    [Risky]:  test_a_requirement_split_that_overstates_its_evidence_is_refused did not assert
+* test_a_later_owner_that_has_already_taken_the_composition_is_refused
+    [Risky]:  test_a_later_owner_that_has_already_taken_the_composition_is_refused did not assert
+* test_a_destination_composition_declared_ready_inside_phase_2r_is_refused
+    [Risky]:  test_a_destination_composition_declared_ready_inside_phase_2r_is_refused did not assert
+* test_a_seal_that_stops_recording_dating_as_deferred_is_refused
+    [Risky]:  test_a_seal_that_stops_recording_dating_as_deferred_is_refused did not assert
+* test_a_dating_presentation_declared_ready_inside_phase_2r_is_refused
+    [Risky]:  test_a_dating_presentation_declared_ready_inside_phase_2r_is_refused did not assert
+* test_a_seal_without_an_array_of_source_bindings_is_refused
+    [Risky]:  test_a_seal_without_an_array_of_source_bindings_is_refused did not assert
+* test_an_allocator_binding_without_a_declared_surface_is_refused
+    [Risky]:  test_an_allocator_binding_without_a_declared_surface_is_refused did not assert
+* test_a_command_record_that_is_not_an_object_is_refused
+    [Risky]:  test_a_command_record_that_is_not_an_object_is_refused did not assert
+* test_a_command_record_naming_no_log_is_refused
+    [Risky]:  test_a_command_record_naming_no_log_is_refused did not assert
+* test_a_recorded_log_absent_at_head_is_refused
+    [Risky]:  test_a_recorded_log_absent_at_head_is_refused did not assert
+* test_a_restore_order_that_is_not_an_array_is_refused
+    [Risky]:  test_a_restore_order_that_is_not_an_array_is_refused did not assert
+* test_restore_roles_that_are_not_a_dictionary_are_refused
+    [Risky]:  test_restore_roles_that_are_not_a_dictionary_are_refused did not assert
+* test_a_desktop_seal_without_a_bootstrap_probe_is_refused
+    [Risky]:  test_a_desktop_seal_without_a_bootstrap_probe_is_refused did not assert
+* test_a_desktop_seal_without_external_stores_is_refused
+    [Risky]:  test_a_desktop_seal_without_external_stores_is_refused did not assert
+* test_an_unrecorded_desktop_ledger_is_refused
+    [Risky]:  test_an_unrecorded_desktop_ledger_is_refused did not assert
+* test_a_gate_without_a_day_advance_identity_is_refused
+    [Risky]:  test_a_gate_without_a_day_advance_identity_is_refused did not assert
+* test_a_gate_recording_no_observed_publications_is_refused
+    [Risky]:  test_a_gate_recording_no_observed_publications_is_refused did not assert
+* test_a_gate_recording_no_conflict_codes_is_refused
+    [Risky]:  test_a_gate_recording_no_conflict_codes_is_refused did not assert
+* test_an_observed_publication_that_is_not_an_object_is_refused
+    [Risky]:  test_an_observed_publication_that_is_not_an_object_is_refused did not assert
+* test_a_minesweeper_seal_without_recipes_is_refused
+    [Risky]:  test_a_minesweeper_seal_without_recipes_is_refused did not assert
+* test_a_snapshot_desktop_member_that_is_not_an_object_is_refused
+    [Risky]:  test_a_snapshot_desktop_member_that_is_not_an_object_is_refused did not assert
+* test_a_desktop_seal_without_v4_facts_is_refused
+    [Risky]:  test_a_desktop_seal_without_v4_facts_is_refused did not assert
+* test_a_gate_without_current_versions_is_refused
+    [Risky]:  test_a_gate_without_current_versions_is_refused did not assert
+* test_a_gate_without_a_bootstrap_probe_is_refused
+    [Risky]:  test_a_gate_without_a_bootstrap_probe_is_refused did not assert
+* test_a_gate_probe_without_readiness_is_refused
+    [Risky]:  test_a_gate_probe_without_readiness_is_refused did not assert
+* test_a_seal_recording_no_requirement_ids_is_refused
+    [Risky]:  test_a_seal_recording_no_requirement_ids_is_refused did not assert
+* test_the_three_seal_documents_match_their_committed_bytes
+    [Risky]:  test_the_three_seal_documents_match_their_committed_bytes did not assert
+* test_a_hand_edited_seal_that_stays_internally_consistent_is_refused
+    [Risky]:  test_a_hand_edited_seal_that_stays_internally_consistent_is_refused did not assert
+* test_the_document_seam_refuses_a_non_dictionary_seal
+    [Risky]:  test_the_document_seam_refuses_a_non_dictionary_seal did not assert
+* test_the_real_schedule_commit_port_prepares_a_detached_aggregate_without_mutating
+    [Risky]:  test_the_real_schedule_commit_port_prepares_a_detached_aggregate_without_mutating did not assert
+* test_the_real_day_start_port_prepares_from_a_real_commit_without_starting_anything
+    [Risky]:  test_the_real_day_start_port_prepares_from_a_real_commit_without_starting_anything did not assert
+* test_the_real_shared_allocator_prepares_both_variants_without_committing_the_root
+    [Risky]:  test_the_real_shared_allocator_prepares_both_variants_without_committing_the_root did not assert
+* test_the_real_allocator_refuses_an_id_only_source_causal_day_receipt
+    [Risky]:  test_the_real_allocator_refuses_an_id_only_source_causal_day_receipt did not assert
+* test_the_real_provenance_owner_refuses_a_malformed_handoff
+    [Risky]:  test_the_real_provenance_owner_refuses_a_malformed_handoff did not assert
+* test_the_real_causal_sequence_port_stays_mutation_free_before_configuration
+    [Risky]:  test_the_real_causal_sequence_port_stays_mutation_free_before_configuration did not assert
+* test_the_real_causal_sequence_port_refuses_a_malformed_reservation
+    [Risky]:  test_the_real_causal_sequence_port_refuses_a_malformed_reservation did not assert
+* test_the_real_board_fate_port_refuses_a_projected_departure_before_configuration
+    [Risky]:  test_the_real_board_fate_port_refuses_a_projected_departure_before_configuration did not assert
+* test_the_real_minesweeper_save_port_refuses_an_incapable_checkpoint_owner
+    [Risky]:  test_the_real_minesweeper_save_port_refuses_an_incapable_checkpoint_owner did not assert
+* test_the_real_minesweeper_save_port_binds_the_real_checkpoint_owner
+    [Risky]:  test_the_real_minesweeper_save_port_binds_the_real_checkpoint_owner did not assert
+* test_the_nine_real_restore_participant_classes_share_one_interface
+    [Risky]:  test_the_nine_real_restore_participant_classes_share_one_interface did not assert
+* test_the_captured_snapshot_input_round_trips_through_the_real_v5_schema
+    [Risky]:  test_the_captured_snapshot_input_round_trips_through_the_real_v5_schema did not assert
+* test_the_real_v5_builder_refuses_a_snapshot_input_missing_a_declared_member
+    [Risky]:  test_the_real_v5_builder_refuses_a_snapshot_input_missing_a_declared_member did not assert
+* test_the_real_schedule_state_schema_rejects_the_aggregate_the_seal_forbids
+    [Risky]:  test_the_real_schedule_state_schema_rejects_the_aggregate_the_seal_forbids did not assert
+* test_pre_cutover_or_future_live_schema_claims_are_refused
+    [Risky]:  test_pre_cutover_or_future_live_schema_claims_are_refused did not assert
+0/101 passed.
+
+
+res://tests/integration/test_restore_production_adapters.gd
+* test_prepare_builds_nine_plans_and_commits
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 150
+* test_commit_prepared_restore_rejects_stray_identity_allocation_bundle_key
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 195
+* test_commit_prepared_restore_rejects_stray_transaction_issuer_receipt_key
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 209
+* test_commit_prepared_restore_rejects_stray_transaction_remap_key
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 223
+* test_late_narrative_incompatibility_selects_earlier_bundle
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 237
+* test_profile_prepare_failure_is_structural_not_content
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 252
+* test_physical_narrative_participant_prepares_against_current_manifest
+* test_physical_narrative_participant_reports_removed_content_as_recoverable
+* test_physical_narrative_participant_reports_fingerprint_drift_as_recoverable
+* test_physical_narrative_participant_fails_closed_on_malformed_bytes
+* test_checkpoint_port_configures_desktop_context_provider
+* test_semantic_narrative_participant_prepares_the_six_field_plan_over_the_real_bridge
+* test_semantic_narrative_participant_reports_manifest_drift_as_recoverable
+7/13 passed.
+
+
+res://tests/integration/test_restore_transaction.gd
+* test_configure_restore_participants_validates_nine_keys
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 48
+* test_restore_success_applies_and_finalizes_in_order
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 59
+* test_apply_failure_rolls_back_in_reverse_and_emits_nothing
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 82
+* test_rollback_failure_latches_shared_gate
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 103
+* test_narrative_content_incompatibility_is_typed_for_bundle_fallback
+* test_empty_playhead_stays_compatible_across_bundles
+* test_malformed_narrative_input_is_fail_closed_not_incompatible
+* test_failed_restore_finalization_restores_prior_journal_and_releases_save_lock
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 158
+3/8 passed.
+
+
+res://tests/integration/test_save_capability.gd
+* test_capability_values_per_owner
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 83
+* test_lock_idempotence_and_cross_owner_release
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 100
+* test_board_lock_is_silent_and_transition_defers
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 117
+* test_deferred_save_fulfilled_at_next_checkpoint
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 146
+0/4 passed.
+
+
+res://tests/integration/test_save_manager_journal.gd
+* test_record_checkpoint_advances_journal_and_persists_disk
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 89
+* test_real_port_preview_is_pure_and_matches_prepare
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 110
+* test_real_port_commit_and_autosave_round_trip
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 136
+* test_real_port_rollback_failure_latches_shared_gate
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 157
+* test_configure_fatal_latch_matrix
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 182
+* test_no_local_gate_or_projector_in_save_layer
+1/6 passed.
+
+
+res://tests/integration/test_schedule_done_public_walk.gd
+* test_a_committed_schedule_walk_presents_settles_and_advances_through_public_doors
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_the_walk_is_replay_safe_at_the_public_doors
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_the_disk_autosave_of_the_advanced_day_is_written
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+0/3 passed.
+
+
+res://tests/integration/test_schedule_downstream_contracts.gd
+* test_a01_validate_ports_covers_every_frozen_downstream_method
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 515
+* test_a02_schedule_prepare_commit_matches_the_frozen_contract
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 545
+* test_a03_day7_empty_done_provenance_matches_the_frozen_contract
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 587
+* test_a04_schedule_done_causal_reservation_matches_the_frozen_contract
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 628
+* test_a05_causal_admission_binds_reservation_checkpoint_and_payload_hash
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 666
+* test_a06_causal_commit_returns_the_combined_admission_receipt
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 686
+* test_a07_board_fate_schedule_done_uses_the_live_board_with_null_source_action_members
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 718
+* test_a08_board_fate_condition_departure_binds_the_exact_source_action
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 746
+* test_a09_consequence_accept_returns_the_frozen_value_and_receipt
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 768
+* test_a10_day_resolution_start_matches_the_frozen_contract
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 817
+* test_a11_board_fate_forfeits_a_started_board_with_nonnull_identity
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 861
+* test_a12_day7_scheduled_solo_provenance_binds_the_nonnull_trio
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 903
+* test_b01_schedule_prepare_commit_refuses_a_missing_member_without_mutation
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 948
+* test_b02_schedule_prepare_commit_refuses_an_extra_member_without_mutation
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 962
+* test_b03_schedule_prepare_commit_refuses_a_stale_registry_fingerprint_without_mutation
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 976
+* test_b04_schedule_prepare_commit_refuses_caller_supplied_route_effect_and_cost
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 990
+* test_b05_board_fate_accepts_only_its_own_request_shape_and_reason
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 1008
+* test_b06_board_fate_refuses_a_stale_board_revision_without_mutation
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 1042
+* test_b07_board_fate_refuses_a_wrong_causal_day_without_mutation
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 1055
+* test_b08_board_fate_refuses_a_bad_projection_hash_and_a_foreign_action_identity
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 1069
+* test_b09_causal_reservation_refuses_shape_and_stale_expectation_mutations
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 1094
+* test_b10_day7_provenance_refuses_shape_mutations_and_a_non_day7_commit
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 1133
+* test_b11_day_resolution_start_refuses_shape_mutations_and_a_wrong_causal_day
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 1171
+0/23 passed.
+
+
+res://tests/integration/test_schedule_foundation_bootstrap_wiring.gd
+* test_the_foundation_constructs_exactly_one_of_each_object
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_identical_startup_replay_reuses_every_retained_instance
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_one_ledger_is_retained_and_is_the_only_one_constructed
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_the_configured_provenance_service_is_injected_into_the_retained_state_port
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_the_foundation_refuses_to_build_without_the_retained_issuer_or_storage
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+0/5 passed.
+
+
+res://tests/integration/test_schedule_presentation_bootstrap_wiring.gd
+* test_composition_retains_exactly_one_of_each_presentation_object
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_identical_startup_replay_reuses_every_instance
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_the_hospital_port_retains_the_exact_bootstrap_owned_adapter
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_the_coordinator_dispatches_through_the_exact_router_the_ports_were_injected_into
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_the_adapter_retains_the_existing_bridge_rather_than_a_new_one
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_composition_without_an_issuer_or_bridge_fails_closed
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_the_coordinator_receives_the_exact_retained_port_identities
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_the_coordinator_refuses_a_replacement_port
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_the_coordinator_refuses_an_incomplete_presentation_capability
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_the_router_receives_the_exact_retained_port_identities
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_the_router_refuses_a_replacement_port
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_hospital_is_ready_and_dating_is_deliberately_not
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_bootstrap_configures_no_dating_owner_at_all
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_the_router_refuses_to_route_an_unready_dating_presentation
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_the_router_refuses_an_unknown_route_or_a_mismatched_command
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_an_unconfigured_router_routes_nothing
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+0/16 passed.
+
+
+res://tests/integration/test_schedule_publication_restart.gd
+* test_committed_schedule_is_captured_into_the_v3_snapshot
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_committed_schedule_survives_a_whole_document_round_trip
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_restore_reinstalls_the_committed_schedule_without_signals_until_finalize
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_publication_ledger_is_not_a_snapshot_or_document_member
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_selectable_operations_leave_the_ledger_bytes_identical
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_a_cold_ledger_rereads_the_durable_record_and_corruption_fails_closed
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+0/6 passed.
+
+
+res://tests/integration/test_schedule_warning_context_port.gd
+* test_snapshot_for_before_configure_is_typed
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_configure_refuses_invalid_owners_typed
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_configure_is_idempotent_and_rejects_replacement_before_any_read
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_snapshot_for_returns_the_exact_context_from_the_real_owners
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_real_contacts_drive_unread_accepted_and_the_subtraction_law
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_snapshot_for_requires_the_matching_day_and_causal_identity
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_snapshot_for_refuses_a_malformed_view
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_the_port_never_locates_owners_or_scenes_statically
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_a_foreign_board_identity_is_refused
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_a_none_phase_asymmetry_is_refused
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_a_live_board_projects_its_identity_ordinal_and_unfinished_state
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_an_invalid_replacement_is_refused_as_invalid_first
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+* test_a_null_next_ordinal_projects_a_null_base_round_ordinal
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+0/13 passed.
+
+
+res://tests/integration/test_shop_condition_contract_departure.gd
+* test_shop_purchase_departure_discards_an_unstarted_candidate
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 176
+* test_shop_purchase_without_a_departure_leaves_the_board_untouched
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 244
+0/2 passed.
+
+
+res://tests/integration/test_unified_restore_contract.gd
+* test_schedule_restores_with_the_other_owners_before_route_dispatch
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 35
+* test_late_failure_rolls_back_schedule_without_dispatching_the_route
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 49
+* test_failed_first_restore_returns_schedule_to_its_unopened_state
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 60
+0/3 passed.
+
+
+res://tests/integration/test_witnessed_run_presentation.gd
+* test_fresh_layout_reads_installed_run_and_next_run_waits_for_real_timeline_boundary
+    24 Orphans
+        * [<Node#1287852660230>(subsystem_animation.gd)]
+        * [<Node#1287869437447>(subsystem_audio.gd)]
+        * [<Node#1287886214664>]
+        * [<Node#1287902991881>]
+        * [<Node#1287919769098>(subsystem_backgrounds.gd)]
+        * [<Node#1287953323531>(subsystem_choices.gd)]
+        * [<Timer#1287970100748>]
+        * [<Node#1287986877965>(subsystem_expression.gd)]
+        * [<Node#1288020432399>(subsystem_glossary.gd)]
+        * [<Node#1288037209616>(subsystem_history.gd)]
+        * [<Node#1288053986833>(subsystem_input.gd)]
+        * [<Timer#1288070764050>]
+        * [<Node#1288087541267>(subsystem_jump.gd)]
+        * [<Node#1288104318484>(subsystem_containers.gd)]
+        * [<Node#1288121095701>(subsystem_portraits.gd)]
+        * [<Node#1288154650134>(subsystem_save.gd)]
+        * [<Timer#1288171427351>]
+        * [<Node#1288188204568>(subsystem_settings.gd)]
+        * [<Node#1288204981785>(subsystem_styles.gd)]
+        * [<Node#1288221759002>(subsystem_text.gd)]
+        * [<Node#1288305645087>(subsystem_text_input.gd)]
+        * [<Node#1288322422304>(subsystem_variables.gd)]
+        * [<Node#1288339199521>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#1288355976738>]
+* test_live_accessibility_recolours_same_native_caption_without_owner_poll_or_input_loss
+    24 Orphans
+        * [<Node#1311256876515>]
+        * [<Timer#1311424648759>]
+        * [<Node#1311441425976>(subsystem_jump.gd)]
+        * [<Node#1311458203193>(subsystem_containers.gd)]
+        * [<Node#1311474980410>(subsystem_portraits.gd)]
+        * [<Node#1311508534843>(subsystem_save.gd)]
+        * [<Timer#1311525312060>]
+        * [<Node#1311575643712>(subsystem_text.gd)]
+        * [<Node#1311659529794>(subsystem_text_input.gd)]
+        * [<Node#1311676307011>(subsystem_variables.gd)]
+        * [<Node#1311693084228>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#1311709861445>]
+        * [<Node#1311223322412>(subsystem_audio.gd)]
+        * [<Node#1311240099629>]
+        * [<Node#1311307208526>(subsystem_choices.gd)]
+        * [<Node#1311273654097>(subsystem_backgrounds.gd)]
+        * [<Node#1311542089554>(subsystem_settings.gd)]
+        * [<Node#1311558866808>(subsystem_styles.gd)]
+        * [<Node#1311374317434>(subsystem_glossary.gd)]
+        * [<Node#1311340763004>(subsystem_expression.gd)]
+        * [<Node#1311206545277>(subsystem_animation.gd)]
+        * [<Node#1311391094654>(subsystem_history.gd)]
+        * [<Node#1311407871871>(subsystem_input.gd)]
+        * [<Timer#1311323985792>]
+* test_no_installed_run_keeps_preview_defaults_until_a_real_scene_boundary
+    24 Orphans
+        * [<Node#1331154654385>(subsystem_choices.gd)]
+        * [<Node#1331121099954>(subsystem_backgrounds.gd)]
+        * [<Node#1331104322760>]
+        * [<Node#1331540530641>(subsystem_voice.gd)]
+        * [<Node#1331423090254>(subsystem_text.gd)]
+        * [<Node#1331221763696>(subsystem_glossary.gd)]
+        * [<Node#1331188209265>(subsystem_expression.gd)]
+        * [<Timer#1331171432052>]
+        * [<Node#1331305649781>(subsystem_containers.gd)]
+        * [<Node#1331322426998>(subsystem_portraits.gd)]
+        * [<Node#1331255318135>(subsystem_input.gd)]
+        * [<Node#1331355981432>(subsystem_save.gd)]
+        * [<Node#1331406313083>(subsystem_styles.gd)]
+        * [<Timer#1331372758652>]
+        * [<Node#1331389535873>(subsystem_settings.gd)]
+        * [<Node#1331238540934>(subsystem_history.gd)]
+        * [<Node#1331288872583>(subsystem_jump.gd)]
+        * [<Node#1331506976394>(subsystem_text_input.gd)]
+        * [<Node#1331523753611>(subsystem_variables.gd)]
+        * [<AudioStreamPlayer#1331557308046>]
+        * [<Node#1331070768904>(subsystem_audio.gd)]
+        * [<Node#1331087546121>]
+        * [<Node#1331053991717>(subsystem_animation.gd)]
+        * [<Timer#1331272095526>]
+* test_invalid_run_read_and_invalid_day_leave_existing_material_and_reading_atomic
+    24 Orphans
+        * [<Node#1346472252163>(subsystem_expression.gd)]
+        * [<Node#1346824574099>(subsystem_voice.gd)]
+        * [<Node#1346807796934>(subsystem_variables.gd)]
+        * [<Node#1346371589403>]
+        * [<Node#1346572916175>(subsystem_jump.gd)]
+        * [<Node#1346539361744>(subsystem_input.gd)]
+        * [<Timer#1346656802386>]
+        * [<Node#1346640025174>(subsystem_save.gd)]
+        * [<Node#1346690356825>(subsystem_styles.gd)]
+        * [<Node#1346707134048>(subsystem_text.gd)]
+        * [<Timer#1346556139156>]
+        * [<Node#1346522584730>(subsystem_history.gd)]
+        * [<AudioStreamPlayer#1346841351844>]
+        * [<Node#1346791020212>(subsystem_text_input.gd)]
+        * [<Node#1346673579780>(subsystem_settings.gd)]
+        * [<Timer#1346455475973>]
+        * [<Node#1346388367110>]
+        * [<Node#1346338035463>(subsystem_animation.gd)]
+        * [<Node#1346505807671>(subsystem_glossary.gd)]
+        * [<Node#1346405144399>(subsystem_backgrounds.gd)]
+        * [<Node#1346438698885>(subsystem_choices.gd)]
+        * [<Node#1346606471070>(subsystem_portraits.gd)]
+        * [<Node#1346354812838>(subsystem_audio.gd)]
+        * [<Node#1346589693863>(subsystem_containers.gd)]
+* test_colour_change_keeps_a_real_pending_caption_click_until_one_release
+    24 Orphans
+        * [<Node#1367913534607>(subsystem_history.gd)]
+        * [<Node#1367896757422>(subsystem_glossary.gd)]
+        * [<Node#1368064530076>(subsystem_settings.gd)]
+        * [<Node#1368081307293>(subsystem_styles.gd)]
+        * [<Node#1367963866783>(subsystem_jump.gd)]
+        * [<Node#1368098084512>(subsystem_text.gd)]
+        * [<Node#1367863203496>(subsystem_expression.gd)]
+        * [<Node#1367980644011>(subsystem_containers.gd)]
+        * [<Node#1368030975660>(subsystem_save.gd)]
+        * [<Node#1367997421229>(subsystem_portraits.gd)]
+        * [<Timer#1367846426290>]
+        * [<Node#1367930312371>(subsystem_input.gd)]
+        * [<Node#1368181970618>(subsystem_text_input.gd)]
+        * [<Node#1368198747835>(subsystem_variables.gd)]
+        * [<Node#1367745763018>(subsystem_audio.gd)]
+        * [<Node#1367762540235>]
+        * [<Timer#1367947089633>]
+        * [<Timer#1368047752934>]
+        * [<AudioStreamPlayer#1368232302392>]
+        * [<Node#1368215525249>(subsystem_voice.gd)]
+        * [<Node#1367728986019>(subsystem_animation.gd)]
+        * [<Node#1367779317718>]
+        * [<Node#1367796094938>(subsystem_backgrounds.gd)]
+        * [<Node#1367829649371>(subsystem_choices.gd)]
+* test_art_hold_recolours_only_material_with_same_art_and_continue_custody
+    [Failed]:  the art fixture requires isolated storage: { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line 373
+    24 Orphans
+        * [<Node#1387542877383>(subsystem_containers.gd)]
+        * [<Node#1387744203978>(subsystem_text_input.gd)]
+        * [<Node#1387660318164>(subsystem_text.gd)]
+        * [<Node#1387559655093>(subsystem_portraits.gd)]
+        * [<Timer#1387609986742>]
+        * [<Node#1387492546231>(subsystem_input.gd)]
+        * [<Node#1387626763960>(subsystem_settings.gd)]
+        * [<Node#1387643541177>(subsystem_styles.gd)]
+        * [<Node#1387526100678>(subsystem_jump.gd)]
+        * [<Node#1387358328553>(subsystem_backgrounds.gd)]
+        * [<Node#1387777758954>(subsystem_voice.gd)]
+        * [<Node#1387593209613>(subsystem_save.gd)]
+        * [<Timer#1387509323536>]
+        * [<Node#1387458991956>(subsystem_glossary.gd)]
+        * [<Node#1387425437527>(subsystem_expression.gd)]
+        * [<AudioStreamPlayer#1387794536309>]
+        * [<Node#1387475769207>(subsystem_history.gd)]
+        * [<Node#1387760981917>(subsystem_variables.gd)]
+        * [<Timer#1387408660396>]
+        * [<Node#1387391883181>(subsystem_choices.gd)]
+        * [<Node#1387291219983>(subsystem_animation.gd)]
+        * [<Node#1387307997203>(subsystem_audio.gd)]
+        * [<Node#1387324774420>]
+        * [<Node#1387341551643>]
+144 orphans
+5/6 passed.
+
+
+res://tests/scenario/test_hospital_invitation_closures.gd
+* test_a_witnessing_sylvia_asks_no_missed_question
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Hospital invitation fixture is unavailable
+      at line 82
+* test_without_a_witness_sylvia_asks_normally
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Hospital invitation fixture is unavailable
+      at line 101
+* test_a_sylvia_witness_never_suppresses_another_friend
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Hospital invitation fixture is unavailable
+      at line 116
+* test_the_witness_index_survives_the_rollover_it_informed
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Hospital invitation fixture is unavailable
+      at line 134
+* test_condition_hospital_closes_exact_sources_and_retains_distinct_sylvia_witness
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Hospital invitation fixture is unavailable
+      at line 251
+* test_condition_hospital_refuses_changed_source_before_closure
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Hospital invitation fixture is unavailable
+      at line 283
+* test_condition_hospital_preserves_offscreen_pair_window_without_a_fake_date
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Hospital invitation fixture is unavailable
+      at line 295
+* test_condition_witness_cannot_be_retagged_as_schedule_done
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Hospital invitation fixture is unavailable
+      at line 307
+* test_condition_hospital_stage_presentation_and_retirement_use_real_root_ancestry
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Hospital invitation fixture is unavailable
+      at line 319
+0/9 passed.
+
+
+
+
+==============================================
+= 168 Orphans
+==============================================
+res://tests/unit/test_application_bootstrap.gd
+    - Outside Tests
+        * [<Node#131264939798>(subsystem_animation.gd)]
+        * [<Node#131281717026>(subsystem_audio.gd)]
+        * [<Node#131298494258>]
+        * [<Node#131315271483>]
+        * [<Node#131332048705>(subsystem_backgrounds.gd)]
+        * [<Node#131868919618>(subsystem_choices.gd)]
+        * [<Timer#131885696835>]
+        * [<Node#131902474052>(subsystem_expression.gd)]
+        * [<Node#131936028489>(subsystem_glossary.gd)]
+        * [<Node#131952805706>(subsystem_history.gd)]
+        * [<Node#131969582923>(subsystem_input.gd)]
+        * [<Timer#131986360140>]
+        * [<Node#132003137357>(subsystem_jump.gd)]
+        * [<Node#132019914574>(subsystem_containers.gd)]
+        * [<Node#132036691791>(subsystem_portraits.gd)]
+        * [<Node#132573562704>(subsystem_save.gd)]
+        * [<Timer#132590339921>]
+        * [<Node#132607117138>(subsystem_settings.gd)]
+        * [<Node#132623894358>(subsystem_styles.gd)]
+        * [<Node#132640671575>(subsystem_text.gd)]
+        * [<Node#132724557660>(subsystem_text_input.gd)]
+        * [<Node#132741334877>(subsystem_variables.gd)]
+        * [<Node#132758112094>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#132774889311>]
+test_witnessed_run_presentation.gd
+    - test_fresh_layout_reads_installed_run_and_next_run_waits_for_real_timeline_boundary
+        * [<Node#1287852660230>(subsystem_animation.gd)]
+        * [<Node#1287869437447>(subsystem_audio.gd)]
+        * [<Node#1287886214664>]
+        * [<Node#1287902991881>]
+        * [<Node#1287919769098>(subsystem_backgrounds.gd)]
+        * [<Node#1287953323531>(subsystem_choices.gd)]
+        * [<Timer#1287970100748>]
+        * [<Node#1287986877965>(subsystem_expression.gd)]
+        * [<Node#1288020432399>(subsystem_glossary.gd)]
+        * [<Node#1288037209616>(subsystem_history.gd)]
+        * [<Node#1288053986833>(subsystem_input.gd)]
+        * [<Timer#1288070764050>]
+        * [<Node#1288087541267>(subsystem_jump.gd)]
+        * [<Node#1288104318484>(subsystem_containers.gd)]
+        * [<Node#1288121095701>(subsystem_portraits.gd)]
+        * [<Node#1288154650134>(subsystem_save.gd)]
+        * [<Timer#1288171427351>]
+        * [<Node#1288188204568>(subsystem_settings.gd)]
+        * [<Node#1288204981785>(subsystem_styles.gd)]
+        * [<Node#1288221759002>(subsystem_text.gd)]
+        * [<Node#1288305645087>(subsystem_text_input.gd)]
+        * [<Node#1288322422304>(subsystem_variables.gd)]
+        * [<Node#1288339199521>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#1288355976738>]
+    - test_live_accessibility_recolours_same_native_caption_without_owner_poll_or_input_loss
+        * [<Node#1311256876515>]
+        * [<Timer#1311424648759>]
+        * [<Node#1311441425976>(subsystem_jump.gd)]
+        * [<Node#1311458203193>(subsystem_containers.gd)]
+        * [<Node#1311474980410>(subsystem_portraits.gd)]
+        * [<Node#1311508534843>(subsystem_save.gd)]
+        * [<Timer#1311525312060>]
+        * [<Node#1311575643712>(subsystem_text.gd)]
+        * [<Node#1311659529794>(subsystem_text_input.gd)]
+        * [<Node#1311676307011>(subsystem_variables.gd)]
+        * [<Node#1311693084228>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#1311709861445>]
+        * [<Node#1311223322412>(subsystem_audio.gd)]
+        * [<Node#1311240099629>]
+        * [<Node#1311307208526>(subsystem_choices.gd)]
+        * [<Node#1311273654097>(subsystem_backgrounds.gd)]
+        * [<Node#1311542089554>(subsystem_settings.gd)]
+        * [<Node#1311558866808>(subsystem_styles.gd)]
+        * [<Node#1311374317434>(subsystem_glossary.gd)]
+        * [<Node#1311340763004>(subsystem_expression.gd)]
+        * [<Node#1311206545277>(subsystem_animation.gd)]
+        * [<Node#1311391094654>(subsystem_history.gd)]
+        * [<Node#1311407871871>(subsystem_input.gd)]
+        * [<Timer#1311323985792>]
+    - test_no_installed_run_keeps_preview_defaults_until_a_real_scene_boundary
+        * [<Node#1331154654385>(subsystem_choices.gd)]
+        * [<Node#1331121099954>(subsystem_backgrounds.gd)]
+        * [<Node#1331104322760>]
+        * [<Node#1331540530641>(subsystem_voice.gd)]
+        * [<Node#1331423090254>(subsystem_text.gd)]
+        * [<Node#1331221763696>(subsystem_glossary.gd)]
+        * [<Node#1331188209265>(subsystem_expression.gd)]
+        * [<Timer#1331171432052>]
+        * [<Node#1331305649781>(subsystem_containers.gd)]
+        * [<Node#1331322426998>(subsystem_portraits.gd)]
+        * [<Node#1331255318135>(subsystem_input.gd)]
+        * [<Node#1331355981432>(subsystem_save.gd)]
+        * [<Node#1331406313083>(subsystem_styles.gd)]
+        * [<Timer#1331372758652>]
+        * [<Node#1331389535873>(subsystem_settings.gd)]
+        * [<Node#1331238540934>(subsystem_history.gd)]
+        * [<Node#1331288872583>(subsystem_jump.gd)]
+        * [<Node#1331506976394>(subsystem_text_input.gd)]
+        * [<Node#1331523753611>(subsystem_variables.gd)]
+        * [<AudioStreamPlayer#1331557308046>]
+        * [<Node#1331070768904>(subsystem_audio.gd)]
+        * [<Node#1331087546121>]
+        * [<Node#1331053991717>(subsystem_animation.gd)]
+        * [<Timer#1331272095526>]
+    - test_invalid_run_read_and_invalid_day_leave_existing_material_and_reading_atomic
+        * [<Node#1346472252163>(subsystem_expression.gd)]
+        * [<Node#1346824574099>(subsystem_voice.gd)]
+        * [<Node#1346807796934>(subsystem_variables.gd)]
+        * [<Node#1346371589403>]
+        * [<Node#1346572916175>(subsystem_jump.gd)]
+        * [<Node#1346539361744>(subsystem_input.gd)]
+        * [<Timer#1346656802386>]
+        * [<Node#1346640025174>(subsystem_save.gd)]
+        * [<Node#1346690356825>(subsystem_styles.gd)]
+        * [<Node#1346707134048>(subsystem_text.gd)]
+        * [<Timer#1346556139156>]
+        * [<Node#1346522584730>(subsystem_history.gd)]
+        * [<AudioStreamPlayer#1346841351844>]
+        * [<Node#1346791020212>(subsystem_text_input.gd)]
+        * [<Node#1346673579780>(subsystem_settings.gd)]
+        * [<Timer#1346455475973>]
+        * [<Node#1346388367110>]
+        * [<Node#1346338035463>(subsystem_animation.gd)]
+        * [<Node#1346505807671>(subsystem_glossary.gd)]
+        * [<Node#1346405144399>(subsystem_backgrounds.gd)]
+        * [<Node#1346438698885>(subsystem_choices.gd)]
+        * [<Node#1346606471070>(subsystem_portraits.gd)]
+        * [<Node#1346354812838>(subsystem_audio.gd)]
+        * [<Node#1346589693863>(subsystem_containers.gd)]
+    - test_colour_change_keeps_a_real_pending_caption_click_until_one_release
+        * [<Node#1367913534607>(subsystem_history.gd)]
+        * [<Node#1367896757422>(subsystem_glossary.gd)]
+        * [<Node#1368064530076>(subsystem_settings.gd)]
+        * [<Node#1368081307293>(subsystem_styles.gd)]
+        * [<Node#1367963866783>(subsystem_jump.gd)]
+        * [<Node#1368098084512>(subsystem_text.gd)]
+        * [<Node#1367863203496>(subsystem_expression.gd)]
+        * [<Node#1367980644011>(subsystem_containers.gd)]
+        * [<Node#1368030975660>(subsystem_save.gd)]
+        * [<Node#1367997421229>(subsystem_portraits.gd)]
+        * [<Timer#1367846426290>]
+        * [<Node#1367930312371>(subsystem_input.gd)]
+        * [<Node#1368181970618>(subsystem_text_input.gd)]
+        * [<Node#1368198747835>(subsystem_variables.gd)]
+        * [<Node#1367745763018>(subsystem_audio.gd)]
+        * [<Node#1367762540235>]
+        * [<Timer#1367947089633>]
+        * [<Timer#1368047752934>]
+        * [<AudioStreamPlayer#1368232302392>]
+        * [<Node#1368215525249>(subsystem_voice.gd)]
+        * [<Node#1367728986019>(subsystem_animation.gd)]
+        * [<Node#1367779317718>]
+        * [<Node#1367796094938>(subsystem_backgrounds.gd)]
+        * [<Node#1367829649371>(subsystem_choices.gd)]
+    - test_art_hold_recolours_only_material_with_same_art_and_continue_custody
+        * [<Node#1387542877383>(subsystem_containers.gd)]
+        * [<Node#1387744203978>(subsystem_text_input.gd)]
+        * [<Node#1387660318164>(subsystem_text.gd)]
+        * [<Node#1387559655093>(subsystem_portraits.gd)]
+        * [<Timer#1387609986742>]
+        * [<Node#1387492546231>(subsystem_input.gd)]
+        * [<Node#1387626763960>(subsystem_settings.gd)]
+        * [<Node#1387643541177>(subsystem_styles.gd)]
+        * [<Node#1387526100678>(subsystem_jump.gd)]
+        * [<Node#1387358328553>(subsystem_backgrounds.gd)]
+        * [<Node#1387777758954>(subsystem_voice.gd)]
+        * [<Node#1387593209613>(subsystem_save.gd)]
+        * [<Timer#1387509323536>]
+        * [<Node#1387458991956>(subsystem_glossary.gd)]
+        * [<Node#1387425437527>(subsystem_expression.gd)]
+        * [<AudioStreamPlayer#1387794536309>]
+        * [<Node#1387475769207>(subsystem_history.gd)]
+        * [<Node#1387760981917>(subsystem_variables.gd)]
+        * [<Timer#1387408660396>]
+        * [<Node#1387391883181>(subsystem_choices.gd)]
+        * [<Node#1387291219983>(subsystem_animation.gd)]
+        * [<Node#1387307997203>(subsystem_audio.gd)]
+        * [<Node#1387324774420>]
+        * [<Node#1387341551643>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+res://tests/unit/test_application_bootstrap.gd
+- test_minesweeper_stage_rejects_a_missing_gate_without_partial_configuration
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 106
+- test_minesweeper_stage_rejects_missing_targets_without_partial_configuration
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 121
+- test_minesweeper_stage_rejects_an_unretained_checkpoint_port_without_partial_configuration
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 134
+- test_minesweeper_stage_rejects_unconfigured_checkpoint_providers
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 148
+- test_minesweeper_stage_rejects_a_gate_game_state_did_not_retain
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 161
+- test_minesweeper_stage_constructs_exactly_one_coordinator_over_production_adapters
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 176
+- test_identical_startup_replay_reuses_the_exact_same_round_graph
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 216
+
+res://tests/unit/test_day_resolution_snapshot_production.gd
+- test_real_checkpoint_port_accepts_the_produced_bundle
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 210
+
+res://tests/unit/test_desktop_accessibility_contract.gd
+- test_debug_exposes_exactly_one_forced_cell_and_rejects_every_other_cell
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 67
+- test_debug_rejects_every_other_cell_before_any_live_mutation
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 112
+
+res://tests/unit/test_game_state_facade_contract.gd
+- test_request_schedule_done_delegates_through_production_port
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 145
+
+res://tests/unit/test_game_state_schedule_commit_port.gd
+- test_zero_entries_derive_the_empty_done_row_and_charge_no_motivation
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the committed-Schedule fixture is unavailable
+          at line 327
+- test_entry_ordinals_follow_validated_slot_order_not_input_or_raw_slot
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the committed-Schedule fixture is unavailable
+          at line 371
+- test_seven_entries_with_two_dates_and_repeats_charge_one_motivation_each
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the committed-Schedule fixture is unavailable
+          at line 425
+- test_day7_accepts_empty_done_and_one_eligible_solo_at_slot_zero
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the committed-Schedule fixture is unavailable
+          at line 453
+- test_insufficient_motivation_stale_registry_and_source_tamper_yield_no_candidate
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the committed-Schedule fixture is unavailable
+          at line 478
+- test_forged_or_identifier_only_issuer_input_is_refused
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the committed-Schedule fixture is unavailable
+          at line 522
+- test_same_transaction_replay_is_byte_identical_and_changed_bytes_conflict
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the committed-Schedule fixture is unavailable
+          at line 563
+- test_every_row_projection_is_load_bearing_in_the_derived_identity
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the committed-Schedule fixture is unavailable
+          at line 594
+- test_prepare_and_capture_are_pure_and_silent
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the committed-Schedule fixture is unavailable
+          at line 661
+- test_commit_changes_only_motivation_and_committed_schedule_silently
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the committed-Schedule fixture is unavailable
+          at line 695
+- test_rollback_restores_exactly_the_backup_and_preserves_concurrent_changes
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the committed-Schedule fixture is unavailable
+          at line 723
+- test_stale_before_fingerprint_and_caller_mutation_after_prepare_are_refused
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the committed-Schedule fixture is unavailable
+          at line 753
+- test_publish_requires_current_state_and_is_at_most_once_across_restart
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the committed-Schedule fixture is unavailable
+          at line 778
+- test_a_changed_publication_byte_at_an_occupied_key_conflicts_without_a_signal
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the committed-Schedule fixture is unavailable
+          at line 823
+- test_new_run_and_rollback_cannot_erase_or_lower_the_external_record
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the committed-Schedule fixture is unavailable
+          at line 866
+- test_candidate_and_commit_bytes_are_independent_of_every_legacy_field
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the committed-Schedule fixture is unavailable
+          at line 896
+- test_new_modules_never_name_the_legacy_schedule_api
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the committed-Schedule fixture is unavailable
+          at line 946
+
+res://tests/unit/test_hospital_presentation_port.gd
+- test_configure_is_idempotent_and_refuses_a_replacement_dependency
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+          at line 211
+- test_an_unconfigured_port_routes_nothing_and_starts_no_physical_presentation
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+          at line 226
+- test_the_hospital_port_refuses_a_dating_challenge_owner
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+          at line 237
+- test_an_incomplete_issuer_or_owner_is_refused
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+          at line 249
+- test_a_valid_intent_returns_the_canonical_command_and_nothing_else
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+          at line 262
+- test_the_request_member_set_is_exact
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+          at line 288
+- test_a_dating_route_is_refused_by_the_hospital_port
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+          at line 300
+- test_an_unregistered_locator_is_refused
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+          at line 310
+- test_the_hospital_context_member_set_and_kind_are_exact
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+          at line 319
+- test_hospital_context_arrays_must_be_sorted_and_unique
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+          at line 339
+- test_an_unverified_resolution_root_is_refused_before_any_physical_start
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+          at line 356
+- test_a_locally_derived_completion_id_is_refused
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+          at line 369
+- test_a_completion_child_of_the_wrong_kind_or_parent_is_refused
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+          at line 379
+- test_every_projected_field_binds_the_completion_child
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+          at line 401
+- test_a_changed_context_preimage_breaks_the_completion_binding
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+          at line 417
+- test_a_byte_identical_replay_returns_the_identical_command_and_token
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+          at line 433
+- test_a_drifted_replay_cannot_overwrite_the_stored_command
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+          at line 447
+- test_a_bypassed_binding_still_conflicts_on_command_identity
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+          at line 473
+- test_a_trusted_owner_completion_produces_the_exact_frozen_receipt_once
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+          at line 498
+- test_a_duplicate_owner_emission_returns_the_same_receipt_without_a_second_publication
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+          at line 528
+- test_a_scene_authored_receipt_never_reaches_a_stage
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+          at line 552
+- test_owner_receipt_drift_is_refused_before_any_stage_mutation
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+          at line 577
+- test_a_command_this_port_never_issued_is_refused
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+          at line 600
+- test_a_tampered_command_is_a_conflict_not_a_completion
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+          at line 615
+- test_the_complete_request_member_set_is_exact
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+          at line 634
+- test_an_owner_failure_publishes_exactly_one_failure_and_no_completion
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+          at line 644
+- test_an_emission_for_an_unknown_command_fails_rather_than_completing
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+          at line 653
+
+res://tests/unit/test_schedule_view_controller.gd
+- test_every_edit_leaves_motivation_and_the_committed_schedule_byte_equal
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 574
+
+res://tests/unit/test_schedule_warning_receipts.gd
+- test_docket_commands_cannot_change_an_active_warning_or_its_view
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Schedule warning fixture is unavailable
+          at line 186
+- test_configure_warning_identity_is_one_time_and_typed
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Schedule warning fixture is unavailable
+          at line 241
+- test_activation_fails_closed_without_the_warning_identity
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Schedule warning fixture is unavailable
+          at line 262
+- test_activation_creates_the_exact_pending_record
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Schedule warning fixture is unavailable
+          at line 275
+- test_activation_with_no_eligible_warning_proceeds
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Schedule warning fixture is unavailable
+          at line 326
+- test_repeating_the_same_done_command_returns_the_same_activation
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Schedule warning fixture is unavailable
+          at line 340
+- test_a_different_done_command_while_open_rejects
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Schedule warning fixture is unavailable
+          at line 355
+- test_a_forged_transaction_root_is_refused
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Schedule warning fixture is unavailable
+          at line 368
+- test_activation_validates_the_context
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Schedule warning fixture is unavailable
+          at line 380
+- test_dismissal_consumes_with_an_exact_terminal_receipt
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Schedule warning fixture is unavailable
+          at line 393
+- test_navigation_success_stores_the_navigation_child
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Schedule warning fixture is unavailable
+          at line 444
+- test_failed_navigation_appends_an_attempt_and_keeps_the_activation
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Schedule warning fixture is unavailable
+          at line 473
+- test_an_identical_failed_navigation_retry_returns_the_original
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Schedule warning fixture is unavailable
+          at line 505
+- test_duplicate_successful_terminal_input_returns_the_original
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Schedule warning fixture is unavailable
+          at line 529
+- test_conflicting_transaction_reuse_fails_without_mutation
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Schedule warning fixture is unavailable
+          at line 549
+- test_resolution_shape_and_missing_pending_are_typed
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Schedule warning fixture is unavailable
+          at line 574
+- test_the_preimage_is_detached_from_live_owners
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Schedule warning fixture is unavailable
+          at line 596
+- test_a_terminal_reusing_the_activation_transaction_is_refused
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Schedule warning fixture is unavailable
+          at line 620
+- test_an_activation_reusing_a_terminal_transaction_is_refused
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Schedule warning fixture is unavailable
+          at line 633
+- test_a_different_intent_failed_navigation_retry_conflicts
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Schedule warning fixture is unavailable
+          at line 656
+- test_an_invalid_replacement_issuer_is_refused_as_invalid
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Schedule warning fixture is unavailable
+          at line 674
+
+res://tests/integration/test_application_bootstrap.gd
+- test_exactly_nine_targets_retain_one_shared_gate_identity
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 171
+- test_one_desktop_host_is_shared_by_route_restore_and_the_direct_checkpoint_provider
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 192
+- test_the_stable_active_app_callable_keeps_its_identity_and_returns_raw_json_values
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 209
+- test_the_retained_checkpoint_port_and_gate_are_shared_by_both_coordinators
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 234
+- test_exactly_one_day_changed_connection_dispatches_one_eviction_command
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 266
+- test_a_missing_eviction_port_latches_one_primitive_validated_fatal
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 302
+- test_each_stage_failure_returns_one_fatal_result_and_never_reaches_readiness
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 334
+- test_new_acc_storage_settles_before_profile_and_failure_stops_all_consumers
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 406
+
+res://tests/integration/test_causal_day_advance_identity_recovery.gd
+- test_a_crash_before_the_root_commit_leaves_no_allocation
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_a_crash_after_the_root_commit_replays_the_same_bytes
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_recovery_is_idempotent_across_repeated_restarts
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_a_changed_request_under_a_committed_key_fails_closed
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_six_successive_advances_yield_days_two_through_seven_and_no_day_eight
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_each_source_day_allocates_a_distinct_target_identity
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+
+res://tests/integration/test_committed_schedule_day_resolution.gd
+- test_a_real_nonempty_commit_starts_a_resolution_that_freezes_the_committed_order
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_a_nonempty_aggregate_is_revalidated_entry_by_entry_before_any_start
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_a_receipt_backed_empty_commit_starts_a_day_seven_resolution_with_no_substages
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_the_exact_real_schedule_survives_serialize_and_restore
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_publication_is_the_only_start_signal_and_replays_without_a_second_one
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_both_publication_kinds_land_in_the_one_shared_ledger_document
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_rollback_leaves_no_active_plan_and_no_executed_stage
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_a_same_resolution_replay_returns_the_existing_plan_and_a_rival_conflicts
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_the_production_state_port_begins_from_the_owners_real_committed_schedule
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_the_execute_stage_receipt_reads_entry_ids_from_the_committed_substages
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_a_replayed_substage_completion_is_reported_as_a_duplicate_with_its_stored_receipt
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_a_replayed_substage_completion_with_different_bytes_is_a_conflict
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_a_replayed_stage_completion_with_different_bytes_is_a_conflict
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_a_replayed_identical_stage_completion_is_a_duplicate_with_its_stored_receipt
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_the_presentation_seam_refuses_an_ordinary_substage_transaction
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_the_presentation_seam_refuses_a_never_presenting_stage_transaction
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_a_minted_hospital_envelope_cannot_settle_a_stage_that_never_began
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+
+res://tests/integration/test_committed_schedule_effect_order.gd
+- test_each_committed_ordinary_entry_applies_its_registered_effects_exactly_once
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_repeated_ordinary_entries_apply_once_each_through_distinct_substage_ids
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_ordinary_effects_commit_before_the_hospital_and_date_stages
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_a_faint_supersedes_every_committed_date_before_any_board_runs
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_a_hospital_that_presented_records_the_faint_it_presented_on
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_without_a_faint_the_committed_dates_survive
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_a_superseded_sylvia_date_commits_its_witness_into_the_contacts_index
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_a_faint_without_a_sylvia_date_writes_no_witness
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_rolling_back_the_hospital_stage_restores_the_contacts_index
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+
+res://tests/integration/test_committed_schedule_presentation_matrix.gd
+- test_the_surviving_date_variant_carries_its_exact_discriminator_tuple
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_the_hospital_variant_carries_its_exact_discriminator_tuple
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_the_hospital_source_set_contains_the_condition_id_with_and_without_misses
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_a_hospital_with_no_committed_date_still_names_its_condition_id
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_the_hospital_ancestry_children_are_exactly_the_matrix_rows
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_the_hospital_miss_ordinal_follows_committed_slot_order
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_every_projected_hospital_resolution_member_is_load_bearing
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_every_projected_hospital_miss_member_is_load_bearing
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_the_intent_child_is_exactly_the_matrix_row_p01_presentation_intent
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_every_projected_intent_member_is_load_bearing
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_the_intent_parent_and_ordinal_are_load_bearing
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_the_source_set_is_order_independent_but_membership_is_not
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_the_completion_child_is_exactly_the_matrix_row_p01_presentation_completion
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_the_completion_binds_its_intent_and_never_includes_itself
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_the_completion_names_the_top_level_stage_and_not_the_entry_substage
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_every_projected_completion_member_is_load_bearing
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_an_underivable_presentation_refuses_with_the_stage_still_pending
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_hospital_supersession_is_what_owes_the_pair_a_presentation
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_the_deferred_pair_variant_carries_its_exact_matrix_row
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_the_deferred_pair_settles_through_the_presentation_seam
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_a_dating_round_begins_during_the_deferred_pair_presentation
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_no_dating_round_begins_after_the_pair_presentation_completes
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_the_pair_evidence_ignores_scrambled_live_contacts
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+
+res://tests/integration/test_committed_schedule_presentation_resume.gd
+- test_a_crash_before_or_after_intent_derivation_rebuilds_the_same_children
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_a_crash_never_renumbers_a_surviving_presentation
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_a_crash_after_the_route_command_replays_the_identical_command_and_token
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_a_duplicate_physical_completion_publishes_exactly_one_receipt
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_a_settled_completion_replays_the_identical_receipt_and_envelope
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_a_receipt_that_does_not_bind_the_command_never_reaches_a_stage
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_a_crash_after_the_stage_checkpoint_never_presents_again
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_a_superseded_date_never_presents_across_a_crash
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_the_presentation_seam_refuses_a_superseded_date_transaction
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_a_dating_round_begins_from_the_active_date_substage_evidence
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_a_superseded_date_substage_yields_no_dating_evidence
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_dating_evidence_names_the_active_date_not_a_settled_one
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_a_crash_across_the_hospital_presentation_restores_the_flag_with_the_plan
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+
+res://tests/integration/test_day_resolution_disk_durability.gd
+- test_real_ports_resolve_a_day_without_rejecting_the_snapshot
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_real_day_resolution_writes_a_parsable_disk_autosave
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_disk_autosave_validates_as_a_save_document
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_persisted_snapshot_carries_the_live_lifecycle_and_ledger
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_persisted_snapshot_is_restorable_by_the_save_manager
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_real_coordinator_resolves_every_day_one_through_seven
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_day_seven_walk_stops_at_the_provenance_handoff_without_entering_ending
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_a_day_seven_crash_restores_the_same_run_on_day_seven
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+
+res://tests/integration/test_desktop_action_matrix.gd
+- test_row_shop_lucky_charm_quote_matches_the_registry_record
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_row_shop_debug_key_quote_matches_the_registry_record
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_row_shop_supportz_quote_matches_the_registry_record_and_structured_cap
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_row_shop_lucky_charm_prepare_purchase_is_fail_closed
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_row_shop_debug_key_prepare_purchase_is_fail_closed
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_row_shop_supportz_prepare_purchase_is_fail_closed
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_row_minesweeper_round_complete_round_is_fail_closed
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_row_minesweeper_round_reveal_is_fail_closed
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+
+res://tests/integration/test_desktop_board_persistence.gd
+- test_restore_remaps_board_identity_and_command_receipt_keys
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 159
+- test_restore_remaps_consequence_causal_day_pair
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 194
+- test_restore_rejects_a_corrupted_board_before_touching_live_state
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 219
+- test_restore_rejects_a_corrupted_consequence_receipt_before_live_mutation
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 234
+- test_a_completed_restore_leaves_no_incomplete_continuation
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 267
+
+res://tests/integration/test_desktop_bootstrap_wiring.gd
+- test_the_probe_exists_and_returns_only_integers_and_booleans
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_the_probe_names_every_foundation_identity_step_8_1_requires
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_reading_the_probe_twice_is_stable_and_mutates_nothing
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_presentation_configuration_reconstructs_no_foundation_instance
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_identical_startup_replay_reuses_every_instance
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_a_swapped_issuer_is_visible_in_the_probe
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_the_probe_reports_hospital_ready_and_dating_deliberately_not_ready
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_the_producer_is_not_ready_before_the_desktop_graph_stage
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_an_unbuilt_foundation_reports_zero_rather_than_guessing
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_the_production_graph_wires_every_object_identity_and_readiness
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_the_desktop_publication_ledger_is_shared_by_causal_round_shop_and_board_fate
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_the_round_coordinator_and_board_fate_port_drive_the_exact_same_shared_board_state
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_the_consequence_coordinator_retains_the_exact_round_and_shop_source_objects
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_the_consequence_coordinator_holds_the_real_condition_departure_pair
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_snapshot_provider_instance_id_equals_game_state
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_the_probe_names_identity_allocation_plus_the_nine_participant_keys
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_identical_replay_of_the_production_graph_reuses_every_instance
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_the_production_graph_never_touches_the_retained_simulator_install_seam
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_the_desktop_graph_composes_the_condition_pair_and_flips_the_producer_ready
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_replaying_the_desktop_graph_reuses_the_condition_pair_and_dispatcher
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_gameplay_mount_uses_real_ports_and_first_reveal_persists_one_charge
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_fresh_graph_keeps_prior_day_two_autosave_after_failed_completion
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_fresh_graph_keeps_prior_autosave_after_failed_condition_departure
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_shop_purchase_saves_authored_effects_and_retries_without_a_second_charge
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_fresh_graph_keeps_prior_autosave_after_failed_ordinary_purchase
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_fresh_graph_keeps_prior_autosave_after_failed_special_purchase
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_shop_batch_and_public_gift_alias_commit_authored_values_and_inventory
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+
+res://tests/integration/test_desktop_completion_transaction.gd
+- test_complete_round_transacts_exactly_once_against_real_ports
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 198
+- test_complete_round_departure_commits_board_fate_against_real_ports
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 259
+- test_a_source_already_holding_the_gate_blocks_the_other_source_until_it_releases
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 336
+
+res://tests/integration/test_desktop_continuation_resume.gd
+- test_a_busy_gate_rejects_new_run_before_any_identity_is_minted_or_intent_is_written
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 362
+- test_a_busy_gate_rejects_restore_before_any_identity_is_minted_or_intent_is_written
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 382
+- test_crash_after_intent_committed_resumes_forward_to_completion
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 418
+- test_crash_after_allocation_resumes_forward_to_completion
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 434
+- test_crash_mid_participants_resumes_to_completion_on_a_fresh_boot
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 450
+- test_crash_after_participants_applied_resumes_to_completion
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 490
+- test_a_pre_allocation_restore_source_that_vanishes_aborts_with_a_typed_failure
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 517
+- test_restart_uses_frozen_dark_material_without_resampling_profile
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 593
+- test_restart_refuses_foreign_profile_bytes_without_overwriting_them
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 626
+
+res://tests/integration/test_desktop_crash_recovery.gd
+- test_start_new_run_completes_against_the_real_profile_and_localization_pair
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_a_new_run_preserves_the_committed_global_profile_and_chains_its_locale
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_a_failed_new_run_leaves_a_genuinely_incomplete_continuation_that_reconciles_without_crashing
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_a_fresh_process_over_the_same_storage_boots_cleanly_after_a_failed_new_run
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_boot_itself_reconciles_before_returning_ok_not_only_when_called_a_second_time
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_the_bootstrap_retained_publication_ledger_survives_a_fresh_reload
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+
+res://tests/integration/test_desktop_simulator_authority.gd
+- test_the_round_coordinator_never_receives_its_base_configure_in_production
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 124
+- test_the_shared_desktop_identity_context_is_a_real_but_blank_placeholder
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 157
+- test_two_independent_boots_mint_distinct_placeholder_run_and_branch_ids
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 173
+- test_the_shop_and_board_ports_share_the_exact_same_placeholder_context_object
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 186
+- test_logout_coordinator_is_never_constructed_by_the_production_graph
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 210
+- test_the_production_graph_never_installs_into_the_retained_simulator_seam_either
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 239
+
+res://tests/integration/test_hospital_dating_adapter_negative_contract.gd
+- test_the_committed_entry_contract_retired_the_old_nine_key_shape
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_every_retired_entry_field_is_refused_by_the_committed_validator
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_no_retired_field_reaches_the_adapter_over_a_real_committed_schedule
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_the_presentation_route_is_a_registry_fact_and_never_an_entry_field
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_twofriends_survives_only_as_a_stage_and_never_as_a_route
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_the_router_refuses_the_pseudo_route_and_the_stage_name_alike
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_the_walk_is_the_production_caller_of_route_presentation
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_the_real_router_satisfies_the_capability_the_coordinator_requires
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_the_legacy_pseudo_route_producer_has_no_caller_in_production
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_only_the_narrative_owner_may_start_a_dialogic_timeline
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_neither_presentation_port_exposes_a_timeline_start
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_no_presentation_adapter_names_a_gameplay_mutation_seam
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_the_comment_stripper_is_doing_real_work
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+
+res://tests/integration/test_minesweeper_first_reveal_transaction.gd
+- test_first_reveal_writes_a_durable_pre_board_autosave_with_the_charged_and_revealed_state
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 341
+- test_first_reveal_charges_exactly_once_across_a_retried_request
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 365
+- test_adapter_rejects_a_desktop_less_post_commit_snapshot_input
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 381
+- test_adapter_rejects_a_board_only_desktop_value
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 399
+- test_adapter_rejects_an_extra_desktop_key
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 411
+- test_restore_after_a_crash_between_checkpoint_commit_and_live_adoption_recovers_the_paid_first_reveal
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 428
+- test_first_reveal_falls_back_to_the_fake_checkpoint_when_durable_is_not_configured
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 498
+
+res://tests/integration/test_minesweeper_save_lock.gd
+- test_production_save_port_delegates_only_the_board_lock_owner
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 137
+- test_active_round_disables_save_silently_and_never_defers
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 164
+- test_completion_releases_the_lock_and_restores_capability
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 202
+- test_abort_releases_the_lock_without_publishing_a_result
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 220
+- test_a_failed_lock_acquisition_consumes_no_round_and_leaves_no_lock
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 236
+
+res://tests/integration/test_minesweeper_shop_transaction.gd
+- test_lucky_charm_purchase_transacts_exactly_once_against_real_ports
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 124
+- test_a_second_purchase_within_the_same_prepared_purchase_conflicts
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 171
+- test_commit_rejects_before_causal_admission_leaving_currency_and_inventory_untouched
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 202
+- test_supportz_purchase_decrements_the_real_round_floor_and_spends_real_money
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 230
+
+res://tests/integration/test_new_run_transaction.gd
+- test_start_new_run_rejects_bad_context
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 133
+- test_start_new_run_builds_day1_run_b
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 143
+- test_start_new_run_requires_identity_issuer
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 166
+- test_start_new_run_allocates_a_fresh_identity_per_call
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 194
+- test_start_new_run_requires_participants
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 209
+- test_finalize_failure_retains_new_run_and_retries_the_same_durable_identity
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 250
+- test_successful_finalization_keeps_new_checkpoint_instead_of_restoring_backup
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 278
+- test_predecision_failure_preserves_old_run_and_postdecision_failures_retain_recovery
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 296
+- test_durable_new_run_does_not_invoke_legacy_checkpoint_compensation
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 329
+- test_new_run_captures_pending_dark_once_and_consumes_it_before_live_publication
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 356
+- test_invalid_prepared_dark_facts_fail_before_durable_intent_and_release_gate
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 381
+- test_caller_cannot_override_captured_dark_intent
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 397
+
+res://tests/integration/test_phase2r_schedule_desktop_handoff.gd
+- test_the_probe_is_read_from_the_real_public_seam_and_carries_only_primitives
+    [Risky]:  Did not assert
+- test_the_snapshot_provider_role_is_the_live_game_state_in_this_same_boot
+    [Risky]:  Did not assert
+- test_the_coordinator_holds_exactly_the_advance_port_the_probe_reports
+    [Risky]:  Did not assert
+- test_every_declared_predecessor_role_is_a_nonzero_same_boot_integer
+    [Risky]:  Did not assert
+- test_the_nine_restore_roles_are_nine_distinct_retained_participants
+    [Risky]:  Did not assert
+- test_the_round_and_shop_action_sources_are_two_different_owners
+    [Risky]:  Did not assert
+- test_the_two_publication_ledgers_are_two_different_live_owners
+    [Risky]:  Did not assert
+- test_the_guard_accepts_the_real_sealed_evidence_and_the_real_live_probe
+    [Risky]:  Did not assert
+- test_the_success_envelope_serializes_no_numeric_instance_id
+    [Risky]:  Did not assert
+- test_the_guard_mutates_neither_seal_nor_probe
+    [Risky]:  Did not assert
+- test_the_verdict_pins_the_sealed_bytes_of_the_suite_this_task_may_only_run
+    [Risky]:  Did not assert
+- test_the_verdict_reports_the_two_requirements_no_seal_attests
+    [Risky]:  Did not assert
+- test_the_verdict_keeps_the_later_composition_with_its_later_owner
+    [Risky]:  Did not assert
+- test_the_verdict_records_the_one_lawful_forward_readiness_divergence
+    [Risky]:  Did not assert
+- test_a_non_dictionary_input_is_refused
+    [Risky]:  Did not assert
+- test_a_relabelled_seal_subject_is_refused
+    [Risky]:  Did not assert
+- test_a_seal_pointing_at_another_commit_is_refused
+    [Risky]:  Did not assert
+- test_a_seal_pointing_at_an_off_history_commit_is_refused
+    [Risky]:  Did not assert
+- test_a_reachable_ancestor_carrying_the_wrong_subject_is_refused
+    [Risky]:  Did not assert
+- test_a_malformed_declared_surface_digest_is_refused
+    [Risky]:  Did not assert
+- test_a_role_relation_set_that_is_not_the_frozen_six_is_refused
+    [Risky]:  Did not assert
+- test_two_ledgers_claiming_one_fixed_path_are_refused
+    [Risky]:  Did not assert
+- test_a_drifted_allocation_key_format_is_refused
+    [Risky]:  Did not assert
+- test_an_allocator_receipt_missing_its_disposition_is_refused
+    [Risky]:  Did not assert
+- test_a_dropped_recipe_exclusion_is_refused
+    [Risky]:  Did not assert
+- test_a_gate_that_stops_attesting_preserved_schedule_keys_is_refused
+    [Risky]:  Did not assert
+- test_a_gate_whose_frozen_readiness_was_regenerated_is_refused
+    [Risky]:  Did not assert
+- test_a_seal_that_drops_a_consumed_binding_is_refused
+    [Risky]:  Did not assert
+- test_a_repointed_binding_digest_is_refused
+    [Risky]:  Did not assert
+- test_a_fourth_allocator_seam_is_refused
+    [Risky]:  Did not assert
+- test_a_seal_without_command_records_is_refused
+    [Risky]:  Did not assert
+- test_a_repointed_test_log_digest_is_refused
+    [Risky]:  Did not assert
+- test_a_probe_missing_a_predecessor_member_is_refused
+    [Risky]:  Did not assert
+- test_an_unnamed_probe_key_is_refused
+    [Risky]:  Did not assert
+- test_a_non_integer_predecessor_role_is_refused
+    [Risky]:  Did not assert
+- test_an_unretained_predecessor_role_is_refused
+    [Risky]:  Did not assert
+- test_a_reordered_restore_order_is_refused
+    [Risky]:  Did not assert
+- test_a_missing_restore_role_is_refused
+    [Risky]:  Did not assert
+- test_an_unretained_restore_role_is_refused
+    [Risky]:  Did not assert
+- test_one_object_serving_two_restore_roles_is_refused
+    [Risky]:  Did not assert
+- test_one_object_serving_both_action_sources_is_refused
+    [Risky]:  Did not assert
+- test_a_flipped_sealed_role_verdict_is_refused
+    [Risky]:  Did not assert
+- test_a_ledger_attestation_that_contradicts_the_probe_is_refused
+    [Risky]:  Did not assert
+- test_one_live_object_serving_both_ledger_roles_is_refused
+    [Risky]:  Did not assert
+- test_an_allocator_that_is_not_the_dot16_owner_is_refused
+    [Risky]:  Did not assert
+- test_a_raw_causal_day_issue_path_is_refused
+    [Risky]:  Did not assert
+- test_a_third_resolution_kind_is_refused
+    [Risky]:  Did not assert
+- test_a_caller_supplied_target_day_identity_is_refused
+    [Risky]:  Did not assert
+- test_a_publication_delivered_twice_across_a_restart_is_refused
+    [Risky]:  Did not assert
+- test_an_undeclared_conflict_code_is_refused
+    [Risky]:  Did not assert
+- test_a_schedule_done_recipe_carrying_a_checkpoint_is_refused
+    [Risky]:  Did not assert
+- test_a_changed_snapshot_input_shape_is_refused
+    [Risky]:  Did not assert
+- test_an_undeclared_desktop_snapshot_member_is_refused
+    [Risky]:  Did not assert
+- test_a_regressed_schema_version_is_refused
+    [Risky]:  Did not assert
+- test_a_live_snapshot_version_that_disagrees_with_its_owner_is_refused
+    [Risky]:  Did not assert
+- test_a_readiness_fact_that_stopped_matching_its_seal_is_refused
+    [Risky]:  Did not assert
+- test_a_producer_regression_below_finished_deviation_5_is_refused
+    [Risky]:  Did not assert
+- test_a_requirement_split_that_overstates_its_evidence_is_refused
+    [Risky]:  Did not assert
+- test_a_later_owner_that_has_already_taken_the_composition_is_refused
+    [Risky]:  Did not assert
+- test_a_destination_composition_declared_ready_inside_phase_2r_is_refused
+    [Risky]:  Did not assert
+- test_a_seal_that_stops_recording_dating_as_deferred_is_refused
+    [Risky]:  Did not assert
+- test_a_dating_presentation_declared_ready_inside_phase_2r_is_refused
+    [Risky]:  Did not assert
+- test_a_seal_without_an_array_of_source_bindings_is_refused
+    [Risky]:  Did not assert
+- test_an_allocator_binding_without_a_declared_surface_is_refused
+    [Risky]:  Did not assert
+- test_a_command_record_that_is_not_an_object_is_refused
+    [Risky]:  Did not assert
+- test_a_command_record_naming_no_log_is_refused
+    [Risky]:  Did not assert
+- test_a_recorded_log_absent_at_head_is_refused
+    [Risky]:  Did not assert
+- test_a_restore_order_that_is_not_an_array_is_refused
+    [Risky]:  Did not assert
+- test_restore_roles_that_are_not_a_dictionary_are_refused
+    [Risky]:  Did not assert
+- test_a_desktop_seal_without_a_bootstrap_probe_is_refused
+    [Risky]:  Did not assert
+- test_a_desktop_seal_without_external_stores_is_refused
+    [Risky]:  Did not assert
+- test_an_unrecorded_desktop_ledger_is_refused
+    [Risky]:  Did not assert
+- test_a_gate_without_a_day_advance_identity_is_refused
+    [Risky]:  Did not assert
+- test_a_gate_recording_no_observed_publications_is_refused
+    [Risky]:  Did not assert
+- test_a_gate_recording_no_conflict_codes_is_refused
+    [Risky]:  Did not assert
+- test_an_observed_publication_that_is_not_an_object_is_refused
+    [Risky]:  Did not assert
+- test_a_minesweeper_seal_without_recipes_is_refused
+    [Risky]:  Did not assert
+- test_a_snapshot_desktop_member_that_is_not_an_object_is_refused
+    [Risky]:  Did not assert
+- test_a_desktop_seal_without_v4_facts_is_refused
+    [Risky]:  Did not assert
+- test_a_gate_without_current_versions_is_refused
+    [Risky]:  Did not assert
+- test_a_gate_without_a_bootstrap_probe_is_refused
+    [Risky]:  Did not assert
+- test_a_gate_probe_without_readiness_is_refused
+    [Risky]:  Did not assert
+- test_a_seal_recording_no_requirement_ids_is_refused
+    [Risky]:  Did not assert
+- test_the_three_seal_documents_match_their_committed_bytes
+    [Risky]:  Did not assert
+- test_a_hand_edited_seal_that_stays_internally_consistent_is_refused
+    [Risky]:  Did not assert
+- test_the_document_seam_refuses_a_non_dictionary_seal
+    [Risky]:  Did not assert
+- test_the_real_schedule_commit_port_prepares_a_detached_aggregate_without_mutating
+    [Risky]:  Did not assert
+- test_the_real_day_start_port_prepares_from_a_real_commit_without_starting_anything
+    [Risky]:  Did not assert
+- test_the_real_shared_allocator_prepares_both_variants_without_committing_the_root
+    [Risky]:  Did not assert
+- test_the_real_allocator_refuses_an_id_only_source_causal_day_receipt
+    [Risky]:  Did not assert
+- test_the_real_provenance_owner_refuses_a_malformed_handoff
+    [Risky]:  Did not assert
+- test_the_real_causal_sequence_port_stays_mutation_free_before_configuration
+    [Risky]:  Did not assert
+- test_the_real_causal_sequence_port_refuses_a_malformed_reservation
+    [Risky]:  Did not assert
+- test_the_real_board_fate_port_refuses_a_projected_departure_before_configuration
+    [Risky]:  Did not assert
+- test_the_real_minesweeper_save_port_refuses_an_incapable_checkpoint_owner
+    [Risky]:  Did not assert
+- test_the_real_minesweeper_save_port_binds_the_real_checkpoint_owner
+    [Risky]:  Did not assert
+- test_the_nine_real_restore_participant_classes_share_one_interface
+    [Risky]:  Did not assert
+- test_the_captured_snapshot_input_round_trips_through_the_real_v5_schema
+    [Risky]:  Did not assert
+- test_the_real_v5_builder_refuses_a_snapshot_input_missing_a_declared_member
+    [Risky]:  Did not assert
+- test_the_real_schedule_state_schema_rejects_the_aggregate_the_seal_forbids
+    [Risky]:  Did not assert
+- test_pre_cutover_or_future_live_schema_claims_are_refused
+    [Risky]:  Did not assert
+[Failed]:  before_all/after_all assert failed
+
+res://tests/integration/test_restore_production_adapters.gd
+- test_prepare_builds_nine_plans_and_commits
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 150
+- test_commit_prepared_restore_rejects_stray_identity_allocation_bundle_key
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 195
+- test_commit_prepared_restore_rejects_stray_transaction_issuer_receipt_key
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 209
+- test_commit_prepared_restore_rejects_stray_transaction_remap_key
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 223
+- test_late_narrative_incompatibility_selects_earlier_bundle
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 237
+- test_profile_prepare_failure_is_structural_not_content
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 252
+
+res://tests/integration/test_restore_transaction.gd
+- test_configure_restore_participants_validates_nine_keys
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 48
+- test_restore_success_applies_and_finalizes_in_order
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 59
+- test_apply_failure_rolls_back_in_reverse_and_emits_nothing
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 82
+- test_rollback_failure_latches_shared_gate
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 103
+- test_failed_restore_finalization_restores_prior_journal_and_releases_save_lock
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 158
+
+res://tests/integration/test_save_capability.gd
+- test_capability_values_per_owner
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 83
+- test_lock_idempotence_and_cross_owner_release
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 100
+- test_board_lock_is_silent_and_transition_defers
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 117
+- test_deferred_save_fulfilled_at_next_checkpoint
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 146
+
+res://tests/integration/test_save_manager_journal.gd
+- test_record_checkpoint_advances_journal_and_persists_disk
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 89
+- test_real_port_preview_is_pure_and_matches_prepare
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 110
+- test_real_port_commit_and_autosave_round_trip
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 136
+- test_real_port_rollback_failure_latches_shared_gate
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 157
+- test_configure_fatal_latch_matrix
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 182
+
+res://tests/integration/test_schedule_done_public_walk.gd
+- test_a_committed_schedule_walk_presents_settles_and_advances_through_public_doors
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_the_walk_is_replay_safe_at_the_public_doors
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_the_disk_autosave_of_the_advanced_day_is_written
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+
+res://tests/integration/test_schedule_downstream_contracts.gd
+- test_a01_validate_ports_covers_every_frozen_downstream_method
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 515
+- test_a02_schedule_prepare_commit_matches_the_frozen_contract
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 545
+- test_a03_day7_empty_done_provenance_matches_the_frozen_contract
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 587
+- test_a04_schedule_done_causal_reservation_matches_the_frozen_contract
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 628
+- test_a05_causal_admission_binds_reservation_checkpoint_and_payload_hash
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 666
+- test_a06_causal_commit_returns_the_combined_admission_receipt
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 686
+- test_a07_board_fate_schedule_done_uses_the_live_board_with_null_source_action_members
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 718
+- test_a08_board_fate_condition_departure_binds_the_exact_source_action
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 746
+- test_a09_consequence_accept_returns_the_frozen_value_and_receipt
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 768
+- test_a10_day_resolution_start_matches_the_frozen_contract
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 817
+- test_a11_board_fate_forfeits_a_started_board_with_nonnull_identity
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 861
+- test_a12_day7_scheduled_solo_provenance_binds_the_nonnull_trio
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 903
+- test_b01_schedule_prepare_commit_refuses_a_missing_member_without_mutation
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 948
+- test_b02_schedule_prepare_commit_refuses_an_extra_member_without_mutation
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 962
+- test_b03_schedule_prepare_commit_refuses_a_stale_registry_fingerprint_without_mutation
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 976
+- test_b04_schedule_prepare_commit_refuses_caller_supplied_route_effect_and_cost
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 990
+- test_b05_board_fate_accepts_only_its_own_request_shape_and_reason
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 1008
+- test_b06_board_fate_refuses_a_stale_board_revision_without_mutation
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 1042
+- test_b07_board_fate_refuses_a_wrong_causal_day_without_mutation
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 1055
+- test_b08_board_fate_refuses_a_bad_projection_hash_and_a_foreign_action_identity
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 1069
+- test_b09_causal_reservation_refuses_shape_and_stale_expectation_mutations
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 1094
+- test_b10_day7_provenance_refuses_shape_mutations_and_a_non_day7_commit
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 1133
+- test_b11_day_resolution_start_refuses_shape_mutations_and_a_wrong_causal_day
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 1171
+
+res://tests/integration/test_schedule_foundation_bootstrap_wiring.gd
+- test_the_foundation_constructs_exactly_one_of_each_object
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_identical_startup_replay_reuses_every_retained_instance
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_one_ledger_is_retained_and_is_the_only_one_constructed
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_the_configured_provenance_service_is_injected_into_the_retained_state_port
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_the_foundation_refuses_to_build_without_the_retained_issuer_or_storage
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+
+res://tests/integration/test_schedule_presentation_bootstrap_wiring.gd
+- test_composition_retains_exactly_one_of_each_presentation_object
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_identical_startup_replay_reuses_every_instance
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_the_hospital_port_retains_the_exact_bootstrap_owned_adapter
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_the_coordinator_dispatches_through_the_exact_router_the_ports_were_injected_into
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_the_adapter_retains_the_existing_bridge_rather_than_a_new_one
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_composition_without_an_issuer_or_bridge_fails_closed
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_the_coordinator_receives_the_exact_retained_port_identities
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_the_coordinator_refuses_a_replacement_port
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_the_coordinator_refuses_an_incomplete_presentation_capability
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_the_router_receives_the_exact_retained_port_identities
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_the_router_refuses_a_replacement_port
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_hospital_is_ready_and_dating_is_deliberately_not
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_bootstrap_configures_no_dating_owner_at_all
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_the_router_refuses_to_route_an_unready_dating_presentation
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_the_router_refuses_an_unknown_route_or_a_mismatched_command
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_an_unconfigured_router_routes_nothing
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+
+res://tests/integration/test_schedule_publication_restart.gd
+- test_committed_schedule_is_captured_into_the_v3_snapshot
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_committed_schedule_survives_a_whole_document_round_trip
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_restore_reinstalls_the_committed_schedule_without_signals_until_finalize
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_publication_ledger_is_not_a_snapshot_or_document_member
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_selectable_operations_leave_the_ledger_bytes_identical
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_a_cold_ledger_rereads_the_durable_record_and_corruption_fails_closed
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+
+res://tests/integration/test_schedule_warning_context_port.gd
+- test_snapshot_for_before_configure_is_typed
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_configure_refuses_invalid_owners_typed
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_configure_is_idempotent_and_rejects_replacement_before_any_read
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_snapshot_for_returns_the_exact_context_from_the_real_owners
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_real_contacts_drive_unread_accepted_and_the_subtraction_law
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_snapshot_for_requires_the_matching_day_and_causal_identity
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_snapshot_for_refuses_a_malformed_view
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_the_port_never_locates_owners_or_scenes_statically
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_a_foreign_board_identity_is_refused
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_a_none_phase_asymmetry_is_refused
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_a_live_board_projects_its_identity_ordinal_and_unfinished_state
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_an_invalid_replacement_is_refused_as_invalid_first
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+- test_a_null_next_ordinal_projects_a_null_base_round_ordinal
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+
+res://tests/integration/test_shop_condition_contract_departure.gd
+- test_shop_purchase_departure_discards_an_unstarted_candidate
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 176
+- test_shop_purchase_without_a_departure_leaves_the_board_untouched
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 244
+
+res://tests/integration/test_unified_restore_contract.gd
+- test_schedule_restores_with_the_other_owners_before_route_dispatch
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 35
+- test_late_failure_rolls_back_schedule_without_dispatching_the_route
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 49
+- test_failed_first_restore_returns_schedule_to_its_unopened_state
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 60
+
+res://tests/integration/test_witnessed_run_presentation.gd
+- test_art_hold_recolours_only_material_with_same_art_and_continue_custody
+    [Failed]:  the art fixture requires isolated storage: { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line 373
+
+res://tests/scenario/test_hospital_invitation_closures.gd
+- test_a_witnessing_sylvia_asks_no_missed_question
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Hospital invitation fixture is unavailable
+          at line 82
+- test_without_a_witness_sylvia_asks_normally
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Hospital invitation fixture is unavailable
+          at line 101
+- test_a_sylvia_witness_never_suppresses_another_friend
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Hospital invitation fixture is unavailable
+          at line 116
+- test_the_witness_index_survives_the_rollover_it_informed
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Hospital invitation fixture is unavailable
+          at line 134
+- test_condition_hospital_closes_exact_sources_and_retains_distinct_sylvia_witness
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Hospital invitation fixture is unavailable
+          at line 251
+- test_condition_hospital_refuses_changed_source_before_closure
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Hospital invitation fixture is unavailable
+          at line 283
+- test_condition_hospital_preserves_offscreen_pair_window_without_a_fake_date
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Hospital invitation fixture is unavailable
+          at line 295
+- test_condition_witness_cannot_be_retagged_as_schedule_done
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Hospital invitation fixture is unavailable
+          at line 307
+- test_condition_hospital_stage_presentation_and_retirement_use_real_root_ancestry
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Hospital invitation fixture is unavailable
+          at line 319
+
+Totals
+------
+Scripts              42
+Tests               559
+Passing Tests        91
+Failing Tests       367
+Risky/Pending       101
+Asserts           1000/1442
+Orphans             168
+Time              2.249s
+
+
+---- 367 failing tests ----
+
+ROOT_GUARD_PROBE {"after":{"directories":[".","dialogic","dialogic/saves"],"errors":[],"exists":true,"files":{"dialogic/saves/global_info.txt":"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"}},"before":{"directories":[".","dialogic","dialogic/saves"],"errors":[],"exists":true,"files":{"dialogic/saves/global_info.txt":"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"}},"mode":"empty","ok":true,"phase":"user_storage"}
+ROOT_GUARD_PROBE {"after":{"directories":["."],"errors":[],"exists":true,"files":{}},"before":{"directories":["."],"errors":[],"exists":true,"files":{}},"mode":"empty","ok":true,"phase":"end_run"}
+ROOT_GUARD_PROBE {"mode":"empty","ok":true,"phase":"restored"}

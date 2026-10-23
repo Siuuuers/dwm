@@ -1,0 +1,189 @@
+{
+  "schema_version": 1,
+  "review_kind": "final_join_v2_job_schema_successor_review",
+  "reviewer": "f9_contract_review",
+  "reviewed_at_utc": "2026-10-02T08:34:54.275406+00:00",
+  "decision": "Approve exact versioned successor. The single field-name normalization correctly binds the actual successful canonical Run130 jobs without weakening acceptance.",
+  "reviewed_files": [
+    {
+      "path": "/workspace/scratch/e169b180163f/join_settings_f9_acceptance.py",
+      "bytes": 14633,
+      "sha256": "93a3272f8ce1ba9960bd682008b50298b5c8fb2a16338a355145691d7d6e72e7"
+    },
+    {
+      "path": "/workspace/scratch/e169b180163f/join_settings_f9_acceptance_v2.py",
+      "bytes": 14937,
+      "sha256": "fbc0c3e271071df494376c9fcb5aa187d97e979ccbe67944916ecb6ac65374fc"
+    },
+    {
+      "path": "/workspace/scratch/e169b180163f/settings-f9-run130/audit/helper-revisions/join_settings_f9_acceptance.py",
+      "bytes": 14633,
+      "sha256": "93a3272f8ce1ba9960bd682008b50298b5c8fb2a16338a355145691d7d6e72e7"
+    },
+    {
+      "path": "/workspace/scratch/e169b180163f/settings-f9-run130/audit/helper-revisions/initial-job-schema-refusal.json",
+      "bytes": 1250,
+      "sha256": "26858003d246b776505e407aee744cffb8e9e5a336aff8a4943157671b1bdd2a"
+    },
+    {
+      "path": "/workspace/scratch/e169b180163f/settings-f9-run130/acceptance-summary.json",
+      "bytes": 14378,
+      "sha256": "b73bc395b632e8e66b5c58ba4feddd58187bb8c95fcbfb3f3f0b8e9a19915373"
+    },
+    {
+      "path": "/workspace/scratch/e169b180163f/settings-f9-run130/run.json",
+      "bytes": 13423,
+      "sha256": "95b677943fca1cf6aba9b3d33493c325afc5f3d154023df2a71efef35562407b"
+    },
+    {
+      "path": "/workspace/scratch/e169b180163f/settings-f9-run130/jobs.json",
+      "bytes": 95023,
+      "sha256": "1ae28c78b857f495afde3c32178743bb2bd795e7b7d423e6ce73f8a706e691ff"
+    },
+    {
+      "path": "/workspace/scratch/e169b180163f/settings-f9-run130/audit/generic-evidence-audit.json",
+      "bytes": 510958,
+      "sha256": "a59bdd4251bd6ec08f313548646f7d8bbd3da4fe4aebbce0c2b155b1079e171f"
+    },
+    {
+      "path": "/workspace/scratch/e169b180163f/settings-f9-run130/audit/settings-load-journey-v3-audit.json",
+      "bytes": 32279,
+      "sha256": "f44ff8212821c670e710aa043b99ceb60b69b8cfbb24ffcd2a935cb8de039c9b"
+    },
+    {
+      "path": "/workspace/scratch/e169b180163f/settings-f9-run130/audit/settings-load-public-audit.json",
+      "bytes": 1010456,
+      "sha256": "23e1045e4b6fba5c15688a2ed227f0093175237ab45a343fc30ed95000f22680"
+    },
+    {
+      "path": "/workspace/scratch/e169b180163f/settings-f9-run130/audit/physical-selector-journey-audit.json",
+      "bytes": 8584,
+      "sha256": "e6a8d351ff179963a5c5cfb5437013aa9a0d7a234375a20c670aff5123f89f91"
+    }
+  ],
+  "source_delta": [
+    "Add immutable predecessor identity to versioned successor and output.",
+    "Use execution_job_id if present; only when absent use accepted F5 job_id. Lookup must still succeed in exact generic execution map.",
+    "All exact name/log/hash/checkout, actual API same-run/head/success,23-job, source/blob, raw-member, discovery/parser and component checks are unchanged."
+  ],
+  "actual_normalized_job_observations": [
+    {
+      "component": "settings-load-journey-v3-audit.json",
+      "selected_field": "job_id",
+      "execution_job_id": 110755020157,
+      "name": "Rendered seven-day, ending, Gallery and Dating journeys",
+      "log": "logs/110755020157.log",
+      "log_identity": {
+        "bytes": 498886,
+        "sha256": "65524ee61e471b2ebb9a24132cd74b960f675df0f95af945df610e41b8ad7155"
+      },
+      "checkout_shas": [
+        "705ea660b4d6ee9f3376ae4660a3d50e65fe5502"
+      ],
+      "actual_api_run_id": 36980559297,
+      "actual_api_head_sha": "41cc51992b74ec9472f7912e0eb8e1c39679af44",
+      "actual_api_status": "completed",
+      "actual_api_conclusion": "success",
+      "both_ids_agree_when_present": true
+    },
+    {
+      "component": "settings-load-public-audit.json",
+      "selected_field": "execution_job_id",
+      "execution_job_id": 110753885577,
+      "name": "Windows / public API surface contracts",
+      "log": "logs/110753885577.log",
+      "log_identity": {
+        "bytes": 803167,
+        "sha256": "3041bf92f836686b1542a455427e5e9e0237d4c96221ea3bc1d26ef5077c84f0"
+      },
+      "checkout_shas": [
+        "705ea660b4d6ee9f3376ae4660a3d50e65fe5502"
+      ],
+      "actual_api_run_id": 36980559297,
+      "actual_api_head_sha": "41cc51992b74ec9472f7912e0eb8e1c39679af44",
+      "actual_api_status": "completed",
+      "actual_api_conclusion": "success",
+      "both_ids_agree_when_present": true
+    },
+    {
+      "component": "physical-selector-journey-audit.json",
+      "selected_field": "execution_job_id",
+      "execution_job_id": 110755020157,
+      "name": "Rendered seven-day, ending, Gallery and Dating journeys",
+      "log": "logs/110755020157.log",
+      "log_identity": {
+        "bytes": 498886,
+        "sha256": "65524ee61e471b2ebb9a24132cd74b960f675df0f95af945df610e41b8ad7155"
+      },
+      "checkout_shas": [
+        "705ea660b4d6ee9f3376ae4660a3d50e65fe5502"
+      ],
+      "actual_api_run_id": 36980559297,
+      "actual_api_head_sha": "41cc51992b74ec9472f7912e0eb8e1c39679af44",
+      "actual_api_status": "completed",
+      "actual_api_conclusion": "success",
+      "both_ids_agree_when_present": true
+    }
+  ],
+  "predecessor_preservation": {
+    "original_and_retained_copy_byte_identical": true,
+    "initial_refusal": {
+      "cause": "The accepted F5 auditor uses job_id for its unique current-attempt executed reading job. The new join incorrectly assumed the physical/public execution_job_id schema for every component.",
+      "delta": "Select explicit execution_job_id when present; otherwise use accepted F5 job_id. The selected ID must still exist in the same generic execution map, with identical name/log/hash/checkout and successful matching API run/head.",
+      "failure": {
+        "key": "execution_job_id",
+        "type": "KeyError"
+      },
+      "initial_join_accepted": false,
+      "observed_accepted_f5_job_record": {
+        "checkout_shas": [
+          "705ea660b4d6ee9f3376ae4660a3d50e65fe5502"
+        ],
+        "github_job": "rendered-journeys",
+        "job_id": 110755020157,
+        "log": "logs/110755020157.log",
+        "log_identity": {
+          "bytes": 498886,
+          "sha256": "65524ee61e471b2ebb9a24132cd74b960f675df0f95af945df610e41b8ad7155"
+        },
+        "name": "Rendered seven-day, ending, Gallery and Dating journeys"
+      },
+      "old_helper": {
+        "bytes": 14633,
+        "file": "audit/helper-revisions/join_settings_f9_acceptance.py",
+        "sha256": "93a3272f8ce1ba9960bd682008b50298b5c8fb2a16338a355145691d7d6e72e7"
+      },
+      "schema_version": 1,
+      "successor": "join_settings_f9_acceptance_v2.py"
+    },
+    "previous_review_unchanged": {
+      "path": "/workspace/scratch/e169b180163f/settings-f9-final-acceptance-helper-review.json",
+      "bytes": 7211,
+      "sha256": "d3bcf3509ac19a1d03cd71a0d43fcc4e1bb9a5c4f9396f574a1a582b71742bb8"
+    }
+  },
+  "actual_acceptance_receipt_reviewed": {
+    "bounded_settings_f9_acceptance": true,
+    "run_id": 36980559297,
+    "run_attempt": 1,
+    "source": "41cc51992b74ec9472f7912e0eb8e1c39679af44",
+    "tested_checkout": "705ea660b4d6ee9f3376ae4660a3d50e65fe5502",
+    "canonical_successful_job_count": 23,
+    "complete_discovery_counts": {
+      "case_executions": 2313,
+      "script_executions": 196,
+      "unique_cases": 2309,
+      "unique_scripts": 195,
+      "xml_count": 13
+    },
+    "auditor_identity": {
+      "bytes": 14937,
+      "sha256": "fbc0c3e271071df494376c9fcb5aa187d97e979ccbe67944916ecb6ac65374fc"
+    }
+  },
+  "limits": [
+    "Reviewer independently checked successor source delta and actual normalized job/API/log/checkout binding. Did not rerun all component semantic auditors or the full join.",
+    "The accepted final receipt was produced by the evidence owner and is separately hash-bound above; historical v1 refusal remains preserved as a schema adapter failure, not a runtime failure or success.",
+    "No engine, PowerShell, production runtime, test source or acceptance condition changed in this correction."
+  ]
+}

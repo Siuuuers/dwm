@@ -1,0 +1,128 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-ui-build/.godot/phase2r_tests/afd3af59-027c-4de0-9b89-47fa7426b5d0/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+res://tests/unit/test_startup_route_publication.gd
+* test_hold_is_idempotent_and_foreign_publication_cannot_remove_title
+* test_repeated_finalize_publishes_only_final_target_once
+* test_restore_rollback_recovers_prior_held_target_and_rejects_foreign_backup
+* test_rollback_preserves_a_semantic_route_pending_before_finalize
+* test_presentation_route_cannot_bypass_hold_and_reentrant_requests_are_refused
+* test_failed_presentation_publication_retains_request_and_same_hold_for_retry
+* test_ordinary_routing_and_backup_shape_remain_unchanged_without_hold
+* test_empty_hold_publication_keeps_title_and_invalid_route_does_not_replace_request
+8/8 passed.
+
+
+res://tests/integration/test_new_run_startup_retry.gd
+* test_getter_is_pure_and_generic_startup_failure_is_not_retryable
+* test_early_failure_retains_full_result_and_retries_without_reinitializing
+* test_early_retry_rejects_foreign_reentrant_and_repeated_requests
+* test_repeated_early_recovery_failure_stays_on_same_operation_and_stage
+* test_generic_stage_failure_after_early_settlement_closes_retry_capability
+* test_late_failure_retries_only_publish_and_retains_partial_graph_owner
+* test_route_publish_failure_keeps_title_hold_and_never_claims_readiness
+* test_late_retry_with_different_transaction_becomes_nonretryable_fatal
+8/8 passed.
+
+
+res://tests/integration/test_new_run_startup_publication.gd
+* test_real_completion_journal_failure_keeps_title_then_same_startup_retry_publishes_once
+    [Failed]:  ["participants_applied"] expected to equal ["applied"]:  
+      at line 122
+    [Failed]:  { "ok": false, "code": &"fatal_latch_not_configured", "message": "", "details": {  } }
+      at line 133
+    [Failed]:  [0] expected to equal [1]:  
+      at line 134
+    [Failed] 
+      at line 135
+    [Failed]:  [""] expected to equal ["res://scenes/main/MainGameScene.tscn"]:  
+      at line 138
+    [Failed]:  [0] expected to equal [1]:  
+      at line 143
+* test_real_late_consequence_read_failure_keeps_title_after_completed_new_run
+    [Failed]:  [STRING_NAME(fatal_latch_not_configured)] expected to equal [STRING_NAME(fixture_consequence_read_failure)]:  { "ok": false, "code": &"fatal_latch_not_configured", "message": "", "details": {  } }
+      at line 153
+    [Failed]:  [0] expected to equal [1]:  Real checkpoint port performs post-replay read
+      at line 154
+0/2 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/unit/test_startup_route_publication.gd
+    - Outside Tests
+        * [<Node#100579411692>(subsystem_animation.gd)]
+        * [<Node#100596188909>(subsystem_audio.gd)]
+        * [<Node#100612966126>]
+        * [<Node#100629743343>]
+        * [<Node#100646520560>(subsystem_backgrounds.gd)]
+        * [<Node#101183391473>(subsystem_choices.gd)]
+        * [<Timer#101200168690>]
+        * [<Node#101216945907>(subsystem_expression.gd)]
+        * [<Node#101250500344>(subsystem_glossary.gd)]
+        * [<Node#101267277561>(subsystem_history.gd)]
+        * [<Node#101284054778>(subsystem_input.gd)]
+        * [<Timer#101300831995>]
+        * [<Node#101317609212>(subsystem_jump.gd)]
+        * [<Node#101334386429>(subsystem_containers.gd)]
+        * [<Node#101351163646>(subsystem_portraits.gd)]
+        * [<Node#101888034559>(subsystem_save.gd)]
+        * [<Timer#101904811776>]
+        * [<Node#101921588993>(subsystem_settings.gd)]
+        * [<Node#101938366213>(subsystem_styles.gd)]
+        * [<Node#101955143430>(subsystem_text.gd)]
+        * [<Node#102039029515>(subsystem_text_input.gd)]
+        * [<Node#102055806732>(subsystem_variables.gd)]
+        * [<Node#102072583949>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#102089361166>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+res://tests/integration/test_new_run_startup_publication.gd
+- test_real_completion_journal_failure_keeps_title_then_same_startup_retry_publishes_once
+    [Failed]:  ["participants_applied"] expected to equal ["applied"]:  
+          at line 122
+    [Failed]:  { "ok": false, "code": &"fatal_latch_not_configured", "message": "", "details": {  } }
+          at line 133
+    [Failed]:  [0] expected to equal [1]:  
+          at line 134
+    [Failed]:  
+          at line 135
+    [Failed]:  [""] expected to equal ["res://scenes/main/MainGameScene.tscn"]:  
+          at line 138
+    [Failed]:  [0] expected to equal [1]:  
+          at line 143
+- test_real_late_consequence_read_failure_keeps_title_after_completed_new_run
+    [Failed]:  [STRING_NAME(fatal_latch_not_configured)] expected to equal [STRING_NAME(fixture_consequence_read_failure)]:  { "ok": false, "code": &"fatal_latch_not_configured", "message": "", "details": {  } }
+          at line 153
+    [Failed]:  [0] expected to equal [1]:  Real checkpoint port performs post-replay read
+          at line 154
+
+Totals
+------
+Scripts               3
+Tests                18
+Passing Tests        16
+Failing Tests         2
+Asserts           268/276
+Orphans              24
+Time              8.615s
+
+
+---- 2 failing tests ----
+

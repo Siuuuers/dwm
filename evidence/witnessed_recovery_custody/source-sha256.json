@@ -1,0 +1,11 @@
+{
+  "scripts/application/lifecycle/ProductionPauseController.gd": "ed3afc2ad1d9fd332f612f41fb8fe791f5ed62f07c9f9e04240902f1be405175",
+  "scripts/ui/witnessed/WitnessedCaptionLayer.gd": "12a53b1fa08d2916eed71d224c7e4b1eacb67de35dcf95de326c6dcdfa06d154",
+  "scripts/ui/witnessed/WitnessedTransportRecovery.gd": "7cf3edea2a8ed20e2e014ffc936ae900320aeb7c7af5ab25cde02ec812f2d8c7",
+  "tests/integration/test_dialogic_production_skip.gd": "aa23d1f850db688f3aa4f85e763ac7cf50ebf2402caf77c0d3c7ddd058e26ce8",
+  "tests/integration/test_narrative_pause_frontier.gd": "a68e80c734711cb008c0e0e9f9f627b2aaadb78612744a3edcece6c39a131fd9",
+  "tests/scene/test_witnessed_transport_recovery.gd": "93f31aa76dcc2a6b1e9ab707c59e0c6fc5bb82c60d658daafc0133f4dd182785",
+  "tests/manual/verify_witnessed_recovery_custody.gd": "d6afa60caa080b530759c70564b9ca2e622fba23ed156bd53c3d187a6931cc34",
+  "evidence/phase_2r/runtime/game_state_surface.json": "12bf62fbecadca8b3e14d3f67b84010439c68c34f3787f5073b7e5af0e81e926",
+  "evidence/phase_2r/runtime/save_manager_surface.json": "977b9ea9546ddc737f528a0daccfa22c3337a0412401586ef52d0de18c6e31f0"
+}

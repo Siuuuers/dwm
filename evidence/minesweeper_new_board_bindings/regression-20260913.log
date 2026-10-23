@@ -1,0 +1,1821 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/543cf264-211d-4081-92ba-d4d4fd1342bb/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+res://tests/scene/test_minesweeper_new_board_bindings.gd
+* test_default_and_saved_bindings_dispatch_only_published_active_new_board
+    35 Orphans
+        * [@Button@183:<Button#276907952268>(MinesweeperActionButton.gd)]
+        * [@Button@84:<Button#269223988120>(MinesweeperActionButton.gd)]
+        * [@Control@90:<Control#269978962954>(/Unregistered-Inner-Class)]
+        * [@Button@86:<Button#269525978130>(MinesweeperActionButton.gd)]
+        * [@Control@87:<Control#269676973086>(/Unregistered-Inner-Class)]
+        * [@Control@88:<Control#269777636383>(/Unregistered-Inner-Class)]
+        * [@Control@89:<Control#269878299686>(/Unregistered-Inner-Class)]
+        * [@Button@85:<Button#269374983215>(MinesweeperActionButton.gd)]
+        * [@Button@218:<Button#281270029522>(MinesweeperActionButton.gd)]
+        * [@Control@189:<Control#277662928086>(/Unregistered-Inner-Class)]
+        * [@Button@185:<Button#277209943262>(MinesweeperActionButton.gd)]
+        * [@Control@186:<Control#277360938218>(/Unregistered-Inner-Class)]
+        * [@Control@187:<Control#277461601515>(/Unregistered-Inner-Class)]
+        * [@Control@188:<Control#277562264818>(/Unregistered-Inner-Class)]
+        * [@Button@184:<Button#277058948347>(MinesweeperActionButton.gd)]
+        * [@Control@224:<Control#282025004288>(/Unregistered-Inner-Class)]
+        * [@Button@220:<Button#281572019464>(MinesweeperActionButton.gd)]
+        * [@Control@221:<Control#281723014420>(/Unregistered-Inner-Class)]
+        * [@Control@222:<Control#281823677717>(/Unregistered-Inner-Class)]
+        * [@Control@223:<Control#281924341020>(/Unregistered-Inner-Class)]
+        * [@Button@219:<Button#281421024549>(MinesweeperActionButton.gd)]
+        * [@Button@253:<Button#308952436009>(MinesweeperActionButton.gd)]
+        * [@Control@259:<Control#309707410732>(/Unregistered-Inner-Class)]
+        * [@Button@288:<Button#313129962799>(MinesweeperActionButton.gd)]
+        * [@Button@255:<Button#309254425908>(MinesweeperActionButton.gd)]
+        * [@Control@256:<Control#309405420864>(/Unregistered-Inner-Class)]
+        * [@Control@257:<Control#309506084161>(/Unregistered-Inner-Class)]
+        * [@Control@258:<Control#309606747464>(/Unregistered-Inner-Class)]
+        * [@Button@254:<Button#309103430993>(MinesweeperActionButton.gd)]
+        * [@Control@294:<Control#313884937558>(/Unregistered-Inner-Class)]
+        * [@Button@290:<Button#313431952734>(MinesweeperActionButton.gd)]
+        * [@Control@291:<Control#313582947690>(/Unregistered-Inner-Class)]
+        * [@Control@292:<Control#313683610987>(/Unregistered-Inner-Class)]
+        * [@Control@293:<Control#313784274290>(/Unregistered-Inner-Class)]
+        * [@Button@289:<Button#313280957819>(MinesweeperActionButton.gd)]
+* test_settled_board_accepts_keyboard_and_controller_without_grid_focus
+    35 Orphans
+        * [@Button@602:<Button#379081197706>(MinesweeperActionButton.gd)]
+        * [@Control@570:<Control#375306324109>(/Unregistered-Inner-Class)]
+        * [@Control@403:<Control#336232188738>(/Unregistered-Inner-Class)]
+        * [@Button@399:<Button#335779203911>(MinesweeperActionButton.gd)]
+        * [@Control@400:<Control#335930198868>(/Unregistered-Inner-Class)]
+        * [@Control@401:<Control#336030862165>(/Unregistered-Inner-Class)]
+        * [@Control@402:<Control#336131525465>(/Unregistered-Inner-Class)]
+        * [@Button@397:<Button#335477214128>(MinesweeperActionButton.gd)]
+        * [@Button@398:<Button#335628209143>(MinesweeperActionButton.gd)]
+        * [@Control@534:<Control#347556809733>(/Unregistered-Inner-Class)]
+        * [@Control@535:<Control#347657473032>(/Unregistered-Inner-Class)]
+        * [@Button@568:<Button#375054666769>(MinesweeperActionButton.gd)]
+        * [@Button@532:<Button#347254819859>(MinesweeperActionButton.gd)]
+        * [@Button@601:<Button#378930203668>(MinesweeperActionButton.gd)]
+        * [@Button@566:<Button#374752676886>(MinesweeperActionButton.gd)]
+        * [@Control@536:<Control#347758136353>(/Unregistered-Inner-Class)]
+        * [@Control@572:<Control#375507651631>(/Unregistered-Inner-Class)]
+        * [@Control@569:<Control#375205661832>(/Unregistered-Inner-Class)]
+        * [@Control@571:<Control#375406988432>(/Unregistered-Inner-Class)]
+        * [@Button@567:<Button#374903671964>(MinesweeperActionButton.gd)]
+        * [@Control@607:<Control#379685178531>(/Unregistered-Inner-Class)]
+        * [@Button@603:<Button#379232193710>(MinesweeperActionButton.gd)]
+        * [@Control@605:<Control#379483851962>(/Unregistered-Inner-Class)]
+        * [@Control@604:<Control#379383188667>(/Unregistered-Inner-Class)]
+        * [@Control@606:<Control#379584515269>(/Unregistered-Inner-Class)]
+        * [@Control@499:<Control#343362505940>(/Unregistered-Inner-Class)]
+        * [@Control@500:<Control#343463169240>(/Unregistered-Inner-Class)]
+        * [@Button@533:<Button#347405815011>(MinesweeperActionButton.gd)]
+        * [@Button@497:<Button#343060516070>(MinesweeperActionButton.gd)]
+        * [@Control@537:<Control#347858799849>(/Unregistered-Inner-Class)]
+        * [@Control@501:<Control#343563832563>(/Unregistered-Inner-Class)]
+        * [@Button@498:<Button#343211511047>(MinesweeperActionButton.gd)]
+        * [@Button@531:<Button#347103825162>(MinesweeperActionButton.gd)]
+        * [@Control@502:<Control#343664495909>(/Unregistered-Inner-Class)]
+        * [@Button@496:<Button#342909521266>(MinesweeperActionButton.gd)]
+* test_held_key_cannot_become_new_board_after_rebind_focus_sheet_or_pause
+    7 Orphans
+        * [@Button@915:<Button#431962982519>(MinesweeperActionButton.gd)]
+        * [@Control@919:<Control#432466300184>(/Unregistered-Inner-Class)]
+        * [@Button@914:<Button#431811988764>(MinesweeperActionButton.gd)]
+        * [@Control@918:<Control#432365636904>(/Unregistered-Inner-Class)]
+        * [@Control@920:<Control#432566963517>(/Unregistered-Inner-Class)]
+        * [@Control@917:<Control#432264973636>(/Unregistered-Inner-Class)]
+        * [@Button@916:<Button#432113978702>(MinesweeperActionButton.gd)]
+* test_settled_board_does_not_replay_held_key_across_focus_or_pause
+    7 Orphans
+        * [@Control@1172:<Control#477580232833>(/Unregistered-Inner-Class)]
+        * [@Control@1174:<Control#477781560125>(/Unregistered-Inner-Class)]
+        * [@Button@1169:<Button#477177580413>(MinesweeperActionButton.gd)]
+        * [@Control@1171:<Control#477479570311>(/Unregistered-Inner-Class)]
+        * [@Button@1168:<Button#477026585793>(MinesweeperActionButton.gd)]
+        * [@Button@1170:<Button#477328575901>(MinesweeperActionButton.gd)]
+        * [@Control@1173:<Control#477680897474>(/Unregistered-Inner-Class)]
+* test_canonical_challenge_hosts_do_not_offer_new_board_even_with_a_saved_binding
+5/5 passed.
+
+
+res://tests/scene/test_minesweeper_toggle_bindings.gd
+* test_default_keyboard_and_controller_toggle_preserve_projection_focus_cells_and_pan
+* test_saved_keyboard_and_controller_bindings_replace_defaults_with_exact_modifiers
+* test_duplicate_echo_and_simultaneous_sources_toggle_once_until_all_release
+* test_held_contact_rebound_to_toggle_requires_its_own_release
+* test_focus_departure_and_application_focus_cycle_quarantine_held_contacts
+* test_sheet_disabled_processing_cannot_replay_contact_on_return
+* test_contact_begun_during_application_focus_loss_is_inert_until_release_after_return
+* test_actual_worksheet_rules_sheet_return_preserves_focus_and_quarantines_sheet_contact
+* test_interaction_and_projection_custody_preserve_release_frontier
+* test_pause_resume_requires_closing_contact_release_and_later_fresh_press
+* test_toggle_during_existing_pointer_contact_is_inert_and_keeps_original_gesture
+* test_no_owner_is_inert_and_bound_owner_cannot_be_replaced
+12/12 passed.
+
+
+res://tests/scene/test_minesweeper_view_gestures.gd
+* test_second_touch_in_blank_well_cancels_cell_action_and_finishes_one_pinch_write
+* test_ctrl_wheel_over_grid_and_blank_well_each_zoom_once_with_vertical_anchor
+* test_forced_cell_publication_reveals_it_without_stealing_external_focus
+* test_fit_toggle_rebuilds_rail_tab_order_and_exits_to_host
+    2 Orphans
+        * [VerticalRail:<Control#739036369360>(MinesweeperScrollRail.gd)]
+        * [HorizontalRail:<Control#739069923794>(MinesweeperScrollRail.gd)]
+2 orphans
+4/4 passed.
+
+
+res://tests/scene/test_controls_input_contact_release.gd
+* test_release_inside_real_controls_capture_clears_parent_contact_before_first_returned_grid_press
+1/1 passed.
+
+
+res://tests/unit/test_minesweeper_grid.gd
+* test_strict_projection_builds_contiguous_exact_mount
+* test_invalid_projection_is_atomic_and_rejects_private_keys
+* test_same_dimensions_reuse_cell_and_theme_instances_across_revisions
+* test_resize_keeps_prefix_frees_removed_suffix_and_reflows_positions
+* test_roving_focus_moves_without_wrap_and_bracketed_repairs_first
+* test_modes_and_explicit_actions_never_infer_illegal_commands
+* test_paired_pointer_release_and_keyboard_emit_once_with_revision
+* test_pointer_focuses_read_only_cell_and_press_submits_before_any_release
+* test_accessibility_exposes_one_based_coordinate_and_visible_fact_only
+* test_keyboard_f_toggles_mode_and_space_requests_new_board_without_cell_action
+* test_cross_cell_rules_reject_terminal_or_custody_contacts_atomically
+* test_joy_axis_navigation_is_edge_latched_until_neutral
+* test_confirm_is_shared_latched_and_blocks_pointer_and_space_until_release
+* test_custody_cancels_contact_and_removes_grid_focus
+* test_drag_mode_mouse_slop_emits_content_motion_and_stationary_release_is_inert
+* test_touch_short_tap_long_press_and_pan_are_mutually_exclusive
+* test_touch_press_chrome_requires_current_mode_primary_action
+* test_canceled_touch_and_double_tap_never_activate
+* test_second_touch_cancels_pending_tap_and_public_cancel_does_not_release_confirm
+* test_long_press_refresh_keeps_release_gate_until_same_finger_lifts
+* test_right_stick_pan_waits_for_touch_release_and_latches_until_neutral
+* test_focus_signal_reports_repair_move_and_focus_reentry
+* test_real_f_route_emits_only_actual_valid_mode_changes
+* test_identical_or_rejected_mode_preserves_pending_contact_and_active_pan
+* test_can_present_validates_without_changing_grid_projection_focus_or_children
+* test_interaction_block_cancels_real_touch_and_ignores_input_without_changing_facts
+* test_mouse_press_submits_once_and_release_or_drag_off_submits_nothing_more
+27/27 passed.
+
+
+res://tests/unit/test_minesweeper_panel.gd
+* test_dock_mode_and_real_f_shortcut_share_selection_without_board_commands
+* test_sheet_restores_source_mode_cell_and_scroll_while_dock_stays_inert
+    26 Orphans
+        * [@Control@3154:<Control#1070235390509>(MinesweeperInformationSheet.gd)] + 9
+        * [@Control@3164:<Control#1210341921358>(MinesweeperInformationSheet.gd)] + 15
+* test_invalid_composite_preserves_facts_blocks_input_and_refresh_recovers
+    14 Orphans
+        * [@Control@3351:<Control#1413497228088>(/Unregistered-Inner-Class)]
+        * [@Control@3251:<Control#1368299408220>(/Unregistered-Inner-Class)]
+        * [@Control@3252:<Control#1368400071528>(/Unregistered-Inner-Class)]
+        * [@Control@3352:<Control#1413597891531>(/Unregistered-Inner-Class)]
+        * [@Button@3348:<Button#1413144906717>(MinesweeperActionButton.gd)]
+        * [@Control@3349:<Control#1413295901669>(/Unregistered-Inner-Class)]
+        * [@Control@3350:<Control#1413396564966>(/Unregistered-Inner-Class)]
+        * [@Control@3250:<Control#1368198745102>(/Unregistered-Inner-Class)]
+        * [@Button@3346:<Button#1412842916967>(MinesweeperActionButton.gd)]
+        * [@Button@3248:<Button#1367896755358>(MinesweeperActionButton.gd)]
+        * [@Button@3249:<Button#1368047750319>(MinesweeperActionButton.gd)]
+        * [@Control@3253:<Control#1368500736059>(/Unregistered-Inner-Class)]
+        * [@Button@3247:<Button#1367745761481>(MinesweeperActionButton.gd)]
+        * [@Button@3347:<Button#1412993913149>(MinesweeperActionButton.gd)]
+* test_same_size_dispatch_refreshes_public_facts_without_replacing_cells
+    7 Orphans
+        * [@Control@3461:<Control#1435827702969>(/Unregistered-Inner-Class)]
+        * [@Button@3455:<Button#1435072729397>(MinesweeperActionButton.gd)]
+        * [@Control@3460:<Control#1435727041107>(/Unregistered-Inner-Class)]
+        * [@Button@3456:<Button#1435223724629>(MinesweeperActionButton.gd)]
+        * [@Button@3457:<Button#1435374719578>(MinesweeperActionButton.gd)]
+        * [@Control@3458:<Control#1435525714542>(/Unregistered-Inner-Class)]
+        * [@Control@3459:<Control#1435626377839>(/Unregistered-Inner-Class)]
+* test_all_locale_scale_and_target_tuples_close_fixed_body_without_shrinking_fonts
+    236 Orphans
+        * [@Button@3596:<Button#1456547563641>(MinesweeperActionButton.gd)]
+        * [@Control@3631:<Control#1460859308155>(/Unregistered-Inner-Class)]
+        * [@Button@4057:<Button#1521072737056>(MinesweeperActionButton.gd)]
+        * [@Control@3978:<Control#1508540156736>(/Unregistered-Inner-Class)]
+        * [@Control@3977:<Control#1508439493455>(/Unregistered-Inner-Class)]
+        * [@Control@3976:<Control#1508338830165>(/Unregistered-Inner-Class)]
+        * [@Control@4143:<Control#1534544841580>(/Unregistered-Inner-Class)]
+        * [@Button@4190:<Button#1541943593842>(MinesweeperActionButton.gd)]
+        * [@Button@4138:<Button#1533940861820>(MinesweeperActionButton.gd)]
+        * [@Button@4178:<Button#1540316203913>(MinesweeperActionButton.gd)]
+        * [@Control@4140:<Control#1534242851754>(/Unregistered-Inner-Class)]
+        * [@Button@3630:<Button#1460708314031>(MinesweeperActionButton.gd)]
+        * [@Button@4104:<Button#1528286940082>(MinesweeperActionButton.gd)]
+        * [@Button@3850:<Button#1488407497653>(MinesweeperActionButton.gd)]
+        * [@Control@4058:<Control#1521223732156>(/Unregistered-Inner-Class)]
+        * [@Button@3736:<Button#1470120332270>(MinesweeperActionButton.gd)]
+        * [@Button@3974:<Button#1508036840435>(MinesweeperActionButton.gd)]
+        * [@Button@4021:<Button#1515183934454>(MinesweeperActionButton.gd)]
+        * [@Button@4188:<Button#1541641604092>(MinesweeperActionButton.gd)]
+        * [@Button@4065:<Button#1522096147474>(MinesweeperActionButton.gd)]
+        * [@Control@4018:<Control#1514865167388>(/Unregistered-Inner-Class)]
+        * [@Control@4020:<Control#1515066493997>(/Unregistered-Inner-Class)]
+        * [@Button@3597:<Button#1456698559537>(MinesweeperActionButton.gd)]
+        * [@Button@3739:<Button#1470573317208>(MinesweeperActionButton.gd)]
+        * [@Button@3594:<Button#1456245574751>(MinesweeperActionButton.gd)]
+        * [@Control@3633:<Control#1461060635749>(/Unregistered-Inner-Class)]
+        * [@Control@4142:<Control#1534444178577>(/Unregistered-Inner-Class)]
+        * [@Button@3768:<Button#1475371601042>(MinesweeperActionButton.gd)]
+        * [@Control@3632:<Control#1460959972500>(/Unregistered-Inner-Class)]
+        * [@Button@4139:<Button#1534091857073>(MinesweeperActionButton.gd)]
+        * [@Button@4186:<Button#1541339614416>(MinesweeperActionButton.gd)]
+        * [@Button@4108:<Button#1528890920164>(MinesweeperActionButton.gd)]
+        * [@Button@3852:<Button#1488709487863>(MinesweeperActionButton.gd)]
+        * [@Button@4056:<Button#1520921742610>(MinesweeperActionButton.gd)]
+        * [VerticalRail:<Control#1481864383772>(MinesweeperScrollRail.gd)]
+        * [@Control@4102:<Control#1528018504991>(/Unregistered-Inner-Class)]
+        * [@Control@4141:<Control#1534343515470>(/Unregistered-Inner-Class)]
+        * [@Button@3737:<Button#1470271327574>(MinesweeperActionButton.gd)]
+        * [@Button@3738:<Button#1470422322550>(MinesweeperActionButton.gd)]
+        * [@Button@3598:<Button#1456849554857>(MinesweeperActionButton.gd)]
+        * [@Button@4103:<Button#1528135945652>(MinesweeperActionButton.gd)]
+        * [@Button@4144:<Button#1534662282705>(MinesweeperActionButton.gd)]
+        * [@Control@3634:<Control#1461161299414>(/Unregistered-Inner-Class)]
+        * [@Button@3735:<Button#1469969337832>(MinesweeperActionButton.gd)]
+        * [@Button@3932:<Button#1501409840624>(MinesweeperActionButton.gd)]
+        * [@Button@3891:<Button#1494917058072>(MinesweeperActionButton.gd)]
+        * [@Button@3734:<Button#1469818342945>(MinesweeperActionButton.gd)]
+        * [@Control@3733:<Control#1469700902434>(/Unregistered-Inner-Class)]
+        * [@Button@3729:<Button#1469247917616>(MinesweeperActionButton.gd)]
+        * [@Control@3730:<Control#1469398912566>(/Unregistered-Inner-Class)]
+        * [@Control@3731:<Control#1469499575866>(/Unregistered-Inner-Class)]
+        * [@Control@3732:<Control#1469600239166>(/Unregistered-Inner-Class)]
+        * [@Button@3728:<Button#1469096922695>(MinesweeperActionButton.gd)]
+        * [@Button@3776:<Button#1476395011662>(MinesweeperActionButton.gd)]
+        * [@Button@3777:<Button#1476546006615>(MinesweeperActionButton.gd)]
+        * [@Button@3778:<Button#1476697001568>(MinesweeperActionButton.gd)]
+        * [@Control@3774:<Control#1476126576239>(/Unregistered-Inner-Class)]
+        * [@Button@3809:<Button#1481914715770>(MinesweeperActionButton.gd)]
+        * [@Button@3769:<Button#1475522596482>(MinesweeperActionButton.gd)]
+        * [@Button@3817:<Button#1482938125957>(MinesweeperActionButton.gd)]
+        * [@Button@3819:<Button#1483240115862>(MinesweeperActionButton.gd)]
+        * [@Button@3816:<Button#1482787131032>(MinesweeperActionButton.gd)]
+        * [@Control@3812:<Control#1482367700638>(/Unregistered-Inner-Class)]
+        * [@Control@3813:<Control#1482468363935>(/Unregistered-Inner-Class)]
+        * [@Button@3858:<Button#1489430908591>(MinesweeperActionButton.gd)]
+        * [@Button@3859:<Button#1489581903543>(MinesweeperActionButton.gd)]
+        * [@Control@3853:<Control#1488860483273>(/Unregistered-Inner-Class)]
+        * [@Control@3854:<Control#1488961146572>(/Unregistered-Inner-Class)]
+        * [@Button@3851:<Button#1488558493397>(MinesweeperActionButton.gd)]
+        * [@Button@4137:<Button#1533789867749>(MinesweeperActionButton.gd)]
+        * [@Control@3855:<Control#1489061809903>(/Unregistered-Inner-Class)]
+        * [@Button@4023:<Button#1515485925108>(MinesweeperActionButton.gd)]
+        * [@Control@4059:<Control#1521324396297>(/Unregistered-Inner-Class)]
+        * [@Control@4061:<Control#1521525722892>(/Unregistered-Inner-Class)]
+        * [@Control@3814:<Control#1482569027356>(/Unregistered-Inner-Class)]
+        * [@Button@3595:<Button#1456396570402>(MinesweeperActionButton.gd)]
+        * [@Control@3815:<Control#1482669690668>(/Unregistered-Inner-Class)]
+        * [@Button@4107:<Button#1528739925806>(MinesweeperActionButton.gd)]
+        * [@Button@4063:<Button#1521794158388>(MinesweeperActionButton.gd)]
+        * [@Control@4019:<Control#1514965831478>(/Unregistered-Inner-Class)]
+        * [@Button@3899:<Button#1495940468546>(MinesweeperActionButton.gd)]
+        * [@Button@3862:<Button#1490034888517>(MinesweeperActionButton.gd)]
+        * [@Button@3902:<Button#1496393453393>(MinesweeperActionButton.gd)]
+        * [@Button@3903:<Button#1496544448348>(MinesweeperActionButton.gd)]
+        * [@Button@4015:<Button#1514462515047>(MinesweeperActionButton.gd)]
+        * [@Button@4024:<Button#1515636920203>(MinesweeperActionButton.gd)]
+        * [@Button@4025:<Button#1515787915150>(MinesweeperActionButton.gd)]
+        * [@Button@4026:<Button#1515938910097>(MinesweeperActionButton.gd)]
+        * [@Button@3898:<Button#1495789473698>(MinesweeperActionButton.gd)]
+        * [@Control@3897:<Control#1495672033190>(/Unregistered-Inner-Class)]
+        * [@Control@3894:<Control#1495370043313>(/Unregistered-Inner-Class)]
+        * [@Control@3895:<Control#1495470706616>(/Unregistered-Inner-Class)]
+        * [@Control@3896:<Control#1495571369919>(/Unregistered-Inner-Class)]
+        * [@Button@3892:<Button#1495068053448>(MinesweeperActionButton.gd)]
+        * [@Button@3940:<Button#1502433251273>(MinesweeperActionButton.gd)]
+        * [@Button@3941:<Button#1502584246226>(MinesweeperActionButton.gd)]
+        * [@Button@3942:<Button#1502735241179>(MinesweeperActionButton.gd)]
+        * [@Button@3944:<Button#1503037231079>(MinesweeperActionButton.gd)]
+        * [@Button@3973:<Button#1507885846510>(MinesweeperActionButton.gd)]
+        * [@Button@4014:<Button#1514311520244>(MinesweeperActionButton.gd)]
+        * [@Button@3939:<Button#1502282256377>(MinesweeperActionButton.gd)]
+        * [@Control@3938:<Control#1502164815869>(/Unregistered-Inner-Class)]
+        * [@Control@3935:<Control#1501862825991>(/Unregistered-Inner-Class)]
+        * [@Control@3936:<Control#1501963489294>(/Unregistered-Inner-Class)]
+        * [@Control@3937:<Control#1502064152594>(/Unregistered-Inner-Class)]
+        * [@Button@3933:<Button#1501560836123>(MinesweeperActionButton.gd)]
+        * [@Button@3982:<Button#1509060251688>(MinesweeperActionButton.gd)]
+        * [@Button@3983:<Button#1509211246641>(MinesweeperActionButton.gd)]
+        * [@Button@3984:<Button#1509362241598>(MinesweeperActionButton.gd)]
+        * [@Button@3985:<Button#1509513236551>(MinesweeperActionButton.gd)]
+        * [@Button@4055:<Button#1520770748493>(MinesweeperActionButton.gd)]
+        * [@Button@3980:<Button#1508758261849>(MinesweeperActionButton.gd)]
+        * [@Control@3979:<Control#1508640821338>(/Unregistered-Inner-Class)]
+        * [@Button@4096:<Button#1527263531101>(MinesweeperActionButton.gd)]
+        * [@Button@4016:<Button#1514613510239>(MinesweeperActionButton.gd)]
+        * [@Control@4017:<Control#1514764505188>(/Unregistered-Inner-Class)]
+        * [@Button@4066:<Button#1522247143545>(MinesweeperActionButton.gd)]
+        * [@Button@4067:<Button#1522398138498>(MinesweeperActionButton.gd)]
+        * [@Button@3975:<Button#1508187836554>(MinesweeperActionButton.gd)]
+        * [@Control@4060:<Control#1521425059986>(/Unregistered-Inner-Class)]
+        * [@Button@4105:<Button#1528437936284>(MinesweeperActionButton.gd)]
+        * [@Button@4106:<Button#1528588931231>(MinesweeperActionButton.gd)]
+        * [@Button@4260:<Button#1553184329905>(MinesweeperActionButton.gd)]
+        * [@Button@3628:<Button#1460406325436>(MinesweeperActionButton.gd)]
+        * [VerticalRail:<Control#1540265873607>(MinesweeperScrollRail.gd)]
+        * [@Button@4062:<Button#1521643163900>(MinesweeperActionButton.gd)]
+        * [@Button@4189:<Button#1541792600360>(MinesweeperActionButton.gd)]
+        * [@Button@4187:<Button#1541490610483>(MinesweeperActionButton.gd)]
+        * [@Button@3893:<Button#1495219048771>(MinesweeperActionButton.gd)]
+        * [@Button@3943:<Button#1502886236494>(MinesweeperActionButton.gd)]
+        * [@Button@3934:<Button#1501711831380>(MinesweeperActionButton.gd)]
+        * [@Button@3818:<Button#1483089121625>(MinesweeperActionButton.gd)]
+        * [@Button@3981:<Button#1508909257050>(MinesweeperActionButton.gd)]
+        * [@Button@3821:<Button#1483542106463>(MinesweeperActionButton.gd)]
+        * [@Button@3775:<Button#1476244017511>(MinesweeperActionButton.gd)]
+        * [@Button@3780:<Button#1476998992242>(MinesweeperActionButton.gd)]
+        * [@Control@3772:<Control#1475925250422>(/Unregistered-Inner-Class)]
+        * [@Control@3773:<Control#1476025913719>(/Unregistered-Inner-Class)]
+        * [@Button@3779:<Button#1476847997305>(MinesweeperActionButton.gd)]
+        * [@Control@3771:<Control#1475824587133>(/Unregistered-Inner-Class)]
+        * [@Button@3810:<Button#1482065711488>(MinesweeperActionButton.gd)]
+        * [@Button@3770:<Button#1475673592194>(MinesweeperActionButton.gd)]
+        * [@Button@3811:<Button#1482216706444>(MinesweeperActionButton.gd)]
+        * [@Button@3857:<Button#1489279914393>(MinesweeperActionButton.gd)]
+        * [@Control@3856:<Control#1489162473882>(/Unregistered-Inner-Class)]
+        * [@Button@3820:<Button#1483391111589>(MinesweeperActionButton.gd)]
+        * [@Button@3860:<Button#1489732899250>(MinesweeperActionButton.gd)]
+        * [@Button@3861:<Button#1489883894203>(MinesweeperActionButton.gd)]
+        * [@Button@3900:<Button#1496091464126>(MinesweeperActionButton.gd)]
+        * [@Button@3901:<Button#1496242459081>(MinesweeperActionButton.gd)]
+        * [@Button@4022:<Button#1515334930894>(MinesweeperActionButton.gd)]
+        * [@Button@4064:<Button#1521945154013>(MinesweeperActionButton.gd)]
+        * [@Button@4098:<Button#1527565521376>(MinesweeperActionButton.gd)]
+        * [@Control@4099:<Control#1527716516329>(/Unregistered-Inner-Class)]
+        * [@Control@4100:<Control#1527817179630>(/Unregistered-Inner-Class)]
+        * [@Control@4101:<Control#1527917842931>(/Unregistered-Inner-Class)]
+        * [@Button@4097:<Button#1527414526460>(MinesweeperActionButton.gd)]
+        * [@Button@4145:<Button#1534813278720>(MinesweeperActionButton.gd)]
+        * [@Button@4146:<Button#1534964273673>(MinesweeperActionButton.gd)]
+        * [@Button@4147:<Button#1535115268626>(MinesweeperActionButton.gd)]
+        * [@Button@4148:<Button#1535266263579>(MinesweeperActionButton.gd)]
+        * [@Button@4149:<Button#1535417258532>(MinesweeperActionButton.gd)]
+        * [@Button@3727:<Button#1468945928752>(MinesweeperActionButton.gd)]
+        * [@Button@3599:<Button#1457000550981>(MinesweeperActionButton.gd)]
+        * [@Button@3629:<Button#1460557320800>(MinesweeperActionButton.gd)]
+        * [@Button@4219:<Button#1546758656641>(MinesweeperActionButton.gd)]
+        * [@Control@4183:<Control#1540970517126>(/Unregistered-Inner-Class)]
+        * [@Control@4184:<Control#1541071180423>(/Unregistered-Inner-Class)]
+        * [@Button@4185:<Button#1541188620939>(MinesweeperActionButton.gd)]
+        * [@Button@4180:<Button#1540618195597>(MinesweeperActionButton.gd)]
+        * [@Button@4179:<Button#1540467200664>(MinesweeperActionButton.gd)]
+        * [@Control@4181:<Control#1540769190561>(/Unregistered-Inner-Class)]
+        * [@Control@4182:<Control#1540869853858>(/Unregistered-Inner-Class)]
+        * [@Button@4227:<Button#1547782066872>(MinesweeperActionButton.gd)]
+        * [@Button@4228:<Button#1547933061825>(MinesweeperActionButton.gd)]
+        * [@Button@4229:<Button#1548084056778>(MinesweeperActionButton.gd)]
+        * [@Button@4230:<Button#1548235051731>(MinesweeperActionButton.gd)]
+        * [@Button@4231:<Button#1548386046684>(MinesweeperActionButton.gd)]
+        * [@Button@4301:<Button#1559643558626>(MinesweeperActionButton.gd)]
+        * [@Button@4226:<Button#1547631071982>(MinesweeperActionButton.gd)]
+        * [@Control@4225:<Control#1547513631474>(/Unregistered-Inner-Class)]
+        * [@Button@4221:<Button#1547060646644>(MinesweeperActionButton.gd)]
+        * [@Button@4220:<Button#1546909651709>(MinesweeperActionButton.gd)]
+        * [@Control@4222:<Control#1547211641606>(/Unregistered-Inner-Class)]
+        * [@Control@4223:<Control#1547312304906>(/Unregistered-Inner-Class)]
+        * [@Control@4224:<Control#1547412968203>(/Unregistered-Inner-Class)]
+        * [@Button@4268:<Button#1554207740699>(MinesweeperActionButton.gd)]
+        * [@Button@4269:<Button#1554358735652>(MinesweeperActionButton.gd)]
+        * [@Button@4270:<Button#1554509730605>(MinesweeperActionButton.gd)]
+        * [@Button@4271:<Button#1554660725558>(MinesweeperActionButton.gd)]
+        * [@Button@4272:<Button#1554811720511>(MinesweeperActionButton.gd)]
+        * [@Button@4342:<Button#1566136341324>(MinesweeperActionButton.gd)]
+        * [@Button@4267:<Button#1554056745809>(MinesweeperActionButton.gd)]
+        * [@Control@4266:<Control#1553939305301>(/Unregistered-Inner-Class)]
+        * [@Button@4262:<Button#1553486320480>(MinesweeperActionButton.gd)]
+        * [@Control@4263:<Control#1553637315430>(/Unregistered-Inner-Class)]
+        * [@Control@4264:<Control#1553737978733>(/Unregistered-Inner-Class)]
+        * [@Control@4265:<Control#1553838642033>(/Unregistered-Inner-Class)]
+        * [@Button@4261:<Button#1553335325562>(MinesweeperActionButton.gd)]
+        * [@Button@4309:<Button#1560666968959>(MinesweeperActionButton.gd)]
+        * [@Button@4310:<Button#1560817963912>(MinesweeperActionButton.gd)]
+        * [@Button@4311:<Button#1560968958865>(MinesweeperActionButton.gd)]
+        * [@Button@4312:<Button#1561119953818>(MinesweeperActionButton.gd)]
+        * [@Button@4313:<Button#1561270948771>(MinesweeperActionButton.gd)]
+        * [@Button@4383:<Button#1572662678448>(MinesweeperActionButton.gd)]
+        * [@Button@4308:<Button#1560515974069>(MinesweeperActionButton.gd)]
+        * [@Control@4307:<Control#1560398533561>(/Unregistered-Inner-Class)]
+        * [@Button@4303:<Button#1559945548740>(MinesweeperActionButton.gd)]
+        * [@Control@4304:<Control#1560096543691>(/Unregistered-Inner-Class)]
+        * [@Control@4305:<Control#1560197206994>(/Unregistered-Inner-Class)]
+        * [@Control@4306:<Control#1560297870294>(/Unregistered-Inner-Class)]
+        * [@Button@4302:<Button#1559794553823>(MinesweeperActionButton.gd)]
+        * [@Button@4350:<Button#1567159751651>(MinesweeperActionButton.gd)]
+        * [@Button@4351:<Button#1567310746604>(MinesweeperActionButton.gd)]
+        * [@Button@4352:<Button#1567461741557>(MinesweeperActionButton.gd)]
+        * [@Button@4353:<Button#1567612736510>(MinesweeperActionButton.gd)]
+        * [@Button@4354:<Button#1567763731463>(MinesweeperActionButton.gd)]
+        * [@Button@4349:<Button#1567008756761>(MinesweeperActionButton.gd)]
+        * [@Control@4348:<Control#1566891316253>(/Unregistered-Inner-Class)]
+        * [@Button@4344:<Button#1566438331429>(MinesweeperActionButton.gd)]
+        * [@Control@4345:<Control#1566589326382>(/Unregistered-Inner-Class)]
+        * [@Control@4346:<Control#1566689989685>(/Unregistered-Inner-Class)]
+        * [@Control@4347:<Control#1566790652985>(/Unregistered-Inner-Class)]
+        * [@Button@4343:<Button#1566287336514>(MinesweeperActionButton.gd)]
+        * [@Button@4391:<Button#1573686088775>(MinesweeperActionButton.gd)]
+        * [@Button@4392:<Button#1573837083728>(MinesweeperActionButton.gd)]
+        * [@Button@4393:<Button#1573988078681>(MinesweeperActionButton.gd)]
+        * [@Button@4394:<Button#1574139073634>(MinesweeperActionButton.gd)]
+        * [@Button@4395:<Button#1574290068587>(MinesweeperActionButton.gd)]
+        * [@Button@4390:<Button#1573535093885>(MinesweeperActionButton.gd)]
+        * [@Control@4389:<Control#1573417653377>(/Unregistered-Inner-Class)]
+        * [@Button@4385:<Button#1572964668553>(MinesweeperActionButton.gd)]
+        * [@Control@4386:<Control#1573115663507>(/Unregistered-Inner-Class)]
+        * [@Control@4387:<Control#1573216326810>(/Unregistered-Inner-Class)]
+        * [@Control@4388:<Control#1573316990110>(/Unregistered-Inner-Class)]
+        * [@Button@4384:<Button#1572813673639>(MinesweeperActionButton.gd)]
+* test_replacement_and_difficulty_remain_disabled_and_unpublished_actions_are_rejected
+* test_settled_terminal_enables_real_new_board_and_returns_to_unpaid_view
+    14 Orphans
+        * [@Control@4746:<Control#1650240523122>(/Unregistered-Inner-Class)]
+        * [@Control@4645:<Control#1642673999098>(/Unregistered-Inner-Class)]
+        * [@Button@4742:<Button#1649737208448>(MinesweeperActionButton.gd)]
+        * [@Button@4743:<Button#1649888203513>(MinesweeperActionButton.gd)]
+        * [@Control@4747:<Control#1650341188357>(/Unregistered-Inner-Class)]
+        * [@Control@4744:<Control#1650039198481>(/Unregistered-Inner-Class)]
+        * [@Control@4745:<Control#1650139861778>(/Unregistered-Inner-Class)]
+        * [@Control@4648:<Control#1642975990555>(/Unregistered-Inner-Class)]
+        * [@Button@4644:<Button#1642523005725>(MinesweeperActionButton.gd)]
+        * [@Button@4741:<Button#1649586213741>(MinesweeperActionButton.gd)]
+        * [@Button@4642:<Button#1642221015951>(MinesweeperActionButton.gd)]
+        * [@Button@4643:<Button#1642372011093>(MinesweeperActionButton.gd)]
+        * [@Control@4647:<Control#1642875327578>(/Unregistered-Inner-Class)]
+        * [@Control@4646:<Control#1642774664291>(/Unregistered-Inner-Class)]
+* test_binding_is_idempotent_and_cannot_redirect_to_a_replacement_port
+    7 Orphans
+        * [@Button@4852:<Button#1672101237632>(MinesweeperActionButton.gd)]
+        * [@Control@4853:<Control#1672252232579>(/Unregistered-Inner-Class)]
+        * [@Control@4854:<Control#1672352895877>(/Unregistered-Inner-Class)]
+        * [@Button@4851:<Button#1671950242744>(MinesweeperActionButton.gd)]
+        * [@Control@4855:<Control#1672453559225>(/Unregistered-Inner-Class)]
+        * [@Button@4850:<Button#1671799247851>(MinesweeperActionButton.gd)]
+        * [@Control@4856:<Control#1672554222719>(/Unregistered-Inner-Class)]
+* test_real_tab_visits_manual_grid_rails_zoom_and_dock_then_exits_to_the_host
+    7 Orphans
+        * [@Control@5026:<Control#1697434832120>(/Unregistered-Inner-Class)]
+        * [@Control@5029:<Control#1697736822128>(/Unregistered-Inner-Class)]
+        * [@Control@5027:<Control#1697535495614>(/Unregistered-Inner-Class)]
+        * [@Button@5025:<Button#1697283838138>(MinesweeperActionButton.gd)]
+        * [@Button@5023:<Button#1696981848756>(MinesweeperActionButton.gd)]
+        * [@Control@5028:<Control#1697636160225>(/Unregistered-Inner-Class)]
+        * [@Button@5024:<Button#1697132843979>(MinesweeperActionButton.gd)]
+* test_synchronous_long_press_publication_retains_touch_gate_and_all_cell_nodes
+    7 Orphans
+        * [@Control@5624:<Control#1744562033287>(/Unregistered-Inner-Class)]
+        * [@Button@5618:<Button#1743807058685>(MinesweeperActionButton.gd)]
+        * [@Button@5620:<Button#1744109048631>(MinesweeperActionButton.gd)]
+        * [@Button@5619:<Button#1743958053780>(MinesweeperActionButton.gd)]
+        * [@Control@5621:<Control#1744260043777>(/Unregistered-Inner-Class)]
+        * [@Control@5623:<Control#1744461370529>(/Unregistered-Inner-Class)]
+        * [@Control@5622:<Control#1744360707234>(/Unregistered-Inner-Class)]
+* test_locale_configuration_during_sheet_restores_rebuilt_semantic_source_and_pan
+    33 Orphans
+        * [@Control@5796:<Control#1769845295228>(/Unregistered-Inner-Class)]
+        * [@Control@6282:<Control#1794474248326>(MinesweeperInformationSheet.gd)] + 10
+        * [@Control@5795:<Control#1769744632960>(/Unregistered-Inner-Class)]
+        * [@Control@6283:<Control#1795229224859>] + 8
+        * [@Button@5791:<Button#1769190986495>(MinesweeperActionButton.gd)]
+        * [@Control@5794:<Control#1769643971339>(/Unregistered-Inner-Class)]
+        * [@Button@5761:<Button#1765634216744>(MinesweeperActionButton.gd)]
+        * [@Button@5759:<Button#1765332226958>(MinesweeperActionButton.gd)]
+        * [@Button@5757:<Button#1765030237139>(MinesweeperActionButton.gd)]
+        * [@Button@5758:<Button#1765181232103>(MinesweeperActionButton.gd)]
+        * [@Control@5797:<Control#1769945961506>(/Unregistered-Inner-Class)]
+        * [@Button@5760:<Button#1765483222084>(MinesweeperActionButton.gd)]
+        * [@Button@5792:<Button#1769341981792>(MinesweeperActionButton.gd)]
+        * [@Button@5793:<Button#1769492976809>(MinesweeperActionButton.gd)]
+        * [@Button@5762:<Button#1765785212074>(MinesweeperActionButton.gd)]
+* test_unchanged_assignment_refresh_preserves_scrolled_rail_identity_and_focus
+    7 Orphans
+        * [@Control@6416:<Control#1827189822089>(/Unregistered-Inner-Class)]
+        * [@Button@6412:<Button#1826736837275>(MinesweeperActionButton.gd)]
+        * [@Button@6411:<Button#1826585842371>(MinesweeperActionButton.gd)]
+        * [@Control@6415:<Control#1827089158860>(/Unregistered-Inner-Class)]
+        * [@Control@6413:<Control#1826887832275>(/Unregistered-Inner-Class)]
+        * [@Button@6410:<Button#1826434847529>(MinesweeperActionButton.gd)]
+        * [@Control@6414:<Control#1826988495699>(/Unregistered-Inner-Class)]
+* test_real_difficulty_buttons_dispatch_frozen_revision_and_reset_mode_only_on_success
+    7 Orphans
+        * [@Button@6599:<Button#1852909292698>(MinesweeperActionButton.gd)]
+        * [@Button@6600:<Button#1853060289018>(MinesweeperActionButton.gd)]
+        * [@Control@6603:<Control#1853462942235>(/Unregistered-Inner-Class)]
+        * [@Control@6604:<Control#1853563605548>(/Unregistered-Inner-Class)]
+        * [@Control@6602:<Control#1853362279419>(/Unregistered-Inner-Class)]
+        * [@Control@6605:<Control#1853664269450>(/Unregistered-Inner-Class)]
+        * [@Button@6601:<Button#1853211284646>(MinesweeperActionButton.gd)]
+* test_difficulty_change_waits_for_pending_view_preference_write
+    7 Orphans
+        * [@Control@7208:<Control#1901160566962>(/Unregistered-Inner-Class)]
+        * [@Control@7205:<Control#1900858577461>(/Unregistered-Inner-Class)]
+        * [@Button@7203:<Button#1900556587714>(MinesweeperActionButton.gd)]
+        * [@Control@7207:<Control#1901059904203>(/Unregistered-Inner-Class)]
+        * [@Button@7204:<Button#1900707582765>(MinesweeperActionButton.gd)]
+        * [@Button@7202:<Button#1900405593061>(MinesweeperActionButton.gd)]
+        * [@Control@7206:<Control#1900959241381>(/Unregistered-Inner-Class)]
+* test_touched_space_and_new_board_share_dispatch_while_untouched_space_is_inert
+    14 Orphans
+        * [@Control@7899:<Control#1955015428896>(/Unregistered-Inner-Class)]
+        * [@Control@7798:<Control#1947415350124>(/Unregistered-Inner-Class)]
+        * [@Control@7799:<Control#1947516013545>(/Unregistered-Inner-Class)]
+        * [@Button@7796:<Button#1947113360364>(MinesweeperActionButton.gd)]
+        * [@Button@7895:<Button#1954512112914>(MinesweeperActionButton.gd)]
+        * [@Control@7897:<Control#1954814103305>(/Unregistered-Inner-Class)]
+        * [@Button@7894:<Button#1954361118570>(MinesweeperActionButton.gd)]
+        * [@Control@7900:<Control#1955116093550>(/Unregistered-Inner-Class)]
+        * [@Button@7896:<Button#1954663108744>(MinesweeperActionButton.gd)]
+        * [@Control@7898:<Control#1954914767107>(/Unregistered-Inner-Class)]
+        * [@Control@7800:<Control#1947616678424>(/Unregistered-Inner-Class)]
+        * [@Control@7801:<Control#1947717341985>(/Unregistered-Inner-Class)]
+        * [@Button@7795:<Button#1946962367541>(MinesweeperActionButton.gd)]
+        * [@Button@7797:<Button#1947264357505>(MinesweeperActionButton.gd)]
+* test_settled_space_uses_new_board_even_when_grid_has_no_focus
+    7 Orphans
+        * [@Button@8005:<Button#1976976804888>(MinesweeperActionButton.gd)]
+        * [@Button@8004:<Button#1976825811710>(MinesweeperActionButton.gd)]
+        * [@Button@8003:<Button#1976674816824>(MinesweeperActionButton.gd)]
+        * [@Control@8008:<Control#1977329128449>(/Unregistered-Inner-Class)]
+        * [@Control@8006:<Control#1977127801887>(/Unregistered-Inner-Class)]
+        * [@Control@8007:<Control#1977228465204>(/Unregistered-Inner-Class)]
+        * [@Control@8009:<Control#1977429791841>(/Unregistered-Inner-Class)]
+* test_settled_difficulty_uses_only_authoritative_capability
+    7 Orphans
+        * [@Button@8178:<Button#2002343955376>(MinesweeperActionButton.gd)]
+        * [@Control@8179:<Control#2002494950743>(/Unregistered-Inner-Class)]
+        * [@Control@8180:<Control#2002595614866>(/Unregistered-Inner-Class)]
+        * [@Button@8177:<Button#2002192961787>(MinesweeperActionButton.gd)]
+        * [@Control@8181:<Control#2002696278271>(/Unregistered-Inner-Class)]
+        * [@Button@8176:<Button#2002041967420>(MinesweeperActionButton.gd)]
+        * [@Control@8182:<Control#2002796942287>(/Unregistered-Inner-Class)]
+14 orphans
+17/17 passed.
+
+
+res://tests/unit/test_minesweeper_app.gd
+* test_scene_contains_real_panel_without_local_topbar_or_simulation_controls
+* test_prepared_lifecycle_commits_before_visibility_changes
+    14 Orphans
+        * [@Control@9919:<Control#2113174244439>(/Unregistered-Inner-Class)]
+        * [@Button@9914:<Button#2112519933156>(MinesweeperActionButton.gd)]
+        * [@Button@9915:<Button#2112670929067>(MinesweeperActionButton.gd)]
+        * [@Button@9916:<Button#2112821924356>(MinesweeperActionButton.gd)]
+        * [@Control@9918:<Control#2113073582605>(/Unregistered-Inner-Class)]
+        * [@Control@9920:<Control#2113274909199>(/Unregistered-Inner-Class)]
+        * [@Control@9917:<Control#2112972919312>(/Unregistered-Inner-Class)]
+        * [@Button@9880:<Button#2108510179942>(MinesweeperActionButton.gd)]
+        * [@Button@9879:<Button#2108359185136>(MinesweeperActionButton.gd)]
+        * [@Control@9885:<Control#2109114160011>(/Unregistered-Inner-Class)]
+        * [@Control@9883:<Control#2108912833422>(/Unregistered-Inner-Class)]
+        * [@Control@9882:<Control#2108812170307>(/Unregistered-Inner-Class)]
+        * [@Button@9881:<Button#2108661175378>(MinesweeperActionButton.gd)]
+        * [@Control@9884:<Control#2109013497040>(/Unregistered-Inner-Class)]
+* test_owner_refusal_keeps_visible_window_and_emits_no_hidden_signal
+    21 Orphans
+        * [@Button@10612:<Button#2164445416368>(MinesweeperActionButton.gd)]
+        * [@Button@10542:<Button#2156123917452>(MinesweeperActionButton.gd)]
+        * [@Button@10610:<Button#2164143426834>(MinesweeperActionButton.gd)]
+        * [@Control@10614:<Control#2164697074969>(/Unregistered-Inner-Class)]
+        * [@Button@10541:<Button#2155972922668>(MinesweeperActionButton.gd)]
+        * [@Control@10545:<Control#2156476239156>(/Unregistered-Inner-Class)]
+        * [@Control@10616:<Control#2164898402060>(/Unregistered-Inner-Class)]
+        * [@Button@10575:<Button#2159999455302>(MinesweeperActionButton.gd)]
+        * [@Button@10576:<Button#2160150450431>(MinesweeperActionButton.gd)]
+        * [@Control@10613:<Control#2164596412771>(/Unregistered-Inner-Class)]
+        * [@Control@10544:<Control#2156375577188>(/Unregistered-Inner-Class)]
+        * [@Control@10543:<Control#2156274913897>(/Unregistered-Inner-Class)]
+        * [@Control@10615:<Control#2164797739683>(/Unregistered-Inner-Class)]
+        * [@Button@10611:<Button#2164294423350>(MinesweeperActionButton.gd)]
+        * [@Control@10581:<Control#2160754430776>(/Unregistered-Inner-Class)]
+        * [@Button@10577:<Button#2160301446052>(MinesweeperActionButton.gd)]
+        * [@Control@10546:<Control#2156576904125>(/Unregistered-Inner-Class)]
+        * [@Control@10580:<Control#2160653767669>(/Unregistered-Inner-Class)]
+        * [@Button@10540:<Button#2155821929473>(MinesweeperActionButton.gd)]
+        * [@Control@10579:<Control#2160553104441>(/Unregistered-Inner-Class)]
+        * [@Control@10578:<Control#2160452441193>(/Unregistered-Inner-Class)]
+* test_failed_resume_never_shows_a_hidden_window
+    14 Orphans
+        * [@Button@11236:<Button#2207294426026>(MinesweeperActionButton.gd)]
+        * [@Button@11272:<Button#2211606170634>(MinesweeperActionButton.gd)]
+        * [@Control@11240:<Control#2207848074618>(/Unregistered-Inner-Class)]
+        * [@Button@11273:<Button#2211757166081>(MinesweeperActionButton.gd)]
+        * [@Control@11275:<Control#2212008824323>(/Unregistered-Inner-Class)]
+        * [@Button@11271:<Button#2211455176485>(MinesweeperActionButton.gd)]
+        * [@Button@11238:<Button#2207596417158>(MinesweeperActionButton.gd)]
+        * [@Control@11277:<Control#2212210151611>(/Unregistered-Inner-Class)]
+        * [@Control@11242:<Control#2208049402099>(/Unregistered-Inner-Class)]
+        * [@Button@11237:<Button#2207445422603>(MinesweeperActionButton.gd)]
+        * [@Control@11241:<Control#2207948739085>(/Unregistered-Inner-Class)]
+        * [@Control@11276:<Control#2212109488940>(/Unregistered-Inner-Class)]
+        * [@Control@11274:<Control#2211908162556>(/Unregistered-Inner-Class)]
+        * [@Control@11239:<Control#2207747413041>(/Unregistered-Inner-Class)]
+* test_missing_foreground_publication_blocks_old_facts_until_a_valid_refresh
+    14 Orphans
+        * [@Button@11898:<Button#2254438403365>(MinesweeperActionButton.gd)]
+        * [@Control@11937:<Control#2259119246664>(/Unregistered-Inner-Class)]
+        * [@Control@11935:<Control#2258917920619>(/Unregistered-Inner-Class)]
+        * [@Button@11932:<Button#2258464935902>(MinesweeperActionButton.gd)]
+        * [@Button@11934:<Button#2258766925864>(MinesweeperActionButton.gd)]
+        * [@Control@11903:<Control#2255042383915>(/Unregistered-Inner-Class)]
+        * [@Button@11897:<Button#2254287409424>(MinesweeperActionButton.gd)]
+        * [@Button@11933:<Button#2258615931366>(MinesweeperActionButton.gd)]
+        * [@Control@11938:<Control#2259219911168>(/Unregistered-Inner-Class)]
+        * [@Button@11899:<Button#2254589399614>(MinesweeperActionButton.gd)]
+        * [@Control@11936:<Control#2259018584745>(/Unregistered-Inner-Class)]
+        * [@Control@11902:<Control#2254941721318>(/Unregistered-Inner-Class)]
+        * [@Control@11900:<Control#2254740395025>(/Unregistered-Inner-Class)]
+        * [@Control@11901:<Control#2254841058325>(/Unregistered-Inner-Class)]
+* test_rules_and_assignments_block_home_and_escape_closes_only_the_sheet
+    33 Orphans
+        * [@Control@12563:<Control#2441152039758>(/Unregistered-Inner-Class)]
+        * [@Control@12562:<Control#2441051377010>(/Unregistered-Inner-Class)]
+        * [@Control@12610:<Control#2446587858833>(MinesweeperInformationSheet.gd)] + 15
+        * [@Control@12561:<Control#2440950714337>(/Unregistered-Inner-Class)]
+        * [@Control@12564:<Control#2441252704235>(/Unregistered-Inner-Class)]
+        * [@Button@12560:<Button#2440799719407>(MinesweeperActionButton.gd)]
+        * [@Button@12559:<Button#2440648724978>(MinesweeperActionButton.gd)]
+        * [@Button@12558:<Button#2440497730369>(MinesweeperActionButton.gd)]
+        * [@Control@12600:<Control#2445547672655>(MinesweeperInformationSheet.gd)] + 9
+* test_reopening_retains_mode_semantic_cell_manual_pan_and_focus
+    21 Orphans
+        * [@Button@13247:<Button#2490359614290>(MinesweeperActionButton.gd)]
+        * [@Control@13283:<Control#2494688136499>(/Unregistered-Inner-Class)]
+        * [@Button@13281:<Button#2494386146756>(MinesweeperActionButton.gd)]
+        * [@Control@13251:<Control#2490812599820>(/Unregistered-Inner-Class)]
+        * [@Button@13245:<Button#2490057625547>(MinesweeperActionButton.gd)]
+        * [@Control@13250:<Control#2490711936992>(/Unregistered-Inner-Class)]
+        * [@Control@13248:<Control#2490510610403>(/Unregistered-Inner-Class)]
+        * [@Control@13249:<Control#2490611273703>(/Unregistered-Inner-Class)]
+        * [@Control@13286:<Control#2494990127081>(/Unregistered-Inner-Class)]
+        * [@Button@13210:<Button#2485880098815>(MinesweeperActionButton.gd)]
+        * [@Control@13284:<Control#2494788800787>(/Unregistered-Inner-Class)]
+        * [@Button@13280:<Button#2494235152882>(MinesweeperActionButton.gd)]
+        * [@Button@13246:<Button#2490208621045>(MinesweeperActionButton.gd)]
+        * [@Button@13282:<Button#2494537142868>(MinesweeperActionButton.gd)]
+        * [@Control@13285:<Control#2494889464738>(/Unregistered-Inner-Class)]
+        * [@Control@13216:<Control#2486635074834>(/Unregistered-Inner-Class)]
+        * [@Button@13212:<Button#2486182090010>(MinesweeperActionButton.gd)]
+        * [@Control@13213:<Control#2486333084966>(/Unregistered-Inner-Class)]
+        * [@Control@13214:<Control#2486433748263>(/Unregistered-Inner-Class)]
+        * [@Control@13215:<Control#2486534411566>(/Unregistered-Inner-Class)]
+        * [@Button@13211:<Button#2486031095095>(MinesweeperActionButton.gd)]
+* test_hide_cancels_pending_touch_without_a_delayed_flag_or_release_action
+    7 Orphans
+        * [@Control@13944:<Control#2541949553772>(/Unregistered-Inner-Class)]
+        * [@Button@13941:<Button#2541496568955>(MinesweeperActionButton.gd)]
+        * [@Control@13947:<Control#2542251543776>(/Unregistered-Inner-Class)]
+        * [@Control@13945:<Control#2542050218074>(/Unregistered-Inner-Class)]
+        * [@Button@13943:<Button#2541798560424>(MinesweeperActionButton.gd)]
+        * [@Control@13946:<Control#2542150882364>(/Unregistered-Inner-Class)]
+        * [@Button@13942:<Button#2541647565889>(MinesweeperActionButton.gd)]
+* test_locale_and_profile_signals_apply_real_font_preferences_without_resetting_view_state
+    98 Orphans
+        * [@Button@14686:<Button#2615450536073>(MinesweeperActionButton.gd)]
+        * [@Button@14760:<Button#2641237117751>(MinesweeperActionButton.gd)]
+        * [@Button@14678:<Button#2614427126764>(MinesweeperActionButton.gd)]
+        * [@Button@14603:<Button#2588674100230>(MinesweeperActionButton.gd)]
+        * [@Control@14605:<Control#2588976090179>(/Unregistered-Inner-Class)]
+        * [@Button@14569:<Button#2584664345918>(MinesweeperActionButton.gd)]
+        * [@Control@14573:<Control#2585117330861>(/Unregistered-Inner-Class)]
+        * [@Button@14688:<Button#2615752527342>(MinesweeperActionButton.gd)]
+        * [@Button@14602:<Button#2588523105965>(MinesweeperActionButton.gd)]
+        * [@Button@14647:<Button#2602347531952>(MinesweeperActionButton.gd)]
+        * [@Button@14019:<Button#2552418537165>(MinesweeperActionButton.gd)]
+        * [@Control@14572:<Control#2585016667866>(/Unregistered-Inner-Class)]
+        * [@Button@14568:<Button#2584513351390>(MinesweeperActionButton.gd)]
+        * [@Button@14644:<Button#2601894547167>(MinesweeperActionButton.gd)]
+        * [@Button@14645:<Button#2602045542112>(MinesweeperActionButton.gd)]
+        * [@Button@14689:<Button#2615903522597>(MinesweeperActionButton.gd)]
+        * [@Control@14571:<Control#2584916004691>(/Unregistered-Inner-Class)]
+        * [@Button@14016:<Button#2551965552544>(MinesweeperActionButton.gd)]
+        * [@Button@14687:<Button#2615601532839>(MinesweeperActionButton.gd)]
+        * [@Button@14017:<Button#2552116547528>(MinesweeperActionButton.gd)]
+        * [@Button@14604:<Button#2588825096138>(MinesweeperActionButton.gd)]
+        * [@Button@14842:<Button#2668013555688>(MinesweeperActionButton.gd)]
+        * [@Control@14641:<Control#2601575780355>(/Unregistered-Inner-Class)]
+        * [@Control@14643:<Control#2601777106952>(/Unregistered-Inner-Class)]
+        * [@Button@14639:<Button#2601324122124>(MinesweeperActionButton.gd)]
+        * [@Control@14642:<Control#2601676443664>(/Unregistered-Inner-Class)]
+        * [@Button@14638:<Button#2601173127242>(MinesweeperActionButton.gd)]
+        * [@Control@14607:<Control#2589177417860>(/Unregistered-Inner-Class)]
+        * [@Button@14690:<Button#2616054518050>(MinesweeperActionButton.gd)]
+        * [@Button@14015:<Button#2551814558019>(MinesweeperActionButton.gd)]
+        * [@Button@14637:<Button#2601022132553>(MinesweeperActionButton.gd)]
+        * [@Control@14640:<Control#2601475117393>(/Unregistered-Inner-Class)]
+        * [@Button@14801:<Button#2654625337702>(MinesweeperActionButton.gd)]
+        * [@Button@14014:<Button#2551663563116>(MinesweeperActionButton.gd)]
+        * [@Button@14649:<Button#2602649522585>(MinesweeperActionButton.gd)]
+        * [@Button@14648:<Button#2602498527669>(MinesweeperActionButton.gd)]
+        * [@Button@14646:<Button#2602196537785>(MinesweeperActionButton.gd)]
+        * [@Control@14606:<Control#2589076754880>(/Unregistered-Inner-Class)]
+        * [@Control@14608:<Control#2589278081482>(/Unregistered-Inner-Class)]
+        * [@Control@14570:<Control#2584815342028>(/Unregistered-Inner-Class)]
+        * [@Button@14567:<Button#2584362357230>(MinesweeperActionButton.gd)]
+        * [@Button@14719:<Button#2627832123976>(MinesweeperActionButton.gd)]
+        * [@Button@14018:<Button#2552267543148>(MinesweeperActionButton.gd)]
+        * [@Button@14685:<Button#2615299544385>(MinesweeperActionButton.gd)]
+        * [@Control@14684:<Control#2615182103877>(/Unregistered-Inner-Class)]
+        * [@Button@14680:<Button#2614729119053>(MinesweeperActionButton.gd)]
+        * [@Control@14681:<Control#2614880114006>(/Unregistered-Inner-Class)]
+        * [@Control@14682:<Control#2614980777309>(/Unregistered-Inner-Class)]
+        * [@Control@14683:<Control#2615081440609>(/Unregistered-Inner-Class)]
+        * [@Button@14679:<Button#2614578124138>(MinesweeperActionButton.gd)]
+        * [@Button@14727:<Button#2628855534958>(MinesweeperActionButton.gd)]
+        * [@Button@14728:<Button#2629006529911>(MinesweeperActionButton.gd)]
+        * [@Button@14729:<Button#2629157524864>(MinesweeperActionButton.gd)]
+        * [@Button@14730:<Button#2629308519817>(MinesweeperActionButton.gd)]
+        * [@Button@14731:<Button#2629459514770>(MinesweeperActionButton.gd)]
+        * [@Button@14726:<Button#2628704540068>(MinesweeperActionButton.gd)]
+        * [@Control@14725:<Control#2628587099560>(/Unregistered-Inner-Class)]
+        * [@Button@14721:<Button#2628134114736>(MinesweeperActionButton.gd)]
+        * [@Control@14722:<Control#2628285109689>(/Unregistered-Inner-Class)]
+        * [@Control@14723:<Control#2628385772992>(/Unregistered-Inner-Class)]
+        * [@Control@14724:<Control#2628486436292>(/Unregistered-Inner-Class)]
+        * [@Button@14720:<Button#2627983119821>(MinesweeperActionButton.gd)]
+        * [@Button@14768:<Button#2642260530641>(MinesweeperActionButton.gd)]
+        * [@Button@14769:<Button#2642411525594>(MinesweeperActionButton.gd)]
+        * [@Button@14770:<Button#2642562520547>(MinesweeperActionButton.gd)]
+        * [@Button@14771:<Button#2642713515500>(MinesweeperActionButton.gd)]
+        * [@Button@14772:<Button#2642864510453>(MinesweeperActionButton.gd)]
+        * [@Button@14767:<Button#2642109535751>(MinesweeperActionButton.gd)]
+        * [@Control@14766:<Control#2641992095243>(/Unregistered-Inner-Class)]
+        * [@Button@14762:<Button#2641539110419>(MinesweeperActionButton.gd)]
+        * [@Control@14763:<Control#2641690105372>(/Unregistered-Inner-Class)]
+        * [@Control@14764:<Control#2641790768675>(/Unregistered-Inner-Class)]
+        * [@Control@14765:<Control#2641891431975>(/Unregistered-Inner-Class)]
+        * [@Button@14761:<Button#2641388115504>(MinesweeperActionButton.gd)]
+        * [@Button@14809:<Button#2655648749108>(MinesweeperActionButton.gd)]
+        * [@Button@14810:<Button#2655799744061>(MinesweeperActionButton.gd)]
+        * [@Button@14811:<Button#2655950739014>(MinesweeperActionButton.gd)]
+        * [@Button@14812:<Button#2656101733967>(MinesweeperActionButton.gd)]
+        * [@Button@14813:<Button#2656252728920>(MinesweeperActionButton.gd)]
+        * [@Button@14808:<Button#2655497754218>(MinesweeperActionButton.gd)]
+        * [@Control@14807:<Control#2655380313710>(/Unregistered-Inner-Class)]
+        * [@Button@14803:<Button#2654927328886>(MinesweeperActionButton.gd)]
+        * [@Control@14804:<Control#2655078323839>(/Unregistered-Inner-Class)]
+        * [@Control@14805:<Control#2655178987142>(/Unregistered-Inner-Class)]
+        * [@Control@14806:<Control#2655279650442>(/Unregistered-Inner-Class)]
+        * [@Button@14802:<Button#2654776333971>(MinesweeperActionButton.gd)]
+        * [@Button@14850:<Button#2669036967575>(MinesweeperActionButton.gd)]
+        * [@Button@14851:<Button#2669187962528>(MinesweeperActionButton.gd)]
+        * [@Button@14852:<Button#2669338957481>(MinesweeperActionButton.gd)]
+        * [@Button@14853:<Button#2669489952434>(MinesweeperActionButton.gd)]
+        * [@Button@14854:<Button#2669640947387>(MinesweeperActionButton.gd)]
+        * [@Button@14849:<Button#2668885972685>(MinesweeperActionButton.gd)]
+        * [@Control@14848:<Control#2668768532177>(/Unregistered-Inner-Class)]
+        * [@Button@14844:<Button#2668315547353>(MinesweeperActionButton.gd)]
+        * [@Control@14845:<Control#2668466542306>(/Unregistered-Inner-Class)]
+        * [@Control@14846:<Control#2668567205609>(/Unregistered-Inner-Class)]
+        * [@Control@14847:<Control#2668667868909>(/Unregistered-Inner-Class)]
+        * [@Button@14843:<Button#2668164552438>(MinesweeperActionButton.gd)]
+* test_configured_dependencies_are_idempotent_and_cannot_be_rebound
+    34 Orphans
+        * [@Button@15517:<Button#2874322979752>(MinesweeperActionButton.gd)]
+        * [@Control@15561:<Control#2879708466237>(/Unregistered-Inner-Class)]
+        * [@Control@15486:<Control#2862360824959>(/Unregistered-Inner-Class)]
+        * [@Control@15521:<Control#2874775964982>(/Unregistered-Inner-Class)]
+        * [@Control@15562:<Control#2879809129795>(/Unregistered-Inner-Class)]
+        * [@Button@15593:<Button#2883516894569>(MinesweeperActionButton.gd)]
+        * [@Control@15595:<Control#2883768552946>(/Unregistered-Inner-Class)]
+        * [@Control@15596:<Control#2883869216243>(/Unregistered-Inner-Class)]
+        * [@Button@15591:<Button#2883214905081>(MinesweeperActionButton.gd)]
+        * [@Control@15597:<Control#2883969879805>(/Unregistered-Inner-Class)]
+        * [@Button@15558:<Button#2879356146196>(MinesweeperActionButton.gd)]
+        * [@Control@15518:<Control#2874473976352>(/Unregistered-Inner-Class)]
+        * [@Control@15560:<Control#2879607804522>(/Unregistered-Inner-Class)]
+        * [@Control@15559:<Control#2879507141377>(/Unregistered-Inner-Class)]
+        * [@Control@15519:<Control#2874574639985>(/Unregistered-Inner-Class)]
+        * [@Button@15556:<Button#2879054156677>(MinesweeperActionButton.gd)]
+        * [@Button@15592:<Button#2883365901260>(MinesweeperActionButton.gd)]
+        * [@Control@15520:<Control#2874675303432>(/Unregistered-Inner-Class)]
+        * [@Button@15480:<Button#2861605852240>(MinesweeperActionButton.gd)]
+        * [@Button@15481:<Button#2861756847188>(MinesweeperActionButton.gd)]
+        * [@Button@15557:<Button#2879205151847>(MinesweeperActionButton.gd)]
+        * [@Button@15516:<Button#2874171987074>(MinesweeperActionButton.gd)]
+        * [@Control@15594:<Control#2883667891338>(/Unregistered-Inner-Class)]
+        * [@Button@15482:<Button#2861907842228>(MinesweeperActionButton.gd)]
+        * [@Control@15483:<Control#2862058837173>(/Unregistered-Inner-Class)]
+        * [@Control@15485:<Control#2862260163776>(/Unregistered-Inner-Class)]
+        * [@Control@15484:<Control#2862159500488>(/Unregistered-Inner-Class)]
+        * [@Button@14932:<Button#2829662033375>(MinesweeperActionButton.gd)]
+        * [@Button@14930:<Button#2829360043501>(MinesweeperActionButton.gd)]
+        * [@Button@14928:<Button#2829058053622>(MinesweeperActionButton.gd)]
+        * [@Button@14929:<Button#2829209048616>(MinesweeperActionButton.gd)]
+        * [@Button@14931:<Button#2829511038587>(MinesweeperActionButton.gd)]
+        * [@Button@14927:<Button#2828907058903>(MinesweeperActionButton.gd)]
+        * [@Button@15515:<Button#2874020992746>(MinesweeperActionButton.gd)]
+* test_accessibility_preferences_retheme_without_owner_commands_or_navigation_changes
+    33 Orphans
+        * [@Control@16223:<Control#2927221541716>(/Unregistered-Inner-Class)]
+        * [@Control@16292:<Control#2943713545297>(/Unregistered-Inner-Class)]
+        * [@Control@16255:<Control#2931080301931>(/Unregistered-Inner-Class)]
+        * [@Control@16293:<Control#2943814209274>(/Unregistered-Inner-Class)]
+        * [@Button@15664:<Button#2893767774335>(MinesweeperActionButton.gd)]
+        * [@Control@16256:<Control#2931180966074>(/Unregistered-Inner-Class)]
+        * [@Button@16294:<Button#2943931650341>(MinesweeperActionButton.gd)]
+        * [@Control@16290:<Control#2943512219944>(/Unregistered-Inner-Class)]
+        * [@Button@16253:<Button#2930778313238>(MinesweeperActionButton.gd)]
+        * [@Button@16298:<Button#2944535630428>(MinesweeperActionButton.gd)]
+        * [@Button@16289:<Button#2943361225527>(MinesweeperActionButton.gd)]
+        * [@Button@16296:<Button#2944233640853>(MinesweeperActionButton.gd)]
+        * [@Button@16217:<Button#2926466569142>(MinesweeperActionButton.gd)]
+        * [@Button@16288:<Button#2943210230750>(MinesweeperActionButton.gd)]
+        * [@Control@16221:<Control#2927020217331>(/Unregistered-Inner-Class)]
+        * [@Button@16218:<Button#2926617564150>(MinesweeperActionButton.gd)]
+        * [@Control@16291:<Control#2943612883979>(/Unregistered-Inner-Class)]
+        * [@Control@16258:<Control#2931382293537>(/Unregistered-Inner-Class)]
+        * [@Control@16257:<Control#2931281630285>(/Unregistered-Inner-Class)]
+        * [@Button@16287:<Button#2943059235945>(MinesweeperActionButton.gd)]
+        * [@Button@16254:<Button#2930929308823>(MinesweeperActionButton.gd)]
+        * [@Button@15669:<Button#2894522750126>(MinesweeperActionButton.gd)]
+        * [@Button@15668:<Button#2894371755186>(MinesweeperActionButton.gd)]
+        * [@Button@15667:<Button#2894220760252>(MinesweeperActionButton.gd)]
+        * [@Button@15666:<Button#2894069765313>(MinesweeperActionButton.gd)]
+        * [@Button@15665:<Button#2893918770370>(MinesweeperActionButton.gd)]
+        * [@Control@16222:<Control#2927120881165>(/Unregistered-Inner-Class)]
+        * [@Button@16299:<Button#2944686626355>(MinesweeperActionButton.gd)]
+        * [@Button@16295:<Button#2944082646685>(MinesweeperActionButton.gd)]
+        * [@Button@16297:<Button#2944384636574>(MinesweeperActionButton.gd)]
+        * [@Button@16252:<Button#2930627319458>(MinesweeperActionButton.gd)]
+        * [@Control@16220:<Control#2926919554795>(/Unregistered-Inner-Class)]
+        * [@Button@16219:<Button#2926768559852>(MinesweeperActionButton.gd)]
+* test_legacy_colour_preference_is_read_only_compatibility_with_canonical_precedence
+    85 Orphans
+        * [@Control@17042:<Control#3166145874056>(/Unregistered-Inner-Class)]
+        * [@Button@17167:<Button#3206427970409>(MinesweeperActionButton.gd)]
+        * [@Button@17129:<Button#3193543068662>(MinesweeperActionButton.gd)]
+        * [@Button@17118:<Button#3192066673685>(MinesweeperActionButton.gd)]
+        * [@Button@17089:<Button#3180356177031>(MinesweeperActionButton.gd)]
+        * [@Button@17159:<Button#3205404560531>(MinesweeperActionButton.gd)]
+        * [@Control@17083:<Control#3179483762445>(/Unregistered-Inner-Class)]
+        * [@Control@17000:<Control#3152707325755>(/Unregistered-Inner-Class)]
+        * [@Control@17121:<Control#3192519659331>(/Unregistered-Inner-Class)]
+        * [@Button@17160:<Button#3205555556194>(MinesweeperActionButton.gd)]
+        * [@Button@17128:<Button#3193392074660>(MinesweeperActionButton.gd)]
+        * [@Button@17119:<Button#3192217669577>(MinesweeperActionButton.gd)]
+        * [@Control@17080:<Control#3179181772788>(/Unregistered-Inner-Class)]
+        * [@Button@17168:<Button#3206578966547>(MinesweeperActionButton.gd)]
+        * [@Button@17037:<Button#3165541896235>(MinesweeperActionButton.gd)]
+        * [@Control@17039:<Control#3165843886126>(/Unregistered-Inner-Class)]
+        * [@Button@17130:<Button#3193694064705>(MinesweeperActionButton.gd)]
+        * [@Control@17040:<Control#3165944549445>(/Unregistered-Inner-Class)]
+        * [@Control@17123:<Control#3192720986200>(/Unregistered-Inner-Class)]
+        * [@Button@17085:<Button#3179752198334>(MinesweeperActionButton.gd)]
+        * [@Button@17120:<Button#3192368664776>(MinesweeperActionButton.gd)]
+        * [@Button@16925:<Button#3135493902649>(MinesweeperActionButton.gd)]
+        * [@Button@17169:<Button#3206729961814>(MinesweeperActionButton.gd)]
+        * [@Button@17078:<Button#3178879783258>(MinesweeperActionButton.gd)]
+        * [@Button@17079:<Button#3179030778344>(MinesweeperActionButton.gd)]
+        * [@Control@16964:<Control#3140208300522>(/Unregistered-Inner-Class)]
+        * [@Control@16931:<Control#3136248877547>(/Unregistered-Inner-Class)]
+        * [@Button@17046:<Button#3166716301812>(MinesweeperActionButton.gd)]
+        * [@Control@16928:<Control#3135946887683>(/Unregistered-Inner-Class)]
+        * [@Control@16929:<Control#3136047550996>(/Unregistered-Inner-Class)]
+        * [@Button@16373:<Button#3102946103847>(MinesweeperActionButton.gd)]
+        * [@Button@17161:<Button#3205706551894>(MinesweeperActionButton.gd)]
+        * [@Button@17043:<Button#3166263317146>(MinesweeperActionButton.gd)]
+        * [@Button@16961:<Button#3139805647524>(MinesweeperActionButton.gd)]
+        * [@Button@17045:<Button#3166565307063>(MinesweeperActionButton.gd)]
+        * [@Button@17048:<Button#3167018291900>(MinesweeperActionButton.gd)]
+        * [@Button@17077:<Button#3178728788670>(MinesweeperActionButton.gd)]
+        * [@Button@17036:<Button#3165390901954>(MinesweeperActionButton.gd)]
+        * [@Control@16963:<Control#3140107637445>(/Unregistered-Inner-Class)]
+        * [@Control@16965:<Control#3140308964041>(/Unregistered-Inner-Class)]
+        * [@Control@16966:<Control#3140409627363>(/Unregistered-Inner-Class)]
+        * [@Control@17081:<Control#3179282436848>(/Unregistered-Inner-Class)]
+        * [@Control@16999:<Control#3152606663414>(/Unregistered-Inner-Class)]
+        * [@Control@17001:<Control#3152807990044>(/Unregistered-Inner-Class)]
+        * [@Button@16927:<Button#3135795893045>(MinesweeperActionButton.gd)]
+        * [@Button@17126:<Button#3193090085704>(MinesweeperActionButton.gd)]
+        * [@Button@17127:<Button#3193241080718>(MinesweeperActionButton.gd)]
+        * [@Button@17047:<Button#3166867297190>(MinesweeperActionButton.gd)]
+        * [@Button@17084:<Button#3179601204139>(MinesweeperActionButton.gd)]
+        * [@Button@16996:<Button#3152204010420>(MinesweeperActionButton.gd)]
+        * [@Control@17124:<Control#3192821650387>(/Unregistered-Inner-Class)]
+        * [@Button@16962:<Button#3139956642780>(MinesweeperActionButton.gd)]
+        * [@Button@17007:<Button#3153680405485>(MinesweeperActionButton.gd)]
+        * [@Button@17044:<Button#3166414312441>(MinesweeperActionButton.gd)]
+        * [@Control@17041:<Control#3166045213709>(/Unregistered-Inner-Class)]
+        * [@Button@17088:<Button#3180205184014>(MinesweeperActionButton.gd)]
+        * [@Button@16372:<Button#3102795109411>(MinesweeperActionButton.gd)]
+        * [@Button@16376:<Button#3103399089194>(MinesweeperActionButton.gd)]
+        * [@Control@16930:<Control#3136148214854>(/Unregistered-Inner-Class)]
+        * [@Button@17086:<Button#3179903194186>(MinesweeperActionButton.gd)]
+        * [@Control@17082:<Control#3179383100494>(/Unregistered-Inner-Class)]
+        * [@Button@16926:<Button#3135644898394>(MinesweeperActionButton.gd)]
+        * [@Button@17006:<Button#3153529410679>(MinesweeperActionButton.gd)]
+        * [@Button@16995:<Button#3152053015683>(MinesweeperActionButton.gd)]
+        * [@Button@17003:<Button#3153076425861>(MinesweeperActionButton.gd)]
+        * [@Control@17122:<Control#3192620324046>(/Unregistered-Inner-Class)]
+        * [@Button@17087:<Button#3180054189272>(MinesweeperActionButton.gd)]
+        * [@Button@17125:<Button#3192939091215>(MinesweeperActionButton.gd)]
+        * [@Button@17005:<Button#3153378416030>(MinesweeperActionButton.gd)]
+        * [@Control@17164:<Control#3206058874371>(/Unregistered-Inner-Class)]
+        * [@Button@17038:<Button#3165692892678>(MinesweeperActionButton.gd)]
+        * [@Control@16998:<Control#3152506000906>(/Unregistered-Inner-Class)]
+        * [@Button@17002:<Button#3152925431308>(MinesweeperActionButton.gd)]
+        * [@Button@16374:<Button#3103097099790>(MinesweeperActionButton.gd)]
+        * [@Button@16960:<Button#3139654653455>(MinesweeperActionButton.gd)]
+        * [@Button@16997:<Button#3152355005972>(MinesweeperActionButton.gd)]
+        * [@Control@17163:<Control#3205958211170>(/Unregistered-Inner-Class)]
+        * [@Button@17004:<Button#3153227421398>(MinesweeperActionButton.gd)]
+        * [@Button@16375:<Button#3103248094956>(MinesweeperActionButton.gd)]
+        * [@Button@16377:<Button#3103550084845>(MinesweeperActionButton.gd)]
+        * [@Button@17170:<Button#3206880958208>(MinesweeperActionButton.gd)]
+        * [@Button@17171:<Button#3207031953161>(MinesweeperActionButton.gd)]
+        * [@Button@17166:<Button#3206276978459>(MinesweeperActionButton.gd)]
+        * [@Control@17165:<Control#3206159537948>(/Unregistered-Inner-Class)]
+        * [@Control@17162:<Control#3205857548075>(/Unregistered-Inner-Class)]
+* test_invalid_accessibility_preference_keeps_last_valid_theme_and_public_facts
+    20 Orphans
+        * [@Button@17245:<Button#3227114277727>(MinesweeperActionButton.gd)]
+        * [@Button@17798:<Button#3259813071737>(MinesweeperActionButton.gd)]
+        * [@Button@17244:<Button#3226963283149>(MinesweeperActionButton.gd)]
+        * [@Control@17800:<Control#3260115062025>(/Unregistered-Inner-Class)]
+        * [@Button@17832:<Button#3263822826774>(MinesweeperActionButton.gd)]
+        * [@Control@17802:<Control#3260316388655>(/Unregistered-Inner-Class)]
+        * [@Control@17835:<Control#3264275811937>(/Unregistered-Inner-Class)]
+        * [@Button@17834:<Button#3264124816998>(MinesweeperActionButton.gd)]
+        * [@Control@17801:<Control#3260215725696>(/Unregistered-Inner-Class)]
+        * [@Control@17837:<Control#3264477138689>(/Unregistered-Inner-Class)]
+        * [@Button@17833:<Button#3263973822243>(MinesweeperActionButton.gd)]
+        * [@Button@17799:<Button#3259964067666>(MinesweeperActionButton.gd)]
+        * [@Button@17248:<Button#3227567263584>(MinesweeperActionButton.gd)]
+        * [@Button@17246:<Button#3227265274004>(MinesweeperActionButton.gd)]
+        * [@Control@17836:<Control#3264376475908>(/Unregistered-Inner-Class)]
+        * [@Control@17803:<Control#3260417053059>(/Unregistered-Inner-Class)]
+        * [@Button@17797:<Button#3259662078344>(MinesweeperActionButton.gd)]
+        * [@Control@17838:<Control#3264577802635>(/Unregistered-Inner-Class)]
+        * [@Button@17249:<Button#3227718259262>(MinesweeperActionButton.gd)]
+        * [@Button@17247:<Button#3227416270035>(MinesweeperActionButton.gd)]
+* test_palette_change_with_open_sheet_retains_sheet_focus_scroll_and_home_block
+    89 Orphans
+        * [@Control@18580:<Control#3485986719882>(/Unregistered-Inner-Class)]
+        * [@Button@17911:<Button#3422619175805>(MinesweeperActionButton.gd)]
+        * [@Control@18579:<Control#3485886057401>(/Unregistered-Inner-Class)]
+        * [@Control@18652:<Control#3501790858201>(/Unregistered-Inner-Class)]
+        * [@Control@18651:<Control#3501690194914>(/Unregistered-Inner-Class)]
+        * [@Button@18586:<Button#3486808804335>(MinesweeperActionButton.gd)]
+        * [@Button@18543:<Button#3473118596185>(MinesweeperActionButton.gd)]
+        * [@Button@18542:<Button#3472967601261>(MinesweeperActionButton.gd)]
+        * [@Button@18585:<Button#3486657809599>(MinesweeperActionButton.gd)]
+        * [@Control@18578:<Control#3485785394426>(/Unregistered-Inner-Class)]
+        * [@Button@17916:<Button#3423374151119>(MinesweeperActionButton.gd)]
+        * [@Button@18464:<Button#3455317970399>(MinesweeperActionButton.gd)]
+        * [@Button@17914:<Button#3423072161292>(MinesweeperActionButton.gd)]
+        * [@Button@18465:<Button#3455468965403>(MinesweeperActionButton.gd)]
+        * [@Button@18647:<Button#3501136547360>(MinesweeperActionButton.gd)]
+        * [@Button@17912:<Button#3422770171429>(MinesweeperActionButton.gd)]
+        * [@Button@18583:<Button#3486355820072>(MinesweeperActionButton.gd)]
+        * [@Control@18538:<Control#3472497839680>(/Unregistered-Inner-Class)]
+        * [@Button@18584:<Button#3486506815048>(MinesweeperActionButton.gd)]
+        * [@Button@17913:<Button#3422921166409>(MinesweeperActionButton.gd)]
+        * [@Button@17915:<Button#3423223156298>(MinesweeperActionButton.gd)]
+        * [@Control@18540:<Control#3472699166291>(/Unregistered-Inner-Class)]
+        * [@Button@18534:<Button#3471944191586>(MinesweeperActionButton.gd)]
+        * [@Button@18541:<Button#3472816606833>(MinesweeperActionButton.gd)]
+        * [@Control@18589:<Control#3488369086071>] + 14
+        * [@Control@18505:<Control#3460233694887>(/Unregistered-Inner-Class)]
+        * [@Button@18536:<Button#3472246181755>(MinesweeperActionButton.gd)]
+        * [@Control@18503:<Control#3460032368622>(/Unregistered-Inner-Class)]
+        * [@Button@18535:<Button#3472095187133>(MinesweeperActionButton.gd)]
+        * [@Button@18544:<Button#3473269592254>(MinesweeperActionButton.gd)]
+        * [@Button@18587:<Button#3486959800543>(MinesweeperActionButton.gd)]
+        * [@Control@18469:<Control#3455972282630>(/Unregistered-Inner-Class)]
+        * [@Button@18545:<Button#3473420587280>(MinesweeperActionButton.gd)]
+        * [@Control@18502:<Control#3459931705630>(/Unregistered-Inner-Class)]
+        * [@Control@18504:<Control#3460133032227>(/Unregistered-Inner-Class)]
+        * [@Control@18537:<Control#3472397177199>(/Unregistered-Inner-Class)]
+        * [@Button@18501:<Button#3459780710784>(MinesweeperActionButton.gd)]
+        * [@Control@18467:<Control#3455770956170>(/Unregistered-Inner-Class)]
+        * [@Button@18575:<Button#3485332410835>(MinesweeperActionButton.gd)]
+        * [@Button@18499:<Button#3459478721016>(MinesweeperActionButton.gd)]
+        * [@Control@18539:<Control#3472598504005>(/Unregistered-Inner-Class)]
+        * [@Button@18656:<Button#3502310953607>(MinesweeperActionButton.gd)]
+        * [@Button@18657:<Button#3502461948574>(MinesweeperActionButton.gd)]
+        * [@Button@18658:<Button#3502612943536>(MinesweeperActionButton.gd)]
+        * [@Control@18581:<Control#3486087385796>(/Unregistered-Inner-Class)]
+        * [@Control@18470:<Control#3456072946416>(/Unregistered-Inner-Class)]
+        * [@Button@18654:<Button#3502008963928>(MinesweeperActionButton.gd)]
+        * [@Control@18650:<Control#3501589533540>(/Unregistered-Inner-Class)]
+        * [@Button@18655:<Button#3502159958891>(MinesweeperActionButton.gd)]
+        * [@Button@18576:<Button#3485483406259>(MinesweeperActionButton.gd)]
+        * [@Button@18577:<Button#3485634401220>(MinesweeperActionButton.gd)]
+        * [@Button@18659:<Button#3502763938766>(MinesweeperActionButton.gd)]
+        * [@Button@18649:<Button#3501438538724>(MinesweeperActionButton.gd)]
+        * [@Button@18648:<Button#3501287543785>(MinesweeperActionButton.gd)]
+        * [@Control@18653:<Control#3501891523568>(/Unregistered-Inner-Class)]
+        * [@Button@18546:<Button#3473571583017>(MinesweeperActionButton.gd)]
+        * [@Button@18582:<Button#3486204826770>(MinesweeperActionButton.gd)]
+        * [@Control@18468:<Control#3455871620644>(/Unregistered-Inner-Class)]
+        * [@Control@18632:<Control#3492697609880>] + 14
+        * [@Button@18500:<Button#3459629717271>(MinesweeperActionButton.gd)]
+        * [@Button@18466:<Button#3455619962655>(MinesweeperActionButton.gd)]
+* test_palette_publication_preserves_pending_touch_without_issuing_an_action
+    33 Orphans
+        * [@Button@18752:<Button#3663053457533>(MinesweeperActionButton.gd)]
+        * [@Button@19370:<Button#3711573167075>(MinesweeperActionButton.gd)]
+        * [@Control@19376:<Control#3712328141839>(/Unregistered-Inner-Class)]
+        * [@Button@19382:<Button#3713200557159>(MinesweeperActionButton.gd)]
+        * [@Control@19304:<Control#3695550925953>(/Unregistered-Inner-Class)]
+        * [@Button@19372:<Button#3711875157128>(MinesweeperActionButton.gd)]
+        * [@Control@19303:<Control#3695450262748>(/Unregistered-Inner-Class)]
+        * [@Control@19373:<Control#3712026152244>(/Unregistered-Inner-Class)]
+        * [@Control@19305:<Control#3695651589658>(/Unregistered-Inner-Class)]
+        * [@Button@19335:<Button#3699158027888>(MinesweeperActionButton.gd)]
+        * [@Button@19380:<Button#3712898567831>(MinesweeperActionButton.gd)]
+        * [@Button@19301:<Button#3695148273339>(MinesweeperActionButton.gd)]
+        * [@Button@19300:<Button#3694997278434>(MinesweeperActionButton.gd)]
+        * [@Button@19302:<Button#3695299268347>(MinesweeperActionButton.gd)]
+        * [@Button@19381:<Button#3713049562882>(MinesweeperActionButton.gd)]
+        * [@Button@18750:<Button#3662751469346>(MinesweeperActionButton.gd)]
+        * [@Control@19338:<Control#3699611013021>(/Unregistered-Inner-Class)]
+        * [@Button@19378:<Button#3712596578241>(MinesweeperActionButton.gd)]
+        * [@Button@19377:<Button#3712445583322>(MinesweeperActionButton.gd)]
+        * [@Control@19340:<Control#3699812339714>(/Unregistered-Inner-Class)]
+        * [@Control@19341:<Control#3699913003017>(/Unregistered-Inner-Class)]
+        * [@Button@19337:<Button#3699460018200>(MinesweeperActionButton.gd)]
+        * [@Button@18751:<Button#3662902464699>(MinesweeperActionButton.gd)]
+        * [@Button@18748:<Button#3662449479909>(MinesweeperActionButton.gd)]
+        * [@Button@19336:<Button#3699309023561>(MinesweeperActionButton.gd)]
+        * [@Control@19339:<Control#3699711676757>(/Unregistered-Inner-Class)]
+        * [@Control@19375:<Control#3712227480013>(/Unregistered-Inner-Class)]
+        * [@Button@18749:<Button#3662600475090>(MinesweeperActionButton.gd)]
+        * [@Button@18747:<Button#3662298485606>(MinesweeperActionButton.gd)]
+        * [@Control@19306:<Control#3695752254672>(/Unregistered-Inner-Class)]
+        * [@Button@19379:<Button#3712747574543>(MinesweeperActionButton.gd)]
+        * [@Control@19374:<Control#3712126817582>(/Unregistered-Inner-Class)]
+        * [@Button@19371:<Button#3711724164414>(MinesweeperActionButton.gd)]
+* test_first_open_focuses_and_reveals_the_only_legal_prepared_cell
+    14 Orphans
+        * [@Button@20008:<Button#3764924713097>(MinesweeperActionButton.gd)]
+        * [@Control@20012:<Control#3765478362073>(/Unregistered-Inner-Class)]
+        * [@Control@20013:<Control#3765579025378>(/Unregistered-Inner-Class)]
+        * [@Button@20010:<Button#3765226704021>(MinesweeperActionButton.gd)]
+        * [@Button@20043:<Button#3769119018357>(MinesweeperActionButton.gd)]
+        * [@Control@20049:<Control#3769873993446>(/Unregistered-Inner-Class)]
+        * [@Button@20009:<Button#3765075709671>(MinesweeperActionButton.gd)]
+        * [@Control@20011:<Control#3765377700688>(/Unregistered-Inner-Class)]
+        * [@Control@20014:<Control#3765679690743>(/Unregistered-Inner-Class)]
+        * [@Button@20045:<Button#3769421010246>(MinesweeperActionButton.gd)]
+        * [@Control@20046:<Control#3769572005203>(/Unregistered-Inner-Class)]
+        * [@Button@20044:<Button#3769270015317>(MinesweeperActionButton.gd)]
+        * [@Control@20047:<Control#3769672668502>(/Unregistered-Inner-Class)]
+        * [@Control@20048:<Control#3769773331800>(/Unregistered-Inner-Class)]
+* test_reopen_discards_illegal_cached_cell_and_pan_for_current_prepared_target
+    28 Orphans
+        * [@Button@20775:<Button#3824668380071>(MinesweeperActionButton.gd)]
+        * [@Control@20673:<Control#3812572007466>(/Unregistered-Inner-Class)]
+        * [@Button@20669:<Button#3812018359559>(MinesweeperActionButton.gd)]
+        * [@Control@20675:<Control#3812773334536>(/Unregistered-Inner-Class)]
+        * [@Control@20745:<Control#3821094833841>(/Unregistered-Inner-Class)]
+        * [@Control@20743:<Control#3820893507252>(/Unregistered-Inner-Class)]
+        * [@Control@20709:<Control#3816850198205>(/Unregistered-Inner-Class)]
+        * [@Control@20778:<Control#3825071034184>(/Unregistered-Inner-Class)]
+        * [@Button@20774:<Button#3824517386129>(MinesweeperActionButton.gd)]
+        * [@Button@20670:<Button#3812169355177>(MinesweeperActionButton.gd)]
+        * [@Button@20671:<Button#3812320350128>(MinesweeperActionButton.gd)]
+        * [@Control@20779:<Control#3825171697614>(/Unregistered-Inner-Class)]
+        * [@Button@20704:<Button#3816195887330>(MinesweeperActionButton.gd)]
+        * [@Control@20674:<Control#3812672672072>(/Unregistered-Inner-Class)]
+        * [@Button@20741:<Button#3820641849748>(MinesweeperActionButton.gd)]
+        * [@Control@20742:<Control#3820792844702>(/Unregistered-Inner-Class)]
+        * [@Control@20707:<Control#3816648872425>(/Unregistered-Inner-Class)]
+        * [@Button@20776:<Button#3824819376663>(MinesweeperActionButton.gd)]
+        * [@Control@20777:<Control#3824970371672>(/Unregistered-Inner-Class)]
+        * [@Control@20672:<Control#3812471345772>(/Unregistered-Inner-Class)]
+        * [@Control@20710:<Control#3816950862469>(/Unregistered-Inner-Class)]
+        * [@Control@20708:<Control#3816749535955>(/Unregistered-Inner-Class)]
+        * [@Button@20740:<Button#3820490855215>(MinesweeperActionButton.gd)]
+        * [@Control@20780:<Control#3825272361799>(/Unregistered-Inner-Class)]
+        * [@Button@20706:<Button#3816497877854>(MinesweeperActionButton.gd)]
+        * [@Control@20744:<Control#3820994172193>(/Unregistered-Inner-Class)]
+        * [@Button@20705:<Button#3816346883407>(MinesweeperActionButton.gd)]
+        * [@Button@20739:<Button#3820339860839>(MinesweeperActionButton.gd)]
+* test_focus_loss_clears_held_keyboard_confirmation_and_pending_touch
+    21 Orphans
+        * [@Control@21475:<Control#3876660971641>(/Unregistered-Inner-Class)]
+        * [@Control@21405:<Control#3868339472522>(/Unregistered-Inner-Class)]
+        * [@Button@21437:<Button#3872147901369>(MinesweeperActionButton.gd)]
+        * [@Control@21473:<Control#3876459645913>(/Unregistered-Inner-Class)]
+        * [@Button@21435:<Button#3871845911653>(MinesweeperActionButton.gd)]
+        * [@Button@21470:<Button#3876006661590>(MinesweeperActionButton.gd)]
+        * [@Button@21401:<Button#3867836157464>(MinesweeperActionButton.gd)]
+        * [@Button@21402:<Button#3867987152792>(MinesweeperActionButton.gd)]
+        * [@Control@21403:<Control#3868138147776>(/Unregistered-Inner-Class)]
+        * [@Control@21438:<Control#3872298897446>(/Unregistered-Inner-Class)]
+        * [@Control@21439:<Control#3872399560933>(/Unregistered-Inner-Class)]
+        * [@Button@21472:<Button#3876308652286>(MinesweeperActionButton.gd)]
+        * [@Button@21400:<Button#3867685163456>(MinesweeperActionButton.gd)]
+        * [@Control@21441:<Control#3872600887758>(/Unregistered-Inner-Class)]
+        * [@Control@21406:<Control#3868440138461>(/Unregistered-Inner-Class)]
+        * [@Button@21471:<Button#3876157657935>(MinesweeperActionButton.gd)]
+        * [@Control@21474:<Control#3876560311280>(/Unregistered-Inner-Class)]
+        * [@Control@21404:<Control#3868238812436>(/Unregistered-Inner-Class)]
+        * [@Control@21440:<Control#3872500225310>(/Unregistered-Inner-Class)]
+        * [@Button@21436:<Button#3871996908834>(MinesweeperActionButton.gd)]
+        * [@Control@21476:<Control#3876761638220>(/Unregistered-Inner-Class)]
+* test_preparation_pump_is_foreground_one_step_and_stops_for_sheet_pause_or_failure
+    38 Orphans
+        * [@Control@22172:<Control#3929676974943>(/Unregistered-Inner-Class)]
+        * [@Button@22168:<Button#3929173658532>(MinesweeperActionButton.gd)]
+        * [@Control@22171:<Control#3929576312460>(/Unregistered-Inner-Class)]
+        * [@Button@22167:<Button#3929022664373>(MinesweeperActionButton.gd)]
+        * [@Button@22169:<Button#3929324654289>(MinesweeperActionButton.gd)]
+        * [@Control@22170:<Control#3929475649951>(/Unregistered-Inner-Class)]
+        * [@Control@22173:<Control#3929777639848>(/Unregistered-Inner-Class)]
+        * [@Button@22686:<Button#3957560712294>(MinesweeperActionButton.gd)]
+        * [@Button@22731:<Button#3962644208815>(MinesweeperActionButton.gd)]
+        * [@Control@22693:<Control#3958449904846>(MinesweeperInformationSheet.gd)] + 9
+        * [@Control@22692:<Control#3958315687121>(/Unregistered-Inner-Class)]
+        * [@Button@22688:<Button#3957862702297>(MinesweeperActionButton.gd)]
+        * [@Control@22689:<Control#3958013697253>(/Unregistered-Inner-Class)]
+        * [@Control@22690:<Control#3958114360550>(/Unregistered-Inner-Class)]
+        * [@Control@22691:<Control#3958215023853>(/Unregistered-Inner-Class)]
+        * [@Button@22687:<Button#3957711707382>(MinesweeperActionButton.gd)]
+        * [@Control@22737:<Control#3963399183644>(/Unregistered-Inner-Class)]
+        * [@Button@22733:<Button#3962946198820>(MinesweeperActionButton.gd)]
+        * [@Control@22734:<Control#3963097193776>(/Unregistered-Inner-Class)]
+        * [@Control@22735:<Control#3963197857073>(/Unregistered-Inner-Class)]
+        * [@Control@22736:<Control#3963298520376>(/Unregistered-Inner-Class)]
+        * [@Button@22732:<Button#3962795203905>(MinesweeperActionButton.gd)]
+        * [@Button@22766:<Button#3966804958533>(MinesweeperActionButton.gd)]
+        * [@Control@22772:<Control#3967559933256>(/Unregistered-Inner-Class)]
+        * [@Button@22768:<Button#3967106948432>(MinesweeperActionButton.gd)]
+        * [@Control@22769:<Control#3967257943388>(/Unregistered-Inner-Class)]
+        * [@Control@22770:<Control#3967358606685>(/Unregistered-Inner-Class)]
+        * [@Control@22771:<Control#3967459269988>(/Unregistered-Inner-Class)]
+        * [@Button@22767:<Button#3966955953517>(MinesweeperActionButton.gd)]
+* test_preparation_home_parks_only_published_stable_frontier_and_hidden_app_does_no_work
+    21 Orphans
+        * [@Button@23984:<Button#4048627436467>(MinesweeperActionButton.gd)]
+        * [@Button@23983:<Button#4048476441862>(MinesweeperActionButton.gd)]
+        * [@Control@23987:<Control#4048979758661>(/Unregistered-Inner-Class)]
+        * [@Control@23988:<Control#4049080422088>(/Unregistered-Inner-Class)]
+        * [@Control@23467:<Control#4020341051081>(/Unregistered-Inner-Class)]
+        * [@Button@23463:<Button#4019787403196>(MinesweeperActionButton.gd)]
+        * [@Button@24017:<Button#4052435865703>(MinesweeperActionButton.gd)]
+        * [@Button@23465:<Button#4020089393573>(MinesweeperActionButton.gd)]
+        * [@Control@23985:<Control#4048778432978>(/Unregistered-Inner-Class)]
+        * [@Button@23464:<Button#4019938398881>(MinesweeperActionButton.gd)]
+        * [@Control@24023:<Control#4053190841239>(/Unregistered-Inner-Class)]
+        * [@Control@23986:<Control#4048879096835>(/Unregistered-Inner-Class)]
+        * [@Control@23468:<Control#4020441715791>(/Unregistered-Inner-Class)]
+        * [@Control@23466:<Control#4020240389415>(/Unregistered-Inner-Class)]
+        * [@Control@23469:<Control#4020542379318>(/Unregistered-Inner-Class)]
+        * [@Button@24019:<Button#4052737856835>(MinesweeperActionButton.gd)]
+        * [@Button@23982:<Button#4048325450779>(MinesweeperActionButton.gd)]
+        * [@Button@24018:<Button#4052586863714>(MinesweeperActionButton.gd)]
+        * [@Control@24022:<Control#4053090180195>(/Unregistered-Inner-Class)]
+        * [@Control@24021:<Control#4052989517060>(/Unregistered-Inner-Class)]
+        * [@Control@24020:<Control#4052888853765>(/Unregistered-Inner-Class)]
+* test_unfocused_window_parks_preparation_and_retains_explicit_retry
+    28 Orphans
+        * [@Control@24718:<Control#4228563078159>(/Unregistered-Inner-Class)]
+        * [@Button@24716:<Button#4228311419970>(MinesweeperActionButton.gd)]
+        * [@Button@24715:<Button#4228160425460>(MinesweeperActionButton.gd)]
+        * [@Control@24719:<Control#4228663741955>(/Unregistered-Inner-Class)]
+        * [@Control@25273:<Control#4400311438953>(/Unregistered-Inner-Class)]
+        * [@Control@25272:<Control#4400210775739>(/Unregistered-Inner-Class)]
+        * [@Button@25270:<Button#4399959117820>(MinesweeperActionButton.gd)]
+        * [@Button@25269:<Button#4399808123281>(MinesweeperActionButton.gd)]
+        * [@Control@25271:<Control#4400110113674>(/Unregistered-Inner-Class)]
+        * [@Control@24717:<Control#4228462417190>(/Unregistered-Inner-Class)]
+        * [@Button@25233:<Button#4256547478544>(MinesweeperActionButton.gd)]
+        * [@Button@25303:<Button#4403817880607>(MinesweeperActionButton.gd)]
+        * [@Control@25309:<Control#4404572855329>(/Unregistered-Inner-Class)]
+        * [@Button@25305:<Button#4404119870507>(MinesweeperActionButton.gd)]
+        * [@Control@25236:<Control#4257000463418>(/Unregistered-Inner-Class)]
+        * [@Control@25237:<Control#4257101126715>(/Unregistered-Inner-Class)]
+        * [@Button@25235:<Button#4256849468476>(MinesweeperActionButton.gd)]
+        * [@Control@25238:<Control#4257201790027>(/Unregistered-Inner-Class)]
+        * [@Control@25274:<Control#4400412105811>(/Unregistered-Inner-Class)]
+        * [@Button@25234:<Button#4256698473556>(MinesweeperActionButton.gd)]
+        * [@Control@25239:<Control#4257302453368>(/Unregistered-Inner-Class)]
+        * [@Button@25268:<Button#4399657131176>(MinesweeperActionButton.gd)]
+        * [@Button@25304:<Button#4403968875703>(MinesweeperActionButton.gd)]
+        * [@Control@25307:<Control#4404371528970>(/Unregistered-Inner-Class)]
+        * [@Control@25308:<Control#4404472192275>(/Unregistered-Inner-Class)]
+        * [@Control@25306:<Control#4404270865695>(/Unregistered-Inner-Class)]
+        * [@Button@24714:<Button#4228009434421>(MinesweeperActionButton.gd)]
+        * [@Control@24720:<Control#4228764409232>(/Unregistered-Inner-Class)]
+* test_host_resize_keeps_complete_app_inside_available_display_area
+22/22 passed.
+
+
+res://tests/unit/test_minesweeper_worksheet.gd
+* test_every_host_tier_text_and_target_size_fits_the_complete_board
+* test_rules_replace_only_worksheet_and_return_restores_mode_cell_scroll_and_source
+    12 Orphans
+        * [HorizontalRail:<Control#5300694293709>(MinesweeperScrollRail.gd)]
+        * [@Control@27753:<Control#5300727848150>(MinesweeperInformationSheet.gd)] + 9
+        * [VerticalRail:<Control#5300660739397>(MinesweeperScrollRail.gd)]
+* test_sheet_tab_traps_focus_and_escape_restores_grid_without_command
+* test_missing_assignment_truth_does_not_open_or_disturb_grid
+    1 Orphans
+        * [@Control@27907:<Control#5449759854657>(MinesweeperInformationSheet.gd)]
+* test_sheet_return_preserves_fitted_board_and_semantic_focus
+    12 Orphans
+        * [VerticalRail:<Control#5476955722576>(MinesweeperScrollRail.gd)]
+        * [HorizontalRail:<Control#5476989277649>(MinesweeperScrollRail.gd)]
+        * [@Control@28411:<Control#5477039610924>(MinesweeperInformationSheet.gd)] + 9
+* test_pan_and_scroll_cannot_hide_any_part_of_the_fitted_board
+    2 Orphans
+        * [VerticalRail:<Control#5503430169200>(MinesweeperScrollRail.gd)]
+        * [HorizontalRail:<Control#5503463723914>(MinesweeperScrollRail.gd)]
+* test_focus_navigation_and_return_reveal_the_complete_semantic_cell
+    2 Orphans
+        * [VerticalRail:<Control#5667293236450>(MinesweeperScrollRail.gd)]
+        * [HorizontalRail:<Control#5667326791533>(MinesweeperScrollRail.gd)]
+* test_real_wheel_route_keeps_the_complete_board_in_view
+* test_fractional_pointer_motion_cannot_shift_the_fitted_board
+    2 Orphans
+        * [VerticalRail:<Control#5718430191612>(MinesweeperScrollRail.gd)]
+        * [HorizontalRail:<Control#5718463746449>(MinesweeperScrollRail.gd)]
+* test_actual_drag_route_keeps_full_fit_without_issuing_a_cell_command
+* test_touch_drag_uses_real_gui_routing_and_never_activates_on_release
+    2 Orphans
+        * [VerticalRail:<Control#5769667809190>(MinesweeperScrollRail.gd)]
+        * [HorizontalRail:<Control#5769701364242>(MinesweeperScrollRail.gd)]
+* test_fitted_pointer_release_uses_original_cell_coordinates
+    2 Orphans
+        * [HorizontalRail:<Control#5795370504186>(MinesweeperScrollRail.gd)]
+        * [VerticalRail:<Control#5795336951188>(MinesweeperScrollRail.gd)]
+* test_custody_keeps_truth_and_scroll_but_removes_all_input
+    2 Orphans
+        * [HorizontalRail:<Control#5821173865592>(MinesweeperScrollRail.gd)]
+        * [VerticalRail:<Control#5821140311295>(MinesweeperScrollRail.gd)]
+* test_configuration_and_invalid_projection_preserve_the_current_view_atomically
+    2 Orphans
+        * [VerticalRail:<Control#5968813363655>(MinesweeperScrollRail.gd)]
+        * [HorizontalRail:<Control#5968846920801>(MinesweeperScrollRail.gd)]
+* test_changing_difficulty_refits_without_stale_pan_or_rails
+    2 Orphans
+        * [HorizontalRail:<Control#5994616721406>(MinesweeperScrollRail.gd)]
+        * [VerticalRail:<Control#5994583167136>(MinesweeperScrollRail.gd)]
+* test_configure_and_present_before_tree_mount_keep_focus_and_geometry
+* test_information_closing_reenables_external_source_before_exact_focus_restoration
+    12 Orphans
+        * [VerticalRail:<Control#6024245286443>(MinesweeperScrollRail.gd)]
+        * [HorizontalRail:<Control#6024278840879>(MinesweeperScrollRail.gd)]
+        * [@Control@33845:<Control#6024362728540>(MinesweeperInformationSheet.gd)] + 9
+* test_interaction_block_preserves_public_facts_scroll_and_open_sheet_return
+    12 Orphans
+        * [@Control@34342:<Control#6051004943180>(MinesweeperInformationSheet.gd)] + 9
+        * [HorizontalRail:<Control#6050971389857>(MinesweeperScrollRail.gd)]
+        * [VerticalRail:<Control#6050937838832>(MinesweeperScrollRail.gd)]
+12 orphans
+18/18 passed.
+
+
+res://tests/unit/test_minesweeper_zoom_input.gd
+* test_ctrl_wheel_emits_signed_steps_at_pointer_and_plain_wheel_still_pans
+* test_zoom_rejects_held_cell_action_without_canceling_its_release
+* test_second_touch_cancels_tap_and_longpress_and_both_releases_stay_inert
+* test_pinch_ratio_uses_stable_positions_when_grid_scale_and_origin_change
+* test_third_touch_cancels_pinch_until_every_contact_is_up
+* test_focus_and_custody_cancel_pinch_without_releasing_a_cell_action
+* test_trigger_step_is_deferred_and_requires_release_threshold_before_repeating
+* test_simultaneous_triggers_are_coalesced_and_releasing_one_does_not_zoom
+* test_restore_requires_both_axes_observed_neutral_and_no_device_is_not_neutral
+* test_connected_axis_poll_can_rearm_after_missed_release_without_inventing_a_step
+* test_zoom_is_suppressed_by_modal_focus_loss_and_projection_custody
+* test_right_stick_pan_has_the_same_direction_as_scroll_wheel
+* test_vertical_grid_edge_can_focus_authored_toolbar_neighbor_without_wrapping
+* test_shared_view_admission_observes_quarantine_foreground_and_process_custody
+* test_view_input_signal_changes_once_per_hold_and_not_per_motion_or_refresh
+* test_controller_confirm_hold_notifies_view_controls_on_press_and_release
+* test_show_restores_view_admission_without_requiring_grid_focus
+17/17 passed.
+
+
+res://tests/unit/test_minesweeper_view_controls.gd
+* test_default_manual_size_and_fit_restore_do_not_change_the_board
+    2 Orphans
+        * [HorizontalRail:<Control#6365896510779>(MinesweeperScrollRail.gd)]
+        * [VerticalRail:<Control#6365862958384>(MinesweeperScrollRail.gd)]
+* test_scope_switch_and_reopening_restore_permanent_preferences
+    2 Orphans
+        * [HorizontalRail:<Control#6529860243256>(MinesweeperScrollRail.gd)]
+        * [VerticalRail:<Control#6529826689562>(MinesweeperScrollRail.gd)]
+* test_manual_step_from_fit_starts_at_displayed_size_and_preserves_anchor
+    4 Orphans
+        * [HorizontalRail:<Control#6580963642306>(MinesweeperScrollRail.gd)]
+        * [HorizontalRail:<Control#6580879757793>(MinesweeperScrollRail.gd)]
+        * [VerticalRail:<Control#6580846204074>(MinesweeperScrollRail.gd)]
+        * [VerticalRail:<Control#6580913313188>(MinesweeperScrollRail.gd)]
+* test_rapid_wheel_updates_are_immediate_and_flush_as_one_preference_transaction
+* test_preference_write_refusal_restores_last_saved_view
+* test_large_targets_and_text_size_do_not_change_selected_cell_size
+* test_sheet_and_held_cell_block_zoom_without_writing_preferences
+    10 Orphans
+        * [@Control@38358:<Control#6896006208942>(MinesweeperInformationSheet.gd)] + 9
+10 orphans
+7/7 passed.
+
+
+res://tests/unit/test_minesweeper_panel_port.gd
+* test_pull_composes_only_detached_public_facts_without_spending_or_allocating
+* test_real_first_reveal_and_flag_unflag_refresh_the_whole_panel
+* test_terminal_settlement_failure_stays_visible_then_success_holds_exact_board_after_owner_clears
+* test_failed_terminal_settlement_retains_exact_projection_without_next_action
+* test_day_change_invalidates_a_held_terminal_view
+* test_stale_and_owner_refusal_return_only_safe_refreshed_composites
+* test_invalid_assignment_read_has_no_partial_view_and_cannot_dispatch_cached_board
+* test_changed_unpaid_tier_refuses_old_reveal_before_allocation_and_refreshes_expert
+* test_same_revision_owner_change_between_reads_refuses_the_composite
+* test_reconfiguration_is_idempotent_and_rebind_cannot_replace_working_dependencies
+* test_unconfigured_or_invalid_dependencies_refuse_without_allocating
+* test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only
+    47 Orphans
+        * [@Control@38438:<Control#7163367918750>(/Unregistered-Inner-Class)]
+        * [@Control@38439:<Control#7163468582070>(/Unregistered-Inner-Class)]
+        * [@Control@38440:<Control#7163569245427>(/Unregistered-Inner-Class)]
+        * [@Button@38437:<Button#7163216924274>(MinesweeperActionButton.gd)]
+        * [@Button@38435:<Button#7162914934829>(MinesweeperActionButton.gd)]
+        * [@Control@38441:<Control#7163669909619>(/Unregistered-Inner-Class)]
+        * [@Control@38621:<Control#7184842756458>(MinesweeperInformationSheet.gd)] + 15
+        * [@Button@38436:<Button#7163065930887>(MinesweeperActionButton.gd)]
+        * [@Button@38534:<Button#7171706197876>(MinesweeperActionButton.gd)]
+        * [@Control@38611:<Control#7183920011208>(MinesweeperInformationSheet.gd)] + 9
+        * [@Control@38540:<Control#7172461172723>(/Unregistered-Inner-Class)]
+        * [@Control@38539:<Control#7172360509429>(/Unregistered-Inner-Class)]
+        * [@Button@38536:<Button#7172008187895>(MinesweeperActionButton.gd)]
+        * [@Button@38535:<Button#7171857192958>(MinesweeperActionButton.gd)]
+        * [@Control@38537:<Control#7172159182851>(/Unregistered-Inner-Class)]
+        * [@Control@38575:<Control#7178131871748>(/Unregistered-Inner-Class)]
+        * [@Control@38538:<Control#7172259846152>(/Unregistered-Inner-Class)]
+        * [@Control@38573:<Control#7177930545177>(/Unregistered-Inner-Class)]
+        * [@Button@38569:<Button#7177376897050>(MinesweeperActionButton.gd)]
+        * [@Button@38571:<Button#7177678886950>(MinesweeperActionButton.gd)]
+        * [@Control@38572:<Control#7177829881906>(/Unregistered-Inner-Class)]
+        * [@Control@38574:<Control#7178031208502>(/Unregistered-Inner-Class)]
+        * [@Button@38570:<Button#7177527892031>(MinesweeperActionButton.gd)]
+* test_panel_foreground_preserves_frozen_register_and_history_without_spending
+* test_panel_foreground_refuses_changed_unpaid_tier_before_allocation
+* test_terminal_foresight_includes_final_click_and_survives_settlement_clear_and_retry
+* test_unpaid_tier_change_and_untouched_new_board_never_generate_or_spend
+* test_unpaid_flags_without_capacity_preserve_no_flag_and_untouched_new_board_is_noop
+* test_paid_replacement_and_paid_tier_change_keep_one_cost_and_accept_exact_retry
+* test_stale_configuration_revision_or_live_session_is_refused_before_allocation
+* test_first_paid_reveal_resolves_exact_journal_after_saved_shell_flag_prefix
+* test_cold_retained_terminal_inspection_never_reissues_completion_and_survives_navigation
+* test_settlement_retry_adopts_retained_owner_revision_before_dismissal_admission
+* test_retained_terminal_new_board_commits_owner_dismissal_and_keeps_exact_failed_request
+* test_real_prepared_debug_projection_renders_free_flags_and_only_forced_reveal
+    49 Orphans
+        * [@Button@38906:<Button#7318892710772>(MinesweeperActionButton.gd)]
+        * [@Control@38840:<Control#7303021465046>(/Unregistered-Inner-Class)]
+        * [@Button@38836:<Button#7302467817318>(MinesweeperActionButton.gd)]
+        * [@Button@38802:<Button#7297719865762>(MinesweeperActionButton.gd)]
+        * [@Button@38871:<Button#7313859547562>(MinesweeperActionButton.gd)]
+        * [@Control@38706:<Control#7289834574253>(/Unregistered-Inner-Class)]
+        * [@Button@38838:<Button#7302769807791>(MinesweeperActionButton.gd)]
+        * [@Control@38705:<Control#7289733910962>(/Unregistered-Inner-Class)]
+        * [@Control@38805:<Control#7298122518986>(/Unregistered-Inner-Class)]
+        * [@Button@38703:<Button#7289431921139>(MinesweeperActionButton.gd)]
+        * [@Control@38804:<Control#7298021855848>(/Unregistered-Inner-Class)]
+        * [@Control@38806:<Control#7298223182444>(/Unregistered-Inner-Class)]
+        * [@Control@38842:<Control#7303222793574>(/Unregistered-Inner-Class)]
+        * [@Control@38877:<Control#7314614523672>(/Unregistered-Inner-Class)]
+        * [@Control@38841:<Control#7303122130809>(/Unregistered-Inner-Class)]
+        * [@Button@38837:<Button#7302618814370>(MinesweeperActionButton.gd)]
+        * [@Button@38704:<Button#7289582917573>(MinesweeperActionButton.gd)]
+        * [@Button@38702:<Button#7289280927783>(MinesweeperActionButton.gd)]
+        * [@Control@38708:<Control#7290035902540>(/Unregistered-Inner-Class)]
+        * [@Control@38876:<Control#7314513860717>(/Unregistered-Inner-Class)]
+        * [@Button@38873:<Button#7314161539183>(MinesweeperActionButton.gd)]
+        * [@Button@38872:<Button#7314010544246>(MinesweeperActionButton.gd)]
+        * [@Control@38874:<Control#7314312534139>(/Unregistered-Inner-Class)]
+        * [@Control@38912:<Control#7319647688828>(/Unregistered-Inner-Class)]
+        * [@Control@38875:<Control#7314413197440>(/Unregistered-Inner-Class)]
+        * [@Control@38910:<Control#7319446362257>(/Unregistered-Inner-Class)]
+        * [@Button@38941:<Button#7323925878933>(MinesweeperActionButton.gd)]
+        * [@Button@38908:<Button#7319194704030>(MinesweeperActionButton.gd)]
+        * [@Control@38909:<Control#7319345698986>(/Unregistered-Inner-Class)]
+        * [@Control@38911:<Control#7319547025582>(/Unregistered-Inner-Class)]
+        * [@Button@38943:<Button#7324227868847>(MinesweeperActionButton.gd)]
+        * [@Button@38907:<Button#7319043709111>(MinesweeperActionButton.gd)]
+        * [@Control@38944:<Control#7324378863803>(/Unregistered-Inner-Class)]
+        * [@Control@38947:<Control#7324680853693>(/Unregistered-Inner-Class)]
+        * [@Control@38945:<Control#7324479527122>(/Unregistered-Inner-Class)]
+        * [@Control@38946:<Control#7324580190429>(/Unregistered-Inner-Class)]
+        * [@Button@38976:<Button#7328858380516>(MinesweeperActionButton.gd)]
+        * [@Button@38942:<Button#7324076873958>(MinesweeperActionButton.gd)]
+        * [@Control@38982:<Control#7329613355244>(/Unregistered-Inner-Class)]
+        * [@Control@38981:<Control#7329512691950>(/Unregistered-Inner-Class)]
+        * [@Button@38978:<Button#7329160370416>(MinesweeperActionButton.gd)]
+        * [@Button@38977:<Button#7329009375479>(MinesweeperActionButton.gd)]
+        * [@Control@38979:<Control#7329311365372>(/Unregistered-Inner-Class)]
+        * [@Control@38980:<Control#7329412028673>(/Unregistered-Inner-Class)]
+        * [@Button@38801:<Button#7297568873608>(MinesweeperActionButton.gd)]
+        * [@Button@38803:<Button#7297870863551>(MinesweeperActionButton.gd)]
+        * [@Control@38807:<Control#7298323848387>(/Unregistered-Inner-Class)]
+        * [@Control@38839:<Control#7302920805688>(/Unregistered-Inner-Class)]
+        * [@Control@38707:<Control#7289935240608>(/Unregistered-Inner-Class)]
+* test_real_retained_terminal_difficulty_publishes_next_legal_board_without_payment
+* test_terminal_dispatch_holds_the_unsettled_board_and_the_pump_settles_it_next
+26/26 passed.
+
+
+res://tests/unit/test_minesweeper_dock.gd
+* test_exact_desktop_allocations_leave_vacancy_without_control
+* test_mode_selection_waits_for_owner_and_disabled_new_board_is_inert
+* test_host_locale_scale_targets_keep_fixed_widths_and_grow_only_height
+    91 Orphans
+        * [@Button@39065:<Button#7361875938207>(MinesweeperActionButton.gd)]
+        * [@Button@39082:<Button#7366053465194>(MinesweeperActionButton.gd)]
+        * [@Button@39103:<Button#7370834971782>(MinesweeperActionButton.gd)]
+        * [@Button@39101:<Button#7370532982427>(MinesweeperActionButton.gd)]
+        * [@Button@39100:<Button#7369979334313>(MinesweeperActionButton.gd)]
+        * [@Button@39081:<Button#7365902470931>(MinesweeperActionButton.gd)]
+        * [@Button@39095:<Button#7368821706523>(MinesweeperActionButton.gd)]
+        * [@Button@39080:<Button#7365348822849>(MinesweeperActionButton.gd)]
+        * [@Button@39099:<Button#7369828339620>(MinesweeperActionButton.gd)]
+        * [@Button@39054:<Button#7359409688494>(MinesweeperActionButton.gd)]
+        * [@Button@39059:<Button#7360567316509>(MinesweeperActionButton.gd)]
+        * [@Button@39060:<Button#7360718311524>(MinesweeperActionButton.gd)]
+        * [@Button@39093:<Button#7368519716998>(MinesweeperActionButton.gd)]
+        * [@Button@39079:<Button#7365197828263>(MinesweeperActionButton.gd)]
+        * [@Button@39056:<Button#7360114331876>(MinesweeperActionButton.gd)]
+        * [@Button@39074:<Button#7364040200535>(MinesweeperActionButton.gd)]
+        * [@Button@39094:<Button#7368670712180>(MinesweeperActionButton.gd)]
+        * [@Button@39091:<Button#7368217727375>(MinesweeperActionButton.gd)]
+        * [@Button@39062:<Button#7361422954919>(MinesweeperActionButton.gd)]
+        * [@Button@39063:<Button#7361573949896>(MinesweeperActionButton.gd)]
+        * [@Button@39057:<Button#7360265327050>(MinesweeperActionButton.gd)]
+        * [@Button@39092:<Button#7368368722647>(MinesweeperActionButton.gd)]
+        * [@Button@39108:<Button#7371992601361>(MinesweeperActionButton.gd)]
+        * [@Button@39102:<Button#7370683978644>(MinesweeperActionButton.gd)]
+        * [@Button@39047:<Button#7357950071723>(MinesweeperActionButton.gd)]
+        * [@Button@39107:<Button#7371841606592>(MinesweeperActionButton.gd)]
+        * [@Button@39068:<Button#7362731578379>(MinesweeperActionButton.gd)]
+        * [@Button@39105:<Button#7371136963624>(MinesweeperActionButton.gd)]
+        * [@Button@39053:<Button#7359258694795>(MinesweeperActionButton.gd)]
+        * [@Button@39084:<Button#7366355457346>(MinesweeperActionButton.gd)]
+        * [@Button@39097:<Button#7369526351783>(MinesweeperActionButton.gd)]
+        * [@Button@39106:<Button#7371690612651>(MinesweeperActionButton.gd)]
+        * [@Button@39090:<Button#7367664080835>(MinesweeperActionButton.gd)]
+        * [@Button@39088:<Button#7367362090956>(MinesweeperActionButton.gd)]
+        * [@Button@39066:<Button#7362429589458>(MinesweeperActionButton.gd)]
+        * [@Button@39075:<Button#7364191197146>(MinesweeperActionButton.gd)]
+        * [@Button@39089:<Button#7367513085916>(MinesweeperActionButton.gd)]
+        * [@Button@39052:<Button#7359107700714>(MinesweeperActionButton.gd)]
+        * [@Button@39067:<Button#7362580584429>(MinesweeperActionButton.gd)]
+        * [@Button@39078:<Button#7365046835182>(MinesweeperActionButton.gd)]
+        * [@Button@39077:<Button#7364895840250>(MinesweeperActionButton.gd)]
+        * [@Button@39076:<Button#7364744845311>(MinesweeperActionButton.gd)]
+        * [@Button@39071:<Button#7363587217435>(MinesweeperActionButton.gd)]
+        * [@Button@39070:<Button#7363033569312>(MinesweeperActionButton.gd)]
+        * [@Button@39096:<Button#7369375356969>(MinesweeperActionButton.gd)]
+        * [@Button@39072:<Button#7363738212394>(MinesweeperActionButton.gd)]
+        * [@Button@39073:<Button#7363889207348>(MinesweeperActionButton.gd)]
+        * [@Button@39061:<Button#7361271961690>(MinesweeperActionButton.gd)]
+        * [@Button@39069:<Button#7362882574444>(MinesweeperActionButton.gd)]
+        * [@Button@39050:<Button#7358403057778>(MinesweeperActionButton.gd)]
+        * [@Button@39049:<Button#7358252062840>(MinesweeperActionButton.gd)]
+        * [@Button@39048:<Button#7358101067905>(MinesweeperActionButton.gd)]
+        * [@Button@39051:<Button#7358956705930>(MinesweeperActionButton.gd)]
+        * [@Button@39043:<Button#7356943440017>(MinesweeperActionButton.gd)]
+        * [@Button@39044:<Button#7357094434971>(MinesweeperActionButton.gd)]
+        * [@Button@39045:<Button#7357245429924>(MinesweeperActionButton.gd)]
+        * [@Button@39046:<Button#7357799078070>(MinesweeperActionButton.gd)]
+        * [@Button@39037:<Button#7356020693181>(MinesweeperActionButton.gd)]
+        * [@Button@39038:<Button#7356171688126>(MinesweeperActionButton.gd)]
+        * [@Button@39039:<Button#7356322683078>(MinesweeperActionButton.gd)]
+        * [@Button@39041:<Button#7356641450190>(MinesweeperActionButton.gd)]
+        * [@Button@39040:<Button#7356473678048>(MinesweeperActionButton.gd)]
+        * [@Button@39042:<Button#7356792445153>(MinesweeperActionButton.gd)]
+        * [@Button@39036:<Button#7355869698276>(MinesweeperActionButton.gd)]
+        * [@Button@39035:<Button#7355718703351>(MinesweeperActionButton.gd)]
+        * [@Button@39104:<Button#7370985969914>(MinesweeperActionButton.gd)]
+        * [@Button@39098:<Button#7369677347089>(MinesweeperActionButton.gd)]
+        * [@Button@39109:<Button#7372143597863>(MinesweeperActionButton.gd)]
+        * [@Button@39110:<Button#7372294592816>(MinesweeperActionButton.gd)]
+        * [@Button@39111:<Button#7372848240976>(MinesweeperActionButton.gd)]
+        * [@Button@39112:<Button#7372999235929>(MinesweeperActionButton.gd)]
+        * [@Button@39113:<Button#7373150230882>(MinesweeperActionButton.gd)]
+        * [@Button@39114:<Button#7373301225835>(MinesweeperActionButton.gd)]
+        * [@Button@39115:<Button#7373452220788>(MinesweeperActionButton.gd)]
+        * [@Button@39116:<Button#7374005868930>(MinesweeperActionButton.gd)]
+        * [@Button@39117:<Button#7374156863883>(MinesweeperActionButton.gd)]
+        * [@Button@39118:<Button#7374307858836>(MinesweeperActionButton.gd)]
+        * [@Button@39121:<Button#7375163496854>(MinesweeperActionButton.gd)]
+        * [@Button@39119:<Button#7374458853789>(MinesweeperActionButton.gd)]
+        * [@Button@39122:<Button#7375314491807>(MinesweeperActionButton.gd)]
+        * [@Button@39120:<Button#7374609848742>(MinesweeperActionButton.gd)]
+        * [@Button@39123:<Button#7375465486760>(MinesweeperActionButton.gd)]
+        * [@Button@39124:<Button#7375616481713>(MinesweeperActionButton.gd)]
+        * [@Button@39125:<Button#7375767476666>(MinesweeperActionButton.gd)]
+        * [@Button@39087:<Button#7367211097203>(MinesweeperActionButton.gd)]
+        * [@Button@39085:<Button#7366506454140>(MinesweeperActionButton.gd)]
+        * [@Button@39058:<Button#7360416324769>(MinesweeperActionButton.gd)]
+        * [@Button@39086:<Button#7367060102433>(MinesweeperActionButton.gd)]
+        * [@Button@39083:<Button#7366204464436>(MinesweeperActionButton.gd)]
+        * [@Button@39064:<Button#7361724947853>(MinesweeperActionButton.gd)]
+        * [@Button@39055:<Button#7359560687010>(MinesweeperActionButton.gd)]
+* test_custody_and_invalid_updates_preserve_selection_without_command
+91 orphans
+4/4 passed.
+
+
+res://tests/integration/test_minesweeper_desktop_host.gd
+* test_launcher_reveal_home_reopen_retains_real_session_and_cached_grid
+    35 Orphans
+        * [@Control@39451:<Control#7432726121282>(/Unregistered-Inner-Class)]
+        * [@Button@39306:<Button#7408080391148>(MinesweeperActionButton.gd)]
+        * [@Control@39309:<Control#7408533376573>(/Unregistered-Inner-Class)]
+        * [@Control@39310:<Control#7408634039875>(/Unregistered-Inner-Class)]
+        * [@Button@39447:<Button#7432222805638>(MinesweeperActionButton.gd)]
+        * [@Button@39448:<Button#7432373801016>(MinesweeperActionButton.gd)]
+        * [@Control@39311:<Control#7408734703947>(/Unregistered-Inner-Class)]
+        * [@Control@39312:<Control#7408835367413>(/Unregistered-Inner-Class)]
+        * [@Button@39308:<Button#7408382382733>(MinesweeperActionButton.gd)]
+        * [@Control@39415:<Control#7425730024085>(/Unregistered-Inner-Class)]
+        * [@Control@39414:<Control#7425629360963>(/Unregistered-Inner-Class)]
+        * [@Control@39449:<Control#7432524796848>(/Unregistered-Inner-Class)]
+        * [@Button@39412:<Button#7425327371304>(MinesweeperActionButton.gd)]
+        * [@Button@39446:<Button#7432071812148>(MinesweeperActionButton.gd)]
+        * [@Button@39341:<Button#7413885310379>(MinesweeperActionButton.gd)]
+        * [@Button@39307:<Button#7408231388956>(MinesweeperActionButton.gd)]
+        * [@Control@39450:<Control#7432625461162>(/Unregistered-Inner-Class)]
+        * [@Control@39416:<Control#7425830688683>(/Unregistered-Inner-Class)]
+        * [@Control@39452:<Control#7432826787967>(/Unregistered-Inner-Class)]
+        * [@Button@39411:<Button#7425176377654>(MinesweeperActionButton.gd)]
+        * [@Control@39381:<Control#7420210321727>(/Unregistered-Inner-Class)]
+        * [@Button@39413:<Button#7425478367555>(MinesweeperActionButton.gd)]
+        * [@Button@39377:<Button#7419707005258>(MinesweeperActionButton.gd)]
+        * [@Control@39417:<Control#7425931352402>(/Unregistered-Inner-Class)]
+        * [@Control@39379:<Control#7420008995167>(/Unregistered-Inner-Class)]
+        * [@Button@39376:<Button#7419556010336>(MinesweeperActionButton.gd)]
+        * [@Control@39380:<Control#7420109658468>(/Unregistered-Inner-Class)]
+        * [@Button@39378:<Button#7419858000229>(MinesweeperActionButton.gd)]
+        * [@Control@39382:<Control#7420310985075>(/Unregistered-Inner-Class)]
+        * [@Button@39342:<Button#7414036306303>(MinesweeperActionButton.gd)]
+        * [@Control@39346:<Control#7414539622784>(/Unregistered-Inner-Class)]
+        * [@Control@39344:<Control#7414338296201>(/Unregistered-Inner-Class)]
+        * [@Control@39347:<Control#7414640286090>(/Unregistered-Inner-Class)]
+        * [@Control@39345:<Control#7414438959503>(/Unregistered-Inner-Class)]
+        * [@Button@39343:<Button#7414187301274>(MinesweeperActionButton.gd)]
+* test_app_back_suspends_once_before_host_hides_and_reopens_same_instance
+    35 Orphans
+        * [@Button@39556:<Button#7465710128282>(MinesweeperActionButton.gd)]
+        * [@Button@39726:<Button#7484752269533>(MinesweeperActionButton.gd)]
+        * [@Control@39560:<Control#7466213445937>(/Unregistered-Inner-Class)]
+        * [@Control@39559:<Control#7466112783647>(/Unregistered-Inner-Class)]
+        * [@Control@39660:<Control#7473847080285>(/Unregistered-Inner-Class)]
+        * [@Control@39728:<Control#7485003928994>(/Unregistered-Inner-Class)]
+        * [@Control@39727:<Control#7484903266402>(/Unregistered-Inner-Class)]
+        * [@Control@39694:<Control#7479467448652>(/Unregistered-Inner-Class)]
+        * [@Control@39763:<Control#7489785436518>(/Unregistered-Inner-Class)]
+        * [@Control@39762:<Control#7489684773230>(/Unregistered-Inner-Class)]
+        * [@Control@39764:<Control#7489886099847>(/Unregistered-Inner-Class)]
+        * [@Button@39760:<Button#7489382783373>(MinesweeperActionButton.gd)]
+        * [@Button@39689:<Button#7478813137304>(MinesweeperActionButton.gd)]
+        * [@Control@39765:<Control#7489986763213>(/Unregistered-Inner-Class)]
+        * [@Button@39761:<Button#7489533778387>(MinesweeperActionButton.gd)]
+        * [@Button@39725:<Button#7484601276887>(MinesweeperActionButton.gd)]
+        * [@Control@39729:<Control#7485104593369>(/Unregistered-Inner-Class)]
+        * [@Control@39692:<Control#7479266122314>(/Unregistered-Inner-Class)]
+        * [@Control@39693:<Control#7479366785635>(/Unregistered-Inner-Class)]
+        * [@Button@39759:<Button#7489231788651>(MinesweeperActionButton.gd)]
+        * [@Control@39658:<Control#7473645754992>(/Unregistered-Inner-Class)]
+        * [@Control@39659:<Control#7473746418294>(/Unregistered-Inner-Class)]
+        * [@Button@39655:<Button#7473243101823>(MinesweeperActionButton.gd)]
+        * [@Control@39695:<Control#7479568112275>(/Unregistered-Inner-Class)]
+        * [@Button@39691:<Button#7479115127447>(MinesweeperActionButton.gd)]
+        * [@Button@39555:<Button#7465559136982>(MinesweeperActionButton.gd)]
+        * [@Control@39657:<Control#7473545091881>(/Unregistered-Inner-Class)]
+        * [@Control@39561:<Control#7466314111796>(/Unregistered-Inner-Class)]
+        * [@Control@39558:<Control#7466012121917>(/Unregistered-Inner-Class)]
+        * [@Button@39557:<Button#7465861127196>(MinesweeperActionButton.gd)]
+        * [@Button@39654:<Button#7473092107309>(MinesweeperActionButton.gd)]
+        * [@Control@39730:<Control#7485205257413>(/Unregistered-Inner-Class)]
+        * [@Button@39724:<Button#7484450282698>(MinesweeperActionButton.gd)]
+        * [@Button@39690:<Button#7478964133092>(MinesweeperActionButton.gd)]
+        * [@Button@39656:<Button#7473394097552>(MinesweeperActionButton.gd)]
+* test_information_sheets_block_host_home_and_app_back_without_commands
+    47 Orphans
+        * [@Control@40005:<Control#7532366006395>(/Unregistered-Inner-Class)]
+        * [@Button@39868:<Button#7518659022405>(MinesweeperActionButton.gd)]
+        * [@Control@40006:<Control#7532466671454>(/Unregistered-Inner-Class)]
+        * [@Control@40019:<Control#7538372252242>(MinesweeperInformationSheet.gd)] + 15
+        * [@Control@40008:<Control#7532667999429>(/Unregistered-Inner-Class)]
+        * [@Control@39871:<Control#7519112009641>(/Unregistered-Inner-Class)]
+        * [@Control@39973:<Control#7526946969555>(/Unregistered-Inner-Class)]
+        * [@Control@40009:<Control#7532852549658>(MinesweeperInformationSheet.gd)] + 9
+        * [@Button@39969:<Button#7526493984797>(MinesweeperActionButton.gd)]
+        * [@Control@39874:<Control#7519413999931>(/Unregistered-Inner-Class)]
+        * [@Button@40002:<Button#7531913026205>(MinesweeperActionButton.gd)]
+        * [@Button@39967:<Button#7526191995660>(MinesweeperActionButton.gd)]
+        * [@Control@39872:<Control#7519212673814>(/Unregistered-Inner-Class)]
+        * [@Control@39873:<Control#7519313337141>(/Unregistered-Inner-Class)]
+        * [@Button@39869:<Button#7518810020949>(MinesweeperActionButton.gd)]
+        * [@Control@39972:<Control#7526846307446>(/Unregistered-Inner-Class)]
+        * [@Control@39971:<Control#7526745644156>(/Unregistered-Inner-Class)]
+        * [@Control@39970:<Control#7526644980885>(/Unregistered-Inner-Class)]
+        * [@Button@39870:<Button#7518961015965>(MinesweeperActionButton.gd)]
+        * [@Button@39968:<Button#7526342991134>(MinesweeperActionButton.gd)]
+        * [@Button@40004:<Button#7532215016739>(MinesweeperActionButton.gd)]
+        * [@Control@40007:<Control#7532567338289>(/Unregistered-Inner-Class)]
+        * [@Button@40003:<Button#7532064021866>(MinesweeperActionButton.gd)]
+* test_stale_home_keeps_app_visible_and_host_active_without_allocating_or_spending
+    28 Orphans
+        * [@Button@40307:<Button#7589626645340>(MinesweeperActionButton.gd)]
+        * [@Control@40275:<Control#7584509594482>(/Unregistered-Inner-Class)]
+        * [@Button@40273:<Button#7584257936761>(MinesweeperActionButton.gd)]
+        * [@Button@40137:<Button#7570701946411>(MinesweeperActionButton.gd)]
+        * [@Button@40272:<Button#7584106942073>(MinesweeperActionButton.gd)]
+        * [@Control@40143:<Control#7571456921232>(/Unregistered-Inner-Class)]
+        * [@Control@40242:<Control#7578989891233>(/Unregistered-Inner-Class)]
+        * [@Control@40277:<Control#7584710921997>(/Unregistered-Inner-Class)]
+        * [@Control@40142:<Control#7571356258384>(/Unregistered-Inner-Class)]
+        * [@Control@40241:<Control#7578889228515>(/Unregistered-Inner-Class)]
+        * [@Button@40238:<Button#7578536907111>(MinesweeperActionButton.gd)]
+        * [@Button@40138:<Button#7570852942229>(MinesweeperActionButton.gd)]
+        * [@Button@40237:<Button#7578385912748>(MinesweeperActionButton.gd)]
+        * [@Control@40312:<Control#7590230627368>(/Unregistered-Inner-Class)]
+        * [@Button@40139:<Button#7571003938217>(MinesweeperActionButton.gd)]
+        * [@Control@40239:<Control#7578687903183>(/Unregistered-Inner-Class)]
+        * [@Control@40274:<Control#7584408934270>(/Unregistered-Inner-Class)]
+        * [@Button@40306:<Button#7589475653958>(MinesweeperActionButton.gd)]
+        * [@Control@40276:<Control#7584610261330>(/Unregistered-Inner-Class)]
+        * [@Button@40308:<Button#7589777643887>(MinesweeperActionButton.gd)]
+        * [@Control@40310:<Control#7590029302350>(/Unregistered-Inner-Class)]
+        * [@Control@40309:<Control#7589928639055>(/Unregistered-Inner-Class)]
+        * [@Button@40236:<Button#7578234919604>(MinesweeperActionButton.gd)]
+        * [@Control@40141:<Control#7571255597879>(/Unregistered-Inner-Class)]
+        * [@Control@40140:<Control#7571154934586>(/Unregistered-Inner-Class)]
+        * [@Control@40311:<Control#7590129966152>(/Unregistered-Inner-Class)]
+        * [@Button@40271:<Button#7583955950724>(MinesweeperActionButton.gd)]
+        * [@Control@40240:<Control#7578788568310>(/Unregistered-Inner-Class)]
+* test_unsettled_terminal_cannot_hide_the_host_or_spend_another_round
+    21 Orphans
+        * [@Control@40519:<Control#7635495554563>(/Unregistered-Inner-Class)]
+        * [@Control@40517:<Control#7635294228035>(/Unregistered-Inner-Class)]
+        * [@Button@40516:<Button#7635143233159>(MinesweeperActionButton.gd)]
+        * [@Control@40518:<Control#7635394891511>(/Unregistered-Inner-Class)]
+        * [@Control@40421:<Control#7628063248814>(/Unregistered-Inner-Class)]
+        * [@Control@40420:<Control#7627962586558>(/Unregistered-Inner-Class)]
+        * [@Control@40520:<Control#7635596220188>(/Unregistered-Inner-Class)]
+        * [@Button@40551:<Button#7640864266544>(MinesweeperActionButton.gd)]
+        * [@Button@40549:<Button#7640562276685>(MinesweeperActionButton.gd)]
+        * [@Control@40555:<Control#7641317251412>(/Unregistered-Inner-Class)]
+        * [@Button@40550:<Button#7640713271638>(MinesweeperActionButton.gd)]
+        * [@Control@40553:<Control#7641115924850>(/Unregistered-Inner-Class)]
+        * [@Button@40417:<Button#7627610265982>(MinesweeperActionButton.gd)]
+        * [@Control@40554:<Control#7641216588178>(/Unregistered-Inner-Class)]
+        * [@Control@40552:<Control#7641015261588>(/Unregistered-Inner-Class)]
+        * [@Control@40418:<Control#7627761260952>(/Unregistered-Inner-Class)]
+        * [@Button@40415:<Button#7627308276159>(MinesweeperActionButton.gd)]
+        * [@Button@40416:<Button#7627459271117>(MinesweeperActionButton.gd)]
+        * [@Control@40419:<Control#7627861924483>(/Unregistered-Inner-Class)]
+        * [@Button@40515:<Button#7634992241370>(MinesweeperActionButton.gd)]
+        * [@Button@40514:<Button#7634841246746>(MinesweeperActionButton.gd)]
+* test_unconfigured_production_route_remains_unavailable_without_an_injected_ready_port
+* test_desktop_rejects_port_and_host_rebinding_without_replacing_working_owners
+    14 Orphans
+        * [@Button@40761:<Button#7692420648094>(MinesweeperActionButton.gd)]
+        * [@Control@40767:<Control#7693175623139>(/Unregistered-Inner-Class)]
+        * [@Button@40762:<Button#7692571643953>(MinesweeperActionButton.gd)]
+        * [@Control@40766:<Control#7693074960922>(/Unregistered-Inner-Class)]
+        * [@Button@40662:<Button#7684887680433>(MinesweeperActionButton.gd)]
+        * [@Control@40665:<Control#7685340665812>(/Unregistered-Inner-Class)]
+        * [@Button@40663:<Button#7685038675939>(MinesweeperActionButton.gd)]
+        * [@Control@40666:<Control#7685441329202>(/Unregistered-Inner-Class)]
+        * [@Button@40763:<Button#7692722641017>(MinesweeperActionButton.gd)]
+        * [@Control@40765:<Control#7692974299533>(/Unregistered-Inner-Class)]
+        * [@Button@40664:<Button#7685189671321>(MinesweeperActionButton.gd)]
+        * [@Control@40668:<Control#7685642656181>(/Unregistered-Inner-Class)]
+        * [@Control@40764:<Control#7692873637114>(/Unregistered-Inner-Class)]
+        * [@Control@40667:<Control#7685541993762>(/Unregistered-Inner-Class)]
+* test_real_profile_input_owner_is_forwarded_to_the_cached_app_and_rebound_keyboard_route
+    21 Orphans
+        * [@Button@41041:<Button#7747198258729>(MinesweeperActionButton.gd)]
+        * [@Control@40975:<Control#7727904460472>(/Unregistered-Inner-Class)]
+        * [@Control@41010:<Control#7743171727118>(/Unregistered-Inner-Class)]
+        * [@Control@40974:<Control#7727803797275>(/Unregistered-Inner-Class)]
+        * [@Control@41044:<Control#7747550581013>(/Unregistered-Inner-Class)]
+        * [@Control@41045:<Control#7747651244626>(/Unregistered-Inner-Class)]
+        * [@Control@40972:<Control#7727602471636>(/Unregistered-Inner-Class)]
+        * [@Control@41007:<Control#7742869738383>(/Unregistered-Inner-Class)]
+        * [@Control@41043:<Control#7747449918404>(/Unregistered-Inner-Class)]
+        * [@Button@40971:<Button#7727451477440>(MinesweeperActionButton.gd)]
+        * [@Button@40969:<Button#7727149487615>(MinesweeperActionButton.gd)]
+        * [@Button@41004:<Button#7742416755078>(MinesweeperActionButton.gd)]
+        * [@Control@40973:<Control#7727703136689>(/Unregistered-Inner-Class)]
+        * [@Button@41005:<Button#7742567750093>(MinesweeperActionButton.gd)]
+        * [@Control@41009:<Control#7743071066742>(/Unregistered-Inner-Class)]
+        * [@Button@41040:<Button#7747047266999>(MinesweeperActionButton.gd)]
+        * [@Button@40970:<Button#7727300483812>(MinesweeperActionButton.gd)]
+        * [@Button@41006:<Button#7742718745334>(MinesweeperActionButton.gd)]
+        * [@Button@41039:<Button#7746896272129>(MinesweeperActionButton.gd)]
+        * [@Control@41008:<Control#7742970403866>(/Unregistered-Inner-Class)]
+        * [@Control@41042:<Control#7747349257507>(/Unregistered-Inner-Class)]
+* test_hidden_cached_app_quarantines_a_held_rebound_toggle_until_release
+* test_input_owner_replacement_is_refused_without_rebinding_the_cached_grid
+    7 Orphans
+        * [@Control@41466:<Control#7834892767238>(/Unregistered-Inner-Class)]
+        * [@Control@41464:<Control#7834691440963>(/Unregistered-Inner-Class)]
+        * [@Button@41463:<Button#7834540447657>(MinesweeperActionButton.gd)]
+        * [@Button@41461:<Button#7834238457836>(MinesweeperActionButton.gd)]
+        * [@Control@41465:<Control#7834792106600>(/Unregistered-Inner-Class)]
+        * [@Control@41467:<Control#7834993433757>(/Unregistered-Inner-Class)]
+        * [@Button@41462:<Button#7834389454049>(MinesweeperActionButton.gd)]
+7 orphans
+10/10 passed.
+
+
+res://tests/integration/test_minesweeper_first_reveal_transaction.gd
+* test_first_reveal_writes_a_durable_pre_board_autosave_with_the_charged_and_revealed_state
+* test_first_reveal_charges_exactly_once_across_a_retried_request
+* test_adapter_rejects_a_desktop_less_post_commit_snapshot_input
+* test_adapter_rejects_a_board_only_desktop_value
+* test_adapter_rejects_an_extra_desktop_key
+* test_restore_after_a_crash_between_checkpoint_commit_and_live_adoption_recovers_the_paid_first_reveal
+* test_first_reveal_falls_back_to_the_fake_checkpoint_when_durable_is_not_configured
+7/7 passed.
+
+
+res://tests/integration/test_minesweeper_round_transaction.gd
+* test_the_third_day2_round_commits_group_activation_with_its_receipt
+* test_the_second_round_commits_no_activation_and_reports_null
+* test_the_fourth_round_does_not_reactivate
+* test_a_non_window_day_never_activates
+* test_an_already_read_solo_blocks_activation_with_a_null_receipt
+* test_the_third_day6_round_commits_group_activation
+* test_a_dating_round_commits_no_contact_change
+* test_rollback_restores_contacts_beside_gameplay
+* test_the_post_result_checkpoint_carries_the_candidate_contacts
+* test_an_aborted_round_refunds_through_the_rollback_door
+10/10 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/scene/test_minesweeper_new_board_bindings.gd
+    - Outside Tests
+        * [<Node#128681248531>(subsystem_animation.gd)]
+        * [<Node#128698025763>(subsystem_audio.gd)]
+        * [<Node#128714802990>]
+        * [<Node#128731580211>]
+        * [<Node#128748357430>(subsystem_backgrounds.gd)]
+        * [<Node#129285228345>(subsystem_choices.gd)]
+        * [<Timer#129302005563>]
+        * [<Node#129318782780>(subsystem_expression.gd)]
+        * [<Node#129352337218>(subsystem_glossary.gd)]
+        * [<Node#129369114435>(subsystem_history.gd)]
+        * [<Node#129385891652>(subsystem_input.gd)]
+        * [<Timer#129402668869>]
+        * [<Node#129419446086>(subsystem_jump.gd)]
+        * [<Node#129436223303>(subsystem_containers.gd)]
+        * [<Node#129453000520>(subsystem_portraits.gd)]
+        * [<Node#129989871433>(subsystem_save.gd)]
+        * [<Timer#130006648650>]
+        * [<Node#130023425867>(subsystem_settings.gd)]
+        * [<Node#130040203087>(subsystem_styles.gd)]
+        * [<Node#130056980304>(subsystem_text.gd)]
+        * [<Node#130140866389>(subsystem_text_input.gd)]
+        * [<Node#130157643606>(subsystem_variables.gd)]
+        * [<Node#130174420823>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#130191198040>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+Totals
+------
+Scripts              15
+Tests               187
+Passing Tests       187
+Asserts            4538
+Orphans              24
+Time              11.048s
+
+
+---- All tests passed! ----
+

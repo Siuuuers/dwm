@@ -1,0 +1,90 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-ui-build/.godot/phase2r_tests/bc6eddac-b45f-4f17-beb0-3e0eb54a8fb5/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+
+
+res://tests/unit/test_return_input_retirement.gd
+* test_abandonment_custody_excludes_other_owners_and_external_commands
+* test_retirement_requires_exact_suspended_handle_and_dedicated_custody
+* test_held_contact_survives_retirement_until_release_and_next_frame
+* test_retry_does_not_requarantine_fresh_input_or_retire_new_pause
+* test_retirement_refuses_fatal_gate_and_leaves_suspension_intact
+5/5 passed.
+
+
+res://tests/unit/test_pause_input_custody.gd
+* test_exact_handle_admission_idempotence_and_refusal_are_atomic
+* test_malformed_handles_never_change_custody_or_expose_partial_values
+* test_native_held_contacts_require_all_releases_after_resume
+* test_release_observed_while_tree_paused_does_not_poison_fresh_input
+* test_source_policy_refuses_paused_and_held_contacts_then_accepts_fresh_contacts
+* test_pending_pointer_is_canceled_and_pause_always_button_still_operates
+6/6 passed.
+
+
+res://tests/unit/test_application_mutation_gate.gd
+* test_application_mutation_gate_exists_with_contract
+* test_acquire_release_guard_owner_rules
+* test_causal_transaction_is_a_valid_owner
+* test_latch_fatal_input_validation_changes_nothing
+* test_first_latch_repeat_and_conflict
+* test_post_latch_fences_all_operations
+* test_single_production_gate_class
+7/7 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/unit/test_return_input_retirement.gd
+    - Outside Tests
+        * [<Node#100579411692>(subsystem_animation.gd)]
+        * [<Node#100596188909>(subsystem_audio.gd)]
+        * [<Node#100612966126>]
+        * [<Node#100629743343>]
+        * [<Node#100646520560>(subsystem_backgrounds.gd)]
+        * [<Node#101183391473>(subsystem_choices.gd)]
+        * [<Timer#101200168690>]
+        * [<Node#101216945907>(subsystem_expression.gd)]
+        * [<Node#101250500344>(subsystem_glossary.gd)]
+        * [<Node#101267277561>(subsystem_history.gd)]
+        * [<Node#101284054778>(subsystem_input.gd)]
+        * [<Timer#101300831995>]
+        * [<Node#101317609212>(subsystem_jump.gd)]
+        * [<Node#101334386429>(subsystem_containers.gd)]
+        * [<Node#101351163646>(subsystem_portraits.gd)]
+        * [<Node#101888034559>(subsystem_save.gd)]
+        * [<Timer#101904811776>]
+        * [<Node#101921588993>(subsystem_settings.gd)]
+        * [<Node#101938366213>(subsystem_styles.gd)]
+        * [<Node#101955143430>(subsystem_text.gd)]
+        * [<Node#102039029515>(subsystem_text_input.gd)]
+        * [<Node#102055806732>(subsystem_variables.gd)]
+        * [<Node#102072583949>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#102089361166>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+Totals
+------
+Scripts               3
+Tests                18
+Passing Tests        18
+Asserts             195
+Orphans              24
+Time              0.619s
+
+
+---- All tests passed! ----
+

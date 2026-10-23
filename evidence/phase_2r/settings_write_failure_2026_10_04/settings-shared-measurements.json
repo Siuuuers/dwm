@@ -1,0 +1,413 @@
+{
+	"captures": 3,
+	"failure": "",
+	"glyph_scope": "Authored locale primary font plus explicit companion-font coverage and full-size geometry checks; no claim of perceptual or screen-reader acceptance. Offscreen sheet rows remain reachable by vertical scroll.",
+	"ok": true,
+	"palette_scope": "AfterHours Standard ordinary targets only.",
+	"samples": [
+		{
+			"colour_preset": "standard",
+			"file": "en-100-AfterHours-standard-failure-before.png",
+			"focus": "AccessibilityHighContrastRowControl",
+			"high_contrast": false,
+			"large_targets": false,
+			"locale": "en",
+			"logical_size": [
+				1280,
+				720
+			],
+			"native_size": [
+				640,
+				360
+			],
+			"palette": "AfterHours",
+			"primary_font": "res://assets/ui/gallery/fonts/fusion-pixel-8px-proportional-latin.otf.woff2",
+			"sheet_extent": 873.0,
+			"sheet_scroll": 873,
+			"state": "failure-before",
+			"text_metrics": [
+				{
+					"font_size": 24,
+					"minimum_height": 36.0,
+					"node": "RailScroll/Rail/LanguageCategory/@Label@35",
+					"size": [
+						172.0,
+						52.0
+					],
+					"text": "Language",
+					"unwrapped_advance": 96.0
+				},
+				{
+					"font_size": 24,
+					"minimum_height": 36.0,
+					"node": "RailScroll/Rail/ReadingCategory/@Label@45",
+					"size": [
+						172.0,
+						52.0
+					],
+					"text": "Reading",
+					"unwrapped_advance": 87.0
+				},
+				{
+					"font_size": 24,
+					"minimum_height": 36.0,
+					"node": "RailScroll/Rail/AudioCategory/@Label@85",
+					"size": [
+						172.0,
+						52.0
+					],
+					"text": "Audio",
+					"unwrapped_advance": 63.0
+				},
+				{
+					"font_size": 24,
+					"minimum_height": 36.0,
+					"node": "RailScroll/Rail/DisplayCategory/@Label@107",
+					"size": [
+						172.0,
+						52.0
+					],
+					"text": "Display",
+					"unwrapped_advance": 87.0
+				},
+				{
+					"font_size": 24,
+					"minimum_height": 36.0,
+					"node": "RailScroll/Rail/ControlsCategory/@Label@126",
+					"size": [
+						172.0,
+						52.0
+					],
+					"text": "Controls",
+					"unwrapped_advance": 99.0
+				},
+				{
+					"font_size": 24,
+					"minimum_height": 36.0,
+					"node": "RailScroll/Rail/AccessibilityCategory/@Label@198",
+					"size": [
+						172.0,
+						52.0
+					],
+					"text": "Accessibility",
+					"unwrapped_advance": 159.0
+				},
+				{
+					"font_size": 24,
+					"minimum_height": 36.0,
+					"node": "RailScroll/Rail/RecordsCategory/@Label@248",
+					"size": [
+						172.0,
+						52.0
+					],
+					"text": "Records",
+					"unwrapped_advance": 87.0
+				},
+				{
+					"font_size": 24,
+					"minimum_height": 36.0,
+					"node": "Heading/CategoryHeading",
+					"size": [
+						512.0,
+						64.0
+					],
+					"text": "Accessibility",
+					"unwrapped_advance": 159.0
+				},
+				{
+					"font_size": 24,
+					"minimum_height": 36.0,
+					"node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityFontStyleRow/@Label@199",
+					"size": [
+						500.0,
+						36.0
+					],
+					"text": "Font style",
+					"unwrapped_advance": 123.0
+				},
+				{
+					"font_size": 24,
+					"node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityFontStyleRow/AccessibilityFontStyleRowControl",
+					"text": "Pixel",
+					"text_advance": 63.0,
+					"text_aperture": 456.0
+				},
+				{
+					"font_size": 24,
+					"minimum_height": 36.0,
+					"node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityTextSizeRow/@Label@208",
+					"size": [
+						500.0,
+						36.0
+					],
+					"text": "Text size",
+					"unwrapped_advance": 114.0
+				},
+				{
+					"font_size": 24,
+					"node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityTextSizeRow/AccessibilityTextSizeRowControl",
+					"text": "100%",
+					"text_advance": 60.0,
+					"text_aperture": 456.0
+				},
+				{
+					"font_size": 24,
+					"minimum_height": 36.0,
+					"node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityLargeTargetsRow/@Label@217",
+					"size": [
+						500.0,
+						36.0
+					],
+					"text": "Large targets",
+					"unwrapped_advance": 159.0
+				},
+				{
+					"font_size": 24,
+					"node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityLargeTargetsRow/AccessibilityLargeTargetsRowControl",
+					"text": "Off",
+					"text_advance": 39.0,
+					"text_aperture": 440.0
+				},
+				{
+					"font_size": 24,
+					"minimum_height": 75.0,
+					"node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityLargeTargetsRow/LargeTargetsDescription",
+					"size": [
+						500.0,
+						75.0
+					],
+					"text": "Larger controls and on-screen focus navigation.",
+					"unwrapped_advance": 579.0
+				},
+				{
+					"font_size": 24,
+					"minimum_height": 36.0,
+					"node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityHighContrastRow/@Label@218",
+					"size": [
+						500.0,
+						36.0
+					],
+					"text": "High contrast",
+					"unwrapped_advance": 162.0
+				},
+				{
+					"font_size": 24,
+					"node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityHighContrastRow/AccessibilityHighContrastRowControl",
+					"text": "Off",
+					"text_advance": 39.0,
+					"text_aperture": 440.0
+				},
+				{
+					"font_size": 24,
+					"minimum_height": 36.0,
+					"node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityReducedMotionRow/@Label@219",
+					"size": [
+						500.0,
+						36.0
+					],
+					"text": "Reduced motion",
+					"unwrapped_advance": 180.0
+				},
+				{
+					"font_size": 24,
+					"node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityReducedMotionRow/AccessibilityReducedMotionRowControl",
+					"text": "Off",
+					"text_advance": 39.0,
+					"text_aperture": 440.0
+				},
+				{
+					"font_size": 24,
+					"minimum_height": 36.0,
+					"node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilitySteadyInterfaceRow/@Label@220",
+					"size": [
+						500.0,
+						36.0
+					],
+					"text": "Steady interface",
+					"unwrapped_advance": 198.0
+				},
+				{
+					"font_size": 24,
+					"node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilitySteadyInterfaceRow/AccessibilitySteadyInterfaceRowControl",
+					"text": "Off",
+					"text_advance": 39.0,
+					"text_aperture": 440.0
+				},
+				{
+					"font_size": 24,
+					"minimum_height": 75.0,
+					"node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilitySteadyInterfaceRow/SteadyInterfaceDescription",
+					"size": [
+						500.0,
+						75.0
+					],
+					"text": "Keeps launchers, panels and pointers where they were.",
+					"unwrapped_advance": 672.0
+				},
+				{
+					"font_size": 24,
+					"minimum_height": 36.0,
+					"node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityScreenShakeRow/@Label@221",
+					"size": [
+						500.0,
+						36.0
+					],
+					"text": "Screen shake",
+					"unwrapped_advance": 150.0
+				},
+				{
+					"font_size": 24,
+					"node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityScreenShakeRow/AccessibilityScreenShakeRowControl",
+					"text": "Low",
+					"text_advance": 42.0,
+					"text_aperture": 456.0
+				},
+				{
+					"font_size": 24,
+					"minimum_height": 36.0,
+					"node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityColourDifferentiationRow/@Label@230",
+					"size": [
+						500.0,
+						36.0
+					],
+					"text": "Colour differentiation",
+					"unwrapped_advance": 270.0
+				},
+				{
+					"font_size": 24,
+					"node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityColourDifferentiationRow/AccessibilityColourDifferentiationRowControl",
+					"text": "Standard",
+					"text_advance": 99.0,
+					"text_aperture": 456.0
+				},
+				{
+					"font_size": 24,
+					"minimum_height": 36.0,
+					"node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilitySoundDetailTextRow/@Label@239",
+					"size": [
+						500.0,
+						36.0
+					],
+					"text": "Sound detail text",
+					"unwrapped_advance": 213.0
+				},
+				{
+					"font_size": 24,
+					"node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilitySoundDetailTextRow/AccessibilitySoundDetailTextRowControl",
+					"text": "Story relevant",
+					"text_advance": 174.0,
+					"text_aperture": 456.0
+				},
+				{
+					"font_size": 24,
+					"minimum_height": 75.0,
+					"node": "SheetScroll/Sheets/AccessibilitySheet/ListeningComfortNote",
+					"size": [
+						500.0,
+						75.0
+					],
+					"text": "Set a comfortable device volume. Stop and rest if sound feels uncomfortable.",
+					"unwrapped_advance": 969.0
+				},
+				{
+					"font_size": 24,
+					"minimum_height": 36.0,
+					"node": "Footer/ControlSample/Selected/@Label@31",
+					"size": [
+						212.0,
+						56.0
+					],
+					"text": "Selected",
+					"unwrapped_advance": 99.0
+				},
+				{
+					"font_size": 24,
+					"minimum_height": 36.0,
+					"node": "Footer/ControlSample/Focus/@Label@32",
+					"size": [
+						212.0,
+						56.0
+					],
+					"text": "Focus",
+					"unwrapped_advance": 60.0
+				},
+				{
+					"font_size": 24,
+					"minimum_height": 36.0,
+					"node": "Footer/ControlSample/Warning/@Label@33",
+					"size": [
+						212.0,
+						56.0
+					],
+					"text": "Warning",
+					"unwrapped_advance": 90.0
+				},
+				{
+					"font_size": 24,
+					"minimum_height": 36.0,
+					"node": "Footer/ControlSample/Unavailable/@Label@34",
+					"size": [
+						212.0,
+						56.0
+					],
+					"text": "Unavailable",
+					"unwrapped_advance": 135.0
+				}
+			],
+			"text_percent": 100,
+			"workfield": [
+				480,
+				64,
+				800,
+				656
+			]
+		},
+		{
+			"cancel": false,
+			"departure_blocked": true,
+			"file": "failure-uncertain.png",
+			"file_operations": 64,
+			"input_blocked": true,
+			"message": "Unable to confirm whether the change was saved. Further changes and leaving Settings are unavailable.",
+			"retry": false,
+			"state": "failure-uncertain",
+			"text_metrics": [
+				{
+					"font_size": 24,
+					"minimum_height": 114.0,
+					"node": "SettingsWriteRecovery/RecoveryCenter/RecoveryPanel/Margin/Content/RecoveryBody",
+					"size": [
+						632.0,
+						114.0
+					],
+					"text": "Unable to confirm whether the change was saved. Further changes and leaving Settings are unavailable.",
+					"unwrapped_advance": 1278.0
+				}
+			]
+		},
+		{
+			"cancel": false,
+			"departure_blocked": true,
+			"file": "failure-refused.png",
+			"file_operations": 64,
+			"input_blocked": true,
+			"message": "Unable to confirm whether the change was saved. Further changes and leaving Settings are unavailable.",
+			"retry": false,
+			"state": "failure-refused",
+			"text_metrics": [
+				{
+					"font_size": 24,
+					"minimum_height": 114.0,
+					"node": "SettingsWriteRecovery/RecoveryCenter/RecoveryPanel/Margin/Content/RecoveryBody",
+					"size": [
+						632.0,
+						114.0
+					],
+					"text": "Unable to confirm whether the change was saved. Further changes and leaving Settings are unavailable.",
+					"unwrapped_advance": 1278.0
+				}
+			]
+		}
+	],
+	"scope": "Actual Pause Settings keyboard journey with real Profile/Localization/Input and in-memory marker-cleanup refusal after durable promotion; no physical disk or OS-crash claim."
+}

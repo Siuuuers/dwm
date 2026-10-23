@@ -1,0 +1,39 @@
+{
+  "status": "FAILED_DIAGNOSTIC_ONLY_NOT_ACCEPTANCE",
+  "run_id": 37092368181,
+  "source": "75d129b1c8a79f7cb11dc0d5de75a02ea55f8965",
+  "actual_checkout": "75d129b1c8a79f7cb11dc0d5de75a02ea55f8965",
+  "workflow_head": "e91e0b50bd5e8720a3c40d48d02dbd3439dd04ef",
+  "actual_checkout_by_job": {
+    "111115218160": "75d129b1c8a79f7cb11dc0d5de75a02ea55f8965",
+    "111116111161": "75d129b1c8a79f7cb11dc0d5de75a02ea55f8965",
+    "111116111162": "75d129b1c8a79f7cb11dc0d5de75a02ea55f8965",
+    "111116111219": "75d129b1c8a79f7cb11dc0d5de75a02ea55f8965",
+    "111116111235": "75d129b1c8a79f7cb11dc0d5de75a02ea55f8965",
+    "111116111243": "75d129b1c8a79f7cb11dc0d5de75a02ea55f8965",
+    "111116111247": "75d129b1c8a79f7cb11dc0d5de75a02ea55f8965",
+    "111116111291": "75d129b1c8a79f7cb11dc0d5de75a02ea55f8965"
+  },
+  "job_count": 8,
+  "executed_jobs": 8,
+  "skipped_job_records": 0,
+  "original_artifacts": 13,
+  "extracted_files_reproducible": 490,
+  "diagnosis": [
+    "Failed run: six successful jobs and two failed jobs; no current acceptance.",
+    "Across five ordinary suites, 1266 cases execute with one failed outdated reading-delivery refusal control; reading_delivery itself has 515 cases (514 pass, 1 fail). The 35 targeted XML cases pass, but raw native execution has an invalid-Tween resume error during foreign-timeline fixture teardown.",
+    "The old refusal control used an eligible hidden non-skippable Wait; source correction selects the visible-Wait boundary while retaining refusal behavior outside the admitted hold.",
+    "The rendered process supplied signed nonzero Godot ObjectID values; the positive-only Python checker rejected them. Corrected bounded Python re-audit is diagnostic and does not change the failed cloud job.",
+    "Import warnings and all original logs remain preserved; successful component observations cannot accept the failed run."
+  ],
+  "all_capture_records_archived": true,
+  "capture_omissions": {},
+  "intentional_representation": [
+    "Extracted member bytes are stored inside their original ZIP once and fully inventoried, not silently omitted.",
+    "Partial duplicate captures hold-focus1-public, hold-focus1-reading and hold-focus1-render are not included; their complete original ZIPs and extraction members are already retained. The root visual review is retained separately.",
+    "Source-stage changed-file copies are replaced by exact Git source-context snapshots; their original publication/manifests are retained.",
+    "Mutable future-run auditors are excluded; frozen Focus1 v1/v2 auditor copies and dated correction receipts are used."
+  ],
+  "no_new_runtime_acceptance": true,
+  "no_local_engine_or_powershell": true
+}

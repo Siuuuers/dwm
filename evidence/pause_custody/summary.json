@@ -1,0 +1,30 @@
+{
+  "task": "dwm-eei.3",
+  "base_commit": "c147f8f7f3107fdc8b15b34e609665bfa212d537",
+  "acceptance_suite": "pause-accepted-20260907b",
+  "scripts": 23,
+  "tests": 317,
+  "passing_tests": 317,
+  "assertions": 7733,
+  "exit_code": 0,
+  "script_errors": 0,
+  "addon_fixture_orphans": 2640,
+  "gpu_exit_code": 0,
+  "gpu_captures": 49,
+  "gpu_measurements": 163,
+  "ordinary_return_tuples": 144,
+  "raw_log_sha256": {
+    "pause-dependencies-20260907a.log": "169a73ea01c968459e0f5ec7e6aa5fadf20c39a8f68883fdfed6082e8ff8f587",
+    "pause-components-20260907b.log": "781c86304a5ef3fd1383e35dad491c314a246ce790e53494ff89975b4893ccd2",
+    "pause-components-20260907c.log": "9fcbbc478a6de4815894f1654e70b055edc229b9bbf08069606f45c7e7d177ee",
+    "pause-accepted-20260907b.log": "34446e09c01975a326417d297c6f049cacc4c0df97170b3dc5f14c924f93887b",
+    "pause-gpu-20260907a.log": "be66d0638fb08c401c196916697aba15cbc211b0cea74fdee0e5c77c907b3aa6"
+  },
+  "production_pause_mounted": false,
+  "full_pause_complete": false,
+  "overall_ui_goal_complete": false,
+  "save_schema_changed": false,
+  "player_data_used": false,
+  "merged": false,
+  "pushed": false
+}

@@ -1,0 +1,90 @@
+{
+	"captures": [
+		{
+			"accessibility_live": "polite",
+			"accessibility_name": "Read Aloud encountered a problem.",
+			"caption_fully_revealed": true,
+			"caption_state_preserved": true,
+			"changed_pixels": 5702,
+			"current_caption": "Synthetic caption fixture. This sentence checks the current caption at its full requested font size.",
+			"current_caption_rect": "[P: (16.0, 584.0), S: (1248.0, 72.0)]",
+			"file": "C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/7171ce05-7a84-47f4-b246-002639e582a3/dwm_test_root/32112/1/witnessed-speech-status-capture/witnessed-speech-status/en-150-speech-failure.png",
+			"focus_owner": "/root/@SubViewport@12/DialogicLayout_WitnessedCaption/WitnessedCaptionLayer/Canvas/Scroll/Stack/Caption",
+			"image_size": [
+				1280,
+				720
+			],
+			"locale": "en",
+			"outside_status_pixels_changed": 0,
+			"retained_captions": [
+				"Earlier synthetic caption.",
+				"Previous synthetic caption."
+			],
+			"status_focus_mode": "none",
+			"status_has_focus": false,
+			"status_rect": "[P: (24, 264), S: (1232, 64)]",
+			"status_text": "Read Aloud encountered a problem.",
+			"synthetic_substrate_outside_status_preserved": true,
+			"text_percent": 150,
+			"text_pixel_bounds": "[P: (25, 284), S: (448, 29)]"
+		},
+		{
+			"accessibility_live": "polite",
+			"accessibility_name": "朗读遇到问题。",
+			"caption_fully_revealed": true,
+			"caption_state_preserved": true,
+			"changed_pixels": 4263,
+			"current_caption": "字幕测试样本。这段合成文字用于检查当前字幕的位置、完整字号与阅读空间。",
+			"current_caption_rect": "[P: (16.0, 580.0), S: (1248.0, 76.0)]",
+			"file": "C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/7171ce05-7a84-47f4-b246-002639e582a3/dwm_test_root/32112/1/witnessed-speech-status-capture/witnessed-speech-status/zh-CN-150-speech-failure.png",
+			"focus_owner": "/root/@SubViewport@12/DialogicLayout_WitnessedCaption/WitnessedCaptionLayer/Canvas/Scroll/Stack/Caption",
+			"image_size": [
+				1280,
+				720
+			],
+			"locale": "zh-CN",
+			"outside_status_pixels_changed": 0,
+			"retained_captions": [
+				"较早的字幕测试样本。",
+				"上一条字幕测试样本。"
+			],
+			"status_focus_mode": "none",
+			"status_has_focus": false,
+			"status_rect": "[P: (24, 264), S: (1232, 64)]",
+			"status_text": "朗读遇到问题。",
+			"synthetic_substrate_outside_status_preserved": true,
+			"text_percent": 150,
+			"text_pixel_bounds": "[P: (24, 282), S: (192, 32)]"
+		},
+		{
+			"accessibility_live": "polite",
+			"accessibility_name": "朗讀遇到問題。",
+			"caption_fully_revealed": true,
+			"caption_state_preserved": true,
+			"changed_pixels": 4528,
+			"current_caption": "字幕測試樣本。這段合成文字用於檢查目前字幕的位置、完整字號與閱讀空間。",
+			"current_caption_rect": "[P: (16.0, 580.0), S: (1248.0, 76.0)]",
+			"file": "C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/7171ce05-7a84-47f4-b246-002639e582a3/dwm_test_root/32112/1/witnessed-speech-status-capture/witnessed-speech-status/zh-HK-150-speech-failure.png",
+			"focus_owner": "/root/@SubViewport@12/DialogicLayout_WitnessedCaption/WitnessedCaptionLayer/Canvas/Scroll/Stack/Caption",
+			"image_size": [
+				1280,
+				720
+			],
+			"locale": "zh-HK",
+			"outside_status_pixels_changed": 0,
+			"retained_captions": [
+				"較早的字幕測試樣本。",
+				"上一條字幕測試樣本。"
+			],
+			"status_focus_mode": "none",
+			"status_has_focus": false,
+			"status_rect": "[P: (24, 264), S: (1232, 64)]",
+			"status_text": "朗讀遇到問題。",
+			"synthetic_substrate_outside_status_preserved": true,
+			"text_percent": 150,
+			"text_pixel_bounds": "[P: (24, 282), S: (201, 32)]"
+		}
+	],
+	"failures": [],
+	"scope": "Synthetic captions through the installed Witnessed style and its actual mounted polite speech status; no authored-story, human audibility, or screen-reader parity claim"
+}

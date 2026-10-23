@@ -1,0 +1,15 @@
+{
+  "autoload/GameState.gd": "5eebce451ba3623f870872e9a0c0484bbefa516e4d2cdf91bc67f2cc8588ce5e",
+  "evidence/phase_2r/runtime/game_state_required_surface.json": "d8b8b1c825e8f8b8141587142f39b7af2d1e12525d29c951d066be83cd2aa0f8",
+  "evidence/phase_2r/runtime/game_state_surface.json": "90906870caf87dc70b58f63a0db8903a0bc9efd5f279c003171c21306c718c9a",
+  "evidence/phase_2r/runtime/save_manager_required_surface.json": "de79e0d3ee9cb02ecd8661c32490bc1eed38f658155e49ad998434e7e9f84e96",
+  "evidence/phase_2r/runtime/save_manager_surface.json": "977b9ea9546ddc737f528a0daccfa22c3337a0412401586ef52d0de18c6e31f0",
+  "scripts/domain/contact/ContactInvitationState.gd": "0cccd5616d487f7f44e159e6bc0a18ea33288638ca9e6531c5efc734d629c31f",
+  "tests/unit/test_game_state.gd": "22d94de9e9ce503962485db2a2fde4e64881037b3b2eea89156edb2353e3154a",
+  "tests/unit/test_game_state_calendar_queries.gd": "69a0170293050dc48514ff1366ed1fc07cb7951668741ae989023229f2c1c7ed",
+  "tests/unit/test_game_state_facade_contract.gd": "1afba44bdca5e029d58fbee1bbc428eca309c67e3dbc367a069c3d33e3c3514b",
+  "tests/unit/test_game_state_public_queries.gd": "10407e4a371a06ff47f4184adfdd31440ed7e6c8e65968f55498755700f5e275",
+  "tests/unit/test_seven_day_calendar.gd": "a1b9b033e2aacb854bd32c407a90f1ab6101fa329a20563a58346704a1c6f9f7",
+  "tests/unit/tooling/test_doc_validator.gd": "50f009daa9cc0872ea4db5449d31a4ea9d5a8de1ae1b8e689d7b6b450d816da8",
+  "tests/unit/tooling/test_public_surface_inventory.gd": "536097a273d289c829688ca6070c2c8162e40e6fbee03f38aacc9947ede812be"
+}

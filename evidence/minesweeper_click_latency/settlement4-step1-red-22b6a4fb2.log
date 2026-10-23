@@ -1,0 +1,107 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/click-latency-3/.godot/phase2r_tests/b000196c-fb4b-4b61-be1c-9927db4101bc/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+res://tests/unit/test_desktop_publication_ledger.gd
+* test_fixed_path_and_kinds_are_frozen
+* test_missing_file_initializes_the_exact_empty_document
+* test_three_exact_kind_unions_accepted_and_extra_kind_rejected
+* test_document_and_record_union_is_exact_after_one_publication
+* test_causal_sequence_keys_are_nonblank_and_distinct_per_transaction
+* test_action_source_key_derives_from_commit_receipt_id_not_receipt_id
+* test_board_fate_key_derives_from_ordinary_receipt_id
+* test_causal_sequence_semantic_receipt_equals_publication_in_its_entirety
+* test_first_delivery_then_byte_identical_replay_across_a_cold_restart
+* test_occupied_key_with_changed_bytes_conflicts_without_rewriting_storage
+* test_request_hash_and_receipt_binding_enforced_before_any_write
+* test_configure_requires_the_root_scoped_capability_and_refuses_replacement
+* test_load_fails_closed_on_malformed_on_disk_json
+* test_exact_text_validation_cache_is_bounded_and_changed_bytes_fail_closed
+* test_disjoint_from_plan01_schedule_foundation_ledger
+* test_commit_normalizes_the_new_record_by_walk_not_by_reparse
+    [Failed]:  the ledger must own an identity-preserving _normalize_engine_text() walk
+      at line 431
+    [Failed]:  the new record must no longer be normalized by strict-parsing its own canonical emit
+      at line 433
+    [Failed]:  _confirm_written_entry must compare the durable record with CanonicalJsonWriter._deep_same
+      at line 436
+    [Failed]:  _confirm_written_entry must not emit the candidate and the re-read record a second time
+      at line 438
+* test_engine_typed_board_fate_entry_writes_the_exact_emit_reparse_bytes
+* test_normalize_engine_text_folds_string_names_and_preserves_identity_and_number_types
+    [Failed]:  DesktopPublicationLedger must own static _normalize_engine_text()
+      at line 507
+16/18 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/unit/test_desktop_publication_ledger.gd
+    - Outside Tests
+        * [<Node#131264939798>(subsystem_animation.gd)]
+        * [<Node#131281717026>(subsystem_audio.gd)]
+        * [<Node#131298494258>]
+        * [<Node#131315271483>]
+        * [<Node#131332048705>(subsystem_backgrounds.gd)]
+        * [<Node#131868919618>(subsystem_choices.gd)]
+        * [<Timer#131885696835>]
+        * [<Node#131902474052>(subsystem_expression.gd)]
+        * [<Node#131936028489>(subsystem_glossary.gd)]
+        * [<Node#131952805706>(subsystem_history.gd)]
+        * [<Node#131969582923>(subsystem_input.gd)]
+        * [<Timer#131986360140>]
+        * [<Node#132003137357>(subsystem_jump.gd)]
+        * [<Node#132019914574>(subsystem_containers.gd)]
+        * [<Node#132036691791>(subsystem_portraits.gd)]
+        * [<Node#132573562704>(subsystem_save.gd)]
+        * [<Timer#132590339921>]
+        * [<Node#132607117138>(subsystem_settings.gd)]
+        * [<Node#132623894358>(subsystem_styles.gd)]
+        * [<Node#132640671575>(subsystem_text.gd)]
+        * [<Node#132724557660>(subsystem_text_input.gd)]
+        * [<Node#132741334877>(subsystem_variables.gd)]
+        * [<Node#132758112094>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#132774889311>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+res://tests/unit/test_desktop_publication_ledger.gd
+- test_commit_normalizes_the_new_record_by_walk_not_by_reparse
+    [Failed]:  the ledger must own an identity-preserving _normalize_engine_text() walk
+          at line 431
+    [Failed]:  the new record must no longer be normalized by strict-parsing its own canonical emit
+          at line 433
+    [Failed]:  _confirm_written_entry must compare the durable record with CanonicalJsonWriter._deep_same
+          at line 436
+    [Failed]:  _confirm_written_entry must not emit the candidate and the re-read record a second time
+          at line 438
+- test_normalize_engine_text_folds_string_names_and_preserves_identity_and_number_types
+    [Failed]:  DesktopPublicationLedger must own static _normalize_engine_text()
+          at line 507
+
+Totals
+------
+Scripts               1
+Tests                18
+Passing Tests        16
+Failing Tests         2
+Asserts           164/169
+Orphans              24
+Time              0.995s
+
+
+---- 2 failing tests ----

@@ -1,0 +1,1383 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2570)
+[   0% ] first_scan_filesystem | Started 项目初始化 (5 steps)
+[   0% ] first_scan_filesystem | 正在扫描文件结构……
+[  16% ] first_scan_filesystem | 正在加载全局类名……
+[  33% ] first_scan_filesystem | 正在校验 GDExtension……
+[  50% ] first_scan_filesystem | 正在创建自动加载脚本……
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+[  66% ] first_scan_filesystem | 正在初始化插件……
+[  83% ] first_scan_filesystem | 正在启动文件扫描……
+[ DONE ] first_scan_filesystem
+
+[   0% ] update_scripts_classes | Started 正在注册全局类…… (166 steps)
+[   0% ] update_scripts_classes | DialogicGameHandler
+[   0% ] update_scripts_classes |
+[   1% ] update_scripts_classes | DialogicNode_DialogText
+[   1% ] update_scripts_classes |
+[   2% ] update_scripts_classes |
+[   2% ] update_scripts_classes |
+[   3% ] update_scripts_classes |
+[   4% ] update_scripts_classes |
+[   4% ] update_scripts_classes |
+[   5% ] update_scripts_classes |
+[   5% ] update_scripts_classes |
+[   6% ] update_scripts_classes | BackupPresentationPort
+[   7% ] update_scripts_classes |
+[   7% ] update_scripts_classes | GameStateDesktopBoardPort
+[   8% ] update_scripts_classes | MinesweeperAssignmentsQuery
+[   8% ] update_scripts_classes |
+[   9% ] update_scripts_classes | MinesweeperPanelPort
+[  10% ] update_scripts_classes | MinesweeperPresentationPort
+[  10% ] update_scripts_classes | MinesweeperRegisterQuery
+[  11% ] update_scripts_classes |
+[  11% ] update_scripts_classes | ProfileRestoreParticipant
+[  12% ] update_scripts_classes | ListeningComfortNoticeCoordinator
+[  13% ] update_scripts_classes | AudioPlaybackPort
+[  13% ] update_scripts_classes | MinesweeperBoardCatalog
+[  14% ] update_scripts_classes | DialogicPreferenceAdapter
+[  14% ] update_scripts_classes | DialogicRuntimeAdapter
+[  15% ] update_scripts_classes | ProfileMigration
+[  16% ] update_scripts_classes | ProfileSchema
+[  16% ] update_scripts_classes |
+[  17% ] update_scripts_classes |
+[  17% ] update_scripts_classes |
+[  18% ] update_scripts_classes |
+[  19% ] update_scripts_classes |
+[  19% ] update_scripts_classes |
+[  20% ] update_scripts_classes | SettingsPreferenceRegistry
+[  20% ] update_scripts_classes |
+[  21% ] update_scripts_classes |
+[  22% ] update_scripts_classes |
+[  22% ] update_scripts_classes |
+[  23% ] update_scripts_classes |
+[  23% ] update_scripts_classes |
+[  24% ] update_scripts_classes |
+[  25% ] update_scripts_classes |
+[  25% ] update_scripts_classes |
+[  26% ] update_scripts_classes |
+[  26% ] update_scripts_classes |
+[  27% ] update_scripts_classes |
+[  28% ] update_scripts_classes |
+[  28% ] update_scripts_classes |
+[  29% ] update_scripts_classes |
+[  29% ] update_scripts_classes |
+[  30% ] update_scripts_classes |
+[  31% ] update_scripts_classes |
+[  31% ] update_scripts_classes |
+[  32% ] update_scripts_classes |
+[  32% ] update_scripts_classes |
+[  33% ] update_scripts_classes |
+[  34% ] update_scripts_classes |
+[  34% ] update_scripts_classes |
+[  35% ] update_scripts_classes |
+[  35% ] update_scripts_classes |
+[  36% ] update_scripts_classes | BackupApp
+[  37% ] update_scripts_classes | ComputerDesktop
+[  37% ] update_scripts_classes | ContactListApp
+[  38% ] update_scripts_classes | HospitalScene
+[  38% ] update_scripts_classes | MenuScene
+[  39% ] update_scripts_classes | MinesweeperApp
+[  40% ] update_scripts_classes | Setting
+[  40% ] update_scripts_classes | SettingsApp
+[  41% ] update_scripts_classes | SettingsContent
+[  41% ] update_scripts_classes |
+[  42% ] update_scripts_classes | SettingsPanelController
+[  43% ] update_scripts_classes |
+[  43% ] update_scripts_classes | SettingsTheme
+[  44% ] update_scripts_classes | StatHud
+[  44% ] update_scripts_classes |
+[  45% ] update_scripts_classes |
+[  46% ] update_scripts_classes |
+[  46% ] update_scripts_classes |
+[  47% ] update_scripts_classes |
+[  47% ] update_scripts_classes |
+[  48% ] update_scripts_classes |
+[  49% ] update_scripts_classes |
+[  49% ] update_scripts_classes |
+[  50% ] update_scripts_classes |
+[  50% ] update_scripts_classes |
+[  51% ] update_scripts_classes |
+[  52% ] update_scripts_classes |
+[  52% ] update_scripts_classes |
+[  53% ] update_scripts_classes |
+[  53% ] update_scripts_classes |
+[  54% ] update_scripts_classes |
+[  55% ] update_scripts_classes |
+[  55% ] update_scripts_classes |
+[  56% ] update_scripts_classes |
+[  56% ] update_scripts_classes |
+[  57% ] update_scripts_classes |
+[  58% ] update_scripts_classes |
+[  58% ] update_scripts_classes |
+[  59% ] update_scripts_classes |
+[  59% ] update_scripts_classes |
+[  60% ] update_scripts_classes |
+[  61% ] update_scripts_classes |
+[  61% ] update_scripts_classes |
+[  62% ] update_scripts_classes |
+[  62% ] update_scripts_classes |
+[  63% ] update_scripts_classes |
+[  64% ] update_scripts_classes |
+[  64% ] update_scripts_classes |
+[  65% ] update_scripts_classes |
+[  65% ] update_scripts_classes |
+[  66% ] update_scripts_classes |
+[  67% ] update_scripts_classes |
+[  67% ] update_scripts_classes |
+[  68% ] update_scripts_classes |
+[  68% ] update_scripts_classes |
+[  69% ] update_scripts_classes |
+[  70% ] update_scripts_classes |
+[  70% ] update_scripts_classes |
+[  71% ] update_scripts_classes |
+[  71% ] update_scripts_classes |
+[  72% ] update_scripts_classes |
+[  73% ] update_scripts_classes |
+[  73% ] update_scripts_classes |
+[  74% ] update_scripts_classes |
+[  74% ] update_scripts_classes |
+[  75% ] update_scripts_classes |
+[  76% ] update_scripts_classes |
+[  76% ] update_scripts_classes |
+[  77% ] update_scripts_classes |
+[  77% ] update_scripts_classes |
+[  78% ] update_scripts_classes |
+[  79% ] update_scripts_classes |
+[  79% ] update_scripts_classes |
+[  80% ] update_scripts_classes |
+[  80% ] update_scripts_classes |
+[  81% ] update_scripts_classes |
+[  82% ] update_scripts_classes |
+[  82% ] update_scripts_classes |
+[  83% ] update_scripts_classes |
+[  83% ] update_scripts_classes |
+[  84% ] update_scripts_classes |
+[  85% ] update_scripts_classes |
+[  85% ] update_scripts_classes |
+[  86% ] update_scripts_classes |
+[  86% ] update_scripts_classes |
+[  87% ] update_scripts_classes |
+[  88% ] update_scripts_classes |
+[  88% ] update_scripts_classes |
+[  89% ] update_scripts_classes |
+[  89% ] update_scripts_classes |
+[  90% ] update_scripts_classes |
+[  91% ] update_scripts_classes |
+[  91% ] update_scripts_classes |
+[  92% ] update_scripts_classes |
+[  92% ] update_scripts_classes |
+[  93% ] update_scripts_classes |
+[  94% ] update_scripts_classes |
+[  94% ] update_scripts_classes |
+[  95% ] update_scripts_classes |
+[  95% ] update_scripts_classes |
+[  96% ] update_scripts_classes |
+[  97% ] update_scripts_classes |
+[  97% ] update_scripts_classes |
+[  98% ] update_scripts_classes |
+[  98% ] update_scripts_classes |
+[ DONE ] update_scripts_classes
+
+[   0% ] _update_scan_actions | Started 正在扫描动作…… (394 steps)
+[   0% ] _update_scan_actions | after_hours-hc-deutan-en100.png
+[   0% ] _update_scan_actions | after_hours-hc-protan-zh-HK150-large.png
+[   0% ] _update_scan_actions | after_hours-hc-standard-zh-CN125.png
+[   0% ] _update_scan_actions | after_hours-hc-tritan-zh-CN125-rules.png
+[   1% ] _update_scan_actions | after_hours-hc-tritan-zh-CN125.png
+[   1% ] _update_scan_actions | after_hours-standard-deutan-zh-HK150-large.png
+[   1% ] _update_scan_actions | after_hours-standard-protan-zh-CN125.png
+[   1% ] _update_scan_actions | after_hours-standard-standard-en100.png
+[   2% ] _update_scan_actions | after_hours-standard-tritan-en100.png
+[   2% ] _update_scan_actions | midnight-hc-deutan-zh-HK150-large.png
+[   2% ] _update_scan_actions | midnight-hc-protan-zh-CN125.png
+[   2% ] _update_scan_actions | midnight-hc-standard-en100.png
+[   3% ] _update_scan_actions | midnight-hc-tritan-en100-assignments.png
+[   3% ] _update_scan_actions | midnight-hc-tritan-en100.png
+[   3% ] _update_scan_actions | midnight-standard-deutan-zh-CN125.png
+[   3% ] _update_scan_actions | midnight-standard-protan-en100.png
+[   4% ] _update_scan_actions | midnight-standard-standard-zh-HK150-large.png
+[   4% ] _update_scan_actions | midnight-standard-tritan-zh-HK150-large.png
+[   4% ] _update_scan_actions | active-en100.png
+[   4% ] _update_scan_actions | reopened-hk150-large.png
+[   5% ] _update_scan_actions | rules-cn125.png
+[   5% ] _update_scan_actions | composite-grids.png
+[   5% ] _update_scan_actions | en-after_hours.png
+[   5% ] _update_scan_actions | en-midnight.png
+[   6% ] _update_scan_actions | zh_CN-after_hours.png
+[   6% ] _update_scan_actions | zh_CN-midnight.png
+[   6% ] _update_scan_actions | zh_HK-after_hours.png
+[   6% ] _update_scan_actions | zh_HK-midnight.png
+[   7% ] _update_scan_actions | canonical-cn150-large.png
+[   7% ] _update_scan_actions | canonical-en125.png
+[   7% ] _update_scan_actions | desktop-cn125.png
+[   7% ] _update_scan_actions | desktop-en100.png
+[   8% ] _update_scan_actions | desktop-en150-large.png
+[   8% ] _update_scan_actions | desktop-hk150-large.png
+[   8% ] _update_scan_actions | assignments-hk150-large.png
+[   8% ] _update_scan_actions | panel-en100.png
+[   9% ] _update_scan_actions | panel-en150-large.png
+[   9% ] _update_scan_actions | rules-cn125.png
+[   9% ] _update_scan_actions | assignments-cn125-middle.png
+[   9% ] _update_scan_actions | assignments-en150-last.png
+[  10% ] _update_scan_actions | assignments-hk150-large-last.png
+[  10% ] _update_scan_actions | rules-canonical-en150.png
+[  10% ] _update_scan_actions | rules-cn100.png
+[  10% ] _update_scan_actions | rules-en100.png
+[  11% ] _update_scan_actions | rules-hk100-large.png
+[  11% ] _update_scan_actions | comparison-en100-ordinary.png
+[  11% ] _update_scan_actions | comparison-en150-large.png
+[  11% ] _update_scan_actions | en100-large-contacts.png
+[  12% ] _update_scan_actions | en100-large-panel.png
+[  12% ] _update_scan_actions | en100-ordinary-contacts.png
+[  12% ] _update_scan_actions | en100-ordinary-panel.png
+[  12% ] _update_scan_actions | en125-large-contacts.png
+[  13% ] _update_scan_actions | en125-large-panel.png
+[  13% ] _update_scan_actions | en125-ordinary-contacts.png
+[  13% ] _update_scan_actions | en125-ordinary-panel.png
+[  13% ] _update_scan_actions | en150-large-contacts.png
+[  14% ] _update_scan_actions | en150-large-panel.png
+[  14% ] _update_scan_actions | en150-ordinary-contacts.png
+[  14% ] _update_scan_actions | en150-ordinary-panel.png
+[  14% ] _update_scan_actions | zh-CN100-large-contacts.png
+[  15% ] _update_scan_actions | zh-CN100-large-panel.png
+[  15% ] _update_scan_actions | zh-CN100-ordinary-contacts.png
+[  15% ] _update_scan_actions | zh-CN100-ordinary-panel.png
+[  15% ] _update_scan_actions | zh-CN125-large-contacts.png
+[  16% ] _update_scan_actions | zh-CN125-large-panel.png
+[  16% ] _update_scan_actions | zh-CN125-ordinary-contacts.png
+[  16% ] _update_scan_actions | zh-CN125-ordinary-panel.png
+[  16% ] _update_scan_actions | zh-CN150-large-contacts.png
+[  17% ] _update_scan_actions | zh-CN150-large-panel.png
+[  17% ] _update_scan_actions | zh-CN150-ordinary-contacts.png
+[  17% ] _update_scan_actions | zh-CN150-ordinary-panel.png
+[  17% ] _update_scan_actions | zh-HK100-large-contacts.png
+[  18% ] _update_scan_actions | zh-HK100-large-panel.png
+[  18% ] _update_scan_actions | zh-HK100-ordinary-contacts.png
+[  18% ] _update_scan_actions | zh-HK100-ordinary-panel.png
+[  18% ] _update_scan_actions | zh-HK125-large-contacts.png
+[  19% ] _update_scan_actions | zh-HK125-large-panel.png
+[  19% ] _update_scan_actions | zh-HK125-ordinary-contacts.png
+[  19% ] _update_scan_actions | zh-HK125-ordinary-panel.png
+[  20% ] _update_scan_actions | zh-HK150-large-contacts.png
+[  20% ] _update_scan_actions | zh-HK150-large-panel.png
+[  20% ] _update_scan_actions | zh-HK150-ordinary-contacts.png
+[  20% ] _update_scan_actions | zh-HK150-ordinary-panel.png
+[  21% ] _update_scan_actions | beginner-en100.png
+[  21% ] _update_scan_actions | beginner-hk150-large.png
+[  21% ] _update_scan_actions | canonical-cn125.png
+[  21% ] _update_scan_actions | expert-en150-last-cell.png
+[  22% ] _update_scan_actions | en-100-AfterHours-ordinary-backup.png
+[  22% ] _update_scan_actions | en-100-AfterHours-ordinary-delete-confirmation.png
+[  22% ] _update_scan_actions | en-100-AfterHours-ordinary-operation-recovery.png
+[  22% ] _update_scan_actions | en-125-AfterHours-ordinary-backup.png
+[  23% ] _update_scan_actions | en-125-AfterHours-ordinary-delete-confirmation.png
+[  23% ] _update_scan_actions | en-125-AfterHours-ordinary-operation-recovery.png
+[  23% ] _update_scan_actions | en-150-AfterHours-ordinary-backup.png
+[  23% ] _update_scan_actions | en-150-AfterHours-ordinary-delete-confirmation.png
+[  24% ] _update_scan_actions | en-150-AfterHours-ordinary-operation-recovery.png
+[  24% ] _update_scan_actions | zh_CN-100-AfterHours-ordinary-backup.png
+[  24% ] _update_scan_actions | zh_CN-100-AfterHours-ordinary-delete-confirmation.png
+[  24% ] _update_scan_actions | zh_CN-100-AfterHours-ordinary-operation-recovery.png
+[  25% ] _update_scan_actions | zh_CN-125-AfterHours-ordinary-backup.png
+[  25% ] _update_scan_actions | zh_CN-125-AfterHours-ordinary-delete-confirmation.png
+[  25% ] _update_scan_actions | zh_CN-125-AfterHours-ordinary-operation-recovery.png
+[  25% ] _update_scan_actions | zh_CN-150-AfterHours-ordinary-backup.png
+[  26% ] _update_scan_actions | zh_CN-150-AfterHours-ordinary-delete-confirmation.png
+[  26% ] _update_scan_actions | zh_CN-150-AfterHours-ordinary-operation-recovery.png
+[  26% ] _update_scan_actions | zh_HK-100-AfterHours-ordinary-backup.png
+[  26% ] _update_scan_actions | zh_HK-100-AfterHours-ordinary-delete-confirmation.png
+[  27% ] _update_scan_actions | zh_HK-100-AfterHours-ordinary-operation-recovery.png
+[  27% ] _update_scan_actions | zh_HK-125-AfterHours-ordinary-backup.png
+[  27% ] _update_scan_actions | zh_HK-125-AfterHours-ordinary-delete-confirmation.png
+[  27% ] _update_scan_actions | zh_HK-125-AfterHours-ordinary-operation-recovery.png
+[  28% ] _update_scan_actions | zh_HK-150-AfterHours-ordinary-backup.png
+[  28% ] _update_scan_actions | zh_HK-150-AfterHours-ordinary-delete-confirmation.png
+[  28% ] _update_scan_actions | zh_HK-150-AfterHours-ordinary-operation-recovery.png
+[  28% ] _update_scan_actions | en-100-AfterHours-standard-standard-large-return.png
+[  29% ] _update_scan_actions | en-100-AfterHours-standard-standard-ordinary-continue.png
+[  29% ] _update_scan_actions | en-100-AfterHours-standard-standard-ordinary-return.png
+[  29% ] _update_scan_actions | en-100-Midnight-standard-standard-large-return.png
+[  29% ] _update_scan_actions | en-100-Midnight-standard-standard-ordinary-return.png
+[  30% ] _update_scan_actions | en-125-AfterHours-standard-standard-large-return.png
+[  30% ] _update_scan_actions | en-125-AfterHours-standard-standard-ordinary-return.png
+[  30% ] _update_scan_actions | en-125-Midnight-standard-standard-large-return.png
+[  30% ] _update_scan_actions | en-125-Midnight-standard-standard-ordinary-return.png
+[  31% ] _update_scan_actions | en-150-AfterHours-high-deutan-ordinary-return.png
+[  31% ] _update_scan_actions | en-150-AfterHours-high-protan-ordinary-return.png
+[  31% ] _update_scan_actions | en-150-AfterHours-high-standard-ordinary-return.png
+[  31% ] _update_scan_actions | en-150-AfterHours-high-tritan-ordinary-return.png
+[  32% ] _update_scan_actions | en-150-AfterHours-standard-standard-large-return.png
+[  32% ] _update_scan_actions | en-150-AfterHours-standard-standard-ordinary-return.png
+[  32% ] _update_scan_actions | en-150-Midnight-standard-standard-large-return.png
+[  32% ] _update_scan_actions | en-150-Midnight-standard-standard-ordinary-return.png
+[  33% ] _update_scan_actions | zh_CN-100-AfterHours-standard-standard-large-return.png
+[  33% ] _update_scan_actions | zh_CN-100-AfterHours-standard-standard-ordinary-return.png
+[  33% ] _update_scan_actions | zh_CN-100-Midnight-standard-standard-large-return.png
+[  33% ] _update_scan_actions | zh_CN-100-Midnight-standard-standard-ordinary-return.png
+[  34% ] _update_scan_actions | zh_CN-125-AfterHours-standard-standard-large-return.png
+[  34% ] _update_scan_actions | zh_CN-125-AfterHours-standard-standard-ordinary-return.png
+[  34% ] _update_scan_actions | zh_CN-125-Midnight-standard-standard-large-return.png
+[  34% ] _update_scan_actions | zh_CN-125-Midnight-standard-standard-ordinary-return.png
+[  35% ] _update_scan_actions | zh_CN-150-AfterHours-high-deutan-ordinary-return.png
+[  35% ] _update_scan_actions | zh_CN-150-AfterHours-high-protan-ordinary-return.png
+[  35% ] _update_scan_actions | zh_CN-150-AfterHours-high-standard-ordinary-return.png
+[  35% ] _update_scan_actions | zh_CN-150-AfterHours-high-tritan-ordinary-return.png
+[  36% ] _update_scan_actions | zh_CN-150-AfterHours-standard-standard-large-return.png
+[  36% ] _update_scan_actions | zh_CN-150-AfterHours-standard-standard-ordinary-return.png
+[  36% ] _update_scan_actions | zh_CN-150-Midnight-standard-standard-large-return.png
+[  36% ] _update_scan_actions | zh_CN-150-Midnight-standard-standard-ordinary-return.png
+[  37% ] _update_scan_actions | zh_HK-100-AfterHours-standard-standard-large-return.png
+[  37% ] _update_scan_actions | zh_HK-100-AfterHours-standard-standard-ordinary-return.png
+[  37% ] _update_scan_actions | zh_HK-100-Midnight-standard-standard-large-return.png
+[  37% ] _update_scan_actions | zh_HK-100-Midnight-standard-standard-ordinary-return.png
+[  38% ] _update_scan_actions | zh_HK-125-AfterHours-standard-standard-large-return.png
+[  38% ] _update_scan_actions | zh_HK-125-AfterHours-standard-standard-ordinary-return.png
+[  38% ] _update_scan_actions | zh_HK-125-Midnight-standard-standard-large-return.png
+[  38% ] _update_scan_actions | zh_HK-125-Midnight-standard-standard-ordinary-return.png
+[  39% ] _update_scan_actions | zh_HK-150-AfterHours-standard-standard-large-return.png
+[  39% ] _update_scan_actions | zh_HK-150-AfterHours-standard-standard-ordinary-return.png
+[  39% ] _update_scan_actions | zh_HK-150-Midnight-high-deutan-ordinary-return.png
+[  40% ] _update_scan_actions | zh_HK-150-Midnight-high-protan-ordinary-return.png
+[  40% ] _update_scan_actions | zh_HK-150-Midnight-high-standard-ordinary-return.png
+[  40% ] _update_scan_actions | zh_HK-150-Midnight-high-tritan-ordinary-return.png
+[  40% ] _update_scan_actions | zh_HK-150-Midnight-standard-standard-large-return.png
+[  41% ] _update_scan_actions | zh_HK-150-Midnight-standard-standard-ordinary-return.png
+[  41% ] _update_scan_actions | en100-AfterHours-short.png
+[  41% ] _update_scan_actions | en100-Midnight-short.png
+[  41% ] _update_scan_actions | en125-AfterHours-short.png
+[  42% ] _update_scan_actions | en125-Midnight-short.png
+[  42% ] _update_scan_actions | en150-AfterHours-overflow-unfocused.png
+[  42% ] _update_scan_actions | en150-AfterHours-overflow.png
+[  42% ] _update_scan_actions | en150-AfterHours-short.png
+[  43% ] _update_scan_actions | en150-Midnight-short.png
+[  43% ] _update_scan_actions | zh-CN100-AfterHours-short.png
+[  43% ] _update_scan_actions | zh-CN100-Midnight-short.png
+[  43% ] _update_scan_actions | zh-CN125-AfterHours-short.png
+[  44% ] _update_scan_actions | zh-CN125-Midnight-short.png
+[  44% ] _update_scan_actions | zh-CN150-AfterHours-overflow-unfocused.png
+[  44% ] _update_scan_actions | zh-CN150-AfterHours-overflow.png
+[  44% ] _update_scan_actions | zh-CN150-AfterHours-short.png
+[  45% ] _update_scan_actions | zh-CN150-Midnight-short.png
+[  45% ] _update_scan_actions | zh-HK100-AfterHours-short.png
+[  45% ] _update_scan_actions | zh-HK100-Midnight-short.png
+[  45% ] _update_scan_actions | zh-HK125-AfterHours-short.png
+[  46% ] _update_scan_actions | zh-HK125-Midnight-short.png
+[  46% ] _update_scan_actions | zh-HK150-AfterHours-empty.png
+[  46% ] _update_scan_actions | zh-HK150-AfterHours-overflow-unfocused.png
+[  46% ] _update_scan_actions | zh-HK150-AfterHours-overflow.png
+[  47% ] _update_scan_actions | zh-HK150-AfterHours-short.png
+[  47% ] _update_scan_actions | zh-HK150-Midnight-short.png
+[  47% ] _update_scan_actions | en100-AfterHours-high-deutan-stack.png
+[  47% ] _update_scan_actions | en100-AfterHours-high-protan-stack.png
+[  48% ] _update_scan_actions | en100-AfterHours-high-standard-stack.png
+[  48% ] _update_scan_actions | en100-AfterHours-high-tritan-stack.png
+[  48% ] _update_scan_actions | en100-AfterHours-standard-deutan-stack.png
+[  48% ] _update_scan_actions | en100-AfterHours-standard-protan-stack.png
+[  49% ] _update_scan_actions | en100-AfterHours-standard-standard-stack.png
+[  49% ] _update_scan_actions | en100-AfterHours-standard-tritan-stack.png
+[  49% ] _update_scan_actions | en100-Midnight-high-deutan-stack.png
+[  49% ] _update_scan_actions | en100-Midnight-high-protan-stack.png
+[  50% ] _update_scan_actions | en100-Midnight-high-standard-stack.png
+[  50% ] _update_scan_actions | en100-Midnight-high-tritan-stack.png
+[  50% ] _update_scan_actions | en100-Midnight-standard-deutan-stack.png
+[  50% ] _update_scan_actions | en100-Midnight-standard-protan-stack.png
+[  51% ] _update_scan_actions | en100-Midnight-standard-standard-stack.png
+[  51% ] _update_scan_actions | en100-Midnight-standard-tritan-stack.png
+[  51% ] _update_scan_actions | en125-AfterHours-high-deutan-stack.png
+[  51% ] _update_scan_actions | en125-AfterHours-high-protan-stack.png
+[  52% ] _update_scan_actions | en125-AfterHours-high-standard-stack.png
+[  52% ] _update_scan_actions | en125-AfterHours-high-tritan-stack.png
+[  52% ] _update_scan_actions | en125-AfterHours-standard-deutan-stack.png
+[  52% ] _update_scan_actions | en125-AfterHours-standard-protan-stack.png
+[  53% ] _update_scan_actions | en125-AfterHours-standard-standard-stack.png
+[  53% ] _update_scan_actions | en125-AfterHours-standard-tritan-stack.png
+[  53% ] _update_scan_actions | en125-Midnight-high-deutan-stack.png
+[  53% ] _update_scan_actions | en125-Midnight-high-protan-stack.png
+[  54% ] _update_scan_actions | en125-Midnight-high-standard-stack.png
+[  54% ] _update_scan_actions | en125-Midnight-high-tritan-stack.png
+[  54% ] _update_scan_actions | en125-Midnight-standard-deutan-stack.png
+[  54% ] _update_scan_actions | en125-Midnight-standard-protan-stack.png
+[  55% ] _update_scan_actions | en125-Midnight-standard-standard-stack.png
+[  55% ] _update_scan_actions | en125-Midnight-standard-tritan-stack.png
+[  55% ] _update_scan_actions | en150-AfterHours-high-deutan-stack.png
+[  55% ] _update_scan_actions | en150-AfterHours-high-protan-overflow-unfocused.png
+[  56% ] _update_scan_actions | en150-AfterHours-high-protan-overflow.png
+[  56% ] _update_scan_actions | en150-AfterHours-high-protan-stack.png
+[  56% ] _update_scan_actions | en150-AfterHours-high-standard-stack.png
+[  56% ] _update_scan_actions | en150-AfterHours-high-tritan-stack.png
+[  57% ] _update_scan_actions | en150-AfterHours-standard-deutan-stack.png
+[  57% ] _update_scan_actions | en150-AfterHours-standard-protan-stack.png
+[  57% ] _update_scan_actions | en150-AfterHours-standard-standard-stack.png
+[  57% ] _update_scan_actions | en150-AfterHours-standard-tritan-stack.png
+[  58% ] _update_scan_actions | en150-Midnight-high-deutan-stack.png
+[  58% ] _update_scan_actions | en150-Midnight-high-protan-stack.png
+[  58% ] _update_scan_actions | en150-Midnight-high-standard-stack.png
+[  58% ] _update_scan_actions | en150-Midnight-high-tritan-stack.png
+[  59% ] _update_scan_actions | en150-Midnight-standard-deutan-stack.png
+[  59% ] _update_scan_actions | en150-Midnight-standard-protan-stack.png
+[  59% ] _update_scan_actions | en150-Midnight-standard-standard-stack.png
+[  60% ] _update_scan_actions | en150-Midnight-standard-tritan-stack.png
+[  60% ] _update_scan_actions | zh-CN100-AfterHours-high-deutan-stack.png
+[  60% ] _update_scan_actions | zh-CN100-AfterHours-high-protan-stack.png
+[  60% ] _update_scan_actions | zh-CN100-AfterHours-high-standard-stack.png
+[  61% ] _update_scan_actions | zh-CN100-AfterHours-high-tritan-stack.png
+[  61% ] _update_scan_actions | zh-CN100-AfterHours-standard-deutan-stack.png
+[  61% ] _update_scan_actions | zh-CN100-AfterHours-standard-protan-stack.png
+[  61% ] _update_scan_actions | zh-CN100-AfterHours-standard-standard-stack.png
+[  62% ] _update_scan_actions | zh-CN100-AfterHours-standard-tritan-stack.png
+[  62% ] _update_scan_actions | zh-CN100-Midnight-high-deutan-stack.png
+[  62% ] _update_scan_actions | zh-CN100-Midnight-high-protan-stack.png
+[  62% ] _update_scan_actions | zh-CN100-Midnight-high-standard-stack.png
+[  63% ] _update_scan_actions | zh-CN100-Midnight-high-tritan-stack.png
+[  63% ] _update_scan_actions | zh-CN100-Midnight-standard-deutan-stack.png
+[  63% ] _update_scan_actions | zh-CN100-Midnight-standard-protan-stack.png
+[  63% ] _update_scan_actions | zh-CN100-Midnight-standard-standard-stack.png
+[  64% ] _update_scan_actions | zh-CN100-Midnight-standard-tritan-stack.png
+[  64% ] _update_scan_actions | zh-CN125-AfterHours-high-deutan-stack.png
+[  64% ] _update_scan_actions | zh-CN125-AfterHours-high-protan-stack.png
+[  64% ] _update_scan_actions | zh-CN125-AfterHours-high-standard-stack.png
+[  65% ] _update_scan_actions | zh-CN125-AfterHours-high-tritan-stack.png
+[  65% ] _update_scan_actions | zh-CN125-AfterHours-standard-deutan-stack.png
+[  65% ] _update_scan_actions | zh-CN125-AfterHours-standard-protan-stack.png
+[  65% ] _update_scan_actions | zh-CN125-AfterHours-standard-standard-stack.png
+[  66% ] _update_scan_actions | zh-CN125-AfterHours-standard-tritan-stack.png
+[  66% ] _update_scan_actions | zh-CN125-Midnight-high-deutan-stack.png
+[  66% ] _update_scan_actions | zh-CN125-Midnight-high-protan-stack.png
+[  66% ] _update_scan_actions | zh-CN125-Midnight-high-standard-stack.png
+[  67% ] _update_scan_actions | zh-CN125-Midnight-high-tritan-stack.png
+[  67% ] _update_scan_actions | zh-CN125-Midnight-standard-deutan-stack.png
+[  67% ] _update_scan_actions | zh-CN125-Midnight-standard-protan-stack.png
+[  67% ] _update_scan_actions | zh-CN125-Midnight-standard-standard-stack.png
+[  68% ] _update_scan_actions | zh-CN125-Midnight-standard-tritan-stack.png
+[  68% ] _update_scan_actions | zh-CN150-AfterHours-high-deutan-overflow-unfocused.png
+[  68% ] _update_scan_actions | zh-CN150-AfterHours-high-deutan-overflow.png
+[  68% ] _update_scan_actions | zh-CN150-AfterHours-high-deutan-stack.png
+[  69% ] _update_scan_actions | zh-CN150-AfterHours-high-protan-stack.png
+[  69% ] _update_scan_actions | zh-CN150-AfterHours-high-standard-stack.png
+[  69% ] _update_scan_actions | zh-CN150-AfterHours-high-tritan-stack.png
+[  69% ] _update_scan_actions | zh-CN150-AfterHours-standard-deutan-stack.png
+[  70% ] _update_scan_actions | zh-CN150-AfterHours-standard-protan-stack.png
+[  70% ] _update_scan_actions | zh-CN150-AfterHours-standard-standard-stack.png
+[  70% ] _update_scan_actions | zh-CN150-AfterHours-standard-tritan-stack.png
+[  70% ] _update_scan_actions | zh-CN150-Midnight-high-deutan-stack.png
+[  71% ] _update_scan_actions | zh-CN150-Midnight-high-protan-stack.png
+[  71% ] _update_scan_actions | zh-CN150-Midnight-high-standard-stack.png
+[  71% ] _update_scan_actions | zh-CN150-Midnight-high-tritan-stack.png
+[  71% ] _update_scan_actions | zh-CN150-Midnight-standard-deutan-stack.png
+[  72% ] _update_scan_actions | zh-CN150-Midnight-standard-protan-stack.png
+[  72% ] _update_scan_actions | zh-CN150-Midnight-standard-standard-stack.png
+[  72% ] _update_scan_actions | zh-CN150-Midnight-standard-tritan-stack.png
+[  72% ] _update_scan_actions | zh-HK100-AfterHours-high-deutan-stack.png
+[  73% ] _update_scan_actions | zh-HK100-AfterHours-high-protan-stack.png
+[  73% ] _update_scan_actions | zh-HK100-AfterHours-high-standard-stack.png
+[  73% ] _update_scan_actions | zh-HK100-AfterHours-high-tritan-stack.png
+[  73% ] _update_scan_actions | zh-HK100-AfterHours-standard-deutan-stack.png
+[  74% ] _update_scan_actions | zh-HK100-AfterHours-standard-protan-stack.png
+[  74% ] _update_scan_actions | zh-HK100-AfterHours-standard-standard-stack.png
+[  74% ] _update_scan_actions | zh-HK100-AfterHours-standard-tritan-stack.png
+[  74% ] _update_scan_actions | zh-HK100-Midnight-high-deutan-stack.png
+[  75% ] _update_scan_actions | zh-HK100-Midnight-high-protan-stack.png
+[  75% ] _update_scan_actions | zh-HK100-Midnight-high-standard-stack.png
+[  75% ] _update_scan_actions | zh-HK100-Midnight-high-tritan-stack.png
+[  75% ] _update_scan_actions | zh-HK100-Midnight-standard-deutan-stack.png
+[  76% ] _update_scan_actions | zh-HK100-Midnight-standard-protan-stack.png
+[  76% ] _update_scan_actions | zh-HK100-Midnight-standard-standard-stack.png
+[  76% ] _update_scan_actions | zh-HK100-Midnight-standard-tritan-stack.png
+[  76% ] _update_scan_actions | zh-HK125-AfterHours-high-deutan-stack.png
+[  77% ] _update_scan_actions | zh-HK125-AfterHours-high-protan-stack.png
+[  77% ] _update_scan_actions | zh-HK125-AfterHours-high-standard-stack.png
+[  77% ] _update_scan_actions | zh-HK125-AfterHours-high-tritan-stack.png
+[  77% ] _update_scan_actions | zh-HK125-AfterHours-standard-deutan-stack.png
+[  78% ] _update_scan_actions | zh-HK125-AfterHours-standard-protan-stack.png
+[  78% ] _update_scan_actions | zh-HK125-AfterHours-standard-standard-stack.png
+[  78% ] _update_scan_actions | zh-HK125-AfterHours-standard-tritan-stack.png
+[  78% ] _update_scan_actions | zh-HK125-Midnight-high-deutan-stack.png
+[  79% ] _update_scan_actions | zh-HK125-Midnight-high-protan-stack.png
+[  79% ] _update_scan_actions | zh-HK125-Midnight-high-standard-stack.png
+[  79% ] _update_scan_actions | zh-HK125-Midnight-high-tritan-stack.png
+[  80% ] _update_scan_actions | zh-HK125-Midnight-standard-deutan-stack.png
+[  80% ] _update_scan_actions | zh-HK125-Midnight-standard-protan-stack.png
+[  80% ] _update_scan_actions | zh-HK125-Midnight-standard-standard-stack.png
+[  80% ] _update_scan_actions | zh-HK125-Midnight-standard-tritan-stack.png
+[  81% ] _update_scan_actions | zh-HK150-AfterHours-high-deutan-stack.png
+[  81% ] _update_scan_actions | zh-HK150-AfterHours-high-protan-stack.png
+[  81% ] _update_scan_actions | zh-HK150-AfterHours-high-standard-stack.png
+[  81% ] _update_scan_actions | zh-HK150-AfterHours-high-tritan-empty.png
+[  82% ] _update_scan_actions | zh-HK150-AfterHours-high-tritan-overflow-unfocused.png
+[  82% ] _update_scan_actions | zh-HK150-AfterHours-high-tritan-overflow.png
+[  82% ] _update_scan_actions | zh-HK150-AfterHours-high-tritan-stack.png
+[  82% ] _update_scan_actions | zh-HK150-AfterHours-standard-deutan-stack.png
+[  83% ] _update_scan_actions | zh-HK150-AfterHours-standard-protan-stack.png
+[  83% ] _update_scan_actions | zh-HK150-AfterHours-standard-standard-stack.png
+[  83% ] _update_scan_actions | zh-HK150-AfterHours-standard-tritan-stack.png
+[  83% ] _update_scan_actions | zh-HK150-Midnight-high-deutan-stack.png
+[  84% ] _update_scan_actions | zh-HK150-Midnight-high-protan-stack.png
+[  84% ] _update_scan_actions | zh-HK150-Midnight-high-standard-stack.png
+[  84% ] _update_scan_actions | zh-HK150-Midnight-high-tritan-stack.png
+[  84% ] _update_scan_actions | zh-HK150-Midnight-standard-deutan-stack.png
+[  85% ] _update_scan_actions | zh-HK150-Midnight-standard-protan-stack.png
+[  85% ] _update_scan_actions | zh-HK150-Midnight-standard-standard-stack.png
+[  85% ] _update_scan_actions | zh-HK150-Midnight-standard-tritan-stack.png
+[  85% ] _update_scan_actions | en100-AfterHours-stack.png
+[  86% ] _update_scan_actions | en100-Midnight-stack.png
+[  86% ] _update_scan_actions | en125-AfterHours-stack.png
+[  86% ] _update_scan_actions | en125-Midnight-stack.png
+[  86% ] _update_scan_actions | en150-AfterHours-overflow-unfocused.png
+[  87% ] _update_scan_actions | en150-AfterHours-overflow.png
+[  87% ] _update_scan_actions | en150-AfterHours-stack.png
+[  87% ] _update_scan_actions | en150-Midnight-stack.png
+[  87% ] _update_scan_actions | zh-CN100-AfterHours-stack.png
+[  88% ] _update_scan_actions | zh-CN100-Midnight-stack.png
+[  88% ] _update_scan_actions | zh-CN125-AfterHours-stack.png
+[  88% ] _update_scan_actions | zh-CN125-Midnight-stack.png
+[  88% ] _update_scan_actions | zh-CN150-AfterHours-overflow-unfocused.png
+[  89% ] _update_scan_actions | zh-CN150-AfterHours-overflow.png
+[  89% ] _update_scan_actions | zh-CN150-AfterHours-stack.png
+[  89% ] _update_scan_actions | zh-CN150-Midnight-stack.png
+[  89% ] _update_scan_actions | zh-HK100-AfterHours-stack.png
+[  90% ] _update_scan_actions | zh-HK100-Midnight-stack.png
+[  90% ] _update_scan_actions | zh-HK125-AfterHours-stack.png
+[  90% ] _update_scan_actions | zh-HK125-Midnight-stack.png
+[  90% ] _update_scan_actions | zh-HK150-AfterHours-empty.png
+[  91% ] _update_scan_actions | zh-HK150-AfterHours-overflow-unfocused.png
+[  91% ] _update_scan_actions | zh-HK150-AfterHours-overflow.png
+[  91% ] _update_scan_actions | zh-HK150-AfterHours-stack.png
+[  91% ] _update_scan_actions | zh-HK150-Midnight-stack.png
+[  92% ] _update_scan_actions | en100-AfterHours-standard-standard-stack.png
+[  92% ] _update_scan_actions | en125-AfterHours-standard-standard-stack.png
+[  92% ] _update_scan_actions | en150-AfterHours-standard-standard-overflow-unfocused.png
+[  92% ] _update_scan_actions | en150-AfterHours-standard-standard-overflow.png
+[  93% ] _update_scan_actions | en150-AfterHours-standard-standard-stack.png
+[  93% ] _update_scan_actions | zh-CN100-AfterHours-standard-standard-stack.png
+[  93% ] _update_scan_actions | zh-CN125-AfterHours-standard-standard-stack.png
+[  93% ] _update_scan_actions | zh-CN150-AfterHours-standard-standard-overflow-unfocused.png
+[  94% ] _update_scan_actions | zh-CN150-AfterHours-standard-standard-overflow.png
+[  94% ] _update_scan_actions | zh-CN150-AfterHours-standard-standard-stack.png
+[  94% ] _update_scan_actions | zh-HK100-AfterHours-standard-standard-stack.png
+[  94% ] _update_scan_actions | zh-HK125-AfterHours-standard-standard-stack.png
+[  95% ] _update_scan_actions | zh-HK150-AfterHours-standard-standard-overflow-unfocused.png
+[  95% ] _update_scan_actions | zh-HK150-AfterHours-standard-standard-overflow.png
+[  95% ] _update_scan_actions | zh-HK150-AfterHours-standard-standard-stack.png
+[  95% ] _update_scan_actions | en100-AfterHours-standard-standard-stack.png
+[  96% ] _update_scan_actions | en125-AfterHours-standard-standard-stack.png
+[  96% ] _update_scan_actions | en150-AfterHours-standard-standard-overflow-unfocused.png
+[  96% ] _update_scan_actions | en150-AfterHours-standard-standard-overflow.png
+[  96% ] _update_scan_actions | en150-AfterHours-standard-standard-stack.png
+[  97% ] _update_scan_actions | zh-CN100-AfterHours-standard-standard-stack.png
+[  97% ] _update_scan_actions | zh-CN125-AfterHours-standard-standard-stack.png
+[  97% ] _update_scan_actions | zh-CN150-AfterHours-standard-standard-overflow-unfocused.png
+[  97% ] _update_scan_actions | zh-CN150-AfterHours-standard-standard-overflow.png
+[  98% ] _update_scan_actions | zh-CN150-AfterHours-standard-standard-stack.png
+[  98% ] _update_scan_actions | zh-HK100-AfterHours-standard-standard-stack.png
+[  98% ] _update_scan_actions | zh-HK125-AfterHours-standard-standard-stack.png
+[  98% ] _update_scan_actions | zh-HK150-AfterHours-standard-standard-overflow-unfocused.png
+[  99% ] _update_scan_actions | zh-HK150-AfterHours-standard-standard-overflow.png
+[  99% ] _update_scan_actions | zh-HK150-AfterHours-standard-standard-stack.png
+[ DONE ] _update_scan_actions
+
+[   0% ] reimport | Started 正在导入或重新导入资产 (394 steps)
+[   0% ] reimport | 正在准备重新导入文件……
+[   0% ] reimport | 正在准备重新导入文件……
+[   0% ] reimport | 正在准备重新导入文件……
+[   0% ] reimport | 正在准备重新导入文件……
+[   1% ] reimport | 正在准备重新导入文件……
+[   1% ] reimport | 正在准备重新导入文件……
+[   1% ] reimport | 正在准备重新导入文件……
+[   1% ] reimport | 正在准备重新导入文件……
+[   2% ] reimport | 正在准备重新导入文件……
+[   2% ] reimport | 正在准备重新导入文件……
+[   2% ] reimport | 正在准备重新导入文件……
+[   2% ] reimport | 正在准备重新导入文件……
+[   3% ] reimport | 正在准备重新导入文件……
+[   3% ] reimport | 正在准备重新导入文件……
+[   3% ] reimport | 正在准备重新导入文件……
+[   3% ] reimport | 正在准备重新导入文件……
+[   4% ] reimport | 正在准备重新导入文件……
+[   4% ] reimport | 正在准备重新导入文件……
+[   4% ] reimport | 正在准备重新导入文件……
+[   4% ] reimport | 正在准备重新导入文件……
+[   5% ] reimport | 正在准备重新导入文件……
+[   5% ] reimport | 正在准备重新导入文件……
+[   5% ] reimport | 正在准备重新导入文件……
+[   5% ] reimport | 正在准备重新导入文件……
+[   6% ] reimport | 正在准备重新导入文件……
+[   6% ] reimport | 正在准备重新导入文件……
+[   6% ] reimport | 正在准备重新导入文件……
+[   6% ] reimport | 正在准备重新导入文件……
+[   7% ] reimport | 正在准备重新导入文件……
+[   7% ] reimport | 正在准备重新导入文件……
+[   7% ] reimport | 正在准备重新导入文件……
+[   7% ] reimport | 正在准备重新导入文件……
+[   8% ] reimport | 正在准备重新导入文件……
+[   8% ] reimport | 正在准备重新导入文件……
+[   8% ] reimport | 正在准备重新导入文件……
+[   8% ] reimport | 正在准备重新导入文件……
+[   9% ] reimport | 正在准备重新导入文件……
+[   9% ] reimport | 正在准备重新导入文件……
+[   9% ] reimport | 正在准备重新导入文件……
+[   9% ] reimport | 正在准备重新导入文件……
+[  10% ] reimport | 正在准备重新导入文件……
+[  10% ] reimport | 正在准备重新导入文件……
+[  10% ] reimport | 正在准备重新导入文件……
+[  10% ] reimport | 正在准备重新导入文件……
+[  11% ] reimport | 正在准备重新导入文件……
+[  11% ] reimport | 正在准备重新导入文件……
+[  11% ] reimport | 正在准备重新导入文件……
+[  11% ] reimport | 正在准备重新导入文件……
+[  12% ] reimport | 正在准备重新导入文件……
+[  12% ] reimport | 正在准备重新导入文件……
+[  12% ] reimport | 正在准备重新导入文件……
+[  12% ] reimport | 正在准备重新导入文件……
+[  13% ] reimport | 正在准备重新导入文件……
+[  13% ] reimport | 正在准备重新导入文件……
+[  13% ] reimport | 正在准备重新导入文件……
+[  13% ] reimport | 正在准备重新导入文件……
+[  14% ] reimport | 正在准备重新导入文件……
+[  14% ] reimport | 正在准备重新导入文件……
+[  14% ] reimport | 正在准备重新导入文件……
+[  14% ] reimport | 正在准备重新导入文件……
+[  15% ] reimport | 正在准备重新导入文件……
+[  15% ] reimport | 正在准备重新导入文件……
+[  15% ] reimport | 正在准备重新导入文件……
+[  15% ] reimport | 正在准备重新导入文件……
+[  16% ] reimport | 正在准备重新导入文件……
+[  16% ] reimport | 正在准备重新导入文件……
+[  16% ] reimport | 正在准备重新导入文件……
+[  16% ] reimport | 正在准备重新导入文件……
+[  17% ] reimport | 正在准备重新导入文件……
+[  17% ] reimport | 正在准备重新导入文件……
+[  17% ] reimport | 正在准备重新导入文件……
+[  17% ] reimport | 正在准备重新导入文件……
+[  18% ] reimport | 正在准备重新导入文件……
+[  18% ] reimport | 正在准备重新导入文件……
+[  18% ] reimport | 正在准备重新导入文件……
+[  18% ] reimport | 正在准备重新导入文件……
+[  19% ] reimport | 正在准备重新导入文件……
+[  19% ] reimport | 正在准备重新导入文件……
+[  19% ] reimport | 正在准备重新导入文件……
+[  20% ] reimport | 正在准备重新导入文件……
+[  20% ] reimport | 正在准备重新导入文件……
+[  20% ] reimport | 正在准备重新导入文件……
+[  20% ] reimport | 正在准备重新导入文件……
+[  21% ] reimport | 正在准备重新导入文件……
+[  21% ] reimport | 正在准备重新导入文件……
+[  21% ] reimport | 正在准备重新导入文件……
+[  21% ] reimport | 正在准备重新导入文件……
+[  22% ] reimport | 正在准备重新导入文件……
+[  22% ] reimport | 正在准备重新导入文件……
+[  22% ] reimport | 正在准备重新导入文件……
+[  22% ] reimport | 正在准备重新导入文件……
+[  23% ] reimport | 正在准备重新导入文件……
+[  23% ] reimport | 正在准备重新导入文件……
+[  23% ] reimport | 正在准备重新导入文件……
+[  23% ] reimport | 正在准备重新导入文件……
+[  24% ] reimport | 正在准备重新导入文件……
+[  24% ] reimport | 正在准备重新导入文件……
+[  24% ] reimport | 正在准备重新导入文件……
+[  24% ] reimport | 正在准备重新导入文件……
+[  25% ] reimport | 正在准备重新导入文件……
+[  25% ] reimport | 正在准备重新导入文件……
+[  25% ] reimport | 正在准备重新导入文件……
+[  25% ] reimport | 正在准备重新导入文件……
+[  26% ] reimport | 正在准备重新导入文件……
+[  26% ] reimport | 正在准备重新导入文件……
+[  26% ] reimport | 正在准备重新导入文件……
+[  26% ] reimport | 正在准备重新导入文件……
+[  27% ] reimport | 正在准备重新导入文件……
+[  27% ] reimport | 正在准备重新导入文件……
+[  27% ] reimport | 正在准备重新导入文件……
+[  27% ] reimport | 正在准备重新导入文件……
+[  28% ] reimport | 正在准备重新导入文件……
+[  28% ] reimport | 正在准备重新导入文件……
+[  28% ] reimport | 正在准备重新导入文件……
+[  28% ] reimport | 正在准备重新导入文件……
+[  29% ] reimport | 正在准备重新导入文件……
+[  29% ] reimport | 正在准备重新导入文件……
+[  29% ] reimport | 正在准备重新导入文件……
+[  29% ] reimport | 正在准备重新导入文件……
+[  30% ] reimport | 正在准备重新导入文件……
+[  30% ] reimport | 正在准备重新导入文件……
+[  30% ] reimport | 正在准备重新导入文件……
+[  30% ] reimport | 正在准备重新导入文件……
+[  31% ] reimport | 正在准备重新导入文件……
+[  31% ] reimport | 正在准备重新导入文件……
+[  31% ] reimport | 正在准备重新导入文件……
+[  31% ] reimport | 正在准备重新导入文件……
+[  32% ] reimport | 正在准备重新导入文件……
+[  32% ] reimport | 正在准备重新导入文件……
+[  32% ] reimport | 正在准备重新导入文件……
+[  32% ] reimport | 正在准备重新导入文件……
+[  33% ] reimport | 正在准备重新导入文件……
+[  33% ] reimport | 正在准备重新导入文件……
+[  33% ] reimport | 正在准备重新导入文件……
+[  33% ] reimport | 正在准备重新导入文件……
+[  34% ] reimport | 正在准备重新导入文件……
+[  34% ] reimport | 正在准备重新导入文件……
+[  34% ] reimport | 正在准备重新导入文件……
+[  34% ] reimport | 正在准备重新导入文件……
+[  35% ] reimport | 正在准备重新导入文件……
+[  35% ] reimport | 正在准备重新导入文件……
+[  35% ] reimport | 正在准备重新导入文件……
+[  35% ] reimport | 正在准备重新导入文件……
+[  36% ] reimport | 正在准备重新导入文件……
+[  36% ] reimport | 正在准备重新导入文件……
+[  36% ] reimport | 正在准备重新导入文件……
+[  36% ] reimport | 正在准备重新导入文件……
+[  37% ] reimport | 正在准备重新导入文件……
+[  37% ] reimport | 正在准备重新导入文件……
+[  37% ] reimport | 正在准备重新导入文件……
+[  37% ] reimport | 正在准备重新导入文件……
+[  38% ] reimport | 正在准备重新导入文件……
+[  38% ] reimport | 正在准备重新导入文件……
+[  38% ] reimport | 正在准备重新导入文件……
+[  38% ] reimport | 正在准备重新导入文件……
+[  39% ] reimport | 正在准备重新导入文件……
+[  39% ] reimport | 正在准备重新导入文件……
+[  39% ] reimport | 正在准备重新导入文件……
+[  40% ] reimport | 正在准备重新导入文件……
+[  40% ] reimport | 正在准备重新导入文件……
+[  40% ] reimport | 正在准备重新导入文件……
+[  40% ] reimport | 正在准备重新导入文件……
+[  41% ] reimport | 正在准备重新导入文件……
+[  41% ] reimport | 正在准备重新导入文件……
+[  41% ] reimport | 正在准备重新导入文件……
+[  41% ] reimport | 正在准备重新导入文件……
+[  42% ] reimport | 正在准备重新导入文件……
+[  42% ] reimport | 正在准备重新导入文件……
+[  42% ] reimport | 正在准备重新导入文件……
+[  42% ] reimport | 正在准备重新导入文件……
+[  43% ] reimport | 正在准备重新导入文件……
+[  43% ] reimport | 正在准备重新导入文件……
+[  43% ] reimport | 正在准备重新导入文件……
+[  43% ] reimport | 正在准备重新导入文件……
+[  44% ] reimport | 正在准备重新导入文件……
+[  44% ] reimport | 正在准备重新导入文件……
+[  44% ] reimport | 正在准备重新导入文件……
+[  44% ] reimport | 正在准备重新导入文件……
+[  45% ] reimport | 正在准备重新导入文件……
+[  45% ] reimport | 正在准备重新导入文件……
+[  45% ] reimport | 正在准备重新导入文件……
+[  45% ] reimport | 正在准备重新导入文件……
+[  46% ] reimport | 正在准备重新导入文件……
+[  46% ] reimport | 正在准备重新导入文件……
+[  46% ] reimport | 正在准备重新导入文件……
+[  46% ] reimport | 正在准备重新导入文件……
+[  47% ] reimport | 正在准备重新导入文件……
+[  47% ] reimport | 正在准备重新导入文件……
+[  47% ] reimport | 正在准备重新导入文件……
+[  47% ] reimport | 正在准备重新导入文件……
+[  48% ] reimport | 正在准备重新导入文件……
+[  48% ] reimport | 正在准备重新导入文件……
+[  48% ] reimport | 正在准备重新导入文件……
+[  48% ] reimport | 正在准备重新导入文件……
+[  49% ] reimport | 正在准备重新导入文件……
+[  49% ] reimport | 正在准备重新导入文件……
+[  49% ] reimport | 正在准备重新导入文件……
+[  49% ] reimport | 正在准备重新导入文件……
+[  50% ] reimport | 正在准备重新导入文件……
+[  50% ] reimport | 正在准备重新导入文件……
+[  50% ] reimport | 正在准备重新导入文件……
+[  50% ] reimport | 正在准备重新导入文件……
+[  51% ] reimport | 正在准备重新导入文件……
+[  51% ] reimport | 正在准备重新导入文件……
+[  51% ] reimport | 正在准备重新导入文件……
+[  51% ] reimport | 正在准备重新导入文件……
+[  52% ] reimport | 正在准备重新导入文件……
+[  52% ] reimport | 正在准备重新导入文件……
+[  52% ] reimport | 正在准备重新导入文件……
+[  52% ] reimport | 正在准备重新导入文件……
+[  53% ] reimport | 正在准备重新导入文件……
+[  53% ] reimport | 正在准备重新导入文件……
+[  53% ] reimport | 正在准备重新导入文件……
+[  53% ] reimport | 正在准备重新导入文件……
+[  54% ] reimport | 正在准备重新导入文件……
+[  54% ] reimport | 正在准备重新导入文件……
+[  54% ] reimport | 正在准备重新导入文件……
+[  54% ] reimport | 正在准备重新导入文件……
+[  55% ] reimport | 正在准备重新导入文件……
+[  55% ] reimport | 正在准备重新导入文件……
+[  55% ] reimport | 正在准备重新导入文件……
+[  55% ] reimport | 正在准备重新导入文件……
+[  56% ] reimport | 正在准备重新导入文件……
+[  56% ] reimport | 正在准备重新导入文件……
+[  56% ] reimport | 正在准备重新导入文件……
+[  56% ] reimport | 正在准备重新导入文件……
+[  57% ] reimport | 正在准备重新导入文件……
+[  57% ] reimport | 正在准备重新导入文件……
+[  57% ] reimport | 正在准备重新导入文件……
+[  57% ] reimport | 正在准备重新导入文件……
+[  58% ] reimport | 正在准备重新导入文件……
+[  58% ] reimport | 正在准备重新导入文件……
+[  58% ] reimport | 正在准备重新导入文件……
+[  58% ] reimport | 正在准备重新导入文件……
+[  59% ] reimport | 正在准备重新导入文件……
+[  59% ] reimport | 正在准备重新导入文件……
+[  59% ] reimport | 正在准备重新导入文件……
+[  60% ] reimport | 正在准备重新导入文件……
+[  60% ] reimport | 正在准备重新导入文件……
+[  60% ] reimport | 正在准备重新导入文件……
+[  60% ] reimport | 正在准备重新导入文件……
+[  61% ] reimport | 正在准备重新导入文件……
+[  61% ] reimport | 正在准备重新导入文件……
+[  61% ] reimport | 正在准备重新导入文件……
+[  61% ] reimport | 正在准备重新导入文件……
+[  62% ] reimport | 正在准备重新导入文件……
+[  62% ] reimport | 正在准备重新导入文件……
+[  62% ] reimport | 正在准备重新导入文件……
+[  62% ] reimport | 正在准备重新导入文件……
+[  63% ] reimport | 正在准备重新导入文件……
+[  63% ] reimport | 正在准备重新导入文件……
+[  63% ] reimport | 正在准备重新导入文件……
+[  63% ] reimport | 正在准备重新导入文件……
+[  64% ] reimport | 正在准备重新导入文件……
+[  64% ] reimport | 正在准备重新导入文件……
+[  64% ] reimport | 正在准备重新导入文件……
+[  64% ] reimport | 正在准备重新导入文件……
+[  65% ] reimport | 正在准备重新导入文件……
+[  65% ] reimport | 正在准备重新导入文件……
+[  65% ] reimport | 正在准备重新导入文件……
+[  65% ] reimport | 正在准备重新导入文件……
+[  66% ] reimport | 正在准备重新导入文件……
+[  66% ] reimport | 正在准备重新导入文件……
+[  66% ] reimport | 正在准备重新导入文件……
+[  66% ] reimport | 正在准备重新导入文件……
+[  67% ] reimport | 正在准备重新导入文件……
+[  67% ] reimport | 正在准备重新导入文件……
+[  67% ] reimport | 正在准备重新导入文件……
+[  67% ] reimport | 正在准备重新导入文件……
+[  68% ] reimport | 正在准备重新导入文件……
+[  68% ] reimport | 正在准备重新导入文件……
+[  68% ] reimport | 正在准备重新导入文件……
+[  68% ] reimport | 正在准备重新导入文件……
+[  69% ] reimport | 正在准备重新导入文件……
+[  69% ] reimport | 正在准备重新导入文件……
+[  69% ] reimport | 正在准备重新导入文件……
+[  69% ] reimport | 正在准备重新导入文件……
+[  70% ] reimport | 正在准备重新导入文件……
+[  70% ] reimport | 正在准备重新导入文件……
+[  70% ] reimport | 正在准备重新导入文件……
+[  70% ] reimport | 正在准备重新导入文件……
+[  71% ] reimport | 正在准备重新导入文件……
+[  71% ] reimport | 正在准备重新导入文件……
+[  71% ] reimport | 正在准备重新导入文件……
+[  71% ] reimport | 正在准备重新导入文件……
+[  72% ] reimport | 正在准备重新导入文件……
+[  72% ] reimport | 正在准备重新导入文件……
+[  72% ] reimport | 正在准备重新导入文件……
+[  72% ] reimport | 正在准备重新导入文件……
+[  73% ] reimport | 正在准备重新导入文件……
+[  73% ] reimport | 正在准备重新导入文件……
+[  73% ] reimport | 正在准备重新导入文件……
+[  73% ] reimport | 正在准备重新导入文件……
+[  74% ] reimport | 正在准备重新导入文件……
+[  74% ] reimport | 正在准备重新导入文件……
+[  74% ] reimport | 正在准备重新导入文件……
+[  74% ] reimport | 正在准备重新导入文件……
+[  75% ] reimport | 正在准备重新导入文件……
+[  75% ] reimport | 正在准备重新导入文件……
+[  75% ] reimport | 正在准备重新导入文件……
+[  75% ] reimport | 正在准备重新导入文件……
+[  76% ] reimport | 正在准备重新导入文件……
+[  76% ] reimport | 正在准备重新导入文件……
+[  76% ] reimport | 正在准备重新导入文件……
+[  76% ] reimport | 正在准备重新导入文件……
+[  77% ] reimport | 正在准备重新导入文件……
+[  77% ] reimport | 正在准备重新导入文件……
+[  77% ] reimport | 正在准备重新导入文件……
+[  77% ] reimport | 正在准备重新导入文件……
+[  78% ] reimport | 正在准备重新导入文件……
+[  78% ] reimport | 正在准备重新导入文件……
+[  78% ] reimport | 正在准备重新导入文件……
+[  78% ] reimport | 正在准备重新导入文件……
+[  79% ] reimport | 正在准备重新导入文件……
+[  79% ] reimport | 正在准备重新导入文件……
+[  79% ] reimport | 正在准备重新导入文件……
+[  80% ] reimport | 正在准备重新导入文件……
+[  80% ] reimport | 正在准备重新导入文件……
+[  80% ] reimport | 正在准备重新导入文件……
+[  80% ] reimport | 正在准备重新导入文件……
+[  81% ] reimport | 正在准备重新导入文件……
+[  81% ] reimport | 正在准备重新导入文件……
+[  81% ] reimport | 正在准备重新导入文件……
+[  81% ] reimport | 正在准备重新导入文件……
+[  82% ] reimport | 正在准备重新导入文件……
+[  82% ] reimport | 正在准备重新导入文件……
+[  82% ] reimport | 正在准备重新导入文件……
+[  82% ] reimport | 正在准备重新导入文件……
+[  83% ] reimport | 正在准备重新导入文件……
+[  83% ] reimport | 正在准备重新导入文件……
+[  83% ] reimport | 正在准备重新导入文件……
+[  83% ] reimport | 正在准备重新导入文件……
+[  84% ] reimport | 正在准备重新导入文件……
+[  84% ] reimport | 正在准备重新导入文件……
+[  84% ] reimport | 正在准备重新导入文件……
+[  84% ] reimport | 正在准备重新导入文件……
+[  85% ] reimport | 正在准备重新导入文件……
+[  85% ] reimport | 正在准备重新导入文件……
+[  85% ] reimport | 正在准备重新导入文件……
+[  85% ] reimport | 正在准备重新导入文件……
+[  86% ] reimport | 正在准备重新导入文件……
+[  86% ] reimport | 正在准备重新导入文件……
+[  86% ] reimport | 正在准备重新导入文件……
+[  86% ] reimport | 正在准备重新导入文件……
+[  87% ] reimport | 正在准备重新导入文件……
+[  87% ] reimport | 正在准备重新导入文件……
+[  87% ] reimport | 正在准备重新导入文件……
+[  87% ] reimport | 正在准备重新导入文件……
+[  88% ] reimport | 正在准备重新导入文件……
+[  88% ] reimport | 正在准备重新导入文件……
+[  88% ] reimport | 正在准备重新导入文件……
+[  88% ] reimport | 正在准备重新导入文件……
+[  89% ] reimport | 正在准备重新导入文件……
+[  89% ] reimport | 正在准备重新导入文件……
+[  89% ] reimport | 正在准备重新导入文件……
+[  89% ] reimport | 正在准备重新导入文件……
+[  90% ] reimport | 正在准备重新导入文件……
+[  90% ] reimport | 正在准备重新导入文件……
+[  90% ] reimport | 正在准备重新导入文件……
+[  90% ] reimport | 正在准备重新导入文件……
+[  91% ] reimport | 正在准备重新导入文件……
+[  91% ] reimport | 正在准备重新导入文件……
+[  91% ] reimport | 正在准备重新导入文件……
+[  91% ] reimport | 正在准备重新导入文件……
+[  92% ] reimport | 正在准备重新导入文件……
+[  92% ] reimport | 正在准备重新导入文件……
+[  92% ] reimport | 正在准备重新导入文件……
+[  92% ] reimport | 正在准备重新导入文件……
+[  93% ] reimport | 正在准备重新导入文件……
+[  93% ] reimport | 正在准备重新导入文件……
+[  93% ] reimport | 正在准备重新导入文件……
+[  93% ] reimport | 正在准备重新导入文件……
+[  94% ] reimport | 正在准备重新导入文件……
+[  94% ] reimport | 正在准备重新导入文件……
+[  94% ] reimport | 正在准备重新导入文件……
+[  94% ] reimport | 正在准备重新导入文件……
+[  95% ] reimport | 正在准备重新导入文件……
+[  95% ] reimport | 正在准备重新导入文件……
+[  95% ] reimport | 正在准备重新导入文件……
+[  95% ] reimport | 正在准备重新导入文件……
+[  96% ] reimport | 正在准备重新导入文件……
+[  96% ] reimport | 正在准备重新导入文件……
+[  96% ] reimport | 正在准备重新导入文件……
+[  96% ] reimport | 正在准备重新导入文件……
+[  97% ] reimport | 正在准备重新导入文件……
+[  97% ] reimport | 正在准备重新导入文件……
+[  97% ] reimport | 正在准备重新导入文件……
+[  97% ] reimport | 正在准备重新导入文件……
+[  98% ] reimport | 正在准备重新导入文件……
+[  98% ] reimport | 正在准备重新导入文件……
+[  98% ] reimport | 正在准备重新导入文件……
+[  98% ] reimport | 正在准备重新导入文件……
+[  99% ] reimport | 正在准备重新导入文件……
+[  99% ] reimport | 正在准备重新导入文件……
+[   0% ] reimport | 正在执行重新导入的前置操作……
+[   0% ] reimport | zh-CN125-Midnight-standard-tritan-stack.png
+[   0% ] reimport | zh-CN125-Midnight-standard-standard-stack.png
+[   0% ] reimport | zh-CN125-Midnight-standard-protan-stack.png
+[   0% ] reimport | zh-CN125-Midnight-standard-deutan-stack.png
+[   1% ] reimport | zh-CN125-Midnight-high-tritan-stack.png
+[   1% ] reimport | zh-CN125-Midnight-high-standard-stack.png
+[   1% ] reimport | zh-CN125-Midnight-high-protan-stack.png
+[   1% ] reimport | zh-CN125-Midnight-high-deutan-stack.png
+[   2% ] reimport | zh-CN125-AfterHours-standard-tritan-stack.png
+[   2% ] reimport | zh-CN125-AfterHours-standard-standard-stack.png
+[   2% ] reimport | zh-CN125-AfterHours-standard-protan-stack.png
+[   2% ] reimport | zh-CN125-AfterHours-standard-deutan-stack.png
+[   3% ] reimport | zh-CN125-AfterHours-high-tritan-stack.png
+[   3% ] reimport | zh-CN125-AfterHours-high-standard-stack.png
+[   3% ] reimport | zh-CN125-AfterHours-high-protan-stack.png
+[   3% ] reimport | zh-CN125-AfterHours-high-deutan-stack.png
+[   4% ] reimport | zh-CN100-Midnight-standard-tritan-stack.png
+[   4% ] reimport | zh-CN100-Midnight-standard-standard-stack.png
+[   4% ] reimport | zh-CN100-Midnight-standard-protan-stack.png
+[   4% ] reimport | zh-CN100-Midnight-standard-deutan-stack.png
+[   5% ] reimport | zh-CN100-Midnight-high-tritan-stack.png
+[   5% ] reimport | zh-CN100-Midnight-high-standard-stack.png
+[   5% ] reimport | zh-CN100-Midnight-high-protan-stack.png
+[   5% ] reimport | zh-CN100-Midnight-high-deutan-stack.png
+[   6% ] reimport | zh-HK100-AfterHours-standard-standard-stack.png
+[   6% ] reimport | zh-HK100-AfterHours-standard-protan-stack.png
+[   6% ] reimport | zh-HK100-AfterHours-standard-deutan-stack.png
+[   6% ] reimport | zh-HK100-AfterHours-high-tritan-stack.png
+[   7% ] reimport | zh-HK100-AfterHours-high-standard-stack.png
+[   7% ] reimport | zh-HK100-AfterHours-high-protan-stack.png
+[   7% ] reimport | zh-HK100-AfterHours-high-deutan-stack.png
+[   7% ] reimport | zh-CN150-Midnight-standard-tritan-stack.png
+[   8% ] reimport | zh-CN150-Midnight-standard-standard-stack.png
+[   8% ] reimport | zh-CN150-Midnight-standard-protan-stack.png
+[   8% ] reimport | zh-CN150-Midnight-standard-deutan-stack.png
+[   8% ] reimport | zh-CN150-Midnight-high-tritan-stack.png
+[   9% ] reimport | zh-CN150-Midnight-high-standard-stack.png
+[   9% ] reimport | zh-CN150-Midnight-high-protan-stack.png
+[   9% ] reimport | zh-CN150-Midnight-high-deutan-stack.png
+[   9% ] reimport | zh-CN150-AfterHours-standard-tritan-stack.png
+[  10% ] reimport | zh-CN150-AfterHours-standard-standard-stack.png
+[  10% ] reimport | zh-CN150-AfterHours-standard-protan-stack.png
+[  10% ] reimport | zh-CN150-AfterHours-standard-deutan-stack.png
+[  10% ] reimport | zh-CN150-AfterHours-high-tritan-stack.png
+[  11% ] reimport | zh-CN150-AfterHours-high-standard-stack.png
+[  11% ] reimport | zh-CN150-AfterHours-high-protan-stack.png
+[  11% ] reimport | zh-CN150-AfterHours-high-deutan-stack.png
+[  11% ] reimport | zh-CN150-AfterHours-high-deutan-overflow.png
+[  12% ] reimport | zh-CN150-AfterHours-high-deutan-overflow-unfocused.png
+[  12% ] reimport | en150-AfterHours-high-deutan-stack.png
+[  12% ] reimport | en125-Midnight-standard-tritan-stack.png
+[  12% ] reimport | en125-Midnight-standard-standard-stack.png
+[  13% ] reimport | en125-Midnight-standard-protan-stack.png
+[  13% ] reimport | en125-Midnight-standard-deutan-stack.png
+[  13% ] reimport | en125-Midnight-high-tritan-stack.png
+[  13% ] reimport | en125-Midnight-high-standard-stack.png
+[  14% ] reimport | en125-Midnight-high-protan-stack.png
+[  14% ] reimport | en125-Midnight-high-deutan-stack.png
+[  14% ] reimport | en125-AfterHours-standard-tritan-stack.png
+[  14% ] reimport | en125-AfterHours-standard-standard-stack.png
+[  15% ] reimport | en125-AfterHours-standard-protan-stack.png
+[  15% ] reimport | en125-AfterHours-standard-deutan-stack.png
+[  15% ] reimport | en125-AfterHours-high-tritan-stack.png
+[  15% ] reimport | en125-AfterHours-high-standard-stack.png
+[  16% ] reimport | en125-AfterHours-high-protan-stack.png
+[  16% ] reimport | en125-AfterHours-high-deutan-stack.png
+[  16% ] reimport | en100-Midnight-standard-tritan-stack.png
+[  16% ] reimport | en100-Midnight-standard-standard-stack.png
+[  17% ] reimport | en100-Midnight-standard-protan-stack.png
+[  17% ] reimport | en100-Midnight-standard-deutan-stack.png
+[  17% ] reimport | en100-Midnight-high-tritan-stack.png
+[  17% ] reimport | en100-Midnight-high-standard-stack.png
+[  18% ] reimport | en100-Midnight-high-protan-stack.png
+[  18% ] reimport | zh-CN100-AfterHours-standard-tritan-stack.png
+[  18% ] reimport | zh-CN100-AfterHours-standard-standard-stack.png
+[  18% ] reimport | zh-CN100-AfterHours-standard-protan-stack.png
+[  19% ] reimport | zh-CN100-AfterHours-standard-deutan-stack.png
+[  19% ] reimport | zh-CN100-AfterHours-high-tritan-stack.png
+[  19% ] reimport | zh-CN100-AfterHours-high-standard-stack.png
+[  20% ] reimport | zh-CN100-AfterHours-high-protan-stack.png
+[  20% ] reimport | zh-CN100-AfterHours-high-deutan-stack.png
+[  20% ] reimport | en150-Midnight-standard-tritan-stack.png
+[  20% ] reimport | en150-Midnight-standard-standard-stack.png
+[  21% ] reimport | en150-Midnight-standard-protan-stack.png
+[  21% ] reimport | en150-Midnight-standard-deutan-stack.png
+[  21% ] reimport | en150-Midnight-high-tritan-stack.png
+[  21% ] reimport | en150-Midnight-high-standard-stack.png
+[  22% ] reimport | en150-Midnight-high-protan-stack.png
+[  22% ] reimport | en150-Midnight-high-deutan-stack.png
+[  22% ] reimport | en150-AfterHours-standard-tritan-stack.png
+[  22% ] reimport | en150-AfterHours-standard-standard-stack.png
+[  23% ] reimport | en150-AfterHours-standard-protan-stack.png
+[  23% ] reimport | en150-AfterHours-standard-deutan-stack.png
+[  23% ] reimport | en150-AfterHours-high-tritan-stack.png
+[  23% ] reimport | en150-AfterHours-high-standard-stack.png
+[  24% ] reimport | en150-AfterHours-high-protan-stack.png
+[  24% ] reimport | en150-AfterHours-high-protan-overflow.png
+[  24% ] reimport | en150-AfterHours-high-protan-overflow-unfocused.png
+[  24% ] reimport | en150-AfterHours-standard-standard-stack.png
+[  25% ] reimport | en150-AfterHours-standard-standard-overflow.png
+[  25% ] reimport | en150-AfterHours-standard-standard-overflow-unfocused.png
+[  25% ] reimport | en125-AfterHours-standard-standard-stack.png
+[  25% ] reimport | en100-AfterHours-standard-standard-stack.png
+[  26% ] reimport | zh-HK150-Midnight-stack.png
+[  26% ] reimport | zh-HK150-AfterHours-stack.png
+[  26% ] reimport | zh-HK150-AfterHours-overflow.png
+[  26% ] reimport | zh-HK150-AfterHours-overflow-unfocused.png
+[  27% ] reimport | zh-HK150-AfterHours-empty.png
+[  27% ] reimport | zh-HK125-Midnight-stack.png
+[  27% ] reimport | zh-HK125-AfterHours-stack.png
+[  27% ] reimport | zh-HK100-Midnight-stack.png
+[  28% ] reimport | zh-HK100-AfterHours-stack.png
+[  28% ] reimport | zh-CN150-Midnight-stack.png
+[  28% ] reimport | zh-CN150-AfterHours-stack.png
+[  28% ] reimport | zh-CN150-AfterHours-overflow.png
+[  29% ] reimport | zh-CN150-AfterHours-overflow-unfocused.png
+[  29% ] reimport | zh-CN125-Midnight-stack.png
+[  29% ] reimport | zh-CN125-AfterHours-stack.png
+[  29% ] reimport | zh-CN100-Midnight-stack.png
+[  30% ] reimport | zh-CN100-AfterHours-stack.png
+[  30% ] reimport | en150-Midnight-stack.png
+[  30% ] reimport | en150-AfterHours-stack.png
+[  30% ] reimport | zh-HK150-AfterHours-standard-standard-stack.png
+[  31% ] reimport | zh-HK150-AfterHours-standard-standard-overflow.png
+[  31% ] reimport | zh-HK150-AfterHours-standard-standard-overflow-unfocused.png
+[  31% ] reimport | zh-HK125-AfterHours-standard-standard-stack.png
+[  31% ] reimport | zh-HK100-AfterHours-standard-standard-stack.png
+[  32% ] reimport | zh-CN150-AfterHours-standard-standard-stack.png
+[  32% ] reimport | zh-CN150-AfterHours-standard-standard-overflow.png
+[  32% ] reimport | zh-CN150-AfterHours-standard-standard-overflow-unfocused.png
+[  32% ] reimport | zh-CN125-AfterHours-standard-standard-stack.png
+[  33% ] reimport | zh-CN100-AfterHours-standard-standard-stack.png
+[  33% ] reimport | en150-AfterHours-standard-standard-stack.png
+[  33% ] reimport | en150-AfterHours-standard-standard-overflow.png
+[  33% ] reimport | en150-AfterHours-standard-standard-overflow-unfocused.png
+[  34% ] reimport | en125-AfterHours-standard-standard-stack.png
+[  34% ] reimport | en100-AfterHours-standard-standard-stack.png
+[  34% ] reimport | zh-HK150-AfterHours-standard-standard-stack.png
+[  34% ] reimport | zh-HK150-AfterHours-standard-standard-overflow.png
+[  35% ] reimport | zh-HK150-AfterHours-standard-standard-overflow-unfocused.png
+[  35% ] reimport | zh-HK125-AfterHours-standard-standard-stack.png
+[  35% ] reimport | zh-HK100-AfterHours-standard-standard-stack.png
+[  35% ] reimport | zh-CN150-AfterHours-standard-standard-stack.png
+[  36% ] reimport | zh-CN150-AfterHours-standard-standard-overflow.png
+[  36% ] reimport | zh-CN150-AfterHours-standard-standard-overflow-unfocused.png
+[  36% ] reimport | zh-CN125-AfterHours-standard-standard-stack.png
+[  36% ] reimport | zh-CN100-AfterHours-standard-standard-stack.png
+[  37% ] reimport | zh-HK125-Midnight-standard-tritan-stack.png
+[  37% ] reimport | zh-HK125-Midnight-standard-standard-stack.png
+[  37% ] reimport | zh-HK125-Midnight-standard-protan-stack.png
+[  37% ] reimport | zh-HK125-Midnight-standard-deutan-stack.png
+[  38% ] reimport | zh-HK125-Midnight-high-tritan-stack.png
+[  38% ] reimport | zh-HK125-Midnight-high-standard-stack.png
+[  38% ] reimport | zh-HK125-Midnight-high-protan-stack.png
+[  38% ] reimport | zh-HK125-Midnight-high-deutan-stack.png
+[  39% ] reimport | zh-HK125-AfterHours-standard-tritan-stack.png
+[  39% ] reimport | zh-HK125-AfterHours-standard-standard-stack.png
+[  39% ] reimport | zh-HK125-AfterHours-standard-protan-stack.png
+[  40% ] reimport | zh-HK125-AfterHours-standard-deutan-stack.png
+[  40% ] reimport | zh-HK125-AfterHours-high-tritan-stack.png
+[  40% ] reimport | zh-HK125-AfterHours-high-standard-stack.png
+[  40% ] reimport | zh-HK125-AfterHours-high-protan-stack.png
+[  41% ] reimport | zh-HK125-AfterHours-high-deutan-stack.png
+[  41% ] reimport | zh-HK100-Midnight-standard-tritan-stack.png
+[  41% ] reimport | zh-HK100-Midnight-standard-standard-stack.png
+[  41% ] reimport | zh-HK100-Midnight-standard-protan-stack.png
+[  42% ] reimport | zh-HK100-Midnight-standard-deutan-stack.png
+[  42% ] reimport | zh-HK100-Midnight-high-tritan-stack.png
+[  42% ] reimport | zh-HK100-Midnight-high-standard-stack.png
+[  42% ] reimport | zh-HK100-Midnight-high-protan-stack.png
+[  43% ] reimport | zh-HK100-Midnight-high-deutan-stack.png
+[  43% ] reimport | zh-HK100-AfterHours-standard-tritan-stack.png
+[  43% ] reimport | en150-AfterHours-overflow.png
+[  43% ] reimport | en150-AfterHours-overflow-unfocused.png
+[  44% ] reimport | en125-Midnight-stack.png
+[  44% ] reimport | en125-AfterHours-stack.png
+[  44% ] reimport | en100-Midnight-stack.png
+[  44% ] reimport | en100-AfterHours-stack.png
+[  45% ] reimport | zh-HK150-Midnight-standard-tritan-stack.png
+[  45% ] reimport | zh-HK150-Midnight-standard-standard-stack.png
+[  45% ] reimport | zh-HK150-Midnight-standard-protan-stack.png
+[  45% ] reimport | zh-HK150-Midnight-standard-deutan-stack.png
+[  46% ] reimport | zh-HK150-Midnight-high-tritan-stack.png
+[  46% ] reimport | zh-HK150-Midnight-high-standard-stack.png
+[  46% ] reimport | zh-HK150-Midnight-high-protan-stack.png
+[  46% ] reimport | zh-HK150-Midnight-high-deutan-stack.png
+[  47% ] reimport | zh-HK150-AfterHours-standard-tritan-stack.png
+[  47% ] reimport | zh-HK150-AfterHours-standard-standard-stack.png
+[  47% ] reimport | zh-HK150-AfterHours-standard-protan-stack.png
+[  47% ] reimport | zh-HK150-AfterHours-standard-deutan-stack.png
+[  48% ] reimport | zh-HK150-AfterHours-high-tritan-stack.png
+[  48% ] reimport | zh-HK150-AfterHours-high-tritan-overflow.png
+[  48% ] reimport | zh-HK150-AfterHours-high-tritan-overflow-unfocused.png
+[  48% ] reimport | zh-HK150-AfterHours-high-tritan-empty.png
+[  49% ] reimport | zh-HK150-AfterHours-high-standard-stack.png
+[  49% ] reimport | zh-HK150-AfterHours-high-protan-stack.png
+[  49% ] reimport | zh-HK150-AfterHours-high-deutan-stack.png
+[  49% ] reimport | zh-HK100-large-panel.png
+[  50% ] reimport | zh-HK100-large-contacts.png
+[  50% ] reimport | zh-CN150-ordinary-panel.png
+[  50% ] reimport | zh-CN150-ordinary-contacts.png
+[  50% ] reimport | zh-CN150-large-panel.png
+[  51% ] reimport | zh-CN150-large-contacts.png
+[  51% ] reimport | zh-CN125-ordinary-panel.png
+[  51% ] reimport | zh-CN125-ordinary-contacts.png
+[  51% ] reimport | zh-CN125-large-panel.png
+[  52% ] reimport | zh-CN125-large-contacts.png
+[  52% ] reimport | zh-CN100-ordinary-panel.png
+[  52% ] reimport | zh-CN100-ordinary-contacts.png
+[  52% ] reimport | zh-CN100-large-panel.png
+[  53% ] reimport | zh-CN100-large-contacts.png
+[  53% ] reimport | en150-ordinary-panel.png
+[  53% ] reimport | en150-ordinary-contacts.png
+[  53% ] reimport | en150-large-panel.png
+[  54% ] reimport | en150-large-contacts.png
+[  54% ] reimport | en125-ordinary-panel.png
+[  54% ] reimport | en125-ordinary-contacts.png
+[  54% ] reimport | en125-large-panel.png
+[  55% ] reimport | en125-large-contacts.png
+[  55% ] reimport | en100-ordinary-panel.png
+[  55% ] reimport | en100-ordinary-contacts.png
+[  55% ] reimport | zh_CN-100-AfterHours-ordinary-delete-confirmation.png
+[  56% ] reimport | zh_CN-100-AfterHours-ordinary-backup.png
+[  56% ] reimport | en-150-AfterHours-ordinary-operation-recovery.png
+[  56% ] reimport | en-150-AfterHours-ordinary-delete-confirmation.png
+[  56% ] reimport | en-150-AfterHours-ordinary-backup.png
+[  57% ] reimport | en-125-AfterHours-ordinary-operation-recovery.png
+[  57% ] reimport | en-125-AfterHours-ordinary-delete-confirmation.png
+[  57% ] reimport | en-125-AfterHours-ordinary-backup.png
+[  57% ] reimport | en-100-AfterHours-ordinary-operation-recovery.png
+[  58% ] reimport | en-100-AfterHours-ordinary-delete-confirmation.png
+[  58% ] reimport | en-100-AfterHours-ordinary-backup.png
+[  58% ] reimport | expert-en150-last-cell.png
+[  58% ] reimport | canonical-cn125.png
+[  59% ] reimport | beginner-hk150-large.png
+[  59% ] reimport | beginner-en100.png
+[  59% ] reimport | zh-HK150-ordinary-panel.png
+[  60% ] reimport | zh-HK150-ordinary-contacts.png
+[  60% ] reimport | zh-HK150-large-panel.png
+[  60% ] reimport | zh-HK150-large-contacts.png
+[  60% ] reimport | zh-HK125-ordinary-panel.png
+[  61% ] reimport | zh-HK125-ordinary-contacts.png
+[  61% ] reimport | zh-HK125-large-panel.png
+[  61% ] reimport | zh-HK125-large-contacts.png
+[  61% ] reimport | zh-HK100-ordinary-panel.png
+[  62% ] reimport | zh-HK100-ordinary-contacts.png
+[  62% ] reimport | en-midnight.png
+[  62% ] reimport | en-after_hours.png
+[  62% ] reimport | composite-grids.png
+[  63% ] reimport | rules-cn125.png
+[  63% ] reimport | reopened-hk150-large.png
+[  63% ] reimport | active-en100.png
+[  63% ] reimport | midnight-standard-tritan-zh-HK150-large.png
+[  64% ] reimport | midnight-standard-standard-zh-HK150-large.png
+[  64% ] reimport | midnight-standard-protan-en100.png
+[  64% ] reimport | midnight-standard-deutan-zh-CN125.png
+[  64% ] reimport | midnight-hc-tritan-en100.png
+[  65% ] reimport | midnight-hc-tritan-en100-assignments.png
+[  65% ] reimport | midnight-hc-standard-en100.png
+[  65% ] reimport | midnight-hc-protan-zh-CN125.png
+[  65% ] reimport | midnight-hc-deutan-zh-HK150-large.png
+[  66% ] reimport | after_hours-standard-tritan-en100.png
+[  66% ] reimport | after_hours-standard-standard-en100.png
+[  66% ] reimport | after_hours-standard-protan-zh-CN125.png
+[  66% ] reimport | after_hours-standard-deutan-zh-HK150-large.png
+[  67% ] reimport | after_hours-hc-tritan-zh-CN125.png
+[  67% ] reimport | after_hours-hc-tritan-zh-CN125-rules.png
+[  67% ] reimport | after_hours-hc-standard-zh-CN125.png
+[  67% ] reimport | after_hours-hc-protan-zh-HK150-large.png
+[  68% ] reimport | after_hours-hc-deutan-en100.png
+[  68% ] reimport | en100-large-panel.png
+[  68% ] reimport | en100-large-contacts.png
+[  68% ] reimport | comparison-en150-large.png
+[  69% ] reimport | comparison-en100-ordinary.png
+[  69% ] reimport | rules-hk100-large.png
+[  69% ] reimport | rules-en100.png
+[  69% ] reimport | rules-cn100.png
+[  70% ] reimport | rules-canonical-en150.png
+[  70% ] reimport | assignments-hk150-large-last.png
+[  70% ] reimport | assignments-en150-last.png
+[  70% ] reimport | assignments-cn125-middle.png
+[  71% ] reimport | rules-cn125.png
+[  71% ] reimport | panel-en150-large.png
+[  71% ] reimport | panel-en100.png
+[  71% ] reimport | assignments-hk150-large.png
+[  72% ] reimport | desktop-hk150-large.png
+[  72% ] reimport | desktop-en150-large.png
+[  72% ] reimport | desktop-en100.png
+[  72% ] reimport | desktop-cn125.png
+[  73% ] reimport | canonical-en125.png
+[  73% ] reimport | canonical-cn150-large.png
+[  73% ] reimport | zh_HK-midnight.png
+[  73% ] reimport | zh_HK-after_hours.png
+[  74% ] reimport | zh_CN-midnight.png
+[  74% ] reimport | zh_CN-after_hours.png
+[  74% ] reimport | zh-CN100-AfterHours-short.png
+[  74% ] reimport | en150-Midnight-short.png
+[  75% ] reimport | en150-AfterHours-short.png
+[  75% ] reimport | en150-AfterHours-overflow.png
+[  75% ] reimport | en150-AfterHours-overflow-unfocused.png
+[  75% ] reimport | en125-Midnight-short.png
+[  76% ] reimport | en125-AfterHours-short.png
+[  76% ] reimport | en100-Midnight-short.png
+[  76% ] reimport | en100-AfterHours-short.png
+[  76% ] reimport | zh_HK-150-Midnight-standard-standard-ordinary-return.png
+[  77% ] reimport | zh_HK-150-Midnight-standard-standard-large-return.png
+[  77% ] reimport | zh_HK-150-Midnight-high-tritan-ordinary-return.png
+[  77% ] reimport | zh_HK-150-Midnight-high-standard-ordinary-return.png
+[  77% ] reimport | zh_HK-150-Midnight-high-protan-ordinary-return.png
+[  78% ] reimport | zh_HK-150-Midnight-high-deutan-ordinary-return.png
+[  78% ] reimport | zh_HK-150-AfterHours-standard-standard-ordinary-return.png
+[  78% ] reimport | zh_HK-150-AfterHours-standard-standard-large-return.png
+[  78% ] reimport | zh_HK-125-Midnight-standard-standard-ordinary-return.png
+[  79% ] reimport | zh_HK-125-Midnight-standard-standard-large-return.png
+[  79% ] reimport | zh_HK-125-AfterHours-standard-standard-ordinary-return.png
+[  79% ] reimport | zh_HK-125-AfterHours-standard-standard-large-return.png
+[  80% ] reimport | zh_HK-100-Midnight-standard-standard-ordinary-return.png
+[  80% ] reimport | zh_HK-100-Midnight-standard-standard-large-return.png
+[  80% ] reimport | zh_HK-100-AfterHours-standard-standard-ordinary-return.png
+[  80% ] reimport | en100-Midnight-high-deutan-stack.png
+[  81% ] reimport | en100-AfterHours-standard-tritan-stack.png
+[  81% ] reimport | en100-AfterHours-standard-standard-stack.png
+[  81% ] reimport | en100-AfterHours-standard-protan-stack.png
+[  81% ] reimport | en100-AfterHours-standard-deutan-stack.png
+[  82% ] reimport | en100-AfterHours-high-tritan-stack.png
+[  82% ] reimport | en100-AfterHours-high-standard-stack.png
+[  82% ] reimport | en100-AfterHours-high-protan-stack.png
+[  82% ] reimport | en100-AfterHours-high-deutan-stack.png
+[  83% ] reimport | zh-HK150-Midnight-short.png
+[  83% ] reimport | zh-HK150-AfterHours-short.png
+[  83% ] reimport | zh-HK150-AfterHours-overflow.png
+[  83% ] reimport | zh-HK150-AfterHours-overflow-unfocused.png
+[  84% ] reimport | zh-HK150-AfterHours-empty.png
+[  84% ] reimport | zh-HK125-Midnight-short.png
+[  84% ] reimport | zh-HK125-AfterHours-short.png
+[  84% ] reimport | zh-HK100-Midnight-short.png
+[  85% ] reimport | zh-HK100-AfterHours-short.png
+[  85% ] reimport | zh-CN150-Midnight-short.png
+[  85% ] reimport | zh-CN150-AfterHours-short.png
+[  85% ] reimport | zh-CN150-AfterHours-overflow.png
+[  86% ] reimport | zh-CN150-AfterHours-overflow-unfocused.png
+[  86% ] reimport | zh-CN125-Midnight-short.png
+[  86% ] reimport | zh-CN125-AfterHours-short.png
+[  86% ] reimport | zh-CN100-Midnight-short.png
+[  87% ] reimport | en-125-Midnight-standard-standard-ordinary-return.png
+[  87% ] reimport | en-125-Midnight-standard-standard-large-return.png
+[  87% ] reimport | en-125-AfterHours-standard-standard-ordinary-return.png
+[  87% ] reimport | en-125-AfterHours-standard-standard-large-return.png
+[  88% ] reimport | en-100-Midnight-standard-standard-ordinary-return.png
+[  88% ] reimport | en-100-Midnight-standard-standard-large-return.png
+[  88% ] reimport | en-100-AfterHours-standard-standard-ordinary-return.png
+[  88% ] reimport | en-100-AfterHours-standard-standard-ordinary-continue.png
+[  89% ] reimport | en-100-AfterHours-standard-standard-large-return.png
+[  89% ] reimport | zh_HK-150-AfterHours-ordinary-operation-recovery.png
+[  89% ] reimport | zh_HK-150-AfterHours-ordinary-delete-confirmation.png
+[  89% ] reimport | zh_HK-150-AfterHours-ordinary-backup.png
+[  90% ] reimport | zh_HK-125-AfterHours-ordinary-operation-recovery.png
+[  90% ] reimport | zh_HK-125-AfterHours-ordinary-delete-confirmation.png
+[  90% ] reimport | zh_HK-125-AfterHours-ordinary-backup.png
+[  90% ] reimport | zh_HK-100-AfterHours-ordinary-operation-recovery.png
+[  91% ] reimport | zh_HK-100-AfterHours-ordinary-delete-confirmation.png
+[  91% ] reimport | zh_HK-100-AfterHours-ordinary-backup.png
+[  91% ] reimport | zh_CN-150-AfterHours-ordinary-operation-recovery.png
+[  91% ] reimport | zh_CN-150-AfterHours-ordinary-delete-confirmation.png
+[  92% ] reimport | zh_CN-150-AfterHours-ordinary-backup.png
+[  92% ] reimport | zh_CN-125-AfterHours-ordinary-operation-recovery.png
+[  92% ] reimport | zh_CN-125-AfterHours-ordinary-delete-confirmation.png
+[  92% ] reimport | zh_CN-125-AfterHours-ordinary-backup.png
+[  93% ] reimport | zh_CN-100-AfterHours-ordinary-operation-recovery.png
+[  93% ] reimport | zh_HK-100-AfterHours-standard-standard-large-return.png
+[  93% ] reimport | zh_CN-150-Midnight-standard-standard-ordinary-return.png
+[  93% ] reimport | zh_CN-150-Midnight-standard-standard-large-return.png
+[  94% ] reimport | zh_CN-150-AfterHours-standard-standard-ordinary-return.png
+[  94% ] reimport | zh_CN-150-AfterHours-standard-standard-large-return.png
+[  94% ] reimport | zh_CN-150-AfterHours-high-tritan-ordinary-return.png
+[  94% ] reimport | zh_CN-150-AfterHours-high-standard-ordinary-return.png
+[  95% ] reimport | zh_CN-150-AfterHours-high-protan-ordinary-return.png
+[  95% ] reimport | zh_CN-150-AfterHours-high-deutan-ordinary-return.png
+[  95% ] reimport | zh_CN-125-Midnight-standard-standard-ordinary-return.png
+[  95% ] reimport | zh_CN-125-Midnight-standard-standard-large-return.png
+[  96% ] reimport | zh_CN-125-AfterHours-standard-standard-ordinary-return.png
+[  96% ] reimport | zh_CN-125-AfterHours-standard-standard-large-return.png
+[  96% ] reimport | zh_CN-100-Midnight-standard-standard-ordinary-return.png
+[  96% ] reimport | zh_CN-100-Midnight-standard-standard-large-return.png
+[  97% ] reimport | zh_CN-100-AfterHours-standard-standard-ordinary-return.png
+[  97% ] reimport | zh_CN-100-AfterHours-standard-standard-large-return.png
+[  97% ] reimport | en-150-Midnight-standard-standard-ordinary-return.png
+[  97% ] reimport | en-150-Midnight-standard-standard-large-return.png
+[  98% ] reimport | en-150-AfterHours-standard-standard-ordinary-return.png
+[  98% ] reimport | en-150-AfterHours-standard-standard-large-return.png
+[  98% ] reimport | en-150-AfterHours-high-tritan-ordinary-return.png
+[  98% ] reimport | en-150-AfterHours-high-standard-ordinary-return.png
+[  99% ] reimport | en-150-AfterHours-high-protan-ordinary-return.png
+[  99% ] reimport | en-150-AfterHours-high-deutan-ordinary-return.png
+[  99% ] reimport | 正在结束资产导入……
+[ DONE ] reimport
+
+[   0% ] reimport | Started 正在导入或重新导入资产 (394 steps)
+[   0% ] reimport | 正在执行重新导入的后置操作……
+[ DONE ] reimport
+
+[   0% ] loading_editor_layout | Started 正在加载编辑器 (5 steps)
+[   0% ] loading_editor_layout | 正在加载编辑器布局……
+[  16% ] loading_editor_layout | 正在加载停靠面板……
+[ DONE ] loading_editor_layout

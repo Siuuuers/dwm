@@ -1,0 +1,252 @@
+{
+  "artifact_identity": {
+    "attempt": 1,
+    "id": 11215650532,
+    "name": "solo-authored-selector-36980559297-1",
+    "verified_members": 48,
+    "workflow_head": "41cc51992b74ec9472f7912e0eb8e1c39679af44",
+    "zip_identity": {
+      "bytes": 7013292,
+      "sha256": "b48ba2ef64dff55ef2b300cfa435e275ea1cd579e84589647d54677087ccd030"
+    }
+  },
+  "audit_complete": true,
+  "auditor_identity": {
+    "bytes": 35924,
+    "sha256": "df20b8cc91daedb3fbc909b376539369e04174e196e2f8496818593016af1d1c"
+  },
+  "canonical_witness_hashes": 4,
+  "caption_count": 4,
+  "captures": [
+    {
+      "bytes": 6644,
+      "file": "01-title.png",
+      "height": 720,
+      "sha256": "dce38c811a99a343ddd5d656914df58c28e5c4bd114643c65b8ce60fa65a1d21",
+      "width": 1280
+    },
+    {
+      "bytes": 353679,
+      "file": "02-desktop.png",
+      "height": 720,
+      "sha256": "a725741b9f39cc85274afb2dc8413e16ab1adc3a309530fb4d469e4f2cc65a5e",
+      "width": 1280
+    },
+    {
+      "bytes": 355581,
+      "file": "03-minesweeper.png",
+      "height": 720,
+      "sha256": "283294d0f817eb7c8590ff8ffbd37901c2a492b1c540baabc97c37a221b1059c",
+      "width": 1280
+    },
+    {
+      "bytes": 7318,
+      "file": "04-pre-history.png",
+      "height": 720,
+      "sha256": "4d878362e53a01aad70fb13415154dfcf38c1f331455699c8909a191ea3fcb42",
+      "width": 1280
+    },
+    {
+      "bytes": 675579,
+      "file": "05-dating-board.png",
+      "height": 720,
+      "sha256": "de5b09a216780196f65bcca92499c2230c05b854ef1e4697afddfa603d005590",
+      "width": 1280
+    },
+    {
+      "bytes": 9038,
+      "file": "06-post-history.png",
+      "height": 720,
+      "sha256": "d9abf8ef821bf2d3548ec3d37a4c89047c091b6dd83ea9639bbda3cce0031ec6",
+      "width": 1280
+    },
+    {
+      "bytes": 1330423,
+      "file": "07-post-save.png",
+      "height": 720,
+      "sha256": "e3964a51260a46d0ba2fd37cc80dc9a6b61fd9beab3ea1c21f796d820c2757c2",
+      "width": 1280
+    },
+    {
+      "bytes": 9038,
+      "file": "08-restored-history.png",
+      "height": 720,
+      "sha256": "d9abf8ef821bf2d3548ec3d37a4c89047c091b6dd83ea9639bbda3cce0031ec6",
+      "width": 1280
+    },
+    {
+      "bytes": 1330459,
+      "file": "09-restored-line.png",
+      "height": 720,
+      "sha256": "d5148fe105c1700944ea6ab51b832aa316c0a2182bb03042b5b4e33f75dd4447",
+      "width": 1280
+    }
+  ],
+  "checkout": "705ea660b4d6ee9f3376ae4660a3d50e65fe5502",
+  "destination_pre_publication_baseline": false,
+  "independent_run_frame_forgery_refused": true,
+  "job": {
+    "checkout_shas": [
+      "705ea660b4d6ee9f3376ae4660a3d50e65fe5502"
+    ],
+    "execution_job_id": 110755020157,
+    "github_job": "rendered-journeys",
+    "job_id": 110755020157,
+    "log": "logs/110755020157.log",
+    "log_identity": {
+      "bytes": 498886,
+      "sha256": "65524ee61e471b2ebb9a24132cd74b960f675df0f95af945df610e41b8ad7155"
+    },
+    "name": "Rendered seven-day, ending, Gallery and Dating journeys"
+  },
+  "limits": [
+    "Read-only audit of retained cloud execution; no local engine or PowerShell execution.",
+    "Finite noncanonical Priscilla Day 1 sweet exploded fixture; actual observed disposition only.",
+    "Both Next autosave endpoints are retained and byte-audited; the final Quick is the endpoint fresh-loaded in the reader.",
+    "Nine capture identities are verified; layout quality requires separate visual review.",
+    "Canonical JSON hash recomputation is limited to exact integers and printable ASCII used by this fixture.",
+    "This component receipt does not substitute for the canonical broad workflow gate."
+  ],
+  "metadata_identities": {
+    "artifact-manifest.json": {
+      "bytes": 18978,
+      "sha256": "d4209f8f9fd1e45b7e781f22bc334723ea73ce103b1d4857ff03f40c609c101e"
+    },
+    "artifacts-api.json": {
+      "bytes": 29539,
+      "sha256": "9d2c8d205765d960ed2782b76059f0a5d45b8910b25637d84d9ef49a8412f96f"
+    },
+    "jobs.json": {
+      "bytes": 95023,
+      "sha256": "1ae28c78b857f495afde3c32178743bb2bd795e7b7d423e6ce73f8a706e691ff"
+    },
+    "run.json": {
+      "bytes": 13423,
+      "sha256": "95b677943fca1cf6aba9b3d33493c325afc5f3d154023df2a71efef35562407b"
+    }
+  },
+  "next_endpoints": [
+    {
+      "bytes": 136273,
+      "checkpoint_id": "run_id.14e363fb1a8ad9452609f6f16117d06ecdb36e8ecf129f576b1067f5684fa069:16",
+      "checkpoint_sequence": 16,
+      "phase": "source",
+      "sha256": "beb8d5e8126ee9e877b0496b11a663975812b09c79a4052fd162376abaefd431"
+    },
+    {
+      "bytes": 148513,
+      "checkpoint_id": "run_id.14e363fb1a8ad9452609f6f16117d06ecdb36e8ecf129f576b1067f5684fa069:17",
+      "checkpoint_sequence": 17,
+      "phase": "destination",
+      "sha256": "7acdc2d7beb4a5ac7bdf893aefc017793fabe81bd9ff781dc5581ecc93ac63d0"
+    }
+  ],
+  "operation_id": "82f13370800caa6dfd97b88d9876ed13570f30f4b97e762c3fe6a7b30d53b948",
+  "process_ids": {
+    "read": 5065,
+    "write": 4996
+  },
+  "process_receipt_identities": {
+    "read": {
+      "bytes": 1179,
+      "sha256": "0aa52d3048fb9893266854e6f1dbb402e9efbb053cd9666c6dfc57d4d47581ba"
+    },
+    "user-dir-proof": {
+      "bytes": 846,
+      "sha256": "9c36625254f09ccb932508b510d6ede125e9bf3f4f7f000e4c863e432de8510b"
+    },
+    "write": {
+      "bytes": 1184,
+      "sha256": "f995563d2d504842ee60fae7c466850e8e84d118ceb3ac3a5a14802fe8f66719"
+    }
+  },
+  "report_identity": {
+    "bytes": 197519,
+    "sha256": "6da7d9b7692fceda2ae18ea624fe1aa72ce554c8c2e0d36585d68731d6253c22"
+  },
+  "restored_speech_admissions": 0,
+  "retained_files": {
+    "read-after-profile.json": {
+      "bytes": 11980,
+      "sha256": "d3479e7c15e9ebc026c7a3dda69f9aad48875515d9816e0f27e6de54437c8c7b"
+    },
+    "read-after-quick.json": {
+      "bytes": 158161,
+      "sha256": "5e3d4f9e9af3bab3ad9f23cc467e31b3717b77eb16345d52f92590c74240ea0f"
+    },
+    "read-before-profile.json": {
+      "bytes": 11980,
+      "sha256": "d3479e7c15e9ebc026c7a3dda69f9aad48875515d9816e0f27e6de54437c8c7b"
+    },
+    "read-before-quick.json": {
+      "bytes": 158161,
+      "sha256": "5e3d4f9e9af3bab3ad9f23cc467e31b3717b77eb16345d52f92590c74240ea0f"
+    },
+    "saved-next-destination.json": {
+      "bytes": 148513,
+      "sha256": "7acdc2d7beb4a5ac7bdf893aefc017793fabe81bd9ff781dc5581ecc93ac63d0"
+    },
+    "saved-next-source.json": {
+      "bytes": 136273,
+      "sha256": "beb8d5e8126ee9e877b0496b11a663975812b09c79a4052fd162376abaefd431"
+    },
+    "saved-profile.json": {
+      "bytes": 11980,
+      "sha256": "d3479e7c15e9ebc026c7a3dda69f9aad48875515d9816e0f27e6de54437c8c7b"
+    },
+    "saved-quick.json": {
+      "bytes": 158161,
+      "sha256": "5e3d4f9e9af3bab3ad9f23cc467e31b3717b77eb16345d52f92590c74240ea0f"
+    }
+  },
+  "run_attempt": 1,
+  "run_id": 36980559297,
+  "runtime_proof_failures": [],
+  "schema_version": 1,
+  "selected_labels": {
+    "dating.solo.priscilla.day1.post_challenge": "fixture.selector.post.sweet.exploded.upset",
+    "dating.solo.priscilla.day1.pre_challenge": "fixture.selector.pre.sweet"
+  },
+  "source": "41cc51992b74ec9472f7912e0eb8e1c39679af44",
+  "source_files": {
+    "scripts/narrative/ReadingTraversalOperation.gd": {
+      "bytes": 7001,
+      "sha256": "897e66187bd381f5ce46908dfaa7ab68cf5fe27b5e3afd9c6c361179f4514510"
+    },
+    "scripts/validation/CanonicalJsonWriter.gd": {
+      "bytes": 8943,
+      "sha256": "925341fed6bbb64b2c28d22f269e92a2806f2170f4965eb412d9179cf3cd34f1"
+    },
+    "tests/fixtures/dialogic/solo_authored_selector.dtl": {
+      "bytes": 2482,
+      "sha256": "79df57eb89e3e6db6e0044ad2933bbe8371b17d92f6c319eb4a6b3c7c3cc5d80"
+    },
+    "tests/fixtures/dialogic/solo_authored_selector_catalogue.json": {
+      "bytes": 15048,
+      "sha256": "8d806bf6b34e0b785aca34a4c4c60929cb46e32cdfe33b6cbf544e0b08acb66b"
+    },
+    "tests/integration/verify_solo_authored_selector_journey.gd": {
+      "bytes": 42275,
+      "sha256": "a4f417b65cbfaecb78f8f033648bf74adc799432062f7785b763582bbe0b6c8d"
+    },
+    "tools/testing/run_cloud_journeys.py": {
+      "bytes": 17327,
+      "sha256": "d4097de4ca375d82eea44e7cb5e30bac35d0eb3320fef54343620aa309e049a4"
+    },
+    "tools/testing/run_solo_authored_selector_journey.py": {
+      "bytes": 29922,
+      "sha256": "220766e13ca349b37553d43ff2b6b4d0fbd26450cf354c48eb4e28f906d399a1"
+    }
+  },
+  "source_pre_publication_baseline": false,
+  "trace_entries": 12,
+  "trace_identity": {
+    "bytes": 91439,
+    "sha256": "7d4d2bbfb2c0f660b71eadce9a5b15c22e8f49162ee86a6e420495e28ef2db9f"
+  },
+  "traversed_captions": 0,
+  "writer_seal_identity": {
+    "bytes": 2017,
+    "sha256": "15aa74e89e6d7d6bf72578486ed02feaad627ecaa6d3fdbc69d868c13b5e4d18"
+  }
+}

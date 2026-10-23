@@ -1,0 +1,19 @@
+{
+  "source": "db9b896ba54f792f14d157f0dec2b38f2cb5c729",
+  "tree": "d9309c97e5f0b2c9731381801ad6cb8a673a91be",
+  "controller": "46b6a2e8a4978e33f60d7318fe3c1cb654308895",
+  "artifact_id": 12475027903,
+  "outer_sha256": "816a1a378691c9bdcba7fc5aec55e8e34056c8f32db12d22bdd5a7a361500aa9",
+  "zip_crc_verified": true,
+  "retained_members_verified": 85,
+  "tests": 25,
+  "case_assertions": 558,
+  "setup_assertions": 2,
+  "processes_exit_zero": 8,
+  "native_captures_inspected": 6,
+  "dimensions": [
+    992,
+    558
+  ],
+  "scope": "Artwork on shipped Title New Account and fresh Load; not full-week acceptance"
+}

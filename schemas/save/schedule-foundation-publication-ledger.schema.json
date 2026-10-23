@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Schedule-foundation publication ledger",
+  "description": "Append-only, root-scoped observation ledger written at the fixed relative path schedule-foundation-publications.json. It is outside selectable Save slots, profiles, autosaves and RunSnapshot/SaveDocument restore participants: selected Load, New Run, profile reset, ordinary rollback and recovery-journal rewind never delete, replace or lower a record. Each records key is exactly kind + ':' + semantic_receipt.receipt_id, and publication_sha256 is lowercase SHA-256 over the canonical UTF-8 JSON of publication with no trailing newline. ScheduleFoundationPublicationLedger._SCHEMA mirrors this contract and adds the key, hash and receipt-binding laws the dialect cannot express.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "records"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "records": {"type": "object"}
+  },
+  "$defs": {
+    "record": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["key", "kind", "publication", "publication_sha256", "semantic_receipt"],
+      "properties": {
+        "key": {"type": "string", "minLength": 1},
+        "kind": {"enum": ["schedule_commit", "day_resolution_start"]},
+        "semantic_receipt": {"type": "object"},
+        "publication": {"type": "object"},
+        "publication_sha256": {"type": "string", "minLength": 64}
+      }
+    },
+    "schedule_commit_publication": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["committed_schedule", "schedule_commit_receipt"],
+      "properties": {
+        "committed_schedule": {"type": "object"},
+        "schedule_commit_receipt": {"type": "object"}
+      }
+    },
+    "day_resolution_start_publication": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["day_resolution_start_receipt", "resolution_plan"],
+      "properties": {
+        "day_resolution_start_receipt": {"type": "object"},
+        "resolution_plan": {"type": "object"}
+      }
+    }
+  }
+}

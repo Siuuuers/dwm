@@ -1,0 +1,14 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+OpenGL API 3.3.0 - Build 31.0.101.4146 - Compatibility - Using Device: Intel - Intel(R) Iris(R) Xe Graphics
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+ERROR: WITNESSED_RECOVERY_CUSTODY_FAILED: production Pause host did not become ready
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _fail (res://tests/manual/verify_witnessed_recovery_custody.gd:268)
+       [1] _run (res://tests/manual/verify_witnessed_recovery_custody.gd:70)
+       [2] _wait_until (res://tests/manual/verify_witnessed_recovery_custody.gd:240)
+RESULT {"failures":["production Pause host did not become ready"],"observations":{},"ok":false,"pause_baseline":{},"result_path":"C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/d8006654-8d7b-45e1-b26f-72eb6d4ce68a/dwm_test_root/39132/1/witnessed-recovery-custody-native/witnessed-recovery-custody/result.json","scope":"real recovery scene and composed Pause host on the Windows main viewport, plus a lower unhandled-input observer; the current menu is not a playable narrative Pause-admission fixture; injected packets, no hardware/UIA claim"}

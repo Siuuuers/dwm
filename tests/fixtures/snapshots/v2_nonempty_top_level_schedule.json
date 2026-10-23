@@ -1,0 +1,37 @@
+{
+  "schema_version": 2,
+  "content_version": 1,
+  "run_id": "legacy-toplevel-run",
+  "checkpoint_id": "legacy-toplevel-run:23",
+  "checkpoint_sequence": 23,
+  "lifecycle": {
+    "run_id": "legacy-toplevel-run",
+    "day": 5,
+    "state": "PLAYING",
+    "active_resolution_plan": null,
+    "ending_plan": null
+  },
+  "route_id": "main",
+  "active_app_id": null,
+  "narrative_checkpoint": {},
+  "gameplay": {
+    "narrative_variables": {},
+    "schedule_entries": [],
+    "money": 815,
+    "coins": 19,
+    "stats": {"motivation": 1, "pressure": 8, "health": 2},
+    "penalty_points_total": 4,
+    "missed_invitations": [],
+    "shop_purchase_counts": {"item.energy_drink": 2}
+  },
+  "command_receipts": {},
+  "contacts": {},
+  "schedule": [
+    {"type": "working", "action_id": "working", "friend_id": ""},
+    {"type": "solo", "action_id": "solo:lavinia:day5", "friend_id": "lavinia"}
+  ],
+  "dating": {},
+  "applied_effect_transaction_ids": [],
+  "applied_variable_transaction_ids": [],
+  "audio_context": {}
+}

@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="GutTests" failures="0" tests="44" >
+  <testsuite name="tests/unit/test_audio_manager.gd" tests="23" failures="0" skipped="0" time="0.044499" >
+      <testcase name="test_ending_audio_map_covers_every_canonical_id" assertions="15" status="pass" classname="tests/unit/test_audio_manager.gd" time="0.001953" >
+      </testcase>
+      <testcase name="test_ending_audio_rejects_retired_unknown_and_empty_ids" assertions="6" status="pass" classname="tests/unit/test_audio_manager.gd" time="0.000603" >
+      </testcase>
+      <testcase name="test_initialization_preserves_gate_and_builds_exact_pools" assertions="6" status="pass" classname="tests/unit/test_audio_manager.gd" time="0.000878" >
+      </testcase>
+      <testcase name="test_failed_initialization_is_retryable_and_does_not_connect_profile" assertions="4" status="pass" classname="tests/unit/test_audio_manager.gd" time="0.00044" >
+      </testcase>
+      <testcase name="test_volume_clamp_silence_threshold_and_explicit_mute" assertions="8" status="pass" classname="tests/unit/test_audio_manager.gd" time="0.000944" >
+      </testcase>
+      <testcase name="test_exact_threshold_and_focus_loss_overlay_do_not_replace_preferences" assertions="9" status="pass" classname="tests/unit/test_audio_manager.gd" time="0.001053" >
+      </testcase>
+      <testcase name="test_semantic_contexts_are_exact_and_same_context_is_idempotent" assertions="8" status="pass" classname="tests/unit/test_audio_manager.gd" time="0.0012" >
+      </testcase>
+      <testcase name="test_unknown_context_and_cue_never_mutate_semantic_state" assertions="4" status="pass" classname="tests/unit/test_audio_manager.gd" time="0.000762" >
+      </testcase>
+      <testcase name="test_commands_before_initialization_fail_without_touching_port" assertions="4" status="pass" classname="tests/unit/test_audio_manager.gd" time="0.00046" >
+      </testcase>
+      <testcase name="test_sfx_dispatch_uses_registered_manifest_bus" assertions="6" status="pass" classname="tests/unit/test_audio_manager.gd" time="0.00075" >
+      </testcase>
+      <testcase name="test_full_sfx_pool_reuses_oldest_playing_after_a_free_slot_was_reused" assertions="7" status="pass" classname="tests/unit/test_audio_manager.gd" time="0.000904" >
+      </testcase>
+      <testcase name="test_failed_context_change_rolls_back_runtime_and_semantics" assertions="6" status="pass" classname="tests/unit/test_audio_manager.gd" time="0.000967" >
+      </testcase>
+      <testcase name="test_every_crossfade_operation_failpoint_preserves_semantics" assertions="28" status="pass" classname="tests/unit/test_audio_manager.gd" time="0.004455" >
+      </testcase>
+      <testcase name="test_rollback_failure_latches_fatal_and_best_effort_mutes_channel" assertions="6" status="pass" classname="tests/unit/test_audio_manager.gd" time="0.000792" >
+      </testcase>
+      <testcase name="test_async_old_player_stop_failure_latches_fatal" assertions="6" status="pass" classname="tests/unit/test_audio_manager.gd" time="0.00067" >
+      </testcase>
+      <testcase name="test_committed_preference_apply_failure_latches_shared_gate" assertions="4" status="pass" classname="tests/unit/test_audio_manager.gd" time="0.000566" >
+      </testcase>
+      <testcase name="test_semantic_restore_is_silent_and_rollback_preserves_exact_runtime" assertions="20" status="pass" classname="tests/unit/test_audio_manager.gd" time="0.007387" >
+      </testcase>
+      <testcase name="test_restore_capture_refusal_has_no_audio_side_effects" assertions="6" status="pass" classname="tests/unit/test_audio_manager.gd" time="0.009379" >
+      </testcase>
+      <testcase name="test_partial_audio_restore_compensates_before_refusing" assertions="8" status="pass" classname="tests/unit/test_audio_manager.gd" time="0.006055" >
+      </testcase>
+      <testcase name="test_failed_restore_compensation_latches_shared_recovery" assertions="8" status="pass" classname="tests/unit/test_audio_manager.gd" time="0.001145" >
+      </testcase>
+      <testcase name="test_restore_can_clear_channels_and_force_restart_same_context" assertions="18" status="pass" classname="tests/unit/test_audio_manager.gd" time="0.002437" >
+      </testcase>
+      <testcase name="test_restore_rejects_non_json_context_and_malformed_audio_preferences" assertions="3" status="pass" classname="tests/unit/test_audio_manager.gd" time="0.000498" >
+      </testcase>
+      <testcase name="test_runtime_audio_context_is_not_run_save_state" assertions="1" status="pass" classname="tests/unit/test_audio_manager.gd" time="0.000201" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_audio_settings_transactions.gd" tests="21" failures="0" skipped="0" time="0.376553" >
+      <testcase name="test_preview_changes_only_output_and_cancel_restores_committed_settings" assertions="16" status="pass" classname="tests/unit/test_audio_settings_transactions.gd" time="0.018572" >
+      </testcase>
+      <testcase name="test_restore_capture_refuses_owned_preview_until_normal_cancellation" assertions="19" status="pass" classname="tests/unit/test_audio_settings_transactions.gd" time="0.022218" >
+      </testcase>
+      <testcase name="test_restore_capture_refuses_inside_active_settings_transaction_without_mutation" assertions="13" status="pass" classname="tests/unit/test_audio_settings_transactions.gd" time="0.014866" >
+      </testcase>
+      <testcase name="test_stale_holder_path_and_handle_refuse_without_discarding_current_preview" assertions="13" status="pass" classname="tests/unit/test_audio_settings_transactions.gd" time="0.010598" >
+      </testcase>
+      <testcase name="test_commit_publishes_only_after_output_and_committed_settings_are_proved" assertions="12" status="pass" classname="tests/unit/test_audio_settings_transactions.gd" time="0.021511" >
+      </testcase>
+      <testcase name="test_publication_callback_can_commit_new_profile_and_latest_output_wins" assertions="11" status="pass" classname="tests/unit/test_audio_settings_transactions.gd" time="0.033986" >
+      </testcase>
+      <testcase name="test_profile_write_during_physical_apply_refuses_stale_candidate_and_settles_latest" assertions="11" status="pass" classname="tests/unit/test_audio_settings_transactions.gd" time="0.020927" >
+      </testcase>
+      <testcase name="test_failed_physical_apply_does_not_write_profile_or_restart_players" assertions="26" status="pass" classname="tests/unit/test_audio_settings_transactions.gd" time="0.015642" >
+      </testcase>
+      <testcase name="test_disk_failure_compensates_output_without_preference_publication" assertions="10" status="pass" classname="tests/unit/test_audio_settings_transactions.gd" time="0.022846" >
+      </testcase>
+      <testcase name="test_cancel_uses_latest_committed_profile_even_before_deferred_publication" assertions="10" status="pass" classname="tests/unit/test_audio_settings_transactions.gd" time="0.021865" >
+      </testcase>
+      <testcase name="test_reset_rejects_stale_revision_before_output_then_commits_one_current_reset" assertions="11" status="pass" classname="tests/unit/test_audio_settings_transactions.gd" time="0.049427" >
+      </testcase>
+      <testcase name="test_shared_gate_blocks_output_without_acquiring_or_releasing_it" assertions="10" status="pass" classname="tests/unit/test_audio_settings_transactions.gd" time="0.019995" >
+      </testcase>
+      <testcase name="test_failed_cancel_proof_latches_fatal_and_retires_preview" assertions="11" status="pass" classname="tests/unit/test_audio_settings_transactions.gd" time="0.009521" >
+      </testcase>
+      <testcase name="test_invalid_drag_commit_settles_output_and_retires_detached_ui_handle" assertions="11" status="pass" classname="tests/unit/test_audio_settings_transactions.gd" time="0.009411" >
+      </testcase>
+      <testcase name="test_legacy_profile_can_initialize_audio_but_cannot_admit_settings_transactions" assertions="6" status="pass" classname="tests/unit/test_audio_settings_transactions.gd" time="0.000648" >
+      </testcase>
+      <testcase name="test_freed_profile_refuses_transactions_without_touching_output" assertions="3" status="pass" classname="tests/unit/test_audio_settings_transactions.gd" time="0.000398" >
+      </testcase>
+      <testcase name="test_focus_loss_during_preview_or_commit_retires_handles_without_persistence" assertions="44" status="pass" classname="tests/unit/test_audio_settings_transactions.gd" time="0.034073" >
+      </testcase>
+      <testcase name="test_focus_loss_during_cancel_settlement_retries_with_current_focus_state" assertions="13" status="pass" classname="tests/unit/test_audio_settings_transactions.gd" time="0.00967" >
+      </testcase>
+      <testcase name="test_pause_entry_and_resume_each_retire_live_preview_and_keep_committed_audio" assertions="22" status="pass" classname="tests/unit/test_audio_settings_transactions.gd" time="0.014949" >
+      </testcase>
+      <testcase name="test_failed_focus_output_apply_latches_shared_fatal_without_profile_write" assertions="8" status="pass" classname="tests/unit/test_audio_settings_transactions.gd" time="0.010911" >
+      </testcase>
+      <testcase name="test_pause_handle_refusals_and_idempotent_begin_preserve_owned_live_preview" assertions="22" status="pass" classname="tests/unit/test_audio_settings_transactions.gd" time="0.014519" >
+      </testcase>
+  </testsuite>
+</testsuites>

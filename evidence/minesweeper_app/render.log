@@ -1,0 +1,13 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+OpenGL API 3.3.0 - Build 31.0.101.4146 - Compatibility - Using Device: Intel - Intel(R) Iris(R) Xe Graphics
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2570)
+APP_CAPTURE C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-ui-build/.godot/phase2r_tests/2588ab2c-e677-4547-a03a-a4e3091abc4a/appdata/Godot/app_userdata/DWM/evidence/minesweeper_app/active-en100.png locale=en phase=ACTIVE_VISIBLE rounds=1 mine_estimate=9 no_flag=lost mode=flag sheet_open=false body=(0,64,800,656) shared_strip=(0,0,800,64)
+APP_CAPTURE C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-ui-build/.godot/phase2r_tests/2588ab2c-e677-4547-a03a-a4e3091abc4a/appdata/Godot/app_userdata/DWM/evidence/minesweeper_app/rules-cn125.png locale=zh-CN phase=ACTIVE_VISIBLE rounds=1 mine_estimate=9 no_flag=lost mode=flag sheet_open=true body=(0,64,800,656) shared_strip=(0,0,800,64)
+APP_RENDER_LIFECYCLE phase=ACTIVE_SUSPENDED app_visible=false fixture_generation=memory checkpoint=memory
+APP_CAPTURE C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-ui-build/.godot/phase2r_tests/2588ab2c-e677-4547-a03a-a4e3091abc4a/appdata/Godot/app_userdata/DWM/evidence/minesweeper_app/reopened-hk150-large.png locale=zh-HK phase=ACTIVE_VISIBLE rounds=1 mine_estimate=9 no_flag=lost mode=flag sheet_open=false body=(0,64,800,656) shared_strip=(0,0,800,64)
+APP_RENDER_VERIFIED samples=3 real_scene=true real_owner=true production_bootstrap_configured=false generation=memory_fixture checkpoint=memory_fixture

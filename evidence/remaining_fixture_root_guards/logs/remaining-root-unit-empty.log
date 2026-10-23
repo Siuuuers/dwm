@@ -1,0 +1,1003 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/remaining-root-disposable-20260914/.godot/phase2r_tests/462f2b41-5127-435c-9fe4-15322d2ce75b/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+ROOT_GUARD_PROBE {"mode":"empty","phase":"run","root":"C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\minesweeper-view-controls\\.godot\\phase2r_tests\\remaining-root-disposable-20260914\\.godot\\phase2r_tests\\462f2b41-5127-435c-9fe4-15322d2ce75b\\dwm_test_root","snapshot":{"directories":["."],"errors":[],"exists":true,"files":{}}}
+
+
+res://tests/unit/test_application_bootstrap.gd
+* test_stage_order_runs_minesweeper_after_day_resolution_and_before_readiness
+* test_minesweeper_stage_rejects_a_missing_gate_without_partial_configuration
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 106
+* test_minesweeper_stage_rejects_missing_targets_without_partial_configuration
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 121
+* test_minesweeper_stage_rejects_an_unretained_checkpoint_port_without_partial_configuration
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 134
+* test_minesweeper_stage_rejects_unconfigured_checkpoint_providers
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 148
+* test_minesweeper_stage_rejects_a_gate_game_state_did_not_retain
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 161
+* test_minesweeper_stage_constructs_exactly_one_coordinator_over_production_adapters
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 176
+* test_identical_startup_replay_reuses_the_exact_same_round_graph
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 216
+* test_game_state_refuses_a_second_distinct_round_coordinator
+* test_round_facade_fails_closed_before_the_coordinator_is_installed
+* test_game_state_reports_only_its_gate_identity_never_the_gate
+* test_bootstrap_stage_and_this_suite_are_source_bound_by_uid
+5/12 passed.
+
+
+res://tests/unit/test_day_resolution_snapshot_production.gd
+* test_prepare_completion_emits_every_checkpoint_input_key
+* test_inner_snapshot_input_carries_the_live_lifecycle
+* test_no_stub_run_id_day_shape_remains
+* test_unconfigured_port_still_emits_a_valid_shape
+* test_configured_providers_supply_the_five_non_game_state_fields
+* test_configure_rejects_wrong_provider_sets_and_replacement
+* test_bundle_is_detached_from_live_state
+* test_real_checkpoint_port_accepts_the_produced_bundle
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 210
+* test_day_seven_ending_plan_survives_into_the_prepared_snapshot
+* test_checkpoint_carries_the_post_completion_lifecycle
+* test_commit_applies_the_exact_lifecycle_the_checkpoint_recorded
+* test_a_rejected_stage_never_reaches_live_state
+* test_active_plan_may_trail_the_day_by_exactly_one
+* test_active_plan_trailing_by_two_still_rejects
+* test_active_plan_ahead_of_the_day_still_rejects
+* test_both_validators_share_one_active_plan_day_window
+* test_a_snapshot_the_schema_accepts_also_restores_through_run_lifecycle
+* test_both_validators_reject_a_two_day_gap
+* test_daily_reset_is_detached_checkpointed_and_reversible
+* test_daily_reset_without_carried_condition_clears_today_effects
+* test_schedule_condition_is_detached_checkpointed_and_rolls_back_with_the_stage
+* test_schedule_condition_requires_carried_sequela_and_day7_bypasses_it
+21/22 passed.
+
+
+res://tests/unit/test_desktop_accessibility_contract.gd
+* test_debug_exposes_exactly_one_forced_cell_and_rejects_every_other_cell
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 67
+* test_debug_rejects_every_other_cell_before_any_live_mutation
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 112
+* test_supportz_exposes_one_neutral_accessible_name_and_no_effect_description
+* test_every_non_secret_shop_row_carries_no_secret_accessibility_label
+* test_the_purchase_request_shape_has_no_device_or_input_method_field
+* test_pointer_touch_keyboard_and_gamepad_confirm_produce_the_identical_request_shape
+4/6 passed.
+
+
+res://tests/unit/test_game_state_facade_contract.gd
+* test_configure_mutation_gate_matrix_without_side_effects
+* test_day_is_read_only_compatibility
+* test_prepare_new_run_snapshot_input_is_pure
+* test_request_schedule_done_delegates_through_production_port
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 145
+* test_schedule_commit_seams_are_narrow_reversible_and_silent
+* test_day7_terminal_via_facade_never_creates_day8
+* test_capture_schedule_warning_state_is_narrow_read_only_and_exact
+* test_capture_schedule_warning_state_facts_are_day_scoped_and_detached
+7/8 passed.
+
+
+res://tests/unit/test_game_state_schedule_commit_port.gd
+* test_zero_entries_derive_the_empty_done_row_and_charge_no_motivation
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the committed-Schedule fixture is unavailable
+      at line 327
+* test_entry_ordinals_follow_validated_slot_order_not_input_or_raw_slot
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the committed-Schedule fixture is unavailable
+      at line 371
+* test_seven_entries_with_two_dates_and_repeats_charge_one_motivation_each
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the committed-Schedule fixture is unavailable
+      at line 425
+* test_day7_accepts_empty_done_and_one_eligible_solo_at_slot_zero
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the committed-Schedule fixture is unavailable
+      at line 453
+* test_insufficient_motivation_stale_registry_and_source_tamper_yield_no_candidate
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the committed-Schedule fixture is unavailable
+      at line 478
+* test_forged_or_identifier_only_issuer_input_is_refused
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the committed-Schedule fixture is unavailable
+      at line 522
+* test_same_transaction_replay_is_byte_identical_and_changed_bytes_conflict
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the committed-Schedule fixture is unavailable
+      at line 563
+* test_every_row_projection_is_load_bearing_in_the_derived_identity
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the committed-Schedule fixture is unavailable
+      at line 594
+* test_prepare_and_capture_are_pure_and_silent
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the committed-Schedule fixture is unavailable
+      at line 661
+* test_commit_changes_only_motivation_and_committed_schedule_silently
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the committed-Schedule fixture is unavailable
+      at line 695
+* test_rollback_restores_exactly_the_backup_and_preserves_concurrent_changes
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the committed-Schedule fixture is unavailable
+      at line 723
+* test_stale_before_fingerprint_and_caller_mutation_after_prepare_are_refused
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the committed-Schedule fixture is unavailable
+      at line 753
+* test_publish_requires_current_state_and_is_at_most_once_across_restart
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the committed-Schedule fixture is unavailable
+      at line 778
+* test_a_changed_publication_byte_at_an_occupied_key_conflicts_without_a_signal
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the committed-Schedule fixture is unavailable
+      at line 823
+* test_new_run_and_rollback_cannot_erase_or_lower_the_external_record
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the committed-Schedule fixture is unavailable
+      at line 866
+* test_candidate_and_commit_bytes_are_independent_of_every_legacy_field
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the committed-Schedule fixture is unavailable
+      at line 896
+* test_new_modules_never_name_the_legacy_schedule_api
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the committed-Schedule fixture is unavailable
+      at line 946
+0/17 passed.
+
+
+res://tests/unit/test_hospital_presentation_port.gd
+* test_configure_is_idempotent_and_refuses_a_replacement_dependency
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+      at line 211
+* test_an_unconfigured_port_routes_nothing_and_starts_no_physical_presentation
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+      at line 226
+* test_the_hospital_port_refuses_a_dating_challenge_owner
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+      at line 237
+* test_an_incomplete_issuer_or_owner_is_refused
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+      at line 249
+* test_a_valid_intent_returns_the_canonical_command_and_nothing_else
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+      at line 262
+* test_the_request_member_set_is_exact
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+      at line 288
+* test_a_dating_route_is_refused_by_the_hospital_port
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+      at line 300
+* test_an_unregistered_locator_is_refused
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+      at line 310
+* test_the_hospital_context_member_set_and_kind_are_exact
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+      at line 319
+* test_hospital_context_arrays_must_be_sorted_and_unique
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+      at line 339
+* test_an_unverified_resolution_root_is_refused_before_any_physical_start
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+      at line 356
+* test_a_locally_derived_completion_id_is_refused
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+      at line 369
+* test_a_completion_child_of_the_wrong_kind_or_parent_is_refused
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+      at line 379
+* test_every_projected_field_binds_the_completion_child
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+      at line 401
+* test_a_changed_context_preimage_breaks_the_completion_binding
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+      at line 417
+* test_a_byte_identical_replay_returns_the_identical_command_and_token
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+      at line 433
+* test_a_drifted_replay_cannot_overwrite_the_stored_command
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+      at line 447
+* test_a_bypassed_binding_still_conflicts_on_command_identity
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+      at line 473
+* test_a_trusted_owner_completion_produces_the_exact_frozen_receipt_once
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+      at line 498
+* test_a_duplicate_owner_emission_returns_the_same_receipt_without_a_second_publication
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+      at line 528
+* test_a_scene_authored_receipt_never_reaches_a_stage
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+      at line 552
+* test_owner_receipt_drift_is_refused_before_any_stage_mutation
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+      at line 577
+* test_a_command_this_port_never_issued_is_refused
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+      at line 600
+* test_a_tampered_command_is_a_conflict_not_a_completion
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+      at line 615
+* test_the_complete_request_member_set_is_exact
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+      at line 634
+* test_an_owner_failure_publishes_exactly_one_failure_and_no_completion
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+      at line 644
+* test_an_emission_for_an_unknown_command_fails_rather_than_completing
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+      at line 653
+0/27 passed.
+
+
+res://tests/unit/test_schedule_view_controller.gd
+* test_an_unconfigured_controller_fails_closed
+* test_configure_accepts_the_live_fingerprint_and_rejects_a_stale_one
+* test_open_day_rejects_days_zero_and_eight
+* test_open_day_produces_the_canonical_empty_view
+* test_seven_ordinary_slots_fill_with_repeats_and_distinct_draft_ids
+* test_an_occupied_slot_and_an_out_of_range_slot_are_refused
+* test_a_reused_draft_entry_id_is_refused
+* test_a_non_repeatable_date_cannot_repeat
+* test_kind_and_participants_are_registry_derived
+* test_source_receipt_class_is_enforced_at_add_time
+* test_an_unregistered_action_is_refused
+* test_an_action_outside_its_day_window_is_refused
+* test_a_third_date_on_day_six_is_refused
+* test_group_and_solo_dates_exclude_each_other_in_both_orders
+* test_receipts_of_superseded_solos_do_not_linger
+* test_date_entry_seen_latches_and_removal_never_clears_it
+* test_day_seven_is_empty_or_one_solo_at_slot_zero
+* test_day_seven_refuses_off_day_actions_and_nonzero_slots
+* test_priscilla_may_occupy_any_day_four_slot
+* test_prepare_move_and_prepare_remove_change_only_their_entry
+* test_move_and_remove_refuse_unknown_and_colliding_targets
+* test_capture_and_rollback_round_trip_byte_equal
+* test_condition_departure_commit_appends_and_installs_the_after_view
+* test_a_byte_identical_retry_returns_unchanged
+* test_a_conflicting_retry_is_typed_and_leaves_no_partial_mutation
+* test_a_third_live_state_is_a_typed_conflict_without_partial_mutation
+* test_lookup_condition_departure_receipt_is_detached_and_typed_when_absent
+* test_the_ledger_survives_open_day_with_an_unchanged_optimistic_fingerprint
+* test_snapshot_is_detached
+* test_every_edit_leaves_motivation_and_the_committed_schedule_byte_equal
+    [Failed]:  DWM_TEST_ROOT is required
+      at line 574
+* test_a_live_after_view_adopts_the_receipt_without_reapplying
+* test_a_malformed_condition_candidate_shape_is_refused
+* test_a_non_dictionary_transition_receipt_is_refused
+* test_an_invalid_after_view_is_refused_without_mutation
+* test_configure_refuses_null_dependencies
+34/35 passed.
+
+
+res://tests/unit/test_schedule_warning_receipts.gd
+* test_docket_commands_cannot_change_an_active_warning_or_its_view
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Schedule warning fixture is unavailable
+      at line 186
+* test_configure_warning_identity_is_one_time_and_typed
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Schedule warning fixture is unavailable
+      at line 241
+* test_activation_fails_closed_without_the_warning_identity
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Schedule warning fixture is unavailable
+      at line 262
+* test_activation_creates_the_exact_pending_record
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Schedule warning fixture is unavailable
+      at line 275
+* test_activation_with_no_eligible_warning_proceeds
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Schedule warning fixture is unavailable
+      at line 326
+* test_repeating_the_same_done_command_returns_the_same_activation
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Schedule warning fixture is unavailable
+      at line 340
+* test_a_different_done_command_while_open_rejects
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Schedule warning fixture is unavailable
+      at line 355
+* test_a_forged_transaction_root_is_refused
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Schedule warning fixture is unavailable
+      at line 368
+* test_activation_validates_the_context
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Schedule warning fixture is unavailable
+      at line 380
+* test_dismissal_consumes_with_an_exact_terminal_receipt
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Schedule warning fixture is unavailable
+      at line 393
+* test_navigation_success_stores_the_navigation_child
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Schedule warning fixture is unavailable
+      at line 444
+* test_failed_navigation_appends_an_attempt_and_keeps_the_activation
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Schedule warning fixture is unavailable
+      at line 473
+* test_an_identical_failed_navigation_retry_returns_the_original
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Schedule warning fixture is unavailable
+      at line 505
+* test_duplicate_successful_terminal_input_returns_the_original
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Schedule warning fixture is unavailable
+      at line 529
+* test_conflicting_transaction_reuse_fails_without_mutation
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Schedule warning fixture is unavailable
+      at line 549
+* test_resolution_shape_and_missing_pending_are_typed
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Schedule warning fixture is unavailable
+      at line 574
+* test_the_preimage_is_detached_from_live_owners
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Schedule warning fixture is unavailable
+      at line 596
+* test_a_terminal_reusing_the_activation_transaction_is_refused
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Schedule warning fixture is unavailable
+      at line 620
+* test_an_activation_reusing_a_terminal_transaction_is_refused
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Schedule warning fixture is unavailable
+      at line 633
+* test_a_different_intent_failed_navigation_retry_conflicts
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Schedule warning fixture is unavailable
+      at line 656
+* test_an_invalid_replacement_issuer_is_refused_as_invalid
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Schedule warning fixture is unavailable
+      at line 674
+0/21 passed.
+
+
+res://tests/scenario/test_hospital_invitation_closures.gd
+* test_a_witnessing_sylvia_asks_no_missed_question
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Hospital invitation fixture is unavailable
+      at line 82
+* test_without_a_witness_sylvia_asks_normally
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Hospital invitation fixture is unavailable
+      at line 101
+* test_a_sylvia_witness_never_suppresses_another_friend
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Hospital invitation fixture is unavailable
+      at line 116
+* test_the_witness_index_survives_the_rollover_it_informed
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Hospital invitation fixture is unavailable
+      at line 134
+* test_condition_hospital_closes_exact_sources_and_retains_distinct_sylvia_witness
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Hospital invitation fixture is unavailable
+      at line 251
+* test_condition_hospital_refuses_changed_source_before_closure
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Hospital invitation fixture is unavailable
+      at line 283
+* test_condition_hospital_preserves_offscreen_pair_window_without_a_fake_date
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Hospital invitation fixture is unavailable
+      at line 295
+* test_condition_witness_cannot_be_retagged_as_schedule_done
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Hospital invitation fixture is unavailable
+      at line 307
+* test_condition_hospital_stage_presentation_and_retirement_use_real_root_ancestry
+    [Failed]:  DWM_TEST_ROOT is required
+      at line -1
+    [Failed]:  the Hospital invitation fixture is unavailable
+      at line 319
+0/9 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/unit/test_application_bootstrap.gd
+    - Outside Tests
+        * [<Node#131264939798>(subsystem_animation.gd)]
+        * [<Node#131281717026>(subsystem_audio.gd)]
+        * [<Node#131298494258>]
+        * [<Node#131315271483>]
+        * [<Node#131332048705>(subsystem_backgrounds.gd)]
+        * [<Node#131868919618>(subsystem_choices.gd)]
+        * [<Timer#131885696835>]
+        * [<Node#131902474052>(subsystem_expression.gd)]
+        * [<Node#131936028489>(subsystem_glossary.gd)]
+        * [<Node#131952805706>(subsystem_history.gd)]
+        * [<Node#131969582923>(subsystem_input.gd)]
+        * [<Timer#131986360140>]
+        * [<Node#132003137357>(subsystem_jump.gd)]
+        * [<Node#132019914574>(subsystem_containers.gd)]
+        * [<Node#132036691791>(subsystem_portraits.gd)]
+        * [<Node#132573562704>(subsystem_save.gd)]
+        * [<Timer#132590339921>]
+        * [<Node#132607117138>(subsystem_settings.gd)]
+        * [<Node#132623894358>(subsystem_styles.gd)]
+        * [<Node#132640671575>(subsystem_text.gd)]
+        * [<Node#132724557660>(subsystem_text_input.gd)]
+        * [<Node#132741334877>(subsystem_variables.gd)]
+        * [<Node#132758112094>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#132774889311>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+res://tests/unit/test_application_bootstrap.gd
+- test_minesweeper_stage_rejects_a_missing_gate_without_partial_configuration
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 106
+- test_minesweeper_stage_rejects_missing_targets_without_partial_configuration
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 121
+- test_minesweeper_stage_rejects_an_unretained_checkpoint_port_without_partial_configuration
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 134
+- test_minesweeper_stage_rejects_unconfigured_checkpoint_providers
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 148
+- test_minesweeper_stage_rejects_a_gate_game_state_did_not_retain
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 161
+- test_minesweeper_stage_constructs_exactly_one_coordinator_over_production_adapters
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 176
+- test_identical_startup_replay_reuses_the_exact_same_round_graph
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 216
+
+res://tests/unit/test_day_resolution_snapshot_production.gd
+- test_real_checkpoint_port_accepts_the_produced_bundle
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 210
+
+res://tests/unit/test_desktop_accessibility_contract.gd
+- test_debug_exposes_exactly_one_forced_cell_and_rejects_every_other_cell
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 67
+- test_debug_rejects_every_other_cell_before_any_live_mutation
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 112
+
+res://tests/unit/test_game_state_facade_contract.gd
+- test_request_schedule_done_delegates_through_production_port
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 145
+
+res://tests/unit/test_game_state_schedule_commit_port.gd
+- test_zero_entries_derive_the_empty_done_row_and_charge_no_motivation
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the committed-Schedule fixture is unavailable
+          at line 327
+- test_entry_ordinals_follow_validated_slot_order_not_input_or_raw_slot
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the committed-Schedule fixture is unavailable
+          at line 371
+- test_seven_entries_with_two_dates_and_repeats_charge_one_motivation_each
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the committed-Schedule fixture is unavailable
+          at line 425
+- test_day7_accepts_empty_done_and_one_eligible_solo_at_slot_zero
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the committed-Schedule fixture is unavailable
+          at line 453
+- test_insufficient_motivation_stale_registry_and_source_tamper_yield_no_candidate
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the committed-Schedule fixture is unavailable
+          at line 478
+- test_forged_or_identifier_only_issuer_input_is_refused
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the committed-Schedule fixture is unavailable
+          at line 522
+- test_same_transaction_replay_is_byte_identical_and_changed_bytes_conflict
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the committed-Schedule fixture is unavailable
+          at line 563
+- test_every_row_projection_is_load_bearing_in_the_derived_identity
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the committed-Schedule fixture is unavailable
+          at line 594
+- test_prepare_and_capture_are_pure_and_silent
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the committed-Schedule fixture is unavailable
+          at line 661
+- test_commit_changes_only_motivation_and_committed_schedule_silently
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the committed-Schedule fixture is unavailable
+          at line 695
+- test_rollback_restores_exactly_the_backup_and_preserves_concurrent_changes
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the committed-Schedule fixture is unavailable
+          at line 723
+- test_stale_before_fingerprint_and_caller_mutation_after_prepare_are_refused
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the committed-Schedule fixture is unavailable
+          at line 753
+- test_publish_requires_current_state_and_is_at_most_once_across_restart
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the committed-Schedule fixture is unavailable
+          at line 778
+- test_a_changed_publication_byte_at_an_occupied_key_conflicts_without_a_signal
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the committed-Schedule fixture is unavailable
+          at line 823
+- test_new_run_and_rollback_cannot_erase_or_lower_the_external_record
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the committed-Schedule fixture is unavailable
+          at line 866
+- test_candidate_and_commit_bytes_are_independent_of_every_legacy_field
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the committed-Schedule fixture is unavailable
+          at line 896
+- test_new_modules_never_name_the_legacy_schedule_api
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the committed-Schedule fixture is unavailable
+          at line 946
+
+res://tests/unit/test_hospital_presentation_port.gd
+- test_configure_is_idempotent_and_refuses_a_replacement_dependency
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+          at line 211
+- test_an_unconfigured_port_routes_nothing_and_starts_no_physical_presentation
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+          at line 226
+- test_the_hospital_port_refuses_a_dating_challenge_owner
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+          at line 237
+- test_an_incomplete_issuer_or_owner_is_refused
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+          at line 249
+- test_a_valid_intent_returns_the_canonical_command_and_nothing_else
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+          at line 262
+- test_the_request_member_set_is_exact
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+          at line 288
+- test_a_dating_route_is_refused_by_the_hospital_port
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+          at line 300
+- test_an_unregistered_locator_is_refused
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+          at line 310
+- test_the_hospital_context_member_set_and_kind_are_exact
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+          at line 319
+- test_hospital_context_arrays_must_be_sorted_and_unique
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+          at line 339
+- test_an_unverified_resolution_root_is_refused_before_any_physical_start
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+          at line 356
+- test_a_locally_derived_completion_id_is_refused
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+          at line 369
+- test_a_completion_child_of_the_wrong_kind_or_parent_is_refused
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+          at line 379
+- test_every_projected_field_binds_the_completion_child
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+          at line 401
+- test_a_changed_context_preimage_breaks_the_completion_binding
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+          at line 417
+- test_a_byte_identical_replay_returns_the_identical_command_and_token
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+          at line 433
+- test_a_drifted_replay_cannot_overwrite_the_stored_command
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+          at line 447
+- test_a_bypassed_binding_still_conflicts_on_command_identity
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+          at line 473
+- test_a_trusted_owner_completion_produces_the_exact_frozen_receipt_once
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+          at line 498
+- test_a_duplicate_owner_emission_returns_the_same_receipt_without_a_second_publication
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+          at line 528
+- test_a_scene_authored_receipt_never_reaches_a_stage
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+          at line 552
+- test_owner_receipt_drift_is_refused_before_any_stage_mutation
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+          at line 577
+- test_a_command_this_port_never_issued_is_refused
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+          at line 600
+- test_a_tampered_command_is_a_conflict_not_a_completion
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+          at line 615
+- test_the_complete_request_member_set_is_exact
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+          at line 634
+- test_an_owner_failure_publishes_exactly_one_failure_and_no_completion
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+          at line 644
+- test_an_emission_for_an_unknown_command_fails_rather_than_completing
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Hospital presentation fixture is unavailable
+          at line 653
+
+res://tests/unit/test_schedule_view_controller.gd
+- test_every_edit_leaves_motivation_and_the_committed_schedule_byte_equal
+    [Failed]:  DWM_TEST_ROOT is required
+          at line 574
+
+res://tests/unit/test_schedule_warning_receipts.gd
+- test_docket_commands_cannot_change_an_active_warning_or_its_view
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Schedule warning fixture is unavailable
+          at line 186
+- test_configure_warning_identity_is_one_time_and_typed
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Schedule warning fixture is unavailable
+          at line 241
+- test_activation_fails_closed_without_the_warning_identity
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Schedule warning fixture is unavailable
+          at line 262
+- test_activation_creates_the_exact_pending_record
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Schedule warning fixture is unavailable
+          at line 275
+- test_activation_with_no_eligible_warning_proceeds
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Schedule warning fixture is unavailable
+          at line 326
+- test_repeating_the_same_done_command_returns_the_same_activation
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Schedule warning fixture is unavailable
+          at line 340
+- test_a_different_done_command_while_open_rejects
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Schedule warning fixture is unavailable
+          at line 355
+- test_a_forged_transaction_root_is_refused
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Schedule warning fixture is unavailable
+          at line 368
+- test_activation_validates_the_context
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Schedule warning fixture is unavailable
+          at line 380
+- test_dismissal_consumes_with_an_exact_terminal_receipt
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Schedule warning fixture is unavailable
+          at line 393
+- test_navigation_success_stores_the_navigation_child
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Schedule warning fixture is unavailable
+          at line 444
+- test_failed_navigation_appends_an_attempt_and_keeps_the_activation
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Schedule warning fixture is unavailable
+          at line 473
+- test_an_identical_failed_navigation_retry_returns_the_original
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Schedule warning fixture is unavailable
+          at line 505
+- test_duplicate_successful_terminal_input_returns_the_original
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Schedule warning fixture is unavailable
+          at line 529
+- test_conflicting_transaction_reuse_fails_without_mutation
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Schedule warning fixture is unavailable
+          at line 549
+- test_resolution_shape_and_missing_pending_are_typed
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Schedule warning fixture is unavailable
+          at line 574
+- test_the_preimage_is_detached_from_live_owners
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Schedule warning fixture is unavailable
+          at line 596
+- test_a_terminal_reusing_the_activation_transaction_is_refused
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Schedule warning fixture is unavailable
+          at line 620
+- test_an_activation_reusing_a_terminal_transaction_is_refused
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Schedule warning fixture is unavailable
+          at line 633
+- test_a_different_intent_failed_navigation_retry_conflicts
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Schedule warning fixture is unavailable
+          at line 656
+- test_an_invalid_replacement_issuer_is_refused_as_invalid
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Schedule warning fixture is unavailable
+          at line 674
+
+res://tests/scenario/test_hospital_invitation_closures.gd
+- test_a_witnessing_sylvia_asks_no_missed_question
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Hospital invitation fixture is unavailable
+          at line 82
+- test_without_a_witness_sylvia_asks_normally
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Hospital invitation fixture is unavailable
+          at line 101
+- test_a_sylvia_witness_never_suppresses_another_friend
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Hospital invitation fixture is unavailable
+          at line 116
+- test_the_witness_index_survives_the_rollover_it_informed
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Hospital invitation fixture is unavailable
+          at line 134
+- test_condition_hospital_closes_exact_sources_and_retains_distinct_sylvia_witness
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Hospital invitation fixture is unavailable
+          at line 251
+- test_condition_hospital_refuses_changed_source_before_closure
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Hospital invitation fixture is unavailable
+          at line 283
+- test_condition_hospital_preserves_offscreen_pair_window_without_a_fake_date
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Hospital invitation fixture is unavailable
+          at line 295
+- test_condition_witness_cannot_be_retagged_as_schedule_done
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Hospital invitation fixture is unavailable
+          at line 307
+- test_condition_hospital_stage_presentation_and_retirement_use_real_root_ancestry
+    [Failed]:  DWM_TEST_ROOT is required
+          at line -1
+    [Failed]:  the Hospital invitation fixture is unavailable
+          at line 319
+
+Totals
+------
+Scripts               9
+Tests               157
+Passing Tests        71
+Failing Tests        86
+Asserts           813/973
+Orphans              24
+Time              1.073s
+
+
+---- 86 failing tests ----
+
+ROOT_GUARD_PROBE {"after":{"directories":[".","dialogic","dialogic/saves"],"errors":[],"exists":true,"files":{"dialogic/saves/global_info.txt":"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"}},"before":{"directories":[".","dialogic","dialogic/saves"],"errors":[],"exists":true,"files":{"dialogic/saves/global_info.txt":"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"}},"mode":"empty","ok":true,"phase":"user_storage"}
+ROOT_GUARD_PROBE {"after":{"directories":["."],"errors":[],"exists":true,"files":{}},"before":{"directories":["."],"errors":[],"exists":true,"files":{}},"mode":"empty","ok":true,"phase":"end_run"}
+ROOT_GUARD_PROBE {"mode":"empty","ok":true,"phase":"restored"}

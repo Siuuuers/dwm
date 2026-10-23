@@ -1,0 +1,74 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/80a4c822-f0a4-4f3b-bbcf-99b60fcf3fe7/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+
+
+res://tests/unit/test_ordinary_reply_echo_state.gd
+* test_all_six_days_offer_three_registered_neutral_choices_without_query_side_effects
+* test_day_end_retains_one_invisible_ordinary_expiry_without_message_or_sequence_changes
+* test_one_witness_owns_three_history_rows_and_exact_retry_does_not_duplicate
+* test_all_day_end_expiries_preserve_replied_exchanges_and_day7_silence
+* test_expiry_reclose_and_json_restore_retain_one_record_and_accept_legacy_closure
+* test_expiry_rejects_wrong_binding_extra_text_duplicate_and_replied_source
+* test_registered_line_full_literal_and_actual_issued_root_are_required
+* test_echoes_drain_oldest_first_only_from_exact_registered_actual_presentation_and_retry
+* test_saved_tampering_or_orphan_history_is_refused_without_legacy_schema_expansion
+* test_snapshots_escape_markup_normalize_newlines_and_limit_utf8_bytes
+* test_normal_save_json_numeric_normalization_preserves_exact_receipts_history_and_pending
+11/11 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/unit/test_ordinary_reply_echo_state.gd
+    - Outside Tests
+        * [<Node#131231385365>(subsystem_animation.gd)]
+        * [<Node#131248162593>(subsystem_audio.gd)]
+        * [<Node#131264939823>]
+        * [<Node#131281717047>]
+        * [<Node#131298494271>(subsystem_backgrounds.gd)]
+        * [<Node#131835365184>(subsystem_choices.gd)]
+        * [<Timer#131852142401>]
+        * [<Node#131868919618>(subsystem_expression.gd)]
+        * [<Node#131902474055>(subsystem_glossary.gd)]
+        * [<Node#131919251272>(subsystem_history.gd)]
+        * [<Node#131936028489>(subsystem_input.gd)]
+        * [<Timer#131952805706>]
+        * [<Node#131969582923>(subsystem_jump.gd)]
+        * [<Node#131986360140>(subsystem_containers.gd)]
+        * [<Node#132003137357>(subsystem_portraits.gd)]
+        * [<Node#132540008270>(subsystem_save.gd)]
+        * [<Timer#132556785487>]
+        * [<Node#132573562704>(subsystem_settings.gd)]
+        * [<Node#132590339924>(subsystem_styles.gd)]
+        * [<Node#132607117141>(subsystem_text.gd)]
+        * [<Node#132691003226>(subsystem_text_input.gd)]
+        * [<Node#132707780443>(subsystem_variables.gd)]
+        * [<Node#132724557660>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#132741334877>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+Totals
+------
+Scripts               1
+Tests                11
+Passing Tests        11
+Asserts             271
+Orphans              24
+Time              0.57s
+
+
+---- All tests passed! ----

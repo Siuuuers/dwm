@@ -1,0 +1,153 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/click-latency-3/.godot/phase2r_tests/be20e39f-c8b6-4833-a872-87f90f100765/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+
+
+res://tests/unit/test_save_document_schema.gd
+* test_save_document_schema_exists
+* test_quick_document_build_round_trips_json_null_slot_id
+* test_discriminator_matrix
+* test_validate_rejects_malformed_documents
+* test_document_version_is_six_and_embedded_snapshot_version_must_agree
+* test_prepare_candidate_is_detached
+* test_current_and_recovery_snapshots_normalize_engine_text_without_mutating_source
+* test_build_keeps_numeric_normalization_and_detaches_current_history_and_time
+* test_build_keeps_invalid_bundle_journal_and_metadata_rejection_order
+* test_validate_normalizes_the_document_without_a_prior_deep_copy
+* test_validate_composes_the_current_bundle_instead_of_renormalizing_it
+* test_validate_refusal_order_survives_multiple_simultaneous_defects
+* test_normalize_engine_text_returns_stringname_free_subtrees_by_identity
+* test_build_detaches_the_persisted_document_from_identity_preserved_inputs
+* test_build_passes_the_validated_bundle_through_instead_of_renormalizing_it
+* test_build_composes_the_journal_without_a_redundant_deep_copy
+    [Failed]:  build() must not deep-copy the journal before a walk that rebuilds every container
+      at line 575
+15/16 passed.
+
+
+res://tests/unit/test_save_manager_checkpoint_port.gd
+* test_prepare_consequence_checkpoint_builds_a_candidate_and_receipt
+* test_prepare_consequence_checkpoint_attaches_the_receipt_to_the_admission_candidate
+* test_commit_consequence_checkpoint_retains_and_rereads_in_same_process
+* test_issued_transient_record_cache_is_bounded_and_cleared_with_transient_state
+* test_commit_consequence_checkpoint_rejects_a_receipt_mismatch
+* test_known_issued_checkpoint_rejects_equal_float_payload_before_first_commit
+* test_supplied_checkpoint_receipt_rejects_equal_float_ordinal
+* test_known_issued_checkpoint_accepts_string_name_aliases_after_normalization
+* test_cache_evicted_prepared_checkpoint_still_commits_through_cold_validation
+* test_evicted_checkpoints_accept_each_legitimate_recovery_stage
+* test_evicted_checkpoint_rejects_inconsistent_fields_before_insertion
+* test_evicted_reprepared_admission_preserves_its_older_admission_receipt
+* test_evicted_preadmission_checkpoints_preserve_receipt_free_state
+* test_commit_consequence_checkpoint_rejects_malformed_or_uncanonicalizable_records
+* test_commit_consequence_checkpoint_replays_an_identical_rewrite_at_an_occupied_slot
+* test_commit_consequence_checkpoint_rejects_a_different_rewrite_at_an_occupied_slot
+* test_a_committed_admission_checkpoint_reads_back_and_validates
+* test_abandon_pending_consequence_checkpoint_marks_a_pre_admission_checkpoint_abandoned
+* test_abandon_pending_consequence_checkpoint_rejects_a_nonexistent_transaction
+* test_abandon_pending_consequence_checkpoint_rejects_an_already_admitted_transaction
+* test_read_pending_consequence_checkpoint_finds_nothing_when_no_checkpoint_exists
+* test_clear_transient_consequence_checkpoints_is_explicit_and_complete
+* test_clear_transient_consequence_checkpoints_does_not_depend_on_storage_readiness
+* test_fresh_port_ignores_and_preserves_every_legacy_sidecar_artifact
+* test_prepare_consequence_checkpoint_requires_configuration
+* test_checkpoint_content_preimage_is_the_sole_builder
+* test_prepare_consequence_checkpoint_rejects_a_bad_ordinal_stage_pairing_at_ordinal_0
+* test_prepare_consequence_checkpoint_rejects_a_bad_ordinal_stage_pairing_at_ordinal_9
+* test_restart_drops_unfinished_action_but_preserves_completed_post_result_autosave
+* test_autosave_bytes_equal_the_full_canonical_writer_across_three_commits
+* test_autosave_bytes_survive_snapshot_strings_equal_to_splice_sentinels
+* test_seeded_journal_without_remembered_texts_writes_full_writer_bytes
+* test_autosave_bytes_equal_the_full_writer_when_an_earlier_bundle_is_not_native_eligible
+* test_normalized_preimage_is_deep_equal_and_never_aliases_the_callers_stage_candidate
+* test_prepare_emits_a_permanent_env_gated_profile_record
+    [Failed]:  prepare() builds a profile record scoped save_checkpoint_prepare
+      at line 1118
+    [Failed]:  prepare() stamps the view_capture_us phase through _profile_phase
+      at line 1121
+    [Failed]:  prepare() stamps the run_snapshot_build_us phase through _profile_phase
+      at line 1121
+    [Failed]:  prepare() stamps the journal_prepare_us phase through _profile_phase
+      at line 1121
+    [Failed]:  prepare() stamps the document_build_us phase through _profile_phase
+      at line 1121
+    [Failed]:  prepare() stamps the backup_us phase through _profile_phase
+      at line 1121
+34/35 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/unit/test_save_document_schema.gd
+    - Outside Tests
+        * [<Node#131248162582>(subsystem_animation.gd)]
+        * [<Node#131264939810>(subsystem_audio.gd)]
+        * [<Node#131281717042>]
+        * [<Node#131298494267>]
+        * [<Node#131315271489>(subsystem_backgrounds.gd)]
+        * [<Node#131852142402>(subsystem_choices.gd)]
+        * [<Timer#131868919619>]
+        * [<Node#131885696836>(subsystem_expression.gd)]
+        * [<Node#131919251273>(subsystem_glossary.gd)]
+        * [<Node#131936028490>(subsystem_history.gd)]
+        * [<Node#131952805707>(subsystem_input.gd)]
+        * [<Timer#131969582924>]
+        * [<Node#131986360141>(subsystem_jump.gd)]
+        * [<Node#132003137358>(subsystem_containers.gd)]
+        * [<Node#132019914575>(subsystem_portraits.gd)]
+        * [<Node#132556785488>(subsystem_save.gd)]
+        * [<Timer#132573562705>]
+        * [<Node#132590339922>(subsystem_settings.gd)]
+        * [<Node#132607117142>(subsystem_styles.gd)]
+        * [<Node#132623894359>(subsystem_text.gd)]
+        * [<Node#132707780444>(subsystem_text_input.gd)]
+        * [<Node#132724557661>(subsystem_variables.gd)]
+        * [<Node#132741334878>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#132758112095>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+res://tests/unit/test_save_document_schema.gd
+- test_build_composes_the_journal_without_a_redundant_deep_copy
+    [Failed]:  build() must not deep-copy the journal before a walk that rebuilds every container
+          at line 575
+
+res://tests/unit/test_save_manager_checkpoint_port.gd
+- test_prepare_emits_a_permanent_env_gated_profile_record
+    [Failed]:  prepare() builds a profile record scoped save_checkpoint_prepare
+          at line 1118
+    [Failed]:  prepare() stamps the view_capture_us phase through _profile_phase
+          at line 1121
+    [Failed]:  prepare() stamps the run_snapshot_build_us phase through _profile_phase
+          at line 1121
+    [Failed]:  prepare() stamps the journal_prepare_us phase through _profile_phase
+          at line 1121
+    [Failed]:  prepare() stamps the document_build_us phase through _profile_phase
+          at line 1121
+    [Failed]:  prepare() stamps the backup_us phase through _profile_phase
+          at line 1121
+
+Totals
+------
+Scripts               2
+Tests                51
+Passing Tests        49
+Failing Tests         2
+Asserts           1109/1116
+Orphans              24
+Time              1.047s
+
+
+---- 2 failing tests ----

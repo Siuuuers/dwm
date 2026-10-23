@@ -1,0 +1,64 @@
+{
+  "files": [
+    {
+      "path": ".gdignore",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "logs/gallery-navigation-final-cases.log",
+      "bytes": 2933,
+      "sha256": "cc98db4c282892bb87a78206f8dcb2752332c4f396f3e49a9e28a691bbde80c4"
+    },
+    {
+      "path": "logs/gallery-navigation-final-regression.log",
+      "bytes": 13913,
+      "sha256": "40426b6c9be5a6aaac117e3d6bf360f13127866e77ff734451350a9abbc9aeef"
+    },
+    {
+      "path": "logs/gallery-navigation-game_state-inventory.log",
+      "bytes": 393,
+      "sha256": "5473a1fa6ac1bb00ee3856fe8536f721d319d86154bcd7fc838f358b2ec316f6"
+    },
+    {
+      "path": "logs/gallery-navigation-green-parsed.log",
+      "bytes": 4428,
+      "sha256": "d79234fe3d5642124381ad10408e669a61884c525453bcb561100c53b8ac71de"
+    },
+    {
+      "path": "logs/gallery-navigation-green.log",
+      "bytes": 65330,
+      "sha256": "139fb8bd6b4bfa904b7a7a2546d02e336198e16a70409c36baafa6e7080c2ebd"
+    },
+    {
+      "path": "logs/gallery-navigation-native-input.log",
+      "bytes": 3041,
+      "sha256": "33f739219024e079027c9763c5cfaad84695d9c84d711bcdaa0101d519470623"
+    },
+    {
+      "path": "logs/gallery-navigation-red.log",
+      "bytes": 5330,
+      "sha256": "e8b3e55e8d01a47ed7ada3f8509fa8a1739a6efd80193cee84f83ea2dd1e9828"
+    },
+    {
+      "path": "logs/gallery-navigation-save_manager-inventory.log",
+      "bytes": 393,
+      "sha256": "5473a1fa6ac1bb00ee3856fe8536f721d319d86154bcd7fc838f358b2ec316f6"
+    },
+    {
+      "path": "README.md",
+      "bytes": 3828,
+      "sha256": "b95c48ea0073d56ac4cead267adb13a9bff40ca62f431c82886f4639ab692690"
+    },
+    {
+      "path": "runs.jsonl",
+      "bytes": 9883,
+      "sha256": "295f8ae95328cfc3b8bcfa4f723b62d8e0cc42911e3b2eaee347ccdc29a8d163"
+    },
+    {
+      "path": "source-sha256.json",
+      "bytes": 973,
+      "sha256": "0b1401704b34cfa9b5f6f5d413ab7aad758df31c98cb005c14277374ad41c214"
+    }
+  ]
+}

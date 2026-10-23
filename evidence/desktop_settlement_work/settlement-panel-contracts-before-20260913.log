@@ -1,0 +1,1819 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+SCRIPT ERROR: Parse Error: Cannot infer the type of "routine_command" variable because the value doesn't have a set type.
+   at: GDScript::reload (res://scripts/application/minesweeper/MinesweeperPresentationPort.gd:103)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+   at: GDScript::reload (res://scripts/application/minesweeper/MinesweeperPanelPort.gd:0)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+   at: GDScript::reload (res://autoload/ApplicationBootstrap.gd:0)
+ERROR: Failed to load script "res://autoload/ApplicationBootstrap.gd" with error "Compilation failed".
+   at: load (modules/gdscript/gdscript.cpp:2907)
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/5dcb2a7a-9351-45fb-82ca-94e071c6c595/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+res://tests/unit/test_minesweeper_panel_port.gd
+* test_pull_composes_only_detached_public_facts_without_spending_or_allocating
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: MinesweeperPanelPort.configure (res://scripts/application/minesweeper/MinesweeperPanelPort.gd:34)
+   GDScript backtrace (most recent call first):
+       [0] configure (res://scripts/application/minesweeper/MinesweeperPanelPort.gd:34)
+       [1] before_each (res://tests/unit/test_minesweeper_panel_port.gd:190)
+       [2] _run_test (res://addons/gut/gut.gd:612)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [4] test_scripts (res://addons/gut/gut.gd:1047)
+       [5] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [6] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [7] main (res://addons/gut/cli/gut_cli.gd:297)
+       [8] _init (res://addons/gut/gut_cmdln.gd:39)
+SCRIPT ERROR: Invalid access to property or key 'ok' on a base object of type 'Dictionary'.
+   at: before_each (res://tests/unit/test_minesweeper_panel_port.gd:190)
+   GDScript backtrace (most recent call first):
+       [0] before_each (res://tests/unit/test_minesweeper_panel_port.gd:190)
+       [1] _run_test (res://addons/gut/gut.gd:612)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] test_scripts (res://addons/gut/gut.gd:1047)
+       [4] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [5] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [6] main (res://addons/gut/cli/gut_cli.gd:297)
+       [7] _init (res://addons/gut/gut_cmdln.gd:39)
+    [Failed]
+      at line 203
+    [Failed]:  ARRAY(["ok", "code"]) != ARRAY(["ok", "value"]).
+    ["ok", "code"] != ["ok", "value"]  1 of 2 indexes do not match.
+      at line 204
+SCRIPT ERROR: Invalid access to property or key 'value' on a base object of type 'Dictionary'.
+   at: test_pull_composes_only_detached_public_facts_without_spending_or_allocating (res://tests/unit/test_minesweeper_panel_port.gd:205)
+   GDScript backtrace (most recent call first):
+       [0] test_pull_composes_only_detached_public_facts_without_spending_or_allocating (res://tests/unit/test_minesweeper_panel_port.gd:205)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] test_scripts (res://addons/gut/gut.gd:1047)
+       [4] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [5] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [6] main (res://addons/gut/cli/gut_cli.gd:297)
+       [7] _init (res://addons/gut/gut_cmdln.gd:39)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid access to property or key 'value' on a base object of type 'Dictionary'.
+      at line -1
+* test_real_first_reveal_and_flag_unflag_refresh_the_whole_panel
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: MinesweeperPanelPort.configure (res://scripts/application/minesweeper/MinesweeperPanelPort.gd:34)
+   GDScript backtrace (most recent call first):
+       [0] configure (res://scripts/application/minesweeper/MinesweeperPanelPort.gd:34)
+       [1] before_each (res://tests/unit/test_minesweeper_panel_port.gd:190)
+       [2] _run_test (res://addons/gut/gut.gd:612)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [4] test_scripts (res://addons/gut/gut.gd:1047)
+       [5] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [6] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [7] main (res://addons/gut/cli/gut_cli.gd:297)
+       [8] _init (res://addons/gut/gut_cmdln.gd:39)
+SCRIPT ERROR: Invalid access to property or key 'ok' on a base object of type 'Dictionary'.
+   at: before_each (res://tests/unit/test_minesweeper_panel_port.gd:190)
+   GDScript backtrace (most recent call first):
+       [0] before_each (res://tests/unit/test_minesweeper_panel_port.gd:190)
+       [1] _run_test (res://addons/gut/gut.gd:612)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] test_scripts (res://addons/gut/gut.gd:1047)
+       [4] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [5] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [6] main (res://addons/gut/cli/gut_cli.gd:297)
+       [7] _init (res://addons/gut/gut_cmdln.gd:39)
+SCRIPT ERROR: Invalid access to property or key 'value' on a base object of type 'Dictionary'.
+   at: test_real_first_reveal_and_flag_unflag_refresh_the_whole_panel (res://tests/unit/test_minesweeper_panel_port.gd:227)
+   GDScript backtrace (most recent call first):
+       [0] test_real_first_reveal_and_flag_unflag_refresh_the_whole_panel (res://tests/unit/test_minesweeper_panel_port.gd:227)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] test_scripts (res://addons/gut/gut.gd:1047)
+       [4] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [5] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [6] main (res://addons/gut/cli/gut_cli.gd:297)
+       [7] _init (res://addons/gut/gut_cmdln.gd:39)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid access to property or key 'value' on a base object of type 'Dictionary'.
+      at line -1
+* test_routine_command_reuses_its_exact_postcommit_read_and_matches_explicit_pull
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: MinesweeperPanelPort.configure (res://scripts/application/minesweeper/MinesweeperPanelPort.gd:34)
+   GDScript backtrace (most recent call first):
+       [0] configure (res://scripts/application/minesweeper/MinesweeperPanelPort.gd:34)
+       [1] before_each (res://tests/unit/test_minesweeper_panel_port.gd:190)
+       [2] _run_test (res://addons/gut/gut.gd:612)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [4] test_scripts (res://addons/gut/gut.gd:1047)
+       [5] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [6] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [7] main (res://addons/gut/cli/gut_cli.gd:297)
+       [8] _init (res://addons/gut/gut_cmdln.gd:39)
+SCRIPT ERROR: Invalid access to property or key 'ok' on a base object of type 'Dictionary'.
+   at: before_each (res://tests/unit/test_minesweeper_panel_port.gd:190)
+   GDScript backtrace (most recent call first):
+       [0] before_each (res://tests/unit/test_minesweeper_panel_port.gd:190)
+       [1] _run_test (res://addons/gut/gut.gd:612)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] test_scripts (res://addons/gut/gut.gd:1047)
+       [4] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [5] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [6] main (res://addons/gut/cli/gut_cli.gd:297)
+       [7] _init (res://addons/gut/gut_cmdln.gd:39)
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: MinesweeperPanelPort.configure (res://scripts/application/minesweeper/MinesweeperPanelPort.gd:34)
+   GDScript backtrace (most recent call first):
+       [0] configure (res://scripts/application/minesweeper/MinesweeperPanelPort.gd:34)
+       [1] test_routine_command_reuses_its_exact_postcommit_read_and_matches_explicit_pull (res://tests/unit/test_minesweeper_panel_port.gd:255)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [4] test_scripts (res://addons/gut/gut.gd:1047)
+       [5] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [6] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [7] main (res://addons/gut/cli/gut_cli.gd:297)
+       [8] _init (res://addons/gut/gut_cmdln.gd:39)
+SCRIPT ERROR: Invalid access to property or key 'ok' on a base object of type 'Dictionary'.
+   at: test_routine_command_reuses_its_exact_postcommit_read_and_matches_explicit_pull (res://tests/unit/test_minesweeper_panel_port.gd:255)
+   GDScript backtrace (most recent call first):
+       [0] test_routine_command_reuses_its_exact_postcommit_read_and_matches_explicit_pull (res://tests/unit/test_minesweeper_panel_port.gd:255)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] test_scripts (res://addons/gut/gut.gd:1047)
+       [4] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [5] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [6] main (res://addons/gut/cli/gut_cli.gd:297)
+       [7] _init (res://addons/gut/gut_cmdln.gd:39)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+    [2] <engine-2>Invalid access to property or key 'ok' on a base object of type 'Dictionary'.
+      at line -1
+* test_terminal_settlement_failure_stays_visible_then_success_holds_exact_board_after_owner_clears
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: MinesweeperPanelPort.configure (res://scripts/application/minesweeper/MinesweeperPanelPort.gd:34)
+   GDScript backtrace (most recent call first):
+       [0] configure (res://scripts/application/minesweeper/MinesweeperPanelPort.gd:34)
+       [1] before_each (res://tests/unit/test_minesweeper_panel_port.gd:190)
+       [2] _run_test (res://addons/gut/gut.gd:612)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [4] test_scripts (res://addons/gut/gut.gd:1047)
+       [5] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [6] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [7] main (res://addons/gut/cli/gut_cli.gd:297)
+       [8] _init (res://addons/gut/gut_cmdln.gd:39)
+SCRIPT ERROR: Invalid access to property or key 'ok' on a base object of type 'Dictionary'.
+   at: before_each (res://tests/unit/test_minesweeper_panel_port.gd:190)
+   GDScript backtrace (most recent call first):
+       [0] before_each (res://tests/unit/test_minesweeper_panel_port.gd:190)
+       [1] _run_test (res://addons/gut/gut.gd:612)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] test_scripts (res://addons/gut/gut.gd:1047)
+       [4] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [5] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [6] main (res://addons/gut/cli/gut_cli.gd:297)
+       [7] _init (res://addons/gut/gut_cmdln.gd:39)
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: MinesweeperPanelPort.configure (res://scripts/application/minesweeper/MinesweeperPanelPort.gd:34)
+   GDScript backtrace (most recent call first):
+       [0] configure (res://scripts/application/minesweeper/MinesweeperPanelPort.gd:34)
+       [1] test_terminal_settlement_failure_stays_visible_then_success_holds_exact_board_after_owner_clears (res://tests/unit/test_minesweeper_panel_port.gd:294)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [4] test_scripts (res://addons/gut/gut.gd:1047)
+       [5] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [6] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [7] main (res://addons/gut/cli/gut_cli.gd:297)
+       [8] _init (res://addons/gut/gut_cmdln.gd:39)
+SCRIPT ERROR: Invalid access to property or key 'ok' on a base object of type 'Dictionary'.
+   at: test_terminal_settlement_failure_stays_visible_then_success_holds_exact_board_after_owner_clears (res://tests/unit/test_minesweeper_panel_port.gd:294)
+   GDScript backtrace (most recent call first):
+       [0] test_terminal_settlement_failure_stays_visible_then_success_holds_exact_board_after_owner_clears (res://tests/unit/test_minesweeper_panel_port.gd:294)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] test_scripts (res://addons/gut/gut.gd:1047)
+       [4] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [5] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [6] main (res://addons/gut/cli/gut_cli.gd:297)
+       [7] _init (res://addons/gut/gut_cmdln.gd:39)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+    [2] <engine-2>Invalid access to property or key 'ok' on a base object of type 'Dictionary'.
+      at line -1
+* test_failed_terminal_settlement_retains_exact_projection_without_next_action
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: MinesweeperPanelPort.configure (res://scripts/application/minesweeper/MinesweeperPanelPort.gd:34)
+   GDScript backtrace (most recent call first):
+       [0] configure (res://scripts/application/minesweeper/MinesweeperPanelPort.gd:34)
+       [1] before_each (res://tests/unit/test_minesweeper_panel_port.gd:190)
+       [2] _run_test (res://addons/gut/gut.gd:612)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [4] test_scripts (res://addons/gut/gut.gd:1047)
+       [5] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [6] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [7] main (res://addons/gut/cli/gut_cli.gd:297)
+       [8] _init (res://addons/gut/gut_cmdln.gd:39)
+SCRIPT ERROR: Invalid access to property or key 'ok' on a base object of type 'Dictionary'.
+   at: before_each (res://tests/unit/test_minesweeper_panel_port.gd:190)
+   GDScript backtrace (most recent call first):
+       [0] before_each (res://tests/unit/test_minesweeper_panel_port.gd:190)
+       [1] _run_test (res://addons/gut/gut.gd:612)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] test_scripts (res://addons/gut/gut.gd:1047)
+       [4] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [5] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [6] main (res://addons/gut/cli/gut_cli.gd:297)
+       [7] _init (res://addons/gut/gut_cmdln.gd:39)
+SCRIPT ERROR: Invalid access to property or key 'value' on a base object of type 'Dictionary'.
+   at: test_failed_terminal_settlement_retains_exact_projection_without_next_action (res://tests/unit/test_minesweeper_panel_port.gd:334)
+   GDScript backtrace (most recent call first):
+       [0] test_failed_terminal_settlement_retains_exact_projection_without_next_action (res://tests/unit/test_minesweeper_panel_port.gd:334)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] test_scripts (res://addons/gut/gut.gd:1047)
+       [4] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [5] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [6] main (res://addons/gut/cli/gut_cli.gd:297)
+       [7] _init (res://addons/gut/gut_cmdln.gd:39)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid access to property or key 'value' on a base object of type 'Dictionary'.
+      at line -1
+* test_day_change_invalidates_a_held_terminal_view
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: MinesweeperPanelPort.configure (res://scripts/application/minesweeper/MinesweeperPanelPort.gd:34)
+   GDScript backtrace (most recent call first):
+       [0] configure (res://scripts/application/minesweeper/MinesweeperPanelPort.gd:34)
+       [1] before_each (res://tests/unit/test_minesweeper_panel_port.gd:190)
+       [2] _run_test (res://addons/gut/gut.gd:612)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [4] test_scripts (res://addons/gut/gut.gd:1047)
+       [5] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [6] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [7] main (res://addons/gut/cli/gut_cli.gd:297)
+       [8] _init (res://addons/gut/gut_cmdln.gd:39)
+SCRIPT ERROR: Invalid access to property or key 'ok' on a base object of type 'Dictionary'.
+   at: before_each (res://tests/unit/test_minesweeper_panel_port.gd:190)
+   GDScript backtrace (most recent call first):
+       [0] before_each (res://tests/unit/test_minesweeper_panel_port.gd:190)
+       [1] _run_test (res://addons/gut/gut.gd:612)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] test_scripts (res://addons/gut/gut.gd:1047)
+       [4] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [5] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [6] main (res://addons/gut/cli/gut_cli.gd:297)
+       [7] _init (res://addons/gut/gut_cmdln.gd:39)
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: MinesweeperPanelPort.configure (res://scripts/application/minesweeper/MinesweeperPanelPort.gd:34)
+   GDScript backtrace (most recent call first):
+       [0] configure (res://scripts/application/minesweeper/MinesweeperPanelPort.gd:34)
+       [1] test_day_change_invalidates_a_held_terminal_view (res://tests/unit/test_minesweeper_panel_port.gd:354)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [4] test_scripts (res://addons/gut/gut.gd:1047)
+       [5] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [6] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [7] main (res://addons/gut/cli/gut_cli.gd:297)
+       [8] _init (res://addons/gut/gut_cmdln.gd:39)
+SCRIPT ERROR: Invalid access to property or key 'ok' on a base object of type 'Dictionary'.
+   at: test_day_change_invalidates_a_held_terminal_view (res://tests/unit/test_minesweeper_panel_port.gd:354)
+   GDScript backtrace (most recent call first):
+       [0] test_day_change_invalidates_a_held_terminal_view (res://tests/unit/test_minesweeper_panel_port.gd:354)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] test_scripts (res://addons/gut/gut.gd:1047)
+       [4] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [5] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [6] main (res://addons/gut/cli/gut_cli.gd:297)
+       [7] _init (res://addons/gut/gut_cmdln.gd:39)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+    [2] <engine-2>Invalid access to property or key 'ok' on a base object of type 'Dictionary'.
+      at line -1
+* test_stale_and_owner_refusal_return_only_safe_refreshed_composites
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: MinesweeperPanelPort.configure (res://scripts/application/minesweeper/MinesweeperPanelPort.gd:34)
+   GDScript backtrace (most recent call first):
+       [0] configure (res://scripts/application/minesweeper/MinesweeperPanelPort.gd:34)
+       [1] before_each (res://tests/unit/test_minesweeper_panel_port.gd:190)
+       [2] _run_test (res://addons/gut/gut.gd:612)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [4] test_scripts (res://addons/gut/gut.gd:1047)
+       [5] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [6] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [7] main (res://addons/gut/cli/gut_cli.gd:297)
+       [8] _init (res://addons/gut/gut_cmdln.gd:39)
+SCRIPT ERROR: Invalid access to property or key 'ok' on a base object of type 'Dictionary'.
+   at: before_each (res://tests/unit/test_minesweeper_panel_port.gd:190)
+   GDScript backtrace (most recent call first):
+       [0] before_each (res://tests/unit/test_minesweeper_panel_port.gd:190)
+       [1] _run_test (res://addons/gut/gut.gd:612)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] test_scripts (res://addons/gut/gut.gd:1047)
+       [4] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [5] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [6] main (res://addons/gut/cli/gut_cli.gd:297)
+       [7] _init (res://addons/gut/gut_cmdln.gd:39)
+SCRIPT ERROR: Invalid access to property or key 'value' on a base object of type 'Dictionary'.
+   at: test_stale_and_owner_refusal_return_only_safe_refreshed_composites (res://tests/unit/test_minesweeper_panel_port.gd:374)
+   GDScript backtrace (most recent call first):
+       [0] test_stale_and_owner_refusal_return_only_safe_refreshed_composites (res://tests/unit/test_minesweeper_panel_port.gd:374)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] test_scripts (res://addons/gut/gut.gd:1047)
+       [4] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [5] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [6] main (res://addons/gut/cli/gut_cli.gd:297)
+       [7] _init (res://addons/gut/gut_cmdln.gd:39)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid access to property or key 'value' on a base object of type 'Dictionary'.
+      at line -1
+* test_invalid_assignment_read_has_no_partial_view_and_cannot_dispatch_cached_board
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: MinesweeperPanelPort.configure (res://scripts/application/minesweeper/MinesweeperPanelPort.gd:34)
+   GDScript backtrace (most recent call first):
+       [0] configure (res://scripts/application/minesweeper/MinesweeperPanelPort.gd:34)
+       [1] before_each (res://tests/unit/test_minesweeper_panel_port.gd:190)
+       [2] _run_test (res://addons/gut/gut.gd:612)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [4] test_scripts (res://addons/gut/gut.gd:1047)
+       [5] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [6] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [7] main (res://addons/gut/cli/gut_cli.gd:297)
+       [8] _init (res://addons/gut/gut_cmdln.gd:39)
+SCRIPT ERROR: Invalid access to property or key 'ok' on a base object of type 'Dictionary'.
+   at: before_each (res://tests/unit/test_minesweeper_panel_port.gd:190)
+   GDScript backtrace (most recent call first):
+       [0] before_each (res://tests/unit/test_minesweeper_panel_port.gd:190)
+       [1] _run_test (res://addons/gut/gut.gd:612)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] test_scripts (res://addons/gut/gut.gd:1047)
+       [4] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [5] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [6] main (res://addons/gut/cli/gut_cli.gd:297)
+       [7] _init (res://addons/gut/gut_cmdln.gd:39)
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: MinesweeperPanelPort.configure (res://scripts/application/minesweeper/MinesweeperPanelPort.gd:34)
+   GDScript backtrace (most recent call first):
+       [0] configure (res://scripts/application/minesweeper/MinesweeperPanelPort.gd:34)
+       [1] test_invalid_assignment_read_has_no_partial_view_and_cannot_dispatch_cached_board (res://tests/unit/test_minesweeper_panel_port.gd:396)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [4] test_scripts (res://addons/gut/gut.gd:1047)
+       [5] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [6] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [7] main (res://addons/gut/cli/gut_cli.gd:297)
+       [8] _init (res://addons/gut/gut_cmdln.gd:39)
+SCRIPT ERROR: Invalid access to property or key 'ok' on a base object of type 'Dictionary'.
+   at: test_invalid_assignment_read_has_no_partial_view_and_cannot_dispatch_cached_board (res://tests/unit/test_minesweeper_panel_port.gd:396)
+   GDScript backtrace (most recent call first):
+       [0] test_invalid_assignment_read_has_no_partial_view_and_cannot_dispatch_cached_board (res://tests/unit/test_minesweeper_panel_port.gd:396)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] test_scripts (res://addons/gut/gut.gd:1047)
+       [4] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [5] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [6] main (res://addons/gut/cli/gut_cli.gd:297)
+       [7] _init (res://addons/gut/gut_cmdln.gd:39)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+    [2] <engine-2>Invalid access to property or key 'ok' on a base object of type 'Dictionary'.
+      at line -1
+* test_changed_unpaid_tier_refuses_old_reveal_before_allocation_and_refreshes_expert
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: MinesweeperPanelPort.configure (res://scripts/application/minesweeper/MinesweeperPanelPort.gd:34)
+   GDScript backtrace (most recent call first):
+       [0] configure (res://scripts/application/minesweeper/MinesweeperPanelPort.gd:34)
+       [1] before_each (res://tests/unit/test_minesweeper_panel_port.gd:190)
+       [2] _run_test (res://addons/gut/gut.gd:612)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [4] test_scripts (res://addons/gut/gut.gd:1047)
+       [5] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [6] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [7] main (res://addons/gut/cli/gut_cli.gd:297)
+       [8] _init (res://addons/gut/gut_cmdln.gd:39)
+SCRIPT ERROR: Invalid access to property or key 'ok' on a base object of type 'Dictionary'.
+   at: before_each (res://tests/unit/test_minesweeper_panel_port.gd:190)
+   GDScript backtrace (most recent call first):
+       [0] before_each (res://tests/unit/test_minesweeper_panel_port.gd:190)
+       [1] _run_test (res://addons/gut/gut.gd:612)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] test_scripts (res://addons/gut/gut.gd:1047)
+       [4] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [5] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [6] main (res://addons/gut/cli/gut_cli.gd:297)
+       [7] _init (res://addons/gut/gut_cmdln.gd:39)
+SCRIPT ERROR: Invalid access to property or key 'value' on a base object of type 'Dictionary'.
+   at: test_changed_unpaid_tier_refuses_old_reveal_before_allocation_and_refreshes_expert (res://tests/unit/test_minesweeper_panel_port.gd:410)
+   GDScript backtrace (most recent call first):
+       [0] test_changed_unpaid_tier_refuses_old_reveal_before_allocation_and_refreshes_expert (res://tests/unit/test_minesweeper_panel_port.gd:410)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] test_scripts (res://addons/gut/gut.gd:1047)
+       [4] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [5] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [6] main (res://addons/gut/cli/gut_cli.gd:297)
+       [7] _init (res://addons/gut/gut_cmdln.gd:39)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid access to property or key 'value' on a base object of type 'Dictionary'.
+      at line -1
+* test_same_revision_owner_change_between_reads_refuses_the_composite
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: MinesweeperPanelPort.configure (res://scripts/application/minesweeper/MinesweeperPanelPort.gd:34)
+   GDScript backtrace (most recent call first):
+       [0] configure (res://scripts/application/minesweeper/MinesweeperPanelPort.gd:34)
+       [1] before_each (res://tests/unit/test_minesweeper_panel_port.gd:190)
+       [2] _run_test (res://addons/gut/gut.gd:612)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [4] test_scripts (res://addons/gut/gut.gd:1047)
+       [5] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [6] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [7] main (res://addons/gut/cli/gut_cli.gd:297)
+       [8] _init (res://addons/gut/gut_cmdln.gd:39)
+SCRIPT ERROR: Invalid access to property or key 'ok' on a base object of type 'Dictionary'.
+   at: before_each (res://tests/unit/test_minesweeper_panel_port.gd:190)
+   GDScript backtrace (most recent call first):
+       [0] before_each (res://tests/unit/test_minesweeper_panel_port.gd:190)
+       [1] _run_test (res://addons/gut/gut.gd:612)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] test_scripts (res://addons/gut/gut.gd:1047)
+       [4] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [5] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [6] main (res://addons/gut/cli/gut_cli.gd:297)
+       [7] _init (res://addons/gut/gut_cmdln.gd:39)
+SCRIPT ERROR: Invalid access to property or key 'value' on a base object of type 'Dictionary'.
+   at: test_same_revision_owner_change_between_reads_refuses_the_composite (res://tests/unit/test_minesweeper_panel_port.gd:431)
+   GDScript backtrace (most recent call first):
+       [0] test_same_revision_owner_change_between_reads_refuses_the_composite (res://tests/unit/test_minesweeper_panel_port.gd:431)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] test_scripts (res://addons/gut/gut.gd:1047)
+       [4] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [5] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [6] main (res://addons/gut/cli/gut_cli.gd:297)
+       [7] _init (res://addons/gut/gut_cmdln.gd:39)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid access to property or key 'value' on a base object of type 'Dictionary'.
+      at line -1
+* test_reconfiguration_is_idempotent_and_rebind_cannot_replace_working_dependencies
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: MinesweeperPanelPort.configure (res://scripts/application/minesweeper/MinesweeperPanelPort.gd:34)
+   GDScript backtrace (most recent call first):
+       [0] configure (res://scripts/application/minesweeper/MinesweeperPanelPort.gd:34)
+       [1] before_each (res://tests/unit/test_minesweeper_panel_port.gd:190)
+       [2] _run_test (res://addons/gut/gut.gd:612)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [4] test_scripts (res://addons/gut/gut.gd:1047)
+       [5] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [6] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [7] main (res://addons/gut/cli/gut_cli.gd:297)
+       [8] _init (res://addons/gut/gut_cmdln.gd:39)
+SCRIPT ERROR: Invalid access to property or key 'ok' on a base object of type 'Dictionary'.
+   at: before_each (res://tests/unit/test_minesweeper_panel_port.gd:190)
+   GDScript backtrace (most recent call first):
+       [0] before_each (res://tests/unit/test_minesweeper_panel_port.gd:190)
+       [1] _run_test (res://addons/gut/gut.gd:612)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] test_scripts (res://addons/gut/gut.gd:1047)
+       [4] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [5] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [6] main (res://addons/gut/cli/gut_cli.gd:297)
+       [7] _init (res://addons/gut/gut_cmdln.gd:39)
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: MinesweeperPanelPort.configure (res://scripts/application/minesweeper/MinesweeperPanelPort.gd:34)
+   GDScript backtrace (most recent call first):
+       [0] configure (res://scripts/application/minesweeper/MinesweeperPanelPort.gd:34)
+       [1] test_reconfiguration_is_idempotent_and_rebind_cannot_replace_working_dependencies (res://tests/unit/test_minesweeper_panel_port.gd:442)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [4] test_scripts (res://addons/gut/gut.gd:1047)
+       [5] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [6] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [7] main (res://addons/gut/cli/gut_cli.gd:297)
+       [8] _init (res://addons/gut/gut_cmdln.gd:39)
+    [Failed]:  DICTIONARY({  }) != DICTIONARY({ "ok": true, "value": { "already_configured": true } }).
+    {  } != { "ok": true, "value": { "already_config...: true } }  2 of 2 keys do not match.
+      at line 442
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: MinesweeperPanelPort.configure (res://scripts/application/minesweeper/MinesweeperPanelPort.gd:34)
+   GDScript backtrace (most recent call first):
+       [0] configure (res://scripts/application/minesweeper/MinesweeperPanelPort.gd:34)
+       [1] test_reconfiguration_is_idempotent_and_rebind_cannot_replace_working_dependencies (res://tests/unit/test_minesweeper_panel_port.gd:448)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [4] test_scripts (res://addons/gut/gut.gd:1047)
+       [5] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [6] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [7] main (res://addons/gut/cli/gut_cli.gd:297)
+       [8] _init (res://addons/gut/gut_cmdln.gd:39)
+    [Failed]:  DICTIONARY({  }) != DICTIONARY({ "ok": false, "code": &"minesweeper_panel_already_configured" }).
+    {  } != { "ok": false, "code": &"minesweeper_pan...figured" }  2 of 2 keys do not match.
+      at line 448
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: MinesweeperPanelPort.configure (res://scripts/application/minesweeper/MinesweeperPanelPort.gd:34)
+   GDScript backtrace (most recent call first):
+       [0] configure (res://scripts/application/minesweeper/MinesweeperPanelPort.gd:34)
+       [1] test_reconfiguration_is_idempotent_and_rebind_cannot_replace_working_dependencies (res://tests/unit/test_minesweeper_panel_port.gd:448)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [4] test_scripts (res://addons/gut/gut.gd:1047)
+       [5] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [6] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [7] main (res://addons/gut/cli/gut_cli.gd:297)
+       [8] _init (res://addons/gut/gut_cmdln.gd:39)
+    [Failed]:  DICTIONARY({  }) != DICTIONARY({ "ok": false, "code": &"minesweeper_panel_already_configured" }).
+    {  } != { "ok": false, "code": &"minesweeper_pan...figured" }  2 of 2 keys do not match.
+      at line 448
+    [Failed]:  DICTIONARY({ "ok": false, "code": &"minesweeper_panel_unavailable" }) != DICTIONARY({ "ok": false, "code": &"minesweeper_panel_already_configured" }).
+    { "ok": false, "code": &"minesweeper_pan...ailable" } != { "ok": false, "code": &"minesweeper_pan...figured" }  1 of 2 keys do not match.
+      at line 448
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: MinesweeperPanelPort.configure (res://scripts/application/minesweeper/MinesweeperPanelPort.gd:34)
+   GDScript backtrace (most recent call first):
+       [0] configure (res://scripts/application/minesweeper/MinesweeperPanelPort.gd:34)
+       [1] test_reconfiguration_is_idempotent_and_rebind_cannot_replace_working_dependencies (res://tests/unit/test_minesweeper_panel_port.gd:448)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [4] test_scripts (res://addons/gut/gut.gd:1047)
+       [5] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [6] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [7] main (res://addons/gut/cli/gut_cli.gd:297)
+       [8] _init (res://addons/gut/gut_cmdln.gd:39)
+    [Failed]:  DICTIONARY({  }) != DICTIONARY({ "ok": false, "code": &"minesweeper_panel_already_configured" }).
+    {  } != { "ok": false, "code": &"minesweeper_pan...figured" }  2 of 2 keys do not match.
+      at line 448
+SCRIPT ERROR: Invalid access to property or key 'value' on a base object of type 'Dictionary'.
+   at: test_reconfiguration_is_idempotent_and_rebind_cannot_replace_working_dependencies (res://tests/unit/test_minesweeper_panel_port.gd:451)
+   GDScript backtrace (most recent call first):
+       [0] test_reconfiguration_is_idempotent_and_rebind_cannot_replace_working_dependencies (res://tests/unit/test_minesweeper_panel_port.gd:451)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] test_scripts (res://addons/gut/gut.gd:1047)
+       [4] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [5] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [6] main (res://addons/gut/cli/gut_cli.gd:297)
+       [7] _init (res://addons/gut/gut_cmdln.gd:39)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+    [2] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+    [3] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+    [4] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+    [5] <engine-2>Invalid access to property or key 'value' on a base object of type 'Dictionary'.
+      at line -1
+* test_unconfigured_or_invalid_dependencies_refuse_without_allocating
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: MinesweeperPanelPort.configure (res://scripts/application/minesweeper/MinesweeperPanelPort.gd:34)
+   GDScript backtrace (most recent call first):
+       [0] configure (res://scripts/application/minesweeper/MinesweeperPanelPort.gd:34)
+       [1] before_each (res://tests/unit/test_minesweeper_panel_port.gd:190)
+       [2] _run_test (res://addons/gut/gut.gd:612)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [4] test_scripts (res://addons/gut/gut.gd:1047)
+       [5] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [6] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [7] main (res://addons/gut/cli/gut_cli.gd:297)
+       [8] _init (res://addons/gut/gut_cmdln.gd:39)
+SCRIPT ERROR: Invalid access to property or key 'ok' on a base object of type 'Dictionary'.
+   at: before_each (res://tests/unit/test_minesweeper_panel_port.gd:190)
+   GDScript backtrace (most recent call first):
+       [0] before_each (res://tests/unit/test_minesweeper_panel_port.gd:190)
+       [1] _run_test (res://addons/gut/gut.gd:612)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] test_scripts (res://addons/gut/gut.gd:1047)
+       [4] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [5] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [6] main (res://addons/gut/cli/gut_cli.gd:297)
+       [7] _init (res://addons/gut/gut_cmdln.gd:39)
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: MinesweeperPanelPort.configure (res://scripts/application/minesweeper/MinesweeperPanelPort.gd:34)
+   GDScript backtrace (most recent call first):
+       [0] configure (res://scripts/application/minesweeper/MinesweeperPanelPort.gd:34)
+       [1] test_unconfigured_or_invalid_dependencies_refuse_without_allocating (res://tests/unit/test_minesweeper_panel_port.gd:459)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [4] test_scripts (res://addons/gut/gut.gd:1047)
+       [5] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [6] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [7] main (res://addons/gut/cli/gut_cli.gd:297)
+       [8] _init (res://addons/gut/gut_cmdln.gd:39)
+SCRIPT ERROR: Invalid access to property or key 'ok' on a base object of type 'Dictionary'.
+   at: test_unconfigured_or_invalid_dependencies_refuse_without_allocating (res://tests/unit/test_minesweeper_panel_port.gd:459)
+   GDScript backtrace (most recent call first):
+       [0] test_unconfigured_or_invalid_dependencies_refuse_without_allocating (res://tests/unit/test_minesweeper_panel_port.gd:459)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] test_scripts (res://addons/gut/gut.gd:1047)
+       [4] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [5] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [6] main (res://addons/gut/cli/gut_cli.gd:297)
+       [7] _init (res://addons/gut/gut_cmdln.gd:39)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+    [2] <engine-2>Invalid access to property or key 'ok' on a base object of type 'Dictionary'.
+      at line -1
+* test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: MinesweeperPanelPort.configure (res://scripts/application/minesweeper/MinesweeperPanelPort.gd:34)
+   GDScript backtrace (most recent call first):
+       [0] configure (res://scripts/application/minesweeper/MinesweeperPanelPort.gd:34)
+       [1] before_each (res://tests/unit/test_minesweeper_panel_port.gd:190)
+       [2] _run_test (res://addons/gut/gut.gd:612)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [4] test_scripts (res://addons/gut/gut.gd:1047)
+       [5] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [6] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [7] main (res://addons/gut/cli/gut_cli.gd:297)
+       [8] _init (res://addons/gut/gut_cmdln.gd:39)
+SCRIPT ERROR: Invalid access to property or key 'ok' on a base object of type 'Dictionary'.
+   at: before_each (res://tests/unit/test_minesweeper_panel_port.gd:190)
+   GDScript backtrace (most recent call first):
+       [0] before_each (res://tests/unit/test_minesweeper_panel_port.gd:190)
+       [1] _run_test (res://addons/gut/gut.gd:612)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] test_scripts (res://addons/gut/gut.gd:1047)
+       [4] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [5] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [6] main (res://addons/gut/cli/gut_cli.gd:297)
+       [7] _init (res://addons/gut/gut_cmdln.gd:39)
+    [Failed]
+      at line 475
+SCRIPT ERROR: Invalid access of index '2' on a base object of type: 'Array[Control]'.
+   at: test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+   GDScript backtrace (most recent call first):
+       [0] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid access of index '2' on a base object of type: 'Array[Control]'.
+      at line 479
+* test_panel_foreground_preserves_frozen_register_and_history_without_spending
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: MinesweeperPanelPort.configure (res://scripts/application/minesweeper/MinesweeperPanelPort.gd:34)
+   GDScript backtrace (most recent call first):
+       [0] configure (res://scripts/application/minesweeper/MinesweeperPanelPort.gd:34)
+       [1] before_each (res://tests/unit/test_minesweeper_panel_port.gd:190)
+       [2] _run_test (res://addons/gut/gut.gd:612)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [4] _run_test (res://addons/gut/gut.gd:650)
+       [5] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+SCRIPT ERROR: Invalid access to property or key 'ok' on a base object of type 'Dictionary'.
+   at: before_each (res://tests/unit/test_minesweeper_panel_port.gd:190)
+   GDScript backtrace (most recent call first):
+       [0] before_each (res://tests/unit/test_minesweeper_panel_port.gd:190)
+       [1] _run_test (res://addons/gut/gut.gd:612)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] _run_test (res://addons/gut/gut.gd:650)
+       [4] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+SCRIPT ERROR: Invalid access to property or key 'value' on a base object of type 'Dictionary'.
+   at: test_panel_foreground_preserves_frozen_register_and_history_without_spending (res://tests/unit/test_minesweeper_panel_port.gd:516)
+   GDScript backtrace (most recent call first):
+       [0] test_panel_foreground_preserves_frozen_register_and_history_without_spending (res://tests/unit/test_minesweeper_panel_port.gd:516)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] _run_test (res://addons/gut/gut.gd:650)
+       [4] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid access to property or key 'value' on a base object of type 'Dictionary'.
+      at line -1
+* test_panel_foreground_refuses_changed_unpaid_tier_before_allocation
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: MinesweeperPanelPort.configure (res://scripts/application/minesweeper/MinesweeperPanelPort.gd:34)
+   GDScript backtrace (most recent call first):
+       [0] configure (res://scripts/application/minesweeper/MinesweeperPanelPort.gd:34)
+       [1] before_each (res://tests/unit/test_minesweeper_panel_port.gd:190)
+       [2] _run_test (res://addons/gut/gut.gd:612)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [4] _run_test (res://addons/gut/gut.gd:650)
+       [5] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+SCRIPT ERROR: Invalid access to property or key 'ok' on a base object of type 'Dictionary'.
+   at: before_each (res://tests/unit/test_minesweeper_panel_port.gd:190)
+   GDScript backtrace (most recent call first):
+       [0] before_each (res://tests/unit/test_minesweeper_panel_port.gd:190)
+       [1] _run_test (res://addons/gut/gut.gd:612)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] _run_test (res://addons/gut/gut.gd:650)
+       [4] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+SCRIPT ERROR: Invalid access to property or key 'value' on a base object of type 'Dictionary'.
+   at: test_panel_foreground_refuses_changed_unpaid_tier_before_allocation (res://tests/unit/test_minesweeper_panel_port.gd:550)
+   GDScript backtrace (most recent call first):
+       [0] test_panel_foreground_refuses_changed_unpaid_tier_before_allocation (res://tests/unit/test_minesweeper_panel_port.gd:550)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] _run_test (res://addons/gut/gut.gd:650)
+       [4] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid access to property or key 'value' on a base object of type 'Dictionary'.
+      at line -1
+* test_terminal_foresight_includes_final_click_and_survives_settlement_clear_and_retry
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: MinesweeperPanelPort.configure (res://scripts/application/minesweeper/MinesweeperPanelPort.gd:34)
+   GDScript backtrace (most recent call first):
+       [0] configure (res://scripts/application/minesweeper/MinesweeperPanelPort.gd:34)
+       [1] before_each (res://tests/unit/test_minesweeper_panel_port.gd:190)
+       [2] _run_test (res://addons/gut/gut.gd:612)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [4] _run_test (res://addons/gut/gut.gd:650)
+       [5] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+SCRIPT ERROR: Invalid access to property or key 'ok' on a base object of type 'Dictionary'.
+   at: before_each (res://tests/unit/test_minesweeper_panel_port.gd:190)
+   GDScript backtrace (most recent call first):
+       [0] before_each (res://tests/unit/test_minesweeper_panel_port.gd:190)
+       [1] _run_test (res://addons/gut/gut.gd:612)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] _run_test (res://addons/gut/gut.gd:650)
+       [4] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: MinesweeperPanelPort.configure (res://scripts/application/minesweeper/MinesweeperPanelPort.gd:34)
+   GDScript backtrace (most recent call first):
+       [0] configure (res://scripts/application/minesweeper/MinesweeperPanelPort.gd:34)
+       [1] test_terminal_foresight_includes_final_click_and_survives_settlement_clear_and_retry (res://tests/unit/test_minesweeper_panel_port.gd:562)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [4] _run_test (res://addons/gut/gut.gd:650)
+       [5] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+SCRIPT ERROR: Invalid access to property or key 'ok' on a base object of type 'Dictionary'.
+   at: test_terminal_foresight_includes_final_click_and_survives_settlement_clear_and_retry (res://tests/unit/test_minesweeper_panel_port.gd:562)
+   GDScript backtrace (most recent call first):
+       [0] test_terminal_foresight_includes_final_click_and_survives_settlement_clear_and_retry (res://tests/unit/test_minesweeper_panel_port.gd:562)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] _run_test (res://addons/gut/gut.gd:650)
+       [4] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+    [2] <engine-2>Invalid access to property or key 'ok' on a base object of type 'Dictionary'.
+      at line -1
+* test_unpaid_tier_change_and_untouched_new_board_never_generate_or_spend
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: MinesweeperPanelPort.configure (res://scripts/application/minesweeper/MinesweeperPanelPort.gd:34)
+   GDScript backtrace (most recent call first):
+       [0] configure (res://scripts/application/minesweeper/MinesweeperPanelPort.gd:34)
+       [1] before_each (res://tests/unit/test_minesweeper_panel_port.gd:190)
+       [2] _run_test (res://addons/gut/gut.gd:612)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [4] _run_test (res://addons/gut/gut.gd:650)
+       [5] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+SCRIPT ERROR: Invalid access to property or key 'ok' on a base object of type 'Dictionary'.
+   at: before_each (res://tests/unit/test_minesweeper_panel_port.gd:190)
+   GDScript backtrace (most recent call first):
+       [0] before_each (res://tests/unit/test_minesweeper_panel_port.gd:190)
+       [1] _run_test (res://addons/gut/gut.gd:612)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] _run_test (res://addons/gut/gut.gd:650)
+       [4] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+SCRIPT ERROR: Invalid access to property or key 'value' on a base object of type 'Dictionary'.
+   at: test_unpaid_tier_change_and_untouched_new_board_never_generate_or_spend (res://tests/unit/test_minesweeper_panel_port.gd:593)
+   GDScript backtrace (most recent call first):
+       [0] test_unpaid_tier_change_and_untouched_new_board_never_generate_or_spend (res://tests/unit/test_minesweeper_panel_port.gd:593)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] _run_test (res://addons/gut/gut.gd:650)
+       [4] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid access to property or key 'value' on a base object of type 'Dictionary'.
+      at line -1
+* test_unpaid_flags_without_capacity_preserve_no_flag_and_untouched_new_board_is_noop
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: MinesweeperPanelPort.configure (res://scripts/application/minesweeper/MinesweeperPanelPort.gd:34)
+   GDScript backtrace (most recent call first):
+       [0] configure (res://scripts/application/minesweeper/MinesweeperPanelPort.gd:34)
+       [1] before_each (res://tests/unit/test_minesweeper_panel_port.gd:190)
+       [2] _run_test (res://addons/gut/gut.gd:612)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [4] _run_test (res://addons/gut/gut.gd:650)
+       [5] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+SCRIPT ERROR: Invalid access to property or key 'ok' on a base object of type 'Dictionary'.
+   at: before_each (res://tests/unit/test_minesweeper_panel_port.gd:190)
+   GDScript backtrace (most recent call first):
+       [0] before_each (res://tests/unit/test_minesweeper_panel_port.gd:190)
+       [1] _run_test (res://addons/gut/gut.gd:612)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] _run_test (res://addons/gut/gut.gd:650)
+       [4] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+    [Failed]:  { "ok": false, "code": &"minesweeper_panel_unavailable" }
+      at line 614
+SCRIPT ERROR: Invalid access to property or key 'value' on a base object of type 'Dictionary'.
+   at: test_unpaid_flags_without_capacity_preserve_no_flag_and_untouched_new_board_is_noop (res://tests/unit/test_minesweeper_panel_port.gd:615)
+   GDScript backtrace (most recent call first):
+       [0] test_unpaid_flags_without_capacity_preserve_no_flag_and_untouched_new_board_is_noop (res://tests/unit/test_minesweeper_panel_port.gd:615)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] _run_test (res://addons/gut/gut.gd:650)
+       [4] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid access to property or key 'value' on a base object of type 'Dictionary'.
+      at line -1
+* test_paid_replacement_and_paid_tier_change_keep_one_cost_and_accept_exact_retry
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: MinesweeperPanelPort.configure (res://scripts/application/minesweeper/MinesweeperPanelPort.gd:34)
+   GDScript backtrace (most recent call first):
+       [0] configure (res://scripts/application/minesweeper/MinesweeperPanelPort.gd:34)
+       [1] before_each (res://tests/unit/test_minesweeper_panel_port.gd:190)
+       [2] _run_test (res://addons/gut/gut.gd:612)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [4] _run_test (res://addons/gut/gut.gd:650)
+       [5] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+SCRIPT ERROR: Invalid access to property or key 'ok' on a base object of type 'Dictionary'.
+   at: before_each (res://tests/unit/test_minesweeper_panel_port.gd:190)
+   GDScript backtrace (most recent call first):
+       [0] before_each (res://tests/unit/test_minesweeper_panel_port.gd:190)
+       [1] _run_test (res://addons/gut/gut.gd:612)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] _run_test (res://addons/gut/gut.gd:650)
+       [4] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+SCRIPT ERROR: Invalid access to property or key 'value' on a base object of type 'Dictionary'.
+   at: test_paid_replacement_and_paid_tier_change_keep_one_cost_and_accept_exact_retry (res://tests/unit/test_minesweeper_panel_port.gd:637)
+   GDScript backtrace (most recent call first):
+       [0] test_paid_replacement_and_paid_tier_change_keep_one_cost_and_accept_exact_retry (res://tests/unit/test_minesweeper_panel_port.gd:637)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] _run_test (res://addons/gut/gut.gd:650)
+       [4] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid access to property or key 'value' on a base object of type 'Dictionary'.
+      at line -1
+* test_stale_configuration_revision_or_live_session_is_refused_before_allocation
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: MinesweeperPanelPort.configure (res://scripts/application/minesweeper/MinesweeperPanelPort.gd:34)
+   GDScript backtrace (most recent call first):
+       [0] configure (res://scripts/application/minesweeper/MinesweeperPanelPort.gd:34)
+       [1] before_each (res://tests/unit/test_minesweeper_panel_port.gd:190)
+       [2] _run_test (res://addons/gut/gut.gd:612)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [4] _run_test (res://addons/gut/gut.gd:650)
+       [5] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+SCRIPT ERROR: Invalid access to property or key 'ok' on a base object of type 'Dictionary'.
+   at: before_each (res://tests/unit/test_minesweeper_panel_port.gd:190)
+   GDScript backtrace (most recent call first):
+       [0] before_each (res://tests/unit/test_minesweeper_panel_port.gd:190)
+       [1] _run_test (res://addons/gut/gut.gd:612)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] _run_test (res://addons/gut/gut.gd:650)
+       [4] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+SCRIPT ERROR: Invalid access to property or key 'value' on a base object of type 'Dictionary'.
+   at: test_stale_configuration_revision_or_live_session_is_refused_before_allocation (res://tests/unit/test_minesweeper_panel_port.gd:675)
+   GDScript backtrace (most recent call first):
+       [0] test_stale_configuration_revision_or_live_session_is_refused_before_allocation (res://tests/unit/test_minesweeper_panel_port.gd:675)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] _run_test (res://addons/gut/gut.gd:650)
+       [4] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid access to property or key 'value' on a base object of type 'Dictionary'.
+      at line -1
+* test_first_paid_reveal_resolves_exact_journal_after_saved_shell_flag_prefix
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: MinesweeperPanelPort.configure (res://scripts/application/minesweeper/MinesweeperPanelPort.gd:34)
+   GDScript backtrace (most recent call first):
+       [0] configure (res://scripts/application/minesweeper/MinesweeperPanelPort.gd:34)
+       [1] before_each (res://tests/unit/test_minesweeper_panel_port.gd:190)
+       [2] _run_test (res://addons/gut/gut.gd:612)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [4] _run_test (res://addons/gut/gut.gd:650)
+       [5] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+SCRIPT ERROR: Invalid access to property or key 'ok' on a base object of type 'Dictionary'.
+   at: before_each (res://tests/unit/test_minesweeper_panel_port.gd:190)
+   GDScript backtrace (most recent call first):
+       [0] before_each (res://tests/unit/test_minesweeper_panel_port.gd:190)
+       [1] _run_test (res://addons/gut/gut.gd:612)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] _run_test (res://addons/gut/gut.gd:650)
+       [4] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+SCRIPT ERROR: Invalid access to property or key 'value' on a base object of type 'Dictionary'.
+   at: test_first_paid_reveal_resolves_exact_journal_after_saved_shell_flag_prefix (res://tests/unit/test_minesweeper_panel_port.gd:686)
+   GDScript backtrace (most recent call first):
+       [0] test_first_paid_reveal_resolves_exact_journal_after_saved_shell_flag_prefix (res://tests/unit/test_minesweeper_panel_port.gd:686)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] _run_test (res://addons/gut/gut.gd:650)
+       [4] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid access to property or key 'value' on a base object of type 'Dictionary'.
+      at line -1
+* test_cold_retained_terminal_inspection_never_reissues_completion_and_survives_navigation
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: MinesweeperPanelPort.configure (res://scripts/application/minesweeper/MinesweeperPanelPort.gd:34)
+   GDScript backtrace (most recent call first):
+       [0] configure (res://scripts/application/minesweeper/MinesweeperPanelPort.gd:34)
+       [1] before_each (res://tests/unit/test_minesweeper_panel_port.gd:190)
+       [2] _run_test (res://addons/gut/gut.gd:612)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [4] _run_test (res://addons/gut/gut.gd:650)
+       [5] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+SCRIPT ERROR: Invalid access to property or key 'ok' on a base object of type 'Dictionary'.
+   at: before_each (res://tests/unit/test_minesweeper_panel_port.gd:190)
+   GDScript backtrace (most recent call first):
+       [0] before_each (res://tests/unit/test_minesweeper_panel_port.gd:190)
+       [1] _run_test (res://addons/gut/gut.gd:612)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] _run_test (res://addons/gut/gut.gd:650)
+       [4] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: MinesweeperPanelPort.configure (res://scripts/application/minesweeper/MinesweeperPanelPort.gd:34)
+   GDScript backtrace (most recent call first):
+       [0] configure (res://scripts/application/minesweeper/MinesweeperPanelPort.gd:34)
+       [1] test_cold_retained_terminal_inspection_never_reissues_completion_and_survives_navigation (res://tests/unit/test_minesweeper_panel_port.gd:721)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [4] _run_test (res://addons/gut/gut.gd:650)
+       [5] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+SCRIPT ERROR: Invalid access to property or key 'ok' on a base object of type 'Dictionary'.
+   at: test_cold_retained_terminal_inspection_never_reissues_completion_and_survives_navigation (res://tests/unit/test_minesweeper_panel_port.gd:721)
+   GDScript backtrace (most recent call first):
+       [0] test_cold_retained_terminal_inspection_never_reissues_completion_and_survives_navigation (res://tests/unit/test_minesweeper_panel_port.gd:721)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] _run_test (res://addons/gut/gut.gd:650)
+       [4] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+    [2] <engine-2>Invalid access to property or key 'ok' on a base object of type 'Dictionary'.
+      at line -1
+* test_settlement_retry_adopts_retained_owner_revision_before_dismissal_admission
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: MinesweeperPanelPort.configure (res://scripts/application/minesweeper/MinesweeperPanelPort.gd:34)
+   GDScript backtrace (most recent call first):
+       [0] configure (res://scripts/application/minesweeper/MinesweeperPanelPort.gd:34)
+       [1] before_each (res://tests/unit/test_minesweeper_panel_port.gd:190)
+       [2] _run_test (res://addons/gut/gut.gd:612)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [4] _run_test (res://addons/gut/gut.gd:650)
+       [5] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+SCRIPT ERROR: Invalid access to property or key 'ok' on a base object of type 'Dictionary'.
+   at: before_each (res://tests/unit/test_minesweeper_panel_port.gd:190)
+   GDScript backtrace (most recent call first):
+       [0] before_each (res://tests/unit/test_minesweeper_panel_port.gd:190)
+       [1] _run_test (res://addons/gut/gut.gd:612)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] _run_test (res://addons/gut/gut.gd:650)
+       [4] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: MinesweeperPanelPort.configure (res://scripts/application/minesweeper/MinesweeperPanelPort.gd:34)
+   GDScript backtrace (most recent call first):
+       [0] configure (res://scripts/application/minesweeper/MinesweeperPanelPort.gd:34)
+       [1] test_settlement_retry_adopts_retained_owner_revision_before_dismissal_admission (res://tests/unit/test_minesweeper_panel_port.gd:745)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [4] _run_test (res://addons/gut/gut.gd:650)
+       [5] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+SCRIPT ERROR: Invalid access to property or key 'ok' on a base object of type 'Dictionary'.
+   at: test_settlement_retry_adopts_retained_owner_revision_before_dismissal_admission (res://tests/unit/test_minesweeper_panel_port.gd:745)
+   GDScript backtrace (most recent call first):
+       [0] test_settlement_retry_adopts_retained_owner_revision_before_dismissal_admission (res://tests/unit/test_minesweeper_panel_port.gd:745)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] _run_test (res://addons/gut/gut.gd:650)
+       [4] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+    [2] <engine-2>Invalid access to property or key 'ok' on a base object of type 'Dictionary'.
+      at line -1
+* test_retained_terminal_new_board_commits_owner_dismissal_and_keeps_exact_failed_request
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: MinesweeperPanelPort.configure (res://scripts/application/minesweeper/MinesweeperPanelPort.gd:34)
+   GDScript backtrace (most recent call first):
+       [0] configure (res://scripts/application/minesweeper/MinesweeperPanelPort.gd:34)
+       [1] before_each (res://tests/unit/test_minesweeper_panel_port.gd:190)
+       [2] _run_test (res://addons/gut/gut.gd:612)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [4] _run_test (res://addons/gut/gut.gd:650)
+       [5] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+SCRIPT ERROR: Invalid access to property or key 'ok' on a base object of type 'Dictionary'.
+   at: before_each (res://tests/unit/test_minesweeper_panel_port.gd:190)
+   GDScript backtrace (most recent call first):
+       [0] before_each (res://tests/unit/test_minesweeper_panel_port.gd:190)
+       [1] _run_test (res://addons/gut/gut.gd:612)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] _run_test (res://addons/gut/gut.gd:650)
+       [4] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: MinesweeperPanelPort.configure (res://scripts/application/minesweeper/MinesweeperPanelPort.gd:34)
+   GDScript backtrace (most recent call first):
+       [0] configure (res://scripts/application/minesweeper/MinesweeperPanelPort.gd:34)
+       [1] test_retained_terminal_new_board_commits_owner_dismissal_and_keeps_exact_failed_request (res://tests/unit/test_minesweeper_panel_port.gd:772)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [4] _run_test (res://addons/gut/gut.gd:650)
+       [5] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+SCRIPT ERROR: Invalid access to property or key 'ok' on a base object of type 'Dictionary'.
+   at: test_retained_terminal_new_board_commits_owner_dismissal_and_keeps_exact_failed_request (res://tests/unit/test_minesweeper_panel_port.gd:772)
+   GDScript backtrace (most recent call first):
+       [0] test_retained_terminal_new_board_commits_owner_dismissal_and_keeps_exact_failed_request (res://tests/unit/test_minesweeper_panel_port.gd:772)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] _run_test (res://addons/gut/gut.gd:650)
+       [4] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+    [2] <engine-2>Invalid access to property or key 'ok' on a base object of type 'Dictionary'.
+      at line -1
+* test_real_prepared_debug_projection_renders_free_flags_and_only_forced_reveal
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: MinesweeperPanelPort.configure (res://scripts/application/minesweeper/MinesweeperPanelPort.gd:34)
+   GDScript backtrace (most recent call first):
+       [0] configure (res://scripts/application/minesweeper/MinesweeperPanelPort.gd:34)
+       [1] before_each (res://tests/unit/test_minesweeper_panel_port.gd:190)
+       [2] _run_test (res://addons/gut/gut.gd:612)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [4] _run_test (res://addons/gut/gut.gd:650)
+       [5] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+SCRIPT ERROR: Invalid access to property or key 'ok' on a base object of type 'Dictionary'.
+   at: before_each (res://tests/unit/test_minesweeper_panel_port.gd:190)
+   GDScript backtrace (most recent call first):
+       [0] before_each (res://tests/unit/test_minesweeper_panel_port.gd:190)
+       [1] _run_test (res://addons/gut/gut.gd:612)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] _run_test (res://addons/gut/gut.gd:650)
+       [4] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+    [Failed]
+      at line 808
+SCRIPT ERROR: Invalid access to property or key 'board' on a base object of type 'Dictionary'.
+   at: test_real_prepared_debug_projection_renders_free_flags_and_only_forced_reveal (res://tests/unit/test_minesweeper_panel_port.gd:811)
+   GDScript backtrace (most recent call first):
+       [0] test_real_prepared_debug_projection_renders_free_flags_and_only_forced_reveal (res://tests/unit/test_minesweeper_panel_port.gd:811)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] _run_test (res://addons/gut/gut.gd:650)
+       [4] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid access to property or key 'board' on a base object of type 'Dictionary'.
+      at line -1
+* test_real_retained_terminal_difficulty_publishes_next_legal_board_without_payment
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: MinesweeperPanelPort.configure (res://scripts/application/minesweeper/MinesweeperPanelPort.gd:34)
+   GDScript backtrace (most recent call first):
+       [0] configure (res://scripts/application/minesweeper/MinesweeperPanelPort.gd:34)
+       [1] before_each (res://tests/unit/test_minesweeper_panel_port.gd:190)
+       [2] _run_test (res://addons/gut/gut.gd:612)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [4] _run_test (res://addons/gut/gut.gd:650)
+       [5] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+SCRIPT ERROR: Invalid access to property or key 'ok' on a base object of type 'Dictionary'.
+   at: before_each (res://tests/unit/test_minesweeper_panel_port.gd:190)
+   GDScript backtrace (most recent call first):
+       [0] before_each (res://tests/unit/test_minesweeper_panel_port.gd:190)
+       [1] _run_test (res://addons/gut/gut.gd:612)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] _run_test (res://addons/gut/gut.gd:650)
+       [4] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+SCRIPT ERROR: Invalid access to property or key 'value' on a base object of type 'Dictionary'.
+   at: test_real_retained_terminal_difficulty_publishes_next_legal_board_without_payment (res://tests/unit/test_minesweeper_panel_port.gd:857)
+   GDScript backtrace (most recent call first):
+       [0] test_real_retained_terminal_difficulty_publishes_next_legal_board_without_payment (res://tests/unit/test_minesweeper_panel_port.gd:857)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] _run_test (res://addons/gut/gut.gd:650)
+       [4] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid access to property or key 'value' on a base object of type 'Dictionary'.
+      at line -1
+* test_terminal_dispatch_holds_the_unsettled_board_and_the_pump_settles_it_next
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: MinesweeperPanelPort.configure (res://scripts/application/minesweeper/MinesweeperPanelPort.gd:34)
+   GDScript backtrace (most recent call first):
+       [0] configure (res://scripts/application/minesweeper/MinesweeperPanelPort.gd:34)
+       [1] before_each (res://tests/unit/test_minesweeper_panel_port.gd:190)
+       [2] _run_test (res://addons/gut/gut.gd:612)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [4] _run_test (res://addons/gut/gut.gd:650)
+       [5] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+SCRIPT ERROR: Invalid access to property or key 'ok' on a base object of type 'Dictionary'.
+   at: before_each (res://tests/unit/test_minesweeper_panel_port.gd:190)
+   GDScript backtrace (most recent call first):
+       [0] before_each (res://tests/unit/test_minesweeper_panel_port.gd:190)
+       [1] _run_test (res://addons/gut/gut.gd:612)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] _run_test (res://addons/gut/gut.gd:650)
+       [4] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: MinesweeperPanelPort.configure (res://scripts/application/minesweeper/MinesweeperPanelPort.gd:34)
+   GDScript backtrace (most recent call first):
+       [0] configure (res://scripts/application/minesweeper/MinesweeperPanelPort.gd:34)
+       [1] test_terminal_dispatch_holds_the_unsettled_board_and_the_pump_settles_it_next (res://tests/unit/test_minesweeper_panel_port.gd:897)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [4] _run_test (res://addons/gut/gut.gd:650)
+       [5] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+SCRIPT ERROR: Invalid access to property or key 'ok' on a base object of type 'Dictionary'.
+   at: test_terminal_dispatch_holds_the_unsettled_board_and_the_pump_settles_it_next (res://tests/unit/test_minesweeper_panel_port.gd:897)
+   GDScript backtrace (most recent call first):
+       [0] test_terminal_dispatch_holds_the_unsettled_board_and_the_pump_settles_it_next (res://tests/unit/test_minesweeper_panel_port.gd:897)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] _run_test (res://addons/gut/gut.gd:650)
+       [4] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+    [2] <engine-2>Invalid access to property or key 'ok' on a base object of type 'Dictionary'.
+      at line -1
+0/27 passed.
+
+
+res://tests/unit/test_minesweeper_presentation_port.gd
+* test_pull_exposes_only_public_projection_and_pre_reveal_flag_action
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: before_each (res://tests/unit/test_minesweeper_presentation_port.gd:116)
+   GDScript backtrace (most recent call first):
+       [0] before_each (res://tests/unit/test_minesweeper_presentation_port.gd:116)
+       [1] _run_test (res://addons/gut/gut.gd:612)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] _run_test (res://addons/gut/gut.gd:650)
+       [4] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+SCRIPT ERROR: Invalid call. Nonexistent function 'pull' in base 'Nil'.
+   at: test_pull_exposes_only_public_projection_and_pre_reveal_flag_action (res://tests/unit/test_minesweeper_presentation_port.gd:121)
+   GDScript backtrace (most recent call first):
+       [0] test_pull_exposes_only_public_projection_and_pre_reveal_flag_action (res://tests/unit/test_minesweeper_presentation_port.gd:121)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] _run_test (res://addons/gut/gut.gd:650)
+       [4] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'pull' in base 'Nil'.
+      at line -1
+* test_valid_first_reveal_and_active_flag_use_real_coordinator_and_issuer
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: before_each (res://tests/unit/test_minesweeper_presentation_port.gd:116)
+   GDScript backtrace (most recent call first):
+       [0] before_each (res://tests/unit/test_minesweeper_presentation_port.gd:116)
+       [1] _run_test (res://addons/gut/gut.gd:612)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] _run_test (res://addons/gut/gut.gd:650)
+       [4] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+SCRIPT ERROR: Invalid call. Nonexistent function 'pull' in base 'Nil'.
+   at: test_valid_first_reveal_and_active_flag_use_real_coordinator_and_issuer (res://tests/unit/test_minesweeper_presentation_port.gd:131)
+   GDScript backtrace (most recent call first):
+       [0] test_valid_first_reveal_and_active_flag_use_real_coordinator_and_issuer (res://tests/unit/test_minesweeper_presentation_port.gd:131)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] _run_test (res://addons/gut/gut.gd:650)
+       [4] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'pull' in base 'Nil'.
+      at line -1
+* test_accepted_routine_context_is_exactly_projection_bound_detached_and_ephemeral
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: before_each (res://tests/unit/test_minesweeper_presentation_port.gd:116)
+   GDScript backtrace (most recent call first):
+       [0] before_each (res://tests/unit/test_minesweeper_presentation_port.gd:116)
+       [1] _run_test (res://addons/gut/gut.gd:612)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] _run_test (res://addons/gut/gut.gd:650)
+       [4] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+SCRIPT ERROR: Invalid call. Nonexistent function 'pull' in base 'Nil'.
+   at: test_accepted_routine_context_is_exactly_projection_bound_detached_and_ephemeral (res://tests/unit/test_minesweeper_presentation_port.gd:145)
+   GDScript backtrace (most recent call first):
+       [0] test_accepted_routine_context_is_exactly_projection_bound_detached_and_ephemeral (res://tests/unit/test_minesweeper_presentation_port.gd:145)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] _run_test (res://addons/gut/gut.gd:650)
+       [4] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'pull' in base 'Nil'.
+      at line -1
+* test_real_grid_routes_keyboard_and_pointer_actions_through_port_and_coordinator
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: before_each (res://tests/unit/test_minesweeper_presentation_port.gd:116)
+   GDScript backtrace (most recent call first):
+       [0] before_each (res://tests/unit/test_minesweeper_presentation_port.gd:116)
+       [1] _run_test (res://addons/gut/gut.gd:612)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] _run_test (res://addons/gut/gut.gd:650)
+       [4] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+SCRIPT ERROR: Invalid call. Nonexistent function 'pull' in base 'Nil'.
+   at: test_real_grid_routes_keyboard_and_pointer_actions_through_port_and_coordinator (res://tests/unit/test_minesweeper_presentation_port.gd:186)
+   GDScript backtrace (most recent call first):
+       [0] test_real_grid_routes_keyboard_and_pointer_actions_through_port_and_coordinator (res://tests/unit/test_minesweeper_presentation_port.gd:186)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] _run_test (res://addons/gut/gut.gd:650)
+       [4] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'pull' in base 'Nil'.
+      at line -1
+* test_real_worksheet_long_press_routes_one_public_flag_command_end_to_end
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: before_each (res://tests/unit/test_minesweeper_presentation_port.gd:116)
+   GDScript backtrace (most recent call first):
+       [0] before_each (res://tests/unit/test_minesweeper_presentation_port.gd:116)
+       [1] _run_test (res://addons/gut/gut.gd:612)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] _run_test (res://addons/gut/gut.gd:650)
+       [4] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+SCRIPT ERROR: Invalid call. Nonexistent function 'pull' in base 'Nil'.
+   at: test_real_worksheet_long_press_routes_one_public_flag_command_end_to_end (res://tests/unit/test_minesweeper_presentation_port.gd:252)
+   GDScript backtrace (most recent call first):
+       [0] test_real_worksheet_long_press_routes_one_public_flag_command_end_to_end (res://tests/unit/test_minesweeper_presentation_port.gd:252)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] _run_test (res://addons/gut/gut.gd:650)
+       [4] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'pull' in base 'Nil'.
+      at line -1
+* test_unconfigured_invalid_and_stale_actions_allocate_nothing
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: before_each (res://tests/unit/test_minesweeper_presentation_port.gd:116)
+   GDScript backtrace (most recent call first):
+       [0] before_each (res://tests/unit/test_minesweeper_presentation_port.gd:116)
+       [1] _run_test (res://addons/gut/gut.gd:612)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] _run_test (res://addons/gut/gut.gd:650)
+       [4] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: test_unconfigured_invalid_and_stale_actions_allocate_nothing (res://tests/unit/test_minesweeper_presentation_port.gd:351)
+   GDScript backtrace (most recent call first):
+       [0] test_unconfigured_invalid_and_stale_actions_allocate_nothing (res://tests/unit/test_minesweeper_presentation_port.gd:351)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] _run_test (res://addons/gut/gut.gd:650)
+       [4] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+      at line -1
+* test_same_revision_with_changed_full_identity_is_stale_before_allocation
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: before_each (res://tests/unit/test_minesweeper_presentation_port.gd:116)
+   GDScript backtrace (most recent call first):
+       [0] before_each (res://tests/unit/test_minesweeper_presentation_port.gd:116)
+       [1] _run_test (res://addons/gut/gut.gd:612)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] _run_test (res://addons/gut/gut.gd:650)
+       [4] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+SCRIPT ERROR: Invalid call. Nonexistent function 'pull' in base 'Nil'.
+   at: test_same_revision_with_changed_full_identity_is_stale_before_allocation (res://tests/unit/test_minesweeper_presentation_port.gd:362)
+   GDScript backtrace (most recent call first):
+       [0] test_same_revision_with_changed_full_identity_is_stale_before_allocation (res://tests/unit/test_minesweeper_presentation_port.gd:362)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] _run_test (res://addons/gut/gut.gd:650)
+       [4] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'pull' in base 'Nil'.
+      at line -1
+* test_replaying_an_old_public_revision_does_not_allocate_twice
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: before_each (res://tests/unit/test_minesweeper_presentation_port.gd:116)
+   GDScript backtrace (most recent call first):
+       [0] before_each (res://tests/unit/test_minesweeper_presentation_port.gd:116)
+       [1] _run_test (res://addons/gut/gut.gd:612)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] _run_test (res://addons/gut/gut.gd:650)
+       [4] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+SCRIPT ERROR: Invalid call. Nonexistent function 'pull' in base 'Nil'.
+   at: test_replaying_an_old_public_revision_does_not_allocate_twice (res://tests/unit/test_minesweeper_presentation_port.gd:376)
+   GDScript backtrace (most recent call first):
+       [0] test_replaying_an_old_public_revision_does_not_allocate_twice (res://tests/unit/test_minesweeper_presentation_port.gd:376)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] _run_test (res://addons/gut/gut.gd:650)
+       [4] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'pull' in base 'Nil'.
+      at line -1
+* test_live_entry_eligibility_is_rechecked_before_allocation
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: before_each (res://tests/unit/test_minesweeper_presentation_port.gd:116)
+   GDScript backtrace (most recent call first):
+       [0] before_each (res://tests/unit/test_minesweeper_presentation_port.gd:116)
+       [1] _run_test (res://addons/gut/gut.gd:612)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] _run_test (res://addons/gut/gut.gd:650)
+       [4] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+SCRIPT ERROR: Invalid call. Nonexistent function 'pull' in base 'Nil'.
+   at: test_live_entry_eligibility_is_rechecked_before_allocation (res://tests/unit/test_minesweeper_presentation_port.gd:384)
+   GDScript backtrace (most recent call first):
+       [0] test_live_entry_eligibility_is_rechecked_before_allocation (res://tests/unit/test_minesweeper_presentation_port.gd:384)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] _run_test (res://addons/gut/gut.gd:650)
+       [4] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'pull' in base 'Nil'.
+      at line -1
+* test_prepared_round_refuses_a_stale_caller_difficulty
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: before_each (res://tests/unit/test_minesweeper_presentation_port.gd:116)
+   GDScript backtrace (most recent call first):
+       [0] before_each (res://tests/unit/test_minesweeper_presentation_port.gd:116)
+       [1] _run_test (res://addons/gut/gut.gd:612)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] _run_test (res://addons/gut/gut.gd:650)
+       [4] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+SCRIPT ERROR: Invalid call. Nonexistent function 'pull' in base 'Nil'.
+   at: test_prepared_round_refuses_a_stale_caller_difficulty (res://tests/unit/test_minesweeper_presentation_port.gd:413)
+   GDScript backtrace (most recent call first):
+       [0] test_prepared_round_refuses_a_stale_caller_difficulty (res://tests/unit/test_minesweeper_presentation_port.gd:413)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] _run_test (res://addons/gut/gut.gd:650)
+       [4] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'pull' in base 'Nil'.
+      at line -1
+* test_owner_refusal_is_sanitized_and_refreshes_the_public_projection
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: before_each (res://tests/unit/test_minesweeper_presentation_port.gd:116)
+   GDScript backtrace (most recent call first):
+       [0] before_each (res://tests/unit/test_minesweeper_presentation_port.gd:116)
+       [1] _run_test (res://addons/gut/gut.gd:612)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] _run_test (res://addons/gut/gut.gd:650)
+       [4] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+SCRIPT ERROR: Invalid call. Nonexistent function 'pull' in base 'Nil'.
+   at: test_owner_refusal_is_sanitized_and_refreshes_the_public_projection (res://tests/unit/test_minesweeper_presentation_port.gd:418)
+   GDScript backtrace (most recent call first):
+       [0] test_owner_refusal_is_sanitized_and_refreshes_the_public_projection (res://tests/unit/test_minesweeper_presentation_port.gd:418)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] _run_test (res://addons/gut/gut.gd:650)
+       [4] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'pull' in base 'Nil'.
+      at line -1
+* test_terminal_action_settles_once_and_pull_retries_the_same_request_without_losing_projection
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: before_each (res://tests/unit/test_minesweeper_presentation_port.gd:116)
+   GDScript backtrace (most recent call first):
+       [0] before_each (res://tests/unit/test_minesweeper_presentation_port.gd:116)
+       [1] _run_test (res://addons/gut/gut.gd:612)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] _run_test (res://addons/gut/gut.gd:650)
+       [4] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: test_terminal_action_settles_once_and_pull_retries_the_same_request_without_losing_projection (res://tests/unit/test_minesweeper_presentation_port.gd:432)
+   GDScript backtrace (most recent call first):
+       [0] test_terminal_action_settles_once_and_pull_retries_the_same_request_without_losing_projection (res://tests/unit/test_minesweeper_presentation_port.gd:432)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] _run_test (res://addons/gut/gut.gd:650)
+       [4] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+      at line -1
+* test_foreground_suspends_and_resumes_real_board_without_spending_or_regenerating
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: before_each (res://tests/unit/test_minesweeper_presentation_port.gd:116)
+   GDScript backtrace (most recent call first):
+       [0] before_each (res://tests/unit/test_minesweeper_presentation_port.gd:116)
+       [1] _run_test (res://addons/gut/gut.gd:612)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] _run_test (res://addons/gut/gut.gd:650)
+       [4] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+SCRIPT ERROR: Invalid call. Nonexistent function 'pull' in base 'Nil'.
+   at: test_foreground_suspends_and_resumes_real_board_without_spending_or_regenerating (res://tests/unit/test_minesweeper_presentation_port.gd:481)
+   GDScript backtrace (most recent call first):
+       [0] test_foreground_suspends_and_resumes_real_board_without_spending_or_regenerating (res://tests/unit/test_minesweeper_presentation_port.gd:481)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] _run_test (res://addons/gut/gut.gd:650)
+       [4] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'pull' in base 'Nil'.
+      at line -1
+* test_foreground_noops_unpaid_and_cold_preparation_parks_exact_frontier
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: before_each (res://tests/unit/test_minesweeper_presentation_port.gd:116)
+   GDScript backtrace (most recent call first):
+       [0] before_each (res://tests/unit/test_minesweeper_presentation_port.gd:116)
+       [1] _run_test (res://addons/gut/gut.gd:612)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] _run_test (res://addons/gut/gut.gd:650)
+       [4] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+SCRIPT ERROR: Invalid call. Nonexistent function 'pull' in base 'Nil'.
+   at: test_foreground_noops_unpaid_and_cold_preparation_parks_exact_frontier (res://tests/unit/test_minesweeper_presentation_port.gd:515)
+   GDScript backtrace (most recent call first):
+       [0] test_foreground_noops_unpaid_and_cold_preparation_parks_exact_frontier (res://tests/unit/test_minesweeper_presentation_port.gd:515)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] _run_test (res://addons/gut/gut.gd:650)
+       [4] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'pull' in base 'Nil'.
+      at line -1
+* test_foreground_stale_revision_refuses_before_allocation_and_returns_current_public_view
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: before_each (res://tests/unit/test_minesweeper_presentation_port.gd:116)
+   GDScript backtrace (most recent call first):
+       [0] before_each (res://tests/unit/test_minesweeper_presentation_port.gd:116)
+       [1] _run_test (res://addons/gut/gut.gd:612)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] _run_test (res://addons/gut/gut.gd:650)
+       [4] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+SCRIPT ERROR: Invalid call. Nonexistent function 'pull' in base 'Nil'.
+   at: test_foreground_stale_revision_refuses_before_allocation_and_returns_current_public_view (res://tests/unit/test_minesweeper_presentation_port.gd:560)
+   GDScript backtrace (most recent call first):
+       [0] test_foreground_stale_revision_refuses_before_allocation_and_returns_current_public_view (res://tests/unit/test_minesweeper_presentation_port.gd:560)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] _run_test (res://addons/gut/gut.gd:650)
+       [4] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'pull' in base 'Nil'.
+      at line -1
+* test_foreground_cannot_hide_or_resume_an_unsettled_terminal
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: before_each (res://tests/unit/test_minesweeper_presentation_port.gd:116)
+   GDScript backtrace (most recent call first):
+       [0] before_each (res://tests/unit/test_minesweeper_presentation_port.gd:116)
+       [1] _run_test (res://addons/gut/gut.gd:612)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] _run_test (res://addons/gut/gut.gd:650)
+       [4] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+SCRIPT ERROR: Invalid call. Nonexistent function 'pull' in base 'Nil'.
+   at: test_foreground_cannot_hide_or_resume_an_unsettled_terminal (res://tests/unit/test_minesweeper_presentation_port.gd:577)
+   GDScript backtrace (most recent call first):
+       [0] test_foreground_cannot_hide_or_resume_an_unsettled_terminal (res://tests/unit/test_minesweeper_presentation_port.gd:577)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] _run_test (res://addons/gut/gut.gd:650)
+       [4] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'pull' in base 'Nil'.
+      at line -1
+* test_preparation_is_explicit_and_retry_reuses_exact_issued_request
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: before_each (res://tests/unit/test_minesweeper_presentation_port.gd:116)
+   GDScript backtrace (most recent call first):
+       [0] before_each (res://tests/unit/test_minesweeper_presentation_port.gd:116)
+       [1] _run_test (res://addons/gut/gut.gd:612)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] _run_test (res://addons/gut/gut.gd:650)
+       [4] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: test_preparation_is_explicit_and_retry_reuses_exact_issued_request (res://tests/unit/test_minesweeper_presentation_port.gd:595)
+   GDScript backtrace (most recent call first):
+       [0] test_preparation_is_explicit_and_retry_reuses_exact_issued_request (res://tests/unit/test_minesweeper_presentation_port.gd:595)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] _run_test (res://addons/gut/gut.gd:650)
+       [4] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+      at line -1
+* test_preparation_rejects_stale_identity_or_revision_without_issuance
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: before_each (res://tests/unit/test_minesweeper_presentation_port.gd:116)
+   GDScript backtrace (most recent call first):
+       [0] before_each (res://tests/unit/test_minesweeper_presentation_port.gd:116)
+       [1] _run_test (res://addons/gut/gut.gd:612)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] _run_test (res://addons/gut/gut.gd:650)
+       [4] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: test_preparation_rejects_stale_identity_or_revision_without_issuance (res://tests/unit/test_minesweeper_presentation_port.gd:621)
+   GDScript backtrace (most recent call first):
+       [0] test_preparation_rejects_stale_identity_or_revision_without_issuance (res://tests/unit/test_minesweeper_presentation_port.gd:621)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] _run_test (res://addons/gut/gut.gd:650)
+       [4] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+      at line -1
+* test_preparation_parking_refuses_owner_recovery_without_allocation
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: before_each (res://tests/unit/test_minesweeper_presentation_port.gd:116)
+   GDScript backtrace (most recent call first):
+       [0] before_each (res://tests/unit/test_minesweeper_presentation_port.gd:116)
+       [1] _run_test (res://addons/gut/gut.gd:612)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] _run_test (res://addons/gut/gut.gd:650)
+       [4] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+SCRIPT ERROR: Invalid call. Nonexistent function 'pull' in base 'Nil'.
+   at: test_preparation_parking_refuses_owner_recovery_without_allocation (res://tests/unit/test_minesweeper_presentation_port.gd:634)
+   GDScript backtrace (most recent call first):
+       [0] test_preparation_parking_refuses_owner_recovery_without_allocation (res://tests/unit/test_minesweeper_presentation_port.gd:634)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] _run_test (res://addons/gut/gut.gd:650)
+       [4] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'pull' in base 'Nil'.
+      at line -1
+* test_routine_commands_issue_deferred_while_first_reveal_issues_durably
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: before_each (res://tests/unit/test_minesweeper_presentation_port.gd:116)
+   GDScript backtrace (most recent call first):
+       [0] before_each (res://tests/unit/test_minesweeper_presentation_port.gd:116)
+       [1] _run_test (res://addons/gut/gut.gd:612)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] _run_test (res://addons/gut/gut.gd:650)
+       [4] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+SCRIPT ERROR: Invalid call. Nonexistent function 'pull' in base 'Nil'.
+   at: test_routine_commands_issue_deferred_while_first_reveal_issues_durably (res://tests/unit/test_minesweeper_presentation_port.gd:650)
+   GDScript backtrace (most recent call first):
+       [0] test_routine_commands_issue_deferred_while_first_reveal_issues_durably (res://tests/unit/test_minesweeper_presentation_port.gd:650)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] _run_test (res://addons/gut/gut.gd:650)
+       [4] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'pull' in base 'Nil'.
+      at line -1
+* test_pull_and_other_entries_settle_a_deferred_terminal_before_proceeding
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: before_each (res://tests/unit/test_minesweeper_presentation_port.gd:116)
+   GDScript backtrace (most recent call first):
+       [0] before_each (res://tests/unit/test_minesweeper_presentation_port.gd:116)
+       [1] _run_test (res://addons/gut/gut.gd:612)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] _run_test (res://addons/gut/gut.gd:650)
+       [4] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: test_pull_and_other_entries_settle_a_deferred_terminal_before_proceeding (res://tests/unit/test_minesweeper_presentation_port.gd:667)
+   GDScript backtrace (most recent call first):
+       [0] test_pull_and_other_entries_settle_a_deferred_terminal_before_proceeding (res://tests/unit/test_minesweeper_presentation_port.gd:667)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] _run_test (res://addons/gut/gut.gd:650)
+       [4] test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only (res://tests/unit/test_minesweeper_panel_port.gd:479)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+      at line -1
+0/21 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/unit/test_minesweeper_panel_port.gd
+    - Outside Tests
+        * [<Node#131231385365>(subsystem_animation.gd)]
+        * [<Node#131248162593>(subsystem_audio.gd)]
+        * [<Node#131264939823>]
+        * [<Node#131281717047>]
+        * [<Node#131298494271>(subsystem_backgrounds.gd)]
+        * [<Node#131835365184>(subsystem_choices.gd)]
+        * [<Timer#131852142401>]
+        * [<Node#131868919618>(subsystem_expression.gd)]
+        * [<Node#131902474055>(subsystem_glossary.gd)]
+        * [<Node#131919251272>(subsystem_history.gd)]
+        * [<Node#131936028489>(subsystem_input.gd)]
+        * [<Timer#131952805706>]
+        * [<Node#131969582923>(subsystem_jump.gd)]
+        * [<Node#131986360140>(subsystem_containers.gd)]
+        * [<Node#132003137357>(subsystem_portraits.gd)]
+        * [<Node#132540008270>(subsystem_save.gd)]
+        * [<Timer#132556785487>]
+        * [<Node#132573562704>(subsystem_settings.gd)]
+        * [<Node#132590339924>(subsystem_styles.gd)]
+        * [<Node#132607117141>(subsystem_text.gd)]
+        * [<Node#132691003226>(subsystem_text_input.gd)]
+        * [<Node#132707780443>(subsystem_variables.gd)]
+        * [<Node#132724557660>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#132741334877>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+res://tests/unit/test_minesweeper_panel_port.gd
+- test_pull_composes_only_detached_public_facts_without_spending_or_allocating
+    [Failed]:
+          at line 203
+    [Failed]:  ARRAY(["ok", "code"]) != ARRAY(["ok", "value"]).
+    ["ok", "code"] != ["ok", "value"]  1 of 2 indexes do not match.
+          at line 204
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid access to property or key 'value' on a base object of type 'Dictionary'.
+          at line -1
+- test_real_first_reveal_and_flag_unflag_refresh_the_whole_panel
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid access to property or key 'value' on a base object of type 'Dictionary'.
+          at line -1
+- test_routine_command_reuses_its_exact_postcommit_read_and_matches_explicit_pull
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+    [2] <engine-2>Invalid access to property or key 'ok' on a base object of type 'Dictionary'.
+          at line -1
+- test_terminal_settlement_failure_stays_visible_then_success_holds_exact_board_after_owner_clears
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+    [2] <engine-2>Invalid access to property or key 'ok' on a base object of type 'Dictionary'.
+          at line -1
+- test_failed_terminal_settlement_retains_exact_projection_without_next_action
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid access to property or key 'value' on a base object of type 'Dictionary'.
+          at line -1
+- test_day_change_invalidates_a_held_terminal_view
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+    [2] <engine-2>Invalid access to property or key 'ok' on a base object of type 'Dictionary'.
+          at line -1
+- test_stale_and_owner_refusal_return_only_safe_refreshed_composites
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid access to property or key 'value' on a base object of type 'Dictionary'.
+          at line -1
+- test_invalid_assignment_read_has_no_partial_view_and_cannot_dispatch_cached_board
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+    [2] <engine-2>Invalid access to property or key 'ok' on a base object of type 'Dictionary'.
+          at line -1
+- test_changed_unpaid_tier_refuses_old_reveal_before_allocation_and_refreshes_expert
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid access to property or key 'value' on a base object of type 'Dictionary'.
+          at line -1
+- test_same_revision_owner_change_between_reads_refuses_the_composite
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid access to property or key 'value' on a base object of type 'Dictionary'.
+          at line -1
+- test_reconfiguration_is_idempotent_and_rebind_cannot_replace_working_dependencies
+    [Failed]:  DICTIONARY({  }) != DICTIONARY({ "ok": true, "value": { "already_configured": true } }).
+    {  } != { "ok": true, "value": { "already_config...: true } }  2 of 2 keys do not match.
+          at line 442
+    [Failed]:  DICTIONARY({  }) != DICTIONARY({ "ok": false, "code": &"minesweeper_panel_already_configured" }).
+    {  } != { "ok": false, "code": &"minesweeper_pan...figured" }  2 of 2 keys do not match.
+          at line 448
+    [Failed]:  DICTIONARY({  }) != DICTIONARY({ "ok": false, "code": &"minesweeper_panel_already_configured" }).
+    {  } != { "ok": false, "code": &"minesweeper_pan...figured" }  2 of 2 keys do not match.
+          at line 448
+    [Failed]:  DICTIONARY({ "ok": false, "code": &"minesweeper_panel_unavailable" }) != DICTIONARY({ "ok": false, "code": &"minesweeper_panel_already_configured" }).
+    { "ok": false, "code": &"minesweeper_pan...ailable" } != { "ok": false, "code": &"minesweeper_pan...figured" }  1 of 2 keys do not match.
+          at line 448
+    [Failed]:  DICTIONARY({  }) != DICTIONARY({ "ok": false, "code": &"minesweeper_panel_already_configured" }).
+    {  } != { "ok": false, "code": &"minesweeper_pan...figured" }  2 of 2 keys do not match.
+          at line 448
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+    [2] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+    [3] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+    [4] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+    [5] <engine-2>Invalid access to property or key 'value' on a base object of type 'Dictionary'.
+          at line -1
+- test_unconfigured_or_invalid_dependencies_refuse_without_allocating
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+    [2] <engine-2>Invalid access to property or key 'ok' on a base object of type 'Dictionary'.
+          at line -1
+- test_real_panel_routes_grid_intents_and_keeps_information_sheets_read_only
+    [Failed]:
+          at line 475
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid access of index '2' on a base object of type: 'Array[Control]'.
+          at line 479
+- test_panel_foreground_preserves_frozen_register_and_history_without_spending
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid access to property or key 'value' on a base object of type 'Dictionary'.
+          at line -1
+- test_panel_foreground_refuses_changed_unpaid_tier_before_allocation
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid access to property or key 'value' on a base object of type 'Dictionary'.
+          at line -1
+- test_terminal_foresight_includes_final_click_and_survives_settlement_clear_and_retry
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+    [2] <engine-2>Invalid access to property or key 'ok' on a base object of type 'Dictionary'.
+          at line -1
+- test_unpaid_tier_change_and_untouched_new_board_never_generate_or_spend
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid access to property or key 'value' on a base object of type 'Dictionary'.
+          at line -1
+- test_unpaid_flags_without_capacity_preserve_no_flag_and_untouched_new_board_is_noop
+    [Failed]:  { "ok": false, "code": &"minesweeper_panel_unavailable" }
+          at line 614
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid access to property or key 'value' on a base object of type 'Dictionary'.
+          at line -1
+- test_paid_replacement_and_paid_tier_change_keep_one_cost_and_accept_exact_retry
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid access to property or key 'value' on a base object of type 'Dictionary'.
+          at line -1
+- test_stale_configuration_revision_or_live_session_is_refused_before_allocation
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid access to property or key 'value' on a base object of type 'Dictionary'.
+          at line -1
+- test_first_paid_reveal_resolves_exact_journal_after_saved_shell_flag_prefix
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid access to property or key 'value' on a base object of type 'Dictionary'.
+          at line -1
+- test_cold_retained_terminal_inspection_never_reissues_completion_and_survives_navigation
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+    [2] <engine-2>Invalid access to property or key 'ok' on a base object of type 'Dictionary'.
+          at line -1
+- test_settlement_retry_adopts_retained_owner_revision_before_dismissal_admission
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+    [2] <engine-2>Invalid access to property or key 'ok' on a base object of type 'Dictionary'.
+          at line -1
+- test_retained_terminal_new_board_commits_owner_dismissal_and_keeps_exact_failed_request
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+    [2] <engine-2>Invalid access to property or key 'ok' on a base object of type 'Dictionary'.
+          at line -1
+- test_real_prepared_debug_projection_renders_free_flags_and_only_forced_reveal
+    [Failed]:
+          at line 808
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid access to property or key 'board' on a base object of type 'Dictionary'.
+          at line -1
+- test_real_retained_terminal_difficulty_publishes_next_legal_board_without_payment
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid access to property or key 'value' on a base object of type 'Dictionary'.
+          at line -1
+- test_terminal_dispatch_holds_the_unsettled_board_and_the_pump_settles_it_next
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+    [2] <engine-2>Invalid access to property or key 'ok' on a base object of type 'Dictionary'.
+          at line -1
+
+res://tests/unit/test_minesweeper_presentation_port.gd
+- test_pull_exposes_only_public_projection_and_pre_reveal_flag_action
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'pull' in base 'Nil'.
+          at line -1
+- test_valid_first_reveal_and_active_flag_use_real_coordinator_and_issuer
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'pull' in base 'Nil'.
+          at line -1
+- test_accepted_routine_context_is_exactly_projection_bound_detached_and_ephemeral
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'pull' in base 'Nil'.
+          at line -1
+- test_real_grid_routes_keyboard_and_pointer_actions_through_port_and_coordinator
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'pull' in base 'Nil'.
+          at line -1
+- test_real_worksheet_long_press_routes_one_public_flag_command_end_to_end
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'pull' in base 'Nil'.
+          at line -1
+- test_unconfigured_invalid_and_stale_actions_allocate_nothing
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+          at line -1
+- test_same_revision_with_changed_full_identity_is_stale_before_allocation
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'pull' in base 'Nil'.
+          at line -1
+- test_replaying_an_old_public_revision_does_not_allocate_twice
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'pull' in base 'Nil'.
+          at line -1
+- test_live_entry_eligibility_is_rechecked_before_allocation
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'pull' in base 'Nil'.
+          at line -1
+- test_prepared_round_refuses_a_stale_caller_difficulty
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'pull' in base 'Nil'.
+          at line -1
+- test_owner_refusal_is_sanitized_and_refreshes_the_public_projection
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'pull' in base 'Nil'.
+          at line -1
+- test_terminal_action_settles_once_and_pull_retries_the_same_request_without_losing_projection
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+          at line -1
+- test_foreground_suspends_and_resumes_real_board_without_spending_or_regenerating
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'pull' in base 'Nil'.
+          at line -1
+- test_foreground_noops_unpaid_and_cold_preparation_parks_exact_frontier
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'pull' in base 'Nil'.
+          at line -1
+- test_foreground_stale_revision_refuses_before_allocation_and_returns_current_public_view
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'pull' in base 'Nil'.
+          at line -1
+- test_foreground_cannot_hide_or_resume_an_unsettled_terminal
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'pull' in base 'Nil'.
+          at line -1
+- test_preparation_is_explicit_and_retry_reuses_exact_issued_request
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+          at line -1
+- test_preparation_rejects_stale_identity_or_revision_without_issuance
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+          at line -1
+- test_preparation_parking_refuses_owner_recovery_without_allocation
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'pull' in base 'Nil'.
+          at line -1
+- test_routine_commands_issue_deferred_while_first_reveal_issues_durably
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'pull' in base 'Nil'.
+          at line -1
+- test_pull_and_other_entries_settle_a_deferred_terminal_before_proceeding
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+          at line -1
+
+Totals
+------
+Scripts               2
+Tests                48
+Passing Tests      none
+Failing Tests        48
+Asserts           118/176
+Orphans              24
+Time              0.43s
+
+
+---- 48 failing tests ----

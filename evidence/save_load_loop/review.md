@@ -1,0 +1,15 @@
+# Independent save/load review
+
+No remaining material finding in the reviewed scope. Reviewed the seed-only same-counter restore correction, GameState bookkeeping restoration, route-last finalization, and Backup's unmounted-view guards. Manual capture and Bootstrap's early desktop binding were authored by this reviewer and reviewed separately by the root/data agent; they are not represented as independently self-reviewed.
+
+GameState maps saved `gameplay.narrative_variables` and the three top-level receipt/ID fields explicitly. It validates the complete ledger group, its receipt partition, primitive values and narrative-variable schema before lifecycle or gameplay mutation. Rollback validates sorted detached ID copies while retaining original insertion order and StringName receipt kinds in live owner backups. Empty saved fields clear unsaved values; old partial direct-owner plans retain their documented omission behavior. The review found missing primitive-value validation in the initial patch; the final patch and malformed receipt regression address it. Nonempty narrative-variable restoration is not exercised because the current registry is empty.
+
+A restore seed replaces the complete saved journal even when its run/counter matches live state. Record/reset duplicate guards remain; actual UI consent tokens still reject reuse. Physical routing finalizes last, and the outgoing Backup view avoids post-removal refresh/geometry work. The existing journal commit before fallible finalizers remains outside a general rollback guarantee.
+
+Evidence readback:
+
+- Full production loop: `tools/save_load_loop/evidence/loop/result.json` passes; 2,395/2,395 source bindings matched at review. SHA-256 `5e9392b61cdfb001c4a19707a53e7fa69a120c871c80e11224b8a8b03573392f`.
+- Owner/restore regression: `.godot/backup-operations-ypleuty4/result.json` passes; 348/348 source bindings matched. SHA-256 `c62779cc7b3f78e51f6f08227ba220bc6df6c1459a98868bcfa6d1b78f773225`.
+- Capture: `.godot/save-load-capture-c64ncr5d/result.json` retains its 136 passing checks. Its only subsequent dependency change is `autoload/GameState.gd`, copied transitively but not instantiated by that injected-source fixture. The current owner/full-loop receipts cover the changed GameState; the capture receipt is not relabeled as a new run.
+
+The full runner preserves the real main scene and production autoloads, adds an initial observer, proves the actual isolated `user://` before runtime owners initialize, and checks final Bootstrap readiness plus a distinct ready MainGameScene after Load. It drives real UI signals and a registered effect as a test probe. This establishes the tested in-run startup/save/cancel/stale-confirmation/load/state-restoration path. It does not establish title Log in, restart recovery, complete authored narrative, physical input/accessibility certification, GPU appearance or every failure branch. The exact inherited shutdown diagnostic allowance remains visible; no leak-free shutdown claim is made.

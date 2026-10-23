@@ -1,0 +1,18 @@
+{
+  "run_id": 39833670608,
+  "job_id": 120016225904,
+  "head": "339c48939b8846445f961734e1bc5d72cc1ed267",
+  "tested_pr_merge": "cc4fe97721e413c22c0aaeec3d3f38f4839b5589",
+  "artifact_id": 12450216521,
+  "archive_bytes": 55966,
+  "archive_sha256": "2c3ee898ee1a10478db497810f9cae4ccb102ac689b8f7bc7f2e0a1bcc922a0a",
+  "archive_git_blob": "5ccde1892439f40e18970ceb406b84c87aa82038",
+  "archive_crc_pass": true,
+  "archive_members": 7,
+  "native_manifest_files_verified": 4,
+  "failure": "CAPTION_UIA_NOT_FOUND: reveal",
+  "native_invocations": 0,
+  "root_cause_scope": "Driver expects prose InvokePattern; retained native tree presents prose Text and distinct enabled Continue Button with InvokePattern. This explains target selection refusal, not later journey behavior.",
+  "ci_result": "failure",
+  "broad_acceptance": false
+}

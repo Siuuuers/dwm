@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="GutTests" failures="0" tests="4" >
+  <testsuite name="tests/integration/test_scene_event_anchor_membership.gd" tests="4" failures="0" skipped="0" time="0.070127" >
+      <testcase name="test_scene_anchor_requires_retained_publication_occurrence_and_catalogue" assertions="13" status="pass" classname="tests/integration/test_scene_event_anchor_membership.gd" time="0.036895" >
+      </testcase>
+      <testcase name="test_batch_checks_later_anchors_and_keeps_occurrences_distinct" assertions="12" status="pass" classname="tests/integration/test_scene_event_anchor_membership.gd" time="0.017546" >
+      </testcase>
+      <testcase name="test_batch_revalidates_changed_checkpoint_on_every_call" assertions="8" status="pass" classname="tests/integration/test_scene_event_anchor_membership.gd" time="0.015098" >
+      </testcase>
+      <testcase name="test_batch_empty_and_first_anchor_shape_precede_reading_admission" assertions="2" status="pass" classname="tests/integration/test_scene_event_anchor_membership.gd" time="0.000588" >
+      </testcase>
+  </testsuite>
+</testsuites>

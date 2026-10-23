@@ -1,0 +1,251 @@
+{
+  "schema_version": 1,
+  "outcome": "Accepted fixed-fixture exact caption witnessing prerequisite to one-shot Next",
+  "accepted": true,
+  "candidate_source": "dc85cf9714d178e3cbb2bcf3e6c39c1d56484b3c",
+  "tested_merge": "ea4d5aa5b78da49c00ee574b236517e9448bf3ef",
+  "master_parent": "6a5ddf1564870b43aa9140cad7e0e5b12e43f399",
+  "final_run": {
+    "number": 102,
+    "id": 36901983427,
+    "attempt": 1,
+    "url": "https://github.com/Siuuuers/dwm/actions/runs/36901983427",
+    "logical_jobs": 23,
+    "checkout_executions": 22,
+    "aggregate_has_checkout": false,
+    "gut_executions": 2210,
+    "gut_unique_cases": 2206,
+    "gut_unique_scripts": 189,
+    "acceptance_summary": "run102/acceptance-summary.json"
+  },
+  "focused_run": {
+    "number": 100,
+    "id": 36894093464,
+    "source": "f3b5e8910e8a7d401d6ac6e7ca4392d58787a920",
+    "acceptance_summary": "run100/acceptance-summary.json"
+  },
+  "failed_diagnostics": {
+    "number": 99,
+    "id": 36893609060,
+    "source": "8ae8a0ba7369546a1d9da02cbfcd371008ce3009",
+    "acceptance": false,
+    "receipt": "run99/bundle-receipt.json"
+  },
+  "partial_run101": {
+    "number": 101,
+    "id": 36895796051,
+    "source": "87cda1e9feacffd61ceda5acd3c2fca2713e2e94",
+    "tested_merge": "af3508faa04d7539826be2022d8b9d1ba798b361",
+    "logical_jobs_passed": 22,
+    "logical_jobs_total": 23,
+    "full_acceptance": false,
+    "receipt": "run101/bundle-receipt.json",
+    "scope": "All 2210 GUT executions and surrounding non-renderer gates passed; both desktop installer attempts timed out before import/render and no fresh literal audit was produced."
+  },
+  "source_boundary": "The full gate checks the actual PR merge with 45 changed paths under root AGENTS.md/docs/story, including story-maintenance Python/JSON; runtime, tests, workflow and every unlisted path are byte-identical to the candidate.",
+  "reading": {
+    "all_process_exits_zero": true,
+    "captures": [
+      {
+        "bytes": 6626,
+        "height": 720,
+        "path": "artifacts/reading-rail-36901983427-1/e35d913c-f76f-4d1f-94e0-7a20eb9880be/captures/01-title.png",
+        "sha256": "61b3758193e97ce716b4acf3e9260611bf583f276b248a64077dcbe73b8d8c6e",
+        "width": 1280
+      },
+      {
+        "bytes": 353658,
+        "height": 720,
+        "path": "artifacts/reading-rail-36901983427-1/e35d913c-f76f-4d1f-94e0-7a20eb9880be/captures/02-desktop.png",
+        "sha256": "798f8141ff6bc6e1beac2bb3a995be83b63d0b2c780f4dc6f205c8cff22d153c",
+        "width": 1280
+      },
+      {
+        "bytes": 356380,
+        "height": 720,
+        "path": "artifacts/reading-rail-36901983427-1/e35d913c-f76f-4d1f-94e0-7a20eb9880be/captures/03-minesweeper.png",
+        "sha256": "6f02ef21e563c7dcd23d1e336f7f1901461a5283d1fbd57ce11399eab5793050",
+        "width": 1280
+      },
+      {
+        "bytes": 7815,
+        "height": 720,
+        "path": "artifacts/reading-rail-36901983427-1/e35d913c-f76f-4d1f-94e0-7a20eb9880be/captures/04-pre-history.png",
+        "sha256": "f8283c61d2186f7c16ada71669f84a604f5a96e028efc9e753475b9999100031",
+        "width": 1280
+      },
+      {
+        "bytes": 675867,
+        "height": 720,
+        "path": "artifacts/reading-rail-36901983427-1/e35d913c-f76f-4d1f-94e0-7a20eb9880be/captures/05-dating-board.png",
+        "sha256": "6e0c7131f4a0ad79d56fee755ac0230f382966c7ba76362da705dd019b988560",
+        "width": 1280
+      },
+      {
+        "bytes": 9019,
+        "height": 720,
+        "path": "artifacts/reading-rail-36901983427-1/e35d913c-f76f-4d1f-94e0-7a20eb9880be/captures/06-post-history.png",
+        "sha256": "02aa35027dc32d55523f24fb3bdd5940904566e37926153c40c457ecde2a7bf6",
+        "width": 1280
+      },
+      {
+        "bytes": 1329134,
+        "height": 720,
+        "path": "artifacts/reading-rail-36901983427-1/e35d913c-f76f-4d1f-94e0-7a20eb9880be/captures/07-post-save.png",
+        "sha256": "32e51d32609a4bbe0b857b3d45b4262500807dffbb0027a84b7f00cd9447607c",
+        "width": 1280
+      },
+      {
+        "bytes": 9019,
+        "height": 720,
+        "path": "artifacts/reading-rail-36901983427-1/e35d913c-f76f-4d1f-94e0-7a20eb9880be/captures/08-restored-history.png",
+        "sha256": "02aa35027dc32d55523f24fb3bdd5940904566e37926153c40c457ecde2a7bf6",
+        "width": 1280
+      },
+      {
+        "bytes": 1329134,
+        "height": 720,
+        "path": "artifacts/reading-rail-36901983427-1/e35d913c-f76f-4d1f-94e0-7a20eb9880be/captures/09-restored-line.png",
+        "sha256": "32e51d32609a4bbe0b857b3d45b4262500807dffbb0027a84b7f00cd9447607c",
+        "width": 1280
+      }
+    ],
+    "exact_witnesses": {
+      "durable_witness_count": 5,
+      "exact_repeat_seen": true,
+      "fresh_process_physical_profile_match": true,
+      "profile": {
+        "bytes": 12140,
+        "sha256": "15113bb4c5396e83b79fdf5fc8c1d4de72e1557e85e27de9ed0a87a6bc32dec6"
+      },
+      "recoverable_write_failures": 1,
+      "same_stable_line_new_revision_unseen": true
+    },
+    "limits": [
+      "Generic audit binds retained bytes, fresh processes and baseline restore receipts; independently review witness semantics and exact trace kinds.",
+      "Pause slot is retained and hashed; generic audit does not claim it was independently fresh-loaded."
+    ],
+    "modes": [
+      "write",
+      "read",
+      "repeat",
+      "variant",
+      "witness-read"
+    ],
+    "original_capture_distinct_sha256_count": 7,
+    "original_capture_file_count": 9,
+    "pause_slot": {
+      "bytes": 116896,
+      "sha256": "4d990ef0eacb0e98502040444b0c6177b6fe462c5089f878117d6184982c9869"
+    },
+    "process_ids": {
+      "read": 4506,
+      "repeat": 4572,
+      "variant": 4640,
+      "witness-read": 4711,
+      "write": 4431
+    },
+    "quick": {
+      "bytes": 174355,
+      "sha256": "8129b721a48d035ad3de38ed929f18ba5f2c6f298b89dfe74fb409ef95ed5cb2"
+    },
+    "report": "artifacts/reading-rail-36901983427-1/result.json",
+    "report_identity": {
+      "bytes": 273774,
+      "sha256": "ad4de4c56b77e3d61b7757df49fff3278b159f90c0402734455e303267735aad"
+    },
+    "trace_entries": 28,
+    "trace_identity": {
+      "bytes": 156693,
+      "sha256": "4b018f720ab5267ec587955ff4bf9e09b21f31047cc45a6dd802dce5525103cf"
+    },
+    "write_read_seal": {
+      "before_mode": "repeat",
+      "file_count": 14,
+      "identity": {
+        "bytes": 2143,
+        "sha256": "90a9685b61ff98501ab2939ed142fd22cb633bf210f8d556e621c599793d8abf"
+      },
+      "sealed_after_mode": "read"
+    }
+  },
+  "original_capture_files": 9,
+  "sealed_capture_copies": 9,
+  "distinct_original_png_hashes": 7,
+  "bundles": {
+    "run99": {
+      "archive": "dwm-run99-failed-diagnostic-evidence.tar.gz",
+      "archive_member_count": 33,
+      "bytes": 490876,
+      "evidence_kind": "failed-run-diagnostic-only",
+      "excluded_file_count": 2,
+      "manifest_sha256": "c7bb3dc8baecc13da03b523198632ada292b5f4c6755bbb91845b46d92d6ff67",
+      "payload_file_count": 31,
+      "round_trip_verified": true,
+      "sha256": "c761e817fa6bb6e1e4acd39e95a7d2760257c881291b1c5feec66d6d62b6edc9"
+    },
+    "run100": {
+      "archive": "dwm-run100-focused-cloud-evidence.tar.gz",
+      "archive_member_count": 162,
+      "bytes": 12778408,
+      "evidence_kind": "bounded-successful-run-audit",
+      "excluded_file_count": 4,
+      "manifest_sha256": "703e2539870f8e9e6e9fbaaf380693c5973e080a597c1dd93408ef385e260a0b",
+      "payload_file_count": 160,
+      "round_trip_verified": true,
+      "sha256": "09d0affe0291f0fd31e4e0e6df0ba3c04cf5ce31e5e9c80b96e156c3fc40f1e6"
+    },
+    "run101": {
+      "archive": "dwm-run101-partial-diagnostic-evidence.tar.gz",
+      "archive_member_count": 529,
+      "bytes": 16258334,
+      "evidence_kind": "failed-run-diagnostic-only",
+      "excluded_file_count": 31,
+      "manifest_sha256": "f1c044700023ccfb31b091cfb4978ed392bf27ed4f8dbd41c4f66f311af35675",
+      "payload_file_count": 527,
+      "round_trip_verified": true,
+      "sha256": "f7566e4c891782aa0a12e80a1bf33b0f297946de160e5645828d2c9f2f3dc0a4"
+    },
+    "run102": {
+      "archive": "dwm-run102-cloud-evidence.tar.gz",
+      "archive_member_count": 536,
+      "bytes": 16264094,
+      "evidence_kind": "bounded-successful-run-audit",
+      "excluded_file_count": 170,
+      "manifest_sha256": "bccaf9c2b259dae1c11fff25cac957e6cb4159c0ae71ffb85efb28adad528759",
+      "payload_file_count": 534,
+      "round_trip_verified": true,
+      "sha256": "2f808f89d2b2d6ce3fb2b6c4f9049973c79cf23d332ad2833be42b50b48559ba"
+    }
+  },
+  "records_scope": "Later records-only descendants update documentation/evidence and one Beads note/timestamp. They are not separately engine-tested.",
+  "beads": {
+    "schema_version": 1,
+    "before_sha256": "53dc63817f30234db4edc58e6aa24ede90e1afbdf33228a035db108d44b23356",
+    "after_sha256": "e0a2ea315b41c75eb437202a17c46dcc967b1668c2a7dd341050eaba3c278916",
+    "records": 191,
+    "other_records_byte_identical": 190,
+    "unfinished_count": 23,
+    "changed_record": "dwm-vky.14",
+    "changed_fields": [
+      "notes",
+      "updated_at"
+    ],
+    "all_statuses_and_dependencies_unchanged": true,
+    "dolt_synchronization_claimed": false
+  },
+  "next_step": "One-shot Next consuming exact membership and the pre-publication baseline through existing Solo transport and physical completion owners.",
+  "limits": [
+    "Full GUT totals, all-job checkout identities and final workflow conclusion are joined by the separate broad acceptance audit.",
+    "Reading proof uses fixed noncanonical English Solo fixtures; Next and production catalogue registration remain disabled.",
+    "Nine original capture files include identical restored-image pairs; nine sealed copies add no scenarios.",
+    "The manual pre-line slot is physically retained and admitted, but only the post-line Quick is independently fresh-loaded.",
+    "Fault/restart probes simulate FileOps failures; they do not inject physical OS crashes.",
+    "Performance observations establish no universal speedup or input-to-paint guarantee.",
+    "The large Windows export archive is not locally inspected; export scope comes from source-bound cloud validator and receipt.",
+    "Capture hashes and machine predicates do not imply manual inspection of every image or native all-input/accessibility acceptance.",
+    "Next and production catalogue registration remain disabled; full production authored-selector coverage is not accepted.",
+    "Hospital/ending continuity, paused Settings F5, native all-input acceptance and arbitrary production partial-reveal abort lifetime remain outside this bounded increment.",
+    "PR remains draft/unmerged; no Bead is closed."
+  ]
+}

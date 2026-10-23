@@ -1,0 +1,207 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/click-latency-3/.godot/phase2r_tests/e295fdd4-21b6-44e4-a7e6-3c226e090092/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+
+
+res://tests/unit/test_checkpoint_journal.gd
+* test_checkpoint_journal_exists
+* test_reset_peek_and_run_mismatch
+* test_failed_preparation_never_consumes_sequence
+* test_commit_advances_and_duplicate_commit_rejects
+* test_every_accepted_checkpoint_kind_including_line
+* test_retention_after_forty_lines_and_semantic_anchor
+* test_reset_with_initial_replaces_run_and_restore_reinstates
+* test_prepare_seed_selects_and_excludes
+* test_seed_replaces_same_counter_contents_and_history_and_can_repeat
+* test_semantic_recovery_history_is_bounded_without_changing_current_snapshot
+* test_remember_committed_bundle_text_accepts_only_the_current_checkpoint
+* test_remembered_document_bundle_is_a_private_deep_copy_served_by_reference
+    [Failed]:  [2] expected to equal [3]:  remember_committed_bundle_text() must accept the document bundle beside the text
+      at line 304
+    [Failed]:  the journal must serve back the document bundle it remembered
+      at line 304
+* test_retained_bundle_text_is_forgotten_when_the_bundle_leaves_retention
+    [Failed]:  [2] expected to equal [3]:  remember_committed_bundle_text() must accept the document bundle beside the text
+      at line 342
+    [Failed]:  the journal must serve back the document bundle it remembered
+      at line 342
+* test_retained_bundle_texts_clear_on_reset_candidate_seed_restore_and_reset
+    [Failed]:  [2] expected to equal [3]:  remember_committed_bundle_text() must accept the document bundle beside the text
+      at line 373
+    [Failed]:  the journal must serve back the document bundle it remembered
+      at line 373
+* test_prepare_record_takes_the_fast_path_only_for_the_identical_proven_candidate
+* test_prepare_record_keeps_every_refusal_and_its_order_when_a_proof_is_supplied
+13/16 passed.
+
+
+res://tests/unit/test_save_document_schema.gd
+* test_save_document_schema_exists
+* test_quick_document_build_round_trips_json_null_slot_id
+* test_discriminator_matrix
+* test_validate_rejects_malformed_documents
+* test_document_version_is_six_and_embedded_snapshot_version_must_agree
+* test_prepare_candidate_is_detached
+* test_current_and_recovery_snapshots_normalize_engine_text_without_mutating_source
+* test_build_keeps_numeric_normalization_and_detaches_current_history_and_time
+* test_build_keeps_invalid_bundle_journal_and_metadata_rejection_order
+* test_validate_normalizes_the_document_without_a_prior_deep_copy
+* test_validate_composes_the_current_bundle_instead_of_renormalizing_it
+* test_validate_refusal_order_survives_multiple_simultaneous_defects
+* test_normalize_engine_text_returns_stringname_free_subtrees_by_identity
+* test_build_detaches_the_persisted_document_from_identity_preserved_inputs
+* test_build_passes_the_validated_bundle_through_instead_of_renormalizing_it
+* test_build_composes_the_journal_without_a_redundant_deep_copy
+* test_build_composes_proven_journal_entries_byte_equal_to_the_full_builder
+    [Failed]:  build() must declare the optional trailing proven journal
+      at line 666
+* test_build_with_proven_journal_never_reads_the_journal_entries
+    [Failed]:  build() must declare the optional trailing proven journal
+      at line 714
+* test_build_falls_back_to_the_full_path_when_any_proof_is_missing
+    [Failed]:  build() must declare the optional trailing proven journal
+      at line 742
+16/19 passed.
+
+
+res://tests/unit/test_save_manager_checkpoint_port.gd
+* test_prepare_consequence_checkpoint_builds_a_candidate_and_receipt
+* test_prepare_consequence_checkpoint_attaches_the_receipt_to_the_admission_candidate
+* test_commit_consequence_checkpoint_retains_and_rereads_in_same_process
+* test_issued_transient_record_cache_is_bounded_and_cleared_with_transient_state
+* test_commit_consequence_checkpoint_rejects_a_receipt_mismatch
+* test_known_issued_checkpoint_rejects_equal_float_payload_before_first_commit
+* test_supplied_checkpoint_receipt_rejects_equal_float_ordinal
+* test_known_issued_checkpoint_accepts_string_name_aliases_after_normalization
+* test_cache_evicted_prepared_checkpoint_still_commits_through_cold_validation
+* test_evicted_checkpoints_accept_each_legitimate_recovery_stage
+* test_evicted_checkpoint_rejects_inconsistent_fields_before_insertion
+* test_evicted_reprepared_admission_preserves_its_older_admission_receipt
+* test_evicted_preadmission_checkpoints_preserve_receipt_free_state
+* test_commit_consequence_checkpoint_rejects_malformed_or_uncanonicalizable_records
+* test_commit_consequence_checkpoint_replays_an_identical_rewrite_at_an_occupied_slot
+* test_commit_consequence_checkpoint_rejects_a_different_rewrite_at_an_occupied_slot
+* test_a_committed_admission_checkpoint_reads_back_and_validates
+* test_abandon_pending_consequence_checkpoint_marks_a_pre_admission_checkpoint_abandoned
+* test_abandon_pending_consequence_checkpoint_rejects_a_nonexistent_transaction
+* test_abandon_pending_consequence_checkpoint_rejects_an_already_admitted_transaction
+* test_read_pending_consequence_checkpoint_finds_nothing_when_no_checkpoint_exists
+* test_clear_transient_consequence_checkpoints_is_explicit_and_complete
+* test_clear_transient_consequence_checkpoints_does_not_depend_on_storage_readiness
+* test_fresh_port_ignores_and_preserves_every_legacy_sidecar_artifact
+* test_prepare_consequence_checkpoint_requires_configuration
+* test_checkpoint_content_preimage_is_the_sole_builder
+* test_prepare_consequence_checkpoint_rejects_a_bad_ordinal_stage_pairing_at_ordinal_0
+* test_prepare_consequence_checkpoint_rejects_a_bad_ordinal_stage_pairing_at_ordinal_9
+* test_restart_drops_unfinished_action_but_preserves_completed_post_result_autosave
+* test_autosave_bytes_equal_the_full_canonical_writer_across_three_commits
+* test_autosave_bytes_survive_snapshot_strings_equal_to_splice_sentinels
+* test_seeded_journal_without_remembered_texts_writes_full_writer_bytes
+* test_autosave_bytes_equal_the_full_writer_when_an_earlier_bundle_is_not_native_eligible
+* test_committed_autosave_remembers_the_document_bundle_under_the_texts_own_gate
+    [Failed]:  the journal must serve back the document bundle a commit remembered
+      at line 992
+* test_prepare_composes_the_autosave_journal_from_the_journals_own_proofs
+    [Failed]:  prepare() asks the journal for each retained bundle's proven document bundle
+      at line 1041
+    [Failed]:  ...and hands them to SaveDocumentSchema.build() as its trailing proven journal
+      at line 1043
+* test_normalized_preimage_is_deep_equal_and_never_aliases_the_callers_stage_candidate
+* test_prepare_emits_a_permanent_env_gated_profile_record
+DWM_CHECKPOINT_PROFILE {"autosave":true,"backup_us":143,"checkpoint_kind":"post_result","document_build_us":1351,"elapsed_us":2271,"journal_prepare_us":18,"ok":true,"run_snapshot_build_us":723,"scope":"save_checkpoint_prepare","text_validator_calls_since_prepare":0,"text_validator_us_since_prepare":0,"view_capture_us":26}
+35/37 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/unit/test_checkpoint_journal.gd
+    - Outside Tests
+        * [<Node#131617261336>(subsystem_animation.gd)]
+        * [<Node#131634038564>(subsystem_audio.gd)]
+        * [<Node#131650815796>]
+        * [<Node#131667593021>]
+        * [<Node#131684370243>(subsystem_backgrounds.gd)]
+        * [<Node#132221241156>(subsystem_choices.gd)]
+        * [<Timer#132238018373>]
+        * [<Node#132254795590>(subsystem_expression.gd)]
+        * [<Node#132288350027>(subsystem_glossary.gd)]
+        * [<Node#132305127244>(subsystem_history.gd)]
+        * [<Node#132321904461>(subsystem_input.gd)]
+        * [<Timer#132338681678>]
+        * [<Node#132355458895>(subsystem_jump.gd)]
+        * [<Node#132372236112>(subsystem_containers.gd)]
+        * [<Node#132389013329>(subsystem_portraits.gd)]
+        * [<Node#132925884242>(subsystem_save.gd)]
+        * [<Timer#132942661459>]
+        * [<Node#132959438676>(subsystem_settings.gd)]
+        * [<Node#132976215896>(subsystem_styles.gd)]
+        * [<Node#132992993113>(subsystem_text.gd)]
+        * [<Node#133076879198>(subsystem_text_input.gd)]
+        * [<Node#133093656415>(subsystem_variables.gd)]
+        * [<Node#133110433632>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#133127210849>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+res://tests/unit/test_checkpoint_journal.gd
+- test_remembered_document_bundle_is_a_private_deep_copy_served_by_reference
+    [Failed]:  [2] expected to equal [3]:  remember_committed_bundle_text() must accept the document bundle beside the text
+          at line 304
+    [Failed]:  the journal must serve back the document bundle it remembered
+          at line 304
+- test_retained_bundle_text_is_forgotten_when_the_bundle_leaves_retention
+    [Failed]:  [2] expected to equal [3]:  remember_committed_bundle_text() must accept the document bundle beside the text
+          at line 342
+    [Failed]:  the journal must serve back the document bundle it remembered
+          at line 342
+- test_retained_bundle_texts_clear_on_reset_candidate_seed_restore_and_reset
+    [Failed]:  [2] expected to equal [3]:  remember_committed_bundle_text() must accept the document bundle beside the text
+          at line 373
+    [Failed]:  the journal must serve back the document bundle it remembered
+          at line 373
+
+res://tests/unit/test_save_document_schema.gd
+- test_build_composes_proven_journal_entries_byte_equal_to_the_full_builder
+    [Failed]:  build() must declare the optional trailing proven journal
+          at line 666
+- test_build_with_proven_journal_never_reads_the_journal_entries
+    [Failed]:  build() must declare the optional trailing proven journal
+          at line 714
+- test_build_falls_back_to_the_full_path_when_any_proof_is_missing
+    [Failed]:  build() must declare the optional trailing proven journal
+          at line 742
+
+res://tests/unit/test_save_manager_checkpoint_port.gd
+- test_committed_autosave_remembers_the_document_bundle_under_the_texts_own_gate
+    [Failed]:  the journal must serve back the document bundle a commit remembered
+          at line 992
+- test_prepare_composes_the_autosave_journal_from_the_journals_own_proofs
+    [Failed]:  prepare() asks the journal for each retained bundle's proven document bundle
+          at line 1041
+    [Failed]:  ...and hands them to SaveDocumentSchema.build() as its trailing proven journal
+          at line 1043
+
+Totals
+------
+Scripts               3
+Tests                72
+Passing Tests        64
+Failing Tests         8
+Asserts           1410/1422
+Orphans              24
+Time              1.81s
+
+
+---- 8 failing tests ----

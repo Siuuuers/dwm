@@ -1,0 +1,58 @@
+Main project verification at commit 117377f2d, 2026-09-09
+Godot 4.6.3 stable mono, isolated user data.
+Raw logs: .godot/phase2r_logs/art-main-regression-20260909.log and art-main-scene-smoke-20260909.log
+
+==============================================
+= Run Summary
+==============================================
+
+res://tests/unit/test_production_pause_controller.gd
+- test_paused_debug_preparation_save_preserves_exact_frontier_without_entering_attempt
+    [Failed]:  { "ok": false, "code": &"generator_budget_unavailable", "message": "the generator budget manifest is stale", "details": { "cause": &"budget_source_stale" } }
+          at line 538
+
+Totals
+------
+Scripts              16
+Tests               149
+Passing Tests       148
+Failing Tests         1
+Asserts           5918/5919
+Orphans            1272
+Time              33.022s
+
+
+---- 1 failing tests ----
+
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+OK: res://scenes/menu/MenuScene.tscn
+OK: res://scenes/menu/GalleryScene.tscn
+OK: res://scenes/menu/Setting.tscn
+OK: res://scenes/main/MainGameScene.tscn
+OK: res://scenes/desktop/ComputerDesktop.tscn
+OK: res://scenes/apps/MinesweeperApp.tscn
+OK: res://scenes/apps/ContactListApp.tscn
+OK: res://scenes/apps/ShopApp.tscn
+OK: res://scenes/apps/ScheduleApp.tscn
+OK: res://scenes/apps/SettingsApp.tscn
+OK: res://scenes/apps/LogOutApp.tscn
+OK: res://scenes/apps/BackupApp.tscn
+OK: res://scenes/ending/EndingScene.tscn
+OK: res://scenes/hospital/HospitalScene.tscn
+OK: res://scenes/dating/DatingScene.tscn
+OK: res://scenes/dating/MinesweeperChallengeOverlay.tscn
+OK: res://scenes/shared/BoxMeter.tscn
+OK: res://scenes/shared/StatHud.tscn
+OK: res://scenes/shared/AppWindowBase.tscn
+OK: res://scenes/shared/IconButton.tscn
+OK: res://scenes/shared/ContactBox.tscn
+OK: res://scenes/shared/ChatBubble.tscn
+OK: res://scenes/shared/ShopItemBox.tscn
+OK: res://scenes/shared/ScheduleEntryBox.tscn
+OK: res://scenes/shared/SaveSlotRow.tscn
+OK: res://scenes/shared/DialogueBox.tscn
+SMOKE_LOAD_SCENES: PASS (26/26)
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character

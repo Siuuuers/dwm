@@ -1,0 +1,74 @@
+{
+  "task": "dwm-eei.3",
+  "base_commit": "01044c2d42164d931925675518f39933e937987c",
+  "acceptance_suite": "pause-backup-final-20260907c",
+  "scripts": 9,
+  "tests": 79,
+  "passing_tests": 79,
+  "assertions": 1596,
+  "exit_code": 0,
+  "script_errors": 0,
+  "addon_fixture_orphans": 24,
+  "backup_operations_pass": true,
+  "ui_regressions": {
+    "backup": {
+      "passed": true,
+      "summaries": [
+        {
+          "checks_run": 3870,
+          "suite": "BackupUI"
+        }
+      ]
+    },
+    "title": {
+      "passed": true,
+      "summaries": [
+        {
+          "checks": 326,
+          "suite": "TitleShell"
+        }
+      ]
+    },
+    "desktop": {
+      "passed": true,
+      "summaries": []
+    }
+  },
+  "gpu_exit_code": 0,
+  "gpu_captures": 27,
+  "cancel_restores": 18,
+  "gpu_button_role_checks": 81,
+  "raw_log_sha256": {
+    ".godot\\phase2r_logs\\pause-backup-final-20260907b.log": "68d80c18f7272155e67d656beef197c799c716ae614f1068973deaadad6e5850",
+    ".godot\\phase2r_logs\\pause-backup-final-20260907c.log": "7341197690b7ea7f2f0bac7e283513f7d74c949559207b416aa6ec5f6037fbd7",
+    ".godot\\phase2r_logs\\pause-backup-gpu-20260907a.log": "4d98d0017e5dec258b0ef650c2d90b20b455ff0b85c68b6c2d334033e67db1c1",
+    ".godot\\phase2r_logs\\pause-backup-gpu-20260907b.log": "d3f9244e9bc1f51a1fc8595f535d1af1405efda4c04ebdbf0998b73dd45f7016",
+    ".godot\\phase2r_logs\\pause-backup-gpu-20260907c.log": "4549d6b56e4caf112bb83af3e860167333d8007d6c0bc9602fb56e62142bd951",
+    ".godot\\phase2r_logs\\pause-backup-gpu-20260907d.log": "6da7686277914cb6800f529b14aaa6b072357498c5de257f00a1d49cff38cf3f",
+    ".godot\\phase2r_logs\\pause-backup-gpu-20260907e.log": "7245f8f8b891a4045a0c04f23b20b86c71a023582820ba45456ab8729c9ad4b8",
+    ".godot\\phase2r_logs\\pause-backup-operations-20260907a.log": "06a0c47b247ced9c7d260be0ff6890094a37d75e13d0ff3675d56049297588bc",
+    ".godot\\phase2r_logs\\pause-backup-legacy-final\\verification.log": "71b71b6584cddc21e9185df51c9dee41721b781d9ba5f81e821308ca7e626741",
+    ".godot\\phase2r_logs\\pause-backup-title-final\\verification.log": "66245c56ed085b17a382153a4a74753d11fbf97f0c821c0519c84aead3864673",
+    ".godot\\phase2r_logs\\pause-backup-desktop-complete\\verification.log": "a85f0b2c536b7706eb28e6076f002fbb9b7a28174d9174ed378c3f29023c3538"
+  },
+  "sources": {
+    "scripts/application/backup/BackupPresentationPort.gd": "66634bf8fdaf7a0a994b8a3f91e703adbed67e0cf065120eb50f54eea271c03a",
+    "scripts/ui/BackupApp.gd": "95bcc6acb3ab00bc3828e43884159091a1255b7252837fc3ab7d85eb710c0613",
+    "scripts/ui/backup/BackupKey.gd": "ac2afa75485c2bf89edbb73a8d38ee5681f2b7b2ddef51cc0aca62ac32529224",
+    "scripts/ui/desktop/DesktopConfirmation.gd": "ea1a42b117c3c118301fbef59fd64dab76be6545d6380acbaf66787f5ec45e0e",
+    "scripts/ui/pause/PauseSurface.gd": "7027f7c03ca60a3048e77cd9d901b5363a05f1e2648012e97a65a40c08dc90cf",
+    "tests/backup_ui/test_backup_ui.gd": "6d403263dd213d26a772505e7aca3892ee7b0cfd73711e51c33994363b516934",
+    "tests/integration/test_pause_backup_host.gd": "fa2fac915d8356bb220926ae3c9f7ec972382c7c394a0c448312608d55f9c0db",
+    "tests/unit/test_backup_host_admission.gd": "2a86a60ecba57482d833640345f8e89abfcb5f46625f32578e2efaf8ec979492",
+    "tests/unit/test_shared_confirmation_input.gd": "4967c7c2e3c8007c5a15dd3650ad62f3061b8b6151d667b12589f910cef8ad2d",
+    "tests/ui/render_pause_backup.gd": "b4a2b94cc99618f543f13df5a98b13f769a3001c64f2a8bda4b923dc5c7d7560"
+  },
+  "production_pause_mounted": false,
+  "paused_hospital_save_load_complete": false,
+  "full_pause_complete": false,
+  "overall_ui_goal_complete": false,
+  "save_schema_changed": false,
+  "player_data_used": false,
+  "merged": false,
+  "pushed": false
+}

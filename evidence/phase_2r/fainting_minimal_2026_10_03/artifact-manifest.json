@@ -1,0 +1,605 @@
+[
+  {
+    "name": "focus1",
+    "run_id": 37108057672,
+    "artifact_id": 11269200409,
+    "artifact_sha256": "6cf644b9dbb23ff92d8029794d8be8427bcee9810f5fef2d0529552aab7b9c50",
+    "artifact_bytes": 4120769,
+    "retained_members": [
+      {
+        "member": "ci/dating.xml",
+        "path": "focus1-dating.xml.gz",
+        "raw_sha256": "4ce8a495203fff2c6d0ada0b8d9f006f9d9c42e5c5475e75ab4a0b9d3e2138cf",
+        "raw_bytes": 37788,
+        "stored_sha256": "81b17712e220d6125bea5e7421dcc0342406f3eb51afa244d8f1013c7cb79e0c",
+        "stored_bytes": 6302,
+        "encoding": "gzip"
+      },
+      {
+        "member": "ci/public_surfaces.xml",
+        "path": "focus1-public_surfaces.xml.gz",
+        "raw_sha256": "982746679d51e44450163c7a7d04ba6db6b47510682352b4c7cfc8716308ed93",
+        "raw_bytes": 2506,
+        "stored_sha256": "240b4ecddd4fe759222a57d4a3957bfb0a12ff6ef01b0df2a20c1227025a4ab0",
+        "stored_bytes": 620,
+        "encoding": "gzip"
+      },
+      {
+        "member": "ci/reading_delivery.xml",
+        "path": "focus1-reading_delivery.xml.gz",
+        "raw_sha256": "14fee3902430b0d2ef3c486847d1da2c8957e5b8370400257846a0db8c7c25c5",
+        "raw_bytes": 143977,
+        "stored_sha256": "f54e96fb44b04d1ef110c87d7b202c53b78e015a9d4fe5067a8b724af3cd0308",
+        "stored_bytes": 21652,
+        "encoding": "gzip"
+      }
+    ]
+  },
+  {
+    "name": "focus2",
+    "run_id": 37108994456,
+    "artifact_id": 11268464771,
+    "artifact_sha256": "e82962533c0144420e7d4306056cb5727715eac214071434f2c4515e4f129c6c",
+    "artifact_bytes": 4399655,
+    "retained_members": [
+      {
+        "member": "ci/dating.xml",
+        "path": "focus2-dating.xml.gz",
+        "raw_sha256": "4c86fa1a1ab8d3e6cf8bcb2266e56fe8e7d6a2c3bebff0e500de4d32023b1e15",
+        "raw_bytes": 38010,
+        "stored_sha256": "e8c0c3a4556ef3e359818d2c997a599ab74f9f264c47bab4d5d70270ae529e87",
+        "stored_bytes": 6332,
+        "encoding": "gzip"
+      },
+      {
+        "member": "ci/persistence.xml",
+        "path": "focus2-persistence.xml.gz",
+        "raw_sha256": "514991fb4c4e6114caf285487e166ef4d9de95c8ed245b3f25071d1fb75fc9dc",
+        "raw_bytes": 51996,
+        "stored_sha256": "e6e45498710c2c15e519fb60960af9107c5c4b3622422801f43fda7b0480bef8",
+        "stored_bytes": 8458,
+        "encoding": "gzip"
+      },
+      {
+        "member": "ci/public_surfaces.xml",
+        "path": "focus2-public_surfaces.xml.gz",
+        "raw_sha256": "ef9781a52ca08868bc91e953c5866db47881054e7d54b4f2c159fd14ef26a6a7",
+        "raw_bytes": 2506,
+        "stored_sha256": "5d8d5a6d5c728d737cd70c5456312c79daa2bedd9f26e6bf2a82eab9cb6bda59",
+        "stored_bytes": 623,
+        "encoding": "gzip"
+      },
+      {
+        "member": "ci/reading_delivery.xml",
+        "path": "focus2-reading_delivery.xml.gz",
+        "raw_sha256": "5e5fb197ef8f650ec3ce1cd506bd6fd0ed48b7d520db0329edf0de7faf1a0568",
+        "raw_bytes": 142073,
+        "stored_sha256": "a2d013b689c7345bc75fc18a770af5c8e9c1b177b453cc0e86397bc9980eee61",
+        "stored_bytes": 21309,
+        "encoding": "gzip"
+      }
+    ]
+  },
+  {
+    "name": "diagnostic3",
+    "run_id": 37109353428,
+    "artifact_id": 11268414828,
+    "artifact_sha256": "cd8b1d1dba6d53a2b915b5d8ff481a66e2e98d377bad786e03a5f60656feba22",
+    "artifact_bytes": 1821009,
+    "retained_members": [
+      {
+        "member": "70c3e75a-0408-441e-9912-598b78cbc824/condition-hospital-dialogue-retry/journey.stdout.txt",
+        "path": "diagnostic3-journey.stdout.txt.gz",
+        "raw_sha256": "5465d4ecd86ff4472354ce4f0df4f63cf5f3fbf5ef95259f8e267eb28e660425",
+        "raw_bytes": 52058,
+        "stored_sha256": "e920b3ed10fa8f7cc6e4dbfd49fdd6e38d3233363dc3ff10e18780e336400bbd",
+        "stored_bytes": 8979,
+        "encoding": "gzip"
+      }
+    ]
+  },
+  {
+    "name": "focus4",
+    "run_id": 37109676981,
+    "artifact_id": 11270055376,
+    "artifact_sha256": "dd1d6e36cc9f89e32af15792158e76b2502b3811ef23d63f9c1df0ff82fc38fc",
+    "artifact_bytes": 4309106,
+    "retained_members": [
+      {
+        "member": "ci/dating.xml",
+        "path": "focus4-dating.xml.gz",
+        "raw_sha256": "c0ab209212a3c8b22c568b39b0fd22e0ef3ae3614cf4713e418350408ebe94ed",
+        "raw_bytes": 38010,
+        "stored_sha256": "905bdbe7f372741e331a82faf7c9d0ff90d016e854d8a89b06fc7d4d3ca3bc87",
+        "stored_bytes": 6331,
+        "encoding": "gzip"
+      },
+      {
+        "member": "ci/persistence.xml",
+        "path": "focus4-persistence.xml.gz",
+        "raw_sha256": "9bf34f4ce86273e82de3583f1570e0603b2cb45a9e1b806104b02717b2ae557e",
+        "raw_bytes": 51929,
+        "stored_sha256": "fd30c3e47391a491db983f91a45a357d21ce72ff59d7cd5c47d44450ea02c7e3",
+        "stored_bytes": 8446,
+        "encoding": "gzip"
+      },
+      {
+        "member": "ci/public_surfaces.xml",
+        "path": "focus4-public_surfaces.xml.gz",
+        "raw_sha256": "6e7b6cb57c3a35fdb56ecba1001907c9f619b08fc53fd95be9938c3a2b494fd1",
+        "raw_bytes": 2505,
+        "stored_sha256": "fa4874599312e4f1a37e0d2191e29e4a1fefa9d397babe6a6f12d9920ca8bfdf",
+        "stored_bytes": 620,
+        "encoding": "gzip"
+      },
+      {
+        "member": "ci/reading_delivery.xml",
+        "path": "focus4-reading_delivery.xml.gz",
+        "raw_sha256": "92c53d2bbbe3e7b784a7f841fb0905f9f997de544552e033b1d436b33f1fafe6",
+        "raw_bytes": 141789,
+        "stored_sha256": "6981b4c45e02b927b1b5f5775b7cffecd2b80e41399b7ebfec61c894e5a5dd12",
+        "stored_bytes": 21204,
+        "encoding": "gzip"
+      }
+    ]
+  },
+  {
+    "name": "condition4",
+    "run_id": 37109676981,
+    "artifact_id": 11268869668,
+    "artifact_sha256": "fdf3d1af10af4f01d9d3b37fcf1fb87806bf61fab0f6193f0137d9f7eab5d7ba",
+    "artifact_bytes": 1813545,
+    "retained_members": [
+      {
+        "member": "630921ec-a894-43e5-8c6a-d1e679c01a58/condition-hospital-dialogue-retry/captures/hospital-completion-retry.png",
+        "path": "condition4-hospital-completion-retry.png",
+        "raw_sha256": "c7f7c8897a1d04e395c65d87eb8d6e7f11a7c9a666c1c57bf5a2c680de5ffb0e",
+        "raw_bytes": 5913,
+        "stored_sha256": "c7f7c8897a1d04e395c65d87eb8d6e7f11a7c9a666c1c57bf5a2c680de5ffb0e",
+        "stored_bytes": 5913,
+        "encoding": "identity"
+      },
+      {
+        "member": "630921ec-a894-43e5-8c6a-d1e679c01a58/condition-hospital-dialogue-retry/captures/ordinary-hospital-dialogue.png",
+        "path": "condition4-ordinary-hospital-dialogue.png",
+        "raw_sha256": "9cb9f0ef566adbc13254df5c5c365090a80c28b5c76094f8304e62718cadd5f2",
+        "raw_bytes": 1077425,
+        "stored_sha256": "9cb9f0ef566adbc13254df5c5c365090a80c28b5c76094f8304e62718cadd5f2",
+        "stored_bytes": 1077425,
+        "encoding": "identity"
+      },
+      {
+        "member": "630921ec-a894-43e5-8c6a-d1e679c01a58/condition-hospital-dialogue-retry/journey.stdout.txt",
+        "path": "condition4-journey.stdout.txt.gz",
+        "raw_sha256": "76b937c8e38841dd9755e5016aaabb2897b5fd81a73045194325417692e70a88",
+        "raw_bytes": 26145,
+        "stored_sha256": "a092bb7087363185736f741aef85d0c4721097b155a00f007d60b08134abe6b8",
+        "stored_bytes": 5022,
+        "encoding": "gzip"
+      },
+      {
+        "member": "results.json",
+        "path": "condition4-results.json.gz",
+        "raw_sha256": "2e74d42e68a26334dea9c97bf0fb1ff65ea58da86eff381675f21e3ee124de51",
+        "raw_bytes": 6831,
+        "stored_sha256": "d430a62ebb4f2b90dcedf61ffc516d57330f89f8866469ea4e818a8ee0130937",
+        "stored_bytes": 1516,
+        "encoding": "gzip"
+      }
+    ]
+  },
+  {
+    "name": "hospital4",
+    "run_id": 37109676981,
+    "artifact_id": 11269790404,
+    "artifact_sha256": "c5272c8bc490ef8457b99574f6419980dc30c3331a104448a7639a743a738e30",
+    "artifact_bytes": 8797513,
+    "retained_members": [
+      {
+        "member": "result.json",
+        "path": "hospital4-result.json.gz",
+        "raw_sha256": "68dfd2983d6bd7c74ba9c9628f8a4a6a80c0e5dde19b19b5b3a45e6cd15c404e",
+        "raw_bytes": 5599492,
+        "stored_sha256": "7a5ca73f16e6218dc98a324f726a8ed6ac39230ab8515ca9d062019b4a5f9030",
+        "stored_bytes": 593822,
+        "encoding": "gzip"
+      }
+    ]
+  },
+  {
+    "name": "broad1-localization",
+    "run_id": 37110285927,
+    "artifact_id": 11269437097,
+    "artifact_sha256": "b83d5ac61b5b2611ec84510e4a2b98640dacdbf2ae470c2c9b4fc5f3c850dfa6",
+    "artifact_bytes": 341379,
+    "retained_members": [
+      {
+        "member": "ci/localization.xml",
+        "path": "broad1-localization-localization.xml.gz",
+        "raw_sha256": "25911cb5e79d0a4ee98d123ff8b8e6887d0799664087780e05ef0655dbfe489b",
+        "raw_bytes": 34821,
+        "stored_sha256": "6d30dbc0fa9f0e6eb50b1f94eb8742901048c611903dd24d0ed70c0f766afcb1",
+        "stored_bytes": 6302,
+        "encoding": "gzip"
+      }
+    ]
+  },
+  {
+    "name": "broad1-ui-audit",
+    "run_id": 37110285927,
+    "artifact_id": 11269337941,
+    "artifact_sha256": "27b7eabfb1c1cc8238de4e9fdde8a7c9b88701bb6d114354be4bf038d4e14ad5",
+    "artifact_bytes": 29370,
+    "retained_members": [
+      {
+        "member": "audit.log",
+        "path": "broad1-ui-audit-audit.log.gz",
+        "raw_sha256": "ffba272d2290c7ffb5e29d679f2011454dea86e1ab7bf7234da5b3920a12bf2c",
+        "raw_bytes": 572,
+        "stored_sha256": "01564e541c45226e6ef6521d32024bedf9a68f4e12952e499dc365ea767aa4c6",
+        "stored_bytes": 365,
+        "encoding": "gzip"
+      },
+      {
+        "member": "script_ui_disposition.json",
+        "path": "broad1-ui-audit-script_ui_disposition.json.gz",
+        "raw_sha256": "f44954086f1c460da3c3d761a9ed6c118a3bc40151a6d7953b49427c7928f117",
+        "raw_bytes": 128934,
+        "stored_sha256": "db68a84fbb9e90a18b3b73df91c2f01f62cbe7b29b1eae7674e08ae0d155c4e0",
+        "stored_bytes": 25452,
+        "encoding": "gzip"
+      },
+      {
+        "member": "ui_literal_disposition.json",
+        "path": "broad1-ui-audit-ui_literal_disposition.json.gz",
+        "raw_sha256": "c6245223f87696954860d4170f4363990d265d201e21014656ab4197a50115c8",
+        "raw_bytes": 16349,
+        "stored_sha256": "048f3daef726cc8fb3ff2792ba00d8ec57866e7be658a39d124d0047c69e43c4",
+        "stored_bytes": 3269,
+        "encoding": "gzip"
+      }
+    ]
+  },
+  {
+    "name": "broad2-windows-reading_delivery",
+    "run_id": 37111087986,
+    "artifact_id": 11270122391,
+    "artifact_sha256": "89f51ba0ac8323762776cffb01c1b206312026fbe9c5c1d10316ce9264329a25",
+    "artifact_bytes": 307519,
+    "retained_members": [
+      {
+        "member": "ci/reading_delivery.xml",
+        "path": "broad2-windows-reading_delivery-reading_delivery.xml.gz",
+        "raw_sha256": "c1736ed1b2b94a096ef557701626483dccc21be78d8c1e3e03122afd0eae2e0d",
+        "raw_bytes": 141778,
+        "stored_sha256": "89356fc09f0a76f8cbce24a429dcce115809e67eb624a24e35d5d01d1fb5ad09",
+        "stored_bytes": 21144,
+        "encoding": "gzip"
+      }
+    ]
+  },
+  {
+    "name": "broad2-windows-desktop",
+    "run_id": 37111087986,
+    "artifact_id": 11270007608,
+    "artifact_sha256": "3776ecebe522bb538251a785446bf7e1e47f6cb79e0aec00335a21a5f3483618",
+    "artifact_bytes": 292036,
+    "retained_members": [
+      {
+        "member": "ci/desktop.xml",
+        "path": "broad2-windows-desktop-desktop.xml.gz",
+        "raw_sha256": "f6c5409c3493cb35dbf786e37e25d34fa70bab184fa1c57df1777a170ffb10c3",
+        "raw_bytes": 75222,
+        "stored_sha256": "9b4ba978e26a056875cdd69641b43aa11b3141b25e6787465230ec0b0014d514",
+        "stored_bytes": 11182,
+        "encoding": "gzip"
+      }
+    ]
+  },
+  {
+    "name": "broad2-windows-endings",
+    "run_id": 37111087986,
+    "artifact_id": 11269962702,
+    "artifact_sha256": "ca850a33f4667af18e6351eae4fbb4edcac27ebe2443d69dff03dae506a7bf4b",
+    "artifact_bytes": 74897,
+    "retained_members": [
+      {
+        "member": "ci/endings.xml",
+        "path": "broad2-windows-endings-endings.xml.gz",
+        "raw_sha256": "5b757d8d2ee1b6f4155a99005b57bbb2689552658b312780b1dfda2262579ff3",
+        "raw_bytes": 22935,
+        "stored_sha256": "fd8c7d11b04e1b3f98d1ce231c55c7c61fe94d474d7f3c18ac30bcc6e0acb943",
+        "stored_bytes": 3694,
+        "encoding": "gzip"
+      }
+    ]
+  },
+  {
+    "name": "broad2-windows-persistence",
+    "run_id": 37111087986,
+    "artifact_id": 11269932681,
+    "artifact_sha256": "d871fd2a5ef4afa0c6669db4e23fc1fe52e599a1f39adfcb1f44856be05190b7",
+    "artifact_bytes": 198594,
+    "retained_members": [
+      {
+        "member": "ci/persistence.xml",
+        "path": "broad2-windows-persistence-persistence.xml.gz",
+        "raw_sha256": "778179c8fa5f8dece9f6d02d0d5732a82c72f22596f9df8313c48fac364edf71",
+        "raw_bytes": 51934,
+        "stored_sha256": "d2292a6e503097c4f51178da4df1eb5045d522fb357df57a7e654e12093e2058",
+        "stored_bytes": 8428,
+        "encoding": "gzip"
+      }
+    ]
+  },
+  {
+    "name": "broad2-windows-checkpoint_diagnostics",
+    "run_id": 37111087986,
+    "artifact_id": 11269852859,
+    "artifact_sha256": "caa047116f758f0272c246294ce25b0a5a9e891528a1f596d746a73564522206",
+    "artifact_bytes": 602970,
+    "retained_members": [
+      {
+        "member": "ci/checkpoint_diagnostics.xml",
+        "path": "broad2-windows-checkpoint_diagnostics-checkpoint_diagnostics.xml.gz",
+        "raw_sha256": "5de4db4910ac9a43e4c2b1a77f143a767d18a5da2d4b5e0338ab393af83e6685",
+        "raw_bytes": 5449,
+        "stored_sha256": "36bfdb2f44f7102b36de614a1b7651e780f25382d082031254635e37eabcbb26",
+        "stored_bytes": 1245,
+        "encoding": "gzip"
+      }
+    ]
+  },
+  {
+    "name": "broad2-ui-literal-audit",
+    "run_id": 37111087986,
+    "artifact_id": 11269828046,
+    "artifact_sha256": "0942ea699450111d5f22e79ef36d67e4237af8597d0bcf45c6d9728f4034c77c",
+    "artifact_bytes": 28988,
+    "retained_members": [
+      {
+        "member": "audit.log",
+        "path": "broad2-ui-literal-audit-audit.log.gz",
+        "raw_sha256": "a9912b85473f126d3f4f63ec824170c828df3473a292f866dde86cafda5b66da",
+        "raw_bytes": 73,
+        "stored_sha256": "517801cf8e481102b53a6ac405cc87fd5a6b18a016679d496dbc46e8dee9c939",
+        "stored_bytes": 88,
+        "encoding": "gzip"
+      },
+      {
+        "member": "script_ui_disposition.json",
+        "path": "broad2-ui-literal-audit-script_ui_disposition.json.gz",
+        "raw_sha256": "f722a957ff54b7c8a31b06d50d5cd82e514864d77684b4bba91e6db134621073",
+        "raw_bytes": 129019,
+        "stored_sha256": "b309c9e80b777684b5a755e1bb9fd00fb04aec0e4a22e20edd4982ed258fd36b",
+        "stored_bytes": 25351,
+        "encoding": "gzip"
+      },
+      {
+        "member": "ui_literal_disposition.json",
+        "path": "broad2-ui-literal-audit-ui_literal_disposition.json.gz",
+        "raw_sha256": "c6245223f87696954860d4170f4363990d265d201e21014656ab4197a50115c8",
+        "raw_bytes": 16349,
+        "stored_sha256": "048f3daef726cc8fb3ff2792ba00d8ec57866e7be658a39d124d0047c69e43c4",
+        "stored_bytes": 3269,
+        "encoding": "gzip"
+      }
+    ]
+  },
+  {
+    "name": "broad2-windows-dating",
+    "run_id": 37111087986,
+    "artifact_id": 11269713130,
+    "artifact_sha256": "e67b04c2cf8c991365dd13e40848d818b87ffa699aa584fc9bc7d38d9e4f4c50",
+    "artifact_bytes": 611576,
+    "retained_members": [
+      {
+        "member": "ci/dating.xml",
+        "path": "broad2-windows-dating-dating.xml.gz",
+        "raw_sha256": "305446ed006b99b26d1923e9792a8d1b29b93696489ac00a9f228bfe6154351d",
+        "raw_bytes": 38003,
+        "stored_sha256": "58108b552115706e1124e9dcf261bdad6ad89f612abcbce9dacfaf65150a7be5",
+        "stored_bytes": 6343,
+        "encoding": "gzip"
+      }
+    ]
+  },
+  {
+    "name": "broad2-windows-settings",
+    "run_id": 37111087986,
+    "artifact_id": 11269653549,
+    "artifact_sha256": "12761ff0044be220d4052cd1b409b7817138c86c7847204d285819d4328c6ab6",
+    "artifact_bytes": 2742413,
+    "retained_members": [
+      {
+        "member": "ci/settings.xml",
+        "path": "broad2-windows-settings-settings.xml.gz",
+        "raw_sha256": "aa548a6482328c2b4cf48791350dcc52e93c56c352fed7286486d78c26f9b65e",
+        "raw_bytes": 81080,
+        "stored_sha256": "f7ee477e5f4384b429ef4e531cd176b81baab6c552efa68a96335727a1add334",
+        "stored_bytes": 12881,
+        "encoding": "gzip"
+      }
+    ]
+  },
+  {
+    "name": "broad2-windows-localization",
+    "run_id": 37111087986,
+    "artifact_id": 11269628123,
+    "artifact_sha256": "cf18fe16d739f436d1b507ba9c8b8813135e9c2edfe3ca76235fde804600c2f6",
+    "artifact_bytes": 341187,
+    "retained_members": [
+      {
+        "member": "ci/localization.xml",
+        "path": "broad2-windows-localization-localization.xml.gz",
+        "raw_sha256": "c47dcca683518bebb477b7b4ad2a9f1f4236a88b02f5c451a1b7d899b59d38df",
+        "raw_bytes": 34709,
+        "stored_sha256": "28112caf8e7e2c211a75c52169bcc171bfd5aa50100225b6245b1e4af369eb35",
+        "stored_bytes": 6222,
+        "encoding": "gzip"
+      }
+    ]
+  },
+  {
+    "name": "broad2-windows-audio",
+    "run_id": 37111087986,
+    "artifact_id": 11269558175,
+    "artifact_sha256": "3a923d0294e3dbc4d972250de3abecafb3218c90fdf5ae0cbccb3d61f68195aa",
+    "artifact_bytes": 22090,
+    "retained_members": [
+      {
+        "member": "ci/audio.xml",
+        "path": "broad2-windows-audio-audio.xml.gz",
+        "raw_sha256": "67a1166b823da6504c78e16aa73330a31f0d800a966a293e96083f21a6d89005",
+        "raw_bytes": 9431,
+        "stored_sha256": "8e5932014973e25736c9bafec8b65d962341e0460ce15818c899c4ef5cdb78c7",
+        "stored_bytes": 1683,
+        "encoding": "gzip"
+      }
+    ]
+  },
+  {
+    "name": "broad2-public-surfaces",
+    "run_id": 37111087986,
+    "artifact_id": 11269478468,
+    "artifact_sha256": "c6963a3401ae0ad2830d527981d7f2bf0eb6a2d7f1bf6a0e56109e32861ca384",
+    "artifact_bytes": 144992,
+    "retained_members": [
+      {
+        "member": "ci/public_surfaces.xml",
+        "path": "broad2-public-surfaces-public_surfaces.xml.gz",
+        "raw_sha256": "ad984d2f0e840c417c8bda20a08ba789dfc21addf6e9d5659035d4f8ca4c7a0a",
+        "raw_bytes": 2504,
+        "stored_sha256": "4258f11a87952707d38fdc5572ababeab225f056ada30133d8f760ac3b6d69f6",
+        "stored_bytes": 624,
+        "encoding": "gzip"
+      }
+    ]
+  },
+  {
+    "name": "broad2-hospital-reading",
+    "run_id": 37111087986,
+    "artifact_id": 11269453883,
+    "artifact_sha256": "b4561baf8c497055bd291306047a79ad2068b062cdcf91d4ba21fa31098b8d7d",
+    "artifact_bytes": 8774254,
+    "retained_members": [
+      {
+        "member": "result.json",
+        "path": "broad2-hospital-reading-result.json.gz",
+        "raw_sha256": "33c58c82e6ffffd8999fb25587a339188f1dd5742dce47b495b44d2937f3199f",
+        "raw_bytes": 5567300,
+        "stored_sha256": "c0bdf7e1257381e2752dda97249ed6ea3e25320b32125229804ffd445eb7bead",
+        "stored_bytes": 591943,
+        "encoding": "gzip"
+      }
+    ]
+  },
+  {
+    "name": "broad2-windows-new_account",
+    "run_id": 37111087986,
+    "artifact_id": 11269323749,
+    "artifact_sha256": "4cac4d7b9a5e9a981d24e5c54f53f71a488fd77dcc53a46bd02b5e7c30b33d72",
+    "artifact_bytes": 238475,
+    "retained_members": [
+      {
+        "member": "ci/new_account.xml",
+        "path": "broad2-windows-new_account-new_account.xml.gz",
+        "raw_sha256": "311424e3cf860f2c2bd06d05ebedd4a7ecd8c18b9bdf5906aeea6212e4160e86",
+        "raw_bytes": 39866,
+        "stored_sha256": "58eb61157623e56e7900d7112f98aa7fc3ed5d7c569a9501037ca566d31a65dd",
+        "stored_bytes": 6560,
+        "encoding": "gzip"
+      }
+    ]
+  },
+  {
+    "name": "broad2-windows-minesweeper",
+    "run_id": 37111087986,
+    "artifact_id": 11269313643,
+    "artifact_sha256": "b70e888518c4f1695145da67acae82ffe0401eaf9a27fdceb415a95557f41d62",
+    "artifact_bytes": 166316,
+    "retained_members": [
+      {
+        "member": "ci/minesweeper.xml",
+        "path": "broad2-windows-minesweeper-minesweeper.xml.gz",
+        "raw_sha256": "29587d7ef196b568c8c303329d90f3339afdd472628985fde84537c8c50b50f0",
+        "raw_bytes": 47966,
+        "stored_sha256": "777abd3d2d58fad73cc986ab25a65952a31df5954c5f23ceea9ce7537ee15643",
+        "stored_bytes": 8114,
+        "encoding": "gzip"
+      }
+    ]
+  },
+  {
+    "name": "broad2-playable-journeys",
+    "run_id": 37111087986,
+    "artifact_id": 11269039360,
+    "artifact_sha256": "16858727a7e410ee479dfcac4a367c10224396ec8b8966db9cc80e06634cfb05",
+    "artifact_bytes": 9623487,
+    "retained_members": [
+      {
+        "member": "a98479f7-e75e-4a0f-b02a-11153e19dc47/condition-hospital-dialogue-retry/captures/hospital-completion-retry.png",
+        "path": "broad2-playable-journeys-hospital-completion-retry.png",
+        "raw_sha256": "c7f7c8897a1d04e395c65d87eb8d6e7f11a7c9a666c1c57bf5a2c680de5ffb0e",
+        "raw_bytes": 5913,
+        "stored_sha256": "c7f7c8897a1d04e395c65d87eb8d6e7f11a7c9a666c1c57bf5a2c680de5ffb0e",
+        "stored_bytes": 5913,
+        "encoding": "identity"
+      },
+      {
+        "member": "a98479f7-e75e-4a0f-b02a-11153e19dc47/condition-hospital-dialogue-retry/captures/ordinary-hospital-dialogue.png",
+        "path": "broad2-playable-journeys-ordinary-hospital-dialogue.png",
+        "raw_sha256": "9cb9f0ef566adbc13254df5c5c365090a80c28b5c76094f8304e62718cadd5f2",
+        "raw_bytes": 1077425,
+        "stored_sha256": "9cb9f0ef566adbc13254df5c5c365090a80c28b5c76094f8304e62718cadd5f2",
+        "stored_bytes": 1077425,
+        "encoding": "identity"
+      },
+      {
+        "member": "a98479f7-e75e-4a0f-b02a-11153e19dc47/condition-hospital-dialogue-retry/journey.stdout.txt",
+        "path": "broad2-playable-journeys-journey.stdout.txt.gz",
+        "raw_sha256": "df13a994f963de3dcebbed3ff83f329374ed77296427ae8a649302e136a4c626",
+        "raw_bytes": 26145,
+        "stored_sha256": "6771b05c484f2f0e4c745b06a7b860dbcb86bbcfbb133d734fb32729bea4137c",
+        "stored_bytes": 5020,
+        "encoding": "gzip"
+      },
+      {
+        "member": "a98479f7-e75e-4a0f-b02a-11153e19dc47/condition-hospital-dialogue-retry/result.json",
+        "path": "broad2-playable-journeys-result.json.gz",
+        "raw_sha256": "2c60be37bb322e00b45e5f0f0866d9090bf0f2d52c054adc2898198dd44afdd2",
+        "raw_bytes": 6096,
+        "stored_sha256": "50ead2145974693c1ba537c03e18f45f455774783ec5658fa1926849991895e3",
+        "stored_bytes": 1452,
+        "encoding": "gzip"
+      },
+      {
+        "member": "results.json",
+        "path": "broad2-playable-journeys-results.json.gz",
+        "raw_sha256": "46db4cf1ea8757da215b9a4ce54901462d869b69ebc92e50ec2835e9807e17d3",
+        "raw_bytes": 39974,
+        "stored_sha256": "003cf0e2b0a3319b9084b68259b82e771b47bc604b001e646a8e56f9c4160c32",
+        "stored_bytes": 3886,
+        "encoding": "gzip"
+      }
+    ]
+  },
+  {
+    "name": "broad2-windows-shop",
+    "run_id": 37111087986,
+    "artifact_id": 11268964552,
+    "artifact_sha256": "5e4c1c752601cc6cd155621db4930048c34c181283faa898e7cc177367d81560",
+    "artifact_bytes": 65314,
+    "retained_members": [
+      {
+        "member": "ci/shop.xml",
+        "path": "broad2-windows-shop-shop.xml.gz",
+        "raw_sha256": "a9d0f209e253bb322ceff945210c99f91db0c98c841218797b58101768cb91e6",
+        "raw_bytes": 31567,
+        "stored_sha256": "5f812367aaea01e2a0ee4569b5d6ab42ccdaf04f6782f832b1a0fa50e0ad8fef",
+        "stored_bytes": 4836,
+        "encoding": "gzip"
+      }
+    ]
+  }
+]

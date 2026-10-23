@@ -1,0 +1,10 @@
+{
+  "failures": [
+    "production Pause host did not become ready"
+  ],
+  "observations": {},
+  "ok": false,
+  "pause_baseline": {},
+  "result_path": "C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/d8006654-8d7b-45e1-b26f-72eb6d4ce68a/dwm_test_root/39132/1/witnessed-recovery-custody-native/witnessed-recovery-custody/result.json",
+  "scope": "real recovery scene and composed Pause host on the Windows main viewport, plus a lower unhandled-input observer; the current menu is not a playable narrative Pause-admission fixture; injected packets, no hardware/UIA claim"
+}

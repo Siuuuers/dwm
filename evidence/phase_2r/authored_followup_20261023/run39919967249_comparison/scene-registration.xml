@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="GutTests" failures="0" tests="6" >
+  <testsuite name="tests/unit/test_scene_reading_registration.gd" tests="6" failures="0" skipped="0" time="0.422338" >
+      <testcase name="test_complete_bundle_matches_actual_dtl_and_internal_return" assertions="3" status="pass" classname="tests/unit/test_scene_reading_registration.gd" time="0.034808" >
+      </testcase>
+      <testcase name="test_every_sibling_table_is_bound_and_unknown_members_refuse" assertions="9" status="pass" classname="tests/unit/test_scene_reading_registration.gd" time="0.100252" >
+      </testcase>
+      <testcase name="test_source_content_programme_and_marker_position_are_rederived" assertions="4" status="pass" classname="tests/unit/test_scene_reading_registration.gd" time="0.073029" >
+      </testcase>
+      <testcase name="test_duplicate_unsorted_and_dangling_registration_refuse" assertions="4" status="pass" classname="tests/unit/test_scene_reading_registration.gd" time="0.073575" >
+      </testcase>
+      <testcase name="test_existing_board_profile_supported_and_unknown_policy_refuses" assertions="2" status="pass" classname="tests/unit/test_scene_reading_registration.gd" time="0.02761" >
+      </testcase>
+      <testcase name="test_historical_manifest_validator_remains_available" assertions="2" status="pass" classname="tests/unit/test_scene_reading_registration.gd" time="0.113064" >
+      </testcase>
+  </testsuite>
+</testsuites>

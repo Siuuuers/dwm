@@ -1,0 +1,167 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/be7427a1-791d-41e5-af47-3b2199f79af4/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+res://tests/unit/test_ordinary_reply_echo_state.gd
+* test_all_six_days_offer_three_registered_neutral_choices_without_query_side_effects
+* test_day_end_retains_one_invisible_ordinary_expiry_without_message_or_sequence_changes
+* test_one_witness_owns_three_history_rows_and_exact_retry_does_not_duplicate
+* test_all_day_end_expiries_preserve_replied_exchanges_and_day7_silence
+* test_expiry_reclose_and_json_restore_retain_one_record_and_accept_legacy_closure
+* test_expiry_rejects_wrong_binding_extra_text_duplicate_and_replied_source
+* test_registered_line_full_literal_and_actual_issued_root_are_required
+* test_echoes_drain_oldest_first_only_from_exact_registered_actual_presentation_and_retry
+* test_saved_tampering_or_orphan_history_is_refused_without_legacy_schema_expansion
+* test_snapshots_escape_markup_normalize_newlines_and_limit_utf8_bytes
+* test_normal_save_json_numeric_normalization_preserves_exact_receipts_history_and_pending
+11/11 passed.
+
+
+res://tests/unit/test_contact_invitation_state.gd
+* test_defaults_are_empty_and_valid
+* test_solo_offer_returns_linked_candidate_batch_and_parent_receipt
+* test_opening_solo_offer_marks_read_and_accepts_without_a_reply
+* test_replying_solo_offer_is_rejected_as_not_required
+* test_reply_rejects_when_no_available_offer
+* test_prepare_does_not_mutate_input_state
+* test_duplicate_offer_transaction_is_idempotent
+* test_resolve_unanswered_solo_queues_nevermind
+* test_resolve_accepted_but_uncommitted_is_a_missed_question
+* test_resolve_attended_solo_no_message
+* test_resolve_accepted_but_absent_queues_missed_question
+* test_resolve_day7_marks_run_end_no_message
+* test_resolve_is_idempotent
+* test_either_group_participant_can_reply_first
+* test_group_activation_rejected_when_a_solo_missing
+* test_group_second_open_and_second_reply
+* test_one_continued_game_keeps_later_solos_and_both_group_windows
+* test_group_window_replacement_keeps_accepted_history_and_refuses_live_or_same_day
+* test_group_untouched_resolves_unanswered_with_busy
+* test_group_opened_unanswered_resolves_nevermind
+* test_group_one_reply_attended_judges_unreplied
+* test_group_accepted_not_attended_misses_and_defers_twofriends
+* test_group_ordinary_miss_reasons_keep_their_two_questions
+* test_group_hospital_supersession_defers_without_generic_missed_question
+* test_group_day7_forces_run_end
+* test_pl_window_group_attended_counts_once
+* test_pl_window_accepted_missed_counts_once
+* test_pl_window_both_unread_is_private_visible_counts
+* test_pl_window_never_activated_is_private_offscreen_counts
+* test_pl_window_solo_dated_one_is_prevented_no_count
+* test_solo_day_has_no_pl_window
+* test_validate_state_rejects_recursive_task3_union_tampers
+* test_validate_state_accepts_every_genuine_task3_transition_variant
+* test_validate_state_enforces_offer_visibility_and_watermark_by_solo_lineage
+* test_validate_state_requires_one_exact_canonical_resolution_envelope
+* test_validate_state_rejects_valid_typed_resolve_history_tampers
+* test_validate_state_rejects_day7_prestates_that_disagree_with_retained_history
+* test_validate_state_preserves_every_legal_resolution_history_variant
+* test_a_valid_sylvia_witness_record_is_accepted_by_the_opened_index
+* test_the_witness_index_rejects_malformed_records
+* test_the_witness_index_only_accepts_the_schedule_done_resolution_kind
+* test_the_friend_roster_has_one_owner_and_two_aliases
+42/42 passed.
+
+
+res://tests/unit/test_ordinary_correspondence_runtime.gd
+* test_reply_full_checkpoint_failure_rolls_back_exactly_then_same_command_retries_once
+* test_reply_rejects_wrong_issuer_stale_session_changed_contacts_and_unrendered_line
+* test_echo_accepts_only_oldest_registered_atom_and_failed_full_checkpoint_keeps_it_pending
+* test_restored_earlier_snapshot_owns_its_pending_echoes_and_rejects_old_session_without_profile_change
+* test_followup_ack_uses_registered_source_rolls_back_and_only_advances_read_watermark
+* test_reusing_ordinary_transaction_id_cannot_falsely_acknowledge_followup
+* test_cached_schedule_commit_cannot_skip_pending_echo_and_succeeds_after_drain
+* test_group_followup_entry_uses_saved_supersession_and_registered_day6_source
+* test_direct_echo_command_cannot_skip_due_followup_even_with_legitimate_current_proof
+* test_missing_saved_followup_source_cannot_authorize_matching_empty_entry_id
+* test_final_reread_failure_restores_existing_autosave_and_cancelled_reply_cannot_resurrect
+* test_final_reread_failure_removes_first_autosave_and_cancelled_reply_cannot_resurrect
+12/12 passed.
+
+
+res://tests/unit/test_contacts_ordinary_reply_ui.gd
+* test_selected_outgoing_draw_commits_once_and_save_failure_keeps_exact_choice_for_retry
+ORDINARY_REPLY_FAILURE: {"code":"write_failed","phase":"commit"}
+    24 Orphans
+        * [@Control@83:<Control#2236755217036>]
+        * [@Label@63:<Label#2235933133541>]
+        * [@ScrollContainer@66:<ScrollContainer#2235966687979>] + 16
+* test_changing_thread_or_hiding_cancels_only_the_unsaved_choice_and_stale_draw_does_not_send
+    52 Orphans
+        * [@Label@144:<Label#2242476247723>]
+        * [@ScrollContainer@170:<ScrollContainer#2244657285816>] + 12
+        * [@Control@177:<Control#2245076716241>]
+        * [@Label@150:<Label#2243650652956>]
+        * [@ScrollContainer@153:<ScrollContainer#2243684207393>] + 15
+        * [@Control@160:<Control#2244103637822>]
+        * [@Label@167:<Label#2244623731534>]
+        * [@ScrollContainer@147:<ScrollContainer#2242509802320>] + 1
+        * [@Control@149:<Control#2242744683355>]
+* test_locale_refresh_keeps_the_frozen_line_and_does_not_treat_choice_buttons_as_history
+* test_outgoing_text_is_not_covered_by_a_container_stretched_decoration
+* test_prepare_failure_remains_diagnosable_after_successful_thread_refresh
+ORDINARY_REPLY_FAILURE: {"code":"ordinary_registry_unavailable","phase":"prepare"}
+    23 Orphans
+        * [@Label@326:<Label#2259790334732>]
+        * [@ScrollContainer@329:<ScrollContainer#2259823889359>] + 15
+        * [@Control@336:<Control#2260243319789>]
+23 orphans
+5/5 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/unit/test_ordinary_reply_echo_state.gd
+    - Outside Tests
+        * [<Node#131231385365>(subsystem_animation.gd)]
+        * [<Node#131248162593>(subsystem_audio.gd)]
+        * [<Node#131264939823>]
+        * [<Node#131281717047>]
+        * [<Node#131298494271>(subsystem_backgrounds.gd)]
+        * [<Node#131835365184>(subsystem_choices.gd)]
+        * [<Timer#131852142401>]
+        * [<Node#131868919618>(subsystem_expression.gd)]
+        * [<Node#131902474055>(subsystem_glossary.gd)]
+        * [<Node#131919251272>(subsystem_history.gd)]
+        * [<Node#131936028489>(subsystem_input.gd)]
+        * [<Timer#131952805706>]
+        * [<Node#131969582923>(subsystem_jump.gd)]
+        * [<Node#131986360140>(subsystem_containers.gd)]
+        * [<Node#132003137357>(subsystem_portraits.gd)]
+        * [<Node#132540008270>(subsystem_save.gd)]
+        * [<Timer#132556785487>]
+        * [<Node#132573562704>(subsystem_settings.gd)]
+        * [<Node#132590339924>(subsystem_styles.gd)]
+        * [<Node#132607117141>(subsystem_text.gd)]
+        * [<Node#132691003226>(subsystem_text_input.gd)]
+        * [<Node#132707780443>(subsystem_variables.gd)]
+        * [<Node#132724557660>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#132741334877>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+Totals
+------
+Scripts               4
+Tests                70
+Passing Tests        70
+Asserts            1309
+Orphans              24
+Time              2.12s
+
+
+---- All tests passed! ----

@@ -1,0 +1,72 @@
+{
+  "status": "title_clock_navigation_shutdown_verified",
+  "date": "2026-09-05",
+  "worktree": "C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\contacts-ui-build",
+  "base_commit": "1790785bcfd37d2a27a0ecef81b9dc80fe501f71",
+  "checks": {
+    "title_shell": {
+      "passed": true,
+      "receipt": "title_shell-result.json",
+      "receipt_sha256": "fadb4325a694f1683dfdbdfc6d6d9b31e20bf0fe9c08a0024b67656cb53d781e",
+      "log": "title_shell.log",
+      "log_sha256": "66245c56ed085b17a382153a4a74753d11fbf97f0c821c0519c84aead3864673",
+      "source_bindings_total": 34,
+      "source_bindings_matched": 34,
+      "scope": "Actual Menu scene and inherited production controller, clock and confirmation UI. Minimal fake locale/profile and external command counters; only process quit is overridden. Headless geometry/input checks, no production autoloads, user persistence or GPU proof.",
+      "checks_passed": 326
+    },
+    "restart_regression": {
+      "passed": true,
+      "receipt": "restart_regression-result.json",
+      "receipt_sha256": "4b1d228e557230f1091b953e537a81d2ec2700820a26fd372069b91a805150e0",
+      "log": "restart_regression.log",
+      "log_sha256": "182e3050d785c81a737a36730b7c7f3658b827e7b6648ccf18b0f99632bfc269",
+      "source_bindings_total": 2403,
+      "source_bindings_matched": 2403,
+      "scope": "Two distinct actual production processes with shared isolated user storage: create and save a run, then cold title Log in resumes it. Original main scene and autoloads plus first observer; headless control activation, no physical-input/GPU proof.",
+      "checks_passed": 103
+    },
+    "backup_regression": {
+      "passed": true,
+      "receipt": "backup_regression-result.json",
+      "receipt_sha256": "60797dea009e0abdf3503ed71f2d0df869e8238bf27348c209f6104a82ec4e37",
+      "log": "backup_regression.log",
+      "log_sha256": "1ffa9780cf410493fc78a4cf266799a0955bbaefb623fc6e985b4332035a005e",
+      "source_bindings_total": 55,
+      "source_bindings_matched": 55,
+      "scope": "Real Backup/shared-shell scenes with fake external operation owners. Headless layout and interaction; no configured game autoloads, user persistence, real backup transactions or GPU raster proof.",
+      "checks_passed": 3870
+    },
+    "routine_clock": {
+      "passed": true,
+      "receipt": "routine_clock-result.json",
+      "receipt_sha256": "9523aef5155157a5399ddf651830862c83f21ed4b3bfb3d816ca0b10d82e9036",
+      "log": "routine_clock.log",
+      "log_sha256": "23bc6c27d7a11e17aac7c6a806d500520c6cb41db10c2d75e79679174f1a25ad",
+      "source_bindings_total": 3,
+      "source_bindings_matched": 3,
+      "scope": "Actual RoutineClock Label, one-shot Timer, Source Sans font; injected deterministic time reader, no autoloads or player storage."
+    }
+  },
+  "review": {
+    "path": "review.md",
+    "sha256": "dc714904a14c83bb3ea2af703fab85618ee08d178f069a21da5243b2d326e7d1",
+    "remaining_material_findings": 0
+  },
+  "verified_behavior": [
+    "Persistent title strip shows routine local HH:MM; unhosted Return and heading are absent.",
+    "One-shot timer aligns to minute boundaries, suspends background reads, refreshes on foreground return and replaces invalid values with localized unavailability.",
+    "Clock uses tabular digits, shared text-scale settings, no focus/hit target or live announcements, and owns no gameplay/persistence state.",
+    "Ledger Up/Down clamps without wrapping; Tab follows its declared cycle, and visible Return bridges to hosted content.",
+    "Backup-to-Settings switches Return focus paths to visible Settings controls; Close/reopen/Return preserve profile state and restore invoking focus.",
+    "Shut down uses neutral shared confirmation, no Warning node/edge, Cancel-first and one-level Escape; explicit acceptance calls existing quit seam.",
+    "Real production startup and cross-process title resume still restore money5/day1 and usable Backup; default Backup Warning sheets pass their full UI regression."
+  ],
+  "limits": [
+    "Headless input/layout and component evidence, not physical-device, assistive-technology or GPU certification.",
+    "Positive quit is intercepted only in the focused fixture; actual production shutdown cancellation is verified in both real startup processes.",
+    "Existing inherited shutdown diagnostics remain under exact observer-free baseline comparison; no leak-free shutdown claim.",
+    "Dark entitlement, optional title art, New Acc replacement policy, full Gallery hosting, legacy Settings internal layout/reset dialogs, and full palette matte remain outside this goal.",
+    "All changes remain uncommitted in the isolated worktree; actual player saves, refs, Beads, historical UI00R recovery and unrelated worktrees were not changed."
+  ]
+}

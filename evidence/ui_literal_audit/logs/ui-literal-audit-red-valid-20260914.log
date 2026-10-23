@@ -1,0 +1,190 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/096de140-ea83-45c9-ad96-fd1776e66037/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+
+
+res://tests/unit/tooling/test_ui_literal_audit.gd
+* test_current_dormant_scene_copy_has_literal_specific_demonstrated_owners
+    [Failed]:  the audit exposes its stateless scene scanner
+      at line 47
+    [Failed]:  {}
+      at line 48
+* test_scene_owner_is_location_and_literal_specific
+    [Failed]:  the audit exposes its stateless scene scanner
+      at line 75
+    [Failed]
+      at line 76
+    [Failed]:  [<null>] expected to equal [STRING_NAME(unclassified_scene_literal)]:
+      at line 77
+* test_spoofed_binding_and_unknown_catalog_key_are_refused
+    [Failed]:  the audit exposes its stateless scene scanner
+      at line 81
+    [Failed]
+      at line 90
+    [Failed]:  [<null>] expected to equal [STRING_NAME(unclassified_scene_literal)]:
+      at line 91
+    [Failed]:  the audit exposes its stateless scene scanner
+      at line 93
+    [Failed]
+      at line 104
+    [Failed]:  [<null>] expected to equal [STRING_NAME(unknown_translation_key)]:
+      at line 105
+* test_unknown_shared_placeholder_is_not_blanket_runtime_data
+    [Failed]:  the audit exposes its stateless scene scanner
+      at line 109
+    [Failed]
+      at line 115
+    [Failed]:  [<null>] expected to equal [STRING_NAME(unclassified_scene_literal)]:
+      at line 116
+* test_script_scanner_refuses_stable_literals_inside_expressions_and_later_arguments
+    [Failed]:  the audit exposes its stateless script scanner
+      at line 125
+    [Failed]:  label.text = "Retry" if failed else "Continue"
+      at line 126
+    [Failed]:  [<null>] expected to equal [STRING_NAME(unclassified_script_literal)]:
+      at line 127
+    [Failed]:  [<null>] expected to equal ["text"]:
+      at line 128
+    [Failed]:  the audit exposes its stateless script scanner
+      at line 125
+    [Failed]:  label.text = "Version %d" % version
+      at line 126
+    [Failed]:  [<null>] expected to equal [STRING_NAME(unclassified_script_literal)]:
+      at line 127
+    [Failed]:  [<null>] expected to equal ["text"]:
+      at line 128
+    [Failed]:  the audit exposes its stateless script scanner
+      at line 125
+    [Failed]:  option.set_item_text(index, "Unowned")
+      at line 126
+    [Failed]:  [<null>] expected to equal [STRING_NAME(unclassified_script_literal)]:
+      at line 127
+    [Failed]:  [<null>] expected to equal ["set_item_text"]:
+      at line 128
+* test_script_scanner_accepts_registered_lookup_and_dynamic_presenter_value
+    [Failed]:  the audit exposes its stateless script scanner
+      at line 137
+    [Failed]:  {}
+      at line 138
+0/6 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/unit/tooling/test_ui_literal_audit.gd
+    - Outside Tests
+        * [<Node#131264939798>(subsystem_animation.gd)]
+        * [<Node#131281717026>(subsystem_audio.gd)]
+        * [<Node#131298494258>]
+        * [<Node#131315271483>]
+        * [<Node#131332048705>(subsystem_backgrounds.gd)]
+        * [<Node#131868919618>(subsystem_choices.gd)]
+        * [<Timer#131885696835>]
+        * [<Node#131902474052>(subsystem_expression.gd)]
+        * [<Node#131936028489>(subsystem_glossary.gd)]
+        * [<Node#131952805706>(subsystem_history.gd)]
+        * [<Node#131969582923>(subsystem_input.gd)]
+        * [<Timer#131986360140>]
+        * [<Node#132003137357>(subsystem_jump.gd)]
+        * [<Node#132019914574>(subsystem_containers.gd)]
+        * [<Node#132036691791>(subsystem_portraits.gd)]
+        * [<Node#132573562704>(subsystem_save.gd)]
+        * [<Timer#132590339921>]
+        * [<Node#132607117138>(subsystem_settings.gd)]
+        * [<Node#132623894358>(subsystem_styles.gd)]
+        * [<Node#132640671575>(subsystem_text.gd)]
+        * [<Node#132724557660>(subsystem_text_input.gd)]
+        * [<Node#132741334877>(subsystem_variables.gd)]
+        * [<Node#132758112094>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#132774889311>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+res://tests/unit/tooling/test_ui_literal_audit.gd
+- test_current_dormant_scene_copy_has_literal_specific_demonstrated_owners
+    [Failed]:  the audit exposes its stateless scene scanner
+          at line 47
+    [Failed]:  {}
+          at line 48
+- test_scene_owner_is_location_and_literal_specific
+    [Failed]:  the audit exposes its stateless scene scanner
+          at line 75
+    [Failed]:
+          at line 76
+    [Failed]:  [<null>] expected to equal [STRING_NAME(unclassified_scene_literal)]:
+          at line 77
+- test_spoofed_binding_and_unknown_catalog_key_are_refused
+    [Failed]:  the audit exposes its stateless scene scanner
+          at line 81
+    [Failed]:
+          at line 90
+    [Failed]:  [<null>] expected to equal [STRING_NAME(unclassified_scene_literal)]:
+          at line 91
+    [Failed]:  the audit exposes its stateless scene scanner
+          at line 93
+    [Failed]:
+          at line 104
+    [Failed]:  [<null>] expected to equal [STRING_NAME(unknown_translation_key)]:
+          at line 105
+- test_unknown_shared_placeholder_is_not_blanket_runtime_data
+    [Failed]:  the audit exposes its stateless scene scanner
+          at line 109
+    [Failed]:
+          at line 115
+    [Failed]:  [<null>] expected to equal [STRING_NAME(unclassified_scene_literal)]:
+          at line 116
+- test_script_scanner_refuses_stable_literals_inside_expressions_and_later_arguments
+    [Failed]:  the audit exposes its stateless script scanner
+          at line 125
+    [Failed]:  label.text = "Retry" if failed else "Continue"
+          at line 126
+    [Failed]:  [<null>] expected to equal [STRING_NAME(unclassified_script_literal)]:
+          at line 127
+    [Failed]:  [<null>] expected to equal ["text"]:
+          at line 128
+    [Failed]:  the audit exposes its stateless script scanner
+          at line 125
+    [Failed]:  label.text = "Version %d" % version
+          at line 126
+    [Failed]:  [<null>] expected to equal [STRING_NAME(unclassified_script_literal)]:
+          at line 127
+    [Failed]:  [<null>] expected to equal ["text"]:
+          at line 128
+    [Failed]:  the audit exposes its stateless script scanner
+          at line 125
+    [Failed]:  option.set_item_text(index, "Unowned")
+          at line 126
+    [Failed]:  [<null>] expected to equal [STRING_NAME(unclassified_script_literal)]:
+          at line 127
+    [Failed]:  [<null>] expected to equal ["set_item_text"]:
+          at line 128
+- test_script_scanner_accepts_registered_lookup_and_dynamic_presenter_value
+    [Failed]:  the audit exposes its stateless script scanner
+          at line 137
+    [Failed]:  {}
+          at line 138
+
+Totals
+------
+Scripts               1
+Tests                 6
+Passing Tests      none
+Failing Tests         6
+Asserts            0/28
+Orphans              24
+Time              0.451s
+
+
+---- 6 failing tests ----

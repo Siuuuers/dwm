@@ -1,0 +1,100 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-ui-build/.godot/phase2r_tests/d6e24118-a852-4d1e-b719-c36fab0e4b36/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+tests/unit/test_profile_new_run_consumption.gd
+* test_storage_binding_is_quiet_immutable_and_can_precede_initialization
+* test_preparation_freezes_current_first_process_profile_without_legacy_patch_or_side_effects
+* test_preparation_rejects_stale_revision_invalid_dark_and_live_disk_disagreement_without_writes
+* test_canonical_journal_roundtrip_persists_without_adoption_and_is_idempotent
+* test_source_revision_binds_actual_bytes_and_accepts_valid_noncanonical_source_formatting
+* test_disabled_selector_is_already_persisted_without_writes
+* test_persistence_requires_exact_nonfatal_new_run_custody
+* test_malformed_or_rewritten_material_is_refused_before_storage_mutation
+* test_foreign_final_bytes_and_stale_live_revision_are_refused
+* test_pending_preparation_is_pure_and_foreign_marker_is_never_reconciled
+* test_restart_recovers_failures_before_promotion_and_after_committed_write_without_adoption
+* test_consumption_proof_is_read_only_before_adoption_after_restart_and_with_foreign_bytes
+12/12 passed.
+
+
+tests/integration/test_restore_preserves_current_profile.gd
+* test_empty_patch_preserves_first_process_current_document_without_import_or_publication
+* test_empty_patch_apply_and_finalize_preserve_all_current_fields_and_receipts
+* test_frozen_candidate_is_validated_detached_and_uses_the_same_locale_window_plan
+* test_explicit_nonempty_legacy_patch_still_uses_real_import_preparation
+4/4 passed.
+
+
+tests/integration/test_application_bootstrap.gd
+* test_project_autoload_order_is_the_exact_final_literal_sequence
+* test_master_stage_order_is_frozen
+* test_exactly_nine_targets_retain_one_shared_gate_identity
+* test_one_desktop_host_is_shared_by_route_restore_and_the_direct_checkpoint_provider
+* test_the_stable_active_app_callable_keeps_its_identity_and_returns_raw_json_values
+* test_the_retained_checkpoint_port_and_gate_are_shared_by_both_coordinators
+* test_exactly_one_day_changed_connection_dispatches_one_eviction_command
+* test_a_missing_eviction_port_latches_one_primitive_validated_fatal
+* test_each_stage_failure_returns_one_fatal_result_and_never_reaches_readiness
+* test_new_acc_storage_settles_before_profile_and_failure_stops_all_consumers
+10/10 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+tests/unit/test_profile_new_run_consumption.gd
+    - Outside Tests
+        * [<Node#100579411692>(subsystem_animation.gd)]
+        * [<Node#100596188909>(subsystem_audio.gd)]
+        * [<Node#100612966126>]
+        * [<Node#100629743343>]
+        * [<Node#100646520560>(subsystem_backgrounds.gd)]
+        * [<Node#101183391473>(subsystem_choices.gd)]
+        * [<Timer#101200168690>]
+        * [<Node#101216945907>(subsystem_expression.gd)]
+        * [<Node#101250500344>(subsystem_glossary.gd)]
+        * [<Node#101267277561>(subsystem_history.gd)]
+        * [<Node#101284054778>(subsystem_input.gd)]
+        * [<Timer#101300831995>]
+        * [<Node#101317609212>(subsystem_jump.gd)]
+        * [<Node#101334386429>(subsystem_containers.gd)]
+        * [<Node#101351163646>(subsystem_portraits.gd)]
+        * [<Node#101888034559>(subsystem_save.gd)]
+        * [<Timer#101904811776>]
+        * [<Node#101921588993>(subsystem_settings.gd)]
+        * [<Node#101938366213>(subsystem_styles.gd)]
+        * [<Node#101955143430>(subsystem_text.gd)]
+        * [<Node#102039029515>(subsystem_text_input.gd)]
+        * [<Node#102055806732>(subsystem_variables.gd)]
+        * [<Node#102072583949>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#102089361166>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+Totals
+------
+Scripts               3
+Tests                26
+Passing Tests        26
+Asserts             877
+Orphans              24
+Time              2.579s
+
+
+---- All tests passed! ----

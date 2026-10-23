@@ -1,0 +1,149 @@
+{
+	"captures": 6,
+	"checks": 175,
+	"failures": [
+		"after-hours-day1-standard authored focus border",
+		"after-hours-day1-standard paper: 151b25 expected c3baa3 (RGB tolerance 0)",
+		"after-hours-day7-standard authored focus border",
+		"after-hours-day7-standard paper: 151b25 expected b5ac97 (RGB tolerance 1)",
+		"after-hours-day7-high-contrast authored focus border",
+		"after-hours-day7-high-contrast paper: 0b1018 expected e9e2d0 (RGB tolerance 0)",
+		"after-hours-day7-deutan authored focus border",
+		"after-hours-day7-deutan paper: 151b25 expected b6ac94 (RGB tolerance 1)",
+		"midnight-day7-standard authored focus border",
+		"midnight-day7-standard paper: 14201d expected b5ac97 (RGB tolerance 1)",
+		"midnight-day7-pending-high-contrast authored focus border",
+		"midnight-day7-pending-high-contrast paper: 0c1811 expected e9e2d0 (RGB tolerance 0)"
+	],
+	"fixture": "Real Contacts controls; synthetic correspondence and row portrait. Memory-only owner deliberately retains one pending reply. No bootstrap, player saves or real commands.",
+	"ok": false,
+	"samples": [
+		{
+			"art_pixel": "e34db1",
+			"calls": {
+				"acknowledge": 0,
+				"cancel": 0,
+				"group_reply": 0,
+				"open": 1,
+				"pending": 2,
+				"prepare": 0,
+				"projection": 2
+			},
+			"colour_preset": "standard",
+			"day": 1,
+			"file": "after-hours-day1-standard.png",
+			"high_contrast": false,
+			"instrument_pixel": "151b25",
+			"material_rgb_tolerance_levels": 0,
+			"palette": "after_hours",
+			"paper_pixel": "151b25",
+			"pending": false
+		},
+		{
+			"art_pixel": "e34db1",
+			"calls": {
+				"acknowledge": 0,
+				"cancel": 0,
+				"group_reply": 0,
+				"open": 1,
+				"pending": 2,
+				"prepare": 0,
+				"projection": 2
+			},
+			"colour_preset": "standard",
+			"day": 7,
+			"file": "after-hours-day7-standard.png",
+			"high_contrast": false,
+			"instrument_pixel": "0a0e14",
+			"material_rgb_tolerance_levels": 1,
+			"palette": "after_hours",
+			"paper_pixel": "151b25",
+			"pending": false
+		},
+		{
+			"art_pixel": "e34db1",
+			"calls": {
+				"acknowledge": 0,
+				"cancel": 0,
+				"group_reply": 0,
+				"open": 1,
+				"pending": 2,
+				"prepare": 0,
+				"projection": 2
+			},
+			"colour_preset": "standard",
+			"day": 7,
+			"file": "after-hours-day7-high-contrast.png",
+			"high_contrast": true,
+			"instrument_pixel": "0b1018",
+			"material_rgb_tolerance_levels": 0,
+			"palette": "after_hours",
+			"paper_pixel": "0b1018",
+			"pending": false
+		},
+		{
+			"art_pixel": "e34db1",
+			"calls": {
+				"acknowledge": 0,
+				"cancel": 0,
+				"group_reply": 0,
+				"open": 1,
+				"pending": 2,
+				"prepare": 0,
+				"projection": 2
+			},
+			"colour_preset": "deutan",
+			"day": 7,
+			"file": "after-hours-day7-deutan.png",
+			"high_contrast": false,
+			"instrument_pixel": "0a0e15",
+			"material_rgb_tolerance_levels": 1,
+			"palette": "after_hours",
+			"paper_pixel": "151b25",
+			"pending": false
+		},
+		{
+			"art_pixel": "e34db1",
+			"calls": {
+				"acknowledge": 0,
+				"cancel": 0,
+				"group_reply": 0,
+				"open": 1,
+				"pending": 2,
+				"prepare": 0,
+				"projection": 2
+			},
+			"colour_preset": "standard",
+			"day": 7,
+			"file": "midnight-day7-standard.png",
+			"high_contrast": false,
+			"instrument_pixel": "0a1210",
+			"material_rgb_tolerance_levels": 1,
+			"palette": "midnight",
+			"paper_pixel": "14201d",
+			"pending": false
+		},
+		{
+			"art_pixel": "e34db1",
+			"calls": {
+				"acknowledge": 1,
+				"cancel": 0,
+				"group_reply": 0,
+				"open": 1,
+				"pending": 3,
+				"prepare": 1,
+				"projection": 3
+			},
+			"colour_preset": "standard",
+			"day": 7,
+			"file": "midnight-day7-pending-high-contrast.png",
+			"high_contrast": true,
+			"instrument_pixel": "0c1811",
+			"material_rgb_tolerance_levels": 0,
+			"palette": "midnight",
+			"paper_pixel": "0c1811",
+			"pending": true
+		}
+	],
+	"sampling": "Clear instrument/paper interiors; computed WeekTint permits at most one RGB level of renderer rounding. Authored Day-1/HC materials and portrait remain exact."
+}

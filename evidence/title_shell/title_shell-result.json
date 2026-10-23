@@ -1,0 +1,48 @@
+{
+  "passed": true,
+  "scope": "Actual Menu scene and inherited production controller, clock and confirmation UI. Minimal fake locale/profile and external command counters; only process quit is overridden. Headless geometry/input checks, no production autoloads, user persistence or GPU proof.",
+  "log": "tools/title_shell/evidence/verification.log",
+  "known_environment_diagnostic": "Windows root certificate store inaccessible; only that exact diagnostic is allowed and remains logged.",
+  "sources": {
+    "assets/ui/contacts/fonts/SOURCE-HAN-LICENSE.txt": "fcac737e761ec63dbfbdce11030a1780161920d80315edba9c8beff1c2bac5a2",
+    "assets/ui/contacts/fonts/SOURCE-SANS-LICENSE.md": "56af9b9c6715597e458284a474dc118a50a4150e9d547c70f7b4a33c3e6a9328",
+    "assets/ui/contacts/fonts/source-han-sans-hc-regular.otf": "b2ec9fbf96fc77d9d471a1e05d9dfa208c1e8ba539c394519b8d776b972ba17b",
+    "assets/ui/contacts/fonts/source-han-sans-sc-regular.otf": "f1d8611151880c6c336aabeac4640ef434fa13cbfbf1ffe82d0a71b2a5637256",
+    "assets/ui/contacts/fonts/source-sans-3-regular.ttf.woff2": "53492fb3a0def77354f166a55d09b63a10855e91c206c7620a81cf56e97f8ec3",
+    "assets/ui/contacts/fonts/sources.json": "f7ba944cccbb0529e64bbe7a5e09403e21625adbc114cd382ee0758e3a9518a3",
+    "localization/manifest.json": "d9eac5c3e32065a3c9c8600be18d9a7c5d54a8c0d63b2aa287ac747ea317f187",
+    "scenes/apps/BackupApp.tscn": "fbace6f420c7605d665d1605cf2dfaa26a604c391455f43cacbceb8fd8ac3695",
+    "scenes/menu/MenuScene.tscn": "191e5f3a88d0bfe93d443814e6c1b97794f085849433a909ef7b4009fcb14659",
+    "scenes/menu/Setting.tscn": "cec9219d334be38fe79f9bca2f8fe071653de4a4a41ac373b9bb7619ba018ba5",
+    "scenes/shared/AppWindowBase.tscn": "887d4e9dc8510c8f754ffa4db0ff3188a15584065ae2331a88b29e5e78102d7d",
+    "scripts/application/backup/BackupPresentationPort.gd": "cfec17e2891f4a9b07404737346e6b0f25e45adb1084661a387d9fc8f72e895f",
+    "scripts/localization/LocalizationCatalog.gd": "20643172814fa6fdf5496a922dbe4a14b48f8074780bbd08de2960543ce228c8",
+    "scripts/localization/LocalizationSchema.gd": "1af93fc6d2fb9aca101e6861c4e55dac74def24e2ea0ba17877add1025269225",
+    "scripts/profile/ProfileSchema.gd": "e4a97bbff4330b61c1757ad70c525916bca000a097a57630f7b548a6876099e1",
+    "scripts/ui/AppWindowBase.gd": "dda0235e88c2fec7f1e56c68c9ce075265fb45fef292e69b754291fa3065deb0",
+    "scripts/ui/BackupApp.gd": "6829246f173b017d12106f4d2f81820ae2aa92b71286f61043d2b0dfc16229e1",
+    "scripts/ui/LocalePresentationRoot.gd": "4595a9191ecbc02aa99e241dc2255393732ce9a68401d203ec684dfbed9274a8",
+    "scripts/ui/LocalizedBinding.gd": "c7771796e8382aa360b3b0a9bdd6a1a1ee0f3c9b30b0e060e981e7bf4dff7e8c",
+    "scripts/ui/MenuScene.gd": "c260dbb1a642a30b31bdf17446706e56ef9f0af6d76c3e3172e3315874afe9d5",
+    "scripts/ui/Setting.gd": "505da16c2473457c79bc541086daecaa9a92fa8c867b776f4910d9a2799b95dc",
+    "scripts/ui/SettingsPanelController.gd": "405c1cb255d4a22cffa571ace155348cad29f9cdcdc78683694751d423de2ab3",
+    "scripts/ui/backup/BackupDrawer.gd": "9617b7bbebec40a5feac874dfccd680b348f9e47cdf09bf076f90fabfcdc833e",
+    "scripts/ui/backup/BackupKey.gd": "3ebd5d56502b5da4d11051ceb92e52f104d3263afcc5b7729fd683a8ad4252b5",
+    "scripts/ui/backup/BackupTheme.gd": "2769241b952891ae5ff9ab60f485772f42f8e702920ee916620316e70f7ea1bd",
+    "scripts/ui/desktop/DesktopConfirmation.gd": "7b435808591050e9bbdf4dac61dc9b8b1f9d61fac496a5a51758c2403fef52c0",
+    "scripts/ui/desktop/DesktopHomeButton.gd": "f6889d69254ee03869b6926dce4e4246e0690251fdf61a445277aeaa69d51fef",
+    "scripts/ui/desktop/DesktopTheme.gd": "d62f89d1fec787c70028c0335956da779cf9bb2f879481797e653471ab4a3a4c",
+    "scripts/ui/desktop/RoutineClock.gd": "177e3fc5003e7e347ab0977814db83f52d313c4ec20c9c0cdd668c9add312aa1",
+    "scripts/validation/StrictJson.gd": "1b14199029555a6af7044b43e31b7e8bcfe75d20a460e81d0f11acfce0645ddd",
+    "tests/title_shell/SafeMenu.gd": "f31c4b05b8fad0fe18d5fd5d3123b735f2f7a044c720baa1bf8c0d47b1d6c3ad",
+    "tests/title_shell/test_title_shell.gd": "41729903006be7c6e908cbdd224b423199dbad5c6db296b7769b0f8c75aa62c9",
+    "tools/backup_ui/verify.py": "b3295a039629db1c1b3429b22b7627badac117b6200eada25d02a75644d950e5",
+    "tools/title_shell/verify.py": "0bbd06b077c802c23cb3580a8cd74ad544e94870095a91e06c445a8a80a13a02"
+  },
+  "test_summaries": [
+    {
+      "checks": 326,
+      "suite": "TitleShell"
+    }
+  ]
+}

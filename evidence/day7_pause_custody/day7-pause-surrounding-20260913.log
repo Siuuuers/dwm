@@ -1,0 +1,162 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/e411fbc6-8614-4314-8eac-40466b189578/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+res://tests/unit/test_production_pause_controller.gd
+* test_desktop_pause_continue_preserves_scene_focus_and_real_input_custody
+* test_day7_overlay_is_covered_and_continue_restores_its_card_and_focus
+* test_day7_preparation_retry_survives_pause_without_preparing_or_acknowledging
+* test_retired_day7_overlay_cannot_restore_focus_into_the_same_desktop
+* test_failed_day7_load_keeps_view_input_and_tree_suspended_through_restore_handoff
+* test_production_pause_reuses_hosts_with_current_day_and_appearance_cannot_touch_backup_action
+    8 Orphans
+        * [SaveAction:<Button#1330047355480>(BackupKey.gd)] + 1
+        * [SaveAction:<Button#1226800368230>(BackupKey.gd)] + 1
+        * [SaveAction:<Button#1291778525844>(BackupKey.gd)] + 1
+        * [SaveAction:<Button#1317145676705>(BackupKey.gd)] + 1
+* test_physical_dating_source_resumes_exact_command_and_changed_command_refuses
+* test_return_route_failure_retains_paused_retry_and_never_saves_or_resumes_discarded_source
+* test_foreign_runtime_and_title_cannot_be_admitted_as_idle_playback
+* test_pause_backup_inspects_nine_records_and_does_not_claim_unsupported_operations
+    2 Orphans
+        * [SaveAction:<Button#1919330290285>(BackupKey.gd)] + 1
+* test_global_back_does_not_steal_a_text_field_event
+* test_pause_delete_keeps_exact_suspension_and_never_saves_the_source
+* test_idle_pause_load_failure_reacquires_exact_source_then_retry_follows_new_session
+* test_failed_load_with_changed_session_cannot_resume_either_source
+* test_paused_dating_manual_and_quick_save_restore_exact_board_and_command
+* test_paused_dating_save_cancellation_and_board_drift_preserve_suspension_and_disk
+* test_desktop_pause_capture_preserves_the_covered_app_and_suspension
+* test_desktop_pause_capture_refuses_route_session_and_narrative_drift
+* test_paused_debug_preparation_save_preserves_exact_frontier_without_entering_attempt
+19/19 passed.
+
+
+res://tests/unit/test_application_pause_coordinator.gd
+* test_source_qualification_refuses_wrong_scene_route_projection_and_gate_without_port_calls
+* test_acquisition_and_release_order_hold_tree_until_every_port_is_active
+* test_failed_but_suspended_port_is_compensated_before_prior_ports
+* test_unknown_failed_acquisition_cannot_drop_mutated_port_or_publish_active
+* test_source_mutation_during_acquire_keeps_recovery_until_exact_source_returns
+* test_partial_resume_failure_keeps_tree_paused_and_retries_only_unreleased_ports
+* test_source_change_before_resume_keeps_custody_until_original_source_returns
+* test_source_change_during_awaited_release_cannot_close_or_unpause_wrong_source
+* test_busy_acquire_release_and_recovery_refuse_commands_and_rebinding
+* test_view_restore_failure_releases_no_port_and_is_retryable
+* test_failed_but_proven_active_port_only_compensates_prior_owners
+* test_foreign_suspended_port_is_never_acquired_or_released
+* test_cover_callback_source_change_enters_recovery_without_publishing_pause
+* test_restore_callback_source_change_retains_tree_and_all_ports_before_retry
+14/14 passed.
+
+
+res://tests/unit/test_pause_input_custody.gd
+* test_exact_handle_admission_idempotence_and_refusal_are_atomic
+* test_malformed_handles_never_change_custody_or_expose_partial_values
+* test_native_held_contacts_require_all_releases_after_resume
+* test_release_observed_while_tree_paused_does_not_poison_fresh_input
+* test_source_policy_refuses_paused_and_held_contacts_then_accepts_fresh_contacts
+* test_pending_pointer_is_canceled_and_pause_always_button_still_operates
+6/6 passed.
+
+
+res://tests/integration/test_pause_backup_host.gd
+* test_preview_retains_real_nine_records_and_source_save_refusal_without_mutation
+* test_confirmation_cancel_then_backup_retreat_then_continue_each_need_their_own_back
+* test_confirmed_delete_uses_real_record_revision_without_resuming_or_changing_quick
+* test_changed_record_enters_recovery_and_back_does_not_escape_backup
+* test_confirmation_is_inert_during_parent_custody_and_close_cancels_its_token
+* test_source_change_after_confirmation_prevents_delete_and_consumes_consent
+* test_removing_backup_cancels_prepared_owner_token
+* test_parent_interaction_restores_exact_backup_focus_without_resetting_mode_or_record
+* test_parent_custody_change_retires_held_touch_consent_before_reactivation
+9/9 passed.
+
+
+res://tests/unit/test_scene_art_hold.gd
+* test_portrait_only_return_scene_waits_then_executes_original_dtl_once
+[Dialogic Comment] #timeline_id: opening.day1
+[Dialogic Comment] #locale: en
+[Dialogic Comment] #type: core
+[Dialogic Comment] #scene: OpeningScene
+[Dialogic Comment] #shown: first New Acc
+* test_pause_reuses_exact_art_view_and_continue_does_not_execute_while_suspended
+[Dialogic Comment] #timeline_id: opening.day1
+[Dialogic Comment] #locale: en
+[Dialogic Comment] #type: core
+[Dialogic Comment] #scene: OpeningScene
+[Dialogic Comment] #shown: first New Acc
+* test_failed_load_keeps_same_art_then_successful_idle_load_retires_it_without_completion
+* test_return_retirement_cancels_card_and_never_starts_its_dtl
+* test_only_proven_empty_blocks_hold_and_no_art_preserves_native_auto_completion
+[Dialogic Comment] #timeline_id: opening.day1
+[Dialogic Comment] #locale: en
+[Dialogic Comment] #type: core
+[Dialogic Comment] #scene: OpeningScene
+[Dialogic Comment] #shown: first New Acc
+* test_witnessed_hospital_start_runs_its_dtl_instead_of_holding_on_its_art
+[Dialogic Comment] #timeline_id: hospital.faint
+[Dialogic Comment] #locale: en
+[Dialogic Comment] #type: core
+[Dialogic Comment] #scene: HospitalScene
+[Dialogic Comment] #shown: after fainting / danger day
+6/6 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/unit/test_production_pause_controller.gd
+    - Outside Tests
+        * [<Node#131231385365>(subsystem_animation.gd)]
+        * [<Node#131248162593>(subsystem_audio.gd)]
+        * [<Node#131264939823>]
+        * [<Node#131281717047>]
+        * [<Node#131298494271>(subsystem_backgrounds.gd)]
+        * [<Node#131835365184>(subsystem_choices.gd)]
+        * [<Timer#131852142401>]
+        * [<Node#131868919618>(subsystem_expression.gd)]
+        * [<Node#131902474055>(subsystem_glossary.gd)]
+        * [<Node#131919251272>(subsystem_history.gd)]
+        * [<Node#131936028489>(subsystem_input.gd)]
+        * [<Timer#131952805706>]
+        * [<Node#131969582923>(subsystem_jump.gd)]
+        * [<Node#131986360140>(subsystem_containers.gd)]
+        * [<Node#132003137357>(subsystem_portraits.gd)]
+        * [<Node#132540008270>(subsystem_save.gd)]
+        * [<Timer#132556785487>]
+        * [<Node#132573562704>(subsystem_settings.gd)]
+        * [<Node#132590339924>(subsystem_styles.gd)]
+        * [<Node#132607117141>(subsystem_text.gd)]
+        * [<Node#132691003226>(subsystem_text_input.gd)]
+        * [<Node#132707780443>(subsystem_variables.gd)]
+        * [<Node#132724557660>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#132741334877>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+Totals
+------
+Scripts               5
+Tests                54
+Passing Tests        54
+Asserts             970
+Orphans              24
+Time              11.652s
+
+
+---- All tests passed! ----

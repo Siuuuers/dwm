@@ -1,0 +1,160 @@
+{
+  "archive_sha256": "7a13994f88df2cce2c1cef9037a6db3e12b42850e1828fee9906d4208d91a225",
+  "members": [
+    {
+      "path": "delivery-dialogue-render-37177243270-1/render.log",
+      "bytes": 17582,
+      "sha256": "d1412e0a56b1525d3c39ff312159be20438f67249d63efe17dbe55a2813d08c3"
+    },
+    {
+      "path": "delivery-dialogue-render-37177243270-1/results.json",
+      "bytes": 9488,
+      "sha256": "300ba8be3e4431d712a41b1b932a9f9350d25145cfcd0f14e2f65898bfd693d5"
+    },
+    {
+      "path": "public-surfaces-37177243270-1/ci/caption-native/advance-tree.json",
+      "bytes": 4071,
+      "sha256": "b077ca4700b0f73aa70b99b9015e4c53fee03f33b70bbf3c11b0a2579bf1a1f0"
+    },
+    {
+      "path": "public-surfaces-37177243270-1/ci/caption-native/advance.png",
+      "bytes": 6742,
+      "sha256": "b749fd92612bd19774c312242e33a404d445636a38b7039b64f5f177a4ec0634"
+    },
+    {
+      "path": "public-surfaces-37177243270-1/ci/caption-native/godot.log",
+      "bytes": 1298,
+      "sha256": "47ecbfb3520a094801a0dd22523c7706abf816dc7b902863ff4431da9bd7aee9"
+    },
+    {
+      "path": "public-surfaces-37177243270-1/ci/caption-native/invocations.json",
+      "bytes": 2840,
+      "sha256": "518bc6db1c6495a26dbae4a35e51c172f9cd63e826caf9cfc76aba7434524c09"
+    },
+    {
+      "path": "public-surfaces-37177243270-1/ci/caption-native/receipt.json",
+      "bytes": 885,
+      "sha256": "384dbfd5bf8898efb7c64cca47ec42d9ed6af48509e2d8cbba59dc591b30b4c8"
+    },
+    {
+      "path": "public-surfaces-37177243270-1/ci/caption-native/reveal-tree.json",
+      "bytes": 4071,
+      "sha256": "b077ca4700b0f73aa70b99b9015e4c53fee03f33b70bbf3c11b0a2579bf1a1f0"
+    },
+    {
+      "path": "public-surfaces-37177243270-1/ci/caption-native/reveal.png",
+      "bytes": 5898,
+      "sha256": "752910833a73cc3f294b272eadd206d770ba09e1cd4e8ea29d109635e3928c83"
+    },
+    {
+      "path": "public-surfaces-37177243270-1/ci/caption-native/runtime.json",
+      "bytes": 352,
+      "sha256": "72158d9b0323b530df88ab246734467a0b2adadfb91362a6e23b099c21c09974"
+    },
+    {
+      "path": "public-surfaces-37177243270-1/ci/caption-native/successor.png",
+      "bytes": 6742,
+      "sha256": "7560b5c2f3dc74147cbc21300ee4e1ca2b398b72a3ba323d2d682676c52726df"
+    },
+    {
+      "path": "public-surfaces-37177243270-1/ci/public_surfaces.xml",
+      "bytes": 2505,
+      "sha256": "b6544dbb477c34ea65642b222cb1c35ce0eec1fac02e5d9628dc76bf9ed8c0e2"
+    },
+    {
+      "path": "screenshots/dating-overlay-live-en100.png",
+      "bytes": 1332320,
+      "sha256": "6a25c3cc4c5849c7d0e2bf14a4b349965c4f7b09249a79693aafdfedcdb19fe9"
+    },
+    {
+      "path": "screenshots/dating-overlay-review-zh-HK150.png",
+      "bytes": 1324729,
+      "sha256": "ca9a8e850f62152068c2ab4a316641b9913e91451941c3f9862611f63a4835be"
+    },
+    {
+      "path": "screenshots/dialogue-live-en100.png",
+      "bytes": 16250,
+      "sha256": "9d7b62b734312bc07dbcdc360df31131347dc8ff2f0aba258e88aa08931b4d8f"
+    },
+    {
+      "path": "screenshots/dialogue-older-zh-CN150.png",
+      "bytes": 18993,
+      "sha256": "dffe0eee2304bc76ab93a8687070412354acfa7e8ba90a223276ec6048049111"
+    },
+    {
+      "path": "screenshots/dialogue-older-zh-HK150.png",
+      "bytes": 19469,
+      "sha256": "31d3e67a3dface5a7d4c6f29217e34f105a55b1afd38e4c7615fe8eec49748fb"
+    },
+    {
+      "path": "windows-audio-37177243270-1/ci/audio.xml",
+      "bytes": 9431,
+      "sha256": "5e2dd9a7290305cdd1509aca7161ab96d9776dde65dfdab938c9ed24a4e5dfa5"
+    },
+    {
+      "path": "windows-checkpoint_diagnostics-37177243270-1/ci/checkpoint_diagnostics.xml",
+      "bytes": 5449,
+      "sha256": "154568d5ba13f59d8ce121e89ef0d98abc8f3f7dd3f9ec6c44983e00072e8d3b"
+    },
+    {
+      "path": "windows-dating-37177243270-1/ci/dating.xml",
+      "bytes": 39329,
+      "sha256": "455f1ec45a27ccb5282111d01c7e580dd0d01a008090df1e90842d9487cace55"
+    },
+    {
+      "path": "windows-desktop-37177243270-1/ci/desktop.xml",
+      "bytes": 75214,
+      "sha256": "d8ed797043d7a007c596dc173c8bc962435484b812fd149ecb08c13d81ca83db"
+    },
+    {
+      "path": "windows-endings-37177243270-1/ci/endings.xml",
+      "bytes": 22929,
+      "sha256": "24d6a3ce13743789b05d2ccd6b0a63e1ce53b7226e3cc0da9f6c1199687775ec"
+    },
+    {
+      "path": "windows-localization-37177243270-1/ci/localization.xml",
+      "bytes": 34707,
+      "sha256": "0a88ffbe477632ec69ae07b52a32ed3e6b0591f8c2aa9d5069d7a02d392d3c9b"
+    },
+    {
+      "path": "windows-minesweeper-37177243270-1/ci/minesweeper.xml",
+      "bytes": 47967,
+      "sha256": "7390369e115183eb42607a9b56a896248683d7f680cce27ac97b9e065f28b38e"
+    },
+    {
+      "path": "windows-new_account-37177243270-1/ci/new_account.xml",
+      "bytes": 39866,
+      "sha256": "0acde4813d39c7255823ec2827cca2e7cdc1a0e343c99bfcc8b088c0a7bf97a0"
+    },
+    {
+      "path": "windows-persistence-37177243270-1/ci/persistence.xml",
+      "bytes": 52788,
+      "sha256": "5eded96e52a2879a82f3582e920863e953b674266f730ec5176564852e777a3f"
+    },
+    {
+      "path": "windows-reading_delivery-37177243270-1/ci/reading_delivery.xml",
+      "bytes": 145316,
+      "sha256": "5bf4d1ae55803b5182bef7af33086a78fc90219dd455b4d631e980b36418eea5"
+    },
+    {
+      "path": "windows-settings-37177243270-1/ci/settings.xml",
+      "bytes": 81075,
+      "sha256": "b3387345d05525aac480e27685203170174fca31be97dde21803e301f300710b"
+    },
+    {
+      "path": "windows-settings-37177243270-1/ci/storage-refusal/empty/tests.xml",
+      "bytes": 31412,
+      "sha256": "2811a9d83dd8ec8d80a9c3b9f9f46db3c9fc54bc48de7d27508bc09a1ab3f844"
+    },
+    {
+      "path": "windows-settings-37177243270-1/ci/storage-refusal/whitespace/tests.xml",
+      "bytes": 31410,
+      "sha256": "2c203833f9837a9a58335982793b73e63b23474d98ab53045755f2c30f480958"
+    },
+    {
+      "path": "windows-shop-37177243270-1/ci/shop.xml",
+      "bytes": 31575,
+      "sha256": "53a0153032abdf5811f07d35c287dde94f52ba0073742c4f48cae560015f1582"
+    }
+  ]
+}

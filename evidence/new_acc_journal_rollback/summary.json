@@ -1,0 +1,69 @@
+{
+  "base_commit": "9adec2cf2faeaac98d382f3921dcab14018482fe",
+  "task": "dwm-eei.20",
+  "suites": [
+    {
+      "suite_id": "new-acc-journal-focused-20260907b",
+      "Scripts": 4,
+      "Tests": 33,
+      "Passing Tests": 33,
+      "Asserts": 594,
+      "Orphans": 24
+    },
+    {
+      "suite_id": "new-acc-journal-shared-20260907b",
+      "Scripts": 5,
+      "Tests": 45,
+      "Passing Tests": 45,
+      "Asserts": 701,
+      "Orphans": 24
+    }
+  ],
+  "tests": 78,
+  "assertions": 1295,
+  "sources": {
+    "autoload/SaveManager.gd": "77752fb485f988b3fa458c72c4e1d5a5d70d20870a3cf475d9714a83ebb5b225",
+    "tests/integration/test_new_run_transaction.gd": "f69a1c0b0ef759739346692ac809b7da9893b898e45d37db30174bbaf04aaadf",
+    "tests/integration/test_restore_transaction.gd": "b2e7d426e6a181e23f9bfa0e67594f504e8a00a7b9549fd0f87ee0e2d997c1ba",
+    "tests/integration/test_application_bootstrap.gd": "ac750e9bbd5c010e676546e2da06ecd5c65e5efa705487d1253f382d887a1262"
+  },
+  "source_git_blobs": {
+    "autoload/SaveManager.gd": "eac112a0747d7833648b962def79270e2e6230f9",
+    "tests/integration/test_new_run_transaction.gd": "23ae695caf4da4aa0c38216f2312613385646569",
+    "tests/integration/test_restore_transaction.gd": "3f117f8e94b6eeb608df0e2e4bd7212d1a71094d",
+    "tests/integration/test_application_bootstrap.gd": "f47154aca3e175563e8dbdeaed8f060ede8f01b4"
+  },
+  "raw_log_sha256": {
+    "new-acc-owner-baseline-20260907a.log": "bd61d67e83831dd57e277445a060e75d0daefcd9f3ab18915c4bcf17cd1a3fcd",
+    "new-acc-journal-red-20260907a.log": "ebbae3887c5eca92caf194031188d0a8b5756dd83b66cc75f1683ebc2ac5eb64",
+    "new-acc-journal-focused-20260907a.log": "ebc6ab62f28040ad003b76aee8c6e1cfa783d23045ee1ee043a3fefe0f89b0dc",
+    "new-acc-journal-shared-20260907a.log": "9fa858ce4ac55545aa09538caf0d15f53ff151caa01cf93dcc1546aabe0a8f8c",
+    "new-acc-journal-focused-20260907b.log": "0b25d4e28489088b30fb3dc98a35482ea77c42aaf2b093183759425c71cd4110",
+    "new-acc-journal-shared-20260907b.log": "5a78a6ae66159cf088897f19f4991654d572551ade008b818369a8e2556c8627"
+  },
+  "scope": "Restore in-memory checkpoint journal on post-commit finalization failure, with fatal recovery on failed compensation; real New Run and seeded Load coverage. Refresh stale shared Bootstrap test fixture for existing Settings/window owners.",
+  "save_schema_changed": false,
+  "canonical_new_acc_complete": false,
+  "overall_ui_goal_complete": false,
+  "player_data_used": false,
+  "merged": false,
+  "pushed": false,
+  "protected_worktrees": [
+    {
+      "path": "C:/Users/glori/Documents/dwm",
+      "head": "35afbcdcf7e12143478080b91a7c6c3079497371",
+      "tracked_dirty_paths": 20
+    },
+    {
+      "path": "C:/Users/glori/Documents/dwm-p2r13-resealed",
+      "head": "1790785bcfd37d2a27a0ecef81b9dc80fe501f71",
+      "tracked_dirty_paths": 50
+    }
+  ],
+  "known_diagnostics": [
+    "Existing Unicode NUL diagnostics retained",
+    "24 existing Dialogic fixture orphans per final GUT run; no leak-free claim"
+  ],
+  "independent_review": "sheet_owner_audit reviewed checkpoint compensation, fatal retention, success/precommit paths and populated-history regression; no blocker.",
+  "remaining": "Durable initial Autosave/Profile joint commit, captured Dark and palette, truthful live-session capability/consent, frozen same-operation retry, main route through real participant and Opening/tutorial retirement remain on dwm-eei.20."
+}

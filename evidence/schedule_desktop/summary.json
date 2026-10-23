@@ -1,0 +1,93 @@
+{
+  "base_commit": "92941f0e1fd92479edcb254bafb147b01a9b0f8d",
+  "task": "dwm-eei.8",
+  "suites": [
+    {
+      "suite_id": "schedule-desktop-focused-20260907b",
+      "Scripts": 9,
+      "Tests": 125,
+      "Passing Tests": 125,
+      "Asserts": 2320,
+      "Orphans": 24
+    },
+    {
+      "suite_id": "schedule-shared-regression-20260907a",
+      "Scripts": 5,
+      "Tests": 44,
+      "Passing Tests": 44,
+      "Asserts": 684,
+      "Orphans": 24
+    }
+  ],
+  "tests": 169,
+  "assertions": 3004,
+  "native_suite": "schedule-desktop-native-20260907b",
+  "native_checks": 207,
+  "rendered_tuples": 18,
+  "native_captures": 18,
+  "sources": {
+    "scripts/ui/ComputerDesktop.gd": "8bdc29fdc498079b9747a340f23851939e2d6edd03536103eab89c68512c4bd3",
+    "scripts/ui/ScheduleApp.gd": "c527f5c1efbceec2f189d5459a8d9b709615839a2d8ffbcfbe1f389b7f901eb4",
+    "scripts/ui/schedule/ScheduleWarningSheet.gd": "ff552130642212e9c97840f4c9b9c89bb20a1873d1e58ffebd84d41ae8213c20",
+    "tests/unit/test_schedule_app.gd": "f9892daabbe9532624d0462a9a1c8081c24e78e3f8007e0c437f6a4a491f9de8",
+    "tests/unit/test_schedule_warning_sheet.gd": "d12a9230eeba3ccd32cff50858b143e4ef306375a2929dcdaf75a7a1703a7cd5",
+    "tests/integration/test_schedule_desktop_host.gd": "0217e1f20ba8e5cc975a9aa4f109de10ad13071ee8a7d222f4944619abebdbef",
+    "tests/manual/verify_schedule_desktop_native.gd": "cbaa324f37269c4cdf7821aeb1b02cef478cd9596abc9fe5c486ee998174ed71"
+  },
+  "source_git_blobs": {
+    "scripts/ui/ComputerDesktop.gd": "d5fbc621e29946761dc6296220709b44f04ca93a",
+    "scripts/ui/ScheduleApp.gd": "beac87b48d0432e91505eec3cd70cbdb97d2cfeb",
+    "scripts/ui/schedule/ScheduleWarningSheet.gd": "57f65827193143b118c8a838322522780036069f",
+    "tests/unit/test_schedule_app.gd": "d81033f29a1ac902d5cc74cf39e39147368b6554",
+    "tests/unit/test_schedule_warning_sheet.gd": "c59013486bf1ed8a0775ad2ca92e2602a25bacdc",
+    "tests/integration/test_schedule_desktop_host.gd": "069e8329dc281c114b3320204b20a258e163e46e",
+    "tests/manual/verify_schedule_desktop_native.gd": "106fb8c5b8cf4d6ec006269d08ac3eeb36e4445e"
+  },
+  "raw_log_sha256": {
+    "schedule-desktop-native-20260907a.log": "e38e7d551e5cf7e0bb0ae68a2b9193ced146a43e0908a9d8863e17d8dab2c65c",
+    "schedule-desktop-focused-20260907a.log": "56f74a3c6b17dea6c50e385312283aa8f242b9bf9d090e6f0cf54b3997d6f0e5",
+    "schedule-desktop-focused-20260907b.log": "d6f388cfbd90eeb43adf8f4aa3c865cd6b697eb8949764957baffdc9937e7258",
+    "schedule-shared-regression-20260907a.log": "6ce8e8f7bfa12be5a0381695749ab944b343f15051658ac5b67012b3b19828bb",
+    "schedule-desktop-native-20260907b.log": "6d9c229bc0b997681bfcd42f666d974a2bf886438cd515b74b73fc4b3e82aafe"
+  },
+  "scope": "Shared desktop Schedule mounting with supplied real draft owners; production owner/content/Done composition remains unavailable.",
+  "save_schema_changed": false,
+  "full_schedule_acceptance": false,
+  "overall_ui_goal_complete": false,
+  "player_data_used": false,
+  "merged": false,
+  "pushed": false,
+  "protected_worktrees": [
+    {
+      "path": "C:/Users/glori/Documents/dwm",
+      "head": "35afbcdcf7e12143478080b91a7c6c3079497371",
+      "tracked_dirty_paths": 20
+    },
+    {
+      "path": "C:/Users/glori/Documents/dwm-p2r13-resealed",
+      "head": "1790785bcfd37d2a27a0ecef81b9dc80fe501f71",
+      "tracked_dirty_paths": 50
+    }
+  ],
+  "known_diagnostics": [
+    "Existing Unicode NUL diagnostics retained",
+    "24 Dialogic fixture orphans reported by each final GUT run; no leak-free acceptance claim"
+  ],
+  "visual_inspection": [
+    "en-100-ordinary.png",
+    "zh_HK-150-large.png"
+  ],
+  "screen_reader_verified": false,
+  "independent_reviews": [
+    {
+      "reviewer": "sheet_owner_audit",
+      "scope": "Owner injection, restored route, current-scene and outgoing lifetime",
+      "result": "No material blocker; read-only review"
+    },
+    {
+      "reviewer": "root",
+      "scope": "Shared preference, warning focus, injected host behavior and native visual inspection",
+      "result": "Reviewed agent implementation and executed acceptance suites; material findings fixed before checkpoint"
+    }
+  ]
+}

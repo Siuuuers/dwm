@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Exact per-entry frozen presentation context registry",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["kind", "schema_version", "schemas"],
+  "properties": {
+    "kind": {"const": "dialogic_frozen_context_registry"},
+    "schema_version": {"const": 1},
+    "schemas": {
+      "type": "array",
+      "minItems": 137,
+      "maxItems": 137,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["schema_id", "schema_version", "entry_id", "fields"],
+        "properties": {
+          "schema_id": {"type": "string", "minLength": 1},
+          "schema_version": {"const": 1},
+          "entry_id": {"type": "string", "minLength": 1},
+          "fields": {
+            "type": "object",
+            "minProperties": 2,
+            "required": ["entry_id", "entry_role"],
+            "additionalProperties": {"$ref": "#/$defs/field"}
+          }
+        }
+      },
+      "description": "FrozenPresentationContext additionally proves one-to-one coverage against dialogic_entries.json, exact entry/role constants, and the manifest context_schema_id. Every listed field is required; fields never have implicit defaults."
+    }
+  },
+  "$defs": {
+    "field": {
+      "oneOf": [
+        {
+          "enum": [
+            "id", "bool", "no_residue", "nullable_id", "nullable_pair_friend",
+            "ids", "participants", "contact_variation", "perfect_reasons", "echoes",
+            "deck", "nullable_pair_count", "pair_count", "progression", "nullable_group_variation",
+            "friend", "tier", "tone", "attitude", "ordinary_phase", "group_state",
+            "closure_state", "miss_reason", "board_result", "relationship_outcome", "hospital_cause",
+            "observation_form", "pair_count_status", "pair_form", "ending_role", "playback_mode",
+            "residue_variant", "alone_cause"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["const"],
+          "properties": {"const": {"type": ["string", "integer", "boolean"]}}
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["enum"],
+          "properties": {
+            "enum": {
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "items": {"type": "string", "minLength": 1}
+            }
+          }
+        }
+      ]
+    }
+  }
+}

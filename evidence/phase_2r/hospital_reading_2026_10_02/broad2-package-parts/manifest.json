@@ -1,0 +1,63 @@
+{
+  "archive": {
+    "bytes": 28877911,
+    "file": "hospital-broad2-evidence.tar.gz",
+    "sha256": "221a811b8266832cea52f9ae3cceeac2db956258a599c6f40cbba05f639f848a"
+  },
+  "archive_integrity": {
+    "gzip_read_to_eof_and_crc_check": true,
+    "tar_member_count": 749,
+    "tar_regular_file_bytes_read": 163628700,
+    "tar_regular_file_count": 749,
+    "uncompressed_bytes": 164771840
+  },
+  "description": "Lossless raw-byte packaging of the immutable Broad2 evidence archive; this manifest makes no acceptance determination.",
+  "format": "hospital-broad2-raw-split-v1",
+  "parts": [
+    {
+      "bytes": 8388608,
+      "file": "hospital-broad2-evidence.tar.gz.part-001",
+      "order": 1,
+      "sha256": "8dfbba190cf06e6d9ea3fe53377ef560e9e2fff052e3f5875a5676493a2025f9"
+    },
+    {
+      "bytes": 8388608,
+      "file": "hospital-broad2-evidence.tar.gz.part-002",
+      "order": 2,
+      "sha256": "68cf4000a493ca9b941862c9daf9d3057c3d92ec896b0be862e0c1c630ca28f9"
+    },
+    {
+      "bytes": 8388608,
+      "file": "hospital-broad2-evidence.tar.gz.part-003",
+      "order": 3,
+      "sha256": "995ad5820ad8f8ad437271404d53c372feb975105032caba900d7da83ce1bce6"
+    },
+    {
+      "bytes": 3712087,
+      "file": "hospital-broad2-evidence.tar.gz.part-004",
+      "order": 4,
+      "sha256": "5822704b1a9736fba586f2b36eadbb7ad946d8e6d47812d4546a93ff312a0f04"
+    }
+  ],
+  "reassembly": {
+    "helper": {
+      "bytes": 3310,
+      "file": "reassemble.py",
+      "sha256": "070d773704a139fb4f848adbff3cfc97ac5bb732aa6c9d256df24c4e429939c4"
+    },
+    "instructions": "Keep manifest.json, reassemble.py and all parts together. Concatenate only part file bytes in ascending order from the parts array. The .part files are raw fragments, not individually extractable gzip archives. Verify the resulting archive against archive.bytes and archive.sha256 before extracting it.",
+    "output_policy": "The helper requires an explicit output path and refuses to overwrite an existing file. --verify-only writes no archive.",
+    "reassemble_command": "python reassemble.py --output /path/to/new/hospital-broad2-evidence.tar.gz",
+    "verify_command": "python reassemble.py --verify-only"
+  },
+  "roundtrip_verification": {
+    "all_concatenated_bytes_equal_original": true,
+    "bytes": 28877911,
+    "sha256": "221a811b8266832cea52f9ae3cceeac2db956258a599c6f40cbba05f639f848a"
+  },
+  "split": {
+    "maximum_part_bytes": 8388608,
+    "method": "consecutive raw byte ranges; no headers or recompression",
+    "part_count": 4
+  }
+}

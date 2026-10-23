@@ -1,0 +1,3539 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm-p2r13-resealed/.godot/phase2r_tests/a5ea6f0e-bcd3-4a85-92a4-cbc02abc33ca/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+res://tests/integration/test_application_bootstrap.gd
+* test_project_autoload_order_is_the_exact_final_literal_sequence
+* test_master_stage_order_is_frozen
+* test_exactly_eight_targets_retain_one_shared_gate_identity
+* test_one_desktop_host_is_shared_by_route_restore_and_the_direct_checkpoint_provider
+* test_the_stable_active_app_callable_keeps_its_identity_and_returns_raw_json_values
+* test_the_retained_checkpoint_port_and_gate_are_shared_by_both_coordinators
+* test_exactly_one_day_changed_connection_dispatches_one_eviction_command
+* test_a_missing_eviction_port_latches_one_primitive_validated_fatal
+* test_each_stage_failure_returns_one_fatal_result_and_never_reaches_readiness
+9/9 passed.
+
+
+res://tests/integration/test_causal_day_advance_identity_recovery.gd
+* test_a_crash_before_the_root_commit_leaves_no_allocation
+* test_a_crash_after_the_root_commit_replays_the_same_bytes
+* test_recovery_is_idempotent_across_repeated_restarts
+* test_a_changed_request_under_a_committed_key_fails_closed
+* test_six_successive_advances_yield_days_two_through_seven_and_no_day_eight
+* test_each_source_day_allocates_a_distinct_target_identity
+6/6 passed.
+
+
+res://tests/integration/test_committed_schedule_day_resolution.gd
+* test_a_real_nonempty_commit_starts_a_resolution_that_freezes_the_committed_order
+* test_a_nonempty_aggregate_is_revalidated_entry_by_entry_before_any_start
+* test_a_receipt_backed_empty_commit_starts_a_day_seven_resolution_with_no_substages
+* test_the_exact_real_schedule_survives_serialize_and_restore
+* test_publication_is_the_only_start_signal_and_replays_without_a_second_one
+* test_both_publication_kinds_land_in_the_one_shared_ledger_document
+* test_rollback_leaves_no_active_plan_and_no_executed_stage
+* test_a_same_resolution_replay_returns_the_existing_plan_and_a_rival_conflicts
+* test_the_production_state_port_begins_from_the_owners_real_committed_schedule
+* test_the_execute_stage_receipt_reads_entry_ids_from_the_committed_substages
+* test_a_replayed_substage_completion_is_reported_as_a_duplicate_with_its_stored_receipt
+* test_a_replayed_substage_completion_with_different_bytes_is_a_conflict
+* test_a_replayed_stage_completion_with_different_bytes_is_a_conflict
+* test_a_replayed_identical_stage_completion_is_a_duplicate_with_its_stored_receipt
+* test_the_presentation_seam_refuses_an_ordinary_substage_transaction
+* test_the_presentation_seam_refuses_a_never_presenting_stage_transaction
+* test_a_minted_hospital_envelope_cannot_settle_a_stage_that_never_began
+17/17 passed.
+
+
+res://tests/integration/test_committed_schedule_effect_order.gd
+* test_each_committed_ordinary_entry_applies_its_registered_effects_exactly_once
+* test_repeated_ordinary_entries_apply_once_each_through_distinct_substage_ids
+* test_ordinary_effects_commit_before_the_hospital_and_date_stages
+* test_a_faint_supersedes_every_committed_date_before_any_board_runs
+    71 Orphans
+        * [DialogicLayout_VisualNovelStyle:<CanvasLayer#798662598251>(default_layout_base.gd)] + 59
+[Dialogic Comment] #timeline_id: hospital.faint
+[Dialogic Comment] #locale: en
+[Dialogic Comment] #type: core
+[Dialogic Comment] #scene: HospitalScene
+[Dialogic Comment] #shown: after fainting / danger day
+* test_a_hospital_that_presented_records_the_faint_it_presented_on
+[Dialogic Comment] #timeline_id: hospital.faint
+[Dialogic Comment] #locale: en
+[Dialogic Comment] #type: core
+[Dialogic Comment] #scene: HospitalScene
+[Dialogic Comment] #shown: after fainting / danger day
+* test_without_a_faint_the_committed_dates_survive
+* test_a_superseded_sylvia_date_commits_its_witness_into_the_contacts_index
+    71 Orphans
+        * [DialogicLayout_VisualNovelStyle:<CanvasLayer#841813597833>(default_layout_base.gd)] + 59
+[Dialogic Comment] #timeline_id: hospital.faint
+[Dialogic Comment] #locale: en
+[Dialogic Comment] #type: core
+[Dialogic Comment] #scene: HospitalScene
+[Dialogic Comment] #shown: after fainting / danger day
+* test_a_faint_without_a_sylvia_date_writes_no_witness
+[Dialogic Comment] #timeline_id: hospital.faint
+[Dialogic Comment] #locale: en
+[Dialogic Comment] #type: core
+[Dialogic Comment] #scene: HospitalScene
+[Dialogic Comment] #shown: after fainting / danger day
+* test_rolling_back_the_hospital_stage_restores_the_contacts_index
+[Dialogic Comment] #timeline_id: hospital.faint
+9/9 passed.
+
+
+res://tests/integration/test_committed_schedule_presentation_matrix.gd
+* test_the_surviving_date_variant_carries_its_exact_discriminator_tuple
+* test_the_hospital_variant_carries_its_exact_discriminator_tuple
+* test_the_hospital_source_set_contains_the_condition_id_with_and_without_misses
+* test_a_hospital_with_no_committed_date_still_names_its_condition_id
+* test_the_hospital_ancestry_children_are_exactly_the_matrix_rows
+* test_the_hospital_miss_ordinal_follows_committed_slot_order
+* test_every_projected_hospital_resolution_member_is_load_bearing
+* test_every_projected_hospital_miss_member_is_load_bearing
+* test_the_intent_child_is_exactly_the_matrix_row_p01_presentation_intent
+* test_every_projected_intent_member_is_load_bearing
+* test_the_intent_parent_and_ordinal_are_load_bearing
+* test_the_source_set_is_order_independent_but_membership_is_not
+* test_the_completion_child_is_exactly_the_matrix_row_p01_presentation_completion
+* test_the_completion_binds_its_intent_and_never_includes_itself
+* test_the_completion_names_the_top_level_stage_and_not_the_entry_substage
+* test_every_projected_completion_member_is_load_bearing
+* test_an_underivable_presentation_refuses_with_the_stage_still_pending
+* test_hospital_supersession_is_what_owes_the_pair_a_presentation
+* test_the_deferred_pair_variant_carries_its_exact_matrix_row
+* test_the_deferred_pair_settles_through_the_presentation_seam
+* test_a_dating_round_begins_during_the_deferred_pair_presentation
+* test_no_dating_round_begins_after_the_pair_presentation_completes
+* test_the_pair_evidence_ignores_scrambled_live_contacts
+23/23 passed.
+
+
+res://tests/integration/test_committed_schedule_presentation_resume.gd
+* test_a_crash_before_or_after_intent_derivation_rebuilds_the_same_children
+* test_a_crash_never_renumbers_a_surviving_presentation
+* test_a_crash_after_the_route_command_replays_the_identical_command_and_token
+* test_a_duplicate_physical_completion_publishes_exactly_one_receipt
+* test_a_settled_completion_replays_the_identical_receipt_and_envelope
+* test_a_receipt_that_does_not_bind_the_command_never_reaches_a_stage
+* test_a_crash_after_the_stage_checkpoint_never_presents_again
+* test_a_superseded_date_never_presents_across_a_crash
+    71 Orphans
+        * [DialogicLayout_VisualNovelStyle:<CanvasLayer#1230239703087>(default_layout_base.gd)] + 59
+[Dialogic Comment] #timeline_id: hospital.faint
+[Dialogic Comment] #locale: en
+[Dialogic Comment] #type: core
+[Dialogic Comment] #scene: HospitalScene
+[Dialogic Comment] #shown: after fainting / danger day
+* test_the_presentation_seam_refuses_a_superseded_date_transaction
+[Dialogic Comment] #timeline_id: hospital.faint
+[Dialogic Comment] #locale: en
+[Dialogic Comment] #type: core
+[Dialogic Comment] #scene: HospitalScene
+[Dialogic Comment] #shown: after fainting / danger day
+* test_a_dating_round_begins_from_the_active_date_substage_evidence
+* test_a_superseded_date_substage_yields_no_dating_evidence
+    71 Orphans
+        * [DialogicLayout_VisualNovelStyle:<CanvasLayer#1274397335809>(default_layout_base.gd)] + 59
+[Dialogic Comment] #timeline_id: hospital.faint
+[Dialogic Comment] #locale: en
+[Dialogic Comment] #type: core
+[Dialogic Comment] #scene: HospitalScene
+[Dialogic Comment] #shown: after fainting / danger day
+* test_dating_evidence_names_the_active_date_not_a_settled_one
+* test_a_crash_across_the_hospital_presentation_restores_the_flag_with_the_plan
+13/13 passed.
+
+
+res://tests/integration/test_day_resolution_disk_durability.gd
+* test_real_ports_resolve_a_day_without_rejecting_the_snapshot
+* test_real_day_resolution_writes_a_parsable_disk_autosave
+* test_disk_autosave_validates_as_a_save_document
+* test_persisted_snapshot_carries_the_live_lifecycle_and_ledger
+* test_persisted_snapshot_is_restorable_by_the_save_manager
+* test_real_coordinator_resolves_every_day_one_through_seven
+* test_day_seven_walk_stops_at_the_provenance_handoff_without_entering_ending
+* test_a_day_seven_crash_restores_the_same_run_on_day_seven
+8/8 passed.
+
+
+res://tests/integration/test_desktop_action_matrix.gd
+* test_row_shop_lucky_charm_quote_matches_the_registry_record
+* test_row_shop_debug_key_quote_matches_the_registry_record
+* test_row_shop_supportz_quote_matches_the_registry_record_and_structured_cap
+* test_row_shop_lucky_charm_prepare_purchase_is_fail_closed
+* test_row_shop_debug_key_prepare_purchase_is_fail_closed
+* test_row_shop_supportz_prepare_purchase_is_fail_closed
+* test_row_minesweeper_round_complete_round_is_fail_closed
+* test_row_minesweeper_round_reveal_is_fail_closed
+8/8 passed.
+
+
+res://tests/integration/test_desktop_board_persistence.gd
+* test_restore_remaps_board_identity_and_command_receipt_keys
+* test_restore_remaps_consequence_causal_day_pair
+* test_restore_rejects_a_corrupted_board_before_touching_live_state
+* test_restore_rejects_a_corrupted_consequence_receipt_before_live_mutation
+* test_a_completed_restore_leaves_no_incomplete_continuation
+5/5 passed.
+
+
+res://tests/integration/test_desktop_bootstrap_wiring.gd
+* test_the_probe_exists_and_returns_only_integers_and_booleans
+* test_the_probe_names_every_foundation_identity_step_8_1_requires
+* test_reading_the_probe_twice_is_stable_and_mutates_nothing
+* test_presentation_configuration_reconstructs_no_foundation_instance
+* test_identical_startup_replay_reuses_every_instance
+* test_a_swapped_issuer_is_visible_in_the_probe
+* test_the_probe_reports_hospital_ready_and_dating_deliberately_not_ready
+* test_the_producer_is_not_ready_before_the_desktop_graph_stage
+* test_an_unbuilt_foundation_reports_zero_rather_than_guessing
+* test_the_production_graph_wires_every_object_identity_and_readiness
+* test_the_desktop_publication_ledger_is_shared_by_causal_round_shop_and_board_fate
+* test_the_round_coordinator_and_board_fate_port_drive_the_exact_same_shared_board_state
+* test_the_consequence_coordinator_retains_the_exact_round_and_shop_source_objects
+* test_the_consequence_coordinator_holds_the_real_condition_departure_pair
+* test_snapshot_provider_instance_id_equals_game_state
+* test_the_probe_names_the_exact_frozen_restore_order_and_nine_participant_keys
+* test_identical_replay_of_the_production_graph_reuses_every_instance
+* test_the_production_graph_never_touches_the_retained_simulator_install_seam
+* test_the_desktop_graph_composes_the_condition_pair_and_flips_the_producer_ready
+* test_replaying_the_desktop_graph_reuses_the_condition_pair_and_dispatcher
+20/20 passed.
+
+
+res://tests/integration/test_desktop_completion_transaction.gd
+* test_complete_round_transacts_exactly_once_against_real_ports
+* test_complete_round_departure_commits_board_fate_against_real_ports
+* test_a_source_already_holding_the_gate_blocks_the_other_source_until_it_releases
+3/3 passed.
+
+
+res://tests/integration/test_desktop_continuation_resume.gd
+* test_a_busy_gate_rejects_new_run_before_any_identity_is_minted_or_intent_is_written
+* test_a_busy_gate_rejects_restore_before_any_identity_is_minted_or_intent_is_written
+* test_crash_after_intent_committed_resumes_forward_to_completion
+* test_crash_after_allocation_resumes_forward_to_completion
+* test_crash_mid_participants_resumes_to_completion_on_a_fresh_boot
+* test_crash_after_participants_applied_resumes_to_completion
+* test_a_pre_allocation_restore_source_that_vanishes_aborts_with_a_typed_failure
+7/7 passed.
+
+
+res://tests/integration/test_desktop_crash_recovery.gd
+* test_start_new_run_completes_against_the_real_profile_and_localization_pair
+    4 Orphans
+        * [OpeningScene:<Control#1985700963276>(OpeningScene.gd)] + 3
+[Dialogic Comment] #timeline_id: opening.day1
+[Dialogic Comment] #locale: en
+[Dialogic Comment] #type: core
+[Dialogic Comment] #scene: OpeningScene
+[Dialogic Comment] #shown: first New Acc
+* test_a_new_run_preserves_the_committed_global_profile_and_chains_its_locale
+    4 Orphans
+        * [OpeningScene:<Control#2062725162309>(OpeningScene.gd)] + 3
+[Dialogic Comment] #timeline_id: opening.day1
+[Dialogic Comment] #locale: en
+[Dialogic Comment] #type: core
+[Dialogic Comment] #scene: OpeningScene
+[Dialogic Comment] #shown: first New Acc
+* test_a_failed_new_run_leaves_a_genuinely_incomplete_continuation_that_reconciles_without_crashing
+    4 Orphans
+        * [OpeningScene:<Control#2118240969803>(OpeningScene.gd)] + 3
+[Dialogic Comment] #timeline_id: opening.day1
+[Dialogic Comment] #locale: en
+[Dialogic Comment] #type: core
+[Dialogic Comment] #scene: OpeningScene
+[Dialogic Comment] #shown: first New Acc
+* test_a_fresh_process_over_the_same_storage_boots_cleanly_after_a_failed_new_run
+    8 Orphans
+        * [OpeningScene:<Control#2182816474471>(OpeningScene.gd)] + 3
+        * [OpeningScene:<Control#2219625686526>(OpeningScene.gd)] + 3
+[Dialogic Comment] #timeline_id: opening.day1
+[Dialogic Comment] #locale: en
+[Dialogic Comment] #type: core
+[Dialogic Comment] #scene: OpeningScene
+[Dialogic Comment] #shown: first New Acc
+* test_boot_itself_reconciles_before_returning_ok_not_only_when_called_a_second_time
+* test_the_bootstrap_retained_publication_ledger_survives_a_fresh_reload
+6/6 passed.
+
+
+res://tests/integration/test_desktop_day_change_fatal.gd
+* test_host_change_day_eviction_command_shape
+* test_missing_eviction_port_latches_application_fatal
+* test_successful_dispatch_does_not_latch
+* test_nonprimitive_dispatch_failures_project_then_latch_application_fatal
+4/4 passed.
+
+
+res://tests/integration/test_desktop_simulator_authority.gd
+* test_the_round_coordinator_never_receives_its_base_configure_in_production
+* test_no_production_class_defines_the_task5_shaped_checkpoint_or_generation_contract
+* test_the_shared_desktop_identity_context_is_a_real_but_blank_placeholder
+* test_two_independent_boots_mint_distinct_placeholder_run_and_branch_ids
+* test_the_shop_and_board_ports_share_the_exact_same_placeholder_context_object
+* test_logout_coordinator_is_never_constructed_by_the_production_graph
+* test_no_production_class_defines_the_stable_board_port_contract
+* test_the_production_graph_never_installs_into_the_retained_simulator_seam_either
+8/8 passed.
+
+
+res://tests/integration/test_dialogic_bridge_contract.gd
+* test_physical_fixture_and_manifest_are_required
+* test_fixture_manifest_is_strict_and_separate_from_production
+* test_fixture_registers_every_declared_semantic_id
+* test_fixture_signal_descriptors_are_exact_and_non_gameplay
+* test_physical_fixture_text_declares_its_header_and_labels
+* test_fixture_event_indices_are_recorded_after_import
+* test_fixture_content_fingerprint_matches_the_physical_file
+* test_the_caller_forgeable_finisher_is_gone_from_source_and_from_the_instance
+* test_the_runtime_end_signal_finalizes_the_retained_timeline_exactly_once
+    71 Orphans
+        * [DialogicLayout_VisualNovelStyle:<CanvasLayer#2345085707795>(default_layout_base.gd)] + 59
+* test_an_idle_bridge_emits_no_completion_at_all
+71 orphans
+10/10 passed.
+
+
+res://tests/integration/test_dialogic_effect_boundary.gd
+* test_effect_transaction_payload_commits_through_game_state
+* test_effect_transaction_is_idempotent_across_repeat_signals
+* test_gate_failure_blocks_before_any_mutation
+* test_gate_release_allows_the_same_transaction_afterwards
+* test_unknown_effect_in_payload_leaves_state_unchanged
+* test_unregistered_payload_kind_halts_without_mutation
+* test_malformed_transaction_payload_rejects_without_mutation
+* test_transaction_checkpoint_provider_serves_only_the_active_event
+* test_variable_transaction_payload_rejects_unregistered_variable
+9/9 passed.
+
+
+res://tests/integration/test_dialogic_restore.gd
+* test_prepare_accepts_matching_checkpoint
+* test_prepare_still_accepts_empty_checkpoint
+* test_prepare_rejects_malformed_input_fail_closed
+* test_prepare_reports_content_incompatible_for_unknown_timeline
+* test_prepare_reports_content_incompatible_for_fingerprint_drift
+* test_prepare_reports_content_incompatible_for_removed_event
+* test_prepare_fails_closed_on_structurally_broken_checkpoint
+* test_apply_requires_route_ready_token
+* test_revealed_event_starts_and_reveals
+* test_before_event_stages_without_executing_then_resumes_on_finalize
+[Dialogic Comment] #timeline_id: hospital.faint
+[Dialogic Comment] #locale: en
+[Dialogic Comment] #type: core
+[Dialogic Comment] #scene: HospitalScene
+[Dialogic Comment] #shown: after fainting / danger day
+* test_rollback_cancels_pending_resume
+11/11 passed.
+
+
+res://tests/integration/test_dialogic_skip.gd
+* test_bridge_exposes_the_skip_command
+* test_all_text_fast_forwards_through_unread_text
+* test_read_only_stops_at_the_first_unread_line
+* test_read_only_advances_through_previously_visited_text
+* test_visited_is_read_before_it_is_marked
+* test_every_boundary_stops_the_skip_without_being_consumed
+* test_profile_write_failure_halts_advancement
+* test_skip_requires_a_configured_context
+8/8 passed.
+
+
+res://tests/integration/test_ending_dialogic_wiring.gd
+* test_initialize_loads_ending_manifest
+* test_start_primary_returns_six_field_receipt
+* test_start_epilogue_resolves_manifest
+* test_unknown_and_retired_ids_reject
+* test_role_mismatch_rejects
+* test_invalid_context_keys_reject
+* test_completion_emits_tokenized_finish
+* test_invalid_runtime_event_halts_and_fails_playback
+* test_postscript_start_accepts_only_postscript_role
+* test_postscript_finishes_with_its_own_token
+* test_configure_narrative_checkpoint_port_identity
+11/11 passed.
+
+
+res://tests/integration/test_hospital_dating_adapter_negative_contract.gd
+* test_the_committed_entry_contract_retired_the_old_nine_key_shape
+* test_every_retired_entry_field_is_refused_by_the_committed_validator
+* test_no_retired_field_reaches_the_adapter_over_a_real_committed_schedule
+* test_the_presentation_route_is_a_registry_fact_and_never_an_entry_field
+* test_twofriends_survives_only_as_a_stage_and_never_as_a_route
+* test_the_router_refuses_the_pseudo_route_and_the_stage_name_alike
+* test_the_walk_is_the_production_caller_of_route_presentation
+* test_the_real_router_satisfies_the_capability_the_coordinator_requires
+* test_the_legacy_pseudo_route_producer_has_no_caller_in_production
+* test_only_the_narrative_owner_may_start_a_dialogic_timeline
+* test_neither_presentation_port_exposes_a_timeline_start
+* test_no_presentation_adapter_names_a_gameplay_mutation_seam
+* test_the_comment_stripper_is_doing_real_work
+13/13 passed.
+
+
+res://tests/integration/test_minesweeper_first_reveal_contract.gd
+* test_full_default_round_end_to_end
+* test_full_debug_round_end_to_end
+* test_checkpoint_commit_is_reversible_until_seal_and_fixed_after
+* test_seal_failure_rolls_back_every_participant_leaving_bytes_unchanged
+* test_publish_failure_after_seal_is_committed_unpublished_then_exact_retry_publishes_once
+* test_fake_checkpoint_reports_never_production
+* test_no_participant_ever_calls_toward_a_production_persistence_path
+7/7 passed.
+
+
+res://tests/integration/test_minesweeper_first_reveal_transaction.gd
+* test_first_reveal_writes_a_durable_pre_board_autosave_with_the_charged_and_revealed_state
+* test_first_reveal_charges_exactly_once_across_a_retried_request
+* test_adapter_rejects_a_desktop_less_post_commit_snapshot_input
+* test_adapter_rejects_a_board_only_desktop_value
+* test_adapter_rejects_an_extra_desktop_key
+* test_restore_after_a_crash_between_checkpoint_commit_and_live_adoption_recovers_the_paid_first_reveal
+* test_first_reveal_falls_back_to_the_fake_checkpoint_when_durable_is_not_configured
+7/7 passed.
+
+
+res://tests/integration/test_minesweeper_round_coordinator.gd
+* test_configure_ok_and_begin_requires_config
+* test_begin_round_sets_active_and_counts
+* test_begin_when_active_is_rejected
+* test_complete_round_full_flow_releases_lock
+* test_complete_duplicate_returns_stored_receipt_with_zero_calls
+* test_complete_wrong_round_id_is_rejected
+* test_complete_invalid_result_is_rejected
+* test_abort_round_releases_lock
+* test_round_start_publication_failure_recovers_without_latching
+* test_minesweeper_recovery_nonprimitive_failure_projects_then_returns_retained_application_fatal
+* test_recovery_failure_latches_once_and_returns_only_the_retained_application_fatal
+* test_a_latched_fatal_blocks_every_later_operation_at_the_first_guard
+* test_committed_unpublished_retry_resumes_only_its_recorded_phase
+* test_lock_release_pending_retry_never_republishes
+* test_conflicting_retries_mutate_nothing_in_either_pending_phase
+* test_exact_duplicate_after_release_returns_the_stored_receipt_then_conflicts_on_variation
+* test_guard_first_op_when_fatal_latched
+* test_dating_round_takes_its_evidence_from_the_state_port_not_the_request
+* test_dating_round_ignores_caller_supplied_friend_and_entry_identifiers
+* test_dating_round_completes_through_the_same_two_boundary_transaction
+* test_app_round_never_carries_dating_evidence
+* test_dating_route_not_active_surfaces_its_own_code
+* test_domain_availability_failures_surface_their_own_codes
+* test_other_prepare_begin_failures_remain_state_prepare_failed
+24/24 passed.
+
+
+res://tests/integration/test_minesweeper_round_transaction.gd
+* test_the_third_day2_round_commits_group_activation_with_its_receipt
+* test_the_second_round_commits_no_activation_and_reports_null
+* test_the_fourth_round_does_not_reactivate
+* test_a_non_window_day_never_activates
+* test_an_already_read_solo_blocks_activation_with_a_null_receipt
+* test_the_third_day6_round_commits_group_activation
+* test_a_dating_round_commits_no_contact_change
+* test_rollback_restores_contacts_beside_gameplay
+* test_the_post_result_checkpoint_carries_the_candidate_contacts
+* test_an_aborted_round_refunds_through_the_rollback_door
+10/10 passed.
+
+
+res://tests/integration/test_minesweeper_save_lock.gd
+* test_production_save_port_delegates_only_the_board_lock_owner
+* test_active_round_disables_save_silently_and_never_defers
+* test_completion_releases_the_lock_and_restores_capability
+* test_abort_releases_the_lock_without_publishing_a_result
+* test_a_failed_lock_acquisition_consumes_no_round_and_leaves_no_lock
+5/5 passed.
+
+
+res://tests/integration/test_minesweeper_shop_transaction.gd
+* test_lucky_charm_purchase_transacts_exactly_once_against_real_ports
+* test_a_second_purchase_within_the_same_prepared_purchase_conflicts
+* test_commit_rejects_before_causal_admission_leaving_currency_and_inventory_untouched
+* test_supportz_purchase_decrements_the_real_round_floor_and_spends_real_money
+4/4 passed.
+
+
+res://tests/integration/test_narrative_checkpoint_wiring.gd
+* test_bridge_and_game_state_retain_the_same_adapter_instance
+* test_both_consumers_reject_a_second_adapter
+* test_adapter_configures_from_one_real_checkpoint_port
+* test_game_state_snapshot_input_provider_is_pure
+* test_scene_router_injects_exact_ending_ports
+* test_scene_router_rejects_replacement_and_bad_ports
+* test_active_app_id_callable_is_stable_and_null_before_host
+7/7 passed.
+
+
+res://tests/integration/test_new_run_transaction.gd
+* test_start_new_run_rejects_bad_context
+* test_start_new_run_builds_day1_run_b
+* test_start_new_run_requires_identity_issuer
+* test_start_new_run_allocates_a_fresh_identity_per_call
+* test_start_new_run_requires_participants
+5/5 passed.
+
+
+res://tests/integration/test_phase2r_schedule_desktop_handoff.gd
+* test_the_probe_is_read_from_the_real_public_seam_and_carries_only_primitives
+* test_the_snapshot_provider_role_is_the_live_game_state_in_this_same_boot
+* test_the_coordinator_holds_exactly_the_advance_port_the_probe_reports
+* test_every_declared_predecessor_role_is_a_nonzero_same_boot_integer
+* test_the_nine_restore_roles_are_nine_distinct_retained_participants
+* test_the_round_and_shop_action_sources_are_two_different_owners
+* test_the_two_publication_ledgers_are_two_different_live_owners
+* test_the_guard_accepts_the_real_sealed_evidence_and_the_real_live_probe
+* test_the_success_envelope_serializes_no_numeric_instance_id
+* test_the_guard_mutates_neither_seal_nor_probe
+* test_the_verdict_pins_the_sealed_bytes_of_the_suite_this_task_may_only_run
+* test_the_verdict_reports_the_two_requirements_no_seal_attests
+* test_the_verdict_keeps_the_later_composition_with_its_later_owner
+* test_the_verdict_records_the_one_lawful_forward_readiness_divergence
+* test_a_non_dictionary_input_is_refused
+* test_a_relabelled_seal_subject_is_refused
+* test_a_seal_pointing_at_another_commit_is_refused
+* test_a_seal_pointing_at_an_off_history_commit_is_refused
+* test_a_reachable_ancestor_carrying_the_wrong_subject_is_refused
+* test_a_malformed_declared_surface_digest_is_refused
+* test_a_role_relation_set_that_is_not_the_frozen_six_is_refused
+* test_two_ledgers_claiming_one_fixed_path_are_refused
+* test_a_drifted_allocation_key_format_is_refused
+* test_an_allocator_receipt_missing_its_disposition_is_refused
+* test_a_dropped_recipe_exclusion_is_refused
+* test_a_gate_that_stops_attesting_preserved_schedule_keys_is_refused
+* test_a_gate_whose_frozen_readiness_was_regenerated_is_refused
+* test_a_seal_that_drops_a_consumed_binding_is_refused
+* test_a_repointed_binding_digest_is_refused
+* test_a_fourth_allocator_seam_is_refused
+* test_a_seal_without_command_records_is_refused
+* test_a_repointed_test_log_digest_is_refused
+* test_a_probe_missing_a_predecessor_member_is_refused
+* test_an_unnamed_probe_key_is_refused
+* test_a_non_integer_predecessor_role_is_refused
+* test_an_unretained_predecessor_role_is_refused
+* test_a_reordered_restore_order_is_refused
+* test_a_missing_restore_role_is_refused
+* test_an_unretained_restore_role_is_refused
+* test_one_object_serving_two_restore_roles_is_refused
+* test_one_object_serving_both_action_sources_is_refused
+* test_a_flipped_sealed_role_verdict_is_refused
+* test_a_ledger_attestation_that_contradicts_the_probe_is_refused
+* test_one_live_object_serving_both_ledger_roles_is_refused
+* test_an_allocator_that_is_not_the_dot16_owner_is_refused
+* test_a_raw_causal_day_issue_path_is_refused
+* test_a_third_resolution_kind_is_refused
+* test_a_caller_supplied_target_day_identity_is_refused
+* test_a_publication_delivered_twice_across_a_restart_is_refused
+* test_an_undeclared_conflict_code_is_refused
+* test_a_schedule_done_recipe_carrying_a_checkpoint_is_refused
+* test_a_changed_snapshot_input_shape_is_refused
+* test_an_undeclared_desktop_snapshot_member_is_refused
+* test_a_regressed_schema_version_is_refused
+* test_a_live_snapshot_version_that_leaves_the_desktop_seal_behind_is_refused
+* test_a_readiness_fact_that_stopped_matching_its_seal_is_refused
+* test_a_producer_regression_below_finished_deviation_5_is_refused
+* test_a_requirement_split_that_overstates_its_evidence_is_refused
+* test_a_later_owner_that_has_already_taken_the_composition_is_refused
+* test_a_destination_composition_declared_ready_inside_phase_2r_is_refused
+* test_a_seal_that_stops_recording_dating_as_deferred_is_refused
+* test_a_dating_presentation_declared_ready_inside_phase_2r_is_refused
+* test_a_seal_without_an_array_of_source_bindings_is_refused
+* test_an_allocator_binding_without_a_declared_surface_is_refused
+* test_a_command_record_that_is_not_an_object_is_refused
+* test_a_command_record_naming_no_log_is_refused
+* test_a_recorded_log_absent_at_head_is_refused
+* test_a_restore_order_that_is_not_an_array_is_refused
+* test_restore_roles_that_are_not_a_dictionary_are_refused
+* test_a_desktop_seal_without_a_bootstrap_probe_is_refused
+* test_a_desktop_seal_without_external_stores_is_refused
+* test_an_unrecorded_desktop_ledger_is_refused
+* test_a_gate_without_a_day_advance_identity_is_refused
+* test_a_gate_recording_no_observed_publications_is_refused
+* test_a_gate_recording_no_conflict_codes_is_refused
+* test_an_observed_publication_that_is_not_an_object_is_refused
+* test_a_minesweeper_seal_without_recipes_is_refused
+* test_a_snapshot_desktop_member_that_is_not_an_object_is_refused
+* test_a_desktop_seal_without_v4_facts_is_refused
+* test_a_gate_without_current_versions_is_refused
+* test_a_gate_without_a_bootstrap_probe_is_refused
+* test_a_gate_probe_without_readiness_is_refused
+* test_a_seal_recording_no_requirement_ids_is_refused
+* test_the_three_seal_documents_match_their_committed_bytes
+* test_a_hand_edited_seal_that_stays_internally_consistent_is_refused
+* test_the_document_seam_refuses_a_non_dictionary_seal
+* test_the_real_schedule_commit_port_prepares_a_detached_aggregate_without_mutating
+* test_the_real_day_start_port_prepares_from_a_real_commit_without_starting_anything
+* test_the_real_shared_allocator_prepares_both_variants_without_committing_the_root
+* test_the_real_allocator_refuses_an_id_only_source_causal_day_receipt
+* test_the_real_provenance_owner_refuses_a_malformed_handoff
+* test_the_real_causal_sequence_port_stays_mutation_free_before_configuration
+* test_the_real_causal_sequence_port_refuses_a_malformed_reservation
+* test_the_real_board_fate_port_refuses_a_projected_departure_before_configuration
+* test_the_real_minesweeper_save_port_refuses_an_incapable_checkpoint_owner
+* test_the_real_minesweeper_save_port_binds_the_real_checkpoint_owner
+* test_the_nine_real_restore_participant_classes_share_one_interface
+* test_the_captured_snapshot_input_round_trips_through_the_real_v4_schema
+* test_the_real_v4_builder_refuses_a_snapshot_input_missing_a_declared_member
+* test_the_real_schedule_state_schema_rejects_the_aggregate_the_seal_forbids
+100/100 passed.
+
+
+res://tests/integration/test_profile_reset_consumers.gd
+* test_profile_reset_consumer_contracts_are_present
+* test_preference_reset_updates_every_plan02_consumer_in_same_frame
+* test_real_dialogic_new_game_restore_and_different_slot_boundaries_reapply_once_before_first_event
+[Dialogic Comment] #timeline_id: contact.lavinia.day1
+[Dialogic Comment] #locale: en
+[Dialogic Comment] #type: contact
+[Dialogic Comment] #friend: lavinia
+[Dialogic Comment] #day: 1
+[Dialogic Comment] #parts: history, daily_message
+[Dialogic Comment] #TODO: history / backstory messages for lavinia (Day 1 only)
+[Dialogic Comment] #TODO: daily contact message text for Day 1
+[Dialogic Comment] #timeline_id: contact.lavinia.day1
+[Dialogic Comment] #locale: en
+[Dialogic Comment] #type: contact
+[Dialogic Comment] #friend: lavinia
+[Dialogic Comment] #day: 1
+[Dialogic Comment] #parts: history, daily_message
+[Dialogic Comment] #TODO: history / backstory messages for lavinia (Day 1 only)
+[Dialogic Comment] #TODO: daily contact message text for Day 1
+[Dialogic Comment] #timeline_id: contact.lavinia.day1
+[Dialogic Comment] #locale: en
+[Dialogic Comment] #type: contact
+[Dialogic Comment] #friend: lavinia
+[Dialogic Comment] #day: 1
+[Dialogic Comment] #parts: history, daily_message
+[Dialogic Comment] #TODO: history / backstory messages for lavinia (Day 1 only)
+[Dialogic Comment] #TODO: daily contact message text for Day 1
+3/3 passed.
+
+
+res://tests/integration/test_restore_mutation_gate.gd
+* test_one_gate_identity_across_owners
+* test_scene_router_common_gate_matrix
+* test_fatal_latch_fences_guarded_operations
+3/3 passed.
+
+
+res://tests/integration/test_restore_production_adapters.gd
+* test_prepare_builds_eight_plans_and_commits
+* test_commit_prepared_restore_rejects_stray_identity_allocation_bundle_key
+* test_commit_prepared_restore_rejects_stray_transaction_issuer_receipt_key
+* test_commit_prepared_restore_rejects_stray_transaction_remap_key
+* test_late_narrative_incompatibility_selects_earlier_bundle
+* test_profile_prepare_failure_is_structural_not_content
+* test_physical_narrative_participant_prepares_against_current_manifest
+* test_physical_narrative_participant_reports_removed_content_as_recoverable
+* test_physical_narrative_participant_reports_fingerprint_drift_as_recoverable
+* test_physical_narrative_participant_fails_closed_on_malformed_bytes
+* test_checkpoint_port_configures_desktop_context_provider
+11/11 passed.
+
+
+res://tests/integration/test_restore_transaction.gd
+* test_configure_restore_participants_validates_eight_keys
+* test_restore_success_applies_and_finalizes_in_order
+* test_apply_failure_rolls_back_in_reverse_and_emits_nothing
+* test_rollback_failure_latches_shared_gate
+* test_narrative_content_incompatibility_is_typed_for_bundle_fallback
+* test_empty_playhead_stays_compatible_across_bundles
+* test_malformed_narrative_input_is_fail_closed_not_incompatible
+7/7 passed.
+
+
+res://tests/integration/test_save_capability.gd
+* test_capability_values_per_owner
+* test_lock_idempotence_and_cross_owner_release
+* test_board_lock_is_silent_and_transition_defers
+* test_deferred_save_fulfilled_at_next_checkpoint
+4/4 passed.
+
+
+res://tests/integration/test_save_manager_journal.gd
+* test_record_checkpoint_advances_journal_and_persists_disk
+* test_real_port_preview_is_pure_and_matches_prepare
+* test_real_port_commit_and_autosave_round_trip
+* test_real_port_rollback_failure_latches_shared_gate
+* test_configure_fatal_latch_matrix
+* test_no_local_gate_or_projector_in_save_layer
+6/6 passed.
+
+
+res://tests/integration/test_schedule_done_public_walk.gd
+* test_a_committed_schedule_walk_presents_settles_and_advances_through_public_doors
+* test_the_walk_is_replay_safe_at_the_public_doors
+* test_the_disk_autosave_of_the_advanced_day_is_written
+3/3 passed.
+
+
+res://tests/integration/test_schedule_foundation_bootstrap_wiring.gd
+* test_the_foundation_constructs_exactly_one_of_each_object
+* test_identical_startup_replay_reuses_every_retained_instance
+* test_one_ledger_is_retained_and_is_the_only_one_constructed
+* test_the_configured_provenance_service_is_injected_into_the_retained_state_port
+* test_the_foundation_refuses_to_build_without_the_retained_issuer_or_storage
+5/5 passed.
+
+
+res://tests/integration/test_schedule_presentation_bootstrap_wiring.gd
+* test_composition_retains_exactly_one_of_each_presentation_object
+* test_identical_startup_replay_reuses_every_instance
+* test_the_hospital_port_retains_the_exact_bootstrap_owned_adapter
+* test_the_coordinator_dispatches_through_the_exact_router_the_ports_were_injected_into
+* test_the_adapter_retains_the_existing_bridge_rather_than_a_new_one
+* test_composition_without_an_issuer_or_bridge_fails_closed
+* test_the_coordinator_receives_the_exact_retained_port_identities
+* test_the_coordinator_refuses_a_replacement_port
+* test_the_coordinator_refuses_an_incomplete_presentation_capability
+* test_the_router_receives_the_exact_retained_port_identities
+* test_the_router_refuses_a_replacement_port
+* test_hospital_is_ready_and_dating_is_deliberately_not
+* test_bootstrap_configures_no_dating_owner_at_all
+* test_the_router_refuses_to_route_an_unready_dating_presentation
+* test_the_router_refuses_an_unknown_route_or_a_mismatched_command
+* test_an_unconfigured_router_routes_nothing
+16/16 passed.
+
+
+res://tests/integration/test_schedule_publication_restart.gd
+* test_committed_schedule_is_captured_into_the_v3_snapshot
+* test_committed_schedule_survives_a_whole_document_round_trip
+* test_restore_reinstalls_the_committed_schedule_without_signals_until_finalize
+* test_publication_ledger_is_not_a_snapshot_or_document_member
+* test_selectable_operations_leave_the_ledger_bytes_identical
+* test_a_cold_ledger_rereads_the_durable_record_and_corruption_fails_closed
+6/6 passed.
+
+
+res://tests/integration/test_shop_condition_contract_departure.gd
+* test_shop_purchase_departure_discards_an_unstarted_candidate
+* test_shop_purchase_without_a_departure_leaves_the_board_untouched
+2/2 passed.
+
+
+res://tests/scenario/test_day7_endings.gd
+* test_stage_does_not_advance_until_matching_playback_completed
+WARNING: EndingScene: ending ports are not configured; playback is unavailable.
+   at: push_warning (core/variant/variant_utility.cpp:1034)
+   GDScript backtrace (most recent call first):
+       [0] _show_ending (res://scripts/ui/EndingScene.gd:36)
+       [1] _ready (res://scripts/ui/EndingScene.gd:15)
+       [2] add_child_autofree (res://addons/gut/test.gd:2784)
+       [3] test_stage_does_not_advance_until_matching_playback_completed (res://tests/scenario/test_day7_endings.gd:55)
+       [4] _run_test (res://addons/gut/gut.gd:622)
+       [5] _test_the_scripts (res://addons/gut/gut.gd:835)
+* test_mismatched_completion_does_not_advance
+WARNING: EndingScene: ending ports are not configured; playback is unavailable.
+   at: push_warning (core/variant/variant_utility.cpp:1034)
+   GDScript backtrace (most recent call first):
+       [0] _show_ending (res://scripts/ui/EndingScene.gd:36)
+       [1] _ready (res://scripts/ui/EndingScene.gd:15)
+       [2] add_child_autofree (res://addons/gut/test.gd:2784)
+       [3] test_mismatched_completion_does_not_advance (res://tests/scenario/test_day7_endings.gd:75)
+       [4] _run_test (res://addons/gut/gut.gd:622)
+       [5] _test_the_scripts (res://addons/gut/gut.gd:835)
+* test_duplicate_completion_advances_only_once
+WARNING: EndingScene: ending ports are not configured; playback is unavailable.
+   at: push_warning (core/variant/variant_utility.cpp:1034)
+   GDScript backtrace (most recent call first):
+       [0] _show_ending (res://scripts/ui/EndingScene.gd:36)
+       [1] _ready (res://scripts/ui/EndingScene.gd:15)
+       [2] add_child_autofree (res://addons/gut/test.gd:2784)
+       [3] test_duplicate_completion_advances_only_once (res://tests/scenario/test_day7_endings.gd:87)
+       [4] _run_test (res://addons/gut/gut.gd:622)
+       [5] _test_the_scripts (res://addons/gut/gut.gd:835)
+* test_configure_rejects_replacement_while_a_command_is_pending
+WARNING: EndingScene: ending ports are not configured; playback is unavailable.
+   at: push_warning (core/variant/variant_utility.cpp:1034)
+   GDScript backtrace (most recent call first):
+       [0] _show_ending (res://scripts/ui/EndingScene.gd:36)
+       [1] _ready (res://scripts/ui/EndingScene.gd:15)
+       [2] add_child_autofree (res://addons/gut/test.gd:2784)
+       [3] test_configure_rejects_replacement_while_a_command_is_pending (res://tests/scenario/test_day7_endings.gd:98)
+       [4] _run_test (res://addons/gut/gut.gd:622)
+       [5] _test_the_scripts (res://addons/gut/gut.gd:835)
+* test_every_primary_and_epilogue_variant_completes_to_the_menu
+* test_resume_at_every_stage_reproduces_the_same_next_command
+6/6 passed.
+
+
+res://tests/scenario/test_day7_schedule_provenance.gd
+* test_receipt_backed_empty_done_checkpoints_the_exact_empty_done_provenance
+* test_one_eligible_committed_solo_checkpoints_the_exact_scheduled_solo_provenance
+* test_the_checkpointed_child_revalidates_through_the_issuer_that_derived_it
+* test_the_two_causes_derive_distinct_children_from_distinct_source_projections
+* test_an_unconfigured_service_fails_closed_before_the_day7_stage_mutates
+* test_a_group_destination_is_not_an_accepted_day7_cause
+* test_more_than_one_committed_entry_is_not_an_accepted_day7_cause
+* test_a_source_receipt_missing_from_the_contacts_index_is_refused
+* test_a_registry_that_moved_on_since_the_commit_is_refused
+* test_no_day8_aggregate_can_reach_the_handoff
+* test_a_receiptless_aggregate_is_not_an_accepted_cause
+* test_caller_authored_ending_or_relationship_fields_are_refused_as_extra_inputs
+* test_a_rewritten_cause_projection_cannot_reach_the_same_child
+* test_day7_stops_after_the_provenance_checkpoint_with_no_ending_and_no_board
+* test_no_day7_stage_carries_an_ending_plan_or_a_board_receipt
+15/15 passed.
+
+
+res://tests/scenario/test_hospital_invitation_closures.gd
+* test_a_witnessing_sylvia_asks_no_missed_question
+* test_without_a_witness_sylvia_asks_normally
+* test_a_sylvia_witness_never_suppresses_another_friend
+* test_the_witness_index_survives_the_rollover_it_informed
+4/4 passed.
+
+
+res://tests/scenario/test_hospital_twofriends_order.gd
+* test_hospital_outcome_is_pure_and_records_skipped_sylvia
+* test_hospital_accepts_group_outcome_but_counts_only_sylvia_solo
+* test_hospital_ignores_attended_dates_and_other_friends
+* test_hospital_rejects_an_unknown_outcome
+* test_hospital_rejects_a_group_outcome_with_a_non_canonical_pair
+* test_hospital_rejects_three_friends_in_one_outcome
+* test_no_plan_01_presentation_component_reaches_dating_ending_rules
+* test_the_day7_branch_owns_no_ending_stage
+* test_the_hospital_stage_is_owned_by_hospital_rules_not_the_ending_rules
+* test_the_state_port_never_calls_the_ending_rules_for_a_day7_handoff
+10/10 passed.
+
+
+res://tests/scene/test_contact_list_app.gd
+* test_contact_scene_exposes_only_the_injected_semantic_port_seam
+* test_unconfigured_input_fails_closed_and_configured_input_delegates
+* test_contact_scene_authors_no_identity_or_global_state_fallback
+3/3 passed.
+
+
+res://tests/scene/test_dating_scene.gd
+* test_the_scene_is_configured_off_tree_and_reports_it
+* test_configuration_is_idempotent_and_refuses_a_replacement_port
+* test_an_incomplete_port_or_empty_command_is_refused
+* test_the_scene_holds_only_a_detached_projection
+* test_ready_mutates_no_gameplay_state
+* test_an_unconfigured_scene_reaching_the_tree_does_nothing_at_all
+* test_the_scene_exposes_no_mutation_seam
+* test_the_port_this_scene_would_receive_is_not_ready_in_phase_2r
+* test_a_configured_port_makes_the_scene_reachable_for_dwm_oyo_4
+9/9 passed.
+
+
+res://tests/scene/test_hospital_scene.gd
+* test_the_scene_is_configured_off_tree_and_reports_it
+* test_configuration_is_idempotent_and_refuses_a_replacement_port
+* test_an_incomplete_port_or_empty_command_is_refused
+* test_the_scene_holds_only_a_detached_projection
+* test_ready_mutates_no_gameplay_state
+* test_an_unconfigured_scene_reaching_the_tree_does_nothing_at_all
+* test_button_input_mutates_no_gameplay_state
+* test_button_input_never_advances_the_day_or_enters_an_ending
+* test_the_scene_exposes_no_mutation_seam
+9/9 passed.
+
+
+res://tests/scene/test_settings_localization_scene.gd
+* test_settings_controller_and_scenes_exist_with_shared_contract
+* test_both_settings_hosts_share_languages_skip_modes_and_confirmed_resets
+* test_shared_controller_exposes_every_nonlanguage_preference_leaf
+* test_each_reset_is_inert_until_its_own_confirmation
+4/4 passed.
+
+
+res://tests/unit/test_application_bootstrap.gd
+* test_stage_order_runs_minesweeper_after_day_resolution_and_before_readiness
+* test_minesweeper_stage_rejects_a_missing_gate_without_partial_configuration
+* test_minesweeper_stage_rejects_missing_targets_without_partial_configuration
+* test_minesweeper_stage_rejects_an_unretained_checkpoint_port_without_partial_configuration
+* test_minesweeper_stage_rejects_unconfigured_checkpoint_providers
+* test_minesweeper_stage_rejects_a_gate_game_state_did_not_retain
+* test_minesweeper_stage_constructs_exactly_one_coordinator_over_production_adapters
+* test_identical_startup_replay_reuses_the_exact_same_round_graph
+* test_game_state_refuses_a_second_distinct_round_coordinator
+* test_round_facade_fails_closed_before_the_coordinator_is_installed
+* test_game_state_reports_only_its_gate_identity_never_the_gate
+* test_bootstrap_stage_and_this_suite_are_source_bound_by_uid
+12/12 passed.
+
+
+res://tests/unit/test_application_bootstrap_profile_stage.gd
+* test_application_bootstrap_contract_exists
+* test_final_contact_stage_reuses_profile_storage_and_retains_one_identity_graph
+* test_manual_mode_executes_no_stage_and_is_not_readiness
+* test_final_mode_constructs_production_gate_and_injects_before_profile
+* test_ready_callbacks_are_side_effect_free_or_deferred_only
+* test_task2_owned_managers_expose_common_gate_contract
+* test_dialogic_bridge_exposes_common_gate_contract
+* test_real_plan02_target_order_is_exactly_six_managers
+* test_real_six_target_gate_failure_stops_at_each_ordinal_before_initialization
+9/9 passed.
+
+
+res://tests/unit/test_application_mutation_gate.gd
+* test_application_mutation_gate_exists_with_contract
+* test_acquire_release_guard_owner_rules
+* test_causal_transaction_is_a_valid_owner
+* test_latch_fatal_input_validation_changes_nothing
+* test_first_latch_repeat_and_conflict
+* test_post_latch_fences_all_operations
+* test_single_production_gate_class
+7/7 passed.
+
+
+res://tests/unit/test_audio_manager.gd
+* test_ending_audio_map_covers_every_canonical_id
+* test_ending_audio_rejects_retired_unknown_and_empty_ids
+* test_initialization_preserves_gate_and_builds_exact_pools
+* test_failed_initialization_is_retryable_and_does_not_connect_profile
+* test_volume_clamp_silence_threshold_and_explicit_mute
+* test_exact_threshold_and_focus_loss_overlay_do_not_replace_preferences
+* test_semantic_contexts_are_exact_and_same_context_is_idempotent
+* test_unknown_context_and_cue_never_mutate_semantic_state
+* test_commands_before_initialization_fail_without_touching_port
+* test_sfx_dispatch_uses_registered_manifest_bus
+* test_full_sfx_pool_reuses_oldest_playing_after_a_free_slot_was_reused
+* test_failed_context_change_rolls_back_runtime_and_semantics
+* test_every_crossfade_operation_failpoint_preserves_semantics
+* test_rollback_failure_latches_fatal_and_best_effort_mutes_channel
+* test_async_old_player_stop_failure_latches_fatal
+* test_committed_preference_apply_failure_latches_shared_gate
+* test_semantic_restore_is_silent_and_rollback_restarts_prior_context
+* test_restore_can_clear_channels_and_force_restart_same_context
+* test_restore_rejects_non_json_context_and_malformed_audio_preferences
+* test_runtime_audio_context_is_not_run_save_state
+20/20 passed.
+
+
+res://tests/unit/test_causal_day_advance_identity_port.gd
+* test_causal_day_advance_identity_port_skeleton_loads
+* test_configure_accepts_an_identical_replay_and_refuses_a_replacement
+* test_both_resolution_variants_allocate_a_day_advance_identity
+* test_prepare_advance_returns_the_exact_frozen_result_shape
+* test_the_day_advance_receipt_carries_exactly_the_frozen_member_set
+* test_prepare_advance_exact_key_validates_its_request
+* test_target_day_is_derived_as_source_day_plus_one
+* test_a_source_day_outside_one_to_six_is_rejected
+* test_the_target_receipt_is_a_causal_day_receipt_one_counter_above_the_source
+* test_the_source_receipt_must_be_the_full_byte_equal_ledger_receipt
+* test_cross_variant_ancestry_is_rejected
+* test_an_identical_key_and_request_returns_the_original_receipt_after_a_restart
+* test_changed_request_bytes_against_an_occupied_key_conflict
+* test_a_second_allocation_key_for_the_same_tuple_conflicts
+* test_an_intervening_allocation_makes_a_prepared_candidate_stale
+* test_a_reprepared_candidate_commits_after_a_stale_rejection
+* test_commit_adds_the_target_receipt_the_record_and_the_counter_in_one_write
+* test_no_crash_cut_around_commit_exposes_a_target_without_its_key
+18/18 passed.
+
+
+res://tests/unit/test_checkpoint_journal.gd
+* test_checkpoint_journal_exists
+* test_reset_peek_and_run_mismatch
+* test_failed_preparation_never_consumes_sequence
+* test_commit_advances_and_duplicate_commit_rejects
+* test_every_accepted_checkpoint_kind_including_line
+* test_retention_after_forty_lines_and_semantic_anchor
+* test_reset_with_initial_replaces_run_and_restore_reinstates
+* test_prepare_seed_selects_and_excludes
+8/8 passed.
+
+
+res://tests/unit/test_contact_command_port.gd
+* test_contact_command_port_exists_at_the_application_boundary
+* test_port_issues_and_verifies_one_full_root_before_delegating_semantic_input
+* test_port_configuration_is_identity_stable_and_reply_delegates_only_group_semantics
+* test_issue_failure_returns_before_game_state_is_called
+4/4 passed.
+
+
+res://tests/unit/test_contact_invitation_state.gd
+* test_defaults_are_empty_and_valid
+* test_solo_offer_returns_linked_candidate_batch_and_parent_receipt
+* test_opening_solo_offer_marks_read_and_accepts_without_a_reply
+* test_replying_solo_offer_is_rejected_as_not_required
+* test_reply_rejects_when_no_available_offer
+* test_prepare_does_not_mutate_input_state
+* test_duplicate_offer_transaction_is_idempotent
+* test_resolve_unanswered_solo_queues_nevermind
+* test_resolve_accepted_but_uncommitted_is_a_missed_question
+* test_resolve_attended_solo_no_message
+* test_resolve_accepted_but_absent_queues_missed_question
+* test_resolve_day7_marks_run_end_no_message
+* test_resolve_is_idempotent
+* test_either_group_participant_can_reply_first
+* test_group_activation_rejected_when_a_solo_missing
+* test_group_second_open_and_second_reply
+* test_group_untouched_resolves_unanswered_with_busy
+* test_group_opened_unanswered_resolves_nevermind
+* test_group_one_reply_attended_judges_unreplied
+* test_group_accepted_not_attended_misses_and_defers_twofriends
+* test_group_ordinary_miss_reasons_keep_their_two_questions
+* test_group_hospital_supersession_defers_without_generic_missed_question
+* test_group_day7_forces_run_end
+* test_pl_window_group_attended_counts_once
+* test_pl_window_accepted_missed_counts_once
+* test_pl_window_both_unread_is_private_visible_counts
+* test_pl_window_never_activated_is_private_offscreen_counts
+* test_pl_window_solo_dated_one_is_prevented_no_count
+* test_solo_day_has_no_pl_window
+* test_validate_state_rejects_recursive_task3_union_tampers
+* test_validate_state_accepts_every_genuine_task3_transition_variant
+* test_validate_state_enforces_offer_visibility_and_watermark_by_solo_lineage
+* test_validate_state_requires_one_exact_canonical_resolution_envelope
+* test_validate_state_rejects_valid_typed_resolve_history_tampers
+* test_validate_state_rejects_day7_prestates_that_disagree_with_retained_history
+* test_validate_state_preserves_every_legal_resolution_history_variant
+* test_a_valid_sylvia_witness_record_is_accepted_by_the_opened_index
+* test_the_witness_index_rejects_malformed_records
+* test_the_witness_index_only_accepts_the_schedule_done_resolution_kind
+* test_the_friend_roster_has_one_owner_and_two_aliases
+40/40 passed.
+
+
+res://tests/unit/test_dating_ending_rules.gd
+* test_sylvia_special_precedes_a_valid_completed_candidate
+* test_completed_candidate_resolves_dark
+* test_completed_candidate_resolves_sweet
+* test_no_candidate_resolves_alone
+* test_non_attended_completion_is_not_a_candidate
+* test_broken_chain_link_rejects
+* test_candidate_friend_must_be_a_dateable_friend
+* test_epilogue_plays_only_when_both_pl_windows_counted
+* test_epilogue_is_absent_below_two
+* test_epilogue_rejects_malformed_input
+* test_build_ending_plan_composes_primary_and_epilogue
+* test_build_ending_plan_without_epilogue_is_null
+* test_validate_ending_plan_rejects_a_retired_true_primary
+* test_next_playback_command_walks_the_stages
+* test_next_playback_command_records_gallery_when_no_epilogue
+* test_postscript_ids_are_canonical_but_not_primary
+* test_resolve_postscript_requires_both_halves
+* test_resolve_postscript_rejects_malformed_input
+18/18 passed.
+
+
+res://tests/unit/test_dating_ending_rules_migration.gd
+* test_dating_ending_rules_exists
+* test_primary_selection_precedence
+* test_friend_ending_tiers
+* test_recompute_synchronized_primary_demotes_pair_to_epilogue
+* test_invalid_inputs_reject
+5/5 passed.
+
+
+res://tests/unit/test_dating_presentation_port.gd
+* test_an_unconfigured_dating_port_fails_closed_before_routing_or_physical_start
+* test_the_dating_port_refuses_the_narrative_owner
+* test_configure_is_idempotent_and_refuses_a_replacement_dependency
+* test_a_valid_solo_intent_returns_the_canonical_command
+* test_a_hospital_route_is_refused_by_the_dating_port
+* test_an_unregistered_locator_is_refused
+* test_the_three_dating_context_kinds_are_accepted_and_others_are_not
+* test_the_dating_context_member_set_is_exact
+* test_a_solo_names_exactly_one_participant
+* test_the_pair_order_is_priscilla_then_lavinia_and_is_never_sorted
+* test_a_deferred_pair_intent_is_accepted_in_the_canonical_order
+* test_a_locally_derived_completion_id_is_refused
+* test_every_projected_field_binds_the_completion_child
+* test_a_changed_participant_list_breaks_the_completion_binding
+* test_an_unverified_resolution_root_is_refused
+* test_a_trusted_challenge_completion_produces_the_exact_frozen_receipt_once
+* test_a_deferred_pair_completes_through_the_port_carrying_its_own_pair_bytes
+* test_a_restored_owner_reemission_returns_the_same_receipt_without_a_second_publication
+* test_a_scene_authored_challenge_result_never_reaches_a_stage
+* test_owner_receipt_drift_is_refused
+* test_an_owner_failure_publishes_exactly_one_failure_and_no_completion
+21/21 passed.
+
+
+res://tests/unit/test_day7_schedule_provenance.gd
+* test_service_exposes_exactly_the_frozen_two_method_surface
+* test_configure_is_idempotent_for_the_same_pair_and_refuses_replacement
+* test_configure_refuses_an_incapable_registry_or_issuer
+* test_validate_handoff_requires_the_exact_request_member_set
+* test_empty_done_handoff_returns_the_exact_terminal_provenance
+* test_scheduled_solo_handoff_returns_the_exact_terminal_provenance
+* test_terminal_provenance_consumes_byte_exact_row_p01_schedule_day7_provenance
+* test_empty_done_row_uses_the_three_null_projections
+* test_handoff_rejects_everything_outside_the_two_accepted_causes
+* test_a_multi_entry_or_non_solo_day7_commit_is_refused_by_both_layers
+* test_validate_handoff_performs_no_canonical_mutation
+* test_terminal_provenance_carries_no_forbidden_member
+12/12 passed.
+
+
+res://tests/unit/test_day_resolution_coordinator.gd
+* test_checkpoint_commit_failure_rolls_back_without_publication
+* test_configuration_matrix_and_gate_identity
+* test_day3_full_resolution_reaches_plan_complete
+* test_registered_command_pause_and_completion
+* test_recoverable_failures_restore_pre_command_state
+* test_rollback_failure_latches_shared_gate_and_returns_fatal
+* test_a_published_completion_is_checkpointed_and_then_advances_the_stage
+* test_a_completion_that_does_not_settle_the_awaiting_command_is_refused
+* test_a_duplicate_completion_does_not_leave_the_coordinator_awaiting_a_finished_stage
+* test_a_stage_awaiting_a_presentation_refuses_a_route_completion
+* test_a_refused_route_completion_leaves_the_presentation_showing_and_still_settleable
+* test_a_presentation_left_in_history_is_refused_by_the_route_door_too
+* test_a_substage_settles_through_the_route_door_on_its_own_contract
+* test_the_parent_aggregate_envelope_cannot_settle_a_substage
+* test_a_substage_resolved_from_history_still_answers_to_its_own_contract
+* test_a_replayed_identical_substage_completion_is_a_duplicate_with_no_second_checkpoint
+* test_an_ordinary_substage_presentation_is_refused_with_no_checkpoint
+* test_a_surviving_date_presentation_settles_with_the_substage_shaped_envelope
+* test_a_never_presenting_stage_presentation_is_refused_with_no_checkpoint
+* test_a_deferred_pair_presentation_settles_through_the_fake_state_port
+* test_the_presentation_router_seam_configures_once_and_rejects_replacement
+* test_a_paused_presentation_starts_the_physical_owner_then_routes_the_scene
+* test_an_unconfigured_router_never_starts_a_physical_presentation
+* test_a_presentation_site_with_no_configured_ports_fails_closed
+* test_a_router_whose_ports_are_unconfigured_never_starts_a_physical_presentation
+* test_a_presentation_command_with_no_transaction_id_is_refused
+* test_a_refused_route_leaves_the_stage_active_and_replays_the_identical_command
+* test_a_port_that_cannot_start_never_reaches_the_router
+* test_a_presentation_already_showing_is_not_launched_a_second_time
+* test_duplicate_transaction_returns_stored_receipt_without_new_checkpoint
+* test_a_stage_replay_with_different_bytes_is_a_conflict_with_no_second_checkpoint
+* test_checkpoint_preview_matches_prepare_without_mutation
+* test_day_advance_identity_seam_configures_once_and_rejects_replacement
+* test_day_advance_identity_seam_requires_the_exact_capability
+* test_resume_fails_closed_at_increment_day_without_the_identity_port
+* test_day7_resume_never_needs_the_identity_port
+36/36 passed.
+
+
+res://tests/unit/test_day_resolution_plan.gd
+* test_duplicate_completion_reuses_receipt_and_conflict_changes_nothing
+* test_stage_allowlists_by_source_day
+* test_day_1_6_runs_hospital_between_ordinary_effects_and_dates
+* test_create_rejects_invalid_inputs
+* test_substages_sort_by_slot_and_gate_parent_completion
+* test_entry_substages_split_by_kind_with_independent_zero_based_ordinals
+* test_day7_retains_its_committed_aggregate_and_holds_no_entry_substages
+* test_begin_rejects_wrong_transaction_and_out_of_order
+* test_from_dict_round_trip_and_strictness
+* test_an_unrooted_plan_records_its_command_and_null_receipts
+* test_a_rooted_plan_persists_its_root_and_start_receipt_losslessly
+* test_a_restored_root_is_re_proven_against_its_resolution
+* test_a_restored_start_receipt_must_descend_from_the_persisted_root
+* test_a_restored_start_receipt_must_carry_the_causal_day_the_walk_indexes
+14/14 passed.
+
+
+res://tests/unit/test_day_resolution_snapshot_production.gd
+* test_prepare_completion_emits_every_checkpoint_input_key
+* test_inner_snapshot_input_carries_the_live_lifecycle
+* test_no_stub_run_id_day_shape_remains
+* test_unconfigured_port_still_emits_a_valid_shape
+* test_configured_providers_supply_the_five_non_game_state_fields
+* test_configure_rejects_wrong_provider_sets_and_replacement
+* test_bundle_is_detached_from_live_state
+* test_real_checkpoint_port_accepts_the_produced_bundle
+* test_day_seven_ending_plan_survives_into_the_prepared_snapshot
+* test_checkpoint_carries_the_post_completion_lifecycle
+* test_commit_applies_the_exact_lifecycle_the_checkpoint_recorded
+* test_a_rejected_stage_never_reaches_live_state
+* test_active_plan_may_trail_the_day_by_exactly_one
+* test_active_plan_trailing_by_two_still_rejects
+* test_active_plan_ahead_of_the_day_still_rejects
+* test_both_validators_share_one_active_plan_day_window
+* test_a_snapshot_the_schema_accepts_also_restores_through_run_lifecycle
+* test_both_validators_reject_a_two_day_gap
+18/18 passed.
+
+
+res://tests/unit/test_day_resolution_start_port.gd
+* test_prepare_requires_the_exact_request_member_set
+* test_a_real_committed_schedule_produces_the_exact_start_receipt
+* test_the_board_fate_receipt_is_bound_whole_and_never_reinterpreted
+* test_prepare_rejects_a_synthetic_or_receiptless_committed_schedule
+* test_prepare_is_pure_and_does_not_signal
+* test_identical_replay_is_deterministic
+* test_publish_records_before_emitting_and_replays_after_a_restart_without_a_second_signal
+* test_publish_conflicts_on_mutated_bytes_at_the_same_semantic_key
+* test_publish_refuses_a_publication_without_its_start_receipt
+9/9 passed.
+
+
+res://tests/unit/test_desktop_accessibility_contract.gd
+* test_debug_exposes_exactly_one_forced_cell_and_rejects_every_other_cell
+* test_debug_rejects_every_other_cell_before_any_live_mutation
+* test_supportz_exposes_one_neutral_accessible_name_and_no_effect_description
+* test_every_non_secret_shop_row_carries_no_secret_accessibility_label
+* test_the_purchase_request_shape_has_no_device_or_input_method_field
+* test_pointer_touch_keyboard_and_gamepad_confirm_produce_the_identical_request_shape
+6/6 passed.
+
+
+res://tests/unit/test_desktop_action_receipt.gd
+* test_validate_accepts_a_well_formed_receipt
+* test_validate_rejects_extra_and_missing_keys
+* test_validate_rejects_blank_identity_strings
+* test_validate_rejects_an_unknown_action_kind
+* test_validate_accepts_minesweeper_round_action_kind_too
+* test_validate_rejects_a_negative_desktop_timeline_generation
+* test_validate_rejects_malformed_provenance
+* test_validate_rejects_a_malformed_condition
+* test_validate_accepts_byte_equal_condition_before_and_after
+* test_validate_accepts_a_changed_condition_for_a_future_kind
+* test_validate_rejects_unsorted_or_duplicate_unlock_receipt_ids
+* test_fingerprint_is_deterministic_and_changes_with_content
+* test_fingerprint_rejects_an_invalid_receipt
+13/13 passed.
+
+
+res://tests/unit/test_desktop_app_host_state.gd
+* test_reset_clears_active_and_cache
+* test_open_app_first_instantiate_true_and_focus
+* test_open_app_switch_returns_previous_and_reopen_not_instantiate
+* test_open_app_unknown_rejects
+* test_close_app_returns_focus_icon_and_clears_active
+* test_change_day_rejects_nonpositive_and_backward
+* test_change_day_returns_exact_eviction_command_in_registry_order
+* test_capture_persistent_state_returns_registered_id_or_null
+* test_prepare_restore_round_trips_null_and_registered_id
+* test_registry_focus_targets_resolve_for_all_seven
+10/10 passed.
+
+
+res://tests/unit/test_desktop_app_registry.gd
+* test_registry_has_exactly_seven_known_apps
+* test_registry_get_record_returns_exact_scene_and_focus
+* test_registry_get_record_rejects_unknown_id
+* test_registry_has_app_matches_get_ids
+4/4 passed.
+
+
+res://tests/unit/test_desktop_board_fate_port.gd
+* test_port_script_loads
+* test_port_instantiates
+* test_configure_publication_ledger_is_idempotent_on_identical_replay
+* test_configure_publication_ledger_rejects_replacement
+* test_configure_rejects_before_publication_ledger_configured
+* test_configure_is_idempotent_on_identical_replay
+* test_configure_rejects_a_replacement_board_state
+* test_configure_rejects_an_invalid_board_state
+* test_prepare_causal_departure_from_none_yields_fate_none
+* test_prepare_causal_departure_from_preparing_yields_discarded_unstarted
+* test_prepare_causal_departure_from_active_visible_yields_forfeited_started
+* test_prepare_causal_departure_rejects_a_non_schedule_reason
+* test_prepare_causal_departure_rejects_stale_revision
+* test_prepare_causal_departure_rejects_identity_mismatch
+* test_prepare_causal_departure_duplicate_replay_returns_identical_result
+* test_prepare_causal_departure_changed_request_at_same_command_id_conflicts
+* test_prepare_causal_departure_from_settling_is_rejected
+* test_prepare_projected_departure_minesweeper_round_none_projection_yields_fate_none
+* test_prepare_projected_departure_rejects_a_nonterminal_minesweeper_round_projection
+* test_prepare_projected_departure_shop_purchase_applies_ordinary_current_board_fate
+* test_prepare_projected_departure_rejects_a_shop_projection_that_diverges_from_current_board
+* test_prepare_projected_departure_rejects_a_changed_projection_hash
+* test_prepare_projected_departure_rejects_an_action_receipt_transaction_mismatch
+* test_prepare_projected_departure_rejects_stale_pre_state
+* test_commit_adopts_the_fate_none_candidate_and_publish_records_once
+* test_commit_adopts_a_discard_and_rollback_restores_pre_commit
+* test_commit_rejects_a_wrapped_candidate
+* test_rollback_rejects_an_unknown_backup
+* test_publish_rejects_changed_receipt_bytes
+* test_publish_rejects_a_candidate_not_yet_committed
+* test_board_fate_receipt_provenance_validates_against_the_issuer
+31/31 passed.
+
+
+res://tests/unit/test_desktop_board_restore_participant.gd
+* test_participant_exists
+* test_prepare_rejects_missing_or_invalid_state
+* test_capture_wraps_the_raw_capture_dict_in_an_ok_envelope
+* test_prepare_capture_apply_and_rollback_round_trip
+* test_apply_silent_rejects_a_malformed_plan
+* test_rollback_silent_rejects_a_malformed_backup
+6/6 passed.
+
+
+res://tests/unit/test_desktop_board_state.gd
+* test_state_script_loads
+* test_state_instantiates
+* test_fresh_state_is_none_phase_with_zero_revision
+* test_capture_shape_is_exactly_nine_keys
+* test_reset_returns_to_fresh_state
+* test_capture_is_detached_from_internal_state
+* test_prepare_debug_candidate_from_none_transitions_to_preparing
+* test_prepare_debug_candidate_rejects_when_not_none_phase
+* test_prepare_debug_candidate_rejects_stale_revision
+* test_prepare_debug_candidate_rejects_invalid_identity
+* test_prepare_debug_slice_progress_stays_in_preparing
+* test_prepare_debug_slice_certified_transitions_to_prepared_unstarted
+* test_debug_is_cost_free_through_prepared_unstarted
+* test_prepare_debug_slice_rejects_wrong_phase
+* test_prepare_debug_slice_rejects_identity_mismatch
+* test_default_and_lucky_remain_none_until_reveal
+* test_prepare_first_reveal_from_none_populates_board_and_receipt
+* test_prepare_first_reveal_from_prepared_unstarted_adopts_certified_layout
+* test_prepare_first_reveal_rejects_forced_cell_mismatch_from_prepared_unstarted
+* test_prepare_first_reveal_rejects_wrong_phase
+* test_prepare_board_command_reveal_commits_new_revision
+* test_prepare_board_command_rejects_when_suspended
+* test_prepare_visibility_suspend_then_resume
+* test_prepare_visibility_rejects_from_none
+* test_prepare_settlement_requires_terminal_board
+* test_prepare_settlement_on_terminal_board_transitions_to_settling
+* test_commit_duplicate_transaction_id_same_payload_replays_result
+* test_commit_duplicate_transaction_id_changed_payload_conflicts
+* test_stale_revision_rejected_across_every_prepare_method
+* test_prepare_candidate_mutation_before_commit_does_not_leak_into_a_prior_capture
+* test_captured_result_mutation_does_not_leak_into_internal_state
+* test_prepare_restore_round_trips_a_captured_snapshot
+* test_prepare_restore_rejects_bad_member_set
+* test_prepare_restore_rejects_phase_invariant_violation
+34/34 passed.
+
+
+res://tests/unit/test_desktop_causal_sequence_port.gd
+* test_configure_requires_publication_ledger_first
+* test_prepare_reservation_proposes_sequence_and_revision
+* test_prepare_reservation_identical_replay_returns_original
+* test_prepare_reservation_changed_payload_conflicts
+* test_prepare_reservation_rejects_stale_sequence_and_revision
+* test_full_admission_commits_checkpoint_then_forward_applies_live_state
+* test_commit_requires_the_active_causal_transaction_lease
+* test_publish_records_through_the_configured_ledger_at_most_once
+* test_rollback_before_admission_restores_pending_reservations
+* test_rollback_after_admission_is_irreversible
+* test_checkpoint_commit_failure_leaves_live_state_untouched
+* test_commit_partial_live_failure_after_checkpoint_returns_committed_pending_recovery
+* test_commit_partial_live_failure_pre_admission_backup_rollback_refuses
+* test_commit_partial_live_failure_then_retry_resumes_coherently
+* test_prepare_reservation_after_commit_identical_retry_replays_original_success
+* test_prepare_reservation_after_commit_changed_bytes_conflicts
+16/16 passed.
+
+
+res://tests/unit/test_desktop_condition_policy_port.gd
+* test_policy_port_script_loads
+* test_configure_rejects_null_and_a_context_without_the_capability
+* test_configure_identical_replay_is_idempotent_and_replacement_is_refused
+* test_evaluate_before_configure_fails_closed
+* test_evaluate_rejects_a_request_with_extra_or_missing_keys
+* test_a_safe_action_yields_no_departure_with_only_the_notification_intent
+* test_danger_without_carried_sequela_still_yields_no_departure
+* test_a_days_one_to_six_trigger_yields_hospital_day
+* test_a_day7_trigger_with_dark_mode_yields_day7_dark_alone
+* test_a_day7_trigger_with_a_preexisting_sylvia_read_yields_sylvia_special
+* test_a_day7_trigger_alone_yields_day7_hospital_alone
+* test_a_resolving_schedule_rejects_a_new_action
+* test_the_condition_receipt_is_the_exact_p03_condition_decision_child
+* test_the_notification_intent_is_the_exact_p03_condition_notification_child
+* test_the_destination_intent_is_the_exact_p03_condition_destination_child
+* test_identical_replay_returns_byte_identical_children
+* test_a_day_six_trigger_still_yields_hospital_day
+* test_pressure_at_exactly_ten_is_danger_and_triggers
+* test_a_child_id_the_issuer_never_minted_is_refused
+* test_a_derived_child_disagreeing_with_its_own_provenance_is_refused
+20/20 passed.
+
+
+res://tests/unit/test_desktop_consequence_coordinator.gd
+* test_coordinator_script_loads
+* test_coordinator_instantiates
+* test_configure_action_source_ports_rejects_the_same_object_for_both_roles
+* test_configure_condition_departure_ports_requires_action_source_ports_first
+* test_accept_prepared_action_rejects_before_condition_departure_ports_configured
+* test_accept_prepared_action_no_departure_commits_and_publishes
+* test_accept_prepared_action_duplicate_replay_returns_identical_result
+* test_accept_prepared_action_changed_bytes_at_same_identity_conflicts
+* test_accept_prepared_action_departure_discards_the_preparing_board_and_commits_the_view
+* test_accept_prepared_action_minesweeper_round_departure_uses_the_action_candidate_projection_not_the_live_board
+* test_accept_prepared_action_departure_retains_the_gate_through_board_fate_publish_and_releases_after
+* test_accept_prepared_action_abandons_a_pre_admission_pending_when_departure_ports_are_unconfigured
+* test_resume_pending_abandons_a_restored_pre_admission_pending_and_bootstrap_does_not_fail
+* test_resume_pending_is_idempotent_when_nothing_is_pending
+* test_resume_pending_completes_forward_recovery_after_a_reconstructed_coordinator
+* test_accept_prepared_action_shop_purchase_no_departure_returns_the_frozen_value_and_receipt_key_sets
+* test_accept_prepared_action_shop_purchase_departure_returns_the_frozen_value_and_receipt_key_sets
+* test_accept_prepared_action_minesweeper_round_no_departure_returns_the_frozen_value_and_receipt_key_sets
+* test_accept_prepared_action_minesweeper_round_departure_returns_the_frozen_value_and_receipt_key_sets
+* test_accept_prepared_action_departure_with_destination_intent_lands_it_in_the_final_value
+* test_accept_prepared_action_no_departure_with_notification_intent_lands_it_in_the_final_value
+* test_accept_prepared_action_no_departure_with_neither_intent_leaves_both_null
+* test_accept_prepared_action_departure_intent_lands_in_the_persisted_pending_record_exactly_once_across_a_forward_recovery_replay
+* test_validate_ordinal_stage_pairing_accepts_the_documented_pairing
+* test_validate_ordinal_stage_pairing_rejects_a_mismatched_pairing
+* test_adopt_durable_checkpoint_if_live_is_behind_adopts_from_the_durable_checkpoint
+* test_resume_pending_adopts_and_completes_a_pending_transaction_from_the_durable_checkpoint
+* test_adopt_durable_checkpoint_if_live_is_behind_is_a_no_op_when_nothing_is_pending
+* test_a_completed_transaction_retains_the_days_condition_receipt
+* test_a_second_action_on_the_same_day_replaces_the_retained_receipt
+30/30 passed.
+
+
+res://tests/unit/test_desktop_consequence_restore_participant.gd
+* test_participant_exists
+* test_prepare_rejects_missing_or_invalid_state
+* test_prepare_capture_apply_and_rollback_round_trip
+* test_apply_silent_rejects_a_malformed_plan
+* test_apply_silent_never_publishes_the_outbox
+5/5 passed.
+
+
+res://tests/unit/test_desktop_consequence_source_port.gd
+* test_source_port_script_loads
+* test_configure_rejects_a_missing_dependency
+* test_configure_identical_replay_is_idempotent_and_replacement_is_refused
+* test_resolve_board_fate_rejects_extra_or_missing_keys
+* test_resolve_board_fate_settles_a_real_schedule_done_departure
+* test_resolve_board_fate_replay_binds_the_same_receipt_without_a_second_departure
+* test_resolve_board_fate_returns_detached_bytes
+* test_resolve_condition_fails_closed_when_no_action_committed_one
+* test_resolve_condition_returns_the_days_retained_receipt
+* test_resolve_condition_refuses_a_receipt_from_another_day
+10/10 passed.
+
+
+res://tests/unit/test_desktop_consequence_state.gd
+* test_make_empty_produces_valid_zeroed_state
+* test_make_empty_rejects_id_only_or_mismatched_provenance
+* test_validate_rejects_extra_and_missing_top_level_keys
+* test_capture_and_restore_round_trip
+* test_prepare_action_handoff_creates_pending_at_action_prepared
+* test_prepare_action_handoff_rejects_second_concurrent_pending
+* test_prepare_action_handoff_rejects_stale_run_revision
+* test_prepare_schedule_recovery_transport_creates_pending_at_prepared_checkpointed
+* test_prepare_sequence_reservation_advances_to_sequence_committed
+* test_prepare_sequence_reservation_rejects_out_of_order_sequence
+* test_prepare_recovery_advance_ordinary_edge_to_publication_pending
+* test_prepare_recovery_advance_rejects_a_publication_plan_hash_mismatch
+* test_prepare_recovery_advance_rejects_stage_mismatch
+* test_prepare_recovery_advance_terminal_cleanup_requires_complete_cursor
+* test_checkpoint_content_preimage_omits_admission_receipt_only_at_admission
+* test_prepare_outbox_publication_toggles_exactly_one_bit
+* test_prepare_outbox_publication_rejects_wrong_payload_hash
+* test_commit_is_a_transaction_ledger_via_restore_replay
+* test_commit_is_a_transaction_ledger_for_action_handoff_replay
+* test_commit_rejects_changed_bytes_at_an_occupied_ledger_key
+* test_prepare_recovery_advance_ordinary_edge_operation_ordinal_matches_frozen_table
+* test_prepare_recovery_advance_callback_progress_operation_ordinal_is_sequential
+* test_prepare_recovery_advance_terminal_cleanup_operation_ordinal_is_twelve
+* test_rollback_restores_the_captured_backup
+* test_validate_recovery_payload_rejects_hash_mismatch
+* test_validate_recovery_payload_rejects_wrong_source_kind_shape
+* test_validate_recovery_payload_accepts_both_phases_and_rejects_violations
+* test_make_empty_seeds_a_zeroed_shop_ledger
+* test_validate_rejects_extra_and_missing_shop_ledger_keys
+* test_validate_rejects_a_malformed_base_completion_receipt
+* test_prepare_record_base_completion_appends_and_is_content_idempotent
+* test_prepare_record_base_completion_rejects_a_malformed_receipt
+* test_prepare_record_supportz_purchase_increments_count_and_sets_the_last_purchase_day
+* test_prepare_record_supportz_purchase_is_idempotent_via_the_transaction_ledger
+* test_supportz_eligibility_state_projects_the_capability_rules_exact_four_key_shape
+* test_supportz_eligibility_state_filters_completions_by_causal_day
+* test_supportz_eligibility_state_reflects_daily_purchase_done_after_a_recorded_purchase
+37/37 passed.
+
+
+res://tests/unit/test_desktop_continuation_operation_journal.gd
+* test_continuation_journal_skeletons_load
+* test_journal_public_surface_is_exactly_the_frozen_seven_methods
+* test_the_journal_document_and_operation_record_have_exactly_the_frozen_key_sets
+* test_every_legal_and_illegal_stage_transition_is_enforced
+* test_stage_transition_evidence_is_permitted_only_at_the_frozen_edges
+* test_new_run_and_restore_have_mutually_exclusive_source_and_context_fields
+* test_new_run_requires_exactly_empty_dialogic_and_audio_subcontexts
+* test_the_intent_must_be_committed_before_any_allocation_is_recorded
+* test_the_eight_participants_apply_in_exactly_the_frozen_order
+* test_each_participant_receipt_has_identical_replay_and_changed_receipt_conflict
+* test_applying_index_eight_rejects_safely_before_participant_array_access
+* test_a_skipped_participant_index_is_refused
+* test_an_illegal_backward_stage_edge_is_refused
+* test_a_restore_source_that_no_longer_hashes_the_same_is_refused
+* test_a_new_run_context_is_rehashed_without_consulting_the_loader
+* test_identical_replays_return_the_retained_operation_at_every_stage
+* test_every_changed_advancement_family_conflicts_before_storage_mutation
+* test_list_incomplete_returns_only_nonterminal_operations
+* test_startup_reconciles_a_clean_restart_forward
+* test_startup_reconciliation_is_no_op_for_terminal_operations
+* test_startup_rejects_malformed_issued_transaction_receipts
+* test_startup_proves_the_original_restore_source_before_clearing_an_identical_diagnostic
+* test_new_run_proof_clears_diagnostics_at_every_nonterminal_post_allocation_stage
+* test_terminal_stages_refuse_recovery_diagnostics_without_mutation
+* test_restore_diagnostics_clear_at_applying_and_applied_through_real_json_storage
+* test_proof_failure_retains_both_kinds_at_every_nonterminal_post_allocation_stage
+* test_diagnostic_clear_write_failure_retains_and_retries_both_kinds_at_every_stage
+* test_a_pre_allocation_failure_aborts_with_a_typed_failure_and_no_live_mutation
+* test_an_allocated_operation_retains_its_receipt_and_can_never_be_aborted
+* test_an_irreversible_recovery_diagnostic_holds_the_stage_and_never_permits_input
+* test_a_retained_diagnostic_blocks_every_forward_advance_until_reconciled
+31/31 passed.
+
+
+res://tests/unit/test_desktop_continuation_remapper.gd
+* test_remapper_exists
+* test_remap_table_only_marks_current_v4_members_handled
+* test_collect_rewindable_transaction_ids_covers_board_and_pending
+* test_prepare_remaps_board_identity_receipts_and_consequence_pending
+* test_prepare_rejects_a_transaction_remap_missing_a_rewindable_id
+* test_prepare_rejects_an_extra_transaction_remap_entry
+* test_prepare_rejects_two_sources_mapped_to_the_same_target
+* test_prepare_is_a_pure_function_of_its_inputs
+* test_prepare_remaps_source_ids_that_are_real_transaction_ids
+* test_prepare_leaves_genuinely_opaque_source_ids_unchanged
+* test_prepare_rejects_an_unsorted_historical_source_ids_record
+* test_prepare_rejects_a_duplicate_historical_source_ids_record
+* test_prepare_rejects_a_source_id_that_is_not_canonically_representable
+Unicode parsing error: Unpaired lead surrogate (d800 [eol])
+* test_validate_remap_accepts_its_own_prepare_output_and_rejects_a_tampered_candidate
+* test_prepare_rederives_a_source_commit_child_through_the_real_issuer_byte_for_byte
+* test_prepare_rejects_a_historical_source_commit_with_an_unregistered_child_kind
+* test_the_remappers_duplicated_child_kinds_equal_the_real_issuers_child_kinds_exactly
+17/17 passed.
+
+
+res://tests/unit/test_desktop_contracts.gd
+* test_identity_script_loads
+* test_registry_is_the_closed_seven_app_set
+* test_registry_get_record_rejects_unknown_app
+* test_registry_validate_all_passes_for_the_frozen_set
+* test_host_unknown_app_rejects
+* test_host_change_day_rejects_invalid_days
+* test_host_open_app_duplicate_same_day_is_a_noop_reopen
+* test_host_same_day_switching_reports_the_previously_active_app
+* test_host_capture_persistent_state_never_carries_cached_app_ids
+* test_host_get_state_returns_a_detached_copy
+* test_home_suspends_a_started_board_without_eviction
+* test_go_home_with_no_active_app_emits_no_commands
+* test_go_home_hides_a_non_board_app_without_suspending
+* test_go_home_with_an_already_suspended_board_hides_without_resuspending
+* test_go_home_never_evicts_the_cache
+* test_host_switching_away_from_an_active_board_suspends_it
+* test_host_minesweeper_resume_after_switch
+* test_host_open_app_reopening_the_same_app_emits_no_hide_or_suspend
+* test_host_open_app_never_blocks_the_other_six_apps_regardless_of_board_phase
+* test_host_change_day_discards_a_prepared_candidate
+* test_host_change_day_forfeits_a_started_board
+* test_host_change_day_with_no_board_emits_no_command
+* test_host_change_day_still_carries_the_existing_eviction_command_unmodified
+* test_host_command_lists_are_detached
+* test_identity_validate_accepts_the_frozen_shape
+* test_identity_validate_rejects_extra_key
+* test_identity_validate_rejects_missing_key
+* test_identity_validate_rejects_blank_strings
+* test_identity_validate_rejects_non_string_string_fields
+* test_identity_validate_rejects_non_integral_generation
+* test_identity_validate_rejects_negative_generation
+* test_identity_validate_rejects_ordinal_outside_1_to_5
+* test_identity_validate_accepts_every_ordinal_in_range
+* test_identity_fingerprint_is_stable_and_lowercase_hex
+* test_identity_fingerprint_changes_when_a_field_changes
+* test_identity_fingerprint_rejects_a_malformed_identity
+* test_identity_remap_replaces_exactly_branch_generation_and_day
+* test_identity_remap_rejects_blank_replacement_fields
+* test_identity_remap_rejects_negative_generation
+* test_identity_remap_rejects_a_malformed_source_identity
+* test_identity_validate_and_remap_never_mutate_the_caller_dictionary
+41/41 passed.
+
+
+res://tests/unit/test_desktop_first_reveal_snapshot_composer.gd
+* test_compose_projects_decremented_round_charged_motivation_and_revealed_board
+* test_compose_rejects_transaction_id_disagreement
+* test_compose_rejects_a_consequence_revision_that_no_longer_matches_the_base
+* test_compose_rejects_a_stale_board_pre_revision
+* test_compose_rejects_a_desktop_less_base_snapshot_input
+* test_compose_rejects_a_board_only_desktop_value
+* test_compose_rejects_an_extra_desktop_key
+* test_compose_rejects_a_non_first_reveal_board_candidate
+8/8 passed.
+
+
+res://tests/unit/test_desktop_identity_allocation_restore_participant.gd
+* test_participant_exists
+* test_prepare_rejects_an_incomplete_input_shape
+* test_prepare_succeeds_and_reproduces_the_frozen_fingerprint
+* test_prepare_rejects_a_source_hash_mismatch
+* test_prepare_rejects_a_remap_source_transaction_ids_mismatch
+* test_prepare_rejects_a_stale_allocation_candidate_fingerprint
+* test_apply_silent_durably_commits_and_replays_idempotently
+* test_apply_silent_rejects_a_malformed_plan
+* test_rollback_silent_never_reports_reversal
+* test_capture_and_finalize_are_trivially_successful
+10/10 passed.
+
+
+res://tests/unit/test_desktop_identity_nonce_issuer.gd
+* test_desktop_identity_nonce_issuer_skeleton_loads
+* test_issuer_advances_persisted_counter_before_returning_a_token
+* test_every_ordinary_purpose_issues_the_exact_value_and_outer_receipt
+* test_the_issuer_delegates_exactly_one_counter_advance_per_issuance
+* test_direct_generation_issuance_is_refused_with_the_frozen_code
+* test_direct_causal_day_issuance_is_refused_with_the_frozen_code
+* test_verify_issued_accepts_only_the_exact_ledger_receipt
+* test_every_registered_child_kind_derives_the_frozen_child_id
+* test_an_unregistered_child_kind_is_refused
+* test_a_child_may_not_anchor_to_a_forged_absent_or_wrong_purpose_parent
+* test_source_ids_must_arrive_already_sorted_unique_and_nonblank
+* test_validate_child_repeats_the_ledger_lookup_and_the_byte_derivation
+* test_a_new_run_request_requires_null_sources_and_an_empty_remap
+* test_a_restore_request_requires_a_run_a_generation_and_a_sorted_unique_source_set
+* test_prepare_continuation_allocation_is_mutation_free
+* test_a_new_run_bundle_proposes_generation_zero_and_an_initial_causal_day
+* test_a_restore_bundle_proposes_source_plus_one_and_a_fresh_branch
+* test_a_restore_bundle_includes_every_requested_source_remap_entry
+* test_an_identical_allocation_replay_returns_the_original_bundle
+* test_changed_allocation_bytes_at_the_same_transaction_conflict
+* test_a_failed_durable_advance_yields_no_token
+* test_no_issuer_api_lowers_the_root_counter
+* test_capture_root_is_detached_and_never_restores_root_state
+23/23 passed.
+
+
+res://tests/unit/test_desktop_issuer_root_store.gd
+* test_issuer_root_store_skeletons_load
+* test_load_or_create_persists_the_namespace_and_opens_at_counter_one
+* test_the_namespace_is_never_regenerated_after_the_first_use
+* test_a_namespace_source_failure_leaves_no_usable_root
+* test_the_root_document_has_exactly_the_frozen_key_set
+* test_day_advance_allocation_receipts_defaults_to_an_empty_map
+* test_capture_is_detached_from_the_store
+* test_issue_advances_the_persisted_counter_before_returning_a_token
+* test_every_purpose_mints_the_frozen_token_and_receipt_preimages
+* test_numeric_value_is_null_for_every_nonnumeric_purpose
+* test_a_failed_durable_advance_returns_no_token_and_burns_no_counter
+* test_no_api_lowers_the_counter
+* test_mutating_a_returned_receipt_cannot_reach_the_store
+* test_the_root_reloads_byte_for_byte_across_a_restart
+* test_missing_extra_or_malformed_root_members_are_rejected
+* test_receipt_deletion_and_replacement_are_refused
+* test_allocation_receipt_references_are_valid_and_byte_exact
+* test_each_required_root_member_rejects_missing_wrong_type_and_meaningful_malformed_values
+* test_each_append_only_root_member_rejects_deletion_and_replacement_but_exact_replay_succeeds
+* test_source_and_target_receipt_members_must_be_present_and_byte_identical_without_writing
+* test_real_root_new_run_and_restore_continuation_bundles_are_coherent_across_restart
+* test_real_issuer_new_run_and_restore_candidates_survive_durable_restart
+* test_commit_rejects_altered_or_extra_candidate_semantics_before_storage_mutation
+* test_the_two_allocation_maps_are_keyed_disjointly
+* test_committing_a_candidate_prepared_against_a_superseded_counter_conflicts
+* test_an_identical_allocation_replay_returns_the_recorded_bundle
+* test_a_changed_request_at_an_occupied_transaction_identity_conflicts
+* test_every_crash_cut_around_the_atomic_root_commit_leaves_a_consistent_root
+28/28 passed.
+
+
+res://tests/unit/test_desktop_outbox_publication_transition.gd
+* test_both_outbox_kinds_toggle_independently
+* test_publication_cannot_run_while_a_transaction_is_pending
+* test_publication_rejects_wrong_consumer_and_wrong_kind_and_absent_entry
+* test_publication_rejects_a_request_that_is_not_a_true_bit_flip
+* test_validate_rejects_unregistered_outbox_kind
+* test_validate_rejects_malformed_outbox_entry_member_set
+* test_validate_rejects_unregistered_outbox_status
+* test_empty_outbox_is_valid
+8/8 passed.
+
+
+res://tests/unit/test_desktop_publication_ledger.gd
+* test_fixed_path_and_kinds_are_frozen
+* test_missing_file_initializes_the_exact_empty_document
+* test_three_exact_kind_unions_accepted_and_extra_kind_rejected
+* test_document_and_record_union_is_exact_after_one_publication
+* test_causal_sequence_keys_are_nonblank_and_distinct_per_transaction
+* test_action_source_key_derives_from_commit_receipt_id_not_receipt_id
+* test_board_fate_key_derives_from_ordinary_receipt_id
+* test_causal_sequence_semantic_receipt_equals_publication_in_its_entirety
+* test_first_delivery_then_byte_identical_replay_across_a_cold_restart
+* test_occupied_key_with_changed_bytes_conflicts_without_rewriting_storage
+* test_request_hash_and_receipt_binding_enforced_before_any_write
+* test_configure_requires_the_root_scoped_capability_and_refuses_replacement
+* test_load_fails_closed_on_malformed_on_disk_json
+* test_disjoint_from_plan01_schedule_foundation_ledger
+14/14 passed.
+
+
+res://tests/unit/test_deterministic_rng32.gd
+* test_rng_script_loads
+* test_seed_rejects_blank_stream_id
+* test_calls_before_seed_reject_not_seeded
+* test_first_32_words_zero_normalized_nonce
+* test_first_32_words_ascii_nonce
+* test_first_32_words_unicode_nonce
+* test_zero_state_replacement_direct
+* test_zero_state_replacement_word_stream
+* test_seed_word_from_hex8_parses_nonzero_hex_without_replacement
+* test_domain_separation_produces_distinct_first_words
+* test_advancing_one_stream_leaves_the_others_captured_bytes_unchanged
+* test_reduced_8bit_sampler_is_exactly_equal_frequency
+* test_sample_bounded_matches_reference_stream_bound_5
+* test_sample_bounded_matches_reference_stream_bound_7
+* test_sample_bounded_rejects_non_positive_bounds
+* test_sample_bounded_never_uses_engine_rng
+* test_capture_returns_exact_five_member_shape
+* test_prepare_restore_round_trips_exactly
+* test_prepare_restore_rejects_a_state_under_another_stream_id_even_with_matching_numeric_state
+* test_prepare_restore_rejects_a_state_under_another_nonce
+* test_prepare_restore_rejects_wrong_algorithm
+* test_prepare_restore_rejects_malformed_shape
+* test_seeding_twice_with_the_same_identity_is_fully_deterministic
+23/23 passed.
+
+
+res://tests/unit/test_dialogic_ending_playback_port.gd
+* test_port_script_exists
+* test_initialize_accepts_bridge_and_rejects_replacement
+* test_initialize_rejects_bad_bridge
+* test_start_primary_returns_immediate_start_receipt
+* test_start_epilogue_ok
+* test_start_rejects_illegal_triples
+* test_synchronous_bridge_failure_creates_no_binding
+* test_completion_emits_playback_completed
+* test_mismatched_token_does_not_complete
+* test_async_failure_clears_binding_and_allows_restart
+* test_concurrent_identical_start_returns_cached_result
+* test_different_in_flight_returns_playback_in_progress
+12/12 passed.
+
+
+res://tests/unit/test_dialogic_preferences.gd
+* test_installed_version_preference_adapter_exists
+* test_dialogic_bridge_exposes_profile_preference_seams
+* test_adapter_maps_profile_values_to_live_caches_without_persistence
+* test_committed_dialogue_apply_failure_latches_shared_gate
+* test_failed_bridge_binding_is_retryable_and_connects_only_after_apply
+* test_bootstrap_binding_applies_installed_dialogic_preferences_exactly_once
+6/6 passed.
+
+
+res://tests/unit/test_dialogic_presentation_owner_adapter.gd
+* test_configure_is_idempotent_for_the_same_bridge_and_refuses_a_replacement
+* test_an_unconfigured_owner_starts_nothing_and_validates_nothing
+* test_an_incomplete_bridge_contract_is_refused
+* test_the_owner_declares_the_narrative_kind_only
+* test_begin_physical_starts_the_timeline_and_returns_the_derived_token
+    71 Orphans
+        * [DialogicLayout_VisualNovelStyle:<CanvasLayer#9639970221555>(default_layout_base.gd)] + 59
+* test_an_exact_replay_returns_the_identical_token_without_restarting_the_timeline
+[Dialogic Comment] #timeline_id: hospital.faint
+[Dialogic Comment] #locale: en
+[Dialogic Comment] #type: core
+[Dialogic Comment] #scene: HospitalScene
+[Dialogic Comment] #shown: after fainting / danger day
+* test_the_same_completion_id_with_changed_bytes_is_a_command_conflict
+* test_the_command_member_set_is_exact
+* test_an_unregistered_timeline_never_starts_a_presentation
+* test_the_runtime_end_signal_produces_exactly_one_trusted_completion
+* test_a_duplicate_runtime_end_signal_emits_no_second_completion
+* test_a_foreign_timeline_completion_is_ignored
+* test_no_public_bridge_method_can_forge_a_completion
+* test_the_emitted_receipt_validates_and_a_drifted_one_does_not
+* test_a_scene_authored_result_is_refused
+* test_a_completion_that_never_happened_cannot_be_validated
+* test_a_receipt_from_another_command_is_refused
+* test_the_validate_request_and_receipt_member_sets_are_exact
+18/18 passed.
+
+
+res://tests/unit/test_dialogic_runtime_adapter.gd
+* test_adapter_script_exists
+* test_bind_connects_audited_signals_once
+* test_bind_rejects_missing_text_subsystem
+* test_bind_rejects_missing_choices_subsystem
+* test_bind_rejects_null_runtime
+* test_start_timeline_orders_clear_reapply_then_start
+* test_capture_checkpoint_never_serializes_full_state
+* test_capture_and_restore_state_roundtrip
+* test_halt_ends_timeline_and_returns_error
+9/9 passed.
+
+
+res://tests/unit/test_effect_resolver.gd
+* test_known_stat_effects_mutate
+* test_known_money_and_coin_effects
+* test_unknown_effect_blocks_all
+WARNING: EffectResolver: unknown effect id(s) in ["pressure:+2", "bogus:+1"]; applying nothing. Source: 
+   at: push_warning (core/variant/variant_utility.cpp:1034)
+   GDScript backtrace (most recent call first):
+       [0] apply_effect_ids (res://autoload/EffectResolver.gd:117)
+       [1] test_unknown_effect_blocks_all (res://tests/unit/test_effect_resolver.gd:28)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+* test_inventory_and_gift_effects
+* test_affection_and_attitude_and_inter_friend
+* test_minesweeper_floor_alias_and_clamp
+* test_resolve_effects_normalizes_without_mutating
+* test_resolve_effects_rejects_unknown_and_non_string_ids
+* test_resolve_effects_accepts_an_empty_batch
+* test_apply_resolved_descriptors_requires_an_explicit_target
+* test_apply_resolved_descriptors_applies_onto_the_given_target
+* test_apply_resolved_descriptors_rejects_malformed_descriptors
+12/12 passed.
+
+
+res://tests/unit/test_effect_transactions.gd
+* test_variable_transaction_api_is_required
+* test_effect_transaction_api_is_required
+* test_detached_run_candidate_seam_is_required
+* test_resolver_exposes_pure_resolution
+* test_resolver_rejects_unknown_id_without_mutation
+* test_effect_transaction_is_atomic_on_invalid_member
+* test_effect_transaction_applies_once_and_is_idempotent
+* test_effect_transaction_conflict_on_same_id_different_payload
+* test_variable_transaction_commits_registered_value_once
+* test_variable_transaction_rejects_without_mutation
+* test_command_receipts_are_present_and_detached
+* test_applied_transaction_id_sets_start_empty
+* test_game_state_never_touches_the_gallery_ledger
+13/13 passed.
+
+
+res://tests/unit/test_fatal_diagnostic_projector.gd
+* test_fatal_diagnostic_projector_exists
+* test_projection_normalizes_and_detaches
+* test_invalid_subtrees_replaced_with_sentinels
+* test_depth_budget_maps_to_unsupported_type
+* test_diagnostics_projection_and_malformed_replacement
+* test_validate_failure_and_invariant_fallback
+* test_real_gate_accepts_every_projected_failure
+* test_single_projector_class
+8/8 passed.
+
+
+res://tests/unit/test_game_state.gd
+* test_reset_game_initial_values
+* test_run_serializer_excludes_permanent_profile_keys
+* test_reset_game_does_not_change_profile
+* test_change_stat_clamps
+* test_display_conversions
+* test_money_overdraft_rules
+* test_coin_spending_blocks_when_insufficient
+* test_opening_and_tutorial_flags
+* test_advance_day_resets_and_ends
+* test_round_floor_defaults
+* test_two_app_rounds_without_supportz
+* test_one_supportz_gives_three_rounds
+* test_three_supportz_caps_floor
+* test_danger_penalty_and_reset
+* test_hospital_recovery
+* test_save_dict_is_json_safe
+[Dialogic Comment] #timeline_id: hospital.faint
+[Dialogic Comment] #timeline_id: hospital.faint
+[Dialogic Comment] #timeline_id: hospital.faint
+[Dialogic Comment] #timeline_id: hospital.faint
+[Dialogic Comment] #timeline_id: hospital.faint
+[Dialogic Comment] #timeline_id: hospital.faint
+[Dialogic Comment] #timeline_id: hospital.faint
+[Dialogic Comment] #timeline_id: hospital.faint
+[Dialogic Comment] #timeline_id: hospital.faint
+[Dialogic Comment] #locale: en
+[Dialogic Comment] #type: core
+[Dialogic Comment] #scene: HospitalScene
+[Dialogic Comment] #shown: after fainting / danger day
+* test_apply_save_dict_preserves_state
+* test_save_whitelist_includes_rng_seed
+* test_rng_seed_round_trips_through_save
+* test_check_immediate_faint_requires_sequela_and_danger
+* test_check_immediate_faint_sequela_and_low_health
+* test_check_immediate_faint_sequela_no_danger
+* test_should_route_sylvia_special_ending_thresholds
+* test_hospital_recovery_counts_sylvia_solo
+* test_resolve_day7_sylvia_special_highest_precedence
+* test_resolve_day7_priscilla_lavinia_primary_no_epilogue
+* test_resolve_day7_candidate_binary_tone_sweet
+* test_resolve_day7_not_day7_returns_epilogue_key
+* test_contacts_bag_resets_to_stateless_defaults
+* test_identity_issuer_configuration_is_exact_and_replacement_fails
+* test_contact_commit_signals_emit_once_only_on_first_success
+* test_contact_proof_and_tampered_replay_failures_preserve_contacts_schedule_and_signals
+* test_group_reply_tampered_replay_preserves_contacts_schedule_and_signal_count
+* test_get_contact_view_delegates_to_module
+* test_contacts_survive_capture_and_rollback
+* test_contacts_restored_from_run_snapshot
+* test_new_run_snapshot_input_carries_contacts_defaults
+* test_reply_invitation_command_applies_and_is_idempotent
+* test_reply_invitation_rejects_empty_command_id
+* test_resolve_invitations_for_day_command_resolves_and_is_idempotent
+* test_resolve_invitations_for_day_rejects_empty_command_id
+* test_legacy_solo_open_choose_unlocks_date_on_invitation_day
+* test_legacy_choose_on_non_invitation_day_does_not_unlock
+* test_legacy_minesweeper_round_unlocks_contact_message
+* test_group_addable_only_after_reply_canon
+* test_migration_bridge_backfills_module_on_legacy_solo_flow
+* test_g1_minesweeper_round_generates_module_solo_offer
+* test_g2_round3_activates_module_group_on_group_day
+* test_g3_contact_open_assigns_group_inviter_via_module
+* test_g4_group_reply_routes_to_module_with_gate
+* test_open_contact_command_is_idempotent
+* test_open_contact_rejects_empty_command_id
+* test_request_next_ending_command_plays_primary_first
+* test_request_next_ending_command_rejects_outside_ending
+* test_complete_ending_playback_stage_advances_the_primary
+* test_complete_ending_playback_stage_rejects_a_transaction_mismatch
+* test_complete_ending_playback_stage_rejects_outside_ending
+* test_record_gallery_unlocks_the_primary_and_reaches_gallery_recorded
+* test_full_no_epilogue_ending_flow_completes_the_run_to_menu
+* test_full_with_epilogue_ending_flow_records_both_endings
+* test_ending_playback_resumes_after_a_state_round_trip
+* test_gallery_record_recovers_forward_after_a_partial_profile_failure
+* test_game_state_no_longer_owns_a_duplicate_schedule_effect_table
+63/63 passed.
+
+
+res://tests/unit/test_game_state_desktop_condition_context_port.gd
+* test_context_port_script_loads
+* test_configure_rejects_null_game_state
+* test_configure_rejects_an_issuer_without_the_child_capability
+* test_configure_identical_replay_is_idempotent_and_replacement_is_refused
+* test_snapshot_before_configure_fails_closed
+* test_snapshot_rejects_a_request_with_extra_or_missing_keys
+* test_snapshot_rejects_a_sequence_receipt_for_another_transaction
+* test_snapshot_rejects_a_receipt_from_another_live_identity
+* test_snapshot_rejects_a_day_the_live_lifecycle_is_not_in
+* test_snapshot_returns_the_exact_context_member_set
+* test_snapshot_reads_the_live_condition
+* test_snapshot_reports_dark_mode_when_any_route_has_two_dark_points
+* test_snapshot_collects_current_day_sources_sorted_by_action_then_receipt
+* test_snapshot_excludes_a_source_the_current_action_itself_unlocked
+* test_snapshot_reports_a_preexisting_sylvia_read_source
+* test_snapshot_is_read_only
+* test_snapshot_returns_detached_sources
+* test_derive_child_round_trips_through_the_real_issuer
+* test_snapshot_reports_committed_once_the_day_carries_a_commit_receipt
+* test_a_completed_resolution_plan_is_not_resolving
+20/20 passed.
+
+
+res://tests/unit/test_game_state_facade_contract.gd
+* test_configure_mutation_gate_matrix_without_side_effects
+* test_day_is_read_only_compatibility
+* test_prepare_new_run_snapshot_input_is_pure
+* test_request_schedule_done_delegates_through_production_port
+* test_schedule_commit_seams_are_narrow_reversible_and_silent
+* test_day7_terminal_via_facade_never_creates_day8
+6/6 passed.
+
+
+res://tests/unit/test_game_state_schedule_commit_port.gd
+* test_zero_entries_derive_the_empty_done_row_and_charge_no_motivation
+* test_entry_ordinals_follow_validated_slot_order_not_input_or_raw_slot
+* test_seven_entries_with_two_dates_and_repeats_charge_one_motivation_each
+* test_day7_accepts_empty_done_and_one_eligible_solo_at_slot_zero
+* test_insufficient_motivation_stale_registry_and_source_tamper_yield_no_candidate
+* test_forged_or_identifier_only_issuer_input_is_refused
+* test_same_transaction_replay_is_byte_identical_and_changed_bytes_conflict
+* test_every_row_projection_is_load_bearing_in_the_derived_identity
+* test_prepare_and_capture_are_pure_and_silent
+* test_commit_changes_only_motivation_and_committed_schedule_silently
+* test_rollback_restores_exactly_the_backup_and_preserves_concurrent_changes
+* test_stale_before_fingerprint_and_caller_mutation_after_prepare_are_refused
+* test_publish_requires_current_state_and_is_at_most_once_across_restart
+* test_a_changed_publication_byte_at_an_occupied_key_conflicts_without_a_signal
+* test_new_run_and_rollback_cannot_erase_or_lower_the_external_record
+* test_candidate_and_commit_bytes_are_independent_of_every_legacy_field
+* test_new_modules_never_name_the_legacy_schedule_api
+17/17 passed.
+
+
+res://tests/unit/test_hospital_presentation_port.gd
+* test_configure_is_idempotent_and_refuses_a_replacement_dependency
+* test_an_unconfigured_port_routes_nothing_and_starts_no_physical_presentation
+* test_the_hospital_port_refuses_a_dating_challenge_owner
+* test_an_incomplete_issuer_or_owner_is_refused
+* test_a_valid_intent_returns_the_canonical_command_and_nothing_else
+    71 Orphans
+        * [DialogicLayout_VisualNovelStyle:<CanvasLayer#9921810673526>(default_layout_base.gd)] + 59
+[Dialogic Comment] #timeline_id: hospital.faint
+[Dialogic Comment] #locale: en
+[Dialogic Comment] #type: core
+[Dialogic Comment] #scene: HospitalScene
+[Dialogic Comment] #shown: after fainting / danger day
+* test_the_request_member_set_is_exact
+* test_a_dating_route_is_refused_by_the_hospital_port
+* test_an_unregistered_locator_is_refused
+* test_the_hospital_context_member_set_and_kind_are_exact
+* test_hospital_context_arrays_must_be_sorted_and_unique
+* test_an_unverified_resolution_root_is_refused_before_any_physical_start
+* test_a_locally_derived_completion_id_is_refused
+* test_a_completion_child_of_the_wrong_kind_or_parent_is_refused
+* test_every_projected_field_binds_the_completion_child
+* test_a_changed_context_preimage_breaks_the_completion_binding
+* test_a_byte_identical_replay_returns_the_identical_command_and_token
+    71 Orphans
+        * [DialogicLayout_VisualNovelStyle:<CanvasLayer#9962075991965>(default_layout_base.gd)] + 59
+[Dialogic Comment] #timeline_id: hospital.faint
+[Dialogic Comment] #locale: en
+[Dialogic Comment] #type: core
+[Dialogic Comment] #scene: HospitalScene
+[Dialogic Comment] #shown: after fainting / danger day
+* test_a_drifted_replay_cannot_overwrite_the_stored_command
+[Dialogic Comment] #timeline_id: hospital.faint
+[Dialogic Comment] #locale: en
+[Dialogic Comment] #type: core
+[Dialogic Comment] #scene: HospitalScene
+[Dialogic Comment] #shown: after fainting / danger day
+* test_a_bypassed_binding_still_conflicts_on_command_identity
+[Dialogic Comment] #timeline_id: hospital.faint
+* test_a_trusted_owner_completion_produces_the_exact_frozen_receipt_once
+    71 Orphans
+        * [DialogicLayout_VisualNovelStyle:<CanvasLayer#9985580871566>(default_layout_base.gd)] + 59
+[Dialogic Comment] #timeline_id: hospital.faint
+[Dialogic Comment] #locale: en
+[Dialogic Comment] #type: core
+[Dialogic Comment] #scene: HospitalScene
+[Dialogic Comment] #shown: after fainting / danger day
+* test_a_duplicate_owner_emission_returns_the_same_receipt_without_a_second_publication
+[Dialogic Comment] #timeline_id: hospital.faint
+[Dialogic Comment] #locale: en
+[Dialogic Comment] #type: core
+[Dialogic Comment] #scene: HospitalScene
+[Dialogic Comment] #shown: after fainting / danger day
+* test_a_scene_authored_receipt_never_reaches_a_stage
+[Dialogic Comment] #timeline_id: hospital.faint
+* test_owner_receipt_drift_is_refused_before_any_stage_mutation
+    71 Orphans
+        * [DialogicLayout_VisualNovelStyle:<CanvasLayer#10009589067667>(default_layout_base.gd)] + 59
+[Dialogic Comment] #timeline_id: hospital.faint
+[Dialogic Comment] #locale: en
+[Dialogic Comment] #type: core
+[Dialogic Comment] #scene: HospitalScene
+[Dialogic Comment] #shown: after fainting / danger day
+* test_a_command_this_port_never_issued_is_refused
+* test_a_tampered_command_is_a_conflict_not_a_completion
+    71 Orphans
+        * [DialogicLayout_VisualNovelStyle:<CanvasLayer#10022893399964>(default_layout_base.gd)] + 59
+[Dialogic Comment] #timeline_id: hospital.faint
+[Dialogic Comment] #locale: en
+[Dialogic Comment] #type: core
+[Dialogic Comment] #scene: HospitalScene
+[Dialogic Comment] #shown: after fainting / danger day
+* test_the_complete_request_member_set_is_exact
+* test_an_owner_failure_publishes_exactly_one_failure_and_no_completion
+    71 Orphans
+        * [DialogicLayout_VisualNovelStyle:<CanvasLayer#10036180954744>(default_layout_base.gd)] + 59
+[Dialogic Comment] #timeline_id: hospital.faint
+[Dialogic Comment] #locale: en
+[Dialogic Comment] #type: core
+[Dialogic Comment] #scene: HospitalScene
+[Dialogic Comment] #shown: after fainting / danger day
+* test_an_emission_for_an_unknown_command_fails_rather_than_completing
+[Dialogic Comment] #timeline_id: hospital.faint
+[Dialogic Comment] #locale: en
+[Dialogic Comment] #type: core
+[Dialogic Comment] #scene: HospitalScene
+[Dialogic Comment] #shown: after fainting / danger day
+53 orphans
+27/27 passed.
+
+
+res://tests/unit/test_hospital_rules.gd
+* test_hospital_supersedes_every_committed_date_exactly_once_in_slot_order
+* test_no_dates_yields_a_required_hospital_with_no_misses
+* test_an_untriggered_hospital_supersedes_nothing
+* test_a_committed_sourced_sylvia_solo_produces_the_exact_witness_record
+* test_only_a_sourced_committed_sylvia_date_can_witness
+* test_at_most_one_witness_even_with_two_sylvia_dates
+* test_the_plan_is_deterministic_and_detached
+* test_invalid_requests_fail_closed_without_a_partial_plan
+8/8 passed.
+
+
+res://tests/unit/test_input_accessibility.gd
+* test_required_actions_exist
+* test_make_button_focusable
+* test_focus_first_control_finds_button
+* test_rebind_unknown_action_safe
+* test_permanent_settings_are_not_owned_by_game_state
+* test_accessibility_apply_no_crash
+* test_minimum_click_size_positive
+[WARNING]:  Test script has 3 unfreed children.  Increase log level for more details.
+7/7 passed.
+
+
+res://tests/unit/test_json_file_storage.gd
+* test_absent_reconcile_write_read_replace_and_restart
+* test_read_and_remove_require_a_fresh_unchanged_lease
+* test_remove_uses_durable_tombstone_and_cannot_resurrect_backup
+* test_markerless_final_wins_but_unowned_next_alone_is_indeterminate
+* test_prepared_marker_with_outgoing_next_promotes_new_winner
+* test_missing_validated_candidate_and_corrupt_marker_fail_closed
+* test_first_write_failpoints_restart_to_exact_new_or_absence
+* test_path_escapes_and_unbound_validators_reject_before_mutation
+8/8 passed.
+
+
+res://tests/unit/test_localization.gd
+* test_initialization_loads_manifest_and_returns_detached_selectable_records
+* test_alias_switch_commits_profile_before_signals_and_publishes_once
+* test_lookup_uses_registered_fallback_and_exact_placeholder_sets
+WARNING: Localization format for key 'hud.minesweeper_rounds'
+   at: push_warning (core/variant/variant_utility.cpp:1034)
+   GDScript backtrace (most recent call first):
+       [0] _warn_once (res://autoload/LocalizationManager.gd:434)
+       [1] t (res://autoload/LocalizationManager.gd:190)
+       [2] test_lookup_uses_registered_fallback_and_exact_placeholder_sets (res://tests/unit/test_localization.gd:97)
+       [3] _run_test (res://addons/gut/gut.gd:622)
+       [4] _test_the_scripts (res://addons/gut/gut.gd:835)
+WARNING: Localization missing for key 'missing.key'
+   at: push_warning (core/variant/variant_utility.cpp:1034)
+   GDScript backtrace (most recent call first):
+       [0] _warn_once (res://autoload/LocalizationManager.gd:434)
+       [1] t (res://autoload/LocalizationManager.gd:184)
+       [2] test_lookup_uses_registered_fallback_and_exact_placeholder_sets (res://tests/unit/test_localization.gd:99)
+       [3] _run_test (res://addons/gut/gut.gd:622)
+       [4] _test_the_scripts (res://addons/gut/gut.gd:835)
+[ExpectedError]
+* test_prepare_locale_is_detached_and_unknown_locale_mutates_nothing
+* test_pending_root_is_applied_during_initialization
+* test_pending_root_can_unregister_and_pending_failure_fails_initialization
+* test_ready_registration_applies_current_presentation_without_stale_state
+* test_root_apply_failure_rolls_back_prior_root_and_preserves_profile
+* test_profile_write_failure_rolls_back_all_roots_and_manager
+* test_initialization_canonicalizes_alias_and_removed_locale_to_durable_values
+* test_prepared_bundle_contains_only_candidate_fallback_chain
+* test_external_committed_language_change_applies_validated_memory_without_second_write
+* test_configured_mutation_gate_identity_survives_initialization
+* test_restore_apply_and_rollback_are_silent_and_detached
+14/14 passed.
+
+
+res://tests/unit/test_localization_extraction.gd
+* test_every_immutable_subset_record_remains_in_catalogs_exactly
+* test_immutable_fingerprint_matches_exact_50_25_25_records
+* test_manifest_and_catalog_bundle_are_semantically_valid
+* test_manifest_rejects_duplicates_paths_and_cycles
+* test_placeholder_mismatch_rejects_bundle
+5/5 passed.
+
+
+res://tests/unit/test_localized_binding.gd
+* test_ready_refreshes_each_supported_property_once
+* test_parameters_are_recursive_copies_and_refresh_only_after_valid_commit
+* test_locale_signal_refreshes_exactly_once_and_invalid_contracts_reject
+* test_presentation_prepare_apply_rollback_and_manager_registration
+4/4 passed.
+
+
+res://tests/unit/test_logout_coordinator.gd
+* test_logout_coordinator_exists
+* test_configure_rejects_a_save_manager_missing_save_for_logout
+* test_configure_rejects_a_route_port_missing_goto_menu
+* test_configure_rejects_a_stable_board_port_missing_the_frozen_contract
+* test_configure_is_idempotent_for_the_same_triple_and_rejects_replacement
+* test_request_logout_before_configure_fails_closed
+* test_unconfirmed_request_is_a_no_op
+* test_confirmed_request_while_a_bounded_slice_executes_returns_busy_without_saving
+* test_retry_logout_succeeds_once_the_slice_settles
+* test_retry_logout_for_an_unknown_transaction_fails_closed
+* test_save_failure_reports_logout_save_failed_and_never_routes
+* test_retry_after_disk_failure_reuses_the_same_transaction_identity_and_succeeds
+* test_identical_retry_of_request_logout_with_the_same_receipt_is_accepted
+* test_a_different_receipt_at_an_occupied_transaction_id_conflicts
+* test_cancel_logout_erases_a_known_transaction_and_rejects_unknown_ones
+* test_request_rejects_unexpected_member_sets_and_malformed_receipts
+* test_numbered_slots_are_never_touched_by_a_stub_that_would_fail_loudly
+17/17 passed.
+
+
+res://tests/unit/test_logout_policy.gd
+* test_no_does_not_save_route_or_complete_but_restores_focus
+* test_yes_with_checkpoint_saves_and_routes_not_completed
+* test_yes_without_checkpoint_no_write_but_routes_not_completed
+* test_policy_never_completes_lifecycle
+4/4 passed.
+
+
+res://tests/unit/test_minesweeper_board_generator.gd
+* test_generator_and_preparation_scripts_load
+* test_materialize_first_reveal_rejects_malformed_spec
+* test_materialize_first_reveal_rejects_out_of_range_first_cell
+* test_materialize_first_reveal_never_places_a_mine_on_first_cell_and_reveals_it
+* test_materialize_first_reveal_reduces_extras_only_when_insufficient_capacity
+* test_materialize_first_reveal_is_deterministic_for_the_same_spec_and_cell
+* test_validate_budget_schema_accepts_a_well_formed_fixture
+* test_validate_budget_schema_rejects_hard_budget_not_matching_the_exact_sum
+* test_validate_budget_schema_rejects_a_non_sha256_source_hash
+* test_validate_budget_schema_rejects_a_search_row_missing_nonce_ordinal
+* test_validate_budget_schema_rejects_an_extra_top_level_member
+* test_validate_fallback_schema_accepts_a_well_formed_fixture
+* test_validate_fallback_schema_rejects_mine_count_mismatch
+* test_validate_fallback_schema_rejects_wrong_kind
+* test_validate_budget_freshness_accepts_the_real_fallback_manifest_digest
+* test_validate_budget_freshness_rejects_a_drifted_fallback_manifest_digest
+* test_begin_debug_returns_generator_budget_unavailable_while_the_budget_manifest_is_absent
+    [Pending]:  this proof only applies while the generated budget manifest is absent
+* test_run_debug_slice_returns_generator_budget_unavailable_while_the_budget_manifest_is_absent
+    [Pending]:  this proof only applies while the generated budget manifest is absent
+* test_validate_prepared_accepts_a_correctly_projected_certified_preparation
+* test_validate_prepared_rejects_a_non_certified_preparation
+* test_validate_prepared_rejects_a_tampered_kernel_spec_projection
+* test_preparation_state_make_matches_kernel_begin
+* test_preparation_state_validate_rejects_wrong_member_set
+* test_preparation_state_validate_rejects_rng_state_belonging_to_a_different_nonce
+* test_preparation_state_advance_accepts_a_real_kernel_slice_result
+* test_preparation_state_advance_rejects_a_slice_result_with_a_drifted_spec
+* test_begin_debug_and_run_debug_slice_reach_certified_against_the_real_beginner_difficulty
+* test_run_debug_slice_falls_back_once_the_search_budget_has_no_room_left
+* test_run_debug_slice_rejects_once_the_hard_operation_budget_is_already_reached
+* test_begin_debug_and_run_debug_slice_are_deterministic_for_the_same_spec
+28/30 passed.
+
+
+res://tests/unit/test_minesweeper_board_schema.gd
+* test_schema_script_loads
+* test_reducer_script_loads
+* test_validate_spec_accepts_the_frozen_shape
+* test_validate_spec_rejects_extra_and_missing_keys
+* test_validate_spec_recomputes_raw_extra_mines
+* test_validate_spec_rejects_requested_mine_count_below_base
+* test_validate_spec_rejects_requested_mine_count_above_raw_ceiling
+* test_validate_spec_rejects_frozen_stream_and_version_literals
+* test_validate_spec_rejects_unknown_board_kind
+* test_validate_spec_rejects_blank_receipt_and_nonce_fields
+* test_validate_layout_accepts_a_matching_layout
+* test_validate_layout_rejects_dimension_mismatch
+* test_validate_layout_rejects_mine_count_not_matching_spec
+* test_validate_layout_rejects_duplicate_and_out_of_range_mine_indices
+* test_validate_layout_recomputes_mine_count_rather_than_trusting_it
+* test_validate_layout_canonicalizes_mine_index_order
+* test_validate_board_accepts_a_board_produced_by_first_reveal
+* test_validate_board_rejects_revealed_flagged_overlap
+* test_validate_board_recomputes_adjacency_rather_than_trusting_it
+* test_validate_board_recomputes_terminal_and_outcome_truth
+* test_validate_board_rejects_a_non_sequential_action_ledger
+* test_first_reveal_corner_zero_flood_clears_an_isolated_single_mine_board
+* test_first_reveal_edge_zero_flood_clears_an_isolated_single_mine_board
+* test_first_reveal_interior_zero_flood_clears_an_isolated_single_mine_board
+* test_first_reveal_every_first_cell_is_safe
+* test_first_reveal_partial_flood_leaves_boundary_cells_hidden
+* test_reveal_a_hidden_safe_cell_without_cascade
+* test_reveal_a_mine_explodes
+* test_reveal_every_remaining_safe_cell_clears_the_board
+* test_reveal_rejects_an_already_revealed_cell
+* test_reveal_rejects_a_flagged_cell
+* test_set_flag_flags_and_unflags
+* test_set_flag_rejects_a_revealed_cell
+* test_chord_with_matching_flags_reveals_the_remaining_hidden_neighbors
+* test_chord_rejects_a_flag_count_mismatch
+* test_chord_with_a_misflagged_neighbor_explodes
+* test_chord_rejects_a_zero_count_cell
+* test_duplicate_transaction_id_with_the_same_action_is_idempotent
+* test_duplicate_transaction_id_with_a_different_action_rejects
+* test_stale_action_on_a_terminal_board_rejects
+* test_board_round_trips_exactly_through_json
+41/41 passed.
+
+
+res://tests/unit/test_minesweeper_capabilities.gd
+* test_capability_rules_script_loads
+* test_resolve_owned_neither_item_is_baseline_only
+* test_resolve_owned_lucky_only
+* test_resolve_owned_debug_only
+* test_lucky_and_debug_compose_in_both_purchase_orders
+* test_resolve_owned_ignores_unowned_and_falsy_quantities
+* test_resolve_owned_capability_ids_are_registry_derived_not_hardcoded
+* test_resolve_owned_returns_a_detached_array
+* test_build_spec_inputs_raw_extra_formula
+* test_build_spec_inputs_odd_raw_extras_floor_divide_under_lucky
+* test_build_spec_inputs_even_raw_extras_halve_exactly_under_lucky
+* test_build_spec_inputs_debug_sets_forced_no_guess_without_touching_extras
+* test_build_spec_inputs_both_capabilities_halve_and_force_no_guess
+* test_build_spec_inputs_is_a_pure_prospective_projection
+* test_build_spec_inputs_rejects_malformed_owned
+* test_supportz_requires_two_current_day_base_completions
+* test_supportz_rejects_when_ordinal_one_is_replaced
+* test_supportz_rejects_when_ordinal_two_is_replaced
+* test_supportz_rejects_at_three_branch_purchases
+* test_supportz_accepts_up_to_two_branch_purchases
+* test_supportz_rejects_a_second_purchase_the_same_day
+* test_supportz_eligible_rejects_a_malformed_state
+* test_prepare_supportz_effect_first_purchase_floors_to_negative_one
+* test_prepare_supportz_effect_floor_progression_zero_to_negative_three
+* test_prepare_supportz_effect_uses_the_registry_declared_effect_id
+* test_prepare_supportz_effect_rejects_when_not_eligible
+* test_prepare_supportz_effect_rejects_blank_identifiers
+* test_prepare_supportz_effect_is_prospective_only
+28/28 passed.
+
+
+res://tests/unit/test_minesweeper_generator_kernel.gd
+* test_kernel_script_loads
+* test_begin_rejects_missing_spec_member
+* test_begin_rejects_extra_spec_member
+* test_begin_rejects_unknown_mode
+* test_begin_rejects_out_of_range_forced_cell
+* test_begin_rejects_invalid_board_kind
+* test_begin_base_count_impossibility_fails
+* test_begin_returns_exact_frontier_shape_and_status_searching
+* test_begin_insufficient_extra_capacity_clamps_effective_max_extra
+* test_begin_odd_extras_effective_max_extra_matches_requested
+* test_advance_rejects_nonpositive_operation_limit
+* test_advance_rejects_malformed_frontier_shape
+* test_advance_rejects_non_searching_frontier
+* test_advance_operations_used_equals_candidate_ordinal_times_total_cells
+* test_extra_tier_descends_by_one_per_failed_candidate_and_wraps_to_max
+    extra_tier wrap observed within 400 candidates: false
+* test_begin_is_byte_identical_for_the_same_inputs
+* test_advance_is_byte_identical_for_equal_frontiers_and_limits
+* test_calling_advance_twice_from_the_same_restored_frontier_reproduces_the_same_next_step
+* test_searching_result_leaves_debug_and_explosion_states_untouched
+* test_forced_cell_persists_across_failed_candidates_slices_and_restore
+* test_certified_candidate_never_places_a_mine_on_the_forced_cell
+* test_first_cell_zero_excludes_neighbors_from_the_mine_pool
+* test_certified_candidate_state_has_one_disposition_per_mine_from_allowed_vocabulary
+* test_fallback_construction_mode_has_no_dependency_on_the_generated_manifests
+* test_is_legal_status_accepts_only_the_three_frozen_values
+25/25 passed.
+
+
+res://tests/unit/test_minesweeper_no_guess_verifier.gd
+* test_verifier_script_loads
+* test_adjacent_zero_and_adjacent_full_case_certifies
+* test_subset_difference_case_certifies
+* test_global_remaining_isolated_room_case_certifies
+* test_all_four_rules_combination_case_certifies
+* test_determinism_under_permuted_mine_index_order
+* test_determinism_under_permuted_layout_dict_key_order
+* test_calling_verify_twice_on_the_same_layout_is_fully_deterministic
+* test_guess_required_negative_case_does_not_certify
+* test_budget_exhausted_negative_case_reports_no_partial_proof
+* test_verify_rejects_a_forced_cell_that_is_a_mine
+* test_verify_rejects_a_negative_operation_budget
+12/12 passed.
+
+
+res://tests/unit/test_minesweeper_rewards.gd
+* test_app_finish_rewards_money
+* test_exploded_still_rewards
+* test_dating_context_no_app_money
+* test_daily_cap_enforced
+* test_cap_grows_with_supportz
+* test_task_reward_once_only
+* test_win_win_win_claimable_once
+* test_fixture_set_is_exactly_five_outcomes_for_each_of_three_difficulties
+* test_fixtures_carry_no_seed_grid_mine_timer_or_board_state
+* test_every_fixture_derives_its_reward_through_production_rules
+* test_no_flag_and_foresight_keep_perfect_equivalent_rewards
+* test_no_flag_and_foresight_record_their_own_distinct_task_ids
+* test_dating_completion_awards_no_app_money_task_round_or_group_activation
+* test_dating_completion_records_a_nonempty_synchronized_outcome_id
+* test_app_completion_carries_no_dating_outcome_id
+* test_preparing_a_dating_completion_never_mutates_live_state
+16/16 passed.
+
+
+res://tests/unit/test_minesweeper_round_contract.gd
+* test_difficulties_are_exact
+* test_outcomes_are_exact
+* test_validate_start_request_accepts_app
+* test_validate_start_request_accepts_dating_with_string_variants
+* test_validate_start_request_rejects_bad_context
+* test_validate_start_request_rejects_bad_difficulty
+* test_validate_start_request_rejects_non_dict
+* test_build_round_id_format
+* test_validate_result_normalizes_app_outcome
+* test_validate_result_normalizes_stringname_outcome
+* test_validate_result_rejects_extra_keys
+* test_validate_result_rejects_bad_outcome
+* test_validate_result_rejects_dating_without_evidence
+* test_validate_result_rejects_app_with_evidence
+14/14 passed.
+
+
+res://tests/unit/test_minesweeper_round_coordinator.gd
+* test_configure_consequence_port_rejects_before_it_is_configured
+* test_configure_consequence_checkpoint_rejects_an_invalid_state_port
+* test_complete_round_requires_a_terminal_board
+* test_complete_round_delegates_to_accept_prepared_action_with_a_valid_receipt
+* test_complete_round_never_changes_live_board_truth_even_when_delegation_fails
+* test_complete_round_duplicate_replay_returns_identical_result
+* test_complete_round_retries_after_a_transient_accept_prepared_action_failure
+* test_complete_round_releases_the_gate_when_accept_prepared_action_abandons_a_pre_admission_pending
+* test_commit_recovery_action_adopts_the_board_projection_and_rejects_without_the_gate
+* test_publish_recovery_action_retains_the_gate_until_release_recovery_lease
+* test_coordinator_script_loads
+* test_coordinator_instantiates
+* test_configure_is_idempotent_on_identical_replay
+* test_configure_rejects_a_replacement_port
+* test_configure_rejects_a_port_missing_required_methods
+* test_get_entry_context_is_eligible_from_fresh_none_phase
+* test_get_entry_context_is_not_eligible_when_motivation_exhausted
+* test_get_entry_context_is_not_eligible_once_phase_leaves_none
+* test_debug_preparation_reaches_prepared_unstarted
+* test_first_reveal_from_none_produces_the_exact_frozen_receipt_shape
+* test_first_reveal_charges_exactly_once_and_advances_ordinal
+* test_first_reveal_receipt_provenance_validates_against_the_issuer
+* test_first_reveal_receipt_provenance_rejects_a_tampered_member
+* test_default_and_lucky_remain_none_until_reveal
+* test_first_reveal_adopts_a_certified_debug_candidate
+* test_first_reveal_rejects_a_difficulty_id_that_does_not_match_the_certified_candidate
+* test_duplicate_first_reveal_replays_the_original_receipt_without_recharging
+* test_changed_payload_on_the_same_transaction_id_conflicts
+* test_stale_revision_is_rejected
+* test_identity_mismatch_is_rejected
+* test_a_forged_transaction_receipt_is_rejected
+* test_a_receipt_whose_token_does_not_match_the_transaction_id_is_rejected
+* test_materialize_failure_charges_nothing
+* test_checkpoint_prepare_failure_charges_nothing
+* test_checkpoint_commit_failure_charges_nothing_and_needs_no_rollback
+* test_state_commit_failure_rolls_back_the_already_committed_checkpoint
+* test_seal_failure_rolls_back_board_state_and_state_port_and_checkpoint
+* test_seal_failure_leaves_the_ledger_without_a_recorded_transaction
+* test_publish_failure_after_seal_returns_committed_unpublished_and_keeps_the_commit
+* test_retry_after_committed_unpublished_publishes_the_existing_receipt_and_never_recharges
+* test_double_rollback_failure_latches_fatal_and_refuses_subsequent_calls
+* test_checkpoint_port_reports_never_production
+* test_routine_reveal_commits_a_new_board_revision_without_touching_the_other_ports
+* test_suspend_then_resume_round_trips_through_the_coordinator
+* test_set_flag_flags_a_hidden_cell
+* test_duplicate_terminal_causing_reveal_replays_without_reaching_the_reducer
+* test_get_state_returns_the_board_state_capture
+47/47 passed.
+
+
+res://tests/unit/test_minesweeper_shop_purchase_participant.gd
+* test_dynamic_script_probe_proves_every_preload_loads
+* test_configure_publication_ledger_is_idempotent_and_rejects_replacement
+* test_configure_requires_publication_ledger_first
+* test_configure_is_idempotent_and_rejects_replacement_owner
+* test_prepare_purchase_fails_closed_before_configure
+* test_quote_produces_the_exact_frozen_shape_and_derives_shop_quote_child_id
+* test_quote_is_idempotent_on_identical_replay
+* test_quote_a_second_item_under_the_same_transaction_conflicts
+* test_quote_rejects_an_unregistered_item
+* test_quote_rejects_a_transaction_receipt_that_does_not_verify
+* test_prepare_purchase_lucky_charm_produces_the_frozen_action_shape_and_is_pending
+* test_prepare_purchase_leaves_live_economy_board_sequence_and_outbox_byte_equal
+* test_prepare_purchase_durably_checkpoints_before_live_pending_is_adopted
+* test_prepare_purchase_acquires_and_retains_the_causal_transaction_lease
+* test_prepare_purchase_rejects_when_no_quote_was_retained
+* test_prepare_purchase_rejects_a_wrong_member_set
+* test_prepare_purchase_rejects_a_stale_run_revision
+* test_prepare_purchase_rejects_a_stale_causal_day_instance
+* test_prepare_purchase_rejects_insufficient_funds
+* test_prepare_purchase_rejects_lucky_charm_a_second_time_on_the_same_branch
+* test_prepare_purchase_rejects_a_second_pending_transaction_while_one_is_already_pending
+* test_prepare_purchase_duplicate_replay_is_idempotent_and_a_changed_payload_conflicts
+* test_prepare_purchase_recognizes_a_durable_pending_purchase_after_a_fresh_participant_instance
+* test_prepare_purchase_a_capability_purchase_is_invisible_to_an_already_frozen_board_capability_ids
+* test_supportz_purchase_rejects_without_two_base_completions_today
+* test_supportz_purchase_succeeds_with_two_base_completions_and_decrements_the_floor_on_commit
+* test_supportz_purchase_rejects_a_second_time_the_same_causal_day
+* test_supportz_purchase_rejects_a_fourth_time_on_the_same_branch
+* test_supportz_purchase_rejects_when_the_live_floor_no_longer_matches_the_branch_count
+* test_commit_rejects_without_the_gate_lease
+* test_commit_rejects_before_sequence_committed
+* test_commit_succeeds_after_sequence_committed_and_grants_the_capability
+* test_commit_is_idempotent_on_identical_replay_and_conflicts_on_changed_bytes
+* test_rollback_reverts_the_prepared_pending_and_releases_the_gate
+* test_publish_records_through_the_action_source_kind_and_releases_the_gate
+* test_publish_rejects_an_invalid_publication_shape
+* test_validate_recovery_action_is_mutation_free_and_returns_the_frozen_publication_shape
+* test_commit_recovery_action_grants_the_capability_and_is_idempotent
+* test_commit_recovery_action_rejects_changed_bytes_at_the_same_identity
+* test_publish_recovery_action_records_through_action_source_and_retains_the_gate
+* test_prepare_purchase_result_is_detached_from_internal_state
+41/41 passed.
+
+
+res://tests/unit/test_narrative_checkpoint_schema.gd
+* test_schema_script_exists
+* test_effect_boundary_builds_and_validates
+* test_line_boundary_uses_revealed_event
+* test_choice_boundary_uses_before_event
+* test_timeline_start_stages_first_event
+* test_timeline_complete_is_terminal
+* test_scene_transition_is_external_route
+* test_reject_wrong_fingerprint
+* test_reject_illegal_successor
+* test_reject_timeline_start_with_semantic_id
+* test_reject_line_with_transaction_id
+* test_reject_unregistered_event
+* test_reject_event_kind_mismatch
+* test_reject_timeline_completed_flag_on_nonterminal
+14/14 passed.
+
+
+res://tests/unit/test_profile_manager.gd
+* test_defaults_are_schema_valid_and_exact
+* test_schema_rejects_unknown_nested_fields_bad_types_and_aliases
+* test_invalid_skip_is_the_only_narrow_document_repair
+* test_legacy_patch_is_exact_detached_and_discards_runtime_audio
+* test_root_relative_legacy_input_import_is_one_shot_and_source_is_untouched
+* test_manager_initializes_once_and_uses_detached_snapshots
+* test_flat_fully_qualified_preference_batch_is_atomic
+* test_locale_candidate_commits_deferred_and_publishes_exactly_once
+* test_prepared_gallery_transaction_is_idempotent_and_conflicts_fail
+* test_gallery_and_entire_reset_retain_internal_ledgers
+* test_preference_reset_publishes_leaf_changes_before_one_summary
+* test_mutation_gate_configuration_is_identity_stable_and_side_effect_free
+* test_profile_schema_registers_observation_not_true
+* test_profile_document_remaps_retired_true_gallery_unlocks
+* test_visited_history_is_global_and_idempotent
+* test_visited_history_survives_a_new_run_and_only_its_own_reset_clears_it
+* test_visited_reset_leaves_other_profile_state_intact
+17/17 passed.
+
+
+res://tests/unit/test_restore_participants.gd
+* test_all_participant_scripts_exist
+* test_run_participant_prepare_and_delegation
+* test_profile_participant_prepares_legacy_patch_and_derives_locale
+* test_localization_and_audio_participants
+* test_route_participant_returns_ready_token
+* test_narrative_participant_unavailable_for_nonempty_playhead
+* test_participant_owner_failures_propagate
+7/7 passed.
+
+
+res://tests/unit/test_run_lifecycle.gd
+* test_day7_enters_ending_without_day8_or_rollover_stage
+* test_day3_full_resolution_increments_exactly_once
+* test_repeated_done_reuses_plan_and_conflict_rejects
+* test_restore_rejects_invalid_shapes
+* test_rollover_receipt_must_target_next_day
+* test_ending_playback_edges_and_terminal_completed
+* test_to_dict_shape_is_exact
+* test_reset_rejects_id_only_or_mismatched_provenance_downstream
+* test_get_desktop_identity_context_shape
+* test_continuation_remap_installs_the_new_identity_and_provenance
+* test_continuation_remap_rejects_a_bundle_for_a_different_run
+* test_continuation_remap_rejects_a_blank_restore_transaction_id
+* test_continuation_remap_rejects_an_incomplete_bundle
+13/13 passed.
+
+
+res://tests/unit/test_run_lifecycle_plan_seams.gd
+* test_prepare_produces_a_candidate_without_installing_it
+* test_prepare_is_pure_on_the_conflict_path_too
+* test_prepare_replaying_the_same_resolution_returns_the_existing_plan_and_says_so
+* test_a_prepared_candidate_commits_and_becomes_the_active_plan
+* test_commit_refuses_a_malformed_candidate_and_changes_nothing
+* test_capture_and_rollback_touch_only_the_active_plan
+* test_rollback_restores_a_null_active_plan_for_the_first_resolution_of_a_run
+* test_rollback_refuses_a_backup_it_did_not_produce
+8/8 passed.
+
+
+res://tests/unit/test_run_plan_succession.gd
+* test_same_id_replay_is_idempotent_after_completion
+* test_incomplete_different_id_still_conflicts
+* test_day_one_to_day_two_succession
+* test_failed_replacement_preserves_the_completed_plan
+* test_completed_plan_remains_observable_as_plan_complete
+* test_restore_a_completed_plan_then_succeed_it
+6/6 passed.
+
+
+res://tests/unit/test_run_snapshot_schema.gd
+* test_run_snapshot_schema_exists
+* test_build_produces_exact_valid_shape
+* test_validate_accepts_fixture_and_rejects_day8_and_shapes
+* test_validate_rejection_matrix
+* test_validate_enforces_ending_id_is_a_canonical_primary
+* test_validate_primitive_tree_rejects_engine_types
+* test_prepare_candidate_is_detached
+* test_is_compatible_bundle_checks_versions
+* test_derive_route_restore_context_exact_shape
+* test_schema_version_is_four
+* test_top_level_committed_schedule_replaces_legacy_schedule
+* test_gameplay_schedule_entries_is_retired
+* test_committed_schedule_validation_delegates_to_schedule_state_schema
+* test_committed_schedule_day_must_equal_lifecycle_day
+* test_committed_schedule_is_recursively_detached
+* test_v3_build_round_trips_the_aggregate_unchanged
+* test_validate_active_app_id_rejects_unregistered_and_accepts_registered_or_null
+* test_desktop_is_a_v4_top_level_member
+* test_desktop_lifecycle_identity_fields_are_exact_and_bound
+* test_desktop_board_and_consequence_delegate_to_their_own_owners
+* test_v3_pre_desktop_fixture_lacks_the_v4_member
+21/21 passed.
+
+
+res://tests/unit/test_save_document_schema.gd
+* test_save_document_schema_exists
+* test_quick_document_build_round_trips_json_null_slot_id
+* test_discriminator_matrix
+* test_validate_rejects_malformed_documents
+* test_document_version_is_four_and_embedded_snapshot_version_must_agree
+* test_prepare_candidate_is_detached
+6/6 passed.
+
+
+res://tests/unit/test_save_manager.gd
+* test_invalid_save_references_do_not_touch_storage
+* test_save_family_writes_closed_relative_names
+* test_logout_without_checkpoint_reports_unwritten
+* test_metadata_family_present_absent_corrupt_and_ordering
+* test_restore_preparation_and_delete_families
+* test_configure_mutation_gate_matrix_without_side_effects
+* test_deprecated_wrappers_delegate
+7/7 passed.
+
+
+res://tests/unit/test_save_manager_checkpoint_port.gd
+* test_prepare_consequence_checkpoint_builds_a_candidate_and_receipt
+* test_prepare_consequence_checkpoint_attaches_the_receipt_to_the_admission_candidate
+* test_commit_consequence_checkpoint_writes_and_rereads
+* test_commit_consequence_checkpoint_rejects_a_receipt_mismatch
+* test_commit_consequence_checkpoint_replays_an_identical_rewrite_at_an_occupied_slot
+* test_commit_consequence_checkpoint_rejects_a_different_rewrite_at_an_occupied_slot
+* test_a_committed_admission_checkpoint_reads_back_and_validates
+* test_abandon_pending_consequence_checkpoint_marks_a_pre_admission_checkpoint_abandoned
+* test_abandon_pending_consequence_checkpoint_rejects_a_nonexistent_transaction
+* test_abandon_pending_consequence_checkpoint_rejects_an_already_admitted_transaction
+* test_read_pending_consequence_checkpoint_finds_nothing_when_no_checkpoint_exists
+* test_prepare_consequence_checkpoint_requires_configuration
+* test_checkpoint_content_preimage_is_the_sole_builder
+* test_prepare_consequence_checkpoint_rejects_a_bad_ordinal_stage_pairing_at_ordinal_0
+* test_prepare_consequence_checkpoint_rejects_a_bad_ordinal_stage_pairing_at_ordinal_9
+15/15 passed.
+
+
+res://tests/unit/test_save_manager_narrative_checkpoint_port.gd
+* test_port_script_exists
+* test_configure_first_returns_instance_ids
+* test_configure_same_is_idempotent
+* test_configure_rejects_replacement_with_different_port
+* test_configure_rejects_missing_provider_key
+* test_configure_rejects_extra_provider_key
+* test_configure_rejects_non_callable_provider
+* test_configure_rejects_missing_real_port_method
+* test_commit_current_boundary_success_and_receipt
+* test_commit_current_boundary_calls_providers_in_order
+* test_commit_current_boundary_rejects_boundary_id_mismatch
+* test_commit_current_boundary_duplicate_returns_stored_receipt
+* test_commit_current_boundary_conflict_on_different_bytes
+* test_commit_current_boundary_rolls_back_on_commit_failure
+* test_line_boundary_derives_event_id
+* test_preview_checkpoint_id_proxies
+* test_low_level_prepare_commit_roundtrip
+* test_low_level_rejects_foreign_owner
+* test_narrative_provider_refusal_blocks_prepare
+* test_prepare_rejects_checkpoint_id_mismatch
+* test_commit_rejects_modified_candidate
+* test_commit_rejects_foreign_owner
+* test_only_one_candidate_may_exist_at_a_time
+* test_rollback_releases_the_owner_for_a_later_transaction
+* test_prepare_result_is_recursively_detached
+25/25 passed.
+
+
+res://tests/unit/test_save_migrations.gd
+* test_save_migrations_exists
+* test_ending_id_migration_map_and_passthrough
+* test_pair_token_migration
+* test_snapshot_v1_to_v2
+* test_migrate_document_rejects_pre_v4_source_after_running_the_historical_chain
+* test_schema_dispatch_rejects_future_and_invalid
+* test_v3_pre_desktop_source_rejects_unchanged
+* test_migrate_document_rejects_bad_locator
+* test_legacy_day8_group_synchronized_recompute
+* test_legacy_day8_non_group_preserved_at_day7
+* test_legacy_day8_fallback_bundles_are_pre_v4_and_now_find_none
+* test_legacy_day8_no_fallback_rejects
+* test_migrate_retired_true_ending_ids
+* test_snapshot_migration_fails_for_receiptless_applied_ids
+* test_document_migration_fails_for_receiptless_applied_ids
+* test_migration_adds_empty_ledger_only_when_both_arrays_are_empty
+* test_v1_to_v2_stamps_a_literal_two_not_the_current_constant
+* test_v2_to_v3_migrates_empty_legacy_schedule_to_the_canonical_empty_aggregate
+* test_v2_to_v3_takes_the_day_from_the_validated_lifecycle
+* test_v2_to_v3_rejects_nonempty_top_level_schedule
+* test_v2_to_v3_rejects_nonempty_gameplay_schedule_entries
+* test_v2_to_v3_rejects_malformed_legacy_representations
+* test_v2_to_v3_never_invents_a_source_receipt_for_an_accepted_invitation
+* test_v2_to_v3_rejects_an_invitation_accepted_earlier_and_since_resolved
+* test_v2_to_v3_never_fabricates_a_contacts_section
+* test_v2_to_v3_adds_only_the_two_empty_contacts_indexes
+* test_v2_to_v3_never_adopts_the_current_registry_fingerprint
+* test_v1_snapshot_still_travels_the_real_v1_to_v3_chain_before_the_v4_rejection
+* test_migration_never_touches_the_external_publication_ledger
+29/29 passed.
+
+
+res://tests/unit/test_schedule_action_registry.gd
+* test_load_current_returns_a_registry_and_its_fingerprint
+* test_fingerprint_is_a_bare_lowercase_sha256_string
+* test_the_production_fingerprint_matches_the_task_one_fixture
+* test_find_record_returns_the_exact_record_with_no_receipt
+* test_find_record_rejects_an_unregistered_action
+* test_returned_records_are_deeply_detached
+* test_the_registry_exposes_no_mutator
+* test_load_current_retains_one_instance_per_process
+* test_from_manifest_runs_the_same_validation_and_fingerprint_path
+* test_from_manifest_rejects_drift_rather_than_trusting_the_caller
+* test_the_embedded_schema_matches_the_published_contract
+* test_schedule_rules_accepts_the_production_registry
+12/12 passed.
+
+
+res://tests/unit/test_schedule_departure_view_port.gd
+* test_view_port_script_loads
+* test_configure_rejects_null_and_refuses_a_replacement_gate
+* test_prepare_rejects_extra_or_missing_keys
+* test_prepare_is_pure_and_projects_before_as_the_live_view
+* test_commit_requires_the_causal_transaction_lease
+* test_commit_rejects_extra_or_missing_keys_and_hash_mismatch
+* test_commit_applies_the_departure_and_returns_the_exact_receipt
+* test_commit_replay_returns_the_original_receipt_without_reapplying
+* test_commit_conflicts_on_changed_bytes_under_the_same_source_condition
+* test_commit_refuses_a_third_live_state
+* test_the_receipt_is_deterministic_across_independent_instances
+11/11 passed.
+
+
+res://tests/unit/test_schedule_done_dispatcher.gd
+* test_dispatcher_script_loads
+* test_configure_rejects_null_and_signalless_owners
+* test_configure_identical_replay_is_idempotent_and_replacement_is_refused
+* test_dispatch_before_configure_fails_closed
+* test_dispatch_done_forwards_the_command_and_returns_the_walk_result
+* test_a_published_completion_drives_complete_presentation_stage_exactly_once
+* test_both_retained_ports_drive_the_dispatch
+* test_a_failed_completion_dispatch_is_retained_not_raised
+* test_a_completion_published_mid_dispatch_is_queued_never_nested
+9/9 passed.
+
+
+res://tests/unit/test_schedule_foundation_publication_ledger.gd
+* test_fixed_path_and_published_schema_are_frozen
+* test_missing_file_initializes_the_exact_empty_document
+* test_document_and_record_union_is_exact_after_one_publication
+* test_first_delivery_then_byte_identical_replay_across_a_cold_restart
+* test_occupied_key_with_changed_bytes_conflicts_without_rewriting_storage
+* test_request_member_hash_and_receipt_binding_are_enforced_before_any_write
+* test_load_rejects_every_extra_missing_or_type_changed_document_member
+* test_records_and_documents_are_strictly_detached_primitives
+* test_write_read_and_schema_failures_return_failure_without_recording
+* test_configure_requires_the_root_scoped_capability_and_refuses_replacement
+10/10 passed.
+
+
+res://tests/unit/test_schedule_route_plan.gd
+* test_the_projection_emits_exactly_the_seven_contracted_keys
+* test_the_success_value_is_exactly_the_route_plan
+* test_route_and_effects_come_from_the_registry_not_the_entry
+* test_days_one_to_six_dates_route_to_dating
+* test_a_caller_supplied_route_on_the_entry_is_never_echoed
+* test_descriptors_are_emitted_in_committed_slot_order
+* test_both_legal_day_seven_aggregates_project_an_empty_physical_plan
+* test_a_stale_saved_fingerprint_is_rejected
+* test_the_projection_is_detached_from_both_inputs
+* test_no_partial_plan_is_returned_on_failure
+10/10 passed.
+
+
+res://tests/unit/test_schedule_source_receipts.gd
+* test_contacts_defaults_reserve_two_exact_source_indexes
+* test_opening_solo_is_the_acceptance_and_creates_a_distinct_source
+* test_solo_has_no_separate_reply_transition
+* test_group_reply_is_the_only_reply_that_creates_a_source
+* test_solo_source_persists_the_exact_matrix_row_and_replays_byte_identically
+* test_command_proof_rejections_and_conflicts_preserve_contacts
+* test_source_query_is_detached_and_registry_bound_including_day7
+* test_contacts_and_source_receipts_reject_widened_or_loosely_typed_state
+* test_source_validation_requires_exact_contacts_local_operation_and_predecessor_links
+* test_authenticated_replay_revalidates_the_exact_issuer_derived_source_child
+* test_contact_source_rejects_every_malformed_registry_record_member
+* test_solo_and_group_sources_enforce_every_plan01_projection_and_child_member
+* test_source_creation_rejects_id_only_wrong_purpose_and_mismatched_full_proof
+* test_day7_source_ancestry_rejects_offer_watermark_stale_participant_and_caller_id
+* test_solo_source_rejects_valid_typed_local_ancestry_tampers_at_every_seam
+* test_group_source_rejects_open_tuple_and_group_lineage_tampers_at_every_seam
+16/16 passed.
+
+
+res://tests/unit/test_schedule_state_schema.gd
+* test_empty_aggregate_builds_the_fresh_and_migrated_forms
+* test_receipt_backed_empty_done_is_valid_and_charges_zero_motivation
+* test_nonempty_committed_state_requires_exact_entry_and_receipt_equality
+* test_null_fingerprint_is_illegal_outside_the_migrated_empty_aggregate
+* test_caller_authored_route_effect_and_cost_members_are_rejected
+* test_validation_detaches_every_nested_value_and_defeats_aliases
+* test_commit_receipt_validates_independently_of_its_aggregate
+* test_canonical_projection_is_lowercase_sha256_over_canonical_bytes
+8/8 passed.
+
+
+res://tests/unit/test_schedule_strict_validation.gd
+* test_the_accepted_validator_interface_exists
+* test_a_caller_supplied_route_is_not_a_legal_draft_field
+* test_caller_supplied_effects_cost_and_unlock_fields_are_rejected
+* test_a_missing_draft_key_is_rejected
+* test_day_and_slot_must_be_strict_ints
+* test_identifiers_and_elements_must_be_nonempty_strings
+* test_draft_entry_ids_are_unique
+* test_slots_are_unique_within_zero_to_six_and_gaps_are_legal
+* test_the_registry_must_reproduce_kind_and_participants
+* test_an_unregistered_action_is_rejected
+* test_an_action_outside_its_allowed_days_is_rejected
+* test_a_stale_registry_fingerprint_is_rejected
+* test_ordinary_entries_require_a_null_source_and_dates_require_one
+* test_a_date_source_receipt_must_match_the_entry_exactly
+* test_a_date_source_receipt_of_the_wrong_kind_is_rejected
+* test_an_unresolvable_source_receipt_is_rejected
+* test_zero_through_seven_day_one_to_six_entries_are_legal
+* test_an_eighth_day_one_to_six_entry_is_rejected
+* test_zero_one_and_two_dates_are_legal_and_a_third_is_rejected
+* test_repeatable_ordinary_actions_repeat_with_distinct_draft_ids
+* test_a_nonrepeatable_date_cannot_repeat
+* test_priscilla_may_occupy_any_legal_day_four_slot
+* test_the_group_pair_must_be_in_canonical_order
+* test_a_tampered_group_pair_is_rejected
+* test_a_group_date_cannot_coexist_with_a_superseded_solo
+* test_day_seven_accepts_an_empty_draft
+* test_day_seven_accepts_exactly_one_solo_at_slot_zero
+* test_day_seven_rejects_ordinary_and_group_entries
+* test_day_seven_rejects_a_nonzero_slot_and_a_second_entry
+* test_existing_state_failure_wins_before_candidate_failure
+* test_candidate_success_implies_the_whole_prospective_draft_is_valid
+* test_a_valid_candidate_returns_a_detached_candidate_value
+* test_no_validator_charges_motivation
+33/33 passed.
+
+
+res://tests/unit/test_shop_rules.gd
+* test_eighteen_shop_items
+* test_supportz_properties
+* test_all_item_effects_are_known
+* test_currencies_valid
+* test_gift_items_flagged
+* test_schedule_projection_matches_the_registry_derived_rows_in_order
+* test_schedule_action_lookup_agrees_with_the_projection
+* test_schedule_ordinary_rows_equal_the_registry_records
+* test_schedule_registry_fingerprint_and_record_count_are_unchanged
+* test_shop_projection_matches_the_frozen_literals
+* test_registry_ids_are_the_closed_three_item_set_the_shop_purchase_participant_depends_on
+* test_shop_projection_equals_the_registry_records
+12/12 passed.
+
+
+res://tests/unit/test_skip_policy.gd
+* test_skip_policy_script_exists
+* test_skip_stops_before_variable_transaction
+* test_every_registered_boundary_stops_the_skip_in_both_modes
+* test_all_text_advances_through_unseen_text
+* test_all_text_advances_through_seen_text
+* test_read_only_advances_only_through_previously_visited_text
+* test_current_line_is_always_revealed_and_marked_visited
+* test_invalid_mode_behaves_exactly_as_read_only
+* test_decision_shape_is_exact
+9/9 passed.
+
+
+res://tests/unit/test_strict_json.gd
+* test_strict_parser_accepts_nested_object_and_detaches_values
+* test_strict_parser_rejects_duplicate_keys_before_materialization
+* test_strict_parser_rejects_non_object_root_and_trailing_tokens
+* test_strict_parser_rejects_invalid_strings_and_lone_surrogates
+* test_strict_parser_rejects_bad_numbers_and_integer_overflow
+* test_strict_parser_reports_first_error_location
+* test_canonical_writer_is_stable_across_dictionary_insertion_order
+* test_canonical_writer_preserves_types_and_escapes_controls
+* test_canonical_writer_rejects_unsupported_values_and_invalid_keys
+* test_schema_files_are_strict_json_and_validate_closed_objects
+10/10 passed.
+
+
+res://tests/unit/test_timeline_manifest.gd
+* test_exact_timeline_manifest_is_required
+* test_exactly_61_records_one_per_physical_file
+* test_status_counts_are_24_placeholder_37_draft
+* test_no_broad_pattern_lookup_remains_in_catalog
+* test_catalog_resolves_ids_through_manifest
+* test_endings_manifest_matches_canonical_rules
+6/6 passed.
+
+
+res://tests/unit/tooling/test_agent_workflow_authority_resolver.gd
+* test_resolves_every_frozen_link_kind
+* test_registered_design_amendment_resolves_without_an_approved_plan
+* test_plan_link_is_invalidated_when_approved_canonical_text_changes
+* test_plan_suite_resolves_roadmap_and_children_only_when_every_digest_binding_is_approved
+* test_repository_approved_suite_resolves_roadmap_and_all_four_children
+* test_packet_links_require_the_current_generated_index
+* test_specification_projection_rejects_unquoted_paths_duplicate_keys_and_indented_keys
+* test_unterminated_specification_preserves_a_matching_id_projection
+* test_unterminated_specification_preserves_a_matching_plan_projection
+* test_requirement_and_decision_duplicates_win_over_unrelated_validation_errors
+* test_packet_links_classify_unknown_unapproved_and_malformed_matches
+* test_approved_requirement_with_missing_dependency_has_an_invalid_source
+* test_accepted_decision_with_missing_requirement_target_has_an_invalid_source
+* test_malformed_beads_binding_and_snapshot_invalidate_their_matching_requirement
+* test_unrelated_packet_path_prefix_diagnostic_does_not_invalidate_a_matching_requirement
+* test_first_packet_with_a_duplicate_id_invalidates_its_unique_requirement
+* test_malformed_decision_requirement_lists_are_invalid_without_runtime_errors
+* test_non_dictionary_beads_metadata_is_invalid_without_runtime_errors
+* test_deferred_decision_null_or_scalar_blocking_ids_is_total_and_source_invalid
+* test_missing_decision_status_survives_index_render_as_an_identifiable_invalid_record
+* test_malformed_requirement_shapes_are_total_and_source_invalid
+* test_scalar_packet_requirements_or_beads_is_identifiable_and_source_invalid
+* test_duplicate_requirement_ids_invalidate_every_owning_packet_but_remain_duplicate_targets
+* test_symlinked_markdown_file_is_rejected_as_a_global_packet_source_error
+    [Pending]:  file symlink creation unavailable on this platform
+* test_symlinked_markdown_directory_is_rejected_as_a_global_packet_source_error
+* test_prompt_docs_junction_is_rejected_even_when_external_index_matches
+* test_ambiguous_or_non_descendant_authority_roots_are_source_invalid
+26/27 passed.
+
+
+res://tests/unit/tooling/test_agent_workflow_validator.gd
+* test_validator_rejects_every_frozen_drift
+* test_nonempty_links_must_resolve
+* test_validate_files_rejects_physically_missing_guide
+* test_repository_selector_is_hash_bound_and_rejects_rank_or_blocker_drift
+* test_repository_authority_pointers_are_registered_and_hash_bound
+* test_repository_agent_workflow_files_validate
+6/6 passed.
+
+
+res://tests/unit/tooling/test_design_authority_registry.gd
+* test_closed_registry_accepts_a_registered_base_and_amendment
+* test_registry_rejects_duplicate_ids_paths_and_unsorted_records
+* test_registry_enforces_the_manifest_id_and_exact_source_path_grammar
+* test_amendment_requires_accepted_status_and_exact_registered_lineage
+* test_optional_plan_binding_is_all_or_none_and_hash_checked
+* test_optional_plan_suite_binding_is_closed_and_projects_every_exact_plan
+* test_approved_plan_suite_binding_drift_preserves_specification_authority
+* test_runtime_authorization_requires_an_approved_verified_binding
+* test_repository_registry_resolves_the_accepted_amendment
+9/9 passed.
+
+
+res://tests/unit/tooling/test_desktop_amendment_evidence.gd
+* test_evidence_classes_generator_and_schemas_exist
+* test_schemas_reject_unknown_top_level_keys
+* test_build_rejects_a_non_hex_subject_commit
+* test_build_rejects_a_real_commit_carrying_the_wrong_subject
+* test_build_rejects_an_unresolvable_forty_hex_commit
+* test_generator_accepts_exactly_subject_commit_plus_one_mode_flag
+* test_generator_rejects_mixed_missing_duplicate_and_extra_flags
+* test_published_documents_bind_the_frozen_subject_and_recompute_byte_equal
+* test_published_documents_pass_law_and_schema_validation
+* test_no_field_in_either_published_document_is_a_numeric_object_instance_id
+* test_every_top_level_field_mutation_fails_closed
+* test_a_source_binding_hash_corruption_fails_closed
+* test_check_mode_never_opens_either_target_for_write
+* test_every_bound_red_green_log_is_curated_and_parses_to_its_real_outcome
+* test_the_gut_parser_refuses_a_log_truncated_before_its_run_summary
+* test_the_gut_parser_refuses_a_log_that_stops_before_the_terminal_verdict
+* test_the_gut_parser_refuses_a_verdict_that_contradicts_the_totals
+* test_a_bound_log_absent_from_the_named_commit_fails_the_record_build_closed
+* test_the_bootstrap_probe_test_log_bindings_are_curated_and_checked
+* test_both_schemas_floor_the_red_green_record_count_at_the_frozen_log_set_size
+* test_the_repository_schema_validator_actually_enforces_min_items
+* test_both_schemas_reject_an_empty_red_green_record_set
+* test_the_published_documents_bind_a_real_non_empty_red_green_record_set
+* test_the_record_builder_carries_each_bound_log_s_parsed_exit_code_from_the_tree
+* test_the_builder_field_keys_literal_equals_the_live_bootstrap_probe_field_list
+* test_the_gut_parser_reads_the_asserts_line_gut_actually_exits_on
+* test_the_gut_parser_refuses_an_all_passed_verdict_over_failing_asserts
+* test_every_test_log_binding_suite_id_is_its_log_file_name_minus_the_extension
+28/28 passed.
+
+
+res://tests/unit/tooling/test_desktop_contract_evidence.gd
+* test_evidence_class_and_both_clis_exist
+* test_schema_and_artifact_strict_parse_and_reject_duplicate_members
+* test_artifact_passes_schema_and_evidence_validation
+* test_every_source_digest_recomputes_to_exact_ordered_binding_equality
+* test_rebuilt_artifact_is_byte_equal_to_the_checked_in_bytes
+* test_every_top_level_field_mutation_fails_closed
+* test_every_nested_contract_record_mutation_fails_closed
+* test_every_mandatory_binding_delete_reorder_rename_or_corruption_fails_closed
+* test_an_uppercase_digest_is_rejected_even_though_the_schema_subset_allows_it
+9/9 passed.
+
+
+res://tests/unit/tooling/test_desktop_identity_issuer_boundary.gd
+* test_boundary_tooling_skeletons_load
+* test_task_one_json_documents_strict_parse
+* test_current_sources_still_match_the_frozen_public_surfaces
+* test_generator_derives_each_frozen_public_surface
+* test_generator_parser_treats_an_underscored_parameter_as_a_different_surface
+* test_generator_parser_skips_comments_annotations_privates_statics_and_inner_classes
+* test_parse_arguments_accepts_each_exclusive_mode
+* test_parse_arguments_rejects_every_malformed_invocation
+* test_immutable_boundary_record_binds_the_named_commit_tree
+* test_the_record_validates_while_bound_sources_drift_from_the_named_commit_tree
+* test_shop_registry_initializes_and_validates
+* test_shop_registry_exposes_exactly_the_three_frozen_records
+* test_shop_manifest_envelope_names_the_frozen_registry_version
+13/13 passed.
+
+
+res://tests/unit/tooling/test_dialogic_gate_summary.gd
+* test_gate_summary_writer_is_required
+* test_build_succeeds_on_complete_green_inputs
+* test_build_rejects_wrong_input_key_set
+* test_build_rejects_a_missing_or_escaping_path
+* test_build_rejects_fixture_count_mismatch
+* test_build_rejects_any_fixture_failure
+* test_build_rejects_duplicate_or_empty_requirement_ids
+* test_summary_links_dwm_p2r_8_and_claims_no_authorization
+* test_summary_contains_only_sorted_primitive_records
+9/9 passed.
+
+
+res://tests/unit/tooling/test_doc_frontmatter.gd
+* test_strict_frontmatter_contract
+1/1 passed.
+
+
+res://tests/unit/tooling/test_doc_validator.gd
+* test_validator_error_matrix
+* test_accepted_decision_contract_and_index
+* test_authority_index_validation_rejects_invalid_bytes_that_decode_like_expected_text
+3/3 passed.
+
+
+res://tests/unit/tooling/test_evidence_contract.gd
+* test_baseline_exists_and_matches_schema
+* test_every_command_proves_an_isolated_user_dir
+* test_heading_inventory_hash_is_bound_into_baseline
+* test_the_baseline_is_still_reached_through_its_own_kind
+* test_an_unrecognised_document_kind_fails_closed
+* test_a_document_declaring_no_kind_at_all_fails_closed
+* test_a_valid_closeout_gate_passes_the_schema_and_every_cross_field_law
+* test_the_closeout_gate_reaches_its_own_pass_and_never_the_baseline_one
+* test_a_gate_whose_worktree_commit_is_not_the_subject_is_rejected
+* test_a_gate_claiming_a_clean_worktree_with_a_dirty_status_hash_is_rejected
+* test_a_gate_repeating_a_command_id_is_rejected
+* test_a_command_record_whose_own_digest_is_stale_is_rejected
+* test_a_command_record_claiming_an_unexecuted_suite_is_rejected
+* test_a_command_record_whose_test_counts_do_not_add_up_is_rejected
+* test_a_gate_whose_summed_counts_disagree_with_its_records_is_rejected
+* test_a_gate_reporting_a_pending_test_without_a_diagnostic_is_rejected
+* test_a_classified_pending_test_is_accepted
+* test_a_gate_whose_primary_logs_are_out_of_order_is_rejected
+* test_a_primary_log_no_command_produced_is_rejected
+* test_a_command_log_absent_from_the_primary_list_is_rejected
+* test_a_primary_log_hash_that_differs_from_its_command_record_is_rejected
+* test_a_gate_whose_generated_paths_are_out_of_order_is_rejected
+* test_a_generated_path_inventory_missing_a_fixed_output_is_rejected
+* test_a_generated_path_inventory_missing_a_primary_log_is_rejected
+* test_a_requirement_map_that_is_not_in_sorted_key_order_is_rejected
+* test_a_requirement_mapping_to_no_record_is_rejected
+* test_a_requirement_record_that_is_not_the_exact_four_keys_is_rejected
+* test_a_requirement_repeating_one_command_and_log_is_rejected
+* test_requirement_records_out_of_command_and_log_order_are_rejected
+* test_a_requirement_record_bound_to_no_command_record_is_rejected
+* test_a_requirement_record_whose_log_hash_breaks_the_triple_hash_is_rejected
+* test_a_traversal_component_in_any_gate_path_is_rejected
+* test_the_schema_pattern_alone_admits_a_traversal_component
+* test_a_non_contract_class_whose_count_disagrees_with_its_ids_is_rejected
+34/34 passed.
+
+
+res://tests/unit/tooling/test_exact_path_commit.gd
+* test_exact_path_commit_contract_tokens
+* test_exact_path_commit_rejects_non_regular_blob_modes
+2/2 passed.
+
+
+res://tests/unit/tooling/test_legacy_disposition.gd
+* test_legacy_disposition_bijection_and_preservation
+LEGACY_DISPOSITION: PASS records=192
+1/1 passed.
+
+
+res://tests/unit/tooling/test_minesweeper_contract_evidence.gd
+* test_evidence_class_and_both_clis_exist
+* test_schema_and_artifact_strict_parse_and_reject_duplicate_members
+* test_artifact_passes_schema_and_evidence_validation
+* test_vocabularies_are_transcribed_from_the_production_contract
+* test_every_source_digest_recomputes_to_exact_ordered_binding_equality
+* test_rebuilt_artifact_is_byte_equal_to_the_checked_in_bytes
+* test_every_top_level_field_mutation_fails_closed
+* test_every_port_signature_mutation_including_the_three_gate_methods_fails_closed
+* test_fatal_latch_projection_order_and_retained_details_mutations_fail_closed
+* test_normalized_result_retry_phases_and_the_stage_post_result_call_fail_closed
+* test_one_fixture_id_mutation_fails_closed
+* test_every_mandatory_binding_delete_reorder_rename_or_corruption_fails_closed
+* test_an_uppercase_digest_is_rejected_even_though_the_schema_subset_allows_it
+13/13 passed.
+
+
+res://tests/unit/tooling/test_minesweeper_generator_artifacts.gd
+* test_all_tooling_and_generator_scripts_load
+* test_tooling_safety_operation_ceiling_is_exactly_frozen
+* test_runtime_generator_never_imports_tooling_limits_or_the_raw_ceiling_literal
+* test_runtime_generator_preloads_the_shared_kernel
+* test_both_tools_preload_the_shared_kernel
+* test_neither_tool_preloads_or_calls_the_runtime_generator
+* test_fallback_nonce_matches_the_frozen_sha256_formula
+* test_fallback_nonce_is_domain_separated_by_zero_flag_and_stream_id
+* test_fallback_builder_parse_arguments_accepts_write_and_check
+* test_fallback_builder_parse_arguments_rejects_bare_mode_and_verify_alias_and_both_modes
+* test_build_one_record_certifies_a_tiny_board_and_never_mines_the_forced_cell
+* test_build_one_record_first_cell_zero_yields_a_forced_cell_with_zero_mine_neighbors
+* test_build_one_record_reports_ceiling_reached_for_an_unreasonably_tiny_ceiling
+* test_fallback_builder_reads_the_real_frozen_difficulty_manifest_in_order
+* test_both_generated_manifests_exist_and_pass_their_own_schema_validators
+* test_benchmark_nonce_matches_the_frozen_sha256_formula
+* test_benchmark_search_and_fallback_case_ids_match_the_frozen_format
+* test_nearest_rank_p99_matches_the_frozen_formula_for_a_known_series
+* test_nearest_rank_p99_small_series
+* test_nearest_rank_p99_rejects_empty_series
+* test_ceil_div8_matches_integer_ceiling_division
+* test_next_power_of_two_exact_and_rounded_cases
+* test_next_power_of_two_rejects_nonpositive_input
+* test_next_power_of_two_rejects_signed_64_overflow
+* test_slice_operation_budget_floors_at_1024
+* test_search_operation_budget_is_next_power_of_two_of_double_the_maximum
+* test_reserved_fallback_operation_budget_is_next_power_of_two_of_max_plus_one
+* test_hard_operation_budget_is_the_exact_sum
+* test_benchmark_parse_arguments_accepts_write_and_check_only
+* test_run_search_case_default_uses_nonce_ordinal_modulo_cell_count_as_forced_cell
+* test_run_search_case_debug_draws_forced_cell_from_the_debug_stream
+* test_run_search_case_lucky_capability_ids_include_first_cell_zero
+* test_run_search_case_reports_ceiling_reached_for_an_unreasonably_tiny_ceiling
+* test_run_fallback_case_measures_a_single_cheap_verifier_call
+* test_row_projection_has_exactly_the_seven_frozen_input_fields
+* test_corpus_sha256_is_deterministic_and_order_sensitive
+36/36 passed.
+
+
+res://tests/unit/tooling/test_no_unconditional_pass.gd
+* test_audit_tool_exists
+* test_audit_flags_a_constant_true_assertion
+* test_audit_flags_bare_pass_test
+* test_audit_accepts_a_real_assertion
+* test_audit_accepts_constant_true_alongside_a_real_assertion
+* test_audit_ignores_non_test_functions
+* test_repository_contains_no_unconditional_pass_tests
+7/7 passed.
+
+
+res://tests/unit/tooling/test_phase2r_beads_manifest.gd
+* test_real_phase2r_manifest_conforms_to_its_schema
+* test_every_contract_plan_path_is_a_real_regular_repository_file
+* test_closed_first_five_contracts_bind_the_surviving_plan_set_index
+* test_every_manifest_specification_id_resolves_through_the_closed_design_registry
+4/4 passed.
+
+
+res://tests/unit/tooling/test_phase2r_closeout_gate_validator.gd
+* test_the_closeout_gate_validator_script_exists
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+* test_the_closeout_gate_schema_exists_and_is_the_one_the_validator_binds
+* test_the_six_closed_modes_are_exactly_the_declared_set
+* test_prerequisite_is_never_reachable_from_the_command_line
+* test_a_missing_mode_flag_is_rejected
+* test_a_repeated_mode_flag_is_rejected
+* test_an_unknown_mode_value_is_rejected
+* test_every_closed_mode_accepts_its_own_exact_argument_vector
+* test_every_closed_mode_rejects_each_of_its_own_flags_when_absent
+* test_every_closed_mode_rejects_a_repeated_flag
+* test_every_closed_mode_rejects_an_undeclared_flag
+* test_a_bare_positional_argument_is_rejected
+* test_the_auxiliary_modes_reject_every_inventory_flag
+* test_the_inventory_modes_reject_every_auxiliary_flag
+* test_preseal_rejects_the_receipt_flag_and_the_sealed_modes_require_it
+* test_the_final_epic_transition_mode_takes_no_beads_flag
+* test_a_gate_flag_that_does_not_resolve_below_the_evidence_root_is_rejected
+* test_a_gate_flag_naming_another_file_in_the_right_directory_is_rejected
+* test_a_gate_flag_that_only_traverses_back_to_the_right_file_is_rejected
+* test_a_receipt_flag_that_does_not_resolve_below_the_evidence_root_is_rejected
+* test_a_receipt_flag_naming_the_gate_is_rejected
+* test_a_trailing_separator_on_the_evidence_root_still_matches_the_gate
+* test_each_inventory_mode_dispatches_to_validate_with_its_own_inventory_mode
+* test_the_two_auxiliary_modes_dispatch_to_their_own_pure_seams
+* test_the_export_equivalence_mode_really_reaches_its_seam
+* test_the_final_epic_transition_mode_really_reaches_its_seam
+* test_a_gate_that_fails_the_schema_is_rejected_before_any_seam_runs
+* test_a_gate_carrying_an_extra_member_is_rejected
+* test_a_gate_with_another_document_kind_is_rejected
+* test_an_absent_gate_is_rejected_with_its_own_code
+* test_a_gate_that_is_not_strict_json_is_rejected
+* test_a_wrong_authority_digest_is_rejected
+* test_a_digest_naming_an_absent_document_is_rejected
+* test_preseal_does_not_read_the_receipt_or_the_command_record
+* test_an_absent_command_record_is_rejected_in_every_receipt_bearing_mode
+* test_a_command_record_carrying_a_second_line_is_rejected
+* test_a_command_record_that_is_not_lf_terminated_is_rejected
+* test_a_command_record_with_noncanonical_bytes_is_rejected
+* test_a_command_record_missing_or_carrying_an_extra_key_is_rejected
+* test_a_command_record_naming_another_command_is_rejected
+* test_a_command_record_with_a_changed_argv_is_rejected
+* test_a_command_record_with_a_drifted_gate_or_log_path_is_rejected
+* test_a_command_record_recording_a_nonzero_exit_is_rejected
+* test_a_command_record_whose_gate_hash_is_stale_is_rejected
+* test_a_command_record_whose_log_hash_disagrees_with_the_log_is_rejected
+* test_a_command_record_naming_another_subject_is_rejected
+* test_an_absent_validation_log_is_rejected
+* test_an_absent_receipt_is_rejected
+* test_a_receipt_missing_or_carrying_an_extra_key_is_rejected
+* test_a_receipt_that_is_not_lf_terminated_is_rejected
+* test_a_receipt_with_noncanonical_bytes_is_rejected
+* test_a_receipt_hashing_the_trimmed_command_line_is_rejected
+* test_a_receipt_whose_gate_hash_is_stale_is_rejected
+* test_a_receipt_whose_log_hash_differs_from_the_command_record_is_rejected
+* test_a_receipt_naming_another_subject_is_rejected
+* test_a_receipt_recording_a_nonzero_validator_exit_is_rejected
+* test_a_valid_evidence_root_clears_every_cli_law_and_reaches_the_inventory_seam
+* test_a_flag_with_an_empty_name_is_rejected
+* test_a_gate_that_is_not_valid_utf8_is_rejected
+Unicode parsing error, some characters were replaced with � (U+FFFD): Invalid UTF-8 leading byte (ff)
+* test_a_command_record_line_that_is_not_strict_json_is_rejected
+* test_a_receipt_line_that_is_not_strict_json_is_rejected
+* test_a_usage_failure_and_a_validation_failure_carry_distinct_exit_codes
+62/62 passed.
+
+
+res://tests/unit/tooling/test_phase2r_closeout_inventory.gd
+* test_the_fixture_git_helper_cannot_reach_the_repository_under_test
+* test_the_fixture_git_helper_cannot_commit_from_a_non_repository_path
+* test_the_fixture_git_helper_refuses_an_empty_working_directory
+* test_the_fixture_git_helper_still_permits_an_uncontained_clone
+* test_the_closed_mode_list_is_frozen
+* test_an_unknown_mode_string_fails_invalid_closeout_mode
+* test_a_lowercase_mode_fails_invalid_closeout_mode
+* test_a_non_string_mode_fails_invalid_closeout_mode
+* test_an_unreadable_metadata_path_fails_closed
+* test_an_unreadable_beads_snapshot_fails_closed
+* test_a_beads_snapshot_that_is_not_a_json_array_fails_closed
+* test_an_unreadable_requirement_index_fails_closed
+* test_prerequisite_succeeds_on_the_exact_real_prerequisite_state
+* test_the_success_envelope_has_exactly_the_eight_declared_keys
+* test_child_contracts_holds_exactly_sixteen_records_in_metadata_order
+* test_prerequisite_rejects_a_present_output_root
+* test_prerequisite_rejects_a_closed_closeout_issue
+* test_prerequisite_rejects_an_open_non_closeout_contract
+* test_prerequisite_rejects_a_closeout_issue_blocked_by_an_oyo_dependency
+* test_prerequisite_rejects_an_existing_closeout_note
+* test_prerequisite_rejects_a_missing_contract_record
+* test_prerequisite_rejects_a_duplicated_contract_record
+* test_prerequisite_rejects_a_contract_with_the_wrong_spec_id
+* test_prerequisite_rejects_a_contract_whose_plan_path_is_absent
+* test_prerequisite_rejects_metadata_that_declares_other_than_sixteen_contracts
+* test_non_contract_children_reports_both_classes_separately
+* test_the_class_id_arrays_are_reported_in_exact_declaration_order
+* test_each_class_count_equals_its_own_id_array_size
+* test_the_two_classes_are_never_merged_or_summed
+* test_no_class_member_appears_in_child_contracts
+* test_an_unnamed_fortieth_direct_child_fails_closed
+* test_an_open_historical_helper_fails_closed
+* test_an_open_execution_remediation_child_fails_closed
+* test_a_missing_execution_remediation_child_fails_closed
+* test_a_missing_historical_helper_fails_closed
+* test_an_id_claimed_by_a_class_and_the_contract_set_fails_closed
+* test_a_class_member_reparented_away_from_the_epic_fails_closed
+* test_every_declared_current_byte_evidence_link_is_hash_validated
+* test_a_mutated_current_byte_evidence_hash_fails_closed
+* test_an_absent_declared_evidence_path_fails_closed
+* test_the_historical_index_link_validates_its_committed_blob_not_current_bytes
+* test_the_current_index_bytes_genuinely_differ_from_the_historical_blob
+* test_a_changed_historical_source_commit_fails_closed
+* test_a_changed_historical_blob_hash_fails_closed
+* test_a_second_living_path_exception_fails_closed
+* test_an_empty_declared_evidence_set_stays_empty_and_pending_before_close
+* test_a_requirement_id_absent_from_the_generated_index_fails_closed
+* test_the_deferred_obligations_are_exactly_the_four_ordered_records
+* test_only_the_witness_obligation_may_carry_an_empty_requirement_list
+* test_every_deferred_requirement_resolves_in_the_current_index
+* test_pre_seal_succeeds_with_the_complete_uncommitted_candidate
+* test_pre_seal_rejects_a_present_closure_note
+* test_pre_seal_rejects_an_already_committed_evidence_commit
+* test_pre_seal_rejects_a_receipt_that_already_exists
+* test_pre_seal_rejects_a_validation_command_record_that_already_exists
+* test_pre_seal_rejects_a_missing_gate
+* test_pre_seal_rejects_a_requirement_evidence_key_set_that_is_short_one_key
+* test_pre_seal_rejects_an_extra_requirement_evidence_key
+* test_pre_seal_rejects_a_deferred_requirement_counted_as_phase2r_evidence
+* test_pre_seal_rejects_a_final_ending_requirement_claimed_complete
+* test_pre_seal_rejects_an_unsorted_requirement_evidence_record_array
+* test_pre_seal_rejects_a_duplicated_requirement_evidence_record
+* test_pre_seal_rejects_an_empty_requirement_evidence_record_array
+* test_pre_seal_rejects_a_record_whose_command_id_is_absent_from_the_gate
+* test_pre_seal_rejects_a_record_whose_command_record_hash_drifted
+* test_pre_seal_rejects_a_log_outside_the_closeout_log_root
+* test_pre_seal_rejects_a_log_hash_that_disagrees_with_the_file
+* test_sealed_pre_attach_succeeds_with_the_evidence_commit_at_head
+* test_sealed_pre_attach_rejects_any_note_on_the_closeout_issue
+* test_sealed_pre_attach_rejects_a_timestamp_only_beads_drift
+* test_a_simulated_drift_during_the_long_gate_fails_before_any_attachment_is_legal
+* test_sealed_pre_attach_rejects_an_evidence_commit_that_is_not_head
+* test_sealed_pre_attach_rejects_a_wrong_evidence_commit_subject
+* test_sealed_pre_attach_rejects_an_evidence_commit_carrying_an_out_of_root_path
+* test_sealed_pre_attach_rejects_a_generated_path_omission
+* test_sealed_pre_attach_rejects_a_merge_evidence_commit
+* test_sealed_pre_attach_rejects_a_mutated_committed_gate
+* test_sealed_pre_attach_rejects_a_preclose_snapshot_hash_that_drifted_from_the_gate
+* test_sealed_pre_attach_rejects_a_gate_whose_class_record_was_merged
+* test_sealed_pre_attach_rejects_a_gate_whose_class_ids_were_reordered
+* test_sealed_pre_attach_rejects_a_parent_that_is_not_the_attested_tooling_subject
+* test_sealed_pre_attach_rejects_an_executable_evidence_entry
+* test_sealed_pre_attach_rejects_a_working_receipt_that_differs_from_the_committed_blob
+* test_sealed_pre_attach_rejects_a_committed_receipt_naming_another_subject
+* test_sealed_pre_attach_rejects_an_attachment_already_in_the_preclose_baseline
+* test_attached_pre_close_succeeds_with_exactly_one_canonical_note
+* test_attached_pre_close_rejects_a_duplicate_note
+* test_attached_pre_close_rejects_a_note_naming_another_evidence_commit
+* test_attached_pre_close_rejects_a_noncanonical_note_payload
+* test_attached_pre_close_rejects_a_missing_note
+* test_attached_pre_close_rejects_a_closed_closeout_issue
+* test_attached_pre_close_rejects_a_delta_on_another_contract
+* test_attached_pre_close_rejects_notes_that_replaced_rather_than_appended
+* test_post_close_succeeds_once_all_sixteen_contracts_are_closed
+* test_post_close_flips_an_empty_evidence_set_to_satisfied_by_final_gate
+* test_post_close_rejects_a_premature_close_of_a_sibling_contract
+* test_post_close_rejects_a_wrong_close_reason
+* test_post_close_rejects_a_missing_closed_at
+* test_post_close_rejects_an_unauthorised_delta_on_a_class_member
+* test_post_close_rejects_a_still_open_closeout_issue
+* test_export_equivalence_accepts_a_faithful_projection
+* test_export_equivalence_rejects_a_consistently_truncated_projection
+* test_export_equivalence_rejects_a_wrong_type_marker
+* test_export_equivalence_rejects_an_inconsistent_parent_derivation
+* test_export_equivalence_rejects_a_mutated_retained_field
+* test_export_equivalence_rejects_a_missing_export_record
+* test_export_equivalence_rejects_a_non_lf_terminated_export
+* test_export_equivalence_rejects_a_root_record_carrying_a_parent_dependency
+* test_final_epic_transition_accepts_the_sole_permitted_epic_delta
+* test_final_epic_transition_rejects_a_changed_attachment_hash
+* test_final_epic_transition_rejects_an_extra_attachment_key
+* test_final_epic_transition_rejects_a_relocated_transition_path
+* test_final_epic_transition_rejects_a_wrong_attachment_schema_version
+* test_final_epic_transition_rejects_a_digest_that_is_not_a_sha256
+* test_final_epic_transition_rejects_a_wrong_contract_count
+* test_final_epic_transition_rejects_a_wrong_verdict
+* test_final_epic_transition_rejects_a_wrong_close_reason
+* test_final_epic_transition_rejects_a_duplicate_epic_note
+* test_final_epic_transition_rejects_a_delta_on_an_unrelated_issue
+* test_final_epic_transition_rejects_an_epic_left_open
+* test_the_success_envelope_conforms_to_the_committed_schema
+* test_the_populated_post_close_envelope_conforms_to_the_committed_schema
+* test_the_committed_schema_is_closed_over_exactly_the_eight_envelope_keys
+* test_the_committed_schema_pins_both_class_counts_separately
+124/124 passed.
+
+
+res://tests/unit/tooling/test_phase2r_schedule_gate.gd
+* test_generator_loads_and_freezes_its_contract
+* test_write_and_check_forms_are_accepted_with_exactly_the_three_flags
+* test_every_malformed_invocation_is_rejected_with_its_own_code
+* test_declared_surface_parser_applies_its_frozen_rules
+* test_comment_stripper_removes_comments_but_keeps_hash_characters_inside_strings
+* test_matrix_blob_is_selected_byte_exactly_from_the_committed_plan_text
+* test_matrix_delimiter_law_rejects_every_delimiter_tamper
+* test_the_thirteen_rows_are_read_out_of_the_plan_text
+* test_matrix_row_parser_rejects_structural_tampers_and_reflects_token_swaps
+* test_gut_log_parser_reads_counts_executed_suites_load_failures_and_vectors
+* test_derive_child_census_classifier_separates_definition_capability_calls_and_dynamic_sites
+* test_fixture_audit_accepts_exact_committed_entries_and_refuses_caller_owned_fields
+* test_every_checked_in_snapshot_and_save_fixture_passes_the_structural_audit
+* test_every_required_declared_surface_entry_is_present_and_every_retired_symbol_absent
+* test_forbidden_tokens_are_absent_from_executable_plan01_source
+* test_every_matrix_role_literal_is_owned_by_its_producer_and_unrealized_roles_are_absent
+* test_derive_child_census_at_head_attributes_every_call_site_to_a_matrix_producer
+* test_bootstrap_probe_key_set_and_owner_bindings_are_exact
+* test_required_surface_manifest_classifies_the_task4_game_state_seams
+* test_committed_entry_key_law_and_state_schema_agree
+* test_stage_arrays_are_frozen_and_the_ending_residue_is_unreachable
+* test_the_realized_witness_care_entry_format_is_pinned_with_its_plan_drift
+* test_day_advance_identity_shapes_are_bound_from_source
+* test_observed_vectors_for_contact_source_solo_empty_done_and_day7_provenance
+P2R15_OBSERVED_VECTOR:{"child_id":"contact_source.6a78cbf6a23f38f1786e6952996a397fdb325ee7a76ce75885b67f53d2703727","child_kind":"contact_source","ordinal":0,"parent_receipt_id":"issuer_receipt.561c0bed098616ac241cdc1ef544fecea208b0da18fc04255ceae8e5e370bd83","row_id":"P01.contact_source.solo","source_ids":["action_id=\"solo:sylvia:day1\"","command_id=\"transaction_id.13469209174fc1c8c5b0a5db5d013b54241cbb09aa76c5a99d8f3487590d5a3b\"","day=1","kind=\"solo_read_acceptance\"","participants=[\"sylvia\"]","previous_receipt_id=\"offer.solo:sylvia:day1\"","role=\"contact_source.solo\""]}
+P2R15_OBSERVED_VECTOR:{"child_id":"empty_schedule_done.c027a7661a121acb26bf01170e214f2a3045c3e4709520e01ebcb86eaa82041d","child_kind":"empty_schedule_done","ordinal":0,"parent_receipt_id":"issuer_receipt.a73477c9f5858a0ec4d49a14177baecc89b7630961556371bfb9b3382f1d34be","row_id":"P01.schedule.empty_done","source_ids":["causal_day_instance=\"causal_day_instance.1515151515151515151515151515151515151515151515151515151515151515\"","day=7","draft_entries_sha256=\"4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945\"","motivation_charged=0","registry_fingerprint=\"71eb92c6dc3b902cc9e6c17928685c0a4772a9da51150316b29177fef0d73c76\"","role=\"schedule.empty_done\"","schedule_entry_ids=[]","source_receipt_ids=[]","transaction_id=\"transaction_id.4387a405089591e99a4217cedfcc1ce1415cd1eab942be3337e73b480ab723d8\"","view_fingerprint=\"opaque_view.15151515151515151515151515151515\""]}
+P2R15_OBSERVED_VECTOR:{"child_id":"day7_schedule_provenance.28a22be00cf3f9aa751fd84ee292e6f497731d74a08a520dc39ea4dad3299605","child_kind":"day7_schedule_provenance","ordinal":0,"parent_receipt_id":"issuer_receipt.a73477c9f5858a0ec4d49a14177baecc89b7630961556371bfb9b3382f1d34be","row_id":"P01.schedule.day7_provenance","source_ids":["action_id=null","causal_day_instance=\"causal_day_instance.1515151515151515151515151515151515151515151515151515151515151515\"","cause=\"empty_done\"","day=7","registry_fingerprint=\"71eb92c6dc3b902cc9e6c17928685c0a4772a9da51150316b29177fef0d73c76\"","role=\"schedule.day7_provenance\"","schedule_commit_receipt_id=\"empty_schedule_done.c027a7661a121acb26bf01170e214f2a3045c3e4709520e01ebcb86eaa82041d\"","schedule_entry_id=null","source_receipt_id=null","transaction_id=\"transaction_id.4387a405089591e99a4217cedfcc1ce1415cd1eab942be3337e73b480ab723d8\""]}
+* test_observed_vectors_for_the_day3_hospital_walk_with_two_superseded_dates
+P2R15_OBSERVED_VECTOR:{"child_id":"contact_source.91577e1830b40dcc619d3b7bb11f75dbd1efc570fe8df4fe4a5ba3067540381f","child_kind":"contact_source","ordinal":0,"parent_receipt_id":"issuer_receipt.a73477c9f5858a0ec4d49a14177baecc89b7630961556371bfb9b3382f1d34be","row_id":"P01.contact_source.group","source_ids":["action_id=\"group:priscilla_lavinia:day2\"","command_id=\"transaction_id.4387a405089591e99a4217cedfcc1ce1415cd1eab942be3337e73b480ab723d8\"","day=2","kind=\"group_reply_acceptance\"","participants=[\"priscilla\",\"lavinia\"]","previous_receipt_id=\"group.activate.day2\"","role=\"contact_source.group\""]}
+P2R15_OBSERVED_VECTOR:{"child_id":"schedule_entry.4974eb21d05bed90bed3c43a83e1290f557d6cfd1a7ed5d81bae2365d689f555","child_kind":"schedule_entry","ordinal":0,"parent_receipt_id":"issuer_receipt.747c4a2256d48b7df09cfc0271c6056eae04e628bffd0b01bdc3853a5c5a4bae","row_id":"P01.schedule.entry","source_ids":["action_id=\"solo:lavinia:day3\"","action_kind=\"solo\"","causal_day_instance=\"causal_day_instance.1515151515151515151515151515151515151515151515151515151515151515\"","day=3","draft_entry_id=\"d-lav\"","participants=[\"lavinia\"]","registry_fingerprint=\"71eb92c6dc3b902cc9e6c17928685c0a4772a9da51150316b29177fef0d73c76\"","role=\"schedule.entry\"","slot_index=0","source_receipt_id=\"contact_source.133b64acba1f91d66a2a30f68384d0ac3c3ed90bbd84795cf882dd801035964a\"","transaction_id=\"transaction_id.e3a462936cc8ba87f45b7acf2ab6c46233707bc487d61e0b1ec73e9665c1eca9\"","view_fingerprint=\"opaque_view.15151515151515151515151515151515\""]}
+P2R15_OBSERVED_VECTOR:{"child_id":"schedule_commit.0c29b5a16700dd8ea07d53362c366333cf46051b4d42fdc22bed9862d73b3d90","child_kind":"schedule_commit","ordinal":0,"parent_receipt_id":"issuer_receipt.747c4a2256d48b7df09cfc0271c6056eae04e628bffd0b01bdc3853a5c5a4bae","row_id":"P01.schedule.commit","source_ids":["causal_day_instance=\"causal_day_instance.1515151515151515151515151515151515151515151515151515151515151515\"","day=3","draft_entries_sha256=\"8f45a2efeb6b214e02883955d58ebcfb18113e3879306127c5a8a2a75be5e70d\"","motivation_charged=3","registry_fingerprint=\"71eb92c6dc3b902cc9e6c17928685c0a4772a9da51150316b29177fef0d73c76\"","role=\"schedule.commit\"","schedule_entry_ids=[\"schedule_entry.4974eb21d05bed90bed3c43a83e1290f557d6cfd1a7ed5d81bae2365d689f555\",\"schedule_entry.b5da40b17f2ca8d1e3dd835d78097db25d9c0076d9dee7033b210147ce909dc9\",\"schedule_entry.97416024f22e21293d63ba241850406ca6b60806a709e04d17d85f16f93e8c30\"]","source_receipt_ids=[\"contact_source.133b64acba1f91d66a2a30f68384d0ac3c3ed90bbd84795cf882dd801035964a\",\"contact_source.f06a997da198dd59c12a7d51a797adf13b799e2db4b79a850a64a1d7f165a1f3\",null]","transaction_id=\"transaction_id.e3a462936cc8ba87f45b7acf2ab6c46233707bc487d61e0b1ec73e9665c1eca9\"","view_fingerprint=\"opaque_view.15151515151515151515151515151515\""]}
+P2R15_OBSERVED_VECTOR:{"child_id":"day_resolution_stage.ce2f0492805844a84450ca50272a6720f34f0a39b0a8a66eec18e7dfc4f3a6ef","child_kind":"day_resolution_stage","ordinal":0,"parent_receipt_id":"issuer_receipt.852bfe2ce4de85a7e59d77412752ac847eea997cb05aa81436148218090aa045","row_id":"P01.day_resolution.start","source_ids":["board_fate_receipt_id=\"issuer_receipt.8a5c3c9c9c64486190d2f0f0295e91fbf737d6941cf79240bd258494cb9022d5\"","board_fate_receipt_sha256=\"03af9ce2216c41ff2da8eaa82f9efc686d845495d3cf3c3602b67f576e6a7215\"","causal_day_instance=\"causal_day_instance.1515151515151515151515151515151515151515151515151515151515151515\"","committed_schedule_sha256=\"f8eaa147f7f382e0eb87167cdad8cda931e044d74e8147e7b195d3e8f35d1456\"","registry_fingerprint=\"71eb92c6dc3b902cc9e6c17928685c0a4772a9da51150316b29177fef0d73c76\"","resolution_id=\"transaction_id.f21ebadf0a61949e95602cfb81e6860294036dd2b3c050336aa40b89af3ce246\"","role=\"day_resolution.start\"","route_plan_sha256=\"bae1d0a37d4747b52b758c4eca48a7303a44a05cdcf1ec6a5f648b22ff2c0a89\"","schedule_commit_receipt_id=\"schedule_commit.0c29b5a16700dd8ea07d53362c366333cf46051b4d42fdc22bed9862d73b3d90\"","schedule_entry_ids=[\"schedule_entry.4974eb21d05bed90bed3c43a83e1290f557d6cfd1a7ed5d81bae2365d689f555\",\"schedule_entry.b5da40b17f2ca8d1e3dd835d78097db25d9c0076d9dee7033b210147ce909dc9\",\"schedule_entry.97416024f22e21293d63ba241850406ca6b60806a709e04d17d85f16f93e8c30\"]","source_day=3"]}
+P2R15_OBSERVED_PUBLICATION:{"conflict_code":"day_resolution_start_publication_conflict","first_delivery_sequence":[true,false],"kind":"day_resolution_start","owner":"day_resolution_start_port","signal":"save_relevant_state_changed","signal_counts":[1,1]}
+P2R15_OBSERVED_VECTOR:{"child_id":"hospital_resolution.7fb23f058eb72bb3ebad72e1f21c8dc2d101f1cd0a924475e3d8ecbc9e40d7e8","child_kind":"hospital_resolution","ordinal":0,"parent_receipt_id":"issuer_receipt.852bfe2ce4de85a7e59d77412752ac847eea997cb05aa81436148218090aa045","row_id":"P01.hospital.resolution","source_ids":["causal_day_instance=\"causal_day_instance.1515151515151515151515151515151515151515151515151515151515151515\"","condition_receipt_id=\"issuer_receipt.d319071d76682d873551f74c44eacfb0314b99ada6a3c331619acd44d1f9ea02\"","date_schedule_entry_ids=[\"schedule_entry.4974eb21d05bed90bed3c43a83e1290f557d6cfd1a7ed5d81bae2365d689f555\",\"schedule_entry.b5da40b17f2ca8d1e3dd835d78097db25d9c0076d9dee7033b210147ce909dc9\"]","day_resolution_start_receipt_id=\"day_resolution_stage.ce2f0492805844a84450ca50272a6720f34f0a39b0a8a66eec18e7dfc4f3a6ef\"","required=true","resolution_id=\"transaction_id.f21ebadf0a61949e95602cfb81e6860294036dd2b3c050336aa40b89af3ce246\"","role=\"hospital.resolution\"","schedule_commit_receipt_id=\"schedule_commit.0c29b5a16700dd8ea07d53362c366333cf46051b4d42fdc22bed9862d73b3d90\"","source_day=3"]}
+P2R15_OBSERVED_VECTOR:{"child_id":"hospital_miss.a9c8c876c01e07f639c76cda9a34b34a967a614a031d2f6eee9833479a1b9735","child_kind":"hospital_miss","ordinal":0,"parent_receipt_id":"issuer_receipt.852bfe2ce4de85a7e59d77412752ac847eea997cb05aa81436148218090aa045","row_id":"P01.hospital.miss","source_ids":["action_id=\"solo:lavinia:day3\"","causal_day_instance=\"causal_day_instance.1515151515151515151515151515151515151515151515151515151515151515\"","hospital_resolution_id=\"hospital_resolution.7fb23f058eb72bb3ebad72e1f21c8dc2d101f1cd0a924475e3d8ecbc9e40d7e8\"","reason=\"prevented_by_fainting\"","resolution_id=\"transaction_id.f21ebadf0a61949e95602cfb81e6860294036dd2b3c050336aa40b89af3ce246\"","role=\"hospital.miss\"","schedule_entry_id=\"schedule_entry.4974eb21d05bed90bed3c43a83e1290f557d6cfd1a7ed5d81bae2365d689f555\"","source_day=3","source_receipt_id=\"contact_source.133b64acba1f91d66a2a30f68384d0ac3c3ed90bbd84795cf882dd801035964a\""]}
+P2R15_OBSERVED_VECTOR:{"child_id":"day_resolution_stage.ab2aaf6e617615bebd3151a2afc302bef64370cfdc0fa09e6dd431b25999b86b","child_kind":"day_resolution_stage","ordinal":0,"parent_receipt_id":"issuer_receipt.852bfe2ce4de85a7e59d77412752ac847eea997cb05aa81436148218090aa045","row_id":"P01.presentation.intent","source_ids":["causal_day_instance=\"causal_day_instance.1515151515151515151515151515151515151515151515151515151515151515\"","context_sha256=\"1b4284381946d74ec1f29e66cbdce6d917ba60c4b8b321b72d5c9c74a1c89fa3\"","day_resolution_start_receipt_id=\"day_resolution_stage.ce2f0492805844a84450ca50272a6720f34f0a39b0a8a66eec18e7dfc4f3a6ef\"","input_receipt_ids=[\"hospital_miss.515b794cf75e2a459567448e6295362b4642b7727bad87a3c7560c7fb8f04c4d\",\"hospital_miss.a9c8c876c01e07f639c76cda9a34b34a967a614a031d2f6eee9833479a1b9735\",\"issuer_receipt.d319071d76682d873551f74c44eacfb0314b99ada6a3c331619acd44d1f9ea02\"]","presentation_kind=\"hospital\"","resolution_id=\"transaction_id.f21ebadf0a61949e95602cfb81e6860294036dd2b3c050336aa40b89af3ce246\"","role=\"presentation.intent\"","route_id=\"hospital\"","schedule_entry_id=null","source_day=3","stage_index=4","stage_name=\"hospital_if_triggered\"","timeline_id=\"hospital.faint\""]}
+P2R15_OBSERVED_VECTOR:{"child_id":"day_resolution_stage.2687929ca0a0526dd09915bbe98841a0da0c94a4341ad724e9880f3e642da79a","child_kind":"day_resolution_stage","ordinal":0,"parent_receipt_id":"issuer_receipt.852bfe2ce4de85a7e59d77412752ac847eea997cb05aa81436148218090aa045","row_id":"P01.presentation.completion","source_ids":["context_sha256=\"1b4284381946d74ec1f29e66cbdce6d917ba60c4b8b321b72d5c9c74a1c89fa3\"","resolution_id=\"transaction_id.f21ebadf0a61949e95602cfb81e6860294036dd2b3c050336aa40b89af3ce246\"","role=\"presentation.completion\"","route_id=\"hospital\"","stage_id=\"transaction_id.f21ebadf0a61949e95602cfb81e6860294036dd2b3c050336aa40b89af3ce246:hospital_if_triggered\"","substage_id=\"day_resolution_stage.ab2aaf6e617615bebd3151a2afc302bef64370cfdc0fa09e6dd431b25999b86b\"","timeline_id=\"hospital.faint\""]}
+* test_observed_publication_vectors_over_the_real_ledger_and_ports
+P2R15_OBSERVED_PUBLICATION:{"conflict_code":"publication_record_conflict","first_delivery_sequence":[true,false],"kind":"schedule_commit","owner":"ledger","signal":"","signal_counts":[]}
+P2R15_OBSERVED_PUBLICATION:{"conflict_code":"schedule_publication_conflict","first_delivery_sequence":[true,false],"kind":"schedule_commit","owner":"schedule_commit_port","signal":"committed_schedule_published","signal_counts":[1,1]}
+P2R15_OBSERVED_PUBLICATION:{"conflict_code":"publication_record_conflict","first_delivery_sequence":[true,false],"kind":"day_resolution_start","owner":"ledger","signal":"","signal_counts":[]}
+* test_observed_day7_scheduled_solo_handoff
+* test_every_observed_provenance_is_refused_by_the_issuer_when_any_member_is_mutated
+* test_unrealized_rows_are_pinned_to_their_recorded_deviations
+* test_record_is_absent_before_generation_or_valid_canonical_and_source_bound_afterwards
+* test_the_law_rejects_every_record_tamper_with_its_own_code
+* test_the_schema_rejects_every_frozen_member_tamper_on_its_own
+* test_only_the_law_sees_digest_case_commit_length_and_vector_paths
+* test_the_record_binds_the_recorded_beads_chain_and_exclusions
+34/34 passed.
+
+
+res://tests/unit/tooling/test_project_config_guard.gd
+* test_inspect_text_matrix
+* test_project_file_has_one_canonical_version
+2/2 passed.
+
+
+res://tests/unit/tooling/test_public_surface_inventory.gd
+* test_public_surface_inventory_exists
+* test_build_produces_complete_sorted_records
+* test_validation_failure_matrix
+* test_reserved_symbol_rules
+* test_write_canonical_json_round_trip
+* test_game_state_required_surface_reservations
+* test_task3_required_surface_realizes_authenticated_contacts_and_retires_legacy_reply
+* test_task4_committed_schedule_seams_carry_their_exact_frozen_signatures
+* test_save_manager_required_surface_freezes_realized_facade
+9/9 passed.
+
+
+res://tests/unit/tooling/test_repository_tooling.gd
+* test_repository_codegraph_directory_is_absent
+* test_stop_helper_rejects_hash_drift_and_handles_absent_lock
+2/2 passed.
+
+
+res://tests/unit/tooling/test_schedule_action_manifest.gd
+* test_the_manifest_file_exists_and_parses_as_strict_json
+* test_the_manifest_top_level_is_exactly_four_keys
+* test_the_manifest_holds_exactly_the_twenty_frozen_records
+* test_records_are_lexicographically_ordered_by_action_id
+* test_allowed_days_are_ascending_unique_and_in_range
+* test_enumerated_fields_only_use_legal_members
+* test_kind_determines_participants_repeatability_and_source_class
+* test_every_effect_id_exists_in_the_effects_vocabulary
+* test_the_published_schema_accepts_the_manifest
+* test_the_validator_reports_the_registry_fingerprint_and_rejects_drift
+10/10 passed.
+
+
+res://tests/unit/tooling/test_schedule_v3_boundary.gd
+* test_generator_and_published_documents_load
+* test_permanent_focused_log_is_present_and_nonempty
+* test_published_schema_freezes_the_exact_member_set_and_constants
+* test_generator_constants_agree_with_the_published_schema
+* test_write_form_is_accepted_with_exactly_its_own_three_flags
+* test_check_form_is_accepted_with_exactly_its_own_two_flags
+* test_every_malformed_invocation_is_rejected_with_its_own_code
+* test_record_binds_the_boundary_commit_tree_and_the_permanent_log
+* test_stored_record_bytes_are_the_canonical_serialization
+* test_recorded_boundary_commit_is_an_ancestor_carrying_the_frozen_subject
+* test_commit_parent_reader_handles_one_parent_and_the_parentless_root
+* test_the_imperative_law_rejects_every_record_tamper
+* test_only_the_imperative_law_rejects_an_uppercase_digest
+* test_only_the_imperative_law_rejects_an_overlong_commit_id
+* test_the_published_schema_rejects_every_frozen_member_tamper
+* test_a_source_digest_that_no_longer_matches_the_boundary_tree_is_rejected
+* test_a_focused_log_that_no_longer_matches_the_record_is_rejected
+* test_a_boundary_commit_that_is_absent_or_carries_another_subject_is_rejected
+* test_check_rejects_a_foreign_record_path_and_a_malformed_commit
+* test_check_refuses_a_commit_that_does_not_carry_the_evidence_subject
+* test_check_accepts_the_commit_that_introduced_the_record
+21/21 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/integration/test_application_bootstrap.gd
+    - Outside Tests
+        * [<Node#96468993760>(subsystem_animation.gd)]
+        * [<Node#96485770977>(subsystem_audio.gd)]
+        * [<Node#96502548194>]
+        * [<Node#96519325411>]
+        * [<Node#96536102628>(subsystem_backgrounds.gd)]
+        * [<Node#97072973541>(subsystem_choices.gd)]
+        * [<Timer#97089750758>]
+        * [<Node#97106527975>(subsystem_expression.gd)]
+        * [<Node#97140082412>(subsystem_glossary.gd)]
+        * [<Node#97156859629>(subsystem_history.gd)]
+        * [<Node#97173636846>(subsystem_input.gd)]
+        * [<Timer#97190414063>]
+        * [<Node#97207191280>(subsystem_jump.gd)]
+        * [<Node#97223968497>(subsystem_containers.gd)]
+        * [<Node#97240745714>(subsystem_portraits.gd)]
+        * [<Node#97777616627>(subsystem_save.gd)]
+        * [<Timer#97794393844>]
+        * [<Node#97811171061>(subsystem_settings.gd)]
+        * [<Node#97827948281>(subsystem_styles.gd)]
+        * [<Node#97844725498>(subsystem_text.gd)]
+        * [<Node#97928611583>(subsystem_text_input.gd)]
+        * [<Node#97945388800>(subsystem_variables.gd)]
+        * [<Node#97962166017>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#97978943234>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+res://tests/unit/test_minesweeper_board_generator.gd
+- test_begin_debug_returns_generator_budget_unavailable_while_the_budget_manifest_is_absent
+    [Pending]:  this proof only applies while the generated budget manifest is absent
+- test_run_debug_slice_returns_generator_budget_unavailable_while_the_budget_manifest_is_absent
+    [Pending]:  this proof only applies while the generated budget manifest is absent
+
+res://tests/unit/tooling/test_agent_workflow_authority_resolver.gd
+- test_symlinked_markdown_file_is_rejected_as_a_global_packet_source_error
+    [Pending]:  file symlink creation unavailable on this platform
+
+Totals
+------
+Warnings              1
+
+Scripts             165
+Tests              2491
+Passing Tests      2488
+Risky/Pending         3
+Asserts           39078
+Orphans              24
+Time              627.04s
+
+
+---- 3 pending/risky tests. ----
+

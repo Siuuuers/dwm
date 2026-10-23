@@ -1,0 +1,19 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+OpenGL API 3.3.0 - Build 31.0.101.4146 - Compatibility - Using Device: Intel - Intel(R) Iris(R) Xe Graphics
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+ERROR: GALLERY_RETRY_NATIVE_FAILED: Replay hover rule pixel changed
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _check (res://tests/manual/verify_gallery_retry_native.gd:304)
+       [1] _first_tuple_pointer_and_practice (res://tests/manual/verify_gallery_action_states_native.gd:69)
+       [2] _capture (res://tests/manual/verify_gallery_retry_native.gd:291)
+ERROR: GALLERY_RETRY_NATIVE_FAILED: Replay pressed rule pixel changed
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _check (res://tests/manual/verify_gallery_retry_native.gd:304)
+       [1] _first_tuple_pointer_and_practice (res://tests/manual/verify_gallery_action_states_native.gd:75)
+       [2] _capture (res://tests/manual/verify_gallery_retry_native.gd:291)
+GALLERY_RETRY_NATIVE_FAILED captures=8 tuples=1 evidence=C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/44ca8efe-6acc-475b-9b77-2d8978d90058/appdata/Godot/app_userdata/DWM/evidence/gallery_retry_native

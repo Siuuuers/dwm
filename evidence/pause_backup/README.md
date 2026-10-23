@@ -1,0 +1,15 @@
+# Pause-hosted Backup checkpoint
+
+Final acceptance: **79 tests / 1,596 assertions across nine native suites**, plus the standalone real Backup operations suite, **3,870 Backup UI checks**, **326 Title checks**, and the Desktop regression suite. Every final run exited zero. The native fixtures leave 24 known Dialogic addon objects; this is not a zero-orphan claim.
+
+GPU acceptance: **27 native 640×360 captures**, three locales × three text sizes × three states, with **18 Cancel focus restorations** and **81 button face/Focus/risk pixel checks**. English Backup, Simplified Chinese confirmation, and Traditional Chinese recovery at 150% were inspected directly after the inherited-theme drawing fix. The measured layout is 1280×720 logical. Scope is AfterHours, Standard, ordinary targets, with an explicit operation projection double and no narrative art. These images do not prove paused Hospital Save/Load or the production lifecycle.
+
+`summary.json` records tested source hashes and limits; `measurements.json` links every final image. The transaction integration uses the actual SaveManager, journal, revision storage, presentation port, and native UI over memory-only FileOps. Its Pause source predicate is a test double. The standalone operations fixture also uses memory-only storage and existing restore participants. Player saves are never involved.
+
+The retained diagnostic logs distinguish failures from final results. GPU a had an incorrect compact-font expectation; b had a renderer type-inference error. GPU c passed the original geometry/copy checks but visual inspection exposed absent inherited-theme button drawing. GPU d caught a pixel sample on the outer edge of a stroke. Final e verifies the corrected button rendering and pixel coordinates. Native final-b found a stale freed-host reference and a touch fixture that had not awaited native layout; final-c passes both corrections and the added custody regression. Earlier exploratory logs remain in the ignored worktree log directory.
+
+An exploratory reuse of the Backup UI runner omitted Desktop localization; the actual Desktop runner passed with its normal localization copy. Its ignored derived wrapper changes only evidence destinations. The older Backup operations wrapper passed its operation test but omitted required Dialogic addon types for subsequent restore tests. Final acceptance reruns those restore suites with the complete project's dependencies and passes the operation suite separately. Neither incomplete runner is counted as passing acceptance.
+
+Log copies use LF and strip trailing whitespace for repository checks. `raw_log_sha256` identifies the original unnormalized files. Invocation receipts retain exact original arguments and isolated user directories. Windows certificate-store and inherited Unicode NUL diagnostics are preserved. No broad diagnostic suppression is used.
+
+The [implementation record](../../docs/design/current-ui/pause-backup-host.md) details remaining integration. `dwm-eei.3` and the full ten-family goal remain active. No merge or push is included.

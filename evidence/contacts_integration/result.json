@@ -1,0 +1,71 @@
+{
+  "status": "ui_integration_verified",
+  "base_commit": "1790785bcfd37d2a27a0ecef81b9dc80fe501f71",
+  "scope": "Contacts UI mounted in the actual MainGameScene/shared shell in this isolated worktree; existing invitation commands and real Bootstrap owners verified separately. Not full application startup or production correspondence completion.",
+  "requirements": {
+    "shared_shell_mount": "shell: actual MainGameScene app Rect(480,0,800,720), panel800x656, toolbar64 at150%",
+    "existing_game_actions": "real_owner and presentation: authenticated preview, content guard, actual commit, reply and validated receipts",
+    "approved_content_only": "production catalog empty; unresolved prose fails before acceptance; synthetic text confined to tests",
+    "multilingual_text_and_scrolling": "shell plus component: regional fonts,100/125/150 sizing, complete long text, scroll reachability, keyboard/controller navigation",
+    "distinct_ui_states": "focus does not open/read; committed selection/unread; failure preservation; restore and reply focus checks",
+    "independent_review": "scripts/ui/contacts/INTEGRATION-REVIEW.md; four material findings fixed",
+    "historical_plans_reference": "UI-only owner direction used; no recovery grants, registry mutation or destination changes"
+  },
+  "verified_current_sources": {
+    "autoload/ApplicationBootstrap.gd": {
+      "sha256": "3a62828c65f7e86da6433fd982b6c5f41ea98f331bb5102e6f82bf38f850f575",
+      "verified_by": "real_owner"
+    },
+    "autoload/GameState.gd": {
+      "sha256": "dbd2fa7ea45dc00862a080516fe749c42aac0e2b99076cb201033c32aadd038a",
+      "verified_by": "real_owner"
+    },
+    "scripts/application/contact/ContactCommandPort.gd": {
+      "sha256": "7de55393eff595f5d3ac9491eb67a326200ad743f33a7f21e3d29cff753e151d",
+      "verified_by": "real_owner"
+    },
+    "scripts/application/contact/ContactsPresentationPort.gd": {
+      "sha256": "825cd348a2ea8f2fa41dc33e05c4a0019ae5b52a81e70c6c19271927c32561f5",
+      "verified_by": "real_owner"
+    },
+    "scripts/ui/ComputerDesktop.gd": {
+      "sha256": "58dd31ec4489a410ddf178e202ec93176ad544ad404113cdf37965a6c41dc20e",
+      "verified_by": "shell"
+    },
+    "scripts/ui/ContactListApp.gd": {
+      "sha256": "bb3ba8537acd4d7cd9fa708685d1881dfa9be03728eedd9c970c5faf6e2427f0",
+      "verified_by": "shell"
+    },
+    "scripts/ui/MainGameScene.gd": {
+      "sha256": "b888624b75548e7b32bbf47706dd1406aedceea6fe9fcc0d64cd0c1b0e40e508",
+      "verified_by": "shell"
+    },
+    "scenes/apps/ContactListApp.tscn": {
+      "sha256": "bd25dcba3bc65caeadadad9f18352bc801f20ee9a227c59b1069934d3fc831c4",
+      "verified_by": "shell"
+    },
+    "scenes/desktop/ComputerDesktop.tscn": {
+      "sha256": "2d0b4ceadd76aaf1e18740ecf03bfb5cf9a19d458192d11e595f112de43f10f0",
+      "verified_by": "shell"
+    },
+    "scenes/main/MainGameScene.tscn": {
+      "sha256": "4fbe682a04fa10e19b169a553d5988265c6cf6ec780cb85e98096675eb54ea9e",
+      "verified_by": "shell"
+    },
+    "scripts/ui/contacts/ContactsPanel.gd": {
+      "sha256": "4f6e692fa50f571ce90aa2689c0bcff0d0916cb73339199f455d701d111d18ab",
+      "verified_by": "shell"
+    },
+    "scripts/ui/contacts/ContactsRow.gd": {
+      "sha256": "916a880649b5c5aaee769a0b36cb123d1ca067f5c862b8851b32b4450ec5d917",
+      "verified_by": "shell"
+    }
+  },
+  "limits": [
+    "No final production correspondence catalog; actual unlocked conversations remain unavailable until approved text is supplied.",
+    "Existing owners have no general history-only mark-read command; viewing preserves Unread.",
+    "Full application startup, GPU/DPI output, complete assistive support and other app transitions are not certified.",
+    "Known sandbox certificate diagnostic and inherited JsonFileStorage NUL diagnostic are retained in test logs.",
+    "No commit or cross-worktree installation performed."
+  ]
+}

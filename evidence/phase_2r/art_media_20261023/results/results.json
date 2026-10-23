@@ -1,0 +1,56 @@
+{
+  "product_source": "82d42d3524ac0cdcc90e7c7ae7f69298d5046bcc",
+  "cases": 38,
+  "assertions": 850,
+  "suites": [
+    {
+      "run": 39823628664,
+      "file": "39823628664-scene-contract-regression-test_seven_day_templates-boundary.xml",
+      "sha256": "f1c5f85f490afa457faa7b2e2161e3eb307bf63e5aa448c4f3e157f9c70180f6",
+      "cases": 3,
+      "assertions": 83
+    },
+    {
+      "run": 39823628664,
+      "file": "39823628664-art-media-test_scene_audio_manifest-boundary.xml",
+      "sha256": "ebcfbdd361eaff59028ce1ae6b407f901fa4c41e55e456dde596b6fbf9154414",
+      "cases": 15,
+      "assertions": 124
+    },
+    {
+      "run": 39823628664,
+      "file": "39823628664-art-media-test_scene_audio_manager-boundary.xml",
+      "sha256": "6d99bac9fff1817aa08928ed5671c5411596ab9c2b12c8de98bd0f4053a0b3a1",
+      "cases": 14,
+      "assertions": 165
+    },
+    {
+      "run": 39823628664,
+      "file": "39823628664-art-media-test_template_music_assets-boundary.xml",
+      "sha256": "8983ce97fa434de460d9d0063e4029d4f80a1d8b80efc26f061bf5869a7cf8de",
+      "cases": 1,
+      "assertions": 26
+    },
+    {
+      "run": 39824610874,
+      "file": "39824610874-art-media-test_artwork_gallery-boundary.xml",
+      "sha256": "a9c38f638583e2872424fc447e7bb9aa0d979fbb1ffce70803a7b14ce0974255",
+      "cases": 3,
+      "assertions": 116
+    },
+    {
+      "run": 39824610874,
+      "file": "39824610874-ending-load-create.xml",
+      "sha256": "157da643213ff4c4a55554f7cb0d9cf3cd5162348fe876ba525b8d52dae7a60d",
+      "cases": 1,
+      "assertions": 102
+    },
+    {
+      "run": 39824610874,
+      "file": "39824610874-ending-load-load.xml",
+      "sha256": "cd8b10b6f23cea740b819fc2fcd71646b6739203a7c0f22207e7f7807d0c6660",
+      "cases": 1,
+      "assertions": 234
+    }
+  ]
+}

@@ -1,0 +1,75 @@
+{
+  "before": [
+    {
+      "name": "@AudioStreamPlayer@6",
+      "type": "ControlType.Group",
+      "patterns": [],
+      "scrollable": null,
+      "percent": null,
+      "view": null,
+      "focused": false
+    },
+    {
+      "name": "Return",
+      "type": "ControlType.Button",
+      "patterns": [
+        "InvokePatternIdentifiers.Pattern",
+        "ScrollItemPatternIdentifiers.Pattern"
+      ],
+      "scrollable": null,
+      "percent": null,
+      "view": null,
+      "focused": true
+    },
+    {
+      "name": "Record details",
+      "type": "ControlType.Pane",
+      "patterns": [
+        "ScrollItemPatternIdentifiers.Pattern"
+      ],
+      "scrollable": null,
+      "percent": null,
+      "view": null,
+      "focused": false
+    },
+    {
+      "name": "Scrolling record fixture\nScrolling record fixture\nScrolling record fixture\nScrolling record fixture\nScrolling record fixture\nScrolling record fixture\nScrolling record fixture\nScrolling record fixture\nScrolling record fixture\nScrolling record fixture\nScrolling record fixture\nScrolling record fixture\nScrolling record fixture\nScrolling record fixture\nScrolling record fixture\nScrolling record fixture\nScrolling record fixture\nScrolling record fixture\nScrolling record fixture\nScrolling record fixture\nScrolling record fixture\nScrolling record fixture\nScrolling record fixture\nScrolling record fixture\nScrolling record fixture\nScrolling record fixture\nScrolling record fixture\nScrolling record fixture\nScrolling record fixture\nScrolling record fixture\nScrolling record fixture\nScrolling record fixture\nScrolling record fixture\nScrolling record fixture\nScrolling record fixture\nScrolling record fixture\nScrolling record fixture\nScrolling record fixture\nScrolling record fixture\nScrolling record fixture",
+      "type": "ControlType.Text",
+      "patterns": [
+        "ScrollItemPatternIdentifiers.Pattern"
+      ],
+      "scrollable": null,
+      "percent": null,
+      "view": null,
+      "focused": false
+    },
+    {
+      "name": "One visible sentence.",
+      "type": "ControlType.Text",
+      "patterns": [
+        "ScrollItemPatternIdentifiers.Pattern"
+      ],
+      "scrollable": null,
+      "percent": null,
+      "view": null,
+      "focused": false
+    },
+    {
+      "name": "",
+      "type": "ControlType.Text",
+      "patterns": [],
+      "scrollable": null,
+      "percent": null,
+      "view": null,
+      "focused": false
+    }
+  ],
+  "ready": {
+    "folder": "C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/ea7e3184-a89b-4ec8-a9bf-714d21d48642/dwm_test_root",
+    "max_offset": 512.0,
+    "pid": 40676,
+    "title": "DWM Gallery Scroll 40676"
+  },
+  "ok": false,
+  "failure": "Exception calling \"GetCurrentPattern\" with \"1\" argument(s): \"Unsupported Pattern.\""
+}

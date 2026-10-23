@@ -1,0 +1,231 @@
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+TextServer: Added interface "Dummy"
+TextServer: Added interface "ICU / HarfBuzz / Graphite (Built-in)"
+Unrecognized output string "misc2" in mapping:
+030000008a2e0000dd10000000000000,Hand Held Legend GC Ultimate,a:b0,b:b2,back:b17,dpdown:b5,dpleft:b6,dpright:b7,dpup:b4,guide:b18,leftshoulder:b10,leftstick:b8,lefttrigger:a3,leftx:a0,lefty:a1,misc1:b19,misc2:b24,paddle1:b13,paddle2:b12,rightshoulder:b11,rightstick:b9,righttrigger:a4,rightx:a2,righty:a5,start:b16,x:b1,y:b3,platform:Windows,
+Unrecognized output string "misc2" in mapping:
+030000000d0f00000202000000000000,Horipad O Nintendo Switch 2 Controller,a:b1,b:b0,back:b8,dpdown:h0.4,dpleft:h0.8,dpright:h0.2,dpup:h0.1,guide:b12,leftshoulder:b4,leftstick:b10,lefttrigger:b6,leftx:a0,lefty:a1,misc1:b13,misc2:b14,rightshoulder:b5,rightstick:b11,righttrigger:b7,rightx:a2,righty:a3,start:b9,x:b3,y:b2,platform:Windows,
+Unrecognized output string "misc2" in mapping:
+030000000d0f00009601000000000000,Horipad Steam,a:b0,b:b1,back:b10,dpdown:h0.4,dpleft:h0.8,dpright:h0.2,dpup:h0.1,guide:b12,leftshoulder:b6,leftstick:b13,lefttrigger:b8,leftx:a0,lefty:a1,misc2:b2,paddle1:b5,paddle2:b15,paddle3:b18,paddle4:b19,rightshoulder:b7,rightstick:b14,righttrigger:b9,rightx:a3,righty:a4,start:b11,x:b3,y:b4,platform:Windows,
+Unrecognized output string "misc2" in mapping:
+030000007e0500006920000000000000,Nintendo Switch 2 Pro Controller,a:b0,b:b1,back:b14,dpdown:b8,dpleft:b10,dpright:b9,dpup:b11,guide:b16,leftshoulder:b12,leftstick:b15,lefttrigger:b13,leftx:a0,lefty:a1~,misc1:b17,misc2:b20,paddle1:b18,paddle2:b19,rightshoulder:b4,rightstick:b7,righttrigger:b5,rightx:a2,righty:a3~,start:b6,x:b2,y:b3,platform:Windows,
+Using "default" pen tablet driver...
+
+TextServer: Primary interface set to: "ICU / HarfBuzz / Graphite (Built-in)".
+CORE API HASH: 2475187701
+EDITOR API HASH: 3867286884
+Loading resource: C:/Users/runneradmin/AppData/Local/Temp/dwm-export-52c1fb3feac84a71aa691fdb163baaea/verify_pack.gd
+SceneTreeFTI: traversal method DEFAULT
+Loading resource: res://addons/dialogic/Resources/CharacterResourceLoader.gdc
+Loading resource: res://addons/dialogic/Resources/TimelineResourceLoader.gdc
+Loading resource: res://addons/dialogic/Resources/CharacterResourceSaver.gdc
+Loading resource: res://addons/dialogic/Resources/TimelineResourceSaver.gdc
+Loading resource: res://autoload/ProfileManager.gdc
+Loading resource: res://autoload/GameState.gdc
+Loading resource: res://autoload/SaveManager.gdc
+Loading resource: res://autoload/LocalizationManager.gdc
+Loading resource: res://autoload/AudioManager.gdc
+Loading resource: res://autoload/SystemTtsCoordinator.gdc
+Loading resource: res://autoload/WindowModeManager.gdc
+Loading resource: res://autoload/EffectResolver.gdc
+Loading resource: res://autoload/SceneRouter.gdc
+Loading resource: res://.godot/exported/133200997/export-b1ece968997b3cf68117ae79fe50724d-PauseSurface.scn
+Loading resource: res://scripts/ui/pause/PauseSurface.gdc
+Loading resource: res://assets/ui/contacts/fonts/source-sans-3-regular.ttf.woff2
+Loading resource: res://.godot/imported/source-sans-3-regular.ttf.woff2-e8d731430889c54e3a411177ddbdd371.fontdata
+Loading resource: res://assets/ui/contacts/fonts/source-han-sans-sc-regular.otf
+Loading resource: res://.godot/imported/source-han-sans-sc-regular.otf-0a176df5494ddbf564882f6fa3e63197.fontdata
+Loading resource: res://assets/ui/contacts/fonts/source-han-sans-hc-regular.otf
+Loading resource: res://.godot/imported/source-han-sans-hc-regular.otf-edbb7d6ca258cfcc93ca616282ada129.fontdata
+Loading resource: res://.godot/exported/133200997/export-ea7209334ad80145afbb4e3ef43bd89b-BackupApp.scn
+Loading resource: res://.godot/exported/133200997/export-e0ed6921eb7381c2b192c8f7cb995b2a-AppWindowBase.scn
+Loading resource: res://scripts/ui/AppWindowBase.gdc
+Loading resource: res://scripts/ui/BackupApp.gdc
+Loading resource: res://.godot/exported/133200997/export-392f648420f9684dcd93550bd5ec7108-SettingsApp.scn
+Loading resource: res://scripts/ui/SettingsApp.gdc
+Loading resource: res://scripts/ui/LocalePresentationRoot.gdc
+Loading resource: res://.godot/exported/133200997/export-02892f225fe9b2cf194dcb67ee47e5e8-SettingsContent.scn
+Loading resource: res://scripts/ui/SettingsContent.gdc
+Loading resource: res://.godot/exported/133200997/export-7c43e18f5e0724b6ef0ffde4c5e8eaa6-WitnessedTransportRecovery.scn
+Loading resource: res://scripts/ui/witnessed/WitnessedTransportRecovery.gdc
+Loading resource: res://autoload/InputManager.gdc
+Loading resource: res://autoload/AccessibilityManager.gdc
+Loading resource: res://autoload/DialogicBridge.gdc
+Loading resource: res://.godot/exported/133200997/export-22a96f22571befcd7c30ba57625c707c-witnessed_caption_style.res
+Loading resource: res://.godot/exported/133200997/export-c500323023de6af0f53501a538db9da6-full_background_layer.scn
+Loading resource: res://addons/dialogic/Modules/DefaultLayoutParts/Layer_FullBackground/full_background_layer.gdc
+Loading resource: res://.godot/exported/133200997/export-953b09a1700e6617ec65d8bd1e2789ce-vn_portrait_layer.scn
+Loading resource: res://addons/dialogic/Modules/DefaultLayoutParts/Layer_VN_Portraits/vn_portrait_layer.gdc
+Loading resource: res://.godot/exported/133200997/export-8a5a096779b7221121c9b2576cf60cb0-WitnessedArtLayer.scn
+Loading resource: res://scripts/ui/witnessed/WitnessedArtLayer.gdc
+Loading resource: res://.godot/exported/133200997/export-fdc13a39efbe309a12f620e60647307d-WitnessedCaptionLayer.scn
+Loading resource: res://scripts/ui/witnessed/WitnessedAcceptInput.gdc
+Loading resource: res://scripts/ui/witnessed/WitnessedSkipController.gdc
+Loading resource: res://scripts/ui/witnessed/WitnessedAutoController.gdc
+Loading resource: res://scripts/ui/witnessed/WitnessedSourceCanvas.gdc
+Loading resource: res://scripts/ui/witnessed/WitnessedAccessibleContinue.gdc
+Loading resource: res://scripts/ui/witnessed/WitnessedAccessibleCaption.gdc
+Loading resource: res://scripts/ui/witnessed/WitnessedAccessibleReviewCaption.gdc
+Loading resource: res://scripts/ui/witnessed/WitnessedTransportRail.gdc
+Loading resource: res://.godot/exported/133200997/export-ab67c2eb680436c2d5d56523f9014dcb-glossary_popup_layer.scn
+Loading resource: res://addons/dialogic/Modules/DefaultLayoutParts/Layer_Glossary/glossary_popup_layer.gdc
+Loading resource: res://.godot/exported/133200997/export-da193ca6b8ce32dd1c2b198d5da12905-vn_choice_layer.scn
+Loading resource: res://addons/dialogic/Modules/DefaultLayoutParts/Layer_VN_Choices/vn_choice_layer.gdc
+Loading resource: res://addons/dialogic/Example Assets/sound-effects/typing1.wav
+Loading resource: res://.godot/imported/typing1.wav-b241c6aab4ce82bf04caf8687873cae0.sample
+Loading resource: res://addons/dialogic/Example Assets/sound-effects/typing4.wav
+Loading resource: res://.godot/imported/typing4.wav-4e7a00fb19b7dd0bdfd8e323401b6162.sample
+Loading resource: res://.godot/exported/133200997/export-81b2d3022a7e63cdcee53beac3525f32-text_input_layer.scn
+Loading resource: res://addons/dialogic/Modules/DefaultLayoutParts/Layer_TextInput/text_input_layer.gdc
+Loading resource: res://addons/dialogic/Modules/TextInput/node_text_input.gdc
+Loading resource: res://.godot/exported/133200997/export-0bcf1da2044c80819bd05c63a33ebdb5-history_layer.scn
+Loading resource: res://addons/dialogic/Modules/DefaultLayoutParts/Layer_History/history_layer.gdc
+Loading resource: res://.godot/exported/133200997/export-3b2bef551f30fbd2d71b35ab4fe1ee14-example_history_item.scn
+Loading resource: res://addons/dialogic/Modules/DefaultLayoutParts/Layer_History/example_history_item.gdc
+Loading resource: res://autoload/ApplicationBootstrap.gdc
+Loading resource: res://.godot/exported/133200997/export-6f26979f6c174d744ca622ca1156d175-ComputerDesktop.scn
+Loading resource: res://scripts/ui/ComputerDesktop.gdc
+Loading resource: res://scripts/ui/LocalizedBinding.gdc
+MbedTLS: Some X509 certificates could not be parsed (7 certificates skipped).
+Loaded system CA certificates
+WINDOWS_PACK_DATA_VERIFIED count=136
+Loading resource: res://scripts/accessibility/SystemTtsPort.gdc
+Loading resource: res://scripts/audio/SystemTtsDuckPort.gdc
+Loading resource: res://addons/dialogic/Modules/Audio/index.gdc
+Loading resource: res://addons/dialogic/Modules/Background/index.gdc
+Loading resource: res://addons/dialogic/Modules/Call/index.gdc
+Loading resource: res://addons/dialogic/Modules/Character/index.gdc
+Loading resource: res://addons/dialogic/Modules/Choice/index.gdc
+Loading resource: res://addons/dialogic/Modules/Clear/index.gdc
+Loading resource: res://addons/dialogic/Modules/Comment/index.gdc
+Loading resource: res://addons/dialogic/Modules/Condition/index.gdc
+Loading resource: res://addons/dialogic/Modules/Core/index.gdc
+Loading resource: res://addons/dialogic/Modules/DefaultLayoutParts/index.gdc
+Loading resource: res://addons/dialogic/Modules/End/index.gdc
+Loading resource: res://addons/dialogic/Modules/Glossary/index.gdc
+Loading resource: res://addons/dialogic/Modules/HighlightPortrait/index.gdc
+Loading resource: res://addons/dialogic/Modules/History/index.gdc
+Loading resource: res://addons/dialogic/Modules/Jump/index.gdc
+Loading resource: res://addons/dialogic/Modules/LayeredPortrait/index.gdc
+Loading resource: res://addons/dialogic/Modules/Save/index.gdc
+Loading resource: res://addons/dialogic/Modules/Settings/index.gdc
+Loading resource: res://addons/dialogic/Modules/Signal/index.gdc
+Loading resource: res://addons/dialogic/Modules/Style/index.gdc
+Loading resource: res://addons/dialogic/Modules/StyleEditor/index.gdc
+Loading resource: res://addons/dialogic/Modules/Text/index.gdc
+Loading resource: res://addons/dialogic/Modules/TextInput/index.gdc
+Loading resource: res://addons/dialogic/Modules/Variable/index.gdc
+Loading resource: res://addons/dialogic/Modules/Voice/index.gdc
+Loading resource: res://addons/dialogic/Modules/Wait/index.gdc
+Loading resource: res://addons/dialogic/Modules/WaitInput/index.gdc
+Loading resource: res://.godot/exported/133200997/export-b0b721a4e60486743b42e019efc59938-default_background.scn
+Loading resource: res://addons/dialogic/Modules/Background/DefaultBackgroundScene/default_background.gdc
+Loading resource: res://.godot/exported/133200997/export-6026cc01ca4ea87aea6857f4cbc58c34-default_portrait.scn
+Loading resource: res://addons/dialogic/Modules/Character/default_portrait.gdc
+Loading resource: res://addons/dialogic/Modules/Audio/event_audio.gdc
+Loading resource: res://addons/dialogic/Modules/Background/event_background.gdc
+Loading resource: res://addons/dialogic/Modules/Call/event_call.gdc
+Loading resource: res://addons/dialogic/Modules/Clear/event_clear.gdc
+Loading resource: res://addons/dialogic/Modules/Condition/event_condition.gdc
+Loading resource: res://addons/dialogic/Modules/History/event_history.gdc
+Loading resource: res://addons/dialogic/Modules/Save/event_save.gdc
+Loading resource: res://addons/dialogic/Modules/Settings/event_setting.gdc
+Loading resource: res://addons/dialogic/Modules/Style/event_style.gdc
+Loading resource: res://addons/dialogic/Modules/TextInput/event_text_input.gdc
+Loading resource: res://addons/dialogic/Modules/WaitInput/event_wait_input.gdc
+Loading resource: res://dialogic/timelines/authored_week/Day1.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day1.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day1.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day1.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day1.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day1.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day1.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day1.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day1.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day1.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day2.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day2.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day2.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day2.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day2.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day2.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day2.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day2.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day2.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day2.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day2.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day2.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day3.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day3.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day3.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day3.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day3.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day3.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day3.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day3.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day3.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day3.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day3.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day3.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day3.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day4.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day4.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day4.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day4.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day4.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day4.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day4.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day4.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day4.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day4.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day4.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day4.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day5.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day5.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day5.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day5.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day5.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day5.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day5.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day5.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day5.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day5.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day5.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day5.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day5.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day6.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day6.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day6.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day6.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day6.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day6.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day6.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day6.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day6.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day6.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day6.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day6.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day7.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day7.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day7.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day7.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day7.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day7.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day7.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day7.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day7.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day7.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day7.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day7.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day7.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day7.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day7.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day7.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day7.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day7.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day7.dtl
+Loading resource: res://dialogic/timelines/authored_week/Day7.dtl
+Loading resource: res://.godot/exported/133200997/export-fcac332df76b34bc4937fc21fc821327-SceneHost.scn
+Loading resource: res://scripts/ui/SceneHost.gdc
+Loading resource: res://assets/ui/gallery/fonts/fusion-pixel-8px-proportional-latin.otf.woff2
+Loading resource: res://.godot/imported/fusion-pixel-8px-proportional-latin.otf.woff2-737dffb47bbecad9bc87e5867ee5bd9a.fontdata

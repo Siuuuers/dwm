@@ -1,0 +1,177 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/art-placement/.godot/phase2r_tests/26e001a2-7f82-4139-89fb-838820042ec4/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+res://tests/unit/test_art_manifest.gd
+* test_the_shipped_visual_registry_is_empty
+* test_the_record_field_set_is_exactly_the_five_declared_fields
+* test_the_resource_type_allowlist_is_exactly_texture_2d
+* test_a_well_formed_record_and_registry_are_accepted
+* test_a_record_that_is_not_an_object_is_refused
+* test_a_record_with_an_extra_field_is_refused
+* test_a_record_missing_required_is_refused_by_shape_naming_the_field
+* test_an_empty_visual_id_is_refused
+* test_a_nonstring_resource_path_is_refused
+* test_an_unknown_resource_type_is_refused
+* test_a_nonbool_required_is_refused
+* test_a_nonstring_nonnull_fallback_is_refused
+* test_two_records_sharing_a_visual_id_are_refused
+* test_a_fallback_naming_no_record_is_refused
+* test_a_fallback_record_declaring_its_own_fallback_is_refused
+* test_a_required_visual_with_no_record_is_refused_before_playback
+* test_an_optional_visual_with_no_record_is_refused_as_unregistered
+* test_a_required_visual_whose_record_declares_required_false_is_refused
+* test_a_required_visual_that_consents_and_declares_no_fallback_resolves
+* test_a_required_visual_may_not_declare_a_fallback
+* test_a_wrong_typed_record_is_refused_at_resolution_with_the_validators_own_code
+* test_an_optional_visual_resolves_to_itself_and_reports_its_declared_fallback
+* test_resolution_hands_back_a_copy_and_never_an_alias_into_the_registry
+* test_the_art_manifest_code_vocabulary_is_exactly_the_thirteen_this_suite_pins
+* test_legacy_path_apis_now_describe_optional_placements_without_inventing_paths
+25/25 passed.
+
+
+res://tests/unit/test_art_placements.gd
+* test_missing_unknown_and_non_image_assets_return_no_texture
+* test_real_imported_texture_obeys_fixed_ui_dimensions
+* test_solo_and_pair_art_are_fixed_and_return_detached_lists
+* test_all_registered_entries_have_explicit_scene_rows_and_known_asset_ids
+* test_exact_ending_entries_keep_distinct_cg_bindings
+* test_preview_overrides_do_not_write_catalog_and_reload_discards_them
+* test_legacy_intro_art_uses_runtime_ids_instead_of_editor_resource_aliases
+7/7 passed.
+
+
+res://tests/unit/test_scene_art_bindings.gd
+* test_art_is_inert_and_clipped_above_each_caption_aperture
+* test_challenge_art_never_consumes_worksheet_space_and_empty_mapping_clears_old_images
+* test_dating_mapping_uses_one_fixed_scene_for_all_phases_and_no_variants
+* test_actual_dating_host_mounts_art_in_the_visible_overlay_behind_unchanged_board
+* test_hospital_requires_this_days_exact_saved_witness_sources
+* test_bridge_projects_only_retained_entry_and_style_mounts_art_below_captions
+6/6 passed.
+
+
+res://tests/unit/test_scene_art_hold.gd
+* test_portrait_only_return_scene_waits_then_executes_original_dtl_once
+[Dialogic Comment] #timeline_id: opening.day1
+[Dialogic Comment] #locale: en
+[Dialogic Comment] #type: core
+[Dialogic Comment] #scene: OpeningScene
+[Dialogic Comment] #shown: first New Acc
+* test_pause_reuses_exact_art_view_and_continue_does_not_execute_while_suspended
+[Dialogic Comment] #timeline_id: opening.day1
+[Dialogic Comment] #locale: en
+[Dialogic Comment] #type: core
+[Dialogic Comment] #scene: OpeningScene
+[Dialogic Comment] #shown: first New Acc
+* test_failed_load_keeps_same_art_then_successful_idle_load_retires_it_without_completion
+* test_return_retirement_cancels_card_and_never_starts_its_dtl
+* test_only_proven_empty_blocks_hold_and_no_art_preserves_native_auto_completion
+[Dialogic Comment] #timeline_id: opening.day1
+[Dialogic Comment] #locale: en
+[Dialogic Comment] #type: core
+[Dialogic Comment] #scene: OpeningScene
+[Dialogic Comment] #shown: first New Acc
+5/5 passed.
+
+
+res://tests/integration/test_ui_art_placements.gd
+* test_title_desktop_launcher_and_contact_attach_valid_optional_art
+* test_missing_and_wrong_sized_art_keep_existing_fallbacks
+* test_shell_layers_share_the_remaining_art_host_and_preserve_order
+* test_shop_art_uses_valid_exact_sizes_and_wrong_size_keeps_procedural_tile
+* test_schedule_optional_pair_resolves_or_falls_back_without_weakening_action_admission
+5/5 passed.
+
+
+res://tests/integration/test_gallery_art_placements.gd
+* test_exact_reached_version_selects_optional_art_without_changing_discovery
+WARNING: Localization missing for key 'gallery.replay'
+   at: push_warning (core/variant/variant_utility.cpp:1034)
+   GDScript backtrace (most recent call first):
+       [0] _warn_once (res://autoload/LocalizationManager.gd:434)
+       [1] t (res://autoload/LocalizationManager.gd:184)
+       [2] _localized (res://scripts/ui/GalleryScene.gd:431)
+       [3] _refresh_presentation (res://scripts/ui/GalleryScene.gd:462)
+       [4] _ready (res://scripts/ui/GalleryScene.gd:219)
+       [5] add_child_autofree (res://addons/gut/test.gd:2784)
+       [6] test_exact_reached_version_selects_optional_art_without_changing_discovery (res://tests/integration/test_gallery_art_placements.gd:60)
+       [7] _run_test (res://addons/gut/gut.gd:622)
+       [8] _test_the_scripts (res://addons/gut/gut.gd:835)
+WARNING: Localization missing for key 'gallery.replay.unreached'
+   at: push_warning (core/variant/variant_utility.cpp:1034)
+   GDScript backtrace (most recent call first):
+       [0] _warn_once (res://autoload/LocalizationManager.gd:434)
+       [1] t (res://autoload/LocalizationManager.gd:184)
+       [2] _localized (res://scripts/ui/GalleryScene.gd:431)
+       [3] _set_replay_status (res://scripts/ui/GalleryScene.gd:419)
+       [4] _refresh_replay_selection (res://scripts/ui/GalleryScene.gd:345)
+       [5] _select_record (res://scripts/ui/GalleryScene.gd:303)
+       [6] _activate_record (res://scripts/ui/GalleryScene.gd:307)
+       [7] test_exact_reached_version_selects_optional_art_without_changing_discovery (res://tests/integration/test_gallery_art_placements.gd:92)
+       [8] _run_test (res://addons/gut/gut.gd:622)
+       [9] _test_the_scripts (res://addons/gut/gut.gd:835)
+    6 Orphans
+        * [@Button@505:<Button#521402321609>(GalleryRecordButton.gd)] + 2
+        * [@Button@508:<Button#521519762181>(GalleryRecordButton.gd)] + 2
+6 orphans
+1/1 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/unit/test_art_manifest.gd
+    - Outside Tests
+        * [<Node#128177932050>(subsystem_animation.gd)]
+        * [<Node#128194709282>(subsystem_audio.gd)]
+        * [<Node#128211486507>]
+        * [<Node#128228263728>]
+        * [<Node#128245040947>(subsystem_backgrounds.gd)]
+        * [<Node#128781911862>(subsystem_choices.gd)]
+        * [<Timer#128798689081>]
+        * [<Node#128815466298>(subsystem_expression.gd)]
+        * [<Node#128849020736>(subsystem_glossary.gd)]
+        * [<Node#128865797953>(subsystem_history.gd)]
+        * [<Node#128882575170>(subsystem_input.gd)]
+        * [<Timer#128899352387>]
+        * [<Node#128916129604>(subsystem_jump.gd)]
+        * [<Node#128932906821>(subsystem_containers.gd)]
+        * [<Node#128949684038>(subsystem_portraits.gd)]
+        * [<Node#129486554951>(subsystem_save.gd)]
+        * [<Timer#129503332168>]
+        * [<Node#129520109385>(subsystem_settings.gd)]
+        * [<Node#129536886605>(subsystem_styles.gd)]
+        * [<Node#129553663822>(subsystem_text.gd)]
+        * [<Node#129637549907>(subsystem_text_input.gd)]
+        * [<Node#129654327124>(subsystem_variables.gd)]
+        * [<Node#129671104341>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#129687881558>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+Totals
+------
+Scripts               6
+Tests                49
+Passing Tests        49
+Asserts             964
+Orphans              24
+Time              1.347s
+
+
+---- All tests passed! ----

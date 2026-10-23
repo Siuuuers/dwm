@@ -1,0 +1,594 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+[   0% ] [90m[1mfirst_scan_filesystem[22m | Started 项目初始化 (5 steps)[39m[0m
+[   0% ] [90m[1mfirst_scan_filesystem[22m | 正在扫描文件结构……[39m[0m
+[  16% ] [90m[1mfirst_scan_filesystem[22m | 正在加载全局类名……[39m[0m
+[  33% ] [90m[1mfirst_scan_filesystem[22m | 正在校验 GDExtension……[39m[0m
+[  50% ] [90m[1mfirst_scan_filesystem[22m | 正在创建自动加载脚本……[39m[0m
+[  66% ] [90m[1mfirst_scan_filesystem[22m | 正在初始化插件……[39m[0m
+[  83% ] [90m[1mfirst_scan_filesystem[22m | 正在启动文件扫描……[39m[0m
+[92m[ DONE ][39m [1mfirst_scan_filesystem[22m
+[0m
+[   0% ] [90m[1mupdate_scripts_classes[22m | Started 正在注册全局类…… (210 steps)[39m[0m
+[   0% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   0% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   0% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   1% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   1% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   2% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   2% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   3% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   3% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   4% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   4% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   5% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   5% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   6% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   6% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   7% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   7% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   8% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   8% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   9% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   9% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   9% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  10% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  10% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  11% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  11% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  12% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  12% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  13% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  13% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  14% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  14% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  15% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  15% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  16% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  16% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  17% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  17% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  18% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  18% ] [90m[1mupdate_scripts_classes[22m | GutErrorTracker[39m[0m
+[  18% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  19% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  19% ] [90m[1mupdate_scripts_classes[22m | GutMain[39m[0m
+[  20% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  20% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  21% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  21% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  22% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  22% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  23% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  23% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  24% ] [90m[1mupdate_scripts_classes[22m | GutTrackedError[39m[0m
+[  24% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  25% ] [90m[1mupdate_scripts_classes[22m | GutHookScript[39m[0m
+[  25% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  26% ] [90m[1mupdate_scripts_classes[22m | GutInputFactory[39m[0m
+[  26% ] [90m[1mupdate_scripts_classes[22m | GutInputSender[39m[0m
+[  27% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  27% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  27% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  28% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  28% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  29% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  29% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  30% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  30% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  31% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  31% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  32% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  32% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  33% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  33% ] [90m[1mupdate_scripts_classes[22m | GutStringUtils[39m[0m
+[  34% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  34% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  35% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  35% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  36% ] [90m[1mupdate_scripts_classes[22m | GutTest[39m[0m
+[  36% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  36% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  37% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  37% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  38% ] [90m[1mupdate_scripts_classes[22m | GutUtils[39m[0m
+[  38% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  39% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  39% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  40% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  40% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  41% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  41% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  42% ] [90m[1mupdate_scripts_classes[22m | BackupPresentationPort[39m[0m
+[  42% ] [90m[1mupdate_scripts_classes[22m | DesktopCausalSequencePort[39m[0m
+[  43% ] [90m[1mupdate_scripts_classes[22m | DesktopConsequenceCoordinator[39m[0m
+[  43% ] [90m[1mupdate_scripts_classes[22m | DesktopConsequenceSourcePort[39m[0m
+[  44% ] [90m[1mupdate_scripts_classes[22m | DesktopIdentityNonceIssuer[39m[0m
+[  44% ] [90m[1mupdate_scripts_classes[22m | DesktopBoardFatePort[39m[0m
+[  45% ] [90m[1mupdate_scripts_classes[22m | DesktopFirstRevealSnapshotComposer[39m[0m
+[  45% ] [90m[1mupdate_scripts_classes[22m | GameStateDesktopBoardPort[39m[0m
+[  45% ] [90m[1mupdate_scripts_classes[22m | GameStateMinesweeperPort[39m[0m
+[  46% ] [90m[1mupdate_scripts_classes[22m | DialogicPlaybackCompletionPort[39m[0m
+[  46% ] [90m[1mupdate_scripts_classes[22m | DialogicSignalCommandPort[39m[0m
+[  47% ] [90m[1mupdate_scripts_classes[22m | SaveManagerNarrativeCheckpointPort[39m[0m
+[  47% ] [90m[1mupdate_scripts_classes[22m | AudioRestoreParticipant[39m[0m
+[  48% ] [90m[1mupdate_scripts_classes[22m | DesktopBoardRestoreParticipant[39m[0m
+[  48% ] [90m[1mupdate_scripts_classes[22m | DesktopConsequenceRestoreParticipant[39m[0m
+[  49% ] [90m[1mupdate_scripts_classes[22m | DesktopIdentityAllocationRestoreParticipant[39m[0m
+[  49% ] [90m[1mupdate_scripts_classes[22m | LocalizationRestoreParticipant[39m[0m
+[  50% ] [90m[1mupdate_scripts_classes[22m | NarrativeRestoreParticipant[39m[0m
+[  50% ] [90m[1mupdate_scripts_classes[22m | ProfileRestoreParticipant[39m[0m
+[  51% ] [90m[1mupdate_scripts_classes[22m | RouteRestoreParticipant[39m[0m
+[  51% ] [90m[1mupdate_scripts_classes[22m | RunRestoreParticipant[39m[0m
+[  52% ] [90m[1mupdate_scripts_classes[22m | CausalDayAdvanceIdentityPort[39m[0m
+[  52% ] [90m[1mupdate_scripts_classes[22m | DayResolutionCoordinator[39m[0m
+[  53% ] [90m[1mupdate_scripts_classes[22m | GameStateDayResolutionPort[39m[0m
+[  53% ] [90m[1mupdate_scripts_classes[22m | SaveManagerCheckpointPort[39m[0m
+[  54% ] [90m[1mupdate_scripts_classes[22m | GameStateScheduleCommitPort[39m[0m
+[  54% ] [90m[1mupdate_scripts_classes[22m | GameStateMinesweeperShopPort[39m[0m
+[  54% ] [90m[1mupdate_scripts_classes[22m | MinesweeperShopPurchaseParticipant[39m[0m
+[  55% ] [90m[1mupdate_scripts_classes[22m | ApplicationMutationGate[39m[0m
+[  55% ] [90m[1mupdate_scripts_classes[22m | FatalDiagnosticProjector[39m[0m
+[  56% ] [90m[1mupdate_scripts_classes[22m | DataCatalog[39m[0m
+[  56% ] [90m[1mupdate_scripts_classes[22m | DialogicTimelineCatalog[39m[0m
+[  57% ] [90m[1mupdate_scripts_classes[22m | ContactInvitationState[39m[0m
+[  57% ] [90m[1mupdate_scripts_classes[22m | DesktopActionReceipt[39m[0m
+[  58% ] [90m[1mupdate_scripts_classes[22m | DesktopAppHostState[39m[0m
+[  58% ] [90m[1mupdate_scripts_classes[22m | DesktopAppRegistry[39m[0m
+[  59% ] [90m[1mupdate_scripts_classes[22m | DesktopConsequenceState[39m[0m
+[  59% ] [90m[1mupdate_scripts_classes[22m | DesktopContinuationRemapper[39m[0m
+[  60% ] [90m[1mupdate_scripts_classes[22m | DesktopIdentity[39m[0m
+[  60% ] [90m[1mupdate_scripts_classes[22m | DatingEndingRules[39m[0m
+[  61% ] [90m[1mupdate_scripts_classes[22m | HospitalRules[39m[0m
+[  61% ] [90m[1mupdate_scripts_classes[22m | DesktopBoardState[39m[0m
+[  62% ] [90m[1mupdate_scripts_classes[22m | MinesweeperBoardReducer[39m[0m
+[  62% ] [90m[1mupdate_scripts_classes[22m | MinesweeperBoardSchema[39m[0m
+[  63% ] [90m[1mupdate_scripts_classes[22m | MinesweeperCapabilityRules[39m[0m
+[  63% ] [90m[1mupdate_scripts_classes[22m | MinesweeperRoundContract[39m[0m
+[  63% ] [90m[1mupdate_scripts_classes[22m | MinesweeperRoundCoordinator[39m[0m
+[  64% ] [90m[1mupdate_scripts_classes[22m | DayResolutionPlan[39m[0m
+[  64% ] [90m[1mupdate_scripts_classes[22m | RunLifecycle[39m[0m
+[  65% ] [90m[1mupdate_scripts_classes[22m | RunSnapshotSchema[39m[0m
+[  65% ] [90m[1mupdate_scripts_classes[22m | ScheduleActionRegistry[39m[0m
+[  66% ] [90m[1mupdate_scripts_classes[22m | ScheduleRules[39m[0m
+[  66% ] [90m[1mupdate_scripts_classes[22m | ScheduleStateSchema[39m[0m
+[  67% ] [90m[1mupdate_scripts_classes[22m | MinesweeperShopRegistry[39m[0m
+[  67% ] [90m[1mupdate_scripts_classes[22m | CryptoDesktopNamespaceSource[39m[0m
+[  68% ] [90m[1mupdate_scripts_classes[22m | DesktopIssuerRootStore[39m[0m
+[  68% ] [90m[1mupdate_scripts_classes[22m | CheckpointJournal[39m[0m
+[  69% ] [90m[1mupdate_scripts_classes[22m | DesktopContinuationOperationJournal[39m[0m
+[  69% ] [90m[1mupdate_scripts_classes[22m | DesktopPublicationLedger[39m[0m
+[  70% ] [90m[1mupdate_scripts_classes[22m | SaveDocumentSchema[39m[0m
+[  70% ] [90m[1mupdate_scripts_classes[22m | SaveMigrations[39m[0m
+[  71% ] [90m[1mupdate_scripts_classes[22m | ScheduleFoundationPublicationLedger[39m[0m
+[  71% ] [90m[1mupdate_scripts_classes[22m | FileOps[39m[0m
+[  72% ] [90m[1mupdate_scripts_classes[22m | JsonFileStorage[39m[0m
+[  72% ] [90m[1mupdate_scripts_classes[22m | StorageAdapter[39m[0m
+[  72% ] [90m[1mupdate_scripts_classes[22m | LocalizationCatalog[39m[0m
+[  73% ] [90m[1mupdate_scripts_classes[22m | LocalizationSchema[39m[0m
+[  73% ] [90m[1mupdate_scripts_classes[22m | DialogicEntryManifest[39m[0m
+[  74% ] [90m[1mupdate_scripts_classes[22m | DialogicPreferenceAdapter[39m[0m
+[  74% ] [90m[1mupdate_scripts_classes[22m | DialogicRuntimeAdapter[39m[0m
+[  75% ] [90m[1mupdate_scripts_classes[22m | NarrativeCheckpointSchema[39m[0m
+[  75% ] [90m[1mupdate_scripts_classes[22m | SkipPolicy[39m[0m
+[  76% ] [90m[1mupdate_scripts_classes[22m | ProfileSchema[39m[0m
+[  76% ] [90m[1mupdate_scripts_classes[22m | FriendData[39m[0m
+[  77% ] [90m[1mupdate_scripts_classes[22m | MinesweeperTaskData[39m[0m
+[  77% ] [90m[1mupdate_scripts_classes[22m | ScheduleActionData[39m[0m
+[  78% ] [90m[1mupdate_scripts_classes[22m | ShopItemData[39m[0m
+[  78% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  79% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  79% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  80% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  80% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  81% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  81% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  81% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  82% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  82% ] [90m[1mupdate_scripts_classes[22m | AppWindowBase[39m[0m
+[  83% ] [90m[1mupdate_scripts_classes[22m | BackupApp[39m[0m
+[  83% ] [90m[1mupdate_scripts_classes[22m | BoxMeter[39m[0m
+[  84% ] [90m[1mupdate_scripts_classes[22m | ComputerDesktop[39m[0m
+[  84% ] [90m[1mupdate_scripts_classes[22m | ContactListApp[39m[0m
+[  85% ] [90m[1mupdate_scripts_classes[22m | DatingScene[39m[0m
+[  85% ] [90m[1mupdate_scripts_classes[22m | DialogueBox[39m[0m
+[  86% ] [90m[1mupdate_scripts_classes[22m | EndingScene[39m[0m
+[  86% ] [90m[1mupdate_scripts_classes[22m | GalleryScene[39m[0m
+[  87% ] [90m[1mupdate_scripts_classes[22m | HospitalScene[39m[0m
+[  87% ] [90m[1mupdate_scripts_classes[22m | LocalePresentationRoot[39m[0m
+[  88% ] [90m[1mupdate_scripts_classes[22m | LocalizedBinding[39m[0m
+[  88% ] [90m[1mupdate_scripts_classes[22m | LogOutApp[39m[0m
+[  89% ] [90m[1mupdate_scripts_classes[22m | MainGameScene[39m[0m
+[  89% ] [90m[1mupdate_scripts_classes[22m | MenuScene[39m[0m
+[  90% ] [90m[1mupdate_scripts_classes[22m | MinesweeperApp[39m[0m
+[  90% ] [90m[1mupdate_scripts_classes[22m | OpeningScene[39m[0m
+[  90% ] [90m[1mupdate_scripts_classes[22m | ScheduleApp[39m[0m
+[  91% ] [90m[1mupdate_scripts_classes[22m | Setting[39m[0m
+[  91% ] [90m[1mupdate_scripts_classes[22m | SettingsApp[39m[0m
+[  92% ] [90m[1mupdate_scripts_classes[22m | SettingsPanelController[39m[0m
+[  92% ] [90m[1mupdate_scripts_classes[22m | ShopApp[39m[0m
+[  93% ] [90m[1mupdate_scripts_classes[22m | ShopItemBox[39m[0m
+[  93% ] [90m[1mupdate_scripts_classes[22m | StatHud[39m[0m
+[  94% ] [90m[1mupdate_scripts_classes[22m | CanonicalJsonWriter[39m[0m
+[  94% ] [90m[1mupdate_scripts_classes[22m | JsonSchemaValidator[39m[0m
+[  95% ] [90m[1mupdate_scripts_classes[22m | StrictJson[39m[0m
+[  95% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  96% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  96% ] [90m[1mupdate_scripts_classes[22m | FakeDesktopNamespaceSource[39m[0m
+[  97% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  97% ] [90m[1mupdate_scripts_classes[22m | FakeFileOps[39m[0m
+[  98% ] [90m[1mupdate_scripts_classes[22m | TemporaryStorage[39m[0m
+[  98% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  99% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[92m[ DONE ][39m [1mupdate_scripts_classes[22m
+[0m
+[   0% ] [90m[1m_update_scan_actions[22m | Started 正在扫描动作…… (29 steps)[39m[0m
+[   0% ] [90m[1m_update_scan_actions[22m | AnonymousPro-Bold.ttf[39m[0m
+[   3% ] [90m[1m_update_scan_actions[22m | AnonymousPro-BoldItalic.ttf[39m[0m
+[   6% ] [90m[1m_update_scan_actions[22m | AnonymousPro-Italic.ttf[39m[0m
+[  10% ] [90m[1m_update_scan_actions[22m | AnonymousPro-Regular.ttf[39m[0m
+[  13% ] [90m[1m_update_scan_actions[22m | CourierPrime-Bold.ttf[39m[0m
+[  16% ] [90m[1m_update_scan_actions[22m | CourierPrime-BoldItalic.ttf[39m[0m
+[  20% ] [90m[1m_update_scan_actions[22m | CourierPrime-Italic.ttf[39m[0m
+[  23% ] [90m[1m_update_scan_actions[22m | CourierPrime-Regular.ttf[39m[0m
+[  26% ] [90m[1m_update_scan_actions[22m | LobsterTwo-Bold.ttf[39m[0m
+[  30% ] [90m[1m_update_scan_actions[22m | LobsterTwo-BoldItalic.ttf[39m[0m
+[  33% ] [90m[1m_update_scan_actions[22m | LobsterTwo-Italic.ttf[39m[0m
+[  36% ] [90m[1m_update_scan_actions[22m | LobsterTwo-Regular.ttf[39m[0m
+[  40% ] [90m[1m_update_scan_actions[22m | arrow.png[39m[0m
+[  43% ] [90m[1m_update_scan_actions[22m | play.png[39m[0m
+[  46% ] [90m[1m_update_scan_actions[22m | eyey.png[39m[0m
+[  50% ] [90m[1m_update_scan_actions[22m | Folder.svg[39m[0m
+[  53% ] [90m[1m_update_scan_actions[22m | green.png[39m[0m
+[  56% ] [90m[1m_update_scan_actions[22m | GutIconV2_base.png[39m[0m
+[  60% ] [90m[1m_update_scan_actions[22m | GutIconV2_no_shine.png[39m[0m
+[  63% ] [90m[1m_update_scan_actions[22m | HSplitContainer.svg[39m[0m
+[  66% ] [90m[1m_update_scan_actions[22m | red.png[39m[0m
+[  70% ] [90m[1m_update_scan_actions[22m | Script.svg[39m[0m
+[  73% ] [90m[1m_update_scan_actions[22m | VSplitContainer.svg[39m[0m
+[  76% ] [90m[1m_update_scan_actions[22m | yellow.png[39m[0m
+[  80% ] [90m[1m_update_scan_actions[22m | icon.png[39m[0m
+[  83% ] [90m[1m_update_scan_actions[22m | source_code_pro.fnt[39m[0m
+[  86% ] [90m[1m_update_scan_actions[22m | source-han-sans-hc-regular.otf[39m[0m
+[  90% ] [90m[1m_update_scan_actions[22m | source-han-sans-sc-regular.otf[39m[0m
+[  93% ] [90m[1m_update_scan_actions[22m | source-sans-3-regular.ttf.woff2[39m[0m
+[92m[ DONE ][39m [1m_update_scan_actions[22m
+[0m
+[   0% ] [90m[1mreimport[22m | Started 正在导入或重新导入资产 (29 steps)[39m[0m
+[   0% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[   3% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[   6% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  10% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  13% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  16% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  20% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  23% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  26% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  30% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  33% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  36% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  40% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  43% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  46% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  50% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  53% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  56% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  60% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  63% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  66% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  70% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  73% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  76% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  80% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  83% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  86% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  90% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  93% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[   0% ] [90m[1mreimport[22m | 正在执行重新导入的前置操作……[39m[0m
+[   0% ] [90m[1mreimport[22m | source_code_pro.fnt[39m[0m
+[   3% ] [90m[1mreimport[22m | source_code_pro.fnt[39m[0m
+[   6% ] [90m[1mreimport[22m | source-sans-3-regular.ttf.woff2[39m[0m
+[  10% ] [90m[1mreimport[22m | source-han-sans-sc-regular.otf[39m[0m
+[  13% ] [90m[1mreimport[22m | source-han-sans-hc-regular.otf[39m[0m
+[  16% ] [90m[1mreimport[22m | LobsterTwo-Regular.ttf[39m[0m
+[  20% ] [90m[1mreimport[22m | LobsterTwo-Italic.ttf[39m[0m
+[  23% ] [90m[1mreimport[22m | LobsterTwo-BoldItalic.ttf[39m[0m
+[  26% ] [90m[1mreimport[22m | LobsterTwo-Bold.ttf[39m[0m
+[  30% ] [90m[1mreimport[22m | AnonymousPro-Bold.ttf[39m[0m
+[  33% ] [90m[1mreimport[22m | AnonymousPro-BoldItalic.ttf[39m[0m
+[  36% ] [90m[1mreimport[22m | AnonymousPro-Italic.ttf[39m[0m
+[  40% ] [90m[1mreimport[22m | AnonymousPro-Regular.ttf[39m[0m
+[  43% ] [90m[1mreimport[22m | CourierPrime-Regular.ttf[39m[0m
+[  46% ] [90m[1mreimport[22m | CourierPrime-Italic.ttf[39m[0m
+[  50% ] [90m[1mreimport[22m | CourierPrime-BoldItalic.ttf[39m[0m
+[  53% ] [90m[1mreimport[22m | source_code_pro.fnt[39m[0m
+[  56% ] [90m[1mreimport[22m | source-sans-3-regular.ttf.woff2[39m[0m
+[  60% ] [90m[1mreimport[22m | source-han-sans-sc-regular.otf[39m[0m
+[  63% ] [90m[1mreimport[22m | source-han-sans-hc-regular.otf[39m[0m
+[  66% ] [90m[1mreimport[22m | LobsterTwo-Regular.ttf[39m[0m
+[  70% ] [90m[1mreimport[22m | LobsterTwo-Italic.ttf[39m[0m
+[  73% ] [90m[1mreimport[22m | LobsterTwo-BoldItalic.ttf[39m[0m
+[  76% ] [90m[1mreimport[22m | LobsterTwo-Bold.ttf[39m[0m
+[  80% ] [90m[1mreimport[22m | AnonymousPro-Bold.ttf[39m[0m
+[  83% ] [90m[1mreimport[22m | AnonymousPro-BoldItalic.ttf[39m[0m
+[  86% ] [90m[1mreimport[22m | AnonymousPro-Italic.ttf[39m[0m
+[  90% ] [90m[1mreimport[22m | AnonymousPro-Regular.ttf[39m[0m
+[  93% ] [90m[1mreimport[22m | CourierPrime-Regular.ttf[39m[0m
+[  96% ] [90m[1mreimport[22m | 正在结束资产导入……[39m[0m
+[92m[ DONE ][39m [1mreimport[22m
+[0m
+[   0% ] [90m[1mreimport[22m | Started 正在导入或重新导入资产 (29 steps)[39m[0m
+[   0% ] [90m[1mreimport[22m | 正在执行重新导入的后置操作……[39m[0m
+[92m[ DONE ][39m [1mreimport[22m
+[0m
+[   0% ] [90m[1mloading_editor_layout[22m | Started 正在加载编辑器 (5 steps)[39m[0m
+[   0% ] [90m[1mloading_editor_layout[22m | 正在加载编辑器布局……[39m[0m
+[  16% ] [90m[1mloading_editor_layout[22m | 正在加载停靠面板……[39m[0m
+[92m[ DONE ][39m [1mloading_editor_layout[22m
+[0m
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2570)
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+BACKUP_OPERATIONS_PASS
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2570)
+
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+---  GUT  ---
+[1m[INFO]:  [0musing [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/contacts-ui-build/.godot/backup-operations-pn1u4nnq/appdata/Godot/app_userdata/BackupOperationsTests] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+[4m
+
+res://tests/unit/test_save_document_schema.gd
+[0m* test_save_document_schema_exists
+* test_quick_document_build_round_trips_json_null_slot_id
+* test_discriminator_matrix
+* test_validate_rejects_malformed_documents
+* test_document_version_is_four_and_embedded_snapshot_version_must_agree
+* test_prepare_candidate_is_detached
+[1m6/6 passed.
+[0m
+
+
+
+[33m==============================================
+[0m[33m= Run Summary
+[0m[33m==============================================
+[0m
+Totals
+------
+Scripts               1
+Tests                 6
+Passing Tests         6
+Asserts              47
+Time              0.516s
+
+
+[32m---- All tests passed! ----
+[0m
+WARNING: res://addons/gut/GutScene.tscn:3 - ext_resource, invalid UID: uid://bw7tukh738kw1 - using text path instead: res://addons/gut/GutScene.gd
+   at: load (scene/resources/resource_format_text.cpp:500)
+   GDScript backtrace (most recent call first):
+       [0] @static_initializer (res://addons/gut/utils.gd:62)
+       [1] _static_init (res://addons/gut/gut_loader.gd:40)
+       [2] @static_initializer (res://addons/gut/gut_loader.gd:1)
+       [3] _init (res://addons/gut/gut_cmdln.gd:24)
+WARNING: res://addons/gut/gui/NormalGui.tscn:4 - ext_resource, invalid UID: uid://blvhsbnsvfyow - using text path instead: res://addons/gut/gui/gut_gui.gd
+   at: load (scene/resources/resource_format_text.cpp:500)
+   GDScript backtrace (most recent call first):
+       [0] @static_initializer (res://addons/gut/utils.gd:62)
+       [1] _static_init (res://addons/gut/gut_loader.gd:40)
+       [2] @static_initializer (res://addons/gut/gut_loader.gd:1)
+       [3] _init (res://addons/gut/gut_cmdln.gd:24)
+WARNING: res://addons/gut/gui/ResizeHandle.tscn:3 - ext_resource, invalid UID: uid://duf6rfdqr6yoc - using text path instead: res://addons/gut/gui/ResizeHandle.gd
+   at: load (scene/resources/resource_format_text.cpp:500)
+   GDScript backtrace (most recent call first):
+       [0] @static_initializer (res://addons/gut/utils.gd:62)
+       [1] _static_init (res://addons/gut/gut_loader.gd:40)
+       [2] @static_initializer (res://addons/gut/gut_loader.gd:1)
+       [3] _init (res://addons/gut/gut_cmdln.gd:24)
+WARNING: res://addons/gut/gui/MinGui.tscn:5 - ext_resource, invalid UID: uid://blvhsbnsvfyow - using text path instead: res://addons/gut/gui/gut_gui.gd
+   at: load (scene/resources/resource_format_text.cpp:500)
+   GDScript backtrace (most recent call first):
+       [0] @static_initializer (res://addons/gut/utils.gd:62)
+       [1] _static_init (res://addons/gut/gut_loader.gd:40)
+       [2] @static_initializer (res://addons/gut/gut_loader.gd:1)
+       [3] _init (res://addons/gut/gut_cmdln.gd:24)
+WARNING: res://addons/gut/gui/RunExternally.tscn:3 - ext_resource, invalid UID: uid://bi8pg352un4om - using text path instead: res://addons/gut/gui/RunExternally.gd
+   at: load (scene/resources/resource_format_text.cpp:500)
+   GDScript backtrace (most recent call first):
+       [0] @static_initializer (res://addons/gut/utils.gd:67)
+       [1] _static_init (res://addons/gut/gut_loader.gd:40)
+       [2] @static_initializer (res://addons/gut/gut_loader.gd:1)
+       [3] _init (res://addons/gut/gut_cmdln.gd:24)
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2570)
+WARNING: res://addons/gut/gui/GutRunner.tscn:3 - ext_resource, invalid UID: uid://eg8k46gd42a4 - using text path instead: res://addons/gut/gui/GutRunner.gd
+   at: load (scene/resources/resource_format_text.cpp:500)
+   GDScript backtrace (most recent call first):
+       [0] @implicit_new (res://addons/gut/cli/gut_cli.gd:5)
+       [1] _init (res://addons/gut/gut_cmdln.gd:36)
+
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+---  GUT  ---
+[1m[INFO]:  [0musing [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/contacts-ui-build/.godot/backup-operations-pn1u4nnq/appdata/Godot/app_userdata/BackupOperationsTests] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+[4m
+
+res://tests/unit/test_save_manager.gd
+[0m* test_invalid_save_references_do_not_touch_storage
+* test_save_family_writes_closed_relative_names
+* test_logout_without_checkpoint_reports_unwritten
+* test_metadata_family_present_absent_corrupt_and_ordering
+* test_restore_preparation_and_delete_families
+* test_configure_mutation_gate_matrix_without_side_effects
+* test_deprecated_wrappers_delegate
+[1m7/7 passed.
+[0m
+
+
+
+[33m==============================================
+[0m[33m= Run Summary
+[0m[33m==============================================
+[0m
+Totals
+------
+Scripts               1
+Tests                 7
+Passing Tests         7
+Asserts              88
+Time              1.635s
+
+
+[32m---- All tests passed! ----
+[0m
+WARNING: res://addons/gut/GutScene.tscn:3 - ext_resource, invalid UID: uid://bw7tukh738kw1 - using text path instead: res://addons/gut/GutScene.gd
+   at: load (scene/resources/resource_format_text.cpp:500)
+   GDScript backtrace (most recent call first):
+       [0] @static_initializer (res://addons/gut/utils.gd:62)
+       [1] _static_init (res://addons/gut/gut_loader.gd:40)
+       [2] @static_initializer (res://addons/gut/gut_loader.gd:1)
+       [3] _init (res://addons/gut/gut_cmdln.gd:24)
+WARNING: res://addons/gut/gui/NormalGui.tscn:4 - ext_resource, invalid UID: uid://blvhsbnsvfyow - using text path instead: res://addons/gut/gui/gut_gui.gd
+   at: load (scene/resources/resource_format_text.cpp:500)
+   GDScript backtrace (most recent call first):
+       [0] @static_initializer (res://addons/gut/utils.gd:62)
+       [1] _static_init (res://addons/gut/gut_loader.gd:40)
+       [2] @static_initializer (res://addons/gut/gut_loader.gd:1)
+       [3] _init (res://addons/gut/gut_cmdln.gd:24)
+WARNING: res://addons/gut/gui/ResizeHandle.tscn:3 - ext_resource, invalid UID: uid://duf6rfdqr6yoc - using text path instead: res://addons/gut/gui/ResizeHandle.gd
+   at: load (scene/resources/resource_format_text.cpp:500)
+   GDScript backtrace (most recent call first):
+       [0] @static_initializer (res://addons/gut/utils.gd:62)
+       [1] _static_init (res://addons/gut/gut_loader.gd:40)
+       [2] @static_initializer (res://addons/gut/gut_loader.gd:1)
+       [3] _init (res://addons/gut/gut_cmdln.gd:24)
+WARNING: res://addons/gut/gui/MinGui.tscn:5 - ext_resource, invalid UID: uid://blvhsbnsvfyow - using text path instead: res://addons/gut/gui/gut_gui.gd
+   at: load (scene/resources/resource_format_text.cpp:500)
+   GDScript backtrace (most recent call first):
+       [0] @static_initializer (res://addons/gut/utils.gd:62)
+       [1] _static_init (res://addons/gut/gut_loader.gd:40)
+       [2] @static_initializer (res://addons/gut/gut_loader.gd:1)
+       [3] _init (res://addons/gut/gut_cmdln.gd:24)
+WARNING: res://addons/gut/gui/RunExternally.tscn:3 - ext_resource, invalid UID: uid://bi8pg352un4om - using text path instead: res://addons/gut/gui/RunExternally.gd
+   at: load (scene/resources/resource_format_text.cpp:500)
+   GDScript backtrace (most recent call first):
+       [0] @static_initializer (res://addons/gut/utils.gd:67)
+       [1] _static_init (res://addons/gut/gut_loader.gd:40)
+       [2] @static_initializer (res://addons/gut/gut_loader.gd:1)
+       [3] _init (res://addons/gut/gut_cmdln.gd:24)
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2570)
+WARNING: res://addons/gut/gui/GutRunner.tscn:3 - ext_resource, invalid UID: uid://eg8k46gd42a4 - using text path instead: res://addons/gut/gui/GutRunner.gd
+   at: load (scene/resources/resource_format_text.cpp:500)
+   GDScript backtrace (most recent call first):
+       [0] @implicit_new (res://addons/gut/cli/gut_cli.gd:5)
+       [1] _init (res://addons/gut/gut_cmdln.gd:36)
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+---  GUT  ---
+[1m[INFO]:  [0musing [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/contacts-ui-build/.godot/backup-operations-pn1u4nnq/appdata/Godot/app_userdata/BackupOperationsTests] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+[4m
+
+res://tests/integration/test_restore_production_adapters.gd
+[0m* test_prepare_builds_eight_plans_and_commits
+* test_commit_prepared_restore_rejects_stray_identity_allocation_bundle_key
+* test_commit_prepared_restore_rejects_stray_transaction_issuer_receipt_key
+* test_commit_prepared_restore_rejects_stray_transaction_remap_key
+* test_late_narrative_incompatibility_selects_earlier_bundle
+* test_profile_prepare_failure_is_structural_not_content
+* test_physical_narrative_participant_prepares_against_current_manifest
+* test_physical_narrative_participant_reports_removed_content_as_recoverable
+* test_physical_narrative_participant_reports_fingerprint_drift_as_recoverable
+* test_physical_narrative_participant_fails_closed_on_malformed_bytes
+* test_checkpoint_port_configures_desktop_context_provider
+* test_semantic_narrative_participant_prepares_the_six_field_plan_over_the_real_bridge
+* test_semantic_narrative_participant_reports_manifest_drift_as_recoverable
+[1m13/13 passed.
+[0m
+
+
+
+[33m==============================================
+[0m[33m= Run Summary
+[0m[33m==============================================
+[0m
+Totals
+------
+Scripts               1
+Tests                13
+Passing Tests        13
+Asserts              84
+Time              2.877s
+
+
+[32m---- All tests passed! ----
+[0m
+WARNING: res://addons/gut/GutScene.tscn:3 - ext_resource, invalid UID: uid://bw7tukh738kw1 - using text path instead: res://addons/gut/GutScene.gd
+   at: load (scene/resources/resource_format_text.cpp:500)
+   GDScript backtrace (most recent call first):
+       [0] @static_initializer (res://addons/gut/utils.gd:62)
+       [1] _static_init (res://addons/gut/gut_loader.gd:40)
+       [2] @static_initializer (res://addons/gut/gut_loader.gd:1)
+       [3] _init (res://addons/gut/gut_cmdln.gd:24)
+WARNING: res://addons/gut/gui/NormalGui.tscn:4 - ext_resource, invalid UID: uid://blvhsbnsvfyow - using text path instead: res://addons/gut/gui/gut_gui.gd
+   at: load (scene/resources/resource_format_text.cpp:500)
+   GDScript backtrace (most recent call first):
+       [0] @static_initializer (res://addons/gut/utils.gd:62)
+       [1] _static_init (res://addons/gut/gut_loader.gd:40)
+       [2] @static_initializer (res://addons/gut/gut_loader.gd:1)
+       [3] _init (res://addons/gut/gut_cmdln.gd:24)
+WARNING: res://addons/gut/gui/ResizeHandle.tscn:3 - ext_resource, invalid UID: uid://duf6rfdqr6yoc - using text path instead: res://addons/gut/gui/ResizeHandle.gd
+   at: load (scene/resources/resource_format_text.cpp:500)
+   GDScript backtrace (most recent call first):
+       [0] @static_initializer (res://addons/gut/utils.gd:62)
+       [1] _static_init (res://addons/gut/gut_loader.gd:40)
+       [2] @static_initializer (res://addons/gut/gut_loader.gd:1)
+       [3] _init (res://addons/gut/gut_cmdln.gd:24)
+WARNING: res://addons/gut/gui/MinGui.tscn:5 - ext_resource, invalid UID: uid://blvhsbnsvfyow - using text path instead: res://addons/gut/gui/gut_gui.gd
+   at: load (scene/resources/resource_format_text.cpp:500)
+   GDScript backtrace (most recent call first):
+       [0] @static_initializer (res://addons/gut/utils.gd:62)
+       [1] _static_init (res://addons/gut/gut_loader.gd:40)
+       [2] @static_initializer (res://addons/gut/gut_loader.gd:1)
+       [3] _init (res://addons/gut/gut_cmdln.gd:24)
+WARNING: res://addons/gut/gui/RunExternally.tscn:3 - ext_resource, invalid UID: uid://bi8pg352un4om - using text path instead: res://addons/gut/gui/RunExternally.gd
+   at: load (scene/resources/resource_format_text.cpp:500)
+   GDScript backtrace (most recent call first):
+       [0] @static_initializer (res://addons/gut/utils.gd:67)
+       [1] _static_init (res://addons/gut/gut_loader.gd:40)
+       [2] @static_initializer (res://addons/gut/gut_loader.gd:1)
+       [3] _init (res://addons/gut/gut_cmdln.gd:24)
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2570)
+WARNING: res://addons/gut/gui/GutRunner.tscn:3 - ext_resource, invalid UID: uid://eg8k46gd42a4 - using text path instead: res://addons/gut/gui/GutRunner.gd
+   at: load (scene/resources/resource_format_text.cpp:500)
+   GDScript backtrace (most recent call first):
+       [0] @implicit_new (res://addons/gut/cli/gut_cli.gd:5)
+       [1] _init (res://addons/gut/gut_cmdln.gd:36)
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character

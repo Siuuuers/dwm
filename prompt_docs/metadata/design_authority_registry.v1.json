@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "records": [
+    {
+      "id": "spec.agent_workflow.navigation_manual",
+      "kind": "design_specification",
+      "path": "docs/superpowers/specs/2026-07-18-agent-workflow-navigation-manual-design.md"
+    },
+    {
+      "id": "spec.desktop_minesweeper_shop_schedule_amendment",
+      "kind": "design_amendment",
+      "path": "docs/design/2026-08-11-desktop-minesweeper-shop-schedule-amendment.md"
+    },
+    {
+      "id": "spec.phase_2r.foundation_repair",
+      "kind": "design_specification",
+      "path": "docs/design/2026-08-11-phase-2r-foundation-repair-current-authority.md"
+    },
+    {
+      "id": "spec.seven_day_dialogic_flow",
+      "kind": "design_specification",
+      "path": "docs/design/2026-08-07-seven-day-dialogic-flow-design.md"
+    }
+  ]
+}

@@ -1,0 +1,142 @@
+{
+  "active_app_id": null,
+  "applied_effect_transaction_ids": [],
+  "applied_variable_transaction_ids": [],
+  "audio_context": {},
+  "checkpoint_id": "fixture-run-1:1",
+  "checkpoint_sequence": 1,
+  "command_receipts": {},
+  "committed_schedule": {
+    "commit_receipt": null,
+    "day": 1,
+    "entries": [],
+    "registry_fingerprint": null,
+    "schema_version": 1
+  },
+  "contacts": {
+    "group_action": {
+      "action_id": null,
+      "day": null,
+      "history_generated": false,
+      "inviter_id": null,
+      "opened_ids": [],
+      "participant_ids": [
+        "priscilla",
+        "lavinia"
+      ],
+      "replied_ids": [],
+      "state": "INACTIVE",
+      "transaction_id": null
+    },
+    "messages": {
+      "lavinia": [],
+      "priscilla": [],
+      "sylvia": []
+    },
+    "next_sequence": 1,
+    "read_watermarks": {
+      "lavinia": 0,
+      "priscilla": 0,
+      "sylvia": 0
+    },
+    "schedule_source_receipts": {},
+    "solo_actions": {},
+    "sylvia_hospital_witness_receipts": {},
+    "transaction_receipts": {}
+  },
+  "content_version": 1,
+  "dating": {},
+  "desktop": {
+    "board": {
+      "board": null,
+      "candidate": null,
+      "command_receipts": {},
+      "identity": null,
+      "phase": "NONE",
+      "revision": 0,
+      "schema_version": 1,
+      "settlement": null,
+      "terminal_receipts": {}
+    },
+    "consequence": {
+      "causal_day_instance": "fixture-causal-day-1",
+      "causal_day_instance_issuer_receipt": {
+        "counter": 1,
+        "namespace": "fixturenamespace",
+        "numeric_value": null,
+        "purpose": "causal_day_instance",
+        "receipt_id": "issuer_receipt.fixture-fixture-causal-day-1",
+        "token": "fixture-causal-day-1"
+      },
+      "causal_sequence": 0,
+      "outbox": {},
+      "pending": {
+        "admission_checkpoint_receipt": null,
+        "checkpoint_receipt": null,
+        "destination_intent": null,
+        "expected_run_revision": 0,
+        "notification_intent": null,
+        "participant_receipts": {},
+        "publication_progress": null,
+        "recovery_payload": {
+          "action_receipt": {
+            "result": "completed"
+          },
+          "participant_snapshot_ids": {},
+          "run_revision_before": 0,
+          "source_kind": "minesweeper_round"
+        },
+        "recovery_payload_sha256": "bfb211b4319a84d132d0e6d1d4476aaf575053480c3515adb523b76e6cfef728",
+        "source_commit_receipt_id": "commit-receipt-pending-1",
+        "source_commit_receipt_provenance": {
+          "child_kind": "board_fate"
+        },
+        "source_kind": "minesweeper_round",
+        "stage": "action_prepared",
+        "transaction_id": "txn-pending-1",
+        "transaction_issuer_receipt": {
+          "counter": 1,
+          "namespace": "fixturenamespace",
+          "numeric_value": null,
+          "purpose": "transaction_id",
+          "receipt_id": "issuer_receipt.fixture-txn-pending-1",
+          "token": "txn-pending-1"
+        }
+      },
+      "run_revision": 0,
+      "schema_version": 1,
+      "shop_ledger": {
+        "base_completion_receipts": [],
+        "supportz_branch_purchase_count": 0,
+        "supportz_last_purchase_causal_day_instance": ""
+      }
+    }
+  },
+  "gameplay": {
+    "narrative_variables": {}
+  },
+  "lifecycle": {
+    "active_resolution_plan": null,
+    "branch_id": "fixture-branch-1",
+    "causal_day_instance": "fixture-causal-day-1",
+    "causal_day_instance_issuer_receipt": {
+      "counter": 1,
+      "namespace": "fixturenamespace",
+      "numeric_value": null,
+      "purpose": "causal_day_instance",
+      "receipt_id": "issuer_receipt.fixture-fixture-causal-day-1",
+      "token": "fixture-causal-day-1"
+    },
+    "day": 1,
+    "desktop_timeline_generation": 0,
+    "ending_plan": null,
+    "restore_provenance": null,
+    "run_id": "fixture-run-1",
+    "state": "PLAYING",
+    "dark_mode": false
+  },
+  "narrative_checkpoint": {},
+  "route_id": "main",
+  "run_id": "fixture-run-1",
+  "schema_version": 5
+}

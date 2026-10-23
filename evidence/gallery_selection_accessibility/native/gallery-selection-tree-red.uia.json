@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "observed_at_utc": "2026-09-14T13:14:03.7728028Z",
+  "ok": false,
+  "code": "gallery_selection_accessibility_failed",
+  "failures": [
+    "UIA_ROWS_NOT_FOUND: count=0 expected='A Quiet Morning|Come Home' pid=42876"
+  ],
+  "source_log_path": "C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\minesweeper-view-controls\\.godot\\phase2r_logs\\gallery-selection-tree-red.log",
+  "target": {
+    "pid": 42876,
+    "repository_root": "C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\minesweeper-view-controls",
+    "script": "res://tests/manual/verify_gallery_selection_accessibility.gd",
+    "expected_window_title": "DWM Gallery Selection 42876",
+    "expected_titles": [
+      "A Quiet Morning",
+      "Come Home"
+    ],
+    "completion_path": "C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\minesweeper-view-controls\\.godot\\phase2r_tests\\3f1e66b1-22e3-4feb-b6e9-60f37d46106b\\dwm_test_root\\gallery-selection-complete.json"
+  },
+  "process": {
+    "process_id": 42876,
+    "name": "Godot_v4.6.3-stable_mono_win64.exe",
+    "command_line": "\"C:\\Program Files\\Godot_v4.6.3-stable_mono_win64\\Godot_v4.6.3-stable_mono_win64.exe\" --headless --path C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\minesweeper-view-controls --log-file C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\minesweeper-view-controls\\.godot\\phase2r_logs\\gallery-selection-tree-red.log --display-driver windows --rendering-method gl_compatibility --rendering-driver opengl3 --accessibility always --position -32000,-32000 -s res://tests/manual/verify_gallery_selection_accessibility.gd -- --phase2r-bootstrap-mode=test_manual"
+  },
+  "window": {
+    "name": "DWM (DEBUG) ",
+    "process_id": 42876,
+    "automation_id": "",
+    "native_window_handle": 20253670,
+    "native_title": "DWM Gallery Selection 42876"
+  },
+  "initial_rows": [],
+  "final_rows": [],
+  "raw_descendants": [
+    {
+      "name": "@AudioStreamPlayer@6 ",
+      "process_id": 42876,
+      "automation_id": "",
+      "control_type": "ControlType.Group",
+      "enabled": true,
+      "offscreen": false,
+      "keyboard_focusable": false,
+      "has_keyboard_focus": false,
+      "patterns": []
+    },
+    {
+      "name": "Return ",
+      "process_id": 42876,
+      "automation_id": "",
+      "control_type": "ControlType.Button",
+      "enabled": true,
+      "offscreen": false,
+      "keyboard_focusable": true,
+      "has_keyboard_focus": false,
+      "patterns": [
+        "InvokePatternIdentifiers.Pattern",
+        "ScrollItemPatternIdentifiers.Pattern"
+      ]
+    }
+  ],
+  "control_descendants": [
+    {
+      "name": "@AudioStreamPlayer@6 ",
+      "process_id": 42876,
+      "automation_id": "",
+      "control_type": "ControlType.Group",
+      "enabled": true,
+      "offscreen": false,
+      "keyboard_focusable": false,
+      "has_keyboard_focus": false,
+      "patterns": []
+    },
+    {
+      "name": "Return ",
+      "process_id": 42876,
+      "automation_id": "",
+      "control_type": "ControlType.Button",
+      "enabled": true,
+      "offscreen": false,
+      "keyboard_focusable": true,
+      "has_keyboard_focus": false,
+      "patterns": [
+        "InvokePatternIdentifiers.Pattern",
+        "ScrollItemPatternIdentifiers.Pattern"
+      ]
+    }
+  ],
+  "native_actions": {
+    "method": "Windows.UIAutomation.SetFocus + InvokePattern.Invoke",
+    "invoked": false
+  }
+}

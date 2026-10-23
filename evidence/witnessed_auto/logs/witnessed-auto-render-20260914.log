@@ -1,0 +1,14 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+OpenGL API 3.3.0 - Build 31.0.101.4146 - Compatibility - Using Device: Intel - Intel(R) Iris(R) Xe Graphics
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+SCRIPT ERROR: Parse Error: Identifier "profile" not declared in the current scope.
+   at: GDScript::reload (res://tests/manual/witnessed_transport_capture.gd:94)
+SCRIPT ERROR: Parse Error: Identifier "profile" not declared in the current scope.
+   at: GDScript::reload (res://tests/manual/witnessed_transport_capture.gd:102)
+SCRIPT ERROR: Parse Error: Identifier "profile" not declared in the current scope.
+   at: GDScript::reload (res://tests/manual/witnessed_transport_capture.gd:105)
+SCRIPT ERROR: Parse Error: Identifier "profile" not declared in the current scope.
+   at: GDScript::reload (res://tests/manual/witnessed_transport_capture.gd:140)
+ERROR: Failed to load script "res://tests/manual/witnessed_transport_capture.gd" with error "Parse error".
+   at: load (modules/gdscript/gdscript.cpp:2907)

@@ -1,0 +1,14 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+OpenGL API 3.3.0 - Build 31.0.101.4146 - Compatibility - Using Device: Intel - Intel(R) Iris(R) Xe Graphics
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+ERROR: WITNESSED_READING_RECOVERY_CAPTURE_FAILED: en mounted recovery capture was incomplete
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _capture_failure (res://tests/manual/witnessed_reading_recovery_capture.gd:234)
+       [1] _run (res://tests/manual/witnessed_reading_recovery_capture.gd:83)
+       [2] _frames (res://tests/ui/render_witnessed_caption.gd:340)
+WITNESSED_READING_RECOVERY_CAPTURE {"captures":0,"evidence":"C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/b77c6723-029e-48fb-8735-22f3ba38c288/dwm_test_root/34324/1/witnessed-reading-recovery-capture/witnessed-reading-recovery","failures":["en mounted recovery capture was incomplete"],"ok":false}

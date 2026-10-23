@@ -1,0 +1,121 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/000ab09b-dfa1-442c-adc0-e6759ce24bbf/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+res://tests/unit/test_game_state_public_queries.gd
+* test_get_stat_returns_canonical_internal_values_without_mutation
+* test_get_stat_display_value_projects_audience_bounds_without_mutation
+* test_get_stat_display_max_returns_each_audience_scale_without_mutation
+* test_can_spend_money_respects_the_exact_overdraft_boundary_without_mutation
+* test_can_spend_coins_requires_a_positive_owned_amount_without_mutation
+5/5 passed.
+
+
+res://tests/unit/test_game_state_calendar_queries.gd
+* test_is_invitation_day_covers_the_complete_explicit_and_active_day_contract
+* test_is_group_invitation_day_covers_the_complete_explicit_and_active_day_contract
+* test_daily_message_query_covers_all_days_defaults_invalids_and_group_suppression
+3/3 passed.
+
+
+res://tests/unit/test_game_state_facade_contract.gd
+* test_configure_mutation_gate_matrix_without_side_effects
+* test_day_is_read_only_compatibility
+* test_prepare_new_run_snapshot_input_is_pure
+* test_request_schedule_done_delegates_through_production_port
+* test_schedule_commit_seams_are_narrow_reversible_and_silent
+* test_day7_terminal_via_facade_never_creates_day8
+* test_capture_schedule_warning_state_is_narrow_read_only_and_exact
+* test_capture_schedule_warning_state_facts_are_day_scoped_and_detached
+8/8 passed.
+
+
+res://tests/unit/test_seven_day_calendar.gd
+* test_all_twelve_solo_windows_and_round_orders_match_each_live_facade
+* test_all_six_ordinary_messages_keep_three_choices_and_day7_has_none
+* test_group_windows_are_exact_and_do_not_create_a_third_solo
+* test_day7_ending_delivery_remains_separate_from_ordinary_and_dating_windows
+* test_sylvia_achieved_third_round_offer_uses_tier_without_granting_a_round
+* test_calendar_results_are_detached_and_default_facades_use_the_active_day
+* test_invalid_calendar_queries_never_fabricate_an_invitation_or_ordinary_choice
+7/7 passed.
+
+
+res://tests/unit/tooling/test_public_surface_inventory.gd
+* test_public_surface_inventory_exists
+* test_build_produces_complete_sorted_records
+* test_validation_failure_matrix
+* test_reserved_symbol_rules
+* test_write_canonical_json_round_trip
+* test_game_state_required_surface_reservations
+* test_task3_required_surface_realizes_authenticated_contacts_and_retires_legacy_reply
+* test_task4_committed_schedule_seams_carry_their_exact_frozen_signatures
+* test_save_manager_required_surface_freezes_realized_facade
+* test_both_live_inventories_reproduce_every_canonical_byte
+* test_read_only_check_detects_call_site_dynamic_reference_and_signature_drift
+11/11 passed.
+
+
+res://tests/unit/tooling/test_doc_validator.gd
+* test_validator_error_matrix
+* test_accepted_decision_contract_and_index
+* test_authority_index_validation_rejects_invalid_bytes_that_decode_like_expected_text
+3/3 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/unit/test_game_state_public_queries.gd
+    - Outside Tests
+        * [<Node#131617261336>(subsystem_animation.gd)]
+        * [<Node#131634038564>(subsystem_audio.gd)]
+        * [<Node#131650815796>]
+        * [<Node#131667593021>]
+        * [<Node#131684370243>(subsystem_backgrounds.gd)]
+        * [<Node#132221241156>(subsystem_choices.gd)]
+        * [<Timer#132238018373>]
+        * [<Node#132254795590>(subsystem_expression.gd)]
+        * [<Node#132288350027>(subsystem_glossary.gd)]
+        * [<Node#132305127244>(subsystem_history.gd)]
+        * [<Node#132321904461>(subsystem_input.gd)]
+        * [<Timer#132338681678>]
+        * [<Node#132355458895>(subsystem_jump.gd)]
+        * [<Node#132372236112>(subsystem_containers.gd)]
+        * [<Node#132389013329>(subsystem_portraits.gd)]
+        * [<Node#132925884242>(subsystem_save.gd)]
+        * [<Timer#132942661459>]
+        * [<Node#132959438676>(subsystem_settings.gd)]
+        * [<Node#132976215896>(subsystem_styles.gd)]
+        * [<Node#132992993113>(subsystem_text.gd)]
+        * [<Node#133076879198>(subsystem_text_input.gd)]
+        * [<Node#133093656415>(subsystem_variables.gd)]
+        * [<Node#133110433632>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#133127210849>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+Totals
+------
+Scripts               6
+Tests                37
+Passing Tests        37
+Asserts             987
+Orphans              24
+Time              20.515s
+
+
+---- All tests passed! ----

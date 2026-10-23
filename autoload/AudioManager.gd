@@ -1,0 +1,934 @@
+extends Node
+
+const PLAYBACK_PORT := preload("res://scripts/audio/AudioPlaybackPort.gd")
+const SETTINGS_TRANSACTIONS := preload("res://scripts/settings/SettingsOutputTransactions.gd")
+const VOLUME_SILENCE_THRESHOLD := 0.0001
+const SILENCE_DB := -80.0
+const CHANNELS := {
+	&"master": {"bus": &"Master", "volume": &"preferences.audio.master_volume", "muted": &"preferences.audio.master_muted"},
+	&"music": {"bus": &"Music", "volume": &"preferences.audio.music_volume", "muted": &"preferences.audio.music_muted"},
+	&"ambience": {"bus": &"Ambience", "volume": &"preferences.audio.ambience_volume", "muted": &"preferences.audio.ambience_muted"},
+	&"sfx": {"bus": &"SFX", "volume": &"preferences.audio.sfx_volume", "muted": &"preferences.audio.sfx_muted"},
+}
+const AUDIO_DEFAULTS := {
+	"master_volume":1.0,"master_muted":false,
+	"music_volume":0.8,"music_muted":false,
+	"ambience_volume":0.65,"ambience_muted":false,
+	"sfx_volume":0.8,"sfx_muted":false,
+	"mute_when_inactive":true,"output_mode":"stereo",
+}
+const MUSIC_PLAYERS: Array[StringName] = [&"MusicA", &"MusicB"]
+const AMBIENCE_PLAYERS: Array[StringName] = [&"AmbienceA", &"AmbienceB"]
+const SFX_PLAYERS: Array[StringName] = [&"SFX0", &"SFX1", &"SFX2", &"SFX3", &"SFX4", &"SFX5", &"SFX6", &"SFX7"]
+const UI_PLAYERS: Array[StringName] = [&"UI0", &"UI1", &"UI2", &"UI3"]
+const VOICE_PLAYERS: Array[StringName] = [&"Voice0", &"Voice1"]
+
+signal music_context_changed(context_id: String, context: Dictionary)
+signal ambience_context_changed(context_id: String, context: Dictionary)
+signal sfx_requested(cue_id: String, receipt: Dictionary)
+signal audio_settings_applied(settings: Dictionary)
+signal audio_warning(result: Dictionary)
+
+var _manifest := AudioManifest.new()
+var _profile: Node
+var _playback_port: RefCounted
+var _mutation_gate: Object
+var _initialized := false
+var _fatal := false
+var _focus_loss_mute := false
+var _semantic := {
+	"music_context_id": "", "music_context": {},
+	"ambience_context_id": "", "ambience_context": {},
+}
+var _records := {&"music": {}, &"ambience": {}}
+var _active_players := {&"music": &"MusicA", &"ambience": &"AmbienceA"}
+var _settings := {}
+var _pool_play_sequence := {&"SFX": {}, &"UI": {}, &"Voice": {}}
+var _play_sequence := 0
+var _restore_backup := {}
+var _pause_handle: Dictionary = {}
+var _pause_frontier_id := ""
+var _settings_transactions: RefCounted
+
+
+func _init(playback_port: RefCounted = null) -> void:
+	_playback_port = playback_port
+	_settings_transactions = SETTINGS_TRANSACTIONS.new(self)
+
+
+func preview_settings_volume(holder_id: Variant, path: Variant, value: Variant, preview_handle: Variant = null) -> Dictionary:
+	return _settings_transactions.preview_settings_volume(holder_id, path, value, preview_handle)
+
+
+func commit_settings_audio_preference(holder_id: Variant, path: Variant, value: Variant, preview_handle: Variant = null) -> Dictionary:
+	return _settings_transactions.commit_settings_audio_preference(holder_id, path, value, preview_handle)
+
+
+func cancel_settings_volume_preview(preview_handle: Variant) -> Dictionary:
+	return _settings_transactions.cancel_settings_volume_preview(preview_handle)
+
+
+func commit_settings_profile_reset(holder_id: Variant, method: Variant, expected_revision: int = -1) -> Dictionary:
+	return _settings_transactions.commit_settings_profile_reset(holder_id, method, expected_revision)
+
+
+func get_settings_output_transactions() -> RefCounted:
+	return _settings_transactions
+
+
+func get_settings_audio_capability() -> Dictionary:
+	var available := _initialized and not _fatal and is_instance_valid(_playback_port) and is_instance_valid(_profile)
+	for method: StringName in [&"capture_output", &"restore_output", &"output_matches", &"set_output_mode"]:
+		available = available and _playback_port.has_method(method)
+	for method: StringName in [&"prepare_preferences", &"commit_prepared_profile", &"get_profile_snapshot", &"get_profile_revision", &"publish_deferred_profile_signals"]:
+		available = available and _profile.has_method(method)
+	return {"ok": true, "value": {"volume": available, "samples": false}}
+
+
+func _ready() -> void:
+	pass
+
+
+func _exit_tree() -> void:
+	if _settings_transactions != null and _settings_transactions.has_preview():
+		_settings_transactions.cancel_current_preview()
+
+
+func configure_mutation_gate(gate: Object) -> Dictionary:
+	if gate == null or not gate.has_signal("capability_changed"):
+		return _failure(&"invalid_mutation_gate")
+	for method in [&"acquire", &"release", &"guard_external", &"is_active", &"get_active_owner", &"is_internal_owner_active", &"latch_fatal", &"is_fatal_latched"]:
+		if not gate.has_method(method):
+			return _failure(&"invalid_mutation_gate")
+	if _mutation_gate != null and _mutation_gate.get_instance_id() != gate.get_instance_id():
+		return _failure(&"mutation_gate_already_configured")
+	var already := _mutation_gate != null
+	_mutation_gate = gate
+	return {"ok": true, "code": &"ok", "value": {"gate_instance_id": gate.get_instance_id(), "already_configured": already}, "receipt": {}}
+
+
+func initialize(profile: Node) -> Dictionary:
+	if _initialized:
+		return _failure(&"already_initialized")
+	if profile == null or not profile.has_method("get_preference"):
+		return _failure(&"invalid_profile_manager")
+	_profile = profile
+	if _playback_port == null:
+		_playback_port = PLAYBACK_PORT.new()
+	for bus_name in [&"Master", &"Music", &"Ambience", &"SFX", &"UI", &"Voice"]:
+		var bus_result: Dictionary = _playback_port.call(&"ensure_bus", bus_name)
+		if not bus_result.get("ok", false):
+			return bus_result
+	for player_id in MUSIC_PLAYERS:
+		var result: Dictionary = _playback_port.call(&"ensure_player", player_id, &"Music")
+		if not result.get("ok", false):
+			return result
+	for player_id in AMBIENCE_PLAYERS:
+		var result: Dictionary = _playback_port.call(&"ensure_player", player_id, &"Ambience")
+		if not result.get("ok", false):
+			return result
+	for player_id in SFX_PLAYERS:
+		var result: Dictionary = _playback_port.call(&"ensure_player", player_id, &"SFX")
+		if not result.get("ok", false):
+			return result
+	for player_id in UI_PLAYERS:
+		var result: Dictionary = _playback_port.call(&"ensure_player", player_id, &"UI")
+		if not result.get("ok", false):
+			return result
+	for player_id in VOICE_PLAYERS:
+		var result: Dictionary = _playback_port.call(&"ensure_player", player_id, &"Voice")
+		if not result.get("ok", false):
+			return result
+	var applied := apply_profile_preferences()
+	if not applied.get("ok", false):
+		_profile = null
+		return applied
+	_initialized = true
+	if profile.has_signal("preference_changed") and not profile.preference_changed.is_connected(_on_preference_changed):
+		profile.preference_changed.connect(_on_preference_changed)
+	if _playback_port.has_signal("runtime_failure") and not _playback_port.is_connected("runtime_failure", _on_port_runtime_failure):
+		_playback_port.connect("runtime_failure", _on_port_runtime_failure)
+	return applied
+
+
+func set_music_context(context_id: String, context: Dictionary = {}) -> Dictionary:
+	return _set_context(&"music", context_id, context, -1.0, false)
+
+
+func set_ambience_context(context_id: String, context: Dictionary = {}) -> Dictionary:
+	return _set_context(&"ambience", context_id, context, -1.0, false)
+
+
+## Lifecycle suspension is transient process custody. It never enters the semantic audio snapshot.
+func begin_suspend(handle: Dictionary) -> Dictionary:
+	if not _valid_pause_handle(handle):
+		return _lifecycle_failure(&"invalid_suspension_handle")
+	if not _initialized:
+		return _lifecycle_failure(&"not_initialized")
+	if _fatal:
+		return _lifecycle_failure(&"audio_runtime_indeterminate")
+	if not _pause_handle.is_empty():
+		if _pause_handle == handle:
+			return _lifecycle_success({"frontier_id": _pause_frontier_id})
+		return _lifecycle_failure(&"audio_suspended")
+	if not _playback_port.has_method(&"begin_pause_suspension") \
+			or not _playback_port.has_method(&"resume_pause_suspension") \
+			or not _playback_port.has_method(&"get_pause_suspension_state"):
+		return _lifecycle_failure(&"invalid_audio_runtime")
+	var settled: Dictionary = _settings_transactions.cancel_current_preview()
+	if not settled.get("ok", false): return settled
+	var suspended: Variant = _playback_port.call(
+		&"begin_pause_suspension", MUSIC_PLAYERS + AMBIENCE_PLAYERS,
+		SFX_PLAYERS + VOICE_PLAYERS
+	)
+	if not _valid_port_pause_result(suspended, &"suspended") \
+			or _port_pause_state() != &"Suspended":
+		if not _prove_or_recover_port_active():
+			_latch_consumer_fatal(&"pause_begin", _failure(&"audio_runtime_indeterminate"))
+			return _lifecycle_failure(&"audio_runtime_indeterminate")
+		return _lifecycle_failure(_port_failure_code(suspended, &"audio_suspend_failed"))
+	_pause_handle = handle.duplicate(true)
+	_pause_frontier_id = "audio:%s:%d" % [handle.handle_id, int(handle.generation)]
+	return _lifecycle_success({"frontier_id": _pause_frontier_id})
+
+
+func resume(handle: Dictionary) -> Dictionary:
+	if not _valid_pause_handle(handle) or _pause_handle.is_empty() \
+			or handle != _pause_handle:
+		return _lifecycle_failure(&"invalid_suspension_handle")
+	var settled: Dictionary = _settings_transactions.cancel_current_preview()
+	if not settled.get("ok", false): return settled
+	var resumed: Variant = _playback_port.call(&"resume_pause_suspension")
+	if not _valid_port_pause_result(resumed, &"resumed") \
+			or _port_pause_state() != &"Active":
+		if not _prove_or_recover_port_suspended():
+			_latch_consumer_fatal(&"pause_resume", _failure(&"audio_runtime_indeterminate"))
+			return _lifecycle_failure(&"audio_runtime_indeterminate")
+		return _lifecycle_failure(_port_failure_code(resumed, &"audio_resume_failed"))
+	_pause_handle = {}
+	_pause_frontier_id = ""
+	return _lifecycle_success({"resumed": true})
+
+
+func get_state() -> Dictionary:
+	if _fatal:
+		return _lifecycle_failure(&"audio_runtime_indeterminate")
+	return _lifecycle_success({
+		"state": &"Suspended" if not _pause_handle.is_empty() else &"Active",
+	})
+
+
+func play_sfx(cue_id: String, context: Dictionary = {}) -> Dictionary:
+	if not _initialized:
+		return _failure(&"not_initialized")
+	if _fatal:
+		return _failure(&"audio_runtime_indeterminate")
+	if not context.is_empty():
+		return _failure(&"invalid_audio_context")
+	var resolved := _manifest.get_cue(cue_id)
+	if not resolved.get("ok", false):
+		return resolved
+	var record: Dictionary = resolved["value"]
+	if not _pause_handle.is_empty() and record["bus"] != &"UI":
+		return _failure(&"audio_suspended")
+	var loaded: Dictionary = _playback_port.call(&"load_stream", record["path"])
+	if not loaded.get("ok", false):
+		return _warn_missing(cue_id)
+	var captured: Dictionary = _playback_port.call(&"capture_runtime")
+	if not captured.get("ok", false):
+		return captured
+	var bus: StringName = record["bus"]
+	var pool: Array[StringName] = UI_PLAYERS if bus == &"UI" else SFX_PLAYERS
+	var play_sequences: Dictionary = _pool_play_sequence[bus]
+	var cursor := -1
+	var captured_players: Dictionary = captured["value"].get("players", {})
+	for index in range(pool.size()):
+		if not bool(captured_players.get(pool[index], {}).get("playing", false)):
+			cursor = index
+			break
+	if cursor < 0:
+		var oldest_sequence := 9223372036854775807
+		for index in range(pool.size()):
+			var sequence := int(play_sequences.get(pool[index], 0))
+			if sequence < oldest_sequence:
+				oldest_sequence = sequence
+				cursor = index
+	var player_id := pool[cursor]
+	for operation in [
+		[&"stop", [player_id]],
+		[&"assign_stream", [player_id, loaded["value"]]],
+		[&"set_player_db", [player_id, 0.0]],
+		[&"play", [player_id]],
+	]:
+		var result: Dictionary = _playback_port.callv(operation[0], operation[1])
+		if not result.get("ok", false):
+			var rollback: Dictionary = _playback_port.call(&"restore_runtime", captured["value"])
+			if not rollback.get("ok", false):
+				_latch_consumer_fatal(&"sfx_rollback", rollback)
+				var fatal := _failure(&"audio_runtime_indeterminate")
+				fatal["fatal"] = true
+				return fatal
+			return result
+	_play_sequence += 1
+	play_sequences[player_id] = _play_sequence
+	var receipt := {"cue_id": cue_id, "bus": bus, "player_slot": cursor}
+	sfx_requested.emit(cue_id, receipt.duplicate(true))
+	return {"ok": true, "code": &"ok", "value": receipt.duplicate(true), "receipt": receipt.duplicate(true)}
+
+
+func get_music_context_id() -> String:
+	return str(_semantic.get("music_context_id", ""))
+
+
+func get_ambience_context_id() -> String:
+	return str(_semantic.get("ambience_context_id", ""))
+
+
+func get_semantic_audio_context() -> Dictionary:
+	return _semantic.duplicate(true)
+
+
+func set_channel_volume(channel_id: StringName, linear: float) -> Dictionary:
+	if not _initialized or _profile == null:
+		return _failure(&"not_initialized")
+	if not CHANNELS.has(channel_id) or not is_finite(linear):
+		return _failure(&"invalid_audio_channel")
+	return _profile.set_preference(CHANNELS[channel_id]["volume"], clampf(linear, 0.0, 1.0))
+
+
+func set_channel_muted(channel_id: StringName, muted: bool) -> Dictionary:
+	if not _initialized or _profile == null:
+		return _failure(&"not_initialized")
+	if not CHANNELS.has(channel_id):
+		return _failure(&"invalid_audio_channel")
+	return _profile.set_preference(CHANNELS[channel_id]["muted"], muted)
+
+
+func apply_profile_preferences(changed_path: StringName = &"") -> Dictionary:
+	if _profile == null:
+		return _failure(&"not_initialized")
+	if _settings_transactions.is_busy():
+		return {"ok": true, "code": &"ok", "deferred": true}
+	if _settings_transactions.has_preview():
+		_settings_transactions.invalidate_preview()
+		changed_path = &""
+	if changed_path != &"" and not String(changed_path).begins_with("preferences.audio."):
+		return {"ok": true, "code": &"ok", "value": _settings.duplicate(true), "receipt": {}, "unchanged": true}
+	var audio := {}
+	for key: String in AUDIO_DEFAULTS:
+		audio[key] = _profile.get_preference(StringName("preferences.audio."+key),AUDIO_DEFAULTS[key])
+	if not _valid_prepared_audio(audio): return _failure(&"invalid_audio_settings")
+	var candidate := _settings_from_audio(audio)
+	var applied := _apply_settings_silent(candidate)
+	if not applied.get("ok", false):
+		return applied
+	_settings = candidate.duplicate(true)
+	audio_settings_applied.emit(_settings.duplicate(true))
+	return {"ok": true, "code": &"ok", "value": _settings.duplicate(true), "receipt": {}}
+
+
+func prepare_semantic_restore(snapshot: Dictionary, prepared_profile: Dictionary) -> Dictionary:
+	var scene_audio_mode: Variant = prepared_profile.get("scene_audio_mode", "load")
+	if scene_audio_mode not in ["entry", "load"]: return _failure(&"invalid_restore_plan")
+	var validated := _validate_snapshot(snapshot)
+	if not validated.get("ok", false):
+		return validated
+	var preferences: Dictionary = prepared_profile.get("preferences", prepared_profile)
+	var audio: Dictionary = preferences.get("audio", {})
+	if not _valid_prepared_audio(audio):
+		return _failure(&"invalid_restore_plan")
+	if not _supports_output_mode(audio.output_mode): return _failure(&"unsupported_audio_output_mode")
+	if snapshot.get("kind") == "scene_audio":
+		var prepared: Dictionary = _prepare_scene_output(snapshot)
+		if not prepared.get("ok", false): return prepared
+	var plan := {"snapshot": snapshot.duplicate(true), "audio": audio.duplicate(true)}
+	if snapshot.get("kind") == "scene_audio": plan["scene_audio_mode"] = scene_audio_mode
+	return {"ok": true, "code": &"ok", "value": plan, "receipt": {}}
+
+
+## Registration comes from the process owner, never from a saved definition.
+func _installed_scene_registration() -> Dictionary:
+	var owner: Script = load("res://scripts/narrative/DialogicEntryManifest.gd")
+	return owner.scene_registration()
+
+
+func _resolve_scene_snapshot(snapshot: Dictionary) -> Dictionary:
+	var installed: Dictionary = _installed_scene_registration()
+	if not installed.get("ok", false): return installed
+	return AudioManifest.resolve_scene_context(snapshot, installed.value)
+
+
+func _prepare_scene_output(snapshot: Dictionary) -> Dictionary:
+	if not _initialized: return _failure(&"not_initialized")
+	if _fatal: return _failure(&"audio_runtime_indeterminate")
+	var resolved: Dictionary = _resolve_scene_snapshot(snapshot)
+	if not resolved.get("ok", false): return resolved
+	var prepared: Dictionary = resolved.value
+	prepared["stream"] = null
+	prepared["missing_media"] = false
+	if prepared.record == null: return {"ok": true, "value": prepared}
+	var asset: Dictionary = prepared.record.asset
+	if not FileAccess.file_exists(asset.path):
+		prepared.missing_media = true
+		return {"ok": true, "value": prepared}
+	if FileAccess.get_sha256(asset.path) != asset.sha256:
+		return _failure(&"scene_audio_asset_digest_mismatch")
+	var loaded: Dictionary = _playback_port.call(&"load_stream", asset.path)
+	if not loaded.get("ok", false): return loaded
+	var stream: Variant = loaded.get("value")
+	if not stream is AudioStream: return _failure(&"invalid_scene_audio_stream")
+	var length: float = stream.get_length()
+	if not is_finite(length) or absf(length - float(asset.duration_ms) / 1000.0) > 0.001:
+		return _failure(&"scene_audio_duration_mismatch")
+	prepared.stream = stream
+	return {"ok": true, "value": prepared}
+
+
+func prepare_scene_admission(context: Dictionary) -> Dictionary:
+	if not _initialized: return _failure(&"not_initialized")
+	if _fatal: return _failure(&"audio_runtime_indeterminate")
+	var prepared: Dictionary = _prepare_scene_output(context)
+	if not prepared.get("ok", false): return prepared
+	# Keep the handoff detached. Re-resolve against installed definitions at apply;
+	# neither caller-provided streams nor offsets can override the catalogue.
+	return {"ok": true, "code": &"ok", "value": {"snapshot": context.duplicate(true)}}
+
+
+func apply_scene_admission(plan: Dictionary) -> Dictionary:
+	if not _initialized: return _failure(&"not_initialized")
+	if _fatal: return _failure(&"audio_runtime_indeterminate")
+	if not _pause_handle.is_empty(): return _failure(&"audio_suspended")
+	if plan.size() != 1 or not plan.get("snapshot") is Dictionary:
+		return _failure(&"invalid_scene_audio_plan")
+	var resolved: Dictionary = _resolve_scene_snapshot(plan.snapshot)
+	if not resolved.get("ok", false): return resolved
+	if _semantic == plan.snapshot:
+		return {"ok": true, "code": &"ok", "value": _semantic.duplicate(true), "unchanged": true}
+	var prepared: Dictionary = _prepare_scene_output(plan.snapshot)
+	if not prepared.get("ok", false): return prepared
+	var captured: Dictionary = capture_restore_state()
+	if not captured.get("ok", false): return captured
+	var applied: Dictionary = _install_scene_output(prepared.value, false)
+	if not applied.get("ok", false):
+		var compensated: Dictionary = rollback_restore_silent(captured.value)
+		return applied if compensated.get("ok", false) else compensated
+	return applied
+
+
+## Caller owns the physical compensation capsule for this complete operation.
+func _install_scene_output(prepared: Dictionary, restoring: bool) -> Dictionary:
+	var operations: Array = [[&"kill_tween", [&"music"]], [&"kill_tween", [&"ambience"]]]
+	for player: StringName in MUSIC_PLAYERS + AMBIENCE_PLAYERS:
+		operations.append([&"stop_and_clear", [player]])
+		operations.append([&"set_player_db", [player, SILENCE_DB]])
+	var channel: StringName = prepared.get("channel", &"ambience")
+	if prepared.stream != null:
+		var position: float = prepared.load_seconds if restoring else prepared.entrance_seconds
+		var target_player: StringName = MUSIC_PLAYERS[0] if channel == &"music" else AMBIENCE_PLAYERS[0]
+		operations.append([&"assign_stream", [target_player, prepared.stream]])
+		operations.append([&"set_player_db", [target_player, 0.0]])
+		operations.append([&"play", [target_player, position]])
+	for operation: Array in operations:
+		var result: Dictionary = _playback_port.callv(operation[0], operation[1])
+		if not result.get("ok", false): return result
+	_semantic = prepared.snapshot.duplicate(true)
+	_records = {&"music": {}, &"ambience": {}}
+	if prepared.record != null: _records[channel] = prepared.record.duplicate(true)
+	_active_players = {&"music": MUSIC_PLAYERS[0], &"ambience": AMBIENCE_PLAYERS[0]}
+	if prepared.missing_media:
+		_warn_missing(str(prepared.record.asset.asset_id))
+	return {"ok": true, "code": &"ok", "value": _semantic.duplicate(true)}
+
+
+func capture_restore_state() -> Dictionary:
+	if not _initialized:
+		return _failure(&"not_initialized")
+	# Settings must settle its own transient output before a restore is admitted.
+	# Otherwise compensation could resurrect a preview gain after its handle died.
+	if _settings_transactions.is_busy():
+		return _failure(&"settings_audio_busy")
+	if _settings_transactions.has_preview():
+		return _failure(&"settings_audio_preview_active")
+	var captured: Dictionary = _playback_port.call(&"capture_runtime")
+	if not captured.get("ok", false):
+		return captured
+	# This is a transient compensation capsule, never the persisted audio context.
+	# Keep the physical streams/playheads/fades and the manager's matching identities.
+	return {"ok": true, "code": &"ok", "value": {
+		"snapshot": _semantic.duplicate(true), "settings": _settings.duplicate(true),
+		"runtime": captured["value"].duplicate(true),
+		"records": _records.duplicate(true), "active_players": _active_players.duplicate(true),
+	}, "receipt": {}}
+
+
+func apply_restore_silent(plan: Dictionary) -> Dictionary:
+	if not _initialized: return _failure(&"not_initialized")
+	if _fatal: return _failure(&"audio_runtime_indeterminate")
+	if not _pause_handle.is_empty(): return _failure(&"audio_suspended")
+	var scene_audio_mode: Variant = plan.get("scene_audio_mode", "load")
+	if scene_audio_mode not in ["entry", "load"]: return _failure(&"invalid_restore_plan")
+	var snapshot: Variant = plan.get("snapshot")
+	if typeof(snapshot) != TYPE_DICTIONARY:
+		return _failure(&"invalid_restore_plan")
+	var validated := _validate_snapshot(snapshot)
+	if not validated.get("ok", false):
+		return validated
+	var audio_value: Variant = plan.get("audio", {})
+	if not audio_value is Dictionary: return _failure(&"invalid_restore_plan")
+	var audio: Dictionary = audio_value
+	if not audio.is_empty():
+		if not _valid_prepared_audio(audio): return _failure(&"invalid_restore_plan")
+		if not _supports_output_mode(audio.output_mode): return _failure(&"unsupported_audio_output_mode")
+	var scene_output: Dictionary = {}
+	if snapshot.get("kind") == "scene_audio":
+		var prepared: Dictionary = _prepare_scene_output(snapshot)
+		if not prepared.get("ok", false): return prepared
+		scene_output = prepared.value
+	var captured := capture_restore_state()
+	if not captured.get("ok", false):
+		return captured
+	_restore_backup = captured["value"]
+	if not scene_output.is_empty():
+		var applied: Dictionary = _install_scene_output(scene_output, scene_audio_mode == "load")
+		if not applied.get("ok", false): return _compensate_restore_failure(applied)
+	else:
+		# Explicit old-format restore may leave a scene session. Keep its meaning
+		# and restore the prior tagged snapshot if either legacy channel fails.
+		if _semantic.get("kind") == "scene_audio":
+			_semantic = {"music_context_id": "", "music_context": {}, "ambience_context_id": "", "ambience_context": {}}
+		var music := _set_context(&"music", snapshot["music_context_id"], snapshot["music_context"], 0.0, true, true)
+		if not music.get("ok", false): return _compensate_restore_failure(music)
+		var ambience := _set_context(&"ambience", snapshot["ambience_context_id"], snapshot["ambience_context"], 0.0, true, true)
+		if not ambience.get("ok", false): return _compensate_restore_failure(ambience)
+	if not audio.is_empty():
+		var candidate := _settings_from_audio(audio)
+		var settings_result := _apply_settings_silent(candidate)
+		if not settings_result.get("ok", false):
+			return _compensate_restore_failure(settings_result)
+		_settings = candidate
+	return {"ok": true, "code": &"ok", "value": {}, "receipt": {}}
+
+
+func rollback_restore_silent(backup: Dictionary) -> Dictionary:
+	var source: Dictionary = backup if not backup.is_empty() else _restore_backup
+	for member: String in ["snapshot", "settings", "runtime", "records", "active_players"]:
+		if typeof(source.get(member)) != TYPE_DICTIONARY:
+			return _failure(&"invalid_restore_backup")
+	var restored: Dictionary = _playback_port.call(&"restore_runtime", source["runtime"].duplicate(true))
+	if not restored.get("ok", false):
+		_latch_consumer_fatal(&"restore_rollback", restored)
+		var failure := _failure(&"audio_runtime_indeterminate")
+		failure["fatal"] = true
+		return failure
+	_semantic = source["snapshot"].duplicate(true)
+	_settings = source["settings"].duplicate(true)
+	_records = source["records"].duplicate(true)
+	_active_players = source["active_players"].duplicate(true)
+	_restore_backup = {}
+	return {"ok": true, "code": &"ok", "value": {}, "receipt": {}}
+
+
+func _compensate_restore_failure(cause: Dictionary) -> Dictionary:
+	# SaveManager compensates only successfully applied participants. If our
+	# second channel or preferences refuse, undo our own earlier work here.
+	var restored := rollback_restore_silent(_restore_backup)
+	return cause if restored.get("ok", false) else restored
+
+
+func finalize_restore() -> Dictionary:
+	_restore_backup = {}
+	return {"ok": true, "code": &"ok", "value": {}, "receipt": {}}
+
+
+func get_missing_audio_report() -> Array:
+	return _manifest.get_missing_audio_paths()
+
+
+func _notification(what: int) -> void:
+	if not _initialized: return
+	if what == NOTIFICATION_APPLICATION_FOCUS_OUT:
+		_focus_loss_mute = true
+		if _settings_transactions.is_busy():
+			_settings_transactions.invalidate_preview()
+			return
+		var settled: Dictionary = _settings_transactions.cancel_current_preview()
+		if not settled.get("ok", false):
+			_latch_consumer_fatal(&"settings_focus_cleanup", settled)
+			return
+		var applied := _apply_settings_silent(_settings)
+		if not applied.get("ok", false): _latch_consumer_fatal(&"focus_output_apply", applied)
+	elif what == NOTIFICATION_APPLICATION_FOCUS_IN and _focus_loss_mute:
+		_focus_loss_mute = false
+		if _settings_transactions.is_busy():
+			_settings_transactions.invalidate_preview()
+			return
+		var applied := _apply_settings_silent(_settings)
+		if not applied.get("ok", false): _latch_consumer_fatal(&"focus_output_apply", applied)
+
+
+func _set_context(channel_id: StringName, context_id: String, context: Dictionary, duration_override: float, silent: bool, force_restart: bool = false) -> Dictionary:
+	if _semantic.get("kind") == "scene_audio":
+		return _failure(&"scene_audio_active")
+	if not _initialized:
+		return _failure(&"not_initialized")
+	if _fatal:
+		return _failure(&"audio_runtime_indeterminate")
+	if not _pause_handle.is_empty():
+		return _failure(&"audio_suspended")
+	if context_id.is_empty():
+		if not context.is_empty():
+			return _failure(&"invalid_audio_snapshot")
+		return _clear_channel(channel_id, silent)
+	var resolved: Dictionary = _manifest.resolve_music_context(context_id, context) if channel_id == &"music" else _manifest.resolve_ambience_context(context_id, context)
+	if not resolved.get("ok", false):
+		return resolved
+	var record: Dictionary = resolved["value"]
+	var id_key := "%s_context_id" % channel_id
+	var context_key := "%s_context" % channel_id
+	if not force_restart and _semantic[id_key] == context_id and _semantic[context_key] == context and _records[channel_id].get("path", "") == record["path"]:
+		return {"ok": true, "code": &"ok", "value": _semantic.duplicate(true), "receipt": {}, "unchanged": true}
+	var loaded: Dictionary = _playback_port.call(&"load_stream", record["path"])
+	if not loaded.get("ok", false):
+		return _warn_missing(context_id)
+	var captured: Dictionary = _playback_port.call(&"capture_runtime")
+	if not captured.get("ok", false):
+		return captured
+	var prior_semantic := _semantic.duplicate(true)
+	var prior_record: Dictionary = _records[channel_id].duplicate(true)
+	var old_player: StringName = _active_players[channel_id]
+	var players := MUSIC_PLAYERS if channel_id == &"music" else AMBIENCE_PLAYERS
+	var new_player: StringName = players[1] if old_player == players[0] else players[0]
+	# Profile gain belongs to the bus. Player gain expresses the crossfade only.
+	var target_db := 0.0
+	var duration := duration_override if duration_override >= 0.0 else maxf(float(prior_record.get("fade_out_seconds", 0.0)), float(record["fade_in_seconds"]))
+	var operations: Array = [
+		[&"kill_tween", [channel_id]],
+		[&"assign_stream", [new_player, loaded["value"]]],
+		[&"set_player_db", [new_player, SILENCE_DB]],
+		[&"play", [new_player]],
+	]
+	for operation in operations:
+		var result: Dictionary = _playback_port.callv(operation[0], operation[1])
+		if not result.get("ok", false):
+			return _rollback_failed_context(channel_id, captured["value"], prior_semantic, result)
+	if duration <= 0.0:
+		for operation in [
+			[&"set_player_db", [new_player, target_db]],
+			[&"set_player_db", [old_player, SILENCE_DB]],
+			[&"stop_and_clear", [old_player]],
+		]:
+			var result: Dictionary = _playback_port.callv(operation[0], operation[1])
+			if not result.get("ok", false):
+				return _rollback_failed_context(channel_id, captured["value"], prior_semantic, result)
+	else:
+		var captured_players: Dictionary = captured["value"].get("players", {})
+		var old_from_db := float(captured_players.get(old_player, {}).get("volume_db", target_db))
+		var tracks: Array[Dictionary] = [
+			{"player_id": new_player, "from_db": SILENCE_DB, "to_db": target_db},
+			{"player_id": old_player, "from_db": old_from_db, "to_db": SILENCE_DB, "stop_on_complete": true},
+		]
+		var tweened: Dictionary = _playback_port.call(&"create_parallel_tween", channel_id, tracks, duration)
+		if not tweened.get("ok", false):
+			return _rollback_failed_context(channel_id, captured["value"], prior_semantic, tweened)
+	_active_players[channel_id] = new_player
+	_records[channel_id] = record.duplicate(true)
+	_semantic[id_key] = context_id
+	_semantic[context_key] = context.duplicate(true)
+	if not silent:
+		if channel_id == &"music":
+			music_context_changed.emit(context_id, context.duplicate(true))
+		else:
+			ambience_context_changed.emit(context_id, context.duplicate(true))
+	return {"ok": true, "code": &"ok", "value": _semantic.duplicate(true), "receipt": {}}
+
+
+func _clear_channel(channel_id: StringName, silent: bool) -> Dictionary:
+	var captured: Dictionary = _playback_port.call(&"capture_runtime")
+	if not captured.get("ok", false):
+		return captured
+	var prior_semantic := _semantic.duplicate(true)
+	var players := MUSIC_PLAYERS if channel_id == &"music" else AMBIENCE_PLAYERS
+	var operations: Array = [[&"kill_tween", [channel_id]]]
+	for player_id in players:
+		operations.append([&"set_player_db", [player_id, SILENCE_DB]])
+		operations.append([&"stop_and_clear", [player_id]])
+	for operation in operations:
+		var result: Dictionary = _playback_port.callv(operation[0], operation[1])
+		if not result.get("ok", false):
+			return _rollback_failed_context(channel_id, captured["value"], prior_semantic, result)
+	var id_key := "%s_context_id" % channel_id
+	var context_key := "%s_context" % channel_id
+	_semantic[id_key] = ""
+	_semantic[context_key] = {}
+	_records[channel_id] = {}
+	if not silent:
+		if channel_id == &"music":
+			music_context_changed.emit("", {})
+		else:
+			ambience_context_changed.emit("", {})
+	return {"ok": true, "code": &"ok", "value": _semantic.duplicate(true), "receipt": {}}
+
+
+func _rollback_failed_context(channel_id: StringName, backup: Dictionary, prior_semantic: Dictionary, cause: Dictionary) -> Dictionary:
+	var rollback: Dictionary = _playback_port.call(&"restore_runtime", backup.duplicate(true))
+	_semantic = prior_semantic.duplicate(true)
+	if not rollback.get("ok", false):
+		_playback_port.call(&"kill_tween", channel_id)
+		var players := MUSIC_PLAYERS if channel_id == &"music" else AMBIENCE_PLAYERS
+		for player_id in players:
+			_playback_port.call(&"stop", player_id)
+		var bus_name: StringName = CHANNELS[channel_id]["bus"]
+		_playback_port.call(&"set_bus_state", bus_name, SILENCE_DB, true)
+		_latch_consumer_fatal(&"context_rollback", rollback)
+		var fatal := _failure(&"audio_runtime_indeterminate")
+		fatal["fatal"] = true
+		return fatal
+	return cause.duplicate(true)
+
+
+func _apply_settings_silent(candidate: Dictionary) -> Dictionary:
+	if _playback_port.has_method(&"capture_output") and _playback_port.has_method(&"restore_output") \
+			and _playback_port.has_method(&"output_matches"):
+		return _apply_settings_output(candidate)
+	var output_mode: String = candidate.get(&"output_mode", "stereo")
+	if not _supports_output_mode(output_mode): return _failure(&"unsupported_audio_output_mode")
+	var captured: Dictionary = _playback_port.call(&"capture_runtime")
+	if not captured.get("ok", false):
+		return captured
+	if _playback_port.has_method(&"set_output_mode"):
+		var output_result: Dictionary = _playback_port.call(&"set_output_mode",output_mode)
+		if not output_result.get("ok",false): return _rollback_settings(captured["value"],output_result)
+	for channel_id in CHANNELS:
+		var setting: Dictionary = candidate.get(channel_id, {})
+		if setting.is_empty():
+			return _failure(&"invalid_audio_settings")
+		var linear := clampf(float(setting["volume"]), 0.0, 1.0)
+		var muted := bool(setting["muted"]) or linear <= VOLUME_SILENCE_THRESHOLD or (_focus_loss_mute and bool(candidate.get(&"mute_when_inactive",true)))
+		var db := SILENCE_DB if linear <= VOLUME_SILENCE_THRESHOLD else linear_to_db(linear)
+		var bus_name: StringName = CHANNELS[channel_id]["bus"]
+		var applied: Dictionary = _playback_port.call(&"set_bus_state", bus_name, db, muted)
+		if not applied.get("ok", false):
+			return _rollback_settings(captured["value"], applied)
+		if channel_id == &"sfx":
+			var ui_applied: Dictionary = _playback_port.call(&"set_bus_state", &"UI", db, muted)
+			if not ui_applied.get("ok", false):
+				return _rollback_settings(captured["value"], ui_applied)
+	return {"ok": true, "code": &"ok", "value": candidate.duplicate(true), "receipt": {}}
+
+
+## Settings compensation changes buses and our mono effect only. Playback and
+## crossfade timelines retain their current position and Pause ownership.
+func _apply_settings_output(candidate: Dictionary) -> Dictionary:
+	var audio := {}
+	for channel: StringName in CHANNELS:
+		var value: Variant = candidate.get(channel)
+		if typeof(value) != TYPE_DICTIONARY or value.size() != 2: return _failure(&"invalid_audio_settings")
+		audio[String(channel) + "_volume"] = value.get("volume")
+		audio[String(channel) + "_muted"] = value.get("muted")
+	audio["output_mode"] = candidate.get(&"output_mode")
+	audio["mute_when_inactive"] = candidate.get(&"mute_when_inactive")
+	if not _valid_prepared_audio(audio): return _failure(&"invalid_audio_settings")
+	for method: StringName in [&"capture_output", &"restore_output", &"output_matches", &"set_output_mode"]:
+		if not _playback_port.has_method(method): return _failure(&"settings_audio_unavailable")
+	var captured: Dictionary = _playback_port.capture_output()
+	if not captured.get("ok", false): return captured
+	var states := {}
+	for channel: StringName in CHANNELS:
+		var linear: float = audio[String(channel) + "_volume"]
+		var muted: bool = audio[String(channel) + "_muted"] or linear <= VOLUME_SILENCE_THRESHOLD \
+			or (_focus_loss_mute and audio.mute_when_inactive)
+		states[CHANNELS[channel].bus] = {"db": SILENCE_DB if linear <= VOLUME_SILENCE_THRESHOLD else linear_to_db(linear), "muted": muted}
+	states[&"UI"] = states[&"SFX"].duplicate()
+	var applied: Dictionary = _playback_port.set_output_mode(audio.output_mode)
+	if applied.get("ok", false):
+		for bus: StringName in states:
+			applied = _playback_port.set_bus_state(bus, states[bus].db, states[bus].muted)
+			if not applied.get("ok", false): break
+	if applied.get("ok", false) and not _playback_port.output_matches(states, audio.output_mode):
+		applied = _failure(&"audio_output_unproven")
+	if not applied.get("ok", false):
+		var restored: Dictionary = _playback_port.restore_output(captured.value)
+		if not restored.get("ok", false):
+			_latch_consumer_fatal(&"settings_output_rollback", restored)
+			return _failure(&"audio_runtime_indeterminate")
+		return applied
+	return {"ok": true, "code": &"ok", "value": candidate.duplicate(true), "receipt": {}}
+
+
+func _rollback_settings(backup: Dictionary, cause: Dictionary) -> Dictionary:
+	var rollback: Dictionary = _playback_port.call(&"restore_runtime", backup.duplicate(true))
+	if rollback.get("ok", false):
+		return cause.duplicate(true)
+	_latch_consumer_fatal(&"settings_rollback", rollback)
+	var fatal := _failure(&"audio_runtime_indeterminate")
+	fatal["fatal"] = true
+	return fatal
+
+
+func _validate_snapshot(snapshot: Dictionary) -> Dictionary:
+	if snapshot.get("kind") == "scene_audio":
+		return _resolve_scene_snapshot(snapshot)
+	var exact := ["ambience_context", "ambience_context_id", "music_context", "music_context_id"]
+	var keys: Array = snapshot.keys()
+	keys.sort()
+	if keys != exact:
+		return _failure(&"invalid_audio_snapshot")
+	if typeof(snapshot["music_context_id"]) != TYPE_STRING or typeof(snapshot["ambience_context_id"]) != TYPE_STRING or typeof(snapshot["music_context"]) != TYPE_DICTIONARY or typeof(snapshot["ambience_context"]) != TYPE_DICTIONARY:
+		return _failure(&"invalid_audio_snapshot")
+	if snapshot["music_context_id"].is_empty() and not snapshot["music_context"].is_empty():
+		return _failure(&"invalid_audio_snapshot")
+	if snapshot["ambience_context_id"].is_empty() and not snapshot["ambience_context"].is_empty():
+		return _failure(&"invalid_audio_snapshot")
+	if not snapshot["music_context_id"].is_empty() and not _manifest.resolve_music_context(snapshot["music_context_id"], snapshot["music_context"]).get("ok", false):
+		return _failure(&"invalid_audio_snapshot")
+	if not snapshot["ambience_context_id"].is_empty() and not _manifest.resolve_ambience_context(snapshot["ambience_context_id"], snapshot["ambience_context"]).get("ok", false):
+		return _failure(&"invalid_audio_snapshot")
+	return {"ok": true, "code": &"ok", "value": snapshot.duplicate(true), "receipt": {}}
+
+
+func _settings_from_audio(audio: Dictionary) -> Dictionary:
+	var result := {}
+	for channel_id in CHANNELS:
+		result[channel_id] = {"volume":audio[String(channel_id)+"_volume"],"muted":audio[String(channel_id)+"_muted"]}
+	result[&"mute_when_inactive"] = audio.mute_when_inactive
+	result[&"output_mode"] = audio.output_mode
+	return result
+
+
+func _supports_output_mode(mode: String) -> bool:
+	return mode == "stereo" or (mode == "mono" and _playback_port != null and _playback_port.has_method(&"set_output_mode"))
+
+
+func _valid_prepared_audio(audio: Dictionary) -> bool:
+	if audio.size() != AUDIO_DEFAULTS.size(): return false
+	for key: String in AUDIO_DEFAULTS:
+		if not audio.has(key): return false
+	for channel_id in ["master","music","ambience","sfx"]:
+		var volume: Variant = audio[channel_id+"_volume"]
+		if typeof(volume) != TYPE_FLOAT or not is_finite(volume) or volume < 0.0 or volume > 1.0:
+			return false
+		if typeof(audio[channel_id+"_muted"]) != TYPE_BOOL: return false
+	return (typeof(audio.mute_when_inactive) == TYPE_BOOL
+		and typeof(audio.output_mode) == TYPE_STRING and audio.output_mode in ["stereo","mono"])
+
+
+func _warn_missing(semantic_id: String) -> Dictionary:
+	var result := _failure(&"missing_audio")
+	result["semantic_id"] = semantic_id
+	audio_warning.emit(result.duplicate(true))
+	return result
+
+
+func _on_preference_changed(path: StringName, _value: Variant) -> void:
+	if String(path).begins_with("preferences.audio.") or _settings_transactions.has_preview():
+		var applied := apply_profile_preferences(path)
+		if not applied.get("ok", false):
+			_latch_consumer_fatal(&"committed_preference_apply", applied)
+
+
+func _on_port_runtime_failure(channel_id: StringName, result: Dictionary) -> void:
+	_latch_consumer_fatal(&"playback_completion", {"code": result.get("code", &"audio_runtime_failure"), "channel_id": channel_id, "details": result.duplicate(true)})
+
+
+func _latch_consumer_fatal(phase: StringName, result: Dictionary) -> void:
+	_fatal = true
+	var failure := {
+		"source": "AudioManager",
+		"phase": String(phase),
+		"code": String(result.get("code", &"audio_consumer_failure")),
+		"details": result.duplicate(true),
+	}
+	if _mutation_gate != null:
+		# The shared gate accepts primitive JSON only; port diagnostics may contain
+		# StringNames or opaque runtime handles. Keep those on the local warning.
+		var gate_failure := failure.duplicate(true)
+		gate_failure["details"] = {"cause_code": String(failure.code)}
+		_mutation_gate.call(&"latch_fatal", gate_failure)
+	var warning := _failure(&"audio_runtime_indeterminate")
+	warning["fatal"] = true
+	warning["details"] = failure.duplicate(true)
+	audio_warning.emit(warning.duplicate(true))
+
+
+func _valid_pause_handle(handle: Dictionary) -> bool:
+	var keys: Array = handle.keys()
+	keys.sort()
+	return keys == ["generation", "handle_id", "holder", "reason"] \
+			and typeof(handle.generation) == TYPE_INT and int(handle.generation) > 0 \
+			and typeof(handle.handle_id) == TYPE_STRING \
+			and not str(handle.handle_id).is_empty() \
+			and str(handle.handle_id) == str(handle.handle_id).strip_edges() \
+			and typeof(handle.holder) == TYPE_STRING_NAME \
+			and not String(handle.holder).is_empty() \
+			and String(handle.holder) == String(handle.holder).strip_edges() \
+			and typeof(handle.reason) == TYPE_STRING_NAME \
+			and handle.reason == &"universal_pause"
+
+
+func _valid_port_pause_result(result: Variant, member: StringName) -> bool:
+	var key := String(member)
+	return typeof(result) == TYPE_DICTIONARY \
+			and typeof(result.get("ok")) == TYPE_BOOL and result.ok \
+			and result.get("code") == &"ok" \
+			and typeof(result.get("value")) == TYPE_DICTIONARY \
+			and result.value.size() == 1 and typeof(result.value.get(key)) == TYPE_BOOL \
+			and bool(result.value[key])
+
+
+func _port_pause_state() -> StringName:
+	var state: Variant = _playback_port.call(&"get_pause_suspension_state")
+	if typeof(state) != TYPE_DICTIONARY \
+			or typeof(state.get("ok")) != TYPE_BOOL or not state.ok \
+			or state.get("code") != &"ok" \
+			or typeof(state.get("value")) != TYPE_DICTIONARY \
+			or state.value.size() != 1 \
+			or typeof(state.value.get("state")) != TYPE_STRING_NAME \
+			or state.value.state not in [&"Active", &"Suspended"]:
+		return &""
+	return state.value.state
+
+
+func _port_failure_code(result: Variant, fallback: StringName) -> StringName:
+	if typeof(result) != TYPE_DICTIONARY or result.get("ok", true) \
+			or typeof(result.get("code")) != TYPE_STRING_NAME \
+			or String(result.code).is_empty():
+		return fallback
+	return result.code
+
+
+func _prove_or_recover_port_active() -> bool:
+	var state := _port_pause_state()
+	if state == &"Active":
+		return true
+	if state != &"Suspended":
+		return false
+	var recovered: Variant = _playback_port.call(&"resume_pause_suspension")
+	return _valid_port_pause_result(recovered, &"resumed") \
+			and _port_pause_state() == &"Active"
+
+
+func _prove_or_recover_port_suspended() -> bool:
+	var state := _port_pause_state()
+	if state == &"Suspended":
+		return true
+	if state != &"Active":
+		return false
+	var recovered: Variant = _playback_port.call(
+		&"begin_pause_suspension", MUSIC_PLAYERS + AMBIENCE_PLAYERS,
+		SFX_PLAYERS + VOICE_PLAYERS
+	)
+	return _valid_port_pause_result(recovered, &"suspended") \
+			and _port_pause_state() == &"Suspended"
+
+
+func _lifecycle_success(value: Dictionary) -> Dictionary:
+	return {"ok": true, "code": &"ok", "value": value.duplicate(true)}
+
+
+func _lifecycle_failure(code: StringName) -> Dictionary:
+	return {"ok": false, "code": code, "value": null}
+
+
+func _failure(code: StringName) -> Dictionary:
+	return {"ok": false, "code": code, "details": {}, "receipt": {}}
+

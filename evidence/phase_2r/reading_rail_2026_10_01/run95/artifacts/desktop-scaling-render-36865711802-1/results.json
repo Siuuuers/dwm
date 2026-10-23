@@ -1,0 +1,97 @@
+{
+	"captures": 38,
+	"failures": [],
+	"launcher_pixels": [
+		{
+			"distinct_icons": 7,
+			"sample": "launcher",
+			"unread": true
+		},
+		{
+			"distinct_icons": 7,
+			"sample": "launcher",
+			"unread": true
+		},
+		{
+			"distinct_icons": 7,
+			"sample": "launcher-en-pixel-large-unread",
+			"unread": true
+		},
+		{
+			"distinct_icons": 7,
+			"sample": "launcher-en-readable-large",
+			"unread": true
+		},
+		{
+			"distinct_icons": 7,
+			"sample": "launcher-ja-readable-large",
+			"unread": true
+		},
+		{
+			"distinct_icons": 7,
+			"sample": "launcher-ja-readable-large-contrast",
+			"unread": true
+		}
+	],
+	"ok": true,
+	"renderer": "X11",
+	"samples": 38,
+	"shop_pixels": [
+		{
+			"card_pixels": 10084,
+			"inspector_pixels": 3584,
+			"page": 1,
+			"sample": "shop",
+			"selected": "wine",
+			"visible_items": 8
+		},
+		{
+			"card_pixels": 14441,
+			"inspector_pixels": 5116,
+			"page": 1,
+			"sample": "shop",
+			"selected": "wine",
+			"visible_items": 8
+		},
+		{
+			"card_pixels": 12244,
+			"inspector_pixels": 6336,
+			"page": 2,
+			"sample": "shop-page-two",
+			"selected": "protein_box",
+			"visible_items": 9
+		},
+		{
+			"card_pixels": 17610,
+			"inspector_pixels": 9030,
+			"page": 2,
+			"sample": "shop-page-two",
+			"selected": "protein_box",
+			"visible_items": 9
+		},
+		{
+			"card_pixels": 17610,
+			"inspector_pixels": 5079,
+			"page": 2,
+			"sample": "shop-page-two-sold-out",
+			"selected": "lucky_charm",
+			"visible_items": 9
+		},
+		{
+			"card_pixels": 868,
+			"inspector_pixels": 9666,
+			"page": 2,
+			"sample": "shop-page-two-readable-large-contrast",
+			"selected": "healthy_meal",
+			"visible_items": 9
+		},
+		{
+			"card_pixels": 9665,
+			"inspector_pixels": 2451,
+			"page": 1,
+			"sample": "shop-bottom",
+			"selected": "wine",
+			"visible_items": 5
+		}
+	]
+}

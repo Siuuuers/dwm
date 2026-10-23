@@ -1,0 +1,9 @@
+--- a/scripts/application/minesweeper/MinesweeperRoundCoordinator.gd
++++ b/scripts/application/minesweeper/MinesweeperRoundCoordinator.gd
+@@ -389,0 +390 @@
++		var source_copy_started_us := Time.get_ticks_usec()
+@@ -391,0 +393,2 @@
++		var source_copy_us := Time.get_ticks_usec() - source_copy_started_us
++		var source_prepare_started_us := Time.get_ticks_usec()
+@@ -393,0 +397 @@
++		print("SOURCE_CHECKPOINT_COPY_PROFILE " + JSON.stringify({"copy_us": source_copy_us, "prepare_us": Time.get_ticks_usec() - source_prepare_started_us, "board_receipts": pre_terminal_board.get("command_receipts", {}).size()}))

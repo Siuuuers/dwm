@@ -1,0 +1,30 @@
+# timeline_id: dating.twofriends.priscilla_lavinia.day2.post_challenge
+# locale: en
+# type: dating_twofriends
+# friends: priscilla, lavinia (no Angela)
+# day: 2
+# phase: post_challenge
+
+return
+
+label dating.twofriends.priscilla_lavinia.day2.post_challenge
+# PURPOSE: pair_post_challenge_scene
+# CAUSAL INPUT: validated frozen context
+# VARIATION: registered layer order
+# ALLOWED SIGNALS: history.line.witness, pair.combination.witness
+if {Frozen.board_result} == "exploded":
+	jump dating.twofriends.priscilla_lavinia.day2.post_challenge.exploded
+elif {Frozen.board_result} == "perfect":
+	jump dating.twofriends.priscilla_lavinia.day2.post_challenge.perfect
+elif {Frozen.board_result} == "cleared":
+	jump dating.twofriends.priscilla_lavinia.day2.post_challenge.cleared
+return
+
+label dating.twofriends.priscilla_lavinia.day2.post_challenge.exploded
+return
+
+label dating.twofriends.priscilla_lavinia.day2.post_challenge.perfect
+return
+
+label dating.twofriends.priscilla_lavinia.day2.post_challenge.cleared
+return

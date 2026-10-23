@@ -1,0 +1,4398 @@
+{
+  "schema_version": 1,
+  "receipt_kind": "manual_save_compact_validation_witness",
+  "status": "accepted_bounded_production_increment",
+  "scope": {
+    "repository": "Siuuuers/dwm",
+    "pull_request": 1,
+    "branch": "codex/windows-cloud-ux",
+    "lead_bead": "dwm-634.3",
+    "companion_bead": "dwm-sx8",
+    "runtime": "Godot 4.6.3 standard GDScript",
+    "execution": "GitHub Actions cloud only: Windows Godot/PowerShell and existing Linux software-OpenGL rendering; no local Godot or PowerShell execution.",
+    "companion_activity": "Public inventory references regenerated; all236/74 contract rows and required sets unchanged. No dwm-sx8 closure or mapping repair is claimed."
+  },
+  "assembly_notes": [
+    "All acceptance remains source-bound. The later records descendant changes only documentation, evidence and one Beads note; no separate engine run is claimed for it.",
+    "Run80 was an invalid temporary-branch publication, never on the PR and never counted toward acceptance.",
+    "No Beads status or dependency changes and no Dolt synchronization."
+  ],
+  "diagnostic_runs": {
+    "run78": {
+      "run_id": 36844427614,
+      "run_attempt": 1,
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/36844427614",
+      "source_sha": "63005694f76594e8458fff4f107b39b80dc336bd",
+      "source_tree": "2849a9b4e9ea497b6aecea9ec7be36696ea3e80a",
+      "workflow_head_sha": "45e7bd889a3c8728ada73d3084f0af169fd83fe6",
+      "workflow_head_is_not_tested_source": true,
+      "jobs": [
+        {
+          "id": 110311040353,
+          "name": "Windows / manual-save witness equivalence and benchmark",
+          "conclusion": "success"
+        },
+        {
+          "id": 110311040615,
+          "name": "Windows / persistence",
+          "conclusion": "success"
+        },
+        {
+          "id": 110311040625,
+          "name": "Windows / public API surface contracts",
+          "conclusion": "success"
+        },
+        {
+          "id": 110311040642,
+          "name": "Windows / reading_delivery",
+          "conclusion": "success"
+        },
+        {
+          "id": 110311040683,
+          "name": "Windows / settings",
+          "conclusion": "success"
+        }
+      ],
+      "checkout_log_excerpts": {
+        "run78log110311040615": [
+          "2026-10-01T09:42:23.8799160Z 63005694f76594e8458fff4f107b39b80dc336bd",
+          "2026-10-01T09:42:26.6687038Z 63005694f76594e8458fff4f107b39b80dc336bd"
+        ],
+        "run78readinglog": [
+          "2026-10-01T09:42:22.9406469Z 63005694f76594e8458fff4f107b39b80dc336bd",
+          "2026-10-01T09:42:25.7596365Z 63005694f76594e8458fff4f107b39b80dc336bd"
+        ],
+        "run78settingslog": [
+          "2026-10-01T09:42:24.1032163Z 63005694f76594e8458fff4f107b39b80dc336bd",
+          "2026-10-01T09:42:26.9540928Z 63005694f76594e8458fff4f107b39b80dc336bd"
+        ],
+        "run78publiclog": [
+          "2026-10-01T09:42:21.3878585Z 63005694f76594e8458fff4f107b39b80dc336bd",
+          "2026-10-01T09:42:23.7343081Z 63005694f76594e8458fff4f107b39b80dc336bd"
+        ],
+        "run78benchmarkLog": [
+          "2026-10-01T09:42:21.9737562Z 63005694f76594e8458fff4f107b39b80dc336bd",
+          "2026-10-01T09:42:24.9753015Z 63005694f76594e8458fff4f107b39b80dc336bd"
+        ]
+      },
+      "gut_groups": {
+        "settings": {
+          "suite": "settings",
+          "test_cases": 291,
+          "passed": 291,
+          "skipped": 0,
+          "requested_scripts": 25,
+          "reported_scripts": 25,
+          "script_case_counts": {
+            "tests/unit/test_save_manager_parse_cache.gd": 17,
+            "tests/unit/test_settings_panel_resize.gd": 3,
+            "tests/unit/test_settings_preference_registry.gd": 5,
+            "tests/unit/test_shared_week_tint.gd": 2,
+            "tests/unit/test_settings_window_transactions.gd": 13,
+            "tests/unit/test_window_mode_manager.gd": 13,
+            "tests/unit/test_window_mode_port.gd": 12,
+            "tests/unit/test_bootstrap_window_output.gd": 6,
+            "tests/scene/test_settings_window_mode_live.gd": 6,
+            "tests/scene/test_settings_audio_live.gd": 5,
+            "tests/scene/test_settings_reset_confirmation.gd": 8,
+            "tests/scene/test_settings_folio.gd": 8,
+            "tests/scene/test_settings_host_geometry.gd": 5,
+            "tests/scene/test_settings_localization_scene.gd": 34,
+            "tests/integration/test_settings_shared_hosts.gd": 8,
+            "tests/unit/test_profile_manager.gd": 23,
+            "tests/unit/test_restore_participants.gd": 7,
+            "tests/integration/test_restore_preserves_current_profile.gd": 4,
+            "tests/integration/test_restore_production_adapters.gd": 13,
+            "tests/integration/test_desktop_board_persistence.gd": 5,
+            "tests/integration/test_minesweeper_first_reveal_transaction.gd": 7,
+            "tests/unit/test_save_manager_checkpoint_port.gd": 42,
+            "tests/unit/test_checkpoint_validation_reuse.gd": 21,
+            "tests/unit/test_checkpoint_phase_diagnostics.gd": 4,
+            "tests/unit/test_checkpoint_journal.gd": 20
+          }
+        },
+        "persistence": {
+          "suite": "persistence",
+          "test_cases": 183,
+          "passed": 183,
+          "skipped": 0,
+          "requested_scripts": 19,
+          "reported_scripts": 19,
+          "script_case_counts": {
+            "tests/unit/test_frozen_run_context.gd": 18,
+            "tests/unit/test_profile_presentation_chronology.gd": 9,
+            "tests/unit/test_profile_dating_attempts.gd": 10,
+            "tests/unit/test_profile_dating_branches.gd": 7,
+            "tests/unit/test_profile_pair_form_witness.gd": 3,
+            "tests/unit/test_contact_invitation_state.gd": 42,
+            "tests/unit/test_seven_day_calendar.gd": 7,
+            "tests/unit/test_pair_deck_draw.gd": 4,
+            "tests/unit/test_pair_deck_draw_port.gd": 11,
+            "tests/unit/test_profile_v4_upgrade.gd": 10,
+            "tests/unit/test_profile_new_run_consumption.gd": 12,
+            "tests/unit/test_save_migrations.gd": 11,
+            "tests/integration/test_save_manager_journal.gd": 6,
+            "tests/integration/test_restore_transaction.gd": 12,
+            "tests/integration/test_unified_restore_contract.gd": 3,
+            "tests/integration/test_run_restore_isolation.gd": 5,
+            "tests/integration/test_live_run_rollback_isolation.gd": 3,
+            "tests/integration/test_save_manager_public_boundaries.gd": 6,
+            "tests/integration/test_save_capability.gd": 4
+          }
+        },
+        "reading_delivery": {
+          "suite": "reading_delivery",
+          "test_cases": 232,
+          "passed": 232,
+          "skipped": 0,
+          "requested_scripts": 18,
+          "reported_scripts": 18,
+          "script_case_counts": {
+            "tests/unit/test_hospital_frozen_context.gd": 7,
+            "tests/unit/test_frozen_replay_context.gd": 3,
+            "tests/unit/test_minesweeper_delivery_notice.gd": 10,
+            "tests/unit/test_narrative_caption_ledger.gd": 12,
+            "tests/integration/test_narrative_caption_ledger_runtime.gd": 9,
+            "tests/integration/test_witnessed_caption_runtime.gd": 48,
+            "tests/unit/test_witnessed_pause_view.gd": 4,
+            "tests/unit/test_witnessed_auto_controller.gd": 13,
+            "tests/unit/test_witnessed_skip_controller.gd": 10,
+            "tests/scene/test_witnessed_transport_recovery.gd": 9,
+            "tests/integration/test_witnessed_speech_projection.gd": 8,
+            "tests/integration/test_dating_caption_style.gd": 19,
+            "tests/unit/test_scene_art_bindings.gd": 13,
+            "tests/unit/test_scene_art_hold.gd": 6,
+            "tests/unit/test_production_pause_controller.gd": 33,
+            "tests/scene/test_hospital_scene.gd": 10,
+            "tests/unit/test_day7_font_preferences.gd": 3,
+            "tests/unit/test_gallery_replay_owner.gd": 15
+          }
+        },
+        "public_surfaces": {
+          "suite": "public_surfaces",
+          "test_cases": 11,
+          "passed": 11,
+          "skipped": 0,
+          "requested_scripts": 1,
+          "reported_scripts": 1,
+          "script_case_counts": {
+            "tests/unit/tooling/test_public_surface_inventory.gd": 11
+          }
+        }
+      },
+      "gut_executions": 717,
+      "zero_skips": true,
+      "standalone_revision_storage": {
+        "assertions": 61180,
+        "distinct_snapshots": 94,
+        "failures": [],
+        "refusal_pairs": 30,
+        "restart_fault_pairs": 1604,
+        "restart_pairs": 2218,
+        "write_fault_pairs": 154,
+        "write_pairs": 14,
+        "scope": "Real storage protocol with deterministic CrashFileOps; new owner/storage/memo per simulated restart; not OS process or physical disk crash injection."
+      },
+      "artifacts": [
+        {
+          "id": 11153140958,
+          "name": "windows-reading_delivery-36844427614-1",
+          "bytes": 97492,
+          "sha256": "c4e1e9e92cfc1569847a6f08f374d7df7dbe9f224f099b2e510a191b27a2d99a",
+          "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11153140958",
+          "archive_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11153140958/zip"
+        },
+        {
+          "id": 11153120759,
+          "name": "windows-persistence-36844427614-1",
+          "bytes": 129814,
+          "sha256": "c9d754942118d16768fd6f9fbc739a56500fdbe8204daa70518a50f614c951a1",
+          "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11153120759",
+          "archive_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11153120759/zip"
+        },
+        {
+          "id": 11152938999,
+          "name": "manual-save-witness-36844427614-1",
+          "bytes": 259514,
+          "sha256": "85579771d4379d39cbdc0c1028e61d724fbd3177d7f160fb0491bc2a5f4103ac",
+          "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11152938999",
+          "archive_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11152938999/zip"
+        },
+        {
+          "id": 11152163429,
+          "name": "windows-settings-36844427614-1",
+          "bytes": 2463845,
+          "sha256": "2c681532e5e33900da8c67395a388b79c6ad89b1b3f721b690cabbe0f79212b5",
+          "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11152163429",
+          "archive_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11152163429/zip"
+        },
+        {
+          "id": 11152083237,
+          "name": "public-surfaces-36844427614-1",
+          "bytes": 139613,
+          "sha256": "8d9fd55e475c1fe2271fe3c14fcb349dc9272c5d592295a9a0290664dddaed62",
+          "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11152083237",
+          "archive_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11152083237/zip"
+        }
+      ],
+      "production_runtime_changed": false,
+      "inventory_gate": "Generated affected inventories, then checked generated files. This is not final committed-inventory read-only acceptance.",
+      "quick_script_executed": false,
+      "scope_limit": "Quick source existed but was absent from suite registry; do not attribute Quick execution to Run78.",
+      "save_load_capture_assertions": 136,
+      "independent_artifact_audit": [
+        "Settings291/25, reading232/18 and public11/1 XML script sets exactly match requested argv; no failures/errors/skips.",
+        "All44 executed script hashes match the historical diagnostic source via retained repository snapshot.",
+        "Both public inventories byte-match source9a4c63f committed inventories.",
+        "Persistence183 and capture136 are supported by root-extracted Actions logs in diagnostic_evidence.json; reviewer did not receive separate persistence XML."
+      ]
+    },
+    "run79": {
+      "run_id": 36845041851,
+      "run_attempt": 1,
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/36845041851",
+      "source_sha": "9a4c63f05d13bc2960aae4fa6c58db9911916f86",
+      "source_tree": "9bb305293b4fb1077cdd3e4d55404a16c262ae08",
+      "workflow_head_sha": "f9a8444e340f8beebe131c2166005446f46a5e62",
+      "workflow_head_is_not_tested_source": true,
+      "jobs": [
+        {
+          "id": 110313043520,
+          "name": "Windows / public API surface contracts",
+          "conclusion": "success"
+        },
+        {
+          "id": 110313044063,
+          "name": "Windows / settings",
+          "conclusion": "success"
+        }
+      ],
+      "checkout_log_excerpts": {
+        "run79settingslog": [
+          "2026-10-01T09:48:07.5034743Z 9a4c63f05d13bc2960aae4fa6c58db9911916f86",
+          "2026-10-01T09:48:11.5712239Z 9a4c63f05d13bc2960aae4fa6c58db9911916f86"
+        ],
+        "run79publiclog": [
+          "2026-10-01T09:48:07.7655638Z 9a4c63f05d13bc2960aae4fa6c58db9911916f86",
+          "2026-10-01T09:48:10.6321366Z 9a4c63f05d13bc2960aae4fa6c58db9911916f86"
+        ]
+      },
+      "gut_groups": {
+        "settings": {
+          "suite": "settings",
+          "test_cases": 310,
+          "passed": 310,
+          "skipped": 0,
+          "requested_scripts": 26,
+          "reported_scripts": 26,
+          "script_case_counts": {
+            "tests/unit/test_save_manager_parse_cache.gd": 17,
+            "tests/unit/test_backup_quick_actions.gd": 19,
+            "tests/unit/test_settings_panel_resize.gd": 3,
+            "tests/unit/test_settings_preference_registry.gd": 5,
+            "tests/unit/test_shared_week_tint.gd": 2,
+            "tests/unit/test_settings_window_transactions.gd": 13,
+            "tests/unit/test_window_mode_manager.gd": 13,
+            "tests/unit/test_window_mode_port.gd": 12,
+            "tests/unit/test_bootstrap_window_output.gd": 6,
+            "tests/scene/test_settings_window_mode_live.gd": 6,
+            "tests/scene/test_settings_audio_live.gd": 5,
+            "tests/scene/test_settings_reset_confirmation.gd": 8,
+            "tests/scene/test_settings_folio.gd": 8,
+            "tests/scene/test_settings_host_geometry.gd": 5,
+            "tests/scene/test_settings_localization_scene.gd": 34,
+            "tests/integration/test_settings_shared_hosts.gd": 8,
+            "tests/unit/test_profile_manager.gd": 23,
+            "tests/unit/test_restore_participants.gd": 7,
+            "tests/integration/test_restore_preserves_current_profile.gd": 4,
+            "tests/integration/test_restore_production_adapters.gd": 13,
+            "tests/integration/test_desktop_board_persistence.gd": 5,
+            "tests/integration/test_minesweeper_first_reveal_transaction.gd": 7,
+            "tests/unit/test_save_manager_checkpoint_port.gd": 42,
+            "tests/unit/test_checkpoint_validation_reuse.gd": 21,
+            "tests/unit/test_checkpoint_phase_diagnostics.gd": 4,
+            "tests/unit/test_checkpoint_journal.gd": 20
+          }
+        },
+        "public_surfaces": {
+          "suite": "public_surfaces",
+          "test_cases": 11,
+          "passed": 11,
+          "skipped": 0,
+          "requested_scripts": 1,
+          "reported_scripts": 1,
+          "script_case_counts": {
+            "tests/unit/tooling/test_public_surface_inventory.gd": 11
+          }
+        }
+      },
+      "gut_executions": 321,
+      "zero_skips": true,
+      "standalone_revision_storage": {
+        "assertions": 61180,
+        "distinct_snapshots": 94,
+        "failures": [],
+        "refusal_pairs": 30,
+        "restart_fault_pairs": 1604,
+        "restart_pairs": 2218,
+        "write_fault_pairs": 154,
+        "write_pairs": 14,
+        "scope": "Real storage protocol with deterministic CrashFileOps; new owner/storage/memo per simulated restart; not OS process or physical disk crash injection."
+      },
+      "artifacts": [
+        {
+          "id": 11152893307,
+          "name": "windows-settings-36845041851-1",
+          "bytes": 2531375,
+          "sha256": "f55f64595766f2c7b198e692edf4a211a9105cf43e0dd1f9e9a26e7083d98c7e",
+          "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11152893307",
+          "archive_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11152893307/zip"
+        },
+        {
+          "id": 11152584135,
+          "name": "public-surfaces-36845041851-1",
+          "bytes": 138118,
+          "sha256": "8263d7b2d892ca48186fb08f6b02a660257332e0ac0ce2b0b8176db7e21bd42e",
+          "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11152584135",
+          "archive_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11152584135/zip"
+        }
+      ],
+      "production_runtime_changed": false,
+      "inventory_gate": "Read-only public check without generation, supported by job steps and checkout/GUT excerpts in diagnostic_evidence.json.",
+      "quick_script_executed": true,
+      "quick_cases": 19,
+      "new_diagnostic_quick_cases": 5,
+      "scope_limit": "Quick presentation/consent/capture/journal/writes are real; restore execution is doubled, and no keyboard dispatch is claimed.",
+      "independent_artifact_audit": [
+        "Settings310/26 XML exactly matches requested argv, including19 Quick cases and17 parse-cache cases.",
+        "Run79 source hashes for SaveManager, shared helper, Quick script and cloud registry match9a4c63f.",
+        "Repeated standalone result equals Run78, no script errors.",
+        "Public11 read-only result supported by root-extracted Actions logs; no separate public archive was supplied to reviewer."
+      ]
+    }
+  },
+  "diagnostic_source_relationship": {
+    "from": "63005694f76594e8458fff4f107b39b80dc336bd",
+    "to": "9a4c63f05d13bc2960aae4fa6c58db9911916f86",
+    "changed_paths": [
+      "evidence/phase_2r/runtime/game_state_surface.json",
+      "evidence/phase_2r/runtime/save_manager_surface.json",
+      "tools/testing/Invoke-CloudTests.ps1"
+    ],
+    "meaning": "Only generated inventory bytes and registration of the previously omitted Quick script changed; production runtime/test bodies unchanged.",
+    "inventories": {
+      "game_state": {
+        "rows": 236,
+        "sha256": "08c61843b3841f239583aad66d1eee8f1772cd86587ff79f0b9e47503173f4a2"
+      },
+      "save_manager": {
+        "rows": 74,
+        "sha256": "a693ffc5b62d8d68aeb709aea76ac937b5d3a11c7a1b7f32cacb16e0763b4cc4"
+      }
+    },
+    "retirement_audit": {
+      "source_sha": "63005694f76594e8458fff4f107b39b80dc336bd",
+      "retired_symbols": 10,
+      "source_files": 927,
+      "references": 0
+    },
+    "missing_root_refusals": {
+      "cases": [
+        "empty",
+        "whitespace"
+      ],
+      "per_case_tests": 83,
+      "per_case_expected_refusals": 80,
+      "per_case_passes": 3,
+      "errors": 0,
+      "skips": 0,
+      "before_after_repository_bytes_equal": true,
+      "snapshot_sha256": "e646296250002492026e8e72b48b3135152995fba44b580cba9ab62347c736e6"
+    }
+  },
+  "diagnostic_benchmark": {
+    "run_id": "36844427614",
+    "source_sha": "63005694f76594e8458fff4f107b39b80dc336bd",
+    "source_tree": "2849a9b4e9ea497b6aecea9ec7be36696ea3e80a",
+    "result_path": "performance/run78-manual-save-witness.json",
+    "result_sha256": "dc243e492b392c3948af516651ef131d7be1399589ff4e461bc65ece70b14ff0",
+    "archive": {
+      "path": "performance/run78-manual-save-witness-artifact.zip",
+      "sha256": "85579771d4379d39cbdc0c1028e61d724fbd3177d7f160fb0491bc2a5f4103ac",
+      "bytes": 259514,
+      "members": 72,
+      "all_extracted_measurement_files_match_archive": true
+    },
+    "comparison": "Test-subclass compact witness versus unchanged production full-result helper; diagnostic only.",
+    "baseline_body_proof": {
+      "baseline_body_sha256": "316ff83a7f767daefb05e9afd63c5d1557e05526a2282306b0728c36b2a68946",
+      "exact_body_match": true
+    },
+    "source_sha256": {
+      "autoload/SaveManager.gd": "59a26a70d0acb328c018198c9fdb06cc5d868f5988e520090f7fb420770d769a",
+      "scripts/infrastructure/storage/JsonFileStorage.gd": "ad2691249d9c7a247147fdc76885044b6cd9f6ebaac1f7267b4c144586d2adab",
+      "scripts/infrastructure/storage/FileOps.gd": "89aa45cf28b0c618f46c6c8b2b590227e8314c664624d8fb314069c133dc0895",
+      "scripts/infrastructure/save/CheckpointJournal.gd": "40ff91bc9e2be063c25f10d0ef89b717d3e47b9247b087679eaa69898dfe369d",
+      "scripts/infrastructure/save/SaveDocumentSchema.gd": "c7a18cea7a87699a1e69cef4ec2fc61f4ace858c9b45df5a6db622830e5e0540",
+      "scripts/domain/run/RunSnapshotSchema.gd": "88c329ce56350c8cd09124222cc69ae2f0335731f6519d655c8c8a14beff9158",
+      "scripts/validation/StrictJson.gd": "9c0aa8e2716473cf9fa6a6ae524216e812c760bff134a1b5ae7af8eb3d46a82f",
+      "scripts/validation/CanonicalJsonWriter.gd": "925341fed6bbb64b2c28d22f269e92a2806f2170f4965eb412d9179cf3cd34f1",
+      "tests/manual/benchmark_manual_save_write.gd": "24144aa5a394448ca0df80694b7027cfc2b1c027595ca4a720149d062e478619",
+      "tests/support/ManualSaveWitnessPort.gd": "4d584c07f6f380f34c3b1a1e6e21b078474857387e0d1239a1f2a50ac70b6133",
+      "tests/manual/benchmark_seven_day_history.gd": "c8e3e5fea9ce0ab472d78e9aa988f54d6d5e6775a94a204dcf6f5a3d851413d2",
+      "tests/manual/benchmark_minesweeper_click_latency.gd": "bc85a6a56631c75166b6627f7e3a09554ee0d01ced8baadcfb2a17d9e53a5e67",
+      "tools/testing/Invoke-IsolatedGodot.ps1": "e37252b9313d5dbf809e9502578bb270118d12a997fc189bf088648eb97329f1",
+      "tools/testing/Invoke-ManualSaveWitnessPerformance.ps1": "bcdfb8865f77149f6af2101fbaf3c7bfb81a85fd984e56fa22197f4c67d0851a"
+    },
+    "independent_recomputation": {
+      "raw_timings": 48,
+      "paired_deltas": 24,
+      "metric_summaries": 6,
+      "source_hashes_verified_against_git": 14,
+      "isolated_process_roots": 18,
+      "all_exit_zero": true,
+      "ordered_processes_do_not_overlap": true,
+      "raw_log_markers_equal_results": true,
+      "four_timestamp_serialization_differences": "Only a trailing zero in fractional seconds; actual instants match."
+    },
+    "modes": {
+      "enabled": {
+        "pairs": 4,
+        "alternating_orders": [
+          [
+            "baseline",
+            "witness"
+          ],
+          [
+            "witness",
+            "baseline"
+          ],
+          [
+            "baseline",
+            "witness"
+          ],
+          [
+            "witness",
+            "baseline"
+          ]
+        ],
+        "paired_deltas_us": [
+          {
+            "prepare_us": 3269,
+            "commit_us": -201908,
+            "envelope_us": -198639
+          },
+          {
+            "prepare_us": 32897,
+            "commit_us": 259158,
+            "envelope_us": 292054
+          },
+          {
+            "prepare_us": 6234,
+            "commit_us": -201579,
+            "envelope_us": -195344
+          },
+          {
+            "prepare_us": -34354,
+            "commit_us": -252933,
+            "envelope_us": -287287
+          }
+        ],
+        "summary": {
+          "prepare_us": {
+            "baseline_median_us": 2251525.0,
+            "witness_median_us": 2249127.5,
+            "median_paired_witness_minus_baseline_us": 4751.5
+          },
+          "commit_us": {
+            "baseline_median_us": 2424400.0,
+            "witness_median_us": 2222656.5,
+            "median_paired_witness_minus_baseline_us": -201743.5
+          },
+          "envelope_us": {
+            "baseline_median_us": 4668794.5,
+            "witness_median_us": 4471803.0,
+            "median_paired_witness_minus_baseline_us": -196991.5
+          }
+        },
+        "faster_envelope_pairs": 3
+      },
+      "disabled": {
+        "pairs": 4,
+        "alternating_orders": [
+          [
+            "baseline",
+            "witness"
+          ],
+          [
+            "witness",
+            "baseline"
+          ],
+          [
+            "baseline",
+            "witness"
+          ],
+          [
+            "witness",
+            "baseline"
+          ]
+        ],
+        "paired_deltas_us": [
+          {
+            "prepare_us": 21379,
+            "commit_us": -259812,
+            "envelope_us": -238435
+          },
+          {
+            "prepare_us": 16969,
+            "commit_us": -239500,
+            "envelope_us": -222529
+          },
+          {
+            "prepare_us": 3474,
+            "commit_us": -216487,
+            "envelope_us": -213010
+          },
+          {
+            "prepare_us": 30723,
+            "commit_us": -180514,
+            "envelope_us": -149795
+          }
+        ],
+        "summary": {
+          "prepare_us": {
+            "baseline_median_us": 2228687.5,
+            "witness_median_us": 2238909.0,
+            "median_paired_witness_minus_baseline_us": 19174.0
+          },
+          "commit_us": {
+            "baseline_median_us": 2420456.0,
+            "witness_median_us": 2197898.0,
+            "median_paired_witness_minus_baseline_us": -227993.5
+          },
+          "envelope_us": {
+            "baseline_median_us": 4639288.0,
+            "witness_median_us": 4436825.0,
+            "median_paired_witness_minus_baseline_us": -217769.5
+          }
+        },
+        "faster_envelope_pairs": 4
+      }
+    },
+    "unfavorable_sample": {
+      "mode": "enabled",
+      "pair": 2,
+      "envelope_delta_us": 292054,
+      "commit_delta_us": 259158,
+      "retained": true
+    },
+    "fixture": {
+      "manifest_path": "ci/manual-save-witness/producer-manifest.json inside performance/run78-manual-save-witness-artifact.zip",
+      "manifest_sha256": "492e5274d112e78c6102a4ef45ef41a00f2b40b0f7d67f8f60ea6d84e640f034",
+      "files": 15,
+      "bytes": 6235468,
+      "all_file_sizes_and_hashes_verified": true,
+      "saves_files": [
+        {
+          "file": "autosave.json",
+          "bytes": 1910483,
+          "sha256": "54fcf471a89c6f637fb77fc659594a0fcfd0882d5847ff6c699f751820ef3b3c"
+        },
+        {
+          "file": "autosave.json.bak",
+          "bytes": 1893596,
+          "sha256": "932bb410ee2931b857cebdd1a09ec7fe437a1eb043b46c2a180b12ac46ab4288"
+        },
+        {
+          "file": "desktop-continuation-operations.json",
+          "bytes": 21775,
+          "sha256": "5f00a7c86ac64ed3d595c69044e3c439321a0d0f81da8361c5df836de4785b93"
+        },
+        {
+          "file": "desktop-continuation-operations.json.bak",
+          "bytes": 21786,
+          "sha256": "7ef1f8ab420a57100a1e254b1787a6836a76eba8583ac0c42a9116c0497309e3"
+        },
+        {
+          "file": "slot_1.json",
+          "bytes": 1872240,
+          "sha256": "8f32662dd6336bfe647973d6ae95c7304cfab248b94902b3ebe3e43756591ae1"
+        }
+      ],
+      "complete_producer_in_archive": true,
+      "content_scope": "Seven synthetic line and seven synthetic manual checkpoints per day, one real Slot1 save and App loss per day; not authored narrative playthrough."
+    },
+    "cold_restore": {
+      "autosave_sha256": "54fcf471a89c6f637fb77fc659594a0fcfd0882d5847ff6c699f751820ef3b3c",
+      "day": 7,
+      "login_us": 9392481,
+      "parse_cache_enabled": true,
+      "restored_board_sha256": "8c7e25f0f610e4fc845b084ee80a3f0e84a12936cc0989be7af6338ddcc5db1b",
+      "restored_gameplay_sha256": "dc19fa73d518874e4908c9dfad70f4003adff0e59681ed253a6d59cb58f2efb2",
+      "restored_recovery_journal_sha256": "2d9ce18f9e88c7ee622c213c8acb9bdac6f87232170bb55addff4128d8a9e58a",
+      "retained": {
+        "line": 32,
+        "manual_save": 32,
+        "semantic": 2
+      },
+      "retained_checkpoint_count": 66,
+      "save_manager_sha256": "59a26a70d0acb328c018198c9fdb06cc5d868f5988e520090f7fb420770d769a",
+      "independent_identity_check": {
+        "canonical_autosave_bytes_exact": true,
+        "unique_retained_checkpoint_ids": 66,
+        "retained_kinds": {
+          "line": 32,
+          "manual_save": 32,
+          "pre_board": 1,
+          "safe_marker": 1
+        },
+        "journal_gameplay_board_hashes_recomputed_from_retained_source": true
+      }
+    },
+    "invariants": "Every sample has the same candidate, source revision/full save file hashes, outgoing bytes/files, prepared record, capture inputs, prior/committed journal and66 retained checkpoints; one strict validation per write. Enabled cache goes0->1->2 exact entries; disabled remains empty.",
+    "limits": [
+      "Shared Windows runner; process-fresh, not OS-cache-cold. Immutable capture and fixed clock; real public preparation/commit and disk I/O, no live UI, issuer-flush callback, rendering or physical input-to-paint. No speed threshold or production adoption.",
+      "prepare_us and commit_us time the individual public calls. envelope_us continuously surrounds both, including only token/reference and shallow cache bookkeeping between them. These nested timers must not be summed. All expensive oracles are outside the envelope.",
+      "Four pairs per mode; no statistical-significance claim, pooling of modes or pooled estimate across Run75/Run78.",
+      "Enabled improves3/4 pairs and disabled4/4; retain the positive enabled pair.",
+      "No production speedup or production acceptance follows from these diagnostic runs."
+    ]
+  },
+  "independent_review": {
+    "reviewer_task": "blindspot_audit",
+    "code_review": "No runtime/test-oracle defect in reviewed intended candidate; production is bound to proven compact witness and frozen control by Python provenance guard.",
+    "checks": [
+      "Exact frozen full-result helper; production candidate calls actual parent helper.",
+      "Separate full-validator complete-document/detachment oracle plus retained frozen helper oracle.",
+      "Malformed success/refusal, exact-text admission, changed promoted bytes, memo lifetime, revision-race retry and consent tests retain meaningful assertions.",
+      "Quick counts actual helper execution; storage compares ordered operations, snapshots, leases and refusals independently.",
+      "Legacy write deriver changes caller only and retains parent helper; LF/CRLF derivations checked in memory."
+    ],
+    "production_body_sha256": "ecd23ce5249963371bc1a438e1cf3a65364bb83b7ae905283903820bac890a3a",
+    "no_local_engine_or_powershell_execution": true
+  },
+  "invalid_superseded_attempt": {
+    "label": "Run80",
+    "run_id": 36846745458,
+    "url": "https://github.com/Siuuuers/dwm/actions/runs/36846745458",
+    "source_sha": "ef6cf8af6ce8071ba4d63757314960da65840ee5",
+    "accepted": false,
+    "count_toward_acceptance": false,
+    "reason": "Truncated tool output during publication corrupted SaveManager; local source intact, caught by cached tree comparison; replacement source independently blob-verified and whole-tree compared. Invalid source never on PR.",
+    "independent_detection": "Committed SaveManager was133026bytes/2431lines and deleted unrelated recovery methods; it differed from reviewed local source. Detected during receipt source binding; not a runtime design decision.",
+    "superseded_by_source": "f28d2bdccd572894267317d04f7373d46430d83c",
+    "conclusion": "failure",
+    "workflow_head_sha": "9d398d5d1c008a69fca270800d3fed631e23752c"
+  },
+  "production_candidate": {
+    "source_sha": "f28d2bdccd572894267317d04f7373d46430d83c",
+    "source_tree": "81495b63f75075f9b3627d45265c2f843f024e3f",
+    "workflow_head_sha": "ccae9234512b39ff67386b5732c46a05bf57a32d",
+    "workflow_tree": "1daeb9e18bbbbd637cab281d0c6ab87cf59b8b92",
+    "workflow_branch": "codex/save-witness-adoption-20261001",
+    "save_manager_sha256": "9c407c1950cf37bb0924f70827e1b35769b51d67a69a67928cad18bd25ec5373",
+    "save_manager_matches_reviewed_local_bytes": true,
+    "publication_comparison": "Root reports whole-tree comparison; reviewer independently checked repaired SaveManager Git bytes match reviewed local file.",
+    "runtime_change": "One private SaveManager per-write validation helper returns a detached compact storage success after unchanged strict parse/full schema admission; refusal, exact bytes, revision, journal and storage protocol retained.",
+    "acceptance": "passed_focused_and_broad"
+  },
+  "production_focus": {
+    "status": "passed",
+    "run_id": 36846965941,
+    "run_number": 81,
+    "run_attempt": 1,
+    "url": "https://github.com/Siuuuers/dwm/actions/runs/36846965941",
+    "tested_source_sha": "f28d2bdccd572894267317d04f7373d46430d83c",
+    "actual_checkout_sha_by_job": {
+      "110319302827": {
+        "name": "Windows / manual-save witness equivalence and benchmark",
+        "sha": "f28d2bdccd572894267317d04f7373d46430d83c",
+        "excerpt": [
+          "2026-10-01T10:06:09.5612007Z [command]\"C:\\Program Files\\Git\\bin\\git.exe\" log -1 --format=%H\r",
+          "2026-10-01T10:06:09.5770957Z f28d2bdccd572894267317d04f7373d46430d83c\r"
+        ]
+      },
+      "110319302993": {
+        "name": "Windows / public API surface contracts",
+        "sha": "f28d2bdccd572894267317d04f7373d46430d83c",
+        "excerpt": [
+          "2026-10-01T10:06:11.5869890Z [command]\"C:\\Program Files\\Git\\bin\\git.exe\" log -1 --format=%H\r",
+          "2026-10-01T10:06:11.6090583Z f28d2bdccd572894267317d04f7373d46430d83c\r"
+        ]
+      },
+      "110319303079": {
+        "name": "Windows / reading_delivery",
+        "sha": "f28d2bdccd572894267317d04f7373d46430d83c",
+        "excerpt": [
+          "2026-10-01T10:06:15.2938006Z [command]\"C:\\Program Files\\Git\\bin\\git.exe\" log -1 --format=%H\r",
+          "2026-10-01T10:06:15.3141632Z f28d2bdccd572894267317d04f7373d46430d83c\r"
+        ]
+      },
+      "110319303088": {
+        "name": "Windows / settings",
+        "sha": "f28d2bdccd572894267317d04f7373d46430d83c",
+        "excerpt": [
+          "2026-10-01T10:06:12.0707425Z [command]\"C:\\Program Files\\Git\\bin\\git.exe\" log -1 --format=%H\r",
+          "2026-10-01T10:06:12.0921442Z f28d2bdccd572894267317d04f7373d46430d83c\r"
+        ]
+      },
+      "110319303161": {
+        "name": "Windows / persistence",
+        "sha": "f28d2bdccd572894267317d04f7373d46430d83c",
+        "excerpt": [
+          "2026-10-01T10:06:16.5488401Z [command]\"C:\\Program Files\\Git\\bin\\git.exe\" log -1 --format=%H\r",
+          "2026-10-01T10:06:16.5696353Z f28d2bdccd572894267317d04f7373d46430d83c\r"
+        ]
+      }
+    },
+    "jobs": [
+      {
+        "id": 110319302827,
+        "name": "Windows / manual-save witness equivalence and benchmark",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 36846965941,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v7",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Prepare disposable checkout for credential cleanup",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Install Godot 4.6.3 standard",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Import project",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Restore committed project settings after editor import",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Generate retained source and compare manual-save witness",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7
+          },
+          {
+            "name": "Upload complete replay inputs and measurements",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8
+          },
+          {
+            "name": "Post Run actions/checkout@v7",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 16
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 17
+          }
+        ]
+      },
+      {
+        "id": 110319302993,
+        "name": "Windows / public API surface contracts",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 36846965941,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v7",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Prepare disposable checkout for credential cleanup",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Record fixture and schema version census",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Install Godot 4.6.3 standard",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Import project",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Restore committed project settings after editor import",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7
+          },
+          {
+            "name": "Verify isolated runner contracts and timeout diagnostics",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8
+          },
+          {
+            "name": "Generate affected inventories for review",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9
+          },
+          {
+            "name": "Verify public inventory drift and read-only contracts",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 10
+          },
+          {
+            "name": "Upload canonical inventories and retirement evidence",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 11
+          },
+          {
+            "name": "Post Run actions/checkout@v7",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 22
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 23
+          }
+        ]
+      },
+      {
+        "id": 110319303079,
+        "name": "Windows / reading_delivery",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 36846965941,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v7",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Prepare disposable checkout for credential cleanup",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Install Godot 4.6.3 standard",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Import project",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Restore committed project settings after editor import",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Run focused regression suite",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7
+          },
+          {
+            "name": "Upload logs and test results",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8
+          },
+          {
+            "name": "Post Run actions/checkout@v7",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 16
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 17
+          }
+        ]
+      },
+      {
+        "id": 110319303088,
+        "name": "Windows / settings",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 36846965941,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v7",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Prepare disposable checkout for credential cleanup",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Install Godot 4.6.3 standard",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Import project",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Restore committed project settings after editor import",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Run focused regression suite",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7
+          },
+          {
+            "name": "Upload logs and test results",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8
+          },
+          {
+            "name": "Post Run actions/checkout@v7",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 16
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 17
+          }
+        ]
+      },
+      {
+        "id": 110319303161,
+        "name": "Windows / persistence",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 36846965941,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v7",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Prepare disposable checkout for credential cleanup",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Install Godot 4.6.3 standard",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Import project",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Restore committed project settings after editor import",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Run focused regression suite",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7
+          },
+          {
+            "name": "Upload logs and test results",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8
+          },
+          {
+            "name": "Post Run actions/checkout@v7",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 16
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 17
+          }
+        ]
+      }
+    ],
+    "gut_groups": [
+      {
+        "suite": "public_surfaces",
+        "test_cases": 11,
+        "passed": 11,
+        "skipped": 0,
+        "requested_scripts": 1,
+        "reported_scripts": 1,
+        "scripts": [
+          {
+            "script": "tests/unit/tooling/test_public_surface_inventory.gd",
+            "test_cases": 11,
+            "passed": 11,
+            "skipped": 0
+          }
+        ]
+      },
+      {
+        "suite": "reading_delivery",
+        "test_cases": 232,
+        "passed": 232,
+        "skipped": 0,
+        "requested_scripts": 18,
+        "reported_scripts": 18,
+        "scripts": [
+          {
+            "script": "tests/unit/test_hospital_frozen_context.gd",
+            "test_cases": 7,
+            "passed": 7,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_frozen_replay_context.gd",
+            "test_cases": 3,
+            "passed": 3,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_minesweeper_delivery_notice.gd",
+            "test_cases": 10,
+            "passed": 10,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_narrative_caption_ledger.gd",
+            "test_cases": 12,
+            "passed": 12,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_narrative_caption_ledger_runtime.gd",
+            "test_cases": 9,
+            "passed": 9,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_witnessed_caption_runtime.gd",
+            "test_cases": 48,
+            "passed": 48,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_witnessed_pause_view.gd",
+            "test_cases": 4,
+            "passed": 4,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_witnessed_auto_controller.gd",
+            "test_cases": 13,
+            "passed": 13,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_witnessed_skip_controller.gd",
+            "test_cases": 10,
+            "passed": 10,
+            "skipped": 0
+          },
+          {
+            "script": "tests/scene/test_witnessed_transport_recovery.gd",
+            "test_cases": 9,
+            "passed": 9,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_witnessed_speech_projection.gd",
+            "test_cases": 8,
+            "passed": 8,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_dating_caption_style.gd",
+            "test_cases": 19,
+            "passed": 19,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_scene_art_bindings.gd",
+            "test_cases": 13,
+            "passed": 13,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_scene_art_hold.gd",
+            "test_cases": 6,
+            "passed": 6,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_production_pause_controller.gd",
+            "test_cases": 33,
+            "passed": 33,
+            "skipped": 0
+          },
+          {
+            "script": "tests/scene/test_hospital_scene.gd",
+            "test_cases": 10,
+            "passed": 10,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_day7_font_preferences.gd",
+            "test_cases": 3,
+            "passed": 3,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_gallery_replay_owner.gd",
+            "test_cases": 15,
+            "passed": 15,
+            "skipped": 0
+          }
+        ]
+      },
+      {
+        "suite": "settings",
+        "test_cases": 311,
+        "passed": 311,
+        "skipped": 0,
+        "requested_scripts": 26,
+        "reported_scripts": 26,
+        "scripts": [
+          {
+            "script": "tests/unit/test_save_manager_parse_cache.gd",
+            "test_cases": 18,
+            "passed": 18,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_backup_quick_actions.gd",
+            "test_cases": 19,
+            "passed": 19,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_settings_panel_resize.gd",
+            "test_cases": 3,
+            "passed": 3,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_settings_preference_registry.gd",
+            "test_cases": 5,
+            "passed": 5,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_shared_week_tint.gd",
+            "test_cases": 2,
+            "passed": 2,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_settings_window_transactions.gd",
+            "test_cases": 13,
+            "passed": 13,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_window_mode_manager.gd",
+            "test_cases": 13,
+            "passed": 13,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_window_mode_port.gd",
+            "test_cases": 12,
+            "passed": 12,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_bootstrap_window_output.gd",
+            "test_cases": 6,
+            "passed": 6,
+            "skipped": 0
+          },
+          {
+            "script": "tests/scene/test_settings_window_mode_live.gd",
+            "test_cases": 6,
+            "passed": 6,
+            "skipped": 0
+          },
+          {
+            "script": "tests/scene/test_settings_audio_live.gd",
+            "test_cases": 5,
+            "passed": 5,
+            "skipped": 0
+          },
+          {
+            "script": "tests/scene/test_settings_reset_confirmation.gd",
+            "test_cases": 8,
+            "passed": 8,
+            "skipped": 0
+          },
+          {
+            "script": "tests/scene/test_settings_folio.gd",
+            "test_cases": 8,
+            "passed": 8,
+            "skipped": 0
+          },
+          {
+            "script": "tests/scene/test_settings_host_geometry.gd",
+            "test_cases": 5,
+            "passed": 5,
+            "skipped": 0
+          },
+          {
+            "script": "tests/scene/test_settings_localization_scene.gd",
+            "test_cases": 34,
+            "passed": 34,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_settings_shared_hosts.gd",
+            "test_cases": 8,
+            "passed": 8,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_profile_manager.gd",
+            "test_cases": 23,
+            "passed": 23,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_restore_participants.gd",
+            "test_cases": 7,
+            "passed": 7,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_restore_preserves_current_profile.gd",
+            "test_cases": 4,
+            "passed": 4,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_restore_production_adapters.gd",
+            "test_cases": 13,
+            "passed": 13,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_desktop_board_persistence.gd",
+            "test_cases": 5,
+            "passed": 5,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_minesweeper_first_reveal_transaction.gd",
+            "test_cases": 7,
+            "passed": 7,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_save_manager_checkpoint_port.gd",
+            "test_cases": 42,
+            "passed": 42,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_checkpoint_validation_reuse.gd",
+            "test_cases": 21,
+            "passed": 21,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_checkpoint_phase_diagnostics.gd",
+            "test_cases": 4,
+            "passed": 4,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_checkpoint_journal.gd",
+            "test_cases": 20,
+            "passed": 20,
+            "skipped": 0
+          }
+        ]
+      },
+      {
+        "suite": "persistence",
+        "test_cases": 183,
+        "passed": 183,
+        "skipped": 0,
+        "requested_scripts": 19,
+        "reported_scripts": 19,
+        "scripts": [
+          {
+            "script": "tests/unit/test_frozen_run_context.gd",
+            "test_cases": 18,
+            "passed": 18,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_profile_presentation_chronology.gd",
+            "test_cases": 9,
+            "passed": 9,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_profile_dating_attempts.gd",
+            "test_cases": 10,
+            "passed": 10,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_profile_dating_branches.gd",
+            "test_cases": 7,
+            "passed": 7,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_profile_pair_form_witness.gd",
+            "test_cases": 3,
+            "passed": 3,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_contact_invitation_state.gd",
+            "test_cases": 42,
+            "passed": 42,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_seven_day_calendar.gd",
+            "test_cases": 7,
+            "passed": 7,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_pair_deck_draw.gd",
+            "test_cases": 4,
+            "passed": 4,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_pair_deck_draw_port.gd",
+            "test_cases": 11,
+            "passed": 11,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_profile_v4_upgrade.gd",
+            "test_cases": 10,
+            "passed": 10,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_profile_new_run_consumption.gd",
+            "test_cases": 12,
+            "passed": 12,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_save_migrations.gd",
+            "test_cases": 11,
+            "passed": 11,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_save_manager_journal.gd",
+            "test_cases": 6,
+            "passed": 6,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_restore_transaction.gd",
+            "test_cases": 12,
+            "passed": 12,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_unified_restore_contract.gd",
+            "test_cases": 3,
+            "passed": 3,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_run_restore_isolation.gd",
+            "test_cases": 5,
+            "passed": 5,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_live_run_rollback_isolation.gd",
+            "test_cases": 3,
+            "passed": 3,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_save_manager_public_boundaries.gd",
+            "test_cases": 6,
+            "passed": 6,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_save_capability.gd",
+            "test_cases": 4,
+            "passed": 4,
+            "skipped": 0
+          }
+        ]
+      }
+    ],
+    "gut_summary": {
+      "executions": 737,
+      "requested_scripts": 64,
+      "skipped": 0
+    },
+    "standalone_revision_storage": {
+      "assertions": 61180,
+      "distinct_snapshots": 94,
+      "failures": [],
+      "refusal_pairs": 30,
+      "restart_fault_pairs": 1604,
+      "restart_pairs": 2218,
+      "write_fault_pairs": 154,
+      "write_pairs": 14,
+      "scope": "Frozen full-result baseline versus actual production; fresh owners over simulated FileOps durable bytes in one OS process, not physical crash injection or a new OS process at each fault."
+    },
+    "public_inventory_gate": {
+      "mode": "regenerate then verify",
+      "inventories": [
+        {
+          "path": "evidence/phase_2r/runtime/game_state_surface.json",
+          "encoding": "gzip+base64",
+          "sha256": "2b20e85f822d2a86db49f3725414be2e7b096c4b88b83e3d0453aee1f7f4786b",
+          "bytes": 554745,
+          "compressed_bytes": 62932,
+          "parts": 41
+        },
+        {
+          "path": "evidence/phase_2r/runtime/save_manager_surface.json",
+          "encoding": "gzip+base64",
+          "sha256": "0a83449d35a3a8ff8e8fce502bbdd767d68f4fe66746024b548db9a44ee5123a",
+          "bytes": 144110,
+          "compressed_bytes": 17029,
+          "parts": 12
+        }
+      ],
+      "contract_counts": [
+        236,
+        74
+      ],
+      "contracts_and_required_unchanged": true,
+      "retired_symbols": 10,
+      "source_files_scanned": 927,
+      "remaining_retired_references": 0
+    },
+    "actual_production_benchmark": {
+      "archive_path": "performance/run81-manual-save-witness-artifact.zip",
+      "archive_sha256": "ea45d8fef754d4357e85d0c1a5143541036b96ae164dbc2f1039f55adf334151",
+      "readable_results_path": "performance/run81-manual-save-witness.json",
+      "baseline_body_proof": {
+        "baseline_source_ref": "9a4c63f05d13bc2960aae4fa6c58db9911916f86",
+        "baseline_source_sha256": "59a26a70d0acb328c018198c9fdb06cc5d868f5988e520090f7fb420770d769a",
+        "baseline_body_sha256": "316ff83a7f767daefb05e9afd63c5d1557e05526a2282306b0728c36b2a68946",
+        "diagnostic_port_sha256": "4d584c07f6f380f34c3b1a1e6e21b078474857387e0d1239a1f2a50ac70b6133",
+        "production_body_sha256": "ecd23ce5249963371bc1a438e1cf3a65364bb83b7ae905283903820bac890a3a",
+        "exact_frozen_body_match": true,
+        "exact_proven_witness_match": true,
+        "whole_source_single_helper_difference": true,
+        "candidate_calls_production": true
+      },
+      "source_sha256": {
+        "autoload/SaveManager.gd": "9c407c1950cf37bb0924f70827e1b35769b51d67a69a67928cad18bd25ec5373",
+        "scripts/infrastructure/storage/JsonFileStorage.gd": "ad2691249d9c7a247147fdc76885044b6cd9f6ebaac1f7267b4c144586d2adab",
+        "scripts/infrastructure/storage/FileOps.gd": "89aa45cf28b0c618f46c6c8b2b590227e8314c664624d8fb314069c133dc0895",
+        "scripts/infrastructure/save/CheckpointJournal.gd": "40ff91bc9e2be063c25f10d0ef89b717d3e47b9247b087679eaa69898dfe369d",
+        "scripts/infrastructure/save/SaveDocumentSchema.gd": "c7a18cea7a87699a1e69cef4ec2fc61f4ace858c9b45df5a6db622830e5e0540",
+        "scripts/domain/run/RunSnapshotSchema.gd": "88c329ce56350c8cd09124222cc69ae2f0335731f6519d655c8c8a14beff9158",
+        "scripts/validation/StrictJson.gd": "9c0aa8e2716473cf9fa6a6ae524216e812c760bff134a1b5ae7af8eb3d46a82f",
+        "scripts/validation/CanonicalJsonWriter.gd": "925341fed6bbb64b2c28d22f269e92a2806f2170f4965eb412d9179cf3cd34f1",
+        "tests/manual/benchmark_manual_save_write.gd": "e1b3401fd4603c9f306e9a3117ef6dae2f5b685a54630994c4f4c63a621dc3ea",
+        "tests/support/ManualSaveWitnessPort.gd": "f64ba5e94f592a0edce725e686d7e7b190363ab15d74f3c1271ea6b493ae905c",
+        "tests/manual/benchmark_seven_day_history.gd": "c8e3e5fea9ce0ab472d78e9aa988f54d6d5e6775a94a204dcf6f5a3d851413d2",
+        "tests/manual/benchmark_minesweeper_click_latency.gd": "bc85a6a56631c75166b6627f7e3a09554ee0d01ced8baadcfb2a17d9e53a5e67",
+        "tools/testing/Invoke-IsolatedGodot.ps1": "e37252b9313d5dbf809e9502578bb270118d12a997fc189bf088648eb97329f1",
+        "tools/testing/Invoke-ManualSaveWitnessPerformance.ps1": "d45b4c47fdecda63d684be78c38456323b6faa7ef6bc680b732e71485167fec4"
+      },
+      "summaries": {
+        "enabled": {
+          "prepare_us": {
+            "baseline_median_us": 1600540.0,
+            "production_median_us": 1584813.5,
+            "median_paired_production_minus_baseline_us": -15726.5
+          },
+          "commit_us": {
+            "baseline_median_us": 1733272.0,
+            "production_median_us": 1539394.0,
+            "median_paired_production_minus_baseline_us": -201908.0
+          },
+          "envelope_us": {
+            "baseline_median_us": 3336405.0,
+            "production_median_us": 3130266.0,
+            "median_paired_production_minus_baseline_us": -208112.5
+          }
+        },
+        "disabled": {
+          "prepare_us": {
+            "baseline_median_us": 1596382.5,
+            "production_median_us": 1572955.0,
+            "median_paired_production_minus_baseline_us": -25768.5
+          },
+          "commit_us": {
+            "baseline_median_us": 1719916.5,
+            "production_median_us": 1525814.5,
+            "median_paired_production_minus_baseline_us": -199209.0
+          },
+          "envelope_us": {
+            "baseline_median_us": 3316312.5,
+            "production_median_us": 3116270.0,
+            "median_paired_production_minus_baseline_us": -222829.0
+          }
+        }
+      },
+      "all_pair_deltas_us": {
+        "enabled": [
+          {
+            "prepare_us": -18467,
+            "commit_us": -359595,
+            "envelope_us": -378061
+          },
+          {
+            "prepare_us": -23232,
+            "commit_us": -175813,
+            "envelope_us": -199047
+          },
+          {
+            "prepare_us": 4532,
+            "commit_us": -221707,
+            "envelope_us": -217178
+          },
+          {
+            "prepare_us": -12986,
+            "commit_us": -182109,
+            "envelope_us": -195100
+          }
+        ],
+        "disabled": [
+          {
+            "prepare_us": -18168,
+            "commit_us": -234291,
+            "envelope_us": -252459
+          },
+          {
+            "prepare_us": -33369,
+            "commit_us": -113671,
+            "envelope_us": -147040
+          },
+          {
+            "prepare_us": -15941,
+            "commit_us": -177258,
+            "envelope_us": -193199
+          },
+          {
+            "prepare_us": -76272,
+            "commit_us": -221160,
+            "envelope_us": -297430
+          }
+        ]
+      },
+      "separate_processes": 18,
+      "manual_probe_processes": 16,
+      "producer_fixture_files": 15,
+      "producer_fixture_bytes": 6235916,
+      "retained_checkpoints": 66,
+      "root_audit": "All48 raw timings,24 deltas,6 summaries,14 Git source hashes,18 unique successful roots/log hashes and15 exact fixture file hashes independently checked. Both cache modes remain separate; all8 envelope/commit pairs faster; enabled preparation pair3 is +4532us.",
+      "limits": "Shared Windows runner; process-fresh, not OS-cache-cold. Immutable capture and fixed clock; real public preparation/commit and disk I/O, no live UI, issuer-flush callback, rendering or physical input-to-paint. No speed threshold or complete gameplay responsiveness claim.",
+      "timing_boundaries": "prepare_us and commit_us time the individual public calls. envelope_us continuously surrounds both, including only token/reference and shallow cache bookkeeping between them. These nested timers must not be summed. All expensive oracles are outside the envelope.",
+      "readable_results_format": "Normalized JSON copy; original result bytes and their hash remain in the exact retained ZIP."
+    },
+    "artifact_hashes": [
+      {
+        "id": 11153811702,
+        "name": "windows-persistence-36846965941-1",
+        "size_in_bytes": 130158,
+        "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11153811702",
+        "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11153811702/zip",
+        "expired": false,
+        "created_at": "2026-10-01T10:07:46Z",
+        "expires_at": "2026-10-08T10:07:45Z",
+        "updated_at": "2026-10-01T10:07:46Z",
+        "digest": "sha256:68146723499b34eb648c2870de62967716720ba83c3a014c0ddfbd0c5baf05ed",
+        "workflow_run": {
+          "id": 36846965941,
+          "repository_id": 1302529453,
+          "head_repository_id": 1302529453,
+          "head_branch": "codex/save-witness-adoption-20261001",
+          "head_sha": "ccae9234512b39ff67386b5732c46a05bf57a32d"
+        }
+      },
+      {
+        "id": 11153673937,
+        "name": "manual-save-witness-36846965941-1",
+        "size_in_bytes": 259367,
+        "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11153673937",
+        "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11153673937/zip",
+        "expired": false,
+        "created_at": "2026-10-01T10:12:31Z",
+        "expires_at": "2026-10-08T10:12:30Z",
+        "updated_at": "2026-10-01T10:12:31Z",
+        "digest": "sha256:ea45d8fef754d4357e85d0c1a5143541036b96ae164dbc2f1039f55adf334151",
+        "workflow_run": {
+          "id": 36846965941,
+          "repository_id": 1302529453,
+          "head_repository_id": 1302529453,
+          "head_branch": "codex/save-witness-adoption-20261001",
+          "head_sha": "ccae9234512b39ff67386b5732c46a05bf57a32d"
+        }
+      },
+      {
+        "id": 11153668627,
+        "name": "public-surfaces-36846965941-1",
+        "size_in_bytes": 139595,
+        "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11153668627",
+        "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11153668627/zip",
+        "expired": false,
+        "created_at": "2026-10-01T10:10:21Z",
+        "expires_at": "2026-10-08T10:10:20Z",
+        "updated_at": "2026-10-01T10:10:21Z",
+        "digest": "sha256:2b5f83cbbbe03a084a8882bccbee540e0e6e0da4396526d23fcf6eaee73ea5fa",
+        "workflow_run": {
+          "id": 36846965941,
+          "repository_id": 1302529453,
+          "head_repository_id": 1302529453,
+          "head_branch": "codex/save-witness-adoption-20261001",
+          "head_sha": "ccae9234512b39ff67386b5732c46a05bf57a32d"
+        }
+      },
+      {
+        "id": 11153598438,
+        "name": "windows-reading_delivery-36846965941-1",
+        "size_in_bytes": 97458,
+        "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11153598438",
+        "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11153598438/zip",
+        "expired": false,
+        "created_at": "2026-10-01T10:08:32Z",
+        "expires_at": "2026-10-08T10:08:31Z",
+        "updated_at": "2026-10-01T10:08:32Z",
+        "digest": "sha256:dbb6657249f171eec9caeca19ce8fa822dacf4665c936319d04ac0586464e87f",
+        "workflow_run": {
+          "id": 36846965941,
+          "repository_id": 1302529453,
+          "head_repository_id": 1302529453,
+          "head_branch": "codex/save-witness-adoption-20261001",
+          "head_sha": "ccae9234512b39ff67386b5732c46a05bf57a32d"
+        }
+      },
+      {
+        "id": 11153549164,
+        "name": "windows-settings-36846965941-1",
+        "size_in_bytes": 2532603,
+        "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11153549164",
+        "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11153549164/zip",
+        "expired": false,
+        "created_at": "2026-10-01T10:11:22Z",
+        "expires_at": "2026-10-08T10:11:21Z",
+        "updated_at": "2026-10-01T10:11:22Z",
+        "digest": "sha256:b1144e4eb598d4feab6298195c0c3af0b3ac97d0de59911f2f91d9a5b3cad1d8",
+        "workflow_run": {
+          "id": 36846965941,
+          "repository_id": 1302529453,
+          "head_repository_id": 1302529453,
+          "head_branch": "codex/save-witness-adoption-20261001",
+          "head_sha": "ccae9234512b39ff67386b5732c46a05bf57a32d"
+        }
+      }
+    ],
+    "independent_audit": {
+      "correctness": "Settings XML311/311,18parse-cache,19Quick,61180standalone assertions,source/log/hash and expected missing-root refusals independently verified by witness_correctness.",
+      "benchmark": {
+        "status": "passed",
+        "method": "Static Python recomputation against artifact bytes and historical Git blobs; no engine or PowerShell rerun.",
+        "results_sha256": "1c8421f743a49ede6c05e6853bae410bb2eb65a4fc3cd3b9ce2a0ed5338add1d",
+        "source_binding": {
+          "baseline_source_ref": "9a4c63f05d13bc2960aae4fa6c58db9911916f86",
+          "baseline_source_sha256": "59a26a70d0acb328c018198c9fdb06cc5d868f5988e520090f7fb420770d769a",
+          "baseline_body_sha256": "316ff83a7f767daefb05e9afd63c5d1557e05526a2282306b0728c36b2a68946",
+          "diagnostic_port_sha256": "4d584c07f6f380f34c3b1a1e6e21b078474857387e0d1239a1f2a50ac70b6133",
+          "production_body_sha256": "ecd23ce5249963371bc1a438e1cf3a65364bb83b7ae905283903820bac890a3a",
+          "exact_frozen_body_match": true,
+          "exact_proven_witness_match": true,
+          "whole_source_single_helper_difference": true,
+          "candidate_calls_production": true
+        },
+        "verification_counts": {
+          "source_file_hashes": 14,
+          "timing_values_from_raw_markers": 48,
+          "paired_deltas_recomputed": 24,
+          "summary_triples_recomputed": 6,
+          "isolated_process_roots": 18,
+          "manual_sample_processes": 16,
+          "full_fixture_files": 15,
+          "full_fixture_bytes": 6235916,
+          "save_fixture_files": 5,
+          "retained_checkpoint_unique_identities": 66
+        },
+        "fixture": {
+          "manifest_sha256": "21523ac298541e8b16e0b4096c52807afd5d093acbb6e7234328608e473d71a4",
+          "full_files": [
+            {
+              "file": "desktop-issuer-root.json",
+              "bytes": 64810,
+              "sha256": "c999053174d43a8c09cd114135c55701720e05831a0a999b835afda88c5ef12d"
+            },
+            {
+              "file": "desktop-issuer-root.json.bak",
+              "bytes": 61956,
+              "sha256": "5d91662c40d2548f88806cd952a5c94cc97b0122ad0f5ddabe32d41295a57785"
+            },
+            {
+              "file": "desktop-publications.json",
+              "bytes": 133973,
+              "sha256": "812dbdd8a2e2290df5d39253be51c6aa0935aa5c10c63b5a3e4e420391563c69"
+            },
+            {
+              "file": "desktop-publications.json.bak",
+              "bytes": 128301,
+              "sha256": "8ea4d72ca0cf70d613053afd6f97175c5a15f455c1ffcbe2586c584277330adc"
+            },
+            {
+              "file": "dialogic/saves/global_info.txt",
+              "bytes": 0,
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            {
+              "file": "profile.json",
+              "bytes": 3002,
+              "sha256": "31393ae88f69a038c97a05eeec0f913eb9182a4675ca8679826861aa06a281f9"
+            },
+            {
+              "file": "profile.json.bak",
+              "bytes": 2711,
+              "sha256": "e0a5222d76a47f402c8aa606fe45be7f0feda8b169c4ca8af76f5c3572c44266"
+            },
+            {
+              "file": "saves/autosave.json",
+              "bytes": 1910748,
+              "sha256": "57058443735c476726f9cffb9fe5abd3be73970a4f52cde1ac9d5651df0a9fdf"
+            },
+            {
+              "file": "saves/autosave.json.bak",
+              "bytes": 1893839,
+              "sha256": "a56fbbe35ae17b742248c0a3b7683a7593e7aff4fd2beecbca02b78440c76224"
+            },
+            {
+              "file": "saves/desktop-continuation-operations.json",
+              "bytes": 21775,
+              "sha256": "f183cbad4317c801ac0e15823d6a03103ae780ea4b629ac5f73ec39d4b6409d6"
+            },
+            {
+              "file": "saves/desktop-continuation-operations.json.bak",
+              "bytes": 21786,
+              "sha256": "3b41c7825cec1180d4aea036e8ae3540e0c9dc847e690b0db0e30fdf0c7a3f10"
+            },
+            {
+              "file": "saves/slot_1.json",
+              "bytes": 1872441,
+              "sha256": "f73bf7cc4ec6fec2b1ab245145f81352f1ac16df379fb31b6c1af8eef00a1b3f"
+            },
+            {
+              "file": "schedule-foundation-publications.json",
+              "bytes": 36123,
+              "sha256": "5c98007b314a5470f8e7a8b6bae74ac3aee630cd2baee5324192848cd12d9588"
+            },
+            {
+              "file": "schedule-foundation-publications.json.bak",
+              "bytes": 30108,
+              "sha256": "4a4e849d72efeb3191e2263172536b7cdf01bd92a6fc81bb584243548f357765"
+            },
+            {
+              "file": "seven-day-history-proof.json",
+              "bytes": 54343,
+              "sha256": "948e2668c3b64b5aa80931503e34c2769830de92399de2c0878c9679195bc214"
+            }
+          ],
+          "source_save_files": [
+            {
+              "file": "autosave.json",
+              "bytes": 1910748,
+              "sha256": "57058443735c476726f9cffb9fe5abd3be73970a4f52cde1ac9d5651df0a9fdf"
+            },
+            {
+              "file": "autosave.json.bak",
+              "bytes": 1893839,
+              "sha256": "a56fbbe35ae17b742248c0a3b7683a7593e7aff4fd2beecbca02b78440c76224"
+            },
+            {
+              "file": "desktop-continuation-operations.json",
+              "bytes": 21775,
+              "sha256": "f183cbad4317c801ac0e15823d6a03103ae780ea4b629ac5f73ec39d4b6409d6"
+            },
+            {
+              "file": "desktop-continuation-operations.json.bak",
+              "bytes": 21786,
+              "sha256": "3b41c7825cec1180d4aea036e8ae3540e0c9dc847e690b0db0e30fdf0c7a3f10"
+            },
+            {
+              "file": "slot_1.json",
+              "bytes": 1872441,
+              "sha256": "f73bf7cc4ec6fec2b1ab245145f81352f1ac16df379fb31b6c1af8eef00a1b3f"
+            }
+          ],
+          "checkpoint_kinds": {
+            "line": 32,
+            "manual_save": 32,
+            "pre_board": 1,
+            "safe_marker": 1
+          },
+          "cold_read_identities_independently_reconstructed": {
+            "autosave_sha256": "57058443735c476726f9cffb9fe5abd3be73970a4f52cde1ac9d5651df0a9fdf",
+            "restored_recovery_journal_sha256": "5d5997c6572c922abca87fe0932a6ef357e8896a4cbc8dca2e2e3c10626d8ef0",
+            "restored_board_sha256": "47a061be3a19c9a62796c181ca3a64ce776467365b38a3beb28d6f9939ce790a",
+            "restored_gameplay_sha256": "0c84b18a93f3ec044f432eeadfc08300bc7bb6975e9f2ec477d80cde7506527c"
+          },
+          "all_16_samples_same_input_and_output_hashes": true,
+          "sample_shared_invariants": {
+            "candidate_sha256": "dd4d055a6778b16f257e2182f7e77144fe0d7b5d42c1c58f76dab91a25fe1e1d",
+            "capture_input_sha256": "22021406ccece64dbe799ceb408cb0853e990dcd104e7350b196195c431303d8",
+            "journal_sha256": "535225027aa926df1c3f86bdcd951dfb737187b41786b6db0498b02adcbab85e",
+            "output_bytes": 1922487,
+            "output_files_sha256": {
+              "autosave.json": "57058443735c476726f9cffb9fe5abd3be73970a4f52cde1ac9d5651df0a9fdf",
+              "autosave.json.bak": "a56fbbe35ae17b742248c0a3b7683a7593e7aff4fd2beecbca02b78440c76224",
+              "desktop-continuation-operations.json": "f183cbad4317c801ac0e15823d6a03103ae780ea4b629ac5f73ec39d4b6409d6",
+              "desktop-continuation-operations.json.bak": "3b41c7825cec1180d4aea036e8ae3540e0c9dc847e690b0db0e30fdf0c7a3f10",
+              "slot_1.json": "66665d4b81d045383f1a7fef459888a0e8a45c657410df015c58e2f32334302a"
+            },
+            "output_sha256": "66665d4b81d045383f1a7fef459888a0e8a45c657410df015c58e2f32334302a",
+            "prepared_record_sha256": "3951c177220ec1bf40687f19e068ced1dcde78f53fdfadc7aacf829f86f2b58a",
+            "prior_journal_sha256": "e24968e474b5b3a91d96696c5b193d23afe916595d65f6ac65704f0f2cb1abf9",
+            "retained_checkpoint_count": 66,
+            "source_files_sha256": {
+              "autosave.json": "57058443735c476726f9cffb9fe5abd3be73970a4f52cde1ac9d5651df0a9fdf",
+              "autosave.json.bak": "a56fbbe35ae17b742248c0a3b7683a7593e7aff4fd2beecbca02b78440c76224",
+              "desktop-continuation-operations.json": "f183cbad4317c801ac0e15823d6a03103ae780ea4b629ac5f73ec39d4b6409d6",
+              "desktop-continuation-operations.json.bak": "3b41c7825cec1180d4aea036e8ae3540e0c9dc847e690b0db0e30fdf0c7a3f10",
+              "slot_1.json": "f73bf7cc4ec6fec2b1ab245145f81352f1ac16df379fb31b6c1af8eef00a1b3f"
+            },
+            "source_revision": "f73bf7cc4ec6fec2b1ab245145f81352f1ac16df379fb31b6c1af8eef00a1b3f"
+          }
+        },
+        "unfavorable_timing_samples": [
+          {
+            "cache_mode": "enabled",
+            "pair": 3,
+            "metric": "prepare_us",
+            "production_minus_baseline_us": 4532
+          }
+        ],
+        "scope_limits": [
+          "Four alternating pairs per parser-cache mode on one shared Windows runner; modes are separate experiments and must not be pooled.",
+          "Actual production helper is reached via super in the test subclass; immutable capture and fixed clock bypass live capture/issuer flush behavior.",
+          "Times measure public preparation, public commit and a continuous surrounding envelope with real disk I/O; these nested times must not be summed.",
+          "No live UI, rendering, physical input-to-paint or whole-game responsiveness measurement; no speed threshold or statistical significance claim.",
+          "Fresh isolated processes do not establish cold operating-system cache state or hardware crash durability.",
+          "All 15 producer fixture files are present and byte/hash verified. Post-write output files are represented by hash/size oracles in all 16 raw logs, not separately retained physical output files.",
+          "Run81 is independent actual-production evidence at f28; diagnostic Run78 remains historical subclass evidence and has an unfavorable enabled envelope pair. Do not pool across runs.",
+          "Final PR source differs from measured f28 only by two committed public surface inventories; this benchmark does not by itself establish the final broad gate.",
+          "Run80 was invalid and superseded following a source-publication truncation; no Run80 acceptance is inferred."
+        ],
+        "defects": []
+      }
+    }
+  },
+  "broad_gate": {
+    "status": "passed",
+    "run_id": 36847732239,
+    "run_attempt": 1,
+    "source_sha": "724ff76fabafe358d6f445b404386baa65d20062",
+    "actual_tested_merge_sha": "d9c42820960ffd70b80b70977178c17ae9beef92",
+    "base_sha": "2e8602d5f098eebbab18241f370b5f4d14adf99b",
+    "checkout_sha_by_job": {
+      "110321801721": {
+        "name": "Windows / public API surface contracts",
+        "sha": "d9c42820960ffd70b80b70977178c17ae9beef92",
+        "excerpt": [
+          "2026-10-01T10:13:24.6350858Z [command]\"C:\\Program Files\\Git\\bin\\git.exe\" log -1 --format=%H\r",
+          "2026-10-01T10:13:24.6565643Z d9c42820960ffd70b80b70977178c17ae9beef92\r"
+        ]
+      },
+      "110323132677": {
+        "name": "Rendered seven-day, ending, Gallery and Dating journeys",
+        "sha": "d9c42820960ffd70b80b70977178c17ae9beef92",
+        "excerpt": [
+          "2026-10-01T10:17:05.4053584Z [command]/usr/bin/git log -1 --format=%H",
+          "2026-10-01T10:17:05.4078770Z d9c42820960ffd70b80b70977178c17ae9beef92"
+        ]
+      },
+      "110323132710": {
+        "name": "Windows / exported release startup",
+        "sha": "d9c42820960ffd70b80b70977178c17ae9beef92",
+        "excerpt": [
+          "2026-10-01T10:17:08.8393853Z [command]\"C:\\Program Files\\Git\\bin\\git.exe\" log -1 --format=%H\r",
+          "2026-10-01T10:17:08.8614544Z d9c42820960ffd70b80b70977178c17ae9beef92\r"
+        ]
+      },
+      "110323133147": {
+        "name": "Windows / desktop",
+        "sha": "d9c42820960ffd70b80b70977178c17ae9beef92",
+        "excerpt": [
+          "2026-10-01T10:17:08.4834144Z [command]\"C:\\Program Files\\Git\\bin\\git.exe\" log -1 --format=%H\r",
+          "2026-10-01T10:17:08.5044430Z d9c42820960ffd70b80b70977178c17ae9beef92\r"
+        ]
+      },
+      "110323133183": {
+        "name": "Windows / localization",
+        "sha": "d9c42820960ffd70b80b70977178c17ae9beef92",
+        "excerpt": [
+          "2026-10-01T10:17:12.7180024Z [command]\"C:\\Program Files\\Git\\bin\\git.exe\" log -1 --format=%H\r",
+          "2026-10-01T10:17:12.7384050Z d9c42820960ffd70b80b70977178c17ae9beef92\r"
+        ]
+      },
+      "110323133185": {
+        "name": "Windows / shop",
+        "sha": "d9c42820960ffd70b80b70977178c17ae9beef92",
+        "excerpt": [
+          "2026-10-01T10:17:09.1955851Z [command]\"C:\\Program Files\\Git\\bin\\git.exe\" log -1 --format=%H\r",
+          "2026-10-01T10:17:09.2128283Z d9c42820960ffd70b80b70977178c17ae9beef92\r"
+        ]
+      },
+      "110323133196": {
+        "name": "Windows / audio",
+        "sha": "d9c42820960ffd70b80b70977178c17ae9beef92",
+        "excerpt": [
+          "2026-10-01T10:17:09.0765086Z [command]\"C:\\Program Files\\Git\\bin\\git.exe\" log -1 --format=%H\r",
+          "2026-10-01T10:17:09.0979276Z d9c42820960ffd70b80b70977178c17ae9beef92\r"
+        ]
+      },
+      "110323133232": {
+        "name": "Windows / checkpoint_diagnostics",
+        "sha": "d9c42820960ffd70b80b70977178c17ae9beef92",
+        "excerpt": [
+          "2026-10-01T10:17:14.8691554Z [command]\"C:\\Program Files\\Git\\bin\\git.exe\" log -1 --format=%H\r",
+          "2026-10-01T10:17:14.8900699Z d9c42820960ffd70b80b70977178c17ae9beef92\r"
+        ]
+      },
+      "110323133236": {
+        "name": "Windows / endings",
+        "sha": "d9c42820960ffd70b80b70977178c17ae9beef92",
+        "excerpt": [
+          "2026-10-01T10:17:09.1464223Z [command]\"C:\\Program Files\\Git\\bin\\git.exe\" log -1 --format=%H\r",
+          "2026-10-01T10:17:09.1677428Z d9c42820960ffd70b80b70977178c17ae9beef92\r"
+        ]
+      },
+      "110323133242": {
+        "name": "Windows / persistence",
+        "sha": "d9c42820960ffd70b80b70977178c17ae9beef92",
+        "excerpt": [
+          "2026-10-01T10:17:10.5188506Z [command]\"C:\\Program Files\\Git\\bin\\git.exe\" log -1 --format=%H\r",
+          "2026-10-01T10:17:10.5387218Z d9c42820960ffd70b80b70977178c17ae9beef92\r"
+        ]
+      },
+      "110323133248": {
+        "name": "Windows / minesweeper",
+        "sha": "d9c42820960ffd70b80b70977178c17ae9beef92",
+        "excerpt": [
+          "2026-10-01T10:17:08.0538879Z [command]\"C:\\Program Files\\Git\\bin\\git.exe\" log -1 --format=%H\r",
+          "2026-10-01T10:17:08.0707561Z d9c42820960ffd70b80b70977178c17ae9beef92\r"
+        ]
+      },
+      "110323133260": {
+        "name": "Windows / new_account",
+        "sha": "d9c42820960ffd70b80b70977178c17ae9beef92",
+        "excerpt": [
+          "2026-10-01T10:17:09.8600235Z [command]\"C:\\Program Files\\Git\\bin\\git.exe\" log -1 --format=%H\r",
+          "2026-10-01T10:17:09.8819646Z d9c42820960ffd70b80b70977178c17ae9beef92\r"
+        ]
+      },
+      "110323133286": {
+        "name": "Windows / reading_delivery",
+        "sha": "d9c42820960ffd70b80b70977178c17ae9beef92",
+        "excerpt": [
+          "2026-10-01T10:17:09.3858767Z [command]\"C:\\Program Files\\Git\\bin\\git.exe\" log -1 --format=%H\r",
+          "2026-10-01T10:17:09.4072483Z d9c42820960ffd70b80b70977178c17ae9beef92\r"
+        ]
+      },
+      "110323133299": {
+        "name": "Windows / dating",
+        "sha": "d9c42820960ffd70b80b70977178c17ae9beef92",
+        "excerpt": [
+          "2026-10-01T10:17:09.8215664Z [command]\"C:\\Program Files\\Git\\bin\\git.exe\" log -1 --format=%H\r",
+          "2026-10-01T10:17:09.8378304Z d9c42820960ffd70b80b70977178c17ae9beef92\r"
+        ]
+      },
+      "110323132787": {
+        "name": "Rendered desktop and dialogue / Linux software OpenGL",
+        "sha": "d9c42820960ffd70b80b70977178c17ae9beef92",
+        "excerpt": [
+          "2026-10-01T10:17:03.8297717Z [command]/usr/bin/git log -1 --format=%H",
+          "2026-10-01T10:17:03.8328127Z d9c42820960ffd70b80b70977178c17ae9beef92"
+        ]
+      },
+      "110323132852": {
+        "name": "Windows / paired checkpoint performance",
+        "sha": "d9c42820960ffd70b80b70977178c17ae9beef92",
+        "excerpt": [
+          "2026-10-01T10:17:12.9092492Z [command]\"C:\\Program Files\\Git\\bin\\git.exe\" log -1 --format=%H\r",
+          "2026-10-01T10:17:12.9303301Z d9c42820960ffd70b80b70977178c17ae9beef92\r"
+        ]
+      },
+      "110323133284": {
+        "name": "Windows / settings",
+        "sha": "d9c42820960ffd70b80b70977178c17ae9beef92",
+        "excerpt": [
+          "2026-10-01T10:17:11.9611763Z [command]\"C:\\Program Files\\Git\\bin\\git.exe\" log -1 --format=%H\r",
+          "2026-10-01T10:17:11.9762778Z d9c42820960ffd70b80b70977178c17ae9beef92\r"
+        ]
+      },
+      "110323132749": {
+        "name": "Windows / seven-day retained history producer",
+        "sha": "d9c42820960ffd70b80b70977178c17ae9beef92",
+        "excerpt": [
+          "2026-10-01T10:17:12.1698950Z [command]\"C:\\Program Files\\Git\\bin\\git.exe\" log -1 --format=%H\r",
+          "2026-10-01T10:17:12.1862007Z d9c42820960ffd70b80b70977178c17ae9beef92\r"
+        ]
+      },
+      "110326995959": {
+        "name": "Windows / outgoing-normalization comparison",
+        "sha": "d9c42820960ffd70b80b70977178c17ae9beef92",
+        "excerpt": [
+          "2026-10-01T10:28:37.6929865Z [command]\"C:\\Program Files\\Git\\bin\\git.exe\" log -1 --format=%H\r",
+          "2026-10-01T10:28:37.7127546Z d9c42820960ffd70b80b70977178c17ae9beef92\r"
+        ]
+      },
+      "110326995983": {
+        "name": "Windows / lazy-normalization comparison",
+        "sha": "d9c42820960ffd70b80b70977178c17ae9beef92",
+        "excerpt": [
+          "2026-10-01T10:28:32.2221225Z [command]\"C:\\Program Files\\Git\\bin\\git.exe\" log -1 --format=%H\r",
+          "2026-10-01T10:28:32.2435272Z d9c42820960ffd70b80b70977178c17ae9beef92\r"
+        ]
+      },
+      "110326995836": {
+        "name": "Windows / history-region-search comparison",
+        "sha": "d9c42820960ffd70b80b70977178c17ae9beef92",
+        "excerpt": [
+          "2026-10-01T10:28:33.0978117Z [command]\"C:\\Program Files\\Git\\bin\\git.exe\" log -1 --format=%H\r",
+          "2026-10-01T10:28:33.1190197Z d9c42820960ffd70b80b70977178c17ae9beef92\r"
+        ]
+      },
+      "110326995874": {
+        "name": "Windows / warm-outgoing-proof comparison",
+        "sha": "d9c42820960ffd70b80b70977178c17ae9beef92",
+        "excerpt": [
+          "2026-10-01T10:28:33.4364044Z [command]\"C:\\Program Files\\Git\\bin\\git.exe\" log -1 --format=%H\r",
+          "2026-10-01T10:28:33.4539365Z d9c42820960ffd70b80b70977178c17ae9beef92\r"
+        ]
+      }
+    },
+    "jobs": [
+      {
+        "id": 110321801721,
+        "name": "Windows / public API surface contracts",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 110323132677,
+        "name": "Rendered seven-day, ending, Gallery and Dating journeys",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 110323132710,
+        "name": "Windows / exported release startup",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 110323132749,
+        "name": "Windows / seven-day retained history producer",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 110323132787,
+        "name": "Rendered desktop and dialogue / Linux software OpenGL",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 110323132852,
+        "name": "Windows / paired checkpoint performance",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 110323133147,
+        "name": "Windows / desktop",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 110323133183,
+        "name": "Windows / localization",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 110323133185,
+        "name": "Windows / shop",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 110323133196,
+        "name": "Windows / audio",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 110323133232,
+        "name": "Windows / checkpoint_diagnostics",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 110323133236,
+        "name": "Windows / endings",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 110323133242,
+        "name": "Windows / persistence",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 110323133248,
+        "name": "Windows / minesweeper",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 110323133260,
+        "name": "Windows / new_account",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 110323133284,
+        "name": "Windows / settings",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 110323133286,
+        "name": "Windows / reading_delivery",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 110323133299,
+        "name": "Windows / dating",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 110326995836,
+        "name": "Windows / history-region-search comparison",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 110326995874,
+        "name": "Windows / warm-outgoing-proof comparison",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 110326995959,
+        "name": "Windows / outgoing-normalization comparison",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 110326995983,
+        "name": "Windows / lazy-normalization comparison",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 110332145362,
+        "name": "Windows / seven-day retained history",
+        "status": "completed",
+        "conclusion": "success"
+      }
+    ],
+    "gut_summary": {
+      "executions": 2075,
+      "unique_cases": 2071,
+      "unique_scripts": 176,
+      "skipped": 0,
+      "deliberate_repeat": {
+        "script": "tests/unit/test_checkpoint_phase_diagnostics.gd",
+        "cases": 4,
+        "suites": [
+          "checkpoint_diagnostics",
+          "settings"
+        ]
+      }
+    },
+    "rendered_journeys": {
+      "count": 5,
+      "cases": [
+        "seven-days-ending-gallery",
+        "seven-days-condition-ending",
+        "dating-reload",
+        "practice-empty-dtl",
+        "practice-legacy-compatibility"
+      ],
+      "status": "passed",
+      "platform": "Linux software OpenGL/X11; not native Windows graphics acceptance"
+    },
+    "windows_exported_startup": {
+      "ok": true,
+      "commit": "d9c42820960ffd70b80b70977178c17ae9beef92",
+      "engine": "4.6.3.stable",
+      "runtime_data_files_verified": 111,
+      "templates_sha256": "3fbe2c0e2dec9d537ab9ec97bcf8da91dcf23357fc51f67092dd068d839290a8",
+      "executable_sha256": "91724f15024a3a545e28ccd83134403d31ce2323a38e51c95e4dfa282f732ab6",
+      "pck_sha256": "54673cee3132a350605f5477d560b7befdc35a302e7909a3daf0e6bb0bc8eb76",
+      "archive": {
+        "sha256": "1e8097b85bbcc127720180f07f35157397de824fe6831de20c728a96c5e7b8e1",
+        "bytes": 98777771,
+        "file": "DWM-windows-x86_64-validation.zip"
+      },
+      "scope": "Exported Windows headless startup; not native graphics/accessibility/input-to-paint proof"
+    },
+    "checkpoint_recovery": {
+      "retained_count": 66,
+      "retained": {
+        "line": 32,
+        "manual_save": 32,
+        "semantic": 2
+      },
+      "producer_and_comparison_invariants": "passed; exact details and raw inputs in performance/run82-ci-fanout/fanout-audit.json",
+      "independently_archived_full_profile_equality": false
+    },
+    "public_inventories": {
+      "mode": "read-only; no regeneration",
+      "inventories": [
+        {
+          "path": "evidence/phase_2r/runtime/game_state_surface.json",
+          "encoding": "gzip+base64",
+          "sha256": "2b20e85f822d2a86db49f3725414be2e7b096c4b88b83e3d0453aee1f7f4786b",
+          "bytes": 554745,
+          "compressed_bytes": 62932,
+          "parts": 41
+        },
+        {
+          "path": "evidence/phase_2r/runtime/save_manager_surface.json",
+          "encoding": "gzip+base64",
+          "sha256": "0a83449d35a3a8ff8e8fce502bbdd767d68f4fe66746024b548db9a44ee5123a",
+          "bytes": 144110,
+          "compressed_bytes": 17029,
+          "parts": 12
+        }
+      ],
+      "contract_counts": [
+        236,
+        74
+      ],
+      "contracts_and_required_unchanged": true,
+      "retired_symbols": 10,
+      "source_files_scanned": 927,
+      "remaining_retired_references": 0
+    },
+    "artifact_hashes": [
+      {
+        "id": 11155870793,
+        "name": "warm-outgoing-proof-36847732239-1",
+        "size_in_bytes": 463113,
+        "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11155870793",
+        "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11155870793/zip",
+        "expired": false,
+        "created_at": "2026-10-01T10:43:43Z",
+        "expires_at": "2026-10-08T10:43:42Z",
+        "updated_at": "2026-10-01T10:43:43Z",
+        "digest": "sha256:8433ef78eb8af55119a87b9afac8e55c9d1cc5dba5d24953c17e4c8df9fdb0ea",
+        "workflow_run": {
+          "id": 36847732239,
+          "repository_id": 1302529453,
+          "head_repository_id": 1302529453,
+          "head_branch": "codex/windows-cloud-ux",
+          "head_sha": "724ff76fabafe358d6f445b404386baa65d20062"
+        }
+      },
+      {
+        "id": 11155141661,
+        "name": "history-region-search-36847732239-1",
+        "size_in_bytes": 125030,
+        "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11155141661",
+        "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11155141661/zip",
+        "expired": false,
+        "created_at": "2026-10-01T10:40:02Z",
+        "expires_at": "2026-10-08T10:40:01Z",
+        "updated_at": "2026-10-01T10:40:02Z",
+        "digest": "sha256:9f76544b20477349d5f95672b424d571fc5cfccbd637955459ff0f7cb91cf012",
+        "workflow_run": {
+          "id": 36847732239,
+          "repository_id": 1302529453,
+          "head_repository_id": 1302529453,
+          "head_branch": "codex/windows-cloud-ux",
+          "head_sha": "724ff76fabafe358d6f445b404386baa65d20062"
+        }
+      },
+      {
+        "id": 11155026494,
+        "name": "outgoing-normalization-36847732239-1",
+        "size_in_bytes": 24405,
+        "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11155026494",
+        "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11155026494/zip",
+        "expired": false,
+        "created_at": "2026-10-01T10:30:58Z",
+        "expires_at": "2026-10-08T10:30:57Z",
+        "updated_at": "2026-10-01T10:30:58Z",
+        "digest": "sha256:240ff3581b0868c10a9bffd143f04f0a7e766e9262131969e04c24354a611992",
+        "workflow_run": {
+          "id": 36847732239,
+          "repository_id": 1302529453,
+          "head_repository_id": 1302529453,
+          "head_branch": "codex/windows-cloud-ux",
+          "head_sha": "724ff76fabafe358d6f445b404386baa65d20062"
+        }
+      },
+      {
+        "id": 11155026018,
+        "name": "seven-day-inputs-36847732239",
+        "size_in_bytes": 80271,
+        "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11155026018",
+        "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11155026018/zip",
+        "expired": false,
+        "created_at": "2026-10-01T10:28:11Z",
+        "expires_at": "2026-10-08T10:28:10Z",
+        "updated_at": "2026-10-01T10:28:11Z",
+        "digest": "sha256:7d2a899d1c9788db8f25b0792b7ebe457f00826d0cd6cea35431ea1dc5b0b69c",
+        "workflow_run": {
+          "id": 36847732239,
+          "repository_id": 1302529453,
+          "head_repository_id": 1302529453,
+          "head_branch": "codex/windows-cloud-ux",
+          "head_sha": "724ff76fabafe358d6f445b404386baa65d20062"
+        }
+      },
+      {
+        "id": 11155000025,
+        "name": "windows-dating-36847732239-1",
+        "size_in_bytes": 660244,
+        "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11155000025",
+        "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11155000025/zip",
+        "expired": false,
+        "created_at": "2026-10-01T10:19:00Z",
+        "expires_at": "2026-10-08T10:18:58Z",
+        "updated_at": "2026-10-01T10:19:00Z",
+        "digest": "sha256:a6e1a72d07ccb9075d35e99e32381a3ffa3eef91a1061a678dfb88cab0593858",
+        "workflow_run": {
+          "id": 36847732239,
+          "repository_id": 1302529453,
+          "head_repository_id": 1302529453,
+          "head_branch": "codex/windows-cloud-ux",
+          "head_sha": "724ff76fabafe358d6f445b404386baa65d20062"
+        }
+      },
+      {
+        "id": 11154970090,
+        "name": "windows-checkpoint_diagnostics-36847732239-1",
+        "size_in_bytes": 602818,
+        "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11154970090",
+        "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11154970090/zip",
+        "expired": false,
+        "created_at": "2026-10-01T10:18:26Z",
+        "expires_at": "2026-10-08T10:18:24Z",
+        "updated_at": "2026-10-01T10:18:26Z",
+        "digest": "sha256:eccdc38fdb36231f25996590465fb762ecb22a812f33490e773bf466291dc2ee",
+        "workflow_run": {
+          "id": 36847732239,
+          "repository_id": 1302529453,
+          "head_repository_id": 1302529453,
+          "head_branch": "codex/windows-cloud-ux",
+          "head_sha": "724ff76fabafe358d6f445b404386baa65d20062"
+        }
+      },
+      {
+        "id": 11154925538,
+        "name": "angela-overlay-render-36847732239-1",
+        "size_in_bytes": 2835605,
+        "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11154925538",
+        "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11154925538/zip",
+        "expired": false,
+        "created_at": "2026-10-01T10:19:27Z",
+        "expires_at": "2026-10-08T10:19:26Z",
+        "updated_at": "2026-10-01T10:19:27Z",
+        "digest": "sha256:a40d934d748037dcd4efa1e7e825b56f96ae16a10942d6b4b0dfe738ba3b531f",
+        "workflow_run": {
+          "id": 36847732239,
+          "repository_id": 1302529453,
+          "head_repository_id": 1302529453,
+          "head_branch": "codex/windows-cloud-ux",
+          "head_sha": "724ff76fabafe358d6f445b404386baa65d20062"
+        }
+      },
+      {
+        "id": 11154861064,
+        "name": "ui-literal-audit-36847732239-1",
+        "size_in_bytes": 28754,
+        "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11154861064",
+        "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11154861064/zip",
+        "expired": false,
+        "created_at": "2026-10-01T10:20:55Z",
+        "expires_at": "2026-10-08T10:20:55Z",
+        "updated_at": "2026-10-01T10:20:55Z",
+        "digest": "sha256:6ab1f2e475564c65bb1c1a326a406ea5bc9a11d074f4a4b2e4ea3c8eb3430799",
+        "workflow_run": {
+          "id": 36847732239,
+          "repository_id": 1302529453,
+          "head_repository_id": 1302529453,
+          "head_branch": "codex/windows-cloud-ux",
+          "head_sha": "724ff76fabafe358d6f445b404386baa65d20062"
+        }
+      },
+      {
+        "id": 11154860671,
+        "name": "windows-export-36847732239-1",
+        "size_in_bytes": 98729225,
+        "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11154860671",
+        "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11154860671/zip",
+        "expired": false,
+        "created_at": "2026-10-01T10:18:47Z",
+        "expires_at": "2026-10-08T10:18:44Z",
+        "updated_at": "2026-10-01T10:18:47Z",
+        "digest": "sha256:67a2c84d8d925697e65bd40641bb1a7a144fad5364fbb01d31fda7f304b7f028",
+        "workflow_run": {
+          "id": 36847732239,
+          "repository_id": 1302529453,
+          "head_repository_id": 1302529453,
+          "head_branch": "codex/windows-cloud-ux",
+          "head_sha": "724ff76fabafe358d6f445b404386baa65d20062"
+        }
+      },
+      {
+        "id": 11154826090,
+        "name": "font-choices-render-36847732239-1",
+        "size_in_bytes": 6306284,
+        "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11154826090",
+        "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11154826090/zip",
+        "expired": false,
+        "created_at": "2026-10-01T10:20:34Z",
+        "expires_at": "2026-10-08T10:20:34Z",
+        "updated_at": "2026-10-01T10:20:34Z",
+        "digest": "sha256:5dba227d431656ea244425a8978958c01f09b9f48074e6346c7f4b90c817c7a8",
+        "workflow_run": {
+          "id": 36847732239,
+          "repository_id": 1302529453,
+          "head_repository_id": 1302529453,
+          "head_branch": "codex/windows-cloud-ux",
+          "head_sha": "724ff76fabafe358d6f445b404386baa65d20062"
+        }
+      },
+      {
+        "id": 11154801099,
+        "name": "japanese-korean-ui-render-36847732239-1",
+        "size_in_bytes": 7058109,
+        "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11154801099",
+        "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11154801099/zip",
+        "expired": false,
+        "created_at": "2026-10-01T10:19:57Z",
+        "expires_at": "2026-10-08T10:19:56Z",
+        "updated_at": "2026-10-01T10:19:57Z",
+        "digest": "sha256:662a7976fe1e21a8edc66b47500f77abf301ea98e2cc59a825e2260fc204b92d",
+        "workflow_run": {
+          "id": 36847732239,
+          "repository_id": 1302529453,
+          "head_repository_id": 1302529453,
+          "head_branch": "codex/windows-cloud-ux",
+          "head_sha": "724ff76fabafe358d6f445b404386baa65d20062"
+        }
+      },
+      {
+        "id": 11154786318,
+        "name": "checkpoint-payloads-36847732239",
+        "size_in_bytes": 50096,
+        "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11154786318",
+        "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11154786318/zip",
+        "expired": false,
+        "created_at": "2026-10-01T10:20:52Z",
+        "expires_at": "2026-10-08T10:20:52Z",
+        "updated_at": "2026-10-01T10:20:52Z",
+        "digest": "sha256:5687acfaf2b106707ef8bd05b697d1cbfc87275b8a0502d930c23b84d6f32558",
+        "workflow_run": {
+          "id": 36847732239,
+          "repository_id": 1302529453,
+          "head_repository_id": 1302529453,
+          "head_branch": "codex/windows-cloud-ux",
+          "head_sha": "724ff76fabafe358d6f445b404386baa65d20062"
+        }
+      },
+      {
+        "id": 11154776044,
+        "name": "delivery-dialogue-render-36847732239-1",
+        "size_in_bytes": 15180796,
+        "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11154776044",
+        "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11154776044/zip",
+        "expired": false,
+        "created_at": "2026-10-01T10:19:14Z",
+        "expires_at": "2026-10-08T10:19:13Z",
+        "updated_at": "2026-10-01T10:19:14Z",
+        "digest": "sha256:ea8a472aea4363f25bd017c22e9ce511a0192925e32ee188ab8739fcc44cddba",
+        "workflow_run": {
+          "id": 36847732239,
+          "repository_id": 1302529453,
+          "head_repository_id": 1302529453,
+          "head_branch": "codex/windows-cloud-ux",
+          "head_sha": "724ff76fabafe358d6f445b404386baa65d20062"
+        }
+      },
+      {
+        "id": 11154741204,
+        "name": "windows-reading_delivery-36847732239-1",
+        "size_in_bytes": 97536,
+        "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11154741204",
+        "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11154741204/zip",
+        "expired": false,
+        "created_at": "2026-10-01T10:19:28Z",
+        "expires_at": "2026-10-08T10:19:27Z",
+        "updated_at": "2026-10-01T10:19:28Z",
+        "digest": "sha256:89a8ef703be7d6e5417f65fe06e2348dee8d687c244df545a17db62a0b7973a8",
+        "workflow_run": {
+          "id": 36847732239,
+          "repository_id": 1302529453,
+          "head_repository_id": 1302529453,
+          "head_branch": "codex/windows-cloud-ux",
+          "head_sha": "724ff76fabafe358d6f445b404386baa65d20062"
+        }
+      },
+      {
+        "id": 11154720849,
+        "name": "public-surfaces-36847732239-1",
+        "size_in_bytes": 137839,
+        "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11154720849",
+        "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11154720849/zip",
+        "expired": false,
+        "created_at": "2026-10-01T10:16:50Z",
+        "expires_at": "2026-10-08T10:16:49Z",
+        "updated_at": "2026-10-01T10:16:50Z",
+        "digest": "sha256:fed18ab1382065c0aa58af69369e642de5288f41561dd88f6fc7fa6e3ac0c8c5",
+        "workflow_run": {
+          "id": 36847732239,
+          "repository_id": 1302529453,
+          "head_repository_id": 1302529453,
+          "head_branch": "codex/windows-cloud-ux",
+          "head_sha": "724ff76fabafe358d6f445b404386baa65d20062"
+        }
+      },
+      {
+        "id": 11154706623,
+        "name": "checkpoint-performance-36847732239-1",
+        "size_in_bytes": 152622,
+        "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11154706623",
+        "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11154706623/zip",
+        "expired": false,
+        "created_at": "2026-10-01T10:20:53Z",
+        "expires_at": "2026-10-08T10:20:53Z",
+        "updated_at": "2026-10-01T10:20:53Z",
+        "digest": "sha256:51ac51289687c33fa35ed99562676f0f30204995ee21d703c6272c0442e7620b",
+        "workflow_run": {
+          "id": 36847732239,
+          "repository_id": 1302529453,
+          "head_repository_id": 1302529453,
+          "head_branch": "codex/windows-cloud-ux",
+          "head_sha": "724ff76fabafe358d6f445b404386baa65d20062"
+        }
+      },
+      {
+        "id": 11154686181,
+        "name": "cloud-speech-rendered-desktop-36847732239-1",
+        "size_in_bytes": 386486,
+        "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11154686181",
+        "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11154686181/zip",
+        "expired": false,
+        "created_at": "2026-10-01T10:17:27Z",
+        "expires_at": "2026-10-08T10:17:27Z",
+        "updated_at": "2026-10-01T10:17:27Z",
+        "digest": "sha256:002e79eff4c5c5597091eefbfbd819fd7bb4f3bd4868a14d260a7aa21c7106cd",
+        "workflow_run": {
+          "id": 36847732239,
+          "repository_id": 1302529453,
+          "head_repository_id": 1302529453,
+          "head_branch": "codex/windows-cloud-ux",
+          "head_sha": "724ff76fabafe358d6f445b404386baa65d20062"
+        }
+      },
+      {
+        "id": 11154676326,
+        "name": "windows-endings-36847732239-1",
+        "size_in_bytes": 74748,
+        "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11154676326",
+        "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11154676326/zip",
+        "expired": false,
+        "created_at": "2026-10-01T10:18:18Z",
+        "expires_at": "2026-10-08T10:18:17Z",
+        "updated_at": "2026-10-01T10:18:18Z",
+        "digest": "sha256:1dbbee621fd5620b9ce4dcc23cb399a583120ee989c59ddc04a016d27020bfd5",
+        "workflow_run": {
+          "id": 36847732239,
+          "repository_id": 1302529453,
+          "head_repository_id": 1302529453,
+          "head_branch": "codex/windows-cloud-ux",
+          "head_sha": "724ff76fabafe358d6f445b404386baa65d20062"
+        }
+      },
+      {
+        "id": 11154638227,
+        "name": "seven-day-history-36847732239-1",
+        "size_in_bytes": 312117,
+        "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11154638227",
+        "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11154638227/zip",
+        "expired": false,
+        "created_at": "2026-10-01T10:28:12Z",
+        "expires_at": "2026-10-08T10:28:11Z",
+        "updated_at": "2026-10-01T10:28:12Z",
+        "digest": "sha256:92cd1134f4a1aded52b71d34ff4767dadc638ea0d9ace00529030b952a3861c0",
+        "workflow_run": {
+          "id": 36847732239,
+          "repository_id": 1302529453,
+          "head_repository_id": 1302529453,
+          "head_branch": "codex/windows-cloud-ux",
+          "head_sha": "724ff76fabafe358d6f445b404386baa65d20062"
+        }
+      },
+      {
+        "id": 11154626249,
+        "name": "cloud-speech-rendered-journeys-36847732239-1",
+        "size_in_bytes": 382552,
+        "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11154626249",
+        "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11154626249/zip",
+        "expired": false,
+        "created_at": "2026-10-01T10:17:31Z",
+        "expires_at": "2026-10-08T10:17:30Z",
+        "updated_at": "2026-10-01T10:17:31Z",
+        "digest": "sha256:5cbb1743e27f8523e471b1f0ebc073a95b1048945f1b0372cc16254da047a903",
+        "workflow_run": {
+          "id": 36847732239,
+          "repository_id": 1302529453,
+          "head_repository_id": 1302529453,
+          "head_branch": "codex/windows-cloud-ux",
+          "head_sha": "724ff76fabafe358d6f445b404386baa65d20062"
+        }
+      },
+      {
+        "id": 11154537061,
+        "name": "windows-desktop-36847732239-1",
+        "size_in_bytes": 285290,
+        "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11154537061",
+        "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11154537061/zip",
+        "expired": false,
+        "created_at": "2026-10-01T10:19:52Z",
+        "expires_at": "2026-10-08T10:19:52Z",
+        "updated_at": "2026-10-01T10:19:52Z",
+        "digest": "sha256:f25c154e42632a8b4de466bfc7719e3e67ee5a7238ccc8e3ee03341a9a1ce02a",
+        "workflow_run": {
+          "id": 36847732239,
+          "repository_id": 1302529453,
+          "head_repository_id": 1302529453,
+          "head_branch": "codex/windows-cloud-ux",
+          "head_sha": "724ff76fabafe358d6f445b404386baa65d20062"
+        }
+      },
+      {
+        "id": 11154527867,
+        "name": "windows-settings-36847732239-1",
+        "size_in_bytes": 2533274,
+        "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11154527867",
+        "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11154527867/zip",
+        "expired": false,
+        "created_at": "2026-10-01T10:21:04Z",
+        "expires_at": "2026-10-08T10:21:02Z",
+        "updated_at": "2026-10-01T10:21:04Z",
+        "digest": "sha256:d16e4f7e43e631f536d4ae48c37511990f14a144eb06a5b9182893b1f7a90455",
+        "workflow_run": {
+          "id": 36847732239,
+          "repository_id": 1302529453,
+          "head_repository_id": 1302529453,
+          "head_branch": "codex/windows-cloud-ux",
+          "head_sha": "724ff76fabafe358d6f445b404386baa65d20062"
+        }
+      },
+      {
+        "id": 11154402409,
+        "name": "windows-audio-36847732239-1",
+        "size_in_bytes": 21902,
+        "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11154402409",
+        "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11154402409/zip",
+        "expired": false,
+        "created_at": "2026-10-01T10:18:08Z",
+        "expires_at": "2026-10-08T10:18:07Z",
+        "updated_at": "2026-10-01T10:18:08Z",
+        "digest": "sha256:52a0c9990c7fe40449e890292625aae2bc163aab0b62aa6d9f7519f77940b7b1",
+        "workflow_run": {
+          "id": 36847732239,
+          "repository_id": 1302529453,
+          "head_repository_id": 1302529453,
+          "head_branch": "codex/windows-cloud-ux",
+          "head_sha": "724ff76fabafe358d6f445b404386baa65d20062"
+        }
+      },
+      {
+        "id": 11154314195,
+        "name": "lazy-normalization-36847732239-1",
+        "size_in_bytes": 48929,
+        "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11154314195",
+        "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11154314195/zip",
+        "expired": false,
+        "created_at": "2026-10-01T10:33:52Z",
+        "expires_at": "2026-10-08T10:33:52Z",
+        "updated_at": "2026-10-01T10:33:52Z",
+        "digest": "sha256:502af2687b71d2c8f6113959b5b96675cdd9698201eb979d99d24240966eefb5",
+        "workflow_run": {
+          "id": 36847732239,
+          "repository_id": 1302529453,
+          "head_repository_id": 1302529453,
+          "head_branch": "codex/windows-cloud-ux",
+          "head_sha": "724ff76fabafe358d6f445b404386baa65d20062"
+        }
+      },
+      {
+        "id": 11154311995,
+        "name": "windows-shop-36847732239-1",
+        "size_in_bytes": 65138,
+        "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11154311995",
+        "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11154311995/zip",
+        "expired": false,
+        "created_at": "2026-10-01T10:18:16Z",
+        "expires_at": "2026-10-08T10:18:15Z",
+        "updated_at": "2026-10-01T10:18:16Z",
+        "digest": "sha256:9cd4140695c0dbdf294ae756be221ebe4602cf07c60dea8f4743d4c81100dba2",
+        "workflow_run": {
+          "id": 36847732239,
+          "repository_id": 1302529453,
+          "head_repository_id": 1302529453,
+          "head_branch": "codex/windows-cloud-ux",
+          "head_sha": "724ff76fabafe358d6f445b404386baa65d20062"
+        }
+      },
+      {
+        "id": 11154303057,
+        "name": "desktop-scaling-render-36847732239-1",
+        "size_in_bytes": 11244691,
+        "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11154303057",
+        "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11154303057/zip",
+        "expired": false,
+        "created_at": "2026-10-01T10:18:35Z",
+        "expires_at": "2026-10-08T10:18:34Z",
+        "updated_at": "2026-10-01T10:18:35Z",
+        "digest": "sha256:9b7792d55f9dd53b44a37891b68c09ac5f8b6f5fa0238dd48af1d66a0ce172a7",
+        "workflow_run": {
+          "id": 36847732239,
+          "repository_id": 1302529453,
+          "head_repository_id": 1302529453,
+          "head_branch": "codex/windows-cloud-ux",
+          "head_sha": "724ff76fabafe358d6f445b404386baa65d20062"
+        }
+      },
+      {
+        "id": 11154102867,
+        "name": "windows-minesweeper-36847732239-1",
+        "size_in_bytes": 166100,
+        "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11154102867",
+        "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11154102867/zip",
+        "expired": false,
+        "created_at": "2026-10-01T10:18:48Z",
+        "expires_at": "2026-10-08T10:18:47Z",
+        "updated_at": "2026-10-01T10:18:48Z",
+        "digest": "sha256:55decbd0b1200be574edcf21d163588bf84b8da2463c2129ebab6eca7590e1ff",
+        "workflow_run": {
+          "id": 36847732239,
+          "repository_id": 1302529453,
+          "head_repository_id": 1302529453,
+          "head_branch": "codex/windows-cloud-ux",
+          "head_sha": "724ff76fabafe358d6f445b404386baa65d20062"
+        }
+      },
+      {
+        "id": 11153992996,
+        "name": "windows-localization-36847732239-1",
+        "size_in_bytes": 338149,
+        "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11153992996",
+        "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11153992996/zip",
+        "expired": false,
+        "created_at": "2026-10-01T10:19:08Z",
+        "expires_at": "2026-10-08T10:19:08Z",
+        "updated_at": "2026-10-01T10:19:08Z",
+        "digest": "sha256:807d7a590f0a7bab2cc77fcfaf670a0d65dcaf849aae062abbd8001e90c923b0",
+        "workflow_run": {
+          "id": 36847732239,
+          "repository_id": 1302529453,
+          "head_repository_id": 1302529453,
+          "head_branch": "codex/windows-cloud-ux",
+          "head_sha": "724ff76fabafe358d6f445b404386baa65d20062"
+        }
+      },
+      {
+        "id": 11153947949,
+        "name": "windows-persistence-36847732239-1",
+        "size_in_bytes": 129847,
+        "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11153947949",
+        "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11153947949/zip",
+        "expired": false,
+        "created_at": "2026-10-01T10:18:39Z",
+        "expires_at": "2026-10-08T10:18:38Z",
+        "updated_at": "2026-10-01T10:18:39Z",
+        "digest": "sha256:b812e2861f585fea18b3e0effc8aea6b52af90d05db469686abcbb72f066469e",
+        "workflow_run": {
+          "id": 36847732239,
+          "repository_id": 1302529453,
+          "head_repository_id": 1302529453,
+          "head_branch": "codex/windows-cloud-ux",
+          "head_sha": "724ff76fabafe358d6f445b404386baa65d20062"
+        }
+      },
+      {
+        "id": 11153877896,
+        "name": "windows-new_account-36847732239-1",
+        "size_in_bytes": 237765,
+        "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11153877896",
+        "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11153877896/zip",
+        "expired": false,
+        "created_at": "2026-10-01T10:18:58Z",
+        "expires_at": "2026-10-08T10:18:57Z",
+        "updated_at": "2026-10-01T10:18:58Z",
+        "digest": "sha256:6b3a9b52ea7707a90853dc696c02c56be38cd2ed0cbc8ee9b226434f54ef7f7f",
+        "workflow_run": {
+          "id": 36847732239,
+          "repository_id": 1302529453,
+          "head_repository_id": 1302529453,
+          "head_branch": "codex/windows-cloud-ux",
+          "head_sha": "724ff76fabafe358d6f445b404386baa65d20062"
+        }
+      },
+      {
+        "id": 11153844691,
+        "name": "playable-startup-render-36847732239-1",
+        "size_in_bytes": 1049900,
+        "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11153844691",
+        "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11153844691/zip",
+        "expired": false,
+        "created_at": "2026-10-01T10:20:46Z",
+        "expires_at": "2026-10-08T10:20:45Z",
+        "updated_at": "2026-10-01T10:20:46Z",
+        "digest": "sha256:257e886698a38f2be8272a139c8a85263f84449ce2084ab8d9906de1d7a97da9",
+        "workflow_run": {
+          "id": 36847732239,
+          "repository_id": 1302529453,
+          "head_repository_id": 1302529453,
+          "head_branch": "codex/windows-cloud-ux",
+          "head_sha": "724ff76fabafe358d6f445b404386baa65d20062"
+        }
+      },
+      {
+        "id": 11153748419,
+        "name": "playable-journeys-36847732239-1",
+        "size_in_bytes": 7829656,
+        "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11153748419",
+        "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11153748419/zip",
+        "expired": false,
+        "created_at": "2026-10-01T10:19:47Z",
+        "expires_at": "2026-10-08T10:19:45Z",
+        "updated_at": "2026-10-01T10:19:47Z",
+        "digest": "sha256:5ce8c4b5cad6e4285017af566212c84f8ee5e5ab4d8c4aae0e4bf2025e32b3c0",
+        "workflow_run": {
+          "id": 36847732239,
+          "repository_id": 1302529453,
+          "head_repository_id": 1302529453,
+          "head_branch": "codex/windows-cloud-ux",
+          "head_sha": "724ff76fabafe358d6f445b404386baa65d20062"
+        }
+      }
+    ],
+    "independent_audit": {
+      "fanout": "performance/run82-ci-fanout/fanout-audit.json",
+      "additional_review": "performance/run82-ci-fanout/review-outgoing-lazy.json",
+      "scope": "Eight archive hashes, source/run/attempt/input admission, all62 fresh comparison processes, all raw medians/deltas and recovery invariants; four separate overlapping runner IDs. Root independently verifies all22 actual checkouts and GUT/standalone/rendered/export counts."
+    },
+    "run_number": 82,
+    "url": "https://github.com/Siuuuers/dwm/actions/runs/36847732239",
+    "aggregate": {
+      "job_id": 110332145362,
+      "status": "success",
+      "log_excerpt": [
+        "2026-10-01T10:43:51.0108976Z ##[group]Run if ($env:DWM_PRODUCER_RESULT -cne 'success' -or $env:DWM_COMPARISONS_RESULT -cne 'success') {\r",
+        "2026-10-01T10:43:51.0110542Z \u001b[36;1mif ($env:DWM_PRODUCER_RESULT -cne 'success' -or $env:DWM_COMPARISONS_RESULT -cne 'success') {\u001b[0m\r",
+        "2026-10-01T10:43:51.0208623Z   DWM_PRODUCER_RESULT: success\r",
+        "2026-10-01T10:43:51.0209164Z   DWM_COMPARISONS_RESULT: success\r"
+      ]
+    },
+    "gut_groups": [
+      {
+        "suite": "public_surfaces",
+        "test_cases": 11,
+        "passed": 11,
+        "skipped": 0,
+        "requested_scripts": 1,
+        "reported_scripts": 1,
+        "scripts": [
+          {
+            "script": "tests/unit/tooling/test_public_surface_inventory.gd",
+            "test_cases": 11,
+            "passed": 11,
+            "skipped": 0
+          }
+        ]
+      },
+      {
+        "suite": "desktop",
+        "test_cases": 319,
+        "passed": 319,
+        "skipped": 0,
+        "requested_scripts": 20,
+        "reported_scripts": 20,
+        "scripts": [
+          {
+            "script": "tests/unit/test_application_runtime_lifetime.gd",
+            "test_cases": 3,
+            "passed": 3,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_contacts_frozen_context.gd",
+            "test_cases": 8,
+            "passed": 8,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_desktop_panel_split.gd",
+            "test_cases": 12,
+            "passed": 12,
+            "skipped": 0
+          },
+          {
+            "script": "tests/desktop_shell/test_desktop_split_touch.gd",
+            "test_cases": 13,
+            "passed": 13,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_desktop_touch_navigation.gd",
+            "test_cases": 10,
+            "passed": 10,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_desktop_app_host_state.gd",
+            "test_cases": 12,
+            "passed": 12,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_desktop_accessibility_contract.gd",
+            "test_cases": 6,
+            "passed": 6,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_desktop_quick_commands.gd",
+            "test_cases": 17,
+            "passed": 17,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_desktop_bootstrap_wiring.gd",
+            "test_cases": 27,
+            "passed": 27,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_desktop_cold_recovery_preparation.gd",
+            "test_cases": 7,
+            "passed": 7,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_schedule_desktop_host.gd",
+            "test_cases": 15,
+            "passed": 15,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_phase2r_schedule_desktop_handoff.gd",
+            "test_cases": 111,
+            "passed": 111,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_schedule_app.gd",
+            "test_cases": 40,
+            "passed": 40,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_contacts_run_presentation.gd",
+            "test_cases": 8,
+            "passed": 8,
+            "skipped": 0
+          },
+          {
+            "script": "tests/scene/test_controls_input_contact_release.gd",
+            "test_cases": 1,
+            "passed": 1,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_angela_stat_overlay.gd",
+            "test_cases": 7,
+            "passed": 7,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_stat_hud_week_tint.gd",
+            "test_cases": 8,
+            "passed": 8,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_ui_art_placements.gd",
+            "test_cases": 5,
+            "passed": 5,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_desktop_logout_consent.gd",
+            "test_cases": 4,
+            "passed": 4,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_session_exit_coordinator.gd",
+            "test_cases": 5,
+            "passed": 5,
+            "skipped": 0
+          }
+        ]
+      },
+      {
+        "suite": "localization",
+        "test_cases": 152,
+        "passed": 152,
+        "skipped": 0,
+        "requested_scripts": 18,
+        "reported_scripts": 18,
+        "scripts": [
+          {
+            "script": "tests/unit/test_japanese_korean_ui.gd",
+            "test_cases": 10,
+            "passed": 10,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_localization.gd",
+            "test_cases": 20,
+            "passed": 20,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_localization_extraction.gd",
+            "test_cases": 5,
+            "passed": 5,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_locale_font_preparation.gd",
+            "test_cases": 3,
+            "passed": 3,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_gallery_typography.gd",
+            "test_cases": 3,
+            "passed": 3,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_font_styles.gd",
+            "test_cases": 6,
+            "passed": 6,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_ordinary_reply_echo_state.gd",
+            "test_cases": 11,
+            "passed": 11,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_provisional_correspondence_catalog.gd",
+            "test_cases": 4,
+            "passed": 4,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_system_tts_coordinator.gd",
+            "test_cases": 12,
+            "passed": 12,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_witnessed_transport_rail.gd",
+            "test_cases": 11,
+            "passed": 11,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_witnessed_speech_status.gd",
+            "test_cases": 4,
+            "passed": 4,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_gallery_registrar.gd",
+            "test_cases": 10,
+            "passed": 10,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_controls_binding_rules.gd",
+            "test_cases": 12,
+            "passed": 12,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_backup_panel_resize.gd",
+            "test_cases": 3,
+            "passed": 3,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_backup_presentation.gd",
+            "test_cases": 3,
+            "passed": 3,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_desktop_crash_recovery.gd",
+            "test_cases": 6,
+            "passed": 6,
+            "skipped": 0
+          },
+          {
+            "script": "tests/scene/test_ending_recovery_localization.gd",
+            "test_cases": 9,
+            "passed": 9,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/tooling/test_ui_literal_audit.gd",
+            "test_cases": 20,
+            "passed": 20,
+            "skipped": 0
+          }
+        ]
+      },
+      {
+        "suite": "shop",
+        "test_cases": 144,
+        "passed": 144,
+        "skipped": 0,
+        "requested_scripts": 8,
+        "reported_scripts": 8,
+        "scripts": [
+          {
+            "script": "tests/unit/test_shop_app_purchase_bridge.gd",
+            "test_cases": 13,
+            "passed": 13,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_shop_catalog_projection.gd",
+            "test_cases": 8,
+            "passed": 8,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_shop_presentation_port.gd",
+            "test_cases": 10,
+            "passed": 10,
+            "skipped": 0
+          },
+          {
+            "script": "tests/scene/test_shop_card.gd",
+            "test_cases": 16,
+            "passed": 16,
+            "skipped": 0
+          },
+          {
+            "script": "tests/scene/test_shop_plate.gd",
+            "test_cases": 37,
+            "passed": 37,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_shop_desktop_host.gd",
+            "test_cases": 15,
+            "passed": 15,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_minesweeper_shop_transaction.gd",
+            "test_cases": 4,
+            "passed": 4,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_minesweeper_shop_purchase_participant.gd",
+            "test_cases": 41,
+            "passed": 41,
+            "skipped": 0
+          }
+        ]
+      },
+      {
+        "suite": "audio",
+        "test_cases": 44,
+        "passed": 44,
+        "skipped": 0,
+        "requested_scripts": 2,
+        "reported_scripts": 2,
+        "scripts": [
+          {
+            "script": "tests/unit/test_audio_manager.gd",
+            "test_cases": 23,
+            "passed": 23,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_audio_settings_transactions.gd",
+            "test_cases": 21,
+            "passed": 21,
+            "skipped": 0
+          }
+        ]
+      },
+      {
+        "suite": "checkpoint_diagnostics",
+        "test_cases": 22,
+        "passed": 22,
+        "skipped": 0,
+        "requested_scripts": 4,
+        "reported_scripts": 4,
+        "scripts": [
+          {
+            "script": "tests/unit/test_checkpoint_phase_diagnostics.gd",
+            "test_cases": 4,
+            "passed": 4,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_normalization_identity.gd",
+            "test_cases": 6,
+            "passed": 6,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_checkpoint_history_region_search.gd",
+            "test_cases": 7,
+            "passed": 7,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_warm_outgoing_proof_commits.gd",
+            "test_cases": 5,
+            "passed": 5,
+            "skipped": 0
+          }
+        ]
+      },
+      {
+        "suite": "endings",
+        "test_cases": 106,
+        "passed": 106,
+        "skipped": 0,
+        "requested_scripts": 12,
+        "reported_scripts": 12,
+        "scripts": [
+          {
+            "script": "tests/unit/test_ending_frozen_context.gd",
+            "test_cases": 6,
+            "passed": 6,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_day7_condition_ending.gd",
+            "test_cases": 8,
+            "passed": 8,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_ending_completion_durability.gd",
+            "test_cases": 3,
+            "passed": 3,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_ending_presentation_signature.gd",
+            "test_cases": 5,
+            "passed": 5,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_dialogic_ending_playback_port.gd",
+            "test_cases": 12,
+            "passed": 12,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_run_lifecycle.gd",
+            "test_cases": 14,
+            "passed": 14,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_dating_ending_rules.gd",
+            "test_cases": 18,
+            "passed": 18,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_dating_ending_rules_migration.gd",
+            "test_cases": 5,
+            "passed": 5,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_ordered_ending_playback.gd",
+            "test_cases": 3,
+            "passed": 3,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_ending_dialogic_wiring.gd",
+            "test_cases": 11,
+            "passed": 11,
+            "skipped": 0
+          },
+          {
+            "script": "tests/scenario/test_day7_endings.gd",
+            "test_cases": 6,
+            "passed": 6,
+            "skipped": 0
+          },
+          {
+            "script": "tests/scenario/test_day7_schedule_provenance.gd",
+            "test_cases": 15,
+            "passed": 15,
+            "skipped": 0
+          }
+        ]
+      },
+      {
+        "suite": "persistence",
+        "test_cases": 183,
+        "passed": 183,
+        "skipped": 0,
+        "requested_scripts": 19,
+        "reported_scripts": 19,
+        "scripts": [
+          {
+            "script": "tests/unit/test_frozen_run_context.gd",
+            "test_cases": 18,
+            "passed": 18,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_profile_presentation_chronology.gd",
+            "test_cases": 9,
+            "passed": 9,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_profile_dating_attempts.gd",
+            "test_cases": 10,
+            "passed": 10,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_profile_dating_branches.gd",
+            "test_cases": 7,
+            "passed": 7,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_profile_pair_form_witness.gd",
+            "test_cases": 3,
+            "passed": 3,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_contact_invitation_state.gd",
+            "test_cases": 42,
+            "passed": 42,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_seven_day_calendar.gd",
+            "test_cases": 7,
+            "passed": 7,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_pair_deck_draw.gd",
+            "test_cases": 4,
+            "passed": 4,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_pair_deck_draw_port.gd",
+            "test_cases": 11,
+            "passed": 11,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_profile_v4_upgrade.gd",
+            "test_cases": 10,
+            "passed": 10,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_profile_new_run_consumption.gd",
+            "test_cases": 12,
+            "passed": 12,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_save_migrations.gd",
+            "test_cases": 11,
+            "passed": 11,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_save_manager_journal.gd",
+            "test_cases": 6,
+            "passed": 6,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_restore_transaction.gd",
+            "test_cases": 12,
+            "passed": 12,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_unified_restore_contract.gd",
+            "test_cases": 3,
+            "passed": 3,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_run_restore_isolation.gd",
+            "test_cases": 5,
+            "passed": 5,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_live_run_rollback_isolation.gd",
+            "test_cases": 3,
+            "passed": 3,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_save_manager_public_boundaries.gd",
+            "test_cases": 6,
+            "passed": 6,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_save_capability.gd",
+            "test_cases": 4,
+            "passed": 4,
+            "skipped": 0
+          }
+        ]
+      },
+      {
+        "suite": "minesweeper",
+        "test_cases": 210,
+        "passed": 210,
+        "skipped": 0,
+        "requested_scripts": 22,
+        "reported_scripts": 22,
+        "scripts": [
+          {
+            "script": "tests/unit/test_minesweeper_theme.gd",
+            "test_cases": 5,
+            "passed": 5,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_minesweeper_palette_components.gd",
+            "test_cases": 5,
+            "passed": 5,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_minesweeper_app.gd",
+            "test_cases": 22,
+            "passed": 22,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_minesweeper_cell.gd",
+            "test_cases": 7,
+            "passed": 7,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_gallery_rehearsal_host.gd",
+            "test_cases": 4,
+            "passed": 4,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_minesweeper_dock.gd",
+            "test_cases": 6,
+            "passed": 6,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_minesweeper_register.gd",
+            "test_cases": 9,
+            "passed": 9,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_minesweeper_panel.gd",
+            "test_cases": 23,
+            "passed": 23,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_minesweeper_worksheet.gd",
+            "test_cases": 19,
+            "passed": 19,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_minesweeper_worksheet_layout.gd",
+            "test_cases": 4,
+            "passed": 4,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_minesweeper_worksheet_view_layout.gd",
+            "test_cases": 5,
+            "passed": 5,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_minesweeper_view_controls.gd",
+            "test_cases": 10,
+            "passed": 10,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_minesweeper_view_preferences.gd",
+            "test_cases": 6,
+            "passed": 6,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_minesweeper_zoom_input.gd",
+            "test_cases": 17,
+            "passed": 17,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_minesweeper_scroll_rail.gd",
+            "test_cases": 9,
+            "passed": 9,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_minesweeper_sheet_controls.gd",
+            "test_cases": 10,
+            "passed": 10,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_minesweeper_information_sheet.gd",
+            "test_cases": 9,
+            "passed": 9,
+            "skipped": 0
+          },
+          {
+            "script": "tests/scene/test_minesweeper_toggle_bindings.gd",
+            "test_cases": 12,
+            "passed": 12,
+            "skipped": 0
+          },
+          {
+            "script": "tests/scene/test_minesweeper_new_board_bindings.gd",
+            "test_cases": 5,
+            "passed": 5,
+            "skipped": 0
+          },
+          {
+            "script": "tests/scene/test_minesweeper_view_gestures.gd",
+            "test_cases": 4,
+            "passed": 4,
+            "skipped": 0
+          },
+          {
+            "script": "tests/scene/test_minesweeper_challenge_controls.gd",
+            "test_cases": 8,
+            "passed": 8,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_minesweeper_desktop_host.gd",
+            "test_cases": 11,
+            "passed": 11,
+            "skipped": 0
+          }
+        ]
+      },
+      {
+        "suite": "new_account",
+        "test_cases": 179,
+        "passed": 179,
+        "skipped": 0,
+        "requested_scripts": 15,
+        "reported_scripts": 15,
+        "scripts": [
+          {
+            "script": "tests/unit/test_canonical_writer_compatibility.gd",
+            "test_cases": 17,
+            "passed": 17,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_continuation_serialization_cache.gd",
+            "test_cases": 9,
+            "passed": 9,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_new_acc_title_lifetime.gd",
+            "test_cases": 6,
+            "passed": 6,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_run_dark_configuration.gd",
+            "test_cases": 7,
+            "passed": 7,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_prepared_new_run.gd",
+            "test_cases": 10,
+            "passed": 10,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_new_run_transaction.gd",
+            "test_cases": 12,
+            "passed": 12,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_new_run_pair_durability.gd",
+            "test_cases": 8,
+            "passed": 8,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_new_run_startup_publication.gd",
+            "test_cases": 3,
+            "passed": 3,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_new_run_durability_journal.gd",
+            "test_cases": 6,
+            "passed": 6,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_json_file_storage.gd",
+            "test_cases": 14,
+            "passed": 14,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_temporary_storage.gd",
+            "test_cases": 4,
+            "passed": 4,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_save_document_schema.gd",
+            "test_cases": 21,
+            "passed": 21,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_run_snapshot_schema.gd",
+            "test_cases": 27,
+            "passed": 27,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/tooling/test_phase2r_closeout_sentinel.gd",
+            "test_cases": 1,
+            "passed": 1,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/tooling/test_phase2r_schedule_gate.gd",
+            "test_cases": 34,
+            "passed": 34,
+            "skipped": 0
+          }
+        ]
+      },
+      {
+        "suite": "reading_delivery",
+        "test_cases": 232,
+        "passed": 232,
+        "skipped": 0,
+        "requested_scripts": 18,
+        "reported_scripts": 18,
+        "scripts": [
+          {
+            "script": "tests/unit/test_hospital_frozen_context.gd",
+            "test_cases": 7,
+            "passed": 7,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_frozen_replay_context.gd",
+            "test_cases": 3,
+            "passed": 3,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_minesweeper_delivery_notice.gd",
+            "test_cases": 10,
+            "passed": 10,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_narrative_caption_ledger.gd",
+            "test_cases": 12,
+            "passed": 12,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_narrative_caption_ledger_runtime.gd",
+            "test_cases": 9,
+            "passed": 9,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_witnessed_caption_runtime.gd",
+            "test_cases": 48,
+            "passed": 48,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_witnessed_pause_view.gd",
+            "test_cases": 4,
+            "passed": 4,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_witnessed_auto_controller.gd",
+            "test_cases": 13,
+            "passed": 13,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_witnessed_skip_controller.gd",
+            "test_cases": 10,
+            "passed": 10,
+            "skipped": 0
+          },
+          {
+            "script": "tests/scene/test_witnessed_transport_recovery.gd",
+            "test_cases": 9,
+            "passed": 9,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_witnessed_speech_projection.gd",
+            "test_cases": 8,
+            "passed": 8,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_dating_caption_style.gd",
+            "test_cases": 19,
+            "passed": 19,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_scene_art_bindings.gd",
+            "test_cases": 13,
+            "passed": 13,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_scene_art_hold.gd",
+            "test_cases": 6,
+            "passed": 6,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_production_pause_controller.gd",
+            "test_cases": 33,
+            "passed": 33,
+            "skipped": 0
+          },
+          {
+            "script": "tests/scene/test_hospital_scene.gd",
+            "test_cases": 10,
+            "passed": 10,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_day7_font_preferences.gd",
+            "test_cases": 3,
+            "passed": 3,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_gallery_replay_owner.gd",
+            "test_cases": 15,
+            "passed": 15,
+            "skipped": 0
+          }
+        ]
+      },
+      {
+        "suite": "dating",
+        "test_cases": 162,
+        "passed": 162,
+        "skipped": 0,
+        "requested_scripts": 12,
+        "reported_scripts": 12,
+        "scripts": [
+          {
+            "script": "tests/unit/test_active_dating_backup_capture.gd",
+            "test_cases": 15,
+            "passed": 15,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_dating_quick_commands.gd",
+            "test_cases": 10,
+            "passed": 10,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_frozen_presentation_context.gd",
+            "test_cases": 6,
+            "passed": 6,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_dating_narrative_playback.gd",
+            "test_cases": 18,
+            "passed": 18,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_canonical_dating_mastery.gd",
+            "test_cases": 9,
+            "passed": 9,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_dating_attempt_runtime.gd",
+            "test_cases": 45,
+            "passed": 45,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_profile_evidence_v8.gd",
+            "test_cases": 6,
+            "passed": 6,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_dating_physical_owner.gd",
+            "test_cases": 15,
+            "passed": 15,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_dating_capability_envelope.gd",
+            "test_cases": 6,
+            "passed": 6,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_dating_rehearsal_owner.gd",
+            "test_cases": 5,
+            "passed": 5,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_dating_presentation_port.gd",
+            "test_cases": 21,
+            "passed": 21,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_ordered_ending_real_runtime.gd",
+            "test_cases": 6,
+            "passed": 6,
+            "skipped": 0
+          }
+        ]
+      },
+      {
+        "suite": "settings",
+        "test_cases": 311,
+        "passed": 311,
+        "skipped": 0,
+        "requested_scripts": 26,
+        "reported_scripts": 26,
+        "scripts": [
+          {
+            "script": "tests/unit/test_save_manager_parse_cache.gd",
+            "test_cases": 18,
+            "passed": 18,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_backup_quick_actions.gd",
+            "test_cases": 19,
+            "passed": 19,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_settings_panel_resize.gd",
+            "test_cases": 3,
+            "passed": 3,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_settings_preference_registry.gd",
+            "test_cases": 5,
+            "passed": 5,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_shared_week_tint.gd",
+            "test_cases": 2,
+            "passed": 2,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_settings_window_transactions.gd",
+            "test_cases": 13,
+            "passed": 13,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_window_mode_manager.gd",
+            "test_cases": 13,
+            "passed": 13,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_window_mode_port.gd",
+            "test_cases": 12,
+            "passed": 12,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_bootstrap_window_output.gd",
+            "test_cases": 6,
+            "passed": 6,
+            "skipped": 0
+          },
+          {
+            "script": "tests/scene/test_settings_window_mode_live.gd",
+            "test_cases": 6,
+            "passed": 6,
+            "skipped": 0
+          },
+          {
+            "script": "tests/scene/test_settings_audio_live.gd",
+            "test_cases": 5,
+            "passed": 5,
+            "skipped": 0
+          },
+          {
+            "script": "tests/scene/test_settings_reset_confirmation.gd",
+            "test_cases": 8,
+            "passed": 8,
+            "skipped": 0
+          },
+          {
+            "script": "tests/scene/test_settings_folio.gd",
+            "test_cases": 8,
+            "passed": 8,
+            "skipped": 0
+          },
+          {
+            "script": "tests/scene/test_settings_host_geometry.gd",
+            "test_cases": 5,
+            "passed": 5,
+            "skipped": 0
+          },
+          {
+            "script": "tests/scene/test_settings_localization_scene.gd",
+            "test_cases": 34,
+            "passed": 34,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_settings_shared_hosts.gd",
+            "test_cases": 8,
+            "passed": 8,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_profile_manager.gd",
+            "test_cases": 23,
+            "passed": 23,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_restore_participants.gd",
+            "test_cases": 7,
+            "passed": 7,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_restore_preserves_current_profile.gd",
+            "test_cases": 4,
+            "passed": 4,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_restore_production_adapters.gd",
+            "test_cases": 13,
+            "passed": 13,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_desktop_board_persistence.gd",
+            "test_cases": 5,
+            "passed": 5,
+            "skipped": 0
+          },
+          {
+            "script": "tests/integration/test_minesweeper_first_reveal_transaction.gd",
+            "test_cases": 7,
+            "passed": 7,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_save_manager_checkpoint_port.gd",
+            "test_cases": 42,
+            "passed": 42,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_checkpoint_validation_reuse.gd",
+            "test_cases": 21,
+            "passed": 21,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_checkpoint_phase_diagnostics.gd",
+            "test_cases": 4,
+            "passed": 4,
+            "skipped": 0
+          },
+          {
+            "script": "tests/unit/test_checkpoint_journal.gd",
+            "test_cases": 20,
+            "passed": 20,
+            "skipped": 0
+          }
+        ]
+      }
+    ],
+    "rendered_desktop_dialogue": {
+      "DESKTOP_SCALING_RENDER_VERIFIED": {
+        "ok": true,
+        "captures": 38,
+        "failures": []
+      },
+      "DELIVERY_DIALOGUE_RENDER_VERIFIED": {
+        "ok": true,
+        "captures": 25,
+        "failures": []
+      },
+      "ANGELA_OVERLAY_RENDER_VERIFIED": {
+        "ok": true,
+        "captures": 10,
+        "failures": []
+      },
+      "JAPANESE_KOREAN_UI_RENDER_VERIFIED": {
+        "ok": true,
+        "captures": 30,
+        "failures": []
+      },
+      "FONT_CHOICES_RENDER_VERIFIED": {
+        "ok": true,
+        "captures": 30,
+        "failures": []
+      }
+    },
+    "rendered_startup_logout": {
+      "status": "passed",
+      "captures": 4,
+      "path": "New Account -> desktop -> Minesweeper -> first Reveal -> Day2 -> Logout confirmation -> title -> Login -> restored desktop"
+    },
+    "standalone_revision_storage": {
+      "assertions": 61180,
+      "distinct_snapshots": 94,
+      "failures": [],
+      "refusal_pairs": 30,
+      "restart_fault_pairs": 1604,
+      "restart_pairs": 2218,
+      "write_fault_pairs": 154,
+      "write_pairs": 14
+    },
+    "save_load_capture_checks": 136,
+    "ci_fanout": {
+      "accepted": true,
+      "producer_and_four_comparisons_and_aggregate": "success",
+      "distinct_comparison_process_roots": 62,
+      "original_aggregate_check_name": "Windows / seven-day retained history",
+      "wall_seconds": 1843.0,
+      "wall_scope": "first job start to last job completion",
+      "historical_run77_wall_seconds": 2603,
+      "causal_speedup_claim": false,
+      "timing": {
+        "jobs": [
+          {
+            "name": "Windows / seven-day retained history producer",
+            "id": 110323132749,
+            "runner_id": 1000000908,
+            "runner_name": "GitHub Actions 1000000908",
+            "started_at": "2026-10-01T10:16:57Z",
+            "completed_at": "2026-10-01T10:28:17Z",
+            "job_seconds": 680.0,
+            "measurement_started_at": "2026-10-01T10:17:48Z",
+            "measurement_completed_at": "2026-10-01T10:28:09Z",
+            "measurement_seconds": 621.0
+          },
+          {
+            "name": "Windows / outgoing-normalization comparison",
+            "id": 110326995959,
+            "runner_id": 1000000928,
+            "runner_name": "GitHub Actions 1000000928",
+            "started_at": "2026-10-01T10:28:21Z",
+            "completed_at": "2026-10-01T10:31:02Z",
+            "job_seconds": 161.0,
+            "measurement_started_at": "2026-10-01T10:29:36Z",
+            "measurement_completed_at": "2026-10-01T10:30:56Z",
+            "measurement_seconds": 80.0
+          },
+          {
+            "name": "Windows / lazy-normalization comparison",
+            "id": 110326995983,
+            "runner_id": 1000000927,
+            "runner_name": "GitHub Actions 1000000927",
+            "started_at": "2026-10-01T10:28:19Z",
+            "completed_at": "2026-10-01T10:33:56Z",
+            "job_seconds": 337.0,
+            "measurement_started_at": "2026-10-01T10:29:18Z",
+            "measurement_completed_at": "2026-10-01T10:33:51Z",
+            "measurement_seconds": 273.0
+          },
+          {
+            "name": "Windows / history-region-search comparison",
+            "id": 110326995836,
+            "runner_id": 1000000925,
+            "runner_name": "GitHub Actions 1000000925",
+            "started_at": "2026-10-01T10:28:20Z",
+            "completed_at": "2026-10-01T10:40:06Z",
+            "job_seconds": 706.0,
+            "measurement_started_at": "2026-10-01T10:29:20Z",
+            "measurement_completed_at": "2026-10-01T10:40:00Z",
+            "measurement_seconds": 640.0
+          },
+          {
+            "name": "Windows / warm-outgoing-proof comparison",
+            "id": 110326995874,
+            "runner_id": 1000000926,
+            "runner_name": "GitHub Actions 1000000926",
+            "started_at": "2026-10-01T10:28:19Z",
+            "completed_at": "2026-10-01T10:43:47Z",
+            "job_seconds": 928.0,
+            "measurement_started_at": "2026-10-01T10:29:14Z",
+            "measurement_completed_at": "2026-10-01T10:43:42Z",
+            "measurement_seconds": 868.0
+          },
+          {
+            "name": "Windows / seven-day retained history",
+            "id": 110332145362,
+            "runner_id": 1000000929,
+            "runner_name": "GitHub Actions 1000000929",
+            "started_at": "2026-10-01T10:43:49Z",
+            "completed_at": "2026-10-01T10:43:53Z",
+            "job_seconds": 4.0,
+            "measurement_started_at": "2026-10-01T10:43:50Z",
+            "measurement_completed_at": "2026-10-01T10:43:51Z",
+            "measurement_seconds": 1.0
+          }
+        ],
+        "whole_workflow_seconds": 1843.0,
+        "all_four_measurement_windows_overlap": true,
+        "fanout_consumer_job_window_seconds": 928.0,
+        "fanout_consumer_measurement_window_seconds": 868.0,
+        "baseline_run77_workflow_seconds": 2603,
+        "observed_whole_workflow_difference_seconds": -760.0,
+        "limit": "Elapsed observations across changed source and separate hosted runners; not a controlled causal speedup or player responsiveness measurement."
+      },
+      "retained_evidence_directory": "performance/run82-ci-fanout/"
+    },
+    "source_to_merge_difference": [
+      "docs/design/2026-09-02-relationship-progression-runtime-behavior-record.md",
+      "docs/story-auditions/2026-09-26-priscilla-lavinia-day-2-portrait-dark-love-read-through.md",
+      "docs/story-auditions/2026-09-26-priscilla-lavinia-portrait-and-intimacy-working-record.md",
+      "docs/story-auditions/2026-09-27-priscilla-lavinia-session-conversation-archive.md",
+      "docs/story-auditions/Our_PL.md",
+      "docs/story-auditions/README.md",
+      "story/01-core-story-bible.md"
+    ]
+  },
+  "final_disposition": {
+    "status": "accepted_bounded_increment",
+    "accepted_production_source_sha": "724ff76fabafe358d6f445b404386baa65d20062",
+    "accepted_tested_merge_sha": "d9c42820960ffd70b80b70977178c17ae9beef92",
+    "closure_scope": "Compact per-write validation witness adoption, equivalence coverage and independent CI fanout accepted. The broad latency Bead remains in_progress.",
+    "parent_bead_closed": false,
+    "broad_lag_resolved": false,
+    "native_windows_graphics_accessibility_or_input_to_paint_proven": false,
+    "next_shared_owner_feature": "dwm-vky.14 durable Solo reading -> History -> Save -> fresh Load with Quick using the same admitted frontier."
+  },
+  "production_source_relationship": {
+    "focused_source": "f28d2bdccd572894267317d04f7373d46430d83c",
+    "final_source": "724ff76fabafe358d6f445b404386baa65d20062",
+    "difference": [
+      "evidence/phase_2r/runtime/game_state_surface.json",
+      "evidence/phase_2r/runtime/save_manager_surface.json"
+    ],
+    "description": "Final source changes only the two cloud-generated inventories. Runtime/test/workflow bytes are identical to the focused source. Contract rows and required sets unchanged."
+  }
+}

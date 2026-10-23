@@ -1,0 +1,80 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/remaining-root-disposable-20260914/.godot/phase2r_tests/e4cc9c4c-308d-48b5-abe2-a4f9abd5cee9/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+ROOT_GUARD_PROBE {"mode":"empty","phase":"run","root":"C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\minesweeper-view-controls\\.godot\\phase2r_tests\\remaining-root-disposable-20260914\\.godot\\phase2r_tests\\e4cc9c4c-308d-48b5-abe2-a4f9abd5cee9\\dwm_test_root","snapshot":{"directories":["."],"errors":[],"exists":true,"files":{}}}
+
+
+res://tests/unit/test_application_bootstrap.gd
+* test_stage_order_runs_minesweeper_after_day_resolution_and_before_readiness
+* test_minesweeper_stage_rejects_a_missing_gate_without_partial_configuration
+* test_minesweeper_stage_rejects_missing_targets_without_partial_configuration
+* test_minesweeper_stage_rejects_an_unretained_checkpoint_port_without_partial_configuration
+* test_minesweeper_stage_rejects_unconfigured_checkpoint_providers
+* test_minesweeper_stage_rejects_a_gate_game_state_did_not_retain
+* test_minesweeper_stage_constructs_exactly_one_coordinator_over_production_adapters
+* test_identical_startup_replay_reuses_the_exact_same_round_graph
+* test_game_state_refuses_a_second_distinct_round_coordinator
+* test_round_facade_fails_closed_before_the_coordinator_is_installed
+* test_game_state_reports_only_its_gate_identity_never_the_gate
+* test_bootstrap_stage_and_this_suite_are_source_bound_by_uid
+12/12 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/unit/test_application_bootstrap.gd
+    - Outside Tests
+        * [<Node#131264939798>(subsystem_animation.gd)]
+        * [<Node#131281717026>(subsystem_audio.gd)]
+        * [<Node#131298494258>]
+        * [<Node#131315271483>]
+        * [<Node#131332048705>(subsystem_backgrounds.gd)]
+        * [<Node#131868919618>(subsystem_choices.gd)]
+        * [<Timer#131885696835>]
+        * [<Node#131902474052>(subsystem_expression.gd)]
+        * [<Node#131936028489>(subsystem_glossary.gd)]
+        * [<Node#131952805706>(subsystem_history.gd)]
+        * [<Node#131969582923>(subsystem_input.gd)]
+        * [<Timer#131986360140>]
+        * [<Node#132003137357>(subsystem_jump.gd)]
+        * [<Node#132019914574>(subsystem_containers.gd)]
+        * [<Node#132036691791>(subsystem_portraits.gd)]
+        * [<Node#132573562704>(subsystem_save.gd)]
+        * [<Timer#132590339921>]
+        * [<Node#132607117138>(subsystem_settings.gd)]
+        * [<Node#132623894358>(subsystem_styles.gd)]
+        * [<Node#132640671575>(subsystem_text.gd)]
+        * [<Node#132724557660>(subsystem_text_input.gd)]
+        * [<Node#132741334877>(subsystem_variables.gd)]
+        * [<Node#132758112094>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#132774889311>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+Totals
+------
+Scripts               1
+Tests                12
+Passing Tests        12
+Asserts             114
+Orphans              24
+Time              0.393s
+
+
+---- All tests passed! ----
+
+ROOT_GUARD_PROBE {"after":{"directories":["."],"errors":[],"exists":true,"files":{}},"before":{"directories":["."],"errors":[],"exists":true,"files":{}},"mode":"empty","ok":true,"phase":"end_run"}
+ROOT_GUARD_PROBE {"mode":"empty","ok":true,"phase":"restored"}

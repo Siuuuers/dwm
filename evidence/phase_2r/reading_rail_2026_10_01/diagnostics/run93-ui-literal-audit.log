@@ -1,0 +1,7 @@
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+ERROR: UiLiteralAudit: {"code":"unclassified_literals","failures":[{"code":"unclassified_script_literal","line":130,"ok":false,"path":"res://scripts/ui/witnessed/WitnessedHistory.gd","sink":"text"},{"code":"unclassified_script_literal","line":131,"ok":false,"path":"res://scripts/ui/witnessed/WitnessedHistory.gd","sink":"text"}],"ok":false,"scene_records":53,"script_records":327}
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _fail (res://tools/localization/UiLiteralAudit.gd:937)
+       [1] _init (res://tools/localization/UiLiteralAudit.gd:178)

@@ -1,0 +1,112 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/02421c19-3e46-4785-af4a-80bc61a9550f/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+res://tests/unit/test_settings_preference_registry.gd
+* test_registry_records_are_the_complete_accepted_vocabulary
+* test_registry_validates_manual_extensions_and_rejects_retired_names
+* test_registry_rejects_non_finite_audio_and_wrong_numeric_shapes
+* test_visible_records_are_section_authority_and_audio_uses_five_percent_steps
+* test_capability_owned_fields_are_the_only_non_player_writable_records
+5/5 passed.
+
+
+res://tests/unit/test_steady_interface_profile.gd
+* test_old_v8_profile_is_repaired_persisted_and_stays_repaired_after_restart
+* test_missing_only_admission_preserves_explicit_true_and_rejects_other_bad_shapes
+* test_v2_through_v7_historical_documents_admit_only_missing_steady_default
+3/3 passed.
+
+
+res://tests/unit/test_profile_manager.gd
+* test_defaults_are_schema_valid_and_exact
+* test_schema_rejects_unknown_nested_fields_bad_types_and_aliases
+* test_invalid_skip_is_the_only_narrow_document_repair
+* test_legacy_patch_is_exact_detached_and_discards_runtime_audio
+* test_root_relative_legacy_input_import_is_one_shot_and_source_is_untouched
+* test_manager_initializes_once_and_uses_detached_snapshots
+* test_flat_fully_qualified_preference_batch_is_atomic
+* test_locale_candidate_commits_deferred_and_publishes_exactly_once
+* test_prepared_gallery_transaction_is_idempotent_and_conflicts_fail
+* test_gallery_and_entire_reset_retain_internal_ledgers
+* test_preference_reset_publishes_leaf_changes_before_one_summary
+* test_mutation_gate_configuration_is_identity_stable_and_side_effect_free
+* test_profile_schema_registers_observation_not_true
+* test_profile_document_remaps_retired_true_gallery_unlocks
+* test_visited_history_is_global_and_idempotent
+* test_visited_history_survives_a_new_run_and_only_its_own_reset_clears_it
+* test_visited_reset_leaves_other_profile_state_intact
+17/17 passed.
+
+
+res://tests/unit/test_profile_v4_upgrade.gd
+* test_v1_upgrade_maps_canonical_peers_and_archives_every_original_preference
+* test_unmappable_v1_values_use_defaults_only_at_runtime_and_remain_archived
+* test_invalid_v1_skip_is_the_only_repair_and_the_repaired_archive_is_valid
+* test_v3_upgrade_closes_legacy_replay_without_inventing_archived_values
+* test_initialize_persists_v4_before_publish_and_resets_clear_only_archive
+* test_initialize_reconcile_uses_semantic_migration_validation_for_v1_through_v4
+* test_every_reset_refuses_cleanly_before_initialization
+* test_deferred_raw_mapping_publication_survives_as_inert_compatibility_signal
+* test_historical_tutorial_boolean_survives_v1_current_backup_migration_and_restart
+* test_optional_tutorial_compatibility_rejects_non_boolean_unknown_and_runtime_fields
+10/10 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/unit/test_settings_preference_registry.gd
+    - Outside Tests
+        * [<Node#129654327060>(subsystem_animation.gd)]
+        * [<Node#129671104292>(subsystem_audio.gd)]
+        * [<Node#129687881518>]
+        * [<Node#129704658739>]
+        * [<Node#129721435958>(subsystem_backgrounds.gd)]
+        * [<Node#130258306875>(subsystem_choices.gd)]
+        * [<Timer#130275084092>]
+        * [<Node#130291861310>(subsystem_expression.gd)]
+        * [<Node#130325415747>(subsystem_glossary.gd)]
+        * [<Node#130342192964>(subsystem_history.gd)]
+        * [<Node#130358970181>(subsystem_input.gd)]
+        * [<Timer#130375747398>]
+        * [<Node#130392524615>(subsystem_jump.gd)]
+        * [<Node#130409301832>(subsystem_containers.gd)]
+        * [<Node#130426079049>(subsystem_portraits.gd)]
+        * [<Node#130962949962>(subsystem_save.gd)]
+        * [<Timer#130979727179>]
+        * [<Node#130996504396>(subsystem_settings.gd)]
+        * [<Node#131013281616>(subsystem_styles.gd)]
+        * [<Node#131030058833>(subsystem_text.gd)]
+        * [<Node#131113944918>(subsystem_text_input.gd)]
+        * [<Node#131130722135>(subsystem_variables.gd)]
+        * [<Node#131147499352>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#131164276569>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+Totals
+------
+Scripts               4
+Tests                35
+Passing Tests        35
+Asserts             697
+Orphans              24
+Time              0.878s
+
+
+---- All tests passed! ----

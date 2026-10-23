@@ -1,0 +1,106 @@
+{
+  "schema_version": 1,
+  "review": "pass",
+  "scope": "Read-only source review of the exact banner correction and four synthetic regression cases; no tests, native execution or replay were run.",
+  "baseline_tool_source": "c24934929e3d2c8c013f335309620525e2f64d61",
+  "modified_paths": [
+    "bind_trace.py",
+    "tests/synthetic_fixture.py",
+    "tests/test_bind_trace.py"
+  ],
+  "files": [
+    {
+      "path": "bind_trace.py",
+      "baseline_bytes": 20114,
+      "baseline_sha256": "82ed542a4e3f06d8855138cf029c5a6488fe7fc41970f3ece95e95ca34902298",
+      "candidate_bytes": 20517,
+      "candidate_sha256": "6133c3472bdfdadacb75f786341de5b02a6f882f9da8f3038dcf8add602ffd25",
+      "changed": true
+    },
+    {
+      "path": "prepare_package.py",
+      "baseline_bytes": 10118,
+      "baseline_sha256": "b345a42df207f33ba6ff963d6c85ad81f401c4d1e380ea50e0c1170f665c96ac",
+      "candidate_bytes": 10118,
+      "candidate_sha256": "b345a42df207f33ba6ff963d6c85ad81f401c4d1e380ea50e0c1170f665c96ac",
+      "changed": false
+    },
+    {
+      "path": "replay/read_trace.py",
+      "baseline_bytes": 22091,
+      "baseline_sha256": "b4c21e1cf4c344246191be00cb435a4b55f683df2ee3d169a14496e9cc023a4b",
+      "candidate_bytes": 22091,
+      "candidate_sha256": "b4c21e1cf4c344246191be00cb435a4b55f683df2ee3d169a14496e9cc023a4b",
+      "changed": false
+    },
+    {
+      "path": "tests/synthetic_fixture.py",
+      "baseline_bytes": 9910,
+      "baseline_sha256": "c5d637ab88cd510d0c566ed81ed2d13471e468a474e8cae270361bb19dde76b0",
+      "candidate_bytes": 9936,
+      "candidate_sha256": "d332834631dbba885b4a4351e1d4fe7c65f6b9a06e96e9c7ac715095d90e7f2e",
+      "changed": true
+    },
+    {
+      "path": "tests/test_bind_trace.py",
+      "baseline_bytes": 10137,
+      "baseline_sha256": "47be4e0f4d668d03f99c098f37193bb1172c269a6d3fd604faea31c3256a388c",
+      "candidate_bytes": 11242,
+      "candidate_sha256": "4f9b50e8862790f047cef8d38a3d80445ff14c039486974aa9188454fdbc7a67",
+      "changed": true
+    }
+  ],
+  "findings": [],
+  "checks": {
+    "only_three_expected_files_differ": true,
+    "binder_delta_is_complete_canonical_banner_membership_plus_observed_banner_field": true,
+    "exact_dated_and_undated_forms_permitted": true,
+    "arbitrary_suffix_dates_build_hashes_and_websites_not_permitted": true,
+    "source_pid_executable_pck_window_clock_and_original_failure_gates_unchanged": true,
+    "independent_reader_and_package_constants_unchanged": true,
+    "synthetic_markers_and_separate_pid_hwnd_and_uint64_rid_preserved": true,
+    "positive_cases_assert_binding_and_exact_observed_banner": true,
+    "negative_cases_assert_exit2_binding_false_and_banner_error": true,
+    "every_synthetic_case_preserves_official_acceptance_false": true,
+    "original_failed_binding_report_unchanged": true
+  },
+  "regression_cases": [
+    {
+      "case": "exact dated banner",
+      "expected": "accept"
+    },
+    {
+      "case": "exact undated banner",
+      "expected": "accept"
+    },
+    {
+      "case": "wrong commit timestamp by one second",
+      "expected": "refuse"
+    },
+    {
+      "case": "wrong nine-character commit identity",
+      "expected": "refuse"
+    }
+  ],
+  "source_basis": {
+    "engine_commit": "35e80b3a8822a9df9be390814b62f44c0a9c69e8",
+    "commit_timestamp": 1779284873,
+    "utc": "2026-05-20 13:47:53 UTC",
+    "metadata_sha256": "3744c8f848df293773011885f8f919fb740d11c4d347cc8f959724c4a83b6eb4",
+    "main_cpp_git_blob": "7dc15057ad96bfa86b16ba99621ef1289e074656",
+    "main_cpp_print_header_lines": "430-441",
+    "methods_git_blob": "3caabfce1bef3af28e753309cba4223b82b039f9",
+    "core_builders_git_blob": "d6b1a2b7af6135d73546535fd370b3c26cdceb60"
+  },
+  "original_failed_report": {
+    "bytes": 11472,
+    "sha256": "38861bf16a3d2a8984b4f8d348724e3ba12b7f0eefbf3e975d642d58c817cf6e",
+    "binding_ok": false,
+    "same_ending_failure_reproduced": true
+  },
+  "limitations": [
+    "Source review is not execution evidence; root owns the one coherent Python test/reanalysis.",
+    "Corrected offline output must remain separate from the immutable original failed cloud binder report.",
+    "Permitting a source-supported banner does not change any original player gate or establish native/official acceptance."
+  ]
+}

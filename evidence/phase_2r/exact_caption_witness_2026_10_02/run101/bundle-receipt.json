@@ -1,0 +1,11 @@
+{
+  "archive": "dwm-run101-partial-diagnostic-evidence.tar.gz",
+  "archive_member_count": 529,
+  "bytes": 16258334,
+  "evidence_kind": "failed-run-diagnostic-only",
+  "excluded_file_count": 31,
+  "manifest_sha256": "f1c044700023ccfb31b091cfb4978ed392bf27ed4f8dbd41c4f66f311af35675",
+  "payload_file_count": 527,
+  "round_trip_verified": true,
+  "sha256": "f7566e4c891782aa0a12e80a1bf33b0f297946de160e5645828d2c9f2f3dc0a4"
+}

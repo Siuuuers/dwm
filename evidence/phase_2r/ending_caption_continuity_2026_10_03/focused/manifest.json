@@ -1,0 +1,528 @@
+{
+  "source": "2f236aa7099ca2aec51401bc936e3cb0179e5526",
+  "run": 37134358433,
+  "workflow_head": "65722488d5f0bdde8dc0a9dfab74f13b352fb6c3",
+  "jobs": [
+    {
+      "id": 111235723388,
+      "name": "Rendered ordered ending / physical boundary and exact fresh Load",
+      "status": "completed",
+      "conclusion": "success",
+      "run_id": 37134358433,
+      "logs_url": null,
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2
+        },
+        {
+          "name": "Prepare disposable checkout for credential cleanup",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3
+        },
+        {
+          "name": "Install Godot and software display",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4
+        },
+        {
+          "name": "Start and verify native Linux speech service",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5
+        },
+        {
+          "name": "Upload native speech environment evidence",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6
+        },
+        {
+          "name": "Import project",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7
+        },
+        {
+          "name": "Exercise two-step ending History, Save and fresh Load",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8
+        },
+        {
+          "name": "Upload ending reading reports, exact save bytes and screenshots",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9
+        },
+        {
+          "name": "Audit all UI literal ownership",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 10
+        },
+        {
+          "name": "Upload UI literal audit evidence",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 11
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 22
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 23
+        }
+      ]
+    },
+    {
+      "id": 111235723488,
+      "name": "Windows / reading_delivery",
+      "status": "completed",
+      "conclusion": "success",
+      "run_id": 37134358433,
+      "logs_url": null,
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2
+        },
+        {
+          "name": "Prepare disposable checkout for credential cleanup",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3
+        },
+        {
+          "name": "Install Godot 4.6.3 standard",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4
+        },
+        {
+          "name": "Import project",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5
+        },
+        {
+          "name": "Restore committed project settings after editor import",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6
+        },
+        {
+          "name": "Run focused regression suite",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7
+        },
+        {
+          "name": "Upload logs and test results",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 16
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 17
+        }
+      ]
+    },
+    {
+      "id": 111235723523,
+      "name": "Windows / public API surface contracts",
+      "status": "completed",
+      "conclusion": "success",
+      "run_id": 37134358433,
+      "logs_url": null,
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2
+        },
+        {
+          "name": "Prepare disposable checkout for credential cleanup",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3
+        },
+        {
+          "name": "Record fixture and schema version census",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4
+        },
+        {
+          "name": "Install Godot 4.6.3 standard",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5
+        },
+        {
+          "name": "Import project",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6
+        },
+        {
+          "name": "Restore committed project settings after editor import",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7
+        },
+        {
+          "name": "Verify isolated runner contracts and timeout diagnostics",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8
+        },
+        {
+          "name": "Generate and validate candidate public inventories",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9
+        },
+        {
+          "name": "Verify public inventory drift and read-only contracts",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 10
+        },
+        {
+          "name": "Upload canonical inventories and retirement evidence",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 11
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 22
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 23
+        }
+      ]
+    },
+    {
+      "id": 111235723535,
+      "name": "Windows / persistence",
+      "status": "completed",
+      "conclusion": "success",
+      "run_id": 37134358433,
+      "logs_url": null,
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2
+        },
+        {
+          "name": "Prepare disposable checkout for credential cleanup",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3
+        },
+        {
+          "name": "Install Godot 4.6.3 standard",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4
+        },
+        {
+          "name": "Import project",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5
+        },
+        {
+          "name": "Restore committed project settings after editor import",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6
+        },
+        {
+          "name": "Run focused regression suite",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7
+        },
+        {
+          "name": "Upload logs and test results",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 16
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 17
+        }
+      ]
+    },
+    {
+      "id": 111235723625,
+      "name": "Windows / dating",
+      "status": "completed",
+      "conclusion": "success",
+      "run_id": 37134358433,
+      "logs_url": null,
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1
+        },
+        {
+          "name": "Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2
+        },
+        {
+          "name": "Prepare disposable checkout for credential cleanup",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3
+        },
+        {
+          "name": "Install Godot 4.6.3 standard",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4
+        },
+        {
+          "name": "Import project",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5
+        },
+        {
+          "name": "Restore committed project settings after editor import",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6
+        },
+        {
+          "name": "Run focused regression suite",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7
+        },
+        {
+          "name": "Upload logs and test results",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8
+        },
+        {
+          "name": "Post Run actions/checkout@v7",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 16
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 17
+        }
+      ]
+    }
+  ],
+  "artifacts": [
+    {
+      "id": 11278540780,
+      "name": "windows-persistence-37134358433-1",
+      "size_in_bytes": 199730,
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11278540780",
+      "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11278540780/zip",
+      "expired": false,
+      "created_at": "2026-10-03T15:47:16Z",
+      "expires_at": "2026-10-10T15:47:15Z",
+      "updated_at": "2026-10-03T15:47:16Z",
+      "digest": "sha256:ce72a6f86c7cfb3911f6389f8560129ecc694289fec9dff640f010603a12f1c1",
+      "workflow_run": {
+        "id": 37134358433,
+        "repository_id": 1302529453,
+        "head_repository_id": 1302529453,
+        "head_branch": "codex/ending-caption-cloud-20261003",
+        "head_sha": "65722488d5f0bdde8dc0a9dfab74f13b352fb6c3"
+      }
+    },
+    {
+      "id": 11278420843,
+      "name": "cloud-speech-rendered-ending-reading-37134358433-1",
+      "size_in_bytes": 385957,
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11278420843",
+      "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11278420843/zip",
+      "expired": false,
+      "created_at": "2026-10-03T15:45:58Z",
+      "expires_at": "2026-10-10T15:45:57Z",
+      "updated_at": "2026-10-03T15:45:58Z",
+      "digest": "sha256:cd242ffd5efcd91cbbf9b78f15a7abc57ee1ffb79ac8de724521153fc980c479",
+      "workflow_run": {
+        "id": 37134358433,
+        "repository_id": 1302529453,
+        "head_repository_id": 1302529453,
+        "head_branch": "codex/ending-caption-cloud-20261003",
+        "head_sha": "65722488d5f0bdde8dc0a9dfab74f13b352fb6c3"
+      }
+    },
+    {
+      "id": 11278396059,
+      "name": "windows-dating-37134358433-1",
+      "size_in_bytes": 601429,
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11278396059",
+      "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11278396059/zip",
+      "expired": false,
+      "created_at": "2026-10-03T15:47:56Z",
+      "expires_at": "2026-10-10T15:47:56Z",
+      "updated_at": "2026-10-03T15:47:56Z",
+      "digest": "sha256:912ed50f4c04ec1432288592f80a312395020d0430952f9e4a1ae56a3df0ccbd",
+      "workflow_run": {
+        "id": 37134358433,
+        "repository_id": 1302529453,
+        "head_repository_id": 1302529453,
+        "head_branch": "codex/ending-caption-cloud-20261003",
+        "head_sha": "65722488d5f0bdde8dc0a9dfab74f13b352fb6c3"
+      }
+    },
+    {
+      "id": 11278291426,
+      "name": "public-surfaces-37134358433-1",
+      "size_in_bytes": 147586,
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11278291426",
+      "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11278291426/zip",
+      "expired": false,
+      "created_at": "2026-10-03T15:49:15Z",
+      "expires_at": "2026-10-10T15:49:14Z",
+      "updated_at": "2026-10-03T15:49:15Z",
+      "digest": "sha256:cef5bae72a3655a8bb053b358e95c1f2697bdc6bf3a508b8fd3b2bf9c479a41b",
+      "workflow_run": {
+        "id": 37134358433,
+        "repository_id": 1302529453,
+        "head_repository_id": 1302529453,
+        "head_branch": "codex/ending-caption-cloud-20261003",
+        "head_sha": "65722488d5f0bdde8dc0a9dfab74f13b352fb6c3"
+      }
+    },
+    {
+      "id": 11278076056,
+      "name": "ui-literal-audit-37134358433-1",
+      "size_in_bytes": 28988,
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11278076056",
+      "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11278076056/zip",
+      "expired": false,
+      "created_at": "2026-10-03T15:47:19Z",
+      "expires_at": "2026-10-10T15:47:18Z",
+      "updated_at": "2026-10-03T15:47:19Z",
+      "digest": "sha256:09c5c8969fba101322321934045b29bbe0e3c0dcb50afa34c42f4e05dd5dba05",
+      "workflow_run": {
+        "id": 37134358433,
+        "repository_id": 1302529453,
+        "head_repository_id": 1302529453,
+        "head_branch": "codex/ending-caption-cloud-20261003",
+        "head_sha": "65722488d5f0bdde8dc0a9dfab74f13b352fb6c3"
+      }
+    },
+    {
+      "id": 11277946356,
+      "name": "ending-reading-37134358433-1",
+      "size_in_bytes": 6807166,
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11277946356",
+      "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11277946356/zip",
+      "expired": false,
+      "created_at": "2026-10-03T15:47:10Z",
+      "expires_at": "2026-10-10T15:47:09Z",
+      "updated_at": "2026-10-03T15:47:10Z",
+      "digest": "sha256:1b05174d94f5135548b907bb546c982d640f398ec38a209a3f247347fc371ab5",
+      "workflow_run": {
+        "id": 37134358433,
+        "repository_id": 1302529453,
+        "head_repository_id": 1302529453,
+        "head_branch": "codex/ending-caption-cloud-20261003",
+        "head_sha": "65722488d5f0bdde8dc0a9dfab74f13b352fb6c3"
+      }
+    },
+    {
+      "id": 11277856580,
+      "name": "windows-reading_delivery-37134358433-1",
+      "size_in_bytes": 309521,
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11277856580",
+      "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/11277856580/zip",
+      "expired": false,
+      "created_at": "2026-10-03T15:48:58Z",
+      "expires_at": "2026-10-10T15:48:57Z",
+      "updated_at": "2026-10-03T15:48:58Z",
+      "digest": "sha256:69edbc3705b30bd7a345962ed90744bc031e97922c7caee2866c1fe14bd1c4a0",
+      "workflow_run": {
+        "id": 37134358433,
+        "repository_id": 1302529453,
+        "head_repository_id": 1302529453,
+        "head_branch": "codex/ending-caption-cloud-20261003",
+        "head_sha": "65722488d5f0bdde8dc0a9dfab74f13b352fb6c3"
+      }
+    }
+  ]
+}

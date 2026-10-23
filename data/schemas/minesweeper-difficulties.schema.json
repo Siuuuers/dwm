@@ -1,0 +1,26 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"title": "minesweeper-difficulties",
+	"type": "object",
+	"additionalProperties": false,
+	"required": ["schema_version", "kind", "registry_version", "records"],
+	"properties": {
+		"schema_version": {"const": 1},
+		"kind": {"const": "minesweeper_difficulties"},
+		"registry_version": {"const": "minesweeper_difficulties_v1"},
+		"records": {
+			"type": "array",
+			"items": {
+				"type": "object",
+				"additionalProperties": false,
+				"required": ["difficulty_id", "width", "height", "base_mine_count"],
+				"properties": {
+					"difficulty_id": {"enum": ["beginner", "intermediate", "expert"]},
+					"width": {"type": "integer"},
+					"height": {"type": "integer"},
+					"base_mine_count": {"type": "integer"}
+				}
+			}
+		}
+	}
+}

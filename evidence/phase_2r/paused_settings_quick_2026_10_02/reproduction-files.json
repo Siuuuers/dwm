@@ -1,0 +1,399 @@
+{
+  "schema_version": 1,
+  "files": [
+    {
+      "workspace_relative_path": "cloud_evidence.py",
+      "bytes": 38539,
+      "sha256": "7d0f4139bdb86ad760871713580277e9d8ea5440a6c269a7c6100362545aaa90",
+      "archive": "run128/settings-f5-run128.tar.gz",
+      "member": "run128/audit/rendered-coverage-auditors/cloud_evidence.py"
+    },
+    {
+      "workspace_relative_path": "capture_cloud_evidence.py",
+      "bytes": 5469,
+      "sha256": "1fbf3ee0711434f9c7bdeab7398c9e707228aa07f7015a4c2f632ff822c8c01e",
+      "file": "audit-tools/capture_cloud_evidence.py"
+    },
+    {
+      "workspace_relative_path": "layout_evidence.py",
+      "bytes": 938,
+      "sha256": "9ba6cf641e79572657bf0e10f614276a16f749a7fa4f254095867fd10220f339",
+      "file": "audit-tools/layout_evidence.py"
+    },
+    {
+      "workspace_relative_path": "audit_layout_observations.py",
+      "bytes": 11352,
+      "sha256": "56b8c75445691920f0b676bf01cff00b18f40ad3c257ed59ea2ee54f6b5087ec",
+      "file": "audit-tools/audit_layout_observations.py"
+    },
+    {
+      "workspace_relative_path": "audit_settings_quick_journey.py",
+      "bytes": 34153,
+      "sha256": "3086cc010cc0c42551d6813755f6de299b79b607c1761158cba3404560693c1b",
+      "file": "audit-tools/audit_settings_quick_journey.py"
+    },
+    {
+      "workspace_relative_path": "audit_settings_reset_focus.py",
+      "bytes": 15231,
+      "sha256": "e8088d498c060c372c80afeaaeb6aa6c7f02cebac2d03f871223155839ae067a",
+      "file": "audit-tools/audit_settings_reset_focus.py"
+    },
+    {
+      "workspace_relative_path": "join_settings_acceptance.py",
+      "bytes": 37623,
+      "sha256": "5e4aa0e38baebdfa81e955e93b4f6cd046b5dba950e4337fc646d8baddd159a1",
+      "file": "audit-tools/join_settings_acceptance.py"
+    },
+    {
+      "workspace_relative_path": "settings_focus1_inventory_review.py",
+      "bytes": 4123,
+      "sha256": "b3989d2bd62b026638656c1001639cc5002b5e4ca945dff7a7541525e829dcf8",
+      "file": "audit-tools/settings_focus1_inventory_review.py"
+    },
+    {
+      "workspace_relative_path": "settings_focus2_inventory_review.py",
+      "bytes": 5530,
+      "sha256": "9c97873314e1fbc83636b822681f774bcc9ae06c0740fed611c0e4f7843d1361",
+      "file": "audit-tools/settings_focus2_inventory_review.py"
+    },
+    {
+      "workspace_relative_path": "settings_focus3_inventory_review.py",
+      "bytes": 6100,
+      "sha256": "cbbd52af9a8eebc8a1699e1f88bedd968408012790be7981e6947fc2156045fe",
+      "file": "audit-tools/settings_focus3_inventory_review.py"
+    },
+    {
+      "workspace_relative_path": "prepare_settings_window_source_review.py",
+      "bytes": 8063,
+      "sha256": "6fce3b3baa0778007365bed1ceadcba45e501ac5e2d8bb8f4eccef9501e2c18d",
+      "file": "audit-tools/prepare_settings_window_source_review.py"
+    },
+    {
+      "workspace_relative_path": "build_settings_reset_workflow.py",
+      "bytes": 2678,
+      "sha256": "48ef938f96e212e51a33e4864b3caceb91fa725ca4331d28eeaed28827117642",
+      "file": "audit-tools/build_settings_reset_workflow.py"
+    },
+    {
+      "workspace_relative_path": "build_paused_settings_workflow.py",
+      "bytes": 9871,
+      "sha256": "ca70437147bd94eb3b6275b02e4ae06cbbfc846a5a20d3645fe8690a9720f911",
+      "file": "audit-tools/build_paused_settings_workflow.py"
+    },
+    {
+      "workspace_relative_path": "build_layout_workflow.py",
+      "bytes": 6652,
+      "sha256": "343415c04234cf7dbcafc1c38bf7b96f02777ea779227f3bb2aded6971121b78",
+      "file": "audit-tools/build_layout_workflow.py"
+    },
+    {
+      "workspace_relative_path": "check_settings_quick_validator.py",
+      "bytes": 7256,
+      "sha256": "bbcb529870e6dd74f3a62cf11af586ade57f33fead2fd8f4908cb63e3c204d57",
+      "file": "audit-tools/check_settings_quick_validator.py"
+    },
+    {
+      "workspace_relative_path": "settings-quick-validator-review.json",
+      "bytes": 2947,
+      "sha256": "2b500892494f7737fee8f8d8c48d668b7d42207f8ca194b1974a7ba9f37f65f7",
+      "file": "audit-tools/settings-quick-validator-review.json"
+    },
+    {
+      "workspace_relative_path": "settings_acceptance_adapter_sources.json",
+      "bytes": 1557,
+      "sha256": "2a6caf6decdd22419600524c4b747047ba782588e0641ee0fe137394e8d829a8",
+      "file": "audit-tools/settings_acceptance_adapter_sources.json"
+    },
+    {
+      "workspace_relative_path": "paused-settings-cloud/verify_auditor_controls.py",
+      "bytes": 8168,
+      "sha256": "04ae6a2332ea3243993a8664c94fccef6743954666ebfc15d8765394114b8813",
+      "file": "audit-tools/paused-settings-cloud/verify_auditor_controls.py"
+    },
+    {
+      "workspace_relative_path": "paused-settings-cloud/auditor-control-results.json",
+      "bytes": 2459,
+      "sha256": "4cab504b8bf313d40271851c1357314490c718df1813249d6e95100ec8483b17",
+      "file": "audit-tools/paused-settings-cloud/auditor-control-results.json"
+    },
+    {
+      "workspace_relative_path": "paused-settings-cloud/e6d4453.yml",
+      "bytes": 16640,
+      "sha256": "2741c0c988a311e5b333b3f196154e2e48f9c5779a279ce5feff1e5c73e24f76",
+      "file": "audit-tools/paused-settings-cloud/e6d4453.yml"
+    },
+    {
+      "workspace_relative_path": "paused-settings-cloud/e6d4453.yml.manifest.json",
+      "bytes": 18090,
+      "sha256": "82a940b27bdb0ea1a7ff2061b3f52faef7ae18a21d7c4127ab722da0ddcbc5f4",
+      "file": "audit-tools/paused-settings-cloud/e6d4453.yml.manifest.json"
+    },
+    {
+      "workspace_relative_path": "paused-settings-cloud/focus2.yml",
+      "bytes": 16640,
+      "sha256": "8111b04d72f44d8bab3a936bdf4458c8a2b9a7183b30f102a876873a00b028e3",
+      "file": "audit-tools/paused-settings-cloud/focus2.yml"
+    },
+    {
+      "workspace_relative_path": "paused-settings-cloud/focus2.yml.manifest.json",
+      "bytes": 18090,
+      "sha256": "76b1413dc93f13695cdb48bc0c37100fc14078051ca5090f7a5decebd8aa6c63",
+      "file": "audit-tools/paused-settings-cloud/focus2.yml.manifest.json"
+    },
+    {
+      "workspace_relative_path": "paused-settings-cloud/focus3-reviewed.yml",
+      "bytes": 11434,
+      "sha256": "ae56356528db6c83e6d3452e67ead1c87107ba858150d9bc256ba11ef884082e",
+      "file": "audit-tools/paused-settings-cloud/focus3-reviewed.yml"
+    },
+    {
+      "workspace_relative_path": "paused-settings-cloud/focus3-reviewed.yml.manifest.json",
+      "bytes": 17740,
+      "sha256": "f173f27251f2bd8b8cc820cd37ed4c79f4eb00ccd3acb0ed64196245f093544f",
+      "file": "audit-tools/paused-settings-cloud/focus3-reviewed.yml.manifest.json"
+    },
+    {
+      "workspace_relative_path": "settings_acceptance_adapters/adapter-provenance.json",
+      "bytes": 3175,
+      "sha256": "df55bec46465c8583fb82be726bc892b7166d30c4869b3fc4ee3703d5f51730c",
+      "archive": "run128/settings-f5-run128.tar.gz",
+      "member": "run128/audit/rendered-coverage-auditors/adapter-provenance.json"
+    },
+    {
+      "workspace_relative_path": "settings_acceptance_adapters/adapter-provenance.pre-run128-correction.json",
+      "bytes": 2697,
+      "sha256": "ba62b4847ab433ec847786225b857fa8e440d45b63c19564a6f37c38f662a859",
+      "archive": "run128/settings-f5-run128.tar.gz",
+      "member": "run128/audit/rendered-coverage-auditors/adapter-provenance.pre-run128-correction.json"
+    },
+    {
+      "workspace_relative_path": "settings_acceptance_adapters/audit_coverage_settings_storage.py",
+      "bytes": 17127,
+      "sha256": "c83eb1fb31fbee407bb1eeb677c379077f33b35ba4339dec5957eded67001d20",
+      "archive": "run128/settings-f5-run128.tar.gz",
+      "member": "run128/audit/rendered-coverage-auditors/audit_coverage_settings_storage.py"
+    },
+    {
+      "workspace_relative_path": "settings_acceptance_adapters/audit_rendered_functional.py",
+      "bytes": 20489,
+      "sha256": "58706d122631644111297a8b6a20b9bd2041e93fab92609cb4c7ad939bfc5736",
+      "archive": "run128/settings-f5-run128.tar.gz",
+      "member": "run128/audit/rendered-coverage-auditors/audit_rendered_functional.py"
+    },
+    {
+      "workspace_relative_path": "settings_acceptance_adapters/audit_rendered_next_component.py",
+      "bytes": 8208,
+      "sha256": "9ac5a8663166c5210c9bcc779c97a9aa90f804144f63dd8efd310c362ace0fa0",
+      "archive": "run128/settings-f5-run128.tar.gz",
+      "member": "run128/audit/rendered-coverage-auditors/audit_rendered_next_component.py"
+    },
+    {
+      "workspace_relative_path": "settings_acceptance_adapters/audit_rendered_reading_trace.py",
+      "bytes": 14324,
+      "sha256": "3107708cdea5c6cf483dfc39a026e3052f0bd731ba16d9cf4fa67d548aa9e180",
+      "archive": "run128/settings-f5-run128.tar.gz",
+      "member": "run128/audit/rendered-coverage-auditors/audit_rendered_reading_trace.py"
+    },
+    {
+      "workspace_relative_path": "settings_acceptance_adapters/cloud_evidence.py",
+      "bytes": 38539,
+      "sha256": "7d0f4139bdb86ad760871713580277e9d8ea5440a6c269a7c6100362545aaa90",
+      "archive": "run128/settings-f5-run128.tar.gz",
+      "member": "run128/audit/rendered-coverage-auditors/cloud_evidence.py"
+    },
+    {
+      "workspace_relative_path": "settings_acceptance_adapters/run128-wrapper-correction.json",
+      "bytes": 2021,
+      "sha256": "6110b06324cf9b5522a2321279c36c7cdc5d9375ee42372488cbb51fabb98e87",
+      "archive": "run128/settings-f5-run128.tar.gz",
+      "member": "run128/audit/rendered-coverage-auditors/run128-wrapper-correction.json"
+    },
+    {
+      "workspace_relative_path": "settings_acceptance_adapters/run_adapters.py",
+      "bytes": 4299,
+      "sha256": "dd0205c57aa3f1677735d230af1d588dc3a95a6b2310f25d29f348eae8a7031d",
+      "archive": "run128/settings-f5-run128.tar.gz",
+      "member": "run128/audit/rendered-coverage-auditors/run_adapters.py"
+    },
+    {
+      "workspace_relative_path": "settings_acceptance_adapters/run_adapters_pre_run128_correction.py",
+      "bytes": 4323,
+      "sha256": "fb64e8ad6cea4be87ed82d2541ebc203fc7b642f434321edf1c7aab07b72bf49",
+      "archive": "run128/settings-f5-run128.tar.gz",
+      "member": "run128/audit/rendered-coverage-auditors/run_adapters_pre_run128_correction.py"
+    },
+    {
+      "workspace_relative_path": "settings_f5_review_adapters_v2/adapter-provenance.json",
+      "bytes": 2234,
+      "sha256": "2cb87beca0ae8f2c19a0f4d3c21972c018da0c69a2468779418474e06edd80ed",
+      "file": "audit-tools/settings_f5_review_adapters_v2/adapter-provenance.json"
+    },
+    {
+      "workspace_relative_path": "settings_f5_review_adapters_v2/audit_coverage_public_surfaces.py",
+      "bytes": 8042,
+      "sha256": "acbf7e6b2f3b44854d151e2e67e48bae69162f57a545fd5f843f4eefbbd360bf",
+      "file": "audit-tools/settings_f5_review_adapters_v2/audit_coverage_public_surfaces.py"
+    },
+    {
+      "workspace_relative_path": "settings_f5_review_adapters_v2/audit_coverage_test_discovery.py",
+      "bytes": 18005,
+      "sha256": "fe8d3c2b60d669c85c76e69ae712650f0eb474b79e13681691830ed4dee84798",
+      "file": "audit-tools/settings_f5_review_adapters_v2/audit_coverage_test_discovery.py"
+    },
+    {
+      "workspace_relative_path": "settings_f5_review_adapters_v2/cloud_evidence.py",
+      "bytes": 38539,
+      "sha256": "7d0f4139bdb86ad760871713580277e9d8ea5440a6c269a7c6100362545aaa90",
+      "archive": "run128/settings-f5-run128.tar.gz",
+      "member": "run128/audit/rendered-coverage-auditors/cloud_evidence.py"
+    },
+    {
+      "workspace_relative_path": "settings-performance-tools/README.md",
+      "bytes": 2260,
+      "sha256": "cb5a666d5723dde82a2d8b185053b81168f8dabd4a48501a1f53b5a45f090140",
+      "file": "audit-tools/settings-performance-tools/README.md"
+    },
+    {
+      "workspace_relative_path": "settings-performance-tools/helper-provenance.json",
+      "bytes": 10998,
+      "sha256": "e0af9b0fb8cb7f18b00b47829db97d9959a405953ff6ebd94d5258d016fed80e",
+      "archive": "run128/settings-f5-run128.tar.gz",
+      "member": "run128/audit/performance-helper-provenance.json"
+    },
+    {
+      "workspace_relative_path": "settings-performance-tools/lazy-auditors/audit_context.py",
+      "bytes": 5669,
+      "sha256": "6fccdb2f7708b5dd516aa15e59fac5ccf1697dafef1897c69f3ca2381002b21c",
+      "archive": "run128/settings-f5-run128.tar.gz",
+      "member": "run128/audit/lazy-auditors/audit_context.py"
+    },
+    {
+      "workspace_relative_path": "settings-performance-tools/lazy-auditors/audit_lazy.py",
+      "bytes": 9176,
+      "sha256": "9b3e683e03a41a0a2e4b8a4751bd7142bbe910a8e67ec7cfa3cb6c3cb6a4e91a",
+      "archive": "run128/settings-f5-run128.tar.gz",
+      "member": "run128/audit/lazy-auditors/audit_lazy.py"
+    },
+    {
+      "workspace_relative_path": "settings-performance-tools/lazy-auditors/auditor-origin.json",
+      "bytes": 1537,
+      "sha256": "5fd509f54c1765cb981d52d27a933ea981226d3e5202603d3ad9a12b8e5e94d1",
+      "archive": "run128/settings-f5-run128.tar.gz",
+      "member": "run128/audit/lazy-auditors/auditor-origin.json"
+    },
+    {
+      "workspace_relative_path": "settings-performance-tools/performance-auditors/README.md",
+      "bytes": 3081,
+      "sha256": "19a4f818f059fba64ec6894dd32bf847eb029ac0e546a07e87b0bcc12b4fabb2",
+      "archive": "run128/settings-f5-run128.tar.gz",
+      "member": "run128/audit/performance-auditors/README.md"
+    },
+    {
+      "workspace_relative_path": "settings-performance-tools/performance-auditors/audit_context.py",
+      "bytes": 5669,
+      "sha256": "6fccdb2f7708b5dd516aa15e59fac5ccf1697dafef1897c69f3ca2381002b21c",
+      "archive": "run128/settings-f5-run128.tar.gz",
+      "member": "run128/audit/lazy-auditors/audit_context.py"
+    },
+    {
+      "workspace_relative_path": "settings-performance-tools/performance-auditors/audit_history_comparisons.py",
+      "bytes": 4773,
+      "sha256": "362aa5f79c7e2992bd6b32304dda7d7ee28983dd22169009f62e8d1f661d4b2e",
+      "archive": "run128/settings-f5-run128.tar.gz",
+      "member": "run128/audit/performance-auditors/audit_history_comparisons.py"
+    },
+    {
+      "workspace_relative_path": "settings-performance-tools/performance-auditors/audit_next_checkpoint_export.py",
+      "bytes": 20323,
+      "sha256": "fe5e8b8b34336adddd594af4f67b0b35cfdc3c57f576117cd7f5321712d7ec7f",
+      "archive": "run128/settings-f5-run128.tar.gz",
+      "member": "run128/audit/performance-auditors/audit_next_checkpoint_export.py"
+    },
+    {
+      "workspace_relative_path": "settings-performance-tools/performance-auditors/audit_region_warm_measurements.py",
+      "bytes": 7588,
+      "sha256": "c9610e63095c6b2ef771502086d6cd1d5c88dc7caed0214c666e01a8929610e3",
+      "archive": "run128/settings-f5-run128.tar.gz",
+      "member": "run128/audit/performance-auditors/audit_region_warm_measurements.py"
+    },
+    {
+      "workspace_relative_path": "settings-performance-tools/performance-auditors/audit_retained_performance.py",
+      "bytes": 10737,
+      "sha256": "c50ddbb3e11ab78f7c78d25c1a040cf4f7377223a3b7e50f8b41d8583ca695e2",
+      "archive": "run128/settings-f5-run128.tar.gz",
+      "member": "run128/audit/performance-auditors/audit_retained_performance.py"
+    },
+    {
+      "workspace_relative_path": "settings-performance-tools/performance-auditors/audit_warm_source_guard.py",
+      "bytes": 4795,
+      "sha256": "b9004e979a9fef772375259e9a3d81e94e835e1fdbcbaadef86422c0d1119770",
+      "archive": "run128/settings-f5-run128.tar.gz",
+      "member": "run128/audit/performance-auditors/audit_warm_source_guard.py"
+    },
+    {
+      "workspace_relative_path": "settings-performance-tools/performance-auditors/finish_retained_history.py",
+      "bytes": 2339,
+      "sha256": "e7758890401f711c3573e98a5b052bd91a534625cfa90467b6d84856bc845b6f",
+      "archive": "run128/settings-f5-run128.tar.gz",
+      "member": "run128/audit/performance-auditors/finish_retained_history.py"
+    },
+    {
+      "workspace_relative_path": "settings-performance-tools/performance-auditors/join_non_gut.py",
+      "bytes": 6935,
+      "sha256": "d816dbe2e4446df5e65526f7c6d307c6fbc86e44f8c6d5c200181ef54b227a6b",
+      "archive": "run128/settings-f5-run128.tar.gz",
+      "member": "run128/audit/performance-auditors/join_non_gut.py"
+    },
+    {
+      "workspace_relative_path": "settings-performance-tools/performance-auditors/origin-manifest.json",
+      "bytes": 2937,
+      "sha256": "a7d7bbc46454a5bdd03a60c86fbf9760d7c1fd4b579747ff1617d075003e7174",
+      "archive": "run128/settings-f5-run128.tar.gz",
+      "member": "run128/audit/performance-auditors/origin-manifest.json"
+    },
+    {
+      "workspace_relative_path": "settings-performance-tools/preparation-verification.json",
+      "bytes": 924,
+      "sha256": "a4304f4c6b8a9badceee4ec6a28d4c28366383a0e2516e2ee994105860badcd9",
+      "file": "audit-tools/settings-performance-tools/preparation-verification.json"
+    },
+    {
+      "workspace_relative_path": "settings-performance-tools/run_audits.py",
+      "bytes": 12732,
+      "sha256": "25f3c11f9cda646862d5bee7e690fb273a8852c7115fe84aba54cec4dfb5fbeb",
+      "archive": "run128/settings-f5-run128.tar.gz",
+      "member": "run128/audit/performance-runner.py"
+    },
+    {
+      "workspace_relative_path": "settings-performance-tools/run_join.py",
+      "bytes": 3604,
+      "sha256": "6e726ca080a51611c61a82650299050ab5be0e212d26eddfd23abc934c38f30a",
+      "archive": "run128/settings-f5-run128.tar.gz",
+      "member": "run128/audit/performance-join-runner.py"
+    },
+    {
+      "workspace_relative_path": "prepare_settings_navigation.py",
+      "bytes": 22828,
+      "sha256": "c7b504286cacf4f5aa6a0698ed57a12599506d419dca45a0457fabd68f8afd36",
+      "file": "audit-tools/prepare_settings_navigation.py"
+    },
+    {
+      "workspace_relative_path": "finalize_settings_evidence.py",
+      "bytes": 35182,
+      "sha256": "400e8f9588e15b46adaaaaadaaea8e4a5da94836d2a4ecbc8f3108d22a255a43",
+      "file": "audit-tools/finalize_settings_evidence.py"
+    },
+    {
+      "workspace_relative_path": "audit_physical_selector_journey.py",
+      "repository_file": "evidence/phase_2r/physical_authored_selector_2026_10_02/audit-tools/audit_physical_selector_journey.py",
+      "file": "../physical_authored_selector_2026_10_02/audit-tools/audit_physical_selector_journey.py",
+      "bytes": 35924,
+      "sha256": "df20b8cc91daedb3fbc909b376539369e04174e196e2f8496818593016af1d1c"
+    }
+  ],
+  "materialization": "Extract bundles and place helper bytes at workspace_relative_path; exact matching helpers already inside Run128 are indexed instead of duplicated.",
+  "limits": [
+    "Compressed packages preserve their explicit exclusions. Original local_zip manifests and binary downloads are not all embedded; reproducing an auditor may require reobtaining its identity-bound upstream artifact. Preserving helpers is not a claim of fully offline replay.",
+    "Historical validator controls require source-bound Run127 inputs and use original absolute paths; their preservation is provenance, not standalone replay."
+  ]
+}

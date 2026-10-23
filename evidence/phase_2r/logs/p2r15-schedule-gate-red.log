@@ -1,0 +1,142 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/.godot/worktrees/dwm-p2r13-resealed/.godot/phase2r_tests/a62bb7d2-0d00-45dd-8237-4df9fb1fdbac/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+res://tests/unit/tooling/test_phase2r_schedule_gate.gd
+* test_generator_loads_and_freezes_its_contract
+* test_write_and_check_forms_are_accepted_with_exactly_the_three_flags
+* test_every_malformed_invocation_is_rejected_with_its_own_code
+* test_declared_surface_parser_applies_its_frozen_rules
+* test_comment_stripper_removes_comments_but_keeps_hash_characters_inside_strings
+* test_matrix_blob_is_selected_byte_exactly_from_the_committed_plan_text
+* test_matrix_delimiter_law_rejects_every_delimiter_tamper
+* test_the_thirteen_rows_are_read_out_of_the_plan_text
+* test_matrix_row_parser_rejects_structural_tampers_and_reflects_token_swaps
+* test_gut_log_parser_reads_counts_executed_suites_load_failures_and_vectors
+* test_derive_child_census_classifier_separates_definition_capability_calls_and_dynamic_sites
+* test_fixture_audit_accepts_exact_committed_entries_and_refuses_caller_owned_fields
+* test_every_checked_in_snapshot_and_save_fixture_passes_the_structural_audit
+* test_every_required_declared_surface_entry_is_present_and_every_retired_symbol_absent
+* test_forbidden_tokens_are_absent_from_executable_plan01_source
+* test_every_matrix_role_literal_is_owned_by_its_producer_and_unrealized_roles_are_absent
+* test_derive_child_census_at_head_attributes_every_call_site_to_a_matrix_producer
+* test_bootstrap_probe_key_set_and_owner_bindings_are_exact
+* test_required_surface_manifest_classifies_the_task4_game_state_seams
+    [Failed]:  capture_schedule_commit_state is classified as a current symbol
+      at line 660
+    [Failed]:  prepare_schedule_commit_candidate is classified as a current symbol
+      at line 660
+    [Failed]:  commit_schedule_commit_candidate is classified as a current symbol
+      at line 660
+    [Failed]:  rollback_schedule_commit_state is classified as a current symbol
+      at line 660
+    [Failed]:  publish_schedule_commit is classified as a current symbol
+      at line 660
+    [Failed]:  committed_schedule_published is classified as a current symbol
+      at line 660
+* test_committed_entry_key_law_and_state_schema_agree
+* test_stage_arrays_are_frozen_and_the_ending_residue_is_unreachable
+* test_the_realized_witness_care_entry_format_is_pinned_with_its_plan_drift
+* test_day_advance_identity_shapes_are_bound_from_source
+* test_observed_vectors_for_contact_source_solo_empty_done_and_day7_provenance
+P2R15_OBSERVED_VECTOR:{"child_id":"contact_source.6a78cbf6a23f38f1786e6952996a397fdb325ee7a76ce75885b67f53d2703727","child_kind":"contact_source","ordinal":0,"parent_receipt_id":"issuer_receipt.561c0bed098616ac241cdc1ef544fecea208b0da18fc04255ceae8e5e370bd83","row_id":"P01.contact_source.solo","source_ids":["action_id=\"solo:sylvia:day1\"","command_id=\"transaction_id.13469209174fc1c8c5b0a5db5d013b54241cbb09aa76c5a99d8f3487590d5a3b\"","day=1","kind=\"solo_read_acceptance\"","participants=[\"sylvia\"]","previous_receipt_id=\"offer.solo:sylvia:day1\"","role=\"contact_source.solo\""]}
+P2R15_OBSERVED_VECTOR:{"child_id":"empty_schedule_done.c027a7661a121acb26bf01170e214f2a3045c3e4709520e01ebcb86eaa82041d","child_kind":"empty_schedule_done","ordinal":0,"parent_receipt_id":"issuer_receipt.a73477c9f5858a0ec4d49a14177baecc89b7630961556371bfb9b3382f1d34be","row_id":"P01.schedule.empty_done","source_ids":["causal_day_instance=\"causal_day_instance.1515151515151515151515151515151515151515151515151515151515151515\"","day=7","draft_entries_sha256=\"4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945\"","motivation_charged=0","registry_fingerprint=\"71eb92c6dc3b902cc9e6c17928685c0a4772a9da51150316b29177fef0d73c76\"","role=\"schedule.empty_done\"","schedule_entry_ids=[]","source_receipt_ids=[]","transaction_id=\"transaction_id.4387a405089591e99a4217cedfcc1ce1415cd1eab942be3337e73b480ab723d8\"","view_fingerprint=\"opaque_view.15151515151515151515151515151515\""]}
+P2R15_OBSERVED_VECTOR:{"child_id":"day7_schedule_provenance.28a22be00cf3f9aa751fd84ee292e6f497731d74a08a520dc39ea4dad3299605","child_kind":"day7_schedule_provenance","ordinal":0,"parent_receipt_id":"issuer_receipt.a73477c9f5858a0ec4d49a14177baecc89b7630961556371bfb9b3382f1d34be","row_id":"P01.schedule.day7_provenance","source_ids":["action_id=null","causal_day_instance=\"causal_day_instance.1515151515151515151515151515151515151515151515151515151515151515\"","cause=\"empty_done\"","day=7","registry_fingerprint=\"71eb92c6dc3b902cc9e6c17928685c0a4772a9da51150316b29177fef0d73c76\"","role=\"schedule.day7_provenance\"","schedule_commit_receipt_id=\"empty_schedule_done.c027a7661a121acb26bf01170e214f2a3045c3e4709520e01ebcb86eaa82041d\"","schedule_entry_id=null","source_receipt_id=null","transaction_id=\"transaction_id.4387a405089591e99a4217cedfcc1ce1415cd1eab942be3337e73b480ab723d8\""]}
+* test_observed_vectors_for_the_day3_hospital_walk_with_two_superseded_dates
+P2R15_OBSERVED_VECTOR:{"child_id":"contact_source.91577e1830b40dcc619d3b7bb11f75dbd1efc570fe8df4fe4a5ba3067540381f","child_kind":"contact_source","ordinal":0,"parent_receipt_id":"issuer_receipt.a73477c9f5858a0ec4d49a14177baecc89b7630961556371bfb9b3382f1d34be","row_id":"P01.contact_source.group","source_ids":["action_id=\"group:priscilla_lavinia:day2\"","command_id=\"transaction_id.4387a405089591e99a4217cedfcc1ce1415cd1eab942be3337e73b480ab723d8\"","day=2","kind=\"group_reply_acceptance\"","participants=[\"priscilla\",\"lavinia\"]","previous_receipt_id=\"group.activate.day2\"","role=\"contact_source.group\""]}
+P2R15_OBSERVED_VECTOR:{"child_id":"schedule_entry.4974eb21d05bed90bed3c43a83e1290f557d6cfd1a7ed5d81bae2365d689f555","child_kind":"schedule_entry","ordinal":0,"parent_receipt_id":"issuer_receipt.747c4a2256d48b7df09cfc0271c6056eae04e628bffd0b01bdc3853a5c5a4bae","row_id":"P01.schedule.entry","source_ids":["action_id=\"solo:lavinia:day3\"","action_kind=\"solo\"","causal_day_instance=\"causal_day_instance.1515151515151515151515151515151515151515151515151515151515151515\"","day=3","draft_entry_id=\"d-lav\"","participants=[\"lavinia\"]","registry_fingerprint=\"71eb92c6dc3b902cc9e6c17928685c0a4772a9da51150316b29177fef0d73c76\"","role=\"schedule.entry\"","slot_index=0","source_receipt_id=\"contact_source.133b64acba1f91d66a2a30f68384d0ac3c3ed90bbd84795cf882dd801035964a\"","transaction_id=\"transaction_id.e3a462936cc8ba87f45b7acf2ab6c46233707bc487d61e0b1ec73e9665c1eca9\"","view_fingerprint=\"opaque_view.15151515151515151515151515151515\""]}
+P2R15_OBSERVED_VECTOR:{"child_id":"schedule_commit.0c29b5a16700dd8ea07d53362c366333cf46051b4d42fdc22bed9862d73b3d90","child_kind":"schedule_commit","ordinal":0,"parent_receipt_id":"issuer_receipt.747c4a2256d48b7df09cfc0271c6056eae04e628bffd0b01bdc3853a5c5a4bae","row_id":"P01.schedule.commit","source_ids":["causal_day_instance=\"causal_day_instance.1515151515151515151515151515151515151515151515151515151515151515\"","day=3","draft_entries_sha256=\"8f45a2efeb6b214e02883955d58ebcfb18113e3879306127c5a8a2a75be5e70d\"","motivation_charged=3","registry_fingerprint=\"71eb92c6dc3b902cc9e6c17928685c0a4772a9da51150316b29177fef0d73c76\"","role=\"schedule.commit\"","schedule_entry_ids=[\"schedule_entry.4974eb21d05bed90bed3c43a83e1290f557d6cfd1a7ed5d81bae2365d689f555\",\"schedule_entry.b5da40b17f2ca8d1e3dd835d78097db25d9c0076d9dee7033b210147ce909dc9\",\"schedule_entry.97416024f22e21293d63ba241850406ca6b60806a709e04d17d85f16f93e8c30\"]","source_receipt_ids=[\"contact_source.133b64acba1f91d66a2a30f68384d0ac3c3ed90bbd84795cf882dd801035964a\",\"contact_source.f06a997da198dd59c12a7d51a797adf13b799e2db4b79a850a64a1d7f165a1f3\",null]","transaction_id=\"transaction_id.e3a462936cc8ba87f45b7acf2ab6c46233707bc487d61e0b1ec73e9665c1eca9\"","view_fingerprint=\"opaque_view.15151515151515151515151515151515\""]}
+P2R15_OBSERVED_VECTOR:{"child_id":"day_resolution_stage.ce2f0492805844a84450ca50272a6720f34f0a39b0a8a66eec18e7dfc4f3a6ef","child_kind":"day_resolution_stage","ordinal":0,"parent_receipt_id":"issuer_receipt.852bfe2ce4de85a7e59d77412752ac847eea997cb05aa81436148218090aa045","row_id":"P01.day_resolution.start","source_ids":["board_fate_receipt_id=\"issuer_receipt.8a5c3c9c9c64486190d2f0f0295e91fbf737d6941cf79240bd258494cb9022d5\"","board_fate_receipt_sha256=\"03af9ce2216c41ff2da8eaa82f9efc686d845495d3cf3c3602b67f576e6a7215\"","causal_day_instance=\"causal_day_instance.1515151515151515151515151515151515151515151515151515151515151515\"","committed_schedule_sha256=\"f8eaa147f7f382e0eb87167cdad8cda931e044d74e8147e7b195d3e8f35d1456\"","registry_fingerprint=\"71eb92c6dc3b902cc9e6c17928685c0a4772a9da51150316b29177fef0d73c76\"","resolution_id=\"transaction_id.f21ebadf0a61949e95602cfb81e6860294036dd2b3c050336aa40b89af3ce246\"","role=\"day_resolution.start\"","route_plan_sha256=\"bae1d0a37d4747b52b758c4eca48a7303a44a05cdcf1ec6a5f648b22ff2c0a89\"","schedule_commit_receipt_id=\"schedule_commit.0c29b5a16700dd8ea07d53362c366333cf46051b4d42fdc22bed9862d73b3d90\"","schedule_entry_ids=[\"schedule_entry.4974eb21d05bed90bed3c43a83e1290f557d6cfd1a7ed5d81bae2365d689f555\",\"schedule_entry.b5da40b17f2ca8d1e3dd835d78097db25d9c0076d9dee7033b210147ce909dc9\",\"schedule_entry.97416024f22e21293d63ba241850406ca6b60806a709e04d17d85f16f93e8c30\"]","source_day=3"]}
+P2R15_OBSERVED_PUBLICATION:{"conflict_code":"day_resolution_start_publication_conflict","first_delivery_sequence":[true,false],"kind":"day_resolution_start","owner":"day_resolution_start_port","signal":"save_relevant_state_changed","signal_counts":[1,1]}
+P2R15_OBSERVED_VECTOR:{"child_id":"hospital_resolution.7fb23f058eb72bb3ebad72e1f21c8dc2d101f1cd0a924475e3d8ecbc9e40d7e8","child_kind":"hospital_resolution","ordinal":0,"parent_receipt_id":"issuer_receipt.852bfe2ce4de85a7e59d77412752ac847eea997cb05aa81436148218090aa045","row_id":"P01.hospital.resolution","source_ids":["causal_day_instance=\"causal_day_instance.1515151515151515151515151515151515151515151515151515151515151515\"","condition_receipt_id=\"issuer_receipt.d319071d76682d873551f74c44eacfb0314b99ada6a3c331619acd44d1f9ea02\"","date_schedule_entry_ids=[\"schedule_entry.4974eb21d05bed90bed3c43a83e1290f557d6cfd1a7ed5d81bae2365d689f555\",\"schedule_entry.b5da40b17f2ca8d1e3dd835d78097db25d9c0076d9dee7033b210147ce909dc9\"]","day_resolution_start_receipt_id=\"day_resolution_stage.ce2f0492805844a84450ca50272a6720f34f0a39b0a8a66eec18e7dfc4f3a6ef\"","required=true","resolution_id=\"transaction_id.f21ebadf0a61949e95602cfb81e6860294036dd2b3c050336aa40b89af3ce246\"","role=\"hospital.resolution\"","schedule_commit_receipt_id=\"schedule_commit.0c29b5a16700dd8ea07d53362c366333cf46051b4d42fdc22bed9862d73b3d90\"","source_day=3"]}
+P2R15_OBSERVED_VECTOR:{"child_id":"hospital_miss.a9c8c876c01e07f639c76cda9a34b34a967a614a031d2f6eee9833479a1b9735","child_kind":"hospital_miss","ordinal":0,"parent_receipt_id":"issuer_receipt.852bfe2ce4de85a7e59d77412752ac847eea997cb05aa81436148218090aa045","row_id":"P01.hospital.miss","source_ids":["action_id=\"solo:lavinia:day3\"","causal_day_instance=\"causal_day_instance.1515151515151515151515151515151515151515151515151515151515151515\"","hospital_resolution_id=\"hospital_resolution.7fb23f058eb72bb3ebad72e1f21c8dc2d101f1cd0a924475e3d8ecbc9e40d7e8\"","reason=\"prevented_by_fainting\"","resolution_id=\"transaction_id.f21ebadf0a61949e95602cfb81e6860294036dd2b3c050336aa40b89af3ce246\"","role=\"hospital.miss\"","schedule_entry_id=\"schedule_entry.4974eb21d05bed90bed3c43a83e1290f557d6cfd1a7ed5d81bae2365d689f555\"","source_day=3","source_receipt_id=\"contact_source.133b64acba1f91d66a2a30f68384d0ac3c3ed90bbd84795cf882dd801035964a\""]}
+P2R15_OBSERVED_VECTOR:{"child_id":"day_resolution_stage.ab2aaf6e617615bebd3151a2afc302bef64370cfdc0fa09e6dd431b25999b86b","child_kind":"day_resolution_stage","ordinal":0,"parent_receipt_id":"issuer_receipt.852bfe2ce4de85a7e59d77412752ac847eea997cb05aa81436148218090aa045","row_id":"P01.presentation.intent","source_ids":["causal_day_instance=\"causal_day_instance.1515151515151515151515151515151515151515151515151515151515151515\"","context_sha256=\"1b4284381946d74ec1f29e66cbdce6d917ba60c4b8b321b72d5c9c74a1c89fa3\"","day_resolution_start_receipt_id=\"day_resolution_stage.ce2f0492805844a84450ca50272a6720f34f0a39b0a8a66eec18e7dfc4f3a6ef\"","input_receipt_ids=[\"hospital_miss.515b794cf75e2a459567448e6295362b4642b7727bad87a3c7560c7fb8f04c4d\",\"hospital_miss.a9c8c876c01e07f639c76cda9a34b34a967a614a031d2f6eee9833479a1b9735\",\"issuer_receipt.d319071d76682d873551f74c44eacfb0314b99ada6a3c331619acd44d1f9ea02\"]","presentation_kind=\"hospital\"","resolution_id=\"transaction_id.f21ebadf0a61949e95602cfb81e6860294036dd2b3c050336aa40b89af3ce246\"","role=\"presentation.intent\"","route_id=\"hospital\"","schedule_entry_id=null","source_day=3","stage_index=4","stage_name=\"hospital_if_triggered\"","timeline_id=\"hospital.faint\""]}
+P2R15_OBSERVED_VECTOR:{"child_id":"day_resolution_stage.2687929ca0a0526dd09915bbe98841a0da0c94a4341ad724e9880f3e642da79a","child_kind":"day_resolution_stage","ordinal":0,"parent_receipt_id":"issuer_receipt.852bfe2ce4de85a7e59d77412752ac847eea997cb05aa81436148218090aa045","row_id":"P01.presentation.completion","source_ids":["context_sha256=\"1b4284381946d74ec1f29e66cbdce6d917ba60c4b8b321b72d5c9c74a1c89fa3\"","resolution_id=\"transaction_id.f21ebadf0a61949e95602cfb81e6860294036dd2b3c050336aa40b89af3ce246\"","role=\"presentation.completion\"","route_id=\"hospital\"","stage_id=\"transaction_id.f21ebadf0a61949e95602cfb81e6860294036dd2b3c050336aa40b89af3ce246:hospital_if_triggered\"","substage_id=\"day_resolution_stage.ab2aaf6e617615bebd3151a2afc302bef64370cfdc0fa09e6dd431b25999b86b\"","timeline_id=\"hospital.faint\""]}
+* test_observed_publication_vectors_over_the_real_ledger_and_ports
+P2R15_OBSERVED_PUBLICATION:{"conflict_code":"publication_record_conflict","first_delivery_sequence":[true,false],"kind":"schedule_commit","owner":"ledger","signal":"","signal_counts":[]}
+P2R15_OBSERVED_PUBLICATION:{"conflict_code":"schedule_publication_conflict","first_delivery_sequence":[true,false],"kind":"schedule_commit","owner":"schedule_commit_port","signal":"committed_schedule_published","signal_counts":[1,1]}
+P2R15_OBSERVED_PUBLICATION:{"conflict_code":"publication_record_conflict","first_delivery_sequence":[true,false],"kind":"day_resolution_start","owner":"ledger","signal":"","signal_counts":[]}
+* test_observed_day7_scheduled_solo_handoff
+* test_every_observed_provenance_is_refused_by_the_issuer_when_any_member_is_mutated
+* test_unrealized_rows_are_pinned_to_their_recorded_deviations
+* test_record_is_absent_before_generation_or_valid_canonical_and_source_bound_afterwards
+* test_the_law_rejects_every_record_tamper_with_its_own_code
+* test_the_schema_rejects_every_frozen_member_tamper_on_its_own
+* test_only_the_law_sees_digest_case_commit_length_and_vector_paths
+* test_the_record_binds_the_recorded_beads_chain_and_exclusions
+33/34 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/unit/tooling/test_phase2r_schedule_gate.gd
+    - Outside Tests
+        * [<Node#93516203737>(subsystem_animation.gd)]
+        * [<Node#93532980954>(subsystem_audio.gd)]
+        * [<Node#93549758171>]
+        * [<Node#93566535388>]
+        * [<Node#93583312605>(subsystem_backgrounds.gd)]
+        * [<Node#94120183518>(subsystem_choices.gd)]
+        * [<Timer#94136960735>]
+        * [<Node#94153737952>(subsystem_expression.gd)]
+        * [<Node#94187292389>(subsystem_glossary.gd)]
+        * [<Node#94204069606>(subsystem_history.gd)]
+        * [<Node#94220846823>(subsystem_input.gd)]
+        * [<Timer#94237624040>]
+        * [<Node#94254401257>(subsystem_jump.gd)]
+        * [<Node#94271178474>(subsystem_containers.gd)]
+        * [<Node#94287955691>(subsystem_portraits.gd)]
+        * [<Node#94824826604>(subsystem_save.gd)]
+        * [<Timer#94841603821>]
+        * [<Node#94858381038>(subsystem_settings.gd)]
+        * [<Node#94875158258>(subsystem_styles.gd)]
+        * [<Node#94891935475>(subsystem_text.gd)]
+        * [<Node#94975821560>(subsystem_text_input.gd)]
+        * [<Node#94992598777>(subsystem_variables.gd)]
+        * [<Node#95009375994>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#95026153211>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+res://tests/unit/tooling/test_phase2r_schedule_gate.gd
+- test_required_surface_manifest_classifies_the_task4_game_state_seams
+    [Failed]:  capture_schedule_commit_state is classified as a current symbol
+          at line 660
+    [Failed]:  prepare_schedule_commit_candidate is classified as a current symbol
+          at line 660
+    [Failed]:  commit_schedule_commit_candidate is classified as a current symbol
+          at line 660
+    [Failed]:  rollback_schedule_commit_state is classified as a current symbol
+          at line 660
+    [Failed]:  publish_schedule_commit is classified as a current symbol
+          at line 660
+    [Failed]:  committed_schedule_published is classified as a current symbol
+          at line 660
+
+Totals
+------
+Scripts               1
+Tests                34
+Passing Tests        33
+Failing Tests         1
+Asserts           1120/1126
+Orphans              24
+Time              3.652s
+
+
+---- 1 failing tests ----
+

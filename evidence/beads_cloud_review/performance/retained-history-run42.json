@@ -1,0 +1,578 @@
+{
+  "run_id": 35629589023,
+  "pr_head": "0fa182fdf5ca6999f4adcfe0369781d2a308a6db",
+  "checkout_merge": "63ae9c41d8bcd54005802b92a77f1f8287f833f0",
+  "history": {
+    "job_id": 106432254209,
+    "conclusion": "success",
+    "proof": {
+      "checkout_ref": "63ae9c41d8bcd54005802b92a77f1f8287f833f0",
+      "payload_bytes": 1671259,
+      "payload_sha256": "ab3d1d817df924350240041aea4bb71b3a698fe439f1b6a66fef7030351078ea",
+      "write": {
+        "autosave_sha256": "ab3d1d817df924350240041aea4bb71b3a698fe439f1b6a66fef7030351078ea",
+        "days": 7,
+        "retained": {
+          "line": 32,
+          "manual_save": 32,
+          "semantic": 2
+        },
+        "synthetic_checkpoints": 98
+      },
+      "cold_read": {
+        "autosave_sha256": "ab3d1d817df924350240041aea4bb71b3a698fe439f1b6a66fef7030351078ea",
+        "day": 7,
+        "login_us": 9709482,
+        "retained": {
+          "line": 32,
+          "manual_save": 32,
+          "semantic": 2
+        }
+      },
+      "fixture": "7 synthetic line and 7 synthetic manual checkpoint records/day, plus one real Slot 1 save and App loss/day. Public Schedule Done advances to Day 7. This is not an authored-dialogue playthrough.",
+      "timing_policy": "Observations on one shared Windows runner; no speed threshold or physical input-to-paint guarantee."
+    },
+    "days": [
+      {
+        "day": 1,
+        "retained": {
+          "line": 7,
+          "manual_save": 8,
+          "semantic": 2
+        },
+        "autosave_bytes": 110611,
+        "first_reveal_sync_us": 94202,
+        "terminal_reveal_sync_us": 8316,
+        "terminal_settlement_us": 137865,
+        "manual_slot_save_us": 185074,
+        "autosave_sha256": "5e8e503f1cd13826deaf2fdc76659abb2db0f3d64639c901999083537bb2c0ae"
+      },
+      {
+        "day": 2,
+        "retained": {
+          "line": 14,
+          "manual_save": 16,
+          "semantic": 2
+        },
+        "autosave_bytes": 424399,
+        "first_reveal_sync_us": 267997,
+        "terminal_reveal_sync_us": 8409,
+        "terminal_settlement_us": 248397,
+        "manual_slot_save_us": 759838,
+        "autosave_sha256": "731777f3f61fb89b47a8969887c1618c5833f18e8030e7f19e9a8a63e1de34fe"
+      },
+      {
+        "day": 3,
+        "retained": {
+          "line": 21,
+          "manual_save": 24,
+          "semantic": 2
+        },
+        "autosave_bytes": 736564,
+        "first_reveal_sync_us": 431528,
+        "terminal_reveal_sync_us": 8240,
+        "terminal_settlement_us": 321738,
+        "manual_slot_save_us": 1530160,
+        "autosave_sha256": "b7b26b37dff2e422c0d80ec0886b4bf4438e81cc820e4fea75693b38674c7eae"
+      },
+      {
+        "day": 4,
+        "retained": {
+          "line": 28,
+          "manual_save": 32,
+          "semantic": 2
+        },
+        "autosave_bytes": 1072564,
+        "first_reveal_sync_us": 594491,
+        "terminal_reveal_sync_us": 8525,
+        "terminal_settlement_us": 422548,
+        "manual_slot_save_us": 2362406,
+        "autosave_sha256": "5804395d54449b87bf44fcc608fe9db675ddec246087a13d901fc9a0427ce81f"
+      },
+      {
+        "day": 5,
+        "retained": {
+          "line": 32,
+          "manual_save": 32,
+          "semantic": 2
+        },
+        "autosave_bytes": 1384659,
+        "first_reveal_sync_us": 754566,
+        "terminal_reveal_sync_us": 8457,
+        "terminal_settlement_us": 531580,
+        "manual_slot_save_us": 3153383,
+        "autosave_sha256": "1a2d48d496ad5a0103dfeab3e8105a7d59d5789dbc9748dfd276dadf02df41af"
+      },
+      {
+        "day": 6,
+        "retained": {
+          "line": 32,
+          "manual_save": 32,
+          "semantic": 2
+        },
+        "autosave_bytes": 1553767,
+        "first_reveal_sync_us": 854510,
+        "terminal_reveal_sync_us": 8736,
+        "terminal_settlement_us": 580560,
+        "manual_slot_save_us": 3745622,
+        "autosave_sha256": "1679b4cb1122210bf2bbb81f3aa1125b2bef2d83046006d401db8858cd7372b8"
+      },
+      {
+        "day": 7,
+        "retained": {
+          "line": 32,
+          "manual_save": 32,
+          "semantic": 2
+        },
+        "autosave_bytes": 1671259,
+        "first_reveal_sync_us": 911698,
+        "terminal_reveal_sync_us": 8606,
+        "terminal_settlement_us": 627815,
+        "manual_slot_save_us": 4123819,
+        "autosave_sha256": "ab3d1d817df924350240041aea4bb71b3a698fe439f1b6a66fef7030351078ea"
+      }
+    ],
+    "checkpoint_phase_summaries": [
+      {
+        "family": "checkpoint",
+        "group": "save_checkpoint_prepare||day_resolution_stage",
+        "count": 66,
+        "phases": {
+          "elapsed_us": {
+            "sum": 1372813,
+            "median": 11357,
+            "max": 214604
+          },
+          "run_snapshot_build_us": {
+            "sum": 183205,
+            "median": 2840,
+            "max": 3634
+          },
+          "journal_prepare_us": {
+            "sum": 485672,
+            "median": 7983,
+            "max": 14006
+          },
+          "document_build_us": {
+            "sum": 633067,
+            "median": 126623,
+            "max": 181519
+          },
+          "backup_us": {
+            "sum": 56068,
+            "median": 11248,
+            "max": 16085
+          }
+        }
+      },
+      {
+        "family": "checkpoint",
+        "group": "save_checkpoint_prepare||day_start",
+        "count": 6,
+        "phases": {
+          "elapsed_us": {
+            "sum": 714447,
+            "median": 143811,
+            "max": 209391
+          },
+          "run_snapshot_build_us": {
+            "sum": 12311,
+            "median": 2139,
+            "max": 2579
+          },
+          "journal_prepare_us": {
+            "sum": 43507,
+            "median": 8950,
+            "max": 12876
+          },
+          "document_build_us": {
+            "sum": 599829,
+            "median": 120939,
+            "max": 177284
+          },
+          "backup_us": {
+            "sum": 57851,
+            "median": 11608,
+            "max": 16466
+          }
+        }
+      },
+      {
+        "family": "checkpoint",
+        "group": "save_checkpoint_prepare||post_result",
+        "count": 7,
+        "phases": {
+          "elapsed_us": {
+            "sum": 231133,
+            "median": 33743,
+            "max": 52582
+          },
+          "run_snapshot_build_us": {
+            "sum": 18790,
+            "median": 2661,
+            "max": 3405
+          },
+          "journal_prepare_us": {
+            "sum": 59726,
+            "median": 8733,
+            "max": 14430
+          },
+          "document_build_us": {
+            "sum": 80986,
+            "median": 11420,
+            "max": 17860
+          },
+          "backup_us": {
+            "sum": 71217,
+            "median": 10961,
+            "max": 17097
+          }
+        }
+      },
+      {
+        "family": "checkpoint",
+        "group": "save_checkpoint_prepare||pre_board",
+        "count": 7,
+        "phases": {
+          "elapsed_us": {
+            "sum": 924076,
+            "median": 142003,
+            "max": 226912
+          },
+          "run_snapshot_build_us": {
+            "sum": 16335,
+            "median": 2485,
+            "max": 2957
+          },
+          "journal_prepare_us": {
+            "sum": 53883,
+            "median": 8206,
+            "max": 13801
+          },
+          "document_build_us": {
+            "sum": 792417,
+            "median": 123523,
+            "max": 193776
+          },
+          "backup_us": {
+            "sum": 59609,
+            "median": 7503,
+            "max": 16059
+          }
+        }
+      },
+      {
+        "family": "checkpoint",
+        "group": "save_checkpoint_prepare||safe_marker",
+        "count": 8,
+        "phases": {
+          "elapsed_us": {
+            "sum": 433182,
+            "median": 45084,
+            "max": 208857
+          },
+          "run_snapshot_build_us": {
+            "sum": 18584,
+            "median": 2440,
+            "max": 2801
+          },
+          "journal_prepare_us": {
+            "sum": 71236,
+            "median": 12336,
+            "max": 13935
+          },
+          "document_build_us": {
+            "sum": 255346,
+            "median": 15557,
+            "max": 176733
+          },
+          "backup_us": {
+            "sum": 87270,
+            "median": 14690,
+            "max": 17118
+          }
+        }
+      },
+      {
+        "family": "checkpoint",
+        "group": "save_checkpoint||",
+        "count": 94,
+        "phases": {
+          "elapsed_us": {
+            "sum": 8657623,
+            "median": 18277,
+            "max": 625492
+          },
+          "outgoing_schema_us": {
+            "sum": 2860721,
+            "median": 56381,
+            "max": 203368
+          },
+          "stringify_us": {
+            "sum": 161715,
+            "median": 4020,
+            "max": 9217
+          },
+          "splice_us": {
+            "sum": 1806738,
+            "median": 38009,
+            "max": 159632
+          },
+          "write_atomic_us": {
+            "sum": 960709,
+            "median": 31365,
+            "max": 51469
+          },
+          "reread_us": {
+            "sum": 173120,
+            "median": 5594,
+            "max": 10050
+          },
+          "journal_us": {
+            "sum": 1143588,
+            "median": 12947,
+            "max": 22176
+          },
+          "journal_proof_us": {
+            "sum": 1019516,
+            "median": 8,
+            "max": 153712
+          }
+        },
+        "spliced": 14,
+        "full_document": 20
+      }
+    ],
+    "consequence_phase_summaries": [
+      {
+        "family": "consequence",
+        "group": "accept|prepare_and_forward_inclusive|",
+        "count": 7,
+        "phases": {
+          "elapsed_us": {
+            "sum": 1542841,
+            "median": 226057,
+            "max": 331802
+          }
+        }
+      },
+      {
+        "family": "consequence",
+        "group": "completion_save|capture|",
+        "count": 7,
+        "phases": {
+          "elapsed_us": {
+            "sum": 5312,
+            "median": 758,
+            "max": 831
+          }
+        }
+      },
+      {
+        "family": "consequence",
+        "group": "completion_save|commit_inclusive|",
+        "count": 7,
+        "phases": {
+          "elapsed_us": {
+            "sum": 775747,
+            "median": 117269,
+            "max": 182572
+          }
+        }
+      },
+      {
+        "family": "consequence",
+        "group": "completion_save|prepare|",
+        "count": 7,
+        "phases": {
+          "elapsed_us": {
+            "sum": 232351,
+            "median": 33899,
+            "max": 52763
+          }
+        }
+      },
+      {
+        "family": "consequence",
+        "group": "first_reveal_durable||",
+        "count": 7,
+        "phases": {
+          "elapsed_us": {
+            "sum": 3764596,
+            "median": 573728,
+            "max": 882928
+          }
+        }
+      },
+      {
+        "family": "consequence",
+        "group": "minesweeper_round_complete||",
+        "count": 7,
+        "phases": {
+          "elapsed_us": {
+            "sum": 2666996,
+            "median": 393985,
+            "max": 589474
+          }
+        }
+      }
+    ]
+  },
+  "outgoing_normalization": {
+    "conclusion": "success",
+    "proof": {
+      "checkout_ref": "63ae9c41d8bcd54005802b92a77f1f8287f833f0",
+      "baseline_ref": "4c4f9c987c96b65293554b1ce0f083f9263aa791",
+      "source_sha256": {
+        "baseline": "a28943d509641afea33ee851bfefa2e3d54bbcdcd1acaab4748207e8a83df72b",
+        "candidate": "11236f7375b94729d00bcb9952954a9d2fb6cb564103fb93912ba412347b3b38"
+      },
+      "ablation": "Only SaveManagerCheckpointPort.gd is replaced; five timed samples after two warmups reuse each identical document. No timing threshold."
+    },
+    "measurements": [
+      {
+        "variant": "baseline",
+        "label": "zh-CN",
+        "measurement": {
+          "bytes": 376091,
+          "input_sha256": "60915f103ffbbe72cbae500f7c0597185d787468e1fa03f4b09e7390d082c570",
+          "journal_bundles": 2,
+          "median_us": 34778,
+          "output_sha256": "60915f103ffbbe72cbae500f7c0597185d787468e1fa03f4b09e7390d082c570",
+          "proof_source": "full validation of fixed bytes; seam measurement, not evidence that gameplay had a complete splice proof set",
+          "samples_us": [
+            34778,
+            33606,
+            34129,
+            34857,
+            38139
+          ],
+          "variant": "baseline"
+        }
+      },
+      {
+        "variant": "baseline",
+        "label": "zh-HK",
+        "measurement": {
+          "bytes": 362808,
+          "input_sha256": "314ef70a4ba5c696e7587eb0499722e704dbe66407f324a5bed7473d677b0692",
+          "journal_bundles": 2,
+          "median_us": 32767,
+          "output_sha256": "314ef70a4ba5c696e7587eb0499722e704dbe66407f324a5bed7473d677b0692",
+          "proof_source": "full validation of fixed bytes; seam measurement, not evidence that gameplay had a complete splice proof set",
+          "samples_us": [
+            32928,
+            32767,
+            34347,
+            32319,
+            31194
+          ],
+          "variant": "baseline"
+        }
+      },
+      {
+        "variant": "baseline",
+        "label": "day7",
+        "measurement": {
+          "bytes": 1671259,
+          "input_sha256": "ab3d1d817df924350240041aea4bb71b3a698fe439f1b6a66fef7030351078ea",
+          "journal_bundles": 66,
+          "median_us": 121921,
+          "output_sha256": "ab3d1d817df924350240041aea4bb71b3a698fe439f1b6a66fef7030351078ea",
+          "proof_source": "full validation of fixed bytes; seam measurement, not evidence that gameplay had a complete splice proof set",
+          "samples_us": [
+            123177,
+            121921,
+            124005,
+            121697,
+            121794
+          ],
+          "variant": "baseline"
+        }
+      },
+      {
+        "variant": "candidate",
+        "label": "zh-CN",
+        "measurement": {
+          "bytes": 376091,
+          "input_sha256": "60915f103ffbbe72cbae500f7c0597185d787468e1fa03f4b09e7390d082c570",
+          "journal_bundles": 2,
+          "median_us": 23492,
+          "output_sha256": "60915f103ffbbe72cbae500f7c0597185d787468e1fa03f4b09e7390d082c570",
+          "proof_source": "full validation of fixed bytes; seam measurement, not evidence that gameplay had a complete splice proof set",
+          "samples_us": [
+            24818,
+            23295,
+            23004,
+            23492,
+            24953
+          ],
+          "variant": "candidate"
+        }
+      },
+      {
+        "variant": "candidate",
+        "label": "zh-HK",
+        "measurement": {
+          "bytes": 362808,
+          "input_sha256": "314ef70a4ba5c696e7587eb0499722e704dbe66407f324a5bed7473d677b0692",
+          "journal_bundles": 2,
+          "median_us": 22764,
+          "output_sha256": "314ef70a4ba5c696e7587eb0499722e704dbe66407f324a5bed7473d677b0692",
+          "proof_source": "full validation of fixed bytes; seam measurement, not evidence that gameplay had a complete splice proof set",
+          "samples_us": [
+            22339,
+            22781,
+            22764,
+            23974,
+            22521
+          ],
+          "variant": "candidate"
+        }
+      },
+      {
+        "variant": "candidate",
+        "label": "day7",
+        "measurement": {
+          "bytes": 1671259,
+          "input_sha256": "ab3d1d817df924350240041aea4bb71b3a698fe439f1b6a66fef7030351078ea",
+          "journal_bundles": 66,
+          "median_us": 63983,
+          "output_sha256": "ab3d1d817df924350240041aea4bb71b3a698fe439f1b6a66fef7030351078ea",
+          "proof_source": "full validation of fixed bytes; seam measurement, not evidence that gameplay had a complete splice proof set",
+          "samples_us": [
+            63524,
+            63983,
+            78684,
+            65334,
+            63670
+          ],
+          "variant": "candidate"
+        }
+      }
+    ],
+    "limitation": "This repeats the earlier normalization seam; it does not isolate the new retained-history proof registration."
+  },
+  "paired": {
+    "job_id": 106432254319,
+    "conclusion": "success",
+    "verified": "Four localized journeys and four matched-payload probes.",
+    "latency_metrics": null
+  },
+  "contracts": {
+    "settings_job_id": 106432254587,
+    "settings_conclusion": "failure",
+    "settings_passed": 259,
+    "settings_total": 262,
+    "settings_failure": "Three new proof tests read absent gameplay.money in fixtures before completing their edit assertions. Bounded correction uses required snapshot.content_version.",
+    "persistence_job_id": 106432254238,
+    "persistence_conclusion": "success"
+  },
+  "finding": "The history workload reached the byte-splice path for 14 of 34 durable Autosaves; 20 still required a full document. Historical proof registration consumed 1019516 us total. Exact cold restore and unchanged 32/32/2 retention passed.",
+  "limitations": [
+    "Run 41 and run 42 fresh histories have different payload hashes and runner conditions. Lower observed action timings are not a matched causal speedup estimate.",
+    "One shared Windows runner; fixture uses 98 synthetic line/manual checkpoints plus real daily Slot 1 save, App loss and Schedule Done. It is not an authored dialogue playthrough.",
+    "manual_slot_save_us includes prepare plus commit and synchronous signals. login_us includes automated Title Backup picker selection, load consent, restore and process frames.",
+    "Consequence parent and child phases overlap and must not be summed as disjoint work. New opt-in save/load phase instrumentation is pending to attribute the remaining delays."
+  ]
+}

@@ -1,0 +1,16 @@
+--- a/scripts/application/minesweeper/MinesweeperRoundCoordinator.gd
++++ b/scripts/application/minesweeper/MinesweeperRoundCoordinator.gd
+@@ -390,2 +390,9 @@
+-		var completed_inputs: Dictionary = (checkpoint_inputs as Dictionary).duplicate(true)
+-		((completed_inputs["snapshot_input"] as Dictionary)["desktop"] as Dictionary)["board"] = pre_terminal_board
++		var source_copy_started_us := Time.get_ticks_usec()
++		var completed_inputs: Dictionary = (checkpoint_inputs as Dictionary).duplicate()
++		var completed_snapshot: Dictionary = (snapshot_input as Dictionary).duplicate()
++		var completed_desktop: Dictionary = (snapshot_input["desktop"] as Dictionary).duplicate()
++		completed_desktop["board"] = pre_terminal_board
++		completed_snapshot["desktop"] = completed_desktop
++		completed_inputs["snapshot_input"] = completed_snapshot
++		var source_copy_us := Time.get_ticks_usec() - source_copy_started_us
++		var source_prepare_started_us := Time.get_ticks_usec()
+@@ -393,0 +401 @@
++		print("SOURCE_CHECKPOINT_COPY_PROFILE " + JSON.stringify({"copy_us": source_copy_us, "prepare_us": Time.get_ticks_usec() - source_prepare_started_us, "board_receipts": pre_terminal_board.get("command_receipts", {}).size()}))

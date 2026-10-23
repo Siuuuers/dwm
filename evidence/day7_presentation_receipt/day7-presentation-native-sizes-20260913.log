@@ -1,0 +1,75 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+OpenGL API 3.3.0 - Build 31.0.101.4146 - Compatibility - Using Device: Intel - Intel(R) Iris(R) Xe Graphics
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/36868b09-9bd2-4a70-a8e4-7afa238c985d/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+
+
+res://tests/unit/test_day7_prelude_surface.gd
+* test_only_drawn_current_card_can_acknowledge_and_failed_save_retries_exact_receipt
+* test_prior_draw_and_reused_token_cannot_admit_a_new_card_and_history_stays_detached
+* test_retired_surface_does_not_publish_after_an_inflight_acknowledgment
+* test_initial_preparation_retry_has_no_fabricated_card_or_history_and_can_install_first_real_card
+* test_next_card_preparation_retry_never_reacknowledges_the_previous_card
+* test_free_during_acknowledgment_releases_callback_without_resuming_a_destroyed_instance
+* test_optional_scene_art_uses_exact_card_entry_and_keeps_acknowledgment_and_missing_art_layout
+* test_presentation_receipt_is_durable_on_draw_but_navigation_waits_for_next
+* test_failed_presentation_save_retries_same_receipt_without_navigating
+* test_queued_presentation_cannot_acknowledge_a_retired_surface
+* test_production_text_sizes_show_short_body_and_gate_long_card_until_its_leading_edge
+11/11 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/unit/test_day7_prelude_surface.gd
+    - Outside Tests
+        * [<Node#130778400535>(subsystem_animation.gd)]
+        * [<Node#130795177767>(subsystem_audio.gd)]
+        * [<Node#130811954993>]
+        * [<Node#130828732214>]
+        * [<Node#130845509433>(subsystem_backgrounds.gd)]
+        * [<Node#131382380350>(subsystem_choices.gd)]
+        * [<Timer#131399157567>]
+        * [<Node#131415934785>(subsystem_expression.gd)]
+        * [<Node#131449489222>(subsystem_glossary.gd)]
+        * [<Node#131466266439>(subsystem_history.gd)]
+        * [<Node#131483043656>(subsystem_input.gd)]
+        * [<Timer#131499820873>]
+        * [<Node#131516598090>(subsystem_jump.gd)]
+        * [<Node#131533375307>(subsystem_containers.gd)]
+        * [<Node#131550152524>(subsystem_portraits.gd)]
+        * [<Node#132087023437>(subsystem_save.gd)]
+        * [<Timer#132103800654>]
+        * [<Node#132120577871>(subsystem_settings.gd)]
+        * [<Node#132137355091>(subsystem_styles.gd)]
+        * [<Node#132154132308>(subsystem_text.gd)]
+        * [<Node#132238018393>(subsystem_text_input.gd)]
+        * [<Node#132254795610>(subsystem_variables.gd)]
+        * [<Node#132271572827>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#132288350044>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+Totals
+------
+Scripts               1
+Tests                11
+Passing Tests        11
+Asserts             156
+Orphans              24
+Time              1.513s
+
+
+---- All tests passed! ----

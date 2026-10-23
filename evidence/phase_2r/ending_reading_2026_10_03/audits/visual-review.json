@@ -1,0 +1,51 @@
+{
+  "scope": "Bounded long noncanonical two-step fixture, not production art/prose approval",
+  "reviewed": [
+    "focused saved History",
+    "broad restored caption",
+    "broad restored History"
+  ],
+  "findings": [
+    "History displays first and second captions once in chronological order.",
+    "Restored long current caption is fully revealed and remains scrollable above the shared rail.",
+    "Broad and focused runner checks separately establish exact semantic restore, silent Load and input/completion behavior; still PNGs alone do not prove those temporal properties."
+  ],
+  "captures": [
+    {
+      "file": "focused/ending-reading-37125341304-1/2673f1cf-d241-4e33-85af-92e38adef8c3/raw-evidence/ending-restored.png",
+      "sha256": "c74aa93e6d73ad025f1e57eea64dc2715868092728ce65864b4e18d1e7955ba7"
+    },
+    {
+      "file": "focused/ending-reading-37125341304-1/2673f1cf-d241-4e33-85af-92e38adef8c3/raw-evidence/ending-saved-history.png",
+      "sha256": "25f647b0777fc52604e833b50a04a41d6321991c8d80be65658857c9d22f0df9"
+    },
+    {
+      "file": "focused/ending-reading-37125341304-1/2673f1cf-d241-4e33-85af-92e38adef8c3/raw-evidence/ending-restored-history.png",
+      "sha256": "25f647b0777fc52604e833b50a04a41d6321991c8d80be65658857c9d22f0df9"
+    },
+    {
+      "file": "focused/ending-reading-37125341304-1/2673f1cf-d241-4e33-85af-92e38adef8c3/sealed-write/ending-saved-history.png",
+      "sha256": "25f647b0777fc52604e833b50a04a41d6321991c8d80be65658857c9d22f0df9"
+    },
+    {
+      "file": "broad/ending-reading-37129223870-1/172b5911-5bea-4ac1-b593-6b48bdfc453b/raw-evidence/ending-restored.png",
+      "sha256": "c74aa93e6d73ad025f1e57eea64dc2715868092728ce65864b4e18d1e7955ba7"
+    },
+    {
+      "file": "broad/ending-reading-37129223870-1/172b5911-5bea-4ac1-b593-6b48bdfc453b/raw-evidence/ending-saved-history.png",
+      "sha256": "25f647b0777fc52604e833b50a04a41d6321991c8d80be65658857c9d22f0df9"
+    },
+    {
+      "file": "broad/ending-reading-37129223870-1/172b5911-5bea-4ac1-b593-6b48bdfc453b/raw-evidence/ending-restored-history.png",
+      "sha256": "25f647b0777fc52604e833b50a04a41d6321991c8d80be65658857c9d22f0df9"
+    },
+    {
+      "file": "broad/ending-reading-37129223870-1/172b5911-5bea-4ac1-b593-6b48bdfc453b/sealed-write/ending-saved-history.png",
+      "sha256": "25f647b0777fc52604e833b50a04a41d6321991c8d80be65658857c9d22f0df9"
+    }
+  ],
+  "limits": [
+    "No frame-by-frame proof of continuous previous visible caption leaves across the native handoff.",
+    "No claim of pixel-identical transient scrollback after Load."
+  ]
+}

@@ -1,0 +1,756 @@
+{
+  "base_commit": "ecebfc14f3d159e3e0a38005e468632ca699c03e",
+  "task": "dwm-eei.20",
+  "scope": "Captured run Dark, strict v5 saves, frozen v2 New Run intent, main-route preparation, palette-before-reveal and complete Opening/tutorial production retirement.",
+  "latest_gut_suites": {
+    "tests/unit/test_run_dark_configuration.gd": {
+      "passed": 7,
+      "tests": 7,
+      "suite_id": "run-dark-focused-20260907a"
+    },
+    "tests/unit/test_run_snapshot_schema.gd": {
+      "passed": 21,
+      "tests": 21,
+      "suite_id": "run-dark-focused-20260907a"
+    },
+    "tests/unit/test_run_lifecycle.gd": {
+      "passed": 13,
+      "tests": 13,
+      "suite_id": "run-dark-focused-20260907a"
+    },
+    "tests/unit/test_save_document_schema.gd": {
+      "passed": 6,
+      "tests": 6,
+      "suite_id": "run-dark-focused-20260907a"
+    },
+    "tests/unit/test_save_migrations.gd": {
+      "passed": 9,
+      "tests": 9,
+      "suite_id": "run-dark-fixture-fixes-20260907b"
+    },
+    "tests/unit/test_desktop_continuation_operation_journal.gd": {
+      "passed": 31,
+      "tests": 31,
+      "suite_id": "run-dark-focused-20260907a"
+    },
+    "tests/integration/test_new_run_transaction.gd": {
+      "passed": 12,
+      "tests": 12,
+      "suite_id": "run-dark-focused-20260907a"
+    },
+    "tests/integration/test_desktop_continuation_resume.gd": {
+      "passed": 8,
+      "tests": 8,
+      "suite_id": "run-dark-focused-20260907a"
+    },
+    "tests/integration/test_run_palette_host.gd": {
+      "passed": 3,
+      "tests": 3,
+      "suite_id": "run-dark-final-focus-20260907c"
+    },
+    "tests/unit/test_checkpoint_journal.gd": {
+      "passed": 9,
+      "tests": 9,
+      "suite_id": "run-dark-shared-20260907a"
+    },
+    "tests/unit/test_save_manager.gd": {
+      "passed": 7,
+      "tests": 7,
+      "suite_id": "run-dark-shared-20260907a"
+    },
+    "tests/unit/test_save_manager_checkpoint_port.gd": {
+      "passed": 15,
+      "tests": 15,
+      "suite_id": "run-dark-shared-20260907a"
+    },
+    "tests/unit/test_game_state_facade_contract.gd": {
+      "passed": 8,
+      "tests": 8,
+      "suite_id": "run-dark-shared-20260907a"
+    },
+    "tests/unit/test_restore_participants.gd": {
+      "passed": 7,
+      "tests": 7,
+      "suite_id": "run-dark-shared-20260907a"
+    },
+    "tests/unit/test_backup_quick_actions.gd": {
+      "passed": 9,
+      "tests": 9,
+      "suite_id": "run-dark-shared-20260907a"
+    },
+    "tests/integration/test_restore_transaction.gd": {
+      "passed": 8,
+      "tests": 8,
+      "suite_id": "run-dark-shared-20260907a"
+    },
+    "tests/integration/test_restore_production_adapters.gd": {
+      "passed": 13,
+      "tests": 13,
+      "suite_id": "run-dark-shared-20260907a"
+    },
+    "tests/integration/test_restore_mutation_gate.gd": {
+      "passed": 3,
+      "tests": 3,
+      "suite_id": "run-dark-shared-20260907a"
+    },
+    "tests/integration/test_save_capability.gd": {
+      "passed": 4,
+      "tests": 4,
+      "suite_id": "run-dark-shared-20260907a"
+    },
+    "tests/integration/test_save_manager_journal.gd": {
+      "passed": 6,
+      "tests": 6,
+      "suite_id": "run-dark-shared-20260907a"
+    },
+    "tests/integration/test_desktop_crash_recovery.gd": {
+      "passed": 6,
+      "tests": 6,
+      "suite_id": "run-dark-shared-20260907a"
+    },
+    "tests/integration/test_minesweeper_save_lock.gd": {
+      "passed": 5,
+      "tests": 5,
+      "suite_id": "run-dark-shared-20260907a"
+    },
+    "tests/integration/test_desktop_board_persistence.gd": {
+      "passed": 5,
+      "tests": 5,
+      "suite_id": "run-dark-shared-20260907a"
+    },
+    "tests/integration/test_minesweeper_first_reveal_transaction.gd": {
+      "passed": 7,
+      "tests": 7,
+      "suite_id": "run-dark-shared-20260907a"
+    },
+    "tests/integration/test_schedule_publication_restart.gd": {
+      "passed": 6,
+      "tests": 6,
+      "suite_id": "run-dark-shared-20260907a"
+    },
+    "tests/integration/test_phase2r_schedule_desktop_handoff.gd": {
+      "passed": 101,
+      "tests": 101,
+      "suite_id": "run-dark-handoff-20260907b"
+    },
+    "tests/integration/test_application_bootstrap.gd": {
+      "passed": 9,
+      "tests": 9,
+      "suite_id": "run-dark-shared-20260907a"
+    },
+    "tests/integration/test_pause_backup_host.gd": {
+      "passed": 9,
+      "tests": 9,
+      "suite_id": "run-dark-shared-20260907a"
+    },
+    "tests/integration/test_desktop_quick_commands.gd": {
+      "passed": 11,
+      "tests": 11,
+      "suite_id": "run-dark-shared-20260907a"
+    },
+    "tests/unit/tooling/test_phase2r_schedule_gate.gd": {
+      "passed": 34,
+      "tests": 34,
+      "suite_id": "run-dark-handoff-20260907b"
+    },
+    "tests/unit/test_dialogic_entry_manifest.gd": {
+      "passed": 74,
+      "tests": 74,
+      "suite_id": "run-dark-retirement-20260907b"
+    },
+    "tests/unit/test_dialogic_timeline_catalog.gd": {
+      "passed": 21,
+      "tests": 21,
+      "suite_id": "run-dark-retirement-20260907b"
+    },
+    "tests/unit/test_dialogic_migration_inventory.gd": {
+      "passed": 34,
+      "tests": 34,
+      "suite_id": "run-dark-retirement-20260907b"
+    },
+    "tests/unit/test_dtl_master_structure.gd": {
+      "passed": 49,
+      "tests": 49,
+      "suite_id": "run-dark-retirement-20260907b"
+    },
+    "tests/unit/test_timeline_manifest.gd": {
+      "passed": 6,
+      "tests": 6,
+      "suite_id": "run-dark-retirement-20260907b"
+    },
+    "tests/unit/tooling/test_dialogic_gate_summary.gd": {
+      "passed": 9,
+      "tests": 9,
+      "suite_id": "run-dark-retirement-20260907b"
+    },
+    "tests/integration/test_dialogic_bridge_contract.gd": {
+      "passed": 14,
+      "tests": 14,
+      "suite_id": "run-dark-retirement-20260907b"
+    },
+    "tests/integration/test_dialogic_live_admission.gd": {
+      "passed": 20,
+      "tests": 20,
+      "suite_id": "run-dark-retirement-20260907b"
+    },
+    "tests/integration/test_dialogic_restore.gd": {
+      "passed": 31,
+      "tests": 31,
+      "suite_id": "run-dark-retirement-20260907b"
+    },
+    "tests/integration/test_dialogic_signal_boundary.gd": {
+      "passed": 30,
+      "tests": 30,
+      "suite_id": "run-dark-retirement-20260907b"
+    },
+    "tests/integration/test_narrative_pause_frontier.gd": {
+      "passed": 8,
+      "tests": 8,
+      "suite_id": "run-dark-retirement-20260907b"
+    },
+    "tests/unit/test_day_resolution_snapshot_production.gd": {
+      "passed": 18,
+      "tests": 18,
+      "suite_id": "run-dark-retirement-20260907b"
+    },
+    "tests/unit/test_dialogic_identity_registries.gd": {
+      "passed": 21,
+      "tests": 21,
+      "suite_id": "run-dark-retirement-20260907b"
+    },
+    "tests/unit/test_dialogic_presentation_owner_adapter.gd": {
+      "passed": 19,
+      "tests": 19,
+      "suite_id": "run-dark-retirement-20260907b"
+    },
+    "tests/unit/test_dialogic_runtime_adapter.gd": {
+      "passed": 13,
+      "tests": 13,
+      "suite_id": "run-dark-retirement-20260907b"
+    },
+    "tests/unit/test_hospital_presentation_port.gd": {
+      "passed": 27,
+      "tests": 27,
+      "suite_id": "run-dark-retirement-20260907b"
+    },
+    "tests/unit/test_profile_manager.gd": {
+      "passed": 17,
+      "tests": 17,
+      "suite_id": "run-dark-retirement-20260907b"
+    },
+    "tests/unit/test_profile_v4_upgrade.gd": {
+      "passed": 8,
+      "tests": 8,
+      "suite_id": "run-dark-retirement-20260907b"
+    },
+    "tests/unit/test_settings_controls_reset.gd": {
+      "passed": 10,
+      "tests": 10,
+      "suite_id": "run-dark-retirement-20260907b"
+    },
+    "tests/unit/test_art_manifest.gd": {
+      "passed": 25,
+      "tests": 25,
+      "suite_id": "run-dark-retirement-20260907b"
+    },
+    "tests/unit/test_dialogic_ids_manifest.gd": {
+      "passed": 85,
+      "tests": 85,
+      "suite_id": "run-dark-retirement-20260907b"
+    },
+    "tests/unit/test_game_state.gd": {
+      "passed": 62,
+      "tests": 62,
+      "suite_id": "run-dark-final-focus-20260907c"
+    }
+  },
+  "unique_gut_suites": 52,
+  "unique_gut_tests": 993,
+  "production_runs": [
+    {
+      "name": "run-dark-production-loop",
+      "passed": true,
+      "checks": [
+        39
+      ],
+      "executions": [
+        {
+          "phase": "import",
+          "passed": true,
+          "returncode": 0
+        },
+        {
+          "phase": "loop",
+          "passed": true,
+          "returncode": 0
+        }
+      ]
+    },
+    {
+      "name": "run-dark-title-resume",
+      "passed": false,
+      "checks": [
+        46
+      ],
+      "executions": [
+        {
+          "phase": "import",
+          "passed": true,
+          "returncode": 0
+        },
+        {
+          "phase": "seed",
+          "passed": false,
+          "returncode": 0
+        }
+      ]
+    },
+    {
+      "name": "run-dark-title-resume-b",
+      "passed": false,
+      "checks": [],
+      "executions": [
+        {
+          "phase": "import",
+          "passed": false,
+          "returncode": 0
+        }
+      ]
+    },
+    {
+      "name": "run-dark-title-resume-c",
+      "passed": false,
+      "checks": [
+        51
+      ],
+      "executions": [
+        {
+          "phase": "import",
+          "passed": true,
+          "returncode": 0
+        },
+        {
+          "phase": "seed",
+          "passed": false,
+          "returncode": 0
+        }
+      ]
+    },
+    {
+      "name": "run-dark-title-resume-d",
+      "passed": true,
+      "checks": [
+        56,
+        71
+      ],
+      "executions": [
+        {
+          "phase": "import",
+          "passed": true,
+          "returncode": 0
+        },
+        {
+          "phase": "seed",
+          "passed": true,
+          "returncode": 0
+        },
+        {
+          "phase": "resume",
+          "passed": true,
+          "returncode": 0
+        }
+      ]
+    }
+  ],
+  "native": {
+    "captures": 24,
+    "checks": 130,
+    "fixture_limit": "Real captured lifecycle and hosts; isolated catalog/art/names and board checkpoint/generation. No purchase or player-save claim."
+  },
+  "standalone_checks": {
+    "save_capture": 136,
+    "backup_operations": "PASS",
+    "retained_scene_loading": "PASS"
+  },
+  "project_paths": {
+    "autoload/DialogicBridge.gd": "M",
+    "autoload/GameState.gd": "M",
+    "autoload/SaveManager.gd": "M",
+    "autoload/SceneRouter.gd": "M",
+    "data/manifests/dialogic_entries.json": "M",
+    "data/manifests/routes.json": "M",
+    "data/manifests/timelines.json": "M",
+    "data/migrations/dialogic_61_to_8.json": "M",
+    "dialogic/timelines/en/core/opening_day1.dtl": "D",
+    "dialogic/timelines/en/core/opening_day1.dtl.uid": "D",
+    "dialogic/timelines/en/core/tutorial_desktop_day1.dtl": "D",
+    "dialogic/timelines/en/core/tutorial_desktop_day1.dtl.uid": "D",
+    "dialogic/timelines/en/day_1.dtl": "M",
+    "docs/design/current-ui/new-acc-lifecycle.md": "M",
+    "localization/ui/en.json": "M",
+    "project.godot": "M",
+    "scenes/main/MainGameScene.tscn": "M",
+    "scenes/opening/OpeningScene.tscn": "D",
+    "scenes/overlay/TutorialOverlay.tscn": "D",
+    "schemas/manifests/dialogic-entries.schema.json": "M",
+    "schemas/manifests/dialogic-ids.schema.json": "M",
+    "schemas/manifests/dialogic-migration.schema.json": "M",
+    "scripts/application/restore/NarrativeRestoreParticipant.gd": "M",
+    "scripts/application/restore/RunRestoreParticipant.gd": "M",
+    "scripts/data/AudioManifest.gd": "M",
+    "scripts/data/DialogicTimelineCatalog.gd": "M",
+    "scripts/domain/run/RunLifecycle.gd": "M",
+    "scripts/domain/run/RunSnapshotSchema.gd": "M",
+    "scripts/infrastructure/save/DesktopContinuationOperationJournal.gd": "M",
+    "scripts/infrastructure/save/SaveDocumentSchema.gd": "M",
+    "scripts/infrastructure/save/SaveMigrations.gd": "M",
+    "scripts/narrative/DialogicEntryManifest.gd": "M",
+    "scripts/profile/ProfileMigration.gd": "M",
+    "scripts/profile/ProfileSchema.gd": "M",
+    "scripts/ui/ComputerDesktop.gd": "M",
+    "scripts/ui/MenuScene.gd": "M",
+    "scripts/ui/MinesweeperApp.gd": "M",
+    "scripts/ui/OpeningScene.gd": "D",
+    "scripts/ui/OpeningScene.gd.uid": "D",
+    "scripts/ui/ShopApp.gd": "M",
+    "scripts/ui/TutorialOverlay.gd": "D",
+    "scripts/ui/TutorialOverlay.gd.uid": "D",
+    "scripts/ui/desktop/DesktopTheme.gd": "M",
+    "tests/backup_operations/test_backup_operations.gd": "M",
+    "tests/integration/test_desktop_board_persistence.gd": "M",
+    "tests/integration/test_desktop_continuation_resume.gd": "M",
+    "tests/integration/test_desktop_crash_recovery.gd": "M",
+    "tests/integration/test_desktop_quick_commands.gd": "M",
+    "tests/integration/test_dialogic_bridge_contract.gd": "M",
+    "tests/integration/test_dialogic_live_admission.gd": "M",
+    "tests/integration/test_dialogic_restore.gd": "M",
+    "tests/integration/test_dialogic_signal_boundary.gd": "M",
+    "tests/integration/test_minesweeper_first_reveal_transaction.gd": "M",
+    "tests/integration/test_minesweeper_save_lock.gd": "M",
+    "tests/integration/test_narrative_pause_frontier.gd": "M",
+    "tests/integration/test_new_run_transaction.gd": "M",
+    "tests/integration/test_pause_backup_host.gd": "M",
+    "tests/integration/test_phase2r_schedule_desktop_handoff.gd": "M",
+    "tests/integration/test_restore_production_adapters.gd": "M",
+    "tests/integration/test_save_capability.gd": "M",
+    "tests/integration/test_save_manager_journal.gd": "M",
+    "tests/integration/test_schedule_publication_restart.gd": "M",
+    "tests/save_load_capture/test_capture.gd": "M",
+    "tests/save_load_loop/Observe.gd": "M",
+    "tests/smoke_load_scenes.gd": "M",
+    "tests/title_resume/Observe.gd": "M",
+    "tests/unit/test_art_manifest.gd": "M",
+    "tests/unit/test_backup_quick_actions.gd": "M",
+    "tests/unit/test_checkpoint_journal.gd": "M",
+    "tests/unit/test_day_resolution_snapshot_production.gd": "M",
+    "tests/unit/test_desktop_continuation_operation_journal.gd": "M",
+    "tests/unit/test_dialogic_entry_manifest.gd": "M",
+    "tests/unit/test_dialogic_identity_registries.gd": "M",
+    "tests/unit/test_dialogic_ids_manifest.gd": "M",
+    "tests/unit/test_dialogic_migration_inventory.gd": "M",
+    "tests/unit/test_dialogic_presentation_owner_adapter.gd": "M",
+    "tests/unit/test_dialogic_runtime_adapter.gd": "M",
+    "tests/unit/test_dialogic_timeline_catalog.gd": "M",
+    "tests/unit/test_dtl_master_structure.gd": "M",
+    "tests/unit/test_game_state.gd": "M",
+    "tests/unit/test_game_state_facade_contract.gd": "M",
+    "tests/unit/test_hospital_presentation_port.gd": "M",
+    "tests/unit/test_profile_manager.gd": "M",
+    "tests/unit/test_profile_v4_upgrade.gd": "M",
+    "tests/unit/test_restore_participants.gd": "M",
+    "tests/unit/test_run_lifecycle.gd": "M",
+    "tests/unit/test_run_snapshot_schema.gd": "M",
+    "tests/unit/test_save_document_schema.gd": "M",
+    "tests/unit/test_save_manager.gd": "M",
+    "tests/unit/test_save_migrations.gd": "M",
+    "tests/unit/test_settings_controls_reset.gd": "M",
+    "tests/unit/test_timeline_manifest.gd": "M",
+    "tests/unit/tooling/test_dialogic_gate_summary.gd": "M",
+    "tests/unit/tooling/test_phase2r_schedule_gate.gd": "M",
+    "tools/dialogic/TimelineManifestValidator.gd": "M",
+    "tools/dialogic/WriteDialogicGateSummary.gd": "M",
+    "tools/dialogic/generate_master_skeletons.gd": "M",
+    "tools/dialogic/validate_dialogic_contract.gd": "M",
+    "tools/evidence/Phase2RScheduleDesktopHandoffGuard.gd": "M",
+    "tools/save_load_loop/verify.py": "M",
+    "tests/fixtures/saves/v5_desktop_active.json": "A",
+    "tests/fixtures/saves/v5_desktop_none.json": "A",
+    "tests/fixtures/saves/v5_desktop_pending_consequence.json": "A",
+    "tests/fixtures/saves/v5_desktop_prepared.json": "A",
+    "tests/fixtures/saves/v5_desktop_preparing.json": "A",
+    "tests/fixtures/saves/v5_desktop_settling.json": "A",
+    "tests/integration/test_run_palette_host.gd": "A",
+    "tests/manual/verify_run_palette_native.gd": "A",
+    "tests/unit/test_run_dark_configuration.gd": "A"
+  },
+  "source_sha256": {
+    "autoload/DialogicBridge.gd": "f6893f1eb0c5b794060cfa677bcdbe1ed4fc8bace09597b02d4f3f8488159d9b",
+    "autoload/GameState.gd": "891c63106fc52b6d7395f3c6382939dfc4cbcd5dd0363986e6bc3cf86b25c1e2",
+    "autoload/SaveManager.gd": "1a3122639e4408bc1707baa18ec20813706e6c66e5654cac21d76e497fe57574",
+    "autoload/SceneRouter.gd": "e928966d7b4fd296110fff2e263826eea0b6ce2e5962277487885e409a3c7dca",
+    "data/manifests/dialogic_entries.json": "9e9382b4b3162f2773c8ce383d287226608d76662c4d85ea29c06bccfc97218b",
+    "data/manifests/routes.json": "99c59ff7285ccd67f12267ea7242fb740948cff55676fdaf3d85cc3561375fb9",
+    "data/manifests/timelines.json": "bbc09f66730f8660946042fddbba2b3ff0ba9a44b7a68eb613438e04bb49d515",
+    "data/migrations/dialogic_61_to_8.json": "8abed61015df7f455786012892e28f94f05e6655217e483d3b0410751743b7c3",
+    "dialogic/timelines/en/day_1.dtl": "d8c6334b25e7842b0404294b2c594e995a60e066b33409fbd51cd8bf3015901b",
+    "docs/design/current-ui/new-acc-lifecycle.md": "763fec1eeb8bb11ab8e07f519dd6aefa4e4453452d043ade3d51a15bbbab61d1",
+    "localization/ui/en.json": "29a4e636fd2846711599e91b4e4a5756e9c84be3c5eec9095b142cdd06df0085",
+    "project.godot": "66ecb65d8f4cc16de3b8a2b48d6709b66d56723075484b1815d7af90688a877d",
+    "scenes/main/MainGameScene.tscn": "5979d3c7bb66fc4df752ed000a050ce4baa0334eb47ef02ad6a0fd882bdcaf43",
+    "schemas/manifests/dialogic-entries.schema.json": "d727b3916c5d056b42fb661bf959c3ab6ff4b1e683bab983a2c7ee04d3724b8e",
+    "schemas/manifests/dialogic-ids.schema.json": "896dbcb33a101093638874e8094c8e7fb4826d6508e64d45288df1c818fd0828",
+    "schemas/manifests/dialogic-migration.schema.json": "2f477399ca2f07a00698837d71b05b8dea86421e7530a641c7df2dae14cee9bb",
+    "scripts/application/restore/NarrativeRestoreParticipant.gd": "927ad9fb40346f70fd9771c133d5cb91803d9f26fdc16bedb865bde77b103504",
+    "scripts/application/restore/RunRestoreParticipant.gd": "f39ccb56b3379c4280a904b8e4c787906af9c959e18535424458a3c83e5855c9",
+    "scripts/data/AudioManifest.gd": "9a1da39f95ec7c6e2a1fdeb9827e44da5ba8468cde4a9af53741b75e321f0bb7",
+    "scripts/data/DialogicTimelineCatalog.gd": "e5109cb99a33ea988955b708c72d86926cab57cf070cad4c1ca7c4e70344ccb2",
+    "scripts/domain/run/RunLifecycle.gd": "0bcb14a738fbfecf2d1b63b31132f28eedb166ebb51d74cccc65d7e8edeabbac",
+    "scripts/domain/run/RunSnapshotSchema.gd": "a23456831dbebb5ec0316a03a51d987d1f9c4485fc6f62a13e2b32012b4322c4",
+    "scripts/infrastructure/save/DesktopContinuationOperationJournal.gd": "527865467345dc5fdcd7b24b6bbf7c676156516250ceadc8129acb6da21511af",
+    "scripts/infrastructure/save/SaveDocumentSchema.gd": "cd17091aacc15a20b48386bbe7d4c947b2bf173caf102f498b46e918f9befc83",
+    "scripts/infrastructure/save/SaveMigrations.gd": "7bc5ff311c552276cb276a7e0c1b739109d64eb0e0fd7db225cbdcc76f3b467c",
+    "scripts/narrative/DialogicEntryManifest.gd": "fd2f558f9dc804274e9260427ced64a2931274f241c44f3bc28ce6d0f21b6b4b",
+    "scripts/profile/ProfileMigration.gd": "583d8b12a0471cfab10e82f0e32f5455395eecd02688cab9c33930af0df99f5f",
+    "scripts/profile/ProfileSchema.gd": "d04e20f35f40b6033d0b4c2c2f64389a4717f5915a4a3ead8175b60edf5187a3",
+    "scripts/ui/ComputerDesktop.gd": "b4159283f636a55dde9231abf2ea67fc43bfb827800d3c21cc2e5555367ba392",
+    "scripts/ui/MenuScene.gd": "e58af4856fd8d279366b7cc689d6ddd5d92ca01d43355ed4636240d7d9ad62b9",
+    "scripts/ui/MinesweeperApp.gd": "890264dfda8bac0f259b1f403b502d076ef2e6f893541a9ac4d58a1dc8490aa5",
+    "scripts/ui/ShopApp.gd": "5900c728509124ed728e7f28d8204259750e9759213b5624227d402a904edc37",
+    "scripts/ui/desktop/DesktopTheme.gd": "5000164fdf7c5a3cd63a7b1c9d48cb35f5e8510278c0564f3e4b4c0c1fde853d",
+    "tests/backup_operations/test_backup_operations.gd": "a88b35351b4173ece5e0e41c9546f6b43eff9ac3a13b104479756d89b1efb44b",
+    "tests/integration/test_desktop_board_persistence.gd": "4e72ebcdf43602178dbc5f5947c5cf936055db1dbb4cb3cfe68c8d598a09b8e9",
+    "tests/integration/test_desktop_continuation_resume.gd": "e394f7b52ce0d079ac2d12f4c6617973b91005dce470792a5cc9aaf34b51a1bb",
+    "tests/integration/test_desktop_crash_recovery.gd": "001b32c46432aa471f155e346c509a199a3f8911bd44f1d0d53c770f2f864b9a",
+    "tests/integration/test_desktop_quick_commands.gd": "ab903dccf50d40162bf93997aab88a7651c7e7b024bc767f887fe8e044d001a8",
+    "tests/integration/test_dialogic_bridge_contract.gd": "8a2291db4880a52601ca56f23d3b0922c2dff2d71028c50e26bfc9f311194078",
+    "tests/integration/test_dialogic_live_admission.gd": "802e93aca4e92aede46009d75020d28f9c86e3a3ab5315d470bd62db2b2eba77",
+    "tests/integration/test_dialogic_restore.gd": "3727c0585e2145d73f87dde79fbf192044518f9b6779355c7689034741a619f9",
+    "tests/integration/test_dialogic_signal_boundary.gd": "55da5c07da6b6208baa22b129f728771db0b162508f8109ec89ca7088daee48c",
+    "tests/integration/test_minesweeper_first_reveal_transaction.gd": "f8e5da12dc5a7791bc21eb4e741003b2263cf2780a8f86f1b5b5b36188187eb6",
+    "tests/integration/test_minesweeper_save_lock.gd": "1c3365710d863354dfd30e6e23b86add3e38b89658cb23b5f30e1e124bfae225",
+    "tests/integration/test_narrative_pause_frontier.gd": "8c99b3b570858a30fcf0c2ede8e590d8394e4752785dfe855d19d4e4c118d34d",
+    "tests/integration/test_new_run_transaction.gd": "3225bed0f6e2b0e8c7edc11eb4ddf69df2686614f3d1c5b3bb85e07ef2739857",
+    "tests/integration/test_pause_backup_host.gd": "0034221bcc6babfe98017e942603e0a22becbd372e1686997be7b6416c528979",
+    "tests/integration/test_phase2r_schedule_desktop_handoff.gd": "8d447e9806f3aff38b3d7b689052da23e555fba6d656e2781e373cd1f9911b34",
+    "tests/integration/test_restore_production_adapters.gd": "c6f94f003497289e3609138fdc7f0160edaa151fd73af6ac226c423430be296a",
+    "tests/integration/test_save_capability.gd": "11dc48b2ff6712909326c7587130c26746cf2cd9ec1b09030da111e68fc115fd",
+    "tests/integration/test_save_manager_journal.gd": "d21356c7c4cd6644813fb2a776bcfa0730bd3501464b79dcc07ffb8578d17aa5",
+    "tests/integration/test_schedule_publication_restart.gd": "9976a8e3722a5dfefda42090af514154a2318b08dea0bb005a1280c603664805",
+    "tests/save_load_capture/test_capture.gd": "f974d1340bdfc637fa785dd3d1765bbb694a04c3206d182e66c7cc0012ce3cc3",
+    "tests/save_load_loop/Observe.gd": "758a141878dcfc568467ea3cf36c7aa56e2c88a905de231b4d68bb631ca85b36",
+    "tests/smoke_load_scenes.gd": "f2f285994912e9027ea30df697069146f8a229a81834afb48f1edfb789f68d81",
+    "tests/title_resume/Observe.gd": "db7a134910fff1845e02c5973de1ae38915a594668128a87373cc12867c3c0c5",
+    "tests/unit/test_art_manifest.gd": "563492e8ef94bf4e39d32e51185d8e7a91a74d2947269a9325ec4d065323ba50",
+    "tests/unit/test_backup_quick_actions.gd": "96bd8d9ce3d2ef9d584edb2254f7bf953ea1f27edb5b4cca1595aab60efe1619",
+    "tests/unit/test_checkpoint_journal.gd": "55c8f1d79693b9a2a18cea612dfced760736345d3d5a68aa52d5afc366157357",
+    "tests/unit/test_day_resolution_snapshot_production.gd": "9ee5210f1e62127b0cde31a309651a9123bf645658072b2fe8657bcc66fca18b",
+    "tests/unit/test_desktop_continuation_operation_journal.gd": "762d05b65cb7d37ac92091c5582533a96f64d3e19c3cba16c9b706a01d2d9833",
+    "tests/unit/test_dialogic_entry_manifest.gd": "c399011b0057397f03663335bc30e9bb66d27e72d0388c1d261d5e714cc90225",
+    "tests/unit/test_dialogic_identity_registries.gd": "f35a81bbc132949a88b49af19050c970cdb6ca5643509168f4f7ab875aff0b3f",
+    "tests/unit/test_dialogic_ids_manifest.gd": "03a494fc7ca9f9bfe49887261fec9a174196297aa72de511dc06d81c35846598",
+    "tests/unit/test_dialogic_migration_inventory.gd": "d393fc78a9c5568aad2e99f9a3e3e49dbe421f04d9f69a6cb714ab78fdccb759",
+    "tests/unit/test_dialogic_presentation_owner_adapter.gd": "960f6c765cdb745d09852e87c81c5f32f28f2b18726eb88245145fe776ff6de3",
+    "tests/unit/test_dialogic_runtime_adapter.gd": "49c79359cadaebcb362ef963b94eac70ff844254e7366f536c6b4e025ec263ee",
+    "tests/unit/test_dialogic_timeline_catalog.gd": "f26ae95db8a174ff8263b15ff3e5e190dcf1f5c75df4fb7538db11f23489bcc3",
+    "tests/unit/test_dtl_master_structure.gd": "1f25d19911cf8c6848b2eaab21609c2f216bb8bbfd3252fdfed90d80e11b38e4",
+    "tests/unit/test_game_state.gd": "22d94de9e9ce503962485db2a2fde4e64881037b3b2eea89156edb2353e3154a",
+    "tests/unit/test_game_state_facade_contract.gd": "aa2345cbbe24be83873b9794d3be0cb7e6aee6bca984bbccd271d18f7c20d821",
+    "tests/unit/test_hospital_presentation_port.gd": "ecd3ed833a150bebd4f836319513621e5b5fc61816dae8e6014c0d0c65124a99",
+    "tests/unit/test_profile_manager.gd": "3e6807fd989b08650d5f8af1d3aba3ac2f2af96dffe9cc8d5245e64cf0be3a5e",
+    "tests/unit/test_profile_v4_upgrade.gd": "803c670f4be65960d72a68e4059c1ecf19c741b6fc2da1d905bf75612fc07c42",
+    "tests/unit/test_restore_participants.gd": "3264fc109c3489e538b033e0d6c1207bf4c34054ec91d0644af35c53cac2c257",
+    "tests/unit/test_run_lifecycle.gd": "cb1f12684a20ebf4f144c0bcdde2261dd502f853c05704b35e640f310b32763a",
+    "tests/unit/test_run_snapshot_schema.gd": "04bf596c44356987aa8512ca6cf9e378a3e57779087c160167e10bd58bb2bcea",
+    "tests/unit/test_save_document_schema.gd": "df7755db08196918ad6a7bcd2fa5e91bc5adb79dc7b2d2583b6bfc56f88ad6a7",
+    "tests/unit/test_save_manager.gd": "fae4363aca2f89ab4fd6e67ba9a21a65825de7f7e4755f099ea72a7a4a0bebe0",
+    "tests/unit/test_save_migrations.gd": "1c1ac83224771945e5b5eeb81c6539264d1ef0900130cd9639fa6fe21d132b8e",
+    "tests/unit/test_settings_controls_reset.gd": "2a210f92e9a2d181404a5270185c6dcaf78cb60e9d639ac0cdcc3b85b47ebfa9",
+    "tests/unit/test_timeline_manifest.gd": "33e93db57adb02ca86535b732d8bbc63e727029224b2c7411c8b7a2ae4408e01",
+    "tests/unit/tooling/test_dialogic_gate_summary.gd": "467743030963cd02cc027e58cebec5f731f51f774da6bf241feea9d58082011d",
+    "tests/unit/tooling/test_phase2r_schedule_gate.gd": "16740a271a8b1b2d199781e0e0050f92fce526b9a8e83c72738ffcfd3c9a42ed",
+    "tools/dialogic/TimelineManifestValidator.gd": "e5727ee6126841564151c03df7c1721a46f7b98a6f812e28091d3869620d0b51",
+    "tools/dialogic/WriteDialogicGateSummary.gd": "74b0d1dd7844bd7f301135900094d8381bef99022d574ea920508fb7426008e7",
+    "tools/dialogic/generate_master_skeletons.gd": "376d53b095abdcce3b67a161399ba79290004cf632da3c6f016807ab639df96a",
+    "tools/dialogic/validate_dialogic_contract.gd": "6c31a29becef861fd12d0fdafb684a2a5f282ff8a6ffe0383b2e19ea85620061",
+    "tools/evidence/Phase2RScheduleDesktopHandoffGuard.gd": "a367eb2a9dcd2152099a9e32438a2e0f33dfa789bc9122c844ac20995411ea95",
+    "tools/save_load_loop/verify.py": "eab0e13792235f1c855e0257cd43dcf78e60bd5dfeda652aae91d77c5ca8e015",
+    "tests/fixtures/saves/v5_desktop_active.json": "aebb7d02becfde99ee089e9b621834a53e05eed2293182a833d1d737f01a38de",
+    "tests/fixtures/saves/v5_desktop_none.json": "8a2a1908b44aa478ff52e0555df5860af1b521df595af4af48a208aa975c1b8e",
+    "tests/fixtures/saves/v5_desktop_pending_consequence.json": "81f07672a1e3d99b6d0db8b716a8e21f7bf06a046816e6a3af3eadc9e2101588",
+    "tests/fixtures/saves/v5_desktop_prepared.json": "da2c0166a3dfa846ff7eda3ef32da6cd2b7b7fb2f7523b439b3ee51c03389f29",
+    "tests/fixtures/saves/v5_desktop_preparing.json": "fe638cc051829ccffda18bf60dce79aaa0392d5d840ce156a400c74b63cf515a",
+    "tests/fixtures/saves/v5_desktop_settling.json": "4ad8a7789377beff1338d95e516a8a9b7a039b588b332f01b350e0161a073bf5",
+    "tests/integration/test_run_palette_host.gd": "dd5477a341dab2ef7d476f7d25effcf44ff03167c551301fab7bbcae76645560",
+    "tests/manual/verify_run_palette_native.gd": "b007fd751debe8bf13cdc4712af7d713bbd0ec87ddd4f027b4bc167bdebf25d5",
+    "tests/unit/test_run_dark_configuration.gd": "e50aa751ea5ce8619c1cf42b34cc7ec18eb9a8c6dc4be32bc2f232efc8069ec3"
+  },
+  "source_git_blobs": {
+    "autoload/DialogicBridge.gd": "994a51bfd8b9e09e59d6465d647a60a4c6cb3d4c",
+    "autoload/GameState.gd": "1e2ae49c97e02c126c6c16adc0c23ed8d1a58404",
+    "autoload/SaveManager.gd": "492bd528e2b28931a891c0fbbd91dfa69590639a",
+    "autoload/SceneRouter.gd": "c033a454a2d3aeb598122854cb2971cd15308e6a",
+    "data/manifests/dialogic_entries.json": "a427b178d7782c421b46acc42aa16db14b6734ed",
+    "data/manifests/routes.json": "4c45b517eeef5b24ec36979a729c1fa403414044",
+    "data/manifests/timelines.json": "8d264e87e7be529470f71fdad150e8d65681bfab",
+    "data/migrations/dialogic_61_to_8.json": "ce30202367951fd3d79e57c7f2b252b33e6e0ffe",
+    "dialogic/timelines/en/day_1.dtl": "8e929a6163920b0f81b656bacf9ad51b0b6d16bf",
+    "docs/design/current-ui/new-acc-lifecycle.md": "f8a858a5ce1015814f3c6e7695000bff535eb0b5",
+    "localization/ui/en.json": "cb6603be376cf894403db713dc3be792498b4ca3",
+    "project.godot": "67f31e1cb616da55f91ea3c65130517313b72ee6",
+    "scenes/main/MainGameScene.tscn": "8c69a8e6f7acb58eabbcd5731e9ff904b8384d29",
+    "schemas/manifests/dialogic-entries.schema.json": "9ad515f2079919c4ea4ab2ddc8d369a55645e451",
+    "schemas/manifests/dialogic-ids.schema.json": "3475d96dcd8b4cfc47fdc2b49cf990a6619f0777",
+    "schemas/manifests/dialogic-migration.schema.json": "7fda24a078b7b46d2321a5168aeb3225f5640a68",
+    "scripts/application/restore/NarrativeRestoreParticipant.gd": "f497eeb2758404eccd3922af72bedc3acd5d43a1",
+    "scripts/application/restore/RunRestoreParticipant.gd": "61670f683733299bcef2c911835314e42ba84b66",
+    "scripts/data/AudioManifest.gd": "0c41ad5a7abfb9aeb76f5054dc9a04e8510a2f71",
+    "scripts/data/DialogicTimelineCatalog.gd": "5b5a690c7d1f12de68a497bcd81177b2b8e3679e",
+    "scripts/domain/run/RunLifecycle.gd": "ffefaf364542feb8e3dc26d2196197f2d8ef3752",
+    "scripts/domain/run/RunSnapshotSchema.gd": "aad08d51fbb1c97b042d528c1504618d5292c1b5",
+    "scripts/infrastructure/save/DesktopContinuationOperationJournal.gd": "0a30165f630291ca13d7ae5fd9afcff6189dc61d",
+    "scripts/infrastructure/save/SaveDocumentSchema.gd": "b3dbd784adb7db013cf19159b0f7db740a8dea02",
+    "scripts/infrastructure/save/SaveMigrations.gd": "d2ef31873b988ed8a4e7ca755cc078ec7ae427bb",
+    "scripts/narrative/DialogicEntryManifest.gd": "ea4309367705be81060791b602a24093dc9f05b8",
+    "scripts/profile/ProfileMigration.gd": "40599a0f8fd3d9684535dbd87b47980c626eb168",
+    "scripts/profile/ProfileSchema.gd": "5f00f26724cbf4f440a0db2cecbd3a9d473c0a54",
+    "scripts/ui/ComputerDesktop.gd": "8ee4ca9b5f4b94dd9786b8942408b4e2f3b9b4e2",
+    "scripts/ui/MenuScene.gd": "45c19b06498a2bf6a8de673cc6330919eafef43d",
+    "scripts/ui/MinesweeperApp.gd": "d947f03dc4abb5f192ea744f07ee0c2294ac4e78",
+    "scripts/ui/ShopApp.gd": "9d67b0181723c7d506def52d8ab1eaa231586396",
+    "scripts/ui/desktop/DesktopTheme.gd": "85bfdeda624136428c4ca2a00825026843dad7da",
+    "tests/backup_operations/test_backup_operations.gd": "de3d7b5139b2d90ecbbe67bb72a333f10bade1d2",
+    "tests/integration/test_desktop_board_persistence.gd": "e5009f50fe9409c74d38534f0c029efda162aaca",
+    "tests/integration/test_desktop_continuation_resume.gd": "8f40107b888158973730fd21a54b36d2ec8fe743",
+    "tests/integration/test_desktop_crash_recovery.gd": "2cad7f51c3552e80950d8ee78740af6c51a3f548",
+    "tests/integration/test_desktop_quick_commands.gd": "326fb4faf279bc7f7f5e313d16992f669731384b",
+    "tests/integration/test_dialogic_bridge_contract.gd": "cb626facfdb1714811d0622e7b57d5a04ab1d5a5",
+    "tests/integration/test_dialogic_live_admission.gd": "292cdce241c82c015225c3b2b2aabb7b1da55258",
+    "tests/integration/test_dialogic_restore.gd": "aaef4dc93b53c162e4cfe3d32b97137fe9b8a4d7",
+    "tests/integration/test_dialogic_signal_boundary.gd": "a3fe78c736e6c555c588af059fc207d53d36657e",
+    "tests/integration/test_minesweeper_first_reveal_transaction.gd": "bb8606bc0039b380d707ff6af8c1c0f3a9716f8a",
+    "tests/integration/test_minesweeper_save_lock.gd": "2734e6e8a49e3e1e64de8d8b33cbf4ac3106153c",
+    "tests/integration/test_narrative_pause_frontier.gd": "e69d55f203fc2c36c0e7459fe46a0069db304990",
+    "tests/integration/test_new_run_transaction.gd": "a5527673a162f73dcf2b0349dce4cefd4f78f320",
+    "tests/integration/test_pause_backup_host.gd": "fbdc1623116a8a704aa8baa33ff36b63ec97a0e2",
+    "tests/integration/test_phase2r_schedule_desktop_handoff.gd": "42eeceada9b5a66ddb8255f031845d013f380fa8",
+    "tests/integration/test_restore_production_adapters.gd": "f75cd0dcfe1706eb7d99c36cc858cd5d045bc957",
+    "tests/integration/test_save_capability.gd": "3a5585cc3afc0d8c4ae28287bf438eebc41ef4d7",
+    "tests/integration/test_save_manager_journal.gd": "4918c902ca64c66753623541c25d21f339988464",
+    "tests/integration/test_schedule_publication_restart.gd": "6d62fcfa715a7c43b5c1a82fdfc04a9005ad4902",
+    "tests/save_load_capture/test_capture.gd": "6c31e593ec8acb156c68078d47ee407f35629185",
+    "tests/save_load_loop/Observe.gd": "61729a62c1ef3b7b6d7f4c61474c237314416b43",
+    "tests/smoke_load_scenes.gd": "c8059cee1d4c4dc54d64248a6a8ae06d387a9a73",
+    "tests/title_resume/Observe.gd": "5380fde7f3f8864af69d655834dc8726b551a38c",
+    "tests/unit/test_art_manifest.gd": "e3e54bf6a03e2745f901e6db2833316e6e0a9507",
+    "tests/unit/test_backup_quick_actions.gd": "bde220d3272f12338a930fa2bfd292a87bb87081",
+    "tests/unit/test_checkpoint_journal.gd": "8cbafb093ec67fd03752cb10d4e12d95cb1f4eca",
+    "tests/unit/test_day_resolution_snapshot_production.gd": "62bcaa3aca9f7f421fc027f1d7735f33ef1d8153",
+    "tests/unit/test_desktop_continuation_operation_journal.gd": "eb1117821a75ca35c657272b16bf08ac3e24539b",
+    "tests/unit/test_dialogic_entry_manifest.gd": "6fe786832b2669803c7155ff2122236d3989dd25",
+    "tests/unit/test_dialogic_identity_registries.gd": "b2c6c98a04689af9ba89be72d6ee8a89198fb2dd",
+    "tests/unit/test_dialogic_ids_manifest.gd": "28403bbc8645e9bdcbd53b076f404faf74ca521e",
+    "tests/unit/test_dialogic_migration_inventory.gd": "451d8e6ef810fbe5bad0fd3734a890c61b11dc27",
+    "tests/unit/test_dialogic_presentation_owner_adapter.gd": "3956b08889a579cd16132dce0bdbd4b9cfc7c518",
+    "tests/unit/test_dialogic_runtime_adapter.gd": "6ea501cddf0df7fa23537f87fdba32ccadd798d4",
+    "tests/unit/test_dialogic_timeline_catalog.gd": "166755e02e5a57721c6be02ef312a27ebe61c2e1",
+    "tests/unit/test_dtl_master_structure.gd": "dec5d56e9310a253bc015829cfd965235ba53f09",
+    "tests/unit/test_game_state.gd": "2a2b9834a4e87c1d53eeb7bd4da9722b1841773f",
+    "tests/unit/test_game_state_facade_contract.gd": "be33cb296d3d567e1a15ba2edcf748f364dab93e",
+    "tests/unit/test_hospital_presentation_port.gd": "b16d4d46b0f651dcfb5012dae22f8bafda404cbf",
+    "tests/unit/test_profile_manager.gd": "86f7154512d2b78d9d1c0f2131ecd917e09ef4fd",
+    "tests/unit/test_profile_v4_upgrade.gd": "68cea6ad91a4ba8c67d5b82c5bbb9c32b6dafe4f",
+    "tests/unit/test_restore_participants.gd": "6ad976e2f404ebefe2c7567a2991f9f08d43894b",
+    "tests/unit/test_run_lifecycle.gd": "d22a287459c5f8d6cf4f5e439ee19673257d23bc",
+    "tests/unit/test_run_snapshot_schema.gd": "e244fe6c99ebced1f9160a139ecb09a3a7e48e2a",
+    "tests/unit/test_save_document_schema.gd": "dcde47d8fb3b2d6e4fee790a264e99fc4ce2a5f8",
+    "tests/unit/test_save_manager.gd": "099303386e6a58d0b474062e15f3c81eb41c92ec",
+    "tests/unit/test_save_migrations.gd": "123d129a601ec99cf1a00e544e979e9088dad1d8",
+    "tests/unit/test_settings_controls_reset.gd": "6aa2d998be73ad283e8fd2fac4711b08894fd3ca",
+    "tests/unit/test_timeline_manifest.gd": "4513e1827af9ed8a522108396c601d1737f9a614",
+    "tests/unit/tooling/test_dialogic_gate_summary.gd": "47a3e4e5d51d735ffa60769d1c476e801225ced6",
+    "tests/unit/tooling/test_phase2r_schedule_gate.gd": "127e188d1592ba3905a8cf08e1d13fa525d06ba1",
+    "tools/dialogic/TimelineManifestValidator.gd": "49e6f8a1a12fed38c3641bf7127da4df3a5bc326",
+    "tools/dialogic/WriteDialogicGateSummary.gd": "3af620b9f94bbf833275d7a3f18e83596a1168b8",
+    "tools/dialogic/generate_master_skeletons.gd": "083381d3159de6b74e1e06907bf8fe9c89bff7da",
+    "tools/dialogic/validate_dialogic_contract.gd": "9954d5b6c64e922d5b4fd5c5ce85067c4132027a",
+    "tools/evidence/Phase2RScheduleDesktopHandoffGuard.gd": "03a33e3e9267260d86229048286f5a0250edadb2",
+    "tools/save_load_loop/verify.py": "e0b74d3c3a8b4c2d5b6eea7704547db24749a8a0",
+    "tests/fixtures/saves/v5_desktop_active.json": "011f9cb8b6012665e8ca9dde1ba81aaa30571c33",
+    "tests/fixtures/saves/v5_desktop_none.json": "82ad2db8f8519560631107516693e8540a666811",
+    "tests/fixtures/saves/v5_desktop_pending_consequence.json": "698efb0af5b87d729aad870296e084037c1dddbb",
+    "tests/fixtures/saves/v5_desktop_prepared.json": "e9a292381cf9c26dc18f3db55299c5c91127fb9a",
+    "tests/fixtures/saves/v5_desktop_preparing.json": "8e14963b9150025bb0c0aabce4a66a8a7dbd800b",
+    "tests/fixtures/saves/v5_desktop_settling.json": "e8ce60f916923afe01b163868b36171900729b3e",
+    "tests/integration/test_run_palette_host.gd": "64456a7fc7bed842bcc9b17ae0e1649be22faf7e",
+    "tests/manual/verify_run_palette_native.gd": "d5c21cf941382a7b507037b233b1a9295c98a98b",
+    "tests/unit/test_run_dark_configuration.gd": "44a67c91137d86df66741ec5e74be392156de5b1"
+  },
+  "raw_log_sha256": {
+    ".godot\\phase2r_logs\\run-dark-focused-20260907a.log": "9790e3f86bfebdeca08c1908372377f560ae9604a29e46597b10a42e2f2004ee",
+    ".godot\\phase2r_logs\\run-dark-shared-20260907a.log": "e8513f21372e1852126834ee54cc8830829cfaf6fc68523a14baaa4ad46bd2a3",
+    ".godot\\phase2r_logs\\run-dark-fixture-fixes-20260907b.log": "85949f13207c56c2ddf716344043265c4e4de30bbe0f69cf11f937e9f20f60ba",
+    ".godot\\phase2r_logs\\run-dark-native-20260907a.log": "05ce9a8839dcc4d56544e96c598e62361f5721a6f8515e63961f932a0449fcce",
+    ".godot\\phase2r_logs\\run-dark-handoff-20260907b.log": "86814d4fc6537aae2363dc9b887d9ef5875d46b49651045da23397df72ad508d",
+    ".godot\\phase2r_logs\\run-dark-backup-operations-20260907a.log": "0339ea2b07ee06697937d4d13ff794b9bd2b2eb74d34109fb458110f6055811c",
+    ".godot\\phase2r_logs\\run-dark-backup-operations-20260907b.log": "3adace941bbef99408ef8a8fcf3235a3319b443b85a248df30037b9d0eef9223",
+    ".godot\\phase2r_logs\\run-dark-save-capture-20260907b.log": "bbcef64625bb8ee4f5bb156f8627ca12d02422d5a1dfd28f4a36cc1d4a243c15",
+    ".godot\\phase2r_logs\\run-dark-save-capture-20260907c.log": "eb13d1b3811cd75de0c5cf8a50e2bd53a8121c2648703d0af03d844c7dc9e322",
+    ".godot\\phase2r_logs\\run-dark-retirement-20260907a.log": "6ed5c2762c3fd4b766a758644de53b25b428d9a0310c2590124e53a15a506df3",
+    ".godot\\phase2r_logs\\run-dark-retirement-20260907b.log": "315d4b9a7ca8fccdad051e057b31efacb1a5f28c010ceee035cfdb00190077fe",
+    ".godot\\phase2r_logs\\run-dark-native-20260907b.log": "05ce9a8839dcc4d56544e96c598e62361f5721a6f8515e63961f932a0449fcce",
+    ".godot\\phase2r_logs\\run-dark-final-focus-20260907c.log": "afe61235a5dea0de63f99ff6072342a67eb7bb59b610ce3fd721e7aaad7d8741",
+    ".godot\\phase2r_logs\\run-dark-scenes-20260907a.log": "7ff2838e0cedf520018ce7bc00fbd2baebab4b7b74f6c46d4b9be102b354fd2e",
+    ".godot\\phase2r_logs\\run-dark-production-loop\\result.json": "02a6d0012e7cb8ebceaf985efe83643eba2fcf495717a237550eba3fc0718958",
+    ".godot\\phase2r_logs\\run-dark-production-loop\\verification.log": "4873285edf818085524cde2449d0ebdf98609589de8c742e94851dde8c552cca",
+    ".godot\\phase2r_logs\\run-dark-production-loop\\project.original.godot": "66ecb65d8f4cc16de3b8a2b48d6709b66d56723075484b1815d7af90688a877d",
+    ".godot\\phase2r_logs\\run-dark-production-loop\\project.executed.godot": "5e51c43521f005c8c4a239d8fe654cf9161fd751fce7dc26cb04a2c3c58f2523",
+    ".godot\\phase2r_logs\\run-dark-title-resume\\result.json": "adebcd5e6bb8bcd5855641996a457cdb2dcfe6cbdfd882970d4131d18d35f530",
+    ".godot\\phase2r_logs\\run-dark-title-resume\\verification.log": "f912621c478f490b4c7763f57f9d61b68cecdaaebde6fe05039a58cb3a6505a7",
+    ".godot\\phase2r_logs\\run-dark-title-resume\\project.original.godot": "66ecb65d8f4cc16de3b8a2b48d6709b66d56723075484b1815d7af90688a877d",
+    ".godot\\phase2r_logs\\run-dark-title-resume\\project.executed.godot": "124dfa8e3ebf414dbc5bb6bc01513091103450f6feb207496766fe94cc0eb81c",
+    ".godot\\phase2r_logs\\run-dark-title-resume-b\\result.json": "33613b5240a8f42b8c163885b8b8f77812b227662432bb11d30ecbae9696f832",
+    ".godot\\phase2r_logs\\run-dark-title-resume-b\\verification.log": "94e6a49252b8bede11a4dc8388c142c4e331647d9259c1cd5a0451727d9c667d",
+    ".godot\\phase2r_logs\\run-dark-title-resume-b\\project.original.godot": "66ecb65d8f4cc16de3b8a2b48d6709b66d56723075484b1815d7af90688a877d",
+    ".godot\\phase2r_logs\\run-dark-title-resume-b\\project.executed.godot": "4c83fd130abdc32d8098b40ad79bb275b99134c745a03563431ad32e4467770d",
+    ".godot\\phase2r_logs\\run-dark-title-resume-c\\result.json": "37f4ae6d49da0287902ee0151d62dfe937fd68ae8f0fd647fb1bbe65b302d664",
+    ".godot\\phase2r_logs\\run-dark-title-resume-c\\verification.log": "aaa013f3a02b7970832cb813a916edb86981646bc32bd02fa23d03922a1a0c3e",
+    ".godot\\phase2r_logs\\run-dark-title-resume-c\\project.original.godot": "66ecb65d8f4cc16de3b8a2b48d6709b66d56723075484b1815d7af90688a877d",
+    ".godot\\phase2r_logs\\run-dark-title-resume-c\\project.executed.godot": "124dfa8e3ebf414dbc5bb6bc01513091103450f6feb207496766fe94cc0eb81c",
+    ".godot\\phase2r_logs\\run-dark-title-resume-d\\result.json": "e9a644b62bf983a49cecbabfcd54d6fd5c8bed1c653fc7b4ec3c4ba98079dd3f",
+    ".godot\\phase2r_logs\\run-dark-title-resume-d\\verification.log": "0b333e568345acee00c458be764184532458359f3f9b673758c2690396cd01ec",
+    ".godot\\phase2r_logs\\run-dark-title-resume-d\\project.original.godot": "66ecb65d8f4cc16de3b8a2b48d6709b66d56723075484b1815d7af90688a877d",
+    ".godot\\phase2r_logs\\run-dark-title-resume-d\\project.executed.godot": "124dfa8e3ebf414dbc5bb6bc01513091103450f6feb207496766fe94cc0eb81c",
+    ".godot\\phase2r_tests\\aa41ea93-4406-4527-a969-ada9fde4e70f\\appdata\\Godot\\app_userdata\\DWM\\evidence\\run_palette_native\\measurements.json": "21bb6f4d211fd97ee1374eef5393ab80d0f90e0c25b07caa26ee86a4e085326c"
+  },
+  "canonical_new_acc_complete": false,
+  "all_ui_complete": false,
+  "merged": false,
+  "pushed": false,
+  "player_data_used": false,
+  "preserved_generated_files": 582,
+  "external_frontier": {
+    "head": "101fe2b9815af4682d1318d0a7cc2d93442b6e2d",
+    "tracked_dirty_paths": 0,
+    "bead": "dwm-oyo.3",
+    "status": "in_progress",
+    "compatibility": "INCOMPATIBLE: same v5 snapshot/document and v2 journal numbers encode different exact schemas and participant order. Semantic integration must combine Dark and ScheduleView/Hospital/terminal owners with unambiguous admission."
+  },
+  "remaining": [
+    "Joint durable initial Autosave/Profile selector consumption",
+    "Truthful live-session/replacement consent",
+    "Frozen same-operation Retry",
+    "All remaining UI owner integrations"
+  ],
+  "known_diagnostics": [
+    "Inherited Unicode NUL parser diagnostics retained; prior check-only storage reproduction documented.",
+    "GUT fixtures report Dialogic orphans, including1800 in retirement batch; no leak-free claim.",
+    "Production harness accepts only exact previously recorded56-resource Dialogic shutdown tail; full diagnostics retained.",
+    "Failed title import GitHub403 retained; disposable import now excludes only GUT editor plugin and restores full runtime settings.",
+    "All failed fixture attempts retained; final per-file GUT results are deduplicated, not a claim that failed aggregate runs exited0."
+  ],
+  "review": [
+    "Independent run/schema/route/admission review: no blocker",
+    "Independent retirement structural diff: exactly two entries removed, retained content unchanged",
+    "Independent handoff guard and import-only harness review: no blocker"
+  ]
+}

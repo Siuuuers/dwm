@@ -1,0 +1,114 @@
+UI literal audit: same-head control and historical diagnostic
+=============================================================
+
+Purpose
+-------
+This artifact records the two failure signatures shared by an exact pre-change
+main d064 targeted run and the current Ending-recovery focused regression. The
+targeted main run is the controlling comparison. The older full-suite baseline
+was captured at an earlier repository checkpoint and remains historical
+diagnostic evidence, not a same-head control.
+
+Source logs
+-----------
+.godot/phase2r_logs/vky5-baseline-full-20260913.log
+SHA-256: 7682cbdc68a2021b6fec50d9b3ab5bd22b808e258f02e68486a26e5d60506225
+Runner record: exit_code -1; the log has no completed GUT Run Summary.
+
+C:/Users/glori/Documents/dwm/.godot/phase2r_logs/ending-recovery-main-baseline-20260914.log
+SHA-256: 6a69cb22c555d4ce4ae56d1206bb6a0974211e146f725a6e50b882b13ea8e73f
+Runner record: exit_code 1; 7/9 tests passed, 155/159 assertions.
+This isolated targeted run used exact pre-change main d064 and is the same-head
+control for the current Ending-recovery increment.
+
+.godot/phase2r_logs/ending-recovery-regression-green-20260914.log
+SHA-256: fcaa5ec14742df753b7269fa49f9c4f969b50a4cf0b75e5e40c8c68a806bf3c5
+Runner record: exit_code 1; 84/86 tests passed, 963/967 assertions.
+The filename's "green" label refers to the new Ending-recovery work; the
+broader focused regression still exited nonzero on the two sections below.
+
+Same-head main control: exact Run Summary
+-----------------------------------------
+==============================================
+= Run Summary
+==============================================
+
+res://tests/integration/test_ordered_ending_real_runtime.gd
+- test_exact_canonical_labels_record_then_native_gallery_replay_preserves_run_and_profile
+    [Failed]:  [0] expected to equal [1]:  all shipped mechanical ending timelines finish naturally
+          at line -1
+    [Failed]:  [0] expected to equal [4]:  each physically completed ending label has one exact reached record
+          at line 254
+    [Failed]:  Special's full semantic label physically played
+          at line 258
+
+res://tests/unit/test_ending_completion_durability.gd
+- test_terminal_admission_requires_source_then_rolls_back_failed_save_and_retries_same_design
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid access to property or key 'inventory' on a base object of type 'Nil'.
+    [2] <engine-2>Invalid access to property or key 'ok' on a base object of type 'Dictionary'.
+    [3] <engine-2>Invalid access to property or key 'ok' on a base object of type 'Dictionary'.
+    [4] <engine-2>Invalid access to property or key 'ok' on a base object of type 'Dictionary'.
+    [5] <engine-2>Invalid access to property or key 'ok' on a base object of type 'Dictionary'.
+          at line -1
+
+Totals
+------
+Scripts               2
+Tests                 9
+Passing Tests         7
+Failing Tests         2
+Asserts           155/159
+Orphans             168
+Time              8.355s
+
+
+---- 2 failing tests ----
+
+Matching failure 1: ordered-ending real runtime
+------------------------------------------------
+Historical baseline excerpt:
+
+* test_exact_canonical_labels_record_then_native_gallery_replay_preserves_run_and_profile
+    [Failed]:  [0] expected to equal [1]:  all shipped mechanical ending timelines finish naturally
+      at line -1
+    [Failed]:  [0] expected to equal [4]:  each physically completed ending label has one exact reached record
+      at line 254
+    [Failed]:  Special's full semantic label physically played
+      at line 258
+
+Current focused-regression excerpt:
+
+res://tests/integration/test_ordered_ending_real_runtime.gd
+- test_exact_canonical_labels_record_then_native_gallery_replay_preserves_run_and_profile
+    [Failed]:  [0] expected to equal [1]:  all shipped mechanical ending timelines finish naturally
+          at line -1
+    [Failed]:  [0] expected to equal [4]:  each physically completed ending label has one exact reached record
+          at line 254
+    [Failed]:  Special's full semantic label physically played
+          at line 258
+
+Matching failure 2: ending-completion durability fixture
+--------------------------------------------------------
+Historical baseline excerpt:
+
+* test_terminal_admission_requires_source_then_rolls_back_failed_save_and_retries_same_design
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid access to property or key 'inventory' on a base object of type 'Nil'.
+    [2] <engine-2>Invalid access to property or key 'ok' on a base object of type 'Dictionary'.
+    [3] <engine-2>Invalid access to property or key 'ok' on a base object of type 'Dictionary'.
+    [4] <engine-2>Invalid access to property or key 'ok' on a base object of type 'Dictionary'.
+    [5] <engine-2>Invalid access to property or key 'ok' on a base object of type 'Dictionary'.
+      at line -1
+
+Current focused-regression excerpt:
+
+res://tests/unit/test_ending_completion_durability.gd
+- test_terminal_admission_requires_source_then_rolls_back_failed_save_and_retries_same_design
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid access to property or key 'inventory' on a base object of type 'Nil'.
+    [2] <engine-2>Invalid access to property or key 'ok' on a base object of type 'Dictionary'.
+    [3] <engine-2>Invalid access to property or key 'ok' on a base object of type 'Dictionary'.
+    [4] <engine-2>Invalid access to property or key 'ok' on a base object of type 'Dictionary'.
+    [5] <engine-2>Invalid access to property or key 'ok' on a base object of type 'Dictionary'.
+          at line -1

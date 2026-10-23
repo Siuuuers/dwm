@@ -1,0 +1,21 @@
+{
+  ".github/workflows/windows-tests.yml": "bc1692cb8599e18e1bcaefaf3a80bb426e3fcaa584139de1485f99040bc3eac2",
+  "evidence/phase_2r/runtime/game_state_surface.json": "6f21c3174bdc15d91ea0e17a065dbab64a817a7a6de16353a3f652435e71ae07",
+  "evidence/phase_2r/runtime/save_manager_surface.json": "1fc39a822ef30fff42012d3c8a45b04db941eea9be5c90eb55423950b7568b1b",
+  "localization/ui/en.json": "60b1ca9d885d94ac1f998411b8332fbc23c4d82b6faf1757c5f44003eb4177c9",
+  "localization/ui/ja.json": "61e0c1866a36aa9f0170072f114bfd1e06d2d77c48545e24a0e68a1ddefc7c0f",
+  "localization/ui/ko.json": "6de8d64fdd766d2bb445b4b19dd63b3d9fb54bbf03bd1487b7e5f3882a6b96b8",
+  "localization/ui/zh_CN.json": "293a4e5512e9ebb8d6ff69f1bd78aefa20f11f0fd94a485de5bd409b823f02fd",
+  "localization/ui/zh_HK.json": "f657478941277dc7b81a7c9a9202794b524e9cda5c710dc159ececff92b043c7",
+  "scripts/ui/GalleryScene.gd": "66cf171d4135bbe926ae1a1d4792fabc60c152421b849cc50b5eac7491ad9fa3",
+  "scripts/ui/gallery/GalleryRecordButton.gd": "62f0e4cc085731215984561e115ab5da4e49e54a0d5d67e0a120821d8d3d22c2",
+  "scripts/ui/gallery/GalleryRecordPaper.gd": "7f2d07d91607a360fd427ea99669d6f0ae66ddff03d0032a9258ee2954670641",
+  "scripts/ui/gallery/GalleryVersionRegister.gd": "7f316525f89308b25809cc751639e86023727633344c1ae1b480b7b19d974f1c",
+  "tests/integration/test_gallery_replay_status.gd": "f4372cfef39ba6d31c5ad3d8f8bb0dad8f9d650f54e39f06d1b84300ec3d30f2",
+  "tests/integration/test_gallery_version_register.gd": "abb2bc6cc8d42a0e2eee5ca041dd9f1fcbca580aff7d2a0404da526f27d9a5be",
+  "tests/ui/render_gallery_version_register.gd": "ff9b95d31e770dbe7d7102c0de752971b7ba4caeea8a95cb365530d3fa878783",
+  "tests/ui/render_gallery_version_register.gd.uid": "5422f2249557676e697730719fc6e0921bfb07ab5d8614ce6dd3e1e1631e5c7e",
+  "tests/unit/test_gallery_version_register.gd": "0fd581685ff958347de3448bb99810860f6bf67709ee69d67bc388fbfe2329a0",
+  "tests/unit/test_japanese_korean_ui.gd": "13f53bb1277c9359704a8e61cfef91bc6149b12af2e9aa54261a72336fa99f50",
+  "tools/testing/Invoke-CloudTests.ps1": "89b3fd61f06f6c6ddf33a4cfc1ff987f3518c06d9944bae6bf52f1e77c3d6a98"
+}

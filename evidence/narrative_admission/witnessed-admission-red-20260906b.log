@@ -1,0 +1,392 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2570)
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-ui-build/.godot/phase2r_tests/36cdf368-75d8-4746-b092-b5fdee73972e/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+
+
+res://tests/integration/test_dialogic_live_admission.gd
+* test_real_hospital_deferred_start_reserves_admission_until_one_physical_completion
+    [Failed]:  admitted Hospital startup already occupies playback
+      at line 129
+    [Failed]:  another ordinary Hospital cannot replace standing playback
+      at line 130
+    [Failed]:  DICTIONARY({ "timeline": <null>, "event": -1, "layout": DialogicLayout_WitnessedCaption:<C...": {  } }) != DICTIONARY({ "timeline": <null>, "event": -1, "layout": DialogicLayout_WitnessedCaption:<C...": [] } }).
+    { "timeline": <null>, "event": -1, "layo...t": {  } } != { "timeline": <null>, "event": -1, "layo...s": [] } }  1 of 8 keys do not match.  ordinary refusal performs no runtime or cache mutation
+      at line 130
+    [Failed]:  a valid semantic entry cannot replace standing playback
+      at line 130
+    [Failed]:  DICTIONARY({ "timeline": <null>, "event": -1, "layout": DialogicLayout_WitnessedCaption:<C...": {  } }) != DICTIONARY({ "timeline": <null>, "event": -1, "layout": DialogicLayout_WitnessedCaption:<C...": [] } }).
+    { "timeline": <null>, "event": -1, "layo...t": {  } } != { "timeline": <null>, "event": -1, "layo...s": [] } }  1 of 8 keys do not match.  semantic refusal performs no runtime or cache mutation
+      at line 130
+    [Failed]:  DICTIONARY({ "timeline": <null>, "event": -1, "layout": DialogicLayout_WitnessedCaption:<C...": {  } }) != DICTIONARY({ "timeline": <null>, "event": -1, "layout": DialogicLayout_WitnessedCaption:<C...": [] } }).
+    { "timeline": <null>, "event": -1, "layo...t": {  } } != { "timeline": <null>, "event": -1, "layo...s": [] } }  1 of 8 keys do not match.  ending refusal performs no runtime or cache mutation
+      at line 130
+[Dialogic Comment] #timeline_id: hospital.faint
+[Dialogic Comment] #locale: en
+[Dialogic Comment] #type: core
+[Dialogic Comment] #scene: HospitalScene
+[Dialogic Comment] #shown: after fainting / danger day
+    [Failed]:  [0] expected to equal [1]:
+      at line 134
+    [Failed]:  [0] expected to equal [1]:  the real physical owner emits exactly one completion
+      at line 135
+    [Failed]:  ["hospital.faint"] expected to equal [""]:
+      at line 139
+    24 Orphans
+        * [<Node#157319956717>(subsystem_animation.gd)]
+        * [<Node#157336733934>(subsystem_audio.gd)]
+        * [<Node#157353511151>]
+        * [<Node#157370288368>]
+        * [<Node#157387065585>(subsystem_backgrounds.gd)]
+        * [<Node#157420620018>(subsystem_choices.gd)]
+        * [<Timer#157437397235>]
+        * [<Node#157454174452>(subsystem_expression.gd)]
+        * [<Node#157487728886>(subsystem_glossary.gd)]
+        * [<Node#157504506103>(subsystem_history.gd)]
+        * [<Node#157521283320>(subsystem_input.gd)]
+        * [<Timer#157538060537>]
+        * [<Node#157554837754>(subsystem_jump.gd)]
+        * [<Node#157571614971>(subsystem_containers.gd)]
+        * [<Node#157588392188>(subsystem_portraits.gd)]
+        * [<Node#157621946621>(subsystem_save.gd)]
+        * [<Timer#157638723838>]
+        * [<Node#157655501055>(subsystem_settings.gd)]
+        * [<Node#157672278272>(subsystem_styles.gd)]
+        * [<Node#157689055489>(subsystem_text.gd)]
+        * [<Node#157772941574>(subsystem_text_input.gd)]
+        * [<Node#157789718791>(subsystem_variables.gd)]
+        * [<Node#157806496008>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#157823273225>]
+* test_real_semantic_deferred_start_refuses_other_playback_vocabularies
+[Dialogic Comment] #PURPOSE: ordinary_message
+[Dialogic Comment] #CAUSAL INPUT: validated frozen context
+[Dialogic Comment] #VARIATION: registered layer order
+[Dialogic Comment] #ALLOWED SIGNALS: history.line.witness, message.echo.satisfy, message.reply.commit
+    24 Orphans
+        * [<Node#191008606497>(subsystem_audio.gd)]
+        * [<Node#191025383714>]
+        * [<Node#191042160931>]
+        * [<Node#191126047012>(subsystem_expression.gd)]
+        * [<Timer#191109269797>]
+        * [<Node#191092492582>(subsystem_choices.gd)]
+        * [<Node#191058938151>(subsystem_backgrounds.gd)]
+        * [<Node#191159601449>(subsystem_glossary.gd)]
+        * [<Node#191176378666>(subsystem_history.gd)]
+        * [<Node#191193155883>(subsystem_input.gd)]
+        * [<Timer#191209933100>]
+        * [<Node#191293819194>(subsystem_save.gd)]
+        * [<Timer#191310596411>]
+        * [<Node#191344150846>(subsystem_styles.gd)]
+        * [<Node#191360928063>(subsystem_text.gd)]
+        * [<Node#190991829533>(subsystem_animation.gd)]
+        * [<Node#191260264992>(subsystem_portraits.gd)]
+        * [<Node#191243487778>(subsystem_containers.gd)]
+        * [<AudioStreamPlayer#191495146020>]
+        * [<Node#191478368809>(subsystem_voice.gd)]
+        * [<Node#191444814378>(subsystem_text_input.gd)]
+        * [<Node#191461591595>(subsystem_variables.gd)]
+        * [<Node#191327373868>(subsystem_settings.gd)]
+        * [<Node#191226710579>(subsystem_jump.gd)]
+* test_real_ending_deferred_start_refuses_other_playback_vocabularies
+SCRIPT ERROR: Cannot call method 'remove_child' on a null value.
+   at: load_style (res://addons/dialogic/Modules/Style/subsystem_styles.gd:74)
+   GDScript backtrace (most recent call first):
+       [0] load_style (res://addons/dialogic/Modules/Style/subsystem_styles.gd:74)
+       [1] _start_at_path (res://autoload/DialogicBridge.gd:249)
+       [2] start_timeline_id (res://autoload/DialogicBridge.gd:208)
+       [3] _assert_all_starts_refused (res://tests/integration/test_dialogic_live_admission.gd:105)
+       [4] test_real_ending_deferred_start_refuses_other_playback_vocabularies (res://tests/integration/test_dialogic_live_admission.gd:160)
+       [5] _run_test (res://addons/gut/gut.gd:622)
+       [6] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [7] _run_test (res://addons/gut/gut.gd:650)
+       [8] after_each (res://tests/integration/test_dialogic_live_admission.gd:85)
+    [Failed]:  another ordinary Hospital cannot replace standing playback
+      at line 160
+    [Failed]:  DICTIONARY({ "timeline": <null>, "event": -1, "layout": DialogicLayout_VisualNovelStyle:<C...": {  } }) != DICTIONARY({ "timeline": <null>, "event": -1, "layout": DialogicLayout_VisualNovelStyle:<C...": {  } }).
+    { "timeline": <null>, "event": -1, "layo...t": {  } } != { "timeline": <null>, "event": -1, "layo...t": {  } }  1 of 8 keys do not match.  ordinary refusal performs no runtime or cache mutation
+      at line 160
+    [Failed]:  DICTIONARY({ "timeline": <null>, "event": -1, "layout": DialogicLayout_VisualNovelStyle:<C...": {  } }) != DICTIONARY({ "timeline": <null>, "event": -1, "layout": DialogicLayout_VisualNovelStyle:<C...": {  } }).
+    { "timeline": <null>, "event": -1, "layo...t": {  } } != { "timeline": <null>, "event": -1, "layo...t": {  } }  1 of 8 keys do not match.  semantic refusal performs no runtime or cache mutation
+      at line 160
+    [Failed]:  DICTIONARY({ "timeline": <null>, "event": -1, "layout": DialogicLayout_VisualNovelStyle:<C...": {  } }) != DICTIONARY({ "timeline": <null>, "event": -1, "layout": DialogicLayout_VisualNovelStyle:<C...": {  } }).
+    { "timeline": <null>, "event": -1, "layo...t": {  } } != { "timeline": <null>, "event": -1, "layo...t": {  } }  1 of 8 keys do not match.  ending refusal performs no runtime or cache mutation
+      at line 160
+[Dialogic Comment] #timeline_id: ending.alone
+[Dialogic Comment] #locale: en
+[Dialogic Comment] #type: ending
+[Dialogic Comment] #fallback ending
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Cannot call method 'remove_child' on a null value.
+      at line 164
+    24 Orphans
+        * [<Node#204866586609>(subsystem_backgrounds.gd)]
+        * [<Node#204984027124>(subsystem_history.gd)]
+        * [<Node#204933695479>(subsystem_expression.gd)]
+        * [<Node#204849809400>]
+        * [<Node#204833032185>]
+        * [<Timer#204916918267>]
+        * [<Node#204967249916>(subsystem_glossary.gd)]
+        * [<Node#204900141409>(subsystem_choices.gd)]
+        * [<Node#204799478114>(subsystem_animation.gd)]
+        * [<Node#204816255335>(subsystem_audio.gd)]
+        * [<Node#205034359268>(subsystem_jump.gd)]
+        * [<Node#205051136571>(subsystem_containers.gd)]
+        * [<Node#205067913788>(subsystem_portraits.gd)]
+        * [<Timer#205118245438>]
+        * [<Node#205135022655>(subsystem_settings.gd)]
+        * [<Node#205168577090>(subsystem_text.gd)]
+        * [<Node#205286017608>(subsystem_voice.gd)]
+        * [<Timer#205017582153>]
+        * [<AudioStreamPlayer#205302794826>]
+        * [<Node#205269240397>(subsystem_variables.gd)]
+        * [<Node#205252463186>(subsystem_text_input.gd)]
+        * [<Node#205101468250>(subsystem_save.gd)]
+        * [<Node#205151799903>(subsystem_styles.gd)]
+        * [<Node#205000804965>(subsystem_input.gd)]
+* test_metadata_only_restore_cache_never_claims_live_activity_or_completion
+    [Failed]:  end packets without standing playback mint no completion
+      at line 180
+    [Failed]:  DICTIONARY({ "timeline": <null>, "event": -1, "layout": <null>, "starts": 0, "ends": 2, "h...": {  } }) != DICTIONARY({ "timeline": <null>, "event": -1, "layout": <null>, "starts": 0, "ends": 2, "h...oute" } }).
+    { "timeline": <null>, "event": -1, "layo...t": {  } } != { "timeline": <null>, "event": -1, "layo...route" } }  2 of 8 keys do not match.  unowned end signals cannot consume dormant restored identity
+      at line 183
+    [Failed]:  end packets without standing playback mint no completion
+      at line 180
+    [Failed]:  DICTIONARY({ "timeline": <null>, "event": -1, "layout": <null>, "starts": 0, "ends": 4, "h...": {  } }) != DICTIONARY({ "timeline": <null>, "event": -1, "layout": <null>, "starts": 0, "ends": 4, "h...lete" } }).
+    { "timeline": <null>, "event": -1, "layo...t": {  } } != { "timeline": <null>, "event": -1, "layo...plete" } }  2 of 8 keys do not match.  unowned end signals cannot consume dormant restored identity
+      at line 183
+    24 Orphans
+        * [<Node#218774899065>(subsystem_text_input.gd)]
+        * [<Node#218808453571>(subsystem_voice.gd)]
+        * [<Timer#218540018116>]
+        * [<AudioStreamPlayer#218825230789>]
+        * [<Node#218355468828>]
+        * [<Node#218422577716>(subsystem_choices.gd)]
+        * [<Node#218389023285>(subsystem_backgrounds.gd)]
+        * [<Node#218338691638>(subsystem_audio.gd)]
+        * [<Node#218372246071>]
+        * [<Timer#218439354936>]
+        * [<Node#218456132153>(subsystem_expression.gd)]
+        * [<Node#218489686589>(subsystem_glossary.gd)]
+        * [<Node#218506463808>(subsystem_history.gd)]
+        * [<Node#218321914459>(subsystem_animation.gd)]
+        * [<Node#218573572719>(subsystem_containers.gd)]
+        * [<Node#218590349936>(subsystem_portraits.gd)]
+        * [<Timer#218640681586>]
+        * [<Node#218657458803>(subsystem_settings.gd)]
+        * [<Node#218691013238>(subsystem_text.gd)]
+        * [<Node#218791676541>(subsystem_variables.gd)]
+        * [<Node#218556795523>(subsystem_jump.gd)]
+        * [<Node#218623904395>(subsystem_save.gd)]
+        * [<Node#218674236048>(subsystem_styles.gd)]
+        * [<Node#218523241110>(subsystem_input.gd)]
+96 orphans
+1/4 passed.
+
+
+
+
+==============================================
+= 120 Orphans
+==============================================
+res://tests/integration/test_dialogic_live_admission.gd
+    - Outside Tests
+        * [<Node#97089750753>(subsystem_animation.gd)]
+        * [<Node#97106527970>(subsystem_audio.gd)]
+        * [<Node#97123305187>]
+        * [<Node#97140082404>]
+        * [<Node#97156859621>(subsystem_backgrounds.gd)]
+        * [<Node#97693730534>(subsystem_choices.gd)]
+        * [<Timer#97710507751>]
+        * [<Node#97727284968>(subsystem_expression.gd)]
+        * [<Node#97760839405>(subsystem_glossary.gd)]
+        * [<Node#97777616622>(subsystem_history.gd)]
+        * [<Node#97794393839>(subsystem_input.gd)]
+        * [<Timer#97811171056>]
+        * [<Node#97827948273>(subsystem_jump.gd)]
+        * [<Node#97844725490>(subsystem_containers.gd)]
+        * [<Node#97861502707>(subsystem_portraits.gd)]
+        * [<Node#98398373620>(subsystem_save.gd)]
+        * [<Timer#98415150837>]
+        * [<Node#98431928054>(subsystem_settings.gd)]
+        * [<Node#98448705274>(subsystem_styles.gd)]
+        * [<Node#98465482491>(subsystem_text.gd)]
+        * [<Node#98549368576>(subsystem_text_input.gd)]
+        * [<Node#98566145793>(subsystem_variables.gd)]
+        * [<Node#98582923010>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#98599700227>]
+test_dialogic_live_admission.gd
+    - test_real_hospital_deferred_start_reserves_admission_until_one_physical_completion
+        * [<Node#157319956717>(subsystem_animation.gd)]
+        * [<Node#157336733934>(subsystem_audio.gd)]
+        * [<Node#157353511151>]
+        * [<Node#157370288368>]
+        * [<Node#157387065585>(subsystem_backgrounds.gd)]
+        * [<Node#157420620018>(subsystem_choices.gd)]
+        * [<Timer#157437397235>]
+        * [<Node#157454174452>(subsystem_expression.gd)]
+        * [<Node#157487728886>(subsystem_glossary.gd)]
+        * [<Node#157504506103>(subsystem_history.gd)]
+        * [<Node#157521283320>(subsystem_input.gd)]
+        * [<Timer#157538060537>]
+        * [<Node#157554837754>(subsystem_jump.gd)]
+        * [<Node#157571614971>(subsystem_containers.gd)]
+        * [<Node#157588392188>(subsystem_portraits.gd)]
+        * [<Node#157621946621>(subsystem_save.gd)]
+        * [<Timer#157638723838>]
+        * [<Node#157655501055>(subsystem_settings.gd)]
+        * [<Node#157672278272>(subsystem_styles.gd)]
+        * [<Node#157689055489>(subsystem_text.gd)]
+        * [<Node#157772941574>(subsystem_text_input.gd)]
+        * [<Node#157789718791>(subsystem_variables.gd)]
+        * [<Node#157806496008>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#157823273225>]
+    - test_real_semantic_deferred_start_refuses_other_playback_vocabularies
+        * [<Node#191008606497>(subsystem_audio.gd)]
+        * [<Node#191025383714>]
+        * [<Node#191042160931>]
+        * [<Node#191126047012>(subsystem_expression.gd)]
+        * [<Timer#191109269797>]
+        * [<Node#191092492582>(subsystem_choices.gd)]
+        * [<Node#191058938151>(subsystem_backgrounds.gd)]
+        * [<Node#191159601449>(subsystem_glossary.gd)]
+        * [<Node#191176378666>(subsystem_history.gd)]
+        * [<Node#191193155883>(subsystem_input.gd)]
+        * [<Timer#191209933100>]
+        * [<Node#191293819194>(subsystem_save.gd)]
+        * [<Timer#191310596411>]
+        * [<Node#191344150846>(subsystem_styles.gd)]
+        * [<Node#191360928063>(subsystem_text.gd)]
+        * [<Node#190991829533>(subsystem_animation.gd)]
+        * [<Node#191260264992>(subsystem_portraits.gd)]
+        * [<Node#191243487778>(subsystem_containers.gd)]
+        * [<AudioStreamPlayer#191495146020>]
+        * [<Node#191478368809>(subsystem_voice.gd)]
+        * [<Node#191444814378>(subsystem_text_input.gd)]
+        * [<Node#191461591595>(subsystem_variables.gd)]
+        * [<Node#191327373868>(subsystem_settings.gd)]
+        * [<Node#191226710579>(subsystem_jump.gd)]
+    - test_real_ending_deferred_start_refuses_other_playback_vocabularies
+        * [<Node#204866586609>(subsystem_backgrounds.gd)]
+        * [<Node#204984027124>(subsystem_history.gd)]
+        * [<Node#204933695479>(subsystem_expression.gd)]
+        * [<Node#204849809400>]
+        * [<Node#204833032185>]
+        * [<Timer#204916918267>]
+        * [<Node#204967249916>(subsystem_glossary.gd)]
+        * [<Node#204900141409>(subsystem_choices.gd)]
+        * [<Node#204799478114>(subsystem_animation.gd)]
+        * [<Node#204816255335>(subsystem_audio.gd)]
+        * [<Node#205034359268>(subsystem_jump.gd)]
+        * [<Node#205051136571>(subsystem_containers.gd)]
+        * [<Node#205067913788>(subsystem_portraits.gd)]
+        * [<Timer#205118245438>]
+        * [<Node#205135022655>(subsystem_settings.gd)]
+        * [<Node#205168577090>(subsystem_text.gd)]
+        * [<Node#205286017608>(subsystem_voice.gd)]
+        * [<Timer#205017582153>]
+        * [<AudioStreamPlayer#205302794826>]
+        * [<Node#205269240397>(subsystem_variables.gd)]
+        * [<Node#205252463186>(subsystem_text_input.gd)]
+        * [<Node#205101468250>(subsystem_save.gd)]
+        * [<Node#205151799903>(subsystem_styles.gd)]
+        * [<Node#205000804965>(subsystem_input.gd)]
+    - test_metadata_only_restore_cache_never_claims_live_activity_or_completion
+        * [<Node#218774899065>(subsystem_text_input.gd)]
+        * [<Node#218808453571>(subsystem_voice.gd)]
+        * [<Timer#218540018116>]
+        * [<AudioStreamPlayer#218825230789>]
+        * [<Node#218355468828>]
+        * [<Node#218422577716>(subsystem_choices.gd)]
+        * [<Node#218389023285>(subsystem_backgrounds.gd)]
+        * [<Node#218338691638>(subsystem_audio.gd)]
+        * [<Node#218372246071>]
+        * [<Timer#218439354936>]
+        * [<Node#218456132153>(subsystem_expression.gd)]
+        * [<Node#218489686589>(subsystem_glossary.gd)]
+        * [<Node#218506463808>(subsystem_history.gd)]
+        * [<Node#218321914459>(subsystem_animation.gd)]
+        * [<Node#218573572719>(subsystem_containers.gd)]
+        * [<Node#218590349936>(subsystem_portraits.gd)]
+        * [<Timer#218640681586>]
+        * [<Node#218657458803>(subsystem_settings.gd)]
+        * [<Node#218691013238>(subsystem_text.gd)]
+        * [<Node#218791676541>(subsystem_variables.gd)]
+        * [<Node#218556795523>(subsystem_jump.gd)]
+        * [<Node#218623904395>(subsystem_save.gd)]
+        * [<Node#218674236048>(subsystem_styles.gd)]
+        * [<Node#218523241110>(subsystem_input.gd)]
+
+
+==============================================
+= Run Summary
+==============================================
+
+res://tests/integration/test_dialogic_live_admission.gd
+- test_real_hospital_deferred_start_reserves_admission_until_one_physical_completion
+    [Failed]:  admitted Hospital startup already occupies playback
+          at line 129
+    [Failed]:  another ordinary Hospital cannot replace standing playback
+          at line 130
+    [Failed]:  DICTIONARY({ "timeline": <null>, "event": -1, "layout": DialogicLayout_WitnessedCaption:<C...": {  } }) != DICTIONARY({ "timeline": <null>, "event": -1, "layout": DialogicLayout_WitnessedCaption:<C...": [] } }).
+    { "timeline": <null>, "event": -1, "layo...t": {  } } != { "timeline": <null>, "event": -1, "layo...s": [] } }  1 of 8 keys do not match.  ordinary refusal performs no runtime or cache mutation
+          at line 130
+    [Failed]:  a valid semantic entry cannot replace standing playback
+          at line 130
+    [Failed]:  DICTIONARY({ "timeline": <null>, "event": -1, "layout": DialogicLayout_WitnessedCaption:<C...": {  } }) != DICTIONARY({ "timeline": <null>, "event": -1, "layout": DialogicLayout_WitnessedCaption:<C...": [] } }).
+    { "timeline": <null>, "event": -1, "layo...t": {  } } != { "timeline": <null>, "event": -1, "layo...s": [] } }  1 of 8 keys do not match.  semantic refusal performs no runtime or cache mutation
+          at line 130
+    [Failed]:  DICTIONARY({ "timeline": <null>, "event": -1, "layout": DialogicLayout_WitnessedCaption:<C...": {  } }) != DICTIONARY({ "timeline": <null>, "event": -1, "layout": DialogicLayout_WitnessedCaption:<C...": [] } }).
+    { "timeline": <null>, "event": -1, "layo...t": {  } } != { "timeline": <null>, "event": -1, "layo...s": [] } }  1 of 8 keys do not match.  ending refusal performs no runtime or cache mutation
+          at line 130
+    [Failed]:  [0] expected to equal [1]:
+          at line 134
+    [Failed]:  [0] expected to equal [1]:  the real physical owner emits exactly one completion
+          at line 135
+    [Failed]:  ["hospital.faint"] expected to equal [""]:
+          at line 139
+- test_real_ending_deferred_start_refuses_other_playback_vocabularies
+    [Failed]:  another ordinary Hospital cannot replace standing playback
+          at line 160
+    [Failed]:  DICTIONARY({ "timeline": <null>, "event": -1, "layout": DialogicLayout_VisualNovelStyle:<C...": {  } }) != DICTIONARY({ "timeline": <null>, "event": -1, "layout": DialogicLayout_VisualNovelStyle:<C...": {  } }).
+    { "timeline": <null>, "event": -1, "layo...t": {  } } != { "timeline": <null>, "event": -1, "layo...t": {  } }  1 of 8 keys do not match.  ordinary refusal performs no runtime or cache mutation
+          at line 160
+    [Failed]:  DICTIONARY({ "timeline": <null>, "event": -1, "layout": DialogicLayout_VisualNovelStyle:<C...": {  } }) != DICTIONARY({ "timeline": <null>, "event": -1, "layout": DialogicLayout_VisualNovelStyle:<C...": {  } }).
+    { "timeline": <null>, "event": -1, "layo...t": {  } } != { "timeline": <null>, "event": -1, "layo...t": {  } }  1 of 8 keys do not match.  semantic refusal performs no runtime or cache mutation
+          at line 160
+    [Failed]:  DICTIONARY({ "timeline": <null>, "event": -1, "layout": DialogicLayout_VisualNovelStyle:<C...": {  } }) != DICTIONARY({ "timeline": <null>, "event": -1, "layout": DialogicLayout_VisualNovelStyle:<C...": {  } }).
+    { "timeline": <null>, "event": -1, "layo...t": {  } } != { "timeline": <null>, "event": -1, "layo...t": {  } }  1 of 8 keys do not match.  ending refusal performs no runtime or cache mutation
+          at line 160
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Cannot call method 'remove_child' on a null value.
+          at line 164
+- test_metadata_only_restore_cache_never_claims_live_activity_or_completion
+    [Failed]:  end packets without standing playback mint no completion
+          at line 180
+    [Failed]:  DICTIONARY({ "timeline": <null>, "event": -1, "layout": <null>, "starts": 0, "ends": 2, "h...": {  } }) != DICTIONARY({ "timeline": <null>, "event": -1, "layout": <null>, "starts": 0, "ends": 2, "h...oute" } }).
+    { "timeline": <null>, "event": -1, "layo...t": {  } } != { "timeline": <null>, "event": -1, "layo...route" } }  2 of 8 keys do not match.  unowned end signals cannot consume dormant restored identity
+          at line 183
+    [Failed]:  end packets without standing playback mint no completion
+          at line 180
+    [Failed]:  DICTIONARY({ "timeline": <null>, "event": -1, "layout": <null>, "starts": 0, "ends": 4, "h...": {  } }) != DICTIONARY({ "timeline": <null>, "event": -1, "layout": <null>, "starts": 0, "ends": 4, "h...lete" } }).
+    { "timeline": <null>, "event": -1, "layo...t": {  } } != { "timeline": <null>, "event": -1, "layo...plete" } }  2 of 8 keys do not match.  unowned end signals cannot consume dormant restored identity
+          at line 183
+
+Totals
+------
+Scripts               1
+Tests                 4
+Passing Tests         1
+Failing Tests         3
+Asserts           48/66
+Orphans             120
+Time              1.071s
+
+
+---- 3 failing tests ----

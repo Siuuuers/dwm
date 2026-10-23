@@ -1,0 +1,42 @@
+{
+  "failures": [],
+  "observations": {
+    "controller_binding": "temporary ui_cancel JOY_BUTTON_B on synthetic device 37",
+    "determinate": {
+      "cancel_count": 0,
+      "contained": true,
+      "focus_sequence": [
+        "RetryButton",
+        "CancelButton",
+        "RetryButton",
+        "CancelButton"
+      ],
+      "lower_controller_count": 0,
+      "lower_keyboard_count": 0,
+      "physical_contacts_empty": true,
+      "production_pause_unchanged": true,
+      "retry_count": 0
+    },
+    "display_server": "Windows",
+    "fatal": {
+      "cancel_count": 0,
+      "contained": true,
+      "lower_controller_count": 0,
+      "lower_keyboard_count": 0,
+      "no_actions": true,
+      "physical_contacts_empty": true,
+      "production_pause_unchanged": true,
+      "retry_count": 0
+    },
+    "input_provenance": "Viewport.push_input injected key and joypad packets; no hardware claim"
+  },
+  "ok": true,
+  "pause_baseline": {
+    "busy": false,
+    "handle_empty": true,
+    "surface_visible": false,
+    "tree_paused": false
+  },
+  "result_path": "C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/60ac589a-fe88-4be2-9fb8-72a9764d5e9b/dwm_test_root/14592/1/witnessed-recovery-custody-native/witnessed-recovery-custody/result.json",
+  "scope": "real recovery scene and composed Pause host on the Windows main viewport, plus a lower unhandled-input observer; the current menu is not a playable narrative Pause-admission fixture; injected packets, no hardware/UIA claim"
+}

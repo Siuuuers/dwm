@@ -1,0 +1,87 @@
+{
+  "status": "title_login_restart_resume_verified",
+  "date": "2026-09-05",
+  "worktree": "C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\contacts-ui-build",
+  "base_commit": "1790785bcfd37d2a27a0ecef81b9dc80fe501f71",
+  "checks": {
+    "restart": {
+      "passed": true,
+      "receipt": "restart-result.json",
+      "receipt_sha256": "a63b781eafdb6e803956d223496e8267758005470ca5e06e82ecc9d4407a6cf0",
+      "log": "restart.log",
+      "log_sha256": "c45b488e5d35bfefca3dc162f07bad04ba068150588ccff91277377f0331386c",
+      "source_bindings_total": 2397,
+      "source_bindings_matched": 2397,
+      "changed_collateral_sources": [],
+      "scope": "Two distinct actual production processes with shared isolated user storage: create and save a run, then cold title Log in resumes it. Original main scene and autoloads plus first observer; headless control activation, no physical-input/GPU proof.",
+      "checks_passed": 74
+    },
+    "ui": {
+      "passed": true,
+      "receipt": "ui-result.json",
+      "receipt_sha256": "4e2684ae7023c1f2167ef45cfc9ef3d8403126f9b01a9879183ac1f9e77e327a",
+      "log": "ui.log",
+      "log_sha256": "1ffa9780cf410493fc78a4cf266799a0955bbaefb623fc6e985b4332035a005e",
+      "source_bindings_total": 55,
+      "source_bindings_matched": 55,
+      "changed_collateral_sources": [],
+      "scope": "Real Backup/shared-shell scenes with fake external operation owners. Headless layout and interaction; no configured game autoloads, user persistence, real backup transactions or GPU raster proof.",
+      "checks_passed": 3870
+    },
+    "in_run_regression": {
+      "passed": true,
+      "receipt": "in_run_regression-result.json",
+      "receipt_sha256": "83e638e0ca3d04f651c4e401aeb189fbf8eacd2eac5bd7fb9a972b4db2aa1732",
+      "log": "in_run_regression.log",
+      "log_sha256": "1f618e78359cbedd551496adf7c50e62c1b840e244c88ddc88756d7c29e18f65",
+      "source_bindings_total": 2396,
+      "source_bindings_matched": 2395,
+      "changed_collateral_sources": [
+        "tests/title_resume/Observe.gd"
+      ],
+      "scope": "Actual project main_scene, production autoloads and owners; one temporary observer autoload. Isolated final-mode startup and observer-defined save/load checks, headless GL compatibility; no GPU raster proof.",
+      "checks_passed": 41,
+      "collateral_disposition": "The later title observer strengthening is not executed by the in-run loop. All exercised production and loop-observer bytes match."
+    },
+    "owners": {
+      "passed": true,
+      "receipt": "owners-result.json",
+      "receipt_sha256": "b32fcc725dfc67a3aebe5c38ad356efee5930ae9cbf70b7511dcf9d52e8b1709",
+      "log": "owners.log",
+      "log_sha256": "4253427a7f8ccf40531c78930791f76e15809b1e85414c842f587a2809d17f96",
+      "source_bindings_total": 348,
+      "source_bindings_matched": 344,
+      "changed_collateral_sources": [
+        "scenes/menu/MenuScene.tscn",
+        "scripts/ui/BackupApp.gd",
+        "scripts/ui/MenuScene.gd",
+        "scripts/ui/desktop/DesktopHomeButton.gd"
+      ],
+      "scope": "Real SaveManager and BackupPresentationPort over in-memory FileOps, real journal/schema/restore transaction; external presentation owners faked; no user saves.",
+      "gut_tests_passed": 45,
+      "collateral_disposition": "Four transitively copied UI dependencies changed after the cold-owner fixture. That fixture does not instantiate them; final actual startup and UI receipts exercise the current versions. SaveManager, presentation port and restore owner dependencies match."
+    }
+  },
+  "review": {
+    "path": "review.md",
+    "sha256": "dd735f77488ccaf779d68eb1e65d9100765dc1cd73c3aee90148d7f63f3db6b6",
+    "remaining_material_findings": 0
+  },
+  "behavior": [
+    "Log in configures existing Backup with immutable title context; Save is unavailable and rejected.",
+    "Each opening selects loadable Autosave, then first loadable drawer, otherwise disabled Autosave; selection never loads.",
+    "Normal Load commits directly, fallback alone confirms, Delete retains Cancel-first consent.",
+    "Empty and corrupt records cannot Load. Return/Escape preserve title focus and confirmation/recovery custody.",
+    "A stale Delete confirmation preserves run and slot; recovery masks input without changing Disabled identity; first Escape cancels recovery only.",
+    "Two distinct real production processes share proven isolated storage: first saves money5/day1 through Backup; second cold Log in restores those facts into ready Main/Backup exactly once.",
+    "Title uses existing bundled fonts, shared scale settings, neutral accessible Return arrow and documented1280x720 proportional canvas."
+  ],
+  "limits": [
+    "Headless UI control/input events and layout evidence, not physical-device or GPU raster certification.",
+    "Opening timeline remains draft; complete title art, truthful clock and full title-ledger navigation grammar remain outside this integration.",
+    "Engine aspect-keep bars are black; full palette-matte behavior is not claimed.",
+    "Inherited shutdown diagnostics remain visible and match exact observer-free baseline; no leak-free shutdown claim.",
+    "General journal rollback after all late-finalizer failures remains outside the bounded goal.",
+    "Changes remain uncommitted in the isolated worktree; no actual player storage, refs, Beads, unrelated worktrees or formal UI00R cutover changed."
+  ]
+}

@@ -1,0 +1,131 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/457c7e39-0a4c-4f53-a0c3-3f45b61161a5/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+
+
+res://tests/unit/tooling/test_phase2r_closeout_gate_validator.gd
+* test_the_closeout_gate_validator_script_exists
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+* test_the_closeout_gate_schema_exists_and_is_the_one_the_validator_binds
+* test_the_six_closed_modes_are_exactly_the_declared_set
+* test_prerequisite_is_never_reachable_from_the_command_line
+* test_a_missing_mode_flag_is_rejected
+* test_a_repeated_mode_flag_is_rejected
+* test_an_unknown_mode_value_is_rejected
+* test_every_closed_mode_accepts_its_own_exact_argument_vector
+* test_every_closed_mode_rejects_each_of_its_own_flags_when_absent
+* test_every_closed_mode_rejects_a_repeated_flag
+* test_every_closed_mode_rejects_an_undeclared_flag
+* test_a_bare_positional_argument_is_rejected
+* test_the_auxiliary_modes_reject_every_inventory_flag
+* test_the_inventory_modes_reject_every_auxiliary_flag
+* test_preseal_rejects_the_receipt_flag_and_the_sealed_modes_require_it
+* test_the_final_epic_transition_mode_takes_no_beads_flag
+* test_a_gate_flag_that_does_not_resolve_below_the_evidence_root_is_rejected
+* test_a_gate_flag_naming_another_file_in_the_right_directory_is_rejected
+* test_a_gate_flag_that_only_traverses_back_to_the_right_file_is_rejected
+* test_a_receipt_flag_that_does_not_resolve_below_the_evidence_root_is_rejected
+* test_a_receipt_flag_naming_the_gate_is_rejected
+* test_a_trailing_separator_on_the_evidence_root_still_matches_the_gate
+* test_each_inventory_mode_dispatches_to_validate_with_its_own_inventory_mode
+* test_the_two_auxiliary_modes_dispatch_to_their_own_pure_seams
+* test_the_export_equivalence_mode_really_reaches_its_seam
+* test_the_final_epic_transition_mode_really_reaches_its_seam
+* test_a_gate_that_fails_the_schema_is_rejected_before_any_seam_runs
+* test_a_gate_carrying_an_extra_member_is_rejected
+* test_a_gate_with_another_document_kind_is_rejected
+* test_an_absent_gate_is_rejected_with_its_own_code
+* test_a_gate_that_is_not_strict_json_is_rejected
+* test_a_wrong_authority_digest_is_rejected
+* test_a_digest_naming_an_absent_document_is_rejected
+* test_real_historical_seal_matches_subject_blobs_and_original_evidence_bytes
+* test_real_historical_closeout_still_refuses_the_live_requirement_index
+* test_preseal_does_not_read_the_receipt_or_the_command_record
+* test_an_absent_command_record_is_rejected_in_every_receipt_bearing_mode
+* test_a_command_record_carrying_a_second_line_is_rejected
+* test_a_command_record_that_is_not_lf_terminated_is_rejected
+* test_a_command_record_with_noncanonical_bytes_is_rejected
+* test_a_command_record_missing_or_carrying_an_extra_key_is_rejected
+* test_a_command_record_naming_another_command_is_rejected
+* test_a_command_record_with_a_changed_argv_is_rejected
+* test_a_command_record_with_a_drifted_gate_or_log_path_is_rejected
+* test_a_command_record_recording_a_nonzero_exit_is_rejected
+* test_a_command_record_whose_gate_hash_is_stale_is_rejected
+* test_a_command_record_whose_log_hash_disagrees_with_the_log_is_rejected
+* test_a_command_record_naming_another_subject_is_rejected
+* test_an_absent_validation_log_is_rejected
+* test_an_absent_receipt_is_rejected
+* test_a_receipt_missing_or_carrying_an_extra_key_is_rejected
+* test_a_receipt_that_is_not_lf_terminated_is_rejected
+* test_a_receipt_with_noncanonical_bytes_is_rejected
+* test_a_receipt_hashing_the_trimmed_command_line_is_rejected
+* test_a_receipt_whose_gate_hash_is_stale_is_rejected
+* test_a_receipt_whose_log_hash_differs_from_the_command_record_is_rejected
+* test_a_receipt_naming_another_subject_is_rejected
+* test_a_receipt_recording_a_nonzero_validator_exit_is_rejected
+* test_a_valid_evidence_root_clears_every_cli_law_and_reaches_the_inventory_seam
+* test_a_flag_with_an_empty_name_is_rejected
+* test_a_gate_that_is_not_valid_utf8_is_rejected
+Unicode parsing error, some characters were replaced with � (U+FFFD): Invalid UTF-8 leading byte (ff)
+* test_a_command_record_line_that_is_not_strict_json_is_rejected
+* test_a_receipt_line_that_is_not_strict_json_is_rejected
+* test_a_usage_failure_and_a_validation_failure_carry_distinct_exit_codes
+64/64 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/unit/tooling/test_phase2r_closeout_gate_validator.gd
+    - Outside Tests
+        * [<Node#131248162582>(subsystem_animation.gd)]
+        * [<Node#131264939810>(subsystem_audio.gd)]
+        * [<Node#131281717040>]
+        * [<Node#131298494264>]
+        * [<Node#131315271488>(subsystem_backgrounds.gd)]
+        * [<Node#131852142401>(subsystem_choices.gd)]
+        * [<Timer#131868919618>]
+        * [<Node#131885696835>(subsystem_expression.gd)]
+        * [<Node#131919251272>(subsystem_glossary.gd)]
+        * [<Node#131936028489>(subsystem_history.gd)]
+        * [<Node#131952805706>(subsystem_input.gd)]
+        * [<Timer#131969582923>]
+        * [<Node#131986360140>(subsystem_jump.gd)]
+        * [<Node#132003137357>(subsystem_containers.gd)]
+        * [<Node#132019914574>(subsystem_portraits.gd)]
+        * [<Node#132556785487>(subsystem_save.gd)]
+        * [<Timer#132573562704>]
+        * [<Node#132590339921>(subsystem_settings.gd)]
+        * [<Node#132607117141>(subsystem_styles.gd)]
+        * [<Node#132623894358>(subsystem_text.gd)]
+        * [<Node#132707780443>(subsystem_text_input.gd)]
+        * [<Node#132724557660>(subsystem_variables.gd)]
+        * [<Node#132741334877>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#132758112094>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+Totals
+------
+Scripts               1
+Tests                64
+Passing Tests        64
+Asserts            1966
+Orphans              24
+Time              3.76s
+
+
+---- All tests passed! ----

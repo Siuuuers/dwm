@@ -1,0 +1,222 @@
+WorkerThreadPool: 4 threads, 1 max low-priority.
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+TextServer: Added interface "Dummy"
+TextServer: Added interface "ICU / HarfBuzz / Graphite (Built-in)"
+Unrecognized output string "misc2" in mapping:
+030000008a2e0000dd10000011010000,Hand Held Legend GC Ultimate,a:b0,b:b2,back:b17,dpdown:b5,dpleft:b6,dpright:b7,dpup:b4,guide:b18,leftshoulder:b10,leftstick:b8,lefttrigger:a3,leftx:a0,lefty:a1,misc1:b19,misc2:b24,paddle1:b13,paddle2:b12,rightshoulder:b11,rightstick:b9,righttrigger:a4,rightx:a2,righty:a5,start:b16,x:b1,y:b3,platform:Linux,
+Unrecognized output string "misc2" in mapping:
+030000000d0f0000ab01000011010000,Horipad Steam,a:b0,b:b1,back:b10,dpdown:h0.4,dpleft:h0.8,dpright:h0.2,dpup:h0.1,guide:b12,leftshoulder:b6,leftstick:b13,lefttrigger:a5,leftx:a0,lefty:a1,misc2:b2,paddle1:b19,paddle2:b18,paddle3:b15,paddle4:b5,rightshoulder:b7,rightstick:b14,righttrigger:a4,rightx:a2,righty:a3,start:b11,x:b3,y:b4,platform:Linux,
+Unrecognized output string "misc2" in mapping:
+050000000d0f00009601000091000000,Horipad Steam,a:b0,b:b1,back:b10,dpdown:h0.4,dpleft:h0.8,dpright:h0.2,dpup:h0.1,guide:b12,leftshoulder:b6,leftstick:b13,lefttrigger:a5,leftx:a0,lefty:a1,misc2:b2,paddle1:b19,paddle2:b18,paddle3:b15,paddle4:b5,rightshoulder:b7,rightstick:b14,righttrigger:a4,rightx:a2,righty:a3,start:b11,x:b3,y:b4,platform:Linux,
+Unrecognized output string "misc2" in mapping:
+030000007e0500006920000011010000,Nintendo Switch 2 Pro Controller,a:b0,b:b1,back:b14,dpdown:b8,dpleft:b10,dpright:b9,dpup:b11,guide:b16,leftshoulder:b12,leftstick:b15,lefttrigger:b13,leftx:a0,lefty:a1~,misc1:b17,misc2:b20,paddle1:b18,paddle2:b19,rightshoulder:b4,rightstick:b7,righttrigger:b5,rightx:a2,righty:a3~,start:b6,x:b2,y:b3,platform:Linux,
+SDL: Init OK!
+Xshape 1.1 detected.
+Xinerama 1.1 detected.
+Xrandr 1.6 detected.
+Xrender 0.11 detected.
+Xinput 2.2 detected.
+XInput: Refreshing devices.
+XInput: No touch devices found.
+Detecting GPUs, set DRI_PRIME in the environment to override GPU detection logic.
+Text-to-Speech: Speech Dispatcher initialized.
+Only one GPU found, using default.
+Accessibility: window 0 adapter created.
+WARNING: Could not set V-Sync mode, as changing V-Sync mode is not supported by the graphics driver.
+     at: set_use_vsync (platform/linuxbsd/x11/gl_manager_x11.cpp:364)
+XcursorGetTheme could not get cursor theme
+Failed loading custom cursor: crossed_circle
+DBus 1.14.10 detected.
+Using "default" pen tablet driver...
+Shader 'CanvasSdfShaderGLES3' SHA256: d5ecb60c712248bc20ad338f43c8fd8111acf63eb0d842d3a7313f94707e3c5e
+Shader 'SkeletonShaderGLES3' SHA256: cebf20521a54b4f188fba84fa0946396837336b759a6f5a0d17ffadc2bd20b1b
+Shader 'ParticlesShaderGLES3' SHA256: 8d9ae18a51ecab8d9b3fbd6efcc301c2b0d58dc8050d9bd9d5ac92480bd7a094
+Shader 'ParticlesCopyShaderGLES3' SHA256: 2887208f02016937ac6e44746563923dea94f444772ac61174570ec35efa3791
+Shader 'CopyShaderGLES3' SHA256: a7579c140f33543b504c236dca5b5a6ba58725ca73c6755bed1dc2e743d9cb26
+Shader 'CubemapFilterShaderGLES3' SHA256: d49f0e7213d329ed88eda4f60645e8f8b44c12bf515f80980b4b76a304eff13d
+Shader 'GlowShaderGLES3' SHA256: acc42a15eb322cc2fda7a915ae0250f2d65deb92d6e4d842e0535cc7c065b618
+Shader 'PostShaderGLES3' SHA256: 134fc735bda0dcdac0e19f8240650b2c26ef65d6a3d6713dee564bce5ce5a45f
+Shader 'FeedShaderGLES3' SHA256: 7edf1c9f0486016f1334a57856b697f146b96fa7590bc6387860d46aa4fd5439
+Shader 'CanvasShaderGLES3' SHA256: db09f283bfeccfe6062ffa6a68aec5cb6dfe37b53eb7807e38e31b6b5bcf63e4
+Shader 'CanvasOcclusionShaderGLES3' SHA256: 55ad6523f2854b0496d50fdf00378aee8890e11efbe060feae00f9414488c690
+Shader 'SceneShaderGLES3' SHA256: d6d01eb6d3a197af08dbc1c09f88b53adf6851f9d2f0749818c4cb235c71a20a
+Shader 'SkyShaderGLES3' SHA256: 5bc782f8b9ea44189e83c946619e31a521ff2afeee76f83c9f74c3f5e38ab60c
+OpenGL API 4.5 (Core Profile) Mesa 25.2.8-0ubuntu0.24.04.3 - Compatibility - Using Device: Mesa - llvmpipe (LLVM 20.1.2, 256 bits)
+
+TextServer: Primary interface set to: "ICU / HarfBuzz / Graphite (Built-in)".
+CORE API HASH: 2475187701
+EDITOR API HASH: 3867286884
+Loading resource: res://tests/integration/verify_reading_rail_journey.gd
+SceneTreeFTI: traversal method DEFAULT
+Loading resource: res://addons/dialogic/Resources/CharacterResourceLoader.gd
+Loading resource: res://addons/dialogic/Resources/TimelineResourceLoader.gd
+Loading resource: res://addons/dialogic/Resources/CharacterResourceSaver.gd
+Loading resource: res://addons/dialogic/Resources/TimelineResourceSaver.gd
+Loading resource: res://autoload/ProfileManager.gd
+Loading resource: res://autoload/GameState.gd
+Loading resource: res://autoload/SaveManager.gd
+Loading resource: res://autoload/LocalizationManager.gd
+Loading resource: res://autoload/AudioManager.gd
+Loading resource: res://autoload/SystemTtsCoordinator.gd
+Loading resource: res://autoload/WindowModeManager.gd
+Loading resource: res://autoload/EffectResolver.gd
+Loading resource: res://autoload/SceneRouter.gd
+Loading resource: res://scenes/overlay/PauseSurface.tscn
+Loading resource: res://scripts/ui/pause/PauseSurface.gd
+Loading resource: res://assets/ui/contacts/fonts/source-sans-3-regular.ttf.woff2
+Loading resource: res://.godot/imported/source-sans-3-regular.ttf.woff2-e8d731430889c54e3a411177ddbdd371.fontdata
+Loading resource: res://assets/ui/contacts/fonts/source-han-sans-sc-regular.otf
+Loading resource: res://.godot/imported/source-han-sans-sc-regular.otf-0a176df5494ddbf564882f6fa3e63197.fontdata
+Loading resource: res://assets/ui/contacts/fonts/source-han-sans-hc-regular.otf
+Loading resource: res://.godot/imported/source-han-sans-hc-regular.otf-edbb7d6ca258cfcc93ca616282ada129.fontdata
+Loading resource: res://scenes/apps/BackupApp.tscn
+Loading resource: res://scenes/shared/AppWindowBase.tscn
+Loading resource: res://scripts/ui/AppWindowBase.gd
+Loading resource: res://scripts/ui/BackupApp.gd
+Loading resource: res://scenes/apps/SettingsApp.tscn
+Loading resource: res://scripts/ui/SettingsApp.gd
+Loading resource: res://scripts/ui/LocalePresentationRoot.gd
+Loading resource: res://scenes/shared/SettingsContent.tscn
+Loading resource: res://scripts/ui/SettingsContent.gd
+Loading resource: res://autoload/InputManager.gd
+Loading resource: res://autoload/AccessibilityManager.gd
+Loading resource: res://autoload/DialogicBridge.gd
+Loading resource: res://autoload/ApplicationBootstrap.gd
+Loaded system CA certificates
+Loading resource: res://scripts/accessibility/SystemTtsPort.gd
+Loading resource: res://scripts/audio/SystemTtsDuckPort.gd
+Loading resource: res://addons/dialogic/Modules/HighlightPortrait/index.gd
+Loading resource: res://addons/dialogic/Modules/Condition/index.gd
+Loading resource: res://addons/dialogic/Modules/Audio/index.gd
+Loading resource: res://addons/dialogic/Modules/Call/index.gd
+Loading resource: res://addons/dialogic/Modules/Signal/index.gd
+Loading resource: res://addons/dialogic/Modules/Character/index.gd
+Loading resource: res://addons/dialogic/Modules/DefaultLayoutParts/index.gd
+Loading resource: res://addons/dialogic/Modules/WaitInput/index.gd
+Loading resource: res://addons/dialogic/Modules/LayeredPortrait/index.gd
+Loading resource: res://addons/dialogic/Modules/Wait/index.gd
+Loading resource: res://addons/dialogic/Modules/StyleEditor/index.gd
+Loading resource: res://addons/dialogic/Modules/Variable/index.gd
+Loading resource: res://addons/dialogic/Modules/Background/index.gd
+Loading resource: res://addons/dialogic/Modules/Save/index.gd
+Loading resource: res://addons/dialogic/Modules/Text/index.gd
+Loading resource: res://addons/dialogic/Modules/Choice/index.gd
+Loading resource: res://addons/dialogic/Modules/Settings/index.gd
+Loading resource: res://addons/dialogic/Modules/Style/index.gd
+Loading resource: res://addons/dialogic/Modules/Clear/index.gd
+Loading resource: res://addons/dialogic/Modules/History/index.gd
+Loading resource: res://addons/dialogic/Modules/Voice/index.gd
+Loading resource: res://addons/dialogic/Modules/TextInput/index.gd
+Loading resource: res://addons/dialogic/Modules/Jump/index.gd
+Loading resource: res://addons/dialogic/Modules/Core/index.gd
+Loading resource: res://addons/dialogic/Modules/End/index.gd
+Loading resource: res://addons/dialogic/Modules/Glossary/index.gd
+Loading resource: res://addons/dialogic/Modules/Comment/index.gd
+Loading resource: res://addons/dialogic/Modules/Character/default_portrait.tscn
+Loading resource: res://addons/dialogic/Modules/Character/default_portrait.gd
+Loading resource: res://addons/dialogic/Modules/Background/DefaultBackgroundScene/default_background.tscn
+Loading resource: res://addons/dialogic/Modules/Background/DefaultBackgroundScene/default_background.gd
+Loading resource: res://addons/dialogic/Modules/Condition/event_condition.gd
+Loading resource: res://addons/dialogic/Modules/Audio/event_audio.gd
+Loading resource: res://addons/dialogic/Modules/Call/event_call.gd
+Loading resource: res://addons/dialogic/Modules/WaitInput/event_wait_input.gd
+Loading resource: res://addons/dialogic/Modules/Wait/event_wait.gd
+Loading resource: res://addons/dialogic/Modules/Background/event_background.gd
+Loading resource: res://addons/dialogic/Modules/Save/event_save.gd
+Loading resource: res://addons/dialogic/Modules/Settings/event_setting.gd
+Loading resource: res://addons/dialogic/Modules/Style/event_style.gd
+Loading resource: res://addons/dialogic/Modules/Clear/event_clear.gd
+Loading resource: res://addons/dialogic/Modules/History/event_history.gd
+Loading resource: res://addons/dialogic/Modules/TextInput/event_text_input.gd
+Loading resource: res://assets/ui/gallery/fonts/fusion-pixel-8px-proportional-latin.otf.woff2
+Loading resource: res://.godot/imported/fusion-pixel-8px-proportional-latin.otf.woff2-737dffb47bbecad9bc87e5867ee5bd9a.fontdata
+Loading resource: res://scenes/dating/DatingScene.tscn
+Loading resource: res://scenes/shared/DialogueBox.tscn
+Loading resource: res://scripts/ui/LocalizedBinding.gd
+Loading resource: res://tests/fixtures/dialogic/solo_reading_rail.dtl
+Loading resource: res://tests/fixtures/dialogic/solo_reading_rail.dtl
+Loading resource: res://tests/fixtures/dialogic/solo_reading_rail.dtl
+Loading resource: res://tests/fixtures/dialogic/solo_reading_rail.dtl
+Loading resource: res://tests/fixtures/dialogic/solo_reading_rail.dtl
+Loading resource: res://tests/fixtures/dialogic/solo_reading_rail.dtl
+Loading resource: res://tests/fixtures/dialogic/solo_reading_rail.dtl
+load_threaded_get_status(): No threaded load for resource path 'res://dialogic/styles/witnessed_caption_style.tres' has been initiated or its result has already been collected.
+Loading resource: res://dialogic/styles/witnessed_caption_style.tres
+Loading resource: res://addons/dialogic/Modules/DefaultLayoutParts/Layer_FullBackground/full_background_layer.tscn
+Loading resource: res://addons/dialogic/Modules/DefaultLayoutParts/Layer_FullBackground/full_background_layer.gd
+Loading resource: res://addons/dialogic/Modules/DefaultLayoutParts/Layer_VN_Portraits/vn_portrait_layer.tscn
+Loading resource: res://addons/dialogic/Modules/DefaultLayoutParts/Layer_VN_Portraits/vn_portrait_layer.gd
+Loading resource: res://scenes/ui/witnessed/WitnessedCaptionLayer.tscn
+Loading resource: res://scripts/ui/witnessed/WitnessedAcceptInput.gd
+Loading resource: res://scripts/ui/witnessed/WitnessedSkipController.gd
+Loading resource: res://scripts/ui/witnessed/WitnessedTransportRail.gd
+Loading resource: res://scripts/ui/witnessed/WitnessedAutoController.gd
+Loading resource: res://scripts/ui/witnessed/WitnessedSourceCanvas.gd
+Loading resource: res://scenes/ui/witnessed/WitnessedTransportRecovery.tscn
+Loading resource: res://scripts/ui/witnessed/WitnessedTransportRecovery.gd
+Loading resource: res://scenes/ui/witnessed/WitnessedArtLayer.tscn
+Loading resource: res://scripts/ui/witnessed/WitnessedArtLayer.gd
+Loading resource: res://addons/dialogic/Modules/DefaultLayoutParts/Layer_Glossary/glossary_popup_layer.tscn
+Loading resource: res://addons/dialogic/Modules/DefaultLayoutParts/Layer_Glossary/glossary_popup_layer.gd
+Loading resource: res://addons/dialogic/Modules/DefaultLayoutParts/Layer_VN_Choices/vn_choice_layer.tscn
+Loading resource: res://addons/dialogic/Modules/DefaultLayoutParts/Layer_VN_Choices/vn_choice_layer.gd
+Loading resource: res://addons/dialogic/Example Assets/sound-effects/typing1.wav
+Loading resource: res://.godot/imported/typing1.wav-b241c6aab4ce82bf04caf8687873cae0.sample
+Loading resource: res://addons/dialogic/Example Assets/sound-effects/typing4.wav
+Loading resource: res://.godot/imported/typing4.wav-4e7a00fb19b7dd0bdfd8e323401b6162.sample
+Loading resource: res://addons/dialogic/Modules/DefaultLayoutParts/Layer_TextInput/text_input_layer.tscn
+Loading resource: res://addons/dialogic/Modules/DefaultLayoutParts/Layer_TextInput/text_input_layer.gd
+Loading resource: res://addons/dialogic/Modules/TextInput/node_text_input.gd
+Loading resource: res://addons/dialogic/Modules/DefaultLayoutParts/Layer_History/history_layer.tscn
+Loading resource: res://addons/dialogic/Modules/DefaultLayoutParts/Layer_History/history_layer.gd
+Loading resource: res://addons/dialogic/Modules/DefaultLayoutParts/Layer_History/example_history_item.tscn
+Loading resource: res://addons/dialogic/Modules/DefaultLayoutParts/Layer_History/example_history_item.gd
+Loading resource: res://addons/dialogic/Modules/DefaultLayoutParts/Base_Default/default_layout_base.tscn
+Loading resource: res://addons/dialogic/Modules/DefaultLayoutParts/Base_Default/default_layout_base.gd
+Loading resource: res://addons/dialogic/Modules/DefaultLayoutParts/Base_Default/default_layout_base.tscn
+load_threaded_get_status(): No threaded load for resource path 'res://addons/dialogic/Modules/DefaultLayoutParts/Layer_FullBackground/full_background_layer.tscn' has been initiated or its result has already been collected.
+load_threaded_get_status(): No threaded load for resource path 'res://addons/dialogic/Modules/DefaultLayoutParts/Layer_VN_Portraits/vn_portrait_layer.tscn' has been initiated or its result has already been collected.
+Loading resource: res://addons/dialogic/Modules/Character/preview_character.tres
+load_threaded_get_status(): No threaded load for resource path 'res://scenes/ui/witnessed/WitnessedArtLayer.tscn' has been initiated or its result has already been collected.
+load_threaded_get_status(): No threaded load for resource path 'res://scenes/ui/witnessed/WitnessedCaptionLayer.tscn' has been initiated or its result has already been collected.
+load_threaded_get_status(): No threaded load for resource path 'res://addons/dialogic/Modules/DefaultLayoutParts/Layer_Glossary/glossary_popup_layer.tscn' has been initiated or its result has already been collected.
+load_threaded_get_status(): No threaded load for resource path 'res://addons/dialogic/Modules/DefaultLayoutParts/Layer_VN_Choices/vn_choice_layer.tscn' has been initiated or its result has already been collected.
+Loading resource: res://addons/dialogic/Modules/DefaultLayoutParts/Layer_VN_Choices/choice_panel_normal.tres
+Loading resource: res://addons/dialogic/Modules/DefaultLayoutParts/Layer_VN_Choices/choice_panel_hover.tres
+Loading resource: res://addons/dialogic/Modules/DefaultLayoutParts/Layer_VN_Choices/choice_panel_focus.tres
+Loading resource: res://addons/dialogic/Example Assets/sound-effects/typing2.wav
+Loading resource: res://.godot/imported/typing2.wav-64cf50045b34db7d5ef5da984070e0a7.sample
+load_threaded_get_status(): No threaded load for resource path 'res://addons/dialogic/Modules/DefaultLayoutParts/Layer_TextInput/text_input_layer.tscn' has been initiated or its result has already been collected.
+load_threaded_get_status(): No threaded load for resource path 'res://addons/dialogic/Modules/DefaultLayoutParts/Layer_History/history_layer.tscn' has been initiated or its result has already been collected.
+Loading resource: res://tests/fixtures/dialogic/solo_reading_rail.dtl
+Loading resource: res://scenes/dating/DatingScene.tscn
+Loading resource: res://scenes/shared/DialogueBox.tscn
+Loading resource: res://art/characters/priscilla/scene.png
+Loading resource: res://.godot/imported/scene.png-a5cd15f03b268d7ced449fc31673ae54.ctex
+Loading resource: res://art/environments/paintings/morisot_reading_field.jpg
+Loading resource: res://.godot/imported/morisot_reading_field.jpg-2cfb9f2eb64c4910af216314859d0a1f.ctex
+Loading resource: res://scripts/ui/witnessed/WitnessedSpeechStatus.gd
+Loading resource: res://assets/ui/gallery/fonts/fusion-pixel-8px-proportional-zh_hans.otf.woff2
+Loading resource: res://.godot/imported/fusion-pixel-8px-proportional-zh_hans.otf.woff2-72b9af3eb97ba940cfdece3abc823d7c.fontdata
+Loading resource: res://assets/ui/gallery/fonts/fusion-pixel-8px-proportional-zh_hant.otf.woff2
+Loading resource: res://.godot/imported/fusion-pixel-8px-proportional-zh_hant.otf.woff2-4af7b5ef7a8498c9e7360605340fba64.fontdata
+Loading resource: res://assets/ui/gallery/fonts/fusion-pixel-8px-proportional-ja.otf.woff2
+Loading resource: res://.godot/imported/fusion-pixel-8px-proportional-ja.otf.woff2-26a932e145d8af3a90aca3e47cb93513.fontdata
+Loading resource: res://assets/ui/gallery/fonts/fusion-pixel-8px-proportional-ko.otf.woff2
+Loading resource: res://.godot/imported/fusion-pixel-8px-proportional-ko.otf.woff2-9f65d1c9951e6ef76b57735ee0af7e85.fontdata
+Loading resource: res://tests/fixtures/dialogic/solo_reading_rail.dtl
+Loading resource: res://scenes/dating/DatingScene.tscn
+Loading resource: res://scenes/shared/DialogueBox.tscn
+Loading resource: res://scenes/dating/DatingScene.tscn
+Loading resource: res://scenes/shared/DialogueBox.tscn
+Loading resource: res://scenes/dating/DatingScene.tscn
+Loading resource: res://scenes/shared/DialogueBox.tscn
+Loading resource: res://scenes/dating/DatingScene.tscn
+Loading resource: res://scenes/shared/DialogueBox.tscn
+READING_RAIL_CAPTURE: /home/runner/work/dwm/dwm/.godot/phase2r_tests/dedc3c49-ea9d-4c61-875d-5efff09903cd/data/godot/app_userdata/DWM/evidence/reading-rail/08-restored-history.png
+READING_RAIL_CAPTURE: /home/runner/work/dwm/dwm/.godot/phase2r_tests/dedc3c49-ea9d-4c61-875d-5efff09903cd/data/godot/app_userdata/DWM/evidence/reading-rail/09-restored-line.png
+READING_RAIL_READ_PASS: new process -> actual Quick Load -> same committed board -> exact stable line and complete History -> no repeated speech
+XR: Clearing primary interface
+XR: Removed interface "Native mobile"
+XR: Removed interface "OpenXR"
+Accessibility: window 0 adapter destroyed.

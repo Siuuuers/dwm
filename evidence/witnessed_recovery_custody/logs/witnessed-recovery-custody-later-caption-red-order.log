@@ -1,0 +1,130 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/a8d9f3ae-4fdf-4e91-9ab8-5de2bb742183/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+res://tests/integration/test_narrative_pause_frontier.gd
+* test_later_same_viewport_recovery_blocks_load_while_subviewport_recovery_does_not
+    [Failed]:  [STRING_NAME(pause_source_changed)] expected to equal [STRING_NAME(pause_recovery_active)]:
+      at line 602
+    [Failed]:  [6] expected to equal [0]:  refusal precedes live-session capture
+      at line 603
+    24 Orphans
+        * [<AudioStreamPlayer#230753831039>]
+        * [<Node#230737053824>(subsystem_voice.gd)]
+        * [<Node#230720276609>(subsystem_variables.gd)]
+        * [<Node#230703499394>(subsystem_text_input.gd)]
+        * [<Node#230485395589>(subsystem_jump.gd)]
+        * [<Node#230619613319>(subsystem_text.gd)]
+        * [<Node#230602836104>(subsystem_styles.gd)]
+        * [<Node#230586058889>(subsystem_settings.gd)]
+        * [<Timer#230569281674>]
+        * [<Node#230552504459>(subsystem_save.gd)]
+        * [<Node#230518950028>(subsystem_portraits.gd)]
+        * [<Node#230502172813>(subsystem_containers.gd)]
+        * [<Node#230250514574>(subsystem_animation.gd)]
+        * [<Timer#230468618383>]
+        * [<Node#230451841168>(subsystem_input.gd)]
+        * [<Node#230435063953>(subsystem_history.gd)]
+        * [<Node#230418286738>(subsystem_glossary.gd)]
+        * [<Node#230384732308>(subsystem_expression.gd)]
+        * [<Timer#230367955093>]
+        * [<Node#230351177878>(subsystem_choices.gd)]
+        * [<Node#230317623447>(subsystem_backgrounds.gd)]
+        * [<Node#230300846232>]
+        * [<Node#230284069017>]
+        * [<Node#230267291802>(subsystem_audio.gd)]
+24 orphans
+0/1 passed.
+
+
+
+
+==============================================
+= 48 Orphans
+==============================================
+res://tests/integration/test_narrative_pause_frontier.gd
+    - Outside Tests
+        * [<Node#131617261336>(subsystem_animation.gd)]
+        * [<Node#131634038564>(subsystem_audio.gd)]
+        * [<Node#131650815796>]
+        * [<Node#131667593021>]
+        * [<Node#131684370243>(subsystem_backgrounds.gd)]
+        * [<Node#132221241156>(subsystem_choices.gd)]
+        * [<Timer#132238018373>]
+        * [<Node#132254795590>(subsystem_expression.gd)]
+        * [<Node#132288350027>(subsystem_glossary.gd)]
+        * [<Node#132305127244>(subsystem_history.gd)]
+        * [<Node#132321904461>(subsystem_input.gd)]
+        * [<Timer#132338681678>]
+        * [<Node#132355458895>(subsystem_jump.gd)]
+        * [<Node#132372236112>(subsystem_containers.gd)]
+        * [<Node#132389013329>(subsystem_portraits.gd)]
+        * [<Node#132925884242>(subsystem_save.gd)]
+        * [<Timer#132942661459>]
+        * [<Node#132959438676>(subsystem_settings.gd)]
+        * [<Node#132976215896>(subsystem_styles.gd)]
+        * [<Node#132992993113>(subsystem_text.gd)]
+        * [<Node#133076879198>(subsystem_text_input.gd)]
+        * [<Node#133093656415>(subsystem_variables.gd)]
+        * [<Node#133110433632>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#133127210849>]
+test_narrative_pause_frontier.gd
+    - test_later_same_viewport_recovery_blocks_load_while_subviewport_recovery_does_not
+        * [<AudioStreamPlayer#230753831039>]
+        * [<Node#230737053824>(subsystem_voice.gd)]
+        * [<Node#230720276609>(subsystem_variables.gd)]
+        * [<Node#230703499394>(subsystem_text_input.gd)]
+        * [<Node#230485395589>(subsystem_jump.gd)]
+        * [<Node#230619613319>(subsystem_text.gd)]
+        * [<Node#230602836104>(subsystem_styles.gd)]
+        * [<Node#230586058889>(subsystem_settings.gd)]
+        * [<Timer#230569281674>]
+        * [<Node#230552504459>(subsystem_save.gd)]
+        * [<Node#230518950028>(subsystem_portraits.gd)]
+        * [<Node#230502172813>(subsystem_containers.gd)]
+        * [<Node#230250514574>(subsystem_animation.gd)]
+        * [<Timer#230468618383>]
+        * [<Node#230451841168>(subsystem_input.gd)]
+        * [<Node#230435063953>(subsystem_history.gd)]
+        * [<Node#230418286738>(subsystem_glossary.gd)]
+        * [<Node#230384732308>(subsystem_expression.gd)]
+        * [<Timer#230367955093>]
+        * [<Node#230351177878>(subsystem_choices.gd)]
+        * [<Node#230317623447>(subsystem_backgrounds.gd)]
+        * [<Node#230300846232>]
+        * [<Node#230284069017>]
+        * [<Node#230267291802>(subsystem_audio.gd)]
+
+
+==============================================
+= Run Summary
+==============================================
+
+res://tests/integration/test_narrative_pause_frontier.gd
+- test_later_same_viewport_recovery_blocks_load_while_subviewport_recovery_does_not
+    [Failed]:  [STRING_NAME(pause_source_changed)] expected to equal [STRING_NAME(pause_recovery_active)]:
+          at line 602
+    [Failed]:  [6] expected to equal [0]:  refusal precedes live-session capture
+          at line 603
+
+Totals
+------
+Scripts               1
+Tests                 1
+Passing Tests      none
+Failing Tests         1
+Asserts           24/26
+Orphans              48
+Time              1.044s
+
+
+Ran Tests matching "later_same_viewport_recovery"
+---- 1 failing tests ----

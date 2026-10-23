@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "DWM closed implementation plan suite",
+  "type": "object",
+  "required": ["schema_version", "specification_id", "status", "roadmap", "plans"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {"const": 1},
+    "specification_id": {"type": "string", "pattern": "^spec\\.[a-z0-9_.]+$"},
+    "status": {"enum": ["proposed", "approved"]},
+    "roadmap": {"$ref": "#/$defs/plan"},
+    "plans": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/plan"}
+    }
+  },
+  "$defs": {
+    "plan": {
+      "type": "object",
+      "required": ["path", "status", "sha256"],
+      "additionalProperties": false,
+      "properties": {
+        "path": {"type": "string", "pattern": "^docs/superpowers/plans/[^/]+\\.md$"},
+        "status": {"enum": ["proposed", "approved"]},
+        "sha256": {
+          "type": "string",
+          "pattern": "^(?:[0-9a-f]{64}|__REPLACE_WITH_CANONICAL_SHA256_[A-Z0-9_]+__)$"
+        }
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"status": {"const": "approved"}}, "required": ["status"]},
+          "then": {"properties": {"sha256": {"pattern": "^[0-9a-f]{64}$"}}}
+        }
+      ]
+    }
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"status": {"const": "approved"}}, "required": ["status"]},
+      "then": {
+        "properties": {
+          "roadmap": {"properties": {"status": {"const": "approved"}}},
+          "plans": {"items": {"properties": {"status": {"const": "approved"}}}}
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,1059 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/c613b9c4-1af6-420c-a2a8-529f438f0464/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+SCRIPT ERROR: Parse Error: Cannot infer the type of "start_failure" variable because the value doesn't have a set type.
+   at: GDScript::reload (res://scripts/ui/GalleryScene.gd:427)
+   GDScript backtrace (most recent call first):
+       [0] load_script_using_custom_warnings (res://addons/gut/warnings_manager.gd:173)
+       [1] _parse_script (res://addons/gut/test_collector.gd:76)
+       [2] add_script (res://addons/gut/test_collector.gd:128)
+       [3] add_script (res://addons/gut/gut.gd:1070)
+       [4] _apply_options (res://addons/gut/gut_config.gd:139)
+       [5] apply_options (res://addons/gut/gut_config.gd:207)
+       [6] run_tests (res://addons/gut/gui/GutRunner.gd:192)
+       [7] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [8] main (res://addons/gut/cli/gut_cli.gd:297)
+       [9] _init (res://addons/gut/gut_cmdln.gd:39)
+ERROR: Failed to load script "res://scripts/ui/GalleryScene.gd" with error "Parse error".
+   at: load (modules/gdscript/gdscript.cpp:2907)
+   GDScript backtrace (most recent call first):
+       [0] load_script_using_custom_warnings (res://addons/gut/warnings_manager.gd:173)
+       [1] _parse_script (res://addons/gut/test_collector.gd:76)
+       [2] add_script (res://addons/gut/test_collector.gd:128)
+       [3] add_script (res://addons/gut/gut.gd:1070)
+       [4] _apply_options (res://addons/gut/gut_config.gd:139)
+       [5] apply_options (res://addons/gut/gut_config.gd:207)
+       [6] run_tests (res://addons/gut/gui/GutRunner.gd:192)
+       [7] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [8] main (res://addons/gut/cli/gut_cli.gd:297)
+       [9] _init (res://addons/gut/gut_cmdln.gd:39)
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+res://tests/integration/test_gallery_replay_status.gd
+* test_determinate_synchronous_start_failure_is_stable_and_retry_reuses_exact_signature_without_mutation
+SCRIPT ERROR: Invalid call. Nonexistent function 'configure_title_host' in base 'Control'.
+   at: before_each (res://tests/integration/test_gallery_replay_status.gd:100)
+   GDScript backtrace (most recent call first):
+       [0] before_each (res://tests/integration/test_gallery_replay_status.gd:100)
+       [1] _run_test (res://addons/gut/gut.gd:612)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] test_scripts (res://addons/gut/gut.gd:1047)
+       [4] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [5] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [6] main (res://addons/gut/cli/gut_cli.gd:297)
+       [7] _init (res://addons/gut/gut_cmdln.gd:39)
+ERROR: Condition "!is_inside_tree()" is true.
+   at: grab_focus (scene/gui/control.cpp:2363)
+   GDScript backtrace (most recent call first):
+       [0] test_determinate_synchronous_start_failure_is_stable_and_retry_reuses_exact_signature_without_mutation (res://tests/integration/test_gallery_replay_status.gd:151)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] test_scripts (res://addons/gut/gut.gd:1047)
+       [4] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [5] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [6] main (res://addons/gut/cli/gut_cli.gd:297)
+       [7] _init (res://addons/gut/gut_cmdln.gd:39)
+SCRIPT ERROR: Trying to assign value of type 'Nil' to a variable of type 'Array'.
+   at: _selected_signature (res://tests/integration/test_gallery_replay_status.gd:120)
+   GDScript backtrace (most recent call first):
+       [0] _selected_signature (res://tests/integration/test_gallery_replay_status.gd:120)
+       [1] test_determinate_synchronous_start_failure_is_stable_and_retry_reuses_exact_signature_without_mutation (res://tests/integration/test_gallery_replay_status.gd:153)
+SCRIPT ERROR: Trying to assign value of type 'Nil' to a variable of type 'Array'.
+   at: _selected_signature (res://tests/integration/test_gallery_replay_status.gd:120)
+   GDScript backtrace (most recent call first):
+       [0] _selected_signature (res://tests/integration/test_gallery_replay_status.gd:120)
+       [1] _view_state (res://tests/integration/test_gallery_replay_status.gd:124)
+       [2] test_determinate_synchronous_start_failure_is_stable_and_retry_reuses_exact_signature_without_mutation (res://tests/integration/test_gallery_replay_status.gd:154)
+    [Failed]:  ARRAY([]) != ARRAY([""]).
+    [] != [""]  1 of 1 indexes do not match.
+      at line 158
+SCRIPT ERROR: Trying to assign value of type 'Nil' to a variable of type 'Array'.
+   at: _selected_signature (res://tests/integration/test_gallery_replay_status.gd:120)
+   GDScript backtrace (most recent call first):
+       [0] _selected_signature (res://tests/integration/test_gallery_replay_status.gd:120)
+       [1] _view_state (res://tests/integration/test_gallery_replay_status.gd:124)
+       [2] test_determinate_synchronous_start_failure_is_stable_and_retry_reuses_exact_signature_without_mutation (res://tests/integration/test_gallery_replay_status.gd:159)
+    [Failed]:  [<null>] expected to equal [ReplayButton:<Button#301788563973>(GalleryReplayButton.gd)]:
+      at line 162
+    [Failed]
+      at line 163
+    [Failed]:  [""] expected to equal ["Replay did not begin"]:
+      at line 164
+    [Failed]:  ["Replay"] expected to equal ["Retry"]:
+      at line 164
+    [Failed]:  [""] expected to equal ["Retry"]:
+      at line 164
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _assert_error_dock (res://tests/integration/test_gallery_replay_status.gd:142)
+   GDScript backtrace (most recent call first):
+       [0] _assert_error_dock (res://tests/integration/test_gallery_replay_status.gd:142)
+       [1] test_determinate_synchronous_start_failure_is_stable_and_retry_reuses_exact_signature_without_mutation (res://tests/integration/test_gallery_replay_status.gd:165)
+ERROR: Condition "!is_inside_tree()" is true.
+   at: release_focus (scene/gui/control.cpp:2389)
+   GDScript backtrace (most recent call first):
+       [0] test_determinate_synchronous_start_failure_is_stable_and_retry_reuses_exact_signature_without_mutation (res://tests/integration/test_gallery_replay_status.gd:167)
+SCRIPT ERROR: Cannot call method 'grab_focus' on a null value.
+   at: test_determinate_synchronous_start_failure_is_stable_and_retry_reuses_exact_signature_without_mutation (res://tests/integration/test_gallery_replay_status.gd:168)
+   GDScript backtrace (most recent call first):
+       [0] test_determinate_synchronous_start_failure_is_stable_and_retry_reuses_exact_signature_without_mutation (res://tests/integration/test_gallery_replay_status.gd:168)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-0>Condition "!is_inside_tree()" is true.
+    [2] <engine-2>Trying to assign value of type 'Nil' to a variable of type 'Array'.
+    [3] <engine-2>Trying to assign value of type 'Nil' to a variable of type 'Array'.
+    [4] <engine-2>Trying to assign value of type 'Nil' to a variable of type 'Array'.
+    [5] <engine-2>Invalid access to property or key 'position' on a base object of type 'Nil'.
+    [6] <engine-0>Condition "!is_inside_tree()" is true.
+    [7] <engine-2>Cannot call method 'grab_focus' on a null value.
+      at line 168
+    12 Orphans
+        * [GalleryScene:<Control#301453019633>] + 11
+* test_synchronous_early_start_failure_is_not_overwritten_and_repeats_same_signature
+SCRIPT ERROR: Invalid call. Nonexistent function 'configure_title_host' in base 'Control'.
+   at: before_each (res://tests/integration/test_gallery_replay_status.gd:100)
+   GDScript backtrace (most recent call first):
+       [0] before_each (res://tests/integration/test_gallery_replay_status.gd:100)
+       [1] _run_test (res://addons/gut/gut.gd:612)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] _run_test (res://addons/gut/gut.gd:650)
+       [4] test_determinate_synchronous_start_failure_is_stable_and_retry_reuses_exact_signature_without_mutation (res://tests/integration/test_gallery_replay_status.gd:168)
+SCRIPT ERROR: Trying to assign value of type 'Nil' to a variable of type 'Array'.
+   at: _selected_signature (res://tests/integration/test_gallery_replay_status.gd:120)
+   GDScript backtrace (most recent call first):
+       [0] _selected_signature (res://tests/integration/test_gallery_replay_status.gd:120)
+       [1] test_synchronous_early_start_failure_is_not_overwritten_and_repeats_same_signature (res://tests/integration/test_gallery_replay_status.gd:183)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [4] _run_test (res://addons/gut/gut.gd:650)
+       [5] test_determinate_synchronous_start_failure_is_stable_and_retry_reuses_exact_signature_without_mutation (res://tests/integration/test_gallery_replay_status.gd:168)
+ERROR: Condition "!is_inside_tree()" is true.
+   at: grab_focus (scene/gui/control.cpp:2363)
+   GDScript backtrace (most recent call first):
+       [0] test_synchronous_early_start_failure_is_not_overwritten_and_repeats_same_signature (res://tests/integration/test_gallery_replay_status.gd:185)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] _run_test (res://addons/gut/gut.gd:650)
+       [4] test_determinate_synchronous_start_failure_is_stable_and_retry_reuses_exact_signature_without_mutation (res://tests/integration/test_gallery_replay_status.gd:168)
+    [Failed]:  ARRAY([]) != ARRAY([""]).
+    [] != [""]  1 of 1 indexes do not match.
+      at line 187
+    [Failed]
+      at line 188
+    [Failed]:  [""] expected to equal ["Replay did not begin"]:
+      at line 189
+    [Failed]:  ["Replay"] expected to equal ["Retry"]:
+      at line 189
+    [Failed]:  [""] expected to equal ["Retry"]:
+      at line 189
+    [Failed]:  [<null>] expected to equal [ReplayButton:<Button#370239605290>(GalleryReplayButton.gd)]:
+      at line 190
+    [Failed]:  ARRAY([]) != ARRAY(["", ""]).
+    [] != ["", ""]  2 of 2 indexes do not match.
+      at line 192
+    [Failed]:  [""] expected to equal ["Replay did not begin"]:
+      at line 193
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Trying to assign value of type 'Nil' to a variable of type 'Array'.
+    [2] <engine-0>Condition "!is_inside_tree()" is true.
+      at line -1
+    12 Orphans
+        * [GalleryScene:<Control#369904060949>] + 11
+* test_async_start_failure_retains_error_across_locales_and_version_change_clears_it
+SCRIPT ERROR: Invalid call. Nonexistent function 'configure_title_host' in base 'Control'.
+   at: before_each (res://tests/integration/test_gallery_replay_status.gd:100)
+   GDScript backtrace (most recent call first):
+       [0] before_each (res://tests/integration/test_gallery_replay_status.gd:100)
+       [1] _run_test (res://addons/gut/gut.gd:612)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+ERROR: Condition "!is_inside_tree()" is true.
+   at: grab_focus (scene/gui/control.cpp:2363)
+   GDScript backtrace (most recent call first):
+       [0] test_async_start_failure_retains_error_across_locales_and_version_change_clears_it (res://tests/integration/test_gallery_replay_status.gd:198)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Trying to assign value of type 'Nil' to a variable of type 'Array'.
+   at: _selected_signature (res://tests/integration/test_gallery_replay_status.gd:120)
+   GDScript backtrace (most recent call first):
+       [0] _selected_signature (res://tests/integration/test_gallery_replay_status.gd:120)
+       [1] test_async_start_failure_retains_error_across_locales_and_version_change_clears_it (res://tests/integration/test_gallery_replay_status.gd:199)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Trying to assign value of type 'Nil' to a variable of type 'Array'.
+   at: _selected_signature (res://tests/integration/test_gallery_replay_status.gd:120)
+   GDScript backtrace (most recent call first):
+       [0] _selected_signature (res://tests/integration/test_gallery_replay_status.gd:120)
+       [1] test_async_start_failure_retains_error_across_locales_and_version_change_clears_it (res://tests/integration/test_gallery_replay_status.gd:205)
+    [Failed]:  [<null>] expected to equal [ReplayButton:<Button#437986003554>(GalleryReplayButton.gd)]:
+      at line 206
+    [Failed]:  [""] expected to equal ["Replay did not begin"]:
+      at line 207
+    [Failed]:  ["Replay"] expected to equal ["Retry"]:
+      at line 207
+    [Failed]:  [""] expected to equal ["Retry"]:
+      at line 207
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _assert_error_dock (res://tests/integration/test_gallery_replay_status.gd:142)
+   GDScript backtrace (most recent call first):
+       [0] _assert_error_dock (res://tests/integration/test_gallery_replay_status.gd:142)
+       [1] test_async_start_failure_retains_error_across_locales_and_version_change_clears_it (res://tests/integration/test_gallery_replay_status.gd:208)
+SCRIPT ERROR: Trying to assign value of type 'Nil' to a variable of type 'Array'.
+   at: _selected_signature (res://tests/integration/test_gallery_replay_status.gd:120)
+   GDScript backtrace (most recent call first):
+       [0] _selected_signature (res://tests/integration/test_gallery_replay_status.gd:120)
+       [1] test_async_start_failure_retains_error_across_locales_and_version_change_clears_it (res://tests/integration/test_gallery_replay_status.gd:205)
+    [Failed]:  [<null>] expected to equal [ReplayButton:<Button#437986003554>(GalleryReplayButton.gd)]:
+      at line 206
+    [Failed]:  [""] expected to equal ["未能开始重播"]:
+      at line 207
+    [Failed]:  ["Replay"] expected to equal ["重试"]:
+      at line 207
+    [Failed]:  [""] expected to equal ["重试"]:
+      at line 207
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _assert_error_dock (res://tests/integration/test_gallery_replay_status.gd:142)
+   GDScript backtrace (most recent call first):
+       [0] _assert_error_dock (res://tests/integration/test_gallery_replay_status.gd:142)
+       [1] test_async_start_failure_retains_error_across_locales_and_version_change_clears_it (res://tests/integration/test_gallery_replay_status.gd:208)
+SCRIPT ERROR: Trying to assign value of type 'Nil' to a variable of type 'Array'.
+   at: _selected_signature (res://tests/integration/test_gallery_replay_status.gd:120)
+   GDScript backtrace (most recent call first):
+       [0] _selected_signature (res://tests/integration/test_gallery_replay_status.gd:120)
+       [1] test_async_start_failure_retains_error_across_locales_and_version_change_clears_it (res://tests/integration/test_gallery_replay_status.gd:205)
+    [Failed]:  [<null>] expected to equal [ReplayButton:<Button#437986003554>(GalleryReplayButton.gd)]:
+      at line 206
+    [Failed]:  [""] expected to equal ["未能開始重播"]:
+      at line 207
+    [Failed]:  ["Replay"] expected to equal ["重試"]:
+      at line 207
+    [Failed]:  [""] expected to equal ["重試"]:
+      at line 207
+SCRIPT ERROR: Invalid access to property or key 'position' on a base object of type 'Nil'.
+   at: _assert_error_dock (res://tests/integration/test_gallery_replay_status.gd:142)
+   GDScript backtrace (most recent call first):
+       [0] _assert_error_dock (res://tests/integration/test_gallery_replay_status.gd:142)
+       [1] test_async_start_failure_retains_error_across_locales_and_version_change_clears_it (res://tests/integration/test_gallery_replay_status.gd:208)
+SCRIPT ERROR: Cannot call method 'grab_focus' on a null value.
+   at: test_async_start_failure_retains_error_across_locales_and_version_change_clears_it (res://tests/integration/test_gallery_replay_status.gd:210)
+   GDScript backtrace (most recent call first):
+       [0] test_async_start_failure_retains_error_across_locales_and_version_change_clears_it (res://tests/integration/test_gallery_replay_status.gd:210)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-0>Condition "!is_inside_tree()" is true.
+    [2] <engine-2>Trying to assign value of type 'Nil' to a variable of type 'Array'.
+    [3] <engine-2>Trying to assign value of type 'Nil' to a variable of type 'Array'.
+    [4] <engine-2>Invalid access to property or key 'position' on a base object of type 'Nil'.
+    [5] <engine-2>Trying to assign value of type 'Nil' to a variable of type 'Array'.
+    [6] <engine-2>Invalid access to property or key 'position' on a base object of type 'Nil'.
+    [7] <engine-2>Trying to assign value of type 'Nil' to a variable of type 'Array'.
+    [8] <engine-2>Invalid access to property or key 'position' on a base object of type 'Nil'.
+    [9] <engine-2>Cannot call method 'grab_focus' on a null value.
+      at line 210
+    12 Orphans
+        * [GalleryScene:<Control#437650459213>] + 11
+* test_unproved_refusal_and_post_start_replacement_do_not_claim_pre_session_retry
+SCRIPT ERROR: Invalid call. Nonexistent function 'configure_title_host' in base 'Control'.
+   at: before_each (res://tests/integration/test_gallery_replay_status.gd:100)
+   GDScript backtrace (most recent call first):
+       [0] before_each (res://tests/integration/test_gallery_replay_status.gd:100)
+       [1] _run_test (res://addons/gut/gut.gd:612)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] _run_test (res://addons/gut/gut.gd:650)
+       [4] test_async_start_failure_retains_error_across_locales_and_version_change_clears_it (res://tests/integration/test_gallery_replay_status.gd:210)
+    [Failed]:  [""] expected to equal ["This record could not play. Please try again."]:
+      at line 231
+    12 Orphans
+        * [GalleryScene:<Control#502074968751>] + 11
+* test_exit_clears_start_error_and_denied_cancel_retains_active_replay
+SCRIPT ERROR: Invalid call. Nonexistent function 'configure_title_host' in base 'Control'.
+   at: before_each (res://tests/integration/test_gallery_replay_status.gd:100)
+   GDScript backtrace (most recent call first):
+       [0] before_each (res://tests/integration/test_gallery_replay_status.gd:100)
+       [1] _run_test (res://addons/gut/gut.gd:612)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  [""] expected to equal ["Replay did not begin"]:
+      at line 238
+SCRIPT ERROR: Invalid call. Nonexistent function 'close_for_title_host' in base 'Control'.
+   at: test_exit_clears_start_error_and_denied_cancel_retains_active_replay (res://tests/integration/test_gallery_replay_status.gd:239)
+   GDScript backtrace (most recent call first):
+       [0] test_exit_clears_start_error_and_denied_cancel_retains_active_replay (res://tests/integration/test_gallery_replay_status.gd:239)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'close_for_title_host' in base 'Control'.
+      at line -1
+    12 Orphans
+        * [GalleryScene:<Control#564989528558>] + 11
+60 orphans
+0/5 passed.
+
+
+res://tests/unit/test_gallery_start_failure_phase.gd
+* test_pre_admission_refusal_has_no_start_failure_phase_or_retry_identity
+* test_synchronous_physical_start_failure_returns_exact_retryable_start_identity
+* test_deferred_runtime_start_failure_emits_exact_retryable_start_identity
+* test_runtime_replacement_remains_generic_failure_without_retryable_start_phase
+4/4 passed.
+
+
+res://tests/unit/test_gallery_replay_owner.gd
+* test_canonical_completion_records_the_exact_label_then_gallery_has_no_canonical_effects
+* test_discovery_is_not_permission_for_an_unreached_signature
+* test_return_cancels_only_its_token_and_a_late_old_completion_cannot_close_replay
+* test_gallery_exceptional_variants_are_full_and_pair_alone_reject_solo_fields
+* test_public_record_titles_preserve_chinese_characters
+* test_public_gallery_selects_only_reached_versions_and_return_cancels_its_playback
+SCRIPT ERROR: Invalid call. Nonexistent function 'configure_title_host' in base 'Control'.
+   at: test_public_gallery_selects_only_reached_versions_and_return_cancels_its_playback (res://tests/unit/test_gallery_replay_owner.gd:157)
+   GDScript backtrace (most recent call first):
+       [0] test_public_gallery_selects_only_reached_versions_and_return_cancels_its_playback (res://tests/unit/test_gallery_replay_owner.gd:157)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'configure_title_host' in base 'Control'.
+      at line -1
+    12 Orphans
+        * [GalleryScene:<Control#1227689560841>] + 11
+* test_deferred_start_failure_releases_gallery_without_canonical_failure_and_can_retry
+* test_nonending_replay_requires_milestone_and_exact_reached_signature
+* test_reached_date_renders_its_actual_phase_and_only_drawn_acknowledgment_finishes
+* test_pair_post_replay_is_readonly_and_old_card_cannot_finish_replacement
+* test_public_gallery_includes_reached_date_stages_without_new_ending_discoveries
+SCRIPT ERROR: Invalid call. Nonexistent function 'configure_title_host' in base 'Control'.
+   at: test_public_gallery_includes_reached_date_stages_without_new_ending_discoveries (res://tests/unit/test_gallery_replay_owner.gd:272)
+   GDScript backtrace (most recent call first):
+       [0] test_public_gallery_includes_reached_date_stages_without_new_ending_discoveries (res://tests/unit/test_gallery_replay_owner.gd:272)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'configure_title_host' in base 'Control'.
+      at line -1
+    12 Orphans
+        * [GalleryScene:<Control#1523471878901>] + 11
+24 orphans
+9/11 passed.
+
+
+res://tests/integration/test_gallery_art_placements.gd
+* test_exact_reached_version_selects_optional_art_without_changing_discovery
+SCRIPT ERROR: Invalid call. Nonexistent function 'configure_title_host' in base 'Control'.
+   at: test_exact_reached_version_selects_optional_art_without_changing_discovery (res://tests/integration/test_gallery_art_placements.gd:58)
+   GDScript backtrace (most recent call first):
+       [0] test_exact_reached_version_selects_optional_art_without_changing_discovery (res://tests/integration/test_gallery_art_placements.gd:58)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'configure_title_host' in base 'Control'.
+      at line -1
+    12 Orphans
+        * [GalleryScene:<Control#1606183553894>] + 11
+12 orphans
+0/1 passed.
+
+
+res://tests/integration/test_menu_gallery_host.gd
+* test_actual_entry_return_back_and_reopen_reuse_one_gallery
+SCRIPT ERROR: Invalid call. Nonexistent function 'configure_title_host' in base 'Control'.
+   at: MenuScene._on_gallery_pressed (res://scripts/ui/MenuScene.gd:464)
+   GDScript backtrace (most recent call first):
+       [0] _on_gallery_pressed (res://scripts/ui/MenuScene.gd:464)
+       [1] _click (res://tests/integration/test_menu_gallery_host.gd:158)
+       [2] _settle (res://tests/integration/test_menu_gallery_host.gd:128)
+    [Failed]
+      at line 181
+    [Failed]:  [0] expected to equal [1]:
+      at line 182
+ERROR: Index p_index = 0 is out of bounds ((int)data.children_cache.size() - data.internal_children_front_count_cache - data.internal_children_back_count_cache = 0).
+   at: get_child (scene/main/node.cpp:1849)
+   GDScript backtrace (most recent call first):
+       [0] test_actual_entry_return_back_and_reopen_reuse_one_gallery (res://tests/integration/test_menu_gallery_host.gd:183)
+       [1] _open_gallery (res://tests/integration/test_menu_gallery_host.gd:166)
+       [2] _click (res://tests/integration/test_menu_gallery_host.gd:159)
+       [3] _settle (res://tests/integration/test_menu_gallery_host.gd:128)
+    [Failed]
+      at line 186
+    [Failed]
+      at line 191
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'configure_title_host' in base 'Control'.
+    [2] <engine-0>Index p_index = 0 is out of bounds ((int)data.children_cache.size() - data.internal_children_front_count_cache - data.internal_children_back_count_cache = 0).
+      at line 191
+    12 Orphans
+        * [GalleryScene:<Control#1734462147561>] + 11
+* test_settings_capture_and_pending_commit_refuse_gallery_then_return_restores_settings_row
+* test_backup_confirmation_is_exclusive_and_one_back_only_cancels_it
+* test_visible_clear_restore_refreshes_and_hidden_publication_cannot_take_focus
+SCRIPT ERROR: Invalid call. Nonexistent function 'configure_title_host' in base 'Control'.
+   at: MenuScene._on_gallery_pressed (res://scripts/ui/MenuScene.gd:464)
+   GDScript backtrace (most recent call first):
+       [0] _on_gallery_pressed (res://scripts/ui/MenuScene.gd:464)
+       [1] _click (res://tests/integration/test_menu_gallery_host.gd:158)
+       [2] _settle (res://tests/integration/test_menu_gallery_host.gd:128)
+    [Failed]:  [0] expected to equal [1]:
+      at line 258
+    [Failed]:  [0] expected to equal [1]:
+      at line 265
+    [Failed]
+      at line 272
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'configure_title_host' in base 'Control'.
+      at line 274
+    12 Orphans
+        * [GalleryScene:<Control#2270930407669>] + 11
+* test_native_dropdown_back_dismisses_only_modal_and_gallery_stays_refused
+* test_gallery_waits_for_settings_cleanup_and_login_cannot_race_transition
+SCRIPT ERROR: Invalid call. Nonexistent function 'configure_title_host' in base 'Control'.
+   at: MenuScene._on_gallery_pressed (res://scripts/ui/MenuScene.gd:464)
+   GDScript backtrace (most recent call first):
+       [0] _on_gallery_pressed (res://scripts/ui/MenuScene.gd:464)
+       [1] _close_setting (res://scripts/ui/MenuScene.gd:527)
+       [2] hide_window (res://scripts/ui/Setting.gd:38)
+       [3] depart (res://scripts/ui/SettingsPanelController.gd:490)
+       [4] _await_preview_operations (res://scripts/ui/SettingsPanelController.gd:355)
+       [5] _finish_preview_operation (res://scripts/ui/SettingsPanelController.gd:341)
+       [6] _flush_preview (res://scripts/ui/SettingsPanelController.gd:276)
+       [7] _cancel_volume_preview (res://scripts/ui/SettingsPanelController.gd:347)
+       [8] cancel_settings_volume_preview (res://tests/integration/test_menu_gallery_host.gd:35)
+       [9] test_gallery_waits_for_settings_cleanup_and_login_cannot_race_transition (res://tests/integration/test_menu_gallery_host.gd:323)
+       [10] _settle (res://tests/integration/test_menu_gallery_host.gd:128)
+    [Failed]
+      at line 326
+    [Failed]
+      at line 328
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'configure_title_host' in base 'Control'.
+      at line 328
+    12 Orphans
+        * [GalleryScene:<Control#2740273025486>] + 11
+36 orphans
+3/6 passed.
+
+
+res://tests/unit/test_gallery_registrar.gd
+* test_discovery_order_is_detached_and_visible_copy_contains_no_private_class_or_replay_command
+SCRIPT ERROR: Invalid call. Nonexistent function 'configure_title_host' in base 'Control'.
+   at: _mount (res://tests/unit/test_gallery_registrar.gd:54)
+   GDScript backtrace (most recent call first):
+       [0] _mount (res://tests/unit/test_gallery_registrar.gd:54)
+       [1] test_discovery_order_is_detached_and_visible_copy_contains_no_private_class_or_replay_command (res://tests/unit/test_gallery_registrar.gd:88)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  [0] expected to equal [2]:
+      at line 90
+ERROR: Index p_index = 0 is out of bounds ((int)data.children_cache.size() - data.internal_children_front_count_cache - data.internal_children_back_count_cache = 0).
+   at: get_child (scene/main/node.cpp:1849)
+   GDScript backtrace (most recent call first):
+       [0] test_discovery_order_is_detached_and_visible_copy_contains_no_private_class_or_replay_command (res://tests/unit/test_gallery_registrar.gd:91)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Cannot call method 'get_meta' on a null value.
+   at: test_discovery_order_is_detached_and_visible_copy_contains_no_private_class_or_replay_command (res://tests/unit/test_gallery_registrar.gd:91)
+   GDScript backtrace (most recent call first):
+       [0] test_discovery_order_is_detached_and_visible_copy_contains_no_private_class_or_replay_command (res://tests/unit/test_gallery_registrar.gd:91)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'configure_title_host' in base 'Control'.
+    [2] <engine-0>Index p_index = 0 is out of bounds ((int)data.children_cache.size() - data.internal_children_front_count_cache - data.internal_children_back_count_cache = 0).
+    [3] <engine-2>Cannot call method 'get_meta' on a null value.
+      at line -1
+    12 Orphans
+        * [GalleryScene:<Control#2893096685870>] + 11
+* test_native_keyboard_controller_navigation_stops_at_bounds_and_skips_disabled_replay
+SCRIPT ERROR: Invalid call. Nonexistent function 'configure_title_host' in base 'Control'.
+   at: _mount (res://tests/unit/test_gallery_registrar.gd:54)
+   GDScript backtrace (most recent call first):
+       [0] _mount (res://tests/unit/test_gallery_registrar.gd:54)
+       [1] test_native_keyboard_controller_navigation_stops_at_bounds_and_skips_disabled_replay (res://tests/unit/test_gallery_registrar.gd:107)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+ERROR: Index p_index = 0 is out of bounds ((int)data.children_cache.size() - data.internal_children_front_count_cache - data.internal_children_back_count_cache = 0).
+   at: get_child (scene/main/node.cpp:1849)
+   GDScript backtrace (most recent call first):
+       [0] test_native_keyboard_controller_navigation_stops_at_bounds_and_skips_disabled_replay (res://tests/unit/test_gallery_registrar.gd:108)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Attempt to call function 'has_focus' in base 'null instance' on a null instance.
+   at: test_native_keyboard_controller_navigation_stops_at_bounds_and_skips_disabled_replay (res://tests/unit/test_gallery_registrar.gd:108)
+   GDScript backtrace (most recent call first):
+       [0] test_native_keyboard_controller_navigation_stops_at_bounds_and_skips_disabled_replay (res://tests/unit/test_gallery_registrar.gd:108)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'configure_title_host' in base 'Control'.
+    [2] <engine-0>Index p_index = 0 is out of bounds ((int)data.children_cache.size() - data.internal_children_front_count_cache - data.internal_children_back_count_cache = 0).
+    [3] <engine-2>Attempt to call function 'has_focus' in base 'null instance' on a null instance.
+      at line -1
+    12 Orphans
+        * [GalleryScene:<Control#3035333922806>] + 11
+* test_pointer_selection_is_release_only_and_exit_return_or_target_loss_cannot_revive_press
+SCRIPT ERROR: Invalid call. Nonexistent function 'configure_title_host' in base 'Control'.
+   at: _mount (res://tests/unit/test_gallery_registrar.gd:54)
+   GDScript backtrace (most recent call first):
+       [0] _mount (res://tests/unit/test_gallery_registrar.gd:54)
+       [1] test_pointer_selection_is_release_only_and_exit_return_or_target_loss_cannot_revive_press (res://tests/unit/test_gallery_registrar.gd:125)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+ERROR: Index p_index = 0 is out of bounds ((int)data.children_cache.size() - data.internal_children_front_count_cache - data.internal_children_back_count_cache = 0).
+   at: get_child (scene/main/node.cpp:1849)
+   GDScript backtrace (most recent call first):
+       [0] test_pointer_selection_is_release_only_and_exit_return_or_target_loss_cannot_revive_press (res://tests/unit/test_gallery_registrar.gd:126)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+ERROR: Index p_index = 1 is out of bounds ((int)data.children_cache.size() - data.internal_children_front_count_cache - data.internal_children_back_count_cache = 0).
+   at: get_child (scene/main/node.cpp:1849)
+   GDScript backtrace (most recent call first):
+       [0] test_pointer_selection_is_release_only_and_exit_return_or_target_loss_cannot_revive_press (res://tests/unit/test_gallery_registrar.gd:127)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Cannot call method 'get_global_rect' on a null value.
+   at: test_pointer_selection_is_release_only_and_exit_return_or_target_loss_cannot_revive_press (res://tests/unit/test_gallery_registrar.gd:128)
+   GDScript backtrace (most recent call first):
+       [0] test_pointer_selection_is_release_only_and_exit_return_or_target_loss_cannot_revive_press (res://tests/unit/test_gallery_registrar.gd:128)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'configure_title_host' in base 'Control'.
+    [2] <engine-0>Index p_index = 0 is out of bounds ((int)data.children_cache.size() - data.internal_children_front_count_cache - data.internal_children_back_count_cache = 0).
+    [3] <engine-0>Index p_index = 1 is out of bounds ((int)data.children_cache.size() - data.internal_children_front_count_cache - data.internal_children_back_count_cache = 0).
+    [4] <engine-2>Cannot call method 'get_global_rect' on a null value.
+      at line -1
+    12 Orphans
+        * [GalleryScene:<Control#3177571160565>] + 11
+* test_wheel_and_trackpad_cancel_pointer_press_even_at_scroll_boundary
+SCRIPT ERROR: Invalid call. Nonexistent function 'configure_title_host' in base 'Control'.
+   at: _mount (res://tests/unit/test_gallery_registrar.gd:54)
+   GDScript backtrace (most recent call first):
+       [0] _mount (res://tests/unit/test_gallery_registrar.gd:54)
+       [1] test_wheel_and_trackpad_cancel_pointer_press_even_at_scroll_boundary (res://tests/unit/test_gallery_registrar.gd:154)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+ERROR: Index p_index = 1 is out of bounds ((int)data.children_cache.size() - data.internal_children_front_count_cache - data.internal_children_back_count_cache = 0).
+   at: get_child (scene/main/node.cpp:1849)
+   GDScript backtrace (most recent call first):
+       [0] test_wheel_and_trackpad_cancel_pointer_press_even_at_scroll_boundary (res://tests/unit/test_gallery_registrar.gd:155)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Cannot call method 'get_global_rect' on a null value.
+   at: test_wheel_and_trackpad_cancel_pointer_press_even_at_scroll_boundary (res://tests/unit/test_gallery_registrar.gd:156)
+   GDScript backtrace (most recent call first):
+       [0] test_wheel_and_trackpad_cancel_pointer_press_even_at_scroll_boundary (res://tests/unit/test_gallery_registrar.gd:156)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'configure_title_host' in base 'Control'.
+    [2] <engine-0>Index p_index = 1 is out of bounds ((int)data.children_cache.size() - data.internal_children_front_count_cache - data.internal_children_back_count_cache = 0).
+    [3] <engine-2>Cannot call method 'get_global_rect' on a null value.
+      at line -1
+    12 Orphans
+        * [GalleryScene:<Control#3319825173542>] + 11
+* test_geometry_and_actual_wrapped_font_metrics_at_three_locales_and_sizes
+SCRIPT ERROR: Invalid call. Nonexistent function 'configure_title_host' in base 'Control'.
+   at: _mount (res://tests/unit/test_gallery_registrar.gd:54)
+   GDScript backtrace (most recent call first):
+       [0] _mount (res://tests/unit/test_gallery_registrar.gd:54)
+       [1] test_geometry_and_actual_wrapped_font_metrics_at_three_locales_and_sizes (res://tests/unit/test_gallery_registrar.gd:180)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Invalid access to property or key 'default_font_size' on a base object of type 'null instance'.
+   at: test_geometry_and_actual_wrapped_font_metrics_at_three_locales_and_sizes (res://tests/unit/test_gallery_registrar.gd:189)
+   GDScript backtrace (most recent call first):
+       [0] test_geometry_and_actual_wrapped_font_metrics_at_three_locales_and_sizes (res://tests/unit/test_gallery_registrar.gd:189)
+       [1] _settle (res://tests/unit/test_gallery_registrar.gd:43)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'configure_title_host' in base 'Control'.
+    [2] <engine-2>Invalid access to property or key 'default_font_size' on a base object of type 'null instance'.
+      at line 189
+    12 Orphans
+        * [GalleryScene:<Control#3462045633577>] + 11
+* test_refresh_preserves_selection_and_clear_gallery_has_true_empty_geometry
+SCRIPT ERROR: Invalid call. Nonexistent function 'configure_title_host' in base 'Control'.
+   at: _mount (res://tests/unit/test_gallery_registrar.gd:54)
+   GDScript backtrace (most recent call first):
+       [0] _mount (res://tests/unit/test_gallery_registrar.gd:54)
+       [1] test_refresh_preserves_selection_and_clear_gallery_has_true_empty_geometry (res://tests/unit/test_gallery_registrar.gd:200)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+ERROR: Index p_index = 1 is out of bounds ((int)data.children_cache.size() - data.internal_children_front_count_cache - data.internal_children_back_count_cache = 0).
+   at: get_child (scene/main/node.cpp:1849)
+   GDScript backtrace (most recent call first):
+       [0] test_refresh_preserves_selection_and_clear_gallery_has_true_empty_geometry (res://tests/unit/test_gallery_registrar.gd:201)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Attempt to call function 'grab_focus' in base 'null instance' on a null instance.
+   at: test_refresh_preserves_selection_and_clear_gallery_has_true_empty_geometry (res://tests/unit/test_gallery_registrar.gd:201)
+   GDScript backtrace (most recent call first):
+       [0] test_refresh_preserves_selection_and_clear_gallery_has_true_empty_geometry (res://tests/unit/test_gallery_registrar.gd:201)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'configure_title_host' in base 'Control'.
+    [2] <engine-0>Index p_index = 1 is out of bounds ((int)data.children_cache.size() - data.internal_children_front_count_cache - data.internal_children_back_count_cache = 0).
+    [3] <engine-2>Attempt to call function 'grab_focus' in base 'null instance' on a null instance.
+      at line -1
+    12 Orphans
+        * [GalleryScene:<Control#3637451426858>] + 11
+* test_hidden_publications_and_navigation_refresh_do_not_mutate_shared_return
+SCRIPT ERROR: Invalid call. Nonexistent function 'configure_title_host' in base 'Control'.
+   at: _mount (res://tests/unit/test_gallery_registrar.gd:54)
+   GDScript backtrace (most recent call first):
+       [0] _mount (res://tests/unit/test_gallery_registrar.gd:54)
+       [1] test_hidden_publications_and_navigation_refresh_do_not_mutate_shared_return (res://tests/unit/test_gallery_registrar.gd:215)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Invalid call. Nonexistent function 'close_for_title_host' in base 'Control'.
+   at: test_hidden_publications_and_navigation_refresh_do_not_mutate_shared_return (res://tests/unit/test_gallery_registrar.gd:216)
+   GDScript backtrace (most recent call first):
+       [0] test_hidden_publications_and_navigation_refresh_do_not_mutate_shared_return (res://tests/unit/test_gallery_registrar.gd:216)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'configure_title_host' in base 'Control'.
+    [2] <engine-2>Invalid call. Nonexistent function 'close_for_title_host' in base 'Control'.
+      at line -1
+    12 Orphans
+        * [GalleryScene:<Control#3779671886582>] + 11
+* test_malformed_discovery_is_technical_failure_not_empty_or_partial_records
+SCRIPT ERROR: Invalid call. Nonexistent function 'configure_title_host' in base 'Control'.
+   at: _mount (res://tests/unit/test_gallery_registrar.gd:54)
+   GDScript backtrace (most recent call first):
+       [0] _mount (res://tests/unit/test_gallery_registrar.gd:54)
+       [1] test_malformed_discovery_is_technical_failure_not_empty_or_partial_records (res://tests/unit/test_gallery_registrar.gd:240)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  [<null>] expected to equal ["gallery.archive.unavailable"]:
+      at line 251
+    [Failed]
+      at line 252
+    [Failed]
+      at line 253
+    [Failed]:  [<null>] expected to equal ["gallery.archive.unavailable"]:
+      at line 251
+    [Failed]
+      at line 252
+    [Failed]
+      at line 253
+    [Failed]:  [<null>] expected to equal ["gallery.archive.unavailable"]:
+      at line 251
+    [Failed]
+      at line 252
+    [Failed]
+      at line 253
+    [Failed]:  [<null>] expected to equal ["gallery.archive.unavailable"]:
+      at line 251
+    [Failed]
+      at line 252
+    [Failed]
+      at line 253
+    [Failed]:  [<null>] expected to equal ["gallery.archive.unavailable"]:
+      at line 251
+    [Failed]
+      at line 252
+    [Failed]
+      at line 253
+    [Failed]:  [<null>] expected to equal ["gallery.archive.unavailable"]:
+      at line 251
+    [Failed]
+      at line 252
+    [Failed]
+      at line 253
+    [Failed]:  [<null>] expected to equal ["gallery.archive.unavailable"]:
+      at line 251
+    [Failed]
+      at line 252
+    [Failed]
+      at line 253
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'configure_title_host' in base 'Control'.
+      at line 253
+    12 Orphans
+        * [GalleryScene:<Control#3891995348771>] + 11
+* test_invalid_host_localization_refuses_atomically_and_rebinding_is_rejected
+SCRIPT ERROR: Invalid call. Nonexistent function 'configure_title_host' in base 'Control'.
+   at: test_invalid_host_localization_refuses_atomically_and_rebinding_is_rejected (res://tests/unit/test_gallery_registrar.gd:259)
+   GDScript backtrace (most recent call first):
+       [0] test_invalid_host_localization_refuses_atomically_and_rebinding_is_rejected (res://tests/unit/test_gallery_registrar.gd:259)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'configure_title_host' in base 'Control'.
+      at line -1
+    12 Orphans
+        * [GalleryScene:<Control#4005677764016>] + 11
+* test_overflow_scroll_clamps_without_changing_selection_and_uses_standard_palettes
+SCRIPT ERROR: Invalid call. Nonexistent function 'configure_title_host' in base 'Control'.
+   at: _mount (res://tests/unit/test_gallery_registrar.gd:54)
+   GDScript backtrace (most recent call first):
+       [0] _mount (res://tests/unit/test_gallery_registrar.gd:54)
+       [1] test_overflow_scroll_clamps_without_changing_selection_and_uses_standard_palettes (res://tests/unit/test_gallery_registrar.gd:267)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+ERROR: Index p_index = 0 is out of bounds ((int)data.children_cache.size() - data.internal_children_front_count_cache - data.internal_children_back_count_cache = 0).
+   at: get_child (scene/main/node.cpp:1849)
+   GDScript backtrace (most recent call first):
+       [0] test_overflow_scroll_clamps_without_changing_selection_and_uses_standard_palettes (res://tests/unit/test_gallery_registrar.gd:271)
+       [1] _settle (res://tests/unit/test_gallery_registrar.gd:43)
+SCRIPT ERROR: Attempt to call function 'grab_focus' in base 'null instance' on a null instance.
+   at: test_overflow_scroll_clamps_without_changing_selection_and_uses_standard_palettes (res://tests/unit/test_gallery_registrar.gd:271)
+   GDScript backtrace (most recent call first):
+       [0] test_overflow_scroll_clamps_without_changing_selection_and_uses_standard_palettes (res://tests/unit/test_gallery_registrar.gd:271)
+       [1] _settle (res://tests/unit/test_gallery_registrar.gd:43)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'configure_title_host' in base 'Control'.
+    [2] <engine-0>Index p_index = 0 is out of bounds ((int)data.children_cache.size() - data.internal_children_front_count_cache - data.internal_children_back_count_cache = 0).
+    [3] <engine-2>Attempt to call function 'grab_focus' in base 'null instance' on a null instance.
+      at line 271
+    12 Orphans
+        * [GalleryScene:<Control#4147747228752>] + 11
+120 orphans
+0/10 passed.
+
+
+
+
+==============================================
+= 276 Orphans
+==============================================
+res://tests/integration/test_gallery_replay_status.gd
+    - Outside Tests
+        * [<Node#131617261336>(subsystem_animation.gd)]
+        * [<Node#131634038564>(subsystem_audio.gd)]
+        * [<Node#131650815796>]
+        * [<Node#131667593021>]
+        * [<Node#131684370243>(subsystem_backgrounds.gd)]
+        * [<Node#132221241156>(subsystem_choices.gd)]
+        * [<Timer#132238018373>]
+        * [<Node#132254795590>(subsystem_expression.gd)]
+        * [<Node#132288350027>(subsystem_glossary.gd)]
+        * [<Node#132305127244>(subsystem_history.gd)]
+        * [<Node#132321904461>(subsystem_input.gd)]
+        * [<Timer#132338681678>]
+        * [<Node#132355458895>(subsystem_jump.gd)]
+        * [<Node#132372236112>(subsystem_containers.gd)]
+        * [<Node#132389013329>(subsystem_portraits.gd)]
+        * [<Node#132925884242>(subsystem_save.gd)]
+        * [<Timer#132942661459>]
+        * [<Node#132959438676>(subsystem_settings.gd)]
+        * [<Node#132976215896>(subsystem_styles.gd)]
+        * [<Node#132992993113>(subsystem_text.gd)]
+        * [<Node#133076879198>(subsystem_text_input.gd)]
+        * [<Node#133093656415>(subsystem_variables.gd)]
+        * [<Node#133110433632>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#133127210849>]
+test_gallery_replay_status.gd
+    - test_determinate_synchronous_start_failure_is_stable_and_retry_reuses_exact_signature_without_mutation
+        * [GalleryScene:<Control#301453019633>] + 11
+    - test_synchronous_early_start_failure_is_not_overwritten_and_repeats_same_signature
+        * [GalleryScene:<Control#369904060949>] + 11
+    - test_async_start_failure_retains_error_across_locales_and_version_change_clears_it
+        * [GalleryScene:<Control#437650459213>] + 11
+    - test_unproved_refusal_and_post_start_replacement_do_not_claim_pre_session_retry
+        * [GalleryScene:<Control#502074968751>] + 11
+    - test_exit_clears_start_error_and_denied_cancel_retains_active_replay
+        * [GalleryScene:<Control#564989528558>] + 11
+test_gallery_replay_owner.gd
+    - test_public_gallery_selects_only_reached_versions_and_return_cancels_its_playback
+        * [GalleryScene:<Control#1227689560841>] + 11
+    - test_public_gallery_includes_reached_date_stages_without_new_ending_discoveries
+        * [GalleryScene:<Control#1523471878901>] + 11
+test_gallery_art_placements.gd
+    - test_exact_reached_version_selects_optional_art_without_changing_discovery
+        * [GalleryScene:<Control#1606183553894>] + 11
+test_menu_gallery_host.gd
+    - test_actual_entry_return_back_and_reopen_reuse_one_gallery
+        * [GalleryScene:<Control#1734462147561>] + 11
+    - test_visible_clear_restore_refreshes_and_hidden_publication_cannot_take_focus
+        * [GalleryScene:<Control#2270930407669>] + 11
+    - test_gallery_waits_for_settings_cleanup_and_login_cannot_race_transition
+        * [GalleryScene:<Control#2740273025486>] + 11
+test_gallery_registrar.gd
+    - test_discovery_order_is_detached_and_visible_copy_contains_no_private_class_or_replay_command
+        * [GalleryScene:<Control#2893096685870>] + 11
+    - test_native_keyboard_controller_navigation_stops_at_bounds_and_skips_disabled_replay
+        * [GalleryScene:<Control#3035333922806>] + 11
+    - test_pointer_selection_is_release_only_and_exit_return_or_target_loss_cannot_revive_press
+        * [GalleryScene:<Control#3177571160565>] + 11
+    - test_wheel_and_trackpad_cancel_pointer_press_even_at_scroll_boundary
+        * [GalleryScene:<Control#3319825173542>] + 11
+    - test_geometry_and_actual_wrapped_font_metrics_at_three_locales_and_sizes
+        * [GalleryScene:<Control#3462045633577>] + 11
+    - test_refresh_preserves_selection_and_clear_gallery_has_true_empty_geometry
+        * [GalleryScene:<Control#3637451426858>] + 11
+    - test_hidden_publications_and_navigation_refresh_do_not_mutate_shared_return
+        * [GalleryScene:<Control#3779671886582>] + 11
+    - test_malformed_discovery_is_technical_failure_not_empty_or_partial_records
+        * [GalleryScene:<Control#3891995348771>] + 11
+    - test_invalid_host_localization_refuses_atomically_and_rebinding_is_rejected
+        * [GalleryScene:<Control#4005677764016>] + 11
+    - test_overflow_scroll_clamps_without_changing_selection_and_uses_standard_palettes
+        * [GalleryScene:<Control#4147747228752>] + 11
+
+
+==============================================
+= Run Summary
+==============================================
+
+res://tests/integration/test_gallery_replay_status.gd
+- test_determinate_synchronous_start_failure_is_stable_and_retry_reuses_exact_signature_without_mutation
+    [Failed]:  ARRAY([]) != ARRAY([""]).
+    [] != [""]  1 of 1 indexes do not match.
+          at line 158
+    [Failed]:  [<null>] expected to equal [ReplayButton:<Button#301788563973>(GalleryReplayButton.gd)]:
+          at line 162
+    [Failed]:
+          at line 163
+    [Failed]:  [""] expected to equal ["Replay did not begin"]:
+          at line 164
+    [Failed]:  ["Replay"] expected to equal ["Retry"]:
+          at line 164
+    [Failed]:  [""] expected to equal ["Retry"]:
+          at line 164
+    [Failed]:  Unexpected Errors:
+    [1] <engine-0>Condition "!is_inside_tree()" is true.
+    [2] <engine-2>Trying to assign value of type 'Nil' to a variable of type 'Array'.
+    [3] <engine-2>Trying to assign value of type 'Nil' to a variable of type 'Array'.
+    [4] <engine-2>Trying to assign value of type 'Nil' to a variable of type 'Array'.
+    [5] <engine-2>Invalid access to property or key 'position' on a base object of type 'Nil'.
+    [6] <engine-0>Condition "!is_inside_tree()" is true.
+    [7] <engine-2>Cannot call method 'grab_focus' on a null value.
+          at line 168
+- test_synchronous_early_start_failure_is_not_overwritten_and_repeats_same_signature
+    [Failed]:  ARRAY([]) != ARRAY([""]).
+    [] != [""]  1 of 1 indexes do not match.
+          at line 187
+    [Failed]:
+          at line 188
+    [Failed]:  [""] expected to equal ["Replay did not begin"]:
+          at line 189
+    [Failed]:  ["Replay"] expected to equal ["Retry"]:
+          at line 189
+    [Failed]:  [""] expected to equal ["Retry"]:
+          at line 189
+    [Failed]:  [<null>] expected to equal [ReplayButton:<Button#370239605290>(GalleryReplayButton.gd)]:
+          at line 190
+    [Failed]:  ARRAY([]) != ARRAY(["", ""]).
+    [] != ["", ""]  2 of 2 indexes do not match.
+          at line 192
+    [Failed]:  [""] expected to equal ["Replay did not begin"]:
+          at line 193
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Trying to assign value of type 'Nil' to a variable of type 'Array'.
+    [2] <engine-0>Condition "!is_inside_tree()" is true.
+          at line -1
+- test_async_start_failure_retains_error_across_locales_and_version_change_clears_it
+    [Failed]:  [<null>] expected to equal [ReplayButton:<Button#437986003554>(GalleryReplayButton.gd)]:
+          at line 206
+    [Failed]:  [""] expected to equal ["Replay did not begin"]:
+          at line 207
+    [Failed]:  ["Replay"] expected to equal ["Retry"]:
+          at line 207
+    [Failed]:  [""] expected to equal ["Retry"]:
+          at line 207
+    [Failed]:  [<null>] expected to equal [ReplayButton:<Button#437986003554>(GalleryReplayButton.gd)]:
+          at line 206
+    [Failed]:  [""] expected to equal ["未能开始重播"]:
+          at line 207
+    [Failed]:  ["Replay"] expected to equal ["重试"]:
+          at line 207
+    [Failed]:  [""] expected to equal ["重试"]:
+          at line 207
+    [Failed]:  [<null>] expected to equal [ReplayButton:<Button#437986003554>(GalleryReplayButton.gd)]:
+          at line 206
+    [Failed]:  [""] expected to equal ["未能開始重播"]:
+          at line 207
+    [Failed]:  ["Replay"] expected to equal ["重試"]:
+          at line 207
+    [Failed]:  [""] expected to equal ["重試"]:
+          at line 207
+    [Failed]:  Unexpected Errors:
+    [1] <engine-0>Condition "!is_inside_tree()" is true.
+    [2] <engine-2>Trying to assign value of type 'Nil' to a variable of type 'Array'.
+    [3] <engine-2>Trying to assign value of type 'Nil' to a variable of type 'Array'.
+    [4] <engine-2>Invalid access to property or key 'position' on a base object of type 'Nil'.
+    [5] <engine-2>Trying to assign value of type 'Nil' to a variable of type 'Array'.
+    [6] <engine-2>Invalid access to property or key 'position' on a base object of type 'Nil'.
+    [7] <engine-2>Trying to assign value of type 'Nil' to a variable of type 'Array'.
+    [8] <engine-2>Invalid access to property or key 'position' on a base object of type 'Nil'.
+    [9] <engine-2>Cannot call method 'grab_focus' on a null value.
+          at line 210
+- test_unproved_refusal_and_post_start_replacement_do_not_claim_pre_session_retry
+    [Failed]:  [""] expected to equal ["This record could not play. Please try again."]:
+          at line 231
+- test_exit_clears_start_error_and_denied_cancel_retains_active_replay
+    [Failed]:  [""] expected to equal ["Replay did not begin"]:
+          at line 238
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'close_for_title_host' in base 'Control'.
+          at line -1
+
+res://tests/unit/test_gallery_replay_owner.gd
+- test_public_gallery_selects_only_reached_versions_and_return_cancels_its_playback
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'configure_title_host' in base 'Control'.
+          at line -1
+- test_public_gallery_includes_reached_date_stages_without_new_ending_discoveries
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'configure_title_host' in base 'Control'.
+          at line -1
+
+res://tests/integration/test_gallery_art_placements.gd
+- test_exact_reached_version_selects_optional_art_without_changing_discovery
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'configure_title_host' in base 'Control'.
+          at line -1
+
+res://tests/integration/test_menu_gallery_host.gd
+- test_actual_entry_return_back_and_reopen_reuse_one_gallery
+    [Failed]:
+          at line 181
+    [Failed]:  [0] expected to equal [1]:
+          at line 182
+    [Failed]:
+          at line 186
+    [Failed]:
+          at line 191
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'configure_title_host' in base 'Control'.
+    [2] <engine-0>Index p_index = 0 is out of bounds ((int)data.children_cache.size() - data.internal_children_front_count_cache - data.internal_children_back_count_cache = 0).
+          at line 191
+- test_visible_clear_restore_refreshes_and_hidden_publication_cannot_take_focus
+    [Failed]:  [0] expected to equal [1]:
+          at line 258
+    [Failed]:  [0] expected to equal [1]:
+          at line 265
+    [Failed]:
+          at line 272
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'configure_title_host' in base 'Control'.
+          at line 274
+- test_gallery_waits_for_settings_cleanup_and_login_cannot_race_transition
+    [Failed]:
+          at line 326
+    [Failed]:
+          at line 328
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'configure_title_host' in base 'Control'.
+          at line 328
+
+res://tests/unit/test_gallery_registrar.gd
+- test_discovery_order_is_detached_and_visible_copy_contains_no_private_class_or_replay_command
+    [Failed]:  [0] expected to equal [2]:
+          at line 90
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'configure_title_host' in base 'Control'.
+    [2] <engine-0>Index p_index = 0 is out of bounds ((int)data.children_cache.size() - data.internal_children_front_count_cache - data.internal_children_back_count_cache = 0).
+    [3] <engine-2>Cannot call method 'get_meta' on a null value.
+          at line -1
+- test_native_keyboard_controller_navigation_stops_at_bounds_and_skips_disabled_replay
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'configure_title_host' in base 'Control'.
+    [2] <engine-0>Index p_index = 0 is out of bounds ((int)data.children_cache.size() - data.internal_children_front_count_cache - data.internal_children_back_count_cache = 0).
+    [3] <engine-2>Attempt to call function 'has_focus' in base 'null instance' on a null instance.
+          at line -1
+- test_pointer_selection_is_release_only_and_exit_return_or_target_loss_cannot_revive_press
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'configure_title_host' in base 'Control'.
+    [2] <engine-0>Index p_index = 0 is out of bounds ((int)data.children_cache.size() - data.internal_children_front_count_cache - data.internal_children_back_count_cache = 0).
+    [3] <engine-0>Index p_index = 1 is out of bounds ((int)data.children_cache.size() - data.internal_children_front_count_cache - data.internal_children_back_count_cache = 0).
+    [4] <engine-2>Cannot call method 'get_global_rect' on a null value.
+          at line -1
+- test_wheel_and_trackpad_cancel_pointer_press_even_at_scroll_boundary
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'configure_title_host' in base 'Control'.
+    [2] <engine-0>Index p_index = 1 is out of bounds ((int)data.children_cache.size() - data.internal_children_front_count_cache - data.internal_children_back_count_cache = 0).
+    [3] <engine-2>Cannot call method 'get_global_rect' on a null value.
+          at line -1
+- test_geometry_and_actual_wrapped_font_metrics_at_three_locales_and_sizes
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'configure_title_host' in base 'Control'.
+    [2] <engine-2>Invalid access to property or key 'default_font_size' on a base object of type 'null instance'.
+          at line 189
+- test_refresh_preserves_selection_and_clear_gallery_has_true_empty_geometry
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'configure_title_host' in base 'Control'.
+    [2] <engine-0>Index p_index = 1 is out of bounds ((int)data.children_cache.size() - data.internal_children_front_count_cache - data.internal_children_back_count_cache = 0).
+    [3] <engine-2>Attempt to call function 'grab_focus' in base 'null instance' on a null instance.
+          at line -1
+- test_hidden_publications_and_navigation_refresh_do_not_mutate_shared_return
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'configure_title_host' in base 'Control'.
+    [2] <engine-2>Invalid call. Nonexistent function 'close_for_title_host' in base 'Control'.
+          at line -1
+- test_malformed_discovery_is_technical_failure_not_empty_or_partial_records
+    [Failed]:  [<null>] expected to equal ["gallery.archive.unavailable"]:
+          at line 251
+    [Failed]:
+          at line 252
+    [Failed]:
+          at line 253
+    [Failed]:  [<null>] expected to equal ["gallery.archive.unavailable"]:
+          at line 251
+    [Failed]:
+          at line 252
+    [Failed]:
+          at line 253
+    [Failed]:  [<null>] expected to equal ["gallery.archive.unavailable"]:
+          at line 251
+    [Failed]:
+          at line 252
+    [Failed]:
+          at line 253
+    [Failed]:  [<null>] expected to equal ["gallery.archive.unavailable"]:
+          at line 251
+    [Failed]:
+          at line 252
+    [Failed]:
+          at line 253
+    [Failed]:  [<null>] expected to equal ["gallery.archive.unavailable"]:
+          at line 251
+    [Failed]:
+          at line 252
+    [Failed]:
+          at line 253
+    [Failed]:  [<null>] expected to equal ["gallery.archive.unavailable"]:
+          at line 251
+    [Failed]:
+          at line 252
+    [Failed]:
+          at line 253
+    [Failed]:  [<null>] expected to equal ["gallery.archive.unavailable"]:
+          at line 251
+    [Failed]:
+          at line 252
+    [Failed]:
+          at line 253
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'configure_title_host' in base 'Control'.
+          at line 253
+- test_invalid_host_localization_refuses_atomically_and_rebinding_is_rejected
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'configure_title_host' in base 'Control'.
+          at line -1
+- test_overflow_scroll_clamps_without_changing_selection_and_uses_standard_palettes
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'configure_title_host' in base 'Control'.
+    [2] <engine-0>Index p_index = 0 is out of bounds ((int)data.children_cache.size() - data.internal_children_front_count_cache - data.internal_children_back_count_cache = 0).
+    [3] <engine-2>Attempt to call function 'grab_focus' in base 'null instance' on a null instance.
+          at line 271
+
+Totals
+------
+Scripts               6
+Tests                37
+Passing Tests        16
+Failing Tests        21
+Asserts           424/503
+Orphans             276
+Time              5.799s
+
+
+---- 21 failing tests ----

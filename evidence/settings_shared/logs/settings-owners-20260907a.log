@@ -1,0 +1,1410 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+SCRIPT ERROR: Parse Error: Function "_line_registry_admits()" not found in base self.
+   at: GDScript::reload (res://autoload/ProfileManager.gd:252)
+ERROR: Failed to load script "res://autoload/ProfileManager.gd" with error "Parse error".
+   at: load (modules/gdscript/gdscript.cpp:2907)
+ERROR: Failed to instantiate an autoload, script 'res://autoload/ProfileManager.gd' does not inherit from 'Node'.
+   at: start (main/main.cpp:4440)
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2570)
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-ui-build/.godot/phase2r_tests/4a641275-df90-444a-9f36-9260af18edfa/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+SCRIPT ERROR: Parse Error: Assigned value for constant "V3_ROOT_KEYS" isn't a constant expression.
+   at: GDScript::reload (res://scripts/profile/ProfileSchema.gd:11)
+   GDScript backtrace (most recent call first):
+       [0] load_script_using_custom_warnings (res://addons/gut/warnings_manager.gd:173)
+       [1] _parse_script (res://addons/gut/test_collector.gd:76)
+       [2] add_script (res://addons/gut/test_collector.gd:128)
+       [3] add_script (res://addons/gut/gut.gd:1070)
+       [4] _apply_options (res://addons/gut/gut_config.gd:139)
+       [5] apply_options (res://addons/gut/gut_config.gd:207)
+       [6] run_tests (res://addons/gut/gui/GutRunner.gd:192)
+       [7] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [8] main (res://addons/gut/cli/gut_cli.gd:297)
+       [9] _init (res://addons/gut/gut_cmdln.gd:39)
+SCRIPT ERROR: Parse Error: Assigned value for constant "ROOT_KEYS" isn't a constant expression.
+   at: GDScript::reload (res://scripts/profile/ProfileSchema.gd:12)
+   GDScript backtrace (most recent call first):
+       [0] load_script_using_custom_warnings (res://addons/gut/warnings_manager.gd:173)
+       [1] _parse_script (res://addons/gut/test_collector.gd:76)
+       [2] add_script (res://addons/gut/test_collector.gd:128)
+       [3] add_script (res://addons/gut/gut.gd:1070)
+       [4] _apply_options (res://addons/gut/gut_config.gd:139)
+       [5] apply_options (res://addons/gut/gut_config.gd:207)
+       [6] run_tests (res://addons/gut/gui/GutRunner.gd:192)
+       [7] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [8] main (res://addons/gut/cli/gut_cli.gd:297)
+       [9] _init (res://addons/gut/gut_cmdln.gd:39)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+   at: GDScript::reload (res://tests/unit/test_controls_binding_import.gd:0)
+   GDScript backtrace (most recent call first):
+       [0] load_script_using_custom_warnings (res://addons/gut/warnings_manager.gd:173)
+       [1] _parse_script (res://addons/gut/test_collector.gd:76)
+       [2] add_script (res://addons/gut/test_collector.gd:128)
+       [3] add_script (res://addons/gut/gut.gd:1070)
+       [4] _apply_options (res://addons/gut/gut_config.gd:139)
+       [5] apply_options (res://addons/gut/gut_config.gd:207)
+       [6] run_tests (res://addons/gut/gui/GutRunner.gd:192)
+       [7] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [8] main (res://addons/gut/cli/gut_cli.gd:297)
+       [9] _init (res://addons/gut/gut_cmdln.gd:39)
+ERROR: Failed to load script "res://tests/unit/test_controls_binding_import.gd" with error "Compilation failed".
+   at: load (modules/gdscript/gdscript.cpp:2907)
+   GDScript backtrace (most recent call first):
+       [0] load_script_using_custom_warnings (res://addons/gut/warnings_manager.gd:173)
+       [1] _parse_script (res://addons/gut/test_collector.gd:76)
+       [2] add_script (res://addons/gut/test_collector.gd:128)
+       [3] add_script (res://addons/gut/gut.gd:1070)
+       [4] _apply_options (res://addons/gut/gut_config.gd:139)
+       [5] apply_options (res://addons/gut/gut_config.gd:207)
+       [6] run_tests (res://addons/gut/gui/GutRunner.gd:192)
+       [7] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [8] main (res://addons/gut/cli/gut_cli.gd:297)
+       [9] _init (res://addons/gut/gut_cmdln.gd:39)
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+tests/unit/test_controls_binding_import.gd
+* test_fresh_profile_is_v4_without_manufactured_legacy_provenance
+SCRIPT ERROR: Invalid call. Nonexistent function 'make_defaults' in base 'GDScript'.
+   at: test_fresh_profile_is_v4_without_manufactured_legacy_provenance (res://tests/unit/test_controls_binding_import.gd:33)
+   GDScript backtrace (most recent call first):
+       [0] test_fresh_profile_is_v4_without_manufactured_legacy_provenance (res://tests/unit/test_controls_binding_import.gd:33)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] test_scripts (res://addons/gut/gut.gd:1047)
+       [4] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [5] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [6] main (res://addons/gut/cli/gut_cli.gd:297)
+       [7] _init (res://addons/gut/gut_cmdln.gd:39)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'make_defaults' in base 'GDScript'.
+      at line -1
+* test_default_v2_keeps_n_and_every_original_field
+SCRIPT ERROR: Invalid call. Nonexistent function 'make_defaults' in base 'GDScript'.
+   at: _v2 (res://tests/unit/test_controls_binding_import.gd:18)
+   GDScript backtrace (most recent call first):
+       [0] _v2 (res://tests/unit/test_controls_binding_import.gd:18)
+       [1] test_default_v2_keeps_n_and_every_original_field (res://tests/unit/test_controls_binding_import.gd:44)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [4] test_scripts (res://addons/gut/gut.gd:1047)
+       [5] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [6] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [7] main (res://addons/gut/cli/gut_cli.gd:297)
+       [8] _init (res://addons/gut/gut_cmdln.gd:39)
+SCRIPT ERROR: Invalid call. Nonexistent function 'prepare_v2_upgrade' in base 'GDScript'.
+   at: test_default_v2_keeps_n_and_every_original_field (res://tests/unit/test_controls_binding_import.gd:46)
+   GDScript backtrace (most recent call first):
+       [0] test_default_v2_keeps_n_and_every_original_field (res://tests/unit/test_controls_binding_import.gd:46)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] test_scripts (res://addons/gut/gut.gd:1047)
+       [4] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [5] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [6] main (res://addons/gut/cli/gut_cli.gd:297)
+       [7] _init (res://addons/gut/gut_cmdln.gd:39)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'make_defaults' in base 'GDScript'.
+    [2] <engine-2>Invalid call. Nonexistent function 'prepare_v2_upgrade' in base 'GDScript'.
+      at line -1
+* test_cross_swapped_imports_validate_after_all_transfers
+SCRIPT ERROR: Invalid call. Nonexistent function 'make_defaults' in base 'GDScript'.
+   at: _v2 (res://tests/unit/test_controls_binding_import.gd:18)
+   GDScript backtrace (most recent call first):
+       [0] _v2 (res://tests/unit/test_controls_binding_import.gd:18)
+       [1] test_cross_swapped_imports_validate_after_all_transfers (res://tests/unit/test_controls_binding_import.gd:68)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [4] test_scripts (res://addons/gut/gut.gd:1047)
+       [5] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [6] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [7] main (res://addons/gut/cli/gut_cli.gd:297)
+       [8] _init (res://addons/gut/gut_cmdln.gd:39)
+SCRIPT ERROR: Invalid access to property or key 'input_mappings' on a base object of type 'Dictionary'.
+   at: test_cross_swapped_imports_validate_after_all_transfers (res://tests/unit/test_controls_binding_import.gd:69)
+   GDScript backtrace (most recent call first):
+       [0] test_cross_swapped_imports_validate_after_all_transfers (res://tests/unit/test_controls_binding_import.gd:69)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] test_scripts (res://addons/gut/gut.gd:1047)
+       [4] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [5] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [6] main (res://addons/gut/cli/gut_cli.gd:297)
+       [7] _init (res://addons/gut/gut_cmdln.gd:39)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'make_defaults' in base 'GDScript'.
+    [2] <engine-2>Invalid access to property or key 'input_mappings' on a base object of type 'Dictionary'.
+      at line -1
+* test_missing_slots_use_defaults_without_replacing_existing_n
+SCRIPT ERROR: Invalid call. Nonexistent function 'make_defaults' in base 'GDScript'.
+   at: _v2 (res://tests/unit/test_controls_binding_import.gd:18)
+   GDScript backtrace (most recent call first):
+       [0] _v2 (res://tests/unit/test_controls_binding_import.gd:18)
+       [1] test_missing_slots_use_defaults_without_replacing_existing_n (res://tests/unit/test_controls_binding_import.gd:84)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [4] test_scripts (res://addons/gut/gut.gd:1047)
+       [5] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [6] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [7] main (res://addons/gut/cli/gut_cli.gd:297)
+       [8] _init (res://addons/gut/gut_cmdln.gd:39)
+SCRIPT ERROR: Invalid access to property or key 'input_mappings' on a base object of type 'Dictionary'.
+   at: test_missing_slots_use_defaults_without_replacing_existing_n (res://tests/unit/test_controls_binding_import.gd:85)
+   GDScript backtrace (most recent call first):
+       [0] test_missing_slots_use_defaults_without_replacing_existing_n (res://tests/unit/test_controls_binding_import.gd:85)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] test_scripts (res://addons/gut/gut.gd:1047)
+       [4] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [5] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [6] main (res://addons/gut/cli/gut_cli.gd:297)
+       [7] _init (res://addons/gut/gut_cmdln.gd:39)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'make_defaults' in base 'GDScript'.
+    [2] <engine-2>Invalid access to property or key 'input_mappings' on a base object of type 'Dictionary'.
+      at line -1
+* test_unsupported_records_preserve_source_and_make_entire_import_pending
+SCRIPT ERROR: Invalid call. Nonexistent function 'make_defaults' in base 'GDScript'.
+   at: _v2 (res://tests/unit/test_controls_binding_import.gd:18)
+   GDScript backtrace (most recent call first):
+       [0] _v2 (res://tests/unit/test_controls_binding_import.gd:18)
+       [1] test_unsupported_records_preserve_source_and_make_entire_import_pending (res://tests/unit/test_controls_binding_import.gd:103)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [4] test_scripts (res://addons/gut/gut.gd:1047)
+       [5] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [6] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [7] main (res://addons/gut/cli/gut_cli.gd:297)
+       [8] _init (res://addons/gut/gut_cmdln.gd:39)
+SCRIPT ERROR: Invalid access to property or key 'input_mappings' on a base object of type 'Dictionary'.
+   at: test_unsupported_records_preserve_source_and_make_entire_import_pending (res://tests/unit/test_controls_binding_import.gd:104)
+   GDScript backtrace (most recent call first):
+       [0] test_unsupported_records_preserve_source_and_make_entire_import_pending (res://tests/unit/test_controls_binding_import.gd:104)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] test_scripts (res://addons/gut/gut.gd:1047)
+       [4] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [5] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [6] main (res://addons/gut/cli/gut_cli.gd:297)
+       [7] _init (res://addons/gut/gut_cmdln.gd:39)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'make_defaults' in base 'GDScript'.
+    [2] <engine-2>Invalid access to property or key 'input_mappings' on a base object of type 'Dictionary'.
+      at line -1
+* test_multiple_same_kind_records_never_choose_a_winner
+SCRIPT ERROR: Invalid call. Nonexistent function 'make_defaults' in base 'GDScript'.
+   at: _v2 (res://tests/unit/test_controls_binding_import.gd:18)
+   GDScript backtrace (most recent call first):
+       [0] _v2 (res://tests/unit/test_controls_binding_import.gd:18)
+       [1] test_multiple_same_kind_records_never_choose_a_winner (res://tests/unit/test_controls_binding_import.gd:122)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [4] test_scripts (res://addons/gut/gut.gd:1047)
+       [5] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [6] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [7] main (res://addons/gut/cli/gut_cli.gd:297)
+       [8] _init (res://addons/gut/gut_cmdln.gd:39)
+SCRIPT ERROR: Invalid access to property or key 'input_mappings' on a base object of type 'Dictionary'.
+   at: test_multiple_same_kind_records_never_choose_a_winner (res://tests/unit/test_controls_binding_import.gd:123)
+   GDScript backtrace (most recent call first):
+       [0] test_multiple_same_kind_records_never_choose_a_winner (res://tests/unit/test_controls_binding_import.gd:123)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] test_scripts (res://addons/gut/gut.gd:1047)
+       [4] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [5] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [6] main (res://addons/gut/cli/gut_cli.gd:297)
+       [7] _init (res://addons/gut/gut_cmdln.gd:39)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'make_defaults' in base 'GDScript'.
+    [2] <engine-2>Invalid access to property or key 'input_mappings' on a base object of type 'Dictionary'.
+      at line -1
+* test_complete_import_collision_including_new_mode_stays_pending
+SCRIPT ERROR: Invalid call. Nonexistent function 'make_defaults' in base 'GDScript'.
+   at: _v2 (res://tests/unit/test_controls_binding_import.gd:18)
+   GDScript backtrace (most recent call first):
+       [0] _v2 (res://tests/unit/test_controls_binding_import.gd:18)
+       [1] test_complete_import_collision_including_new_mode_stays_pending (res://tests/unit/test_controls_binding_import.gd:135)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [4] test_scripts (res://addons/gut/gut.gd:1047)
+       [5] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [6] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [7] main (res://addons/gut/cli/gut_cli.gd:297)
+       [8] _init (res://addons/gut/gut_cmdln.gd:39)
+SCRIPT ERROR: Invalid access to property or key 'input_mappings' on a base object of type 'Dictionary'.
+   at: test_complete_import_collision_including_new_mode_stays_pending (res://tests/unit/test_controls_binding_import.gd:136)
+   GDScript backtrace (most recent call first):
+       [0] test_complete_import_collision_including_new_mode_stays_pending (res://tests/unit/test_controls_binding_import.gd:136)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] test_scripts (res://addons/gut/gut.gd:1047)
+       [4] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [5] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [6] main (res://addons/gut/cli/gut_cli.gd:297)
+       [7] _init (res://addons/gut/gut_cmdln.gd:39)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'make_defaults' in base 'GDScript'.
+    [2] <engine-2>Invalid access to property or key 'input_mappings' on a base object of type 'Dictionary'.
+      at line -1
+* test_retired_actions_do_not_claim_new_semantics_or_block_import
+SCRIPT ERROR: Invalid call. Nonexistent function 'make_defaults' in base 'GDScript'.
+   at: _v2 (res://tests/unit/test_controls_binding_import.gd:18)
+   GDScript backtrace (most recent call first):
+       [0] _v2 (res://tests/unit/test_controls_binding_import.gd:18)
+       [1] test_retired_actions_do_not_claim_new_semantics_or_block_import (res://tests/unit/test_controls_binding_import.gd:147)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [4] test_scripts (res://addons/gut/gut.gd:1047)
+       [5] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [6] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [7] main (res://addons/gut/cli/gut_cli.gd:297)
+       [8] _init (res://addons/gut/gut_cmdln.gd:39)
+SCRIPT ERROR: Invalid access to property or key 'input_mappings' on a base object of type 'Dictionary'.
+   at: test_retired_actions_do_not_claim_new_semantics_or_block_import (res://tests/unit/test_controls_binding_import.gd:148)
+   GDScript backtrace (most recent call first):
+       [0] test_retired_actions_do_not_claim_new_semantics_or_block_import (res://tests/unit/test_controls_binding_import.gd:148)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] test_scripts (res://addons/gut/gut.gd:1047)
+       [4] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [5] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [6] main (res://addons/gut/cli/gut_cli.gd:297)
+       [7] _init (res://addons/gut/gut_cmdln.gd:39)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'make_defaults' in base 'GDScript'.
+    [2] <engine-2>Invalid access to property or key 'input_mappings' on a base object of type 'Dictionary'.
+      at line -1
+* test_multiple_independent_import_issues_are_retained
+SCRIPT ERROR: Invalid call. Nonexistent function 'make_defaults' in base 'GDScript'.
+   at: _v2 (res://tests/unit/test_controls_binding_import.gd:18)
+   GDScript backtrace (most recent call first):
+       [0] _v2 (res://tests/unit/test_controls_binding_import.gd:18)
+       [1] test_multiple_independent_import_issues_are_retained (res://tests/unit/test_controls_binding_import.gd:162)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [4] test_scripts (res://addons/gut/gut.gd:1047)
+       [5] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [6] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [7] main (res://addons/gut/cli/gut_cli.gd:297)
+       [8] _init (res://addons/gut/gut_cmdln.gd:39)
+SCRIPT ERROR: Invalid access to property or key 'input_mappings' on a base object of type 'Dictionary'.
+   at: test_multiple_independent_import_issues_are_retained (res://tests/unit/test_controls_binding_import.gd:163)
+   GDScript backtrace (most recent call first):
+       [0] test_multiple_independent_import_issues_are_retained (res://tests/unit/test_controls_binding_import.gd:163)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] test_scripts (res://addons/gut/gut.gd:1047)
+       [4] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [5] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [6] main (res://addons/gut/cli/gut_cli.gd:297)
+       [7] _init (res://addons/gut/gut_cmdln.gd:39)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'make_defaults' in base 'GDScript'.
+    [2] <engine-2>Invalid access to property or key 'input_mappings' on a base object of type 'Dictionary'.
+      at line -1
+* test_upgrade_rejects_malformed_v2_before_any_conversion
+SCRIPT ERROR: Invalid call. Nonexistent function 'make_defaults' in base 'GDScript'.
+   at: _v2 (res://tests/unit/test_controls_binding_import.gd:18)
+   GDScript backtrace (most recent call first):
+       [0] _v2 (res://tests/unit/test_controls_binding_import.gd:18)
+       [1] test_upgrade_rejects_malformed_v2_before_any_conversion (res://tests/unit/test_controls_binding_import.gd:176)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [4] test_scripts (res://addons/gut/gut.gd:1047)
+       [5] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [6] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [7] main (res://addons/gut/cli/gut_cli.gd:297)
+       [8] _init (res://addons/gut/gut_cmdln.gd:39)
+SCRIPT ERROR: Invalid call. Nonexistent function 'make_defaults' in base 'GDScript'.
+   at: _v2 (res://tests/unit/test_controls_binding_import.gd:18)
+   GDScript backtrace (most recent call first):
+       [0] _v2 (res://tests/unit/test_controls_binding_import.gd:18)
+       [1] test_upgrade_rejects_malformed_v2_before_any_conversion (res://tests/unit/test_controls_binding_import.gd:179)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [4] test_scripts (res://addons/gut/gut.gd:1047)
+       [5] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [6] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [7] main (res://addons/gut/cli/gut_cli.gd:297)
+       [8] _init (res://addons/gut/gut_cmdln.gd:39)
+SCRIPT ERROR: Invalid access to property or key 'input_mappings' on a base object of type 'Dictionary'.
+   at: test_upgrade_rejects_malformed_v2_before_any_conversion (res://tests/unit/test_controls_binding_import.gd:180)
+   GDScript backtrace (most recent call first):
+       [0] test_upgrade_rejects_malformed_v2_before_any_conversion (res://tests/unit/test_controls_binding_import.gd:180)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] test_scripts (res://addons/gut/gut.gd:1047)
+       [4] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [5] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [6] main (res://addons/gut/cli/gut_cli.gd:297)
+       [7] _init (res://addons/gut/gut_cmdln.gd:39)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'make_defaults' in base 'GDScript'.
+    [2] <engine-2>Invalid call. Nonexistent function 'make_defaults' in base 'GDScript'.
+    [3] <engine-2>Invalid access to property or key 'input_mappings' on a base object of type 'Dictionary'.
+      at line -1
+* test_v4_requires_closed_roots_valid_controls_and_boolean_pending
+SCRIPT ERROR: Invalid call. Nonexistent function 'make_defaults' in base 'GDScript'.
+   at: test_v4_requires_closed_roots_valid_controls_and_boolean_pending (res://tests/unit/test_controls_binding_import.gd:202)
+   GDScript backtrace (most recent call first):
+       [0] test_v4_requires_closed_roots_valid_controls_and_boolean_pending (res://tests/unit/test_controls_binding_import.gd:202)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] test_scripts (res://addons/gut/gut.gd:1047)
+       [4] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [5] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [6] main (res://addons/gut/cli/gut_cli.gd:297)
+       [7] _init (res://addons/gut/gut_cmdln.gd:39)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'make_defaults' in base 'GDScript'.
+      at line -1
+* test_machine_schema_closes_v4_slots_and_accepts_both_provenance_forms
+SCRIPT ERROR: Invalid call. Nonexistent function 'make_defaults' in base 'GDScript'.
+   at: test_machine_schema_closes_v4_slots_and_accepts_both_provenance_forms (res://tests/unit/test_controls_binding_import.gd:229)
+   GDScript backtrace (most recent call first):
+       [0] test_machine_schema_closes_v4_slots_and_accepts_both_provenance_forms (res://tests/unit/test_controls_binding_import.gd:229)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] test_scripts (res://addons/gut/gut.gd:1047)
+       [4] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [5] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [6] main (res://addons/gut/cli/gut_cli.gd:297)
+       [7] _init (res://addons/gut/gut_cmdln.gd:39)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'make_defaults' in base 'GDScript'.
+      at line -1
+0/12 passed.
+
+
+tests/unit/test_controls_binding_rules.gd
+* test_defaults_validate_and_reads_are_detached
+* test_invalid_inventory_and_slot_shapes_fail_without_mutating_input
+* test_keyboard_shape_codes_and_unarbitrated_modifiers_are_refused
+* test_protected_navigation_cannot_be_displaced
+* test_controller_records_are_semantic_and_navigation_is_protected
+* test_direct_proposal_preserves_other_slots_before_map_and_revision
+* test_single_conflict_swap_validates_entire_result
+* test_swap_refuses_to_push_grid_space_into_global_quick_action
+* test_space_is_available_to_grid_mode_when_new_board_moves
+* test_same_controller_position_conflicts_without_touching_keyboard
+* test_invalid_prior_map_cannot_be_partially_repaired_by_a_proposal
+* test_unknown_action_slot_and_revision_are_refused
+12/12 passed.
+
+
+tests/unit/test_controls_capture_session.gd
+* test_activation_identity_waits_for_its_release_without_inventing_input
+* test_held_events_are_independent_and_snapshot_physical_identity
+* test_keyboard_captures_physical_identity_and_explicit_modifiers_without_mutating_event
+* test_captured_result_is_single_use_and_detached_from_later_sessions
+* test_back_requires_a_fresh_press_after_held_release
+* test_controller_activation_pins_device_and_matching_disconnect_cancels
+* test_controller_capture_stores_semantic_button_without_physical_device
+* test_unsupported_controller_contact_keeps_waiting_but_owns_device_until_disconnect
+* test_unsupported_events_and_malformed_keyboard_never_end_capture
+* test_other_slot_is_ignored_except_explicit_back
+* test_registration_and_overlapping_begin_cannot_replace_live_capture
+* test_protected_navigation_candidate_remains_subject_to_owner_rules
+12/12 passed.
+
+
+tests/unit/test_controls_legacy_presentation.gd
+* test_every_stored_action_and_duplicate_record_is_visible_and_source_unchanged
+SCRIPT ERROR: Invalid call. Nonexistent function '_default_input_mappings' in base 'GDScript'.
+   at: test_every_stored_action_and_duplicate_record_is_visible_and_source_unchanged (res://tests/unit/test_controls_legacy_presentation.gd:23)
+   GDScript backtrace (most recent call first):
+       [0] test_every_stored_action_and_duplicate_record_is_visible_and_source_unchanged (res://tests/unit/test_controls_legacy_presentation.gd:23)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] test_scripts (res://addons/gut/gut.gd:1047)
+       [4] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [5] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [6] main (res://addons/gut/cli/gut_cli.gd:297)
+       [7] _init (res://addons/gut/gut_cmdln.gd:39)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function '_default_input_mappings' in base 'GDScript'.
+      at line -1
+* test_physical_and_logical_identity_modifiers_and_empty_records_are_not_inferred
+SCRIPT ERROR: Invalid call. Nonexistent function '_default_input_mappings' in base 'GDScript'.
+   at: test_physical_and_logical_identity_modifiers_and_empty_records_are_not_inferred (res://tests/unit/test_controls_legacy_presentation.gd:41)
+   GDScript backtrace (most recent call first):
+       [0] test_physical_and_logical_identity_modifiers_and_empty_records_are_not_inferred (res://tests/unit/test_controls_legacy_presentation.gd:41)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] test_scripts (res://addons/gut/gut.gd:1047)
+       [4] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [5] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [6] main (res://addons/gut/cli/gut_cli.gd:297)
+       [7] _init (res://addons/gut/gut_cmdln.gd:39)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function '_default_input_mappings' in base 'GDScript'.
+      at line -1
+* test_controller_records_keep_device_and_raw_button_truth_without_semantic_guess
+SCRIPT ERROR: Invalid call. Nonexistent function '_default_input_mappings' in base 'GDScript'.
+   at: test_controller_records_keep_device_and_raw_button_truth_without_semantic_guess (res://tests/unit/test_controls_legacy_presentation.gd:59)
+   GDScript backtrace (most recent call first):
+       [0] test_controller_records_keep_device_and_raw_button_truth_without_semantic_guess (res://tests/unit/test_controls_legacy_presentation.gd:59)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] test_scripts (res://addons/gut/gut.gd:1047)
+       [4] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [5] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [6] main (res://addons/gut/cli/gut_cli.gd:297)
+       [7] _init (res://addons/gut/gut_cmdln.gd:39)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function '_default_input_mappings' in base 'GDScript'.
+      at line -1
+* test_unknown_and_unspecified_keys_are_described_without_manufactured_names
+SCRIPT ERROR: Invalid call. Nonexistent function '_default_input_mappings' in base 'GDScript'.
+   at: test_unknown_and_unspecified_keys_are_described_without_manufactured_names (res://tests/unit/test_controls_legacy_presentation.gd:71)
+   GDScript backtrace (most recent call first):
+       [0] test_unknown_and_unspecified_keys_are_described_without_manufactured_names (res://tests/unit/test_controls_legacy_presentation.gd:71)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] test_scripts (res://addons/gut/gut.gd:1047)
+       [4] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [5] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [6] main (res://addons/gut/cli/gut_cli.gd:297)
+       [7] _init (res://addons/gut/gut_cmdln.gd:39)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function '_default_input_mappings' in base 'GDScript'.
+      at line -1
+0/4 passed.
+
+
+tests/unit/test_control_input_publication.gd
+* test_committed_multi_action_reset_is_published_once_as_a_complete_map
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: _fixture (res://tests/unit/test_control_input_publication.gd:28)
+   GDScript backtrace (most recent call first):
+       [0] _fixture (res://tests/unit/test_control_input_publication.gd:28)
+       [1] test_committed_multi_action_reset_is_published_once_as_a_complete_map (res://tests/unit/test_control_input_publication.gd:55)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [4] test_scripts (res://addons/gut/gut.gd:1047)
+       [5] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [6] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [7] main (res://addons/gut/cli/gut_cli.gd:297)
+       [8] _init (res://addons/gut/gut_cmdln.gd:39)
+SCRIPT ERROR: Invalid access to property or key 'input' on a base object of type 'Dictionary'.
+   at: test_committed_multi_action_reset_is_published_once_as_a_complete_map (res://tests/unit/test_control_input_publication.gd:56)
+   GDScript backtrace (most recent call first):
+       [0] test_committed_multi_action_reset_is_published_once_as_a_complete_map (res://tests/unit/test_control_input_publication.gd:56)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] test_scripts (res://addons/gut/gut.gd:1047)
+       [4] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [5] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [6] main (res://addons/gut/cli/gut_cli.gd:297)
+       [7] _init (res://addons/gut/gut_cmdln.gd:39)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+    [2] <engine-2>Invalid access to property or key 'input' on a base object of type 'Dictionary'.
+      at line -1
+* test_failed_binding_commit_keeps_live_slots_and_publishes_nothing
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: _fixture (res://tests/unit/test_control_input_publication.gd:28)
+   GDScript backtrace (most recent call first):
+       [0] _fixture (res://tests/unit/test_control_input_publication.gd:28)
+       [1] test_failed_binding_commit_keeps_live_slots_and_publishes_nothing (res://tests/unit/test_control_input_publication.gd:67)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [4] test_scripts (res://addons/gut/gut.gd:1047)
+       [5] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [6] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [7] main (res://addons/gut/cli/gut_cli.gd:297)
+       [8] _init (res://addons/gut/gut_cmdln.gd:39)
+SCRIPT ERROR: Invalid access to property or key 'profile' on a base object of type 'Dictionary'.
+   at: test_failed_binding_commit_keeps_live_slots_and_publishes_nothing (res://tests/unit/test_control_input_publication.gd:69)
+   GDScript backtrace (most recent call first):
+       [0] test_failed_binding_commit_keeps_live_slots_and_publishes_nothing (res://tests/unit/test_control_input_publication.gd:69)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] test_scripts (res://addons/gut/gut.gd:1047)
+       [4] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [5] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [6] main (res://addons/gut/cli/gut_cli.gd:297)
+       [7] _init (res://addons/gut/gut_cmdln.gd:39)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+    [2] <engine-2>Invalid access to property or key 'profile' on a base object of type 'Dictionary'.
+      at line -1
+* test_controller_rebind_preserves_keyboard_and_uses_any_device_position
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: _fixture (res://tests/unit/test_control_input_publication.gd:28)
+   GDScript backtrace (most recent call first):
+       [0] _fixture (res://tests/unit/test_control_input_publication.gd:28)
+       [1] test_controller_rebind_preserves_keyboard_and_uses_any_device_position (res://tests/unit/test_control_input_publication.gd:79)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [4] test_scripts (res://addons/gut/gut.gd:1047)
+       [5] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [6] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [7] main (res://addons/gut/cli/gut_cli.gd:297)
+       [8] _init (res://addons/gut/gut_cmdln.gd:39)
+SCRIPT ERROR: Invalid access to property or key 'input' on a base object of type 'Dictionary'.
+   at: test_controller_rebind_preserves_keyboard_and_uses_any_device_position (res://tests/unit/test_control_input_publication.gd:84)
+   GDScript backtrace (most recent call first):
+       [0] test_controller_rebind_preserves_keyboard_and_uses_any_device_position (res://tests/unit/test_control_input_publication.gd:84)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] test_scripts (res://addons/gut/gut.gd:1047)
+       [4] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [5] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [6] main (res://addons/gut/cli/gut_cli.gd:297)
+       [7] _init (res://addons/gut/gut_cmdln.gd:39)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+    [2] <engine-2>Invalid access to property or key 'input' on a base object of type 'Dictionary'.
+      at line -1
+* test_canonical_cutover_preserves_native_ui_and_refuses_unconfirmed_reset
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: _fixture (res://tests/unit/test_control_input_publication.gd:28)
+   GDScript backtrace (most recent call first):
+       [0] _fixture (res://tests/unit/test_control_input_publication.gd:28)
+       [1] test_canonical_cutover_preserves_native_ui_and_refuses_unconfirmed_reset (res://tests/unit/test_control_input_publication.gd:89)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [4] test_scripts (res://addons/gut/gut.gd:1047)
+       [5] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [6] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [7] main (res://addons/gut/cli/gut_cli.gd:297)
+       [8] _init (res://addons/gut/gut_cmdln.gd:39)
+SCRIPT ERROR: Invalid access to property or key 'input' on a base object of type 'Dictionary'.
+   at: test_canonical_cutover_preserves_native_ui_and_refuses_unconfirmed_reset (res://tests/unit/test_control_input_publication.gd:96)
+   GDScript backtrace (most recent call first):
+       [0] test_canonical_cutover_preserves_native_ui_and_refuses_unconfirmed_reset (res://tests/unit/test_control_input_publication.gd:96)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] test_scripts (res://addons/gut/gut.gd:1047)
+       [4] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [5] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [6] main (res://addons/gut/cli/gut_cli.gd:297)
+       [7] _init (res://addons/gut/gut_cmdln.gd:39)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+    [2] <engine-2>Invalid access to property or key 'input' on a base object of type 'Dictionary'.
+      at line -1
+* test_binding_publication_during_pause_preserves_physical_release_quarantine
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: _fixture (res://tests/unit/test_control_input_publication.gd:28)
+   GDScript backtrace (most recent call first):
+       [0] _fixture (res://tests/unit/test_control_input_publication.gd:28)
+       [1] test_binding_publication_during_pause_preserves_physical_release_quarantine (res://tests/unit/test_control_input_publication.gd:104)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [4] test_scripts (res://addons/gut/gut.gd:1047)
+       [5] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [6] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [7] main (res://addons/gut/cli/gut_cli.gd:297)
+       [8] _init (res://addons/gut/gut_cmdln.gd:39)
+SCRIPT ERROR: Invalid access to property or key 'input' on a base object of type 'Dictionary'.
+   at: test_binding_publication_during_pause_preserves_physical_release_quarantine (res://tests/unit/test_control_input_publication.gd:105)
+   GDScript backtrace (most recent call first):
+       [0] test_binding_publication_during_pause_preserves_physical_release_quarantine (res://tests/unit/test_control_input_publication.gd:105)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] test_scripts (res://addons/gut/gut.gd:1047)
+       [4] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [5] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [6] main (res://addons/gut/cli/gut_cli.gd:297)
+       [7] _init (res://addons/gut/gut_cmdln.gd:39)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+    [2] <engine-2>Invalid access to property or key 'input' on a base object of type 'Dictionary'.
+      at line -1
+* test_pending_import_removes_all_live_canonical_bindings_without_inventing_defaults
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: _fixture (res://tests/unit/test_control_input_publication.gd:28)
+   GDScript backtrace (most recent call first):
+       [0] _fixture (res://tests/unit/test_control_input_publication.gd:28)
+       [1] test_pending_import_removes_all_live_canonical_bindings_without_inventing_defaults (res://tests/unit/test_control_input_publication.gd:118)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [4] test_scripts (res://addons/gut/gut.gd:1047)
+       [5] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [6] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [7] main (res://addons/gut/cli/gut_cli.gd:297)
+       [8] _init (res://addons/gut/gut_cmdln.gd:39)
+SCRIPT ERROR: Invalid access to property or key 'profile' on a base object of type 'Dictionary'.
+   at: test_pending_import_removes_all_live_canonical_bindings_without_inventing_defaults (res://tests/unit/test_control_input_publication.gd:119)
+   GDScript backtrace (most recent call first):
+       [0] test_pending_import_removes_all_live_canonical_bindings_without_inventing_defaults (res://tests/unit/test_control_input_publication.gd:119)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] test_scripts (res://addons/gut/gut.gd:1047)
+       [4] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [5] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [6] main (res://addons/gut/cli/gut_cli.gd:297)
+       [7] _init (res://addons/gut/gut_cmdln.gd:39)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+    [2] <engine-2>Invalid access to property or key 'profile' on a base object of type 'Dictionary'.
+      at line -1
+0/6 passed.
+
+
+tests/unit/test_canonical_preference_consumers.gd
+* test_reading_enums_map_exactly_without_mutating_profile
+* test_invalid_reading_has_no_partial_plan
+* test_instant_and_skip_plan_survive_native_cache_capture_and_rollback
+* test_localization_reads_and_publishes_only_canonical_primary_locale
+* test_restore_checks_committed_canonical_primary_before_applying
+* test_restore_participant_preserves_legacy_input_and_extracts_canonical_primary
+6/6 passed.
+
+
+tests/unit/test_canonical_audio_preferences.gd
+* test_real_canonical_profile_initializes_master_and_three_channels_without_voice_preferences
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: _fixture (res://tests/unit/test_canonical_audio_preferences.gd:12)
+   GDScript backtrace (most recent call first):
+       [0] _fixture (res://tests/unit/test_canonical_audio_preferences.gd:12)
+       [1] test_real_canonical_profile_initializes_master_and_three_channels_without_voice_preferences (res://tests/unit/test_canonical_audio_preferences.gd:22)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Invalid access to property or key 'manager' on a base object of type 'Dictionary'.
+   at: test_real_canonical_profile_initializes_master_and_three_channels_without_voice_preferences (res://tests/unit/test_canonical_audio_preferences.gd:23)
+   GDScript backtrace (most recent call first):
+       [0] test_real_canonical_profile_initializes_master_and_three_channels_without_voice_preferences (res://tests/unit/test_canonical_audio_preferences.gd:23)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+    [2] <engine-2>Invalid access to property or key 'manager' on a base object of type 'Dictionary'.
+      at line -1
+* test_removed_voice_setters_cannot_write_profile_or_change_playback
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: _fixture (res://tests/unit/test_canonical_audio_preferences.gd:12)
+   GDScript backtrace (most recent call first):
+       [0] _fixture (res://tests/unit/test_canonical_audio_preferences.gd:12)
+       [1] test_removed_voice_setters_cannot_write_profile_or_change_playback (res://tests/unit/test_canonical_audio_preferences.gd:35)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Invalid access to property or key 'profile' on a base object of type 'Dictionary'.
+   at: test_removed_voice_setters_cannot_write_profile_or_change_playback (res://tests/unit/test_canonical_audio_preferences.gd:36)
+   GDScript backtrace (most recent call first):
+       [0] test_removed_voice_setters_cannot_write_profile_or_change_playback (res://tests/unit/test_canonical_audio_preferences.gd:36)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+    [2] <engine-2>Invalid access to property or key 'profile' on a base object of type 'Dictionary'.
+      at line -1
+* test_inactive_muting_defaults_true_and_preference_change_while_inactive_is_applied
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: _fixture (res://tests/unit/test_canonical_audio_preferences.gd:12)
+   GDScript backtrace (most recent call first):
+       [0] _fixture (res://tests/unit/test_canonical_audio_preferences.gd:12)
+       [1] test_inactive_muting_defaults_true_and_preference_change_while_inactive_is_applied (res://tests/unit/test_canonical_audio_preferences.gd:45)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Invalid access to property or key 'manager' on a base object of type 'Dictionary'.
+   at: test_inactive_muting_defaults_true_and_preference_change_while_inactive_is_applied (res://tests/unit/test_canonical_audio_preferences.gd:46)
+   GDScript backtrace (most recent call first):
+       [0] test_inactive_muting_defaults_true_and_preference_change_while_inactive_is_applied (res://tests/unit/test_canonical_audio_preferences.gd:46)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+    [2] <engine-2>Invalid access to property or key 'manager' on a base object of type 'Dictionary'.
+      at line -1
+* test_canonical_restore_is_silent_and_rollback_preserves_profile_revision
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: _fixture (res://tests/unit/test_canonical_audio_preferences.gd:12)
+   GDScript backtrace (most recent call first):
+       [0] _fixture (res://tests/unit/test_canonical_audio_preferences.gd:12)
+       [1] test_canonical_restore_is_silent_and_rollback_preserves_profile_revision (res://tests/unit/test_canonical_audio_preferences.gd:57)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Invalid access to property or key 'manager' on a base object of type 'Dictionary'.
+   at: test_canonical_restore_is_silent_and_rollback_preserves_profile_revision (res://tests/unit/test_canonical_audio_preferences.gd:58)
+   GDScript backtrace (most recent call first):
+       [0] test_canonical_restore_is_silent_and_rollback_preserves_profile_revision (res://tests/unit/test_canonical_audio_preferences.gd:58)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+    [2] <engine-2>Invalid access to property or key 'manager' on a base object of type 'Dictionary'.
+      at line -1
+* test_invalid_canonical_restore_is_rejected_before_any_playback_mutation
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: _fixture (res://tests/unit/test_canonical_audio_preferences.gd:12)
+   GDScript backtrace (most recent call first):
+       [0] _fixture (res://tests/unit/test_canonical_audio_preferences.gd:12)
+       [1] test_invalid_canonical_restore_is_rejected_before_any_playback_mutation (res://tests/unit/test_canonical_audio_preferences.gd:79)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Invalid call. Nonexistent function 'make_defaults' in base 'GDScript'.
+   at: test_invalid_canonical_restore_is_rejected_before_any_playback_mutation (res://tests/unit/test_canonical_audio_preferences.gd:81)
+   GDScript backtrace (most recent call first):
+       [0] test_invalid_canonical_restore_is_rejected_before_any_playback_mutation (res://tests/unit/test_canonical_audio_preferences.gd:81)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+    [2] <engine-2>Invalid call. Nonexistent function 'make_defaults' in base 'GDScript'.
+      at line -1
+* test_bus_failure_restores_master_and_keeps_prior_settings
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: _fixture (res://tests/unit/test_canonical_audio_preferences.gd:12)
+   GDScript backtrace (most recent call first):
+       [0] _fixture (res://tests/unit/test_canonical_audio_preferences.gd:12)
+       [1] test_bus_failure_restores_master_and_keeps_prior_settings (res://tests/unit/test_canonical_audio_preferences.gd:95)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Invalid access to property or key 'manager' on a base object of type 'Dictionary'.
+   at: test_bus_failure_restores_master_and_keeps_prior_settings (res://tests/unit/test_canonical_audio_preferences.gd:96)
+   GDScript backtrace (most recent call first):
+       [0] test_bus_failure_restores_master_and_keeps_prior_settings (res://tests/unit/test_canonical_audio_preferences.gd:96)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+    [2] <engine-2>Invalid access to property or key 'manager' on a base object of type 'Dictionary'.
+      at line -1
+* test_native_mono_effect_and_master_rollback_preserve_foreign_effects_without_players
+1/7 passed.
+
+
+tests/unit/test_audio_manager.gd
+* test_ending_audio_map_covers_every_canonical_id
+* test_ending_audio_rejects_retired_unknown_and_empty_ids
+* test_initialization_preserves_gate_and_builds_exact_pools
+* test_failed_initialization_is_retryable_and_does_not_connect_profile
+* test_volume_clamp_silence_threshold_and_explicit_mute
+* test_exact_threshold_and_focus_loss_overlay_do_not_replace_preferences
+* test_semantic_contexts_are_exact_and_same_context_is_idempotent
+* test_unknown_context_and_cue_never_mutate_semantic_state
+* test_commands_before_initialization_fail_without_touching_port
+* test_sfx_dispatch_uses_registered_manifest_bus
+* test_full_sfx_pool_reuses_oldest_playing_after_a_free_slot_was_reused
+* test_failed_context_change_rolls_back_runtime_and_semantics
+* test_every_crossfade_operation_failpoint_preserves_semantics
+* test_rollback_failure_latches_fatal_and_best_effort_mutes_channel
+* test_async_old_player_stop_failure_latches_fatal
+* test_committed_preference_apply_failure_latches_shared_gate
+* test_semantic_restore_is_silent_and_rollback_restarts_prior_context
+* test_restore_can_clear_channels_and_force_restart_same_context
+* test_restore_rejects_non_json_context_and_malformed_audio_preferences
+* test_runtime_audio_context_is_not_run_save_state
+20/20 passed.
+
+
+tests/unit/test_dialogic_preferences.gd
+* test_installed_version_preference_adapter_exists
+* test_dialogic_bridge_exposes_profile_preference_seams
+* test_adapter_maps_profile_values_to_live_caches_without_persistence
+* test_committed_dialogue_apply_failure_latches_shared_gate
+* test_failed_bridge_binding_is_retryable_and_connects_only_after_apply
+* test_bootstrap_binding_applies_installed_dialogic_preferences_exactly_once
+6/6 passed.
+
+
+tests/unit/test_localization.gd
+* before_all
+    [Failed]:  res://autoload/ProfileManager.gd: { "ok": false, "code": &"invalid_script", "message": "res://autoload/ProfileManager.gd" }
+      at line 45
+* test_initialization_loads_manifest_and_returns_detached_selectable_records
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'Nil'.
+   at: before_each (res://tests/unit/test_localization.gd:52)
+   GDScript backtrace (most recent call first):
+       [0] before_each (res://tests/unit/test_localization.gd:52)
+       [1] _run_test (res://addons/gut/gut.gd:612)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Invalid call. Nonexistent function 'get_readiness' in base 'Nil'.
+   at: test_initialization_loads_manifest_and_returns_detached_selectable_records (res://tests/unit/test_localization.gd:87)
+   GDScript backtrace (most recent call first):
+       [0] test_initialization_loads_manifest_and_returns_detached_selectable_records (res://tests/unit/test_localization.gd:87)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'get_readiness' in base 'Nil'.
+      at line -1
+* test_alias_switch_commits_profile_before_signals_and_publishes_once
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'Nil'.
+   at: before_each (res://tests/unit/test_localization.gd:52)
+   GDScript backtrace (most recent call first):
+       [0] before_each (res://tests/unit/test_localization.gd:52)
+       [1] _run_test (res://addons/gut/gut.gd:612)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Invalid call. Nonexistent function 'initialize' in base 'Nil'.
+   at: _initialize (res://tests/unit/test_localization.gd:63)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tests/unit/test_localization.gd:63)
+       [1] test_alias_switch_commits_profile_before_signals_and_publishes_once (res://tests/unit/test_localization.gd:99)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]
+      at line 99
+SCRIPT ERROR: Invalid access to property or key 'preference_changed' on a base object of type 'Nil'.
+   at: test_alias_switch_commits_profile_before_signals_and_publishes_once (res://tests/unit/test_localization.gd:101)
+   GDScript backtrace (most recent call first):
+       [0] test_alias_switch_commits_profile_before_signals_and_publishes_once (res://tests/unit/test_localization.gd:101)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'initialize' in base 'Nil'.
+    [2] <engine-2>Invalid access to property or key 'preference_changed' on a base object of type 'Nil'.
+      at line -1
+* test_lookup_uses_registered_fallback_and_exact_placeholder_sets
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'Nil'.
+   at: before_each (res://tests/unit/test_localization.gd:52)
+   GDScript backtrace (most recent call first):
+       [0] before_each (res://tests/unit/test_localization.gd:52)
+       [1] _run_test (res://addons/gut/gut.gd:612)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Invalid call. Nonexistent function 'initialize' in base 'Nil'.
+   at: _initialize (res://tests/unit/test_localization.gd:63)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tests/unit/test_localization.gd:63)
+       [1] test_lookup_uses_registered_fallback_and_exact_placeholder_sets (res://tests/unit/test_localization.gd:110)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]
+      at line 110
+SCRIPT ERROR: Invalid call. Nonexistent function 'set_locale' in base 'Nil'.
+   at: test_lookup_uses_registered_fallback_and_exact_placeholder_sets (res://tests/unit/test_localization.gd:111)
+   GDScript backtrace (most recent call first):
+       [0] test_lookup_uses_registered_fallback_and_exact_placeholder_sets (res://tests/unit/test_localization.gd:111)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'initialize' in base 'Nil'.
+    [2] <engine-2>Invalid call. Nonexistent function 'set_locale' in base 'Nil'.
+      at line -1
+* test_prepare_locale_is_detached_and_unknown_locale_mutates_nothing
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'Nil'.
+   at: before_each (res://tests/unit/test_localization.gd:52)
+   GDScript backtrace (most recent call first):
+       [0] before_each (res://tests/unit/test_localization.gd:52)
+       [1] _run_test (res://addons/gut/gut.gd:612)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Invalid call. Nonexistent function 'initialize' in base 'Nil'.
+   at: _initialize (res://tests/unit/test_localization.gd:63)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tests/unit/test_localization.gd:63)
+       [1] test_prepare_locale_is_detached_and_unknown_locale_mutates_nothing (res://tests/unit/test_localization.gd:121)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]
+      at line 121
+SCRIPT ERROR: Invalid call. Nonexistent function 'get_profile_snapshot' in base 'Nil'.
+   at: test_prepare_locale_is_detached_and_unknown_locale_mutates_nothing (res://tests/unit/test_localization.gd:122)
+   GDScript backtrace (most recent call first):
+       [0] test_prepare_locale_is_detached_and_unknown_locale_mutates_nothing (res://tests/unit/test_localization.gd:122)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'initialize' in base 'Nil'.
+    [2] <engine-2>Invalid call. Nonexistent function 'get_profile_snapshot' in base 'Nil'.
+      at line -1
+* test_pending_root_is_applied_during_initialization
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'Nil'.
+   at: before_each (res://tests/unit/test_localization.gd:52)
+   GDScript backtrace (most recent call first):
+       [0] before_each (res://tests/unit/test_localization.gd:52)
+       [1] _run_test (res://addons/gut/gut.gd:612)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Invalid call. Nonexistent function 'register_presentation_root' in base 'Nil'.
+   at: test_pending_root_is_applied_during_initialization (res://tests/unit/test_localization.gd:133)
+   GDScript backtrace (most recent call first):
+       [0] test_pending_root_is_applied_during_initialization (res://tests/unit/test_localization.gd:133)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'register_presentation_root' in base 'Nil'.
+      at line -1
+* test_pending_root_can_unregister_and_pending_failure_fails_initialization
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'Nil'.
+   at: before_each (res://tests/unit/test_localization.gd:52)
+   GDScript backtrace (most recent call first):
+       [0] before_each (res://tests/unit/test_localization.gd:52)
+       [1] _run_test (res://addons/gut/gut.gd:612)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Invalid call. Nonexistent function 'register_presentation_root' in base 'Nil'.
+   at: test_pending_root_can_unregister_and_pending_failure_fails_initialization (res://tests/unit/test_localization.gd:141)
+   GDScript backtrace (most recent call first):
+       [0] test_pending_root_can_unregister_and_pending_failure_fails_initialization (res://tests/unit/test_localization.gd:141)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'register_presentation_root' in base 'Nil'.
+      at line -1
+* test_ready_registration_applies_current_presentation_without_stale_state
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'Nil'.
+   at: before_each (res://tests/unit/test_localization.gd:52)
+   GDScript backtrace (most recent call first):
+       [0] before_each (res://tests/unit/test_localization.gd:52)
+       [1] _run_test (res://addons/gut/gut.gd:612)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Invalid call. Nonexistent function 'initialize' in base 'Nil'.
+   at: _initialize (res://tests/unit/test_localization.gd:63)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tests/unit/test_localization.gd:63)
+       [1] test_ready_registration_applies_current_presentation_without_stale_state (res://tests/unit/test_localization.gd:153)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]
+      at line 153
+SCRIPT ERROR: Invalid call. Nonexistent function 'register_presentation_root' in base 'Nil'.
+   at: test_ready_registration_applies_current_presentation_without_stale_state (res://tests/unit/test_localization.gd:155)
+   GDScript backtrace (most recent call first):
+       [0] test_ready_registration_applies_current_presentation_without_stale_state (res://tests/unit/test_localization.gd:155)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'initialize' in base 'Nil'.
+    [2] <engine-2>Invalid call. Nonexistent function 'register_presentation_root' in base 'Nil'.
+      at line -1
+* test_root_apply_failure_rolls_back_prior_root_and_preserves_profile
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'Nil'.
+   at: before_each (res://tests/unit/test_localization.gd:52)
+   GDScript backtrace (most recent call first):
+       [0] before_each (res://tests/unit/test_localization.gd:52)
+       [1] _run_test (res://addons/gut/gut.gd:612)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Invalid call. Nonexistent function 'initialize' in base 'Nil'.
+   at: _initialize (res://tests/unit/test_localization.gd:63)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tests/unit/test_localization.gd:63)
+       [1] test_root_apply_failure_rolls_back_prior_root_and_preserves_profile (res://tests/unit/test_localization.gd:162)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]
+      at line 162
+SCRIPT ERROR: Invalid call. Nonexistent function 'register_presentation_root' in base 'Nil'.
+   at: test_root_apply_failure_rolls_back_prior_root_and_preserves_profile (res://tests/unit/test_localization.gd:165)
+   GDScript backtrace (most recent call first):
+       [0] test_root_apply_failure_rolls_back_prior_root_and_preserves_profile (res://tests/unit/test_localization.gd:165)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'initialize' in base 'Nil'.
+    [2] <engine-2>Invalid call. Nonexistent function 'register_presentation_root' in base 'Nil'.
+      at line -1
+* test_profile_write_failure_rolls_back_all_roots_and_manager
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'Nil'.
+   at: before_each (res://tests/unit/test_localization.gd:52)
+   GDScript backtrace (most recent call first):
+       [0] before_each (res://tests/unit/test_localization.gd:52)
+       [1] _run_test (res://addons/gut/gut.gd:612)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Invalid call. Nonexistent function 'initialize' in base 'Nil'.
+   at: _initialize (res://tests/unit/test_localization.gd:63)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tests/unit/test_localization.gd:63)
+       [1] test_profile_write_failure_rolls_back_all_roots_and_manager (res://tests/unit/test_localization.gd:176)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]
+      at line 176
+SCRIPT ERROR: Invalid call. Nonexistent function 'register_presentation_root' in base 'Nil'.
+   at: test_profile_write_failure_rolls_back_all_roots_and_manager (res://tests/unit/test_localization.gd:178)
+   GDScript backtrace (most recent call first):
+       [0] test_profile_write_failure_rolls_back_all_roots_and_manager (res://tests/unit/test_localization.gd:178)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'initialize' in base 'Nil'.
+    [2] <engine-2>Invalid call. Nonexistent function 'register_presentation_root' in base 'Nil'.
+      at line -1
+* test_initialization_canonicalizes_alias_and_removed_locale_to_durable_values
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'Nil'.
+   at: before_each (res://tests/unit/test_localization.gd:52)
+   GDScript backtrace (most recent call first):
+       [0] before_each (res://tests/unit/test_localization.gd:52)
+       [1] _run_test (res://addons/gut/gut.gd:612)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Invalid call. Nonexistent function 'validate_v1_source' in base 'GDScript'.
+   at: test_initialization_canonicalizes_alias_and_removed_locale_to_durable_values (res://tests/unit/test_localization.gd:191)
+   GDScript backtrace (most recent call first):
+       [0] test_initialization_canonicalizes_alias_and_removed_locale_to_durable_values (res://tests/unit/test_localization.gd:191)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'validate_v1_source' in base 'GDScript'.
+      at line -1
+* test_prepared_bundle_contains_only_candidate_fallback_chain
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'Nil'.
+   at: before_each (res://tests/unit/test_localization.gd:52)
+   GDScript backtrace (most recent call first):
+       [0] before_each (res://tests/unit/test_localization.gd:52)
+       [1] _run_test (res://addons/gut/gut.gd:612)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Invalid call. Nonexistent function 'initialize' in base 'Nil'.
+   at: _initialize (res://tests/unit/test_localization.gd:63)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tests/unit/test_localization.gd:63)
+       [1] test_prepared_bundle_contains_only_candidate_fallback_chain (res://tests/unit/test_localization.gd:208)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]
+      at line 208
+SCRIPT ERROR: Invalid call. Nonexistent function 'register_presentation_root' in base 'Nil'.
+   at: test_prepared_bundle_contains_only_candidate_fallback_chain (res://tests/unit/test_localization.gd:210)
+   GDScript backtrace (most recent call first):
+       [0] test_prepared_bundle_contains_only_candidate_fallback_chain (res://tests/unit/test_localization.gd:210)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'initialize' in base 'Nil'.
+    [2] <engine-2>Invalid call. Nonexistent function 'register_presentation_root' in base 'Nil'.
+      at line -1
+* test_external_committed_language_change_applies_validated_memory_without_second_write
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'Nil'.
+   at: before_each (res://tests/unit/test_localization.gd:52)
+   GDScript backtrace (most recent call first):
+       [0] before_each (res://tests/unit/test_localization.gd:52)
+       [1] _run_test (res://addons/gut/gut.gd:612)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Invalid call. Nonexistent function 'initialize' in base 'Nil'.
+   at: _initialize (res://tests/unit/test_localization.gd:63)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tests/unit/test_localization.gd:63)
+       [1] test_external_committed_language_change_applies_validated_memory_without_second_write (res://tests/unit/test_localization.gd:223)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]
+      at line 223
+SCRIPT ERROR: Invalid access to property or key 'locale_changed' on a base object of type 'Nil'.
+   at: test_external_committed_language_change_applies_validated_memory_without_second_write (res://tests/unit/test_localization.gd:225)
+   GDScript backtrace (most recent call first):
+       [0] test_external_committed_language_change_applies_validated_memory_without_second_write (res://tests/unit/test_localization.gd:225)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'initialize' in base 'Nil'.
+    [2] <engine-2>Invalid access to property or key 'locale_changed' on a base object of type 'Nil'.
+      at line -1
+* test_configured_mutation_gate_identity_survives_initialization
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'Nil'.
+   at: before_each (res://tests/unit/test_localization.gd:52)
+   GDScript backtrace (most recent call first):
+       [0] before_each (res://tests/unit/test_localization.gd:52)
+       [1] _run_test (res://addons/gut/gut.gd:612)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Invalid call. Nonexistent function 'configure_mutation_gate' in base 'Nil'.
+   at: test_configured_mutation_gate_identity_survives_initialization (res://tests/unit/test_localization.gd:235)
+   GDScript backtrace (most recent call first):
+       [0] test_configured_mutation_gate_identity_survives_initialization (res://tests/unit/test_localization.gd:235)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'configure_mutation_gate' in base 'Nil'.
+      at line -1
+* test_restore_apply_and_rollback_are_silent_and_detached
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'Nil'.
+   at: before_each (res://tests/unit/test_localization.gd:52)
+   GDScript backtrace (most recent call first):
+       [0] before_each (res://tests/unit/test_localization.gd:52)
+       [1] _run_test (res://addons/gut/gut.gd:612)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Invalid call. Nonexistent function 'initialize' in base 'Nil'.
+   at: _initialize (res://tests/unit/test_localization.gd:63)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tests/unit/test_localization.gd:63)
+       [1] test_restore_apply_and_rollback_are_silent_and_detached (res://tests/unit/test_localization.gd:244)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]
+      at line 244
+SCRIPT ERROR: Invalid call. Nonexistent function 'register_presentation_root' in base 'Nil'.
+   at: test_restore_apply_and_rollback_are_silent_and_detached (res://tests/unit/test_localization.gd:246)
+   GDScript backtrace (most recent call first):
+       [0] test_restore_apply_and_rollback_are_silent_and_detached (res://tests/unit/test_localization.gd:246)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'initialize' in base 'Nil'.
+    [2] <engine-2>Invalid call. Nonexistent function 'register_presentation_root' in base 'Nil'.
+      at line -1
+0/14 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+tests/unit/test_controls_binding_import.gd
+    - Outside Tests
+        * [<Node#98364819172>(subsystem_animation.gd)]
+        * [<Node#98381596389>(subsystem_audio.gd)]
+        * [<Node#98398373606>]
+        * [<Node#98415150823>]
+        * [<Node#98431928040>(subsystem_backgrounds.gd)]
+        * [<Node#98968798953>(subsystem_choices.gd)]
+        * [<Timer#98985576170>]
+        * [<Node#99002353387>(subsystem_expression.gd)]
+        * [<Node#99035907824>(subsystem_glossary.gd)]
+        * [<Node#99052685041>(subsystem_history.gd)]
+        * [<Node#99069462258>(subsystem_input.gd)]
+        * [<Timer#99086239475>]
+        * [<Node#99103016692>(subsystem_jump.gd)]
+        * [<Node#99119793909>(subsystem_containers.gd)]
+        * [<Node#99136571126>(subsystem_portraits.gd)]
+        * [<Node#99673442039>(subsystem_save.gd)]
+        * [<Timer#99690219256>]
+        * [<Node#99706996473>(subsystem_settings.gd)]
+        * [<Node#99723773693>(subsystem_styles.gd)]
+        * [<Node#99740550910>(subsystem_text.gd)]
+        * [<Node#99824436995>(subsystem_text_input.gd)]
+        * [<Node#99841214212>(subsystem_variables.gd)]
+        * [<Node#99857991429>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#99874768646>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+tests/unit/test_controls_binding_import.gd
+- test_fresh_profile_is_v4_without_manufactured_legacy_provenance
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'make_defaults' in base 'GDScript'.
+          at line -1
+- test_default_v2_keeps_n_and_every_original_field
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'make_defaults' in base 'GDScript'.
+    [2] <engine-2>Invalid call. Nonexistent function 'prepare_v2_upgrade' in base 'GDScript'.
+          at line -1
+- test_cross_swapped_imports_validate_after_all_transfers
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'make_defaults' in base 'GDScript'.
+    [2] <engine-2>Invalid access to property or key 'input_mappings' on a base object of type 'Dictionary'.
+          at line -1
+- test_missing_slots_use_defaults_without_replacing_existing_n
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'make_defaults' in base 'GDScript'.
+    [2] <engine-2>Invalid access to property or key 'input_mappings' on a base object of type 'Dictionary'.
+          at line -1
+- test_unsupported_records_preserve_source_and_make_entire_import_pending
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'make_defaults' in base 'GDScript'.
+    [2] <engine-2>Invalid access to property or key 'input_mappings' on a base object of type 'Dictionary'.
+          at line -1
+- test_multiple_same_kind_records_never_choose_a_winner
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'make_defaults' in base 'GDScript'.
+    [2] <engine-2>Invalid access to property or key 'input_mappings' on a base object of type 'Dictionary'.
+          at line -1
+- test_complete_import_collision_including_new_mode_stays_pending
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'make_defaults' in base 'GDScript'.
+    [2] <engine-2>Invalid access to property or key 'input_mappings' on a base object of type 'Dictionary'.
+          at line -1
+- test_retired_actions_do_not_claim_new_semantics_or_block_import
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'make_defaults' in base 'GDScript'.
+    [2] <engine-2>Invalid access to property or key 'input_mappings' on a base object of type 'Dictionary'.
+          at line -1
+- test_multiple_independent_import_issues_are_retained
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'make_defaults' in base 'GDScript'.
+    [2] <engine-2>Invalid access to property or key 'input_mappings' on a base object of type 'Dictionary'.
+          at line -1
+- test_upgrade_rejects_malformed_v2_before_any_conversion
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'make_defaults' in base 'GDScript'.
+    [2] <engine-2>Invalid call. Nonexistent function 'make_defaults' in base 'GDScript'.
+    [3] <engine-2>Invalid access to property or key 'input_mappings' on a base object of type 'Dictionary'.
+          at line -1
+- test_v4_requires_closed_roots_valid_controls_and_boolean_pending
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'make_defaults' in base 'GDScript'.
+          at line -1
+- test_machine_schema_closes_v4_slots_and_accepts_both_provenance_forms
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'make_defaults' in base 'GDScript'.
+          at line -1
+
+tests/unit/test_controls_legacy_presentation.gd
+- test_every_stored_action_and_duplicate_record_is_visible_and_source_unchanged
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function '_default_input_mappings' in base 'GDScript'.
+          at line -1
+- test_physical_and_logical_identity_modifiers_and_empty_records_are_not_inferred
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function '_default_input_mappings' in base 'GDScript'.
+          at line -1
+- test_controller_records_keep_device_and_raw_button_truth_without_semantic_guess
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function '_default_input_mappings' in base 'GDScript'.
+          at line -1
+- test_unknown_and_unspecified_keys_are_described_without_manufactured_names
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function '_default_input_mappings' in base 'GDScript'.
+          at line -1
+
+tests/unit/test_control_input_publication.gd
+- test_committed_multi_action_reset_is_published_once_as_a_complete_map
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+    [2] <engine-2>Invalid access to property or key 'input' on a base object of type 'Dictionary'.
+          at line -1
+- test_failed_binding_commit_keeps_live_slots_and_publishes_nothing
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+    [2] <engine-2>Invalid access to property or key 'profile' on a base object of type 'Dictionary'.
+          at line -1
+- test_controller_rebind_preserves_keyboard_and_uses_any_device_position
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+    [2] <engine-2>Invalid access to property or key 'input' on a base object of type 'Dictionary'.
+          at line -1
+- test_canonical_cutover_preserves_native_ui_and_refuses_unconfirmed_reset
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+    [2] <engine-2>Invalid access to property or key 'input' on a base object of type 'Dictionary'.
+          at line -1
+- test_binding_publication_during_pause_preserves_physical_release_quarantine
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+    [2] <engine-2>Invalid access to property or key 'input' on a base object of type 'Dictionary'.
+          at line -1
+- test_pending_import_removes_all_live_canonical_bindings_without_inventing_defaults
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+    [2] <engine-2>Invalid access to property or key 'profile' on a base object of type 'Dictionary'.
+          at line -1
+
+tests/unit/test_canonical_audio_preferences.gd
+- test_real_canonical_profile_initializes_master_and_three_channels_without_voice_preferences
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+    [2] <engine-2>Invalid access to property or key 'manager' on a base object of type 'Dictionary'.
+          at line -1
+- test_removed_voice_setters_cannot_write_profile_or_change_playback
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+    [2] <engine-2>Invalid access to property or key 'profile' on a base object of type 'Dictionary'.
+          at line -1
+- test_inactive_muting_defaults_true_and_preference_change_while_inactive_is_applied
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+    [2] <engine-2>Invalid access to property or key 'manager' on a base object of type 'Dictionary'.
+          at line -1
+- test_canonical_restore_is_silent_and_rollback_preserves_profile_revision
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+    [2] <engine-2>Invalid access to property or key 'manager' on a base object of type 'Dictionary'.
+          at line -1
+- test_invalid_canonical_restore_is_rejected_before_any_playback_mutation
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+    [2] <engine-2>Invalid call. Nonexistent function 'make_defaults' in base 'GDScript'.
+          at line -1
+- test_bus_failure_restores_master_and_keeps_prior_settings
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+    [2] <engine-2>Invalid access to property or key 'manager' on a base object of type 'Dictionary'.
+          at line -1
+
+tests/unit/test_localization.gd
+- test_initialization_loads_manifest_and_returns_detached_selectable_records
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'get_readiness' in base 'Nil'.
+          at line -1
+- test_alias_switch_commits_profile_before_signals_and_publishes_once
+    [Failed]:
+          at line 99
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'initialize' in base 'Nil'.
+    [2] <engine-2>Invalid access to property or key 'preference_changed' on a base object of type 'Nil'.
+          at line -1
+- test_lookup_uses_registered_fallback_and_exact_placeholder_sets
+    [Failed]:
+          at line 110
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'initialize' in base 'Nil'.
+    [2] <engine-2>Invalid call. Nonexistent function 'set_locale' in base 'Nil'.
+          at line -1
+- test_prepare_locale_is_detached_and_unknown_locale_mutates_nothing
+    [Failed]:
+          at line 121
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'initialize' in base 'Nil'.
+    [2] <engine-2>Invalid call. Nonexistent function 'get_profile_snapshot' in base 'Nil'.
+          at line -1
+- test_pending_root_is_applied_during_initialization
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'register_presentation_root' in base 'Nil'.
+          at line -1
+- test_pending_root_can_unregister_and_pending_failure_fails_initialization
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'register_presentation_root' in base 'Nil'.
+          at line -1
+- test_ready_registration_applies_current_presentation_without_stale_state
+    [Failed]:
+          at line 153
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'initialize' in base 'Nil'.
+    [2] <engine-2>Invalid call. Nonexistent function 'register_presentation_root' in base 'Nil'.
+          at line -1
+- test_root_apply_failure_rolls_back_prior_root_and_preserves_profile
+    [Failed]:
+          at line 162
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'initialize' in base 'Nil'.
+    [2] <engine-2>Invalid call. Nonexistent function 'register_presentation_root' in base 'Nil'.
+          at line -1
+- test_profile_write_failure_rolls_back_all_roots_and_manager
+    [Failed]:
+          at line 176
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'initialize' in base 'Nil'.
+    [2] <engine-2>Invalid call. Nonexistent function 'register_presentation_root' in base 'Nil'.
+          at line -1
+- test_initialization_canonicalizes_alias_and_removed_locale_to_durable_values
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'validate_v1_source' in base 'GDScript'.
+          at line -1
+- test_prepared_bundle_contains_only_candidate_fallback_chain
+    [Failed]:
+          at line 208
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'initialize' in base 'Nil'.
+    [2] <engine-2>Invalid call. Nonexistent function 'register_presentation_root' in base 'Nil'.
+          at line -1
+- test_external_committed_language_change_applies_validated_memory_without_second_write
+    [Failed]:
+          at line 223
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'initialize' in base 'Nil'.
+    [2] <engine-2>Invalid access to property or key 'locale_changed' on a base object of type 'Nil'.
+          at line -1
+- test_configured_mutation_gate_identity_survives_initialization
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'configure_mutation_gate' in base 'Nil'.
+          at line -1
+- test_restore_apply_and_rollback_are_silent_and_detached
+    [Failed]:
+          at line 244
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'initialize' in base 'Nil'.
+    [2] <engine-2>Invalid call. Nonexistent function 'register_presentation_root' in base 'Nil'.
+          at line -1
+[Failed]:  before_all/after_all assert failed
+
+Totals
+------
+Scripts              10
+Tests                99
+Passing Tests        57
+Failing Tests        42
+Asserts           732/784
+Orphans              24
+Time              0.693s
+
+
+---- 42 failing tests ----

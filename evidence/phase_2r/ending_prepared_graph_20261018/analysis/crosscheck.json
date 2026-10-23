@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "scope": "Read-only comparison of root copied-evidence reanalysis with the existing independent replay; no reader rerun or native execution",
+  "crosscheck_ok": true,
+  "native_acceptance_established": false,
+  "recorded_original_file_count": 283,
+  "recorded_original_bytes_preserved": true,
+  "analysis_source_files_verified": 5,
+  "original_binder_input_files_independently_matched": 19,
+  "original_input_paths_matched": [
+    "audit-origin.json",
+    "native-build/build-receipt.json",
+    "native-diagnostic/validation.json",
+    "source/tools/diagnostics/ending-publication-20261019/native-probe/baseline/drivers/accesskit/accessibility_driver_accesskit.cpp",
+    "source/tools/diagnostics/ending-publication-20261019/native-probe/candidate/drivers/accesskit/accessibility_driver_accesskit.cpp",
+    "source/tools/diagnostics/ending-publication-20261019/native-probe/baseline/drivers/accesskit/accessibility_driver_accesskit.h",
+    "source/tools/diagnostics/ending-publication-20261019/native-probe/candidate/drivers/accesskit/accessibility_driver_accesskit.h",
+    "source/tools/diagnostics/ending-publication-20261019/native-probe/publication-native-probe.patch",
+    "source/tools/diagnostics/ending-publication-20261019/native-probe/PROTOCOL.md",
+    "exported-capability/result.json",
+    "capability-process.json",
+    "exported-create/result.json",
+    "create-process.json",
+    "exported-load/result.json",
+    "load-process.json",
+    "exported-load/failure-boundary.json",
+    "exported-load/events.json",
+    "exported-load/game.stdout.log",
+    "native-trace/trace-6124.jsonl"
+  ],
+  "derived_outputs_verified": 5,
+  "replay_byte_identical": true,
+  "selected_updates": [
+    1414,
+    1415,
+    1416,
+    1417,
+    1418,
+    1419
+  ],
+  "selected_status_counts": {
+    "connected": 6
+  },
+  "post_text_finished_count": 3,
+  "matching_registered_clock_checks": 4,
+  "zero_queries_before_30_seconds": 1,
+  "responsive_original_window_samples": 1,
+  "original_cloud_binding_ok": false,
+  "original_cloud_binding_errors": [
+    "RuntimeError: Original Load stdout identifies a different native engine"
+  ],
+  "original_load_ok": false,
+  "original_load_player_exit": -1,
+  "original_load_driver_exit": 1,
+  "new_offline_binding_ok": true,
+  "pins": {
+    "publication-reanalysis/actual/reanalysis-receipt.json": {
+      "bytes": 3602,
+      "sha256": "09b742022708874cdb3574b0d7aad36f29005117af9cc3501189d3fcf494faed"
+    },
+    "publication-reanalysis/actual/evidence-copy/ci/prepared-graph-binding.json": {
+      "bytes": 41708,
+      "sha256": "98c489452c5a75c3786c2b516b7dbdc63ddeaefb92ee931f86682280c4c91635"
+    },
+    "publication-reanalysis/actual/evidence-copy/ci/prepared-graph-replay.json": {
+      "bytes": 1844043,
+      "sha256": "f7f86f73833901e2eb9239edfe1f36ce7bb3dcf4e9ee73da4093db9aa1e11119"
+    },
+    "publication-reanalysis/independent-reader/review.json": {
+      "bytes": 118879,
+      "sha256": "b40069d13accc7fc7bb675729f5ce82809874391a0a63c01154ff6fb6720fead"
+    },
+    "publication-reanalysis/copy-driver-review.json": {
+      "bytes": 1225,
+      "sha256": "f32647e5eed94b062210b3761f5194ccba278116744b960717d781f864a7899f"
+    }
+  },
+  "qualification": "The six prepared captures do not prove consumer application before an in-budget native query. The corrected offline binder does not replace the original failed cloud binder or native gate."
+}

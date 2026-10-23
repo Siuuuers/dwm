@@ -1,0 +1,10 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+SCHEDULE_ACTIONS: PASS
+manifest=res://data/manifests/schedule_actions.v1.json
+schema=res://schemas/manifests/schedule-actions.schema.json
+record_count=20
+registry_fingerprint=71eb92c6dc3b902cc9e6c17928685c0a4772a9da51150316b29177fef0d73c76

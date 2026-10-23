@@ -1,0 +1,289 @@
+diff --git a/scripts/application/desktop/DesktopConsequenceCoordinator.gd b/scripts/application/desktop/DesktopConsequenceCoordinator.gd
+index 909d765fd..d8d98fac4 100644
+--- a/scripts/application/desktop/DesktopConsequenceCoordinator.gd
++++ b/scripts/application/desktop/DesktopConsequenceCoordinator.gd
+@@ -301,0 +302 @@ func accept_prepared_action(request: Dictionary) -> Dictionary:
++	var profile_tick := _settlement_profile_start()
+@@ -317,0 +319 @@ func accept_prepared_action(request: Dictionary) -> Dictionary:
++	profile_tick = _settlement_profile_phase("accept", "request_fingerprint", profile_tick)
+@@ -360,0 +363 @@ func accept_prepared_action(request: Dictionary) -> Dictionary:
++	profile_tick = _settlement_profile_phase("accept", "admission_checks", profile_tick)
+@@ -372,0 +376 @@ func accept_prepared_action(request: Dictionary) -> Dictionary:
++	_settlement_profile_phase("accept", "prepare_and_forward_inclusive", profile_tick)
+@@ -434,0 +439 @@ func _prepare_and_admit(action_receipt: Dictionary, source_kind: String, transac
++	var profile_tick := _settlement_profile_start()
+@@ -454,0 +460 @@ func _prepare_and_admit(action_receipt: Dictionary, source_kind: String, transac
++	profile_tick = _settlement_profile_phase("prepare", "reservation", profile_tick)
+@@ -478,0 +485 @@ func _prepare_and_admit(action_receipt: Dictionary, source_kind: String, transac
++	profile_tick = _settlement_profile_phase("prepare", "condition_policy", profile_tick)
+@@ -509,0 +517 @@ func _prepare_and_admit(action_receipt: Dictionary, source_kind: String, transac
++	profile_tick = _settlement_profile_phase("prepare", "departure_preparation", profile_tick)
+@@ -528,0 +537 @@ func _prepare_and_admit(action_receipt: Dictionary, source_kind: String, transac
++	profile_tick = _settlement_profile_phase("prepare", "recovery_payload", profile_tick)
+@@ -529,0 +539 @@ func _prepare_and_admit(action_receipt: Dictionary, source_kind: String, transac
++	profile_tick = _settlement_profile_phase("prepare", "checkpoint1_prepare", profile_tick)
+@@ -535,0 +546 @@ func _prepare_and_admit(action_receipt: Dictionary, source_kind: String, transac
++	profile_tick = _settlement_profile_phase("prepare", "checkpoint1_commit", profile_tick)
+@@ -542,0 +554 @@ func _prepare_and_admit(action_receipt: Dictionary, source_kind: String, transac
++	_settlement_profile_phase("prepare", "live_restore1", profile_tick)
+@@ -571,0 +584 @@ func _admit_and_forward(action_receipt: Dictionary, source_kind: String, transac
++	var profile_tick := _settlement_profile_start()
+@@ -572,0 +586 @@ func _admit_and_forward(action_receipt: Dictionary, source_kind: String, transac
++	profile_tick = _settlement_profile_phase("admit", "sequence_state_prepare", profile_tick)
+@@ -583,0 +598 @@ func _admit_and_forward(action_receipt: Dictionary, source_kind: String, transac
++	profile_tick = _settlement_profile_phase("admit", "checkpoint2_prepare", profile_tick)
+@@ -591,0 +607 @@ func _admit_and_forward(action_receipt: Dictionary, source_kind: String, transac
++	profile_tick = _settlement_profile_phase("admit", "admission_prepare", profile_tick)
+@@ -596,0 +613 @@ func _admit_and_forward(action_receipt: Dictionary, source_kind: String, transac
++	_settlement_profile_phase("admit", "admission_commit", profile_tick)
+@@ -607,0 +625 @@ func _resume_forward(action_receipt: Dictionary, source_kind: String, transactio
++	var profile_tick := _settlement_profile_start()
+@@ -639,0 +658 @@ func _resume_forward(action_receipt: Dictionary, source_kind: String, transactio
++	profile_tick = _settlement_profile_phase("forward", "capture_and_recovery_prepare", profile_tick)
+@@ -642,0 +662 @@ func _resume_forward(action_receipt: Dictionary, source_kind: String, transactio
++	profile_tick = _settlement_profile_phase("forward", "source_commit_inclusive", profile_tick)
+@@ -664,0 +685 @@ func _resume_forward(action_receipt: Dictionary, source_kind: String, transactio
++	profile_tick = _settlement_profile_phase("forward", "departure_commits", profile_tick)
+@@ -676,0 +698 @@ func _resume_forward(action_receipt: Dictionary, source_kind: String, transactio
++	profile_tick = _settlement_profile_phase("forward", "publication_pending_inclusive", profile_tick)
+@@ -683,0 +706 @@ func _resume_forward(action_receipt: Dictionary, source_kind: String, transactio
++		profile_tick = _settlement_profile_phase("forward", "publish_" + str(recipe["participant"]), profile_tick)
+@@ -690,0 +714 @@ func _resume_forward(action_receipt: Dictionary, source_kind: String, transactio
++		profile_tick = _settlement_profile_phase("forward", "progress_" + str(recipe["participant"]), profile_tick)
+@@ -695,0 +720 @@ func _resume_forward(action_receipt: Dictionary, source_kind: String, transactio
++	profile_tick = _settlement_profile_phase("forward", "cleanup_inclusive", profile_tick)
+@@ -726,0 +752 @@ func _resume_forward(action_receipt: Dictionary, source_kind: String, transactio
++	_settlement_profile_phase("forward", "release_and_receipt", profile_tick)
+@@ -882,0 +909 @@ func _checkpoint_completion(transaction_id: String, stage_candidate: Dictionary)
++	var profile_tick := _settlement_profile_start()
+@@ -889,0 +917 @@ func _checkpoint_completion(transaction_id: String, stage_candidate: Dictionary)
++		profile_tick = _settlement_profile_phase("completion_save", "capture", profile_tick)
+@@ -899,0 +928 @@ func _checkpoint_completion(transaction_id: String, stage_candidate: Dictionary)
++		profile_tick = _settlement_profile_phase("completion_save", "prepare", profile_tick)
+@@ -910,0 +940 @@ func _checkpoint_completion(transaction_id: String, stage_candidate: Dictionary)
++	_settlement_profile_phase("completion_save", "commit_inclusive", profile_tick)
+@@ -933,0 +964,2 @@ func _checkpoint_and_adopt(checkpoint_header: Dictionary, stage_candidate: Dicti
++	var profile_tick := _settlement_profile_start()
++	var profile_scope := "ordinal_" + str(checkpoint_header.get("operation_ordinal"))
+@@ -934,0 +967 @@ func _checkpoint_and_adopt(checkpoint_header: Dictionary, stage_candidate: Dicti
++	profile_tick = _settlement_profile_phase(profile_scope, "prepare", profile_tick)
+@@ -940,0 +974 @@ func _checkpoint_and_adopt(checkpoint_header: Dictionary, stage_candidate: Dicti
++	profile_tick = _settlement_profile_phase(profile_scope, "commit", profile_tick)
+@@ -941,0 +976 @@ func _checkpoint_and_adopt(checkpoint_header: Dictionary, stage_candidate: Dicti
++	profile_tick = _settlement_profile_phase(profile_scope, "live_restore", profile_tick)
+@@ -946,0 +982 @@ func _checkpoint_and_adopt(checkpoint_header: Dictionary, stage_candidate: Dicti
++	_settlement_profile_phase(profile_scope, "live_commit", profile_tick)
+@@ -949,0 +986,12 @@ func _checkpoint_and_adopt(checkpoint_header: Dictionary, stage_candidate: Dicti
++func _settlement_profile_start() -> int:
++	return Time.get_ticks_usec() if OS.get_environment("DWM_CHECKPOINT_PROFILE") == "1" else 0
++
++
++func _settlement_profile_phase(scope: String, phase: String, tick: int) -> int:
++	if tick == 0: return 0
++	print("DWM_CONSEQUENCE_PROFILE " + JSON.stringify({
++		"scope": scope, "phase": phase, "elapsed_us": Time.get_ticks_usec() - tick,
++	}))
++	return Time.get_ticks_usec()
++
++
+diff --git a/scripts/application/minesweeper/MinesweeperRoundCoordinator.gd b/scripts/application/minesweeper/MinesweeperRoundCoordinator.gd
+index cf5916c4b..89c42fbdf 100644
+--- a/scripts/application/minesweeper/MinesweeperRoundCoordinator.gd
++++ b/scripts/application/minesweeper/MinesweeperRoundCoordinator.gd
+@@ -275,0 +276,2 @@ func complete_round(request: Dictionary) -> Dictionary:
++	var profile := _checkpoint_profile_start("minesweeper_round_complete")
++	var profile_tick := int(profile.get("_started_us", 0))
+@@ -337,0 +340,4 @@ func complete_round(request: Dictionary) -> Dictionary:
++	if not profile.is_empty():
++		profile["outcome"] = outcome
++		profile["round_ordinal"] = int(identity["app_round_ordinal"])
++	profile_tick = _checkpoint_profile_phase(profile, "admission_and_board_capture_us", profile_tick)
+@@ -354,0 +361 @@ func complete_round(request: Dictionary) -> Dictionary:
++	profile_tick = _checkpoint_profile_phase(profile, "consequence_capture_us", profile_tick)
+@@ -374,0 +382 @@ func complete_round(request: Dictionary) -> Dictionary:
++	profile_tick = _checkpoint_profile_phase(profile, "action_candidate_prepare_us", profile_tick)
+@@ -377,0 +386,2 @@ func complete_round(request: Dictionary) -> Dictionary:
++	if not profile.is_empty():
++		profile["source_checkpoint"] = _source_checkpoint_capture.is_valid() and not pre_terminal_board.is_empty()
+@@ -379,0 +390 @@ func complete_round(request: Dictionary) -> Dictionary:
++		profile_tick = _checkpoint_profile_phase(profile, "source_capture_us", profile_tick)
+@@ -393,0 +405 @@ func complete_round(request: Dictionary) -> Dictionary:
++		profile_tick = _checkpoint_profile_phase(profile, "source_prepare_us", profile_tick)
+@@ -397,0 +410 @@ func complete_round(request: Dictionary) -> Dictionary:
++		profile_tick = _checkpoint_profile_phase(profile, "source_commit_us", profile_tick)
+@@ -407,0 +421 @@ func complete_round(request: Dictionary) -> Dictionary:
++	profile_tick = _checkpoint_profile_phase(profile, "receipt_assembly_us", profile_tick)
+@@ -423,0 +438 @@ func complete_round(request: Dictionary) -> Dictionary:
++	profile_tick = _checkpoint_profile_phase(profile, "handoff_prepare_us", profile_tick)
+@@ -438,0 +454 @@ func complete_round(request: Dictionary) -> Dictionary:
++	profile_tick = _checkpoint_profile_phase(profile, "consequence_checkpoint_prepare_us", profile_tick)
+@@ -446,0 +463 @@ func complete_round(request: Dictionary) -> Dictionary:
++	profile_tick = _checkpoint_profile_phase(profile, "consequence_checkpoint_commit_us", profile_tick)
+@@ -455,0 +473 @@ func complete_round(request: Dictionary) -> Dictionary:
++	profile_tick = _checkpoint_profile_phase(profile, "pending_state_commit_us", profile_tick)
+@@ -473 +491,4 @@ func complete_round(request: Dictionary) -> Dictionary:
+-	return _call_accept_and_finalize(transaction_id, fingerprint, accept_request)
++	profile_tick = _checkpoint_profile_phase(profile, "accept_request_retain_us", profile_tick)
++	var accepted: Dictionary = _call_accept_and_finalize(transaction_id, fingerprint, accept_request)
++	_checkpoint_profile_phase(profile, "accept_finalize_us", profile_tick)
++	return _checkpoint_profile_result(profile, accepted)
+@@ -506,0 +528,2 @@ func _call_accept_and_finalize(transaction_id: String, fingerprint: String, acce
++	var profile := _checkpoint_profile_start("minesweeper_round_accept_finalize")
++	var profile_tick := int(profile.get("_started_us", 0))
+@@ -507,0 +531 @@ func _call_accept_and_finalize(transaction_id: String, fingerprint: String, acce
++	profile_tick = _checkpoint_profile_phase(profile, "accept_prepared_action_us", profile_tick)
+@@ -514 +538,2 @@ func _call_accept_and_finalize(transaction_id: String, fingerprint: String, acce
+-	return accepted
++	_checkpoint_profile_phase(profile, "cache_or_release_us", profile_tick)
++	return _checkpoint_profile_result(profile, accepted)
+@@ -539,0 +565,2 @@ func commit_recovery_action(action_candidate: Dictionary, action_receipt: Dictio
++	var profile := _checkpoint_profile_start("minesweeper_round_recovery_commit")
++	var profile_tick := int(profile.get("_started_us", 0))
+@@ -557,0 +585 @@ func commit_recovery_action(action_candidate: Dictionary, action_receipt: Dictio
++	profile_tick = _checkpoint_profile_phase(profile, "validation_us", profile_tick)
+@@ -558,0 +587 @@ func commit_recovery_action(action_candidate: Dictionary, action_receipt: Dictio
++	if not profile.is_empty(): profile["reward"] = action_candidate.has("reward")
+@@ -562,0 +592 @@ func commit_recovery_action(action_candidate: Dictionary, action_receipt: Dictio
++	profile_tick = _checkpoint_profile_phase(profile, "reward_commit_us", profile_tick)
+@@ -565,0 +596 @@ func commit_recovery_action(action_candidate: Dictionary, action_receipt: Dictio
++	profile_tick = _checkpoint_profile_phase(profile, "board_prepare_us", profile_tick)
+@@ -568,0 +600 @@ func commit_recovery_action(action_candidate: Dictionary, action_receipt: Dictio
++	profile_tick = _checkpoint_profile_phase(profile, "board_commit_us", profile_tick)
+@@ -572,0 +605,2 @@ func commit_recovery_action(action_candidate: Dictionary, action_receipt: Dictio
++	if not profile.is_empty():
++		profile["base_completion"] = int(identity["app_round_ordinal"]) in _BASE_COMPLETION_ORDINALS
+@@ -579,0 +614 @@ func commit_recovery_action(action_candidate: Dictionary, action_receipt: Dictio
++		profile_tick = _checkpoint_profile_phase(profile, "base_completion_prepare_us", profile_tick)
+@@ -581,0 +617 @@ func commit_recovery_action(action_candidate: Dictionary, action_receipt: Dictio
++		profile_tick = _checkpoint_profile_phase(profile, "base_completion_commit_us", profile_tick)
+@@ -589 +625,2 @@ func commit_recovery_action(action_candidate: Dictionary, action_receipt: Dictio
+-	return result
++	_checkpoint_profile_phase(profile, "receipt_and_cache_us", profile_tick)
++	return _checkpoint_profile_result(profile, result)
+@@ -1549,0 +1587,22 @@ func _canonical_sha256(value: Variant) -> String:
++static func _checkpoint_profile_start(scope: String) -> Dictionary:
++	if OS.get_environment("DWM_CHECKPOINT_PROFILE") != "1": return {}
++	return {"scope": scope, "_started_us": Time.get_ticks_usec()}
++
++
++static func _checkpoint_profile_phase(profile: Dictionary, phase: String, started_us: int) -> int:
++	if profile.is_empty(): return 0
++	var now := Time.get_ticks_usec()
++	profile[phase] = now - started_us
++	return now
++
++
++static func _checkpoint_profile_result(profile: Dictionary, result: Dictionary) -> Dictionary:
++	if not profile.is_empty():
++		profile["elapsed_us"] = Time.get_ticks_usec() - int(profile["_started_us"])
++		profile.erase("_started_us")
++		profile["ok"] = bool(result.get("ok", false))
++		if not profile["ok"]: profile["code"] = str(result.get("code", ""))
++		print("DWM_CHECKPOINT_PROFILE " + JSON.stringify(profile))
++	return result
++
++
+diff --git a/scripts/infrastructure/save/DesktopPublicationLedger.gd b/scripts/infrastructure/save/DesktopPublicationLedger.gd
+index c66d034e3..4b519f549 100644
+--- a/scripts/infrastructure/save/DesktopPublicationLedger.gd
++++ b/scripts/infrastructure/save/DesktopPublicationLedger.gd
+@@ -152 +152,8 @@ func record_before_emit(request: Dictionary) -> Dictionary:
+-	var checked := _check_request(request)
++	var profile := {}
++	var tick := 0
++	if OS.get_environment("DWM_CHECKPOINT_PROFILE") == "1":
++		tick = Time.get_ticks_usec()
++		profile = {"scope": "desktop_publication_ledger",
++			"kind": str(request.get("kind", "")), "_started_us": tick}
++	var checked := _check_request(request, profile)
++	tick = _profile_phase(profile, "request_check_us", tick)
+@@ -154 +161 @@ func record_before_emit(request: Dictionary) -> Dictionary:
+-		return checked
++		return _profile_result(profile, checked)
+@@ -157,0 +165 @@ func record_before_emit(request: Dictionary) -> Dictionary:
++	tick = _profile_phase(profile, "disk_refresh_us", tick)
+@@ -159 +167 @@ func record_before_emit(request: Dictionary) -> Dictionary:
+-		return refreshed
++		return _profile_result(profile, refreshed)
+@@ -160,0 +169,3 @@ func record_before_emit(request: Dictionary) -> Dictionary:
++	if not profile.is_empty():
++		profile["records_before"] = existing_records.size()
++		tick = Time.get_ticks_usec()
+@@ -169,2 +180,6 @@ func record_before_emit(request: Dictionary) -> Dictionary:
+-			return _accepted({"record": stored.duplicate(true), "first_delivery": false})
+-		return _rejected(&"publication_record_conflict", str(entry["key"]))
++			_profile_phase(profile, "replay_compare_us", tick)
++			return _profile_result(profile,
++				_accepted({"record": stored.duplicate(true), "first_delivery": false}))
++		_profile_phase(profile, "replay_compare_us", tick)
++		return _profile_result(profile,
++			_rejected(&"publication_record_conflict", str(entry["key"])))
+@@ -172 +187 @@ func record_before_emit(request: Dictionary) -> Dictionary:
+-	return _commit_new_entry(entry)
++	return _profile_result(profile, _commit_new_entry(entry, profile))
+@@ -175 +190 @@ func record_before_emit(request: Dictionary) -> Dictionary:
+-func _check_request(request: Dictionary) -> Dictionary:
++func _check_request(request: Dictionary, profile: Dictionary = {}) -> Dictionary:
+@@ -188,0 +204 @@ func _check_request(request: Dictionary) -> Dictionary:
++	var digest_started := Time.get_ticks_usec() if not profile.is_empty() else 0
+@@ -189,0 +206 @@ func _check_request(request: Dictionary) -> Dictionary:
++	_profile_phase(profile, "request_digest_us", digest_started)
+@@ -204 +221,2 @@ func _check_request(request: Dictionary) -> Dictionary:
+-func _commit_new_entry(entry: Dictionary) -> Dictionary:
++func _commit_new_entry(entry: Dictionary, profile: Dictionary = {}) -> Dictionary:
++	var tick := Time.get_ticks_usec() if not profile.is_empty() else 0
+@@ -208,0 +227,4 @@ func _commit_new_entry(entry: Dictionary) -> Dictionary:
++	tick = _profile_phase(profile, "entry_normalize_us", tick)
++	if not profile.is_empty():
++		profile["entry_bytes"] = entry_text.to_utf8_buffer().size()
++		tick = Time.get_ticks_usec()
+@@ -213,0 +236 @@ func _commit_new_entry(entry: Dictionary) -> Dictionary:
++	tick = _profile_phase(profile, "candidate_build_us", tick)
+@@ -215,0 +239 @@ func _commit_new_entry(entry: Dictionary) -> Dictionary:
++	tick = _profile_phase(profile, "shape_check_us", tick)
+@@ -218,0 +243,4 @@ func _commit_new_entry(entry: Dictionary) -> Dictionary:
++	tick = _profile_phase(profile, "full_emit_us", tick)
++	if not profile.is_empty():
++		profile["document_bytes"] = body.to_utf8_buffer().size() + 1
++		tick = Time.get_ticks_usec()
+@@ -222,0 +251 @@ func _commit_new_entry(entry: Dictionary) -> Dictionary:
++	tick = _profile_phase(profile, "cache_seed_us", tick)
+@@ -224,0 +254 @@ func _commit_new_entry(entry: Dictionary) -> Dictionary:
++	tick = _profile_phase(profile, "write_atomic_us", tick)
+@@ -227 +257 @@ func _commit_new_entry(entry: Dictionary) -> Dictionary:
+-	var confirmed := _confirm_written_entry(payload, entry)
++	var confirmed := _confirm_written_entry(payload, entry, profile)
+@@ -235 +265,3 @@ func _commit_new_entry(entry: Dictionary) -> Dictionary:
+-func _confirm_written_entry(expected_payload: String, entry: Dictionary) -> Dictionary:
++func _confirm_written_entry(expected_payload: String, entry: Dictionary,
++		profile: Dictionary = {}) -> Dictionary:
++	var tick := Time.get_ticks_usec() if not profile.is_empty() else 0
+@@ -236,0 +269 @@ func _confirm_written_entry(expected_payload: String, entry: Dictionary) -> Dict
++	tick = _profile_phase(profile, "reread_us", tick)
+@@ -246,0 +280 @@ func _confirm_written_entry(expected_payload: String, entry: Dictionary) -> Dict
++		_profile_phase(profile, "confirmation_us", tick)
+@@ -247,0 +282 @@ func _confirm_written_entry(expected_payload: String, entry: Dictionary) -> Dict
++	_profile_phase(profile, "confirmation_us", tick)
+@@ -250,0 +286,22 @@ func _confirm_written_entry(expected_payload: String, entry: Dictionary) -> Dict
++static func _profile_phase(profile: Dictionary, phase: String, started_us: int) -> int:
++	if profile.is_empty():
++		return 0
++	var now := Time.get_ticks_usec()
++	profile[phase] = now - started_us
++	return now
++
++
++static func _profile_result(profile: Dictionary, result: Dictionary) -> Dictionary:
++	if not profile.is_empty():
++		profile["elapsed_us"] = Time.get_ticks_usec() - int(profile["_started_us"])
++		profile.erase("_started_us")
++		profile["ok"] = bool(result.get("ok", false))
++		var value: Variant = result.get("value")
++		if value is Dictionary:
++			profile["first_delivery"] = (value as Dictionary).get("first_delivery", null)
++		if not profile["ok"]:
++			profile["code"] = str(result.get("code", ""))
++		print("DWM_CHECKPOINT_PROFILE " + JSON.stringify(profile))
++	return result
++
++

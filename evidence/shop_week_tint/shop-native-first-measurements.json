@@ -1,0 +1,89 @@
+{
+	"captures": 6,
+	"checks": 249,
+	"failures": [
+		"after-hours-day1-standard habitat: d8cfb7 expected 0b0d13",
+		"after-hours-day7-standard habitat: d8cfb7 expected 030406",
+		"after-hours-day7-high-contrast habitat: f6efdc expected 080b10",
+		"after-hours-day7-deutan habitat: d8cfb7 expected 030406",
+		"after-hours-day7-deutan blank-slot laminate: 919b95 expected 909b95",
+		"midnight-day7-standard habitat: d8cfb7 expected 060b0a",
+		"midnight-day7-supportz-confirmation habitat: 060a0a expected 060b0a"
+	],
+	"fixture": "Real Shop controls; synthetic 17-item catalog, solid pink art and memory-only owners. Fresh installed day/palette mounts; live HC/CVD recolours. Desktop eviction is covered by its integration suite; no bootstrap, saves or purchases exercised.",
+	"ok": false,
+	"samples": [
+		{
+			"art_pixel": "e34db1",
+			"catalog_calls": 1,
+			"colour_preset": "standard",
+			"day": 1,
+			"file": "after-hours-day1-standard.png",
+			"habitat_pixel": "d8cfb7",
+			"high_contrast": false,
+			"modal": false,
+			"palette": "after_hours",
+			"paper_pixel": "c3baa3"
+		},
+		{
+			"art_pixel": "e34db1",
+			"catalog_calls": 1,
+			"colour_preset": "standard",
+			"day": 7,
+			"file": "after-hours-day7-standard.png",
+			"habitat_pixel": "d8cfb7",
+			"high_contrast": false,
+			"modal": false,
+			"palette": "after_hours",
+			"paper_pixel": "b5ac97"
+		},
+		{
+			"art_pixel": "e34db1",
+			"catalog_calls": 1,
+			"colour_preset": "standard",
+			"day": 7,
+			"file": "after-hours-day7-high-contrast.png",
+			"habitat_pixel": "f6efdc",
+			"high_contrast": true,
+			"modal": false,
+			"palette": "after_hours",
+			"paper_pixel": "e9e2d0"
+		},
+		{
+			"art_pixel": "e34db1",
+			"catalog_calls": 1,
+			"colour_preset": "deutan",
+			"day": 7,
+			"file": "after-hours-day7-deutan.png",
+			"habitat_pixel": "d8cfb7",
+			"high_contrast": false,
+			"modal": false,
+			"palette": "after_hours",
+			"paper_pixel": "b6ac94"
+		},
+		{
+			"art_pixel": "e34db1",
+			"catalog_calls": 1,
+			"colour_preset": "standard",
+			"day": 7,
+			"file": "midnight-day7-standard.png",
+			"habitat_pixel": "d8cfb7",
+			"high_contrast": false,
+			"modal": false,
+			"palette": "midnight",
+			"paper_pixel": "b5ac97"
+		},
+		{
+			"art_pixel": "",
+			"catalog_calls": 2,
+			"colour_preset": "standard",
+			"day": 7,
+			"file": "midnight-day7-supportz-confirmation.png",
+			"habitat_pixel": "060a0a",
+			"high_contrast": false,
+			"modal": true,
+			"palette": "midnight",
+			"paper_pixel": "b5ac97"
+		}
+	]
+}

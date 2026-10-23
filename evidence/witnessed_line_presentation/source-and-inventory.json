@@ -1,0 +1,21 @@
+{
+  "base_commit": "0ff28f6fad2418b244b3a5e4b1c43ef5327caf60",
+  "source_sha256_lf": {
+    "addons/dialogic/Modules/Text/event_text.gd": "752ed26489ad232abd9cbc5871e8164608ef4d44c3eea8008d1c66f26723a086",
+    "autoload/DialogicBridge.gd": "93f3a03152bd60a70899fbb09e68cd097c4329e334d0e09e7331e327a263faf8",
+    "scripts/ui/witnessed/WitnessedAcceptInput.gd": "bd519799ec44b0892b26fc3e119c9ce7d4e2db306d2a0efc1d886206b23899ea",
+    "scripts/ui/witnessed/WitnessedCaptionLayer.gd": "bdb0db82b2b9fa7c4105b25de7cdd7b28884753098eb7db3c843b8e92aa45f68",
+    "tests/integration/test_dialogic_production_skip.gd": "12f84333c9882c7545cf68c310e87efea63240147910f1ae320a273defef027e",
+    "tests/integration/test_dialogic_skip.gd": "df1d8a239fdb5d5f5a2231520a63bec819042afe2374c0cb80e4ccbcd3ba06dd"
+  },
+  "inventories": {
+    "game_state": {
+      "public_contract_unchanged": true,
+      "only_call_sites_and_dynamic_references_may_differ": true
+    },
+    "save_manager": {
+      "public_contract_unchanged": true,
+      "only_call_sites_and_dynamic_references_may_differ": true
+    }
+  }
+}

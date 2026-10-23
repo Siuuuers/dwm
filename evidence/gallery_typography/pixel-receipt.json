@@ -1,0 +1,282 @@
+{
+  "ok": true,
+  "tuples": 18,
+  "checks": 112,
+  "expected_native_heights": {
+    "100": 12,
+    "125": 14,
+    "150": 16
+  },
+  "expected_background_rgb": [
+    195,
+    186,
+    163
+  ],
+  "expected_ink_rgb": {
+    "AfterHours": [
+      21,
+      27,
+      37
+    ],
+    "Midnight": [
+      20,
+      32,
+      29
+    ]
+  },
+  "samples": [
+    {
+      "file": "en-100-AfterHours-scrolled.png",
+      "locale": "en",
+      "palette": "AfterHours",
+      "text_percent": 100,
+      "native_status_rect": [
+        364,
+        52,
+        232,
+        12
+      ],
+      "background_pixels": 2650,
+      "ink_pixels": 134
+    },
+    {
+      "file": "en-100-Midnight-scrolled.png",
+      "locale": "en",
+      "palette": "Midnight",
+      "text_percent": 100,
+      "native_status_rect": [
+        364,
+        52,
+        232,
+        12
+      ],
+      "background_pixels": 2650,
+      "ink_pixels": 134
+    },
+    {
+      "file": "en-125-AfterHours-scrolled.png",
+      "locale": "en",
+      "palette": "AfterHours",
+      "text_percent": 125,
+      "native_status_rect": [
+        364,
+        52,
+        232,
+        14
+      ],
+      "background_pixels": 3070,
+      "ink_pixels": 178
+    },
+    {
+      "file": "en-125-Midnight-scrolled.png",
+      "locale": "en",
+      "palette": "Midnight",
+      "text_percent": 125,
+      "native_status_rect": [
+        364,
+        52,
+        232,
+        14
+      ],
+      "background_pixels": 3070,
+      "ink_pixels": 178
+    },
+    {
+      "file": "en-150-AfterHours-scrolled.png",
+      "locale": "en",
+      "palette": "AfterHours",
+      "text_percent": 150,
+      "native_status_rect": [
+        364,
+        52,
+        232,
+        16
+      ],
+      "background_pixels": 3474,
+      "ink_pixels": 238
+    },
+    {
+      "file": "en-150-Midnight-scrolled.png",
+      "locale": "en",
+      "palette": "Midnight",
+      "text_percent": 150,
+      "native_status_rect": [
+        364,
+        52,
+        232,
+        16
+      ],
+      "background_pixels": 3474,
+      "ink_pixels": 238
+    },
+    {
+      "file": "zh_CN-100-AfterHours-scrolled.png",
+      "locale": "zh_CN",
+      "palette": "AfterHours",
+      "text_percent": 100,
+      "native_status_rect": [
+        364,
+        52,
+        232,
+        12
+      ],
+      "background_pixels": 2662,
+      "ink_pixels": 122
+    },
+    {
+      "file": "zh_CN-100-Midnight-scrolled.png",
+      "locale": "zh_CN",
+      "palette": "Midnight",
+      "text_percent": 100,
+      "native_status_rect": [
+        364,
+        52,
+        232,
+        12
+      ],
+      "background_pixels": 2662,
+      "ink_pixels": 122
+    },
+    {
+      "file": "zh_CN-125-AfterHours-scrolled.png",
+      "locale": "zh_CN",
+      "palette": "AfterHours",
+      "text_percent": 125,
+      "native_status_rect": [
+        364,
+        52,
+        232,
+        14
+      ],
+      "background_pixels": 3077,
+      "ink_pixels": 171
+    },
+    {
+      "file": "zh_CN-125-Midnight-scrolled.png",
+      "locale": "zh_CN",
+      "palette": "Midnight",
+      "text_percent": 125,
+      "native_status_rect": [
+        364,
+        52,
+        232,
+        14
+      ],
+      "background_pixels": 3077,
+      "ink_pixels": 171
+    },
+    {
+      "file": "zh_CN-150-AfterHours-scrolled.png",
+      "locale": "zh_CN",
+      "palette": "AfterHours",
+      "text_percent": 150,
+      "native_status_rect": [
+        364,
+        52,
+        232,
+        16
+      ],
+      "background_pixels": 3499,
+      "ink_pixels": 213
+    },
+    {
+      "file": "zh_CN-150-Midnight-scrolled.png",
+      "locale": "zh_CN",
+      "palette": "Midnight",
+      "text_percent": 150,
+      "native_status_rect": [
+        364,
+        52,
+        232,
+        16
+      ],
+      "background_pixels": 3499,
+      "ink_pixels": 213
+    },
+    {
+      "file": "zh_HK-100-AfterHours-scrolled.png",
+      "locale": "zh_HK",
+      "palette": "AfterHours",
+      "text_percent": 100,
+      "native_status_rect": [
+        364,
+        52,
+        232,
+        12
+      ],
+      "background_pixels": 2616,
+      "ink_pixels": 168
+    },
+    {
+      "file": "zh_HK-100-Midnight-scrolled.png",
+      "locale": "zh_HK",
+      "palette": "Midnight",
+      "text_percent": 100,
+      "native_status_rect": [
+        364,
+        52,
+        232,
+        12
+      ],
+      "background_pixels": 2616,
+      "ink_pixels": 168
+    },
+    {
+      "file": "zh_HK-125-AfterHours-scrolled.png",
+      "locale": "zh_HK",
+      "palette": "AfterHours",
+      "text_percent": 125,
+      "native_status_rect": [
+        364,
+        52,
+        232,
+        14
+      ],
+      "background_pixels": 3000,
+      "ink_pixels": 248
+    },
+    {
+      "file": "zh_HK-125-Midnight-scrolled.png",
+      "locale": "zh_HK",
+      "palette": "Midnight",
+      "text_percent": 125,
+      "native_status_rect": [
+        364,
+        52,
+        232,
+        14
+      ],
+      "background_pixels": 3000,
+      "ink_pixels": 248
+    },
+    {
+      "file": "zh_HK-150-AfterHours-scrolled.png",
+      "locale": "zh_HK",
+      "palette": "AfterHours",
+      "text_percent": 150,
+      "native_status_rect": [
+        364,
+        52,
+        232,
+        16
+      ],
+      "background_pixels": 3410,
+      "ink_pixels": 302
+    },
+    {
+      "file": "zh_HK-150-Midnight-scrolled.png",
+      "locale": "zh_HK",
+      "palette": "Midnight",
+      "text_percent": 150,
+      "native_status_rect": [
+        364,
+        52,
+        232,
+        16
+      ],
+      "background_pixels": 3410,
+      "ink_pixels": 302
+    }
+  ],
+  "scope": "Read-only Pillow verification of archived title status rectangles and PNG pixels."
+}

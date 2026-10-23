@@ -1,0 +1,105 @@
+{
+  "status": "in_run_backup_verified",
+  "date": "2026-09-05",
+  "worktree": "C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\contacts-ui-build",
+  "base_commit": "1790785bcfd37d2a27a0ecef81b9dc80fe501f71",
+  "checks": {
+    "ui": {
+      "passed": true,
+      "receipt": "ui-result.json",
+      "log": "ui.log",
+      "receipt_sha256": "be70fe996e2f5ae5993a6f90b7ff59393b05e0f1a1ef9876632503830bfc4ce5",
+      "source_bindings_total": 55,
+      "source_bindings_matched": 55,
+      "changed_collateral_sources": [],
+      "scope": "Real Backup/shared-shell scenes with fake external operation owners. Headless layout and interaction; no configured game autoloads, user persistence, real backup transactions or GPU raster proof.",
+      "test_summaries": [
+        {
+          "checks_run": 2216,
+          "suite": "BackupUI"
+        }
+      ]
+    },
+    "font_probe": {
+      "passed": true,
+      "receipt": "font_probe-result.json",
+      "log": "font_probe.log",
+      "receipt_sha256": "c76d4d6c2301aa2680c2f1d4003b93b6c7809a854ce9e19d5fd6e1638a545437",
+      "source_bindings_total": 8,
+      "source_bindings_matched": 8,
+      "changed_collateral_sources": [],
+      "scope": "Real bundled-font layout measurements using draft UI labels; no production UI or approved-translation claim."
+    },
+    "desktop_regression": {
+      "passed": true,
+      "receipt": "desktop_regression-result.json",
+      "log": "desktop_regression.log",
+      "receipt_sha256": "abe802043a6165804434cb79ee4b60d83dd8cfbcfbef565de56308919d242877",
+      "source_bindings_total": 74,
+      "source_bindings_matched": 74,
+      "changed_collateral_sources": [],
+      "scope": "Real MainGameScene, desktop, Contacts and Settings scenes/controller; real ProfileManager and LocalizationManager explicitly initialized with a shared mutation gate and in-memory FakeFileOps for cross-app routing. Contacts projection and desktop host are fakes. Covers launcher/shared strip, multilingual layout, clock, navigation and cache focus. No configured game autoloads, player persistence, full Bootstrap startup or GPU raster proof."
+    },
+    "contacts_regression": {
+      "passed": true,
+      "receipt": "contacts_regression-result.json",
+      "log": "contacts_regression.log",
+      "receipt_sha256": "358fdeb5673acac302aebf9976f901e63a5f78c7bc36b3813c6605789b7afaed",
+      "source_bindings_total": 54,
+      "source_bindings_matched": 54,
+      "changed_collateral_sources": [],
+      "scope": "Real Contacts and shared-shell scene integration with fake application ports, isolated headless Godot; no game autoloads or user persistence. Not GPU raster proof."
+    },
+    "operations": {
+      "passed": true,
+      "receipt": "operations-result.json",
+      "log": "operations.log",
+      "receipt_sha256": "ef617859604bd6d7711f354a6b6156f0c6ec82dd12836d7112a349f315d1e003",
+      "source_bindings_total": 345,
+      "source_bindings_matched": 341,
+      "changed_collateral_sources": [
+        "scripts/ui/BackupApp.gd",
+        "scripts/ui/ComputerDesktop.gd",
+        "scripts/ui/backup/BackupKey.gd",
+        "scripts/ui/desktop/DesktopConfirmation.gd"
+      ],
+      "scope": "Real SaveManager and BackupPresentationPort over in-memory FileOps, real journal/schema/restore transaction; external presentation owners faked; no user saves.",
+      "collateral_disposition": "Four unexercised copied UI scripts changed during final custody and risk fixes. Owner, port, schema, journal, restore and storage sources match; current UI separately compiles and passes the UI and regression receipts. Original receipt retained unchanged."
+    },
+    "storage": {
+      "passed": true,
+      "receipt": "storage-result.json",
+      "log": "storage.log",
+      "receipt_sha256": "54c6322a188dc1665bbf9e64a4b43b4c596db0e5517ca523d42d309eb3661420",
+      "source_bindings_total": 181,
+      "source_bindings_matched": 181,
+      "changed_collateral_sources": [],
+      "scope": "FakeFileOps only; existing GUT storage suite, raw inspection, revision overwrite/delete, operation fault positions, persisted crash snapshots, foreign hash and marker refusal. No player file access."
+    }
+  },
+  "requirements": {
+    "composition": "UI verifies 800x656 body, nine fixed row-major drawers, one selection, modes and pinned status/actions.",
+    "readability": "Actual bundled fonts en/zh-CN/zh-HK at100/125/150. Measured fixed compact font roles; full labels; unknown legacy time retained.",
+    "operations": "Actual owner covers save/overwrite/delete/load/fallback/cancel, stale target/source, timestamps, capability and single-owner routing. Fake-owner UI contracts independently reviewed.",
+    "custody_and_lifecycle": "Cancel-first host modal, inert background, recovery focus and live Retry removal, Home/Back, refreshed cache, hidden-cache Home preservation, day eviction and restored Backup.",
+    "storage": "1644 assertions, 578 injected I/O positions, 703 restart snapshots; original storage8/8. Owner regression suites6/6,7/7,13/13.",
+    "review": "ui-review.md includes independent source and receipt review; data agent independently reviewed storage; orchestrator reviewed reviewer-authored risk polish."
+  },
+  "preservation": {
+    "source_uncommitted": true,
+    "root_head": "35afbcdcf7e12143478080b91a7c6c3079497371",
+    "destination_ref_tip": "1790785bcfd37d2a27a0ecef81b9dc80fe501f71",
+    "authority_candidate_clean": true,
+    "recovery_proposal_sha256": "15fda5e408d89661d768dba2da2257ab6b8f6edf4e583928654514b28f5a1652",
+    "cross_worktree_installation": false,
+    "commits_refs_beads_or_registry_mutations": false
+  },
+  "limits": [
+    "In-run Backup only; not every UI dossier, formal UI-00/UI-00R cutover, title/Pause hosting, global shortcuts or full game.",
+    "Headless UI and separate owner/storage fixtures do not prove full startup, GPU raster quality, physical input/accessibility or real-disk power-loss durability.",
+    "Existing semantic scene-readiness contract retained. No complete end-to-end full-game save/restore claim.",
+    "Legacy/fallback time is unknown without durable evidence. Localized wording and operational glyphs are working design. No Bloom/fingerprint art fabricated.",
+    "Original logs retain root-certificate and inherited Unicode NUL diagnostics; passing does not imply clean diagnostics.",
+    "Tests never read or write actual player saves. Root/destination dirty state and historical recovery work remain separate."
+  ]
+}

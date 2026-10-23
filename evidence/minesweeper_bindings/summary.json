@@ -1,0 +1,82 @@
+{
+  "base_commit": "436be0c3b529ed7cbb0ab77641e6940447f0da3d",
+  "tasks": [
+    "dwm-eei.5"
+  ],
+  "acceptance_suite": "minesweeper-toggle-final-20260907a",
+  "counts": {
+    "Scripts": 31,
+    "Tests": 323,
+    "Passing Tests": 323,
+    "Asserts": 13884,
+    "Orphans": 864
+  },
+  "exit_code": 0,
+  "sources": {
+    "autoload/InputManager.gd": "68480925c805caaa4e453305b8b52f3f38d71f4f489b411a3b35d8cca7d7c196",
+    "scripts/ui/ComputerDesktop.gd": "58db3e61366dd26900f1ca3be7b8baa55a0b40c575d627fbe62f5417260c01e9",
+    "scripts/ui/MinesweeperApp.gd": "507e77b735c5b3e883ff4ba8c0e389b5056408ccc26a67199b33417558917f2e",
+    "scripts/ui/minesweeper/MinesweeperGrid.gd": "5123c39d0aa91d6ab42af8ef3cca3992f54894559fcc8e20bc32f5cab14ea383",
+    "scripts/ui/SettingsContent.gd": "c637d3a69f47d1670f4d94d01a23f498566886c347297fdb780a1a4199afbb12",
+    "scripts/ui/SettingsControlsSheet.gd": "f3c4b3b6121c54aae3abf0dd6bb79ea8a740b395518d01b1d9e9aebd0a0a9352",
+    "tests/unit/test_minesweeper_grid.gd": "c355425bfe3b171bf31f760c94048598f64815b5894c067606e245439497d1ce",
+    "tests/unit/test_minesweeper_panel.gd": "511147e48eced16240b23464bad035adb2f0ce5db7883779b6fd780067985834",
+    "tests/unit/test_minesweeper_presentation_port.gd": "4128a820885f458ef73d336a3711e203a2019139b3e6a0de5ebd4f5cf9a1ce06",
+    "tests/unit/test_input_contact_generations.gd": "c1e8af6a804e31372b283d74c44278a9871a55d5a3119a7681b80c6c3e461dc6",
+    "tests/scene/test_minesweeper_toggle_bindings.gd": "9a8e4c284887d53205bc74ffa414e7643fb5fb8cfd71d7d0e13ab5229528baa1",
+    "tests/integration/test_minesweeper_desktop_host.gd": "e5e7d05b35730948305b3fb815799c4630fd0fb18a1ccb8974d1aa857b63e49b",
+    "tests/support/MinesweeperInputFixture.gd": "3f32c901803e361aa645d9e86634760a3b2177ab0b63394d5e757afd9ff14e4a",
+    "tests/scene/test_controls_input_contact_release.gd": "47cb941156dbc0e7de39fd3b9a1f14cf91a3e342610ca2272ff6353f27e10da8"
+  },
+  "source_git_blobs": {
+    "autoload/InputManager.gd": "81501b552fd55213181b1c202826d10dc1a1f242",
+    "scripts/ui/ComputerDesktop.gd": "a554cf3b21feb7ee61261ef61e753f1ee9bbb6fc",
+    "scripts/ui/MinesweeperApp.gd": "8aa1e92069b29069b7fae5b71726e0f5357e602e",
+    "scripts/ui/minesweeper/MinesweeperGrid.gd": "94be9460d3a35b1ebfab325038daa76596e49d63",
+    "scripts/ui/SettingsContent.gd": "95f69ad63191fb76865d006d4521573933e0eaa9",
+    "scripts/ui/SettingsControlsSheet.gd": "8278f2fe7ce04ea05e8e266e5f94f878bd6d6efe",
+    "tests/unit/test_minesweeper_grid.gd": "e8134cb764ba7d9d67e65b5b6d48a04669793eed",
+    "tests/unit/test_minesweeper_panel.gd": "08cf6938fb83384960c7d7510e4db69bbbeb30a8",
+    "tests/unit/test_minesweeper_presentation_port.gd": "1ed432129bbfb184bfeaec4e7592115b42588265",
+    "tests/unit/test_input_contact_generations.gd": "fffa7ad2a4f47cda4956a0c95b6a5b6316379db1",
+    "tests/scene/test_minesweeper_toggle_bindings.gd": "9cd55ccbcf2403284b02636c9083347592dcabb1",
+    "tests/integration/test_minesweeper_desktop_host.gd": "87385298405c2884d0a80642133481a90caff9db",
+    "tests/support/MinesweeperInputFixture.gd": "a44c973111ac1709413a9650299fb97242047b9b",
+    "tests/scene/test_controls_input_contact_release.gd": "e6c75ae1faf8d5f4e5aacf33d3cfe7bf4ebee01d"
+  },
+  "source_hash_scope": "sources hashes tested working bytes; source_git_blobs binds repository-filtered content.",
+  "raw_log_sha256": {
+    ".godot/phase2r_logs/minesweeper-toggle-focused-20260907a.log": "78989d8e3b42a5a4064f49d5c0901e3a10cb737180f671d544ede1c28699c98d",
+    ".godot/phase2r_logs/minesweeper-toggle-focused-20260907b.log": "38c4f2910192b0aefe12e107eed5fb427116a9c025e85ec61e2a139736411c6b",
+    ".godot/phase2r_logs/minesweeper-toggle-broad-20260907a.log": "6a8b3aa336750cbcf965d980e46147d2fcb48901f508ef24c4760f95e649a9aa",
+    ".godot/phase2r_logs/controls-contact-release-red-20260907a.log": "e79f30947d1c4218f5dd26b0ef8d232af55ddee502fd21d786b09f73ee6e294c",
+    ".godot/phase2r_logs/controls-contact-release-green-20260907a.log": "f0f7d0a14b2080e04860f3f452e06954df62b9d3563711f80f281769180b2fd1",
+    ".godot/phase2r_logs/minesweeper-toggle-final-20260907a.log": "276444c24d59fc0ba1d5cf5eda98437a9b9a61ea994a55cacd70858b76b37b09"
+  },
+  "save_schema_changed": false,
+  "new_gameplay_command_owner": false,
+  "new_gpu_typography_captures": 0,
+  "native_input_tests_use_subviewports_and_modal_windows": true,
+  "full_controls_complete": false,
+  "full_minesweeper_complete": false,
+  "overall_ui_goal_complete": false,
+  "player_data_used": false,
+  "merged": false,
+  "pushed": false,
+  "protected_worktrees": [
+    {
+      "path": "C:/Users/glori/Documents/dwm",
+      "head": "35afbcdcf7e12143478080b91a7c6c3079497371",
+      "tracked_dirty_paths": 20
+    },
+    {
+      "path": "C:/Users/glori/Documents/dwm-p2r13-resealed",
+      "head": "1790785bcfd37d2a27a0ecef81b9dc80fe501f71",
+      "tracked_dirty_paths": 47
+    }
+  ],
+  "known_diagnostics": [
+    "Windows certificate-store diagnostic retained",
+    "Dialogic fixture orphan counts retained; no leak-free acceptance claim"
+  ]
+}

@@ -1,0 +1,10 @@
+{
+	"schema_version": 1,
+	"kind": "minesweeper_difficulties",
+	"registry_version": "minesweeper_difficulties_v1",
+	"records": [
+		{"difficulty_id": "beginner", "width": 8, "height": 8, "base_mine_count": 10},
+		{"difficulty_id": "intermediate", "width": 16, "height": 16, "base_mine_count": 40},
+		{"difficulty_id": "expert", "width": 22, "height": 22, "base_mine_count": 99}
+	]
+}

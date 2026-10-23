@@ -1,0 +1,11 @@
+{
+  "archive": "cloud-run126-36959466975-public-inventory.tar.gz",
+  "archive_member_count": 25,
+  "bytes": 223000,
+  "evidence_kind": "bounded-successful-run-audit",
+  "excluded_file_count": 2,
+  "manifest_sha256": "906760739335d4f4d0646a672ff6bf708288c079ae00c61694e60a10c04e3e24",
+  "payload_file_count": 23,
+  "round_trip_verified": true,
+  "sha256": "3ce4d9aedff0701eeec63862500feefb0592427020ec8b39206ae9f5de313740"
+}

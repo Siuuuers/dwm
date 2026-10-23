@@ -1,0 +1,138 @@
+{
+  "schema_version": 1,
+  "status": "read_only_proposal",
+  "source_sha": "a24f71766a624b57601814dda487b53c66518c39",
+  "source8_sha": "856520f09440d9b47cc272de3363009924ffedca",
+  "recommendation": "One captionless native timed-beat pause/cancellation fixture as prerequisite to no-Sylvia Hospital conformance",
+  "primary_bead": "dwm-vky.14",
+  "production_authoring_bead": "dwm-n3h.2",
+  "new_architecture_question_required": false,
+  "source_files": {
+    "docs/agent/2026-09-29-reading-rail-next-slice.md": {
+      "bytes": 30624,
+      "sha256": "5fc415eab6f1a932bac945853176c2881ee30a76bdefe4f17fb56404bb849bed"
+    },
+    "evidence/phase_2r/paused_settings_load_2026_10_02/next-slice-source-review/hospital-next-slice-implementation-plan.md": {
+      "bytes": 11957,
+      "sha256": "2ba6c13cea9d0bf1333c506fd4e462836c0870eaecaa7e54b2c56b767a51645f"
+    },
+    "docs/design/2026-08-22-hospital-ordered-ending-current-v1-ui-disposition.md": {
+      "bytes": 19303,
+      "sha256": "04d6bca2d6a353339c97292e8ac12dc5472fe141ab0a9b4f4df0add97f4ce523"
+    },
+    "docs/design/current-ui/witnessed-scene.md": {
+      "bytes": 131684,
+      "sha256": "93987f914b58e1a4bfc0a55016691d1b38c54aa78c87a8321fe3331c215f441c"
+    },
+    "docs/design/2026-08-13-ordered-ending-host-universal-pause-ui-ux-amendment.md": {
+      "bytes": 72144,
+      "sha256": "ed5fbc3a20b2f1e8625d489b8d09956b434895b1acdfef294c9526b6629854b1"
+    },
+    "scripts/ui/HospitalScene.gd": {
+      "bytes": 9446,
+      "sha256": "d44ea9ac6107605ac682e654afb6980ff759042c6d169db5ad28ff53b3e4fd10"
+    },
+    "scenes/hospital/HospitalScene.tscn": {
+      "bytes": 1333,
+      "sha256": "bd62235c244f0fa7d122203e5dfbb1af4a706e095c60be60aaf3370c371d5e79"
+    },
+    "scripts/application/narrative/DialogicPresentationOwnerAdapter.gd": {
+      "bytes": 20817,
+      "sha256": "30cbb8b4e06aab78ad21b278b7875a9a575054ab05235cb336e3b64d2c58bb57"
+    },
+    "scripts/application/run/HospitalPresentationPort.gd": {
+      "bytes": 24614,
+      "sha256": "c5ab704df2c58e2dff459675d2b5f9c71f2b72c57385720548cacdd67dce3579"
+    },
+    "scripts/narrative/SoloReadingSession.gd": {
+      "bytes": 22344,
+      "sha256": "6d2a2bf887513ab16184a200fadcd9b107e54d260de7553db9add1ca5286f165"
+    },
+    "scripts/narrative/DialogicRuntimeAdapter.gd": {
+      "bytes": 49105,
+      "sha256": "afe719d2762955a3e28523f9cbb08a6df38a98e21ad68dbc65b816b8d52f07b2"
+    },
+    "scripts/narrative/FrozenRunContext.gd": {
+      "bytes": 41009,
+      "sha256": "e2ab39399e15f2c5dc8abaf61f1ff4ad6b9a29bc218df530965a16c700c53780"
+    },
+    "autoload/DialogicBridge.gd": {
+      "bytes": 154132,
+      "sha256": "31448820a4ec9b22979445dc99a419bbf7c7ce4f892ca53bf63d701fcb9905d2"
+    },
+    "scripts/ui/witnessed/SceneArtHoldSurface.gd": {
+      "bytes": 10526,
+      "sha256": "d690e0573cd6f720fd06f3f50bcc8633f5ef92c547aec4ab9eb55e5d35ee0f04"
+    },
+    "scripts/application/ending/DialogicEndingPlaybackPort.gd": {
+      "bytes": 11924,
+      "sha256": "0ee692a313e52e011b15d102ab7ccfdeef41e5a217a525855da3359e233826e6"
+    },
+    "scripts/ui/EndingScene.gd": {
+      "bytes": 14037,
+      "sha256": "e603ef3ad84e1fb50b1bb9e4d47d15afb3471a9c614976059879d47d8509645f"
+    },
+    "addons/dialogic/Modules/Wait/event_wait.gd": {
+      "bytes": 2702,
+      "sha256": "36615fe758680ee4efcacef4f9d244d1900b4b68e6806e1ac0ea6b8956b85fc8"
+    },
+    "addons/dialogic/Modules/Background/event_background.gd": {
+      "bytes": 6178,
+      "sha256": "33a9ae6083ed75044c2ee3286ab9bee594445a2e11be05656b6f3aeb8c73000f"
+    },
+    "addons/dialogic/Resources/event.gd": {
+      "bytes": 19648,
+      "sha256": "3d6c655cd7ae6d338d75c2f1503aa6d8511ea81c315b813e54174fabbec8222d"
+    },
+    "addons/dialogic/Core/DialogicGameHandler.gd": {
+      "bytes": 18668,
+      "sha256": "c05cd2e152b66133f5d1dae647d37b448f92bd9352ad73e73433892c4451a7b7"
+    },
+    "addons/dialogic/Modules/Text/event_text.gd": {
+      "bytes": 23498,
+      "sha256": "c70ec90ac26988a46102857f392499106bcd741cd97e02b14a854dd812835882"
+    },
+    "tests/integration/test_dialogic_live_admission.gd": {
+      "bytes": 43836,
+      "sha256": "41b53747489efbea1b3a85e25fe8b9decbed064c2c1a27827efc7ed2c675d2a9"
+    },
+    "tools/testing/Invoke-CloudTests.ps1": {
+      "bytes": 20582,
+      "sha256": "368f8de6392aa5e174ff7aa9ce77f1a0b6f5496185d64931889390b2a0ed8704"
+    },
+    "dialogic/timelines/en/core/hospital_faint.dtl": {
+      "bytes": 1321,
+      "sha256": "966b8ff9b7f52959ae1bc7a96fef532cfdca07d852c5d3335a5c3557c339491d"
+    },
+    ".beads/issues.jsonl": {
+      "bytes": 2019981,
+      "sha256": "21301e6a6e2fac9bddb9d3e358c398f77c32f8390901fd0b694b20cc7f40baab"
+    }
+  },
+  "committed_beads_snapshot": {
+    "dwm-vky.14": {
+      "title": "Complete Witnessed reading rail and transport owners",
+      "status": "in_progress",
+      "description": "Complete the approved History | Skip | Auto | Save | Load | Next rail in mounted Witnessed scenes using the existing reading apparatus and current-ui/witnessed-scene section 8 plus the all-input amendment. Skip, Auto and Load commands already exist; History, Witnessed Save and exact-variant Next remain incomplete. Lead one durable semantic-session batch shared with eei.10/eei.11 caption acceptance and the Witnessed Quick remainder of eei.5: Solo pre-prose through automatic board/result, post-prose, History, Save and fresh Load. Reuse one ledger/restore owner and current transport custody, then implement exact witnessing/Next in a following bounded slice. Canonical geometry, material, localization and physical/native accessibility acceptance still apply; one Solo fixture does not close Hospital/ending/all-family requirements. Coordinate shared SaveManager/GameState/schema edits with the active checkpoint lead rather than treating old session-specific path exclusions as permanent project blockers. The unshipped-save policy allows an explicit clean successor without mandatory obsolete Run/Profile migration.",
+      "acceptance_criteria": "Six controls in fixed order, localized readable labels and native input across caption/rail focus, release and custody laws; durable Auto/Skip/Next exclusivity; Skip read-only/all-text barriers and cancellation; session History; guarded Auto; Backup Save/Load launch; exact-variant one-shot Next; focused/native evidence and surrounding regression checks. Entire task remains open until all required owners work."
+    },
+    "dwm-n3h.2": {
+      "title": "Complete authored replay selectors and successor reached signatures",
+      "status": "open",
+      "description": "Define the complete immutable presentation signature needed by authored replay prose and staging. Current v1 omits known Ordinary phase/selected reply/witnessed line and Alone cause, with additional Hospital, pair/group and ending insert selectors requiring an actual per-entry author contract where they vary independently. Runtime receipt IDs remain proof/provenance rather than automatic prose-version distinctions. Use the scene-family selector matrix in docs/agent/2026-09-29-continuation-audit.md as inspected evidence, then review the actual selected entries. Under the 2026-09-29 unshipped-save policy, obsolete Profile/signature readers, migrations and legacy-gap/limited-replay UI are optional; a clean successor with explicit version admission is allowed.",
+      "acceptance_criteria": "A reviewed per-entry selector catalogue distinguishes required known fields, immutable entry-derived values and any independently authored inserts. Implement the selected reached-signature successor and actual producer/replay consumers; preserve chronology and exact identity within supported formats. Validate before publication/restore, reject unsupported or incomplete signatures without invented facts, and avoid duplicate variant identities derived only from causal IDs. Verify exact replay/Next behavior at real boundaries; clearly labeled noncanonical content may prove engineering, while production registration requires its actual authored contract. No legacy rescue or migration is required solely for obsolete development records."
+    }
+  },
+  "production_dtl_census": {
+    "english_files": 64,
+    "files_with_explicit_id_tags": 0
+  },
+  "limitations": [
+    "No runtime execution or acceptance",
+    "No production hold duration/prose invented",
+    "No Beads closure or live Dolt query",
+    "Whole broad2 gate still owned by root",
+    "Existing Hospital and native text-reveal acceptance not re-audited"
+  ],
+  "proposal_sha256": "9965207dfee7424c2dcde65db67516fd29ed49b7b0836a69d06504bc47f4d5b1"
+}

@@ -1,0 +1,45 @@
+# Replaceable linear TEST templates. No production story or mandatory board.
+# Registration owns transitions. Day7 ending admission is supplied by A's runtime contract.
+return
+
+label Day1
+TEST Day1 opening. #id:line.Day1.one
+TEST Day1 closing. #id:line.Day1.two
+label Day1.next
+return
+
+label Day2
+TEST Day2 opening. #id:line.Day2.one
+TEST Day2 closing. #id:line.Day2.two
+label Day2.next
+return
+
+label Day3
+TEST Day3 opening. #id:line.Day3.one
+TEST Day3 closing. #id:line.Day3.two
+label Day3.next
+return
+
+label Day4
+TEST Day4 opening. #id:line.Day4.one
+TEST Day4 closing. #id:line.Day4.two
+label Day4.next
+return
+
+label Day5
+TEST Day5 opening. #id:line.Day5.one
+TEST Day5 closing. #id:line.Day5.two
+label Day5.next
+return
+
+label Day6
+TEST Day6 opening. #id:line.Day6.one
+TEST Day6 closing. #id:line.Day6.two
+label Day6.next
+return
+
+label Day7
+TEST Day7 opening. #id:line.Day7.one
+TEST Day7 closing. #id:line.Day7.two
+label Day7.end
+return

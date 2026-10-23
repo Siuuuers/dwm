@@ -1,0 +1,19 @@
+{
+  "localization/ui/en.json": "974018aa29c7e8227842a5fe71660073e4a754b7282c310d08751152bd012cfb",
+  "localization/ui/zh_CN.json": "9d61eb9ad184d4472e74be5f7fdf1553c355a20bb1744631acc81940bb4be085",
+  "localization/ui/zh_HK.json": "313a46e786366694bac5c5305a8d14d393742ab3f906289eb6a05b7f0395da53",
+  "scenes/ui/witnessed/WitnessedCaptionLayer.tscn": "c1a16afb7d40796142c3abd61e697b04511816b51c46c2faa5edb0a6cc81148f",
+  "scenes/ui/witnessed/WitnessedTransportRecovery.tscn": "7dd1d28c6445ac4755b0bae9887332d020fd596b8e1a636c145a0323f71bbfa7",
+  "scripts/ui/witnessed/WitnessedAcceptInput.gd": "cc4e2bad5f34e8a71f6a974181e9c1ee05215f1f696f5622d46e28ada656f37e",
+  "scripts/ui/witnessed/WitnessedAutoController.gd": "7860faed56dfa0553919e1f49a8f4e3026f81016e331027d09fc6f4cc60fb22d",
+  "scripts/ui/witnessed/WitnessedCaptionLayer.gd": "fceb64f64b2cdc6a017b2a7f5703cd03b084f54b6528aad379d9bb992163b255",
+  "scripts/ui/witnessed/WitnessedSkipController.gd": "8006ea356d86f529d61031911d0dce498bad8578c0db5117a11cbdfdb259557d",
+  "scripts/ui/witnessed/WitnessedSourceCanvas.gd": "9e4fdc8e2e166e6fca1669f2972c1ac5e3d118223ffd305cc278d242536b6fca",
+  "scripts/ui/witnessed/WitnessedTransportRecovery.gd": "601c9b4b74fb0a9bbd06c452bca41c5b4a1da29040b0afda00bfec56df7faf69",
+  "tests/integration/test_dialogic_production_skip.gd": "5349a67a68c2a98facfb7c78475ae3b4697161e26309a0040949b2a221f7992a",
+  "tests/manual/witnessed_reading_recovery_capture.gd": "7649636a670837d35eb16b12c1264bd2d5ac77d6f195dee0c658c335b66962ac",
+  "tests/scene/test_witnessed_transport_recovery.gd": "9d408ebe1231b469d9c0852d62a55a13ecbc38d71fe3477721a5ecac87c77aaf",
+  "tests/unit/test_witnessed_auto_controller.gd": "a7acd09bd676406de40ca924bf347a0625d4c4cced22165e22f1c34431e873d6",
+  "tests/unit/test_witnessed_skip_controller.gd": "dd09fd0956d6f364cdb528b65d6b86f710fe06a292f5b081178faf3a89af968b",
+  "tools/testing/Invoke-WitnessedReadingRecoveryAccessibilityAction.ps1": "b0ccc68b5f77aa1cfce7e96d80f47407f6f6dcc3e1e99dd08cf5c25278ee3e37"
+}

@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "before_sha256": "53dc63817f30234db4edc58e6aa24ede90e1afbdf33228a035db108d44b23356",
+  "after_sha256": "e0a2ea315b41c75eb437202a17c46dcc967b1668c2a7dd341050eaba3c278916",
+  "records": 191,
+  "other_records_byte_identical": 190,
+  "unfinished_count": 23,
+  "changed_record": "dwm-vky.14",
+  "changed_fields": [
+    "notes",
+    "updated_at"
+  ],
+  "all_statuses_and_dependencies_unchanged": true,
+  "dolt_synchronization_claimed": false
+}

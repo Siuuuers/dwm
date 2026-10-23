@@ -1,0 +1,196 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/4e34a423-4e95-4019-9919-f913fb29aa45/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+res://tests/unit/test_canonical_writer_compatibility.gd
+* test_preserves_canonical_bytes_and_refusals_for_boundary_and_random_values
+* test_printable_ascii_keys_keep_byte_order_after_string_name_normalization
+* test_control_and_unicode_keys_keep_utf8_order
+    [Failed]:  ARRAY(["", "\n", "Z", "é", "", "", "é", "Ā00", "߿", "ࠀ", "ჿff", "퟿", "", "￿"]) != ARRAY(["", "\n", "Z", "é", "", "", "é", "߿", "ࠀ", "퟿", "", "￿", "Ā00", "ჿff"]).
+    ["", "\n", "Z", "é", "", "", "é", "Ā... "", "￿"] != ["", "\n", "Z", "é", "", "", "é", "߿...0", "ჿff"]  7 of 14 indexes do not match.  JSON member order is preserved by the strict parser
+      at line 40
+* test_sorted_key_order_preserves_first_structural_refusal
+3/4 passed.
+
+
+res://tests/unit/test_strict_json.gd
+* test_strict_parser_accepts_nested_object_and_detaches_values
+* test_strict_parser_rejects_duplicate_keys_before_materialization
+* test_strict_parser_rejects_non_object_root_and_trailing_tokens
+* test_strict_parser_rejects_invalid_strings_and_lone_surrogates
+* test_strict_parser_rejects_bad_numbers_and_integer_overflow
+* test_strict_parser_reports_first_error_location
+* test_canonical_writer_is_stable_across_dictionary_insertion_order
+* test_canonical_writer_preserves_types_and_escapes_controls
+* test_canonical_writer_rejects_unsupported_values_and_invalid_keys
+* test_schema_files_are_strict_json_and_validate_closed_objects
+* test_ascii_span_accepts_every_safe_printable_character_in_keys_and_values
+* test_ascii_spans_resume_after_unicode_and_every_escape
+* test_ascii_span_errors_preserve_exact_line_and_column
+* test_ascii_span_keeps_integer_and_float_types_and_boundaries
+* test_ascii_key_rejects_equivalent_escaped_duplicate_spelling
+* test_canonical_string_fast_return_preserves_entire_safe_ascii_and_empty
+* test_canonical_string_fast_return_exclusions_keep_exact_original_escaping
+* test_complete_ascii_tokens_decode_every_simple_escape_in_a_long_nested_receipt
+* test_closed_ascii_token_preserves_offset_for_following_malformed_member
+* test_escaped_key_spelling_still_collides_after_complete_token_decode
+* test_mixed_raw_unicode_and_unicode_escape_fallback_preserve_values_and_next_error
+* test_complete_raw_unicode_token_preserves_json_boundaries_and_simple_escapes
+* test_closed_raw_unicode_token_counts_codepoints_before_a_malformed_member
+* test_long_heavily_escaped_token_with_raw_unicode_near_the_end_decodes_exactly
+* test_long_unterminated_escaped_unicode_token_retains_exact_fallback_diagnostic
+25/25 passed.
+
+
+res://tests/unit/test_checkpoint_validation_reuse.gd
+* test_reuse_preserves_saved_bytes_and_every_disk_operation_across_three_commits
+* test_detached_candidate_normalization_matches_uncached_bytes_and_physical_trace
+* test_non_object_outgoing_values_match_uncached_failure_without_physical_mutation
+* test_schema_invalid_and_canonical_invalid_candidates_preserve_reference_precedence
+* test_cache_is_exact_text_success_only_and_detaches_nested_results
+* test_corrupt_next_final_and_backup_keep_existing_recovery_results_and_disk_trace
+* test_schema_valid_changed_reread_is_rejected_before_journal_commit
+* test_failed_reread_retry_has_a_fresh_validation_scope_and_commits_once
+* test_prepared_validation_is_not_reused_after_a_process_frame
+* test_new_prepare_and_released_custody_discard_prepared_validation
+* test_committed_documents_are_remembered_bounded_and_forgotten_on_capability_change
+* test_a_failed_commit_proves_nothing
+* test_mutated_outgoing_document_fails_and_retry_revalidates_preimage
+13/13 passed.
+
+
+res://tests/unit/test_save_manager_checkpoint_port.gd
+* test_prepare_consequence_checkpoint_builds_a_candidate_and_receipt
+* test_prepare_consequence_checkpoint_attaches_the_receipt_to_the_admission_candidate
+* test_commit_consequence_checkpoint_retains_and_rereads_in_same_process
+* test_issued_transient_record_cache_is_bounded_and_cleared_with_transient_state
+* test_commit_consequence_checkpoint_rejects_a_receipt_mismatch
+* test_commit_consequence_checkpoint_rejects_malformed_or_uncanonicalizable_records
+* test_commit_consequence_checkpoint_replays_an_identical_rewrite_at_an_occupied_slot
+* test_commit_consequence_checkpoint_rejects_a_different_rewrite_at_an_occupied_slot
+* test_a_committed_admission_checkpoint_reads_back_and_validates
+* test_abandon_pending_consequence_checkpoint_marks_a_pre_admission_checkpoint_abandoned
+* test_abandon_pending_consequence_checkpoint_rejects_a_nonexistent_transaction
+* test_abandon_pending_consequence_checkpoint_rejects_an_already_admitted_transaction
+* test_read_pending_consequence_checkpoint_finds_nothing_when_no_checkpoint_exists
+* test_clear_transient_consequence_checkpoints_is_explicit_and_complete
+* test_clear_transient_consequence_checkpoints_does_not_depend_on_storage_readiness
+* test_fresh_port_ignores_and_preserves_every_legacy_sidecar_artifact
+* test_prepare_consequence_checkpoint_requires_configuration
+* test_checkpoint_content_preimage_is_the_sole_builder
+* test_prepare_consequence_checkpoint_rejects_a_bad_ordinal_stage_pairing_at_ordinal_0
+* test_prepare_consequence_checkpoint_rejects_a_bad_ordinal_stage_pairing_at_ordinal_9
+* test_restart_drops_unfinished_action_but_preserves_completed_post_result_autosave
+21/21 passed.
+
+
+res://tests/unit/test_checkpoint_preparation_retry.gd
+* test_transient_prepare_read_failure_keeps_explicit_retry_and_exact_candidate_without_journal_or_disk_mutation
+* test_corrupt_durable_final_is_refused_with_artifacts_and_journal_preserved
+* test_changed_but_valid_bytes_refuse_current_attempt_then_require_explicit_new_preparation
+3/3 passed.
+
+
+res://tests/unit/test_desktop_continuation_operation_journal.gd
+* test_continuation_journal_skeletons_load
+* test_journal_public_surface_adds_only_explicit_new_run_target_proof
+* test_v4_combines_durable_new_run_targets_with_the_schedule_view_participant
+* test_the_journal_document_and_operation_record_have_exactly_the_frozen_key_sets
+* test_every_legal_and_illegal_stage_transition_is_enforced
+* test_stage_transition_evidence_is_permitted_only_at_the_frozen_edges
+* test_new_run_and_restore_have_mutually_exclusive_source_and_context_fields
+* test_new_run_requires_exactly_empty_dialogic_and_audio_subcontexts
+* test_the_intent_must_be_committed_before_any_allocation_is_recorded
+* test_the_nine_participants_apply_in_exactly_the_frozen_order
+* test_each_participant_receipt_has_identical_replay_and_changed_receipt_conflict
+* test_applying_index_nine_rejects_safely_before_participant_array_access
+* test_a_skipped_participant_index_is_refused
+* test_an_illegal_backward_stage_edge_is_refused
+* test_a_restore_source_that_no_longer_hashes_the_same_is_refused
+* test_a_new_run_context_is_rehashed_without_consulting_the_loader
+* test_identical_replays_return_the_retained_operation_at_every_stage
+* test_every_changed_advancement_family_conflicts_before_storage_mutation
+* test_list_incomplete_returns_only_nonterminal_operations
+* test_startup_reconciles_a_clean_restart_forward
+* test_startup_reconciliation_is_no_op_for_terminal_operations
+* test_startup_rejects_malformed_issued_transaction_receipts
+* test_startup_proves_the_original_restore_source_before_clearing_an_identical_diagnostic
+* test_new_run_proof_clears_diagnostics_at_every_nonterminal_post_allocation_stage
+* test_terminal_stages_refuse_recovery_diagnostics_without_mutation
+* test_restore_diagnostics_clear_at_applying_and_applied_through_real_json_storage
+* test_proof_failure_retains_both_kinds_at_every_nonterminal_post_allocation_stage
+* test_diagnostic_clear_write_failure_retains_and_retries_both_kinds_at_every_stage
+* test_a_restore_pre_allocation_failure_aborts_with_a_typed_failure_and_no_live_mutation
+* test_an_allocated_operation_retains_its_receipt_and_can_never_be_aborted
+* test_an_irreversible_recovery_diagnostic_holds_the_stage_and_never_permits_input
+* test_a_retained_diagnostic_blocks_every_forward_advance_until_reconciled
+* test_committed_new_run_is_forward_only_and_requires_ordered_target_proofs
+* test_exact_text_validation_window_is_bounded_detached_and_never_admits_other_bytes
+34/34 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/unit/test_canonical_writer_compatibility.gd
+    - Outside Tests
+        * [<Node#131231385365>(subsystem_animation.gd)]
+        * [<Node#131248162593>(subsystem_audio.gd)]
+        * [<Node#131264939823>]
+        * [<Node#131281717047>]
+        * [<Node#131298494271>(subsystem_backgrounds.gd)]
+        * [<Node#131835365184>(subsystem_choices.gd)]
+        * [<Timer#131852142401>]
+        * [<Node#131868919618>(subsystem_expression.gd)]
+        * [<Node#131902474055>(subsystem_glossary.gd)]
+        * [<Node#131919251272>(subsystem_history.gd)]
+        * [<Node#131936028489>(subsystem_input.gd)]
+        * [<Timer#131952805706>]
+        * [<Node#131969582923>(subsystem_jump.gd)]
+        * [<Node#131986360140>(subsystem_containers.gd)]
+        * [<Node#132003137357>(subsystem_portraits.gd)]
+        * [<Node#132540008270>(subsystem_save.gd)]
+        * [<Timer#132556785487>]
+        * [<Node#132573562704>(subsystem_settings.gd)]
+        * [<Node#132590339924>(subsystem_styles.gd)]
+        * [<Node#132607117141>(subsystem_text.gd)]
+        * [<Node#132691003226>(subsystem_text_input.gd)]
+        * [<Node#132707780443>(subsystem_variables.gd)]
+        * [<Node#132724557660>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#132741334877>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+res://tests/unit/test_canonical_writer_compatibility.gd
+- test_control_and_unicode_keys_keep_utf8_order
+    [Failed]:  ARRAY(["", "\n", "Z", "é", "", "", "é", "Ā00", "߿", "ࠀ", "ჿff", "퟿", "", "￿"]) != ARRAY(["", "\n", "Z", "é", "", "", "é", "߿", "ࠀ", "퟿", "", "￿", "Ā00", "ჿff"]).
+    ["", "\n", "Z", "é", "", "", "é", "Ā... "", "￿"] != ["", "\n", "Z", "é", "", "", "é", "߿...0", "ჿff"]  7 of 14 indexes do not match.  JSON member order is preserved by the strict parser
+          at line 40
+
+Totals
+------
+Scripts               6
+Tests               100
+Passing Tests        99
+Failing Tests         1
+Asserts           4523/4524
+Orphans              24
+Time              10.83s
+
+
+---- 1 failing tests ----

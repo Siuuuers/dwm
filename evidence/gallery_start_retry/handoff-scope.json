@@ -1,0 +1,23 @@
+{
+  "desktop_all_other_keys_and_bindings_equal": true,
+  "desktop_changed_source_bindings": {
+    "autoload/DialogicBridge.gd": {
+      "after": "ca238c3e899e012c2575dde96a093d38da279cde549aa92d8c1f6036c48d69d1",
+      "before": "6aa9adea0565445938df5e426490cdc5502dfada383cf7ae1a92882c590faa7b"
+    }
+  },
+  "desktop_contract_path": "evidence/phase_2r/handoff/desktop_contract.json",
+  "desktop_only_dialogic_bridge_binding_changed": true,
+  "minesweeper_byte_identical_to_base": true,
+  "minesweeper_contract_path": "evidence/phase_2r/handoff/minesweeper_contract.json",
+  "minesweeper_sha256": "43e2aad2f8681fdeb75404a465ce2c2e63526f11961aeb665fe9b65b94a993ec",
+  "schema_version": 1,
+  "validator_exit_codes": [
+    0,
+    0
+  ],
+  "validator_suite_ids": [
+    "gallery-start-retry-validate-desktop",
+    "gallery-start-retry-validate-minesweeper"
+  ]
+}

@@ -1,0 +1,76 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/click-latency-3/.godot/phase2r_tests/4206c146-edf5-49aa-83f6-4068ffe74a41/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+
+
+res://tests/unit/test_new_run_materials.gd
+* test_complete_material_accepts_raw_profile_source_revision_and_round_trips_detached
+* test_profile_material_allows_only_pending_dark_consumption_and_exact_canonical_output
+* test_legacy_profile_material_whose_validation_reports_migrated_is_admitted_as_normalized
+    [Failed]:  a legacy profile material whose validation reports migrated is admitted as normalized (dwm-6fl)
+      at line 240
+* test_autosave_is_exact_initial_day_one_and_binds_context_and_allocated_identity
+* test_material_and_allocation_shapes_are_closed_and_fingerprint_bound
+4/5 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/unit/test_new_run_materials.gd
+    - Outside Tests
+        * [<Node#131617261336>(subsystem_animation.gd)]
+        * [<Node#131634038564>(subsystem_audio.gd)]
+        * [<Node#131650815796>]
+        * [<Node#131667593021>]
+        * [<Node#131684370243>(subsystem_backgrounds.gd)]
+        * [<Node#132221241156>(subsystem_choices.gd)]
+        * [<Timer#132238018373>]
+        * [<Node#132254795590>(subsystem_expression.gd)]
+        * [<Node#132288350027>(subsystem_glossary.gd)]
+        * [<Node#132305127244>(subsystem_history.gd)]
+        * [<Node#132321904461>(subsystem_input.gd)]
+        * [<Timer#132338681678>]
+        * [<Node#132355458895>(subsystem_jump.gd)]
+        * [<Node#132372236112>(subsystem_containers.gd)]
+        * [<Node#132389013329>(subsystem_portraits.gd)]
+        * [<Node#132925884242>(subsystem_save.gd)]
+        * [<Timer#132942661459>]
+        * [<Node#132959438676>(subsystem_settings.gd)]
+        * [<Node#132976215896>(subsystem_styles.gd)]
+        * [<Node#132992993113>(subsystem_text.gd)]
+        * [<Node#133076879198>(subsystem_text_input.gd)]
+        * [<Node#133093656415>(subsystem_variables.gd)]
+        * [<Node#133110433632>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#133127210849>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+res://tests/unit/test_new_run_materials.gd
+- test_legacy_profile_material_whose_validation_reports_migrated_is_admitted_as_normalized
+    [Failed]:  a legacy profile material whose validation reports migrated is admitted as normalized (dwm-6fl)
+          at line 240
+
+Totals
+------
+Scripts               1
+Tests                 5
+Passing Tests         4
+Failing Tests         1
+Asserts           30/31
+Orphans              24
+Time              0.519s
+
+
+---- 1 failing tests ----

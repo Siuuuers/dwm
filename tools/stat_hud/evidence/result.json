@@ -1,0 +1,27 @@
+{
+  "passed": true,
+  "scope": "Actual StatHud scene, bundled fonts and production presenter with injected read-only GameState-shaped fixture, locale and preference fixtures. Verifies public clamping/non-disclosure, signals, localized layout and owner nonmutation. Headless Control geometry, not GPU or physical assistive-technology certification; no production autoloads or player storage.",
+  "log": "tools/stat_hud/evidence/verification.log",
+  "known_environment_diagnostic": "Windows root certificate store inaccessible; only that exact diagnostic is allowed and remains logged.",
+  "sources": {
+    "assets/ui/contacts/fonts/SOURCE-HAN-LICENSE.txt": "fcac737e761ec63dbfbdce11030a1780161920d80315edba9c8beff1c2bac5a2",
+    "assets/ui/contacts/fonts/SOURCE-SANS-LICENSE.md": "56af9b9c6715597e458284a474dc118a50a4150e9d547c70f7b4a33c3e6a9328",
+    "assets/ui/contacts/fonts/source-han-sans-hc-regular.otf": "b2ec9fbf96fc77d9d471a1e05d9dfa208c1e8ba539c394519b8d776b972ba17b",
+    "assets/ui/contacts/fonts/source-han-sans-sc-regular.otf": "f1d8611151880c6c336aabeac4640ef434fa13cbfbf1ffe82d0a71b2a5637256",
+    "assets/ui/contacts/fonts/source-sans-3-regular.ttf.woff2": "53492fb3a0def77354f166a55d09b63a10855e91c206c7620a81cf56e97f8ec3",
+    "assets/ui/contacts/fonts/sources.json": "f7ba944cccbb0529e64bbe7a5e09403e21625adbc114cd382ee0758e3a9518a3",
+    "scenes/shared/StatHud.tscn": "533157f2fd8ab92f3e0b5fb31ed8a8a62cb55f72376b63eb12457fbb84cf67a6",
+    "scripts/ui/StatHud.gd": "396b2824e611dbde4d3e2615f1b84035308b7a67a501bdfc294d70eb8ab32ed4",
+    "scripts/ui/desktop/DesktopTheme.gd": "d62f89d1fec787c70028c0335956da779cf9bb2f879481797e653471ab4a3a4c",
+    "tests/stat_hud/test_stat_hud.gd": "7ce58042afb7e1618aae602aa754773f0f0af46e9ae54a1dccd234ffe38405fa",
+    "tools/backup_ui/verify.py": "b3295a039629db1c1b3429b22b7627badac117b6200eada25d02a75644d950e5",
+    "tools/stat_hud/verify.py": "41dbe070b5479524f32bfa6352b25055b1a915efd570a0f6205f0c52eea3e8d4"
+  },
+  "test_summaries": [
+    {
+      "checks": 57,
+      "failures": [],
+      "suite": "stat_hud"
+    }
+  ]
+}

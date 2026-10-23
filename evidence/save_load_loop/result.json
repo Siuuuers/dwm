@@ -1,0 +1,91 @@
+{
+  "status": "real_startup_save_load_loop_verified",
+  "date": "2026-09-05",
+  "worktree": "C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\contacts-ui-build",
+  "base_commit": "1790785bcfd37d2a27a0ecef81b9dc80fe501f71",
+  "checks": {
+    "loop": {
+      "passed": true,
+      "receipt": "loop-result.json",
+      "receipt_sha256": "5e9392b61cdfb001c4a19707a53e7fa69a120c871c80e11224b8a8b03573392f",
+      "log": "loop.log",
+      "log_sha256": "7eef884eed551f4678cfc003143ec3963548cdd045ce8154f8e58a563b67f589",
+      "source_bindings_total": 2395,
+      "source_bindings_matched": 2395,
+      "changed_collateral_sources": [],
+      "scope": "Actual project main_scene, production autoloads and owners; one temporary observer autoload. Isolated final-mode startup and observer-defined save/load checks, headless GL compatibility; no GPU raster proof.",
+      "checks_passed": 41
+    },
+    "ui": {
+      "passed": true,
+      "receipt": "ui-result.json",
+      "receipt_sha256": "0a7ef49309f0fabe21a2011ea38fdcec7c79c381d5bfa205e33525cb36a2074d",
+      "log": "ui.log",
+      "log_sha256": "889b0d945c79d18c2edcc7f5a3e517b6f8acfe5d17feeeef0091a9316db442c8",
+      "source_bindings_total": 55,
+      "source_bindings_matched": 55,
+      "changed_collateral_sources": [],
+      "scope": "Real Backup/shared-shell scenes with fake external operation owners. Headless layout and interaction; no configured game autoloads, user persistence, real backup transactions or GPU raster proof.",
+      "checks_passed": 2216
+    },
+    "operations": {
+      "passed": true,
+      "receipt": "operations-result.json",
+      "receipt_sha256": "c62779cc7b3f78e51f6f08227ba220bc6df6c1459a98868bcfa6d1b78f773225",
+      "log": "operations.log",
+      "log_sha256": "c41817865592e206aeb1c421a87a946abdcdd0ff70096c56554e05476bdc2a58",
+      "source_bindings_total": 348,
+      "source_bindings_matched": 348,
+      "changed_collateral_sources": [],
+      "scope": "Real SaveManager and BackupPresentationPort over in-memory FileOps, real journal/schema/restore transaction; external presentation owners faked; no user saves.",
+      "gut_tests_passed": 45,
+      "gut_assertions": 478,
+      "focused_marker": "BACKUP_OPERATIONS_PASS"
+    },
+    "capture": {
+      "passed": true,
+      "receipt": "capture-result.json",
+      "receipt_sha256": "89b4ff8c536fb8d4ea6a1b7c71448dcfd2d743e4feabb148052d60b80e36550b",
+      "log": "capture.log",
+      "log_sha256": "817d3bf257e58434129dfae73ba31f405bf9398cef16f10eed2f768fcd1e038a",
+      "source_bindings_total": 127,
+      "source_bindings_matched": 126,
+      "changed_collateral_sources": [
+        "autoload/GameState.gd"
+      ],
+      "scope": "Real SaveManager, journal, schema and JsonFileStorage over in-memory FileOps; injected capture source. No Bootstrap startup or physical scene coverage; no user saves.",
+      "checks_passed": 136,
+      "collateral_disposition": "GameState is copied transitively but not instantiated by this injected-source fixture. Current owner and full-loop receipts cover its changed restore behavior. Original capture evidence is retained without relabeling it as a new run."
+    }
+  },
+  "independent_review": {
+    "path": "review.md",
+    "sha256": "81acf4fcd6ad6269f528a550555bdacf6a15104d5b37e2b1a0fc154adb390343",
+    "remaining_material_findings": 0
+  },
+  "verified_behavior": [
+    "Original Menu and all production autoloads reach final Bootstrap readiness.",
+    "New Acc and existing Opening Continue enter the actual Main desktop.",
+    "Real Backup Save writes a schema-valid fresh manual_save checkpoint to proven isolated disk storage.",
+    "Registered money:+5 transaction and visiting Settings produce unsaved changes.",
+    "Cancel-first Load cancellation and changed-file-revision rejection preserve live state and scene.",
+    "Fresh confirmed Load publishes exactly once, restores saved gameplay and removes unsaved transaction bookkeeping.",
+    "A distinct ready Main scene reopens a usable Backup app; Home navigation works."
+  ],
+  "limits": [
+    "Headless UI signals and layout checks; no physical input, accessibility certification or GPU raster proof.",
+    "Existing Opening timeline is draft comments and return; no full authored narrative claim.",
+    "Title Log in and reopening a save after process restart are not implemented or verified by this milestone.",
+    "Inherited shutdown resource diagnostics match an observer-free baseline exactly; this is not leak-free shutdown.",
+    "Journal commits before participant finalizers; general journal rollback for all late-finalizer failures remains unproven.",
+    "Nonempty narrative variables are not tested because the current registry contains no registered IDs.",
+    "Changes remain uncommitted in the isolated worktree; no formal UI-00/UI-00R cutover or whole-game completion claim."
+  ],
+  "preservation_readback": {
+    "root_head": "35afbcdcf7e12143478080b91a7c6c3079497371",
+    "destination_tip": "1790785bcfd37d2a27a0ecef81b9dc80fe501f71",
+    "authority_candidate_head": "1790785bcfd37d2a27a0ecef81b9dc80fe501f71",
+    "authority_candidate_clean": true,
+    "recovery_spec_sha256": "15fda5e408d89661d768dba2da2257ab6b8f6edf4e583928654514b28f5a1652"
+  }
+}

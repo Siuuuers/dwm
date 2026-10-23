@@ -1,0 +1,84 @@
+--- a/tools/testing/Invoke-ExportedGameplay.ps1
++++ b/tools/testing/Invoke-ExportedGameplay.ps1
+@@ -114,6 +114,30 @@
+     $events.Add([ordered]@{ utc = [DateTime]::UtcNow.ToString('o'); kind = $Kind; data = $Data })
+     Write-Json (Join-Path $output 'events.json') $events.ToArray()
+ }
++# ending-title-timing-v1: cached identity only; no provider/native observation.
++$script:endingTitleWaitTrace = $false
++function Record-EndingTiming([string]$Kind, $WaitWatch = $null) {
++    $tick = [Diagnostics.Stopwatch]::GetTimestamp()
++    $utc = [DateTime]::UtcNow
++    $sample = [ordered]@{
++        schema=1; source='ending-title-timing-v1'; observed_utc=$utc.ToString('o');
++        monotonic_ticks=$tick; monotonic_frequency=[Diagnostics.Stopwatch]::Frequency;
++        pid=$result.process.pid; hwnd=$null; hwnd_source='unavailable';
++        journey_deadline_seconds=$JourneyTimeoutSeconds
++    }
++    if ($result.Contains('native_baseline_handle')) {
++        $sample.hwnd = $result.native_baseline_handle
++        $sample.hwnd_source = 'cached-native-baseline'
++    }
++    if ($null -ne $WaitWatch) {
++        $sample.wait_elapsed_ticks = $WaitWatch.ElapsedTicks
++        $sample.wait_deadline_seconds = $StepTimeoutSeconds
++        $sample.wait_deadline_ticks_from_origin = [long]($StepTimeoutSeconds * [Diagnostics.Stopwatch]::Frequency)
++        # Adjacent reads are not atomic: retain raw samples; do not claim an exact UTC deadline.
++        $sample.clock_sample_note = 'monotonic then UTC then wait elapsed; adjacent non-atomic samples'
++    }
++    Record $Kind $sample
++}
+ function Check-Live {
+     Require ($clock.Elapsed.TotalSeconds -lt $JourneyTimeoutSeconds) 'JOURNEY_TIMEOUT'
+     Require ($null -ne $child -and -not $child.HasExited) 'EXPORTED_PROCESS_EXITED_EARLY'
+@@ -244,6 +268,8 @@
+ }
+ function Wait-One([string]$Name, [scriptblock]$Find) {
+     $watch = [Diagnostics.Stopwatch]::StartNew()
++    $endingTitleTrace = $TraceEndingActions -and $script:endingTitleWaitTrace -and $Mode -eq 'Load' -and $Name -ceq 'New Acc'
++    if ($endingTitleTrace) { Record-EndingTiming 'ending-title-wait-start' $watch }
+     $trace = $TraceDay5 -and -not $script:day5TraceConsumed -and $Mode -eq 'Load' -and $Name -ceq 'TEST Day5 opening.'
+     $nativeGate = $NativeReadyCaptions -and $Mode -eq 'Load' -and
+         ($Name -cmatch '^TEST Day[5-7] (opening|closing)\.$' -or $Name -ceq 'TEST Seven-day ending.')
+@@ -315,6 +341,7 @@
+         }
+         throw "UIA_UNAVAILABLE_OR_TIMEOUT: $Name"
+     } finally {
++        if ($endingTitleTrace) { Record-EndingTiming 'ending-title-wait-end' $watch }
+         if ($nativeGate) {
+             $finish = @{ name=$Name; elapsed_seconds=$watch.Elapsed.TotalSeconds }
+             try { $finish.cpu_delta_seconds = $child.TotalProcessorTime.TotalSeconds-$cpuStart }
+@@ -405,6 +432,9 @@
+         $invokeClock = [Diagnostics.Stopwatch]::StartNew()
+     }
+     ([Windows.Automation.InvokePattern]$pattern).Invoke()
++    if ($TraceEndingActions -and $Mode -eq 'Load' -and $Purpose -ceq 'finish ending') {
++        Record-EndingTiming 'finish-ending-invoke-return'
++    }
+     if ($timedWitness) {
+         Record 'save-invoke-return' @{ elapsed_seconds=$invokeClock.Elapsed.TotalSeconds }
+         Observe-Native 'after-save-invoke' $invokeClock.Elapsed.TotalSeconds
+@@ -779,6 +809,12 @@
+     if ($Accessibility -eq 'Always') { $start.ArgumentList.Add('--accessibility'); $start.ArgumentList.Add('always') }
+     if ($Audio -eq 'Dummy') { $start.ArgumentList.Add('--audio-driver'); $start.ArgumentList.Add('Dummy') }
+     foreach ($name in @($start.Environment.Keys | Where-Object { $_ -like 'DWM_*' })) { [void]$start.Environment.Remove($name) }
++    if ($TraceEndingActions -and $Mode -eq 'Load') {
++        $titleTimingPath = [Environment]::GetEnvironmentVariable('DWM_TITLE_TIMING_PATH')
++        if (-not [string]::IsNullOrWhiteSpace($titleTimingPath)) {
++            $start.Environment['DWM_TITLE_TIMING_PATH'] = $titleTimingPath
++        }
++    }
+     if ($ProfileSaveLoad) {
+         # Existing read-only timing hooks in the retained package; no fixture flags.
+         $start.Environment['DWM_SAVE_LOAD_PROFILE'] = '1'
+@@ -841,7 +877,9 @@
+         }
+         Advance $previous 'TEST Seven-day ending.' 'ending'
+         Invoke-UI (Caption 'TEST Seven-day ending.') 'finish ending'
+-        $null = Button 'New Acc'
++        $script:endingTitleWaitTrace = [bool]$TraceEndingActions
++        try { $null = Button 'New Acc' }
++        finally { $script:endingTitleWaitTrace = $false }
+         Capture 'ending-return-title'
+         $completed = Snapshot (Read-Json (Join-Path $dataRoot 'saves/autosave.json'))
+         Require ($completed.lifecycle.state -ceq 'COMPLETED' -and $completed.lifecycle.ending_plan.playback_stage -ceq 'GALLERY_RECORDED') 'ENDING_NOT_DURABLY_COMPLETED'

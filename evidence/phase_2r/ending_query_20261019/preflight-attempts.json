@@ -1,0 +1,29 @@
+[
+  {
+    "run": 39221220266,
+    "archive": "query-attempt1.zip",
+    "sha256": "c65893da5308a75304f5de1eb4ea1a97a9cf5bef8d469921b4b604cb735c4b67",
+    "bytes": 593617,
+    "entries": 129,
+    "manifest_verified": 128,
+    "outcome": "failed focused harness test before SDK/engine execution"
+  },
+  {
+    "run": 39221542193,
+    "archive": "query-attempt2.zip",
+    "sha256": "550d9baa05d7fb1b7f33d75ddecbdda6c5bfb9077370b07cbe3643a3977d48f8",
+    "bytes": 595528,
+    "entries": 130,
+    "manifest_verified": 129,
+    "outcome": "failed focused harness test before SDK/engine execution"
+  },
+  {
+    "run": 39221835797,
+    "archive": "query-attempt3.zip",
+    "sha256": "72b4e5053e47e56917bb16edfdfdee2f5cc796385e232e3e3f051870f5e82f77",
+    "bytes": 807184,
+    "entries": 167,
+    "manifest_verified": 166,
+    "outcome": "SDK compiled; consumer 7 passed; query 7 passed / 1 test-only count assumption failed; engine never started"
+  }
+]

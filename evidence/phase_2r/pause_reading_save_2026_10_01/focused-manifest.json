@@ -1,0 +1,1878 @@
+{
+  "artifacts": [
+    {
+      "artifact_id": 11167639680,
+      "created_at": "2026-10-01T14:17:20Z",
+      "github_digest": "sha256:17931b73572a7c5d18d473546ee5039f0d65b250d9ebf66dd1cce1ac90394667",
+      "local_zip_basename": "artifact-11167639680.zip",
+      "name": "public-surfaces-36874751767-1",
+      "run_id": 36874751767,
+      "source_sha": "0b51ad0f8246b202d211e00b6a2a50668c3a5f42",
+      "zip_bytes": 140738,
+      "zip_sha256": "17931b73572a7c5d18d473546ee5039f0d65b250d9ebf66dd1cce1ac90394667"
+    },
+    {
+      "artifact_id": 11168701128,
+      "created_at": "2026-10-01T14:15:48Z",
+      "github_digest": "sha256:cbbe530d580f8227dd37c8559a884fef5b59331d27948796b1b9d2c4c128d80a",
+      "local_zip_basename": "run96-reading-rail.zip",
+      "name": "reading-rail-36874751767-1",
+      "run_id": 36874751767,
+      "source_sha": "0b51ad0f8246b202d211e00b6a2a50668c3a5f42",
+      "zip_bytes": 736081,
+      "zip_sha256": "cbbe530d580f8227dd37c8559a884fef5b59331d27948796b1b9d2c4c128d80a"
+    },
+    {
+      "artifact_id": 11168677464,
+      "created_at": "2026-10-01T14:15:48Z",
+      "github_digest": "sha256:1aa08e4b16e50900fdfba1fdd8ac0c241797b0c3798343fba0e01f469dbd0c14",
+      "local_zip_basename": "artifact-11168677464.zip",
+      "name": "windows-checkpoint_diagnostics-36874751767-1",
+      "run_id": 36874751767,
+      "source_sha": "0b51ad0f8246b202d211e00b6a2a50668c3a5f42",
+      "zip_bytes": 602609,
+      "zip_sha256": "1aa08e4b16e50900fdfba1fdd8ac0c241797b0c3798343fba0e01f469dbd0c14"
+    },
+    {
+      "artifact_id": 11169110008,
+      "created_at": "2026-10-01T14:17:05Z",
+      "github_digest": "sha256:8a7e7e140f3cba31cea29c315a39acd381d2e07f3ba3e6310a40afd84c8ef963",
+      "local_zip_basename": "artifact-11169110008.zip",
+      "name": "windows-dating-36874751767-1",
+      "run_id": 36874751767,
+      "source_sha": "0b51ad0f8246b202d211e00b6a2a50668c3a5f42",
+      "zip_bytes": 584360,
+      "zip_sha256": "8a7e7e140f3cba31cea29c315a39acd381d2e07f3ba3e6310a40afd84c8ef963"
+    },
+    {
+      "artifact_id": 11168825725,
+      "created_at": "2026-10-01T14:16:06Z",
+      "github_digest": "sha256:495a93d4d5dd894cdb54f228dc2e0890ac7f1fda8b5c6b3fe43cfaf6773889fc",
+      "local_zip_basename": "artifact-11168825725.zip",
+      "name": "windows-persistence-36874751767-1",
+      "run_id": 36874751767,
+      "source_sha": "0b51ad0f8246b202d211e00b6a2a50668c3a5f42",
+      "zip_bytes": 132246,
+      "zip_sha256": "495a93d4d5dd894cdb54f228dc2e0890ac7f1fda8b5c6b3fe43cfaf6773889fc"
+    },
+    {
+      "artifact_id": 11167979893,
+      "created_at": "2026-10-01T14:17:13Z",
+      "github_digest": "sha256:8920536a9d32353dd392b5bbf75dfc2d531af2fa172ba721ad8e85d20eec75d5",
+      "local_zip_basename": "artifact-11167979893.zip",
+      "name": "windows-reading_delivery-36874751767-1",
+      "run_id": 36874751767,
+      "source_sha": "0b51ad0f8246b202d211e00b6a2a50668c3a5f42",
+      "zip_bytes": 115152,
+      "zip_sha256": "8920536a9d32353dd392b5bbf75dfc2d531af2fa172ba721ad8e85d20eec75d5"
+    },
+    {
+      "artifact_id": 11169310527,
+      "created_at": "2026-10-01T14:20:27Z",
+      "github_digest": "sha256:62f00eb1781d911d133dc9203cfab75234f8f80fc624b7351895a8230257e5f9",
+      "local_zip_basename": "run96-settings.zip",
+      "name": "windows-settings-36874751767-1",
+      "run_id": 36874751767,
+      "source_sha": "0b51ad0f8246b202d211e00b6a2a50668c3a5f42",
+      "zip_bytes": 2601671,
+      "zip_sha256": "62f00eb1781d911d133dc9203cfab75234f8f80fc624b7351895a8230257e5f9"
+    },
+    {
+      "artifact_id": 11169961035,
+      "created_at": "2026-10-01T14:26:32Z",
+      "github_digest": "sha256:d269e44eaa4eb5f05fe75d6779051f2603bc71ca2027eec5ebe0f4ee9e18c369",
+      "local_zip_basename": "public-surfaces-36875788835-1.zip",
+      "name": "public-surfaces-36875788835-1",
+      "run_id": 36875788835,
+      "source_sha": "60cd00e37d5430a17e13ddc3178dbaa730de1f7d",
+      "zip_bytes": 140789,
+      "zip_sha256": "d269e44eaa4eb5f05fe75d6779051f2603bc71ca2027eec5ebe0f4ee9e18c369"
+    },
+    {
+      "artifact_id": 11170100341,
+      "created_at": "2026-10-01T14:24:12Z",
+      "github_digest": "sha256:fd6ab4dbd7c8476fb0dae9eb6f02220ae8477cbb418ef7c4f66da376574b674e",
+      "local_zip_basename": "run97-reading-rail.zip",
+      "name": "reading-rail-36875788835-1",
+      "run_id": 36875788835,
+      "source_sha": "60cd00e37d5430a17e13ddc3178dbaa730de1f7d",
+      "zip_bytes": 4156247,
+      "zip_sha256": "fd6ab4dbd7c8476fb0dae9eb6f02220ae8477cbb418ef7c4f66da376574b674e"
+    },
+    {
+      "artifact_id": 11169646178,
+      "created_at": "2026-10-01T14:25:09Z",
+      "github_digest": "sha256:504e42842094e853294034a203f289caba998f74ba081c4ab42ddef2ed765717",
+      "local_zip_basename": "run97-reading-tests.zip",
+      "name": "windows-reading_delivery-36875788835-1",
+      "run_id": 36875788835,
+      "source_sha": "60cd00e37d5430a17e13ddc3178dbaa730de1f7d",
+      "zip_bytes": 114932,
+      "zip_sha256": "504e42842094e853294034a203f289caba998f74ba081c4ab42ddef2ed765717"
+    }
+  ],
+  "bundle": "dwm-run96-run97-focused-evidence.tar.gz",
+  "counts": {
+    "gut_xml": 10,
+    "independent_audits": 3,
+    "job_logs": 10,
+    "run97_pngs": 9
+  },
+  "excluded_extracted_files": [
+    {
+      "bytes": 557919,
+      "path": "run96/artifacts/public-surfaces-36874751767-1/ci/public-surfaces/game_state_surface.json",
+      "reason": "Generated public inventory is committed separately with its source-bound canonical evidence.",
+      "sha256": "566eda0765f6a76d440c7b36eeac14940eafe35efa083fa4153dcfc2d0db0921"
+    },
+    {
+      "bytes": 145570,
+      "path": "run96/artifacts/public-surfaces-36874751767-1/ci/public-surfaces/save_manager_surface.json",
+      "reason": "Generated public inventory is committed separately with its source-bound canonical evidence.",
+      "sha256": "0704bd15cdd45e48ce7350a31ffe595efbf535a4ea5f9f030d9ae38a71900755"
+    },
+    {
+      "bytes": 6628,
+      "path": "run96/artifacts/reading-rail-36874751767-1/6db84c6f-81cf-4fc9-ac10-52de85ea82f1/captures/01-title.png",
+      "reason": "Run96 failed before new Pause proof; retain its report/trace/logs, with complete successful PNG set from Run97.",
+      "sha256": "d8db64daaacd203d93ec6c4856f3b675a1f96c7e0ca811215590a76c6c6cefdf"
+    },
+    {
+      "bytes": 353670,
+      "path": "run96/artifacts/reading-rail-36874751767-1/6db84c6f-81cf-4fc9-ac10-52de85ea82f1/captures/02-desktop.png",
+      "reason": "Run96 failed before new Pause proof; retain its report/trace/logs, with complete successful PNG set from Run97.",
+      "sha256": "4696b23cfafc68123dbd2855a77265674f953eb3e5fd0c8d01f91963f23b7bdf"
+    },
+    {
+      "bytes": 355605,
+      "path": "run96/artifacts/reading-rail-36874751767-1/6db84c6f-81cf-4fc9-ac10-52de85ea82f1/captures/03-minesweeper.png",
+      "reason": "Run96 failed before new Pause proof; retain its report/trace/logs, with complete successful PNG set from Run97.",
+      "sha256": "7c6c5f490c303563a6829780c9408a0b569433d65a9012fc1b775c5222ec79ab"
+    },
+    {
+      "bytes": 557968,
+      "path": "run97/artifacts/public-surfaces-36875788835-1/ci/public-surfaces/game_state_surface.json",
+      "reason": "Generated public inventory is committed separately with its source-bound canonical evidence.",
+      "sha256": "9ec90b06d45a6f6589b07ea8f210155229ebbf7cfb3edbf577252c5849d67807"
+    },
+    {
+      "bytes": 145570,
+      "path": "run97/artifacts/public-surfaces-36875788835-1/ci/public-surfaces/save_manager_surface.json",
+      "reason": "Generated public inventory is committed separately with its source-bound canonical evidence.",
+      "sha256": "0704bd15cdd45e48ce7350a31ffe595efbf535a4ea5f9f030d9ae38a71900755"
+    }
+  ],
+  "excluded_metadata": "downloaded-*.json are excluded because download responses may contain signed URLs; sanitized ZIP basename/digest provenance is recorded above.",
+  "payload_bytes": 80654361,
+  "payload_file_count": 148,
+  "payload_files": [
+    {
+      "bytes": 6644,
+      "path": "run96/artifacts-api.json",
+      "provenance": {
+        "github_run_id": 36874751767,
+        "source": "raw downloaded API response"
+      },
+      "sha256": "8480c34ca300feb8f160f4848411a4cf24195cb5259d5acfb6dcb4e2c64374ba"
+    },
+    {
+      "bytes": 203073,
+      "path": "run96/artifacts/public-surfaces-36874751767-1/ci/import.log",
+      "provenance": {
+        "artifact_id": 11167639680,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/import.log",
+        "zip_sha256": "17931b73572a7c5d18d473546ee5039f0d65b250d9ebf66dd1cce1ac90394667"
+      },
+      "sha256": "3dba59d33e77d34eab80cabdc6504de4a566263b941551c44a0af7543b5a76bc"
+    },
+    {
+      "bytes": 658,
+      "path": "run96/artifacts/public-surfaces-36874751767-1/ci/isolation-timeout.jsonl",
+      "provenance": {
+        "artifact_id": 11167639680,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/isolation-timeout.jsonl",
+        "zip_sha256": "17931b73572a7c5d18d473546ee5039f0d65b250d9ebf66dd1cce1ac90394667"
+      },
+      "sha256": "438c1a6f599d54f2796367312cbf7209a4a703f9fe478a55224cd50c5fb39daf"
+    },
+    {
+      "bytes": 218006,
+      "path": "run96/artifacts/public-surfaces-36874751767-1/ci/public-surfaces/fixture-version-census.json",
+      "provenance": {
+        "artifact_id": 11167639680,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/public-surfaces/fixture-version-census.json",
+        "zip_sha256": "17931b73572a7c5d18d473546ee5039f0d65b250d9ebf66dd1cce1ac90394667"
+      },
+      "sha256": "8f26d62e8fd1575b7880fb669fecf6b53e55150261ef27a8f8572925b0c34718"
+    },
+    {
+      "bytes": 997,
+      "path": "run96/artifacts/public-surfaces-36874751767-1/ci/public-surfaces/game_state-check.jsonl",
+      "provenance": {
+        "artifact_id": 11167639680,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/public-surfaces/game_state-check.jsonl",
+        "zip_sha256": "17931b73572a7c5d18d473546ee5039f0d65b250d9ebf66dd1cce1ac90394667"
+      },
+      "sha256": "ccd839019c0b5bccbbd5430f22fa51de5ea9343eff34da56ab3ed0e00d1581e8"
+    },
+    {
+      "bytes": 996,
+      "path": "run96/artifacts/public-surfaces-36874751767-1/ci/public-surfaces/game_state-generate.jsonl",
+      "provenance": {
+        "artifact_id": 11167639680,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/public-surfaces/game_state-generate.jsonl",
+        "zip_sha256": "17931b73572a7c5d18d473546ee5039f0d65b250d9ebf66dd1cce1ac90394667"
+      },
+      "sha256": "d82263192a69a1b3c4b01b7886f527a6e170004e57b1831a1d2c99a62a6396b8"
+    },
+    {
+      "bytes": 563,
+      "path": "run96/artifacts/public-surfaces-36874751767-1/ci/public-surfaces/retirement-audit.json",
+      "provenance": {
+        "artifact_id": 11167639680,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/public-surfaces/retirement-audit.json",
+        "zip_sha256": "17931b73572a7c5d18d473546ee5039f0d65b250d9ebf66dd1cce1ac90394667"
+      },
+      "sha256": "5f03a44f846ee0cacd7cbd930ffa1447c2e8f6cf469ab40c44ca9972d362bc66"
+    },
+    {
+      "bytes": 1009,
+      "path": "run96/artifacts/public-surfaces-36874751767-1/ci/public-surfaces/save_manager-check.jsonl",
+      "provenance": {
+        "artifact_id": 11167639680,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/public-surfaces/save_manager-check.jsonl",
+        "zip_sha256": "17931b73572a7c5d18d473546ee5039f0d65b250d9ebf66dd1cce1ac90394667"
+      },
+      "sha256": "c1d2e4aea128683831f073e5a53944b90866ad8381cdafead0570d37535dfd90"
+    },
+    {
+      "bytes": 1008,
+      "path": "run96/artifacts/public-surfaces-36874751767-1/ci/public-surfaces/save_manager-generate.jsonl",
+      "provenance": {
+        "artifact_id": 11167639680,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/public-surfaces/save_manager-generate.jsonl",
+        "zip_sha256": "17931b73572a7c5d18d473546ee5039f0d65b250d9ebf66dd1cce1ac90394667"
+      },
+      "sha256": "6115383ebaf8f05321c52a0a311ab997dc093a4a4c852320b192f0cda7780abf"
+    },
+    {
+      "bytes": 758,
+      "path": "run96/artifacts/public-surfaces-36874751767-1/ci/public_surfaces.jsonl",
+      "provenance": {
+        "artifact_id": 11167639680,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/public_surfaces.jsonl",
+        "zip_sha256": "17931b73572a7c5d18d473546ee5039f0d65b250d9ebf66dd1cce1ac90394667"
+      },
+      "sha256": "d174c97b2e674c0bbb5d61c0613ede2425f41e06b116f822088b9f4539e09659"
+    },
+    {
+      "bytes": 2502,
+      "path": "run96/artifacts/public-surfaces-36874751767-1/ci/public_surfaces.xml",
+      "provenance": {
+        "artifact_id": 11167639680,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/public_surfaces.xml",
+        "zip_sha256": "17931b73572a7c5d18d473546ee5039f0d65b250d9ebf66dd1cce1ac90394667"
+      },
+      "sha256": "68e502561816628ce314f46a07f2d4de0689d6b1c9df641453b319db6b78fa2b"
+    },
+    {
+      "bytes": 105,
+      "path": "run96/artifacts/public-surfaces-36874751767-1/phase2r_logs/cloud-isolation-timeout.log",
+      "provenance": {
+        "artifact_id": 11167639680,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "phase2r_logs/cloud-isolation-timeout.log",
+        "zip_sha256": "17931b73572a7c5d18d473546ee5039f0d65b250d9ebf66dd1cce1ac90394667"
+      },
+      "sha256": "024608dce65ad25e4cf6cf14cda110234e45b506858606453dbab71388889192"
+    },
+    {
+      "bytes": 151,
+      "path": "run96/artifacts/public-surfaces-36874751767-1/phase2r_logs/cloud-isolation-timeout.log.timeout.log",
+      "provenance": {
+        "artifact_id": 11167639680,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "phase2r_logs/cloud-isolation-timeout.log.timeout.log",
+        "zip_sha256": "17931b73572a7c5d18d473546ee5039f0d65b250d9ebf66dd1cce1ac90394667"
+      },
+      "sha256": "bbfe0f114cd95fdd646d6bed89814dc35f6124e3bf360f0552964a251831cc41"
+    },
+    {
+      "bytes": 97,
+      "path": "run96/artifacts/public-surfaces-36874751767-1/phase2r_logs/cloud-public-surface-game_state-check.log",
+      "provenance": {
+        "artifact_id": 11167639680,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "phase2r_logs/cloud-public-surface-game_state-check.log",
+        "zip_sha256": "17931b73572a7c5d18d473546ee5039f0d65b250d9ebf66dd1cce1ac90394667"
+      },
+      "sha256": "f905573f8dd52f9b85362666ac54f7c7145d1ce376dec030e86792970fc2e2c7"
+    },
+    {
+      "bytes": 97,
+      "path": "run96/artifacts/public-surfaces-36874751767-1/phase2r_logs/cloud-public-surface-game_state-generate.log",
+      "provenance": {
+        "artifact_id": 11167639680,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "phase2r_logs/cloud-public-surface-game_state-generate.log",
+        "zip_sha256": "17931b73572a7c5d18d473546ee5039f0d65b250d9ebf66dd1cce1ac90394667"
+      },
+      "sha256": "f905573f8dd52f9b85362666ac54f7c7145d1ce376dec030e86792970fc2e2c7"
+    },
+    {
+      "bytes": 97,
+      "path": "run96/artifacts/public-surfaces-36874751767-1/phase2r_logs/cloud-public-surface-save_manager-check.log",
+      "provenance": {
+        "artifact_id": 11167639680,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "phase2r_logs/cloud-public-surface-save_manager-check.log",
+        "zip_sha256": "17931b73572a7c5d18d473546ee5039f0d65b250d9ebf66dd1cce1ac90394667"
+      },
+      "sha256": "f905573f8dd52f9b85362666ac54f7c7145d1ce376dec030e86792970fc2e2c7"
+    },
+    {
+      "bytes": 97,
+      "path": "run96/artifacts/public-surfaces-36874751767-1/phase2r_logs/cloud-public-surface-save_manager-generate.log",
+      "provenance": {
+        "artifact_id": 11167639680,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "phase2r_logs/cloud-public-surface-save_manager-generate.log",
+        "zip_sha256": "17931b73572a7c5d18d473546ee5039f0d65b250d9ebf66dd1cce1ac90394667"
+      },
+      "sha256": "f905573f8dd52f9b85362666ac54f7c7145d1ce376dec030e86792970fc2e2c7"
+    },
+    {
+      "bytes": 201922,
+      "path": "run96/artifacts/public-surfaces-36874751767-1/phase2r_logs/cloud-public_surfaces.log",
+      "provenance": {
+        "artifact_id": 11167639680,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "phase2r_logs/cloud-public_surfaces.log",
+        "zip_sha256": "17931b73572a7c5d18d473546ee5039f0d65b250d9ebf66dd1cce1ac90394667"
+      },
+      "sha256": "9a6742a70d40816e49e57810e74ed5453eb95bb195b6e35346eeaf408423983c"
+    },
+    {
+      "bytes": 5977,
+      "path": "run96/artifacts/reading-rail-36874751767-1/6db84c6f-81cf-4fc9-ac10-52de85ea82f1/result.json",
+      "provenance": {
+        "artifact_id": 11168701128,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "6db84c6f-81cf-4fc9-ac10-52de85ea82f1/result.json",
+        "zip_sha256": "cbbe530d580f8227dd37c8559a884fef5b59331d27948796b1b9d2c4c128d80a"
+      },
+      "sha256": "8256796a1063e4ac00316bd0003520002167c0fdb29cfb46dddd39fa3388b994"
+    },
+    {
+      "bytes": 28158,
+      "path": "run96/artifacts/reading-rail-36874751767-1/6db84c6f-81cf-4fc9-ac10-52de85ea82f1/transactions.jsonl",
+      "provenance": {
+        "artifact_id": 11168701128,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "6db84c6f-81cf-4fc9-ac10-52de85ea82f1/transactions.jsonl",
+        "zip_sha256": "cbbe530d580f8227dd37c8559a884fef5b59331d27948796b1b9d2c4c128d80a"
+      },
+      "sha256": "414b425050f31f604a3360b716c5a46f7fa36cdb52fe829d3db02188d0e9f84f"
+    },
+    {
+      "bytes": 203,
+      "path": "run96/artifacts/reading-rail-36874751767-1/6db84c6f-81cf-4fc9-ac10-52de85ea82f1/user-dir-proof.log",
+      "provenance": {
+        "artifact_id": 11168701128,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "6db84c6f-81cf-4fc9-ac10-52de85ea82f1/user-dir-proof.log",
+        "zip_sha256": "cbbe530d580f8227dd37c8559a884fef5b59331d27948796b1b9d2c4c128d80a"
+      },
+      "sha256": "d0d657e4186c37a6e6a6a7e2b39ecf57ad286e114d05cedec617d047257c8ee8"
+    },
+    {
+      "bytes": 816,
+      "path": "run96/artifacts/reading-rail-36874751767-1/6db84c6f-81cf-4fc9-ac10-52de85ea82f1/user-dir-proof.process.json",
+      "provenance": {
+        "artifact_id": 11168701128,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "6db84c6f-81cf-4fc9-ac10-52de85ea82f1/user-dir-proof.process.json",
+        "zip_sha256": "cbbe530d580f8227dd37c8559a884fef5b59331d27948796b1b9d2c4c128d80a"
+      },
+      "sha256": "9d6ad57e550684eeed53d10ab4135f59762908b7f97a898515bd5191e608a731"
+    },
+    {
+      "bytes": 0,
+      "path": "run96/artifacts/reading-rail-36874751767-1/6db84c6f-81cf-4fc9-ac10-52de85ea82f1/user-dir-proof.stderr.txt",
+      "provenance": {
+        "artifact_id": 11168701128,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "6db84c6f-81cf-4fc9-ac10-52de85ea82f1/user-dir-proof.stderr.txt",
+        "zip_sha256": "cbbe530d580f8227dd37c8559a884fef5b59331d27948796b1b9d2c4c128d80a"
+      },
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 203,
+      "path": "run96/artifacts/reading-rail-36874751767-1/6db84c6f-81cf-4fc9-ac10-52de85ea82f1/user-dir-proof.stdout.txt",
+      "provenance": {
+        "artifact_id": 11168701128,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "6db84c6f-81cf-4fc9-ac10-52de85ea82f1/user-dir-proof.stdout.txt",
+        "zip_sha256": "cbbe530d580f8227dd37c8559a884fef5b59331d27948796b1b9d2c4c128d80a"
+      },
+      "sha256": "d0d657e4186c37a6e6a6a7e2b39ecf57ad286e114d05cedec617d047257c8ee8"
+    },
+    {
+      "bytes": 19753,
+      "path": "run96/artifacts/reading-rail-36874751767-1/6db84c6f-81cf-4fc9-ac10-52de85ea82f1/write.log",
+      "provenance": {
+        "artifact_id": 11168701128,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "6db84c6f-81cf-4fc9-ac10-52de85ea82f1/write.log",
+        "zip_sha256": "cbbe530d580f8227dd37c8559a884fef5b59331d27948796b1b9d2c4c128d80a"
+      },
+      "sha256": "9c9fd54c7f6d02423d56f789e10808281ac6e7a71e288c244f5b1c15e003eecd"
+    },
+    {
+      "bytes": 1134,
+      "path": "run96/artifacts/reading-rail-36874751767-1/6db84c6f-81cf-4fc9-ac10-52de85ea82f1/write.process.json",
+      "provenance": {
+        "artifact_id": 11168701128,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "6db84c6f-81cf-4fc9-ac10-52de85ea82f1/write.process.json",
+        "zip_sha256": "cbbe530d580f8227dd37c8559a884fef5b59331d27948796b1b9d2c4c128d80a"
+      },
+      "sha256": "600f17d01d1bae660efcc935f1719faab9736c0e0539a78d859e5b482d35f285"
+    },
+    {
+      "bytes": 0,
+      "path": "run96/artifacts/reading-rail-36874751767-1/6db84c6f-81cf-4fc9-ac10-52de85ea82f1/write.stderr.txt",
+      "provenance": {
+        "artifact_id": 11168701128,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "6db84c6f-81cf-4fc9-ac10-52de85ea82f1/write.stderr.txt",
+        "zip_sha256": "cbbe530d580f8227dd37c8559a884fef5b59331d27948796b1b9d2c4c128d80a"
+      },
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 21429,
+      "path": "run96/artifacts/reading-rail-36874751767-1/6db84c6f-81cf-4fc9-ac10-52de85ea82f1/write.stdout.txt",
+      "provenance": {
+        "artifact_id": 11168701128,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "6db84c6f-81cf-4fc9-ac10-52de85ea82f1/write.stdout.txt",
+        "zip_sha256": "cbbe530d580f8227dd37c8559a884fef5b59331d27948796b1b9d2c4c128d80a"
+      },
+      "sha256": "eb2ebfcb003b34dba0df4685ca8869fe55d9cfb9ed1859496f6d76798866a1d8"
+    },
+    {
+      "bytes": 203073,
+      "path": "run96/artifacts/reading-rail-36874751767-1/import.log",
+      "provenance": {
+        "artifact_id": 11168701128,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "import.log",
+        "zip_sha256": "cbbe530d580f8227dd37c8559a884fef5b59331d27948796b1b9d2c4c128d80a"
+      },
+      "sha256": "ca5458e8754ba6f35be6a4b9f362579f63208816a7932a9d3e239be4d781dedc"
+    },
+    {
+      "bytes": 5977,
+      "path": "run96/artifacts/reading-rail-36874751767-1/result.json",
+      "provenance": {
+        "artifact_id": 11168701128,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "result.json",
+        "zip_sha256": "cbbe530d580f8227dd37c8559a884fef5b59331d27948796b1b9d2c4c128d80a"
+      },
+      "sha256": "8256796a1063e4ac00316bd0003520002167c0fdb29cfb46dddd39fa3388b994"
+    },
+    {
+      "bytes": 948,
+      "path": "run96/artifacts/windows-checkpoint_diagnostics-36874751767-1/ci/checkpoint_diagnostics.jsonl",
+      "provenance": {
+        "artifact_id": 11168677464,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/checkpoint_diagnostics.jsonl",
+        "zip_sha256": "1aa08e4b16e50900fdfba1fdd8ac0c241797b0c3798343fba0e01f469dbd0c14"
+      },
+      "sha256": "a98f3b1d1d6822440a3cf096495b3da7642ef80dd5e0e11b96c8d3e9c50de297"
+    },
+    {
+      "bytes": 5445,
+      "path": "run96/artifacts/windows-checkpoint_diagnostics-36874751767-1/ci/checkpoint_diagnostics.xml",
+      "provenance": {
+        "artifact_id": 11168677464,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/checkpoint_diagnostics.xml",
+        "zip_sha256": "1aa08e4b16e50900fdfba1fdd8ac0c241797b0c3798343fba0e01f469dbd0c14"
+      },
+      "sha256": "1b9aea6c239bc210199407638fa9b74e52972d3d32af19e3f0f215005549f947"
+    },
+    {
+      "bytes": 203073,
+      "path": "run96/artifacts/windows-checkpoint_diagnostics-36874751767-1/ci/import.log",
+      "provenance": {
+        "artifact_id": 11168677464,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/import.log",
+        "zip_sha256": "1aa08e4b16e50900fdfba1fdd8ac0c241797b0c3798343fba0e01f469dbd0c14"
+      },
+      "sha256": "83662a780bb039d4d3c97a90d1f8e0db3fb3c6b73cfc0cb3f8ede390b2a2adef"
+    },
+    {
+      "bytes": 12079888,
+      "path": "run96/artifacts/windows-checkpoint_diagnostics-36874751767-1/phase2r_logs/cloud-checkpoint_diagnostics.log",
+      "provenance": {
+        "artifact_id": 11168677464,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "phase2r_logs/cloud-checkpoint_diagnostics.log",
+        "zip_sha256": "1aa08e4b16e50900fdfba1fdd8ac0c241797b0c3798343fba0e01f469dbd0c14"
+      },
+      "sha256": "45511fef7e53b2c82875b244ceffdda827bb959cb364ff58186fa0ce6965a4b7"
+    },
+    {
+      "bytes": 1276,
+      "path": "run96/artifacts/windows-dating-36874751767-1/ci/dating.jsonl",
+      "provenance": {
+        "artifact_id": 11169110008,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/dating.jsonl",
+        "zip_sha256": "8a7e7e140f3cba31cea29c315a39acd381d2e07f3ba3e6310a40afd84c8ef963"
+      },
+      "sha256": "de03485746389a6fb227ecc65e39aa4eea9ae32bab028dc61312f9a4a74c9cc7"
+    },
+    {
+      "bytes": 37783,
+      "path": "run96/artifacts/windows-dating-36874751767-1/ci/dating.xml",
+      "provenance": {
+        "artifact_id": 11169110008,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/dating.xml",
+        "zip_sha256": "8a7e7e140f3cba31cea29c315a39acd381d2e07f3ba3e6310a40afd84c8ef963"
+      },
+      "sha256": "b6aa39c0de01de04f1deb60fcbdf297de0de8fe6ec38fc4a25abc9acfa8b9425"
+    },
+    {
+      "bytes": 203073,
+      "path": "run96/artifacts/windows-dating-36874751767-1/ci/import.log",
+      "provenance": {
+        "artifact_id": 11169110008,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/import.log",
+        "zip_sha256": "8a7e7e140f3cba31cea29c315a39acd381d2e07f3ba3e6310a40afd84c8ef963"
+      },
+      "sha256": "8708b451505f49e6b3f0fb147f529ff831892c3abb682fb8e3fb2f5d2cc64f9f"
+    },
+    {
+      "bytes": 17940647,
+      "path": "run96/artifacts/windows-dating-36874751767-1/phase2r_logs/cloud-dating.log",
+      "provenance": {
+        "artifact_id": 11169110008,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "phase2r_logs/cloud-dating.log",
+        "zip_sha256": "8a7e7e140f3cba31cea29c315a39acd381d2e07f3ba3e6310a40afd84c8ef963"
+      },
+      "sha256": "5437eb687d99b79d8d929ddd3ee11df398fce09cd2617267b93403ddc8efeedf"
+    },
+    {
+      "bytes": 203073,
+      "path": "run96/artifacts/windows-persistence-36874751767-1/ci/import.log",
+      "provenance": {
+        "artifact_id": 11168825725,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/import.log",
+        "zip_sha256": "495a93d4d5dd894cdb54f228dc2e0890ac7f1fda8b5c6b3fe43cfaf6773889fc"
+      },
+      "sha256": "8f4a81c0c94dc56e0bb062a15d9d57088d34e61899d7ff4d224b96b17e5c9b54"
+    },
+    {
+      "bytes": 1689,
+      "path": "run96/artifacts/windows-persistence-36874751767-1/ci/persistence.jsonl",
+      "provenance": {
+        "artifact_id": 11168825725,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/persistence.jsonl",
+        "zip_sha256": "495a93d4d5dd894cdb54f228dc2e0890ac7f1fda8b5c6b3fe43cfaf6773889fc"
+      },
+      "sha256": "be80ea24feb0568d9efc1979a4bf5ffefae798f50c785c25df735448b1daba8f"
+    },
+    {
+      "bytes": 43494,
+      "path": "run96/artifacts/windows-persistence-36874751767-1/ci/persistence.xml",
+      "provenance": {
+        "artifact_id": 11168825725,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/persistence.xml",
+        "zip_sha256": "495a93d4d5dd894cdb54f228dc2e0890ac7f1fda8b5c6b3fe43cfaf6773889fc"
+      },
+      "sha256": "1db85461eccedaf2a1de82c2df9c2d1f3d29e7fe2de21b4224865eac0f5af8ad"
+    },
+    {
+      "bytes": 627,
+      "path": "run96/artifacts/windows-persistence-36874751767-1/ci/save-load-capture.jsonl",
+      "provenance": {
+        "artifact_id": 11168825725,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/save-load-capture.jsonl",
+        "zip_sha256": "495a93d4d5dd894cdb54f228dc2e0890ac7f1fda8b5c6b3fe43cfaf6773889fc"
+      },
+      "sha256": "9d851c58a4a328f24743817b418f1f90d6c1496132eac850f9b5073e882aecaf"
+    },
+    {
+      "bytes": 2303121,
+      "path": "run96/artifacts/windows-persistence-36874751767-1/phase2r_logs/cloud-persistence.log",
+      "provenance": {
+        "artifact_id": 11168825725,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "phase2r_logs/cloud-persistence.log",
+        "zip_sha256": "495a93d4d5dd894cdb54f228dc2e0890ac7f1fda8b5c6b3fe43cfaf6773889fc"
+      },
+      "sha256": "b4c9cf1463fdf0451a2f3363688f40e6ddff07ee05871bb77246d0cf2573d710"
+    },
+    {
+      "bytes": 119,
+      "path": "run96/artifacts/windows-persistence-36874751767-1/phase2r_logs/cloud-save-load-capture.log",
+      "provenance": {
+        "artifact_id": 11168825725,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "phase2r_logs/cloud-save-load-capture.log",
+        "zip_sha256": "495a93d4d5dd894cdb54f228dc2e0890ac7f1fda8b5c6b3fe43cfaf6773889fc"
+      },
+      "sha256": "97474b69beb760ef490fc919a3f8a604c62c701bb876cc39344839106819d290"
+    },
+    {
+      "bytes": 203073,
+      "path": "run96/artifacts/windows-reading_delivery-36874751767-1/ci/import.log",
+      "provenance": {
+        "artifact_id": 11167979893,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/import.log",
+        "zip_sha256": "8920536a9d32353dd392b5bbf75dfc2d531af2fa172ba721ad8e85d20eec75d5"
+      },
+      "sha256": "b69e75f6486f639dfb8e12ab12399440650f350d4d755c0a94621d7fd60e95a0"
+    },
+    {
+      "bytes": 1963,
+      "path": "run96/artifacts/windows-reading_delivery-36874751767-1/ci/reading_delivery.jsonl",
+      "provenance": {
+        "artifact_id": 11167979893,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/reading_delivery.jsonl",
+        "zip_sha256": "8920536a9d32353dd392b5bbf75dfc2d531af2fa172ba721ad8e85d20eec75d5"
+      },
+      "sha256": "bc58ddeb53e56ccb03baab77488dca42e2fffa11046e8680c4b5f39236f44bb4"
+    },
+    {
+      "bytes": 68392,
+      "path": "run96/artifacts/windows-reading_delivery-36874751767-1/ci/reading_delivery.xml",
+      "provenance": {
+        "artifact_id": 11167979893,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/reading_delivery.xml",
+        "zip_sha256": "8920536a9d32353dd392b5bbf75dfc2d531af2fa172ba721ad8e85d20eec75d5"
+      },
+      "sha256": "3e52daa44f9d9a4de93e6d745d8b705df24f4f5ed7dceb2868d39eee1f50be68"
+    },
+    {
+      "bytes": 1685541,
+      "path": "run96/artifacts/windows-reading_delivery-36874751767-1/phase2r_logs/cloud-reading_delivery.log",
+      "provenance": {
+        "artifact_id": 11167979893,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "phase2r_logs/cloud-reading_delivery.log",
+        "zip_sha256": "8920536a9d32353dd392b5bbf75dfc2d531af2fa172ba721ad8e85d20eec75d5"
+      },
+      "sha256": "27f3d6000d3fa1a8c0ef4d1f7bb9ed50d5341b87bc62cb9bfea0ac3ba91abf0c"
+    },
+    {
+      "bytes": 203073,
+      "path": "run96/artifacts/windows-settings-36874751767-1/ci/import.log",
+      "provenance": {
+        "artifact_id": 11169310527,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/import.log",
+        "zip_sha256": "62f00eb1781d911d133dc9203cfab75234f8f80fc624b7351895a8230257e5f9"
+      },
+      "sha256": "6c2ae87c9045d0476fd5c2274fdb97df51a9b4ce54711affeb8a139b9be3b1c5"
+    },
+    {
+      "bytes": 690,
+      "path": "run96/artifacts/windows-settings-36874751767-1/ci/manual-witness-revision-storage.jsonl",
+      "provenance": {
+        "artifact_id": 11169310527,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/manual-witness-revision-storage.jsonl",
+        "zip_sha256": "62f00eb1781d911d133dc9203cfab75234f8f80fc624b7351895a8230257e5f9"
+      },
+      "sha256": "254e156f00eafd156069d980615ffeb6c8238c2c4040f33d77a3296527a04f19"
+    },
+    {
+      "bytes": 1996,
+      "path": "run96/artifacts/windows-settings-36874751767-1/ci/settings.jsonl",
+      "provenance": {
+        "artifact_id": 11169310527,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/settings.jsonl",
+        "zip_sha256": "62f00eb1781d911d133dc9203cfab75234f8f80fc624b7351895a8230257e5f9"
+      },
+      "sha256": "89945409aa59958e01a40a4a01ee37ae0a86ec983337435a5414c187cdfc69a3"
+    },
+    {
+      "bytes": 70928,
+      "path": "run96/artifacts/windows-settings-36874751767-1/ci/settings.xml",
+      "provenance": {
+        "artifact_id": 11169310527,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/settings.xml",
+        "zip_sha256": "62f00eb1781d911d133dc9203cfab75234f8f80fc624b7351895a8230257e5f9"
+      },
+      "sha256": "aa2198c3b91046288b8183f183149157c2094c964ee13f8b12f11d53d2e4f126"
+    },
+    {
+      "bytes": 192,
+      "path": "run96/artifacts/windows-settings-36874751767-1/ci/storage-refusal/empty/appdata/Godot/app_userdata/DWM/desktop-issuer-root.json",
+      "provenance": {
+        "artifact_id": 11169310527,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/storage-refusal/empty/appdata/Godot/app_userdata/DWM/desktop-issuer-root.json",
+        "zip_sha256": "62f00eb1781d911d133dc9203cfab75234f8f80fc624b7351895a8230257e5f9"
+      },
+      "sha256": "ed76e51552d758c98bbbe439275c690ea6cf1e54f1e07e03fd27a931a5296114"
+    },
+    {
+      "bytes": 34,
+      "path": "run96/artifacts/windows-settings-36874751767-1/ci/storage-refusal/empty/appdata/Godot/app_userdata/DWM/desktop-publications.json",
+      "provenance": {
+        "artifact_id": 11169310527,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/storage-refusal/empty/appdata/Godot/app_userdata/DWM/desktop-publications.json",
+        "zip_sha256": "62f00eb1781d911d133dc9203cfab75234f8f80fc624b7351895a8230257e5f9"
+      },
+      "sha256": "902849ab2604217a878bc4de507660ced78f981a72c1d6343dd9ef55af64d4e4"
+    },
+    {
+      "bytes": 0,
+      "path": "run96/artifacts/windows-settings-36874751767-1/ci/storage-refusal/empty/appdata/Godot/app_userdata/DWM/dialogic/saves/global_info.txt",
+      "provenance": {
+        "artifact_id": 11169310527,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/storage-refusal/empty/appdata/Godot/app_userdata/DWM/dialogic/saves/global_info.txt",
+        "zip_sha256": "62f00eb1781d911d133dc9203cfab75234f8f80fc624b7351895a8230257e5f9"
+      },
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 2711,
+      "path": "run96/artifacts/windows-settings-36874751767-1/ci/storage-refusal/empty/appdata/Godot/app_userdata/DWM/profile.json",
+      "provenance": {
+        "artifact_id": 11169310527,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/storage-refusal/empty/appdata/Godot/app_userdata/DWM/profile.json",
+        "zip_sha256": "62f00eb1781d911d133dc9203cfab75234f8f80fc624b7351895a8230257e5f9"
+      },
+      "sha256": "e0a5222d76a47f402c8aa606fe45be7f0feda8b169c4ca8af76f5c3572c44266"
+    },
+    {
+      "bytes": 34,
+      "path": "run96/artifacts/windows-settings-36874751767-1/ci/storage-refusal/empty/appdata/Godot/app_userdata/DWM/schedule-foundation-publications.json",
+      "provenance": {
+        "artifact_id": 11169310527,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/storage-refusal/empty/appdata/Godot/app_userdata/DWM/schedule-foundation-publications.json",
+        "zip_sha256": "62f00eb1781d911d133dc9203cfab75234f8f80fc624b7351895a8230257e5f9"
+      },
+      "sha256": "902849ab2604217a878bc4de507660ced78f981a72c1d6343dd9ef55af64d4e4"
+    },
+    {
+      "bytes": 38457,
+      "path": "run96/artifacts/windows-settings-36874751767-1/ci/storage-refusal/empty/console.log",
+      "provenance": {
+        "artifact_id": 11169310527,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/storage-refusal/empty/console.log",
+        "zip_sha256": "62f00eb1781d911d133dc9203cfab75234f8f80fc624b7351895a8230257e5f9"
+      },
+      "sha256": "c27ea53be530e53bc16d5f569736ffd92b89490e76d114d19aee102f03f782de"
+    },
+    {
+      "bytes": 36201,
+      "path": "run96/artifacts/windows-settings-36874751767-1/ci/storage-refusal/empty/godot.log",
+      "provenance": {
+        "artifact_id": 11169310527,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/storage-refusal/empty/godot.log",
+        "zip_sha256": "62f00eb1781d911d133dc9203cfab75234f8f80fc624b7351895a8230257e5f9"
+      },
+      "sha256": "b0220f29ee366f99be5a7a9e6a6dea5e7e102a09d538cf2a99f86bc606a1f73d"
+    },
+    {
+      "bytes": 1600672,
+      "path": "run96/artifacts/windows-settings-36874751767-1/ci/storage-refusal/empty/repository-after.json",
+      "provenance": {
+        "artifact_id": 11169310527,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/storage-refusal/empty/repository-after.json",
+        "zip_sha256": "62f00eb1781d911d133dc9203cfab75234f8f80fc624b7351895a8230257e5f9"
+      },
+      "sha256": "ff1f26337fa2dbbadd8eab018886e8da7832efe0c47f5374d5f3839322de7770"
+    },
+    {
+      "bytes": 1600672,
+      "path": "run96/artifacts/windows-settings-36874751767-1/ci/storage-refusal/empty/repository-before.json",
+      "provenance": {
+        "artifact_id": 11169310527,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/storage-refusal/empty/repository-before.json",
+        "zip_sha256": "62f00eb1781d911d133dc9203cfab75234f8f80fc624b7351895a8230257e5f9"
+      },
+      "sha256": "ff1f26337fa2dbbadd8eab018886e8da7832efe0c47f5374d5f3839322de7770"
+    },
+    {
+      "bytes": 31408,
+      "path": "run96/artifacts/windows-settings-36874751767-1/ci/storage-refusal/empty/tests.xml",
+      "provenance": {
+        "artifact_id": 11169310527,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/storage-refusal/empty/tests.xml",
+        "zip_sha256": "62f00eb1781d911d133dc9203cfab75234f8f80fc624b7351895a8230257e5f9"
+      },
+      "sha256": "4b9305b31977caa14004747098b6099f97bf2106411925cbfb22470cab46f9f5"
+    },
+    {
+      "bytes": 173,
+      "path": "run96/artifacts/windows-settings-36874751767-1/ci/storage-refusal/empty/user-dir-console.log",
+      "provenance": {
+        "artifact_id": 11169310527,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/storage-refusal/empty/user-dir-console.log",
+        "zip_sha256": "62f00eb1781d911d133dc9203cfab75234f8f80fc624b7351895a8230257e5f9"
+      },
+      "sha256": "804fc8096cb297f54b7f6eb078be027209ad7e74dcbdd1feaca26578446b97fc"
+    },
+    {
+      "bytes": 167,
+      "path": "run96/artifacts/windows-settings-36874751767-1/ci/storage-refusal/empty/user-dir.log",
+      "provenance": {
+        "artifact_id": 11169310527,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/storage-refusal/empty/user-dir.log",
+        "zip_sha256": "62f00eb1781d911d133dc9203cfab75234f8f80fc624b7351895a8230257e5f9"
+      },
+      "sha256": "050cd18a30fc39a0de5f5276fbf215790680148732f5c1ee4b46ab0f62fc15ab"
+    },
+    {
+      "bytes": 507,
+      "path": "run96/artifacts/windows-settings-36874751767-1/ci/storage-refusal/results.json",
+      "provenance": {
+        "artifact_id": 11169310527,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/storage-refusal/results.json",
+        "zip_sha256": "62f00eb1781d911d133dc9203cfab75234f8f80fc624b7351895a8230257e5f9"
+      },
+      "sha256": "33954a965254e7d2e0829d1aa4cb98761b9ea22748b7390c8640a668f3226cf2"
+    },
+    {
+      "bytes": 192,
+      "path": "run96/artifacts/windows-settings-36874751767-1/ci/storage-refusal/whitespace/appdata/Godot/app_userdata/DWM/desktop-issuer-root.json",
+      "provenance": {
+        "artifact_id": 11169310527,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/storage-refusal/whitespace/appdata/Godot/app_userdata/DWM/desktop-issuer-root.json",
+        "zip_sha256": "62f00eb1781d911d133dc9203cfab75234f8f80fc624b7351895a8230257e5f9"
+      },
+      "sha256": "3b7c0d79a8b2e710d8dcbfea69a4698be99d2f4128878d4a3df5efcbb40bf0c6"
+    },
+    {
+      "bytes": 34,
+      "path": "run96/artifacts/windows-settings-36874751767-1/ci/storage-refusal/whitespace/appdata/Godot/app_userdata/DWM/desktop-publications.json",
+      "provenance": {
+        "artifact_id": 11169310527,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/storage-refusal/whitespace/appdata/Godot/app_userdata/DWM/desktop-publications.json",
+        "zip_sha256": "62f00eb1781d911d133dc9203cfab75234f8f80fc624b7351895a8230257e5f9"
+      },
+      "sha256": "902849ab2604217a878bc4de507660ced78f981a72c1d6343dd9ef55af64d4e4"
+    },
+    {
+      "bytes": 0,
+      "path": "run96/artifacts/windows-settings-36874751767-1/ci/storage-refusal/whitespace/appdata/Godot/app_userdata/DWM/dialogic/saves/global_info.txt",
+      "provenance": {
+        "artifact_id": 11169310527,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/storage-refusal/whitespace/appdata/Godot/app_userdata/DWM/dialogic/saves/global_info.txt",
+        "zip_sha256": "62f00eb1781d911d133dc9203cfab75234f8f80fc624b7351895a8230257e5f9"
+      },
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 2711,
+      "path": "run96/artifacts/windows-settings-36874751767-1/ci/storage-refusal/whitespace/appdata/Godot/app_userdata/DWM/profile.json",
+      "provenance": {
+        "artifact_id": 11169310527,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/storage-refusal/whitespace/appdata/Godot/app_userdata/DWM/profile.json",
+        "zip_sha256": "62f00eb1781d911d133dc9203cfab75234f8f80fc624b7351895a8230257e5f9"
+      },
+      "sha256": "e0a5222d76a47f402c8aa606fe45be7f0feda8b169c4ca8af76f5c3572c44266"
+    },
+    {
+      "bytes": 34,
+      "path": "run96/artifacts/windows-settings-36874751767-1/ci/storage-refusal/whitespace/appdata/Godot/app_userdata/DWM/schedule-foundation-publications.json",
+      "provenance": {
+        "artifact_id": 11169310527,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/storage-refusal/whitespace/appdata/Godot/app_userdata/DWM/schedule-foundation-publications.json",
+        "zip_sha256": "62f00eb1781d911d133dc9203cfab75234f8f80fc624b7351895a8230257e5f9"
+      },
+      "sha256": "902849ab2604217a878bc4de507660ced78f981a72c1d6343dd9ef55af64d4e4"
+    },
+    {
+      "bytes": 38467,
+      "path": "run96/artifacts/windows-settings-36874751767-1/ci/storage-refusal/whitespace/console.log",
+      "provenance": {
+        "artifact_id": 11169310527,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/storage-refusal/whitespace/console.log",
+        "zip_sha256": "62f00eb1781d911d133dc9203cfab75234f8f80fc624b7351895a8230257e5f9"
+      },
+      "sha256": "22eabe3bc785e8791f3b347604b592ccadc1f909c07dda5b962876ed3aa061df"
+    },
+    {
+      "bytes": 36211,
+      "path": "run96/artifacts/windows-settings-36874751767-1/ci/storage-refusal/whitespace/godot.log",
+      "provenance": {
+        "artifact_id": 11169310527,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/storage-refusal/whitespace/godot.log",
+        "zip_sha256": "62f00eb1781d911d133dc9203cfab75234f8f80fc624b7351895a8230257e5f9"
+      },
+      "sha256": "f7422ff397461e68620d786ae3231eeef1ec43e4b60c0d77367cf8b1c2751b32"
+    },
+    {
+      "bytes": 1600672,
+      "path": "run96/artifacts/windows-settings-36874751767-1/ci/storage-refusal/whitespace/repository-after.json",
+      "provenance": {
+        "artifact_id": 11169310527,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/storage-refusal/whitespace/repository-after.json",
+        "zip_sha256": "62f00eb1781d911d133dc9203cfab75234f8f80fc624b7351895a8230257e5f9"
+      },
+      "sha256": "ff1f26337fa2dbbadd8eab018886e8da7832efe0c47f5374d5f3839322de7770"
+    },
+    {
+      "bytes": 1600672,
+      "path": "run96/artifacts/windows-settings-36874751767-1/ci/storage-refusal/whitespace/repository-before.json",
+      "provenance": {
+        "artifact_id": 11169310527,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/storage-refusal/whitespace/repository-before.json",
+        "zip_sha256": "62f00eb1781d911d133dc9203cfab75234f8f80fc624b7351895a8230257e5f9"
+      },
+      "sha256": "ff1f26337fa2dbbadd8eab018886e8da7832efe0c47f5374d5f3839322de7770"
+    },
+    {
+      "bytes": 31408,
+      "path": "run96/artifacts/windows-settings-36874751767-1/ci/storage-refusal/whitespace/tests.xml",
+      "provenance": {
+        "artifact_id": 11169310527,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/storage-refusal/whitespace/tests.xml",
+        "zip_sha256": "62f00eb1781d911d133dc9203cfab75234f8f80fc624b7351895a8230257e5f9"
+      },
+      "sha256": "ed24ff7b36e872e1a776f82330f3b75e0c5543d5da8a8a11a0c664614bb47284"
+    },
+    {
+      "bytes": 178,
+      "path": "run96/artifacts/windows-settings-36874751767-1/ci/storage-refusal/whitespace/user-dir-console.log",
+      "provenance": {
+        "artifact_id": 11169310527,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/storage-refusal/whitespace/user-dir-console.log",
+        "zip_sha256": "62f00eb1781d911d133dc9203cfab75234f8f80fc624b7351895a8230257e5f9"
+      },
+      "sha256": "6a6a857d6b70ee157ed1adb4be9a93556313c850c052f5d7d385cda1e0259865"
+    },
+    {
+      "bytes": 172,
+      "path": "run96/artifacts/windows-settings-36874751767-1/ci/storage-refusal/whitespace/user-dir.log",
+      "provenance": {
+        "artifact_id": 11169310527,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/storage-refusal/whitespace/user-dir.log",
+        "zip_sha256": "62f00eb1781d911d133dc9203cfab75234f8f80fc624b7351895a8230257e5f9"
+      },
+      "sha256": "b792f87d4b2febdde77f6b552e3ec0dc42ebed9ef263a47cb1ffdd7bced021bc"
+    },
+    {
+      "bytes": 277,
+      "path": "run96/artifacts/windows-settings-36874751767-1/phase2r_logs/cloud-manual-witness-revision-storage.log",
+      "provenance": {
+        "artifact_id": 11169310527,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "phase2r_logs/cloud-manual-witness-revision-storage.log",
+        "zip_sha256": "62f00eb1781d911d133dc9203cfab75234f8f80fc624b7351895a8230257e5f9"
+      },
+      "sha256": "f96a2e17bbe1d842875f49476a8419eab5d7b3419fbfdb2850a3e4df407fc147"
+    },
+    {
+      "bytes": 22478558,
+      "path": "run96/artifacts/windows-settings-36874751767-1/phase2r_logs/cloud-settings.log",
+      "provenance": {
+        "artifact_id": 11169310527,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "phase2r_logs/cloud-settings.log",
+        "zip_sha256": "62f00eb1781d911d133dc9203cfab75234f8f80fc624b7351895a8230257e5f9"
+      },
+      "sha256": "27392c4b96c697dd2382df05342efba4c1fc1d136035504014a8a7c6cf84266d"
+    },
+    {
+      "bytes": 10426,
+      "path": "run96/audit/independent-run96-audit.json",
+      "provenance": {
+        "source": "independent local inspection of downloaded cloud evidence; no new engine execution"
+      },
+      "sha256": "557deab03ec9d99ed569e1fb6fcbfbd93a305be6f8de22d88e69b821a17180f8"
+    },
+    {
+      "bytes": 13651,
+      "path": "run96/jobs.json",
+      "provenance": {
+        "github_run_id": 36874751767,
+        "source": "raw downloaded API response"
+      },
+      "sha256": "72f31b9b8ec8ec0ba9fe770a7912eb015b210ff5dc39574382c4aea0e3315e7f"
+    },
+    {
+      "bytes": 782515,
+      "path": "run96/logs/110411204275.log",
+      "provenance": {
+        "github_job_id": 110411204275,
+        "github_run_id": 36874751767,
+        "source": "downloaded raw GitHub job log"
+      },
+      "sha256": "e9c3981f315ed687d796452c1eb5b844b31c732e32ef321d897f8edc2b23ef49"
+    },
+    {
+      "bytes": 443587,
+      "path": "run96/logs/110411204548.log",
+      "provenance": {
+        "github_job_id": 110411204548,
+        "github_run_id": 36874751767,
+        "source": "downloaded raw GitHub job log"
+      },
+      "sha256": "b1fbebbaa327566f6d960b00387f40e087274ee49bd0bd32a139fa30e25f6c4f"
+    },
+    {
+      "bytes": 440782,
+      "path": "run96/logs/110411204589.log",
+      "provenance": {
+        "github_job_id": 110411204589,
+        "github_run_id": 36874751767,
+        "source": "downloaded raw GitHub job log"
+      },
+      "sha256": "7951ed30c12e8dfae41602626d91fc83af504a21611fa7d25642a7e9427a9b03"
+    },
+    {
+      "bytes": 2441731,
+      "path": "run96/logs/110411204624.log",
+      "provenance": {
+        "github_job_id": 110411204624,
+        "github_run_id": 36874751767,
+        "source": "downloaded raw GitHub job log"
+      },
+      "sha256": "2e6eb83ef7d4bce520bb228994df33a9dfb62c8e07f9f39c0352c8aa2cb29b2f"
+    },
+    {
+      "bytes": 445089,
+      "path": "run96/logs/110411204707.log",
+      "provenance": {
+        "github_job_id": 110411204707,
+        "github_run_id": 36874751767,
+        "source": "downloaded raw GitHub job log"
+      },
+      "sha256": "6c947e585bbeb458d612c5e0c08bdc24db64b067cd639768797fdeff311e6dca"
+    },
+    {
+      "bytes": 491106,
+      "path": "run96/logs/110411204774.log",
+      "provenance": {
+        "github_job_id": 110411204774,
+        "github_run_id": 36874751767,
+        "source": "downloaded raw GitHub job log"
+      },
+      "sha256": "82fec07789391609d112100ac57e8b1ce7ff366703146c1a8f95de4384a90bdc"
+    },
+    {
+      "bytes": 441769,
+      "path": "run96/logs/110411204913.log",
+      "provenance": {
+        "github_job_id": 110411204913,
+        "github_run_id": 36874751767,
+        "source": "downloaded raw GitHub job log"
+      },
+      "sha256": "21e5d54c1509d6bf9e192cccb28ce97df9c65e046679608c18ee03978262a69e"
+    },
+    {
+      "bytes": 12769,
+      "path": "run96/run.json",
+      "provenance": {
+        "github_run_id": 36874751767,
+        "source": "raw downloaded API response"
+      },
+      "sha256": "79c72da2a1c4f7bb4186cfd79a3f85665dacae6a0060f345196250edb00cffb3"
+    },
+    {
+      "bytes": 17656,
+      "path": "run96/summary.json",
+      "provenance": {
+        "github_run_id": 36874751767,
+        "source": "local run summary"
+      },
+      "sha256": "ad6d158201eab3d8582f8a16eeb4f1bdc02d575929b670ffaaedb90a1a810e5a"
+    },
+    {
+      "bytes": 3337,
+      "path": "run97/artifacts-api.json",
+      "provenance": {
+        "github_run_id": 36875788835,
+        "source": "raw downloaded API response"
+      },
+      "sha256": "6e49b6b83d0594cb8a87e3aeba08bc633fc51eb87e0c16d11a15697dbcd71939"
+    },
+    {
+      "bytes": 203073,
+      "path": "run97/artifacts/public-surfaces-36875788835-1/ci/import.log",
+      "provenance": {
+        "artifact_id": 11169961035,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/import.log",
+        "zip_sha256": "d269e44eaa4eb5f05fe75d6779051f2603bc71ca2027eec5ebe0f4ee9e18c369"
+      },
+      "sha256": "1a90d70e0c88ba5dd38707141dfec29936fad652b26f28933149afec9de97496"
+    },
+    {
+      "bytes": 658,
+      "path": "run97/artifacts/public-surfaces-36875788835-1/ci/isolation-timeout.jsonl",
+      "provenance": {
+        "artifact_id": 11169961035,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/isolation-timeout.jsonl",
+        "zip_sha256": "d269e44eaa4eb5f05fe75d6779051f2603bc71ca2027eec5ebe0f4ee9e18c369"
+      },
+      "sha256": "1518885e34e585d2ed733e3b49c513c0ec9f5bc944f78119f6286256164cc2b7"
+    },
+    {
+      "bytes": 218006,
+      "path": "run97/artifacts/public-surfaces-36875788835-1/ci/public-surfaces/fixture-version-census.json",
+      "provenance": {
+        "artifact_id": 11169961035,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/public-surfaces/fixture-version-census.json",
+        "zip_sha256": "d269e44eaa4eb5f05fe75d6779051f2603bc71ca2027eec5ebe0f4ee9e18c369"
+      },
+      "sha256": "4f5744fcbfd64099a1bab2c7d977af89da4ce69176eef3f1c6c435227839e637"
+    },
+    {
+      "bytes": 997,
+      "path": "run97/artifacts/public-surfaces-36875788835-1/ci/public-surfaces/game_state-check.jsonl",
+      "provenance": {
+        "artifact_id": 11169961035,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/public-surfaces/game_state-check.jsonl",
+        "zip_sha256": "d269e44eaa4eb5f05fe75d6779051f2603bc71ca2027eec5ebe0f4ee9e18c369"
+      },
+      "sha256": "a66d320d82f6a6bb257b8c2a1bb4a534db7cdd06a5c5d3cc9065cd64bdf35f3b"
+    },
+    {
+      "bytes": 996,
+      "path": "run97/artifacts/public-surfaces-36875788835-1/ci/public-surfaces/game_state-generate.jsonl",
+      "provenance": {
+        "artifact_id": 11169961035,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/public-surfaces/game_state-generate.jsonl",
+        "zip_sha256": "d269e44eaa4eb5f05fe75d6779051f2603bc71ca2027eec5ebe0f4ee9e18c369"
+      },
+      "sha256": "3fef9d93c15b86168f2c9fcacbb1067411029a55fedcde5fa06bf717979d76a5"
+    },
+    {
+      "bytes": 563,
+      "path": "run97/artifacts/public-surfaces-36875788835-1/ci/public-surfaces/retirement-audit.json",
+      "provenance": {
+        "artifact_id": 11169961035,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/public-surfaces/retirement-audit.json",
+        "zip_sha256": "d269e44eaa4eb5f05fe75d6779051f2603bc71ca2027eec5ebe0f4ee9e18c369"
+      },
+      "sha256": "a1d46bcad4a1edadd4c5e007efc4ea3a59aba6e729a361dab93871e5ff4ea375"
+    },
+    {
+      "bytes": 1009,
+      "path": "run97/artifacts/public-surfaces-36875788835-1/ci/public-surfaces/save_manager-check.jsonl",
+      "provenance": {
+        "artifact_id": 11169961035,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/public-surfaces/save_manager-check.jsonl",
+        "zip_sha256": "d269e44eaa4eb5f05fe75d6779051f2603bc71ca2027eec5ebe0f4ee9e18c369"
+      },
+      "sha256": "552db00ee66f5fdb991807787238a8adbeb08f2faa83d26c56cd51f4d1760b0b"
+    },
+    {
+      "bytes": 1008,
+      "path": "run97/artifacts/public-surfaces-36875788835-1/ci/public-surfaces/save_manager-generate.jsonl",
+      "provenance": {
+        "artifact_id": 11169961035,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/public-surfaces/save_manager-generate.jsonl",
+        "zip_sha256": "d269e44eaa4eb5f05fe75d6779051f2603bc71ca2027eec5ebe0f4ee9e18c369"
+      },
+      "sha256": "8f0385ceffbca98f415eaacd6d4cb88353772b6787727bebf3203b9852341990"
+    },
+    {
+      "bytes": 758,
+      "path": "run97/artifacts/public-surfaces-36875788835-1/ci/public_surfaces.jsonl",
+      "provenance": {
+        "artifact_id": 11169961035,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/public_surfaces.jsonl",
+        "zip_sha256": "d269e44eaa4eb5f05fe75d6779051f2603bc71ca2027eec5ebe0f4ee9e18c369"
+      },
+      "sha256": "3e0ffe218f023672b49a91e4b0dc51a8c4dc8d2f98ab03a79e1e4a8c5eb530f8"
+    },
+    {
+      "bytes": 2506,
+      "path": "run97/artifacts/public-surfaces-36875788835-1/ci/public_surfaces.xml",
+      "provenance": {
+        "artifact_id": 11169961035,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/public_surfaces.xml",
+        "zip_sha256": "d269e44eaa4eb5f05fe75d6779051f2603bc71ca2027eec5ebe0f4ee9e18c369"
+      },
+      "sha256": "10b64e9a4daa33599acf95b086efa1496f0249b074236a286150f96279ffd445"
+    },
+    {
+      "bytes": 105,
+      "path": "run97/artifacts/public-surfaces-36875788835-1/phase2r_logs/cloud-isolation-timeout.log",
+      "provenance": {
+        "artifact_id": 11169961035,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "phase2r_logs/cloud-isolation-timeout.log",
+        "zip_sha256": "d269e44eaa4eb5f05fe75d6779051f2603bc71ca2027eec5ebe0f4ee9e18c369"
+      },
+      "sha256": "024608dce65ad25e4cf6cf14cda110234e45b506858606453dbab71388889192"
+    },
+    {
+      "bytes": 151,
+      "path": "run97/artifacts/public-surfaces-36875788835-1/phase2r_logs/cloud-isolation-timeout.log.timeout.log",
+      "provenance": {
+        "artifact_id": 11169961035,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "phase2r_logs/cloud-isolation-timeout.log.timeout.log",
+        "zip_sha256": "d269e44eaa4eb5f05fe75d6779051f2603bc71ca2027eec5ebe0f4ee9e18c369"
+      },
+      "sha256": "bbfe0f114cd95fdd646d6bed89814dc35f6124e3bf360f0552964a251831cc41"
+    },
+    {
+      "bytes": 97,
+      "path": "run97/artifacts/public-surfaces-36875788835-1/phase2r_logs/cloud-public-surface-game_state-check.log",
+      "provenance": {
+        "artifact_id": 11169961035,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "phase2r_logs/cloud-public-surface-game_state-check.log",
+        "zip_sha256": "d269e44eaa4eb5f05fe75d6779051f2603bc71ca2027eec5ebe0f4ee9e18c369"
+      },
+      "sha256": "f905573f8dd52f9b85362666ac54f7c7145d1ce376dec030e86792970fc2e2c7"
+    },
+    {
+      "bytes": 97,
+      "path": "run97/artifacts/public-surfaces-36875788835-1/phase2r_logs/cloud-public-surface-game_state-generate.log",
+      "provenance": {
+        "artifact_id": 11169961035,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "phase2r_logs/cloud-public-surface-game_state-generate.log",
+        "zip_sha256": "d269e44eaa4eb5f05fe75d6779051f2603bc71ca2027eec5ebe0f4ee9e18c369"
+      },
+      "sha256": "f905573f8dd52f9b85362666ac54f7c7145d1ce376dec030e86792970fc2e2c7"
+    },
+    {
+      "bytes": 97,
+      "path": "run97/artifacts/public-surfaces-36875788835-1/phase2r_logs/cloud-public-surface-save_manager-check.log",
+      "provenance": {
+        "artifact_id": 11169961035,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "phase2r_logs/cloud-public-surface-save_manager-check.log",
+        "zip_sha256": "d269e44eaa4eb5f05fe75d6779051f2603bc71ca2027eec5ebe0f4ee9e18c369"
+      },
+      "sha256": "f905573f8dd52f9b85362666ac54f7c7145d1ce376dec030e86792970fc2e2c7"
+    },
+    {
+      "bytes": 97,
+      "path": "run97/artifacts/public-surfaces-36875788835-1/phase2r_logs/cloud-public-surface-save_manager-generate.log",
+      "provenance": {
+        "artifact_id": 11169961035,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "phase2r_logs/cloud-public-surface-save_manager-generate.log",
+        "zip_sha256": "d269e44eaa4eb5f05fe75d6779051f2603bc71ca2027eec5ebe0f4ee9e18c369"
+      },
+      "sha256": "f905573f8dd52f9b85362666ac54f7c7145d1ce376dec030e86792970fc2e2c7"
+    },
+    {
+      "bytes": 201946,
+      "path": "run97/artifacts/public-surfaces-36875788835-1/phase2r_logs/cloud-public_surfaces.log",
+      "provenance": {
+        "artifact_id": 11169961035,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "phase2r_logs/cloud-public_surfaces.log",
+        "zip_sha256": "d269e44eaa4eb5f05fe75d6779051f2603bc71ca2027eec5ebe0f4ee9e18c369"
+      },
+      "sha256": "de12e49fb6c3bbd98eede1a48af7f8ee41b3766568c0812c444c7487fd06249b"
+    },
+    {
+      "bytes": 6641,
+      "path": "run97/artifacts/reading-rail-36875788835-1/17754780-30ac-4246-add7-26cdc7916449/captures/01-title.png",
+      "provenance": {
+        "artifact_id": 11170100341,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "17754780-30ac-4246-add7-26cdc7916449/captures/01-title.png",
+        "zip_sha256": "fd6ab4dbd7c8476fb0dae9eb6f02220ae8477cbb418ef7c4f66da376574b674e"
+      },
+      "sha256": "b98d3066be89fd6ef669f3b564db374fd08d37df91e33fc6257440f6da3cf63f"
+    },
+    {
+      "bytes": 353679,
+      "path": "run97/artifacts/reading-rail-36875788835-1/17754780-30ac-4246-add7-26cdc7916449/captures/02-desktop.png",
+      "provenance": {
+        "artifact_id": 11170100341,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "17754780-30ac-4246-add7-26cdc7916449/captures/02-desktop.png",
+        "zip_sha256": "fd6ab4dbd7c8476fb0dae9eb6f02220ae8477cbb418ef7c4f66da376574b674e"
+      },
+      "sha256": "3cd70e95a12932240d00a11d317a431a3f8839ed7d71edda288c5b383c01c5cd"
+    },
+    {
+      "bytes": 355376,
+      "path": "run97/artifacts/reading-rail-36875788835-1/17754780-30ac-4246-add7-26cdc7916449/captures/03-minesweeper.png",
+      "provenance": {
+        "artifact_id": 11170100341,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "17754780-30ac-4246-add7-26cdc7916449/captures/03-minesweeper.png",
+        "zip_sha256": "fd6ab4dbd7c8476fb0dae9eb6f02220ae8477cbb418ef7c4f66da376574b674e"
+      },
+      "sha256": "4915aff9d6e0b88e149233520bc937c7f6379e06d9a57bc3abe006afbdcf0e58"
+    },
+    {
+      "bytes": 7815,
+      "path": "run97/artifacts/reading-rail-36875788835-1/17754780-30ac-4246-add7-26cdc7916449/captures/04-pre-history.png",
+      "provenance": {
+        "artifact_id": 11170100341,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "17754780-30ac-4246-add7-26cdc7916449/captures/04-pre-history.png",
+        "zip_sha256": "fd6ab4dbd7c8476fb0dae9eb6f02220ae8477cbb418ef7c4f66da376574b674e"
+      },
+      "sha256": "f8283c61d2186f7c16ada71669f84a604f5a96e028efc9e753475b9999100031"
+    },
+    {
+      "bytes": 673788,
+      "path": "run97/artifacts/reading-rail-36875788835-1/17754780-30ac-4246-add7-26cdc7916449/captures/05-dating-board.png",
+      "provenance": {
+        "artifact_id": 11170100341,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "17754780-30ac-4246-add7-26cdc7916449/captures/05-dating-board.png",
+        "zip_sha256": "fd6ab4dbd7c8476fb0dae9eb6f02220ae8477cbb418ef7c4f66da376574b674e"
+      },
+      "sha256": "e98a0e01b165c732801bb24e93b4415f01c7e0a0bd9bb9bace6a8656e09f5544"
+    },
+    {
+      "bytes": 9019,
+      "path": "run97/artifacts/reading-rail-36875788835-1/17754780-30ac-4246-add7-26cdc7916449/captures/06-post-history.png",
+      "provenance": {
+        "artifact_id": 11170100341,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "17754780-30ac-4246-add7-26cdc7916449/captures/06-post-history.png",
+        "zip_sha256": "fd6ab4dbd7c8476fb0dae9eb6f02220ae8477cbb418ef7c4f66da376574b674e"
+      },
+      "sha256": "02aa35027dc32d55523f24fb3bdd5940904566e37926153c40c457ecde2a7bf6"
+    },
+    {
+      "bytes": 1329165,
+      "path": "run97/artifacts/reading-rail-36875788835-1/17754780-30ac-4246-add7-26cdc7916449/captures/07-post-save.png",
+      "provenance": {
+        "artifact_id": 11170100341,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "17754780-30ac-4246-add7-26cdc7916449/captures/07-post-save.png",
+        "zip_sha256": "fd6ab4dbd7c8476fb0dae9eb6f02220ae8477cbb418ef7c4f66da376574b674e"
+      },
+      "sha256": "b05dea339b32f1dc8014a1cf1958e1673d9176581ca0ed83ab364e5be9c72499"
+    },
+    {
+      "bytes": 9019,
+      "path": "run97/artifacts/reading-rail-36875788835-1/17754780-30ac-4246-add7-26cdc7916449/captures/08-restored-history.png",
+      "provenance": {
+        "artifact_id": 11170100341,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "17754780-30ac-4246-add7-26cdc7916449/captures/08-restored-history.png",
+        "zip_sha256": "fd6ab4dbd7c8476fb0dae9eb6f02220ae8477cbb418ef7c4f66da376574b674e"
+      },
+      "sha256": "02aa35027dc32d55523f24fb3bdd5940904566e37926153c40c457ecde2a7bf6"
+    },
+    {
+      "bytes": 1329165,
+      "path": "run97/artifacts/reading-rail-36875788835-1/17754780-30ac-4246-add7-26cdc7916449/captures/09-restored-line.png",
+      "provenance": {
+        "artifact_id": 11170100341,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "17754780-30ac-4246-add7-26cdc7916449/captures/09-restored-line.png",
+        "zip_sha256": "fd6ab4dbd7c8476fb0dae9eb6f02220ae8477cbb418ef7c4f66da376574b674e"
+      },
+      "sha256": "b05dea339b32f1dc8014a1cf1958e1673d9176581ca0ed83ab364e5be9c72499"
+    },
+    {
+      "bytes": 14073,
+      "path": "run97/artifacts/reading-rail-36875788835-1/17754780-30ac-4246-add7-26cdc7916449/read.json",
+      "provenance": {
+        "artifact_id": 11170100341,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "17754780-30ac-4246-add7-26cdc7916449/read.json",
+        "zip_sha256": "fd6ab4dbd7c8476fb0dae9eb6f02220ae8477cbb418ef7c4f66da376574b674e"
+      },
+      "sha256": "4bd57e185e3b34c1cb58f8b80c28b89b3cf745ba877162f200bcf6cd79ee62e1"
+    },
+    {
+      "bytes": 18319,
+      "path": "run97/artifacts/reading-rail-36875788835-1/17754780-30ac-4246-add7-26cdc7916449/read.log",
+      "provenance": {
+        "artifact_id": 11170100341,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "17754780-30ac-4246-add7-26cdc7916449/read.log",
+        "zip_sha256": "fd6ab4dbd7c8476fb0dae9eb6f02220ae8477cbb418ef7c4f66da376574b674e"
+      },
+      "sha256": "88700ff5989541ca2ff6c0c9f2ae47e43fd5be999b1ea5186318c1bf55d309a4"
+    },
+    {
+      "bytes": 1130,
+      "path": "run97/artifacts/reading-rail-36875788835-1/17754780-30ac-4246-add7-26cdc7916449/read.process.json",
+      "provenance": {
+        "artifact_id": 11170100341,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "17754780-30ac-4246-add7-26cdc7916449/read.process.json",
+        "zip_sha256": "fd6ab4dbd7c8476fb0dae9eb6f02220ae8477cbb418ef7c4f66da376574b674e"
+      },
+      "sha256": "b1911f64602295584259134389e58bc50c905b508e82caaafe5cefe75ec31c0d"
+    },
+    {
+      "bytes": 0,
+      "path": "run97/artifacts/reading-rail-36875788835-1/17754780-30ac-4246-add7-26cdc7916449/read.stderr.txt",
+      "provenance": {
+        "artifact_id": 11170100341,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "17754780-30ac-4246-add7-26cdc7916449/read.stderr.txt",
+        "zip_sha256": "fd6ab4dbd7c8476fb0dae9eb6f02220ae8477cbb418ef7c4f66da376574b674e"
+      },
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 18513,
+      "path": "run97/artifacts/reading-rail-36875788835-1/17754780-30ac-4246-add7-26cdc7916449/read.stdout.txt",
+      "provenance": {
+        "artifact_id": 11170100341,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "17754780-30ac-4246-add7-26cdc7916449/read.stdout.txt",
+        "zip_sha256": "fd6ab4dbd7c8476fb0dae9eb6f02220ae8477cbb418ef7c4f66da376574b674e"
+      },
+      "sha256": "5d8933f4b042b20cc72b53043f34f283158b3d2866c0fdbf4640431096840853"
+    },
+    {
+      "bytes": 246600,
+      "path": "run97/artifacts/reading-rail-36875788835-1/17754780-30ac-4246-add7-26cdc7916449/result.json",
+      "provenance": {
+        "artifact_id": 11170100341,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "17754780-30ac-4246-add7-26cdc7916449/result.json",
+        "zip_sha256": "fd6ab4dbd7c8476fb0dae9eb6f02220ae8477cbb418ef7c4f66da376574b674e"
+      },
+      "sha256": "77aa267955852019c81b03ca43846ada6316ac00768d4493ff06d1698536075c"
+    },
+    {
+      "bytes": 116788,
+      "path": "run97/artifacts/reading-rail-36875788835-1/17754780-30ac-4246-add7-26cdc7916449/saved-pause-slot.json",
+      "provenance": {
+        "artifact_id": 11170100341,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "17754780-30ac-4246-add7-26cdc7916449/saved-pause-slot.json",
+        "zip_sha256": "fd6ab4dbd7c8476fb0dae9eb6f02220ae8477cbb418ef7c4f66da376574b674e"
+      },
+      "sha256": "20f94a56bd507bfde5a81c8fd423c0f9df3a4a84035717654cb0282fcdb8c04b"
+    },
+    {
+      "bytes": 173763,
+      "path": "run97/artifacts/reading-rail-36875788835-1/17754780-30ac-4246-add7-26cdc7916449/saved-quick.json",
+      "provenance": {
+        "artifact_id": 11170100341,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "17754780-30ac-4246-add7-26cdc7916449/saved-quick.json",
+        "zip_sha256": "fd6ab4dbd7c8476fb0dae9eb6f02220ae8477cbb418ef7c4f66da376574b674e"
+      },
+      "sha256": "c43d3f0e3865d25d716d8595915a526c9718ac4bb3379e1a504a6bdd5a3d301f"
+    },
+    {
+      "bytes": 139511,
+      "path": "run97/artifacts/reading-rail-36875788835-1/17754780-30ac-4246-add7-26cdc7916449/transactions.jsonl",
+      "provenance": {
+        "artifact_id": 11170100341,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "17754780-30ac-4246-add7-26cdc7916449/transactions.jsonl",
+        "zip_sha256": "fd6ab4dbd7c8476fb0dae9eb6f02220ae8477cbb418ef7c4f66da376574b674e"
+      },
+      "sha256": "7166092e1c4997aace5f22a20a32083f2be145f26e3dc08eae4f98274c8b3434"
+    },
+    {
+      "bytes": 203,
+      "path": "run97/artifacts/reading-rail-36875788835-1/17754780-30ac-4246-add7-26cdc7916449/user-dir-proof.log",
+      "provenance": {
+        "artifact_id": 11170100341,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "17754780-30ac-4246-add7-26cdc7916449/user-dir-proof.log",
+        "zip_sha256": "fd6ab4dbd7c8476fb0dae9eb6f02220ae8477cbb418ef7c4f66da376574b674e"
+      },
+      "sha256": "3fe4c1a715fc6b63135cb3ff99040513751d7bd69af2f8d7f3067bc2f5f262ee"
+    },
+    {
+      "bytes": 816,
+      "path": "run97/artifacts/reading-rail-36875788835-1/17754780-30ac-4246-add7-26cdc7916449/user-dir-proof.process.json",
+      "provenance": {
+        "artifact_id": 11170100341,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "17754780-30ac-4246-add7-26cdc7916449/user-dir-proof.process.json",
+        "zip_sha256": "fd6ab4dbd7c8476fb0dae9eb6f02220ae8477cbb418ef7c4f66da376574b674e"
+      },
+      "sha256": "7609be02dfa8425f11a9af1394e623e99a9e575ac55d06657a6d675e7edd4376"
+    },
+    {
+      "bytes": 0,
+      "path": "run97/artifacts/reading-rail-36875788835-1/17754780-30ac-4246-add7-26cdc7916449/user-dir-proof.stderr.txt",
+      "provenance": {
+        "artifact_id": 11170100341,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "17754780-30ac-4246-add7-26cdc7916449/user-dir-proof.stderr.txt",
+        "zip_sha256": "fd6ab4dbd7c8476fb0dae9eb6f02220ae8477cbb418ef7c4f66da376574b674e"
+      },
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 203,
+      "path": "run97/artifacts/reading-rail-36875788835-1/17754780-30ac-4246-add7-26cdc7916449/user-dir-proof.stdout.txt",
+      "provenance": {
+        "artifact_id": 11170100341,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "17754780-30ac-4246-add7-26cdc7916449/user-dir-proof.stdout.txt",
+        "zip_sha256": "fd6ab4dbd7c8476fb0dae9eb6f02220ae8477cbb418ef7c4f66da376574b674e"
+      },
+      "sha256": "3fe4c1a715fc6b63135cb3ff99040513751d7bd69af2f8d7f3067bc2f5f262ee"
+    },
+    {
+      "bytes": 167128,
+      "path": "run97/artifacts/reading-rail-36875788835-1/17754780-30ac-4246-add7-26cdc7916449/write.json",
+      "provenance": {
+        "artifact_id": 11170100341,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "17754780-30ac-4246-add7-26cdc7916449/write.json",
+        "zip_sha256": "fd6ab4dbd7c8476fb0dae9eb6f02220ae8477cbb418ef7c4f66da376574b674e"
+      },
+      "sha256": "514421b4fdee4236a605df11c7be61e39e845517cc9adb601104196a70075267"
+    },
+    {
+      "bytes": 30387,
+      "path": "run97/artifacts/reading-rail-36875788835-1/17754780-30ac-4246-add7-26cdc7916449/write.log",
+      "provenance": {
+        "artifact_id": 11170100341,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "17754780-30ac-4246-add7-26cdc7916449/write.log",
+        "zip_sha256": "fd6ab4dbd7c8476fb0dae9eb6f02220ae8477cbb418ef7c4f66da376574b674e"
+      },
+      "sha256": "f19e3e73fa090473766b3010c967c5486f2b847628633e63ef5f103538d22f56"
+    },
+    {
+      "bytes": 1134,
+      "path": "run97/artifacts/reading-rail-36875788835-1/17754780-30ac-4246-add7-26cdc7916449/write.process.json",
+      "provenance": {
+        "artifact_id": 11170100341,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "17754780-30ac-4246-add7-26cdc7916449/write.process.json",
+        "zip_sha256": "fd6ab4dbd7c8476fb0dae9eb6f02220ae8477cbb418ef7c4f66da376574b674e"
+      },
+      "sha256": "8eb4e6c44c00697494a567e47d8427b62336c5c2553eb4e06fcad12bfbb87c3a"
+    },
+    {
+      "bytes": 0,
+      "path": "run97/artifacts/reading-rail-36875788835-1/17754780-30ac-4246-add7-26cdc7916449/write.stderr.txt",
+      "provenance": {
+        "artifact_id": 11170100341,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "17754780-30ac-4246-add7-26cdc7916449/write.stderr.txt",
+        "zip_sha256": "fd6ab4dbd7c8476fb0dae9eb6f02220ae8477cbb418ef7c4f66da376574b674e"
+      },
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 30581,
+      "path": "run97/artifacts/reading-rail-36875788835-1/17754780-30ac-4246-add7-26cdc7916449/write.stdout.txt",
+      "provenance": {
+        "artifact_id": 11170100341,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "17754780-30ac-4246-add7-26cdc7916449/write.stdout.txt",
+        "zip_sha256": "fd6ab4dbd7c8476fb0dae9eb6f02220ae8477cbb418ef7c4f66da376574b674e"
+      },
+      "sha256": "19244f9a5d955c82c00fa220a38933988ba5a0de097ef4e2800110431dbbaa65"
+    },
+    {
+      "bytes": 203073,
+      "path": "run97/artifacts/reading-rail-36875788835-1/import.log",
+      "provenance": {
+        "artifact_id": 11170100341,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "import.log",
+        "zip_sha256": "fd6ab4dbd7c8476fb0dae9eb6f02220ae8477cbb418ef7c4f66da376574b674e"
+      },
+      "sha256": "97f2a2aba3cb57efa83bda7031ab3e74812da14e8bc35ddfa08c0481724c4419"
+    },
+    {
+      "bytes": 246600,
+      "path": "run97/artifacts/reading-rail-36875788835-1/result.json",
+      "provenance": {
+        "artifact_id": 11170100341,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "result.json",
+        "zip_sha256": "fd6ab4dbd7c8476fb0dae9eb6f02220ae8477cbb418ef7c4f66da376574b674e"
+      },
+      "sha256": "77aa267955852019c81b03ca43846ada6316ac00768d4493ff06d1698536075c"
+    },
+    {
+      "bytes": 203073,
+      "path": "run97/artifacts/windows-reading_delivery-36875788835-1/ci/import.log",
+      "provenance": {
+        "artifact_id": 11169646178,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/import.log",
+        "zip_sha256": "504e42842094e853294034a203f289caba998f74ba081c4ab42ddef2ed765717"
+      },
+      "sha256": "9ad17c799ad792f244a392900ff1021d035b7e21e51f7a574b542a7704194797"
+    },
+    {
+      "bytes": 1963,
+      "path": "run97/artifacts/windows-reading_delivery-36875788835-1/ci/reading_delivery.jsonl",
+      "provenance": {
+        "artifact_id": 11169646178,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/reading_delivery.jsonl",
+        "zip_sha256": "504e42842094e853294034a203f289caba998f74ba081c4ab42ddef2ed765717"
+      },
+      "sha256": "59857ab1e7a146bb884397971d20fc70f93c1531e95e163c6165e9cc9e1f336c"
+    },
+    {
+      "bytes": 68238,
+      "path": "run97/artifacts/windows-reading_delivery-36875788835-1/ci/reading_delivery.xml",
+      "provenance": {
+        "artifact_id": 11169646178,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "ci/reading_delivery.xml",
+        "zip_sha256": "504e42842094e853294034a203f289caba998f74ba081c4ab42ddef2ed765717"
+      },
+      "sha256": "47500b40643d509c8eca21bf18b78797ee7277dbdd565a791b7e72953e82385d"
+    },
+    {
+      "bytes": 1685310,
+      "path": "run97/artifacts/windows-reading_delivery-36875788835-1/phase2r_logs/cloud-reading_delivery.log",
+      "provenance": {
+        "artifact_id": 11169646178,
+        "extraction_verified_byte_for_byte": true,
+        "zip_member": "phase2r_logs/cloud-reading_delivery.log",
+        "zip_sha256": "504e42842094e853294034a203f289caba998f74ba081c4ab42ddef2ed765717"
+      },
+      "sha256": "9c7e9f45038802a36bd6666d7c51beb188c8af5896659f176c118159feee3181"
+    },
+    {
+      "bytes": 2633,
+      "path": "run97/audit/independent-run97-inventory-audit.json",
+      "provenance": {
+        "source": "independent local inspection of downloaded cloud evidence; no new engine execution"
+      },
+      "sha256": "e788dcb06a44c3c62aa4da384cd226ae6b1d3ef77f4948740fc3432c0a47d485"
+    },
+    {
+      "bytes": 6340,
+      "path": "run97/audit/independent-run97-journey-audit.json",
+      "provenance": {
+        "source": "independent local inspection of downloaded cloud evidence; no new engine execution"
+      },
+      "sha256": "cf91b5cfa954afbd134fd322aa37ea1ddf544669969671b92b204d58ecc4fa3c"
+    },
+    {
+      "bytes": 12475,
+      "path": "run97/jobs.json",
+      "provenance": {
+        "github_run_id": 36875788835,
+        "source": "raw downloaded API response"
+      },
+      "sha256": "a444309d30b596b9f4277a6e4c37152718a499f22e7560dd1939a5df11ce683f"
+    },
+    {
+      "bytes": 443768,
+      "path": "run97/logs/110414740847.log",
+      "provenance": {
+        "github_job_id": 110414740847,
+        "github_run_id": 36875788835,
+        "source": "downloaded raw GitHub job log"
+      },
+      "sha256": "a4d2f7bebaaf1a6922e8b23beadf0080ed038f1f461c89631e68e2e6f014a2ba"
+    },
+    {
+      "bytes": 488566,
+      "path": "run97/logs/110414741203.log",
+      "provenance": {
+        "github_job_id": 110414741203,
+        "github_run_id": 36875788835,
+        "source": "downloaded raw GitHub job log"
+      },
+      "sha256": "7bc2aa2d5ce77dfbc4ad3823ae88a644047ad871f19d23ab8a21b813e1169351"
+    },
+    {
+      "bytes": 783922,
+      "path": "run97/logs/110414741455.log",
+      "provenance": {
+        "github_job_id": 110414741455,
+        "github_run_id": 36875788835,
+        "source": "downloaded raw GitHub job log"
+      },
+      "sha256": "ffd15cc4501937ea93048e88e5a989a9bfd0688c58b4f44db1336653b12084d6"
+    },
+    {
+      "bytes": 12773,
+      "path": "run97/run.json",
+      "provenance": {
+        "github_run_id": 36875788835,
+        "source": "raw downloaded API response"
+      },
+      "sha256": "6e02f2ae793eb0adc9279f6e3a4a8e9094ad5926c9c7b19df6bfd05ed6b11c1e"
+    }
+  ],
+  "reproducible_packaging": {
+    "gzip_filename": "",
+    "gzip_level": 9,
+    "gzip_mtime": 0,
+    "member_gid": 0,
+    "member_mode": "0644",
+    "member_mtime": 0,
+    "member_order": "lexicographic",
+    "member_uid": 0
+  },
+  "runs": [
+    {
+      "conclusion": "failure",
+      "head_branch": "codex/pause-reading-cloud-20261001",
+      "head_sha": "0b51ad0f8246b202d211e00b6a2a50668c3a5f42",
+      "html_url": "https://github.com/Siuuuers/dwm/actions/runs/36874751767",
+      "id": 36874751767,
+      "job_logs": [
+        {
+          "conclusion": "success",
+          "id": 110411204275,
+          "name": "Windows / public API surface contracts",
+          "path": "run96/logs/110411204275.log"
+        },
+        {
+          "conclusion": "success",
+          "id": 110411204548,
+          "name": "Windows / persistence",
+          "path": "run96/logs/110411204548.log"
+        },
+        {
+          "conclusion": "success",
+          "id": 110411204589,
+          "name": "Windows / checkpoint_diagnostics",
+          "path": "run96/logs/110411204589.log"
+        },
+        {
+          "conclusion": "failure",
+          "id": 110411204624,
+          "name": "Windows / reading_delivery",
+          "path": "run96/logs/110411204624.log"
+        },
+        {
+          "conclusion": "success",
+          "id": 110411204707,
+          "name": "Windows / settings",
+          "path": "run96/logs/110411204707.log"
+        },
+        {
+          "conclusion": "failure",
+          "id": 110411204774,
+          "name": "Rendered durable Solo reading and fresh-process Load",
+          "path": "run96/logs/110411204774.log"
+        },
+        {
+          "conclusion": "success",
+          "id": 110411204913,
+          "name": "Windows / dating",
+          "path": "run96/logs/110411204913.log"
+        }
+      ],
+      "run_attempt": 1,
+      "run_number": 96,
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "head_branch": "codex/pause-reading-rerun-20261001",
+      "head_sha": "60cd00e37d5430a17e13ddc3178dbaa730de1f7d",
+      "html_url": "https://github.com/Siuuuers/dwm/actions/runs/36875788835",
+      "id": 36875788835,
+      "job_logs": [
+        {
+          "conclusion": "success",
+          "id": 110414740847,
+          "name": "Windows / reading_delivery",
+          "path": "run97/logs/110414740847.log"
+        },
+        {
+          "conclusion": "success",
+          "id": 110414741203,
+          "name": "Rendered durable Solo reading and fresh-process Load",
+          "path": "run97/logs/110414741203.log"
+        },
+        {
+          "conclusion": "success",
+          "id": 110414741455,
+          "name": "Windows / public API surface contracts",
+          "path": "run97/logs/110414741455.log"
+        }
+      ],
+      "run_attempt": 1,
+      "run_number": 97,
+      "status": "completed"
+    }
+  ],
+  "schema_version": 1,
+  "scope": "Focused Run96 red evidence plus Run97 corrected focused green; not Run98 full-gate acceptance.",
+  "secret_scan": {
+    "patterns": [
+      "github_token",
+      "signed_query",
+      "authorization_secret",
+      "private_key"
+    ],
+    "result": "no matching signed URL, credential token, Authorization secret or private key"
+  },
+  "verification_limits": [
+    "Manual pre-prose slot is saved and schema/byte validated; fresh-process READ restores post-prose Quick only.",
+    "Root visually inspected Run97 04-pre-history and 09-restored-line; remaining captures have automated/hash evidence only.",
+    "Focused public inventories were generated before checking; this is not the full clean-candidate public gate.",
+    "Run96 storage-refusal before/after inventories and the 61,180-assertion fault log are retained in full."
+  ]
+}

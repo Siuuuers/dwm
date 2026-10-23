@@ -1,0 +1,539 @@
+{
+  "game_state_surface.json": {
+    "bytes": 569173,
+    "sha256": "b5f50e3a8172824ab4a2534b9a33cdd1a3cd065d79a17185b56b319c241216f9",
+    "changes": [
+      {
+        "field": "/dynamic_references/condition_effects_today",
+        "removed": [
+          "tests/integration/verify_hospital_reading_journey.gd:371"
+        ],
+        "added": [
+          "tests/integration/verify_hospital_reading_journey.gd:391"
+        ]
+      },
+      {
+        "field": "/dynamic_references/contacts",
+        "removed": [
+          "scripts/application/lifecycle/ProductionPauseController.gd:650",
+          "scripts/application/lifecycle/ProductionPauseController.gd:676",
+          "tests/integration/verify_hospital_reading_journey.gd:110",
+          "tests/integration/verify_hospital_reading_journey.gd:200",
+          "tests/integration/verify_hospital_reading_journey.gd:284",
+          "tests/integration/verify_hospital_reading_journey.gd:286",
+          "tests/integration/verify_hospital_reading_journey.gd:335",
+          "tests/integration/verify_hospital_reading_journey.gd:511",
+          "tests/integration/verify_hospital_reading_journey.gd:589",
+          "tests/integration/verify_hospital_reading_journey.gd:629",
+          "tests/integration/verify_hospital_reading_journey.gd:665",
+          "tests/integration/verify_hospital_reading_journey.gd:691"
+        ],
+        "added": [
+          "tests/integration/verify_hospital_reading_journey.gd:111",
+          "tests/integration/verify_hospital_reading_journey.gd:219",
+          "tests/integration/verify_hospital_reading_journey.gd:303",
+          "tests/integration/verify_hospital_reading_journey.gd:305",
+          "tests/integration/verify_hospital_reading_journey.gd:354",
+          "tests/integration/verify_hospital_reading_journey.gd:579",
+          "tests/integration/verify_hospital_reading_journey.gd:657",
+          "tests/integration/verify_hospital_reading_journey.gd:697",
+          "tests/integration/verify_hospital_reading_journey.gd:733",
+          "tests/integration/verify_hospital_reading_journey.gd:759"
+        ]
+      },
+      {
+        "field": "/dynamic_references/day",
+        "removed": [
+          "tests/integration/test_narrative_pause_frontier.gd:277",
+          "tests/integration/test_narrative_pause_frontier.gd:79",
+          "tests/integration/verify_hospital_reading_journey.gd:109",
+          "tests/integration/verify_hospital_reading_journey.gd:510"
+        ],
+        "added": [
+          "tests/integration/test_narrative_pause_frontier.gd:278",
+          "tests/integration/test_narrative_pause_frontier.gd:80",
+          "tests/integration/verify_hospital_reading_journey.gd:110",
+          "tests/integration/verify_hospital_reading_journey.gd:578",
+          "tests/unit/test_reading_pause_save.gd:32"
+        ]
+      },
+      {
+        "field": "/dynamic_references/route_context",
+        "removed": [
+          "scripts/application/lifecycle/ProductionPauseController.gd:582",
+          "scripts/application/lifecycle/ProductionPauseController.gd:625",
+          "tests/unit/test_reading_pause_save.gd:149"
+        ],
+        "added": [
+          "scripts/application/lifecycle/ProductionPauseController.gd:580",
+          "scripts/application/lifecycle/ProductionPauseController.gd:622",
+          "tests/unit/test_reading_pause_save.gd:164"
+        ]
+      },
+      {
+        "field": "/records/40/call_sites",
+        "removed": [
+          "scripts/application/lifecycle/ProductionPauseController.gd:569",
+          "scripts/application/lifecycle/ProductionPauseController.gd:583",
+          "scripts/application/lifecycle/ProductionPauseController.gd:613",
+          "scripts/application/lifecycle/ProductionPauseController.gd:626",
+          "tests/integration/verify_hospital_reading_journey.gd:101",
+          "tests/unit/test_reading_pause_save.gd:70"
+        ],
+        "added": [
+          "scripts/application/lifecycle/ProductionPauseController.gd:567",
+          "scripts/application/lifecycle/ProductionPauseController.gd:581",
+          "scripts/application/lifecycle/ProductionPauseController.gd:610",
+          "scripts/application/lifecycle/ProductionPauseController.gd:623",
+          "tests/integration/verify_hospital_reading_journey.gd:102",
+          "tests/unit/test_reading_pause_save.gd:87"
+        ]
+      },
+      {
+        "field": "/records/46/call_sites",
+        "removed": [
+          "scripts/application/lifecycle/ProductionPauseController.gd:367",
+          "scripts/application/lifecycle/ProductionPauseController.gd:644",
+          "scripts/application/lifecycle/ProductionPauseController.gd:686",
+          "scripts/application/lifecycle/ProductionPauseController.gd:716",
+          "tests/integration/test_narrative_pause_frontier.gd:51",
+          "tests/integration/verify_hospital_reading_journey.gd:200",
+          "tests/integration/verify_hospital_reading_journey.gd:334",
+          "tests/integration/verify_hospital_reading_journey.gd:592",
+          "tests/unit/test_reading_pause_save.gd:106",
+          "tests/unit/test_reading_pause_save.gd:82"
+        ],
+        "added": [
+          "scripts/application/lifecycle/ProductionPauseController.gd:365",
+          "scripts/application/lifecycle/ProductionPauseController.gd:640",
+          "scripts/application/lifecycle/ProductionPauseController.gd:670",
+          "tests/integration/test_narrative_pause_frontier.gd:52",
+          "tests/integration/verify_hospital_reading_journey.gd:219",
+          "tests/integration/verify_hospital_reading_journey.gd:353",
+          "tests/integration/verify_hospital_reading_journey.gd:660",
+          "tests/unit/test_reading_pause_save.gd:121",
+          "tests/unit/test_reading_pause_save.gd:99"
+        ]
+      },
+      {
+        "field": "/records/49/call_sites",
+        "removed": [
+          "tests/integration/verify_hospital_reading_journey.gd:584"
+        ],
+        "added": [
+          "tests/integration/verify_hospital_reading_journey.gd:652"
+        ]
+      },
+      {
+        "field": "/records/50/call_sites",
+        "removed": [
+          "scripts/application/lifecycle/ProductionPauseController.gd:648",
+          "tests/unit/test_reading_pause_save.gd:81"
+        ],
+        "added": [
+          "tests/unit/test_reading_pause_save.gd:98"
+        ]
+      },
+      {
+        "field": "/records/79/call_sites",
+        "removed": [
+          "tests/integration/verify_hospital_reading_journey.gd:304"
+        ],
+        "added": [
+          "tests/integration/verify_hospital_reading_journey.gd:323"
+        ]
+      },
+      {
+        "field": "/records/91/call_sites",
+        "removed": [
+          "tests/integration/test_narrative_pause_frontier.gd:1035",
+          "tests/integration/test_narrative_pause_frontier.gd:546",
+          "tests/integration/test_narrative_pause_frontier.gd:547",
+          "tests/integration/test_narrative_pause_frontier.gd:976"
+        ],
+        "added": [
+          "tests/integration/test_narrative_pause_frontier.gd:1019",
+          "tests/integration/test_narrative_pause_frontier.gd:1078",
+          "tests/integration/test_narrative_pause_frontier.gd:562",
+          "tests/integration/test_narrative_pause_frontier.gd:563"
+        ]
+      },
+      {
+        "field": "/records/99/call_sites",
+        "removed": [
+          "tests/integration/test_narrative_pause_frontier.gd:147",
+          "tests/integration/test_narrative_pause_frontier.gd:274",
+          "tests/integration/test_narrative_pause_frontier.gd:279",
+          "tests/integration/test_narrative_pause_frontier.gd:284",
+          "tests/integration/test_narrative_pause_frontier.gd:288",
+          "tests/integration/verify_hospital_reading_journey.gd:112",
+          "tests/integration/verify_hospital_reading_journey.gd:264",
+          "tests/integration/verify_hospital_reading_journey.gd:278",
+          "tests/integration/verify_hospital_reading_journey.gd:287",
+          "tests/integration/verify_hospital_reading_journey.gd:288",
+          "tests/integration/verify_hospital_reading_journey.gd:519",
+          "tests/integration/verify_hospital_reading_journey.gd:520",
+          "tests/integration/verify_hospital_reading_journey.gd:521",
+          "tests/unit/test_reading_pause_save.gd:249",
+          "tests/unit/test_reading_pause_save.gd:294"
+        ],
+        "added": [
+          "tests/integration/test_narrative_pause_frontier.gd:148",
+          "tests/integration/test_narrative_pause_frontier.gd:275",
+          "tests/integration/test_narrative_pause_frontier.gd:281",
+          "tests/integration/test_narrative_pause_frontier.gd:287",
+          "tests/integration/test_narrative_pause_frontier.gd:289",
+          "tests/integration/verify_hospital_reading_journey.gd:113",
+          "tests/integration/verify_hospital_reading_journey.gd:283",
+          "tests/integration/verify_hospital_reading_journey.gd:297",
+          "tests/integration/verify_hospital_reading_journey.gd:306",
+          "tests/integration/verify_hospital_reading_journey.gd:307",
+          "tests/integration/verify_hospital_reading_journey.gd:587",
+          "tests/integration/verify_hospital_reading_journey.gd:588",
+          "tests/integration/verify_hospital_reading_journey.gd:589",
+          "tests/unit/test_reading_pause_save.gd:297"
+        ]
+      },
+      {
+        "field": "/records/108/call_sites",
+        "removed": [
+          "scripts/application/lifecycle/ProductionPauseController.gd:792",
+          "tests/integration/test_narrative_pause_frontier.gd:48",
+          "tests/integration/verify_hospital_reading_journey.gd:156",
+          "tests/integration/verify_hospital_reading_journey.gd:159",
+          "tests/integration/verify_hospital_reading_journey.gd:164",
+          "tests/integration/verify_hospital_reading_journey.gd:167",
+          "tests/integration/verify_hospital_reading_journey.gd:195",
+          "tests/integration/verify_hospital_reading_journey.gd:260",
+          "tests/integration/verify_hospital_reading_journey.gd:262",
+          "tests/integration/verify_hospital_reading_journey.gd:280",
+          "tests/integration/verify_hospital_reading_journey.gd:283",
+          "tests/integration/verify_hospital_reading_journey.gd:294",
+          "tests/integration/verify_hospital_reading_journey.gd:521",
+          "tests/integration/verify_hospital_reading_journey.gd:522",
+          "tests/integration/verify_hospital_reading_journey.gd:537"
+        ],
+        "added": [
+          "scripts/application/lifecycle/ProductionPauseController.gd:746",
+          "tests/integration/test_narrative_pause_frontier.gd:49",
+          "tests/integration/verify_hospital_reading_journey.gd:175",
+          "tests/integration/verify_hospital_reading_journey.gd:178",
+          "tests/integration/verify_hospital_reading_journey.gd:183",
+          "tests/integration/verify_hospital_reading_journey.gd:186",
+          "tests/integration/verify_hospital_reading_journey.gd:214",
+          "tests/integration/verify_hospital_reading_journey.gd:279",
+          "tests/integration/verify_hospital_reading_journey.gd:281",
+          "tests/integration/verify_hospital_reading_journey.gd:299",
+          "tests/integration/verify_hospital_reading_journey.gd:302",
+          "tests/integration/verify_hospital_reading_journey.gd:313",
+          "tests/integration/verify_hospital_reading_journey.gd:589",
+          "tests/integration/verify_hospital_reading_journey.gd:590",
+          "tests/integration/verify_hospital_reading_journey.gd:605"
+        ]
+      },
+      {
+        "field": "/records/114/call_sites",
+        "removed": [
+          "tests/integration/test_narrative_pause_frontier.gd:1070",
+          "tests/integration/test_narrative_pause_frontier.gd:676"
+        ],
+        "added": [
+          "tests/integration/test_narrative_pause_frontier.gd:1113",
+          "tests/integration/test_narrative_pause_frontier.gd:714"
+        ]
+      },
+      {
+        "field": "/records/138/call_sites",
+        "removed": [
+          "scripts/application/lifecycle/ProductionPauseController.gd:786",
+          "tests/integration/test_narrative_pause_frontier.gd:56"
+        ],
+        "added": [
+          "scripts/application/lifecycle/ProductionPauseController.gd:740",
+          "tests/integration/test_narrative_pause_frontier.gd:57"
+        ]
+      },
+      {
+        "field": "/records/143/call_sites",
+        "removed": [
+          "tests/integration/verify_hospital_reading_journey.gd:517",
+          "tests/integration/verify_hospital_reading_journey.gd:518"
+        ],
+        "added": [
+          "tests/integration/verify_hospital_reading_journey.gd:585",
+          "tests/integration/verify_hospital_reading_journey.gd:586"
+        ]
+      },
+      {
+        "field": "/records/163/call_sites",
+        "removed": [
+          "tests/integration/verify_hospital_reading_journey.gd:271"
+        ],
+        "added": [
+          "tests/integration/verify_hospital_reading_journey.gd:290"
+        ]
+      },
+      {
+        "field": "/records/185/call_sites",
+        "removed": [
+          "tests/integration/verify_hospital_reading_journey.gd:518",
+          "tests/unit/test_reading_pause_save.gd:248",
+          "tests/unit/test_reading_pause_save.gd:253"
+        ],
+        "added": [
+          "tests/integration/verify_hospital_reading_journey.gd:586"
+        ]
+      },
+      {
+        "field": "/records/213/call_sites",
+        "removed": [
+          "tests/unit/test_reading_pause_save.gd:171",
+          "tests/unit/test_reading_pause_save.gd:432",
+          "tests/unit/test_reading_pause_save.gd:438",
+          "tests/unit/test_reading_pause_save.gd:471",
+          "tests/unit/test_reading_pause_save.gd:485"
+        ],
+        "added": [
+          "tests/unit/test_reading_pause_save.gd:186",
+          "tests/unit/test_reading_pause_save.gd:435",
+          "tests/unit/test_reading_pause_save.gd:441",
+          "tests/unit/test_reading_pause_save.gd:474",
+          "tests/unit/test_reading_pause_save.gd:488"
+        ]
+      },
+      {
+        "field": "/records/217/call_sites",
+        "removed": [
+          "tests/integration/verify_hospital_reading_journey.gd:302",
+          "tests/integration/verify_hospital_reading_journey.gd:303"
+        ],
+        "added": [
+          "tests/integration/verify_hospital_reading_journey.gd:321",
+          "tests/integration/verify_hospital_reading_journey.gd:322"
+        ]
+      },
+      {
+        "field": "/records/228/call_sites",
+        "removed": [
+          "tests/integration/verify_hospital_reading_journey.gd:199",
+          "tests/integration/verify_hospital_reading_journey.gd:334",
+          "tests/integration/verify_hospital_reading_journey.gd:510",
+          "tests/integration/verify_hospital_reading_journey.gd:588"
+        ],
+        "added": [
+          "tests/integration/verify_hospital_reading_journey.gd:218",
+          "tests/integration/verify_hospital_reading_journey.gd:353",
+          "tests/integration/verify_hospital_reading_journey.gd:578",
+          "tests/integration/verify_hospital_reading_journey.gd:656"
+        ]
+      },
+      {
+        "field": "/records/234/call_sites",
+        "removed": [
+          "scripts/application/lifecycle/ProductionPauseController.gd:369",
+          "scripts/application/lifecycle/ProductionPauseController.gd:646",
+          "scripts/application/lifecycle/ProductionPauseController.gd:691",
+          "tests/integration/test_narrative_pause_frontier.gd:54",
+          "tests/unit/test_reading_pause_save.gd:83"
+        ],
+        "added": [
+          "scripts/application/lifecycle/ProductionPauseController.gd:367",
+          "scripts/application/lifecycle/ProductionPauseController.gd:645",
+          "tests/integration/test_narrative_pause_frontier.gd:55",
+          "tests/unit/test_reading_pause_save.gd:100"
+        ]
+      }
+    ]
+  },
+  "save_manager_surface.json": {
+    "bytes": 152044,
+    "sha256": "560136d6f9d9b4caf6d2242828069f04bc21de1b242dc5b69828460c3fe979a4",
+    "changes": [
+      {
+        "field": "/dynamic_references/autosave",
+        "removed": [],
+        "added": [
+          "tests/integration/verify_hospital_reading_journey.gd:455",
+          "tests/integration/verify_hospital_reading_journey.gd:456"
+        ]
+      },
+      {
+        "field": "/records/12/call_sites",
+        "removed": [
+          "tests/integration/test_narrative_pause_frontier.gd:188",
+          "tests/integration/test_narrative_pause_frontier.gd:190",
+          "tests/integration/verify_hospital_reading_journey.gd:504",
+          "tests/integration/verify_hospital_reading_journey.gd:505",
+          "tests/integration/verify_hospital_reading_journey.gd:506",
+          "tests/integration/verify_hospital_reading_journey.gd:513"
+        ],
+        "added": [
+          "tests/integration/test_narrative_pause_frontier.gd:189",
+          "tests/integration/test_narrative_pause_frontier.gd:191",
+          "tests/integration/verify_hospital_reading_journey.gd:462",
+          "tests/integration/verify_hospital_reading_journey.gd:572",
+          "tests/integration/verify_hospital_reading_journey.gd:573",
+          "tests/integration/verify_hospital_reading_journey.gd:574",
+          "tests/integration/verify_hospital_reading_journey.gd:581"
+        ]
+      },
+      {
+        "field": "/records/14/call_sites",
+        "removed": [
+          "tests/integration/test_narrative_pause_frontier.gd:94"
+        ],
+        "added": [
+          "tests/integration/test_narrative_pause_frontier.gd:95"
+        ]
+      },
+      {
+        "field": "/records/16/call_sites",
+        "removed": [
+          "tests/integration/test_narrative_pause_frontier.gd:88",
+          "tests/integration/verify_hospital_reading_journey.gd:476"
+        ],
+        "added": [
+          "tests/integration/test_narrative_pause_frontier.gd:89",
+          "tests/integration/verify_hospital_reading_journey.gd:544"
+        ]
+      },
+      {
+        "field": "/records/20/call_sites",
+        "removed": [
+          "tests/unit/test_reading_pause_save.gd:277"
+        ],
+        "added": [
+          "tests/unit/test_reading_pause_save.gd:280"
+        ]
+      },
+      {
+        "field": "/records/23/call_sites",
+        "removed": [
+          "tests/integration/test_narrative_pause_frontier.gd:1035",
+          "tests/integration/test_narrative_pause_frontier.gd:546",
+          "tests/integration/test_narrative_pause_frontier.gd:547",
+          "tests/integration/test_narrative_pause_frontier.gd:976"
+        ],
+        "added": [
+          "tests/integration/test_narrative_pause_frontier.gd:1019",
+          "tests/integration/test_narrative_pause_frontier.gd:1078",
+          "tests/integration/test_narrative_pause_frontier.gd:562",
+          "tests/integration/test_narrative_pause_frontier.gd:563"
+        ]
+      },
+      {
+        "field": "/records/31/call_sites",
+        "removed": [
+          "tests/integration/test_narrative_pause_frontier.gd:65"
+        ],
+        "added": [
+          "tests/integration/test_narrative_pause_frontier.gd:66",
+          "tests/unit/test_reading_pause_save.gd:25"
+        ]
+      },
+      {
+        "field": "/records/32/call_sites",
+        "removed": [
+          "tests/integration/test_narrative_pause_frontier.gd:74",
+          "tests/integration/verify_hospital_reading_journey.gd:389"
+        ],
+        "added": [
+          "tests/integration/test_narrative_pause_frontier.gd:75",
+          "tests/integration/verify_hospital_reading_journey.gd:409",
+          "tests/unit/test_reading_pause_save.gd:23"
+        ]
+      },
+      {
+        "field": "/records/38/call_sites",
+        "removed": [
+          "tests/integration/test_narrative_pause_frontier.gd:206",
+          "tests/integration/test_narrative_pause_frontier.gd:487",
+          "tests/integration/test_narrative_pause_frontier.gd:491",
+          "tests/integration/verify_hospital_reading_journey.gd:33",
+          "tests/unit/test_reading_pause_save.gd:276"
+        ],
+        "added": [
+          "tests/integration/test_narrative_pause_frontier.gd:207",
+          "tests/integration/test_narrative_pause_frontier.gd:488",
+          "tests/integration/test_narrative_pause_frontier.gd:492",
+          "tests/integration/verify_hospital_reading_journey.gd:34",
+          "tests/unit/test_reading_pause_save.gd:279"
+        ]
+      },
+      {
+        "field": "/records/39/call_sites",
+        "removed": [
+          "tests/integration/test_narrative_pause_frontier.gd:76",
+          "tests/integration/test_narrative_pause_frontier.gd:83"
+        ],
+        "added": [
+          "tests/integration/test_narrative_pause_frontier.gd:77",
+          "tests/integration/test_narrative_pause_frontier.gd:84",
+          "tests/unit/test_reading_pause_save.gd:22"
+        ]
+      },
+      {
+        "field": "/records/40/call_sites",
+        "removed": [
+          "tests/integration/test_narrative_pause_frontier.gd:68"
+        ],
+        "added": [
+          "tests/integration/test_narrative_pause_frontier.gd:69",
+          "tests/unit/test_reading_pause_save.gd:27"
+        ]
+      },
+      {
+        "field": "/records/48/call_sites",
+        "removed": [
+          "tests/integration/test_narrative_pause_frontier.gd:71",
+          "tests/integration/test_narrative_pause_frontier.gd:82",
+          "tests/integration/verify_hospital_reading_journey.gd:474"
+        ],
+        "added": [
+          "tests/integration/test_narrative_pause_frontier.gd:72",
+          "tests/integration/test_narrative_pause_frontier.gd:83",
+          "tests/integration/verify_hospital_reading_journey.gd:542",
+          "tests/unit/test_reading_pause_save.gd:24"
+        ]
+      },
+      {
+        "field": "/records/50/call_sites",
+        "removed": [
+          "tests/integration/test_narrative_pause_frontier.gd:70"
+        ],
+        "added": [
+          "tests/integration/test_narrative_pause_frontier.gd:71",
+          "tests/unit/test_reading_pause_save.gd:28"
+        ]
+      },
+      {
+        "field": "/records/56/call_sites",
+        "removed": [],
+        "added": [
+          "tests/integration/verify_hospital_reading_journey.gd:120"
+        ]
+      },
+      {
+        "field": "/records/59/call_sites",
+        "removed": [],
+        "added": [
+          "tests/integration/verify_hospital_reading_journey.gd:475"
+        ]
+      },
+      {
+        "field": "/records/66/call_sites",
+        "removed": [],
+        "added": [
+          "tests/integration/verify_hospital_reading_journey.gd:121"
+        ]
+      },
+      {
+        "field": "/records/69/call_sites",
+        "removed": [],
+        "added": [
+          "tests/integration/verify_hospital_reading_journey.gd:477"
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "review_pass": true,
+  "baseline": "638f2aab3cbceaa13729793760dfc85dc8842e93",
+  "reviewed_source": "79b36d90e3ea41d36a81a4c5ba0f87b0ae4a7bfa",
+  "inventory_tested_source": "6cac4882ab68c2b16d658e7b95da5e93b328eee4",
+  "changed_paths": [
+    "evidence/phase_2r/runtime/game_state_surface.json",
+    "evidence/phase_2r/runtime/save_manager_surface.json",
+    "tests/integration/verify_reading_rail_journey.gd",
+    "tests/support/ColdChallengeLayoutProbe.gd",
+    "tools/testing/run_reading_rail_journey.py"
+  ],
+  "production_runtime_files_changed": false,
+  "code_identities": {
+    "tests/support/ColdChallengeLayoutProbe.gd": {
+      "bytes": 9174,
+      "sha256": "04cb94bc900832701708512f438c74e61e3a9835f26e607bb0eea7af2ed5f637"
+    },
+    "tests/integration/verify_reading_rail_journey.gd": {
+      "bytes": 75075,
+      "sha256": "f7ee8f3e592be27c86b0257c6fbaf53fb6f8e7edad3f413f264040305bc7425c"
+    },
+    "tools/testing/run_reading_rail_journey.py": {
+      "bytes": 34356,
+      "sha256": "a3001e79c5a443147d369372061bc0067ee32ee291f7010728ba1a8b966a622c"
+    }
+  },
+  "findings": [],
+  "review_checks": {
+    "source_scope": "Only fixture/probe/runner and two scanner inventories differ; gameplay/save/recovery/history owners are byte-identical.",
+    "passive_observation": "Raw process/draw/events read geometry, focus, scroll and existing properties; minimum-size getters occur only in explicit stopped measure_minimums.",
+    "capture_order": "Both warm/cold screenshots finish before explicit minimum queries. Raw report is retained before each screenshot.",
+    "storage_neutrality": "Existing checkpoint/History/physical/Autosave equality checks remain. New Profile inspect_revision byte check is read-only and strengthens cold-load neutrality.",
+    "observer_lifetime": "Weak node references, idempotent stop, both streams complete at120 visible samples; parent has600-frame bound. Early test failure exits the process.",
+    "validator": "Independently checks finite positive rectangles inside ancestor clip, exact120 distinct ordered frames per stream and process/mode binding; does not trust cached fully_inside_clip flag or require equal bands.",
+    "inventory_consistency": "All three final code blobs equal Run126 inventory-scanned source; final inventories equal exact verified Run126 generated archive members."
+  },
+  "python_validator_checks": [
+    {
+      "case": "actual_run124_geometry_with_distinct_warm_cold_bands",
+      "result": "accepted"
+    },
+    {
+      "case": "actual_top_clipping_with_truthful_flag_left_true",
+      "result": "expected_refusal",
+      "code": "CHALLENGE_TITLE_CLIPPED"
+    },
+    {
+      "case": "zero_width_title",
+      "result": "expected_refusal",
+      "code": "FINITE_NONEMPTY_CHALLENGE_GEOMETRY_REQUIRED"
+    },
+    {
+      "case": "infinite_geometry",
+      "result": "expected_refusal",
+      "code": "NONFINITE_JSON_NUMBER"
+    },
+    {
+      "case": "hidden_title",
+      "result": "expected_refusal",
+      "code": "CHALLENGE_TITLE_CLIPPED"
+    },
+    {
+      "case": "wrong_physical_phase",
+      "result": "expected_refusal",
+      "code": "CHALLENGE_TITLE_CLIPPED"
+    },
+    {
+      "case": "wrong_process_identity",
+      "result": "expected_refusal",
+      "code": "COMPLETE_PASSIVE_CHALLENGE_OBSERVATION_REQUIRED"
+    },
+    {
+      "case": "incomplete_probe",
+      "result": "expected_refusal",
+      "code": "COMPLETE_PASSIVE_CHALLENGE_OBSERVATION_REQUIRED"
+    },
+    {
+      "case": "eager_measurement_mode",
+      "result": "expected_refusal",
+      "code": "COMPLETE_PASSIVE_CHALLENGE_OBSERVATION_REQUIRED"
+    },
+    {
+      "case": "duplicated_draw_frame",
+      "result": "expected_refusal",
+      "code": "DISTINCT_CHALLENGE_FRAME_SEQUENCE_REQUIRED"
+    }
+  ],
+  "inventory_identities": {
+    "game_state": {
+      "declarations": 236,
+      "exact_run126_generated_bytes": true,
+      "bytes": 560994,
+      "sha256": "885ee737ccee60198daa4ca1212f9750112ad35afc6dc997cc3d86d6aa62626a"
+    },
+    "save_manager": {
+      "declarations": 74,
+      "exact_run126_generated_bytes": true,
+      "bytes": 149295,
+      "sha256": "e9c1ead377edea92f280a5f62974f12a585f33a15769a103ce05c59f590c85ef"
+    }
+  },
+  "cloud_execution": "No local Godot or PowerShell; final broad cloud gate remains separate and pending.",
+  "limitations": [
+    "Bounded fixed English Solo board-entry fixture; no all-locale/settings/native-Windows claim.",
+    "Geometry regression cannot substitute for text glyph-content correctness or whole-game visual polish.",
+    "Passive observation still adds diagnostic CPU overhead; no CPU-timing/performance acceptance claimed.",
+    "Historical image correction establishes no production layout bug or fix."
+  ]
+}

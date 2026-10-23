@@ -1,0 +1,968 @@
+{
+  "passed": true,
+  "scope": "Real bundled-font layout measurements using draft UI labels; no production UI or approved-translation claim.",
+  "log": "tools/backup_ui/evidence/font-probe/verification.log",
+  "known_environment_diagnostic": "Windows root certificate store inaccessible; only that exact diagnostic is allowed and remains logged.",
+  "sources": {
+    "assets/ui/contacts/fonts/SOURCE-HAN-LICENSE.txt": "fcac737e761ec63dbfbdce11030a1780161920d80315edba9c8beff1c2bac5a2",
+    "assets/ui/contacts/fonts/SOURCE-SANS-LICENSE.md": "56af9b9c6715597e458284a474dc118a50a4150e9d547c70f7b4a33c3e6a9328",
+    "assets/ui/contacts/fonts/source-han-sans-hc-regular.otf": "b2ec9fbf96fc77d9d471a1e05d9dfa208c1e8ba539c394519b8d776b972ba17b",
+    "assets/ui/contacts/fonts/source-han-sans-sc-regular.otf": "f1d8611151880c6c336aabeac4640ef434fa13cbfbf1ffe82d0a71b2a5637256",
+    "assets/ui/contacts/fonts/source-sans-3-regular.ttf.woff2": "53492fb3a0def77354f166a55d09b63a10855e91c206c7620a81cf56e97f8ec3",
+    "assets/ui/contacts/fonts/sources.json": "f7ba944cccbb0529e64bbe7a5e09403e21625adbc114cd382ee0758e3a9518a3",
+    "tests/backup_ui/probe_font_fit.gd": "6d5fd5f6bd1c1eaa8dc4f5ccc0525c19249c3ec622c63889469302218074e6da",
+    "tools/backup_ui/verify.py": "0357d5a71c8c70d34380ccc9fa848dab6c5b94dfafcf21ce46d6b6e7d0b50260"
+  },
+  "measurements": [
+    {
+      "fits_paper_height": true,
+      "font_size": 20,
+      "identity": [
+        {
+          "height": 27.0,
+          "lines": 1,
+          "text": "Autosave"
+        },
+        {
+          "height": 27.0,
+          "lines": 1,
+          "text": "Quick"
+        },
+        {
+          "height": 27.0,
+          "lines": 1,
+          "text": "Slot 1"
+        }
+      ],
+      "locale": "en",
+      "maximum_identity_plus_state_plus_gap": 60.0,
+      "mode_text": [
+        {
+          "height": 27.0,
+          "lines": 1,
+          "text": "Save"
+        },
+        {
+          "height": 27.0,
+          "lines": 1,
+          "text": "Load"
+        }
+      ],
+      "mode_text_width": 80,
+      "paper_height": 168,
+      "paper_width": 136,
+      "recovery_overwrite": [
+        {
+          "height": 27.0,
+          "lines": 1,
+          "text": "Overwrite",
+          "text_width": 128
+        },
+        {
+          "height": 27.0,
+          "lines": 1,
+          "text": "Overwrite",
+          "text_width": 132
+        },
+        {
+          "height": 27.0,
+          "lines": 1,
+          "text": "Overwrite",
+          "text_width": 136
+        }
+      ],
+      "state": [
+        {
+          "height": 27.0,
+          "lines": 1,
+          "text": "Day 7 \u00b7 09:07"
+        },
+        {
+          "height": 27.0,
+          "lines": 1,
+          "text": "Empty"
+        },
+        {
+          "height": 27.0,
+          "lines": 1,
+          "text": "Unavailable"
+        }
+      ],
+      "text_width": 128
+    },
+    {
+      "fits_paper_height": true,
+      "font_size": 24,
+      "identity": [
+        {
+          "height": 32.0,
+          "lines": 1,
+          "text": "Autosave"
+        },
+        {
+          "height": 32.0,
+          "lines": 1,
+          "text": "Quick"
+        },
+        {
+          "height": 32.0,
+          "lines": 1,
+          "text": "Slot 1"
+        }
+      ],
+      "locale": "en",
+      "maximum_identity_plus_state_plus_gap": 70.0,
+      "mode_text": [
+        {
+          "height": 32.0,
+          "lines": 1,
+          "text": "Save"
+        },
+        {
+          "height": 32.0,
+          "lines": 1,
+          "text": "Load"
+        }
+      ],
+      "mode_text_width": 80,
+      "paper_height": 168,
+      "paper_width": 136,
+      "recovery_overwrite": [
+        {
+          "height": 32.0,
+          "lines": 1,
+          "text": "Overwrite",
+          "text_width": 128
+        },
+        {
+          "height": 32.0,
+          "lines": 1,
+          "text": "Overwrite",
+          "text_width": 132
+        },
+        {
+          "height": 32.0,
+          "lines": 1,
+          "text": "Overwrite",
+          "text_width": 136
+        }
+      ],
+      "state": [
+        {
+          "height": 32.0,
+          "lines": 1,
+          "text": "Day 7 \u00b7 09:07"
+        },
+        {
+          "height": 32.0,
+          "lines": 1,
+          "text": "Empty"
+        },
+        {
+          "height": 32.0,
+          "lines": 1,
+          "text": "Unavailable"
+        }
+      ],
+      "text_width": 128
+    },
+    {
+      "fits_paper_height": true,
+      "font_size": 25,
+      "identity": [
+        {
+          "height": 34.0,
+          "lines": 1,
+          "text": "Autosave"
+        },
+        {
+          "height": 34.0,
+          "lines": 1,
+          "text": "Quick"
+        },
+        {
+          "height": 34.0,
+          "lines": 1,
+          "text": "Slot 1"
+        }
+      ],
+      "locale": "en",
+      "maximum_identity_plus_state_plus_gap": 111.0,
+      "mode_text": [
+        {
+          "height": 34.0,
+          "lines": 1,
+          "text": "Save"
+        },
+        {
+          "height": 34.0,
+          "lines": 1,
+          "text": "Load"
+        }
+      ],
+      "mode_text_width": 80,
+      "paper_height": 168,
+      "paper_width": 136,
+      "recovery_overwrite": [
+        {
+          "height": 34.0,
+          "lines": 1,
+          "text": "Overwrite",
+          "text_width": 128
+        },
+        {
+          "height": 34.0,
+          "lines": 1,
+          "text": "Overwrite",
+          "text_width": 132
+        },
+        {
+          "height": 34.0,
+          "lines": 1,
+          "text": "Overwrite",
+          "text_width": 136
+        }
+      ],
+      "state": [
+        {
+          "height": 71.0,
+          "lines": 2,
+          "text": "Day 7 \u00b7 09:07"
+        },
+        {
+          "height": 34.0,
+          "lines": 1,
+          "text": "Empty"
+        },
+        {
+          "height": 34.0,
+          "lines": 1,
+          "text": "Unavailable"
+        }
+      ],
+      "text_width": 128
+    },
+    {
+      "fits_paper_height": true,
+      "font_size": 30,
+      "identity": [
+        {
+          "height": 40.0,
+          "lines": 1,
+          "text": "Autosave"
+        },
+        {
+          "height": 40.0,
+          "lines": 1,
+          "text": "Quick"
+        },
+        {
+          "height": 40.0,
+          "lines": 1,
+          "text": "Slot 1"
+        }
+      ],
+      "locale": "en",
+      "maximum_identity_plus_state_plus_gap": 129.0,
+      "mode_text": [
+        {
+          "height": 40.0,
+          "lines": 1,
+          "text": "Save"
+        },
+        {
+          "height": 40.0,
+          "lines": 1,
+          "text": "Load"
+        }
+      ],
+      "mode_text_width": 80,
+      "paper_height": 168,
+      "paper_width": 136,
+      "recovery_overwrite": [
+        {
+          "height": 40.0,
+          "lines": 1,
+          "text": "Overwrite",
+          "text_width": 128
+        },
+        {
+          "height": 40.0,
+          "lines": 1,
+          "text": "Overwrite",
+          "text_width": 132
+        },
+        {
+          "height": 40.0,
+          "lines": 1,
+          "text": "Overwrite",
+          "text_width": 136
+        }
+      ],
+      "state": [
+        {
+          "height": 83.0,
+          "lines": 2,
+          "text": "Day 7 \u00b7 09:07"
+        },
+        {
+          "height": 40.0,
+          "lines": 1,
+          "text": "Empty"
+        },
+        {
+          "height": 83.0,
+          "lines": 2,
+          "text": "Unavailable"
+        }
+      ],
+      "text_width": 128
+    },
+    {
+      "fits_paper_height": false,
+      "font_size": 36,
+      "identity": [
+        {
+          "height": 99.0,
+          "lines": 2,
+          "text": "Autosave"
+        },
+        {
+          "height": 48.0,
+          "lines": 1,
+          "text": "Quick"
+        },
+        {
+          "height": 48.0,
+          "lines": 1,
+          "text": "Slot 1"
+        }
+      ],
+      "locale": "en",
+      "maximum_identity_plus_state_plus_gap": 204.0,
+      "mode_text": [
+        {
+          "height": 48.0,
+          "lines": 1,
+          "text": "Save"
+        },
+        {
+          "height": 48.0,
+          "lines": 1,
+          "text": "Load"
+        }
+      ],
+      "mode_text_width": 80,
+      "paper_height": 168,
+      "paper_width": 136,
+      "recovery_overwrite": [
+        {
+          "height": 99.0,
+          "lines": 2,
+          "text": "Overwrite",
+          "text_width": 128
+        },
+        {
+          "height": 99.0,
+          "lines": 2,
+          "text": "Overwrite",
+          "text_width": 132
+        },
+        {
+          "height": 99.0,
+          "lines": 2,
+          "text": "Overwrite",
+          "text_width": 136
+        }
+      ],
+      "state": [
+        {
+          "height": 99.0,
+          "lines": 2,
+          "text": "Day 7 \u00b7 09:07"
+        },
+        {
+          "height": 48.0,
+          "lines": 1,
+          "text": "Empty"
+        },
+        {
+          "height": 99.0,
+          "lines": 2,
+          "text": "Unavailable"
+        }
+      ],
+      "text_width": 128
+    },
+    {
+      "fits_paper_height": true,
+      "font_size": 20,
+      "identity": [
+        {
+          "height": 30.0,
+          "lines": 1,
+          "text": "\u81ea\u52a8\u5b58\u6863"
+        },
+        {
+          "height": 30.0,
+          "lines": 1,
+          "text": "\u5feb\u901f\u5b58\u6863"
+        },
+        {
+          "height": 30.0,
+          "lines": 1,
+          "text": "\u5b58\u6863 1"
+        }
+      ],
+      "locale": "zh-CN",
+      "maximum_identity_plus_state_plus_gap": 99.0,
+      "mode_text": [
+        {
+          "height": 30.0,
+          "lines": 1,
+          "text": "\u4fdd\u5b58"
+        },
+        {
+          "height": 30.0,
+          "lines": 1,
+          "text": "\u8bfb\u53d6"
+        }
+      ],
+      "mode_text_width": 80,
+      "paper_height": 168,
+      "paper_width": 136,
+      "recovery_overwrite": [],
+      "state": [
+        {
+          "height": 63.0,
+          "lines": 2,
+          "text": "\u7b2c7\u5929 \u00b7 09:07"
+        },
+        {
+          "height": 30.0,
+          "lines": 1,
+          "text": "\u7a7a"
+        },
+        {
+          "height": 30.0,
+          "lines": 1,
+          "text": "\u4e0d\u53ef\u7528"
+        }
+      ],
+      "text_width": 128
+    },
+    {
+      "fits_paper_height": true,
+      "font_size": 24,
+      "identity": [
+        {
+          "height": 35.0,
+          "lines": 1,
+          "text": "\u81ea\u52a8\u5b58\u6863"
+        },
+        {
+          "height": 35.0,
+          "lines": 1,
+          "text": "\u5feb\u901f\u5b58\u6863"
+        },
+        {
+          "height": 35.0,
+          "lines": 1,
+          "text": "\u5b58\u6863 1"
+        }
+      ],
+      "locale": "zh-CN",
+      "maximum_identity_plus_state_plus_gap": 114.0,
+      "mode_text": [
+        {
+          "height": 35.0,
+          "lines": 1,
+          "text": "\u4fdd\u5b58"
+        },
+        {
+          "height": 35.0,
+          "lines": 1,
+          "text": "\u8bfb\u53d6"
+        }
+      ],
+      "mode_text_width": 80,
+      "paper_height": 168,
+      "paper_width": 136,
+      "recovery_overwrite": [],
+      "state": [
+        {
+          "height": 73.0,
+          "lines": 2,
+          "text": "\u7b2c7\u5929 \u00b7 09:07"
+        },
+        {
+          "height": 35.0,
+          "lines": 1,
+          "text": "\u7a7a"
+        },
+        {
+          "height": 35.0,
+          "lines": 1,
+          "text": "\u4e0d\u53ef\u7528"
+        }
+      ],
+      "text_width": 128
+    },
+    {
+      "fits_paper_height": true,
+      "font_size": 25,
+      "identity": [
+        {
+          "height": 37.0,
+          "lines": 1,
+          "text": "\u81ea\u52a8\u5b58\u6863"
+        },
+        {
+          "height": 37.0,
+          "lines": 1,
+          "text": "\u5feb\u901f\u5b58\u6863"
+        },
+        {
+          "height": 37.0,
+          "lines": 1,
+          "text": "\u5b58\u6863 1"
+        }
+      ],
+      "locale": "zh-CN",
+      "maximum_identity_plus_state_plus_gap": 120.0,
+      "mode_text": [
+        {
+          "height": 37.0,
+          "lines": 1,
+          "text": "\u4fdd\u5b58"
+        },
+        {
+          "height": 37.0,
+          "lines": 1,
+          "text": "\u8bfb\u53d6"
+        }
+      ],
+      "mode_text_width": 80,
+      "paper_height": 168,
+      "paper_width": 136,
+      "recovery_overwrite": [],
+      "state": [
+        {
+          "height": 77.0,
+          "lines": 2,
+          "text": "\u7b2c7\u5929 \u00b7 09:07"
+        },
+        {
+          "height": 37.0,
+          "lines": 1,
+          "text": "\u7a7a"
+        },
+        {
+          "height": 37.0,
+          "lines": 1,
+          "text": "\u4e0d\u53ef\u7528"
+        }
+      ],
+      "text_width": 128
+    },
+    {
+      "fits_paper_height": true,
+      "font_size": 30,
+      "identity": [
+        {
+          "height": 44.0,
+          "lines": 1,
+          "text": "\u81ea\u52a8\u5b58\u6863"
+        },
+        {
+          "height": 44.0,
+          "lines": 1,
+          "text": "\u5feb\u901f\u5b58\u6863"
+        },
+        {
+          "height": 44.0,
+          "lines": 1,
+          "text": "\u5b58\u6863 1"
+        }
+      ],
+      "locale": "zh-CN",
+      "maximum_identity_plus_state_plus_gap": 141.0,
+      "mode_text": [
+        {
+          "height": 44.0,
+          "lines": 1,
+          "text": "\u4fdd\u5b58"
+        },
+        {
+          "height": 44.0,
+          "lines": 1,
+          "text": "\u8bfb\u53d6"
+        }
+      ],
+      "mode_text_width": 80,
+      "paper_height": 168,
+      "paper_width": 136,
+      "recovery_overwrite": [],
+      "state": [
+        {
+          "height": 91.0,
+          "lines": 2,
+          "text": "\u7b2c7\u5929 \u00b7 09:07"
+        },
+        {
+          "height": 44.0,
+          "lines": 1,
+          "text": "\u7a7a"
+        },
+        {
+          "height": 44.0,
+          "lines": 1,
+          "text": "\u4e0d\u53ef\u7528"
+        }
+      ],
+      "text_width": 128
+    },
+    {
+      "fits_paper_height": false,
+      "font_size": 36,
+      "identity": [
+        {
+          "height": 109.0,
+          "lines": 2,
+          "text": "\u81ea\u52a8\u5b58\u6863"
+        },
+        {
+          "height": 109.0,
+          "lines": 2,
+          "text": "\u5feb\u901f\u5b58\u6863"
+        },
+        {
+          "height": 53.0,
+          "lines": 1,
+          "text": "\u5b58\u6863 1"
+        }
+      ],
+      "locale": "zh-CN",
+      "maximum_identity_plus_state_plus_gap": 280.0,
+      "mode_text": [
+        {
+          "height": 53.0,
+          "lines": 1,
+          "text": "\u4fdd\u5b58"
+        },
+        {
+          "height": 53.0,
+          "lines": 1,
+          "text": "\u8bfb\u53d6"
+        }
+      ],
+      "mode_text_width": 80,
+      "paper_height": 168,
+      "paper_width": 136,
+      "recovery_overwrite": [],
+      "state": [
+        {
+          "height": 165.0,
+          "lines": 3,
+          "text": "\u7b2c7\u5929 \u00b7 09:07"
+        },
+        {
+          "height": 53.0,
+          "lines": 1,
+          "text": "\u7a7a"
+        },
+        {
+          "height": 53.0,
+          "lines": 1,
+          "text": "\u4e0d\u53ef\u7528"
+        }
+      ],
+      "text_width": 128
+    },
+    {
+      "fits_paper_height": true,
+      "font_size": 20,
+      "identity": [
+        {
+          "height": 30.0,
+          "lines": 1,
+          "text": "\u81ea\u52d5\u5b58\u6a94"
+        },
+        {
+          "height": 30.0,
+          "lines": 1,
+          "text": "\u5feb\u901f\u5b58\u6a94"
+        },
+        {
+          "height": 30.0,
+          "lines": 1,
+          "text": "\u5b58\u6a94 1"
+        }
+      ],
+      "locale": "zh-HK",
+      "maximum_identity_plus_state_plus_gap": 99.0,
+      "mode_text": [
+        {
+          "height": 30.0,
+          "lines": 1,
+          "text": "\u5132\u5b58"
+        },
+        {
+          "height": 30.0,
+          "lines": 1,
+          "text": "\u8f09\u5165"
+        }
+      ],
+      "mode_text_width": 80,
+      "paper_height": 168,
+      "paper_width": 136,
+      "recovery_overwrite": [],
+      "state": [
+        {
+          "height": 63.0,
+          "lines": 2,
+          "text": "\u7b2c7\u5929 \u00b7 09:07"
+        },
+        {
+          "height": 30.0,
+          "lines": 1,
+          "text": "\u7a7a"
+        },
+        {
+          "height": 30.0,
+          "lines": 1,
+          "text": "\u7121\u6cd5\u4f7f\u7528"
+        }
+      ],
+      "text_width": 128
+    },
+    {
+      "fits_paper_height": true,
+      "font_size": 24,
+      "identity": [
+        {
+          "height": 35.0,
+          "lines": 1,
+          "text": "\u81ea\u52d5\u5b58\u6a94"
+        },
+        {
+          "height": 35.0,
+          "lines": 1,
+          "text": "\u5feb\u901f\u5b58\u6a94"
+        },
+        {
+          "height": 35.0,
+          "lines": 1,
+          "text": "\u5b58\u6a94 1"
+        }
+      ],
+      "locale": "zh-HK",
+      "maximum_identity_plus_state_plus_gap": 114.0,
+      "mode_text": [
+        {
+          "height": 35.0,
+          "lines": 1,
+          "text": "\u5132\u5b58"
+        },
+        {
+          "height": 35.0,
+          "lines": 1,
+          "text": "\u8f09\u5165"
+        }
+      ],
+      "mode_text_width": 80,
+      "paper_height": 168,
+      "paper_width": 136,
+      "recovery_overwrite": [],
+      "state": [
+        {
+          "height": 73.0,
+          "lines": 2,
+          "text": "\u7b2c7\u5929 \u00b7 09:07"
+        },
+        {
+          "height": 35.0,
+          "lines": 1,
+          "text": "\u7a7a"
+        },
+        {
+          "height": 35.0,
+          "lines": 1,
+          "text": "\u7121\u6cd5\u4f7f\u7528"
+        }
+      ],
+      "text_width": 128
+    },
+    {
+      "fits_paper_height": true,
+      "font_size": 25,
+      "identity": [
+        {
+          "height": 37.0,
+          "lines": 1,
+          "text": "\u81ea\u52d5\u5b58\u6a94"
+        },
+        {
+          "height": 37.0,
+          "lines": 1,
+          "text": "\u5feb\u901f\u5b58\u6a94"
+        },
+        {
+          "height": 37.0,
+          "lines": 1,
+          "text": "\u5b58\u6a94 1"
+        }
+      ],
+      "locale": "zh-HK",
+      "maximum_identity_plus_state_plus_gap": 120.0,
+      "mode_text": [
+        {
+          "height": 37.0,
+          "lines": 1,
+          "text": "\u5132\u5b58"
+        },
+        {
+          "height": 37.0,
+          "lines": 1,
+          "text": "\u8f09\u5165"
+        }
+      ],
+      "mode_text_width": 80,
+      "paper_height": 168,
+      "paper_width": 136,
+      "recovery_overwrite": [],
+      "state": [
+        {
+          "height": 77.0,
+          "lines": 2,
+          "text": "\u7b2c7\u5929 \u00b7 09:07"
+        },
+        {
+          "height": 37.0,
+          "lines": 1,
+          "text": "\u7a7a"
+        },
+        {
+          "height": 37.0,
+          "lines": 1,
+          "text": "\u7121\u6cd5\u4f7f\u7528"
+        }
+      ],
+      "text_width": 128
+    },
+    {
+      "fits_paper_height": true,
+      "font_size": 30,
+      "identity": [
+        {
+          "height": 44.0,
+          "lines": 1,
+          "text": "\u81ea\u52d5\u5b58\u6a94"
+        },
+        {
+          "height": 44.0,
+          "lines": 1,
+          "text": "\u5feb\u901f\u5b58\u6a94"
+        },
+        {
+          "height": 44.0,
+          "lines": 1,
+          "text": "\u5b58\u6a94 1"
+        }
+      ],
+      "locale": "zh-HK",
+      "maximum_identity_plus_state_plus_gap": 141.0,
+      "mode_text": [
+        {
+          "height": 44.0,
+          "lines": 1,
+          "text": "\u5132\u5b58"
+        },
+        {
+          "height": 44.0,
+          "lines": 1,
+          "text": "\u8f09\u5165"
+        }
+      ],
+      "mode_text_width": 80,
+      "paper_height": 168,
+      "paper_width": 136,
+      "recovery_overwrite": [],
+      "state": [
+        {
+          "height": 91.0,
+          "lines": 2,
+          "text": "\u7b2c7\u5929 \u00b7 09:07"
+        },
+        {
+          "height": 44.0,
+          "lines": 1,
+          "text": "\u7a7a"
+        },
+        {
+          "height": 44.0,
+          "lines": 1,
+          "text": "\u7121\u6cd5\u4f7f\u7528"
+        }
+      ],
+      "text_width": 128
+    },
+    {
+      "fits_paper_height": false,
+      "font_size": 36,
+      "identity": [
+        {
+          "height": 109.0,
+          "lines": 2,
+          "text": "\u81ea\u52d5\u5b58\u6a94"
+        },
+        {
+          "height": 109.0,
+          "lines": 2,
+          "text": "\u5feb\u901f\u5b58\u6a94"
+        },
+        {
+          "height": 53.0,
+          "lines": 1,
+          "text": "\u5b58\u6a94 1"
+        }
+      ],
+      "locale": "zh-HK",
+      "maximum_identity_plus_state_plus_gap": 280.0,
+      "mode_text": [
+        {
+          "height": 53.0,
+          "lines": 1,
+          "text": "\u5132\u5b58"
+        },
+        {
+          "height": 53.0,
+          "lines": 1,
+          "text": "\u8f09\u5165"
+        }
+      ],
+      "mode_text_width": 80,
+      "paper_height": 168,
+      "paper_width": 136,
+      "recovery_overwrite": [],
+      "state": [
+        {
+          "height": 165.0,
+          "lines": 3,
+          "text": "\u7b2c7\u5929 \u00b7 09:07"
+        },
+        {
+          "height": 53.0,
+          "lines": 1,
+          "text": "\u7a7a"
+        },
+        {
+          "height": 109.0,
+          "lines": 2,
+          "text": "\u7121\u6cd5\u4f7f\u7528"
+        }
+      ],
+      "text_width": 128
+    }
+  ]
+}

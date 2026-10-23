@@ -1,0 +1,12 @@
+{
+  "source_commit": "80742ef4308076c8f2f58c7f02fe760f3ee4ba9f",
+  "python_tests": 27,
+  "game_tests": 8,
+  "harness_tests": 10,
+  "package_tests": 9,
+  "native_execution": false,
+  "controller_sha256": "190bbab1a374311296fbfe489c861014033c1fd769818318755624e1b89c84fd",
+  "controller_git_blob": "4090fdc6b9b06ef8ae2fbf1d0f992e62d4ba74de",
+  "external_c_review": "pending",
+  "dispatch": "not executed"
+}

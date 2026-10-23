@@ -1,0 +1,5591 @@
+{
+  "baseline_ref": "681251dc832262c08826ce74d6a4480291eac4a8",
+  "checkout_ref": "e585dc45f4305add2c7c37b316cea74d7153efae",
+  "ablation": "Only SaveDocumentSchema.gd is replaced; all other code is the candidate.",
+  "timing_policy": "Observations on one shared Windows runner; no speed threshold or frame-time guarantee.",
+  "journey_comparison": "Fresh journeys may generate different boards; fixed_payloads reuse identical saved bytes.",
+  "journeys": [
+    {
+      "variant": "baseline",
+      "locale": "zh-CN",
+      "dating_ending": "win",
+      "summary": [
+        {
+          "count": 1,
+          "key": "app:first_reveal",
+          "sync_max_us": 92300,
+          "sync_median_us": 92300,
+          "sync_min_us": 92300,
+          "two_frames_max_us": 105463,
+          "two_frames_median_us": 105463
+        },
+        {
+          "count": 2,
+          "key": "app:flag",
+          "sync_max_us": 51176,
+          "sync_median_us": 51176,
+          "sync_min_us": 43540,
+          "two_frames_max_us": 56298,
+          "two_frames_median_us": 56298
+        },
+        {
+          "count": 1,
+          "key": "app:losing_reveal",
+          "sync_max_us": 48198,
+          "sync_median_us": 48198,
+          "sync_min_us": 48198,
+          "two_frames_max_us": 730965,
+          "two_frames_median_us": 730965
+        },
+        {
+          "count": 1,
+          "key": "app:new_board_first_reveal",
+          "sync_max_us": 239836,
+          "sync_median_us": 239836,
+          "sync_min_us": 239836,
+          "two_frames_max_us": 244995,
+          "two_frames_median_us": 244995
+        },
+        {
+          "count": 15,
+          "key": "app:routine_reveal",
+          "sync_max_us": 63080,
+          "sync_median_us": 42965,
+          "sync_min_us": 40514,
+          "two_frames_max_us": 68766,
+          "two_frames_median_us": 48332
+        },
+        {
+          "count": 225,
+          "key": "app:routine_reveal_more",
+          "sync_max_us": 68699,
+          "sync_median_us": 48869,
+          "sync_min_us": 40633,
+          "two_frames_max_us": 74585,
+          "two_frames_median_us": 54131
+        },
+        {
+          "count": 2,
+          "key": "app:unflag",
+          "sync_max_us": 50530,
+          "sync_median_us": 50530,
+          "sync_min_us": 50018,
+          "two_frames_max_us": 55370,
+          "two_frames_median_us": 55370
+        },
+        {
+          "count": 1,
+          "key": "app:winning_reveal",
+          "sync_max_us": 60956,
+          "sync_median_us": 60956,
+          "sync_min_us": 60956,
+          "two_frames_max_us": 887978,
+          "two_frames_median_us": 887978
+        },
+        {
+          "count": 1,
+          "key": "dating:first_reveal",
+          "sync_max_us": 276576,
+          "sync_median_us": 276576,
+          "sync_min_us": 276576,
+          "two_frames_max_us": 307329,
+          "two_frames_median_us": 307329
+        },
+        {
+          "count": 12,
+          "key": "dating:routine_reveal",
+          "sync_max_us": 30750,
+          "sync_median_us": 29414,
+          "sync_min_us": 28509,
+          "two_frames_max_us": 35056,
+          "two_frames_median_us": 33886
+        },
+        {
+          "count": 62,
+          "key": "dating:routine_reveal_more",
+          "sync_max_us": 37328,
+          "sync_median_us": 34594,
+          "sync_min_us": 29722,
+          "two_frames_max_us": 41832,
+          "two_frames_median_us": 39386
+        },
+        {
+          "count": 1,
+          "key": "dating:winning_reveal",
+          "sync_max_us": 35480,
+          "sync_median_us": 35480,
+          "sync_min_us": 35480,
+          "two_frames_max_us": 588831,
+          "two_frames_median_us": 588831
+        }
+      ],
+      "settlement": [
+        {
+          "end_to_end_us": 888154,
+          "ending": "win",
+          "settled": true,
+          "settled_after_us": 5,
+          "surface": "app"
+        },
+        {
+          "end_to_end_us": 731133,
+          "ending": "loss",
+          "settled": true,
+          "settled_after_us": 6,
+          "surface": "app"
+        },
+        {
+          "end_to_end_us": 588955,
+          "ending": "win",
+          "phase": "post_challenge",
+          "settled_after_us": 8,
+          "surface": "dating"
+        },
+        {
+          "end_to_end_us": 589018,
+          "ending": "win",
+          "phase": "post_challenge",
+          "settled_after_us": 4,
+          "surface": "dating"
+        }
+      ],
+      "checkpoint_profiles": [
+        {
+          "autosave": true,
+          "backup_us": 5232,
+          "checkpoint_kind": "safe_marker",
+          "document_build_us": 2521,
+          "elapsed_us": 9430,
+          "journal_prepare_us": 78,
+          "ok": true,
+          "run_snapshot_build_us": 1481,
+          "scope": "save_checkpoint_prepare",
+          "text_validator_calls_since_prepare": 1,
+          "text_validator_us_since_prepare": 4968,
+          "view_capture_us": 109
+        },
+        {
+          "autosave": true,
+          "checkpoint_id": "run_id.0a0deae79fd3ff014147e00f665a0dcf1215b7efabd84e98ed5a17e1c0ba017a:2",
+          "document_bytes": 11620,
+          "elapsed_us": 11315,
+          "history_bundles": 1,
+          "journal_us": 1470,
+          "ok": true,
+          "outgoing_schema_us": 2646,
+          "reread_us": 225,
+          "reread_validate_us": 21,
+          "scope": "save_checkpoint",
+          "splice_us": 1697,
+          "stringify_us": 1640,
+          "text_validator_calls_since_prepare": 1,
+          "text_validator_us_since_prepare": 4968,
+          "write_atomic_us": 2911
+        },
+        {
+          "autosave": true,
+          "backup_us": 362,
+          "checkpoint_kind": "safe_marker",
+          "document_build_us": 3897,
+          "elapsed_us": 6117,
+          "journal_prepare_us": 189,
+          "ok": true,
+          "run_snapshot_build_us": 1531,
+          "scope": "save_checkpoint_prepare",
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "view_capture_us": 128
+        },
+        {
+          "autosave": true,
+          "checkpoint_id": "run_id.0a0deae79fd3ff014147e00f665a0dcf1215b7efabd84e98ed5a17e1c0ba017a:3",
+          "document_bytes": 19028,
+          "elapsed_us": 15963,
+          "history_bundles": 2,
+          "journal_us": 1772,
+          "ok": true,
+          "outgoing_schema_us": 5793,
+          "reread_us": 231,
+          "reread_validate_us": 33,
+          "scope": "save_checkpoint",
+          "splice_us": 2628,
+          "stringify_us": 1591,
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "write_atomic_us": 3107
+        },
+        {
+          "autosave": true,
+          "backup_us": 442,
+          "checkpoint_kind": "pre_board",
+          "document_build_us": 4205,
+          "elapsed_us": 7911,
+          "journal_prepare_us": 273,
+          "ok": true,
+          "run_snapshot_build_us": 2787,
+          "scope": "save_checkpoint_prepare",
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "view_capture_us": 195
+        },
+        {
+          "autosave": true,
+          "checkpoint_id": "run_id.0a0deae79fd3ff014147e00f665a0dcf1215b7efabd84e98ed5a17e1c0ba017a:4",
+          "document_bytes": 29379,
+          "elapsed_us": 18652,
+          "history_bundles": 2,
+          "journal_us": 2896,
+          "ok": true,
+          "outgoing_schema_us": 6387,
+          "reread_us": 334,
+          "reread_validate_us": 46,
+          "scope": "save_checkpoint",
+          "splice_us": 2,
+          "stringify_us": 3288,
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "write_atomic_us": 3538
+        },
+        {
+          "autosave": true,
+          "backup_us": 596,
+          "checkpoint_kind": "safe_marker",
+          "document_build_us": 19556,
+          "elapsed_us": 32243,
+          "journal_prepare_us": 289,
+          "ok": true,
+          "run_snapshot_build_us": 11750,
+          "scope": "save_checkpoint_prepare",
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "view_capture_us": 44
+        },
+        {
+          "autosave": true,
+          "checkpoint_id": "run_id.0a0deae79fd3ff014147e00f665a0dcf1215b7efabd84e98ed5a17e1c0ba017a:5",
+          "document_bytes": 184765,
+          "elapsed_us": 81456,
+          "history_bundles": 2,
+          "journal_us": 12117,
+          "ok": true,
+          "outgoing_schema_us": 25111,
+          "reread_us": 1437,
+          "reread_validate_us": 274,
+          "scope": "save_checkpoint",
+          "splice_us": 2,
+          "stringify_us": 23457,
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "write_atomic_us": 6406
+        },
+        {
+          "autosave": true,
+          "backup_us": 2844,
+          "checkpoint_kind": "post_result",
+          "document_build_us": 23239,
+          "elapsed_us": 39329,
+          "journal_prepare_us": 1429,
+          "ok": true,
+          "run_snapshot_build_us": 11754,
+          "scope": "save_checkpoint_prepare",
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "view_capture_us": 52
+        },
+        {
+          "autosave": true,
+          "checkpoint_id": "run_id.0a0deae79fd3ff014147e00f665a0dcf1215b7efabd84e98ed5a17e1c0ba017a:6",
+          "document_bytes": 348649,
+          "elapsed_us": 121517,
+          "history_bundles": 2,
+          "journal_us": 15697,
+          "ok": true,
+          "outgoing_schema_us": 52458,
+          "reread_us": 2365,
+          "reread_validate_us": 497,
+          "scope": "save_checkpoint",
+          "splice_us": 1,
+          "stringify_us": 24032,
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "write_atomic_us": 10750
+        },
+        {
+          "autosave": true,
+          "backup_us": 4637,
+          "checkpoint_kind": "safe_marker",
+          "document_build_us": 15805,
+          "elapsed_us": 31891,
+          "journal_prepare_us": 3232,
+          "ok": true,
+          "run_snapshot_build_us": 7234,
+          "scope": "save_checkpoint_prepare",
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "view_capture_us": 968
+        },
+        {
+          "autosave": true,
+          "checkpoint_id": "run_id.0a0deae79fd3ff014147e00f665a0dcf1215b7efabd84e98ed5a17e1c0ba017a:7",
+          "document_bytes": 423965,
+          "elapsed_us": 117389,
+          "history_bundles": 2,
+          "journal_us": 11491,
+          "ok": true,
+          "outgoing_schema_us": 64493,
+          "reread_us": 2790,
+          "reread_validate_us": 655,
+          "scope": "save_checkpoint",
+          "splice_us": 1,
+          "stringify_us": 12785,
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "write_atomic_us": 14081
+        },
+        {
+          "autosave": true,
+          "backup_us": 5495,
+          "checkpoint_kind": "pre_board",
+          "document_build_us": 15561,
+          "elapsed_us": 34815,
+          "journal_prepare_us": 4284,
+          "ok": true,
+          "run_snapshot_build_us": 8359,
+          "scope": "save_checkpoint_prepare",
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "view_capture_us": 1103
+        },
+        {
+          "autosave": true,
+          "checkpoint_id": "run_id.0a0deae79fd3ff014147e00f665a0dcf1215b7efabd84e98ed5a17e1c0ba017a:8",
+          "document_bytes": 359321,
+          "elapsed_us": 113894,
+          "history_bundles": 2,
+          "journal_us": 13663,
+          "ok": true,
+          "outgoing_schema_us": 54358,
+          "reread_us": 2448,
+          "reread_validate_us": 532,
+          "scope": "save_checkpoint",
+          "splice_us": 2,
+          "stringify_us": 14341,
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "write_atomic_us": 15430
+        },
+        {
+          "autosave": true,
+          "backup_us": 4820,
+          "checkpoint_kind": "safe_marker",
+          "document_build_us": 14566,
+          "elapsed_us": 30855,
+          "journal_prepare_us": 3394,
+          "ok": true,
+          "run_snapshot_build_us": 8020,
+          "scope": "save_checkpoint_prepare",
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "view_capture_us": 43
+        },
+        {
+          "autosave": true,
+          "checkpoint_id": "run_id.0a0deae79fd3ff014147e00f665a0dcf1215b7efabd84e98ed5a17e1c0ba017a:9",
+          "document_bytes": 292283,
+          "elapsed_us": 100014,
+          "history_bundles": 2,
+          "journal_us": 12988,
+          "ok": true,
+          "outgoing_schema_us": 42218,
+          "reread_us": 1996,
+          "reread_validate_us": 430,
+          "scope": "save_checkpoint",
+          "splice_us": 2,
+          "stringify_us": 15046,
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "write_atomic_us": 14459
+        },
+        {
+          "autosave": true,
+          "backup_us": 4058,
+          "checkpoint_kind": "post_result",
+          "document_build_us": 15630,
+          "elapsed_us": 30358,
+          "journal_prepare_us": 2861,
+          "ok": true,
+          "run_snapshot_build_us": 7743,
+          "scope": "save_checkpoint_prepare",
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "view_capture_us": 54
+        },
+        {
+          "autosave": true,
+          "checkpoint_id": "run_id.0a0deae79fd3ff014147e00f665a0dcf1215b7efabd84e98ed5a17e1c0ba017a:10",
+          "document_bytes": 307972,
+          "elapsed_us": 105083,
+          "history_bundles": 2,
+          "journal_us": 12418,
+          "ok": true,
+          "outgoing_schema_us": 47205,
+          "reread_us": 2021,
+          "reread_validate_us": 481,
+          "scope": "save_checkpoint",
+          "splice_us": 2,
+          "stringify_us": 14711,
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "write_atomic_us": 14383
+        },
+        {
+          "autosave": false,
+          "checkpoint_kind": "day_resolution_stage",
+          "elapsed_us": 13724,
+          "journal_prepare_us": 3349,
+          "ok": true,
+          "run_snapshot_build_us": 9574,
+          "scope": "save_checkpoint_prepare",
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "view_capture_us": 787
+        },
+        {
+          "autosave": false,
+          "checkpoint_id": "run_id.0a0deae79fd3ff014147e00f665a0dcf1215b7efabd84e98ed5a17e1c0ba017a:11",
+          "elapsed_us": 13085,
+          "history_bundles": 2,
+          "journal_us": 13074,
+          "ok": true,
+          "scope": "save_checkpoint",
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0
+        },
+        {
+          "autosave": false,
+          "checkpoint_kind": "day_resolution_stage",
+          "elapsed_us": 13922,
+          "journal_prepare_us": 3381,
+          "ok": true,
+          "run_snapshot_build_us": 9589,
+          "scope": "save_checkpoint_prepare",
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "view_capture_us": 938
+        },
+        {
+          "autosave": false,
+          "checkpoint_id": "run_id.0a0deae79fd3ff014147e00f665a0dcf1215b7efabd84e98ed5a17e1c0ba017a:12",
+          "elapsed_us": 14399,
+          "history_bundles": 2,
+          "journal_us": 14389,
+          "ok": true,
+          "scope": "save_checkpoint",
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0
+        },
+        {
+          "autosave": false,
+          "checkpoint_kind": "day_resolution_stage",
+          "elapsed_us": 14228,
+          "journal_prepare_us": 3514,
+          "ok": true,
+          "run_snapshot_build_us": 9884,
+          "scope": "save_checkpoint_prepare",
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "view_capture_us": 816
+        },
+        {
+          "autosave": false,
+          "checkpoint_id": "run_id.0a0deae79fd3ff014147e00f665a0dcf1215b7efabd84e98ed5a17e1c0ba017a:13",
+          "elapsed_us": 13561,
+          "history_bundles": 2,
+          "journal_us": 13551,
+          "ok": true,
+          "scope": "save_checkpoint",
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0
+        },
+        {
+          "autosave": true,
+          "backup_us": 4176,
+          "checkpoint_kind": "day_resolution_stage",
+          "document_build_us": 55744,
+          "elapsed_us": 73327,
+          "journal_prepare_us": 3392,
+          "ok": true,
+          "run_snapshot_build_us": 9085,
+          "scope": "save_checkpoint_prepare",
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "view_capture_us": 918
+        },
+        {
+          "autosave": true,
+          "checkpoint_id": "run_id.0a0deae79fd3ff014147e00f665a0dcf1215b7efabd84e98ed5a17e1c0ba017a:14",
+          "document_bytes": 351022,
+          "elapsed_us": 158048,
+          "history_bundles": 2,
+          "journal_us": 12880,
+          "ok": true,
+          "outgoing_schema_us": 55294,
+          "reread_us": 2424,
+          "reread_validate_us": 522,
+          "scope": "save_checkpoint",
+          "splice_us": 44902,
+          "stringify_us": 14918,
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "write_atomic_us": 13526
+        },
+        {
+          "autosave": false,
+          "checkpoint_kind": "day_resolution_stage",
+          "elapsed_us": 13959,
+          "journal_prepare_us": 3880,
+          "ok": true,
+          "run_snapshot_build_us": 9277,
+          "scope": "save_checkpoint_prepare",
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "view_capture_us": 789
+        },
+        {
+          "autosave": false,
+          "checkpoint_id": "run_id.0a0deae79fd3ff014147e00f665a0dcf1215b7efabd84e98ed5a17e1c0ba017a:15",
+          "elapsed_us": 12371,
+          "history_bundles": 2,
+          "journal_us": 12363,
+          "ok": true,
+          "scope": "save_checkpoint",
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0
+        },
+        {
+          "autosave": true,
+          "backup_us": 4815,
+          "checkpoint_kind": "safe_marker",
+          "document_build_us": 58367,
+          "elapsed_us": 76891,
+          "journal_prepare_us": 3257,
+          "ok": true,
+          "run_snapshot_build_us": 9351,
+          "scope": "save_checkpoint_prepare",
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "view_capture_us": 1088
+        },
+        {
+          "autosave": true,
+          "checkpoint_id": "run_id.0a0deae79fd3ff014147e00f665a0dcf1215b7efabd84e98ed5a17e1c0ba017a:16",
+          "document_bytes": 353982,
+          "elapsed_us": 160103,
+          "history_bundles": 2,
+          "journal_us": 13467,
+          "ok": true,
+          "outgoing_schema_us": 55229,
+          "reread_us": 2285,
+          "reread_validate_us": 533,
+          "scope": "save_checkpoint",
+          "splice_us": 45388,
+          "stringify_us": 15136,
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "write_atomic_us": 14476
+        },
+        {
+          "autosave": true,
+          "backup_us": 4697,
+          "checkpoint_kind": "safe_marker",
+          "document_build_us": 56632,
+          "elapsed_us": 75210,
+          "journal_prepare_us": 3326,
+          "ok": true,
+          "run_snapshot_build_us": 9384,
+          "scope": "save_checkpoint_prepare",
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "view_capture_us": 1158
+        },
+        {
+          "autosave": true,
+          "checkpoint_id": "run_id.0a0deae79fd3ff014147e00f665a0dcf1215b7efabd84e98ed5a17e1c0ba017a:17",
+          "document_bytes": 356796,
+          "elapsed_us": 164568,
+          "history_bundles": 2,
+          "journal_us": 14498,
+          "ok": true,
+          "outgoing_schema_us": 56380,
+          "reread_us": 2361,
+          "reread_validate_us": 519,
+          "scope": "save_checkpoint",
+          "splice_us": 46262,
+          "stringify_us": 15099,
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "write_atomic_us": 14696
+        },
+        {
+          "autosave": true,
+          "backup_us": 4699,
+          "checkpoint_kind": "safe_marker",
+          "document_build_us": 17887,
+          "elapsed_us": 37258,
+          "journal_prepare_us": 3281,
+          "ok": true,
+          "run_snapshot_build_us": 10379,
+          "scope": "save_checkpoint_prepare",
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "view_capture_us": 1000
+        },
+        {
+          "autosave": true,
+          "checkpoint_id": "run_id.0a0deae79fd3ff014147e00f665a0dcf1215b7efabd84e98ed5a17e1c0ba017a:18",
+          "document_bytes": 360759,
+          "elapsed_us": 115263,
+          "history_bundles": 2,
+          "journal_us": 14919,
+          "ok": true,
+          "outgoing_schema_us": 51625,
+          "reread_us": 2435,
+          "reread_validate_us": 555,
+          "scope": "save_checkpoint",
+          "splice_us": 1,
+          "stringify_us": 16220,
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "write_atomic_us": 15139
+        },
+        {
+          "autosave": true,
+          "backup_us": 5136,
+          "checkpoint_kind": "safe_marker",
+          "document_build_us": 22697,
+          "elapsed_us": 46510,
+          "journal_prepare_us": 3780,
+          "ok": true,
+          "run_snapshot_build_us": 13672,
+          "scope": "save_checkpoint_prepare",
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "view_capture_us": 1211
+        },
+        {
+          "autosave": true,
+          "checkpoint_id": "run_id.0a0deae79fd3ff014147e00f665a0dcf1215b7efabd84e98ed5a17e1c0ba017a:19",
+          "document_bytes": 376091,
+          "elapsed_us": 128944,
+          "history_bundles": 2,
+          "journal_us": 18525,
+          "ok": true,
+          "outgoing_schema_us": 58030,
+          "reread_us": 2450,
+          "reread_validate_us": 574,
+          "scope": "save_checkpoint",
+          "splice_us": 2,
+          "stringify_us": 18354,
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "write_atomic_us": 15236
+        }
+      ],
+      "consequence_profiles": [
+        {
+          "board_capture_us": 127,
+          "board_commit_us": 160,
+          "board_prepare_us": 2176,
+          "capture_base_snapshot_us": 211,
+          "checkpoint_capture_us": 230,
+          "checkpoint_commit_us": 18990,
+          "checkpoint_prepare_us": 8195,
+          "compose_us": 173,
+          "elapsed_us": 38094,
+          "materialize_us": 2799,
+          "ok": true,
+          "prepare_consequence_us": 281,
+          "prepare_spec_us": 591,
+          "preview_checkpoint_us": 34,
+          "publish_us": 9,
+          "reducer_us": 1675,
+          "scope": "first_reveal_durable",
+          "state_capture_us": 48,
+          "state_commit_us": 2322,
+          "validate_candidates_us": 28,
+          "verify_transaction_us": 34
+        },
+        {
+          "elapsed_us": 24187,
+          "phase": "request_fingerprint",
+          "scope": "accept"
+        },
+        {
+          "elapsed_us": 79,
+          "phase": "admission_checks",
+          "scope": "accept"
+        },
+        {
+          "elapsed_us": 317,
+          "phase": "reservation",
+          "scope": "prepare"
+        },
+        {
+          "elapsed_us": 2207,
+          "phase": "condition_policy",
+          "scope": "prepare"
+        },
+        {
+          "elapsed_us": 3,
+          "phase": "departure_preparation",
+          "scope": "prepare"
+        },
+        {
+          "elapsed_us": 50527,
+          "phase": "recovery_payload",
+          "scope": "prepare"
+        },
+        {
+          "elapsed_us": 37741,
+          "phase": "checkpoint1_prepare",
+          "scope": "prepare"
+        },
+        {
+          "elapsed_us": 1547,
+          "phase": "checkpoint1_commit",
+          "scope": "prepare"
+        },
+        {
+          "elapsed_us": 4315,
+          "phase": "live_restore1",
+          "scope": "prepare"
+        },
+        {
+          "elapsed_us": 3305,
+          "phase": "sequence_state_prepare",
+          "scope": "admit"
+        },
+        {
+          "elapsed_us": 39766,
+          "phase": "checkpoint2_prepare",
+          "scope": "admit"
+        },
+        {
+          "elapsed_us": 1363,
+          "phase": "admission_prepare",
+          "scope": "admit"
+        },
+        {
+          "elapsed_us": 14508,
+          "phase": "admission_commit",
+          "scope": "admit"
+        },
+        {
+          "elapsed_us": 1080,
+          "phase": "capture_and_recovery_prepare",
+          "scope": "forward"
+        },
+        {
+          "base_completion": true,
+          "base_completion_commit_us": 2952,
+          "base_completion_prepare_us": 1618,
+          "board_commit_us": 13532,
+          "board_prepare_us": 921,
+          "elapsed_us": 21254,
+          "ok": true,
+          "receipt_and_cache_us": 1988,
+          "reward": true,
+          "reward_commit_us": 156,
+          "scope": "minesweeper_round_recovery_commit",
+          "validation_us": 84
+        },
+        {
+          "elapsed_us": 22246,
+          "phase": "source_commit_inclusive",
+          "scope": "forward"
+        },
+        {
+          "elapsed_us": 4,
+          "phase": "departure_commits",
+          "scope": "forward"
+        },
+        {
+          "elapsed_us": 38556,
+          "phase": "prepare",
+          "scope": "ordinal_8"
+        },
+        {
+          "elapsed_us": 1677,
+          "phase": "commit",
+          "scope": "ordinal_8"
+        },
+        {
+          "elapsed_us": 1946,
+          "phase": "live_restore",
+          "scope": "ordinal_8"
+        },
+        {
+          "elapsed_us": 3254,
+          "phase": "live_commit",
+          "scope": "ordinal_8"
+        },
+        {
+          "elapsed_us": 49985,
+          "phase": "publication_pending_inclusive",
+          "scope": "forward"
+        },
+        {
+          "cache_seed_us": 11,
+          "candidate_build_us": 4,
+          "canonical_rebuilt": true,
+          "compose_us": 515,
+          "confirmation_us": 155,
+          "disk_refresh_us": 540,
+          "document_bytes": 5067,
+          "elapsed_us": 3996,
+          "emit_path": "composed",
+          "entry_normalize_us": 148,
+          "first_delivery": true,
+          "kind": "causal_sequence",
+          "ok": true,
+          "records_before": 0,
+          "request_check_us": 280,
+          "request_digest_us": 222,
+          "scope": "desktop_publication_ledger",
+          "shape_check_us": 115,
+          "write_atomic_us": 2166
+        },
+        {
+          "elapsed_us": 4496,
+          "phase": "publish_causal_sequence",
+          "scope": "forward"
+        },
+        {
+          "elapsed_us": 38470,
+          "phase": "prepare",
+          "scope": "ordinal_9"
+        },
+        {
+          "elapsed_us": 1641,
+          "phase": "commit",
+          "scope": "ordinal_9"
+        },
+        {
+          "elapsed_us": 1601,
+          "phase": "live_restore",
+          "scope": "ordinal_9"
+        },
+        {
+          "elapsed_us": 3083,
+          "phase": "live_commit",
+          "scope": "ordinal_9"
+        },
+        {
+          "elapsed_us": 50245,
+          "phase": "progress_causal_sequence",
+          "scope": "forward"
+        },
+        {
+          "cache_seed_us": 31,
+          "candidate_build_us": 4,
+          "compose_us": 659,
+          "confirmation_us": 194,
+          "disk_refresh_us": 657,
+          "document_bytes": 10783,
+          "elapsed_us": 4558,
+          "emit_path": "composed",
+          "entry_normalize_us": 178,
+          "first_delivery": true,
+          "kind": "action_source",
+          "ok": true,
+          "records_before": 1,
+          "request_check_us": 325,
+          "request_digest_us": 268,
+          "scope": "desktop_publication_ledger",
+          "shape_check_us": 117,
+          "write_atomic_us": 2312
+        },
+        {
+          "elapsed_us": 9342,
+          "phase": "publish_action_source",
+          "scope": "forward"
+        },
+        {
+          "elapsed_us": 39103,
+          "phase": "prepare",
+          "scope": "ordinal_10"
+        },
+        {
+          "elapsed_us": 1577,
+          "phase": "commit",
+          "scope": "ordinal_10"
+        },
+        {
+          "elapsed_us": 1456,
+          "phase": "live_restore",
+          "scope": "ordinal_10"
+        },
+        {
+          "elapsed_us": 3081,
+          "phase": "live_commit",
+          "scope": "ordinal_10"
+        },
+        {
+          "elapsed_us": 50890,
+          "phase": "progress_action_source",
+          "scope": "forward"
+        },
+        {
+          "elapsed_us": 5507,
+          "phase": "capture",
+          "scope": "completion_save"
+        },
+        {
+          "elapsed_us": 39568,
+          "phase": "prepare",
+          "scope": "completion_save"
+        },
+        {
+          "elapsed_us": 124170,
+          "phase": "commit_inclusive",
+          "scope": "completion_save"
+        },
+        {
+          "elapsed_us": 1550,
+          "phase": "prepare",
+          "scope": "ordinal_12"
+        },
+        {
+          "elapsed_us": 100,
+          "phase": "commit",
+          "scope": "ordinal_12"
+        },
+        {
+          "elapsed_us": 283,
+          "phase": "live_restore",
+          "scope": "ordinal_12"
+        },
+        {
+          "elapsed_us": 858,
+          "phase": "live_commit",
+          "scope": "ordinal_12"
+        },
+        {
+          "elapsed_us": 180492,
+          "phase": "cleanup_inclusive",
+          "scope": "forward"
+        },
+        {
+          "elapsed_us": 1472,
+          "phase": "release_and_receipt",
+          "scope": "forward"
+        },
+        {
+          "elapsed_us": 534899,
+          "phase": "prepare_and_forward_inclusive",
+          "scope": "accept"
+        },
+        {
+          "accept_prepared_action_us": 559480,
+          "cache_or_release_us": 34,
+          "elapsed_us": 559517,
+          "ok": true,
+          "scope": "minesweeper_round_accept_finalize"
+        },
+        {
+          "accept_finalize_us": 559582,
+          "accept_request_retain_us": 1509,
+          "action_candidate_prepare_us": 26035,
+          "admission_and_board_capture_us": 1661,
+          "consequence_capture_us": 36,
+          "consequence_checkpoint_commit_us": 51,
+          "consequence_checkpoint_prepare_us": 1189,
+          "elapsed_us": 761808,
+          "handoff_prepare_us": 1522,
+          "ok": true,
+          "outcome": "cleared",
+          "pending_state_commit_us": 109,
+          "receipt_assembly_us": 50026,
+          "round_ordinal": 1,
+          "scope": "minesweeper_round_complete",
+          "source_capture_us": 4432,
+          "source_checkpoint": true,
+          "source_commit_us": 82233,
+          "source_prepare_us": 33418
+        },
+        {
+          "board_capture_us": 682,
+          "board_commit_us": 1236,
+          "board_prepare_us": 2178,
+          "capture_base_snapshot_us": 1673,
+          "checkpoint_capture_us": 3701,
+          "checkpoint_commit_us": 115912,
+          "checkpoint_prepare_us": 35607,
+          "compose_us": 2347,
+          "elapsed_us": 172542,
+          "materialize_us": 2816,
+          "ok": true,
+          "prepare_consequence_us": 902,
+          "prepare_spec_us": 1863,
+          "preview_checkpoint_us": 33,
+          "publish_us": 8,
+          "reducer_us": 1687,
+          "scope": "first_reveal_durable",
+          "state_capture_us": 55,
+          "state_commit_us": 1710,
+          "validate_candidates_us": 84,
+          "verify_transaction_us": 36
+        },
+        {
+          "elapsed_us": 14886,
+          "phase": "request_fingerprint",
+          "scope": "accept"
+        },
+        {
+          "elapsed_us": 132,
+          "phase": "admission_checks",
+          "scope": "accept"
+        },
+        {
+          "elapsed_us": 382,
+          "phase": "reservation",
+          "scope": "prepare"
+        },
+        {
+          "elapsed_us": 2294,
+          "phase": "condition_policy",
+          "scope": "prepare"
+        },
+        {
+          "elapsed_us": 3,
+          "phase": "departure_preparation",
+          "scope": "prepare"
+        },
+        {
+          "elapsed_us": 31820,
+          "phase": "recovery_payload",
+          "scope": "prepare"
+        },
+        {
+          "elapsed_us": 24949,
+          "phase": "checkpoint1_prepare",
+          "scope": "prepare"
+        },
+        {
+          "elapsed_us": 1224,
+          "phase": "checkpoint1_commit",
+          "scope": "prepare"
+        },
+        {
+          "elapsed_us": 3571,
+          "phase": "live_restore1",
+          "scope": "prepare"
+        },
+        {
+          "elapsed_us": 2124,
+          "phase": "sequence_state_prepare",
+          "scope": "admit"
+        },
+        {
+          "elapsed_us": 25608,
+          "phase": "checkpoint2_prepare",
+          "scope": "admit"
+        },
+        {
+          "elapsed_us": 858,
+          "phase": "admission_prepare",
+          "scope": "admit"
+        },
+        {
+          "elapsed_us": 8890,
+          "phase": "admission_commit",
+          "scope": "admit"
+        },
+        {
+          "elapsed_us": 687,
+          "phase": "capture_and_recovery_prepare",
+          "scope": "forward"
+        },
+        {
+          "base_completion": true,
+          "base_completion_commit_us": 2082,
+          "base_completion_prepare_us": 1097,
+          "board_commit_us": 4589,
+          "board_prepare_us": 605,
+          "elapsed_us": 9955,
+          "ok": true,
+          "receipt_and_cache_us": 1326,
+          "reward": true,
+          "reward_commit_us": 162,
+          "scope": "minesweeper_round_recovery_commit",
+          "validation_us": 90
+        },
+        {
+          "elapsed_us": 10563,
+          "phase": "source_commit_inclusive",
+          "scope": "forward"
+        },
+        {
+          "elapsed_us": 3,
+          "phase": "departure_commits",
+          "scope": "forward"
+        },
+        {
+          "elapsed_us": 25022,
+          "phase": "prepare",
+          "scope": "ordinal_8"
+        },
+        {
+          "elapsed_us": 1182,
+          "phase": "commit",
+          "scope": "ordinal_8"
+        },
+        {
+          "elapsed_us": 1495,
+          "phase": "live_restore",
+          "scope": "ordinal_8"
+        },
+        {
+          "elapsed_us": 2059,
+          "phase": "live_commit",
+          "scope": "ordinal_8"
+        },
+        {
+          "elapsed_us": 32643,
+          "phase": "publication_pending_inclusive",
+          "scope": "forward"
+        },
+        {
+          "cache_seed_us": 33,
+          "candidate_build_us": 5,
+          "compose_us": 597,
+          "confirmation_us": 184,
+          "disk_refresh_us": 790,
+          "document_bytes": 15817,
+          "elapsed_us": 4648,
+          "emit_path": "composed",
+          "entry_normalize_us": 147,
+          "first_delivery": true,
+          "kind": "causal_sequence",
+          "ok": true,
+          "records_before": 2,
+          "request_check_us": 277,
+          "request_digest_us": 222,
+          "scope": "desktop_publication_ledger",
+          "shape_check_us": 145,
+          "write_atomic_us": 2375
+        },
+        {
+          "elapsed_us": 5122,
+          "phase": "publish_causal_sequence",
+          "scope": "forward"
+        },
+        {
+          "elapsed_us": 26033,
+          "phase": "prepare",
+          "scope": "ordinal_9"
+        },
+        {
+          "elapsed_us": 1143,
+          "phase": "commit",
+          "scope": "ordinal_9"
+        },
+        {
+          "elapsed_us": 1520,
+          "phase": "live_restore",
+          "scope": "ordinal_9"
+        },
+        {
+          "elapsed_us": 1967,
+          "phase": "live_commit",
+          "scope": "ordinal_9"
+        },
+        {
+          "elapsed_us": 34639,
+          "phase": "progress_causal_sequence",
+          "scope": "forward"
+        },
+        {
+          "cache_seed_us": 50,
+          "candidate_build_us": 5,
+          "compose_us": 718,
+          "confirmation_us": 229,
+          "disk_refresh_us": 839,
+          "document_bytes": 21527,
+          "elapsed_us": 5093,
+          "emit_path": "composed",
+          "entry_normalize_us": 178,
+          "first_delivery": true,
+          "kind": "action_source",
+          "ok": true,
+          "records_before": 3,
+          "request_check_us": 314,
+          "request_digest_us": 262,
+          "scope": "desktop_publication_ledger",
+          "shape_check_us": 164,
+          "write_atomic_us": 2485
+        },
+        {
+          "elapsed_us": 9922,
+          "phase": "publish_action_source",
+          "scope": "forward"
+        },
+        {
+          "elapsed_us": 26571,
+          "phase": "prepare",
+          "scope": "ordinal_10"
+        },
+        {
+          "elapsed_us": 1227,
+          "phase": "commit",
+          "scope": "ordinal_10"
+        },
+        {
+          "elapsed_us": 1477,
+          "phase": "live_restore",
+          "scope": "ordinal_10"
+        },
+        {
+          "elapsed_us": 2068,
+          "phase": "live_commit",
+          "scope": "ordinal_10"
+        },
+        {
+          "elapsed_us": 35285,
+          "phase": "progress_action_source",
+          "scope": "forward"
+        },
+        {
+          "elapsed_us": 3812,
+          "phase": "capture",
+          "scope": "completion_save"
+        },
+        {
+          "elapsed_us": 30523,
+          "phase": "prepare",
+          "scope": "completion_save"
+        },
+        {
+          "elapsed_us": 107465,
+          "phase": "commit_inclusive",
+          "scope": "completion_save"
+        },
+        {
+          "elapsed_us": 2328,
+          "phase": "prepare",
+          "scope": "ordinal_12"
+        },
+        {
+          "elapsed_us": 103,
+          "phase": "commit",
+          "scope": "ordinal_12"
+        },
+        {
+          "elapsed_us": 291,
+          "phase": "live_restore",
+          "scope": "ordinal_12"
+        },
+        {
+          "elapsed_us": 608,
+          "phase": "live_commit",
+          "scope": "ordinal_12"
+        },
+        {
+          "elapsed_us": 152052,
+          "phase": "cleanup_inclusive",
+          "scope": "forward"
+        },
+        {
+          "elapsed_us": 1026,
+          "phase": "release_and_receipt",
+          "scope": "forward"
+        },
+        {
+          "elapsed_us": 390527,
+          "phase": "prepare_and_forward_inclusive",
+          "scope": "accept"
+        },
+        {
+          "accept_prepared_action_us": 405868,
+          "cache_or_release_us": 29,
+          "elapsed_us": 405900,
+          "ok": true,
+          "scope": "minesweeper_round_accept_finalize"
+        },
+        {
+          "accept_finalize_us": 405965,
+          "accept_request_retain_us": 1012,
+          "action_candidate_prepare_us": 8393,
+          "admission_and_board_capture_us": 1133,
+          "consequence_capture_us": 46,
+          "consequence_checkpoint_commit_us": 86,
+          "consequence_checkpoint_prepare_us": 2350,
+          "elapsed_us": 591094,
+          "handoff_prepare_us": 1559,
+          "ok": true,
+          "outcome": "exploded",
+          "pending_state_commit_us": 177,
+          "receipt_assembly_us": 33469,
+          "round_ordinal": 2,
+          "scope": "minesweeper_round_complete",
+          "source_capture_us": 3281,
+          "source_checkpoint": true,
+          "source_commit_us": 101699,
+          "source_prepare_us": 31920
+        },
+        {
+          "cache_seed_us": 173,
+          "candidate_build_us": 9,
+          "compose_us": 12004,
+          "confirmation_us": 4692,
+          "disk_refresh_us": 1025,
+          "document_bytes": 109890,
+          "elapsed_us": 41342,
+          "emit_path": "composed",
+          "entry_normalize_us": 4472,
+          "first_delivery": true,
+          "kind": "board_fate",
+          "ok": true,
+          "records_before": 4,
+          "request_check_us": 12564,
+          "request_digest_us": 11777,
+          "scope": "desktop_publication_ledger",
+          "shape_check_us": 1147,
+          "write_atomic_us": 4038
+        }
+      ]
+    },
+    {
+      "variant": "baseline",
+      "locale": "zh-HK",
+      "dating_ending": "loss",
+      "summary": [
+        {
+          "count": 1,
+          "key": "app:first_reveal",
+          "sync_max_us": 81951,
+          "sync_median_us": 81951,
+          "sync_min_us": 81951,
+          "two_frames_max_us": 94592,
+          "two_frames_median_us": 94592
+        },
+        {
+          "count": 2,
+          "key": "app:flag",
+          "sync_max_us": 47221,
+          "sync_median_us": 47221,
+          "sync_min_us": 39808,
+          "two_frames_max_us": 51827,
+          "two_frames_median_us": 51827
+        },
+        {
+          "count": 1,
+          "key": "app:losing_reveal",
+          "sync_max_us": 44431,
+          "sync_median_us": 44431,
+          "sync_min_us": 44431,
+          "two_frames_max_us": 721924,
+          "two_frames_median_us": 721924
+        },
+        {
+          "count": 1,
+          "key": "app:new_board_first_reveal",
+          "sync_max_us": 223913,
+          "sync_median_us": 223913,
+          "sync_min_us": 223913,
+          "two_frames_max_us": 228903,
+          "two_frames_median_us": 228903
+        },
+        {
+          "count": 15,
+          "key": "app:routine_reveal",
+          "sync_max_us": 46395,
+          "sync_median_us": 41217,
+          "sync_min_us": 39318,
+          "two_frames_max_us": 51988,
+          "two_frames_median_us": 46365
+        },
+        {
+          "count": 221,
+          "key": "app:routine_reveal_more",
+          "sync_max_us": 74276,
+          "sync_median_us": 50092,
+          "sync_min_us": 40521,
+          "two_frames_max_us": 79793,
+          "two_frames_median_us": 55619
+        },
+        {
+          "count": 2,
+          "key": "app:unflag",
+          "sync_max_us": 47277,
+          "sync_median_us": 47277,
+          "sync_min_us": 39319,
+          "two_frames_max_us": 51864,
+          "two_frames_median_us": 51864
+        },
+        {
+          "count": 1,
+          "key": "app:winning_reveal",
+          "sync_max_us": 67270,
+          "sync_median_us": 67270,
+          "sync_min_us": 67270,
+          "two_frames_max_us": 887178,
+          "two_frames_median_us": 887178
+        },
+        {
+          "count": 1,
+          "key": "dating:first_reveal",
+          "sync_max_us": 272081,
+          "sync_median_us": 272081,
+          "sync_min_us": 272081,
+          "two_frames_max_us": 301607,
+          "two_frames_median_us": 301607
+        },
+        {
+          "count": 1,
+          "key": "dating:losing_reveal",
+          "sync_max_us": 30721,
+          "sync_median_us": 30721,
+          "sync_min_us": 30721,
+          "two_frames_max_us": 489145,
+          "two_frames_median_us": 489145
+        },
+        {
+          "count": 12,
+          "key": "dating:routine_reveal",
+          "sync_max_us": 32252,
+          "sync_median_us": 31016,
+          "sync_min_us": 28859,
+          "two_frames_max_us": 36652,
+          "two_frames_median_us": 35669
+        }
+      ],
+      "settlement": [
+        {
+          "end_to_end_us": 887358,
+          "ending": "win",
+          "settled": true,
+          "settled_after_us": 6,
+          "surface": "app"
+        },
+        {
+          "end_to_end_us": 722085,
+          "ending": "loss",
+          "settled": true,
+          "settled_after_us": 5,
+          "surface": "app"
+        },
+        {
+          "end_to_end_us": 489274,
+          "ending": "loss",
+          "phase": "post_challenge",
+          "settled_after_us": 6,
+          "surface": "dating"
+        }
+      ],
+      "checkpoint_profiles": [
+        {
+          "autosave": true,
+          "backup_us": 4775,
+          "checkpoint_kind": "safe_marker",
+          "document_build_us": 2379,
+          "elapsed_us": 8681,
+          "journal_prepare_us": 67,
+          "ok": true,
+          "run_snapshot_build_us": 1352,
+          "scope": "save_checkpoint_prepare",
+          "text_validator_calls_since_prepare": 1,
+          "text_validator_us_since_prepare": 4529,
+          "view_capture_us": 99
+        },
+        {
+          "autosave": true,
+          "checkpoint_id": "run_id.263d84d695d13bbc9674e8760eff28490abfa16be91a9512221277ddf0299ab6:2",
+          "document_bytes": 11622,
+          "elapsed_us": 10659,
+          "history_bundles": 1,
+          "journal_us": 1438,
+          "ok": true,
+          "outgoing_schema_us": 2651,
+          "reread_us": 242,
+          "reread_validate_us": 22,
+          "scope": "save_checkpoint",
+          "splice_us": 1639,
+          "stringify_us": 1301,
+          "text_validator_calls_since_prepare": 1,
+          "text_validator_us_since_prepare": 4529,
+          "write_atomic_us": 2662
+        },
+        {
+          "autosave": true,
+          "backup_us": 354,
+          "checkpoint_kind": "safe_marker",
+          "document_build_us": 3859,
+          "elapsed_us": 6015,
+          "journal_prepare_us": 141,
+          "ok": true,
+          "run_snapshot_build_us": 1507,
+          "scope": "save_checkpoint_prepare",
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "view_capture_us": 145
+        },
+        {
+          "autosave": true,
+          "checkpoint_id": "run_id.263d84d695d13bbc9674e8760eff28490abfa16be91a9512221277ddf0299ab6:3",
+          "document_bytes": 19031,
+          "elapsed_us": 13645,
+          "history_bundles": 2,
+          "journal_us": 1665,
+          "ok": true,
+          "outgoing_schema_us": 4031,
+          "reread_us": 276,
+          "reread_validate_us": 31,
+          "scope": "save_checkpoint",
+          "splice_us": 2590,
+          "stringify_us": 1060,
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "write_atomic_us": 3169
+        },
+        {
+          "autosave": true,
+          "backup_us": 466,
+          "checkpoint_kind": "pre_board",
+          "document_build_us": 4054,
+          "elapsed_us": 7643,
+          "journal_prepare_us": 267,
+          "ok": true,
+          "run_snapshot_build_us": 2693,
+          "scope": "save_checkpoint_prepare",
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "view_capture_us": 155
+        },
+        {
+          "autosave": true,
+          "checkpoint_id": "run_id.263d84d695d13bbc9674e8760eff28490abfa16be91a9512221277ddf0299ab6:4",
+          "document_bytes": 29314,
+          "elapsed_us": 17528,
+          "history_bundles": 2,
+          "journal_us": 2750,
+          "ok": true,
+          "outgoing_schema_us": 6144,
+          "reread_us": 287,
+          "reread_validate_us": 43,
+          "scope": "save_checkpoint",
+          "splice_us": 1,
+          "stringify_us": 2971,
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "write_atomic_us": 3333
+        },
+        {
+          "autosave": true,
+          "backup_us": 646,
+          "checkpoint_kind": "safe_marker",
+          "document_build_us": 19913,
+          "elapsed_us": 32612,
+          "journal_prepare_us": 308,
+          "ok": true,
+          "run_snapshot_build_us": 11689,
+          "scope": "save_checkpoint_prepare",
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "view_capture_us": 46
+        },
+        {
+          "autosave": true,
+          "checkpoint_id": "run_id.263d84d695d13bbc9674e8760eff28490abfa16be91a9512221277ddf0299ab6:5",
+          "document_bytes": 182314,
+          "elapsed_us": 80517,
+          "history_bundles": 2,
+          "journal_us": 11930,
+          "ok": true,
+          "outgoing_schema_us": 25376,
+          "reread_us": 1466,
+          "reread_validate_us": 261,
+          "scope": "save_checkpoint",
+          "splice_us": 1,
+          "stringify_us": 22788,
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "write_atomic_us": 6172
+        },
+        {
+          "autosave": true,
+          "backup_us": 2761,
+          "checkpoint_kind": "post_result",
+          "document_build_us": 21983,
+          "elapsed_us": 38428,
+          "journal_prepare_us": 1480,
+          "ok": true,
+          "run_snapshot_build_us": 12140,
+          "scope": "save_checkpoint_prepare",
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "view_capture_us": 54
+        },
+        {
+          "autosave": true,
+          "checkpoint_id": "run_id.263d84d695d13bbc9674e8760eff28490abfa16be91a9512221277ddf0299ab6:6",
+          "document_bytes": 343804,
+          "elapsed_us": 119419,
+          "history_bundles": 2,
+          "journal_us": 14857,
+          "ok": true,
+          "outgoing_schema_us": 51655,
+          "reread_us": 2682,
+          "reread_validate_us": 499,
+          "scope": "save_checkpoint",
+          "splice_us": 3,
+          "stringify_us": 23948,
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "write_atomic_us": 10388
+        },
+        {
+          "autosave": true,
+          "backup_us": 4508,
+          "checkpoint_kind": "safe_marker",
+          "document_build_us": 12029,
+          "elapsed_us": 26492,
+          "journal_prepare_us": 2540,
+          "ok": true,
+          "run_snapshot_build_us": 6575,
+          "scope": "save_checkpoint_prepare",
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "view_capture_us": 830
+        },
+        {
+          "autosave": true,
+          "checkpoint_id": "run_id.263d84d695d13bbc9674e8760eff28490abfa16be91a9512221277ddf0299ab6:7",
+          "document_bytes": 418012,
+          "elapsed_us": 116176,
+          "history_bundles": 2,
+          "journal_us": 10758,
+          "ok": true,
+          "outgoing_schema_us": 63615,
+          "reread_us": 3819,
+          "reread_validate_us": 628,
+          "scope": "save_checkpoint",
+          "splice_us": 2,
+          "stringify_us": 11738,
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "write_atomic_us": 14420
+        },
+        {
+          "autosave": true,
+          "backup_us": 5478,
+          "checkpoint_kind": "pre_board",
+          "document_build_us": 14528,
+          "elapsed_us": 32717,
+          "journal_prepare_us": 3882,
+          "ok": true,
+          "run_snapshot_build_us": 7879,
+          "scope": "save_checkpoint_prepare",
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "view_capture_us": 936
+        },
+        {
+          "autosave": true,
+          "checkpoint_id": "run_id.263d84d695d13bbc9674e8760eff28490abfa16be91a9512221277ddf0299ab6:8",
+          "document_bytes": 354586,
+          "elapsed_us": 109582,
+          "history_bundles": 2,
+          "journal_us": 12997,
+          "ok": true,
+          "outgoing_schema_us": 53076,
+          "reread_us": 2349,
+          "reread_validate_us": 517,
+          "scope": "save_checkpoint",
+          "splice_us": 1,
+          "stringify_us": 13426,
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "write_atomic_us": 15161
+        },
+        {
+          "autosave": true,
+          "backup_us": 4666,
+          "checkpoint_kind": "safe_marker",
+          "document_build_us": 14933,
+          "elapsed_us": 31355,
+          "journal_prepare_us": 3505,
+          "ok": true,
+          "run_snapshot_build_us": 8197,
+          "scope": "save_checkpoint_prepare",
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "view_capture_us": 42
+        },
+        {
+          "autosave": true,
+          "checkpoint_id": "run_id.263d84d695d13bbc9674e8760eff28490abfa16be91a9512221277ddf0299ab6:9",
+          "document_bytes": 288730,
+          "elapsed_us": 96911,
+          "history_bundles": 2,
+          "journal_us": 12601,
+          "ok": true,
+          "outgoing_schema_us": 41231,
+          "reread_us": 2000,
+          "reread_validate_us": 415,
+          "scope": "save_checkpoint",
+          "splice_us": 2,
+          "stringify_us": 14456,
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "write_atomic_us": 13863
+        },
+        {
+          "autosave": true,
+          "backup_us": 4065,
+          "checkpoint_kind": "post_result",
+          "document_build_us": 15215,
+          "elapsed_us": 30497,
+          "journal_prepare_us": 2876,
+          "ok": true,
+          "run_snapshot_build_us": 8277,
+          "scope": "save_checkpoint_prepare",
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "view_capture_us": 51
+        },
+        {
+          "autosave": true,
+          "checkpoint_id": "run_id.263d84d695d13bbc9674e8760eff28490abfa16be91a9512221277ddf0299ab6:10",
+          "document_bytes": 304377,
+          "elapsed_us": 108070,
+          "history_bundles": 2,
+          "journal_us": 12278,
+          "ok": true,
+          "outgoing_schema_us": 48665,
+          "reread_us": 2002,
+          "reread_validate_us": 440,
+          "scope": "save_checkpoint",
+          "splice_us": 2,
+          "stringify_us": 14784,
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "write_atomic_us": 16793
+        },
+        {
+          "autosave": false,
+          "checkpoint_kind": "day_resolution_stage",
+          "elapsed_us": 12915,
+          "journal_prepare_us": 3210,
+          "ok": true,
+          "run_snapshot_build_us": 8961,
+          "scope": "save_checkpoint_prepare",
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "view_capture_us": 728
+        },
+        {
+          "autosave": false,
+          "checkpoint_id": "run_id.263d84d695d13bbc9674e8760eff28490abfa16be91a9512221277ddf0299ab6:11",
+          "elapsed_us": 12699,
+          "history_bundles": 2,
+          "journal_us": 12688,
+          "ok": true,
+          "scope": "save_checkpoint",
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0
+        },
+        {
+          "autosave": false,
+          "checkpoint_kind": "day_resolution_stage",
+          "elapsed_us": 13293,
+          "journal_prepare_us": 3186,
+          "ok": true,
+          "run_snapshot_build_us": 9233,
+          "scope": "save_checkpoint_prepare",
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "view_capture_us": 862
+        },
+        {
+          "autosave": false,
+          "checkpoint_id": "run_id.263d84d695d13bbc9674e8760eff28490abfa16be91a9512221277ddf0299ab6:12",
+          "elapsed_us": 12332,
+          "history_bundles": 2,
+          "journal_us": 12323,
+          "ok": true,
+          "scope": "save_checkpoint",
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0
+        },
+        {
+          "autosave": false,
+          "checkpoint_kind": "day_resolution_stage",
+          "elapsed_us": 12596,
+          "journal_prepare_us": 3044,
+          "ok": true,
+          "run_snapshot_build_us": 8800,
+          "scope": "save_checkpoint_prepare",
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "view_capture_us": 740
+        },
+        {
+          "autosave": false,
+          "checkpoint_id": "run_id.263d84d695d13bbc9674e8760eff28490abfa16be91a9512221277ddf0299ab6:13",
+          "elapsed_us": 12357,
+          "history_bundles": 2,
+          "journal_us": 12347,
+          "ok": true,
+          "scope": "save_checkpoint",
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0
+        },
+        {
+          "autosave": true,
+          "backup_us": 4155,
+          "checkpoint_kind": "day_resolution_stage",
+          "document_build_us": 53580,
+          "elapsed_us": 69780,
+          "journal_prepare_us": 3086,
+          "ok": true,
+          "run_snapshot_build_us": 8179,
+          "scope": "save_checkpoint_prepare",
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "view_capture_us": 769
+        },
+        {
+          "autosave": true,
+          "checkpoint_id": "run_id.263d84d695d13bbc9674e8760eff28490abfa16be91a9512221277ddf0299ab6:14",
+          "document_bytes": 347434,
+          "elapsed_us": 158815,
+          "history_bundles": 2,
+          "journal_us": 14246,
+          "ok": true,
+          "outgoing_schema_us": 54328,
+          "reread_us": 2414,
+          "reread_validate_us": 548,
+          "scope": "save_checkpoint",
+          "splice_us": 44720,
+          "stringify_us": 15380,
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "write_atomic_us": 13421
+        },
+        {
+          "autosave": false,
+          "checkpoint_kind": "day_resolution_stage",
+          "elapsed_us": 13865,
+          "journal_prepare_us": 3496,
+          "ok": true,
+          "run_snapshot_build_us": 9571,
+          "scope": "save_checkpoint_prepare",
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "view_capture_us": 784
+        },
+        {
+          "autosave": false,
+          "checkpoint_id": "run_id.263d84d695d13bbc9674e8760eff28490abfa16be91a9512221277ddf0299ab6:15",
+          "elapsed_us": 12713,
+          "history_bundles": 2,
+          "journal_us": 12703,
+          "ok": true,
+          "scope": "save_checkpoint",
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0
+        },
+        {
+          "autosave": true,
+          "backup_us": 4704,
+          "checkpoint_kind": "safe_marker",
+          "document_build_us": 54705,
+          "elapsed_us": 73080,
+          "journal_prepare_us": 3250,
+          "ok": true,
+          "run_snapshot_build_us": 9336,
+          "scope": "save_checkpoint_prepare",
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "view_capture_us": 1063
+        },
+        {
+          "autosave": true,
+          "checkpoint_id": "run_id.263d84d695d13bbc9674e8760eff28490abfa16be91a9512221277ddf0299ab6:16",
+          "document_bytes": 350394,
+          "elapsed_us": 157335,
+          "history_bundles": 2,
+          "journal_us": 12745,
+          "ok": true,
+          "outgoing_schema_us": 54120,
+          "reread_us": 2392,
+          "reread_validate_us": 551,
+          "scope": "save_checkpoint",
+          "splice_us": 45823,
+          "stringify_us": 15156,
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "write_atomic_us": 13961
+        },
+        {
+          "autosave": true,
+          "backup_us": 4723,
+          "checkpoint_kind": "safe_marker",
+          "document_build_us": 56408,
+          "elapsed_us": 75161,
+          "journal_prepare_us": 3420,
+          "ok": true,
+          "run_snapshot_build_us": 9424,
+          "scope": "save_checkpoint_prepare",
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "view_capture_us": 1172
+        },
+        {
+          "autosave": true,
+          "checkpoint_id": "run_id.263d84d695d13bbc9674e8760eff28490abfa16be91a9512221277ddf0299ab6:17",
+          "document_bytes": 353208,
+          "elapsed_us": 159140,
+          "history_bundles": 2,
+          "journal_us": 13652,
+          "ok": true,
+          "outgoing_schema_us": 54625,
+          "reread_us": 2321,
+          "reread_validate_us": 529,
+          "scope": "save_checkpoint",
+          "splice_us": 44989,
+          "stringify_us": 15086,
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "write_atomic_us": 14316
+        },
+        {
+          "autosave": true,
+          "backup_us": 4645,
+          "checkpoint_kind": "safe_marker",
+          "document_build_us": 17533,
+          "elapsed_us": 37274,
+          "journal_prepare_us": 3164,
+          "ok": true,
+          "run_snapshot_build_us": 10954,
+          "scope": "save_checkpoint_prepare",
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "view_capture_us": 964
+        },
+        {
+          "autosave": true,
+          "checkpoint_id": "run_id.263d84d695d13bbc9674e8760eff28490abfa16be91a9512221277ddf0299ab6:18",
+          "document_bytes": 357124,
+          "elapsed_us": 112287,
+          "history_bundles": 2,
+          "journal_us": 15416,
+          "ok": true,
+          "outgoing_schema_us": 50144,
+          "reread_us": 2395,
+          "reread_validate_us": 529,
+          "scope": "save_checkpoint",
+          "splice_us": 2,
+          "stringify_us": 16069,
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "write_atomic_us": 14240
+        },
+        {
+          "autosave": true,
+          "backup_us": 4698,
+          "checkpoint_kind": "safe_marker",
+          "document_build_us": 20290,
+          "elapsed_us": 42297,
+          "journal_prepare_us": 3866,
+          "ok": true,
+          "run_snapshot_build_us": 12281,
+          "scope": "save_checkpoint_prepare",
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "view_capture_us": 1148
+        },
+        {
+          "autosave": true,
+          "checkpoint_id": "run_id.263d84d695d13bbc9674e8760eff28490abfa16be91a9512221277ddf0299ab6:19",
+          "document_bytes": 362808,
+          "elapsed_us": 120972,
+          "history_bundles": 2,
+          "journal_us": 16304,
+          "ok": true,
+          "outgoing_schema_us": 54544,
+          "reread_us": 2330,
+          "reread_validate_us": 547,
+          "scope": "save_checkpoint",
+          "splice_us": 2,
+          "stringify_us": 17703,
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "write_atomic_us": 14605
+        }
+      ],
+      "consequence_profiles": [
+        {
+          "board_capture_us": 155,
+          "board_commit_us": 154,
+          "board_prepare_us": 2126,
+          "capture_base_snapshot_us": 203,
+          "checkpoint_capture_us": 267,
+          "checkpoint_commit_us": 17763,
+          "checkpoint_prepare_us": 7949,
+          "compose_us": 171,
+          "elapsed_us": 36060,
+          "materialize_us": 2776,
+          "ok": true,
+          "prepare_consequence_us": 277,
+          "prepare_spec_us": 504,
+          "preview_checkpoint_us": 34,
+          "publish_us": 8,
+          "reducer_us": 1650,
+          "scope": "first_reveal_durable",
+          "state_capture_us": 41,
+          "state_commit_us": 1918,
+          "validate_candidates_us": 24,
+          "verify_transaction_us": 30
+        },
+        {
+          "elapsed_us": 23757,
+          "phase": "request_fingerprint",
+          "scope": "accept"
+        },
+        {
+          "elapsed_us": 111,
+          "phase": "admission_checks",
+          "scope": "accept"
+        },
+        {
+          "elapsed_us": 301,
+          "phase": "reservation",
+          "scope": "prepare"
+        },
+        {
+          "elapsed_us": 2192,
+          "phase": "condition_policy",
+          "scope": "prepare"
+        },
+        {
+          "elapsed_us": 3,
+          "phase": "departure_preparation",
+          "scope": "prepare"
+        },
+        {
+          "elapsed_us": 51486,
+          "phase": "recovery_payload",
+          "scope": "prepare"
+        },
+        {
+          "elapsed_us": 36720,
+          "phase": "checkpoint1_prepare",
+          "scope": "prepare"
+        },
+        {
+          "elapsed_us": 1593,
+          "phase": "checkpoint1_commit",
+          "scope": "prepare"
+        },
+        {
+          "elapsed_us": 4082,
+          "phase": "live_restore1",
+          "scope": "prepare"
+        },
+        {
+          "elapsed_us": 3299,
+          "phase": "sequence_state_prepare",
+          "scope": "admit"
+        },
+        {
+          "elapsed_us": 37668,
+          "phase": "checkpoint2_prepare",
+          "scope": "admit"
+        },
+        {
+          "elapsed_us": 1264,
+          "phase": "admission_prepare",
+          "scope": "admit"
+        },
+        {
+          "elapsed_us": 13534,
+          "phase": "admission_commit",
+          "scope": "admit"
+        },
+        {
+          "elapsed_us": 977,
+          "phase": "capture_and_recovery_prepare",
+          "scope": "forward"
+        },
+        {
+          "base_completion": true,
+          "base_completion_commit_us": 2904,
+          "base_completion_prepare_us": 1562,
+          "board_commit_us": 13061,
+          "board_prepare_us": 895,
+          "elapsed_us": 20625,
+          "ok": true,
+          "receipt_and_cache_us": 1950,
+          "reward": true,
+          "reward_commit_us": 164,
+          "scope": "minesweeper_round_recovery_commit",
+          "validation_us": 86
+        },
+        {
+          "elapsed_us": 21766,
+          "phase": "source_commit_inclusive",
+          "scope": "forward"
+        },
+        {
+          "elapsed_us": 3,
+          "phase": "departure_commits",
+          "scope": "forward"
+        },
+        {
+          "elapsed_us": 39312,
+          "phase": "prepare",
+          "scope": "ordinal_8"
+        },
+        {
+          "elapsed_us": 1715,
+          "phase": "commit",
+          "scope": "ordinal_8"
+        },
+        {
+          "elapsed_us": 1944,
+          "phase": "live_restore",
+          "scope": "ordinal_8"
+        },
+        {
+          "elapsed_us": 3473,
+          "phase": "live_commit",
+          "scope": "ordinal_8"
+        },
+        {
+          "elapsed_us": 50957,
+          "phase": "publication_pending_inclusive",
+          "scope": "forward"
+        },
+        {
+          "cache_seed_us": 10,
+          "candidate_build_us": 4,
+          "canonical_rebuilt": true,
+          "compose_us": 540,
+          "confirmation_us": 156,
+          "disk_refresh_us": 497,
+          "document_bytes": 5067,
+          "elapsed_us": 3871,
+          "emit_path": "composed",
+          "entry_normalize_us": 147,
+          "first_delivery": true,
+          "kind": "causal_sequence",
+          "ok": true,
+          "records_before": 0,
+          "request_check_us": 278,
+          "request_digest_us": 221,
+          "scope": "desktop_publication_ledger",
+          "shape_check_us": 110,
+          "write_atomic_us": 2068
+        },
+        {
+          "elapsed_us": 4362,
+          "phase": "publish_causal_sequence",
+          "scope": "forward"
+        },
+        {
+          "elapsed_us": 37798,
+          "phase": "prepare",
+          "scope": "ordinal_9"
+        },
+        {
+          "elapsed_us": 1787,
+          "phase": "commit",
+          "scope": "ordinal_9"
+        },
+        {
+          "elapsed_us": 1656,
+          "phase": "live_restore",
+          "scope": "ordinal_9"
+        },
+        {
+          "elapsed_us": 3249,
+          "phase": "live_commit",
+          "scope": "ordinal_9"
+        },
+        {
+          "elapsed_us": 49983,
+          "phase": "progress_causal_sequence",
+          "scope": "forward"
+        },
+        {
+          "cache_seed_us": 32,
+          "candidate_build_us": 5,
+          "compose_us": 678,
+          "confirmation_us": 199,
+          "disk_refresh_us": 677,
+          "document_bytes": 10783,
+          "elapsed_us": 4673,
+          "emit_path": "composed",
+          "entry_normalize_us": 187,
+          "first_delivery": true,
+          "kind": "action_source",
+          "ok": true,
+          "records_before": 1,
+          "request_check_us": 345,
+          "request_digest_us": 282,
+          "scope": "desktop_publication_ledger",
+          "shape_check_us": 116,
+          "write_atomic_us": 2354
+        },
+        {
+          "elapsed_us": 9760,
+          "phase": "publish_action_source",
+          "scope": "forward"
+        },
+        {
+          "elapsed_us": 39153,
+          "phase": "prepare",
+          "scope": "ordinal_10"
+        },
+        {
+          "elapsed_us": 1644,
+          "phase": "commit",
+          "scope": "ordinal_10"
+        },
+        {
+          "elapsed_us": 1575,
+          "phase": "live_restore",
+          "scope": "ordinal_10"
+        },
+        {
+          "elapsed_us": 2913,
+          "phase": "live_commit",
+          "scope": "ordinal_10"
+        },
+        {
+          "elapsed_us": 51008,
+          "phase": "progress_action_source",
+          "scope": "forward"
+        },
+        {
+          "elapsed_us": 5943,
+          "phase": "capture",
+          "scope": "completion_save"
+        },
+        {
+          "elapsed_us": 38708,
+          "phase": "prepare",
+          "scope": "completion_save"
+        },
+        {
+          "elapsed_us": 122112,
+          "phase": "commit_inclusive",
+          "scope": "completion_save"
+        },
+        {
+          "elapsed_us": 1501,
+          "phase": "prepare",
+          "scope": "ordinal_12"
+        },
+        {
+          "elapsed_us": 114,
+          "phase": "commit",
+          "scope": "ordinal_12"
+        },
+        {
+          "elapsed_us": 264,
+          "phase": "live_restore",
+          "scope": "ordinal_12"
+        },
+        {
+          "elapsed_us": 818,
+          "phase": "live_commit",
+          "scope": "ordinal_12"
+        },
+        {
+          "elapsed_us": 177573,
+          "phase": "cleanup_inclusive",
+          "scope": "forward"
+        },
+        {
+          "elapsed_us": 1305,
+          "phase": "release_and_receipt",
+          "scope": "forward"
+        },
+        {
+          "elapsed_us": 528644,
+          "phase": "prepare_and_forward_inclusive",
+          "scope": "accept"
+        },
+        {
+          "accept_prepared_action_us": 552810,
+          "cache_or_release_us": 33,
+          "elapsed_us": 552846,
+          "ok": true,
+          "scope": "minesweeper_round_accept_finalize"
+        },
+        {
+          "accept_finalize_us": 552928,
+          "accept_request_retain_us": 1543,
+          "action_candidate_prepare_us": 26073,
+          "admission_and_board_capture_us": 1815,
+          "consequence_capture_us": 27,
+          "consequence_checkpoint_commit_us": 50,
+          "consequence_checkpoint_prepare_us": 1202,
+          "elapsed_us": 755090,
+          "handoff_prepare_us": 1554,
+          "ok": true,
+          "outcome": "cleared",
+          "pending_state_commit_us": 75,
+          "receipt_assembly_us": 50085,
+          "round_ordinal": 1,
+          "scope": "minesweeper_round_complete",
+          "source_capture_us": 4590,
+          "source_checkpoint": true,
+          "source_commit_us": 81295,
+          "source_prepare_us": 33847
+        },
+        {
+          "board_capture_us": 550,
+          "board_commit_us": 1051,
+          "board_prepare_us": 2123,
+          "capture_base_snapshot_us": 1551,
+          "checkpoint_capture_us": 3668,
+          "checkpoint_commit_us": 111132,
+          "checkpoint_prepare_us": 33449,
+          "compose_us": 2238,
+          "elapsed_us": 164344,
+          "materialize_us": 2693,
+          "ok": true,
+          "prepare_consequence_us": 831,
+          "prepare_spec_us": 1686,
+          "preview_checkpoint_us": 30,
+          "publish_us": 7,
+          "reducer_us": 1597,
+          "scope": "first_reveal_durable",
+          "state_capture_us": 48,
+          "state_commit_us": 1593,
+          "validate_candidates_us": 54,
+          "verify_transaction_us": 32
+        },
+        {
+          "elapsed_us": 14277,
+          "phase": "request_fingerprint",
+          "scope": "accept"
+        },
+        {
+          "elapsed_us": 111,
+          "phase": "admission_checks",
+          "scope": "accept"
+        },
+        {
+          "elapsed_us": 326,
+          "phase": "reservation",
+          "scope": "prepare"
+        },
+        {
+          "elapsed_us": 2297,
+          "phase": "condition_policy",
+          "scope": "prepare"
+        },
+        {
+          "elapsed_us": 3,
+          "phase": "departure_preparation",
+          "scope": "prepare"
+        },
+        {
+          "elapsed_us": 31010,
+          "phase": "recovery_payload",
+          "scope": "prepare"
+        },
+        {
+          "elapsed_us": 24747,
+          "phase": "checkpoint1_prepare",
+          "scope": "prepare"
+        },
+        {
+          "elapsed_us": 1461,
+          "phase": "checkpoint1_commit",
+          "scope": "prepare"
+        },
+        {
+          "elapsed_us": 3394,
+          "phase": "live_restore1",
+          "scope": "prepare"
+        },
+        {
+          "elapsed_us": 2048,
+          "phase": "sequence_state_prepare",
+          "scope": "admit"
+        },
+        {
+          "elapsed_us": 24830,
+          "phase": "checkpoint2_prepare",
+          "scope": "admit"
+        },
+        {
+          "elapsed_us": 1340,
+          "phase": "admission_prepare",
+          "scope": "admit"
+        },
+        {
+          "elapsed_us": 8765,
+          "phase": "admission_commit",
+          "scope": "admit"
+        },
+        {
+          "elapsed_us": 682,
+          "phase": "capture_and_recovery_prepare",
+          "scope": "forward"
+        },
+        {
+          "base_completion": true,
+          "base_completion_commit_us": 1878,
+          "base_completion_prepare_us": 1059,
+          "board_commit_us": 4664,
+          "board_prepare_us": 557,
+          "elapsed_us": 9630,
+          "ok": true,
+          "receipt_and_cache_us": 1184,
+          "reward": true,
+          "reward_commit_us": 203,
+          "scope": "minesweeper_round_recovery_commit",
+          "validation_us": 81
+        },
+        {
+          "elapsed_us": 10137,
+          "phase": "source_commit_inclusive",
+          "scope": "forward"
+        },
+        {
+          "elapsed_us": 3,
+          "phase": "departure_commits",
+          "scope": "forward"
+        },
+        {
+          "elapsed_us": 25280,
+          "phase": "prepare",
+          "scope": "ordinal_8"
+        },
+        {
+          "elapsed_us": 1183,
+          "phase": "commit",
+          "scope": "ordinal_8"
+        },
+        {
+          "elapsed_us": 1492,
+          "phase": "live_restore",
+          "scope": "ordinal_8"
+        },
+        {
+          "elapsed_us": 2105,
+          "phase": "live_commit",
+          "scope": "ordinal_8"
+        },
+        {
+          "elapsed_us": 33010,
+          "phase": "publication_pending_inclusive",
+          "scope": "forward"
+        },
+        {
+          "cache_seed_us": 29,
+          "candidate_build_us": 5,
+          "compose_us": 631,
+          "confirmation_us": 180,
+          "disk_refresh_us": 768,
+          "document_bytes": 15817,
+          "elapsed_us": 4545,
+          "emit_path": "composed",
+          "entry_normalize_us": 147,
+          "first_delivery": true,
+          "kind": "causal_sequence",
+          "ok": true,
+          "records_before": 2,
+          "request_check_us": 269,
+          "request_digest_us": 217,
+          "scope": "desktop_publication_ledger",
+          "shape_check_us": 108,
+          "write_atomic_us": 2315
+        },
+        {
+          "elapsed_us": 5011,
+          "phase": "publish_causal_sequence",
+          "scope": "forward"
+        },
+        {
+          "elapsed_us": 25102,
+          "phase": "prepare",
+          "scope": "ordinal_9"
+        },
+        {
+          "elapsed_us": 1131,
+          "phase": "commit",
+          "scope": "ordinal_9"
+        },
+        {
+          "elapsed_us": 1481,
+          "phase": "live_restore",
+          "scope": "ordinal_9"
+        },
+        {
+          "elapsed_us": 2079,
+          "phase": "live_commit",
+          "scope": "ordinal_9"
+        },
+        {
+          "elapsed_us": 33457,
+          "phase": "progress_causal_sequence",
+          "scope": "forward"
+        },
+        {
+          "cache_seed_us": 44,
+          "candidate_build_us": 6,
+          "compose_us": 751,
+          "confirmation_us": 259,
+          "disk_refresh_us": 858,
+          "document_bytes": 21527,
+          "elapsed_us": 5183,
+          "emit_path": "composed",
+          "entry_normalize_us": 183,
+          "first_delivery": true,
+          "kind": "action_source",
+          "ok": true,
+          "records_before": 3,
+          "request_check_us": 327,
+          "request_digest_us": 272,
+          "scope": "desktop_publication_ledger",
+          "shape_check_us": 119,
+          "write_atomic_us": 2518
+        },
+        {
+          "elapsed_us": 10096,
+          "phase": "publish_action_source",
+          "scope": "forward"
+        },
+        {
+          "elapsed_us": 26411,
+          "phase": "prepare",
+          "scope": "ordinal_10"
+        },
+        {
+          "elapsed_us": 1285,
+          "phase": "commit",
+          "scope": "ordinal_10"
+        },
+        {
+          "elapsed_us": 1560,
+          "phase": "live_restore",
+          "scope": "ordinal_10"
+        },
+        {
+          "elapsed_us": 2433,
+          "phase": "live_commit",
+          "scope": "ordinal_10"
+        },
+        {
+          "elapsed_us": 35898,
+          "phase": "progress_action_source",
+          "scope": "forward"
+        },
+        {
+          "elapsed_us": 3746,
+          "phase": "capture",
+          "scope": "completion_save"
+        },
+        {
+          "elapsed_us": 30671,
+          "phase": "prepare",
+          "scope": "completion_save"
+        },
+        {
+          "elapsed_us": 110191,
+          "phase": "commit_inclusive",
+          "scope": "completion_save"
+        },
+        {
+          "elapsed_us": 2301,
+          "phase": "prepare",
+          "scope": "ordinal_12"
+        },
+        {
+          "elapsed_us": 95,
+          "phase": "commit",
+          "scope": "ordinal_12"
+        },
+        {
+          "elapsed_us": 327,
+          "phase": "live_restore",
+          "scope": "ordinal_12"
+        },
+        {
+          "elapsed_us": 709,
+          "phase": "live_commit",
+          "scope": "ordinal_12"
+        },
+        {
+          "elapsed_us": 155251,
+          "phase": "cleanup_inclusive",
+          "scope": "forward"
+        },
+        {
+          "elapsed_us": 1074,
+          "phase": "release_and_receipt",
+          "scope": "forward"
+        },
+        {
+          "elapsed_us": 391455,
+          "phase": "prepare_and_forward_inclusive",
+          "scope": "accept"
+        },
+        {
+          "accept_prepared_action_us": 406120,
+          "cache_or_release_us": 23,
+          "elapsed_us": 406146,
+          "ok": true,
+          "scope": "minesweeper_round_accept_finalize"
+        },
+        {
+          "accept_finalize_us": 406205,
+          "accept_request_retain_us": 909,
+          "action_candidate_prepare_us": 8402,
+          "admission_and_board_capture_us": 1113,
+          "consequence_capture_us": 46,
+          "consequence_checkpoint_commit_us": 80,
+          "consequence_checkpoint_prepare_us": 2355,
+          "elapsed_us": 586979,
+          "handoff_prepare_us": 1554,
+          "ok": true,
+          "outcome": "exploded",
+          "pending_state_commit_us": 186,
+          "receipt_assembly_us": 32260,
+          "round_ordinal": 2,
+          "scope": "minesweeper_round_complete",
+          "source_capture_us": 3102,
+          "source_checkpoint": true,
+          "source_commit_us": 98474,
+          "source_prepare_us": 32289
+        },
+        {
+          "cache_seed_us": 158,
+          "candidate_build_us": 10,
+          "compose_us": 11920,
+          "confirmation_us": 4661,
+          "disk_refresh_us": 1054,
+          "document_bytes": 108693,
+          "elapsed_us": 41487,
+          "emit_path": "composed",
+          "entry_normalize_us": 4644,
+          "first_delivery": true,
+          "kind": "board_fate",
+          "ok": true,
+          "records_before": 4,
+          "request_check_us": 12623,
+          "request_digest_us": 11799,
+          "scope": "desktop_publication_ledger",
+          "shape_check_us": 1058,
+          "write_atomic_us": 4074
+        }
+      ]
+    },
+    {
+      "variant": "candidate",
+      "locale": "zh-CN",
+      "dating_ending": "win",
+      "summary": [
+        {
+          "count": 1,
+          "key": "app:first_reveal",
+          "sync_max_us": 82182,
+          "sync_median_us": 82182,
+          "sync_min_us": 82182,
+          "two_frames_max_us": 94686,
+          "two_frames_median_us": 94686
+        },
+        {
+          "count": 2,
+          "key": "app:flag",
+          "sync_max_us": 53292,
+          "sync_median_us": 53292,
+          "sync_min_us": 41953,
+          "two_frames_max_us": 58625,
+          "two_frames_median_us": 58625
+        },
+        {
+          "count": 1,
+          "key": "app:losing_reveal",
+          "sync_max_us": 48539,
+          "sync_median_us": 48539,
+          "sync_min_us": 48539,
+          "two_frames_max_us": 709513,
+          "two_frames_median_us": 709513
+        },
+        {
+          "count": 1,
+          "key": "app:new_board_first_reveal",
+          "sync_max_us": 228077,
+          "sync_median_us": 228077,
+          "sync_min_us": 228077,
+          "two_frames_max_us": 233500,
+          "two_frames_median_us": 233500
+        },
+        {
+          "count": 15,
+          "key": "app:routine_reveal",
+          "sync_max_us": 53077,
+          "sync_median_us": 39994,
+          "sync_min_us": 37969,
+          "two_frames_max_us": 58308,
+          "two_frames_median_us": 44872
+        },
+        {
+          "count": 200,
+          "key": "app:routine_reveal_more",
+          "sync_max_us": 65703,
+          "sync_median_us": 47728,
+          "sync_min_us": 37435,
+          "two_frames_max_us": 71691,
+          "two_frames_median_us": 52837
+        },
+        {
+          "count": 2,
+          "key": "app:unflag",
+          "sync_max_us": 53504,
+          "sync_median_us": 53504,
+          "sync_min_us": 41970,
+          "two_frames_max_us": 58726,
+          "two_frames_median_us": 58726
+        },
+        {
+          "count": 1,
+          "key": "app:winning_reveal",
+          "sync_max_us": 60492,
+          "sync_median_us": 60492,
+          "sync_min_us": 60492,
+          "two_frames_max_us": 835862,
+          "two_frames_median_us": 835862
+        },
+        {
+          "count": 1,
+          "key": "dating:first_reveal",
+          "sync_max_us": 283696,
+          "sync_median_us": 283696,
+          "sync_min_us": 283696,
+          "two_frames_max_us": 315934,
+          "two_frames_median_us": 315934
+        },
+        {
+          "count": 12,
+          "key": "dating:routine_reveal",
+          "sync_max_us": 39226,
+          "sync_median_us": 32247,
+          "sync_min_us": 30612,
+          "two_frames_max_us": 43532,
+          "two_frames_median_us": 36933
+        },
+        {
+          "count": 64,
+          "key": "dating:routine_reveal_more",
+          "sync_max_us": 36284,
+          "sync_median_us": 33634,
+          "sync_min_us": 30905,
+          "two_frames_max_us": 41085,
+          "two_frames_median_us": 38136
+        },
+        {
+          "count": 1,
+          "key": "dating:winning_reveal",
+          "sync_max_us": 35868,
+          "sync_median_us": 35868,
+          "sync_min_us": 35868,
+          "two_frames_max_us": 590145,
+          "two_frames_median_us": 590145
+        }
+      ],
+      "settlement": [
+        {
+          "end_to_end_us": 836029,
+          "ending": "win",
+          "settled": true,
+          "settled_after_us": 6,
+          "surface": "app"
+        },
+        {
+          "end_to_end_us": 709677,
+          "ending": "loss",
+          "settled": true,
+          "settled_after_us": 4,
+          "surface": "app"
+        },
+        {
+          "end_to_end_us": 590292,
+          "ending": "win",
+          "phase": "post_challenge",
+          "settled_after_us": 9,
+          "surface": "dating"
+        },
+        {
+          "end_to_end_us": 590388,
+          "ending": "win",
+          "phase": "post_challenge",
+          "settled_after_us": 30,
+          "surface": "dating"
+        }
+      ],
+      "checkpoint_profiles": [
+        {
+          "autosave": true,
+          "backup_us": 4957,
+          "checkpoint_kind": "safe_marker",
+          "document_build_us": 2493,
+          "elapsed_us": 9041,
+          "journal_prepare_us": 86,
+          "ok": true,
+          "run_snapshot_build_us": 1388,
+          "scope": "save_checkpoint_prepare",
+          "text_validator_calls_since_prepare": 1,
+          "text_validator_us_since_prepare": 4608,
+          "view_capture_us": 109
+        },
+        {
+          "autosave": true,
+          "checkpoint_id": "run_id.ff8d6f0db736d42c46e05795bcbd3d160b491c5fbd275649a203c11cd90c98cb:2",
+          "document_bytes": 11622,
+          "elapsed_us": 10112,
+          "history_bundles": 1,
+          "journal_us": 1367,
+          "ok": true,
+          "outgoing_schema_us": 2556,
+          "reread_us": 235,
+          "reread_validate_us": 21,
+          "scope": "save_checkpoint",
+          "splice_us": 1598,
+          "stringify_us": 1163,
+          "text_validator_calls_since_prepare": 1,
+          "text_validator_us_since_prepare": 4608,
+          "write_atomic_us": 2508
+        },
+        {
+          "autosave": true,
+          "backup_us": 342,
+          "checkpoint_kind": "safe_marker",
+          "document_build_us": 4000,
+          "elapsed_us": 6135,
+          "journal_prepare_us": 154,
+          "ok": true,
+          "run_snapshot_build_us": 1518,
+          "scope": "save_checkpoint_prepare",
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "view_capture_us": 114
+        },
+        {
+          "autosave": true,
+          "checkpoint_id": "run_id.ff8d6f0db736d42c46e05795bcbd3d160b491c5fbd275649a203c11cd90c98cb:3",
+          "document_bytes": 19031,
+          "elapsed_us": 13974,
+          "history_bundles": 2,
+          "journal_us": 1839,
+          "ok": true,
+          "outgoing_schema_us": 4105,
+          "reread_us": 243,
+          "reread_validate_us": 31,
+          "scope": "save_checkpoint",
+          "splice_us": 2617,
+          "stringify_us": 1127,
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "write_atomic_us": 3292
+        },
+        {
+          "autosave": true,
+          "backup_us": 455,
+          "checkpoint_kind": "pre_board",
+          "document_build_us": 3965,
+          "elapsed_us": 7344,
+          "journal_prepare_us": 221,
+          "ok": true,
+          "run_snapshot_build_us": 2555,
+          "scope": "save_checkpoint_prepare",
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "view_capture_us": 140
+        },
+        {
+          "autosave": true,
+          "checkpoint_id": "run_id.ff8d6f0db736d42c46e05795bcbd3d160b491c5fbd275649a203c11cd90c98cb:4",
+          "document_bytes": 29332,
+          "elapsed_us": 17247,
+          "history_bundles": 2,
+          "journal_us": 2793,
+          "ok": true,
+          "outgoing_schema_us": 5522,
+          "reread_us": 304,
+          "reread_validate_us": 45,
+          "scope": "save_checkpoint",
+          "splice_us": 2,
+          "stringify_us": 3052,
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "write_atomic_us": 3468
+        },
+        {
+          "autosave": true,
+          "backup_us": 638,
+          "checkpoint_kind": "safe_marker",
+          "document_build_us": 18788,
+          "elapsed_us": 31178,
+          "journal_prepare_us": 329,
+          "ok": true,
+          "run_snapshot_build_us": 11367,
+          "scope": "save_checkpoint_prepare",
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "view_capture_us": 48
+        },
+        {
+          "autosave": true,
+          "checkpoint_id": "run_id.ff8d6f0db736d42c46e05795bcbd3d160b491c5fbd275649a203c11cd90c98cb:5",
+          "document_bytes": 169932,
+          "elapsed_us": 77163,
+          "history_bundles": 2,
+          "journal_us": 12385,
+          "ok": true,
+          "outgoing_schema_us": 23095,
+          "reread_us": 1353,
+          "reread_validate_us": 270,
+          "scope": "save_checkpoint",
+          "splice_us": 2,
+          "stringify_us": 21745,
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "write_atomic_us": 6222
+        },
+        {
+          "autosave": true,
+          "backup_us": 3197,
+          "checkpoint_kind": "post_result",
+          "document_build_us": 21610,
+          "elapsed_us": 38344,
+          "journal_prepare_us": 1427,
+          "ok": true,
+          "run_snapshot_build_us": 12047,
+          "scope": "save_checkpoint_prepare",
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "view_capture_us": 50
+        },
+        {
+          "autosave": true,
+          "checkpoint_id": "run_id.ff8d6f0db736d42c46e05795bcbd3d160b491c5fbd275649a203c11cd90c98cb:6",
+          "document_bytes": 319022,
+          "elapsed_us": 105425,
+          "history_bundles": 2,
+          "journal_us": 14702,
+          "ok": true,
+          "outgoing_schema_us": 40748,
+          "reread_us": 2168,
+          "reread_validate_us": 496,
+          "scope": "save_checkpoint",
+          "splice_us": 1,
+          "stringify_us": 22434,
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "write_atomic_us": 9975
+        },
+        {
+          "autosave": true,
+          "backup_us": 4436,
+          "checkpoint_kind": "safe_marker",
+          "document_build_us": 12699,
+          "elapsed_us": 27836,
+          "journal_prepare_us": 2953,
+          "ok": true,
+          "run_snapshot_build_us": 6868,
+          "scope": "save_checkpoint_prepare",
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "view_capture_us": 866
+        },
+        {
+          "autosave": true,
+          "checkpoint_id": "run_id.ff8d6f0db736d42c46e05795bcbd3d160b491c5fbd275649a203c11cd90c98cb:7",
+          "document_bytes": 387038,
+          "elapsed_us": 93984,
+          "history_bundles": 2,
+          "journal_us": 10920,
+          "ok": true,
+          "outgoing_schema_us": 44621,
+          "reread_us": 2564,
+          "reread_validate_us": 581,
+          "scope": "save_checkpoint",
+          "splice_us": 2,
+          "stringify_us": 11812,
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "write_atomic_us": 13283
+        },
+        {
+          "autosave": true,
+          "backup_us": 5366,
+          "checkpoint_kind": "pre_board",
+          "document_build_us": 14375,
+          "elapsed_us": 33850,
+          "journal_prepare_us": 4447,
+          "ok": true,
+          "run_snapshot_build_us": 8457,
+          "scope": "save_checkpoint_prepare",
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "view_capture_us": 1190
+        },
+        {
+          "autosave": true,
+          "checkpoint_id": "run_id.ff8d6f0db736d42c46e05795bcbd3d160b491c5fbd275649a203c11cd90c98cb:8",
+          "document_bytes": 329896,
+          "elapsed_us": 95201,
+          "history_bundles": 2,
+          "journal_us": 13337,
+          "ok": true,
+          "outgoing_schema_us": 38949,
+          "reread_us": 2366,
+          "reread_validate_us": 500,
+          "scope": "save_checkpoint",
+          "splice_us": 1,
+          "stringify_us": 13491,
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "write_atomic_us": 14568
+        },
+        {
+          "autosave": true,
+          "backup_us": 4347,
+          "checkpoint_kind": "safe_marker",
+          "document_build_us": 14635,
+          "elapsed_us": 30293,
+          "journal_prepare_us": 3327,
+          "ok": true,
+          "run_snapshot_build_us": 7928,
+          "scope": "save_checkpoint_prepare",
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "view_capture_us": 43
+        },
+        {
+          "autosave": true,
+          "checkpoint_id": "run_id.ff8d6f0db736d42c46e05795bcbd3d160b491c5fbd275649a203c11cd90c98cb:9",
+          "document_bytes": 270382,
+          "elapsed_us": 86753,
+          "history_bundles": 2,
+          "journal_us": 12811,
+          "ok": true,
+          "outgoing_schema_us": 31815,
+          "reread_us": 1824,
+          "reread_validate_us": 465,
+          "scope": "save_checkpoint",
+          "splice_us": 2,
+          "stringify_us": 13703,
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "write_atomic_us": 13587
+        },
+        {
+          "autosave": true,
+          "backup_us": 3768,
+          "checkpoint_kind": "post_result",
+          "document_build_us": 14890,
+          "elapsed_us": 30426,
+          "journal_prepare_us": 2972,
+          "ok": true,
+          "run_snapshot_build_us": 8733,
+          "scope": "save_checkpoint_prepare",
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "view_capture_us": 51
+        },
+        {
+          "autosave": true,
+          "checkpoint_id": "run_id.ff8d6f0db736d42c46e05795bcbd3d160b491c5fbd275649a203c11cd90c98cb:10",
+          "document_bytes": 286145,
+          "elapsed_us": 89357,
+          "history_bundles": 2,
+          "journal_us": 11452,
+          "ok": true,
+          "outgoing_schema_us": 35070,
+          "reread_us": 2008,
+          "reread_validate_us": 430,
+          "scope": "save_checkpoint",
+          "splice_us": 2,
+          "stringify_us": 14373,
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "write_atomic_us": 12994
+        },
+        {
+          "autosave": false,
+          "checkpoint_kind": "day_resolution_stage",
+          "elapsed_us": 13528,
+          "journal_prepare_us": 3243,
+          "ok": true,
+          "run_snapshot_build_us": 9460,
+          "scope": "save_checkpoint_prepare",
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "view_capture_us": 810
+        },
+        {
+          "autosave": false,
+          "checkpoint_id": "run_id.ff8d6f0db736d42c46e05795bcbd3d160b491c5fbd275649a203c11cd90c98cb:11",
+          "elapsed_us": 13221,
+          "history_bundles": 2,
+          "journal_us": 13210,
+          "ok": true,
+          "scope": "save_checkpoint",
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0
+        },
+        {
+          "autosave": false,
+          "checkpoint_kind": "day_resolution_stage",
+          "elapsed_us": 12605,
+          "journal_prepare_us": 3026,
+          "ok": true,
+          "run_snapshot_build_us": 8817,
+          "scope": "save_checkpoint_prepare",
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "view_capture_us": 748
+        },
+        {
+          "autosave": false,
+          "checkpoint_id": "run_id.ff8d6f0db736d42c46e05795bcbd3d160b491c5fbd275649a203c11cd90c98cb:12",
+          "elapsed_us": 11751,
+          "history_bundles": 2,
+          "journal_us": 11742,
+          "ok": true,
+          "scope": "save_checkpoint",
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0
+        },
+        {
+          "autosave": false,
+          "checkpoint_kind": "day_resolution_stage",
+          "elapsed_us": 12629,
+          "journal_prepare_us": 2931,
+          "ok": true,
+          "run_snapshot_build_us": 8851,
+          "scope": "save_checkpoint_prepare",
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "view_capture_us": 834
+        },
+        {
+          "autosave": false,
+          "checkpoint_id": "run_id.ff8d6f0db736d42c46e05795bcbd3d160b491c5fbd275649a203c11cd90c98cb:13",
+          "elapsed_us": 11766,
+          "history_bundles": 2,
+          "journal_us": 11756,
+          "ok": true,
+          "scope": "save_checkpoint",
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0
+        },
+        {
+          "autosave": true,
+          "backup_us": 3942,
+          "checkpoint_kind": "day_resolution_stage",
+          "document_build_us": 51967,
+          "elapsed_us": 68342,
+          "journal_prepare_us": 3344,
+          "ok": true,
+          "run_snapshot_build_us": 8268,
+          "scope": "save_checkpoint_prepare",
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "view_capture_us": 808
+        },
+        {
+          "autosave": true,
+          "checkpoint_id": "run_id.ff8d6f0db736d42c46e05795bcbd3d160b491c5fbd275649a203c11cd90c98cb:14",
+          "document_bytes": 329086,
+          "elapsed_us": 147659,
+          "history_bundles": 2,
+          "journal_us": 12541,
+          "ok": true,
+          "outgoing_schema_us": 50690,
+          "reread_us": 2884,
+          "reread_validate_us": 499,
+          "scope": "save_checkpoint",
+          "splice_us": 41654,
+          "stringify_us": 13824,
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "write_atomic_us": 12854
+        },
+        {
+          "autosave": false,
+          "checkpoint_kind": "day_resolution_stage",
+          "elapsed_us": 12752,
+          "journal_prepare_us": 3080,
+          "ok": true,
+          "run_snapshot_build_us": 8959,
+          "scope": "save_checkpoint_prepare",
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "view_capture_us": 701
+        },
+        {
+          "autosave": false,
+          "checkpoint_id": "run_id.ff8d6f0db736d42c46e05795bcbd3d160b491c5fbd275649a203c11cd90c98cb:15",
+          "elapsed_us": 11772,
+          "history_bundles": 2,
+          "journal_us": 11763,
+          "ok": true,
+          "scope": "save_checkpoint",
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0
+        },
+        {
+          "autosave": true,
+          "backup_us": 4442,
+          "checkpoint_kind": "safe_marker",
+          "document_build_us": 53330,
+          "elapsed_us": 71612,
+          "journal_prepare_us": 3286,
+          "ok": true,
+          "run_snapshot_build_us": 9416,
+          "scope": "save_checkpoint_prepare",
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "view_capture_us": 1124
+        },
+        {
+          "autosave": true,
+          "checkpoint_id": "run_id.ff8d6f0db736d42c46e05795bcbd3d160b491c5fbd275649a203c11cd90c98cb:16",
+          "document_bytes": 332046,
+          "elapsed_us": 154792,
+          "history_bundles": 2,
+          "journal_us": 12274,
+          "ok": true,
+          "outgoing_schema_us": 52816,
+          "reread_us": 2387,
+          "reread_validate_us": 497,
+          "scope": "save_checkpoint",
+          "splice_us": 43987,
+          "stringify_us": 17756,
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "write_atomic_us": 13007
+        },
+        {
+          "autosave": true,
+          "backup_us": 4562,
+          "checkpoint_kind": "safe_marker",
+          "document_build_us": 55718,
+          "elapsed_us": 75178,
+          "journal_prepare_us": 3696,
+          "ok": true,
+          "run_snapshot_build_us": 10059,
+          "scope": "save_checkpoint_prepare",
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "view_capture_us": 1128
+        },
+        {
+          "autosave": true,
+          "checkpoint_id": "run_id.ff8d6f0db736d42c46e05795bcbd3d160b491c5fbd275649a203c11cd90c98cb:17",
+          "document_bytes": 334860,
+          "elapsed_us": 161576,
+          "history_bundles": 2,
+          "journal_us": 14375,
+          "ok": true,
+          "outgoing_schema_us": 54419,
+          "reread_us": 2257,
+          "reread_validate_us": 516,
+          "scope": "save_checkpoint",
+          "splice_us": 44730,
+          "stringify_us": 15248,
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "write_atomic_us": 16064
+        },
+        {
+          "autosave": true,
+          "backup_us": 4742,
+          "checkpoint_kind": "safe_marker",
+          "document_build_us": 19368,
+          "elapsed_us": 41427,
+          "journal_prepare_us": 4194,
+          "ok": true,
+          "run_snapshot_build_us": 11873,
+          "scope": "save_checkpoint_prepare",
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "view_capture_us": 1234
+        },
+        {
+          "autosave": true,
+          "checkpoint_id": "run_id.ff8d6f0db736d42c46e05795bcbd3d160b491c5fbd275649a203c11cd90c98cb:18",
+          "document_bytes": 339146,
+          "elapsed_us": 102746,
+          "history_bundles": 2,
+          "journal_us": 15268,
+          "ok": true,
+          "outgoing_schema_us": 39996,
+          "reread_us": 2325,
+          "reread_validate_us": 487,
+          "scope": "save_checkpoint",
+          "splice_us": 2,
+          "stringify_us": 16124,
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "write_atomic_us": 14569
+        },
+        {
+          "autosave": true,
+          "backup_us": 4584,
+          "checkpoint_kind": "safe_marker",
+          "document_build_us": 22004,
+          "elapsed_us": 45959,
+          "journal_prepare_us": 4027,
+          "ok": true,
+          "run_snapshot_build_us": 14027,
+          "scope": "save_checkpoint_prepare",
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "view_capture_us": 1302
+        },
+        {
+          "autosave": true,
+          "checkpoint_id": "run_id.ff8d6f0db736d42c46e05795bcbd3d160b491c5fbd275649a203c11cd90c98cb:19",
+          "document_bytes": 354786,
+          "elapsed_us": 113491,
+          "history_bundles": 2,
+          "journal_us": 18084,
+          "ok": true,
+          "outgoing_schema_us": 43758,
+          "reread_us": 2471,
+          "reread_validate_us": 555,
+          "scope": "save_checkpoint",
+          "splice_us": 2,
+          "stringify_us": 17918,
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "write_atomic_us": 15072
+        }
+      ],
+      "consequence_profiles": [
+        {
+          "board_capture_us": 123,
+          "board_commit_us": 163,
+          "board_prepare_us": 2105,
+          "capture_base_snapshot_us": 218,
+          "checkpoint_capture_us": 216,
+          "checkpoint_commit_us": 17500,
+          "checkpoint_prepare_us": 7605,
+          "compose_us": 157,
+          "elapsed_us": 35150,
+          "materialize_us": 2732,
+          "ok": true,
+          "prepare_consequence_us": 264,
+          "prepare_spec_us": 526,
+          "preview_checkpoint_us": 28,
+          "publish_us": 8,
+          "reducer_us": 1638,
+          "scope": "first_reveal_durable",
+          "state_capture_us": 41,
+          "state_commit_us": 1757,
+          "validate_candidates_us": 25,
+          "verify_transaction_us": 32
+        },
+        {
+          "elapsed_us": 22268,
+          "phase": "request_fingerprint",
+          "scope": "accept"
+        },
+        {
+          "elapsed_us": 81,
+          "phase": "admission_checks",
+          "scope": "accept"
+        },
+        {
+          "elapsed_us": 301,
+          "phase": "reservation",
+          "scope": "prepare"
+        },
+        {
+          "elapsed_us": 1985,
+          "phase": "condition_policy",
+          "scope": "prepare"
+        },
+        {
+          "elapsed_us": 4,
+          "phase": "departure_preparation",
+          "scope": "prepare"
+        },
+        {
+          "elapsed_us": 47760,
+          "phase": "recovery_payload",
+          "scope": "prepare"
+        },
+        {
+          "elapsed_us": 35752,
+          "phase": "checkpoint1_prepare",
+          "scope": "prepare"
+        },
+        {
+          "elapsed_us": 1575,
+          "phase": "checkpoint1_commit",
+          "scope": "prepare"
+        },
+        {
+          "elapsed_us": 3933,
+          "phase": "live_restore1",
+          "scope": "prepare"
+        },
+        {
+          "elapsed_us": 3053,
+          "phase": "sequence_state_prepare",
+          "scope": "admit"
+        },
+        {
+          "elapsed_us": 35095,
+          "phase": "checkpoint2_prepare",
+          "scope": "admit"
+        },
+        {
+          "elapsed_us": 1160,
+          "phase": "admission_prepare",
+          "scope": "admit"
+        },
+        {
+          "elapsed_us": 12555,
+          "phase": "admission_commit",
+          "scope": "admit"
+        },
+        {
+          "elapsed_us": 1014,
+          "phase": "capture_and_recovery_prepare",
+          "scope": "forward"
+        },
+        {
+          "base_completion": true,
+          "base_completion_commit_us": 2530,
+          "base_completion_prepare_us": 1571,
+          "board_commit_us": 12705,
+          "board_prepare_us": 817,
+          "elapsed_us": 19746,
+          "ok": true,
+          "receipt_and_cache_us": 1842,
+          "reward": true,
+          "reward_commit_us": 192,
+          "scope": "minesweeper_round_recovery_commit",
+          "validation_us": 85
+        },
+        {
+          "elapsed_us": 20647,
+          "phase": "source_commit_inclusive",
+          "scope": "forward"
+        },
+        {
+          "elapsed_us": 3,
+          "phase": "departure_commits",
+          "scope": "forward"
+        },
+        {
+          "elapsed_us": 36754,
+          "phase": "prepare",
+          "scope": "ordinal_8"
+        },
+        {
+          "elapsed_us": 2251,
+          "phase": "commit",
+          "scope": "ordinal_8"
+        },
+        {
+          "elapsed_us": 1905,
+          "phase": "live_restore",
+          "scope": "ordinal_8"
+        },
+        {
+          "elapsed_us": 3074,
+          "phase": "live_commit",
+          "scope": "ordinal_8"
+        },
+        {
+          "elapsed_us": 49175,
+          "phase": "publication_pending_inclusive",
+          "scope": "forward"
+        },
+        {
+          "cache_seed_us": 11,
+          "candidate_build_us": 5,
+          "canonical_rebuilt": true,
+          "compose_us": 513,
+          "confirmation_us": 154,
+          "disk_refresh_us": 485,
+          "document_bytes": 5067,
+          "elapsed_us": 3839,
+          "emit_path": "composed",
+          "entry_normalize_us": 182,
+          "first_delivery": true,
+          "kind": "causal_sequence",
+          "ok": true,
+          "records_before": 0,
+          "request_check_us": 278,
+          "request_digest_us": 223,
+          "scope": "desktop_publication_ledger",
+          "shape_check_us": 112,
+          "write_atomic_us": 2041
+        },
+        {
+          "elapsed_us": 4344,
+          "phase": "publish_causal_sequence",
+          "scope": "forward"
+        },
+        {
+          "elapsed_us": 36307,
+          "phase": "prepare",
+          "scope": "ordinal_9"
+        },
+        {
+          "elapsed_us": 1529,
+          "phase": "commit",
+          "scope": "ordinal_9"
+        },
+        {
+          "elapsed_us": 1557,
+          "phase": "live_restore",
+          "scope": "ordinal_9"
+        },
+        {
+          "elapsed_us": 2656,
+          "phase": "live_commit",
+          "scope": "ordinal_9"
+        },
+        {
+          "elapsed_us": 47314,
+          "phase": "progress_causal_sequence",
+          "scope": "forward"
+        },
+        {
+          "cache_seed_us": 19,
+          "candidate_build_us": 5,
+          "compose_us": 652,
+          "confirmation_us": 202,
+          "disk_refresh_us": 598,
+          "document_bytes": 10783,
+          "elapsed_us": 4558,
+          "emit_path": "composed",
+          "entry_normalize_us": 244,
+          "first_delivery": true,
+          "kind": "action_source",
+          "ok": true,
+          "records_before": 1,
+          "request_check_us": 358,
+          "request_digest_us": 302,
+          "scope": "desktop_publication_ledger",
+          "shape_check_us": 120,
+          "write_atomic_us": 2280
+        },
+        {
+          "elapsed_us": 9266,
+          "phase": "publish_action_source",
+          "scope": "forward"
+        },
+        {
+          "elapsed_us": 37288,
+          "phase": "prepare",
+          "scope": "ordinal_10"
+        },
+        {
+          "elapsed_us": 1915,
+          "phase": "commit",
+          "scope": "ordinal_10"
+        },
+        {
+          "elapsed_us": 1486,
+          "phase": "live_restore",
+          "scope": "ordinal_10"
+        },
+        {
+          "elapsed_us": 2759,
+          "phase": "live_commit",
+          "scope": "ordinal_10"
+        },
+        {
+          "elapsed_us": 49030,
+          "phase": "progress_action_source",
+          "scope": "forward"
+        },
+        {
+          "elapsed_us": 6002,
+          "phase": "capture",
+          "scope": "completion_save"
+        },
+        {
+          "elapsed_us": 38547,
+          "phase": "prepare",
+          "scope": "completion_save"
+        },
+        {
+          "elapsed_us": 107933,
+          "phase": "commit_inclusive",
+          "scope": "completion_save"
+        },
+        {
+          "elapsed_us": 1552,
+          "phase": "prepare",
+          "scope": "ordinal_12"
+        },
+        {
+          "elapsed_us": 98,
+          "phase": "commit",
+          "scope": "ordinal_12"
+        },
+        {
+          "elapsed_us": 327,
+          "phase": "live_restore",
+          "scope": "ordinal_12"
+        },
+        {
+          "elapsed_us": 797,
+          "phase": "live_commit",
+          "scope": "ordinal_12"
+        },
+        {
+          "elapsed_us": 163885,
+          "phase": "cleanup_inclusive",
+          "scope": "forward"
+        },
+        {
+          "elapsed_us": 1340,
+          "phase": "release_and_receipt",
+          "scope": "forward"
+        },
+        {
+          "elapsed_us": 497422,
+          "phase": "prepare_and_forward_inclusive",
+          "scope": "accept"
+        },
+        {
+          "accept_prepared_action_us": 520063,
+          "cache_or_release_us": 28,
+          "elapsed_us": 520095,
+          "ok": true,
+          "scope": "minesweeper_round_accept_finalize"
+        },
+        {
+          "accept_finalize_us": 520160,
+          "accept_request_retain_us": 1349,
+          "action_candidate_prepare_us": 25298,
+          "admission_and_board_capture_us": 1620,
+          "consequence_capture_us": 25,
+          "consequence_checkpoint_commit_us": 48,
+          "consequence_checkpoint_prepare_us": 1218,
+          "elapsed_us": 711762,
+          "handoff_prepare_us": 1578,
+          "ok": true,
+          "outcome": "cleared",
+          "pending_state_commit_us": 84,
+          "receipt_assembly_us": 45985,
+          "round_ordinal": 1,
+          "scope": "minesweeper_round_complete",
+          "source_capture_us": 4159,
+          "source_checkpoint": true,
+          "source_commit_us": 77877,
+          "source_prepare_us": 32356
+        },
+        {
+          "board_capture_us": 1126,
+          "board_commit_us": 1201,
+          "board_prepare_us": 2143,
+          "capture_base_snapshot_us": 1734,
+          "checkpoint_capture_us": 6786,
+          "checkpoint_commit_us": 97192,
+          "checkpoint_prepare_us": 34703,
+          "compose_us": 2610,
+          "elapsed_us": 157781,
+          "materialize_us": 3259,
+          "ok": true,
+          "prepare_consequence_us": 900,
+          "prepare_spec_us": 2421,
+          "preview_checkpoint_us": 34,
+          "publish_us": 11,
+          "reducer_us": 1619,
+          "scope": "first_reveal_durable",
+          "state_capture_us": 114,
+          "state_commit_us": 1767,
+          "validate_candidates_us": 82,
+          "verify_transaction_us": 65
+        },
+        {
+          "elapsed_us": 13961,
+          "phase": "request_fingerprint",
+          "scope": "accept"
+        },
+        {
+          "elapsed_us": 126,
+          "phase": "admission_checks",
+          "scope": "accept"
+        },
+        {
+          "elapsed_us": 331,
+          "phase": "reservation",
+          "scope": "prepare"
+        },
+        {
+          "elapsed_us": 2216,
+          "phase": "condition_policy",
+          "scope": "prepare"
+        },
+        {
+          "elapsed_us": 3,
+          "phase": "departure_preparation",
+          "scope": "prepare"
+        },
+        {
+          "elapsed_us": 30322,
+          "phase": "recovery_payload",
+          "scope": "prepare"
+        },
+        {
+          "elapsed_us": 24171,
+          "phase": "checkpoint1_prepare",
+          "scope": "prepare"
+        },
+        {
+          "elapsed_us": 1269,
+          "phase": "checkpoint1_commit",
+          "scope": "prepare"
+        },
+        {
+          "elapsed_us": 3252,
+          "phase": "live_restore1",
+          "scope": "prepare"
+        },
+        {
+          "elapsed_us": 2058,
+          "phase": "sequence_state_prepare",
+          "scope": "admit"
+        },
+        {
+          "elapsed_us": 25005,
+          "phase": "checkpoint2_prepare",
+          "scope": "admit"
+        },
+        {
+          "elapsed_us": 1398,
+          "phase": "admission_prepare",
+          "scope": "admit"
+        },
+        {
+          "elapsed_us": 15530,
+          "phase": "admission_commit",
+          "scope": "admit"
+        },
+        {
+          "elapsed_us": 1349,
+          "phase": "capture_and_recovery_prepare",
+          "scope": "forward"
+        },
+        {
+          "base_completion": true,
+          "base_completion_commit_us": 3786,
+          "base_completion_prepare_us": 1723,
+          "board_commit_us": 8089,
+          "board_prepare_us": 1097,
+          "elapsed_us": 17856,
+          "ok": true,
+          "receipt_and_cache_us": 2752,
+          "reward": true,
+          "reward_commit_us": 257,
+          "scope": "minesweeper_round_recovery_commit",
+          "validation_us": 146
+        },
+        {
+          "elapsed_us": 18704,
+          "phase": "source_commit_inclusive",
+          "scope": "forward"
+        },
+        {
+          "elapsed_us": 5,
+          "phase": "departure_commits",
+          "scope": "forward"
+        },
+        {
+          "elapsed_us": 24966,
+          "phase": "prepare",
+          "scope": "ordinal_8"
+        },
+        {
+          "elapsed_us": 1249,
+          "phase": "commit",
+          "scope": "ordinal_8"
+        },
+        {
+          "elapsed_us": 1390,
+          "phase": "live_restore",
+          "scope": "ordinal_8"
+        },
+        {
+          "elapsed_us": 2047,
+          "phase": "live_commit",
+          "scope": "ordinal_8"
+        },
+        {
+          "elapsed_us": 33372,
+          "phase": "publication_pending_inclusive",
+          "scope": "forward"
+        },
+        {
+          "cache_seed_us": 31,
+          "candidate_build_us": 5,
+          "compose_us": 633,
+          "confirmation_us": 231,
+          "disk_refresh_us": 780,
+          "document_bytes": 15817,
+          "elapsed_us": 4666,
+          "emit_path": "composed",
+          "entry_normalize_us": 148,
+          "first_delivery": true,
+          "kind": "causal_sequence",
+          "ok": true,
+          "records_before": 2,
+          "request_check_us": 274,
+          "request_digest_us": 220,
+          "scope": "desktop_publication_ledger",
+          "shape_check_us": 113,
+          "write_atomic_us": 2355
+        },
+        {
+          "elapsed_us": 5129,
+          "phase": "publish_causal_sequence",
+          "scope": "forward"
+        },
+        {
+          "elapsed_us": 24934,
+          "phase": "prepare",
+          "scope": "ordinal_9"
+        },
+        {
+          "elapsed_us": 1225,
+          "phase": "commit",
+          "scope": "ordinal_9"
+        },
+        {
+          "elapsed_us": 1470,
+          "phase": "live_restore",
+          "scope": "ordinal_9"
+        },
+        {
+          "elapsed_us": 2028,
+          "phase": "live_commit",
+          "scope": "ordinal_9"
+        },
+        {
+          "elapsed_us": 33584,
+          "phase": "progress_causal_sequence",
+          "scope": "forward"
+        },
+        {
+          "cache_seed_us": 51,
+          "candidate_build_us": 5,
+          "compose_us": 714,
+          "confirmation_us": 230,
+          "disk_refresh_us": 872,
+          "document_bytes": 21527,
+          "elapsed_us": 5058,
+          "emit_path": "composed",
+          "entry_normalize_us": 185,
+          "first_delivery": true,
+          "kind": "action_source",
+          "ok": true,
+          "records_before": 3,
+          "request_check_us": 322,
+          "request_digest_us": 265,
+          "scope": "desktop_publication_ledger",
+          "shape_check_us": 119,
+          "write_atomic_us": 2448
+        },
+        {
+          "elapsed_us": 9708,
+          "phase": "publish_action_source",
+          "scope": "forward"
+        },
+        {
+          "elapsed_us": 25441,
+          "phase": "prepare",
+          "scope": "ordinal_10"
+        },
+        {
+          "elapsed_us": 1444,
+          "phase": "commit",
+          "scope": "ordinal_10"
+        },
+        {
+          "elapsed_us": 1492,
+          "phase": "live_restore",
+          "scope": "ordinal_10"
+        },
+        {
+          "elapsed_us": 2176,
+          "phase": "live_commit",
+          "scope": "ordinal_10"
+        },
+        {
+          "elapsed_us": 34706,
+          "phase": "progress_action_source",
+          "scope": "forward"
+        },
+        {
+          "elapsed_us": 4021,
+          "phase": "capture",
+          "scope": "completion_save"
+        },
+        {
+          "elapsed_us": 30617,
+          "phase": "prepare",
+          "scope": "completion_save"
+        },
+        {
+          "elapsed_us": 91490,
+          "phase": "commit_inclusive",
+          "scope": "completion_save"
+        },
+        {
+          "elapsed_us": 2313,
+          "phase": "prepare",
+          "scope": "ordinal_12"
+        },
+        {
+          "elapsed_us": 98,
+          "phase": "commit",
+          "scope": "ordinal_12"
+        },
+        {
+          "elapsed_us": 298,
+          "phase": "live_restore",
+          "scope": "ordinal_12"
+        },
+        {
+          "elapsed_us": 632,
+          "phase": "live_commit",
+          "scope": "ordinal_12"
+        },
+        {
+          "elapsed_us": 136788,
+          "phase": "cleanup_inclusive",
+          "scope": "forward"
+        },
+        {
+          "elapsed_us": 1077,
+          "phase": "release_and_receipt",
+          "scope": "forward"
+        },
+        {
+          "elapsed_us": 386531,
+          "phase": "prepare_and_forward_inclusive",
+          "scope": "accept"
+        },
+        {
+          "accept_prepared_action_us": 400942,
+          "cache_or_release_us": 24,
+          "elapsed_us": 400969,
+          "ok": true,
+          "scope": "minesweeper_round_accept_finalize"
+        },
+        {
+          "accept_finalize_us": 401031,
+          "accept_request_retain_us": 1037,
+          "action_candidate_prepare_us": 8306,
+          "admission_and_board_capture_us": 1102,
+          "consequence_capture_us": 59,
+          "consequence_checkpoint_commit_us": 91,
+          "consequence_checkpoint_prepare_us": 2305,
+          "elapsed_us": 569510,
+          "handoff_prepare_us": 1639,
+          "ok": true,
+          "outcome": "exploded",
+          "pending_state_commit_us": 191,
+          "receipt_assembly_us": 30939,
+          "round_ordinal": 2,
+          "scope": "minesweeper_round_complete",
+          "source_capture_us": 2975,
+          "source_checkpoint": true,
+          "source_commit_us": 88469,
+          "source_prepare_us": 31362
+        },
+        {
+          "cache_seed_us": 147,
+          "candidate_build_us": 11,
+          "compose_us": 12144,
+          "confirmation_us": 4471,
+          "disk_refresh_us": 1025,
+          "document_bytes": 102577,
+          "elapsed_us": 40778,
+          "emit_path": "composed",
+          "entry_normalize_us": 4403,
+          "first_delivery": true,
+          "kind": "board_fate",
+          "ok": true,
+          "records_before": 4,
+          "request_check_us": 12403,
+          "request_digest_us": 11563,
+          "scope": "desktop_publication_ledger",
+          "shape_check_us": 1156,
+          "write_atomic_us": 3907
+        }
+      ]
+    },
+    {
+      "variant": "candidate",
+      "locale": "zh-HK",
+      "dating_ending": "loss",
+      "summary": [
+        {
+          "count": 1,
+          "key": "app:first_reveal",
+          "sync_max_us": 79767,
+          "sync_median_us": 79767,
+          "sync_min_us": 79767,
+          "two_frames_max_us": 92497,
+          "two_frames_median_us": 92497
+        },
+        {
+          "count": 2,
+          "key": "app:flag",
+          "sync_max_us": 54040,
+          "sync_median_us": 54040,
+          "sync_min_us": 40604,
+          "two_frames_max_us": 59222,
+          "two_frames_median_us": 59222
+        },
+        {
+          "count": 1,
+          "key": "app:losing_reveal",
+          "sync_max_us": 50368,
+          "sync_median_us": 50368,
+          "sync_min_us": 50368,
+          "two_frames_max_us": 694673,
+          "two_frames_median_us": 694673
+        },
+        {
+          "count": 1,
+          "key": "app:new_board_first_reveal",
+          "sync_max_us": 206316,
+          "sync_median_us": 206316,
+          "sync_min_us": 206316,
+          "two_frames_max_us": 211366,
+          "two_frames_median_us": 211366
+        },
+        {
+          "count": 15,
+          "key": "app:routine_reveal",
+          "sync_max_us": 54868,
+          "sync_median_us": 40240,
+          "sync_min_us": 38581,
+          "two_frames_max_us": 60239,
+          "two_frames_median_us": 45020
+        },
+        {
+          "count": 203,
+          "key": "app:routine_reveal_more",
+          "sync_max_us": 65615,
+          "sync_median_us": 48599,
+          "sync_min_us": 38242,
+          "two_frames_max_us": 73402,
+          "two_frames_median_us": 53883
+        },
+        {
+          "count": 2,
+          "key": "app:unflag",
+          "sync_max_us": 52840,
+          "sync_median_us": 52840,
+          "sync_min_us": 40279,
+          "two_frames_max_us": 57970,
+          "two_frames_median_us": 57970
+        },
+        {
+          "count": 1,
+          "key": "app:winning_reveal",
+          "sync_max_us": 58241,
+          "sync_median_us": 58241,
+          "sync_min_us": 58241,
+          "two_frames_max_us": 808249,
+          "two_frames_median_us": 808249
+        },
+        {
+          "count": 1,
+          "key": "dating:first_reveal",
+          "sync_max_us": 289626,
+          "sync_median_us": 289626,
+          "sync_min_us": 289626,
+          "two_frames_max_us": 322038,
+          "two_frames_median_us": 322038
+        },
+        {
+          "count": 1,
+          "key": "dating:losing_reveal",
+          "sync_max_us": 36157,
+          "sync_median_us": 36157,
+          "sync_min_us": 36157,
+          "two_frames_max_us": 530364,
+          "two_frames_median_us": 530364
+        },
+        {
+          "count": 12,
+          "key": "dating:routine_reveal",
+          "sync_max_us": 36041,
+          "sync_median_us": 33333,
+          "sync_min_us": 32871,
+          "two_frames_max_us": 40695,
+          "two_frames_median_us": 37993
+        }
+      ],
+      "settlement": [
+        {
+          "end_to_end_us": 808469,
+          "ending": "win",
+          "settled": true,
+          "settled_after_us": 3,
+          "surface": "app"
+        },
+        {
+          "end_to_end_us": 694821,
+          "ending": "loss",
+          "settled": true,
+          "settled_after_us": 5,
+          "surface": "app"
+        },
+        {
+          "end_to_end_us": 530523,
+          "ending": "loss",
+          "phase": "post_challenge",
+          "settled_after_us": 6,
+          "surface": "dating"
+        }
+      ],
+      "checkpoint_profiles": [
+        {
+          "autosave": true,
+          "backup_us": 4786,
+          "checkpoint_kind": "safe_marker",
+          "document_build_us": 2474,
+          "elapsed_us": 8829,
+          "journal_prepare_us": 72,
+          "ok": true,
+          "run_snapshot_build_us": 1378,
+          "scope": "save_checkpoint_prepare",
+          "text_validator_calls_since_prepare": 1,
+          "text_validator_us_since_prepare": 4499,
+          "view_capture_us": 111
+        },
+        {
+          "autosave": true,
+          "checkpoint_id": "run_id.73eddda61954381c1880e5e54d5213f41f0b09e3bb70e250c0dfb5ad01f9ea65:2",
+          "document_bytes": 11620,
+          "elapsed_us": 10720,
+          "history_bundles": 1,
+          "journal_us": 1471,
+          "ok": true,
+          "outgoing_schema_us": 2586,
+          "reread_us": 197,
+          "reread_validate_us": 20,
+          "scope": "save_checkpoint",
+          "splice_us": 1631,
+          "stringify_us": 1508,
+          "text_validator_calls_since_prepare": 1,
+          "text_validator_us_since_prepare": 4499,
+          "write_atomic_us": 2618
+        },
+        {
+          "autosave": true,
+          "backup_us": 370,
+          "checkpoint_kind": "safe_marker",
+          "document_build_us": 4099,
+          "elapsed_us": 6276,
+          "journal_prepare_us": 159,
+          "ok": true,
+          "run_snapshot_build_us": 1494,
+          "scope": "save_checkpoint_prepare",
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "view_capture_us": 143
+        },
+        {
+          "autosave": true,
+          "checkpoint_id": "run_id.73eddda61954381c1880e5e54d5213f41f0b09e3bb70e250c0dfb5ad01f9ea65:3",
+          "document_bytes": 19028,
+          "elapsed_us": 14107,
+          "history_bundles": 2,
+          "journal_us": 1782,
+          "ok": true,
+          "outgoing_schema_us": 4157,
+          "reread_us": 251,
+          "reread_validate_us": 71,
+          "scope": "save_checkpoint",
+          "splice_us": 2680,
+          "stringify_us": 1087,
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "write_atomic_us": 3169
+        },
+        {
+          "autosave": true,
+          "backup_us": 440,
+          "checkpoint_kind": "pre_board",
+          "document_build_us": 4167,
+          "elapsed_us": 7645,
+          "journal_prepare_us": 217,
+          "ok": true,
+          "run_snapshot_build_us": 2629,
+          "scope": "save_checkpoint_prepare",
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "view_capture_us": 184
+        },
+        {
+          "autosave": true,
+          "checkpoint_id": "run_id.73eddda61954381c1880e5e54d5213f41f0b09e3bb70e250c0dfb5ad01f9ea65:4",
+          "document_bytes": 29299,
+          "elapsed_us": 17106,
+          "history_bundles": 2,
+          "journal_us": 2745,
+          "ok": true,
+          "outgoing_schema_us": 5655,
+          "reread_us": 307,
+          "reread_validate_us": 46,
+          "scope": "save_checkpoint",
+          "splice_us": 1,
+          "stringify_us": 2950,
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "write_atomic_us": 3319
+        },
+        {
+          "autosave": true,
+          "backup_us": 637,
+          "checkpoint_kind": "safe_marker",
+          "document_build_us": 18897,
+          "elapsed_us": 31367,
+          "journal_prepare_us": 305,
+          "ok": true,
+          "run_snapshot_build_us": 11472,
+          "scope": "save_checkpoint_prepare",
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "view_capture_us": 47
+        },
+        {
+          "autosave": true,
+          "checkpoint_id": "run_id.73eddda61954381c1880e5e54d5213f41f0b09e3bb70e250c0dfb5ad01f9ea65:5",
+          "document_bytes": 171619,
+          "elapsed_us": 75858,
+          "history_bundles": 2,
+          "journal_us": 11703,
+          "ok": true,
+          "outgoing_schema_us": 22707,
+          "reread_us": 1327,
+          "reread_validate_us": 262,
+          "scope": "save_checkpoint",
+          "splice_us": 1,
+          "stringify_us": 21478,
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "write_atomic_us": 6359
+        },
+        {
+          "autosave": true,
+          "backup_us": 2518,
+          "checkpoint_kind": "post_result",
+          "document_build_us": 19321,
+          "elapsed_us": 33391,
+          "journal_prepare_us": 1213,
+          "ok": true,
+          "run_snapshot_build_us": 10278,
+          "scope": "save_checkpoint_prepare",
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "view_capture_us": 52
+        },
+        {
+          "autosave": true,
+          "checkpoint_id": "run_id.73eddda61954381c1880e5e54d5213f41f0b09e3bb70e250c0dfb5ad01f9ea65:6",
+          "document_bytes": 322429,
+          "elapsed_us": 98945,
+          "history_bundles": 2,
+          "journal_us": 13129,
+          "ok": true,
+          "outgoing_schema_us": 38289,
+          "reread_us": 2063,
+          "reread_validate_us": 439,
+          "scope": "save_checkpoint",
+          "splice_us": 2,
+          "stringify_us": 21574,
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "write_atomic_us": 9500
+        },
+        {
+          "autosave": true,
+          "backup_us": 4249,
+          "checkpoint_kind": "safe_marker",
+          "document_build_us": 12233,
+          "elapsed_us": 26338,
+          "journal_prepare_us": 2773,
+          "ok": true,
+          "run_snapshot_build_us": 6405,
+          "scope": "save_checkpoint_prepare",
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "view_capture_us": 667
+        },
+        {
+          "autosave": true,
+          "checkpoint_id": "run_id.73eddda61954381c1880e5e54d5213f41f0b09e3bb70e250c0dfb5ad01f9ea65:7",
+          "document_bytes": 391357,
+          "elapsed_us": 96176,
+          "history_bundles": 2,
+          "journal_us": 10262,
+          "ok": true,
+          "outgoing_schema_us": 45271,
+          "reread_us": 2592,
+          "reread_validate_us": 576,
+          "scope": "save_checkpoint",
+          "splice_us": 2,
+          "stringify_us": 11336,
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "write_atomic_us": 13492
+        },
+        {
+          "autosave": true,
+          "backup_us": 5118,
+          "checkpoint_kind": "pre_board",
+          "document_build_us": 13438,
+          "elapsed_us": 30427,
+          "journal_prepare_us": 3646,
+          "ok": true,
+          "run_snapshot_build_us": 7406,
+          "scope": "save_checkpoint_prepare",
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "view_capture_us": 807
+        },
+        {
+          "autosave": true,
+          "checkpoint_id": "run_id.73eddda61954381c1880e5e54d5213f41f0b09e3bb70e250c0dfb5ad01f9ea65:8",
+          "document_bytes": 333319,
+          "elapsed_us": 92524,
+          "history_bundles": 2,
+          "journal_us": 12691,
+          "ok": true,
+          "outgoing_schema_us": 37578,
+          "reread_us": 2228,
+          "reread_validate_us": 486,
+          "scope": "save_checkpoint",
+          "splice_us": 2,
+          "stringify_us": 14020,
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "write_atomic_us": 14168
+        },
+        {
+          "autosave": true,
+          "backup_us": 4348,
+          "checkpoint_kind": "safe_marker",
+          "document_build_us": 13852,
+          "elapsed_us": 29243,
+          "journal_prepare_us": 3250,
+          "ok": true,
+          "run_snapshot_build_us": 7738,
+          "scope": "save_checkpoint_prepare",
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "view_capture_us": 44
+        },
+        {
+          "autosave": true,
+          "checkpoint_id": "run_id.73eddda61954381c1880e5e54d5213f41f0b09e3bb70e250c0dfb5ad01f9ea65:9",
+          "document_bytes": 272939,
+          "elapsed_us": 87386,
+          "history_bundles": 2,
+          "journal_us": 12241,
+          "ok": true,
+          "outgoing_schema_us": 32086,
+          "reread_us": 1841,
+          "reread_validate_us": 422,
+          "scope": "save_checkpoint",
+          "splice_us": 2,
+          "stringify_us": 14827,
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "write_atomic_us": 13918
+        },
+        {
+          "autosave": true,
+          "backup_us": 3806,
+          "checkpoint_kind": "post_result",
+          "document_build_us": 15039,
+          "elapsed_us": 29369,
+          "journal_prepare_us": 2840,
+          "ok": true,
+          "run_snapshot_build_us": 7622,
+          "scope": "save_checkpoint_prepare",
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "view_capture_us": 49
+        },
+        {
+          "autosave": true,
+          "checkpoint_id": "run_id.73eddda61954381c1880e5e54d5213f41f0b09e3bb70e250c0dfb5ad01f9ea65:10",
+          "document_bytes": 288674,
+          "elapsed_us": 89588,
+          "history_bundles": 2,
+          "journal_us": 11275,
+          "ok": true,
+          "outgoing_schema_us": 35805,
+          "reread_us": 1934,
+          "reread_validate_us": 420,
+          "scope": "save_checkpoint",
+          "splice_us": 2,
+          "stringify_us": 14464,
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "write_atomic_us": 12829
+        },
+        {
+          "autosave": false,
+          "checkpoint_kind": "day_resolution_stage",
+          "elapsed_us": 12468,
+          "journal_prepare_us": 2982,
+          "ok": true,
+          "run_snapshot_build_us": 8716,
+          "scope": "save_checkpoint_prepare",
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "view_capture_us": 756
+        },
+        {
+          "autosave": false,
+          "checkpoint_id": "run_id.73eddda61954381c1880e5e54d5213f41f0b09e3bb70e250c0dfb5ad01f9ea65:11",
+          "elapsed_us": 11420,
+          "history_bundles": 2,
+          "journal_us": 11410,
+          "ok": true,
+          "scope": "save_checkpoint",
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0
+        },
+        {
+          "autosave": false,
+          "checkpoint_kind": "day_resolution_stage",
+          "elapsed_us": 11953,
+          "journal_prepare_us": 2820,
+          "ok": true,
+          "run_snapshot_build_us": 8374,
+          "scope": "save_checkpoint_prepare",
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "view_capture_us": 748
+        },
+        {
+          "autosave": false,
+          "checkpoint_id": "run_id.73eddda61954381c1880e5e54d5213f41f0b09e3bb70e250c0dfb5ad01f9ea65:12",
+          "elapsed_us": 11901,
+          "history_bundles": 2,
+          "journal_us": 11890,
+          "ok": true,
+          "scope": "save_checkpoint",
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0
+        },
+        {
+          "autosave": false,
+          "checkpoint_kind": "day_resolution_stage",
+          "elapsed_us": 12132,
+          "journal_prepare_us": 2904,
+          "ok": true,
+          "run_snapshot_build_us": 8523,
+          "scope": "save_checkpoint_prepare",
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "view_capture_us": 693
+        },
+        {
+          "autosave": false,
+          "checkpoint_id": "run_id.73eddda61954381c1880e5e54d5213f41f0b09e3bb70e250c0dfb5ad01f9ea65:13",
+          "elapsed_us": 12588,
+          "history_bundles": 2,
+          "journal_us": 12578,
+          "ok": true,
+          "scope": "save_checkpoint",
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0
+        },
+        {
+          "autosave": true,
+          "backup_us": 3942,
+          "checkpoint_kind": "day_resolution_stage",
+          "document_build_us": 51578,
+          "elapsed_us": 67495,
+          "journal_prepare_us": 2966,
+          "ok": true,
+          "run_snapshot_build_us": 8236,
+          "scope": "save_checkpoint_prepare",
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "view_capture_us": 761
+        },
+        {
+          "autosave": true,
+          "checkpoint_id": "run_id.73eddda61954381c1880e5e54d5213f41f0b09e3bb70e250c0dfb5ad01f9ea65:14",
+          "document_bytes": 331687,
+          "elapsed_us": 148649,
+          "history_bundles": 2,
+          "journal_us": 12332,
+          "ok": true,
+          "outgoing_schema_us": 52121,
+          "reread_us": 2246,
+          "reread_validate_us": 490,
+          "scope": "save_checkpoint",
+          "splice_us": 41863,
+          "stringify_us": 13844,
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "write_atomic_us": 13000
+        },
+        {
+          "autosave": false,
+          "checkpoint_kind": "day_resolution_stage",
+          "elapsed_us": 12934,
+          "journal_prepare_us": 3254,
+          "ok": true,
+          "run_snapshot_build_us": 8818,
+          "scope": "save_checkpoint_prepare",
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "view_capture_us": 849
+        },
+        {
+          "autosave": false,
+          "checkpoint_id": "run_id.73eddda61954381c1880e5e54d5213f41f0b09e3bb70e250c0dfb5ad01f9ea65:15",
+          "elapsed_us": 12156,
+          "history_bundles": 2,
+          "journal_us": 12148,
+          "ok": true,
+          "scope": "save_checkpoint",
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0
+        },
+        {
+          "autosave": true,
+          "backup_us": 4426,
+          "checkpoint_kind": "safe_marker",
+          "document_build_us": 53441,
+          "elapsed_us": 71574,
+          "journal_prepare_us": 3514,
+          "ok": true,
+          "run_snapshot_build_us": 9134,
+          "scope": "save_checkpoint_prepare",
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "view_capture_us": 1047
+        },
+        {
+          "autosave": true,
+          "checkpoint_id": "run_id.73eddda61954381c1880e5e54d5213f41f0b09e3bb70e250c0dfb5ad01f9ea65:16",
+          "document_bytes": 334647,
+          "elapsed_us": 151060,
+          "history_bundles": 2,
+          "journal_us": 12421,
+          "ok": true,
+          "outgoing_schema_us": 52868,
+          "reread_us": 2287,
+          "reread_validate_us": 495,
+          "scope": "save_checkpoint",
+          "splice_us": 42848,
+          "stringify_us": 14222,
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "write_atomic_us": 13551
+        },
+        {
+          "autosave": true,
+          "backup_us": 4569,
+          "checkpoint_kind": "safe_marker",
+          "document_build_us": 53885,
+          "elapsed_us": 71703,
+          "journal_prepare_us": 3054,
+          "ok": true,
+          "run_snapshot_build_us": 9223,
+          "scope": "save_checkpoint_prepare",
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "view_capture_us": 959
+        },
+        {
+          "autosave": true,
+          "checkpoint_id": "run_id.73eddda61954381c1880e5e54d5213f41f0b09e3bb70e250c0dfb5ad01f9ea65:17",
+          "document_bytes": 337461,
+          "elapsed_us": 152988,
+          "history_bundles": 2,
+          "journal_us": 13349,
+          "ok": true,
+          "outgoing_schema_us": 52020,
+          "reread_us": 2183,
+          "reread_validate_us": 504,
+          "scope": "save_checkpoint",
+          "splice_us": 43097,
+          "stringify_us": 14784,
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "write_atomic_us": 13958
+        },
+        {
+          "autosave": true,
+          "backup_us": 4661,
+          "checkpoint_kind": "safe_marker",
+          "document_build_us": 18363,
+          "elapsed_us": 39206,
+          "journal_prepare_us": 3347,
+          "ok": true,
+          "run_snapshot_build_us": 11698,
+          "scope": "save_checkpoint_prepare",
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "view_capture_us": 1122
+        },
+        {
+          "autosave": true,
+          "checkpoint_id": "run_id.73eddda61954381c1880e5e54d5213f41f0b09e3bb70e250c0dfb5ad01f9ea65:18",
+          "document_bytes": 342198,
+          "elapsed_us": 102219,
+          "history_bundles": 2,
+          "journal_us": 15403,
+          "ok": true,
+          "outgoing_schema_us": 39802,
+          "reread_us": 2254,
+          "reread_validate_us": 516,
+          "scope": "save_checkpoint",
+          "splice_us": 2,
+          "stringify_us": 16032,
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "write_atomic_us": 14197
+        },
+        {
+          "autosave": true,
+          "backup_us": 4497,
+          "checkpoint_kind": "safe_marker",
+          "document_build_us": 19374,
+          "elapsed_us": 41084,
+          "journal_prepare_us": 3612,
+          "ok": true,
+          "run_snapshot_build_us": 12345,
+          "scope": "save_checkpoint_prepare",
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "view_capture_us": 1242
+        },
+        {
+          "autosave": true,
+          "checkpoint_id": "run_id.73eddda61954381c1880e5e54d5213f41f0b09e3bb70e250c0dfb5ad01f9ea65:19",
+          "document_bytes": 348162,
+          "elapsed_us": 105217,
+          "history_bundles": 2,
+          "journal_us": 16412,
+          "ok": true,
+          "outgoing_schema_us": 41131,
+          "reread_us": 2248,
+          "reread_validate_us": 494,
+          "scope": "save_checkpoint",
+          "splice_us": 1,
+          "stringify_us": 16277,
+          "text_validator_calls_since_prepare": 0,
+          "text_validator_us_since_prepare": 0,
+          "write_atomic_us": 14558
+        }
+      ],
+      "consequence_profiles": [
+        {
+          "board_capture_us": 124,
+          "board_commit_us": 152,
+          "board_prepare_us": 2186,
+          "capture_base_snapshot_us": 200,
+          "checkpoint_capture_us": 250,
+          "checkpoint_commit_us": 17380,
+          "checkpoint_prepare_us": 7883,
+          "compose_us": 168,
+          "elapsed_us": 35417,
+          "materialize_us": 2761,
+          "ok": true,
+          "prepare_consequence_us": 287,
+          "prepare_spec_us": 571,
+          "preview_checkpoint_us": 34,
+          "publish_us": 7,
+          "reducer_us": 1693,
+          "scope": "first_reveal_durable",
+          "state_capture_us": 44,
+          "state_commit_us": 1609,
+          "validate_candidates_us": 25,
+          "verify_transaction_us": 31
+        },
+        {
+          "elapsed_us": 22497,
+          "phase": "request_fingerprint",
+          "scope": "accept"
+        },
+        {
+          "elapsed_us": 78,
+          "phase": "admission_checks",
+          "scope": "accept"
+        },
+        {
+          "elapsed_us": 294,
+          "phase": "reservation",
+          "scope": "prepare"
+        },
+        {
+          "elapsed_us": 2087,
+          "phase": "condition_policy",
+          "scope": "prepare"
+        },
+        {
+          "elapsed_us": 4,
+          "phase": "departure_preparation",
+          "scope": "prepare"
+        },
+        {
+          "elapsed_us": 48069,
+          "phase": "recovery_payload",
+          "scope": "prepare"
+        },
+        {
+          "elapsed_us": 34772,
+          "phase": "checkpoint1_prepare",
+          "scope": "prepare"
+        },
+        {
+          "elapsed_us": 1451,
+          "phase": "checkpoint1_commit",
+          "scope": "prepare"
+        },
+        {
+          "elapsed_us": 3944,
+          "phase": "live_restore1",
+          "scope": "prepare"
+        },
+        {
+          "elapsed_us": 3049,
+          "phase": "sequence_state_prepare",
+          "scope": "admit"
+        },
+        {
+          "elapsed_us": 34602,
+          "phase": "checkpoint2_prepare",
+          "scope": "admit"
+        },
+        {
+          "elapsed_us": 970,
+          "phase": "admission_prepare",
+          "scope": "admit"
+        },
+        {
+          "elapsed_us": 12083,
+          "phase": "admission_commit",
+          "scope": "admit"
+        },
+        {
+          "elapsed_us": 890,
+          "phase": "capture_and_recovery_prepare",
+          "scope": "forward"
+        },
+        {
+          "base_completion": true,
+          "base_completion_commit_us": 2602,
+          "base_completion_prepare_us": 1416,
+          "board_commit_us": 13522,
+          "board_prepare_us": 824,
+          "elapsed_us": 20539,
+          "ok": true,
+          "receipt_and_cache_us": 1932,
+          "reward": true,
+          "reward_commit_us": 159,
+          "scope": "minesweeper_round_recovery_commit",
+          "validation_us": 81
+        },
+        {
+          "elapsed_us": 21396,
+          "phase": "source_commit_inclusive",
+          "scope": "forward"
+        },
+        {
+          "elapsed_us": 4,
+          "phase": "departure_commits",
+          "scope": "forward"
+        },
+        {
+          "elapsed_us": 35798,
+          "phase": "prepare",
+          "scope": "ordinal_8"
+        },
+        {
+          "elapsed_us": 1504,
+          "phase": "commit",
+          "scope": "ordinal_8"
+        },
+        {
+          "elapsed_us": 1739,
+          "phase": "live_restore",
+          "scope": "ordinal_8"
+        },
+        {
+          "elapsed_us": 2998,
+          "phase": "live_commit",
+          "scope": "ordinal_8"
+        },
+        {
+          "elapsed_us": 46110,
+          "phase": "publication_pending_inclusive",
+          "scope": "forward"
+        },
+        {
+          "cache_seed_us": 11,
+          "candidate_build_us": 3,
+          "canonical_rebuilt": true,
+          "compose_us": 549,
+          "confirmation_us": 151,
+          "disk_refresh_us": 502,
+          "document_bytes": 5067,
+          "elapsed_us": 3829,
+          "emit_path": "composed",
+          "entry_normalize_us": 145,
+          "first_delivery": true,
+          "kind": "causal_sequence",
+          "ok": true,
+          "records_before": 0,
+          "request_check_us": 271,
+          "request_digest_us": 219,
+          "scope": "desktop_publication_ledger",
+          "shape_check_us": 107,
+          "write_atomic_us": 2034
+        },
+        {
+          "elapsed_us": 4287,
+          "phase": "publish_causal_sequence",
+          "scope": "forward"
+        },
+        {
+          "elapsed_us": 34802,
+          "phase": "prepare",
+          "scope": "ordinal_9"
+        },
+        {
+          "elapsed_us": 1498,
+          "phase": "commit",
+          "scope": "ordinal_9"
+        },
+        {
+          "elapsed_us": 1547,
+          "phase": "live_restore",
+          "scope": "ordinal_9"
+        },
+        {
+          "elapsed_us": 2855,
+          "phase": "live_commit",
+          "scope": "ordinal_9"
+        },
+        {
+          "elapsed_us": 46080,
+          "phase": "progress_causal_sequence",
+          "scope": "forward"
+        },
+        {
+          "cache_seed_us": 18,
+          "candidate_build_us": 5,
+          "compose_us": 687,
+          "confirmation_us": 198,
+          "disk_refresh_us": 717,
+          "document_bytes": 10783,
+          "elapsed_us": 4602,
+          "emit_path": "composed",
+          "entry_normalize_us": 182,
+          "first_delivery": true,
+          "kind": "action_source",
+          "ok": true,
+          "records_before": 1,
+          "request_check_us": 331,
+          "request_digest_us": 272,
+          "scope": "desktop_publication_ledger",
+          "shape_check_us": 119,
+          "write_atomic_us": 2266
+        },
+        {
+          "elapsed_us": 9423,
+          "phase": "publish_action_source",
+          "scope": "forward"
+        },
+        {
+          "elapsed_us": 35424,
+          "phase": "prepare",
+          "scope": "ordinal_10"
+        },
+        {
+          "elapsed_us": 1453,
+          "phase": "commit",
+          "scope": "ordinal_10"
+        },
+        {
+          "elapsed_us": 1415,
+          "phase": "live_restore",
+          "scope": "ordinal_10"
+        },
+        {
+          "elapsed_us": 2732,
+          "phase": "live_commit",
+          "scope": "ordinal_10"
+        },
+        {
+          "elapsed_us": 46029,
+          "phase": "progress_action_source",
+          "scope": "forward"
+        },
+        {
+          "elapsed_us": 5313,
+          "phase": "capture",
+          "scope": "completion_save"
+        },
+        {
+          "elapsed_us": 33550,
+          "phase": "prepare",
+          "scope": "completion_save"
+        },
+        {
+          "elapsed_us": 101224,
+          "phase": "commit_inclusive",
+          "scope": "completion_save"
+        },
+        {
+          "elapsed_us": 1495,
+          "phase": "prepare",
+          "scope": "ordinal_12"
+        },
+        {
+          "elapsed_us": 93,
+          "phase": "commit",
+          "scope": "ordinal_12"
+        },
+        {
+          "elapsed_us": 309,
+          "phase": "live_restore",
+          "scope": "ordinal_12"
+        },
+        {
+          "elapsed_us": 721,
+          "phase": "live_commit",
+          "scope": "ordinal_12"
+        },
+        {
+          "elapsed_us": 150140,
+          "phase": "cleanup_inclusive",
+          "scope": "forward"
+        },
+        {
+          "elapsed_us": 1262,
+          "phase": "release_and_receipt",
+          "scope": "forward"
+        },
+        {
+          "elapsed_us": 475005,
+          "phase": "prepare_and_forward_inclusive",
+          "scope": "accept"
+        },
+        {
+          "accept_prepared_action_us": 497847,
+          "cache_or_release_us": 31,
+          "elapsed_us": 497881,
+          "ok": true,
+          "scope": "minesweeper_round_accept_finalize"
+        },
+        {
+          "accept_finalize_us": 497943,
+          "accept_request_retain_us": 1447,
+          "action_candidate_prepare_us": 25221,
+          "admission_and_board_capture_us": 1633,
+          "consequence_capture_us": 25,
+          "consequence_checkpoint_commit_us": 55,
+          "consequence_checkpoint_prepare_us": 1541,
+          "elapsed_us": 689995,
+          "handoff_prepare_us": 1538,
+          "ok": true,
+          "outcome": "cleared",
+          "pending_state_commit_us": 89,
+          "receipt_assembly_us": 47013,
+          "round_ordinal": 1,
+          "scope": "minesweeper_round_complete",
+          "source_capture_us": 4243,
+          "source_checkpoint": true,
+          "source_commit_us": 76680,
+          "source_prepare_us": 32563
+        },
+        {
+          "board_capture_us": 519,
+          "board_commit_us": 1117,
+          "board_prepare_us": 2043,
+          "capture_base_snapshot_us": 1320,
+          "checkpoint_capture_us": 3212,
+          "checkpoint_commit_us": 94080,
+          "checkpoint_prepare_us": 31021,
+          "compose_us": 1986,
+          "elapsed_us": 143663,
+          "materialize_us": 2664,
+          "ok": true,
+          "prepare_consequence_us": 755,
+          "prepare_spec_us": 1501,
+          "preview_checkpoint_us": 27,
+          "publish_us": 8,
+          "reducer_us": 1576,
+          "scope": "first_reveal_durable",
+          "state_capture_us": 43,
+          "state_commit_us": 1701,
+          "validate_candidates_us": 46,
+          "verify_transaction_us": 32
+        },
+        {
+          "elapsed_us": 13955,
+          "phase": "request_fingerprint",
+          "scope": "accept"
+        },
+        {
+          "elapsed_us": 131,
+          "phase": "admission_checks",
+          "scope": "accept"
+        },
+        {
+          "elapsed_us": 336,
+          "phase": "reservation",
+          "scope": "prepare"
+        },
+        {
+          "elapsed_us": 2215,
+          "phase": "condition_policy",
+          "scope": "prepare"
+        },
+        {
+          "elapsed_us": 4,
+          "phase": "departure_preparation",
+          "scope": "prepare"
+        },
+        {
+          "elapsed_us": 30826,
+          "phase": "recovery_payload",
+          "scope": "prepare"
+        },
+        {
+          "elapsed_us": 24676,
+          "phase": "checkpoint1_prepare",
+          "scope": "prepare"
+        },
+        {
+          "elapsed_us": 1272,
+          "phase": "checkpoint1_commit",
+          "scope": "prepare"
+        },
+        {
+          "elapsed_us": 3419,
+          "phase": "live_restore1",
+          "scope": "prepare"
+        },
+        {
+          "elapsed_us": 2183,
+          "phase": "sequence_state_prepare",
+          "scope": "admit"
+        },
+        {
+          "elapsed_us": 24759,
+          "phase": "checkpoint2_prepare",
+          "scope": "admit"
+        },
+        {
+          "elapsed_us": 913,
+          "phase": "admission_prepare",
+          "scope": "admit"
+        },
+        {
+          "elapsed_us": 8786,
+          "phase": "admission_commit",
+          "scope": "admit"
+        },
+        {
+          "elapsed_us": 641,
+          "phase": "capture_and_recovery_prepare",
+          "scope": "forward"
+        },
+        {
+          "base_completion": true,
+          "base_completion_commit_us": 2029,
+          "base_completion_prepare_us": 1139,
+          "board_commit_us": 5127,
+          "board_prepare_us": 576,
+          "elapsed_us": 10493,
+          "ok": true,
+          "receipt_and_cache_us": 1317,
+          "reward": true,
+          "reward_commit_us": 166,
+          "scope": "minesweeper_round_recovery_commit",
+          "validation_us": 136
+        },
+        {
+          "elapsed_us": 11060,
+          "phase": "source_commit_inclusive",
+          "scope": "forward"
+        },
+        {
+          "elapsed_us": 4,
+          "phase": "departure_commits",
+          "scope": "forward"
+        },
+        {
+          "elapsed_us": 24797,
+          "phase": "prepare",
+          "scope": "ordinal_8"
+        },
+        {
+          "elapsed_us": 1063,
+          "phase": "commit",
+          "scope": "ordinal_8"
+        },
+        {
+          "elapsed_us": 1382,
+          "phase": "live_restore",
+          "scope": "ordinal_8"
+        },
+        {
+          "elapsed_us": 1989,
+          "phase": "live_commit",
+          "scope": "ordinal_8"
+        },
+        {
+          "elapsed_us": 32162,
+          "phase": "publication_pending_inclusive",
+          "scope": "forward"
+        },
+        {
+          "cache_seed_us": 42,
+          "candidate_build_us": 5,
+          "compose_us": 572,
+          "confirmation_us": 188,
+          "disk_refresh_us": 773,
+          "document_bytes": 15817,
+          "elapsed_us": 4622,
+          "emit_path": "composed",
+          "entry_normalize_us": 146,
+          "first_delivery": true,
+          "kind": "causal_sequence",
+          "ok": true,
+          "records_before": 2,
+          "request_check_us": 278,
+          "request_digest_us": 224,
+          "scope": "desktop_publication_ledger",
+          "shape_check_us": 110,
+          "write_atomic_us": 2416
+        },
+        {
+          "elapsed_us": 5096,
+          "phase": "publish_causal_sequence",
+          "scope": "forward"
+        },
+        {
+          "elapsed_us": 25541,
+          "phase": "prepare",
+          "scope": "ordinal_9"
+        },
+        {
+          "elapsed_us": 1313,
+          "phase": "commit",
+          "scope": "ordinal_9"
+        },
+        {
+          "elapsed_us": 1624,
+          "phase": "live_restore",
+          "scope": "ordinal_9"
+        },
+        {
+          "elapsed_us": 2009,
+          "phase": "live_commit",
+          "scope": "ordinal_9"
+        },
+        {
+          "elapsed_us": 34547,
+          "phase": "progress_causal_sequence",
+          "scope": "forward"
+        },
+        {
+          "cache_seed_us": 46,
+          "candidate_build_us": 7,
+          "compose_us": 734,
+          "confirmation_us": 231,
+          "disk_refresh_us": 872,
+          "document_bytes": 21527,
+          "elapsed_us": 5186,
+          "emit_path": "composed",
+          "entry_normalize_us": 179,
+          "first_delivery": true,
+          "kind": "action_source",
+          "ok": true,
+          "records_before": 3,
+          "request_check_us": 368,
+          "request_digest_us": 309,
+          "scope": "desktop_publication_ledger",
+          "shape_check_us": 126,
+          "write_atomic_us": 2469
+        },
+        {
+          "elapsed_us": 10001,
+          "phase": "publish_action_source",
+          "scope": "forward"
+        },
+        {
+          "elapsed_us": 25267,
+          "phase": "prepare",
+          "scope": "ordinal_10"
+        },
+        {
+          "elapsed_us": 1234,
+          "phase": "commit",
+          "scope": "ordinal_10"
+        },
+        {
+          "elapsed_us": 1492,
+          "phase": "live_restore",
+          "scope": "ordinal_10"
+        },
+        {
+          "elapsed_us": 2140,
+          "phase": "live_commit",
+          "scope": "ordinal_10"
+        },
+        {
+          "elapsed_us": 34041,
+          "phase": "progress_action_source",
+          "scope": "forward"
+        },
+        {
+          "elapsed_us": 3347,
+          "phase": "capture",
+          "scope": "completion_save"
+        },
+        {
+          "elapsed_us": 29560,
+          "phase": "prepare",
+          "scope": "completion_save"
+        },
+        {
+          "elapsed_us": 91783,
+          "phase": "commit_inclusive",
+          "scope": "completion_save"
+        },
+        {
+          "elapsed_us": 2281,
+          "phase": "prepare",
+          "scope": "ordinal_12"
+        },
+        {
+          "elapsed_us": 101,
+          "phase": "commit",
+          "scope": "ordinal_12"
+        },
+        {
+          "elapsed_us": 288,
+          "phase": "live_restore",
+          "scope": "ordinal_12"
+        },
+        {
+          "elapsed_us": 726,
+          "phase": "live_commit",
+          "scope": "ordinal_12"
+        },
+        {
+          "elapsed_us": 135100,
+          "phase": "cleanup_inclusive",
+          "scope": "forward"
+        },
+        {
+          "elapsed_us": 1005,
+          "phase": "release_and_receipt",
+          "scope": "forward"
+        },
+        {
+          "elapsed_us": 370035,
+          "phase": "prepare_and_forward_inclusive",
+          "scope": "accept"
+        },
+        {
+          "accept_prepared_action_us": 384427,
+          "cache_or_release_us": 24,
+          "elapsed_us": 384454,
+          "ok": true,
+          "scope": "minesweeper_round_accept_finalize"
+        },
+        {
+          "accept_finalize_us": 384518,
+          "accept_request_retain_us": 1015,
+          "action_candidate_prepare_us": 8313,
+          "admission_and_board_capture_us": 1117,
+          "consequence_capture_us": 55,
+          "consequence_checkpoint_commit_us": 97,
+          "consequence_checkpoint_prepare_us": 2760,
+          "elapsed_us": 553280,
+          "handoff_prepare_us": 1594,
+          "ok": true,
+          "outcome": "exploded",
+          "pending_state_commit_us": 209,
+          "receipt_assembly_us": 31236,
+          "round_ordinal": 2,
+          "scope": "minesweeper_round_complete",
+          "source_capture_us": 3189,
+          "source_checkpoint": true,
+          "source_commit_us": 88950,
+          "source_prepare_us": 30223
+        },
+        {
+          "cache_seed_us": 145,
+          "candidate_build_us": 9,
+          "compose_us": 11347,
+          "confirmation_us": 4337,
+          "disk_refresh_us": 1018,
+          "document_bytes": 103445,
+          "elapsed_us": 38469,
+          "emit_path": "composed",
+          "entry_normalize_us": 4289,
+          "first_delivery": true,
+          "kind": "board_fate",
+          "ok": true,
+          "records_before": 4,
+          "request_check_us": 11348,
+          "request_digest_us": 10631,
+          "scope": "desktop_publication_ledger",
+          "shape_check_us": 1031,
+          "write_atomic_us": 3903
+        }
+      ]
+    }
+  ],
+  "fixed_payloads": [
+    {
+      "variant": "baseline",
+      "locale": "zh-CN",
+      "measurement": {
+        "bytes": 376091,
+        "input_sha256": "60915f103ffbbe72cbae500f7c0597185d787468e1fa03f4b09e7390d082c570",
+        "journal_bundles": 2,
+        "outgoing_validation_us_median": 41547,
+        "output_sha256": "60915f103ffbbe72cbae500f7c0597185d787468e1fa03f4b09e7390d082c570",
+        "parse_us_median": 245851,
+        "samples": {
+          "outgoing_validation_us": [
+            39136,
+            41386,
+            41614,
+            41547,
+            56344
+          ],
+          "parse_us": [
+            245851,
+            250743,
+            245083,
+            244242,
+            247896
+          ],
+          "schema_us": [
+            144932,
+            46548,
+            44231,
+            45727,
+            46834
+          ],
+          "stringify_us": [
+            51800,
+            61272,
+            51255,
+            51925,
+            51680
+          ],
+          "value_validation_us": [
+            66724,
+            70422,
+            67988,
+            70015,
+            68040
+          ]
+        },
+        "schema_us_median": 46548,
+        "stringify_us_median": 51800,
+        "value_validation_us_median": 68040
+      }
+    },
+    {
+      "variant": "baseline",
+      "locale": "zh-HK",
+      "measurement": {
+        "bytes": 362808,
+        "input_sha256": "314ef70a4ba5c696e7587eb0499722e704dbe66407f324a5bed7473d677b0692",
+        "journal_bundles": 2,
+        "outgoing_validation_us_median": 39366,
+        "output_sha256": "314ef70a4ba5c696e7587eb0499722e704dbe66407f324a5bed7473d677b0692",
+        "parse_us_median": 235654,
+        "samples": {
+          "outgoing_validation_us": [
+            35989,
+            38933,
+            39854,
+            39366,
+            39962
+          ],
+          "parse_us": [
+            233335,
+            235654,
+            240018,
+            236295,
+            234908
+          ],
+          "schema_us": [
+            140799,
+            43528,
+            44960,
+            43544,
+            44177
+          ],
+          "stringify_us": [
+            48864,
+            48782,
+            49315,
+            48259,
+            51577
+          ],
+          "value_validation_us": [
+            62311,
+            64339,
+            64562,
+            66604,
+            65393
+          ]
+        },
+        "schema_us_median": 44177,
+        "stringify_us_median": 48864,
+        "value_validation_us_median": 64562
+      }
+    },
+    {
+      "variant": "candidate",
+      "locale": "zh-CN",
+      "measurement": {
+        "bytes": 376091,
+        "input_sha256": "60915f103ffbbe72cbae500f7c0597185d787468e1fa03f4b09e7390d082c570",
+        "journal_bundles": 2,
+        "outgoing_validation_us_median": 29029,
+        "output_sha256": "60915f103ffbbe72cbae500f7c0597185d787468e1fa03f4b09e7390d082c570",
+        "parse_us_median": 244361,
+        "samples": {
+          "outgoing_validation_us": [
+            25122,
+            29354,
+            29029,
+            28823,
+            29811
+          ],
+          "parse_us": [
+            243301,
+            246881,
+            244146,
+            245372,
+            244361
+          ],
+          "schema_us": [
+            146331,
+            46143,
+            46353,
+            46635,
+            47019
+          ],
+          "stringify_us": [
+            52266,
+            51448,
+            51856,
+            51123,
+            51245
+          ],
+          "value_validation_us": [
+            65169,
+            67411,
+            69062,
+            69010,
+            67385
+          ]
+        },
+        "schema_us_median": 46635,
+        "stringify_us_median": 51448,
+        "value_validation_us_median": 67411
+      }
+    },
+    {
+      "variant": "candidate",
+      "locale": "zh-HK",
+      "measurement": {
+        "bytes": 362808,
+        "input_sha256": "314ef70a4ba5c696e7587eb0499722e704dbe66407f324a5bed7473d677b0692",
+        "journal_bundles": 2,
+        "outgoing_validation_us_median": 26876,
+        "output_sha256": "314ef70a4ba5c696e7587eb0499722e704dbe66407f324a5bed7473d677b0692",
+        "parse_us_median": 235292,
+        "samples": {
+          "outgoing_validation_us": [
+            24022,
+            28445,
+            26000,
+            26876,
+            27072
+          ],
+          "parse_us": [
+            233300,
+            237709,
+            236448,
+            233412,
+            235292
+          ],
+          "schema_us": [
+            143642,
+            44409,
+            43489,
+            43639,
+            42766
+          ],
+          "stringify_us": [
+            48573,
+            51003,
+            49489,
+            48543,
+            48914
+          ],
+          "value_validation_us": [
+            61486,
+            66849,
+            63682,
+            64319,
+            64383
+          ]
+        },
+        "schema_us_median": 43639,
+        "stringify_us_median": 48914,
+        "value_validation_us_median": 64319
+      }
+    }
+  ],
+  "schema_sha256": {
+    "candidate": "55ed13f55b42ef18c1c279202d01aa5ef8e973da6bab63985937cd2f3146daf3",
+    "baseline": "230374b25001d1d7751cce1696845fd6416e55f0d457374c6386086c6ebfba92"
+  }
+}

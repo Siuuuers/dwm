@@ -1,0 +1,10 @@
+{
+  "passed": true,
+  "scope": "Actual RoutineClock Label, one-shot Timer, Source Sans font; injected deterministic time reader, no autoloads or player storage.",
+  "known_diagnostic": "Windows certificate-store failure is allowed and retained.",
+  "sources": {
+    "scripts/ui/desktop/RoutineClock.gd": "177e3fc5003e7e347ab0977814db83f52d313c4ec20c9c0cdd668c9add312aa1",
+    "tests/routine_clock/test_routine_clock.gd": "d9b08e8fe39d70f4807abe9bee0d6294e295017d790e5d9039ad887ca1cedde1",
+    "assets/ui/contacts/fonts/source-sans-3-regular.ttf.woff2": "53492fb3a0def77354f166a55d09b63a10855e91c206c7620a81cf56e97f8ec3"
+  }
+}

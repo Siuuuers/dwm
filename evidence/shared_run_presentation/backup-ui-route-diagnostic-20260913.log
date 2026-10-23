@@ -1,0 +1,10 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+BACKUP_OPEN_DIAGNOSTIC: { "ok": false, "code": &"run_configuration_unavailable" }
+FAIL: Backup opens through the real third-app desktop route
+BACKUP_RESTORE_DIAGNOSTIC: { "ok": false, "code": &"run_configuration_unavailable" }
+FAIL: Restored active Backup configures through shared route
+FAIL: Restored Backup mounts automatically

@@ -1,0 +1,86 @@
+{
+  "checkout_ref": "3a7e67b12cde1ba6d2bf14a891bdf0f9ddfb97ba",
+  "payload_bytes": 1911042,
+  "payload_sha256": "f3f3c263772ca82e0a520acb6cf277a8d63404490f39db6aa03f35953d40973e",
+  "write": {
+    "autosave_sha256": "f3f3c263772ca82e0a520acb6cf277a8d63404490f39db6aa03f35953d40973e",
+    "days": 7,
+    "retained": {
+      "line": 32,
+      "manual_save": 32,
+      "semantic": 2
+    },
+    "synthetic_checkpoints": 98
+  },
+  "cold_read": {
+    "autosave_sha256": "f3f3c263772ca82e0a520acb6cf277a8d63404490f39db6aa03f35953d40973e",
+    "day": 7,
+    "login_us": 9159985,
+    "parse_cache_enabled": true,
+    "restored_board_sha256": "d636a043ad397106732cc6c9f9ae3edf4dc14c7ac593d3fcddd23cac0951cfe8",
+    "restored_gameplay_sha256": "5e27131851c1ffba809040a0269a17df0fed74ecf52522f33e97f875182e3ee7",
+    "restored_recovery_journal_sha256": "ade5a68917faee8ee2f0b54c1bc4591fcaae3f77d7611eedb69ae362a45c8a74",
+    "retained": {
+      "line": 32,
+      "manual_save": 32,
+      "semantic": 2
+    },
+    "retained_checkpoint_count": 66,
+    "save_manager_sha256": "59a26a70d0acb328c018198c9fdb06cc5d868f5988e520090f7fb420770d769a"
+  },
+  "fixture": "7 synthetic line and 7 synthetic manual checkpoint records/day, plus one real Slot 1 save and App loss/day. Public Schedule Done advances to Day 7. This is not an authored-dialogue playthrough.",
+  "timing_policy": "Observations on one shared Windows runner; no speed threshold or physical input-to-paint guarantee.",
+  "timing_boundaries": {
+    "manual_slot_save_us": "Production prepare_backup_action(save, slot:1) plus commit_backup_action, including synchronous signal handlers.",
+    "login_us": "Automated Title Login, Backup picker opening and Autosave selection, load consent, restore and awaited process frames.",
+    "phase_scopes": "Each scope is inclusive. Parent and child scopes overlap and must not be summed; repeated phases inside one scope accumulate.",
+    "phase_collection": "Save/load profiles include only labeled manual-save and Title Login measurement windows; startup and opening each daily Backup app before its save timer are excluded.",
+    "checkpoint_subphases": "Version 2 document/schema/proof timers are nested inclusive measurements. History proof timers accumulate across entries; document proof lookup stops at its first miss. Profile instrumentation adds overhead and is not a speedup comparison."
+  },
+  "parse_cache_comparison": {
+    "control": "Same checkout and retained user-data source, cloned into a new isolated process per variant. Only DWM_SAVE_PARSE_CACHE_DISABLED differs.",
+    "sampling": "One cold Login per variant, fixed disabled-then-enabled order on one shared Windows runner; observational, not a repeated-sample or frame-time guarantee.",
+    "source_json_sha256": {
+      "desktop-issuer-root.json": "31959be0de53587a6bb5d10a9bff641fe7526531754c3746c79a01ca36c36750",
+      "desktop-publications.json": "6c3331b05062ea4fb961fac2ee5c0a15d99b699477b243abcac63a632d6c3dfa",
+      "profile.json": "7c6cc1fda153a196e6b780cc9644c1b63bea1e1214712bef8a438d2e92c54109",
+      "saves/autosave.json": "f3f3c263772ca82e0a520acb6cf277a8d63404490f39db6aa03f35953d40973e",
+      "saves/desktop-continuation-operations.json": "2827a39dd2ae79d72aa863e7ed8b1cbe0ceb0815ee5e40292b7e1ed63c47be32",
+      "saves/slot_1.json": "682cbd2336762ef0b46859f1fbb380cb88d28aa2d1d0004ed09da2b2f0e5715a",
+      "schedule-foundation-publications.json": "52b869c6b824efc5b7b6ad2193f8f5ed5c748e2c5eddd7533f41968967b1cf38",
+      "seven-day-history-proof.json": "f9b98aa895a7d0ee1c61f45dd99da89b4f40dac7094fba52a95e1d9fda38c8b4"
+    },
+    "disabled": {
+      "autosave_sha256": "f3f3c263772ca82e0a520acb6cf277a8d63404490f39db6aa03f35953d40973e",
+      "day": 7,
+      "login_us": 12969060,
+      "parse_cache_enabled": false,
+      "restored_board_sha256": "d636a043ad397106732cc6c9f9ae3edf4dc14c7ac593d3fcddd23cac0951cfe8",
+      "restored_gameplay_sha256": "5e27131851c1ffba809040a0269a17df0fed74ecf52522f33e97f875182e3ee7",
+      "restored_recovery_journal_sha256": "ade5a68917faee8ee2f0b54c1bc4591fcaae3f77d7611eedb69ae362a45c8a74",
+      "retained": {
+        "line": 32,
+        "manual_save": 32,
+        "semantic": 2
+      },
+      "retained_checkpoint_count": 66,
+      "save_manager_sha256": "59a26a70d0acb328c018198c9fdb06cc5d868f5988e520090f7fb420770d769a"
+    },
+    "enabled": {
+      "autosave_sha256": "f3f3c263772ca82e0a520acb6cf277a8d63404490f39db6aa03f35953d40973e",
+      "day": 7,
+      "login_us": 9159985,
+      "parse_cache_enabled": true,
+      "restored_board_sha256": "d636a043ad397106732cc6c9f9ae3edf4dc14c7ac593d3fcddd23cac0951cfe8",
+      "restored_gameplay_sha256": "5e27131851c1ffba809040a0269a17df0fed74ecf52522f33e97f875182e3ee7",
+      "restored_recovery_journal_sha256": "ade5a68917faee8ee2f0b54c1bc4591fcaae3f77d7611eedb69ae362a45c8a74",
+      "retained": {
+        "line": 32,
+        "manual_save": 32,
+        "semantic": 2
+      },
+      "retained_checkpoint_count": 66,
+      "save_manager_sha256": "59a26a70d0acb328c018198c9fdb06cc5d868f5988e520090f7fb420770d769a"
+    }
+  }
+}

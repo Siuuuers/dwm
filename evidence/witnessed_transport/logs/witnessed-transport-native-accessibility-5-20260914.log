@@ -1,0 +1,8 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+OpenGL API 3.3.0 - Build 31.0.101.4146 - Compatibility - Using Device: Intel - Intel(R) Iris(R) Xe Graphics
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+READY {"activations":0,"expected_caption":"Skip","physical_contacts":0,"pid":10716,"programmatic_pressed_rejected":true,"window_title":"DWM Witnessed Transport Accessibility 10716"}
+RESULT {"activations":0,"ok":false,"physical_contacts":0,"pressed_signals":0}

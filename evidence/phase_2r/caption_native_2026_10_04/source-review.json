@@ -1,0 +1,37 @@
+{
+  "lead_bead": "dwm-vky.14",
+  "companion": "dwm-eei.10",
+  "outcome": "Native Windows accessibility discovers and invokes the mounted current caption through existing Normal Accept.",
+  "owners": [
+    "WitnessedAccessibleCaption",
+    "WitnessedAccessibleReviewCaption",
+    "WitnessedAcceptInput",
+    "Dialogic Inputs / DialogText"
+  ],
+  "change": "Expose actionable caption roots as ROLE_BUTTON, named with parsed current text; preserve native rich-text children and existing guarded callbacks.",
+  "runtime_changed": [
+    "scripts/ui/witnessed/WitnessedAccessibleCaption.gd",
+    "scripts/ui/witnessed/WitnessedAccessibleReviewCaption.gd"
+  ],
+  "failures_considered": [
+    "Native rich-text child is discoverable but its generic container action is filtered out.",
+    "One activation must reveal only; the later activation must advance exactly once.",
+    "Successor must retain its own stationary native reveal.",
+    "Invocation must not be retried automatically.",
+    "Discovery failure must retain actual UIA tree."
+  ],
+  "independent_review": "One read-only reviewer checked native role semantics, PowerShell 5 compatibility and two-stage proof. Screenshot failure and startup cleanup diagnostics were tightened before first publication.",
+  "upstream_sources": [
+    "https://github.com/godotengine/godot/blob/4.6-stable/scene/gui/rich_text_label.cpp",
+    "https://github.com/AccessKit/accesskit/blob/accesskit_consumer-v0.35.0/consumer/src/filters.rs",
+    "https://github.com/AccessKit/accesskit/blob/accesskit_consumer-v0.35.0/consumer/src/node.rs"
+  ],
+  "local_verification": "Workflow YAML/structure, whitespace, exact Git blob hashes and source/caller review only; no local Godot or PowerShell execution.",
+  "limits": [
+    "Synthetic two-line installed-runtime fixture, not authored production journey.",
+    "Windows UIA InvokePattern, not full screen-reader navigation or spoken-output certification.",
+    "Review-current gets the same root fix but its OS invocation is not exercised by this fixture.",
+    "No save schema, History, recovery, completion or consequence owner changes.",
+    "Production catalogue and exhaustive authored variants remain deferred."
+  ]
+}

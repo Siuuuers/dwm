@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="GutTests" failures="0" tests="1" >
+  <testsuite name="tests/integration/authored_week_recovery.gd" tests="1" failures="0" skipped="0" time="161.165126" >
+      <testcase name="test_recover_interrupted_authored_day2" assertions="195" status="pass" classname="tests/integration/authored_week_recovery.gd" time="161.165126" >
+      </testcase>
+  </testsuite>
+</testsuites>

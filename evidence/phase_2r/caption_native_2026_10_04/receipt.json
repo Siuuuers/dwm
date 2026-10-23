@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "status": "accepted_bounded",
+  "scope": "Native Windows UIA discovery and Normal Accept on the mounted current caption",
+  "lead_bead": "dwm-vky.14",
+  "companion": "dwm-eei.10",
+  "source_sha": "761e2e42a2266e51eb396e3ae0916598fba20eff",
+  "tested_merge_sha": "e21892b49107cd13c6be77f1afe87bb568135118",
+  "master_observed": "dded76aee2e85aeea94f65218de043b1f4fdce7b",
+  "runtime_changes": true,
+  "save_format_changes": false,
+  "cloud": {
+    "run_id": 37173880983,
+    "url": "https://github.com/Siuuuers/dwm/actions/runs/37173880983",
+    "jobs_passed": 26,
+    "jobs_total": 26,
+    "conclusion": "success",
+    "primary_xml_reports": 13,
+    "primary_cases": {
+      "tests": 2601,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "reading_cases": 633,
+    "native_invocations": 2,
+    "engine": "Godot 4.6.3 standard GDScript",
+    "engine_and_powershell_execution": "GitHub Actions only",
+    "job_manifest": "cloud-jobs.json",
+    "artifact_manifest": "cloud-artifacts.json",
+    "completed_at": "2026-10-04T04:02:06Z"
+  },
+  "proof": {
+    "owner": "Mounted adapters -> WitnessedAcceptInput -> existing Dialogic Inputs / DialogText",
+    "native_role": "Actionable Button root with parsed current-text name; native rich-text child retained.",
+    "invocations": "Two Windows.UIAutomation.InvokePattern.Invoke calls with fresh discovery, no direct callback substitution and no automatic retries.",
+    "observations": "First action finishes reveal at event 0; second advances to event 1, still revealing, finished count 1 and zero physical contacts.",
+    "rendering": "Native Windows runner, ANGLE fallback over Microsoft Basic Render Driver. Dummy audio isolates this non-speech probe.",
+    "screenshots": "reveal.png, advance.png and successor.png inspected; expected stationary fixture states.",
+    "early_gate": "Native probe now runs in public-surfaces before broad jobs; same 26 jobs remain required.",
+    "inventory": "Only two new lexical initialize references added; canonical reproduction passes."
+  },
+  "diagnostics": [
+    {
+      "run_id": 37172976040,
+      "source_sha": "28ec1297cf558e4e4486ee9a0bdc79278ab24f77",
+      "tested_merge_sha": "4a6ba8646f5467fec28c7b1a3746c6fed2b5abf6",
+      "finding": "SaveManager inventory stale: two new lexical fixture initialize references; wider jobs gated."
+    },
+    {
+      "run_id": 37173264140,
+      "source_sha": "abde48ed3ff4099016a132309a5cfad9d0f8a5d6",
+      "tested_merge_sha": "7978654696b5b7f6a39cb180e01b9bfb21c21508",
+      "finding": "633 reading cases pass, native caption text discovered without InvokePattern. Replaced by corrected candidate; no full acceptance claimed."
+    }
+  ],
+  "evidence": {
+    "archive": "test-evidence.tar.gz",
+    "archive_manifest": "archive-manifest.json",
+    "test_summary": "test-summary.json",
+    "source_review": "source-review.json",
+    "primary_artifacts": "primary-artifacts.json"
+  },
+  "limits": [
+    "Synthetic mounted fixture, not authored production journey or whole screen-reader navigation/speech certification.",
+    "Review-current receives the same root correction but native review-current activation remains untested; prior callback tests preserve return-to-live semantics.",
+    "Production semantic catalogue registration stays disabled; prose/exhaustive variants remain deferred.",
+    "No save, recovery, History, gameplay consequence or completion owner replaced.",
+    "Primary totals exclude two intentional storage-refusal negative controls; native two-stage proof is separate.",
+    "Final records-only descendant is not independently engine-tested."
+  ],
+  "beads": {
+    "unfinished": 23,
+    "statuses_changed": false,
+    "dependencies_changed": false,
+    "live_dolt_queried": false,
+    "live_dolt_synchronized": false
+  }
+}

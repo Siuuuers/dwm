@@ -1,0 +1,267 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/2c70bfa7-cb34-4704-b07b-8a3157fd999a/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+res://.godot/phase2r_logs/test_settings_palettes_baseline.gd
+* test_both_standard_palettes_preserve_geometry_and_native_bindings_in_nine_presentations
+    [Failed] 
+      at line 105
+    [Failed]:  [3] expected to equal [0]:  No hidden or visible Settings-local Dark UI
+      at line 105
+    [Failed] 
+      at line 105
+    [Failed]:  [3] expected to equal [0]:  No hidden or visible Settings-local Dark UI
+      at line 105
+    [Failed] 
+      at line 105
+    [Failed]:  [3] expected to equal [0]:  No hidden or visible Settings-local Dark UI
+      at line 105
+    [Failed] 
+      at line 105
+    [Failed]:  [3] expected to equal [0]:  No hidden or visible Settings-local Dark UI
+      at line 105
+    [Failed] 
+      at line 105
+    [Failed]:  [3] expected to equal [0]:  No hidden or visible Settings-local Dark UI
+      at line 105
+    [Failed] 
+      at line 105
+    [Failed]:  [3] expected to equal [0]:  No hidden or visible Settings-local Dark UI
+      at line 105
+    [Failed] 
+      at line 105
+    [Failed]:  [3] expected to equal [0]:  No hidden or visible Settings-local Dark UI
+      at line 105
+    [Failed] 
+      at line 105
+    [Failed]:  [3] expected to equal [0]:  No hidden or visible Settings-local Dark UI
+      at line 105
+    [Failed] 
+      at line 105
+    [Failed]:  [3] expected to equal [0]:  No hidden or visible Settings-local Dark UI
+      at line 105
+    [Failed] 
+      at line 105
+    [Failed]:  [3] expected to equal [0]:  No hidden or visible Settings-local Dark UI
+      at line 105
+    [Failed] 
+      at line 105
+    [Failed]:  [3] expected to equal [0]:  No hidden or visible Settings-local Dark UI
+      at line 105
+    [Failed] 
+      at line 105
+    [Failed]:  [3] expected to equal [0]:  No hidden or visible Settings-local Dark UI
+      at line 105
+    [Failed] 
+      at line 105
+    [Failed]:  [3] expected to equal [0]:  No hidden or visible Settings-local Dark UI
+      at line 105
+    [Failed] 
+      at line 105
+    [Failed]:  [3] expected to equal [0]:  No hidden or visible Settings-local Dark UI
+      at line 105
+    [Failed] 
+      at line 105
+    [Failed]:  [3] expected to equal [0]:  No hidden or visible Settings-local Dark UI
+      at line 105
+    [Failed] 
+      at line 105
+    [Failed]:  [3] expected to equal [0]:  No hidden or visible Settings-local Dark UI
+      at line 105
+    [Failed] 
+      at line 105
+    [Failed]:  [3] expected to equal [0]:  No hidden or visible Settings-local Dark UI
+      at line 105
+    [Failed] 
+      at line 105
+    [Failed]:  [3] expected to equal [0]:  No hidden or visible Settings-local Dark UI
+      at line 105
+* test_simultaneous_palettes_do_not_recolour_other_instances_or_their_native_resources
+* test_title_pending_dark_changes_existing_native_popup_without_extra_profile_writes_or_dark_ui
+    [Failed] 
+      at line 153
+    [Failed]:  [3] expected to equal [0]:  No hidden or visible Settings-local Dark UI
+      at line 153
+* test_desktop_and_pause_never_project_pending_title_intent_as_captured_run_dark
+    [Failed]:  ARRAY([&"preferences.dark_mode.next_run_enabled", &"preferences.dark_mode.available", &"pr...ailable"]) != ARRAY([]).
+    [&"preferences.dark_mode.next_run_enable...vailable"] != []  4 of 4 indexes do not match.  desktop: presentation never reads pending title Dark facts
+      at line 167
+    [Failed] 
+      at line 169
+    [Failed]:  [3] expected to equal [0]:  No hidden or visible Settings-local Dark UI
+      at line 169
+    [Failed]:  ARRAY([&"preferences.dark_mode.next_run_enabled", &"preferences.dark_mode.available", &"pr...ailable"]) != ARRAY([]).
+    [&"preferences.dark_mode.next_run_enable...vailable"] != []  6 of 6 indexes do not match.  desktop: unrelated pending publication still cannot drive run presentation
+      at line 173
+    [Failed]:  ARRAY([&"preferences.dark_mode.next_run_enabled", &"preferences.dark_mode.available", &"pr...ailable"]) != ARRAY([]).
+    [&"preferences.dark_mode.next_run_enable...vailable"] != []  4 of 4 indexes do not match.  pause: presentation never reads pending title Dark facts
+      at line 167
+    [Failed] 
+      at line 169
+    [Failed]:  [3] expected to equal [0]:  No hidden or visible Settings-local Dark UI
+      at line 169
+    [Failed]:  ARRAY([&"preferences.dark_mode.next_run_enabled", &"preferences.dark_mode.available", &"pr...ailable"]) != ARRAY([]).
+    [&"preferences.dark_mode.next_run_enable...vailable"] != []  6 of 6 indexes do not match.  pause: unrelated pending publication still cannot drive run presentation
+      at line 173
+1/4 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://.godot/phase2r_logs/test_settings_palettes_baseline.gd
+    - Outside Tests
+        * [<Node#129167787796>(subsystem_animation.gd)]
+        * [<Node#129184565028>(subsystem_audio.gd)]
+        * [<Node#129201342254>]
+        * [<Node#129218119475>]
+        * [<Node#129234896694>(subsystem_backgrounds.gd)]
+        * [<Node#129771767609>(subsystem_choices.gd)]
+        * [<Timer#129788544827>]
+        * [<Node#129805322044>(subsystem_expression.gd)]
+        * [<Node#129838876482>(subsystem_glossary.gd)]
+        * [<Node#129855653699>(subsystem_history.gd)]
+        * [<Node#129872430916>(subsystem_input.gd)]
+        * [<Timer#129889208133>]
+        * [<Node#129905985350>(subsystem_jump.gd)]
+        * [<Node#129922762567>(subsystem_containers.gd)]
+        * [<Node#129939539784>(subsystem_portraits.gd)]
+        * [<Node#130476410697>(subsystem_save.gd)]
+        * [<Timer#130493187914>]
+        * [<Node#130509965131>(subsystem_settings.gd)]
+        * [<Node#130526742351>(subsystem_styles.gd)]
+        * [<Node#130543519568>(subsystem_text.gd)]
+        * [<Node#130627405653>(subsystem_text_input.gd)]
+        * [<Node#130644182870>(subsystem_variables.gd)]
+        * [<Node#130660960087>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#130677737304>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+res://.godot/phase2r_logs/test_settings_palettes_baseline.gd
+- test_both_standard_palettes_preserve_geometry_and_native_bindings_in_nine_presentations
+    [Failed]:  
+          at line 105
+    [Failed]:  [3] expected to equal [0]:  No hidden or visible Settings-local Dark UI
+          at line 105
+    [Failed]:  
+          at line 105
+    [Failed]:  [3] expected to equal [0]:  No hidden or visible Settings-local Dark UI
+          at line 105
+    [Failed]:  
+          at line 105
+    [Failed]:  [3] expected to equal [0]:  No hidden or visible Settings-local Dark UI
+          at line 105
+    [Failed]:  
+          at line 105
+    [Failed]:  [3] expected to equal [0]:  No hidden or visible Settings-local Dark UI
+          at line 105
+    [Failed]:  
+          at line 105
+    [Failed]:  [3] expected to equal [0]:  No hidden or visible Settings-local Dark UI
+          at line 105
+    [Failed]:  
+          at line 105
+    [Failed]:  [3] expected to equal [0]:  No hidden or visible Settings-local Dark UI
+          at line 105
+    [Failed]:  
+          at line 105
+    [Failed]:  [3] expected to equal [0]:  No hidden or visible Settings-local Dark UI
+          at line 105
+    [Failed]:  
+          at line 105
+    [Failed]:  [3] expected to equal [0]:  No hidden or visible Settings-local Dark UI
+          at line 105
+    [Failed]:  
+          at line 105
+    [Failed]:  [3] expected to equal [0]:  No hidden or visible Settings-local Dark UI
+          at line 105
+    [Failed]:  
+          at line 105
+    [Failed]:  [3] expected to equal [0]:  No hidden or visible Settings-local Dark UI
+          at line 105
+    [Failed]:  
+          at line 105
+    [Failed]:  [3] expected to equal [0]:  No hidden or visible Settings-local Dark UI
+          at line 105
+    [Failed]:  
+          at line 105
+    [Failed]:  [3] expected to equal [0]:  No hidden or visible Settings-local Dark UI
+          at line 105
+    [Failed]:  
+          at line 105
+    [Failed]:  [3] expected to equal [0]:  No hidden or visible Settings-local Dark UI
+          at line 105
+    [Failed]:  
+          at line 105
+    [Failed]:  [3] expected to equal [0]:  No hidden or visible Settings-local Dark UI
+          at line 105
+    [Failed]:  
+          at line 105
+    [Failed]:  [3] expected to equal [0]:  No hidden or visible Settings-local Dark UI
+          at line 105
+    [Failed]:  
+          at line 105
+    [Failed]:  [3] expected to equal [0]:  No hidden or visible Settings-local Dark UI
+          at line 105
+    [Failed]:  
+          at line 105
+    [Failed]:  [3] expected to equal [0]:  No hidden or visible Settings-local Dark UI
+          at line 105
+    [Failed]:  
+          at line 105
+    [Failed]:  [3] expected to equal [0]:  No hidden or visible Settings-local Dark UI
+          at line 105
+- test_title_pending_dark_changes_existing_native_popup_without_extra_profile_writes_or_dark_ui
+    [Failed]:  
+          at line 153
+    [Failed]:  [3] expected to equal [0]:  No hidden or visible Settings-local Dark UI
+          at line 153
+- test_desktop_and_pause_never_project_pending_title_intent_as_captured_run_dark
+    [Failed]:  ARRAY([&"preferences.dark_mode.next_run_enabled", &"preferences.dark_mode.available", &"pr...ailable"]) != ARRAY([]).
+    [&"preferences.dark_mode.next_run_enable...vailable"] != []  4 of 4 indexes do not match.  desktop: presentation never reads pending title Dark facts
+          at line 167
+    [Failed]:  
+          at line 169
+    [Failed]:  [3] expected to equal [0]:  No hidden or visible Settings-local Dark UI
+          at line 169
+    [Failed]:  ARRAY([&"preferences.dark_mode.next_run_enabled", &"preferences.dark_mode.available", &"pr...ailable"]) != ARRAY([]).
+    [&"preferences.dark_mode.next_run_enable...vailable"] != []  6 of 6 indexes do not match.  desktop: unrelated pending publication still cannot drive run presentation
+          at line 173
+    [Failed]:  ARRAY([&"preferences.dark_mode.next_run_enabled", &"preferences.dark_mode.available", &"pr...ailable"]) != ARRAY([]).
+    [&"preferences.dark_mode.next_run_enable...vailable"] != []  4 of 4 indexes do not match.  pause: presentation never reads pending title Dark facts
+          at line 167
+    [Failed]:  
+          at line 169
+    [Failed]:  [3] expected to equal [0]:  No hidden or visible Settings-local Dark UI
+          at line 169
+    [Failed]:  ARRAY([&"preferences.dark_mode.next_run_enabled", &"preferences.dark_mode.available", &"pr...ailable"]) != ARRAY([]).
+    [&"preferences.dark_mode.next_run_enable...vailable"] != []  6 of 6 indexes do not match.  pause: unrelated pending publication still cannot drive run presentation
+          at line 173
+
+Totals
+------
+Scripts               1
+Tests                 4
+Passing Tests         1
+Failing Tests         3
+Asserts           1777/1823
+Orphans              24
+Time              6.711s
+
+
+---- 3 failing tests ----
+

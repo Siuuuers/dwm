@@ -1,0 +1,121 @@
+{
+  "audit_status": "verified_incomplete_failed_attempt",
+  "run_id": 38834692618,
+  "job_id": 116761070031,
+  "archive": {
+    "bytes": 2485904,
+    "sha256": "22ece2bac9a7f68499afe7aa61ebb99a628660b32469b47917441a52c239884d",
+    "members": 8,
+    "crc_clean": true
+  },
+  "source_metadata": {
+    "tree": "c2ba6eb8eaf21a0084943f078092882175f48f73",
+    "source": "c892f610cb70f88244b3a877d4e286d10b1abfb5",
+    "parent": "35dffc25e581fcf10cebb1c6782c4a3183408b15"
+  },
+  "origin": {
+    "base": "f8b873bd5e0df1dbab2ffaec9301c87d487de74e",
+    "candidate": "35dffc25e581fcf10cebb1c6782c4a3183408b15",
+    "controller": "7d565d24e3ca4642aad43b89f3b2b339d455da49",
+    "scope": "observation-only three-iteration timing probe; intentional failed assertion, no acceptance"
+  },
+  "engine_metadata": {
+    "version": "4.6.3.stable.official.7d41c59c4",
+    "archive_sha256": "e39986a178d585ce7ac198fb8de6ea436366dc0cc00e594810c2e3e104c04b90",
+    "console_sha256": "63b3b2208819714c9677fbfdd8217c5b7dee8ecf5f383502e826bc9e2227ff5a"
+  },
+  "engine_pins_match_expected": true,
+  "log_engine_version_matches": true,
+  "child": {
+    "suite_id": "budget-cache",
+    "argv": [
+      "--headless",
+      "--path",
+      "D:\\a\\dwm\\dwm\\source",
+      "--log-file",
+      "D:\\a\\dwm\\dwm\\source\\.godot\\phase2r_logs\\budget-cache.log",
+      "-s",
+      "res://addons/gut/gut_cmdln.gd",
+      "-gconfig=",
+      "-gtest=res://tests/unit/test_minesweeper_budget_cache.gd",
+      "-gexit",
+      "-glog=2",
+      "-gjunit_xml_file=res://.godot/ci/budget-cache.xml"
+    ],
+    "exit_code": 124,
+    "log_path": "D:\\a\\dwm\\dwm\\source\\.godot\\phase2r_logs\\budget-cache.log",
+    "test_root": "D:\\a\\dwm\\dwm\\source\\.godot\\phase2r_tests\\82c843f1-15bc-49bd-9ee2-64351defd11f",
+    "user_dir": "D:\\a\\dwm\\dwm\\source\\.godot\\phase2r_tests\\82c843f1-15bc-49bd-9ee2-64351defd11f\\appdata\\Godot\\app_userdata\\DWM",
+    "started_at_utc": "2026-10-16T01:23:16.8942568Z",
+    "ended_at_utc": "2026-10-16T01:26:22.0520243Z"
+  },
+  "observation": {
+    "log_bytes": 67430046,
+    "log_characters": 67430046,
+    "test_starts": [
+      "test_warm_results_are_detached_from_nested_caller_mutation",
+      "test_warm_cache_refuses_same_length_malformed_bytes_and_recovers",
+      "test_warm_cache_refuses_changed_schema_and_recovers"
+    ],
+    "passed_assertion_markers": 51,
+    "failed_assertion_markers": 0,
+    "error_markers": 0,
+    "timeout_seconds": 180,
+    "exit_code": 124,
+    "xml_present": false,
+    "matched_probe_started": false,
+    "final_status_empty": true,
+    "import_error_markers": 0,
+    "giant_success_output_observed": true,
+    "accepted_tests": 0,
+    "accepted_assertions": 0
+  },
+  "retention_limits": {
+    "retained_hash_manifest_present": false,
+    "captured_source_present": false,
+    "final_candidate_patch_present": false,
+    "source_and_frozen_tree_independently_reconstructed": false,
+    "retention_step_failure": "Parent coordinator reports missing shallow base f8b873bd; this artifact alone does not contain workflow retention error output"
+  },
+  "auditor_member_hashes": {
+    "ci/candidate-commit.json": {
+      "bytes": 174,
+      "sha256": "e716e77c1d708b33c2b68eac2cc0f576ac22163085c41687c3eb9a9d3b0887b3"
+    },
+    "ci/candidate-origin.json": {
+      "bytes": 270,
+      "sha256": "6d7c0c9de12991ade2b4b712559b8f21e7fbdd5f5ef9f8aa6a70348fc86421d7"
+    },
+    "ci/engine.json": {
+      "bytes": 232,
+      "sha256": "99fba5ede98bc3e27ee9d73eaf96f58a58d67ebbef3c45201a41b9f38d3aa956"
+    },
+    "ci/budget-cache.jsonl": {
+      "bytes": 762,
+      "sha256": "c47beb22c4e003443112220dc332905eba95855817faf025a73cf4dbc9f1d326"
+    },
+    "ci/final-status.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "ci/import.log": {
+      "bytes": 219389,
+      "sha256": "cd0d2096c50bfdff9d42be0049f387f7b028ea93dabc0c436f3971fb54b1a0ce"
+    },
+    "phase2r_logs/budget-cache.log.timeout.log": {
+      "bytes": 67430673,
+      "sha256": "dde2bb73c15cd71d719df0725fc256f78afad762091c21f48bf72e064c5d36f6"
+    },
+    "phase2r_logs/budget-cache.log": {
+      "bytes": 67430046,
+      "sha256": "3b4628a690146c92c8f54b1d2ae5d024861a1262c6da50975bbfaca5a3d27edd"
+    }
+  },
+  "limits": [
+    "No cache-suite acceptance: incomplete timeout with no final XML",
+    "Individual passed assertion markers are diagnostic only and are not credited as completed tests",
+    "No matched-probe result or performance conclusion",
+    "Empty final-status is retained clean-source evidence, not independent frozen-tree reconstruction",
+    "Engine hashes verified as metadata only; binary unavailable for rehash"
+  ]
+}

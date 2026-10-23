@@ -1,0 +1,469 @@
+{
+  "baseline_failure_count": 115,
+  "full_failure_count": 115,
+  "final_combined_failure_count": 115,
+  "new_failing_tests": [],
+  "missing_failing_tests": [],
+  "messages_equal_after_final_focused_order_correction": true,
+  "baseline": {
+    "res://tests/unit/test_desktop_accessibility_contract.gd::test_debug_exposes_exactly_one_forced_cell_and_rejects_every_other_cell": [
+      "[Failed]:  {\"code\":\"debug_capability_required\",\"details\":{},\"message\":\"\",\"ok\":false}",
+      "[Failed]:  {\"code\":\"debug_slice_requires_preparing_phase\",\"details\":{\"phase\":\"NONE\"},\"message\":\"\",\"ok\":false}",
+      "[Failed]:  [\"NONE\"] expected to equal [\"PREPARED_UNSTARTED\"]:",
+      "[Failed]:  Unexpected Errors:",
+      "[1] <engine-2>Trying to assign value of type 'Nil' to a variable of type 'Dictionary'."
+    ],
+    "res://tests/unit/test_desktop_accessibility_contract.gd::test_debug_rejects_every_other_cell_before_any_live_mutation": [
+      "[Failed]:",
+      "[Failed]:",
+      "[Failed]:  Unexpected Errors:",
+      "[1] <engine-2>Invalid cast: could not convert value to 'Dictionary'."
+    ],
+    "res://tests/integration/test_committed_schedule_effect_order.gd::test_a_faint_supersedes_every_committed_date_before_any_board_runs": [
+      "[Failed]:  [0] expected to equal [1]:  the port published exactly one completion",
+      "[Failed]:  the walk reached hospital_if_triggered"
+    ],
+    "res://tests/integration/test_committed_schedule_effect_order.gd::test_a_hospital_that_presented_records_the_faint_it_presented_on": [
+      "[Failed]:  [0] expected to equal [1]:  the port published exactly one completion",
+      "[Failed]:  the presentation still completed"
+    ],
+    "res://tests/integration/test_committed_schedule_effect_order.gd::test_a_superseded_sylvia_date_commits_its_witness_into_the_contacts_index": [
+      "[Failed]:  [0] expected to equal [1]:  the port published exactly one completion",
+      "[Failed]:  the walk reached hospital_if_triggered"
+    ],
+    "res://tests/integration/test_committed_schedule_effect_order.gd::test_a_faint_without_a_sylvia_date_writes_no_witness": [
+      "[Failed]:  [0] expected to equal [1]:  the port published exactly one completion"
+    ],
+    "res://tests/integration/test_committed_schedule_effect_order.gd::test_rolling_back_the_hospital_stage_restores_the_contacts_index": [
+      "[Failed]:  [0] expected to equal [1]:  the port published exactly one completion"
+    ],
+    "res://tests/integration/test_committed_schedule_presentation_matrix.gd::test_hospital_supersession_is_what_owes_the_pair_a_presentation": [
+      "[Failed]:  a stage before twofriends_if_deferred refused: {\"code\":\"pair_deck_unconfigured\",\"ok\":false}"
+    ],
+    "res://tests/integration/test_committed_schedule_presentation_matrix.gd::test_the_deferred_pair_variant_carries_its_exact_matrix_row": [
+      "[Failed]:  a stage before twofriends_if_deferred refused: {\"code\":\"pair_deck_unconfigured\",\"ok\":false}"
+    ],
+    "res://tests/integration/test_committed_schedule_presentation_matrix.gd::test_the_deferred_pair_settles_through_the_presentation_seam": [
+      "[Failed]:  a stage before twofriends_if_deferred refused: {\"code\":\"pair_deck_unconfigured\",\"ok\":false}"
+    ],
+    "res://tests/integration/test_committed_schedule_presentation_matrix.gd::test_a_dating_round_begins_during_the_deferred_pair_presentation": [
+      "[Failed]:  a stage before twofriends_if_deferred refused: {\"code\":\"pair_deck_unconfigured\",\"ok\":false}"
+    ],
+    "res://tests/integration/test_committed_schedule_presentation_matrix.gd::test_no_dating_round_begins_after_the_pair_presentation_completes": [
+      "[Failed]:  a stage before twofriends_if_deferred refused: {\"code\":\"pair_deck_unconfigured\",\"ok\":false}"
+    ],
+    "res://tests/integration/test_committed_schedule_presentation_matrix.gd::test_the_pair_evidence_ignores_scrambled_live_contacts": [
+      "[Failed]:  a stage before twofriends_if_deferred refused: {\"code\":\"pair_deck_unconfigured\",\"ok\":false}"
+    ],
+    "res://tests/integration/test_committed_schedule_presentation_resume.gd::test_a_superseded_date_never_presents_across_a_crash": [
+      "[Failed]:  the Hospital port published exactly one completion",
+      "[Failed]:  the walk reached the date substage"
+    ],
+    "res://tests/integration/test_committed_schedule_presentation_resume.gd::test_the_presentation_seam_refuses_a_superseded_date_transaction": [
+      "[Failed]:  the Hospital port published exactly one completion",
+      "[Failed]:  the walk reached the superseded date substage"
+    ],
+    "res://tests/integration/test_committed_schedule_presentation_resume.gd::test_a_superseded_date_substage_yields_no_dating_evidence": [
+      "[Failed]:  the Hospital port published exactly one completion",
+      "[Failed]:  the walk reached the superseded date substage"
+    ],
+    "res://tests/integration/test_committed_schedule_presentation_resume.gd::test_a_crash_across_the_hospital_presentation_restores_the_flag_with_the_plan": [
+      "[Failed]:  {\"code\":\"invalid_snapshot_input\",\"message\":\"missing member: schedule_view\",\"ok\":false}",
+      "[Failed]:  a checkpoint was written before the Hospital stage"
+    ],
+    "res://tests/integration/test_day_resolution_disk_durability.gd::test_real_ports_resolve_a_day_without_rejecting_the_snapshot": [
+      "[Failed]:  { \"ok\": false, \"code\": &\"day_advance_source_unavailable\" }"
+    ],
+    "res://tests/integration/test_day_resolution_disk_durability.gd::test_real_day_resolution_writes_a_parsable_disk_autosave": [
+      "[Failed]:  day resolved"
+    ],
+    "res://tests/integration/test_day_resolution_disk_durability.gd::test_real_coordinator_resolves_every_day_one_through_seven": [
+      "[Failed]:  day 1 must resolve through the real checkpoint port: day_advance_source_unavailable",
+      "[Failed]:  [1] expected to equal [7]:  all seven days were driven"
+    ],
+    "res://tests/integration/test_day_resolution_disk_durability.gd::test_day_seven_walk_stops_at_the_provenance_handoff_without_entering_ending": [
+      "[Failed]:  [1] expected to equal [7]:  day stays 7; there is no Day 8"
+    ],
+    "res://tests/integration/test_day_resolution_disk_durability.gd::test_a_day_seven_crash_restores_the_same_run_on_day_seven": [
+      "[Failed]:  [1] expected to equal [7]:  the run reached Day 7 before the crash",
+      "[Failed]:  [1] expected to equal [7]:  on Day 7"
+    ],
+    "res://tests/integration/test_desktop_action_matrix.gd::test_row_shop_lucky_charm_quote_matches_the_registry_record": [
+      "[Failed]:",
+      "[Failed]:  desktop production graph: { \"ok\": false, \"code\": &\"missing_stage_adapter\", \"message\": \"the desktop production graph requires the retained host/board/consequence state\", \"details\": {  }, \"receipt\": {  } }",
+      "[Failed]:  {}",
+      "[Failed]:  Unexpected Errors:",
+      "[1] <engine-2>Invalid call. Nonexistent function 'quote' in base 'Nil'.",
+      "[2] <engine-2>Invalid access to property or key 'value' on a base object of type 'Dictionary'."
+    ],
+    "res://tests/integration/test_desktop_action_matrix.gd::test_row_shop_debug_key_quote_matches_the_registry_record": [
+      "[Failed]:",
+      "[Failed]:  desktop production graph: { \"ok\": false, \"code\": &\"missing_stage_adapter\", \"message\": \"the desktop production graph requires the retained host/board/consequence state\", \"details\": {  }, \"receipt\": {  } }",
+      "[Failed]:  {}",
+      "[Failed]:  Unexpected Errors:",
+      "[1] <engine-2>Invalid call. Nonexistent function 'quote' in base 'Nil'.",
+      "[2] <engine-2>Invalid access to property or key 'value' on a base object of type 'Dictionary'."
+    ],
+    "res://tests/integration/test_desktop_action_matrix.gd::test_row_shop_supportz_quote_matches_the_registry_record_and_structured_cap": [
+      "[Failed]:",
+      "[Failed]:  desktop production graph: { \"ok\": false, \"code\": &\"missing_stage_adapter\", \"message\": \"the desktop production graph requires the retained host/board/consequence state\", \"details\": {  }, \"receipt\": {  } }",
+      "[Failed]:  {}",
+      "[Failed]:  Unexpected Errors:",
+      "[1] <engine-2>Invalid call. Nonexistent function 'quote' in base 'Nil'.",
+      "[2] <engine-2>Invalid access to property or key 'value' on a base object of type 'Dictionary'."
+    ],
+    "res://tests/integration/test_desktop_action_matrix.gd::test_row_shop_lucky_charm_prepare_purchase_is_fail_closed": [
+      "[Failed]:",
+      "[Failed]:  desktop production graph: { \"ok\": false, \"code\": &\"missing_stage_adapter\", \"message\": \"the desktop production graph requires the retained host/board/consequence state\", \"details\": {  }, \"receipt\": {  } }",
+      "[Failed]:  Unexpected Errors:",
+      "[1] <engine-2>Invalid call. Nonexistent function 'quote' in base 'Nil'."
+    ],
+    "res://tests/integration/test_desktop_action_matrix.gd::test_row_shop_debug_key_prepare_purchase_is_fail_closed": [
+      "[Failed]:",
+      "[Failed]:  desktop production graph: { \"ok\": false, \"code\": &\"missing_stage_adapter\", \"message\": \"the desktop production graph requires the retained host/board/consequence state\", \"details\": {  }, \"receipt\": {  } }",
+      "[Failed]:  Unexpected Errors:",
+      "[1] <engine-2>Invalid call. Nonexistent function 'quote' in base 'Nil'."
+    ],
+    "res://tests/integration/test_desktop_action_matrix.gd::test_row_shop_supportz_prepare_purchase_is_fail_closed": [
+      "[Failed]:",
+      "[Failed]:  desktop production graph: { \"ok\": false, \"code\": &\"missing_stage_adapter\", \"message\": \"the desktop production graph requires the retained host/board/consequence state\", \"details\": {  }, \"receipt\": {  } }",
+      "[Failed]:  Unexpected Errors:",
+      "[1] <engine-2>Invalid call. Nonexistent function 'quote' in base 'Nil'."
+    ],
+    "res://tests/integration/test_desktop_action_matrix.gd::test_row_minesweeper_round_complete_round_is_fail_closed": [
+      "[Failed]:",
+      "[Failed]:  desktop production graph: { \"ok\": false, \"code\": &\"missing_stage_adapter\", \"message\": \"the desktop production graph requires the retained host/board/consequence state\", \"details\": {  }, \"receipt\": {  } }",
+      "[Failed]:  Unexpected Errors:",
+      "[1] <engine-2>Cannot call method 'get' on a null value."
+    ],
+    "res://tests/integration/test_desktop_action_matrix.gd::test_row_minesweeper_round_reveal_is_fail_closed": [
+      "[Failed]:",
+      "[Failed]:  desktop production graph: { \"ok\": false, \"code\": &\"missing_stage_adapter\", \"message\": \"the desktop production graph requires the retained host/board/consequence state\", \"details\": {  }, \"receipt\": {  } }",
+      "[Failed]:  Unexpected Errors:",
+      "[1] <engine-2>Cannot call method 'get' on a null value."
+    ],
+    "res://tests/integration/test_desktop_bootstrap_wiring.gd::test_gameplay_mount_uses_real_ports_and_first_reveal_persists_one_charge": [
+      "[Failed]:  the injected full-save failure retains terminal custody",
+      "[Failed]:",
+      "[Failed]:  the public panel retries and releases custody",
+      "[Failed]:  minesweeper_panel_command_refused"
+    ],
+    "res://tests/integration/test_desktop_bootstrap_wiring.gd::test_fresh_graph_keeps_prior_day_two_autosave_after_failed_completion": [
+      "[Failed]:",
+      "[Failed]:"
+    ],
+    "res://tests/integration/test_desktop_bootstrap_wiring.gd::test_fresh_graph_keeps_prior_autosave_after_failed_condition_departure": [
+      "[Failed]:",
+      "[Failed]:"
+    ],
+    "res://tests/integration/test_desktop_completion_transaction.gd::test_complete_round_transacts_exactly_once_against_real_ports": [
+      "[Failed]:  {\"code\":\"invalid_request\",\"details\":{\"size\":5},\"message\":\"expected 4 members, saw 5\",\"ok\":false}",
+      "[Failed]:  [STRING_NAME(invalid_request)] expected to equal [STRING_NAME(action_consequence_accepted)]:",
+      "[Failed]:  Unexpected Errors:",
+      "[1] <engine-2>Invalid access to property or key 'receipt' on a base object of type 'Dictionary'."
+    ],
+    "res://tests/integration/test_desktop_completion_transaction.gd::test_complete_round_departure_commits_board_fate_against_real_ports": [
+      "[Failed]:  {\"code\":\"invalid_request\",\"details\":{\"size\":5},\"message\":\"expected 4 members, saw 5\",\"ok\":false}",
+      "[Failed]:  [STRING_NAME(invalid_request)] expected to equal [STRING_NAME(action_consequence_accepted)]:",
+      "[Failed]:  Unexpected Errors:",
+      "[1] <engine-2>Invalid access to property or key 'receipt' on a base object of type 'Dictionary'."
+    ],
+    "res://tests/integration/test_desktop_completion_transaction.gd::test_a_source_already_holding_the_gate_blocks_the_other_source_until_it_releases": [
+      "[Failed]:  [STRING_NAME(invalid_request)] expected to equal [STRING_NAME(minesweeper_round_requires_no_other_pending_transaction)]:"
+    ],
+    "res://tests/integration/test_desktop_simulator_authority.gd::test_the_round_coordinator_never_receives_its_base_configure_in_production": [
+      "[Failed]:  restore participants: { \"ok\": false, \"code\": &\"missing_stage_adapter\", \"message\": \"Window output must share the initialized Settings transaction owner\", \"details\": {  }, \"receipt\": {  } }",
+      "[Failed]:  desktop production graph: { \"ok\": false, \"code\": &\"missing_stage_adapter\", \"message\": \"the desktop production graph requires the retained host/board/consequence state\", \"details\": {  }, \"receipt\": {  } }",
+      "[Failed]:  Expected [<null>] to be anything but NULL:",
+      "[Failed]:  Unexpected Errors:",
+      "[1] <engine-2>Cannot call method 'get' on a null value."
+    ],
+    "res://tests/integration/test_desktop_simulator_authority.gd::test_the_shared_desktop_identity_context_is_a_real_but_blank_placeholder": [
+      "[Failed]:  restore participants: { \"ok\": false, \"code\": &\"missing_stage_adapter\", \"message\": \"Window output must share the initialized Settings transaction owner\", \"details\": {  }, \"receipt\": {  } }",
+      "[Failed]:  desktop production graph: { \"ok\": false, \"code\": &\"missing_stage_adapter\", \"message\": \"the desktop production graph requires the retained host/board/consequence state\", \"details\": {  }, \"receipt\": {  } }",
+      "[Failed]:  Unexpected Errors:",
+      "[1] <engine-2>Trying to assign value of type 'Nil' to a variable of type 'Dictionary'."
+    ],
+    "res://tests/integration/test_desktop_simulator_authority.gd::test_two_independent_boots_mint_distinct_placeholder_run_and_branch_ids": [
+      "[Failed]:  restore participants: { \"ok\": false, \"code\": &\"missing_stage_adapter\", \"message\": \"Window output must share the initialized Settings transaction owner\", \"details\": {  }, \"receipt\": {  } }",
+      "[Failed]:  desktop production graph: { \"ok\": false, \"code\": &\"missing_stage_adapter\", \"message\": \"the desktop production graph requires the retained host/board/consequence state\", \"details\": {  }, \"receipt\": {  } }",
+      "[Failed]:  Unexpected Errors:",
+      "[1] <engine-2>Trying to assign value of type 'Nil' to a variable of type 'Dictionary'."
+    ],
+    "res://tests/integration/test_desktop_simulator_authority.gd::test_the_shop_and_board_ports_share_the_exact_same_placeholder_context_object": [
+      "[Failed]:  restore participants: { \"ok\": false, \"code\": &\"missing_stage_adapter\", \"message\": \"Window output must share the initialized Settings transaction owner\", \"details\": {  }, \"receipt\": {  } }",
+      "[Failed]:  desktop production graph: { \"ok\": false, \"code\": &\"missing_stage_adapter\", \"message\": \"the desktop production graph requires the retained host/board/consequence state\", \"details\": {  }, \"receipt\": {  } }",
+      "[Failed]:  Expected [<null>] to be anything but NULL:",
+      "[Failed]:  Expected [<null>] to be anything but NULL:",
+      "[Failed]:  Unexpected Errors:",
+      "[1] <engine-2>Cannot call method 'call' on a null value."
+    ],
+    "res://tests/integration/test_desktop_simulator_authority.gd::test_logout_coordinator_is_never_constructed_by_the_production_graph": [
+      "[Failed]:  restore participants: { \"ok\": false, \"code\": &\"missing_stage_adapter\", \"message\": \"Window output must share the initialized Settings transaction owner\", \"details\": {  }, \"receipt\": {  } }",
+      "[Failed]:  desktop production graph: { \"ok\": false, \"code\": &\"missing_stage_adapter\", \"message\": \"the desktop production graph requires the retained host/board/consequence state\", \"details\": {  }, \"receipt\": {  } }"
+    ],
+    "res://tests/integration/test_desktop_simulator_authority.gd::test_the_production_graph_never_installs_into_the_retained_simulator_seam_either": [
+      "[Failed]:  restore participants: { \"ok\": false, \"code\": &\"missing_stage_adapter\", \"message\": \"Window output must share the initialized Settings transaction owner\", \"details\": {  }, \"receipt\": {  } }",
+      "[Failed]:  desktop production graph: { \"ok\": false, \"code\": &\"missing_stage_adapter\", \"message\": \"the desktop production graph requires the retained host/board/consequence state\", \"details\": {  }, \"receipt\": {  } }"
+    ],
+    "res://tests/integration/test_hospital_dating_adapter_negative_contract.gd::test_the_walk_is_the_production_caller_of_route_presentation": [
+      "[Failed]:  ARRAY([\"res://scripts/application/run/DayResolutionCoordinator.gd\", \"res://scripts/applica...trap.gd\"]) != ARRAY([\"res://scripts/application/run/DayResolutionCoordinator.gd\"])."
+    ],
+    "res://tests/integration/test_hospital_dating_adapter_negative_contract.gd::test_no_presentation_adapter_names_a_gameplay_mutation_seam": [
+      "[Failed]:  res://scripts/application/narrative/DialogicPresentationOwnerAdapter.gd must not name GameState",
+      "[Failed]:  res://scripts/ui/HospitalScene.gd must not name GameState"
+    ],
+    "res://tests/integration/test_hospital_dating_adapter_negative_contract.gd::test_the_comment_stripper_is_doing_real_work": [
+      "[Failed]:  GameState appears only in prose, never in code"
+    ],
+    "res://tests/integration/test_phase2r_schedule_desktop_handoff.gd::test_the_nine_restore_roles_are_nine_distinct_retained_participants": [
+      "[Failed]:  [10] expected to equal [9]:  there are exactly nine restore roles"
+    ],
+    "res://tests/integration/test_phase2r_schedule_desktop_handoff.gd::test_the_guard_accepts_the_real_sealed_evidence_and_the_real_live_probe": [
+      "[Failed]:  the real handoff validates: { \"ok\": false, \"code\": &\"restore_order_drift\", \"message\": \"the live restore order and its seal must both be the frozen nine-role order\", \"details\": { \"live\": [\"identity_allocation\", \"run\", \"desktop_consequence\", \"desktop_board\", \"schedule_view\", \"profile\", \"localization\", \"audio\", \"route\", \"narrative\"], \"sealed\": [\"identity_allocation\", \"run\", \"desktop_consequence\", \"desktop_board\", \"profile\", \"localization\", \"audio\", \"route\", \"narrative\"] } }"
+    ],
+    "res://tests/integration/test_phase2r_schedule_desktop_handoff.gd::test_the_success_envelope_serializes_no_numeric_instance_id": [
+      "[Failed]:  precondition: the real handoff validates"
+    ],
+    "res://tests/integration/test_phase2r_schedule_desktop_handoff.gd::test_the_verdict_pins_the_sealed_bytes_of_the_suite_this_task_may_only_run": [
+      "[Failed]:  precondition: the real handoff validates"
+    ],
+    "res://tests/integration/test_phase2r_schedule_desktop_handoff.gd::test_the_verdict_reports_the_two_requirements_no_seal_attests": [
+      "[Failed]:  precondition: the real handoff validates"
+    ],
+    "res://tests/integration/test_phase2r_schedule_desktop_handoff.gd::test_the_verdict_keeps_the_later_composition_with_its_later_owner": [
+      "[Failed]:  precondition: the real handoff validates"
+    ],
+    "res://tests/integration/test_phase2r_schedule_desktop_handoff.gd::test_the_verdict_records_the_one_lawful_forward_readiness_divergence": [
+      "[Failed]:  precondition: the real handoff validates"
+    ],
+    "res://tests/integration/test_phase2r_schedule_desktop_handoff.gd::test_a_role_relation_set_that_is_not_the_frozen_six_is_refused": [
+      "[Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(role_relation_verdict_drift)]:  a dropped sealed role relation must fail exactly role_relation_verdict_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order"
+    ],
+    "res://tests/integration/test_phase2r_schedule_desktop_handoff.gd::test_two_ledgers_claiming_one_fixed_path_are_refused": [
+      "[Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(publication_ledger_relation_violated)]:  both ledgers writing one document must fail exactly publication_ledger_relation_violated, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order"
+    ],
+    "res://tests/integration/test_phase2r_schedule_desktop_handoff.gd::test_a_drifted_allocation_key_format_is_refused": [
+      "[Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(allocator_receipt_shape_drift)]:  an allocation key no longer anchored to its source resolution receipt must fail exactly allocator_receipt_shape_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order"
+    ],
+    "res://tests/integration/test_phase2r_schedule_desktop_handoff.gd::test_an_allocator_receipt_missing_its_disposition_is_refused": [
+      "[Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(allocator_receipt_shape_drift)]:  an allocator receipt that stopped recording its disposition must fail exactly allocator_receipt_shape_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order"
+    ],
+    "res://tests/integration/test_phase2r_schedule_desktop_handoff.gd::test_a_dropped_recipe_exclusion_is_refused": [
+      "[Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(publication_recipe_drift)]:  a recipe exclusion quietly dropped from the seal must fail exactly publication_recipe_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order"
+    ],
+    "res://tests/integration/test_phase2r_schedule_desktop_handoff.gd::test_a_gate_that_stops_attesting_preserved_schedule_keys_is_refused": [
+      "[Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(snapshot_schema_version_drift)]:  a gate that stopped attesting the committed Schedule keys survive must fail exactly snapshot_schema_version_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order"
+    ],
+    "res://tests/integration/test_phase2r_schedule_desktop_handoff.gd::test_a_gate_whose_frozen_readiness_was_regenerated_is_refused": [
+      "[Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(sealed_readiness_drift)]:  a gate re-recording live readiness instead of its frozen historical value must fail exactly sealed_readiness_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order"
+    ],
+    "res://tests/integration/test_phase2r_schedule_desktop_handoff.gd::test_a_missing_restore_role_is_refused": [
+      "[Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(restore_role_set_drift)]:  eight restore roles must fail exactly restore_role_set_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order"
+    ],
+    "res://tests/integration/test_phase2r_schedule_desktop_handoff.gd::test_an_unretained_restore_role_is_refused": [
+      "[Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(restore_role_instance_id_zero)]:  an unretained audio participant must fail exactly restore_role_instance_id_zero, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order"
+    ],
+    "res://tests/integration/test_phase2r_schedule_desktop_handoff.gd::test_one_object_serving_two_restore_roles_is_refused": [
+      "[Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(restore_role_not_distinct)]:  one participant claiming two roles must fail exactly restore_role_not_distinct, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order"
+    ],
+    "res://tests/integration/test_phase2r_schedule_desktop_handoff.gd::test_one_object_serving_both_action_sources_is_refused": [
+      "[Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(action_source_roles_not_distinct)]:  a merged Round/Shop source must fail exactly action_source_roles_not_distinct, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order"
+    ],
+    "res://tests/integration/test_phase2r_schedule_desktop_handoff.gd::test_a_flipped_sealed_role_verdict_is_refused": [
+      "[Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(role_relation_verdict_drift)]:  the Round/Shop distinctness verdict flipped to equal must fail exactly role_relation_verdict_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order"
+    ],
+    "res://tests/integration/test_phase2r_schedule_desktop_handoff.gd::test_a_ledger_attestation_that_contradicts_the_probe_is_refused": [
+      "[Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(publication_ledger_relation_violated)]:  a ledger attesting distinctness from itself must fail exactly publication_ledger_relation_violated, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order"
+    ],
+    "res://tests/integration/test_phase2r_schedule_desktop_handoff.gd::test_one_live_object_serving_both_ledger_roles_is_refused": [
+      "[Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(publication_ledger_relation_violated)]:  one live ledger serving both plans must fail exactly publication_ledger_relation_violated, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order"
+    ],
+    "res://tests/integration/test_phase2r_schedule_desktop_handoff.gd::test_an_allocator_that_is_not_the_dot16_owner_is_refused": [
+      "[Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(allocator_binding_drift)]:  a substituted allocator owner must fail exactly allocator_binding_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order"
+    ],
+    "res://tests/integration/test_phase2r_schedule_desktop_handoff.gd::test_a_raw_causal_day_issue_path_is_refused": [
+      "[Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(allocator_raw_causal_day_issue)]:  Plan 01 minting a raw causal day must fail exactly allocator_raw_causal_day_issue, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order"
+    ],
+    "res://tests/integration/test_phase2r_schedule_desktop_handoff.gd::test_a_third_resolution_kind_is_refused": [
+      "[Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(allocator_resolution_kind_drift)]:  a third resolution kind smuggled in from Plan 03 must fail exactly allocator_resolution_kind_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order"
+    ],
+    "res://tests/integration/test_phase2r_schedule_desktop_handoff.gd::test_a_caller_supplied_target_day_identity_is_refused": [
+      "[Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(allocator_receipt_shape_drift)]:  a caller handing the allocator its own target identity must fail exactly allocator_receipt_shape_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order"
+    ],
+    "res://tests/integration/test_phase2r_schedule_desktop_handoff.gd::test_a_publication_delivered_twice_across_a_restart_is_refused": [
+      "[Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(publication_first_delivery_drift)]:  a second first-delivery after restart must fail exactly publication_first_delivery_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order"
+    ],
+    "res://tests/integration/test_phase2r_schedule_desktop_handoff.gd::test_an_undeclared_conflict_code_is_refused": [
+      "[Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(publication_conflict_code_drift)]:  a conflict code the ledger never declared must fail exactly publication_conflict_code_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order"
+    ],
+    "res://tests/integration/test_phase2r_schedule_desktop_handoff.gd::test_a_schedule_done_recipe_carrying_a_checkpoint_is_refused": [
+      "[Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(publication_recipe_drift)]:  a checkpoint receipt inside a publication recipe must fail exactly publication_recipe_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order"
+    ],
+    "res://tests/integration/test_phase2r_schedule_desktop_handoff.gd::test_a_changed_snapshot_input_shape_is_refused": [
+      "[Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(snapshot_input_key_set_drift)]:  a tenth snapshot member must fail exactly snapshot_input_key_set_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order"
+    ],
+    "res://tests/integration/test_phase2r_schedule_desktop_handoff.gd::test_an_undeclared_desktop_snapshot_member_is_refused": [
+      "[Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(snapshot_desktop_member_drift)]:  a Plan-03 outbox member appearing early must fail exactly snapshot_desktop_member_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order"
+    ],
+    "res://tests/integration/test_phase2r_schedule_desktop_handoff.gd::test_a_regressed_schema_version_is_refused": [
+      "[Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(snapshot_schema_version_drift)]:  a save-document version below its Plan-01 seal must fail exactly snapshot_schema_version_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order"
+    ],
+    "res://tests/integration/test_phase2r_schedule_desktop_handoff.gd::test_a_live_snapshot_version_that_disagrees_with_its_owner_is_refused": [
+      "[Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(snapshot_schema_version_drift)]:  a v6 snapshot disagrees with the current owner must fail exactly snapshot_schema_version_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order"
+    ],
+    "res://tests/integration/test_phase2r_schedule_desktop_handoff.gd::test_a_readiness_fact_that_stopped_matching_its_seal_is_refused": [
+      "[Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(sealed_readiness_drift)]:  Hospital readiness regressing away from its seal must fail exactly sealed_readiness_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order"
+    ],
+    "res://tests/integration/test_phase2r_schedule_desktop_handoff.gd::test_a_producer_regression_below_finished_deviation_5_is_refused": [
+      "[Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(sealed_readiness_drift)]:  the presentation producer going dark again must fail exactly sealed_readiness_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order"
+    ],
+    "res://tests/integration/test_phase2r_schedule_desktop_handoff.gd::test_a_requirement_split_that_overstates_its_evidence_is_refused": [
+      "[Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(requirement_attestation_drift)]:  a seal suddenly claiming an unattested requirement must fail exactly requirement_attestation_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order"
+    ],
+    "res://tests/integration/test_phase2r_schedule_desktop_handoff.gd::test_a_later_owner_that_has_already_taken_the_composition_is_refused": [
+      "[Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(oyo_composition_claimed)]:  Phase 2R claiming ScheduleView ownership must fail exactly oyo_composition_claimed, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order"
+    ],
+    "res://tests/integration/test_phase2r_schedule_desktop_handoff.gd::test_a_destination_composition_declared_ready_inside_phase_2r_is_refused": [
+      "[Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(oyo_composition_claimed)]:  the destination outbox claiming readiness early must fail exactly oyo_composition_claimed, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order"
+    ],
+    "res://tests/integration/test_phase2r_schedule_desktop_handoff.gd::test_a_seal_that_stops_recording_dating_as_deferred_is_refused": [
+      "[Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(oyo_composition_claimed)]:  a seal that stops deferring Dating to dwm-oyo.4 must fail exactly oyo_composition_claimed, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order"
+    ],
+    "res://tests/integration/test_phase2r_schedule_desktop_handoff.gd::test_a_dating_presentation_declared_ready_inside_phase_2r_is_refused": [
+      "[Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(oyo_composition_claimed)]:  dwm-oyo.4's Dating owner claimed early must fail exactly oyo_composition_claimed, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order"
+    ],
+    "res://tests/integration/test_phase2r_schedule_desktop_handoff.gd::test_restore_roles_that_are_not_a_dictionary_are_refused": [
+      "[Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(predecessor_field_type)]:  restore roles supplied as an Array must fail exactly predecessor_field_type, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order"
+    ],
+    "res://tests/integration/test_phase2r_schedule_desktop_handoff.gd::test_a_desktop_seal_without_a_bootstrap_probe_is_refused": [
+      "[Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(role_relation_verdict_drift)]:  a desktop seal that records no probe must fail exactly role_relation_verdict_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order"
+    ],
+    "res://tests/integration/test_phase2r_schedule_desktop_handoff.gd::test_a_desktop_seal_without_external_stores_is_refused": [
+      "[Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(publication_ledger_relation_violated)]:  a desktop seal that records no external stores must fail exactly publication_ledger_relation_violated, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order"
+    ],
+    "res://tests/integration/test_phase2r_schedule_desktop_handoff.gd::test_an_unrecorded_desktop_ledger_is_refused": [
+      "[Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(publication_ledger_relation_violated)]:  a desktop ledger entry that is not an object must fail exactly publication_ledger_relation_violated, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order"
+    ],
+    "res://tests/integration/test_phase2r_schedule_desktop_handoff.gd::test_a_gate_without_a_day_advance_identity_is_refused": [
+      "[Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(allocator_binding_drift)]:  a gate that records no allocator must fail exactly allocator_binding_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order"
+    ],
+    "res://tests/integration/test_phase2r_schedule_desktop_handoff.gd::test_a_gate_recording_no_observed_publications_is_refused": [
+      "[Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(publication_first_delivery_drift)]:  a gate with an empty publication record must fail exactly publication_first_delivery_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order"
+    ],
+    "res://tests/integration/test_phase2r_schedule_desktop_handoff.gd::test_a_gate_recording_no_conflict_codes_is_refused": [
+      "[Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(publication_conflict_code_drift)]:  a ledger that declares no conflict codes must fail exactly publication_conflict_code_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order"
+    ],
+    "res://tests/integration/test_phase2r_schedule_desktop_handoff.gd::test_an_observed_publication_that_is_not_an_object_is_refused": [
+      "[Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(publication_first_delivery_drift)]:  an observed publication that is not an object must fail exactly publication_first_delivery_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order"
+    ],
+    "res://tests/integration/test_phase2r_schedule_desktop_handoff.gd::test_a_minesweeper_seal_without_recipes_is_refused": [
+      "[Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(publication_recipe_drift)]:  a Minesweeper seal that records no recipes must fail exactly publication_recipe_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order"
+    ],
+    "res://tests/integration/test_phase2r_schedule_desktop_handoff.gd::test_a_snapshot_desktop_member_that_is_not_an_object_is_refused": [
+      "[Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(snapshot_input_key_set_drift)]:  a snapshot desktop member that is not an object must fail exactly snapshot_input_key_set_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order"
+    ],
+    "res://tests/integration/test_phase2r_schedule_desktop_handoff.gd::test_a_desktop_seal_without_v4_facts_is_refused": [
+      "[Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(snapshot_schema_version_drift)]:  a desktop seal that records no v4 facts must fail exactly snapshot_schema_version_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order"
+    ],
+    "res://tests/integration/test_phase2r_schedule_desktop_handoff.gd::test_a_gate_without_current_versions_is_refused": [
+      "[Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(snapshot_schema_version_drift)]:  a gate that records no current versions must fail exactly snapshot_schema_version_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order"
+    ],
+    "res://tests/integration/test_phase2r_schedule_desktop_handoff.gd::test_a_gate_without_a_bootstrap_probe_is_refused": [
+      "[Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(sealed_readiness_drift)]:  a gate that records no probe must fail exactly sealed_readiness_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order"
+    ],
+    "res://tests/integration/test_phase2r_schedule_desktop_handoff.gd::test_a_gate_probe_without_readiness_is_refused": [
+      "[Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(sealed_readiness_drift)]:  a gate probe whose readiness is not an object must fail exactly sealed_readiness_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order"
+    ],
+    "res://tests/integration/test_phase2r_schedule_desktop_handoff.gd::test_a_seal_recording_no_requirement_ids_is_refused": [
+      "[Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(requirement_attestation_drift)]:  a seal that records no requirement ids must fail exactly requirement_attestation_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order"
+    ],
+    "res://tests/integration/test_phase2r_schedule_desktop_handoff.gd::test_the_captured_snapshot_input_round_trips_through_the_real_v5_schema": [
+      "[Failed]:  the REAL live snapshot input builds a real v5 snapshot: { \"ok\": false, \"code\": &\"invalid_snapshot_input\", \"message\": \"missing member: schedule_view\" }"
+    ],
+    "res://tests/integration/test_phase2r_schedule_desktop_handoff.gd::test_pre_cutover_or_future_live_schema_claims_are_refused": [
+      "[Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(snapshot_schema_version_drift)]:  live schema facts must match the current owner: run_snapshot_schema_version=4 must fail exactly snapshot_schema_version_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order",
+      "[Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(snapshot_schema_version_drift)]:  live schema facts must match the current owner: run_snapshot_schema_version=6 must fail exactly snapshot_schema_version_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order",
+      "[Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(snapshot_schema_version_drift)]:  live schema facts must match the current owner: save_document_schema_version=4 must fail exactly snapshot_schema_version_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order",
+      "[Failed]:  [STRING_NAME(restore_order_drift)] expected to equal [STRING_NAME(snapshot_schema_version_drift)]:  live schema facts must match the current owner: save_document_schema_version=6 must fail exactly snapshot_schema_version_drift, observed restore_order_drift the live restore order and its seal must both be the frozen nine-role order"
+    ],
+    "res://tests/integration/test_save_capability.gd::test_board_lock_is_silent_and_transition_defers": [
+      "[Failed]:  {\"code\":\"invalid_snapshot_input\",\"message\":\"missing member: schedule_view\",\"ok\":false}",
+      "[Failed]:  releasing the transition lock fulfills the pending save"
+    ],
+    "res://tests/integration/test_save_manager_journal.gd::test_record_checkpoint_advances_journal_and_persists_disk": [
+      "[Failed]:  {\"code\":\"invalid_snapshot_input\",\"message\":\"missing member: schedule_view\",\"ok\":false}",
+      "[Failed]:  Unexpected Errors:",
+      "[1] <engine-2>Invalid access to property or key 'value' on a base object of type 'Dictionary'."
+    ],
+    "res://tests/integration/test_save_manager_journal.gd::test_real_port_preview_is_pure_and_matches_prepare": [
+      "[Failed]:",
+      "[Failed]:  [\"run-1:1\"] expected to equal [\"run-1:2\"]:  next sequence after the seeded day_start",
+      "[Failed]:  {\"code\":\"invalid_snapshot_input\",\"message\":\"missing member: schedule_view\",\"ok\":false}",
+      "[Failed]:  Unexpected Errors:",
+      "[1] <engine-2>Invalid access to property or key 'value' on a base object of type 'Dictionary'."
+    ],
+    "res://tests/integration/test_save_manager_journal.gd::test_real_port_commit_and_autosave_round_trip": [
+      "[Failed]:  {\"code\":\"invalid_snapshot_input\",\"message\":\"missing member: schedule_view\",\"ok\":false}",
+      "[Failed]:  Unexpected Errors:",
+      "[1] <engine-2>Invalid access to property or key 'value' on a base object of type 'Dictionary'."
+    ],
+    "res://tests/integration/test_schedule_done_public_walk.gd::test_a_committed_schedule_walk_presents_settles_and_advances_through_public_doors": [
+      "[Failed]:  {\"code\":\"invalid_snapshot_input\",\"message\":\"missing member: schedule_view\",\"ok\":false}",
+      "[Failed]:  [STRING_NAME(invalid_snapshot_input)] expected to equal [STRING_NAME(await_registered_command)]:  the walk pauses awaiting the date presentation",
+      "[Failed]:  [0] expected to equal [1]:  exactly one presentation was routed",
+      "[Failed]:  Unexpected Errors:",
+      "[1] <engine-2>Out of bounds get index '0' (on base: 'Array[Dictionary]')"
+    ],
+    "res://tests/integration/test_schedule_done_public_walk.gd::test_the_walk_is_replay_safe_at_the_public_doors": [
+      "[Failed]:",
+      "[Failed]:  Unexpected Errors:",
+      "[1] <engine-2>Invalid access of index '0' on a base object of type: 'Array[Dictionary]'."
+    ],
+    "res://tests/integration/test_schedule_done_public_walk.gd::test_the_disk_autosave_of_the_advanced_day_is_written": [
+      "[Failed]:",
+      "[Failed]:  Unexpected Errors:",
+      "[1] <engine-2>Invalid access of index '0' on a base object of type: 'Array[Dictionary]'."
+    ],
+    "res://tests/integration/test_schedule_downstream_contracts.gd::test_a11_board_fate_forfeits_a_started_board_with_nonnull_identity": [
+      "[Failed]:  the real board start/reveal must succeed before the law under test is reachable: {\"code\":\"layout_field_invalid\",\"details\":{\"field\":\"width\"},\"message\":\"width must match the spec\",\"ok\":false}"
+    ],
+    "res://tests/integration/test_schedule_publication_restart.gd::test_committed_schedule_is_captured_into_the_v3_snapshot": [
+      "[Failed]:  { \"ok\": false, \"code\": &\"invalid_snapshot_input\", \"message\": \"missing member: schedule_view\" }",
+      "[Failed]:  Unexpected Errors:",
+      "[1] <engine-2>Invalid access to property or key 'value' on a base object of type 'Dictionary'.",
+      "[2] <engine-2>Invalid access to property or key 'schema_version' on a base object of type 'Dictionary'."
+    ],
+    "res://tests/integration/test_schedule_publication_restart.gd::test_committed_schedule_survives_a_whole_document_round_trip": [
+      "[Failed]:  { \"ok\": false, \"code\": &\"invalid_snapshot_input\", \"message\": \"missing member: schedule_view\" }",
+      "[Failed]:  { \"ok\": false, \"code\": &\"invalid_snapshot_shape\", \"message\": \"unexpected top-level keys: []\" }",
+      "[Failed]:  Unexpected Errors:",
+      "[1] <engine-2>Invalid access to property or key 'value' on a base object of type 'Dictionary'.",
+      "[2] <engine-2>Invalid access to property or key 'value' on a base object of type 'Dictionary'."
+    ],
+    "res://tests/integration/test_schedule_publication_restart.gd::test_restore_reinstalls_the_committed_schedule_without_signals_until_finalize": [
+      "[Failed]:  { \"ok\": false, \"code\": &\"invalid_snapshot_input\", \"message\": \"missing member: schedule_view\" }",
+      "[Failed]:  { \"ok\": false, \"code\": &\"invalid_run_plan\", \"message\": \"snapshot.lifecycle is required\" }",
+      "[Failed]:  DICTIONARY({ \"schema_version\": 1, \"day\": 1, \"registry_fingerprint\": <null>, \"entries\": [],... <null> }) != DICTIONARY({ \"schema_version\": 1, \"day\": 1, \"registry_fingerprint\": \"71eb92c6dc3b902cc9e6c...d\": 1 } }).",
+      "[Failed]:  Unexpected Errors:",
+      "[1] <engine-2>Invalid access to property or key 'value' on a base object of type 'Dictionary'."
+    ],
+    "res://tests/integration/test_schedule_publication_restart.gd::test_publication_ledger_is_not_a_snapshot_or_document_member": [
+      "[Failed]:  { \"ok\": false, \"code\": &\"invalid_snapshot_input\", \"message\": \"missing member: schedule_view\" }",
+      "[Failed]:  { \"ok\": false, \"code\": &\"invalid_snapshot_shape\", \"message\": \"unexpected top-level keys: []\" }",
+      "[Failed]:  Unexpected Errors:",
+      "[1] <engine-2>Invalid access to property or key 'value' on a base object of type 'Dictionary'.",
+      "[2] <engine-2>Invalid access to property or key 'value' on a base object of type 'Dictionary'."
+    ],
+    "res://tests/integration/test_schedule_publication_restart.gd::test_selectable_operations_leave_the_ledger_bytes_identical": [
+      "[Failed]:  { \"ok\": false, \"code\": &\"invalid_snapshot_input\", \"message\": \"missing member: schedule_view\" }",
+      "[Failed]:",
+      "[Failed]:  Unexpected Errors:",
+      "[1] <engine-2>Invalid access to property or key 'value' on a base object of type 'Dictionary'."
+    ],
+    "res://tests/integration/test_shop_condition_contract_departure.gd::test_shop_purchase_departure_discards_an_unstarted_candidate": [
+      "[Failed]:  {\"code\":\"debug_capability_required\",\"details\":{},\"message\":\"\",\"ok\":false}",
+      "[Failed]:  [\"NONE\"] expected to equal [\"PREPARING\"]:"
+    ]
+  }
+}

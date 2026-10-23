@@ -1,0 +1,126 @@
+{
+	"captures": 18,
+	"checks": 422,
+	"failures": [],
+	"ok": true,
+	"samples": [
+		{
+			"locale": "en",
+			"logical_size": [
+				1280,
+				720
+			],
+			"native_size": [
+				640,
+				360
+			],
+			"palette": "Standard Backup paper",
+			"text_percent": 100
+		},
+		{
+			"locale": "en",
+			"logical_size": [
+				1280,
+				720
+			],
+			"native_size": [
+				640,
+				360
+			],
+			"palette": "Standard Backup paper",
+			"text_percent": 125
+		},
+		{
+			"locale": "en",
+			"logical_size": [
+				1280,
+				720
+			],
+			"native_size": [
+				640,
+				360
+			],
+			"palette": "Standard Backup paper",
+			"text_percent": 150
+		},
+		{
+			"locale": "zh_CN",
+			"logical_size": [
+				1280,
+				720
+			],
+			"native_size": [
+				640,
+				360
+			],
+			"palette": "Standard Backup paper",
+			"text_percent": 100
+		},
+		{
+			"locale": "zh_CN",
+			"logical_size": [
+				1280,
+				720
+			],
+			"native_size": [
+				640,
+				360
+			],
+			"palette": "Standard Backup paper",
+			"text_percent": 125
+		},
+		{
+			"locale": "zh_CN",
+			"logical_size": [
+				1280,
+				720
+			],
+			"native_size": [
+				640,
+				360
+			],
+			"palette": "Standard Backup paper",
+			"text_percent": 150
+		},
+		{
+			"locale": "zh_HK",
+			"logical_size": [
+				1280,
+				720
+			],
+			"native_size": [
+				640,
+				360
+			],
+			"palette": "Standard Backup paper",
+			"text_percent": 100
+		},
+		{
+			"locale": "zh_HK",
+			"logical_size": [
+				1280,
+				720
+			],
+			"native_size": [
+				640,
+				360
+			],
+			"palette": "Standard Backup paper",
+			"text_percent": 125
+		},
+		{
+			"locale": "zh_HK",
+			"logical_size": [
+				1280,
+				720
+			],
+			"native_size": [
+				640,
+				360
+			],
+			"palette": "Standard Backup paper",
+			"text_percent": 150
+		}
+	],
+	"scope": "Actual Menu and shared sheet native rendering/input with explicit in-memory operation outcome fixture. Real fonts/catalogs; Standard paper only. No storage, OS assistive-technology or complete New Acc acceptance claim."
+}

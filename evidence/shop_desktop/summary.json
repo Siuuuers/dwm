@@ -1,0 +1,118 @@
+{
+  "base_commit": "a495b453bef25afba9438330a592e19e84cf8246",
+  "task": "dwm-eei.7",
+  "suites": [
+    {
+      "suite_id": "shop-desktop-focused-20260907d",
+      "Scripts": 5,
+      "Tests": 72,
+      "Passing Tests": 72,
+      "Asserts": 2057,
+      "Orphans": 24
+    },
+    {
+      "suite_id": "shop-shared-regression-20260907b",
+      "Scripts": 5,
+      "Tests": 42,
+      "Passing Tests": 42,
+      "Asserts": 839,
+      "Orphans": 24
+    }
+  ],
+  "tests": 114,
+  "assertions": 2896,
+  "native_suite": "shop-desktop-native-20260907c",
+  "native_checks": 386,
+  "rendered_tuples": 18,
+  "native_captures": 18,
+  "palette_captures": 4,
+  "sources": {
+    "scenes/shared/ShopItemBox.tscn": "ebc8337e949c0c25b83afebed0654594b970ba302b575e2b141bc0d640d33976",
+    "scripts/ui/ShopItemBox.gd": "a12a9ea489da650e4b4b9152625f74cf2e6f9c39c4c7568c38a6e1a5ef9ec208",
+    "scripts/ui/shop/ShopCatalogProjection.gd": "da0990e72872763f3d3b796b4810a6f16e6073720a2f2002712c34c4852342ea",
+    "tests/scene/test_shop_card.gd": "e0f0caed0338b5e441ffb18ce5c415550e3769383088b5ecc3f7be6bad54c682",
+    "tests/unit/test_shop_catalog_projection.gd": "bcc1a9d90a0d3125c311471a3aba4e5372785f301d59d2ef2f50d771c828ee4c",
+    "scenes/apps/ShopApp.tscn": "01d0f06362791238b66a34403f170ca6b3d05e5f1490e23c4351f8aad302ac41",
+    "scripts/ui/ShopApp.gd": "25b61f1c40d411cc6bf10b0f279228484674065834541724dfaf0598895ffd94",
+    "scripts/ui/shop/ShopCopy.gd": "7201b9c851249b326e908a035bf01fdd8d27ee7e32c8ee6c2130df357494ba33",
+    "tests/scene/test_shop_plate.gd": "aeab1cc3be481650121a0de3eb6ca77fd9dcdf89dfc4a33fc1b9cf1476687fd6",
+    "tests/unit/test_shop_copy.gd": "6c7eef757bcda70380a0173cfd2ec4eb5e8aa43635331269616df9badc983679",
+    "scripts/ui/shop/ShopTheme.gd": "f701a95dd3ed4260d7822d03c7fc233225cccf3c14b3bec313cab91ad9184235",
+    "tests/scene/render_shop_palettes.gd": "1bbee53c866293bd5e52ef31599ffc322116864b298128561fe420c574681de7",
+    "scripts/ui/ComputerDesktop.gd": "3cb05b46a0b8afb000c701b37935473de22e0696801070c233e054e6ed34f252",
+    "tests/integration/test_shop_desktop_host.gd": "f4ba0f0e81041cd210b4f3eaad15d4bf3d098fde5cf7d8bfcf1b12d552690366",
+    "tests/manual/verify_shop_desktop_native.gd": "80861225badc39f83a17cbe4663bc9f9dc6d500e4b2e8a8fe14e3682b5affdbe"
+  },
+  "source_git_blobs": {
+    "scenes/shared/ShopItemBox.tscn": "a7417bbdec6d87b94d07c31e5f0ff89023f2e833",
+    "scripts/ui/ShopItemBox.gd": "fa7a017ef873975a18500e531171b7b0b92bc92b",
+    "scripts/ui/shop/ShopCatalogProjection.gd": "f2ad7fb47ec4e98e0fafd2414146fe8390c4dc7d",
+    "tests/scene/test_shop_card.gd": "2cb3e44097047041421a8281ed724651231cb097",
+    "tests/unit/test_shop_catalog_projection.gd": "43627e822ee307ab3f943b33982d9530d0e9ddd9",
+    "scenes/apps/ShopApp.tscn": "5d3c88387960a53b492e1acd1ec93b84e24959c2",
+    "scripts/ui/ShopApp.gd": "d57b91b9958a715d145625779da5faaf5b7157b5",
+    "scripts/ui/shop/ShopCopy.gd": "df30d4dae76bf8ae8c9c454aa674d2cb703e8561",
+    "tests/scene/test_shop_plate.gd": "2629f926229daa055e95182b1cd0d6a94896651c",
+    "tests/unit/test_shop_copy.gd": "384b11adcf5edf15b3a8bc87a16f924b0c3152f6",
+    "scripts/ui/shop/ShopTheme.gd": "937a71682a7f335c6058fcfc6f9899249ad486c4",
+    "tests/scene/render_shop_palettes.gd": "c9b1eb3f5b91c34be543327eb04f7b73bf82c27f",
+    "scripts/ui/ComputerDesktop.gd": "f48375612a77a723714169a027cfd18823ef3598",
+    "tests/integration/test_shop_desktop_host.gd": "c77244269b9437c0ae5130c2b39ffdf84d8481ff",
+    "tests/manual/verify_shop_desktop_native.gd": "6335dab42fac17c9557ce580aae093be04685a6d"
+  },
+  "raw_log_sha256": {
+    "shop-desktop-native-20260907a.log": "c2fba78aed54f2ba5258b90f4a4d406792b40c89c61968f6012608c3767deeae",
+    "shop-desktop-focused-20260907a.log": "9b3092ed6797337e128321f7c68eaa57bc076689ea7c6d59a3e6ba696b85919d",
+    "shop-card-isolated-20260907a.log": "7495683eb9982873c5d69137acdee861d5330562c2230d633df51bdaeaef5d91",
+    "shop-desktop-focused-20260907b.log": "7fd9c0408dde67489a74ee1600f3a07a2166ca5b7088e0c3bdadccd6a48b7c65",
+    "shop-desktop-native-20260907b.log": "0c3e9a2abb28e1a3f10ac6e6458db1e3aa2b420997292d1a27c9cadd157b6d65",
+    "shop-shared-regression-20260907a.log": "6bcbfe211f74802f2b7b58a333239a70550cf114b4f0f9bc1bde41db3e5196b2",
+    "shop-palettes-20260907a.log": "39d38689715116fe9f15ae63d4ae41bc5c72fe6161fc0ef91578d5db3041f69f",
+    "shop-desktop-focused-20260907c.log": "bc33f6ca82f63d1e1b204572be4aa4b6daf83dca64973239eac8f4954daac66e",
+    "shop-desktop-focused-20260907d.log": "8a06e7eacfaac0641ecf8fb30f021570fd83b7257934245f91e12cd807a184ac",
+    "shop-shared-regression-20260907b.log": "2438e7605287b2e71a88b71d72ea3d423ba441579da8eae056e4f3bf79849597",
+    "shop-desktop-native-20260907c.log": "0c3e9a2abb28e1a3f10ac6e6458db1e3aa2b420997292d1a27c9cadd157b6d65",
+    "shop-palettes-20260907b.log": "77d36a65debba4715594579df1f06611bb5f2fdaed0cb3afc745cdd1db294ec2"
+  },
+  "scope": "Shared desktop Shop mounting with explicit catalog provider; production public catalog/art and atomic purchase ownership remain unavailable.",
+  "save_schema_changed": false,
+  "full_shop_acceptance": false,
+  "overall_ui_goal_complete": false,
+  "player_data_used": false,
+  "merged": false,
+  "pushed": false,
+  "protected_worktrees": [
+    {
+      "path": "C:/Users/glori/Documents/dwm",
+      "head": "35afbcdcf7e12143478080b91a7c6c3079497371",
+      "tracked_dirty_paths": 20
+    },
+    {
+      "path": "C:/Users/glori/Documents/dwm-p2r13-resealed",
+      "head": "1790785bcfd37d2a27a0ecef81b9dc80fe501f71",
+      "tracked_dirty_paths": 50
+    }
+  ],
+  "known_diagnostics": [
+    "Existing Unicode NUL diagnostics retained",
+    "24 Dialogic fixture orphans reported by each final GUT run; no leak-free acceptance claim"
+  ],
+  "visual_inspection": [
+    "en-100-ordinary-first.png",
+    "zh_HK-150-large-blank.png",
+    "shop-midnight-hk150.png"
+  ],
+  "screen_reader_verified": false,
+  "independent_reviews": [
+    {
+      "reviewer": "sheet_owner_audit",
+      "scope": "Provider injection, restored routes, deferred focus/custody, copy/source quantity classification and teardown/remount",
+      "result": "No material blocker; read-only review"
+    },
+    {
+      "reviewer": "root",
+      "scope": "Shared preferences, input delivery, startup focus, cached quantity, injected host and native visual inspection",
+      "result": "Reviewed agent implementation and executed acceptance suites; material findings fixed before checkpoint"
+    }
+  ]
+}

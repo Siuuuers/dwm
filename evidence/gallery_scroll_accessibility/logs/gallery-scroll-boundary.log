@@ -1,0 +1,11 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+OpenGL API 3.3.0 - Build 31.0.101.4146 - Compatibility - Using Device: Intel - Intel(R) Iris(R) Xe Graphics
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+READY {"folder":"C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/301be7f8-9343-4768-afe3-e435c67eef20/dwm_test_root","max_offset":512.0,"pid":34588,"title":"DWM Gallery Scroll 34588"}
+PHASE {"home_focused":true,"offset":0.0,"phase":"offset"}
+PHASE {"home_focused":true,"offset":0.0,"phase":"fit"}
+PHASE {"home_focused":true,"offset":0.0,"phase":"title_only"}
+RESULT {"home_focused":true,"offset":0.0,"phases":["offset","fit","title_only"]}

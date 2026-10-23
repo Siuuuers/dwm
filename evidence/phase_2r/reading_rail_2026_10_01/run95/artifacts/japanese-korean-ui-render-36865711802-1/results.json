@@ -1,0 +1,220 @@
+{
+	"captures": 30,
+	"failures": [],
+	"fixture": "Real production UI, active locale/profile providers and Fusion fonts; synthetic shop/contact/board records, empty Gallery, English dialogue fixture. No player commands.",
+	"ok": true,
+	"renderer": "X11",
+	"samples": 30,
+	"states": [
+		{
+			"file": "ja-title-100.png",
+			"locale": "ja",
+			"percent": 100,
+			"surface": "title",
+			"visible_text_nodes": 8
+		},
+		{
+			"file": "ja-gallery-100.png",
+			"locale": "ja",
+			"percent": 100,
+			"surface": "gallery",
+			"visible_text_nodes": 3
+		},
+		{
+			"file": "ja-gallery-150.png",
+			"locale": "ja",
+			"percent": 150,
+			"surface": "gallery",
+			"visible_text_nodes": 3
+		},
+		{
+			"file": "ja-launcher-100.png",
+			"locale": "ja",
+			"percent": 100,
+			"surface": "launcher",
+			"visible_text_nodes": 15
+		},
+		{
+			"file": "ja-contacts-100.png",
+			"locale": "ja",
+			"percent": 100,
+			"surface": "contacts",
+			"visible_text_nodes": 11
+		},
+		{
+			"file": "ja-backup-100.png",
+			"locale": "ja",
+			"percent": 100,
+			"surface": "backup",
+			"visible_text_nodes": 30
+		},
+		{
+			"file": "ja-backup-150.png",
+			"locale": "ja",
+			"percent": 150,
+			"surface": "backup",
+			"visible_text_nodes": 30
+		},
+		{
+			"file": "ja-settings-100.png",
+			"locale": "ja",
+			"percent": 100,
+			"surface": "settings",
+			"visible_text_nodes": 19
+		},
+		{
+			"file": "ja-settings-150.png",
+			"locale": "ja",
+			"percent": 150,
+			"surface": "settings",
+			"visible_text_nodes": 19
+		},
+		{
+			"file": "ja-shop-100.png",
+			"locale": "ja",
+			"percent": 100,
+			"surface": "shop",
+			"visible_text_nodes": 45
+		},
+		{
+			"file": "ja-schedule-100.png",
+			"locale": "ja",
+			"percent": 100,
+			"surface": "schedule",
+			"visible_text_nodes": 23
+		},
+		{
+			"file": "ja-minesweeper-100.png",
+			"locale": "ja",
+			"percent": 100,
+			"surface": "minesweeper",
+			"visible_text_nodes": 9
+		},
+		{
+			"file": "ja-minesweeper-150.png",
+			"locale": "ja",
+			"percent": 150,
+			"surface": "minesweeper",
+			"visible_text_nodes": 9
+		},
+		{
+			"file": "ko-title-100.png",
+			"locale": "ko",
+			"percent": 100,
+			"surface": "title",
+			"visible_text_nodes": 8
+		},
+		{
+			"file": "ko-gallery-100.png",
+			"locale": "ko",
+			"percent": 100,
+			"surface": "gallery",
+			"visible_text_nodes": 3
+		},
+		{
+			"file": "ko-gallery-150.png",
+			"locale": "ko",
+			"percent": 150,
+			"surface": "gallery",
+			"visible_text_nodes": 3
+		},
+		{
+			"file": "ko-launcher-100.png",
+			"locale": "ko",
+			"percent": 100,
+			"surface": "launcher",
+			"visible_text_nodes": 15
+		},
+		{
+			"file": "ko-contacts-100.png",
+			"locale": "ko",
+			"percent": 100,
+			"surface": "contacts",
+			"visible_text_nodes": 11
+		},
+		{
+			"file": "ko-backup-100.png",
+			"locale": "ko",
+			"percent": 100,
+			"surface": "backup",
+			"visible_text_nodes": 30
+		},
+		{
+			"file": "ko-backup-150.png",
+			"locale": "ko",
+			"percent": 150,
+			"surface": "backup",
+			"visible_text_nodes": 30
+		},
+		{
+			"file": "ko-settings-100.png",
+			"locale": "ko",
+			"percent": 100,
+			"surface": "settings",
+			"visible_text_nodes": 19
+		},
+		{
+			"file": "ko-settings-150.png",
+			"locale": "ko",
+			"percent": 150,
+			"surface": "settings",
+			"visible_text_nodes": 19
+		},
+		{
+			"file": "ko-shop-100.png",
+			"locale": "ko",
+			"percent": 100,
+			"surface": "shop",
+			"visible_text_nodes": 45
+		},
+		{
+			"file": "ko-schedule-100.png",
+			"locale": "ko",
+			"percent": 100,
+			"surface": "schedule",
+			"visible_text_nodes": 23
+		},
+		{
+			"file": "ko-minesweeper-100.png",
+			"locale": "ko",
+			"percent": 100,
+			"surface": "minesweeper",
+			"visible_text_nodes": 9
+		},
+		{
+			"file": "ko-minesweeper-150.png",
+			"locale": "ko",
+			"percent": 150,
+			"surface": "minesweeper",
+			"visible_text_nodes": 9
+		},
+		{
+			"file": "ja-witnessed-100.png",
+			"locale": "ja",
+			"percent": 100,
+			"surface": "witnessed",
+			"visible_text_nodes": 9
+		},
+		{
+			"file": "ja-witnessed-150.png",
+			"locale": "ja",
+			"percent": 150,
+			"surface": "witnessed",
+			"visible_text_nodes": 9
+		},
+		{
+			"file": "ko-witnessed-100.png",
+			"locale": "ko",
+			"percent": 100,
+			"surface": "witnessed",
+			"visible_text_nodes": 9
+		},
+		{
+			"file": "ko-witnessed-150.png",
+			"locale": "ko",
+			"percent": 150,
+			"surface": "witnessed",
+			"visible_text_nodes": 9
+		}
+	]
+}

@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "fixture_set_id": "phase_2r.minesweeper_results",
+  "note": "Test-only completion results. Exactly five outcomes for each of three difficulties. No random seed, cell grid, mine placement, timer, or board state appears here; expected reward and task effects are derived through production rules, never duplicated as authoritative fixture values.",
+  "fixtures": [
+    {"fixture_id": "beginner_exploded", "difficulty": "beginner", "result": {"outcome": "exploded"}},
+    {"fixture_id": "beginner_cleared", "difficulty": "beginner", "result": {"outcome": "cleared"}},
+    {"fixture_id": "beginner_perfect", "difficulty": "beginner", "result": {"outcome": "perfect"}},
+    {"fixture_id": "beginner_no_flag", "difficulty": "beginner", "result": {"outcome": "no_flag"}},
+    {"fixture_id": "beginner_foresight", "difficulty": "beginner", "result": {"outcome": "foresight"}},
+    {"fixture_id": "intermediate_exploded", "difficulty": "intermediate", "result": {"outcome": "exploded"}},
+    {"fixture_id": "intermediate_cleared", "difficulty": "intermediate", "result": {"outcome": "cleared"}},
+    {"fixture_id": "intermediate_perfect", "difficulty": "intermediate", "result": {"outcome": "perfect"}},
+    {"fixture_id": "intermediate_no_flag", "difficulty": "intermediate", "result": {"outcome": "no_flag"}},
+    {"fixture_id": "intermediate_foresight", "difficulty": "intermediate", "result": {"outcome": "foresight"}},
+    {"fixture_id": "expert_exploded", "difficulty": "expert", "result": {"outcome": "exploded"}},
+    {"fixture_id": "expert_cleared", "difficulty": "expert", "result": {"outcome": "cleared"}},
+    {"fixture_id": "expert_perfect", "difficulty": "expert", "result": {"outcome": "perfect"}},
+    {"fixture_id": "expert_no_flag", "difficulty": "expert", "result": {"outcome": "no_flag"}},
+    {"fixture_id": "expert_foresight", "difficulty": "expert", "result": {"outcome": "foresight"}}
+  ]
+}

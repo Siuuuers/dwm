@@ -1,0 +1,243 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/8ae8f6e0-bb03-492a-bfc3-6dca0634151f/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+res://tests/integration/test_gallery_replay_status.gd
+* test_determinate_synchronous_start_failure_is_stable_and_retry_reuses_exact_signature_without_mutation
+ERROR: Error calling deferred method: 'Control(GalleryScene.gd)::_reveal_row': Cannot convert argument 1 from Object to Object.
+   at: _call_function (core/object/message_queue.cpp:222)
+    [Failed]:  en owns determinate start-failure copy
+      at line 164
+    [Failed]:  en owns Retry copy
+      at line 164
+    [Failed]:  [""] expected to equal ["Replay did not begin"]:
+      at line 164
+    [Failed]:  ["This record could not play. Please try again."] expected to equal [""]:
+      at line 164
+    [Failed]:  ["Replay"] expected to equal [""]:
+      at line 164
+    [Failed]:  [VECTOR2(392.0, 32.0)] expected to equal [VECTOR2(408.0, 568.0)]:
+      at line 165
+    [Failed]:  [VECTOR2(520.0, 36.0)] expected to equal [VECTOR2(360.0, 64.0)]:
+      at line 165
+    [Failed]:  [VECTOR2(408.0, 568.0)] expected to equal [VECTOR2(408.0, 488.0)]:
+      at line 165
+    [Failed]:  ["This record could not play. Please try again."] expected to equal [""]:  focus movement cannot clear Error
+      at line 170
+* test_synchronous_early_start_failure_is_not_overwritten_and_repeats_same_signature
+    [Failed]:  en owns determinate start-failure copy
+      at line 189
+    [Failed]:  en owns Retry copy
+      at line 189
+    [Failed]:  [""] expected to equal ["Replay did not begin"]:
+      at line 189
+    [Failed]:  ["This record could not play. Please try again."] expected to equal [""]:
+      at line 189
+    [Failed]:  ["Replay"] expected to equal [""]:
+      at line 189
+    [Failed]:  ["This record could not play. Please try again."] expected to equal [""]:
+      at line 193
+* test_async_start_failure_retains_error_across_locales_and_version_change_clears_it
+    [Failed]:  en owns determinate start-failure copy
+      at line 207
+    [Failed]:  en owns Retry copy
+      at line 207
+    [Failed]:  [""] expected to equal ["Replay did not begin"]:
+      at line 207
+    [Failed]:  ["Replay"] expected to equal [""]:
+      at line 207
+    [Failed]:  [VECTOR2(392.0, 32.0)] expected to equal [VECTOR2(408.0, 568.0)]:
+      at line 208
+    [Failed]:  [VECTOR2(520.0, 36.0)] expected to equal [VECTOR2(360.0, 64.0)]:
+      at line 208
+    [Failed]:  [VECTOR2(408.0, 568.0)] expected to equal [VECTOR2(408.0, 488.0)]:
+      at line 208
+    [Failed]:  zh_CN owns determinate start-failure copy
+      at line 207
+    [Failed]:  zh_CN owns Retry copy
+      at line 207
+    [Failed]:  ["重播"] expected to equal [""]:
+      at line 207
+    [Failed]:  [VECTOR2(392.0, 32.0)] expected to equal [VECTOR2(408.0, 568.0)]:
+      at line 208
+    [Failed]:  [VECTOR2(520.0, 36.0)] expected to equal [VECTOR2(360.0, 64.0)]:
+      at line 208
+    [Failed]:  [VECTOR2(408.0, 568.0)] expected to equal [VECTOR2(408.0, 488.0)]:
+      at line 208
+    [Failed]:  zh_HK owns determinate start-failure copy
+      at line 207
+    [Failed]:  zh_HK owns Retry copy
+      at line 207
+    [Failed]:  ["重播"] expected to equal [""]:
+      at line 207
+    [Failed]:  [VECTOR2(392.0, 32.0)] expected to equal [VECTOR2(408.0, 568.0)]:
+      at line 208
+    [Failed]:  [VECTOR2(520.0, 36.0)] expected to equal [VECTOR2(360.0, 64.0)]:
+      at line 208
+    [Failed]:  [VECTOR2(408.0, 568.0)] expected to equal [VECTOR2(408.0, 488.0)]:
+      at line 208
+* test_unproved_refusal_and_post_start_replacement_do_not_claim_pre_session_retry
+* test_exit_clears_start_error_and_denied_cancel_retains_active_replay
+    [Failed]:  ["This record could not play. Please try again."] expected to equal [""]:
+      at line 238
+1/5 passed.
+
+
+res://tests/unit/test_gallery_start_failure_phase.gd
+* test_pre_admission_refusal_has_no_start_failure_phase_or_retry_identity
+* test_synchronous_physical_start_failure_returns_exact_retryable_start_identity
+    [Failed]:  [<null>] expected to equal [STRING_NAME(start)]:
+      at line 92
+    [Failed]:  [""] expected to equal ["c02fa3e08103a9e4ca440841db3000f7a63bb77d62fd54c328a6922fbdd6353e"]:
+      at line 93
+* test_deferred_runtime_start_failure_emits_exact_retryable_start_identity
+    [Failed]:  [<null>] expected to equal [STRING_NAME(start)]:
+      at line 118
+* test_runtime_replacement_remains_generic_failure_without_retryable_start_phase
+2/4 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/integration/test_gallery_replay_status.gd
+    - Outside Tests
+        * [<Node#131617261336>(subsystem_animation.gd)]
+        * [<Node#131634038564>(subsystem_audio.gd)]
+        * [<Node#131650815796>]
+        * [<Node#131667593021>]
+        * [<Node#131684370243>(subsystem_backgrounds.gd)]
+        * [<Node#132221241156>(subsystem_choices.gd)]
+        * [<Timer#132238018373>]
+        * [<Node#132254795590>(subsystem_expression.gd)]
+        * [<Node#132288350027>(subsystem_glossary.gd)]
+        * [<Node#132305127244>(subsystem_history.gd)]
+        * [<Node#132321904461>(subsystem_input.gd)]
+        * [<Timer#132338681678>]
+        * [<Node#132355458895>(subsystem_jump.gd)]
+        * [<Node#132372236112>(subsystem_containers.gd)]
+        * [<Node#132389013329>(subsystem_portraits.gd)]
+        * [<Node#132925884242>(subsystem_save.gd)]
+        * [<Timer#132942661459>]
+        * [<Node#132959438676>(subsystem_settings.gd)]
+        * [<Node#132976215896>(subsystem_styles.gd)]
+        * [<Node#132992993113>(subsystem_text.gd)]
+        * [<Node#133076879198>(subsystem_text_input.gd)]
+        * [<Node#133093656415>(subsystem_variables.gd)]
+        * [<Node#133110433632>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#133127210849>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+res://tests/integration/test_gallery_replay_status.gd
+- test_determinate_synchronous_start_failure_is_stable_and_retry_reuses_exact_signature_without_mutation
+    [Failed]:  en owns determinate start-failure copy
+          at line 164
+    [Failed]:  en owns Retry copy
+          at line 164
+    [Failed]:  [""] expected to equal ["Replay did not begin"]:
+          at line 164
+    [Failed]:  ["This record could not play. Please try again."] expected to equal [""]:
+          at line 164
+    [Failed]:  ["Replay"] expected to equal [""]:
+          at line 164
+    [Failed]:  [VECTOR2(392.0, 32.0)] expected to equal [VECTOR2(408.0, 568.0)]:
+          at line 165
+    [Failed]:  [VECTOR2(520.0, 36.0)] expected to equal [VECTOR2(360.0, 64.0)]:
+          at line 165
+    [Failed]:  [VECTOR2(408.0, 568.0)] expected to equal [VECTOR2(408.0, 488.0)]:
+          at line 165
+    [Failed]:  ["This record could not play. Please try again."] expected to equal [""]:  focus movement cannot clear Error
+          at line 170
+- test_synchronous_early_start_failure_is_not_overwritten_and_repeats_same_signature
+    [Failed]:  en owns determinate start-failure copy
+          at line 189
+    [Failed]:  en owns Retry copy
+          at line 189
+    [Failed]:  [""] expected to equal ["Replay did not begin"]:
+          at line 189
+    [Failed]:  ["This record could not play. Please try again."] expected to equal [""]:
+          at line 189
+    [Failed]:  ["Replay"] expected to equal [""]:
+          at line 189
+    [Failed]:  ["This record could not play. Please try again."] expected to equal [""]:
+          at line 193
+- test_async_start_failure_retains_error_across_locales_and_version_change_clears_it
+    [Failed]:  en owns determinate start-failure copy
+          at line 207
+    [Failed]:  en owns Retry copy
+          at line 207
+    [Failed]:  [""] expected to equal ["Replay did not begin"]:
+          at line 207
+    [Failed]:  ["Replay"] expected to equal [""]:
+          at line 207
+    [Failed]:  [VECTOR2(392.0, 32.0)] expected to equal [VECTOR2(408.0, 568.0)]:
+          at line 208
+    [Failed]:  [VECTOR2(520.0, 36.0)] expected to equal [VECTOR2(360.0, 64.0)]:
+          at line 208
+    [Failed]:  [VECTOR2(408.0, 568.0)] expected to equal [VECTOR2(408.0, 488.0)]:
+          at line 208
+    [Failed]:  zh_CN owns determinate start-failure copy
+          at line 207
+    [Failed]:  zh_CN owns Retry copy
+          at line 207
+    [Failed]:  ["重播"] expected to equal [""]:
+          at line 207
+    [Failed]:  [VECTOR2(392.0, 32.0)] expected to equal [VECTOR2(408.0, 568.0)]:
+          at line 208
+    [Failed]:  [VECTOR2(520.0, 36.0)] expected to equal [VECTOR2(360.0, 64.0)]:
+          at line 208
+    [Failed]:  [VECTOR2(408.0, 568.0)] expected to equal [VECTOR2(408.0, 488.0)]:
+          at line 208
+    [Failed]:  zh_HK owns determinate start-failure copy
+          at line 207
+    [Failed]:  zh_HK owns Retry copy
+          at line 207
+    [Failed]:  ["重播"] expected to equal [""]:
+          at line 207
+    [Failed]:  [VECTOR2(392.0, 32.0)] expected to equal [VECTOR2(408.0, 568.0)]:
+          at line 208
+    [Failed]:  [VECTOR2(520.0, 36.0)] expected to equal [VECTOR2(360.0, 64.0)]:
+          at line 208
+    [Failed]:  [VECTOR2(408.0, 568.0)] expected to equal [VECTOR2(408.0, 488.0)]:
+          at line 208
+- test_exit_clears_start_error_and_denied_cancel_retains_active_replay
+    [Failed]:  ["This record could not play. Please try again."] expected to equal [""]:
+          at line 238
+
+res://tests/unit/test_gallery_start_failure_phase.gd
+- test_synchronous_physical_start_failure_returns_exact_retryable_start_identity
+    [Failed]:  [<null>] expected to equal [STRING_NAME(start)]:
+          at line 92
+    [Failed]:  [""] expected to equal ["c02fa3e08103a9e4ca440841db3000f7a63bb77d62fd54c328a6922fbdd6353e"]:
+          at line 93
+- test_deferred_runtime_start_failure_emits_exact_retryable_start_identity
+    [Failed]:  [<null>] expected to equal [STRING_NAME(start)]:
+          at line 118
+
+Totals
+------
+Scripts               2
+Tests                 9
+Passing Tests         3
+Failing Tests         6
+Asserts           152/190
+Orphans              24
+Time              0.847s
+
+
+---- 6 failing tests ----

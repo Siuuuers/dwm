@@ -1,0 +1,7 @@
+{
+  "schema": "dwm_retired_game_state_source.v1",
+  "source_commit": "226d3da868784baacc6fc33f58823f95b5815a51",
+  "source_sha256": "95073205c6016935a3fb6339f004129e0ac93cf8728e64f812a940891a27da5c",
+  "before_live_capture": "# ---- Detached run candidate seam (Plan-05 Task 3 Step 3.2) ----\n\nfunc prepare_run_candidate(snapshot: Dictionary) -> Dictionary:\n\tif typeof(snapshot) != TYPE_DICTIONARY or snapshot.is_empty():\n\t\treturn _transaction_failure(&\"invalid_run_candidate\", \"a snapshot input is required\")\n\treturn {\"ok\": true, \"code\": &\"ok\", \"value\": {\"candidate\": snapshot.duplicate(true)}, \"receipt\": {}}\n\n\n",
+  "before_live_restore": "func commit_run_candidate(candidate: Dictionary) -> Dictionary:\n\tif typeof(candidate) != TYPE_DICTIONARY or candidate.is_empty():\n\t\treturn _transaction_failure(&\"invalid_run_candidate\", \"candidate was not issued by this seam\")\n\treturn {\"ok\": true, \"code\": &\"ok\", \"value\": {\"committed\": true}, \"receipt\": {}}\n\n\n"
+}

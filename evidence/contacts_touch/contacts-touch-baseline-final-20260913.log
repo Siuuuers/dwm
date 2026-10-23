@@ -1,0 +1,21 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+FAIL: long-press release and emulated mouse do not open
+FAIL: fresh short tap opens once with mouse emulation enabled
+FAIL: short tap opens once; emulation=false
+FAIL: neutral after cancelled gestures rearms
+FAIL: drag out and return cannot become a tap
+FAIL: two rows touched in one gesture activate neither
+FAIL: second contact outside app also cancels
+FAIL: cancelled OS touch cannot open
+FAIL: neutral after cancelled gestures rearms
+FAIL: Pause cancels touch even when held until Continue
+FAIL: fresh tap works after Pause
+FAIL: window focus loss retires the gesture
+FAIL: fresh tap works after window focus returns
+FAIL: custody loss cancels without hiding app
+FAIL: fresh tap after custody returns is admitted
+CONTACTS_TOUCH_PROBE_FAILED checks=36 failures=15 opens=18

@@ -1,0 +1,18 @@
+extends SceneTree
+
+func _initialize() -> void:
+	if OS.get_environment("DWM_TEST_ROOT").is_empty():
+		quit(2)
+		return
+	if "--detach-settings" in OS.get_cmdline_user_args():
+		Engine.set_meta("dch_directory", DialogicResourceUtil.get_directory("dch").duplicate())
+	var event := DialogicTextEvent.new()
+	event._load_from_string("UnregisteredProbeSpeaker: Probe.")
+	var directory := DialogicResourceUtil.get_directory("dch")
+	print("PARSED_RUNTIME_RESOURCE ", directory.get("UnregisteredProbeSpeaker") is DialogicCharacter)
+	var settings: Dictionary = ProjectSettings.get_setting("dialogic/directories/dch_directory", {})
+	print("SETTINGS_ALIASES_RUNTIME_RESOURCE ", settings.get("UnregisteredProbeSpeaker") is DialogicCharacter)
+	if "--cleanup" in OS.get_cmdline_user_args():
+		directory.erase("UnregisteredProbeSpeaker")
+		print("REMOVED_RUNTIME_RESOURCE")
+	quit(0)

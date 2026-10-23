@@ -1,0 +1,94 @@
+{
+  "base_commit": "53829764cb4bdfc2f8a3d77bab073296205b8e96",
+  "tasks": [
+    "dwm-eei.2"
+  ],
+  "acceptance_suite": "settings-window-final-20260907b",
+  "counts": {
+    "Scripts": 48,
+    "Tests": 459,
+    "Passing Tests": 459,
+    "Asserts": 23304,
+    "Orphans": 864
+  },
+  "exit_code": 0,
+  "native_suite": "settings-window-native-20260907b",
+  "native_checks": 24,
+  "verified_window_backend": "Windows",
+  "sources": {
+    "autoload/ApplicationBootstrap.gd": "4246a60c3acc5082c203474c24cd0f45c24168519ff9f6fad8b9ae575df28eaf",
+    "autoload/AudioManager.gd": "f4b0d4f4c9386710ca07b80e8b10ee5d02d5f5c09885cf9c633e722b6eab1361",
+    "project.godot": "2456742ff0c042e8b7bca230f522bc15c6c81946e2d1f3cdb3ea6753693d638e",
+    "scripts/application/restore/ProfileRestoreParticipant.gd": "f87d569e18ef6fef3135e681fd769d24a25cf22ca15a6d8e5153a2fc6b2c6bc2",
+    "scripts/ui/SettingsContent.gd": "4d912b92a412e35b4b0a67703c90dcaa247f34a1dc86516e403973bf2d0bd1d5",
+    "scripts/ui/SettingsPanelController.gd": "850f8709d1ed4e35a3c875aa173ab10ade933e8ced7e2e8aff94bcaed8f6b37f",
+    "autoload/WindowModeManager.gd": "979e59a6188f6aceda8c3baf6ea19c25c0202d3edbd1c4e972c6c080dfb8fa5c",
+    "scripts/display/WindowModePort.gd": "065c2a7626070794b5f278b5d0b51a9bfafe470b3bf03c014b13af85f983e666",
+    "scripts/settings/SettingsOutputTransactions.gd": "1b89b898fbdff0b42b74e54288555b197c97ebe135afd897735104291aff4924",
+    "tests/manual/verify_window_mode_native.gd": "840903f427e171ac64c4bc20dfa454332df2295743934ea4c23583e2a133772b",
+    "tests/scene/test_settings_window_mode_live.gd": "a21c630c5cdf577bd34a63127db57adf0ba6c5547ab723dd4f6be2d84c4bd3c9",
+    "tests/unit/test_bootstrap_window_output.gd": "cab483db9c27af2ab40b4683cebb336ea70c1642276086b48ac916d03e903903",
+    "tests/unit/test_profile_window_restore.gd": "227532a7b16d31e6a500020ecc477124f361d0c3d48ed43e6be80c20fefccc71",
+    "tests/unit/test_settings_window_transactions.gd": "fe151102477f26940a6a8c113c77b0036aaa6ee54864b7532bb9c54b5132b531",
+    "tests/unit/test_window_mode_manager.gd": "6d9bd4ca916c46ecfd8ab77a836791877432eb4f6174c3bd5796bb57f4c4801d",
+    "tests/unit/test_window_mode_port.gd": "28c4e8c96955c849943c69d3c1f5f461874aa0ed34dfc5426ff387aca90267c8",
+    "tests/integration/test_desktop_crash_recovery.gd": "6440cb2434f22b9d8d75e4cc84c98a744b82ae9e41ddad79dca2f4f9c161b67b"
+  },
+  "source_git_blobs": {
+    "autoload/ApplicationBootstrap.gd": "88165b30623683418c78779dde57597f344ec0af",
+    "autoload/AudioManager.gd": "fcf26859ddb1bd06d431eaadba31999231219710",
+    "project.godot": "8bcd3ccf4ba1bbd30d643e8c16e815b9fa8ca3e6",
+    "scripts/application/restore/ProfileRestoreParticipant.gd": "46186d63e0b3a3923432d72682a907f074dcfed2",
+    "scripts/ui/SettingsContent.gd": "35d2566151ab7fdb252455e9ece27c961a27ab5b",
+    "scripts/ui/SettingsPanelController.gd": "b4a11fa693ee47f3da1390dc4a40b9bb2106068a",
+    "autoload/WindowModeManager.gd": "fc76b94b54429b71fe6f136f78cab636d6e2d915",
+    "scripts/display/WindowModePort.gd": "ee132fd57e45abeabfa73a04128c40e3c5873eed",
+    "scripts/settings/SettingsOutputTransactions.gd": "85464db700a7907d641a3fdab105578b95d79f6f",
+    "tests/manual/verify_window_mode_native.gd": "7db963dc73561f752b597dfb9c95065a67ec8f06",
+    "tests/scene/test_settings_window_mode_live.gd": "f61454a936794eac4a6dee64d1ef20299faa3c2e",
+    "tests/unit/test_bootstrap_window_output.gd": "6efcd0b293669f141747c9b86d4da42c7ee534b3",
+    "tests/unit/test_profile_window_restore.gd": "896eada29d4470024852e37ff3c338c55a4df705",
+    "tests/unit/test_settings_window_transactions.gd": "103286d1946b8d0056065ca2bd37a417cc44cfb2",
+    "tests/unit/test_window_mode_manager.gd": "0392b7a96c4a62c0a4b7138f3357d86d94f17372",
+    "tests/unit/test_window_mode_port.gd": "a52f39754e861aa1c87d3c588e10c008a070fe64",
+    "tests/integration/test_desktop_crash_recovery.gd": "797ee2e3c64f11b1adeb40636ee65916293ee9d2"
+  },
+  "source_hash_scope": "sources hashes tested working bytes; source_git_blobs binds repository-filtered content.",
+  "removed_source": "scripts/audio/AudioSettingsTransactions.gd",
+  "raw_log_sha256": {
+    ".godot/phase2r_logs/settings-window-outputs-20260907a.log": "32983a8ec7111cb919fbbf4f0aad1b7edca7bb467cefe54d58cfe62ff8dea468",
+    ".godot/phase2r_logs/settings-window-owners-20260907a.log": "27030cf8d7e982d843188a1f3f895b3b6c4be5dbd739ab4bd2e903f6e91fca13",
+    ".godot/phase2r_logs/settings-window-native-20260907a.log": "c15cad5f28dd4664774fdf148126e8e8b0d416c0a2efc1fb4f82bb27089cca81",
+    ".godot/phase2r_logs/settings-window-live-20260907a.log": "11b962ea55741c84b0ed3e2e0af82bd5b7cbf47d42d10013ac63eb928932c346",
+    ".godot/phase2r_logs/settings-window-final-20260907a.log": "88769f8e1d7f080ca9f07a04bd28f6b90c136ef2cc6304845ddecc88e52bc52c",
+    ".godot/phase2r_logs/settings-window-recovery-20260907b.log": "d72c3b97c79ba2e63e9a803e71ee709eeb2ec3ef0eb98c1ebb26e69b64a6067a",
+    ".godot/phase2r_logs/settings-window-final-20260907b.log": "2407feb1313f87f386fc56dbcdb60d6a2117ffd9eb3f66e7e1bac1743b2e7cd6",
+    ".godot/phase2r_logs/settings-window-native-20260907b.log": "c15cad5f28dd4664774fdf148126e8e8b0d416c0a2efc1fb4f82bb27089cca81"
+  },
+  "save_schema_changed": false,
+  "outer_restore_order_changed": false,
+  "headless_window_available": false,
+  "new_gpu_typography_captures": 0,
+  "full_settings_complete": false,
+  "overall_ui_goal_complete": false,
+  "player_data_used": false,
+  "merged": false,
+  "pushed": false,
+  "protected_worktrees": [
+    {
+      "path": "C:/Users/glori/Documents/dwm",
+      "head": "35afbcdcf7e12143478080b91a7c6c3079497371",
+      "tracked_dirty_paths": 20
+    },
+    {
+      "path": "C:/Users/glori/Documents/dwm-p2r13-resealed",
+      "head": "1790785bcfd37d2a27a0ecef81b9dc80fe501f71",
+      "tracked_dirty_paths": 47
+    }
+  ],
+  "known_diagnostics": [
+    "Windows certificate-store diagnostic retained",
+    "Unicode NUL and expected localization warnings retained",
+    "Dialogic fixture orphan counts retained; no leak-free acceptance claim"
+  ]
+}

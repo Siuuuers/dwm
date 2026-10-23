@@ -1,0 +1,547 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/9cf46d52-f8ab-45f9-ac6a-eb77b65356df/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+res://tests/unit/test_save_manager_checkpoint_port.gd
+* test_prepare_consequence_checkpoint_builds_a_candidate_and_receipt
+* test_prepare_consequence_checkpoint_attaches_the_receipt_to_the_admission_candidate
+* test_commit_consequence_checkpoint_retains_and_rereads_in_same_process
+* test_issued_transient_record_cache_is_bounded_and_cleared_with_transient_state
+* test_commit_consequence_checkpoint_rejects_a_receipt_mismatch
+* test_known_issued_checkpoint_rejects_equal_float_payload_before_first_commit
+* test_supplied_checkpoint_receipt_rejects_equal_float_ordinal
+* test_known_issued_checkpoint_accepts_string_name_aliases_after_normalization
+* test_cache_evicted_prepared_checkpoint_still_commits_through_cold_validation
+* test_commit_consequence_checkpoint_rejects_malformed_or_uncanonicalizable_records
+* test_commit_consequence_checkpoint_replays_an_identical_rewrite_at_an_occupied_slot
+* test_commit_consequence_checkpoint_rejects_a_different_rewrite_at_an_occupied_slot
+* test_a_committed_admission_checkpoint_reads_back_and_validates
+* test_abandon_pending_consequence_checkpoint_marks_a_pre_admission_checkpoint_abandoned
+* test_abandon_pending_consequence_checkpoint_rejects_a_nonexistent_transaction
+* test_abandon_pending_consequence_checkpoint_rejects_an_already_admitted_transaction
+* test_read_pending_consequence_checkpoint_finds_nothing_when_no_checkpoint_exists
+* test_clear_transient_consequence_checkpoints_is_explicit_and_complete
+* test_clear_transient_consequence_checkpoints_does_not_depend_on_storage_readiness
+* test_fresh_port_ignores_and_preserves_every_legacy_sidecar_artifact
+* test_prepare_consequence_checkpoint_requires_configuration
+* test_checkpoint_content_preimage_is_the_sole_builder
+* test_prepare_consequence_checkpoint_rejects_a_bad_ordinal_stage_pairing_at_ordinal_0
+* test_prepare_consequence_checkpoint_rejects_a_bad_ordinal_stage_pairing_at_ordinal_9
+* test_restart_drops_unfinished_action_but_preserves_completed_post_result_autosave
+25/25 passed.
+
+
+res://tests/unit/test_desktop_consequence_state.gd
+* test_make_empty_produces_valid_zeroed_state
+* test_make_empty_rejects_id_only_or_mismatched_provenance
+* test_validate_rejects_extra_and_missing_top_level_keys
+* test_capture_and_restore_round_trip
+* test_prepare_action_handoff_creates_pending_at_action_prepared
+* test_prepare_action_handoff_rejects_second_concurrent_pending
+* test_prepare_action_handoff_rejects_stale_run_revision
+* test_prepare_schedule_recovery_transport_creates_pending_at_prepared_checkpointed
+* test_prepare_sequence_reservation_advances_to_sequence_committed
+* test_prepare_sequence_reservation_rejects_out_of_order_sequence
+* test_prepare_recovery_advance_ordinary_edge_to_publication_pending
+* test_prepare_recovery_advance_rejects_a_publication_plan_hash_mismatch
+* test_prepare_recovery_advance_rejects_stage_mismatch
+* test_prepare_recovery_advance_terminal_cleanup_requires_complete_cursor
+* test_checkpoint_content_preimage_omits_admission_receipt_only_at_admission
+* test_checkpoint_content_preimage_detaches_nested_admission_and_later_candidates
+* test_prepare_outbox_publication_toggles_exactly_one_bit
+* test_prepare_outbox_publication_rejects_wrong_payload_hash
+* test_commit_is_a_transaction_ledger_via_restore_replay
+* test_commit_is_a_transaction_ledger_for_action_handoff_replay
+* test_commit_rejects_changed_bytes_at_an_occupied_ledger_key
+* test_prepare_recovery_advance_ordinary_edge_operation_ordinal_matches_frozen_table
+* test_prepare_recovery_advance_callback_progress_operation_ordinal_is_sequential
+* test_prepare_recovery_advance_terminal_cleanup_operation_ordinal_is_twelve
+* test_rollback_restores_the_captured_backup
+* test_validate_recovery_payload_rejects_hash_mismatch
+* test_validate_recovery_payload_rejects_wrong_source_kind_shape
+* test_validate_recovery_payload_accepts_both_phases_and_rejects_violations
+* test_make_empty_seeds_a_zeroed_shop_ledger
+* test_validate_rejects_extra_and_missing_shop_ledger_keys
+* test_validate_rejects_a_malformed_base_completion_receipt
+* test_prepare_record_base_completion_appends_and_is_content_idempotent
+* test_prepare_record_base_completion_rejects_a_malformed_receipt
+* test_prepare_record_supportz_purchase_increments_count_and_sets_the_last_purchase_day
+* test_prepare_record_supportz_purchase_is_idempotent_via_the_transaction_ledger
+* test_supportz_eligibility_state_projects_the_capability_rules_exact_four_key_shape
+* test_supportz_eligibility_state_filters_completions_by_causal_day
+* test_supportz_eligibility_state_reflects_daily_purchase_done_after_a_recorded_purchase
+* test_terminal_cleanup_retains_a_self_contained_destination_record
+39/39 passed.
+
+
+res://tests/unit/test_checkpoint_preparation_retry.gd
+* test_transient_prepare_read_failure_keeps_explicit_retry_and_exact_candidate_without_journal_or_disk_mutation
+* test_corrupt_durable_final_is_refused_with_artifacts_and_journal_preserved
+* test_changed_but_valid_bytes_refuse_current_attempt_then_require_explicit_new_preparation
+3/3 passed.
+
+
+res://tests/unit/test_checkpoint_validation_reuse.gd
+* test_reuse_preserves_saved_bytes_and_every_disk_operation_across_three_commits
+* test_detached_candidate_normalization_matches_uncached_bytes_and_physical_trace
+* test_non_object_outgoing_values_match_uncached_failure_without_physical_mutation
+* test_schema_invalid_and_canonical_invalid_candidates_preserve_reference_precedence
+* test_cache_is_exact_text_success_only_and_detaches_nested_results
+* test_corrupt_next_final_and_backup_keep_existing_recovery_results_and_disk_trace
+* test_schema_valid_changed_reread_is_rejected_before_journal_commit
+* test_failed_reread_retry_has_a_fresh_validation_scope_and_commits_once
+* test_prepared_validation_is_not_reused_after_a_process_frame
+* test_new_prepare_and_released_custody_discard_prepared_validation
+* test_committed_documents_are_remembered_bounded_and_forgotten_on_capability_change
+* test_a_failed_commit_proves_nothing
+* test_mutated_outgoing_document_fails_and_retry_revalidates_preimage
+13/13 passed.
+
+
+res://tests/unit/test_desktop_consequence_coordinator.gd
+* test_coordinator_script_loads
+* test_coordinator_instantiates
+* test_configure_action_source_ports_rejects_the_same_object_for_both_roles
+* test_configure_condition_departure_ports_requires_action_source_ports_first
+* test_accept_prepared_action_rejects_before_condition_departure_ports_configured
+* test_accept_prepared_action_no_departure_commits_and_publishes
+* test_accept_prepared_action_duplicate_replay_returns_identical_result
+* test_accept_prepared_action_changed_bytes_at_same_identity_conflicts
+* test_accept_prepared_action_departure_discards_the_preparing_board_and_commits_the_view
+* test_accept_prepared_action_minesweeper_round_departure_uses_the_action_candidate_projection_not_the_live_board
+* test_accept_prepared_action_departure_retains_the_gate_through_board_fate_publish_and_releases_after
+* test_accept_prepared_action_abandons_a_pre_admission_pending_when_departure_ports_are_unconfigured
+* test_resume_pending_abandons_a_restored_pre_admission_pending_and_bootstrap_does_not_fail
+* test_resume_pending_is_idempotent_when_nothing_is_pending
+* test_resume_pending_completes_forward_recovery_after_a_reconstructed_coordinator
+* test_accept_prepared_action_shop_purchase_no_departure_returns_the_frozen_value_and_receipt_key_sets
+* test_accept_prepared_action_shop_purchase_departure_returns_the_frozen_value_and_receipt_key_sets
+* test_accept_prepared_action_minesweeper_round_no_departure_returns_the_frozen_value_and_receipt_key_sets
+* test_accept_prepared_action_minesweeper_round_departure_returns_the_frozen_value_and_receipt_key_sets
+* test_accept_prepared_action_departure_with_destination_intent_lands_it_in_the_final_value
+* test_accept_prepared_action_no_departure_with_notification_intent_lands_it_in_the_final_value
+* test_accept_prepared_action_no_departure_with_neither_intent_leaves_both_null
+* test_accept_prepared_action_departure_intent_lands_in_the_persisted_pending_record_exactly_once_across_a_forward_recovery_replay
+* test_validate_ordinal_stage_pairing_accepts_the_documented_pairing
+* test_validate_ordinal_stage_pairing_rejects_a_mismatched_pairing
+* test_adopt_durable_checkpoint_if_live_is_behind_adopts_from_the_durable_checkpoint
+* test_resume_pending_adopts_and_completes_a_pending_transaction_from_the_durable_checkpoint
+* test_adopt_durable_checkpoint_if_live_is_behind_is_a_no_op_when_nothing_is_pending
+* test_a_completed_transaction_retains_the_days_condition_receipt
+* test_a_second_action_on_the_same_day_replaces_the_retained_receipt
+* test_full_completion_save_precedes_terminal_cleanup_and_retry_keeps_one_checkpoint
+* test_full_completion_save_failure_keeps_pending_and_does_not_write_terminal_sidecar
+* test_restart_resumes_frozen_ordinal_one_without_repeating_policy_or_source_effects
+* test_restart_abandons_source_only_ordinal_zero_with_production_departure_ports_configured
+34/34 passed.
+
+
+res://tests/unit/test_desktop_publication_ledger.gd
+* test_fixed_path_and_kinds_are_frozen
+* test_missing_file_initializes_the_exact_empty_document
+* test_three_exact_kind_unions_accepted_and_extra_kind_rejected
+* test_document_and_record_union_is_exact_after_one_publication
+* test_causal_sequence_keys_are_nonblank_and_distinct_per_transaction
+* test_action_source_key_derives_from_commit_receipt_id_not_receipt_id
+* test_board_fate_key_derives_from_ordinary_receipt_id
+* test_causal_sequence_semantic_receipt_equals_publication_in_its_entirety
+* test_first_delivery_then_byte_identical_replay_across_a_cold_restart
+* test_occupied_key_with_changed_bytes_conflicts_without_rewriting_storage
+* test_request_hash_and_receipt_binding_enforced_before_any_write
+* test_configure_requires_the_root_scoped_capability_and_refuses_replacement
+* test_load_fails_closed_on_malformed_on_disk_json
+* test_exact_text_validation_cache_is_bounded_and_changed_bytes_fail_closed
+* test_disjoint_from_plan01_schedule_foundation_ledger
+15/15 passed.
+
+
+res://tests/unit/test_desktop_continuation_operation_journal.gd
+* test_continuation_journal_skeletons_load
+* test_journal_public_surface_adds_only_explicit_new_run_target_proof
+* test_v4_combines_durable_new_run_targets_with_the_schedule_view_participant
+* test_the_journal_document_and_operation_record_have_exactly_the_frozen_key_sets
+* test_every_legal_and_illegal_stage_transition_is_enforced
+* test_stage_transition_evidence_is_permitted_only_at_the_frozen_edges
+* test_new_run_and_restore_have_mutually_exclusive_source_and_context_fields
+* test_new_run_requires_exactly_empty_dialogic_and_audio_subcontexts
+* test_the_intent_must_be_committed_before_any_allocation_is_recorded
+* test_the_nine_participants_apply_in_exactly_the_frozen_order
+* test_each_participant_receipt_has_identical_replay_and_changed_receipt_conflict
+* test_applying_index_nine_rejects_safely_before_participant_array_access
+* test_a_skipped_participant_index_is_refused
+* test_an_illegal_backward_stage_edge_is_refused
+* test_a_restore_source_that_no_longer_hashes_the_same_is_refused
+* test_a_new_run_context_is_rehashed_without_consulting_the_loader
+* test_identical_replays_return_the_retained_operation_at_every_stage
+* test_every_changed_advancement_family_conflicts_before_storage_mutation
+* test_list_incomplete_returns_only_nonterminal_operations
+* test_startup_reconciles_a_clean_restart_forward
+* test_startup_reconciliation_is_no_op_for_terminal_operations
+* test_startup_rejects_malformed_issued_transaction_receipts
+* test_startup_proves_the_original_restore_source_before_clearing_an_identical_diagnostic
+* test_new_run_proof_clears_diagnostics_at_every_nonterminal_post_allocation_stage
+* test_terminal_stages_refuse_recovery_diagnostics_without_mutation
+* test_restore_diagnostics_clear_at_applying_and_applied_through_real_json_storage
+* test_proof_failure_retains_both_kinds_at_every_nonterminal_post_allocation_stage
+* test_diagnostic_clear_write_failure_retains_and_retries_both_kinds_at_every_stage
+* test_a_restore_pre_allocation_failure_aborts_with_a_typed_failure_and_no_live_mutation
+* test_an_allocated_operation_retains_its_receipt_and_can_never_be_aborted
+* test_an_irreversible_recovery_diagnostic_holds_the_stage_and_never_permits_input
+* test_a_retained_diagnostic_blocks_every_forward_advance_until_reconciled
+* test_committed_new_run_is_forward_only_and_requires_ordered_target_proofs
+* test_exact_text_validation_window_is_bounded_detached_and_never_admits_other_bytes
+34/34 passed.
+
+
+res://tests/unit/test_minesweeper_round_coordinator.gd
+* test_base_configure_accepts_the_same_durable_port_without_legacy_seal
+* test_configure_consequence_port_rejects_before_it_is_configured
+* test_configure_consequence_checkpoint_rejects_an_invalid_state_port
+* test_complete_round_requires_a_terminal_board
+* test_complete_round_delegates_to_accept_prepared_action_with_a_valid_receipt
+* test_complete_round_never_changes_live_board_truth_even_when_delegation_fails
+* test_complete_round_duplicate_replay_returns_identical_result
+* test_complete_round_retries_after_a_transient_accept_prepared_action_failure
+* test_complete_round_releases_the_gate_when_accept_prepared_action_abandons_a_pre_admission_pending
+* test_commit_recovery_action_adopts_the_board_projection_and_rejects_without_the_gate
+* test_publish_recovery_action_retains_the_gate_until_release_recovery_lease
+* test_coordinator_script_loads
+* test_coordinator_instantiates
+* test_configure_is_idempotent_on_identical_replay
+* test_configure_rejects_a_replacement_port
+* test_configure_rejects_a_port_missing_required_methods
+* test_get_entry_context_is_eligible_from_fresh_none_phase
+* test_get_entry_context_is_not_eligible_when_motivation_exhausted
+* test_get_entry_context_is_not_eligible_once_phase_leaves_none
+* test_debug_preparation_reaches_prepared_unstarted
+* test_first_reveal_from_none_produces_the_exact_frozen_receipt_shape
+* test_first_reveal_charges_exactly_once_and_advances_ordinal
+* test_first_reveal_receipt_provenance_validates_against_the_issuer
+* test_first_reveal_receipt_provenance_rejects_a_tampered_member
+* test_default_and_lucky_remain_none_until_reveal
+* test_first_reveal_adopts_a_certified_debug_candidate
+* test_first_reveal_rejects_a_difficulty_id_that_does_not_match_the_certified_candidate
+* test_duplicate_first_reveal_replays_the_original_receipt_without_recharging
+* test_changed_payload_on_the_same_transaction_id_conflicts
+* test_stale_revision_is_rejected
+* test_identity_mismatch_is_rejected
+* test_a_forged_transaction_receipt_is_rejected
+* test_a_receipt_whose_token_does_not_match_the_transaction_id_is_rejected
+* test_materialize_failure_charges_nothing
+* test_checkpoint_prepare_failure_charges_nothing
+* test_checkpoint_commit_failure_charges_nothing_and_needs_no_rollback
+* test_state_commit_failure_rolls_back_the_already_committed_checkpoint
+* test_seal_failure_rolls_back_board_state_and_state_port_and_checkpoint
+* test_seal_failure_leaves_the_ledger_without_a_recorded_transaction
+* test_publish_failure_after_seal_returns_committed_unpublished_and_keeps_the_commit
+* test_retry_after_committed_unpublished_publishes_the_existing_receipt_and_never_recharges
+* test_double_rollback_failure_latches_fatal_and_refuses_subsequent_calls
+* test_checkpoint_port_reports_never_production
+* test_routine_reveal_commits_a_new_board_revision_without_touching_the_other_ports
+* test_suspend_then_resume_round_trips_through_the_coordinator
+* test_set_flag_flags_a_hidden_cell
+* test_older_board_and_visibility_retries_acknowledge_without_reapplying
+* test_duplicate_terminal_causing_reveal_replays_without_reaching_the_reducer
+* test_terminal_mine_retains_the_exact_pre_input_completed_board
+* test_terminal_chord_retains_flags_and_reveals_from_before_the_chord
+* test_failed_or_stale_commands_do_not_replace_a_terminal_replay_point
+* test_complete_round_safe_marker_substitutes_the_matching_pre_terminal_board
+* test_complete_round_without_a_matching_pre_input_board_never_captures_an_unsettled_autosave
+* test_get_state_returns_the_board_state_capture
+54/54 passed.
+
+
+res://tests/integration/test_minesweeper_round_coordinator.gd
+* test_configure_ok_and_begin_requires_config
+* test_begin_round_sets_active_and_counts
+* test_begin_when_active_is_rejected
+* test_complete_round_full_flow_releases_lock
+* test_complete_duplicate_returns_stored_receipt_with_zero_calls
+* test_complete_wrong_round_id_is_rejected
+* test_complete_invalid_result_is_rejected
+* test_abort_round_releases_lock
+* test_round_start_publication_failure_recovers_without_latching
+* test_minesweeper_recovery_nonprimitive_failure_projects_then_returns_retained_application_fatal
+* test_recovery_failure_latches_once_and_returns_only_the_retained_application_fatal
+* test_a_latched_fatal_blocks_every_later_operation_at_the_first_guard
+* test_committed_unpublished_retry_resumes_only_its_recorded_phase
+* test_lock_release_pending_retry_never_republishes
+* test_conflicting_retries_mutate_nothing_in_either_pending_phase
+* test_exact_duplicate_after_release_returns_the_stored_receipt_then_conflicts_on_variation
+* test_guard_first_op_when_fatal_latched
+* test_dating_round_takes_its_evidence_from_the_state_port_not_the_request
+* test_dating_round_ignores_caller_supplied_friend_and_entry_identifiers
+* test_dating_round_completes_through_the_same_two_boundary_transaction
+* test_app_round_never_carries_dating_evidence
+* test_dating_route_not_active_surfaces_its_own_code
+* test_domain_availability_failures_surface_their_own_codes
+* test_other_prepare_begin_failures_remain_state_prepare_failed
+24/24 passed.
+
+
+res://tests/integration/test_minesweeper_desktop_host.gd
+* test_launcher_reveal_home_reopen_retains_real_session_and_cached_grid
+    35 Orphans
+        * [@Button@236:<Button#27833485233792>(MinesweeperActionButton.gd)]
+        * [@Button@201:<Button#27827613208290>(MinesweeperActionButton.gd)]
+        * [@Control@239:<Control#27833938218731>(/Unregistered-Inner-Class)]
+        * [@Control@240:<Control#27834038882028>(/Unregistered-Inner-Class)]
+        * [@Control@241:<Control#27834139545331>(/Unregistered-Inner-Class)]
+        * [@Button@237:<Button#27833636228860>(MinesweeperActionButton.gd)]
+        * [@Button@271:<Button#27838853943038>(MinesweeperActionButton.gd)]
+        * [@Control@277:<Control#27839608917760>(/Unregistered-Inner-Class)]
+        * [@Button@273:<Button#27839155932936>(MinesweeperActionButton.gd)]
+        * [@Control@242:<Control#27834240208700>(/Unregistered-Inner-Class)]
+        * [@Button@238:<Button#27833787223876>(MinesweeperActionButton.gd)]
+        * [@Button@341:<Button#27851369746252>(MinesweeperActionButton.gd)]
+        * [@Control@207:<Control#27828368183117>(/Unregistered-Inner-Class)]
+        * [@Button@203:<Button#27827915198293>(MinesweeperActionButton.gd)]
+        * [@Control@204:<Control#27828066193249>(/Unregistered-Inner-Class)]
+        * [@Control@205:<Control#27828166856546>(/Unregistered-Inner-Class)]
+        * [@Control@206:<Control#27828267519849>(/Unregistered-Inner-Class)]
+        * [@Button@202:<Button#27827764203378>(MinesweeperActionButton.gd)]
+        * [@Control@274:<Control#27839306927995>(/Unregistered-Inner-Class)]
+        * [@Control@275:<Control#27839407591292>(/Unregistered-Inner-Class)]
+        * [@Control@276:<Control#27839508254595>(/Unregistered-Inner-Class)]
+        * [@Button@272:<Button#27839004938124>(MinesweeperActionButton.gd)]
+        * [@Button@306:<Button#27844474310542>(MinesweeperActionButton.gd)]
+        * [@Control@312:<Control#27845229285266>(/Unregistered-Inner-Class)]
+        * [@Button@308:<Button#27844776300442>(MinesweeperActionButton.gd)]
+        * [@Control@309:<Control#27844927295398>(/Unregistered-Inner-Class)]
+        * [@Control@310:<Control#27845027958695>(/Unregistered-Inner-Class)]
+        * [@Control@311:<Control#27845128621998>(/Unregistered-Inner-Class)]
+        * [@Button@307:<Button#27844625305527>(MinesweeperActionButton.gd)]
+        * [@Control@347:<Control#27852124721085>(/Unregistered-Inner-Class)]
+        * [@Button@343:<Button#27851671736261>(MinesweeperActionButton.gd)]
+        * [@Control@344:<Control#27851822731217>(/Unregistered-Inner-Class)]
+        * [@Control@345:<Control#27851923394514>(/Unregistered-Inner-Class)]
+        * [@Control@346:<Control#27852024057817>(/Unregistered-Inner-Class)]
+        * [@Button@342:<Button#27851520741346>(MinesweeperActionButton.gd)]
+* test_app_back_suspends_once_before_host_hides_and_reopens_same_instance
+    35 Orphans
+        * [@Control@659:<Control#27911969049588>(/Unregistered-Inner-Class)]
+        * [@Control@622:<Control#27906986216499>(/Unregistered-Inner-Class)]
+        * [@Control@660:<Control#27912069712992>(/Unregistered-Inner-Class)]
+        * [@Control@624:<Control#27907187543199>(/Unregistered-Inner-Class)]
+        * [@Button@620:<Button#27906684226725>(MinesweeperActionButton.gd)]
+        * [@Control@588:<Control#27901449735403>(/Unregistered-Inner-Class)]
+        * [@Control@587:<Control#27901349072108>(/Unregistered-Inner-Class)]
+        * [@Button@450:<Button#27887642086652>(MinesweeperActionButton.gd)]
+        * [@Control@553:<Control#27895728704766>(/Unregistered-Inner-Class)]
+        * [@Control@554:<Control#27895829368068>(/Unregistered-Inner-Class)]
+        * [@Button@550:<Button#27895326051597>(MinesweeperActionButton.gd)]
+        * [@Button@654:<Button#27911314738447>(MinesweeperActionButton.gd)]
+        * [@Control@590:<Control#27901651062045>(/Unregistered-Inner-Class)]
+        * [@Button@586:<Button#27901198077221>(MinesweeperActionButton.gd)]
+        * [@Control@552:<Control#27895628041655>(/Unregistered-Inner-Class)]
+        * [@Control@456:<Control#27888397061583>(/Unregistered-Inner-Class)]
+        * [@Button@452:<Button#27887944076766>(MinesweeperActionButton.gd)]
+        * [@Control@454:<Control#27888195735021>(/Unregistered-Inner-Class)]
+        * [@Button@551:<Button#27895477046766>(MinesweeperActionButton.gd)]
+        * [@Button@451:<Button#27887793081857>(MinesweeperActionButton.gd)]
+        * [@Control@555:<Control#27895930031659>(/Unregistered-Inner-Class)]
+        * [@Control@453:<Control#27888095071832>(/Unregistered-Inner-Class)]
+        * [@Control@455:<Control#27888296398429>(/Unregistered-Inner-Class)]
+        * [@Control@623:<Control#27907086880357>(/Unregistered-Inner-Class)]
+        * [@Button@621:<Button#27906835222132>(MinesweeperActionButton.gd)]
+        * [@Button@619:<Button#27906533232245>(MinesweeperActionButton.gd)]
+        * [@Button@585:<Button#27901047082614>(MinesweeperActionButton.gd)]
+        * [@Control@625:<Control#27907288206971>(/Unregistered-Inner-Class)]
+        * [@Button@549:<Button#27895175057088>(MinesweeperActionButton.gd)]
+        * [@Control@658:<Control#27911868387064>(/Unregistered-Inner-Class)]
+        * [@Button@656:<Button#27911616728848>(MinesweeperActionButton.gd)]
+        * [@Button@655:<Button#27911465733933>(MinesweeperActionButton.gd)]
+        * [@Control@657:<Control#27911767723833>(/Unregistered-Inner-Class)]
+        * [@Button@584:<Button#27900896087878>(MinesweeperActionButton.gd)]
+        * [@Control@589:<Control#27901550399377>(/Unregistered-Inner-Class)]
+* test_information_sheets_block_host_home_and_app_back_without_commands
+    47 Orphans
+        * [@Button@897:<Button#27956780993842>(MinesweeperActionButton.gd)]
+        * [@Control@766:<Control#27943979978035>(/Unregistered-Inner-Class)]
+        * [@Control@767:<Control#27944080641374>(/Unregistered-Inner-Class)]
+        * [@Control@769:<Control#27944281968014>(/Unregistered-Inner-Class)]
+        * [@Button@862:<Button#27951059963293>(MinesweeperActionButton.gd)]
+        * [@Button@763:<Button#27943526993443>(MinesweeperActionButton.gd)]
+        * [@Button@765:<Button#27943828983393>(MinesweeperActionButton.gd)]
+        * [@Control@768:<Control#27944181305057>(/Unregistered-Inner-Class)]
+        * [@Button@764:<Button#27943677988804>(MinesweeperActionButton.gd)]
+        * [@Control@904:<Control#27957720518639>(MinesweeperInformationSheet.gd)] + 9
+        * [@Control@868:<Control#27951814938714>(/Unregistered-Inner-Class)]
+        * [@Button@864:<Button#27951361953890>(MinesweeperActionButton.gd)]
+        * [@Control@865:<Control#27951512948846>(/Unregistered-Inner-Class)]
+        * [@Control@866:<Control#27951613612143>(/Unregistered-Inner-Class)]
+        * [@Control@867:<Control#27951714275446>(/Unregistered-Inner-Class)]
+        * [@Button@863:<Button#27951210958975>(MinesweeperActionButton.gd)]
+        * [@Control@914:<Control#27963240222852>(MinesweeperInformationSheet.gd)] + 15
+        * [@Control@903:<Control#27957535969415>(/Unregistered-Inner-Class)]
+        * [@Button@899:<Button#27957082984591>(MinesweeperActionButton.gd)]
+        * [@Control@900:<Control#27957233979547>(/Unregistered-Inner-Class)]
+        * [@Control@901:<Control#27957334642844>(/Unregistered-Inner-Class)]
+        * [@Control@902:<Control#27957435306147>(/Unregistered-Inner-Class)]
+        * [@Button@898:<Button#27956931989676>(MinesweeperActionButton.gd)]
+* test_stale_home_keeps_app_visible_and_host_active_without_allocating_or_spending
+    28 Orphans
+        * [@Button@1032:<Button#27998354934746>(MinesweeperActionButton.gd)]
+        * [@Control@1205:<Control#28017682287890>(/Unregistered-Inner-Class)]
+        * [@Button@1131:<Button#28005887905096>(MinesweeperActionButton.gd)]
+        * [@Button@1033:<Button#27998505930085>(MinesweeperActionButton.gd)]
+        * [@Control@1037:<Control#27999009246700>(/Unregistered-Inner-Class)]
+        * [@Control@1035:<Control#27998807920112>(/Unregistered-Inner-Class)]
+        * [@Control@1036:<Control#27998908583425>(/Unregistered-Inner-Class)]
+        * [@Control@1137:<Control#28006642880023>(/Unregistered-Inner-Class)]
+        * [@Control@1136:<Control#28006542216734>(/Unregistered-Inner-Class)]
+        * [@Button@1133:<Button#28006189895204>(MinesweeperActionButton.gd)]
+        * [@Control@1204:<Control#28017581624893>(/Unregistered-Inner-Class)]
+        * [@Button@1034:<Button#27998656925272>(MinesweeperActionButton.gd)]
+        * [@Control@1038:<Control#27999109910109>(/Unregistered-Inner-Class)]
+        * [@Control@1170:<Control#28012162584176>(/Unregistered-Inner-Class)]
+        * [@Control@1206:<Control#28017782951545>(/Unregistered-Inner-Class)]
+        * [@Control@1134:<Control#28006340890260>(/Unregistered-Inner-Class)]
+        * [@Control@1135:<Control#28006441553559>(/Unregistered-Inner-Class)]
+        * [@Button@1132:<Button#28006038900382>(MinesweeperActionButton.gd)]
+        * [@Control@1172:<Control#28012363910824>(/Unregistered-Inner-Class)]
+        * [@Button@1168:<Button#28011910926002>(MinesweeperActionButton.gd)]
+        * [@Button@1202:<Button#28017279635148>(MinesweeperActionButton.gd)]
+        * [@Control@1171:<Control#28012263247656>(/Unregistered-Inner-Class)]
+        * [@Button@1167:<Button#28011759931298>(MinesweeperActionButton.gd)]
+        * [@Button@1203:<Button#28017430630319>(MinesweeperActionButton.gd)]
+        * [@Control@1207:<Control#28017883615153>(/Unregistered-Inner-Class)]
+        * [@Button@1201:<Button#28017128640439>(MinesweeperActionButton.gd)]
+        * [@Control@1169:<Control#28012061921247>(/Unregistered-Inner-Class)]
+        * [@Button@1166:<Button#28011608936552>(MinesweeperActionButton.gd)]
+* test_unsettled_terminal_cannot_hide_the_host_or_spend_another_round
+    21 Orphans
+        * [@Button@1444:<Button#28071000280229>(MinesweeperActionButton.gd)]
+        * [@Control@1316:<Control#28058501254403>(/Unregistered-Inner-Class)]
+        * [@Control@1314:<Control#28058299927910>(/Unregistered-Inner-Class)]
+        * [@Button@1312:<Button#28058048269756>(MinesweeperActionButton.gd)]
+        * [@Button@1409:<Button#28065279249930>(MinesweeperActionButton.gd)]
+        * [@Control@1414:<Control#28065933561378>(/Unregistered-Inner-Class)]
+        * [@Control@1313:<Control#28058199264873>(/Unregistered-Inner-Class)]
+        * [@Control@1315:<Control#28058400591476>(/Unregistered-Inner-Class)]
+        * [@Control@1448:<Control#28071553928928>(/Unregistered-Inner-Class)]
+        * [@Control@1447:<Control#28071453265660>(/Unregistered-Inner-Class)]
+        * [@Control@1449:<Control#28071654592253>(/Unregistered-Inner-Class)]
+        * [@Button@1311:<Button#28057897275135>(MinesweeperActionButton.gd)]
+        * [@Control@1450:<Control#28071755255566>(/Unregistered-Inner-Class)]
+        * [@Control@1415:<Control#28066034224984>(/Unregistered-Inner-Class)]
+        * [@Control@1413:<Control#28065832898399>(/Unregistered-Inner-Class)]
+        * [@Control@1412:<Control#28065732235105>(/Unregistered-Inner-Class)]
+        * [@Button@1411:<Button#28065581240179>(MinesweeperActionButton.gd)]
+        * [@Button@1445:<Button#28071151275908>(MinesweeperActionButton.gd)]
+        * [@Button@1446:<Button#28071302270857>(MinesweeperActionButton.gd)]
+        * [@Button@1410:<Button#28065430245385>(MinesweeperActionButton.gd)]
+        * [@Button@1310:<Button#28057746280492>(MinesweeperActionButton.gd)]
+* test_unconfigured_production_route_remains_unavailable_without_an_injected_ready_port
+* test_desktop_rejects_port_and_host_rebinding_without_replacing_working_owners
+    14 Orphans
+        * [@Button@1559:<Button#28121046715663>(MinesweeperActionButton.gd)]
+        * [@Button@1557:<Button#28120744725991>(MinesweeperActionButton.gd)]
+        * [@Control@1659:<Control#28128730680879>(/Unregistered-Inner-Class)]
+        * [@Control@1661:<Control#28128932007474>(/Unregistered-Inner-Class)]
+        * [@Control@1660:<Control#28128831344251>(/Unregistered-Inner-Class)]
+        * [@Button@1657:<Button#28128428691080>(MinesweeperActionButton.gd)]
+        * [@Control@1563:<Control#28121499701023>(/Unregistered-Inner-Class)]
+        * [@Button@1658:<Button#28128579686385>(MinesweeperActionButton.gd)]
+        * [@Control@1662:<Control#28129032671239>(/Unregistered-Inner-Class)]
+        * [@Button@1656:<Button#28128277696538>(MinesweeperActionButton.gd)]
+        * [@Control@1562:<Control#28121399038045>(/Unregistered-Inner-Class)]
+        * [@Control@1561:<Control#28121298374855>(/Unregistered-Inner-Class)]
+        * [@Button@1558:<Button#28120895721673>(MinesweeperActionButton.gd)]
+        * [@Control@1560:<Control#28121197711581>(/Unregistered-Inner-Class)]
+* test_real_profile_input_owner_is_forwarded_to_the_cached_app_and_rebound_keyboard_route
+    21 Orphans
+        * [@Control@1868:<Control#28166345198677>(/Unregistered-Inner-Class)]
+        * [@Control@1940:<Control#28188960886074>(/Unregistered-Inner-Class)]
+        * [@Button@1935:<Button#28188356906355>(MinesweeperActionButton.gd)]
+        * [@Button@1901:<Button#28184028384647>(MinesweeperActionButton.gd)]
+        * [@Control@1902:<Control#28184179379655>(/Unregistered-Inner-Class)]
+        * [@Control@1867:<Control#28166244535797>(/Unregistered-Inner-Class)]
+        * [@Control@1903:<Control#28184280043018>(/Unregistered-Inner-Class)]
+        * [@Control@1905:<Control#28184481369630>(/Unregistered-Inner-Class)]
+        * [@Control@1939:<Control#28188860223011>(/Unregistered-Inner-Class)]
+        * [@Button@1934:<Button#28188205911605>(MinesweeperActionButton.gd)]
+        * [@Button@1936:<Button#28188507901522>(MinesweeperActionButton.gd)]
+        * [@Control@1904:<Control#28184380706433>(/Unregistered-Inner-Class)]
+        * [@Button@1864:<Button#28165791551129>(MinesweeperActionButton.gd)]
+        * [@Button@1900:<Button#28183877390079>(MinesweeperActionButton.gd)]
+        * [@Button@1866:<Button#28166093541197>(MinesweeperActionButton.gd)]
+        * [@Control@1869:<Control#28166445862940>(/Unregistered-Inner-Class)]
+        * [@Control@1870:<Control#28166546526238>(/Unregistered-Inner-Class)]
+        * [@Button@1899:<Button#28183726395435>(MinesweeperActionButton.gd)]
+        * [@Control@1938:<Control#28188759560308>(/Unregistered-Inner-Class)]
+        * [@Control@1937:<Control#28188658897056>(/Unregistered-Inner-Class)]
+        * [@Button@1865:<Button#28165942546599>(MinesweeperActionButton.gd)]
+* test_hidden_cached_app_quarantines_a_held_rebound_toggle_until_release
+* test_input_owner_replacement_is_refused_without_rebinding_the_cached_grid
+    7 Orphans
+        * [@Control@2360:<Control#28284339359003>(/Unregistered-Inner-Class)]
+        * [@Control@2362:<Control#28284540685684>(/Unregistered-Inner-Class)]
+        * [@Button@2357:<Button#28283936706141>(MinesweeperActionButton.gd)]
+        * [@Control@2361:<Control#28284440022776>(/Unregistered-Inner-Class)]
+        * [@Control@2359:<Control#28284238696326>(/Unregistered-Inner-Class)]
+        * [@Button@2356:<Button#28283785711883>(MinesweeperActionButton.gd)]
+        * [@Button@2358:<Button#28284087701790>(MinesweeperActionButton.gd)]
+7 orphans
+10/10 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/unit/test_save_manager_checkpoint_port.gd
+    - Outside Tests
+        * [<Node#131248162582>(subsystem_animation.gd)]
+        * [<Node#131264939810>(subsystem_audio.gd)]
+        * [<Node#131281717040>]
+        * [<Node#131298494264>]
+        * [<Node#131315271488>(subsystem_backgrounds.gd)]
+        * [<Node#131852142401>(subsystem_choices.gd)]
+        * [<Timer#131868919618>]
+        * [<Node#131885696835>(subsystem_expression.gd)]
+        * [<Node#131919251272>(subsystem_glossary.gd)]
+        * [<Node#131936028489>(subsystem_history.gd)]
+        * [<Node#131952805706>(subsystem_input.gd)]
+        * [<Timer#131969582923>]
+        * [<Node#131986360140>(subsystem_jump.gd)]
+        * [<Node#132003137357>(subsystem_containers.gd)]
+        * [<Node#132019914574>(subsystem_portraits.gd)]
+        * [<Node#132556785487>(subsystem_save.gd)]
+        * [<Timer#132573562704>]
+        * [<Node#132590339921>(subsystem_settings.gd)]
+        * [<Node#132607117141>(subsystem_styles.gd)]
+        * [<Node#132623894358>(subsystem_text.gd)]
+        * [<Node#132707780443>(subsystem_text_input.gd)]
+        * [<Node#132724557660>(subsystem_variables.gd)]
+        * [<Node#132741334877>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#132758112094>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+Totals
+------
+Scripts              10
+Tests               251
+Passing Tests       251
+Asserts            5837
+Orphans              24
+Time              11.788s
+
+
+---- All tests passed! ----

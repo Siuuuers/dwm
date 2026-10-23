@@ -1,0 +1,27 @@
+{
+  "head_sha": "e1d3428fbfc9de27a0f350f3a858478cd06c0978",
+  "run_id": 35577704852,
+  "workflow_url": "https://github.com/Siuuuers/dwm/actions/runs/35577704852",
+  "retained_files": [
+    {
+      "path": "evidence/beads_cloud_review/audit/audit.log",
+      "bytes": 73,
+      "sha256": "a9912b85473f126d3f4f63ec824170c828df3473a292f866dde86cafda5b66da"
+    },
+    {
+      "path": "evidence/beads_cloud_review/audit/provenance.json",
+      "bytes": 10614,
+      "sha256": "ca2c4ed4e9a1ecb367fa30981bc61fbd586e12884f1036c7912f4ee2f82ae5f0"
+    },
+    {
+      "path": "evidence/beads_cloud_review/audit/script_ui_disposition.json",
+      "bytes": 126746,
+      "sha256": "c2975440921054a4583686279beb4ce56ad16b6e702608579acbd1f7af19a579"
+    },
+    {
+      "path": "evidence/beads_cloud_review/audit/ui_literal_disposition.json",
+      "bytes": 17016,
+      "sha256": "2bcc2d325c95cefae7ef35079ba12adb02b550d1762ec43fd9a1a932882a2d03"
+    }
+  ]
+}

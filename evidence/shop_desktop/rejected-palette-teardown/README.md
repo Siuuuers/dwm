@@ -1,0 +1,1 @@
+These first palette captures came from a process that exited 0 but emitted null-viewport errors during Shop teardown. They are rejected evidence. Final accepted captures live in ../renders; all attempts and logs are retained.

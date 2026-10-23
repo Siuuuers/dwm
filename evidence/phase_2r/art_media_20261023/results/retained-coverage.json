@@ -1,0 +1,28 @@
+{
+  "prior_run": 39823628664,
+  "current_run": 39824610874,
+  "changed_covered_sources": [
+    "tests/integration/test_artwork_gallery.gd",
+    "scripts/ui/gallery/ArtworkGallery.gd"
+  ],
+  "unchanged_covered_sources": {
+    "tests/unit/test_scene_audio_manifest.gd": "d06eafca6890534e34ca274d7198f8bf48a90322",
+    "tests/unit/test_scene_audio_manager.gd": "61677b9c57a686c631adeb26cab0770a42bd334a",
+    "tests/unit/test_template_music_assets.gd": "5576e07fed5cc029e35cad780a1fb27e75305f96",
+    "scripts/ui/GalleryScene.gd": "3bf5fa223273107c8a605c1050dbe732c8e4ef82",
+    "scripts/data/ArtManifest.gd": "19d11bac3ad92bc7daf64f405ec37a25930a719c",
+    "scripts/ui/art/SceneArtView.gd": "95aa7d8bde8c337da0087bdeac2a07206f804509",
+    "scripts/ui/witnessed/WitnessedCaptionLayer.gd": "da021d70d34338d411768e10610d6ab4168fe058",
+    "data/manifests/art_placements.json": "bf8d57b5c6f011086903a3f30c7790d83230dbef",
+    "scripts/data/AudioManifest.gd": "bb3d8800200a8e4afdf54d5ef41f61b3888f419b",
+    "autoload/AudioManager.gd": "fdc30a7498bba6953ac77b9aebb20b3f9bf529dd",
+    "tests/templates/seven_day/SevenDayTemplates.gd": "e823de91ee65a2ee48ccf45dc1f6d2649fa6663f",
+    "audio/bgm/menu_theme.ogg": "3a915940a3ae60687a263581d615108460576412",
+    "audio/bgm/story_theme.ogg": "3a915940a3ae60687a263581d615108460576412",
+    "art/pictures/picture1.jpg": "dcb16cf4c4fcad09b9a37a616b092df1f6d4b5e1",
+    "art/pictures/picture2.jpg": "9452140d264b1d190a0844564dc74e3a8f848d7c",
+    "art/pictures/picture3.jpg": "44a1084f88382e1993ed840f579060813b30fba5",
+    "art/pictures/picture4.jpg": "f9bc4db83d4dd13003cdc9836630e956cf759828",
+    "art/pictures/picture5.jpg": "0c3060f6ce8e94a7ea2e92a21dd4d8005a98aaa1"
+  }
+}

@@ -1,0 +1,60 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+[   0% ] [90m[1mfirst_scan_filesystem[22m | Started 项目初始化 (5 steps)[39m[0m
+[   0% ] [90m[1mfirst_scan_filesystem[22m | 正在扫描文件结构……[39m[0m
+[  16% ] [90m[1mfirst_scan_filesystem[22m | 正在加载全局类名……[39m[0m
+[  33% ] [90m[1mfirst_scan_filesystem[22m | 正在校验 GDExtension……[39m[0m
+[  50% ] [90m[1mfirst_scan_filesystem[22m | 正在创建自动加载脚本……[39m[0m
+[  66% ] [90m[1mfirst_scan_filesystem[22m | 正在初始化插件……[39m[0m
+[  83% ] [90m[1mfirst_scan_filesystem[22m | 正在启动文件扫描……[39m[0m
+[92m[ DONE ][39m [1mfirst_scan_filesystem[22m
+[0m
+[   0% ] [90m[1m_update_scan_actions[22m | Started 正在扫描动作…… (3 steps)[39m[0m
+[   0% ] [90m[1m_update_scan_actions[22m | source-han-sans-hc-regular.otf[39m[0m
+[  25% ] [90m[1m_update_scan_actions[22m | source-han-sans-sc-regular.otf[39m[0m
+[  50% ] [90m[1m_update_scan_actions[22m | source-sans-3-regular.ttf.woff2[39m[0m
+[92m[ DONE ][39m [1m_update_scan_actions[22m
+[0m
+[   0% ] [90m[1mreimport[22m | Started 正在导入或重新导入资产 (3 steps)[39m[0m
+[   0% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  25% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  50% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[   0% ] [90m[1mreimport[22m | 正在执行重新导入的前置操作……[39m[0m
+[   0% ] [90m[1mreimport[22m | source-han-sans-hc-regular.otf[39m[0m
+[  25% ] [90m[1mreimport[22m | source-han-sans-sc-regular.otf[39m[0m
+[  50% ] [90m[1mreimport[22m | source-sans-3-regular.ttf.woff2[39m[0m
+[  75% ] [90m[1mreimport[22m | 正在结束资产导入……[39m[0m
+[92m[ DONE ][39m [1mreimport[22m
+[0m
+[   0% ] [90m[1mreimport[22m | Started 正在导入或重新导入资产 (3 steps)[39m[0m
+[   0% ] [90m[1mreimport[22m | 正在执行重新导入的后置操作……[39m[0m
+[92m[ DONE ][39m [1mreimport[22m
+[0m
+[   0% ] [90m[1mloading_editor_layout[22m | Started 正在加载编辑器 (5 steps)[39m[0m
+[   0% ] [90m[1mloading_editor_layout[22m | 正在加载编辑器布局……[39m[0m
+[  16% ] [90m[1mloading_editor_layout[22m | 正在加载停靠面板……[39m[0m
+[92m[ DONE ][39m [1mloading_editor_layout[22m
+[0m
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2570)
+
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+{"fits_paper_height":true,"font_size":20,"identity":[{"height":27.0,"lines":1,"text":"Autosave"},{"height":27.0,"lines":1,"text":"Quick"},{"height":27.0,"lines":1,"text":"Slot 1"}],"locale":"en","maximum_identity_plus_state_plus_gap":60.0,"mode_text":[{"height":27.0,"lines":1,"text":"Save"},{"height":27.0,"lines":1,"text":"Load"}],"mode_text_width":80,"paper_height":168,"paper_width":136,"recovery_overwrite":[{"height":27.0,"lines":1,"text":"Overwrite","text_width":128},{"height":27.0,"lines":1,"text":"Overwrite","text_width":132},{"height":27.0,"lines":1,"text":"Overwrite","text_width":136}],"state":[{"height":27.0,"lines":1,"text":"Day 7 · 09:07"},{"height":27.0,"lines":1,"text":"Empty"},{"height":27.0,"lines":1,"text":"Unavailable"}],"text_width":128}
+{"fits_paper_height":true,"font_size":24,"identity":[{"height":32.0,"lines":1,"text":"Autosave"},{"height":32.0,"lines":1,"text":"Quick"},{"height":32.0,"lines":1,"text":"Slot 1"}],"locale":"en","maximum_identity_plus_state_plus_gap":70.0,"mode_text":[{"height":32.0,"lines":1,"text":"Save"},{"height":32.0,"lines":1,"text":"Load"}],"mode_text_width":80,"paper_height":168,"paper_width":136,"recovery_overwrite":[{"height":32.0,"lines":1,"text":"Overwrite","text_width":128},{"height":32.0,"lines":1,"text":"Overwrite","text_width":132},{"height":32.0,"lines":1,"text":"Overwrite","text_width":136}],"state":[{"height":32.0,"lines":1,"text":"Day 7 · 09:07"},{"height":32.0,"lines":1,"text":"Empty"},{"height":32.0,"lines":1,"text":"Unavailable"}],"text_width":128}
+{"fits_paper_height":true,"font_size":25,"identity":[{"height":34.0,"lines":1,"text":"Autosave"},{"height":34.0,"lines":1,"text":"Quick"},{"height":34.0,"lines":1,"text":"Slot 1"}],"locale":"en","maximum_identity_plus_state_plus_gap":111.0,"mode_text":[{"height":34.0,"lines":1,"text":"Save"},{"height":34.0,"lines":1,"text":"Load"}],"mode_text_width":80,"paper_height":168,"paper_width":136,"recovery_overwrite":[{"height":34.0,"lines":1,"text":"Overwrite","text_width":128},{"height":34.0,"lines":1,"text":"Overwrite","text_width":132},{"height":34.0,"lines":1,"text":"Overwrite","text_width":136}],"state":[{"height":71.0,"lines":2,"text":"Day 7 · 09:07"},{"height":34.0,"lines":1,"text":"Empty"},{"height":34.0,"lines":1,"text":"Unavailable"}],"text_width":128}
+{"fits_paper_height":true,"font_size":30,"identity":[{"height":40.0,"lines":1,"text":"Autosave"},{"height":40.0,"lines":1,"text":"Quick"},{"height":40.0,"lines":1,"text":"Slot 1"}],"locale":"en","maximum_identity_plus_state_plus_gap":129.0,"mode_text":[{"height":40.0,"lines":1,"text":"Save"},{"height":40.0,"lines":1,"text":"Load"}],"mode_text_width":80,"paper_height":168,"paper_width":136,"recovery_overwrite":[{"height":40.0,"lines":1,"text":"Overwrite","text_width":128},{"height":40.0,"lines":1,"text":"Overwrite","text_width":132},{"height":40.0,"lines":1,"text":"Overwrite","text_width":136}],"state":[{"height":83.0,"lines":2,"text":"Day 7 · 09:07"},{"height":40.0,"lines":1,"text":"Empty"},{"height":83.0,"lines":2,"text":"Unavailable"}],"text_width":128}
+{"fits_paper_height":false,"font_size":36,"identity":[{"height":99.0,"lines":2,"text":"Autosave"},{"height":48.0,"lines":1,"text":"Quick"},{"height":48.0,"lines":1,"text":"Slot 1"}],"locale":"en","maximum_identity_plus_state_plus_gap":204.0,"mode_text":[{"height":48.0,"lines":1,"text":"Save"},{"height":48.0,"lines":1,"text":"Load"}],"mode_text_width":80,"paper_height":168,"paper_width":136,"recovery_overwrite":[{"height":99.0,"lines":2,"text":"Overwrite","text_width":128},{"height":99.0,"lines":2,"text":"Overwrite","text_width":132},{"height":99.0,"lines":2,"text":"Overwrite","text_width":136}],"state":[{"height":99.0,"lines":2,"text":"Day 7 · 09:07"},{"height":48.0,"lines":1,"text":"Empty"},{"height":99.0,"lines":2,"text":"Unavailable"}],"text_width":128}
+{"fits_paper_height":true,"font_size":20,"identity":[{"height":30.0,"lines":1,"text":"自动存档"},{"height":30.0,"lines":1,"text":"快速存档"},{"height":30.0,"lines":1,"text":"存档 1"}],"locale":"zh-CN","maximum_identity_plus_state_plus_gap":99.0,"mode_text":[{"height":30.0,"lines":1,"text":"保存"},{"height":30.0,"lines":1,"text":"读取"}],"mode_text_width":80,"paper_height":168,"paper_width":136,"recovery_overwrite":[],"state":[{"height":63.0,"lines":2,"text":"第7天 · 09:07"},{"height":30.0,"lines":1,"text":"空"},{"height":30.0,"lines":1,"text":"不可用"}],"text_width":128}
+{"fits_paper_height":true,"font_size":24,"identity":[{"height":35.0,"lines":1,"text":"自动存档"},{"height":35.0,"lines":1,"text":"快速存档"},{"height":35.0,"lines":1,"text":"存档 1"}],"locale":"zh-CN","maximum_identity_plus_state_plus_gap":114.0,"mode_text":[{"height":35.0,"lines":1,"text":"保存"},{"height":35.0,"lines":1,"text":"读取"}],"mode_text_width":80,"paper_height":168,"paper_width":136,"recovery_overwrite":[],"state":[{"height":73.0,"lines":2,"text":"第7天 · 09:07"},{"height":35.0,"lines":1,"text":"空"},{"height":35.0,"lines":1,"text":"不可用"}],"text_width":128}
+{"fits_paper_height":true,"font_size":25,"identity":[{"height":37.0,"lines":1,"text":"自动存档"},{"height":37.0,"lines":1,"text":"快速存档"},{"height":37.0,"lines":1,"text":"存档 1"}],"locale":"zh-CN","maximum_identity_plus_state_plus_gap":120.0,"mode_text":[{"height":37.0,"lines":1,"text":"保存"},{"height":37.0,"lines":1,"text":"读取"}],"mode_text_width":80,"paper_height":168,"paper_width":136,"recovery_overwrite":[],"state":[{"height":77.0,"lines":2,"text":"第7天 · 09:07"},{"height":37.0,"lines":1,"text":"空"},{"height":37.0,"lines":1,"text":"不可用"}],"text_width":128}
+{"fits_paper_height":true,"font_size":30,"identity":[{"height":44.0,"lines":1,"text":"自动存档"},{"height":44.0,"lines":1,"text":"快速存档"},{"height":44.0,"lines":1,"text":"存档 1"}],"locale":"zh-CN","maximum_identity_plus_state_plus_gap":141.0,"mode_text":[{"height":44.0,"lines":1,"text":"保存"},{"height":44.0,"lines":1,"text":"读取"}],"mode_text_width":80,"paper_height":168,"paper_width":136,"recovery_overwrite":[],"state":[{"height":91.0,"lines":2,"text":"第7天 · 09:07"},{"height":44.0,"lines":1,"text":"空"},{"height":44.0,"lines":1,"text":"不可用"}],"text_width":128}
+{"fits_paper_height":false,"font_size":36,"identity":[{"height":109.0,"lines":2,"text":"自动存档"},{"height":109.0,"lines":2,"text":"快速存档"},{"height":53.0,"lines":1,"text":"存档 1"}],"locale":"zh-CN","maximum_identity_plus_state_plus_gap":280.0,"mode_text":[{"height":53.0,"lines":1,"text":"保存"},{"height":53.0,"lines":1,"text":"读取"}],"mode_text_width":80,"paper_height":168,"paper_width":136,"recovery_overwrite":[],"state":[{"height":165.0,"lines":3,"text":"第7天 · 09:07"},{"height":53.0,"lines":1,"text":"空"},{"height":53.0,"lines":1,"text":"不可用"}],"text_width":128}
+{"fits_paper_height":true,"font_size":20,"identity":[{"height":30.0,"lines":1,"text":"自動存檔"},{"height":30.0,"lines":1,"text":"快速存檔"},{"height":30.0,"lines":1,"text":"存檔 1"}],"locale":"zh-HK","maximum_identity_plus_state_plus_gap":99.0,"mode_text":[{"height":30.0,"lines":1,"text":"儲存"},{"height":30.0,"lines":1,"text":"載入"}],"mode_text_width":80,"paper_height":168,"paper_width":136,"recovery_overwrite":[],"state":[{"height":63.0,"lines":2,"text":"第7天 · 09:07"},{"height":30.0,"lines":1,"text":"空"},{"height":30.0,"lines":1,"text":"無法使用"}],"text_width":128}
+{"fits_paper_height":true,"font_size":24,"identity":[{"height":35.0,"lines":1,"text":"自動存檔"},{"height":35.0,"lines":1,"text":"快速存檔"},{"height":35.0,"lines":1,"text":"存檔 1"}],"locale":"zh-HK","maximum_identity_plus_state_plus_gap":114.0,"mode_text":[{"height":35.0,"lines":1,"text":"儲存"},{"height":35.0,"lines":1,"text":"載入"}],"mode_text_width":80,"paper_height":168,"paper_width":136,"recovery_overwrite":[],"state":[{"height":73.0,"lines":2,"text":"第7天 · 09:07"},{"height":35.0,"lines":1,"text":"空"},{"height":35.0,"lines":1,"text":"無法使用"}],"text_width":128}
+{"fits_paper_height":true,"font_size":25,"identity":[{"height":37.0,"lines":1,"text":"自動存檔"},{"height":37.0,"lines":1,"text":"快速存檔"},{"height":37.0,"lines":1,"text":"存檔 1"}],"locale":"zh-HK","maximum_identity_plus_state_plus_gap":120.0,"mode_text":[{"height":37.0,"lines":1,"text":"儲存"},{"height":37.0,"lines":1,"text":"載入"}],"mode_text_width":80,"paper_height":168,"paper_width":136,"recovery_overwrite":[],"state":[{"height":77.0,"lines":2,"text":"第7天 · 09:07"},{"height":37.0,"lines":1,"text":"空"},{"height":37.0,"lines":1,"text":"無法使用"}],"text_width":128}
+{"fits_paper_height":true,"font_size":30,"identity":[{"height":44.0,"lines":1,"text":"自動存檔"},{"height":44.0,"lines":1,"text":"快速存檔"},{"height":44.0,"lines":1,"text":"存檔 1"}],"locale":"zh-HK","maximum_identity_plus_state_plus_gap":141.0,"mode_text":[{"height":44.0,"lines":1,"text":"儲存"},{"height":44.0,"lines":1,"text":"載入"}],"mode_text_width":80,"paper_height":168,"paper_width":136,"recovery_overwrite":[],"state":[{"height":91.0,"lines":2,"text":"第7天 · 09:07"},{"height":44.0,"lines":1,"text":"空"},{"height":44.0,"lines":1,"text":"無法使用"}],"text_width":128}
+{"fits_paper_height":false,"font_size":36,"identity":[{"height":109.0,"lines":2,"text":"自動存檔"},{"height":109.0,"lines":2,"text":"快速存檔"},{"height":53.0,"lines":1,"text":"存檔 1"}],"locale":"zh-HK","maximum_identity_plus_state_plus_gap":280.0,"mode_text":[{"height":53.0,"lines":1,"text":"儲存"},{"height":53.0,"lines":1,"text":"載入"}],"mode_text_width":80,"paper_height":168,"paper_width":136,"recovery_overwrite":[],"state":[{"height":165.0,"lines":3,"text":"第7天 · 09:07"},{"height":53.0,"lines":1,"text":"空"},{"height":109.0,"lines":2,"text":"無法使用"}],"text_width":128}
+BACKUP_FONT_FIT_PROBE_DONE
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2570)

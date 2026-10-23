@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "repository": "Siuuuers/dwm",
+  "run_number": 48,
+  "run_id": 35648249324,
+  "run_attempt": 1,
+  "job_id": 106494779124,
+  "head_sha": "eccf563e5cf5fbe287b4e55a6ea6d81578f8baae",
+  "tested_merge_sha": "9ea410cb292bff0fbf23e0125fd68f5c5af1ae0e",
+  "conclusion": "success",
+  "scope": "Unsigned native Windows headless release startup and actual packaged-data verification",
+  "validated_by_script_gates": [
+    "Native DWM.exe launched from package directory with adjacent DWM.pck; no --path, script override, source project or DWM_TEST_ROOT",
+    "Isolated APPDATA and LOCALAPPDATA, parsed newly created DWM/profile.json",
+    "Native executable exit 0, within 90-second watchdog, no scanned engine/script/data/startup errors",
+    "Independent actual PCK audit matched 111 runtime JSON/DTL/DCH source hashes and refused development directories",
+    "Matching official template and sidecar hashes; upstream notices preserved",
+    "Validation ZIP created only after successful native startup and PCK audit"
+  ],
+  "limitations": [
+    "Headless execution only; does not establish graphical Windows rendering, UI Automation, screen-reader acceptance or complete release readiness",
+    "Artifact metadata and receipt verified via GitHub; artifact ZIP contents were not downloaded in this session"
+  ],
+  "receipt": {
+    "ok": true,
+    "commit": "9ea410cb292bff0fbf23e0125fd68f5c5af1ae0e",
+    "engine": "4.6.3.stable",
+    "runtime_data_files_verified": 111,
+    "templates_sha256": "3fbe2c0e2dec9d537ab9ec97bcf8da91dcf23357fc51f67092dd068d839290a8",
+    "executable_sha256": "91724f15024a3a545e28ccd83134403d31ce2323a38e51c95e4dfa282f732ab6",
+    "pck_sha256": "73d52a437b67c95893a3c2cd6978e44f643d4e3c72bfd0a068b294f93f5cf588",
+    "archive": {
+      "sha256": "3c7776d61d28575028e32a44a14e98888fc5db8bea9542eb1a122ac528ee7798",
+      "file": "DWM-windows-x86_64-validation.zip",
+      "bytes": 98755644
+    }
+  },
+  "github_artifact": {
+    "id": 10660892058,
+    "name": "windows-export-35648249324-1",
+    "size_in_bytes": 98706746,
+    "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/10660892058",
+    "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/10660892058/zip",
+    "expired": false,
+    "created_at": "2026-09-21T20:03:46Z",
+    "expires_at": "2026-09-28T20:03:42Z",
+    "updated_at": "2026-09-21T20:03:46Z",
+    "digest": "sha256:e4150cab8b0904dd86473f7ef153033708f2bd24fe3b37ee75610df875ccee34",
+    "workflow_run": {
+      "id": 35648249324,
+      "repository_id": 1302529453,
+      "head_repository_id": 1302529453,
+      "head_branch": "codex/windows-cloud-ux",
+      "head_sha": "eccf563e5cf5fbe287b4e55a6ea6d81578f8baae"
+    }
+  },
+  "log_evidence_lines": [
+    "2026-09-21T20:03:42.2009461Z WINDOWS_EXPORT_RECEIPT {\"ok\":true,\"commit\":\"9ea410cb292bff0fbf23e0125fd68f5c5af1ae0e\",\"engine\":\"4.6.3.stable\",\"runtime_data_files_verified\":111,\"templates_sha256\":\"3fbe2c0e2dec9d537ab9ec97bcf8da91dcf23357fc51f67092dd068d839290a8\",\"executable_sha256\":\"91724f15024a3a545e28ccd83134403d31ce2323a38e51c95e4dfa282f732ab6\",\"pck_sha256\":\"73d52a437b67c95893a3c2cd6978e44f643d4e3c72bfd0a068b294f93f5cf588\",\"archive\":{\"sha256\":\"3c7776d61d28575028e32a44a14e98888fc5db8bea9542eb1a122ac528ee7798\",\"file\":\"DWM-windows-x86_64-validation.zip\",\"bytes\":98755644}}",
+    "2026-09-21T20:03:42.2018730Z WINDOWS_EXPORT_VALIDATED: D:\\a\\dwm\\dwm\\.godot\\ci\\windows-export\\DWM-windows-x86_64-validation.zip",
+    "2026-09-21T20:03:45.8905765Z SHA256 digest of uploaded artifact zip is e4150cab8b0904dd86473f7ef153033708f2bd24fe3b37ee75610df875ccee34",
+    "2026-09-21T20:03:46.0951871Z Artifact windows-export-35648249324-1.zip successfully finalized. Artifact ID 10660892058",
+    "2026-09-21T20:03:46.0953041Z Artifact windows-export-35648249324-1 has been successfully uploaded! Final size is 98706746 bytes. Artifact ID is 10660892058",
+    "2026-09-21T20:03:46.0964008Z Artifact download URL: https://github.com/Siuuuers/dwm/actions/runs/35648249324/artifacts/10660892058"
+  ]
+}

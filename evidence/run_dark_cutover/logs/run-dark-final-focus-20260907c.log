@@ -1,0 +1,141 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-ui-build/.godot/phase2r_tests/662e05fc-2ff8-4948-88a0-73a1406b957c/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+tests/unit/test_game_state.gd
+* test_reset_game_initial_values
+* test_run_serializer_excludes_permanent_profile_keys
+* test_reset_game_does_not_change_profile
+* test_change_stat_clamps
+* test_display_conversions
+* test_money_overdraft_rules
+* test_coin_spending_blocks_when_insufficient
+* test_advance_day_resets_and_ends
+* test_round_floor_defaults
+* test_two_app_rounds_without_supportz
+* test_one_supportz_gives_three_rounds
+* test_three_supportz_caps_floor
+* test_danger_penalty_and_reset
+* test_hospital_recovery
+* test_save_dict_is_json_safe
+* test_apply_save_dict_preserves_state
+* test_save_whitelist_includes_rng_seed
+* test_rng_seed_round_trips_through_save
+* test_check_immediate_faint_requires_sequela_and_danger
+* test_check_immediate_faint_sequela_and_low_health
+* test_check_immediate_faint_sequela_no_danger
+* test_should_route_sylvia_special_ending_thresholds
+* test_hospital_recovery_counts_sylvia_solo
+* test_resolve_day7_sylvia_special_highest_precedence
+* test_resolve_day7_priscilla_lavinia_primary_no_epilogue
+* test_resolve_day7_candidate_binary_tone_sweet
+* test_resolve_day7_not_day7_returns_epilogue_key
+* test_contacts_bag_resets_to_stateless_defaults
+* test_identity_issuer_configuration_is_exact_and_replacement_fails
+* test_contact_commit_signals_emit_once_only_on_first_success
+* test_contact_proof_and_tampered_replay_failures_preserve_contacts_schedule_and_signals
+* test_group_reply_tampered_replay_preserves_contacts_schedule_and_signal_count
+* test_get_contact_view_delegates_to_module
+* test_contacts_survive_capture_and_rollback
+* test_contacts_restored_from_run_snapshot
+* test_new_run_snapshot_input_carries_contacts_defaults
+* test_reply_invitation_command_applies_and_is_idempotent
+* test_reply_invitation_rejects_empty_command_id
+* test_resolve_invitations_for_day_command_resolves_and_is_idempotent
+* test_resolve_invitations_for_day_rejects_empty_command_id
+* test_legacy_solo_open_choose_unlocks_date_on_invitation_day
+* test_legacy_choose_on_non_invitation_day_does_not_unlock
+* test_legacy_minesweeper_round_unlocks_contact_message
+* test_group_addable_only_after_reply_canon
+* test_migration_bridge_backfills_module_on_legacy_solo_flow
+* test_g1_minesweeper_round_generates_module_solo_offer
+* test_g2_round3_activates_module_group_on_group_day
+* test_g3_contact_open_assigns_group_inviter_via_module
+* test_g4_group_reply_routes_to_module_with_gate
+* test_open_contact_command_is_idempotent
+* test_open_contact_rejects_empty_command_id
+* test_request_next_ending_command_plays_primary_first
+* test_request_next_ending_command_rejects_outside_ending
+* test_complete_ending_playback_stage_advances_the_primary
+* test_complete_ending_playback_stage_rejects_a_transaction_mismatch
+* test_complete_ending_playback_stage_rejects_outside_ending
+* test_record_gallery_unlocks_the_primary_and_reaches_gallery_recorded
+* test_full_no_epilogue_ending_flow_completes_the_run_to_menu
+* test_full_with_epilogue_ending_flow_records_both_endings
+* test_ending_playback_resumes_after_a_state_round_trip
+* test_gallery_record_recovers_forward_after_a_partial_profile_failure
+* test_game_state_no_longer_owns_a_duplicate_schedule_effect_table
+62/62 passed.
+
+
+tests/integration/test_run_palette_host.gd
+* test_captured_palette_reaches_all_hosts_and_survives_pending_profile_locale_and_size_changes
+    7 Orphans
+        * [@Control@1272:<Control#498870520657>(/Unregistered-Inner-Class)]
+        * [@Button@1268:<Button#498367205450>(MinesweeperActionButton.gd)]
+        * [@Control@1270:<Control#498669195353>(/Unregistered-Inner-Class)]
+        * [@Control@1271:<Control#498769858650>(/Unregistered-Inner-Class)]
+        * [@Control@1273:<Control#498971185248>(/Unregistered-Inner-Class)]
+        * [@Button@1267:<Button#498216210531>(MinesweeperActionButton.gd)]
+        * [@Button@1269:<Button#498518200429>(MinesweeperActionButton.gd)]
+* test_malformed_unavailable_replacement_and_changed_capture_are_refused_atomically
+* test_early_production_bootstrap_path_stays_hidden_until_captured_palette_is_admitted
+3/3 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+tests/unit/test_game_state.gd
+    - Outside Tests
+        * [<Node#99891545835>(subsystem_animation.gd)]
+        * [<Node#99908323052>(subsystem_audio.gd)]
+        * [<Node#99925100269>]
+        * [<Node#99941877486>]
+        * [<Node#99958654703>(subsystem_backgrounds.gd)]
+        * [<Node#100495525616>(subsystem_choices.gd)]
+        * [<Timer#100512302833>]
+        * [<Node#100529080050>(subsystem_expression.gd)]
+        * [<Node#100562634487>(subsystem_glossary.gd)]
+        * [<Node#100579411704>(subsystem_history.gd)]
+        * [<Node#100596188921>(subsystem_input.gd)]
+        * [<Timer#100612966138>]
+        * [<Node#100629743355>(subsystem_jump.gd)]
+        * [<Node#100646520572>(subsystem_containers.gd)]
+        * [<Node#100663297789>(subsystem_portraits.gd)]
+        * [<Node#101200168702>(subsystem_save.gd)]
+        * [<Timer#101216945919>]
+        * [<Node#101233723136>(subsystem_settings.gd)]
+        * [<Node#101250500356>(subsystem_styles.gd)]
+        * [<Node#101267277573>(subsystem_text.gd)]
+        * [<Node#101351163658>(subsystem_text_input.gd)]
+        * [<Node#101367940875>(subsystem_variables.gd)]
+        * [<Node#101384718092>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#101401495309>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+Totals
+------
+Scripts               2
+Tests                65
+Passing Tests        65
+Asserts             457
+Orphans              24
+Time              2.684s
+
+
+---- All tests passed! ----

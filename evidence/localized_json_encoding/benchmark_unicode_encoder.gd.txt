@@ -1,0 +1,39 @@
+extends SceneTree
+const WRITER := preload("res://scripts/validation/CanonicalJsonWriter.gd")
+const STRICT := preload("res://scripts/validation/StrictJson.gd")
+
+func _initialize() -> void:
+	call_deferred("_run")
+
+func _run() -> void:
+	var parsed := STRICT.parse_object(FileAccess.get_file_as_string("res://evidence/checkpoint_json_fast_path/baseline-autosave.json"))
+	assert(parsed.get("ok", false))
+	var localized: Dictionary = parsed.value.duplicate(true)
+	# This is an explicitly synthetic encoder stress value, not a valid game save.
+	localized["~localized_probe"] = "明天见！明天見！é e\u0301 " + String.chr(0x1f339)
+	var cases := {"fixed_ascii_save": parsed.value, "synthetic_localized_tail": localized}
+	for label: String in cases:
+		var value: Dictionary = cases[label]
+		var samples := {"legacy_us": [], "current_us": [], "native_us": []}
+		for attempt: int in 5:
+			var started := Time.get_ticks_usec()
+			var legacy := WRITER._emit(value)
+			var emitted_at := Time.get_ticks_usec()
+			var current := WRITER.stringify(value)
+			var current_at := Time.get_ticks_usec()
+			var native := JSON.stringify(value, "", true)
+			var native_at := Time.get_ticks_usec()
+			if not legacy.get("ok", false) or current != legacy or native != str(legacy.value):
+				push_error("Encoder byte mismatch: " + label)
+				quit(1)
+				return
+			samples.legacy_us.append(emitted_at - started)
+			samples.current_us.append(current_at - emitted_at)
+			samples.native_us.append(native_at - current_at)
+		var report := {"label": label, "eligible": WRITER._can_use_native_encoder(value), "samples": samples}
+		for phase: String in samples:
+			var sorted: Array = samples[phase].duplicate()
+			sorted.sort()
+			report[phase + "_median"] = sorted[2]
+		print("UNICODE_ENCODER_PROBE: " + JSON.stringify(report))
+	quit(0)

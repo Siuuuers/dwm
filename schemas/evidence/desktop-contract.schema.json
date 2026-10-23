@@ -1,0 +1,97 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dwm.local/schemas/evidence/desktop-contract.schema.json",
+  "title": "Phase 2R desktop contract handoff artifact",
+  "description": "Closed declarative contract for evidence/phase_2r/handoff/desktop_contract.json. The repository's JsonSchemaValidator honours type, const, enum, required, properties, additionalProperties, items, uniqueItems and minLength; DesktopContractEvidence.validate_law repeats every constraint expressed here and adds the ones this subset cannot reach, so a weakened schema cannot widen what is accepted.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "artifact_id",
+    "interface_version",
+    "source_bindings",
+    "registry_version",
+    "registry_records",
+    "host_signatures",
+    "host_result_schemas",
+    "persistence_signatures",
+    "bootstrap_signatures",
+    "day_change_owner",
+    "logout_contract",
+    "phase_split"
+  ],
+  "properties": {
+    "schema_version": {"type": "integer", "const": 1},
+    "artifact_id": {"type": "string", "const": "phase_2r.desktop_contract"},
+    "interface_version": {"type": "integer", "const": 1},
+    "source_bindings": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "sha256"],
+        "properties": {
+          "path": {"type": "string", "minLength": 1},
+          "sha256": {"type": "string", "minLength": 64}
+        }
+      }
+    },
+    "registry_version": {"type": "integer", "const": 1},
+    "registry_records": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["app_id", "scene", "focus_target"],
+        "properties": {
+          "app_id": {
+            "type": "string",
+            "enum": ["backup", "contacts", "logout", "minesweeper", "schedule", "settings", "shop"]
+          },
+          "scene": {"type": "string", "minLength": 1},
+          "focus_target": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "host_signatures": {"type": "object"},
+    "host_result_schemas": {"type": "object"},
+    "persistence_signatures": {"type": "object"},
+    "bootstrap_signatures": {"type": "object"},
+    "day_change_owner": {"type": "object"},
+    "logout_contract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["rows", "never_completes_lifecycle"],
+      "properties": {
+        "rows": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "confirmed",
+              "has_stable_checkpoint",
+              "should_save",
+              "should_route_menu",
+              "restore_desktop_focus",
+              "lifecycle_completed"
+            ],
+            "properties": {
+              "confirmed": {"type": "boolean"},
+              "has_stable_checkpoint": {"type": "boolean"},
+              "should_save": {"type": "boolean"},
+              "should_route_menu": {"type": "boolean"},
+              "restore_desktop_focus": {"type": "boolean"},
+              "lifecycle_completed": {"type": "boolean", "const": false}
+            }
+          }
+        },
+        "never_completes_lifecycle": {"type": "boolean", "const": true}
+      }
+    },
+    "phase_split": {"type": "object"}
+  }
+}

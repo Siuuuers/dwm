@@ -1,0 +1,125 @@
+{
+  "status": "pass",
+  "assertions": 645,
+  "run_id": "36847732239",
+  "run_attempt": 1,
+  "source_commit": "724ff76fabafe358d6f445b404386baa65d20062",
+  "checkout_ref": "d9c42820960ffd70b80b70977178c17ae9beef92",
+  "archive_digests_verified": 6,
+  "day7_sha256": "2057c0f7e5d19d0b92f9917b049d2b19d8bdcf97a08194b8e72102fbbd475f7b",
+  "day7_bytes": 1910404,
+  "actual_retained_kinds": {
+    "line": 32,
+    "manual_save": 32,
+    "pre_board": 1,
+    "safe_marker": 1
+  },
+  "producer_identity": "Exact raw write and enabled/disabled cold-read markers match report; both recover same gameplay, board and recovery-journal hashes.",
+  "outgoing": {
+    "processes": 6,
+    "timed_samples": 30,
+    "raw_report_exact": true,
+    "recomputed_medians": [
+      {
+        "variant": "baseline",
+        "label": "zh-CN",
+        "median_us": 19762
+      },
+      {
+        "variant": "baseline",
+        "label": "zh-HK",
+        "median_us": 16901
+      },
+      {
+        "variant": "baseline",
+        "label": "day7",
+        "median_us": 169907
+      },
+      {
+        "variant": "candidate",
+        "label": "zh-CN",
+        "median_us": 15328
+      },
+      {
+        "variant": "candidate",
+        "label": "zh-HK",
+        "median_us": 12836
+      },
+      {
+        "variant": "candidate",
+        "label": "day7",
+        "median_us": 89354
+      }
+    ]
+  },
+  "lazy": {
+    "processes": 16,
+    "pairs": 8,
+    "metrics": 3,
+    "timed_samples": 240,
+    "recomputed_per_process_medians": 48,
+    "recomputed_pair_deltas": 24,
+    "recomputed_summary_rows": 6,
+    "summaries": [
+      {
+        "mode": "full",
+        "metric": "schema_helper",
+        "pairs": 4,
+        "baseline_median_us": 86318.5,
+        "candidate_median_us": 80254.0,
+        "median_paired_candidate_minus_baseline_us": -6360.0
+      },
+      {
+        "mode": "full",
+        "metric": "port_helper",
+        "pairs": 4,
+        "baseline_median_us": 87379.5,
+        "candidate_median_us": 80215.5,
+        "median_paired_candidate_minus_baseline_us": -7164.0
+      },
+      {
+        "mode": "full",
+        "metric": "port_seam",
+        "pairs": 4,
+        "baseline_median_us": 174932.0,
+        "candidate_median_us": 167678.5,
+        "median_paired_candidate_minus_baseline_us": -6961.5
+      },
+      {
+        "mode": "splice",
+        "metric": "schema_helper",
+        "pairs": 4,
+        "baseline_median_us": 2309.0,
+        "candidate_median_us": 2087.5,
+        "median_paired_candidate_minus_baseline_us": -221.5
+      },
+      {
+        "mode": "splice",
+        "metric": "port_helper",
+        "pairs": 4,
+        "baseline_median_us": 1884.0,
+        "candidate_median_us": 1714.5,
+        "median_paired_candidate_minus_baseline_us": -161.5
+      },
+      {
+        "mode": "splice",
+        "metric": "port_seam",
+        "pairs": 4,
+        "baseline_median_us": 89263.0,
+        "candidate_median_us": 88508.0,
+        "median_paired_candidate_minus_baseline_us": -977.0
+      }
+    ]
+  },
+  "distinct_isolated_probe_roots": 22,
+  "scope": "Producer manifest/recovery, localized payloads, outgoing and lazy raw evidence/source hashes/arithmetic only; no full-workflow or remaining comparison admission claim.",
+  "frozen_helpers": {
+    "byte_identical_to_historical_methods": true,
+    "historical_commit": "dae70bf9aa05b6b3debb60f95738e5ffc4e97548",
+    "method_sha256": {
+      "schema": "2104c862b2a0fc29179513ebb18e7fd2d965f1f6a72867cf729311ca0cb5d490",
+      "port": "3c3f47f720401d61418373fedbe18aff300cd748b3889b2da52bc0e43fa54042"
+    },
+    "measurement_hashes_verified": 32
+  }
+}

@@ -1,0 +1,35 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+OpenGL API 3.3.0 - Build 31.0.101.4146 - Compatibility - Using Device: Intel - Intel(R) Iris(R) Xe Graphics
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+ERROR: GALLERY_RETRY_NATIVE_FAILED: Replay outer ring pixel changed
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _check (res://tests/manual/verify_gallery_retry_native.gd:304)
+       [1] _focus_pixels (res://tests/manual/verify_gallery_action_states_native.gd:64)
+       [2] _sample (res://tests/manual/verify_gallery_action_states_native.gd:19)
+       [3] _capture (res://tests/manual/verify_gallery_retry_native.gd:291)
+ERROR: GALLERY_RETRY_NATIVE_FAILED: Replay inner ring pixel changed
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _check (res://tests/manual/verify_gallery_retry_native.gd:304)
+       [1] _focus_pixels (res://tests/manual/verify_gallery_action_states_native.gd:64)
+       [2] _sample (res://tests/manual/verify_gallery_action_states_native.gd:19)
+       [3] _capture (res://tests/manual/verify_gallery_retry_native.gd:291)
+ERROR: GALLERY_RETRY_NATIVE_FAILED: plural selector outer ring pixel changed
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _check (res://tests/manual/verify_gallery_retry_native.gd:304)
+       [1] _focus_pixels (res://tests/manual/verify_gallery_action_states_native.gd:64)
+       [2] _sample (res://tests/manual/verify_gallery_action_states_native.gd:32)
+       [3] _capture (res://tests/manual/verify_gallery_retry_native.gd:291)
+ERROR: GALLERY_RETRY_NATIVE_FAILED: plural selector inner ring pixel changed
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _check (res://tests/manual/verify_gallery_retry_native.gd:304)
+       [1] _focus_pixels (res://tests/manual/verify_gallery_action_states_native.gd:64)
+       [2] _sample (res://tests/manual/verify_gallery_action_states_native.gd:32)
+       [3] _capture (res://tests/manual/verify_gallery_retry_native.gd:291)
+GALLERY_RETRY_NATIVE_FAILED captures=4 tuples=1 evidence=C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/9f897a7f-0fa7-416e-8d23-af9ef8d9b1be/appdata/Godot/app_userdata/DWM/evidence/gallery_retry_native

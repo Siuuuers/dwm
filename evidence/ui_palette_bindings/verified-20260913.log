@@ -1,0 +1,162 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/5aead4ba-2018-49ee-89b6-3fdb6a7d366e/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+res://tests/unit/test_stat_hud_week_tint.gd
+* test_day_one_hud_theme_is_the_shipped_face
+* test_day_changed_rebuilds_the_hud_theme_with_the_tint
+* test_same_day_refresh_keeps_the_cached_theme_instance
+* test_installed_run_selects_palette_and_next_run_preference_cannot_change_it
+* test_installation_refreshes_same_day_cached_fallback
+* test_silent_installation_boundaries_refresh_without_owner_stat_signals
+* test_live_accessibility_changes_rebuild_hud_and_high_contrast_has_no_week_tint
+7/7 passed.
+
+
+res://tests/unit/test_desktop_theme_week_tint.gd
+* test_default_tint_keeps_shipped_day_one_colours
+* test_day_seven_tint_darkens_room_roles_only
+* test_button_styleboxes_follow_the_tinted_face
+* test_unknown_palette_still_returns_null
+* test_authored_accessibility_tuples_keep_identity_and_contrast_through_the_week
+5/5 passed.
+
+
+res://tests/integration/test_desktop_week_tint.gd
+* test_day_one_desktop_theme_is_the_shipped_midnight_face
+* test_day_advance_eviction_rebuilds_the_theme_with_the_day_seven_tint
+* test_ordinary_refresh_reuses_the_same_day_tint
+* test_live_accessibility_preferences_reach_installed_dark_desktop_without_mutating_run
+4/4 passed.
+
+
+res://tests/integration/test_run_palette_host.gd
+* test_captured_palette_reaches_all_hosts_and_survives_pending_profile_locale_and_size_changes
+    7 Orphans
+        * [@Control@1301:<Control#907882270988>(/Unregistered-Inner-Class)]
+        * [@Button@1297:<Button#907378954515>(MinesweeperActionButton.gd)]
+        * [@Control@1299:<Control#907680944418>(/Unregistered-Inner-Class)]
+        * [@Control@1300:<Control#907781607715>(/Unregistered-Inner-Class)]
+        * [@Control@1302:<Control#907982934313>(/Unregistered-Inner-Class)]
+        * [@Button@1296:<Button#907227959596>(MinesweeperActionButton.gd)]
+        * [@Button@1298:<Button#907529949494>(MinesweeperActionButton.gd)]
+* test_malformed_unavailable_replacement_and_changed_capture_are_refused_atomically
+* test_early_production_bootstrap_path_stays_hidden_until_captured_palette_is_admitted
+3/3 passed.
+
+
+res://tests/unit/test_week_tint.gd
+* test_curve_is_zero_on_day_one_and_one_on_day_seven
+* test_tint_zero_returns_identical_colours
+* test_tint_one_darkens_only_room_roles_and_keeps_hue
+* test_partial_tint_lands_between_the_endpoints
+* test_high_contrast_has_zero_amplitude
+* test_cvd_presets_change_lightness_only
+* test_apply_does_not_mutate_input_and_ignores_foreign_keys
+* test_text_contrast_holds_at_the_cold_endpoint
+* test_room_role_lightness_never_increases_across_the_week
+9/9 passed.
+
+
+res://tests/unit/test_restore_participants.gd
+* test_all_participant_scripts_exist
+* test_run_participant_prepare_and_delegation
+* test_profile_participant_prepares_legacy_patch_and_derives_locale
+* test_localization_and_audio_participants
+* test_route_participant_returns_ready_token
+* test_narrative_participant_unavailable_for_nonempty_playhead
+* test_participant_owner_failures_propagate
+7/7 passed.
+
+
+res://tests/unit/test_temporary_storage.gd
+* test_native_windows_wrapper_is_normalized_and_contained
+* test_forward_slash_wrapper_is_equivalently_contained
+* test_missing_root_is_rejected_and_environment_restored
+* test_parent_traversal_to_wrapper_is_rejected_without_creating_outside_it
+4/4 passed.
+
+
+res://tests/unit/test_save_manager.gd
+* test_invalid_save_references_do_not_touch_storage
+* test_save_family_writes_closed_relative_names
+* test_logout_without_checkpoint_reports_unwritten
+* test_metadata_family_present_absent_corrupt_and_ordering
+* test_restore_preparation_and_delete_families
+* test_configure_mutation_gate_matrix_without_side_effects
+* test_deprecated_wrappers_delegate
+7/7 passed.
+
+
+res://tests/unit/test_application_bootstrap_profile_stage.gd
+* test_application_bootstrap_contract_exists
+* test_final_contact_stage_reuses_profile_storage_and_retains_one_identity_graph
+* test_manual_mode_executes_no_stage_and_is_not_readiness
+* test_final_mode_constructs_production_gate_and_injects_before_profile
+STARTUP_FAILED stage=construct_and_inject_mutation_gate code=invalid_gate_target
+* test_ready_callbacks_are_side_effect_free_or_deferred_only
+* test_task2_owned_managers_expose_common_gate_contract
+* test_dialogic_bridge_exposes_common_gate_contract
+* test_real_plan02_target_order_is_exactly_six_managers
+* test_real_six_target_gate_failure_stops_at_each_ordinal_before_initialization
+9/9 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/unit/test_stat_hud_week_tint.gd
+    - Outside Tests
+        * [<Node#128681248531>(subsystem_animation.gd)]
+        * [<Node#128698025763>(subsystem_audio.gd)]
+        * [<Node#128714802990>]
+        * [<Node#128731580211>]
+        * [<Node#128748357430>(subsystem_backgrounds.gd)]
+        * [<Node#129285228345>(subsystem_choices.gd)]
+        * [<Timer#129302005563>]
+        * [<Node#129318782780>(subsystem_expression.gd)]
+        * [<Node#129352337218>(subsystem_glossary.gd)]
+        * [<Node#129369114435>(subsystem_history.gd)]
+        * [<Node#129385891652>(subsystem_input.gd)]
+        * [<Timer#129402668869>]
+        * [<Node#129419446086>(subsystem_jump.gd)]
+        * [<Node#129436223303>(subsystem_containers.gd)]
+        * [<Node#129453000520>(subsystem_portraits.gd)]
+        * [<Node#129989871433>(subsystem_save.gd)]
+        * [<Timer#130006648650>]
+        * [<Node#130023425867>(subsystem_settings.gd)]
+        * [<Node#130040203087>(subsystem_styles.gd)]
+        * [<Node#130056980304>(subsystem_text.gd)]
+        * [<Node#130140866389>(subsystem_text_input.gd)]
+        * [<Node#130157643606>(subsystem_variables.gd)]
+        * [<Node#130174420823>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#130191198040>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+Totals
+------
+Scripts               9
+Tests                55
+Passing Tests        55
+Asserts            1708
+Orphans              24
+Time              2.345s
+
+
+---- All tests passed! ----
+

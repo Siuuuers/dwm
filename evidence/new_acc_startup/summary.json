@@ -1,0 +1,141 @@
+{
+  "base_commit": "160c874e90274c70c3a6837eb392bc1429b95cc7",
+  "task": "dwm-eei.20",
+  "scope": "Cold-start New Acc same-operation recovery and physical scene publication only after full Bootstrap readiness.",
+  "sources": {
+    "autoload/ApplicationBootstrap.gd": {
+      "sha256": "bc4849343d6788a81d3060de62701281138051179c68513b56aa3150c4703785",
+      "git_blob": "882a574310f7e6a540e5d3eff308f1639037ef3b"
+    },
+    "autoload/SceneRouter.gd": {
+      "sha256": "7fca20b17cb57d38c8c69db39654cc8090d176e6b8e06ecbbd31d4d6a1607690",
+      "git_blob": "6281fa4bb1c804a57d9bbcae94d798b4ed9b24ae"
+    },
+    "scripts/ui/MenuScene.gd": {
+      "sha256": "45c3ddd87d023d531dbc782cf6c17cb5bbba284ede27a4cc7a5ec5762a49329a",
+      "git_blob": "80b3a51d50c3dd6a739bdbaf8176254dd5b414da"
+    },
+    "tests/manual/verify_new_acc_title.gd": {
+      "sha256": "c2af0409fedd27c0cce3e3e39c6c6578abe37fbd8f9db4c697d5ccb3c5275665",
+      "git_blob": "f1301169a0f98d07d9405739838fa57da5a6c767"
+    },
+    "docs/design/current-ui/new-acc-lifecycle.md": {
+      "sha256": "2766a4f59e137219fdc0fa983079a50021a379ba26fcd90573bc590a54e6834a",
+      "git_blob": "45db0af2199ab91d4bc338c4d07cec05e3209535"
+    },
+    "tests/integration/test_new_run_startup_publication.gd": {
+      "sha256": "93a00fee641a5c40237687500519acab08491a41f849813a53c6c479632466a8",
+      "git_blob": "b6fd9396960a808178ab745b8aefc842e20e3be7"
+    },
+    "tests/integration/test_new_run_startup_retry.gd": {
+      "sha256": "525cf6911d5522421d2813c33f521134ba85322549a0cce0f0b029e50f50ca7f",
+      "git_blob": "4240fb49b934b1c262b2dad2d29af6f5aed5c9fb"
+    },
+    "tests/unit/test_startup_route_publication.gd": {
+      "sha256": "3683950e03d31017640697f26ed3f4787f6ebccb0013a50334886c4c29c1f489",
+      "git_blob": "1c176b22a147c4e37cd21775f796feb071de2564"
+    },
+    "tests/unit/test_title_startup_recovery.gd": {
+      "sha256": "54b2339f25aaa7e2975d797ea57f9586f2575c0c08d923fdfcdb407b3ea055f3",
+      "git_blob": "bb62e20dc780bff4fa95d2d09baedab95ae1c557"
+    }
+  },
+  "gut": {
+    "suites": {
+      "res://tests/unit/test_title_startup_recovery.gd": {
+        "passed": 9,
+        "tests": 9
+      },
+      "res://tests/unit/test_new_acc_title_lifetime.gd": {
+        "passed": 4,
+        "tests": 4
+      },
+      "res://tests/unit/test_startup_route_publication.gd": {
+        "passed": 8,
+        "tests": 8
+      },
+      "res://tests/integration/test_new_run_startup_retry.gd": {
+        "passed": 8,
+        "tests": 8
+      },
+      "res://tests/integration/test_application_bootstrap.gd": {
+        "passed": 10,
+        "tests": 10
+      },
+      "res://tests/integration/test_new_run_startup_publication.gd": {
+        "passed": 3,
+        "tests": 3
+      }
+    },
+    "tests": 42,
+    "assertions": 719,
+    "passed": true,
+    "log": "logs/new-acc-startup-final-20260907e.log"
+  },
+  "native": {
+    "passed": true,
+    "checks": 710,
+    "captures": 36,
+    "locale_scale_tuples_per_group": 9,
+    "scope": "Actual Menu and shared sheet New Acc plus startup recovery native rendering/input with explicit in-memory operation outcome fixtures. Real fonts/catalogs; Standard paper only. No storage, OS assistive-technology or complete New Acc acceptance claim."
+  },
+  "production": {
+    "passed": true,
+    "checks": [
+      56,
+      71
+    ],
+    "result": "production/result.json",
+    "scope": "Actual production title New Acc then cold saved-game resume with isolated user data; prepared Menu entry, startup route publication hold, current v3 New Run pair and v5 captured Dark. No rendered GPU or external-branch compatibility claim."
+  },
+  "attempts": [
+    {
+      "suite_id": "new-acc-startup-ui-20260907a",
+      "exit_code": 126,
+      "log": "logs/new-acc-startup-ui-20260907a.log"
+    },
+    {
+      "suite_id": "new-acc-startup-core-20260907b",
+      "exit_code": 1,
+      "log": "logs/new-acc-startup-core-20260907b.log"
+    },
+    {
+      "suite_id": "new-acc-startup-fault-20260907c",
+      "exit_code": 1,
+      "log": "logs/new-acc-startup-fault-20260907c.log"
+    },
+    {
+      "suite_id": "new-acc-startup-real-20260907d",
+      "exit_code": 0,
+      "log": "logs/new-acc-startup-real-20260907d.log"
+    },
+    {
+      "suite_id": "new-acc-startup-final-20260907e",
+      "exit_code": 0,
+      "log": "logs/new-acc-startup-final-20260907e.log"
+    },
+    {
+      "suite_id": "new-acc-startup-native-20260907a",
+      "exit_code": 0,
+      "log": "logs/new-acc-startup-native-20260907a.log"
+    }
+  ],
+  "review": "Independent Bootstrap/router implementation and read-only owner audit; root combined real-owner fault tests and production validation.",
+  "limitations": [
+    "Hold defers physical scene mounting; it does not globally defer every narrative side effect.",
+    "Unrecoverable generic startup failure offers shutdown/restart, not a fabricated New Acc transaction.",
+    "Native rendering uses real controls/fonts with in-memory recovery outcomes, Standard paper only; no OS assistive-technology or all-title localization claim.",
+    "Inherited Unicode NUL warnings, 24 Dialogic GUT orphans and baseline production shutdown diagnostics remain; no leak-free claim."
+  ],
+  "remaining": [
+    "No-save Return and session abandonment; production Pause/Logout.",
+    "Remaining accepted UI-family owner/content/accessibility integration.",
+    "External Schedule/Hospital and save semantic compatibility before integration."
+  ],
+  "canonical_new_acc_complete": false,
+  "all_ui_complete": false,
+  "merged": false,
+  "pushed": false,
+  "player_data_modified": false,
+  "preserved_untracked_files": 582
+}

@@ -1,0 +1,781 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "DWM profile schema v10",
+  "description": "Profile v10: seventeen exact roots; exact registered caption witnesses alongside preserved reached signatures, immutable first-witness chronology, Dating, evidence, settings and history. GDScript validates witness hashes, visited-line membership, the complete disjoint chronology partition and monotonic writes.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "gallery_unlocks",
+    "gallery_transaction_receipts",
+    "visited_line_ids",
+    "witnessed_caption_variants",
+    "preferences",
+    "input_mappings",
+    "controls_bindings",
+    "controls_import_pending",
+    "migration_receipts",
+    "legacy_preferences_v1",
+    "pair_form_witness_receipts",
+    "dating_attempts",
+    "observer_evidence",
+    "pair_deck_draws",
+    "reached_presentations",
+    "reached_presentation_chronology"
+  ],
+  "properties": {
+    "dating_attempts": {
+      "type": "object",
+      "description": "Run IDs map semantic slots to retained attempts and branch-specific latest progress; saved runs own canonical head pointers. DatingAttemptLedger.gd additionally validates board truth, exact receipt payloads, identities and monotonic transitions.",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": {
+          "$ref": "#/$defs/dating_slot"
+        }
+      }
+    },
+    "pair_form_witness_receipts": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string",
+        "enum": [
+          "ambiguous_sweet",
+          "ambiguous_dark",
+          "love_sweet",
+          "love_dark"
+        ]
+      }
+    },
+    "schema_version": {
+      "type": "integer",
+      "const": 10
+    },
+    "gallery_unlocks": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string"
+      }
+    },
+    "gallery_transaction_receipts": {
+      "type": "object"
+    },
+    "visited_line_ids": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "witnessed_caption_variants": {
+      "type": "object",
+      "description": "Canonical SHA-256 keys map to exact registered caption beats. Runtime validates each key against the complete primitive-valued beat, requires its line in visited_line_ids, and preserves membership until an explicit visited-history or full Profile reset.",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["beat_id", "line_id", "owning_entry_id", "presentation_signature"],
+        "properties": {
+          "beat_id": {"type": "string", "minLength": 1},
+          "line_id": {"type": "string", "minLength": 1},
+          "owning_entry_id": {"type": "string", "minLength": 1},
+          "presentation_signature": {"type": "object", "minProperties": 1}
+        }
+      }
+    },
+    "preferences": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "language",
+        "reading",
+        "audio",
+        "display",
+        "accessibility",
+        "exceptional_replay",
+        "dark_mode"
+      ],
+      "properties": {
+        "language": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "primary_locale_id",
+            "secondary_locale_id",
+            "dual_enabled"
+          ],
+          "properties": {
+            "primary_locale_id": {
+              "type": "string",
+              "enum": [
+                "en",
+                "zh_CN",
+                "zh_HK",
+                "ja",
+                "ko"
+              ]
+            },
+            "secondary_locale_id": {
+              "type": "string",
+              "enum": [
+                "en",
+                "zh_CN",
+                "zh_HK",
+                "ja",
+                "ko"
+              ]
+            },
+            "dual_enabled": {
+              "type": "boolean"
+            }
+          }
+        },
+        "reading": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "reveal_speed",
+            "auto_enabled",
+            "auto_delay",
+            "skip_mode",
+            "read_aloud_enabled",
+            "read_aloud_rate",
+            "lower_background_during_narration"
+          ],
+          "properties": {
+            "reveal_speed": {
+              "type": "string",
+              "enum": [
+                "instant",
+                "fast",
+                "normal",
+                "slow"
+              ]
+            },
+            "auto_enabled": {
+              "type": "boolean"
+            },
+            "auto_delay": {
+              "type": "string",
+              "enum": [
+                "short",
+                "normal",
+                "long"
+              ]
+            },
+            "skip_mode": {
+              "type": "string",
+              "enum": [
+                "read_only",
+                "all_text"
+              ]
+            },
+            "read_aloud_enabled": {
+              "type": "boolean"
+            },
+            "read_aloud_rate": {
+              "type": "string",
+              "enum": [
+                "slow",
+                "normal",
+                "fast"
+              ]
+            },
+            "lower_background_during_narration": {
+              "type": "boolean"
+            }
+          }
+        },
+        "audio": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "master_volume",
+            "master_muted",
+            "music_volume",
+            "music_muted",
+            "ambience_volume",
+            "ambience_muted",
+            "sfx_volume",
+            "sfx_muted",
+            "mute_when_inactive",
+            "output_mode"
+          ],
+          "properties": {
+            "master_volume": {
+              "type": "number",
+              "minimum": 0.0,
+              "maximum": 1.0
+            },
+            "master_muted": {
+              "type": "boolean"
+            },
+            "music_volume": {
+              "type": "number",
+              "minimum": 0.0,
+              "maximum": 1.0
+            },
+            "music_muted": {
+              "type": "boolean"
+            },
+            "ambience_volume": {
+              "type": "number",
+              "minimum": 0.0,
+              "maximum": 1.0
+            },
+            "ambience_muted": {
+              "type": "boolean"
+            },
+            "sfx_volume": {
+              "type": "number",
+              "minimum": 0.0,
+              "maximum": 1.0
+            },
+            "sfx_muted": {
+              "type": "boolean"
+            },
+            "mute_when_inactive": {
+              "type": "boolean"
+            },
+            "output_mode": {
+              "type": "string",
+              "enum": [
+                "stereo",
+                "mono"
+              ]
+            }
+          }
+        },
+        "display": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "window_mode",
+            "angela_panel_width",
+            "dating_solo_portrait_width",
+            "dating_group_portrait_width"
+          ],
+          "properties": {
+            "angela_panel_width": {
+              "type": "integer",
+              "minimum": 320,
+              "maximum": 480,
+              "multipleOf": 2,
+              "default": 480
+            },
+            "dating_solo_portrait_width": {
+              "type": "integer",
+              "anyOf": [{"const": 0}, {"minimum": 320, "maximum": 640, "multipleOf": 2}],
+              "default": 0,
+              "description": "Zero inherits the current Angela panel width."
+            },
+            "dating_group_portrait_width": {
+              "type": "integer",
+              "anyOf": [{"const": 0}, {"minimum": 320, "maximum": 640, "multipleOf": 4}],
+              "default": 0,
+              "description": "Zero inherits the current Angela panel width."
+            },
+            "window_size": {
+              "type": "string",
+              "enum": ["1280x720", "1600x900", "1920x1080"],
+              "default": "1280x720"
+            },
+            "window_mode": {
+              "type": "string",
+              "enum": [
+                "windowed",
+                "borderless"
+              ]
+            },
+            "minesweeper_app_beginner_cell_size": {
+              "type": "integer",
+              "minimum": 10,
+              "maximum": 60,
+              "multipleOf": 2,
+              "default": 36
+            },
+            "minesweeper_app_beginner_always_fit": {"type": "boolean", "default": false},
+            "minesweeper_app_intermediate_cell_size": {
+              "type": "integer",
+              "minimum": 10,
+              "maximum": 60,
+              "multipleOf": 2,
+              "default": 36
+            },
+            "minesweeper_app_intermediate_always_fit": {"type": "boolean", "default": false},
+            "minesweeper_app_expert_cell_size": {
+              "type": "integer",
+              "minimum": 10,
+              "maximum": 60,
+              "multipleOf": 2,
+              "default": 36
+            },
+            "minesweeper_app_expert_always_fit": {"type": "boolean", "default": false},
+            "minesweeper_challenge_cell_size": {
+              "type": "integer",
+              "minimum": 10,
+              "maximum": 60,
+              "multipleOf": 2,
+              "default": 36
+            },
+            "minesweeper_challenge_always_fit": {"type": "boolean", "default": false}
+          }
+        },
+        "accessibility": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "font_style",
+            "text_size",
+            "large_targets",
+            "high_contrast",
+            "reduced_motion",
+            "screen_shake",
+            "colour_differentiation",
+            "sound_detail_text"
+          ],
+          "properties": {
+            "font_style": {
+              "type": "string",
+              "enum": [
+                "pixel",
+                "readable"
+              ],
+              "default": "pixel"
+            },
+            "text_size": {
+              "type": "integer",
+              "enum": [
+                100,
+                125,
+                150
+              ]
+            },
+            "large_targets": {
+              "type": "boolean"
+            },
+            "high_contrast": {
+              "type": "boolean"
+            },
+            "reduced_motion": {
+              "type": "boolean"
+            },
+            "steady_interface": {"type": "boolean", "default": false},
+            "screen_shake": {
+              "type": "string",
+              "enum": [
+                "off",
+                "low",
+                "normal"
+              ]
+            },
+            "colour_differentiation": {
+              "type": "string",
+              "enum": [
+                "standard",
+                "protan",
+                "deutan",
+                "tritan"
+              ]
+            },
+            "sound_detail_text": {
+              "type": "string",
+              "enum": [
+                "story_relevant",
+                "off"
+              ]
+            }
+          }
+        },
+        "exceptional_replay": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "available",
+            "replay_full"
+          ],
+          "properties": {
+            "available": {
+              "type": "boolean"
+            },
+            "replay_full": {
+              "type": "boolean"
+            }
+          }
+        },
+        "dark_mode": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "available",
+            "next_run_enabled"
+          ],
+          "properties": {
+            "available": {
+              "type": "boolean"
+            },
+            "next_run_enabled": {
+              "type": "boolean"
+            }
+          }
+        }
+      }
+    },
+    "input_mappings": {
+      "type": "object",
+      "description": "Inactive legacy provenance, including sparse version-one maps. Runtime additionally rejects empty action identities.",
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/legacy_key"
+            },
+            {
+              "$ref": "#/$defs/legacy_controller"
+            }
+          ]
+        }
+      }
+    },
+    "controls_bindings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "game_quick_save",
+        "game_quick_load",
+        "game_toggle_board_mode",
+        "game_new_board"
+      ],
+      "properties": {
+        "game_quick_save": {
+          "$ref": "#/$defs/controls_slots"
+        },
+        "game_quick_load": {
+          "$ref": "#/$defs/controls_slots"
+        },
+        "game_toggle_board_mode": {
+          "$ref": "#/$defs/controls_slots"
+        },
+        "game_new_board": {
+          "$ref": "#/$defs/controls_slots"
+        }
+      }
+    },
+    "controls_import_pending": {
+      "type": "boolean",
+      "description": "True keeps the legal Controls draft inactive until explicit import resolution or confirmed Restore Controls."
+    },
+    "migration_receipts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "legacy_game_state_profile_v1",
+        "legacy_input_bindings_v1",
+        "invalid_persisted_skip_mode_v1"
+      ],
+      "properties": {
+        "legacy_game_state_profile_v1": {
+          "type": "boolean"
+        },
+        "legacy_input_bindings_v1": {
+          "type": "boolean"
+        },
+        "invalid_persisted_skip_mode_v1": {
+          "type": "boolean"
+        }
+      }
+    },
+    "legacy_preferences_v1": {
+      "type": "object",
+      "description": "Empty or the complete validated version-one preference tree, retained as historical data. Exact archive contents are validated by ProfileSchema.gd."
+    },
+    "observer_evidence": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object"
+      }
+    },
+    "pair_deck_draws": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object"
+      }
+    },
+    "reached_presentations": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object"
+      }
+    },
+    "reached_presentation_chronology": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "first_witnessed",
+        "legacy_unordered"
+      ],
+      "description": "first_witnessed is oldest-first. legacy_unordered is a sorted membership set whose historical witness order is unknown. Every reached signature belongs to exactly one partition.",
+      "properties": {
+        "first_witnessed": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        },
+        "legacy_unordered": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "legacy_key": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "physical_keycode",
+        "keycode",
+        "shift",
+        "alt",
+        "ctrl",
+        "meta"
+      ],
+      "properties": {
+        "kind": {
+          "const": "key"
+        },
+        "physical_keycode": {
+          "type": "integer"
+        },
+        "keycode": {
+          "type": "integer"
+        },
+        "shift": {
+          "type": "boolean"
+        },
+        "alt": {
+          "type": "boolean"
+        },
+        "ctrl": {
+          "type": "boolean"
+        },
+        "meta": {
+          "type": "boolean"
+        }
+      }
+    },
+    "legacy_controller": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "button_index",
+        "device"
+      ],
+      "properties": {
+        "kind": {
+          "const": "joypad_button"
+        },
+        "button_index": {
+          "type": "integer"
+        },
+        "device": {
+          "type": "integer"
+        }
+      }
+    },
+    "controls_keyboard": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "physical_keycode",
+        "keycode",
+        "shift",
+        "alt",
+        "ctrl",
+        "meta"
+      ],
+      "properties": {
+        "kind": {
+          "const": "key"
+        },
+        "physical_keycode": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "keycode": {
+          "type": "integer",
+          "const": 0
+        },
+        "shift": {
+          "type": "boolean",
+          "const": false
+        },
+        "alt": {
+          "type": "boolean",
+          "const": false
+        },
+        "ctrl": {
+          "type": "boolean",
+          "const": false
+        },
+        "meta": {
+          "type": "boolean",
+          "const": false
+        }
+      }
+    },
+    "controls_controller": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "button_index",
+        "device"
+      ],
+      "properties": {
+        "kind": {
+          "const": "joypad_button"
+        },
+        "button_index": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 20
+        },
+        "device": {
+          "type": "integer",
+          "const": -1
+        }
+      }
+    },
+    "controls_slots": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "keyboard",
+        "controller"
+      ],
+      "properties": {
+        "keyboard": {
+          "$ref": "#/$defs/controls_keyboard"
+        },
+        "controller": {
+          "$ref": "#/$defs/controls_controller"
+        }
+      }
+    },
+    "dating_progress": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "revision",
+        "record",
+        "materialization_receipt",
+        "clear_receipt",
+        "terminal_receipt",
+        "effect_receipt",
+        "completion_receipt"
+      ],
+      "properties": {
+        "revision": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "record": {
+          "type": "object"
+        },
+        "materialization_receipt": {
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "clear_receipt": {
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "terminal_receipt": {
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "effect_receipt": {
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "completion_receipt": {
+          "type": [
+            "object",
+            "null"
+          ]
+        }
+      }
+    },
+    "dating_attempt_history": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "generation",
+        "origin_branch_id",
+        "entry_receipt",
+        "progress_by_branch"
+      ],
+      "properties": {
+        "generation": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "origin_branch_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "entry_receipt": {
+          "type": "object"
+        },
+        "progress_by_branch": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "$ref": "#/$defs/dating_progress"
+          }
+        }
+      }
+    },
+    "dating_slot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "first_attempt_id",
+        "attempts"
+      ],
+      "properties": {
+        "first_attempt_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "attempts": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "$ref": "#/$defs/dating_attempt_history"
+          }
+        }
+      }
+    }
+  }
+}

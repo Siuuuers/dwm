@@ -1,0 +1,76 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/4859990e-e881-45e3-bbee-b2d3df0a0006/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+
+
+res://tests/unit/test_canonical_writer_compatibility.gd
+* test_preserves_canonical_bytes_and_refusals_for_boundary_and_random_values
+* test_printable_ascii_keys_keep_byte_order_after_string_name_normalization
+* test_control_and_unicode_keys_keep_utf8_order
+* test_sorted_key_order_preserves_first_structural_refusal
+* test_native_integer_document_preserves_values_beyond_double_precision
+* test_native_document_escapes_every_printable_ascii_character_in_keys_and_values
+* test_native_document_preserves_nested_string_names_typed_arrays_and_shared_children
+* test_native_depth_limit_changes_only_encoder_selection_not_accepted_bytes
+* test_native_preflight_exclusions_retain_original_values_and_refusals
+* test_native_unicode_scalar_boundaries_retain_exact_unescaped_bytes
+* test_native_unicode_keys_keep_utf8_order_without_normalizing_combining_sequences
+* test_native_unicode_documents_escape_quotes_and_backslashes_without_stripping_bom
+* test_unicode_preflight_still_excludes_all_constructible_c0_controls_in_keys_and_values
+13/13 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/unit/test_canonical_writer_compatibility.gd
+    - Outside Tests
+        * [<Node#131248162582>(subsystem_animation.gd)]
+        * [<Node#131264939810>(subsystem_audio.gd)]
+        * [<Node#131281717040>]
+        * [<Node#131298494264>]
+        * [<Node#131315271488>(subsystem_backgrounds.gd)]
+        * [<Node#131852142401>(subsystem_choices.gd)]
+        * [<Timer#131868919618>]
+        * [<Node#131885696835>(subsystem_expression.gd)]
+        * [<Node#131919251272>(subsystem_glossary.gd)]
+        * [<Node#131936028489>(subsystem_history.gd)]
+        * [<Node#131952805706>(subsystem_input.gd)]
+        * [<Timer#131969582923>]
+        * [<Node#131986360140>(subsystem_jump.gd)]
+        * [<Node#132003137357>(subsystem_containers.gd)]
+        * [<Node#132019914574>(subsystem_portraits.gd)]
+        * [<Node#132556785487>(subsystem_save.gd)]
+        * [<Timer#132573562704>]
+        * [<Node#132590339921>(subsystem_settings.gd)]
+        * [<Node#132607117141>(subsystem_styles.gd)]
+        * [<Node#132623894358>(subsystem_text.gd)]
+        * [<Node#132707780443>(subsystem_text_input.gd)]
+        * [<Node#132724557660>(subsystem_variables.gd)]
+        * [<Node#132741334877>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#132758112094>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+Totals
+------
+Scripts               1
+Tests                13
+Passing Tests        13
+Asserts             876
+Orphans              24
+Time              0.497s
+
+
+---- All tests passed! ----

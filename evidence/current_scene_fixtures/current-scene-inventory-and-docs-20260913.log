@@ -1,0 +1,81 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/fc3c62b6-026f-40fd-92e0-b51341dc2384/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+
+
+res://tests/unit/tooling/test_public_surface_inventory.gd
+* test_public_surface_inventory_exists
+* test_build_produces_complete_sorted_records
+* test_validation_failure_matrix
+* test_reserved_symbol_rules
+* test_write_canonical_json_round_trip
+* test_game_state_required_surface_reservations
+* test_task3_required_surface_realizes_authenticated_contacts_and_retires_legacy_reply
+* test_task4_committed_schedule_seams_carry_their_exact_frozen_signatures
+* test_save_manager_required_surface_freezes_realized_facade
+* test_both_live_inventories_reproduce_every_canonical_byte
+* test_read_only_check_detects_call_site_dynamic_reference_and_signature_drift
+11/11 passed.
+
+
+res://tests/unit/tooling/test_doc_validator.gd
+* test_validator_error_matrix
+* test_accepted_decision_contract_and_index
+* test_authority_index_validation_rejects_invalid_bytes_that_decode_like_expected_text
+3/3 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/unit/tooling/test_public_surface_inventory.gd
+    - Outside Tests
+        * [<Node#129654327060>(subsystem_animation.gd)]
+        * [<Node#129671104292>(subsystem_audio.gd)]
+        * [<Node#129687881518>]
+        * [<Node#129704658739>]
+        * [<Node#129721435958>(subsystem_backgrounds.gd)]
+        * [<Node#130258306875>(subsystem_choices.gd)]
+        * [<Timer#130275084092>]
+        * [<Node#130291861310>(subsystem_expression.gd)]
+        * [<Node#130325415747>(subsystem_glossary.gd)]
+        * [<Node#130342192964>(subsystem_history.gd)]
+        * [<Node#130358970181>(subsystem_input.gd)]
+        * [<Timer#130375747398>]
+        * [<Node#130392524615>(subsystem_jump.gd)]
+        * [<Node#130409301832>(subsystem_containers.gd)]
+        * [<Node#130426079049>(subsystem_portraits.gd)]
+        * [<Node#130962949962>(subsystem_save.gd)]
+        * [<Timer#130979727179>]
+        * [<Node#130996504396>(subsystem_settings.gd)]
+        * [<Node#131013281616>(subsystem_styles.gd)]
+        * [<Node#131030058833>(subsystem_text.gd)]
+        * [<Node#131113944918>(subsystem_text_input.gd)]
+        * [<Node#131130722135>(subsystem_variables.gd)]
+        * [<Node#131147499352>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#131164276569>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+Totals
+------
+Scripts               2
+Tests                14
+Passing Tests        14
+Asserts             410
+Orphans              24
+Time              17.269s
+
+
+---- All tests passed! ----

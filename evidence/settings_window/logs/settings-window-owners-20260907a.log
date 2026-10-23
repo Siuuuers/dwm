@@ -1,0 +1,143 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2570)
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-ui-build/.godot/phase2r_tests/d7a4fb94-13c1-42dd-8eae-4e7b07296258/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+tests/unit/test_window_mode_manager.gd
+* test_ready_owner_commits_once_through_real_profile_and_shared_output_transaction
+* test_headless_owner_initializes_as_unavailable_without_physical_or_profile_mutation
+* test_failed_physical_apply_restores_exact_prior_geometry_and_does_not_publish
+* test_failed_persistence_restores_prior_output_not_generic_windowed_geometry
+* test_unproved_apply_and_failed_rollback_latch_shared_fatal
+* test_publication_profile_change_is_settled_to_latest_committed_mode
+* test_second_window_owner_binding_refuses_and_restores_its_prior_physical_state
+* test_invalid_restore_plans_refuse_and_silent_restore_does_not_publish_profile
+8/8 passed.
+
+
+tests/unit/test_profile_window_restore.gd
+* test_configuration_is_identity_immutable_and_validates_the_contract
+* test_composite_prepare_apply_capture_rollback_and_finalize_use_one_profile_plan
+    [Failed]:  DICTIONARY({ "window_mode": "windowed" }) != DICTIONARY({ "window_mode": "borderless" }).
+    { "window_mode": "windowed" } != { "window_mode": "borderless" }  1 of 1 keys do not match.
+      at line 123
+    [Failed]:  ["windowed"] expected to equal ["borderless"]:
+      at line 132
+    [Failed]:  ["windowed"] expected to equal ["borderless"]:
+      at line 133
+* test_bound_participant_rejects_missing_window_plan_before_mutation
+* test_window_apply_failure_is_compensated_without_touching_profile
+* test_profile_apply_failure_compensates_the_already_applied_window
+* test_unproved_rollback_latches_window_failure_and_returns_fatal
+* test_unbound_participant_preserves_the_legacy_profile_only_contract
+    [Failed]:  ["windowed"] expected to equal ["borderless"]:
+      at line 217
+5/7 passed.
+
+
+tests/unit/test_application_bootstrap.gd
+* test_stage_order_runs_minesweeper_after_day_resolution_and_before_readiness
+* test_minesweeper_stage_rejects_a_missing_gate_without_partial_configuration
+* test_minesweeper_stage_rejects_missing_targets_without_partial_configuration
+* test_minesweeper_stage_rejects_an_unretained_checkpoint_port_without_partial_configuration
+* test_minesweeper_stage_rejects_unconfigured_checkpoint_providers
+* test_minesweeper_stage_rejects_a_gate_game_state_did_not_retain
+* test_minesweeper_stage_constructs_exactly_one_coordinator_over_production_adapters
+* test_identical_startup_replay_reuses_the_exact_same_round_graph
+* test_game_state_refuses_a_second_distinct_round_coordinator
+* test_round_facade_fails_closed_before_the_coordinator_is_installed
+* test_game_state_reports_only_its_gate_identity_never_the_gate
+* test_bootstrap_stage_and_this_suite_are_source_bound_by_uid
+12/12 passed.
+
+
+tests/integration/test_restore_production_adapters.gd
+* test_prepare_builds_eight_plans_and_commits
+* test_commit_prepared_restore_rejects_stray_identity_allocation_bundle_key
+* test_commit_prepared_restore_rejects_stray_transaction_issuer_receipt_key
+* test_commit_prepared_restore_rejects_stray_transaction_remap_key
+* test_late_narrative_incompatibility_selects_earlier_bundle
+* test_profile_prepare_failure_is_structural_not_content
+* test_physical_narrative_participant_prepares_against_current_manifest
+* test_physical_narrative_participant_reports_removed_content_as_recoverable
+* test_physical_narrative_participant_reports_fingerprint_drift_as_recoverable
+* test_physical_narrative_participant_fails_closed_on_malformed_bytes
+* test_checkpoint_port_configures_desktop_context_provider
+* test_semantic_narrative_participant_prepares_the_six_field_plan_over_the_real_bridge
+* test_semantic_narrative_participant_reports_manifest_drift_as_recoverable
+13/13 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+tests/unit/test_window_mode_manager.gd
+    - Outside Tests
+        * [<Node#100193535723>(subsystem_animation.gd)]
+        * [<Node#100210312940>(subsystem_audio.gd)]
+        * [<Node#100227090157>]
+        * [<Node#100243867374>]
+        * [<Node#100260644591>(subsystem_backgrounds.gd)]
+        * [<Node#100797515504>(subsystem_choices.gd)]
+        * [<Timer#100814292721>]
+        * [<Node#100831069938>(subsystem_expression.gd)]
+        * [<Node#100864624375>(subsystem_glossary.gd)]
+        * [<Node#100881401592>(subsystem_history.gd)]
+        * [<Node#100898178809>(subsystem_input.gd)]
+        * [<Timer#100914956026>]
+        * [<Node#100931733243>(subsystem_jump.gd)]
+        * [<Node#100948510460>(subsystem_containers.gd)]
+        * [<Node#100965287677>(subsystem_portraits.gd)]
+        * [<Node#101502158590>(subsystem_save.gd)]
+        * [<Timer#101518935807>]
+        * [<Node#101535713024>(subsystem_settings.gd)]
+        * [<Node#101552490244>(subsystem_styles.gd)]
+        * [<Node#101569267461>(subsystem_text.gd)]
+        * [<Node#101653153546>(subsystem_text_input.gd)]
+        * [<Node#101669930763>(subsystem_variables.gd)]
+        * [<Node#101686707980>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#101703485197>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+tests/unit/test_profile_window_restore.gd
+- test_composite_prepare_apply_capture_rollback_and_finalize_use_one_profile_plan
+    [Failed]:  DICTIONARY({ "window_mode": "windowed" }) != DICTIONARY({ "window_mode": "borderless" }).
+    { "window_mode": "windowed" } != { "window_mode": "borderless" }  1 of 1 keys do not match.
+          at line 123
+    [Failed]:  ["windowed"] expected to equal ["borderless"]:
+          at line 132
+    [Failed]:  ["windowed"] expected to equal ["borderless"]:
+          at line 133
+- test_unbound_participant_preserves_the_legacy_profile_only_contract
+    [Failed]:  ["windowed"] expected to equal ["borderless"]:
+          at line 217
+
+Totals
+------
+Scripts               4
+Tests                40
+Passing Tests        38
+Failing Tests         2
+Asserts           372/376
+Orphans              24
+Time              3.882s
+
+
+---- 2 failing tests ----

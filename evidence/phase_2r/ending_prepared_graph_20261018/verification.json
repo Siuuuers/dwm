@@ -1,0 +1,2314 @@
+{
+  "schema_version": 1,
+  "scope": "Original archive and source custody only",
+  "expected_run": 39162900907,
+  "expected_job": 117779747741,
+  "run_job_binding": "Externally supplied archive identity; this ZIP does not itself attest Actions run/job metadata",
+  "archive_custody_ok": true,
+  "available_source_checks_ok": true,
+  "custody_ok": true,
+  "native_acceptance_evaluated": false,
+  "official_acceptance_established": false,
+  "problems": [],
+  "source_custody": {
+    "complete": true,
+    "origin_present": true,
+    "expected_tool_count": 83,
+    "expected_game_count": 11,
+    "expected_controller_count": 1,
+    "observed_source_count": 95,
+    "verified_tool_count": 83,
+    "verified_game_count": 11,
+    "controller_verified": true,
+    "missing_source_paths": [],
+    "snapshots": {
+      "controller.yml": {
+        "bytes": 18407,
+        "sha256": "e54083b1829fb21be567d85c9e8163e6f8c50de498f22fcf9a81ee676b0bebd2",
+        "git_blob": "29ab3e005040716db1a40a3d701b48ad41ea99ed"
+      },
+      "export_presets.cfg": {
+        "bytes": 1117,
+        "sha256": "76d904435496d2057572225b796f8b3c74f121a21254d211a6246caaf96efcaa",
+        "git_blob": "ccb9409ac1054d0b4b52e78df823c33f532e83fb"
+      },
+      "project.godot": {
+        "bytes": 14532,
+        "sha256": "5e8009d890f9e4359b24bb68a59fdec1bf56ef0a3ea94be06c3e43a6d2353053",
+        "git_blob": "b3e4ec92242535d81845bdc2dc7537e9e3ec122e"
+      },
+      "scripts/ui/EndingScene.gd": {
+        "bytes": 15926,
+        "sha256": "8545f7f7b1a31e94d4a49b475ddac175aa3e37ed5816694b678e5382c6c51b5c",
+        "git_blob": "dec4979b1d6331a22aac268b4b2a926e70a601eb"
+      },
+      "scripts/ui/witnessed/WitnessedAccessibleCaption.gd": {
+        "bytes": 1485,
+        "sha256": "b1ce258f4d409cc225ba5d433593edbdef1140e24b5b9807212c00e850a5082e",
+        "git_blob": "c29b306199bf1b8f9ce4352872ff569e2b3f0bd4"
+      },
+      "scripts/ui/witnessed/WitnessedCaptionLayer.gd": {
+        "bytes": 84211,
+        "sha256": "bf1f21e7c2aa0d0d6be1a4ce343a8a0f21b9bc8918a3f3c2b9a817d9d07f712e",
+        "git_blob": "5c85ce306366917c995db06794e18cb4035b2711"
+      },
+      "scripts/ui/witnessed/WitnessedSourceCanvas.gd": {
+        "bytes": 1107,
+        "sha256": "29e8b5ff92531fa052ab501db328ab02c3aad806c8c97600e1f09030448ef385",
+        "git_blob": "db11d71216b47004da8a3207acaac73e964cffa6"
+      },
+      "tests/tooling/Test-ExportedGameplayDeadline.ps1": {
+        "bytes": 3023,
+        "sha256": "e428814445044a90d3d52f78a56c02a31eb8032b314f7d8b512fb59071711b29",
+        "git_blob": "436c73a380baec1a3bc6ba64d273ff052e316d78"
+      },
+      "tools/diagnostics/ending-publication-20261019/bind_trace.py": {
+        "bytes": 20114,
+        "sha256": "82ed542a4e3f06d8855138cf029c5a6488fe7fc41970f3ece95e95ca34902298",
+        "git_blob": "00d2fdeaf5101cfaa3de6ff285495cdc7634191d"
+      },
+      "tools/diagnostics/ending-publication-20261019/Build-NativePublicationProbe.ps1": {
+        "bytes": 11327,
+        "sha256": "04191c4f68f8daf276e5ca041b4b135ea7e61ad6993c7db33610365872f02be8",
+        "git_blob": "42b350931500beab761824d3c34319672345ac98"
+      },
+      "tools/diagnostics/ending-publication-20261019/controller-template.yml": {
+        "bytes": 18283,
+        "sha256": "1bc1e296322cd054cb7d0432045d32a8568325a80629ac8522907f64c1d4b58f",
+        "git_blob": "156e602d950e868b873488e48b86c2cb0528eef2"
+      },
+      "tools/diagnostics/ending-publication-20261019/native-probe/baseline/drivers/accesskit/accessibility_driver_accesskit.cpp": {
+        "bytes": 74291,
+        "sha256": "9fe069e718b13d06cced39b3fd098198911fab3c3c46dc74910cfc413646811c",
+        "git_blob": "f0dfc5e056c4cf6341cda93763e294b7e5fe3df6"
+      },
+      "tools/diagnostics/ending-publication-20261019/native-probe/baseline/drivers/accesskit/accessibility_driver_accesskit.h": {
+        "bytes": 12450,
+        "sha256": "22e723e9b99f5e84ba947242c8073640f5fad735bf406d02988d77284b1d8dd8",
+        "git_blob": "a4196c6bcb67a12cf8f279207ebc92e623f816ff"
+      },
+      "tools/diagnostics/ending-publication-20261019/native-probe/candidate/drivers/accesskit/accessibility_driver_accesskit.cpp": {
+        "bytes": 83200,
+        "sha256": "59ecabf7ef34ced32990a3dccbf113e169f9f5766ccd2fae3f62f9bfbdb2aa42",
+        "git_blob": "40b0f7fcfb45c78c27855eaab438679155647d50"
+      },
+      "tools/diagnostics/ending-publication-20261019/native-probe/candidate/drivers/accesskit/accessibility_driver_accesskit.h": {
+        "bytes": 12524,
+        "sha256": "c601717080df43b36f10a4a0f38110cae0f5ee5d77970081bf730c5f27095827",
+        "git_blob": "75ce466f993862e60eed5a9626eb734c2b715e26"
+      },
+      "tools/diagnostics/ending-publication-20261019/native-probe/PROTOCOL.md": {
+        "bytes": 11253,
+        "sha256": "29a598e0a733e14d2ae849e21d62f9d7b52fa9d4db5f4b3ae5168f7d92cde37c",
+        "git_blob": "0b2c6e4de244491fa372b9807cab3e2eaf836806"
+      },
+      "tools/diagnostics/ending-publication-20261019/native-probe/publication-native-probe.patch": {
+        "bytes": 12076,
+        "sha256": "63e2b4090e881a191783ed641530d0c066eaa1193ef513dd0db33ec09bf51065",
+        "git_blob": "435e5a4ac0afca7fa5128af6305960474cdb06e3"
+      },
+      "tools/diagnostics/ending-publication-20261019/native-probe/reference/thirdparty/accesskit/include/accesskit.h": {
+        "bytes": 90877,
+        "sha256": "ad663585317feb694494fe1544d356feb186b74c8169717a067e0a254960270b",
+        "git_blob": "eab9e353703e0881f36187cf8721fd565e4c2ca5"
+      },
+      "tools/diagnostics/ending-publication-20261019/native-probe/source-pins.json": {
+        "bytes": 3055,
+        "sha256": "f0a56ae3b063e57e6dd2f68c750a1625207247b3773c3d241a9285f9c4925024",
+        "git_blob": "2f0dadf2bf8bdb550e04f3e55cdf7cbaa05071a0"
+      },
+      "tools/diagnostics/ending-publication-20261019/New-NativeDiagnosticPackage.ps1": {
+        "bytes": 6272,
+        "sha256": "4b70df3d01d71e35fcb71300e34130ca3ae9341e05f5a25851432fbfed4804f7",
+        "git_blob": "53c5697bd96074c9ae37d02f35bf0a756f54f5a6"
+      },
+      "tools/diagnostics/ending-publication-20261019/prepare_package.py": {
+        "bytes": 10118,
+        "sha256": "b345a42df207f33ba6ff963d6c85ad81f401c4d1e380ea50e0c1170f665c96ac",
+        "git_blob": "2f9ae3bad9d9c8d6d9cbd50a20418da227730768"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/build-plan/build-plan.md": {
+        "bytes": 9339,
+        "sha256": "fbdafcf07cfac516ec69164897ff3b8b9dd3245b99c8b2a0cdc507d800ee2b1f",
+        "git_blob": "d4595fa52683935dffb535a98aff4d50fbb3057d"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/build-plan/dependency-pins.json": {
+        "bytes": 4229,
+        "sha256": "8fdf9aefdb0dc3def4dc414d2d79dc9aa9e8a2d2545de1780e30a50a57d44f38",
+        "git_blob": "5b756309976d1c9c2402b9764a49e983c60c1671"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/build-plan/metadata/accesskit-c-static-0.21.2-release.json": {
+        "bytes": 3617,
+        "sha256": "ac0438daf33750162f7a7a95cd227cad3628074226ceb0ebbe3041c57cb882f5",
+        "git_blob": "8237a735e0dc9f04a790e500199a5a2449a7a311"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/build-plan/metadata/angle-chromium-6601.2-release.json": {
+        "bytes": 23285,
+        "sha256": "cfb0106a2a15f6c94c54595a5be0f8abfce64f1c53fdb8977f9a5cde371220dd",
+        "git_blob": "1892746d9d41905ea64ac171b3a7d7546897d8c6"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/build-plan/metadata/godot-source-commit-35e80b3a.json": {
+        "bytes": 1822,
+        "sha256": "3744c8f848df293773011885f8f919fb740d11c4d347cc8f959724c4a83b6eb4",
+        "git_blob": "ba908560010032c20fa5ebb665cf7cd38ecc94cb"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/build-plan/metadata/mesa-nir-25.3.1-1-release.json": {
+        "bytes": 15728,
+        "sha256": "ff0404563390ccf852e982639d8f38ad520aa60d4737d827cc754402eba16d35",
+        "git_blob": "39901ecf03d751cdaaeb01da37c1b855e2b8c0ca"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/build-plan/SHA256SUMS.txt": {
+        "bytes": 1895,
+        "sha256": "83ce6a1b4fd5b8213a8addf7c06b11991ae96d15aa40183f974968f8f7189214",
+        "git_blob": "1605ed4869492fd0896dffdb147e4281fff37a17"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/build-plan/sources/accesskit/publish.yml": {
+        "bytes": 8712,
+        "sha256": "94451f30754f001e755a28a4ecc78a57dd524c8c218ae8839cb87ed4cfb68394",
+        "git_blob": "873d3c07bdef5630d2536b73e8a5cb55692f323f"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/build-plan/sources/dwm/windows-tests-81847d8b.yml": {
+        "bytes": 74530,
+        "sha256": "7a51ac9c4ad49c1d11bee64dfecc99e00a4ddd270669aa8f7e1abe8a5ca5c8a8",
+        "git_blob": "6efb7ab714a39a3e2672f0eab9da0e01d13c5695"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/build-plan/sources/godot/d3d12-SCsub": {
+        "bytes": 7427,
+        "sha256": "543170d551109ead734677fb27a4ea5093d3928a20842bdac398a6b56c2f43dc",
+        "git_blob": "767afcfed02d76b811ed4f5d1c8961aea37f1151"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/build-plan/sources/godot/godot-build-action.yml": {
+        "bytes": 1428,
+        "sha256": "3f13d212ec290cf9aef15b36c8dd3a52f9dde68b9735f11afa084587ffd55dcb",
+        "git_blob": "721bf5250cb242a37d197b74e38a8705ab9dee74"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/build-plan/sources/godot/godot-deps-action.yml": {
+        "bytes": 1003,
+        "sha256": "b8f81d5ab5200be1615d4b781f7dfe178033670719bc9ac2a7ab76e74cac0199",
+        "git_blob": "a980849d3836490d66ccd83739e25742115f66f2"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/build-plan/sources/godot/install_d3d12_sdk_windows.py": {
+        "bytes": 6282,
+        "sha256": "01efa055ed400219f16f9d7c19978319df4e191f4523c1ff5859b6e93d24b269",
+        "git_blob": "e449248df658ab79657d2ecbfceb18ead8593570"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/build-plan/sources/godot/SConstruct": {
+        "bytes": 51856,
+        "sha256": "f82375ba2c73fe86a54db19cc05e4dcb7e2d9c70687d84b80b9710673f3da829",
+        "git_blob": "58c895bfe51b6fc53b04d5a9b11677aa3e615f0d"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/build-plan/sources/godot/windows-detect.py": {
+        "bytes": 32764,
+        "sha256": "ba37468d3af9b751285210dcfd25e4b150048c809ff21e2df1421bb80859c1a3",
+        "git_blob": "011cdade4c62387e54dee255d5faa003a4ac669c"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/build-plan/sources/godot/windows-SCsub": {
+        "bytes": 5540,
+        "sha256": "d0f569ad7f63330c338ec988c08f103fdc4542df5cf113bf72350a08804af90b",
+        "git_blob": "aefb04818a0ad9f3d0c83966648d1879c1c1d234"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/build-plan/sources/godot/windows_builds.yml": {
+        "bytes": 4469,
+        "sha256": "cd7fb82b7e634f7e4722d588e4e15a24c048deb9395d07762cb1d66f0c25a3b7",
+        "git_blob": "809955b9062b2587e376811fbc24a2c2d2660a66"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/build-plan/sources/godot-docs/compiling_for_windows.rst": {
+        "bytes": 24014,
+        "sha256": "5d25a8578e339e2bac317ee0418e1821e47323398fb2bbbdce6b13200cb819be",
+        "git_blob": "73f76519defd67cf7b5284b41fb59153b4a82176"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/build-plan/sources/runner-images/Windows2022-Readme.md": {
+        "bytes": 38883,
+        "sha256": "eee34ad1795f7a3c66eae157006b4247e000b8a2597c680d0c6c43fba89d6c91",
+        "git_blob": "f7747719ddecef37b3c8b3d7e029de3895740c5c"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/build-plan/sources.json": {
+        "bytes": 7366,
+        "sha256": "a35c30d589f14facbed5a64fad2ecb32e2113c1d342c3b381dc43cac6d6437ff",
+        "git_blob": "2b31908017bbfab67ddfb3353ffb9db679d04746"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/existing-run/archive-receipt.json": {
+        "bytes": 295,
+        "sha256": "3edfbe3a9fa916120a67dc07de96ef308ca1521ce94832c3ad01e45244ede706",
+        "git_blob": "fd2174dfadd49caee68070291ec4dd6e05bcb83a"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/existing-run/exported-capability/result.json": {
+        "bytes": 1880,
+        "sha256": "9d4632a1481976bd763067809479a13b82da80714719376ae5071e0a8a9eebd4",
+        "git_blob": "5d6948b1eb30bdc8273767465d70aa8e8d496d2b"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/existing-run/exported-create/result.json": {
+        "bytes": 4028,
+        "sha256": "493ee57ec0ac396814b7975273e68ac0e4c87e738b4580830fd830b0c2210b4b",
+        "git_blob": "06edc60ebaea2f2ea9dbf1625557ee321ff498e9"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/existing-run/exported-load/game.stdout.log": {
+        "bytes": 109105,
+        "sha256": "4784bd05e387fe9c6e84790c99c86449a38c159153147955f0e2ef293be5af51",
+        "git_blob": "60d0cc43f4b5882bd5e996610810e16ab626f42b"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/existing-run/exported-load/result.json": {
+        "bytes": 2107,
+        "sha256": "35423f1a9820499227fe266e97550d6568d0923a13409965954b82820f280852",
+        "git_blob": "de338ec62f46e422f7a8343fd8c272effa435fe7"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/existing-run/import.log": {
+        "bytes": 222277,
+        "sha256": "f108b3b535ff7e701b7613c4d07c8333f4d1f200391c3b7844d68c0a35e7c8c3",
+        "git_blob": "f4ae0f6b762fcfd869519a2551cdb511e181f4b8"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/existing-run/source/candidate/tools/testing/Invoke-ExportedGameplay.ps1": {
+        "bytes": 52927,
+        "sha256": "0e819db31a69824934b771442b7a19c540b54b4c706192fcb152556c2f7a116b",
+        "git_blob": "e91f912d8351ba7e38401b261d0fb2f0aa3032dc"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/existing-run/source/controller/scene-first-reveal-profile-diagnostic.yml": {
+        "bytes": 32209,
+        "sha256": "fc5fd9d673033b9326ba592e3c5fb2dafe8c1216c146bc6ff39826041f35535c",
+        "git_blob": "768d9559bf52abdaf427342c79698172ee72fddd"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/existing-run/windows-export/validation.json": {
+        "bytes": 4628,
+        "sha256": "885a869120e07b6d1b6b6a4df29ab1af92d51914e1390aa328fce591d3fdc1a7",
+        "git_blob": "aaf214aa6478cf5cd0e1ad9a8a2837545a66540e"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/findings.json": {
+        "bytes": 7096,
+        "sha256": "7948c0fc76739213adc813da26be217ad2fde23089fae9e5675cb8932072bc68",
+        "git_blob": "07fdee8d3b807d7b5129c3cd9eafb64da4ce68c0"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/metadata/accesskit-c-static-0.21.2-release.json": {
+        "bytes": 3617,
+        "sha256": "ac0438daf33750162f7a7a95cd227cad3628074226ceb0ebbe3041c57cb882f5",
+        "git_blob": "8237a735e0dc9f04a790e500199a5a2449a7a311"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/metadata/accesskit-c-static-0.21.2-root.json": {
+        "bytes": 4114,
+        "sha256": "cfdcb8d28c1534206f081fc94906a627af4b823320a4229180bf683fcea8f5df",
+        "git_blob": "181b1f3df5e30861d83765482bedf057288b0ac5"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/metadata/godot-4.6.3-stable-release-index.json": {
+        "bytes": 7245,
+        "sha256": "f2d3172bab2e73584d7f25377385874c4a955fea9b5ec6e7549e4cd05b5aa418",
+        "git_blob": "d8fed792a2d884b1fe4a291c4ac80fa135821fc8"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/metadata/godot-builds-release-4.6.3.json": {
+        "bytes": 50108,
+        "sha256": "d3e838e2d9f49bb5cd380cd7978736aa1cb99af50931ddad0675654cf4b7267e",
+        "git_blob": "e8e65e1dea4192047ce7f2504cd1334572bbe539"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/metadata/godot-builds-tag-4.6.3.json": {
+        "bytes": 369,
+        "sha256": "5e2b5f2bb55ce28239e9678ed54603867d7f75fdb9b8d1e9c840ad06db91d892",
+        "git_blob": "526cc1d8772bd61130573dd0637ffdd22cbe199e"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/metadata/godot-builds-tag-commit.json": {
+        "bytes": 1145,
+        "sha256": "e050d493cc3151b601398fd721c644549c75b56bb402222b25aae55b3697e72f",
+        "git_blob": "465c31bd6162937fb3fc84d72856284220998a2c"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/metadata/godot-builds-tag-root-tree.json": {
+        "bytes": 1059,
+        "sha256": "43d690ce5a97af3835a9b5afda85db95e662e93dcab9e27250f52010669be36e",
+        "git_blob": "8803dfae0faa42714597c1ad065f6c4181c01ea3"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/metadata/godot-release-4.6.3.json": {
+        "bytes": 48480,
+        "sha256": "027de1d01ed75e836091f1c0dc5227a1d06c7684d42a6e54fb52e3188b3238d6",
+        "git_blob": "b6d74f75509eba495aec990687ae21d5c711ee62"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/metadata/release-packaging-last-change-before-release.json": {
+        "bytes": 4438,
+        "sha256": "4eb25d718ee8a69c23370ca1cabdebcc452ffd58acada3db9aa4b6f415fb6692",
+        "git_blob": "430598184be46409cbb5c2e557e0322ad3e1b800"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/metadata/windows-build-last-change-before-release.json": {
+        "bytes": 4448,
+        "sha256": "984aef47ff073b5d94d354ce9850a59b64abe5c0d8c54f9662e639826c9d9998",
+        "git_blob": "6a283c5355e100b9ca98647c14df0ee7edd93270"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/metadata-verification.json": {
+        "bytes": 745,
+        "sha256": "645443d43158acd0c806f510309297985a566c5bced631db7e13faa85d981250",
+        "git_blob": "57eb6d33411083875a70c520d3ef0c157b4ae599"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/prior-engine-source-identity-note.md": {
+        "bytes": 3279,
+        "sha256": "9ef1e50cc59d2d0fbb111a6d0084ce6f8cfe1e4b47f8b7aae845083f19f81918",
+        "git_blob": "c7aef34cec294cb78fe9afd1ac3abcee2dba8adb"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/README.md": {
+        "bytes": 10122,
+        "sha256": "c0eb119c1b0105e93af3c25c40a9eff5a97e590ed6b99a05d6654745ef3af5f4",
+        "git_blob": "8938b89895c23782e4d12abd33e96de9472cdb89"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/SHA256SUMS.txt": {
+        "bytes": 3912,
+        "sha256": "3437025ae2d5cfd5d85391bec6e1a5ee930238a1975fe57b0fe775fba39d11ed",
+        "git_blob": "9bf23d56db5c593799564e82152ff897c45870b7"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/source/build-scripts/release-packaging-b3289deb.sh": {
+        "bytes": 33995,
+        "sha256": "9221e18bdc6076e682e140c59e7886433f5f47322a320976b67b36cd1d5d1651",
+        "git_blob": "8d7c408436b2a7e599582cc940d7131d98067c45"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/source/build-scripts/windows-build-03934586.sh": {
+        "bytes": 5708,
+        "sha256": "2fb7469b4fe6ac4502344a7c431de6dfd7cf902bbc5c1f68b9eaa62757fda9e4",
+        "git_blob": "afcf18947f4d96b3db77737f87273d9f97293542"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/source/godot-35e80b3a/core/core_builders.py": {
+        "bytes": 10139,
+        "sha256": "8a26c003080cb13e0a70c206fc13c2a6d29a633e2cf3ef60696dbb3540932c7b",
+        "git_blob": "d6b1a2b7af6135d73546535fd370b3c26cdceb60"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/source/godot-35e80b3a/drivers/accesskit/accessibility_driver_accesskit.cpp": {
+        "bytes": 74291,
+        "sha256": "9fe069e718b13d06cced39b3fd098198911fab3c3c46dc74910cfc413646811c",
+        "git_blob": "f0dfc5e056c4cf6341cda93763e294b7e5fe3df6"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/source/godot-35e80b3a/main/main.cpp": {
+        "bytes": 206150,
+        "sha256": "a286542613447670ac3a8b409ae8af0a2dea3bb63b9a8829dfb4d4a3f7879c6a",
+        "git_blob": "7dc15057ad96bfa86b16ba99621ef1289e074656"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/source/godot-35e80b3a/methods.py": {
+        "bytes": 65889,
+        "sha256": "85271d977d931737959065955dd5365d522880c171b07a323954bb4edb40188a",
+        "git_blob": "3caabfce1bef3af28e753309cba4223b82b039f9"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/source/godot-35e80b3a/misc/scripts/make_tarball.sh": {
+        "bytes": 1362,
+        "sha256": "8b11f31265aca0b639f9ff59d44df8587ef6d71aae60631618dd8c61a0f10010",
+        "git_blob": "57035df71dfe19f360986f57705dfc9f93f39cf1"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/source/godot-35e80b3a/platform/windows/detect.py": {
+        "bytes": 32764,
+        "sha256": "ba37468d3af9b751285210dcfd25e4b150048c809ff21e2df1421bb80859c1a3",
+        "git_blob": "011cdade4c62387e54dee255d5faa003a4ac669c"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/source/godot-35e80b3a/platform/windows/platform_windows_builders.py": {
+        "bytes": 570,
+        "sha256": "fcf971985e8e16bee12ba072fd91464409cbd0df4f22884cb95f3d37d2bdaa7f",
+        "git_blob": "2020e68748a87040f0d9e5f90e4ac88b99fc3ffa"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/source/godot-35e80b3a/platform/windows/SCsub": {
+        "bytes": 5540,
+        "sha256": "d0f569ad7f63330c338ec988c08f103fdc4542df5cf113bf72350a08804af90b",
+        "git_blob": "aefb04818a0ad9f3d0c83966648d1879c1c1d234"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/source/godot-35e80b3a/SConstruct": {
+        "bytes": 51856,
+        "sha256": "f82375ba2c73fe86a54db19cc05e4dcb7e2d9c70687d84b80b9710673f3da829",
+        "git_blob": "58c895bfe51b6fc53b04d5a9b11677aa3e615f0d"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/source/godot-35e80b3a/thirdparty/README.md": {
+        "bytes": 39933,
+        "sha256": "9caac8d2c09aa51f53d1a28347753303505372e6c838bb9122bbde55c85a9575",
+        "git_blob": "b15fb3f54bd4d21952c5f0c747897858e6c36063"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/sources.json": {
+        "bytes": 15627,
+        "sha256": "d965874d889e41c4bb92d721e113336518fda3a4d76d654e227060a3f40f0685",
+        "git_blob": "9e78720f381538348db4b590e69da4bbcd7b86e6"
+      },
+      "tools/diagnostics/ending-publication-20261019/README.md": {
+        "bytes": 11125,
+        "sha256": "0e839dc26ea0eb388c29b09b69b3d4681833e5f5be514890959a8edff435521f",
+        "git_blob": "b98f8b43642dc1df5c14f6d7fa2ba56e9c13c330"
+      },
+      "tools/diagnostics/ending-publication-20261019/replay/read_trace.py": {
+        "bytes": 22091,
+        "sha256": "b4c21e1cf4c344246191be00cb435a4b55f683df2ee3d169a14496e9cc023a4b",
+        "git_blob": "1c15b4338b3ea49ea3fc319ab17c86e05ecebd24"
+      },
+      "tools/diagnostics/ending-publication-20261019/replay/test_read_trace.py": {
+        "bytes": 12188,
+        "sha256": "8aa10621e1bfd8d05142c1bffeb3df044c5abe763a0b75219d2dd251b76dc24a",
+        "git_blob": "a4335eed4a6b06444266744e784f7c5200eb59ee"
+      },
+      "tools/diagnostics/ending-publication-20261019/retain_evidence.py": {
+        "bytes": 1830,
+        "sha256": "33c6c80bdb12363f7ef61a52e9c4c8c9eb59c2d245e349da2692cc39553c1128",
+        "git_blob": "f29b1b45d43c441159bbf59f66d697b3fc169b67"
+      },
+      "tools/diagnostics/ending-publication-20261019/review/binder-tests-result.json": {
+        "bytes": 129146,
+        "sha256": "7843422aed6dfb3c002f159abe5a82a3e6a9cd3ea78e54e635a6973f70e64f71",
+        "git_blob": "d9823e1aa18f2fd83a6932cc64f69a684c1b7e20"
+      },
+      "tools/diagnostics/ending-publication-20261019/review/binder-tests.log": {
+        "bytes": 987,
+        "sha256": "6970aa4276d1244b94a70accbda2e28e62d33304cea0ab956a0705b6f5a20eee",
+        "git_blob": "0f50682292bc93ed411e5fea059555cbd6a0b133"
+      },
+      "tools/diagnostics/ending-publication-20261019/review/local-checks.json": {
+        "bytes": 343,
+        "sha256": "205105028c4e9b0fd089810f344748ad77c3c3c80fbae089ef598db845cceca9",
+        "git_blob": "490998ff4b5af3b80d8506012778666ea05e4403"
+      },
+      "tools/diagnostics/ending-publication-20261019/review/reader-tests.log": {
+        "bytes": 2034,
+        "sha256": "ae107b560a7e501a76bedec193cec38366c3767446648d832e5ae44e5116baf9",
+        "git_blob": "7f638c3d695f1694d352d7a3f53a01448d00a341"
+      },
+      "tools/diagnostics/ending-publication-20261019/review/README.md": {
+        "bytes": 2083,
+        "sha256": "53b01028d23327a74bd2eb12e2cca461a00463906524091dda7fa84e413bc1d8",
+        "git_blob": "65a6174485f9aa192e21e88d95d0a193fc075759"
+      },
+      "tools/diagnostics/ending-publication-20261019/review/static-checks.json": {
+        "bytes": 988,
+        "sha256": "47bad059b1931509247e47bbbbc4e5e93539d023fd14c190242ac66e610f78cd",
+        "git_blob": "d0e482479fabb28a55e994b969721633501f3a04"
+      },
+      "tools/diagnostics/ending-publication-20261019/tests/README.md": {
+        "bytes": 1747,
+        "sha256": "cee36bc5b8d3c9f9748cecde4cb36094fc014e23ab8a08e1f82928734f09188b",
+        "git_blob": "a65bb731cc3a56efb52a6ab769d6c71eb2843858"
+      },
+      "tools/diagnostics/ending-publication-20261019/tests/synthetic_fixture.py": {
+        "bytes": 9910,
+        "sha256": "c5d637ab88cd510d0c566ed81ed2d13471e468a474e8cae270361bb19dde76b0",
+        "git_blob": "a1ab0418743c40a3aceabac3165048803b332aed"
+      },
+      "tools/diagnostics/ending-publication-20261019/tests/test_bind_trace.py": {
+        "bytes": 10137,
+        "sha256": "47be4e0f4d668d03f99c098f37193bb1172c269a6d3fd604faea31c3256a388c",
+        "git_blob": "f4247da60795306654c7b9726f47f00b1598a8b6"
+      },
+      "tools/testing/Invoke-ExportedGameplay.ps1": {
+        "bytes": 52927,
+        "sha256": "0e819db31a69824934b771442b7a19c540b54b4c706192fcb152556c2f7a116b",
+        "git_blob": "e91f912d8351ba7e38401b261d0fb2f0aa3032dc"
+      },
+      "tools/testing/Invoke-IsolatedGodot.ps1": {
+        "bytes": 19919,
+        "sha256": "1fe67f2db677fb869ee82126834a83d519b77888328a690ec55bbb3fbda7fa5f",
+        "git_blob": "14b379880b4ad26935ad953d141df8c19e399cf3"
+      },
+      "tools/testing/Invoke-WindowsExportValidation.ps1": {
+        "bytes": 19523,
+        "sha256": "5218ab405562d45fc2a7f982159c5a601bc302fbc20a25aa008f65f0e6a340b9",
+        "git_blob": "322d02bbe72d8e2e3c1e5b637fd9ac253ef31fff"
+      },
+      "tools/testing/Probe-ExportedWindow.ps1": {
+        "bytes": 11121,
+        "sha256": "2d72d1ab3bffaa54cd0fbf88c4857769ed5981322261223c0deb58f377c0f2f7",
+        "git_blob": "4d678892e911e205a498af5be21afe4ed0242e24"
+      }
+    },
+    "coverage": "Complete retained origin and exact 95-source census"
+  },
+  "extracted_file_count": 283,
+  "archive": {
+    "path": "publication-retention/original-evidence.zip",
+    "expected_bytes": 2376912,
+    "expected_sha256": "60479645cd8314b9413fb4e4cf3e84394f208c4b2f917b4c83e74948978d1c82",
+    "bytes": 2376912,
+    "sha256": "60479645cd8314b9413fb4e4cf3e84394f208c4b2f917b4c83e74948978d1c82",
+    "git_blob": "b0420d7ca98cc3981d28621532960d44741ca3d7"
+  },
+  "source_census": {
+    "path": "publication-retention/source-census.json",
+    "bytes": 23058,
+    "sha256": "2f22f6965c6f43d131eb62cc66713bbddf984d288a6ffd71ead6cc833c4822de",
+    "git_blob": "269826ec82492a1bd9451659aa0c3e06fd0df6a0"
+  },
+  "archive_member_count": 283,
+  "manifest_file_count": 282,
+  "manifest_sha256": "da9bd32b6635a7f759fe60be4aa068b7cbe4500800abb201c04d1ed97904295a",
+  "original_directory": "publication-retention/verified/original",
+  "audit_origin": {
+    "game_commit": "81847d8b1560340a3a7769223cee0b46c6bdc0f9",
+    "game_tree": "4581a9f12d63684836c722f72cffd533491f3c06",
+    "tool_source": "c24934929e3d2c8c013f335309620525e2f64d61",
+    "tool_tree": "afa5000416f0320aa3d2134982111b7082693e1d",
+    "controller": "4543e87557bcb3a045448601f3cf9f64b2281096",
+    "engine_base": "35e80b3a8822a9df9be390814b62f44c0a9c69e8",
+    "engine_tree": "499fa231ee5d21878988a4a9cb881749def3946d",
+    "original_run": 39155624496,
+    "original_artifact": 12146662424,
+    "diagnostic": "Separately built native observer; original official Load remains failed",
+    "shared_source_pins": {
+      "tools/testing/Invoke-ExportedGameplay.ps1": {
+        "source_commit": "81847d8b1560340a3a7769223cee0b46c6bdc0f9",
+        "bytes": 52927,
+        "sha256": "0e819db31a69824934b771442b7a19c540b54b4c706192fcb152556c2f7a116b",
+        "git_blob": "e91f912d8351ba7e38401b261d0fb2f0aa3032dc"
+      },
+      "tools/testing/Probe-ExportedWindow.ps1": {
+        "source_commit": "81847d8b1560340a3a7769223cee0b46c6bdc0f9",
+        "bytes": 11121,
+        "sha256": "2d72d1ab3bffaa54cd0fbf88c4857769ed5981322261223c0deb58f377c0f2f7",
+        "git_blob": "4d678892e911e205a498af5be21afe4ed0242e24"
+      },
+      "tools/testing/Invoke-IsolatedGodot.ps1": {
+        "source_commit": "81847d8b1560340a3a7769223cee0b46c6bdc0f9",
+        "bytes": 19919,
+        "sha256": "1fe67f2db677fb869ee82126834a83d519b77888328a690ec55bbb3fbda7fa5f",
+        "git_blob": "14b379880b4ad26935ad953d141df8c19e399cf3"
+      },
+      "tools/testing/Invoke-WindowsExportValidation.ps1": {
+        "source_commit": "81847d8b1560340a3a7769223cee0b46c6bdc0f9",
+        "bytes": 19523,
+        "sha256": "5218ab405562d45fc2a7f982159c5a601bc302fbc20a25aa008f65f0e6a340b9",
+        "git_blob": "322d02bbe72d8e2e3c1e5b637fd9ac253ef31fff"
+      },
+      "tests/tooling/Test-ExportedGameplayDeadline.ps1": {
+        "source_commit": "81847d8b1560340a3a7769223cee0b46c6bdc0f9",
+        "bytes": 3023,
+        "sha256": "e428814445044a90d3d52f78a56c02a31eb8032b314f7d8b512fb59071711b29",
+        "git_blob": "436c73a380baec1a3bc6ba64d273ff052e316d78"
+      },
+      "project.godot": {
+        "source_commit": "81847d8b1560340a3a7769223cee0b46c6bdc0f9",
+        "bytes": 14532,
+        "sha256": "5e8009d890f9e4359b24bb68a59fdec1bf56ef0a3ea94be06c3e43a6d2353053",
+        "git_blob": "b3e4ec92242535d81845bdc2dc7537e9e3ec122e"
+      },
+      "export_presets.cfg": {
+        "source_commit": "81847d8b1560340a3a7769223cee0b46c6bdc0f9",
+        "bytes": 1117,
+        "sha256": "76d904435496d2057572225b796f8b3c74f121a21254d211a6246caaf96efcaa",
+        "git_blob": "ccb9409ac1054d0b4b52e78df823c33f532e83fb"
+      },
+      "scripts/ui/EndingScene.gd": {
+        "source_commit": "81847d8b1560340a3a7769223cee0b46c6bdc0f9",
+        "bytes": 15926,
+        "sha256": "8545f7f7b1a31e94d4a49b475ddac175aa3e37ed5816694b678e5382c6c51b5c",
+        "git_blob": "dec4979b1d6331a22aac268b4b2a926e70a601eb"
+      },
+      "scripts/ui/witnessed/WitnessedCaptionLayer.gd": {
+        "source_commit": "81847d8b1560340a3a7769223cee0b46c6bdc0f9",
+        "bytes": 84211,
+        "sha256": "bf1f21e7c2aa0d0d6be1a4ce343a8a0f21b9bc8918a3f3c2b9a817d9d07f712e",
+        "git_blob": "5c85ce306366917c995db06794e18cb4035b2711"
+      },
+      "scripts/ui/witnessed/WitnessedAccessibleCaption.gd": {
+        "source_commit": "81847d8b1560340a3a7769223cee0b46c6bdc0f9",
+        "bytes": 1485,
+        "sha256": "b1ce258f4d409cc225ba5d433593edbdef1140e24b5b9807212c00e850a5082e",
+        "git_blob": "c29b306199bf1b8f9ce4352872ff569e2b3f0bd4"
+      },
+      "scripts/ui/witnessed/WitnessedSourceCanvas.gd": {
+        "source_commit": "81847d8b1560340a3a7769223cee0b46c6bdc0f9",
+        "bytes": 1107,
+        "sha256": "29e8b5ff92531fa052ab501db328ab02c3aad806c8c97600e1f09030448ef385",
+        "git_blob": "db11d71216b47004da8a3207acaac73e964cffa6"
+      },
+      "tools/diagnostics/ending-publication-20261019/Build-NativePublicationProbe.ps1": {
+        "source_commit": "c24934929e3d2c8c013f335309620525e2f64d61",
+        "bytes": 11327,
+        "sha256": "04191c4f68f8daf276e5ca041b4b135ea7e61ad6993c7db33610365872f02be8",
+        "git_blob": "42b350931500beab761824d3c34319672345ac98"
+      },
+      "tools/diagnostics/ending-publication-20261019/New-NativeDiagnosticPackage.ps1": {
+        "source_commit": "c24934929e3d2c8c013f335309620525e2f64d61",
+        "bytes": 6272,
+        "sha256": "4b70df3d01d71e35fcb71300e34130ca3ae9341e05f5a25851432fbfed4804f7",
+        "git_blob": "53c5697bd96074c9ae37d02f35bf0a756f54f5a6"
+      },
+      "tools/diagnostics/ending-publication-20261019/README.md": {
+        "source_commit": "c24934929e3d2c8c013f335309620525e2f64d61",
+        "bytes": 11125,
+        "sha256": "0e839dc26ea0eb388c29b09b69b3d4681833e5f5be514890959a8edff435521f",
+        "git_blob": "b98f8b43642dc1df5c14f6d7fa2ba56e9c13c330"
+      },
+      "tools/diagnostics/ending-publication-20261019/bind_trace.py": {
+        "source_commit": "c24934929e3d2c8c013f335309620525e2f64d61",
+        "bytes": 20114,
+        "sha256": "82ed542a4e3f06d8855138cf029c5a6488fe7fc41970f3ece95e95ca34902298",
+        "git_blob": "00d2fdeaf5101cfaa3de6ff285495cdc7634191d"
+      },
+      "tools/diagnostics/ending-publication-20261019/controller-template.yml": {
+        "source_commit": "c24934929e3d2c8c013f335309620525e2f64d61",
+        "bytes": 18283,
+        "sha256": "1bc1e296322cd054cb7d0432045d32a8568325a80629ac8522907f64c1d4b58f",
+        "git_blob": "156e602d950e868b873488e48b86c2cb0528eef2"
+      },
+      "tools/diagnostics/ending-publication-20261019/native-probe/PROTOCOL.md": {
+        "source_commit": "c24934929e3d2c8c013f335309620525e2f64d61",
+        "bytes": 11253,
+        "sha256": "29a598e0a733e14d2ae849e21d62f9d7b52fa9d4db5f4b3ae5168f7d92cde37c",
+        "git_blob": "0b2c6e4de244491fa372b9807cab3e2eaf836806"
+      },
+      "tools/diagnostics/ending-publication-20261019/native-probe/baseline/drivers/accesskit/accessibility_driver_accesskit.cpp": {
+        "source_commit": "c24934929e3d2c8c013f335309620525e2f64d61",
+        "bytes": 74291,
+        "sha256": "9fe069e718b13d06cced39b3fd098198911fab3c3c46dc74910cfc413646811c",
+        "git_blob": "f0dfc5e056c4cf6341cda93763e294b7e5fe3df6"
+      },
+      "tools/diagnostics/ending-publication-20261019/native-probe/baseline/drivers/accesskit/accessibility_driver_accesskit.h": {
+        "source_commit": "c24934929e3d2c8c013f335309620525e2f64d61",
+        "bytes": 12450,
+        "sha256": "22e723e9b99f5e84ba947242c8073640f5fad735bf406d02988d77284b1d8dd8",
+        "git_blob": "a4196c6bcb67a12cf8f279207ebc92e623f816ff"
+      },
+      "tools/diagnostics/ending-publication-20261019/native-probe/candidate/drivers/accesskit/accessibility_driver_accesskit.cpp": {
+        "source_commit": "c24934929e3d2c8c013f335309620525e2f64d61",
+        "bytes": 83200,
+        "sha256": "59ecabf7ef34ced32990a3dccbf113e169f9f5766ccd2fae3f62f9bfbdb2aa42",
+        "git_blob": "40b0f7fcfb45c78c27855eaab438679155647d50"
+      },
+      "tools/diagnostics/ending-publication-20261019/native-probe/candidate/drivers/accesskit/accessibility_driver_accesskit.h": {
+        "source_commit": "c24934929e3d2c8c013f335309620525e2f64d61",
+        "bytes": 12524,
+        "sha256": "c601717080df43b36f10a4a0f38110cae0f5ee5d77970081bf730c5f27095827",
+        "git_blob": "75ce466f993862e60eed5a9626eb734c2b715e26"
+      },
+      "tools/diagnostics/ending-publication-20261019/native-probe/publication-native-probe.patch": {
+        "source_commit": "c24934929e3d2c8c013f335309620525e2f64d61",
+        "bytes": 12076,
+        "sha256": "63e2b4090e881a191783ed641530d0c066eaa1193ef513dd0db33ec09bf51065",
+        "git_blob": "435e5a4ac0afca7fa5128af6305960474cdb06e3"
+      },
+      "tools/diagnostics/ending-publication-20261019/native-probe/reference/thirdparty/accesskit/include/accesskit.h": {
+        "source_commit": "c24934929e3d2c8c013f335309620525e2f64d61",
+        "bytes": 90877,
+        "sha256": "ad663585317feb694494fe1544d356feb186b74c8169717a067e0a254960270b",
+        "git_blob": "eab9e353703e0881f36187cf8721fd565e4c2ca5"
+      },
+      "tools/diagnostics/ending-publication-20261019/native-probe/source-pins.json": {
+        "source_commit": "c24934929e3d2c8c013f335309620525e2f64d61",
+        "bytes": 3055,
+        "sha256": "f0a56ae3b063e57e6dd2f68c750a1625207247b3773c3d241a9285f9c4925024",
+        "git_blob": "2f0dadf2bf8bdb550e04f3e55cdf7cbaa05071a0"
+      },
+      "tools/diagnostics/ending-publication-20261019/prepare_package.py": {
+        "source_commit": "c24934929e3d2c8c013f335309620525e2f64d61",
+        "bytes": 10118,
+        "sha256": "b345a42df207f33ba6ff963d6c85ad81f401c4d1e380ea50e0c1170f665c96ac",
+        "git_blob": "2f9ae3bad9d9c8d6d9cbd50a20418da227730768"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/README.md": {
+        "source_commit": "c24934929e3d2c8c013f335309620525e2f64d61",
+        "bytes": 10122,
+        "sha256": "c0eb119c1b0105e93af3c25c40a9eff5a97e590ed6b99a05d6654745ef3af5f4",
+        "git_blob": "8938b89895c23782e4d12abd33e96de9472cdb89"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/SHA256SUMS.txt": {
+        "source_commit": "c24934929e3d2c8c013f335309620525e2f64d61",
+        "bytes": 3912,
+        "sha256": "3437025ae2d5cfd5d85391bec6e1a5ee930238a1975fe57b0fe775fba39d11ed",
+        "git_blob": "9bf23d56db5c593799564e82152ff897c45870b7"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/build-plan/SHA256SUMS.txt": {
+        "source_commit": "c24934929e3d2c8c013f335309620525e2f64d61",
+        "bytes": 1895,
+        "sha256": "83ce6a1b4fd5b8213a8addf7c06b11991ae96d15aa40183f974968f8f7189214",
+        "git_blob": "1605ed4869492fd0896dffdb147e4281fff37a17"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/build-plan/build-plan.md": {
+        "source_commit": "c24934929e3d2c8c013f335309620525e2f64d61",
+        "bytes": 9339,
+        "sha256": "fbdafcf07cfac516ec69164897ff3b8b9dd3245b99c8b2a0cdc507d800ee2b1f",
+        "git_blob": "d4595fa52683935dffb535a98aff4d50fbb3057d"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/build-plan/dependency-pins.json": {
+        "source_commit": "c24934929e3d2c8c013f335309620525e2f64d61",
+        "bytes": 4229,
+        "sha256": "8fdf9aefdb0dc3def4dc414d2d79dc9aa9e8a2d2545de1780e30a50a57d44f38",
+        "git_blob": "5b756309976d1c9c2402b9764a49e983c60c1671"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/build-plan/metadata/accesskit-c-static-0.21.2-release.json": {
+        "source_commit": "c24934929e3d2c8c013f335309620525e2f64d61",
+        "bytes": 3617,
+        "sha256": "ac0438daf33750162f7a7a95cd227cad3628074226ceb0ebbe3041c57cb882f5",
+        "git_blob": "8237a735e0dc9f04a790e500199a5a2449a7a311"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/build-plan/metadata/angle-chromium-6601.2-release.json": {
+        "source_commit": "c24934929e3d2c8c013f335309620525e2f64d61",
+        "bytes": 23285,
+        "sha256": "cfb0106a2a15f6c94c54595a5be0f8abfce64f1c53fdb8977f9a5cde371220dd",
+        "git_blob": "1892746d9d41905ea64ac171b3a7d7546897d8c6"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/build-plan/metadata/godot-source-commit-35e80b3a.json": {
+        "source_commit": "c24934929e3d2c8c013f335309620525e2f64d61",
+        "bytes": 1822,
+        "sha256": "3744c8f848df293773011885f8f919fb740d11c4d347cc8f959724c4a83b6eb4",
+        "git_blob": "ba908560010032c20fa5ebb665cf7cd38ecc94cb"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/build-plan/metadata/mesa-nir-25.3.1-1-release.json": {
+        "source_commit": "c24934929e3d2c8c013f335309620525e2f64d61",
+        "bytes": 15728,
+        "sha256": "ff0404563390ccf852e982639d8f38ad520aa60d4737d827cc754402eba16d35",
+        "git_blob": "39901ecf03d751cdaaeb01da37c1b855e2b8c0ca"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/build-plan/sources.json": {
+        "source_commit": "c24934929e3d2c8c013f335309620525e2f64d61",
+        "bytes": 7366,
+        "sha256": "a35c30d589f14facbed5a64fad2ecb32e2113c1d342c3b381dc43cac6d6437ff",
+        "git_blob": "2b31908017bbfab67ddfb3353ffb9db679d04746"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/build-plan/sources/accesskit/publish.yml": {
+        "source_commit": "c24934929e3d2c8c013f335309620525e2f64d61",
+        "bytes": 8712,
+        "sha256": "94451f30754f001e755a28a4ecc78a57dd524c8c218ae8839cb87ed4cfb68394",
+        "git_blob": "873d3c07bdef5630d2536b73e8a5cb55692f323f"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/build-plan/sources/dwm/windows-tests-81847d8b.yml": {
+        "source_commit": "c24934929e3d2c8c013f335309620525e2f64d61",
+        "bytes": 74530,
+        "sha256": "7a51ac9c4ad49c1d11bee64dfecc99e00a4ddd270669aa8f7e1abe8a5ca5c8a8",
+        "git_blob": "6efb7ab714a39a3e2672f0eab9da0e01d13c5695"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/build-plan/sources/godot-docs/compiling_for_windows.rst": {
+        "source_commit": "c24934929e3d2c8c013f335309620525e2f64d61",
+        "bytes": 24014,
+        "sha256": "5d25a8578e339e2bac317ee0418e1821e47323398fb2bbbdce6b13200cb819be",
+        "git_blob": "73f76519defd67cf7b5284b41fb59153b4a82176"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/build-plan/sources/godot/SConstruct": {
+        "source_commit": "c24934929e3d2c8c013f335309620525e2f64d61",
+        "bytes": 51856,
+        "sha256": "f82375ba2c73fe86a54db19cc05e4dcb7e2d9c70687d84b80b9710673f3da829",
+        "git_blob": "58c895bfe51b6fc53b04d5a9b11677aa3e615f0d"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/build-plan/sources/godot/d3d12-SCsub": {
+        "source_commit": "c24934929e3d2c8c013f335309620525e2f64d61",
+        "bytes": 7427,
+        "sha256": "543170d551109ead734677fb27a4ea5093d3928a20842bdac398a6b56c2f43dc",
+        "git_blob": "767afcfed02d76b811ed4f5d1c8961aea37f1151"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/build-plan/sources/godot/godot-build-action.yml": {
+        "source_commit": "c24934929e3d2c8c013f335309620525e2f64d61",
+        "bytes": 1428,
+        "sha256": "3f13d212ec290cf9aef15b36c8dd3a52f9dde68b9735f11afa084587ffd55dcb",
+        "git_blob": "721bf5250cb242a37d197b74e38a8705ab9dee74"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/build-plan/sources/godot/godot-deps-action.yml": {
+        "source_commit": "c24934929e3d2c8c013f335309620525e2f64d61",
+        "bytes": 1003,
+        "sha256": "b8f81d5ab5200be1615d4b781f7dfe178033670719bc9ac2a7ab76e74cac0199",
+        "git_blob": "a980849d3836490d66ccd83739e25742115f66f2"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/build-plan/sources/godot/install_d3d12_sdk_windows.py": {
+        "source_commit": "c24934929e3d2c8c013f335309620525e2f64d61",
+        "bytes": 6282,
+        "sha256": "01efa055ed400219f16f9d7c19978319df4e191f4523c1ff5859b6e93d24b269",
+        "git_blob": "e449248df658ab79657d2ecbfceb18ead8593570"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/build-plan/sources/godot/windows-SCsub": {
+        "source_commit": "c24934929e3d2c8c013f335309620525e2f64d61",
+        "bytes": 5540,
+        "sha256": "d0f569ad7f63330c338ec988c08f103fdc4542df5cf113bf72350a08804af90b",
+        "git_blob": "aefb04818a0ad9f3d0c83966648d1879c1c1d234"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/build-plan/sources/godot/windows-detect.py": {
+        "source_commit": "c24934929e3d2c8c013f335309620525e2f64d61",
+        "bytes": 32764,
+        "sha256": "ba37468d3af9b751285210dcfd25e4b150048c809ff21e2df1421bb80859c1a3",
+        "git_blob": "011cdade4c62387e54dee255d5faa003a4ac669c"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/build-plan/sources/godot/windows_builds.yml": {
+        "source_commit": "c24934929e3d2c8c013f335309620525e2f64d61",
+        "bytes": 4469,
+        "sha256": "cd7fb82b7e634f7e4722d588e4e15a24c048deb9395d07762cb1d66f0c25a3b7",
+        "git_blob": "809955b9062b2587e376811fbc24a2c2d2660a66"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/build-plan/sources/runner-images/Windows2022-Readme.md": {
+        "source_commit": "c24934929e3d2c8c013f335309620525e2f64d61",
+        "bytes": 38883,
+        "sha256": "eee34ad1795f7a3c66eae157006b4247e000b8a2597c680d0c6c43fba89d6c91",
+        "git_blob": "f7747719ddecef37b3c8b3d7e029de3895740c5c"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/existing-run/archive-receipt.json": {
+        "source_commit": "c24934929e3d2c8c013f335309620525e2f64d61",
+        "bytes": 295,
+        "sha256": "3edfbe3a9fa916120a67dc07de96ef308ca1521ce94832c3ad01e45244ede706",
+        "git_blob": "fd2174dfadd49caee68070291ec4dd6e05bcb83a"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/existing-run/exported-capability/result.json": {
+        "source_commit": "c24934929e3d2c8c013f335309620525e2f64d61",
+        "bytes": 1880,
+        "sha256": "9d4632a1481976bd763067809479a13b82da80714719376ae5071e0a8a9eebd4",
+        "git_blob": "5d6948b1eb30bdc8273767465d70aa8e8d496d2b"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/existing-run/exported-create/result.json": {
+        "source_commit": "c24934929e3d2c8c013f335309620525e2f64d61",
+        "bytes": 4028,
+        "sha256": "493ee57ec0ac396814b7975273e68ac0e4c87e738b4580830fd830b0c2210b4b",
+        "git_blob": "06edc60ebaea2f2ea9dbf1625557ee321ff498e9"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/existing-run/exported-load/game.stdout.log": {
+        "source_commit": "c24934929e3d2c8c013f335309620525e2f64d61",
+        "bytes": 109105,
+        "sha256": "4784bd05e387fe9c6e84790c99c86449a38c159153147955f0e2ef293be5af51",
+        "git_blob": "60d0cc43f4b5882bd5e996610810e16ab626f42b"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/existing-run/exported-load/result.json": {
+        "source_commit": "c24934929e3d2c8c013f335309620525e2f64d61",
+        "bytes": 2107,
+        "sha256": "35423f1a9820499227fe266e97550d6568d0923a13409965954b82820f280852",
+        "git_blob": "de338ec62f46e422f7a8343fd8c272effa435fe7"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/existing-run/import.log": {
+        "source_commit": "c24934929e3d2c8c013f335309620525e2f64d61",
+        "bytes": 222277,
+        "sha256": "f108b3b535ff7e701b7613c4d07c8333f4d1f200391c3b7844d68c0a35e7c8c3",
+        "git_blob": "f4ae0f6b762fcfd869519a2551cdb511e181f4b8"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/existing-run/source/candidate/tools/testing/Invoke-ExportedGameplay.ps1": {
+        "source_commit": "c24934929e3d2c8c013f335309620525e2f64d61",
+        "bytes": 52927,
+        "sha256": "0e819db31a69824934b771442b7a19c540b54b4c706192fcb152556c2f7a116b",
+        "git_blob": "e91f912d8351ba7e38401b261d0fb2f0aa3032dc"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/existing-run/source/controller/scene-first-reveal-profile-diagnostic.yml": {
+        "source_commit": "c24934929e3d2c8c013f335309620525e2f64d61",
+        "bytes": 32209,
+        "sha256": "fc5fd9d673033b9326ba592e3c5fb2dafe8c1216c146bc6ff39826041f35535c",
+        "git_blob": "768d9559bf52abdaf427342c79698172ee72fddd"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/existing-run/windows-export/validation.json": {
+        "source_commit": "c24934929e3d2c8c013f335309620525e2f64d61",
+        "bytes": 4628,
+        "sha256": "885a869120e07b6d1b6b6a4df29ab1af92d51914e1390aa328fce591d3fdc1a7",
+        "git_blob": "aaf214aa6478cf5cd0e1ad9a8a2837545a66540e"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/findings.json": {
+        "source_commit": "c24934929e3d2c8c013f335309620525e2f64d61",
+        "bytes": 7096,
+        "sha256": "7948c0fc76739213adc813da26be217ad2fde23089fae9e5675cb8932072bc68",
+        "git_blob": "07fdee8d3b807d7b5129c3cd9eafb64da4ce68c0"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/metadata-verification.json": {
+        "source_commit": "c24934929e3d2c8c013f335309620525e2f64d61",
+        "bytes": 745,
+        "sha256": "645443d43158acd0c806f510309297985a566c5bced631db7e13faa85d981250",
+        "git_blob": "57eb6d33411083875a70c520d3ef0c157b4ae599"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/metadata/accesskit-c-static-0.21.2-release.json": {
+        "source_commit": "c24934929e3d2c8c013f335309620525e2f64d61",
+        "bytes": 3617,
+        "sha256": "ac0438daf33750162f7a7a95cd227cad3628074226ceb0ebbe3041c57cb882f5",
+        "git_blob": "8237a735e0dc9f04a790e500199a5a2449a7a311"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/metadata/accesskit-c-static-0.21.2-root.json": {
+        "source_commit": "c24934929e3d2c8c013f335309620525e2f64d61",
+        "bytes": 4114,
+        "sha256": "cfdcb8d28c1534206f081fc94906a627af4b823320a4229180bf683fcea8f5df",
+        "git_blob": "181b1f3df5e30861d83765482bedf057288b0ac5"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/metadata/godot-4.6.3-stable-release-index.json": {
+        "source_commit": "c24934929e3d2c8c013f335309620525e2f64d61",
+        "bytes": 7245,
+        "sha256": "f2d3172bab2e73584d7f25377385874c4a955fea9b5ec6e7549e4cd05b5aa418",
+        "git_blob": "d8fed792a2d884b1fe4a291c4ac80fa135821fc8"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/metadata/godot-builds-release-4.6.3.json": {
+        "source_commit": "c24934929e3d2c8c013f335309620525e2f64d61",
+        "bytes": 50108,
+        "sha256": "d3e838e2d9f49bb5cd380cd7978736aa1cb99af50931ddad0675654cf4b7267e",
+        "git_blob": "e8e65e1dea4192047ce7f2504cd1334572bbe539"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/metadata/godot-builds-tag-4.6.3.json": {
+        "source_commit": "c24934929e3d2c8c013f335309620525e2f64d61",
+        "bytes": 369,
+        "sha256": "5e2b5f2bb55ce28239e9678ed54603867d7f75fdb9b8d1e9c840ad06db91d892",
+        "git_blob": "526cc1d8772bd61130573dd0637ffdd22cbe199e"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/metadata/godot-builds-tag-commit.json": {
+        "source_commit": "c24934929e3d2c8c013f335309620525e2f64d61",
+        "bytes": 1145,
+        "sha256": "e050d493cc3151b601398fd721c644549c75b56bb402222b25aae55b3697e72f",
+        "git_blob": "465c31bd6162937fb3fc84d72856284220998a2c"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/metadata/godot-builds-tag-root-tree.json": {
+        "source_commit": "c24934929e3d2c8c013f335309620525e2f64d61",
+        "bytes": 1059,
+        "sha256": "43d690ce5a97af3835a9b5afda85db95e662e93dcab9e27250f52010669be36e",
+        "git_blob": "8803dfae0faa42714597c1ad065f6c4181c01ea3"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/metadata/godot-release-4.6.3.json": {
+        "source_commit": "c24934929e3d2c8c013f335309620525e2f64d61",
+        "bytes": 48480,
+        "sha256": "027de1d01ed75e836091f1c0dc5227a1d06c7684d42a6e54fb52e3188b3238d6",
+        "git_blob": "b6d74f75509eba495aec990687ae21d5c711ee62"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/metadata/release-packaging-last-change-before-release.json": {
+        "source_commit": "c24934929e3d2c8c013f335309620525e2f64d61",
+        "bytes": 4438,
+        "sha256": "4eb25d718ee8a69c23370ca1cabdebcc452ffd58acada3db9aa4b6f415fb6692",
+        "git_blob": "430598184be46409cbb5c2e557e0322ad3e1b800"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/metadata/windows-build-last-change-before-release.json": {
+        "source_commit": "c24934929e3d2c8c013f335309620525e2f64d61",
+        "bytes": 4448,
+        "sha256": "984aef47ff073b5d94d354ce9850a59b64abe5c0d8c54f9662e639826c9d9998",
+        "git_blob": "6a283c5355e100b9ca98647c14df0ee7edd93270"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/prior-engine-source-identity-note.md": {
+        "source_commit": "c24934929e3d2c8c013f335309620525e2f64d61",
+        "bytes": 3279,
+        "sha256": "9ef1e50cc59d2d0fbb111a6d0084ce6f8cfe1e4b47f8b7aae845083f19f81918",
+        "git_blob": "c7aef34cec294cb78fe9afd1ac3abcee2dba8adb"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/source/build-scripts/release-packaging-b3289deb.sh": {
+        "source_commit": "c24934929e3d2c8c013f335309620525e2f64d61",
+        "bytes": 33995,
+        "sha256": "9221e18bdc6076e682e140c59e7886433f5f47322a320976b67b36cd1d5d1651",
+        "git_blob": "8d7c408436b2a7e599582cc940d7131d98067c45"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/source/build-scripts/windows-build-03934586.sh": {
+        "source_commit": "c24934929e3d2c8c013f335309620525e2f64d61",
+        "bytes": 5708,
+        "sha256": "2fb7469b4fe6ac4502344a7c431de6dfd7cf902bbc5c1f68b9eaa62757fda9e4",
+        "git_blob": "afcf18947f4d96b3db77737f87273d9f97293542"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/source/godot-35e80b3a/SConstruct": {
+        "source_commit": "c24934929e3d2c8c013f335309620525e2f64d61",
+        "bytes": 51856,
+        "sha256": "f82375ba2c73fe86a54db19cc05e4dcb7e2d9c70687d84b80b9710673f3da829",
+        "git_blob": "58c895bfe51b6fc53b04d5a9b11677aa3e615f0d"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/source/godot-35e80b3a/core/core_builders.py": {
+        "source_commit": "c24934929e3d2c8c013f335309620525e2f64d61",
+        "bytes": 10139,
+        "sha256": "8a26c003080cb13e0a70c206fc13c2a6d29a633e2cf3ef60696dbb3540932c7b",
+        "git_blob": "d6b1a2b7af6135d73546535fd370b3c26cdceb60"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/source/godot-35e80b3a/drivers/accesskit/accessibility_driver_accesskit.cpp": {
+        "source_commit": "c24934929e3d2c8c013f335309620525e2f64d61",
+        "bytes": 74291,
+        "sha256": "9fe069e718b13d06cced39b3fd098198911fab3c3c46dc74910cfc413646811c",
+        "git_blob": "f0dfc5e056c4cf6341cda93763e294b7e5fe3df6"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/source/godot-35e80b3a/main/main.cpp": {
+        "source_commit": "c24934929e3d2c8c013f335309620525e2f64d61",
+        "bytes": 206150,
+        "sha256": "a286542613447670ac3a8b409ae8af0a2dea3bb63b9a8829dfb4d4a3f7879c6a",
+        "git_blob": "7dc15057ad96bfa86b16ba99621ef1289e074656"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/source/godot-35e80b3a/methods.py": {
+        "source_commit": "c24934929e3d2c8c013f335309620525e2f64d61",
+        "bytes": 65889,
+        "sha256": "85271d977d931737959065955dd5365d522880c171b07a323954bb4edb40188a",
+        "git_blob": "3caabfce1bef3af28e753309cba4223b82b039f9"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/source/godot-35e80b3a/misc/scripts/make_tarball.sh": {
+        "source_commit": "c24934929e3d2c8c013f335309620525e2f64d61",
+        "bytes": 1362,
+        "sha256": "8b11f31265aca0b639f9ff59d44df8587ef6d71aae60631618dd8c61a0f10010",
+        "git_blob": "57035df71dfe19f360986f57705dfc9f93f39cf1"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/source/godot-35e80b3a/platform/windows/SCsub": {
+        "source_commit": "c24934929e3d2c8c013f335309620525e2f64d61",
+        "bytes": 5540,
+        "sha256": "d0f569ad7f63330c338ec988c08f103fdc4542df5cf113bf72350a08804af90b",
+        "git_blob": "aefb04818a0ad9f3d0c83966648d1879c1c1d234"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/source/godot-35e80b3a/platform/windows/detect.py": {
+        "source_commit": "c24934929e3d2c8c013f335309620525e2f64d61",
+        "bytes": 32764,
+        "sha256": "ba37468d3af9b751285210dcfd25e4b150048c809ff21e2df1421bb80859c1a3",
+        "git_blob": "011cdade4c62387e54dee255d5faa003a4ac669c"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/source/godot-35e80b3a/platform/windows/platform_windows_builders.py": {
+        "source_commit": "c24934929e3d2c8c013f335309620525e2f64d61",
+        "bytes": 570,
+        "sha256": "fcf971985e8e16bee12ba072fd91464409cbd0df4f22884cb95f3d37d2bdaa7f",
+        "git_blob": "2020e68748a87040f0d9e5f90e4ac88b99fc3ffa"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/source/godot-35e80b3a/thirdparty/README.md": {
+        "source_commit": "c24934929e3d2c8c013f335309620525e2f64d61",
+        "bytes": 39933,
+        "sha256": "9caac8d2c09aa51f53d1a28347753303505372e6c838bb9122bbde55c85a9575",
+        "git_blob": "b15fb3f54bd4d21952c5f0c747897858e6c36063"
+      },
+      "tools/diagnostics/ending-publication-20261019/provenance/sources.json": {
+        "source_commit": "c24934929e3d2c8c013f335309620525e2f64d61",
+        "bytes": 15627,
+        "sha256": "d965874d889e41c4bb92d721e113336518fda3a4d76d654e227060a3f40f0685",
+        "git_blob": "9e78720f381538348db4b590e69da4bbcd7b86e6"
+      },
+      "tools/diagnostics/ending-publication-20261019/replay/read_trace.py": {
+        "source_commit": "c24934929e3d2c8c013f335309620525e2f64d61",
+        "bytes": 22091,
+        "sha256": "b4c21e1cf4c344246191be00cb435a4b55f683df2ee3d169a14496e9cc023a4b",
+        "git_blob": "1c15b4338b3ea49ea3fc319ab17c86e05ecebd24"
+      },
+      "tools/diagnostics/ending-publication-20261019/replay/test_read_trace.py": {
+        "source_commit": "c24934929e3d2c8c013f335309620525e2f64d61",
+        "bytes": 12188,
+        "sha256": "8aa10621e1bfd8d05142c1bffeb3df044c5abe763a0b75219d2dd251b76dc24a",
+        "git_blob": "a4335eed4a6b06444266744e784f7c5200eb59ee"
+      },
+      "tools/diagnostics/ending-publication-20261019/retain_evidence.py": {
+        "source_commit": "c24934929e3d2c8c013f335309620525e2f64d61",
+        "bytes": 1830,
+        "sha256": "33c6c80bdb12363f7ef61a52e9c4c8c9eb59c2d245e349da2692cc39553c1128",
+        "git_blob": "f29b1b45d43c441159bbf59f66d697b3fc169b67"
+      },
+      "tools/diagnostics/ending-publication-20261019/review/README.md": {
+        "source_commit": "c24934929e3d2c8c013f335309620525e2f64d61",
+        "bytes": 2083,
+        "sha256": "53b01028d23327a74bd2eb12e2cca461a00463906524091dda7fa84e413bc1d8",
+        "git_blob": "65a6174485f9aa192e21e88d95d0a193fc075759"
+      },
+      "tools/diagnostics/ending-publication-20261019/review/binder-tests-result.json": {
+        "source_commit": "c24934929e3d2c8c013f335309620525e2f64d61",
+        "bytes": 129146,
+        "sha256": "7843422aed6dfb3c002f159abe5a82a3e6a9cd3ea78e54e635a6973f70e64f71",
+        "git_blob": "d9823e1aa18f2fd83a6932cc64f69a684c1b7e20"
+      },
+      "tools/diagnostics/ending-publication-20261019/review/binder-tests.log": {
+        "source_commit": "c24934929e3d2c8c013f335309620525e2f64d61",
+        "bytes": 987,
+        "sha256": "6970aa4276d1244b94a70accbda2e28e62d33304cea0ab956a0705b6f5a20eee",
+        "git_blob": "0f50682292bc93ed411e5fea059555cbd6a0b133"
+      },
+      "tools/diagnostics/ending-publication-20261019/review/local-checks.json": {
+        "source_commit": "c24934929e3d2c8c013f335309620525e2f64d61",
+        "bytes": 343,
+        "sha256": "205105028c4e9b0fd089810f344748ad77c3c3c80fbae089ef598db845cceca9",
+        "git_blob": "490998ff4b5af3b80d8506012778666ea05e4403"
+      },
+      "tools/diagnostics/ending-publication-20261019/review/reader-tests.log": {
+        "source_commit": "c24934929e3d2c8c013f335309620525e2f64d61",
+        "bytes": 2034,
+        "sha256": "ae107b560a7e501a76bedec193cec38366c3767446648d832e5ae44e5116baf9",
+        "git_blob": "7f638c3d695f1694d352d7a3f53a01448d00a341"
+      },
+      "tools/diagnostics/ending-publication-20261019/review/static-checks.json": {
+        "source_commit": "c24934929e3d2c8c013f335309620525e2f64d61",
+        "bytes": 988,
+        "sha256": "47bad059b1931509247e47bbbbc4e5e93539d023fd14c190242ac66e610f78cd",
+        "git_blob": "d0e482479fabb28a55e994b969721633501f3a04"
+      },
+      "tools/diagnostics/ending-publication-20261019/tests/README.md": {
+        "source_commit": "c24934929e3d2c8c013f335309620525e2f64d61",
+        "bytes": 1747,
+        "sha256": "cee36bc5b8d3c9f9748cecde4cb36094fc014e23ab8a08e1f82928734f09188b",
+        "git_blob": "a65bb731cc3a56efb52a6ab769d6c71eb2843858"
+      },
+      "tools/diagnostics/ending-publication-20261019/tests/synthetic_fixture.py": {
+        "source_commit": "c24934929e3d2c8c013f335309620525e2f64d61",
+        "bytes": 9910,
+        "sha256": "c5d637ab88cd510d0c566ed81ed2d13471e468a474e8cae270361bb19dde76b0",
+        "git_blob": "a1ab0418743c40a3aceabac3165048803b332aed"
+      },
+      "tools/diagnostics/ending-publication-20261019/tests/test_bind_trace.py": {
+        "source_commit": "c24934929e3d2c8c013f335309620525e2f64d61",
+        "bytes": 10137,
+        "sha256": "47be4e0f4d668d03f99c098f37193bb1172c269a6d3fd604faea31c3256a388c",
+        "git_blob": "f4247da60795306654c7b9726f47f00b1598a8b6"
+      }
+    },
+    "changed_paths": [
+      "tools/diagnostics/ending-publication-20261019/Build-NativePublicationProbe.ps1",
+      "tools/diagnostics/ending-publication-20261019/New-NativeDiagnosticPackage.ps1",
+      "tools/diagnostics/ending-publication-20261019/README.md",
+      "tools/diagnostics/ending-publication-20261019/bind_trace.py",
+      "tools/diagnostics/ending-publication-20261019/controller-template.yml",
+      "tools/diagnostics/ending-publication-20261019/native-probe/PROTOCOL.md",
+      "tools/diagnostics/ending-publication-20261019/native-probe/baseline/drivers/accesskit/accessibility_driver_accesskit.cpp",
+      "tools/diagnostics/ending-publication-20261019/native-probe/baseline/drivers/accesskit/accessibility_driver_accesskit.h",
+      "tools/diagnostics/ending-publication-20261019/native-probe/candidate/drivers/accesskit/accessibility_driver_accesskit.cpp",
+      "tools/diagnostics/ending-publication-20261019/native-probe/candidate/drivers/accesskit/accessibility_driver_accesskit.h",
+      "tools/diagnostics/ending-publication-20261019/native-probe/publication-native-probe.patch",
+      "tools/diagnostics/ending-publication-20261019/native-probe/reference/thirdparty/accesskit/include/accesskit.h",
+      "tools/diagnostics/ending-publication-20261019/native-probe/source-pins.json",
+      "tools/diagnostics/ending-publication-20261019/prepare_package.py",
+      "tools/diagnostics/ending-publication-20261019/provenance/README.md",
+      "tools/diagnostics/ending-publication-20261019/provenance/SHA256SUMS.txt",
+      "tools/diagnostics/ending-publication-20261019/provenance/build-plan/SHA256SUMS.txt",
+      "tools/diagnostics/ending-publication-20261019/provenance/build-plan/build-plan.md",
+      "tools/diagnostics/ending-publication-20261019/provenance/build-plan/dependency-pins.json",
+      "tools/diagnostics/ending-publication-20261019/provenance/build-plan/metadata/accesskit-c-static-0.21.2-release.json",
+      "tools/diagnostics/ending-publication-20261019/provenance/build-plan/metadata/angle-chromium-6601.2-release.json",
+      "tools/diagnostics/ending-publication-20261019/provenance/build-plan/metadata/godot-source-commit-35e80b3a.json",
+      "tools/diagnostics/ending-publication-20261019/provenance/build-plan/metadata/mesa-nir-25.3.1-1-release.json",
+      "tools/diagnostics/ending-publication-20261019/provenance/build-plan/sources.json",
+      "tools/diagnostics/ending-publication-20261019/provenance/build-plan/sources/accesskit/publish.yml",
+      "tools/diagnostics/ending-publication-20261019/provenance/build-plan/sources/dwm/windows-tests-81847d8b.yml",
+      "tools/diagnostics/ending-publication-20261019/provenance/build-plan/sources/godot-docs/compiling_for_windows.rst",
+      "tools/diagnostics/ending-publication-20261019/provenance/build-plan/sources/godot/SConstruct",
+      "tools/diagnostics/ending-publication-20261019/provenance/build-plan/sources/godot/d3d12-SCsub",
+      "tools/diagnostics/ending-publication-20261019/provenance/build-plan/sources/godot/godot-build-action.yml",
+      "tools/diagnostics/ending-publication-20261019/provenance/build-plan/sources/godot/godot-deps-action.yml",
+      "tools/diagnostics/ending-publication-20261019/provenance/build-plan/sources/godot/install_d3d12_sdk_windows.py",
+      "tools/diagnostics/ending-publication-20261019/provenance/build-plan/sources/godot/windows-SCsub",
+      "tools/diagnostics/ending-publication-20261019/provenance/build-plan/sources/godot/windows-detect.py",
+      "tools/diagnostics/ending-publication-20261019/provenance/build-plan/sources/godot/windows_builds.yml",
+      "tools/diagnostics/ending-publication-20261019/provenance/build-plan/sources/runner-images/Windows2022-Readme.md",
+      "tools/diagnostics/ending-publication-20261019/provenance/existing-run/archive-receipt.json",
+      "tools/diagnostics/ending-publication-20261019/provenance/existing-run/exported-capability/result.json",
+      "tools/diagnostics/ending-publication-20261019/provenance/existing-run/exported-create/result.json",
+      "tools/diagnostics/ending-publication-20261019/provenance/existing-run/exported-load/game.stdout.log",
+      "tools/diagnostics/ending-publication-20261019/provenance/existing-run/exported-load/result.json",
+      "tools/diagnostics/ending-publication-20261019/provenance/existing-run/import.log",
+      "tools/diagnostics/ending-publication-20261019/provenance/existing-run/source/candidate/tools/testing/Invoke-ExportedGameplay.ps1",
+      "tools/diagnostics/ending-publication-20261019/provenance/existing-run/source/controller/scene-first-reveal-profile-diagnostic.yml",
+      "tools/diagnostics/ending-publication-20261019/provenance/existing-run/windows-export/validation.json",
+      "tools/diagnostics/ending-publication-20261019/provenance/findings.json",
+      "tools/diagnostics/ending-publication-20261019/provenance/metadata-verification.json",
+      "tools/diagnostics/ending-publication-20261019/provenance/metadata/accesskit-c-static-0.21.2-release.json",
+      "tools/diagnostics/ending-publication-20261019/provenance/metadata/accesskit-c-static-0.21.2-root.json",
+      "tools/diagnostics/ending-publication-20261019/provenance/metadata/godot-4.6.3-stable-release-index.json",
+      "tools/diagnostics/ending-publication-20261019/provenance/metadata/godot-builds-release-4.6.3.json",
+      "tools/diagnostics/ending-publication-20261019/provenance/metadata/godot-builds-tag-4.6.3.json",
+      "tools/diagnostics/ending-publication-20261019/provenance/metadata/godot-builds-tag-commit.json",
+      "tools/diagnostics/ending-publication-20261019/provenance/metadata/godot-builds-tag-root-tree.json",
+      "tools/diagnostics/ending-publication-20261019/provenance/metadata/godot-release-4.6.3.json",
+      "tools/diagnostics/ending-publication-20261019/provenance/metadata/release-packaging-last-change-before-release.json",
+      "tools/diagnostics/ending-publication-20261019/provenance/metadata/windows-build-last-change-before-release.json",
+      "tools/diagnostics/ending-publication-20261019/provenance/prior-engine-source-identity-note.md",
+      "tools/diagnostics/ending-publication-20261019/provenance/source/build-scripts/release-packaging-b3289deb.sh",
+      "tools/diagnostics/ending-publication-20261019/provenance/source/build-scripts/windows-build-03934586.sh",
+      "tools/diagnostics/ending-publication-20261019/provenance/source/godot-35e80b3a/SConstruct",
+      "tools/diagnostics/ending-publication-20261019/provenance/source/godot-35e80b3a/core/core_builders.py",
+      "tools/diagnostics/ending-publication-20261019/provenance/source/godot-35e80b3a/drivers/accesskit/accessibility_driver_accesskit.cpp",
+      "tools/diagnostics/ending-publication-20261019/provenance/source/godot-35e80b3a/main/main.cpp",
+      "tools/diagnostics/ending-publication-20261019/provenance/source/godot-35e80b3a/methods.py",
+      "tools/diagnostics/ending-publication-20261019/provenance/source/godot-35e80b3a/misc/scripts/make_tarball.sh",
+      "tools/diagnostics/ending-publication-20261019/provenance/source/godot-35e80b3a/platform/windows/SCsub",
+      "tools/diagnostics/ending-publication-20261019/provenance/source/godot-35e80b3a/platform/windows/detect.py",
+      "tools/diagnostics/ending-publication-20261019/provenance/source/godot-35e80b3a/platform/windows/platform_windows_builders.py",
+      "tools/diagnostics/ending-publication-20261019/provenance/source/godot-35e80b3a/thirdparty/README.md",
+      "tools/diagnostics/ending-publication-20261019/provenance/sources.json",
+      "tools/diagnostics/ending-publication-20261019/replay/read_trace.py",
+      "tools/diagnostics/ending-publication-20261019/replay/test_read_trace.py",
+      "tools/diagnostics/ending-publication-20261019/retain_evidence.py",
+      "tools/diagnostics/ending-publication-20261019/review/README.md",
+      "tools/diagnostics/ending-publication-20261019/review/binder-tests-result.json",
+      "tools/diagnostics/ending-publication-20261019/review/binder-tests.log",
+      "tools/diagnostics/ending-publication-20261019/review/local-checks.json",
+      "tools/diagnostics/ending-publication-20261019/review/reader-tests.log",
+      "tools/diagnostics/ending-publication-20261019/review/static-checks.json",
+      "tools/diagnostics/ending-publication-20261019/tests/README.md",
+      "tools/diagnostics/ending-publication-20261019/tests/synthetic_fixture.py",
+      "tools/diagnostics/ending-publication-20261019/tests/test_bind_trace.py"
+    ],
+    "driver_modes": [
+      "Capability",
+      "Create",
+      "Load"
+    ],
+    "step_timeout_seconds": 30,
+    "journey_timeout_seconds": 480,
+    "outer_timeout_minutes_per_mode": 10,
+    "renderer": "ProjectDefault",
+    "accessibility": "Always",
+    "audio": "Dummy",
+    "load_flags": [
+      "ProfileSaveLoad",
+      "ContinueAfterQuiet",
+      "TraceDay5",
+      "NativeReadyCaptions"
+    ],
+    "trace_environment": "GODOT_ACCESSKIT_PUBLICATION_TRACE_PATH",
+    "trace_scope": "Load only, from process construction; initial plus natural deltas; no refresh or new observer RID"
+  },
+  "original_documents": {
+    "ci/native-build/build-receipt.json": {
+      "present": true,
+      "status": "retained",
+      "bytes": 5594,
+      "sha256": "c318abdd13a74b15178df8f91c7fc694dc8892e788c8c06a870ebe305ecc0406",
+      "git_blob": "58053908dec023f41d039a1e8f811673c289033c",
+      "value": {
+        "schema_version": 1,
+        "ok": true,
+        "diagnostic": true,
+        "source_commit": "35e80b3a8822a9df9be390814b62f44c0a9c69e8",
+        "source_tree": "499fa231ee5d21878988a4a9cb881749def3946d",
+        "build_name": "dwm_publication_probe_v1",
+        "target": "template_release",
+        "architecture": "x86_64",
+        "runner": "windows-2022",
+        "compiler": "MSVC",
+        "dependencies": [
+          {
+            "bytes": 95929259,
+            "name": "AccessKit C static SDK",
+            "observed_sha256": "02a08691b78fc6f8f88f6546e997b9f90b4ecbedf5ca5c621dbab144a4b18964",
+            "asset_metadata_sha256": "e9807bb7d002490ca74e703d4f30ece0b2721f5fb9ca0c1325857c38afa10906",
+            "asset_updated_at": "2026-03-12T09:30:44Z",
+            "upstream_hash_verified": true,
+            "url": "https://github.com/godotengine/godot-accesskit-c-static/releases/download/0.21.2/accesskit-c-0.21.2.zip",
+            "expected_upstream_sha256": "02a08691b78fc6f8f88f6546e997b9f90b4ecbedf5ca5c621dbab144a4b18964",
+            "observed_asset_id": 372219312
+          },
+          {
+            "bytes": 6040119,
+            "name": "Mesa NIR static",
+            "observed_sha256": "abfbdf03316d65381f4c32d1f724c8a1dbeb74a7e801923b71656f186e54dcdf",
+            "asset_metadata_sha256": "8276ade782ba7f4f44c73888418cf04f7c4af4f72ddb4e35d5ebd97bc19295ae",
+            "asset_updated_at": "2025-12-16T09:16:09Z",
+            "upstream_hash_verified": true,
+            "url": "https://github.com/godotengine/godot-nir-static/releases/download/25.3.1-1/godot-nir-static-x86_64-msvc-release.zip",
+            "expected_upstream_sha256": "abfbdf03316d65381f4c32d1f724c8a1dbeb74a7e801923b71656f186e54dcdf",
+            "observed_asset_id": 329280734
+          },
+          {
+            "bytes": 32507833,
+            "name": "ANGLE static",
+            "observed_sha256": "ba887a0370fab1b3cb84724b7cc81c2aa6cfc8b8f7498c0410e2b5eba76c40b1",
+            "asset_metadata_sha256": "b234254d94eaa72be5a0958d21b18b9abb0d60dc468a2dd8d98fd0f7c399c1bf",
+            "asset_updated_at": "2024-07-30T09:54:55Z",
+            "upstream_hash_verified": false,
+            "url": "https://github.com/godotengine/godot-angle-static/releases/download/chromium/6601.2/godot-angle-static-x86_64-msvc-release.zip",
+            "expected_upstream_sha256": null,
+            "observed_asset_id": 182726748
+          }
+        ],
+        "changed_files": [
+          {
+            "base_sha256": "9fe069e718b13d06cced39b3fd098198911fab3c3c46dc74910cfc413646811c",
+            "base_blob": "f0dfc5e056c4cf6341cda93763e294b7e5fe3df6",
+            "candidate_blob": "40b0f7fcfb45c78c27855eaab438679155647d50",
+            "candidate_sha256": "59ecabf7ef34ced32990a3dccbf113e169f9f5766ccd2fae3f62f9bfbdb2aa42",
+            "path": "drivers/accesskit/accessibility_driver_accesskit.cpp"
+          },
+          {
+            "base_sha256": "22e723e9b99f5e84ba947242c8073640f5fad735bf406d02988d77284b1d8dd8",
+            "base_blob": "a4196c6bcb67a12cf8f279207ebc92e623f816ff",
+            "candidate_blob": "75ce466f993862e60eed5a9626eb734c2b715e26",
+            "candidate_sha256": "c601717080df43b36f10a4a0f38110cae0f5ee5d77970081bf730c5f27095827",
+            "path": "drivers/accesskit/accessibility_driver_accesskit.h"
+          }
+        ],
+        "qualification": "Diagnostic public-source MSVC build; not an attestation of the official 7d41c59c4 executable",
+        "patch_sha256": "63e2b4090e881a191783ed641530d0c066eaa1193ef513dd0db33ec09bf51065",
+        "protocol_sha256": "29a598e0a733e14d2ae849e21d62f9d7b52fa9d4db5f4b3ae5168f7d92cde37c",
+        "scons_wheel_sha256": "bd9d1c52f908d874eba92a8c0c0a8dcf2ed9f3b88ab956d0fce1da479c4e7126",
+        "python": "Python 3.12.10",
+        "scons": "SCons by Steven Knight et al.:\n\tSCons: v4.10.1.055b01f429d58b686701a56df863a817c36bb103, Sun, 16 Nov 2025 14:18:20 -0700, by bdbaddog on M1Dog2021\n\tSCons path: ['C:\\\\hostedtoolcache\\\\windows\\\\Python\\\\3.12.10\\\\x64\\\\Lib\\\\site-packages\\\\SCons']\nCopyright (c) 2001 - 2025 The SCons Foundation",
+        "image_os": "win22",
+        "image_version": "20261012.333.1",
+        "logical_processors": 4,
+        "scons_arguments": [
+          "platform=windows",
+          "target=template_release",
+          "arch=x86_64",
+          "production=yes",
+          "dev_build=no",
+          "use_mingw=no",
+          "use_llvm=no",
+          "use_static_cpp=yes",
+          "debug_symbols=no",
+          "optimize=speed",
+          "lto=none",
+          "d3d12=yes",
+          "accesskit=yes",
+          "accesskit_sdk_path=D:\\a\\_temp\\dwm-native-publication-deps\\accesskit-c-0.21.2",
+          "angle_libs=D:\\a\\_temp\\dwm-native-publication-deps\\angle",
+          "mesa_libs=D:\\a\\_temp\\dwm-native-publication-deps\\mesa-x86_64-msvc",
+          "agility_sdk_path=",
+          "pix_path=",
+          "use_pix=no",
+          "-j",
+          "4"
+        ],
+        "compile_exit_code": 0,
+        "compile_seconds": 1969.2686774,
+        "template": {
+          "bytes": 81150976,
+          "sha256": "f1a8bf3c5fea1927fb1b202ba76c265f987e0e798b72835c143340a1278cbe25",
+          "path": "bin/godot.windows.template_release.x86_64.exe"
+        },
+        "bin_inventory": [
+          {
+            "bytes": 292352,
+            "sha256": "224f462b448dd44705543cf96b89809cedcadc5f7b5d9c9170531e2a6b995fd7",
+            "path": "bin/godot.windows.template_release.x86_64.console.exe"
+          },
+          {
+            "bytes": 81150976,
+            "sha256": "f1a8bf3c5fea1927fb1b202ba76c265f987e0e798b72835c143340a1278cbe25",
+            "path": "bin/godot.windows.template_release.x86_64.exe"
+          },
+          {
+            "bytes": 1675,
+            "sha256": "3bce520952b0018dbdfe1a02a1e8e77aea462a4f2dd66dfbff1a7e053f7fe9ec",
+            "path": "bin/godot.windows.template_release.x86_64.exp"
+          },
+          {
+            "bytes": 3738,
+            "sha256": "f6e84c133995975fda6bb005795bc695741205c83fd7c343596707fff4734ea8",
+            "path": "bin/godot.windows.template_release.x86_64.lib"
+          }
+        ],
+        "elapsed_seconds": 1983.5315201
+      }
+    },
+    "ci/native-diagnostic/validation.json": {
+      "present": true,
+      "status": "retained",
+      "bytes": 6154,
+      "sha256": "ae3509b1f429b6620a4c83758875d50065c11e2283109fb7a961224b0396b418",
+      "git_blob": "8694af8f0d0f2d935882d66f9eb6dacd4376e8ed",
+      "value": {
+        "schema_version": 1,
+        "ok": true,
+        "commit": "81847d8b1560340a3a7769223cee0b46c6bdc0f9",
+        "engine": "4.6.3.stable",
+        "engine_banner": "4.6.3.stable.dwm_publication_probe_v1.35e80b3a8",
+        "architecture": "x86_64",
+        "signed": false,
+        "diagnostic": true,
+        "scope": "Derived native diagnostic package: original PCK custody and fresh isolated headless startup",
+        "limitations": [
+          "Standard GDScript data pack is byte-identical to the original failed run.",
+          "The native executable is a separately built diagnostic template, not the official executable.",
+          "Public source 35e80b3a is not independently mapped to the original 7d41c59c4 banner.",
+          "MSVC production build differs from the public historical MinGW release recipe.",
+          "Native trace observes prepared AccessKit updates before factory return, not adapter acceptance.",
+          "Diagnostic outcomes do not certify the official executable or authorize runtime promotion."
+        ],
+        "original_package": {
+          "run": 39155624496,
+          "artifact_id": 12146662424,
+          "archive_file": "DWM-windows-x86_64-validation.zip",
+          "archive_bytes": 99457801,
+          "archive_sha256": "7c3053d2073fc3caee98dc5c038e720d5e860952375039d0db054dcd14812eb8",
+          "executable_sha256": "91724f15024a3a545e28ccd83134403d31ce2323a38e51c95e4dfa282f732ab6",
+          "pck_bytes": 66433104,
+          "pck_sha256": "1bbe3794a2febb54960929984556421e04df621f0e21a095f71ea25603147d26",
+          "engine_banner": "4.6.3.stable.official.7d41c59c4",
+          "original_load_ok": false,
+          "original_load_failure": "UIA_UNAVAILABLE_OR_TIMEOUT: TEST Seven-day ending."
+        },
+        "pack_custody": {
+          "ok": true,
+          "method": "Byte identity with the previously audited original PCK",
+          "previous_runtime_data_files_verified": 117,
+          "audit_reexecuted": false
+        },
+        "smoke": {
+          "ok": true,
+          "scope": "Fresh isolated startup of the derived diagnostic native package",
+          "exit_code": 0,
+          "timed_out": false,
+          "isolated_profile_created": true,
+          "version": "4.6.3.stable.dwm_publication_probe_v1.35e80b3a8",
+          "headless": true,
+          "iterations": 240
+        },
+        "files": [
+          {
+            "path": "diagnostic-origin.json",
+            "bytes": 7422,
+            "sha256": "18186d53a5424d23bbb14a5a55cfb791d9368fc7a38943194bf2331b07badf50"
+          },
+          {
+            "path": "DWM.exe",
+            "bytes": 81150976,
+            "sha256": "f1a8bf3c5fea1927fb1b202ba76c265f987e0e798b72835c143340a1278cbe25"
+          },
+          {
+            "path": "DWM.pck",
+            "bytes": 66433104,
+            "sha256": "1bbe3794a2febb54960929984556421e04df621f0e21a095f71ea25603147d26"
+          },
+          {
+            "path": "licenses/addons/dialogic/Example Assets/Fonts/LICENSE.txt",
+            "bytes": 11358,
+            "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+          },
+          {
+            "path": "licenses/addons/dialogic/Example Assets/sound-effects/LICENSE.txt",
+            "bytes": 169,
+            "sha256": "977908295af53ec78317e3387bb0cd017e03f2aef330fa5952955554a95a9d6f"
+          },
+          {
+            "path": "licenses/addons/godot_state_charts/LICENSE",
+            "bytes": 1067,
+            "sha256": "ff750b7a35accad94d9548e5d040da6df9b328a6eaec2918d217022bcd8276d1"
+          },
+          {
+            "path": "licenses/assets/ui/contacts/fonts/SOURCE-HAN-LICENSE.txt",
+            "bytes": 4463,
+            "sha256": "fcac737e761ec63dbfbdce11030a1780161920d80315edba9c8beff1c2bac5a2"
+          },
+          {
+            "path": "licenses/assets/ui/contacts/fonts/SOURCE-SANS-LICENSE.md",
+            "bytes": 4486,
+            "sha256": "56af9b9c6715597e458284a474dc118a50a4150e9d547c70f7b4a33c3e6a9328"
+          },
+          {
+            "path": "licenses/assets/ui/gallery/fonts/LICENSE-OFL.txt",
+            "bytes": 4418,
+            "sha256": "bc518cf64b8032c07690f33cc270c35c179255a6ac8efa7c165ebae7e8f76a63"
+          },
+          {
+            "path": "licenses/assets/ui/gallery/fonts/upstream-licenses/ark-pixel-OFL.txt",
+            "bytes": 4412,
+            "sha256": "3ab41567e68e3988ba1ef16dd2644eca95ca5648ea12e7d46e6287fc0bbe5aee"
+          },
+          {
+            "path": "licenses/assets/ui/gallery/fonts/upstream-licenses/boutique-bitmap-7x7-OFL.txt",
+            "bytes": 5463,
+            "sha256": "ad588b5ce58a02179b806381339fd380e5110771f2fa91279af026fd3ab97002"
+          },
+          {
+            "path": "licenses/assets/ui/gallery/fonts/upstream-licenses/boutique-bitmap-9x9-OFL.txt",
+            "bytes": 6566,
+            "sha256": "265f3814079511b3f3fce9003cb60a1402fa792849c5cae79e5998939eb02617"
+          },
+          {
+            "path": "licenses/assets/ui/gallery/fonts/upstream-licenses/cubic-11-OFL.txt",
+            "bytes": 5364,
+            "sha256": "2b6e5938e5cffa0b9e183bd05f8c363e174e7ebed1a0556e2855fd1707fa2188"
+          },
+          {
+            "path": "licenses/assets/ui/gallery/fonts/upstream-licenses/galmuri-LICENSE.txt",
+            "bytes": 4360,
+            "sha256": "86a3ee9495f942f0243f18c103da9faca27adb88142613edb8bb852e56c892c1"
+          },
+          {
+            "path": "licenses/assets/ui/gallery/fonts/upstream-licenses/misaki-LICENSE.txt",
+            "bytes": 9016,
+            "sha256": "82929cc3b34c79b6a67f21fe137c7bb165589c9e34ba1441611e493afd67dfca"
+          },
+          {
+            "path": "licenses/assets/ui/gallery/fonts/upstream-licenses/miseki-bitmap-LICENSE.txt",
+            "bytes": 4358,
+            "sha256": "e855b45b384d37c9a778119271bd9c32706e3f1f9f278de0ad47347606eea846"
+          },
+          {
+            "path": "licenses/diagnostic-engine/COPYRIGHT.txt",
+            "bytes": 99790,
+            "sha256": "b3330849267d56ddd3d62a513817506606c2195034411fe05859f0140bff9d8a"
+          },
+          {
+            "path": "licenses/diagnostic-engine/LICENSE.txt",
+            "bytes": 1149,
+            "sha256": "b0435e3b3e4e55238f05f4b306f30524a1b2e20147810d436eaa554fa6855c80"
+          },
+          {
+            "path": "licenses/Godot/LICENSE.txt",
+            "bytes": 1149,
+            "sha256": "b0435e3b3e4e55238f05f4b306f30524a1b2e20147810d436eaa554fa6855c80"
+          },
+          {
+            "path": "licenses/Godot/THIRD-PARTY-NOTICES.json",
+            "bytes": 107502,
+            "sha256": "bf357f64a885fc0ec877b7a9a58645f0bb7207ba0e4deed5de08365c37639c48"
+          }
+        ],
+        "archive": {
+          "file": "DWM-windows-x86_64-diagnostic.zip",
+          "bytes": 89876081,
+          "sha256": "68a23de94170f18df1d2aaa137c53aa3060bcd9e1d8c71b3b40acf5dc75ba3c1"
+        }
+      }
+    },
+    "ci/diagnostic-acceptance.json": {
+      "present": true,
+      "status": "retained",
+      "bytes": 1032,
+      "sha256": "a0392b01b5a9007e819b207f93cceeb0eda029c9756e82177821457987013987",
+      "git_blob": "443b855f3da6e5bf9068635f88b13181740233b9",
+      "value": {
+        "official_acceptance_established": false,
+        "scope": "Unchanged original player gates on a separately built diagnostic native executable",
+        "ok": false,
+        "original_gate_outcomes_on_diagnostic_native": [
+          {
+            "mode": "capability",
+            "ok": true,
+            "exit_code": 0,
+            "forced_cleanup": false,
+            "clean_player_exit": true,
+            "result": ".godot/ci/exported-capability/result.json"
+          },
+          {
+            "mode": "create",
+            "ok": true,
+            "exit_code": 0,
+            "forced_cleanup": false,
+            "clean_player_exit": true,
+            "result": ".godot/ci/exported-create/result.json"
+          },
+          {
+            "mode": "load",
+            "ok": false,
+            "exit_code": -1,
+            "forced_cleanup": true,
+            "clean_player_exit": false,
+            "result": ".godot/ci/exported-load/result.json"
+          }
+        ],
+        "failures": [
+          "load failed its original gate on diagnostic native",
+          "load step did not succeed",
+          "replay step did not succeed"
+        ],
+        "official_original_load_ok": false
+      }
+    },
+    "ci/prepared-graph-binding.json": {
+      "present": true,
+      "status": "retained",
+      "bytes": 11472,
+      "sha256": "38861bf16a3d2a8984b4f8d348724e3ba12b7f0eefbf3e975d642d58c817cf6e",
+      "git_blob": "7c1386ad4657b1994565a3d6c91760f569ecde74",
+      "value": {
+        "schema_version": 1,
+        "binding_ok": false,
+        "same_ending_failure_reproduced": true,
+        "official_original_load_ok": false,
+        "official_acceptance_established": false,
+        "scope": "Prepared graph at recorded capture times; no adapter acceptance claim",
+        "input_files": {
+          "audit-origin.json": {
+            "bytes": 41812,
+            "sha256": "2174184399622c72e1d84902d12bdc235e552866f011c0ec38c574e14f204b8a"
+          },
+          "native-build/build-receipt.json": {
+            "bytes": 5594,
+            "sha256": "c318abdd13a74b15178df8f91c7fc694dc8892e788c8c06a870ebe305ecc0406"
+          },
+          "native-diagnostic/validation.json": {
+            "bytes": 6154,
+            "sha256": "ae3509b1f429b6620a4c83758875d50065c11e2283109fb7a961224b0396b418"
+          },
+          "source/tools/diagnostics/ending-publication-20261019/native-probe/baseline/drivers/accesskit/accessibility_driver_accesskit.cpp": {
+            "bytes": 74291,
+            "sha256": "9fe069e718b13d06cced39b3fd098198911fab3c3c46dc74910cfc413646811c"
+          },
+          "source/tools/diagnostics/ending-publication-20261019/native-probe/candidate/drivers/accesskit/accessibility_driver_accesskit.cpp": {
+            "bytes": 83200,
+            "sha256": "59ecabf7ef34ced32990a3dccbf113e169f9f5766ccd2fae3f62f9bfbdb2aa42"
+          },
+          "source/tools/diagnostics/ending-publication-20261019/native-probe/baseline/drivers/accesskit/accessibility_driver_accesskit.h": {
+            "bytes": 12450,
+            "sha256": "22e723e9b99f5e84ba947242c8073640f5fad735bf406d02988d77284b1d8dd8"
+          },
+          "source/tools/diagnostics/ending-publication-20261019/native-probe/candidate/drivers/accesskit/accessibility_driver_accesskit.h": {
+            "bytes": 12524,
+            "sha256": "c601717080df43b36f10a4a0f38110cae0f5ee5d77970081bf730c5f27095827"
+          },
+          "source/tools/diagnostics/ending-publication-20261019/native-probe/publication-native-probe.patch": {
+            "bytes": 12076,
+            "sha256": "63e2b4090e881a191783ed641530d0c066eaa1193ef513dd0db33ec09bf51065"
+          },
+          "source/tools/diagnostics/ending-publication-20261019/native-probe/PROTOCOL.md": {
+            "bytes": 11253,
+            "sha256": "29a598e0a733e14d2ae849e21d62f9d7b52fa9d4db5f4b3ae5168f7d92cde37c"
+          },
+          "exported-capability/result.json": {
+            "bytes": 1880,
+            "sha256": "2a1fee073c8f6042509ac00c7fe05cdd239ceaf0bc428be0f35a00105bc785b3"
+          },
+          "capability-process.json": {
+            "bytes": 140,
+            "sha256": "48745d338be0e04d14ebd296b41ed2d02a4475d2b7d073b105fc58d09e9e8df5"
+          },
+          "exported-create/result.json": {
+            "bytes": 4028,
+            "sha256": "990c02366e98f758927d1ca177f05ae3f0f77d453b8603e83b1d8f6055bfd68f"
+          },
+          "create-process.json": {
+            "bytes": 136,
+            "sha256": "e8fdbb3e3b9e8b6516fca7e04a16052e097c04a7e9bd3282ecdf3b43584a79e4"
+          },
+          "exported-load/result.json": {
+            "bytes": 2107,
+            "sha256": "31bf3d9beaffa9ab95b8bf62282112b72024d1b4316bd09ed4a345764bfb03bb"
+          },
+          "load-process.json": {
+            "bytes": 187,
+            "sha256": "23e87d633a829ad3bf3cbee5300b0452d3b3c9b4c8a96791bbea7207aa2a978b"
+          },
+          "exported-load/failure-boundary.json": {
+            "bytes": 889,
+            "sha256": "80a89835584b9dbaf5422ce6b234e76c2849ab8fc75e4f680f1caffd904823a1"
+          },
+          "exported-load/events.json": {
+            "bytes": 518062,
+            "sha256": "70a8c766208c2475920d43d14f26d91efbd40cf7b25c7af46b358532d95dcb45"
+          },
+          "exported-load/game.stdout.log": {
+            "bytes": 109214,
+            "sha256": "d6606c4e601b60c105ec21c984ab2b6ecc39ee8fdf9f43c15285f3657c53f8b9"
+          }
+        },
+        "native_outcomes": {
+          "capability": {
+            "ok": true,
+            "exit_code": 0,
+            "failure": null,
+            "clean_player_exit": true,
+            "forced_cleanup": false,
+            "source_commit": "81847d8b1560340a3a7769223cee0b46c6bdc0f9",
+            "archive_sha256": "68a23de94170f18df1d2aaa137c53aa3060bcd9e1d8c71b3b40acf5dc75ba3c1",
+            "executable_sha256": "f1a8bf3c5fea1927fb1b202ba76c265f987e0e798b72835c143340a1278cbe25",
+            "pck_sha256": "1bbe3794a2febb54960929984556421e04df621f0e21a095f71ea25603147d26",
+            "process": {
+              "pid": 2904,
+              "started_utc": "2026-10-18T20:55:47.9213847Z",
+              "arguments": [
+                "--windowed",
+                "--resolution",
+                "1280x720",
+                "--log-file",
+                "D:\\a\\dwm\\dwm\\.godot\\ci\\exported-capability\\game.log",
+                "--accessibility",
+                "always",
+                "--audio-driver",
+                "Dummy"
+              ],
+              "observed_command_line": "\"D:\\a\\dwm\\dwm\\.godot\\ci\\exported-capability\\package\\DWM.exe\" --windowed --resolution 1280x720 --log-file D:\\a\\dwm\\dwm\\.godot\\ci\\exported-capability\\game.log --accessibility always --audio-driver Dummy",
+              "executable": "D:\\a\\dwm\\dwm\\.godot\\ci\\exported-capability\\package\\DWM.exe"
+            },
+            "driver_exit_code": 0
+          },
+          "create": {
+            "ok": true,
+            "exit_code": 0,
+            "failure": null,
+            "clean_player_exit": true,
+            "forced_cleanup": false,
+            "source_commit": "81847d8b1560340a3a7769223cee0b46c6bdc0f9",
+            "archive_sha256": "68a23de94170f18df1d2aaa137c53aa3060bcd9e1d8c71b3b40acf5dc75ba3c1",
+            "executable_sha256": "f1a8bf3c5fea1927fb1b202ba76c265f987e0e798b72835c143340a1278cbe25",
+            "pck_sha256": "1bbe3794a2febb54960929984556421e04df621f0e21a095f71ea25603147d26",
+            "process": {
+              "pid": 5776,
+              "executable": "D:\\a\\dwm\\dwm\\.godot\\ci\\exported-create\\package\\DWM.exe",
+              "observed_command_line": "\"D:\\a\\dwm\\dwm\\.godot\\ci\\exported-create\\package\\DWM.exe\" --windowed --resolution 1280x720 --log-file D:\\a\\dwm\\dwm\\.godot\\ci\\exported-create\\game.log --accessibility always --audio-driver Dummy",
+              "started_utc": "2026-10-18T20:56:18.4251361Z",
+              "arguments": [
+                "--windowed",
+                "--resolution",
+                "1280x720",
+                "--log-file",
+                "D:\\a\\dwm\\dwm\\.godot\\ci\\exported-create\\game.log",
+                "--accessibility",
+                "always",
+                "--audio-driver",
+                "Dummy"
+              ]
+            },
+            "driver_exit_code": 0
+          },
+          "load": {
+            "ok": false,
+            "exit_code": -1,
+            "failure": "UIA_UNAVAILABLE_OR_TIMEOUT: TEST Seven-day ending.",
+            "clean_player_exit": false,
+            "forced_cleanup": true,
+            "source_commit": "81847d8b1560340a3a7769223cee0b46c6bdc0f9",
+            "archive_sha256": "68a23de94170f18df1d2aaa137c53aa3060bcd9e1d8c71b3b40acf5dc75ba3c1",
+            "executable_sha256": "f1a8bf3c5fea1927fb1b202ba76c265f987e0e798b72835c143340a1278cbe25",
+            "pck_sha256": "1bbe3794a2febb54960929984556421e04df621f0e21a095f71ea25603147d26",
+            "process": {
+              "pid": 6124,
+              "observed_command_line": "\"D:\\a\\dwm\\dwm\\.godot\\ci\\exported-load\\package\\DWM.exe\" --windowed --resolution 1280x720 --log-file D:\\a\\dwm\\dwm\\.godot\\ci\\exported-load\\game.log --accessibility always --audio-driver Dummy",
+              "started_utc": "2026-10-18T20:58:10.2761811Z",
+              "arguments": [
+                "--windowed",
+                "--resolution",
+                "1280x720",
+                "--log-file",
+                "D:\\a\\dwm\\dwm\\.godot\\ci\\exported-load\\game.log",
+                "--accessibility",
+                "always",
+                "--audio-driver",
+                "Dummy"
+              ],
+              "executable": "D:\\a\\dwm\\dwm\\.godot\\ci\\exported-load\\package\\DWM.exe"
+            },
+            "driver_exit_code": 1
+          }
+        },
+        "errors": [
+          "RuntimeError: Original Load stdout identifies a different native engine"
+        ],
+        "selected_observations": [],
+        "timing_note": "Capture end precedes row serialization/write/flush and factory return. Wall-clock values are observations, not a clock-accuracy attestation.",
+        "coverage_note": "Missing footer permits complete-prefix observations only; no continuous or final-state guarantee.",
+        "original_wait": {
+          "start": {
+            "utc": "2026-10-18T21:01:48.2530918Z",
+            "kind": "native-caption-wait-start",
+            "data": {
+              "cpu_total_seconds": 288.890625,
+              "name": "TEST Seven-day ending.",
+              "deadline_seconds": 30
+            }
+          },
+          "end": {
+            "utc": "2026-10-18T21:02:18.2746057Z",
+            "kind": "native-caption-wait-end",
+            "data": {
+              "cpu_delta_seconds": 30.03125,
+              "elapsed_seconds": 30.0215024,
+              "name": "TEST Seven-day ending."
+            }
+          },
+          "failure_boundary": {
+            "utc": "2026-10-18T21:02:18.3068996Z",
+            "failure": "UIA_UNAVAILABLE_OR_TIMEOUT: TEST Seven-day ending.",
+            "diagnostic_only": true,
+            "process": {
+              "pid": 6124,
+              "observed_command_line": "\"D:\\a\\dwm\\dwm\\.godot\\ci\\exported-load\\package\\DWM.exe\" --windowed --resolution 1280x720 --log-file D:\\a\\dwm\\dwm\\.godot\\ci\\exported-load\\game.log --accessibility always --audio-driver Dummy",
+              "started_utc": "2026-10-18T20:58:10.2761811Z",
+              "arguments": [
+                "--windowed",
+                "--resolution",
+                "1280x720",
+                "--log-file",
+                "D:\\a\\dwm\\dwm\\.godot\\ci\\exported-load\\game.log",
+                "--accessibility",
+                "always",
+                "--audio-driver",
+                "Dummy"
+              ],
+              "executable": "D:\\a\\dwm\\dwm\\.godot\\ci\\exported-load\\package\\DWM.exe"
+            },
+            "original_window_handle": 524608,
+            "cleanup_state": "not-yet-observed"
+          },
+          "observational_cutoff_unix_us": "1792357338274605",
+          "cutoff_kind": "Logged original wait-end UTC; failure-observation interval, not independent proof of admission before the strict 30-second Stopwatch deadline"
+        },
+        "zero_query_count": 1,
+        "first_last_zero_queries": [
+          {
+            "utc": "2026-10-18T21:02:18.2206829Z",
+            "kind": "caption-action-enumeration",
+            "data": {
+              "matches": 0,
+              "started_seconds": 29.9152416,
+              "name": "TEST Seven-day ending.",
+              "finished_seconds": 29.9676575
+            }
+          },
+          {
+            "utc": "2026-10-18T21:02:18.2206829Z",
+            "kind": "caption-action-enumeration",
+            "data": {
+              "matches": 0,
+              "started_seconds": 29.9152416,
+              "name": "TEST Seven-day ending.",
+              "finished_seconds": 29.9676575
+            }
+          }
+        ],
+        "responsive_window_sample_count": 1,
+        "first_last_responsive_samples": [
+          {
+            "utc": "2026-10-18T21:02:18.1091460Z",
+            "kind": "native-boundary",
+            "data": {
+              "hung": false,
+              "cpu_total_seconds": 318.703125,
+              "pid": 6124,
+              "stage": "caption-before-query: TEST Seven-day ending.",
+              "class": "Engine",
+              "responds": true,
+              "foreground_pid": 6124,
+              "handle": 524608,
+              "foreground_class": "Engine",
+              "foreground_is_game": true,
+              "elapsed_seconds": 29.8526642,
+              "foreground_handle": 524608
+            }
+          },
+          {
+            "utc": "2026-10-18T21:02:18.1091460Z",
+            "kind": "native-boundary",
+            "data": {
+              "hung": false,
+              "cpu_total_seconds": 318.703125,
+              "pid": 6124,
+              "stage": "caption-before-query: TEST Seven-day ending.",
+              "class": "Engine",
+              "responds": true,
+              "foreground_pid": 6124,
+              "handle": 524608,
+              "foreground_class": "Engine",
+              "foreground_is_game": true,
+              "elapsed_seconds": 29.8526642,
+              "foreground_handle": 524608
+            }
+          }
+        ],
+        "selected_status_counts": {}
+      }
+    },
+    "ci/exported-capability/result.json": {
+      "present": true,
+      "status": "retained",
+      "bytes": 1880,
+      "sha256": "2a1fee073c8f6042509ac00c7fe05cdd239ceaf0bc428be0f35a00105bc785b3",
+      "git_blob": "68ad2a77f23918e851ac76a8074e1885ad052348",
+      "value": {
+        "schema_version": 1,
+        "mode": "Capability",
+        "ok": true,
+        "visual_review_required": true,
+        "source_commit": "81847d8b1560340a3a7769223cee0b46c6bdc0f9",
+        "archive_sha256": "68a23de94170f18df1d2aaa137c53aa3060bcd9e1d8c71b3b40acf5dc75ba3c1",
+        "accessibility_request": "Always",
+        "audio_request": "Dummy",
+        "save_load_profile": false,
+        "checkpoint_profile": false,
+        "renderer_request": "ProjectDefault",
+        "user_root": "D:\\a\\_temp\\dwm-capability-user",
+        "output_path": "D:\\a\\dwm\\dwm\\.godot\\ci\\exported-capability",
+        "scope": "Ordinary release UI; normal packaged seven-day TEST story; no Challenge registration",
+        "forced_cleanup": false,
+        "clean_player_exit": true,
+        "executable_sha256": "f1a8bf3c5fea1927fb1b202ba76c265f987e0e798b72835c143340a1278cbe25",
+        "pck_sha256": "1bbe3794a2febb54960929984556421e04df621f0e21a095f71ea25603147d26",
+        "process": {
+          "pid": 2904,
+          "started_utc": "2026-10-18T20:55:47.9213847Z",
+          "arguments": [
+            "--windowed",
+            "--resolution",
+            "1280x720",
+            "--log-file",
+            "D:\\a\\dwm\\dwm\\.godot\\ci\\exported-capability\\game.log",
+            "--accessibility",
+            "always",
+            "--audio-driver",
+            "Dummy"
+          ],
+          "observed_command_line": "\"D:\\a\\dwm\\dwm\\.godot\\ci\\exported-capability\\package\\DWM.exe\" --windowed --resolution 1280x720 --log-file D:\\a\\dwm\\dwm\\.godot\\ci\\exported-capability\\game.log --accessibility always --audio-driver Dummy",
+          "executable": "D:\\a\\dwm\\dwm\\.godot\\ci\\exported-capability\\package\\DWM.exe"
+        },
+        "exit_code": 0,
+        "renderer_log": [
+          "D3D12 12_0 - Forward+ - Using Device #0: Microsoft - Microsoft Basic Render Driver",
+          "D3D12 12_0 - Forward+ - Using Device #0: Microsoft - Microsoft Basic Render Driver"
+        ],
+        "child_exited_before_cleanup": true,
+        "elapsed_seconds": 29.1672668
+      }
+    },
+    "ci/capability-process.json": {
+      "present": true,
+      "status": "retained",
+      "bytes": 140,
+      "sha256": "48745d338be0e04d14ebd296b41ed2d02a4475d2b7d073b105fc58d09e9e8df5",
+      "git_blob": "b5e1ea88490386300f3bf8ff901461134d15b681",
+      "value": {
+        "diagnostic_native": true,
+        "exit_code": 0,
+        "trace_enabled": false,
+        "elapsed_seconds": 33.3285465,
+        "mode": "Capability"
+      }
+    },
+    "ci/exported-create/result.json": {
+      "present": true,
+      "status": "retained",
+      "bytes": 4028,
+      "sha256": "990c02366e98f758927d1ca177f05ae3f0f77d453b8603e83b1d8f6055bfd68f",
+      "git_blob": "723cf314dc534cf0cb87e87818688e50f5bcc607",
+      "value": {
+        "schema_version": 1,
+        "mode": "Create",
+        "ok": true,
+        "visual_review_required": true,
+        "source_commit": "81847d8b1560340a3a7769223cee0b46c6bdc0f9",
+        "archive_sha256": "68a23de94170f18df1d2aaa137c53aa3060bcd9e1d8c71b3b40acf5dc75ba3c1",
+        "accessibility_request": "Always",
+        "audio_request": "Dummy",
+        "save_load_profile": false,
+        "checkpoint_profile": false,
+        "renderer_request": "ProjectDefault",
+        "user_root": "D:\\a\\_temp\\dwm-journey-user",
+        "output_path": "D:\\a\\dwm\\dwm\\.godot\\ci\\exported-create",
+        "scope": "Ordinary release UI; normal packaged seven-day TEST story; no Challenge registration",
+        "forced_cleanup": false,
+        "clean_player_exit": true,
+        "capability": {
+          "schema_version": 1,
+          "mode": "Capability",
+          "ok": true,
+          "visual_review_required": true,
+          "source_commit": "81847d8b1560340a3a7769223cee0b46c6bdc0f9",
+          "archive_sha256": "68a23de94170f18df1d2aaa137c53aa3060bcd9e1d8c71b3b40acf5dc75ba3c1",
+          "accessibility_request": "Always",
+          "audio_request": "Dummy",
+          "save_load_profile": false,
+          "checkpoint_profile": false,
+          "renderer_request": "ProjectDefault",
+          "user_root": "D:\\a\\_temp\\dwm-capability-user",
+          "output_path": "D:\\a\\dwm\\dwm\\.godot\\ci\\exported-capability",
+          "scope": "Ordinary release UI; normal packaged seven-day TEST story; no Challenge registration",
+          "forced_cleanup": false,
+          "clean_player_exit": true,
+          "executable_sha256": "f1a8bf3c5fea1927fb1b202ba76c265f987e0e798b72835c143340a1278cbe25",
+          "pck_sha256": "1bbe3794a2febb54960929984556421e04df621f0e21a095f71ea25603147d26",
+          "process": {
+            "pid": 2904,
+            "started_utc": "2026-10-18T20:55:47.9213847Z",
+            "arguments": [
+              "--windowed",
+              "--resolution",
+              "1280x720",
+              "--log-file",
+              "D:\\a\\dwm\\dwm\\.godot\\ci\\exported-capability\\game.log",
+              "--accessibility",
+              "always",
+              "--audio-driver",
+              "Dummy"
+            ],
+            "observed_command_line": "\"D:\\a\\dwm\\dwm\\.godot\\ci\\exported-capability\\package\\DWM.exe\" --windowed --resolution 1280x720 --log-file D:\\a\\dwm\\dwm\\.godot\\ci\\exported-capability\\game.log --accessibility always --audio-driver Dummy",
+            "executable": "D:\\a\\dwm\\dwm\\.godot\\ci\\exported-capability\\package\\DWM.exe"
+          },
+          "exit_code": 0,
+          "renderer_log": [
+            "D3D12 12_0 - Forward+ - Using Device #0: Microsoft - Microsoft Basic Render Driver",
+            "D3D12 12_0 - Forward+ - Using Device #0: Microsoft - Microsoft Basic Render Driver"
+          ],
+          "child_exited_before_cleanup": true,
+          "elapsed_seconds": 29.1672668
+        },
+        "executable_sha256": "f1a8bf3c5fea1927fb1b202ba76c265f987e0e798b72835c143340a1278cbe25",
+        "pck_sha256": "1bbe3794a2febb54960929984556421e04df621f0e21a095f71ea25603147d26",
+        "process": {
+          "pid": 5776,
+          "executable": "D:\\a\\dwm\\dwm\\.godot\\ci\\exported-create\\package\\DWM.exe",
+          "observed_command_line": "\"D:\\a\\dwm\\dwm\\.godot\\ci\\exported-create\\package\\DWM.exe\" --windowed --resolution 1280x720 --log-file D:\\a\\dwm\\dwm\\.godot\\ci\\exported-create\\game.log --accessibility always --audio-driver Dummy",
+          "started_utc": "2026-10-18T20:56:18.4251361Z",
+          "arguments": [
+            "--windowed",
+            "--resolution",
+            "1280x720",
+            "--log-file",
+            "D:\\a\\dwm\\dwm\\.godot\\ci\\exported-create\\game.log",
+            "--accessibility",
+            "always",
+            "--audio-driver",
+            "Dummy"
+          ]
+        },
+        "source_slot_sha256": "f3c43b2eb1aad182376642b1b171f6d40d214f15035f4662f817d44a7a82544d",
+        "exit_code": 0,
+        "renderer_log": [
+          "D3D12 12_0 - Forward+ - Using Device #0: Microsoft - Microsoft Basic Render Driver",
+          "D3D12 12_0 - Forward+ - Using Device #0: Microsoft - Microsoft Basic Render Driver"
+        ],
+        "source_profile_sha256": "7194748f828f7bf123188dbe16c2604206acad874dec577b3907488e05b6335c",
+        "child_exited_before_cleanup": true,
+        "elapsed_seconds": 110.5719669
+      }
+    },
+    "ci/create-process.json": {
+      "present": true,
+      "status": "retained",
+      "bytes": 136,
+      "sha256": "e8fdbb3e3b9e8b6516fca7e04a16052e097c04a7e9bd3282ecdf3b43584a79e4",
+      "git_blob": "e3847f9eccdddb087bb33b190cf4f7e27f625c6f",
+      "value": {
+        "elapsed_seconds": 111.499717,
+        "mode": "Create",
+        "trace_enabled": false,
+        "diagnostic_native": true,
+        "exit_code": 0
+      }
+    },
+    "ci/exported-load/result.json": {
+      "present": true,
+      "status": "retained",
+      "bytes": 2107,
+      "sha256": "31bf3d9beaffa9ab95b8bf62282112b72024d1b4316bd09ed4a345764bfb03bb",
+      "git_blob": "6cb9dce81894b4687ed33bb1a43b31a7292808ac",
+      "value": {
+        "schema_version": 1,
+        "mode": "Load",
+        "ok": false,
+        "visual_review_required": true,
+        "source_commit": "81847d8b1560340a3a7769223cee0b46c6bdc0f9",
+        "archive_sha256": "68a23de94170f18df1d2aaa137c53aa3060bcd9e1d8c71b3b40acf5dc75ba3c1",
+        "accessibility_request": "Always",
+        "audio_request": "Dummy",
+        "save_load_profile": true,
+        "checkpoint_profile": true,
+        "renderer_request": "ProjectDefault",
+        "user_root": "D:\\a\\_temp\\dwm-journey-user",
+        "output_path": "D:\\a\\dwm\\dwm\\.godot\\ci\\exported-load",
+        "scope": "Ordinary release UI; normal packaged seven-day TEST story; no Challenge registration",
+        "forced_cleanup": true,
+        "clean_player_exit": false,
+        "executable_sha256": "f1a8bf3c5fea1927fb1b202ba76c265f987e0e798b72835c143340a1278cbe25",
+        "pck_sha256": "1bbe3794a2febb54960929984556421e04df621f0e21a095f71ea25603147d26",
+        "process": {
+          "pid": 6124,
+          "observed_command_line": "\"D:\\a\\dwm\\dwm\\.godot\\ci\\exported-load\\package\\DWM.exe\" --windowed --resolution 1280x720 --log-file D:\\a\\dwm\\dwm\\.godot\\ci\\exported-load\\game.log --accessibility always --audio-driver Dummy",
+          "started_utc": "2026-10-18T20:58:10.2761811Z",
+          "arguments": [
+            "--windowed",
+            "--resolution",
+            "1280x720",
+            "--log-file",
+            "D:\\a\\dwm\\dwm\\.godot\\ci\\exported-load\\game.log",
+            "--accessibility",
+            "always",
+            "--audio-driver",
+            "Dummy"
+          ],
+          "executable": "D:\\a\\dwm\\dwm\\.godot\\ci\\exported-load\\package\\DWM.exe"
+        },
+        "diagnostic_only": false,
+        "native_baseline_handle": 524608,
+        "quiet_observation_completed": true,
+        "quiet_saved_count": 1,
+        "continued_after_quiet": true,
+        "failure": "UIA_UNAVAILABLE_OR_TIMEOUT: TEST Seven-day ending.",
+        "native_probe_started_utc": "2026-10-18T21:02:18.3554586Z",
+        "native_probe_timeout_seconds": 15,
+        "native_probe_completed": true,
+        "native_probe_timed_out": false,
+        "native_probe_finished_utc": "2026-10-18T21:02:21.5417385Z",
+        "child_exited_before_cleanup": false,
+        "exit_code": -1,
+        "elapsed_seconds": 252.8244851
+      }
+    },
+    "ci/load-process.json": {
+      "present": true,
+      "status": "retained",
+      "bytes": 187,
+      "sha256": "23e87d633a829ad3bf3cbee5300b0452d3b3c9b4c8a96791bbea7207aa2a978b",
+      "git_blob": "23e15ff34c99a61e7483f756372a196bd78490d4",
+      "value": {
+        "trace_enabled": true,
+        "mode": "Load",
+        "exit_code": 1,
+        "trace_pattern": "native-trace/trace-{pid}.jsonl",
+        "diagnostic_native": true,
+        "elapsed_seconds": 253.761144
+      }
+    }
+  },
+  "native_modes": {
+    "capability": {
+      "status": "result_retained",
+      "result_present": true,
+      "process_present": true,
+      "reported_result": {
+        "schema_version": 1,
+        "mode": "Capability",
+        "ok": true,
+        "visual_review_required": true,
+        "source_commit": "81847d8b1560340a3a7769223cee0b46c6bdc0f9",
+        "archive_sha256": "68a23de94170f18df1d2aaa137c53aa3060bcd9e1d8c71b3b40acf5dc75ba3c1",
+        "accessibility_request": "Always",
+        "audio_request": "Dummy",
+        "save_load_profile": false,
+        "checkpoint_profile": false,
+        "renderer_request": "ProjectDefault",
+        "user_root": "D:\\a\\_temp\\dwm-capability-user",
+        "output_path": "D:\\a\\dwm\\dwm\\.godot\\ci\\exported-capability",
+        "scope": "Ordinary release UI; normal packaged seven-day TEST story; no Challenge registration",
+        "forced_cleanup": false,
+        "clean_player_exit": true,
+        "executable_sha256": "f1a8bf3c5fea1927fb1b202ba76c265f987e0e798b72835c143340a1278cbe25",
+        "pck_sha256": "1bbe3794a2febb54960929984556421e04df621f0e21a095f71ea25603147d26",
+        "process": {
+          "pid": 2904,
+          "started_utc": "2026-10-18T20:55:47.9213847Z",
+          "arguments": [
+            "--windowed",
+            "--resolution",
+            "1280x720",
+            "--log-file",
+            "D:\\a\\dwm\\dwm\\.godot\\ci\\exported-capability\\game.log",
+            "--accessibility",
+            "always",
+            "--audio-driver",
+            "Dummy"
+          ],
+          "observed_command_line": "\"D:\\a\\dwm\\dwm\\.godot\\ci\\exported-capability\\package\\DWM.exe\" --windowed --resolution 1280x720 --log-file D:\\a\\dwm\\dwm\\.godot\\ci\\exported-capability\\game.log --accessibility always --audio-driver Dummy",
+          "executable": "D:\\a\\dwm\\dwm\\.godot\\ci\\exported-capability\\package\\DWM.exe"
+        },
+        "exit_code": 0,
+        "renderer_log": [
+          "D3D12 12_0 - Forward+ - Using Device #0: Microsoft - Microsoft Basic Render Driver",
+          "D3D12 12_0 - Forward+ - Using Device #0: Microsoft - Microsoft Basic Render Driver"
+        ],
+        "child_exited_before_cleanup": true,
+        "elapsed_seconds": 29.1672668
+      },
+      "reported_process": {
+        "diagnostic_native": true,
+        "exit_code": 0,
+        "trace_enabled": false,
+        "elapsed_seconds": 33.3285465,
+        "mode": "Capability"
+      },
+      "qualification": "Original values preserved; no independent native acceptance evaluated"
+    },
+    "create": {
+      "status": "result_retained",
+      "result_present": true,
+      "process_present": true,
+      "reported_result": {
+        "schema_version": 1,
+        "mode": "Create",
+        "ok": true,
+        "visual_review_required": true,
+        "source_commit": "81847d8b1560340a3a7769223cee0b46c6bdc0f9",
+        "archive_sha256": "68a23de94170f18df1d2aaa137c53aa3060bcd9e1d8c71b3b40acf5dc75ba3c1",
+        "accessibility_request": "Always",
+        "audio_request": "Dummy",
+        "save_load_profile": false,
+        "checkpoint_profile": false,
+        "renderer_request": "ProjectDefault",
+        "user_root": "D:\\a\\_temp\\dwm-journey-user",
+        "output_path": "D:\\a\\dwm\\dwm\\.godot\\ci\\exported-create",
+        "scope": "Ordinary release UI; normal packaged seven-day TEST story; no Challenge registration",
+        "forced_cleanup": false,
+        "clean_player_exit": true,
+        "capability": {
+          "schema_version": 1,
+          "mode": "Capability",
+          "ok": true,
+          "visual_review_required": true,
+          "source_commit": "81847d8b1560340a3a7769223cee0b46c6bdc0f9",
+          "archive_sha256": "68a23de94170f18df1d2aaa137c53aa3060bcd9e1d8c71b3b40acf5dc75ba3c1",
+          "accessibility_request": "Always",
+          "audio_request": "Dummy",
+          "save_load_profile": false,
+          "checkpoint_profile": false,
+          "renderer_request": "ProjectDefault",
+          "user_root": "D:\\a\\_temp\\dwm-capability-user",
+          "output_path": "D:\\a\\dwm\\dwm\\.godot\\ci\\exported-capability",
+          "scope": "Ordinary release UI; normal packaged seven-day TEST story; no Challenge registration",
+          "forced_cleanup": false,
+          "clean_player_exit": true,
+          "executable_sha256": "f1a8bf3c5fea1927fb1b202ba76c265f987e0e798b72835c143340a1278cbe25",
+          "pck_sha256": "1bbe3794a2febb54960929984556421e04df621f0e21a095f71ea25603147d26",
+          "process": {
+            "pid": 2904,
+            "started_utc": "2026-10-18T20:55:47.9213847Z",
+            "arguments": [
+              "--windowed",
+              "--resolution",
+              "1280x720",
+              "--log-file",
+              "D:\\a\\dwm\\dwm\\.godot\\ci\\exported-capability\\game.log",
+              "--accessibility",
+              "always",
+              "--audio-driver",
+              "Dummy"
+            ],
+            "observed_command_line": "\"D:\\a\\dwm\\dwm\\.godot\\ci\\exported-capability\\package\\DWM.exe\" --windowed --resolution 1280x720 --log-file D:\\a\\dwm\\dwm\\.godot\\ci\\exported-capability\\game.log --accessibility always --audio-driver Dummy",
+            "executable": "D:\\a\\dwm\\dwm\\.godot\\ci\\exported-capability\\package\\DWM.exe"
+          },
+          "exit_code": 0,
+          "renderer_log": [
+            "D3D12 12_0 - Forward+ - Using Device #0: Microsoft - Microsoft Basic Render Driver",
+            "D3D12 12_0 - Forward+ - Using Device #0: Microsoft - Microsoft Basic Render Driver"
+          ],
+          "child_exited_before_cleanup": true,
+          "elapsed_seconds": 29.1672668
+        },
+        "executable_sha256": "f1a8bf3c5fea1927fb1b202ba76c265f987e0e798b72835c143340a1278cbe25",
+        "pck_sha256": "1bbe3794a2febb54960929984556421e04df621f0e21a095f71ea25603147d26",
+        "process": {
+          "pid": 5776,
+          "executable": "D:\\a\\dwm\\dwm\\.godot\\ci\\exported-create\\package\\DWM.exe",
+          "observed_command_line": "\"D:\\a\\dwm\\dwm\\.godot\\ci\\exported-create\\package\\DWM.exe\" --windowed --resolution 1280x720 --log-file D:\\a\\dwm\\dwm\\.godot\\ci\\exported-create\\game.log --accessibility always --audio-driver Dummy",
+          "started_utc": "2026-10-18T20:56:18.4251361Z",
+          "arguments": [
+            "--windowed",
+            "--resolution",
+            "1280x720",
+            "--log-file",
+            "D:\\a\\dwm\\dwm\\.godot\\ci\\exported-create\\game.log",
+            "--accessibility",
+            "always",
+            "--audio-driver",
+            "Dummy"
+          ]
+        },
+        "source_slot_sha256": "f3c43b2eb1aad182376642b1b171f6d40d214f15035f4662f817d44a7a82544d",
+        "exit_code": 0,
+        "renderer_log": [
+          "D3D12 12_0 - Forward+ - Using Device #0: Microsoft - Microsoft Basic Render Driver",
+          "D3D12 12_0 - Forward+ - Using Device #0: Microsoft - Microsoft Basic Render Driver"
+        ],
+        "source_profile_sha256": "7194748f828f7bf123188dbe16c2604206acad874dec577b3907488e05b6335c",
+        "child_exited_before_cleanup": true,
+        "elapsed_seconds": 110.5719669
+      },
+      "reported_process": {
+        "elapsed_seconds": 111.499717,
+        "mode": "Create",
+        "trace_enabled": false,
+        "diagnostic_native": true,
+        "exit_code": 0
+      },
+      "qualification": "Original values preserved; no independent native acceptance evaluated"
+    },
+    "load": {
+      "status": "result_retained",
+      "result_present": true,
+      "process_present": true,
+      "reported_result": {
+        "schema_version": 1,
+        "mode": "Load",
+        "ok": false,
+        "visual_review_required": true,
+        "source_commit": "81847d8b1560340a3a7769223cee0b46c6bdc0f9",
+        "archive_sha256": "68a23de94170f18df1d2aaa137c53aa3060bcd9e1d8c71b3b40acf5dc75ba3c1",
+        "accessibility_request": "Always",
+        "audio_request": "Dummy",
+        "save_load_profile": true,
+        "checkpoint_profile": true,
+        "renderer_request": "ProjectDefault",
+        "user_root": "D:\\a\\_temp\\dwm-journey-user",
+        "output_path": "D:\\a\\dwm\\dwm\\.godot\\ci\\exported-load",
+        "scope": "Ordinary release UI; normal packaged seven-day TEST story; no Challenge registration",
+        "forced_cleanup": true,
+        "clean_player_exit": false,
+        "executable_sha256": "f1a8bf3c5fea1927fb1b202ba76c265f987e0e798b72835c143340a1278cbe25",
+        "pck_sha256": "1bbe3794a2febb54960929984556421e04df621f0e21a095f71ea25603147d26",
+        "process": {
+          "pid": 6124,
+          "observed_command_line": "\"D:\\a\\dwm\\dwm\\.godot\\ci\\exported-load\\package\\DWM.exe\" --windowed --resolution 1280x720 --log-file D:\\a\\dwm\\dwm\\.godot\\ci\\exported-load\\game.log --accessibility always --audio-driver Dummy",
+          "started_utc": "2026-10-18T20:58:10.2761811Z",
+          "arguments": [
+            "--windowed",
+            "--resolution",
+            "1280x720",
+            "--log-file",
+            "D:\\a\\dwm\\dwm\\.godot\\ci\\exported-load\\game.log",
+            "--accessibility",
+            "always",
+            "--audio-driver",
+            "Dummy"
+          ],
+          "executable": "D:\\a\\dwm\\dwm\\.godot\\ci\\exported-load\\package\\DWM.exe"
+        },
+        "diagnostic_only": false,
+        "native_baseline_handle": 524608,
+        "quiet_observation_completed": true,
+        "quiet_saved_count": 1,
+        "continued_after_quiet": true,
+        "failure": "UIA_UNAVAILABLE_OR_TIMEOUT: TEST Seven-day ending.",
+        "native_probe_started_utc": "2026-10-18T21:02:18.3554586Z",
+        "native_probe_timeout_seconds": 15,
+        "native_probe_completed": true,
+        "native_probe_timed_out": false,
+        "native_probe_finished_utc": "2026-10-18T21:02:21.5417385Z",
+        "child_exited_before_cleanup": false,
+        "exit_code": -1,
+        "elapsed_seconds": 252.8244851
+      },
+      "reported_process": {
+        "trace_enabled": true,
+        "mode": "Load",
+        "exit_code": 1,
+        "trace_pattern": "native-trace/trace-{pid}.jsonl",
+        "diagnostic_native": true,
+        "elapsed_seconds": 253.761144
+      },
+      "qualification": "Original values preserved; no independent native acceptance evaluated"
+    }
+  },
+  "outcome_note": "Absent or unreadable documents establish no pass. Retained false outcomes are copied unchanged."
+}

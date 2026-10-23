@@ -1,0 +1,887 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-ui-build/.godot/phase2r_tests/cf3d48c1-cd19-4ec8-b8d3-bb436eb1a86c/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+tests/integration/test_desktop_quick_commands.gd
+* test_f5_commits_current_quick_through_real_owner_without_displacing_backup_state
+SCRIPT ERROR: Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+   at: _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+   GDScript backtrace (most recent call first):
+       [0] _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+       [1] _admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:104)
+       [2] _process (res://scripts/ui/desktop/DesktopQuickCommands.gd:204)
+SCRIPT ERROR: Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+   at: _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+   GDScript backtrace (most recent call first):
+       [0] _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+       [1] _admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:104)
+       [2] observe_input (res://scripts/ui/desktop/DesktopQuickCommands.gd:63)
+       [3] _input (res://scripts/ui/ComputerDesktop.gd:229)
+       [4] _tap (res://tests/integration/test_desktop_quick_commands.gd:226)
+       [5] test_f5_commits_current_quick_through_real_owner_without_displacing_backup_state (res://tests/integration/test_desktop_quick_commands.gd:265)
+       [6] _run_test (res://addons/gut/gut.gd:622)
+       [7] before_each (res://tests/integration/test_desktop_quick_commands.gd:119)
+SCRIPT ERROR: Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+   at: _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+   GDScript backtrace (most recent call first):
+       [0] _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+       [1] _admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:104)
+       [2] observe_input (res://scripts/ui/desktop/DesktopQuickCommands.gd:63)
+       [3] _input (res://scripts/ui/ComputerDesktop.gd:229)
+       [4] _tap (res://tests/integration/test_desktop_quick_commands.gd:227)
+       [5] test_f5_commits_current_quick_through_real_owner_without_displacing_backup_state (res://tests/integration/test_desktop_quick_commands.gd:265)
+       [6] _run_test (res://addons/gut/gut.gd:622)
+       [7] before_each (res://tests/integration/test_desktop_quick_commands.gd:119)
+    [Failed]
+      at line 266
+    [Failed]:  {}
+      at line 267
+    [Failed]:  [STRING_NAME()] expected to equal [STRING_NAME(saved)]:
+      at line 269
+    [Failed]:  ["empty"] expected to equal ["occupied"]:
+      at line 274
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+    [2] <engine-2>Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+      at line -1
+* test_f9_uses_shared_confirmation_and_escape_consumes_the_real_token
+SCRIPT ERROR: Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+   at: _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+   GDScript backtrace (most recent call first):
+       [0] _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+       [1] _admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:104)
+       [2] _process (res://scripts/ui/desktop/DesktopQuickCommands.gd:204)
+SCRIPT ERROR: Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+   at: _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+   GDScript backtrace (most recent call first):
+       [0] _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+       [1] _admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:104)
+       [2] _process (res://scripts/ui/desktop/DesktopQuickCommands.gd:204)
+SCRIPT ERROR: Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+   at: _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+   GDScript backtrace (most recent call first):
+       [0] _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+       [1] _admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:104)
+       [2] observe_input (res://scripts/ui/desktop/DesktopQuickCommands.gd:63)
+       [3] _input (res://scripts/ui/ComputerDesktop.gd:229)
+       [4] _tap (res://tests/integration/test_desktop_quick_commands.gd:226)
+       [5] test_f9_uses_shared_confirmation_and_escape_consumes_the_real_token (res://tests/integration/test_desktop_quick_commands.gd:283)
+       [6] _run_test (res://addons/gut/gut.gd:622)
+       [7] before_each (res://tests/integration/test_desktop_quick_commands.gd:119)
+SCRIPT ERROR: Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+   at: _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+   GDScript backtrace (most recent call first):
+       [0] _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+       [1] _admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:104)
+       [2] observe_input (res://scripts/ui/desktop/DesktopQuickCommands.gd:63)
+       [3] _input (res://scripts/ui/ComputerDesktop.gd:229)
+       [4] _tap (res://tests/integration/test_desktop_quick_commands.gd:227)
+       [5] test_f9_uses_shared_confirmation_and_escape_consumes_the_real_token (res://tests/integration/test_desktop_quick_commands.gd:283)
+       [6] _run_test (res://addons/gut/gut.gd:622)
+       [7] before_each (res://tests/integration/test_desktop_quick_commands.gd:119)
+    [Failed]:  Expected [<null>] to be anything but NULL:
+      at line 284
+    [Failed]
+      at line 287
+    [Failed]
+      at line 288
+SCRIPT ERROR: Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+   at: _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+   GDScript backtrace (most recent call first):
+       [0] _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+       [1] _admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:104)
+       [2] observe_input (res://scripts/ui/desktop/DesktopQuickCommands.gd:63)
+       [3] _input (res://scripts/ui/ComputerDesktop.gd:229)
+       [4] _tap (res://tests/integration/test_desktop_quick_commands.gd:226)
+       [5] test_f9_uses_shared_confirmation_and_escape_consumes_the_real_token (res://tests/integration/test_desktop_quick_commands.gd:293)
+       [6] _run_test (res://addons/gut/gut.gd:622)
+       [7] before_each (res://tests/integration/test_desktop_quick_commands.gd:119)
+SCRIPT ERROR: Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+   at: _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+   GDScript backtrace (most recent call first):
+       [0] _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+       [1] _admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:104)
+       [2] observe_input (res://scripts/ui/desktop/DesktopQuickCommands.gd:63)
+       [3] _input (res://scripts/ui/ComputerDesktop.gd:229)
+       [4] _tap (res://tests/integration/test_desktop_quick_commands.gd:227)
+       [5] test_f9_uses_shared_confirmation_and_escape_consumes_the_real_token (res://tests/integration/test_desktop_quick_commands.gd:293)
+       [6] _run_test (res://addons/gut/gut.gd:622)
+       [7] before_each (res://tests/integration/test_desktop_quick_commands.gd:119)
+    [Failed]:  Cancel restores the semantic dock focus after real locale/text-size reflow and resize
+      at line 296
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+    [2] <engine-2>Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+    [3] <engine-2>Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+    [4] <engine-2>Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+      at line -1
+    2 Orphans
+        * [SaveAction:<Button#291135031765>(BackupKey.gd)] + 1
+* test_confirmed_f9_load_runs_the_real_eight_participant_restore_graph
+SCRIPT ERROR: Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+   at: _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+   GDScript backtrace (most recent call first):
+       [0] _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+       [1] _admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:104)
+       [2] _process (res://scripts/ui/desktop/DesktopQuickCommands.gd:204)
+SCRIPT ERROR: Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+   at: _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+   GDScript backtrace (most recent call first):
+       [0] _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+       [1] _admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:104)
+       [2] _process (res://scripts/ui/desktop/DesktopQuickCommands.gd:204)
+SCRIPT ERROR: Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+   at: _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+   GDScript backtrace (most recent call first):
+       [0] _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+       [1] _admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:104)
+       [2] observe_input (res://scripts/ui/desktop/DesktopQuickCommands.gd:63)
+       [3] _input (res://scripts/ui/ComputerDesktop.gd:229)
+       [4] _tap (res://tests/integration/test_desktop_quick_commands.gd:226)
+       [5] test_confirmed_f9_load_runs_the_real_eight_participant_restore_graph (res://tests/integration/test_desktop_quick_commands.gd:306)
+       [6] _run_test (res://addons/gut/gut.gd:622)
+       [7] before_each (res://tests/integration/test_desktop_quick_commands.gd:119)
+SCRIPT ERROR: Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+   at: _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+   GDScript backtrace (most recent call first):
+       [0] _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+       [1] _admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:104)
+       [2] observe_input (res://scripts/ui/desktop/DesktopQuickCommands.gd:63)
+       [3] _input (res://scripts/ui/ComputerDesktop.gd:229)
+       [4] _tap (res://tests/integration/test_desktop_quick_commands.gd:227)
+       [5] test_confirmed_f9_load_runs_the_real_eight_participant_restore_graph (res://tests/integration/test_desktop_quick_commands.gd:306)
+       [6] _run_test (res://addons/gut/gut.gd:622)
+       [7] before_each (res://tests/integration/test_desktop_quick_commands.gd:119)
+    [Failed]:  Expected [<null>] to be anything but NULL:
+      at line 308
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+    [2] <engine-2>Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+      at line -1
+* test_changed_capture_after_f9_prepare_cancels_without_restore_or_replay
+SCRIPT ERROR: Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+   at: _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+   GDScript backtrace (most recent call first):
+       [0] _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+       [1] _admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:104)
+       [2] _process (res://scripts/ui/desktop/DesktopQuickCommands.gd:204)
+SCRIPT ERROR: Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+   at: _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+   GDScript backtrace (most recent call first):
+       [0] _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+       [1] _admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:104)
+       [2] _process (res://scripts/ui/desktop/DesktopQuickCommands.gd:204)
+SCRIPT ERROR: Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+   at: _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+   GDScript backtrace (most recent call first):
+       [0] _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+       [1] _admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:104)
+       [2] observe_input (res://scripts/ui/desktop/DesktopQuickCommands.gd:63)
+       [3] _input (res://scripts/ui/ComputerDesktop.gd:229)
+       [4] _tap (res://tests/integration/test_desktop_quick_commands.gd:226)
+       [5] test_changed_capture_after_f9_prepare_cancels_without_restore_or_replay (res://tests/integration/test_desktop_quick_commands.gd:322)
+       [6] _run_test (res://addons/gut/gut.gd:622)
+       [7] before_each (res://tests/integration/test_desktop_quick_commands.gd:119)
+SCRIPT ERROR: Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+   at: _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+   GDScript backtrace (most recent call first):
+       [0] _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+       [1] _admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:104)
+       [2] observe_input (res://scripts/ui/desktop/DesktopQuickCommands.gd:63)
+       [3] _input (res://scripts/ui/ComputerDesktop.gd:229)
+       [4] _tap (res://tests/integration/test_desktop_quick_commands.gd:227)
+       [5] test_changed_capture_after_f9_prepare_cancels_without_restore_or_replay (res://tests/integration/test_desktop_quick_commands.gd:322)
+       [6] _run_test (res://addons/gut/gut.gd:622)
+       [7] before_each (res://tests/integration/test_desktop_quick_commands.gd:119)
+    [Failed]:  Expected [<null>] to be anything but NULL:
+      at line 323
+SCRIPT ERROR: Invalid access to property or key 'confirm_button' on a base object of type 'Nil'.
+   at: test_changed_capture_after_f9_prepare_cancels_without_restore_or_replay (res://tests/integration/test_desktop_quick_commands.gd:326)
+   GDScript backtrace (most recent call first):
+       [0] test_changed_capture_after_f9_prepare_cancels_without_restore_or_replay (res://tests/integration/test_desktop_quick_commands.gd:326)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] before_each (res://tests/integration/test_desktop_quick_commands.gd:119)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+    [2] <engine-2>Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+    [3] <engine-2>Invalid access to property or key 'confirm_button' on a base object of type 'Nil'.
+      at line -1
+* test_source_admission_lost_inside_prepare_cancels_the_real_owner_token
+SCRIPT ERROR: Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+   at: _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+   GDScript backtrace (most recent call first):
+       [0] _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+       [1] _admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:104)
+       [2] _process (res://scripts/ui/desktop/DesktopQuickCommands.gd:204)
+SCRIPT ERROR: Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+   at: _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+   GDScript backtrace (most recent call first):
+       [0] _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+       [1] _admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:104)
+       [2] _process (res://scripts/ui/desktop/DesktopQuickCommands.gd:204)
+SCRIPT ERROR: Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+   at: _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+   GDScript backtrace (most recent call first):
+       [0] _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+       [1] _admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:104)
+       [2] observe_input (res://scripts/ui/desktop/DesktopQuickCommands.gd:63)
+       [3] _input (res://scripts/ui/ComputerDesktop.gd:229)
+       [4] _tap (res://tests/integration/test_desktop_quick_commands.gd:226)
+       [5] test_source_admission_lost_inside_prepare_cancels_the_real_owner_token (res://tests/integration/test_desktop_quick_commands.gd:339)
+       [6] _run_test (res://addons/gut/gut.gd:622)
+       [7] before_each (res://tests/integration/test_desktop_quick_commands.gd:119)
+SCRIPT ERROR: Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+   at: _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+   GDScript backtrace (most recent call first):
+       [0] _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+       [1] _admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:104)
+       [2] observe_input (res://scripts/ui/desktop/DesktopQuickCommands.gd:63)
+       [3] _input (res://scripts/ui/ComputerDesktop.gd:229)
+       [4] _tap (res://tests/integration/test_desktop_quick_commands.gd:227)
+       [5] test_source_admission_lost_inside_prepare_cancels_the_real_owner_token (res://tests/integration/test_desktop_quick_commands.gd:339)
+       [6] _run_test (res://addons/gut/gut.gd:622)
+       [7] before_each (res://tests/integration/test_desktop_quick_commands.gd:119)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+    [2] <engine-2>Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+      at line -1
+* test_profile_rebound_keyboard_and_controller_drive_the_same_real_commands
+SCRIPT ERROR: Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+   at: _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+   GDScript backtrace (most recent call first):
+       [0] _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+       [1] _admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:104)
+       [2] _process (res://scripts/ui/desktop/DesktopQuickCommands.gd:204)
+SCRIPT ERROR: Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+   at: _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+   GDScript backtrace (most recent call first):
+       [0] _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+       [1] _admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:104)
+       [2] _process (res://scripts/ui/desktop/DesktopQuickCommands.gd:204)
+SCRIPT ERROR: Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+   at: _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+   GDScript backtrace (most recent call first):
+       [0] _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+       [1] _admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:104)
+       [2] observe_input (res://scripts/ui/desktop/DesktopQuickCommands.gd:63)
+       [3] _input (res://scripts/ui/ComputerDesktop.gd:229)
+       [4] _tap (res://tests/integration/test_desktop_quick_commands.gd:226)
+       [5] test_profile_rebound_keyboard_and_controller_drive_the_same_real_commands (res://tests/integration/test_desktop_quick_commands.gd:349)
+       [6] _run_test (res://addons/gut/gut.gd:622)
+       [7] before_each (res://tests/integration/test_desktop_quick_commands.gd:119)
+SCRIPT ERROR: Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+   at: _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+   GDScript backtrace (most recent call first):
+       [0] _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+       [1] _admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:104)
+       [2] observe_input (res://scripts/ui/desktop/DesktopQuickCommands.gd:63)
+       [3] _input (res://scripts/ui/ComputerDesktop.gd:229)
+       [4] _tap (res://tests/integration/test_desktop_quick_commands.gd:227)
+       [5] test_profile_rebound_keyboard_and_controller_drive_the_same_real_commands (res://tests/integration/test_desktop_quick_commands.gd:349)
+       [6] _run_test (res://addons/gut/gut.gd:622)
+       [7] before_each (res://tests/integration/test_desktop_quick_commands.gd:119)
+SCRIPT ERROR: Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+   at: _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+   GDScript backtrace (most recent call first):
+       [0] _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+       [1] _admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:104)
+       [2] observe_input (res://scripts/ui/desktop/DesktopQuickCommands.gd:63)
+       [3] _input (res://scripts/ui/ComputerDesktop.gd:229)
+       [4] _tap (res://tests/integration/test_desktop_quick_commands.gd:226)
+       [5] test_profile_rebound_keyboard_and_controller_drive_the_same_real_commands (res://tests/integration/test_desktop_quick_commands.gd:351)
+       [6] _run_test (res://addons/gut/gut.gd:622)
+       [7] before_each (res://tests/integration/test_desktop_quick_commands.gd:119)
+SCRIPT ERROR: Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+   at: _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+   GDScript backtrace (most recent call first):
+       [0] _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+       [1] _admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:104)
+       [2] observe_input (res://scripts/ui/desktop/DesktopQuickCommands.gd:63)
+       [3] _input (res://scripts/ui/ComputerDesktop.gd:229)
+       [4] _tap (res://tests/integration/test_desktop_quick_commands.gd:227)
+       [5] test_profile_rebound_keyboard_and_controller_drive_the_same_real_commands (res://tests/integration/test_desktop_quick_commands.gd:351)
+       [6] _run_test (res://addons/gut/gut.gd:622)
+       [7] before_each (res://tests/integration/test_desktop_quick_commands.gd:119)
+    [Failed]
+      at line 352
+SCRIPT ERROR: Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+   at: _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+   GDScript backtrace (most recent call first):
+       [0] _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+       [1] _admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:104)
+       [2] observe_input (res://scripts/ui/desktop/DesktopQuickCommands.gd:63)
+       [3] _input (res://scripts/ui/ComputerDesktop.gd:229)
+       [4] _tap_joy (res://tests/integration/test_desktop_quick_commands.gd:239)
+       [5] test_profile_rebound_keyboard_and_controller_drive_the_same_real_commands (res://tests/integration/test_desktop_quick_commands.gd:355)
+       [6] _run_test (res://addons/gut/gut.gd:622)
+       [7] before_each (res://tests/integration/test_desktop_quick_commands.gd:119)
+SCRIPT ERROR: Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+   at: _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+   GDScript backtrace (most recent call first):
+       [0] _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+       [1] _admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:104)
+       [2] observe_input (res://scripts/ui/desktop/DesktopQuickCommands.gd:63)
+       [3] _input (res://scripts/ui/ComputerDesktop.gd:229)
+       [4] _tap_joy (res://tests/integration/test_desktop_quick_commands.gd:240)
+       [5] test_profile_rebound_keyboard_and_controller_drive_the_same_real_commands (res://tests/integration/test_desktop_quick_commands.gd:355)
+       [6] _run_test (res://addons/gut/gut.gd:622)
+       [7] before_each (res://tests/integration/test_desktop_quick_commands.gd:119)
+SCRIPT ERROR: Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+   at: _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+   GDScript backtrace (most recent call first):
+       [0] _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+       [1] _admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:104)
+       [2] observe_input (res://scripts/ui/desktop/DesktopQuickCommands.gd:63)
+       [3] _input (res://scripts/ui/ComputerDesktop.gd:229)
+       [4] _tap_joy (res://tests/integration/test_desktop_quick_commands.gd:239)
+       [5] test_profile_rebound_keyboard_and_controller_drive_the_same_real_commands (res://tests/integration/test_desktop_quick_commands.gd:357)
+       [6] _run_test (res://addons/gut/gut.gd:622)
+       [7] before_each (res://tests/integration/test_desktop_quick_commands.gd:119)
+SCRIPT ERROR: Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+   at: _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+   GDScript backtrace (most recent call first):
+       [0] _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+       [1] _admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:104)
+       [2] observe_input (res://scripts/ui/desktop/DesktopQuickCommands.gd:63)
+       [3] _input (res://scripts/ui/ComputerDesktop.gd:229)
+       [4] _tap_joy (res://tests/integration/test_desktop_quick_commands.gd:240)
+       [5] test_profile_rebound_keyboard_and_controller_drive_the_same_real_commands (res://tests/integration/test_desktop_quick_commands.gd:357)
+       [6] _run_test (res://addons/gut/gut.gd:622)
+       [7] before_each (res://tests/integration/test_desktop_quick_commands.gd:119)
+    [Failed]:  Expected [<null>] to be anything but NULL:
+      at line 358
+SCRIPT ERROR: Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+   at: _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+   GDScript backtrace (most recent call first):
+       [0] _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+       [1] _admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:104)
+       [2] observe_input (res://scripts/ui/desktop/DesktopQuickCommands.gd:63)
+       [3] _input (res://scripts/ui/ComputerDesktop.gd:229)
+       [4] _tap (res://tests/integration/test_desktop_quick_commands.gd:226)
+       [5] test_profile_rebound_keyboard_and_controller_drive_the_same_real_commands (res://tests/integration/test_desktop_quick_commands.gd:359)
+       [6] _run_test (res://addons/gut/gut.gd:622)
+       [7] before_each (res://tests/integration/test_desktop_quick_commands.gd:119)
+SCRIPT ERROR: Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+   at: _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+   GDScript backtrace (most recent call first):
+       [0] _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+       [1] _admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:104)
+       [2] observe_input (res://scripts/ui/desktop/DesktopQuickCommands.gd:63)
+       [3] _input (res://scripts/ui/ComputerDesktop.gd:229)
+       [4] _tap (res://tests/integration/test_desktop_quick_commands.gd:227)
+       [5] test_profile_rebound_keyboard_and_controller_drive_the_same_real_commands (res://tests/integration/test_desktop_quick_commands.gd:359)
+       [6] _run_test (res://addons/gut/gut.gd:622)
+       [7] before_each (res://tests/integration/test_desktop_quick_commands.gd:119)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+    [2] <engine-2>Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+    [3] <engine-2>Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+    [4] <engine-2>Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+    [5] <engine-2>Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+    [6] <engine-2>Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+    [7] <engine-2>Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+    [8] <engine-2>Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+    [9] <engine-2>Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+    [10] <engine-2>Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+      at line -1
+* test_duplicate_echo_and_pause_held_contact_do_not_repeat_quick_save
+SCRIPT ERROR: Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+   at: _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+   GDScript backtrace (most recent call first):
+       [0] _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+       [1] _admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:104)
+       [2] _process (res://scripts/ui/desktop/DesktopQuickCommands.gd:204)
+SCRIPT ERROR: Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+   at: _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+   GDScript backtrace (most recent call first):
+       [0] _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+       [1] _admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:104)
+       [2] _process (res://scripts/ui/desktop/DesktopQuickCommands.gd:204)
+SCRIPT ERROR: Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+   at: _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+   GDScript backtrace (most recent call first):
+       [0] _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+       [1] _admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:104)
+       [2] observe_input (res://scripts/ui/desktop/DesktopQuickCommands.gd:63)
+       [3] _input (res://scripts/ui/ComputerDesktop.gd:229)
+       [4] test_duplicate_echo_and_pause_held_contact_do_not_repeat_quick_save (res://tests/integration/test_desktop_quick_commands.gd:363)
+       [5] _run_test (res://addons/gut/gut.gd:622)
+       [6] before_each (res://tests/integration/test_desktop_quick_commands.gd:119)
+SCRIPT ERROR: Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+   at: _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+   GDScript backtrace (most recent call first):
+       [0] _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+       [1] _admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:104)
+       [2] observe_input (res://scripts/ui/desktop/DesktopQuickCommands.gd:63)
+       [3] _input (res://scripts/ui/ComputerDesktop.gd:229)
+       [4] test_duplicate_echo_and_pause_held_contact_do_not_repeat_quick_save (res://tests/integration/test_desktop_quick_commands.gd:366)
+       [5] _run_test (res://addons/gut/gut.gd:622)
+       [6] before_each (res://tests/integration/test_desktop_quick_commands.gd:119)
+SCRIPT ERROR: Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+   at: _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+   GDScript backtrace (most recent call first):
+       [0] _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+       [1] _admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:104)
+       [2] observe_input (res://scripts/ui/desktop/DesktopQuickCommands.gd:63)
+       [3] _input (res://scripts/ui/ComputerDesktop.gd:229)
+       [4] test_duplicate_echo_and_pause_held_contact_do_not_repeat_quick_save (res://tests/integration/test_desktop_quick_commands.gd:369)
+       [5] _run_test (res://addons/gut/gut.gd:622)
+       [6] before_each (res://tests/integration/test_desktop_quick_commands.gd:119)
+SCRIPT ERROR: Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+   at: _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+   GDScript backtrace (most recent call first):
+       [0] _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+       [1] _admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:104)
+       [2] observe_input (res://scripts/ui/desktop/DesktopQuickCommands.gd:63)
+       [3] _input (res://scripts/ui/ComputerDesktop.gd:229)
+       [4] test_duplicate_echo_and_pause_held_contact_do_not_repeat_quick_save (res://tests/integration/test_desktop_quick_commands.gd:372)
+       [5] _run_test (res://addons/gut/gut.gd:622)
+       [6] before_each (res://tests/integration/test_desktop_quick_commands.gd:119)
+SCRIPT ERROR: Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+   at: _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+   GDScript backtrace (most recent call first):
+       [0] _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+       [1] _admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:104)
+       [2] observe_input (res://scripts/ui/desktop/DesktopQuickCommands.gd:63)
+       [3] _input (res://scripts/ui/ComputerDesktop.gd:229)
+       [4] test_duplicate_echo_and_pause_held_contact_do_not_repeat_quick_save (res://tests/integration/test_desktop_quick_commands.gd:376)
+       [5] _run_test (res://addons/gut/gut.gd:622)
+       [6] before_each (res://tests/integration/test_desktop_quick_commands.gd:119)
+SCRIPT ERROR: Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+   at: _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+   GDScript backtrace (most recent call first):
+       [0] _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+       [1] _admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:104)
+       [2] observe_input (res://scripts/ui/desktop/DesktopQuickCommands.gd:63)
+       [3] _input (res://scripts/ui/ComputerDesktop.gd:229)
+       [4] test_duplicate_echo_and_pause_held_contact_do_not_repeat_quick_save (res://tests/integration/test_desktop_quick_commands.gd:378)
+       [5] _run_test (res://addons/gut/gut.gd:622)
+       [6] before_each (res://tests/integration/test_desktop_quick_commands.gd:119)
+SCRIPT ERROR: Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+   at: _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+   GDScript backtrace (most recent call first):
+       [0] _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+       [1] _admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:104)
+       [2] observe_input (res://scripts/ui/desktop/DesktopQuickCommands.gd:63)
+       [3] _input (res://scripts/ui/ComputerDesktop.gd:229)
+       [4] test_duplicate_echo_and_pause_held_contact_do_not_repeat_quick_save (res://tests/integration/test_desktop_quick_commands.gd:381)
+       [5] _run_test (res://addons/gut/gut.gd:622)
+       [6] before_each (res://tests/integration/test_desktop_quick_commands.gd:119)
+SCRIPT ERROR: Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+   at: _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+   GDScript backtrace (most recent call first):
+       [0] _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+       [1] _admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:104)
+       [2] observe_input (res://scripts/ui/desktop/DesktopQuickCommands.gd:63)
+       [3] _input (res://scripts/ui/ComputerDesktop.gd:229)
+       [4] _tap (res://tests/integration/test_desktop_quick_commands.gd:226)
+       [5] test_duplicate_echo_and_pause_held_contact_do_not_repeat_quick_save (res://tests/integration/test_desktop_quick_commands.gd:382)
+       [6] _run_test (res://addons/gut/gut.gd:622)
+       [7] before_each (res://tests/integration/test_desktop_quick_commands.gd:119)
+SCRIPT ERROR: Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+   at: _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+   GDScript backtrace (most recent call first):
+       [0] _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+       [1] _admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:104)
+       [2] observe_input (res://scripts/ui/desktop/DesktopQuickCommands.gd:63)
+       [3] _input (res://scripts/ui/ComputerDesktop.gd:229)
+       [4] _tap (res://tests/integration/test_desktop_quick_commands.gd:227)
+       [5] test_duplicate_echo_and_pause_held_contact_do_not_repeat_quick_save (res://tests/integration/test_desktop_quick_commands.gd:382)
+       [6] _run_test (res://addons/gut/gut.gd:622)
+       [7] before_each (res://tests/integration/test_desktop_quick_commands.gd:119)
+    [Failed]:  DICTIONARY({ "ok": true, "value": { "exists": false, "revision": "absent", "text": <null> ...null> } }) == DICTIONARY({ "ok": true, "value": { "exists": false, "revision": "absent", "text": <null> ...null> } })  a later neutral, fresh contact is admitted
+      at line 383
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+    [2] <engine-2>Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+    [3] <engine-2>Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+    [4] <engine-2>Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+    [5] <engine-2>Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+    [6] <engine-2>Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+    [7] <engine-2>Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+    [8] <engine-2>Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+    [9] <engine-2>Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+      at line -1
+* test_existing_backup_confirmation_and_token_are_not_displaced_by_f5
+SCRIPT ERROR: Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+   at: _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+   GDScript backtrace (most recent call first):
+       [0] _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+       [1] _admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:104)
+       [2] _process (res://scripts/ui/desktop/DesktopQuickCommands.gd:204)
+SCRIPT ERROR: Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+   at: _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+   GDScript backtrace (most recent call first):
+       [0] _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+       [1] _admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:104)
+       [2] _process (res://scripts/ui/desktop/DesktopQuickCommands.gd:204)
+SCRIPT ERROR: Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+   at: _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+   GDScript backtrace (most recent call first):
+       [0] _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+       [1] _admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:104)
+       [2] observe_input (res://scripts/ui/desktop/DesktopQuickCommands.gd:63)
+       [3] _input (res://scripts/ui/ComputerDesktop.gd:229)
+       [4] _tap (res://tests/integration/test_desktop_quick_commands.gd:226)
+       [5] test_existing_backup_confirmation_and_token_are_not_displaced_by_f5 (res://tests/integration/test_desktop_quick_commands.gd:397)
+       [6] _run_test (res://addons/gut/gut.gd:622)
+       [7] before_each (res://tests/integration/test_desktop_quick_commands.gd:119)
+SCRIPT ERROR: Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+   at: _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+   GDScript backtrace (most recent call first):
+       [0] _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+       [1] _admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:104)
+       [2] observe_input (res://scripts/ui/desktop/DesktopQuickCommands.gd:63)
+       [3] _input (res://scripts/ui/ComputerDesktop.gd:229)
+       [4] _tap (res://tests/integration/test_desktop_quick_commands.gd:227)
+       [5] test_existing_backup_confirmation_and_token_are_not_displaced_by_f5 (res://tests/integration/test_desktop_quick_commands.gd:397)
+       [6] _run_test (res://addons/gut/gut.gd:622)
+       [7] before_each (res://tests/integration/test_desktop_quick_commands.gd:119)
+SCRIPT ERROR: Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+   at: _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+   GDScript backtrace (most recent call first):
+       [0] _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+       [1] _admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:104)
+       [2] observe_input (res://scripts/ui/desktop/DesktopQuickCommands.gd:63)
+       [3] _input (res://scripts/ui/ComputerDesktop.gd:229)
+       [4] _tap (res://tests/integration/test_desktop_quick_commands.gd:227)
+       [5] test_existing_backup_confirmation_and_token_are_not_displaced_by_f5 (res://tests/integration/test_desktop_quick_commands.gd:401)
+       [6] _run_test (res://addons/gut/gut.gd:622)
+       [7] before_each (res://tests/integration/test_desktop_quick_commands.gd:119)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+    [2] <engine-2>Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+    [3] <engine-2>Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+      at line -1
+    6 Orphans
+        * [LoadAction:<Button#637366438415>(BackupKey.gd)] + 1
+        * [SaveAction:<Button#635218954804>(BackupKey.gd)] + 1
+        * [DeleteAction:<Button#637534211045>(BackupKey.gd)] + 1
+* test_same_frame_launcher_status_is_cleared_when_backup_becomes_the_source
+SCRIPT ERROR: Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+   at: _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+   GDScript backtrace (most recent call first):
+       [0] _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+       [1] _admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:104)
+       [2] _process (res://scripts/ui/desktop/DesktopQuickCommands.gd:204)
+SCRIPT ERROR: Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+   at: _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+   GDScript backtrace (most recent call first):
+       [0] _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+       [1] _admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:104)
+       [2] _process (res://scripts/ui/desktop/DesktopQuickCommands.gd:204)
+SCRIPT ERROR: Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+   at: _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+   GDScript backtrace (most recent call first):
+       [0] _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+       [1] _admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:104)
+       [2] observe_input (res://scripts/ui/desktop/DesktopQuickCommands.gd:63)
+       [3] _input (res://scripts/ui/ComputerDesktop.gd:229)
+       [4] _tap (res://tests/integration/test_desktop_quick_commands.gd:226)
+       [5] test_same_frame_launcher_status_is_cleared_when_backup_becomes_the_source (res://tests/integration/test_desktop_quick_commands.gd:408)
+       [6] _run_test (res://addons/gut/gut.gd:622)
+       [7] before_each (res://tests/integration/test_desktop_quick_commands.gd:119)
+SCRIPT ERROR: Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+   at: _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+   GDScript backtrace (most recent call first):
+       [0] _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+       [1] _admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:104)
+       [2] observe_input (res://scripts/ui/desktop/DesktopQuickCommands.gd:63)
+       [3] _input (res://scripts/ui/ComputerDesktop.gd:229)
+       [4] _tap (res://tests/integration/test_desktop_quick_commands.gd:227)
+       [5] test_same_frame_launcher_status_is_cleared_when_backup_becomes_the_source (res://tests/integration/test_desktop_quick_commands.gd:408)
+       [6] _run_test (res://addons/gut/gut.gd:622)
+       [7] before_each (res://tests/integration/test_desktop_quick_commands.gd:119)
+    [Failed]:  [STRING_NAME()] expected to equal [STRING_NAME(unavailable)]:
+      at line 409
+SCRIPT ERROR: Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+   at: _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+   GDScript backtrace (most recent call first):
+       [0] _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+       [1] _admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:104)
+       [2] _process (res://scripts/ui/desktop/DesktopQuickCommands.gd:204)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+    [2] <engine-2>Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+    [3] <engine-2>Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+      at line 413
+* test_backup_recovery_entered_inside_prepare_cancels_the_new_quick_token
+SCRIPT ERROR: Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+   at: _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+   GDScript backtrace (most recent call first):
+       [0] _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+       [1] _admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:104)
+       [2] _process (res://scripts/ui/desktop/DesktopQuickCommands.gd:204)
+SCRIPT ERROR: Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+   at: _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+   GDScript backtrace (most recent call first):
+       [0] _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+       [1] _admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:104)
+       [2] _process (res://scripts/ui/desktop/DesktopQuickCommands.gd:204)
+SCRIPT ERROR: Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+   at: _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+   GDScript backtrace (most recent call first):
+       [0] _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+       [1] _admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:104)
+       [2] observe_input (res://scripts/ui/desktop/DesktopQuickCommands.gd:63)
+       [3] _input (res://scripts/ui/ComputerDesktop.gd:229)
+       [4] _tap (res://tests/integration/test_desktop_quick_commands.gd:226)
+       [5] test_backup_recovery_entered_inside_prepare_cancels_the_new_quick_token (res://tests/integration/test_desktop_quick_commands.gd:422)
+       [6] _run_test (res://addons/gut/gut.gd:622)
+       [7] before_each (res://tests/integration/test_desktop_quick_commands.gd:119)
+SCRIPT ERROR: Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+   at: _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+   GDScript backtrace (most recent call first):
+       [0] _base_admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:95)
+       [1] _admitted (res://scripts/ui/desktop/DesktopQuickCommands.gd:104)
+       [2] observe_input (res://scripts/ui/desktop/DesktopQuickCommands.gd:63)
+       [3] _input (res://scripts/ui/ComputerDesktop.gd:229)
+       [4] _tap (res://tests/integration/test_desktop_quick_commands.gd:227)
+       [5] test_backup_recovery_entered_inside_prepare_cancels_the_new_quick_token (res://tests/integration/test_desktop_quick_commands.gd:422)
+       [6] _run_test (res://addons/gut/gut.gd:622)
+       [7] before_each (res://tests/integration/test_desktop_quick_commands.gd:119)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+    [2] <engine-2>Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+      at line -1
+0/10 passed.
+
+
+tests/unit/test_backup_quick_actions.gd
+* test_empty_quick_save_uses_single_use_token_and_real_atomic_write
+* test_quick_does_not_cancel_preexisting_backup_consent
+* test_only_explicit_nonfatal_guard_facts_produce_please_wait_without_future_save
+* test_fallback_and_unavailable_quick_never_silently_overwrite
+* test_authoritative_preparation_fallback_cancels_only_its_new_token
+* test_load_always_requires_consent_for_normal_and_fallback
+* test_load_source_binding_is_owner_enforced_and_condition_checks_do_not_prepare_restore
+* test_load_does_not_require_available_capture_but_available_capture_drift_invalidates
+* test_title_and_refused_source_cannot_prepare_or_commit_quick
+9/9 passed.
+
+
+tests/unit/test_quick_status_edge.gd
+* test_saved_and_refusal_expire_on_exact_eligible_lifetime
+* test_suppression_preserves_time_and_does_not_repeat_announcement
+* test_delayed_publication_revalidates_and_stale_fact_never_announces
+* test_duplicate_retains_timer_but_new_binding_announces_new_fact
+* test_validator_is_throttled_and_changed_condition_clears
+* test_saving_has_no_fake_minimum_or_expiry
+* test_full_localized_font_reflow_does_not_reannounce_or_reset
+* test_edge_is_one_inert_label_and_does_not_capture_native_pointer_focus
+* test_validator_reentrancy_cannot_clear_a_replacement
+* test_hidden_parent_defers_announcement_and_time
+10/10 passed.
+
+
+tests/unit/test_backup_host_admission.gd
+* test_refused_projection_keeps_nine_records_and_masks_actions_without_owner_mutation
+* test_source_change_after_prepare_cancels_owner_plan_without_committing
+* test_consumed_consent_cannot_replay_after_guard_repairs_and_cancel_stays_available
+* test_default_context_behavior_and_immutable_configuration_remain_compatible
+* test_non_boolean_guard_results_fail_closed
+* test_configured_admission_target_freed_later_fails_closed
+6/6 passed.
+
+
+tests/unit/test_save_manager.gd
+* test_invalid_save_references_do_not_touch_storage
+* test_save_family_writes_closed_relative_names
+* test_logout_without_checkpoint_reports_unwritten
+* test_metadata_family_present_absent_corrupt_and_ordering
+* test_restore_preparation_and_delete_families
+* test_configure_mutation_gate_matrix_without_side_effects
+* test_deprecated_wrappers_delegate
+7/7 passed.
+
+
+tests/integration/test_restore_production_adapters.gd
+* test_prepare_builds_eight_plans_and_commits
+* test_commit_prepared_restore_rejects_stray_identity_allocation_bundle_key
+* test_commit_prepared_restore_rejects_stray_transaction_issuer_receipt_key
+* test_commit_prepared_restore_rejects_stray_transaction_remap_key
+* test_late_narrative_incompatibility_selects_earlier_bundle
+* test_profile_prepare_failure_is_structural_not_content
+* test_physical_narrative_participant_prepares_against_current_manifest
+* test_physical_narrative_participant_reports_removed_content_as_recoverable
+* test_physical_narrative_participant_reports_fingerprint_drift_as_recoverable
+* test_physical_narrative_participant_fails_closed_on_malformed_bytes
+* test_checkpoint_port_configures_desktop_context_provider
+* test_semantic_narrative_participant_prepares_the_six_field_plan_over_the_real_bridge
+* test_semantic_narrative_participant_reports_manifest_drift_as_recoverable
+13/13 passed.
+
+
+tests/integration/test_pause_backup_host.gd
+* test_preview_retains_real_nine_records_and_source_save_refusal_without_mutation
+* test_confirmation_cancel_then_backup_retreat_then_continue_each_need_their_own_back
+* test_confirmed_delete_uses_real_record_revision_without_resuming_or_changing_quick
+* test_changed_record_enters_recovery_and_back_does_not_escape_backup
+* test_confirmation_is_inert_during_parent_custody_and_close_cancels_its_token
+* test_source_change_after_confirmation_prevents_delete_and_consumes_consent
+* test_removing_backup_cancels_prepared_owner_token
+* test_parent_interaction_restores_exact_backup_focus_without_resetting_mode_or_record
+* test_parent_custody_change_retires_held_touch_consent_before_reactivation
+9/9 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+tests/integration/test_desktop_quick_commands.gd
+    - Outside Tests
+        * [<Node#100193535723>(subsystem_animation.gd)]
+        * [<Node#100210312940>(subsystem_audio.gd)]
+        * [<Node#100227090157>]
+        * [<Node#100243867374>]
+        * [<Node#100260644591>(subsystem_backgrounds.gd)]
+        * [<Node#100797515504>(subsystem_choices.gd)]
+        * [<Timer#100814292721>]
+        * [<Node#100831069938>(subsystem_expression.gd)]
+        * [<Node#100864624375>(subsystem_glossary.gd)]
+        * [<Node#100881401592>(subsystem_history.gd)]
+        * [<Node#100898178809>(subsystem_input.gd)]
+        * [<Timer#100914956026>]
+        * [<Node#100931733243>(subsystem_jump.gd)]
+        * [<Node#100948510460>(subsystem_containers.gd)]
+        * [<Node#100965287677>(subsystem_portraits.gd)]
+        * [<Node#101502158590>(subsystem_save.gd)]
+        * [<Timer#101518935807>]
+        * [<Node#101535713024>(subsystem_settings.gd)]
+        * [<Node#101552490244>(subsystem_styles.gd)]
+        * [<Node#101569267461>(subsystem_text.gd)]
+        * [<Node#101653153546>(subsystem_text_input.gd)]
+        * [<Node#101669930763>(subsystem_variables.gd)]
+        * [<Node#101686707980>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#101703485197>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+tests/integration/test_desktop_quick_commands.gd
+- test_f5_commits_current_quick_through_real_owner_without_displacing_backup_state
+    [Failed]:
+          at line 266
+    [Failed]:  {}
+          at line 267
+    [Failed]:  [STRING_NAME()] expected to equal [STRING_NAME(saved)]:
+          at line 269
+    [Failed]:  ["empty"] expected to equal ["occupied"]:
+          at line 274
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+    [2] <engine-2>Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+          at line -1
+- test_f9_uses_shared_confirmation_and_escape_consumes_the_real_token
+    [Failed]:  Expected [<null>] to be anything but NULL:
+          at line 284
+    [Failed]:
+          at line 287
+    [Failed]:
+          at line 288
+    [Failed]:  Cancel restores the semantic dock focus after real locale/text-size reflow and resize
+          at line 296
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+    [2] <engine-2>Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+    [3] <engine-2>Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+    [4] <engine-2>Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+          at line -1
+- test_confirmed_f9_load_runs_the_real_eight_participant_restore_graph
+    [Failed]:  Expected [<null>] to be anything but NULL:
+          at line 308
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+    [2] <engine-2>Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+          at line -1
+- test_changed_capture_after_f9_prepare_cancels_without_restore_or_replay
+    [Failed]:  Expected [<null>] to be anything but NULL:
+          at line 323
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+    [2] <engine-2>Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+    [3] <engine-2>Invalid access to property or key 'confirm_button' on a base object of type 'Nil'.
+          at line -1
+- test_source_admission_lost_inside_prepare_cancels_the_real_owner_token
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+    [2] <engine-2>Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+          at line -1
+- test_profile_rebound_keyboard_and_controller_drive_the_same_real_commands
+    [Failed]:
+          at line 352
+    [Failed]:  Expected [<null>] to be anything but NULL:
+          at line 358
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+    [2] <engine-2>Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+    [3] <engine-2>Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+    [4] <engine-2>Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+    [5] <engine-2>Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+    [6] <engine-2>Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+    [7] <engine-2>Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+    [8] <engine-2>Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+    [9] <engine-2>Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+    [10] <engine-2>Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+          at line -1
+- test_duplicate_echo_and_pause_held_contact_do_not_repeat_quick_save
+    [Failed]:  DICTIONARY({ "ok": true, "value": { "exists": false, "revision": "absent", "text": <null> ...null> } }) == DICTIONARY({ "ok": true, "value": { "exists": false, "revision": "absent", "text": <null> ...null> } })  a later neutral, fresh contact is admitted
+          at line 383
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+    [2] <engine-2>Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+    [3] <engine-2>Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+    [4] <engine-2>Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+    [5] <engine-2>Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+    [6] <engine-2>Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+    [7] <engine-2>Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+    [8] <engine-2>Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+    [9] <engine-2>Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+          at line -1
+- test_existing_backup_confirmation_and_token_are_not_displaced_by_f5
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+    [2] <engine-2>Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+    [3] <engine-2>Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+          at line -1
+- test_same_frame_launcher_status_is_cleared_when_backup_becomes_the_source
+    [Failed]:  [STRING_NAME()] expected to equal [STRING_NAME(unavailable)]:
+          at line 409
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+    [2] <engine-2>Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+    [3] <engine-2>Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+          at line 413
+- test_backup_recovery_entered_inside_prepare_cancels_the_new_quick_token
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+    [2] <engine-2>Invalid call. Nonexistent function 'is_focus_behavior_recursive_enabled' in base 'Control (IsolatedDesktop)'.
+          at line -1
+
+Totals
+------
+Scripts               7
+Tests                64
+Passing Tests        54
+Failing Tests        10
+Asserts           909/933
+Orphans              24
+Time              10.488s
+
+
+---- 10 failing tests ----

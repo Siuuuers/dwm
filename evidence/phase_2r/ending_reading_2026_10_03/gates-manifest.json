@@ -1,0 +1,123 @@
+{
+  "scope": "Existing required retained-history producer and matched comparisons; no optimization claim.",
+  "artifacts": [
+    {
+      "id": 11277085352,
+      "name": "lazy-normalization-37129223870-1",
+      "sha256": "4f58d510c0f182ad618dc13c54a2c05dc286a6fd025a4f93dbc20211fbe286bd",
+      "bytes": 49261,
+      "retained": [
+        {
+          "member": "ci/seven-day-history/consumer-input-manifest.json",
+          "path": "gates/lazy-normalization-37129223870-1/ci/seven-day-history/consumer-input-manifest.json.gz",
+          "raw_sha256": "4b3f0cea1c57cce8a289a0baa0a7e2cd0115a94d8ceece7fc1b67ed7bb57b27b",
+          "raw_bytes": 362
+        },
+        {
+          "member": "ci/lazy-normalization/results.json",
+          "path": "gates/lazy-normalization-37129223870-1/ci/lazy-normalization/results.json.gz",
+          "raw_sha256": "678e38f2973ae35f86b9641e0153483761aae9ce9fac35bc00202bf8b20b19a3",
+          "raw_bytes": 45349
+        }
+      ]
+    },
+    {
+      "id": 11276194182,
+      "name": "outgoing-normalization-37129223870-1",
+      "sha256": "8b67725d65c14a1b709e206ac6cf2b01e60c6879aa904a31c034b465067cfd8c",
+      "bytes": 24728,
+      "retained": [
+        {
+          "member": "ci/seven-day-history/consumer-input-manifest.json",
+          "path": "gates/outgoing-normalization-37129223870-1/ci/seven-day-history/consumer-input-manifest.json.gz",
+          "raw_sha256": "4b3f0cea1c57cce8a289a0baa0a7e2cd0115a94d8ceece7fc1b67ed7bb57b27b",
+          "raw_bytes": 362
+        },
+        {
+          "member": "ci/performance/payload-manifest.json",
+          "path": "gates/outgoing-normalization-37129223870-1/ci/performance/payload-manifest.json.gz",
+          "raw_sha256": "c46ac95717925a9fcd7f7386b29690d070b21af83668226c90a44f0d9525a1e1",
+          "raw_bytes": 1026
+        },
+        {
+          "member": "ci/outgoing-normalization/results.json",
+          "path": "gates/outgoing-normalization-37129223870-1/ci/outgoing-normalization/results.json.gz",
+          "raw_sha256": "9f77410fde2cebb0937d76be2f0eac9b71f3468aa1c285c1f3da16b37e9d4c56",
+          "raw_bytes": 6578
+        }
+      ]
+    },
+    {
+      "id": 11276004344,
+      "name": "seven-day-history-37129223870-1",
+      "sha256": "b43e0aee9e74db2cc117cf782df35b16647c0631ce794c89382d8c7d00d78384",
+      "bytes": 315014,
+      "retained": [
+        {
+          "member": "ci/seven-day-history/admission-pairs.json",
+          "path": "gates/seven-day-history-37129223870-1/ci/seven-day-history/admission-pairs.json.gz",
+          "raw_sha256": "2422228ec2f40c3b71cd9bd40c04dde98856ecaae67231a594deacc3d81af506",
+          "raw_bytes": 229564
+        },
+        {
+          "member": "ci/seven-day-history/consumer-input-manifest.json",
+          "path": "gates/seven-day-history-37129223870-1/ci/seven-day-history/consumer-input-manifest.json.gz",
+          "raw_sha256": "4b3f0cea1c57cce8a289a0baa0a7e2cd0115a94d8ceece7fc1b67ed7bb57b27b",
+          "raw_bytes": 362
+        },
+        {
+          "member": "ci/seven-day-history/manual-prepare-pairs.json",
+          "path": "gates/seven-day-history-37129223870-1/ci/seven-day-history/manual-prepare-pairs.json.gz",
+          "raw_sha256": "a19f58e89f20c709f107eb13ee3217811cd4b30e4ac02cd60a05d21bad2ee431",
+          "raw_bytes": 81540
+        },
+        {
+          "member": "ci/seven-day-history/results.json",
+          "path": "gates/seven-day-history-37129223870-1/ci/seven-day-history/results.json.gz",
+          "raw_sha256": "d5a4a9e84f2b9d9d54f728bf657ad633fd5cf47d0f4d37a4ae91190610fb4b73",
+          "raw_bytes": 639661
+        }
+      ]
+    },
+    {
+      "id": 11276234971,
+      "name": "history-region-search-37129223870-1",
+      "sha256": "7c9e5308441e61593dc0e613275a50aed302ecbf00581840520c1e58cb7e1c58",
+      "bytes": 125994,
+      "retained": [
+        {
+          "member": "ci/seven-day-history/consumer-input-manifest.json",
+          "path": "gates/history-region-search-37129223870-1/ci/seven-day-history/consumer-input-manifest.json.gz",
+          "raw_sha256": "4b3f0cea1c57cce8a289a0baa0a7e2cd0115a94d8ceece7fc1b67ed7bb57b27b",
+          "raw_bytes": 362
+        },
+        {
+          "member": "ci/history-region-search/results.json",
+          "path": "gates/history-region-search-37129223870-1/ci/history-region-search/results.json.gz",
+          "raw_sha256": "9fd9e2670657c2a93156fdb73c1582744feba1c1acc48101ea157552226da08a",
+          "raw_bytes": 539174
+        }
+      ]
+    },
+    {
+      "id": 11277176283,
+      "name": "warm-outgoing-proof-37129223870-1",
+      "sha256": "520ca4f0f77af2d650ab3b0004afd41bc5295927634175b8e1bb1de8a7dd3f72",
+      "bytes": 463108,
+      "retained": [
+        {
+          "member": "ci/seven-day-history/consumer-input-manifest.json",
+          "path": "gates/warm-outgoing-proof-37129223870-1/ci/seven-day-history/consumer-input-manifest.json.gz",
+          "raw_sha256": "4b3f0cea1c57cce8a289a0baa0a7e2cd0115a94d8ceece7fc1b67ed7bb57b27b",
+          "raw_bytes": 362
+        },
+        {
+          "member": "ci/warm-outgoing-proof/results.json",
+          "path": "gates/warm-outgoing-proof-37129223870-1/ci/warm-outgoing-proof/results.json.gz",
+          "raw_sha256": "84fac24840563d40eba8e9f604209ce04c836b43cde97a6967913f56a0d70a73",
+          "raw_bytes": 2079168
+        }
+      ]
+    }
+  ]
+}

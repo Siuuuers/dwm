@@ -1,0 +1,343 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2570)
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-ui-build/.godot/phase2r_tests/c79c2c76-24a5-4fdd-87e1-1b06cab90e6a/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+res://tests/unit/test_minesweeper_board_catalog.gd
+* test_closed_catalog_has_exact_current_host_dimensions
+* test_catalog_rejects_unknowns_and_fixed_host_difficulty_choices
+* test_catalog_results_are_detached
+* test_production_port_builds_schema_valid_specs_from_the_catalog
+4/4 passed.
+
+
+res://tests/unit/test_minesweeper_board_presentation_query.gd
+* test_unpaid_shell_uses_catalog_without_estimated_or_generated_mines
+* test_retained_dimensions_and_top_level_revision_are_literal
+* test_changing_hidden_mines_without_changing_public_facts_cannot_change_projection
+* test_estimate_is_signed_and_chord_depends_only_on_public_flags
+* test_blank_is_inspectable_without_a_press_state
+* test_preparation_publishes_only_the_bracket_locus_after_certification
+* test_suspended_custody_preserves_content_and_removes_all_contact
+* test_terminal_classification_is_public_before_durable_inspection_is_available
+* test_all_projected_cells_are_accepted_by_the_inert_renderer
+* test_projection_is_detached_and_has_no_private_metadata
+* test_corrupt_deep_owner_data_refuses_without_echoing_private_diagnostics
+11/11 passed.
+
+
+res://tests/unit/test_minesweeper_cell.gd
+* test_fixed_geometry_and_inert_grid_owned_input
+* test_exact_public_shape_and_contradictions_refuse_atomically
+* test_closed_visible_alphabet_accepts_lawful_forms
+* test_contact_gates_and_press_supersedes_hover
+* test_palette_roles_and_invalid_configuration_are_atomic
+* test_accessibility_exposes_only_current_public_mark_and_number
+* test_provisional_glyph_geometry_uses_whole_native_pixels_inside_aperture
+7/7 passed.
+
+
+res://tests/unit/test_minesweeper_worksheet_layout.gd
+* test_accepted_baseline_mounts_origins_and_conditional_axes
+* test_scroll_clamps_before_thumb_derivation_and_corner_is_separate
+* test_focus_correction_reveals_full_cell_without_fractional_motion
+* test_invalid_geometry_never_creates_a_partial_layout
+4/4 passed.
+
+
+res://tests/unit/test_minesweeper_grid.gd
+* test_strict_projection_builds_contiguous_exact_mount
+* test_invalid_projection_is_atomic_and_rejects_private_keys
+* test_same_dimensions_reuse_cell_and_theme_instances_across_revisions
+* test_resize_keeps_prefix_frees_removed_suffix_and_reflows_positions
+* test_roving_focus_moves_without_wrap_and_bracketed_repairs_first
+* test_modes_and_explicit_actions_never_infer_illegal_commands
+* test_paired_pointer_release_and_keyboard_emit_once_with_revision
+* test_pointer_focuses_read_only_cell_and_button_pair_must_match
+* test_accessibility_exposes_one_based_coordinate_and_visible_fact_only
+* test_keyboard_f_toggles_mode_and_space_requests_new_board_without_cell_action
+* test_cross_cell_rules_reject_terminal_or_custody_contacts_atomically
+* test_joy_axis_navigation_is_edge_latched_until_neutral
+* test_confirm_is_shared_latched_and_blocks_pointer_and_space_until_release
+* test_custody_cancels_contact_and_removes_grid_focus
+* test_drag_mode_mouse_slop_emits_content_motion_and_stationary_release_is_inert
+* test_touch_short_tap_long_press_and_pan_are_mutually_exclusive
+* test_touch_press_chrome_requires_current_mode_primary_action
+* test_canceled_touch_and_double_tap_never_activate
+* test_second_touch_does_not_steal_and_public_cancel_ends_pan_without_releasing_confirm
+* test_long_press_refresh_keeps_release_gate_until_same_finger_lifts
+* test_right_stick_pan_waits_for_touch_release_and_latches_until_neutral
+* test_focus_signal_reports_repair_move_and_focus_reentry
+22/22 passed.
+
+
+res://tests/unit/test_minesweeper_scroll_rail.gd
+* test_layout_rail_places_native_geometry_at_double_logical_scale
+* test_invalid_or_zero_extent_geometry_is_atomic
+* test_thumb_drag_maps_native_integer_range_and_track_click_pages
+* test_synchronous_thumb_refresh_preserves_original_drag_binding
+* test_orientation_change_cancels_drag_and_ready_preserves_presented_focus_mode
+* test_keys_wheel_and_clamps_use_public_native_values
+* test_horizontal_wheel_uses_horizontal_buttons_only
+* test_inert_rail_has_no_focus_contacts_or_owner_metadata
+8/8 passed.
+
+
+res://tests/unit/test_minesweeper_worksheet.gd
+* test_fit_axes_have_no_rail_nodes_or_targets_and_large_keeps_only_vertical
+* test_rules_replace_only_worksheet_and_return_restores_mode_cell_scroll_and_source
+    10 Orphans
+        * [@Control@749:<Control#264375373835>(MinesweeperInformationSheet.gd)] + 9
+* test_sheet_tab_traps_focus_and_escape_restores_grid_without_command
+* test_missing_assignment_truth_does_not_open_or_disturb_grid
+    1 Orphans
+        * [@Control@901:<Control#404079250377>(MinesweeperInformationSheet.gd)]
+* test_sheet_return_preserves_manual_pan_even_when_source_grid_cell_is_offscreen
+    10 Orphans
+        * [@Control@1404:<Control#430738247670>(MinesweeperInformationSheet.gd)] + 9
+* test_scroll_clamps_integer_geometry_and_never_changes_public_board
+* test_focus_navigation_and_return_reveal_the_complete_semantic_cell
+* test_real_wheel_route_scrolls_once_through_child_and_parent
+* test_fractional_pointer_motion_accumulates_without_fractional_board_placement
+* test_actual_drag_route_moves_viewport_without_issuing_a_cell_command
+* test_touch_drag_uses_real_gui_routing_and_never_activates_on_release
+* test_real_thumb_drag_preserves_its_origin_through_synchronous_viewport_updates
+* test_custody_keeps_truth_and_scroll_but_removes_all_input
+* test_configuration_and_invalid_projection_preserve_the_current_view_atomically
+* test_reconfiguring_to_a_fit_board_removes_existing_axis_nodes
+    2 Orphans
+        * [VerticalRail:<Control#933601742806>(MinesweeperScrollRail.gd)]
+        * [HorizontalRail:<Control#933635297239>(MinesweeperScrollRail.gd)]
+* test_configure_and_present_before_tree_mount_keep_focus_and_geometry
+2 orphans
+16/16 passed.
+
+
+res://tests/unit/test_minesweeper_presentation_port.gd
+* test_pull_exposes_only_public_projection_and_pre_reveal_has_no_flag_action
+* test_valid_first_reveal_and_active_flag_use_real_coordinator_and_issuer
+* test_real_grid_routes_keyboard_and_pointer_actions_through_port_and_coordinator
+* test_real_worksheet_long_press_routes_one_public_flag_command_end_to_end
+* test_unconfigured_invalid_and_stale_actions_allocate_nothing
+* test_same_revision_with_changed_full_identity_is_stale_before_allocation
+* test_replaying_an_old_public_revision_does_not_allocate_twice
+* test_live_entry_eligibility_is_rechecked_before_allocation
+* test_prepared_round_refuses_a_stale_caller_difficulty
+* test_owner_refusal_is_sanitized_and_refreshes_the_public_projection
+10/10 passed.
+
+
+res://tests/unit/test_minesweeper_sheet_controls.gd
+* test_row_is_real_focusable_fact_without_activation_api
+* test_pointer_and_touch_transfer_inspection_focus
+* test_multiline_copy_preserves_full_locale_font_and_measured_bounds
+* test_invalid_row_configuration_retains_every_public_state
+* test_return_has_fixed_width_native_release_activation_and_growing_height
+* test_invalid_return_configuration_is_atomic
+* test_native_return_input_activates_on_release_and_ignores_repeat
+* test_reconfigured_controls_shrink_to_measured_bounds_on_mount_and_in_tree
+8/8 passed.
+
+
+res://tests/unit/test_minesweeper_information_sheet.gd
+* test_baseline_rules_fit_exact_bands_with_four_readonly_rows
+* test_assignment_status_is_required_and_all_nine_rows_scroll_without_claim_actions
+* test_locale_scale_large_and_both_palettes_preserve_full_font_and_row_capacity
+    1388 Orphans
+        * [@Control@6566:<Control#985376229368>] + 14
+        * [@Control@6581:<Control#986332531357>] + 14
+        * [@Control@6596:<Control#986869402302>] + 8
+        * [@Control@6605:<Control#987792149229>] + 14
+        * [@Control@6518:<Control#982037564281>] + 8
+        * [@Control@6527:<Control#982960311191>] + 14
+        * [@Control@6620:<Control#988748450794>] + 14
+        * [@Control@6635:<Control#989285321739>] + 8
+        * [@Control@6644:<Control#990208068656>] + 14
+        * [@Control@6659:<Control#991164370016>] + 14
+        * [@Control@6674:<Control#991701240961>] + 8
+        * [@Control@6683:<Control#992623987887>] + 14
+        * [@Control@6698:<Control#993580289247>] + 14
+        * [@Control@6713:<Control#994117160192>] + 8
+        * [@Control@6722:<Control#995039907118>] + 14
+        * [@Control@6737:<Control#995996208478>] + 14
+        * [@Control@6752:<Control#996533079423>] + 8
+        * [@Control@6761:<Control#997455826340>] + 14
+        * [@Control@6776:<Control#998412127700>] + 14
+        * [@Control@6791:<Control#998948998645>] + 8
+        * [@Control@6800:<Control#999871745571>] + 14
+        * [@Control@6815:<Control#1000828046931>] + 14
+        * [@Control@6830:<Control#1001364917876>] + 8
+        * [@Control@6839:<Control#1002287664802>] + 14
+        * [@Control@6854:<Control#1003243966162>] + 14
+        * [@Control@6869:<Control#1003780837107>] + 8
+        * [@Control@6878:<Control#1004703584024>] + 14
+        * [@Control@6893:<Control#1005659885384>] + 14
+        * [@Control@6908:<Control#1006263865198>] + 9
+        * [@Control@6918:<Control#1007236943770>] + 14
+        * [@Control@6933:<Control#1008193245130>] + 14
+        * [@Control@6948:<Control#1008797224933>] + 9
+        * [@Control@6557:<Control#984453484541>] + 8
+        * [@Control@6542:<Control#983916613635>] + 14
+        * [@Control@6958:<Control#1009770303565>] + 14
+        * [@Control@6973:<Control#1010726604925>] + 14
+        * [@Control@6988:<Control#1011297030303>] + 8
+        * [@Control@6997:<Control#1012219777226>] + 14
+        * [@Control@7012:<Control#1013176078586>] + 14
+        * [@Control@7027:<Control#1013712949531>] + 8
+        * [@Control@7036:<Control#1014635696454>] + 14
+        * [@Control@7051:<Control#1015591997814>] + 14
+        * [@Control@7066:<Control#1016128868759>] + 8
+        * [@Control@7075:<Control#1017051615682>] + 14
+        * [@Control@7090:<Control#1018007917042>] + 14
+        * [@Control@7105:<Control#1018544787987>] + 8
+        * [@Control@7114:<Control#1019467534910>] + 14
+        * [@Control@7129:<Control#1020423836270>] + 14
+        * [@Control@7144:<Control#1020960707215>] + 8
+        * [@Control@7153:<Control#1021900231355>] + 14
+        * [@Control@7168:<Control#1022856532715>] + 14
+        * [@Control@7183:<Control#1023393403660>] + 8
+        * [@Control@7192:<Control#1024316150583>] + 14
+        * [@Control@7207:<Control#1025272451943>] + 14
+        * [@Control@7222:<Control#1025876431751>] + 9
+        * [@Control@7232:<Control#1026849510326>] + 14
+        * [@Control@7247:<Control#1027805811686>] + 14
+        * [@Control@7262:<Control#1028409791494>] + 9
+        * [@Control@7272:<Control#1029382870069>] + 14
+        * [@Control@7287:<Control#1030339171429>] + 14
+        * [@Control@7302:<Control#1030959928454>] + 9
+        * [@Control@7312:<Control#1031933007029>] + 14
+        * [@Control@7327:<Control#1032889308389>] + 14
+        * [@Control@7342:<Control#1033493288197>] + 9
+        * [@Control@7352:<Control#1034466366772>] + 14
+        * [@Control@7367:<Control#1035422668132>] + 14
+        * [@Control@7382:<Control#1036026647940>] + 9
+        * [@Control@7392:<Control#1036999726515>] + 14
+        * [@Control@7407:<Control#1037956027875>] + 14
+        * [@Control@7422:<Control#1038560007683>] + 9
+        * [@Control@7432:<Control#1039533086258>] + 14
+        * [@Control@7447:<Control#1040489387618>] + 14
+        * [@Control@7462:<Control#1041026258563>] + 8
+        * [@Control@7471:<Control#1041949005486>] + 14
+        * [@Control@7486:<Control#1042905306846>] + 14
+        * [@Control@7501:<Control#1043442177791>] + 8
+        * [@Control@7510:<Control#1044364924714>] + 14
+        * [@Control@7525:<Control#1045321226074>] + 14
+        * [@Control@7540:<Control#1045858097019>] + 8
+        * [@Control@7549:<Control#1046780843942>] + 14
+        * [@Control@7564:<Control#1047737145302>] + 14
+        * [@Control@7579:<Control#1048274016247>] + 8
+        * [@Control@7588:<Control#1049196763170>] + 14
+        * [@Control@7603:<Control#1050153064530>] + 14
+        * [@Control@7618:<Control#1050706712692>] + 8
+        * [@Control@7627:<Control#1051629459615>] + 14
+        * [@Control@7642:<Control#1052585760975>] + 14
+        * [@Control@7657:<Control#1053122631920>] + 8
+        * [@Control@7666:<Control#1054045378843>] + 14
+        * [@Control@7681:<Control#1055001680203>] + 14
+        * [@Control@7696:<Control#1055605660011>] + 9
+        * [@Control@7706:<Control#1056578738586>] + 14
+        * [@Control@7721:<Control#1057535039946>] + 14
+        * [@Control@7736:<Control#1058139019754>] + 9
+        * [@Control@7746:<Control#1059112098329>] + 14
+        * [@Control@7761:<Control#1060068399689>] + 14
+        * [@Control@7776:<Control#1060689156714>] + 9
+        * [@Control@7786:<Control#1061662235289>] + 14
+        * [@Control@7801:<Control#1062618536649>] + 14
+        * [@Control@7816:<Control#1063222516457>] + 9
+        * [@Control@7826:<Control#1064195595032>] + 14
+        * [@Control@7841:<Control#1065151896392>] + 14
+        * [@Control@7856:<Control#1065755876200>] + 9
+        * [@Control@7866:<Control#1066728954775>] + 14
+        * [@Control@7881:<Control#1067685256135>] + 14
+        * [@Control@7896:<Control#1068289235943>] + 9
+* test_invalid_configure_or_status_keeps_current_sheet_focus_and_scroll
+* test_back_and_return_are_only_dismissals_and_repeat_is_ignored
+* test_canonical_rules_have_wide_band_but_no_assignment_surface
+* test_real_run_receipts_reach_sheet_without_claiming_or_changing_save_state
+7/7 passed.
+
+
+res://tests/unit/test_minesweeper_assignments_query.gd
+* test_real_owner_receipts_project_in_registry_order_without_mutation
+* test_empty_receipts_and_result_edits_do_not_create_claims
+* test_membership_is_owner_truth_and_all_tiers_is_never_inferred
+* test_missing_sources_and_malformed_maps_fail_without_partial_truth
+* test_malformed_catalogs_fail_without_ids_or_partial_claims
+5/5 passed.
+
+
+res://tests/integration/test_minesweeper_first_reveal_transaction.gd
+* test_first_reveal_writes_a_durable_pre_board_autosave_with_the_charged_and_revealed_state
+* test_first_reveal_charges_exactly_once_across_a_retried_request
+* test_adapter_rejects_a_desktop_less_post_commit_snapshot_input
+* test_adapter_rejects_a_board_only_desktop_value
+* test_adapter_rejects_an_extra_desktop_key
+* test_restore_after_a_crash_between_checkpoint_commit_and_live_adoption_recovers_the_paid_first_reveal
+* test_first_reveal_falls_back_to_the_fake_checkpoint_when_durable_is_not_configured
+7/7 passed.
+
+
+res://tests/integration/test_desktop_completion_transaction.gd
+* test_complete_round_transacts_exactly_once_against_real_ports
+* test_complete_round_departure_commits_board_fate_against_real_ports
+* test_a_source_already_holding_the_gate_blocks_the_other_source_until_it_releases
+3/3 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/unit/test_minesweeper_board_catalog.gd
+    - Outside Tests
+        * [<Node#97089750753>(subsystem_animation.gd)]
+        * [<Node#97106527970>(subsystem_audio.gd)]
+        * [<Node#97123305187>]
+        * [<Node#97140082404>]
+        * [<Node#97156859621>(subsystem_backgrounds.gd)]
+        * [<Node#97693730534>(subsystem_choices.gd)]
+        * [<Timer#97710507751>]
+        * [<Node#97727284968>(subsystem_expression.gd)]
+        * [<Node#97760839405>(subsystem_glossary.gd)]
+        * [<Node#97777616622>(subsystem_history.gd)]
+        * [<Node#97794393839>(subsystem_input.gd)]
+        * [<Timer#97811171056>]
+        * [<Node#97827948273>(subsystem_jump.gd)]
+        * [<Node#97844725490>(subsystem_containers.gd)]
+        * [<Node#97861502707>(subsystem_portraits.gd)]
+        * [<Node#98398373620>(subsystem_save.gd)]
+        * [<Timer#98415150837>]
+        * [<Node#98431928054>(subsystem_settings.gd)]
+        * [<Node#98448705274>(subsystem_styles.gd)]
+        * [<Node#98465482491>(subsystem_text.gd)]
+        * [<Node#98549368576>(subsystem_text_input.gd)]
+        * [<Node#98566145793>(subsystem_variables.gd)]
+        * [<Node#98582923010>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#98599700227>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+Totals
+------
+Scripts              13
+Tests               112
+Passing Tests       112
+Asserts            3624
+Orphans              24
+Time              6.629s
+
+
+---- All tests passed! ----

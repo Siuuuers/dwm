@@ -1,0 +1,1251 @@
+{
+  "source_commit": "26de279be5f6490ff453db359b1964ec10596962",
+  "source_blob": "5954ae68db2c36794506f242dac5bbad0c2a93b1",
+  "source_sha256": "ca8e8d6950e567a451349598a985ba35bac893f6c57568c8860b6490f5358815",
+  "registry_sha256": "acdbf37ad9bd17bddc0fd3756b6bccd447db0ae79e95270a8c5d0d68c059a181",
+  "mapping": {
+    "field": "face",
+    "deep": "habitat",
+    "current": "inward_preview",
+    "text": "ink",
+    "focus_outer": "ink",
+    "rule": "structure",
+    "focus_inner": "focus"
+  },
+  "literal_role_matches": 112,
+  "tuples": [
+    {
+      "tuple": "AfterHours/standard/standard",
+      "roles": {
+        "field": "151b25",
+        "deep": "0b0d13",
+        "current": "2f2936",
+        "text": "d8cfb7",
+        "focus_outer": "d8cfb7",
+        "rule": "657d89",
+        "focus_inner": "a9935f"
+      },
+      "contrast": [
+        {
+          "foreground": "text",
+          "background": "current",
+          "ratio": 9.071678309800832,
+          "minimum": 4.5,
+          "use": "caption"
+        },
+        {
+          "foreground": "text",
+          "background": "field",
+          "ratio": 11.131307480126475,
+          "minimum": 4.5,
+          "use": "caption"
+        },
+        {
+          "foreground": "text",
+          "background": "deep",
+          "ratio": 12.512637645679927,
+          "minimum": 4.5,
+          "use": "caption"
+        },
+        {
+          "foreground": "rule",
+          "background": "current",
+          "ratio": 3.25084081746369,
+          "minimum": 3,
+          "use": "caption"
+        },
+        {
+          "foreground": "rule",
+          "background": "field",
+          "ratio": 3.988910042041437,
+          "minimum": 3,
+          "use": "caption"
+        },
+        {
+          "foreground": "rule",
+          "background": "deep",
+          "ratio": 4.483910452243772,
+          "minimum": 3,
+          "use": "caption"
+        },
+        {
+          "foreground": "focus_outer",
+          "background": "current",
+          "ratio": 9.071678309800832,
+          "minimum": 3,
+          "use": "caption"
+        },
+        {
+          "foreground": "focus_inner",
+          "background": "current",
+          "ratio": 4.711113015659066,
+          "minimum": 3,
+          "use": "caption"
+        },
+        {
+          "foreground": "text",
+          "background": "deep",
+          "ratio": 12.512637645679927,
+          "minimum": 3,
+          "use": "scroll_thumb"
+        }
+      ]
+    },
+    {
+      "tuple": "AfterHours/standard/protan",
+      "roles": {
+        "field": "151b25",
+        "deep": "0b0d13",
+        "current": "2f2936",
+        "text": "d8cfb7",
+        "focus_outer": "d8cfb7",
+        "rule": "657d89",
+        "focus_inner": "c0a06a"
+      },
+      "contrast": [
+        {
+          "foreground": "text",
+          "background": "current",
+          "ratio": 9.071678309800832,
+          "minimum": 4.5,
+          "use": "caption"
+        },
+        {
+          "foreground": "text",
+          "background": "field",
+          "ratio": 11.131307480126475,
+          "minimum": 4.5,
+          "use": "caption"
+        },
+        {
+          "foreground": "text",
+          "background": "deep",
+          "ratio": 12.512637645679927,
+          "minimum": 4.5,
+          "use": "caption"
+        },
+        {
+          "foreground": "rule",
+          "background": "current",
+          "ratio": 3.25084081746369,
+          "minimum": 3,
+          "use": "caption"
+        },
+        {
+          "foreground": "rule",
+          "background": "field",
+          "ratio": 3.988910042041437,
+          "minimum": 3,
+          "use": "caption"
+        },
+        {
+          "foreground": "rule",
+          "background": "deep",
+          "ratio": 4.483910452243772,
+          "minimum": 3,
+          "use": "caption"
+        },
+        {
+          "foreground": "focus_outer",
+          "background": "current",
+          "ratio": 9.071678309800832,
+          "minimum": 3,
+          "use": "caption"
+        },
+        {
+          "foreground": "focus_inner",
+          "background": "current",
+          "ratio": 5.684754263487234,
+          "minimum": 3,
+          "use": "caption"
+        },
+        {
+          "foreground": "text",
+          "background": "deep",
+          "ratio": 12.512637645679927,
+          "minimum": 3,
+          "use": "scroll_thumb"
+        }
+      ]
+    },
+    {
+      "tuple": "AfterHours/standard/deutan",
+      "roles": {
+        "field": "151b25",
+        "deep": "0b0d13",
+        "current": "2f2936",
+        "text": "d8cfb7",
+        "focus_outer": "d8cfb7",
+        "rule": "657d89",
+        "focus_inner": "bea86a"
+      },
+      "contrast": [
+        {
+          "foreground": "text",
+          "background": "current",
+          "ratio": 9.071678309800832,
+          "minimum": 4.5,
+          "use": "caption"
+        },
+        {
+          "foreground": "text",
+          "background": "field",
+          "ratio": 11.131307480126475,
+          "minimum": 4.5,
+          "use": "caption"
+        },
+        {
+          "foreground": "text",
+          "background": "deep",
+          "ratio": 12.512637645679927,
+          "minimum": 4.5,
+          "use": "caption"
+        },
+        {
+          "foreground": "rule",
+          "background": "current",
+          "ratio": 3.25084081746369,
+          "minimum": 3,
+          "use": "caption"
+        },
+        {
+          "foreground": "rule",
+          "background": "field",
+          "ratio": 3.988910042041437,
+          "minimum": 3,
+          "use": "caption"
+        },
+        {
+          "foreground": "rule",
+          "background": "deep",
+          "ratio": 4.483910452243772,
+          "minimum": 3,
+          "use": "caption"
+        },
+        {
+          "foreground": "focus_outer",
+          "background": "current",
+          "ratio": 9.071678309800832,
+          "minimum": 3,
+          "use": "caption"
+        },
+        {
+          "foreground": "focus_inner",
+          "background": "current",
+          "ratio": 6.034021968347753,
+          "minimum": 3,
+          "use": "caption"
+        },
+        {
+          "foreground": "text",
+          "background": "deep",
+          "ratio": 12.512637645679927,
+          "minimum": 3,
+          "use": "scroll_thumb"
+        }
+      ]
+    },
+    {
+      "tuple": "AfterHours/standard/tritan",
+      "roles": {
+        "field": "151b25",
+        "deep": "0b0d13",
+        "current": "2f2936",
+        "text": "d8cfb7",
+        "focus_outer": "d8cfb7",
+        "rule": "657d89",
+        "focus_inner": "d0a099"
+      },
+      "contrast": [
+        {
+          "foreground": "text",
+          "background": "current",
+          "ratio": 9.071678309800832,
+          "minimum": 4.5,
+          "use": "caption"
+        },
+        {
+          "foreground": "text",
+          "background": "field",
+          "ratio": 11.131307480126475,
+          "minimum": 4.5,
+          "use": "caption"
+        },
+        {
+          "foreground": "text",
+          "background": "deep",
+          "ratio": 12.512637645679927,
+          "minimum": 4.5,
+          "use": "caption"
+        },
+        {
+          "foreground": "rule",
+          "background": "current",
+          "ratio": 3.25084081746369,
+          "minimum": 3,
+          "use": "caption"
+        },
+        {
+          "foreground": "rule",
+          "background": "field",
+          "ratio": 3.988910042041437,
+          "minimum": 3,
+          "use": "caption"
+        },
+        {
+          "foreground": "rule",
+          "background": "deep",
+          "ratio": 4.483910452243772,
+          "minimum": 3,
+          "use": "caption"
+        },
+        {
+          "foreground": "focus_outer",
+          "background": "current",
+          "ratio": 9.071678309800832,
+          "minimum": 3,
+          "use": "caption"
+        },
+        {
+          "foreground": "focus_inner",
+          "background": "current",
+          "ratio": 6.149141505655805,
+          "minimum": 3,
+          "use": "caption"
+        },
+        {
+          "foreground": "text",
+          "background": "deep",
+          "ratio": 12.512637645679927,
+          "minimum": 3,
+          "use": "scroll_thumb"
+        }
+      ]
+    },
+    {
+      "tuple": "AfterHours/high/standard",
+      "roles": {
+        "field": "0b1018",
+        "deep": "080b10",
+        "current": "24212d",
+        "text": "f6efdc",
+        "focus_outer": "f6efdc",
+        "rule": "98a7ae",
+        "focus_inner": "d0b977"
+      },
+      "contrast": [
+        {
+          "foreground": "text",
+          "background": "current",
+          "ratio": 13.753729044954682,
+          "minimum": 4.5,
+          "use": "caption"
+        },
+        {
+          "foreground": "text",
+          "background": "field",
+          "ratio": 16.61192836537926,
+          "minimum": 4.5,
+          "use": "caption"
+        },
+        {
+          "foreground": "text",
+          "background": "deep",
+          "ratio": 17.170915792675626,
+          "minimum": 4.5,
+          "use": "caption"
+        },
+        {
+          "foreground": "rule",
+          "background": "current",
+          "ratio": 6.369104187396275,
+          "minimum": 3,
+          "use": "caption"
+        },
+        {
+          "foreground": "rule",
+          "background": "field",
+          "ratio": 7.69268481055878,
+          "minimum": 3,
+          "use": "caption"
+        },
+        {
+          "foreground": "rule",
+          "background": "deep",
+          "ratio": 7.951541819611257,
+          "minimum": 3,
+          "use": "caption"
+        },
+        {
+          "foreground": "focus_outer",
+          "background": "current",
+          "ratio": 13.753729044954682,
+          "minimum": 3,
+          "use": "caption"
+        },
+        {
+          "foreground": "focus_inner",
+          "background": "current",
+          "ratio": 8.18366583581354,
+          "minimum": 3,
+          "use": "caption"
+        },
+        {
+          "foreground": "text",
+          "background": "deep",
+          "ratio": 17.170915792675626,
+          "minimum": 3,
+          "use": "scroll_thumb"
+        }
+      ]
+    },
+    {
+      "tuple": "AfterHours/high/protan",
+      "roles": {
+        "field": "0b1018",
+        "deep": "080b10",
+        "current": "24212d",
+        "text": "f6efdc",
+        "focus_outer": "f6efdc",
+        "rule": "98a7ae",
+        "focus_inner": "e0c187"
+      },
+      "contrast": [
+        {
+          "foreground": "text",
+          "background": "current",
+          "ratio": 13.753729044954682,
+          "minimum": 4.5,
+          "use": "caption"
+        },
+        {
+          "foreground": "text",
+          "background": "field",
+          "ratio": 16.61192836537926,
+          "minimum": 4.5,
+          "use": "caption"
+        },
+        {
+          "foreground": "text",
+          "background": "deep",
+          "ratio": 17.170915792675626,
+          "minimum": 4.5,
+          "use": "caption"
+        },
+        {
+          "foreground": "rule",
+          "background": "current",
+          "ratio": 6.369104187396275,
+          "minimum": 3,
+          "use": "caption"
+        },
+        {
+          "foreground": "rule",
+          "background": "field",
+          "ratio": 7.69268481055878,
+          "minimum": 3,
+          "use": "caption"
+        },
+        {
+          "foreground": "rule",
+          "background": "deep",
+          "ratio": 7.951541819611257,
+          "minimum": 3,
+          "use": "caption"
+        },
+        {
+          "foreground": "focus_outer",
+          "background": "current",
+          "ratio": 13.753729044954682,
+          "minimum": 3,
+          "use": "caption"
+        },
+        {
+          "foreground": "focus_inner",
+          "background": "current",
+          "ratio": 9.13022809619405,
+          "minimum": 3,
+          "use": "caption"
+        },
+        {
+          "foreground": "text",
+          "background": "deep",
+          "ratio": 17.170915792675626,
+          "minimum": 3,
+          "use": "scroll_thumb"
+        }
+      ]
+    },
+    {
+      "tuple": "AfterHours/high/deutan",
+      "roles": {
+        "field": "0b1018",
+        "deep": "080b10",
+        "current": "24212d",
+        "text": "f6efdc",
+        "focus_outer": "f6efdc",
+        "rule": "98a7ae",
+        "focus_inner": "d9c585"
+      },
+      "contrast": [
+        {
+          "foreground": "text",
+          "background": "current",
+          "ratio": 13.753729044954682,
+          "minimum": 4.5,
+          "use": "caption"
+        },
+        {
+          "foreground": "text",
+          "background": "field",
+          "ratio": 16.61192836537926,
+          "minimum": 4.5,
+          "use": "caption"
+        },
+        {
+          "foreground": "text",
+          "background": "deep",
+          "ratio": 17.170915792675626,
+          "minimum": 4.5,
+          "use": "caption"
+        },
+        {
+          "foreground": "rule",
+          "background": "current",
+          "ratio": 6.369104187396275,
+          "minimum": 3,
+          "use": "caption"
+        },
+        {
+          "foreground": "rule",
+          "background": "field",
+          "ratio": 7.69268481055878,
+          "minimum": 3,
+          "use": "caption"
+        },
+        {
+          "foreground": "rule",
+          "background": "deep",
+          "ratio": 7.951541819611257,
+          "minimum": 3,
+          "use": "caption"
+        },
+        {
+          "foreground": "focus_outer",
+          "background": "current",
+          "ratio": 13.753729044954682,
+          "minimum": 3,
+          "use": "caption"
+        },
+        {
+          "foreground": "focus_inner",
+          "background": "current",
+          "ratio": 9.226613923761635,
+          "minimum": 3,
+          "use": "caption"
+        },
+        {
+          "foreground": "text",
+          "background": "deep",
+          "ratio": 17.170915792675626,
+          "minimum": 3,
+          "use": "scroll_thumb"
+        }
+      ]
+    },
+    {
+      "tuple": "AfterHours/high/tritan",
+      "roles": {
+        "field": "0b1018",
+        "deep": "080b10",
+        "current": "24212d",
+        "text": "f6efdc",
+        "focus_outer": "f6efdc",
+        "rule": "98a7ae",
+        "focus_inner": "e3b6ac"
+      },
+      "contrast": [
+        {
+          "foreground": "text",
+          "background": "current",
+          "ratio": 13.753729044954682,
+          "minimum": 4.5,
+          "use": "caption"
+        },
+        {
+          "foreground": "text",
+          "background": "field",
+          "ratio": 16.61192836537926,
+          "minimum": 4.5,
+          "use": "caption"
+        },
+        {
+          "foreground": "text",
+          "background": "deep",
+          "ratio": 17.170915792675626,
+          "minimum": 4.5,
+          "use": "caption"
+        },
+        {
+          "foreground": "rule",
+          "background": "current",
+          "ratio": 6.369104187396275,
+          "minimum": 3,
+          "use": "caption"
+        },
+        {
+          "foreground": "rule",
+          "background": "field",
+          "ratio": 7.69268481055878,
+          "minimum": 3,
+          "use": "caption"
+        },
+        {
+          "foreground": "rule",
+          "background": "deep",
+          "ratio": 7.951541819611257,
+          "minimum": 3,
+          "use": "caption"
+        },
+        {
+          "foreground": "focus_outer",
+          "background": "current",
+          "ratio": 13.753729044954682,
+          "minimum": 3,
+          "use": "caption"
+        },
+        {
+          "foreground": "focus_inner",
+          "background": "current",
+          "ratio": 8.683590222656273,
+          "minimum": 3,
+          "use": "caption"
+        },
+        {
+          "foreground": "text",
+          "background": "deep",
+          "ratio": 17.170915792675626,
+          "minimum": 3,
+          "use": "scroll_thumb"
+        }
+      ]
+    },
+    {
+      "tuple": "Midnight/standard/standard",
+      "roles": {
+        "field": "14201d",
+        "deep": "0d1514",
+        "current": "2f2936",
+        "text": "d8cfb7",
+        "focus_outer": "d8cfb7",
+        "rule": "657d89",
+        "focus_inner": "a9935f"
+      },
+      "contrast": [
+        {
+          "foreground": "text",
+          "background": "current",
+          "ratio": 9.071678309800832,
+          "minimum": 4.5,
+          "use": "caption"
+        },
+        {
+          "foreground": "text",
+          "background": "field",
+          "ratio": 10.787650832072247,
+          "minimum": 4.5,
+          "use": "caption"
+        },
+        {
+          "foreground": "text",
+          "background": "deep",
+          "ratio": 11.925011844324851,
+          "minimum": 4.5,
+          "use": "caption"
+        },
+        {
+          "foreground": "rule",
+          "background": "current",
+          "ratio": 3.25084081746369,
+          "minimum": 3,
+          "use": "caption"
+        },
+        {
+          "foreground": "rule",
+          "background": "field",
+          "ratio": 3.865760496771465,
+          "minimum": 3,
+          "use": "caption"
+        },
+        {
+          "foreground": "rule",
+          "background": "deep",
+          "ratio": 4.273334429240832,
+          "minimum": 3,
+          "use": "caption"
+        },
+        {
+          "foreground": "focus_outer",
+          "background": "current",
+          "ratio": 9.071678309800832,
+          "minimum": 3,
+          "use": "caption"
+        },
+        {
+          "foreground": "focus_inner",
+          "background": "current",
+          "ratio": 4.711113015659066,
+          "minimum": 3,
+          "use": "caption"
+        },
+        {
+          "foreground": "text",
+          "background": "deep",
+          "ratio": 11.925011844324851,
+          "minimum": 3,
+          "use": "scroll_thumb"
+        }
+      ]
+    },
+    {
+      "tuple": "Midnight/standard/protan",
+      "roles": {
+        "field": "14201d",
+        "deep": "0d1514",
+        "current": "2f2936",
+        "text": "d8cfb7",
+        "focus_outer": "d8cfb7",
+        "rule": "657d89",
+        "focus_inner": "c0a06a"
+      },
+      "contrast": [
+        {
+          "foreground": "text",
+          "background": "current",
+          "ratio": 9.071678309800832,
+          "minimum": 4.5,
+          "use": "caption"
+        },
+        {
+          "foreground": "text",
+          "background": "field",
+          "ratio": 10.787650832072247,
+          "minimum": 4.5,
+          "use": "caption"
+        },
+        {
+          "foreground": "text",
+          "background": "deep",
+          "ratio": 11.925011844324851,
+          "minimum": 4.5,
+          "use": "caption"
+        },
+        {
+          "foreground": "rule",
+          "background": "current",
+          "ratio": 3.25084081746369,
+          "minimum": 3,
+          "use": "caption"
+        },
+        {
+          "foreground": "rule",
+          "background": "field",
+          "ratio": 3.865760496771465,
+          "minimum": 3,
+          "use": "caption"
+        },
+        {
+          "foreground": "rule",
+          "background": "deep",
+          "ratio": 4.273334429240832,
+          "minimum": 3,
+          "use": "caption"
+        },
+        {
+          "foreground": "focus_outer",
+          "background": "current",
+          "ratio": 9.071678309800832,
+          "minimum": 3,
+          "use": "caption"
+        },
+        {
+          "foreground": "focus_inner",
+          "background": "current",
+          "ratio": 5.684754263487234,
+          "minimum": 3,
+          "use": "caption"
+        },
+        {
+          "foreground": "text",
+          "background": "deep",
+          "ratio": 11.925011844324851,
+          "minimum": 3,
+          "use": "scroll_thumb"
+        }
+      ]
+    },
+    {
+      "tuple": "Midnight/standard/deutan",
+      "roles": {
+        "field": "14201d",
+        "deep": "0d1514",
+        "current": "2f2936",
+        "text": "d8cfb7",
+        "focus_outer": "d8cfb7",
+        "rule": "657d89",
+        "focus_inner": "bea86a"
+      },
+      "contrast": [
+        {
+          "foreground": "text",
+          "background": "current",
+          "ratio": 9.071678309800832,
+          "minimum": 4.5,
+          "use": "caption"
+        },
+        {
+          "foreground": "text",
+          "background": "field",
+          "ratio": 10.787650832072247,
+          "minimum": 4.5,
+          "use": "caption"
+        },
+        {
+          "foreground": "text",
+          "background": "deep",
+          "ratio": 11.925011844324851,
+          "minimum": 4.5,
+          "use": "caption"
+        },
+        {
+          "foreground": "rule",
+          "background": "current",
+          "ratio": 3.25084081746369,
+          "minimum": 3,
+          "use": "caption"
+        },
+        {
+          "foreground": "rule",
+          "background": "field",
+          "ratio": 3.865760496771465,
+          "minimum": 3,
+          "use": "caption"
+        },
+        {
+          "foreground": "rule",
+          "background": "deep",
+          "ratio": 4.273334429240832,
+          "minimum": 3,
+          "use": "caption"
+        },
+        {
+          "foreground": "focus_outer",
+          "background": "current",
+          "ratio": 9.071678309800832,
+          "minimum": 3,
+          "use": "caption"
+        },
+        {
+          "foreground": "focus_inner",
+          "background": "current",
+          "ratio": 6.034021968347753,
+          "minimum": 3,
+          "use": "caption"
+        },
+        {
+          "foreground": "text",
+          "background": "deep",
+          "ratio": 11.925011844324851,
+          "minimum": 3,
+          "use": "scroll_thumb"
+        }
+      ]
+    },
+    {
+      "tuple": "Midnight/standard/tritan",
+      "roles": {
+        "field": "14201d",
+        "deep": "0d1514",
+        "current": "2f2936",
+        "text": "d8cfb7",
+        "focus_outer": "d8cfb7",
+        "rule": "657d89",
+        "focus_inner": "d0a099"
+      },
+      "contrast": [
+        {
+          "foreground": "text",
+          "background": "current",
+          "ratio": 9.071678309800832,
+          "minimum": 4.5,
+          "use": "caption"
+        },
+        {
+          "foreground": "text",
+          "background": "field",
+          "ratio": 10.787650832072247,
+          "minimum": 4.5,
+          "use": "caption"
+        },
+        {
+          "foreground": "text",
+          "background": "deep",
+          "ratio": 11.925011844324851,
+          "minimum": 4.5,
+          "use": "caption"
+        },
+        {
+          "foreground": "rule",
+          "background": "current",
+          "ratio": 3.25084081746369,
+          "minimum": 3,
+          "use": "caption"
+        },
+        {
+          "foreground": "rule",
+          "background": "field",
+          "ratio": 3.865760496771465,
+          "minimum": 3,
+          "use": "caption"
+        },
+        {
+          "foreground": "rule",
+          "background": "deep",
+          "ratio": 4.273334429240832,
+          "minimum": 3,
+          "use": "caption"
+        },
+        {
+          "foreground": "focus_outer",
+          "background": "current",
+          "ratio": 9.071678309800832,
+          "minimum": 3,
+          "use": "caption"
+        },
+        {
+          "foreground": "focus_inner",
+          "background": "current",
+          "ratio": 6.149141505655805,
+          "minimum": 3,
+          "use": "caption"
+        },
+        {
+          "foreground": "text",
+          "background": "deep",
+          "ratio": 11.925011844324851,
+          "minimum": 3,
+          "use": "scroll_thumb"
+        }
+      ]
+    },
+    {
+      "tuple": "Midnight/high/standard",
+      "roles": {
+        "field": "0c1811",
+        "deep": "07100c",
+        "current": "24212d",
+        "text": "f6efdc",
+        "focus_outer": "f6efdc",
+        "rule": "98a7ae",
+        "focus_inner": "d0b977"
+      },
+      "contrast": [
+        {
+          "foreground": "text",
+          "background": "current",
+          "ratio": 13.753729044954682,
+          "minimum": 4.5,
+          "use": "caption"
+        },
+        {
+          "foreground": "text",
+          "background": "field",
+          "ratio": 15.851473486927967,
+          "minimum": 4.5,
+          "use": "caption"
+        },
+        {
+          "foreground": "text",
+          "background": "deep",
+          "ratio": 16.811492551021455,
+          "minimum": 4.5,
+          "use": "caption"
+        },
+        {
+          "foreground": "rule",
+          "background": "current",
+          "ratio": 6.369104187396275,
+          "minimum": 3,
+          "use": "caption"
+        },
+        {
+          "foreground": "rule",
+          "background": "field",
+          "ratio": 7.340531853725101,
+          "minimum": 3,
+          "use": "caption"
+        },
+        {
+          "foreground": "rule",
+          "background": "deep",
+          "ratio": 7.785099390362814,
+          "minimum": 3,
+          "use": "caption"
+        },
+        {
+          "foreground": "focus_outer",
+          "background": "current",
+          "ratio": 13.753729044954682,
+          "minimum": 3,
+          "use": "caption"
+        },
+        {
+          "foreground": "focus_inner",
+          "background": "current",
+          "ratio": 8.18366583581354,
+          "minimum": 3,
+          "use": "caption"
+        },
+        {
+          "foreground": "text",
+          "background": "deep",
+          "ratio": 16.811492551021455,
+          "minimum": 3,
+          "use": "scroll_thumb"
+        }
+      ]
+    },
+    {
+      "tuple": "Midnight/high/protan",
+      "roles": {
+        "field": "0c1811",
+        "deep": "07100c",
+        "current": "24212d",
+        "text": "f6efdc",
+        "focus_outer": "f6efdc",
+        "rule": "98a7ae",
+        "focus_inner": "e0c187"
+      },
+      "contrast": [
+        {
+          "foreground": "text",
+          "background": "current",
+          "ratio": 13.753729044954682,
+          "minimum": 4.5,
+          "use": "caption"
+        },
+        {
+          "foreground": "text",
+          "background": "field",
+          "ratio": 15.851473486927967,
+          "minimum": 4.5,
+          "use": "caption"
+        },
+        {
+          "foreground": "text",
+          "background": "deep",
+          "ratio": 16.811492551021455,
+          "minimum": 4.5,
+          "use": "caption"
+        },
+        {
+          "foreground": "rule",
+          "background": "current",
+          "ratio": 6.369104187396275,
+          "minimum": 3,
+          "use": "caption"
+        },
+        {
+          "foreground": "rule",
+          "background": "field",
+          "ratio": 7.340531853725101,
+          "minimum": 3,
+          "use": "caption"
+        },
+        {
+          "foreground": "rule",
+          "background": "deep",
+          "ratio": 7.785099390362814,
+          "minimum": 3,
+          "use": "caption"
+        },
+        {
+          "foreground": "focus_outer",
+          "background": "current",
+          "ratio": 13.753729044954682,
+          "minimum": 3,
+          "use": "caption"
+        },
+        {
+          "foreground": "focus_inner",
+          "background": "current",
+          "ratio": 9.13022809619405,
+          "minimum": 3,
+          "use": "caption"
+        },
+        {
+          "foreground": "text",
+          "background": "deep",
+          "ratio": 16.811492551021455,
+          "minimum": 3,
+          "use": "scroll_thumb"
+        }
+      ]
+    },
+    {
+      "tuple": "Midnight/high/deutan",
+      "roles": {
+        "field": "0c1811",
+        "deep": "07100c",
+        "current": "24212d",
+        "text": "f6efdc",
+        "focus_outer": "f6efdc",
+        "rule": "98a7ae",
+        "focus_inner": "d9c585"
+      },
+      "contrast": [
+        {
+          "foreground": "text",
+          "background": "current",
+          "ratio": 13.753729044954682,
+          "minimum": 4.5,
+          "use": "caption"
+        },
+        {
+          "foreground": "text",
+          "background": "field",
+          "ratio": 15.851473486927967,
+          "minimum": 4.5,
+          "use": "caption"
+        },
+        {
+          "foreground": "text",
+          "background": "deep",
+          "ratio": 16.811492551021455,
+          "minimum": 4.5,
+          "use": "caption"
+        },
+        {
+          "foreground": "rule",
+          "background": "current",
+          "ratio": 6.369104187396275,
+          "minimum": 3,
+          "use": "caption"
+        },
+        {
+          "foreground": "rule",
+          "background": "field",
+          "ratio": 7.340531853725101,
+          "minimum": 3,
+          "use": "caption"
+        },
+        {
+          "foreground": "rule",
+          "background": "deep",
+          "ratio": 7.785099390362814,
+          "minimum": 3,
+          "use": "caption"
+        },
+        {
+          "foreground": "focus_outer",
+          "background": "current",
+          "ratio": 13.753729044954682,
+          "minimum": 3,
+          "use": "caption"
+        },
+        {
+          "foreground": "focus_inner",
+          "background": "current",
+          "ratio": 9.226613923761635,
+          "minimum": 3,
+          "use": "caption"
+        },
+        {
+          "foreground": "text",
+          "background": "deep",
+          "ratio": 16.811492551021455,
+          "minimum": 3,
+          "use": "scroll_thumb"
+        }
+      ]
+    },
+    {
+      "tuple": "Midnight/high/tritan",
+      "roles": {
+        "field": "0c1811",
+        "deep": "07100c",
+        "current": "24212d",
+        "text": "f6efdc",
+        "focus_outer": "f6efdc",
+        "rule": "98a7ae",
+        "focus_inner": "e3b6ac"
+      },
+      "contrast": [
+        {
+          "foreground": "text",
+          "background": "current",
+          "ratio": 13.753729044954682,
+          "minimum": 4.5,
+          "use": "caption"
+        },
+        {
+          "foreground": "text",
+          "background": "field",
+          "ratio": 15.851473486927967,
+          "minimum": 4.5,
+          "use": "caption"
+        },
+        {
+          "foreground": "text",
+          "background": "deep",
+          "ratio": 16.811492551021455,
+          "minimum": 4.5,
+          "use": "caption"
+        },
+        {
+          "foreground": "rule",
+          "background": "current",
+          "ratio": 6.369104187396275,
+          "minimum": 3,
+          "use": "caption"
+        },
+        {
+          "foreground": "rule",
+          "background": "field",
+          "ratio": 7.340531853725101,
+          "minimum": 3,
+          "use": "caption"
+        },
+        {
+          "foreground": "rule",
+          "background": "deep",
+          "ratio": 7.785099390362814,
+          "minimum": 3,
+          "use": "caption"
+        },
+        {
+          "foreground": "focus_outer",
+          "background": "current",
+          "ratio": 13.753729044954682,
+          "minimum": 3,
+          "use": "caption"
+        },
+        {
+          "foreground": "focus_inner",
+          "background": "current",
+          "ratio": 8.683590222656273,
+          "minimum": 3,
+          "use": "caption"
+        },
+        {
+          "foreground": "text",
+          "background": "deep",
+          "ratio": 16.811492551021455,
+          "minimum": 3,
+          "use": "scroll_thumb"
+        }
+      ]
+    }
+  ],
+  "method": "sRGB relative luminance; unrounded thresholds; literal comparison to pinned Git source, not runtime registry resolution"
+}

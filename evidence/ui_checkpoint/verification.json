@@ -1,0 +1,43 @@
+{
+  "created_utc": "2026-09-05T15:12:58.626395+00:00",
+  "checks": {
+    "restart": {
+      "receipt": "tools/title_resume/evidence/result.json",
+      "sha256": "2401cd28e1fc63629eafcebb6033ffed9e27b1761726d3daed6ae1c40098c54b",
+      "source_bindings": 2403,
+      "matched": 2403,
+      "checks": 103,
+      "fresh_run": true
+    },
+    "title": {
+      "receipt": "tools/title_shell/evidence/result.json",
+      "sha256": "fadb4325a694f1683dfdbdfc6d6d9b31e20bf0fe9c08a0024b67656cb53d781e",
+      "source_bindings": 34,
+      "matched": 34,
+      "checks": 326,
+      "fresh_run": true
+    },
+    "backup": {
+      "receipt": "evidence/title_shell/backup_regression-result.json",
+      "sha256": "60797dea009e0abdf3503ed71f2d0df869e8238bf27348c209f6104a82ec4e37",
+      "source_bindings": 55,
+      "matched": 55,
+      "checks": null,
+      "fresh_run": false
+    },
+    "clock": {
+      "receipt": "evidence/title_shell/routine_clock-result.json",
+      "sha256": "9523aef5155157a5399ddf651830862c83f21ed4b3bfb3d816ca0b10d82e9036",
+      "source_bindings": 3,
+      "matched": 3,
+      "checks": null,
+      "fresh_run": false
+    }
+  },
+  "changed_since_readiness_inventory": [
+    "tools/title_resume/evidence/result.json",
+    "tools/title_resume/evidence/verification.log"
+  ],
+  "runtime_source_bytes_unchanged": true,
+  "limits": "Fresh runs use disposable storage and existing exact diagnostic allowances; prior receipts remain historical; no combined v5 validation."
+}

@@ -1,0 +1,9 @@
+# MANUAL PREVIEW ONLY - NONCANONICAL PLACEHOLDER DIALOGUE.
+# Source scene: hospital.faint.day5
+# Production DTL (read-only reference): res://dialogic/timelines/en/core/hospital_faint.dtl
+# Explicit visual fixture: Sylvia is present. This is NOT an actual Hospital receipt.
+# No gameplay signals, variables, effects, saves, or unlocks.
+[b]Sylvia (preview)[/b] - This is the Sylvia-present Hospital layout for Day 5.
+[b]Sylvia (preview)[/b] - This short sample checks the fixed portrait and caption spacing. It is not story dialogue.
+[b]Sylvia (preview)[/b] - The ordinary fainting branch is not part of this visual preview.
+return

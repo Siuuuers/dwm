@@ -1,0 +1,183 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2570)
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/schedule-ui-build/.godot/phase2r_tests/27077f05-c801-40d0-a017-f49eab304e1c/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+
+
+res://tests/unit/test_schedule_app.gd
+* test_real_mounted_source_append_inspect_reorder_remove_and_focus_repair
+* test_expected_stale_refusal_preserves_visible_inspection_without_mutation
+    126 Orphans
+        * [@Button@369:<Button#191914575845>(SchedulePaperButton.gd)] + 1
+        * [@Control@368:<Control#191881021426>(ScheduleFocusRail.gd)]
+        * [@Control@367:<Control#191847466996>(ScheduleFocusRail.gd)]
+        * [@Control@366:<Control#191813912566>(ScheduleScrollWell.gd)]
+        * [@Control@334:<Control#190169745401>(ScheduleScrollWell.gd)]
+        * [@ScrollContainer@337:<ScrollContainer#190203299844>] + 29
+        * [@Label@374:<Label#192635996572>]
+        * [@ColorRect@321:<ColorRect#189179890078>]
+        * [@ColorRect@375:<ColorRect#192669551008>]
+        * [@ColorRect@372:<ColorRect#192568887715>]
+        * [@ColorRect@373:<ColorRect#192602442149>]
+        * [@ScrollContainer@326:<ScrollContainer#189280553385>] + 10
+        * [@Label@322:<Label#189213444524>]
+        * [@ColorRect@323:<ColorRect#189246998958>]
+        * [@ScrollContainer@378:<ScrollContainer#192703105480>] + 10
+        * [@Control@386:<Control#193592297929>(ScheduleScrollWell.gd)]
+        * [@ColorRect@371:<ColorRect#192535333329>]
+        * [@ColorRect@319:<ColorRect#189112781280>]
+        * [@Control@418:<Control#195236465231>(ScheduleScrollWell.gd)]
+        * [@Control@420:<Control#195303574099>(ScheduleFocusRail.gd)]
+        * [@Control@419:<Control#195270019672>(ScheduleFocusRail.gd)]
+        * [@Button@421:<Button#195337128542>(SchedulePaperButton.gd)] + 1
+        * [@ColorRect@423:<ColorRect#195504900708>]
+        * [DockStatus:<Label#195538455166>]
+        * [@ColorRect@320:<ColorRect#189146335872>]
+        * [@ScrollContainer@389:<ScrollContainer#193625852581>] + 29
+* test_done_needs_a_real_handler_and_home_preserves_draft
+* test_refused_edit_status_survives_refresh_and_clears_on_success_or_departure
+* test_stale_refusal_publishes_status_and_new_done_clears_it_before_await
+* test_pending_done_awaits_its_owner_and_refuses_edits_or_home
+* test_pointer_release_after_projection_replacement_cannot_activate_new_source
+* test_native_grip_drag_reorders_once_and_home_is_inert_during_drag
+* test_native_drag_cancels_on_refresh_and_outside_release_without_edit
+* test_non_grip_pointer_drag_cannot_reorder_and_arrow_stays_in_its_region
+    9 Orphans
+        * [@Button@1738:<Button#292141664710>(SchedulePaperButton.gd)] + 1
+        * [@Button@1740:<Button#292309436916>(SchedulePaperButton.gd)] + 1
+        * [RegisteredArt:<TextureRect#291940338407>]
+        * [@Label@1735:<Label#291906783996>]
+        * [@Label@1734:<Label#291873229687>]
+        * [@Button@1736:<Button#291973892984>(SchedulePaperButton.gd)] + 1
+* test_page_keys_scroll_only_the_focused_paper_without_changing_the_draft
+* test_cached_return_restores_semantic_focus_without_changing_the_draft
+* test_cached_return_reprojects_and_clears_inspection_for_external_view_replacement
+* test_host_cache_clear_supports_load_even_when_view_fingerprint_is_unchanged
+* test_cached_return_cancels_a_held_pointer_contact
+* test_keyboard_scroll_is_inert_while_done_owns_custody
+* test_failed_configuration_retains_valid_locale_for_recovery_refresh
+    50 Orphans
+        * [@Control@3167:<Control#397133482368>(ScheduleScrollWell.gd)]
+        * [@ColorRect@3154:<ColorRect#396143626661>]
+        * [@Control@3190:<Control#398005897693>(ScheduleFocusRail.gd)]
+        * [@ColorRect@3153:<ColorRect#396110072308>]
+        * [@Button@3191:<Button#398039452172>(SchedulePaperButton.gd)] + 1
+        * [@ScrollContainer@3159:<ScrollContainer#396244290097>] + 10
+        * [@Control@3189:<Control#397972343353>(ScheduleFocusRail.gd)]
+        * [@Control@3188:<Control#397938788924>(ScheduleScrollWell.gd)]
+        * [@ColorRect@3156:<ColorRect#396210735703>]
+        * [@ColorRect@3152:<ColorRect#396076518112>]
+        * [@Label@3155:<Label#396177181488>]
+        * [@ScrollContainer@3170:<ScrollContainer#397167037255>] + 17
+* test_cached_return_keeps_a_manually_scrolled_position_with_focus_elsewhere
+* test_locale_reflow_retains_semantic_docket_top_even_with_focus_elsewhere
+* test_pending_warning_mounts_real_retained_desk_and_blocks_background_input
+* test_failed_warning_go_keeps_activation_and_projects_only_the_operational_error
+* test_warning_command_failure_requests_recovery_without_fabricating_a_navigation_attempt
+* test_accepted_date_warning_go_is_dismissal_without_navigation
+* test_base_warning_emits_only_minesweeper_intent_and_projection_is_detached
+* test_done_activation_opens_warning_once_without_replacing_the_draft
+* test_native_back_and_page_cannot_queue_another_warning_command_during_await
+26/26 passed.
+
+
+res://tests/unit/test_schedule_panel.gd
+* test_empty_day_seven_has_only_done_and_two_scroll_owners
+* test_inspection_is_distinct_from_focus_and_orders_commands
+* test_day_seven_shows_selected_source_and_remove_without_order_controls
+* test_fixed_topology_font_scaling_and_large_targets
+* test_unavailable_sources_keep_name_but_leave_focus_graph_and_invalid_art_refuses
+* test_both_standard_palettes_reach_mounted_paper_text_and_art_without_recolouring_art
+* test_long_public_name_wraps_inside_its_source_and_occurrence_columns
+* test_refusal_status_has_exact_geometry_and_idle_has_no_nodes
+    4 Orphans
+        * [@ColorRect@7237:<ColorRect#672061723561>]
+        * [DockStatus:<Label#672095277996>]
+        * [@ColorRect@7275:<ColorRect#673772999649>]
+        * [DockStatus:<Label#673806554083>]
+* test_refusal_status_persists_reflow_and_announces_distinct_ids_once
+    49 Orphans
+        * [@ColorRect@7313:<ColorRect#675601716013>]
+        * [DockStatus:<Label#675635270447>]
+        * [@ColorRect@7279:<ColorRect#674158875500>]
+        * [@ColorRect@7338:<ColorRect#676860007280>]
+        * [@ColorRect@7278:<ColorRect#674125321073>]
+        * [@ColorRect@7280:<ColorRect#674192429939>]
+        * [@Label@7281:<Label#674225984375>]
+        * [@ColorRect@7282:<ColorRect#674259538809>]
+        * [@ScrollContainer@7285:<ScrollContainer#674293093243>] + 1
+        * [@ScrollContainer@7290:<ScrollContainer#674561528715>] + 17
+        * [@ColorRect@7336:<ColorRect#676709012367>]
+        * [DockStatus:<Label#676994225049>]
+        * [DockStatus:<Label#676742566813>]
+        * [DockStatus:<Label#676893561761>]
+        * [@ColorRect@7340:<ColorRect#676960670629>]
+        * [@Control@7287:<Control#674527974315>(ScheduleScrollWell.gd)]
+        * [@Control@7308:<Control#675333280727>(ScheduleScrollWell.gd)]
+        * [@Control@7309:<Control#675366835160>(ScheduleFocusRail.gd)]
+        * [@Control@7310:<Control#675400389594>(ScheduleFocusRail.gd)]
+        * [@Button@7311:<Button#675433944028>(SchedulePaperButton.gd)] + 1
+* test_semantic_source_anchor_survives_scaled_locale_reflow
+* test_removed_source_anchor_repairs_to_identity_at_old_ordinal
+* test_empty_docket_slot_anchor_and_rapid_projection_revision
+* test_fresh_projection_without_existing_anchors_starts_at_zero
+* test_cache_clear_cancels_pending_semantic_restore
+14/14 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/unit/test_schedule_app.gd
+    - Outside Tests
+        * [<Node#97089750753>(subsystem_animation.gd)]
+        * [<Node#97106527970>(subsystem_audio.gd)]
+        * [<Node#97123305187>]
+        * [<Node#97140082404>]
+        * [<Node#97156859621>(subsystem_backgrounds.gd)]
+        * [<Node#97693730534>(subsystem_choices.gd)]
+        * [<Timer#97710507751>]
+        * [<Node#97727284968>(subsystem_expression.gd)]
+        * [<Node#97760839405>(subsystem_glossary.gd)]
+        * [<Node#97777616622>(subsystem_history.gd)]
+        * [<Node#97794393839>(subsystem_input.gd)]
+        * [<Timer#97811171056>]
+        * [<Node#97827948273>(subsystem_jump.gd)]
+        * [<Node#97844725490>(subsystem_containers.gd)]
+        * [<Node#97861502707>(subsystem_portraits.gd)]
+        * [<Node#98398373620>(subsystem_save.gd)]
+        * [<Timer#98415150837>]
+        * [<Node#98431928054>(subsystem_settings.gd)]
+        * [<Node#98448705274>(subsystem_styles.gd)]
+        * [<Node#98465482491>(subsystem_text.gd)]
+        * [<Node#98549368576>(subsystem_text_input.gd)]
+        * [<Node#98566145793>(subsystem_variables.gd)]
+        * [<Node#98582923010>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#98599700227>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+Totals
+------
+Scripts               2
+Tests                40
+Passing Tests        40
+Asserts             990
+Orphans              24
+Time              1.968s
+
+
+---- All tests passed! ----
+

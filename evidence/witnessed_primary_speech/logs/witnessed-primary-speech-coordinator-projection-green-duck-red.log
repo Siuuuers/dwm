@@ -1,0 +1,112 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/d8bdee04-9a6e-40c3-b251-5738bfb42e0e/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+
+
+res://tests/unit/test_system_tts_coordinator.gd
+* test_compatible_voice_and_rate_preserve_primary_text_without_speaker_prefix
+* test_missing_compatible_voice_never_substitutes_another_language
+* test_replacement_retires_one_utterance_and_late_completion_cannot_finish_successor
+* test_stale_source_stop_cannot_cancel_a_settings_sample
+* test_reentrant_admission_stop_prevents_native_speech_and_completes_once
+* test_speech_waits_for_duck_and_stop_during_fade_never_dispatches
+* test_completion_and_replacement_wait_for_confirmed_duck_recovery
+* test_native_failure_releases_duck_and_reports_failure_without_replay
+* test_invalid_request_does_not_replace_current_owner_and_focus_loss_stops_it
+9/9 passed.
+
+
+res://tests/unit/test_system_tts_duck_port.gd
+* test_system_tts_duck_port_contract_exists
+    [Failed]:  the transient Game Mix duck owner must exist
+      at line 80
+* test_begin_routes_uniform_game_mix_and_finish_uses_accepted_fades
+    [Risky]:  test_begin_routes_uniform_game_mix_and_finish_uses_accepted_fades did not assert
+* test_superseding_begin_resolves_recovery_and_stale_finish_cannot_unduck
+    [Risky]:  test_superseding_begin_resolves_recovery_and_stale_finish_cannot_unduck did not assert
+* test_reset_resolves_pending_awaiter_and_restores_routes_without_gain_mutation
+    [Risky]:  test_reset_resolves_pending_awaiter_and_restores_routes_without_gain_mutation did not assert
+* test_invalid_or_reused_tokens_do_not_mutate_routing
+    [Risky]:  test_invalid_or_reused_tokens_do_not_mutate_routing did not assert
+0/5 passed.
+
+
+res://tests/integration/test_witnessed_speech_projection.gd
+* test_semantic_entry_projects_native_primary_and_resolved_fallback_locale_without_read_identity
+* test_ordinary_hospital_projects_without_registered_line_or_visited_receipt
+* test_ordered_ending_projects_from_active_playback_without_semantic_entry_receipt
+* test_about_to_show_and_native_or_owner_replacement_refuse_the_stale_publication
+* test_resume_suppresses_only_the_first_exact_native_publication
+* test_idle_empty_and_unparsed_publications_fail_closed
+6/6 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/unit/test_system_tts_coordinator.gd
+    - Outside Tests
+        * [<Node#131264939798>(subsystem_animation.gd)]
+        * [<Node#131281717026>(subsystem_audio.gd)]
+        * [<Node#131298494258>]
+        * [<Node#131315271483>]
+        * [<Node#131332048705>(subsystem_backgrounds.gd)]
+        * [<Node#131868919618>(subsystem_choices.gd)]
+        * [<Timer#131885696835>]
+        * [<Node#131902474052>(subsystem_expression.gd)]
+        * [<Node#131936028489>(subsystem_glossary.gd)]
+        * [<Node#131952805706>(subsystem_history.gd)]
+        * [<Node#131969582923>(subsystem_input.gd)]
+        * [<Timer#131986360140>]
+        * [<Node#132003137357>(subsystem_jump.gd)]
+        * [<Node#132019914574>(subsystem_containers.gd)]
+        * [<Node#132036691791>(subsystem_portraits.gd)]
+        * [<Node#132573562704>(subsystem_save.gd)]
+        * [<Timer#132590339921>]
+        * [<Node#132607117138>(subsystem_settings.gd)]
+        * [<Node#132623894358>(subsystem_styles.gd)]
+        * [<Node#132640671575>(subsystem_text.gd)]
+        * [<Node#132724557660>(subsystem_text_input.gd)]
+        * [<Node#132741334877>(subsystem_variables.gd)]
+        * [<Node#132758112094>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#132774889311>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+res://tests/unit/test_system_tts_duck_port.gd
+- test_system_tts_duck_port_contract_exists
+    [Failed]:  the transient Game Mix duck owner must exist
+          at line 80
+- test_begin_routes_uniform_game_mix_and_finish_uses_accepted_fades
+    [Risky]:  Did not assert
+- test_superseding_begin_resolves_recovery_and_stale_finish_cannot_unduck
+    [Risky]:  Did not assert
+- test_reset_resolves_pending_awaiter_and_restores_routes_without_gain_mutation
+    [Risky]:  Did not assert
+- test_invalid_or_reused_tokens_do_not_mutate_routing
+    [Risky]:  Did not assert
+
+Totals
+------
+Scripts               3
+Tests                20
+Passing Tests        15
+Failing Tests         1
+Risky/Pending         4
+Asserts           109/110
+Orphans              24
+Time              0.774s
+
+
+---- 1 failing tests ----

@@ -1,0 +1,85 @@
+2026-10-01T12:24:06.4016735Z ##[group]Run ./tools/testing/Invoke-CloudTests.ps1 -Suite $env:DWM_CI_SUITE
+2026-10-01T12:24:06.4017352Z [36;1m./tools/testing/Invoke-CloudTests.ps1 -Suite $env:DWM_CI_SUITE[0m
+2026-10-01T12:24:06.4058473Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-10-01T12:24:06.4058821Z env:
+2026-10-01T12:24:06.4059128Z   GODOT_CONSOLE_PATH: D:\a\_temp\godot-4.6.3\Godot_v4.6.3-stable_win64_console.exe
+2026-10-01T12:24:06.4059502Z   DWM_CI_SUITE: settings
+2026-10-01T12:24:06.4059698Z ##[endgroup]
+2026-10-01T12:26:49.5252218Z {"suite_id":"cloud-settings","argv":["--headless","--path","D:\\a\\dwm\\dwm","--log-file","D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\cloud-settings.log","-s","res://addons/gut/gut_cmdln.gd","-gconfig=","-gtest=res://tests/unit/test_save_manager_parse_cache.gd,res://tests/unit/test_backup_quick_actions.gd,res://tests/unit/test_settings_panel_resize.gd,res://tests/unit/test_settings_preference_registry.gd,res://tests/unit/test_shared_week_tint.gd,res://tests/unit/test_settings_window_transactions.gd,res://tests/unit/test_window_mode_manager.gd,res://tests/unit/test_window_mode_port.gd,res://tests/unit/test_bootstrap_window_output.gd,res://tests/scene/test_settings_window_mode_live.gd,res://tests/scene/test_settings_audio_live.gd,res://tests/scene/test_settings_reset_confirmation.gd,res://tests/scene/test_settings_folio.gd,res://tests/scene/test_settings_host_geometry.gd,res://tests/scene/test_settings_localization_scene.gd,res://tests/integration/test_settings_shared_hosts.gd,res://tests/unit/test_profile_manager.gd,res://tests/unit/test_restore_participants.gd,res://tests/integration/test_restore_preserves_current_profile.gd,res://tests/integration/test_restore_production_adapters.gd,res://tests/integration/test_desktop_board_persistence.gd,res://tests/integration/test_minesweeper_first_reveal_transaction.gd,res://tests/unit/test_save_manager_checkpoint_port.gd,res://tests/unit/test_checkpoint_validation_reuse.gd,res://tests/unit/test_checkpoint_phase_diagnostics.gd,res://tests/unit/test_checkpoint_journal.gd","-gexit","-glog=2","-gjunit_xml_file=res://.godot/ci/settings.xml"],"exit_code":0,"log_path":"D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\cloud-settings.log","test_root":"D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\4de7518f-c5fb-4bde-ad91-4726def351ac","user_dir":"D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\4de7518f-c5fb-4bde-ad91-4726def351ac\\appdata\\Godot\\app_userdata\\DWM","started_at_utc":"2026-10-01T12:24:12.4197486Z","ended_at_utc":"2026-10-01T12:26:45.4979816Z"}
+2026-10-01T12:26:49.7939934Z settings: 312 test cases completed across 26 requested scripts.
+2026-10-01T12:26:49.8024589Z CLOUD_GUT_RESULT {"suite":"settings","test_cases":312,"passed":312,"skipped":0,"requested_scripts":26,"reported_scripts":26,"scripts":[{"script":"tests/unit/test_save_manager_parse_cache.gd","test_cases":18,"passed":18,"skipped":0},{"script":"tests/unit/test_backup_quick_actions.gd","test_cases":20,"passed":20,"skipped":0},{"script":"tests/unit/test_settings_panel_resize.gd","test_cases":3,"passed":3,"skipped":0},{"script":"tests/unit/test_settings_preference_registry.gd","test_cases":5,"passed":5,"skipped":0},{"script":"tests/unit/test_shared_week_tint.gd","test_cases":2,"passed":2,"skipped":0},{"script":"tests/unit/test_settings_window_transactions.gd","test_cases":13,"passed":13,"skipped":0},{"script":"tests/unit/test_window_mode_manager.gd","test_cases":13,"passed":13,"skipped":0},{"script":"tests/unit/test_window_mode_port.gd","test_cases":12,"passed":12,"skipped":0},{"script":"tests/unit/test_bootstrap_window_output.gd","test_cases":6,"passed":6,"skipped":0},{"script":"tests/scene/test_settings_window_mode_live.gd","test_cases":6,"passed":6,"skipped":0},{"script":"tests/scene/test_settings_audio_live.gd","test_cases":5,"passed":5,"skipped":0},{"script":"tests/scene/test_settings_reset_confirmation.gd","test_cases":8,"passed":8,"skipped":0},{"script":"tests/scene/test_settings_folio.gd","test_cases":8,"passed":8,"skipped":0},{"script":"tests/scene/test_settings_host_geometry.gd","test_cases":5,"passed":5,"skipped":0},{"script":"tests/scene/test_settings_localization_scene.gd","test_cases":34,"passed":34,"skipped":0},{"script":"tests/integration/test_settings_shared_hosts.gd","test_cases":8,"passed":8,"skipped":0},{"script":"tests/unit/test_profile_manager.gd","test_cases":23,"passed":23,"skipped":0},{"script":"tests/unit/test_restore_participants.gd","test_cases":7,"passed":7,"skipped":0},{"script":"tests/integration/test_restore_preserves_current_profile.gd","test_cases":4,"passed":4,"skipped":0},{"script":"tests/integration/test_restore_production_adapters.gd","test_cases":13,"passed":13,"skipped":0},{"script":"tests/integration/test_desktop_board_persistence.gd","test_cases":5,"passed":5,"skipped":0},{"script":"tests/integration/test_minesweeper_first_reveal_transaction.gd","test_cases":7,"passed":7,"skipped":0},{"script":"tests/unit/test_save_manager_checkpoint_port.gd","test_cases":42,"passed":42,"skipped":0},{"script":"tests/unit/test_checkpoint_validation_reuse.gd","test_cases":21,"passed":21,"skipped":0},{"script":"tests/unit/test_checkpoint_phase_diagnostics.gd","test_cases":4,"passed":4,"skipped":0},{"script":"tests/unit/test_checkpoint_journal.gd","test_cases":20,"passed":20,"skipped":0}]}
+2026-10-01T12:27:25.2892961Z STORAGE_REFUSAL_VERIFIED: empty and whitespace roots refused without repository mutations.
+2026-10-01T12:28:33.2414857Z {"suite_id":"cloud-manual-witness-revision-storage","argv":["--headless","--path","D:\\a\\dwm\\dwm","--log-file","D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\cloud-manual-witness-revision-storage.log","-s","res://tests/backup_storage/test_manual_witness_revision_storage.gd"],"exit_code":0,"log_path":"D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\cloud-manual-witness-revision-storage.log","test_root":"D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\d6138a2c-cc08-4276-8360-0808c489d9c0","user_dir":"D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\d6138a2c-cc08-4276-8360-0808c489d9c0\\appdata\\Godot\\app_userdata\\DWM","started_at_utc":"2026-10-01T12:27:30.7614374Z","ended_at_utc":"2026-10-01T12:28:33.2275785Z"}
+2026-10-01T12:28:33.2486633Z Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+2026-10-01T12:28:33.2488152Z 
+2026-10-01T12:28:33.2489968Z {"assertions":61180,"distinct_snapshots":94,"failures":[],"refusal_pairs":30,"restart_fault_pairs":1604,"restart_pairs":2218,"write_fault_pairs":154,"write_pairs":14}
+2026-10-01T12:28:33.2491066Z MANUAL_WITNESS_REVISION_STORAGE_PASS
+2026-10-01T12:28:33.3144524Z ##[group]Run actions/upload-artifact@v4
+2026-10-01T12:28:33.3144870Z with:
+2026-10-01T12:28:33.3145075Z   name: windows-settings-36861388725-1
+2026-10-01T12:28:33.3145755Z   path: .godot/ci/*.log
+.godot/ci/*.jsonl
+.godot/ci/*.json
+.godot/ci/*.xml
+.godot/ci/storage-refusal/
+.godot/phase2r_logs/cloud-*.log
+
+2026-10-01T12:28:33.3146322Z   include-hidden-files: true
+2026-10-01T12:28:33.3146555Z   if-no-files-found: warn
+2026-10-01T12:28:33.3146765Z   retention-days: 7
+2026-10-01T12:28:33.3146963Z   compression-level: 6
+2026-10-01T12:28:33.3147176Z   overwrite: false
+2026-10-01T12:28:33.3147359Z env:
+2026-10-01T12:28:33.3147658Z   GODOT_CONSOLE_PATH: D:\a\_temp\godot-4.6.3\Godot_v4.6.3-stable_win64_console.exe
+2026-10-01T12:28:33.3148032Z ##[endgroup]
+2026-10-01T12:28:33.4979856Z (node:580) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-01T12:28:33.4980643Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-01T12:28:33.5290575Z Multiple search paths detected. Calculating the least common ancestor of all paths
+2026-10-01T12:28:33.5293784Z The least common ancestor is D:\a\dwm\dwm\.godot. This will be the root directory of the artifact
+2026-10-01T12:28:33.5294518Z With the provided path, there will be 31 files uploaded
+2026-10-01T12:28:33.5300122Z Artifact name is valid!
+2026-10-01T12:28:33.5301945Z Root directory input is valid!
+2026-10-01T12:28:33.7507313Z Beginning upload of artifact content to blob storage
+2026-10-01T12:28:34.1354211Z (node:580) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-10-01T12:28:34.2662292Z Uploaded bytes 2540514
+2026-10-01T12:28:34.2859288Z Finished uploading artifact content to blob storage!
+2026-10-01T12:28:34.2861246Z SHA256 digest of uploaded artifact zip is a2b77f1d79c7ffde22ded5f2786e07005d28765b19fcbe0e4cc4c13456b283d5
+2026-10-01T12:28:34.2863335Z Finalizing artifact upload
+2026-10-01T12:28:34.5176195Z Artifact windows-settings-36861388725-1.zip successfully finalized. Artifact ID 11161799771
+2026-10-01T12:28:34.5177369Z Artifact windows-settings-36861388725-1 has been successfully uploaded! Final size is 2540514 bytes. Artifact ID is 11161799771
+2026-10-01T12:28:34.5185571Z Artifact download URL: https://github.com/Siuuuers/dwm/actions/runs/36861388725/artifacts/11161799771
+2026-10-01T12:28:34.5528007Z Post job cleanup.
+2026-10-01T12:28:34.7327025Z [command]"C:\Program Files\Git\bin\git.exe" version
+2026-10-01T12:28:34.7527513Z git version 2.55.0.windows.5
+2026-10-01T12:28:34.7586639Z Temporarily overriding HOME='D:\a\_temp\2b9e3c47-f5c5-4c66-a812-154aad144a76' before making global git config changes
+2026-10-01T12:28:34.7587971Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-01T12:28:34.7597646Z [command]"C:\Program Files\Git\bin\git.exe" config --global --add safe.directory D:\a\dwm\dwm
+2026-10-01T12:28:34.7875887Z Removing SSH command configuration
+2026-10-01T12:28:34.7889842Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
+2026-10-01T12:28:34.8140698Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+2026-10-01T12:28:35.2563472Z Removing HTTP extra header
+2026-10-01T12:28:35.2572774Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-01T12:28:35.2794618Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+2026-10-01T12:28:35.7099881Z Removing includeIf entries pointing to credentials config files
+2026-10-01T12:28:35.7109766Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-01T12:28:35.7304453Z includeif.gitdir:D:/a/dwm/dwm/.git.path
+2026-10-01T12:28:35.7304956Z includeif.gitdir:D:/a/dwm/dwm/.git/worktrees/*.path
+2026-10-01T12:28:35.7305329Z includeif.gitdir:/github/workspace/.git.path
+2026-10-01T12:28:35.7305698Z includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-10-01T12:28:35.7334372Z [command]"C:\Program Files\Git\bin\git.exe" config --local --get-all includeif.gitdir:D:/a/dwm/dwm/.git.path
+2026-10-01T12:28:35.7521135Z D:\a\_temp\git-credentials-81af2e1f-0345-49b2-a73f-67f5f11c9bbb.config
+2026-10-01T12:28:35.7552429Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset includeif.gitdir:D:/a/dwm/dwm/.git.path D\:\\a\\_temp\\git\-credentials\-81af2e1f\-0345\-49b2\-a73f\-67f5f11c9bbb\.config
+2026-10-01T12:28:35.7810871Z [command]"C:\Program Files\Git\bin\git.exe" config --local --get-all includeif.gitdir:D:/a/dwm/dwm/.git/worktrees/*.path
+2026-10-01T12:28:35.7995815Z D:\a\_temp\git-credentials-81af2e1f-0345-49b2-a73f-67f5f11c9bbb.config
+2026-10-01T12:28:35.8023590Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset includeif.gitdir:D:/a/dwm/dwm/.git/worktrees/*.path D\:\\a\\_temp\\git\-credentials\-81af2e1f\-0345\-49b2\-a73f\-67f5f11c9bbb\.config
+2026-10-01T12:28:35.8238499Z [command]"C:\Program Files\Git\bin\git.exe" config --local --get-all includeif.gitdir:/github/workspace/.git.path
+2026-10-01T12:28:35.8426532Z /github/runner_temp/git-credentials-81af2e1f-0345-49b2-a73f-67f5f11c9bbb.config
+2026-10-01T12:28:35.8454993Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset includeif.gitdir:/github/workspace/.git.path \/github\/runner_temp\/git\-credentials\-81af2e1f\-0345\-49b2\-a73f\-67f5f11c9bbb\.config
+2026-10-01T12:28:35.8673091Z [command]"C:\Program Files\Git\bin\git.exe" config --local --get-all includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-10-01T12:28:35.8855970Z /github/runner_temp/git-credentials-81af2e1f-0345-49b2-a73f-67f5f11c9bbb.config
+2026-10-01T12:28:35.8884715Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset includeif.gitdir:/github/workspace/.git/worktrees/*.path \/github\/runner_temp\/git\-credentials\-81af2e1f\-0345\-49b2\-a73f\-67f5f11c9bbb\.config
+2026-10-01T12:28:35.9104548Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+2026-10-01T12:28:36.3387371Z Removing credentials config 'D:\a\_temp\git-credentials-81af2e1f-0345-49b2-a73f-67f5f11c9bbb.config'
+2026-10-01T12:28:36.3566187Z Cleaning up orphan processes
+2026-10-01T12:28:36.3683346Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+

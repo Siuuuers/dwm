@@ -1,0 +1,17 @@
+{
+  ".gdignore": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "diagnostic/probe-gallery-scroll.gd": "2e254f2e9502e40f121feadeedc1c80b499f7502f26da9779a2b999b4ba7ff4d",
+  "diagnostic/probe-gallery-scroll.ps1": "fc704047eeee34e34c87a45667f2af1745f256a6467a01143ccf002aa0658377",
+  "logs/gallery-scroll-boundary.log": "9a7d6cde2418ef00fe463a8c159147047d470d3038cc65c58139cb3d05a91f2a",
+  "logs/gallery-scroll-callback-green.log": "0d92a7337e39d5e45eb0948bfac82c5cfea0dab3d1dfc5ba83351fb14c50f346",
+  "logs/gallery-scroll-callback-red.log": "8deddc8d0f6a722f41927decac1897df5ea3270fa2032510f452411bae86e33a",
+  "logs/gallery-scroll-native-reference.log": "65f3a718b12f399189f04e8bf0fc25402f73caff77ebcc9dde15c3b0c6849e3a",
+  "logs/gallery-scroll-probe-observed.log": "ad0ab4f0e14a0af92e6de2efd8601f65a85009a1fd1a50c3bbae443d8758b293",
+  "logs/gallery-scroll-probe.log": "56ab2633b4d3960e4baedbf39b4db9c770268508b725828d0eb27f02db7586ce",
+  "native/gallery-scroll-boundary.uia.json": "159bfe16a4f20c4da8fccf3028be5347fdef6a24196abe0842009d70dab5cdc3",
+  "native/gallery-scroll-native-reference.uia.json": "6675b00478fcc6a1aa91971c69251028d646dbea33e838837185f5673bead560",
+  "native/gallery-scroll-probe-observed.uia.json": "cb5d038432dbba7c9a255808bb25cbd538319e92a576c38126a03939969fa91f",
+  "README.md": "429d9042792a7330ee2603267e363c33075a57c6f2ea5d4528c632b74992561c",
+  "runs.jsonl": "98587e7cc27738e8aa757dc2653cb985079ae7f5c3b37eccfbaa58d78fc2a09f",
+  "source-sha256.json": "6f5a3ad96f8b51de7e0882dfac8cc2b5c7a438261e4e0bd5e3f2e1d5862cbfe5"
+}

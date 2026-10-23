@@ -1,0 +1,27 @@
+{
+  "title_shell": {
+    "passed_in_receipt": true,
+    "bindings": 34,
+    "matched": 34,
+    "mismatches": []
+  },
+  "restart_regression": {
+    "passed_in_receipt": true,
+    "bindings": 2403,
+    "matched": 2403,
+    "mismatches": []
+  },
+  "backup_regression": {
+    "passed_in_receipt": true,
+    "bindings": 55,
+    "matched": 55,
+    "mismatches": []
+  },
+  "routine_clock": {
+    "passed_in_receipt": true,
+    "bindings": 3,
+    "matched": 3,
+    "mismatches": []
+  },
+  "artifact_hash_mismatches": []
+}

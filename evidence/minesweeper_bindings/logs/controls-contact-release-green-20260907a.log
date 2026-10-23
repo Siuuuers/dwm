@@ -1,0 +1,97 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2570)
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-ui-build/.godot/phase2r_tests/d3e019d6-e72d-4ce2-a255-e47248e3263d/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+tests/scene/test_controls_input_contact_release.gd
+* test_release_inside_real_controls_capture_clears_parent_contact_before_first_returned_grid_press
+1/1 passed.
+
+
+tests/unit/test_input_contact_generations.gd
+* test_snapshot_is_detached_and_query_does_not_create_contacts
+* test_duplicate_press_echo_and_release_require_a_new_physical_generation
+* test_emulation_and_impulses_never_create_or_release_physical_contacts
+* test_contact_types_and_devices_remain_distinct_and_generations_are_global
+* test_disconnect_cleans_only_that_device_before_notification_and_reconnect_is_fresh
+* test_pause_release_quarantine_retains_generations_and_disconnect_can_finish_neutrality
+* test_real_controls_rebind_publication_retains_the_same_held_physical_generation
+* test_forwarded_and_parent_packets_share_one_generation_and_one_release
+8/8 passed.
+
+
+tests/scene/test_minesweeper_toggle_bindings.gd
+* test_default_keyboard_and_controller_toggle_preserve_projection_focus_cells_and_pan
+* test_saved_keyboard_and_controller_bindings_replace_defaults_with_exact_modifiers
+* test_duplicate_echo_and_simultaneous_sources_toggle_once_until_all_release
+* test_held_contact_rebound_to_toggle_requires_its_own_release
+* test_focus_departure_and_application_focus_cycle_quarantine_held_contacts
+* test_sheet_disabled_processing_cannot_replay_contact_on_return
+* test_contact_begun_during_application_focus_loss_is_inert_until_release_after_return
+* test_actual_worksheet_rules_sheet_return_preserves_focus_and_quarantines_sheet_contact
+* test_interaction_and_projection_custody_preserve_release_frontier
+* test_pause_resume_requires_closing_contact_release_and_later_fresh_press
+* test_toggle_during_existing_pointer_contact_is_inert_and_keeps_original_gesture
+* test_no_owner_is_inert_and_bound_owner_cannot_be_replaced
+12/12 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+tests/scene/test_controls_input_contact_release.gd
+    - Outside Tests
+        * [<Node#100193535723>(subsystem_animation.gd)]
+        * [<Node#100210312940>(subsystem_audio.gd)]
+        * [<Node#100227090157>]
+        * [<Node#100243867374>]
+        * [<Node#100260644591>(subsystem_backgrounds.gd)]
+        * [<Node#100797515504>(subsystem_choices.gd)]
+        * [<Timer#100814292721>]
+        * [<Node#100831069938>(subsystem_expression.gd)]
+        * [<Node#100864624375>(subsystem_glossary.gd)]
+        * [<Node#100881401592>(subsystem_history.gd)]
+        * [<Node#100898178809>(subsystem_input.gd)]
+        * [<Timer#100914956026>]
+        * [<Node#100931733243>(subsystem_jump.gd)]
+        * [<Node#100948510460>(subsystem_containers.gd)]
+        * [<Node#100965287677>(subsystem_portraits.gd)]
+        * [<Node#101502158590>(subsystem_save.gd)]
+        * [<Timer#101518935807>]
+        * [<Node#101535713024>(subsystem_settings.gd)]
+        * [<Node#101552490244>(subsystem_styles.gd)]
+        * [<Node#101569267461>(subsystem_text.gd)]
+        * [<Node#101653153546>(subsystem_text_input.gd)]
+        * [<Node#101669930763>(subsystem_variables.gd)]
+        * [<Node#101686707980>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#101703485197>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+Totals
+------
+Scripts               3
+Tests                21
+Passing Tests        21
+Asserts             239
+Orphans              24
+Time              1.575s
+
+
+---- All tests passed! ----

@@ -1,0 +1,108 @@
+{
+  "schema_version": 1,
+  "observed_at_utc": "2026-09-14T13:15:02.4569462Z",
+  "ok": false,
+  "code": "gallery_selection_accessibility_failed",
+  "failures": [
+    "UIA_SELECTION_ITEM_PATTERN_MISSING",
+    "UIA_SELECTION_DID_NOT_INVERT"
+  ],
+  "source_log_path": "C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\minesweeper-view-controls\\.godot\\phase2r_logs\\gallery-selection-state-red.log",
+  "target": {
+    "pid": 20988,
+    "repository_root": "C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\minesweeper-view-controls",
+    "script": "res://tests/manual/verify_gallery_selection_accessibility.gd",
+    "expected_window_title": "DWM Gallery Selection 20988",
+    "expected_titles": [
+      "A Quiet Morning",
+      "Come Home"
+    ],
+    "completion_path": "C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\minesweeper-view-controls\\.godot\\phase2r_tests\\3bf2a362-2ef0-4d98-8edb-49bea8d58aa9\\dwm_test_root\\gallery-selection-complete.json"
+  },
+  "process": {
+    "process_id": 20988,
+    "name": "Godot_v4.6.3-stable_mono_win64.exe",
+    "command_line": "\"C:\\Program Files\\Godot_v4.6.3-stable_mono_win64\\Godot_v4.6.3-stable_mono_win64.exe\" --headless --path C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\minesweeper-view-controls --log-file C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\minesweeper-view-controls\\.godot\\phase2r_logs\\gallery-selection-state-red.log --display-driver windows --rendering-method gl_compatibility --rendering-driver opengl3 --accessibility always --position -32000,-32000 -s res://tests/manual/verify_gallery_selection_accessibility.gd -- --phase2r-bootstrap-mode=test_manual"
+  },
+  "window": {
+    "name": "DWM (DEBUG) ",
+    "process_id": 20988,
+    "automation_id": "",
+    "native_window_handle": 3345514,
+    "native_title": "DWM Gallery Selection 20988"
+  },
+  "initial_rows": [
+    {
+      "name": "A Quiet Morning",
+      "process_id": 20988,
+      "automation_id": "",
+      "control_type": "ControlType.Button",
+      "enabled": true,
+      "keyboard_focusable": true,
+      "has_keyboard_focus": true,
+      "patterns": [
+        "InvokePatternIdentifiers.Pattern",
+        "ScrollItemPatternIdentifiers.Pattern"
+      ],
+      "invoke_pattern": true,
+      "selection_item_pattern": false,
+      "selected": null
+    },
+    {
+      "name": "Come Home",
+      "process_id": 20988,
+      "automation_id": "",
+      "control_type": "ControlType.Button",
+      "enabled": true,
+      "keyboard_focusable": true,
+      "has_keyboard_focus": false,
+      "patterns": [
+        "InvokePatternIdentifiers.Pattern",
+        "ScrollItemPatternIdentifiers.Pattern"
+      ],
+      "invoke_pattern": true,
+      "selection_item_pattern": false,
+      "selected": null
+    }
+  ],
+  "final_rows": [
+    {
+      "name": "A Quiet Morning",
+      "process_id": 20988,
+      "automation_id": "",
+      "control_type": "ControlType.Button",
+      "enabled": true,
+      "keyboard_focusable": true,
+      "has_keyboard_focus": false,
+      "patterns": [
+        "InvokePatternIdentifiers.Pattern",
+        "ScrollItemPatternIdentifiers.Pattern"
+      ],
+      "invoke_pattern": true,
+      "selection_item_pattern": false,
+      "selected": null
+    },
+    {
+      "name": "Come Home",
+      "process_id": 20988,
+      "automation_id": "",
+      "control_type": "ControlType.Button",
+      "enabled": true,
+      "keyboard_focusable": true,
+      "has_keyboard_focus": true,
+      "patterns": [
+        "InvokePatternIdentifiers.Pattern",
+        "ScrollItemPatternIdentifiers.Pattern"
+      ],
+      "invoke_pattern": true,
+      "selection_item_pattern": false,
+      "selected": null
+    }
+  ],
+  "raw_descendants": [],
+  "control_descendants": [],
+  "native_actions": {
+    "method": "Windows.UIAutomation.SetFocus + InvokePattern.Invoke",
+    "invoked": true
+  }
+}

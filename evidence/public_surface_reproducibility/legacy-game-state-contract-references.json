@@ -1,0 +1,1016 @@
+﻿[
+    {
+        "symbol":  "SAVE_SCHEMA_VERSION",
+        "kind":  "constant",
+        "availability":  "current",
+        "contract_test":  "test_game_state_constant_contracts"
+    },
+    {
+        "symbol":  "MINESWEEPER_BASE_ROUNDS",
+        "kind":  "constant",
+        "availability":  "current",
+        "contract_test":  "test_game_state_constant_contracts"
+    },
+    {
+        "symbol":  "MINESWEEPER_DISPLAY_MAX",
+        "kind":  "constant",
+        "availability":  "current",
+        "contract_test":  "test_game_state_constant_contracts"
+    },
+    {
+        "symbol":  "MINESWEEPER_ROUND_FLOOR_MIN",
+        "kind":  "constant",
+        "availability":  "current",
+        "contract_test":  "test_game_state_constant_contracts"
+    },
+    {
+        "symbol":  "MINESWEEPER_ROUND_FLOOR_MAX",
+        "kind":  "constant",
+        "availability":  "current",
+        "contract_test":  "test_game_state_constant_contracts"
+    },
+    {
+        "symbol":  "MINESWEEPER_ROUND_CAP",
+        "kind":  "constant",
+        "availability":  "current",
+        "contract_test":  "test_game_state_constant_contracts"
+    },
+    {
+        "symbol":  "MINESWEEPER_TASK_COIN_TOTAL_CAP",
+        "kind":  "constant",
+        "availability":  "current",
+        "contract_test":  "test_game_state_constant_contracts"
+    },
+    {
+        "symbol":  "MINESWEEPER_MONEY_DAILY_CAP_BASE",
+        "kind":  "constant",
+        "availability":  "current",
+        "contract_test":  "test_game_state_constant_contracts"
+    },
+    {
+        "symbol":  "MINESWEEPER_MONEY_DAILY_CAP_PER_EXTRA_ROUND",
+        "kind":  "constant",
+        "availability":  "current",
+        "contract_test":  "test_game_state_constant_contracts"
+    },
+    {
+        "symbol":  "FRIEND_IDS",
+        "kind":  "constant",
+        "availability":  "current",
+        "contract_test":  "test_game_state_constant_contracts"
+    },
+    {
+        "symbol":  "STAT_PRESSURE",
+        "kind":  "constant",
+        "availability":  "current",
+        "contract_test":  "test_game_state_constant_contracts"
+    },
+    {
+        "symbol":  "STAT_HEALTH",
+        "kind":  "constant",
+        "availability":  "current",
+        "contract_test":  "test_game_state_constant_contracts"
+    },
+    {
+        "symbol":  "STAT_MOTIVATION",
+        "kind":  "constant",
+        "availability":  "current",
+        "contract_test":  "test_game_state_constant_contracts"
+    },
+    {
+        "symbol":  "CONDITION_NONE",
+        "kind":  "constant",
+        "availability":  "current",
+        "contract_test":  "test_game_state_constant_contracts"
+    },
+    {
+        "symbol":  "CONDITION_NAUSEA",
+        "kind":  "constant",
+        "availability":  "current",
+        "contract_test":  "test_game_state_constant_contracts"
+    },
+    {
+        "symbol":  "CONDITION_DIZZY",
+        "kind":  "constant",
+        "availability":  "current",
+        "contract_test":  "test_game_state_constant_contracts"
+    },
+    {
+        "symbol":  "CONDITION_SEQUELA",
+        "kind":  "constant",
+        "availability":  "current",
+        "contract_test":  "test_game_state_constant_contracts"
+    },
+    {
+        "symbol":  "CONDITION_FAINT",
+        "kind":  "constant",
+        "availability":  "current",
+        "contract_test":  "test_game_state_constant_contracts"
+    },
+    {
+        "symbol":  "AFFECTION_MIN",
+        "kind":  "constant",
+        "availability":  "current",
+        "contract_test":  "test_game_state_constant_contracts"
+    },
+    {
+        "symbol":  "AFFECTION_MAX",
+        "kind":  "constant",
+        "availability":  "current",
+        "contract_test":  "test_game_state_constant_contracts"
+    },
+    {
+        "symbol":  "stat_changed",
+        "kind":  "signal",
+        "availability":  "current",
+        "contract_test":  "test_game_state_signals_after_commit"
+    },
+    {
+        "symbol":  "money_changed",
+        "kind":  "signal",
+        "availability":  "current",
+        "contract_test":  "test_game_state_signals_after_commit"
+    },
+    {
+        "symbol":  "coins_changed",
+        "kind":  "signal",
+        "availability":  "current",
+        "contract_test":  "test_game_state_signals_after_commit"
+    },
+    {
+        "symbol":  "day_changed",
+        "kind":  "signal",
+        "availability":  "current",
+        "contract_test":  "test_game_state_signals_after_commit"
+    },
+    {
+        "symbol":  "inventory_changed",
+        "kind":  "signal",
+        "availability":  "current",
+        "contract_test":  "test_game_state_signals_after_commit"
+    },
+    {
+        "symbol":  "friends_changed",
+        "kind":  "signal",
+        "availability":  "current",
+        "contract_test":  "test_game_state_signals_after_commit"
+    },
+    {
+        "symbol":  "contact_message_unlocked",
+        "kind":  "signal",
+        "availability":  "current",
+        "contract_test":  "test_game_state_signals_after_commit"
+    },
+    {
+        "symbol":  "contact_choice_selected",
+        "kind":  "signal",
+        "availability":  "current",
+        "contract_test":  "test_game_state_signals_after_commit"
+    },
+    {
+        "symbol":  "date_unlocks_changed",
+        "kind":  "signal",
+        "availability":  "current",
+        "contract_test":  "test_game_state_signals_after_commit"
+    },
+    {
+        "symbol":  "ending_route_selected",
+        "kind":  "signal",
+        "availability":  "current",
+        "contract_test":  "test_game_state_signals_after_commit"
+    },
+    {
+        "symbol":  "schedule_changed",
+        "kind":  "signal",
+        "availability":  "current",
+        "contract_test":  "test_game_state_signals_after_commit"
+    },
+    {
+        "symbol":  "chat_changed",
+        "kind":  "signal",
+        "availability":  "current",
+        "contract_test":  "test_game_state_signals_after_commit"
+    },
+    {
+        "symbol":  "unread_friend",
+        "kind":  "signal",
+        "availability":  "current",
+        "contract_test":  "test_game_state_signals_after_commit"
+    },
+    {
+        "symbol":  "minesweeper_rounds_changed",
+        "kind":  "signal",
+        "availability":  "current",
+        "contract_test":  "test_game_state_signals_after_commit"
+    },
+    {
+        "symbol":  "minesweeper_reward_changed",
+        "kind":  "signal",
+        "availability":  "current",
+        "contract_test":  "test_game_state_signals_after_commit"
+    },
+    {
+        "symbol":  "daily_state_reset",
+        "kind":  "signal",
+        "availability":  "current",
+        "contract_test":  "test_game_state_signals_after_commit"
+    },
+    {
+        "symbol":  "condition_effect_resolved",
+        "kind":  "signal",
+        "availability":  "current",
+        "contract_test":  "test_game_state_signals_after_commit"
+    },
+    {
+        "symbol":  "hospital_needed",
+        "kind":  "signal",
+        "availability":  "current",
+        "contract_test":  "test_game_state_signals_after_commit"
+    },
+    {
+        "symbol":  "save_relevant_state_changed",
+        "kind":  "signal",
+        "availability":  "current",
+        "contract_test":  "test_game_state_signals_after_commit"
+    },
+    {
+        "symbol":  "day",
+        "kind":  "property",
+        "availability":  "current",
+        "contract_test":  "test_game_state_day_is_read_only"
+    },
+    {
+        "symbol":  "money",
+        "kind":  "property",
+        "availability":  "current",
+        "contract_test":  "test_game_state_facade_reads_committed_state"
+    },
+    {
+        "symbol":  "coins",
+        "kind":  "property",
+        "availability":  "current",
+        "contract_test":  "test_game_state_facade_reads_committed_state"
+    },
+    {
+        "symbol":  "stats",
+        "kind":  "property",
+        "availability":  "current",
+        "contract_test":  "test_game_state_facade_reads_committed_state"
+    },
+    {
+        "symbol":  "friends",
+        "kind":  "property",
+        "availability":  "current",
+        "contract_test":  "test_game_state_facade_reads_committed_state"
+    },
+    {
+        "symbol":  "affection",
+        "kind":  "property",
+        "availability":  "current",
+        "contract_test":  "test_game_state_facade_reads_committed_state"
+    },
+    {
+        "symbol":  "friend_attitude",
+        "kind":  "property",
+        "availability":  "current",
+        "contract_test":  "test_game_state_facade_reads_committed_state"
+    },
+    {
+        "symbol":  "dating_route_state",
+        "kind":  "property",
+        "availability":  "current",
+        "contract_test":  "test_game_state_facade_reads_committed_state"
+    },
+    {
+        "symbol":  "inter_friend_affection",
+        "kind":  "property",
+        "availability":  "current",
+        "contract_test":  "test_game_state_facade_reads_committed_state"
+    },
+    {
+        "symbol":  "inter_friend_route_state",
+        "kind":  "property",
+        "availability":  "current",
+        "contract_test":  "test_game_state_facade_reads_committed_state"
+    },
+    {
+        "symbol":  "missed_group_date_counts",
+        "kind":  "property",
+        "availability":  "current",
+        "contract_test":  "test_game_state_facade_reads_committed_state"
+    },
+    {
+        "symbol":  "contact_message_unlocks",
+        "kind":  "property",
+        "availability":  "current",
+        "contract_test":  "test_game_state_facade_reads_committed_state"
+    },
+    {
+        "symbol":  "contact_choice_state",
+        "kind":  "property",
+        "availability":  "current",
+        "contract_test":  "test_game_state_facade_reads_committed_state"
+    },
+    {
+        "symbol":  "date_unlocks",
+        "kind":  "property",
+        "availability":  "current",
+        "contract_test":  "test_game_state_facade_reads_committed_state"
+    },
+    {
+        "symbol":  "post_ending_queue",
+        "kind":  "property",
+        "availability":  "current",
+        "contract_test":  "test_game_state_facade_reads_committed_state"
+    },
+    {
+        "symbol":  "missed_invitations",
+        "kind":  "property",
+        "availability":  "current",
+        "contract_test":  "test_game_state_facade_reads_committed_state"
+    },
+    {
+        "symbol":  "daily_opened_contacts",
+        "kind":  "property",
+        "availability":  "current",
+        "contract_test":  "test_game_state_facade_reads_committed_state"
+    },
+    {
+        "symbol":  "daily_group_invitation_generated",
+        "kind":  "property",
+        "availability":  "current",
+        "contract_test":  "test_game_state_facade_reads_committed_state"
+    },
+    {
+        "symbol":  "daily_group_invitation_pair",
+        "kind":  "property",
+        "availability":  "current",
+        "contract_test":  "test_game_state_facade_reads_committed_state"
+    },
+    {
+        "symbol":  "inventory",
+        "kind":  "property",
+        "availability":  "current",
+        "contract_test":  "test_game_state_facade_reads_committed_state"
+    },
+    {
+        "symbol":  "chat_state",
+        "kind":  "property",
+        "availability":  "current",
+        "contract_test":  "test_game_state_facade_reads_committed_state"
+    },
+    {
+        "symbol":  "shop_purchase_counts",
+        "kind":  "property",
+        "availability":  "current",
+        "contract_test":  "test_game_state_facade_reads_committed_state"
+    },
+    {
+        "symbol":  "minesweeper_round_floor",
+        "kind":  "property",
+        "availability":  "current",
+        "contract_test":  "test_game_state_facade_reads_committed_state"
+    },
+    {
+        "symbol":  "minesweeper_rounds_left",
+        "kind":  "property",
+        "availability":  "current",
+        "contract_test":  "test_game_state_facade_reads_committed_state"
+    },
+    {
+        "symbol":  "minesweeper_rng_seed",
+        "kind":  "property",
+        "availability":  "current",
+        "contract_test":  "test_game_state_facade_reads_committed_state"
+    },
+    {
+        "symbol":  "minesweeper_app_rounds_finished_today",
+        "kind":  "property",
+        "availability":  "current",
+        "contract_test":  "test_game_state_facade_reads_committed_state"
+    },
+    {
+        "symbol":  "minesweeper_selected_difficulty",
+        "kind":  "property",
+        "availability":  "current",
+        "contract_test":  "test_game_state_facade_reads_committed_state"
+    },
+    {
+        "symbol":  "unfinished_minesweeper_result",
+        "kind":  "property",
+        "availability":  "current",
+        "contract_test":  "test_game_state_facade_reads_committed_state"
+    },
+    {
+        "symbol":  "minesweeper_money_earned_today",
+        "kind":  "property",
+        "availability":  "current",
+        "contract_test":  "test_game_state_facade_reads_committed_state"
+    },
+    {
+        "symbol":  "minesweeper_task_rewards_claimed",
+        "kind":  "property",
+        "availability":  "current",
+        "contract_test":  "test_game_state_facade_reads_committed_state"
+    },
+    {
+        "symbol":  "penalty_points_today",
+        "kind":  "property",
+        "availability":  "current",
+        "contract_test":  "test_game_state_facade_reads_committed_state"
+    },
+    {
+        "symbol":  "penalty_points_total",
+        "kind":  "property",
+        "availability":  "current",
+        "contract_test":  "test_game_state_facade_reads_committed_state"
+    },
+    {
+        "symbol":  "condition_effects_today",
+        "kind":  "property",
+        "availability":  "current",
+        "contract_test":  "test_game_state_facade_reads_committed_state"
+    },
+    {
+        "symbol":  "condition_streak_days",
+        "kind":  "property",
+        "availability":  "current",
+        "contract_test":  "test_game_state_facade_reads_committed_state"
+    },
+    {
+        "symbol":  "last_condition_day",
+        "kind":  "property",
+        "availability":  "current",
+        "contract_test":  "test_game_state_facade_reads_committed_state"
+    },
+    {
+        "symbol":  "pending_hospital",
+        "kind":  "property",
+        "availability":  "current",
+        "contract_test":  "test_game_state_facade_reads_committed_state"
+    },
+    {
+        "symbol":  "condition_resolved_day",
+        "kind":  "property",
+        "availability":  "current",
+        "contract_test":  "test_game_state_facade_reads_committed_state"
+    },
+    {
+        "symbol":  "pending_date_friend_id",
+        "kind":  "property",
+        "availability":  "current",
+        "contract_test":  "test_game_state_facade_reads_committed_state"
+    },
+    {
+        "symbol":  "pending_date_entries",
+        "kind":  "property",
+        "availability":  "current",
+        "contract_test":  "test_game_state_facade_reads_committed_state"
+    },
+    {
+        "symbol":  "pending_date_entry_index",
+        "kind":  "property",
+        "availability":  "current",
+        "contract_test":  "test_game_state_facade_reads_committed_state"
+    },
+    {
+        "symbol":  "pending_group_date_friend_ids",
+        "kind":  "property",
+        "availability":  "current",
+        "contract_test":  "test_game_state_facade_reads_committed_state"
+    },
+    {
+        "symbol":  "pending_group_date_inviter_id",
+        "kind":  "property",
+        "availability":  "current",
+        "contract_test":  "test_game_state_facade_reads_committed_state"
+    },
+    {
+        "symbol":  "pending_date_advance_day_after_finish",
+        "kind":  "property",
+        "availability":  "current",
+        "contract_test":  "test_game_state_facade_reads_committed_state"
+    },
+    {
+        "symbol":  "hospital_skipped_sylvia_solo_count",
+        "kind":  "property",
+        "availability":  "current",
+        "contract_test":  "test_game_state_facade_reads_committed_state"
+    },
+    {
+        "symbol":  "story_flags",
+        "kind":  "property",
+        "availability":  "current",
+        "contract_test":  "test_game_state_facade_reads_committed_state"
+    },
+    {
+        "symbol":  "route_context",
+        "kind":  "property",
+        "availability":  "current",
+        "contract_test":  "test_game_state_facade_reads_committed_state"
+    },
+    {
+        "symbol":  "reset_game",
+        "kind":  "function",
+        "availability":  "current",
+        "contract_test":  "test_new_run_snapshot_defaults"
+    },
+    {
+        "symbol":  "get_stat",
+        "kind":  "function",
+        "availability":  "current",
+        "contract_test":  "test_stat_query_contracts"
+    },
+    {
+        "symbol":  "get_stat_min",
+        "kind":  "function",
+        "availability":  "current",
+        "contract_test":  "test_stat_query_contracts"
+    },
+    {
+        "symbol":  "get_stat_max",
+        "kind":  "function",
+        "availability":  "current",
+        "contract_test":  "test_stat_query_contracts"
+    },
+    {
+        "symbol":  "get_stat_display_value",
+        "kind":  "function",
+        "availability":  "current",
+        "contract_test":  "test_stat_query_contracts"
+    },
+    {
+        "symbol":  "get_stat_display_max",
+        "kind":  "function",
+        "availability":  "current",
+        "contract_test":  "test_stat_query_contracts"
+    },
+    {
+        "symbol":  "set_stat",
+        "kind":  "function",
+        "availability":  "current",
+        "contract_test":  "test_stat_mutations_via_effect_transactions"
+    },
+    {
+        "symbol":  "change_stat",
+        "kind":  "function",
+        "availability":  "current",
+        "contract_test":  "test_stat_mutations_via_effect_transactions"
+    },
+    {
+        "symbol":  "change_money",
+        "kind":  "function",
+        "availability":  "current",
+        "contract_test":  "test_economy_mutations_via_effect_transactions"
+    },
+    {
+        "symbol":  "can_spend_money",
+        "kind":  "function",
+        "availability":  "current",
+        "contract_test":  "test_economy_query_contracts"
+    },
+    {
+        "symbol":  "try_spend_money",
+        "kind":  "function",
+        "availability":  "current",
+        "contract_test":  "test_economy_mutations_via_effect_transactions"
+    },
+    {
+        "symbol":  "change_coins",
+        "kind":  "function",
+        "availability":  "current",
+        "contract_test":  "test_economy_mutations_via_effect_transactions"
+    },
+    {
+        "symbol":  "can_spend_coins",
+        "kind":  "function",
+        "availability":  "current",
+        "contract_test":  "test_economy_query_contracts"
+    },
+    {
+        "symbol":  "try_spend_coins",
+        "kind":  "function",
+        "availability":  "current",
+        "contract_test":  "test_economy_mutations_via_effect_transactions"
+    },
+    {
+        "symbol":  "add_inventory",
+        "kind":  "function",
+        "availability":  "current",
+        "contract_test":  "test_inventory_mutations_via_effect_transactions"
+    },
+    {
+        "symbol":  "remove_inventory",
+        "kind":  "function",
+        "availability":  "current",
+        "contract_test":  "test_inventory_mutations_via_effect_transactions"
+    },
+    {
+        "symbol":  "change_affection",
+        "kind":  "function",
+        "availability":  "current",
+        "contract_test":  "test_relationship_mutations_via_effect_transactions"
+    },
+    {
+        "symbol":  "get_affection_tier",
+        "kind":  "function",
+        "availability":  "current",
+        "contract_test":  "test_affection_tier_contract"
+    },
+    {
+        "symbol":  "set_friend_attitude",
+        "kind":  "function",
+        "availability":  "current",
+        "contract_test":  "test_relationship_mutations_via_effect_transactions"
+    },
+    {
+        "symbol":  "change_inter_friend_affection",
+        "kind":  "function",
+        "availability":  "current",
+        "contract_test":  "test_relationship_mutations_via_effect_transactions"
+    },
+    {
+        "symbol":  "get_minesweeper_display_rounds_left",
+        "kind":  "function",
+        "availability":  "current",
+        "contract_test":  "test_minesweeper_query_contracts"
+    },
+    {
+        "symbol":  "get_minesweeper_display_rounds_max",
+        "kind":  "function",
+        "availability":  "current",
+        "contract_test":  "test_minesweeper_query_contracts"
+    },
+    {
+        "symbol":  "get_minesweeper_total_playable_rounds",
+        "kind":  "function",
+        "availability":  "current",
+        "contract_test":  "test_minesweeper_query_contracts"
+    },
+    {
+        "symbol":  "get_minesweeper_playable_rounds_remaining",
+        "kind":  "function",
+        "availability":  "current",
+        "contract_test":  "test_minesweeper_query_contracts"
+    },
+    {
+        "symbol":  "has_minesweeper_app_round_available",
+        "kind":  "function",
+        "availability":  "current",
+        "contract_test":  "test_minesweeper_query_contracts"
+    },
+    {
+        "symbol":  "change_minesweeper_round_floor",
+        "kind":  "function",
+        "availability":  "current",
+        "contract_test":  "test_minesweeper_round_commands"
+    },
+    {
+        "symbol":  "get_minesweeper_safety_level",
+        "kind":  "function",
+        "availability":  "current",
+        "contract_test":  "test_minesweeper_query_contracts"
+    },
+    {
+        "symbol":  "can_start_minesweeper_app_round",
+        "kind":  "function",
+        "availability":  "current",
+        "contract_test":  "test_minesweeper_query_contracts"
+    },
+    {
+        "symbol":  "consume_minesweeper_app_round",
+        "kind":  "function",
+        "availability":  "current",
+        "contract_test":  "test_minesweeper_round_commands"
+    },
+    {
+        "symbol":  "start_minesweeper_app_round",
+        "kind":  "function",
+        "availability":  "current",
+        "contract_test":  "test_minesweeper_round_commands"
+    },
+    {
+        "symbol":  "finish_minesweeper_app_round",
+        "kind":  "function",
+        "availability":  "current",
+        "contract_test":  "test_minesweeper_round_commands"
+    },
+    {
+        "symbol":  "clear_unfinished_minesweeper_round",
+        "kind":  "function",
+        "availability":  "current",
+        "contract_test":  "test_minesweeper_round_commands"
+    },
+    {
+        "symbol":  "calculate_minesweeper_money_reward",
+        "kind":  "function",
+        "availability":  "current",
+        "contract_test":  "test_minesweeper_query_contracts"
+    },
+    {
+        "symbol":  "apply_minesweeper_money_reward",
+        "kind":  "function",
+        "availability":  "current",
+        "contract_test":  "test_minesweeper_round_commands"
+    },
+    {
+        "symbol":  "check_and_claim_minesweeper_task_rewards",
+        "kind":  "function",
+        "availability":  "current",
+        "contract_test":  "test_minesweeper_round_commands"
+    },
+    {
+        "symbol":  "is_invitation_day",
+        "kind":  "function",
+        "availability":  "current",
+        "contract_test":  "test_contact_query_contracts"
+    },
+    {
+        "symbol":  "is_group_invitation_day",
+        "kind":  "function",
+        "availability":  "current",
+        "contract_test":  "test_contact_query_contracts"
+    },
+    {
+        "symbol":  "get_daily_message_friend_for_finished_round",
+        "kind":  "function",
+        "availability":  "current",
+        "contract_test":  "test_contact_query_contracts"
+    },
+    {
+        "symbol":  "unlock_contact_message_after_minesweeper_finished",
+        "kind":  "function",
+        "availability":  "current",
+        "contract_test":  "test_minesweeper_round_commands"
+    },
+    {
+        "symbol":  "is_contact_message_unlocked",
+        "kind":  "function",
+        "availability":  "current",
+        "contract_test":  "test_contact_query_contracts"
+    },
+    {
+        "symbol":  "is_contact_choice_selected",
+        "kind":  "function",
+        "availability":  "current",
+        "contract_test":  "test_contact_query_contracts"
+    },
+    {
+        "symbol":  "get_contact_choices",
+        "kind":  "function",
+        "availability":  "current",
+        "contract_test":  "test_contact_query_contracts"
+    },
+    {
+        "symbol":  "is_date_unlocked",
+        "kind":  "function",
+        "availability":  "current",
+        "contract_test":  "test_contact_query_contracts"
+    },
+    {
+        "symbol":  "build_date_entry_from_unlock",
+        "kind":  "function",
+        "availability":  "current",
+        "contract_test":  "test_date_entry_builder_contracts"
+    },
+    {
+        "symbol":  "is_group_date_unlocked",
+        "kind":  "function",
+        "availability":  "current",
+        "contract_test":  "test_contact_query_contracts"
+    },
+    {
+        "symbol":  "build_group_date_entry_from_unlock",
+        "kind":  "function",
+        "availability":  "current",
+        "contract_test":  "test_date_entry_builder_contracts"
+    },
+    {
+        "symbol":  "get_day7_ending_candidates_from_schedule",
+        "kind":  "function",
+        "availability":  "current",
+        "contract_test":  "test_ending_query_contracts"
+    },
+    {
+        "symbol":  "resolve_day7_ending",
+        "kind":  "function",
+        "availability":  "current",
+        "contract_test":  "test_day7_terminal_allowlist"
+    },
+    {
+        "symbol":  "should_route_priscilla_lavinia_post_ending",
+        "kind":  "function",
+        "availability":  "current",
+        "contract_test":  "test_ending_query_contracts"
+    },
+    {
+        "symbol":  "should_route_sylvia_special_ending",
+        "kind":  "function",
+        "availability":  "current",
+        "contract_test":  "test_ending_query_contracts"
+    },
+    {
+        "symbol":  "can_respond_to_invitation",
+        "kind":  "function",
+        "availability":  "current",
+        "contract_test":  "test_contact_query_contracts"
+    },
+    {
+        "symbol":  "can_buy_supportz",
+        "kind":  "function",
+        "availability":  "current",
+        "contract_test":  "test_shop_query_contracts"
+    },
+    {
+        "symbol":  "has_unread_friend_messages",
+        "kind":  "function",
+        "availability":  "current",
+        "contract_test":  "test_contact_query_contracts"
+    },
+    {
+        "symbol":  "should_warn_minesweeper_before_schedule_done",
+        "kind":  "function",
+        "availability":  "current",
+        "contract_test":  "test_schedule_query_contracts"
+    },
+    {
+        "symbol":  "get_scheduled_date_friend_ids",
+        "kind":  "function",
+        "availability":  "current",
+        "contract_test":  "test_schedule_query_contracts"
+    },
+    {
+        "symbol":  "get_scheduled_date_entries",
+        "kind":  "function",
+        "availability":  "current",
+        "contract_test":  "test_schedule_query_contracts"
+    },
+    {
+        "symbol":  "get_scheduled_date_count",
+        "kind":  "function",
+        "availability":  "current",
+        "contract_test":  "test_schedule_query_contracts"
+    },
+    {
+        "symbol":  "get_max_scheduled_dates_for_current_day",
+        "kind":  "function",
+        "availability":  "current",
+        "contract_test":  "test_schedule_query_contracts"
+    },
+    {
+        "symbol":  "collect_unscheduled_accepted_invitations_for_day_end",
+        "kind":  "function",
+        "availability":  "current",
+        "contract_test":  "test_invitation_day_resolution"
+    },
+    {
+        "symbol":  "get_missed_invitation_for_friend",
+        "kind":  "function",
+        "availability":  "current",
+        "contract_test":  "test_contact_query_contracts"
+    },
+    {
+        "symbol":  "execute_schedule_sequence_until_route_needed",
+        "kind":  "function",
+        "availability":  "current",
+        "contract_test":  "test_schedule_done_command"
+    },
+    {
+        "symbol":  "execute_non_date_schedule_effects",
+        "kind":  "function",
+        "availability":  "current",
+        "contract_test":  "test_schedule_done_command"
+    },
+    {
+        "symbol":  "create_missed_group_twofriends_entry",
+        "kind":  "function",
+        "availability":  "current",
+        "contract_test":  "test_invitation_day_resolution"
+    },
+    {
+        "symbol":  "resolve_pressure_health_condition_end_of_day",
+        "kind":  "function",
+        "availability":  "current",
+        "contract_test":  "test_day_resolution_condition_stage"
+    },
+    {
+        "symbol":  "should_route_hospital",
+        "kind":  "function",
+        "availability":  "current",
+        "contract_test":  "test_condition_query_contracts"
+    },
+    {
+        "symbol":  "check_immediate_faint",
+        "kind":  "function",
+        "availability":  "current",
+        "contract_test":  "test_fainting_event_command"
+    },
+    {
+        "symbol":  "apply_hospital_recovery_and_advance_day",
+        "kind":  "function",
+        "availability":  "current",
+        "contract_test":  "test_hospital_recovery_resumes_day_resolution"
+    },
+    {
+        "symbol":  "advance_day_or_end",
+        "kind":  "function",
+        "availability":  "current",
+        "contract_test":  "test_day7_schedule_done_never_creates_day8"
+    },
+    {
+        "symbol":  "prepare_dating_queue",
+        "kind":  "function",
+        "availability":  "current",
+        "contract_test":  "test_dating_stage_receipts"
+    },
+    {
+        "symbol":  "prepare_dating_entries",
+        "kind":  "function",
+        "availability":  "current",
+        "contract_test":  "test_dating_stage_receipts"
+    },
+    {
+        "symbol":  "get_current_pending_date_friend_id",
+        "kind":  "function",
+        "availability":  "current",
+        "contract_test":  "test_dating_queue_query_contracts"
+    },
+    {
+        "symbol":  "get_current_pending_date_entry",
+        "kind":  "function",
+        "availability":  "current",
+        "contract_test":  "test_dating_queue_query_contracts"
+    },
+    {
+        "symbol":  "apply_dating_challenge_result",
+        "kind":  "function",
+        "availability":  "current",
+        "contract_test":  "test_dating_stage_receipts"
+    },
+    {
+        "symbol":  "advance_date_queue_or_day",
+        "kind":  "function",
+        "availability":  "current",
+        "contract_test":  "test_dating_stage_receipts"
+    },
+    {
+        "symbol":  "clear_pending_date_state",
+        "kind":  "function",
+        "availability":  "current",
+        "contract_test":  "test_dating_stage_receipts"
+    },
+    {
+        "symbol":  "set_story_flag",
+        "kind":  "function",
+        "availability":  "current",
+        "contract_test":  "test_variable_transaction_commands"
+    },
+    {
+        "symbol":  "get_story_flag",
+        "kind":  "function",
+        "availability":  "current",
+        "contract_test":  "test_story_flag_contracts"
+    },
+    {
+        "symbol":  "to_save_dict",
+        "kind":  "function",
+        "availability":  "current",
+        "contract_test":  "test_run_snapshot_capture"
+    },
+    {
+        "symbol":  "apply_save_dict",
+        "kind":  "function",
+        "availability":  "current",
+        "contract_test":  "test_run_candidate_commit"
+    },
+    {
+        "symbol":  "get_save_summary",
+        "kind":  "function",
+        "availability":  "current",
+        "contract_test":  "test_save_summary_contract"
+    },
+    {
+        "symbol":  "capture_restore_state",
+        "kind":  "function",
+        "availability":  "current",
+        "contract_test":  "test_run_restore_round_trips_via_participant"
+    },
+    {
+        "symbol":  "apply_restore_silent",
+        "kind":  "function",
+        "availability":  "current",
+        "contract_test":  "test_run_restore_round_trips_via_participant"
+    },
+    {
+        "symbol":  "rollback_restore_silent",
+        "kind":  "function",
+        "availability":  "current",
+        "contract_test":  "test_run_restore_round_trips_via_participant"
+    },
+    {
+        "symbol":  "finalize_restore",
+        "kind":  "function",
+        "availability":  "current",
+        "contract_test":  "test_run_restore_round_trips_via_participant"
+    }
+]

@@ -1,0 +1,3216 @@
+{
+  "art_fixture": "res://tests/fixtures/art/placement-cg.svg",
+  "bridge_start_count": 19,
+  "captures": 59,
+  "checks": 740,
+  "failures": [],
+  "logical_size": [
+    1280,
+    720
+  ],
+  "matrix_complete": true,
+  "native_size": [
+    640,
+    360
+  ],
+  "ok": true,
+  "requested_tuples": 18,
+  "retry_success_proved": true,
+  "samples": [
+    {
+      "action_state_checks": {
+        "geometry_unchanged": true,
+        "pointer_cancel": {
+          "bridge_starts_retained": true,
+          "geometry_unchanged": true,
+          "profile_retained": true,
+          "signature_retained": true
+        },
+        "practice": {
+          "inner_native": [
+            386,
+            242,
+            84,
+            36
+          ],
+          "logical_rect": [
+            776.0,
+            488.0,
+            160.0,
+            64.0
+          ],
+          "ok": true,
+          "outer_native": [
+            384,
+            240,
+            88,
+            40
+          ],
+          "points": [
+            {
+              "point": [
+                384,
+                260
+              ],
+              "rgb": "151b25"
+            },
+            {
+              "point": [
+                386,
+                260
+              ],
+              "rgb": "644000"
+            },
+            {
+              "point": [
+                385,
+                260
+              ],
+              "rgb": "c3baa3"
+            },
+            {
+              "point": [
+                387,
+                260
+              ],
+              "rgb": "c3baa3"
+            }
+          ]
+        },
+        "replay": {
+          "inner_native": [
+            386,
+            282,
+            84,
+            36
+          ],
+          "logical_rect": [
+            776.0,
+            568.0,
+            160.0,
+            64.0
+          ],
+          "ok": true,
+          "outer_native": [
+            384,
+            280,
+            88,
+            40
+          ],
+          "points": [
+            {
+              "point": [
+                384,
+                300
+              ],
+              "rgb": "d8cfb7"
+            },
+            {
+              "point": [
+                386,
+                300
+              ],
+              "rgb": "a9935f"
+            },
+            {
+              "point": [
+                385,
+                300
+              ],
+              "rgb": "151b25"
+            },
+            {
+              "point": [
+                387,
+                300
+              ],
+              "rgb": "151b25"
+            }
+          ]
+        },
+        "replay_focus_restored": true,
+        "selector": {
+          "inner_native": [
+            202,
+            242,
+            148,
+            36
+          ],
+          "logical_rect": [
+            408.0,
+            488.0,
+            288.0,
+            64.0
+          ],
+          "ok": true,
+          "outer_native": [
+            200,
+            240,
+            152,
+            40
+          ],
+          "points": [
+            {
+              "point": [
+                200,
+                260
+              ],
+              "rgb": "151b25"
+            },
+            {
+              "point": [
+                202,
+                260
+              ],
+              "rgb": "644000"
+            },
+            {
+              "point": [
+                201,
+                260
+              ],
+              "rgb": "c3baa3"
+            },
+            {
+              "point": [
+                203,
+                260
+              ],
+              "rgb": "c3baa3"
+            }
+          ]
+        }
+      },
+      "action_state_files": {
+        "practice_focus": "en-100-AfterHours-action-practice-focus.png",
+        "replay_canceled": "en-100-AfterHours-action-replay-cancel.png",
+        "replay_focus": "en-100-AfterHours-action-replay-focus.png",
+        "replay_hover": "en-100-AfterHours-action-replay-hover.png",
+        "replay_pressed": "en-100-AfterHours-action-replay-pressed.png",
+        "selector_focus": "en-100-AfterHours-action-selector-focus.png"
+      },
+      "colour_differentiation": "standard",
+      "error_file": "en-100-AfterHours-error.png",
+      "focus_retained": true,
+      "geometry": {
+        "ok": true,
+        "picker": [
+          408,
+          488,
+          288,
+          64
+        ],
+        "replay": [
+          776,
+          568,
+          160,
+          64
+        ],
+        "replay_text_width": 42.0,
+        "status": [
+          408,
+          568,
+          360,
+          64
+        ],
+        "status_lines": 1,
+        "title": [
+          392,
+          32,
+          504,
+          24.0
+        ]
+      },
+      "high_contrast": false,
+      "locale": "en",
+      "palette": "AfterHours",
+      "pixels": {
+        "dock_point": [
+          200,
+          282
+        ],
+        "dock_rgb": "151b25",
+        "ink_point": [
+          204,
+          297
+        ],
+        "nonpaper_sample_count": 0,
+        "ok": true,
+        "rule_point": [
+          196,
+          300
+        ],
+        "rule_rgb": "c9846e",
+        "title_ink_point": [
+          197,
+          19
+        ]
+      },
+      "retry_copy": "Retry",
+      "retry_success_file": "en-100-AfterHours-retry-success.png",
+      "signature_id": "c02fa3e08103a9e4ca440841db3000f7a63bb77d62fd54c328a6922fbdd6353e",
+      "status_copy": "Replay did not begin",
+      "text_percent": 100
+    },
+    {
+      "action_state_checks": {
+        "geometry_unchanged": true,
+        "replay": {
+          "inner_native": [
+            386,
+            282,
+            84,
+            36
+          ],
+          "logical_rect": [
+            776.0,
+            568.0,
+            160.0,
+            64.0
+          ],
+          "ok": true,
+          "outer_native": [
+            384,
+            280,
+            88,
+            40
+          ],
+          "points": [
+            {
+              "point": [
+                384,
+                300
+              ],
+              "rgb": "d8cfb7"
+            },
+            {
+              "point": [
+                386,
+                300
+              ],
+              "rgb": "a9935f"
+            },
+            {
+              "point": [
+                385,
+                300
+              ],
+              "rgb": "14201d"
+            },
+            {
+              "point": [
+                387,
+                300
+              ],
+              "rgb": "14201d"
+            }
+          ]
+        },
+        "replay_focus_restored": true,
+        "selector": {
+          "inner_native": [
+            202,
+            242,
+            148,
+            36
+          ],
+          "logical_rect": [
+            408.0,
+            488.0,
+            288.0,
+            64.0
+          ],
+          "ok": true,
+          "outer_native": [
+            200,
+            240,
+            152,
+            40
+          ],
+          "points": [
+            {
+              "point": [
+                200,
+                260
+              ],
+              "rgb": "14201d"
+            },
+            {
+              "point": [
+                202,
+                260
+              ],
+              "rgb": "644000"
+            },
+            {
+              "point": [
+                201,
+                260
+              ],
+              "rgb": "c3baa3"
+            },
+            {
+              "point": [
+                203,
+                260
+              ],
+              "rgb": "c3baa3"
+            }
+          ]
+        }
+      },
+      "action_state_files": {
+        "replay_focus": "en-100-Midnight-action-replay-focus.png",
+        "selector_focus": "en-100-Midnight-action-selector-focus.png"
+      },
+      "colour_differentiation": "standard",
+      "error_file": "en-100-Midnight-error.png",
+      "focus_retained": true,
+      "geometry": {
+        "ok": true,
+        "picker": [
+          408,
+          488,
+          288,
+          64
+        ],
+        "replay": [
+          776,
+          568,
+          160,
+          64
+        ],
+        "replay_text_width": 42.0,
+        "status": [
+          408,
+          568,
+          360,
+          64
+        ],
+        "status_lines": 1,
+        "title": [
+          392,
+          32,
+          504,
+          24.0
+        ]
+      },
+      "high_contrast": false,
+      "locale": "en",
+      "palette": "Midnight",
+      "pixels": {
+        "dock_point": [
+          200,
+          282
+        ],
+        "dock_rgb": "14201d",
+        "ink_point": [
+          204,
+          297
+        ],
+        "nonpaper_sample_count": 0,
+        "ok": true,
+        "rule_point": [
+          196,
+          300
+        ],
+        "rule_rgb": "c9846e",
+        "title_ink_point": [
+          197,
+          19
+        ]
+      },
+      "retry_copy": "Retry",
+      "retry_success_file": "",
+      "signature_id": "c02fa3e08103a9e4ca440841db3000f7a63bb77d62fd54c328a6922fbdd6353e",
+      "status_copy": "Replay did not begin",
+      "text_percent": 100
+    },
+    {
+      "action_state_checks": {
+        "geometry_unchanged": true,
+        "replay": {
+          "inner_native": [
+            386,
+            282,
+            84,
+            36
+          ],
+          "logical_rect": [
+            776.0,
+            568.0,
+            160.0,
+            64.0
+          ],
+          "ok": true,
+          "outer_native": [
+            384,
+            280,
+            88,
+            40
+          ],
+          "points": [
+            {
+              "point": [
+                384,
+                300
+              ],
+              "rgb": "d8cfb7"
+            },
+            {
+              "point": [
+                386,
+                300
+              ],
+              "rgb": "a9935f"
+            },
+            {
+              "point": [
+                385,
+                300
+              ],
+              "rgb": "151b25"
+            },
+            {
+              "point": [
+                387,
+                300
+              ],
+              "rgb": "151b25"
+            }
+          ]
+        },
+        "replay_focus_restored": true,
+        "selector": {
+          "inner_native": [
+            202,
+            242,
+            148,
+            36
+          ],
+          "logical_rect": [
+            408.0,
+            488.0,
+            288.0,
+            64.0
+          ],
+          "ok": true,
+          "outer_native": [
+            200,
+            240,
+            152,
+            40
+          ],
+          "points": [
+            {
+              "point": [
+                200,
+                260
+              ],
+              "rgb": "151b25"
+            },
+            {
+              "point": [
+                202,
+                260
+              ],
+              "rgb": "644000"
+            },
+            {
+              "point": [
+                201,
+                260
+              ],
+              "rgb": "c3baa3"
+            },
+            {
+              "point": [
+                203,
+                260
+              ],
+              "rgb": "c3baa3"
+            }
+          ]
+        }
+      },
+      "action_state_files": {
+        "replay_focus": "en-125-AfterHours-action-replay-focus.png",
+        "selector_focus": "en-125-AfterHours-action-selector-focus.png"
+      },
+      "colour_differentiation": "standard",
+      "error_file": "en-125-AfterHours-error.png",
+      "focus_retained": true,
+      "geometry": {
+        "ok": true,
+        "picker": [
+          408,
+          488,
+          288,
+          64
+        ],
+        "replay": [
+          776,
+          568,
+          160,
+          64
+        ],
+        "replay_text_width": 52.0,
+        "status": [
+          408,
+          568,
+          360,
+          64
+        ],
+        "status_lines": 1,
+        "title": [
+          392,
+          32,
+          504,
+          28.0
+        ]
+      },
+      "high_contrast": false,
+      "locale": "en",
+      "palette": "AfterHours",
+      "pixels": {
+        "dock_point": [
+          200,
+          282
+        ],
+        "dock_rgb": "151b25",
+        "ink_point": [
+          204,
+          297
+        ],
+        "nonpaper_sample_count": 0,
+        "ok": true,
+        "rule_point": [
+          196,
+          300
+        ],
+        "rule_rgb": "c9846e",
+        "title_ink_point": [
+          198,
+          20
+        ]
+      },
+      "retry_copy": "Retry",
+      "retry_success_file": "",
+      "signature_id": "c02fa3e08103a9e4ca440841db3000f7a63bb77d62fd54c328a6922fbdd6353e",
+      "status_copy": "Replay did not begin",
+      "text_percent": 125
+    },
+    {
+      "action_state_checks": {
+        "geometry_unchanged": true,
+        "replay": {
+          "inner_native": [
+            386,
+            282,
+            84,
+            36
+          ],
+          "logical_rect": [
+            776.0,
+            568.0,
+            160.0,
+            64.0
+          ],
+          "ok": true,
+          "outer_native": [
+            384,
+            280,
+            88,
+            40
+          ],
+          "points": [
+            {
+              "point": [
+                384,
+                300
+              ],
+              "rgb": "d8cfb7"
+            },
+            {
+              "point": [
+                386,
+                300
+              ],
+              "rgb": "a9935f"
+            },
+            {
+              "point": [
+                385,
+                300
+              ],
+              "rgb": "14201d"
+            },
+            {
+              "point": [
+                387,
+                300
+              ],
+              "rgb": "14201d"
+            }
+          ]
+        },
+        "replay_focus_restored": true,
+        "selector": {
+          "inner_native": [
+            202,
+            242,
+            148,
+            36
+          ],
+          "logical_rect": [
+            408.0,
+            488.0,
+            288.0,
+            64.0
+          ],
+          "ok": true,
+          "outer_native": [
+            200,
+            240,
+            152,
+            40
+          ],
+          "points": [
+            {
+              "point": [
+                200,
+                260
+              ],
+              "rgb": "14201d"
+            },
+            {
+              "point": [
+                202,
+                260
+              ],
+              "rgb": "644000"
+            },
+            {
+              "point": [
+                201,
+                260
+              ],
+              "rgb": "c3baa3"
+            },
+            {
+              "point": [
+                203,
+                260
+              ],
+              "rgb": "c3baa3"
+            }
+          ]
+        }
+      },
+      "action_state_files": {
+        "replay_focus": "en-125-Midnight-action-replay-focus.png",
+        "selector_focus": "en-125-Midnight-action-selector-focus.png"
+      },
+      "colour_differentiation": "standard",
+      "error_file": "en-125-Midnight-error.png",
+      "focus_retained": true,
+      "geometry": {
+        "ok": true,
+        "picker": [
+          408,
+          488,
+          288,
+          64
+        ],
+        "replay": [
+          776,
+          568,
+          160,
+          64
+        ],
+        "replay_text_width": 52.0,
+        "status": [
+          408,
+          568,
+          360,
+          64
+        ],
+        "status_lines": 1,
+        "title": [
+          392,
+          32,
+          504,
+          28.0
+        ]
+      },
+      "high_contrast": false,
+      "locale": "en",
+      "palette": "Midnight",
+      "pixels": {
+        "dock_point": [
+          200,
+          282
+        ],
+        "dock_rgb": "14201d",
+        "ink_point": [
+          204,
+          297
+        ],
+        "nonpaper_sample_count": 0,
+        "ok": true,
+        "rule_point": [
+          196,
+          300
+        ],
+        "rule_rgb": "c9846e",
+        "title_ink_point": [
+          198,
+          20
+        ]
+      },
+      "retry_copy": "Retry",
+      "retry_success_file": "",
+      "signature_id": "c02fa3e08103a9e4ca440841db3000f7a63bb77d62fd54c328a6922fbdd6353e",
+      "status_copy": "Replay did not begin",
+      "text_percent": 125
+    },
+    {
+      "action_state_checks": {
+        "geometry_unchanged": true,
+        "replay": {
+          "inner_native": [
+            386,
+            282,
+            84,
+            36
+          ],
+          "logical_rect": [
+            776.0,
+            568.0,
+            160.0,
+            64.0
+          ],
+          "ok": true,
+          "outer_native": [
+            384,
+            280,
+            88,
+            40
+          ],
+          "points": [
+            {
+              "point": [
+                384,
+                300
+              ],
+              "rgb": "d8cfb7"
+            },
+            {
+              "point": [
+                386,
+                300
+              ],
+              "rgb": "a9935f"
+            },
+            {
+              "point": [
+                385,
+                300
+              ],
+              "rgb": "151b25"
+            },
+            {
+              "point": [
+                387,
+                300
+              ],
+              "rgb": "151b25"
+            }
+          ]
+        },
+        "replay_focus_restored": true,
+        "selector": {
+          "inner_native": [
+            202,
+            242,
+            148,
+            36
+          ],
+          "logical_rect": [
+            408.0,
+            488.0,
+            288.0,
+            64.0
+          ],
+          "ok": true,
+          "outer_native": [
+            200,
+            240,
+            152,
+            40
+          ],
+          "points": [
+            {
+              "point": [
+                200,
+                260
+              ],
+              "rgb": "151b25"
+            },
+            {
+              "point": [
+                202,
+                260
+              ],
+              "rgb": "644000"
+            },
+            {
+              "point": [
+                201,
+                260
+              ],
+              "rgb": "c3baa3"
+            },
+            {
+              "point": [
+                203,
+                260
+              ],
+              "rgb": "c3baa3"
+            }
+          ]
+        }
+      },
+      "action_state_files": {
+        "replay_focus": "en-150-AfterHours-action-replay-focus.png",
+        "selector_focus": "en-150-AfterHours-action-selector-focus.png"
+      },
+      "colour_differentiation": "standard",
+      "error_file": "en-150-AfterHours-error.png",
+      "focus_retained": true,
+      "geometry": {
+        "ok": true,
+        "picker": [
+          408,
+          488,
+          288,
+          64
+        ],
+        "replay": [
+          776,
+          568,
+          160,
+          64
+        ],
+        "replay_text_width": 58.0,
+        "status": [
+          408,
+          568,
+          360,
+          64
+        ],
+        "status_lines": 1,
+        "title": [
+          392,
+          32,
+          504,
+          32.0
+        ]
+      },
+      "high_contrast": false,
+      "locale": "en",
+      "palette": "AfterHours",
+      "pixels": {
+        "dock_point": [
+          200,
+          282
+        ],
+        "dock_rgb": "151b25",
+        "ink_point": [
+          204,
+          296
+        ],
+        "nonpaper_sample_count": 0,
+        "ok": true,
+        "rule_point": [
+          196,
+          300
+        ],
+        "rule_rgb": "c9846e",
+        "title_ink_point": [
+          199,
+          20
+        ]
+      },
+      "retry_copy": "Retry",
+      "retry_success_file": "",
+      "signature_id": "c02fa3e08103a9e4ca440841db3000f7a63bb77d62fd54c328a6922fbdd6353e",
+      "status_copy": "Replay did not begin",
+      "text_percent": 150
+    },
+    {
+      "action_state_checks": {
+        "geometry_unchanged": true,
+        "replay": {
+          "inner_native": [
+            386,
+            282,
+            84,
+            36
+          ],
+          "logical_rect": [
+            776.0,
+            568.0,
+            160.0,
+            64.0
+          ],
+          "ok": true,
+          "outer_native": [
+            384,
+            280,
+            88,
+            40
+          ],
+          "points": [
+            {
+              "point": [
+                384,
+                300
+              ],
+              "rgb": "d8cfb7"
+            },
+            {
+              "point": [
+                386,
+                300
+              ],
+              "rgb": "a9935f"
+            },
+            {
+              "point": [
+                385,
+                300
+              ],
+              "rgb": "14201d"
+            },
+            {
+              "point": [
+                387,
+                300
+              ],
+              "rgb": "14201d"
+            }
+          ]
+        },
+        "replay_focus_restored": true,
+        "selector": {
+          "inner_native": [
+            202,
+            242,
+            148,
+            36
+          ],
+          "logical_rect": [
+            408.0,
+            488.0,
+            288.0,
+            64.0
+          ],
+          "ok": true,
+          "outer_native": [
+            200,
+            240,
+            152,
+            40
+          ],
+          "points": [
+            {
+              "point": [
+                200,
+                260
+              ],
+              "rgb": "14201d"
+            },
+            {
+              "point": [
+                202,
+                260
+              ],
+              "rgb": "644000"
+            },
+            {
+              "point": [
+                201,
+                260
+              ],
+              "rgb": "c3baa3"
+            },
+            {
+              "point": [
+                203,
+                260
+              ],
+              "rgb": "c3baa3"
+            }
+          ]
+        }
+      },
+      "action_state_files": {
+        "replay_focus": "en-150-Midnight-action-replay-focus.png",
+        "selector_focus": "en-150-Midnight-action-selector-focus.png"
+      },
+      "colour_differentiation": "standard",
+      "error_file": "en-150-Midnight-error.png",
+      "focus_retained": true,
+      "geometry": {
+        "ok": true,
+        "picker": [
+          408,
+          488,
+          288,
+          64
+        ],
+        "replay": [
+          776,
+          568,
+          160,
+          64
+        ],
+        "replay_text_width": 58.0,
+        "status": [
+          408,
+          568,
+          360,
+          64
+        ],
+        "status_lines": 1,
+        "title": [
+          392,
+          32,
+          504,
+          32.0
+        ]
+      },
+      "high_contrast": false,
+      "locale": "en",
+      "palette": "Midnight",
+      "pixels": {
+        "dock_point": [
+          200,
+          282
+        ],
+        "dock_rgb": "14201d",
+        "ink_point": [
+          204,
+          296
+        ],
+        "nonpaper_sample_count": 0,
+        "ok": true,
+        "rule_point": [
+          196,
+          300
+        ],
+        "rule_rgb": "c9846e",
+        "title_ink_point": [
+          199,
+          20
+        ]
+      },
+      "retry_copy": "Retry",
+      "retry_success_file": "",
+      "signature_id": "c02fa3e08103a9e4ca440841db3000f7a63bb77d62fd54c328a6922fbdd6353e",
+      "status_copy": "Replay did not begin",
+      "text_percent": 150
+    },
+    {
+      "action_state_checks": {
+        "geometry_unchanged": true,
+        "replay": {
+          "inner_native": [
+            386,
+            282,
+            84,
+            36
+          ],
+          "logical_rect": [
+            776.0,
+            568.0,
+            160.0,
+            64.0
+          ],
+          "ok": true,
+          "outer_native": [
+            384,
+            280,
+            88,
+            40
+          ],
+          "points": [
+            {
+              "point": [
+                384,
+                300
+              ],
+              "rgb": "d8cfb7"
+            },
+            {
+              "point": [
+                386,
+                300
+              ],
+              "rgb": "a9935f"
+            },
+            {
+              "point": [
+                385,
+                300
+              ],
+              "rgb": "151b25"
+            },
+            {
+              "point": [
+                387,
+                300
+              ],
+              "rgb": "151b25"
+            }
+          ]
+        },
+        "replay_focus_restored": true,
+        "selector": {
+          "inner_native": [
+            202,
+            242,
+            148,
+            36
+          ],
+          "logical_rect": [
+            408.0,
+            488.0,
+            288.0,
+            64.0
+          ],
+          "ok": true,
+          "outer_native": [
+            200,
+            240,
+            152,
+            40
+          ],
+          "points": [
+            {
+              "point": [
+                200,
+                260
+              ],
+              "rgb": "151b25"
+            },
+            {
+              "point": [
+                202,
+                260
+              ],
+              "rgb": "644000"
+            },
+            {
+              "point": [
+                201,
+                260
+              ],
+              "rgb": "c3baa3"
+            },
+            {
+              "point": [
+                203,
+                260
+              ],
+              "rgb": "c3baa3"
+            }
+          ]
+        }
+      },
+      "action_state_files": {
+        "replay_focus": "zh-CN-100-AfterHours-action-replay-focus.png",
+        "selector_focus": "zh-CN-100-AfterHours-action-selector-focus.png"
+      },
+      "colour_differentiation": "standard",
+      "error_file": "zh-CN-100-AfterHours-error.png",
+      "focus_retained": true,
+      "geometry": {
+        "ok": true,
+        "picker": [
+          408,
+          488,
+          288,
+          64
+        ],
+        "replay": [
+          776,
+          568,
+          160,
+          64
+        ],
+        "replay_text_width": 32.0,
+        "status": [
+          408,
+          568,
+          360,
+          64
+        ],
+        "status_lines": 1,
+        "title": [
+          392,
+          32,
+          504,
+          24.0
+        ]
+      },
+      "high_contrast": false,
+      "locale": "zh_CN",
+      "palette": "AfterHours",
+      "pixels": {
+        "dock_point": [
+          200,
+          282
+        ],
+        "dock_rgb": "151b25",
+        "ink_point": [
+          207,
+          297
+        ],
+        "nonpaper_sample_count": 0,
+        "ok": true,
+        "rule_point": [
+          196,
+          300
+        ],
+        "rule_rgb": "c9846e",
+        "title_ink_point": [
+          199,
+          19
+        ]
+      },
+      "retry_copy": "\u91cd\u8bd5",
+      "retry_success_file": "",
+      "signature_id": "c02fa3e08103a9e4ca440841db3000f7a63bb77d62fd54c328a6922fbdd6353e",
+      "status_copy": "\u672a\u80fd\u5f00\u59cb\u91cd\u64ad",
+      "text_percent": 100
+    },
+    {
+      "action_state_checks": {
+        "geometry_unchanged": true,
+        "replay": {
+          "inner_native": [
+            386,
+            282,
+            84,
+            36
+          ],
+          "logical_rect": [
+            776.0,
+            568.0,
+            160.0,
+            64.0
+          ],
+          "ok": true,
+          "outer_native": [
+            384,
+            280,
+            88,
+            40
+          ],
+          "points": [
+            {
+              "point": [
+                384,
+                300
+              ],
+              "rgb": "d8cfb7"
+            },
+            {
+              "point": [
+                386,
+                300
+              ],
+              "rgb": "a9935f"
+            },
+            {
+              "point": [
+                385,
+                300
+              ],
+              "rgb": "14201d"
+            },
+            {
+              "point": [
+                387,
+                300
+              ],
+              "rgb": "14201d"
+            }
+          ]
+        },
+        "replay_focus_restored": true,
+        "selector": {
+          "inner_native": [
+            202,
+            242,
+            148,
+            36
+          ],
+          "logical_rect": [
+            408.0,
+            488.0,
+            288.0,
+            64.0
+          ],
+          "ok": true,
+          "outer_native": [
+            200,
+            240,
+            152,
+            40
+          ],
+          "points": [
+            {
+              "point": [
+                200,
+                260
+              ],
+              "rgb": "14201d"
+            },
+            {
+              "point": [
+                202,
+                260
+              ],
+              "rgb": "644000"
+            },
+            {
+              "point": [
+                201,
+                260
+              ],
+              "rgb": "c3baa3"
+            },
+            {
+              "point": [
+                203,
+                260
+              ],
+              "rgb": "c3baa3"
+            }
+          ]
+        }
+      },
+      "action_state_files": {
+        "replay_focus": "zh-CN-100-Midnight-action-replay-focus.png",
+        "selector_focus": "zh-CN-100-Midnight-action-selector-focus.png"
+      },
+      "colour_differentiation": "standard",
+      "error_file": "zh-CN-100-Midnight-error.png",
+      "focus_retained": true,
+      "geometry": {
+        "ok": true,
+        "picker": [
+          408,
+          488,
+          288,
+          64
+        ],
+        "replay": [
+          776,
+          568,
+          160,
+          64
+        ],
+        "replay_text_width": 32.0,
+        "status": [
+          408,
+          568,
+          360,
+          64
+        ],
+        "status_lines": 1,
+        "title": [
+          392,
+          32,
+          504,
+          24.0
+        ]
+      },
+      "high_contrast": false,
+      "locale": "zh_CN",
+      "palette": "Midnight",
+      "pixels": {
+        "dock_point": [
+          200,
+          282
+        ],
+        "dock_rgb": "14201d",
+        "ink_point": [
+          207,
+          297
+        ],
+        "nonpaper_sample_count": 0,
+        "ok": true,
+        "rule_point": [
+          196,
+          300
+        ],
+        "rule_rgb": "c9846e",
+        "title_ink_point": [
+          199,
+          19
+        ]
+      },
+      "retry_copy": "\u91cd\u8bd5",
+      "retry_success_file": "",
+      "signature_id": "c02fa3e08103a9e4ca440841db3000f7a63bb77d62fd54c328a6922fbdd6353e",
+      "status_copy": "\u672a\u80fd\u5f00\u59cb\u91cd\u64ad",
+      "text_percent": 100
+    },
+    {
+      "action_state_checks": {
+        "geometry_unchanged": true,
+        "replay": {
+          "inner_native": [
+            386,
+            282,
+            84,
+            36
+          ],
+          "logical_rect": [
+            776.0,
+            568.0,
+            160.0,
+            64.0
+          ],
+          "ok": true,
+          "outer_native": [
+            384,
+            280,
+            88,
+            40
+          ],
+          "points": [
+            {
+              "point": [
+                384,
+                300
+              ],
+              "rgb": "d8cfb7"
+            },
+            {
+              "point": [
+                386,
+                300
+              ],
+              "rgb": "a9935f"
+            },
+            {
+              "point": [
+                385,
+                300
+              ],
+              "rgb": "151b25"
+            },
+            {
+              "point": [
+                387,
+                300
+              ],
+              "rgb": "151b25"
+            }
+          ]
+        },
+        "replay_focus_restored": true,
+        "selector": {
+          "inner_native": [
+            202,
+            242,
+            148,
+            36
+          ],
+          "logical_rect": [
+            408.0,
+            488.0,
+            288.0,
+            64.0
+          ],
+          "ok": true,
+          "outer_native": [
+            200,
+            240,
+            152,
+            40
+          ],
+          "points": [
+            {
+              "point": [
+                200,
+                260
+              ],
+              "rgb": "151b25"
+            },
+            {
+              "point": [
+                202,
+                260
+              ],
+              "rgb": "644000"
+            },
+            {
+              "point": [
+                201,
+                260
+              ],
+              "rgb": "c3baa3"
+            },
+            {
+              "point": [
+                203,
+                260
+              ],
+              "rgb": "c3baa3"
+            }
+          ]
+        }
+      },
+      "action_state_files": {
+        "replay_focus": "zh-CN-125-AfterHours-action-replay-focus.png",
+        "selector_focus": "zh-CN-125-AfterHours-action-selector-focus.png"
+      },
+      "colour_differentiation": "standard",
+      "error_file": "zh-CN-125-AfterHours-error.png",
+      "focus_retained": true,
+      "geometry": {
+        "ok": true,
+        "picker": [
+          408,
+          488,
+          288,
+          64
+        ],
+        "replay": [
+          776,
+          568,
+          160,
+          64
+        ],
+        "replay_text_width": 40.0,
+        "status": [
+          408,
+          568,
+          360,
+          64
+        ],
+        "status_lines": 1,
+        "title": [
+          392,
+          32,
+          504,
+          28.0
+        ]
+      },
+      "high_contrast": false,
+      "locale": "zh_CN",
+      "palette": "AfterHours",
+      "pixels": {
+        "dock_point": [
+          200,
+          282
+        ],
+        "dock_rgb": "151b25",
+        "ink_point": [
+          208,
+          296
+        ],
+        "nonpaper_sample_count": 0,
+        "ok": true,
+        "rule_point": [
+          196,
+          300
+        ],
+        "rule_rgb": "c9846e",
+        "title_ink_point": [
+          200,
+          19
+        ]
+      },
+      "retry_copy": "\u91cd\u8bd5",
+      "retry_success_file": "",
+      "signature_id": "c02fa3e08103a9e4ca440841db3000f7a63bb77d62fd54c328a6922fbdd6353e",
+      "status_copy": "\u672a\u80fd\u5f00\u59cb\u91cd\u64ad",
+      "text_percent": 125
+    },
+    {
+      "action_state_checks": {
+        "geometry_unchanged": true,
+        "replay": {
+          "inner_native": [
+            386,
+            282,
+            84,
+            36
+          ],
+          "logical_rect": [
+            776.0,
+            568.0,
+            160.0,
+            64.0
+          ],
+          "ok": true,
+          "outer_native": [
+            384,
+            280,
+            88,
+            40
+          ],
+          "points": [
+            {
+              "point": [
+                384,
+                300
+              ],
+              "rgb": "d8cfb7"
+            },
+            {
+              "point": [
+                386,
+                300
+              ],
+              "rgb": "a9935f"
+            },
+            {
+              "point": [
+                385,
+                300
+              ],
+              "rgb": "14201d"
+            },
+            {
+              "point": [
+                387,
+                300
+              ],
+              "rgb": "14201d"
+            }
+          ]
+        },
+        "replay_focus_restored": true,
+        "selector": {
+          "inner_native": [
+            202,
+            242,
+            148,
+            36
+          ],
+          "logical_rect": [
+            408.0,
+            488.0,
+            288.0,
+            64.0
+          ],
+          "ok": true,
+          "outer_native": [
+            200,
+            240,
+            152,
+            40
+          ],
+          "points": [
+            {
+              "point": [
+                200,
+                260
+              ],
+              "rgb": "14201d"
+            },
+            {
+              "point": [
+                202,
+                260
+              ],
+              "rgb": "644000"
+            },
+            {
+              "point": [
+                201,
+                260
+              ],
+              "rgb": "c3baa3"
+            },
+            {
+              "point": [
+                203,
+                260
+              ],
+              "rgb": "c3baa3"
+            }
+          ]
+        }
+      },
+      "action_state_files": {
+        "replay_focus": "zh-CN-125-Midnight-action-replay-focus.png",
+        "selector_focus": "zh-CN-125-Midnight-action-selector-focus.png"
+      },
+      "colour_differentiation": "standard",
+      "error_file": "zh-CN-125-Midnight-error.png",
+      "focus_retained": true,
+      "geometry": {
+        "ok": true,
+        "picker": [
+          408,
+          488,
+          288,
+          64
+        ],
+        "replay": [
+          776,
+          568,
+          160,
+          64
+        ],
+        "replay_text_width": 40.0,
+        "status": [
+          408,
+          568,
+          360,
+          64
+        ],
+        "status_lines": 1,
+        "title": [
+          392,
+          32,
+          504,
+          28.0
+        ]
+      },
+      "high_contrast": false,
+      "locale": "zh_CN",
+      "palette": "Midnight",
+      "pixels": {
+        "dock_point": [
+          200,
+          282
+        ],
+        "dock_rgb": "14201d",
+        "ink_point": [
+          208,
+          296
+        ],
+        "nonpaper_sample_count": 0,
+        "ok": true,
+        "rule_point": [
+          196,
+          300
+        ],
+        "rule_rgb": "c9846e",
+        "title_ink_point": [
+          200,
+          19
+        ]
+      },
+      "retry_copy": "\u91cd\u8bd5",
+      "retry_success_file": "",
+      "signature_id": "c02fa3e08103a9e4ca440841db3000f7a63bb77d62fd54c328a6922fbdd6353e",
+      "status_copy": "\u672a\u80fd\u5f00\u59cb\u91cd\u64ad",
+      "text_percent": 125
+    },
+    {
+      "action_state_checks": {
+        "geometry_unchanged": true,
+        "replay": {
+          "inner_native": [
+            386,
+            282,
+            84,
+            36
+          ],
+          "logical_rect": [
+            776.0,
+            568.0,
+            160.0,
+            64.0
+          ],
+          "ok": true,
+          "outer_native": [
+            384,
+            280,
+            88,
+            40
+          ],
+          "points": [
+            {
+              "point": [
+                384,
+                300
+              ],
+              "rgb": "d8cfb7"
+            },
+            {
+              "point": [
+                386,
+                300
+              ],
+              "rgb": "a9935f"
+            },
+            {
+              "point": [
+                385,
+                300
+              ],
+              "rgb": "151b25"
+            },
+            {
+              "point": [
+                387,
+                300
+              ],
+              "rgb": "151b25"
+            }
+          ]
+        },
+        "replay_focus_restored": true,
+        "selector": {
+          "inner_native": [
+            202,
+            242,
+            148,
+            36
+          ],
+          "logical_rect": [
+            408.0,
+            488.0,
+            288.0,
+            64.0
+          ],
+          "ok": true,
+          "outer_native": [
+            200,
+            240,
+            152,
+            40
+          ],
+          "points": [
+            {
+              "point": [
+                200,
+                260
+              ],
+              "rgb": "151b25"
+            },
+            {
+              "point": [
+                202,
+                260
+              ],
+              "rgb": "644000"
+            },
+            {
+              "point": [
+                201,
+                260
+              ],
+              "rgb": "c3baa3"
+            },
+            {
+              "point": [
+                203,
+                260
+              ],
+              "rgb": "c3baa3"
+            }
+          ]
+        }
+      },
+      "action_state_files": {
+        "replay_focus": "zh-CN-150-AfterHours-action-replay-focus.png",
+        "selector_focus": "zh-CN-150-AfterHours-action-selector-focus.png"
+      },
+      "colour_differentiation": "standard",
+      "error_file": "zh-CN-150-AfterHours-error.png",
+      "focus_retained": true,
+      "geometry": {
+        "ok": true,
+        "picker": [
+          408,
+          488,
+          288,
+          64
+        ],
+        "replay": [
+          776,
+          568,
+          160,
+          64
+        ],
+        "replay_text_width": 48.0,
+        "status": [
+          408,
+          568,
+          360,
+          64
+        ],
+        "status_lines": 1,
+        "title": [
+          392,
+          32,
+          504,
+          32.0
+        ]
+      },
+      "high_contrast": false,
+      "locale": "zh_CN",
+      "palette": "AfterHours",
+      "pixels": {
+        "dock_point": [
+          200,
+          282
+        ],
+        "dock_rgb": "151b25",
+        "ink_point": [
+          209,
+          295
+        ],
+        "nonpaper_sample_count": 0,
+        "ok": true,
+        "rule_point": [
+          196,
+          300
+        ],
+        "rule_rgb": "c9846e",
+        "title_ink_point": [
+          201,
+          19
+        ]
+      },
+      "retry_copy": "\u91cd\u8bd5",
+      "retry_success_file": "",
+      "signature_id": "c02fa3e08103a9e4ca440841db3000f7a63bb77d62fd54c328a6922fbdd6353e",
+      "status_copy": "\u672a\u80fd\u5f00\u59cb\u91cd\u64ad",
+      "text_percent": 150
+    },
+    {
+      "action_state_checks": {
+        "geometry_unchanged": true,
+        "replay": {
+          "inner_native": [
+            386,
+            282,
+            84,
+            36
+          ],
+          "logical_rect": [
+            776.0,
+            568.0,
+            160.0,
+            64.0
+          ],
+          "ok": true,
+          "outer_native": [
+            384,
+            280,
+            88,
+            40
+          ],
+          "points": [
+            {
+              "point": [
+                384,
+                300
+              ],
+              "rgb": "d8cfb7"
+            },
+            {
+              "point": [
+                386,
+                300
+              ],
+              "rgb": "a9935f"
+            },
+            {
+              "point": [
+                385,
+                300
+              ],
+              "rgb": "14201d"
+            },
+            {
+              "point": [
+                387,
+                300
+              ],
+              "rgb": "14201d"
+            }
+          ]
+        },
+        "replay_focus_restored": true,
+        "selector": {
+          "inner_native": [
+            202,
+            242,
+            148,
+            36
+          ],
+          "logical_rect": [
+            408.0,
+            488.0,
+            288.0,
+            64.0
+          ],
+          "ok": true,
+          "outer_native": [
+            200,
+            240,
+            152,
+            40
+          ],
+          "points": [
+            {
+              "point": [
+                200,
+                260
+              ],
+              "rgb": "14201d"
+            },
+            {
+              "point": [
+                202,
+                260
+              ],
+              "rgb": "644000"
+            },
+            {
+              "point": [
+                201,
+                260
+              ],
+              "rgb": "c3baa3"
+            },
+            {
+              "point": [
+                203,
+                260
+              ],
+              "rgb": "c3baa3"
+            }
+          ]
+        }
+      },
+      "action_state_files": {
+        "replay_focus": "zh-CN-150-Midnight-action-replay-focus.png",
+        "selector_focus": "zh-CN-150-Midnight-action-selector-focus.png"
+      },
+      "colour_differentiation": "standard",
+      "error_file": "zh-CN-150-Midnight-error.png",
+      "focus_retained": true,
+      "geometry": {
+        "ok": true,
+        "picker": [
+          408,
+          488,
+          288,
+          64
+        ],
+        "replay": [
+          776,
+          568,
+          160,
+          64
+        ],
+        "replay_text_width": 48.0,
+        "status": [
+          408,
+          568,
+          360,
+          64
+        ],
+        "status_lines": 1,
+        "title": [
+          392,
+          32,
+          504,
+          32.0
+        ]
+      },
+      "high_contrast": false,
+      "locale": "zh_CN",
+      "palette": "Midnight",
+      "pixels": {
+        "dock_point": [
+          200,
+          282
+        ],
+        "dock_rgb": "14201d",
+        "ink_point": [
+          209,
+          295
+        ],
+        "nonpaper_sample_count": 0,
+        "ok": true,
+        "rule_point": [
+          196,
+          300
+        ],
+        "rule_rgb": "c9846e",
+        "title_ink_point": [
+          201,
+          19
+        ]
+      },
+      "retry_copy": "\u91cd\u8bd5",
+      "retry_success_file": "",
+      "signature_id": "c02fa3e08103a9e4ca440841db3000f7a63bb77d62fd54c328a6922fbdd6353e",
+      "status_copy": "\u672a\u80fd\u5f00\u59cb\u91cd\u64ad",
+      "text_percent": 150
+    },
+    {
+      "action_state_checks": {
+        "geometry_unchanged": true,
+        "replay": {
+          "inner_native": [
+            386,
+            282,
+            84,
+            36
+          ],
+          "logical_rect": [
+            776.0,
+            568.0,
+            160.0,
+            64.0
+          ],
+          "ok": true,
+          "outer_native": [
+            384,
+            280,
+            88,
+            40
+          ],
+          "points": [
+            {
+              "point": [
+                384,
+                300
+              ],
+              "rgb": "d8cfb7"
+            },
+            {
+              "point": [
+                386,
+                300
+              ],
+              "rgb": "a9935f"
+            },
+            {
+              "point": [
+                385,
+                300
+              ],
+              "rgb": "151b25"
+            },
+            {
+              "point": [
+                387,
+                300
+              ],
+              "rgb": "151b25"
+            }
+          ]
+        },
+        "replay_focus_restored": true,
+        "selector": {
+          "inner_native": [
+            202,
+            242,
+            148,
+            36
+          ],
+          "logical_rect": [
+            408.0,
+            488.0,
+            288.0,
+            64.0
+          ],
+          "ok": true,
+          "outer_native": [
+            200,
+            240,
+            152,
+            40
+          ],
+          "points": [
+            {
+              "point": [
+                200,
+                260
+              ],
+              "rgb": "151b25"
+            },
+            {
+              "point": [
+                202,
+                260
+              ],
+              "rgb": "644000"
+            },
+            {
+              "point": [
+                201,
+                260
+              ],
+              "rgb": "c3baa3"
+            },
+            {
+              "point": [
+                203,
+                260
+              ],
+              "rgb": "c3baa3"
+            }
+          ]
+        }
+      },
+      "action_state_files": {
+        "replay_focus": "zh-HK-100-AfterHours-action-replay-focus.png",
+        "selector_focus": "zh-HK-100-AfterHours-action-selector-focus.png"
+      },
+      "colour_differentiation": "standard",
+      "error_file": "zh-HK-100-AfterHours-error.png",
+      "focus_retained": true,
+      "geometry": {
+        "ok": true,
+        "picker": [
+          408,
+          488,
+          288,
+          64
+        ],
+        "replay": [
+          776,
+          568,
+          160,
+          64
+        ],
+        "replay_text_width": 32.0,
+        "status": [
+          408,
+          568,
+          360,
+          64
+        ],
+        "status_lines": 1,
+        "title": [
+          392,
+          32,
+          504,
+          24.0
+        ]
+      },
+      "high_contrast": false,
+      "locale": "zh_HK",
+      "palette": "AfterHours",
+      "pixels": {
+        "dock_point": [
+          200,
+          282
+        ],
+        "dock_rgb": "151b25",
+        "ink_point": [
+          207,
+          297
+        ],
+        "nonpaper_sample_count": 0,
+        "ok": true,
+        "rule_point": [
+          196,
+          300
+        ],
+        "rule_rgb": "c9846e",
+        "title_ink_point": [
+          199,
+          19
+        ]
+      },
+      "retry_copy": "\u91cd\u8a66",
+      "retry_success_file": "",
+      "signature_id": "c02fa3e08103a9e4ca440841db3000f7a63bb77d62fd54c328a6922fbdd6353e",
+      "status_copy": "\u672a\u80fd\u958b\u59cb\u91cd\u64ad",
+      "text_percent": 100
+    },
+    {
+      "action_state_checks": {
+        "geometry_unchanged": true,
+        "replay": {
+          "inner_native": [
+            386,
+            282,
+            84,
+            36
+          ],
+          "logical_rect": [
+            776.0,
+            568.0,
+            160.0,
+            64.0
+          ],
+          "ok": true,
+          "outer_native": [
+            384,
+            280,
+            88,
+            40
+          ],
+          "points": [
+            {
+              "point": [
+                384,
+                300
+              ],
+              "rgb": "d8cfb7"
+            },
+            {
+              "point": [
+                386,
+                300
+              ],
+              "rgb": "a9935f"
+            },
+            {
+              "point": [
+                385,
+                300
+              ],
+              "rgb": "14201d"
+            },
+            {
+              "point": [
+                387,
+                300
+              ],
+              "rgb": "14201d"
+            }
+          ]
+        },
+        "replay_focus_restored": true,
+        "selector": {
+          "inner_native": [
+            202,
+            242,
+            148,
+            36
+          ],
+          "logical_rect": [
+            408.0,
+            488.0,
+            288.0,
+            64.0
+          ],
+          "ok": true,
+          "outer_native": [
+            200,
+            240,
+            152,
+            40
+          ],
+          "points": [
+            {
+              "point": [
+                200,
+                260
+              ],
+              "rgb": "14201d"
+            },
+            {
+              "point": [
+                202,
+                260
+              ],
+              "rgb": "644000"
+            },
+            {
+              "point": [
+                201,
+                260
+              ],
+              "rgb": "c3baa3"
+            },
+            {
+              "point": [
+                203,
+                260
+              ],
+              "rgb": "c3baa3"
+            }
+          ]
+        }
+      },
+      "action_state_files": {
+        "replay_focus": "zh-HK-100-Midnight-action-replay-focus.png",
+        "selector_focus": "zh-HK-100-Midnight-action-selector-focus.png"
+      },
+      "colour_differentiation": "standard",
+      "error_file": "zh-HK-100-Midnight-error.png",
+      "focus_retained": true,
+      "geometry": {
+        "ok": true,
+        "picker": [
+          408,
+          488,
+          288,
+          64
+        ],
+        "replay": [
+          776,
+          568,
+          160,
+          64
+        ],
+        "replay_text_width": 32.0,
+        "status": [
+          408,
+          568,
+          360,
+          64
+        ],
+        "status_lines": 1,
+        "title": [
+          392,
+          32,
+          504,
+          24.0
+        ]
+      },
+      "high_contrast": false,
+      "locale": "zh_HK",
+      "palette": "Midnight",
+      "pixels": {
+        "dock_point": [
+          200,
+          282
+        ],
+        "dock_rgb": "14201d",
+        "ink_point": [
+          207,
+          297
+        ],
+        "nonpaper_sample_count": 0,
+        "ok": true,
+        "rule_point": [
+          196,
+          300
+        ],
+        "rule_rgb": "c9846e",
+        "title_ink_point": [
+          199,
+          19
+        ]
+      },
+      "retry_copy": "\u91cd\u8a66",
+      "retry_success_file": "",
+      "signature_id": "c02fa3e08103a9e4ca440841db3000f7a63bb77d62fd54c328a6922fbdd6353e",
+      "status_copy": "\u672a\u80fd\u958b\u59cb\u91cd\u64ad",
+      "text_percent": 100
+    },
+    {
+      "action_state_checks": {
+        "geometry_unchanged": true,
+        "replay": {
+          "inner_native": [
+            386,
+            282,
+            84,
+            36
+          ],
+          "logical_rect": [
+            776.0,
+            568.0,
+            160.0,
+            64.0
+          ],
+          "ok": true,
+          "outer_native": [
+            384,
+            280,
+            88,
+            40
+          ],
+          "points": [
+            {
+              "point": [
+                384,
+                300
+              ],
+              "rgb": "d8cfb7"
+            },
+            {
+              "point": [
+                386,
+                300
+              ],
+              "rgb": "a9935f"
+            },
+            {
+              "point": [
+                385,
+                300
+              ],
+              "rgb": "151b25"
+            },
+            {
+              "point": [
+                387,
+                300
+              ],
+              "rgb": "151b25"
+            }
+          ]
+        },
+        "replay_focus_restored": true,
+        "selector": {
+          "inner_native": [
+            202,
+            242,
+            148,
+            36
+          ],
+          "logical_rect": [
+            408.0,
+            488.0,
+            288.0,
+            64.0
+          ],
+          "ok": true,
+          "outer_native": [
+            200,
+            240,
+            152,
+            40
+          ],
+          "points": [
+            {
+              "point": [
+                200,
+                260
+              ],
+              "rgb": "151b25"
+            },
+            {
+              "point": [
+                202,
+                260
+              ],
+              "rgb": "644000"
+            },
+            {
+              "point": [
+                201,
+                260
+              ],
+              "rgb": "c3baa3"
+            },
+            {
+              "point": [
+                203,
+                260
+              ],
+              "rgb": "c3baa3"
+            }
+          ]
+        }
+      },
+      "action_state_files": {
+        "replay_focus": "zh-HK-125-AfterHours-action-replay-focus.png",
+        "selector_focus": "zh-HK-125-AfterHours-action-selector-focus.png"
+      },
+      "colour_differentiation": "standard",
+      "error_file": "zh-HK-125-AfterHours-error.png",
+      "focus_retained": true,
+      "geometry": {
+        "ok": true,
+        "picker": [
+          408,
+          488,
+          288,
+          64
+        ],
+        "replay": [
+          776,
+          568,
+          160,
+          64
+        ],
+        "replay_text_width": 40.0,
+        "status": [
+          408,
+          568,
+          360,
+          64
+        ],
+        "status_lines": 1,
+        "title": [
+          392,
+          32,
+          504,
+          28.0
+        ]
+      },
+      "high_contrast": false,
+      "locale": "zh_HK",
+      "palette": "AfterHours",
+      "pixels": {
+        "dock_point": [
+          200,
+          282
+        ],
+        "dock_rgb": "151b25",
+        "ink_point": [
+          208,
+          296
+        ],
+        "nonpaper_sample_count": 0,
+        "ok": true,
+        "rule_point": [
+          196,
+          300
+        ],
+        "rule_rgb": "c9846e",
+        "title_ink_point": [
+          200,
+          19
+        ]
+      },
+      "retry_copy": "\u91cd\u8a66",
+      "retry_success_file": "",
+      "signature_id": "c02fa3e08103a9e4ca440841db3000f7a63bb77d62fd54c328a6922fbdd6353e",
+      "status_copy": "\u672a\u80fd\u958b\u59cb\u91cd\u64ad",
+      "text_percent": 125
+    },
+    {
+      "action_state_checks": {
+        "geometry_unchanged": true,
+        "replay": {
+          "inner_native": [
+            386,
+            282,
+            84,
+            36
+          ],
+          "logical_rect": [
+            776.0,
+            568.0,
+            160.0,
+            64.0
+          ],
+          "ok": true,
+          "outer_native": [
+            384,
+            280,
+            88,
+            40
+          ],
+          "points": [
+            {
+              "point": [
+                384,
+                300
+              ],
+              "rgb": "d8cfb7"
+            },
+            {
+              "point": [
+                386,
+                300
+              ],
+              "rgb": "a9935f"
+            },
+            {
+              "point": [
+                385,
+                300
+              ],
+              "rgb": "14201d"
+            },
+            {
+              "point": [
+                387,
+                300
+              ],
+              "rgb": "14201d"
+            }
+          ]
+        },
+        "replay_focus_restored": true,
+        "selector": {
+          "inner_native": [
+            202,
+            242,
+            148,
+            36
+          ],
+          "logical_rect": [
+            408.0,
+            488.0,
+            288.0,
+            64.0
+          ],
+          "ok": true,
+          "outer_native": [
+            200,
+            240,
+            152,
+            40
+          ],
+          "points": [
+            {
+              "point": [
+                200,
+                260
+              ],
+              "rgb": "14201d"
+            },
+            {
+              "point": [
+                202,
+                260
+              ],
+              "rgb": "644000"
+            },
+            {
+              "point": [
+                201,
+                260
+              ],
+              "rgb": "c3baa3"
+            },
+            {
+              "point": [
+                203,
+                260
+              ],
+              "rgb": "c3baa3"
+            }
+          ]
+        }
+      },
+      "action_state_files": {
+        "replay_focus": "zh-HK-125-Midnight-action-replay-focus.png",
+        "selector_focus": "zh-HK-125-Midnight-action-selector-focus.png"
+      },
+      "colour_differentiation": "standard",
+      "error_file": "zh-HK-125-Midnight-error.png",
+      "focus_retained": true,
+      "geometry": {
+        "ok": true,
+        "picker": [
+          408,
+          488,
+          288,
+          64
+        ],
+        "replay": [
+          776,
+          568,
+          160,
+          64
+        ],
+        "replay_text_width": 40.0,
+        "status": [
+          408,
+          568,
+          360,
+          64
+        ],
+        "status_lines": 1,
+        "title": [
+          392,
+          32,
+          504,
+          28.0
+        ]
+      },
+      "high_contrast": false,
+      "locale": "zh_HK",
+      "palette": "Midnight",
+      "pixels": {
+        "dock_point": [
+          200,
+          282
+        ],
+        "dock_rgb": "14201d",
+        "ink_point": [
+          208,
+          296
+        ],
+        "nonpaper_sample_count": 0,
+        "ok": true,
+        "rule_point": [
+          196,
+          300
+        ],
+        "rule_rgb": "c9846e",
+        "title_ink_point": [
+          200,
+          19
+        ]
+      },
+      "retry_copy": "\u91cd\u8a66",
+      "retry_success_file": "",
+      "signature_id": "c02fa3e08103a9e4ca440841db3000f7a63bb77d62fd54c328a6922fbdd6353e",
+      "status_copy": "\u672a\u80fd\u958b\u59cb\u91cd\u64ad",
+      "text_percent": 125
+    },
+    {
+      "action_state_checks": {
+        "geometry_unchanged": true,
+        "replay": {
+          "inner_native": [
+            386,
+            282,
+            84,
+            36
+          ],
+          "logical_rect": [
+            776.0,
+            568.0,
+            160.0,
+            64.0
+          ],
+          "ok": true,
+          "outer_native": [
+            384,
+            280,
+            88,
+            40
+          ],
+          "points": [
+            {
+              "point": [
+                384,
+                300
+              ],
+              "rgb": "d8cfb7"
+            },
+            {
+              "point": [
+                386,
+                300
+              ],
+              "rgb": "a9935f"
+            },
+            {
+              "point": [
+                385,
+                300
+              ],
+              "rgb": "151b25"
+            },
+            {
+              "point": [
+                387,
+                300
+              ],
+              "rgb": "151b25"
+            }
+          ]
+        },
+        "replay_focus_restored": true,
+        "selector": {
+          "inner_native": [
+            202,
+            242,
+            148,
+            36
+          ],
+          "logical_rect": [
+            408.0,
+            488.0,
+            288.0,
+            64.0
+          ],
+          "ok": true,
+          "outer_native": [
+            200,
+            240,
+            152,
+            40
+          ],
+          "points": [
+            {
+              "point": [
+                200,
+                260
+              ],
+              "rgb": "151b25"
+            },
+            {
+              "point": [
+                202,
+                260
+              ],
+              "rgb": "644000"
+            },
+            {
+              "point": [
+                201,
+                260
+              ],
+              "rgb": "c3baa3"
+            },
+            {
+              "point": [
+                203,
+                260
+              ],
+              "rgb": "c3baa3"
+            }
+          ]
+        }
+      },
+      "action_state_files": {
+        "replay_focus": "zh-HK-150-AfterHours-action-replay-focus.png",
+        "selector_focus": "zh-HK-150-AfterHours-action-selector-focus.png"
+      },
+      "colour_differentiation": "standard",
+      "error_file": "zh-HK-150-AfterHours-error.png",
+      "focus_retained": true,
+      "geometry": {
+        "ok": true,
+        "picker": [
+          408,
+          488,
+          288,
+          64
+        ],
+        "replay": [
+          776,
+          568,
+          160,
+          64
+        ],
+        "replay_text_width": 48.0,
+        "status": [
+          408,
+          568,
+          360,
+          64
+        ],
+        "status_lines": 1,
+        "title": [
+          392,
+          32,
+          504,
+          32.0
+        ]
+      },
+      "high_contrast": false,
+      "locale": "zh_HK",
+      "palette": "AfterHours",
+      "pixels": {
+        "dock_point": [
+          200,
+          282
+        ],
+        "dock_rgb": "151b25",
+        "ink_point": [
+          209,
+          295
+        ],
+        "nonpaper_sample_count": 0,
+        "ok": true,
+        "rule_point": [
+          196,
+          300
+        ],
+        "rule_rgb": "c9846e",
+        "title_ink_point": [
+          201,
+          19
+        ]
+      },
+      "retry_copy": "\u91cd\u8a66",
+      "retry_success_file": "",
+      "signature_id": "c02fa3e08103a9e4ca440841db3000f7a63bb77d62fd54c328a6922fbdd6353e",
+      "status_copy": "\u672a\u80fd\u958b\u59cb\u91cd\u64ad",
+      "text_percent": 150
+    },
+    {
+      "action_state_checks": {
+        "geometry_unchanged": true,
+        "replay": {
+          "inner_native": [
+            386,
+            282,
+            84,
+            36
+          ],
+          "logical_rect": [
+            776.0,
+            568.0,
+            160.0,
+            64.0
+          ],
+          "ok": true,
+          "outer_native": [
+            384,
+            280,
+            88,
+            40
+          ],
+          "points": [
+            {
+              "point": [
+                384,
+                300
+              ],
+              "rgb": "d8cfb7"
+            },
+            {
+              "point": [
+                386,
+                300
+              ],
+              "rgb": "a9935f"
+            },
+            {
+              "point": [
+                385,
+                300
+              ],
+              "rgb": "14201d"
+            },
+            {
+              "point": [
+                387,
+                300
+              ],
+              "rgb": "14201d"
+            }
+          ]
+        },
+        "replay_focus_restored": true,
+        "selector": {
+          "inner_native": [
+            202,
+            242,
+            148,
+            36
+          ],
+          "logical_rect": [
+            408.0,
+            488.0,
+            288.0,
+            64.0
+          ],
+          "ok": true,
+          "outer_native": [
+            200,
+            240,
+            152,
+            40
+          ],
+          "points": [
+            {
+              "point": [
+                200,
+                260
+              ],
+              "rgb": "14201d"
+            },
+            {
+              "point": [
+                202,
+                260
+              ],
+              "rgb": "644000"
+            },
+            {
+              "point": [
+                201,
+                260
+              ],
+              "rgb": "c3baa3"
+            },
+            {
+              "point": [
+                203,
+                260
+              ],
+              "rgb": "c3baa3"
+            }
+          ]
+        }
+      },
+      "action_state_files": {
+        "replay_focus": "zh-HK-150-Midnight-action-replay-focus.png",
+        "selector_focus": "zh-HK-150-Midnight-action-selector-focus.png"
+      },
+      "colour_differentiation": "standard",
+      "error_file": "zh-HK-150-Midnight-error.png",
+      "focus_retained": true,
+      "geometry": {
+        "ok": true,
+        "picker": [
+          408,
+          488,
+          288,
+          64
+        ],
+        "replay": [
+          776,
+          568,
+          160,
+          64
+        ],
+        "replay_text_width": 48.0,
+        "status": [
+          408,
+          568,
+          360,
+          64
+        ],
+        "status_lines": 1,
+        "title": [
+          392,
+          32,
+          504,
+          32.0
+        ]
+      },
+      "high_contrast": false,
+      "locale": "zh_HK",
+      "palette": "Midnight",
+      "pixels": {
+        "dock_point": [
+          200,
+          282
+        ],
+        "dock_rgb": "14201d",
+        "ink_point": [
+          209,
+          295
+        ],
+        "nonpaper_sample_count": 0,
+        "ok": true,
+        "rule_point": [
+          196,
+          300
+        ],
+        "rule_rgb": "c9846e",
+        "title_ink_point": [
+          201,
+          19
+        ]
+      },
+      "retry_copy": "\u91cd\u8a66",
+      "retry_success_file": "",
+      "signature_id": "c02fa3e08103a9e4ca440841db3000f7a63bb77d62fd54c328a6922fbdd6353e",
+      "status_copy": "\u672a\u80fd\u958b\u59cb\u91cd\u64ad",
+      "text_percent": 150
+    }
+  ],
+  "scope": "Mounted Gallery, real Profile/catalogs/themes, injected viewport keyboard, exact pre-session Retry and native pixels; no hardware input, UIA, full visual-conformance, storage-Retry, or whole-journey claim.",
+  "tuple_count": 18
+}

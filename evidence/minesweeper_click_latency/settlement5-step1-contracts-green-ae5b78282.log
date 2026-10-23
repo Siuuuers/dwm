@@ -1,0 +1,89 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/click-latency-3/.godot/phase2r_tests/e673bd13-a5b9-4555-93cf-af28f6328eaf/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+
+
+res://tests/unit/tooling/test_desktop_contract_evidence.gd
+* test_evidence_class_and_both_clis_exist
+* test_schema_and_artifact_strict_parse_and_reject_duplicate_members
+* test_artifact_passes_schema_and_evidence_validation
+* test_every_source_digest_recomputes_to_exact_ordered_binding_equality
+* test_rebuilt_artifact_is_byte_equal_to_the_checked_in_bytes
+* test_every_top_level_field_mutation_fails_closed
+* test_every_nested_contract_record_mutation_fails_closed
+* test_every_mandatory_binding_delete_reorder_rename_or_corruption_fails_closed
+* test_an_uppercase_digest_is_rejected_even_though_the_schema_subset_allows_it
+9/9 passed.
+
+
+res://tests/unit/tooling/test_minesweeper_contract_evidence.gd
+* test_evidence_class_and_both_clis_exist
+* test_schema_and_artifact_strict_parse_and_reject_duplicate_members
+* test_artifact_passes_schema_and_evidence_validation
+* test_vocabularies_are_transcribed_from_the_production_contract
+* test_every_source_digest_recomputes_to_exact_ordered_binding_equality
+* test_rebuilt_artifact_is_byte_equal_to_the_checked_in_bytes
+* test_every_top_level_field_mutation_fails_closed
+* test_every_port_signature_mutation_including_the_three_gate_methods_fails_closed
+* test_fatal_latch_projection_order_and_retained_details_mutations_fail_closed
+* test_normalized_result_retry_phases_and_the_stage_post_result_call_fail_closed
+* test_one_fixture_id_mutation_fails_closed
+* test_every_mandatory_binding_delete_reorder_rename_or_corruption_fails_closed
+* test_an_uppercase_digest_is_rejected_even_though_the_schema_subset_allows_it
+13/13 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/unit/tooling/test_desktop_contract_evidence.gd
+    - Outside Tests
+        * [<Node#131617261336>(subsystem_animation.gd)]
+        * [<Node#131634038564>(subsystem_audio.gd)]
+        * [<Node#131650815796>]
+        * [<Node#131667593021>]
+        * [<Node#131684370243>(subsystem_backgrounds.gd)]
+        * [<Node#132221241156>(subsystem_choices.gd)]
+        * [<Timer#132238018373>]
+        * [<Node#132254795590>(subsystem_expression.gd)]
+        * [<Node#132288350027>(subsystem_glossary.gd)]
+        * [<Node#132305127244>(subsystem_history.gd)]
+        * [<Node#132321904461>(subsystem_input.gd)]
+        * [<Timer#132338681678>]
+        * [<Node#132355458895>(subsystem_jump.gd)]
+        * [<Node#132372236112>(subsystem_containers.gd)]
+        * [<Node#132389013329>(subsystem_portraits.gd)]
+        * [<Node#132925884242>(subsystem_save.gd)]
+        * [<Timer#132942661459>]
+        * [<Node#132959438676>(subsystem_settings.gd)]
+        * [<Node#132976215896>(subsystem_styles.gd)]
+        * [<Node#132992993113>(subsystem_text.gd)]
+        * [<Node#133076879198>(subsystem_text_input.gd)]
+        * [<Node#133093656415>(subsystem_variables.gd)]
+        * [<Node#133110433632>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#133127210849>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+Totals
+------
+Scripts               2
+Tests                22
+Passing Tests        22
+Asserts             935
+Orphans              24
+Time              2.665s
+
+
+---- All tests passed! ----

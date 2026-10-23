@@ -1,0 +1,793 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+OpenGL API 3.3.0 - Build 31.0.101.4146 - Compatibility - Using Device: Intel - Intel(R) Iris(R) Xe Graphics
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/3cad116e-c85f-453e-ba7a-22cdc2ffcc98/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+res://tests/unit/tooling/test_ui_literal_audit.gd
+* test_current_dormant_scene_copy_has_literal_specific_demonstrated_owners
+* test_scene_owner_is_location_and_literal_specific
+* test_spoofed_binding_and_unknown_catalog_key_are_refused
+* test_unknown_shared_placeholder_is_not_blanket_runtime_data
+* test_script_scanner_refuses_stable_literals_inside_expressions_and_later_arguments
+ERROR: Parse JSON failed. Error at line 0: Expected 'EOF'
+   at: parse_string (core/io/json.cpp:624)
+   GDScript backtrace (most recent call first):
+       [0] _script_disposition (res://tools/localization/UiLiteralAudit.gd:436)
+       [1] scan_script_source (res://tools/localization/UiLiteralAudit.gd:322)
+       [2] _script (res://tests/unit/tooling/test_ui_literal_audit.gd:32)
+       [3] test_script_scanner_refuses_stable_literals_inside_expressions_and_later_arguments (res://tests/unit/tooling/test_ui_literal_audit.gd:135)
+       [4] _run_test (res://addons/gut/gut.gd:622)
+       [5] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [6] test_scripts (res://addons/gut/gut.gd:1047)
+       [7] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [8] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [9] main (res://addons/gut/cli/gut_cli.gd:297)
+       [10] _init (res://addons/gut/gut_cmdln.gd:39)
+ERROR: Parse JSON failed. Error at line 0: Expected 'EOF'
+   at: parse_string (core/io/json.cpp:624)
+   GDScript backtrace (most recent call first):
+       [0] _script_disposition (res://tools/localization/UiLiteralAudit.gd:436)
+       [1] scan_script_source (res://tools/localization/UiLiteralAudit.gd:322)
+       [2] _script (res://tests/unit/tooling/test_ui_literal_audit.gd:32)
+       [3] test_script_scanner_refuses_stable_literals_inside_expressions_and_later_arguments (res://tests/unit/tooling/test_ui_literal_audit.gd:135)
+       [4] _run_test (res://addons/gut/gut.gd:622)
+       [5] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [6] test_scripts (res://addons/gut/gut.gd:1047)
+       [7] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [8] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [9] main (res://addons/gut/cli/gut_cli.gd:297)
+       [10] _init (res://addons/gut/gut_cmdln.gd:39)
+ERROR: Parse JSON failed. Error at line 0: Expected 'true', 'false', or 'null', got 'index'
+   at: parse_string (core/io/json.cpp:624)
+   GDScript backtrace (most recent call first):
+       [0] _script_disposition (res://tools/localization/UiLiteralAudit.gd:436)
+       [1] scan_script_source (res://tools/localization/UiLiteralAudit.gd:322)
+       [2] _script (res://tests/unit/tooling/test_ui_literal_audit.gd:32)
+       [3] test_script_scanner_refuses_stable_literals_inside_expressions_and_later_arguments (res://tests/unit/tooling/test_ui_literal_audit.gd:135)
+       [4] _run_test (res://addons/gut/gut.gd:622)
+       [5] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [6] test_scripts (res://addons/gut/gut.gd:1047)
+       [7] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [8] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [9] main (res://addons/gut/cli/gut_cli.gd:297)
+       [10] _init (res://addons/gut/gut_cmdln.gd:39)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-0>Condition "error != Error::OK" is true. Returning: Variant()
+    [2] <engine-0>Condition "error != Error::OK" is true. Returning: Variant()
+    [3] <engine-0>Condition "error != Error::OK" is true. Returning: Variant()
+      at line -1
+* test_script_scanner_collects_every_failure_instead_of_stopping_at_the_first
+ERROR: Parse JSON failed. Error at line 0: Expected 'EOF'
+   at: parse_string (core/io/json.cpp:624)
+   GDScript backtrace (most recent call first):
+       [0] _script_disposition (res://tools/localization/UiLiteralAudit.gd:436)
+       [1] scan_script_source (res://tools/localization/UiLiteralAudit.gd:322)
+       [2] _script (res://tests/unit/tooling/test_ui_literal_audit.gd:32)
+       [3] test_script_scanner_collects_every_failure_instead_of_stopping_at_the_first (res://tests/unit/tooling/test_ui_literal_audit.gd:142)
+       [4] _run_test (res://addons/gut/gut.gd:622)
+       [5] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-0>Condition "error != Error::OK" is true. Returning: Variant()
+      at line -1
+* test_script_scanner_accepts_registered_lookup_and_dynamic_presenter_value
+ERROR: Parse JSON failed. Error at line 0: Unexpected character
+   at: parse_string (core/io/json.cpp:624)
+   GDScript backtrace (most recent call first):
+       [0] _script_disposition (res://tools/localization/UiLiteralAudit.gd:436)
+       [1] scan_script_source (res://tools/localization/UiLiteralAudit.gd:322)
+       [2] _script (res://tests/unit/tooling/test_ui_literal_audit.gd:32)
+       [3] test_script_scanner_accepts_registered_lookup_and_dynamic_presenter_value (res://tests/unit/tooling/test_ui_literal_audit.gd:161)
+       [4] _run_test (res://addons/gut/gut.gd:622)
+       [5] _test_the_scripts (res://addons/gut/gut.gd:835)
+ERROR: Parse JSON failed. Error at line 0: Expected 'true', 'false', or 'null', got 'presented'
+   at: parse_string (core/io/json.cpp:624)
+   GDScript backtrace (most recent call first):
+       [0] _script_disposition (res://tools/localization/UiLiteralAudit.gd:436)
+       [1] scan_script_source (res://tools/localization/UiLiteralAudit.gd:322)
+       [2] _script (res://tests/unit/tooling/test_ui_literal_audit.gd:32)
+       [3] test_script_scanner_accepts_registered_lookup_and_dynamic_presenter_value (res://tests/unit/tooling/test_ui_literal_audit.gd:161)
+       [4] _run_test (res://addons/gut/gut.gd:622)
+       [5] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-0>Condition "error != Error::OK" is true. Returning: Variant()
+    [2] <engine-0>Condition "error != Error::OK" is true. Returning: Variant()
+      at line -1
+* test_direct_properties_and_accessibility_descriptions_are_sinks
+* test_comments_cannot_spoof_localization_or_create_sinks
+* test_localized_call_does_not_own_an_untranslated_sibling_fallback
+ERROR: Parse JSON failed. Error at line 0: Expected 'true', 'false', or 'null', got 'LocalizationManager'
+   at: parse_string (core/io/json.cpp:624)
+   GDScript backtrace (most recent call first):
+       [0] _script_disposition (res://tools/localization/UiLiteralAudit.gd:436)
+       [1] scan_script_source (res://tools/localization/UiLiteralAudit.gd:322)
+       [2] _script (res://tests/unit/tooling/test_ui_literal_audit.gd:32)
+       [3] test_localized_call_does_not_own_an_untranslated_sibling_fallback (res://tests/unit/tooling/test_ui_literal_audit.gd:203)
+       [4] _run_test (res://addons/gut/gut.gd:622)
+       [5] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-0>Condition "error != Error::OK" is true. Returning: Variant()
+      at line -1
+* test_lowercase_one_word_and_inline_locale_spoof_are_refused
+ERROR: Parse JSON failed. Error at line 0: Expected 'EOF'
+   at: parse_string (core/io/json.cpp:624)
+   GDScript backtrace (most recent call first):
+       [0] _script_disposition (res://tools/localization/UiLiteralAudit.gd:436)
+       [1] scan_script_source (res://tools/localization/UiLiteralAudit.gd:322)
+       [2] _script (res://tests/unit/tooling/test_ui_literal_audit.gd:32)
+       [3] test_lowercase_one_word_and_inline_locale_spoof_are_refused (res://tests/unit/tooling/test_ui_literal_audit.gd:213)
+       [4] _run_test (res://addons/gut/gut.gd:622)
+       [5] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-0>Condition "error != Error::OK" is true. Returning: Variant()
+      at line -1
+* test_localized_binding_refuses_root_escape_and_requires_exact_format_parameters
+* test_source_inventory_is_sorted_complete_and_reports_unreadable_sources
+8/13 passed.
+
+
+res://tests/scene/test_ending_recovery_localization.gd
+* test_retry_copy_follows_locale_without_changing_the_pending_command
+* test_normal_playback_exposes_no_return_action_or_error
+* test_no_public_ending_title_is_added_by_the_recovery_host
+* test_programmatic_pressed_cannot_submit_a_retry
+* test_focused_keyboard_activation_submits_one_retry
+* test_missing_localization_hides_the_whole_recovery_surface
+* test_locale_change_retires_a_held_retry_contact
+* test_registered_accessibility_preferences_update_the_recovery_material
+* test_retry_focus_and_keyboard_replay_the_same_temporarily_failed_command
+9/9 passed.
+
+
+res://tests/unit/test_localization_extraction.gd
+* test_every_immutable_subset_record_remains_in_catalogs_exactly
+* test_immutable_fingerprint_matches_exact_50_25_25_records
+* test_manifest_and_catalog_bundle_are_semantically_valid
+* test_manifest_rejects_duplicates_paths_and_cycles
+* test_placeholder_mismatch_rejects_bundle
+5/5 passed.
+
+
+res://tests/unit/test_localization.gd
+* test_initialization_loads_manifest_and_returns_detached_selectable_records
+* test_alias_switch_commits_profile_before_signals_and_publishes_once
+* test_lookup_uses_registered_fallback_and_exact_placeholder_sets
+WARNING: Localization format for key 'hud.minesweeper_rounds'
+   at: push_warning (core/variant/variant_utility.cpp:1034)
+   GDScript backtrace (most recent call first):
+       [0] _warn_once (res://autoload/LocalizationManager.gd:454)
+       [1] t (res://autoload/LocalizationManager.gd:210)
+       [2] test_lookup_uses_registered_fallback_and_exact_placeholder_sets (res://tests/unit/test_localization.gd:114)
+       [3] _run_test (res://addons/gut/gut.gd:622)
+       [4] _test_the_scripts (res://addons/gut/gut.gd:835)
+WARNING: Localization missing for key 'missing.key'
+   at: push_warning (core/variant/variant_utility.cpp:1034)
+   GDScript backtrace (most recent call first):
+       [0] _warn_once (res://autoload/LocalizationManager.gd:454)
+       [1] t (res://autoload/LocalizationManager.gd:204)
+       [2] test_lookup_uses_registered_fallback_and_exact_placeholder_sets (res://tests/unit/test_localization.gd:116)
+       [3] _run_test (res://addons/gut/gut.gd:622)
+       [4] _test_the_scripts (res://addons/gut/gut.gd:835)
+[ExpectedError]
+* test_prepare_locale_is_detached_and_unknown_locale_mutates_nothing
+* test_pending_root_is_applied_during_initialization
+* test_pending_root_can_unregister_and_pending_failure_fails_initialization
+* test_ready_registration_applies_current_presentation_without_stale_state
+* test_root_apply_failure_rolls_back_prior_root_and_preserves_profile
+* test_profile_write_failure_rolls_back_all_roots_and_manager
+* test_initialization_canonicalizes_alias_and_removed_locale_to_durable_values
+* test_prepared_bundle_contains_only_candidate_fallback_chain
+* test_external_committed_language_change_applies_validated_memory_without_second_write
+* test_configured_mutation_gate_identity_survives_initialization
+* test_restore_apply_and_rollback_are_silent_and_detached
+* test_both_chinese_catalogs_translate_all_real_title_buttons_without_english_fallback
+* test_witnessed_transport_copy_is_catalog_owned_in_all_three_locales
+16/16 passed.
+
+
+res://tests/unit/test_localized_binding.gd
+* test_ready_refreshes_each_supported_property_once
+* test_parameters_are_recursive_copies_and_refresh_only_after_valid_commit
+* test_locale_signal_refreshes_exactly_once_and_invalid_contracts_reject
+* test_presentation_prepare_apply_rollback_and_manager_registration
+4/4 passed.
+
+
+res://tests/integration/test_ordered_ending_playback.gd
+* test_lifecycle_accepts_strict_ordered_plan_and_advances_each_index
+* test_ordered_plan_restore_refuses_tampered_cursor_and_role_order
+* test_ending_scene_chains_all_steps_then_drains_gallery_and_completion
+3/3 passed.
+
+
+res://tests/integration/test_ordered_ending_real_runtime.gd
+* test_real_four_step_playback_records_each_discovery_then_saves_completed_run
+[Dialogic Comment] #TODO: sylvia ending dialogue
+[Dialogic Comment] #TODO: sylvia ending dialogue
+[Dialogic Comment] #PURPOSE: solo_ending_step
+[Dialogic Comment] #CAUSAL INPUT: validated frozen context
+[Dialogic Comment] #VARIATION: registered layer order
+[Dialogic Comment] #ALLOWED SIGNALS: history.line.witness
+[Dialogic Comment] #PURPOSE: pair_ending_step
+[Dialogic Comment] #CAUSAL INPUT: validated frozen context
+[Dialogic Comment] #VARIATION: registered layer order
+[Dialogic Comment] #ALLOWED SIGNALS: history.line.witness
+[Dialogic Comment] #PURPOSE: pair_ending_step
+[Dialogic Comment] #CAUSAL INPUT: validated frozen context
+[Dialogic Comment] #VARIATION: registered layer order
+[Dialogic Comment] #ALLOWED SIGNALS: history.line.witness
+    24 Orphans
+        * [<Node#3222181776123>(subsystem_animation.gd)]
+        * [<Node#3222198553340>(subsystem_audio.gd)]
+        * [<Node#3222215330557>]
+        * [<Node#3222232107774>]
+        * [<Node#3222248884991>(subsystem_backgrounds.gd)]
+        * [<Node#3222282439424>(subsystem_choices.gd)]
+        * [<Timer#3222299216641>]
+        * [<Node#3222315993858>(subsystem_expression.gd)]
+        * [<Node#3222349548292>(subsystem_glossary.gd)]
+        * [<Node#3222366325509>(subsystem_history.gd)]
+        * [<Node#3222383102726>(subsystem_input.gd)]
+        * [<Timer#3222399879943>]
+        * [<Node#3222416657160>(subsystem_jump.gd)]
+        * [<Node#3222433434377>(subsystem_containers.gd)]
+        * [<Node#3222450211594>(subsystem_portraits.gd)]
+        * [<Node#3222483766027>(subsystem_save.gd)]
+        * [<Timer#3222500543244>]
+        * [<Node#3222517320461>(subsystem_settings.gd)]
+        * [<Node#3222534097678>(subsystem_styles.gd)]
+        * [<Node#3222550874895>(subsystem_text.gd)]
+        * [<Node#3222634760980>(subsystem_text_input.gd)]
+        * [<Node#3222651538197>(subsystem_variables.gd)]
+        * [<Node#3222668315414>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#3222685092631>]
+* test_failed_step_save_retries_exact_completion_without_replaying_timeline
+[Dialogic Comment] #TODO: sylvia ending dialogue
+[Dialogic Comment] #TODO: sylvia ending dialogue
+[Dialogic Comment] #PURPOSE: solo_ending_step
+[Dialogic Comment] #CAUSAL INPUT: validated frozen context
+[Dialogic Comment] #VARIATION: registered layer order
+[Dialogic Comment] #ALLOWED SIGNALS: history.line.witness
+[Dialogic Comment] #PURPOSE: pair_ending_step
+[Dialogic Comment] #CAUSAL INPUT: validated frozen context
+[Dialogic Comment] #VARIATION: registered layer order
+[Dialogic Comment] #ALLOWED SIGNALS: history.line.witness
+[Dialogic Comment] #PURPOSE: pair_ending_step
+[Dialogic Comment] #CAUSAL INPUT: validated frozen context
+[Dialogic Comment] #VARIATION: registered layer order
+[Dialogic Comment] #ALLOWED SIGNALS: history.line.witness
+    24 Orphans
+        * [<Node#3408056552239>]
+        * [<Node#3408073329456>]
+        * [<Node#3408090106673>(subsystem_backgrounds.gd)]
+        * [<Node#3408157215539>(subsystem_expression.gd)]
+        * [<Timer#3408140438324>]
+        * [<Node#3408123661109>(subsystem_choices.gd)]
+        * [<Node#3408190769974>(subsystem_glossary.gd)]
+        * [<Node#3408207547191>(subsystem_history.gd)]
+        * [<Node#3408224324408>(subsystem_input.gd)]
+        * [<Timer#3408241101625>]
+        * [<Node#3408257878842>(subsystem_jump.gd)]
+        * [<Node#3408022997835>(subsystem_animation.gd)]
+        * [<Node#3408039775052>(subsystem_audio.gd)]
+        * [<Timer#3408341764949>]
+        * [<Node#3408358542166>(subsystem_settings.gd)]
+        * [<Node#3408392096601>(subsystem_text.gd)]
+        * [<AudioStreamPlayer#3408526314355>]
+        * [<Node#3408492759924>(subsystem_variables.gd)]
+        * [<Node#3408509537141>(subsystem_voice.gd)]
+        * [<Node#3408291433337>(subsystem_portraits.gd)]
+        * [<Node#3408324987772>(subsystem_save.gd)]
+        * [<Node#3408375319432>(subsystem_styles.gd)]
+        * [<Node#3408475982737>(subsystem_text_input.gd)]
+        * [<Node#3408274656150>(subsystem_containers.gd)]
+* test_cursor_restore_resumes_next_exact_physical_branch
+[Dialogic Comment] #TODO: sylvia ending dialogue
+[Dialogic Comment] #PURPOSE: solo_ending_step
+[Dialogic Comment] #CAUSAL INPUT: validated frozen context
+[Dialogic Comment] #VARIATION: registered layer order
+[Dialogic Comment] #ALLOWED SIGNALS: history.line.witness
+[Dialogic Comment] #PURPOSE: pair_ending_step
+[Dialogic Comment] #CAUSAL INPUT: validated frozen context
+[Dialogic Comment] #VARIATION: registered layer order
+[Dialogic Comment] #ALLOWED SIGNALS: history.line.witness
+[Dialogic Comment] #PURPOSE: pair_ending_step
+[Dialogic Comment] #CAUSAL INPUT: validated frozen context
+[Dialogic Comment] #VARIATION: registered layer order
+[Dialogic Comment] #ALLOWED SIGNALS: history.line.witness
+    24 Orphans
+        * [<Node#3564185323869>(subsystem_glossary.gd)]
+        * [<Node#3564252433037>(subsystem_jump.gd)]
+        * [<Node#3564151769760>(subsystem_expression.gd)]
+        * [<Node#3564118215334>(subsystem_choices.gd)]
+        * [<Node#3564218878672>(subsystem_input.gd)]
+        * [<Node#3564034329300>(subsystem_audio.gd)]
+        * [<Timer#3564235655899>]
+        * [<Node#3564017552103>(subsystem_animation.gd)]
+        * [<Timer#3564134992624>]
+        * [<Node#3564202101490>(subsystem_history.gd)]
+        * [<Node#3564067883914>]
+        * [<Node#3564084661135>(subsystem_backgrounds.gd)]
+        * [<Node#3564051106709>]
+        * [<Node#3564285987889>(subsystem_portraits.gd)]
+        * [<Node#3564319542330>(subsystem_save.gd)]
+        * [<Node#3564504091708>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#3564520868937>]
+        * [<Node#3564386651210>(subsystem_text.gd)]
+        * [<Timer#3564336319564>]
+        * [<Node#3564353096781>(subsystem_settings.gd)]
+        * [<Node#3564487314518>(subsystem_variables.gd)]
+        * [<Node#3564369874012>(subsystem_styles.gd)]
+        * [<Node#3564470537313>(subsystem_text_input.gd)]
+        * [<Node#3564269210726>(subsystem_containers.gd)]
+* test_enter_envelope_preserves_the_complete_already_resolved_ordered_plan
+    24 Orphans
+        * [<Node#3714593065653>(subsystem_expression.gd)]
+        * [<AudioStreamPlayer#3714962164419>]
+        * [<Node#3714827946942>(subsystem_text.gd)]
+        * [<Node#3714794392513>(subsystem_settings.gd)]
+        * [<Timer#3714777615299>]
+        * [<Node#3714475625419>(subsystem_audio.gd)]
+        * [<Node#3714458848204>(subsystem_animation.gd)]
+        * [<Node#3714626620372>(subsystem_glossary.gd)]
+        * [<Node#3714693729242>(subsystem_jump.gd)]
+        * [<Node#3714660174811>(subsystem_input.gd)]
+        * [<Timer#3714676952028>]
+        * [<Node#3714559511518>(subsystem_choices.gd)]
+        * [<Node#3714643397599>(subsystem_history.gd)]
+        * [<Timer#3714576288741>]
+        * [<Node#3714928610287>(subsystem_variables.gd)]
+        * [<Node#3714945387504>(subsystem_voice.gd)]
+        * [<Node#3714760838129>(subsystem_save.gd)]
+        * [<Node#3714811169789>(subsystem_styles.gd)]
+        * [<Node#3714911833090>(subsystem_text_input.gd)]
+        * [<Node#3714710506503>(subsystem_containers.gd)]
+        * [<Node#3714727283793>(subsystem_portraits.gd)]
+        * [<Node#3714509179998>]
+        * [<Node#3714525957215>(subsystem_backgrounds.gd)]
+        * [<Node#3714492402789>]
+* test_completed_snapshot_returns_without_replaying_or_rewriting_rewards
+[Dialogic Comment] #TODO: sylvia ending dialogue
+[Dialogic Comment] #TODO: sylvia ending dialogue
+[Dialogic Comment] #PURPOSE: solo_ending_step
+[Dialogic Comment] #CAUSAL INPUT: validated frozen context
+[Dialogic Comment] #VARIATION: registered layer order
+[Dialogic Comment] #ALLOWED SIGNALS: history.line.witness
+[Dialogic Comment] #PURPOSE: pair_ending_step
+[Dialogic Comment] #CAUSAL INPUT: validated frozen context
+[Dialogic Comment] #VARIATION: registered layer order
+[Dialogic Comment] #ALLOWED SIGNALS: history.line.witness
+[Dialogic Comment] #PURPOSE: pair_ending_step
+[Dialogic Comment] #CAUSAL INPUT: validated frozen context
+[Dialogic Comment] #VARIATION: registered layer order
+[Dialogic Comment] #ALLOWED SIGNALS: history.line.witness
+    24 Orphans
+        * [<Node#3777675397953>(subsystem_containers.gd)]
+        * [<Node#3777524403075>(subsystem_choices.gd)]
+        * [<Node#3777591512004>(subsystem_glossary.gd)]
+        * [<Node#3777474071494>]
+        * [<Node#3777557957575>(subsystem_expression.gd)]
+        * [<Node#3777440517064>(subsystem_audio.gd)]
+        * [<Timer#3777541180361>]
+        * [<Node#3777457294282>]
+        * [<Node#3777490848766>(subsystem_backgrounds.gd)]
+        * [<Node#3777423739904>(subsystem_animation.gd)]
+        * [<Node#3777625066504>(subsystem_input.gd)]
+        * [<Timer#3777641843724>]
+        * [<Node#3777658620941>(subsystem_jump.gd)]
+        * [<Node#3777692175374>(subsystem_portraits.gd)]
+        * [<Node#3777725729807>(subsystem_save.gd)]
+        * [<Timer#3777742507024>]
+        * [<Node#3777776061457>(subsystem_styles.gd)]
+        * [<Node#3777792838674>(subsystem_text.gd)]
+        * [<Node#3777759284243>(subsystem_settings.gd)]
+        * [<Node#3777910279189>(subsystem_voice.gd)]
+        * [<Node#3777893501974>(subsystem_variables.gd)]
+        * [<AudioStreamPlayer#3777927056409>]
+        * [<Node#3777608289337>(subsystem_history.gd)]
+        * [<Node#3777876724916>(subsystem_text_input.gd)]
+* test_exact_canonical_labels_record_then_native_gallery_replay_preserves_run_and_profile
+    [Failed]:  [0] expected to equal [1]:  all shipped mechanical ending timelines finish naturally
+      at line -1
+    [Failed]:  [0] expected to equal [4]:  each physically completed ending label has one exact reached record
+      at line 254
+    [Failed]:  Special's full semantic label physically played
+      at line 258
+    24 Orphans
+        * [<Node#3939944630939>(subsystem_text.gd)]
+        * [<Node#3940028517108>(subsystem_text_input.gd)]
+        * [<Node#3939827190760>(subsystem_containers.gd)]
+        * [<Node#3939609087015>]
+        * [<Node#3939625864232>]
+        * [<Node#3939642641449>(subsystem_backgrounds.gd)]
+        * [<Timer#3939692973140>]
+        * [<Node#3940062071929>(subsystem_voice.gd)]
+        * [<Node#3940045294781>(subsystem_variables.gd)]
+        * [<Node#3939709750466>(subsystem_expression.gd)]
+        * [<Node#3939592309957>(subsystem_audio.gd)]
+        * [<Node#3939843968198>(subsystem_portraits.gd)]
+        * [<Node#3939575532743>(subsystem_animation.gd)]
+        * [<Node#3939927854281>(subsystem_styles.gd)]
+        * [<Node#3939911077068>(subsystem_settings.gd)]
+        * [<Timer#3939894299853>]
+        * [<Node#3939877522640>(subsystem_save.gd)]
+        * [<Timer#3939793636566>]
+        * [<Node#3939776859351>(subsystem_input.gd)]
+        * [<Node#3939810413784>(subsystem_jump.gd)]
+        * [<Node#3939760082137>(subsystem_history.gd)]
+        * [<Node#3939743304922>(subsystem_glossary.gd)]
+        * [<Node#3939676196059>(subsystem_choices.gd)]
+        * [<AudioStreamPlayer#3940078849256>]
+144 orphans
+5/6 passed.
+
+
+res://tests/integration/test_ending_dialogic_wiring.gd
+* test_initialize_loads_ending_manifest
+* test_start_primary_returns_six_field_receipt
+* test_start_epilogue_resolves_manifest
+* test_unknown_and_retired_ids_reject
+* test_role_mismatch_rejects
+* test_invalid_context_keys_reject
+* test_completion_emits_tokenized_finish
+* test_invalid_runtime_event_halts_and_fails_playback
+* test_postscript_start_accepts_only_postscript_role
+* test_postscript_finishes_with_its_own_token
+* test_configure_narrative_checkpoint_port_identity
+11/11 passed.
+
+
+res://tests/unit/test_dialogic_ending_playback_port.gd
+* test_port_script_exists
+* test_initialize_accepts_bridge_and_rejects_replacement
+* test_initialize_rejects_bad_bridge
+* test_start_primary_returns_immediate_start_receipt
+* test_start_epilogue_ok
+* test_start_rejects_illegal_triples
+* test_synchronous_bridge_failure_creates_no_binding
+* test_completion_emits_playback_completed
+* test_mismatched_token_does_not_complete
+* test_async_failure_clears_binding_and_allows_restart
+* test_concurrent_identical_start_returns_cached_result
+* test_different_in_flight_returns_playback_in_progress
+12/12 passed.
+
+
+res://tests/unit/test_ending_completion_durability.gd
+* test_causal_completion_commits_gallery_and_pair_witness_atomically_and_keeps_general_guard
+* test_legacy_gallery_only_discovery_keeps_its_milestone_when_gallery_is_cleared
+* test_terminal_admission_requires_source_then_rolls_back_failed_save_and_retries_same_design
+SCRIPT ERROR: Invalid access to property or key 'inventory' on a base object of type 'Nil'.
+   at: DatingPhysicalOwner._make_spec (res://scripts/application/run/DatingPhysicalOwner.gd:1013)
+   GDScript backtrace (most recent call first):
+       [0] _make_spec (res://scripts/application/run/DatingPhysicalOwner.gd:1013)
+       [1] completed (res://tests/support/CanonicalDatingMasteryFixture.gd:30)
+       [2] for_scope (res://tests/support/CanonicalDatingMasteryFixture.gd:74)
+       [3] profile_for_scope (res://tests/support/CanonicalDatingMasteryFixture.gd:83)
+       [4] test_terminal_admission_requires_source_then_rolls_back_failed_save_and_retries_same_design (res://tests/unit/test_ending_completion_durability.gd:112)
+       [5] _run_test (res://addons/gut/gut.gd:622)
+       [6] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Invalid access to property or key 'ok' on a base object of type 'Dictionary'.
+   at: completed (res://tests/support/CanonicalDatingMasteryFixture.gd:31)
+   GDScript backtrace (most recent call first):
+       [0] completed (res://tests/support/CanonicalDatingMasteryFixture.gd:31)
+       [1] for_scope (res://tests/support/CanonicalDatingMasteryFixture.gd:74)
+       [2] profile_for_scope (res://tests/support/CanonicalDatingMasteryFixture.gd:83)
+       [3] test_terminal_admission_requires_source_then_rolls_back_failed_save_and_retries_same_design (res://tests/unit/test_ending_completion_durability.gd:112)
+       [4] _run_test (res://addons/gut/gut.gd:622)
+       [5] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Invalid access to property or key 'ok' on a base object of type 'Dictionary'.
+   at: for_scope (res://tests/support/CanonicalDatingMasteryFixture.gd:75)
+   GDScript backtrace (most recent call first):
+       [0] for_scope (res://tests/support/CanonicalDatingMasteryFixture.gd:75)
+       [1] profile_for_scope (res://tests/support/CanonicalDatingMasteryFixture.gd:83)
+       [2] test_terminal_admission_requires_source_then_rolls_back_failed_save_and_retries_same_design (res://tests/unit/test_ending_completion_durability.gd:112)
+       [3] _run_test (res://addons/gut/gut.gd:622)
+       [4] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Invalid access to property or key 'ok' on a base object of type 'Dictionary'.
+   at: profile_for_scope (res://tests/support/CanonicalDatingMasteryFixture.gd:84)
+   GDScript backtrace (most recent call first):
+       [0] profile_for_scope (res://tests/support/CanonicalDatingMasteryFixture.gd:84)
+       [1] test_terminal_admission_requires_source_then_rolls_back_failed_save_and_retries_same_design (res://tests/unit/test_ending_completion_durability.gd:112)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Invalid access to property or key 'ok' on a base object of type 'Dictionary'.
+   at: test_terminal_admission_requires_source_then_rolls_back_failed_save_and_retries_same_design (res://tests/unit/test_ending_completion_durability.gd:113)
+   GDScript backtrace (most recent call first):
+       [0] test_terminal_admission_requires_source_then_rolls_back_failed_save_and_retries_same_design (res://tests/unit/test_ending_completion_durability.gd:113)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid access to property or key 'inventory' on a base object of type 'Nil'.
+    [2] <engine-2>Invalid access to property or key 'ok' on a base object of type 'Dictionary'.
+    [3] <engine-2>Invalid access to property or key 'ok' on a base object of type 'Dictionary'.
+    [4] <engine-2>Invalid access to property or key 'ok' on a base object of type 'Dictionary'.
+    [5] <engine-2>Invalid access to property or key 'ok' on a base object of type 'Dictionary'.
+      at line -1
+2/3 passed.
+
+
+res://tests/unit/test_ending_presentation_signature.gd
+* test_signature_uses_frozen_role_facts_and_refuses_changed_command
+* test_alone_and_pair_signatures_have_only_their_real_role_fields
+* test_special_maps_exact_full_entry_then_forced_dark_without_rewriting_stored_tone
+* test_compatible_plan_records_only_its_current_saved_presentation
+* test_predicted_fourth_pair_form_cannot_start_observer_until_actual_sweet_completion_is_durable
+5/5 passed.
+
+
+res://tests/scenario/test_day7_endings.gd
+* test_stage_does_not_advance_until_matching_playback_completed
+* test_mismatched_completion_does_not_advance
+* test_duplicate_completion_advances_only_once
+* test_configure_rejects_replacement_while_a_command_is_pending
+* test_every_primary_and_epilogue_variant_completes_to_the_menu
+* test_resume_at_every_stage_reproduces_the_same_next_command
+6/6 passed.
+
+
+res://tests/unit/test_witnessed_transport_button.gd
+* test_programmatic_pressed_is_inert_and_native_action_is_generation_bound
+* test_real_keyboard_controller_mouse_and_touch_each_activate_once
+TRANSPORT_UI_ACCEPT_MAP ["Enter", "Kp Enter", "Space"]
+* test_logical_input_action_is_not_physical_activation_proof
+* test_release_begun_on_another_focus_owner_is_not_consumed
+* test_duplicate_focus_loss_drag_and_multiple_contacts_cannot_finish_stale_candidates
+* test_pause_resume_with_a_held_contact_requires_release_then_a_fresh_edge
+* test_native_action_requires_neutral_physical_contacts
+7/7 passed.
+
+
+
+
+==============================================
+= 168 Orphans
+==============================================
+res://tests/unit/tooling/test_ui_literal_audit.gd
+    - Outside Tests
+        * [<Node#131818587928>(subsystem_animation.gd)]
+        * [<Node#131835365156>(subsystem_audio.gd)]
+        * [<Node#131852142388>]
+        * [<Node#131868919613>]
+        * [<Node#131885696835>(subsystem_backgrounds.gd)]
+        * [<Node#132422567748>(subsystem_choices.gd)]
+        * [<Timer#132439344965>]
+        * [<Node#132456122182>(subsystem_expression.gd)]
+        * [<Node#132489676619>(subsystem_glossary.gd)]
+        * [<Node#132506453836>(subsystem_history.gd)]
+        * [<Node#132523231053>(subsystem_input.gd)]
+        * [<Timer#132540008270>]
+        * [<Node#132556785487>(subsystem_jump.gd)]
+        * [<Node#132573562704>(subsystem_containers.gd)]
+        * [<Node#132590339921>(subsystem_portraits.gd)]
+        * [<Node#133127210834>(subsystem_save.gd)]
+        * [<Timer#133143988051>]
+        * [<Node#133160765268>(subsystem_settings.gd)]
+        * [<Node#133177542488>(subsystem_styles.gd)]
+        * [<Node#133194319705>(subsystem_text.gd)]
+        * [<Node#133278205790>(subsystem_text_input.gd)]
+        * [<Node#133294983007>(subsystem_variables.gd)]
+        * [<Node#133311760224>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#133328537441>]
+test_ordered_ending_real_runtime.gd
+    - test_real_four_step_playback_records_each_discovery_then_saves_completed_run
+        * [<Node#3222181776123>(subsystem_animation.gd)]
+        * [<Node#3222198553340>(subsystem_audio.gd)]
+        * [<Node#3222215330557>]
+        * [<Node#3222232107774>]
+        * [<Node#3222248884991>(subsystem_backgrounds.gd)]
+        * [<Node#3222282439424>(subsystem_choices.gd)]
+        * [<Timer#3222299216641>]
+        * [<Node#3222315993858>(subsystem_expression.gd)]
+        * [<Node#3222349548292>(subsystem_glossary.gd)]
+        * [<Node#3222366325509>(subsystem_history.gd)]
+        * [<Node#3222383102726>(subsystem_input.gd)]
+        * [<Timer#3222399879943>]
+        * [<Node#3222416657160>(subsystem_jump.gd)]
+        * [<Node#3222433434377>(subsystem_containers.gd)]
+        * [<Node#3222450211594>(subsystem_portraits.gd)]
+        * [<Node#3222483766027>(subsystem_save.gd)]
+        * [<Timer#3222500543244>]
+        * [<Node#3222517320461>(subsystem_settings.gd)]
+        * [<Node#3222534097678>(subsystem_styles.gd)]
+        * [<Node#3222550874895>(subsystem_text.gd)]
+        * [<Node#3222634760980>(subsystem_text_input.gd)]
+        * [<Node#3222651538197>(subsystem_variables.gd)]
+        * [<Node#3222668315414>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#3222685092631>]
+    - test_failed_step_save_retries_exact_completion_without_replaying_timeline
+        * [<Node#3408056552239>]
+        * [<Node#3408073329456>]
+        * [<Node#3408090106673>(subsystem_backgrounds.gd)]
+        * [<Node#3408157215539>(subsystem_expression.gd)]
+        * [<Timer#3408140438324>]
+        * [<Node#3408123661109>(subsystem_choices.gd)]
+        * [<Node#3408190769974>(subsystem_glossary.gd)]
+        * [<Node#3408207547191>(subsystem_history.gd)]
+        * [<Node#3408224324408>(subsystem_input.gd)]
+        * [<Timer#3408241101625>]
+        * [<Node#3408257878842>(subsystem_jump.gd)]
+        * [<Node#3408022997835>(subsystem_animation.gd)]
+        * [<Node#3408039775052>(subsystem_audio.gd)]
+        * [<Timer#3408341764949>]
+        * [<Node#3408358542166>(subsystem_settings.gd)]
+        * [<Node#3408392096601>(subsystem_text.gd)]
+        * [<AudioStreamPlayer#3408526314355>]
+        * [<Node#3408492759924>(subsystem_variables.gd)]
+        * [<Node#3408509537141>(subsystem_voice.gd)]
+        * [<Node#3408291433337>(subsystem_portraits.gd)]
+        * [<Node#3408324987772>(subsystem_save.gd)]
+        * [<Node#3408375319432>(subsystem_styles.gd)]
+        * [<Node#3408475982737>(subsystem_text_input.gd)]
+        * [<Node#3408274656150>(subsystem_containers.gd)]
+    - test_cursor_restore_resumes_next_exact_physical_branch
+        * [<Node#3564185323869>(subsystem_glossary.gd)]
+        * [<Node#3564252433037>(subsystem_jump.gd)]
+        * [<Node#3564151769760>(subsystem_expression.gd)]
+        * [<Node#3564118215334>(subsystem_choices.gd)]
+        * [<Node#3564218878672>(subsystem_input.gd)]
+        * [<Node#3564034329300>(subsystem_audio.gd)]
+        * [<Timer#3564235655899>]
+        * [<Node#3564017552103>(subsystem_animation.gd)]
+        * [<Timer#3564134992624>]
+        * [<Node#3564202101490>(subsystem_history.gd)]
+        * [<Node#3564067883914>]
+        * [<Node#3564084661135>(subsystem_backgrounds.gd)]
+        * [<Node#3564051106709>]
+        * [<Node#3564285987889>(subsystem_portraits.gd)]
+        * [<Node#3564319542330>(subsystem_save.gd)]
+        * [<Node#3564504091708>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#3564520868937>]
+        * [<Node#3564386651210>(subsystem_text.gd)]
+        * [<Timer#3564336319564>]
+        * [<Node#3564353096781>(subsystem_settings.gd)]
+        * [<Node#3564487314518>(subsystem_variables.gd)]
+        * [<Node#3564369874012>(subsystem_styles.gd)]
+        * [<Node#3564470537313>(subsystem_text_input.gd)]
+        * [<Node#3564269210726>(subsystem_containers.gd)]
+    - test_enter_envelope_preserves_the_complete_already_resolved_ordered_plan
+        * [<Node#3714593065653>(subsystem_expression.gd)]
+        * [<AudioStreamPlayer#3714962164419>]
+        * [<Node#3714827946942>(subsystem_text.gd)]
+        * [<Node#3714794392513>(subsystem_settings.gd)]
+        * [<Timer#3714777615299>]
+        * [<Node#3714475625419>(subsystem_audio.gd)]
+        * [<Node#3714458848204>(subsystem_animation.gd)]
+        * [<Node#3714626620372>(subsystem_glossary.gd)]
+        * [<Node#3714693729242>(subsystem_jump.gd)]
+        * [<Node#3714660174811>(subsystem_input.gd)]
+        * [<Timer#3714676952028>]
+        * [<Node#3714559511518>(subsystem_choices.gd)]
+        * [<Node#3714643397599>(subsystem_history.gd)]
+        * [<Timer#3714576288741>]
+        * [<Node#3714928610287>(subsystem_variables.gd)]
+        * [<Node#3714945387504>(subsystem_voice.gd)]
+        * [<Node#3714760838129>(subsystem_save.gd)]
+        * [<Node#3714811169789>(subsystem_styles.gd)]
+        * [<Node#3714911833090>(subsystem_text_input.gd)]
+        * [<Node#3714710506503>(subsystem_containers.gd)]
+        * [<Node#3714727283793>(subsystem_portraits.gd)]
+        * [<Node#3714509179998>]
+        * [<Node#3714525957215>(subsystem_backgrounds.gd)]
+        * [<Node#3714492402789>]
+    - test_completed_snapshot_returns_without_replaying_or_rewriting_rewards
+        * [<Node#3777675397953>(subsystem_containers.gd)]
+        * [<Node#3777524403075>(subsystem_choices.gd)]
+        * [<Node#3777591512004>(subsystem_glossary.gd)]
+        * [<Node#3777474071494>]
+        * [<Node#3777557957575>(subsystem_expression.gd)]
+        * [<Node#3777440517064>(subsystem_audio.gd)]
+        * [<Timer#3777541180361>]
+        * [<Node#3777457294282>]
+        * [<Node#3777490848766>(subsystem_backgrounds.gd)]
+        * [<Node#3777423739904>(subsystem_animation.gd)]
+        * [<Node#3777625066504>(subsystem_input.gd)]
+        * [<Timer#3777641843724>]
+        * [<Node#3777658620941>(subsystem_jump.gd)]
+        * [<Node#3777692175374>(subsystem_portraits.gd)]
+        * [<Node#3777725729807>(subsystem_save.gd)]
+        * [<Timer#3777742507024>]
+        * [<Node#3777776061457>(subsystem_styles.gd)]
+        * [<Node#3777792838674>(subsystem_text.gd)]
+        * [<Node#3777759284243>(subsystem_settings.gd)]
+        * [<Node#3777910279189>(subsystem_voice.gd)]
+        * [<Node#3777893501974>(subsystem_variables.gd)]
+        * [<AudioStreamPlayer#3777927056409>]
+        * [<Node#3777608289337>(subsystem_history.gd)]
+        * [<Node#3777876724916>(subsystem_text_input.gd)]
+    - test_exact_canonical_labels_record_then_native_gallery_replay_preserves_run_and_profile
+        * [<Node#3939944630939>(subsystem_text.gd)]
+        * [<Node#3940028517108>(subsystem_text_input.gd)]
+        * [<Node#3939827190760>(subsystem_containers.gd)]
+        * [<Node#3939609087015>]
+        * [<Node#3939625864232>]
+        * [<Node#3939642641449>(subsystem_backgrounds.gd)]
+        * [<Timer#3939692973140>]
+        * [<Node#3940062071929>(subsystem_voice.gd)]
+        * [<Node#3940045294781>(subsystem_variables.gd)]
+        * [<Node#3939709750466>(subsystem_expression.gd)]
+        * [<Node#3939592309957>(subsystem_audio.gd)]
+        * [<Node#3939843968198>(subsystem_portraits.gd)]
+        * [<Node#3939575532743>(subsystem_animation.gd)]
+        * [<Node#3939927854281>(subsystem_styles.gd)]
+        * [<Node#3939911077068>(subsystem_settings.gd)]
+        * [<Timer#3939894299853>]
+        * [<Node#3939877522640>(subsystem_save.gd)]
+        * [<Timer#3939793636566>]
+        * [<Node#3939776859351>(subsystem_input.gd)]
+        * [<Node#3939810413784>(subsystem_jump.gd)]
+        * [<Node#3939760082137>(subsystem_history.gd)]
+        * [<Node#3939743304922>(subsystem_glossary.gd)]
+        * [<Node#3939676196059>(subsystem_choices.gd)]
+        * [<AudioStreamPlayer#3940078849256>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+res://tests/unit/tooling/test_ui_literal_audit.gd
+- test_script_scanner_refuses_stable_literals_inside_expressions_and_later_arguments
+    [Failed]:  Unexpected Errors:
+    [1] <engine-0>Condition "error != Error::OK" is true. Returning: Variant()
+    [2] <engine-0>Condition "error != Error::OK" is true. Returning: Variant()
+    [3] <engine-0>Condition "error != Error::OK" is true. Returning: Variant()
+          at line -1
+- test_script_scanner_collects_every_failure_instead_of_stopping_at_the_first
+    [Failed]:  Unexpected Errors:
+    [1] <engine-0>Condition "error != Error::OK" is true. Returning: Variant()
+          at line -1
+- test_script_scanner_accepts_registered_lookup_and_dynamic_presenter_value
+    [Failed]:  Unexpected Errors:
+    [1] <engine-0>Condition "error != Error::OK" is true. Returning: Variant()
+    [2] <engine-0>Condition "error != Error::OK" is true. Returning: Variant()
+          at line -1
+- test_localized_call_does_not_own_an_untranslated_sibling_fallback
+    [Failed]:  Unexpected Errors:
+    [1] <engine-0>Condition "error != Error::OK" is true. Returning: Variant()
+          at line -1
+- test_lowercase_one_word_and_inline_locale_spoof_are_refused
+    [Failed]:  Unexpected Errors:
+    [1] <engine-0>Condition "error != Error::OK" is true. Returning: Variant()
+          at line -1
+
+res://tests/integration/test_ordered_ending_real_runtime.gd
+- test_exact_canonical_labels_record_then_native_gallery_replay_preserves_run_and_profile
+    [Failed]:  [0] expected to equal [1]:  all shipped mechanical ending timelines finish naturally
+          at line -1
+    [Failed]:  [0] expected to equal [4]:  each physically completed ending label has one exact reached record
+          at line 254
+    [Failed]:  Special's full semantic label physically played
+          at line 258
+
+res://tests/unit/test_ending_completion_durability.gd
+- test_terminal_admission_requires_source_then_rolls_back_failed_save_and_retries_same_design
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid access to property or key 'inventory' on a base object of type 'Nil'.
+    [2] <engine-2>Invalid access to property or key 'ok' on a base object of type 'Dictionary'.
+    [3] <engine-2>Invalid access to property or key 'ok' on a base object of type 'Dictionary'.
+    [4] <engine-2>Invalid access to property or key 'ok' on a base object of type 'Dictionary'.
+    [5] <engine-2>Invalid access to property or key 'ok' on a base object of type 'Dictionary'.
+          at line -1
+
+Totals
+------
+Scripts              13
+Tests               100
+Passing Tests        93
+Failing Tests         7
+Asserts           1099/1108
+Orphans             168
+Time              13.586s
+
+
+---- 7 failing tests ----

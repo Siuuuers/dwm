@@ -1,0 +1,152 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/75322365-ac6a-41db-8de4-0b772f148565/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+res://tests/scene/test_ending_recovery_localization.gd
+* test_retry_copy_follows_locale_without_changing_the_pending_command
+    [Failed]:  ["Return to Menu"] expected to equal ["Retry"]:  en
+      at line 57
+    [Failed]:  ["The ending could not continue. Retry to resume this step."] expected to equal ["Unable to continue. Please retry."]:  en
+      at line 58
+    [Failed]:  ["Return to Menu"] expected to equal ["重试"]:  zh_CN
+      at line 57
+    [Failed]:  ["The ending could not continue. Retry to resume this step."] expected to equal ["暂时无法继续。请重试。"]:  zh_CN
+      at line 58
+    [Failed]:  ["Return to Menu"] expected to equal ["重試"]:  zh_HK
+      at line 57
+    [Failed]:  ["The ending could not continue. Retry to resume this step."] expected to equal ["暫時無法繼續。請重試。"]:  zh_HK
+      at line 58
+* test_normal_playback_exposes_no_return_action_or_error
+    [Failed]:  the normal ending host adds no Return action
+      at line 73
+    [Failed]:  [2] expected to equal [0]:
+      at line 75
+    [Failed]:  ["The ending could not continue. Retry to resume this step."] expected to equal ["Unable to continue. Please retry."]:  en
+      at line 79
+    [Failed]:  the normal ending host adds no Return action
+      at line 73
+    [Failed]:  [2] expected to equal [0]:
+      at line 75
+    [Failed]:  ["Retry"] expected to equal ["重试"]:  zh_CN
+      at line 78
+    [Failed]:  ["The ending could not continue. Retry to resume this step."] expected to equal ["暂时无法继续。请重试。"]:  zh_CN
+      at line 79
+    [Failed]:  the normal ending host adds no Return action
+      at line 73
+    [Failed]:  [2] expected to equal [0]:
+      at line 75
+    [Failed]:  ["Retry"] expected to equal ["重試"]:  zh_HK
+      at line 78
+    [Failed]:  ["The ending could not continue. Retry to resume this step."] expected to equal ["暫時無法繼續。請重試。"]:  zh_HK
+      at line 79
+* test_no_public_ending_title_is_added_by_the_recovery_host
+    [Failed]:  the ending host must not add an Ending heading outside the witnessed stream
+      at line 86
+* test_programmatic_pressed_cannot_submit_a_retry
+    [Failed]:  [1] expected to equal [0]:
+      at line 95
+* test_focused_keyboard_activation_submits_one_retry
+1/5 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/scene/test_ending_recovery_localization.gd
+    - Outside Tests
+        * [<Node#131264939798>(subsystem_animation.gd)]
+        * [<Node#131281717026>(subsystem_audio.gd)]
+        * [<Node#131298494258>]
+        * [<Node#131315271483>]
+        * [<Node#131332048705>(subsystem_backgrounds.gd)]
+        * [<Node#131868919618>(subsystem_choices.gd)]
+        * [<Timer#131885696835>]
+        * [<Node#131902474052>(subsystem_expression.gd)]
+        * [<Node#131936028489>(subsystem_glossary.gd)]
+        * [<Node#131952805706>(subsystem_history.gd)]
+        * [<Node#131969582923>(subsystem_input.gd)]
+        * [<Timer#131986360140>]
+        * [<Node#132003137357>(subsystem_jump.gd)]
+        * [<Node#132019914574>(subsystem_containers.gd)]
+        * [<Node#132036691791>(subsystem_portraits.gd)]
+        * [<Node#132573562704>(subsystem_save.gd)]
+        * [<Timer#132590339921>]
+        * [<Node#132607117138>(subsystem_settings.gd)]
+        * [<Node#132623894358>(subsystem_styles.gd)]
+        * [<Node#132640671575>(subsystem_text.gd)]
+        * [<Node#132724557660>(subsystem_text_input.gd)]
+        * [<Node#132741334877>(subsystem_variables.gd)]
+        * [<Node#132758112094>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#132774889311>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+res://tests/scene/test_ending_recovery_localization.gd
+- test_retry_copy_follows_locale_without_changing_the_pending_command
+    [Failed]:  ["Return to Menu"] expected to equal ["Retry"]:  en
+          at line 57
+    [Failed]:  ["The ending could not continue. Retry to resume this step."] expected to equal ["Unable to continue. Please retry."]:  en
+          at line 58
+    [Failed]:  ["Return to Menu"] expected to equal ["重试"]:  zh_CN
+          at line 57
+    [Failed]:  ["The ending could not continue. Retry to resume this step."] expected to equal ["暂时无法继续。请重试。"]:  zh_CN
+          at line 58
+    [Failed]:  ["Return to Menu"] expected to equal ["重試"]:  zh_HK
+          at line 57
+    [Failed]:  ["The ending could not continue. Retry to resume this step."] expected to equal ["暫時無法繼續。請重試。"]:  zh_HK
+          at line 58
+- test_normal_playback_exposes_no_return_action_or_error
+    [Failed]:  the normal ending host adds no Return action
+          at line 73
+    [Failed]:  [2] expected to equal [0]:
+          at line 75
+    [Failed]:  ["The ending could not continue. Retry to resume this step."] expected to equal ["Unable to continue. Please retry."]:  en
+          at line 79
+    [Failed]:  the normal ending host adds no Return action
+          at line 73
+    [Failed]:  [2] expected to equal [0]:
+          at line 75
+    [Failed]:  ["Retry"] expected to equal ["重试"]:  zh_CN
+          at line 78
+    [Failed]:  ["The ending could not continue. Retry to resume this step."] expected to equal ["暂时无法继续。请重试。"]:  zh_CN
+          at line 79
+    [Failed]:  the normal ending host adds no Return action
+          at line 73
+    [Failed]:  [2] expected to equal [0]:
+          at line 75
+    [Failed]:  ["Retry"] expected to equal ["重試"]:  zh_HK
+          at line 78
+    [Failed]:  ["The ending could not continue. Retry to resume this step."] expected to equal ["暫時無法繼續。請重試。"]:  zh_HK
+          at line 79
+- test_no_public_ending_title_is_added_by_the_recovery_host
+    [Failed]:  the ending host must not add an Ending heading outside the witnessed stream
+          at line 86
+- test_programmatic_pressed_cannot_submit_a_retry
+    [Failed]:  [1] expected to equal [0]:
+          at line 95
+
+Totals
+------
+Scripts               1
+Tests                 5
+Passing Tests         1
+Failing Tests         4
+Asserts           47/66
+Orphans              24
+Time              0.834s
+
+
+---- 4 failing tests ----

@@ -1,0 +1,307 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/5c4badf1-c226-4a7f-ac89-985ea80fa31e/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+res://tests/unit/test_canonical_writer_compatibility.gd
+* test_preserves_canonical_bytes_and_refusals_for_boundary_and_random_values
+* test_printable_ascii_keys_keep_byte_order_after_string_name_normalization
+* test_control_and_unicode_keys_keep_utf8_order
+* test_sorted_key_order_preserves_first_structural_refusal
+* test_native_integer_document_preserves_values_beyond_double_precision
+* test_native_document_escapes_every_printable_ascii_character_in_keys_and_values
+* test_native_document_preserves_nested_string_names_typed_arrays_and_shared_children
+* test_native_depth_limit_changes_only_encoder_selection_not_accepted_bytes
+* test_native_preflight_exclusions_retain_original_values_and_refusals
+9/9 passed.
+
+
+res://tests/unit/test_strict_json.gd
+* test_strict_parser_accepts_nested_object_and_detaches_values
+* test_strict_parser_rejects_duplicate_keys_before_materialization
+* test_strict_parser_rejects_non_object_root_and_trailing_tokens
+* test_strict_parser_rejects_invalid_strings_and_lone_surrogates
+* test_strict_parser_rejects_bad_numbers_and_integer_overflow
+* test_strict_parser_reports_first_error_location
+* test_canonical_writer_is_stable_across_dictionary_insertion_order
+* test_canonical_writer_preserves_types_and_escapes_controls
+* test_canonical_writer_rejects_unsupported_values_and_invalid_keys
+* test_schema_files_are_strict_json_and_validate_closed_objects
+* test_ascii_span_accepts_every_safe_printable_character_in_keys_and_values
+* test_ascii_spans_resume_after_unicode_and_every_escape
+* test_ascii_span_errors_preserve_exact_line_and_column
+* test_ascii_span_keeps_integer_and_float_types_and_boundaries
+* test_ascii_key_rejects_equivalent_escaped_duplicate_spelling
+* test_canonical_string_fast_return_preserves_entire_safe_ascii_and_empty
+* test_canonical_string_fast_return_exclusions_keep_exact_original_escaping
+* test_complete_ascii_tokens_decode_every_simple_escape_in_a_long_nested_receipt
+* test_closed_ascii_token_preserves_offset_for_following_malformed_member
+* test_escaped_key_spelling_still_collides_after_complete_token_decode
+* test_mixed_raw_unicode_and_unicode_escape_fallback_preserve_values_and_next_error
+* test_complete_raw_unicode_token_preserves_json_boundaries_and_simple_escapes
+* test_closed_raw_unicode_token_counts_codepoints_before_a_malformed_member
+* test_long_heavily_escaped_token_with_raw_unicode_near_the_end_decodes_exactly
+* test_long_unterminated_escaped_unicode_token_retains_exact_fallback_diagnostic
+25/25 passed.
+
+
+res://tests/unit/test_checkpoint_validation_reuse.gd
+* test_reuse_preserves_saved_bytes_and_every_disk_operation_across_three_commits
+* test_detached_candidate_normalization_matches_uncached_bytes_and_physical_trace
+* test_non_object_outgoing_values_match_uncached_failure_without_physical_mutation
+* test_schema_invalid_and_canonical_invalid_candidates_preserve_reference_precedence
+* test_cache_is_exact_text_success_only_and_detaches_nested_results
+* test_corrupt_next_final_and_backup_keep_existing_recovery_results_and_disk_trace
+* test_schema_valid_changed_reread_is_rejected_before_journal_commit
+* test_failed_reread_retry_has_a_fresh_validation_scope_and_commits_once
+* test_prepared_validation_is_not_reused_after_a_process_frame
+* test_new_prepare_and_released_custody_discard_prepared_validation
+* test_committed_documents_are_remembered_bounded_and_forgotten_on_capability_change
+* test_a_failed_commit_proves_nothing
+* test_mutated_outgoing_document_fails_and_retry_revalidates_preimage
+13/13 passed.
+
+
+res://tests/unit/test_save_manager_checkpoint_port.gd
+* test_prepare_consequence_checkpoint_builds_a_candidate_and_receipt
+* test_prepare_consequence_checkpoint_attaches_the_receipt_to_the_admission_candidate
+* test_commit_consequence_checkpoint_retains_and_rereads_in_same_process
+* test_issued_transient_record_cache_is_bounded_and_cleared_with_transient_state
+* test_commit_consequence_checkpoint_rejects_a_receipt_mismatch
+* test_commit_consequence_checkpoint_rejects_malformed_or_uncanonicalizable_records
+* test_commit_consequence_checkpoint_replays_an_identical_rewrite_at_an_occupied_slot
+* test_commit_consequence_checkpoint_rejects_a_different_rewrite_at_an_occupied_slot
+* test_a_committed_admission_checkpoint_reads_back_and_validates
+* test_abandon_pending_consequence_checkpoint_marks_a_pre_admission_checkpoint_abandoned
+* test_abandon_pending_consequence_checkpoint_rejects_a_nonexistent_transaction
+* test_abandon_pending_consequence_checkpoint_rejects_an_already_admitted_transaction
+* test_read_pending_consequence_checkpoint_finds_nothing_when_no_checkpoint_exists
+* test_clear_transient_consequence_checkpoints_is_explicit_and_complete
+* test_clear_transient_consequence_checkpoints_does_not_depend_on_storage_readiness
+* test_fresh_port_ignores_and_preserves_every_legacy_sidecar_artifact
+* test_prepare_consequence_checkpoint_requires_configuration
+* test_checkpoint_content_preimage_is_the_sole_builder
+* test_prepare_consequence_checkpoint_rejects_a_bad_ordinal_stage_pairing_at_ordinal_0
+* test_prepare_consequence_checkpoint_rejects_a_bad_ordinal_stage_pairing_at_ordinal_9
+* test_restart_drops_unfinished_action_but_preserves_completed_post_result_autosave
+21/21 passed.
+
+
+res://tests/unit/test_checkpoint_preparation_retry.gd
+* test_transient_prepare_read_failure_keeps_explicit_retry_and_exact_candidate_without_journal_or_disk_mutation
+* test_corrupt_durable_final_is_refused_with_artifacts_and_journal_preserved
+* test_changed_but_valid_bytes_refuse_current_attempt_then_require_explicit_new_preparation
+3/3 passed.
+
+
+res://tests/unit/test_desktop_continuation_operation_journal.gd
+* test_continuation_journal_skeletons_load
+* test_journal_public_surface_adds_only_explicit_new_run_target_proof
+* test_v4_combines_durable_new_run_targets_with_the_schedule_view_participant
+* test_the_journal_document_and_operation_record_have_exactly_the_frozen_key_sets
+* test_every_legal_and_illegal_stage_transition_is_enforced
+* test_stage_transition_evidence_is_permitted_only_at_the_frozen_edges
+* test_new_run_and_restore_have_mutually_exclusive_source_and_context_fields
+* test_new_run_requires_exactly_empty_dialogic_and_audio_subcontexts
+* test_the_intent_must_be_committed_before_any_allocation_is_recorded
+* test_the_nine_participants_apply_in_exactly_the_frozen_order
+* test_each_participant_receipt_has_identical_replay_and_changed_receipt_conflict
+* test_applying_index_nine_rejects_safely_before_participant_array_access
+* test_a_skipped_participant_index_is_refused
+* test_an_illegal_backward_stage_edge_is_refused
+* test_a_restore_source_that_no_longer_hashes_the_same_is_refused
+* test_a_new_run_context_is_rehashed_without_consulting_the_loader
+* test_identical_replays_return_the_retained_operation_at_every_stage
+* test_every_changed_advancement_family_conflicts_before_storage_mutation
+* test_list_incomplete_returns_only_nonterminal_operations
+* test_startup_reconciles_a_clean_restart_forward
+* test_startup_reconciliation_is_no_op_for_terminal_operations
+* test_startup_rejects_malformed_issued_transaction_receipts
+* test_startup_proves_the_original_restore_source_before_clearing_an_identical_diagnostic
+* test_new_run_proof_clears_diagnostics_at_every_nonterminal_post_allocation_stage
+* test_terminal_stages_refuse_recovery_diagnostics_without_mutation
+* test_restore_diagnostics_clear_at_applying_and_applied_through_real_json_storage
+* test_proof_failure_retains_both_kinds_at_every_nonterminal_post_allocation_stage
+* test_diagnostic_clear_write_failure_retains_and_retries_both_kinds_at_every_stage
+* test_a_restore_pre_allocation_failure_aborts_with_a_typed_failure_and_no_live_mutation
+* test_an_allocated_operation_retains_its_receipt_and_can_never_be_aborted
+* test_an_irreversible_recovery_diagnostic_holds_the_stage_and_never_permits_input
+* test_a_retained_diagnostic_blocks_every_forward_advance_until_reconciled
+* test_committed_new_run_is_forward_only_and_requires_ordered_target_proofs
+* test_exact_text_validation_window_is_bounded_detached_and_never_admits_other_bytes
+34/34 passed.
+
+
+res://tests/unit/test_json_file_storage.gd
+* test_absent_reconcile_write_read_replace_and_restart
+* test_read_and_remove_require_a_fresh_unchanged_lease
+* test_remove_uses_durable_tombstone_and_cannot_resurrect_backup
+* test_markerless_final_wins_but_unowned_next_alone_is_indeterminate
+* test_prepared_marker_with_outgoing_next_promotes_new_winner
+* test_missing_validated_candidate_and_corrupt_marker_fail_closed
+* test_first_write_failpoints_restart_to_exact_new_or_absence
+* test_path_escapes_and_unbound_validators_reject_before_mutation
+* test_before_write_hook_runs_before_any_mutation_and_a_refusal_writes_nothing
+* test_successful_writes_read_back_only_the_promoted_final
+10/10 passed.
+
+
+res://tests/unit/test_save_document_schema.gd
+* test_save_document_schema_exists
+* test_quick_document_build_round_trips_json_null_slot_id
+* test_discriminator_matrix
+* test_validate_rejects_malformed_documents
+* test_document_version_is_six_and_embedded_snapshot_version_must_agree
+* test_prepare_candidate_is_detached
+* test_current_and_recovery_snapshots_normalize_engine_text_without_mutating_source
+* test_build_keeps_numeric_normalization_and_detaches_current_history_and_time
+* test_build_keeps_invalid_bundle_journal_and_metadata_rejection_order
+9/9 passed.
+
+
+res://tests/unit/test_day_resolution_snapshot_production.gd
+* test_prepare_completion_emits_every_checkpoint_input_key
+* test_inner_snapshot_input_carries_the_live_lifecycle
+* test_no_stub_run_id_day_shape_remains
+* test_unconfigured_port_still_emits_a_valid_shape
+* test_configured_providers_supply_the_five_non_game_state_fields
+* test_configure_rejects_wrong_provider_sets_and_replacement
+* test_bundle_is_detached_from_live_state
+* test_real_checkpoint_port_accepts_the_produced_bundle
+* test_day_seven_ending_plan_survives_into_the_prepared_snapshot
+* test_checkpoint_carries_the_post_completion_lifecycle
+* test_commit_applies_the_exact_lifecycle_the_checkpoint_recorded
+* test_a_rejected_stage_never_reaches_live_state
+* test_active_plan_may_trail_the_day_by_exactly_one
+* test_active_plan_trailing_by_two_still_rejects
+* test_active_plan_ahead_of_the_day_still_rejects
+* test_both_validators_share_one_active_plan_day_window
+* test_a_snapshot_the_schema_accepts_also_restores_through_run_lifecycle
+* test_both_validators_reject_a_two_day_gap
+* test_daily_reset_is_detached_checkpointed_and_reversible
+* test_daily_reset_without_carried_condition_clears_today_effects
+* test_schedule_condition_is_detached_checkpointed_and_rolls_back_with_the_stage
+* test_schedule_condition_requires_carried_sequela_and_day7_bypasses_it
+22/22 passed.
+
+
+res://tests/unit/test_desktop_consequence_state.gd
+* test_make_empty_produces_valid_zeroed_state
+* test_make_empty_rejects_id_only_or_mismatched_provenance
+* test_validate_rejects_extra_and_missing_top_level_keys
+* test_capture_and_restore_round_trip
+* test_prepare_action_handoff_creates_pending_at_action_prepared
+* test_prepare_action_handoff_rejects_second_concurrent_pending
+* test_prepare_action_handoff_rejects_stale_run_revision
+* test_prepare_schedule_recovery_transport_creates_pending_at_prepared_checkpointed
+* test_prepare_sequence_reservation_advances_to_sequence_committed
+* test_prepare_sequence_reservation_rejects_out_of_order_sequence
+* test_prepare_recovery_advance_ordinary_edge_to_publication_pending
+* test_prepare_recovery_advance_rejects_a_publication_plan_hash_mismatch
+* test_prepare_recovery_advance_rejects_stage_mismatch
+* test_prepare_recovery_advance_terminal_cleanup_requires_complete_cursor
+* test_checkpoint_content_preimage_omits_admission_receipt_only_at_admission
+* test_prepare_outbox_publication_toggles_exactly_one_bit
+* test_prepare_outbox_publication_rejects_wrong_payload_hash
+* test_commit_is_a_transaction_ledger_via_restore_replay
+* test_commit_is_a_transaction_ledger_for_action_handoff_replay
+* test_commit_rejects_changed_bytes_at_an_occupied_ledger_key
+* test_prepare_recovery_advance_ordinary_edge_operation_ordinal_matches_frozen_table
+* test_prepare_recovery_advance_callback_progress_operation_ordinal_is_sequential
+* test_prepare_recovery_advance_terminal_cleanup_operation_ordinal_is_twelve
+* test_rollback_restores_the_captured_backup
+* test_validate_recovery_payload_rejects_hash_mismatch
+* test_validate_recovery_payload_rejects_wrong_source_kind_shape
+* test_validate_recovery_payload_accepts_both_phases_and_rejects_violations
+* test_make_empty_seeds_a_zeroed_shop_ledger
+* test_validate_rejects_extra_and_missing_shop_ledger_keys
+* test_validate_rejects_a_malformed_base_completion_receipt
+* test_prepare_record_base_completion_appends_and_is_content_idempotent
+* test_prepare_record_base_completion_rejects_a_malformed_receipt
+* test_prepare_record_supportz_purchase_increments_count_and_sets_the_last_purchase_day
+* test_prepare_record_supportz_purchase_is_idempotent_via_the_transaction_ledger
+* test_supportz_eligibility_state_projects_the_capability_rules_exact_four_key_shape
+* test_supportz_eligibility_state_filters_completions_by_causal_day
+* test_supportz_eligibility_state_reflects_daily_purchase_done_after_a_recorded_purchase
+* test_terminal_cleanup_retains_a_self_contained_destination_record
+38/38 passed.
+
+
+res://tests/unit/test_desktop_publication_ledger.gd
+* test_fixed_path_and_kinds_are_frozen
+* test_missing_file_initializes_the_exact_empty_document
+* test_three_exact_kind_unions_accepted_and_extra_kind_rejected
+* test_document_and_record_union_is_exact_after_one_publication
+* test_causal_sequence_keys_are_nonblank_and_distinct_per_transaction
+* test_action_source_key_derives_from_commit_receipt_id_not_receipt_id
+* test_board_fate_key_derives_from_ordinary_receipt_id
+* test_causal_sequence_semantic_receipt_equals_publication_in_its_entirety
+* test_first_delivery_then_byte_identical_replay_across_a_cold_restart
+* test_occupied_key_with_changed_bytes_conflicts_without_rewriting_storage
+* test_request_hash_and_receipt_binding_enforced_before_any_write
+* test_configure_requires_the_root_scoped_capability_and_refuses_replacement
+* test_load_fails_closed_on_malformed_on_disk_json
+* test_exact_text_validation_cache_is_bounded_and_changed_bytes_fail_closed
+* test_disjoint_from_plan01_schedule_foundation_ledger
+15/15 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/unit/test_canonical_writer_compatibility.gd
+    - Outside Tests
+        * [<Node#131231385365>(subsystem_animation.gd)]
+        * [<Node#131248162593>(subsystem_audio.gd)]
+        * [<Node#131264939823>]
+        * [<Node#131281717047>]
+        * [<Node#131298494271>(subsystem_backgrounds.gd)]
+        * [<Node#131835365184>(subsystem_choices.gd)]
+        * [<Timer#131852142401>]
+        * [<Node#131868919618>(subsystem_expression.gd)]
+        * [<Node#131902474055>(subsystem_glossary.gd)]
+        * [<Node#131919251272>(subsystem_history.gd)]
+        * [<Node#131936028489>(subsystem_input.gd)]
+        * [<Timer#131952805706>]
+        * [<Node#131969582923>(subsystem_jump.gd)]
+        * [<Node#131986360140>(subsystem_containers.gd)]
+        * [<Node#132003137357>(subsystem_portraits.gd)]
+        * [<Node#132540008270>(subsystem_save.gd)]
+        * [<Timer#132556785487>]
+        * [<Node#132573562704>(subsystem_settings.gd)]
+        * [<Node#132590339924>(subsystem_styles.gd)]
+        * [<Node#132607117141>(subsystem_text.gd)]
+        * [<Node#132691003226>(subsystem_text_input.gd)]
+        * [<Node#132707780443>(subsystem_variables.gd)]
+        * [<Node#132724557660>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#132741334877>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+Totals
+------
+Scripts              11
+Tests               199
+Passing Tests       199
+Asserts            5233
+Orphans              24
+Time              10.787s
+
+
+---- All tests passed! ----

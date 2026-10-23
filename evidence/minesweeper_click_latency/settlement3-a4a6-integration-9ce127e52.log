@@ -1,0 +1,355 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/click-latency-3/.godot/phase2r_tests/fad046fa-fccb-49c9-bb2d-d5b739a3504c/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+[WARNING]:  Ignoring script res://tests/backup_operations/test_backup_operations.gd because it does not extend GutTest
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+res://tests/integration/test_desktop_board_persistence.gd
+* test_restore_remaps_board_identity_and_command_receipt_keys
+* test_restore_remaps_consequence_causal_day_pair
+* test_restore_rejects_a_corrupted_board_before_touching_live_state
+* test_restore_rejects_a_corrupted_consequence_receipt_before_live_mutation
+* test_a_completed_restore_leaves_no_incomplete_continuation
+5/5 passed.
+
+
+res://tests/integration/test_desktop_quick_commands.gd
+* test_f5_commits_current_quick_through_real_owner_without_displacing_backup_state
+SCRIPT ERROR: Invalid call to function 'get_projection' in base 'RefCounted (ContactsPort)'. Expected 1 argument(s).
+   at: IsolatedDesktop._refresh_contact_notice (res://scripts/ui/ComputerDesktop.gd:860)
+   GDScript backtrace (most recent call first):
+       [0] _refresh_contact_notice (res://scripts/ui/ComputerDesktop.gd:860)
+       [1] _refresh_launcher (res://scripts/ui/ComputerDesktop.gd:782)
+       [2] configure_contacts (res://scripts/ui/ComputerDesktop.gd:242)
+       [3] before_each (res://tests/integration/test_desktop_quick_commands.gd:116)
+       [4] _run_test (res://addons/gut/gut.gd:612)
+       [5] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Invalid call to function 'get_projection' in base 'RefCounted (ContactsPort)'. Expected 1 argument(s).
+   at: IsolatedDesktop._refresh_contact_notice (res://scripts/ui/ComputerDesktop.gd:860)
+   GDScript backtrace (most recent call first):
+       [0] _refresh_contact_notice (res://scripts/ui/ComputerDesktop.gd:860)
+       [1] _refresh_launcher (res://scripts/ui/ComputerDesktop.gd:782)
+       [2] open_app (res://scripts/ui/ComputerDesktop.gd:535)
+       [3] before_each (res://tests/integration/test_desktop_quick_commands.gd:117)
+       [4] _run_test (res://addons/gut/gut.gd:612)
+       [5] _test_the_scripts (res://addons/gut/gut.gd:835)
+* test_f9_uses_shared_confirmation_and_escape_consumes_the_real_token
+SCRIPT ERROR: Invalid call to function 'get_projection' in base 'RefCounted (ContactsPort)'. Expected 1 argument(s).
+   at: IsolatedDesktop._refresh_contact_notice (res://scripts/ui/ComputerDesktop.gd:860)
+   GDScript backtrace (most recent call first):
+       [0] _refresh_contact_notice (res://scripts/ui/ComputerDesktop.gd:860)
+       [1] _refresh_launcher (res://scripts/ui/ComputerDesktop.gd:782)
+       [2] configure_contacts (res://scripts/ui/ComputerDesktop.gd:242)
+       [3] before_each (res://tests/integration/test_desktop_quick_commands.gd:116)
+       [4] _run_test (res://addons/gut/gut.gd:612)
+       [5] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Invalid call to function 'get_projection' in base 'RefCounted (ContactsPort)'. Expected 1 argument(s).
+   at: IsolatedDesktop._refresh_contact_notice (res://scripts/ui/ComputerDesktop.gd:860)
+   GDScript backtrace (most recent call first):
+       [0] _refresh_contact_notice (res://scripts/ui/ComputerDesktop.gd:860)
+       [1] _refresh_launcher (res://scripts/ui/ComputerDesktop.gd:782)
+       [2] open_app (res://scripts/ui/ComputerDesktop.gd:535)
+       [3] before_each (res://tests/integration/test_desktop_quick_commands.gd:117)
+       [4] _run_test (res://addons/gut/gut.gd:612)
+       [5] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Invalid call to function 'get_projection' in base 'RefCounted (ContactsPort)'. Expected 1 argument(s).
+   at: IsolatedDesktop._refresh_contact_notice (res://scripts/ui/ComputerDesktop.gd:860)
+   GDScript backtrace (most recent call first):
+       [0] _refresh_contact_notice (res://scripts/ui/ComputerDesktop.gd:860)
+       [1] _refresh_launcher (res://scripts/ui/ComputerDesktop.gd:782)
+       [2] _on_launcher_locale_changed (res://scripts/ui/ComputerDesktop.gd:796)
+       [3] set_locale (res://autoload/LocalizationManager.gd:192)
+       [4] test_f9_uses_shared_confirmation_and_escape_consumes_the_real_token (res://tests/integration/test_desktop_quick_commands.gd:291)
+       [5] _run_test (res://addons/gut/gut.gd:622)
+       [6] before_each (res://tests/integration/test_desktop_quick_commands.gd:121)
+SCRIPT ERROR: Invalid call to function 'get_projection' in base 'RefCounted (ContactsPort)'. Expected 1 argument(s).
+   at: IsolatedDesktop._refresh_contact_notice (res://scripts/ui/ComputerDesktop.gd:860)
+   GDScript backtrace (most recent call first):
+       [0] _refresh_contact_notice (res://scripts/ui/ComputerDesktop.gd:860)
+       [1] _refresh_launcher (res://scripts/ui/ComputerDesktop.gd:782)
+       [2] _on_preference_changed (res://scripts/ui/ComputerDesktop.gd:846)
+       [3] _publish (res://autoload/ProfileManager.gd:1230)
+       [4] _commit_profile_candidate (res://autoload/ProfileManager.gd:414)
+       [5] commit_prepared_profile (res://autoload/ProfileManager.gd:373)
+       [6] test_f9_uses_shared_confirmation_and_escape_consumes_the_real_token (res://tests/integration/test_desktop_quick_commands.gd:294)
+       [7] _run_test (res://addons/gut/gut.gd:622)
+       [8] before_each (res://tests/integration/test_desktop_quick_commands.gd:121)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call to function 'get_projection' in base 'RefCounted (ContactsPort)'. Expected 1 argument(s).
+    [2] <engine-2>Invalid call to function 'get_projection' in base 'RefCounted (ContactsPort)'. Expected 1 argument(s).
+      at line -1
+    4 Orphans
+        * [SaveAction:<Button#1463828875705>(BackupKey.gd)] + 1
+        * [SaveAction:<Button#1876581943967>(BackupKey.gd)] + 1
+* test_confirmed_f9_load_runs_the_real_eight_participant_restore_graph
+SCRIPT ERROR: Invalid call to function 'get_projection' in base 'RefCounted (ContactsPort)'. Expected 1 argument(s).
+   at: IsolatedDesktop._refresh_contact_notice (res://scripts/ui/ComputerDesktop.gd:860)
+   GDScript backtrace (most recent call first):
+       [0] _refresh_contact_notice (res://scripts/ui/ComputerDesktop.gd:860)
+       [1] _refresh_launcher (res://scripts/ui/ComputerDesktop.gd:782)
+       [2] configure_contacts (res://scripts/ui/ComputerDesktop.gd:242)
+       [3] before_each (res://tests/integration/test_desktop_quick_commands.gd:116)
+       [4] _run_test (res://addons/gut/gut.gd:612)
+       [5] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Invalid call to function 'get_projection' in base 'RefCounted (ContactsPort)'. Expected 1 argument(s).
+   at: IsolatedDesktop._refresh_contact_notice (res://scripts/ui/ComputerDesktop.gd:860)
+   GDScript backtrace (most recent call first):
+       [0] _refresh_contact_notice (res://scripts/ui/ComputerDesktop.gd:860)
+       [1] _refresh_launcher (res://scripts/ui/ComputerDesktop.gd:782)
+       [2] open_app (res://scripts/ui/ComputerDesktop.gd:535)
+       [3] before_each (res://tests/integration/test_desktop_quick_commands.gd:117)
+       [4] _run_test (res://addons/gut/gut.gd:612)
+       [5] _test_the_scripts (res://addons/gut/gut.gd:835)
+    18 Orphans
+        * [MainGameScene:<Control#2608118893400>(MainGameScene.gd)] + 17
+* test_changed_capture_after_f9_prepare_cancels_without_restore_or_replay
+SCRIPT ERROR: Invalid call to function 'get_projection' in base 'RefCounted (ContactsPort)'. Expected 1 argument(s).
+   at: IsolatedDesktop._refresh_contact_notice (res://scripts/ui/ComputerDesktop.gd:860)
+   GDScript backtrace (most recent call first):
+       [0] _refresh_contact_notice (res://scripts/ui/ComputerDesktop.gd:860)
+       [1] _refresh_launcher (res://scripts/ui/ComputerDesktop.gd:782)
+       [2] configure_contacts (res://scripts/ui/ComputerDesktop.gd:242)
+       [3] before_each (res://tests/integration/test_desktop_quick_commands.gd:116)
+       [4] _run_test (res://addons/gut/gut.gd:612)
+       [5] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Invalid call to function 'get_projection' in base 'RefCounted (ContactsPort)'. Expected 1 argument(s).
+   at: IsolatedDesktop._refresh_contact_notice (res://scripts/ui/ComputerDesktop.gd:860)
+   GDScript backtrace (most recent call first):
+       [0] _refresh_contact_notice (res://scripts/ui/ComputerDesktop.gd:860)
+       [1] _refresh_launcher (res://scripts/ui/ComputerDesktop.gd:782)
+       [2] open_app (res://scripts/ui/ComputerDesktop.gd:535)
+       [3] before_each (res://tests/integration/test_desktop_quick_commands.gd:117)
+       [4] _run_test (res://addons/gut/gut.gd:612)
+       [5] _test_the_scripts (res://addons/gut/gut.gd:835)
+* test_source_admission_lost_inside_prepare_cancels_the_real_owner_token
+SCRIPT ERROR: Invalid call to function 'get_projection' in base 'RefCounted (ContactsPort)'. Expected 1 argument(s).
+   at: IsolatedDesktop._refresh_contact_notice (res://scripts/ui/ComputerDesktop.gd:860)
+   GDScript backtrace (most recent call first):
+       [0] _refresh_contact_notice (res://scripts/ui/ComputerDesktop.gd:860)
+       [1] _refresh_launcher (res://scripts/ui/ComputerDesktop.gd:782)
+       [2] configure_contacts (res://scripts/ui/ComputerDesktop.gd:242)
+       [3] before_each (res://tests/integration/test_desktop_quick_commands.gd:116)
+       [4] _run_test (res://addons/gut/gut.gd:612)
+       [5] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Invalid call to function 'get_projection' in base 'RefCounted (ContactsPort)'. Expected 1 argument(s).
+   at: IsolatedDesktop._refresh_contact_notice (res://scripts/ui/ComputerDesktop.gd:860)
+   GDScript backtrace (most recent call first):
+       [0] _refresh_contact_notice (res://scripts/ui/ComputerDesktop.gd:860)
+       [1] _refresh_launcher (res://scripts/ui/ComputerDesktop.gd:782)
+       [2] open_app (res://scripts/ui/ComputerDesktop.gd:535)
+       [3] before_each (res://tests/integration/test_desktop_quick_commands.gd:117)
+       [4] _run_test (res://addons/gut/gut.gd:612)
+       [5] _test_the_scripts (res://addons/gut/gut.gd:835)
+* test_profile_rebound_keyboard_and_controller_drive_the_same_real_commands
+SCRIPT ERROR: Invalid call to function 'get_projection' in base 'RefCounted (ContactsPort)'. Expected 1 argument(s).
+   at: IsolatedDesktop._refresh_contact_notice (res://scripts/ui/ComputerDesktop.gd:860)
+   GDScript backtrace (most recent call first):
+       [0] _refresh_contact_notice (res://scripts/ui/ComputerDesktop.gd:860)
+       [1] _refresh_launcher (res://scripts/ui/ComputerDesktop.gd:782)
+       [2] configure_contacts (res://scripts/ui/ComputerDesktop.gd:242)
+       [3] before_each (res://tests/integration/test_desktop_quick_commands.gd:116)
+       [4] _run_test (res://addons/gut/gut.gd:612)
+       [5] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Invalid call to function 'get_projection' in base 'RefCounted (ContactsPort)'. Expected 1 argument(s).
+   at: IsolatedDesktop._refresh_contact_notice (res://scripts/ui/ComputerDesktop.gd:860)
+   GDScript backtrace (most recent call first):
+       [0] _refresh_contact_notice (res://scripts/ui/ComputerDesktop.gd:860)
+       [1] _refresh_launcher (res://scripts/ui/ComputerDesktop.gd:782)
+       [2] open_app (res://scripts/ui/ComputerDesktop.gd:535)
+       [3] before_each (res://tests/integration/test_desktop_quick_commands.gd:117)
+       [4] _run_test (res://addons/gut/gut.gd:612)
+       [5] _test_the_scripts (res://addons/gut/gut.gd:835)
+* test_duplicate_echo_and_pause_held_contact_do_not_repeat_quick_save
+SCRIPT ERROR: Invalid call to function 'get_projection' in base 'RefCounted (ContactsPort)'. Expected 1 argument(s).
+   at: IsolatedDesktop._refresh_contact_notice (res://scripts/ui/ComputerDesktop.gd:860)
+   GDScript backtrace (most recent call first):
+       [0] _refresh_contact_notice (res://scripts/ui/ComputerDesktop.gd:860)
+       [1] _refresh_launcher (res://scripts/ui/ComputerDesktop.gd:782)
+       [2] configure_contacts (res://scripts/ui/ComputerDesktop.gd:242)
+       [3] before_each (res://tests/integration/test_desktop_quick_commands.gd:116)
+       [4] _run_test (res://addons/gut/gut.gd:612)
+       [5] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Invalid call to function 'get_projection' in base 'RefCounted (ContactsPort)'. Expected 1 argument(s).
+   at: IsolatedDesktop._refresh_contact_notice (res://scripts/ui/ComputerDesktop.gd:860)
+   GDScript backtrace (most recent call first):
+       [0] _refresh_contact_notice (res://scripts/ui/ComputerDesktop.gd:860)
+       [1] _refresh_launcher (res://scripts/ui/ComputerDesktop.gd:782)
+       [2] open_app (res://scripts/ui/ComputerDesktop.gd:535)
+       [3] before_each (res://tests/integration/test_desktop_quick_commands.gd:117)
+       [4] _run_test (res://addons/gut/gut.gd:612)
+       [5] _test_the_scripts (res://addons/gut/gut.gd:835)
+* test_existing_backup_confirmation_and_token_are_not_displaced_by_f5
+SCRIPT ERROR: Invalid call to function 'get_projection' in base 'RefCounted (ContactsPort)'. Expected 1 argument(s).
+   at: IsolatedDesktop._refresh_contact_notice (res://scripts/ui/ComputerDesktop.gd:860)
+   GDScript backtrace (most recent call first):
+       [0] _refresh_contact_notice (res://scripts/ui/ComputerDesktop.gd:860)
+       [1] _refresh_launcher (res://scripts/ui/ComputerDesktop.gd:782)
+       [2] configure_contacts (res://scripts/ui/ComputerDesktop.gd:242)
+       [3] before_each (res://tests/integration/test_desktop_quick_commands.gd:116)
+       [4] _run_test (res://addons/gut/gut.gd:612)
+       [5] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Invalid call to function 'get_projection' in base 'RefCounted (ContactsPort)'. Expected 1 argument(s).
+   at: IsolatedDesktop._refresh_contact_notice (res://scripts/ui/ComputerDesktop.gd:860)
+   GDScript backtrace (most recent call first):
+       [0] _refresh_contact_notice (res://scripts/ui/ComputerDesktop.gd:860)
+       [1] _refresh_launcher (res://scripts/ui/ComputerDesktop.gd:782)
+       [2] open_app (res://scripts/ui/ComputerDesktop.gd:535)
+       [3] before_each (res://tests/integration/test_desktop_quick_commands.gd:117)
+       [4] _run_test (res://addons/gut/gut.gd:612)
+       [5] _test_the_scripts (res://addons/gut/gut.gd:835)
+    6 Orphans
+        * [LoadAction:<Button#5207731734979>(BackupKey.gd)] + 1
+        * [DeleteAction:<Button#5207899507307>(BackupKey.gd)] + 1
+        * [SaveAction:<Button#4988671626046>(BackupKey.gd)] + 1
+* test_f5_status_survives_same_frame_entry_when_bound_to_the_new_backup_source
+SCRIPT ERROR: Invalid call to function 'get_projection' in base 'RefCounted (ContactsPort)'. Expected 1 argument(s).
+   at: IsolatedDesktop._refresh_contact_notice (res://scripts/ui/ComputerDesktop.gd:860)
+   GDScript backtrace (most recent call first):
+       [0] _refresh_contact_notice (res://scripts/ui/ComputerDesktop.gd:860)
+       [1] _refresh_launcher (res://scripts/ui/ComputerDesktop.gd:782)
+       [2] configure_contacts (res://scripts/ui/ComputerDesktop.gd:242)
+       [3] before_each (res://tests/integration/test_desktop_quick_commands.gd:116)
+       [4] _run_test (res://addons/gut/gut.gd:612)
+       [5] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Invalid call to function 'get_projection' in base 'RefCounted (ContactsPort)'. Expected 1 argument(s).
+   at: IsolatedDesktop._refresh_contact_notice (res://scripts/ui/ComputerDesktop.gd:860)
+   GDScript backtrace (most recent call first):
+       [0] _refresh_contact_notice (res://scripts/ui/ComputerDesktop.gd:860)
+       [1] _refresh_launcher (res://scripts/ui/ComputerDesktop.gd:782)
+       [2] open_app (res://scripts/ui/ComputerDesktop.gd:535)
+       [3] before_each (res://tests/integration/test_desktop_quick_commands.gd:117)
+       [4] _run_test (res://addons/gut/gut.gd:612)
+       [5] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Invalid call to function 'get_projection' in base 'RefCounted (ContactsPort)'. Expected 1 argument(s).
+   at: IsolatedDesktop._refresh_contact_notice (res://scripts/ui/ComputerDesktop.gd:860)
+   GDScript backtrace (most recent call first):
+       [0] _refresh_contact_notice (res://scripts/ui/ComputerDesktop.gd:860)
+       [1] _refresh_launcher (res://scripts/ui/ComputerDesktop.gd:782)
+       [2] return_home (res://scripts/ui/ComputerDesktop.gd:667)
+       [3] test_f5_status_survives_same_frame_entry_when_bound_to_the_new_backup_source (res://tests/integration/test_desktop_quick_commands.gd:410)
+       [4] _run_test (res://addons/gut/gut.gd:622)
+       [5] before_each (res://tests/integration/test_desktop_quick_commands.gd:121)
+SCRIPT ERROR: Invalid call to function 'get_projection' in base 'RefCounted (ContactsPort)'. Expected 1 argument(s).
+   at: IsolatedDesktop._refresh_contact_notice (res://scripts/ui/ComputerDesktop.gd:860)
+   GDScript backtrace (most recent call first):
+       [0] _refresh_contact_notice (res://scripts/ui/ComputerDesktop.gd:860)
+       [1] _refresh_launcher (res://scripts/ui/ComputerDesktop.gd:782)
+       [2] open_app (res://scripts/ui/ComputerDesktop.gd:535)
+       [3] test_f5_status_survives_same_frame_entry_when_bound_to_the_new_backup_source (res://tests/integration/test_desktop_quick_commands.gd:413)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call to function 'get_projection' in base 'RefCounted (ContactsPort)'. Expected 1 argument(s).
+    [2] <engine-2>Invalid call to function 'get_projection' in base 'RefCounted (ContactsPort)'. Expected 1 argument(s).
+      at line 417
+* test_backup_recovery_entered_inside_prepare_cancels_the_new_quick_token
+SCRIPT ERROR: Invalid call to function 'get_projection' in base 'RefCounted (ContactsPort)'. Expected 1 argument(s).
+   at: IsolatedDesktop._refresh_contact_notice (res://scripts/ui/ComputerDesktop.gd:860)
+   GDScript backtrace (most recent call first):
+       [0] _refresh_contact_notice (res://scripts/ui/ComputerDesktop.gd:860)
+       [1] _refresh_launcher (res://scripts/ui/ComputerDesktop.gd:782)
+       [2] configure_contacts (res://scripts/ui/ComputerDesktop.gd:242)
+       [3] before_each (res://tests/integration/test_desktop_quick_commands.gd:116)
+       [4] _run_test (res://addons/gut/gut.gd:612)
+       [5] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Invalid call to function 'get_projection' in base 'RefCounted (ContactsPort)'. Expected 1 argument(s).
+   at: IsolatedDesktop._refresh_contact_notice (res://scripts/ui/ComputerDesktop.gd:860)
+   GDScript backtrace (most recent call first):
+       [0] _refresh_contact_notice (res://scripts/ui/ComputerDesktop.gd:860)
+       [1] _refresh_launcher (res://scripts/ui/ComputerDesktop.gd:782)
+       [2] open_app (res://scripts/ui/ComputerDesktop.gd:535)
+       [3] before_each (res://tests/integration/test_desktop_quick_commands.gd:117)
+       [4] _run_test (res://addons/gut/gut.gd:612)
+       [5] _test_the_scripts (res://addons/gut/gut.gd:835)
+* test_inherited_focus_custody_blocks_quick_input_and_explicit_desktop_override_admits_it
+SCRIPT ERROR: Invalid call to function 'get_projection' in base 'RefCounted (ContactsPort)'. Expected 1 argument(s).
+   at: IsolatedDesktop._refresh_contact_notice (res://scripts/ui/ComputerDesktop.gd:860)
+   GDScript backtrace (most recent call first):
+       [0] _refresh_contact_notice (res://scripts/ui/ComputerDesktop.gd:860)
+       [1] _refresh_launcher (res://scripts/ui/ComputerDesktop.gd:782)
+       [2] configure_contacts (res://scripts/ui/ComputerDesktop.gd:242)
+       [3] before_each (res://tests/integration/test_desktop_quick_commands.gd:116)
+       [4] _run_test (res://addons/gut/gut.gd:612)
+       [5] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Invalid call to function 'get_projection' in base 'RefCounted (ContactsPort)'. Expected 1 argument(s).
+   at: IsolatedDesktop._refresh_contact_notice (res://scripts/ui/ComputerDesktop.gd:860)
+   GDScript backtrace (most recent call first):
+       [0] _refresh_contact_notice (res://scripts/ui/ComputerDesktop.gd:860)
+       [1] _refresh_launcher (res://scripts/ui/ComputerDesktop.gd:782)
+       [2] open_app (res://scripts/ui/ComputerDesktop.gd:535)
+       [3] before_each (res://tests/integration/test_desktop_quick_commands.gd:117)
+       [4] _run_test (res://addons/gut/gut.gd:612)
+       [5] _test_the_scripts (res://addons/gut/gut.gd:835)
+9/11 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/integration/test_desktop_board_persistence.gd
+    - Outside Tests
+        * [<Node#131248162582>(subsystem_animation.gd)]
+        * [<Node#131264939810>(subsystem_audio.gd)]
+        * [<Node#131281717040>]
+        * [<Node#131298494264>]
+        * [<Node#131315271488>(subsystem_backgrounds.gd)]
+        * [<Node#131852142401>(subsystem_choices.gd)]
+        * [<Timer#131868919618>]
+        * [<Node#131885696835>(subsystem_expression.gd)]
+        * [<Node#131919251272>(subsystem_glossary.gd)]
+        * [<Node#131936028489>(subsystem_history.gd)]
+        * [<Node#131952805706>(subsystem_input.gd)]
+        * [<Timer#131969582923>]
+        * [<Node#131986360140>(subsystem_jump.gd)]
+        * [<Node#132003137357>(subsystem_containers.gd)]
+        * [<Node#132019914574>(subsystem_portraits.gd)]
+        * [<Node#132556785487>(subsystem_save.gd)]
+        * [<Timer#132573562704>]
+        * [<Node#132590339921>(subsystem_settings.gd)]
+        * [<Node#132607117141>(subsystem_styles.gd)]
+        * [<Node#132623894358>(subsystem_text.gd)]
+        * [<Node#132707780443>(subsystem_text_input.gd)]
+        * [<Node#132724557660>(subsystem_variables.gd)]
+        * [<Node#132741334877>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#132758112094>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+res://tests/integration/test_desktop_quick_commands.gd
+- test_f9_uses_shared_confirmation_and_escape_consumes_the_real_token
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call to function 'get_projection' in base 'RefCounted (ContactsPort)'. Expected 1 argument(s).
+    [2] <engine-2>Invalid call to function 'get_projection' in base 'RefCounted (ContactsPort)'. Expected 1 argument(s).
+          at line -1
+- test_f5_status_survives_same_frame_entry_when_bound_to_the_new_backup_source
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call to function 'get_projection' in base 'RefCounted (ContactsPort)'. Expected 1 argument(s).
+    [2] <engine-2>Invalid call to function 'get_projection' in base 'RefCounted (ContactsPort)'. Expected 1 argument(s).
+          at line 417
+
+Totals
+------
+Warnings              1
+
+Scripts               2
+Tests                16
+Passing Tests        14
+Failing Tests         2
+Asserts           292/294
+Orphans              24
+Time              4.482s
+
+
+---- 2 failing tests ----

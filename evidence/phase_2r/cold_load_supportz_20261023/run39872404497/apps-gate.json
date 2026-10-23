@@ -1,0 +1,136 @@
+{
+  "source": "4b554dbbf39c6532b7f38f5c20ae482c8b77752a",
+  "reports": [
+    {
+      "suite": "day-owners",
+      "tests": 33,
+      "assertions": 509
+    },
+    {
+      "suite": "day-physical",
+      "tests": 2,
+      "assertions": 71
+    },
+    {
+      "suite": "ordinary-render-create",
+      "tests": 1,
+      "assertions": 347
+    },
+    {
+      "suite": "ordinary-render-load",
+      "tests": 1,
+      "assertions": 44
+    }
+  ],
+  "tests": 37,
+  "processes": {
+    "day-owners": [
+      {
+        "suite_id": "day-owners",
+        "argv": [
+          "--headless",
+          "--path",
+          "D:\\a\\dwm\\dwm",
+          "--log-file",
+          "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\day-owners.log",
+          "-s",
+          "res://addons/gut/gut_cmdln.gd",
+          "-gconfig=",
+          "-gtest=res://tests/unit/test_scene_day_renewal.gd,res://tests/unit/test_scene_transition_identity.gd,res://tests/unit/test_causal_day_advance_identity_port.gd",
+          "-gexit",
+          "-glog=2",
+          "-gjunit_xml_file=res://.godot/ci/day-owners.xml"
+        ],
+        "exit_code": 0,
+        "log_path": "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\day-owners.log",
+        "test_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\a9f66820-c6e9-494d-a90b-1c855f1257b3",
+        "user_dir": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\a9f66820-c6e9-494d-a90b-1c855f1257b3\\appdata\\Godot\\app_userdata\\DWM",
+        "started_at_utc": "2026-10-22T23:33:18.0468235Z",
+        "ended_at_utc": "2026-10-22T23:33:27.6438512Z"
+      }
+    ],
+    "day-physical": [
+      {
+        "suite_id": "day-physical",
+        "argv": [
+          "--headless",
+          "--path",
+          "D:\\a\\dwm\\dwm",
+          "--log-file",
+          "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\day-physical.log",
+          "-s",
+          "res://addons/gut/gut_cmdln.gd",
+          "-gconfig=",
+          "-gtest=res://tests/integration/test_scene_day_commit_ordering.gd",
+          "-gexit",
+          "-glog=2",
+          "-gjunit_xml_file=res://.godot/ci/day-physical.xml"
+        ],
+        "exit_code": 0,
+        "log_path": "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\day-physical.log",
+        "test_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\3e3d67fb-291b-41a2-b301-4fec41f5cb8e",
+        "user_dir": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\3e3d67fb-291b-41a2-b301-4fec41f5cb8e\\appdata\\Godot\\app_userdata\\DWM",
+        "started_at_utc": "2026-10-22T23:33:35.4519337Z",
+        "ended_at_utc": "2026-10-22T23:33:44.0269733Z"
+      }
+    ],
+    "ordinary-render": [
+      {
+        "suite_id": "ordinary-render",
+        "argv": [
+          "--rendering-method",
+          "gl_compatibility",
+          "--audio-driver",
+          "Dummy",
+          "--path",
+          "D:\\a\\dwm\\dwm",
+          "--log-file",
+          "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\ordinary-render.log",
+          "-s",
+          "res://addons/gut/gut_cmdln.gd",
+          "-gconfig=",
+          "-gtest=res://tests/integration/test_scene_ordinary_day_create.gd",
+          "-gexit",
+          "-glog=2",
+          "-gjunit_xml_file=res://.godot/ci/ordinary-render-create.xml"
+        ],
+        "exit_code": 0,
+        "log_path": "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\ordinary-render.log",
+        "test_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\d481e8f3-7bd4-4be7-9f23-1409448045da",
+        "user_dir": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\d481e8f3-7bd4-4be7-9f23-1409448045da\\appdata\\Godot\\app_userdata\\DWM",
+        "started_at_utc": "2026-10-22T23:33:51.7861098Z",
+        "ended_at_utc": "2026-10-22T23:35:06.8905613Z"
+      },
+      {
+        "suite_id": "ordinary-render",
+        "argv": [
+          "--rendering-method",
+          "gl_compatibility",
+          "--audio-driver",
+          "Dummy",
+          "--path",
+          "D:\\a\\dwm\\dwm",
+          "--log-file",
+          "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\ordinary-render-load.log",
+          "-s",
+          "res://addons/gut/gut_cmdln.gd",
+          "-gconfig=",
+          "-gtest=res://tests/integration/test_scene_ordinary_day_load.gd",
+          "-gexit",
+          "-glog=2",
+          "-gjunit_xml_file=res://.godot/ci/ordinary-render-load.xml"
+        ],
+        "exit_code": 0,
+        "log_path": "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\ordinary-render-load.log",
+        "test_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\d481e8f3-7bd4-4be7-9f23-1409448045da",
+        "user_dir": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\d481e8f3-7bd4-4be7-9f23-1409448045da\\appdata\\Godot\\app_userdata\\DWM",
+        "started_at_utc": "2026-10-22T23:35:06.9796106Z",
+        "ended_at_utc": "2026-10-22T23:35:27.8160922Z"
+      }
+    ]
+  },
+  "changed": [
+    ".claude/skills/godot-prompter/1.10.0",
+    ".claude/skills/superpowers/6.1.1"
+  ]
+}

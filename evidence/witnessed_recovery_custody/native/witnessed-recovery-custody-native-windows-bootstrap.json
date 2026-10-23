@@ -1,0 +1,26 @@
+{
+  "failures": [
+    "production bootstrap did not become ready"
+  ],
+  "observations": {
+    "startup_state": {
+      "completed_stages": [],
+      "failed_stage": null,
+      "fatal_result": {},
+      "gate_injection": {
+        "factory_invocation_count": 0,
+        "gate_instance_id": 0,
+        "target_instance_ids": [],
+        "targets": []
+      },
+      "mode": "test_manual",
+      "planned_blockers": [],
+      "ready": false,
+      "started": true
+    }
+  },
+  "ok": false,
+  "pause_baseline": {},
+  "result_path": "C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/f4bcddb0-28d8-4d6d-9e5d-803c01ccad1e/dwm_test_root/11976/1/witnessed-recovery-custody-native/witnessed-recovery-custody/result.json",
+  "scope": "real recovery scene and composed Pause host on the Windows main viewport, plus a lower unhandled-input observer; the current menu is not a playable narrative Pause-admission fixture; injected packets, no hardware/UIA claim"
+}

@@ -1,0 +1,3674 @@
+{
+  "schema": "dwm_ordered_checkpoint_trace.v1",
+  "repository": "Siuuuers/dwm",
+  "pull_request": 1,
+  "head_sha": "cc42b9e4c4f0c5c736fef625c0be6b1fa0855f00",
+  "merge_checkout_sha": "efcc6d210896389641a270c0c2ee9e0e5074404c",
+  "workflow_run_id": 35814988598,
+  "workflow_run_number": 57,
+  "workflow_run_attempt": 1,
+  "job_id": 107035880080,
+  "job_url": "https://github.com/Siuuuers/dwm/actions/runs/35814988598/job/107035880080",
+  "collection": {
+    "marker": "SEVEN_DAY_HISTORY_TRACE",
+    "source": "Completed retained-history GitHub Actions job log, decoded with the GitHub connector.",
+    "log_line_definition": "One-based line number in the captured seven-day write-process output, preserved by the driver after all timed work; not a line number in the GitHub job log.",
+    "scope": "All checkpoint profiles, first_reveal_durable consequence profiles, and day boundaries from the seven-day synthetic write process.",
+    "privacy": "Timing fields and synthetic checkpoint identifiers only. No save payload, account data, runner credentials, or signed artifact URLs.",
+    "interpretation_limit": "Inclusive nested scopes overlap. Do not sum parent and child scopes or infer causation solely from adjacency; audit synchronous source calls before attributing a checkpoint to a first reveal."
+  },
+  "verification": {
+    "record_count": 204,
+    "family_counts": {
+      "checkpoint": 190,
+      "consequence": 7,
+      "day": 7
+    },
+    "checkpoint_scope_counts": {
+      "save_checkpoint_prepare": 95,
+      "save_checkpoint": 95
+    },
+    "log_line_unique_and_strictly_increasing": true,
+    "first_source_log_line": 5,
+    "last_source_log_line": 2105,
+    "ordered_day_boundaries": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ]
+  },
+  "records": [
+    {
+      "log_line": 5,
+      "family": "checkpoint",
+      "value": {
+        "autosave": true,
+        "backup_us": 4653,
+        "checkpoint_kind": "safe_marker",
+        "document_build_us": 2034,
+        "elapsed_us": 7928,
+        "journal_prepare_us": 55,
+        "ok": true,
+        "run_snapshot_build_us": 1090,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 1,
+        "text_validator_us_since_prepare": 4377,
+        "view_capture_us": 90
+      }
+    },
+    {
+      "log_line": 6,
+      "family": "checkpoint",
+      "value": {
+        "autosave": true,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:2",
+        "document_bytes": 9245,
+        "elapsed_us": 10318,
+        "history_bundles": 1,
+        "journal_proof_us": 2360,
+        "journal_spliced": false,
+        "journal_us": 1020,
+        "ok": true,
+        "outgoing_schema_us": 2146,
+        "reread_us": 159,
+        "reread_validate_us": 17,
+        "scope": "save_checkpoint",
+        "splice_us": 1330,
+        "stringify_us": 737,
+        "text_validator_calls_since_prepare": 1,
+        "text_validator_us_since_prepare": 4377,
+        "write_atomic_us": 2339
+      }
+    },
+    {
+      "log_line": 200,
+      "family": "checkpoint",
+      "value": {
+        "autosave": true,
+        "backup_us": 304,
+        "checkpoint_kind": "pre_board",
+        "document_build_us": 16475,
+        "elapsed_us": 19136,
+        "journal_prepare_us": 721,
+        "ok": true,
+        "run_snapshot_build_us": 1512,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 117
+      }
+    },
+    {
+      "log_line": 201,
+      "family": "checkpoint",
+      "value": {
+        "autosave": true,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:18",
+        "document_bytes": 88073,
+        "elapsed_us": 73560,
+        "history_bundles": 17,
+        "journal_proof_us": 33460,
+        "journal_spliced": false,
+        "journal_us": 2347,
+        "ok": true,
+        "outgoing_schema_us": 17605,
+        "reread_us": 693,
+        "reread_validate_us": 140,
+        "scope": "save_checkpoint",
+        "splice_us": 12637,
+        "stringify_us": 1432,
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "write_atomic_us": 3984
+      }
+    },
+    {
+      "log_line": 202,
+      "family": "consequence",
+      "value": {
+        "board_capture_us": 110,
+        "board_commit_us": 122,
+        "board_prepare_us": 494,
+        "capture_base_snapshot_us": 176,
+        "checkpoint_capture_us": 950,
+        "checkpoint_commit_us": 74019,
+        "checkpoint_prepare_us": 19324,
+        "compose_us": 120,
+        "elapsed_us": 98673,
+        "materialize_us": 631,
+        "ok": true,
+        "prepare_consequence_us": 217,
+        "prepare_spec_us": 465,
+        "preview_checkpoint_us": 25,
+        "publish_us": 6,
+        "reducer_us": 348,
+        "scope": "first_reveal_durable",
+        "state_capture_us": 36,
+        "state_commit_us": 1572,
+        "validate_candidates_us": 18,
+        "verify_transaction_us": 28
+      }
+    },
+    {
+      "log_line": 203,
+      "family": "checkpoint",
+      "value": {
+        "autosave": true,
+        "backup_us": 1380,
+        "checkpoint_kind": "safe_marker",
+        "document_build_us": 2839,
+        "elapsed_us": 6659,
+        "journal_prepare_us": 990,
+        "ok": true,
+        "run_snapshot_build_us": 1405,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 37
+      }
+    },
+    {
+      "log_line": 204,
+      "family": "checkpoint",
+      "value": {
+        "autosave": true,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:19",
+        "document_bytes": 94310,
+        "elapsed_us": 20616,
+        "history_bundles": 17,
+        "journal_proof_us": 596,
+        "journal_spliced": true,
+        "journal_us": 2145,
+        "ok": true,
+        "outgoing_schema_us": 7798,
+        "reread_us": 675,
+        "reread_validate_us": 126,
+        "scope": "save_checkpoint",
+        "splice_us": 1,
+        "stringify_us": 3431,
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "write_atomic_us": 4516
+      }
+    },
+    {
+      "log_line": 242,
+      "family": "checkpoint",
+      "value": {
+        "autosave": true,
+        "backup_us": 1489,
+        "checkpoint_kind": "post_result",
+        "document_build_us": 4319,
+        "elapsed_us": 9173,
+        "journal_prepare_us": 965,
+        "ok": true,
+        "run_snapshot_build_us": 2357,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 35
+      }
+    },
+    {
+      "log_line": 244,
+      "family": "checkpoint",
+      "value": {
+        "autosave": true,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:20",
+        "document_bytes": 112337,
+        "elapsed_us": 24703,
+        "history_bundles": 17,
+        "journal_proof_us": 1107,
+        "journal_spliced": true,
+        "journal_us": 3192,
+        "ok": true,
+        "outgoing_schema_us": 8342,
+        "reread_us": 842,
+        "reread_validate_us": 150,
+        "scope": "save_checkpoint",
+        "splice_us": 2,
+        "stringify_us": 4172,
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "write_atomic_us": 5540
+      }
+    },
+    {
+      "log_line": 255,
+      "family": "day",
+      "value": {
+        "day": 1
+      }
+    },
+    {
+      "log_line": 257,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_kind": "day_resolution_stage",
+        "elapsed_us": 4761,
+        "journal_prepare_us": 1145,
+        "ok": true,
+        "run_snapshot_build_us": 3362,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 245
+      }
+    },
+    {
+      "log_line": 258,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:21",
+        "elapsed_us": 4061,
+        "history_bundles": 17,
+        "journal_proof_us": 5,
+        "journal_us": 4052,
+        "ok": true,
+        "scope": "save_checkpoint",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0
+      }
+    },
+    {
+      "log_line": 259,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_kind": "day_resolution_stage",
+        "elapsed_us": 3951,
+        "journal_prepare_us": 831,
+        "ok": true,
+        "run_snapshot_build_us": 2933,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 181
+      }
+    },
+    {
+      "log_line": 260,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:22",
+        "elapsed_us": 4003,
+        "history_bundles": 17,
+        "journal_proof_us": 4,
+        "journal_us": 3996,
+        "ok": true,
+        "scope": "save_checkpoint",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0
+      }
+    },
+    {
+      "log_line": 261,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_kind": "day_resolution_stage",
+        "elapsed_us": 4047,
+        "journal_prepare_us": 912,
+        "ok": true,
+        "run_snapshot_build_us": 2950,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 179
+      }
+    },
+    {
+      "log_line": 262,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:23",
+        "elapsed_us": 4061,
+        "history_bundles": 17,
+        "journal_proof_us": 4,
+        "journal_us": 4054,
+        "ok": true,
+        "scope": "save_checkpoint",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0
+      }
+    },
+    {
+      "log_line": 263,
+      "family": "checkpoint",
+      "value": {
+        "autosave": true,
+        "backup_us": 1656,
+        "checkpoint_kind": "day_resolution_stage",
+        "document_build_us": 26103,
+        "elapsed_us": 31765,
+        "journal_prepare_us": 916,
+        "ok": true,
+        "run_snapshot_build_us": 2902,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 181
+      }
+    },
+    {
+      "log_line": 264,
+      "family": "checkpoint",
+      "value": {
+        "autosave": true,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:24",
+        "document_bytes": 174367,
+        "elapsed_us": 88208,
+        "history_bundles": 17,
+        "journal_proof_us": 19981,
+        "journal_spliced": false,
+        "journal_us": 5015,
+        "ok": true,
+        "outgoing_schema_us": 27658,
+        "reread_us": 1111,
+        "reread_validate_us": 234,
+        "scope": "save_checkpoint",
+        "splice_us": 20838,
+        "stringify_us": 3849,
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "write_atomic_us": 7112
+      }
+    },
+    {
+      "log_line": 265,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_kind": "day_resolution_stage",
+        "elapsed_us": 4229,
+        "journal_prepare_us": 1016,
+        "ok": true,
+        "run_snapshot_build_us": 3004,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 202
+      }
+    },
+    {
+      "log_line": 266,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:25",
+        "elapsed_us": 4215,
+        "history_bundles": 17,
+        "journal_proof_us": 4,
+        "journal_us": 4207,
+        "ok": true,
+        "scope": "save_checkpoint",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0
+      }
+    },
+    {
+      "log_line": 267,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_kind": "day_resolution_stage",
+        "elapsed_us": 4059,
+        "journal_prepare_us": 947,
+        "ok": true,
+        "run_snapshot_build_us": 2924,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 182
+      }
+    },
+    {
+      "log_line": 268,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:26",
+        "elapsed_us": 4109,
+        "history_bundles": 17,
+        "journal_proof_us": 4,
+        "journal_us": 4101,
+        "ok": true,
+        "scope": "save_checkpoint",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0
+      }
+    },
+    {
+      "log_line": 269,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_kind": "day_resolution_stage",
+        "elapsed_us": 4024,
+        "journal_prepare_us": 926,
+        "ok": true,
+        "run_snapshot_build_us": 2904,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 188
+      }
+    },
+    {
+      "log_line": 270,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:27",
+        "elapsed_us": 4021,
+        "history_bundles": 17,
+        "journal_proof_us": 3,
+        "journal_us": 4015,
+        "ok": true,
+        "scope": "save_checkpoint",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0
+      }
+    },
+    {
+      "log_line": 271,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_kind": "day_resolution_stage",
+        "elapsed_us": 4707,
+        "journal_prepare_us": 1039,
+        "ok": true,
+        "run_snapshot_build_us": 3468,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 194
+      }
+    },
+    {
+      "log_line": 272,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:28",
+        "elapsed_us": 4525,
+        "history_bundles": 17,
+        "journal_proof_us": 4,
+        "journal_us": 4518,
+        "ok": true,
+        "scope": "save_checkpoint",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0
+      }
+    },
+    {
+      "log_line": 273,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_kind": "day_resolution_stage",
+        "elapsed_us": 3680,
+        "journal_prepare_us": 1261,
+        "ok": true,
+        "run_snapshot_build_us": 2380,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 31
+      }
+    },
+    {
+      "log_line": 274,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:29",
+        "elapsed_us": 3581,
+        "history_bundles": 17,
+        "journal_proof_us": 5,
+        "journal_us": 3572,
+        "ok": true,
+        "scope": "save_checkpoint",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0
+      }
+    },
+    {
+      "log_line": 275,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_kind": "day_resolution_stage",
+        "elapsed_us": 3437,
+        "journal_prepare_us": 1002,
+        "ok": true,
+        "run_snapshot_build_us": 2298,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 130
+      }
+    },
+    {
+      "log_line": 276,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:30",
+        "elapsed_us": 3368,
+        "history_bundles": 17,
+        "journal_proof_us": 4,
+        "journal_us": 3359,
+        "ok": true,
+        "scope": "save_checkpoint",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0
+      }
+    },
+    {
+      "log_line": 277,
+      "family": "checkpoint",
+      "value": {
+        "autosave": true,
+        "backup_us": 2330,
+        "checkpoint_kind": "day_start",
+        "document_build_us": 21460,
+        "elapsed_us": 26986,
+        "journal_prepare_us": 874,
+        "ok": true,
+        "run_snapshot_build_us": 2186,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 126
+      }
+    },
+    {
+      "log_line": 278,
+      "family": "checkpoint",
+      "value": {
+        "autosave": true,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:31",
+        "document_bytes": 125943,
+        "elapsed_us": 70906,
+        "history_bundles": 17,
+        "journal_proof_us": 13624,
+        "journal_spliced": false,
+        "journal_us": 4443,
+        "ok": true,
+        "outgoing_schema_us": 23290,
+        "reread_us": 842,
+        "reread_validate_us": 173,
+        "scope": "save_checkpoint",
+        "splice_us": 16533,
+        "stringify_us": 2387,
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "write_atomic_us": 7243
+      }
+    },
+    {
+      "log_line": 279,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_kind": "day_resolution_stage",
+        "elapsed_us": 3786,
+        "journal_prepare_us": 1098,
+        "ok": true,
+        "run_snapshot_build_us": 2557,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 124
+      }
+    },
+    {
+      "log_line": 280,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:32",
+        "elapsed_us": 3624,
+        "history_bundles": 17,
+        "journal_proof_us": 6,
+        "journal_us": 3614,
+        "ok": true,
+        "scope": "save_checkpoint",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0
+      }
+    },
+    {
+      "log_line": 508,
+      "family": "checkpoint",
+      "value": {
+        "autosave": true,
+        "backup_us": 1730,
+        "checkpoint_kind": "pre_board",
+        "document_build_us": 62115,
+        "elapsed_us": 69590,
+        "journal_prepare_us": 2458,
+        "ok": true,
+        "run_snapshot_build_us": 3075,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 204
+      }
+    },
+    {
+      "log_line": 509,
+      "family": "checkpoint",
+      "value": {
+        "autosave": true,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:48",
+        "document_bytes": 417287,
+        "elapsed_us": 252636,
+        "history_bundles": 32,
+        "journal_proof_us": 107555,
+        "journal_spliced": false,
+        "journal_us": 7670,
+        "ok": true,
+        "outgoing_schema_us": 64233,
+        "reread_us": 2676,
+        "reread_validate_us": 533,
+        "scope": "save_checkpoint",
+        "splice_us": 49225,
+        "stringify_us": 2959,
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "write_atomic_us": 11898
+      }
+    },
+    {
+      "log_line": 510,
+      "family": "consequence",
+      "value": {
+        "board_capture_us": 132,
+        "board_commit_us": 121,
+        "board_prepare_us": 471,
+        "capture_base_snapshot_us": 236,
+        "checkpoint_capture_us": 3579,
+        "checkpoint_commit_us": 255136,
+        "checkpoint_prepare_us": 69829,
+        "compose_us": 230,
+        "elapsed_us": 333063,
+        "materialize_us": 533,
+        "ok": true,
+        "prepare_consequence_us": 265,
+        "prepare_spec_us": 445,
+        "preview_checkpoint_us": 26,
+        "publish_us": 6,
+        "reducer_us": 227,
+        "scope": "first_reveal_durable",
+        "state_capture_us": 38,
+        "state_commit_us": 1728,
+        "validate_candidates_us": 19,
+        "verify_transaction_us": 30
+      }
+    },
+    {
+      "log_line": 511,
+      "family": "checkpoint",
+      "value": {
+        "autosave": true,
+        "backup_us": 5363,
+        "checkpoint_kind": "safe_marker",
+        "document_build_us": 7099,
+        "elapsed_us": 19056,
+        "journal_prepare_us": 3699,
+        "ok": true,
+        "run_snapshot_build_us": 2850,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 37
+      }
+    },
+    {
+      "log_line": 512,
+      "family": "checkpoint",
+      "value": {
+        "autosave": true,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:49",
+        "document_bytes": 423416,
+        "elapsed_us": 58039,
+        "history_bundles": 32,
+        "journal_proof_us": 1148,
+        "journal_spliced": true,
+        "journal_us": 6446,
+        "ok": true,
+        "outgoing_schema_us": 21941,
+        "reread_us": 2717,
+        "reread_validate_us": 574,
+        "scope": "save_checkpoint",
+        "splice_us": 1,
+        "stringify_us": 5422,
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "write_atomic_us": 14065
+      }
+    },
+    {
+      "log_line": 550,
+      "family": "checkpoint",
+      "value": {
+        "autosave": true,
+        "backup_us": 5371,
+        "checkpoint_kind": "post_result",
+        "document_build_us": 7965,
+        "elapsed_us": 20469,
+        "journal_prepare_us": 3450,
+        "ok": true,
+        "run_snapshot_build_us": 3641,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 35
+      }
+    },
+    {
+      "log_line": 552,
+      "family": "checkpoint",
+      "value": {
+        "autosave": true,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:50",
+        "document_bytes": 441294,
+        "elapsed_us": 64700,
+        "history_bundles": 32,
+        "journal_proof_us": 1602,
+        "journal_spliced": true,
+        "journal_us": 7425,
+        "ok": true,
+        "outgoing_schema_us": 23611,
+        "reread_us": 2690,
+        "reread_validate_us": 574,
+        "scope": "save_checkpoint",
+        "splice_us": 1,
+        "stringify_us": 6630,
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "write_atomic_us": 16178
+      }
+    },
+    {
+      "log_line": 563,
+      "family": "day",
+      "value": {
+        "day": 2
+      }
+    },
+    {
+      "log_line": 565,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_kind": "day_resolution_stage",
+        "elapsed_us": 7561,
+        "journal_prepare_us": 3078,
+        "ok": true,
+        "run_snapshot_build_us": 4213,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 261
+      }
+    },
+    {
+      "log_line": 566,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:51",
+        "elapsed_us": 8092,
+        "history_bundles": 32,
+        "journal_proof_us": 5,
+        "journal_us": 8082,
+        "ok": true,
+        "scope": "save_checkpoint",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0
+      }
+    },
+    {
+      "log_line": 567,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_kind": "day_resolution_stage",
+        "elapsed_us": 7139,
+        "journal_prepare_us": 2999,
+        "ok": true,
+        "run_snapshot_build_us": 3899,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 233
+      }
+    },
+    {
+      "log_line": 568,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:52",
+        "elapsed_us": 7178,
+        "history_bundles": 32,
+        "journal_proof_us": 5,
+        "journal_us": 7169,
+        "ok": true,
+        "scope": "save_checkpoint",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0
+      }
+    },
+    {
+      "log_line": 569,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_kind": "day_resolution_stage",
+        "elapsed_us": 6717,
+        "journal_prepare_us": 2721,
+        "ok": true,
+        "run_snapshot_build_us": 3792,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 196
+      }
+    },
+    {
+      "log_line": 570,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:53",
+        "elapsed_us": 7072,
+        "history_bundles": 32,
+        "journal_proof_us": 5,
+        "journal_us": 7063,
+        "ok": true,
+        "scope": "save_checkpoint",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0
+      }
+    },
+    {
+      "log_line": 571,
+      "family": "checkpoint",
+      "value": {
+        "autosave": true,
+        "backup_us": 5942,
+        "checkpoint_kind": "day_resolution_stage",
+        "document_build_us": 67700,
+        "elapsed_us": 80238,
+        "journal_prepare_us": 2591,
+        "ok": true,
+        "run_snapshot_build_us": 3784,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 212
+      }
+    },
+    {
+      "log_line": 572,
+      "family": "checkpoint",
+      "value": {
+        "autosave": true,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:54",
+        "document_bytes": 467649,
+        "elapsed_us": 191848,
+        "history_bundles": 32,
+        "journal_proof_us": 24221,
+        "journal_spliced": false,
+        "journal_us": 8963,
+        "ok": true,
+        "outgoing_schema_us": 71472,
+        "reread_us": 2924,
+        "reread_validate_us": 599,
+        "scope": "save_checkpoint",
+        "splice_us": 54699,
+        "stringify_us": 4419,
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "write_atomic_us": 17142
+      }
+    },
+    {
+      "log_line": 573,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_kind": "day_resolution_stage",
+        "elapsed_us": 6949,
+        "journal_prepare_us": 2866,
+        "ok": true,
+        "run_snapshot_build_us": 3842,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 233
+      }
+    },
+    {
+      "log_line": 574,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:55",
+        "elapsed_us": 6905,
+        "history_bundles": 32,
+        "journal_proof_us": 4,
+        "journal_us": 6897,
+        "ok": true,
+        "scope": "save_checkpoint",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0
+      }
+    },
+    {
+      "log_line": 575,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_kind": "day_resolution_stage",
+        "elapsed_us": 6372,
+        "journal_prepare_us": 2516,
+        "ok": true,
+        "run_snapshot_build_us": 3653,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 197
+      }
+    },
+    {
+      "log_line": 576,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:56",
+        "elapsed_us": 6775,
+        "history_bundles": 32,
+        "journal_proof_us": 4,
+        "journal_us": 6767,
+        "ok": true,
+        "scope": "save_checkpoint",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0
+      }
+    },
+    {
+      "log_line": 577,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_kind": "day_resolution_stage",
+        "elapsed_us": 6506,
+        "journal_prepare_us": 2544,
+        "ok": true,
+        "run_snapshot_build_us": 3739,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 217
+      }
+    },
+    {
+      "log_line": 578,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:57",
+        "elapsed_us": 6938,
+        "history_bundles": 32,
+        "journal_proof_us": 4,
+        "journal_us": 6929,
+        "ok": true,
+        "scope": "save_checkpoint",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0
+      }
+    },
+    {
+      "log_line": 579,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_kind": "day_resolution_stage",
+        "elapsed_us": 7147,
+        "journal_prepare_us": 2719,
+        "ok": true,
+        "run_snapshot_build_us": 4181,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 231
+      }
+    },
+    {
+      "log_line": 580,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:58",
+        "elapsed_us": 7246,
+        "history_bundles": 32,
+        "journal_proof_us": 4,
+        "journal_us": 7238,
+        "ok": true,
+        "scope": "save_checkpoint",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0
+      }
+    },
+    {
+      "log_line": 581,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_kind": "day_resolution_stage",
+        "elapsed_us": 6267,
+        "journal_prepare_us": 3091,
+        "ok": true,
+        "run_snapshot_build_us": 3126,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 41
+      }
+    },
+    {
+      "log_line": 582,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:59",
+        "elapsed_us": 6385,
+        "history_bundles": 32,
+        "journal_proof_us": 4,
+        "journal_us": 6377,
+        "ok": true,
+        "scope": "save_checkpoint",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0
+      }
+    },
+    {
+      "log_line": 583,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_kind": "day_resolution_stage",
+        "elapsed_us": 5941,
+        "journal_prepare_us": 2699,
+        "ok": true,
+        "run_snapshot_build_us": 3095,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 140
+      }
+    },
+    {
+      "log_line": 584,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:60",
+        "elapsed_us": 6541,
+        "history_bundles": 32,
+        "journal_proof_us": 5,
+        "journal_us": 6532,
+        "ok": true,
+        "scope": "save_checkpoint",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0
+      }
+    },
+    {
+      "log_line": 585,
+      "family": "checkpoint",
+      "value": {
+        "autosave": true,
+        "backup_us": 6115,
+        "checkpoint_kind": "day_start",
+        "document_build_us": 62225,
+        "elapsed_us": 74301,
+        "journal_prepare_us": 2626,
+        "ok": true,
+        "run_snapshot_build_us": 3190,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 136
+      }
+    },
+    {
+      "log_line": 586,
+      "family": "checkpoint",
+      "value": {
+        "autosave": true,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:61",
+        "document_bytes": 420761,
+        "elapsed_us": 170723,
+        "history_bundles": 32,
+        "journal_proof_us": 17635,
+        "journal_spliced": false,
+        "journal_us": 8382,
+        "ok": true,
+        "outgoing_schema_us": 65670,
+        "reread_us": 2687,
+        "reread_validate_us": 575,
+        "scope": "save_checkpoint",
+        "splice_us": 49431,
+        "stringify_us": 2900,
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "write_atomic_us": 16589
+      }
+    },
+    {
+      "log_line": 587,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_kind": "day_resolution_stage",
+        "elapsed_us": 5802,
+        "journal_prepare_us": 2548,
+        "ok": true,
+        "run_snapshot_build_us": 3106,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 140
+      }
+    },
+    {
+      "log_line": 588,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:62",
+        "elapsed_us": 6232,
+        "history_bundles": 32,
+        "journal_proof_us": 4,
+        "journal_us": 6224,
+        "ok": true,
+        "scope": "save_checkpoint",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0
+      }
+    },
+    {
+      "log_line": 816,
+      "family": "checkpoint",
+      "value": {
+        "autosave": true,
+        "backup_us": 5420,
+        "checkpoint_kind": "pre_board",
+        "document_build_us": 112672,
+        "elapsed_us": 127735,
+        "journal_prepare_us": 5614,
+        "ok": true,
+        "run_snapshot_build_us": 3780,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 239
+      }
+    },
+    {
+      "log_line": 817,
+      "family": "checkpoint",
+      "value": {
+        "autosave": true,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:78",
+        "document_bytes": 756636,
+        "elapsed_us": 407836,
+        "history_bundles": 47,
+        "journal_proof_us": 142668,
+        "journal_spliced": false,
+        "journal_us": 12024,
+        "ok": true,
+        "outgoing_schema_us": 119204,
+        "reread_us": 4804,
+        "reread_validate_us": 1033,
+        "scope": "save_checkpoint",
+        "splice_us": 90743,
+        "stringify_us": 3694,
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "write_atomic_us": 22010
+      }
+    },
+    {
+      "log_line": 818,
+      "family": "consequence",
+      "value": {
+        "board_capture_us": 110,
+        "board_commit_us": 124,
+        "board_prepare_us": 464,
+        "capture_base_snapshot_us": 298,
+        "checkpoint_capture_us": 6365,
+        "checkpoint_commit_us": 413209,
+        "checkpoint_prepare_us": 128020,
+        "compose_us": 274,
+        "elapsed_us": 552411,
+        "materialize_us": 520,
+        "ok": true,
+        "prepare_consequence_us": 342,
+        "prepare_spec_us": 488,
+        "preview_checkpoint_us": 26,
+        "publish_us": 6,
+        "reducer_us": 263,
+        "scope": "first_reveal_durable",
+        "state_capture_us": 41,
+        "state_commit_us": 1802,
+        "validate_candidates_us": 20,
+        "verify_transaction_us": 28
+      }
+    },
+    {
+      "log_line": 819,
+      "family": "checkpoint",
+      "value": {
+        "autosave": true,
+        "backup_us": 9862,
+        "checkpoint_kind": "safe_marker",
+        "document_build_us": 10152,
+        "elapsed_us": 30230,
+        "journal_prepare_us": 6624,
+        "ok": true,
+        "run_snapshot_build_us": 3544,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 38
+      }
+    },
+    {
+      "log_line": 820,
+      "family": "checkpoint",
+      "value": {
+        "autosave": true,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:79",
+        "document_bytes": 762763,
+        "elapsed_us": 98246,
+        "history_bundles": 47,
+        "journal_proof_us": 1337,
+        "journal_spliced": true,
+        "journal_us": 10103,
+        "ok": true,
+        "outgoing_schema_us": 38420,
+        "reread_us": 4725,
+        "reread_validate_us": 1047,
+        "scope": "save_checkpoint",
+        "splice_us": 1,
+        "stringify_us": 7199,
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "write_atomic_us": 24501
+      }
+    },
+    {
+      "log_line": 858,
+      "family": "checkpoint",
+      "value": {
+        "autosave": true,
+        "backup_us": 9333,
+        "checkpoint_kind": "post_result",
+        "document_build_us": 11461,
+        "elapsed_us": 31384,
+        "journal_prepare_us": 6051,
+        "ok": true,
+        "run_snapshot_build_us": 4496,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 34
+      }
+    },
+    {
+      "log_line": 860,
+      "family": "checkpoint",
+      "value": {
+        "autosave": true,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:80",
+        "document_bytes": 780600,
+        "elapsed_us": 106690,
+        "history_bundles": 47,
+        "journal_proof_us": 1776,
+        "journal_spliced": true,
+        "journal_us": 11430,
+        "ok": true,
+        "outgoing_schema_us": 40311,
+        "reread_us": 4734,
+        "reread_validate_us": 1076,
+        "scope": "save_checkpoint",
+        "splice_us": 1,
+        "stringify_us": 8433,
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "write_atomic_us": 28013
+      }
+    },
+    {
+      "log_line": 871,
+      "family": "day",
+      "value": {
+        "day": 3
+      }
+    },
+    {
+      "log_line": 873,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_kind": "day_resolution_stage",
+        "elapsed_us": 11544,
+        "journal_prepare_us": 6205,
+        "ok": true,
+        "run_snapshot_build_us": 5042,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 286
+      }
+    },
+    {
+      "log_line": 874,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:81",
+        "elapsed_us": 13023,
+        "history_bundles": 47,
+        "journal_proof_us": 5,
+        "journal_us": 13012,
+        "ok": true,
+        "scope": "save_checkpoint",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0
+      }
+    },
+    {
+      "log_line": 875,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_kind": "day_resolution_stage",
+        "elapsed_us": 11165,
+        "journal_prepare_us": 5904,
+        "ok": true,
+        "run_snapshot_build_us": 4968,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 284
+      }
+    },
+    {
+      "log_line": 876,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:82",
+        "elapsed_us": 11579,
+        "history_bundles": 47,
+        "journal_proof_us": 5,
+        "journal_us": 11569,
+        "ok": true,
+        "scope": "save_checkpoint",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0
+      }
+    },
+    {
+      "log_line": 877,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_kind": "day_resolution_stage",
+        "elapsed_us": 9684,
+        "journal_prepare_us": 4769,
+        "ok": true,
+        "run_snapshot_build_us": 4676,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 230
+      }
+    },
+    {
+      "log_line": 878,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:83",
+        "elapsed_us": 10594,
+        "history_bundles": 47,
+        "journal_proof_us": 5,
+        "journal_us": 10585,
+        "ok": true,
+        "scope": "save_checkpoint",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0
+      }
+    },
+    {
+      "log_line": 879,
+      "family": "checkpoint",
+      "value": {
+        "autosave": true,
+        "backup_us": 9697,
+        "checkpoint_kind": "day_resolution_stage",
+        "document_build_us": 116137,
+        "elapsed_us": 135533,
+        "journal_prepare_us": 4766,
+        "ok": true,
+        "run_snapshot_build_us": 4687,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 235
+      }
+    },
+    {
+      "log_line": 880,
+      "family": "checkpoint",
+      "value": {
+        "autosave": true,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:84",
+        "document_bytes": 806870,
+        "elapsed_us": 313560,
+        "history_bundles": 47,
+        "journal_proof_us": 30093,
+        "journal_spliced": false,
+        "journal_us": 13974,
+        "ok": true,
+        "outgoing_schema_us": 121984,
+        "reread_us": 5026,
+        "reread_validate_us": 1123,
+        "scope": "save_checkpoint",
+        "splice_us": 94719,
+        "stringify_us": 5214,
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "write_atomic_us": 28475
+      }
+    },
+    {
+      "log_line": 881,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_kind": "day_resolution_stage",
+        "elapsed_us": 11621,
+        "journal_prepare_us": 6347,
+        "ok": true,
+        "run_snapshot_build_us": 4952,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 312
+      }
+    },
+    {
+      "log_line": 882,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:85",
+        "elapsed_us": 12475,
+        "history_bundles": 47,
+        "journal_proof_us": 6,
+        "journal_us": 12464,
+        "ok": true,
+        "scope": "save_checkpoint",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0
+      }
+    },
+    {
+      "log_line": 883,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_kind": "day_resolution_stage",
+        "elapsed_us": 10606,
+        "journal_prepare_us": 5518,
+        "ok": true,
+        "run_snapshot_build_us": 4789,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 291
+      }
+    },
+    {
+      "log_line": 884,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:86",
+        "elapsed_us": 11321,
+        "history_bundles": 47,
+        "journal_proof_us": 5,
+        "journal_us": 11311,
+        "ok": true,
+        "scope": "save_checkpoint",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0
+      }
+    },
+    {
+      "log_line": 885,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_kind": "day_resolution_stage",
+        "elapsed_us": 10264,
+        "journal_prepare_us": 5196,
+        "ok": true,
+        "run_snapshot_build_us": 4770,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 289
+      }
+    },
+    {
+      "log_line": 886,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:87",
+        "elapsed_us": 10886,
+        "history_bundles": 47,
+        "journal_proof_us": 5,
+        "journal_us": 10877,
+        "ok": true,
+        "scope": "save_checkpoint",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0
+      }
+    },
+    {
+      "log_line": 887,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_kind": "day_resolution_stage",
+        "elapsed_us": 11505,
+        "journal_prepare_us": 5841,
+        "ok": true,
+        "run_snapshot_build_us": 5413,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 242
+      }
+    },
+    {
+      "log_line": 888,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:88",
+        "elapsed_us": 11660,
+        "history_bundles": 47,
+        "journal_proof_us": 4,
+        "journal_us": 11651,
+        "ok": true,
+        "scope": "save_checkpoint",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0
+      }
+    },
+    {
+      "log_line": 889,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_kind": "day_resolution_stage",
+        "elapsed_us": 9797,
+        "journal_prepare_us": 5759,
+        "ok": true,
+        "run_snapshot_build_us": 3996,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 33
+      }
+    },
+    {
+      "log_line": 890,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:89",
+        "elapsed_us": 10148,
+        "history_bundles": 47,
+        "journal_proof_us": 5,
+        "journal_us": 10139,
+        "ok": true,
+        "scope": "save_checkpoint",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0
+      }
+    },
+    {
+      "log_line": 891,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_kind": "day_resolution_stage",
+        "elapsed_us": 9575,
+        "journal_prepare_us": 5478,
+        "ok": true,
+        "run_snapshot_build_us": 3919,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 169
+      }
+    },
+    {
+      "log_line": 892,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:90",
+        "elapsed_us": 10037,
+        "history_bundles": 47,
+        "journal_proof_us": 4,
+        "journal_us": 10029,
+        "ok": true,
+        "scope": "save_checkpoint",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0
+      }
+    },
+    {
+      "log_line": 893,
+      "family": "checkpoint",
+      "value": {
+        "autosave": true,
+        "backup_us": 10512,
+        "checkpoint_kind": "day_start",
+        "document_build_us": 110785,
+        "elapsed_us": 130124,
+        "journal_prepare_us": 4747,
+        "ok": true,
+        "run_snapshot_build_us": 3894,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 174
+      }
+    },
+    {
+      "log_line": 894,
+      "family": "checkpoint",
+      "value": {
+        "autosave": true,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:91",
+        "document_bytes": 758635,
+        "elapsed_us": 297107,
+        "history_bundles": 47,
+        "journal_proof_us": 22510,
+        "journal_spliced": false,
+        "journal_us": 12423,
+        "ok": true,
+        "outgoing_schema_us": 119861,
+        "reread_us": 4700,
+        "reread_validate_us": 1020,
+        "scope": "save_checkpoint",
+        "splice_us": 92501,
+        "stringify_us": 3626,
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "write_atomic_us": 27877
+      }
+    },
+    {
+      "log_line": 895,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_kind": "day_resolution_stage",
+        "elapsed_us": 9574,
+        "journal_prepare_us": 5231,
+        "ok": true,
+        "run_snapshot_build_us": 4133,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 201
+      }
+    },
+    {
+      "log_line": 896,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:92",
+        "elapsed_us": 10184,
+        "history_bundles": 47,
+        "journal_proof_us": 5,
+        "journal_us": 10174,
+        "ok": true,
+        "scope": "save_checkpoint",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0
+      }
+    },
+    {
+      "log_line": 1124,
+      "family": "checkpoint",
+      "value": {
+        "autosave": true,
+        "backup_us": 9996,
+        "checkpoint_kind": "pre_board",
+        "document_build_us": 167546,
+        "elapsed_us": 190546,
+        "journal_prepare_us": 8278,
+        "ok": true,
+        "run_snapshot_build_us": 4468,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 247
+      }
+    },
+    {
+      "log_line": 1125,
+      "family": "checkpoint",
+      "value": {
+        "autosave": true,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:108",
+        "document_bytes": 1131674,
+        "elapsed_us": 582293,
+        "history_bundles": 62,
+        "journal_proof_us": 181953,
+        "journal_spliced": false,
+        "journal_us": 17458,
+        "ok": true,
+        "outgoing_schema_us": 178720,
+        "reread_us": 7520,
+        "reread_validate_us": 1598,
+        "scope": "save_checkpoint",
+        "splice_us": 138159,
+        "stringify_us": 4863,
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "write_atomic_us": 34048
+      }
+    },
+    {
+      "log_line": 1126,
+      "family": "consequence",
+      "value": {
+        "board_capture_us": 112,
+        "board_commit_us": 122,
+        "board_prepare_us": 459,
+        "capture_base_snapshot_us": 257,
+        "checkpoint_capture_us": 9821,
+        "checkpoint_commit_us": 589938,
+        "checkpoint_prepare_us": 190930,
+        "compose_us": 294,
+        "elapsed_us": 795501,
+        "materialize_us": 544,
+        "ok": true,
+        "prepare_consequence_us": 364,
+        "prepare_spec_us": 442,
+        "preview_checkpoint_us": 23,
+        "publish_us": 6,
+        "reducer_us": 230,
+        "scope": "first_reveal_durable",
+        "state_capture_us": 43,
+        "state_commit_us": 1858,
+        "validate_candidates_us": 18,
+        "verify_transaction_us": 29
+      }
+    },
+    {
+      "log_line": 1127,
+      "family": "checkpoint",
+      "value": {
+        "autosave": true,
+        "backup_us": 14158,
+        "checkpoint_kind": "safe_marker",
+        "document_build_us": 13937,
+        "elapsed_us": 42774,
+        "journal_prepare_us": 10264,
+        "ok": true,
+        "run_snapshot_build_us": 4369,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 35
+      }
+    },
+    {
+      "log_line": 1128,
+      "family": "checkpoint",
+      "value": {
+        "autosave": true,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:109",
+        "document_bytes": 1137808,
+        "elapsed_us": 141335,
+        "history_bundles": 62,
+        "journal_proof_us": 1438,
+        "journal_spliced": true,
+        "journal_us": 13462,
+        "ok": true,
+        "outgoing_schema_us": 54833,
+        "reread_us": 7403,
+        "reread_validate_us": 1566,
+        "scope": "save_checkpoint",
+        "splice_us": 1,
+        "stringify_us": 8904,
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "write_atomic_us": 36682
+      }
+    },
+    {
+      "log_line": 1166,
+      "family": "checkpoint",
+      "value": {
+        "autosave": true,
+        "backup_us": 14602,
+        "checkpoint_kind": "post_result",
+        "document_build_us": 15705,
+        "elapsed_us": 45362,
+        "journal_prepare_us": 9581,
+        "ok": true,
+        "run_snapshot_build_us": 5421,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 35
+      }
+    },
+    {
+      "log_line": 1168,
+      "family": "checkpoint",
+      "value": {
+        "autosave": true,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:110",
+        "document_bytes": 1155692,
+        "elapsed_us": 150936,
+        "history_bundles": 62,
+        "journal_proof_us": 1998,
+        "journal_spliced": true,
+        "journal_us": 14649,
+        "ok": true,
+        "outgoing_schema_us": 57614,
+        "reread_us": 7316,
+        "reread_validate_us": 1638,
+        "scope": "save_checkpoint",
+        "splice_us": 2,
+        "stringify_us": 10734,
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "write_atomic_us": 40395
+      }
+    },
+    {
+      "log_line": 1179,
+      "family": "day",
+      "value": {
+        "day": 4
+      }
+    },
+    {
+      "log_line": 1181,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_kind": "day_resolution_stage",
+        "elapsed_us": 14790,
+        "journal_prepare_us": 8849,
+        "ok": true,
+        "run_snapshot_build_us": 5614,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 317
+      }
+    },
+    {
+      "log_line": 1182,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:111",
+        "elapsed_us": 17135,
+        "history_bundles": 62,
+        "journal_proof_us": 7,
+        "journal_us": 17122,
+        "ok": true,
+        "scope": "save_checkpoint",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0
+      }
+    },
+    {
+      "log_line": 1183,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_kind": "day_resolution_stage",
+        "elapsed_us": 15208,
+        "journal_prepare_us": 9152,
+        "ok": true,
+        "run_snapshot_build_us": 5760,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 284
+      }
+    },
+    {
+      "log_line": 1184,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:112",
+        "elapsed_us": 18882,
+        "history_bundles": 62,
+        "journal_proof_us": 7,
+        "journal_us": 18867,
+        "ok": true,
+        "scope": "save_checkpoint",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0
+      }
+    },
+    {
+      "log_line": 1185,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_kind": "day_resolution_stage",
+        "elapsed_us": 15304,
+        "journal_prepare_us": 9219,
+        "ok": true,
+        "run_snapshot_build_us": 5754,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 318
+      }
+    },
+    {
+      "log_line": 1186,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:113",
+        "elapsed_us": 17938,
+        "history_bundles": 62,
+        "journal_proof_us": 7,
+        "journal_us": 17924,
+        "ok": true,
+        "scope": "save_checkpoint",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0
+      }
+    },
+    {
+      "log_line": 1187,
+      "family": "checkpoint",
+      "value": {
+        "autosave": true,
+        "backup_us": 15344,
+        "checkpoint_kind": "day_resolution_stage",
+        "document_build_us": 177954,
+        "elapsed_us": 208625,
+        "journal_prepare_us": 9359,
+        "ok": true,
+        "run_snapshot_build_us": 5670,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 279
+      }
+    },
+    {
+      "log_line": 1188,
+      "family": "checkpoint",
+      "value": {
+        "autosave": true,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:114",
+        "document_bytes": 1182044,
+        "elapsed_us": 463894,
+        "history_bundles": 62,
+        "journal_proof_us": 34823,
+        "journal_spliced": false,
+        "journal_us": 20121,
+        "ok": true,
+        "outgoing_schema_us": 189327,
+        "reread_us": 7650,
+        "reread_validate_us": 1728,
+        "scope": "save_checkpoint",
+        "splice_us": 143969,
+        "stringify_us": 5985,
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "write_atomic_us": 40886
+      }
+    },
+    {
+      "log_line": 1189,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_kind": "day_resolution_stage",
+        "elapsed_us": 16455,
+        "journal_prepare_us": 10325,
+        "ok": true,
+        "run_snapshot_build_us": 5817,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 301
+      }
+    },
+    {
+      "log_line": 1190,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:115",
+        "elapsed_us": 18483,
+        "history_bundles": 62,
+        "journal_proof_us": 6,
+        "journal_us": 18471,
+        "ok": true,
+        "scope": "save_checkpoint",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0
+      }
+    },
+    {
+      "log_line": 1191,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_kind": "day_resolution_stage",
+        "elapsed_us": 15209,
+        "journal_prepare_us": 9286,
+        "ok": true,
+        "run_snapshot_build_us": 5636,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 276
+      }
+    },
+    {
+      "log_line": 1192,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:116",
+        "elapsed_us": 16788,
+        "history_bundles": 62,
+        "journal_proof_us": 6,
+        "journal_us": 16776,
+        "ok": true,
+        "scope": "save_checkpoint",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0
+      }
+    },
+    {
+      "log_line": 1193,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_kind": "day_resolution_stage",
+        "elapsed_us": 15059,
+        "journal_prepare_us": 9135,
+        "ok": true,
+        "run_snapshot_build_us": 5620,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 294
+      }
+    },
+    {
+      "log_line": 1194,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:117",
+        "elapsed_us": 16228,
+        "history_bundles": 62,
+        "journal_proof_us": 6,
+        "journal_us": 16216,
+        "ok": true,
+        "scope": "save_checkpoint",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0
+      }
+    },
+    {
+      "log_line": 1195,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_kind": "day_resolution_stage",
+        "elapsed_us": 15897,
+        "journal_prepare_us": 9567,
+        "ok": true,
+        "run_snapshot_build_us": 6008,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 312
+      }
+    },
+    {
+      "log_line": 1196,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:118",
+        "elapsed_us": 17206,
+        "history_bundles": 62,
+        "journal_proof_us": 5,
+        "journal_us": 17195,
+        "ok": true,
+        "scope": "save_checkpoint",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0
+      }
+    },
+    {
+      "log_line": 1197,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_kind": "day_resolution_stage",
+        "elapsed_us": 14573,
+        "journal_prepare_us": 9823,
+        "ok": true,
+        "run_snapshot_build_us": 4704,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 34
+      }
+    },
+    {
+      "log_line": 1198,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:119",
+        "elapsed_us": 17661,
+        "history_bundles": 62,
+        "journal_proof_us": 6,
+        "journal_us": 17648,
+        "ok": true,
+        "scope": "save_checkpoint",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0
+      }
+    },
+    {
+      "log_line": 1199,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_kind": "day_resolution_stage",
+        "elapsed_us": 15598,
+        "journal_prepare_us": 10493,
+        "ok": true,
+        "run_snapshot_build_us": 4904,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 188
+      }
+    },
+    {
+      "log_line": 1200,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:120",
+        "elapsed_us": 17866,
+        "history_bundles": 62,
+        "journal_proof_us": 8,
+        "journal_us": 17853,
+        "ok": true,
+        "scope": "save_checkpoint",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0
+      }
+    },
+    {
+      "log_line": 1201,
+      "family": "checkpoint",
+      "value": {
+        "autosave": true,
+        "backup_us": 15145,
+        "checkpoint_kind": "day_start",
+        "document_build_us": 172197,
+        "elapsed_us": 202206,
+        "journal_prepare_us": 9860,
+        "ok": true,
+        "run_snapshot_build_us": 4814,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 178
+      }
+    },
+    {
+      "log_line": 1202,
+      "family": "checkpoint",
+      "value": {
+        "autosave": true,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:121",
+        "document_bytes": 1133818,
+        "elapsed_us": 432176,
+        "history_bundles": 62,
+        "journal_proof_us": 27822,
+        "journal_spliced": false,
+        "journal_us": 17733,
+        "ok": true,
+        "outgoing_schema_us": 179530,
+        "reread_us": 7329,
+        "reread_validate_us": 1579,
+        "scope": "save_checkpoint",
+        "splice_us": 135791,
+        "stringify_us": 4343,
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "write_atomic_us": 39940
+      }
+    },
+    {
+      "log_line": 1203,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_kind": "day_resolution_stage",
+        "elapsed_us": 13556,
+        "journal_prepare_us": 8239,
+        "ok": true,
+        "run_snapshot_build_us": 5131,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 170
+      }
+    },
+    {
+      "log_line": 1204,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:122",
+        "elapsed_us": 15305,
+        "history_bundles": 62,
+        "journal_proof_us": 5,
+        "journal_us": 15295,
+        "ok": true,
+        "scope": "save_checkpoint",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0
+      }
+    },
+    {
+      "log_line": 1432,
+      "family": "checkpoint",
+      "value": {
+        "autosave": true,
+        "backup_us": 14550,
+        "checkpoint_kind": "pre_board",
+        "document_build_us": 220766,
+        "elapsed_us": 251267,
+        "journal_prepare_us": 10353,
+        "ok": true,
+        "run_snapshot_build_us": 5285,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 299
+      }
+    },
+    {
+      "log_line": 1433,
+      "family": "checkpoint",
+      "value": {
+        "autosave": true,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:138",
+        "document_bytes": 1494208,
+        "elapsed_us": 742896,
+        "history_bundles": 66,
+        "journal_proof_us": 216031,
+        "journal_spliced": false,
+        "journal_us": 22387,
+        "ok": true,
+        "outgoing_schema_us": 235898,
+        "reread_us": 9691,
+        "reread_validate_us": 2107,
+        "scope": "save_checkpoint",
+        "splice_us": 181295,
+        "stringify_us": 4861,
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "write_atomic_us": 46006
+      }
+    },
+    {
+      "log_line": 1434,
+      "family": "consequence",
+      "value": {
+        "board_capture_us": 113,
+        "board_commit_us": 126,
+        "board_prepare_us": 468,
+        "capture_base_snapshot_us": 274,
+        "checkpoint_capture_us": 12964,
+        "checkpoint_commit_us": 753275,
+        "checkpoint_prepare_us": 251600,
+        "compose_us": 345,
+        "elapsed_us": 1022835,
+        "materialize_us": 554,
+        "ok": true,
+        "prepare_consequence_us": 435,
+        "prepare_spec_us": 450,
+        "preview_checkpoint_us": 25,
+        "publish_us": 7,
+        "reducer_us": 250,
+        "scope": "first_reveal_durable",
+        "state_capture_us": 43,
+        "state_commit_us": 1846,
+        "validate_candidates_us": 19,
+        "verify_transaction_us": 30
+      }
+    },
+    {
+      "log_line": 1435,
+      "family": "checkpoint",
+      "value": {
+        "autosave": true,
+        "backup_us": 18528,
+        "checkpoint_kind": "safe_marker",
+        "document_build_us": 17420,
+        "elapsed_us": 53857,
+        "journal_prepare_us": 12767,
+        "ok": true,
+        "run_snapshot_build_us": 5093,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 36
+      }
+    },
+    {
+      "log_line": 1436,
+      "family": "checkpoint",
+      "value": {
+        "autosave": true,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:139",
+        "document_bytes": 1500364,
+        "elapsed_us": 182497,
+        "history_bundles": 66,
+        "journal_proof_us": 1604,
+        "journal_spliced": true,
+        "journal_us": 16904,
+        "ok": true,
+        "outgoing_schema_us": 71974,
+        "reread_us": 9553,
+        "reread_validate_us": 2100,
+        "scope": "save_checkpoint",
+        "splice_us": 2,
+        "stringify_us": 10005,
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "write_atomic_us": 48451
+      }
+    },
+    {
+      "log_line": 1474,
+      "family": "checkpoint",
+      "value": {
+        "autosave": true,
+        "backup_us": 18606,
+        "checkpoint_kind": "post_result",
+        "document_build_us": 19119,
+        "elapsed_us": 56271,
+        "journal_prepare_us": 12466,
+        "ok": true,
+        "run_snapshot_build_us": 6033,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 34
+      }
+    },
+    {
+      "log_line": 1476,
+      "family": "checkpoint",
+      "value": {
+        "autosave": true,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:140",
+        "document_bytes": 1518259,
+        "elapsed_us": 191561,
+        "history_bundles": 66,
+        "journal_proof_us": 2092,
+        "journal_spliced": true,
+        "journal_us": 17971,
+        "ok": true,
+        "outgoing_schema_us": 73522,
+        "reread_us": 9717,
+        "reread_validate_us": 2217,
+        "scope": "save_checkpoint",
+        "splice_us": 1,
+        "stringify_us": 11187,
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "write_atomic_us": 52808
+      }
+    },
+    {
+      "log_line": 1487,
+      "family": "day",
+      "value": {
+        "day": 5
+      }
+    },
+    {
+      "log_line": 1489,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_kind": "day_resolution_stage",
+        "elapsed_us": 17717,
+        "journal_prepare_us": 11061,
+        "ok": true,
+        "run_snapshot_build_us": 6297,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 349
+      }
+    },
+    {
+      "log_line": 1490,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:141",
+        "elapsed_us": 21060,
+        "history_bundles": 66,
+        "journal_proof_us": 6,
+        "journal_us": 21049,
+        "ok": true,
+        "scope": "save_checkpoint",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0
+      }
+    },
+    {
+      "log_line": 1491,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_kind": "day_resolution_stage",
+        "elapsed_us": 17875,
+        "journal_prepare_us": 11123,
+        "ok": true,
+        "run_snapshot_build_us": 6438,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 303
+      }
+    },
+    {
+      "log_line": 1492,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:142",
+        "elapsed_us": 21088,
+        "history_bundles": 66,
+        "journal_proof_us": 6,
+        "journal_us": 21076,
+        "ok": true,
+        "scope": "save_checkpoint",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0
+      }
+    },
+    {
+      "log_line": 1493,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_kind": "day_resolution_stage",
+        "elapsed_us": 17809,
+        "journal_prepare_us": 11014,
+        "ok": true,
+        "run_snapshot_build_us": 6434,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 350
+      }
+    },
+    {
+      "log_line": 1494,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:143",
+        "elapsed_us": 20233,
+        "history_bundles": 66,
+        "journal_proof_us": 7,
+        "journal_us": 20221,
+        "ok": true,
+        "scope": "save_checkpoint",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0
+      }
+    },
+    {
+      "log_line": 1495,
+      "family": "checkpoint",
+      "value": {
+        "autosave": true,
+        "backup_us": 19251,
+        "checkpoint_kind": "day_resolution_stage",
+        "document_build_us": 228237,
+        "elapsed_us": 264824,
+        "journal_prepare_us": 10572,
+        "ok": true,
+        "run_snapshot_build_us": 6449,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 302
+      }
+    },
+    {
+      "log_line": 1496,
+      "family": "checkpoint",
+      "value": {
+        "autosave": true,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:144",
+        "document_bytes": 1544481,
+        "elapsed_us": 590223,
+        "history_bundles": 66,
+        "journal_proof_us": 39442,
+        "journal_spliced": false,
+        "journal_us": 24613,
+        "ok": true,
+        "outgoing_schema_us": 243863,
+        "reread_us": 9937,
+        "reread_validate_us": 2272,
+        "scope": "save_checkpoint",
+        "splice_us": 186275,
+        "stringify_us": 6126,
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "write_atomic_us": 52601
+      }
+    },
+    {
+      "log_line": 1497,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_kind": "day_resolution_stage",
+        "elapsed_us": 18574,
+        "journal_prepare_us": 11855,
+        "ok": true,
+        "run_snapshot_build_us": 6388,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 322
+      }
+    },
+    {
+      "log_line": 1498,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:145",
+        "elapsed_us": 20997,
+        "history_bundles": 66,
+        "journal_proof_us": 6,
+        "journal_us": 20985,
+        "ok": true,
+        "scope": "save_checkpoint",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0
+      }
+    },
+    {
+      "log_line": 1499,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_kind": "day_resolution_stage",
+        "elapsed_us": 19478,
+        "journal_prepare_us": 12748,
+        "ok": true,
+        "run_snapshot_build_us": 6413,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 306
+      }
+    },
+    {
+      "log_line": 1500,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:146",
+        "elapsed_us": 22004,
+        "history_bundles": 66,
+        "journal_proof_us": 7,
+        "journal_us": 21991,
+        "ok": true,
+        "scope": "save_checkpoint",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0
+      }
+    },
+    {
+      "log_line": 1501,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_kind": "day_resolution_stage",
+        "elapsed_us": 19339,
+        "journal_prepare_us": 12483,
+        "ok": true,
+        "run_snapshot_build_us": 6499,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 346
+      }
+    },
+    {
+      "log_line": 1502,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:147",
+        "elapsed_us": 21242,
+        "history_bundles": 66,
+        "journal_proof_us": 6,
+        "journal_us": 21230,
+        "ok": true,
+        "scope": "save_checkpoint",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0
+      }
+    },
+    {
+      "log_line": 1503,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_kind": "day_resolution_stage",
+        "elapsed_us": 20023,
+        "journal_prepare_us": 12764,
+        "ok": true,
+        "run_snapshot_build_us": 6972,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 275
+      }
+    },
+    {
+      "log_line": 1504,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:148",
+        "elapsed_us": 22371,
+        "history_bundles": 66,
+        "journal_proof_us": 6,
+        "journal_us": 22360,
+        "ok": true,
+        "scope": "save_checkpoint",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0
+      }
+    },
+    {
+      "log_line": 1505,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_kind": "day_resolution_stage",
+        "elapsed_us": 18416,
+        "journal_prepare_us": 12678,
+        "ok": true,
+        "run_snapshot_build_us": 5695,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 33
+      }
+    },
+    {
+      "log_line": 1506,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:149",
+        "elapsed_us": 20533,
+        "history_bundles": 66,
+        "journal_proof_us": 5,
+        "journal_us": 20522,
+        "ok": true,
+        "scope": "save_checkpoint",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0
+      }
+    },
+    {
+      "log_line": 1507,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_kind": "day_resolution_stage",
+        "elapsed_us": 18458,
+        "journal_prepare_us": 12487,
+        "ok": true,
+        "run_snapshot_build_us": 5750,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 210
+      }
+    },
+    {
+      "log_line": 1508,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:150",
+        "elapsed_us": 19652,
+        "history_bundles": 66,
+        "journal_proof_us": 5,
+        "journal_us": 19642,
+        "ok": true,
+        "scope": "save_checkpoint",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0
+      }
+    },
+    {
+      "log_line": 1509,
+      "family": "checkpoint",
+      "value": {
+        "autosave": true,
+        "backup_us": 19976,
+        "checkpoint_kind": "day_start",
+        "document_build_us": 222480,
+        "elapsed_us": 259845,
+        "journal_prepare_us": 11580,
+        "ok": true,
+        "run_snapshot_build_us": 5598,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 199
+      }
+    },
+    {
+      "log_line": 1510,
+      "family": "checkpoint",
+      "value": {
+        "autosave": true,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:151",
+        "document_bytes": 1496165,
+        "elapsed_us": 562197,
+        "history_bundles": 66,
+        "journal_proof_us": 32410,
+        "journal_spliced": false,
+        "journal_us": 22247,
+        "ok": true,
+        "outgoing_schema_us": 233288,
+        "reread_us": 9719,
+        "reread_validate_us": 2123,
+        "scope": "save_checkpoint",
+        "splice_us": 181852,
+        "stringify_us": 4684,
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "write_atomic_us": 52111
+      }
+    },
+    {
+      "log_line": 1511,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_kind": "day_resolution_stage",
+        "elapsed_us": 17098,
+        "journal_prepare_us": 11153,
+        "ok": true,
+        "run_snapshot_build_us": 5721,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 215
+      }
+    },
+    {
+      "log_line": 1512,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:152",
+        "elapsed_us": 20013,
+        "history_bundles": 66,
+        "journal_proof_us": 5,
+        "journal_us": 20002,
+        "ok": true,
+        "scope": "save_checkpoint",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0
+      }
+    },
+    {
+      "log_line": 1740,
+      "family": "checkpoint",
+      "value": {
+        "autosave": true,
+        "backup_us": 19170,
+        "checkpoint_kind": "pre_board",
+        "document_build_us": 258104,
+        "elapsed_us": 296176,
+        "journal_prepare_us": 12418,
+        "ok": true,
+        "run_snapshot_build_us": 6138,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 332
+      }
+    },
+    {
+      "log_line": 1741,
+      "family": "checkpoint",
+      "value": {
+        "autosave": true,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:168",
+        "document_bytes": 1716254,
+        "elapsed_us": 860733,
+        "history_bundles": 66,
+        "journal_proof_us": 248259,
+        "journal_spliced": false,
+        "journal_us": 25575,
+        "ok": true,
+        "outgoing_schema_us": 271394,
+        "reread_us": 10911,
+        "reread_validate_us": 2430,
+        "scope": "save_checkpoint",
+        "splice_us": 213751,
+        "stringify_us": 5114,
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "write_atomic_us": 54830
+      }
+    },
+    {
+      "log_line": 1742,
+      "family": "consequence",
+      "value": {
+        "board_capture_us": 118,
+        "board_commit_us": 166,
+        "board_prepare_us": 476,
+        "capture_base_snapshot_us": 288,
+        "checkpoint_capture_us": 14919,
+        "checkpoint_commit_us": 872601,
+        "checkpoint_prepare_us": 296522,
+        "compose_us": 361,
+        "elapsed_us": 1189128,
+        "materialize_us": 568,
+        "ok": true,
+        "prepare_consequence_us": 507,
+        "prepare_spec_us": 453,
+        "preview_checkpoint_us": 26,
+        "publish_us": 6,
+        "reducer_us": 240,
+        "scope": "first_reveal_durable",
+        "state_capture_us": 43,
+        "state_commit_us": 1773,
+        "validate_candidates_us": 19,
+        "verify_transaction_us": 30
+      }
+    },
+    {
+      "log_line": 1743,
+      "family": "checkpoint",
+      "value": {
+        "autosave": true,
+        "backup_us": 21258,
+        "checkpoint_kind": "safe_marker",
+        "document_build_us": 20323,
+        "elapsed_us": 62271,
+        "journal_prepare_us": 14740,
+        "ok": true,
+        "run_snapshot_build_us": 5898,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 38
+      }
+    },
+    {
+      "log_line": 1744,
+      "family": "checkpoint",
+      "value": {
+        "autosave": true,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:169",
+        "document_bytes": 1722393,
+        "elapsed_us": 210543,
+        "history_bundles": 66,
+        "journal_proof_us": 1767,
+        "journal_spliced": true,
+        "journal_us": 19653,
+        "ok": true,
+        "outgoing_schema_us": 81710,
+        "reread_us": 10993,
+        "reread_validate_us": 2406,
+        "scope": "save_checkpoint",
+        "splice_us": 1,
+        "stringify_us": 10678,
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "write_atomic_us": 57101
+      }
+    },
+    {
+      "log_line": 1782,
+      "family": "checkpoint",
+      "value": {
+        "autosave": true,
+        "backup_us": 21380,
+        "checkpoint_kind": "post_result",
+        "document_build_us": 21295,
+        "elapsed_us": 64487,
+        "journal_prepare_us": 14851,
+        "ok": true,
+        "run_snapshot_build_us": 6913,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 34
+      }
+    },
+    {
+      "log_line": 1784,
+      "family": "checkpoint",
+      "value": {
+        "autosave": true,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:170",
+        "document_bytes": 1740297,
+        "elapsed_us": 218357,
+        "history_bundles": 66,
+        "journal_proof_us": 2213,
+        "journal_spliced": true,
+        "journal_us": 20660,
+        "ok": true,
+        "outgoing_schema_us": 84878,
+        "reread_us": 10919,
+        "reread_validate_us": 2462,
+        "scope": "save_checkpoint",
+        "splice_us": 2,
+        "stringify_us": 11937,
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "write_atomic_us": 58970
+      }
+    },
+    {
+      "log_line": 1795,
+      "family": "day",
+      "value": {
+        "day": 6
+      }
+    },
+    {
+      "log_line": 1797,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_kind": "day_resolution_stage",
+        "elapsed_us": 20372,
+        "journal_prepare_us": 12734,
+        "ok": true,
+        "run_snapshot_build_us": 7276,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 351
+      }
+    },
+    {
+      "log_line": 1798,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:171",
+        "elapsed_us": 23039,
+        "history_bundles": 66,
+        "journal_proof_us": 6,
+        "journal_us": 23028,
+        "ok": true,
+        "scope": "save_checkpoint",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0
+      }
+    },
+    {
+      "log_line": 1799,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_kind": "day_resolution_stage",
+        "elapsed_us": 21262,
+        "journal_prepare_us": 13610,
+        "ok": true,
+        "run_snapshot_build_us": 7315,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 326
+      }
+    },
+    {
+      "log_line": 1800,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:172",
+        "elapsed_us": 24767,
+        "history_bundles": 66,
+        "journal_proof_us": 6,
+        "journal_us": 24755,
+        "ok": true,
+        "scope": "save_checkpoint",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0
+      }
+    },
+    {
+      "log_line": 1801,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_kind": "day_resolution_stage",
+        "elapsed_us": 20870,
+        "journal_prepare_us": 13290,
+        "ok": true,
+        "run_snapshot_build_us": 7216,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 353
+      }
+    },
+    {
+      "log_line": 1802,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:173",
+        "elapsed_us": 24439,
+        "history_bundles": 66,
+        "journal_proof_us": 6,
+        "journal_us": 24428,
+        "ok": true,
+        "scope": "save_checkpoint",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0
+      }
+    },
+    {
+      "log_line": 1803,
+      "family": "checkpoint",
+      "value": {
+        "autosave": true,
+        "backup_us": 22184,
+        "checkpoint_kind": "day_resolution_stage",
+        "document_build_us": 264013,
+        "elapsed_us": 307781,
+        "journal_prepare_us": 13904,
+        "ok": true,
+        "run_snapshot_build_us": 7377,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 286
+      }
+    },
+    {
+      "log_line": 1804,
+      "family": "checkpoint",
+      "value": {
+        "autosave": true,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:174",
+        "document_bytes": 1766642,
+        "elapsed_us": 676675,
+        "history_bundles": 66,
+        "journal_proof_us": 43994,
+        "journal_spliced": false,
+        "journal_us": 27475,
+        "ok": true,
+        "outgoing_schema_us": 277669,
+        "reread_us": 11404,
+        "reread_validate_us": 2567,
+        "scope": "save_checkpoint",
+        "splice_us": 218450,
+        "stringify_us": 6781,
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "write_atomic_us": 59339
+      }
+    },
+    {
+      "log_line": 1805,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_kind": "day_resolution_stage",
+        "elapsed_us": 21896,
+        "journal_prepare_us": 14171,
+        "ok": true,
+        "run_snapshot_build_us": 7392,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 323
+      }
+    },
+    {
+      "log_line": 1806,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:175",
+        "elapsed_us": 24774,
+        "history_bundles": 66,
+        "journal_proof_us": 6,
+        "journal_us": 24763,
+        "ok": true,
+        "scope": "save_checkpoint",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0
+      }
+    },
+    {
+      "log_line": 1807,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_kind": "day_resolution_stage",
+        "elapsed_us": 21667,
+        "journal_prepare_us": 14000,
+        "ok": true,
+        "run_snapshot_build_us": 7324,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 328
+      }
+    },
+    {
+      "log_line": 1808,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:176",
+        "elapsed_us": 24782,
+        "history_bundles": 66,
+        "journal_proof_us": 19,
+        "journal_us": 24755,
+        "ok": true,
+        "scope": "save_checkpoint",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0
+      }
+    },
+    {
+      "log_line": 1809,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_kind": "day_resolution_stage",
+        "elapsed_us": 22328,
+        "journal_prepare_us": 14551,
+        "ok": true,
+        "run_snapshot_build_us": 7460,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 307
+      }
+    },
+    {
+      "log_line": 1810,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:177",
+        "elapsed_us": 25087,
+        "history_bundles": 66,
+        "journal_proof_us": 7,
+        "journal_us": 25075,
+        "ok": true,
+        "scope": "save_checkpoint",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0
+      }
+    },
+    {
+      "log_line": 1811,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_kind": "day_resolution_stage",
+        "elapsed_us": 23214,
+        "journal_prepare_us": 15170,
+        "ok": true,
+        "run_snapshot_build_us": 7715,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 318
+      }
+    },
+    {
+      "log_line": 1812,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:178",
+        "elapsed_us": 25846,
+        "history_bundles": 66,
+        "journal_proof_us": 6,
+        "journal_us": 25834,
+        "ok": true,
+        "scope": "save_checkpoint",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0
+      }
+    },
+    {
+      "log_line": 1813,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_kind": "day_resolution_stage",
+        "elapsed_us": 21163,
+        "journal_prepare_us": 14664,
+        "ok": true,
+        "run_snapshot_build_us": 6452,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 36
+      }
+    },
+    {
+      "log_line": 1814,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:179",
+        "elapsed_us": 24718,
+        "history_bundles": 66,
+        "journal_proof_us": 5,
+        "journal_us": 24706,
+        "ok": true,
+        "scope": "save_checkpoint",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0
+      }
+    },
+    {
+      "log_line": 1815,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_kind": "day_resolution_stage",
+        "elapsed_us": 21562,
+        "journal_prepare_us": 14392,
+        "ok": true,
+        "run_snapshot_build_us": 6930,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 228
+      }
+    },
+    {
+      "log_line": 1816,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:180",
+        "elapsed_us": 23456,
+        "history_bundles": 66,
+        "journal_proof_us": 6,
+        "journal_us": 23445,
+        "ok": true,
+        "scope": "save_checkpoint",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0
+      }
+    },
+    {
+      "log_line": 1817,
+      "family": "checkpoint",
+      "value": {
+        "autosave": true,
+        "backup_us": 22248,
+        "checkpoint_kind": "day_start",
+        "document_build_us": 256096,
+        "elapsed_us": 299473,
+        "journal_prepare_us": 14364,
+        "ok": true,
+        "run_snapshot_build_us": 6521,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 231
+      }
+    },
+    {
+      "log_line": 1818,
+      "family": "checkpoint",
+      "value": {
+        "autosave": true,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:181",
+        "document_bytes": 1718674,
+        "elapsed_us": 657388,
+        "history_bundles": 66,
+        "journal_proof_us": 36824,
+        "journal_spliced": false,
+        "journal_us": 25273,
+        "ok": true,
+        "outgoing_schema_us": 274470,
+        "reread_us": 11281,
+        "reread_validate_us": 2509,
+        "scope": "save_checkpoint",
+        "splice_us": 213717,
+        "stringify_us": 5083,
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "write_atomic_us": 60864
+      }
+    },
+    {
+      "log_line": 1819,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_kind": "day_resolution_stage",
+        "elapsed_us": 21632,
+        "journal_prepare_us": 14832,
+        "ok": true,
+        "run_snapshot_build_us": 6551,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 237
+      }
+    },
+    {
+      "log_line": 1820,
+      "family": "checkpoint",
+      "value": {
+        "autosave": false,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:182",
+        "elapsed_us": 24568,
+        "history_bundles": 66,
+        "journal_proof_us": 7,
+        "journal_us": 24556,
+        "ok": true,
+        "scope": "save_checkpoint",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0
+      }
+    },
+    {
+      "log_line": 1821,
+      "family": "checkpoint",
+      "value": {
+        "autosave": true,
+        "backup_us": 21557,
+        "checkpoint_kind": "safe_marker",
+        "document_build_us": 258999,
+        "elapsed_us": 301979,
+        "journal_prepare_us": 14517,
+        "ok": true,
+        "run_snapshot_build_us": 6573,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 319
+      }
+    },
+    {
+      "log_line": 1822,
+      "family": "checkpoint",
+      "value": {
+        "autosave": true,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:183",
+        "document_bytes": 1718967,
+        "elapsed_us": 637553,
+        "history_bundles": 66,
+        "journal_proof_us": 19460,
+        "journal_spliced": false,
+        "journal_us": 26733,
+        "ok": true,
+        "outgoing_schema_us": 273502,
+        "reread_us": 10943,
+        "reread_validate_us": 2409,
+        "scope": "save_checkpoint",
+        "splice_us": 212549,
+        "stringify_us": 5167,
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "write_atomic_us": 59142
+      }
+    },
+    {
+      "log_line": 2050,
+      "family": "checkpoint",
+      "value": {
+        "autosave": true,
+        "backup_us": 21550,
+        "checkpoint_kind": "pre_board",
+        "document_build_us": 287697,
+        "elapsed_us": 332581,
+        "journal_prepare_us": 15474,
+        "ok": true,
+        "run_snapshot_build_us": 7439,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 406
+      }
+    },
+    {
+      "log_line": 2051,
+      "family": "checkpoint",
+      "value": {
+        "autosave": true,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:199",
+        "document_bytes": 1887618,
+        "elapsed_us": 967500,
+        "history_bundles": 66,
+        "journal_proof_us": 262795,
+        "journal_spliced": false,
+        "journal_us": 28227,
+        "ok": true,
+        "outgoing_schema_us": 303212,
+        "reread_us": 12832,
+        "reread_validate_us": 2713,
+        "scope": "save_checkpoint",
+        "splice_us": 255100,
+        "stringify_us": 5576,
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "write_atomic_us": 63859
+      }
+    },
+    {
+      "log_line": 2052,
+      "family": "consequence",
+      "value": {
+        "board_capture_us": 119,
+        "board_commit_us": 156,
+        "board_prepare_us": 496,
+        "capture_base_snapshot_us": 324,
+        "checkpoint_capture_us": 17033,
+        "checkpoint_commit_us": 980392,
+        "checkpoint_prepare_us": 333060,
+        "compose_us": 372,
+        "elapsed_us": 1335736,
+        "materialize_us": 519,
+        "ok": true,
+        "prepare_consequence_us": 544,
+        "prepare_spec_us": 499,
+        "preview_checkpoint_us": 33,
+        "publish_us": 7,
+        "reducer_us": 281,
+        "scope": "first_reveal_durable",
+        "state_capture_us": 45,
+        "state_commit_us": 1793,
+        "validate_candidates_us": 21,
+        "verify_transaction_us": 31
+      }
+    },
+    {
+      "log_line": 2053,
+      "family": "checkpoint",
+      "value": {
+        "autosave": true,
+        "backup_us": 24606,
+        "checkpoint_kind": "safe_marker",
+        "document_build_us": 23830,
+        "elapsed_us": 72400,
+        "journal_prepare_us": 16719,
+        "ok": true,
+        "run_snapshot_build_us": 7190,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 38
+      }
+    },
+    {
+      "log_line": 2054,
+      "family": "checkpoint",
+      "value": {
+        "autosave": true,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:200",
+        "document_bytes": 1893716,
+        "elapsed_us": 239393,
+        "history_bundles": 66,
+        "journal_proof_us": 1887,
+        "journal_spliced": true,
+        "journal_us": 22234,
+        "ok": true,
+        "outgoing_schema_us": 93478,
+        "reread_us": 12672,
+        "reread_validate_us": 2698,
+        "scope": "save_checkpoint",
+        "splice_us": 2,
+        "stringify_us": 11732,
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "write_atomic_us": 64830
+      }
+    },
+    {
+      "log_line": 2092,
+      "family": "checkpoint",
+      "value": {
+        "autosave": true,
+        "backup_us": 23666,
+        "checkpoint_kind": "post_result",
+        "document_build_us": 24226,
+        "elapsed_us": 72251,
+        "journal_prepare_us": 16776,
+        "ok": true,
+        "run_snapshot_build_us": 7530,
+        "scope": "save_checkpoint_prepare",
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "view_capture_us": 36
+      }
+    },
+    {
+      "log_line": 2094,
+      "family": "checkpoint",
+      "value": {
+        "autosave": true,
+        "checkpoint_id": "run_id.fd612db52d2eed764c7aa0bc9e5731f29570278379a7de2ce1113c503312e639:201",
+        "document_bytes": 1910543,
+        "elapsed_us": 245920,
+        "history_bundles": 66,
+        "journal_proof_us": 2378,
+        "journal_spliced": true,
+        "journal_us": 23165,
+        "ok": true,
+        "outgoing_schema_us": 96793,
+        "reread_us": 12651,
+        "reread_validate_us": 2729,
+        "scope": "save_checkpoint",
+        "splice_us": 2,
+        "stringify_us": 12892,
+        "text_validator_calls_since_prepare": 0,
+        "text_validator_us_since_prepare": 0,
+        "write_atomic_us": 66289
+      }
+    },
+    {
+      "log_line": 2105,
+      "family": "day",
+      "value": {
+        "day": 7
+      }
+    }
+  ]
+}

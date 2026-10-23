@@ -1,0 +1,35 @@
+{
+  "base_commit": "31561cd8bf12e41936047cba4716c4f75b663559",
+  "source_hash_normalization": "CRLF to LF; no other transformations",
+  "source_sha256": {
+    "autoload/DialogicBridge.gd": "683f76475be6c583a037693cfccc0aa6f7bff3358cc6127a07338cf0e9469e4b",
+    "scripts/narrative/DialogicRuntimeAdapter.gd": "32ec672b84e4b8968e62fc0e1ce5e60d81dad1095ff0ad932378a4928d6db0cb",
+    "scripts/narrative/DialogicPreferenceAdapter.gd": "1c17048776d11171426719b022f4eb4895d974b7b22cc1721db1b5af36beed19",
+    "scripts/ui/witnessed/WitnessedAutoController.gd": "0e771b0871ef99b524eca334b801b0c8a63a001504482d3cd38c91bbc028c1bf",
+    "scripts/ui/witnessed/WitnessedCaptionLayer.gd": "6c4f9aeefb83c144790cd5ccdb2d2d4934a147f5cbc12c4794ca916dbefcd888",
+    "scripts/ui/witnessed/WitnessedTransportRail.gd": "ef71ca244a364e71f47fca7db9829a6a6ed33abbd6c799eb268b06ecb6a54aef",
+    "scenes/ui/witnessed/WitnessedCaptionLayer.tscn": "acaadd047d980ce11354c195276b4c167c819c38ef4a31fb768b7ec3a29da7e3",
+    "tests/fixtures/dialogic/production_skip.dtl": "f3a4187a7d548eef819b893b51196f43efe8842535de0ccd82ca775cd59347cc",
+    "tests/unit/test_witnessed_auto_controller.gd": "cc362eb2b538838e111f105ce1e88667b46750f7ea8b18acc4d1108130991175",
+    "tests/unit/test_dialogic_preferences.gd": "c6a3a5c3c64b5102d3482ecb4ca3948cf75b5faeaf410da235150fc2aba2d890",
+    "tests/unit/test_witnessed_transport_rail.gd": "c118e9310b6ad991c75aa57b8647a266f111b7b6f6456b3aada542c795824906",
+    "tests/integration/test_dialogic_skip.gd": "6eb590582b9519b16d0f562b18ec951730f8ff9290f4e15b45425707937f4192",
+    "tests/integration/test_dialogic_production_skip.gd": "09dcefacda60be284a56025cc6875328083db379f3f4272312be1fd9ff48b627",
+    "tests/manual/witnessed_transport_capture.gd": "094bc430b03b0085d0094619ff1c68fffae2a4e28dd9079c2cebe7c1a4dfcc81",
+    "tools/testing/Invoke-WitnessedTransportAccessibilityAction.ps1": "1a6aaa043289f356b216177da67e961ed8decde153c91529c0d511949ec7cde9"
+  },
+  "inventory_contracts": [
+    {
+      "path": "evidence/phase_2r/runtime/game_state_surface.json",
+      "public_records_signatures_and_contracts_unchanged": true,
+      "only_call_sites_and_dynamic_references_may_change": true,
+      "sha256": "ab2b884abcacc639b60a1278da233e6f406554a19413d949750c76d556df7926"
+    },
+    {
+      "path": "evidence/phase_2r/runtime/save_manager_surface.json",
+      "public_records_signatures_and_contracts_unchanged": true,
+      "only_call_sites_and_dynamic_references_may_change": true,
+      "sha256": "bb4f11556c73a550215b565c70604c7023e31b16a84aba346845b9a9a23015b4"
+    }
+  ]
+}

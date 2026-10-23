@@ -1,0 +1,158 @@
+extends "res://tests/integration/scene_computer_child.gd"
+## FINAL Bootstrap, native caption, real save and owners; no synthetic publication.
+const CAPTION_CONTENT := preload("res://tests/support/SceneCaptionChallengeFixture.gd")
+
+func _install_content_registration() -> Dictionary:
+	return CAPTION_CONTENT.new()._install_registration()
+
+func create_caption_challenge() -> void:
+	if not _start_services(): return
+	if not _ok(profile.set_preference(&"preferences.reading.auto_enabled", false)): return
+	var started: Dictionary = saves.start_scene_new_run("target_b", {"route_id": "scene", "content_version": 1,
+		"audio_context": get_node("/root/AudioManager").get_semantic_audio_context()})
+	assert_eq(started.get("code"), &"scene_activation_pending", str(started))
+	if started.get("code") != &"scene_activation_pending" or not await _await_ready(): return
+	var host: Control = get_tree().current_scene
+	assert_eq(bridge._runtime_adapter.current_line_id(), "line.scene.test.b.one")
+	assert_false(game.capture_scene_challenge_command().get("ok", false))
+	# No preliminary Continue: the existing Computer input admits this cue.
+	await _click(_controls(host, "CheckComputer"))
+	assert_true(host.is_computer_open())
+	if not host.is_computer_open(): return
+	assert_true(bridge.is_computer_caption_held(), "Computer owns the current caption")
+	assert_true(bridge._runtime_adapter._dialogic.paused, "Computer suspends native playback")
+	assert_false(get_tree().paused, "Computer leaves the scene tree running")
+	# The active-playback completion query excludes paused sources. Inspect the
+	# same held native cue to prove its reveal completed before Computer took it.
+	var cue_event: DialogicTextEvent = bridge._runtime_adapter._current_skip_text(true)
+	assert_not_null(cue_event, "The held cue remains available for read-only native inspection")
+	if cue_event == null: return
+	assert_eq(bridge._runtime_adapter._authored_line_id(cue_event), "line.scene.test.b.one",
+		"Computer retains the original cue")
+	assert_eq(cue_event.state, DialogicTextEvent.States.DONE, "Opening Computer completes the cue")
+	var cue_caption: Node = _caption()
+	assert_not_null(cue_caption, "Computer retains the native caption presentation")
+	if cue_caption == null: return
+	assert_false(cue_caption.caption_text.revealing, "The held cue has finished revealing")
+	assert_eq(float(cue_caption.caption_text.visible_ratio), 1.0, "The entire held cue is revealed")
+	assert_false(bridge.can_next_current_line(), "Computer custody blocks caption continuation")
+	if not _ok(game.capture_scene_challenge_command()): return
+	assert_true(game.capture_dating_challenge_state().value.is_empty())
+	await _click(_controls(host, "CheckComputer"))
+	assert_false(host.is_computer_open())
+	assert_eq(bridge._runtime_adapter.current_line_id(), "line.scene.test.b.one", "Closing alone retains the cue.")
+	var held: Dictionary = bridge.capture_current_line_presentation_frontier()
+	if not _ok(held): return
+	var marker: Dictionary = bridge.capture_scene_pending_marker()
+	if not _ok(marker): return
+	assert_eq(marker.value.kind, "challenge.end")
+	if not _ok(saves.save_latest_to_slot(1)): return
+	var manual_sha := FileAccess.get_sha256("user://saves/slot_1.json")
+	var next_results: Array = []
+	var capture_next := func(_frontier: Dictionary, result: Dictionary): next_results.append(result.duplicate(true))
+	bridge.next_request_finished.connect(capture_next)
+	await _click(_caption().caption_text)
+	var deadline := Time.get_ticks_msec() + 15000
+	while bridge._runtime_adapter.current_line_id() != "line.scene.test.a.one" and Time.get_ticks_msec() < deadline:
+		await get_tree().process_frame
+	bridge.next_request_finished.disconnect(capture_next)
+	if bridge._runtime_adapter.current_line_id() != "line.scene.test.a.one":
+		var caption: Node = _caption()
+		var diagnostic := {"next_results": next_results, "presented_matches": caption._presented_line == held,
+			"next_admitted": caption._next_admitted(), "recovery": caption._reading_recovery}
+		if next_results.is_empty(): diagnostic["explicit_next"] = await bridge.request_next(held)
+		fail_test("Caption Continue refused: " + str(diagnostic))
+		return
+	assert_eq(bridge._runtime_adapter.current_line_id(), "line.scene.test.a.one")
+	assert_false(game.capture_scene_challenge_command().get("ok", false))
+	assert_false((await bridge.request_next(held)).get("ok", false), "Old cue cannot advance the new outcome.")
+	var playable := 0
+	var closures: Array = []
+	for receipt: Dictionary in game.capture_run_snapshot_input().command_receipts.values():
+		var result: Dictionary = receipt.get("scene_event", {}).get("result", {})
+		if result.get("kind") == "challenge_playable": playable += 1
+		if result.get("kind") == "challenge_closed": closures.append(result)
+	assert_eq(playable, 1)
+	assert_eq(closures.size(), 1)
+	if closures.size() != 1: return
+	assert_eq(closures[0].outcome, "never_started")
+	assert_null(closures[0].attempt_proof)
+	assert_true(profile.get_profile_snapshot().dating_attempts.is_empty())
+	assert_eq(FileAccess.get_sha256("user://saves/slot_1.json"), manual_sha)
+	for row: Dictionary in bridge._reading_session.ledger.snapshot().captions:
+		assert_ne(row.beat.line_id, "line.scene.test.b.two", "No invented bridging caption.")
+
+	if not await _wait_caption("line.scene.test.a.one"): return
+	var visible: Dictionary = bridge.capture_current_line_presentation_frontier()
+	if not _ok(visible) or not _ok(bridge.acknowledge_current_line_presentation(visible)): return
+	if not _ok(saves.save_latest_to_slot(2)): return
+	var proof := {"creator_process_id": OS.get_process_id(), "user_dir": ProjectSettings.globalize_path("user://"),
+		"cue_sha256": manual_sha, "closed_sha256": FileAccess.get_sha256("user://saves/slot_2.json"),
+		"closure": closures[0], "profile": profile.get_profile_snapshot()}
+	if not _write_json("user://caption-challenge-proof.json", proof): return
+	_write_json("res://.godot/ci/caption-challenge-create-proof.json", proof)
+
+func _wait_caption(line: String) -> bool:
+	var deadline := Time.get_ticks_msec() + 20000
+	while Time.get_ticks_msec() < deadline:
+		if bridge._runtime_adapter.current_line_id() == line and bridge._runtime_adapter.is_current_line_complete(): return true
+		await get_tree().process_frame
+	return _ok({"ok": false, "code": "TEST.caption_timeout", "line": line})
+
+func _retained_closures() -> Array:
+	var closures: Array = []
+	for receipt: Dictionary in game.capture_run_snapshot_input().command_receipts.values():
+		var result: Dictionary = receipt.get("scene_event", {}).get("result", {})
+		if result.get("kind") == "challenge_closed": closures.append(result)
+	return closures
+
+func load_caption_challenge() -> void:
+	var parsed: Dictionary = PARSER.parse_object(FileAccess.get_file_as_string("user://caption-challenge-proof.json"))
+	if not _ok(parsed): return
+	var proof: Dictionary = parsed.value
+	assert_ne(OS.get_process_id(), proof.creator_process_id)
+	assert_eq(ProjectSettings.globalize_path("user://"), proof.user_dir)
+	assert_eq(FileAccess.get_sha256("user://saves/slot_1.json"), proof.cue_sha256)
+	assert_eq(FileAccess.get_sha256("user://saves/slot_2.json"), proof.closed_sha256)
+	if not _start_services(): return
+	var backup: RefCounted = preload("res://scripts/application/backup/BackupPresentationPort.gd").new()
+	if not _ok(backup.configure(saves, "title")): return
+	var prepared: Dictionary = backup.prepare_action("load", "slot:1")
+	if not _ok(prepared): return
+	var loaded: Dictionary = backup.commit_action(prepared.value.token)
+	assert_eq(loaded.get("code"), &"scene_activation_pending", str(loaded))
+	if loaded.get("code") != &"scene_activation_pending" or not await _await_ready(): return
+	if not await _wait_caption("line.scene.test.b.one"): return
+	assert_eq(_retained_closures().size(), 0, "Selected cue precedes closure.")
+	assert_eq(bridge.capture_reading_checkpoint(false).value.reading_session.boundary, "control")
+	var pending: Dictionary = bridge.capture_scene_pending_marker()
+	if not _ok(pending): return
+	assert_eq(pending.value.kind, "challenge.end")
+	await _click(_caption().caption_text)
+	if not await _wait_caption("line.scene.test.a.one"): return
+	var after: Array = _retained_closures()
+	assert_eq(after.size(), 1)
+	if after.size() != 1: return
+	assert_eq(after[0].outcome, "never_started")
+	assert_null(after[0].attempt_proof)
+	assert_true(profile.get_profile_snapshot().dating_attempts.is_empty())
+	# Select the creator's already-closed save. It must restore that exact receipt,
+	# rather than rerunning End or retaining the closure from the abandoned branch.
+	var pause: Node = get_node("/root/SceneRouter")._production_pause
+	if not _ok(await pause.request_pause()): return
+	prepared = pause._backup_port.prepare_action("load", "slot:2")
+	if not _ok(prepared): return
+	if not _ok(await pause._backup_port.commit_action(prepared.value.token)): return
+	var deadline := Time.get_ticks_msec() + 20000
+	while ready_count < 2 and Time.get_ticks_msec() < deadline: await get_tree().process_frame
+	assert_eq(ready_count, 2)
+	if ready_count != 2 or not await _wait_caption("line.scene.test.a.one"): return
+	after = _retained_closures()
+	assert_eq(after, [proof.closure], "Closed-save Load retains one exact closure.")
+	assert_false(game.capture_scene_challenge_command().get("ok", false))
+	assert_true(profile.get_profile_snapshot().dating_attempts.is_empty())
+	assert_eq(FileAccess.get_sha256("user://saves/slot_1.json"), proof.cue_sha256)
+	assert_eq(FileAccess.get_sha256("user://saves/slot_2.json"), proof.closed_sha256)
+	proof["loader_process_id"] = OS.get_process_id()
+	proof["ready_count"] = ready_count
+	_write_json("res://.godot/ci/caption-challenge-load-proof.json", proof)

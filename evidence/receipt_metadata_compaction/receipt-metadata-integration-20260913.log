@@ -1,0 +1,231 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/71b529a6-cff3-4a65-bcab-9ac491d84294/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+res://tests/unit/test_desktop_board_state.gd
+* test_state_script_loads
+* test_state_instantiates
+* test_fresh_state_is_none_phase_with_zero_revision
+* test_capture_shape_is_exactly_nine_keys
+* test_reset_returns_to_fresh_state
+* test_capture_is_detached_from_internal_state
+* test_prepare_debug_candidate_from_none_transitions_to_preparing
+* test_prepare_debug_candidate_rejects_when_not_none_phase
+* test_prepare_debug_candidate_rejects_stale_revision
+* test_prepare_debug_candidate_rejects_invalid_identity
+* test_prepare_debug_slice_progress_stays_in_preparing
+* test_prepare_debug_slice_certified_transitions_to_prepared_unstarted
+* test_debug_is_cost_free_through_prepared_unstarted
+* test_prepare_debug_slice_rejects_wrong_phase
+* test_prepare_debug_slice_rejects_identity_mismatch
+* test_default_and_lucky_remain_none_until_reveal
+* test_prepare_first_reveal_from_none_populates_board_and_receipt
+* test_prepare_first_reveal_from_prepared_unstarted_adopts_certified_layout
+* test_prepare_first_reveal_rejects_forced_cell_mismatch_from_prepared_unstarted
+* test_prepare_first_reveal_rejects_wrong_phase
+* test_prepare_board_command_reveal_commits_new_revision
+* test_prepare_board_command_rejects_when_suspended
+* test_prepare_visibility_suspend_then_resume
+* test_prepare_visibility_rejects_from_none
+* test_prepare_settlement_requires_terminal_board
+* test_prepare_settlement_on_terminal_board_transitions_to_settling
+* test_commit_duplicate_transaction_id_same_payload_replays_result
+* test_routine_receipts_keep_latest_retry_but_compact_older_boards_after_acceptance
+* test_legacy_compacted_board_receipt_sheds_metadata_only_after_new_acceptance
+* test_receipt_metadata_compaction_preserves_unknown_extended_and_minimal_records
+* test_commit_duplicate_transaction_id_changed_payload_conflicts
+* test_stale_revision_rejected_across_every_prepare_method
+* test_prepare_candidate_mutation_before_commit_does_not_leak_into_a_prior_capture
+* test_captured_result_mutation_does_not_leak_into_internal_state
+* test_prepare_restore_round_trips_a_captured_snapshot
+* test_prepare_restore_rejects_bad_member_set
+* test_prepare_restore_rejects_phase_invariant_violation
+37/37 passed.
+
+
+res://tests/integration/test_minesweeper_round_coordinator.gd
+* test_configure_ok_and_begin_requires_config
+* test_begin_round_sets_active_and_counts
+* test_begin_when_active_is_rejected
+* test_complete_round_full_flow_releases_lock
+* test_complete_duplicate_returns_stored_receipt_with_zero_calls
+* test_complete_wrong_round_id_is_rejected
+* test_complete_invalid_result_is_rejected
+* test_abort_round_releases_lock
+* test_round_start_publication_failure_recovers_without_latching
+* test_minesweeper_recovery_nonprimitive_failure_projects_then_returns_retained_application_fatal
+* test_recovery_failure_latches_once_and_returns_only_the_retained_application_fatal
+* test_a_latched_fatal_blocks_every_later_operation_at_the_first_guard
+* test_committed_unpublished_retry_resumes_only_its_recorded_phase
+* test_lock_release_pending_retry_never_republishes
+* test_conflicting_retries_mutate_nothing_in_either_pending_phase
+* test_exact_duplicate_after_release_returns_the_stored_receipt_then_conflicts_on_variation
+* test_guard_first_op_when_fatal_latched
+* test_dating_round_takes_its_evidence_from_the_state_port_not_the_request
+* test_dating_round_ignores_caller_supplied_friend_and_entry_identifiers
+* test_dating_round_completes_through_the_same_two_boundary_transaction
+* test_app_round_never_carries_dating_evidence
+* test_dating_route_not_active_surfaces_its_own_code
+* test_domain_availability_failures_surface_their_own_codes
+* test_other_prepare_begin_failures_remain_state_prepare_failed
+24/24 passed.
+
+
+res://tests/unit/test_desktop_board_fate_port.gd
+* test_port_script_loads
+* test_port_instantiates
+* test_configure_publication_ledger_is_idempotent_on_identical_replay
+* test_configure_publication_ledger_rejects_replacement
+* test_configure_rejects_before_publication_ledger_configured
+* test_configure_is_idempotent_on_identical_replay
+* test_configure_rejects_a_replacement_board_state
+* test_configure_rejects_an_invalid_board_state
+* test_prepare_causal_departure_from_none_yields_fate_none
+* test_prepare_causal_departure_from_preparing_yields_discarded_unstarted
+* test_prepare_causal_departure_from_active_visible_yields_forfeited_started
+* test_prepare_causal_departure_rejects_a_non_schedule_reason
+* test_prepare_causal_departure_rejects_stale_revision
+* test_prepare_causal_departure_rejects_identity_mismatch
+* test_prepare_causal_departure_duplicate_replay_returns_identical_result
+* test_prepare_causal_departure_changed_request_at_same_command_id_conflicts
+* test_prepare_causal_departure_from_settling_is_rejected
+* test_prepare_projected_departure_minesweeper_round_none_projection_yields_fate_none
+* test_prepare_projected_departure_rejects_a_nonterminal_minesweeper_round_projection
+* test_prepare_projected_departure_shop_purchase_applies_ordinary_current_board_fate
+* test_prepare_projected_departure_rejects_a_shop_projection_that_diverges_from_current_board
+* test_prepare_projected_departure_rejects_a_changed_projection_hash
+* test_prepare_projected_departure_rejects_an_action_receipt_transaction_mismatch
+* test_prepare_projected_departure_rejects_stale_pre_state
+* test_commit_adopts_the_fate_none_candidate_and_publish_records_once
+* test_commit_adopts_a_discard_and_rollback_restores_pre_commit
+* test_commit_rejects_a_wrapped_candidate
+* test_rollback_rejects_an_unknown_backup
+* test_publish_rejects_changed_receipt_bytes
+* test_publish_rejects_a_candidate_not_yet_committed
+* test_board_fate_receipt_provenance_validates_against_the_issuer
+* test_fresh_shop_departure_rebuilds_frozen_preparation_and_retries_after_commit
+* test_fresh_departure_refuses_changed_frozen_bytes_without_poisoning_valid_retry
+* test_fresh_round_departure_prepares_before_source_projection_then_commits_fate_none
+34/34 passed.
+
+
+res://tests/unit/test_run_snapshot_schema.gd
+* test_run_snapshot_schema_exists
+* test_build_produces_exact_valid_shape
+* test_validate_accepts_fixture_and_rejects_day8_and_shapes
+* test_validate_rejection_matrix
+* test_validate_enforces_ending_id_is_a_canonical_primary
+* test_validate_primitive_tree_rejects_engine_types
+* test_prepare_candidate_is_detached
+* test_is_compatible_bundle_checks_versions
+* test_derive_route_restore_context_exact_shape
+* test_schema_version_is_six
+* test_top_level_committed_schedule_replaces_legacy_schedule
+* test_gameplay_schedule_entries_is_retired
+* test_committed_schedule_validation_delegates_to_schedule_state_schema
+* test_committed_schedule_day_must_equal_lifecycle_day
+* test_committed_schedule_is_recursively_detached
+* test_v3_build_round_trips_the_aggregate_unchanged
+* test_validate_active_app_id_rejects_unregistered_and_accepts_registered_or_null
+* test_desktop_is_a_v4_top_level_member
+* test_desktop_lifecycle_identity_fields_are_exact_and_bound
+* test_desktop_board_and_consequence_delegate_to_their_own_owners
+* test_v3_pre_desktop_fixture_lacks_the_v4_member
+21/21 passed.
+
+
+res://tests/unit/test_desktop_continuation_operation_journal.gd
+* test_continuation_journal_skeletons_load
+* test_journal_public_surface_adds_only_explicit_new_run_target_proof
+* test_v4_combines_durable_new_run_targets_with_the_schedule_view_participant
+* test_the_journal_document_and_operation_record_have_exactly_the_frozen_key_sets
+* test_every_legal_and_illegal_stage_transition_is_enforced
+* test_stage_transition_evidence_is_permitted_only_at_the_frozen_edges
+* test_new_run_and_restore_have_mutually_exclusive_source_and_context_fields
+* test_new_run_requires_exactly_empty_dialogic_and_audio_subcontexts
+* test_the_intent_must_be_committed_before_any_allocation_is_recorded
+* test_the_nine_participants_apply_in_exactly_the_frozen_order
+* test_each_participant_receipt_has_identical_replay_and_changed_receipt_conflict
+* test_applying_index_nine_rejects_safely_before_participant_array_access
+* test_a_skipped_participant_index_is_refused
+* test_an_illegal_backward_stage_edge_is_refused
+* test_a_restore_source_that_no_longer_hashes_the_same_is_refused
+* test_a_new_run_context_is_rehashed_without_consulting_the_loader
+* test_identical_replays_return_the_retained_operation_at_every_stage
+* test_every_changed_advancement_family_conflicts_before_storage_mutation
+* test_list_incomplete_returns_only_nonterminal_operations
+* test_startup_reconciles_a_clean_restart_forward
+* test_startup_reconciliation_is_no_op_for_terminal_operations
+* test_startup_rejects_malformed_issued_transaction_receipts
+* test_startup_proves_the_original_restore_source_before_clearing_an_identical_diagnostic
+* test_new_run_proof_clears_diagnostics_at_every_nonterminal_post_allocation_stage
+* test_terminal_stages_refuse_recovery_diagnostics_without_mutation
+* test_restore_diagnostics_clear_at_applying_and_applied_through_real_json_storage
+* test_proof_failure_retains_both_kinds_at_every_nonterminal_post_allocation_stage
+* test_diagnostic_clear_write_failure_retains_and_retries_both_kinds_at_every_stage
+* test_a_restore_pre_allocation_failure_aborts_with_a_typed_failure_and_no_live_mutation
+* test_an_allocated_operation_retains_its_receipt_and_can_never_be_aborted
+* test_an_irreversible_recovery_diagnostic_holds_the_stage_and_never_permits_input
+* test_a_retained_diagnostic_blocks_every_forward_advance_until_reconciled
+* test_committed_new_run_is_forward_only_and_requires_ordered_target_proofs
+* test_exact_text_validation_window_is_bounded_detached_and_never_admits_other_bytes
+34/34 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/unit/test_desktop_board_state.gd
+    - Outside Tests
+        * [<Node#131248162582>(subsystem_animation.gd)]
+        * [<Node#131264939810>(subsystem_audio.gd)]
+        * [<Node#131281717040>]
+        * [<Node#131298494264>]
+        * [<Node#131315271488>(subsystem_backgrounds.gd)]
+        * [<Node#131852142401>(subsystem_choices.gd)]
+        * [<Timer#131868919618>]
+        * [<Node#131885696835>(subsystem_expression.gd)]
+        * [<Node#131919251272>(subsystem_glossary.gd)]
+        * [<Node#131936028489>(subsystem_history.gd)]
+        * [<Node#131952805706>(subsystem_input.gd)]
+        * [<Timer#131969582923>]
+        * [<Node#131986360140>(subsystem_jump.gd)]
+        * [<Node#132003137357>(subsystem_containers.gd)]
+        * [<Node#132019914574>(subsystem_portraits.gd)]
+        * [<Node#132556785487>(subsystem_save.gd)]
+        * [<Timer#132573562704>]
+        * [<Node#132590339921>(subsystem_settings.gd)]
+        * [<Node#132607117141>(subsystem_styles.gd)]
+        * [<Node#132623894358>(subsystem_text.gd)]
+        * [<Node#132707780443>(subsystem_text_input.gd)]
+        * [<Node#132724557660>(subsystem_variables.gd)]
+        * [<Node#132741334877>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#132758112094>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+Totals
+------
+Scripts               5
+Tests               150
+Passing Tests       150
+Asserts            4126
+Orphans              24
+Time              10.21s
+
+
+---- All tests passed! ----

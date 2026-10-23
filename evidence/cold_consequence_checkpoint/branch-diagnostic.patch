@@ -1,0 +1,6 @@
+--- a/scripts/application/run/SaveManagerCheckpointPort.gd
++++ b/scripts/application/run/SaveManagerCheckpointPort.gd
+@@ -414,0 +415 @@
++		print("COLD_PATH_DIAGNOSTIC fast ordinal=", record["header"]["operation_ordinal"])
+@@ -417,0 +419 @@
++		print("COLD_PATH_DIAGNOSTIC cold ordinal=", record["header"]["operation_ordinal"])

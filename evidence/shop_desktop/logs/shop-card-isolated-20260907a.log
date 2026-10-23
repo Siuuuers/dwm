@@ -1,0 +1,93 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-ui-build/.godot/phase2r_tests/730371c6-03f3-4367-b26c-282c8a6941c6/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+
+
+tests/scene/test_shop_card.gd
+* test_card_has_only_public_copy_and_no_purchase_or_hidden_controls
+* test_unconfigured_card_is_not_a_phantom_blank_target
+* test_measured_card_never_clips_name_price_or_availability_at_supported_sizes
+Shop card fit: font=20 maximum logical height=200.0 legacy=176
+Shop card fit: font=25 maximum logical height=226.0 legacy=176
+Shop card fit: font=30 maximum logical height=290.0 legacy=176
+* test_pointer_release_selects_once_and_cancels_after_leave_or_hide
+* test_sold_out_stays_selectable_and_selection_does_not_follow_focus
+* test_native_keyboard_and_controller_activate_without_owning_selection
+    [Failed]:  [0] expected to equal [1]:
+      at line 138
+    [Failed]:  [1] expected to equal [2]:
+      at line 152
+* test_cjk_font_metrics_preserve_complete_public_labels_at_all_sizes
+* test_shuffled_owner_rows_are_reordered_and_private_keys_are_removed
+* test_rejects_missing_duplicate_unknown_and_old_keepsake_ids
+* test_rejects_bad_price_art_and_field_types
+* test_sold_out_item_stays_in_its_fixed_slot
+* test_rejects_contradictory_maximum_but_accepts_unaffordable_available
+* test_maximum_cannot_overflow_exact_currency_total
+* test_supportz_blank_has_only_public_blank_fields_in_both_states
+* test_projected_records_are_detached_from_owner_record_mutation
+14/15 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+tests/scene/test_shop_card.gd
+    - Outside Tests
+        * [<Node#100193535723>(subsystem_animation.gd)]
+        * [<Node#100210312940>(subsystem_audio.gd)]
+        * [<Node#100227090157>]
+        * [<Node#100243867374>]
+        * [<Node#100260644591>(subsystem_backgrounds.gd)]
+        * [<Node#100797515504>(subsystem_choices.gd)]
+        * [<Timer#100814292721>]
+        * [<Node#100831069938>(subsystem_expression.gd)]
+        * [<Node#100864624375>(subsystem_glossary.gd)]
+        * [<Node#100881401592>(subsystem_history.gd)]
+        * [<Node#100898178809>(subsystem_input.gd)]
+        * [<Timer#100914956026>]
+        * [<Node#100931733243>(subsystem_jump.gd)]
+        * [<Node#100948510460>(subsystem_containers.gd)]
+        * [<Node#100965287677>(subsystem_portraits.gd)]
+        * [<Node#101502158590>(subsystem_save.gd)]
+        * [<Timer#101518935807>]
+        * [<Node#101535713024>(subsystem_settings.gd)]
+        * [<Node#101552490244>(subsystem_styles.gd)]
+        * [<Node#101569267461>(subsystem_text.gd)]
+        * [<Node#101653153546>(subsystem_text_input.gd)]
+        * [<Node#101669930763>(subsystem_variables.gd)]
+        * [<Node#101686707980>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#101703485197>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+tests/scene/test_shop_card.gd
+- test_native_keyboard_and_controller_activate_without_owning_selection
+    [Failed]:  [0] expected to equal [1]:
+          at line 138
+    [Failed]:  [1] expected to equal [2]:
+          at line 152
+
+Totals
+------
+Scripts               1
+Tests                15
+Passing Tests        14
+Failing Tests         1
+Asserts           743/745
+Orphans              24
+Time              2.135s
+
+
+---- 1 failing tests ----

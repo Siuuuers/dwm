@@ -1,0 +1,124 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+[   0% ] [90m[1mfirst_scan_filesystem[22m | Started 项目初始化 (5 steps)[39m[0m
+[   0% ] [90m[1mfirst_scan_filesystem[22m | 正在扫描文件结构……[39m[0m
+[  16% ] [90m[1mfirst_scan_filesystem[22m | 正在加载全局类名……[39m[0m
+[  33% ] [90m[1mfirst_scan_filesystem[22m | 正在校验 GDExtension……[39m[0m
+[  50% ] [90m[1mfirst_scan_filesystem[22m | 正在创建自动加载脚本……[39m[0m
+[  66% ] [90m[1mfirst_scan_filesystem[22m | 正在初始化插件……[39m[0m
+[  83% ] [90m[1mfirst_scan_filesystem[22m | 正在启动文件扫描……[39m[0m
+[92m[ DONE ][39m [1mfirst_scan_filesystem[22m
+[0m
+[   0% ] [90m[1mupdate_scripts_classes[22m | Started 正在注册全局类…… (72 steps)[39m[0m
+[   0% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   1% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   2% ] [90m[1mupdate_scripts_classes[22m | BackupPresentationPort[39m[0m
+[   4% ] [90m[1mupdate_scripts_classes[22m | ApplicationMutationGate[39m[0m
+[   5% ] [90m[1mupdate_scripts_classes[22m | ListeningComfortNoticeCoordinator[39m[0m
+[   6% ] [90m[1mupdate_scripts_classes[22m | DesktopAppRegistry[39m[0m
+[   8% ] [90m[1mupdate_scripts_classes[22m | FileOps[39m[0m
+[   9% ] [90m[1mupdate_scripts_classes[22m | JsonFileStorage[39m[0m
+[  10% ] [90m[1mupdate_scripts_classes[22m | StorageAdapter[39m[0m
+[  12% ] [90m[1mupdate_scripts_classes[22m | LocalizationCatalog[39m[0m
+[  13% ] [90m[1mupdate_scripts_classes[22m | LocalizationSchema[39m[0m
+[  15% ] [90m[1mupdate_scripts_classes[22m | ProfileMigration[39m[0m
+[  16% ] [90m[1mupdate_scripts_classes[22m | ProfileSchema[39m[0m
+[  17% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  19% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  20% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  21% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  23% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  24% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  26% ] [90m[1mupdate_scripts_classes[22m | SettingsPreferenceRegistry[39m[0m
+[  27% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  28% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  30% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  31% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  32% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  34% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  35% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  36% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  38% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  39% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  41% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  42% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  43% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  45% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  46% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  47% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  49% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  50% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  52% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  53% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  54% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  56% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  57% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  58% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  60% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  61% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  63% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  64% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  65% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  67% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  68% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  69% ] [90m[1mupdate_scripts_classes[22m | AppWindowBase[39m[0m
+[  71% ] [90m[1mupdate_scripts_classes[22m | BackupApp[39m[0m
+[  72% ] [90m[1mupdate_scripts_classes[22m | ComputerDesktop[39m[0m
+[  73% ] [90m[1mupdate_scripts_classes[22m | ContactListApp[39m[0m
+[  75% ] [90m[1mupdate_scripts_classes[22m | LocalePresentationRoot[39m[0m
+[  76% ] [90m[1mupdate_scripts_classes[22m | LocalizedBinding[39m[0m
+[  78% ] [90m[1mupdate_scripts_classes[22m | LogOutApp[39m[0m
+[  79% ] [90m[1mupdate_scripts_classes[22m | MinesweeperApp[39m[0m
+[  80% ] [90m[1mupdate_scripts_classes[22m | ScheduleApp[39m[0m
+[  82% ] [90m[1mupdate_scripts_classes[22m | SettingsApp[39m[0m
+[  83% ] [90m[1mupdate_scripts_classes[22m | SettingsContent[39m[0m
+[  84% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  86% ] [90m[1mupdate_scripts_classes[22m | SettingsPanelController[39m[0m
+[  87% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  89% ] [90m[1mupdate_scripts_classes[22m | SettingsTheme[39m[0m
+[  90% ] [90m[1mupdate_scripts_classes[22m | ShopApp[39m[0m
+[  91% ] [90m[1mupdate_scripts_classes[22m | ShopItemBox[39m[0m
+[  93% ] [90m[1mupdate_scripts_classes[22m | CanonicalJsonWriter[39m[0m
+[  94% ] [90m[1mupdate_scripts_classes[22m | StrictJson[39m[0m
+[  95% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  97% ] [90m[1mupdate_scripts_classes[22m | FakeFileOps[39m[0m
+[92m[ DONE ][39m [1mupdate_scripts_classes[22m
+[0m
+[   0% ] [90m[1m_update_scan_actions[22m | Started 正在扫描动作…… (3 steps)[39m[0m
+[   0% ] [90m[1m_update_scan_actions[22m | source-han-sans-hc-regular.otf[39m[0m
+[  25% ] [90m[1m_update_scan_actions[22m | source-han-sans-sc-regular.otf[39m[0m
+[  50% ] [90m[1m_update_scan_actions[22m | source-sans-3-regular.ttf.woff2[39m[0m
+[92m[ DONE ][39m [1m_update_scan_actions[22m
+[0m
+[   0% ] [90m[1mreimport[22m | Started 正在导入或重新导入资产 (3 steps)[39m[0m
+[   0% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  25% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[  50% ] [90m[1mreimport[22m | 正在准备重新导入文件……[39m[0m
+[   0% ] [90m[1mreimport[22m | 正在执行重新导入的前置操作……[39m[0m
+[   0% ] [90m[1mreimport[22m | source-han-sans-hc-regular.otf[39m[0m
+[  25% ] [90m[1mreimport[22m | source-han-sans-sc-regular.otf[39m[0m
+[  50% ] [90m[1mreimport[22m | source-sans-3-regular.ttf.woff2[39m[0m
+[  75% ] [90m[1mreimport[22m | 正在结束资产导入……[39m[0m
+[92m[ DONE ][39m [1mreimport[22m
+[0m
+[   0% ] [90m[1mreimport[22m | Started 正在导入或重新导入资产 (3 steps)[39m[0m
+[   0% ] [90m[1mreimport[22m | 正在执行重新导入的后置操作……[39m[0m
+[92m[ DONE ][39m [1mreimport[22m
+[0m
+[   0% ] [90m[1mloading_editor_layout[22m | Started 正在加载编辑器 (5 steps)[39m[0m
+[   0% ] [90m[1mloading_editor_layout[22m | 正在加载编辑器布局……[39m[0m
+[  16% ] [90m[1mloading_editor_layout[22m | 正在加载停靠面板……[39m[0m
+[92m[ DONE ][39m [1mloading_editor_layout[22m
+[0m
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2570)
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+SETTINGS_DESKTOP_HOST_PASS
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2570)

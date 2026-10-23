@@ -1,0 +1,11 @@
+{
+  "archive": "selector-run119-cloud-evidence.tar.gz",
+  "archive_member_count": 32,
+  "bytes": 426006,
+  "evidence_kind": "bounded-successful-run-audit",
+  "excluded_file_count": 2,
+  "manifest_sha256": "4d2e6bf88a1675955ce72648d69d3ed8d4dddbb3c1b0e5724b4ae84ce8e470da",
+  "payload_file_count": 30,
+  "round_trip_verified": true,
+  "sha256": "453f02d19e4c60b4dc63c991e60940937f160a0763faacac6715bfcbec6f2c27"
+}

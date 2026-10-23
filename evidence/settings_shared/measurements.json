@@ -1,0 +1,3089 @@
+{
+  "captures": 11,
+  "failure": "",
+  "glyph_scope": "Authored locale primary font plus explicit companion-font coverage and full-size geometry checks; no claim of perceptual or screen-reader acceptance. Offscreen sheet rows remain reachable by vertical scroll.",
+  "ok": true,
+  "palette_scope": "AfterHours Standard ordinary targets only.",
+  "samples": [
+    {
+      "colour_preset": "standard",
+      "file": "images/en-100-AfterHours-standard-desktop-accessibility.png",
+      "focus": "AccessibilityTextSizeRowControl",
+      "high_contrast": false,
+      "large_targets": false,
+      "locale": "en",
+      "logical_size": [
+        1280,
+        720
+      ],
+      "native_size": [
+        640,
+        360
+      ],
+      "palette": "AfterHours",
+      "primary_font": "res://assets/ui/contacts/fonts/source-sans-3-regular.ttf.woff2",
+      "sheet_extent": 755.0,
+      "sheet_scroll": 10,
+      "state": "desktop-accessibility",
+      "text_metrics": [
+        {
+          "font_size": 24,
+          "minimum_height": 35.0,
+          "node": "RailScroll/Rail/LanguageCategory/@Label@18",
+          "size": [
+            172.0,
+            52.0
+          ],
+          "text": "Language",
+          "unwrapped_advance": 98.0
+        },
+        {
+          "font_size": 24,
+          "minimum_height": 35.0,
+          "node": "RailScroll/Rail/ReadingCategory/@Label@38",
+          "size": [
+            172.0,
+            52.0
+          ],
+          "text": "Reading",
+          "unwrapped_advance": 82.0
+        },
+        {
+          "font_size": 24,
+          "minimum_height": 35.0,
+          "node": "RailScroll/Rail/AudioCategory/@Label@79",
+          "size": [
+            172.0,
+            52.0
+          ],
+          "text": "Audio",
+          "unwrapped_advance": 58.0
+        },
+        {
+          "font_size": 24,
+          "minimum_height": 35.0,
+          "node": "RailScroll/Rail/DisplayCategory/@Label@101",
+          "size": [
+            172.0,
+            52.0
+          ],
+          "text": "Display",
+          "unwrapped_advance": 73.0
+        },
+        {
+          "font_size": 24,
+          "minimum_height": 35.0,
+          "node": "RailScroll/Rail/ControlsCategory/@Label@111",
+          "size": [
+            172.0,
+            52.0
+          ],
+          "text": "Controls",
+          "unwrapped_advance": 85.0
+        },
+        {
+          "font_size": 24,
+          "minimum_height": 35.0,
+          "node": "RailScroll/Rail/AccessibilityCategory/@Label@183",
+          "size": [
+            172.0,
+            52.0
+          ],
+          "text": "Accessibility",
+          "unwrapped_advance": 122.0
+        },
+        {
+          "font_size": 24,
+          "minimum_height": 35.0,
+          "node": "RailScroll/Rail/RecordsCategory/@Label@223",
+          "size": [
+            172.0,
+            52.0
+          ],
+          "text": "Records",
+          "unwrapped_advance": 80.0
+        },
+        {
+          "font_size": 24,
+          "minimum_height": 35.0,
+          "node": "Heading/CategoryHeading",
+          "size": [
+            512.0,
+            64.0
+          ],
+          "text": "Accessibility",
+          "unwrapped_advance": 122.0
+        },
+        {
+          "font_size": 24,
+          "minimum_height": 35.0,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityTextSizeRow/@Label@184",
+          "size": [
+            500.0,
+            35.0
+          ],
+          "text": "Text size",
+          "unwrapped_advance": 84.0
+        },
+        {
+          "font_size": 24,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityTextSizeRow/AccessibilityTextSizeRowControl",
+          "text": "100%",
+          "text_advance": 56.0,
+          "text_aperture": 456.0
+        },
+        {
+          "font_size": 24,
+          "minimum_height": 35.0,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityLargeTargetsRow/@Label@193",
+          "size": [
+            500.0,
+            35.0
+          ],
+          "text": "Large targets",
+          "unwrapped_advance": 130.0
+        },
+        {
+          "font_size": 24,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityLargeTargetsRow/AccessibilityLargeTargetsRowControl",
+          "text": "Off",
+          "text_advance": 30.0,
+          "text_aperture": 440.0
+        },
+        {
+          "font_size": 24,
+          "minimum_height": 35.0,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityHighContrastRow/@Label@194",
+          "size": [
+            500.0,
+            35.0
+          ],
+          "text": "High contrast",
+          "unwrapped_advance": 134.0
+        },
+        {
+          "font_size": 24,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityHighContrastRow/AccessibilityHighContrastRowControl",
+          "text": "Off",
+          "text_advance": 30.0,
+          "text_aperture": 440.0
+        },
+        {
+          "font_size": 24,
+          "minimum_height": 35.0,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityReducedMotionRow/@Label@195",
+          "size": [
+            500.0,
+            35.0
+          ],
+          "text": "Reduced motion",
+          "unwrapped_advance": 164.0
+        },
+        {
+          "font_size": 24,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityReducedMotionRow/AccessibilityReducedMotionRowControl",
+          "text": "Off",
+          "text_advance": 30.0,
+          "text_aperture": 440.0
+        },
+        {
+          "font_size": 24,
+          "minimum_height": 35.0,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityScreenShakeRow/@Label@196",
+          "size": [
+            500.0,
+            35.0
+          ],
+          "text": "Screen shake",
+          "unwrapped_advance": 132.0
+        },
+        {
+          "font_size": 24,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityScreenShakeRow/AccessibilityScreenShakeRowControl",
+          "text": "Low",
+          "text_advance": 42.0,
+          "text_aperture": 456.0
+        },
+        {
+          "font_size": 24,
+          "minimum_height": 35.0,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityColourDifferentiationRow/@Label@205",
+          "size": [
+            500.0,
+            35.0
+          ],
+          "text": "Colour differentiation",
+          "unwrapped_advance": 216.0
+        },
+        {
+          "font_size": 24,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityColourDifferentiationRow/AccessibilityColourDifferentiationRowControl",
+          "text": "Standard",
+          "text_advance": 92.0,
+          "text_aperture": 456.0
+        },
+        {
+          "font_size": 24,
+          "minimum_height": 35.0,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilitySoundDetailTextRow/@Label@214",
+          "size": [
+            500.0,
+            35.0
+          ],
+          "text": "Sound detail text",
+          "unwrapped_advance": 170.0
+        },
+        {
+          "font_size": 24,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilitySoundDetailTextRow/AccessibilitySoundDetailTextRowControl",
+          "text": "Story relevant",
+          "text_advance": 140.0,
+          "text_aperture": 456.0
+        },
+        {
+          "font_size": 24,
+          "minimum_height": 73.0,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/ListeningComfortNote",
+          "size": [
+            500.0,
+            73.0
+          ],
+          "text": "Set a comfortable device volume. Stop and rest if sound feels uncomfortable.",
+          "unwrapped_advance": 765.0
+        },
+        {
+          "font_size": 24,
+          "minimum_height": 35.0,
+          "node": "Footer/ControlSample/Selected/@Label@14",
+          "size": [
+            212.0,
+            56.0
+          ],
+          "text": "Selected",
+          "unwrapped_advance": 86.0
+        },
+        {
+          "font_size": 24,
+          "minimum_height": 35.0,
+          "node": "Footer/ControlSample/Focus/@Label@15",
+          "size": [
+            212.0,
+            56.0
+          ],
+          "text": "Focus",
+          "unwrapped_advance": 59.0
+        },
+        {
+          "font_size": 24,
+          "minimum_height": 35.0,
+          "node": "Footer/ControlSample/Warning/@Label@16",
+          "size": [
+            212.0,
+            56.0
+          ],
+          "text": "Warning",
+          "unwrapped_advance": 83.0
+        },
+        {
+          "font_size": 24,
+          "minimum_height": 35.0,
+          "node": "Footer/ControlSample/Unavailable/@Label@17",
+          "size": [
+            212.0,
+            56.0
+          ],
+          "text": "Unavailable",
+          "unwrapped_advance": 119.0
+        }
+      ],
+      "text_percent": 100,
+      "workfield": [
+        480,
+        64,
+        800,
+        656
+      ]
+    },
+    {
+      "colour_preset": "standard",
+      "file": "images/en-125-AfterHours-standard-desktop-accessibility.png",
+      "focus": "AccessibilityTextSizeRowControl",
+      "high_contrast": false,
+      "large_targets": false,
+      "locale": "en",
+      "logical_size": [
+        1280,
+        720
+      ],
+      "native_size": [
+        640,
+        360
+      ],
+      "palette": "AfterHours",
+      "primary_font": "res://assets/ui/contacts/fonts/source-sans-3-regular.ttf.woff2",
+      "sheet_extent": 971.0,
+      "sheet_scroll": 100,
+      "state": "desktop-accessibility",
+      "text_metrics": [
+        {
+          "font_size": 30,
+          "minimum_height": 44.0,
+          "node": "RailScroll/Rail/LanguageCategory/@Label@262",
+          "size": [
+            172.0,
+            56.0
+          ],
+          "text": "Language",
+          "unwrapped_advance": 122.0
+        },
+        {
+          "font_size": 30,
+          "minimum_height": 44.0,
+          "node": "RailScroll/Rail/ReadingCategory/@Label@282",
+          "size": [
+            172.0,
+            56.0
+          ],
+          "text": "Reading",
+          "unwrapped_advance": 102.0
+        },
+        {
+          "font_size": 30,
+          "minimum_height": 44.0,
+          "node": "RailScroll/Rail/AudioCategory/@Label@323",
+          "size": [
+            172.0,
+            56.0
+          ],
+          "text": "Audio",
+          "unwrapped_advance": 73.0
+        },
+        {
+          "font_size": 30,
+          "minimum_height": 44.0,
+          "node": "RailScroll/Rail/DisplayCategory/@Label@345",
+          "size": [
+            172.0,
+            56.0
+          ],
+          "text": "Display",
+          "unwrapped_advance": 92.0
+        },
+        {
+          "font_size": 30,
+          "minimum_height": 44.0,
+          "node": "RailScroll/Rail/ControlsCategory/@Label@355",
+          "size": [
+            172.0,
+            56.0
+          ],
+          "text": "Controls",
+          "unwrapped_advance": 107.0
+        },
+        {
+          "font_size": 30,
+          "minimum_height": 44.0,
+          "node": "RailScroll/Rail/AccessibilityCategory/@Label@427",
+          "size": [
+            172.0,
+            56.0
+          ],
+          "text": "Accessibility",
+          "unwrapped_advance": 153.0
+        },
+        {
+          "font_size": 30,
+          "minimum_height": 44.0,
+          "node": "RailScroll/Rail/RecordsCategory/@Label@467",
+          "size": [
+            172.0,
+            56.0
+          ],
+          "text": "Records",
+          "unwrapped_advance": 100.0
+        },
+        {
+          "font_size": 30,
+          "minimum_height": 44.0,
+          "node": "Heading/CategoryHeading",
+          "size": [
+            512.0,
+            64.0
+          ],
+          "text": "Accessibility",
+          "unwrapped_advance": 153.0
+        },
+        {
+          "font_size": 30,
+          "minimum_height": 44.0,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityTextSizeRow/@Label@428",
+          "size": [
+            500.0,
+            44.0
+          ],
+          "text": "Text size",
+          "unwrapped_advance": 105.0
+        },
+        {
+          "font_size": 30,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityTextSizeRow/AccessibilityTextSizeRowControl",
+          "text": "125%",
+          "text_advance": 69.0,
+          "text_aperture": 456.0
+        },
+        {
+          "font_size": 30,
+          "minimum_height": 44.0,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityLargeTargetsRow/@Label@437",
+          "size": [
+            500.0,
+            44.0
+          ],
+          "text": "Large targets",
+          "unwrapped_advance": 161.0
+        },
+        {
+          "font_size": 30,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityLargeTargetsRow/AccessibilityLargeTargetsRowControl",
+          "text": "Off",
+          "text_advance": 37.0,
+          "text_aperture": 440.0
+        },
+        {
+          "font_size": 30,
+          "minimum_height": 44.0,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityHighContrastRow/@Label@438",
+          "size": [
+            500.0,
+            44.0
+          ],
+          "text": "High contrast",
+          "unwrapped_advance": 167.0
+        },
+        {
+          "font_size": 30,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityHighContrastRow/AccessibilityHighContrastRowControl",
+          "text": "Off",
+          "text_advance": 37.0,
+          "text_aperture": 440.0
+        },
+        {
+          "font_size": 30,
+          "minimum_height": 44.0,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityReducedMotionRow/@Label@439",
+          "size": [
+            500.0,
+            44.0
+          ],
+          "text": "Reduced motion",
+          "unwrapped_advance": 206.0
+        },
+        {
+          "font_size": 30,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityReducedMotionRow/AccessibilityReducedMotionRowControl",
+          "text": "Off",
+          "text_advance": 37.0,
+          "text_aperture": 440.0
+        },
+        {
+          "font_size": 30,
+          "minimum_height": 44.0,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityScreenShakeRow/@Label@440",
+          "size": [
+            500.0,
+            44.0
+          ],
+          "text": "Screen shake",
+          "unwrapped_advance": 165.0
+        },
+        {
+          "font_size": 30,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityScreenShakeRow/AccessibilityScreenShakeRowControl",
+          "text": "Low",
+          "text_advance": 52.0,
+          "text_aperture": 456.0
+        },
+        {
+          "font_size": 30,
+          "minimum_height": 44.0,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityColourDifferentiationRow/@Label@449",
+          "size": [
+            500.0,
+            44.0
+          ],
+          "text": "Colour differentiation",
+          "unwrapped_advance": 270.0
+        },
+        {
+          "font_size": 30,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityColourDifferentiationRow/AccessibilityColourDifferentiationRowControl",
+          "text": "Standard",
+          "text_advance": 115.0,
+          "text_aperture": 456.0
+        },
+        {
+          "font_size": 30,
+          "minimum_height": 44.0,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilitySoundDetailTextRow/@Label@458",
+          "size": [
+            500.0,
+            44.0
+          ],
+          "text": "Sound detail text",
+          "unwrapped_advance": 212.0
+        },
+        {
+          "font_size": 30,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilitySoundDetailTextRow/AccessibilitySoundDetailTextRowControl",
+          "text": "Story relevant",
+          "text_advance": 175.0,
+          "text_aperture": 456.0
+        },
+        {
+          "font_size": 30,
+          "minimum_height": 91.0,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/ListeningComfortNote",
+          "size": [
+            500.0,
+            91.0
+          ],
+          "text": "Set a comfortable device volume. Stop and rest if sound feels uncomfortable.",
+          "unwrapped_advance": 955.0
+        },
+        {
+          "font_size": 30,
+          "minimum_height": 44.0,
+          "node": "Footer/ControlSample/Selected/@Label@258",
+          "size": [
+            212.0,
+            56.0
+          ],
+          "text": "Selected",
+          "unwrapped_advance": 108.0
+        },
+        {
+          "font_size": 30,
+          "minimum_height": 44.0,
+          "node": "Footer/ControlSample/Focus/@Label@259",
+          "size": [
+            212.0,
+            56.0
+          ],
+          "text": "Focus",
+          "unwrapped_advance": 73.0
+        },
+        {
+          "font_size": 30,
+          "minimum_height": 44.0,
+          "node": "Footer/ControlSample/Warning/@Label@260",
+          "size": [
+            212.0,
+            56.0
+          ],
+          "text": "Warning",
+          "unwrapped_advance": 104.0
+        },
+        {
+          "font_size": 30,
+          "minimum_height": 44.0,
+          "node": "Footer/ControlSample/Unavailable/@Label@261",
+          "size": [
+            212.0,
+            56.0
+          ],
+          "text": "Unavailable",
+          "unwrapped_advance": 149.0
+        }
+      ],
+      "text_percent": 125,
+      "workfield": [
+        480,
+        64,
+        800,
+        656
+      ]
+    },
+    {
+      "colour_preset": "standard",
+      "file": "images/en-150-AfterHours-standard-desktop-accessibility.png",
+      "focus": "AccessibilityTextSizeRowControl",
+      "high_contrast": false,
+      "large_targets": false,
+      "locale": "en",
+      "logical_size": [
+        1280,
+        720
+      ],
+      "native_size": [
+        640,
+        360
+      ],
+      "palette": "AfterHours",
+      "primary_font": "res://assets/ui/contacts/fonts/source-sans-3-regular.ttf.woff2",
+      "sheet_extent": 1264.0,
+      "sheet_scroll": 193,
+      "state": "desktop-accessibility",
+      "text_metrics": [
+        {
+          "font_size": 36,
+          "minimum_height": 53.0,
+          "node": "RailScroll/Rail/LanguageCategory/@Label@505",
+          "size": [
+            172.0,
+            64.0
+          ],
+          "text": "Language",
+          "unwrapped_advance": 147.0
+        },
+        {
+          "font_size": 36,
+          "minimum_height": 53.0,
+          "node": "RailScroll/Rail/ReadingCategory/@Label@525",
+          "size": [
+            172.0,
+            64.0
+          ],
+          "text": "Reading",
+          "unwrapped_advance": 122.0
+        },
+        {
+          "font_size": 36,
+          "minimum_height": 53.0,
+          "node": "RailScroll/Rail/AudioCategory/@Label@566",
+          "size": [
+            172.0,
+            64.0
+          ],
+          "text": "Audio",
+          "unwrapped_advance": 87.0
+        },
+        {
+          "font_size": 36,
+          "minimum_height": 53.0,
+          "node": "RailScroll/Rail/DisplayCategory/@Label@588",
+          "size": [
+            172.0,
+            64.0
+          ],
+          "text": "Display",
+          "unwrapped_advance": 110.0
+        },
+        {
+          "font_size": 36,
+          "minimum_height": 53.0,
+          "node": "RailScroll/Rail/ControlsCategory/@Label@598",
+          "size": [
+            172.0,
+            64.0
+          ],
+          "text": "Controls",
+          "unwrapped_advance": 128.0
+        },
+        {
+          "font_size": 36,
+          "minimum_height": 53.0,
+          "node": "RailScroll/Rail/AccessibilityCategory/@Label@670",
+          "size": [
+            184.0,
+            64.0
+          ],
+          "text": "Accessibility",
+          "unwrapped_advance": 184.0
+        },
+        {
+          "font_size": 36,
+          "minimum_height": 53.0,
+          "node": "RailScroll/Rail/RecordsCategory/@Label@710",
+          "size": [
+            172.0,
+            64.0
+          ],
+          "text": "Records",
+          "unwrapped_advance": 120.0
+        },
+        {
+          "font_size": 36,
+          "minimum_height": 53.0,
+          "node": "Heading/CategoryHeading",
+          "size": [
+            512.0,
+            64.0
+          ],
+          "text": "Accessibility",
+          "unwrapped_advance": 184.0
+        },
+        {
+          "font_size": 36,
+          "minimum_height": 53.0,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityTextSizeRow/@Label@671",
+          "size": [
+            500.0,
+            53.0
+          ],
+          "text": "Text size",
+          "unwrapped_advance": 126.0
+        },
+        {
+          "font_size": 36,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityTextSizeRow/AccessibilityTextSizeRowControl",
+          "text": "150%",
+          "text_advance": 83.0,
+          "text_aperture": 456.0
+        },
+        {
+          "font_size": 36,
+          "minimum_height": 53.0,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityLargeTargetsRow/@Label@680",
+          "size": [
+            500.0,
+            53.0
+          ],
+          "text": "Large targets",
+          "unwrapped_advance": 194.0
+        },
+        {
+          "font_size": 36,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityLargeTargetsRow/AccessibilityLargeTargetsRowControl",
+          "text": "Off",
+          "text_advance": 45.0,
+          "text_aperture": 440.0
+        },
+        {
+          "font_size": 36,
+          "minimum_height": 53.0,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityHighContrastRow/@Label@681",
+          "size": [
+            500.0,
+            53.0
+          ],
+          "text": "High contrast",
+          "unwrapped_advance": 201.0
+        },
+        {
+          "font_size": 36,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityHighContrastRow/AccessibilityHighContrastRowControl",
+          "text": "Off",
+          "text_advance": 45.0,
+          "text_aperture": 440.0
+        },
+        {
+          "font_size": 36,
+          "minimum_height": 53.0,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityReducedMotionRow/@Label@682",
+          "size": [
+            500.0,
+            53.0
+          ],
+          "text": "Reduced motion",
+          "unwrapped_advance": 247.0
+        },
+        {
+          "font_size": 36,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityReducedMotionRow/AccessibilityReducedMotionRowControl",
+          "text": "Off",
+          "text_advance": 45.0,
+          "text_aperture": 440.0
+        },
+        {
+          "font_size": 36,
+          "minimum_height": 53.0,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityScreenShakeRow/@Label@683",
+          "size": [
+            500.0,
+            53.0
+          ],
+          "text": "Screen shake",
+          "unwrapped_advance": 198.0
+        },
+        {
+          "font_size": 36,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityScreenShakeRow/AccessibilityScreenShakeRowControl",
+          "text": "Low",
+          "text_advance": 62.0,
+          "text_aperture": 456.0
+        },
+        {
+          "font_size": 36,
+          "minimum_height": 53.0,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityColourDifferentiationRow/@Label@692",
+          "size": [
+            500.0,
+            53.0
+          ],
+          "text": "Colour differentiation",
+          "unwrapped_advance": 324.0
+        },
+        {
+          "font_size": 36,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityColourDifferentiationRow/AccessibilityColourDifferentiationRowControl",
+          "text": "Standard",
+          "text_advance": 138.0,
+          "text_aperture": 456.0
+        },
+        {
+          "font_size": 36,
+          "minimum_height": 53.0,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilitySoundDetailTextRow/@Label@701",
+          "size": [
+            500.0,
+            53.0
+          ],
+          "text": "Sound detail text",
+          "unwrapped_advance": 254.0
+        },
+        {
+          "font_size": 36,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilitySoundDetailTextRow/AccessibilitySoundDetailTextRowControl",
+          "text": "Story relevant",
+          "text_advance": 211.0,
+          "text_aperture": 456.0
+        },
+        {
+          "font_size": 36,
+          "minimum_height": 165.0,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/ListeningComfortNote",
+          "size": [
+            500.0,
+            165.0
+          ],
+          "text": "Set a comfortable device volume. Stop and rest if sound feels uncomfortable.",
+          "unwrapped_advance": 1148.0
+        },
+        {
+          "font_size": 36,
+          "minimum_height": 53.0,
+          "node": "Footer/ControlSample/Selected/@Label@501",
+          "size": [
+            212.0,
+            56.0
+          ],
+          "text": "Selected",
+          "unwrapped_advance": 130.0
+        },
+        {
+          "font_size": 36,
+          "minimum_height": 53.0,
+          "node": "Footer/ControlSample/Focus/@Label@502",
+          "size": [
+            212.0,
+            56.0
+          ],
+          "text": "Focus",
+          "unwrapped_advance": 88.0
+        },
+        {
+          "font_size": 36,
+          "minimum_height": 53.0,
+          "node": "Footer/ControlSample/Warning/@Label@503",
+          "size": [
+            212.0,
+            56.0
+          ],
+          "text": "Warning",
+          "unwrapped_advance": 125.0
+        },
+        {
+          "font_size": 36,
+          "minimum_height": 53.0,
+          "node": "Footer/ControlSample/Unavailable/@Label@504",
+          "size": [
+            212.0,
+            56.0
+          ],
+          "text": "Unavailable",
+          "unwrapped_advance": 178.0
+        }
+      ],
+      "text_percent": 150,
+      "workfield": [
+        480,
+        64,
+        800,
+        656
+      ]
+    },
+    {
+      "colour_preset": "standard",
+      "file": "images/zh_CN-100-AfterHours-standard-desktop-accessibility.png",
+      "focus": "AccessibilityTextSizeRowControl",
+      "high_contrast": false,
+      "large_targets": false,
+      "locale": "zh_CN",
+      "logical_size": [
+        1280,
+        720
+      ],
+      "native_size": [
+        640,
+        360
+      ],
+      "palette": "AfterHours",
+      "primary_font": "res://assets/ui/contacts/fonts/source-han-sans-sc-regular.otf",
+      "sheet_extent": 755.0,
+      "sheet_scroll": 0,
+      "state": "desktop-accessibility",
+      "text_metrics": [
+        {
+          "font_size": 24,
+          "minimum_height": 35.0,
+          "node": "RailScroll/Rail/LanguageCategory/@Label@748",
+          "size": [
+            172.0,
+            52.0
+          ],
+          "text": "语言",
+          "unwrapped_advance": 48.0
+        },
+        {
+          "font_size": 24,
+          "minimum_height": 35.0,
+          "node": "RailScroll/Rail/ReadingCategory/@Label@768",
+          "size": [
+            172.0,
+            52.0
+          ],
+          "text": "阅读",
+          "unwrapped_advance": 48.0
+        },
+        {
+          "font_size": 24,
+          "minimum_height": 35.0,
+          "node": "RailScroll/Rail/AudioCategory/@Label@809",
+          "size": [
+            172.0,
+            52.0
+          ],
+          "text": "音频",
+          "unwrapped_advance": 48.0
+        },
+        {
+          "font_size": 24,
+          "minimum_height": 35.0,
+          "node": "RailScroll/Rail/DisplayCategory/@Label@831",
+          "size": [
+            172.0,
+            52.0
+          ],
+          "text": "显示",
+          "unwrapped_advance": 48.0
+        },
+        {
+          "font_size": 24,
+          "minimum_height": 35.0,
+          "node": "RailScroll/Rail/ControlsCategory/@Label@841",
+          "size": [
+            172.0,
+            52.0
+          ],
+          "text": "操作",
+          "unwrapped_advance": 48.0
+        },
+        {
+          "font_size": 24,
+          "minimum_height": 35.0,
+          "node": "RailScroll/Rail/AccessibilityCategory/@Label@913",
+          "size": [
+            172.0,
+            52.0
+          ],
+          "text": "无障碍",
+          "unwrapped_advance": 72.0
+        },
+        {
+          "font_size": 24,
+          "minimum_height": 35.0,
+          "node": "RailScroll/Rail/RecordsCategory/@Label@953",
+          "size": [
+            172.0,
+            52.0
+          ],
+          "text": "记录",
+          "unwrapped_advance": 48.0
+        },
+        {
+          "font_size": 24,
+          "minimum_height": 35.0,
+          "node": "Heading/CategoryHeading",
+          "size": [
+            512.0,
+            64.0
+          ],
+          "text": "无障碍",
+          "unwrapped_advance": 72.0
+        },
+        {
+          "font_size": 24,
+          "minimum_height": 35.0,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityTextSizeRow/@Label@914",
+          "size": [
+            500.0,
+            35.0
+          ],
+          "text": "文字大小",
+          "unwrapped_advance": 96.0
+        },
+        {
+          "font_size": 24,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityTextSizeRow/AccessibilityTextSizeRowControl",
+          "text": "100%",
+          "text_advance": 62.0,
+          "text_aperture": 456.0
+        },
+        {
+          "font_size": 24,
+          "minimum_height": 35.0,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityLargeTargetsRow/@Label@923",
+          "size": [
+            500.0,
+            35.0
+          ],
+          "text": "大号操作目标",
+          "unwrapped_advance": 144.0
+        },
+        {
+          "font_size": 24,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityLargeTargetsRow/AccessibilityLargeTargetsRowControl",
+          "text": "关闭",
+          "text_advance": 48.0,
+          "text_aperture": 440.0
+        },
+        {
+          "font_size": 24,
+          "minimum_height": 35.0,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityHighContrastRow/@Label@924",
+          "size": [
+            500.0,
+            35.0
+          ],
+          "text": "高对比度",
+          "unwrapped_advance": 96.0
+        },
+        {
+          "font_size": 24,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityHighContrastRow/AccessibilityHighContrastRowControl",
+          "text": "关闭",
+          "text_advance": 48.0,
+          "text_aperture": 440.0
+        },
+        {
+          "font_size": 24,
+          "minimum_height": 35.0,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityReducedMotionRow/@Label@925",
+          "size": [
+            500.0,
+            35.0
+          ],
+          "text": "减少动态效果",
+          "unwrapped_advance": 144.0
+        },
+        {
+          "font_size": 24,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityReducedMotionRow/AccessibilityReducedMotionRowControl",
+          "text": "关闭",
+          "text_advance": 48.0,
+          "text_aperture": 440.0
+        },
+        {
+          "font_size": 24,
+          "minimum_height": 35.0,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityScreenShakeRow/@Label@926",
+          "size": [
+            500.0,
+            35.0
+          ],
+          "text": "屏幕震动",
+          "unwrapped_advance": 96.0
+        },
+        {
+          "font_size": 24,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityScreenShakeRow/AccessibilityScreenShakeRowControl",
+          "text": "低",
+          "text_advance": 24.0,
+          "text_aperture": 456.0
+        },
+        {
+          "font_size": 24,
+          "minimum_height": 35.0,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityColourDifferentiationRow/@Label@935",
+          "size": [
+            500.0,
+            35.0
+          ],
+          "text": "颜色区分",
+          "unwrapped_advance": 96.0
+        },
+        {
+          "font_size": 24,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityColourDifferentiationRow/AccessibilityColourDifferentiationRowControl",
+          "text": "标准",
+          "text_advance": 48.0,
+          "text_aperture": 456.0
+        },
+        {
+          "font_size": 24,
+          "minimum_height": 35.0,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilitySoundDetailTextRow/@Label@944",
+          "size": [
+            500.0,
+            35.0
+          ],
+          "text": "声音细节文字",
+          "unwrapped_advance": 144.0
+        },
+        {
+          "font_size": 24,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilitySoundDetailTextRow/AccessibilitySoundDetailTextRowControl",
+          "text": "与故事相关",
+          "text_advance": 120.0,
+          "text_aperture": 456.0
+        },
+        {
+          "font_size": 24,
+          "minimum_height": 73.0,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/ListeningComfortNote",
+          "size": [
+            500.0,
+            73.0
+          ],
+          "text": "请将设备音量调至舒适水平。如果声音令你不适，请停止并休息。",
+          "unwrapped_advance": 696.0
+        },
+        {
+          "font_size": 24,
+          "minimum_height": 35.0,
+          "node": "Footer/ControlSample/Selected/@Label@744",
+          "size": [
+            212.0,
+            56.0
+          ],
+          "text": "已选择",
+          "unwrapped_advance": 72.0
+        },
+        {
+          "font_size": 24,
+          "minimum_height": 35.0,
+          "node": "Footer/ControlSample/Focus/@Label@745",
+          "size": [
+            212.0,
+            56.0
+          ],
+          "text": "焦点",
+          "unwrapped_advance": 48.0
+        },
+        {
+          "font_size": 24,
+          "minimum_height": 35.0,
+          "node": "Footer/ControlSample/Warning/@Label@746",
+          "size": [
+            212.0,
+            56.0
+          ],
+          "text": "警告",
+          "unwrapped_advance": 48.0
+        },
+        {
+          "font_size": 24,
+          "minimum_height": 35.0,
+          "node": "Footer/ControlSample/Unavailable/@Label@747",
+          "size": [
+            212.0,
+            56.0
+          ],
+          "text": "不可用",
+          "unwrapped_advance": 72.0
+        }
+      ],
+      "text_percent": 100,
+      "workfield": [
+        480,
+        64,
+        800,
+        656
+      ]
+    },
+    {
+      "colour_preset": "standard",
+      "file": "images/zh_CN-125-AfterHours-standard-desktop-accessibility.png",
+      "focus": "AccessibilityTextSizeRowControl",
+      "high_contrast": false,
+      "large_targets": false,
+      "locale": "zh_CN",
+      "logical_size": [
+        1280,
+        720
+      ],
+      "native_size": [
+        640,
+        360
+      ],
+      "palette": "AfterHours",
+      "primary_font": "res://assets/ui/contacts/fonts/source-han-sans-sc-regular.otf",
+      "sheet_extent": 971.0,
+      "sheet_scroll": 0,
+      "state": "desktop-accessibility",
+      "text_metrics": [
+        {
+          "font_size": 30,
+          "minimum_height": 44.0,
+          "node": "RailScroll/Rail/LanguageCategory/@Label@991",
+          "size": [
+            172.0,
+            60.0
+          ],
+          "text": "语言",
+          "unwrapped_advance": 60.0
+        },
+        {
+          "font_size": 30,
+          "minimum_height": 44.0,
+          "node": "RailScroll/Rail/ReadingCategory/@Label@1011",
+          "size": [
+            172.0,
+            60.0
+          ],
+          "text": "阅读",
+          "unwrapped_advance": 60.0
+        },
+        {
+          "font_size": 30,
+          "minimum_height": 44.0,
+          "node": "RailScroll/Rail/AudioCategory/@Label@1052",
+          "size": [
+            172.0,
+            60.0
+          ],
+          "text": "音频",
+          "unwrapped_advance": 60.0
+        },
+        {
+          "font_size": 30,
+          "minimum_height": 44.0,
+          "node": "RailScroll/Rail/DisplayCategory/@Label@1074",
+          "size": [
+            172.0,
+            60.0
+          ],
+          "text": "显示",
+          "unwrapped_advance": 60.0
+        },
+        {
+          "font_size": 30,
+          "minimum_height": 44.0,
+          "node": "RailScroll/Rail/ControlsCategory/@Label@1084",
+          "size": [
+            172.0,
+            60.0
+          ],
+          "text": "操作",
+          "unwrapped_advance": 60.0
+        },
+        {
+          "font_size": 30,
+          "minimum_height": 44.0,
+          "node": "RailScroll/Rail/AccessibilityCategory/@Label@1156",
+          "size": [
+            172.0,
+            60.0
+          ],
+          "text": "无障碍",
+          "unwrapped_advance": 90.0
+        },
+        {
+          "font_size": 30,
+          "minimum_height": 44.0,
+          "node": "RailScroll/Rail/RecordsCategory/@Label@1196",
+          "size": [
+            172.0,
+            60.0
+          ],
+          "text": "记录",
+          "unwrapped_advance": 60.0
+        },
+        {
+          "font_size": 30,
+          "minimum_height": 44.0,
+          "node": "Heading/CategoryHeading",
+          "size": [
+            512.0,
+            64.0
+          ],
+          "text": "无障碍",
+          "unwrapped_advance": 90.0
+        },
+        {
+          "font_size": 30,
+          "minimum_height": 44.0,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityTextSizeRow/@Label@1157",
+          "size": [
+            500.0,
+            44.0
+          ],
+          "text": "文字大小",
+          "unwrapped_advance": 120.0
+        },
+        {
+          "font_size": 30,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityTextSizeRow/AccessibilityTextSizeRowControl",
+          "text": "125%",
+          "text_advance": 78.0,
+          "text_aperture": 456.0
+        },
+        {
+          "font_size": 30,
+          "minimum_height": 44.0,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityLargeTargetsRow/@Label@1166",
+          "size": [
+            500.0,
+            44.0
+          ],
+          "text": "大号操作目标",
+          "unwrapped_advance": 180.0
+        },
+        {
+          "font_size": 30,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityLargeTargetsRow/AccessibilityLargeTargetsRowControl",
+          "text": "关闭",
+          "text_advance": 60.0,
+          "text_aperture": 440.0
+        },
+        {
+          "font_size": 30,
+          "minimum_height": 44.0,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityHighContrastRow/@Label@1167",
+          "size": [
+            500.0,
+            44.0
+          ],
+          "text": "高对比度",
+          "unwrapped_advance": 120.0
+        },
+        {
+          "font_size": 30,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityHighContrastRow/AccessibilityHighContrastRowControl",
+          "text": "关闭",
+          "text_advance": 60.0,
+          "text_aperture": 440.0
+        },
+        {
+          "font_size": 30,
+          "minimum_height": 44.0,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityReducedMotionRow/@Label@1168",
+          "size": [
+            500.0,
+            44.0
+          ],
+          "text": "减少动态效果",
+          "unwrapped_advance": 180.0
+        },
+        {
+          "font_size": 30,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityReducedMotionRow/AccessibilityReducedMotionRowControl",
+          "text": "关闭",
+          "text_advance": 60.0,
+          "text_aperture": 440.0
+        },
+        {
+          "font_size": 30,
+          "minimum_height": 44.0,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityScreenShakeRow/@Label@1169",
+          "size": [
+            500.0,
+            44.0
+          ],
+          "text": "屏幕震动",
+          "unwrapped_advance": 120.0
+        },
+        {
+          "font_size": 30,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityScreenShakeRow/AccessibilityScreenShakeRowControl",
+          "text": "低",
+          "text_advance": 30.0,
+          "text_aperture": 456.0
+        },
+        {
+          "font_size": 30,
+          "minimum_height": 44.0,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityColourDifferentiationRow/@Label@1178",
+          "size": [
+            500.0,
+            44.0
+          ],
+          "text": "颜色区分",
+          "unwrapped_advance": 120.0
+        },
+        {
+          "font_size": 30,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityColourDifferentiationRow/AccessibilityColourDifferentiationRowControl",
+          "text": "标准",
+          "text_advance": 60.0,
+          "text_aperture": 456.0
+        },
+        {
+          "font_size": 30,
+          "minimum_height": 44.0,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilitySoundDetailTextRow/@Label@1187",
+          "size": [
+            500.0,
+            44.0
+          ],
+          "text": "声音细节文字",
+          "unwrapped_advance": 180.0
+        },
+        {
+          "font_size": 30,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilitySoundDetailTextRow/AccessibilitySoundDetailTextRowControl",
+          "text": "与故事相关",
+          "text_advance": 150.0,
+          "text_aperture": 456.0
+        },
+        {
+          "font_size": 30,
+          "minimum_height": 91.0,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/ListeningComfortNote",
+          "size": [
+            500.0,
+            91.0
+          ],
+          "text": "请将设备音量调至舒适水平。如果声音令你不适，请停止并休息。",
+          "unwrapped_advance": 870.0
+        },
+        {
+          "font_size": 30,
+          "minimum_height": 44.0,
+          "node": "Footer/ControlSample/Selected/@Label@987",
+          "size": [
+            212.0,
+            56.0
+          ],
+          "text": "已选择",
+          "unwrapped_advance": 90.0
+        },
+        {
+          "font_size": 30,
+          "minimum_height": 44.0,
+          "node": "Footer/ControlSample/Focus/@Label@988",
+          "size": [
+            212.0,
+            56.0
+          ],
+          "text": "焦点",
+          "unwrapped_advance": 60.0
+        },
+        {
+          "font_size": 30,
+          "minimum_height": 44.0,
+          "node": "Footer/ControlSample/Warning/@Label@989",
+          "size": [
+            212.0,
+            56.0
+          ],
+          "text": "警告",
+          "unwrapped_advance": 60.0
+        },
+        {
+          "font_size": 30,
+          "minimum_height": 44.0,
+          "node": "Footer/ControlSample/Unavailable/@Label@990",
+          "size": [
+            212.0,
+            56.0
+          ],
+          "text": "不可用",
+          "unwrapped_advance": 90.0
+        }
+      ],
+      "text_percent": 125,
+      "workfield": [
+        480,
+        64,
+        800,
+        656
+      ]
+    },
+    {
+      "colour_preset": "standard",
+      "file": "images/zh_CN-150-AfterHours-standard-desktop-accessibility.png",
+      "focus": "AccessibilityTextSizeRowControl",
+      "high_contrast": false,
+      "large_targets": false,
+      "locale": "zh_CN",
+      "logical_size": [
+        1280,
+        720
+      ],
+      "native_size": [
+        640,
+        360
+      ],
+      "palette": "AfterHours",
+      "primary_font": "res://assets/ui/contacts/fonts/source-han-sans-sc-regular.otf",
+      "sheet_extent": 1264.0,
+      "sheet_scroll": 0,
+      "state": "desktop-accessibility",
+      "text_metrics": [
+        {
+          "font_size": 36,
+          "minimum_height": 53.0,
+          "node": "RailScroll/Rail/LanguageCategory/@Label@1234",
+          "size": [
+            172.0,
+            69.0
+          ],
+          "text": "语言",
+          "unwrapped_advance": 72.0
+        },
+        {
+          "font_size": 36,
+          "minimum_height": 53.0,
+          "node": "RailScroll/Rail/ReadingCategory/@Label@1254",
+          "size": [
+            172.0,
+            69.0
+          ],
+          "text": "阅读",
+          "unwrapped_advance": 72.0
+        },
+        {
+          "font_size": 36,
+          "minimum_height": 53.0,
+          "node": "RailScroll/Rail/AudioCategory/@Label@1295",
+          "size": [
+            172.0,
+            69.0
+          ],
+          "text": "音频",
+          "unwrapped_advance": 72.0
+        },
+        {
+          "font_size": 36,
+          "minimum_height": 53.0,
+          "node": "RailScroll/Rail/DisplayCategory/@Label@1317",
+          "size": [
+            172.0,
+            69.0
+          ],
+          "text": "显示",
+          "unwrapped_advance": 72.0
+        },
+        {
+          "font_size": 36,
+          "minimum_height": 53.0,
+          "node": "RailScroll/Rail/ControlsCategory/@Label@1327",
+          "size": [
+            172.0,
+            69.0
+          ],
+          "text": "操作",
+          "unwrapped_advance": 72.0
+        },
+        {
+          "font_size": 36,
+          "minimum_height": 53.0,
+          "node": "RailScroll/Rail/AccessibilityCategory/@Label@1399",
+          "size": [
+            172.0,
+            69.0
+          ],
+          "text": "无障碍",
+          "unwrapped_advance": 108.0
+        },
+        {
+          "font_size": 36,
+          "minimum_height": 53.0,
+          "node": "RailScroll/Rail/RecordsCategory/@Label@1439",
+          "size": [
+            172.0,
+            69.0
+          ],
+          "text": "记录",
+          "unwrapped_advance": 72.0
+        },
+        {
+          "font_size": 36,
+          "minimum_height": 53.0,
+          "node": "Heading/CategoryHeading",
+          "size": [
+            512.0,
+            64.0
+          ],
+          "text": "无障碍",
+          "unwrapped_advance": 108.0
+        },
+        {
+          "font_size": 36,
+          "minimum_height": 53.0,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityTextSizeRow/@Label@1400",
+          "size": [
+            500.0,
+            53.0
+          ],
+          "text": "文字大小",
+          "unwrapped_advance": 144.0
+        },
+        {
+          "font_size": 36,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityTextSizeRow/AccessibilityTextSizeRowControl",
+          "text": "150%",
+          "text_advance": 93.0,
+          "text_aperture": 456.0
+        },
+        {
+          "font_size": 36,
+          "minimum_height": 53.0,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityLargeTargetsRow/@Label@1409",
+          "size": [
+            500.0,
+            53.0
+          ],
+          "text": "大号操作目标",
+          "unwrapped_advance": 216.0
+        },
+        {
+          "font_size": 36,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityLargeTargetsRow/AccessibilityLargeTargetsRowControl",
+          "text": "关闭",
+          "text_advance": 72.0,
+          "text_aperture": 440.0
+        },
+        {
+          "font_size": 36,
+          "minimum_height": 53.0,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityHighContrastRow/@Label@1410",
+          "size": [
+            500.0,
+            53.0
+          ],
+          "text": "高对比度",
+          "unwrapped_advance": 144.0
+        },
+        {
+          "font_size": 36,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityHighContrastRow/AccessibilityHighContrastRowControl",
+          "text": "关闭",
+          "text_advance": 72.0,
+          "text_aperture": 440.0
+        },
+        {
+          "font_size": 36,
+          "minimum_height": 53.0,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityReducedMotionRow/@Label@1411",
+          "size": [
+            500.0,
+            53.0
+          ],
+          "text": "减少动态效果",
+          "unwrapped_advance": 216.0
+        },
+        {
+          "font_size": 36,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityReducedMotionRow/AccessibilityReducedMotionRowControl",
+          "text": "关闭",
+          "text_advance": 72.0,
+          "text_aperture": 440.0
+        },
+        {
+          "font_size": 36,
+          "minimum_height": 53.0,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityScreenShakeRow/@Label@1412",
+          "size": [
+            500.0,
+            53.0
+          ],
+          "text": "屏幕震动",
+          "unwrapped_advance": 144.0
+        },
+        {
+          "font_size": 36,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityScreenShakeRow/AccessibilityScreenShakeRowControl",
+          "text": "低",
+          "text_advance": 36.0,
+          "text_aperture": 456.0
+        },
+        {
+          "font_size": 36,
+          "minimum_height": 53.0,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityColourDifferentiationRow/@Label@1421",
+          "size": [
+            500.0,
+            53.0
+          ],
+          "text": "颜色区分",
+          "unwrapped_advance": 144.0
+        },
+        {
+          "font_size": 36,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityColourDifferentiationRow/AccessibilityColourDifferentiationRowControl",
+          "text": "标准",
+          "text_advance": 72.0,
+          "text_aperture": 456.0
+        },
+        {
+          "font_size": 36,
+          "minimum_height": 53.0,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilitySoundDetailTextRow/@Label@1430",
+          "size": [
+            500.0,
+            53.0
+          ],
+          "text": "声音细节文字",
+          "unwrapped_advance": 216.0
+        },
+        {
+          "font_size": 36,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilitySoundDetailTextRow/AccessibilitySoundDetailTextRowControl",
+          "text": "与故事相关",
+          "text_advance": 180.0,
+          "text_aperture": 456.0
+        },
+        {
+          "font_size": 36,
+          "minimum_height": 165.0,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/ListeningComfortNote",
+          "size": [
+            500.0,
+            165.0
+          ],
+          "text": "请将设备音量调至舒适水平。如果声音令你不适，请停止并休息。",
+          "unwrapped_advance": 1044.0
+        },
+        {
+          "font_size": 36,
+          "minimum_height": 53.0,
+          "node": "Footer/ControlSample/Selected/@Label@1230",
+          "size": [
+            212.0,
+            56.0
+          ],
+          "text": "已选择",
+          "unwrapped_advance": 108.0
+        },
+        {
+          "font_size": 36,
+          "minimum_height": 53.0,
+          "node": "Footer/ControlSample/Focus/@Label@1231",
+          "size": [
+            212.0,
+            56.0
+          ],
+          "text": "焦点",
+          "unwrapped_advance": 72.0
+        },
+        {
+          "font_size": 36,
+          "minimum_height": 53.0,
+          "node": "Footer/ControlSample/Warning/@Label@1232",
+          "size": [
+            212.0,
+            56.0
+          ],
+          "text": "警告",
+          "unwrapped_advance": 72.0
+        },
+        {
+          "font_size": 36,
+          "minimum_height": 53.0,
+          "node": "Footer/ControlSample/Unavailable/@Label@1233",
+          "size": [
+            212.0,
+            56.0
+          ],
+          "text": "不可用",
+          "unwrapped_advance": 108.0
+        }
+      ],
+      "text_percent": 150,
+      "workfield": [
+        480,
+        64,
+        800,
+        656
+      ]
+    },
+    {
+      "colour_preset": "standard",
+      "file": "images/zh_HK-100-AfterHours-standard-desktop-accessibility.png",
+      "focus": "AccessibilityTextSizeRowControl",
+      "high_contrast": false,
+      "large_targets": false,
+      "locale": "zh_HK",
+      "logical_size": [
+        1280,
+        720
+      ],
+      "native_size": [
+        640,
+        360
+      ],
+      "palette": "AfterHours",
+      "primary_font": "res://assets/ui/contacts/fonts/source-han-sans-hc-regular.otf",
+      "sheet_extent": 755.0,
+      "sheet_scroll": 0,
+      "state": "desktop-accessibility",
+      "text_metrics": [
+        {
+          "font_size": 24,
+          "minimum_height": 35.0,
+          "node": "RailScroll/Rail/LanguageCategory/@Label@1477",
+          "size": [
+            172.0,
+            52.0
+          ],
+          "text": "語言",
+          "unwrapped_advance": 48.0
+        },
+        {
+          "font_size": 24,
+          "minimum_height": 35.0,
+          "node": "RailScroll/Rail/ReadingCategory/@Label@1497",
+          "size": [
+            172.0,
+            52.0
+          ],
+          "text": "閱讀",
+          "unwrapped_advance": 48.0
+        },
+        {
+          "font_size": 24,
+          "minimum_height": 35.0,
+          "node": "RailScroll/Rail/AudioCategory/@Label@1538",
+          "size": [
+            172.0,
+            52.0
+          ],
+          "text": "音訊",
+          "unwrapped_advance": 48.0
+        },
+        {
+          "font_size": 24,
+          "minimum_height": 35.0,
+          "node": "RailScroll/Rail/DisplayCategory/@Label@1560",
+          "size": [
+            172.0,
+            52.0
+          ],
+          "text": "顯示",
+          "unwrapped_advance": 48.0
+        },
+        {
+          "font_size": 24,
+          "minimum_height": 35.0,
+          "node": "RailScroll/Rail/ControlsCategory/@Label@1570",
+          "size": [
+            172.0,
+            52.0
+          ],
+          "text": "操作",
+          "unwrapped_advance": 48.0
+        },
+        {
+          "font_size": 24,
+          "minimum_height": 35.0,
+          "node": "RailScroll/Rail/AccessibilityCategory/@Label@1642",
+          "size": [
+            172.0,
+            52.0
+          ],
+          "text": "無障礙",
+          "unwrapped_advance": 72.0
+        },
+        {
+          "font_size": 24,
+          "minimum_height": 35.0,
+          "node": "RailScroll/Rail/RecordsCategory/@Label@1682",
+          "size": [
+            172.0,
+            52.0
+          ],
+          "text": "記錄",
+          "unwrapped_advance": 48.0
+        },
+        {
+          "font_size": 24,
+          "minimum_height": 35.0,
+          "node": "Heading/CategoryHeading",
+          "size": [
+            512.0,
+            64.0
+          ],
+          "text": "無障礙",
+          "unwrapped_advance": 72.0
+        },
+        {
+          "font_size": 24,
+          "minimum_height": 35.0,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityTextSizeRow/@Label@1643",
+          "size": [
+            500.0,
+            35.0
+          ],
+          "text": "文字大小",
+          "unwrapped_advance": 96.0
+        },
+        {
+          "font_size": 24,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityTextSizeRow/AccessibilityTextSizeRowControl",
+          "text": "100%",
+          "text_advance": 62.0,
+          "text_aperture": 456.0
+        },
+        {
+          "font_size": 24,
+          "minimum_height": 35.0,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityLargeTargetsRow/@Label@1652",
+          "size": [
+            500.0,
+            35.0
+          ],
+          "text": "大型操作目標",
+          "unwrapped_advance": 144.0
+        },
+        {
+          "font_size": 24,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityLargeTargetsRow/AccessibilityLargeTargetsRowControl",
+          "text": "關閉",
+          "text_advance": 48.0,
+          "text_aperture": 440.0
+        },
+        {
+          "font_size": 24,
+          "minimum_height": 35.0,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityHighContrastRow/@Label@1653",
+          "size": [
+            500.0,
+            35.0
+          ],
+          "text": "高對比度",
+          "unwrapped_advance": 96.0
+        },
+        {
+          "font_size": 24,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityHighContrastRow/AccessibilityHighContrastRowControl",
+          "text": "關閉",
+          "text_advance": 48.0,
+          "text_aperture": 440.0
+        },
+        {
+          "font_size": 24,
+          "minimum_height": 35.0,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityReducedMotionRow/@Label@1654",
+          "size": [
+            500.0,
+            35.0
+          ],
+          "text": "減少動態效果",
+          "unwrapped_advance": 144.0
+        },
+        {
+          "font_size": 24,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityReducedMotionRow/AccessibilityReducedMotionRowControl",
+          "text": "關閉",
+          "text_advance": 48.0,
+          "text_aperture": 440.0
+        },
+        {
+          "font_size": 24,
+          "minimum_height": 35.0,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityScreenShakeRow/@Label@1655",
+          "size": [
+            500.0,
+            35.0
+          ],
+          "text": "畫面震動",
+          "unwrapped_advance": 96.0
+        },
+        {
+          "font_size": 24,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityScreenShakeRow/AccessibilityScreenShakeRowControl",
+          "text": "低",
+          "text_advance": 24.0,
+          "text_aperture": 456.0
+        },
+        {
+          "font_size": 24,
+          "minimum_height": 35.0,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityColourDifferentiationRow/@Label@1664",
+          "size": [
+            500.0,
+            35.0
+          ],
+          "text": "色彩區分",
+          "unwrapped_advance": 96.0
+        },
+        {
+          "font_size": 24,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityColourDifferentiationRow/AccessibilityColourDifferentiationRowControl",
+          "text": "標準",
+          "text_advance": 48.0,
+          "text_aperture": 456.0
+        },
+        {
+          "font_size": 24,
+          "minimum_height": 35.0,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilitySoundDetailTextRow/@Label@1673",
+          "size": [
+            500.0,
+            35.0
+          ],
+          "text": "聲音細節文字",
+          "unwrapped_advance": 144.0
+        },
+        {
+          "font_size": 24,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilitySoundDetailTextRow/AccessibilitySoundDetailTextRowControl",
+          "text": "與故事相關",
+          "text_advance": 120.0,
+          "text_aperture": 456.0
+        },
+        {
+          "font_size": 24,
+          "minimum_height": 73.0,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/ListeningComfortNote",
+          "size": [
+            500.0,
+            73.0
+          ],
+          "text": "請將裝置音量調至舒適水平。如果聲音令你不適，請停止並休息。",
+          "unwrapped_advance": 696.0
+        },
+        {
+          "font_size": 24,
+          "minimum_height": 35.0,
+          "node": "Footer/ControlSample/Selected/@Label@1473",
+          "size": [
+            212.0,
+            56.0
+          ],
+          "text": "已選擇",
+          "unwrapped_advance": 72.0
+        },
+        {
+          "font_size": 24,
+          "minimum_height": 35.0,
+          "node": "Footer/ControlSample/Focus/@Label@1474",
+          "size": [
+            212.0,
+            56.0
+          ],
+          "text": "焦點",
+          "unwrapped_advance": 48.0
+        },
+        {
+          "font_size": 24,
+          "minimum_height": 35.0,
+          "node": "Footer/ControlSample/Warning/@Label@1475",
+          "size": [
+            212.0,
+            56.0
+          ],
+          "text": "警告",
+          "unwrapped_advance": 48.0
+        },
+        {
+          "font_size": 24,
+          "minimum_height": 35.0,
+          "node": "Footer/ControlSample/Unavailable/@Label@1476",
+          "size": [
+            212.0,
+            56.0
+          ],
+          "text": "無法使用",
+          "unwrapped_advance": 96.0
+        }
+      ],
+      "text_percent": 100,
+      "workfield": [
+        480,
+        64,
+        800,
+        656
+      ]
+    },
+    {
+      "colour_preset": "standard",
+      "file": "images/zh_HK-125-AfterHours-standard-desktop-accessibility.png",
+      "focus": "AccessibilityTextSizeRowControl",
+      "high_contrast": false,
+      "large_targets": false,
+      "locale": "zh_HK",
+      "logical_size": [
+        1280,
+        720
+      ],
+      "native_size": [
+        640,
+        360
+      ],
+      "palette": "AfterHours",
+      "primary_font": "res://assets/ui/contacts/fonts/source-han-sans-hc-regular.otf",
+      "sheet_extent": 971.0,
+      "sheet_scroll": 0,
+      "state": "desktop-accessibility",
+      "text_metrics": [
+        {
+          "font_size": 30,
+          "minimum_height": 44.0,
+          "node": "RailScroll/Rail/LanguageCategory/@Label@1720",
+          "size": [
+            172.0,
+            60.0
+          ],
+          "text": "語言",
+          "unwrapped_advance": 60.0
+        },
+        {
+          "font_size": 30,
+          "minimum_height": 44.0,
+          "node": "RailScroll/Rail/ReadingCategory/@Label@1740",
+          "size": [
+            172.0,
+            60.0
+          ],
+          "text": "閱讀",
+          "unwrapped_advance": 60.0
+        },
+        {
+          "font_size": 30,
+          "minimum_height": 44.0,
+          "node": "RailScroll/Rail/AudioCategory/@Label@1781",
+          "size": [
+            172.0,
+            60.0
+          ],
+          "text": "音訊",
+          "unwrapped_advance": 60.0
+        },
+        {
+          "font_size": 30,
+          "minimum_height": 44.0,
+          "node": "RailScroll/Rail/DisplayCategory/@Label@1803",
+          "size": [
+            172.0,
+            60.0
+          ],
+          "text": "顯示",
+          "unwrapped_advance": 60.0
+        },
+        {
+          "font_size": 30,
+          "minimum_height": 44.0,
+          "node": "RailScroll/Rail/ControlsCategory/@Label@1813",
+          "size": [
+            172.0,
+            60.0
+          ],
+          "text": "操作",
+          "unwrapped_advance": 60.0
+        },
+        {
+          "font_size": 30,
+          "minimum_height": 44.0,
+          "node": "RailScroll/Rail/AccessibilityCategory/@Label@1885",
+          "size": [
+            172.0,
+            60.0
+          ],
+          "text": "無障礙",
+          "unwrapped_advance": 90.0
+        },
+        {
+          "font_size": 30,
+          "minimum_height": 44.0,
+          "node": "RailScroll/Rail/RecordsCategory/@Label@1925",
+          "size": [
+            172.0,
+            60.0
+          ],
+          "text": "記錄",
+          "unwrapped_advance": 60.0
+        },
+        {
+          "font_size": 30,
+          "minimum_height": 44.0,
+          "node": "Heading/CategoryHeading",
+          "size": [
+            512.0,
+            64.0
+          ],
+          "text": "無障礙",
+          "unwrapped_advance": 90.0
+        },
+        {
+          "font_size": 30,
+          "minimum_height": 44.0,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityTextSizeRow/@Label@1886",
+          "size": [
+            500.0,
+            44.0
+          ],
+          "text": "文字大小",
+          "unwrapped_advance": 120.0
+        },
+        {
+          "font_size": 30,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityTextSizeRow/AccessibilityTextSizeRowControl",
+          "text": "125%",
+          "text_advance": 78.0,
+          "text_aperture": 456.0
+        },
+        {
+          "font_size": 30,
+          "minimum_height": 44.0,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityLargeTargetsRow/@Label@1895",
+          "size": [
+            500.0,
+            44.0
+          ],
+          "text": "大型操作目標",
+          "unwrapped_advance": 180.0
+        },
+        {
+          "font_size": 30,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityLargeTargetsRow/AccessibilityLargeTargetsRowControl",
+          "text": "關閉",
+          "text_advance": 60.0,
+          "text_aperture": 440.0
+        },
+        {
+          "font_size": 30,
+          "minimum_height": 44.0,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityHighContrastRow/@Label@1896",
+          "size": [
+            500.0,
+            44.0
+          ],
+          "text": "高對比度",
+          "unwrapped_advance": 120.0
+        },
+        {
+          "font_size": 30,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityHighContrastRow/AccessibilityHighContrastRowControl",
+          "text": "關閉",
+          "text_advance": 60.0,
+          "text_aperture": 440.0
+        },
+        {
+          "font_size": 30,
+          "minimum_height": 44.0,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityReducedMotionRow/@Label@1897",
+          "size": [
+            500.0,
+            44.0
+          ],
+          "text": "減少動態效果",
+          "unwrapped_advance": 180.0
+        },
+        {
+          "font_size": 30,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityReducedMotionRow/AccessibilityReducedMotionRowControl",
+          "text": "關閉",
+          "text_advance": 60.0,
+          "text_aperture": 440.0
+        },
+        {
+          "font_size": 30,
+          "minimum_height": 44.0,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityScreenShakeRow/@Label@1898",
+          "size": [
+            500.0,
+            44.0
+          ],
+          "text": "畫面震動",
+          "unwrapped_advance": 120.0
+        },
+        {
+          "font_size": 30,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityScreenShakeRow/AccessibilityScreenShakeRowControl",
+          "text": "低",
+          "text_advance": 30.0,
+          "text_aperture": 456.0
+        },
+        {
+          "font_size": 30,
+          "minimum_height": 44.0,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityColourDifferentiationRow/@Label@1907",
+          "size": [
+            500.0,
+            44.0
+          ],
+          "text": "色彩區分",
+          "unwrapped_advance": 120.0
+        },
+        {
+          "font_size": 30,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityColourDifferentiationRow/AccessibilityColourDifferentiationRowControl",
+          "text": "標準",
+          "text_advance": 60.0,
+          "text_aperture": 456.0
+        },
+        {
+          "font_size": 30,
+          "minimum_height": 44.0,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilitySoundDetailTextRow/@Label@1916",
+          "size": [
+            500.0,
+            44.0
+          ],
+          "text": "聲音細節文字",
+          "unwrapped_advance": 180.0
+        },
+        {
+          "font_size": 30,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilitySoundDetailTextRow/AccessibilitySoundDetailTextRowControl",
+          "text": "與故事相關",
+          "text_advance": 150.0,
+          "text_aperture": 456.0
+        },
+        {
+          "font_size": 30,
+          "minimum_height": 91.0,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/ListeningComfortNote",
+          "size": [
+            500.0,
+            91.0
+          ],
+          "text": "請將裝置音量調至舒適水平。如果聲音令你不適，請停止並休息。",
+          "unwrapped_advance": 870.0
+        },
+        {
+          "font_size": 30,
+          "minimum_height": 44.0,
+          "node": "Footer/ControlSample/Selected/@Label@1716",
+          "size": [
+            212.0,
+            56.0
+          ],
+          "text": "已選擇",
+          "unwrapped_advance": 90.0
+        },
+        {
+          "font_size": 30,
+          "minimum_height": 44.0,
+          "node": "Footer/ControlSample/Focus/@Label@1717",
+          "size": [
+            212.0,
+            56.0
+          ],
+          "text": "焦點",
+          "unwrapped_advance": 60.0
+        },
+        {
+          "font_size": 30,
+          "minimum_height": 44.0,
+          "node": "Footer/ControlSample/Warning/@Label@1718",
+          "size": [
+            212.0,
+            56.0
+          ],
+          "text": "警告",
+          "unwrapped_advance": 60.0
+        },
+        {
+          "font_size": 30,
+          "minimum_height": 44.0,
+          "node": "Footer/ControlSample/Unavailable/@Label@1719",
+          "size": [
+            212.0,
+            56.0
+          ],
+          "text": "無法使用",
+          "unwrapped_advance": 120.0
+        }
+      ],
+      "text_percent": 125,
+      "workfield": [
+        480,
+        64,
+        800,
+        656
+      ]
+    },
+    {
+      "colour_preset": "standard",
+      "file": "images/zh_HK-150-AfterHours-standard-desktop-accessibility.png",
+      "focus": "AccessibilityTextSizeRowControl",
+      "high_contrast": false,
+      "large_targets": false,
+      "locale": "zh_HK",
+      "logical_size": [
+        1280,
+        720
+      ],
+      "native_size": [
+        640,
+        360
+      ],
+      "palette": "AfterHours",
+      "primary_font": "res://assets/ui/contacts/fonts/source-han-sans-hc-regular.otf",
+      "sheet_extent": 1264.0,
+      "sheet_scroll": 0,
+      "state": "desktop-accessibility",
+      "text_metrics": [
+        {
+          "font_size": 36,
+          "minimum_height": 53.0,
+          "node": "RailScroll/Rail/LanguageCategory/@Label@1963",
+          "size": [
+            172.0,
+            69.0
+          ],
+          "text": "語言",
+          "unwrapped_advance": 72.0
+        },
+        {
+          "font_size": 36,
+          "minimum_height": 53.0,
+          "node": "RailScroll/Rail/ReadingCategory/@Label@1983",
+          "size": [
+            172.0,
+            69.0
+          ],
+          "text": "閱讀",
+          "unwrapped_advance": 72.0
+        },
+        {
+          "font_size": 36,
+          "minimum_height": 53.0,
+          "node": "RailScroll/Rail/AudioCategory/@Label@2024",
+          "size": [
+            172.0,
+            69.0
+          ],
+          "text": "音訊",
+          "unwrapped_advance": 72.0
+        },
+        {
+          "font_size": 36,
+          "minimum_height": 53.0,
+          "node": "RailScroll/Rail/DisplayCategory/@Label@2046",
+          "size": [
+            172.0,
+            69.0
+          ],
+          "text": "顯示",
+          "unwrapped_advance": 72.0
+        },
+        {
+          "font_size": 36,
+          "minimum_height": 53.0,
+          "node": "RailScroll/Rail/ControlsCategory/@Label@2056",
+          "size": [
+            172.0,
+            69.0
+          ],
+          "text": "操作",
+          "unwrapped_advance": 72.0
+        },
+        {
+          "font_size": 36,
+          "minimum_height": 53.0,
+          "node": "RailScroll/Rail/AccessibilityCategory/@Label@2128",
+          "size": [
+            172.0,
+            69.0
+          ],
+          "text": "無障礙",
+          "unwrapped_advance": 108.0
+        },
+        {
+          "font_size": 36,
+          "minimum_height": 53.0,
+          "node": "RailScroll/Rail/RecordsCategory/@Label@2168",
+          "size": [
+            172.0,
+            69.0
+          ],
+          "text": "記錄",
+          "unwrapped_advance": 72.0
+        },
+        {
+          "font_size": 36,
+          "minimum_height": 53.0,
+          "node": "Heading/CategoryHeading",
+          "size": [
+            512.0,
+            64.0
+          ],
+          "text": "無障礙",
+          "unwrapped_advance": 108.0
+        },
+        {
+          "font_size": 36,
+          "minimum_height": 53.0,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityTextSizeRow/@Label@2129",
+          "size": [
+            500.0,
+            53.0
+          ],
+          "text": "文字大小",
+          "unwrapped_advance": 144.0
+        },
+        {
+          "font_size": 36,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityTextSizeRow/AccessibilityTextSizeRowControl",
+          "text": "150%",
+          "text_advance": 93.0,
+          "text_aperture": 456.0
+        },
+        {
+          "font_size": 36,
+          "minimum_height": 53.0,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityLargeTargetsRow/@Label@2138",
+          "size": [
+            500.0,
+            53.0
+          ],
+          "text": "大型操作目標",
+          "unwrapped_advance": 216.0
+        },
+        {
+          "font_size": 36,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityLargeTargetsRow/AccessibilityLargeTargetsRowControl",
+          "text": "關閉",
+          "text_advance": 72.0,
+          "text_aperture": 440.0
+        },
+        {
+          "font_size": 36,
+          "minimum_height": 53.0,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityHighContrastRow/@Label@2139",
+          "size": [
+            500.0,
+            53.0
+          ],
+          "text": "高對比度",
+          "unwrapped_advance": 144.0
+        },
+        {
+          "font_size": 36,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityHighContrastRow/AccessibilityHighContrastRowControl",
+          "text": "關閉",
+          "text_advance": 72.0,
+          "text_aperture": 440.0
+        },
+        {
+          "font_size": 36,
+          "minimum_height": 53.0,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityReducedMotionRow/@Label@2140",
+          "size": [
+            500.0,
+            53.0
+          ],
+          "text": "減少動態效果",
+          "unwrapped_advance": 216.0
+        },
+        {
+          "font_size": 36,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityReducedMotionRow/AccessibilityReducedMotionRowControl",
+          "text": "關閉",
+          "text_advance": 72.0,
+          "text_aperture": 440.0
+        },
+        {
+          "font_size": 36,
+          "minimum_height": 53.0,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityScreenShakeRow/@Label@2141",
+          "size": [
+            500.0,
+            53.0
+          ],
+          "text": "畫面震動",
+          "unwrapped_advance": 144.0
+        },
+        {
+          "font_size": 36,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityScreenShakeRow/AccessibilityScreenShakeRowControl",
+          "text": "低",
+          "text_advance": 36.0,
+          "text_aperture": 456.0
+        },
+        {
+          "font_size": 36,
+          "minimum_height": 53.0,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityColourDifferentiationRow/@Label@2150",
+          "size": [
+            500.0,
+            53.0
+          ],
+          "text": "色彩區分",
+          "unwrapped_advance": 144.0
+        },
+        {
+          "font_size": 36,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilityColourDifferentiationRow/AccessibilityColourDifferentiationRowControl",
+          "text": "標準",
+          "text_advance": 72.0,
+          "text_aperture": 456.0
+        },
+        {
+          "font_size": 36,
+          "minimum_height": 53.0,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilitySoundDetailTextRow/@Label@2159",
+          "size": [
+            500.0,
+            53.0
+          ],
+          "text": "聲音細節文字",
+          "unwrapped_advance": 216.0
+        },
+        {
+          "font_size": 36,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/AccessibilitySoundDetailTextRow/AccessibilitySoundDetailTextRowControl",
+          "text": "與故事相關",
+          "text_advance": 180.0,
+          "text_aperture": 456.0
+        },
+        {
+          "font_size": 36,
+          "minimum_height": 165.0,
+          "node": "SheetScroll/Sheets/AccessibilitySheet/ListeningComfortNote",
+          "size": [
+            500.0,
+            165.0
+          ],
+          "text": "請將裝置音量調至舒適水平。如果聲音令你不適，請停止並休息。",
+          "unwrapped_advance": 1044.0
+        },
+        {
+          "font_size": 36,
+          "minimum_height": 53.0,
+          "node": "Footer/ControlSample/Selected/@Label@1959",
+          "size": [
+            212.0,
+            56.0
+          ],
+          "text": "已選擇",
+          "unwrapped_advance": 108.0
+        },
+        {
+          "font_size": 36,
+          "minimum_height": 53.0,
+          "node": "Footer/ControlSample/Focus/@Label@1960",
+          "size": [
+            212.0,
+            56.0
+          ],
+          "text": "焦點",
+          "unwrapped_advance": 72.0
+        },
+        {
+          "font_size": 36,
+          "minimum_height": 53.0,
+          "node": "Footer/ControlSample/Warning/@Label@1961",
+          "size": [
+            212.0,
+            56.0
+          ],
+          "text": "警告",
+          "unwrapped_advance": 72.0
+        },
+        {
+          "font_size": 36,
+          "minimum_height": 53.0,
+          "node": "Footer/ControlSample/Unavailable/@Label@1962",
+          "size": [
+            212.0,
+            56.0
+          ],
+          "text": "無法使用",
+          "unwrapped_advance": 144.0
+        }
+      ],
+      "text_percent": 150,
+      "workfield": [
+        480,
+        64,
+        800,
+        656
+      ]
+    },
+    {
+      "colour_preset": "standard",
+      "file": "images/en-100-AfterHours-standard-pause-preview.png",
+      "focus": "Settings",
+      "high_contrast": false,
+      "large_targets": false,
+      "locale": "en",
+      "logical_size": [
+        1280,
+        720
+      ],
+      "native_size": [
+        640,
+        360
+      ],
+      "palette": "AfterHours",
+      "primary_font": "res://assets/ui/contacts/fonts/source-sans-3-regular.ttf.woff2",
+      "sheet_extent": 126.0,
+      "sheet_scroll": 0,
+      "state": "pause-preview",
+      "text_metrics": [
+        {
+          "font_size": 24,
+          "minimum_height": 35.0,
+          "node": "RailScroll/Rail/LanguageCategory/@Label@2212",
+          "size": [
+            172.0,
+            52.0
+          ],
+          "text": "Language",
+          "unwrapped_advance": 98.0
+        },
+        {
+          "font_size": 24,
+          "minimum_height": 35.0,
+          "node": "RailScroll/Rail/ReadingCategory/@Label@2232",
+          "size": [
+            172.0,
+            52.0
+          ],
+          "text": "Reading",
+          "unwrapped_advance": 82.0
+        },
+        {
+          "font_size": 24,
+          "minimum_height": 35.0,
+          "node": "RailScroll/Rail/AudioCategory/@Label@2273",
+          "size": [
+            172.0,
+            52.0
+          ],
+          "text": "Audio",
+          "unwrapped_advance": 58.0
+        },
+        {
+          "font_size": 24,
+          "minimum_height": 35.0,
+          "node": "RailScroll/Rail/DisplayCategory/@Label@2295",
+          "size": [
+            172.0,
+            52.0
+          ],
+          "text": "Display",
+          "unwrapped_advance": 73.0
+        },
+        {
+          "font_size": 24,
+          "minimum_height": 35.0,
+          "node": "RailScroll/Rail/ControlsCategory/@Label@2305",
+          "size": [
+            172.0,
+            52.0
+          ],
+          "text": "Controls",
+          "unwrapped_advance": 85.0
+        },
+        {
+          "font_size": 24,
+          "minimum_height": 35.0,
+          "node": "RailScroll/Rail/AccessibilityCategory/@Label@2377",
+          "size": [
+            172.0,
+            52.0
+          ],
+          "text": "Accessibility",
+          "unwrapped_advance": 122.0
+        },
+        {
+          "font_size": 24,
+          "minimum_height": 35.0,
+          "node": "RailScroll/Rail/RecordsCategory/@Label@2417",
+          "size": [
+            172.0,
+            52.0
+          ],
+          "text": "Records",
+          "unwrapped_advance": 80.0
+        },
+        {
+          "font_size": 24,
+          "minimum_height": 35.0,
+          "node": "Heading/CategoryHeading",
+          "size": [
+            512.0,
+            64.0
+          ],
+          "text": "Language",
+          "unwrapped_advance": 98.0
+        },
+        {
+          "font_size": 24,
+          "minimum_height": 35.0,
+          "node": "SheetScroll/Sheets/LanguageSheet/LanguagePrimaryLocaleIdRow/@Label@2213",
+          "size": [
+            500.0,
+            35.0
+          ],
+          "text": "Primary language",
+          "unwrapped_advance": 177.0
+        },
+        {
+          "font_size": 24,
+          "node": "SheetScroll/Sheets/LanguageSheet/LanguagePrimaryLocaleIdRow/LanguageOption",
+          "text": "English",
+          "text_advance": 73.0,
+          "text_aperture": 456.0
+        },
+        {
+          "font_size": 24,
+          "minimum_height": 35.0,
+          "node": "SheetScroll/Sheets/LanguageSheet/LanguagePrimaryLocaleIdRow/LanguageStatus",
+          "size": [
+            500.0,
+            35.0
+          ],
+          "text": "English",
+          "unwrapped_advance": 73.0
+        },
+        {
+          "font_size": 24,
+          "minimum_height": 35.0,
+          "node": "SheetScroll/Sheets/LanguageSheet/LanguageDualEnabledRow/@Label@2222",
+          "size": [
+            500.0,
+            35.0
+          ],
+          "text": "Dual language",
+          "unwrapped_advance": 143.0
+        },
+        {
+          "font_size": 24,
+          "node": "SheetScroll/Sheets/LanguageSheet/LanguageDualEnabledRow/LanguageDualEnabledRowControl",
+          "text": "Off",
+          "text_advance": 30.0,
+          "text_aperture": 440.0
+        },
+        {
+          "font_size": 24,
+          "minimum_height": 35.0,
+          "node": "SheetScroll/Sheets/LanguageSheet/LanguageSecondaryLocaleIdRow/@Label@2223",
+          "size": [
+            500.0,
+            35.0
+          ],
+          "text": "Secondary language",
+          "unwrapped_advance": 204.0
+        },
+        {
+          "font_size": 24,
+          "node": "SheetScroll/Sheets/LanguageSheet/LanguageSecondaryLocaleIdRow/LanguageSecondaryLocaleIdRowControl",
+          "text": "简体中文 [draft]",
+          "text_advance": 163.0,
+          "text_aperture": 456.0
+        },
+        {
+          "font_size": 24,
+          "minimum_height": 73.0,
+          "node": "SheetScroll/Sheets/LanguageSheet/LanguageSecondaryLocaleIdRow/LanguageSecondaryLocaleIdRowStatus",
+          "size": [
+            500.0,
+            73.0
+          ],
+          "text": "Turn on Dual language to select a secondary language.",
+          "unwrapped_advance": 544.0
+        }
+      ],
+      "text_percent": 100,
+      "workfield": [
+        480,
+        64,
+        800,
+        656
+      ]
+    },
+    {
+      "colour_preset": "standard",
+      "file": "images/en-100-AfterHours-standard-pause-entered.png",
+      "focus": "LanguageCategory",
+      "high_contrast": false,
+      "large_targets": false,
+      "locale": "en",
+      "logical_size": [
+        1280,
+        720
+      ],
+      "native_size": [
+        640,
+        360
+      ],
+      "palette": "AfterHours",
+      "primary_font": "res://assets/ui/contacts/fonts/source-sans-3-regular.ttf.woff2",
+      "sheet_extent": 126.0,
+      "sheet_scroll": 0,
+      "state": "pause-entered",
+      "text_metrics": [
+        {
+          "font_size": 24,
+          "minimum_height": 35.0,
+          "node": "RailScroll/Rail/LanguageCategory/@Label@2212",
+          "size": [
+            172.0,
+            52.0
+          ],
+          "text": "Language",
+          "unwrapped_advance": 98.0
+        },
+        {
+          "font_size": 24,
+          "minimum_height": 35.0,
+          "node": "RailScroll/Rail/ReadingCategory/@Label@2232",
+          "size": [
+            172.0,
+            52.0
+          ],
+          "text": "Reading",
+          "unwrapped_advance": 82.0
+        },
+        {
+          "font_size": 24,
+          "minimum_height": 35.0,
+          "node": "RailScroll/Rail/AudioCategory/@Label@2273",
+          "size": [
+            172.0,
+            52.0
+          ],
+          "text": "Audio",
+          "unwrapped_advance": 58.0
+        },
+        {
+          "font_size": 24,
+          "minimum_height": 35.0,
+          "node": "RailScroll/Rail/DisplayCategory/@Label@2295",
+          "size": [
+            172.0,
+            52.0
+          ],
+          "text": "Display",
+          "unwrapped_advance": 73.0
+        },
+        {
+          "font_size": 24,
+          "minimum_height": 35.0,
+          "node": "RailScroll/Rail/ControlsCategory/@Label@2305",
+          "size": [
+            172.0,
+            52.0
+          ],
+          "text": "Controls",
+          "unwrapped_advance": 85.0
+        },
+        {
+          "font_size": 24,
+          "minimum_height": 35.0,
+          "node": "RailScroll/Rail/AccessibilityCategory/@Label@2377",
+          "size": [
+            172.0,
+            52.0
+          ],
+          "text": "Accessibility",
+          "unwrapped_advance": 122.0
+        },
+        {
+          "font_size": 24,
+          "minimum_height": 35.0,
+          "node": "RailScroll/Rail/RecordsCategory/@Label@2417",
+          "size": [
+            172.0,
+            52.0
+          ],
+          "text": "Records",
+          "unwrapped_advance": 80.0
+        },
+        {
+          "font_size": 24,
+          "minimum_height": 35.0,
+          "node": "Heading/CategoryHeading",
+          "size": [
+            512.0,
+            64.0
+          ],
+          "text": "Language",
+          "unwrapped_advance": 98.0
+        },
+        {
+          "font_size": 24,
+          "minimum_height": 35.0,
+          "node": "SheetScroll/Sheets/LanguageSheet/LanguagePrimaryLocaleIdRow/@Label@2213",
+          "size": [
+            500.0,
+            35.0
+          ],
+          "text": "Primary language",
+          "unwrapped_advance": 177.0
+        },
+        {
+          "font_size": 24,
+          "node": "SheetScroll/Sheets/LanguageSheet/LanguagePrimaryLocaleIdRow/LanguageOption",
+          "text": "English",
+          "text_advance": 73.0,
+          "text_aperture": 456.0
+        },
+        {
+          "font_size": 24,
+          "minimum_height": 35.0,
+          "node": "SheetScroll/Sheets/LanguageSheet/LanguagePrimaryLocaleIdRow/LanguageStatus",
+          "size": [
+            500.0,
+            35.0
+          ],
+          "text": "English",
+          "unwrapped_advance": 73.0
+        },
+        {
+          "font_size": 24,
+          "minimum_height": 35.0,
+          "node": "SheetScroll/Sheets/LanguageSheet/LanguageDualEnabledRow/@Label@2222",
+          "size": [
+            500.0,
+            35.0
+          ],
+          "text": "Dual language",
+          "unwrapped_advance": 143.0
+        },
+        {
+          "font_size": 24,
+          "node": "SheetScroll/Sheets/LanguageSheet/LanguageDualEnabledRow/LanguageDualEnabledRowControl",
+          "text": "Off",
+          "text_advance": 30.0,
+          "text_aperture": 440.0
+        },
+        {
+          "font_size": 24,
+          "minimum_height": 35.0,
+          "node": "SheetScroll/Sheets/LanguageSheet/LanguageSecondaryLocaleIdRow/@Label@2223",
+          "size": [
+            500.0,
+            35.0
+          ],
+          "text": "Secondary language",
+          "unwrapped_advance": 204.0
+        },
+        {
+          "font_size": 24,
+          "node": "SheetScroll/Sheets/LanguageSheet/LanguageSecondaryLocaleIdRow/LanguageSecondaryLocaleIdRowControl",
+          "text": "简体中文 [draft]",
+          "text_advance": 163.0,
+          "text_aperture": 456.0
+        },
+        {
+          "font_size": 24,
+          "minimum_height": 73.0,
+          "node": "SheetScroll/Sheets/LanguageSheet/LanguageSecondaryLocaleIdRow/LanguageSecondaryLocaleIdRowStatus",
+          "size": [
+            500.0,
+            73.0
+          ],
+          "text": "Turn on Dual language to select a secondary language.",
+          "unwrapped_advance": 544.0
+        }
+      ],
+      "text_percent": 100,
+      "workfield": [
+        480,
+        64,
+        800,
+        656
+      ]
+    }
+  ],
+  "scope": "Nine bare SettingsApp Accessibility sheets and two actual PauseSurface Settings custody states; real Profile/Localization/Input, in-memory storage. No full desktop, audio preview, TTS, lifecycle, or assistive-technology acceptance."
+}

@@ -1,0 +1,11 @@
+{
+  "archive": "next-run114-cloud-evidence.tar.gz",
+  "archive_member_count": 560,
+  "bytes": 18984433,
+  "evidence_kind": "bounded-successful-run-audit",
+  "excluded_file_count": 170,
+  "manifest_sha256": "95989387a5d48b34fd76986322e9213a77a7dd7f153d834de2bc83ef845b739f",
+  "payload_file_count": 558,
+  "round_trip_verified": true,
+  "sha256": "c583ba6c95ee7c76db6b34999499196adc3aa4a8598bef6d6b5a7f25fe922f17"
+}

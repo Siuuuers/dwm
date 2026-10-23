@@ -1,0 +1,8 @@
+{
+  "scripts/ui/GalleryScene.gd": "b5c9bf0d1fffd22a53ed0b9b3ab0be7e8ae4c4a559a89b5eb5f97507b3bb377f",
+  "scripts/ui/gallery/GalleryRecordButton.gd": "dd621610bd428ef12bb31061fb6ce3efb81b4757ebbd55f10d8b2523cba12479",
+  "scripts/ui/gallery/GalleryRecordIndex.gd": "de1ddefc1cc481a59ed1939be14914b0423fb248668139b3f4351257ce737a77",
+  "scenes/menu/GalleryScene.tscn": "560603429d4e85f387fc4dba5d91e3b924ac071f6ead8f630a9bd07d17bae331",
+  "tests/manual/verify_gallery_selection_accessibility.gd": "d8eeef1a929998a01db9d2750de367602deda9e01c5a7041c5b78def1c1e0906",
+  "tools/testing/Invoke-GallerySelectionAccessibility.ps1": "b674a9b435aa28ae3eb575e1c6191c3c0dcb0471f6573b9160c7cee375590872"
+}

@@ -1,0 +1,104 @@
+{
+  "status": "SCRATCH_STAGE_ONLY_REPO_UNCHANGED",
+  "files": [
+    {
+      "file": "timed-hold-focus1-failed-diagnostic-evidence.tar.gz.part001",
+      "bytes": 8388608,
+      "sha256": "9527b18553e0fd91607fb3637705db8afc581cbc7c819fe49d597d70e7f93799"
+    },
+    {
+      "file": "timed-hold-focus1-failed-diagnostic-evidence.tar.gz.part002",
+      "bytes": 8388608,
+      "sha256": "255a345eb6627a4b8b8e8f498ad127c16377b4732c708b7b50bbba3113002528"
+    },
+    {
+      "file": "timed-hold-focus1-failed-diagnostic-evidence.tar.gz.part003",
+      "bytes": 8388608,
+      "sha256": "3113fee43fc116567d650d4040aeb494c1fdc11f821635d437da373f7a1b99a5"
+    },
+    {
+      "file": "timed-hold-focus1-failed-diagnostic-evidence.tar.gz.part004",
+      "bytes": 8388608,
+      "sha256": "bf3efa9135721256a0c853ba583b2914542ccda6d343169a4e9e4d697af2a561"
+    },
+    {
+      "file": "timed-hold-focus1-failed-diagnostic-evidence.tar.gz.part005",
+      "bytes": 6209197,
+      "sha256": "d4ec213a0f8de94ee33fec30d3e3994d81dd4d97888ffdd6d515ed0ab5c38cb8"
+    },
+    {
+      "file": "focus1-package-manifest.json",
+      "bytes": 3326,
+      "sha256": "09aef68705ee380fad1078ba3fe82a58756b6d9a3252d36ea0c6144650b708f6"
+    },
+    {
+      "file": "focus1-archive-inventory.json",
+      "bytes": 31969,
+      "sha256": "6ed726270eb8d25125159934634dce85f627949088b57ede9efe5d9ccb397fd6"
+    },
+    {
+      "file": "focus1-extraction-inventory.json",
+      "bytes": 509070,
+      "sha256": "36e41c82a7f5a605c0aa7b3a12c500a1054022c3610ec17667a69f600c89d470"
+    },
+    {
+      "file": "focus1-diagnostic-summary.json",
+      "bytes": 2685,
+      "sha256": "a37329d7585fc7072144afacc3448e0d34aa0abc759ab76e9e8f1247e6be0b24"
+    },
+    {
+      "file": "timed-hold-focus2-failed-diagnostic-evidence.tar.gz",
+      "bytes": 1371000,
+      "sha256": "64a504a99d1594db56e42d084eeeaf9d4db9912d2a8b99dd32b6c9a65bbc676f"
+    },
+    {
+      "file": "focus2-package-manifest.json",
+      "bytes": 1393,
+      "sha256": "7d2ba0a3f801150510e241ac658d698fe570f91f457497a89e989775eaa95908"
+    },
+    {
+      "file": "focus2-archive-inventory.json",
+      "bytes": 22500,
+      "sha256": "6bb6ca78a7cc00b7e88ba07d5dae65b943173acb18f1b19e46fc5139ba97f02a"
+    },
+    {
+      "file": "focus2-extraction-inventory.json",
+      "bytes": 8559,
+      "sha256": "186571e5aaad39b8aad9bdc9beabbe84b329619871966eaa4c65898993d53b95"
+    },
+    {
+      "file": "focus2-diagnostic-summary.json",
+      "bytes": 2002,
+      "sha256": "653746cbc2e4873433f2ef4da7b0fcb817b6b944ad101dc7579979579f37f9be"
+    },
+    {
+      "file": "README.md",
+      "bytes": 3562,
+      "sha256": "7d636a8d9a1dc6990f24d5f6aee08934bd5c7cf42298bbd1798d7bebb689204a"
+    },
+    {
+      "file": "verify_staged_archive.py",
+      "bytes": 4656,
+      "sha256": "d38989d063921e53062ec6b053cbc74b326aaf37f0957d5e8534ef820a556234"
+    },
+    {
+      "file": "focus1-independent-roundtrip.json",
+      "bytes": 636,
+      "sha256": "a7d8255eea57d549ffadbbe333f1f289dcf76db223a78ac44464c9cd5b550ada"
+    },
+    {
+      "file": "focus2-independent-roundtrip.json",
+      "bytes": 632,
+      "sha256": "6ce3dea88627f25fc48ce1b2688f0fafa0790cacd286ce3f08d796a1260eef2c"
+    },
+    {
+      "file": "packaging-metadata-correction.json",
+      "bytes": 1044,
+      "sha256": "6d120e3d8e1773373077021903f26f7f3fedcb2d436fbf4ac8554018f46ce454"
+    }
+  ],
+  "no_current_acceptance": true,
+  "original_zip_count": 14,
+  "all_archive_roundtrips_and_raw_part_reassemblies_verified": true,
+  "portable_delivery_only_verification_passed": true
+}

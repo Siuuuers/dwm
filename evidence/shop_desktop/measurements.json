@@ -1,0 +1,171 @@
+{
+  "captures": 18,
+  "checks": 386,
+  "failures": [],
+  "fixture": "Synthetic 17 ordinary public records, transparent test textures and working ShopCopy names; no purchase owner or player data.",
+  "ok": true,
+  "samples": [
+    {
+      "blank_page": 1,
+      "capacity": 6,
+      "catalog_unchanged": true,
+      "large_targets": false,
+      "locale": "en",
+      "path": "renders/en-100-ordinary-first.png",
+      "percent": 100
+    },
+    {
+      "blank_page": 1,
+      "capacity": 6,
+      "catalog_unchanged": true,
+      "large_targets": true,
+      "locale": "en",
+      "path": "renders/en-100-large-blank.png",
+      "percent": 100
+    },
+    {
+      "blank_page": 1,
+      "capacity": 6,
+      "catalog_unchanged": true,
+      "large_targets": false,
+      "locale": "en",
+      "path": "renders/en-125-ordinary-first.png",
+      "percent": 125
+    },
+    {
+      "blank_page": 1,
+      "capacity": 6,
+      "catalog_unchanged": true,
+      "large_targets": true,
+      "locale": "en",
+      "path": "renders/en-125-large-blank.png",
+      "percent": 125
+    },
+    {
+      "blank_page": 2,
+      "capacity": 3,
+      "catalog_unchanged": true,
+      "large_targets": false,
+      "locale": "en",
+      "path": "renders/en-150-ordinary-first.png",
+      "percent": 150
+    },
+    {
+      "blank_page": 2,
+      "capacity": 3,
+      "catalog_unchanged": true,
+      "large_targets": true,
+      "locale": "en",
+      "path": "renders/en-150-large-blank.png",
+      "percent": 150
+    },
+    {
+      "blank_page": 1,
+      "capacity": 6,
+      "catalog_unchanged": true,
+      "large_targets": false,
+      "locale": "zh_CN",
+      "path": "renders/zh_CN-100-ordinary-first.png",
+      "percent": 100
+    },
+    {
+      "blank_page": 1,
+      "capacity": 6,
+      "catalog_unchanged": true,
+      "large_targets": true,
+      "locale": "zh_CN",
+      "path": "renders/zh_CN-100-large-blank.png",
+      "percent": 100
+    },
+    {
+      "blank_page": 1,
+      "capacity": 6,
+      "catalog_unchanged": true,
+      "large_targets": false,
+      "locale": "zh_CN",
+      "path": "renders/zh_CN-125-ordinary-first.png",
+      "percent": 125
+    },
+    {
+      "blank_page": 1,
+      "capacity": 6,
+      "catalog_unchanged": true,
+      "large_targets": true,
+      "locale": "zh_CN",
+      "path": "renders/zh_CN-125-large-blank.png",
+      "percent": 125
+    },
+    {
+      "blank_page": 1,
+      "capacity": 6,
+      "catalog_unchanged": true,
+      "large_targets": false,
+      "locale": "zh_CN",
+      "path": "renders/zh_CN-150-ordinary-first.png",
+      "percent": 150
+    },
+    {
+      "blank_page": 1,
+      "capacity": 6,
+      "catalog_unchanged": true,
+      "large_targets": true,
+      "locale": "zh_CN",
+      "path": "renders/zh_CN-150-large-blank.png",
+      "percent": 150
+    },
+    {
+      "blank_page": 1,
+      "capacity": 6,
+      "catalog_unchanged": true,
+      "large_targets": false,
+      "locale": "zh_HK",
+      "path": "renders/zh_HK-100-ordinary-first.png",
+      "percent": 100
+    },
+    {
+      "blank_page": 1,
+      "capacity": 6,
+      "catalog_unchanged": true,
+      "large_targets": true,
+      "locale": "zh_HK",
+      "path": "renders/zh_HK-100-large-blank.png",
+      "percent": 100
+    },
+    {
+      "blank_page": 1,
+      "capacity": 6,
+      "catalog_unchanged": true,
+      "large_targets": false,
+      "locale": "zh_HK",
+      "path": "renders/zh_HK-125-ordinary-first.png",
+      "percent": 125
+    },
+    {
+      "blank_page": 1,
+      "capacity": 6,
+      "catalog_unchanged": true,
+      "large_targets": true,
+      "locale": "zh_HK",
+      "path": "renders/zh_HK-125-large-blank.png",
+      "percent": 125
+    },
+    {
+      "blank_page": 1,
+      "capacity": 6,
+      "catalog_unchanged": true,
+      "large_targets": false,
+      "locale": "zh_HK",
+      "path": "renders/zh_HK-150-ordinary-first.png",
+      "percent": 150
+    },
+    {
+      "blank_page": 1,
+      "capacity": 6,
+      "catalog_unchanged": true,
+      "large_targets": true,
+      "locale": "zh_HK",
+      "path": "renders/zh_HK-150-large-blank.png",
+      "percent": 150
+    }
+  ]
+}

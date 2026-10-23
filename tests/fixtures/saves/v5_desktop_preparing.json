@@ -1,0 +1,203 @@
+{
+  "active_app_id": null,
+  "applied_effect_transaction_ids": [],
+  "applied_variable_transaction_ids": [],
+  "audio_context": {},
+  "checkpoint_id": "fixture-run-1:1",
+  "checkpoint_sequence": 1,
+  "command_receipts": {},
+  "committed_schedule": {
+    "commit_receipt": null,
+    "day": 1,
+    "entries": [],
+    "registry_fingerprint": null,
+    "schema_version": 1
+  },
+  "contacts": {
+    "group_action": {
+      "action_id": null,
+      "day": null,
+      "history_generated": false,
+      "inviter_id": null,
+      "opened_ids": [],
+      "participant_ids": [
+        "priscilla",
+        "lavinia"
+      ],
+      "replied_ids": [],
+      "state": "INACTIVE",
+      "transaction_id": null
+    },
+    "messages": {
+      "lavinia": [],
+      "priscilla": [],
+      "sylvia": []
+    },
+    "next_sequence": 1,
+    "read_watermarks": {
+      "lavinia": 0,
+      "priscilla": 0,
+      "sylvia": 0
+    },
+    "schedule_source_receipts": {},
+    "solo_actions": {},
+    "sylvia_hospital_witness_receipts": {},
+    "transaction_receipts": {}
+  },
+  "content_version": 1,
+  "dating": {},
+  "desktop": {
+    "board": {
+      "board": null,
+      "candidate": {
+        "frontier": {
+          "cursor": 0
+        },
+        "spec": {
+          "base_mine_count": 1,
+          "board_kind": "desktop",
+          "board_token": "board-token-1",
+          "board_token_receipt_id": "issuer_receipt.fixture-board-token-1",
+          "capability_ids": [],
+          "debug_nonce": "debug-nonce-1",
+          "debug_nonce_receipt_id": "issuer_receipt.fixture-debug-nonce-1",
+          "debug_stream_id": "minesweeper_debug_v1",
+          "difficulty_id": "beginner",
+          "explosion_nonce": "explosion-nonce-1",
+          "explosion_nonce_receipt_id": "issuer_receipt.fixture-explosion-nonce-1",
+          "explosion_stream_id": "minesweeper_explosion_v1",
+          "generator_version": "dwm_generator_v1",
+          "height": 3,
+          "penalty_points_today": 0,
+          "placement_nonce": "placement-nonce-1",
+          "placement_nonce_receipt_id": "issuer_receipt.fixture-placement-nonce-1",
+          "placement_stream_id": "minesweeper_placement_v1",
+          "pressure": 0,
+          "raw_extra_mines": 0,
+          "requested_mine_count": 1,
+          "schema_version": 1,
+          "verifier_version": "visible_deduction_v1",
+          "width": 3
+        }
+      },
+      "command_receipts": {
+        "txn-debug-begin": {
+          "command_kind": "debug_begin",
+          "identity_fingerprint": "dc2053eb92d449546946c2893a00945c5e470277d386ca40cf25bc8110f9aaad",
+          "post_revision": 1,
+          "pre_revision": 0,
+          "request_fingerprint": "ce886d5fdef5271476102c471b5cc28b7e2bb1fe57d11ffcaf02cbd84de19979",
+          "result": {
+            "code": "ok",
+            "ok": true,
+            "receipt": {},
+            "value": {
+              "board": null,
+              "candidate": {
+                "frontier": {
+                  "cursor": 0
+                },
+                "spec": {
+                  "base_mine_count": 1,
+                  "board_kind": "desktop",
+                  "board_token": "board-token-1",
+                  "board_token_receipt_id": "issuer_receipt.fixture-board-token-1",
+                  "capability_ids": [],
+                  "debug_nonce": "debug-nonce-1",
+                  "debug_nonce_receipt_id": "issuer_receipt.fixture-debug-nonce-1",
+                  "debug_stream_id": "minesweeper_debug_v1",
+                  "difficulty_id": "beginner",
+                  "explosion_nonce": "explosion-nonce-1",
+                  "explosion_nonce_receipt_id": "issuer_receipt.fixture-explosion-nonce-1",
+                  "explosion_stream_id": "minesweeper_explosion_v1",
+                  "generator_version": "dwm_generator_v1",
+                  "height": 3,
+                  "penalty_points_today": 0,
+                  "placement_nonce": "placement-nonce-1",
+                  "placement_nonce_receipt_id": "issuer_receipt.fixture-placement-nonce-1",
+                  "placement_stream_id": "minesweeper_placement_v1",
+                  "pressure": 0,
+                  "raw_extra_mines": 0,
+                  "requested_mine_count": 1,
+                  "schema_version": 1,
+                  "verifier_version": "visible_deduction_v1",
+                  "width": 3
+                }
+              },
+              "identity": {
+                "app_round_ordinal": 1,
+                "branch_id": "fixture-branch-1",
+                "causal_day_instance": "fixture-causal-day-1",
+                "desktop_timeline_generation": 0,
+                "run_id": "fixture-run-1"
+              },
+              "phase": "PREPARING",
+              "revision": 1,
+              "settlement": null
+            }
+          }
+        }
+      },
+      "identity": {
+        "app_round_ordinal": 1,
+        "branch_id": "fixture-branch-1",
+        "causal_day_instance": "fixture-causal-day-1",
+        "desktop_timeline_generation": 0,
+        "run_id": "fixture-run-1"
+      },
+      "phase": "PREPARING",
+      "revision": 1,
+      "schema_version": 1,
+      "settlement": null,
+      "terminal_receipts": {}
+    },
+    "consequence": {
+      "causal_day_instance": "fixture-causal-day-1",
+      "causal_day_instance_issuer_receipt": {
+        "counter": 1,
+        "namespace": "fixturenamespace",
+        "numeric_value": null,
+        "purpose": "causal_day_instance",
+        "receipt_id": "issuer_receipt.fixture-fixture-causal-day-1",
+        "token": "fixture-causal-day-1"
+      },
+      "causal_sequence": 0,
+      "outbox": {},
+      "pending": null,
+      "run_revision": 0,
+      "schema_version": 1,
+      "shop_ledger": {
+        "base_completion_receipts": [],
+        "supportz_branch_purchase_count": 0,
+        "supportz_last_purchase_causal_day_instance": ""
+      }
+    }
+  },
+  "gameplay": {
+    "narrative_variables": {}
+  },
+  "lifecycle": {
+    "active_resolution_plan": null,
+    "branch_id": "fixture-branch-1",
+    "causal_day_instance": "fixture-causal-day-1",
+    "causal_day_instance_issuer_receipt": {
+      "counter": 1,
+      "namespace": "fixturenamespace",
+      "numeric_value": null,
+      "purpose": "causal_day_instance",
+      "receipt_id": "issuer_receipt.fixture-fixture-causal-day-1",
+      "token": "fixture-causal-day-1"
+    },
+    "day": 1,
+    "desktop_timeline_generation": 0,
+    "ending_plan": null,
+    "restore_provenance": null,
+    "run_id": "fixture-run-1",
+    "state": "PLAYING",
+    "dark_mode": false
+  },
+  "narrative_checkpoint": {},
+  "route_id": "main",
+  "run_id": "fixture-run-1",
+  "schema_version": 5
+}

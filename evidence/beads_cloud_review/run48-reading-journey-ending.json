@@ -1,0 +1,74 @@
+{
+  "repository": "Siuuuers/dwm",
+  "run_id": 35648249324,
+  "run_number": 48,
+  "head_sha": "eccf563e5cf5fbe287b4e55a6ea6d81578f8baae",
+  "tested_merge_sha": "9ea410cb292bff0fbf23e0125fd68f5c5af1ae0e",
+  "reading_delivery": {
+    "job_id": 106494779645,
+    "conclusion": "success",
+    "tests": 210,
+    "scripts": 16,
+    "process_exit_code": 0,
+    "artifact": {
+      "id": 10660703959,
+      "sha256": "91bcf6032c40454184cc8c7034e8d4ce441e7244dd0be9f279dd05f30d835bbd",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/35648249324/artifacts/10660703959"
+    },
+    "claim_limit": "DWM_DTL_TEXT_PUBLICATION diagnostics are retained in the artifact test log but are not echoed by the successful job; specific publication timings have not been inspected.",
+    "saved_job_log": {
+      "path": "/tmp/dwm-run48-job-106494779645.log",
+      "bytes": 432308,
+      "sha256": "62d704f588171ef01e0f27f56d6622676230bf4887d678714a5d4c3f734d6301",
+      "format": "UTF-8 decoded tool log, CRLF normalized to LF"
+    }
+  },
+  "rendered_journeys": {
+    "job_id": 106494778972,
+    "conclusion": "success",
+    "cases": [
+      "seven-days-ending-gallery",
+      "seven-days-condition-ending",
+      "dating-reload",
+      "practice-empty-dtl",
+      "practice-legacy-compatibility"
+    ],
+    "verified_marker": "PLAYABLE_JOURNEYS_VERIFIED: 5 isolated rendered cases",
+    "verification": "Each case passed the driver's nonzero-exit, timeout, script/error, resource-leak, exact required/forbidden marker, isolated user directory and PNG capture checks.",
+    "claim_limit": "Detailed per-case JSON and screenshot hashes are in the uploaded artifact, not echoed in the successful job log.",
+    "saved_job_log": {
+      "path": "/tmp/dwm-run48-job-106494778972.log",
+      "bytes": 478473,
+      "sha256": "ca5dd6fadf58a48afcc1bc183d74ad1333022a877aeef0848e9823cc704879b8",
+      "format": "UTF-8 decoded tool log, CRLF normalized to LF"
+    },
+    "artifact": {
+      "id": 10661642079,
+      "bytes": 6343660,
+      "sha256": "54ca3bbe9a6a3d5b612d5053a32db359644a0cb5ff1b8f56d01dc6094fcef8b5",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/35648249324/artifacts/10661642079"
+    }
+  },
+  "endings": {
+    "job_id": 106494779686,
+    "conclusion": "failure",
+    "tests": 106,
+    "passed": 105,
+    "failed": 1,
+    "scripts": 12,
+    "failure": {
+      "script": "tests/unit/test_ending_frozen_context.gd",
+      "test": "test_game_owner_admits_ending_with_real_nullable_day_closures_and_retains_only_counted_pair_receipts",
+      "line": 110,
+      "code": "invalid_pair_form"
+    },
+    "diagnosis": "The new fixture directly installs real Day2/Day6 counted closure receipts but omitted the first-counted-encounter pair draw. It therefore legitimately activates pair-ending eligibility with no selected form and fails before reaching seed capture.",
+    "pending_repair": "Prepare the Profile-owned draw through PairDeckDrawPort before installing the first counted Day2 closure; retain all null/count/receipt/checkpoint assertions. Runtime unverified.",
+    "saved_job_log": {
+      "path": "/tmp/dwm-run48-job-106494779686.log",
+      "bytes": 1363484,
+      "sha256": "1068e3808d42052f8818c7fab86b1bb868ee2fee8b737f5bffce7031effdb7ae",
+      "format": "UTF-8 decoded tool log, CRLF normalized to LF"
+    }
+  }
+}

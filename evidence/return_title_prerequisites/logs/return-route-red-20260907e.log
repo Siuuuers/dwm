@@ -1,0 +1,113 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-ui-build/.godot/phase2r_tests/f673805d-eca0-4b94-9d7d-34d47432cfc9/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+
+
+res://tests/unit/test_return_input_retirement.gd
+* test_abandonment_custody_excludes_other_owners_and_external_commands
+* test_retirement_requires_exact_suspended_handle_and_dedicated_custody
+* test_held_contact_survives_retirement_until_release_and_next_frame
+* test_retry_does_not_requarantine_fresh_input_or_retire_new_pause
+* test_retirement_refuses_fatal_gate_and_leaves_suspension_intact
+* test_retired_handles_cannot_be_reacquired_even_after_another_retirement
+6/6 passed.
+
+
+res://tests/unit/test_return_title_route.gd
+* test_prepare_retains_actual_off_tree_title_without_changing_source_or_focus
+    [Failed]:  Missing Title capability: prepare_return_to_title
+      at line 91
+* test_competing_transaction_and_foreign_tokens_refuse_without_retiring_source
+    [Failed]:  Missing Title capability: prepare_return_to_title
+      at line 111
+* test_source_replacement_and_queued_source_make_preparation_stale
+    [Failed]:  Missing Title capability: prepare_return_to_title
+      at line 129
+* test_restore_apply_then_rollback_cannot_revalidate_an_old_title_capability
+    [Failed]:  Missing Title capability: prepare_return_to_title
+      at line 146
+* test_publication_mounts_same_prepared_instance_once_and_reentrant_routes_refuse
+    [Failed]:  Missing Title capability: prepare_return_to_title
+      at line 160
+* test_preparation_refuses_missing_source_and_startup_hold_without_publishing
+    [Failed]:  Missing Title capability: prepare_return_to_title
+      at line 192
+0/6 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/unit/test_return_input_retirement.gd
+    - Outside Tests
+        * [<Node#100579411692>(subsystem_animation.gd)]
+        * [<Node#100596188909>(subsystem_audio.gd)]
+        * [<Node#100612966126>]
+        * [<Node#100629743343>]
+        * [<Node#100646520560>(subsystem_backgrounds.gd)]
+        * [<Node#101183391473>(subsystem_choices.gd)]
+        * [<Timer#101200168690>]
+        * [<Node#101216945907>(subsystem_expression.gd)]
+        * [<Node#101250500344>(subsystem_glossary.gd)]
+        * [<Node#101267277561>(subsystem_history.gd)]
+        * [<Node#101284054778>(subsystem_input.gd)]
+        * [<Timer#101300831995>]
+        * [<Node#101317609212>(subsystem_jump.gd)]
+        * [<Node#101334386429>(subsystem_containers.gd)]
+        * [<Node#101351163646>(subsystem_portraits.gd)]
+        * [<Node#101888034559>(subsystem_save.gd)]
+        * [<Timer#101904811776>]
+        * [<Node#101921588993>(subsystem_settings.gd)]
+        * [<Node#101938366213>(subsystem_styles.gd)]
+        * [<Node#101955143430>(subsystem_text.gd)]
+        * [<Node#102039029515>(subsystem_text_input.gd)]
+        * [<Node#102055806732>(subsystem_variables.gd)]
+        * [<Node#102072583949>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#102089361166>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+res://tests/unit/test_return_title_route.gd
+- test_prepare_retains_actual_off_tree_title_without_changing_source_or_focus
+    [Failed]:  Missing Title capability: prepare_return_to_title
+          at line 91
+- test_competing_transaction_and_foreign_tokens_refuse_without_retiring_source
+    [Failed]:  Missing Title capability: prepare_return_to_title
+          at line 111
+- test_source_replacement_and_queued_source_make_preparation_stale
+    [Failed]:  Missing Title capability: prepare_return_to_title
+          at line 129
+- test_restore_apply_then_rollback_cannot_revalidate_an_old_title_capability
+    [Failed]:  Missing Title capability: prepare_return_to_title
+          at line 146
+- test_publication_mounts_same_prepared_instance_once_and_reentrant_routes_refuse
+    [Failed]:  Missing Title capability: prepare_return_to_title
+          at line 160
+- test_preparation_refuses_missing_source_and_startup_hold_without_publishing
+    [Failed]:  Missing Title capability: prepare_return_to_title
+          at line 192
+
+Totals
+------
+Scripts               2
+Tests                12
+Passing Tests         6
+Failing Tests         6
+Asserts           62/68
+Orphans              24
+Time              0.545s
+
+
+---- 6 failing tests ----
+

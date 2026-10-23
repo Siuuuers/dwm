@@ -1,0 +1,291 @@
+﻿2026-10-02T18:26:29.2784388Z Current runner version: '2.337.0'
+2026-10-02T18:26:29.2833818Z ##[group]Runner Image Provisioner
+2026-10-02T18:26:29.2834730Z Hosted Compute Agent
+2026-10-02T18:26:29.2835362Z Version: 20260901.588
+2026-10-02T18:26:29.2836353Z Commit: f88ec8081b781fac6c440065ac7ff9e710ce3d0b
+2026-10-02T18:26:29.2837155Z Build Date: 2026-09-01T19:56:44Z
+2026-10-02T18:26:29.2837968Z Worker ID: {68c0c538-5f13-419b-af12-6ea82cf87e05}
+2026-10-02T18:26:29.2838748Z Azure Region: westus
+2026-10-02T18:26:29.2839352Z ##[endgroup]
+2026-10-02T18:26:29.2840921Z ##[group]Operating System
+2026-10-02T18:26:29.2841602Z Ubuntu
+2026-10-02T18:26:29.2842164Z 24.04.5
+2026-10-02T18:26:29.2842788Z LTS
+2026-10-02T18:26:29.2843323Z ##[endgroup]
+2026-10-02T18:26:29.2843976Z ##[group]Runner Image
+2026-10-02T18:26:29.2844590Z Image: ubuntu-24.04
+2026-10-02T18:26:29.2845197Z Version: 20260927.320.1
+2026-10-02T18:26:29.2846798Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20260927.320/images/ubuntu/Ubuntu2404-Readme.md
+2026-10-02T18:26:29.2848488Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20260927.320
+2026-10-02T18:26:29.2849515Z ##[endgroup]
+2026-10-02T18:26:29.2850751Z ##[group]GITHUB_TOKEN Permissions
+2026-10-02T18:26:29.2852715Z Actions: read
+2026-10-02T18:26:29.2853338Z Contents: read
+2026-10-02T18:26:29.2854039Z Metadata: read
+2026-10-02T18:26:29.2854642Z ##[endgroup]
+2026-10-02T18:26:29.2857276Z Secret source: Actions
+2026-10-02T18:26:29.2858313Z Cache mode: write
+2026-10-02T18:26:29.2859106Z Prepare workflow directory
+2026-10-02T18:26:29.3267787Z Prepare all required actions
+2026-10-02T18:26:29.3317684Z Getting action download info
+2026-10-02T18:26:29.7127214Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2026-10-02T18:26:30.0685792Z Complete job name: Transport verified original Windows export evidence
+2026-10-02T18:26:30.1459170Z ##[group]Run set -euo pipefail
+2026-10-02T18:26:30.1459863Z [36;1mset -euo pipefail[0m
+2026-10-02T18:26:30.1460687Z [36;1mexport DWM_EXPORT_TRANSPORT_ROOT="$RUNNER_TEMP/hospital-export-evidence"[0m
+2026-10-02T18:26:30.1461581Z [36;1mmkdir -p "$DWM_EXPORT_TRANSPORT_ROOT"[0m
+2026-10-02T18:26:30.1463196Z [36;1mgh api repos/Siuuuers/dwm/actions/artifacts/11244640103 --jq '{id,name,size_in_bytes,digest,expired,workflow_run:{id:.workflow_run.id,head_sha:.workflow_run.head_sha}}' > "$DWM_EXPORT_TRANSPORT_ROOT/source-metadata.json"[0m
+2026-10-02T18:26:30.1465199Z [36;1mgh api repos/Siuuuers/dwm/actions/artifacts/11244640103/zip > "$DWM_EXPORT_TRANSPORT_ROOT/original.zip"[0m
+2026-10-02T18:26:30.1748509Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-02T18:26:30.1749576Z env:
+2026-10-02T18:26:30.1753958Z   GH_TOKEN: ***
+2026-10-02T18:26:30.1754438Z ##[endgroup]
+2026-10-02T18:26:37.4555922Z ##[group]Run set -euo pipefail
+2026-10-02T18:26:37.4557101Z [36;1mset -euo pipefail[0m
+2026-10-02T18:26:37.4558096Z [36;1mexport DWM_EXPORT_TRANSPORT_ROOT="$RUNNER_TEMP/hospital-export-evidence"[0m
+2026-10-02T18:26:37.4559201Z [36;1mpython3 - <<'PY'[0m
+2026-10-02T18:26:37.4559820Z [36;1mimport hashlib[0m
+2026-10-02T18:26:37.4560423Z [36;1mimport json[0m
+2026-10-02T18:26:37.4561000Z [36;1mimport os[0m
+2026-10-02T18:26:37.4561595Z [36;1mfrom pathlib import Path[0m
+2026-10-02T18:26:37.4562277Z [36;1mimport zipfile[0m
+2026-10-02T18:26:37.4562852Z [36;1m[0m
+2026-10-02T18:26:37.4563334Z [36;1m[0m
+2026-10-02T18:26:37.4563864Z [36;1mdef require(condition, detail):[0m
+2026-10-02T18:26:37.4564582Z [36;1m    if not condition:[0m
+2026-10-02T18:26:37.4565255Z [36;1m        raise ValueError(detail)[0m
+2026-10-02T18:26:37.4566169Z [36;1m[0m
+2026-10-02T18:26:37.4566706Z [36;1m[0m
+2026-10-02T18:26:37.4567220Z [36;1mdef strict_json(text):[0m
+2026-10-02T18:26:37.4567923Z [36;1m    def pairs(values):[0m
+2026-10-02T18:26:37.4568573Z [36;1m        result = {}[0m
+2026-10-02T18:26:37.4569228Z [36;1m        for key, value in values:[0m
+2026-10-02T18:26:37.4570147Z [36;1m            require(key not in result, 'DUPLICATE_JSON_KEY')[0m
+2026-10-02T18:26:37.4571238Z [36;1m            result[key] = value[0m
+2026-10-02T18:26:37.4571920Z [36;1m        return result[0m
+2026-10-02T18:26:37.4572686Z [36;1m    return json.loads(text, object_pairs_hook=pairs)[0m
+2026-10-02T18:26:37.4573471Z [36;1m[0m
+2026-10-02T18:26:37.4573963Z [36;1m[0m
+2026-10-02T18:26:37.4574479Z [36;1mdef sha256(path):[0m
+2026-10-02T18:26:37.4575123Z [36;1m    with path.open('rb') as stream:[0m
+2026-10-02T18:26:37.4576284Z [36;1m        return hashlib.file_digest(stream, 'sha256').hexdigest()[0m
+2026-10-02T18:26:37.4577193Z [36;1m[0m
+2026-10-02T18:26:37.4577692Z [36;1m[0m
+2026-10-02T18:26:37.4578580Z [36;1mdef verify_split(archive, metadata, destination, expected, chunk_bytes, transport):[0m
+2026-10-02T18:26:37.4580019Z [36;1m    require(metadata.get('id') == expected['artifact_id'], 'SOURCE_ARTIFACT_ID_MISMATCH')[0m
+2026-10-02T18:26:37.4581481Z [36;1m    require(metadata.get('expired') is False, 'SOURCE_ARTIFACT_EXPIRED')[0m
+2026-10-02T18:26:37.4582899Z [36;1m    require(metadata.get('size_in_bytes') == expected['size_in_bytes'], 'SOURCE_API_SIZE_MISMATCH')[0m
+2026-10-02T18:26:37.4584461Z [36;1m    require(metadata.get('digest') == 'sha256:' + expected['sha256'], 'SOURCE_API_DIGEST_MISMATCH')[0m
+2026-10-02T18:26:37.4585672Z [36;1m    source_run = metadata.get('workflow_run', {})[0m
+2026-10-02T18:26:37.4587496Z [36;1m    require(source_run.get('id') == expected['run_id'], 'SOURCE_RUN_MISMATCH')[0m
+2026-10-02T18:26:37.4588955Z [36;1m    require(source_run.get('head_sha') == expected['workflow_head'], 'SOURCE_WORKFLOW_HEAD_MISMATCH')[0m
+2026-10-02T18:26:37.4590615Z [36;1m    require(isinstance(metadata.get('name'), str) and bool(metadata['name']), 'SOURCE_ARTIFACT_NAME_REQUIRED')[0m
+2026-10-02T18:26:37.4592146Z [36;1m    require(archive.is_file() and not archive.is_symlink(), 'ORIGINAL_ZIP_REQUIRED')[0m
+2026-10-02T18:26:37.4593580Z [36;1m    require(archive.stat().st_size == expected['size_in_bytes'], 'ORIGINAL_ZIP_SIZE_MISMATCH')[0m
+2026-10-02T18:26:37.4594974Z [36;1m    require(sha256(archive) == expected['sha256'], 'ORIGINAL_ZIP_SHA256_MISMATCH')[0m
+2026-10-02T18:26:37.4596694Z [36;1m    require(type(chunk_bytes) is int and 0 < chunk_bytes <= 25 * 1024 * 1024, 'BOUNDED_CHUNK_SIZE_REQUIRED')[0m
+2026-10-02T18:26:37.4597936Z [36;1m    with zipfile.ZipFile(archive) as opened:[0m
+2026-10-02T18:26:37.4598867Z [36;1m        require(bool(opened.infolist()), 'EMPTY_ORIGINAL_ZIP')[0m
+2026-10-02T18:26:37.4599980Z [36;1m        require(opened.testzip() is None, 'ORIGINAL_ZIP_CRC_MISMATCH')[0m
+2026-10-02T18:26:37.4600976Z [36;1m        member_count = len(opened.infolist())[0m
+2026-10-02T18:26:37.4602229Z [36;1m    # No chunk exists until metadata, original bytes and every member CRC pass.[0m
+2026-10-02T18:26:37.4603588Z [36;1m    require(not destination.exists(), 'REFUSE_EXISTING_TRANSPORT_OUTPUT')[0m
+2026-10-02T18:26:37.4604584Z [36;1m    destination.mkdir(parents=True)[0m
+2026-10-02T18:26:37.4605293Z [36;1m    chunks = [][0m
+2026-10-02T18:26:37.4606143Z [36;1m    with archive.open('rb') as stream:[0m
+2026-10-02T18:26:37.4606917Z [36;1m        offset = 0[0m
+2026-10-02T18:26:37.4607866Z [36;1m        for index in range(1, (expected['size_in_bytes'] + chunk_bytes - 1) // chunk_bytes + 1):[0m
+2026-10-02T18:26:37.4608953Z [36;1m            data = stream.read(chunk_bytes)[0m
+2026-10-02T18:26:37.4609790Z [36;1m            require(bool(data), 'UNEXPECTED_SHORT_ARCHIVE')[0m
+2026-10-02T18:26:37.4610667Z [36;1m            name = f'original.zip.part{index:03d}'[0m
+2026-10-02T18:26:37.4611456Z [36;1m            path = destination / name[0m
+2026-10-02T18:26:37.4612214Z [36;1m            with path.open('xb') as output:[0m
+2026-10-02T18:26:37.4613007Z [36;1m                output.write(data)[0m
+2026-10-02T18:26:37.4613920Z [36;1m            chunks.append({'index': index, 'file': name, 'offset': offset,[0m
+2026-10-02T18:26:37.4615033Z [36;1m                           'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()})[0m
+2026-10-02T18:26:37.4616405Z [36;1m            offset += len(data)[0m
+2026-10-02T18:26:37.4617515Z [36;1m        require(stream.read(1) == b'' and offset == expected['size_in_bytes'], 'SPLIT_BYTE_COUNT_MISMATCH')[0m
+2026-10-02T18:26:37.4618964Z [36;1m    # Independently stream all written chunk files in order; never replace/repack ZIP.[0m
+2026-10-02T18:26:37.4620004Z [36;1m    combined = hashlib.sha256()[0m
+2026-10-02T18:26:37.4620683Z [36;1m    combined_bytes = 0[0m
+2026-10-02T18:26:37.4621317Z [36;1m    for chunk in chunks:[0m
+2026-10-02T18:26:37.4622001Z [36;1m        path = destination / chunk['file'][0m
+2026-10-02T18:26:37.4623212Z [36;1m        require(path.stat().st_size == chunk['bytes'] and sha256(path) == chunk['sha256'], 'WRITTEN_CHUNK_MISMATCH')[0m
+2026-10-02T18:26:37.4624403Z [36;1m        with path.open('rb') as stream:[0m
+2026-10-02T18:26:37.4625183Z [36;1m            while data := stream.read(1024 * 1024):[0m
+2026-10-02T18:26:37.4626188Z [36;1m                combined.update(data)[0m
+2026-10-02T18:26:37.4627017Z [36;1m                combined_bytes += len(data)[0m
+2026-10-02T18:26:37.4628206Z [36;1m    require(combined_bytes == expected['size_in_bytes'] and combined.hexdigest() == expected['sha256'],[0m
+2026-10-02T18:26:37.4629442Z [36;1m            'REASSEMBLED_ORIGINAL_IDENTITY_MISMATCH')[0m
+2026-10-02T18:26:37.4630200Z [36;1m    manifest = {[0m
+2026-10-02T18:26:37.4630800Z [36;1m        'schema_version': 1,[0m
+2026-10-02T18:26:37.4632006Z [36;1m        'purpose': 'Exact original GitHub artifact ZIP transport; no engine execution or evidence reinterpretation.',[0m
+2026-10-02T18:26:37.4633233Z [36;1m        'source_artifact': {[0m
+2026-10-02T18:26:37.4634248Z [36;1m            'repository': expected['repository'], 'id': metadata['id'], 'name': metadata['name'],[0m
+2026-10-02T18:26:37.4635577Z [36;1m            'size_in_bytes': metadata['size_in_bytes'], 'digest': metadata['digest'],[0m
+2026-10-02T18:26:37.4637049Z [36;1m            'run_id': source_run['id'], 'workflow_head': source_run['head_sha'],[0m
+2026-10-02T18:26:37.4637967Z [36;1m        },[0m
+2026-10-02T18:26:37.4638870Z [36;1m        'original_zip': {'bytes': expected['size_in_bytes'], 'sha256': expected['sha256'],[0m
+2026-10-02T18:26:37.4640043Z [36;1m                         'crc_verified': True, 'member_count': member_count},[0m
+2026-10-02T18:26:37.4641189Z [36;1m        'chunk_size_limit': chunk_bytes, 'chunk_count': len(chunks), 'chunks': chunks,[0m
+2026-10-02T18:26:37.4642299Z [36;1m        'ordered_chunk_reassembly_matches_original': True,[0m
+2026-10-02T18:26:37.4643151Z [36;1m        'transport_execution': transport,[0m
+2026-10-02T18:26:37.4645044Z [36;1m        'reassembly': 'Concatenate raw chunk contents in ascending index, verify each chunk and final original size/SHA256, then verify original ZIP CRC before normal extraction/audit.',[0m
+2026-10-02T18:26:37.4647298Z [36;1m        'limits': ['Transport success is not original workflow or exported-build acceptance.',[0m
+2026-10-02T18:26:37.4648929Z [36;1m                   'Uploaded chunk artifacts are wrappers; use their extracted raw part files for original ZIP reconstruction.'],[0m
+2026-10-02T18:26:37.4650164Z [36;1m    }[0m
+2026-10-02T18:26:37.4650842Z [36;1m    manifest_path = destination / 'transport-manifest.json'[0m
+2026-10-02T18:26:37.4652011Z [36;1m    manifest_path.write_text(json.dumps(manifest, indent=2) + '\n', encoding='utf-8')[0m
+2026-10-02T18:26:37.4653540Z [36;1m    require(strict_json(manifest_path.read_text(encoding='utf-8')) == manifest, 'MANIFEST_JSON_ROUNDTRIP_MISMATCH')[0m
+2026-10-02T18:26:37.4654803Z [36;1m    return manifest[0m
+2026-10-02T18:26:37.4655376Z [36;1m[0m
+2026-10-02T18:26:37.4655855Z [36;1m[0m
+2026-10-02T18:26:37.4656498Z [36;1mif __name__ == '__main__':[0m
+2026-10-02T18:26:37.4658676Z [36;1m    expected = {'repository': 'Siuuuers/dwm', 'artifact_id': 11244640103, 'size_in_bytes': 98850774, 'sha256': 'e2739823bc11ab4a336072c1a437af8711f54c3dee248a6e388b42c6947d8cc9', 'run_id': 37044894986, 'workflow_head': '1bc4f6afd759e969f82b9c2134eb178479c19d13'}[0m
+2026-10-02T18:26:37.4661188Z [36;1m    root = Path(os.environ['DWM_EXPORT_TRANSPORT_ROOT'])[0m
+2026-10-02T18:26:37.4662356Z [36;1m    metadata = strict_json((root / 'source-metadata.json').read_text(encoding='utf-8'))[0m
+2026-10-02T18:26:37.4663489Z [36;1m    transport = {key: os.environ.get(key, '') for key in[0m
+2026-10-02T18:26:37.4664685Z [36;1m                 ('GITHUB_REPOSITORY', 'GITHUB_RUN_ID', 'GITHUB_RUN_ATTEMPT', 'GITHUB_SHA', 'GITHUB_JOB')}[0m
+2026-10-02T18:26:37.4666320Z [36;1m    manifest = verify_split(root / 'original.zip', metadata, root / 'parts', expected, 26214400, transport)[0m
+2026-10-02T18:26:37.4667686Z [36;1m    require(manifest['chunk_count'] == 4, 'EXPECTED_EXACTLY_FOUR_CHUNKS')[0m
+2026-10-02T18:26:37.4668848Z [36;1m    print(json.dumps({'original_sha256': manifest['original_zip']['sha256'],[0m
+2026-10-02T18:26:37.4669925Z [36;1m                      'original_bytes': manifest['original_zip']['bytes'],[0m
+2026-10-02T18:26:37.4670966Z [36;1m                      'chunk_count': manifest['chunk_count'], 'crc_verified': True,[0m
+2026-10-02T18:26:37.4671920Z [36;1m                      'reassembly_verified': True}))[0m
+2026-10-02T18:26:37.4672626Z [36;1mPY[0m
+2026-10-02T18:26:37.4737189Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-02T18:26:37.4737982Z ##[endgroup]
+2026-10-02T18:26:38.0782171Z {"original_sha256": "e2739823bc11ab4a336072c1a437af8711f54c3dee248a6e388b42c6947d8cc9", "original_bytes": 98850774, "chunk_count": 4, "crc_verified": true, "reassembly_verified": true}
+2026-10-02T18:26:38.1006348Z ##[group]Run actions/upload-artifact@v4
+2026-10-02T18:26:38.1007666Z with:
+2026-10-02T18:26:38.1008735Z   name: hospital-export-original-part001-37047435988-1
+2026-10-02T18:26:38.1010804Z   path: /home/runner/work/_temp/hospital-export-evidence/parts/original.zip.part001
+2026-10-02T18:26:38.1012676Z   compression-level: 0
+2026-10-02T18:26:38.1013682Z   if-no-files-found: error
+2026-10-02T18:26:38.1014698Z   retention-days: 7
+2026-10-02T18:26:38.1015603Z   overwrite: false
+2026-10-02T18:26:38.1016725Z   include-hidden-files: false
+2026-10-02T18:26:38.1017803Z ##[endgroup]
+2026-10-02T18:26:38.2770393Z (node:2212) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-02T18:26:38.2773766Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-02T18:26:38.2832883Z With the provided path, there will be 1 file uploaded
+2026-10-02T18:26:38.2836788Z Artifact name is valid!
+2026-10-02T18:26:38.2838678Z Root directory input is valid!
+2026-10-02T18:26:38.6972004Z Beginning upload of artifact content to blob storage
+2026-10-02T18:26:38.7448120Z (node:2212) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-10-02T18:26:39.6263027Z Uploaded bytes 8388608
+2026-10-02T18:26:39.6271130Z Uploaded bytes 16777216
+2026-10-02T18:26:39.6530674Z Uploaded bytes 25165824
+2026-10-02T18:26:39.7358269Z Uploaded bytes 26214554
+2026-10-02T18:26:39.8081239Z Finished uploading artifact content to blob storage!
+2026-10-02T18:26:39.8082368Z SHA256 digest of uploaded artifact zip is 482bdfd23356109d29c28a0687c322ff9dac9677ab95d2e8d8c40a63e0f4d28d
+2026-10-02T18:26:39.8084243Z Finalizing artifact upload
+2026-10-02T18:26:40.1186379Z Artifact hospital-export-original-part001-37047435988-1.zip successfully finalized. Artifact ID 11245601148
+2026-10-02T18:26:40.1187716Z Artifact hospital-export-original-part001-37047435988-1 has been successfully uploaded! Final size is 26214554 bytes. Artifact ID is 11245601148
+2026-10-02T18:26:40.1193237Z Artifact download URL: https://github.com/Siuuuers/dwm/actions/runs/37047435988/artifacts/11245601148
+2026-10-02T18:26:40.1393138Z ##[group]Run actions/upload-artifact@v4
+2026-10-02T18:26:40.1393671Z with:
+2026-10-02T18:26:40.1393989Z   name: hospital-export-original-part002-37047435988-1
+2026-10-02T18:26:40.1394492Z   path: /home/runner/work/_temp/hospital-export-evidence/parts/original.zip.part002
+2026-10-02T18:26:40.1394933Z   compression-level: 0
+2026-10-02T18:26:40.1395170Z   if-no-files-found: error
+2026-10-02T18:26:40.1395406Z   retention-days: 7
+2026-10-02T18:26:40.1395625Z   overwrite: false
+2026-10-02T18:26:40.1395848Z   include-hidden-files: false
+2026-10-02T18:26:40.1396406Z ##[endgroup]
+2026-10-02T18:26:40.3138732Z (node:2224) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-02T18:26:40.3140118Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-02T18:26:40.3240690Z With the provided path, there will be 1 file uploaded
+2026-10-02T18:26:40.3244225Z Artifact name is valid!
+2026-10-02T18:26:40.3250089Z Root directory input is valid!
+2026-10-02T18:26:40.7215753Z Beginning upload of artifact content to blob storage
+2026-10-02T18:26:40.7798273Z (node:2224) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-10-02T18:26:41.6305272Z Uploaded bytes 8388608
+2026-10-02T18:26:41.6569186Z Uploaded bytes 16777216
+2026-10-02T18:26:41.7010627Z Uploaded bytes 25165824
+2026-10-02T18:26:41.7860930Z Uploaded bytes 26214554
+2026-10-02T18:26:41.8577732Z Finished uploading artifact content to blob storage!
+2026-10-02T18:26:41.8579229Z SHA256 digest of uploaded artifact zip is 1dc4041bc7889a7d9863ec1e74b1b88509239c282c2daaffa09b28fe898d54c2
+2026-10-02T18:26:41.8581441Z Finalizing artifact upload
+2026-10-02T18:26:42.1495762Z Artifact hospital-export-original-part002-37047435988-1.zip successfully finalized. Artifact ID 11244393370
+2026-10-02T18:26:42.1497074Z Artifact hospital-export-original-part002-37047435988-1 has been successfully uploaded! Final size is 26214554 bytes. Artifact ID is 11244393370
+2026-10-02T18:26:42.1498022Z Artifact download URL: https://github.com/Siuuuers/dwm/actions/runs/37047435988/artifacts/11244393370
+2026-10-02T18:26:42.1641290Z ##[group]Run actions/upload-artifact@v4
+2026-10-02T18:26:42.1641613Z with:
+2026-10-02T18:26:42.1641889Z   name: hospital-export-original-part003-37047435988-1
+2026-10-02T18:26:42.1642394Z   path: /home/runner/work/_temp/hospital-export-evidence/parts/original.zip.part003
+2026-10-02T18:26:42.1642835Z   compression-level: 0
+2026-10-02T18:26:42.1643077Z   if-no-files-found: error
+2026-10-02T18:26:42.1643326Z   retention-days: 7
+2026-10-02T18:26:42.1643544Z   overwrite: false
+2026-10-02T18:26:42.1643783Z   include-hidden-files: false
+2026-10-02T18:26:42.1644039Z ##[endgroup]
+2026-10-02T18:26:42.3273954Z (node:2238) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-02T18:26:42.3274828Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-02T18:26:42.3320549Z With the provided path, there will be 1 file uploaded
+2026-10-02T18:26:42.3327461Z Artifact name is valid!
+2026-10-02T18:26:42.3328547Z Root directory input is valid!
+2026-10-02T18:26:42.7232247Z Beginning upload of artifact content to blob storage
+2026-10-02T18:26:42.7716907Z (node:2238) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-10-02T18:26:43.6633263Z Uploaded bytes 8388608
+2026-10-02T18:26:43.7474254Z Uploaded bytes 16777216
+2026-10-02T18:26:45.6752647Z Uploaded bytes 25165824
+2026-10-02T18:26:45.9977723Z Uploaded bytes 26214554
+2026-10-02T18:26:46.0735604Z Finished uploading artifact content to blob storage!
+2026-10-02T18:26:46.0737333Z SHA256 digest of uploaded artifact zip is 7714ecb7cc047b57c6bbefe36fe97df01476de28dd630cf612a960d86cfaf8b7
+2026-10-02T18:26:46.0739385Z Finalizing artifact upload
+2026-10-02T18:26:46.3645735Z Artifact hospital-export-original-part003-37047435988-1.zip successfully finalized. Artifact ID 11244298598
+2026-10-02T18:26:46.3648233Z Artifact hospital-export-original-part003-37047435988-1 has been successfully uploaded! Final size is 26214554 bytes. Artifact ID is 11244298598
+2026-10-02T18:26:46.3652363Z Artifact download URL: https://github.com/Siuuuers/dwm/actions/runs/37047435988/artifacts/11244298598
+2026-10-02T18:26:46.3816421Z ##[group]Run actions/upload-artifact@v4
+2026-10-02T18:26:46.3816772Z with:
+2026-10-02T18:26:46.3817058Z   name: hospital-export-original-part004-37047435988-1
+2026-10-02T18:26:46.3817567Z   path: /home/runner/work/_temp/hospital-export-evidence/parts/original.zip.part004
+2026-10-02T18:26:46.3818019Z   compression-level: 0
+2026-10-02T18:26:46.3818264Z   if-no-files-found: error
+2026-10-02T18:26:46.3818523Z   retention-days: 7
+2026-10-02T18:26:46.3818743Z   overwrite: false
+2026-10-02T18:26:46.3818974Z   include-hidden-files: false
+2026-10-02T18:26:46.3819245Z ##[endgroup]
+2026-10-02T18:26:46.5513438Z (node:2250) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-02T18:26:46.5514189Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-02T18:26:46.5562877Z With the provided path, there will be 1 file uploaded
+2026-10-02T18:26:46.5570116Z Artifact name is valid!
+2026-10-02T18:26:46.5571024Z Root directory input is valid!
+2026-10-02T18:26:46.9604886Z Beginning upload of artifact content to blob storage
+2026-10-02T18:26:47.0109587Z (node:2250) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-10-02T18:26:47.8937443Z Uploaded bytes 8388608
+2026-10-02T18:26:47.9052746Z Uploaded bytes 16777216
+2026-10-02T18:26:48.0266432Z Uploaded bytes 20207728
+2026-10-02T18:26:48.0993039Z Finished uploading artifact content to blob storage!
+2026-10-02T18:26:48.0994612Z SHA256 digest of uploaded artifact zip is 7f96aa52645cfe03b76d2c38cf5658f2c39e1249d7d2f4843be3615721d04e96
+2026-10-02T18:26:48.0996978Z Finalizing artifact upload
+2026-10-02T18:26:48.4144155Z Artifact hospital-export-original-part004-37047435988-1.zip successfully finalized. Artifact ID 11244688217
+2026-10-02T18:26:48.4146429Z Artifact hospital-export-original-part004-37047435988-1 has been successfully uploaded! Final size is 20207728 bytes. Artifact ID is 11244688217
+2026-10-02T18:26:48.4150791Z Artifact download URL: https://github.com/Siuuuers/dwm/actions/runs/37047435988/artifacts/11244688217
+2026-10-02T18:26:48.4307354Z ##[group]Run actions/upload-artifact@v4
+2026-10-02T18:26:48.4307701Z with:
+2026-10-02T18:26:48.4308016Z   name: hospital-export-transport-manifest-37047435988-1
+2026-10-02T18:26:48.4308553Z   path: /home/runner/work/_temp/hospital-export-evidence/parts/transport-manifest.json
+2026-10-02T18:26:48.4309026Z   compression-level: 0
+2026-10-02T18:26:48.4309304Z   if-no-files-found: error
+2026-10-02T18:26:48.4309556Z   retention-days: 7
+2026-10-02T18:26:48.4309788Z   overwrite: false
+2026-10-02T18:26:48.4310040Z   include-hidden-files: false
+2026-10-02T18:26:48.4310305Z ##[endgroup]
+2026-10-02T18:26:48.6021187Z (node:2263) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-02T18:26:48.6022535Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-02T18:26:48.6069123Z With the provided path, there will be 1 file uploaded
+2026-10-02T18:26:48.6085284Z Artifact name is valid!
+2026-10-02T18:26:48.6086257Z Root directory input is valid!
+2026-10-02T18:26:48.9902147Z Beginning upload of artifact content to blob storage
+2026-10-02T18:26:49.0083853Z (node:2263) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-10-02T18:26:49.2654779Z Uploaded bytes 2386
+2026-10-02T18:26:49.3384473Z Finished uploading artifact content to blob storage!
+2026-10-02T18:26:49.3386310Z SHA256 digest of uploaded artifact zip is 28b0ca27c1ba5a8a333edf892b2be541737847798ff68b13398a1c10a6229298
+2026-10-02T18:26:49.3387714Z Finalizing artifact upload
+2026-10-02T18:26:49.6342703Z Artifact hospital-export-transport-manifest-37047435988-1.zip successfully finalized. Artifact ID 11245591066
+2026-10-02T18:26:49.6344711Z Artifact hospital-export-transport-manifest-37047435988-1 has been successfully uploaded! Final size is 2386 bytes. Artifact ID is 11245591066
+2026-10-02T18:26:49.6352395Z Artifact download URL: https://github.com/Siuuuers/dwm/actions/runs/37047435988/artifacts/11245591066
+2026-10-02T18:26:49.6518088Z Cleaning up orphan processes
+2026-10-02T18:26:49.6825411Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

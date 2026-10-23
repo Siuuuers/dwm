@@ -1,0 +1,118 @@
+{
+  "schema_version": 1,
+  "source": "4b951a555202be25d231448797e8eb8b7bc99019",
+  "baseline": "2254d6956de778cc54aa42fe610bcdf94f5301a5",
+  "review_kind": "integrator source-only review before focused cloud execution",
+  "runtime_acceptance": false,
+  "reviewed_files": [
+    {
+      "path": "autoload/SaveManager.gd",
+      "git_blob": "a41daf1391ffe6573d71b18837df53c88050456c",
+      "bytes": 145022,
+      "sha256": "7572f6657d4e1cafbc04c19c44798ca69a872521b638f8075c51ff6c3c498a6b"
+    },
+    {
+      "path": "scripts/application/backup/BackupPresentationPort.gd",
+      "git_blob": "b0d3e3df5f27ff136b7ac991ab7be1ce486bc5c2",
+      "bytes": 9876,
+      "sha256": "2d4d1970dd1edee6178a5364504e071751967da32661257d969f4ffc167f2924"
+    },
+    {
+      "path": "scripts/ui/BackupApp.gd",
+      "git_blob": "be47b3fcbbb44dfa7c2abf9d1b2adb107787cecb",
+      "bytes": 39568,
+      "sha256": "40ef72dc013dc84c187a57e68318227d44dde340502efede40136d2f84a511df"
+    },
+    {
+      "path": "scripts/ui/SettingsContent.gd",
+      "git_blob": "20ecb13c46684ad15e4e00c1277c6168e82c26e1",
+      "bytes": 32527,
+      "sha256": "d4345b84da62154ca091db77877404562351e3fbaad17272fc8a727e4621070a"
+    },
+    {
+      "path": "scripts/ui/SettingsPanelController.gd",
+      "git_blob": "1c4f5001a6c210750bc67fffaab6b5e802b0d95e",
+      "bytes": 26167,
+      "sha256": "110d1ecacf8cd0e2dc14119f4b7ef535dd39fed33e062953fbc689d0efc23d5d"
+    },
+    {
+      "path": "scripts/ui/desktop/QuickStatusEdge.gd",
+      "git_blob": "6b16ec8a57b661034f7a2131e858719f0da353cd",
+      "bytes": 5484,
+      "sha256": "4bda2d5770325d24c9a9d15c10d72ee8c8a49c407f1554d1d09c2250f178dd36"
+    },
+    {
+      "path": "scripts/ui/pause/PauseQuickCommands.gd",
+      "git_blob": "cce58fe8fc875c11c2ef7d75458c19a903d16cdb",
+      "bytes": 14208,
+      "sha256": "c0ed31fb76ed67c5b83b97be74064eecd6be111a6fa3b26d2cb5da469a0c9b91"
+    },
+    {
+      "path": "scripts/ui/pause/PauseSurface.gd",
+      "git_blob": "6bad8da61babf267f026cdd02b3514a04ab808b3",
+      "bytes": 20799,
+      "sha256": "bdfb7a08014aa4f88918a9a1bf06cea8feb481b7aa7554be98f458397b1aefcd"
+    },
+    {
+      "path": "tests/integration/verify_reading_rail_journey.gd",
+      "git_blob": "1b3b17380d0a8cb4d7d73da30e18a10c37b5ab18",
+      "bytes": 106063,
+      "sha256": "bd3f6e99a38b0a690fff1afa7e8b85f6b3edd7f30eccec55490700243c0267b5"
+    },
+    {
+      "path": "tests/unit/test_backup_presentation.gd",
+      "git_blob": "5da6ca236273eac55cb89ddec09501e2b8cd3216",
+      "bytes": 11941,
+      "sha256": "113e8d7bb5d9d18db89b9a9e5bfbc411c354723fdf0241b6c31cceaf9d60124a"
+    },
+    {
+      "path": "tests/unit/test_backup_quick_actions.gd",
+      "git_blob": "347f2b209121d15a4b3796765f6ad7e2d7be2d4d",
+      "bytes": 35638,
+      "sha256": "804373ddf72400b2752b98740f88c52dcf14cd41a1000a07d7f7935b6cca42a6"
+    },
+    {
+      "path": "tests/unit/test_production_pause_controller.gd",
+      "git_blob": "98085f89d8c0a5bed65a407f70680a7f3c7cba66",
+      "bytes": 80348,
+      "sha256": "0e359c4aca346d6822a8e8ba0564940deba521dd7c8fda238822329e42f40edc"
+    },
+    {
+      "path": "tests/unit/test_quick_status_edge.gd",
+      "git_blob": "ffffc63baa7a9794ea2d4c6fad552cdb5646def6",
+      "bytes": 7935,
+      "sha256": "0d49d7557e56191bf54444c0ad6d003a29c0608dbdb84ce78cd0172b7b44776e"
+    },
+    {
+      "path": "tools/testing/Invoke-CloudTests.ps1",
+      "git_blob": "f7738b850abefdc1a995b1802809da006aef1168",
+      "bytes": 20076,
+      "sha256": "3f57e035bbdec6e736cf41316b3c981596b50e06f3fa8df58415213cf6a6075f"
+    },
+    {
+      "path": "tools/testing/run_reading_rail_journey.py",
+      "git_blob": "79e9def87e0dd7d6444122acdc3c36a82eb20c5e",
+      "bytes": 59615,
+      "sha256": "051683116b50dd099c522164c68fc1b3dd2bf2baab5bea8ed5508eb04d614a5f"
+    }
+  ],
+  "findings": [
+    "Load reuses PauseQuickCommands, the existing Cancel-first confirmation, PauseBackupPresentationPort and SaveManager; no second state or save owner.",
+    "Focus retention is limited to Load; deferred Settings focus can return to the original actionable control and otherwise the existing category rail.",
+    "Settings departure observes already-owned asynchronous preview operations; TTS cleanup now records its wait in the same existing ledger.",
+    "Specific refusal copy comes only from actual inspected record reasons; a generic failed inspection remains unavailable, and no-compatible no longer implies a usable fallback.",
+    "No public signatures or save format declarations changed; public inventory source-reference drift must be generated and reviewed in cloud.",
+    "Existing eight reading modes/14-file seal and F5 writer-reader/three-file seal are retained; F9 has a separate process, trace and raw file baselines.",
+    "All 191 Beads records remain unchanged before acceptance; no live Dolt query or sync."
+  ],
+  "validation": [
+    "git diff --check passed",
+    "Python runner compiled (no Godot/PowerShell executed locally)"
+  ],
+  "limits": [
+    "Source review is not engine acceptance.",
+    "Partial-line timing remains a fixture risk exposed before assertions.",
+    "Injected cloud input and Linux software rendering do not establish physical Windows input or accessibility acceptance.",
+    "Opposite-Dark coverage is controller/projection unit scope; no new persisted opposite-Dark journey claimed."
+  ]
+}

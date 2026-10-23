@@ -1,0 +1,129 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/c7a3699b-65e6-4078-ad70-9207c12661f7/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+res://tests/unit/test_contacts_week_tint.gd
+* test_day_one_standard_retains_every_old_contacts_literal
+* test_every_tuple_and_day_keeps_drawn_text_focus_state_and_identity_contrast
+* test_build_uses_fonts_and_focus_and_invalid_inputs_fail_without_fallback
+3/3 passed.
+
+
+res://tests/unit/test_contacts_ordinary_reply_ui.gd
+* test_selected_outgoing_draw_commits_once_and_save_failure_keeps_exact_choice_for_retry
+ORDINARY_REPLY_FAILURE: {"code":"write_failed","phase":"commit"}
+    24 Orphans
+        * [@Control@78:<Control#342238431579>]
+        * [@Label@58:<Label#341416348136>]
+        * [@ScrollContainer@61:<ScrollContainer#341449902574>] + 16
+* test_changing_thread_or_hiding_cancels_only_the_unsaved_choice_and_stale_draw_does_not_send
+    52 Orphans
+        * [@ScrollContainer@165:<ScrollContainer#350140500086>] + 12
+        * [@Label@139:<Label#347959462015>]
+        * [@Control@172:<Control#350559930836>]
+        * [@Label@145:<Label#349133867551>]
+        * [@ScrollContainer@148:<ScrollContainer#349167421988>] + 15
+        * [@Control@155:<Control#349586852417>]
+        * [@Label@162:<Label#350106946134>]
+        * [@ScrollContainer@142:<ScrollContainer#347993016920>] + 1
+        * [@Control@144:<Control#348227897955>]
+* test_locale_refresh_keeps_the_frozen_line_and_does_not_treat_choice_buttons_as_history
+* test_outgoing_text_is_not_covered_by_a_container_stretched_decoration
+* test_prepare_failure_remains_diagnosable_after_successful_thread_refresh
+ORDINARY_REPLY_FAILURE: {"code":"ordinary_registry_unavailable","phase":"prepare"}
+    23 Orphans
+        * [@Label@321:<Label#365273549327>]
+        * [@ScrollContainer@324:<ScrollContainer#365307103959>] + 15
+        * [@Control@331:<Control#365726534389>]
+23 orphans
+5/5 passed.
+
+
+res://tests/integration/test_contacts_run_presentation.gd
+* test_captured_palette_and_day_reach_contacts_without_following_next_run_preference
+* test_live_accessibility_recolours_existing_transcript_without_owner_or_focus_mutation
+* test_installed_reply_focus_uses_paper_ink_while_header_stays_bone
+* test_colour_change_preserves_pending_retry_failure_and_exact_command
+ORDINARY_REPLY_FAILURE: {"code":"write_failed","phase":"commit"}
+* test_colour_change_during_awaited_ack_does_not_recreate_or_cancel_pending_reply
+* test_invalid_palette_or_day_cannot_replace_mounted_contacts_presentation
+* test_desktop_rejects_invalid_or_foreign_day_before_binding_contacts_owners
+7/7 passed.
+
+
+res://tests/scene/test_contact_list_app.gd
+* test_contact_scene_exposes_only_the_injected_semantic_port_seam
+* test_unconfigured_input_fails_closed_and_configured_input_delegates
+* test_contact_scene_authors_no_identity_or_global_state_fallback
+3/3 passed.
+
+
+res://tests/unit/test_input_contact_generations.gd
+* test_snapshot_is_detached_and_query_does_not_create_contacts
+* test_duplicate_press_echo_and_release_require_a_new_physical_generation
+* test_emulation_and_impulses_never_create_or_release_physical_contacts
+* test_contact_types_and_devices_remain_distinct_and_generations_are_global
+* test_disconnect_cleans_only_that_device_before_notification_and_reconnect_is_fresh
+* test_pause_release_quarantine_retains_generations_and_disconnect_can_finish_neutrality
+* test_real_controls_rebind_publication_retains_the_same_held_physical_generation
+* test_forwarded_and_parent_packets_share_one_generation_and_one_release
+8/8 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/unit/test_contacts_week_tint.gd
+    - Outside Tests
+        * [<Node#129654327060>(subsystem_animation.gd)]
+        * [<Node#129671104292>(subsystem_audio.gd)]
+        * [<Node#129687881518>]
+        * [<Node#129704658739>]
+        * [<Node#129721435958>(subsystem_backgrounds.gd)]
+        * [<Node#130258306875>(subsystem_choices.gd)]
+        * [<Timer#130275084092>]
+        * [<Node#130291861310>(subsystem_expression.gd)]
+        * [<Node#130325415747>(subsystem_glossary.gd)]
+        * [<Node#130342192964>(subsystem_history.gd)]
+        * [<Node#130358970181>(subsystem_input.gd)]
+        * [<Timer#130375747398>]
+        * [<Node#130392524615>(subsystem_jump.gd)]
+        * [<Node#130409301832>(subsystem_containers.gd)]
+        * [<Node#130426079049>(subsystem_portraits.gd)]
+        * [<Node#130962949962>(subsystem_save.gd)]
+        * [<Timer#130979727179>]
+        * [<Node#130996504396>(subsystem_settings.gd)]
+        * [<Node#131013281616>(subsystem_styles.gd)]
+        * [<Node#131030058833>(subsystem_text.gd)]
+        * [<Node#131113944918>(subsystem_text_input.gd)]
+        * [<Node#131130722135>(subsystem_variables.gd)]
+        * [<Node#131147499352>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#131164276569>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+Totals
+------
+Scripts               5
+Tests                26
+Passing Tests        26
+Asserts            7381
+Orphans              24
+Time              4.365s
+
+
+---- All tests passed! ----

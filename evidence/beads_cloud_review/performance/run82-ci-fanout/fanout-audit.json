@@ -1,0 +1,436 @@
+{
+  "schema_version": 1,
+  "run_id": 36847732239,
+  "run_attempt": 1,
+  "source_commit": "724ff76fabafe358d6f445b404386baa65d20062",
+  "checkout_ref": "d9c42820960ffd70b80b70977178c17ae9beef92",
+  "fanout_admitted": true,
+  "day7_payload_sha256": "2057c0f7e5d19d0b92f9917b049d2b19d8bdcf97a08194b8e72102fbbd475f7b",
+  "day7_manifest": {
+    "schema_version": 1,
+    "checkout_ref": "d9c42820960ffd70b80b70977178c17ae9beef92",
+    "producer_run_id": "36847732239",
+    "producer_run_attempt": 1,
+    "files": {
+      "results.json": "9a7ac4eee7db1b28a5710f182e610a2e5c1d9eb50c823b21c5fb76bb4417d5f7",
+      "day7-autosave.json": "2057c0f7e5d19d0b92f9917b049d2b19d8bdcf97a08194b8e72102fbbd475f7b"
+    }
+  },
+  "localized_manifest": {
+    "checkout_ref": "d9c42820960ffd70b80b70977178c17ae9beef92",
+    "producer_run_id": "36847732239",
+    "producer_run_attempt": 1,
+    "payloads": [
+      {
+        "locale": "zh-CN",
+        "file": "fixed-zh-CN-autosave.json",
+        "sha256": "7c6a80bd99f80c7e2299dbc1711e837658c9d5457cb8146bf704f3c582547675",
+        "schema_version": 7,
+        "snapshot_schema_version": 7,
+        "journal_bundles": 2,
+        "producer_variant": "baseline",
+        "producer_schema_sha256": "628e89e061e3f92bcae2896ed83c49359daab16e12fbbcaf1a59593541989754",
+        "dating_ending": "win"
+      },
+      {
+        "locale": "zh-HK",
+        "file": "fixed-zh-HK-autosave.json",
+        "sha256": "579bfabdc22446ce9cdbb37dd9712a9cd7e4b39dac8c25487ef838d039a87512",
+        "schema_version": 7,
+        "snapshot_schema_version": 7,
+        "journal_bundles": 2,
+        "producer_variant": "baseline",
+        "producer_schema_sha256": "628e89e061e3f92bcae2896ed83c49359daab16e12fbbcaf1a59593541989754",
+        "dating_ending": "loss"
+      }
+    ]
+  },
+  "comparisons": {
+    "outgoing-normalization": {
+      "measurements": 6,
+      "raw_process_logs": 6,
+      "timing_medians": [
+        {
+          "variant": "baseline",
+          "label": "zh-CN",
+          "median_us": 19762
+        },
+        {
+          "variant": "baseline",
+          "label": "zh-HK",
+          "median_us": 16901
+        },
+        {
+          "variant": "baseline",
+          "label": "day7",
+          "median_us": 169907
+        },
+        {
+          "variant": "candidate",
+          "label": "zh-CN",
+          "median_us": 15328
+        },
+        {
+          "variant": "candidate",
+          "label": "zh-HK",
+          "median_us": 12836
+        },
+        {
+          "variant": "candidate",
+          "label": "day7",
+          "median_us": 89354
+        }
+      ],
+      "source_sha256": {
+        "checkpoint_port": "26365de9d20d5537d5ee2f30d306805c76e3850b6852cfa99678cb3e9cb0ce17",
+        "document_schema": "c7a18cea7a87699a1e69cef4ec2fc61f4ace858c9b45df5a6db622830e5e0540",
+        "run_schema": "88c329ce56350c8cd09124222cc69ae2f0335731f6519d655c8c8a14beff9158"
+      }
+    },
+    "lazy-normalization": {
+      "pairs": 8,
+      "raw_process_logs": 16,
+      "summaries": [
+        {
+          "mode": "full",
+          "metric": "schema_helper",
+          "pairs": 4,
+          "baseline_median_us": 86318.5,
+          "candidate_median_us": 80254.0,
+          "median_paired_candidate_minus_baseline_us": -6360.0
+        },
+        {
+          "mode": "full",
+          "metric": "port_helper",
+          "pairs": 4,
+          "baseline_median_us": 87379.5,
+          "candidate_median_us": 80215.5,
+          "median_paired_candidate_minus_baseline_us": -7164.0
+        },
+        {
+          "mode": "full",
+          "metric": "port_seam",
+          "pairs": 4,
+          "baseline_median_us": 174932.0,
+          "candidate_median_us": 167678.5,
+          "median_paired_candidate_minus_baseline_us": -6961.5
+        },
+        {
+          "mode": "splice",
+          "metric": "schema_helper",
+          "pairs": 4,
+          "baseline_median_us": 2309.0,
+          "candidate_median_us": 2087.5,
+          "median_paired_candidate_minus_baseline_us": -221.5
+        },
+        {
+          "mode": "splice",
+          "metric": "port_helper",
+          "pairs": 4,
+          "baseline_median_us": 1884.0,
+          "candidate_median_us": 1714.5,
+          "median_paired_candidate_minus_baseline_us": -161.5
+        },
+        {
+          "mode": "splice",
+          "metric": "port_seam",
+          "pairs": 4,
+          "baseline_median_us": 89263.0,
+          "candidate_median_us": 88508.0,
+          "median_paired_candidate_minus_baseline_us": -977.0
+        }
+      ],
+      "source_sha256": {
+        "schema": "c7a18cea7a87699a1e69cef4ec2fc61f4ace858c9b45df5a6db622830e5e0540",
+        "port": "26365de9d20d5537d5ee2f30d306805c76e3850b6852cfa99678cb3e9cb0ce17",
+        "reference": "f1bb63f480e09b72abeaa486047e7c2ac0a5d63b0396874ddb55d9bbf1b44cf8",
+        "harness": "44f7b26800252ca8af28c52b3f1b76e132c15ca4239a869faa514c5714d59a78"
+      }
+    },
+    "history-region-search": {
+      "pairs": 8,
+      "raw_process_logs": 16,
+      "summaries": [
+        {
+          "mode": "cold",
+          "metric": "learning_seam",
+          "pairs": 4,
+          "baseline_median_us": 873800.0,
+          "candidate_median_us": 710881.5,
+          "median_paired_candidate_minus_baseline_us": -165876.0
+        },
+        {
+          "mode": "cold",
+          "metric": "port_commit_fake_io",
+          "pairs": 4,
+          "baseline_median_us": 1590347.0,
+          "candidate_median_us": 1429098.5,
+          "median_paired_candidate_minus_baseline_us": -167183.0
+        },
+        {
+          "mode": "mixed",
+          "metric": "learning_seam",
+          "pairs": 4,
+          "baseline_median_us": 265646.0,
+          "candidate_median_us": 205477.0,
+          "median_paired_candidate_minus_baseline_us": -59380.0
+        },
+        {
+          "mode": "mixed",
+          "metric": "port_commit_fake_io",
+          "pairs": 4,
+          "baseline_median_us": 987817.0,
+          "candidate_median_us": 916963.5,
+          "median_paired_candidate_minus_baseline_us": -70450.0
+        }
+      ],
+      "source_sha256": {
+        "port": "26365de9d20d5537d5ee2f30d306805c76e3850b6852cfa99678cb3e9cb0ce17",
+        "schema": "c7a18cea7a87699a1e69cef4ec2fc61f4ace858c9b45df5a6db622830e5e0540",
+        "warm_reference": "c051c7969b71d9eb13c3750ff327e91aeffab039e28f1cb298970ea6a5e1557c",
+        "warm_provenance": "3fa506b82cdd06212fc4644848596a2b29541eecef829e42cffbb97d52828157",
+        "journal": "40ff91bc9e2be063c25f10d0ef89b717d3e47b9247b087679eaa69898dfe369d",
+        "storage": "ad2691249d9c7a247147fdc76885044b6cd9f6ebaac1f7267b4c144586d2adab",
+        "file_ops": "aac20757aafbc978e051be8bb2607f75c7b431c0b98649cdf82db5534e30a1a0",
+        "reference": "5772a3289d6f96389a11bac0c9b8de8deb2e0f7c5f5f19fd9bf5f0f1344b03c7",
+        "harness": "6de888e2ff3c43853edeeec79baa019859d71a285286688bd1db13de57c1ba61",
+        "driver": "a056251a1b13246aa199969f1851c683f261d52b6c99d094da9f7013638a8784"
+      }
+    },
+    "warm-outgoing-proof": {
+      "pairs": 12,
+      "raw_process_logs": 24,
+      "summaries": [
+        {
+          "mode": "cold",
+          "metric": "schema_composition",
+          "pairs": 4,
+          "baseline_median_us": 80165.0,
+          "candidate_median_us": 81179.0,
+          "median_paired_candidate_minus_baseline_us": 768.5
+        },
+        {
+          "mode": "cold",
+          "metric": "port_commit_fake_io",
+          "pairs": 4,
+          "baseline_median_us": 1166121.5,
+          "candidate_median_us": 1141562.5,
+          "median_paired_candidate_minus_baseline_us": -19065.5
+        },
+        {
+          "mode": "mixed",
+          "metric": "schema_composition",
+          "pairs": 4,
+          "baseline_median_us": 80369.5,
+          "candidate_median_us": 80922.5,
+          "median_paired_candidate_minus_baseline_us": 553.0
+        },
+        {
+          "mode": "mixed",
+          "metric": "port_commit_fake_io",
+          "pairs": 4,
+          "baseline_median_us": 747652.0,
+          "candidate_median_us": 754002.5,
+          "median_paired_candidate_minus_baseline_us": 6163.5
+        },
+        {
+          "mode": "warm",
+          "metric": "schema_composition",
+          "pairs": 4,
+          "baseline_median_us": 79854.5,
+          "candidate_median_us": 37581.5,
+          "median_paired_candidate_minus_baseline_us": -41559.0
+        },
+        {
+          "mode": "warm",
+          "metric": "port_commit_fake_io",
+          "pairs": 4,
+          "baseline_median_us": 188041.5,
+          "candidate_median_us": 153443.5,
+          "median_paired_candidate_minus_baseline_us": -35477.0
+        }
+      ],
+      "source_sha256": {
+        "port": "26365de9d20d5537d5ee2f30d306805c76e3850b6852cfa99678cb3e9cb0ce17",
+        "schema": "c7a18cea7a87699a1e69cef4ec2fc61f4ace858c9b45df5a6db622830e5e0540",
+        "warm_provenance": "3fa506b82cdd06212fc4644848596a2b29541eecef829e42cffbb97d52828157",
+        "journal": "40ff91bc9e2be063c25f10d0ef89b717d3e47b9247b087679eaa69898dfe369d",
+        "storage": "ad2691249d9c7a247147fdc76885044b6cd9f6ebaac1f7267b4c144586d2adab",
+        "file_ops": "aac20757aafbc978e051be8bb2607f75c7b431c0b98649cdf82db5534e30a1a0",
+        "reference": "c051c7969b71d9eb13c3750ff327e91aeffab039e28f1cb298970ea6a5e1557c",
+        "journal_reference": "2563431f02ac68555cb301f6c670817e263613edb8961daf810e33c863887518",
+        "harness": "466f813d17110d84b919b3ee1e2e020e4451fe37ded2d3f98927cc9df9485458",
+        "driver": "19d716f9bb248b94b73bf4db1ee9f199328235aad1b28eb9bb7268600483fd6c"
+      }
+    }
+  },
+  "timing": {
+    "jobs": [
+      {
+        "name": "Windows / seven-day retained history producer",
+        "id": 110323132749,
+        "runner_id": 1000000908,
+        "runner_name": "GitHub Actions 1000000908",
+        "started_at": "2026-10-01T10:16:57Z",
+        "completed_at": "2026-10-01T10:28:17Z",
+        "job_seconds": 680.0,
+        "measurement_started_at": "2026-10-01T10:17:48Z",
+        "measurement_completed_at": "2026-10-01T10:28:09Z",
+        "measurement_seconds": 621.0
+      },
+      {
+        "name": "Windows / outgoing-normalization comparison",
+        "id": 110326995959,
+        "runner_id": 1000000928,
+        "runner_name": "GitHub Actions 1000000928",
+        "started_at": "2026-10-01T10:28:21Z",
+        "completed_at": "2026-10-01T10:31:02Z",
+        "job_seconds": 161.0,
+        "measurement_started_at": "2026-10-01T10:29:36Z",
+        "measurement_completed_at": "2026-10-01T10:30:56Z",
+        "measurement_seconds": 80.0
+      },
+      {
+        "name": "Windows / lazy-normalization comparison",
+        "id": 110326995983,
+        "runner_id": 1000000927,
+        "runner_name": "GitHub Actions 1000000927",
+        "started_at": "2026-10-01T10:28:19Z",
+        "completed_at": "2026-10-01T10:33:56Z",
+        "job_seconds": 337.0,
+        "measurement_started_at": "2026-10-01T10:29:18Z",
+        "measurement_completed_at": "2026-10-01T10:33:51Z",
+        "measurement_seconds": 273.0
+      },
+      {
+        "name": "Windows / history-region-search comparison",
+        "id": 110326995836,
+        "runner_id": 1000000925,
+        "runner_name": "GitHub Actions 1000000925",
+        "started_at": "2026-10-01T10:28:20Z",
+        "completed_at": "2026-10-01T10:40:06Z",
+        "job_seconds": 706.0,
+        "measurement_started_at": "2026-10-01T10:29:20Z",
+        "measurement_completed_at": "2026-10-01T10:40:00Z",
+        "measurement_seconds": 640.0
+      },
+      {
+        "name": "Windows / warm-outgoing-proof comparison",
+        "id": 110326995874,
+        "runner_id": 1000000926,
+        "runner_name": "GitHub Actions 1000000926",
+        "started_at": "2026-10-01T10:28:19Z",
+        "completed_at": "2026-10-01T10:43:47Z",
+        "job_seconds": 928.0,
+        "measurement_started_at": "2026-10-01T10:29:14Z",
+        "measurement_completed_at": "2026-10-01T10:43:42Z",
+        "measurement_seconds": 868.0
+      },
+      {
+        "name": "Windows / seven-day retained history",
+        "id": 110332145362,
+        "runner_id": 1000000929,
+        "runner_name": "GitHub Actions 1000000929",
+        "started_at": "2026-10-01T10:43:49Z",
+        "completed_at": "2026-10-01T10:43:53Z",
+        "job_seconds": 4.0,
+        "measurement_started_at": "2026-10-01T10:43:50Z",
+        "measurement_completed_at": "2026-10-01T10:43:51Z",
+        "measurement_seconds": 1.0
+      }
+    ],
+    "whole_workflow_seconds": 1843.0,
+    "all_four_measurement_windows_overlap": true,
+    "fanout_consumer_job_window_seconds": 928.0,
+    "fanout_consumer_measurement_window_seconds": 868.0,
+    "baseline_run77_workflow_seconds": 2603,
+    "observed_whole_workflow_difference_seconds": -760.0,
+    "limit": "Elapsed observations across changed source and separate hosted runners; not a controlled causal speedup or player responsiveness measurement."
+  },
+  "distinct_successful_process_roots": 62,
+  "retained_zips": [
+    {
+      "file": "checkpoint-payloads.zip",
+      "bytes": 50096,
+      "sha256": "5687acfaf2b106707ef8bd05b697d1cbfc87275b8a0502d930c23b84d6f32558",
+      "artifact_id": 11154786318,
+      "name": "checkpoint-payloads-36847732239",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/36847732239/artifacts/11154786318"
+    },
+    {
+      "file": "checkpoint-performance.zip",
+      "bytes": 152622,
+      "sha256": "51ac51289687c33fa35ed99562676f0f30204995ee21d703c6272c0442e7620b",
+      "artifact_id": 11154706623,
+      "name": "checkpoint-performance-36847732239-1",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/36847732239/artifacts/11154706623"
+    },
+    {
+      "file": "history-region-search.zip",
+      "bytes": 125030,
+      "sha256": "9f76544b20477349d5f95672b424d571fc5cfccbd637955459ff0f7cb91cf012",
+      "artifact_id": 11155141661,
+      "name": "history-region-search-36847732239-1",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/36847732239/artifacts/11155141661"
+    },
+    {
+      "file": "lazy-normalization.zip",
+      "bytes": 48929,
+      "sha256": "502af2687b71d2c8f6113959b5b96675cdd9698201eb979d99d24240966eefb5",
+      "artifact_id": 11154314195,
+      "name": "lazy-normalization-36847732239-1",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/36847732239/artifacts/11154314195"
+    },
+    {
+      "file": "outgoing-normalization.zip",
+      "bytes": 24405,
+      "sha256": "240ff3581b0868c10a9bffd143f04f0a7e766e9262131969e04c24354a611992",
+      "artifact_id": 11155026494,
+      "name": "outgoing-normalization-36847732239-1",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/36847732239/artifacts/11155026494"
+    },
+    {
+      "file": "seven-day-history.zip",
+      "bytes": 312117,
+      "sha256": "92cd1134f4a1aded52b71d34ff4767dadc638ea0d9ace00529030b952a3861c0",
+      "artifact_id": 11154638227,
+      "name": "seven-day-history-36847732239-1",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/36847732239/artifacts/11154638227"
+    },
+    {
+      "file": "seven-day-inputs.zip",
+      "bytes": 80271,
+      "sha256": "7d2a899d1c9788db8f25b0792b7ebe457f00826d0cd6cea35431ea1dc5b0b69c",
+      "artifact_id": 11155026018,
+      "name": "seven-day-inputs-36847732239",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/36847732239/artifacts/11155026018"
+    },
+    {
+      "file": "warm-outgoing-proof.zip",
+      "bytes": 463113,
+      "sha256": "8433ef78eb8af55119a87b9afac8e55c9d1cc5dba5d24953c17e4c8df9fdb0ea",
+      "artifact_id": 11155870793,
+      "name": "warm-outgoing-proof-36847732239-1",
+      "url": "https://github.com/Siuuuers/dwm/actions/runs/36847732239/artifacts/11155870793"
+    }
+  ],
+  "audit_scope": "Fanout dependency/admission/raw comparisons/aggregate only. Root owns full broad GUT and 22-checkout audit.",
+  "broad_job_metadata": {
+    "jobs": 23,
+    "successful_jobs": 23,
+    "checkout_jobs": 22,
+    "aggregate_has_no_checkout": true,
+    "artifacts": 32,
+    "root_owns_full_checkout_log_binding_and_GUT_audit": true
+  },
+  "aggregate_needs_results": {
+    "producer": "success",
+    "comparisons": "success"
+  },
+  "independent_review": {
+    "file": "review-outgoing-lazy.json",
+    "sha256": "db8f68890ac600df4a311ce6409ac247513468ce1d162e0e3d623ce273f35b98",
+    "scope": "Producer, outgoing and lazy independent artifact/raw measurement/source audit; 645 assertions passed."
+  },
+  "raw_retention_note": "Eight original artifact ZIPs retain all generated JSON manifests/results, all62process receipt JSONL files and raw engine logs. Preserve jobs-final.json and artifacts-final.json alongside this receipt for timing/API digest provenance."
+}

@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "archive": {
+    "name": "hospital-broad1-diagnostic-evidence.tar.gz",
+    "bytes": 28177357,
+    "sha256": "b566782f3c8acd276968cc8dfc22eb9b610bc9a998ebcda75fb3554676d0096d"
+  },
+  "part_bytes_limit": 8388608,
+  "encoding": "raw ordered byte ranges; no per-part compression or wrapper",
+  "parts": [
+    {
+      "index": 1,
+      "name": "hospital-broad1-diagnostic-evidence.tar.gz.part001",
+      "bytes": 8388608,
+      "sha256": "b90c90653b6fbd9ba87ad681ec2b99c33767f15cd71d91a93556c1fd6d54e8b3"
+    },
+    {
+      "index": 2,
+      "name": "hospital-broad1-diagnostic-evidence.tar.gz.part002",
+      "bytes": 8388608,
+      "sha256": "756fd2dc77e95deecfe88885dddc28cc49acf0bd1874155d1acbcbd444f5c865"
+    },
+    {
+      "index": 3,
+      "name": "hospital-broad1-diagnostic-evidence.tar.gz.part003",
+      "bytes": 8388608,
+      "sha256": "d08c452d15aeb10a4867849dfc9e5b8ca7c1a95a8d9371f792379fada3a7dd3a"
+    },
+    {
+      "index": 4,
+      "name": "hospital-broad1-diagnostic-evidence.tar.gz.part004",
+      "bytes": 3011533,
+      "sha256": "2c4936283f020d1a599239120b2e35b226334376a73bba5658c4e6992eb5d620"
+    }
+  ],
+  "part_count": 4,
+  "ordered_reassembly_verified": true,
+  "reassembly": "Concatenate part001 through part004 as raw bytes and require the archive byte count and SHA-256 above.",
+  "source_bundle_receipt_sha256": "5cd1aa422c1d55fcbc98b7dd733afa3a8ac3cd3d8f76957c2e439ed7ccd3ae95"
+}

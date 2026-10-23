@@ -1,0 +1,202 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/click-latency-3/.godot/phase2r_tests/5455ad05-10ba-4d09-9c84-8a3076443438/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+res://tests/unit/test_minesweeper_presentation_port.gd
+* test_pull_exposes_only_public_projection_and_pre_reveal_flag_action
+* test_valid_first_reveal_and_active_flag_use_real_coordinator_and_issuer
+* test_accepted_routine_context_is_exactly_projection_bound_detached_and_ephemeral
+* test_real_grid_routes_keyboard_and_pointer_actions_through_port_and_coordinator
+* test_real_worksheet_long_press_routes_one_public_flag_command_end_to_end
+* test_unconfigured_invalid_and_stale_actions_allocate_nothing
+* test_same_revision_with_changed_full_identity_is_stale_before_allocation
+* test_replaying_an_old_public_revision_does_not_allocate_twice
+* test_live_entry_eligibility_is_rechecked_before_allocation
+* test_prepared_round_refuses_a_stale_caller_difficulty
+* test_owner_refusal_is_sanitized_and_refreshes_the_public_projection
+* test_terminal_action_settles_once_and_pull_retries_the_same_request_without_losing_projection
+* test_foreground_suspends_and_resumes_real_board_without_spending_or_regenerating
+* test_foreground_noops_unpaid_and_cold_preparation_parks_exact_frontier
+* test_foreground_stale_revision_refuses_before_allocation_and_returns_current_public_view
+* test_foreground_cannot_hide_or_resume_an_unsettled_terminal
+* test_preparation_is_explicit_and_retry_reuses_exact_issued_request
+* test_preparation_rejects_stale_identity_or_revision_without_issuance
+* test_preparation_parking_refuses_owner_recovery_without_allocation
+* test_first_reveal_and_routine_commands_all_issue_deferred
+    [Failed]:  [0] expected to equal [1]:  first Reveal defers its receipt too: the pre-board checkpoint flushes the ledger before its own bytes
+      at line 659
+    [Failed]:  [1] expected to equal [0]:  no command rewrites the issuer root on its own
+      at line 661
+    [Failed]:  [2] expected to equal [3]:  first Reveal, flag and unflag all defer
+      at line 666
+    [Failed]:  [1] expected to equal [0]:  no command takes the durable issue
+      at line 667
+* test_pull_and_other_entries_settle_a_deferred_terminal_before_proceeding
+20/21 passed.
+
+
+res://tests/unit/test_game_state_desktop_board_port.gd
+* test_prepare_spec_mints_its_four_identities_deferred
+    [Failed]:  [0] expected to equal [4]:  board_id, placement_nonce, debug_nonce and explosion_nonce all mint in memory
+      at line 76
+    [Failed]:  [4] expected to equal [0]:  no spec identity rewrites the issuer root on its own
+      at line 78
+    [Failed]:  ARRAY([]) != ARRAY(["board_id", "placement_nonce", "debug_nonce", "explosion_nonce"]).
+    [] != ["board_id", "placement_nonce", "debug_n...on_nonce"]  4 of 4 indexes do not match.  the mint order is unchanged
+      at line 83
+* test_prepare_spec_falls_back_to_issue_when_the_issuer_has_no_deferred_seam
+1/2 passed.
+
+
+res://tests/unit/test_minesweeper_round_coordinator.gd
+* test_base_configure_accepts_the_same_durable_port_without_legacy_seal
+* test_configure_consequence_port_rejects_before_it_is_configured
+* test_configure_consequence_checkpoint_rejects_an_invalid_state_port
+* test_complete_round_requires_a_terminal_board
+* test_complete_round_delegates_to_accept_prepared_action_with_a_valid_receipt
+* test_complete_round_never_changes_live_board_truth_even_when_delegation_fails
+* test_complete_round_duplicate_replay_returns_identical_result
+* test_complete_round_retries_after_a_transient_accept_prepared_action_failure
+* test_complete_round_releases_the_gate_when_accept_prepared_action_abandons_a_pre_admission_pending
+* test_commit_recovery_action_adopts_the_board_projection_and_rejects_without_the_gate
+* test_publish_recovery_action_retains_the_gate_until_release_recovery_lease
+* test_coordinator_script_loads
+* test_coordinator_instantiates
+* test_configure_is_idempotent_on_identical_replay
+* test_configure_rejects_a_replacement_port
+* test_configure_rejects_a_port_missing_required_methods
+* test_get_entry_context_is_eligible_from_fresh_none_phase
+* test_get_entry_context_is_not_eligible_when_motivation_exhausted
+* test_get_entry_context_is_not_eligible_once_phase_leaves_none
+* test_debug_preparation_reaches_prepared_unstarted
+* test_first_reveal_from_none_produces_the_exact_frozen_receipt_shape
+* test_first_reveal_charges_exactly_once_and_advances_ordinal
+* test_first_reveal_receipt_provenance_validates_against_the_issuer
+* test_first_reveal_receipt_provenance_rejects_a_tampered_member
+* test_default_and_lucky_remain_none_until_reveal
+* test_first_reveal_adopts_a_certified_debug_candidate
+* test_first_reveal_rejects_a_difficulty_id_that_does_not_match_the_certified_candidate
+* test_duplicate_first_reveal_replays_the_original_receipt_without_recharging
+* test_changed_payload_on_the_same_transaction_id_conflicts
+* test_stale_revision_is_rejected
+* test_identity_mismatch_is_rejected
+* test_a_forged_transaction_receipt_is_rejected
+* test_a_receipt_whose_token_does_not_match_the_transaction_id_is_rejected
+* test_materialize_failure_charges_nothing
+* test_checkpoint_prepare_failure_charges_nothing
+* test_checkpoint_commit_failure_charges_nothing_and_needs_no_rollback
+* test_state_commit_failure_rolls_back_the_already_committed_checkpoint
+* test_seal_failure_rolls_back_board_state_and_state_port_and_checkpoint
+* test_seal_failure_leaves_the_ledger_without_a_recorded_transaction
+* test_publish_failure_after_seal_returns_committed_unpublished_and_keeps_the_commit
+* test_retry_after_committed_unpublished_publishes_the_existing_receipt_and_never_recharges
+* test_double_rollback_failure_latches_fatal_and_refuses_subsequent_calls
+* test_checkpoint_port_reports_never_production
+* test_routine_reveal_commits_a_new_board_revision_without_touching_the_other_ports
+* test_suspend_then_resume_round_trips_through_the_coordinator
+* test_set_flag_flags_a_hidden_cell
+* test_older_board_and_visibility_retries_acknowledge_without_reapplying
+* test_duplicate_terminal_causing_reveal_replays_without_reaching_the_reducer
+* test_terminal_mine_retains_the_exact_pre_input_completed_board
+* test_terminal_chord_retains_flags_and_reveals_from_before_the_chord
+* test_failed_or_stale_commands_do_not_replace_a_terminal_replay_point
+* test_complete_round_safe_marker_substitutes_the_matching_pre_terminal_board
+* test_complete_round_without_a_matching_pre_input_board_never_captures_an_unsettled_autosave
+* test_get_state_returns_the_board_state_capture
+* test_first_reveal_durable_records_every_profile_phase_under_the_env_gate
+    [Failed]:  the scope name is first_reveal_durable
+      at line 951
+    [Failed]:  the committed return prints the record, exactly as complete_round's own does
+      at line 953
+    [Failed]:  the frame records board_capture_us, after the work it times
+      at line 966
+54/55 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/unit/test_minesweeper_presentation_port.gd
+    - Outside Tests
+        * [<Node#131617261336>(subsystem_animation.gd)]
+        * [<Node#131634038564>(subsystem_audio.gd)]
+        * [<Node#131650815796>]
+        * [<Node#131667593021>]
+        * [<Node#131684370243>(subsystem_backgrounds.gd)]
+        * [<Node#132221241156>(subsystem_choices.gd)]
+        * [<Timer#132238018373>]
+        * [<Node#132254795590>(subsystem_expression.gd)]
+        * [<Node#132288350027>(subsystem_glossary.gd)]
+        * [<Node#132305127244>(subsystem_history.gd)]
+        * [<Node#132321904461>(subsystem_input.gd)]
+        * [<Timer#132338681678>]
+        * [<Node#132355458895>(subsystem_jump.gd)]
+        * [<Node#132372236112>(subsystem_containers.gd)]
+        * [<Node#132389013329>(subsystem_portraits.gd)]
+        * [<Node#132925884242>(subsystem_save.gd)]
+        * [<Timer#132942661459>]
+        * [<Node#132959438676>(subsystem_settings.gd)]
+        * [<Node#132976215896>(subsystem_styles.gd)]
+        * [<Node#132992993113>(subsystem_text.gd)]
+        * [<Node#133076879198>(subsystem_text_input.gd)]
+        * [<Node#133093656415>(subsystem_variables.gd)]
+        * [<Node#133110433632>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#133127210849>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+res://tests/unit/test_minesweeper_presentation_port.gd
+- test_first_reveal_and_routine_commands_all_issue_deferred
+    [Failed]:  [0] expected to equal [1]:  first Reveal defers its receipt too: the pre-board checkpoint flushes the ledger before its own bytes
+          at line 659
+    [Failed]:  [1] expected to equal [0]:  no command rewrites the issuer root on its own
+          at line 661
+    [Failed]:  [2] expected to equal [3]:  first Reveal, flag and unflag all defer
+          at line 666
+    [Failed]:  [1] expected to equal [0]:  no command takes the durable issue
+          at line 667
+
+res://tests/unit/test_game_state_desktop_board_port.gd
+- test_prepare_spec_mints_its_four_identities_deferred
+    [Failed]:  [0] expected to equal [4]:  board_id, placement_nonce, debug_nonce and explosion_nonce all mint in memory
+          at line 76
+    [Failed]:  [4] expected to equal [0]:  no spec identity rewrites the issuer root on its own
+          at line 78
+    [Failed]:  ARRAY([]) != ARRAY(["board_id", "placement_nonce", "debug_nonce", "explosion_nonce"]).
+    [] != ["board_id", "placement_nonce", "debug_n...on_nonce"]  4 of 4 indexes do not match.  the mint order is unchanged
+          at line 83
+
+res://tests/unit/test_minesweeper_round_coordinator.gd
+- test_first_reveal_durable_records_every_profile_phase_under_the_env_gate
+    [Failed]:  the scope name is first_reveal_durable
+          at line 951
+    [Failed]:  the committed return prints the record, exactly as complete_round's own does
+          at line 953
+    [Failed]:  the frame records board_capture_us, after the work it times
+          at line 966
+
+Totals
+------
+Scripts               3
+Tests                78
+Passing Tests        75
+Failing Tests         3
+Asserts           809/819
+Orphans              24
+Time              0.723s
+
+
+---- 3 failing tests ----

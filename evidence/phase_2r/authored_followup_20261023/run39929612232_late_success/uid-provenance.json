@@ -1,0 +1,154 @@
+[
+  {
+    "path": "autoload/DialogicBridge.gd.uid",
+    "retained_path": "native-uids/autoload/DialogicBridge.gd.uid",
+    "sha256": "9fce0c9e5be35e51a6135a600d55c492e44333b8632d2110c1bf8a443c36c8f4",
+    "provenance": "candidate_tracked",
+    "source": "3c9fb089d8f15329fcb4f8e8efe6e83f2e3aa873",
+    "source_tree": "71c1e1b88e9f1d51472c6f12dc44701949d8aa00"
+  },
+  {
+    "path": "autoload/GameState.gd.uid",
+    "retained_path": "native-uids/autoload/GameState.gd.uid",
+    "sha256": "e99d94c21ee3597d69de08bd83b0d5707ff6557317a11a5b4169cd10bbb9e7d4",
+    "provenance": "candidate_tracked",
+    "source": "3c9fb089d8f15329fcb4f8e8efe6e83f2e3aa873",
+    "source_tree": "71c1e1b88e9f1d51472c6f12dc44701949d8aa00"
+  },
+  {
+    "path": "scripts/narrative/DialogicRuntimeAdapter.gd.uid",
+    "retained_path": "native-uids/scripts/narrative/DialogicRuntimeAdapter.gd.uid",
+    "sha256": "acc391abaa7069b4443dce06120f05d3dfeb12c9223922f9642d0158dc55aa19",
+    "provenance": "candidate_tracked",
+    "source": "3c9fb089d8f15329fcb4f8e8efe6e83f2e3aa873",
+    "source_tree": "71c1e1b88e9f1d51472c6f12dc44701949d8aa00"
+  },
+  {
+    "path": "scripts/ui/BackupApp.gd.uid",
+    "retained_path": "native-uids/scripts/ui/BackupApp.gd.uid",
+    "sha256": "8cfe2cb9ab952fe6c1ed11a40d7f86b9b935833f5036f55f9dce7b66f38a04d1",
+    "provenance": "candidate_tracked",
+    "source": "3c9fb089d8f15329fcb4f8e8efe6e83f2e3aa873",
+    "source_tree": "71c1e1b88e9f1d51472c6f12dc44701949d8aa00"
+  },
+  {
+    "path": "scripts/ui/MenuScene.gd.uid",
+    "retained_path": "native-uids/scripts/ui/MenuScene.gd.uid",
+    "sha256": "de724f287b1cad15701aeb4c5490426ef1e6d17b668dd464db2a61ad34abe5b2",
+    "provenance": "candidate_tracked",
+    "source": "3c9fb089d8f15329fcb4f8e8efe6e83f2e3aa873",
+    "source_tree": "71c1e1b88e9f1d51472c6f12dc44701949d8aa00"
+  },
+  {
+    "path": "scripts/ui/SceneHost.gd.uid",
+    "retained_path": "native-uids/scripts/ui/SceneHost.gd.uid",
+    "sha256": "9d9502a8200afb42cdc6cfb9954bf1dafcd4e2fa24e15620626d101a4b78bb72",
+    "provenance": "candidate_tracked",
+    "source": "3c9fb089d8f15329fcb4f8e8efe6e83f2e3aa873",
+    "source_tree": "71c1e1b88e9f1d51472c6f12dc44701949d8aa00"
+  },
+  {
+    "path": "tests/integration/authored_week_child.gd.uid",
+    "retained_path": "native-uids/authored_week_child.gd.uid",
+    "sha256": "26a07eb1a8b8bcb11f34f35f50a8f6991cabfcec4284123256b710978b3c4512",
+    "provenance": "candidate_tracked",
+    "source": "3c9fb089d8f15329fcb4f8e8efe6e83f2e3aa873",
+    "source_tree": "71c1e1b88e9f1d51472c6f12dc44701949d8aa00"
+  },
+  {
+    "path": "tests/integration/authored_week_create.gd.uid",
+    "retained_path": "native-uids/authored_week_create.gd.uid",
+    "sha256": "efaa90685c346674983f2d245919b662c600ee8e8438a9130b8d79df5c310ad9",
+    "provenance": "candidate_tracked",
+    "source": "3c9fb089d8f15329fcb4f8e8efe6e83f2e3aa873",
+    "source_tree": "71c1e1b88e9f1d51472c6f12dc44701949d8aa00"
+  },
+  {
+    "path": "tests/integration/authored_week_late_recovery.gd.uid",
+    "retained_path": "native-uids/authored_week_late_recovery.gd.uid",
+    "sha256": "a33dcd5ff5b060bf46007dc918d68be7106712f9f9fcd109a7e0c9c41451ddfc",
+    "provenance": "candidate_tracked",
+    "source": "3c9fb089d8f15329fcb4f8e8efe6e83f2e3aa873",
+    "source_tree": "71c1e1b88e9f1d51472c6f12dc44701949d8aa00"
+  },
+  {
+    "path": "tests/integration/authored_week_load.gd.uid",
+    "retained_path": "native-uids/authored_week_load.gd.uid",
+    "sha256": "0807c4e888870ae647e6a62fe9cad1d383fe0b815c92906731ad067bd3bded09",
+    "provenance": "candidate_tracked",
+    "source": "3c9fb089d8f15329fcb4f8e8efe6e83f2e3aa873",
+    "source_tree": "71c1e1b88e9f1d51472c6f12dc44701949d8aa00"
+  },
+  {
+    "path": "tests/integration/authored_week_profile.gd.uid",
+    "retained_path": "native-uids/authored_week_profile.gd.uid",
+    "sha256": "af40f7c53955d76c8b629921d98c8fca13ff6fe33565b08f8284cb3137a25f33",
+    "provenance": "candidate_tracked",
+    "source": "3c9fb089d8f15329fcb4f8e8efe6e83f2e3aa873",
+    "source_tree": "71c1e1b88e9f1d51472c6f12dc44701949d8aa00"
+  },
+  {
+    "path": "tests/integration/authored_week_recovery.gd.uid",
+    "retained_path": "native-uids/authored_week_recovery.gd.uid",
+    "sha256": "2212140e12b7468c4b0a8c473f5c1f6853d638ce1e7dd14cbf4d4dce59891567",
+    "provenance": "candidate_tracked",
+    "source": "3c9fb089d8f15329fcb4f8e8efe6e83f2e3aa873",
+    "source_tree": "71c1e1b88e9f1d51472c6f12dc44701949d8aa00"
+  },
+  {
+    "path": "tests/integration/authored_week_replay.gd.uid",
+    "retained_path": "native-uids/authored_week_replay.gd.uid",
+    "sha256": "67e7d792639072893c0af6ab932f72a9e7c9ae49a00e21ea5c2129ca503961f6",
+    "provenance": "candidate_tracked",
+    "source": "3c9fb089d8f15329fcb4f8e8efe6e83f2e3aa873",
+    "source_tree": "71c1e1b88e9f1d51472c6f12dc44701949d8aa00"
+  },
+  {
+    "path": "tests/integration/scene_caption_challenge_child.gd.uid",
+    "retained_path": "native-uids/scene_caption_challenge_child.gd.uid",
+    "sha256": "c51e5ac0c35131dd661435d90eb947370d9b082c14b211ee874a55c361d5865f",
+    "provenance": "candidate_tracked",
+    "source": "3c9fb089d8f15329fcb4f8e8efe6e83f2e3aa873",
+    "source_tree": "71c1e1b88e9f1d51472c6f12dc44701949d8aa00"
+  },
+  {
+    "path": "tests/integration/test_scene_caption_challenge.gd.uid",
+    "retained_path": "native-uids/test_scene_caption_challenge.gd.uid",
+    "sha256": "04243240a3e8b6c90969915e0f57cb49e91c19df71c078947613829a0a6b8f36",
+    "provenance": "candidate_tracked",
+    "source": "3c9fb089d8f15329fcb4f8e8efe6e83f2e3aa873",
+    "source_tree": "71c1e1b88e9f1d51472c6f12dc44701949d8aa00"
+  },
+  {
+    "path": "tests/integration/test_scene_caption_challenge_load.gd.uid",
+    "retained_path": "native-uids/test_scene_caption_challenge_load.gd.uid",
+    "sha256": "bdde427f62b112f4c5ad181e731d35a963d06ccd1c5b179f4b7553b6e40d1e67",
+    "provenance": "candidate_tracked",
+    "source": "3c9fb089d8f15329fcb4f8e8efe6e83f2e3aa873",
+    "source_tree": "71c1e1b88e9f1d51472c6f12dc44701949d8aa00"
+  },
+  {
+    "path": "tests/integration/test_scene_multiple_thoughts_create.gd.uid",
+    "retained_path": "native-uids/test_scene_multiple_thoughts_create.gd.uid",
+    "sha256": "081205e55c56917ea816150e6b4bf79856bdb6ee187a472797cc985776f2301d",
+    "provenance": "candidate_tracked",
+    "source": "3c9fb089d8f15329fcb4f8e8efe6e83f2e3aa873",
+    "source_tree": "71c1e1b88e9f1d51472c6f12dc44701949d8aa00"
+  },
+  {
+    "path": "tests/integration/test_scene_native_activation_runtime.gd.uid",
+    "retained_path": "native-uids/test_scene_native_activation_runtime.gd.uid",
+    "sha256": "84df30a88a760f8ab9b3568f734cc1824e0499f15469f91cce5726be0c45a603",
+    "provenance": "candidate_tracked",
+    "source": "3c9fb089d8f15329fcb4f8e8efe6e83f2e3aa873",
+    "source_tree": "71c1e1b88e9f1d51472c6f12dc44701949d8aa00"
+  },
+  {
+    "path": "tests/integration/test_scene_playable_native_control.gd.uid",
+    "retained_path": "native-uids/test_scene_playable_native_control.gd.uid",
+    "sha256": "f4d2d92e1963948559f97a1be8e3d94b651baf77cdd2404cc8776c716dbea77c",
+    "provenance": "candidate_tracked",
+    "source": "3c9fb089d8f15329fcb4f8e8efe6e83f2e3aa873",
+    "source_tree": "71c1e1b88e9f1d51472c6f12dc44701949d8aa00"
+  }
+]

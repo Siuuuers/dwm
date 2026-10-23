@@ -1,0 +1,20 @@
+[
+  {
+    "path": "tests/ui/render_settings_shared.gd",
+    "bytes": 19062,
+    "sha256": "e6649b25d8fca15324dc41a9f9a505eaa30f47526722dce2e2423669aafaf571",
+    "git_blob": "8cbb54ef54bdebb5df09fc36edebf8004e521f76"
+  },
+  {
+    "path": "evidence/phase_2r/runtime/save_manager_surface.json",
+    "bytes": 152431,
+    "sha256": "f6c3900b2c737700c3354df5be2ae7be25eeb7900c5acb12649762a71748ad3c",
+    "git_blob": "5fa13be30c8859b5d22c85af9f7a89634d771907"
+  },
+  {
+    "path": ".github/workflows/windows-tests.yml",
+    "bytes": 71179,
+    "sha256": "b93abcc13a0ce8d7471058d4cb2aca377be02464bc69373387dccbc96636c812",
+    "git_blob": "0a79edfb628d2055da8a55860dc3709aa8927073"
+  }
+]

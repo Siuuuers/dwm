@@ -1,0 +1,593 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="GutTests" failures="0" tests="272" >
+  <testsuite name="tests/unit/test_hospital_frozen_context.gd" tests="7" failures="0" skipped="0" time="0.076149" >
+      <testcase name="test_schedule_freezes_eligible_scene_without_claiming_a_future_witness" assertions="11" status="pass" classname="tests/unit/test_hospital_frozen_context.gd" time="0.028813" >
+      </testcase>
+      <testcase name="test_condition_hospital_names_only_its_already_committed_witness" assertions="9" status="pass" classname="tests/unit/test_hospital_frozen_context.gd" time="0.00693" >
+      </testcase>
+      <testcase name="test_schedule_physical_completion_retains_actual_miss_sources_for_later_contacts" assertions="9" status="pass" classname="tests/unit/test_hospital_frozen_context.gd" time="0.006675" >
+      </testcase>
+      <testcase name="test_owner_selects_native_notice_or_sylvia_timeline_using_only_frozen_context" assertions="11" status="pass" classname="tests/unit/test_hospital_frozen_context.gd" time="0.002835" >
+      </testcase>
+      <testcase name="test_context_requires_exact_schema_source_set_and_matching_day" assertions="7" status="pass" classname="tests/unit/test_hospital_frozen_context.gd" time="0.001044" >
+      </testcase>
+      <testcase name="test_schedule_resume_uses_saved_request_before_consulting_later_live_state" assertions="10" status="pass" classname="tests/unit/test_hospital_frozen_context.gd" time="0.00236" >
+      </testcase>
+      <testcase name="test_game_owner_hospital_request_is_bound_durable_detached_and_idempotent" assertions="28" status="pass" classname="tests/unit/test_hospital_frozen_context.gd" time="0.027492" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_frozen_replay_context.gd" tests="3" failures="0" skipped="0" time="0.009797" >
+      <testcase name="test_replay_fields_are_detached_readonly_and_never_acquire_canonical_authority" assertions="14" status="pass" classname="tests/unit/test_frozen_replay_context.gd" time="0.007152" >
+      </testcase>
+      <testcase name="test_replay_validation_rejects_added_missing_or_changed_fields" assertions="7" status="pass" classname="tests/unit/test_frozen_replay_context.gd" time="0.001492" >
+      </testcase>
+      <testcase name="test_old_alone_and_ordinary_records_do_not_invent_missing_prose_selectors" assertions="11" status="pass" classname="tests/unit/test_frozen_replay_context.gd" time="0.001153" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_minesweeper_delivery_notice.gd" tests="10" failures="0" skipped="0" time="0.866145" >
+      <testcase name="test_terminal_publication_starts_loop_without_restarting_on_refresh" assertions="12" status="pass" classname="tests/unit/test_minesweeper_delivery_notice.gd" time="0.123737" >
+      </testcase>
+      <testcase name="test_delivered_waits_for_matching_corner_notice_and_fades_only_with_time" assertions="13" status="pass" classname="tests/unit/test_minesweeper_delivery_notice.gd" time="0.066782" >
+      </testcase>
+      <testcase name="test_new_round_replaces_fade_and_old_queued_notices_cannot_finish_it" assertions="18" status="pass" classname="tests/unit/test_minesweeper_delivery_notice.gd" time="0.084631" >
+      </testcase>
+      <testcase name="test_no_message_settlement_clears_without_false_success" assertions="8" status="pass" classname="tests/unit/test_minesweeper_delivery_notice.gd" time="0.077969" >
+      </testcase>
+      <testcase name="test_cold_settled_inspection_and_duplicate_notifications_do_not_replay" assertions="11" status="pass" classname="tests/unit/test_minesweeper_delivery_notice.gd" time="0.07314" >
+      </testcase>
+      <testcase name="test_failure_clears_spinner_and_successful_retry_can_deliver" assertions="10" status="pass" classname="tests/unit/test_minesweeper_delivery_notice.gd" time="0.062098" >
+      </testcase>
+      <testcase name="test_home_keeps_feedback_but_desktop_retirement_invalidates_queued_completion" assertions="9" status="pass" classname="tests/unit/test_minesweeper_delivery_notice.gd" time="0.068194" >
+      </testcase>
+      <testcase name="test_day_reset_invalidates_pending_feedback" assertions="6" status="pass" classname="tests/unit/test_minesweeper_delivery_notice.gd" time="0.065005" >
+      </testcase>
+      <testcase name="test_notice_inherits_scale_and_stays_centered_at_large_text" assertions="12" status="pass" classname="tests/unit/test_minesweeper_delivery_notice.gd" time="0.148696" >
+      </testcase>
+      <testcase name="test_notice_has_no_modal_or_focus_and_mouse_reaches_control_beneath" assertions="16" status="pass" classname="tests/unit/test_minesweeper_delivery_notice.gd" time="0.095893" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_narrative_caption_ledger.gd" tests="12" failures="0" skipped="0" time="0.04707" >
+      <testcase name="test_actual_publication_order_is_independent_of_registry_order" assertions="8" status="pass" classname="tests/unit/test_narrative_caption_ledger.gd" time="0.003516" >
+      </testcase>
+      <testcase name="test_same_publication_is_idempotent_but_a_new_occurrence_is_retained" assertions="7" status="pass" classname="tests/unit/test_narrative_caption_ledger.gd" time="0.002713" >
+      </testcase>
+      <testcase name="test_conflicting_publication_refuses_without_changing_the_sequence" assertions="8" status="pass" classname="tests/unit/test_narrative_caption_ledger.gd" time="0.003328" >
+      </testcase>
+      <testcase name="test_foreign_token_unknown_line_and_foreign_owner_apply_zero_mutation" assertions="6" status="pass" classname="tests/unit/test_narrative_caption_ledger.gd" time="0.002562" >
+      </testcase>
+      <testcase name="test_inputs_and_returned_snapshots_are_recursively_detached" assertions="5" status="pass" classname="tests/unit/test_narrative_caption_ledger.gd" time="0.003117" >
+      </testcase>
+      <testcase name="test_initialized_session_cannot_be_rebound_or_recaptured" assertions="4" status="pass" classname="tests/unit/test_narrative_caption_ledger.gd" time="0.002323" >
+      </testcase>
+      <testcase name="test_registry_requires_explicit_unique_identity_and_declared_entry_membership" assertions="8" status="pass" classname="tests/unit/test_narrative_caption_ledger.gd" time="0.006613" >
+      </testcase>
+      <testcase name="test_nonprimitive_context_and_signature_are_refused_before_any_session_install" assertions="5" status="pass" classname="tests/unit/test_narrative_caption_ledger.gd" time="0.00205" >
+      </testcase>
+      <testcase name="test_uninitialized_ledger_and_empty_publication_identity_are_refused" assertions="5" status="pass" classname="tests/unit/test_narrative_caption_ledger.gd" time="0.00204" >
+      </testcase>
+      <testcase name="test_entry_context_admission_is_causal_immutable_and_detached" assertions="23" status="pass" classname="tests/unit/test_narrative_caption_ledger.gd" time="0.007684" >
+      </testcase>
+      <testcase name="test_framed_reconstruction_validates_all_contexts_and_occurrences_before_installing" assertions="20" status="pass" classname="tests/unit/test_narrative_caption_ledger.gd" time="0.008105" >
+      </testcase>
+      <testcase name="test_original_unframed_snapshot_and_restore_contract_remains_available" assertions="7" status="pass" classname="tests/unit/test_narrative_caption_ledger.gd" time="0.003019" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_solo_reading_session.gd" tests="4" failures="0" skipped="0" time="0.021612" >
+      <testcase name="test_real_phase_frames_are_causal_and_one_history_survives_board_boundary" assertions="28" status="pass" classname="tests/unit/test_solo_reading_session.gd" time="0.006979" >
+      </testcase>
+      <testcase name="test_invalid_suffix_frontier_or_completed_prefix_never_replace_retained_history" assertions="20" status="pass" classname="tests/unit/test_solo_reading_session.gd" time="0.006598" >
+      </testcase>
+      <testcase name="test_projection_and_capture_are_detached_and_rebinding_an_entry_is_refused" assertions="13" status="pass" classname="tests/unit/test_solo_reading_session.gd" time="0.004386" >
+      </testcase>
+      <testcase name="test_route_finalize_failure_retires_only_the_started_restore_and_reinstates_session" assertions="15" status="pass" classname="tests/unit/test_solo_reading_session.gd" time="0.003649" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/integration/test_narrative_caption_ledger_runtime.gd" tests="9" failures="0" skipped="0" time="1.471686" >
+      <testcase name="test_native_publications_use_authored_identity_and_actual_order_before_reveal_finishes" assertions="27" status="pass" classname="tests/integration/test_narrative_caption_ledger_runtime.gd" time="0.356445" >
+      </testcase>
+      <testcase name="test_duplicate_native_signal_and_glyph_completion_do_not_duplicate_the_ledger" assertions="16" status="pass" classname="tests/integration/test_narrative_caption_ledger_runtime.gd" time="0.079801" >
+      </testcase>
+      <testcase name="test_same_path_foreign_playback_and_late_signals_cannot_enter_the_bound_session" assertions="13" status="pass" classname="tests/integration/test_narrative_caption_ledger_runtime.gd" time="0.120897" >
+      </testcase>
+      <testcase name="test_halt_retires_the_binding_before_failure_and_late_publication_callbacks" assertions="13" status="pass" classname="tests/integration/test_narrative_caption_ledger_runtime.gd" time="0.082015" >
+      </testcase>
+      <testcase name="test_missing_authored_id_is_refused_without_inference_from_prose_or_position" assertions="15" status="pass" classname="tests/integration/test_narrative_caption_ledger_runtime.gd" time="0.084846" >
+      </testcase>
+      <testcase name="test_multiple_text_segments_cannot_share_one_registered_caption_identity" assertions="15" status="pass" classname="tests/integration/test_narrative_caption_ledger_runtime.gd" time="0.081051" >
+      </testcase>
+      <testcase name="test_paused_publication_duplicate_remains_bound_without_enabling_skip" assertions="16" status="pass" classname="tests/integration/test_narrative_caption_ledger_runtime.gd" time="0.0799" >
+      </testcase>
+      <testcase name="test_unconfigured_runtime_has_no_ledger_side_effects" assertions="9" status="pass" classname="tests/integration/test_narrative_caption_ledger_runtime.gd" time="0.079926" >
+      </testcase>
+      <testcase name="test_native_entries_share_one_sequence_across_retirement_reconstruction_and_fresh_publication" assertions="74" status="pass" classname="tests/integration/test_narrative_caption_ledger_runtime.gd" time="0.506805" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_witnessed_reading_rail.gd" tests="5" failures="0" skipped="0" time="1.234205" >
+      <testcase name="test_history_and_save_require_their_own_projection_and_final_admission" assertions="20" status="pass" classname="tests/unit/test_witnessed_reading_rail.gd" time="0.20449" >
+      </testcase>
+      <testcase name="test_history_and_save_retire_stale_native_activation_when_capability_changes" assertions="16" status="pass" classname="tests/unit/test_witnessed_reading_rail.gd" time="0.208163" >
+      </testcase>
+      <testcase name="test_history_is_plain_opaque_caption_projection_with_two_focus_anchors" assertions="28" status="pass" classname="tests/unit/test_witnessed_reading_rail.gd" time="0.201822" >
+      </testcase>
+      <testcase name="test_history_localizes_existing_operational_copy_and_refuses_revoked_custody" assertions="35" status="pass" classname="tests/unit/test_witnessed_reading_rail.gd" time="0.427553" >
+      </testcase>
+      <testcase name="test_history_retires_old_assistive_close_and_background_input" assertions="8" status="pass" classname="tests/unit/test_witnessed_reading_rail.gd" time="0.192177" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_reading_pause_save.gd" tests="8" failures="0" skipped="0" time="0.025107" >
+      <testcase name="test_qualified_full_line_save_captures_same_semantics_without_revealing_or_releasing" assertions="109" status="pass" classname="tests/unit/test_reading_pause_save.gd" time="0.010477" >
+      </testcase>
+      <testcase name="test_partial_pause_and_unregistered_reading_remain_unavailable_without_capture" assertions="6" status="pass" classname="tests/unit/test_reading_pause_save.gd" time="0.001016" >
+      </testcase>
+      <testcase name="test_reading_capture_rejects_changed_route_run_checkpoint_or_semantic_source" assertions="21" status="pass" classname="tests/unit/test_reading_pause_save.gd" time="0.003873" >
+      </testcase>
+      <testcase name="test_history_custody_blocks_backup_and_quick_without_discarding_pause_handle" assertions="8" status="pass" classname="tests/unit/test_reading_pause_save.gd" time="0.001135" >
+      </testcase>
+      <testcase name="test_paused_board_save_retains_earlier_reading_history_and_exact_board_without_reveal" assertions="8" status="pass" classname="tests/unit/test_reading_pause_save.gd" time="0.003101" >
+      </testcase>
+      <testcase name="test_paused_board_refuses_reading_history_drift_or_a_live_line_boundary" assertions="4" status="pass" classname="tests/unit/test_reading_pause_save.gd" time="0.000896" >
+      </testcase>
+      <testcase name="test_router_reading_facades_refuse_without_a_production_owner" assertions="6" status="pass" classname="tests/unit/test_reading_pause_save.gd" time="0.000684" >
+      </testcase>
+      <testcase name="test_direct_backup_save_uses_save_mode_and_failed_entry_keeps_continue_focus" assertions="10" status="pass" classname="tests/unit/test_reading_pause_save.gd" time="0.003925" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/integration/test_narrative_reading_frontier_runtime.gd" tests="4" failures="0" skipped="0" time="0.582542" >
+      <testcase name="test_paused_save_completes_only_the_current_semantic_occurrence" assertions="22" status="pass" classname="tests/integration/test_narrative_reading_frontier_runtime.gd" time="0.093489" >
+      </testcase>
+      <testcase name="test_restore_resolves_the_second_authored_line_and_reuses_its_publication" assertions="31" status="pass" classname="tests/integration/test_narrative_reading_frontier_runtime.gd" time="0.27327" >
+      </testcase>
+      <testcase name="test_resume_rejects_nonfinal_occurrences_and_unowned_authored_lines_without_starting" assertions="26" status="pass" classname="tests/integration/test_narrative_reading_frontier_runtime.gd" time="0.17043" >
+      </testcase>
+      <testcase name="test_fixed_entry_preflight_rejects_extra_caption_and_early_return_despite_valid_line_lookups" assertions="14" status="pass" classname="tests/integration/test_narrative_reading_frontier_runtime.gd" time="0.045353" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/integration/test_narrative_pause_frontier.gd" tests="19" failures="0" skipped="0" time="8.956229" >
+      <testcase name="test_live_reveal_handle_is_exact_idempotent_and_resumes_without_completion" assertions="25" status="pass" classname="tests/integration/test_narrative_pause_frontier.gd" time="0.184573" >
+      </testcase>
+      <testcase name="test_idle_text_frontier_preserves_an_existing_runtime_pause" assertions="15" status="pass" classname="tests/integration/test_narrative_pause_frontier.gd" time="0.105923" >
+      </testcase>
+      <testcase name="test_native_pause_effect_preserves_remaining_time_through_bridge_custody" assertions="26" status="pass" classname="tests/integration/test_narrative_pause_frontier.gd" time="1.51454" >
+      </testcase>
+      <testcase name="test_no_playback_deferred_start_and_native_cleanup_have_no_frontier" assertions="15" status="pass" classname="tests/integration/test_narrative_pause_frontier.gd" time="0.1045" >
+      </testcase>
+      <testcase name="test_native_nontext_wait_refuses_pause_without_changing_playback" assertions="15" status="pass" classname="tests/integration/test_narrative_pause_frontier.gd" time="0.664875" >
+      </testcase>
+      <testcase name="test_retained_physical_owner_publishes_same_source_without_a_completion" assertions="21" status="pass" classname="tests/integration/test_narrative_pause_frontier.gd" time="0.085101" >
+      </testcase>
+      <testcase name="test_witnessed_recovery_refuses_pause_and_backup_before_session_capture" assertions="35" status="pass" classname="tests/integration/test_narrative_pause_frontier.gd" time="0.399126" >
+      </testcase>
+      <testcase name="test_later_same_viewport_recovery_blocks_load_while_subviewport_recovery_does_not" assertions="26" status="pass" classname="tests/integration/test_narrative_pause_frontier.gd" time="0.362925" >
+      </testcase>
+      <testcase name="test_mounted_witnessed_load_is_cheap_then_opens_backup_and_continue_restores_exact_frontier" assertions="145" status="pass" classname="tests/integration/test_narrative_pause_frontier.gd" time="0.768507" >
+      </testcase>
+      <testcase name="test_mounted_witnessed_load_focus_repair_does_not_steal_a_new_caption_focus" assertions="23" status="pass" classname="tests/integration/test_narrative_pause_frontier.gd" time="0.747117" >
+      </testcase>
+      <testcase name="test_mounted_witnessed_failed_load_keeps_suspension_and_exact_source" assertions="34" status="pass" classname="tests/integration/test_narrative_pause_frontier.gd" time="0.747064" >
+      </testcase>
+      <testcase name="test_mounted_witnessed_successful_changed_session_never_restores_old_reveal" assertions="34" status="pass" classname="tests/integration/test_narrative_pause_frontier.gd" time="0.740242" >
+      </testcase>
+      <testcase name="test_direct_reading_quick_load_cancel_restores_exact_partial_source_and_focus" assertions="30" status="pass" classname="tests/integration/test_narrative_pause_frontier.gd" time="0.769735" >
+      </testcase>
+      <testcase name="test_direct_reading_quick_failed_load_keeps_original_suspension_and_continue" assertions="30" status="pass" classname="tests/integration/test_narrative_pause_frontier.gd" time="0.783583" >
+      </testcase>
+      <testcase name="test_combined_native_pause_restores_caption_owner_and_quarantines_closing_contact" assertions="41" status="pass" classname="tests/integration/test_narrative_pause_frontier.gd" time="0.351042" >
+      </testcase>
+      <testcase name="test_combined_native_source_mismatch_refuses_before_any_suspension" assertions="22" status="pass" classname="tests/integration/test_narrative_pause_frontier.gd" time="0.110264" >
+      </testcase>
+      <testcase name="test_production_pause_view_adapter_covers_actual_caption_layer_node_and_restores_its_anchor" assertions="25" status="pass" classname="tests/integration/test_narrative_pause_frontier.gd" time="0.229291" >
+      </testcase>
+      <testcase name="test_witnessed_restore_failure_keeps_exact_native_reveal_and_original_pause_handle" assertions="24" status="pass" classname="tests/integration/test_narrative_pause_frontier.gd" time="0.17229" >
+      </testcase>
+      <testcase name="test_witnessed_load_publishes_only_after_new_session_and_never_completes_old_prose" assertions="42" status="pass" classname="tests/integration/test_narrative_pause_frontier.gd" time="0.115531" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/integration/test_witnessed_caption_runtime.gd" tests="48" failures="0" skipped="0" time="21.828327" >
+      <testcase name="test_speech_starts_with_visible_primary_during_reveal_without_speaker_or_markup" assertions="13" status="pass" classname="tests/integration/test_witnessed_caption_runtime.gd" time="0.084015" >
+      </testcase>
+      <testcase name="test_accept_or_custody_cancels_current_speech_and_uncover_cannot_replay" assertions="10" status="pass" classname="tests/integration/test_witnessed_caption_runtime.gd" time="0.165572" >
+      </testcase>
+      <testcase name="test_disabled_or_restored_current_line_never_replays_but_next_line_can_speak" assertions="9" status="pass" classname="tests/integration/test_witnessed_caption_runtime.gd" time="0.166303" >
+      </testcase>
+      <testcase name="test_turning_read_aloud_on_does_not_replay_a_line_presented_while_off" assertions="7" status="pass" classname="tests/integration/test_witnessed_caption_runtime.gd" time="0.11006" >
+      </testcase>
+      <testcase name="test_stale_caption_cancellation_cannot_stop_a_replacing_settings_sample" assertions="7" status="pass" classname="tests/integration/test_witnessed_caption_runtime.gd" time="0.111563" >
+      </testcase>
+      <testcase name="test_mounted_auto_expiry_calls_caption_barrier_and_advances_once_after_speech" assertions="8" status="pass" classname="tests/integration/test_witnessed_caption_runtime.gd" time="0.084297" >
+      </testcase>
+      <testcase name="test_appended_primary_speaks_only_new_words_without_repeating_the_current_card" assertions="9" status="pass" classname="tests/integration/test_witnessed_caption_runtime.gd" time="0.138176" >
+      </testcase>
+      <testcase name="test_current_speech_failure_notice_is_nonmodal_in_english" assertions="23" status="pass" classname="tests/integration/test_witnessed_caption_runtime.gd" time="0.308211" >
+      </testcase>
+      <testcase name="test_current_speech_failure_notice_is_nonmodal_in_simplified_chinese" assertions="23" status="pass" classname="tests/integration/test_witnessed_caption_runtime.gd" time="0.314109" >
+      </testcase>
+      <testcase name="test_current_speech_failure_notice_is_nonmodal_in_traditional_chinese" assertions="23" status="pass" classname="tests/integration/test_witnessed_caption_runtime.gd" time="0.315768" >
+      </testcase>
+      <testcase name="test_deferred_first_mount_reapplies_bound_bridge_preferences_before_first_text" assertions="27" status="pass" classname="tests/integration/test_witnessed_caption_runtime.gd" time="0.193644" >
+      </testcase>
+      <testcase name="test_real_timeline_reveal_append_clear_and_end_keep_one_text_node" assertions="21" status="pass" classname="tests/integration/test_witnessed_caption_runtime.gd" time="0.188051" >
+      </testcase>
+      <testcase name="test_presentation_matrix_preserves_live_reveal_history_and_event_position" assertions="2616" status="pass" classname="tests/integration/test_witnessed_caption_runtime.gd" time="4.162271" >
+      </testcase>
+      <testcase name="test_overflow_scroll_is_local_and_reconfigure_does_not_complete_text" assertions="32" status="pass" classname="tests/integration/test_witnessed_caption_runtime.gd" time="0.314283" >
+      </testcase>
+      <testcase name="test_actual_hospital_bridge_path_selects_caption_then_natural_end_restores_default_scope" assertions="15" status="pass" classname="tests/integration/test_witnessed_caption_runtime.gd" time="0.908799" >
+      </testcase>
+      <testcase name="test_hospital_missing_styles_refuses_before_clear_start_or_bridge_context" assertions="5" status="pass" classname="tests/integration/test_witnessed_caption_runtime.gd" time="0.010883" >
+      </testcase>
+      <testcase name="test_real_touch_drag_with_mouse_emulation_scrolls_without_finishing_native_reveal" assertions="13" status="pass" classname="tests/integration/test_witnessed_caption_runtime.gd" time="0.197539" >
+      </testcase>
+      <testcase name="test_stack_keeps_newest_three_published_captions_with_one_native_current" assertions="94" status="pass" classname="tests/integration/test_witnessed_caption_runtime.gd" time="0.172668" >
+      </testcase>
+      <testcase name="test_stack_append_newline_sections_and_identical_copy_are_distinct_publications" assertions="51" status="pass" classname="tests/integration/test_witnessed_caption_runtime.gd" time="0.143205" >
+      </testcase>
+      <testcase name="test_silent_retained_reprojection_and_remeasurement_preserve_reveal_history_and_manual_scroll" assertions="232" status="pass" classname="tests/integration/test_witnessed_caption_runtime.gd" time="0.457546" >
+      </testcase>
+      <testcase name="test_runtime_pause_preserves_the_pending_native_pause_remaining_time" assertions="25" status="pass" classname="tests/integration/test_witnessed_caption_runtime.gd" time="1.526508" >
+      </testcase>
+      <testcase name="test_hidden_caption_preserves_the_pending_native_pause_remaining_time" assertions="25" status="pass" classname="tests/integration/test_witnessed_caption_runtime.gd" time="1.546717" >
+      </testcase>
+      <testcase name="test_hidden_same_frame_clear_and_replace_and_next_timeline_do_not_retain_old_caption" assertions="41" status="pass" classname="tests/integration/test_witnessed_caption_runtime.gd" time="0.146373" >
+      </testcase>
+      <testcase name="test_clear_holds_empty_without_finishing_a_hidden_incomplete_reveal" assertions="33" status="pass" classname="tests/integration/test_witnessed_caption_runtime.gd" time="0.100295" >
+      </testcase>
+      <testcase name="test_hiding_and_showing_incomplete_caption_pauses_without_cancelling_its_reveal" assertions="17" status="pass" classname="tests/integration/test_witnessed_caption_runtime.gd" time="0.125952" >
+      </testcase>
+      <testcase name="test_skipping_a_native_pause_cannot_resume_effects_or_reveal_on_the_replacement_line" assertions="27" status="pass" classname="tests/integration/test_witnessed_caption_runtime.gd" time="1.095893" >
+      </testcase>
+      <testcase name="test_real_text_clear_and_immediate_replacement_invalidate_an_awaiting_native_pause" assertions="17" status="pass" classname="tests/integration/test_witnessed_caption_runtime.gd" time="0.72031" >
+      </testcase>
+      <testcase name="test_actual_background_and_caption_accept_share_one_release_gesture" assertions="16" status="pass" classname="tests/integration/test_witnessed_caption_runtime.gd" time="0.222522" >
+      </testcase>
+      <testcase name="test_actual_enter_and_same_frame_unrelated_packets_issue_one_accept" assertions="12" status="pass" classname="tests/integration/test_witnessed_caption_runtime.gd" time="0.140365" >
+      </testcase>
+      <testcase name="test_actual_accept_waits_for_all_held_contacts_to_release" assertions="13" status="pass" classname="tests/integration/test_witnessed_caption_runtime.gd" time="0.222523" >
+      </testcase>
+      <testcase name="test_actual_current_short_tap_accepts_but_drag_only_scrolls" assertions="21" status="pass" classname="tests/integration/test_witnessed_caption_runtime.gd" time="0.392649" >
+      </testcase>
+      <testcase name="test_actual_joypad_accept_refuses_paused_or_held_contact_then_rearms" assertions="15" status="pass" classname="tests/integration/test_witnessed_caption_runtime.gd" time="0.276071" >
+      </testcase>
+      <testcase name="test_actual_focused_gui_button_gets_first_refusal_before_caption_accept" assertions="11" status="pass" classname="tests/integration/test_witnessed_caption_runtime.gd" time="0.167894" >
+      </testcase>
+      <testcase name="test_actual_accept_held_before_policy_mount_and_simulated_focus_return_requires_release" assertions="16" status="pass" classname="tests/integration/test_witnessed_caption_runtime.gd" time="0.250211" >
+      </testcase>
+      <testcase name="test_actual_controller_shoulders_page_shared_caption_without_narrative_changes" assertions="24" status="pass" classname="tests/integration/test_witnessed_caption_runtime.gd" time="0.53614" >
+      </testcase>
+      <testcase name="test_actual_scroll_gestures_cancel_armed_pointer_accept_before_inside_release" assertions="41" status="pass" classname="tests/integration/test_witnessed_caption_runtime.gd" time="0.649193" >
+      </testcase>
+      <testcase name="test_real_profile_font_style_preserves_live_caption_and_retires_old_pointer_contact" assertions="28" status="pass" classname="tests/integration/test_witnessed_caption_runtime.gd" time="0.488199" >
+      </testcase>
+      <testcase name="test_real_profile_large_targets_resize_current_caption_without_accepting_held_click" assertions="23" status="pass" classname="tests/integration/test_witnessed_caption_runtime.gd" time="0.263099" >
+      </testcase>
+      <testcase name="test_large_target_overflow_scrollbar_keeps_reading_position_and_minimum_hit_geometry" assertions="208" status="pass" classname="tests/integration/test_witnessed_caption_runtime.gd" time="0.971567" >
+      </testcase>
+      <testcase name="test_native_scrollbar_wide_hit_area_pages_and_drags_without_accepting_caption" assertions="15" status="pass" classname="tests/integration/test_witnessed_caption_runtime.gd" time="0.361433" >
+      </testcase>
+      <testcase name="test_real_profile_material_preferences_preserve_native_reading_and_pending_click" assertions="86" status="pass" classname="tests/integration/test_witnessed_caption_runtime.gd" time="0.436355" >
+      </testcase>
+      <testcase name="test_real_profile_target_resize_cancels_held_native_thumb_drag_until_fresh_contact" assertions="16" status="pass" classname="tests/integration/test_witnessed_caption_runtime.gd" time="0.32115" >
+      </testcase>
+      <testcase name="test_review_wheel_moves_exactly_one_three_caption_window_and_clamps_without_story_changes" assertions="40" status="pass" classname="tests/integration/test_witnessed_caption_runtime.gd" time="0.359058" >
+      </testcase>
+      <testcase name="test_review_background_click_returns_live_before_a_fresh_click_reveals" assertions="11" status="pass" classname="tests/integration/test_witnessed_caption_runtime.gd" time="0.249537" >
+      </testcase>
+      <testcase name="test_review_reset_and_reprojection_restore_the_live_caption" assertions="11" status="pass" classname="tests/integration/test_witnessed_caption_runtime.gd" time="0.249363" >
+      </testcase>
+      <testcase name="test_background_tap_cancellation_and_other_buttons_never_advance" assertions="11" status="pass" classname="tests/integration/test_witnessed_caption_runtime.gd" time="0.195704" >
+      </testcase>
+      <testcase name="test_review_pauses_real_pending_text_effect_and_never_replays_speech" assertions="16" status="pass" classname="tests/integration/test_witnessed_caption_runtime.gd" time="0.988303" >
+      </testcase>
+      <testcase name="test_background_mixed_control_edges_and_review_pause_do_not_accept" assertions="9" status="pass" classname="tests/integration/test_witnessed_caption_runtime.gd" time="0.27798" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_witnessed_pause_view.gd" tests="4" failures="0" skipped="0" time="0.432714" >
+      <testcase name="test_cover_hides_complete_native_view_without_changing_reveal_or_history_then_restores_pan_focus" assertions="27" status="pass" classname="tests/unit/test_witnessed_pause_view.gd" time="0.134701" >
+      </testcase>
+      <testcase name="test_tampered_stale_and_foreign_view_anchors_are_refused_without_mutation" assertions="13" status="pass" classname="tests/unit/test_witnessed_pause_view.gd" time="0.079691" >
+      </testcase>
+      <testcase name="test_settings_reprojection_under_cover_preserves_native_copy_and_restores_clamped_pan" assertions="15" status="pass" classname="tests/unit/test_witnessed_pause_view.gd" time="0.127781" >
+      </testcase>
+      <testcase name="test_no_source_focus_is_not_invented_and_empty_capture_is_refused" assertions="9" status="pass" classname="tests/unit/test_witnessed_pause_view.gd" time="0.090541" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_witnessed_auto_controller.gd" tests="13" failures="0" skipped="0" time="0.020593" >
+      <testcase name="test_toggle_commits_the_profile_and_a_failed_commit_preserves_truth" assertions="9" status="pass" classname="tests/unit/test_witnessed_auto_controller.gd" time="0.001994" >
+      </testcase>
+      <testcase name="test_explicit_auto_target_is_idempotent_and_retries_the_same_failed_target" assertions="14" status="pass" classname="tests/unit/test_witnessed_auto_controller.gd" time="0.002259" >
+      </testcase>
+      <testcase name="test_reentrant_auto_source_replacement_retires_the_old_setter" assertions="6" status="pass" classname="tests/unit/test_witnessed_auto_controller.gd" time="0.000928" >
+      </testcase>
+      <testcase name="test_exact_delays_advance_once_and_never_restart_for_duplicate_finished_signal" assertions="6" status="pass" classname="tests/unit/test_witnessed_auto_controller.gd" time="0.00193" >
+      </testcase>
+      <testcase name="test_suspension_preserves_remaining_time_and_skips_the_resume_delta" assertions="5" status="pass" classname="tests/unit/test_witnessed_auto_controller.gd" time="0.001412" >
+      </testcase>
+      <testcase name="test_suspension_notification_quarantines_resume_without_an_ineligible_tick" assertions="5" status="pass" classname="tests/unit/test_witnessed_auto_controller.gd" time="0.001443" >
+      </testcase>
+      <testcase name="test_source_identity_and_bridge_barriers_fail_closed_without_retry" assertions="6" status="pass" classname="tests/unit/test_witnessed_auto_controller.gd" time="0.001556" >
+      </testcase>
+      <testcase name="test_preference_changes_and_restore_replace_the_timer_with_one_full_delay" assertions="8" status="pass" classname="tests/unit/test_witnessed_auto_controller.gd" time="0.002031" >
+      </testcase>
+      <testcase name="test_retirement_and_reentrant_replacement_cannot_leak_an_old_generation" assertions="7" status="pass" classname="tests/unit/test_witnessed_auto_controller.gd" time="0.002516" >
+      </testcase>
+      <testcase name="test_completion_barrier_spends_foreground_delay_concurrently_then_holds_at_zero" assertions="8" status="pass" classname="tests/unit/test_witnessed_auto_controller.gd" time="0.00152" >
+      </testcase>
+      <testcase name="test_zero_delay_wait_still_obeys_custody_and_quarantines_resume_delta" assertions="5" status="pass" classname="tests/unit/test_witnessed_auto_controller.gd" time="0.001419" >
+      </testcase>
+      <testcase name="test_frontier_or_semantic_boundary_change_retires_a_zero_delay_wait" assertions="4" status="pass" classname="tests/unit/test_witnessed_auto_controller.gd" time="0.000892" >
+      </testcase>
+      <testcase name="test_empty_optional_barrier_preserves_existing_auto_timing" assertions="2" status="pass" classname="tests/unit/test_witnessed_auto_controller.gd" time="0.000693" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_witnessed_skip_controller.gd" tests="10" failures="0" skipped="0" time="0.010226" >
+      <testcase name="test_auto_off_is_durable_before_the_first_step_and_failure_does_not_start" assertions="12" status="pass" classname="tests/unit/test_witnessed_skip_controller.gd" time="0.001816" >
+      </testcase>
+      <testcase name="test_explicit_skip_target_is_idempotent_and_retries_the_same_failed_start" assertions="15" status="pass" classname="tests/unit/test_witnessed_skip_controller.gd" time="0.001332" >
+      </testcase>
+      <testcase name="test_reentrant_skip_source_replacement_retires_the_old_setter" assertions="7" status="pass" classname="tests/unit/test_witnessed_skip_controller.gd" time="0.001128" >
+      </testcase>
+      <testcase name="test_stop_during_auto_commit_retires_the_pending_start" assertions="6" status="pass" classname="tests/unit/test_witnessed_skip_controller.gd" time="0.000821" >
+      </testcase>
+      <testcase name="test_second_toggle_stops_and_each_frame_runs_at_most_one_step" assertions="6" status="pass" classname="tests/unit/test_witnessed_skip_controller.gd" time="0.000627" >
+      </testcase>
+      <testcase name="test_failure_false_decision_and_boundary_each_stop_the_session" assertions="12" status="pass" classname="tests/unit/test_witnessed_skip_controller.gd" time="0.001345" >
+      </testcase>
+      <testcase name="test_reentrant_replacement_cannot_let_the_old_step_stop_the_new_session" assertions="5" status="pass" classname="tests/unit/test_witnessed_skip_controller.gd" time="0.000586" >
+      </testcase>
+      <testcase name="test_external_auto_on_and_admission_loss_stop_without_an_extra_step" assertions="8" status="pass" classname="tests/unit/test_witnessed_skip_controller.gd" time="0.001017" >
+      </testcase>
+      <testcase name="test_profile_restore_retires_skip_even_when_auto_remains_off" assertions="5" status="pass" classname="tests/unit/test_witnessed_skip_controller.gd" time="0.000692" >
+      </testcase>
+      <testcase name="test_freed_dependencies_fail_closed_before_another_step" assertions="7" status="pass" classname="tests/unit/test_witnessed_skip_controller.gd" time="0.000862" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/scene/test_witnessed_transport_recovery.gd" tests="9" failures="0" skipped="0" time="2.159863" >
+      <testcase name="test_determinate_failure_is_a_modal_retry_cancel_surface_above_the_frozen_composition" assertions="17" status="pass" classname="tests/scene/test_witnessed_transport_recovery.gd" time="0.219309" >
+      </testcase>
+      <testcase name="test_buttons_emit_only_guarded_fresh_actions_and_dismiss_retires_old_native_callbacks" assertions="14" status="pass" classname="tests/scene/test_witnessed_transport_recovery.gd" time="0.208111" >
+      </testcase>
+      <testcase name="test_uncertain_failure_has_truthful_inert_copy_and_no_false_retry_or_cancel" assertions="16" status="pass" classname="tests/scene/test_witnessed_transport_recovery.gd" time="0.257125" >
+      </testcase>
+      <testcase name="test_determinate_recovery_consumes_keyboard_and_controller_back_without_acting_or_escaping" assertions="12" status="pass" classname="tests/scene/test_witnessed_transport_recovery.gd" time="0.211515" >
+      </testcase>
+      <testcase name="test_uncertain_recovery_consumes_back_while_exposing_no_false_action" assertions="11" status="pass" classname="tests/scene/test_witnessed_transport_recovery.gd" time="0.208338" >
+      </testcase>
+      <testcase name="test_hidden_and_dismissed_recovery_return_back_to_the_lower_owner" assertions="11" status="pass" classname="tests/scene/test_witnessed_transport_recovery.gd" time="0.216259" >
+      </testcase>
+      <testcase name="test_determinate_recovery_tabs_only_between_its_two_actions" assertions="11" status="pass" classname="tests/scene/test_witnessed_transport_recovery.gd" time="0.221358" >
+      </testcase>
+      <testcase name="test_three_locales_and_accessibility_sizes_publish_one_atomic_complete_tuple" assertions="119" status="pass" classname="tests/scene/test_witnessed_transport_recovery.gd" time="0.41085" >
+      </testcase>
+      <testcase name="test_locale_mismatch_and_invalid_capability_tuple_change_nothing" assertions="12" status="pass" classname="tests/scene/test_witnessed_transport_recovery.gd" time="0.206998" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/integration/test_witnessed_speech_projection.gd" tests="8" failures="0" skipped="0" time="0.093923" >
+      <testcase name="test_semantic_entry_projects_native_primary_and_resolved_fallback_locale_without_read_identity" assertions="17" status="pass" classname="tests/integration/test_witnessed_speech_projection.gd" time="0.07585" >
+      </testcase>
+      <testcase name="test_append_projects_only_new_primary_suffix_while_retaining_full_display_proof" assertions="9" status="pass" classname="tests/integration/test_witnessed_speech_projection.gd" time="0.00321" >
+      </testcase>
+      <testcase name="test_ordinary_hospital_projects_without_registered_line_or_visited_receipt" assertions="9" status="pass" classname="tests/integration/test_witnessed_speech_projection.gd" time="0.002476" >
+      </testcase>
+      <testcase name="test_ordered_ending_projects_from_active_playback_without_semantic_entry_receipt" assertions="8" status="pass" classname="tests/integration/test_witnessed_speech_projection.gd" time="0.002316" >
+      </testcase>
+      <testcase name="test_about_to_show_and_native_or_owner_replacement_refuse_the_stale_publication" assertions="8" status="pass" classname="tests/integration/test_witnessed_speech_projection.gd" time="0.00231" >
+      </testcase>
+      <testcase name="test_resume_suppresses_only_the_first_exact_native_publication" assertions="8" status="pass" classname="tests/integration/test_witnessed_speech_projection.gd" time="0.003339" >
+      </testcase>
+      <testcase name="test_restored_append_retains_suppressed_display_as_base_for_the_next_fresh_suffix" assertions="9" status="pass" classname="tests/integration/test_witnessed_speech_projection.gd" time="0.002464" >
+      </testcase>
+      <testcase name="test_idle_empty_and_unparsed_publications_fail_closed" assertions="5" status="pass" classname="tests/integration/test_witnessed_speech_projection.gd" time="0.001958" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/integration/test_dating_caption_style.gd" tests="19" failures="0" skipped="0" time="15.052487" >
+      <testcase name="test_ending_frozen_prose_keeps_stable_completion_identity_across_runtime_counter_restart" assertions="27" status="pass" classname="tests/integration/test_dating_caption_style.gd" time="2.893021" >
+      </testcase>
+      <testcase name="test_hospital_plays_exact_day_label_with_frozen_facts_and_keeps_physical_completion_owner" assertions="18" status="pass" classname="tests/integration/test_dating_caption_style.gd" time="0.128982" >
+      </testcase>
+      <testcase name="test_gallery_real_dtl_reads_only_saved_signature_and_releases_frozen_variables" assertions="45" status="pass" classname="tests/integration/test_dating_caption_style.gd" time="2.284023" >
+      </testcase>
+      <testcase name="test_noncanon_conditional_dtl_keeps_canonical_and_saved_signature_branches_equal" assertions="83" status="pass" classname="tests/integration/test_dating_caption_style.gd" time="6.110045" >
+      </testcase>
+      <testcase name="test_frozen_context_drives_real_dtl_without_mutable_source_aliases" assertions="18" status="pass" classname="tests/integration/test_dating_caption_style.gd" time="0.141662" >
+      </testcase>
+      <testcase name="test_full_context_start_resume_and_preflight_refuse_the_same_invalid_fields" assertions="27" status="pass" classname="tests/integration/test_dating_caption_style.gd" time="0.014043" >
+      </testcase>
+      <testcase name="test_saved_full_context_resumes_real_prose_and_abort_restores_variables" assertions="16" status="pass" classname="tests/integration/test_dating_caption_style.gd" time="0.089394" >
+      </testcase>
+      <testcase name="test_artless_solo_group_and_twofriends_pre_and_post_select_nameless_style" assertions="34" status="pass" classname="tests/integration/test_dating_caption_style.gd" time="0.314854" >
+      </testcase>
+      <testcase name="test_resumed_dating_entry_selects_same_style_without_optional_art" assertions="7" status="pass" classname="tests/integration/test_dating_caption_style.gd" time="0.05813" >
+      </testcase>
+      <testcase name="test_return_only_date_with_available_art_completes_without_continue_hold" assertions="11" status="pass" classname="tests/integration/test_dating_caption_style.gd" time="0.057976" >
+      </testcase>
+      <testcase name="test_dating_adapter_waits_for_both_real_dialogue_lines_and_natural_end" assertions="24" status="pass" classname="tests/integration/test_dating_caption_style.gd" time="0.221282" >
+      </testcase>
+      <testcase name="test_named_dialogue_in_dating_style_keeps_identity_but_has_no_speaker_plate" assertions="11" status="pass" classname="tests/integration/test_dating_caption_style.gd" time="0.064932" >
+      </testcase>
+      <testcase name="test_dating_natural_end_restores_ordinary_default_style" assertions="9" status="pass" classname="tests/integration/test_dating_caption_style.gd" time="0.827371" >
+      </testcase>
+      <testcase name="test_dating_subtitles_keep_all_four_labels_transparent_and_centered_at_each_text_size" assertions="184" status="pass" classname="tests/integration/test_dating_caption_style.gd" time="0.330393" >
+      </testcase>
+      <testcase name="test_dating_art_extends_behind_subtitles_without_consuming_control_or_challenge_space" assertions="70" status="pass" classname="tests/integration/test_dating_caption_style.gd" time="0.021514" >
+      </testcase>
+      <testcase name="test_long_dating_caption_stays_centered_and_scrollable_with_both_scrollbar_sizes" assertions="42" status="pass" classname="tests/integration/test_dating_caption_style.gd" time="0.412838" >
+      </testcase>
+      <testcase name="test_dating_review_and_hospital_scope_reset_preserve_native_text_and_history" assertions="55" status="pass" classname="tests/integration/test_dating_caption_style.gd" time="0.313809" >
+      </testcase>
+      <testcase name="test_dating_split_mouse_commits_on_release_without_advancing_caption" assertions="24" status="pass" classname="tests/integration/test_dating_caption_style.gd" time="0.340168" >
+      </testcase>
+      <testcase name="test_dating_split_touch_keyboard_and_reading_custody_preserve_native_text" assertions="27" status="pass" classname="tests/integration/test_dating_caption_style.gd" time="0.42805" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_scene_art_bindings.gd" tests="13" failures="0" skipped="0" time="0.713856" >
+      <testcase name="test_art_is_inert_and_clipped_above_each_caption_aperture" assertions="42" status="pass" classname="tests/unit/test_scene_art_bindings.gd" time="0.006893" >
+      </testcase>
+      <testcase name="test_challenge_retains_left_portraits_and_empty_mapping_clears_old_images" assertions="18" status="pass" classname="tests/unit/test_scene_art_bindings.gd" time="0.037749" >
+      </testcase>
+      <testcase name="test_dating_solo_crop_stays_centered_at_fixed_height_with_shared_background" assertions="36" status="pass" classname="tests/unit/test_scene_art_bindings.gd" time="0.123917" >
+      </testcase>
+      <testcase name="test_two_portraits_keep_equal_centers_and_overlap_only_for_transparent_art" assertions="43" status="pass" classname="tests/unit/test_scene_art_bindings.gd" time="0.169867" >
+      </testcase>
+      <testcase name="test_unadjusted_kinds_follow_desktop_until_each_kind_is_committed" assertions="18" status="pass" classname="tests/unit/test_scene_art_bindings.gd" time="0.006074" >
+      </testcase>
+      <testcase name="test_presentation_changes_noop_and_cancellation_do_not_freeze_inheritance" assertions="8" status="pass" classname="tests/unit/test_scene_art_bindings.gd" time="0.003062" >
+      </testcase>
+      <testcase name="test_failed_width_save_rolls_back_to_the_previous_preference_policy" assertions="10" status="pass" classname="tests/unit/test_scene_art_bindings.gd" time="0.00404" >
+      </testcase>
+      <testcase name="test_group_entry_with_one_portrait_uses_the_group_preference" assertions="6" status="pass" classname="tests/unit/test_scene_art_bindings.gd" time="0.003638" >
+      </testcase>
+      <testcase name="test_dating_mapping_uses_one_fixed_scene_for_all_phases_and_no_variants" assertions="4" status="pass" classname="tests/unit/test_scene_art_bindings.gd" time="0.002059" >
+      </testcase>
+      <testcase name="test_actual_dating_host_keeps_art_left_and_fits_board_in_right_panel" assertions="23" status="pass" classname="tests/unit/test_scene_art_bindings.gd" time="0.336122" >
+      </testcase>
+      <testcase name="test_ordinary_hospital_scene_shows_readable_notice_and_acknowledges_once" assertions="6" status="pass" classname="tests/unit/test_scene_art_bindings.gd" time="0.008458" >
+      </testcase>
+      <testcase name="test_hospital_requires_this_days_exact_saved_witness_sources" assertions="7" status="pass" classname="tests/unit/test_scene_art_bindings.gd" time="0.004051" >
+      </testcase>
+      <testcase name="test_bridge_projects_only_retained_entry_and_style_mounts_art_below_captions" assertions="8" status="pass" classname="tests/unit/test_scene_art_bindings.gd" time="0.007926" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_scene_art_hold.gd" tests="6" failures="0" skipped="0" time="0.30543" >
+      <testcase name="test_portrait_only_return_scene_waits_then_executes_original_dtl_once" assertions="16" status="pass" classname="tests/unit/test_scene_art_hold.gd" time="0.065748" >
+      </testcase>
+      <testcase name="test_pause_reuses_exact_art_view_and_continue_does_not_execute_while_suspended" assertions="52" status="pass" classname="tests/unit/test_scene_art_hold.gd" time="0.093795" >
+      </testcase>
+      <testcase name="test_failed_load_keeps_same_art_then_successful_idle_load_retires_it_without_completion" assertions="27" status="pass" classname="tests/unit/test_scene_art_hold.gd" time="0.021134" >
+      </testcase>
+      <testcase name="test_return_retirement_cancels_card_and_never_starts_its_dtl" assertions="15" status="pass" classname="tests/unit/test_scene_art_hold.gd" time="0.020675" >
+      </testcase>
+      <testcase name="test_only_proven_empty_blocks_hold_and_no_art_preserves_native_auto_completion" assertions="13" status="pass" classname="tests/unit/test_scene_art_hold.gd" time="0.045539" >
+      </testcase>
+      <testcase name="test_witnessed_hospital_start_runs_its_dtl_instead_of_holding_on_its_art" assertions="12" status="pass" classname="tests/unit/test_scene_art_hold.gd" time="0.058539" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_production_pause_controller.gd" tests="33" failures="0" skipped="0" time="20.388395" >
+      <testcase name="test_witnessed_load_refuses_foreign_caption_without_session_or_backup_work" assertions="215" status="pass" classname="tests/unit/test_production_pause_controller.gd" time="0.207138" >
+      </testcase>
+      <testcase name="test_router_witnessed_load_facade_refuses_when_pause_owner_is_absent" assertions="11" status="pass" classname="tests/unit/test_production_pause_controller.gd" time="0.19549" >
+      </testcase>
+      <testcase name="test_desktop_pause_continue_preserves_scene_focus_and_real_input_custody" assertions="17" status="pass" classname="tests/unit/test_production_pause_controller.gd" time="0.48938" >
+      </testcase>
+      <testcase name="test_day7_overlay_is_covered_and_continue_restores_its_card_and_focus" assertions="20" status="pass" classname="tests/unit/test_production_pause_controller.gd" time="0.495646" >
+      </testcase>
+      <testcase name="test_day7_preparation_retry_survives_pause_without_preparing_or_acknowledging" assertions="16" status="pass" classname="tests/unit/test_production_pause_controller.gd" time="0.493085" >
+      </testcase>
+      <testcase name="test_retired_day7_overlay_cannot_restore_focus_into_the_same_desktop" assertions="14" status="pass" classname="tests/unit/test_production_pause_controller.gd" time="0.496109" >
+      </testcase>
+      <testcase name="test_day7_lost_view_anchor_keeps_desktop_hidden_during_recovery" assertions="18" status="pass" classname="tests/unit/test_production_pause_controller.gd" time="0.498543" >
+      </testcase>
+      <testcase name="test_failed_day7_load_keeps_view_input_and_tree_suspended_through_restore_handoff" assertions="28" status="pass" classname="tests/unit/test_production_pause_controller.gd" time="0.499181" >
+      </testcase>
+      <testcase name="test_production_pause_reuses_hosts_with_current_day_and_appearance_cannot_touch_backup_action" assertions="39" status="pass" classname="tests/unit/test_production_pause_controller.gd" time="1.053906" >
+      </testcase>
+      <testcase name="test_physical_dating_source_resumes_exact_command_and_changed_command_refuses" assertions="12" status="pass" classname="tests/unit/test_production_pause_controller.gd" time="0.491046" >
+      </testcase>
+      <testcase name="test_return_route_failure_retains_paused_retry_and_never_saves_or_resumes_discarded_source" assertions="22" status="pass" classname="tests/unit/test_production_pause_controller.gd" time="0.492631" >
+      </testcase>
+      <testcase name="test_foreign_runtime_and_title_cannot_be_admitted_as_idle_playback" assertions="10" status="pass" classname="tests/unit/test_production_pause_controller.gd" time="0.194889" >
+      </testcase>
+      <testcase name="test_pause_backup_inspects_nine_records_and_does_not_claim_unsupported_operations" assertions="20" status="pass" classname="tests/unit/test_production_pause_controller.gd" time="0.50083" >
+      </testcase>
+      <testcase name="test_global_back_does_not_steal_a_text_field_event" assertions="8" status="pass" classname="tests/unit/test_production_pause_controller.gd" time="0.191643" >
+      </testcase>
+      <testcase name="test_pause_delete_keeps_exact_suspension_and_never_saves_the_source" assertions="16" status="pass" classname="tests/unit/test_production_pause_controller.gd" time="0.502141" >
+      </testcase>
+      <testcase name="test_idle_pause_load_failure_reacquires_exact_source_then_retry_follows_new_session" assertions="23" status="pass" classname="tests/unit/test_production_pause_controller.gd" time="0.504156" >
+      </testcase>
+      <testcase name="test_failed_load_with_changed_session_cannot_resume_either_source" assertions="14" status="pass" classname="tests/unit/test_production_pause_controller.gd" time="0.495658" >
+      </testcase>
+      <testcase name="test_paused_dating_manual_and_quick_save_restore_exact_board_and_command" assertions="54" status="pass" classname="tests/unit/test_production_pause_controller.gd" time="0.832613" >
+      </testcase>
+      <testcase name="test_paused_dating_save_cancellation_and_board_drift_preserve_suspension_and_disk" assertions="35" status="pass" classname="tests/unit/test_production_pause_controller.gd" time="0.593736" >
+      </testcase>
+      <testcase name="test_desktop_pause_capture_preserves_the_covered_app_and_suspension" assertions="15" status="pass" classname="tests/unit/test_production_pause_controller.gd" time="0.490041" >
+      </testcase>
+      <testcase name="test_desktop_pause_capture_refuses_route_session_and_narrative_drift" assertions="12" status="pass" classname="tests/unit/test_production_pause_controller.gd" time="0.486773" >
+      </testcase>
+      <testcase name="test_paused_debug_preparation_save_preserves_exact_frontier_without_entering_attempt" assertions="35" status="pass" classname="tests/unit/test_production_pause_controller.gd" time="4.208402" >
+      </testcase>
+      <testcase name="test_paused_quick_save_uses_real_dating_capture_without_changing_focus_or_backup_selection" assertions="33" status="pass" classname="tests/unit/test_production_pause_controller.gd" time="0.587121" >
+      </testcase>
+      <testcase name="test_paused_quick_rebinding_quarantines_the_held_new_key_until_release" assertions="24" status="pass" classname="tests/unit/test_production_pause_controller.gd" time="0.607888" >
+      </testcase>
+      <testcase name="test_paused_quick_rejects_unsupported_modifier_binding_and_preserves_default" assertions="25" status="pass" classname="tests/unit/test_production_pause_controller.gd" time="0.579672" >
+      </testcase>
+      <testcase name="test_paused_quick_load_cancel_retains_backup_drawer_mode_and_exact_focus" assertions="19" status="pass" classname="tests/unit/test_production_pause_controller.gd" time="0.500813" >
+      </testcase>
+      <testcase name="test_paused_controller_quick_load_uses_saved_binding_and_compensates_failure" assertions="17" status="pass" classname="tests/unit/test_production_pause_controller.gd" time="0.534332" >
+      </testcase>
+      <testcase name="test_paused_quick_refusal_is_visible_and_settings_custody_blocks_shortcuts" assertions="16" status="pass" classname="tests/unit/test_production_pause_controller.gd" time="0.592705" >
+      </testcase>
+      <testcase name="test_paused_quick_load_success_releases_only_through_the_existing_restore_owner" assertions="16" status="pass" classname="tests/unit/test_production_pause_controller.gd" time="0.513327" >
+      </testcase>
+      <testcase name="test_paused_quick_focus_loss_cancels_prepared_consent_without_loading" assertions="14" status="pass" classname="tests/unit/test_production_pause_controller.gd" time="0.508355" >
+      </testcase>
+      <testcase name="test_paused_quick_cancel_restores_rebuilt_backup_action_by_semantic_focus" assertions="16" status="pass" classname="tests/unit/test_production_pause_controller.gd" time="0.534757" >
+      </testcase>
+      <testcase name="test_quick_focus_out_and_in_before_a_frame_still_retires_load_consent" assertions="12" status="pass" classname="tests/unit/test_production_pause_controller.gd" time="0.498596" >
+      </testcase>
+      <testcase name="test_failed_quick_load_while_backgrounded_restores_origin_on_focus_return" assertions="14" status="pass" classname="tests/unit/test_production_pause_controller.gd" time="0.517792" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/scene/test_hospital_scene.gd" tests="10" failures="0" skipped="0" time="0.029143" >
+      <testcase name="test_the_scene_is_configured_off_tree_and_reports_it" assertions="5" status="pass" classname="tests/scene/test_hospital_scene.gd" time="0.00237" >
+      </testcase>
+      <testcase name="test_configuration_is_idempotent_and_refuses_a_replacement_port" assertions="5" status="pass" classname="tests/scene/test_hospital_scene.gd" time="0.002003" >
+      </testcase>
+      <testcase name="test_an_incomplete_port_or_empty_command_is_refused" assertions="4" status="pass" classname="tests/scene/test_hospital_scene.gd" time="0.001504" >
+      </testcase>
+      <testcase name="test_the_scene_holds_only_a_detached_projection" assertions="3" status="pass" classname="tests/scene/test_hospital_scene.gd" time="0.001679" >
+      </testcase>
+      <testcase name="test_ready_mutates_no_gameplay_state" assertions="3" status="pass" classname="tests/scene/test_hospital_scene.gd" time="0.003402" >
+      </testcase>
+      <testcase name="test_notice_font_style_updates_preserve_command_focus_and_gameplay_state" assertions="14" status="pass" classname="tests/scene/test_hospital_scene.gd" time="0.007554" >
+      </testcase>
+      <testcase name="test_an_unconfigured_scene_reaching_the_tree_does_nothing_at_all" assertions="4" status="pass" classname="tests/scene/test_hospital_scene.gd" time="0.003328" >
+      </testcase>
+      <testcase name="test_ordinary_host_exposes_only_the_notice_acknowledgment" assertions="7" status="pass" classname="tests/scene/test_hospital_scene.gd" time="0.003672" >
+      </testcase>
+      <testcase name="test_host_ignores_input_without_advancing_the_day_or_entering_an_ending" assertions="6" status="pass" classname="tests/scene/test_hospital_scene.gd" time="0.002019" >
+      </testcase>
+      <testcase name="test_the_scene_exposes_no_mutation_seam" assertions="8" status="pass" classname="tests/scene/test_hospital_scene.gd" time="0.001612" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_day7_font_preferences.gd" tests="3" failures="0" skipped="0" time="0.299319" >
+      <testcase name="test_live_typography_keeps_card_history_palette_and_auto_clock" assertions="16" status="pass" classname="tests/unit/test_day7_font_preferences.gd" time="0.049541" >
+      </testcase>
+      <testcase name="test_typography_only_binding_is_profile_scoped_and_restore_observed" assertions="15" status="pass" classname="tests/unit/test_day7_font_preferences.gd" time="0.044237" >
+      </testcase>
+      <testcase name="test_actual_bootstrap_day7_mount_passes_bound_font_and_tracks_changes" assertions="9" status="pass" classname="tests/unit/test_day7_font_preferences.gd" time="0.205541" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_gallery_replay_owner.gd" tests="15" failures="0" skipped="0" time="1.223239" >
+      <testcase name="test_canonical_completion_records_the_exact_label_then_gallery_has_no_canonical_effects" assertions="23" status="pass" classname="tests/unit/test_gallery_replay_owner.gd" time="0.048957" >
+      </testcase>
+      <testcase name="test_discovery_is_not_permission_for_an_unreached_signature" assertions="10" status="pass" classname="tests/unit/test_gallery_replay_owner.gd" time="0.040983" >
+      </testcase>
+      <testcase name="test_return_cancels_only_its_token_and_a_late_old_completion_cannot_close_replay" assertions="12" status="pass" classname="tests/unit/test_gallery_replay_owner.gd" time="0.04501" >
+      </testcase>
+      <testcase name="test_gallery_exceptional_variants_are_full_and_pair_alone_reject_solo_fields" assertions="13" status="pass" classname="tests/unit/test_gallery_replay_owner.gd" time="0.061197" >
+      </testcase>
+      <testcase name="test_public_record_titles_preserve_chinese_characters" assertions="43" status="pass" classname="tests/unit/test_gallery_replay_owner.gd" time="0.013559" >
+      </testcase>
+      <testcase name="test_public_gallery_selects_only_reached_versions_and_return_cancels_its_playback" assertions="19" status="pass" classname="tests/unit/test_gallery_replay_owner.gd" time="0.075501" >
+      </testcase>
+      <testcase name="test_deferred_start_failure_releases_gallery_without_canonical_failure_and_can_retry" assertions="12" status="pass" classname="tests/unit/test_gallery_replay_owner.gd" time="0.047179" >
+      </testcase>
+      <testcase name="test_ending_versions_keep_first_witness_order_and_replay_does_not_reorder" assertions="12" status="pass" classname="tests/unit/test_gallery_replay_owner.gd" time="0.064832" >
+      </testcase>
+      <testcase name="test_date_versions_preserve_owner_order_and_filter_chronology_by_exact_entry" assertions="12" status="pass" classname="tests/unit/test_gallery_replay_owner.gd" time="0.079141" >
+      </testcase>
+      <testcase name="test_gallery_refresh_retains_selected_identity_when_a_newest_version_is_added" assertions="14" status="pass" classname="tests/unit/test_gallery_replay_owner.gd" time="0.073693" >
+      </testcase>
+      <testcase name="test_nonending_replay_requires_milestone_and_exact_reached_signature" assertions="11" status="pass" classname="tests/unit/test_gallery_replay_owner.gd" time="0.042709" >
+      </testcase>
+      <testcase name="test_reached_date_renders_its_actual_phase_and_only_drawn_acknowledgment_finishes" assertions="19" status="pass" classname="tests/unit/test_gallery_replay_owner.gd" time="0.079169" >
+      </testcase>
+      <testcase name="test_pair_post_replay_is_readonly_and_old_card_cannot_finish_replacement" assertions="16" status="pass" classname="tests/unit/test_gallery_replay_owner.gd" time="0.093851" >
+      </testcase>
+      <testcase name="test_public_gallery_includes_reached_date_stages_without_new_ending_discoveries" assertions="21" status="pass" classname="tests/unit/test_gallery_replay_owner.gd" time="0.131198" >
+      </testcase>
+      <testcase name="test_reached_date_card_uses_its_bound_profile_fonts_without_changing_replay" assertions="22" status="pass" classname="tests/unit/test_gallery_replay_owner.gd" time="0.32626" >
+      </testcase>
+  </testsuite>
+</testsuites>

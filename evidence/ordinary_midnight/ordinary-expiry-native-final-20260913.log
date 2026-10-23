@@ -1,0 +1,11 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+OpenGL API 3.3.0 - Build 31.0.101.4146 - Compatibility - Using Device: Intel - Intel(R) Iris(R) Xe Graphics
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+PLAYABLE_RENDER_CAPTURE: C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/1486d3a5-571c-4ee5-a459-b51f95225c4e/appdata/Godot/app_userdata/DWM/evidence/playable/01-title.png
+PLAYABLE_RENDER_CAPTURE: C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/1486d3a5-571c-4ee5-a459-b51f95225c4e/appdata/Godot/app_userdata/DWM/evidence/playable/02-desktop.png
+PLAYABLE_RENDER_CAPTURE: C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/1486d3a5-571c-4ee5-a459-b51f95225c4e/appdata/Godot/app_userdata/DWM/evidence/playable/ordinary-expiry-day1-unanswered.png
+PLAYABLE_RENDER_CAPTURE: C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/1486d3a5-571c-4ee5-a459-b51f95225c4e/appdata/Godot/app_userdata/DWM/evidence/playable/ordinary-expiry-day2-restored.png
+PLAYABLE_ORDINARY_EXPIRY_PASS: actual New Account -> viewed but unanswered ordinary -> Schedule Done -> Day 2 disk Autosave -> full Load -> no late reply/history/echo; new Day 2 ordinary available

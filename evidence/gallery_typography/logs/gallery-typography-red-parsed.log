@@ -1,0 +1,370 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/ce7f64ce-590a-4153-b604-28bd7586853f/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+
+
+res://tests/unit/test_gallery_typography.gd
+* test_gallery_theme_uses_the_exact_regular_proportional_face_and_metrics_for_all_nine_tuples
+    [Failed]:  [24] expected to equal [16]:  en/100 uses the exact logical glyph master
+      at line 22
+    [Failed]:  en/100 uses one registered face directly
+      at line 23
+    [Failed]:  Gallery has no fallback or synthetic variation chain
+      at line 24
+    [Failed]:  Expected 'source sans 3' to contain 'fusion pixel', match_case=true
+      at line 25
+    [Failed]:  [28] expected to equal [18]:
+      at line 31
+    [Failed]:  [8] expected to equal [6]:
+      at line 32
+    [Failed]:  [35] expected to equal [24]:
+      at line 33
+    [Failed]:  [30] expected to equal [20]:  en/125 uses the exact logical glyph master
+      at line 22
+    [Failed]:  en/125 uses one registered face directly
+      at line 23
+    [Failed]:  Gallery has no fallback or synthetic variation chain
+      at line 24
+    [Failed]:  Expected 'source sans 3' to contain 'fusion pixel', match_case=true
+      at line 25
+    [Failed]:  [35] expected to equal [22]:
+      at line 31
+    [Failed]:  [10] expected to equal [6]:
+      at line 32
+    [Failed]:  [44] expected to equal [28]:
+      at line 33
+    [Failed]:  [36] expected to equal [24]:  en/150 uses the exact logical glyph master
+      at line 22
+    [Failed]:  en/150 uses one registered face directly
+      at line 23
+    [Failed]:  Gallery has no fallback or synthetic variation chain
+      at line 24
+    [Failed]:  Expected 'source sans 3' to contain 'fusion pixel', match_case=true
+      at line 25
+    [Failed]:  [42] expected to equal [26]:
+      at line 31
+    [Failed]:  [12] expected to equal [6]:
+      at line 32
+    [Failed]:  [53] expected to equal [32]:
+      at line 33
+    [Failed]:  [24] expected to equal [16]:  zh_CN/100 uses the exact logical glyph master
+      at line 22
+    [Failed]:  zh_CN/100 uses one registered face directly
+      at line 23
+    [Failed]:  Gallery has no fallback or synthetic variation chain
+      at line 24
+    [Failed]:  Expected 'source han sans sc' to contain 'fusion pixel', match_case=true
+      at line 25
+    [Failed]:  [28] expected to equal [18]:
+      at line 31
+    [Failed]:  [8] expected to equal [6]:
+      at line 32
+    [Failed]:  [35] expected to equal [24]:
+      at line 33
+    [Failed]:  [30] expected to equal [20]:  zh_CN/125 uses the exact logical glyph master
+      at line 22
+    [Failed]:  zh_CN/125 uses one registered face directly
+      at line 23
+    [Failed]:  Gallery has no fallback or synthetic variation chain
+      at line 24
+    [Failed]:  Expected 'source han sans sc' to contain 'fusion pixel', match_case=true
+      at line 25
+    [Failed]:  [35] expected to equal [22]:
+      at line 31
+    [Failed]:  [10] expected to equal [6]:
+      at line 32
+    [Failed]:  [44] expected to equal [28]:
+      at line 33
+    [Failed]:  [36] expected to equal [24]:  zh_CN/150 uses the exact logical glyph master
+      at line 22
+    [Failed]:  zh_CN/150 uses one registered face directly
+      at line 23
+    [Failed]:  Gallery has no fallback or synthetic variation chain
+      at line 24
+    [Failed]:  Expected 'source han sans sc' to contain 'fusion pixel', match_case=true
+      at line 25
+    [Failed]:  [42] expected to equal [26]:
+      at line 31
+    [Failed]:  [12] expected to equal [6]:
+      at line 32
+    [Failed]:  [53] expected to equal [32]:
+      at line 33
+    [Failed]:  [24] expected to equal [16]:  zh_HK/100 uses the exact logical glyph master
+      at line 22
+    [Failed]:  zh_HK/100 uses one registered face directly
+      at line 23
+    [Failed]:  Gallery has no fallback or synthetic variation chain
+      at line 24
+    [Failed]:  Expected 'source han sans hc' to contain 'fusion pixel', match_case=true
+      at line 25
+    [Failed]:  [28] expected to equal [18]:
+      at line 31
+    [Failed]:  [8] expected to equal [6]:
+      at line 32
+    [Failed]:  [35] expected to equal [24]:
+      at line 33
+    [Failed]:  [30] expected to equal [20]:  zh_HK/125 uses the exact logical glyph master
+      at line 22
+    [Failed]:  zh_HK/125 uses one registered face directly
+      at line 23
+    [Failed]:  Gallery has no fallback or synthetic variation chain
+      at line 24
+    [Failed]:  Expected 'source han sans hc' to contain 'fusion pixel', match_case=true
+      at line 25
+    [Failed]:  [35] expected to equal [22]:
+      at line 31
+    [Failed]:  [10] expected to equal [6]:
+      at line 32
+    [Failed]:  [44] expected to equal [28]:
+      at line 33
+    [Failed]:  [36] expected to equal [24]:  zh_HK/150 uses the exact logical glyph master
+      at line 22
+    [Failed]:  zh_HK/150 uses one registered face directly
+      at line 23
+    [Failed]:  Gallery has no fallback or synthetic variation chain
+      at line 24
+    [Failed]:  Expected 'source han sans hc' to contain 'fusion pixel', match_case=true
+      at line 25
+    [Failed]:  [42] expected to equal [26]:
+      at line 31
+    [Failed]:  [12] expected to equal [6]:
+      at line 32
+    [Failed]:  [53] expected to equal [32]:
+      at line 33
+    [Failed]:  [""] expected to not equal [""]:
+      at line 36
+    [Failed]:  [""] expected to not equal [""]:
+      at line 37
+    [Failed]:  [""] expected to not equal [""]:
+      at line 38
+* test_actual_localized_record_captions_wrap_without_hidden_lines_or_missing_glyphs
+    [Failed]:  [24] expected to equal [16]:
+      at line 57
+    [Failed]:  [30] expected to equal [20]:
+      at line 57
+    [Failed]:  [36] expected to equal [24]:
+      at line 57
+    [Failed]:  [24] expected to equal [16]:
+      at line 57
+    [Failed]:  [30] expected to equal [20]:
+      at line 57
+    [Failed]:  [36] expected to equal [24]:
+      at line 57
+    [Failed]:  [24] expected to equal [16]:
+      at line 57
+    [Failed]:  [30] expected to equal [20]:
+      at line 57
+    [Failed]:  [36] expected to equal [24]:
+      at line 57
+0/2 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/unit/test_gallery_typography.gd
+    - Outside Tests
+        * [<Node#131617261336>(subsystem_animation.gd)]
+        * [<Node#131634038564>(subsystem_audio.gd)]
+        * [<Node#131650815796>]
+        * [<Node#131667593021>]
+        * [<Node#131684370243>(subsystem_backgrounds.gd)]
+        * [<Node#132221241156>(subsystem_choices.gd)]
+        * [<Timer#132238018373>]
+        * [<Node#132254795590>(subsystem_expression.gd)]
+        * [<Node#132288350027>(subsystem_glossary.gd)]
+        * [<Node#132305127244>(subsystem_history.gd)]
+        * [<Node#132321904461>(subsystem_input.gd)]
+        * [<Timer#132338681678>]
+        * [<Node#132355458895>(subsystem_jump.gd)]
+        * [<Node#132372236112>(subsystem_containers.gd)]
+        * [<Node#132389013329>(subsystem_portraits.gd)]
+        * [<Node#132925884242>(subsystem_save.gd)]
+        * [<Timer#132942661459>]
+        * [<Node#132959438676>(subsystem_settings.gd)]
+        * [<Node#132976215896>(subsystem_styles.gd)]
+        * [<Node#132992993113>(subsystem_text.gd)]
+        * [<Node#133076879198>(subsystem_text_input.gd)]
+        * [<Node#133093656415>(subsystem_variables.gd)]
+        * [<Node#133110433632>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#133127210849>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+res://tests/unit/test_gallery_typography.gd
+- test_gallery_theme_uses_the_exact_regular_proportional_face_and_metrics_for_all_nine_tuples
+    [Failed]:  [24] expected to equal [16]:  en/100 uses the exact logical glyph master
+          at line 22
+    [Failed]:  en/100 uses one registered face directly
+          at line 23
+    [Failed]:  Gallery has no fallback or synthetic variation chain
+          at line 24
+    [Failed]:  Expected 'source sans 3' to contain 'fusion pixel', match_case=true
+          at line 25
+    [Failed]:  [28] expected to equal [18]:
+          at line 31
+    [Failed]:  [8] expected to equal [6]:
+          at line 32
+    [Failed]:  [35] expected to equal [24]:
+          at line 33
+    [Failed]:  [30] expected to equal [20]:  en/125 uses the exact logical glyph master
+          at line 22
+    [Failed]:  en/125 uses one registered face directly
+          at line 23
+    [Failed]:  Gallery has no fallback or synthetic variation chain
+          at line 24
+    [Failed]:  Expected 'source sans 3' to contain 'fusion pixel', match_case=true
+          at line 25
+    [Failed]:  [35] expected to equal [22]:
+          at line 31
+    [Failed]:  [10] expected to equal [6]:
+          at line 32
+    [Failed]:  [44] expected to equal [28]:
+          at line 33
+    [Failed]:  [36] expected to equal [24]:  en/150 uses the exact logical glyph master
+          at line 22
+    [Failed]:  en/150 uses one registered face directly
+          at line 23
+    [Failed]:  Gallery has no fallback or synthetic variation chain
+          at line 24
+    [Failed]:  Expected 'source sans 3' to contain 'fusion pixel', match_case=true
+          at line 25
+    [Failed]:  [42] expected to equal [26]:
+          at line 31
+    [Failed]:  [12] expected to equal [6]:
+          at line 32
+    [Failed]:  [53] expected to equal [32]:
+          at line 33
+    [Failed]:  [24] expected to equal [16]:  zh_CN/100 uses the exact logical glyph master
+          at line 22
+    [Failed]:  zh_CN/100 uses one registered face directly
+          at line 23
+    [Failed]:  Gallery has no fallback or synthetic variation chain
+          at line 24
+    [Failed]:  Expected 'source han sans sc' to contain 'fusion pixel', match_case=true
+          at line 25
+    [Failed]:  [28] expected to equal [18]:
+          at line 31
+    [Failed]:  [8] expected to equal [6]:
+          at line 32
+    [Failed]:  [35] expected to equal [24]:
+          at line 33
+    [Failed]:  [30] expected to equal [20]:  zh_CN/125 uses the exact logical glyph master
+          at line 22
+    [Failed]:  zh_CN/125 uses one registered face directly
+          at line 23
+    [Failed]:  Gallery has no fallback or synthetic variation chain
+          at line 24
+    [Failed]:  Expected 'source han sans sc' to contain 'fusion pixel', match_case=true
+          at line 25
+    [Failed]:  [35] expected to equal [22]:
+          at line 31
+    [Failed]:  [10] expected to equal [6]:
+          at line 32
+    [Failed]:  [44] expected to equal [28]:
+          at line 33
+    [Failed]:  [36] expected to equal [24]:  zh_CN/150 uses the exact logical glyph master
+          at line 22
+    [Failed]:  zh_CN/150 uses one registered face directly
+          at line 23
+    [Failed]:  Gallery has no fallback or synthetic variation chain
+          at line 24
+    [Failed]:  Expected 'source han sans sc' to contain 'fusion pixel', match_case=true
+          at line 25
+    [Failed]:  [42] expected to equal [26]:
+          at line 31
+    [Failed]:  [12] expected to equal [6]:
+          at line 32
+    [Failed]:  [53] expected to equal [32]:
+          at line 33
+    [Failed]:  [24] expected to equal [16]:  zh_HK/100 uses the exact logical glyph master
+          at line 22
+    [Failed]:  zh_HK/100 uses one registered face directly
+          at line 23
+    [Failed]:  Gallery has no fallback or synthetic variation chain
+          at line 24
+    [Failed]:  Expected 'source han sans hc' to contain 'fusion pixel', match_case=true
+          at line 25
+    [Failed]:  [28] expected to equal [18]:
+          at line 31
+    [Failed]:  [8] expected to equal [6]:
+          at line 32
+    [Failed]:  [35] expected to equal [24]:
+          at line 33
+    [Failed]:  [30] expected to equal [20]:  zh_HK/125 uses the exact logical glyph master
+          at line 22
+    [Failed]:  zh_HK/125 uses one registered face directly
+          at line 23
+    [Failed]:  Gallery has no fallback or synthetic variation chain
+          at line 24
+    [Failed]:  Expected 'source han sans hc' to contain 'fusion pixel', match_case=true
+          at line 25
+    [Failed]:  [35] expected to equal [22]:
+          at line 31
+    [Failed]:  [10] expected to equal [6]:
+          at line 32
+    [Failed]:  [44] expected to equal [28]:
+          at line 33
+    [Failed]:  [36] expected to equal [24]:  zh_HK/150 uses the exact logical glyph master
+          at line 22
+    [Failed]:  zh_HK/150 uses one registered face directly
+          at line 23
+    [Failed]:  Gallery has no fallback or synthetic variation chain
+          at line 24
+    [Failed]:  Expected 'source han sans hc' to contain 'fusion pixel', match_case=true
+          at line 25
+    [Failed]:  [42] expected to equal [26]:
+          at line 31
+    [Failed]:  [12] expected to equal [6]:
+          at line 32
+    [Failed]:  [53] expected to equal [32]:
+          at line 33
+    [Failed]:  [""] expected to not equal [""]:
+          at line 36
+    [Failed]:  [""] expected to not equal [""]:
+          at line 37
+    [Failed]:  [""] expected to not equal [""]:
+          at line 38
+- test_actual_localized_record_captions_wrap_without_hidden_lines_or_missing_glyphs
+    [Failed]:  [24] expected to equal [16]:
+          at line 57
+    [Failed]:  [30] expected to equal [20]:
+          at line 57
+    [Failed]:  [36] expected to equal [24]:
+          at line 57
+    [Failed]:  [24] expected to equal [16]:
+          at line 57
+    [Failed]:  [30] expected to equal [20]:
+          at line 57
+    [Failed]:  [36] expected to equal [24]:
+          at line 57
+    [Failed]:  [24] expected to equal [16]:
+          at line 57
+    [Failed]:  [30] expected to equal [20]:
+          at line 57
+    [Failed]:  [36] expected to equal [24]:
+          at line 57
+
+Totals
+------
+Scripts               1
+Tests                 2
+Passing Tests      none
+Failing Tests         2
+Asserts           166/241
+Orphans              24
+Time              0.581s
+
+
+---- 2 failing tests ----

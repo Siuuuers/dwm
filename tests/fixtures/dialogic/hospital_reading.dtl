@@ -1,0 +1,17 @@
+# NONCANONICAL CLOUD TEST FIXTURE ONLY. Explicit locator injection is required.
+return
+
+label hospital.faint.day3
+This first noncanonical Hospital fixture caption marks a fresh reading session. #id:fixture.hospital.a
+This second noncanonical Hospital fixture caption deliberately leaves enough text to observe a partial reveal, open Pause, cancel without changing the line, and explicitly save its current stable point. #id:fixture.hospital.b
+return
+
+label dating.solo.priscilla.day4.pre_challenge
+Before the board, a quiet moment. This deliberately long noncanonical fixture line leaves time to open Pause, cancel, continue, and request Backup while the original semantic beat is still revealing. #id:fixture.next.solo.pre.a
+The challenge is ready. #id:fixture.next.solo.pre.b
+return
+
+label dating.solo.priscilla.day4.post_challenge
+The board has settled. This deliberately long noncanonical fixture line keeps a partial reveal available while Save records one stable semantic beat. #id:fixture.next.solo.post.a
+We can remember this moment. #id:fixture.next.solo.post.b
+return

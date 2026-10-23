@@ -1,0 +1,754 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+SCRIPT ERROR: Parse Error: The variable type is being inferred from a Variant value, so it will be typed as Variant. (Warning treated as error.)
+   at: GDScript::reload (res://autoload/ApplicationBootstrap.gd:825)
+ERROR: Failed to load script "res://autoload/ApplicationBootstrap.gd" with error "Parse error".
+   at: load (modules/gdscript/gdscript.cpp:2907)
+ERROR: Failed to instantiate an autoload, script 'res://autoload/ApplicationBootstrap.gd' does not inherit from 'Node'.
+   at: start (main/main.cpp:4440)
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/.godot/worktrees/dwm-p2r13-resealed/.godot/phase2r_tests/36cfe54e-e948-4bef-849b-8b3ac9745a52/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+res://tests/integration/test_desktop_bootstrap_wiring.gd
+* test_the_probe_exists_and_returns_only_integers_and_booleans
+ERROR: Parameter "p_script->implicit_initializer" is null.
+   at: _super_implicit_constructor (modules/gdscript/gdscript.cpp:143)
+   GDScript backtrace (most recent call first):
+       [0] before_each (res://tests/integration/test_desktop_bootstrap_wiring.gd:103)
+       [1] _run_test (res://addons/gut/gut.gd:612)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] test_scripts (res://addons/gut/gut.gd:1047)
+       [4] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [5] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [6] main (res://addons/gut/cli/gut_cli.gd:297)
+       [7] _init (res://addons/gut/gut_cmdln.gd:39)
+    [Failed]:  Step 8.1 requires this read-only probe
+      at line 205
+SCRIPT ERROR: Invalid call. Nonexistent function '_configure_causal_day_advance_identity (via call)' in base 'Node (HarnessBootstrap)'.
+   at: _build_foundation (res://tests/integration/test_desktop_bootstrap_wiring.gd:180)
+   GDScript backtrace (most recent call first):
+       [0] _build_foundation (res://tests/integration/test_desktop_bootstrap_wiring.gd:180)
+       [1] test_the_probe_exists_and_returns_only_integers_and_booleans (res://tests/integration/test_desktop_bootstrap_wiring.gd:207)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [4] test_scripts (res://addons/gut/gut.gd:1047)
+       [5] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [6] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [7] main (res://addons/gut/cli/gut_cli.gd:297)
+       [8] _init (res://addons/gut/gut_cmdln.gd:39)
+SCRIPT ERROR: Invalid call. Nonexistent function 'get_desktop_contract_state' in base 'Node (HarnessBootstrap)'.
+   at: test_the_probe_exists_and_returns_only_integers_and_booleans (res://tests/integration/test_desktop_bootstrap_wiring.gd:208)
+   GDScript backtrace (most recent call first):
+       [0] test_the_probe_exists_and_returns_only_integers_and_booleans (res://tests/integration/test_desktop_bootstrap_wiring.gd:208)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] test_scripts (res://addons/gut/gut.gd:1047)
+       [4] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [5] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [6] main (res://addons/gut/cli/gut_cli.gd:297)
+       [7] _init (res://addons/gut/gut_cmdln.gd:39)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function '_configure_causal_day_advance_identity (via call)' in base 'Node (HarnessBootstrap)'.
+    [2] <engine-2>Invalid call. Nonexistent function 'get_desktop_contract_state' in base 'Node (HarnessBootstrap)'.
+      at line -1
+* test_the_probe_names_every_foundation_identity_step_8_1_requires
+ERROR: Parameter "p_script->implicit_initializer" is null.
+   at: _super_implicit_constructor (modules/gdscript/gdscript.cpp:143)
+   GDScript backtrace (most recent call first):
+       [0] before_each (res://tests/integration/test_desktop_bootstrap_wiring.gd:103)
+       [1] _run_test (res://addons/gut/gut.gd:612)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] test_scripts (res://addons/gut/gut.gd:1047)
+       [4] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [5] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [6] main (res://addons/gut/cli/gut_cli.gd:297)
+       [7] _init (res://addons/gut/gut_cmdln.gd:39)
+SCRIPT ERROR: Invalid call. Nonexistent function '_configure_causal_day_advance_identity (via call)' in base 'Node (HarnessBootstrap)'.
+   at: _build_foundation (res://tests/integration/test_desktop_bootstrap_wiring.gd:180)
+   GDScript backtrace (most recent call first):
+       [0] _build_foundation (res://tests/integration/test_desktop_bootstrap_wiring.gd:180)
+       [1] test_the_probe_names_every_foundation_identity_step_8_1_requires (res://tests/integration/test_desktop_bootstrap_wiring.gd:217)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [4] test_scripts (res://addons/gut/gut.gd:1047)
+       [5] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [6] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [7] main (res://addons/gut/cli/gut_cli.gd:297)
+       [8] _init (res://addons/gut/gut_cmdln.gd:39)
+SCRIPT ERROR: Invalid call. Nonexistent function 'get_desktop_contract_state' in base 'Node (HarnessBootstrap)'.
+   at: test_the_probe_names_every_foundation_identity_step_8_1_requires (res://tests/integration/test_desktop_bootstrap_wiring.gd:218)
+   GDScript backtrace (most recent call first):
+       [0] test_the_probe_names_every_foundation_identity_step_8_1_requires (res://tests/integration/test_desktop_bootstrap_wiring.gd:218)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] test_scripts (res://addons/gut/gut.gd:1047)
+       [4] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [5] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [6] main (res://addons/gut/cli/gut_cli.gd:297)
+       [7] _init (res://addons/gut/gut_cmdln.gd:39)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function '_configure_causal_day_advance_identity (via call)' in base 'Node (HarnessBootstrap)'.
+    [2] <engine-2>Invalid call. Nonexistent function 'get_desktop_contract_state' in base 'Node (HarnessBootstrap)'.
+      at line -1
+* test_reading_the_probe_twice_is_stable_and_mutates_nothing
+ERROR: Parameter "p_script->implicit_initializer" is null.
+   at: _super_implicit_constructor (modules/gdscript/gdscript.cpp:143)
+   GDScript backtrace (most recent call first):
+       [0] before_each (res://tests/integration/test_desktop_bootstrap_wiring.gd:103)
+       [1] _run_test (res://addons/gut/gut.gd:612)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Invalid call. Nonexistent function '_configure_causal_day_advance_identity (via call)' in base 'Node (HarnessBootstrap)'.
+   at: _build_foundation (res://tests/integration/test_desktop_bootstrap_wiring.gd:180)
+   GDScript backtrace (most recent call first):
+       [0] _build_foundation (res://tests/integration/test_desktop_bootstrap_wiring.gd:180)
+       [1] test_reading_the_probe_twice_is_stable_and_mutates_nothing (res://tests/integration/test_desktop_bootstrap_wiring.gd:225)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Invalid call. Nonexistent function 'get_desktop_contract_state' in base 'Node (HarnessBootstrap)'.
+   at: test_reading_the_probe_twice_is_stable_and_mutates_nothing (res://tests/integration/test_desktop_bootstrap_wiring.gd:226)
+   GDScript backtrace (most recent call first):
+       [0] test_reading_the_probe_twice_is_stable_and_mutates_nothing (res://tests/integration/test_desktop_bootstrap_wiring.gd:226)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function '_configure_causal_day_advance_identity (via call)' in base 'Node (HarnessBootstrap)'.
+    [2] <engine-2>Invalid call. Nonexistent function 'get_desktop_contract_state' in base 'Node (HarnessBootstrap)'.
+      at line -1
+* test_presentation_configuration_reconstructs_no_foundation_instance
+ERROR: Parameter "p_script->implicit_initializer" is null.
+   at: _super_implicit_constructor (modules/gdscript/gdscript.cpp:143)
+   GDScript backtrace (most recent call first):
+       [0] before_each (res://tests/integration/test_desktop_bootstrap_wiring.gd:103)
+       [1] _run_test (res://addons/gut/gut.gd:612)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Invalid call. Nonexistent function '_configure_causal_day_advance_identity (via call)' in base 'Node (HarnessBootstrap)'.
+   at: _build_foundation (res://tests/integration/test_desktop_bootstrap_wiring.gd:180)
+   GDScript backtrace (most recent call first):
+       [0] _build_foundation (res://tests/integration/test_desktop_bootstrap_wiring.gd:180)
+       [1] test_presentation_configuration_reconstructs_no_foundation_instance (res://tests/integration/test_desktop_bootstrap_wiring.gd:236)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Invalid call. Nonexistent function 'get_desktop_contract_state' in base 'Node (HarnessBootstrap)'.
+   at: test_presentation_configuration_reconstructs_no_foundation_instance (res://tests/integration/test_desktop_bootstrap_wiring.gd:237)
+   GDScript backtrace (most recent call first):
+       [0] test_presentation_configuration_reconstructs_no_foundation_instance (res://tests/integration/test_desktop_bootstrap_wiring.gd:237)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function '_configure_causal_day_advance_identity (via call)' in base 'Node (HarnessBootstrap)'.
+    [2] <engine-2>Invalid call. Nonexistent function 'get_desktop_contract_state' in base 'Node (HarnessBootstrap)'.
+      at line -1
+* test_identical_startup_replay_reuses_every_instance
+ERROR: Parameter "p_script->implicit_initializer" is null.
+   at: _super_implicit_constructor (modules/gdscript/gdscript.cpp:143)
+   GDScript backtrace (most recent call first):
+       [0] before_each (res://tests/integration/test_desktop_bootstrap_wiring.gd:103)
+       [1] _run_test (res://addons/gut/gut.gd:612)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Invalid call. Nonexistent function '_configure_causal_day_advance_identity (via call)' in base 'Node (HarnessBootstrap)'.
+   at: _build_foundation (res://tests/integration/test_desktop_bootstrap_wiring.gd:180)
+   GDScript backtrace (most recent call first):
+       [0] _build_foundation (res://tests/integration/test_desktop_bootstrap_wiring.gd:180)
+       [1] test_identical_startup_replay_reuses_every_instance (res://tests/integration/test_desktop_bootstrap_wiring.gd:245)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Invalid call. Nonexistent function '_construct_schedule_presentation (via call)' in base 'Node (HarnessBootstrap)'.
+   at: _build_presentation (res://tests/integration/test_desktop_bootstrap_wiring.gd:190)
+   GDScript backtrace (most recent call first):
+       [0] _build_presentation (res://tests/integration/test_desktop_bootstrap_wiring.gd:190)
+       [1] test_identical_startup_replay_reuses_every_instance (res://tests/integration/test_desktop_bootstrap_wiring.gd:246)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed] 
+      at line 246
+SCRIPT ERROR: Invalid call. Nonexistent function 'get_desktop_contract_state' in base 'Node (HarnessBootstrap)'.
+   at: test_identical_startup_replay_reuses_every_instance (res://tests/integration/test_desktop_bootstrap_wiring.gd:247)
+   GDScript backtrace (most recent call first):
+       [0] test_identical_startup_replay_reuses_every_instance (res://tests/integration/test_desktop_bootstrap_wiring.gd:247)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function '_configure_causal_day_advance_identity (via call)' in base 'Node (HarnessBootstrap)'.
+    [2] <engine-2>Invalid call. Nonexistent function '_construct_schedule_presentation (via call)' in base 'Node (HarnessBootstrap)'.
+    [3] <engine-2>Invalid call. Nonexistent function 'get_desktop_contract_state' in base 'Node (HarnessBootstrap)'.
+      at line -1
+* test_a_swapped_issuer_is_visible_in_the_probe
+ERROR: Parameter "p_script->implicit_initializer" is null.
+   at: _super_implicit_constructor (modules/gdscript/gdscript.cpp:143)
+   GDScript backtrace (most recent call first):
+       [0] before_each (res://tests/integration/test_desktop_bootstrap_wiring.gd:103)
+       [1] _run_test (res://addons/gut/gut.gd:612)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Invalid call. Nonexistent function '_configure_causal_day_advance_identity (via call)' in base 'Node (HarnessBootstrap)'.
+   at: _build_foundation (res://tests/integration/test_desktop_bootstrap_wiring.gd:180)
+   GDScript backtrace (most recent call first):
+       [0] _build_foundation (res://tests/integration/test_desktop_bootstrap_wiring.gd:180)
+       [1] test_a_swapped_issuer_is_visible_in_the_probe (res://tests/integration/test_desktop_bootstrap_wiring.gd:259)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Invalid call. Nonexistent function 'get_desktop_contract_state' in base 'Node (HarnessBootstrap)'.
+   at: test_a_swapped_issuer_is_visible_in_the_probe (res://tests/integration/test_desktop_bootstrap_wiring.gd:260)
+   GDScript backtrace (most recent call first):
+       [0] test_a_swapped_issuer_is_visible_in_the_probe (res://tests/integration/test_desktop_bootstrap_wiring.gd:260)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function '_configure_causal_day_advance_identity (via call)' in base 'Node (HarnessBootstrap)'.
+    [2] <engine-2>Invalid call. Nonexistent function 'get_desktop_contract_state' in base 'Node (HarnessBootstrap)'.
+      at line -1
+* test_the_probe_reports_hospital_ready_and_dating_deliberately_not_ready
+ERROR: Parameter "p_script->implicit_initializer" is null.
+   at: _super_implicit_constructor (modules/gdscript/gdscript.cpp:143)
+   GDScript backtrace (most recent call first):
+       [0] before_each (res://tests/integration/test_desktop_bootstrap_wiring.gd:103)
+       [1] _run_test (res://addons/gut/gut.gd:612)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Invalid call. Nonexistent function '_configure_causal_day_advance_identity (via call)' in base 'Node (HarnessBootstrap)'.
+   at: _build_foundation (res://tests/integration/test_desktop_bootstrap_wiring.gd:180)
+   GDScript backtrace (most recent call first):
+       [0] _build_foundation (res://tests/integration/test_desktop_bootstrap_wiring.gd:180)
+       [1] test_the_probe_reports_hospital_ready_and_dating_deliberately_not_ready (res://tests/integration/test_desktop_bootstrap_wiring.gd:275)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Invalid call. Nonexistent function '_construct_schedule_presentation (via call)' in base 'Node (HarnessBootstrap)'.
+   at: _build_presentation (res://tests/integration/test_desktop_bootstrap_wiring.gd:190)
+   GDScript backtrace (most recent call first):
+       [0] _build_presentation (res://tests/integration/test_desktop_bootstrap_wiring.gd:190)
+       [1] test_the_probe_reports_hospital_ready_and_dating_deliberately_not_ready (res://tests/integration/test_desktop_bootstrap_wiring.gd:276)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed] 
+      at line 276
+SCRIPT ERROR: Invalid call. Nonexistent function 'get_desktop_contract_state' in base 'Node (HarnessBootstrap)'.
+   at: test_the_probe_reports_hospital_ready_and_dating_deliberately_not_ready (res://tests/integration/test_desktop_bootstrap_wiring.gd:277)
+   GDScript backtrace (most recent call first):
+       [0] test_the_probe_reports_hospital_ready_and_dating_deliberately_not_ready (res://tests/integration/test_desktop_bootstrap_wiring.gd:277)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function '_configure_causal_day_advance_identity (via call)' in base 'Node (HarnessBootstrap)'.
+    [2] <engine-2>Invalid call. Nonexistent function '_construct_schedule_presentation (via call)' in base 'Node (HarnessBootstrap)'.
+    [3] <engine-2>Invalid call. Nonexistent function 'get_desktop_contract_state' in base 'Node (HarnessBootstrap)'.
+      at line -1
+* test_the_probe_reports_the_presentation_producer_as_deliberately_not_ready
+ERROR: Parameter "p_script->implicit_initializer" is null.
+   at: _super_implicit_constructor (modules/gdscript/gdscript.cpp:143)
+   GDScript backtrace (most recent call first):
+       [0] before_each (res://tests/integration/test_desktop_bootstrap_wiring.gd:103)
+       [1] _run_test (res://addons/gut/gut.gd:612)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Invalid call. Nonexistent function '_configure_causal_day_advance_identity (via call)' in base 'Node (HarnessBootstrap)'.
+   at: _build_foundation (res://tests/integration/test_desktop_bootstrap_wiring.gd:180)
+   GDScript backtrace (most recent call first):
+       [0] _build_foundation (res://tests/integration/test_desktop_bootstrap_wiring.gd:180)
+       [1] test_the_probe_reports_the_presentation_producer_as_deliberately_not_ready (res://tests/integration/test_desktop_bootstrap_wiring.gd:292)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Invalid call. Nonexistent function '_construct_schedule_presentation (via call)' in base 'Node (HarnessBootstrap)'.
+   at: _build_presentation (res://tests/integration/test_desktop_bootstrap_wiring.gd:190)
+   GDScript backtrace (most recent call first):
+       [0] _build_presentation (res://tests/integration/test_desktop_bootstrap_wiring.gd:190)
+       [1] test_the_probe_reports_the_presentation_producer_as_deliberately_not_ready (res://tests/integration/test_desktop_bootstrap_wiring.gd:293)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed] 
+      at line 293
+SCRIPT ERROR: Invalid call. Nonexistent function 'get_desktop_contract_state' in base 'Node (HarnessBootstrap)'.
+   at: test_the_probe_reports_the_presentation_producer_as_deliberately_not_ready (res://tests/integration/test_desktop_bootstrap_wiring.gd:294)
+   GDScript backtrace (most recent call first):
+       [0] test_the_probe_reports_the_presentation_producer_as_deliberately_not_ready (res://tests/integration/test_desktop_bootstrap_wiring.gd:294)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function '_configure_causal_day_advance_identity (via call)' in base 'Node (HarnessBootstrap)'.
+    [2] <engine-2>Invalid call. Nonexistent function '_construct_schedule_presentation (via call)' in base 'Node (HarnessBootstrap)'.
+    [3] <engine-2>Invalid call. Nonexistent function 'get_desktop_contract_state' in base 'Node (HarnessBootstrap)'.
+      at line -1
+* test_an_unbuilt_foundation_reports_zero_rather_than_guessing
+ERROR: Parameter "p_script->implicit_initializer" is null.
+   at: _super_implicit_constructor (modules/gdscript/gdscript.cpp:143)
+   GDScript backtrace (most recent call first):
+       [0] before_each (res://tests/integration/test_desktop_bootstrap_wiring.gd:103)
+       [1] _run_test (res://addons/gut/gut.gd:612)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Invalid call. Nonexistent function 'get_desktop_contract_state' in base 'Node (HarnessBootstrap)'.
+   at: test_an_unbuilt_foundation_reports_zero_rather_than_guessing (res://tests/integration/test_desktop_bootstrap_wiring.gd:313)
+   GDScript backtrace (most recent call first):
+       [0] test_an_unbuilt_foundation_reports_zero_rather_than_guessing (res://tests/integration/test_desktop_bootstrap_wiring.gd:313)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'get_desktop_contract_state' in base 'Node (HarnessBootstrap)'.
+      at line -1
+* test_the_production_graph_wires_every_object_identity_and_readiness
+ERROR: Parameter "p_script->implicit_initializer" is null.
+   at: _super_implicit_constructor (modules/gdscript/gdscript.cpp:143)
+   GDScript backtrace (most recent call first):
+       [0] before_each (res://tests/integration/test_desktop_bootstrap_wiring.gd:103)
+       [1] _run_test (res://addons/gut/gut.gd:612)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Invalid call. Nonexistent function '_configure_causal_day_advance_identity (via call)' in base 'Node (HarnessBootstrap)'.
+   at: _build_foundation (res://tests/integration/test_desktop_bootstrap_wiring.gd:180)
+   GDScript backtrace (most recent call first):
+       [0] _build_foundation (res://tests/integration/test_desktop_bootstrap_wiring.gd:180)
+       [1] _build_desktop_graph (res://tests/integration/test_desktop_bootstrap_wiring.gd:122)
+       [2] test_the_production_graph_wires_every_object_identity_and_readiness (res://tests/integration/test_desktop_bootstrap_wiring.gd:328)
+       [3] _run_test (res://addons/gut/gut.gd:622)
+       [4] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Invalid call. Nonexistent function '_configure_restore_participants (via call)' in base 'Node (HarnessBootstrap)'.
+   at: _build_desktop_graph (res://tests/integration/test_desktop_bootstrap_wiring.gd:147)
+   GDScript backtrace (most recent call first):
+       [0] _build_desktop_graph (res://tests/integration/test_desktop_bootstrap_wiring.gd:147)
+       [1] test_the_production_graph_wires_every_object_identity_and_readiness (res://tests/integration/test_desktop_bootstrap_wiring.gd:328)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Invalid call. Nonexistent function 'get_desktop_contract_state' in base 'Node (HarnessBootstrap)'.
+   at: test_the_production_graph_wires_every_object_identity_and_readiness (res://tests/integration/test_desktop_bootstrap_wiring.gd:329)
+   GDScript backtrace (most recent call first):
+       [0] test_the_production_graph_wires_every_object_identity_and_readiness (res://tests/integration/test_desktop_bootstrap_wiring.gd:329)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function '_configure_causal_day_advance_identity (via call)' in base 'Node (HarnessBootstrap)'.
+    [2] <engine-2>Invalid call. Nonexistent function '_configure_restore_participants (via call)' in base 'Node (HarnessBootstrap)'.
+    [3] <engine-2>Invalid call. Nonexistent function 'get_desktop_contract_state' in base 'Node (HarnessBootstrap)'.
+      at line -1
+* test_the_desktop_publication_ledger_is_shared_by_causal_round_shop_and_board_fate
+ERROR: Parameter "p_script->implicit_initializer" is null.
+   at: _super_implicit_constructor (modules/gdscript/gdscript.cpp:143)
+   GDScript backtrace (most recent call first):
+       [0] before_each (res://tests/integration/test_desktop_bootstrap_wiring.gd:103)
+       [1] _run_test (res://addons/gut/gut.gd:612)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Invalid call. Nonexistent function '_configure_causal_day_advance_identity (via call)' in base 'Node (HarnessBootstrap)'.
+   at: _build_foundation (res://tests/integration/test_desktop_bootstrap_wiring.gd:180)
+   GDScript backtrace (most recent call first):
+       [0] _build_foundation (res://tests/integration/test_desktop_bootstrap_wiring.gd:180)
+       [1] _build_desktop_graph (res://tests/integration/test_desktop_bootstrap_wiring.gd:122)
+       [2] test_the_desktop_publication_ledger_is_shared_by_causal_round_shop_and_board_fate (res://tests/integration/test_desktop_bootstrap_wiring.gd:343)
+       [3] _run_test (res://addons/gut/gut.gd:622)
+       [4] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Invalid call. Nonexistent function '_configure_restore_participants (via call)' in base 'Node (HarnessBootstrap)'.
+   at: _build_desktop_graph (res://tests/integration/test_desktop_bootstrap_wiring.gd:147)
+   GDScript backtrace (most recent call first):
+       [0] _build_desktop_graph (res://tests/integration/test_desktop_bootstrap_wiring.gd:147)
+       [1] test_the_desktop_publication_ledger_is_shared_by_causal_round_shop_and_board_fate (res://tests/integration/test_desktop_bootstrap_wiring.gd:343)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed] 
+      at line 349
+SCRIPT ERROR: Cannot call method 'get' on a null value.
+   at: test_the_desktop_publication_ledger_is_shared_by_causal_round_shop_and_board_fate (res://tests/integration/test_desktop_bootstrap_wiring.gd:350)
+   GDScript backtrace (most recent call first):
+       [0] test_the_desktop_publication_ledger_is_shared_by_causal_round_shop_and_board_fate (res://tests/integration/test_desktop_bootstrap_wiring.gd:350)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function '_configure_causal_day_advance_identity (via call)' in base 'Node (HarnessBootstrap)'.
+    [2] <engine-2>Invalid call. Nonexistent function '_configure_restore_participants (via call)' in base 'Node (HarnessBootstrap)'.
+    [3] <engine-2>Cannot call method 'get' on a null value.
+      at line -1
+* test_the_round_coordinator_and_board_fate_port_drive_the_exact_same_shared_board_state
+ERROR: Parameter "p_script->implicit_initializer" is null.
+   at: _super_implicit_constructor (modules/gdscript/gdscript.cpp:143)
+   GDScript backtrace (most recent call first):
+       [0] before_each (res://tests/integration/test_desktop_bootstrap_wiring.gd:103)
+       [1] _run_test (res://addons/gut/gut.gd:612)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Invalid call. Nonexistent function '_configure_causal_day_advance_identity (via call)' in base 'Node (HarnessBootstrap)'.
+   at: _build_foundation (res://tests/integration/test_desktop_bootstrap_wiring.gd:180)
+   GDScript backtrace (most recent call first):
+       [0] _build_foundation (res://tests/integration/test_desktop_bootstrap_wiring.gd:180)
+       [1] _build_desktop_graph (res://tests/integration/test_desktop_bootstrap_wiring.gd:122)
+       [2] test_the_round_coordinator_and_board_fate_port_drive_the_exact_same_shared_board_state (res://tests/integration/test_desktop_bootstrap_wiring.gd:357)
+       [3] _run_test (res://addons/gut/gut.gd:622)
+       [4] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Invalid call. Nonexistent function '_configure_restore_participants (via call)' in base 'Node (HarnessBootstrap)'.
+   at: _build_desktop_graph (res://tests/integration/test_desktop_bootstrap_wiring.gd:147)
+   GDScript backtrace (most recent call first):
+       [0] _build_desktop_graph (res://tests/integration/test_desktop_bootstrap_wiring.gd:147)
+       [1] test_the_round_coordinator_and_board_fate_port_drive_the_exact_same_shared_board_state (res://tests/integration/test_desktop_bootstrap_wiring.gd:357)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Cannot call method 'get' on a null value.
+   at: test_the_round_coordinator_and_board_fate_port_drive_the_exact_same_shared_board_state (res://tests/integration/test_desktop_bootstrap_wiring.gd:361)
+   GDScript backtrace (most recent call first):
+       [0] test_the_round_coordinator_and_board_fate_port_drive_the_exact_same_shared_board_state (res://tests/integration/test_desktop_bootstrap_wiring.gd:361)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function '_configure_causal_day_advance_identity (via call)' in base 'Node (HarnessBootstrap)'.
+    [2] <engine-2>Invalid call. Nonexistent function '_configure_restore_participants (via call)' in base 'Node (HarnessBootstrap)'.
+    [3] <engine-2>Cannot call method 'get' on a null value.
+      at line -1
+* test_the_consequence_coordinator_retains_the_exact_round_and_shop_source_objects
+ERROR: Parameter "p_script->implicit_initializer" is null.
+   at: _super_implicit_constructor (modules/gdscript/gdscript.cpp:143)
+   GDScript backtrace (most recent call first):
+       [0] before_each (res://tests/integration/test_desktop_bootstrap_wiring.gd:103)
+       [1] _run_test (res://addons/gut/gut.gd:612)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Invalid call. Nonexistent function '_configure_causal_day_advance_identity (via call)' in base 'Node (HarnessBootstrap)'.
+   at: _build_foundation (res://tests/integration/test_desktop_bootstrap_wiring.gd:180)
+   GDScript backtrace (most recent call first):
+       [0] _build_foundation (res://tests/integration/test_desktop_bootstrap_wiring.gd:180)
+       [1] _build_desktop_graph (res://tests/integration/test_desktop_bootstrap_wiring.gd:122)
+       [2] test_the_consequence_coordinator_retains_the_exact_round_and_shop_source_objects (res://tests/integration/test_desktop_bootstrap_wiring.gd:367)
+       [3] _run_test (res://addons/gut/gut.gd:622)
+       [4] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Invalid call. Nonexistent function '_configure_restore_participants (via call)' in base 'Node (HarnessBootstrap)'.
+   at: _build_desktop_graph (res://tests/integration/test_desktop_bootstrap_wiring.gd:147)
+   GDScript backtrace (most recent call first):
+       [0] _build_desktop_graph (res://tests/integration/test_desktop_bootstrap_wiring.gd:147)
+       [1] test_the_consequence_coordinator_retains_the_exact_round_and_shop_source_objects (res://tests/integration/test_desktop_bootstrap_wiring.gd:367)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed] 
+      at line 371
+    [Failed] 
+      at line 372
+SCRIPT ERROR: Cannot call method 'get' on a null value.
+   at: test_the_consequence_coordinator_retains_the_exact_round_and_shop_source_objects (res://tests/integration/test_desktop_bootstrap_wiring.gd:373)
+   GDScript backtrace (most recent call first):
+       [0] test_the_consequence_coordinator_retains_the_exact_round_and_shop_source_objects (res://tests/integration/test_desktop_bootstrap_wiring.gd:373)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function '_configure_causal_day_advance_identity (via call)' in base 'Node (HarnessBootstrap)'.
+    [2] <engine-2>Invalid call. Nonexistent function '_configure_restore_participants (via call)' in base 'Node (HarnessBootstrap)'.
+    [3] <engine-2>Cannot call method 'get' on a null value.
+      at line -1
+* test_the_consequence_coordinator_leaves_condition_departure_ports_unconfigured
+ERROR: Parameter "p_script->implicit_initializer" is null.
+   at: _super_implicit_constructor (modules/gdscript/gdscript.cpp:143)
+   GDScript backtrace (most recent call first):
+       [0] before_each (res://tests/integration/test_desktop_bootstrap_wiring.gd:103)
+       [1] _run_test (res://addons/gut/gut.gd:612)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Invalid call. Nonexistent function '_configure_causal_day_advance_identity (via call)' in base 'Node (HarnessBootstrap)'.
+   at: _build_foundation (res://tests/integration/test_desktop_bootstrap_wiring.gd:180)
+   GDScript backtrace (most recent call first):
+       [0] _build_foundation (res://tests/integration/test_desktop_bootstrap_wiring.gd:180)
+       [1] _build_desktop_graph (res://tests/integration/test_desktop_bootstrap_wiring.gd:122)
+       [2] test_the_consequence_coordinator_leaves_condition_departure_ports_unconfigured (res://tests/integration/test_desktop_bootstrap_wiring.gd:380)
+       [3] _run_test (res://addons/gut/gut.gd:622)
+       [4] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Invalid call. Nonexistent function '_configure_restore_participants (via call)' in base 'Node (HarnessBootstrap)'.
+   at: _build_desktop_graph (res://tests/integration/test_desktop_bootstrap_wiring.gd:147)
+   GDScript backtrace (most recent call first):
+       [0] _build_desktop_graph (res://tests/integration/test_desktop_bootstrap_wiring.gd:147)
+       [1] test_the_consequence_coordinator_leaves_condition_departure_ports_unconfigured (res://tests/integration/test_desktop_bootstrap_wiring.gd:380)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Cannot call method 'get' on a null value.
+   at: test_the_consequence_coordinator_leaves_condition_departure_ports_unconfigured (res://tests/integration/test_desktop_bootstrap_wiring.gd:382)
+   GDScript backtrace (most recent call first):
+       [0] test_the_consequence_coordinator_leaves_condition_departure_ports_unconfigured (res://tests/integration/test_desktop_bootstrap_wiring.gd:382)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function '_configure_causal_day_advance_identity (via call)' in base 'Node (HarnessBootstrap)'.
+    [2] <engine-2>Invalid call. Nonexistent function '_configure_restore_participants (via call)' in base 'Node (HarnessBootstrap)'.
+    [3] <engine-2>Cannot call method 'get' on a null value.
+      at line -1
+* test_snapshot_provider_instance_id_equals_game_state
+ERROR: Parameter "p_script->implicit_initializer" is null.
+   at: _super_implicit_constructor (modules/gdscript/gdscript.cpp:143)
+   GDScript backtrace (most recent call first):
+       [0] before_each (res://tests/integration/test_desktop_bootstrap_wiring.gd:103)
+       [1] _run_test (res://addons/gut/gut.gd:612)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Invalid call. Nonexistent function '_configure_causal_day_advance_identity (via call)' in base 'Node (HarnessBootstrap)'.
+   at: _build_foundation (res://tests/integration/test_desktop_bootstrap_wiring.gd:180)
+   GDScript backtrace (most recent call first):
+       [0] _build_foundation (res://tests/integration/test_desktop_bootstrap_wiring.gd:180)
+       [1] _build_desktop_graph (res://tests/integration/test_desktop_bootstrap_wiring.gd:122)
+       [2] test_snapshot_provider_instance_id_equals_game_state (res://tests/integration/test_desktop_bootstrap_wiring.gd:389)
+       [3] _run_test (res://addons/gut/gut.gd:622)
+       [4] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Invalid call. Nonexistent function '_configure_restore_participants (via call)' in base 'Node (HarnessBootstrap)'.
+   at: _build_desktop_graph (res://tests/integration/test_desktop_bootstrap_wiring.gd:147)
+   GDScript backtrace (most recent call first):
+       [0] _build_desktop_graph (res://tests/integration/test_desktop_bootstrap_wiring.gd:147)
+       [1] test_snapshot_provider_instance_id_equals_game_state (res://tests/integration/test_desktop_bootstrap_wiring.gd:389)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Invalid call. Nonexistent function 'get_desktop_contract_state' in base 'Node (HarnessBootstrap)'.
+   at: test_snapshot_provider_instance_id_equals_game_state (res://tests/integration/test_desktop_bootstrap_wiring.gd:390)
+   GDScript backtrace (most recent call first):
+       [0] test_snapshot_provider_instance_id_equals_game_state (res://tests/integration/test_desktop_bootstrap_wiring.gd:390)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function '_configure_causal_day_advance_identity (via call)' in base 'Node (HarnessBootstrap)'.
+    [2] <engine-2>Invalid call. Nonexistent function '_configure_restore_participants (via call)' in base 'Node (HarnessBootstrap)'.
+    [3] <engine-2>Invalid call. Nonexistent function 'get_desktop_contract_state' in base 'Node (HarnessBootstrap)'.
+      at line -1
+* test_the_probe_names_the_exact_frozen_restore_order_and_nine_participant_keys
+ERROR: Parameter "p_script->implicit_initializer" is null.
+   at: _super_implicit_constructor (modules/gdscript/gdscript.cpp:143)
+   GDScript backtrace (most recent call first):
+       [0] before_each (res://tests/integration/test_desktop_bootstrap_wiring.gd:103)
+       [1] _run_test (res://addons/gut/gut.gd:612)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Invalid call. Nonexistent function '_configure_causal_day_advance_identity (via call)' in base 'Node (HarnessBootstrap)'.
+   at: _build_foundation (res://tests/integration/test_desktop_bootstrap_wiring.gd:180)
+   GDScript backtrace (most recent call first):
+       [0] _build_foundation (res://tests/integration/test_desktop_bootstrap_wiring.gd:180)
+       [1] _build_desktop_graph (res://tests/integration/test_desktop_bootstrap_wiring.gd:122)
+       [2] test_the_probe_names_the_exact_frozen_restore_order_and_nine_participant_keys (res://tests/integration/test_desktop_bootstrap_wiring.gd:396)
+       [3] _run_test (res://addons/gut/gut.gd:622)
+       [4] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Invalid call. Nonexistent function '_configure_restore_participants (via call)' in base 'Node (HarnessBootstrap)'.
+   at: _build_desktop_graph (res://tests/integration/test_desktop_bootstrap_wiring.gd:147)
+   GDScript backtrace (most recent call first):
+       [0] _build_desktop_graph (res://tests/integration/test_desktop_bootstrap_wiring.gd:147)
+       [1] test_the_probe_names_the_exact_frozen_restore_order_and_nine_participant_keys (res://tests/integration/test_desktop_bootstrap_wiring.gd:396)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Invalid call. Nonexistent function 'get_desktop_contract_state' in base 'Node (HarnessBootstrap)'.
+   at: test_the_probe_names_the_exact_frozen_restore_order_and_nine_participant_keys (res://tests/integration/test_desktop_bootstrap_wiring.gd:397)
+   GDScript backtrace (most recent call first):
+       [0] test_the_probe_names_the_exact_frozen_restore_order_and_nine_participant_keys (res://tests/integration/test_desktop_bootstrap_wiring.gd:397)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function '_configure_causal_day_advance_identity (via call)' in base 'Node (HarnessBootstrap)'.
+    [2] <engine-2>Invalid call. Nonexistent function '_configure_restore_participants (via call)' in base 'Node (HarnessBootstrap)'.
+    [3] <engine-2>Invalid call. Nonexistent function 'get_desktop_contract_state' in base 'Node (HarnessBootstrap)'.
+      at line -1
+* test_identical_replay_of_the_production_graph_reuses_every_instance
+ERROR: Parameter "p_script->implicit_initializer" is null.
+   at: _super_implicit_constructor (modules/gdscript/gdscript.cpp:143)
+   GDScript backtrace (most recent call first):
+       [0] before_each (res://tests/integration/test_desktop_bootstrap_wiring.gd:103)
+       [1] _run_test (res://addons/gut/gut.gd:612)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Invalid call. Nonexistent function '_configure_causal_day_advance_identity (via call)' in base 'Node (HarnessBootstrap)'.
+   at: _build_foundation (res://tests/integration/test_desktop_bootstrap_wiring.gd:180)
+   GDScript backtrace (most recent call first):
+       [0] _build_foundation (res://tests/integration/test_desktop_bootstrap_wiring.gd:180)
+       [1] _build_desktop_graph (res://tests/integration/test_desktop_bootstrap_wiring.gd:122)
+       [2] test_identical_replay_of_the_production_graph_reuses_every_instance (res://tests/integration/test_desktop_bootstrap_wiring.gd:410)
+       [3] _run_test (res://addons/gut/gut.gd:622)
+       [4] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Invalid call. Nonexistent function '_configure_restore_participants (via call)' in base 'Node (HarnessBootstrap)'.
+   at: _build_desktop_graph (res://tests/integration/test_desktop_bootstrap_wiring.gd:147)
+   GDScript backtrace (most recent call first):
+       [0] _build_desktop_graph (res://tests/integration/test_desktop_bootstrap_wiring.gd:147)
+       [1] test_identical_replay_of_the_production_graph_reuses_every_instance (res://tests/integration/test_desktop_bootstrap_wiring.gd:410)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Invalid call. Nonexistent function 'get_desktop_contract_state' in base 'Node (HarnessBootstrap)'.
+   at: test_identical_replay_of_the_production_graph_reuses_every_instance (res://tests/integration/test_desktop_bootstrap_wiring.gd:411)
+   GDScript backtrace (most recent call first):
+       [0] test_identical_replay_of_the_production_graph_reuses_every_instance (res://tests/integration/test_desktop_bootstrap_wiring.gd:411)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function '_configure_causal_day_advance_identity (via call)' in base 'Node (HarnessBootstrap)'.
+    [2] <engine-2>Invalid call. Nonexistent function '_configure_restore_participants (via call)' in base 'Node (HarnessBootstrap)'.
+    [3] <engine-2>Invalid call. Nonexistent function 'get_desktop_contract_state' in base 'Node (HarnessBootstrap)'.
+      at line -1
+* test_the_production_graph_never_touches_the_retained_simulator_install_seam
+ERROR: Parameter "p_script->implicit_initializer" is null.
+   at: _super_implicit_constructor (modules/gdscript/gdscript.cpp:143)
+   GDScript backtrace (most recent call first):
+       [0] before_each (res://tests/integration/test_desktop_bootstrap_wiring.gd:103)
+       [1] _run_test (res://addons/gut/gut.gd:612)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Invalid call. Nonexistent function '_configure_causal_day_advance_identity (via call)' in base 'Node (HarnessBootstrap)'.
+   at: _build_foundation (res://tests/integration/test_desktop_bootstrap_wiring.gd:180)
+   GDScript backtrace (most recent call first):
+       [0] _build_foundation (res://tests/integration/test_desktop_bootstrap_wiring.gd:180)
+       [1] _build_desktop_graph (res://tests/integration/test_desktop_bootstrap_wiring.gd:122)
+       [2] test_the_production_graph_never_touches_the_retained_simulator_install_seam (res://tests/integration/test_desktop_bootstrap_wiring.gd:426)
+       [3] _run_test (res://addons/gut/gut.gd:622)
+       [4] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Invalid call. Nonexistent function '_configure_restore_participants (via call)' in base 'Node (HarnessBootstrap)'.
+   at: _build_desktop_graph (res://tests/integration/test_desktop_bootstrap_wiring.gd:147)
+   GDScript backtrace (most recent call first):
+       [0] _build_desktop_graph (res://tests/integration/test_desktop_bootstrap_wiring.gd:147)
+       [1] test_the_production_graph_never_touches_the_retained_simulator_install_seam (res://tests/integration/test_desktop_bootstrap_wiring.gd:426)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function '_configure_causal_day_advance_identity (via call)' in base 'Node (HarnessBootstrap)'.
+    [2] <engine-2>Invalid call. Nonexistent function '_configure_restore_participants (via call)' in base 'Node (HarnessBootstrap)'.
+      at line -1
+0/18 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/integration/test_desktop_bootstrap_wiring.gd
+    - Outside Tests
+        * [<Node#96485770976>(subsystem_animation.gd)]
+        * [<Node#96502548193>(subsystem_audio.gd)]
+        * [<Node#96519325410>]
+        * [<Node#96536102627>]
+        * [<Node#96552879844>(subsystem_backgrounds.gd)]
+        * [<Node#97089750757>(subsystem_choices.gd)]
+        * [<Timer#97106527974>]
+        * [<Node#97123305191>(subsystem_expression.gd)]
+        * [<Node#97156859628>(subsystem_glossary.gd)]
+        * [<Node#97173636845>(subsystem_history.gd)]
+        * [<Node#97190414062>(subsystem_input.gd)]
+        * [<Timer#97207191279>]
+        * [<Node#97223968496>(subsystem_jump.gd)]
+        * [<Node#97240745713>(subsystem_containers.gd)]
+        * [<Node#97257522930>(subsystem_portraits.gd)]
+        * [<Node#97794393843>(subsystem_save.gd)]
+        * [<Timer#97811171060>]
+        * [<Node#97827948277>(subsystem_settings.gd)]
+        * [<Node#97844725497>(subsystem_styles.gd)]
+        * [<Node#97861502714>(subsystem_text.gd)]
+        * [<Node#97945388799>(subsystem_text_input.gd)]
+        * [<Node#97962166016>(subsystem_variables.gd)]
+        * [<Node#97978943233>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#97995720450>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+res://tests/integration/test_desktop_bootstrap_wiring.gd
+- test_the_probe_exists_and_returns_only_integers_and_booleans
+    [Failed]:  Step 8.1 requires this read-only probe
+          at line 205
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function '_configure_causal_day_advance_identity (via call)' in base 'Node (HarnessBootstrap)'.
+    [2] <engine-2>Invalid call. Nonexistent function 'get_desktop_contract_state' in base 'Node (HarnessBootstrap)'.
+          at line -1
+- test_the_probe_names_every_foundation_identity_step_8_1_requires
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function '_configure_causal_day_advance_identity (via call)' in base 'Node (HarnessBootstrap)'.
+    [2] <engine-2>Invalid call. Nonexistent function 'get_desktop_contract_state' in base 'Node (HarnessBootstrap)'.
+          at line -1
+- test_reading_the_probe_twice_is_stable_and_mutates_nothing
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function '_configure_causal_day_advance_identity (via call)' in base 'Node (HarnessBootstrap)'.
+    [2] <engine-2>Invalid call. Nonexistent function 'get_desktop_contract_state' in base 'Node (HarnessBootstrap)'.
+          at line -1
+- test_presentation_configuration_reconstructs_no_foundation_instance
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function '_configure_causal_day_advance_identity (via call)' in base 'Node (HarnessBootstrap)'.
+    [2] <engine-2>Invalid call. Nonexistent function 'get_desktop_contract_state' in base 'Node (HarnessBootstrap)'.
+          at line -1
+- test_identical_startup_replay_reuses_every_instance
+    [Failed]:  
+          at line 246
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function '_configure_causal_day_advance_identity (via call)' in base 'Node (HarnessBootstrap)'.
+    [2] <engine-2>Invalid call. Nonexistent function '_construct_schedule_presentation (via call)' in base 'Node (HarnessBootstrap)'.
+    [3] <engine-2>Invalid call. Nonexistent function 'get_desktop_contract_state' in base 'Node (HarnessBootstrap)'.
+          at line -1
+- test_a_swapped_issuer_is_visible_in_the_probe
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function '_configure_causal_day_advance_identity (via call)' in base 'Node (HarnessBootstrap)'.
+    [2] <engine-2>Invalid call. Nonexistent function 'get_desktop_contract_state' in base 'Node (HarnessBootstrap)'.
+          at line -1
+- test_the_probe_reports_hospital_ready_and_dating_deliberately_not_ready
+    [Failed]:  
+          at line 276
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function '_configure_causal_day_advance_identity (via call)' in base 'Node (HarnessBootstrap)'.
+    [2] <engine-2>Invalid call. Nonexistent function '_construct_schedule_presentation (via call)' in base 'Node (HarnessBootstrap)'.
+    [3] <engine-2>Invalid call. Nonexistent function 'get_desktop_contract_state' in base 'Node (HarnessBootstrap)'.
+          at line -1
+- test_the_probe_reports_the_presentation_producer_as_deliberately_not_ready
+    [Failed]:  
+          at line 293
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function '_configure_causal_day_advance_identity (via call)' in base 'Node (HarnessBootstrap)'.
+    [2] <engine-2>Invalid call. Nonexistent function '_construct_schedule_presentation (via call)' in base 'Node (HarnessBootstrap)'.
+    [3] <engine-2>Invalid call. Nonexistent function 'get_desktop_contract_state' in base 'Node (HarnessBootstrap)'.
+          at line -1
+- test_an_unbuilt_foundation_reports_zero_rather_than_guessing
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'get_desktop_contract_state' in base 'Node (HarnessBootstrap)'.
+          at line -1
+- test_the_production_graph_wires_every_object_identity_and_readiness
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function '_configure_causal_day_advance_identity (via call)' in base 'Node (HarnessBootstrap)'.
+    [2] <engine-2>Invalid call. Nonexistent function '_configure_restore_participants (via call)' in base 'Node (HarnessBootstrap)'.
+    [3] <engine-2>Invalid call. Nonexistent function 'get_desktop_contract_state' in base 'Node (HarnessBootstrap)'.
+          at line -1
+- test_the_desktop_publication_ledger_is_shared_by_causal_round_shop_and_board_fate
+    [Failed]:  
+          at line 349
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function '_configure_causal_day_advance_identity (via call)' in base 'Node (HarnessBootstrap)'.
+    [2] <engine-2>Invalid call. Nonexistent function '_configure_restore_participants (via call)' in base 'Node (HarnessBootstrap)'.
+    [3] <engine-2>Cannot call method 'get' on a null value.
+          at line -1
+- test_the_round_coordinator_and_board_fate_port_drive_the_exact_same_shared_board_state
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function '_configure_causal_day_advance_identity (via call)' in base 'Node (HarnessBootstrap)'.
+    [2] <engine-2>Invalid call. Nonexistent function '_configure_restore_participants (via call)' in base 'Node (HarnessBootstrap)'.
+    [3] <engine-2>Cannot call method 'get' on a null value.
+          at line -1
+- test_the_consequence_coordinator_retains_the_exact_round_and_shop_source_objects
+    [Failed]:  
+          at line 371
+    [Failed]:  
+          at line 372
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function '_configure_causal_day_advance_identity (via call)' in base 'Node (HarnessBootstrap)'.
+    [2] <engine-2>Invalid call. Nonexistent function '_configure_restore_participants (via call)' in base 'Node (HarnessBootstrap)'.
+    [3] <engine-2>Cannot call method 'get' on a null value.
+          at line -1
+- test_the_consequence_coordinator_leaves_condition_departure_ports_unconfigured
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function '_configure_causal_day_advance_identity (via call)' in base 'Node (HarnessBootstrap)'.
+    [2] <engine-2>Invalid call. Nonexistent function '_configure_restore_participants (via call)' in base 'Node (HarnessBootstrap)'.
+    [3] <engine-2>Cannot call method 'get' on a null value.
+          at line -1
+- test_snapshot_provider_instance_id_equals_game_state
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function '_configure_causal_day_advance_identity (via call)' in base 'Node (HarnessBootstrap)'.
+    [2] <engine-2>Invalid call. Nonexistent function '_configure_restore_participants (via call)' in base 'Node (HarnessBootstrap)'.
+    [3] <engine-2>Invalid call. Nonexistent function 'get_desktop_contract_state' in base 'Node (HarnessBootstrap)'.
+          at line -1
+- test_the_probe_names_the_exact_frozen_restore_order_and_nine_participant_keys
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function '_configure_causal_day_advance_identity (via call)' in base 'Node (HarnessBootstrap)'.
+    [2] <engine-2>Invalid call. Nonexistent function '_configure_restore_participants (via call)' in base 'Node (HarnessBootstrap)'.
+    [3] <engine-2>Invalid call. Nonexistent function 'get_desktop_contract_state' in base 'Node (HarnessBootstrap)'.
+          at line -1
+- test_identical_replay_of_the_production_graph_reuses_every_instance
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function '_configure_causal_day_advance_identity (via call)' in base 'Node (HarnessBootstrap)'.
+    [2] <engine-2>Invalid call. Nonexistent function '_configure_restore_participants (via call)' in base 'Node (HarnessBootstrap)'.
+    [3] <engine-2>Invalid call. Nonexistent function 'get_desktop_contract_state' in base 'Node (HarnessBootstrap)'.
+          at line -1
+- test_the_production_graph_never_touches_the_retained_simulator_install_seam
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function '_configure_causal_day_advance_identity (via call)' in base 'Node (HarnessBootstrap)'.
+    [2] <engine-2>Invalid call. Nonexistent function '_configure_restore_participants (via call)' in base 'Node (HarnessBootstrap)'.
+          at line -1
+
+Totals
+------
+Scripts               1
+Tests                18
+Passing Tests      none
+Failing Tests        18
+Asserts           100/125
+Orphans              24
+Time              1.131s
+
+
+---- 18 failing tests ----
+

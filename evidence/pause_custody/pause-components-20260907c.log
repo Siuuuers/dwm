@@ -1,0 +1,131 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2570)
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-ui-build/.godot/phase2r_tests/ec0f7d0c-5e9c-49d4-a00c-ff19ad5bd914/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+
+
+res://tests/unit/test_audio_pause_suspension.gd
+* test_real_players_and_native_crossfade_suspend_and_resume_in_place
+    [Failed]:  DICTIONARY({ "ok": false, "code": &"invalid_audio_runtime", "value": <null> }) != DICTIONARY({ "ok": true, "code": &"ok", "value": { "resumed": true } }).
+    { "ok": false, "code": &"invalid_audio_r...: <null> } != { "ok": true, "code": &"ok", "value": { ...: true } }  3 of 3 keys do not match.
+      at line 157
+    [Failed]
+      at line 162
+    [Failed]
+      at line 164
+    [Failed]:  [0.145757] expected to be > than [0.145757]:
+      at line 169
+    [Failed]:  [STRING_NAME(Suspended)] expected to equal [STRING_NAME(Active)]:
+      at line 170
+* test_handle_contract_is_exact_idempotent_and_consumed_once
+* test_failed_begin_compensates_an_ambiguous_physical_suspend
+* test_failed_resume_stays_suspended_and_exact_retry_resumes_once
+* test_failed_resume_compensates_an_ambiguous_physical_resume
+4/5 passed.
+
+
+res://tests/unit/test_pause_surface.gd
+* test_all_locales_scales_and_target_modes_keep_full_copy_and_exact_geometry
+* test_invalid_copy_and_presentation_leave_previous_tuple_focus_and_copy_unchanged
+* test_native_navigation_previews_without_entering_and_never_wraps
+* test_injected_host_enters_on_right_and_back_performs_one_retreat
+* test_released_pointer_enters_once_and_return_cancel_restores_exact_row
+* test_controller_accept_and_return_confirmation_only_emit_intents
+PAUSE_JOY_STATE  focused=Return:<Button#189381216253> signals=0
+    [Failed]
+      at line 184
+WARNING: This control can't grab focus. Use set_focus_mode() and set_focus_behavior_recursive() to allow a control to get focus.
+   at: grab_focus (scene/gui/control.cpp:2373)
+   GDScript backtrace (most recent call first):
+       [0] test_controller_accept_and_return_confirmation_only_emit_intents (res://tests/unit/test_pause_surface.gd:185)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Expected the signal [return_confirmed] emit count of [0] to equal [1]:  (Signals emitted: ["preview_requested", "enter_requested"])
+      at line 187
+    [Failed]:  Unexpected Errors:
+    [1] <engine-1>This control can't grab focus. Use set_focus_mode() and set_focus_behavior_recursive() to allow a control to get focus.
+      at line -1
+* test_inert_custody_and_close_prevent_commands_without_claiming_disabled_rows
+6/7 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/unit/test_audio_pause_suspension.gd
+    - Outside Tests
+        * [<Node#97089750753>(subsystem_animation.gd)]
+        * [<Node#97106527970>(subsystem_audio.gd)]
+        * [<Node#97123305187>]
+        * [<Node#97140082404>]
+        * [<Node#97156859621>(subsystem_backgrounds.gd)]
+        * [<Node#97693730534>(subsystem_choices.gd)]
+        * [<Timer#97710507751>]
+        * [<Node#97727284968>(subsystem_expression.gd)]
+        * [<Node#97760839405>(subsystem_glossary.gd)]
+        * [<Node#97777616622>(subsystem_history.gd)]
+        * [<Node#97794393839>(subsystem_input.gd)]
+        * [<Timer#97811171056>]
+        * [<Node#97827948273>(subsystem_jump.gd)]
+        * [<Node#97844725490>(subsystem_containers.gd)]
+        * [<Node#97861502707>(subsystem_portraits.gd)]
+        * [<Node#98398373620>(subsystem_save.gd)]
+        * [<Timer#98415150837>]
+        * [<Node#98431928054>(subsystem_settings.gd)]
+        * [<Node#98448705274>(subsystem_styles.gd)]
+        * [<Node#98465482491>(subsystem_text.gd)]
+        * [<Node#98549368576>(subsystem_text_input.gd)]
+        * [<Node#98566145793>(subsystem_variables.gd)]
+        * [<Node#98582923010>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#98599700227>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+res://tests/unit/test_audio_pause_suspension.gd
+- test_real_players_and_native_crossfade_suspend_and_resume_in_place
+    [Failed]:  DICTIONARY({ "ok": false, "code": &"invalid_audio_runtime", "value": <null> }) != DICTIONARY({ "ok": true, "code": &"ok", "value": { "resumed": true } }).
+    { "ok": false, "code": &"invalid_audio_r...: <null> } != { "ok": true, "code": &"ok", "value": { ...: true } }  3 of 3 keys do not match.
+          at line 157
+    [Failed]:
+          at line 162
+    [Failed]:
+          at line 164
+    [Failed]:  [0.145757] expected to be > than [0.145757]:
+          at line 169
+    [Failed]:  [STRING_NAME(Suspended)] expected to equal [STRING_NAME(Active)]:
+          at line 170
+
+res://tests/unit/test_pause_surface.gd
+- test_controller_accept_and_return_confirmation_only_emit_intents
+    [Failed]:
+          at line 184
+    [Failed]:  Expected the signal [return_confirmed] emit count of [0] to equal [1]:  (Signals emitted: ["preview_requested", "enter_requested"])
+          at line 187
+    [Failed]:  Unexpected Errors:
+    [1] <engine-1>This control can't grab focus. Use set_focus_mode() and set_focus_behavior_recursive() to allow a control to get focus.
+          at line -1
+
+Totals
+------
+Scripts               2
+Tests                12
+Passing Tests        10
+Failing Tests         2
+Asserts           792/800
+Orphans              24
+Time              0.69s
+
+
+---- 2 failing tests ----

@@ -1,0 +1,84 @@
+{
+  "base_commit": "448d4d8f046f8f1d8160081db40a00f1f4c3dfd6",
+  "tasks": [
+    "dwm-eei.2",
+    "dwm-eei.3"
+  ],
+  "acceptance_suite": "settings-audio-final-20260907b",
+  "counts": {
+    "Scripts": 41,
+    "Tests": 399,
+    "Passing Tests": 399,
+    "Asserts": 22551,
+    "Orphans": 864
+  },
+  "exit_code": 0,
+  "sources": {
+    "autoload/AudioManager.gd": "bc1156355f866229ae6d015c7f2752dcef55cddb01a7b454d039668977f11444",
+    "scripts/audio/AudioPlaybackPort.gd": "3ef225022b7db689f99cab7438c20b17a20775d3aee6c4b6a855534e553716d4",
+    "scripts/audio/AudioSettingsTransactions.gd": "c35f7aa95ebd5cef79458b019fc00c6d12178b6102d5b24f6cff5ec96aafe82c",
+    "scripts/ui/SettingsPanelController.gd": "c791f8b25c789a9c4746d85abf9e57888949f92632ad6c4b2306887877e0c446",
+    "tests/integration/test_settings_shared_hosts.gd": "82dd2519e5bc0f884af6e0926d3edf462234ff750caacf838730484e721fd803",
+    "tests/support/FakeAudioPlaybackPort.gd": "62967c2c85ae855fea43ba5a7af56c65aa1966619ccdbdab618cdda811a6fb63",
+    "tests/unit/test_canonical_audio_preferences.gd": "caf414a49ea9e90fd96f96d9a599c6f0977c873f2f17a056ed8f1a7d2f5cc079",
+    "tests/unit/test_audio_output_custody.gd": "a952ac09ef998eeb69e0b6680f4e81b5f888c2997944a5e9867c88477d74d376",
+    "tests/unit/test_audio_settings_transactions.gd": "7f5c1e32256ca67b13e3ee47186eadaf43fdb54ceb4c83f231aff348499e116d",
+    "tests/scene/test_settings_audio_live.gd": "76997dca4c9db9e61bc6e095501be9fd0aa2b4147da8c7aad62ba7e07d6612ef"
+  },
+  "source_git_blobs": {
+    "autoload/AudioManager.gd": "863b8fdeb940a8dca9f3aa80f7ef180b79e364d4",
+    "scripts/audio/AudioPlaybackPort.gd": "18b22d44d97d0725177f947af1ea73c809d883c9",
+    "scripts/audio/AudioSettingsTransactions.gd": "7fbe5b84efac67b4bbeec71450fd47802dcaa1f8",
+    "scripts/ui/SettingsPanelController.gd": "0fd6a7a7b98c94736319e440a2c72b3e783367e8",
+    "tests/integration/test_settings_shared_hosts.gd": "2510fc41ef40ec211447cd845d798f41a803e68d",
+    "tests/support/FakeAudioPlaybackPort.gd": "bba9a35463f97e88a742c0860c7d3a93cae0d7ec",
+    "tests/unit/test_canonical_audio_preferences.gd": "5b67300bacea98f200515f60cf002871d5ccaad8",
+    "tests/unit/test_audio_output_custody.gd": "60e452751cb25a7392aba1b861637c64f827e4ea",
+    "tests/unit/test_audio_settings_transactions.gd": "1ddc696eefeeea9f888d6b001b82e30e045a7a9d",
+    "tests/scene/test_settings_audio_live.gd": "f6665e4a3286a8b473668c505af3e4862668e34b"
+  },
+  "source_hash_scope": "sources hashes the tested working bytes; source_git_blobs binds repository-filtered content, including LF normalization.",
+  "raw_log_sha256": {
+    ".godot/phase2r_logs/settings-audio-output-20260907a.log": "deb851c102ad8dc507d2a227d92ceb73f8022a8c9588a906a71806064beb6890",
+    ".godot/phase2r_logs/settings-audio-live-20260907a.log": "fb4dbc8735114b0c8ea69e6f81c6e04aec812a0164ff18b861b0cd093f266c72",
+    ".godot/phase2r_logs/settings-audio-transactions-20260907a.log": "001b46d22ae44a31bc8bddefe45a0245ad4d6ea70ccac9b921ebecf89160767f",
+    ".godot/phase2r_logs/settings-audio-interaction-20260907b.log": "b3635ed6750d5959d4381355112310042152f4a08e103c8e027937abe311fd2a",
+    ".godot/phase2r_logs/settings-audio-final-20260907a.log": "3fde3d0f4de702e6209bf6599f38adb4505598b36c330451a49a945da4b87847",
+    ".godot/phase2r_logs/settings-audio-final-20260907b.log": "e3de80f44c460f10fe23fe548468201143fc8519316df3c5780ab0dc9c411520"
+  },
+  "audio_preferences_available": true,
+  "audio_samples_available": false,
+  "audio_sample_asset_evidence": {
+    "active_manifest": "scripts/data/AudioManifest.gd",
+    "registered_production_sample_bytes": 0,
+    "reference_catalogue": "settings-save-guard/data/audio/asset_catalogue.json",
+    "reference_commit": "26de279be5f6490ff453db359b1964ec10596962",
+    "reference_assets": [],
+    "excluded_audio": "Unregistered Dialogic example typing sounds are not production samples."
+  },
+  "new_gpu_captures": 0,
+  "visual_scope": "No layout/font changes; prior settings_shared captures cover layout, while new native input tests cover enabled output controls.",
+  "full_settings_complete": false,
+  "overall_ui_goal_complete": false,
+  "save_schema_changed": false,
+  "player_data_used": false,
+  "merged": false,
+  "pushed": false,
+  "protected_worktrees": [
+    {
+      "path": "C:/Users/glori/Documents/dwm",
+      "head": "35afbcdcf7e12143478080b91a7c6c3079497371",
+      "tracked_dirty_paths": 20
+    },
+    {
+      "path": "C:/Users/glori/Documents/dwm-p2r13-resealed",
+      "head": "1790785bcfd37d2a27a0ecef81b9dc80fe501f71",
+      "tracked_dirty_paths": 47
+    }
+  ],
+  "known_diagnostics": [
+    "Windows certificate-store diagnostic retained",
+    "Unicode NUL diagnostics retained",
+    "Dialogic fixture orphan counts retained; no leak-free acceptance claim"
+  ]
+}

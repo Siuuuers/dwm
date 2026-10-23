@@ -1,0 +1,10 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+OpenGL API 3.3.0 - Build 31.0.101.4146 - Compatibility - Using Device: Intel - Intel(R) Iris(R) Xe Graphics
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+SOURCE_READY {"acknowledge_file":"C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/be7350bc-1ed0-4a3e-8eb5-d3ef84818e2b/dwm_test_root/21492/1/witnessed-reading-recovery-capture/witnessed-reading-recovery/source-visible.ack","pid":21492,"source_accessibility_withdrawn":false,"source_label":"Reading recovery source probe","window_title":"DWM Witnessed Reading Recovery Accessibility 21492"}
+READY {"activations":0,"control":"Retry","expected_caption":"Retry","physical_contacts":0,"pid":21492,"programmatic_pressed_rejected":true,"scope":"native UIA provider and guarded recovery Retry presentation; no storage-Retry claim","source_image":"C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/be7350bc-1ed0-4a3e-8eb5-d3ef84818e2b/dwm_test_root/21492/1/witnessed-reading-recovery-capture/witnessed-reading-recovery/native-source.png","window_title":"DWM Witnessed Reading Recovery Accessibility 21492","withdrawn_source_label":"Reading recovery source probe"}
+RESULT {"activations":0,"ok":false,"overlay_hidden":false,"physical_contacts":0,"pressed_signals":0,"source_accessibility_restored":false,"source_image_preserved":true,"storage_retry_invoked":false,"uia_tree_expected_hidden_while_presented":true}

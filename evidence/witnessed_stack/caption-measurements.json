@@ -1,0 +1,402 @@
+{
+	"captures": 22,
+	"runtime": "installed DialogicGameHandler, deferred Styles mount and native Text reveal; original application runtime preserved",
+	"samples": [
+		{
+			"caption_rect": "[P: (16.0, 596.0), S: (1248.0, 60.0)]",
+			"field_rect": "[P: (0.0, 448.0), S: (1280.0, 208.0)]",
+			"file": "en100-AfterHours-stack.png",
+			"focused": true,
+			"font_size": 20,
+			"kind": "stack",
+			"locale": "en",
+			"palette": "AfterHours",
+			"retained_captions": [
+				"Earlier synthetic caption.",
+				"Previous synthetic caption."
+			],
+			"scroll_extent": 0.0,
+			"scroll_offset": 0.0,
+			"text_percent": 100,
+			"visible_leaf_rects": "[[P: (16.0, 476.0), S: (1248.0, 60.0)], [P: (16.0, 536.0), S: (1248.0, 60.0)], [P: (16.0, 596.0), S: (1248.0, 60.0)]]"
+		},
+		{
+			"caption_rect": "[P: (16.0, 596.0), S: (1248.0, 60.0)]",
+			"field_rect": "[P: (0.0, 448.0), S: (1280.0, 208.0)]",
+			"file": "en100-Midnight-stack.png",
+			"focused": true,
+			"font_size": 20,
+			"kind": "stack",
+			"locale": "en",
+			"palette": "Midnight",
+			"retained_captions": [
+				"Earlier synthetic caption.",
+				"Previous synthetic caption."
+			],
+			"scroll_extent": 0.0,
+			"scroll_offset": 0.0,
+			"text_percent": 100,
+			"visible_leaf_rects": "[[P: (16.0, 476.0), S: (1248.0, 60.0)], [P: (16.0, 536.0), S: (1248.0, 60.0)], [P: (16.0, 596.0), S: (1248.0, 60.0)]]"
+		},
+		{
+			"caption_rect": "[P: (16.0, 590.0), S: (1248.0, 66.0)]",
+			"field_rect": "[P: (0.0, 392.0), S: (1280.0, 264.0)]",
+			"file": "en125-AfterHours-stack.png",
+			"focused": true,
+			"font_size": 25,
+			"kind": "stack",
+			"locale": "en",
+			"palette": "AfterHours",
+			"retained_captions": [
+				"Earlier synthetic caption.",
+				"Previous synthetic caption."
+			],
+			"scroll_extent": 0.0,
+			"scroll_offset": 0.0,
+			"text_percent": 125,
+			"visible_leaf_rects": "[[P: (16.0, 458.0), S: (1248.0, 66.0)], [P: (16.0, 524.0), S: (1248.0, 66.0)], [P: (16.0, 590.0), S: (1248.0, 66.0)]]"
+		},
+		{
+			"caption_rect": "[P: (16.0, 590.0), S: (1248.0, 66.0)]",
+			"field_rect": "[P: (0.0, 392.0), S: (1280.0, 264.0)]",
+			"file": "en125-Midnight-stack.png",
+			"focused": true,
+			"font_size": 25,
+			"kind": "stack",
+			"locale": "en",
+			"palette": "Midnight",
+			"retained_captions": [
+				"Earlier synthetic caption.",
+				"Previous synthetic caption."
+			],
+			"scroll_extent": 0.0,
+			"scroll_offset": 0.0,
+			"text_percent": 125,
+			"visible_leaf_rects": "[[P: (16.0, 458.0), S: (1248.0, 66.0)], [P: (16.0, 524.0), S: (1248.0, 66.0)], [P: (16.0, 590.0), S: (1248.0, 66.0)]]"
+		},
+		{
+			"caption_rect": "[P: (16.0, 584.0), S: (1248.0, 72.0)]",
+			"field_rect": "[P: (0.0, 328.0), S: (1280.0, 328.0)]",
+			"file": "en150-AfterHours-stack.png",
+			"focused": true,
+			"font_size": 30,
+			"kind": "stack",
+			"locale": "en",
+			"palette": "AfterHours",
+			"retained_captions": [
+				"Earlier synthetic caption.",
+				"Previous synthetic caption."
+			],
+			"scroll_extent": 0.0,
+			"scroll_offset": 0.0,
+			"text_percent": 150,
+			"visible_leaf_rects": "[[P: (16.0, 440.0), S: (1248.0, 72.0)], [P: (16.0, 512.0), S: (1248.0, 72.0)], [P: (16.0, 584.0), S: (1248.0, 72.0)]]"
+		},
+		{
+			"caption_rect": "[P: (16.0, 584.0), S: (1248.0, 72.0)]",
+			"field_rect": "[P: (0.0, 328.0), S: (1280.0, 328.0)]",
+			"file": "en150-Midnight-stack.png",
+			"focused": true,
+			"font_size": 30,
+			"kind": "stack",
+			"locale": "en",
+			"palette": "Midnight",
+			"retained_captions": [
+				"Earlier synthetic caption.",
+				"Previous synthetic caption."
+			],
+			"scroll_extent": 0.0,
+			"scroll_offset": 0.0,
+			"text_percent": 150,
+			"visible_leaf_rects": "[[P: (16.0, 440.0), S: (1248.0, 72.0)], [P: (16.0, 512.0), S: (1248.0, 72.0)], [P: (16.0, 584.0), S: (1248.0, 72.0)]]"
+		},
+		{
+			"caption_rect": "[P: (16.0, 594.0), S: (1248.0, 62.0)]",
+			"field_rect": "[P: (0.0, 448.0), S: (1280.0, 208.0)]",
+			"file": "zh-CN100-AfterHours-stack.png",
+			"focused": true,
+			"font_size": 20,
+			"kind": "stack",
+			"locale": "zh-CN",
+			"palette": "AfterHours",
+			"retained_captions": [
+				"较早的字幕测试样本。",
+				"上一条字幕测试样本。"
+			],
+			"scroll_extent": 0.0,
+			"scroll_offset": 0.0,
+			"text_percent": 100,
+			"visible_leaf_rects": "[[P: (16.0, 470.0), S: (1248.0, 62.0)], [P: (16.0, 532.0), S: (1248.0, 62.0)], [P: (16.0, 594.0), S: (1248.0, 62.0)]]"
+		},
+		{
+			"caption_rect": "[P: (16.0, 594.0), S: (1248.0, 62.0)]",
+			"field_rect": "[P: (0.0, 448.0), S: (1280.0, 208.0)]",
+			"file": "zh-CN100-Midnight-stack.png",
+			"focused": true,
+			"font_size": 20,
+			"kind": "stack",
+			"locale": "zh-CN",
+			"palette": "Midnight",
+			"retained_captions": [
+				"较早的字幕测试样本。",
+				"上一条字幕测试样本。"
+			],
+			"scroll_extent": 0.0,
+			"scroll_offset": 0.0,
+			"text_percent": 100,
+			"visible_leaf_rects": "[[P: (16.0, 470.0), S: (1248.0, 62.0)], [P: (16.0, 532.0), S: (1248.0, 62.0)], [P: (16.0, 594.0), S: (1248.0, 62.0)]]"
+		},
+		{
+			"caption_rect": "[P: (16.0, 586.0), S: (1248.0, 70.0)]",
+			"field_rect": "[P: (0.0, 392.0), S: (1280.0, 264.0)]",
+			"file": "zh-CN125-AfterHours-stack.png",
+			"focused": true,
+			"font_size": 25,
+			"kind": "stack",
+			"locale": "zh-CN",
+			"palette": "AfterHours",
+			"retained_captions": [
+				"较早的字幕测试样本。",
+				"上一条字幕测试样本。"
+			],
+			"scroll_extent": 0.0,
+			"scroll_offset": 0.0,
+			"text_percent": 125,
+			"visible_leaf_rects": "[[P: (16.0, 446.0), S: (1248.0, 70.0)], [P: (16.0, 516.0), S: (1248.0, 70.0)], [P: (16.0, 586.0), S: (1248.0, 70.0)]]"
+		},
+		{
+			"caption_rect": "[P: (16.0, 586.0), S: (1248.0, 70.0)]",
+			"field_rect": "[P: (0.0, 392.0), S: (1280.0, 264.0)]",
+			"file": "zh-CN125-Midnight-stack.png",
+			"focused": true,
+			"font_size": 25,
+			"kind": "stack",
+			"locale": "zh-CN",
+			"palette": "Midnight",
+			"retained_captions": [
+				"较早的字幕测试样本。",
+				"上一条字幕测试样本。"
+			],
+			"scroll_extent": 0.0,
+			"scroll_offset": 0.0,
+			"text_percent": 125,
+			"visible_leaf_rects": "[[P: (16.0, 446.0), S: (1248.0, 70.0)], [P: (16.0, 516.0), S: (1248.0, 70.0)], [P: (16.0, 586.0), S: (1248.0, 70.0)]]"
+		},
+		{
+			"caption_rect": "[P: (16.0, 580.0), S: (1248.0, 76.0)]",
+			"field_rect": "[P: (0.0, 328.0), S: (1280.0, 328.0)]",
+			"file": "zh-CN150-AfterHours-stack.png",
+			"focused": true,
+			"font_size": 30,
+			"kind": "stack",
+			"locale": "zh-CN",
+			"palette": "AfterHours",
+			"retained_captions": [
+				"较早的字幕测试样本。",
+				"上一条字幕测试样本。"
+			],
+			"scroll_extent": 0.0,
+			"scroll_offset": 0.0,
+			"text_percent": 150,
+			"visible_leaf_rects": "[[P: (16.0, 428.0), S: (1248.0, 76.0)], [P: (16.0, 504.0), S: (1248.0, 76.0)], [P: (16.0, 580.0), S: (1248.0, 76.0)]]"
+		},
+		{
+			"caption_rect": "[P: (16.0, 580.0), S: (1248.0, 76.0)]",
+			"field_rect": "[P: (0.0, 328.0), S: (1280.0, 328.0)]",
+			"file": "zh-CN150-Midnight-stack.png",
+			"focused": true,
+			"font_size": 30,
+			"kind": "stack",
+			"locale": "zh-CN",
+			"palette": "Midnight",
+			"retained_captions": [
+				"较早的字幕测试样本。",
+				"上一条字幕测试样本。"
+			],
+			"scroll_extent": 0.0,
+			"scroll_offset": 0.0,
+			"text_percent": 150,
+			"visible_leaf_rects": "[[P: (16.0, 428.0), S: (1248.0, 76.0)], [P: (16.0, 504.0), S: (1248.0, 76.0)], [P: (16.0, 580.0), S: (1248.0, 76.0)]]"
+		},
+		{
+			"caption_rect": "[P: (16.0, 594.0), S: (1248.0, 62.0)]",
+			"field_rect": "[P: (0.0, 448.0), S: (1280.0, 208.0)]",
+			"file": "zh-HK100-AfterHours-stack.png",
+			"focused": true,
+			"font_size": 20,
+			"kind": "stack",
+			"locale": "zh-HK",
+			"palette": "AfterHours",
+			"retained_captions": [
+				"較早的字幕測試樣本。",
+				"上一條字幕測試樣本。"
+			],
+			"scroll_extent": 0.0,
+			"scroll_offset": 0.0,
+			"text_percent": 100,
+			"visible_leaf_rects": "[[P: (16.0, 470.0), S: (1248.0, 62.0)], [P: (16.0, 532.0), S: (1248.0, 62.0)], [P: (16.0, 594.0), S: (1248.0, 62.0)]]"
+		},
+		{
+			"caption_rect": "[P: (16.0, 594.0), S: (1248.0, 62.0)]",
+			"field_rect": "[P: (0.0, 448.0), S: (1280.0, 208.0)]",
+			"file": "zh-HK100-Midnight-stack.png",
+			"focused": true,
+			"font_size": 20,
+			"kind": "stack",
+			"locale": "zh-HK",
+			"palette": "Midnight",
+			"retained_captions": [
+				"較早的字幕測試樣本。",
+				"上一條字幕測試樣本。"
+			],
+			"scroll_extent": 0.0,
+			"scroll_offset": 0.0,
+			"text_percent": 100,
+			"visible_leaf_rects": "[[P: (16.0, 470.0), S: (1248.0, 62.0)], [P: (16.0, 532.0), S: (1248.0, 62.0)], [P: (16.0, 594.0), S: (1248.0, 62.0)]]"
+		},
+		{
+			"caption_rect": "[P: (16.0, 586.0), S: (1248.0, 70.0)]",
+			"field_rect": "[P: (0.0, 392.0), S: (1280.0, 264.0)]",
+			"file": "zh-HK125-AfterHours-stack.png",
+			"focused": true,
+			"font_size": 25,
+			"kind": "stack",
+			"locale": "zh-HK",
+			"palette": "AfterHours",
+			"retained_captions": [
+				"較早的字幕測試樣本。",
+				"上一條字幕測試樣本。"
+			],
+			"scroll_extent": 0.0,
+			"scroll_offset": 0.0,
+			"text_percent": 125,
+			"visible_leaf_rects": "[[P: (16.0, 446.0), S: (1248.0, 70.0)], [P: (16.0, 516.0), S: (1248.0, 70.0)], [P: (16.0, 586.0), S: (1248.0, 70.0)]]"
+		},
+		{
+			"caption_rect": "[P: (16.0, 586.0), S: (1248.0, 70.0)]",
+			"field_rect": "[P: (0.0, 392.0), S: (1280.0, 264.0)]",
+			"file": "zh-HK125-Midnight-stack.png",
+			"focused": true,
+			"font_size": 25,
+			"kind": "stack",
+			"locale": "zh-HK",
+			"palette": "Midnight",
+			"retained_captions": [
+				"較早的字幕測試樣本。",
+				"上一條字幕測試樣本。"
+			],
+			"scroll_extent": 0.0,
+			"scroll_offset": 0.0,
+			"text_percent": 125,
+			"visible_leaf_rects": "[[P: (16.0, 446.0), S: (1248.0, 70.0)], [P: (16.0, 516.0), S: (1248.0, 70.0)], [P: (16.0, 586.0), S: (1248.0, 70.0)]]"
+		},
+		{
+			"caption_rect": "[P: (16.0, 580.0), S: (1248.0, 76.0)]",
+			"field_rect": "[P: (0.0, 328.0), S: (1280.0, 328.0)]",
+			"file": "zh-HK150-AfterHours-stack.png",
+			"focused": true,
+			"font_size": 30,
+			"kind": "stack",
+			"locale": "zh-HK",
+			"palette": "AfterHours",
+			"retained_captions": [
+				"較早的字幕測試樣本。",
+				"上一條字幕測試樣本。"
+			],
+			"scroll_extent": 0.0,
+			"scroll_offset": 0.0,
+			"text_percent": 150,
+			"visible_leaf_rects": "[[P: (16.0, 428.0), S: (1248.0, 76.0)], [P: (16.0, 504.0), S: (1248.0, 76.0)], [P: (16.0, 580.0), S: (1248.0, 76.0)]]"
+		},
+		{
+			"caption_rect": "[P: (16.0, 580.0), S: (1248.0, 76.0)]",
+			"field_rect": "[P: (0.0, 328.0), S: (1280.0, 328.0)]",
+			"file": "zh-HK150-Midnight-stack.png",
+			"focused": true,
+			"font_size": 30,
+			"kind": "stack",
+			"locale": "zh-HK",
+			"palette": "Midnight",
+			"retained_captions": [
+				"較早的字幕測試樣本。",
+				"上一條字幕測試樣本。"
+			],
+			"scroll_extent": 0.0,
+			"scroll_offset": 0.0,
+			"text_percent": 150,
+			"visible_leaf_rects": "[[P: (16.0, 428.0), S: (1248.0, 76.0)], [P: (16.0, 504.0), S: (1248.0, 76.0)], [P: (16.0, 580.0), S: (1248.0, 76.0)]]"
+		},
+		{
+			"caption_rect": "[P: (16.0, 0.0), S: (1236.0, 4032.0)]",
+			"field_rect": "[P: (0.0, 328.0), S: (1280.0, 328.0)]",
+			"file": "en150-AfterHours-overflow.png",
+			"focused": true,
+			"font_size": 30,
+			"kind": "overflow",
+			"locale": "en",
+			"palette": "AfterHours",
+			"retained_captions": [
+				"Earlier synthetic caption.",
+				"Previous synthetic caption."
+			],
+			"scroll_extent": 3848.0,
+			"scroll_offset": 472.0,
+			"text_percent": 150,
+			"visible_leaf_rects": "[[P: (16.0, 328.0), S: (1236.0, 328.0)]]"
+		},
+		{
+			"caption_rect": "[P: (16.0, 0.0), S: (1236.0, 3992.0)]",
+			"field_rect": "[P: (0.0, 328.0), S: (1280.0, 328.0)]",
+			"file": "zh-CN150-AfterHours-overflow.png",
+			"focused": true,
+			"font_size": 30,
+			"kind": "overflow",
+			"locale": "zh-CN",
+			"palette": "AfterHours",
+			"retained_captions": [
+				"较早的字幕测试样本。",
+				"上一条字幕测试样本。"
+			],
+			"scroll_extent": 3816.0,
+			"scroll_offset": 480.0,
+			"text_percent": 150,
+			"visible_leaf_rects": "[[P: (16.0, 328.0), S: (1236.0, 328.0)]]"
+		},
+		{
+			"caption_rect": "[P: (16.0, 0.0), S: (1236.0, 3992.0)]",
+			"field_rect": "[P: (0.0, 328.0), S: (1280.0, 328.0)]",
+			"file": "zh-HK150-AfterHours-overflow.png",
+			"focused": true,
+			"font_size": 30,
+			"kind": "overflow",
+			"locale": "zh-HK",
+			"palette": "AfterHours",
+			"retained_captions": [
+				"較早的字幕測試樣本。",
+				"上一條字幕測試樣本。"
+			],
+			"scroll_extent": 3816.0,
+			"scroll_offset": 480.0,
+			"text_percent": 150,
+			"visible_leaf_rects": "[[P: (16.0, 328.0), S: (1236.0, 328.0)]]"
+		},
+		{
+			"caption_rect": "[P: (16.0, 480.0), S: (1236.0, 3992.0)]",
+			"field_rect": "[P: (0.0, 328.0), S: (1280.0, 328.0)]",
+			"file": "zh-HK150-AfterHours-empty.png",
+			"focused": false,
+			"font_size": 30,
+			"kind": "empty",
+			"locale": "zh-HK",
+			"palette": "AfterHours",
+			"retained_captions": [],
+			"scroll_extent": 0.0,
+			"scroll_offset": 0.0,
+			"text_percent": 150,
+			"visible_leaf_rects": "[]"
+		}
+	],
+	"scope": "synthetic caption fixtures; actual authored Hospital timeline currently has no text",
+	"tuples": 18,
+	"unfocused_overflow_captures": 3
+}

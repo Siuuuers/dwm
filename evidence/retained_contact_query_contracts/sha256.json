@@ -1,0 +1,11 @@
+{
+  ".gdignore": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "label-audit.json": "eb7370acd7963e6cb74f7defbf3d5fa99763758272991b7c2bf754cd26ab0f78",
+  "logs/retained-contact-game-state-inventory.log": "5473a1fa6ac1bb00ee3856fe8536f721d319d86154bcd7fc838f358b2ec316f6",
+  "logs/retained-contact-queries-focused.log": "6cd89a8de6c995ee9ec8d37b984eba670a7dda23a14f0c3b9b195c17641ea8dd",
+  "logs/retained-contact-query-final.log": "5b9ad9ede538655d98313ca71e1f0d172483f45d24e6d538da2b0f1a7a59c787",
+  "logs/retained-contact-save-manager-inventory.log": "5473a1fa6ac1bb00ee3856fe8536f721d319d86154bcd7fc838f358b2ec316f6",
+  "README.md": "6ca97f48ae128df22d466481be87cf68352d80ef79bb0ab6748bdda7f737ba6f",
+  "runs.jsonl": "30d5ee012eab91dd9a69c11a72b887cefd333dd90f42becd629583ba7956b033",
+  "source-sha256.json": "b4617f6008c175a45fe3e275e9fa37ac154bd2cdcce861ec1f6313af3cbd8605"
+}

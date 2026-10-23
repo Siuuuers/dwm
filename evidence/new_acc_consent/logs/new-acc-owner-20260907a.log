@@ -1,0 +1,104 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-ui-build/.godot/phase2r_tests/8ceb2906-adf0-40a1-8800-b30a6f8b33a1/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+res://tests/integration/test_prepared_new_run.gd
+* test_prepare_is_pure_and_replaces_only_one_transient_token
+* test_prepare_counts_nonempty_unreadable_autosave_but_not_zero_bytes
+Unicode parsing error, some characters were replaced with � (U+FFFD): Invalid UTF-8 leading byte (ff)
+* test_cancel_requires_exact_token_and_performs_no_io
+* test_commit_consumes_token_when_profile_autosave_or_live_source_changes
+* test_prepare_reports_real_live_and_autosave_replacement
+* test_success_enters_existing_durable_new_run_with_frozen_dark
+* test_predecision_failure_retains_same_token_for_exact_retry
+* test_postdecision_failure_returns_transaction_and_never_replays_ui_token
+* test_prepare_refuses_retained_recovery_without_journal_io
+* test_fresh_prepare_defers_durable_pending_discovery_to_gated_commit
+10/10 passed.
+
+
+res://tests/integration/test_new_run_pair_durability.gd
+* test_pair_is_durable_before_live_effects_and_only_pending_dark_is_consumed
+* test_predecision_failure_preserves_both_targets_and_has_no_live_effects
+* test_profile_write_failure_retains_decision_and_startup_settles_without_live_launch
+* test_partial_live_replay_uses_same_snapshot_with_fresh_route_token
+* test_foreign_autosave_bytes_and_pending_marker_refuse_without_reconciliation
+* test_completed_retry_does_not_restore_old_targets_after_subsequent_changes
+* test_decision_and_autosave_write_cuts_retry_exact_same_retained_materials
+* test_busy_unrelated_gate_refuses_before_unloaded_journal_can_reconcile
+8/8 passed.
+
+
+res://tests/integration/test_new_run_transaction.gd
+* test_start_new_run_rejects_bad_context
+* test_start_new_run_builds_day1_run_b
+* test_start_new_run_requires_identity_issuer
+* test_start_new_run_allocates_a_fresh_identity_per_call
+* test_start_new_run_requires_participants
+* test_finalize_failure_retains_new_run_and_retries_the_same_durable_identity
+* test_successful_finalization_keeps_new_checkpoint_instead_of_restoring_backup
+* test_predecision_failure_preserves_old_run_and_postdecision_failures_retain_recovery
+* test_durable_new_run_does_not_invoke_legacy_checkpoint_compensation
+* test_new_run_captures_pending_dark_once_and_consumes_it_before_live_publication
+* test_invalid_prepared_dark_facts_fail_before_durable_intent_and_release_gate
+* test_caller_cannot_override_captured_dark_intent
+12/12 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/integration/test_prepared_new_run.gd
+    - Outside Tests
+        * [<Node#100579411692>(subsystem_animation.gd)]
+        * [<Node#100596188909>(subsystem_audio.gd)]
+        * [<Node#100612966126>]
+        * [<Node#100629743343>]
+        * [<Node#100646520560>(subsystem_backgrounds.gd)]
+        * [<Node#101183391473>(subsystem_choices.gd)]
+        * [<Timer#101200168690>]
+        * [<Node#101216945907>(subsystem_expression.gd)]
+        * [<Node#101250500344>(subsystem_glossary.gd)]
+        * [<Node#101267277561>(subsystem_history.gd)]
+        * [<Node#101284054778>(subsystem_input.gd)]
+        * [<Timer#101300831995>]
+        * [<Node#101317609212>(subsystem_jump.gd)]
+        * [<Node#101334386429>(subsystem_containers.gd)]
+        * [<Node#101351163646>(subsystem_portraits.gd)]
+        * [<Node#101888034559>(subsystem_save.gd)]
+        * [<Timer#101904811776>]
+        * [<Node#101921588993>(subsystem_settings.gd)]
+        * [<Node#101938366213>(subsystem_styles.gd)]
+        * [<Node#101955143430>(subsystem_text.gd)]
+        * [<Node#102039029515>(subsystem_text_input.gd)]
+        * [<Node#102055806732>(subsystem_variables.gd)]
+        * [<Node#102072583949>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#102089361166>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+Totals
+------
+Scripts               3
+Tests                30
+Passing Tests        30
+Asserts             760
+Orphans              24
+Time              138.251s
+
+
+---- All tests passed! ----

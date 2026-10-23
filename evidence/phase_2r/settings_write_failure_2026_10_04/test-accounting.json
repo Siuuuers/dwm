@@ -1,0 +1,236 @@
+{
+  "primary_reports": [
+    {
+      "path": "ci/endings.xml",
+      "artifact": "settings-run157-windows-endings-37215097884-1.zip",
+      "sha256": "f61e04a160a19cc008c1852853f2e9a01f59d5f9b2357c25ce47d16f9674d039",
+      "cases": 106,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "path": "ci/minesweeper.xml",
+      "artifact": "settings-run157-windows-minesweeper-37215097884-1.zip",
+      "sha256": "e860a404a973e38d83a845a680ebd2090441c901eb6bf434aa908fabf9c7a6e8",
+      "cases": 210,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "path": "ci/persistence.xml",
+      "artifact": "settings-run157-windows-persistence-37215097884-1.zip",
+      "sha256": "9bce2b9bd930afade697e67a39ca3690fea7d94d044cc9e57f8be883c4617ed0",
+      "cases": 234,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "path": "ci/checkpoint_diagnostics.xml",
+      "artifact": "settings-run157-windows-checkpoint_diagnostics-37215097884-1.zip",
+      "sha256": "ecfffbaba7bbc25335b75f565a37311d6a2232d352500d21ed8e173e474aae9a",
+      "cases": 22,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "path": "ci/shop.xml",
+      "artifact": "settings-run157-windows-shop-37215097884-1.zip",
+      "sha256": "4670aa73f1736ecef5283d757726a8f5e325124a7a0bf4a9096eaad4a2783dc6",
+      "cases": 144,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "path": "ci/reading_delivery.xml",
+      "artifact": "settings-run157-windows-reading_delivery-37215097884-1.zip",
+      "sha256": "2962b5a18bb6fd92dbb014f352b0cc4a1865c25ddd8da5fe7885f9764e38616f",
+      "cases": 633,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "path": "ci/audio.xml",
+      "artifact": "settings-run157-windows-audio-37215097884-1.zip",
+      "sha256": "216331abe988375ea826c38a89d35f7d3d551dbd0b1e18c3075b7ecbe2822a03",
+      "cases": 44,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "path": "ci/public_surfaces.xml",
+      "artifact": "settings-run157-public.zip",
+      "sha256": "319ab846c730905904d7e3170d56cd8c3efcd2c5c305ba827b8d9f36dad82862",
+      "cases": 11,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "path": "ci/dating.xml",
+      "artifact": "settings-run157-windows-dating-37215097884-1.zip",
+      "sha256": "030e1548e575beace45266bfd5d2c0bcf113f19baa8c0a088c846e105ea36c8d",
+      "cases": 174,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "path": "ci/new_account.xml",
+      "artifact": "settings-run157-windows-new_account-37215097884-1.zip",
+      "sha256": "02674c550f88ba09c0f10fe6d122174f5ed99248cc6ba1fcc8d648353e2c4950",
+      "cases": 179,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "path": "ci/settings.xml",
+      "artifact": "settings-run157-windows-settings-37215097884-1.zip",
+      "sha256": "4cd11d6016927122a0825ad2ef6c723e54e8bad0a80165eead7a01b91d52958e",
+      "cases": 361,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "path": "ci/desktop.xml",
+      "artifact": "settings-run157-windows-desktop-37215097884-1.zip",
+      "sha256": "bfb600191d4f038325d0197f8e44f8ec5fb49ed68608a6440fedb4d4f229a6fd",
+      "cases": 334,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "path": "ci/localization.xml",
+      "artifact": "settings-run157-windows-localization-37215097884-1.zip",
+      "sha256": "bba578b70379c19874b0e05601aa089338cfa995d308cd8245bed2441018af09",
+      "cases": 154,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "primary_count": 13,
+  "executions": 2606,
+  "unique_cases": 2602,
+  "duplicates": [
+    {
+      "classname": "tests/unit/test_checkpoint_phase_diagnostics.gd",
+      "name": "test_profile_on_and_off_preserve_documents_journal_and_every_physical_operation",
+      "executions": 2
+    },
+    {
+      "classname": "tests/unit/test_checkpoint_phase_diagnostics.gd",
+      "name": "test_cold_history_learning_is_distinct_from_next_prepares_proof_hits",
+      "executions": 2
+    },
+    {
+      "classname": "tests/unit/test_checkpoint_phase_diagnostics.gd",
+      "name": "test_schema_valid_history_edit_counts_a_learning_attempt_without_a_success",
+      "executions": 2
+    },
+    {
+      "classname": "tests/unit/test_checkpoint_phase_diagnostics.gd",
+      "name": "test_refused_journal_commit_never_reports_or_creates_successful_learning",
+      "executions": 2
+    }
+  ],
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "negative_controls": [
+    {
+      "path": "ci/storage-refusal/empty/tests.xml",
+      "artifact": "settings-run157-windows-settings-37215097884-1.zip",
+      "sha256": "f0c5626eafb6ee9a2b56137b104ba11d33e5f5ec4177528c4c9575e40ecbbcca",
+      "cases": 83,
+      "failures": 80,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "path": "ci/storage-refusal/whitespace/tests.xml",
+      "artifact": "settings-run157-windows-settings-37215097884-1.zip",
+      "sha256": "8c0537e62ba0bcba04067cad41c3c94e2fbaf6a0e777afe85aaa36e3b5ec86d9",
+      "cases": 83,
+      "failures": 80,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "downloaded_artifacts": [
+    {
+      "filename": "settings-run157-windows-endings-37215097884-1.zip",
+      "sha256": "fdafc41dc22cfdeaf140a63ba7b099ec47e576ea6a9a2d58957b5139a679dc22",
+      "size": 75263
+    },
+    {
+      "filename": "settings-run157-windows-minesweeper-37215097884-1.zip",
+      "sha256": "307bf567edd43a2f3ae5641a13d355d2423c154d55c3ec740bd148d7495300bf",
+      "size": 166686
+    },
+    {
+      "filename": "settings-run157-windows-persistence-37215097884-1.zip",
+      "sha256": "03a4469fc99e4c7a4fcbf121561ff10ec7e364c5cc8e550be76b6fc4e966e9ca",
+      "size": 199730
+    },
+    {
+      "filename": "settings-run157-windows-checkpoint_diagnostics-37215097884-1.zip",
+      "sha256": "6837e6f414c4c0e4e050f3b627129571ee5027183e9f043c21713af982f490a9",
+      "size": 603031
+    },
+    {
+      "filename": "settings-run157-windows-shop-37215097884-1.zip",
+      "sha256": "3b984d02a4a93628f7548ebc4c38fdba953fca430fc27e6e7050123eeda34a61",
+      "size": 65629
+    },
+    {
+      "filename": "settings-run157-windows-reading_delivery-37215097884-1.zip",
+      "sha256": "38337fad165a2302abeb7352c889ae2fe15c1721053b13fc316d1cef2aa408ec",
+      "size": 310342
+    },
+    {
+      "filename": "settings-run157-windows-audio-37215097884-1.zip",
+      "sha256": "8d6e43384dc9db15bd75b34c5eb4967e7b9a482180ea662543b8dbb88f7041fc",
+      "size": 22440
+    },
+    {
+      "filename": "settings-run157-public.zip",
+      "sha256": "2ae85aa1a4d622c31f15340a3a2d5b5c933303d51f5b25069866104bc868ab82",
+      "size": 190045
+    },
+    {
+      "filename": "settings-run157-windows-dating-37215097884-1.zip",
+      "sha256": "dfc3afa1b806a099d049bef3e0df56ea88103995b2bc96feeb83b2e5c0a3ee40",
+      "size": 587832
+    },
+    {
+      "filename": "settings-run157-windows-new_account-37215097884-1.zip",
+      "sha256": "0a3c7705c091aec99fbcb12286cb19ba8477b323c96d60404d855f223ec13add",
+      "size": 238847
+    },
+    {
+      "filename": "settings-run157-windows-settings-37215097884-1.zip",
+      "sha256": "e4280864a8dfedb479a5e3d11278f9e41ff8cbd2688a64b503cb99ece37ea687",
+      "size": 3093754
+    },
+    {
+      "filename": "settings-run157-windows-desktop-37215097884-1.zip",
+      "sha256": "740cf74826d5d0a596d8d7de5ab6919a4b4a388cc199a310986f7a486e80ea64",
+      "size": 293081
+    },
+    {
+      "filename": "settings-run157-windows-localization-37215097884-1.zip",
+      "sha256": "fe22809dde3225c5e6c40c530f5ef2f16ea33f7e3c19bc0a6d82e812938577f7",
+      "size": 376415
+    }
+  ]
+}

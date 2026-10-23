@@ -1,0 +1,10 @@
+{
+  "game_state": {
+    "public_surface_and_contracts_unchanged": true,
+    "scope": "Generated lexical references only; excluded source, tests, schemas and Beads were not edited."
+  },
+  "save_manager": {
+    "public_surface_and_contracts_unchanged": true,
+    "scope": "Generated lexical references only; excluded source, tests, schemas and Beads were not edited."
+  }
+}

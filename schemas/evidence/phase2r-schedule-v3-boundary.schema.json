@@ -1,0 +1,84 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "dwm:schemas/evidence/phase2r-schedule-v3-boundary.schema.json",
+	"title": "phase2r-schedule-v3-boundary",
+	"description": "Immutable evidence record binding the RunSnapshot/SaveDocument v3 code boundary of dwm-p2r.13 to the exact committed bytes of its three production sources and its one permanent focused GUT log. tools/schedule/generate_schedule_v3_boundary.gd writes the record once under --write and re-verifies it under --check; both forms read blobs out of named commits, so the working tree is never truth for any hashed member. Every path member is a repository-relative POSIX path with no res:// prefix, and every digest member is a lowercase hexadecimal SHA-256 of raw bytes rather than of decoded text.",
+	"type": "object",
+	"additionalProperties": false,
+	"minProperties": 12,
+	"maxProperties": 12,
+	"required": [
+		"schema_version",
+		"owner_beads_id",
+		"boundary_subject",
+		"boundary_commit",
+		"run_snapshot_schema_path",
+		"run_snapshot_schema_sha256",
+		"save_document_schema_path",
+		"save_document_schema_sha256",
+		"migration_path",
+		"migration_sha256",
+		"focused_log_path",
+		"focused_log_sha256"
+	],
+	"properties": {
+		"schema_version": {
+			"description": "Generation of this record format, frozen at 1 for the whole of Plan 01. A successor that needs a different member set publishes its own schema file instead of widening this one.",
+			"const": 1
+		},
+		"owner_beads_id": {
+			"description": "The single Beads issue that owns the boundary. Only dwm-p2r.13 may author a record under this schema.",
+			"const": "dwm-p2r.13"
+		},
+		"boundary_subject": {
+			"description": "Case-sensitive subject line the boundary commit must carry. The generator re-reads the subject from git rather than trusting the record, so a rewritten commit fails verification instead of silently rebinding.",
+			"const": "feat(save): persist canonical committed Schedule"
+		},
+		"boundary_commit": {
+			"description": "Full forty-character lowercase hexadecimal id of the v3 code commit. It must resolve, carry boundary_subject, and be the sole direct parent of the evidence commit that introduces this record.",
+			"type": "string",
+			"minLength": 40,
+			"pattern": "^[0-9a-f]{40}$"
+		},
+		"run_snapshot_schema_path": {
+			"description": "Repository-relative path of the v3 snapshot validator, the module that raised SCHEMA_VERSION to 3 and replaced top-level schedule with committed_schedule.",
+			"const": "scripts/domain/run/RunSnapshotSchema.gd"
+		},
+		"run_snapshot_schema_sha256": {
+			"description": "SHA-256 of run_snapshot_schema_path read from the boundary_commit tree, never from the working copy.",
+			"type": "string",
+			"minLength": 64,
+			"pattern": "^[0-9a-f]{64}$"
+		},
+		"save_document_schema_path": {
+			"description": "Repository-relative path of the save-document validator whose DOCUMENT_VERSION moved to 3 in the same boundary.",
+			"const": "scripts/infrastructure/save/SaveDocumentSchema.gd"
+		},
+		"save_document_schema_sha256": {
+			"description": "SHA-256 of save_document_schema_path read from the boundary_commit tree, never from the working copy.",
+			"type": "string",
+			"minLength": 64,
+			"pattern": "^[0-9a-f]{64}$"
+		},
+		"migration_path": {
+			"description": "Repository-relative path of the migration ladder that stamps a literal 2 in the v1 to v2 step and only then performs the v2 to v3 committed-Schedule step.",
+			"const": "scripts/infrastructure/save/SaveMigrations.gd"
+		},
+		"migration_sha256": {
+			"description": "SHA-256 of migration_path read from the boundary_commit tree, never from the working copy.",
+			"type": "string",
+			"minLength": 64,
+			"pattern": "^[0-9a-f]{64}$"
+		},
+		"focused_log_path": {
+			"description": "Repository-relative path of the one permanent focused log. It is produced only after the boundary commit exists, so its bytes prove the suites were green on the boundary tree rather than on some earlier draft.",
+			"const": "evidence/phase_2r/logs/p2r13-schedule-v3-green.log"
+		},
+		"focused_log_sha256": {
+			"description": "SHA-256 of the permanent focused log. --write hashes the freshly produced working-tree file because the log is not committed yet; --check hashes the blob from the evidence commit that introduced it.",
+			"type": "string",
+			"minLength": 64,
+			"pattern": "^[0-9a-f]{64}$"
+		}
+	}
+}

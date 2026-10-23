@@ -1,0 +1,164 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/0b792d06-55e0-4896-b9fb-125b79ae6b42/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+res://tests/unit/test_settings_preference_registry.gd
+* test_registry_records_are_the_complete_accepted_vocabulary
+* test_registry_validates_manual_extensions_and_rejects_retired_names
+* test_registry_rejects_non_finite_audio_and_wrong_numeric_shapes
+* test_visible_records_are_section_authority_and_audio_uses_five_percent_steps
+* test_capability_owned_fields_are_the_only_non_player_writable_records
+5/5 passed.
+
+
+res://tests/unit/test_steady_interface_profile.gd
+* test_old_v8_profile_is_repaired_persisted_and_stays_repaired_after_restart
+* test_missing_only_admission_preserves_explicit_true_and_rejects_other_bad_shapes
+* test_v2_through_v7_historical_documents_admit_only_missing_steady_default
+3/3 passed.
+
+
+res://tests/unit/test_profile_manager.gd
+* test_defaults_are_schema_valid_and_exact
+* test_schema_rejects_unknown_nested_fields_bad_types_and_aliases
+* test_invalid_skip_is_the_only_narrow_document_repair
+* test_legacy_patch_is_exact_detached_and_discards_runtime_audio
+* test_root_relative_legacy_input_import_is_one_shot_and_source_is_untouched
+* test_manager_initializes_once_and_uses_detached_snapshots
+* test_flat_fully_qualified_preference_batch_is_atomic
+* test_locale_candidate_commits_deferred_and_publishes_exactly_once
+* test_prepared_gallery_transaction_is_idempotent_and_conflicts_fail
+* test_gallery_and_entire_reset_retain_internal_ledgers
+* test_preference_reset_publishes_leaf_changes_before_one_summary
+* test_mutation_gate_configuration_is_identity_stable_and_side_effect_free
+* test_profile_schema_registers_observation_not_true
+* test_profile_document_remaps_retired_true_gallery_unlocks
+* test_visited_history_is_global_and_idempotent
+* test_visited_history_survives_a_new_run_and_only_its_own_reset_clears_it
+* test_visited_reset_leaves_other_profile_state_intact
+17/17 passed.
+
+
+res://tests/unit/test_profile_v4_upgrade.gd
+* test_v1_upgrade_maps_canonical_peers_and_archives_every_original_preference
+* test_unmappable_v1_values_use_defaults_only_at_runtime_and_remain_archived
+* test_invalid_v1_skip_is_the_only_repair_and_the_repaired_archive_is_valid
+* test_v3_upgrade_closes_legacy_replay_without_inventing_archived_values
+* test_initialize_persists_v4_before_publish_and_resets_clear_only_archive
+* test_initialize_reconcile_uses_semantic_migration_validation_for_v1_through_v4
+* test_every_reset_refuses_cleanly_before_initialization
+* test_deferred_raw_mapping_publication_survives_as_inert_compatibility_signal
+* test_historical_tutorial_boolean_survives_v1_current_backup_migration_and_restart
+* test_optional_tutorial_compatibility_rejects_non_boolean_unknown_and_runtime_fields
+10/10 passed.
+
+
+res://tests/scene/test_steady_interface_settings.gd
+* test_title_desktop_and_entered_pause_commit_the_same_registered_toggle
+* test_three_catalogs_supply_live_label_and_description_without_fallback
+2/2 passed.
+
+
+res://tests/scene/test_settings_localization_scene.gd
+* test_settings_controller_and_scenes_exist_with_shared_contract
+* test_both_settings_hosts_share_languages_skip_modes_and_confirmed_resets
+* test_shared_controller_exposes_closed_settings_allowlist_without_dark_or_legacy_aliases
+* test_each_reset_is_inert_until_its_own_confirmation
+* test_task9_hosts_instance_the_same_shared_content_scene
+* test_task9_pointer_drag_previews_then_commits_once_with_exact_handle
+* test_task9_discrete_volume_steps_and_failure_restore_committed_visible_value
+* test_task9_mute_and_output_mode_use_atomic_audio_sink
+* test_task9_audio_tests_never_autoplay_and_muted_or_zero_prevent_admission
+* test_task9_test_replacement_and_back_precedence_preserve_host
+* test_task9_tts_test_works_while_read_aloud_off_and_uses_frozen_specimen
+* test_task9_unavailable_tts_preserves_desired_preference_and_disables_controls
+* test_task9_independent_scroll_wrapping_and_exact_rail_at_all_text_sizes
+* test_task9_stale_drag_completion_cancels_only_its_old_handle
+* test_task9_missing_audio_sink_has_no_direct_profile_write_fallback
+* test_task9_exact_localized_tts_specimens_and_rates_use_no_receipt_api
+* test_task9_committed_primary_locale_refreshes_shared_rail_labels
+* test_task9_title_settings_reopens_after_closing_its_cached_host
+* test_review_back_cancels_pending_drag_before_returning_focus
+* test_review_late_tts_admission_cannot_rebind_new_test
+* test_review_old_departure_cannot_stop_test_started_after_reopen
+* test_review_busy_commit_restores_rejected_control_value
+* test_review_drag_cancel_cannot_release_unrelated_pending_commit
+* test_review_reset_labels_exist_in_each_locale_without_fallback
+* test_review_confirmation_body_and_buttons_follow_accessibility_size
+* test_audio_affecting_reset_uses_physical_sink_and_never_falls_back_after_refusal
+* test_audio_affecting_reset_without_sink_does_not_write_profile
+27/27 passed.
+
+
+res://tests/scene/test_settings_folio.gd
+* test_fixed_geometry_fonts_and_targets_in_all_eighteen_presentations
+* test_every_enabled_control_can_be_revealed_at_all_locales_and_sizes
+* test_selected_category_and_focus_have_independent_evidence
+* test_real_input_enters_sheet_and_back_returns_to_selected_directory_row
+* test_scroll_owners_keep_their_offsets_independent
+* test_control_sample_is_noninteractive_and_only_in_accessibility_footer
+* test_title_and_desktop_hosts_fit_the_complete_plate_without_close_overlap
+* test_boolean_captions_use_localized_on_off_and_follow_committed_values
+8/8 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/unit/test_settings_preference_registry.gd
+    - Outside Tests
+        * [<Node#129654327060>(subsystem_animation.gd)]
+        * [<Node#129671104292>(subsystem_audio.gd)]
+        * [<Node#129687881518>]
+        * [<Node#129704658739>]
+        * [<Node#129721435958>(subsystem_backgrounds.gd)]
+        * [<Node#130258306875>(subsystem_choices.gd)]
+        * [<Timer#130275084092>]
+        * [<Node#130291861310>(subsystem_expression.gd)]
+        * [<Node#130325415747>(subsystem_glossary.gd)]
+        * [<Node#130342192964>(subsystem_history.gd)]
+        * [<Node#130358970181>(subsystem_input.gd)]
+        * [<Timer#130375747398>]
+        * [<Node#130392524615>(subsystem_jump.gd)]
+        * [<Node#130409301832>(subsystem_containers.gd)]
+        * [<Node#130426079049>(subsystem_portraits.gd)]
+        * [<Node#130962949962>(subsystem_save.gd)]
+        * [<Timer#130979727179>]
+        * [<Node#130996504396>(subsystem_settings.gd)]
+        * [<Node#131013281616>(subsystem_styles.gd)]
+        * [<Node#131030058833>(subsystem_text.gd)]
+        * [<Node#131113944918>(subsystem_text_input.gd)]
+        * [<Node#131130722135>(subsystem_variables.gd)]
+        * [<Node#131147499352>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#131164276569>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+Totals
+------
+Scripts               7
+Tests                72
+Passing Tests        72
+Asserts            7965
+Orphans              24
+Time              30.076s
+
+
+---- All tests passed! ----

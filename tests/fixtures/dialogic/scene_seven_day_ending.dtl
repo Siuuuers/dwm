@@ -1,0 +1,6 @@
+# Replaceable TEST ending, not production narrative.
+return
+
+label ending.alone.normal
+TEST Seven-day ending. #id:line.ending.alone.normal.one
+return

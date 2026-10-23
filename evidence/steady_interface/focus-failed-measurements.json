@@ -1,0 +1,9 @@
+{
+	"checks": 15,
+	"failures": [
+		"en name, focused control and full description fit the reading aperture"
+	],
+	"renderer": "Windows OpenGL3 800x656",
+	"samples": [],
+	"scope": "Real SettingsContent, memory ProfileManager, injected native Enter; no physical-device or assistive-technology acceptance"
+}

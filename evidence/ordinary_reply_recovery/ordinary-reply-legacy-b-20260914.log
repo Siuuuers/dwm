@@ -1,0 +1,10 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+OpenGL API 3.3.0 - Build 31.0.101.4146 - Compatibility - Using Device: Intel - Intel(R) Iris(R) Xe Graphics
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+PLAYABLE_RENDER_CAPTURE: C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/3b1db585-bcec-49bc-91b3-523d0543e877/appdata/Godot/app_userdata/DWM/evidence/playable/reply-01-lavinia-before-click.png
+PLAYABLE_RENDER_CAPTURE: C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/3b1db585-bcec-49bc-91b3-523d0543e877/appdata/Godot/app_userdata/DWM/evidence/playable/reply-02-lavinia-after-click.png
+ORDINARY_REPLY_DIAGNOSTIC: {"busy":false,"choice":"B","code":"ok","drawn":false,"echo_count":1,"gate":"","locale":"zh-CN","message":"","path":"","phase":"prepare"}
+ORDINARY_REPLY_SAVE_PASS: real title entry -> Chinese ordinary reply B -> actual draw -> durable echo

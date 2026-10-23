@@ -1,0 +1,10 @@
+{
+  "game_state": {
+    "public_surface_and_contracts_unchanged": true,
+    "scope": "Generated lexical references only, including drift from externally merged a3dcb775f baseline; excluded source and tests were inspected, not edited."
+  },
+  "save_manager": {
+    "public_surface_and_contracts_unchanged": true,
+    "scope": "Generated lexical references only, including drift from externally merged a3dcb775f baseline; excluded source and tests were inspected, not edited."
+  }
+}

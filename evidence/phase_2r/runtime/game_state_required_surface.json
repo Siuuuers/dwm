@@ -1,0 +1,2321 @@
+{
+  "schema": "game_state_required_surface.v1",
+  "symbols": [
+    {
+      "symbol": "SAVE_SCHEMA_VERSION",
+      "kind": "constant",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_game_state_constant_contracts"
+    },
+    {
+      "symbol": "MINESWEEPER_BASE_ROUNDS",
+      "kind": "constant",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_game_state_constant_contracts"
+    },
+    {
+      "symbol": "MINESWEEPER_DISPLAY_MAX",
+      "kind": "constant",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_game_state_constant_contracts"
+    },
+    {
+      "symbol": "MINESWEEPER_ROUND_FLOOR_MIN",
+      "kind": "constant",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_game_state_constant_contracts"
+    },
+    {
+      "symbol": "MINESWEEPER_ROUND_FLOOR_MAX",
+      "kind": "constant",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_game_state_constant_contracts"
+    },
+    {
+      "symbol": "MINESWEEPER_ROUND_CAP",
+      "kind": "constant",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_game_state_constant_contracts"
+    },
+    {
+      "symbol": "MINESWEEPER_TASK_COIN_TOTAL_CAP",
+      "kind": "constant",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_game_state_constant_contracts"
+    },
+    {
+      "symbol": "MINESWEEPER_MONEY_DAILY_CAP_BASE",
+      "kind": "constant",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_game_state_constant_contracts"
+    },
+    {
+      "symbol": "MINESWEEPER_MONEY_DAILY_CAP_PER_EXTRA_ROUND",
+      "kind": "constant",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_game_state_constant_contracts"
+    },
+    {
+      "symbol": "FRIEND_IDS",
+      "kind": "constant",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_the_friend_roster_has_one_owner_and_two_aliases"
+    },
+    {
+      "symbol": "STAT_PRESSURE",
+      "kind": "constant",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_game_state_constant_contracts"
+    },
+    {
+      "symbol": "STAT_HEALTH",
+      "kind": "constant",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_game_state_constant_contracts"
+    },
+    {
+      "symbol": "STAT_MOTIVATION",
+      "kind": "constant",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_game_state_constant_contracts"
+    },
+    {
+      "symbol": "CONDITION_NONE",
+      "kind": "constant",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_game_state_constant_contracts"
+    },
+    {
+      "symbol": "CONDITION_NAUSEA",
+      "kind": "constant",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_game_state_constant_contracts"
+    },
+    {
+      "symbol": "CONDITION_DIZZY",
+      "kind": "constant",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_game_state_constant_contracts"
+    },
+    {
+      "symbol": "CONDITION_SEQUELA",
+      "kind": "constant",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_game_state_constant_contracts"
+    },
+    {
+      "symbol": "CONDITION_FAINT",
+      "kind": "constant",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_game_state_constant_contracts"
+    },
+    {
+      "symbol": "AFFECTION_MIN",
+      "kind": "constant",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_game_state_constant_contracts"
+    },
+    {
+      "symbol": "AFFECTION_MAX",
+      "kind": "constant",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_game_state_constant_contracts"
+    },
+    {
+      "symbol": "stat_changed",
+      "kind": "signal",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_game_state_signals_after_commit"
+    },
+    {
+      "symbol": "money_changed",
+      "kind": "signal",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_game_state_signals_after_commit"
+    },
+    {
+      "symbol": "coins_changed",
+      "kind": "signal",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_game_state_signals_after_commit"
+    },
+    {
+      "symbol": "day_changed",
+      "kind": "signal",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_game_state_signals_after_commit"
+    },
+    {
+      "symbol": "inventory_changed",
+      "kind": "signal",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_game_state_signals_after_commit"
+    },
+    {
+      "symbol": "friends_changed",
+      "kind": "signal",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_game_state_signals_after_commit"
+    },
+    {
+      "symbol": "contact_message_unlocked",
+      "kind": "signal",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_gameplay_mount_uses_real_ports_and_first_reveal_persists_one_charge"
+    },
+    {
+      "symbol": "contact_choice_selected",
+      "kind": "signal",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_game_state_signals_after_commit"
+    },
+    {
+      "symbol": "date_unlocks_changed",
+      "kind": "signal",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_game_state_signals_after_commit"
+    },
+    {
+      "symbol": "ending_route_selected",
+      "kind": "signal",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_game_state_signals_after_commit"
+    },
+    {
+      "symbol": "schedule_changed",
+      "kind": "signal",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_game_state_signals_after_commit"
+    },
+    {
+      "symbol": "chat_changed",
+      "kind": "signal",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_game_state_signals_after_commit"
+    },
+    {
+      "symbol": "unread_friend",
+      "kind": "signal",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_game_state_signals_after_commit"
+    },
+    {
+      "symbol": "minesweeper_rounds_changed",
+      "kind": "signal",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_game_state_signals_after_commit"
+    },
+    {
+      "symbol": "minesweeper_reward_changed",
+      "kind": "signal",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_game_state_signals_after_commit"
+    },
+    {
+      "symbol": "daily_state_reset",
+      "kind": "signal",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_game_state_signals_after_commit"
+    },
+    {
+      "symbol": "condition_effect_resolved",
+      "kind": "signal",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_game_state_signals_after_commit"
+    },
+    {
+      "symbol": "hospital_needed",
+      "kind": "signal",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_game_state_signals_after_commit"
+    },
+    {
+      "symbol": "save_relevant_state_changed",
+      "kind": "signal",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_prepared_restore_plan_and_installed_owner_remain_independent_until_finalize"
+    },
+    {
+      "symbol": "contact_open_committed",
+      "kind": "signal",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_contact_commit_signals_emit_once_only_on_first_success"
+    },
+    {
+      "symbol": "invitation_reply_committed",
+      "kind": "signal",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_reply_invitation_command_applies_and_is_idempotent"
+    },
+    {
+      "symbol": "day",
+      "kind": "property",
+      "availability": "current",
+      "disposition": "replace",
+      "replacement": "var day: int",
+      "contract_test": "test_day_is_read_only_compatibility"
+    },
+    {
+      "symbol": "money",
+      "kind": "property",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_shop_purchase_saves_authored_effects_and_retries_without_a_second_charge"
+    },
+    {
+      "symbol": "coins",
+      "kind": "property",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_lucky_charm_purchase_transacts_exactly_once_against_real_ports"
+    },
+    {
+      "symbol": "stats",
+      "kind": "property",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_restore_after_a_crash_between_checkpoint_commit_and_live_adoption_recovers_the_paid_first_reveal"
+    },
+    {
+      "symbol": "friends",
+      "kind": "property",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_game_state_facade_reads_committed_state"
+    },
+    {
+      "symbol": "affection",
+      "kind": "property",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_game_state_facade_reads_committed_state"
+    },
+    {
+      "symbol": "friend_attitude",
+      "kind": "property",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_offer_freezes_generation_facts_and_missing_history_is_not_recreated"
+    },
+    {
+      "symbol": "dating_route_state",
+      "kind": "property",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_terminal_profile_ahead_replays_frozen_effect_once_after_checkpoint_retry"
+    },
+    {
+      "symbol": "inter_friend_affection",
+      "kind": "property",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_game_state_facade_reads_committed_state"
+    },
+    {
+      "symbol": "inter_friend_route_state",
+      "kind": "property",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_first_count_draw_is_profile_durable_before_run_candidate_and_retry_reuses_it"
+    },
+    {
+      "symbol": "missed_group_date_counts",
+      "kind": "property",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_game_state_facade_reads_committed_state"
+    },
+    {
+      "symbol": "contact_message_unlocks",
+      "kind": "property",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_game_state_facade_reads_committed_state"
+    },
+    {
+      "symbol": "contact_choice_state",
+      "kind": "property",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_game_state_facade_reads_committed_state"
+    },
+    {
+      "symbol": "date_unlocks",
+      "kind": "property",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_game_state_facade_reads_committed_state"
+    },
+    {
+      "symbol": "post_ending_queue",
+      "kind": "property",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_game_state_facade_reads_committed_state"
+    },
+    {
+      "symbol": "missed_invitations",
+      "kind": "property",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_prepared_restore_plan_and_installed_owner_remain_independent_until_finalize"
+    },
+    {
+      "symbol": "daily_opened_contacts",
+      "kind": "property",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_retiring_solo_interactions_preserves_tone_mastery_and_destination_gates"
+    },
+    {
+      "symbol": "daily_group_invitation_generated",
+      "kind": "property",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_game_state_facade_reads_committed_state"
+    },
+    {
+      "symbol": "daily_group_invitation_pair",
+      "kind": "property",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_game_state_facade_reads_committed_state"
+    },
+    {
+      "symbol": "inventory",
+      "kind": "property",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_lucky_charm_purchase_transacts_exactly_once_against_real_ports"
+    },
+    {
+      "symbol": "chat_state",
+      "kind": "property",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_game_state_facade_reads_committed_state"
+    },
+    {
+      "symbol": "shop_purchase_counts",
+      "kind": "property",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_game_state_facade_reads_committed_state"
+    },
+    {
+      "symbol": "minesweeper_round_floor",
+      "kind": "property",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_supportz_purchase_decrements_the_real_round_floor_and_spends_real_money"
+    },
+    {
+      "symbol": "minesweeper_rounds_left",
+      "kind": "property",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_restore_after_a_crash_between_checkpoint_commit_and_live_adoption_recovers_the_paid_first_reveal"
+    },
+    {
+      "symbol": "minesweeper_rng_seed",
+      "kind": "property",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_game_state_facade_reads_committed_state"
+    },
+    {
+      "symbol": "minesweeper_app_rounds_finished_today",
+      "kind": "property",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_gameplay_mount_uses_real_ports_and_first_reveal_persists_one_charge"
+    },
+    {
+      "symbol": "minesweeper_selected_difficulty",
+      "kind": "property",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_game_state_facade_reads_committed_state"
+    },
+    {
+      "symbol": "unfinished_minesweeper_result",
+      "kind": "property",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_game_state_facade_reads_committed_state"
+    },
+    {
+      "symbol": "minesweeper_money_earned_today",
+      "kind": "property",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_game_state_facade_reads_committed_state"
+    },
+    {
+      "symbol": "minesweeper_task_rewards_claimed",
+      "kind": "property",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_gameplay_mount_uses_real_ports_and_first_reveal_persists_one_charge"
+    },
+    {
+      "symbol": "penalty_points_today",
+      "kind": "property",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_game_state_facade_reads_committed_state"
+    },
+    {
+      "symbol": "penalty_points_total",
+      "kind": "property",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_game_state_facade_reads_committed_state"
+    },
+    {
+      "symbol": "condition_effects_today",
+      "kind": "property",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_game_state_facade_reads_committed_state"
+    },
+    {
+      "symbol": "condition_streak_days",
+      "kind": "property",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_game_state_facade_reads_committed_state"
+    },
+    {
+      "symbol": "last_condition_day",
+      "kind": "property",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_game_state_facade_reads_committed_state"
+    },
+    {
+      "symbol": "pending_hospital",
+      "kind": "property",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_game_state_facade_reads_committed_state"
+    },
+    {
+      "symbol": "condition_resolved_day",
+      "kind": "property",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_game_state_facade_reads_committed_state"
+    },
+    {
+      "symbol": "pending_date_friend_id",
+      "kind": "property",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_game_state_facade_reads_committed_state"
+    },
+    {
+      "symbol": "pending_date_entries",
+      "kind": "property",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_game_state_facade_reads_committed_state"
+    },
+    {
+      "symbol": "pending_date_entry_index",
+      "kind": "property",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_game_state_facade_reads_committed_state"
+    },
+    {
+      "symbol": "pending_group_date_friend_ids",
+      "kind": "property",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_game_state_facade_reads_committed_state"
+    },
+    {
+      "symbol": "pending_group_date_inviter_id",
+      "kind": "property",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_game_state_facade_reads_committed_state"
+    },
+    {
+      "symbol": "pending_date_advance_day_after_finish",
+      "kind": "property",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_game_state_facade_reads_committed_state"
+    },
+    {
+      "symbol": "hospital_skipped_sylvia_solo_count",
+      "kind": "property",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_game_state_facade_reads_committed_state"
+    },
+    {
+      "symbol": "story_flags",
+      "kind": "property",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_game_state_facade_reads_committed_state"
+    },
+    {
+      "symbol": "route_context",
+      "kind": "property",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_game_owner_hospital_request_is_bound_durable_detached_and_idempotent"
+    },
+    {
+      "symbol": "reset_game",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "replace",
+      "replacement": "func prepare_new_run_snapshot_input(run_id: String) -> Dictionary",
+      "contract_test": "test_new_run_snapshot_defaults"
+    },
+    {
+      "symbol": "get_stat",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_get_stat_returns_canonical_internal_values_without_mutation"
+    },
+    {
+      "symbol": "get_stat_min",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_stat_query_contracts"
+    },
+    {
+      "symbol": "get_stat_max",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_stat_query_contracts"
+    },
+    {
+      "symbol": "get_stat_display_value",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_get_stat_display_value_projects_audience_bounds_without_mutation"
+    },
+    {
+      "symbol": "get_stat_display_max",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_get_stat_display_max_returns_each_audience_scale_without_mutation"
+    },
+    {
+      "symbol": "set_stat",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "replace",
+      "replacement": "func commit_effect_transaction(transaction_id: String, effect_ids: Array[String], source_id: String) -> Dictionary",
+      "contract_test": "test_gameplay_mount_uses_real_ports_and_first_reveal_persists_one_charge"
+    },
+    {
+      "symbol": "change_stat",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "replace",
+      "replacement": "func commit_effect_transaction(transaction_id: String, effect_ids: Array[String], source_id: String) -> Dictionary",
+      "contract_test": "test_stat_mutations_via_effect_transactions"
+    },
+    {
+      "symbol": "change_money",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "replace",
+      "replacement": "func commit_effect_transaction(transaction_id: String, effect_ids: Array[String], source_id: String) -> Dictionary",
+      "contract_test": "test_gameplay_mount_uses_real_ports_and_first_reveal_persists_one_charge"
+    },
+    {
+      "symbol": "can_spend_money",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_can_spend_money_respects_the_exact_overdraft_boundary_without_mutation"
+    },
+    {
+      "symbol": "try_spend_money",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "replace",
+      "replacement": "func commit_effect_transaction(transaction_id: String, effect_ids: Array[String], source_id: String) -> Dictionary",
+      "contract_test": "test_supportz_purchase_decrements_the_real_round_floor_and_spends_real_money"
+    },
+    {
+      "symbol": "change_coins",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "replace",
+      "replacement": "func commit_effect_transaction(transaction_id: String, effect_ids: Array[String], source_id: String) -> Dictionary",
+      "contract_test": "test_economy_mutations_via_effect_transactions"
+    },
+    {
+      "symbol": "can_spend_coins",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_can_spend_coins_requires_a_positive_owned_amount_without_mutation"
+    },
+    {
+      "symbol": "try_spend_coins",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "replace",
+      "replacement": "func commit_effect_transaction(transaction_id: String, effect_ids: Array[String], source_id: String) -> Dictionary",
+      "contract_test": "test_lucky_charm_purchase_transacts_exactly_once_against_real_ports"
+    },
+    {
+      "symbol": "add_inventory",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "replace",
+      "replacement": "func commit_effect_transaction(transaction_id: String, effect_ids: Array[String], source_id: String) -> Dictionary",
+      "contract_test": "test_lucky_charm_purchase_transacts_exactly_once_against_real_ports"
+    },
+    {
+      "symbol": "remove_inventory",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "replace",
+      "replacement": "func commit_effect_transaction(transaction_id: String, effect_ids: Array[String], source_id: String) -> Dictionary",
+      "contract_test": "test_inventory_mutations_via_effect_transactions"
+    },
+    {
+      "symbol": "change_affection",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "replace",
+      "replacement": "func commit_effect_transaction(transaction_id: String, effect_ids: Array[String], source_id: String) -> Dictionary",
+      "contract_test": "test_relationship_mutations_via_effect_transactions"
+    },
+    {
+      "symbol": "set_friend_attitude",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "replace",
+      "replacement": "func commit_effect_transaction(transaction_id: String, effect_ids: Array[String], source_id: String) -> Dictionary",
+      "contract_test": "test_relationship_mutations_via_effect_transactions"
+    },
+    {
+      "symbol": "change_inter_friend_affection",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "replace",
+      "replacement": "func commit_effect_transaction(transaction_id: String, effect_ids: Array[String], source_id: String) -> Dictionary",
+      "contract_test": "test_relationship_mutations_via_effect_transactions"
+    },
+    {
+      "symbol": "get_minesweeper_display_rounds_left",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_minesweeper_query_contracts"
+    },
+    {
+      "symbol": "get_minesweeper_display_rounds_max",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_minesweeper_query_contracts"
+    },
+    {
+      "symbol": "get_minesweeper_total_playable_rounds",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_minesweeper_query_contracts"
+    },
+    {
+      "symbol": "get_minesweeper_playable_rounds_remaining",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_minesweeper_query_contracts"
+    },
+    {
+      "symbol": "has_minesweeper_app_round_available",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_sylvia_achieved_third_round_offer_uses_tier_without_granting_a_round"
+    },
+    {
+      "symbol": "change_minesweeper_round_floor",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "replace",
+      "replacement": "func commit_effect_transaction(transaction_id: String, effect_ids: Array[String], source_id: String) -> Dictionary",
+      "contract_test": "test_supportz_purchase_decrements_the_real_round_floor_and_spends_real_money"
+    },
+    {
+      "symbol": "can_start_minesweeper_app_round",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_minesweeper_query_contracts"
+    },
+    {
+      "symbol": "consume_minesweeper_app_round",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "replace",
+      "replacement": "func begin_minesweeper_round(request: Dictionary) -> Dictionary",
+      "contract_test": "test_minesweeper_round_commands"
+    },
+    {
+      "symbol": "start_minesweeper_app_round",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "replace",
+      "replacement": "func begin_minesweeper_round(request: Dictionary) -> Dictionary",
+      "contract_test": "test_minesweeper_round_commands"
+    },
+    {
+      "symbol": "finish_minesweeper_app_round",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "replace",
+      "replacement": "func complete_minesweeper_round(round_id: String, result: Dictionary, transaction_id: String) -> Dictionary",
+      "contract_test": "test_gameplay_mount_uses_real_ports_and_first_reveal_persists_one_charge"
+    },
+    {
+      "symbol": "clear_unfinished_minesweeper_round",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "replace",
+      "replacement": "func complete_minesweeper_round(round_id: String, result: Dictionary, transaction_id: String) -> Dictionary",
+      "contract_test": "test_minesweeper_round_commands"
+    },
+    {
+      "symbol": "calculate_minesweeper_money_reward",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_minesweeper_query_contracts"
+    },
+    {
+      "symbol": "apply_minesweeper_money_reward",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "replace",
+      "replacement": "func complete_minesweeper_round(round_id: String, result: Dictionary, transaction_id: String) -> Dictionary",
+      "contract_test": "test_gameplay_mount_uses_real_ports_and_first_reveal_persists_one_charge"
+    },
+    {
+      "symbol": "check_and_claim_minesweeper_task_rewards",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "replace",
+      "replacement": "func complete_minesweeper_round(round_id: String, result: Dictionary, transaction_id: String) -> Dictionary",
+      "contract_test": "test_gameplay_mount_uses_real_ports_and_first_reveal_persists_one_charge"
+    },
+    {
+      "symbol": "is_invitation_day",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_is_invitation_day_covers_the_complete_explicit_and_active_day_contract"
+    },
+    {
+      "symbol": "is_group_invitation_day",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_is_group_invitation_day_covers_the_complete_explicit_and_active_day_contract"
+    },
+    {
+      "symbol": "open_contact",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_open_contact_command_is_idempotent"
+    },
+    {
+      "symbol": "configure_identity_issuer",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_identity_issuer_configuration_is_exact_and_replacement_fails"
+    },
+    {
+      "symbol": "get_daily_message_friend_for_finished_round",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_daily_message_query_covers_all_days_defaults_invalids_and_group_suppression"
+    },
+    {
+      "symbol": "unlock_contact_message_after_minesweeper_finished",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "replace",
+      "replacement": "func complete_minesweeper_round(round_id: String, result: Dictionary, transaction_id: String) -> Dictionary",
+      "contract_test": "test_gameplay_mount_uses_real_ports_and_first_reveal_persists_one_charge"
+    },
+    {
+      "symbol": "is_contact_message_unlocked",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_gameplay_mount_uses_real_ports_and_first_reveal_persists_one_charge"
+    },
+    {
+      "symbol": "is_date_unlocked",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_sylvia_achieved_third_round_offer_uses_tier_without_granting_a_round"
+    },
+    {
+      "symbol": "build_date_entry_from_unlock",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_date_entry_builder_contracts"
+    },
+    {
+      "symbol": "is_group_date_unlocked",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_contact_query_contracts"
+    },
+    {
+      "symbol": "build_group_date_entry_from_unlock",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_date_entry_builder_contracts"
+    },
+    {
+      "symbol": "get_day7_ending_candidates_from_schedule",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_ending_query_contracts"
+    },
+    {
+      "symbol": "resolve_day7_ending",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "replace",
+      "replacement": "func begin_day_resolution_stage() -> Dictionary",
+      "contract_test": "test_day7_terminal_allowlist"
+    },
+    {
+      "symbol": "should_route_priscilla_lavinia_post_ending",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_pair_route_query_counts_canonical_distinct_windows_and_retains_legacy_eligibility"
+    },
+    {
+      "symbol": "should_route_sylvia_special_ending",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_ending_query_contracts"
+    },
+    {
+      "symbol": "get_scheduled_date_friend_ids",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_schedule_query_contracts"
+    },
+    {
+      "symbol": "get_scheduled_date_entries",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_schedule_query_contracts"
+    },
+    {
+      "symbol": "get_scheduled_date_count",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_schedule_query_contracts"
+    },
+    {
+      "symbol": "get_max_scheduled_dates_for_current_day",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_schedule_query_contracts"
+    },
+    {
+      "symbol": "collect_unscheduled_accepted_invitations_for_day_end",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "replace",
+      "replacement": "func resolve_invitations_for_day(attendance: Dictionary, command_id: String) -> Dictionary",
+      "contract_test": "test_invitation_day_resolution"
+    },
+    {
+      "symbol": "get_missed_invitation_for_friend",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_missed_invitation_query_uses_prior_day_filters_and_returns_a_detached_record"
+    },
+    {
+      "symbol": "execute_schedule_sequence_until_route_needed",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "replace",
+      "replacement": "func request_schedule_done(command_id: String) -> Dictionary",
+      "contract_test": "test_schedule_done_command"
+    },
+    {
+      "symbol": "execute_non_date_schedule_effects",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "replace",
+      "replacement": "func request_schedule_done(command_id: String) -> Dictionary",
+      "contract_test": "test_schedule_done_command"
+    },
+    {
+      "symbol": "create_missed_group_twofriends_entry",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "replace",
+      "replacement": "func resolve_invitations_for_day(attendance: Dictionary, command_id: String) -> Dictionary",
+      "contract_test": "test_invitation_day_resolution"
+    },
+    {
+      "symbol": "resolve_pressure_health_condition_end_of_day",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "replace",
+      "replacement": "func begin_day_resolution_stage() -> Dictionary",
+      "contract_test": "test_day_resolution_condition_stage"
+    },
+    {
+      "symbol": "should_route_hospital",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_condition_query_contracts"
+    },
+    {
+      "symbol": "check_immediate_faint",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "replace",
+      "replacement": "func commit_fainting_event(transaction_id: String, source_id: String, active_entry_id: String = \"\") -> Dictionary",
+      "contract_test": "test_fainting_event_command"
+    },
+    {
+      "symbol": "apply_hospital_recovery_and_advance_day",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "replace",
+      "replacement": "func resume_day_resolution() -> Dictionary",
+      "contract_test": "test_hospital_recovery_resumes_day_resolution"
+    },
+    {
+      "symbol": "advance_day_or_end",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "replace",
+      "replacement": "func request_schedule_done(command_id: String) -> Dictionary",
+      "contract_test": "test_advance_day_resets_and_ends"
+    },
+    {
+      "symbol": "prepare_dating_queue",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "replace",
+      "replacement": "func begin_day_resolution_stage() -> Dictionary",
+      "contract_test": "test_dating_stage_receipts"
+    },
+    {
+      "symbol": "prepare_dating_entries",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "replace",
+      "replacement": "func begin_day_resolution_stage() -> Dictionary",
+      "contract_test": "test_dating_stage_receipts"
+    },
+    {
+      "symbol": "get_current_pending_date_friend_id",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_dating_queue_query_contracts"
+    },
+    {
+      "symbol": "get_current_pending_date_entry",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_dating_queue_query_contracts"
+    },
+    {
+      "symbol": "apply_dating_challenge_result",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "replace",
+      "replacement": "func complete_day_resolution_stage(transaction_id: String, receipt: Dictionary) -> Dictionary",
+      "contract_test": "test_dating_stage_receipts"
+    },
+    {
+      "symbol": "advance_date_queue_or_day",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "replace",
+      "replacement": "func complete_day_resolution_stage(transaction_id: String, receipt: Dictionary) -> Dictionary",
+      "contract_test": "test_dating_stage_receipts"
+    },
+    {
+      "symbol": "clear_pending_date_state",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "replace",
+      "replacement": "func begin_day_resolution_stage() -> Dictionary",
+      "contract_test": "test_dating_stage_receipts"
+    },
+    {
+      "symbol": "set_story_flag",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "replace",
+      "replacement": "func commit_variable_transaction(transaction_id: String, variable_id: String, value: Variant, source_id: String) -> Dictionary",
+      "contract_test": "test_variable_transaction_commands"
+    },
+    {
+      "symbol": "get_story_flag",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_story_flag_contracts"
+    },
+    {
+      "symbol": "to_save_dict",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "replace",
+      "replacement": "func capture_run_snapshot_input() -> Dictionary",
+      "contract_test": "test_run_snapshot_capture"
+    },
+    {
+      "symbol": "apply_save_dict",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_active_run_rollback_keeps_independent_nested_gameplay_and_existing_publication"
+    },
+    {
+      "symbol": "get_save_summary",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_save_summary_contract"
+    },
+    {
+      "symbol": "configure_mutation_gate",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_configure_mutation_gate_matrix_without_side_effects"
+    },
+    {
+      "symbol": "get_mutation_gate_instance_id",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_game_state_reports_only_its_gate_identity_never_the_gate"
+    },
+    {
+      "symbol": "prepare_new_run_snapshot_input",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_prepare_new_run_snapshot_input_is_pure"
+    },
+    {
+      "symbol": "request_schedule_done",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_request_schedule_done_delegates_through_production_port"
+    },
+    {
+      "symbol": "resume_day_resolution",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_request_schedule_done_delegates_through_production_port"
+    },
+    {
+      "symbol": "begin_day_resolution_stage",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_request_schedule_done_delegates_through_production_port"
+    },
+    {
+      "symbol": "complete_day_resolution_stage",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_registered_command_pause_and_completion"
+    },
+    {
+      "symbol": "capture_schedule_commit_state",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_schedule_commit_seams_are_narrow_reversible_and_silent"
+    },
+    {
+      "symbol": "capture_schedule_warning_state",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_capture_schedule_warning_state_is_narrow_read_only_and_exact"
+    },
+    {
+      "symbol": "prepare_schedule_commit_candidate",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_schedule_commit_seams_are_narrow_reversible_and_silent"
+    },
+    {
+      "symbol": "commit_schedule_commit_candidate",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_schedule_commit_seams_are_narrow_reversible_and_silent"
+    },
+    {
+      "symbol": "rollback_schedule_commit_state",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_schedule_commit_seams_are_narrow_reversible_and_silent"
+    },
+    {
+      "symbol": "publish_schedule_commit",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_schedule_commit_seams_are_narrow_reversible_and_silent"
+    },
+    {
+      "symbol": "committed_schedule_published",
+      "kind": "signal",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_schedule_commit_seams_are_narrow_reversible_and_silent"
+    },
+    {
+      "symbol": "begin_minesweeper_round",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_round_facade_fails_closed_before_the_coordinator_is_installed"
+    },
+    {
+      "symbol": "complete_minesweeper_round",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_round_facade_fails_closed_before_the_coordinator_is_installed"
+    },
+    {
+      "symbol": "get_active_minesweeper_round",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_minesweeper_stage_constructs_exactly_one_coordinator_over_production_adapters"
+    },
+    {
+      "symbol": "capture_restore_state",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_captured_backup_mutation_cannot_change_live_gameplay"
+    },
+    {
+      "symbol": "apply_restore_silent",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_prepared_restore_plan_and_installed_owner_remain_independent_until_finalize"
+    },
+    {
+      "symbol": "rollback_restore_silent",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_rollback_backup_and_restored_owner_remain_independent_until_finalize"
+    },
+    {
+      "symbol": "finalize_restore",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_prepared_restore_plan_and_installed_owner_remain_independent_until_finalize"
+    },
+    {
+      "symbol": "apply_continuation_remap_silent",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_restore_remaps_board_identity_and_command_receipt_keys"
+    },
+    {
+      "symbol": "day",
+      "kind": "property",
+      "availability": "target",
+      "signature": "var day: int"
+    },
+    {
+      "symbol": "capture_run_snapshot_input",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_command_receipts_are_present_and_detached"
+    },
+    {
+      "symbol": "configure_mutation_gate",
+      "kind": "function",
+      "availability": "target",
+      "signature": "func configure_mutation_gate(gate: Object) -> Dictionary"
+    },
+    {
+      "symbol": "prepare_new_run_snapshot_input",
+      "kind": "function",
+      "availability": "target",
+      "signature": "func prepare_new_run_snapshot_input(run_id: String, branch_id: String, desktop_timeline_generation: int,"
+    },
+    {
+      "symbol": "capture_live_run_state",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_active_run_capture_and_owner_keep_independent_nested_gameplay"
+    },
+    {
+      "symbol": "restore_live_run_state",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_active_run_rollback_keeps_independent_nested_gameplay_and_existing_publication"
+    },
+    {
+      "symbol": "commit_effect_transaction",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_effect_transaction_applies_once_and_is_idempotent"
+    },
+    {
+      "symbol": "commit_variable_transaction",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_variable_transaction_api_is_required"
+    },
+    {
+      "symbol": "begin_minesweeper_round",
+      "kind": "function",
+      "availability": "target",
+      "signature": "func begin_minesweeper_round(request: Dictionary) -> Dictionary"
+    },
+    {
+      "symbol": "complete_minesweeper_round",
+      "kind": "function",
+      "availability": "target",
+      "signature": "func complete_minesweeper_round(round_id: String, result: Dictionary, transaction_id: String) -> Dictionary"
+    },
+    {
+      "symbol": "commit_fainting_event",
+      "kind": "function",
+      "availability": "target",
+      "signature": "func commit_fainting_event(transaction_id: String, source_id: String, active_entry_id: String = \"\") -> Dictionary"
+    },
+    {
+      "symbol": "request_schedule_done",
+      "kind": "function",
+      "availability": "target",
+      "signature": "func request_schedule_done(command_id: String) -> Dictionary"
+    },
+    {
+      "symbol": "resume_day_resolution",
+      "kind": "function",
+      "availability": "target",
+      "signature": "func resume_day_resolution() -> Dictionary"
+    },
+    {
+      "symbol": "begin_day_resolution_stage",
+      "kind": "function",
+      "availability": "target",
+      "signature": "func begin_day_resolution_stage() -> Dictionary"
+    },
+    {
+      "symbol": "complete_day_resolution_stage",
+      "kind": "function",
+      "availability": "target",
+      "signature": "func complete_day_resolution_stage(transaction_id: String, receipt: Dictionary) -> Dictionary"
+    },
+    {
+      "symbol": "complete_ending_playback_stage",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_ending_playback_resumes_after_a_state_round_trip"
+    },
+    {
+      "symbol": "resolve_invitations_for_day",
+      "kind": "function",
+      "availability": "planned_future",
+      "signature": "func resolve_invitations_for_day(attendance: Dictionary, command_id: String) -> Dictionary",
+      "owner_plan": "phase2r-04",
+      "owner_task": "Task 3"
+    },
+    {
+      "symbol": "request_next_ending_command",
+      "kind": "function",
+      "availability": "planned_future",
+      "signature": "func request_next_ending_command() -> Dictionary",
+      "owner_plan": "phase2r-04",
+      "owner_task": "Task 6"
+    },
+    {
+      "symbol": "configure_narrative_checkpoint_port",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_bridge_and_game_state_retain_the_same_adapter_instance"
+    },
+    {
+      "symbol": "contacts",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_contacts_bag_resets_to_stateless_defaults"
+    },
+    {
+      "symbol": "get_contact_view",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_get_contact_view_delegates_to_module"
+    },
+    {
+      "symbol": "reply_invitation",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_reply_invitation_command_applies_and_is_idempotent"
+    },
+    {
+      "symbol": "resolve_invitations_for_day",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_resolve_invitations_for_day_command_resolves_and_is_idempotent"
+    },
+    {
+      "symbol": "request_next_ending_command",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_ending_playback_resumes_after_a_state_round_trip"
+    },
+    {
+      "symbol": "preview_open_contact",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_open_contact_command_is_idempotent"
+    },
+    {
+      "symbol": "preview_ordinary_reply",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_reply_full_checkpoint_failure_rolls_back_exactly_then_same_command_retries_once"
+    },
+    {
+      "symbol": "commit_ordinary_reply",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_reply_full_checkpoint_failure_rolls_back_exactly_then_same_command_retries_once"
+    },
+    {
+      "symbol": "get_pending_ordinary_echoes",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_echo_accepts_only_oldest_registered_atom_and_failed_full_checkpoint_keeps_it_pending"
+    },
+    {
+      "symbol": "commit_ordinary_echo",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_echo_accepts_only_oldest_registered_atom_and_failed_full_checkpoint_keeps_it_pending"
+    },
+    {
+      "symbol": "get_pending_day7_followups",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_followup_ack_uses_registered_source_rolls_back_and_only_advances_read_watermark"
+    },
+    {
+      "symbol": "require_day7_presentations_complete",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_direct_echo_command_cannot_skip_due_followup_even_with_legitimate_current_proof"
+    },
+    {
+      "symbol": "commit_day7_followup",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_followup_ack_uses_registered_source_rolls_back_and_only_advances_read_watermark"
+    },
+    {
+      "symbol": "configure_contact_checkpoint_writer",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_reply_full_checkpoint_failure_rolls_back_exactly_then_same_command_retries_once"
+    },
+    {
+      "symbol": "prepare_provisional_day7_ending_plan",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_game_state_uses_explicit_profile_heads_and_never_manufactures_observer_behavior"
+    },
+    {
+      "symbol": "capture_ending_presentation_signature",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_signature_uses_frozen_role_facts_and_refuses_changed_command"
+    },
+    {
+      "symbol": "capture_provisional_day7_ending_plan",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_day7_accessor_freezes_special_core_pair_and_refuses_unproven_observer"
+    },
+    {
+      "symbol": "get_counted_pair_window_count",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_pair_ending_counts_distinct_contacts_windows_including_offscreen_meetings"
+    },
+    {
+      "symbol": "capture_new_day_gameplay",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_daily_reset_without_carried_condition_clears_today_effects"
+    },
+    {
+      "symbol": "prepare_dating_challenge_effect",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_frozen_held_promotion_does_not_recompute_against_a_different_loaded_branch"
+    },
+    {
+      "symbol": "apply_dating_challenge_effect_receipt",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_frozen_earned_promotion_survives_lower_momentum_and_save_reload_without_second_effect"
+    },
+    {
+      "symbol": "capture_dating_challenge_state",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_paused_dating_manual_and_quick_save_restore_exact_board_and_command"
+    },
+    {
+      "symbol": "store_dating_challenge_state",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_silent_restore_uses_final_route_and_current_day_before_overlaying_profile"
+    },
+    {
+      "symbol": "configure_ending_checkpoint_writer",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_terminal_admission_requires_source_then_rolls_back_failed_save_and_retries_same_design"
+    },
+    {
+      "symbol": "configure_ending_source_reader",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_terminal_admission_requires_source_then_rolls_back_failed_save_and_retries_same_design"
+    },
+    {
+      "symbol": "configure_ending_condition_source",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_failed_admission_rolls_back_outbox_contacts_and_run_then_saves_one_ordered_plan"
+    },
+    {
+      "symbol": "resume_terminal_ending",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_failed_admission_rolls_back_outbox_contacts_and_run_then_saves_one_ordered_plan"
+    },
+    {
+      "symbol": "get_frozen_ordered_ending_plan",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_resolve_day7_sylvia_special_highest_precedence"
+    },
+    {
+      "symbol": "capture_live_session",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_installation_alone_never_publishes_a_session_and_activation_requires_custody"
+    },
+    {
+      "symbol": "capture_desktop_identity_context",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_desktop_ports_read_the_activated_run_identity_and_refresh_after_load"
+    },
+    {
+      "symbol": "validate_live_session",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_installation_alone_never_publishes_a_session_and_activation_requires_custody"
+    },
+    {
+      "symbol": "capture_live_run_snapshot_input",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_installation_alone_never_publishes_a_session_and_activation_requires_custody"
+    },
+    {
+      "symbol": "validate_live_session_activation",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_exact_activation_replay_is_idempotent_but_old_tickets_cannot_replace_later_sessions"
+    },
+    {
+      "symbol": "activate_live_session",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_exact_activation_replay_is_idempotent_but_old_tickets_cannot_replace_later_sessions"
+    },
+    {
+      "symbol": "retire_live_session",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_retirement_is_quiet_preserves_dormant_facts_and_refuses_old_capture_and_backup"
+    },
+    {
+      "symbol": "get_run_configuration",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_installed_availability_and_dark_are_restored_with_full_rollback"
+    },
+    {
+      "symbol": "get_new_run_replacement_baseline",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_valid_install_publishes_only_presence_and_full_backup_hash"
+    },
+    {
+      "symbol": "configure_desktop_snapshot_provider",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_cold_day_two_installs_exact_owners_and_journal_without_activating_or_routing"
+    },
+    {
+      "symbol": "configure_dating_restore_reconciler",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_silent_restore_uses_final_route_and_current_day_before_overlaying_profile"
+    },
+    {
+      "symbol": "capture_ending_frozen_presentation",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_game_owner_freezes_admission_then_checkpoints_exact_current_step_and_refuses_missing_seed"
+    },
+    {
+      "symbol": "configure_frozen_contacts_contexts",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_current_ordinary_freeze_is_durable_before_native_projection_and_failed_write_rolls_back"
+    },
+    {
+      "symbol": "configure_frozen_ending_contexts",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_game_owner_freezes_admission_then_checkpoints_exact_current_step_and_refuses_missing_seed"
+    },
+    {
+      "symbol": "ensure_contact_presentation_contexts",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_current_ordinary_freeze_is_durable_before_native_projection_and_failed_write_rolls_back"
+    },
+    {
+      "symbol": "frozen_contacts_contexts_enabled",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_current_ordinary_freeze_is_durable_before_native_projection_and_failed_write_rolls_back"
+    },
+    {
+      "symbol": "read_hospital_presentation_request",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_game_owner_hospital_request_is_bound_durable_detached_and_idempotent"
+    },
+    {
+      "symbol": "retain_hospital_presentation_request",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_game_owner_hospital_request_is_bound_durable_detached_and_idempotent"
+    },
+    {
+      "symbol": "configure_scene_event_owner",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_restore_preparation_requires_registry_and_active_reading_before_mutation"
+    },
+    {
+      "symbol": "configure_test_scene_event_registry",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_restore_preparation_requires_registry_and_active_reading_before_mutation"
+    },
+    {
+      "symbol": "validate_scene_event_snapshot",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_restore_preparation_requires_registry_and_active_reading_before_mutation"
+    },
+    {
+      "symbol": "scene_event_registration",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_registered_unsupported_kind_and_conflicting_duplicate_refuse_without_save"
+    },
+    {
+      "symbol": "scene_event_context",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_stale_source_token_unregistered_and_out_of_order_refuse_before_storage"
+    },
+    {
+      "symbol": "lookup_scene_event",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_set_clear_and_duplicate_share_durable_receipts_without_consuming_reading"
+    },
+    {
+      "symbol": "accept_scene_event",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_confirmed_commit_interrupted_before_adoption_fences_retry_and_manual_save"
+    },
+    {
+      "symbol": "capture_scene_entry_audio",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_fresh_scene_audio_load_retains_admission_and_uses_anchor"
+    },
+    {
+      "symbol": "SCENE_GAMEPLAY_KEYS",
+      "kind": "constant",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_real_bootstrap_scene_text_and_selected_load_keep_owner_authority"
+    },
+    {
+      "symbol": "prepare_scene_new_run",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_real_bootstrap_scene_text_and_selected_load_keep_owner_authority"
+    },
+    {
+      "symbol": "apply_scene_new_run_silent",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_real_bootstrap_scene_text_and_selected_load_keep_owner_authority"
+    },
+    {
+      "symbol": "configure_scene_runtime_validation",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_real_bootstrap_scene_text_and_selected_load_keep_owner_authority"
+    },
+    {
+      "symbol": "make_scene_new_run_gameplay",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_complete_initial_candidate_is_read_only_and_not_committed_authority"
+    },
+    {
+      "symbol": "prepare_scene_new_run_snapshot_input",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_rebuilt_other_initial_target_is_valid_preparation_but_not_committed_authority"
+    },
+    {
+      "symbol": "validate_scene_snapshot_semantics",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_committed_receipt_survives_evolved_checkpoint_and_unrelated_profile_write"
+    },
+    {
+      "symbol": "continue_optional_scene_challenge",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_optional_unfinished_create"
+    },
+    {
+      "symbol": "validate_scene_challenge_end",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_optional_unfinished_create"
+    },
+    {
+      "symbol": "commit_scene_challenge_closure",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_optional_unfinished_create"
+    },
+    {
+      "symbol": "continue_completed_scene_challenge",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_terminal_board_auto_continues_to_authored_end_and_saves_target"
+    },
+    {
+      "symbol": "scene_entry_staging_context",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_terminal_board_auto_continues_to_authored_end_and_saves_target"
+    },
+    {
+      "symbol": "validate_scene_entry_staging_source",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_terminal_board_auto_continues_to_authored_end_and_saves_target"
+    },
+    {
+      "symbol": "admit_scene_target",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_terminal_board_auto_continues_to_authored_end_and_saves_target"
+    },
+    {
+      "symbol": "configure_scene_challenge_runtime",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_first_reveal_real_two_store_retry_and_save"
+    },
+    {
+      "symbol": "capture_scene_challenge_command",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_first_reveal_real_two_store_retry_and_save"
+    },
+    {
+      "symbol": "validate_scene_challenge_command",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_first_reveal_real_two_store_retry_and_save"
+    },
+    {
+      "symbol": "commit_scene_challenge_checkpoint",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_first_reveal_real_two_store_retry_and_save"
+    },
+    {
+      "symbol": "prepare_selected_scene_absence",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_selected_absence_survives_source_overwrite_and_destination_retry"
+    },
+    {
+      "symbol": "validate_selected_scene_absence",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_selected_absence_survives_source_overwrite_and_destination_retry"
+    },
+    {
+      "symbol": "capture_scene_challenge_closure",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_optional_selected_absence_load"
+    },
+    {
+      "symbol": "advance_scene_registered_marker",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_optional_never_opened_create"
+    },
+    {
+      "symbol": "configure_scene_checkpoint_source",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_genuine_playable_retries_and_commits_control"
+    },
+    {
+      "symbol": "capture_scene_contact_context",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_registered_contacts_read_entry_and_save"
+    },
+    {
+      "symbol": "resolve_scene_contact_facts",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_message_and_read_refusal_preserve_state_and_allow_exact_retry"
+    },
+    {
+      "symbol": "emit_scene_contact_message",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_message_and_read_refusal_preserve_state_and_allow_exact_retry"
+    },
+    {
+      "symbol": "accept_scene_thought",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_yes_and_unresolved_save"
+    },
+    {
+      "symbol": "configure_scene_day_runtime",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_refused_checkpoint_retains_board_counters_and_identity_then_retry_adopts_once"
+    },
+    {
+      "symbol": "renewed_scene_day_gameplay",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_daily_renewal_preserves_cumulative_rewards_purchases_pressure_and_task_claims"
+    },
+    {
+      "symbol": "configure_scene_shop_runtime",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_shop_checkpoint_retry_custody_and_uncertain_commit"
+    },
+    {
+      "symbol": "capture_scene_shop_context",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_shop_checkpoint_retry_custody_and_uncertain_commit"
+    },
+    {
+      "symbol": "preview_scene_shop_purchase",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_fresh_same_day_load_keeps_settled_board_and_supportz_without_replay"
+    },
+    {
+      "symbol": "commit_scene_shop_purchase",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_shop_checkpoint_retry_custody_and_uncertain_commit"
+    },
+    {
+      "symbol": "configure_scene_round_runtime",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_scene_round_physical_refusal_retry_conflict_and_uncertain_acknowledgment"
+    },
+    {
+      "symbol": "scene_round_completion_active",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_scene_round_physical_refusal_retry_conflict_and_uncertain_acknowledgment"
+    },
+    {
+      "symbol": "commit_scene_round_completion",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_scene_round_physical_refusal_retry_conflict_and_uncertain_acknowledgment"
+    }
+  ]
+}

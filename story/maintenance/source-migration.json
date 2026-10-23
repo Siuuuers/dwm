@@ -1,0 +1,975 @@
+{
+  "schema_version": 6,
+  "purpose": "Selective working-document curation, not a permanent transcript-replication contract",
+  "pre_curation_commit": "3b553e1a3d986fa0de3be4a529f895cba4d9acca",
+  "pre_curation_manifest": "https://github.com/Siuuuers/dwm/blob/3b553e1a3d986fa0de3be4a529f895cba4d9acca/story/maintenance/source-migration.json",
+  "raw_archive_commit": "62fd8bf3966e4df7e03bf52952c6905284845284",
+  "retained_archive_branch": "archive/pl-narrative-sources-2026-10-01",
+  "source_directory_retired": true,
+  "narrative_status_changed": false,
+  "runtime_changed": false,
+  "selected_excerpts": [
+    {
+      "id": "curated-01",
+      "source_unit": "upload-e03-assistant-1",
+      "source_url": "https://github.com/Siuuuers/dwm/blob/62fd8bf3966e4df7e03bf52952c6905284845284/docs/story-auditions/Our_PL.md#L583-L853",
+      "source_unit_sha256": "8ab0633854da5b7964fa545cb7c8d0305a866d86f20b555f268c796eda722edb",
+      "destination": "story/relationships/priscilla-lavinia/intimacy-and-ordinary-company.md",
+      "sha256": "de641f433918f4e70ae137e482c20d9e89a4ca3f3104bb3a88055d66b264d62d",
+      "selection_reason": "Keep their shared ridiculous patience, not a clue or a permanent film preference.",
+      "start_text": "### A. Ordinary company that does not need to prove anything",
+      "end_text": "The useful part is not a hidden symbol."
+    },
+    {
+      "id": "curated-02",
+      "source_unit": "upload-e03-assistant-1",
+      "source_url": "https://github.com/Siuuuers/dwm/blob/62fd8bf3966e4df7e03bf52952c6905284845284/docs/story-auditions/Our_PL.md#L583-L853",
+      "source_unit_sha256": "8ab0633854da5b7964fa545cb7c8d0305a866d86f20b555f268c796eda722edb",
+      "destination": "story/relationships/priscilla-lavinia/intimacy-and-ordinary-company.md",
+      "sha256": "fb6fcc39102466373ec842d72695265a152fa5d718378c81e50c0629f0b0d2c6",
+      "selection_reason": "This lets Lavinia initiate affection and continue the conversation instead of making contact its climax.",
+      "start_text": "### B. Lavinia gives affection without disguising it",
+      "end_text": "Here Lavinia is neither bait nor reward."
+    },
+    {
+      "id": "curated-03",
+      "source_unit": "upload-e04-assistant-1",
+      "source_url": "https://github.com/Siuuuers/dwm/blob/62fd8bf3966e4df7e03bf52952c6905284845284/docs/story-auditions/Our_PL.md#L867-L1102",
+      "source_unit_sha256": "87ae4212aac347245629b35ddc6d21043e042ed495d72f4317804285c4f5ba5c",
+      "destination": "story/relationships/priscilla-lavinia/intimacy-and-ordinary-company.md",
+      "sha256": "642a57542e94a2a7ee27a331615a4cb00ca035957194531230cbd496dce2084b",
+      "selection_reason": "Lavinia’s interest extends beyond a useful service or a perfect critique.",
+      "start_text": "> “I don’t know whether this is good anymore,”",
+      "end_text": "The point is not that Lavinia supplies"
+    },
+    {
+      "id": "curated-04",
+      "source_unit": "upload-e06-assistant-1",
+      "source_url": "https://github.com/Siuuuers/dwm/blob/62fd8bf3966e4df7e03bf52952c6905284845284/docs/story-auditions/Our_PL.md#L1372-L1669",
+      "source_unit_sha256": "901b0e9d6364604c63668ed19a4b2d070afda535d217d9272a52ed112f002820",
+      "destination": "story/relationships/priscilla-lavinia/intimacy-and-ordinary-company.md",
+      "sha256": "4618a2d945ea018a17784388c836834c1eb36b81ffafe3316bac8c39d16306c2",
+      "selection_reason": "This is the unselected pre-England proposal, retained because its ordinary continuation matters. It does not establish a first kiss.",
+      "start_text": "> Lavinia had asked about the book",
+      "end_text": "What I like here is"
+    },
+    {
+      "id": "curated-05",
+      "source_unit": "upload-e06-assistant-1",
+      "source_url": "https://github.com/Siuuuers/dwm/blob/62fd8bf3966e4df7e03bf52952c6905284845284/docs/story-auditions/Our_PL.md#L1372-L1669",
+      "source_unit_sha256": "901b0e9d6364604c63668ed19a4b2d070afda535d217d9272a52ed112f002820",
+      "destination": "story/relationships/priscilla-lavinia/intimacy-and-ordinary-company.md",
+      "sha256": "218f22e6bd7c33fbe286a342a355f61d41bebc780fe305a98fffb35e8549dd0c",
+      "selection_reason": "Retain the short reciprocal answer and pleasant awkwardness; the event and its timing remain unselected.",
+      "start_text": "> “I want us to be together,”",
+      "end_text": "The meaningful event is"
+    },
+    {
+      "id": "curated-06",
+      "source_unit": "upload-e14-assistant-1",
+      "source_url": "https://github.com/Siuuuers/dwm/blob/62fd8bf3966e4df7e03bf52952c6905284845284/docs/story-auditions/Our_PL.md#L3267-L3605",
+      "source_unit_sha256": "4c37879454f0bd55ed57d81ee5e82715d4a87cf3d2b6967b6a66c32d8c5ead2c",
+      "destination": "story/relationships/priscilla-lavinia/auditions/day-2-portrait-development.md",
+      "sha256": "ccc5896d6a3fa1637dc5feec53e95f5b3eff23a1d6c05874372c5ea4d4f381c0",
+      "selection_reason": "Its independent comic subject and the resumed telling test ordinary company after an explicit refusal. Retain the complete alternate action, not all of its repeated analysis.",
+      "start_text": "Priscilla is explaining the book she is reading.",
+      "end_text": "## 3. What this version is trying to accomplish"
+    },
+    {
+      "id": "curated-07",
+      "source_unit": "upload-e10-assistant-1",
+      "source_url": "https://github.com/Siuuuers/dwm/blob/62fd8bf3966e4df7e03bf52952c6905284845284/docs/story-auditions/Our_PL.md#L2424-L2679",
+      "source_unit_sha256": "01c3ac56f08761cdd8364a1e13fba7933f074a3debd386e91f59aa0ccbde1e20",
+      "destination": "story/relationships/priscilla-lavinia/auditions/day-2-portrait-development.md",
+      "sha256": "bcc8e88c3405b71f2acbe078bff9ff5501f70ce57e6be174092ba3bcd120ec75",
+      "selection_reason": "This tests lighter situated observation. It is not a replacement already approved for the current portrait.",
+      "start_text": "> Priscilla’s fingers are still around the stem",
+      "end_text": "That is enough for a first test."
+    },
+    {
+      "id": "curated-08",
+      "source_unit": "upload-e23-assistant-1",
+      "source_url": "https://github.com/Siuuuers/dwm/blob/62fd8bf3966e4df7e03bf52952c6905284845284/docs/story-auditions/Our_PL.md#L5314-L5661",
+      "source_unit_sha256": "41a8b968dab40d41b27ec697243813f7a33d4c8ace0975f8e70742eff3ccb2e0",
+      "destination": "story/relationships/priscilla-lavinia/auditions/day-2-sweet-love-portrait.md",
+      "sha256": "3e191462bcb2fc3bcae6201c9dd06be57a956f1a6e0297d123315bdefa3170f0",
+      "selection_reason": "Preserve the whole visit for comparison. The following coat and fictional-sitter revisions are later proposals, not silently applied edits to this passage.",
+      "start_text": "Priscilla is reading when Lavinia reaches the table.",
+      "end_text": "## Where the desire becomes more revealing"
+    },
+    {
+      "id": "curated-09",
+      "source_unit": "upload-e25-assistant-1",
+      "source_url": "https://github.com/Siuuuers/dwm/blob/62fd8bf3966e4df7e03bf52952c6905284845284/docs/story-auditions/Our_PL.md#L5974-L6184",
+      "source_unit_sha256": "ecb7670135737c3974323b307aa3405e1feee0368aabf1a26700a130964ab093",
+      "destination": "story/relationships/priscilla-lavinia/auditions/day-2-sweet-love-portrait.md",
+      "sha256": "63bd331102fbf0c6f6dc6fa6cafcc5330df2732e64c67a00624f8c5ba9dfc2d6",
+      "selection_reason": "Priscilla starts the subject. Lavinia’s questions become curiosity about what Priscilla wanted, while a disagreement in taste can remain small.",
+      "start_text": "> **Priscilla:** I nearly bought a coat.",
+      "end_text": "There is no necessary emotional revelation at the end."
+    },
+    {
+      "id": "curated-10",
+      "source_unit": "upload-e26-assistant-1",
+      "source_url": "https://github.com/Siuuuers/dwm/blob/62fd8bf3966e4df7e03bf52952c6905284845284/docs/story-auditions/Our_PL.md#L6206-L6362",
+      "source_unit_sha256": "bd925d9a96b6f8be9f0939dd1b4539c679a8337e87a172267fa1da72eee3984c",
+      "destination": "story/relationships/priscilla-lavinia/auditions/day-2-sweet-love-portrait.md",
+      "sha256": "6d7467622baa7481be6c6e61367953e410381df1e01c4e0a96ffd839224ee4c2",
+      "selection_reason": "This changes the invented novel, not P–L’s established history. It preserves the house joke without the duration explanation and leaves the concealed-completion discovery work to do.",
+      "start_text": "> **Priscilla:** She has a friend staying with her.",
+      "end_text": "The later reply still has its uncomfortable force."
+    },
+    {
+      "id": "curated-11",
+      "source_unit": "upload-e46-assistant-1",
+      "source_url": "https://github.com/Siuuuers/dwm/blob/62fd8bf3966e4df7e03bf52952c6905284845284/docs/story-auditions/Our_PL.md#L9550-L9738",
+      "source_unit_sha256": "0611bee3eb86ed1a4dc224604ba2c8b9601ed5489036d779b240f8e2ee6c9072",
+      "destination": "story/relationships/priscilla-lavinia/auditions/day-6-dark-notebook.md",
+      "sha256": "4c0b0b83283d7c482ba81bdb2d85d6e9e0fa66a896466f859de18d016af1f156",
+      "selection_reason": "The owner found this too short and clean beside Sweet. Keep its actual departure as a materially different possibility, not the current conclusion or an automatic moral punishment.",
+      "start_text": "Priscilla takes her bag from beside the chair.",
+      "end_text": "## 1. What Priscilla is trying to obtain"
+    },
+    {
+      "id": "curated-12",
+      "source_unit": "upload-e48-assistant-1",
+      "source_url": "https://github.com/Siuuuers/dwm/blob/62fd8bf3966e4df7e03bf52952c6905284845284/docs/story-auditions/Our_PL.md#L10066-L10330",
+      "source_unit_sha256": "1e5bebdfdb922c0d1b6d4072fc069dee45ed443ed164b57779946d4e0fbf073a",
+      "destination": "story/relationships/priscilla-lavinia/auditions/day-6-dark-notebook.md",
+      "sha256": "c2001b995fae9c4f1ff44d0abce097a52773bf65aaaeff6458225aefd03115e1",
+      "selection_reason": "The specific moral claim is knowingly false in this proposal, while the desire is genuine. The owner objected to the expository interrogation; preservation does not make the lie fixed conduct.",
+      "start_text": "*Writer-side distinction for this audition:",
+      "end_text": "## 5. What makes this darker than an ordinary reconciliation"
+    },
+    {
+      "id": "curated-13",
+      "source_unit": "upload-e27-assistant-1",
+      "source_url": "https://github.com/Siuuuers/dwm/blob/62fd8bf3966e4df7e03bf52952c6905284845284/docs/story-auditions/Our_PL.md#L6400-L6630",
+      "source_unit_sha256": "2252e656734ffc7e101b4a4ff25957762b595d9a968f3618e6b17f9d9d1e18a0",
+      "destination": "story/relationships/priscilla-lavinia/auditions/2026-09-07-priscilla-lavinia-day-6-sweet-love-interrupted-hearing-audition.md",
+      "sha256": "128f1f66685d26a5de03b2f4eccaf41dcc5fdfe5b8b2c926f41285257fa576b5",
+      "selection_reason": "Retain the complete enacted interval; the dance is a competing encounter, not something to append to this one. Audio length, door geometry and exact wording remain untested.",
+      "start_text": "*The arrival cue and door arrangement",
+      "end_text": "## 4. What I would preserve in this version"
+    }
+  ],
+  "source_file_dispositions": [
+    {
+      "path": "docs/story-auditions/2026-08-30-angela-lavinia-day-2-focus-audition-design.md",
+      "git_blob": "97ac51f336322c247e59af2db734b9e1983d5116",
+      "sha256": "701f9feac94f0b594673910a26d47a4eea8c3415d52f95236bb98d89d1b1e0b3",
+      "disposition": "Relocated whole; live links rebased",
+      "current_destination": "story/auditions/2026-08-30-angela-lavinia-day-2-focus-audition-design.md"
+    },
+    {
+      "path": "docs/story-auditions/2026-08-30-room-217-group-adaptation-audition-record.md",
+      "git_blob": "73dc72fd510930e84d1ba93474bb09b6afd147cf",
+      "sha256": "6f1b6e5cce55fad9370c3d6621963175aba608557eb067de2bcbb6fabe3235b4",
+      "disposition": "Relocated whole; live links rebased",
+      "current_destination": "story/auditions/2026-08-30-room-217-group-adaptation-audition-record.md"
+    },
+    {
+      "path": "docs/story-auditions/2026-08-31-seven-day-owner-review-constellation-audition.md",
+      "git_blob": "22bf6ad866163e2ded66a6120d0a4fd494978e17",
+      "sha256": "5b3a6e3eb8036e308fab315e072d81c86e18abac6e1774d48e2a4df595c9b945",
+      "disposition": "Relocated whole; live links rebased",
+      "current_destination": "story/auditions/2026-08-31-seven-day-owner-review-constellation-audition.md"
+    },
+    {
+      "path": "docs/story-auditions/2026-09-06-priscilla-lavinia-day-2-day-6-working-event-record.md",
+      "git_blob": "9753c076331d4dc515c5d6f89b568fe1e4deea35",
+      "sha256": "fe6be6f65f470c38dc7eb501b61e83a2799165aee38c303b665d75d7035e35cc",
+      "disposition": "Relocated whole; live links rebased",
+      "current_destination": "story/relationships/priscilla-lavinia/auditions/2026-09-06-priscilla-lavinia-day-2-day-6-working-event-record.md"
+    },
+    {
+      "path": "docs/story-auditions/2026-09-06-priscilla-lavinia-day-2-four-form-causal-spine-audition.md",
+      "git_blob": "2df1739d29fa0b6ebb4aa195d099e06c49fdcea9",
+      "sha256": "b19761cfb29dbaa1fecc8e0f7e7ea0549291733a5f05cbaa472697e07dff9080",
+      "disposition": "Relocated whole; live links rebased",
+      "current_destination": "story/relationships/priscilla-lavinia/auditions/2026-09-06-priscilla-lavinia-day-2-four-form-causal-spine-audition.md"
+    },
+    {
+      "path": "docs/story-auditions/2026-09-06-priscilla-lavinia-day-6-sweet-imagined-refusal-audition.md",
+      "git_blob": "8ba9e7c2ca99b9dfc0c4925c94397a34bf2102ba",
+      "sha256": "a4becfb8b51dddc14f6f115d9e8482310fba24f684e775628f2f18f15a7045da",
+      "disposition": "Relocated whole; live links rebased",
+      "current_destination": "story/relationships/priscilla-lavinia/auditions/2026-09-06-priscilla-lavinia-day-6-sweet-imagined-refusal-audition.md"
+    },
+    {
+      "path": "docs/story-auditions/2026-09-07-priscilla-lavinia-day-6-sweet-love-interrupted-hearing-audition.md",
+      "git_blob": "6b3fcaae5a6ef7d23bcac7e78b3490abb15ae72d",
+      "sha256": "218ec45345e75612ab85117c799a94187fecb75c5313870eb97d38cf8133c07e",
+      "disposition": "Relocated whole; live links rebased",
+      "current_destination": "story/relationships/priscilla-lavinia/auditions/2026-09-07-priscilla-lavinia-day-6-sweet-love-interrupted-hearing-audition.md"
+    },
+    {
+      "path": "docs/story-auditions/2026-09-12-day-1-priscilla-lavinia-retrospective-reflex-audition.md",
+      "git_blob": "023d7be0cdd18762c30070e4d5162760b57417d0",
+      "sha256": "fdf4a3e262665012948b1c5891fd5f49a391bbebc5a6ede36d4e8ab84ab3c963",
+      "disposition": "Relocated whole; live links rebased",
+      "current_destination": "story/relationships/priscilla-lavinia/auditions/2026-09-12-day-1-priscilla-lavinia-retrospective-reflex-audition.md"
+    },
+    {
+      "path": "docs/story-auditions/2026-09-26-priscilla-lavinia-day-2-portrait-dark-love-read-through.md",
+      "git_blob": "013ef7fc625652ff74d440035a231aa22ed24dfd",
+      "sha256": "c31f3053cddbd386986c1f3bd7ebcb2a3978cade011851a7d918dbca49caff64",
+      "disposition": "Relocated whole; live links rebased",
+      "current_destination": "story/relationships/priscilla-lavinia/auditions/2026-09-26-priscilla-lavinia-day-2-portrait-dark-love-read-through.md"
+    },
+    {
+      "path": "docs/story-auditions/2026-09-26-priscilla-lavinia-portrait-and-intimacy-working-record.md",
+      "git_blob": "2175108321c5a8aea02b86143ab1a7a15f4642b6",
+      "sha256": "9c2fd18a6d0e6cffac7e30b138244f760d526cc012eaa2d219720f4c24fe2ecf",
+      "disposition": "All thematic sections distributed",
+      "current_destination": "story/relationships/priscilla-lavinia/relationship.md#legacy-checkpoint-map"
+    },
+    {
+      "path": "docs/story-auditions/2026-09-27-priscilla-lavinia-session-conversation-archive.md",
+      "git_blob": "e56f3d4a025c32d8858746e39cfc4aa697b4de0c",
+      "sha256": "a27257d9b4e7d8367670e7ddf60dd78581f3ad0d3179f545663800fd9bb4768d",
+      "disposition": "All sections distributed; secondary labels retained",
+      "current_destination": "story/maintenance/source-migration.json"
+    },
+    {
+      "path": "docs/story-auditions/Our_PL.md",
+      "git_blob": "0b508f8f674a749ca9dbe7fce0d1885e635baf08",
+      "sha256": "df9a3151733d411a7949f0830d2b5cd28ee296b582ab419b3ba1be0b009ee22b",
+      "disposition": "All 50 prose exchanges and embedded content accounted for",
+      "current_destination": "story/maintenance/our-pl-upload-recovery.md"
+    },
+    {
+      "path": "docs/story-auditions/README.md",
+      "git_blob": "110550d1ed4524e5cea8a2e14cd1d3e39c664453",
+      "sha256": "c8a584297e16658b8bb3205c7a46a593dda3e6617ea786e8c7147a69e0f09f39",
+      "disposition": "Contract and index consolidated; original contract retained",
+      "current_destination": "story/auditions/README.md"
+    }
+  ],
+  "source_snapshot_identities": {
+    "repository": {
+      "path": "docs/story-auditions/Our_PL.md",
+      "bytes": 1113085,
+      "git_blob": "0b508f8f674a749ca9dbe7fce0d1885e635baf08",
+      "sha256": "df9a3151733d411a7949f0830d2b5cd28ee296b582ab419b3ba1be0b009ee22b"
+    },
+    "upload": {
+      "path": "docs/story-auditions/Our_PL.md",
+      "bytes": 1115494,
+      "git_blob": "9e20a006afc8cb094284f510766d8db78b122b75",
+      "sha256": "9dd985c686b5a2b9c3f01184f738eef05d7db49d63afa3999213390e5406b8a6"
+    }
+  },
+  "archived_only_categories": [
+    "greetings/general praise",
+    "repeated explanatory responses and superseded near-identical assemblies",
+    "secondary reconstructions duplicating primary-source topics",
+    "historical tool calls and PR operations",
+    "former verification/navigation/status reporting",
+    "historical embedded Bible differences"
+  ],
+  "protected_blocks": [
+    {
+      "path": "story/relationships/priscilla-lavinia/auditions/day-6-sweet-love-dance.md",
+      "kind": "current_scene",
+      "sha256": "2cfea3240d234fda994ee4b86ffc5ffa106b6704e989bc6a3934fef3d8fb4c32"
+    },
+    {
+      "path": "story/relationships/priscilla-lavinia/auditions/day-6-sweet-ambiguous-refusal.md",
+      "kind": "current_scene",
+      "sha256": "54c6198d00c740346b491134bbf9963bf3d3049cc187af5452d6bf3d3248763c"
+    },
+    {
+      "path": "story/relationships/priscilla-lavinia/auditions/day-6-dark-notebook.md",
+      "kind": "current_scene",
+      "sha256": "a057cb63e08b61beb97c31e5df6821f6987b886366b4c0ffa5344f46c031f421"
+    },
+    {
+      "path": "story/relationships/priscilla-lavinia/relationship.md",
+      "kind": "handbook_pair",
+      "sha256": "c4beda01ad5fcf01bc22565c459cf0f339b54e5711fcd92fccb5cb83b5040894"
+    },
+    {
+      "path": "story/relationships/priscilla-lavinia/auditions/2026-09-07-priscilla-lavinia-day-6-sweet-love-interrupted-hearing-audition.md",
+      "kind": "hearing_original",
+      "sha256": "0849c18baa255244891286966d48d9083f8d35d0000e257b7b3228ceea0fc7bb",
+      "end_marker": "<!-- END RELOCATED ORIGINAL 6b3fcaae5a6ef7d23bcac7e78b3490abb15ae72d -->"
+    }
+  ],
+  "limits": [
+    "Earlier missing bar/residue/kiss evidence remains open",
+    "No newly selected intimate history, physical residue, placement or mechanics",
+    "No independent literary, audio, medical or runtime test"
+  ],
+  "retained_auditions": [
+    {
+      "path": "story/auditions/2026-08-30-angela-lavinia-day-2-focus-audition-design.md",
+      "sha256": "e4a7103a1f9b8c7a7a8ceea7a9855ae671f067dca2fae250d9c101fa885c4014"
+    },
+    {
+      "path": "story/auditions/2026-08-30-room-217-group-adaptation-audition-record.md",
+      "sha256": "c06cbe73f3a54200cd978e5a167561e95212d4b150752df10f84f11e0dcefeca"
+    },
+    {
+      "path": "story/auditions/2026-08-31-seven-day-owner-review-constellation-audition.md",
+      "sha256": "5ddf13f4212c0113c82edb0b2c11fd2157766b8d43eb3a9d0eb785dc937efd9f"
+    },
+    {
+      "path": "story/relationships/priscilla-lavinia/auditions/2026-09-06-priscilla-lavinia-day-2-day-6-working-event-record.md",
+      "sha256": "67a5dfd4fd4a05481c67d7fba75c3fecbeb879c73d5d0165501cc9a203b6cbb5"
+    },
+    {
+      "path": "story/relationships/priscilla-lavinia/auditions/2026-09-06-priscilla-lavinia-day-2-four-form-causal-spine-audition.md",
+      "sha256": "d09f0aff5db6423d0fed27d755f8a4c82b3b133a069fcda988baac3346ca69e4"
+    },
+    {
+      "path": "story/relationships/priscilla-lavinia/auditions/2026-09-06-priscilla-lavinia-day-6-sweet-imagined-refusal-audition.md",
+      "sha256": "85b34f2ecae31f6486eb35de74238a44b24e0ef48e73f62ddf2d101066982f9e"
+    },
+    {
+      "path": "story/relationships/priscilla-lavinia/auditions/2026-09-12-day-1-priscilla-lavinia-retrospective-reflex-audition.md",
+      "sha256": "b1f60439054fff9bdf6e00cb9bac6a8a09c795c946820f5b8291d1a726866f0a"
+    },
+    {
+      "path": "story/relationships/priscilla-lavinia/auditions/2026-09-26-priscilla-lavinia-day-2-portrait-dark-love-read-through.md",
+      "sha256": "b15ee243342eb54b77677c0acb537e41d06a927bec416ccd75fe758cc05e1db5"
+    }
+  ],
+  "curated_paths": [
+    "story/01-core-story-bible.md",
+    "story/AGENTS.md",
+    "story/README.md",
+    "story/auditions/README.md",
+    "story/maintenance/our-pl-upload-recovery.md",
+    "story/maintenance/source-migration.md",
+    "story/relationships/priscilla-lavinia/AGENTS.md",
+    "story/relationships/priscilla-lavinia/README.md",
+    "story/relationships/priscilla-lavinia/auditions/2026-09-07-priscilla-lavinia-day-6-sweet-love-interrupted-hearing-audition.md",
+    "story/relationships/priscilla-lavinia/auditions/day-2-portrait-development.md",
+    "story/relationships/priscilla-lavinia/auditions/day-2-sweet-love-portrait.md",
+    "story/relationships/priscilla-lavinia/auditions/day-6-dark-notebook.md",
+    "story/relationships/priscilla-lavinia/auditions/day-6-sweet-ambiguous-refusal.md",
+    "story/relationships/priscilla-lavinia/auditions/day-6-sweet-love-dance.md",
+    "story/relationships/priscilla-lavinia/intimacy-and-ordinary-company.md",
+    "story/relationships/priscilla-lavinia/relationship.md",
+    "story/relationships/priscilla-lavinia/seven-day-options.md"
+  ],
+  "reviewed_markdown_paths": [
+    "AGENTS.md",
+    "dialogic fx.md",
+    "docs/design/2026-09-02-narrative-constitution-ablation-pass-01.md",
+    "docs/design/2026-09-02-narrative-constitution-working-decision-ledger.md",
+    "docs/design/2026-09-02-relationship-progression-runtime-behavior-record.md",
+    "docs/design/2026-09-03-priscilla-lavinia-packed-room-ablation.md",
+    "docs/design/2026-09-03-sylvia-causation-immediate-ablation.md",
+    "docs/design/2026-09-06-angela-absent-pair-explosion-visibility-reconciliation.md",
+    "docs/design/2026-09-06-narrative-style-manual-sections-1-4-audit.md",
+    "docs/design/2026-09-06-narrative-style-manual-sections-12-13-audit.md",
+    "docs/design/2026-09-06-narrative-style-manual-sections-5-8-audit.md",
+    "docs/design/2026-09-06-narrative-style-manual-sections-9-11-audit.md",
+    "docs/design/2026-09-06-post-manual-canon-reconciliation.md",
+    "docs/design/2026-09-06-priscilla-lavinia-working-event-documentary-audit.md",
+    "docs/design/2026-10-09-priscilla-flow-behavior-amendment.md",
+    "docs/design/README.md",
+    "docs/design/recovered/CONTENT.md",
+    "docs/design/session-addendum-2026-07-18.md",
+    "docs/research/2026-08-27-room-217-narrative-theory-check.md",
+    "docs/research/2026-08-30-day-2-hong-kong-arrival-weather-and-campus-plausibility.md",
+    "docs/research/2026-08-30-la-jalousie-steam-store-voice-check.md",
+    "docs/research/2026-08-30-room-217-operator-run-sheet-and-cue-pass-plausibility.md",
+    "docs/research/2026-08-31-seven-day-candidate-physical-institutional-plausibility.md",
+    "docs/research/2026-09-06-la-jalousie-unmarked-focal-presence-vn-adaptation.md",
+    "docs/superpowers/plans/2026-08-28-seven-day-constellation-documentation-reconciliation.md",
+    "docs/superpowers/plans/2026-08-29-dialogue-led-perceptual-canon-reconciliation.md",
+    "docs/superpowers/specs/2026-08-28-seven-day-two-pass-constellation-design.md",
+    "docs/superpowers/specs/2026-08-29-dialogue-led-perceptual-canon-reconciliation-design.md",
+    "story/01-core-story-bible.md",
+    "story/02-character-relationship-handbook.md",
+    "story/03-seven-day-production-map.md",
+    "story/04-public-project-profile.md",
+    "story/05-canon-amendments-2026-07-19.md",
+    "story/06-seven-day-scene-beatbook.md",
+    "story/07-seven-day-causal-matrix.md",
+    "story/08-narrative-style-manual.md",
+    "story/09-priscilla-foundation-amendment.md",
+    "story/AGENTS.md",
+    "story/README.md",
+    "story/auditions/2026-08-30-angela-lavinia-day-2-focus-audition-design.md",
+    "story/auditions/2026-08-30-room-217-group-adaptation-audition-record.md",
+    "story/auditions/2026-08-31-seven-day-owner-review-constellation-audition.md",
+    "story/auditions/README.md",
+    "story/auditions/day-1-photo-book-working-draft.md",
+    "story/auditions/day-3-sylvia-fork-working-draft.md",
+    "story/auditions/priscilla-seven-day-working-plot.md",
+    "story/authoring/dialogic-syntax-reference.md",
+    "story/design/2026-08-28-seven-day-two-pass-constellation-design.md",
+    "story/design/2026-08-29-dialogue-led-perceptual-canon-reconciliation-design.md",
+    "story/design/2026-09-02-narrative-constitution-working-decision-ledger.md",
+    "story/design/2026-09-02-relationship-progression-runtime-behavior-record.md",
+    "story/design/README.md",
+    "story/design/plans/2026-08-28-seven-day-constellation-documentation-reconciliation.md",
+    "story/design/plans/2026-08-29-dialogue-led-perceptual-canon-reconciliation.md",
+    "story/design/reviews/2026-09-02-narrative-constitution-ablation-pass-01.md",
+    "story/design/reviews/2026-09-03-priscilla-lavinia-packed-room-ablation.md",
+    "story/design/reviews/2026-09-03-sylvia-causation-immediate-ablation.md",
+    "story/design/reviews/2026-09-06-angela-absent-pair-explosion-visibility-reconciliation.md",
+    "story/design/reviews/2026-09-06-narrative-style-manual-sections-1-4-audit.md",
+    "story/design/reviews/2026-09-06-narrative-style-manual-sections-12-13-audit.md",
+    "story/design/reviews/2026-09-06-narrative-style-manual-sections-5-8-audit.md",
+    "story/design/reviews/2026-09-06-narrative-style-manual-sections-9-11-audit.md",
+    "story/design/reviews/2026-09-06-post-manual-canon-reconciliation.md",
+    "story/design/reviews/2026-09-06-priscilla-lavinia-working-event-documentary-audit.md",
+    "story/design/session-addendum-2026-07-18.md",
+    "story/library/03-seven-day-plot-material-library.md",
+    "story/library/recovered-group-invitation-copy.md",
+    "story/maintenance/our-pl-upload-recovery.md",
+    "story/maintenance/pl-session-sources/2026-10-08/README.md",
+    "story/maintenance/source-migration.md",
+    "story/relationships/priscilla-lavinia/AGENTS.md",
+    "story/relationships/priscilla-lavinia/README.md",
+    "story/relationships/priscilla-lavinia/auditions/2026-09-06-priscilla-lavinia-day-2-day-6-working-event-record.md",
+    "story/relationships/priscilla-lavinia/auditions/2026-09-06-priscilla-lavinia-day-2-four-form-causal-spine-audition.md",
+    "story/relationships/priscilla-lavinia/auditions/2026-09-06-priscilla-lavinia-day-6-sweet-imagined-refusal-audition.md",
+    "story/relationships/priscilla-lavinia/auditions/2026-09-07-priscilla-lavinia-day-6-sweet-love-interrupted-hearing-audition.md",
+    "story/relationships/priscilla-lavinia/auditions/2026-09-12-day-1-priscilla-lavinia-retrospective-reflex-audition.md",
+    "story/relationships/priscilla-lavinia/auditions/2026-09-26-priscilla-lavinia-day-2-portrait-dark-love-read-through.md",
+    "story/relationships/priscilla-lavinia/auditions/day-2-portrait-development.md",
+    "story/relationships/priscilla-lavinia/auditions/day-2-return-bar-working-draft.md",
+    "story/relationships/priscilla-lavinia/auditions/day-2-sweet-love-portrait.md",
+    "story/relationships/priscilla-lavinia/auditions/day-6-dark-notebook.md",
+    "story/relationships/priscilla-lavinia/auditions/day-6-dark-photograph.md",
+    "story/relationships/priscilla-lavinia/auditions/day-6-sweet-ambiguous-refusal.md",
+    "story/relationships/priscilla-lavinia/auditions/day-6-sweet-love-dance.md",
+    "story/relationships/priscilla-lavinia/development/2026-10-08-session-capture.md",
+    "story/relationships/priscilla-lavinia/intimacy-and-ordinary-company.md",
+    "story/relationships/priscilla-lavinia/relationship.md",
+    "story/relationships/priscilla-lavinia/seven-day-options.md",
+    "story/research/2026-08-27-room-217-narrative-theory-check.md",
+    "story/research/2026-08-30-day-2-hong-kong-arrival-weather-and-campus-plausibility.md",
+    "story/research/2026-08-30-la-jalousie-steam-store-voice-check.md",
+    "story/research/2026-08-30-room-217-operator-run-sheet-and-cue-pass-plausibility.md",
+    "story/research/2026-08-31-seven-day-candidate-physical-institutional-plausibility.md",
+    "story/research/2026-09-06-la-jalousie-unmarked-focal-presence-vn-adaptation.md",
+    "story/research/README.md"
+  ],
+  "historical_snapshot_scope": "Existing excerpt hashes, protected blocks and narrative/runtime flags describe the 2026-10-01 curation; later owner-authorized changes are recorded separately below.",
+  "later_consolidations": [
+    {
+      "date": "2026-10-20",
+      "baseline_commit": "f1df045a840a79ef9c728f46a03ecce7877f96c9",
+      "publication_pull_request": "https://github.com/Siuuuers/dwm/pull/41",
+      "scope": "Owner-requested Day 3 notice revision, durable direction integration, current flow consolidation and navigation curation",
+      "receipt": "story/maintenance/source-migration.md#current-story-consolidation-2026-10-20",
+      "source_scope": "Visible conversation; verified current source snapshot; relevant retained audition, development and design passages. Missing full raw history remains open.",
+      "current_flow_owner": "story/09-priscilla-foundation-amendment.md",
+      "compatibility_entry": "docs/design/2026-10-09-priscilla-flow-behavior-amendment.md",
+      "curated_working_entries": [
+        "story/README.md",
+        "story/auditions/README.md",
+        "story/relationships/priscilla-lavinia/README.md",
+        "story/auditions/priscilla-seven-day-working-plot.md"
+      ],
+      "accepted_direction_integrated": "Sylvia's occasional personal notices; exact coffee origin and future discrepancies remain unselected.",
+      "proposals_promoted_to_fixed_events": false,
+      "runtime_changed": false,
+      "merge_requested": false,
+      "protected_archive_branch_retained": true,
+      "source_baseline_files": [
+        {
+          "path": "AGENTS.md",
+          "git_blob": "35a5f19b35e6fc97a52d1f10b03cda1b85e7cb31"
+        },
+        {
+          "path": "story/AGENTS.md",
+          "git_blob": "ac91b09dd13e461f9da3496325dff0f884cf7887"
+        },
+        {
+          "path": "story/README.md",
+          "git_blob": "dc061be83cde79caa6d2752c1fecc92b83d56deb"
+        },
+        {
+          "path": "story/relationships/priscilla-lavinia/AGENTS.md",
+          "git_blob": "a935c48633d2592d994df8477b971299854a67d1"
+        },
+        {
+          "path": "story/relationships/priscilla-lavinia/README.md",
+          "git_blob": "512bcc01e175e2002d701fd0fdfec5dcb407cdef"
+        },
+        {
+          "path": "story/maintenance/source-migration.md",
+          "git_blob": "16c89cdbe313636c165171e7d4ee0f9934275071"
+        },
+        {
+          "path": "story/01-core-story-bible.md",
+          "git_blob": "d194dea77be487ec036793ff0e7e7be533727a3c"
+        },
+        {
+          "path": "story/02-character-relationship-handbook.md",
+          "git_blob": "01048180982bfac85c34d41186d24b2a85cde25a"
+        },
+        {
+          "path": "story/03-seven-day-production-map.md",
+          "git_blob": "ed5fdbd243f409398eb8fc10a94972d2b5ec68a8"
+        },
+        {
+          "path": "story/04-public-project-profile.md",
+          "git_blob": "9bcc737a6e45b466d70ced93368c330834b2e818"
+        },
+        {
+          "path": "story/05-canon-amendments-2026-07-19.md",
+          "git_blob": "ca529d24ee1e4b0f250b1b13270c31dfa55d2a0f"
+        },
+        {
+          "path": "story/06-seven-day-scene-beatbook.md",
+          "git_blob": "b75f111330b38fd988fb997b6b0dc3f204376fa3"
+        },
+        {
+          "path": "story/07-seven-day-causal-matrix.md",
+          "git_blob": "16352cdf7479e2663c05571c845d01ffe2fdb651"
+        },
+        {
+          "path": "story/08-narrative-style-manual.md",
+          "git_blob": "c4833a1503936fc66eaf67760906203ff4b50bd9"
+        },
+        {
+          "path": "story/09-priscilla-foundation-amendment.md",
+          "git_blob": "b141b471c19c577f03cc31cd0cf330f0a21fa136"
+        },
+        {
+          "path": "story/auditions/2026-08-30-angela-lavinia-day-2-focus-audition-design.md",
+          "git_blob": "08f9a4fbb80cbcbf6abbca65f194c3cd98c33c8e"
+        },
+        {
+          "path": "story/auditions/2026-08-30-room-217-group-adaptation-audition-record.md",
+          "git_blob": "1fd85692c724cfb348a8d81851af7e7a002369cd"
+        },
+        {
+          "path": "story/auditions/2026-08-31-seven-day-owner-review-constellation-audition.md",
+          "git_blob": "6bbdc51cb9f4d892ae4ce5c5afa54b30f3e799b9"
+        },
+        {
+          "path": "story/auditions/README.md",
+          "git_blob": "cf7f960d332974cd01ca9fe69fe5960491e7a0cf"
+        },
+        {
+          "path": "story/auditions/day-1-photo-book-working-draft.md",
+          "git_blob": "485c8809452d50e65d103ce7b1ced97ee22b1d0f"
+        },
+        {
+          "path": "story/auditions/day-3-sylvia-fork-working-draft.md",
+          "git_blob": "579cab4187c746f599e53b66881d7019821a3351"
+        },
+        {
+          "path": "story/auditions/priscilla-seven-day-working-plot.md",
+          "git_blob": "42169f1c446843a70a78c96c119e9460fdbc4ba0"
+        },
+        {
+          "path": "story/library/03-seven-day-plot-material-library.md",
+          "git_blob": "7097eeecf7e046ca9460024199ff4a8ff8c102ab"
+        },
+        {
+          "path": "story/maintenance/our-pl-upload-recovery.md",
+          "git_blob": "dd65a4d70a9faa494db46085739fd190338bad69"
+        },
+        {
+          "path": "story/maintenance/pl-session-sources/2026-10-08/README.md",
+          "git_blob": "56c7d47c9b4f0c15708d37e19f4834c562becbef"
+        },
+        {
+          "path": "story/maintenance/source-migration.json",
+          "git_blob": "a90e838f42b83694b573debb787132c433d6ab68"
+        },
+        {
+          "path": "story/maintenance/verify_consolidation.py",
+          "git_blob": "efee2a95216355bf180a319b5542766a99718e6f"
+        },
+        {
+          "path": "story/relationships/priscilla-lavinia/auditions/2026-09-06-priscilla-lavinia-day-2-day-6-working-event-record.md",
+          "git_blob": "228385dcd953064885964edf9e3493061bcd2462"
+        },
+        {
+          "path": "story/relationships/priscilla-lavinia/auditions/2026-09-06-priscilla-lavinia-day-2-four-form-causal-spine-audition.md",
+          "git_blob": "43a70fdc7435085d3bf30103b814c66f808a0dc0"
+        },
+        {
+          "path": "story/relationships/priscilla-lavinia/auditions/2026-09-06-priscilla-lavinia-day-6-sweet-imagined-refusal-audition.md",
+          "git_blob": "691c98ce2fa0221c3b86031751dfd30ff168ade8"
+        },
+        {
+          "path": "story/relationships/priscilla-lavinia/auditions/2026-09-07-priscilla-lavinia-day-6-sweet-love-interrupted-hearing-audition.md",
+          "git_blob": "fe90bc68df5bb578519838372faab54cf7e21720"
+        },
+        {
+          "path": "story/relationships/priscilla-lavinia/auditions/2026-09-12-day-1-priscilla-lavinia-retrospective-reflex-audition.md",
+          "git_blob": "f3792a9b34cb2cebf38c32b910acb33dcc39df2d"
+        },
+        {
+          "path": "story/relationships/priscilla-lavinia/auditions/2026-09-26-priscilla-lavinia-day-2-portrait-dark-love-read-through.md",
+          "git_blob": "8bc169fa41355384c01cf36ee1e65537e76d696c"
+        },
+        {
+          "path": "story/relationships/priscilla-lavinia/auditions/day-2-portrait-development.md",
+          "git_blob": "7b9ecbcb38c6be19ab973a17f754b37199ad3c03"
+        },
+        {
+          "path": "story/relationships/priscilla-lavinia/auditions/day-2-return-bar-working-draft.md",
+          "git_blob": "eaffdfd0117f681ffdb080e8fc55c1029f113480"
+        },
+        {
+          "path": "story/relationships/priscilla-lavinia/auditions/day-2-sweet-love-portrait.md",
+          "git_blob": "5a7b0800e55e16cae3ee10c68077a503f0b61f16"
+        },
+        {
+          "path": "story/relationships/priscilla-lavinia/auditions/day-6-dark-notebook.md",
+          "git_blob": "ae89186de0ac280e8cf724656803b6f7bc157c27"
+        },
+        {
+          "path": "story/relationships/priscilla-lavinia/auditions/day-6-dark-photograph.md",
+          "git_blob": "c0d6f19a45b73bb81e609b171a55555ec86b4a3a"
+        },
+        {
+          "path": "story/relationships/priscilla-lavinia/auditions/day-6-sweet-ambiguous-refusal.md",
+          "git_blob": "51d9a33311fcdaaf49910b28cc4e3bc5761aa702"
+        },
+        {
+          "path": "story/relationships/priscilla-lavinia/auditions/day-6-sweet-love-dance.md",
+          "git_blob": "592fe48396a216bf9e2aad7202af7c577fd8d6ab"
+        },
+        {
+          "path": "story/relationships/priscilla-lavinia/development/2026-10-08-session-capture.md",
+          "git_blob": "399be8e5a0441a71980c2f26b2e17d9cb3693114"
+        },
+        {
+          "path": "story/relationships/priscilla-lavinia/intimacy-and-ordinary-company.md",
+          "git_blob": "ab36739aa955a859405b30ee9e12d19d44773d36"
+        },
+        {
+          "path": "story/relationships/priscilla-lavinia/relationship.md",
+          "git_blob": "bae60ea6e09264408e03d932e00c6b4280004c95"
+        },
+        {
+          "path": "story/relationships/priscilla-lavinia/seven-day-options.md",
+          "git_blob": "43b27c7f278699f00bbd4bf2f7526213376b02c0"
+        },
+        {
+          "path": "docs/design/2026-10-09-priscilla-flow-behavior-amendment.md",
+          "git_blob": "ae07a8eb725e6ee869ba2b02f148dd44b291ef48"
+        },
+        {
+          "path": "docs/design/2026-09-02-narrative-constitution-working-decision-ledger.md",
+          "git_blob": "c7018cbc945c2c624435a31a8f7584e334b794ec"
+        },
+        {
+          "path": "docs/superpowers/specs/2026-08-28-seven-day-two-pass-constellation-design.md",
+          "git_blob": "68202b70bc1e9a4642fb689a85630a8c4af5c3a2"
+        }
+      ]
+    },
+    {
+      "id": "narrative-document-relocation-2026-10-20",
+      "date": "2026-10-20",
+      "purpose": "Make narrative decisions, craft reviews, scene research and retained authoring references available under story without changing canon or technical contracts",
+      "source_commit": "7813de047f5e69b24ea0a84d6857d683f2f0c290",
+      "whole_records_relocated": [
+        {
+          "source": "docs/design/2026-09-02-narrative-constitution-ablation-pass-01.md",
+          "destination": "story/design/reviews/2026-09-02-narrative-constitution-ablation-pass-01.md",
+          "source_commit": "7813de047f5e69b24ea0a84d6857d683f2f0c290",
+          "source_git_blob": "1ca910b14eaf61d68420c868be415ec27a55f70a",
+          "source_sha256": "42f53f6893ebeadd46d4e6305190c799a4dd74a6729471c28796eebbd6268c44",
+          "relocated_sha256": "5379fb087a2b2585020fb64498d4c20acdc5f13277fbccf10e14fa5852e764ca",
+          "body_after_navigation_sha256": "9e1febfdff1105e8a094294a64c0fdba7df972637c689df2a5c9652a3c5e679f",
+          "disposition": "Complete body retained; navigation rebased and dated reading note added; old path keeps section forwarding links",
+          "status_changed": false
+        },
+        {
+          "source": "docs/design/2026-09-02-narrative-constitution-working-decision-ledger.md",
+          "destination": "story/design/2026-09-02-narrative-constitution-working-decision-ledger.md",
+          "source_commit": "7813de047f5e69b24ea0a84d6857d683f2f0c290",
+          "source_git_blob": "c7018cbc945c2c624435a31a8f7584e334b794ec",
+          "source_sha256": "9a8d69310030d4f9e6610a4e4115f64fc4b51efc270c0bcae75c1fb5725457c4",
+          "relocated_sha256": "26929023cef503cadcbe2b08b34490c90d545ae5bfe837b506ef97fa7a33ff2f",
+          "body_after_navigation_sha256": "09b7a5a05615903aea4827e04ef9e9a614ab5c1b876e46837d6ddd991626adc3",
+          "disposition": "Complete body retained; navigation rebased and dated reading note added; old path keeps section forwarding links",
+          "status_changed": false
+        },
+        {
+          "source": "docs/design/2026-09-02-relationship-progression-runtime-behavior-record.md",
+          "destination": "story/design/2026-09-02-relationship-progression-runtime-behavior-record.md",
+          "source_commit": "7813de047f5e69b24ea0a84d6857d683f2f0c290",
+          "source_git_blob": "05f99daf57689d9d37a1bbf9c05840e0608d2065",
+          "source_sha256": "4b92610c46f2d8549d28e0d61ece6d7e404a10de5547b8b8d4904c205e22a44a",
+          "relocated_sha256": "b178bfad8f0225655438a2d81fb67e5089039f8a40e5e634a7aeffc6da8c5c8e",
+          "body_after_navigation_sha256": "c0189a898f727217b9acb3ab832230d0117e7b049822fc3d6e352cbd163d2f21",
+          "disposition": "Complete body retained; navigation rebased and dated reading note added; old path keeps section forwarding links",
+          "status_changed": false
+        },
+        {
+          "source": "docs/design/2026-09-03-priscilla-lavinia-packed-room-ablation.md",
+          "destination": "story/design/reviews/2026-09-03-priscilla-lavinia-packed-room-ablation.md",
+          "source_commit": "7813de047f5e69b24ea0a84d6857d683f2f0c290",
+          "source_git_blob": "cd781f05ecd2bfecae52e5db4f0e66ce52eabefe",
+          "source_sha256": "6e4ece46b5894a0c37ff16a18ef188af61efae7fbf0f1bac90181b306c51f24c",
+          "relocated_sha256": "fc7168c9980f0c87199a76959cc746fc5bfc93dcdd2e1f811dc909d7e8456a33",
+          "body_after_navigation_sha256": "170c463e440e73a2573360fd57586439c2a0f093ac428d1e8d86dba962a458e3",
+          "disposition": "Complete body retained; navigation rebased and dated reading note added; old path keeps section forwarding links",
+          "status_changed": false
+        },
+        {
+          "source": "docs/design/2026-09-03-sylvia-causation-immediate-ablation.md",
+          "destination": "story/design/reviews/2026-09-03-sylvia-causation-immediate-ablation.md",
+          "source_commit": "7813de047f5e69b24ea0a84d6857d683f2f0c290",
+          "source_git_blob": "4e57817a31813d9d740e4abce42d3301f7152bba",
+          "source_sha256": "f60f562482ca2349984b10bb187152f8f786ae4e7a8f7b9b912b2215cfcadd9b",
+          "relocated_sha256": "f70be6ce3609933acb38a92631d67e9c5c647bd73a5beba504e04a64f44f02c8",
+          "body_after_navigation_sha256": "c345ab18286580c3d9c1b9606931c84527602f31a2b203dacfb2d300faff1b98",
+          "disposition": "Complete body retained; navigation rebased and dated reading note added; old path keeps section forwarding links",
+          "status_changed": false
+        },
+        {
+          "source": "docs/design/2026-09-06-angela-absent-pair-explosion-visibility-reconciliation.md",
+          "destination": "story/design/reviews/2026-09-06-angela-absent-pair-explosion-visibility-reconciliation.md",
+          "source_commit": "7813de047f5e69b24ea0a84d6857d683f2f0c290",
+          "source_git_blob": "79dafcf6e2f0ad5868beeac018b6cc53ba09c8db",
+          "source_sha256": "5ae83fd07943a97160b7edb6af356e57da85e1e60f5fb2e9c4065cf05ea6b0e0",
+          "relocated_sha256": "480af59c827541d9f16f3069127d792b4dfea0bd8dcf1c1e394b5a84ad9a01f2",
+          "body_after_navigation_sha256": "97e6fc07de047717619c0817467f71c5aba387ef0f6ad7e8676c6924a0140c0f",
+          "disposition": "Complete body retained; navigation rebased and dated reading note added; old path keeps section forwarding links",
+          "status_changed": false
+        },
+        {
+          "source": "docs/design/2026-09-06-narrative-style-manual-sections-1-4-audit.md",
+          "destination": "story/design/reviews/2026-09-06-narrative-style-manual-sections-1-4-audit.md",
+          "source_commit": "7813de047f5e69b24ea0a84d6857d683f2f0c290",
+          "source_git_blob": "fab971d5382361967e778089b244507ee5b9c593",
+          "source_sha256": "389aeb9589f9dfe48f9a063e1326e600de592e42f363caaab497f9d9b53560e1",
+          "relocated_sha256": "456829dde845a935c5cc8f45c5c07506192a8292889d756944285856aeb23691",
+          "body_after_navigation_sha256": "f656b0beb5955b107267f8204ddecdd1e5f222fa0dab5387b24935bcd8e103e4",
+          "disposition": "Complete body retained; navigation rebased and dated reading note added; old path keeps section forwarding links",
+          "status_changed": false
+        },
+        {
+          "source": "docs/design/2026-09-06-narrative-style-manual-sections-12-13-audit.md",
+          "destination": "story/design/reviews/2026-09-06-narrative-style-manual-sections-12-13-audit.md",
+          "source_commit": "7813de047f5e69b24ea0a84d6857d683f2f0c290",
+          "source_git_blob": "64db120a270e68526c2239a2e56602f3a1d350e9",
+          "source_sha256": "5222a6459d11cfc2d334ad57befb23511d8dd4e50b51225ed6750141921988ca",
+          "relocated_sha256": "704d27e182dda607fd0d3ef4d92041fe2c5db699d3ff58a4be8118d742e4bd57",
+          "body_after_navigation_sha256": "5b3b6cdd0a152644b0bd09f430d321b925be71a522f28b70d37d4dca2f2d59fb",
+          "disposition": "Complete body retained; navigation rebased and dated reading note added; old path keeps section forwarding links",
+          "status_changed": false
+        },
+        {
+          "source": "docs/design/2026-09-06-narrative-style-manual-sections-5-8-audit.md",
+          "destination": "story/design/reviews/2026-09-06-narrative-style-manual-sections-5-8-audit.md",
+          "source_commit": "7813de047f5e69b24ea0a84d6857d683f2f0c290",
+          "source_git_blob": "0fb22e5fff8c762f681267cf35bf332b50ab80a6",
+          "source_sha256": "152b415006fb154e5d35e2a95d5ada7faa1faeb0769c05d1d1fc2aa5c4b04987",
+          "relocated_sha256": "5337ab087de7b0950911851e15677a271bb409d6d2747a642d5313bf66efaf5d",
+          "body_after_navigation_sha256": "6092e55f53e4644ba3d7271861945f71ac650f5c690b5fb50958d577ad808584",
+          "disposition": "Complete body retained; navigation rebased and dated reading note added; old path keeps section forwarding links",
+          "status_changed": false
+        },
+        {
+          "source": "docs/design/2026-09-06-narrative-style-manual-sections-9-11-audit.md",
+          "destination": "story/design/reviews/2026-09-06-narrative-style-manual-sections-9-11-audit.md",
+          "source_commit": "7813de047f5e69b24ea0a84d6857d683f2f0c290",
+          "source_git_blob": "c2fa041f9e3153da8dd52d6cd035a4d92f7e02b0",
+          "source_sha256": "147278b69c3bcde8fe72ca435682751f1a8b80fa88f1ad783d4be043a44a96ed",
+          "relocated_sha256": "69eadac1928f1fd93b70a0c2945c05110274d57bd5b687c795850c01f4ec3d42",
+          "body_after_navigation_sha256": "1cc50bfd3928f191676a2e75743a4ecbbb3a2d735722948ef96c413f30db1735",
+          "disposition": "Complete body retained; navigation rebased and dated reading note added; old path keeps section forwarding links",
+          "status_changed": false
+        },
+        {
+          "source": "docs/design/2026-09-06-post-manual-canon-reconciliation.md",
+          "destination": "story/design/reviews/2026-09-06-post-manual-canon-reconciliation.md",
+          "source_commit": "7813de047f5e69b24ea0a84d6857d683f2f0c290",
+          "source_git_blob": "57b992f8f6c5f025af01ef6d558fa6c41803813f",
+          "source_sha256": "a1ebec7a7cb44856fb29e9a50d05ae69fb4863ca93c4b5ffe64a19cd0a1f7239",
+          "relocated_sha256": "479142d7554eed0193f2d48a5aff1ae2f94f31671f36665b79a7665d0109705c",
+          "body_after_navigation_sha256": "ff10ab7bb2877627882e0ac291ad6042609498b6b78794c3eb9d454998baea14",
+          "disposition": "Complete body retained; navigation rebased and dated reading note added; old path keeps section forwarding links",
+          "status_changed": false
+        },
+        {
+          "source": "docs/design/2026-09-06-priscilla-lavinia-working-event-documentary-audit.md",
+          "destination": "story/design/reviews/2026-09-06-priscilla-lavinia-working-event-documentary-audit.md",
+          "source_commit": "7813de047f5e69b24ea0a84d6857d683f2f0c290",
+          "source_git_blob": "9da29d1a49b21a3c33c0fe010e1c1b78aaca3dda",
+          "source_sha256": "730b3caee1c837eb1ea383ea882dd6c1189f5421db547f6bd6497e87a4e38369",
+          "relocated_sha256": "a1500863306fb1653e6e634c91b769ab12dfe315b6a43cfb965f7aadfe89b2a1",
+          "body_after_navigation_sha256": "0b9fc9d60c883bf39760d12aa3bd0d0a0f57919ba50833f8d897b008c02498d4",
+          "disposition": "Complete body retained; navigation rebased and dated reading note added; old path keeps section forwarding links",
+          "status_changed": false
+        },
+        {
+          "source": "docs/design/session-addendum-2026-07-18.md",
+          "destination": "story/design/session-addendum-2026-07-18.md",
+          "source_commit": "7813de047f5e69b24ea0a84d6857d683f2f0c290",
+          "source_git_blob": "fb94950671b55ea214811ac3f38b8c8efbd1cf51",
+          "source_sha256": "c875e329ebc95f6890c7fcaaed0963481389058634765b7f76f7ccb89735e870",
+          "relocated_sha256": "f635f1b494aafef2aef5a76e39496253b60f59e301ad13f800d69080afa03fe6",
+          "body_after_navigation_sha256": "c875e329ebc95f6890c7fcaaed0963481389058634765b7f76f7ccb89735e870",
+          "disposition": "Complete body retained; navigation rebased and dated reading note added; old path keeps section forwarding links",
+          "status_changed": false
+        },
+        {
+          "source": "docs/superpowers/specs/2026-08-28-seven-day-two-pass-constellation-design.md",
+          "destination": "story/design/2026-08-28-seven-day-two-pass-constellation-design.md",
+          "source_commit": "7813de047f5e69b24ea0a84d6857d683f2f0c290",
+          "source_git_blob": "68202b70bc1e9a4642fb689a85630a8c4af5c3a2",
+          "source_sha256": "aa0a58ab32955394fe25f6da36e9a3374112fa78d16d88e12c6fda7b2c018283",
+          "relocated_sha256": "bedf4b7176fd94f3603b0ec29882d75ae660fddae20063a525d66bdc7d55ee7f",
+          "body_after_navigation_sha256": "cddebdd16d0d24ebcd84fa02cc53a4e4b6a9d8a0caa114509ae2ac4f2310690a",
+          "disposition": "Complete body retained; navigation rebased and dated reading note added; old path keeps section forwarding links",
+          "status_changed": false
+        },
+        {
+          "source": "docs/superpowers/plans/2026-08-28-seven-day-constellation-documentation-reconciliation.md",
+          "destination": "story/design/plans/2026-08-28-seven-day-constellation-documentation-reconciliation.md",
+          "source_commit": "7813de047f5e69b24ea0a84d6857d683f2f0c290",
+          "source_git_blob": "81f727728073e30cacea9cbf6494eee4e08950e5",
+          "source_sha256": "d0b0e1ce8e4bae1bb07f0553d905d074754d7f16b6e0899b6813fa6a56c441c2",
+          "relocated_sha256": "26cc6363b3bed711e7117f2bc6eb745bd3746554d930cd7efc352c3d2cf54e94",
+          "body_after_navigation_sha256": "f3cf40852cbc93feb1f31c6ab45625d9ba12e9df5115ab0f74edb257ea6c416f",
+          "disposition": "Complete body retained; navigation rebased and dated reading note added; old path keeps section forwarding links",
+          "status_changed": false
+        },
+        {
+          "source": "docs/superpowers/specs/2026-08-29-dialogue-led-perceptual-canon-reconciliation-design.md",
+          "destination": "story/design/2026-08-29-dialogue-led-perceptual-canon-reconciliation-design.md",
+          "source_commit": "7813de047f5e69b24ea0a84d6857d683f2f0c290",
+          "source_git_blob": "602896954ee3d709abcd07e0e144ebc7bff92dca",
+          "source_sha256": "820e960315cf7a013680561212108ea5a83790c7fd3f6b9500ceaf6eb129bee7",
+          "relocated_sha256": "60fc482e74665be1d2162aabdf6684038431fd8f6fa17984fbe08d3e58899190",
+          "body_after_navigation_sha256": "35d63bf18ae56735d45e17f15f359009e4bb13d6df26e5501f8a497766256ef1",
+          "disposition": "Complete body retained; navigation rebased and dated reading note added; old path keeps section forwarding links",
+          "status_changed": false
+        },
+        {
+          "source": "docs/superpowers/plans/2026-08-29-dialogue-led-perceptual-canon-reconciliation.md",
+          "destination": "story/design/plans/2026-08-29-dialogue-led-perceptual-canon-reconciliation.md",
+          "source_commit": "7813de047f5e69b24ea0a84d6857d683f2f0c290",
+          "source_git_blob": "a4f31fcd791a31a1b7f3092df8f69aa23662bfbd",
+          "source_sha256": "ad48951ba8cfb368b45510893e0167c95a8adbc39fae624e55c8870d073f1c65",
+          "relocated_sha256": "8051fe775c73d1b82bf3ace13354ecf5fb5932b2c415c392e5554d91b2b88327",
+          "body_after_navigation_sha256": "b6d8cb8d5c751033077aa30fd97f7492e5c4e7f162b73ac7412f01f531a8cb43",
+          "disposition": "Complete body retained; navigation rebased and dated reading note added; old path keeps section forwarding links",
+          "status_changed": false
+        },
+        {
+          "source": "docs/research/2026-08-27-room-217-narrative-theory-check.md",
+          "destination": "story/research/2026-08-27-room-217-narrative-theory-check.md",
+          "source_commit": "7813de047f5e69b24ea0a84d6857d683f2f0c290",
+          "source_git_blob": "912768347788ab8163e90ed6ce1854ce8ac7067c",
+          "source_sha256": "04c12adabb8d1678e994c83132d334919fdfddf959c7206acb5e9d1be3d5ed85",
+          "relocated_sha256": "fdbc296f0fd1b7347bf61db0638fb37509b28d884f47e3f88c01c30777ae6b67",
+          "body_after_navigation_sha256": "04c12adabb8d1678e994c83132d334919fdfddf959c7206acb5e9d1be3d5ed85",
+          "disposition": "Complete body retained; navigation rebased and dated reading note added; old path keeps section forwarding links",
+          "status_changed": false
+        },
+        {
+          "source": "docs/research/2026-08-30-day-2-hong-kong-arrival-weather-and-campus-plausibility.md",
+          "destination": "story/research/2026-08-30-day-2-hong-kong-arrival-weather-and-campus-plausibility.md",
+          "source_commit": "7813de047f5e69b24ea0a84d6857d683f2f0c290",
+          "source_git_blob": "05af72a42c02cae87677e9347fe13670f32b42c4",
+          "source_sha256": "736bfe5c4438bbf8789f1896250546b9aa613ec5c541467d09f5a15ddaa4d766",
+          "relocated_sha256": "c2de617c91b5e7a4dbfefe7b035eaf10163a8ff44287dfa8927185540c886219",
+          "body_after_navigation_sha256": "736bfe5c4438bbf8789f1896250546b9aa613ec5c541467d09f5a15ddaa4d766",
+          "disposition": "Complete body retained; navigation rebased and dated reading note added; old path keeps section forwarding links",
+          "status_changed": false
+        },
+        {
+          "source": "docs/research/2026-08-30-la-jalousie-steam-store-voice-check.md",
+          "destination": "story/research/2026-08-30-la-jalousie-steam-store-voice-check.md",
+          "source_commit": "7813de047f5e69b24ea0a84d6857d683f2f0c290",
+          "source_git_blob": "071ca11f9fbed0975ea5e340d2630745c2b1f7f4",
+          "source_sha256": "eb763bfabb56d61d312f1a1312ab9be2e60d4aecd096daad64cce5566908d8c4",
+          "relocated_sha256": "0d0621c984f311ba47b2bee2b35760141d229b35f1b356ca0bb0ce38d51599ca",
+          "body_after_navigation_sha256": "eb763bfabb56d61d312f1a1312ab9be2e60d4aecd096daad64cce5566908d8c4",
+          "disposition": "Complete body retained; navigation rebased and dated reading note added; old path keeps section forwarding links",
+          "status_changed": false
+        },
+        {
+          "source": "docs/research/2026-08-30-room-217-operator-run-sheet-and-cue-pass-plausibility.md",
+          "destination": "story/research/2026-08-30-room-217-operator-run-sheet-and-cue-pass-plausibility.md",
+          "source_commit": "7813de047f5e69b24ea0a84d6857d683f2f0c290",
+          "source_git_blob": "686f0f1bf38cca30a296e5f73454ee24d42b8def",
+          "source_sha256": "bbfd0822cd997897a82a1fb5321d0b0da4576064987e4764b79829ba433f15e7",
+          "relocated_sha256": "879a0b6625ac658c2fd2076cded1c2323131421a04adb13f76b93c32fff3ce50",
+          "body_after_navigation_sha256": "bbfd0822cd997897a82a1fb5321d0b0da4576064987e4764b79829ba433f15e7",
+          "disposition": "Complete body retained; navigation rebased and dated reading note added; old path keeps section forwarding links",
+          "status_changed": false
+        },
+        {
+          "source": "docs/research/2026-08-31-seven-day-candidate-physical-institutional-plausibility.md",
+          "destination": "story/research/2026-08-31-seven-day-candidate-physical-institutional-plausibility.md",
+          "source_commit": "7813de047f5e69b24ea0a84d6857d683f2f0c290",
+          "source_git_blob": "dc98ab8a611944062df4ba45c12c0c8a56626f7c",
+          "source_sha256": "e011d23ae9be2786b5d586910fcb40c394a691005936771df3ca1bbdddbb96d1",
+          "relocated_sha256": "ec25478c9aa4b2e1e8f9a7e62cf95d5acd16a3312f1ec474e34d69b8124d324a",
+          "body_after_navigation_sha256": "df87e5724af15a0cb4ede089bf01b8037a9c8eb4d6609f5068ebcdf1439fbe1a",
+          "disposition": "Complete body retained; navigation rebased and dated reading note added; old path keeps section forwarding links",
+          "status_changed": false
+        },
+        {
+          "source": "docs/research/2026-09-06-la-jalousie-unmarked-focal-presence-vn-adaptation.md",
+          "destination": "story/research/2026-09-06-la-jalousie-unmarked-focal-presence-vn-adaptation.md",
+          "source_commit": "7813de047f5e69b24ea0a84d6857d683f2f0c290",
+          "source_git_blob": "54cd7d53049e419a7feccf39ad3e9b0e8d49477f",
+          "source_sha256": "784f4a058df07d9c94d99f8cda9ec469e93152777568cbca1dd5f6e1f44321d4",
+          "relocated_sha256": "9d9a4fa4ea63945764d4901ab758a200b42380bbd835018d97f5c857e009223e",
+          "body_after_navigation_sha256": "bd6824f15d41edc99265975e7991e09e001332bae2f0af9ac0c1ee223dc474cc",
+          "disposition": "Complete body retained; navigation rebased and dated reading note added; old path keeps section forwarding links",
+          "status_changed": false
+        },
+        {
+          "source": "dialogic fx.md",
+          "destination": "story/authoring/dialogic-syntax-reference.md",
+          "source_commit": "7813de047f5e69b24ea0a84d6857d683f2f0c290",
+          "source_git_blob": "924edba1b46a86c1efd09925b3544ecb41c56fad",
+          "source_sha256": "42a198ea825041a82afb393e65e3a0d4251771a2818cd17ae38c62b6c1f818ec",
+          "relocated_sha256": "86c276d7da31fb382858d1a707b5e79b9a644fded1e1ea7c19e4728f6c83b1ad",
+          "body_after_navigation_sha256": "42a198ea825041a82afb393e65e3a0d4251771a2818cd17ae38c62b6c1f818ec",
+          "disposition": "Complete body retained; navigation rebased and dated reading note added; old path keeps section forwarding links",
+          "status_changed": false
+        }
+      ],
+      "section_extractions": [
+        {
+          "source": "docs/design/recovered/CONTENT.md",
+          "source_commit": "7813de047f5e69b24ea0a84d6857d683f2f0c290",
+          "source_git_blob": "d3dce75eaa328b64b7f2210bf9bd76be9ad12665",
+          "section": "6. Group invitation labels — mapping (KEEP: narrative, no code mirror)",
+          "destination": "story/library/recovered-group-invitation-copy.md",
+          "section_sha256": "46ef0b6a754f58886088886d45b45d8e8cef039e311118360178fb12134a4d40",
+          "disposition": "Full section moved without prose changes; external section heading retained with forwarding link",
+          "status_changed": false
+        }
+      ],
+      "narrative_status_changed": false,
+      "runtime_changed": false,
+      "scene_prose_changed": false,
+      "source_body_disposition": "Complete records retained; navigation and relative review-source fields rebased; dated reading note added. Approval fields/hashes retain historical transaction scope. Source paths forward to complete records with original heading bookmarks.",
+      "technical_owners_retained": [
+        "docs/design/2026-08-07-seven-day-dialogic-flow-design.md",
+        "docs/design/2026-08-30-supportz-audience-priority-three-truth-mechanism-amendment.md",
+        "docs/design/recovered/CONTENT.md (except full narrative section6 moved)",
+        "docs/design/recovered/FLOWS.md",
+        "docs/design/recovered/DIALOGIC.md",
+        "docs/design/recovered/CONTRACTS.md",
+        "prompt_docs/requirements/",
+        "docs/superpowers/specs/2026-08-30-steam-store-page-design.md",
+        "docs/shipping/2026-08-30-steamworks-store-presence-submission-package.md"
+      ],
+      "review_scope": "Exact source-blob verification, document-role/status classification, source-body retention, relative-link/anchor and review-source-path checks, current navigation review, bounded tooling dependency inspection; not a full historical canon or runtime audit",
+      "limits": [
+        "External research was relocated, not freshly fact-checked.",
+        "GitHub code search used indexed master; exact current tree and relevant tooling were inspected separately. No exhaustive whole-code reference audit claimed.",
+        "Current scene prose, approved facts, unresolved causes, protected archive branch and open chronological history audits retain their scope.",
+        "Publication and merge state must be read from live Git/PR metadata; this receipt is not evidence of either."
+      ]
+    }
+  ]
+}

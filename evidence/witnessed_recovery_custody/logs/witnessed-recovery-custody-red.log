@@ -1,0 +1,290 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/5c75c4f1-74ec-4534-86f8-0b9a68999829/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+res://tests/scene/test_witnessed_transport_recovery.gd
+* test_determinate_recovery_consumes_keyboard_and_controller_back_without_acting_or_escaping
+    [Failed]:  [2] expected to equal [0]:  both physical Back activations are consumed before lower owners
+      at line 198
+* test_uncertain_recovery_consumes_back_while_exposing_no_false_action
+    [Failed]:  [2] expected to equal [0]:  an inert recovery still owns both physical Back activations
+      at line 218
+* test_determinate_recovery_tabs_only_between_its_two_actions
+1/3 passed.
+
+
+res://tests/integration/test_narrative_pause_frontier.gd
+* test_witnessed_recovery_refuses_pause_and_backup_before_session_capture
+    [Failed]:  recovery has priority over direct Backup admission
+      at line 568
+    [Failed]:  determinate and fatal recovery both refuse Pause
+      at line 571
+    [Failed]:  [2] expected to equal [1]:  a recovery refusal performs no session capture or suspension work
+      at line 572
+    [Failed]
+      at line 574
+    [Failed]:  recovery has priority over direct Backup admission
+      at line 568
+    [Failed]:  determinate and fatal recovery both refuse Pause
+      at line 571
+    [Failed]:  [3] expected to equal [2]:  a recovery refusal performs no session capture or suspension work
+      at line 572
+    [Failed]
+      at line 574
+    24 Orphans
+        * [<Node#610757773510>]
+        * [<Node#610740996451>(subsystem_audio.gd)]
+        * [<Node#610724219411>(subsystem_animation.gd)]
+        * [<Node#610774551061>]
+        * [<Node#610791328278>(subsystem_backgrounds.gd)]
+        * [<Node#611193981467>(subsystem_variables.gd)]
+        * [<Node#611059763740>(subsystem_settings.gd)]
+        * [<Node#610908768799>(subsystem_history.gd)]
+        * [<Node#610824882720>(subsystem_choices.gd)]
+        * [<Node#610891991586>(subsystem_glossary.gd)]
+        * [<Node#610925546019>(subsystem_input.gd)]
+        * [<Timer#610942323239>]
+        * [<Node#610959100456>(subsystem_jump.gd)]
+        * [<Node#610975877682>(subsystem_containers.gd)]
+        * [<Node#610992654899>(subsystem_portraits.gd)]
+        * [<Timer#611042986548>]
+        * [<Node#611177204285>(subsystem_text_input.gd)]
+        * [<Node#611210758718>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#611227535935>]
+        * [<Node#611093318222>(subsystem_text.gd)]
+        * [<Node#611076541009>(subsystem_styles.gd)]
+        * [<Timer#610841659994>]
+        * [<Node#610858437211>(subsystem_expression.gd)]
+        * [<Node#611026209380>(subsystem_save.gd)]
+24 orphans
+0/1 passed.
+
+
+res://tests/integration/test_dialogic_production_skip.gd
+* test_failed_auto_off_owns_visible_recovery_until_native_retry_commits_same_beat
+    [Failed]:  technical recovery owns input above Pause until its registered action settles
+      at line 1203
+    24 Orphans
+        * [<Node#895551014331>(subsystem_audio.gd)]
+        * [<Node#895668455548>(subsystem_expression.gd)]
+        * [<Timer#895651678334>]
+        * [<Node#895601346690>(subsystem_backgrounds.gd)]
+        * [<Node#895567792259>]
+        * [<Node#895534237858>(subsystem_animation.gd)]
+        * [<Node#895836228202>(subsystem_save.gd)]
+        * [<Node#895702010475>(subsystem_glossary.gd)]
+        * [<Node#895718787692>(subsystem_history.gd)]
+        * [<Node#895785896557>(subsystem_containers.gd)]
+        * [<Node#895735564910>(subsystem_input.gd)]
+        * [<Timer#895752342127>]
+        * [<Node#895802673776>(subsystem_portraits.gd)]
+        * [<Node#895903337081>(subsystem_text.gd)]
+        * [<Node#895869782651>(subsystem_settings.gd)]
+        * [<Node#895886559868>(subsystem_styles.gd)]
+        * [<Node#896020777597>(subsystem_voice.gd)]
+        * [<Node#896004000382>(subsystem_variables.gd)]
+        * [<Node#895987223168>(subsystem_text_input.gd)]
+        * [<Node#895584569986>]
+        * [<Node#895634901643>(subsystem_choices.gd)]
+        * [<Node#895769119372>(subsystem_jump.gd)]
+        * [<Timer#895853005453>]
+        * [<AudioStreamPlayer#896037554831>]
+* test_recovery_retry_refuses_a_command_after_the_presented_source_changes
+    24 Orphans
+        * [<Node#1312213174936>(subsystem_animation.gd)]
+        * [<Node#1312229952153>(subsystem_audio.gd)]
+        * [<Node#1312263506586>]
+        * [<Node#1312448055963>(subsystem_jump.gd)]
+        * [<Timer#1312531942046>]
+        * [<Node#1312548719263>(subsystem_settings.gd)]
+        * [<Node#1312246729554>]
+        * [<Node#1312280283988>(subsystem_backgrounds.gd)]
+        * [<Node#1312347392854>(subsystem_expression.gd)]
+        * [<Timer#1312330615639>]
+        * [<Node#1312313838424>(subsystem_choices.gd)]
+        * [<Node#1312380947289>(subsystem_glossary.gd)]
+        * [<Node#1312397724506>(subsystem_history.gd)]
+        * [<Node#1312414501723>(subsystem_input.gd)]
+        * [<Timer#1312431278940>]
+        * [<Node#1312565496687>(subsystem_styles.gd)]
+        * [<Node#1312582273946>(subsystem_text.gd)]
+        * [<Node#1312666160046>(subsystem_text_input.gd)]
+        * [<Node#1312464833460>(subsystem_containers.gd)]
+        * [<Node#1312682937277>(subsystem_variables.gd)]
+        * [<Node#1312699714494>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#1312716491717>]
+        * [<Node#1312481610695>(subsystem_portraits.gd)]
+        * [<Node#1312515165128>(subsystem_save.gd)]
+48 orphans
+1/2 passed.
+
+
+
+
+==============================================
+= 96 Orphans
+==============================================
+res://tests/scene/test_witnessed_transport_recovery.gd
+    - Outside Tests
+        * [<Node#131617261336>(subsystem_animation.gd)]
+        * [<Node#131634038564>(subsystem_audio.gd)]
+        * [<Node#131650815796>]
+        * [<Node#131667593021>]
+        * [<Node#131684370243>(subsystem_backgrounds.gd)]
+        * [<Node#132221241156>(subsystem_choices.gd)]
+        * [<Timer#132238018373>]
+        * [<Node#132254795590>(subsystem_expression.gd)]
+        * [<Node#132288350027>(subsystem_glossary.gd)]
+        * [<Node#132305127244>(subsystem_history.gd)]
+        * [<Node#132321904461>(subsystem_input.gd)]
+        * [<Timer#132338681678>]
+        * [<Node#132355458895>(subsystem_jump.gd)]
+        * [<Node#132372236112>(subsystem_containers.gd)]
+        * [<Node#132389013329>(subsystem_portraits.gd)]
+        * [<Node#132925884242>(subsystem_save.gd)]
+        * [<Timer#132942661459>]
+        * [<Node#132959438676>(subsystem_settings.gd)]
+        * [<Node#132976215896>(subsystem_styles.gd)]
+        * [<Node#132992993113>(subsystem_text.gd)]
+        * [<Node#133076879198>(subsystem_text_input.gd)]
+        * [<Node#133093656415>(subsystem_variables.gd)]
+        * [<Node#133110433632>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#133127210849>]
+test_narrative_pause_frontier.gd
+    - test_witnessed_recovery_refuses_pause_and_backup_before_session_capture
+        * [<Node#610757773510>]
+        * [<Node#610740996451>(subsystem_audio.gd)]
+        * [<Node#610724219411>(subsystem_animation.gd)]
+        * [<Node#610774551061>]
+        * [<Node#610791328278>(subsystem_backgrounds.gd)]
+        * [<Node#611193981467>(subsystem_variables.gd)]
+        * [<Node#611059763740>(subsystem_settings.gd)]
+        * [<Node#610908768799>(subsystem_history.gd)]
+        * [<Node#610824882720>(subsystem_choices.gd)]
+        * [<Node#610891991586>(subsystem_glossary.gd)]
+        * [<Node#610925546019>(subsystem_input.gd)]
+        * [<Timer#610942323239>]
+        * [<Node#610959100456>(subsystem_jump.gd)]
+        * [<Node#610975877682>(subsystem_containers.gd)]
+        * [<Node#610992654899>(subsystem_portraits.gd)]
+        * [<Timer#611042986548>]
+        * [<Node#611177204285>(subsystem_text_input.gd)]
+        * [<Node#611210758718>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#611227535935>]
+        * [<Node#611093318222>(subsystem_text.gd)]
+        * [<Node#611076541009>(subsystem_styles.gd)]
+        * [<Timer#610841659994>]
+        * [<Node#610858437211>(subsystem_expression.gd)]
+        * [<Node#611026209380>(subsystem_save.gd)]
+test_dialogic_production_skip.gd
+    - test_failed_auto_off_owns_visible_recovery_until_native_retry_commits_same_beat
+        * [<Node#895551014331>(subsystem_audio.gd)]
+        * [<Node#895668455548>(subsystem_expression.gd)]
+        * [<Timer#895651678334>]
+        * [<Node#895601346690>(subsystem_backgrounds.gd)]
+        * [<Node#895567792259>]
+        * [<Node#895534237858>(subsystem_animation.gd)]
+        * [<Node#895836228202>(subsystem_save.gd)]
+        * [<Node#895702010475>(subsystem_glossary.gd)]
+        * [<Node#895718787692>(subsystem_history.gd)]
+        * [<Node#895785896557>(subsystem_containers.gd)]
+        * [<Node#895735564910>(subsystem_input.gd)]
+        * [<Timer#895752342127>]
+        * [<Node#895802673776>(subsystem_portraits.gd)]
+        * [<Node#895903337081>(subsystem_text.gd)]
+        * [<Node#895869782651>(subsystem_settings.gd)]
+        * [<Node#895886559868>(subsystem_styles.gd)]
+        * [<Node#896020777597>(subsystem_voice.gd)]
+        * [<Node#896004000382>(subsystem_variables.gd)]
+        * [<Node#895987223168>(subsystem_text_input.gd)]
+        * [<Node#895584569986>]
+        * [<Node#895634901643>(subsystem_choices.gd)]
+        * [<Node#895769119372>(subsystem_jump.gd)]
+        * [<Timer#895853005453>]
+        * [<AudioStreamPlayer#896037554831>]
+    - test_recovery_retry_refuses_a_command_after_the_presented_source_changes
+        * [<Node#1312213174936>(subsystem_animation.gd)]
+        * [<Node#1312229952153>(subsystem_audio.gd)]
+        * [<Node#1312263506586>]
+        * [<Node#1312448055963>(subsystem_jump.gd)]
+        * [<Timer#1312531942046>]
+        * [<Node#1312548719263>(subsystem_settings.gd)]
+        * [<Node#1312246729554>]
+        * [<Node#1312280283988>(subsystem_backgrounds.gd)]
+        * [<Node#1312347392854>(subsystem_expression.gd)]
+        * [<Timer#1312330615639>]
+        * [<Node#1312313838424>(subsystem_choices.gd)]
+        * [<Node#1312380947289>(subsystem_glossary.gd)]
+        * [<Node#1312397724506>(subsystem_history.gd)]
+        * [<Node#1312414501723>(subsystem_input.gd)]
+        * [<Timer#1312431278940>]
+        * [<Node#1312565496687>(subsystem_styles.gd)]
+        * [<Node#1312582273946>(subsystem_text.gd)]
+        * [<Node#1312666160046>(subsystem_text_input.gd)]
+        * [<Node#1312464833460>(subsystem_containers.gd)]
+        * [<Node#1312682937277>(subsystem_variables.gd)]
+        * [<Node#1312699714494>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#1312716491717>]
+        * [<Node#1312481610695>(subsystem_portraits.gd)]
+        * [<Node#1312515165128>(subsystem_save.gd)]
+
+
+==============================================
+= Run Summary
+==============================================
+
+res://tests/scene/test_witnessed_transport_recovery.gd
+- test_determinate_recovery_consumes_keyboard_and_controller_back_without_acting_or_escaping
+    [Failed]:  [2] expected to equal [0]:  both physical Back activations are consumed before lower owners
+          at line 198
+- test_uncertain_recovery_consumes_back_while_exposing_no_false_action
+    [Failed]:  [2] expected to equal [0]:  an inert recovery still owns both physical Back activations
+          at line 218
+
+res://tests/integration/test_narrative_pause_frontier.gd
+- test_witnessed_recovery_refuses_pause_and_backup_before_session_capture
+    [Failed]:  recovery has priority over direct Backup admission
+          at line 568
+    [Failed]:  determinate and fatal recovery both refuse Pause
+          at line 571
+    [Failed]:  [2] expected to equal [1]:  a recovery refusal performs no session capture or suspension work
+          at line 572
+    [Failed]:
+          at line 574
+    [Failed]:  recovery has priority over direct Backup admission
+          at line 568
+    [Failed]:  determinate and fatal recovery both refuse Pause
+          at line 571
+    [Failed]:  [3] expected to equal [2]:  a recovery refusal performs no session capture or suspension work
+          at line 572
+    [Failed]:
+          at line 574
+
+res://tests/integration/test_dialogic_production_skip.gd
+- test_failed_auto_off_owns_visible_recovery_until_native_retry_commits_same_beat
+    [Failed]:  technical recovery owns input above Pause until its registered action settles
+          at line 1203
+
+Totals
+------
+Scripts               3
+Tests                 6
+Passing Tests         2
+Failing Tests         4
+Asserts           141/152
+Orphans              96
+Time              1.845s
+
+
+Ran Tests matching "recovery"
+---- 4 failing tests ----

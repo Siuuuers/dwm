@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "kind", "registry_version", "records"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "kind": {"const": "schedule_actions"},
+    "registry_version": {"const": 1},
+    "records": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "action_id", "action_kind", "allowed_days", "effect_ids", "motivation_cost",
+          "participants", "repeatable", "route_id", "source_receipt_kind"
+        ],
+        "properties": {
+          "action_id": {"type": "string", "minLength": 1},
+          "action_kind": {"enum": ["ordinary", "solo", "group"]},
+          "allowed_days": {"type": "array", "uniqueItems": true, "items": {"type": "integer"}},
+          "effect_ids": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {"type": "string", "minLength": 1}
+          },
+          "motivation_cost": {"const": 1},
+          "participants": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {"type": "string", "minLength": 1}
+          },
+          "repeatable": {"type": "boolean"},
+          "route_id": {"enum": ["dating", null]},
+          "source_receipt_kind": {
+            "enum": ["solo_read_acceptance", "group_reply_acceptance", null]
+          }
+        }
+      }
+    }
+  }
+}

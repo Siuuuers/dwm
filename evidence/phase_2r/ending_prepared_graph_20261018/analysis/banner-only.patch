@@ -1,0 +1,58 @@
+--- cloud/bind_trace.py
++++ offline/bind_trace.py
+@@ -178,8 +178,14 @@
+         report["first_last_responsive_samples"] = [responsive[0], responsive[-1]]
+         stdout = raw("exported-load/game.stdout.log").decode("utf-8-sig")
+         expected_banner = "4.6.3.stable." + BUILD_NAME + "." + ENGINE_COMMIT[:9]
+-        require(stdout.splitlines()[0].startswith("Godot Engine v" + expected_banner + " - "),
++        # The pinned source emits its commit timestamp when available. Both
++        # exact forms are defined by Main::print_header; no arbitrary suffixes.
++        expected_banners = {"Godot Engine v" + expected_banner + suffix + " - https://godotengine.org"
++                            for suffix in ["", " (2026-05-20 13:47:53 UTC)"]}
++        observed_banner = stdout.splitlines()[0]
++        require(observed_banner in expected_banners,
+                 "Original Load stdout identifies a different native engine")
++        report["observed_engine_banner"] = observed_banner
+         renderer_lines = [line for line in stdout.splitlines() if " - Forward+ - Using Device" in line]
+         require(len(renderer_lines) == 1 and renderer_lines[0].startswith("D3D12 ") and
+                 "Microsoft Basic Render Driver" in renderer_lines[0], "Diagnostic renderer differs from original D3D12 cloud path")
+--- cloud/tests/synthetic_fixture.py
++++ offline/tests/synthetic_fixture.py
+@@ -167,7 +167,7 @@
+         write(name, (json.dumps(value, indent=2) + "\n").encode())
+     for name, value in data["sources"].items():
+         write("source/" + name, value)
+-    banner = "Godot Engine v4.6.3.stable." + BUILD_NAME + "." + ENGINE_COMMIT[:9] + " - synthetic fixture"
++    banner = data.get("banner", "Godot Engine v4.6.3.stable." + BUILD_NAME + "." + ENGINE_COMMIT[:9] + " - https://godotengine.org")
+     renderer = "D3D12 synthetic - Forward+ - Using Device #0: Microsoft - Microsoft Basic Render Driver"
+     write("exported-load/game.stdout.log", (banner + "\n" + SYNTHETIC + "\n" + renderer + "\n" +
+           "DWM_ENDING_PUBLICATION_TRACE " + json.dumps(data["caption"]) + "\n").encode())
+--- cloud/tests/test_bind_trace.py
++++ offline/tests/test_bind_trace.py
+@@ -84,6 +84,26 @@
+         self.assertEqual(selected["removed_nodes"], 1)
+         self.assertIsNone(selected["actual_target_label"])
+ 
++    def test_pinned_engine_banner_accepts_only_exact_source_supported_forms(self):
++        prefix = "Godot Engine v4.6.3.stable.dwm_publication_probe_v1.35e80b3a8"
++        website = " - https://godotengine.org"
++        for case, banner, accepted in [
++            ("exact dated banner", prefix + " (2026-05-20 13:47:53 UTC)" + website, True),
++            ("exact undated banner", prefix + website, True),
++            ("wrong commit timestamp", prefix + " (2026-05-20 13:47:54 UTC)" + website, False),
++            ("wrong commit identity", prefix.replace("35e80b3a8", "35e80b3a9") + website, False),
++        ]:
++            with self.subTest(case=case):
++                data = fixture(READER)
++                data["banner"] = banner
++                if accepted:
++                    code, report = self.execute(case, data)
++                    self.assertEqual(code, 0, report)
++                    self.assertTrue(report["binding_ok"])
++                    self.assertEqual(report["observed_engine_banner"], banner)
++                else:
++                    self.refused(case, data, "different native engine")
++
+     def test_identity_and_source_swaps_refuse_cross_file_qualification(self):
+         for case in ("session PID", "native HWND", "caption node", "game tree", "source bytes",
+                      "empty source census", "patch origin pin"):

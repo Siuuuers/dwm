@@ -1,0 +1,178 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2570)
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-ui-build/.godot/phase2r_tests/97effba4-f5fb-4016-8891-fe4908822f5d/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+tests/unit/test_backup_host_admission.gd
+* test_refused_projection_keeps_nine_records_and_masks_actions_without_owner_mutation
+* test_source_change_after_prepare_cancels_owner_plan_without_committing
+* test_consumed_consent_cannot_replay_after_guard_repairs_and_cancel_stays_available
+* test_default_context_behavior_and_immutable_configuration_remain_compatible
+* test_non_boolean_guard_results_fail_closed
+* test_configured_admission_target_freed_later_fails_closed
+6/6 passed.
+
+
+tests/unit/test_shared_confirmation_input.gd
+* test_keyboard_accept_is_released_and_echo_unrelated_events_cannot_submit
+* test_native_focus_navigation_does_not_toggle_on_echo_or_repeated_hold
+* test_configured_controller_accept_releases_to_the_focused_semantic_action
+* test_pointer_double_click_and_release_outside_are_inert_then_fresh_release_confirms
+* test_touch_drag_cancel_double_tap_and_emulated_mouse_do_not_duplicate_short_tap
+* test_custody_restores_saved_root_flags_without_rewriting_descendant_control_modes
+* test_back_consumes_the_event_before_finished_observers_restore_source_focus
+* test_settled_confirmation_consumes_closing_back_but_not_a_fresh_back_before_deletion
+* test_touch_confirmation_is_canceled_by_page_navigation
+* test_mixed_accept_cancels_the_original_touch_and_requires_both_releases
+* test_explicit_custody_invalidation_cancels_touch_and_native_hold_through_disable_enable
+* test_hiding_and_showing_confirmation_does_not_revive_pending_touch
+12/12 passed.
+
+
+tests/integration/test_pause_backup_host.gd
+* test_preview_retains_real_nine_records_and_source_save_refusal_without_mutation
+* test_confirmation_cancel_then_backup_retreat_then_continue_each_need_their_own_back
+* test_confirmed_delete_uses_real_record_revision_without_resuming_or_changing_quick
+* test_changed_record_enters_recovery_and_back_does_not_escape_backup
+* test_confirmation_is_inert_during_parent_custody_and_close_cancels_its_token
+* test_source_change_after_confirmation_prevents_delete_and_consumes_consent
+* test_removing_backup_cancels_prepared_owner_token
+* test_parent_interaction_restores_exact_backup_focus_without_resetting_mode_or_record
+* test_parent_custody_change_retires_held_touch_consent_before_reactivation
+9/9 passed.
+
+
+tests/unit/test_pause_surface.gd
+* test_all_locales_scales_and_target_modes_keep_full_copy_and_exact_geometry
+* test_invalid_copy_and_presentation_leave_previous_tuple_focus_and_copy_unchanged
+* test_native_navigation_previews_without_entering_and_never_wraps
+* test_injected_host_enters_on_right_and_back_performs_one_retreat
+* test_released_pointer_enters_once_and_return_cancel_restores_exact_row
+* test_controller_accept_and_return_confirmation_only_emit_intents
+* test_inert_custody_and_close_prevent_commands_without_claiming_disabled_rows
+7/7 passed.
+
+
+tests/unit/test_save_document_schema.gd
+* test_save_document_schema_exists
+* test_quick_document_build_round_trips_json_null_slot_id
+* test_discriminator_matrix
+* test_validate_rejects_malformed_documents
+* test_document_version_is_four_and_embedded_snapshot_version_must_agree
+* test_prepare_candidate_is_detached
+6/6 passed.
+
+
+tests/unit/test_save_manager.gd
+* test_invalid_save_references_do_not_touch_storage
+* test_save_family_writes_closed_relative_names
+* test_logout_without_checkpoint_reports_unwritten
+* test_metadata_family_present_absent_corrupt_and_ordering
+* test_restore_preparation_and_delete_families
+* test_configure_mutation_gate_matrix_without_side_effects
+* test_deprecated_wrappers_delegate
+7/7 passed.
+
+
+tests/integration/test_restore_production_adapters.gd
+* test_prepare_builds_eight_plans_and_commits
+* test_commit_prepared_restore_rejects_stray_identity_allocation_bundle_key
+* test_commit_prepared_restore_rejects_stray_transaction_issuer_receipt_key
+* test_commit_prepared_restore_rejects_stray_transaction_remap_key
+* test_late_narrative_incompatibility_selects_earlier_bundle
+* test_profile_prepare_failure_is_structural_not_content
+* test_physical_narrative_participant_prepares_against_current_manifest
+* test_physical_narrative_participant_reports_removed_content_as_recoverable
+* test_physical_narrative_participant_reports_fingerprint_drift_as_recoverable
+* test_physical_narrative_participant_fails_closed_on_malformed_bytes
+* test_checkpoint_port_configures_desktop_context_provider
+* test_semantic_narrative_participant_prepares_the_six_field_plan_over_the_real_bridge
+* test_semantic_narrative_participant_reports_manifest_drift_as_recoverable
+13/13 passed.
+
+
+tests/unit/test_desktop_app_host_state.gd
+* test_reset_clears_active_and_cache
+* test_open_app_first_instantiate_true_and_focus
+* test_open_app_switch_returns_previous_and_reopen_not_instantiate
+* test_open_app_unknown_rejects
+* test_close_app_returns_focus_icon_and_clears_active
+* test_change_day_rejects_nonpositive_and_backward
+* test_change_day_returns_exact_eviction_command_in_registry_order
+* test_capture_persistent_state_returns_registered_id_or_null
+* test_prepare_restore_round_trips_null_and_registered_id
+* test_registry_focus_targets_resolve_for_all_seven
+10/10 passed.
+
+
+tests/unit/test_checkpoint_journal.gd
+* test_checkpoint_journal_exists
+* test_reset_peek_and_run_mismatch
+* test_failed_preparation_never_consumes_sequence
+* test_commit_advances_and_duplicate_commit_rejects
+* test_every_accepted_checkpoint_kind_including_line
+* test_retention_after_forty_lines_and_semantic_anchor
+* test_reset_with_initial_replaces_run_and_restore_reinstates
+* test_prepare_seed_selects_and_excludes
+* test_seed_replaces_same_counter_contents_and_history_and_can_repeat
+9/9 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+tests/unit/test_backup_host_admission.gd
+    - Outside Tests
+        * [<Node#97089750753>(subsystem_animation.gd)]
+        * [<Node#97106527970>(subsystem_audio.gd)]
+        * [<Node#97123305187>]
+        * [<Node#97140082404>]
+        * [<Node#97156859621>(subsystem_backgrounds.gd)]
+        * [<Node#97693730534>(subsystem_choices.gd)]
+        * [<Timer#97710507751>]
+        * [<Node#97727284968>(subsystem_expression.gd)]
+        * [<Node#97760839405>(subsystem_glossary.gd)]
+        * [<Node#97777616622>(subsystem_history.gd)]
+        * [<Node#97794393839>(subsystem_input.gd)]
+        * [<Timer#97811171056>]
+        * [<Node#97827948273>(subsystem_jump.gd)]
+        * [<Node#97844725490>(subsystem_containers.gd)]
+        * [<Node#97861502707>(subsystem_portraits.gd)]
+        * [<Node#98398373620>(subsystem_save.gd)]
+        * [<Timer#98415150837>]
+        * [<Node#98431928054>(subsystem_settings.gd)]
+        * [<Node#98448705274>(subsystem_styles.gd)]
+        * [<Node#98465482491>(subsystem_text.gd)]
+        * [<Node#98549368576>(subsystem_text_input.gd)]
+        * [<Node#98566145793>(subsystem_variables.gd)]
+        * [<Node#98582923010>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#98599700227>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+Totals
+------
+Scripts               9
+Tests                79
+Passing Tests        79
+Asserts            1596
+Orphans              24
+Time              6.566s
+
+
+---- All tests passed! ----

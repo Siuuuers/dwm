@@ -1,0 +1,118 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/22f4b9fd-d85d-4735-b9e2-c1fa0274d956/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+res://tests/unit/test_strict_json.gd
+* test_strict_parser_accepts_nested_object_and_detaches_values
+* test_strict_parser_rejects_duplicate_keys_before_materialization
+* test_strict_parser_rejects_non_object_root_and_trailing_tokens
+* test_strict_parser_rejects_invalid_strings_and_lone_surrogates
+* test_strict_parser_rejects_bad_numbers_and_integer_overflow
+* test_strict_parser_reports_first_error_location
+* test_canonical_writer_is_stable_across_dictionary_insertion_order
+* test_canonical_writer_preserves_types_and_escapes_controls
+* test_canonical_writer_rejects_unsupported_values_and_invalid_keys
+* test_schema_files_are_strict_json_and_validate_closed_objects
+* test_ascii_span_accepts_every_safe_printable_character_in_keys_and_values
+* test_ascii_spans_resume_after_unicode_and_every_escape
+* test_ascii_span_errors_preserve_exact_line_and_column
+* test_ascii_span_keeps_integer_and_float_types_and_boundaries
+* test_ascii_key_rejects_equivalent_escaped_duplicate_spelling
+* test_canonical_string_fast_return_preserves_entire_safe_ascii_and_empty
+* test_canonical_string_fast_return_exclusions_keep_exact_original_escaping
+* test_complete_ascii_tokens_decode_every_simple_escape_in_a_long_nested_receipt
+* test_closed_ascii_token_preserves_offset_for_following_malformed_member
+* test_escaped_key_spelling_still_collides_after_complete_token_decode
+* test_unicode_tokens_fall_back_without_disturbing_the_next_error_location
+21/21 passed.
+
+
+res://tests/unit/test_canonical_writer_compatibility.gd
+* test_preserves_canonical_bytes_and_refusals_for_boundary_and_random_values
+1/1 passed.
+
+
+res://tests/unit/test_checkpoint_validation_reuse.gd
+* test_reuse_preserves_saved_bytes_and_every_disk_operation_across_three_commits
+* test_cache_is_exact_text_success_only_and_detaches_nested_results
+* test_corrupt_next_final_and_backup_keep_existing_recovery_results_and_disk_trace
+* test_schema_valid_changed_reread_is_rejected_before_journal_commit
+* test_failed_reread_retry_has_a_fresh_validation_scope_and_commits_once
+* test_prepared_validation_is_not_reused_after_a_process_frame
+* test_new_prepare_and_released_custody_discard_prepared_validation
+* test_committed_documents_are_remembered_bounded_and_forgotten_on_capability_change
+* test_a_failed_commit_proves_nothing
+* test_mutated_outgoing_document_fails_and_retry_revalidates_preimage
+10/10 passed.
+
+
+res://tests/unit/test_json_file_storage.gd
+* test_absent_reconcile_write_read_replace_and_restart
+* test_read_and_remove_require_a_fresh_unchanged_lease
+* test_remove_uses_durable_tombstone_and_cannot_resurrect_backup
+* test_markerless_final_wins_but_unowned_next_alone_is_indeterminate
+* test_prepared_marker_with_outgoing_next_promotes_new_winner
+* test_missing_validated_candidate_and_corrupt_marker_fail_closed
+* test_first_write_failpoints_restart_to_exact_new_or_absence
+* test_path_escapes_and_unbound_validators_reject_before_mutation
+* test_before_write_hook_runs_before_any_mutation_and_a_refusal_writes_nothing
+* test_successful_writes_read_back_only_the_promoted_final
+10/10 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/unit/test_strict_json.gd
+    - Outside Tests
+        * [<Node#131231385365>(subsystem_animation.gd)]
+        * [<Node#131248162593>(subsystem_audio.gd)]
+        * [<Node#131264939823>]
+        * [<Node#131281717047>]
+        * [<Node#131298494271>(subsystem_backgrounds.gd)]
+        * [<Node#131835365184>(subsystem_choices.gd)]
+        * [<Timer#131852142401>]
+        * [<Node#131868919618>(subsystem_expression.gd)]
+        * [<Node#131902474055>(subsystem_glossary.gd)]
+        * [<Node#131919251272>(subsystem_history.gd)]
+        * [<Node#131936028489>(subsystem_input.gd)]
+        * [<Timer#131952805706>]
+        * [<Node#131969582923>(subsystem_jump.gd)]
+        * [<Node#131986360140>(subsystem_containers.gd)]
+        * [<Node#132003137357>(subsystem_portraits.gd)]
+        * [<Node#132540008270>(subsystem_save.gd)]
+        * [<Timer#132556785487>]
+        * [<Node#132573562704>(subsystem_settings.gd)]
+        * [<Node#132590339924>(subsystem_styles.gd)]
+        * [<Node#132607117141>(subsystem_text.gd)]
+        * [<Node#132691003226>(subsystem_text_input.gd)]
+        * [<Node#132707780443>(subsystem_variables.gd)]
+        * [<Node#132724557660>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#132741334877>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+Totals
+------
+Scripts               4
+Tests                42
+Passing Tests        42
+Asserts            1034
+Orphans              24
+Time              1.512s
+
+
+---- All tests passed! ----

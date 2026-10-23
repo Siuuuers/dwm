@@ -1,0 +1,571 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/fixture-root-disposable-20260913/.godot/phase2r_tests/3a2555bc-bbb8-4849-909c-e2817913ef17/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+ROOT_GUARD_PROBE {"mode":"empty","phase":"run","root":"C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\minesweeper-view-controls\\.godot\\phase2r_tests\\fixture-root-disposable-20260913\\.godot\\phase2r_tests\\3a2555bc-bbb8-4849-909c-e2817913ef17\\dwm_test_root","snapshot":{"directories":["."],"errors":[],"exists":true,"files":{}}}
+
+
+res://tests/unit/test_desktop_publication_ledger.gd
+* test_fixed_path_and_kinds_are_frozen
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+    [Failed]:  desktop ledger temporary storage is unavailable
+      at line 142
+* test_missing_file_initializes_the_exact_empty_document
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+    [Failed]:  desktop ledger temporary storage is unavailable
+      at line 149
+* test_three_exact_kind_unions_accepted_and_extra_kind_rejected
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+    [Failed]:  desktop ledger temporary storage is unavailable
+      at line 162
+* test_document_and_record_union_is_exact_after_one_publication
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+    [Failed]:  desktop ledger temporary storage is unavailable
+      at line 181
+* test_causal_sequence_keys_are_nonblank_and_distinct_per_transaction
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+    [Failed]:  desktop ledger temporary storage is unavailable
+      at line 206
+* test_action_source_key_derives_from_commit_receipt_id_not_receipt_id
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+    [Failed]:  desktop ledger temporary storage is unavailable
+      at line 223
+* test_board_fate_key_derives_from_ordinary_receipt_id
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+    [Failed]:  desktop ledger temporary storage is unavailable
+      at line 233
+* test_causal_sequence_semantic_receipt_equals_publication_in_its_entirety
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+    [Failed]:  desktop ledger temporary storage is unavailable
+      at line 246
+* test_first_delivery_then_byte_identical_replay_across_a_cold_restart
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+    [Failed]:  desktop ledger temporary storage is unavailable
+      at line 260
+* test_occupied_key_with_changed_bytes_conflicts_without_rewriting_storage
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+    [Failed]:  desktop ledger temporary storage is unavailable
+      at line 277
+* test_request_hash_and_receipt_binding_enforced_before_any_write
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+    [Failed]:  desktop ledger temporary storage is unavailable
+      at line 299
+* test_configure_requires_the_root_scoped_capability_and_refuses_replacement
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+    [Failed]:  desktop ledger temporary storage is unavailable
+      at line 319
+* test_load_fails_closed_on_malformed_on_disk_json
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+    [Failed]:  desktop ledger temporary storage is unavailable
+      at line 344
+* test_exact_text_validation_cache_is_bounded_and_changed_bytes_fail_closed
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+    [Failed]:  desktop ledger temporary storage is unavailable
+      at line 363
+* test_disjoint_from_plan01_schedule_foundation_ledger
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+    [Failed]:  desktop ledger temporary storage is unavailable
+      at line 386
+0/15 passed.
+
+
+res://tests/unit/test_schedule_foundation_publication_ledger.gd
+* test_fixed_path_and_published_schema_are_frozen
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+    [Failed]:  schedule ledger temporary storage is unavailable
+      at line 200
+* test_missing_file_initializes_the_exact_empty_document
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+    [Failed]:  schedule ledger temporary storage is unavailable
+      at line 213
+* test_document_and_record_union_is_exact_after_one_publication
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+    [Failed]:  schedule ledger temporary storage is unavailable
+      at line 231
+* test_first_delivery_then_byte_identical_replay_across_a_cold_restart
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+    [Failed]:  schedule ledger temporary storage is unavailable
+      at line 271
+* test_occupied_key_with_changed_bytes_conflicts_without_rewriting_storage
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+    [Failed]:  schedule ledger temporary storage is unavailable
+      at line 296
+* test_request_member_hash_and_receipt_binding_are_enforced_before_any_write
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+    [Failed]:  schedule ledger temporary storage is unavailable
+      at line 326
+* test_load_rejects_every_extra_missing_or_type_changed_document_member
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+    [Failed]:  schedule ledger temporary storage is unavailable
+      at line 389
+* test_records_and_documents_are_strictly_detached_primitives
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+    [Failed]:  schedule ledger temporary storage is unavailable
+      at line 480
+* test_write_read_and_schema_failures_return_failure_without_recording
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+    [Failed]:  schedule ledger temporary storage is unavailable
+      at line 501
+* test_configure_requires_the_root_scoped_capability_and_refuses_replacement
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+    [Failed]:  schedule ledger temporary storage is unavailable
+      at line 542
+0/10 passed.
+
+
+res://tests/unit/tooling/test_agent_workflow_validator.gd
+* test_validator_rejects_every_frozen_drift
+* test_nonempty_links_must_resolve
+* test_validate_files_rejects_physically_missing_guide
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line 56
+* test_repository_selector_is_hash_bound_and_rejects_rank_or_blocker_drift
+* test_repository_authority_pointers_are_registered_and_hash_bound
+* test_repository_agent_workflow_files_validate
+5/6 passed.
+
+
+res://tests/unit/tooling/test_doc_validator.gd
+* test_validator_error_matrix
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line 43
+    [Failed]:  ["TEST_ROOT_UNAVAILABLE: { \"ok\": false, \"code\": &\"test_root_missing\", \"message\": \"DWM_TEST_ROOT is required\" }"]
+      at line 44
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line 45
+    [Failed]
+      at line 45
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line 46
+    [Failed]:  ["TEST_ROOT_UNAVAILABLE: { \"ok\": false, \"code\": &\"test_root_missing\", \"message\": \"DWM_TEST_ROOT is required\" }"]
+      at line 47
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line 48
+    [Failed]
+      at line 48
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line 49
+    [Failed]
+      at line 49
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line 50
+    [Failed]
+      at line 50
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line 51
+    [Failed]
+      at line 51
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line 52
+    [Failed]
+      at line 52
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line 55
+    [Failed]
+      at line 55
+* test_accepted_decision_contract_and_index
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line 83
+    [Failed]:  ["TEST_ROOT_UNAVAILABLE: { \"ok\": false, \"code\": &\"test_root_missing\", \"message\": \"DWM_TEST_ROOT is required\" }"]
+      at line 84
+* test_authority_index_validation_rejects_invalid_bytes_that_decode_like_expected_text
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line 96
+0/3 passed.
+
+
+res://tests/unit/tooling/test_public_surface_inventory.gd
+* test_public_surface_inventory_exists
+* test_build_produces_complete_sorted_records
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line 140
+    [Failed]:  ["TEST_ROOT_UNAVAILABLE: DWM_TEST_ROOT is required"]
+      at line 141
+    [Failed]:  [0] expected to equal [7]:  seven public symbols expected, private excluded
+      at line 143
+    [Failed]:  [""] expected to equal ["signal"]:
+      at line 151
+    [Failed]:  [""] expected to equal ["constant"]:
+      at line 152
+    [Failed]:  [""] expected to equal ["property"]:
+      at line 153
+    [Failed]:  [""] expected to equal ["static func static_helper() -> int"]:
+      at line 154
+    [Failed]:  [""] expected to equal ["func retained_query() -> int"]:
+      at line 155
+    [Failed]:  static caller reference must be recorded
+      at line 157
+SCRIPT ERROR: Out of bounds get index '0' (on base: 'Array')
+   at: test_build_produces_complete_sorted_records (res://tests/unit/tooling/test_public_surface_inventory.gd:158)
+   GDScript backtrace (most recent call first):
+       [0] test_build_produces_complete_sorted_records (res://tests/unit/tooling/test_public_surface_inventory.gd:158)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Out of bounds get index '0' (on base: 'Array')
+      at line -1
+* test_validation_failure_matrix
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line 170
+    [Failed]:  missing classification must fail
+      at line 170
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line 172
+    [Failed]:  ["TEST_ROOT_UNAVAILABLE: DWM_TEST_ROOT is required"]
+      at line 173
+* test_reserved_symbol_rules
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line 225
+    [Failed]:  absent planned_future symbol is valid
+      at line 226
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line 236
+    [Failed]:  present planned_future symbol permits only retain
+      at line 236
+* test_write_canonical_json_round_trip
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line 243
+    [Failed]:  ["TEST_ROOT_UNAVAILABLE: DWM_TEST_ROOT is required"]
+      at line 244
+* test_game_state_required_surface_reservations
+* test_task3_required_surface_realizes_authenticated_contacts_and_retires_legacy_reply
+    [Failed]:  ["SURFACE_UNCLASSIFIED: activate_live_session","SURFACE_UNCLASSIFIED: apply_dating_challenge_effect_receipt","SURFACE_UNCLASSIFIED: capture_dating_challenge_state","SURFACE_UNCLASSIFIED: capture_desktop_identity_context","SURFACE_UNCLASSIFIED: capture_ending_presentation_signature","SURFACE_UNCLASSIFIED: capture_live_run_snapshot_input","SURFACE_UNCLASSIFIED: capture_live_session","SURFACE_UNCLASSIFIED: capture_new_day_gameplay","SURFACE_UNCLASSIFIED: capture_provisional_day7_ending_plan","SURFACE_UNCLASSIFIED: commit_day7_followup","SURFACE_UNCLASSIFIED: commit_ordinary_echo","SURFACE_UNCLASSIFIED: commit_ordinary_reply","SURFACE_UNCLASSIFIED: configure_contact_checkpoint_writer","SURFACE_UNCLASSIFIED: configure_dating_restore_reconciler","SURFACE_UNCLASSIFIED: configure_desktop_snapshot_provider","SURFACE_UNCLASSIFIED: configure_ending_checkpoint_writer","SURFACE_UNCLASSIFIED: configure_ending_condition_source","SURFACE_UNCLASSIFIED: configure_ending_source_reader","SURFACE_UNCLASSIFIED: get_counted_pair_window_count","SURFACE_UNCLASSIFIED: get_frozen_ordered_ending_plan","SURFACE_UNCLASSIFIED: get_new_run_replacement_baseline","SURFACE_UNCLASSIFIED: get_pending_day7_followups","SURFACE_UNCLASSIFIED: get_pending_ordinary_echoes","SURFACE_UNCLASSIFIED: get_run_configuration","SURFACE_UNCLASSIFIED: prepare_dating_challenge_effect","SURFACE_UNCLASSIFIED: prepare_provisional_day7_ending_plan","SURFACE_UNCLASSIFIED: preview_open_contact","SURFACE_UNCLASSIFIED: preview_ordinary_reply","SURFACE_UNCLASSIFIED: require_day7_presentations_complete","SURFACE_UNCLASSIFIED: resume_terminal_ending","SURFACE_UNCLASSIFIED: retire_live_session","SURFACE_UNCLASSIFIED: store_dating_challenge_state","SURFACE_UNCLASSIFIED: validate_live_session","SURFACE_UNCLASSIFIED: validate_live_session_activation","SURFACE_REQUIRED_MISSING: opening_seen","SURFACE_REQUIRED_MISSING: tutorial_seen","SURFACE_REQUIRED_MISSING: mark_opening_seen","SURFACE_REQUIRED_MISSING: mark_tutorial_seen"]
+      at line 310
+* test_task4_committed_schedule_seams_carry_their_exact_frozen_signatures
+    [Failed]:  ["SURFACE_UNCLASSIFIED: activate_live_session","SURFACE_UNCLASSIFIED: apply_dating_challenge_effect_receipt","SURFACE_UNCLASSIFIED: capture_dating_challenge_state","SURFACE_UNCLASSIFIED: capture_desktop_identity_context","SURFACE_UNCLASSIFIED: capture_ending_presentation_signature","SURFACE_UNCLASSIFIED: capture_live_run_snapshot_input","SURFACE_UNCLASSIFIED: capture_live_session","SURFACE_UNCLASSIFIED: capture_new_day_gameplay","SURFACE_UNCLASSIFIED: capture_provisional_day7_ending_plan","SURFACE_UNCLASSIFIED: commit_day7_followup","SURFACE_UNCLASSIFIED: commit_ordinary_echo","SURFACE_UNCLASSIFIED: commit_ordinary_reply","SURFACE_UNCLASSIFIED: configure_contact_checkpoint_writer","SURFACE_UNCLASSIFIED: configure_dating_restore_reconciler","SURFACE_UNCLASSIFIED: configure_desktop_snapshot_provider","SURFACE_UNCLASSIFIED: configure_ending_checkpoint_writer","SURFACE_UNCLASSIFIED: configure_ending_condition_source","SURFACE_UNCLASSIFIED: configure_ending_source_reader","SURFACE_UNCLASSIFIED: get_counted_pair_window_count","SURFACE_UNCLASSIFIED: get_frozen_ordered_ending_plan","SURFACE_UNCLASSIFIED: get_new_run_replacement_baseline","SURFACE_UNCLASSIFIED: get_pending_day7_followups","SURFACE_UNCLASSIFIED: get_pending_ordinary_echoes","SURFACE_UNCLASSIFIED: get_run_configuration","SURFACE_UNCLASSIFIED: prepare_dating_challenge_effect","SURFACE_UNCLASSIFIED: prepare_provisional_day7_ending_plan","SURFACE_UNCLASSIFIED: preview_open_contact","SURFACE_UNCLASSIFIED: preview_ordinary_reply","SURFACE_UNCLASSIFIED: require_day7_presentations_complete","SURFACE_UNCLASSIFIED: resume_terminal_ending","SURFACE_UNCLASSIFIED: retire_live_session","SURFACE_UNCLASSIFIED: store_dating_challenge_state","SURFACE_UNCLASSIFIED: validate_live_session","SURFACE_UNCLASSIFIED: validate_live_session_activation","SURFACE_REQUIRED_MISSING: opening_seen","SURFACE_REQUIRED_MISSING: tutorial_seen","SURFACE_REQUIRED_MISSING: mark_opening_seen","SURFACE_REQUIRED_MISSING: mark_tutorial_seen"]
+      at line 333
+* test_save_manager_required_surface_freezes_realized_facade
+3/9 passed.
+
+
+res://tests/unit/tooling/test_repository_tooling.gd
+* test_repository_codegraph_directory_is_absent
+* test_stop_helper_rejects_hash_drift_and_handles_absent_lock
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line 35
+1/2 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/unit/test_desktop_publication_ledger.gd
+    - Outside Tests
+        * [<Node#128681248531>(subsystem_animation.gd)]
+        * [<Node#128698025763>(subsystem_audio.gd)]
+        * [<Node#128714802990>]
+        * [<Node#128731580211>]
+        * [<Node#128748357430>(subsystem_backgrounds.gd)]
+        * [<Node#129285228345>(subsystem_choices.gd)]
+        * [<Timer#129302005563>]
+        * [<Node#129318782780>(subsystem_expression.gd)]
+        * [<Node#129352337218>(subsystem_glossary.gd)]
+        * [<Node#129369114435>(subsystem_history.gd)]
+        * [<Node#129385891652>(subsystem_input.gd)]
+        * [<Timer#129402668869>]
+        * [<Node#129419446086>(subsystem_jump.gd)]
+        * [<Node#129436223303>(subsystem_containers.gd)]
+        * [<Node#129453000520>(subsystem_portraits.gd)]
+        * [<Node#129989871433>(subsystem_save.gd)]
+        * [<Timer#130006648650>]
+        * [<Node#130023425867>(subsystem_settings.gd)]
+        * [<Node#130040203087>(subsystem_styles.gd)]
+        * [<Node#130056980304>(subsystem_text.gd)]
+        * [<Node#130140866389>(subsystem_text_input.gd)]
+        * [<Node#130157643606>(subsystem_variables.gd)]
+        * [<Node#130174420823>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#130191198040>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+res://tests/unit/test_desktop_publication_ledger.gd
+- test_fixed_path_and_kinds_are_frozen
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+    [Failed]:  desktop ledger temporary storage is unavailable
+          at line 142
+- test_missing_file_initializes_the_exact_empty_document
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+    [Failed]:  desktop ledger temporary storage is unavailable
+          at line 149
+- test_three_exact_kind_unions_accepted_and_extra_kind_rejected
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+    [Failed]:  desktop ledger temporary storage is unavailable
+          at line 162
+- test_document_and_record_union_is_exact_after_one_publication
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+    [Failed]:  desktop ledger temporary storage is unavailable
+          at line 181
+- test_causal_sequence_keys_are_nonblank_and_distinct_per_transaction
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+    [Failed]:  desktop ledger temporary storage is unavailable
+          at line 206
+- test_action_source_key_derives_from_commit_receipt_id_not_receipt_id
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+    [Failed]:  desktop ledger temporary storage is unavailable
+          at line 223
+- test_board_fate_key_derives_from_ordinary_receipt_id
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+    [Failed]:  desktop ledger temporary storage is unavailable
+          at line 233
+- test_causal_sequence_semantic_receipt_equals_publication_in_its_entirety
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+    [Failed]:  desktop ledger temporary storage is unavailable
+          at line 246
+- test_first_delivery_then_byte_identical_replay_across_a_cold_restart
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+    [Failed]:  desktop ledger temporary storage is unavailable
+          at line 260
+- test_occupied_key_with_changed_bytes_conflicts_without_rewriting_storage
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+    [Failed]:  desktop ledger temporary storage is unavailable
+          at line 277
+- test_request_hash_and_receipt_binding_enforced_before_any_write
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+    [Failed]:  desktop ledger temporary storage is unavailable
+          at line 299
+- test_configure_requires_the_root_scoped_capability_and_refuses_replacement
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+    [Failed]:  desktop ledger temporary storage is unavailable
+          at line 319
+- test_load_fails_closed_on_malformed_on_disk_json
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+    [Failed]:  desktop ledger temporary storage is unavailable
+          at line 344
+- test_exact_text_validation_cache_is_bounded_and_changed_bytes_fail_closed
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+    [Failed]:  desktop ledger temporary storage is unavailable
+          at line 363
+- test_disjoint_from_plan01_schedule_foundation_ledger
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+    [Failed]:  desktop ledger temporary storage is unavailable
+          at line 386
+
+res://tests/unit/test_schedule_foundation_publication_ledger.gd
+- test_fixed_path_and_published_schema_are_frozen
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+    [Failed]:  schedule ledger temporary storage is unavailable
+          at line 200
+- test_missing_file_initializes_the_exact_empty_document
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+    [Failed]:  schedule ledger temporary storage is unavailable
+          at line 213
+- test_document_and_record_union_is_exact_after_one_publication
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+    [Failed]:  schedule ledger temporary storage is unavailable
+          at line 231
+- test_first_delivery_then_byte_identical_replay_across_a_cold_restart
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+    [Failed]:  schedule ledger temporary storage is unavailable
+          at line 271
+- test_occupied_key_with_changed_bytes_conflicts_without_rewriting_storage
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+    [Failed]:  schedule ledger temporary storage is unavailable
+          at line 296
+- test_request_member_hash_and_receipt_binding_are_enforced_before_any_write
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+    [Failed]:  schedule ledger temporary storage is unavailable
+          at line 326
+- test_load_rejects_every_extra_missing_or_type_changed_document_member
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+    [Failed]:  schedule ledger temporary storage is unavailable
+          at line 389
+- test_records_and_documents_are_strictly_detached_primitives
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+    [Failed]:  schedule ledger temporary storage is unavailable
+          at line 480
+- test_write_read_and_schema_failures_return_failure_without_recording
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+    [Failed]:  schedule ledger temporary storage is unavailable
+          at line 501
+- test_configure_requires_the_root_scoped_capability_and_refuses_replacement
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+    [Failed]:  schedule ledger temporary storage is unavailable
+          at line 542
+
+res://tests/unit/tooling/test_agent_workflow_validator.gd
+- test_validate_files_rejects_physically_missing_guide
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line 56
+
+res://tests/unit/tooling/test_doc_validator.gd
+- test_validator_error_matrix
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line 43
+    [Failed]:  ["TEST_ROOT_UNAVAILABLE: { \"ok\": false, \"code\": &\"test_root_missing\", \"message\": \"DWM_TEST_ROOT is required\" }"]
+          at line 44
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line 45
+    [Failed]:
+          at line 45
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line 46
+    [Failed]:  ["TEST_ROOT_UNAVAILABLE: { \"ok\": false, \"code\": &\"test_root_missing\", \"message\": \"DWM_TEST_ROOT is required\" }"]
+          at line 47
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line 48
+    [Failed]:
+          at line 48
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line 49
+    [Failed]:
+          at line 49
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line 50
+    [Failed]:
+          at line 50
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line 51
+    [Failed]:
+          at line 51
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line 52
+    [Failed]:
+          at line 52
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line 55
+    [Failed]:
+          at line 55
+- test_accepted_decision_contract_and_index
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line 83
+    [Failed]:  ["TEST_ROOT_UNAVAILABLE: { \"ok\": false, \"code\": &\"test_root_missing\", \"message\": \"DWM_TEST_ROOT is required\" }"]
+          at line 84
+- test_authority_index_validation_rejects_invalid_bytes_that_decode_like_expected_text
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line 96
+
+res://tests/unit/tooling/test_public_surface_inventory.gd
+- test_build_produces_complete_sorted_records
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line 140
+    [Failed]:  ["TEST_ROOT_UNAVAILABLE: DWM_TEST_ROOT is required"]
+          at line 141
+    [Failed]:  [0] expected to equal [7]:  seven public symbols expected, private excluded
+          at line 143
+    [Failed]:  [""] expected to equal ["signal"]:
+          at line 151
+    [Failed]:  [""] expected to equal ["constant"]:
+          at line 152
+    [Failed]:  [""] expected to equal ["property"]:
+          at line 153
+    [Failed]:  [""] expected to equal ["static func static_helper() -> int"]:
+          at line 154
+    [Failed]:  [""] expected to equal ["func retained_query() -> int"]:
+          at line 155
+    [Failed]:  static caller reference must be recorded
+          at line 157
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Out of bounds get index '0' (on base: 'Array')
+          at line -1
+- test_validation_failure_matrix
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line 170
+    [Failed]:  missing classification must fail
+          at line 170
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line 172
+    [Failed]:  ["TEST_ROOT_UNAVAILABLE: DWM_TEST_ROOT is required"]
+          at line 173
+- test_reserved_symbol_rules
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line 225
+    [Failed]:  absent planned_future symbol is valid
+          at line 226
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line 236
+    [Failed]:  present planned_future symbol permits only retain
+          at line 236
+- test_write_canonical_json_round_trip
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line 243
+    [Failed]:  ["TEST_ROOT_UNAVAILABLE: DWM_TEST_ROOT is required"]
+          at line 244
+- test_task3_required_surface_realizes_authenticated_contacts_and_retires_legacy_reply
+    [Failed]:  ["SURFACE_UNCLASSIFIED: activate_live_session","SURFACE_UNCLASSIFIED: apply_dating_challenge_effect_receipt","SURFACE_UNCLASSIFIED: capture_dating_challenge_state","SURFACE_UNCLASSIFIED: capture_desktop_identity_context","SURFACE_UNCLASSIFIED: capture_ending_presentation_signature","SURFACE_UNCLASSIFIED: capture_live_run_snapshot_input","SURFACE_UNCLASSIFIED: capture_live_session","SURFACE_UNCLASSIFIED: capture_new_day_gameplay","SURFACE_UNCLASSIFIED: capture_provisional_day7_ending_plan","SURFACE_UNCLASSIFIED: commit_day7_followup","SURFACE_UNCLASSIFIED: commit_ordinary_echo","SURFACE_UNCLASSIFIED: commit_ordinary_reply","SURFACE_UNCLASSIFIED: configure_contact_checkpoint_writer","SURFACE_UNCLASSIFIED: configure_dating_restore_reconciler","SURFACE_UNCLASSIFIED: configure_desktop_snapshot_provider","SURFACE_UNCLASSIFIED: configure_ending_checkpoint_writer","SURFACE_UNCLASSIFIED: configure_ending_condition_source","SURFACE_UNCLASSIFIED: configure_ending_source_reader","SURFACE_UNCLASSIFIED: get_counted_pair_window_count","SURFACE_UNCLASSIFIED: get_frozen_ordered_ending_plan","SURFACE_UNCLASSIFIED: get_new_run_replacement_baseline","SURFACE_UNCLASSIFIED: get_pending_day7_followups","SURFACE_UNCLASSIFIED: get_pending_ordinary_echoes","SURFACE_UNCLASSIFIED: get_run_configuration","SURFACE_UNCLASSIFIED: prepare_dating_challenge_effect","SURFACE_UNCLASSIFIED: prepare_provisional_day7_ending_plan","SURFACE_UNCLASSIFIED: preview_open_contact","SURFACE_UNCLASSIFIED: preview_ordinary_reply","SURFACE_UNCLASSIFIED: require_day7_presentations_complete","SURFACE_UNCLASSIFIED: resume_terminal_ending","SURFACE_UNCLASSIFIED: retire_live_session","SURFACE_UNCLASSIFIED: store_dating_challenge_state","SURFACE_UNCLASSIFIED: validate_live_session","SURFACE_UNCLASSIFIED: validate_live_session_activation","SURFACE_REQUIRED_MISSING: opening_seen","SURFACE_REQUIRED_MISSING: tutorial_seen","SURFACE_REQUIRED_MISSING: mark_opening_seen","SURFACE_REQUIRED_MISSING: mark_tutorial_seen"]
+          at line 310
+- test_task4_committed_schedule_seams_carry_their_exact_frozen_signatures
+    [Failed]:  ["SURFACE_UNCLASSIFIED: activate_live_session","SURFACE_UNCLASSIFIED: apply_dating_challenge_effect_receipt","SURFACE_UNCLASSIFIED: capture_dating_challenge_state","SURFACE_UNCLASSIFIED: capture_desktop_identity_context","SURFACE_UNCLASSIFIED: capture_ending_presentation_signature","SURFACE_UNCLASSIFIED: capture_live_run_snapshot_input","SURFACE_UNCLASSIFIED: capture_live_session","SURFACE_UNCLASSIFIED: capture_new_day_gameplay","SURFACE_UNCLASSIFIED: capture_provisional_day7_ending_plan","SURFACE_UNCLASSIFIED: commit_day7_followup","SURFACE_UNCLASSIFIED: commit_ordinary_echo","SURFACE_UNCLASSIFIED: commit_ordinary_reply","SURFACE_UNCLASSIFIED: configure_contact_checkpoint_writer","SURFACE_UNCLASSIFIED: configure_dating_restore_reconciler","SURFACE_UNCLASSIFIED: configure_desktop_snapshot_provider","SURFACE_UNCLASSIFIED: configure_ending_checkpoint_writer","SURFACE_UNCLASSIFIED: configure_ending_condition_source","SURFACE_UNCLASSIFIED: configure_ending_source_reader","SURFACE_UNCLASSIFIED: get_counted_pair_window_count","SURFACE_UNCLASSIFIED: get_frozen_ordered_ending_plan","SURFACE_UNCLASSIFIED: get_new_run_replacement_baseline","SURFACE_UNCLASSIFIED: get_pending_day7_followups","SURFACE_UNCLASSIFIED: get_pending_ordinary_echoes","SURFACE_UNCLASSIFIED: get_run_configuration","SURFACE_UNCLASSIFIED: prepare_dating_challenge_effect","SURFACE_UNCLASSIFIED: prepare_provisional_day7_ending_plan","SURFACE_UNCLASSIFIED: preview_open_contact","SURFACE_UNCLASSIFIED: preview_ordinary_reply","SURFACE_UNCLASSIFIED: require_day7_presentations_complete","SURFACE_UNCLASSIFIED: resume_terminal_ending","SURFACE_UNCLASSIFIED: retire_live_session","SURFACE_UNCLASSIFIED: store_dating_challenge_state","SURFACE_UNCLASSIFIED: validate_live_session","SURFACE_UNCLASSIFIED: validate_live_session_activation","SURFACE_REQUIRED_MISSING: opening_seen","SURFACE_REQUIRED_MISSING: tutorial_seen","SURFACE_REQUIRED_MISSING: mark_opening_seen","SURFACE_REQUIRED_MISSING: mark_tutorial_seen"]
+          at line 333
+
+res://tests/unit/tooling/test_repository_tooling.gd
+- test_stop_helper_rejects_hash_drift_and_handles_absent_lock
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line 35
+
+Totals
+------
+Scripts               6
+Tests                45
+Passing Tests         9
+Failing Tests        36
+Asserts           164/259
+Orphans              24
+Time              65.73s
+
+
+---- 36 failing tests ----
+
+ROOT_GUARD_PROBE {"after":{"directories":["."],"errors":[],"exists":true,"files":{}},"before":{"directories":["."],"errors":[],"exists":true,"files":{}},"mode":"empty","ok":true,"phase":"end_run"}
+ROOT_GUARD_PROBE {"mode":"empty","ok":true,"phase":"restored"}

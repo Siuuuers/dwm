@@ -1,0 +1,51 @@
+﻿[
+    {
+        "name":  "@AudioStreamPlayer@4 ",
+        "type":  "ControlType.Group",
+        "control":  true,
+        "enabled":  true,
+        "pid":  21492
+    },
+    {
+        "name":  "Reading recovery source probe",
+        "type":  "ControlType.Text",
+        "control":  true,
+        "enabled":  true,
+        "pid":  21492
+    },
+    {
+        "name":  "The reading setting could not be changed. Retry, or cancel to keep the current setting. ",
+        "type":  "ControlType.Window",
+        "control":  true,
+        "enabled":  true,
+        "pid":  21492
+    },
+    {
+        "name":  "The reading setting could not be changed. Retry, or cancel to keep the current setting.",
+        "type":  "ControlType.Text",
+        "control":  true,
+        "enabled":  true,
+        "pid":  21492
+    },
+    {
+        "name":  "Retry ",
+        "type":  "ControlType.Button",
+        "control":  true,
+        "enabled":  true,
+        "pid":  21492
+    },
+    {
+        "name":  "Cancel ",
+        "type":  "ControlType.Button",
+        "control":  true,
+        "enabled":  true,
+        "pid":  21492
+    },
+    {
+        "name":  "",
+        "type":  "ControlType.Text",
+        "control":  true,
+        "enabled":  true,
+        "pid":  21492
+    }
+]

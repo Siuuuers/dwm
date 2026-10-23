@@ -1,0 +1,13 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+OpenGL API 3.3.0 - Build 31.0.101.4146 - Compatibility - Using Device: Intel - Intel(R) Iris(R) Xe Graphics
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2570)
+WORKSHEET_CAPTURE C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-ui-build/.godot/phase2r_tests/dbe3da99-be81-4831-b2c0-f64c2f97f5e2/appdata/Godot/app_userdata/DWM/evidence/minesweeper_viewport/beginner-en100.png scroll=(0, 0) focus=0
+WORKSHEET_CAPTURE C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-ui-build/.godot/phase2r_tests/dbe3da99-be81-4831-b2c0-f64c2f97f5e2/appdata/Godot/app_userdata/DWM/evidence/minesweeper_viewport/beginner-hk150-large.png scroll=(0, 57) focus=63
+WORKSHEET_CAPTURE C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-ui-build/.godot/phase2r_tests/dbe3da99-be81-4831-b2c0-f64c2f97f5e2/appdata/Godot/app_userdata/DWM/evidence/minesweeper_viewport/expert-en150-last-cell.png scroll=(153, 307) focus=483
+WORKSHEET_CAPTURE C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-ui-build/.godot/phase2r_tests/dbe3da99-be81-4831-b2c0-f64c2f97f5e2/appdata/Godot/app_userdata/DWM/evidence/minesweeper_viewport/canonical-cn125.png scroll=(0, 0) focus=0
+WORKSHEET_GUTTERS_VERIFIED samples=4 fit-axis-targets=absent corner=inert clipping=contained

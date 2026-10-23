@@ -1,0 +1,221 @@
+{
+  "base_commit": "86c26633a7fb3a5398050e3a5101e736726ebaff",
+  "files": [
+    {
+      "path": "assets/ui/gallery/fonts/LICENSE-OFL.txt",
+      "bytes": 4418,
+      "sha256": "bc518cf64b8032c07690f33cc270c35c179255a6ac8efa7c165ebae7e8f76a63"
+    },
+    {
+      "path": "assets/ui/gallery/fonts/fusion-pixel-10px-proportional-latin.otf.woff2",
+      "bytes": 401236,
+      "sha256": "3150620c48e8278d379aa9292f5540dc1628246d67970e593dededfee2d82684"
+    },
+    {
+      "path": "assets/ui/gallery/fonts/fusion-pixel-10px-proportional-latin.otf.woff2.import",
+      "bytes": 875,
+      "sha256": "edf4fae773f51d9a82338c3bb4e5a7ae9a892d30294bf7986ca825be4b611149"
+    },
+    {
+      "path": "assets/ui/gallery/fonts/fusion-pixel-10px-proportional-zh_hans.otf.woff2",
+      "bytes": 399668,
+      "sha256": "ce4c411b042a0e9e4cf7dd6819d2c14cb581e4bfe933b0ae5286cb5f0ad60364"
+    },
+    {
+      "path": "assets/ui/gallery/fonts/fusion-pixel-10px-proportional-zh_hans.otf.woff2.import",
+      "bytes": 881,
+      "sha256": "9f5f0dc85896941d33124d2d7e01451dc1278527db48cba3babbe95f735d02f3"
+    },
+    {
+      "path": "assets/ui/gallery/fonts/fusion-pixel-10px-proportional-zh_hant.otf.woff2",
+      "bytes": 398672,
+      "sha256": "c23e4a08deba7a1ee970d0d550a0bec8f10d15fe905bffbdadf90fe80df3288a"
+    },
+    {
+      "path": "assets/ui/gallery/fonts/fusion-pixel-10px-proportional-zh_hant.otf.woff2.import",
+      "bytes": 881,
+      "sha256": "e5ecad9da5f935ccd81280c71f93865afa5276a13e1cc782e3bc81f302cf9768"
+    },
+    {
+      "path": "assets/ui/gallery/fonts/fusion-pixel-12px-proportional-latin.otf.woff2",
+      "bytes": 660160,
+      "sha256": "14b73fed294e1723db722c444e2152ae2df6a980422a1ba4c0f03a5aeb416cd2"
+    },
+    {
+      "path": "assets/ui/gallery/fonts/fusion-pixel-12px-proportional-latin.otf.woff2.import",
+      "bytes": 874,
+      "sha256": "b71bdc032079a7e3eefd4a0947967d0f85dee623fcf9465a8fd51754cd7b171a"
+    },
+    {
+      "path": "assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hans.otf.woff2",
+      "bytes": 660420,
+      "sha256": "e7e57f471045328b6c9583cbd70fa45122c66c78038c3777abfd7a29d476cf44"
+    },
+    {
+      "path": "assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hans.otf.woff2.import",
+      "bytes": 880,
+      "sha256": "500ca826476623f2643f7a54517ca15c3dce7f9de9aea546c562cdb8d1f0343b"
+    },
+    {
+      "path": "assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hant.otf.woff2",
+      "bytes": 668520,
+      "sha256": "beae5846a49e05963127e362ae4e8fb06b1fd875a895947cfc33cefd70feeeae"
+    },
+    {
+      "path": "assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hant.otf.woff2.import",
+      "bytes": 880,
+      "sha256": "91ad82d08f15e5ffdaf7156baffa15de51c3cfe4c9f751dabfa0baddc01bcab9"
+    },
+    {
+      "path": "assets/ui/gallery/fonts/fusion-pixel-8px-proportional-latin.otf.woff2",
+      "bytes": 345400,
+      "sha256": "12b9de0769e47f0e49ed34d7bd0ad30a698c356b22751dd47c408bc8edb23b49"
+    },
+    {
+      "path": "assets/ui/gallery/fonts/fusion-pixel-8px-proportional-latin.otf.woff2.import",
+      "bytes": 872,
+      "sha256": "48f21256af6321c509fb4ec95845c7ac34336a0931e2dde1af506085df4a8336"
+    },
+    {
+      "path": "assets/ui/gallery/fonts/fusion-pixel-8px-proportional-zh_hans.otf.woff2",
+      "bytes": 346408,
+      "sha256": "fb116ab88a719670cc7db94e3eedc1bd4d16f594d6aa94cbbf70efe31348eebb"
+    },
+    {
+      "path": "assets/ui/gallery/fonts/fusion-pixel-8px-proportional-zh_hans.otf.woff2.import",
+      "bytes": 878,
+      "sha256": "c2c6091df224d3910959cc4014bd1999cd0a1bdb1794a7c5d22be578cf6c04d9"
+    },
+    {
+      "path": "assets/ui/gallery/fonts/fusion-pixel-8px-proportional-zh_hant.otf.woff2",
+      "bytes": 357968,
+      "sha256": "73effe65c21cc54f75d7c4470442127301a071b26fc62b02fab492e32d91267f"
+    },
+    {
+      "path": "assets/ui/gallery/fonts/fusion-pixel-8px-proportional-zh_hant.otf.woff2.import",
+      "bytes": 878,
+      "sha256": "e77f2af6825ae52e2965a76895bee26de611c5caa4542eab35544b210da67f81"
+    },
+    {
+      "path": "assets/ui/gallery/fonts/sources.json",
+      "bytes": 6637,
+      "sha256": "38b88b161f2a250d9e1130561d41c14c517dcfeab2525614ddac7909c023f4e7"
+    },
+    {
+      "path": "assets/ui/gallery/fonts/upstream-licenses/ark-pixel-OFL.txt",
+      "bytes": 4412,
+      "sha256": "3ab41567e68e3988ba1ef16dd2644eca95ca5648ea12e7d46e6287fc0bbe5aee"
+    },
+    {
+      "path": "assets/ui/gallery/fonts/upstream-licenses/boutique-bitmap-7x7-OFL.txt",
+      "bytes": 5463,
+      "sha256": "ad588b5ce58a02179b806381339fd380e5110771f2fa91279af026fd3ab97002"
+    },
+    {
+      "path": "assets/ui/gallery/fonts/upstream-licenses/boutique-bitmap-9x9-OFL.txt",
+      "bytes": 6566,
+      "sha256": "265f3814079511b3f3fce9003cb60a1402fa792849c5cae79e5998939eb02617"
+    },
+    {
+      "path": "assets/ui/gallery/fonts/upstream-licenses/cubic-11-OFL.txt",
+      "bytes": 5364,
+      "sha256": "2b6e5938e5cffa0b9e183bd05f8c363e174e7ebed1a0556e2855fd1707fa2188"
+    },
+    {
+      "path": "assets/ui/gallery/fonts/upstream-licenses/galmuri-LICENSE.txt",
+      "bytes": 4360,
+      "sha256": "86a3ee9495f942f0243f18c103da9faca27adb88142613edb8bb852e56c892c1"
+    },
+    {
+      "path": "assets/ui/gallery/fonts/upstream-licenses/misaki-LICENSE.txt",
+      "bytes": 9016,
+      "sha256": "82929cc3b34c79b6a67f21fe137c7bb165589c9e34ba1441611e493afd67dfca"
+    },
+    {
+      "path": "assets/ui/gallery/fonts/upstream-licenses/miseki-bitmap-LICENSE.txt",
+      "bytes": 4358,
+      "sha256": "e855b45b384d37c9a778119271bd9c32706e3f1f9f278de0ad47347606eea846"
+    },
+    {
+      "path": "docs/design/2026-08-24-gallery-maintained-microfiche-registrar-standard-palette-and-state-disposition.md",
+      "bytes": 46039,
+      "sha256": "f35fd2001192c56eb05439a8fc1d33cf139357c36b44edca14ee5c4acfa700f2"
+    },
+    {
+      "path": "evidence/phase_2r/runtime/game_state_surface.json",
+      "bytes": 502223,
+      "sha256": "700aef88cd0488a71f37b7ca97112edcc45b014997c0e271a24dda8c405772aa"
+    },
+    {
+      "path": "evidence/phase_2r/runtime/save_manager_surface.json",
+      "bytes": 126738,
+      "sha256": "f4dcb7c79f29d49b3f04eb8b3b5cbc119c281fba13d95fc64a5783cdcc6f21d4"
+    },
+    {
+      "path": "scenes/menu/GalleryScene.tscn",
+      "bytes": 2589,
+      "sha256": "b686eac8bc02d9cf12792b097c7e4615414255dbf5eb54f95d15743de6c7d820"
+    },
+    {
+      "path": "scripts/ui/GalleryScene.gd",
+      "bytes": 29514,
+      "sha256": "e8be9ed79ddaaf0d2f347b4c85ab1251f5420688ef582b4e5c00c6b28edb4631"
+    },
+    {
+      "path": "scripts/ui/gallery/GalleryCanvas.gd",
+      "bytes": 1808,
+      "sha256": "2d80e79ddc3c1fc445e715a3c3fb4635388fa19280028b807ab130b2b3bc784f"
+    },
+    {
+      "path": "scripts/ui/gallery/GalleryRecordButton.gd",
+      "bytes": 4238,
+      "sha256": "454f82de3be11f79308a08d38dcee39d9babaafb11ede5994eed99daa0c0f118"
+    },
+    {
+      "path": "scripts/ui/gallery/GalleryRecordCatalog.gd",
+      "bytes": 1563,
+      "sha256": "c99ef7752ce4d13258318eb92a3b52a9a39b50dd007b67f146b774b2ade2ca79"
+    },
+    {
+      "path": "scripts/ui/gallery/GalleryTheme.gd",
+      "bytes": 1199,
+      "sha256": "c81db8bbb6cf8970730313681601ed7562cd87c638cd4ee4980bd5c54955c1e1"
+    },
+    {
+      "path": "scripts/ui/gallery/GalleryTypography.gd",
+      "bytes": 2208,
+      "sha256": "a33998d3f204b6ecf331d9885add571079a8ca89682510f1e15099d3107bf699"
+    },
+    {
+      "path": "scripts/ui/gallery/GalleryTypography.gd.uid",
+      "bytes": 20,
+      "sha256": "e83134543325e1a45f1ee8ff01fa45f631459ec5e988491073e43d8efb9fa293"
+    },
+    {
+      "path": "tests/manual/verify_gallery_retry_native.gd",
+      "bytes": 15073,
+      "sha256": "d90890449431485921ffd8d9623efca926b2e7e576b421d88d6b7c804e7f269b"
+    },
+    {
+      "path": "tests/manual/verify_gallery_title_native.gd",
+      "bytes": 10769,
+      "sha256": "91069edb75f292fa744724087f9ebed86a1b9f7fa80ec07c71fb3cea8d8ac9d3"
+    },
+    {
+      "path": "tests/unit/test_gallery_registrar.gd",
+      "bytes": 11899,
+      "sha256": "58cfea6a14bc322b8d05a4c32a15730b6e5926b6ce8ec8cab7bfa882feb93dea"
+    },
+    {
+      "path": "tests/unit/test_gallery_typography.gd",
+      "bytes": 8835,
+      "sha256": "6464164b27b9d93eb86c39695335f58625d441f0347e74229d7f82d028c6555f"
+    },
+    {
+      "path": "tests/unit/test_gallery_typography.gd.uid",
+      "bytes": 20,
+      "sha256": "04b3e41f20f6f78dadaaafb5f01ff11c1cd3ab00f87bf8135f17561c18f04359"
+    }
+  ],
+  "scope": "Bounded Gallery typography authority, production, font assets, tests, native probes, and refreshed public inventories."
+}

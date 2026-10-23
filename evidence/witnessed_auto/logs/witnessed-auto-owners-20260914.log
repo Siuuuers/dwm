@@ -1,0 +1,375 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/e8900b1f-44e7-426c-8259-e0018aadda84/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+SCRIPT ERROR: Parse Error: Cannot infer the type of "delay_changed" variable because the value doesn't have a set type.
+   at: GDScript::reload (res://scripts/ui/witnessed/WitnessedAutoController.gd:168)
+   GDScript backtrace (most recent call first):
+       [0] load_script_using_custom_warnings (res://addons/gut/warnings_manager.gd:173)
+       [1] _parse_script (res://addons/gut/test_collector.gd:76)
+       [2] add_script (res://addons/gut/test_collector.gd:128)
+       [3] add_script (res://addons/gut/gut.gd:1070)
+       [4] _apply_options (res://addons/gut/gut_config.gd:139)
+       [5] apply_options (res://addons/gut/gut_config.gd:207)
+       [6] run_tests (res://addons/gut/gui/GutRunner.gd:192)
+       [7] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [8] main (res://addons/gut/cli/gut_cli.gd:297)
+       [9] _init (res://addons/gut/gut_cmdln.gd:39)
+SCRIPT ERROR: Compile Error: Failed to compile depended scripts.
+   at: GDScript::reload (res://tests/unit/test_witnessed_auto_controller.gd:0)
+   GDScript backtrace (most recent call first):
+       [0] load_script_using_custom_warnings (res://addons/gut/warnings_manager.gd:173)
+       [1] _parse_script (res://addons/gut/test_collector.gd:76)
+       [2] add_script (res://addons/gut/test_collector.gd:128)
+       [3] add_script (res://addons/gut/gut.gd:1070)
+       [4] _apply_options (res://addons/gut/gut_config.gd:139)
+       [5] apply_options (res://addons/gut/gut_config.gd:207)
+       [6] run_tests (res://addons/gut/gui/GutRunner.gd:192)
+       [7] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [8] main (res://addons/gut/cli/gut_cli.gd:297)
+       [9] _init (res://addons/gut/gut_cmdln.gd:39)
+ERROR: Failed to load script "res://tests/unit/test_witnessed_auto_controller.gd" with error "Compilation failed".
+   at: load (modules/gdscript/gdscript.cpp:2907)
+   GDScript backtrace (most recent call first):
+       [0] load_script_using_custom_warnings (res://addons/gut/warnings_manager.gd:173)
+       [1] _parse_script (res://addons/gut/test_collector.gd:76)
+       [2] add_script (res://addons/gut/test_collector.gd:128)
+       [3] add_script (res://addons/gut/gut.gd:1070)
+       [4] _apply_options (res://addons/gut/gut_config.gd:139)
+       [5] apply_options (res://addons/gut/gut_config.gd:207)
+       [6] run_tests (res://addons/gut/gui/GutRunner.gd:192)
+       [7] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [8] main (res://addons/gut/cli/gut_cli.gd:297)
+       [9] _init (res://addons/gut/gut_cmdln.gd:39)
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+res://tests/unit/test_dialogic_preferences.gd
+* test_installed_version_preference_adapter_exists
+* test_dialogic_bridge_exposes_profile_preference_seams
+* test_adapter_maps_profile_values_to_live_caches_without_persistence
+* test_committed_dialogue_apply_failure_latches_shared_gate
+* test_failed_bridge_binding_is_retryable_and_connects_only_after_apply
+* test_bootstrap_binding_applies_installed_dialogic_preferences_exactly_once
+6/6 passed.
+
+
+res://tests/unit/test_witnessed_auto_controller.gd
+* test_toggle_commits_the_profile_and_a_failed_commit_preserves_truth
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: _fixture (res://tests/unit/test_witnessed_auto_controller.gd:68)
+   GDScript backtrace (most recent call first):
+       [0] _fixture (res://tests/unit/test_witnessed_auto_controller.gd:68)
+       [1] test_toggle_commits_the_profile_and_a_failed_commit_preserves_truth (res://tests/unit/test_witnessed_auto_controller.gd:86)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Invalid access to property or key 'controller' on a base object of type 'Dictionary'.
+   at: test_toggle_commits_the_profile_and_a_failed_commit_preserves_truth (res://tests/unit/test_witnessed_auto_controller.gd:87)
+   GDScript backtrace (most recent call first):
+       [0] test_toggle_commits_the_profile_and_a_failed_commit_preserves_truth (res://tests/unit/test_witnessed_auto_controller.gd:87)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+    [2] <engine-2>Invalid access to property or key 'controller' on a base object of type 'Dictionary'.
+      at line -1
+    2 Orphans
+        * [<Node#421930207364>(test_witnessed_auto_controller.gd/FakeBridge)]
+        * [<Node#421913430149>(test_witnessed_auto_controller.gd/FakeProfile)]
+* test_exact_delays_advance_once_and_never_restart_for_duplicate_finished_signal
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: _fixture (res://tests/unit/test_witnessed_auto_controller.gd:68)
+   GDScript backtrace (most recent call first):
+       [0] _fixture (res://tests/unit/test_witnessed_auto_controller.gd:68)
+       [1] test_exact_delays_advance_once_and_never_restart_for_duplicate_finished_signal (res://tests/unit/test_witnessed_auto_controller.gd:105)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Invalid access to property or key 'bridge' on a base object of type 'Dictionary'.
+   at: _arm (res://tests/unit/test_witnessed_auto_controller.gd:80)
+   GDScript backtrace (most recent call first):
+       [0] _arm (res://tests/unit/test_witnessed_auto_controller.gd:80)
+       [1] test_exact_delays_advance_once_and_never_restart_for_duplicate_finished_signal (res://tests/unit/test_witnessed_auto_controller.gd:106)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Invalid access to property or key 'controller' on a base object of type 'Dictionary'.
+   at: test_exact_delays_advance_once_and_never_restart_for_duplicate_finished_signal (res://tests/unit/test_witnessed_auto_controller.gd:107)
+   GDScript backtrace (most recent call first):
+       [0] test_exact_delays_advance_once_and_never_restart_for_duplicate_finished_signal (res://tests/unit/test_witnessed_auto_controller.gd:107)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+    [2] <engine-2>Invalid access to property or key 'bridge' on a base object of type 'Dictionary'.
+    [3] <engine-2>Invalid access to property or key 'controller' on a base object of type 'Dictionary'.
+      at line -1
+    2 Orphans
+        * [<Node#422198642802>(test_witnessed_auto_controller.gd/FakeBridge)]
+        * [<Node#422181865589>(test_witnessed_auto_controller.gd/FakeProfile)]
+* test_suspension_preserves_remaining_time_and_skips_the_resume_delta
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: _fixture (res://tests/unit/test_witnessed_auto_controller.gd:68)
+   GDScript backtrace (most recent call first):
+       [0] _fixture (res://tests/unit/test_witnessed_auto_controller.gd:68)
+       [1] test_suspension_preserves_remaining_time_and_skips_the_resume_delta (res://tests/unit/test_witnessed_auto_controller.gd:115)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Invalid access to property or key 'bridge' on a base object of type 'Dictionary'.
+   at: _arm (res://tests/unit/test_witnessed_auto_controller.gd:80)
+   GDScript backtrace (most recent call first):
+       [0] _arm (res://tests/unit/test_witnessed_auto_controller.gd:80)
+       [1] test_suspension_preserves_remaining_time_and_skips_the_resume_delta (res://tests/unit/test_witnessed_auto_controller.gd:116)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Invalid access to property or key 'controller' on a base object of type 'Dictionary'.
+   at: test_suspension_preserves_remaining_time_and_skips_the_resume_delta (res://tests/unit/test_witnessed_auto_controller.gd:117)
+   GDScript backtrace (most recent call first):
+       [0] test_suspension_preserves_remaining_time_and_skips_the_resume_delta (res://tests/unit/test_witnessed_auto_controller.gd:117)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+    [2] <engine-2>Invalid access to property or key 'bridge' on a base object of type 'Dictionary'.
+    [3] <engine-2>Invalid access to property or key 'controller' on a base object of type 'Dictionary'.
+      at line -1
+    2 Orphans
+        * [<Node#422517410291>(test_witnessed_auto_controller.gd/FakeProfile)]
+        * [<Node#422534187508>(test_witnessed_auto_controller.gd/FakeBridge)]
+* test_source_identity_and_bridge_barriers_fail_closed_without_retry
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: _fixture (res://tests/unit/test_witnessed_auto_controller.gd:68)
+   GDScript backtrace (most recent call first):
+       [0] _fixture (res://tests/unit/test_witnessed_auto_controller.gd:68)
+       [1] test_source_identity_and_bridge_barriers_fail_closed_without_retry (res://tests/unit/test_witnessed_auto_controller.gd:131)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Invalid access to property or key 'bridge' on a base object of type 'Dictionary'.
+   at: _arm (res://tests/unit/test_witnessed_auto_controller.gd:80)
+   GDScript backtrace (most recent call first):
+       [0] _arm (res://tests/unit/test_witnessed_auto_controller.gd:80)
+       [1] test_source_identity_and_bridge_barriers_fail_closed_without_retry (res://tests/unit/test_witnessed_auto_controller.gd:132)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Invalid access to property or key 'bridge' on a base object of type 'Dictionary'.
+   at: test_source_identity_and_bridge_barriers_fail_closed_without_retry (res://tests/unit/test_witnessed_auto_controller.gd:133)
+   GDScript backtrace (most recent call first):
+       [0] test_source_identity_and_bridge_barriers_fail_closed_without_retry (res://tests/unit/test_witnessed_auto_controller.gd:133)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+    [2] <engine-2>Invalid access to property or key 'bridge' on a base object of type 'Dictionary'.
+    [3] <engine-2>Invalid access to property or key 'bridge' on a base object of type 'Dictionary'.
+      at line -1
+    2 Orphans
+        * [<Node#422852954631>(test_witnessed_auto_controller.gd/FakeProfile)]
+        * [<Node#422869731848>(test_witnessed_auto_controller.gd/FakeBridge)]
+* test_preference_changes_and_restore_replace_the_timer_with_one_full_delay
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: _fixture (res://tests/unit/test_witnessed_auto_controller.gd:68)
+   GDScript backtrace (most recent call first):
+       [0] _fixture (res://tests/unit/test_witnessed_auto_controller.gd:68)
+       [1] test_preference_changes_and_restore_replace_the_timer_with_one_full_delay (res://tests/unit/test_witnessed_auto_controller.gd:155)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Invalid access to property or key 'bridge' on a base object of type 'Dictionary'.
+   at: _arm (res://tests/unit/test_witnessed_auto_controller.gd:80)
+   GDScript backtrace (most recent call first):
+       [0] _arm (res://tests/unit/test_witnessed_auto_controller.gd:80)
+       [1] test_preference_changes_and_restore_replace_the_timer_with_one_full_delay (res://tests/unit/test_witnessed_auto_controller.gd:156)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Invalid access to property or key 'controller' on a base object of type 'Dictionary'.
+   at: test_preference_changes_and_restore_replace_the_timer_with_one_full_delay (res://tests/unit/test_witnessed_auto_controller.gd:157)
+   GDScript backtrace (most recent call first):
+       [0] test_preference_changes_and_restore_replace_the_timer_with_one_full_delay (res://tests/unit/test_witnessed_auto_controller.gd:157)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+    [2] <engine-2>Invalid access to property or key 'bridge' on a base object of type 'Dictionary'.
+    [3] <engine-2>Invalid access to property or key 'controller' on a base object of type 'Dictionary'.
+      at line -1
+    2 Orphans
+        * [<Node#423188498971>(test_witnessed_auto_controller.gd/FakeProfile)]
+        * [<Node#423205276188>(test_witnessed_auto_controller.gd/FakeBridge)]
+* test_retirement_and_reentrant_replacement_cannot_leak_an_old_generation
+SCRIPT ERROR: Invalid call. Nonexistent function 'new' in base 'GDScript'.
+   at: _fixture (res://tests/unit/test_witnessed_auto_controller.gd:68)
+   GDScript backtrace (most recent call first):
+       [0] _fixture (res://tests/unit/test_witnessed_auto_controller.gd:68)
+       [1] test_retirement_and_reentrant_replacement_cannot_leak_an_old_generation (res://tests/unit/test_witnessed_auto_controller.gd:181)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Invalid access to property or key 'bridge' on a base object of type 'Dictionary'.
+   at: _arm (res://tests/unit/test_witnessed_auto_controller.gd:80)
+   GDScript backtrace (most recent call first):
+       [0] _arm (res://tests/unit/test_witnessed_auto_controller.gd:80)
+       [1] test_retirement_and_reentrant_replacement_cannot_leak_an_old_generation (res://tests/unit/test_witnessed_auto_controller.gd:182)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+SCRIPT ERROR: Invalid access to property or key 'controller' on a base object of type 'Dictionary'.
+   at: test_retirement_and_reentrant_replacement_cannot_leak_an_old_generation (res://tests/unit/test_witnessed_auto_controller.gd:183)
+   GDScript backtrace (most recent call first):
+       [0] test_retirement_and_reentrant_replacement_cannot_leak_an_old_generation (res://tests/unit/test_witnessed_auto_controller.gd:183)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+    [2] <engine-2>Invalid access to property or key 'bridge' on a base object of type 'Dictionary'.
+    [3] <engine-2>Invalid access to property or key 'controller' on a base object of type 'Dictionary'.
+      at line -1
+    2 Orphans
+        * [<Node#423524043311>(test_witnessed_auto_controller.gd/FakeProfile)]
+        * [<Node#423540820528>(test_witnessed_auto_controller.gd/FakeBridge)]
+12 orphans
+0/6 passed.
+
+
+res://tests/unit/test_witnessed_transport_rail.gd
+* test_six_controls_cover_the_exact_scaled_native_hit_rectangles
+* test_projection_keeps_placeholders_visible_disabled_and_modes_truthful
+* test_auto_signal_has_its_own_binding_and_final_admission
+* test_all_locales_and_text_sizes_keep_complete_labels_inside_their_plates
+* test_materials_use_caption_roles_and_skip_signal_stays_admission_bound
+* test_projection_and_visibility_retire_stale_native_actions_without_steady_state_churn
+* test_missing_catalog_owner_disables_commands_and_invalid_rebind_preserves_labels
+* test_live_catalog_switch_retires_old_input_and_keeps_controls_and_modes
+* test_binding_a_different_catalog_locale_waits_for_the_matching_theme_tuple
+9/9 passed.
+
+
+res://tests/integration/test_dialogic_skip.gd
+* test_bridge_exposes_the_skip_command
+* test_all_text_fast_forwards_through_unread_text
+* test_read_only_stops_at_the_first_unread_line
+* test_read_only_advances_through_previously_visited_text
+* test_visited_is_read_before_it_is_marked
+* test_every_boundary_stops_the_skip_without_being_consumed
+* test_profile_write_failure_halts_advancement
+* test_skip_requires_a_configured_context
+* test_reentrant_reveal_callback_cannot_run_a_second_skip_step
+* test_frontier_moved_during_reveal_cannot_mark_or_advance_another_line
+* test_replaced_runtime_during_visited_publication_cannot_advance
+* test_changed_entry_token_during_reveal_cannot_mark_or_advance
+* test_failed_presentation_acknowledgement_stays_pending_for_exact_retry
+* test_reentrant_presentation_acknowledgement_is_refused
+* test_stale_presentation_frontier_is_refused_before_profile_publication
+* test_replaced_runtime_during_presentation_publication_cannot_acknowledge_new_frontier
+* test_mutation_gate_blocks_ack_but_not_opaque_capture_or_later_exact_retry
+* test_fatal_acknowledgement_latch_survives_frontier_replacement_until_profile_rebind
+* test_auto_step_requires_acknowledged_complete_exact_source
+* test_auto_step_stops_before_every_nontext_boundary_with_preference_on
+* test_auto_step_refuses_off_stale_proof_pause_and_mutation_custody
+21/21 passed.
+
+
+
+
+==============================================
+= 36 Orphans
+==============================================
+res://tests/unit/test_dialogic_preferences.gd
+    - Outside Tests
+        * [<Node#131264939798>(subsystem_animation.gd)]
+        * [<Node#131281717026>(subsystem_audio.gd)]
+        * [<Node#131298494258>]
+        * [<Node#131315271483>]
+        * [<Node#131332048705>(subsystem_backgrounds.gd)]
+        * [<Node#131868919618>(subsystem_choices.gd)]
+        * [<Timer#131885696835>]
+        * [<Node#131902474052>(subsystem_expression.gd)]
+        * [<Node#131936028489>(subsystem_glossary.gd)]
+        * [<Node#131952805706>(subsystem_history.gd)]
+        * [<Node#131969582923>(subsystem_input.gd)]
+        * [<Timer#131986360140>]
+        * [<Node#132003137357>(subsystem_jump.gd)]
+        * [<Node#132019914574>(subsystem_containers.gd)]
+        * [<Node#132036691791>(subsystem_portraits.gd)]
+        * [<Node#132573562704>(subsystem_save.gd)]
+        * [<Timer#132590339921>]
+        * [<Node#132607117138>(subsystem_settings.gd)]
+        * [<Node#132623894358>(subsystem_styles.gd)]
+        * [<Node#132640671575>(subsystem_text.gd)]
+        * [<Node#132724557660>(subsystem_text_input.gd)]
+        * [<Node#132741334877>(subsystem_variables.gd)]
+        * [<Node#132758112094>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#132774889311>]
+test_witnessed_auto_controller.gd
+    - test_toggle_commits_the_profile_and_a_failed_commit_preserves_truth
+        * [<Node#421930207364>(test_witnessed_auto_controller.gd/FakeBridge)]
+        * [<Node#421913430149>(test_witnessed_auto_controller.gd/FakeProfile)]
+    - test_exact_delays_advance_once_and_never_restart_for_duplicate_finished_signal
+        * [<Node#422198642802>(test_witnessed_auto_controller.gd/FakeBridge)]
+        * [<Node#422181865589>(test_witnessed_auto_controller.gd/FakeProfile)]
+    - test_suspension_preserves_remaining_time_and_skips_the_resume_delta
+        * [<Node#422517410291>(test_witnessed_auto_controller.gd/FakeProfile)]
+        * [<Node#422534187508>(test_witnessed_auto_controller.gd/FakeBridge)]
+    - test_source_identity_and_bridge_barriers_fail_closed_without_retry
+        * [<Node#422852954631>(test_witnessed_auto_controller.gd/FakeProfile)]
+        * [<Node#422869731848>(test_witnessed_auto_controller.gd/FakeBridge)]
+    - test_preference_changes_and_restore_replace_the_timer_with_one_full_delay
+        * [<Node#423188498971>(test_witnessed_auto_controller.gd/FakeProfile)]
+        * [<Node#423205276188>(test_witnessed_auto_controller.gd/FakeBridge)]
+    - test_retirement_and_reentrant_replacement_cannot_leak_an_old_generation
+        * [<Node#423524043311>(test_witnessed_auto_controller.gd/FakeProfile)]
+        * [<Node#423540820528>(test_witnessed_auto_controller.gd/FakeBridge)]
+
+
+==============================================
+= Run Summary
+==============================================
+
+res://tests/unit/test_witnessed_auto_controller.gd
+- test_toggle_commits_the_profile_and_a_failed_commit_preserves_truth
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+    [2] <engine-2>Invalid access to property or key 'controller' on a base object of type 'Dictionary'.
+          at line -1
+- test_exact_delays_advance_once_and_never_restart_for_duplicate_finished_signal
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+    [2] <engine-2>Invalid access to property or key 'bridge' on a base object of type 'Dictionary'.
+    [3] <engine-2>Invalid access to property or key 'controller' on a base object of type 'Dictionary'.
+          at line -1
+- test_suspension_preserves_remaining_time_and_skips_the_resume_delta
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+    [2] <engine-2>Invalid access to property or key 'bridge' on a base object of type 'Dictionary'.
+    [3] <engine-2>Invalid access to property or key 'controller' on a base object of type 'Dictionary'.
+          at line -1
+- test_source_identity_and_bridge_barriers_fail_closed_without_retry
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+    [2] <engine-2>Invalid access to property or key 'bridge' on a base object of type 'Dictionary'.
+    [3] <engine-2>Invalid access to property or key 'bridge' on a base object of type 'Dictionary'.
+          at line -1
+- test_preference_changes_and_restore_replace_the_timer_with_one_full_delay
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+    [2] <engine-2>Invalid access to property or key 'bridge' on a base object of type 'Dictionary'.
+    [3] <engine-2>Invalid access to property or key 'controller' on a base object of type 'Dictionary'.
+          at line -1
+- test_retirement_and_reentrant_replacement_cannot_leak_an_old_generation
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'new' in base 'GDScript'.
+    [2] <engine-2>Invalid access to property or key 'bridge' on a base object of type 'Dictionary'.
+    [3] <engine-2>Invalid access to property or key 'controller' on a base object of type 'Dictionary'.
+          at line -1
+
+Totals
+------
+Scripts               4
+Tests                42
+Passing Tests        36
+Failing Tests         6
+Asserts           874/880
+Orphans              36
+Time              1.533s
+
+
+---- 6 failing tests ----

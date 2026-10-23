@@ -1,0 +1,105 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/.godot/worktrees/dwm-p2r13-resealed/.godot/phase2r_tests/81e16cf1-f24f-4b4b-827d-eefd477f2e50/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+res://tests/integration/test_desktop_bootstrap_wiring.gd
+* test_the_probe_exists_and_returns_only_integers_and_booleans
+* test_the_probe_names_every_foundation_identity_step_8_1_requires
+* test_reading_the_probe_twice_is_stable_and_mutates_nothing
+* test_presentation_configuration_reconstructs_no_foundation_instance
+* test_identical_startup_replay_reuses_every_instance
+* test_a_swapped_issuer_is_visible_in_the_probe
+* test_the_probe_reports_hospital_ready_and_dating_deliberately_not_ready
+* test_the_probe_reports_the_presentation_producer_as_deliberately_not_ready
+* test_an_unbuilt_foundation_reports_zero_rather_than_guessing
+9/9 passed.
+
+
+res://tests/integration/test_schedule_foundation_bootstrap_wiring.gd
+* test_the_foundation_constructs_exactly_one_of_each_object
+* test_identical_startup_replay_reuses_every_retained_instance
+* test_one_ledger_is_retained_and_is_the_only_one_constructed
+* test_the_configured_provenance_service_is_injected_into_the_retained_state_port
+* test_the_foundation_refuses_to_build_without_the_retained_issuer_or_storage
+5/5 passed.
+
+
+res://tests/integration/test_schedule_presentation_bootstrap_wiring.gd
+* test_composition_retains_exactly_one_of_each_presentation_object
+* test_identical_startup_replay_reuses_every_instance
+* test_the_hospital_port_retains_the_exact_bootstrap_owned_adapter
+* test_the_coordinator_dispatches_through_the_exact_router_the_ports_were_injected_into
+* test_the_adapter_retains_the_existing_bridge_rather_than_a_new_one
+* test_composition_without_an_issuer_or_bridge_fails_closed
+* test_the_coordinator_receives_the_exact_retained_port_identities
+* test_the_coordinator_refuses_a_replacement_port
+* test_the_coordinator_refuses_an_incomplete_presentation_capability
+* test_the_router_receives_the_exact_retained_port_identities
+* test_the_router_refuses_a_replacement_port
+* test_hospital_is_ready_and_dating_is_deliberately_not
+* test_bootstrap_configures_no_dating_owner_at_all
+* test_the_router_refuses_to_route_an_unready_dating_presentation
+* test_the_router_refuses_an_unknown_route_or_a_mismatched_command
+* test_an_unconfigured_router_routes_nothing
+16/16 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/integration/test_desktop_bootstrap_wiring.gd
+    - Outside Tests
+        * [<Node#93516203737>(subsystem_animation.gd)]
+        * [<Node#93532980954>(subsystem_audio.gd)]
+        * [<Node#93549758171>]
+        * [<Node#93566535388>]
+        * [<Node#93583312605>(subsystem_backgrounds.gd)]
+        * [<Node#94120183518>(subsystem_choices.gd)]
+        * [<Timer#94136960735>]
+        * [<Node#94153737952>(subsystem_expression.gd)]
+        * [<Node#94187292389>(subsystem_glossary.gd)]
+        * [<Node#94204069606>(subsystem_history.gd)]
+        * [<Node#94220846823>(subsystem_input.gd)]
+        * [<Timer#94237624040>]
+        * [<Node#94254401257>(subsystem_jump.gd)]
+        * [<Node#94271178474>(subsystem_containers.gd)]
+        * [<Node#94287955691>(subsystem_portraits.gd)]
+        * [<Node#94824826604>(subsystem_save.gd)]
+        * [<Timer#94841603821>]
+        * [<Node#94858381038>(subsystem_settings.gd)]
+        * [<Node#94875158258>(subsystem_styles.gd)]
+        * [<Node#94891935475>(subsystem_text.gd)]
+        * [<Node#94975821560>(subsystem_text_input.gd)]
+        * [<Node#94992598777>(subsystem_variables.gd)]
+        * [<Node#95009375994>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#95026153211>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+Totals
+------
+Scripts               3
+Tests                30
+Passing Tests        30
+Asserts             297
+Orphans              24
+Time              3.752s
+
+
+---- All tests passed! ----
+

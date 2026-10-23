@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "status": "accepted_bounded",
+  "scope": "Bounded mounted caption assistive Normal Accept callback integration",
+  "lead_bead": "dwm-vky.14",
+  "companion": "dwm-eei.10",
+  "source_sha": "96c8942ec8293b90891b3ba5780dcc759fda4283",
+  "tested_merge_sha": "01a366d59020fa0a828276da9ce789e601955e6a",
+  "master_observed": "dded76aee2e85aeea94f65218de043b1f4fdce7b",
+  "runtime_changes": true,
+  "save_format_changes": false,
+  "cloud": {
+    "run_id": 37147995237,
+    "url": "https://github.com/Siuuuers/dwm/actions/runs/37147995237",
+    "primary_xml_reports": 13,
+    "primary_cases": {
+      "tests": 2601,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "reading_cases": 633,
+    "new_assistive_cases": 5,
+    "engine": "Godot 4.6.3 standard GDScript",
+    "engine_and_powershell_execution": "GitHub Actions only",
+    "conclusion": "success",
+    "job_manifest": "cloud-jobs.json",
+    "artifact_manifest": "cloud-artifacts.json",
+    "jobs_passed": 26,
+    "jobs_total": 26,
+    "completed_at": "2026-10-03T20:03:34Z"
+  },
+  "proof": {
+    "owner": "WitnessedAcceptInput -> existing Dialogic Inputs; installed DialogText still owns reveal",
+    "mounted_adapters": "Live caption and review-current expose an action provider; passive retained leaves remain inspect-only.",
+    "new_cases": [
+      "Reveal only, then one fresh later advancement; consumed callback cannot replay",
+      "Hide/Pause/same-text replacement retire old callbacks",
+      "Held non-Accept contacts and passive retained leaves refuse",
+      "Review-current returns live without reveal or advancement",
+      "Real InputManager suspend/resume refuses old and suspended callbacks"
+    ],
+    "inventory": "Six existing lexical GameState references shift by two lines; cloud canonical reproduction passed. No required contract changes.",
+    "local_review": "git diff --check, owner/caller review and uploaded Git tree/blob identity; no local engine/PowerShell execution"
+  },
+  "evidence": {
+    "archive": "test-evidence.tar.gz",
+    "archive_manifest": "archive-manifest.json",
+    "test_summary": "test-summary.json",
+    "source_review": "review.json"
+  },
+  "limits": [
+    "Callback integration is not native Windows UIA discovery/invocation or screen-reader acceptance.",
+    "No new rendered accessibility scenario; existing rendered journeys retain their prior fixture scopes.",
+    "Production semantic catalogue registration stays disabled; prose/exhaustive variants remain deferred.",
+    "No save, recovery, History, gameplay consequence or completion owner was replaced.",
+    "Primary totals exclude two intentional storage-refusal negative controls.",
+    "Final records-only descendant is not independently engine-tested."
+  ],
+  "beads": {
+    "unfinished": 23,
+    "statuses_changed": false,
+    "dependencies_changed": false,
+    "live_dolt_queried": false,
+    "live_dolt_synchronized": false
+  }
+}

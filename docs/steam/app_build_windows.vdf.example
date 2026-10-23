@@ -1,0 +1,32 @@
+// EXAMPLE ONLY: replace YOUR_APP_ID and YOUR_DEPOT_ID before use.
+// Place this file beside the game-build folder; paths are relative to this file.
+"AppBuild"
+{
+    "AppID" "YOUR_APP_ID"
+    "Desc" "DWM Windows private installation test"
+    "ContentRoot" "./game-build"
+    "BuildOutput" "./steam-build-output"
+    "Preview" "1"
+    "Depots"
+    {
+        "YOUR_DEPOT_ID"
+        {
+            "FileMapping"
+            {
+                "LocalPath" "DWM.exe"
+                "DepotPath" "."
+            }
+            "FileMapping"
+            {
+                "LocalPath" "DWM.pck"
+                "DepotPath" "."
+            }
+            "FileMapping"
+            {
+                "LocalPath" "licenses/*"
+                "DepotPath" "licenses"
+                "Recursive" "1"
+            }
+        }
+    }
+}

@@ -1,0 +1,160 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/769493dc-e813-45f8-9312-c28581244cc0/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+SCRIPT ERROR: Parse Error: Expected indented block after "if" block.
+   at: GDScript::reload (res://tests/unit/test_contacts_week_tint.gd:67)
+   GDScript backtrace (most recent call first):
+       [0] load_script_using_custom_warnings (res://addons/gut/warnings_manager.gd:173)
+       [1] _parse_script (res://addons/gut/test_collector.gd:76)
+       [2] add_script (res://addons/gut/test_collector.gd:128)
+       [3] add_script (res://addons/gut/gut.gd:1070)
+       [4] _apply_options (res://addons/gut/gut_config.gd:139)
+       [5] apply_options (res://addons/gut/gut_config.gd:207)
+       [6] run_tests (res://addons/gut/gui/GutRunner.gd:192)
+       [7] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [8] main (res://addons/gut/cli/gut_cli.gd:297)
+       [9] _init (res://addons/gut/gut_cmdln.gd:39)
+ERROR: Failed to load script "res://tests/unit/test_contacts_week_tint.gd" with error "Parse error".
+   at: load (modules/gdscript/gdscript.cpp:2907)
+   GDScript backtrace (most recent call first):
+       [0] load_script_using_custom_warnings (res://addons/gut/warnings_manager.gd:173)
+       [1] _parse_script (res://addons/gut/test_collector.gd:76)
+       [2] add_script (res://addons/gut/test_collector.gd:128)
+       [3] add_script (res://addons/gut/gut.gd:1070)
+       [4] _apply_options (res://addons/gut/gut_config.gd:139)
+       [5] apply_options (res://addons/gut/gut_config.gd:207)
+       [6] run_tests (res://addons/gut/gui/GutRunner.gd:192)
+       [7] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [8] main (res://addons/gut/cli/gut_cli.gd:297)
+       [9] _init (res://addons/gut/gut_cmdln.gd:39)
+[WARNING]:  Ignoring script res://tests/unit/test_contacts_week_tint.gd because it does not extend GutTest
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+res://tests/integration/test_contacts_run_presentation.gd
+* test_captured_palette_and_day_reach_contacts_without_following_next_run_preference
+* test_live_accessibility_recolours_existing_transcript_without_owner_or_focus_mutation
+    [Failed]:  DICTIONARY({ "projection": 7, "open": 1, "reply": 0, "prepare": 0, "acknowledge": 0, "canc...cel": 0 }) != DICTIONARY({ "projection": 5, "open": 1, "reply": 0, "prepare": 0, "acknowledge": 0, "canc...cel": 0 }).
+    { "projection": 7, "open": 1, "reply": 0...ncel": 0 } != { "projection": 5, "open": 1, "reply": 0...ncel": 0 }  1 of 6 keys do not match.  Colour signals cannot request correspondence or ordinary commands.
+      at line 227
+* test_colour_change_preserves_pending_retry_failure_and_exact_command
+ORDINARY_REPLY_FAILURE: {"code":"write_failed","phase":"commit"}
+    [Failed]:  DICTIONARY({ "projection": 8, "open": 1, "reply": 0, "prepare": 1, "acknowledge": 1, "canc...cel": 0 }) != DICTIONARY({ "projection": 6, "open": 1, "reply": 0, "prepare": 1, "acknowledge": 1, "canc...cel": 0 }).
+    { "projection": 8, "open": 1, "reply": 0...ncel": 0 } != { "projection": 6, "open": 1, "reply": 0...ncel": 0 }  1 of 6 keys do not match.
+      at line 274
+* test_colour_change_during_awaited_ack_does_not_recreate_or_cancel_pending_reply
+    [Failed]:  DICTIONARY({ "projection": 7, "open": 1, "reply": 0, "prepare": 1, "acknowledge": 1, "canc...cel": 0 }) != DICTIONARY({ "projection": 6, "open": 1, "reply": 0, "prepare": 1, "acknowledge": 1, "canc...cel": 0 }).
+    { "projection": 7, "open": 1, "reply": 0...ncel": 0 } != { "projection": 6, "open": 1, "reply": 0...ncel": 0 }  1 of 6 keys do not match.
+      at line 314
+* test_invalid_palette_or_day_cannot_replace_mounted_contacts_presentation
+2/5 passed.
+
+
+res://tests/scene/test_contact_list_app.gd
+* test_contact_scene_exposes_only_the_injected_semantic_port_seam
+* test_unconfigured_input_fails_closed_and_configured_input_delegates
+* test_contact_scene_authors_no_identity_or_global_state_fallback
+3/3 passed.
+
+
+res://tests/unit/test_contacts_ordinary_reply_ui.gd
+* test_selected_outgoing_draw_commits_once_and_save_failure_keeps_exact_choice_for_retry
+ORDINARY_REPLY_FAILURE: {"code":"write_failed","phase":"commit"}
+    24 Orphans
+        * [@ScrollContainer@1078:<ScrollContainer#1030020402005>] + 16
+        * [@Control@1095:<Control#1030808931211>]
+        * [@Label@1075:<Label#1029986847667>]
+* test_changing_thread_or_hiding_cancels_only_the_unsaved_choice_and_stale_draw_does_not_send
+    52 Orphans
+        * [@Control@1186:<Control#1038828439962>]
+        * [@ScrollContainer@1179:<ScrollContainer#1038409010132>] + 12
+        * [@Label@1153:<Label#1036261526518>]
+        * [@ScrollContainer@1162:<ScrollContainer#1037452708859>] + 15
+        * [@Label@1176:<Label#1038375455763>]
+        * [@Control@1169:<Control#1037872139285>]
+        * [@Label@1159:<Label#1037419154467>]
+        * [@ScrollContainer@1156:<ScrollContainer#1036295081001>] + 1
+        * [@Control@1158:<Control#1036529962035>]
+* test_locale_refresh_keeps_the_frozen_line_and_does_not_treat_choice_buttons_as_history
+* test_outgoing_text_is_not_covered_by_a_container_stretched_decoration
+* test_prepare_failure_remains_diagnosable_after_successful_thread_refresh
+ORDINARY_REPLY_FAILURE: {"code":"ordinary_registry_unavailable","phase":"prepare"}
+    23 Orphans
+        * [@ScrollContainer@1329:<ScrollContainer#1052887747219>] + 15
+        * [@Label@1326:<Label#1052854192790>]
+        * [@Control@1336:<Control#1053307178040>]
+23 orphans
+5/5 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/integration/test_contacts_run_presentation.gd
+    - Outside Tests
+        * [<Node#129167787796>(subsystem_animation.gd)]
+        * [<Node#129184565028>(subsystem_audio.gd)]
+        * [<Node#129201342254>]
+        * [<Node#129218119475>]
+        * [<Node#129234896694>(subsystem_backgrounds.gd)]
+        * [<Node#129771767609>(subsystem_choices.gd)]
+        * [<Timer#129788544827>]
+        * [<Node#129805322044>(subsystem_expression.gd)]
+        * [<Node#129838876482>(subsystem_glossary.gd)]
+        * [<Node#129855653699>(subsystem_history.gd)]
+        * [<Node#129872430916>(subsystem_input.gd)]
+        * [<Timer#129889208133>]
+        * [<Node#129905985350>(subsystem_jump.gd)]
+        * [<Node#129922762567>(subsystem_containers.gd)]
+        * [<Node#129939539784>(subsystem_portraits.gd)]
+        * [<Node#130476410697>(subsystem_save.gd)]
+        * [<Timer#130493187914>]
+        * [<Node#130509965131>(subsystem_settings.gd)]
+        * [<Node#130526742351>(subsystem_styles.gd)]
+        * [<Node#130543519568>(subsystem_text.gd)]
+        * [<Node#130627405653>(subsystem_text_input.gd)]
+        * [<Node#130644182870>(subsystem_variables.gd)]
+        * [<Node#130660960087>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#130677737304>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+res://tests/integration/test_contacts_run_presentation.gd
+- test_live_accessibility_recolours_existing_transcript_without_owner_or_focus_mutation
+    [Failed]:  DICTIONARY({ "projection": 7, "open": 1, "reply": 0, "prepare": 0, "acknowledge": 0, "canc...cel": 0 }) != DICTIONARY({ "projection": 5, "open": 1, "reply": 0, "prepare": 0, "acknowledge": 0, "canc...cel": 0 }).
+    { "projection": 7, "open": 1, "reply": 0...ncel": 0 } != { "projection": 5, "open": 1, "reply": 0...ncel": 0 }  1 of 6 keys do not match.  Colour signals cannot request correspondence or ordinary commands.
+          at line 227
+- test_colour_change_preserves_pending_retry_failure_and_exact_command
+    [Failed]:  DICTIONARY({ "projection": 8, "open": 1, "reply": 0, "prepare": 1, "acknowledge": 1, "canc...cel": 0 }) != DICTIONARY({ "projection": 6, "open": 1, "reply": 0, "prepare": 1, "acknowledge": 1, "canc...cel": 0 }).
+    { "projection": 8, "open": 1, "reply": 0...ncel": 0 } != { "projection": 6, "open": 1, "reply": 0...ncel": 0 }  1 of 6 keys do not match.
+          at line 274
+- test_colour_change_during_awaited_ack_does_not_recreate_or_cancel_pending_reply
+    [Failed]:  DICTIONARY({ "projection": 7, "open": 1, "reply": 0, "prepare": 1, "acknowledge": 1, "canc...cel": 0 }) != DICTIONARY({ "projection": 6, "open": 1, "reply": 0, "prepare": 1, "acknowledge": 1, "canc...cel": 0 }).
+    { "projection": 7, "open": 1, "reply": 0...ncel": 0 } != { "projection": 6, "open": 1, "reply": 0...ncel": 0 }  1 of 6 keys do not match.
+          at line 314
+
+Totals
+------
+Warnings              1
+
+Scripts               3
+Tests                13
+Passing Tests        10
+Failing Tests         3
+Asserts           219/222
+Orphans              24
+Time              3.536s
+
+
+---- 3 failing tests ----

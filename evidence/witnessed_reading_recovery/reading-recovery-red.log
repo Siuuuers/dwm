@@ -1,0 +1,330 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/6cc14676-800b-4f40-87b5-33ce91f54e8c/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+
+
+res://tests/unit/test_witnessed_auto_controller.gd
+* test_toggle_commits_the_profile_and_a_failed_commit_preserves_truth
+* test_explicit_auto_target_is_idempotent_and_retries_the_same_failed_target
+SCRIPT ERROR: Invalid call. Nonexistent function 'set_auto_enabled' in base 'Node (WitnessedAutoController.gd)'.
+   at: test_explicit_auto_target_is_idempotent_and_retries_the_same_failed_target (res://tests/unit/test_witnessed_auto_controller.gd:109)
+   GDScript backtrace (most recent call first):
+       [0] test_explicit_auto_target_is_idempotent_and_retries_the_same_failed_target (res://tests/unit/test_witnessed_auto_controller.gd:109)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] test_scripts (res://addons/gut/gut.gd:1047)
+       [4] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [5] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [6] main (res://addons/gut/cli/gut_cli.gd:297)
+       [7] _init (res://addons/gut/gut_cmdln.gd:39)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'set_auto_enabled' in base 'Node (WitnessedAutoController.gd)'.
+      at line -1
+* test_reentrant_auto_source_replacement_retires_the_old_setter
+SCRIPT ERROR: Invalid call. Nonexistent function 'set_auto_enabled' in base 'Node (WitnessedAutoController.gd)'.
+   at: test_reentrant_auto_source_replacement_retires_the_old_setter (res://tests/unit/test_witnessed_auto_controller.gd:142)
+   GDScript backtrace (most recent call first):
+       [0] test_reentrant_auto_source_replacement_retires_the_old_setter (res://tests/unit/test_witnessed_auto_controller.gd:142)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] test_scripts (res://addons/gut/gut.gd:1047)
+       [4] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [5] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [6] main (res://addons/gut/cli/gut_cli.gd:297)
+       [7] _init (res://addons/gut/gut_cmdln.gd:39)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'set_auto_enabled' in base 'Node (WitnessedAutoController.gd)'.
+      at line -1
+* test_exact_delays_advance_once_and_never_restart_for_duplicate_finished_signal
+* test_suspension_preserves_remaining_time_and_skips_the_resume_delta
+* test_suspension_notification_quarantines_resume_without_an_ineligible_tick
+* test_source_identity_and_bridge_barriers_fail_closed_without_retry
+* test_preference_changes_and_restore_replace_the_timer_with_one_full_delay
+* test_retirement_and_reentrant_replacement_cannot_leak_an_old_generation
+7/9 passed.
+
+
+res://tests/unit/test_witnessed_skip_controller.gd
+* test_auto_off_is_durable_before_the_first_step_and_failure_does_not_start
+* test_explicit_skip_target_is_idempotent_and_retries_the_same_failed_start
+SCRIPT ERROR: Invalid call. Nonexistent function 'set_skip_active' in base 'Node (WitnessedSkipController.gd)'.
+   at: test_explicit_skip_target_is_idempotent_and_retries_the_same_failed_start (res://tests/unit/test_witnessed_skip_controller.gd:99)
+   GDScript backtrace (most recent call first):
+       [0] test_explicit_skip_target_is_idempotent_and_retries_the_same_failed_start (res://tests/unit/test_witnessed_skip_controller.gd:99)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] test_scripts (res://addons/gut/gut.gd:1047)
+       [4] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [5] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [6] main (res://addons/gut/cli/gut_cli.gd:297)
+       [7] _init (res://addons/gut/gut_cmdln.gd:39)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'set_skip_active' in base 'Node (WitnessedSkipController.gd)'.
+      at line -1
+* test_reentrant_skip_source_replacement_retires_the_old_setter
+SCRIPT ERROR: Invalid call. Nonexistent function 'set_skip_active' in base 'Node (WitnessedSkipController.gd)'.
+   at: test_reentrant_skip_source_replacement_retires_the_old_setter (res://tests/unit/test_witnessed_skip_controller.gd:132)
+   GDScript backtrace (most recent call first):
+       [0] test_reentrant_skip_source_replacement_retires_the_old_setter (res://tests/unit/test_witnessed_skip_controller.gd:132)
+       [1] _run_test (res://addons/gut/gut.gd:622)
+       [2] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [3] test_scripts (res://addons/gut/gut.gd:1047)
+       [4] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [5] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [6] main (res://addons/gut/cli/gut_cli.gd:297)
+       [7] _init (res://addons/gut/gut_cmdln.gd:39)
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'set_skip_active' in base 'Node (WitnessedSkipController.gd)'.
+      at line -1
+* test_stop_during_auto_commit_retires_the_pending_start
+* test_second_toggle_stops_and_each_frame_runs_at_most_one_step
+* test_failure_false_decision_and_boundary_each_stop_the_session
+* test_reentrant_replacement_cannot_let_the_old_step_stop_the_new_session
+* test_external_auto_on_and_admission_loss_stop_without_an_extra_step
+* test_profile_restore_retires_skip_even_when_auto_remains_off
+* test_freed_dependencies_fail_closed_before_another_step
+8/10 passed.
+
+
+res://tests/scene/test_witnessed_transport_recovery.gd
+* test_determinate_failure_is_a_modal_retry_cancel_surface_above_the_frozen_composition
+ERROR: Cannot open file 'res://scenes/ui/witnessed/WitnessedTransportRecovery.tscn'.
+   at: load (scene/resources/resource_format_text.cpp:1430)
+   GDScript backtrace (most recent call first):
+       [0] _surface (res://tests/scene/test_witnessed_transport_recovery.gd:47)
+       [1] test_determinate_failure_is_a_modal_retry_cancel_surface_above_the_frozen_composition (res://tests/scene/test_witnessed_transport_recovery.gd:66)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [4] test_scripts (res://addons/gut/gut.gd:1047)
+       [5] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [6] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [7] main (res://addons/gut/cli/gut_cli.gd:297)
+       [8] _init (res://addons/gut/gut_cmdln.gd:39)
+ERROR: Failed loading resource: res://scenes/ui/witnessed/WitnessedTransportRecovery.tscn.
+   at: _load (core/io/resource_loader.cpp:343)
+   GDScript backtrace (most recent call first):
+       [0] _surface (res://tests/scene/test_witnessed_transport_recovery.gd:47)
+       [1] test_determinate_failure_is_a_modal_retry_cancel_surface_above_the_frozen_composition (res://tests/scene/test_witnessed_transport_recovery.gd:66)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [4] test_scripts (res://addons/gut/gut.gd:1047)
+       [5] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [6] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [7] main (res://addons/gut/cli/gut_cli.gd:297)
+       [8] _init (res://addons/gut/gut_cmdln.gd:39)
+    [Failed]:  Expected [<null>] to be anything but NULL:  the dedicated Witnessed recovery scene must exist
+      at line 66
+    [Failed]:  Unexpected Errors:
+    [1] <engine-0>Condition "err != OK" is true. Returning: Ref<Resource>()
+    [2] <engine-0>Condition "found" is true. Returning: Ref<Resource>()
+      at line -1
+* test_buttons_emit_only_guarded_fresh_actions_and_dismiss_retires_old_native_callbacks
+ERROR: Cannot open file 'res://scenes/ui/witnessed/WitnessedTransportRecovery.tscn'.
+   at: load (scene/resources/resource_format_text.cpp:1430)
+   GDScript backtrace (most recent call first):
+       [0] _surface (res://tests/scene/test_witnessed_transport_recovery.gd:47)
+       [1] test_buttons_emit_only_guarded_fresh_actions_and_dismiss_retires_old_native_callbacks (res://tests/scene/test_witnessed_transport_recovery.gd:88)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [4] test_scripts (res://addons/gut/gut.gd:1047)
+       [5] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [6] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [7] main (res://addons/gut/cli/gut_cli.gd:297)
+       [8] _init (res://addons/gut/gut_cmdln.gd:39)
+ERROR: Failed loading resource: res://scenes/ui/witnessed/WitnessedTransportRecovery.tscn.
+   at: _load (core/io/resource_loader.cpp:343)
+   GDScript backtrace (most recent call first):
+       [0] _surface (res://tests/scene/test_witnessed_transport_recovery.gd:47)
+       [1] test_buttons_emit_only_guarded_fresh_actions_and_dismiss_retires_old_native_callbacks (res://tests/scene/test_witnessed_transport_recovery.gd:88)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [4] test_scripts (res://addons/gut/gut.gd:1047)
+       [5] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [6] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [7] main (res://addons/gut/cli/gut_cli.gd:297)
+       [8] _init (res://addons/gut/gut_cmdln.gd:39)
+    [Failed]:  Expected [<null>] to be anything but NULL:  the dedicated Witnessed recovery scene must exist
+      at line 88
+    [Failed]:  Unexpected Errors:
+    [1] <engine-0>Condition "err != OK" is true. Returning: Ref<Resource>()
+    [2] <engine-0>Condition "found" is true. Returning: Ref<Resource>()
+      at line -1
+* test_uncertain_failure_has_truthful_inert_copy_and_no_false_retry_or_cancel
+ERROR: Cannot open file 'res://scenes/ui/witnessed/WitnessedTransportRecovery.tscn'.
+   at: load (scene/resources/resource_format_text.cpp:1430)
+   GDScript backtrace (most recent call first):
+       [0] _surface (res://tests/scene/test_witnessed_transport_recovery.gd:47)
+       [1] test_uncertain_failure_has_truthful_inert_copy_and_no_false_retry_or_cancel (res://tests/scene/test_witnessed_transport_recovery.gd:118)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+ERROR: Failed loading resource: res://scenes/ui/witnessed/WitnessedTransportRecovery.tscn.
+   at: _load (core/io/resource_loader.cpp:343)
+   GDScript backtrace (most recent call first):
+       [0] _surface (res://tests/scene/test_witnessed_transport_recovery.gd:47)
+       [1] test_uncertain_failure_has_truthful_inert_copy_and_no_false_retry_or_cancel (res://tests/scene/test_witnessed_transport_recovery.gd:118)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Expected [<null>] to be anything but NULL:  the dedicated Witnessed recovery scene must exist
+      at line 118
+    [Failed]:  Unexpected Errors:
+    [1] <engine-0>Condition "err != OK" is true. Returning: Ref<Resource>()
+    [2] <engine-0>Condition "found" is true. Returning: Ref<Resource>()
+      at line -1
+* test_three_locales_and_accessibility_sizes_publish_one_atomic_complete_tuple
+ERROR: Cannot open file 'res://scenes/ui/witnessed/WitnessedTransportRecovery.tscn'.
+   at: load (scene/resources/resource_format_text.cpp:1430)
+   GDScript backtrace (most recent call first):
+       [0] _surface (res://tests/scene/test_witnessed_transport_recovery.gd:47)
+       [1] test_three_locales_and_accessibility_sizes_publish_one_atomic_complete_tuple (res://tests/scene/test_witnessed_transport_recovery.gd:140)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+ERROR: Failed loading resource: res://scenes/ui/witnessed/WitnessedTransportRecovery.tscn.
+   at: _load (core/io/resource_loader.cpp:343)
+   GDScript backtrace (most recent call first):
+       [0] _surface (res://tests/scene/test_witnessed_transport_recovery.gd:47)
+       [1] test_three_locales_and_accessibility_sizes_publish_one_atomic_complete_tuple (res://tests/scene/test_witnessed_transport_recovery.gd:140)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Expected [<null>] to be anything but NULL:  the dedicated Witnessed recovery scene must exist
+      at line 140
+    [Failed]:  Unexpected Errors:
+    [1] <engine-0>Condition "err != OK" is true. Returning: Ref<Resource>()
+    [2] <engine-0>Condition "found" is true. Returning: Ref<Resource>()
+      at line -1
+* test_locale_mismatch_and_invalid_capability_tuple_change_nothing
+ERROR: Cannot open file 'res://scenes/ui/witnessed/WitnessedTransportRecovery.tscn'.
+   at: load (scene/resources/resource_format_text.cpp:1430)
+   GDScript backtrace (most recent call first):
+       [0] _surface (res://tests/scene/test_witnessed_transport_recovery.gd:47)
+       [1] test_locale_mismatch_and_invalid_capability_tuple_change_nothing (res://tests/scene/test_witnessed_transport_recovery.gd:161)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+ERROR: Failed loading resource: res://scenes/ui/witnessed/WitnessedTransportRecovery.tscn.
+   at: _load (core/io/resource_loader.cpp:343)
+   GDScript backtrace (most recent call first):
+       [0] _surface (res://tests/scene/test_witnessed_transport_recovery.gd:47)
+       [1] test_locale_mismatch_and_invalid_capability_tuple_change_nothing (res://tests/scene/test_witnessed_transport_recovery.gd:161)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+    [Failed]:  Expected [<null>] to be anything but NULL:  the dedicated Witnessed recovery scene must exist
+      at line 161
+    [Failed]:  Unexpected Errors:
+    [1] <engine-0>Condition "err != OK" is true. Returning: Ref<Resource>()
+    [2] <engine-0>Condition "found" is true. Returning: Ref<Resource>()
+      at line -1
+0/5 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/unit/test_witnessed_auto_controller.gd
+    - Outside Tests
+        * [<Node#131264939798>(subsystem_animation.gd)]
+        * [<Node#131281717026>(subsystem_audio.gd)]
+        * [<Node#131298494258>]
+        * [<Node#131315271483>]
+        * [<Node#131332048705>(subsystem_backgrounds.gd)]
+        * [<Node#131868919618>(subsystem_choices.gd)]
+        * [<Timer#131885696835>]
+        * [<Node#131902474052>(subsystem_expression.gd)]
+        * [<Node#131936028489>(subsystem_glossary.gd)]
+        * [<Node#131952805706>(subsystem_history.gd)]
+        * [<Node#131969582923>(subsystem_input.gd)]
+        * [<Timer#131986360140>]
+        * [<Node#132003137357>(subsystem_jump.gd)]
+        * [<Node#132019914574>(subsystem_containers.gd)]
+        * [<Node#132036691791>(subsystem_portraits.gd)]
+        * [<Node#132573562704>(subsystem_save.gd)]
+        * [<Timer#132590339921>]
+        * [<Node#132607117138>(subsystem_settings.gd)]
+        * [<Node#132623894358>(subsystem_styles.gd)]
+        * [<Node#132640671575>(subsystem_text.gd)]
+        * [<Node#132724557660>(subsystem_text_input.gd)]
+        * [<Node#132741334877>(subsystem_variables.gd)]
+        * [<Node#132758112094>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#132774889311>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+res://tests/unit/test_witnessed_auto_controller.gd
+- test_explicit_auto_target_is_idempotent_and_retries_the_same_failed_target
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'set_auto_enabled' in base 'Node (WitnessedAutoController.gd)'.
+          at line -1
+- test_reentrant_auto_source_replacement_retires_the_old_setter
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'set_auto_enabled' in base 'Node (WitnessedAutoController.gd)'.
+          at line -1
+
+res://tests/unit/test_witnessed_skip_controller.gd
+- test_explicit_skip_target_is_idempotent_and_retries_the_same_failed_start
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'set_skip_active' in base 'Node (WitnessedSkipController.gd)'.
+          at line -1
+- test_reentrant_skip_source_replacement_retires_the_old_setter
+    [Failed]:  Unexpected Errors:
+    [1] <engine-2>Invalid call. Nonexistent function 'set_skip_active' in base 'Node (WitnessedSkipController.gd)'.
+          at line -1
+
+res://tests/scene/test_witnessed_transport_recovery.gd
+- test_determinate_failure_is_a_modal_retry_cancel_surface_above_the_frozen_composition
+    [Failed]:  Expected [<null>] to be anything but NULL:  the dedicated Witnessed recovery scene must exist
+          at line 66
+    [Failed]:  Unexpected Errors:
+    [1] <engine-0>Condition "err != OK" is true. Returning: Ref<Resource>()
+    [2] <engine-0>Condition "found" is true. Returning: Ref<Resource>()
+          at line -1
+- test_buttons_emit_only_guarded_fresh_actions_and_dismiss_retires_old_native_callbacks
+    [Failed]:  Expected [<null>] to be anything but NULL:  the dedicated Witnessed recovery scene must exist
+          at line 88
+    [Failed]:  Unexpected Errors:
+    [1] <engine-0>Condition "err != OK" is true. Returning: Ref<Resource>()
+    [2] <engine-0>Condition "found" is true. Returning: Ref<Resource>()
+          at line -1
+- test_uncertain_failure_has_truthful_inert_copy_and_no_false_retry_or_cancel
+    [Failed]:  Expected [<null>] to be anything but NULL:  the dedicated Witnessed recovery scene must exist
+          at line 118
+    [Failed]:  Unexpected Errors:
+    [1] <engine-0>Condition "err != OK" is true. Returning: Ref<Resource>()
+    [2] <engine-0>Condition "found" is true. Returning: Ref<Resource>()
+          at line -1
+- test_three_locales_and_accessibility_sizes_publish_one_atomic_complete_tuple
+    [Failed]:  Expected [<null>] to be anything but NULL:  the dedicated Witnessed recovery scene must exist
+          at line 140
+    [Failed]:  Unexpected Errors:
+    [1] <engine-0>Condition "err != OK" is true. Returning: Ref<Resource>()
+    [2] <engine-0>Condition "found" is true. Returning: Ref<Resource>()
+          at line -1
+- test_locale_mismatch_and_invalid_capability_tuple_change_nothing
+    [Failed]:  Expected [<null>] to be anything but NULL:  the dedicated Witnessed recovery scene must exist
+          at line 161
+    [Failed]:  Unexpected Errors:
+    [1] <engine-0>Condition "err != OK" is true. Returning: Ref<Resource>()
+    [2] <engine-0>Condition "found" is true. Returning: Ref<Resource>()
+          at line -1
+
+Totals
+------
+Scripts               3
+Tests                24
+Passing Tests        15
+Failing Tests         9
+Asserts           121/135
+Orphans              24
+Time              0.706s
+
+
+---- 9 failing tests ----

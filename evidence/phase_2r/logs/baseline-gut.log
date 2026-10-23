@@ -1,0 +1,263 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/.godot/phase2r_tests/b6324a77-0d9e-43b9-86ec-69a481f14b81/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+
+
+res://tests/unit/test_audio_manager.gd
+* test_expected_bgm_paths_exist
+* test_play_missing_bgm_returns_safe_error
+* test_context_resolves_track_ids
+* test_dating_context_resolution
+* test_ending_context_resolution
+* test_volume_settings_apply_no_crash
+* test_audio_state_save_dict_json_safe
+* test_apply_unknown_bgm_id_no_crash
+8/8 passed.
+
+
+res://tests/unit/test_effect_resolver.gd
+* test_known_stat_effects_mutate
+* test_known_money_and_coin_effects
+* test_unknown_effect_blocks_all
+WARNING: EffectResolver: unknown effect id(s) in ["pressure:+2", "bogus:+1"]; applying nothing. Source: 
+   at: push_warning (core/variant/variant_utility.cpp:1034)
+   GDScript backtrace (most recent call first):
+       [0] apply_effect_ids (res://autoload/EffectResolver.gd:89)
+       [1] test_unknown_effect_blocks_all (res://tests/unit/test_effect_resolver.gd:28)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [4] test_scripts (res://addons/gut/gut.gd:1047)
+       [5] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [6] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [7] main (res://addons/gut/cli/gut_cli.gd:297)
+       [8] _init (res://addons/gut/gut_cmdln.gd:39)
+* test_inventory_and_gift_effects
+* test_affection_and_attitude_and_inter_friend
+* test_minesweeper_floor_alias_and_clamp
+6/6 passed.
+
+
+res://tests/unit/test_game_state.gd
+* test_reset_game_initial_values
+* test_change_stat_clamps
+* test_display_conversions
+* test_money_overdraft_rules
+* test_coin_spending_blocks_when_insufficient
+* test_opening_and_tutorial_flags
+* test_advance_day_resets_and_ends
+* test_round_floor_defaults
+* test_two_app_rounds_without_supportz
+* test_one_supportz_gives_three_rounds
+* test_three_supportz_caps_floor
+* test_danger_penalty_and_reset
+* test_hospital_recovery
+* test_save_dict_is_json_safe
+* test_apply_save_dict_preserves_state
+* test_save_whitelist_includes_rng_seed
+* test_rng_seed_round_trips_through_save
+* test_check_immediate_faint_requires_sequela_and_danger
+* test_check_immediate_faint_sequela_and_low_health
+* test_check_immediate_faint_sequela_no_danger
+* test_should_route_sylvia_special_ending_thresholds
+* test_hospital_recovery_counts_sylvia_solo
+* test_resolve_day7_sylvia_special_highest_precedence
+* test_resolve_day7_priscilla_lavinia_primary_no_epilogue
+* test_resolve_day7_candidate_true_path
+* test_resolve_day7_not_day7_returns_epilogue_key
+26/26 passed.
+
+
+res://tests/unit/test_input_accessibility.gd
+* test_required_actions_exist
+* test_make_button_focusable
+* test_focus_first_control_finds_button
+* test_rebind_unknown_action_safe
+* test_accessibility_settings_exist
+* test_accessibility_apply_no_crash
+* test_minimum_click_size_positive
+[WARNING]:  Test script has 3 unfreed children.  Increase log level for more details.
+7/7 passed.
+
+
+res://tests/unit/test_localization.gd
+* test_default_locale_valid
+* test_set_supported_locales
+* test_unsupported_locale_rejected
+WARNING: LocalizationManager: unsupported locale 'fr' rejected.
+   at: push_warning (core/variant/variant_utility.cpp:1034)
+   GDScript backtrace (most recent call first):
+       [0] set_locale (res://autoload/LocalizationManager.gd:142)
+       [1] test_unsupported_locale_rejected (res://tests/unit/test_localization.gd:23)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [4] test_scripts (res://addons/gut/gut.gd:1047)
+       [5] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [6] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [7] main (res://addons/gut/cli/gut_cli.gd:297)
+       [8] _init (res://addons/gut/gut_cmdln.gd:39)
+* test_missing_key_returns_marker
+WARNING: LocalizationManager: missing key 'this.key.does.not.exist'.
+   at: push_warning (core/variant/variant_utility.cpp:1034)
+   GDScript backtrace (most recent call first):
+       [0] t (res://autoload/LocalizationManager.gd:163)
+       [1] test_missing_key_returns_marker (res://tests/unit/test_localization.gd:27)
+       [2] _run_test (res://addons/gut/gut.gd:622)
+       [3] _test_the_scripts (res://addons/gut/gut.gd:835)
+       [4] test_scripts (res://addons/gut/gut.gd:1047)
+       [5] run_tests (res://addons/gut/gui/GutRunner.gd:198)
+       [6] _run_tests (res://addons/gut/cli/gut_cli.gd:239)
+       [7] main (res://addons/gut/cli/gut_cli.gd:297)
+       [8] _init (res://addons/gut/gut_cmdln.gd:39)
+* test_param_replacement
+* test_newer_keys_exist
+* test_notification_param
+* test_zh_translation_present
+8/8 passed.
+
+
+res://tests/unit/test_minesweeper_rewards.gd
+* test_app_finish_rewards_money
+* test_exploded_still_rewards
+* test_dating_context_no_app_money
+* test_daily_cap_enforced
+* test_cap_grows_with_supportz
+* test_task_reward_once_only
+* test_win_win_win_claimable_once
+7/7 passed.
+
+
+res://tests/unit/test_save_manager.gd
+* test_ensure_save_folder
+* test_save_and_load_slot_roundtrip
+* test_pending_date_state_cleared_on_load
+* test_load_missing_slot_rejected
+* test_invalid_slot_ids
+* test_corrupted_json_rejected
+* test_quick_and_autosave_roundtrip
+* test_unsupported_future_schema_rejected
+* test_malformed_dict_rejected
+* test_migrate_upgrades_old_version
+* test_save_dict_has_no_objects
+* test_round_floor_preserved_and_clamped
+12/12 passed.
+
+
+res://tests/unit/test_schedule_rules.gd
+* test_add_action_costs_motivation
+* test_remove_refunds_motivation
+* test_cannot_add_at_zero_motivation
+* test_clear_with_and_without_refund
+* test_max_scheduled_dates_by_day
+* test_validate_schedule_returns_dictionary
+* test_warn_playable_round_and_motivation_empty_schedule
+* test_warn_unfinished_round_and_motivation
+* test_no_warn_zero_motivation_empty_schedule
+9/9 passed.
+
+
+res://tests/unit/test_shop_rules.gd
+* test_eighteen_shop_items
+* test_supportz_properties
+* test_all_item_effects_are_known
+* test_currencies_valid
+* test_gift_items_flagged
+5/5 passed.
+
+
+res://tests/unit/tooling/test_evidence_contract.gd
+* test_baseline_exists_and_matches_schema
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+    [Failed]:  ["FILE_MISSING: res://evidence/phase_2r/baseline.json"]
+      at line 14
+* test_every_command_proves_an_isolated_user_dir
+    [Failed] 
+      at line 22
+* test_heading_inventory_hash_is_bound_into_baseline
+    [Failed] 
+      at line 37
+0/3 passed.
+
+
+res://tests/unit/tooling/test_exact_path_commit.gd
+* test_exact_path_commit_contract_tokens
+* test_exact_path_commit_rejects_non_regular_blob_modes
+2/2 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/unit/test_audio_manager.gd
+    - Outside Tests
+        * [<Node#82090919613>(subsystem_animation.gd)]
+        * [<Node#82107696830>(subsystem_audio.gd)]
+        * [<Node#82124474047>]
+        * [<Node#82141251264>]
+        * [<Node#82158028481>(subsystem_backgrounds.gd)]
+        * [<Node#82694899394>(subsystem_choices.gd)]
+        * [<Timer#82711676611>]
+        * [<Node#82728453828>(subsystem_expression.gd)]
+        * [<Node#82762008265>(subsystem_glossary.gd)]
+        * [<Node#82778785482>(subsystem_history.gd)]
+        * [<Node#82795562699>(subsystem_input.gd)]
+        * [<Timer#82812339916>]
+        * [<Node#82829117133>(subsystem_jump.gd)]
+        * [<Node#82845894350>(subsystem_containers.gd)]
+        * [<Node#82862671567>(subsystem_portraits.gd)]
+        * [<Node#83399542480>(subsystem_save.gd)]
+        * [<Timer#83416319697>]
+        * [<Node#83433096914>(subsystem_settings.gd)]
+        * [<Node#83449874134>(subsystem_styles.gd)]
+        * [<Node#83466651351>(subsystem_text.gd)]
+        * [<Node#83550537436>(subsystem_text_input.gd)]
+        * [<Node#83567314653>(subsystem_variables.gd)]
+        * [<Node#83584091870>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#83600869087>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+res://tests/unit/tooling/test_evidence_contract.gd
+- test_baseline_exists_and_matches_schema
+    [Failed]:  ["FILE_MISSING: res://evidence/phase_2r/baseline.json"]
+          at line 14
+- test_every_command_proves_an_isolated_user_dir
+    [Failed]:  
+          at line 22
+- test_heading_inventory_hash_is_bound_into_baseline
+    [Failed]:  
+          at line 37
+
+Totals
+------
+Warnings              1
+
+Scripts              11
+Tests                93
+Passing Tests        90
+Failing Tests         3
+Asserts           332/335
+Orphans              24
+Time              0.491s
+
+
+---- 3 failing tests ----
+

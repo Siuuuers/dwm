@@ -1,0 +1,18 @@
+# Replaceable TEST content only. Ordinary transition markers are registration-owned.
+return
+
+label Day1
+TEST Day1. #id:line.Day1.one
+label Day1.branch
+TEST Day1 ordinary exit. #id:line.Day1.two
+label Day1.next
+return
+
+label Day1.1
+TEST intermediate. #id:line.Day1.1.one
+label Day1.1.next
+return
+
+label Day2
+TEST Day2 final placeholder. #id:line.Day2.one
+return

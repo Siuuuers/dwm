@@ -1,0 +1,137 @@
+diff --git a/scripts/ui/pause/PauseQuickCommands.gd b/scripts/ui/pause/PauseQuickCommands.gd
+index 1f7c520..3af0905 100644
+--- a/scripts/ui/pause/PauseQuickCommands.gd
++++ b/scripts/ui/pause/PauseQuickCommands.gd
+@@ -8,6 +8,20 @@ const COPY := preload("res://scripts/ui/BackupApp.gd").COPY
+ const BACKUP_THEME := preload("res://scripts/ui/backup/BackupTheme.gd")
+ const ACTIONS := {&"game_quick_save": "save", &"game_quick_load": "load"}
+ 
++class WindowContacts extends Node:
++	var _owner: Object
++	var _retire: Callable
++	func _init(owner: Object, retire: Callable) -> void:
++		_owner = owner
++		_retire = retire
++		process_mode = Node.PROCESS_MODE_ALWAYS
++	func _input(event: InputEvent) -> void:
++		# Window packets bypass the parent input group. Native popup handling may
++		# already have hidden the Window, so forward its final release as well.
++		if not is_instance_valid(_owner): return
++		_owner.observe_physical_contact(event)
++		if _retire.is_valid(): _retire.call()
++
+ var edge: Label
+ var last_result: Dictionary = {}
+ var _surface: Control
+@@ -49,9 +63,22 @@ func configure(surface: Control, port: Object, input_owner: Object,
+ 	_input_owner.input_bindings_changed.connect(retain_contacts)
+ 	_input_owner.source_input_custody_changed.connect(retain_contacts)
+ 	_surface.visibility_changed.connect(retain_contacts)
++	var settings: Node = _surface._hosts.get(&"settings")
++	if is_instance_valid(settings): _retain_on_window_custody(settings)
+ 	process_mode = Node.PROCESS_MODE_ALWAYS
+ 	return true
+ 
++func _retain_on_window_custody(node: Node) -> void:
++	# Mounted Settings windows can open and close between process frames. Retire
++	# their observed contacts at the boundary, including internal option popups.
++	if node is Window:
++		node.visibility_changed.connect(retain_contacts)
++		var observer := WindowContacts.new(_input_owner, retain_contacts)
++		observer.name = "PauseQuickWindowContacts"
++		node.add_child(observer)
++	for child: Node in node.get_children(true):
++		_retain_on_window_custody(child)
++
+ func _ready() -> void:
+ 	edge = EDGE.new()
+ 	edge.name = "PauseQuickStatus"
+@@ -87,16 +114,18 @@ func _source_owned() -> bool:
+ 		and _surface.can_process() and _admission.is_valid() and bool(_admission.call()) \
+ 		and not _source_snapshot().is_empty()
+ 
+-func _admitted() -> bool:
++func _admitted(action: String) -> bool:
+ 	return _base_admitted() and not _in_operation and _pending_token.is_empty() \
+-		and _surface.quick_input_admitted()
++		and _surface.quick_input_admitted(action)
+ 
+ func _source_snapshot() -> Dictionary:
+ 	return _source_reader.call() if _source_reader.is_valid() else {}
+ 
+ func observe_input(event: InputEvent) -> void:
+ 	_input_owner.observe_physical_contact(event)
+-	if not _admitted(): retain_contacts()
++	# Save is available in every currently supported Quick source; Load has the
++	# narrower Settings boundary and is checked separately at dispatch.
++	if not _admitted("save"): retain_contacts()
+ 
+ func handle_input(event: InputEvent) -> bool:
+ 	if not (event is InputEventKey or event is InputEventJoypadButton): return false
+@@ -111,7 +140,7 @@ func handle_input(event: InputEvent) -> bool:
+ 	if id.is_empty() or not current.has(id): return true
+ 	var fresh := _contacts.is_empty() and current.size() == 1
+ 	_contacts[id] = current[id]
+-	if not fresh or not _admitted(): return true
++	if not fresh or not _admitted(action): return true
+ 	_surface.get_viewport().set_input_as_handled()
+ 	_request(action)
+ 	return true
+@@ -119,7 +148,7 @@ func handle_input(event: InputEvent) -> bool:
+ ## The live-reading F9 owner has already consumed its one physical activation
+ ## and acquired literal Pause custody. Reuse the same token and consent flow.
+ func request_load() -> Dictionary:
+-	if not _admitted(): return {"ok": false, "code": &"pause_load_unavailable"}
++	if not _admitted("load"): return {"ok": false, "code": &"pause_load_unavailable"}
+ 	_request("load")
+ 	if not _pending_token.is_empty() and is_instance_valid(_confirmation):
+ 		return {"ok": true, "value": {"opened": true}}
+@@ -140,7 +169,7 @@ func _request(action: String) -> void:
+ 	var prepared: Dictionary = _port.prepare_quick_action(action)
+ 	_in_operation = false
+ 	last_result = prepared.duplicate(true)
+-	if not _admitted() or _source_snapshot() != _source:
++	if not _admitted(action) or _source_snapshot() != _source:
+ 		if prepared.get("ok", false): _port.cancel_action(str(prepared.value.token))
+ 		return
+ 	if not prepared.get("ok", false):
+@@ -236,7 +265,7 @@ func _process(delta: float) -> void:
+ 		_observed_source = source
+ 		retain_contacts()
+ 		if edge.current_binding.get("source", {}) != source: edge.clear_status()
+-	var admitted := _admitted()
++	var admitted := _admitted("save")
+ 	if admitted != _was_admitted:
+ 		_was_admitted = admitted
+ 		retain_contacts()
+diff --git a/scripts/ui/pause/PauseSurface.gd b/scripts/ui/pause/PauseSurface.gd
+index 619776b..2aa9eb9 100644
+--- a/scripts/ui/pause/PauseSurface.gd
++++ b/scripts/ui/pause/PauseSurface.gd
+@@ -304,16 +304,22 @@ func present_confirmation(request: Dictionary, accept: Callable, cancel: Callabl
+ 
+ ## Quick commands retain the current row, Backup drawer and mode. Their consent
+ ## temporarily owns the same workfield without entering the Backup application.
+-func quick_input_admitted() -> bool:
+-	if not _opened or not _interactive or _return_retry or not is_visible_in_tree() \
++func quick_input_admitted(action: String) -> bool:
++	if action not in ["save", "load"] or not _opened or not _interactive or _return_retry or not is_visible_in_tree() \
+ 			or not can_process() or is_instance_valid(_host_confirmation) \
+-			or entered_action not in [&"", &"backup"]:
++			or entered_action not in [&"", &"backup", &"settings"]:
+ 		return false
++	if entered_action == &"settings":
++		# Only explicit Save is admitted by this bounded Settings increment. Its
++		# existing departure guard retains modal, capture and preference custody.
++		var settings: Control = _hosts.get(&"settings")
++		return action == "save" and is_instance_valid(settings) and settings.is_visible_in_tree() \
++			and settings.can_process() and settings.has_method("can_return_home") and settings.can_return_home()
+ 	var host: Control = _hosts.get(&"backup")
+ 	return not is_instance_valid(host) or not host.has_method("can_return_home") or host.can_return_home()
+ 
+ func present_quick_confirmation(request: Dictionary, accept: Callable, cancel: Callable) -> Dictionary:
+-	if not quick_input_admitted() or not accept.is_valid() or not cancel.is_valid():
++	if not quick_input_admitted("load") or not accept.is_valid() or not cancel.is_valid():
+ 		return {"ok": false, "code": &"pause_confirmation_unavailable"}
+ 	var sheet := HOST_CONFIRMATION.new()
+ 	sheet.request = request.duplicate(true)

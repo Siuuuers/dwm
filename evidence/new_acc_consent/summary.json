@@ -1,0 +1,502 @@
+{
+  "base_commit": "5eebd845d16be942da5fe0e4bfdf97a90fbaa6b3",
+  "task": "dwm-eei.20",
+  "scope": "Prepared New Acc title replacement consent, owner-reported live/Autosave baselines, stale revalidation before identity, retained-operation Retry UI and retiring-title lifetime safety.",
+  "latest_gut_suites": {
+    "res://tests/unit/test_new_run_replacement_baseline.gd": {
+      "passed": 7,
+      "tests": 7,
+      "log": "new-acc-consent-initial-20260907a.log"
+    },
+    "res://tests/unit/test_confirmation_retry_only.gd": {
+      "passed": 5,
+      "tests": 5,
+      "log": "new-acc-consent-initial-20260907a.log"
+    },
+    "res://tests/unit/test_shared_confirmation_input.gd": {
+      "passed": 12,
+      "tests": 12,
+      "log": "new-acc-consent-initial-20260907a.log"
+    },
+    "res://tests/unit/test_new_acc_title_lifetime.gd": {
+      "passed": 4,
+      "tests": 4,
+      "log": "new-acc-lifetime-20260907c.log"
+    },
+    "res://tests/integration/test_prepared_new_run.gd": {
+      "passed": 10,
+      "tests": 10,
+      "log": "new-acc-owner-20260907a.log"
+    },
+    "res://tests/integration/test_new_run_pair_durability.gd": {
+      "passed": 8,
+      "tests": 8,
+      "log": "new-acc-owner-20260907a.log"
+    },
+    "res://tests/integration/test_new_run_transaction.gd": {
+      "passed": 12,
+      "tests": 12,
+      "log": "new-acc-owner-20260907a.log"
+    }
+  },
+  "unique_gut_suites": 7,
+  "unique_gut_tests": 58,
+  "native": {
+    "passed": true,
+    "checks": 422,
+    "captures": 18,
+    "tuples": 9,
+    "scope": "Actual Menu and shared sheet native rendering/input with explicit in-memory operation outcome fixture. Real fonts/catalogs; Standard paper only. No storage, OS assistive-technology or complete New Acc acceptance claim."
+  },
+  "production": {
+    "passed": true,
+    "summaries": [
+      {
+        "checks": 56,
+        "facts": {
+          "phase": "seed",
+          "process_id": 5580,
+          "saved": {
+            "dark_mode": false,
+            "day": 1,
+            "money": 5,
+            "seed_process_id": 5580,
+            "slot_sha256": "803f5b0a96adf79f6592797ffae28f98cef83c18a848a42620592845067cabc7"
+          },
+          "startup": {
+            "completed_stages": [
+              "select_and_prove_roots",
+              "construct_and_inject_mutation_gate",
+              "construct_identity_issuer_and_contact_commands",
+              "initialize_saves",
+              "initialize_profile",
+              "initialize_localization",
+              "initialize_input",
+              "initialize_accessibility",
+              "initialize_audio",
+              "initialize_window_mode",
+              "initialize_dialogic_bridge",
+              "configure_restore_participants",
+              "configure_day_resolution",
+              "configure_minesweeper_rounds",
+              "publish_application_ready"
+            ],
+            "fatal_result": {},
+            "gate_injection": {
+              "factory_invocation_count": 1,
+              "gate_instance_id": -9223371899348711486,
+              "target_instance_ids": [
+                -9223371899348711486,
+                -9223371899348711486,
+                -9223371899348711486,
+                -9223371899348711486,
+                -9223371899348711486,
+                -9223371899348711486,
+                -9223371899348711486,
+                -9223371899348711486,
+                -9223371899348711486
+              ],
+              "targets": [
+                "SaveManager",
+                "GameState",
+                "ProfileManager",
+                "LocalizationManager",
+                "AudioManager",
+                "WindowModeManager",
+                "SceneRouter",
+                "DialogicBridge",
+                "InputManager"
+              ]
+            },
+            "mode": "final",
+            "planned_blockers": [],
+            "ready": true,
+            "started": true
+          },
+          "user_root": "C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-ui-build/.godot/new-acc-consent-title-b-vtvauhuj/appdata/Godot/app_userdata/DWM"
+        },
+        "failures": []
+      },
+      {
+        "checks": 71,
+        "facts": {
+          "load_result": {
+            "code": "ok",
+            "ok": true,
+            "value": {
+              "action": "load",
+              "checkpoint_id": "run_id.3e298851f08c8d23ef34e1c8acd5fd5cf5a2043a22ce4543c7c5c55148721a29:2",
+              "locator": "slot:1",
+              "route_id": "main"
+            }
+          },
+          "phase": "resume",
+          "process_id": 32976,
+          "restore_notifications": 1,
+          "restored": {
+            "day": 1,
+            "money": 5,
+            "scene": "res://scenes/main/MainGameScene.tscn"
+          },
+          "startup": {
+            "completed_stages": [
+              "select_and_prove_roots",
+              "construct_and_inject_mutation_gate",
+              "construct_identity_issuer_and_contact_commands",
+              "initialize_saves",
+              "initialize_profile",
+              "initialize_localization",
+              "initialize_input",
+              "initialize_accessibility",
+              "initialize_audio",
+              "initialize_window_mode",
+              "initialize_dialogic_bridge",
+              "configure_restore_participants",
+              "configure_day_resolution",
+              "configure_minesweeper_rounds",
+              "publish_application_ready"
+            ],
+            "fatal_result": {},
+            "gate_injection": {
+              "factory_invocation_count": 1,
+              "gate_instance_id": -9223371899348711486,
+              "target_instance_ids": [
+                -9223371899348711486,
+                -9223371899348711486,
+                -9223371899348711486,
+                -9223371899348711486,
+                -9223371899348711486,
+                -9223371899348711486,
+                -9223371899348711486,
+                -9223371899348711486,
+                -9223371899348711486
+              ],
+              "targets": [
+                "SaveManager",
+                "GameState",
+                "ProfileManager",
+                "LocalizationManager",
+                "AudioManager",
+                "WindowModeManager",
+                "SceneRouter",
+                "DialogicBridge",
+                "InputManager"
+              ]
+            },
+            "mode": "final",
+            "planned_blockers": [],
+            "ready": true,
+            "started": true
+          },
+          "user_root": "C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-ui-build/.godot/new-acc-consent-title-b-vtvauhuj/appdata/Godot/app_userdata/DWM"
+        },
+        "failures": []
+      }
+    ],
+    "executions": [
+      {
+        "phase": "import",
+        "command": [
+          "C:\\Program Files\\Godot_v4.6.3-stable_mono_win64\\Godot_v4.6.3-stable_mono_win64_console.exe",
+          "--headless",
+          "--rendering-method",
+          "gl_compatibility",
+          "--path",
+          "C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\minesweeper-ui-build\\.godot\\new-acc-consent-title-b-vtvauhuj\\project",
+          "--editor",
+          "--import",
+          "--quit",
+          "--",
+          "--phase2r-bootstrap-mode=final"
+        ],
+        "returncode": 0,
+        "passed": true,
+        "project_sha256_after": "f8c92d8f46436463656cc338ca68d1aab0df904bcfdf7d110b934b7b7dff7158",
+        "inherited_shutdown": null
+      },
+      {
+        "phase": "seed",
+        "command": [
+          "C:\\Program Files\\Godot_v4.6.3-stable_mono_win64\\Godot_v4.6.3-stable_mono_win64_console.exe",
+          "--headless",
+          "--rendering-method",
+          "gl_compatibility",
+          "--path",
+          "C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\minesweeper-ui-build\\.godot\\new-acc-consent-title-b-vtvauhuj\\project",
+          "--verbose",
+          "--",
+          "--phase2r-bootstrap-mode=final"
+        ],
+        "returncode": 0,
+        "passed": true,
+        "project_sha256_after": "124dfa8e3ebf414dbc5bb6bc01513091103450f6feb207496766fe94cc0eb81c",
+        "inherited_shutdown": {
+          "baseline_log": "tools/save_load_loop/evidence/baseline/verification.log",
+          "baseline_log_sha256": "f5c328bda9a6d88b0618d9d1897c73c58514bf4fda134269c009d6d5592e4624",
+          "resource_paths": [
+            "res://addons/dialogic/Core/Dialogic_Subsystem.gd (GDScript)",
+            "res://addons/dialogic/Modules/Audio/subsystem_audio.gd (GDScript)",
+            "res://addons/dialogic/Modules/Background/DefaultBackgroundScene/default_background.gd (GDScript)",
+            "res://addons/dialogic/Modules/Background/DefaultBackgroundScene/default_background.tscn (PackedScene)",
+            "res://addons/dialogic/Modules/Background/dialogic_background.gd (GDScript)",
+            "res://addons/dialogic/Modules/Background/subsystem_backgrounds.gd (GDScript)",
+            "res://addons/dialogic/Modules/Character/default_portrait.gd (GDScript)",
+            "res://addons/dialogic/Modules/Character/default_portrait.tscn (PackedScene)",
+            "res://addons/dialogic/Modules/Character/dialogic_portrait.gd (GDScript)",
+            "res://addons/dialogic/Modules/Character/subsystem_containers.gd (GDScript)",
+            "res://addons/dialogic/Modules/Character/subsystem_portraits.gd (GDScript)",
+            "res://addons/dialogic/Modules/Choice/subsystem_choices.gd (GDScript)",
+            "res://addons/dialogic/Modules/Core/subsystem_animation.gd (GDScript)",
+            "res://addons/dialogic/Modules/Core/subsystem_expression.gd (GDScript)",
+            "res://addons/dialogic/Modules/Core/subsystem_input.gd (GDScript)",
+            "res://addons/dialogic/Modules/Glossary/subsystem_glossary.gd (GDScript)",
+            "res://addons/dialogic/Modules/History/subsystem_history.gd (GDScript)",
+            "res://addons/dialogic/Modules/Jump/subsystem_jump.gd (GDScript)",
+            "res://addons/dialogic/Modules/Save/subsystem_save.gd (GDScript)",
+            "res://addons/dialogic/Modules/Settings/subsystem_settings.gd (GDScript)",
+            "res://addons/dialogic/Modules/Style/subsystem_styles.gd (GDScript)",
+            "res://addons/dialogic/Modules/Text/subsystem_text.gd (GDScript)",
+            "res://addons/dialogic/Modules/TextInput/subsystem_text_input.gd (GDScript)",
+            "res://addons/dialogic/Modules/Variable/subsystem_variables.gd (GDScript)",
+            "res://addons/dialogic/Modules/Voice/subsystem_voice.gd (GDScript)",
+            "res://addons/dialogic/Resources/event.gd (GDScript)",
+            "res://scripts/application/desktop/DesktopCausalSequencePort.gd (GDScript)",
+            "res://scripts/application/desktop/DesktopConditionPolicyPort.gd (GDScript)",
+            "res://scripts/application/desktop/DesktopConsequenceCoordinator.gd (GDScript)",
+            "res://scripts/application/desktop/DesktopConsequenceSourcePort.gd (GDScript)",
+            "res://scripts/application/desktop/DesktopIdentityNonceIssuer.gd (GDScript)",
+            "res://scripts/application/desktop/GameStateDesktopConditionContextPort.gd (GDScript)",
+            "res://scripts/application/minesweeper/DesktopBoardFatePort.gd (GDScript)",
+            "res://scripts/application/minesweeper/DesktopFirstRevealSnapshotComposer.gd (GDScript)",
+            "res://scripts/application/minesweeper/MinesweeperRoundCoordinator.gd (GDScript)",
+            "res://scripts/application/minesweeper/SaveManagerDesktopBoardPort.gd (GDScript)",
+            "res://scripts/application/run/DayResolutionStartPort.gd (GDScript)",
+            "res://scripts/application/run/GameStateDayResolutionPort.gd (GDScript)",
+            "res://scripts/application/run/SaveManagerCheckpointPort.gd (GDScript)",
+            "res://scripts/application/schedule/ScheduleDepartureViewPort.gd (GDScript)",
+            "res://scripts/application/shop/GameStateMinesweeperShopPort.gd (GDScript)",
+            "res://scripts/application/shop/MinesweeperShopPurchaseParticipant.gd (GDScript)",
+            "res://scripts/application/transaction/ApplicationMutationGate.gd (GDScript)",
+            "res://scripts/domain/desktop/DesktopAppHostState.gd (GDScript)",
+            "res://scripts/domain/desktop/DesktopConsequenceState.gd (GDScript)",
+            "res://scripts/domain/minesweeper/DesktopBoardState.gd (GDScript)",
+            "res://scripts/domain/schedule/Day7ScheduleProvenance.gd (GDScript)",
+            "res://scripts/domain/schedule/ScheduleActionRegistry.gd (GDScript)",
+            "res://scripts/domain/shop/MinesweeperShopRegistry.gd (GDScript)",
+            "res://scripts/infrastructure/identity/CryptoDesktopNamespaceSource.gd (GDScript)",
+            "res://scripts/infrastructure/identity/DesktopIssuerRootStore.gd (GDScript)",
+            "res://scripts/infrastructure/save/DesktopPublicationLedger.gd (GDScript)",
+            "res://scripts/infrastructure/save/ScheduleFoundationPublicationLedger.gd (GDScript)",
+            "res://scripts/infrastructure/storage/FileOps.gd (GDScript)",
+            "res://scripts/infrastructure/storage/JsonFileStorage.gd (GDScript)",
+            "res://scripts/infrastructure/storage/StorageAdapter.gd (GDScript)"
+          ],
+          "leaked_instance_classes": {
+            "GDScriptNativeClass": 3,
+            "GDScript": 54,
+            "Node": 20,
+            "Timer": 3,
+            "PackedScene": 2,
+            "SceneState": 2,
+            "RegEx": 5,
+            "AudioStreamPlayer": 1,
+            "AudioStreamPlayerInternal": 1,
+            "RefCounted": 27
+          },
+          "exact_shutdown_tail": "WARNING: ObjectDB instances leaked at exit (run with --verbose for details).\n   at: cleanup (core/object/object.cpp:2663)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: 56 resources still in use at exit.\n   at: clear (core/io/resource.cpp:805)\n",
+          "limitation": "Only the identical observer-free baseline shutdown tail and resource/class counts are allowed; this does not prove leak-free shutdown."
+        }
+      },
+      {
+        "phase": "resume",
+        "command": [
+          "C:\\Program Files\\Godot_v4.6.3-stable_mono_win64\\Godot_v4.6.3-stable_mono_win64_console.exe",
+          "--headless",
+          "--rendering-method",
+          "gl_compatibility",
+          "--path",
+          "C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\minesweeper-ui-build\\.godot\\new-acc-consent-title-b-vtvauhuj\\project",
+          "--verbose",
+          "--",
+          "--phase2r-bootstrap-mode=final"
+        ],
+        "returncode": 0,
+        "passed": true,
+        "project_sha256_after": "124dfa8e3ebf414dbc5bb6bc01513091103450f6feb207496766fe94cc0eb81c",
+        "inherited_shutdown": {
+          "baseline_log": "tools/save_load_loop/evidence/baseline/verification.log",
+          "baseline_log_sha256": "f5c328bda9a6d88b0618d9d1897c73c58514bf4fda134269c009d6d5592e4624",
+          "resource_paths": [
+            "res://addons/dialogic/Core/Dialogic_Subsystem.gd (GDScript)",
+            "res://addons/dialogic/Modules/Audio/subsystem_audio.gd (GDScript)",
+            "res://addons/dialogic/Modules/Background/DefaultBackgroundScene/default_background.gd (GDScript)",
+            "res://addons/dialogic/Modules/Background/DefaultBackgroundScene/default_background.tscn (PackedScene)",
+            "res://addons/dialogic/Modules/Background/dialogic_background.gd (GDScript)",
+            "res://addons/dialogic/Modules/Background/subsystem_backgrounds.gd (GDScript)",
+            "res://addons/dialogic/Modules/Character/default_portrait.gd (GDScript)",
+            "res://addons/dialogic/Modules/Character/default_portrait.tscn (PackedScene)",
+            "res://addons/dialogic/Modules/Character/dialogic_portrait.gd (GDScript)",
+            "res://addons/dialogic/Modules/Character/subsystem_containers.gd (GDScript)",
+            "res://addons/dialogic/Modules/Character/subsystem_portraits.gd (GDScript)",
+            "res://addons/dialogic/Modules/Choice/subsystem_choices.gd (GDScript)",
+            "res://addons/dialogic/Modules/Core/subsystem_animation.gd (GDScript)",
+            "res://addons/dialogic/Modules/Core/subsystem_expression.gd (GDScript)",
+            "res://addons/dialogic/Modules/Core/subsystem_input.gd (GDScript)",
+            "res://addons/dialogic/Modules/Glossary/subsystem_glossary.gd (GDScript)",
+            "res://addons/dialogic/Modules/History/subsystem_history.gd (GDScript)",
+            "res://addons/dialogic/Modules/Jump/subsystem_jump.gd (GDScript)",
+            "res://addons/dialogic/Modules/Save/subsystem_save.gd (GDScript)",
+            "res://addons/dialogic/Modules/Settings/subsystem_settings.gd (GDScript)",
+            "res://addons/dialogic/Modules/Style/subsystem_styles.gd (GDScript)",
+            "res://addons/dialogic/Modules/Text/subsystem_text.gd (GDScript)",
+            "res://addons/dialogic/Modules/TextInput/subsystem_text_input.gd (GDScript)",
+            "res://addons/dialogic/Modules/Variable/subsystem_variables.gd (GDScript)",
+            "res://addons/dialogic/Modules/Voice/subsystem_voice.gd (GDScript)",
+            "res://addons/dialogic/Resources/event.gd (GDScript)",
+            "res://scripts/application/desktop/DesktopCausalSequencePort.gd (GDScript)",
+            "res://scripts/application/desktop/DesktopConditionPolicyPort.gd (GDScript)",
+            "res://scripts/application/desktop/DesktopConsequenceCoordinator.gd (GDScript)",
+            "res://scripts/application/desktop/DesktopConsequenceSourcePort.gd (GDScript)",
+            "res://scripts/application/desktop/DesktopIdentityNonceIssuer.gd (GDScript)",
+            "res://scripts/application/desktop/GameStateDesktopConditionContextPort.gd (GDScript)",
+            "res://scripts/application/minesweeper/DesktopBoardFatePort.gd (GDScript)",
+            "res://scripts/application/minesweeper/DesktopFirstRevealSnapshotComposer.gd (GDScript)",
+            "res://scripts/application/minesweeper/MinesweeperRoundCoordinator.gd (GDScript)",
+            "res://scripts/application/minesweeper/SaveManagerDesktopBoardPort.gd (GDScript)",
+            "res://scripts/application/run/DayResolutionStartPort.gd (GDScript)",
+            "res://scripts/application/run/GameStateDayResolutionPort.gd (GDScript)",
+            "res://scripts/application/run/SaveManagerCheckpointPort.gd (GDScript)",
+            "res://scripts/application/schedule/ScheduleDepartureViewPort.gd (GDScript)",
+            "res://scripts/application/shop/GameStateMinesweeperShopPort.gd (GDScript)",
+            "res://scripts/application/shop/MinesweeperShopPurchaseParticipant.gd (GDScript)",
+            "res://scripts/application/transaction/ApplicationMutationGate.gd (GDScript)",
+            "res://scripts/domain/desktop/DesktopAppHostState.gd (GDScript)",
+            "res://scripts/domain/desktop/DesktopConsequenceState.gd (GDScript)",
+            "res://scripts/domain/minesweeper/DesktopBoardState.gd (GDScript)",
+            "res://scripts/domain/schedule/Day7ScheduleProvenance.gd (GDScript)",
+            "res://scripts/domain/schedule/ScheduleActionRegistry.gd (GDScript)",
+            "res://scripts/domain/shop/MinesweeperShopRegistry.gd (GDScript)",
+            "res://scripts/infrastructure/identity/CryptoDesktopNamespaceSource.gd (GDScript)",
+            "res://scripts/infrastructure/identity/DesktopIssuerRootStore.gd (GDScript)",
+            "res://scripts/infrastructure/save/DesktopPublicationLedger.gd (GDScript)",
+            "res://scripts/infrastructure/save/ScheduleFoundationPublicationLedger.gd (GDScript)",
+            "res://scripts/infrastructure/storage/FileOps.gd (GDScript)",
+            "res://scripts/infrastructure/storage/JsonFileStorage.gd (GDScript)",
+            "res://scripts/infrastructure/storage/StorageAdapter.gd (GDScript)"
+          ],
+          "leaked_instance_classes": {
+            "GDScriptNativeClass": 3,
+            "GDScript": 54,
+            "Node": 20,
+            "Timer": 3,
+            "PackedScene": 2,
+            "SceneState": 2,
+            "RegEx": 5,
+            "AudioStreamPlayer": 1,
+            "AudioStreamPlayerInternal": 1,
+            "RefCounted": 27
+          },
+          "exact_shutdown_tail": "WARNING: ObjectDB instances leaked at exit (run with --verbose for details).\n   at: cleanup (core/object/object.cpp:2663)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: Cannot get path of node as it is not in a scene tree.\n   at: get_path (scene/main/node.cpp:2419)\nERROR: 56 resources still in use at exit.\n   at: clear (core/io/resource.cpp:805)\n",
+          "limitation": "Only the identical observer-free baseline shutdown tail and resource/class counts are allowed; this does not prove leak-free shutdown."
+        }
+      }
+    ]
+  },
+  "project_paths": {
+    "autoload/GameState.gd": "M",
+    "autoload/SaveManager.gd": "M",
+    "docs/design/current-ui/new-acc-lifecycle.md": "M",
+    "scripts/application/restore/RunRestoreParticipant.gd": "M",
+    "scripts/ui/MenuScene.gd": "M",
+    "scripts/ui/desktop/DesktopConfirmation.gd": "M",
+    "tests/integration/test_prepared_new_run.gd": "A",
+    "tests/manual/verify_new_acc_title.gd": "A",
+    "tests/unit/test_confirmation_retry_only.gd": "A",
+    "tests/unit/test_new_acc_title_lifetime.gd": "A",
+    "tests/unit/test_new_run_replacement_baseline.gd": "A"
+  },
+  "source_sha256": {
+    "autoload/GameState.gd": "6c8ff904172a9bb7f3c45b79ff7c97dd2658b4a1278680aa7e56bf2515daf4bd",
+    "autoload/SaveManager.gd": "72c47b847a139094dfc2e06af0146f0e994571997f6e96c1497f66fcd13aa2e1",
+    "docs/design/current-ui/new-acc-lifecycle.md": "388daf0e861abe4f191d5b8cbc9e991d816f472713c919081d699adfe1645824",
+    "scripts/application/restore/RunRestoreParticipant.gd": "6f1e0b5cf8b45b41b4320b8a99511cab453193f783d17708780be3b6e6145aef",
+    "scripts/ui/MenuScene.gd": "105ac6cbe50f3d677ac63e8c7390858e111949dfc5145a59634362169d250210",
+    "scripts/ui/desktop/DesktopConfirmation.gd": "74fb3882f7a7d23840f4e2d816613943c25a59e0999d2caac69e80ec54dae959",
+    "tests/integration/test_prepared_new_run.gd": "fe59bbf3ad42d057e08e7a754e59e145901aee7bde7e729e51cecd50fc8154fe",
+    "tests/manual/verify_new_acc_title.gd": "bf014624280cab3a5820ba265049f673f8cdec9880fbbab7b90793888a79a350",
+    "tests/unit/test_confirmation_retry_only.gd": "f77997ec05baa021afc71fbed9c1fc4eba7b4bd7c328ab0110482ee1d855ddfa",
+    "tests/unit/test_new_acc_title_lifetime.gd": "9e24e4433972daf0d12a0d726a7c7231c0f04a93a008067307a6143f7cd6f58a",
+    "tests/unit/test_new_run_replacement_baseline.gd": "0430953d24f595a29323763671ff1f2627aa36b1127062b9e4caa0f25776c01a"
+  },
+  "source_git_blobs": {
+    "autoload/GameState.gd": "095852ff6f706072ab71686fb4a8c9fe23b7b47a",
+    "autoload/SaveManager.gd": "19431677ca0286fba34082dedb9fa5da7a562aa3",
+    "docs/design/current-ui/new-acc-lifecycle.md": "260a2212a86cd2f739e8757647b37123d1b8df5f",
+    "scripts/application/restore/RunRestoreParticipant.gd": "fdd55d7207504298a4c74867558bbea0a5a3a5d0",
+    "scripts/ui/MenuScene.gd": "f371b763d7070f467fd74bfcfafd0142ac5a5da4",
+    "scripts/ui/desktop/DesktopConfirmation.gd": "c5b6dcc341edebcdc16f6f02d4239be02423035d",
+    "tests/integration/test_prepared_new_run.gd": "95c6969f853eb5592ce79ce0ded3bd7899e3acbf",
+    "tests/manual/verify_new_acc_title.gd": "a103503b9a8f07b0e07a0806fc9aaf7f4928879b",
+    "tests/unit/test_confirmation_retry_only.gd": "3db2cb9bb8d1b5083bd7303fffb6e2220aeafff5",
+    "tests/unit/test_new_acc_title_lifetime.gd": "96cb52ade4e5220892892503f8167c8ed6408fa6",
+    "tests/unit/test_new_run_replacement_baseline.gd": "1274d5f26b9369049bb4accedaddcbb6ab0ab7d2"
+  },
+  "raw_artifact_sha256": {
+    ".godot/phase2r_logs/new-acc-consent-initial-20260907a.log": "2da36559116ec29ff79faf5ac04069b0c4d045ad9c8f57e6166c8c23223c044d",
+    ".godot/phase2r_logs/new-acc-lifetime-20260907b.log": "eac3404efdaa4ac5b5db395b7eaafe360453d8d4f6a55155c748cabc11ee845b",
+    ".godot/phase2r_logs/new-acc-native-20260907a.log": "46c5900c44b1ce9d34238c76e062dc072040baefca3b0b24b4786aef1ad8cfef",
+    ".godot/phase2r_logs/new-acc-owner-20260907a.log": "37a4533f8362bac4111c347542fd88a950989add421188d25861793f007ac3eb",
+    ".godot/phase2r_logs/new-acc-lifetime-20260907c.log": "ca18f92dcea6eb9dc1aca106c453925807a44ad581e3ac7f289b70cd2f1d544a",
+    ".godot/new-acc-consent-title-r3y0cpmi/result.json": "da57649f9556e7845328c6b0a89fd940a27bb2dc9abe6ff5bce16a21c9349705",
+    ".godot/new-acc-consent-title-r3y0cpmi/verification.log": "0b373b2cbde3db27eec68f1d6d7c2aeb6d680b004e6ec3ab02a02a734e470677",
+    ".godot/new-acc-consent-title-r3y0cpmi/project.original.godot": "66ecb65d8f4cc16de3b8a2b48d6709b66d56723075484b1815d7af90688a877d",
+    ".godot/new-acc-consent-title-r3y0cpmi/project.executed.godot": "124dfa8e3ebf414dbc5bb6bc01513091103450f6feb207496766fe94cc0eb81c",
+    ".godot/new-acc-consent-title-b-vtvauhuj/result.json": "73f8fee9c563e255fc7726082ee2ecddb677a23b33a21cf0d2b7b0802c10c913",
+    ".godot/new-acc-consent-title-b-vtvauhuj/verification.log": "7089e53bf56e508103e9ad5d903670a841660e59030d287d766102a7b778585c",
+    ".godot/new-acc-consent-title-b-vtvauhuj/project.original.godot": "66ecb65d8f4cc16de3b8a2b48d6709b66d56723075484b1815d7af90688a877d",
+    ".godot/new-acc-consent-title-b-vtvauhuj/project.executed.godot": "124dfa8e3ebf414dbc5bb6bc01513091103450f6feb207496766fe94cc0eb81c",
+    ".godot/phase2r_tests/de68755f-55b0-4c0c-b46d-9a76fb27b834/appdata/Godot/app_userdata/DWM/evidence/new_acc_title/en-100-consent.png": "3ad5908690405fbd634f801b499767b95319e7a42d78e0e10d761ba8559f897d",
+    ".godot/phase2r_tests/de68755f-55b0-4c0c-b46d-9a76fb27b834/appdata/Godot/app_userdata/DWM/evidence/new_acc_title/en-100-retry.png": "e4fb7bbab4140b267b35ac034df5602e495e139a40aa47a61dae420d051ed6ac",
+    ".godot/phase2r_tests/de68755f-55b0-4c0c-b46d-9a76fb27b834/appdata/Godot/app_userdata/DWM/evidence/new_acc_title/en-125-consent.png": "8360699925761e8b46146641faf9ae8faac528418cfc572641822d6b57e99b62",
+    ".godot/phase2r_tests/de68755f-55b0-4c0c-b46d-9a76fb27b834/appdata/Godot/app_userdata/DWM/evidence/new_acc_title/en-125-retry.png": "807955e50ce8d3c6c538d49a3d8e5720e1bf441bccc3e047203eb044c76f3e84",
+    ".godot/phase2r_tests/de68755f-55b0-4c0c-b46d-9a76fb27b834/appdata/Godot/app_userdata/DWM/evidence/new_acc_title/en-150-consent.png": "2e57172178145b278d37a462e81fee8a524cc37d5f74d1fd820b4544b7c26b7a",
+    ".godot/phase2r_tests/de68755f-55b0-4c0c-b46d-9a76fb27b834/appdata/Godot/app_userdata/DWM/evidence/new_acc_title/en-150-retry.png": "134bc980251c69f1b13cf0cfb59e54c57a2f8ec65679474cfe46cdba5ae9006f",
+    ".godot/phase2r_tests/de68755f-55b0-4c0c-b46d-9a76fb27b834/appdata/Godot/app_userdata/DWM/evidence/new_acc_title/measurements.json": "4a025d50e7ff3efeaba92effc0949968ed8db810be7b20a3649e8ac228a1cdee",
+    ".godot/phase2r_tests/de68755f-55b0-4c0c-b46d-9a76fb27b834/appdata/Godot/app_userdata/DWM/evidence/new_acc_title/zh_CN-100-consent.png": "01d8bc1f04ddab679be854da43fdc263dd48352038095a081df942a3622aaab3",
+    ".godot/phase2r_tests/de68755f-55b0-4c0c-b46d-9a76fb27b834/appdata/Godot/app_userdata/DWM/evidence/new_acc_title/zh_CN-100-retry.png": "6ae53461f0282c182cc33e974ad55cbb8496679fd352dfd328cdbb60e4d363bb",
+    ".godot/phase2r_tests/de68755f-55b0-4c0c-b46d-9a76fb27b834/appdata/Godot/app_userdata/DWM/evidence/new_acc_title/zh_CN-125-consent.png": "a4d13f1a3e46cbe9f90876a124f6aa22a7006039a4c80d4101db132c8a2fcd38",
+    ".godot/phase2r_tests/de68755f-55b0-4c0c-b46d-9a76fb27b834/appdata/Godot/app_userdata/DWM/evidence/new_acc_title/zh_CN-125-retry.png": "7c8d0674ab61017409be646944434e66b064e99bfe57b614c6ffa7091661a200",
+    ".godot/phase2r_tests/de68755f-55b0-4c0c-b46d-9a76fb27b834/appdata/Godot/app_userdata/DWM/evidence/new_acc_title/zh_CN-150-consent.png": "d687ec5ba140d514c14652e201895e42ae50bce73fe37788f26618a2179d7c55",
+    ".godot/phase2r_tests/de68755f-55b0-4c0c-b46d-9a76fb27b834/appdata/Godot/app_userdata/DWM/evidence/new_acc_title/zh_CN-150-retry.png": "949509688847b8c25df9d71dcc6800c107ab195b66a36bfe6dcf7417ed565772",
+    ".godot/phase2r_tests/de68755f-55b0-4c0c-b46d-9a76fb27b834/appdata/Godot/app_userdata/DWM/evidence/new_acc_title/zh_HK-100-consent.png": "962b1ed666b7c247e6f80ab736d744e894f43a0e9ed6a5403131980ed10bf6a0",
+    ".godot/phase2r_tests/de68755f-55b0-4c0c-b46d-9a76fb27b834/appdata/Godot/app_userdata/DWM/evidence/new_acc_title/zh_HK-100-retry.png": "4ac0971fb8a9e649c83ca9b796543c2b0b4d10b1065d5d340a1392275dc34a41",
+    ".godot/phase2r_tests/de68755f-55b0-4c0c-b46d-9a76fb27b834/appdata/Godot/app_userdata/DWM/evidence/new_acc_title/zh_HK-125-consent.png": "78dbf133ea42e99de1289ec8a018c7f19e2f4cd843729b01f4472358068d60cb",
+    ".godot/phase2r_tests/de68755f-55b0-4c0c-b46d-9a76fb27b834/appdata/Godot/app_userdata/DWM/evidence/new_acc_title/zh_HK-125-retry.png": "200eeaf5e94521ea44fcb0ad14dec15a01ec91b2758d85f42be2d3e9763f88d3",
+    ".godot/phase2r_tests/de68755f-55b0-4c0c-b46d-9a76fb27b834/appdata/Godot/app_userdata/DWM/evidence/new_acc_title/zh_HK-150-consent.png": "d78757bc91059a48600c8c06bc1552fd305c03d4a3b5198714f28a6819810bbd",
+    ".godot/phase2r_tests/de68755f-55b0-4c0c-b46d-9a76fb27b834/appdata/Godot/app_userdata/DWM/evidence/new_acc_title/zh_HK-150-retry.png": "ab725afc57d519813c6d1cadef7f59ef9b7acd9d9792d728342902013577d878"
+  },
+  "review": [
+    "Independent owner review: commit checks incomplete continuations under gate before identity; source drift consumes stale consent; no remaining scoped blocker.",
+    "Independent UI review: source identity and queued ancestors checked across departure and owner calls; Retry cannot cancel a durable operation.",
+    "Real production probe caught an out-of-tree owner lookup after route detach; cached exact capability fixes cleanup. Failed attempt retained; final real-title and cold-resume probe passes."
+  ],
+  "canonical_new_acc_complete": false,
+  "all_ui_complete": false,
+  "merged": false,
+  "pushed": false,
+  "player_data_used": false,
+  "preserved_generated_files": 582,
+  "remaining": [
+    "Bootstrap retry/resume UI for cold-start New Acc recovery failures",
+    "Real no-save Return/session abandonment ownership and production wiring",
+    "Full UI palette/accessibility and OS assistive-technology acceptance",
+    "Remaining ten-family UI owner/content integration",
+    "Semantic integration with independently advanced Schedule/Hospital branch; no save-version compatibility inference"
+  ],
+  "known_diagnostics": [
+    "Inherited Unicode NUL parser warnings and 24 GUT Dialogic orphans remain; no leak-free claim.",
+    "Production probe accepts only its exact existing 56-resource Dialogic shutdown tail; logs retained.",
+    "Initial lifetime fixture parser failure and production detached-lookup failure are retained, superseded by passing final runs."
+  ],
+  "native_capture_source_note": "Native matrix predates only the resolved-owner cache and outside-tree lookup fix. These do not change rendering; final owner cleanup is covered by four lifetime tests and the actual production probe."
+}

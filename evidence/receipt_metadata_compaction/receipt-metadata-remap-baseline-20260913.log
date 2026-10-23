@@ -1,0 +1,133 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/98c8de19-778d-41ea-8c0a-ad39271ae6e5/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+
+
+res://tests/unit/test_desktop_continuation_remapper.gd
+* test_remapper_exists
+* test_remap_table_only_marks_current_v4_members_handled
+* test_collect_rewindable_transaction_ids_covers_board_and_pending
+* test_prepare_remaps_board_identity_receipts_and_consequence_pending
+* test_prepare_rekeys_compact_and_full_command_receipts_without_inventing_metadata
+* test_prepare_rejects_a_transaction_remap_missing_a_rewindable_id
+* test_prepare_rejects_an_extra_transaction_remap_entry
+* test_prepare_rejects_two_sources_mapped_to_the_same_target
+* test_prepare_is_a_pure_function_of_its_inputs
+* test_prepare_remaps_source_ids_that_are_real_transaction_ids
+* test_prepare_leaves_genuinely_opaque_source_ids_unchanged
+* test_prepare_rejects_an_unsorted_historical_source_ids_record
+* test_prepare_rejects_a_duplicate_historical_source_ids_record
+* test_prepare_rejects_a_source_id_that_is_not_canonically_representable
+Unicode parsing error: Unpaired lead surrogate (d800 [eol])
+* test_validate_remap_accepts_its_own_prepare_output_and_rejects_a_tampered_candidate
+* test_prepare_rederives_a_source_commit_child_through_the_real_issuer_byte_for_byte
+* test_prepare_rejects_a_historical_source_commit_with_an_unregistered_child_kind
+* test_the_remappers_duplicated_child_kinds_equal_the_real_issuers_child_kinds_exactly
+* test_collect_includes_the_pending_warning_activation_root
+* test_collect_includes_a_pending_condition_departure_root_exactly_once
+* test_collect_includes_every_failed_attempt_and_consumed_terminal_root
+* test_collect_includes_a_nonnull_active_condition_hospital_root
+* test_collect_excludes_completed_condition_hospital_history_roots
+* test_collect_rejects_an_attempt_key_that_disagrees_with_its_receipt_transaction_id
+* test_collect_includes_a_nonnull_terminal_intent_handoff_root
+* test_collect_leaves_a_v4_snapshot_census_byte_identical
+* test_remap_table_declares_every_v5_region
+* test_remap_table_marks_the_v5_regions_handled
+* test_prepare_rekeys_consumed_warning_receipts_to_the_recomputed_digest
+* test_prepare_rekeys_attempt_receipts_to_the_new_transaction_id
+* test_prepare_recomputes_the_warning_fingerprint_from_the_remapped_stored_preimage
+* test_prepare_never_substitutes_the_live_view_or_context_for_the_stored_preimage
+* test_prepare_rejects_a_string_edited_warning_preimage
+* test_prepare_rejects_a_string_edited_activation_provenance
+* test_prepare_rederives_the_activation_child_under_the_mapped_parent_receipt
+* test_prepare_rederives_a_navigation_terminal_receipt_with_the_new_activation_projection
+* test_prepare_rejects_a_warning_context_that_disagrees_with_the_mapped_board_identity
+* test_prepare_rekeys_the_pending_condition_departure_receipt_to_the_rederived_condition_id
+* test_prepare_leaves_every_unrelated_completed_ledger_entry_byte_identical
+* test_prepare_recomputes_both_view_hashes_from_the_remapped_recovery_payload
+* test_prepare_rejects_a_ledger_hash_that_disagrees_with_the_remapped_payload
+* test_the_view_ledger_is_excluded_from_the_optimistic_fingerprint_preimage
+* test_the_remappers_warning_digest_equals_the_real_schedule_warning_policy_digest
+* test_the_remappers_projection_helper_equals_the_real_controllers_p
+* test_prepare_preserves_the_condition_hospital_cursor_and_prepared_receipt_partition
+* test_prepare_carries_a_committed_allocator_root_with_stage_four_still_pending_as_recovery
+* test_prepare_rejects_an_active_stage_four_paired_with_source_current_live_state
+* test_prepare_rejects_a_nonstage_four_active_stage_paired_with_split_identities
+* test_prepare_preserves_the_historical_source_identity_after_completed_stage_four
+* test_prepare_recomputes_every_stage_key_from_the_rederived_resolution_receipt
+* test_prepare_rederives_stage_five_references_hashes_and_children_from_the_mapped_target
+* test_prepare_keeps_accepted_sources_in_their_frozen_order_after_rederivation
+* test_prepare_follows_the_post_advance_rule_at_cursor_six_before_and_after_the_retirement_checkpoint
+* test_prepare_rejects_an_abandoned_future_stage_receipt
+* test_prepare_leaves_condition_hospital_history_byte_identical
+* test_prepare_requires_the_live_outbox_to_match_the_remapped_destination_record
+* test_prepare_rejects_a_publication_bit_flip_without_a_remapped_acceptance
+* test_prepare_remaps_a_nonnull_terminal_intent_handoff_root_intent_and_outbox_together
+* test_validate_remap_accepts_its_own_v5_prepare_output
+* test_validate_remap_rejects_a_v5_candidate_with_a_hand_edited_fingerprint
+* test_validate_remap_rejects_a_v5_candidate_with_a_stale_consumed_key
+* test_prepare_v5_source_ids_change_the_continuation_operation_remap_receipt
+* test_prepare_is_a_pure_function_of_a_v5_snapshot
+* test_prepare_rejects_a_dangling_v5_transaction_reference
+* test_prepare_rejects_a_string_edited_terminal_receipt_provenance
+* test_validate_remap_accepts_a_v5_candidate_with_attempt_and_consumed_roots
+* test_prepare_refuses_an_active_plan_beside_a_lifecycle_missing_its_identity_receipt
+* test_prepare_rejects_an_unsplit_plan_whose_issuer_receipt_disagrees_with_the_lifecycle
+* test_prepare_rejects_an_unsplit_plan_whose_branch_or_run_disagrees_with_the_lifecycle
+69/69 passed.
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/unit/test_desktop_continuation_remapper.gd
+    - Outside Tests
+        * [<Node#131248162582>(subsystem_animation.gd)]
+        * [<Node#131264939810>(subsystem_audio.gd)]
+        * [<Node#131281717040>]
+        * [<Node#131298494264>]
+        * [<Node#131315271488>(subsystem_backgrounds.gd)]
+        * [<Node#131852142401>(subsystem_choices.gd)]
+        * [<Timer#131868919618>]
+        * [<Node#131885696835>(subsystem_expression.gd)]
+        * [<Node#131919251272>(subsystem_glossary.gd)]
+        * [<Node#131936028489>(subsystem_history.gd)]
+        * [<Node#131952805706>(subsystem_input.gd)]
+        * [<Timer#131969582923>]
+        * [<Node#131986360140>(subsystem_jump.gd)]
+        * [<Node#132003137357>(subsystem_containers.gd)]
+        * [<Node#132019914574>(subsystem_portraits.gd)]
+        * [<Node#132556785487>(subsystem_save.gd)]
+        * [<Timer#132573562704>]
+        * [<Node#132590339921>(subsystem_settings.gd)]
+        * [<Node#132607117141>(subsystem_styles.gd)]
+        * [<Node#132623894358>(subsystem_text.gd)]
+        * [<Node#132707780443>(subsystem_text_input.gd)]
+        * [<Node#132724557660>(subsystem_variables.gd)]
+        * [<Node#132741334877>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#132758112094>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+Totals
+------
+Scripts               1
+Tests                69
+Passing Tests        69
+Asserts             662
+Orphans              24
+Time              0.521s
+
+
+---- All tests passed! ----

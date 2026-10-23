@@ -1,0 +1,19 @@
+# timeline_id: fixture.phase2r.contract
+# locale: en
+# type: phase2r_test_fixture
+# line_ids: fixture.line.start, fixture.line.after_choice, fixture.line.after_effect
+# choice_ids: fixture.choice.continue
+# signal_ids: fixture.marker.safe, fixture.effect.tx, fixture.variable.tx
+
+label fixture.start
+Narrator: Phase 2R fixture line.
+
+- Continue
+	Narrator: Choice committed.
+
+[signal arg="fixture.marker.safe"]
+[signal arg="fixture.effect.tx"]
+[signal arg="fixture.variable.tx"]
+
+Narrator: Fixture complete.
+return

@@ -1,0 +1,15 @@
+# timeline_id: dating.solo.lavinia.day6.pre_challenge
+# locale: en
+# type: dating_solo
+# friend: lavinia
+# day: 6
+# phase: pre_challenge
+
+return
+
+label dating.solo.lavinia.day6.pre_challenge
+# PURPOSE: solo_pre_challenge
+# CAUSAL INPUT: validated frozen context
+# VARIATION: registered layer order
+# ALLOWED SIGNALS: history.line.witness
+return

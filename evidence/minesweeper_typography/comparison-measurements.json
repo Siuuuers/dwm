@@ -1,0 +1,2066 @@
+{
+	"font_policy": "full 20/25/30 logical pixels; no shrinking, condensing, or bay widening",
+	"images": [
+		"en100-ordinary.png",
+		"en100-large.png",
+		"en125-ordinary.png",
+		"en125-large.png",
+		"en150-ordinary.png",
+		"en150-large.png"
+	],
+	"line_ranges": "TextParagraph character ranges over the input string, including discretionary characters; source_segment exposes them as <SHY>.",
+	"samples": [
+		{
+			"accessibility_copy_with_markers": "Intermediate",
+			"content_width_logical": 76,
+			"control": "action_button",
+			"font_size_logical": 20,
+			"height_logical": 72.0,
+			"large_targets": false,
+			"line_count": 2,
+			"lines": [
+				{
+					"line": 0,
+					"range_end": 7,
+					"range_start": 0,
+					"source_segment": "Interme",
+					"width_logical": 67.0
+				},
+				{
+					"line": 1,
+					"range_end": 12,
+					"range_start": 7,
+					"source_segment": "diate",
+					"width_logical": 43.0
+				}
+			],
+			"percent": 100,
+			"plain_copy": "Intermediate",
+			"source_with_markers": "Intermediate",
+			"target_width_logical": 96,
+			"variant": "adaptive",
+			"word": "Intermediate"
+		},
+		{
+			"accessibility_copy_with_markers": "Inter<SHY>me<SHY>di<SHY>ate",
+			"content_width_logical": 76,
+			"control": "action_button",
+			"font_size_logical": 20,
+			"height_logical": 72.0,
+			"large_targets": false,
+			"line_count": 2,
+			"lines": [
+				{
+					"line": 0,
+					"range_end": 9,
+					"range_start": 0,
+					"source_segment": "Inter<SHY>me<SHY>",
+					"width_logical": 73.0
+				},
+				{
+					"line": 1,
+					"range_end": 15,
+					"range_start": 9,
+					"source_segment": "di<SHY>ate",
+					"width_logical": 43.0
+				}
+			],
+			"percent": 100,
+			"plain_copy": "Intermediate",
+			"source_with_markers": "Inter<SHY>me<SHY>di<SHY>ate",
+			"target_width_logical": 96,
+			"variant": "soft_hyphen",
+			"word": "Intermediate"
+		},
+		{
+			"accessibility_copy_with_markers": "Beginner",
+			"content_width_logical": 76,
+			"control": "action_button",
+			"font_size_logical": 20,
+			"height_logical": 48.0,
+			"large_targets": false,
+			"line_count": 1,
+			"lines": [
+				{
+					"line": 0,
+					"range_end": 8,
+					"range_start": 0,
+					"source_segment": "Beginner",
+					"width_logical": 76.0
+				}
+			],
+			"percent": 100,
+			"plain_copy": "Beginner",
+			"source_with_markers": "Beginner",
+			"target_width_logical": 96,
+			"variant": "adaptive",
+			"word": "Beginner"
+		},
+		{
+			"accessibility_copy_with_markers": "Be<SHY>gin<SHY>ner",
+			"content_width_logical": 76,
+			"control": "action_button",
+			"font_size_logical": 20,
+			"height_logical": 48.0,
+			"large_targets": false,
+			"line_count": 1,
+			"lines": [
+				{
+					"line": 0,
+					"range_end": 10,
+					"range_start": 0,
+					"source_segment": "Be<SHY>gin<SHY>ner",
+					"width_logical": 76.0
+				}
+			],
+			"percent": 100,
+			"plain_copy": "Beginner",
+			"source_with_markers": "Be<SHY>gin<SHY>ner",
+			"target_width_logical": 96,
+			"variant": "soft_hyphen",
+			"word": "Beginner"
+		},
+		{
+			"accessibility_copy_with_markers": "Expert",
+			"content_width_logical": 76,
+			"control": "action_button",
+			"font_size_logical": 20,
+			"height_logical": 48.0,
+			"large_targets": false,
+			"line_count": 1,
+			"lines": [
+				{
+					"line": 0,
+					"range_end": 6,
+					"range_start": 0,
+					"source_segment": "Expert",
+					"width_logical": 54.0
+				}
+			],
+			"percent": 100,
+			"plain_copy": "Expert",
+			"source_with_markers": "Expert",
+			"target_width_logical": 96,
+			"variant": "adaptive",
+			"word": "Expert"
+		},
+		{
+			"accessibility_copy_with_markers": "Ex<SHY>pert",
+			"content_width_logical": 76,
+			"control": "action_button",
+			"font_size_logical": 20,
+			"height_logical": 48.0,
+			"large_targets": false,
+			"line_count": 1,
+			"lines": [
+				{
+					"line": 0,
+					"range_end": 7,
+					"range_start": 0,
+					"source_segment": "Ex<SHY>pert",
+					"width_logical": 54.0
+				}
+			],
+			"percent": 100,
+			"plain_copy": "Expert",
+			"source_with_markers": "Ex<SHY>pert",
+			"target_width_logical": 96,
+			"variant": "soft_hyphen",
+			"word": "Expert"
+		},
+		{
+			"accessibility_copy_with_markers": "Reveal",
+			"content_width_logical": 76,
+			"control": "action_button",
+			"font_size_logical": 20,
+			"height_logical": 48.0,
+			"large_targets": false,
+			"line_count": 1,
+			"lines": [
+				{
+					"line": 0,
+					"range_end": 6,
+					"range_start": 0,
+					"source_segment": "Reveal",
+					"width_logical": 56.0
+				}
+			],
+			"percent": 100,
+			"plain_copy": "Reveal",
+			"source_with_markers": "Reveal",
+			"target_width_logical": 96,
+			"variant": "adaptive",
+			"word": "Reveal"
+		},
+		{
+			"accessibility_copy_with_markers": "Re<SHY>veal",
+			"content_width_logical": 76,
+			"control": "action_button",
+			"font_size_logical": 20,
+			"height_logical": 48.0,
+			"large_targets": false,
+			"line_count": 1,
+			"lines": [
+				{
+					"line": 0,
+					"range_end": 7,
+					"range_start": 0,
+					"source_segment": "Re<SHY>veal",
+					"width_logical": 56.0
+				}
+			],
+			"percent": 100,
+			"plain_copy": "Reveal",
+			"source_with_markers": "Re<SHY>veal",
+			"target_width_logical": 96,
+			"variant": "soft_hyphen",
+			"word": "Reveal"
+		},
+		{
+			"accessibility_copy_with_markers": "Assignments",
+			"content_width_logical": 140,
+			"control": "action_button",
+			"font_size_logical": 20,
+			"height_logical": 48.0,
+			"large_targets": false,
+			"line_count": 1,
+			"lines": [
+				{
+					"line": 0,
+					"range_end": 11,
+					"range_start": 0,
+					"source_segment": "Assignments",
+					"width_logical": 107.0
+				}
+			],
+			"percent": 100,
+			"plain_copy": "Assignments",
+			"source_with_markers": "Assignments",
+			"target_width_logical": 160,
+			"variant": "adaptive",
+			"word": "Assignments"
+		},
+		{
+			"accessibility_copy_with_markers": "As<SHY>sign<SHY>ments",
+			"content_width_logical": 140,
+			"control": "action_button",
+			"font_size_logical": 20,
+			"height_logical": 48.0,
+			"large_targets": false,
+			"line_count": 1,
+			"lines": [
+				{
+					"line": 0,
+					"range_end": 13,
+					"range_start": 0,
+					"source_segment": "As<SHY>sign<SHY>ments",
+					"width_logical": 107.0
+				}
+			],
+			"percent": 100,
+			"plain_copy": "Assignments",
+			"source_with_markers": "As<SHY>sign<SHY>ments",
+			"target_width_logical": 160,
+			"variant": "soft_hyphen",
+			"word": "Assignments"
+		},
+		{
+			"accessibility_copy_with_markers": "Foresight: —",
+			"content_width_logical": 112,
+			"control": "register_metric",
+			"font_size_logical": 20,
+			"height_logical": 72.0,
+			"large_targets": false,
+			"line_count": 1,
+			"lines": [
+				{
+					"line": 0,
+					"range_end": 9,
+					"range_start": 0,
+					"source_segment": "Foresight",
+					"width_logical": 79.0
+				}
+			],
+			"percent": 100,
+			"plain_copy": "Foresight",
+			"source_with_markers": "Foresight",
+			"target_width_logical": 128,
+			"variant": "adaptive",
+			"word": "Foresight"
+		},
+		{
+			"accessibility_copy_with_markers": "Fore<SHY>sight: —",
+			"content_width_logical": 112,
+			"control": "register_metric",
+			"font_size_logical": 20,
+			"height_logical": 72.0,
+			"large_targets": false,
+			"line_count": 1,
+			"lines": [
+				{
+					"line": 0,
+					"range_end": 10,
+					"range_start": 0,
+					"source_segment": "Fore<SHY>sight",
+					"width_logical": 79.0
+				}
+			],
+			"percent": 100,
+			"plain_copy": "Foresight",
+			"source_with_markers": "Fore<SHY>sight",
+			"target_width_logical": 128,
+			"variant": "soft_hyphen",
+			"word": "Foresight"
+		},
+		{
+			"accessibility_copy_with_markers": "Intermediate",
+			"content_width_logical": 72,
+			"control": "action_button",
+			"font_size_logical": 20,
+			"height_logical": 76.0,
+			"large_targets": true,
+			"line_count": 2,
+			"lines": [
+				{
+					"line": 0,
+					"range_end": 7,
+					"range_start": 0,
+					"source_segment": "Interme",
+					"width_logical": 67.0
+				},
+				{
+					"line": 1,
+					"range_end": 12,
+					"range_start": 7,
+					"source_segment": "diate",
+					"width_logical": 43.0
+				}
+			],
+			"percent": 100,
+			"plain_copy": "Intermediate",
+			"source_with_markers": "Intermediate",
+			"target_width_logical": 96,
+			"variant": "adaptive",
+			"word": "Intermediate"
+		},
+		{
+			"accessibility_copy_with_markers": "Inter<SHY>me<SHY>di<SHY>ate",
+			"content_width_logical": 72,
+			"control": "action_button",
+			"font_size_logical": 20,
+			"height_logical": 76.0,
+			"large_targets": true,
+			"line_count": 2,
+			"lines": [
+				{
+					"line": 0,
+					"range_end": 6,
+					"range_start": 0,
+					"source_segment": "Inter<SHY>",
+					"width_logical": 46.0
+				},
+				{
+					"line": 1,
+					"range_end": 15,
+					"range_start": 6,
+					"source_segment": "me<SHY>di<SHY>ate",
+					"width_logical": 69.0
+				}
+			],
+			"percent": 100,
+			"plain_copy": "Intermediate",
+			"source_with_markers": "Inter<SHY>me<SHY>di<SHY>ate",
+			"target_width_logical": 96,
+			"variant": "soft_hyphen",
+			"word": "Intermediate"
+		},
+		{
+			"accessibility_copy_with_markers": "Beginner",
+			"content_width_logical": 72,
+			"control": "action_button",
+			"font_size_logical": 20,
+			"height_logical": 76.0,
+			"large_targets": true,
+			"line_count": 2,
+			"lines": [
+				{
+					"line": 0,
+					"range_end": 7,
+					"range_start": 0,
+					"source_segment": "Beginne",
+					"width_logical": 69.0
+				},
+				{
+					"line": 1,
+					"range_end": 8,
+					"range_start": 7,
+					"source_segment": "r",
+					"width_logical": 7.0
+				}
+			],
+			"percent": 100,
+			"plain_copy": "Beginner",
+			"source_with_markers": "Beginner",
+			"target_width_logical": 96,
+			"variant": "adaptive",
+			"word": "Beginner"
+		},
+		{
+			"accessibility_copy_with_markers": "Be<SHY>gin<SHY>ner",
+			"content_width_logical": 72,
+			"control": "action_button",
+			"font_size_logical": 20,
+			"height_logical": 76.0,
+			"large_targets": true,
+			"line_count": 2,
+			"lines": [
+				{
+					"line": 0,
+					"range_end": 7,
+					"range_start": 0,
+					"source_segment": "Be<SHY>gin<SHY>",
+					"width_logical": 54.0
+				},
+				{
+					"line": 1,
+					"range_end": 10,
+					"range_start": 7,
+					"source_segment": "ner",
+					"width_logical": 28.0
+				}
+			],
+			"percent": 100,
+			"plain_copy": "Beginner",
+			"source_with_markers": "Be<SHY>gin<SHY>ner",
+			"target_width_logical": 96,
+			"variant": "soft_hyphen",
+			"word": "Beginner"
+		},
+		{
+			"accessibility_copy_with_markers": "Expert",
+			"content_width_logical": 72,
+			"control": "action_button",
+			"font_size_logical": 20,
+			"height_logical": 64.0,
+			"large_targets": true,
+			"line_count": 1,
+			"lines": [
+				{
+					"line": 0,
+					"range_end": 6,
+					"range_start": 0,
+					"source_segment": "Expert",
+					"width_logical": 54.0
+				}
+			],
+			"percent": 100,
+			"plain_copy": "Expert",
+			"source_with_markers": "Expert",
+			"target_width_logical": 96,
+			"variant": "adaptive",
+			"word": "Expert"
+		},
+		{
+			"accessibility_copy_with_markers": "Ex<SHY>pert",
+			"content_width_logical": 72,
+			"control": "action_button",
+			"font_size_logical": 20,
+			"height_logical": 64.0,
+			"large_targets": true,
+			"line_count": 1,
+			"lines": [
+				{
+					"line": 0,
+					"range_end": 7,
+					"range_start": 0,
+					"source_segment": "Ex<SHY>pert",
+					"width_logical": 54.0
+				}
+			],
+			"percent": 100,
+			"plain_copy": "Expert",
+			"source_with_markers": "Ex<SHY>pert",
+			"target_width_logical": 96,
+			"variant": "soft_hyphen",
+			"word": "Expert"
+		},
+		{
+			"accessibility_copy_with_markers": "Reveal",
+			"content_width_logical": 72,
+			"control": "action_button",
+			"font_size_logical": 20,
+			"height_logical": 64.0,
+			"large_targets": true,
+			"line_count": 1,
+			"lines": [
+				{
+					"line": 0,
+					"range_end": 6,
+					"range_start": 0,
+					"source_segment": "Reveal",
+					"width_logical": 56.0
+				}
+			],
+			"percent": 100,
+			"plain_copy": "Reveal",
+			"source_with_markers": "Reveal",
+			"target_width_logical": 96,
+			"variant": "adaptive",
+			"word": "Reveal"
+		},
+		{
+			"accessibility_copy_with_markers": "Re<SHY>veal",
+			"content_width_logical": 72,
+			"control": "action_button",
+			"font_size_logical": 20,
+			"height_logical": 64.0,
+			"large_targets": true,
+			"line_count": 1,
+			"lines": [
+				{
+					"line": 0,
+					"range_end": 7,
+					"range_start": 0,
+					"source_segment": "Re<SHY>veal",
+					"width_logical": 56.0
+				}
+			],
+			"percent": 100,
+			"plain_copy": "Reveal",
+			"source_with_markers": "Re<SHY>veal",
+			"target_width_logical": 96,
+			"variant": "soft_hyphen",
+			"word": "Reveal"
+		},
+		{
+			"accessibility_copy_with_markers": "Assignments",
+			"content_width_logical": 136,
+			"control": "action_button",
+			"font_size_logical": 20,
+			"height_logical": 64.0,
+			"large_targets": true,
+			"line_count": 1,
+			"lines": [
+				{
+					"line": 0,
+					"range_end": 11,
+					"range_start": 0,
+					"source_segment": "Assignments",
+					"width_logical": 107.0
+				}
+			],
+			"percent": 100,
+			"plain_copy": "Assignments",
+			"source_with_markers": "Assignments",
+			"target_width_logical": 160,
+			"variant": "adaptive",
+			"word": "Assignments"
+		},
+		{
+			"accessibility_copy_with_markers": "As<SHY>sign<SHY>ments",
+			"content_width_logical": 136,
+			"control": "action_button",
+			"font_size_logical": 20,
+			"height_logical": 64.0,
+			"large_targets": true,
+			"line_count": 1,
+			"lines": [
+				{
+					"line": 0,
+					"range_end": 13,
+					"range_start": 0,
+					"source_segment": "As<SHY>sign<SHY>ments",
+					"width_logical": 107.0
+				}
+			],
+			"percent": 100,
+			"plain_copy": "Assignments",
+			"source_with_markers": "As<SHY>sign<SHY>ments",
+			"target_width_logical": 160,
+			"variant": "soft_hyphen",
+			"word": "Assignments"
+		},
+		{
+			"accessibility_copy_with_markers": "Foresight: —",
+			"content_width_logical": 112,
+			"control": "register_metric",
+			"font_size_logical": 20,
+			"height_logical": 72.0,
+			"large_targets": true,
+			"line_count": 1,
+			"lines": [
+				{
+					"line": 0,
+					"range_end": 9,
+					"range_start": 0,
+					"source_segment": "Foresight",
+					"width_logical": 79.0
+				}
+			],
+			"percent": 100,
+			"plain_copy": "Foresight",
+			"source_with_markers": "Foresight",
+			"target_width_logical": 128,
+			"variant": "adaptive",
+			"word": "Foresight"
+		},
+		{
+			"accessibility_copy_with_markers": "Fore<SHY>sight: —",
+			"content_width_logical": 112,
+			"control": "register_metric",
+			"font_size_logical": 20,
+			"height_logical": 72.0,
+			"large_targets": true,
+			"line_count": 1,
+			"lines": [
+				{
+					"line": 0,
+					"range_end": 10,
+					"range_start": 0,
+					"source_segment": "Fore<SHY>sight",
+					"width_logical": 79.0
+				}
+			],
+			"percent": 100,
+			"plain_copy": "Foresight",
+			"source_with_markers": "Fore<SHY>sight",
+			"target_width_logical": 128,
+			"variant": "soft_hyphen",
+			"word": "Foresight"
+		},
+		{
+			"accessibility_copy_with_markers": "Intermediate",
+			"content_width_logical": 76,
+			"control": "action_button",
+			"font_size_logical": 25,
+			"height_logical": 88.0,
+			"large_targets": false,
+			"line_count": 2,
+			"lines": [
+				{
+					"line": 0,
+					"range_end": 6,
+					"range_start": 0,
+					"source_segment": "Interm",
+					"width_logical": 70.0
+				},
+				{
+					"line": 1,
+					"range_end": 12,
+					"range_start": 6,
+					"source_segment": "ediate",
+					"width_logical": 65.0
+				}
+			],
+			"percent": 125,
+			"plain_copy": "Intermediate",
+			"source_with_markers": "Intermediate",
+			"target_width_logical": 96,
+			"variant": "adaptive",
+			"word": "Intermediate"
+		},
+		{
+			"accessibility_copy_with_markers": "Inter<SHY>me<SHY>di<SHY>ate",
+			"content_width_logical": 76,
+			"control": "action_button",
+			"font_size_logical": 25,
+			"height_logical": 124.0,
+			"large_targets": false,
+			"line_count": 3,
+			"lines": [
+				{
+					"line": 0,
+					"range_end": 6,
+					"range_start": 0,
+					"source_segment": "Inter<SHY>",
+					"width_logical": 57.0
+				},
+				{
+					"line": 1,
+					"range_end": 12,
+					"range_start": 6,
+					"source_segment": "me<SHY>di<SHY>",
+					"width_logical": 62.0
+				},
+				{
+					"line": 2,
+					"range_end": 15,
+					"range_start": 12,
+					"source_segment": "ate",
+					"width_logical": 32.0
+				}
+			],
+			"percent": 125,
+			"plain_copy": "Intermediate",
+			"source_with_markers": "Inter<SHY>me<SHY>di<SHY>ate",
+			"target_width_logical": 96,
+			"variant": "soft_hyphen",
+			"word": "Intermediate"
+		},
+		{
+			"accessibility_copy_with_markers": "Beginner",
+			"content_width_logical": 76,
+			"control": "action_button",
+			"font_size_logical": 25,
+			"height_logical": 88.0,
+			"large_targets": false,
+			"line_count": 2,
+			"lines": [
+				{
+					"line": 0,
+					"range_end": 6,
+					"range_start": 0,
+					"source_segment": "Beginn",
+					"width_logical": 73.0
+				},
+				{
+					"line": 1,
+					"range_end": 8,
+					"range_start": 6,
+					"source_segment": "er",
+					"width_logical": 21.0
+				}
+			],
+			"percent": 125,
+			"plain_copy": "Beginner",
+			"source_with_markers": "Beginner",
+			"target_width_logical": 96,
+			"variant": "adaptive",
+			"word": "Beginner"
+		},
+		{
+			"accessibility_copy_with_markers": "Be<SHY>gin<SHY>ner",
+			"content_width_logical": 76,
+			"control": "action_button",
+			"font_size_logical": 25,
+			"height_logical": 88.0,
+			"large_targets": false,
+			"line_count": 2,
+			"lines": [
+				{
+					"line": 0,
+					"range_end": 7,
+					"range_start": 0,
+					"source_segment": "Be<SHY>gin<SHY>",
+					"width_logical": 67.0
+				},
+				{
+					"line": 1,
+					"range_end": 10,
+					"range_start": 7,
+					"source_segment": "ner",
+					"width_logical": 35.0
+				}
+			],
+			"percent": 125,
+			"plain_copy": "Beginner",
+			"source_with_markers": "Be<SHY>gin<SHY>ner",
+			"target_width_logical": 96,
+			"variant": "soft_hyphen",
+			"word": "Beginner"
+		},
+		{
+			"accessibility_copy_with_markers": "Expert",
+			"content_width_logical": 76,
+			"control": "action_button",
+			"font_size_logical": 25,
+			"height_logical": 52.0,
+			"large_targets": false,
+			"line_count": 1,
+			"lines": [
+				{
+					"line": 0,
+					"range_end": 6,
+					"range_start": 0,
+					"source_segment": "Expert",
+					"width_logical": 67.0
+				}
+			],
+			"percent": 125,
+			"plain_copy": "Expert",
+			"source_with_markers": "Expert",
+			"target_width_logical": 96,
+			"variant": "adaptive",
+			"word": "Expert"
+		},
+		{
+			"accessibility_copy_with_markers": "Ex<SHY>pert",
+			"content_width_logical": 76,
+			"control": "action_button",
+			"font_size_logical": 25,
+			"height_logical": 52.0,
+			"large_targets": false,
+			"line_count": 1,
+			"lines": [
+				{
+					"line": 0,
+					"range_end": 7,
+					"range_start": 0,
+					"source_segment": "Ex<SHY>pert",
+					"width_logical": 67.0
+				}
+			],
+			"percent": 125,
+			"plain_copy": "Expert",
+			"source_with_markers": "Ex<SHY>pert",
+			"target_width_logical": 96,
+			"variant": "soft_hyphen",
+			"word": "Expert"
+		},
+		{
+			"accessibility_copy_with_markers": "Reveal",
+			"content_width_logical": 76,
+			"control": "action_button",
+			"font_size_logical": 25,
+			"height_logical": 52.0,
+			"large_targets": false,
+			"line_count": 1,
+			"lines": [
+				{
+					"line": 0,
+					"range_end": 6,
+					"range_start": 0,
+					"source_segment": "Reveal",
+					"width_logical": 69.0
+				}
+			],
+			"percent": 125,
+			"plain_copy": "Reveal",
+			"source_with_markers": "Reveal",
+			"target_width_logical": 96,
+			"variant": "adaptive",
+			"word": "Reveal"
+		},
+		{
+			"accessibility_copy_with_markers": "Re<SHY>veal",
+			"content_width_logical": 76,
+			"control": "action_button",
+			"font_size_logical": 25,
+			"height_logical": 52.0,
+			"large_targets": false,
+			"line_count": 1,
+			"lines": [
+				{
+					"line": 0,
+					"range_end": 7,
+					"range_start": 0,
+					"source_segment": "Re<SHY>veal",
+					"width_logical": 69.0
+				}
+			],
+			"percent": 125,
+			"plain_copy": "Reveal",
+			"source_with_markers": "Re<SHY>veal",
+			"target_width_logical": 96,
+			"variant": "soft_hyphen",
+			"word": "Reveal"
+		},
+		{
+			"accessibility_copy_with_markers": "Assignments",
+			"content_width_logical": 140,
+			"control": "action_button",
+			"font_size_logical": 25,
+			"height_logical": 52.0,
+			"large_targets": false,
+			"line_count": 1,
+			"lines": [
+				{
+					"line": 0,
+					"range_end": 11,
+					"range_start": 0,
+					"source_segment": "Assignments",
+					"width_logical": 133.0
+				}
+			],
+			"percent": 125,
+			"plain_copy": "Assignments",
+			"source_with_markers": "Assignments",
+			"target_width_logical": 160,
+			"variant": "adaptive",
+			"word": "Assignments"
+		},
+		{
+			"accessibility_copy_with_markers": "As<SHY>sign<SHY>ments",
+			"content_width_logical": 140,
+			"control": "action_button",
+			"font_size_logical": 25,
+			"height_logical": 52.0,
+			"large_targets": false,
+			"line_count": 1,
+			"lines": [
+				{
+					"line": 0,
+					"range_end": 13,
+					"range_start": 0,
+					"source_segment": "As<SHY>sign<SHY>ments",
+					"width_logical": 133.0
+				}
+			],
+			"percent": 125,
+			"plain_copy": "Assignments",
+			"source_with_markers": "As<SHY>sign<SHY>ments",
+			"target_width_logical": 160,
+			"variant": "soft_hyphen",
+			"word": "Assignments"
+		},
+		{
+			"accessibility_copy_with_markers": "Foresight: —",
+			"content_width_logical": 112,
+			"control": "register_metric",
+			"font_size_logical": 25,
+			"height_logical": 88.0,
+			"large_targets": false,
+			"line_count": 1,
+			"lines": [
+				{
+					"line": 0,
+					"range_end": 9,
+					"range_start": 0,
+					"source_segment": "Foresight",
+					"width_logical": 98.0
+				}
+			],
+			"percent": 125,
+			"plain_copy": "Foresight",
+			"source_with_markers": "Foresight",
+			"target_width_logical": 128,
+			"variant": "adaptive",
+			"word": "Foresight"
+		},
+		{
+			"accessibility_copy_with_markers": "Fore<SHY>sight: —",
+			"content_width_logical": 112,
+			"control": "register_metric",
+			"font_size_logical": 25,
+			"height_logical": 88.0,
+			"large_targets": false,
+			"line_count": 1,
+			"lines": [
+				{
+					"line": 0,
+					"range_end": 10,
+					"range_start": 0,
+					"source_segment": "Fore<SHY>sight",
+					"width_logical": 98.0
+				}
+			],
+			"percent": 125,
+			"plain_copy": "Foresight",
+			"source_with_markers": "Fore<SHY>sight",
+			"target_width_logical": 128,
+			"variant": "soft_hyphen",
+			"word": "Foresight"
+		},
+		{
+			"accessibility_copy_with_markers": "Intermediate",
+			"content_width_logical": 72,
+			"control": "action_button",
+			"font_size_logical": 25,
+			"height_logical": 92.0,
+			"large_targets": true,
+			"line_count": 2,
+			"lines": [
+				{
+					"line": 0,
+					"range_end": 6,
+					"range_start": 0,
+					"source_segment": "Interm",
+					"width_logical": 70.0
+				},
+				{
+					"line": 1,
+					"range_end": 12,
+					"range_start": 6,
+					"source_segment": "ediate",
+					"width_logical": 65.0
+				}
+			],
+			"percent": 125,
+			"plain_copy": "Intermediate",
+			"source_with_markers": "Intermediate",
+			"target_width_logical": 96,
+			"variant": "adaptive",
+			"word": "Intermediate"
+		},
+		{
+			"accessibility_copy_with_markers": "Inter<SHY>me<SHY>di<SHY>ate",
+			"content_width_logical": 72,
+			"control": "action_button",
+			"font_size_logical": 25,
+			"height_logical": 128.0,
+			"large_targets": true,
+			"line_count": 3,
+			"lines": [
+				{
+					"line": 0,
+					"range_end": 6,
+					"range_start": 0,
+					"source_segment": "Inter<SHY>",
+					"width_logical": 57.0
+				},
+				{
+					"line": 1,
+					"range_end": 12,
+					"range_start": 6,
+					"source_segment": "me<SHY>di<SHY>",
+					"width_logical": 62.0
+				},
+				{
+					"line": 2,
+					"range_end": 15,
+					"range_start": 12,
+					"source_segment": "ate",
+					"width_logical": 32.0
+				}
+			],
+			"percent": 125,
+			"plain_copy": "Intermediate",
+			"source_with_markers": "Inter<SHY>me<SHY>di<SHY>ate",
+			"target_width_logical": 96,
+			"variant": "soft_hyphen",
+			"word": "Intermediate"
+		},
+		{
+			"accessibility_copy_with_markers": "Beginner",
+			"content_width_logical": 72,
+			"control": "action_button",
+			"font_size_logical": 25,
+			"height_logical": 92.0,
+			"large_targets": true,
+			"line_count": 2,
+			"lines": [
+				{
+					"line": 0,
+					"range_end": 5,
+					"range_start": 0,
+					"source_segment": "Begin",
+					"width_logical": 59.0
+				},
+				{
+					"line": 1,
+					"range_end": 8,
+					"range_start": 5,
+					"source_segment": "ner",
+					"width_logical": 35.0
+				}
+			],
+			"percent": 125,
+			"plain_copy": "Beginner",
+			"source_with_markers": "Beginner",
+			"target_width_logical": 96,
+			"variant": "adaptive",
+			"word": "Beginner"
+		},
+		{
+			"accessibility_copy_with_markers": "Be<SHY>gin<SHY>ner",
+			"content_width_logical": 72,
+			"control": "action_button",
+			"font_size_logical": 25,
+			"height_logical": 92.0,
+			"large_targets": true,
+			"line_count": 2,
+			"lines": [
+				{
+					"line": 0,
+					"range_end": 7,
+					"range_start": 0,
+					"source_segment": "Be<SHY>gin<SHY>",
+					"width_logical": 67.0
+				},
+				{
+					"line": 1,
+					"range_end": 10,
+					"range_start": 7,
+					"source_segment": "ner",
+					"width_logical": 35.0
+				}
+			],
+			"percent": 125,
+			"plain_copy": "Beginner",
+			"source_with_markers": "Be<SHY>gin<SHY>ner",
+			"target_width_logical": 96,
+			"variant": "soft_hyphen",
+			"word": "Beginner"
+		},
+		{
+			"accessibility_copy_with_markers": "Expert",
+			"content_width_logical": 72,
+			"control": "action_button",
+			"font_size_logical": 25,
+			"height_logical": 64.0,
+			"large_targets": true,
+			"line_count": 1,
+			"lines": [
+				{
+					"line": 0,
+					"range_end": 6,
+					"range_start": 0,
+					"source_segment": "Expert",
+					"width_logical": 67.0
+				}
+			],
+			"percent": 125,
+			"plain_copy": "Expert",
+			"source_with_markers": "Expert",
+			"target_width_logical": 96,
+			"variant": "adaptive",
+			"word": "Expert"
+		},
+		{
+			"accessibility_copy_with_markers": "Ex<SHY>pert",
+			"content_width_logical": 72,
+			"control": "action_button",
+			"font_size_logical": 25,
+			"height_logical": 64.0,
+			"large_targets": true,
+			"line_count": 1,
+			"lines": [
+				{
+					"line": 0,
+					"range_end": 7,
+					"range_start": 0,
+					"source_segment": "Ex<SHY>pert",
+					"width_logical": 67.0
+				}
+			],
+			"percent": 125,
+			"plain_copy": "Expert",
+			"source_with_markers": "Ex<SHY>pert",
+			"target_width_logical": 96,
+			"variant": "soft_hyphen",
+			"word": "Expert"
+		},
+		{
+			"accessibility_copy_with_markers": "Reveal",
+			"content_width_logical": 72,
+			"control": "action_button",
+			"font_size_logical": 25,
+			"height_logical": 64.0,
+			"large_targets": true,
+			"line_count": 1,
+			"lines": [
+				{
+					"line": 0,
+					"range_end": 6,
+					"range_start": 0,
+					"source_segment": "Reveal",
+					"width_logical": 69.0
+				}
+			],
+			"percent": 125,
+			"plain_copy": "Reveal",
+			"source_with_markers": "Reveal",
+			"target_width_logical": 96,
+			"variant": "adaptive",
+			"word": "Reveal"
+		},
+		{
+			"accessibility_copy_with_markers": "Re<SHY>veal",
+			"content_width_logical": 72,
+			"control": "action_button",
+			"font_size_logical": 25,
+			"height_logical": 64.0,
+			"large_targets": true,
+			"line_count": 1,
+			"lines": [
+				{
+					"line": 0,
+					"range_end": 7,
+					"range_start": 0,
+					"source_segment": "Re<SHY>veal",
+					"width_logical": 69.0
+				}
+			],
+			"percent": 125,
+			"plain_copy": "Reveal",
+			"source_with_markers": "Re<SHY>veal",
+			"target_width_logical": 96,
+			"variant": "soft_hyphen",
+			"word": "Reveal"
+		},
+		{
+			"accessibility_copy_with_markers": "Assignments",
+			"content_width_logical": 136,
+			"control": "action_button",
+			"font_size_logical": 25,
+			"height_logical": 64.0,
+			"large_targets": true,
+			"line_count": 1,
+			"lines": [
+				{
+					"line": 0,
+					"range_end": 11,
+					"range_start": 0,
+					"source_segment": "Assignments",
+					"width_logical": 133.0
+				}
+			],
+			"percent": 125,
+			"plain_copy": "Assignments",
+			"source_with_markers": "Assignments",
+			"target_width_logical": 160,
+			"variant": "adaptive",
+			"word": "Assignments"
+		},
+		{
+			"accessibility_copy_with_markers": "As<SHY>sign<SHY>ments",
+			"content_width_logical": 136,
+			"control": "action_button",
+			"font_size_logical": 25,
+			"height_logical": 64.0,
+			"large_targets": true,
+			"line_count": 1,
+			"lines": [
+				{
+					"line": 0,
+					"range_end": 13,
+					"range_start": 0,
+					"source_segment": "As<SHY>sign<SHY>ments",
+					"width_logical": 133.0
+				}
+			],
+			"percent": 125,
+			"plain_copy": "Assignments",
+			"source_with_markers": "As<SHY>sign<SHY>ments",
+			"target_width_logical": 160,
+			"variant": "soft_hyphen",
+			"word": "Assignments"
+		},
+		{
+			"accessibility_copy_with_markers": "Foresight: —",
+			"content_width_logical": 112,
+			"control": "register_metric",
+			"font_size_logical": 25,
+			"height_logical": 88.0,
+			"large_targets": true,
+			"line_count": 1,
+			"lines": [
+				{
+					"line": 0,
+					"range_end": 9,
+					"range_start": 0,
+					"source_segment": "Foresight",
+					"width_logical": 98.0
+				}
+			],
+			"percent": 125,
+			"plain_copy": "Foresight",
+			"source_with_markers": "Foresight",
+			"target_width_logical": 128,
+			"variant": "adaptive",
+			"word": "Foresight"
+		},
+		{
+			"accessibility_copy_with_markers": "Fore<SHY>sight: —",
+			"content_width_logical": 112,
+			"control": "register_metric",
+			"font_size_logical": 25,
+			"height_logical": 88.0,
+			"large_targets": true,
+			"line_count": 1,
+			"lines": [
+				{
+					"line": 0,
+					"range_end": 10,
+					"range_start": 0,
+					"source_segment": "Fore<SHY>sight",
+					"width_logical": 98.0
+				}
+			],
+			"percent": 125,
+			"plain_copy": "Foresight",
+			"source_with_markers": "Fore<SHY>sight",
+			"target_width_logical": 128,
+			"variant": "soft_hyphen",
+			"word": "Foresight"
+		},
+		{
+			"accessibility_copy_with_markers": "Intermediate",
+			"content_width_logical": 76,
+			"control": "action_button",
+			"font_size_logical": 30,
+			"height_logical": 136.0,
+			"large_targets": false,
+			"line_count": 3,
+			"lines": [
+				{
+					"line": 0,
+					"range_end": 5,
+					"range_start": 0,
+					"source_segment": "Inter",
+					"width_logical": 59.0
+				},
+				{
+					"line": 1,
+					"range_end": 9,
+					"range_start": 5,
+					"source_segment": "medi",
+					"width_logical": 64.0
+				},
+				{
+					"line": 2,
+					"range_end": 12,
+					"range_start": 9,
+					"source_segment": "ate",
+					"width_logical": 39.0
+				}
+			],
+			"percent": 150,
+			"plain_copy": "Intermediate",
+			"source_with_markers": "Intermediate",
+			"target_width_logical": 96,
+			"variant": "adaptive",
+			"word": "Intermediate"
+		},
+		{
+			"accessibility_copy_with_markers": "Inter<SHY>me<SHY>di<SHY>ate",
+			"content_width_logical": 76,
+			"control": "action_button",
+			"font_size_logical": 30,
+			"height_logical": 136.0,
+			"large_targets": false,
+			"line_count": 3,
+			"lines": [
+				{
+					"line": 0,
+					"range_end": 6,
+					"range_start": 0,
+					"source_segment": "Inter<SHY>",
+					"width_logical": 68.0
+				},
+				{
+					"line": 1,
+					"range_end": 12,
+					"range_start": 6,
+					"source_segment": "me<SHY>di<SHY>",
+					"width_logical": 73.0
+				},
+				{
+					"line": 2,
+					"range_end": 15,
+					"range_start": 12,
+					"source_segment": "ate",
+					"width_logical": 39.0
+				}
+			],
+			"percent": 150,
+			"plain_copy": "Intermediate",
+			"source_with_markers": "Inter<SHY>me<SHY>di<SHY>ate",
+			"target_width_logical": 96,
+			"variant": "soft_hyphen",
+			"word": "Intermediate"
+		},
+		{
+			"accessibility_copy_with_markers": "Beginner",
+			"content_width_logical": 76,
+			"control": "action_button",
+			"font_size_logical": 30,
+			"height_logical": 96.0,
+			"large_targets": false,
+			"line_count": 2,
+			"lines": [
+				{
+					"line": 0,
+					"range_end": 5,
+					"range_start": 0,
+					"source_segment": "Begin",
+					"width_logical": 71.0
+				},
+				{
+					"line": 1,
+					"range_end": 8,
+					"range_start": 5,
+					"source_segment": "ner",
+					"width_logical": 42.0
+				}
+			],
+			"percent": 150,
+			"plain_copy": "Beginner",
+			"source_with_markers": "Beginner",
+			"target_width_logical": 96,
+			"variant": "adaptive",
+			"word": "Beginner"
+		},
+		{
+			"accessibility_copy_with_markers": "Be<SHY>gin<SHY>ner",
+			"content_width_logical": 76,
+			"control": "action_button",
+			"font_size_logical": 30,
+			"height_logical": 136.0,
+			"large_targets": false,
+			"line_count": 3,
+			"lines": [
+				{
+					"line": 0,
+					"range_end": 3,
+					"range_start": 0,
+					"source_segment": "Be<SHY>",
+					"width_logical": 41.0
+				},
+				{
+					"line": 1,
+					"range_end": 7,
+					"range_start": 3,
+					"source_segment": "gin<SHY>",
+					"width_logical": 48.0
+				},
+				{
+					"line": 2,
+					"range_end": 10,
+					"range_start": 7,
+					"source_segment": "ner",
+					"width_logical": 42.0
+				}
+			],
+			"percent": 150,
+			"plain_copy": "Beginner",
+			"source_with_markers": "Be<SHY>gin<SHY>ner",
+			"target_width_logical": 96,
+			"variant": "soft_hyphen",
+			"word": "Beginner"
+		},
+		{
+			"accessibility_copy_with_markers": "Expert",
+			"content_width_logical": 76,
+			"control": "action_button",
+			"font_size_logical": 30,
+			"height_logical": 96.0,
+			"large_targets": false,
+			"line_count": 2,
+			"lines": [
+				{
+					"line": 0,
+					"range_end": 5,
+					"range_start": 0,
+					"source_segment": "Exper",
+					"width_logical": 70.0
+				},
+				{
+					"line": 1,
+					"range_end": 6,
+					"range_start": 5,
+					"source_segment": "t",
+					"width_logical": 10.0
+				}
+			],
+			"percent": 150,
+			"plain_copy": "Expert",
+			"source_with_markers": "Expert",
+			"target_width_logical": 96,
+			"variant": "adaptive",
+			"word": "Expert"
+		},
+		{
+			"accessibility_copy_with_markers": "Ex<SHY>pert",
+			"content_width_logical": 76,
+			"control": "action_button",
+			"font_size_logical": 30,
+			"height_logical": 96.0,
+			"large_targets": false,
+			"line_count": 2,
+			"lines": [
+				{
+					"line": 0,
+					"range_end": 3,
+					"range_start": 0,
+					"source_segment": "Ex<SHY>",
+					"width_logical": 37.0
+				},
+				{
+					"line": 1,
+					"range_end": 7,
+					"range_start": 3,
+					"source_segment": "pert",
+					"width_logical": 52.0
+				}
+			],
+			"percent": 150,
+			"plain_copy": "Expert",
+			"source_with_markers": "Ex<SHY>pert",
+			"target_width_logical": 96,
+			"variant": "soft_hyphen",
+			"word": "Expert"
+		},
+		{
+			"accessibility_copy_with_markers": "Reveal",
+			"content_width_logical": 76,
+			"control": "action_button",
+			"font_size_logical": 30,
+			"height_logical": 96.0,
+			"large_targets": false,
+			"line_count": 2,
+			"lines": [
+				{
+					"line": 0,
+					"range_end": 5,
+					"range_start": 0,
+					"source_segment": "Revea",
+					"width_logical": 75.0
+				},
+				{
+					"line": 1,
+					"range_end": 6,
+					"range_start": 5,
+					"source_segment": "l",
+					"width_logical": 8.0
+				}
+			],
+			"percent": 150,
+			"plain_copy": "Reveal",
+			"source_with_markers": "Reveal",
+			"target_width_logical": 96,
+			"variant": "adaptive",
+			"word": "Reveal"
+		},
+		{
+			"accessibility_copy_with_markers": "Re<SHY>veal",
+			"content_width_logical": 76,
+			"control": "action_button",
+			"font_size_logical": 30,
+			"height_logical": 96.0,
+			"large_targets": false,
+			"line_count": 2,
+			"lines": [
+				{
+					"line": 0,
+					"range_end": 3,
+					"range_start": 0,
+					"source_segment": "Re<SHY>",
+					"width_logical": 41.0
+				},
+				{
+					"line": 1,
+					"range_end": 7,
+					"range_start": 3,
+					"source_segment": "veal",
+					"width_logical": 51.0
+				}
+			],
+			"percent": 150,
+			"plain_copy": "Reveal",
+			"source_with_markers": "Re<SHY>veal",
+			"target_width_logical": 96,
+			"variant": "soft_hyphen",
+			"word": "Reveal"
+		},
+		{
+			"accessibility_copy_with_markers": "Assignments",
+			"content_width_logical": 140,
+			"control": "action_button",
+			"font_size_logical": 30,
+			"height_logical": 96.0,
+			"large_targets": false,
+			"line_count": 2,
+			"lines": [
+				{
+					"line": 0,
+					"range_end": 9,
+					"range_start": 0,
+					"source_segment": "Assignmen",
+					"width_logical": 137.0
+				},
+				{
+					"line": 1,
+					"range_end": 11,
+					"range_start": 9,
+					"source_segment": "ts",
+					"width_logical": 23.0
+				}
+			],
+			"percent": 150,
+			"plain_copy": "Assignments",
+			"source_with_markers": "Assignments",
+			"target_width_logical": 160,
+			"variant": "adaptive",
+			"word": "Assignments"
+		},
+		{
+			"accessibility_copy_with_markers": "As<SHY>sign<SHY>ments",
+			"content_width_logical": 140,
+			"control": "action_button",
+			"font_size_logical": 30,
+			"height_logical": 96.0,
+			"large_targets": false,
+			"line_count": 2,
+			"lines": [
+				{
+					"line": 0,
+					"range_end": 8,
+					"range_start": 0,
+					"source_segment": "As<SHY>sign<SHY>",
+					"width_logical": 90.0
+				},
+				{
+					"line": 1,
+					"range_end": 13,
+					"range_start": 8,
+					"source_segment": "ments",
+					"width_logical": 79.0
+				}
+			],
+			"percent": 150,
+			"plain_copy": "Assignments",
+			"source_with_markers": "As<SHY>sign<SHY>ments",
+			"target_width_logical": 160,
+			"variant": "soft_hyphen",
+			"word": "Assignments"
+		},
+		{
+			"accessibility_copy_with_markers": "Foresight: —",
+			"content_width_logical": 112,
+			"control": "register_metric",
+			"font_size_logical": 30,
+			"height_logical": 136.0,
+			"large_targets": false,
+			"line_count": 2,
+			"lines": [
+				{
+					"line": 0,
+					"range_end": 8,
+					"range_start": 0,
+					"source_segment": "Foresigh",
+					"width_logical": 107.0
+				},
+				{
+					"line": 1,
+					"range_end": 9,
+					"range_start": 8,
+					"source_segment": "t",
+					"width_logical": 10.0
+				}
+			],
+			"percent": 150,
+			"plain_copy": "Foresight",
+			"source_with_markers": "Foresight",
+			"target_width_logical": 128,
+			"variant": "adaptive",
+			"word": "Foresight"
+		},
+		{
+			"accessibility_copy_with_markers": "Fore<SHY>sight: —",
+			"content_width_logical": 112,
+			"control": "register_metric",
+			"font_size_logical": 30,
+			"height_logical": 136.0,
+			"large_targets": false,
+			"line_count": 2,
+			"lines": [
+				{
+					"line": 0,
+					"range_end": 5,
+					"range_start": 0,
+					"source_segment": "Fore<SHY>",
+					"width_logical": 65.0
+				},
+				{
+					"line": 1,
+					"range_end": 10,
+					"range_start": 5,
+					"source_segment": "sight",
+					"width_logical": 61.0
+				}
+			],
+			"percent": 150,
+			"plain_copy": "Foresight",
+			"source_with_markers": "Fore<SHY>sight",
+			"target_width_logical": 128,
+			"variant": "soft_hyphen",
+			"word": "Foresight"
+		},
+		{
+			"accessibility_copy_with_markers": "Intermediate",
+			"content_width_logical": 72,
+			"control": "action_button",
+			"font_size_logical": 30,
+			"height_logical": 140.0,
+			"large_targets": true,
+			"line_count": 3,
+			"lines": [
+				{
+					"line": 0,
+					"range_end": 5,
+					"range_start": 0,
+					"source_segment": "Inter",
+					"width_logical": 59.0
+				},
+				{
+					"line": 1,
+					"range_end": 9,
+					"range_start": 5,
+					"source_segment": "medi",
+					"width_logical": 64.0
+				},
+				{
+					"line": 2,
+					"range_end": 12,
+					"range_start": 9,
+					"source_segment": "ate",
+					"width_logical": 39.0
+				}
+			],
+			"percent": 150,
+			"plain_copy": "Intermediate",
+			"source_with_markers": "Intermediate",
+			"target_width_logical": 96,
+			"variant": "adaptive",
+			"word": "Intermediate"
+		},
+		{
+			"accessibility_copy_with_markers": "Inter<SHY>me<SHY>di<SHY>ate",
+			"content_width_logical": 72,
+			"control": "action_button",
+			"font_size_logical": 30,
+			"height_logical": 140.0,
+			"large_targets": true,
+			"line_count": 3,
+			"lines": [
+				{
+					"line": 0,
+					"range_end": 6,
+					"range_start": 0,
+					"source_segment": "Inter<SHY>",
+					"width_logical": 68.0
+				},
+				{
+					"line": 1,
+					"range_end": 9,
+					"range_start": 6,
+					"source_segment": "me<SHY>",
+					"width_logical": 49.0
+				},
+				{
+					"line": 2,
+					"range_end": 15,
+					"range_start": 9,
+					"source_segment": "di<SHY>ate",
+					"width_logical": 63.0
+				}
+			],
+			"percent": 150,
+			"plain_copy": "Intermediate",
+			"source_with_markers": "Inter<SHY>me<SHY>di<SHY>ate",
+			"target_width_logical": 96,
+			"variant": "soft_hyphen",
+			"word": "Intermediate"
+		},
+		{
+			"accessibility_copy_with_markers": "Beginner",
+			"content_width_logical": 72,
+			"control": "action_button",
+			"font_size_logical": 30,
+			"height_logical": 100.0,
+			"large_targets": true,
+			"line_count": 2,
+			"lines": [
+				{
+					"line": 0,
+					"range_end": 5,
+					"range_start": 0,
+					"source_segment": "Begin",
+					"width_logical": 71.0
+				},
+				{
+					"line": 1,
+					"range_end": 8,
+					"range_start": 5,
+					"source_segment": "ner",
+					"width_logical": 42.0
+				}
+			],
+			"percent": 150,
+			"plain_copy": "Beginner",
+			"source_with_markers": "Beginner",
+			"target_width_logical": 96,
+			"variant": "adaptive",
+			"word": "Beginner"
+		},
+		{
+			"accessibility_copy_with_markers": "Be<SHY>gin<SHY>ner",
+			"content_width_logical": 72,
+			"control": "action_button",
+			"font_size_logical": 30,
+			"height_logical": 140.0,
+			"large_targets": true,
+			"line_count": 3,
+			"lines": [
+				{
+					"line": 0,
+					"range_end": 3,
+					"range_start": 0,
+					"source_segment": "Be<SHY>",
+					"width_logical": 41.0
+				},
+				{
+					"line": 1,
+					"range_end": 7,
+					"range_start": 3,
+					"source_segment": "gin<SHY>",
+					"width_logical": 48.0
+				},
+				{
+					"line": 2,
+					"range_end": 10,
+					"range_start": 7,
+					"source_segment": "ner",
+					"width_logical": 42.0
+				}
+			],
+			"percent": 150,
+			"plain_copy": "Beginner",
+			"source_with_markers": "Be<SHY>gin<SHY>ner",
+			"target_width_logical": 96,
+			"variant": "soft_hyphen",
+			"word": "Beginner"
+		},
+		{
+			"accessibility_copy_with_markers": "Expert",
+			"content_width_logical": 72,
+			"control": "action_button",
+			"font_size_logical": 30,
+			"height_logical": 100.0,
+			"large_targets": true,
+			"line_count": 2,
+			"lines": [
+				{
+					"line": 0,
+					"range_end": 5,
+					"range_start": 0,
+					"source_segment": "Exper",
+					"width_logical": 70.0
+				},
+				{
+					"line": 1,
+					"range_end": 6,
+					"range_start": 5,
+					"source_segment": "t",
+					"width_logical": 10.0
+				}
+			],
+			"percent": 150,
+			"plain_copy": "Expert",
+			"source_with_markers": "Expert",
+			"target_width_logical": 96,
+			"variant": "adaptive",
+			"word": "Expert"
+		},
+		{
+			"accessibility_copy_with_markers": "Ex<SHY>pert",
+			"content_width_logical": 72,
+			"control": "action_button",
+			"font_size_logical": 30,
+			"height_logical": 100.0,
+			"large_targets": true,
+			"line_count": 2,
+			"lines": [
+				{
+					"line": 0,
+					"range_end": 3,
+					"range_start": 0,
+					"source_segment": "Ex<SHY>",
+					"width_logical": 37.0
+				},
+				{
+					"line": 1,
+					"range_end": 7,
+					"range_start": 3,
+					"source_segment": "pert",
+					"width_logical": 52.0
+				}
+			],
+			"percent": 150,
+			"plain_copy": "Expert",
+			"source_with_markers": "Ex<SHY>pert",
+			"target_width_logical": 96,
+			"variant": "soft_hyphen",
+			"word": "Expert"
+		},
+		{
+			"accessibility_copy_with_markers": "Reveal",
+			"content_width_logical": 72,
+			"control": "action_button",
+			"font_size_logical": 30,
+			"height_logical": 100.0,
+			"large_targets": true,
+			"line_count": 2,
+			"lines": [
+				{
+					"line": 0,
+					"range_end": 4,
+					"range_start": 0,
+					"source_segment": "Reve",
+					"width_logical": 60.0
+				},
+				{
+					"line": 1,
+					"range_end": 6,
+					"range_start": 4,
+					"source_segment": "al",
+					"width_logical": 23.0
+				}
+			],
+			"percent": 150,
+			"plain_copy": "Reveal",
+			"source_with_markers": "Reveal",
+			"target_width_logical": 96,
+			"variant": "adaptive",
+			"word": "Reveal"
+		},
+		{
+			"accessibility_copy_with_markers": "Re<SHY>veal",
+			"content_width_logical": 72,
+			"control": "action_button",
+			"font_size_logical": 30,
+			"height_logical": 100.0,
+			"large_targets": true,
+			"line_count": 2,
+			"lines": [
+				{
+					"line": 0,
+					"range_end": 3,
+					"range_start": 0,
+					"source_segment": "Re<SHY>",
+					"width_logical": 41.0
+				},
+				{
+					"line": 1,
+					"range_end": 7,
+					"range_start": 3,
+					"source_segment": "veal",
+					"width_logical": 51.0
+				}
+			],
+			"percent": 150,
+			"plain_copy": "Reveal",
+			"source_with_markers": "Re<SHY>veal",
+			"target_width_logical": 96,
+			"variant": "soft_hyphen",
+			"word": "Reveal"
+		},
+		{
+			"accessibility_copy_with_markers": "Assignments",
+			"content_width_logical": 136,
+			"control": "action_button",
+			"font_size_logical": 30,
+			"height_logical": 100.0,
+			"large_targets": true,
+			"line_count": 2,
+			"lines": [
+				{
+					"line": 0,
+					"range_end": 8,
+					"range_start": 0,
+					"source_segment": "Assignme",
+					"width_logical": 121.0
+				},
+				{
+					"line": 1,
+					"range_end": 11,
+					"range_start": 8,
+					"source_segment": "nts",
+					"width_logical": 39.0
+				}
+			],
+			"percent": 150,
+			"plain_copy": "Assignments",
+			"source_with_markers": "Assignments",
+			"target_width_logical": 160,
+			"variant": "adaptive",
+			"word": "Assignments"
+		},
+		{
+			"accessibility_copy_with_markers": "As<SHY>sign<SHY>ments",
+			"content_width_logical": 136,
+			"control": "action_button",
+			"font_size_logical": 30,
+			"height_logical": 100.0,
+			"large_targets": true,
+			"line_count": 2,
+			"lines": [
+				{
+					"line": 0,
+					"range_end": 8,
+					"range_start": 0,
+					"source_segment": "As<SHY>sign<SHY>",
+					"width_logical": 90.0
+				},
+				{
+					"line": 1,
+					"range_end": 13,
+					"range_start": 8,
+					"source_segment": "ments",
+					"width_logical": 79.0
+				}
+			],
+			"percent": 150,
+			"plain_copy": "Assignments",
+			"source_with_markers": "As<SHY>sign<SHY>ments",
+			"target_width_logical": 160,
+			"variant": "soft_hyphen",
+			"word": "Assignments"
+		},
+		{
+			"accessibility_copy_with_markers": "Foresight: —",
+			"content_width_logical": 112,
+			"control": "register_metric",
+			"font_size_logical": 30,
+			"height_logical": 136.0,
+			"large_targets": true,
+			"line_count": 2,
+			"lines": [
+				{
+					"line": 0,
+					"range_end": 8,
+					"range_start": 0,
+					"source_segment": "Foresigh",
+					"width_logical": 107.0
+				},
+				{
+					"line": 1,
+					"range_end": 9,
+					"range_start": 8,
+					"source_segment": "t",
+					"width_logical": 10.0
+				}
+			],
+			"percent": 150,
+			"plain_copy": "Foresight",
+			"source_with_markers": "Foresight",
+			"target_width_logical": 128,
+			"variant": "adaptive",
+			"word": "Foresight"
+		},
+		{
+			"accessibility_copy_with_markers": "Fore<SHY>sight: —",
+			"content_width_logical": 112,
+			"control": "register_metric",
+			"font_size_logical": 30,
+			"height_logical": 136.0,
+			"large_targets": true,
+			"line_count": 2,
+			"lines": [
+				{
+					"line": 0,
+					"range_end": 5,
+					"range_start": 0,
+					"source_segment": "Fore<SHY>",
+					"width_logical": 65.0
+				},
+				{
+					"line": 1,
+					"range_end": 10,
+					"range_start": 5,
+					"source_segment": "sight",
+					"width_logical": 61.0
+				}
+			],
+			"percent": 150,
+			"plain_copy": "Foresight",
+			"source_with_markers": "Fore<SHY>sight",
+			"target_width_logical": 128,
+			"variant": "soft_hyphen",
+			"word": "Foresight"
+		}
+	],
+	"scope": "temporary typography investigation; no production edits",
+	"semantic_limitation": "Soft hyphens currently enter the probe's public/accessibility copy. Production must preserve plain semantic strings and keep discretionary shaping separate."
+}

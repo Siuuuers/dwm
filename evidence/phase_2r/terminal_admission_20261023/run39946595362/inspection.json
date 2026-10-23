@@ -1,0 +1,275 @@
+{
+  "run_id": 39946595362,
+  "source": "5360c82e386698d6779f7b4cc63df3a07b9c0fe6",
+  "source_tree": "801046ea4284d9afb21b76b023d0aad3377d8725",
+  "controller": "4b6a1450698d04ab39836b620a327e0bd91594fb",
+  "artifact_id": 12501877704,
+  "artifact_sha256": "ae87682f685fbd175f84e71d4165863cba2221536f00132136148a91a11e3078",
+  "result": "passed",
+  "tests": {
+    "terminal-candidate.xml": [
+      {
+        "name": "test_genuine_ending_load_save",
+        "assertions": "112",
+        "status": "pass",
+        "classname": ".godot/ci/pair-next.gd",
+        "time": "1056.328002"
+      }
+    ],
+    "terminal-replay.xml": [
+      {
+        "name": "test_fresh_saved_ending_replay_and_new_game",
+        "assertions": "312",
+        "status": "pass",
+        "classname": ".godot/ci/replay.gd",
+        "time": "1552.45731"
+      }
+    ],
+    "terminal-checks.xml": [
+      {
+        "name": "test_selected_terminal_admission_rechecks_genuine_saved_authority",
+        "assertions": "98",
+        "status": "pass",
+        "classname": "tests/integration/authored_terminal_admission_checks.gd",
+        "time": "86.830338"
+      }
+    ],
+    "terminal-baseline.xml": [
+      {
+        "name": "test_genuine_ending_load_save",
+        "assertions": "112",
+        "status": "pass",
+        "classname": ".godot/ci/pair-next.gd",
+        "time": "1172.419489"
+      }
+    ]
+  },
+  "comparison": {
+    "boot": {
+      "baseline": {
+        "elapsed_us": 71951583,
+        "bundle_validation_calls": 65,
+        "receipt_validation_calls": 34,
+        "physical_proof_calls": 34,
+        "configuration_calls": 25
+      },
+      "candidate": {
+        "elapsed_us": 67869955,
+        "bundle_validation_calls": 57,
+        "receipt_validation_calls": 30,
+        "physical_proof_calls": 30,
+        "configuration_calls": 25
+      }
+    },
+    "load": {
+      "baseline": {
+        "elapsed_us": 599203977,
+        "bundle_validation_calls": 848,
+        "receipt_validation_calls": 470,
+        "physical_proof_calls": 470,
+        "configuration_calls": 180
+      },
+      "candidate": {
+        "elapsed_us": 539593694,
+        "bundle_validation_calls": 712,
+        "receipt_validation_calls": 402,
+        "physical_proof_calls": 402,
+        "configuration_calls": 180
+      }
+    },
+    "save": {
+      "baseline": {
+        "elapsed_us": 500876387,
+        "bundle_validation_calls": 835,
+        "receipt_validation_calls": 447,
+        "physical_proof_calls": 447,
+        "configuration_calls": 152
+      },
+      "candidate": {
+        "elapsed_us": 448498620,
+        "bundle_validation_calls": 695,
+        "receipt_validation_calls": 377,
+        "physical_proof_calls": 377,
+        "configuration_calls": 152
+      }
+    }
+  },
+  "ui_timings": {
+    "baseline": [
+      {
+        "elapsed_us": 86632104,
+        "finished_us": 168213157,
+        "ok": true,
+        "operation": "title_backup_open_press_return",
+        "started_us": 81581053
+      },
+      {
+        "elapsed_us": 80268,
+        "finished_us": 168293621,
+        "ok": true,
+        "operation": "load_slot_select_press_return",
+        "started_us": 168213353
+      },
+      {
+        "elapsed_us": 422849696,
+        "finished_us": 591143360,
+        "operation": "load_action_to_ready",
+        "started_us": 168293664
+      },
+      {
+        "elapsed_us": 511773213,
+        "finished_us": 680066877,
+        "ok": true,
+        "operation": "load_action_press_return",
+        "started_us": 168293664
+      },
+      {
+        "elapsed_us": 198507831,
+        "finished_us": 879220165,
+        "ok": true,
+        "operation": "ending_backup_open_press_return",
+        "started_us": 680712334
+      },
+      {
+        "elapsed_us": 142903,
+        "finished_us": 879364090,
+        "ok": true,
+        "operation": "save_slot_select_press_return",
+        "started_us": 879221187
+      },
+      {
+        "elapsed_us": 300222535,
+        "finished_us": 1179587567,
+        "ok": true,
+        "operation": "save_action_press_return",
+        "save_in_operation_at_return": false,
+        "save_result_ok_at_return": true,
+        "started_us": 879365032
+      },
+      {
+        "elapsed_us": 110769,
+        "finished_us": 1179763601,
+        "ok": true,
+        "operation": "continue_press_return",
+        "started_us": 1179652832
+      }
+    ],
+    "candidate": [
+      {
+        "elapsed_us": 78050693,
+        "finished_us": 155051336,
+        "ok": true,
+        "operation": "title_backup_open_press_return",
+        "started_us": 77000643
+      },
+      {
+        "elapsed_us": 80407,
+        "finished_us": 155131923,
+        "ok": true,
+        "operation": "load_slot_select_press_return",
+        "started_us": 155051516
+      },
+      {
+        "elapsed_us": 382080995,
+        "finished_us": 537212961,
+        "operation": "load_action_to_ready",
+        "started_us": 155131966
+      },
+      {
+        "elapsed_us": 460748980,
+        "finished_us": 615880946,
+        "ok": true,
+        "operation": "load_action_press_return",
+        "started_us": 155131966
+      },
+      {
+        "elapsed_us": 180326259,
+        "finished_us": 796844796,
+        "ok": true,
+        "operation": "ending_backup_open_press_return",
+        "started_us": 616518537
+      },
+      {
+        "elapsed_us": 111030,
+        "finished_us": 796956747,
+        "ok": true,
+        "operation": "save_slot_select_press_return",
+        "started_us": 796845717
+      },
+      {
+        "elapsed_us": 266074384,
+        "finished_us": 1063032103,
+        "ok": true,
+        "operation": "save_action_press_return",
+        "save_in_operation_at_return": false,
+        "save_result_ok_at_return": true,
+        "started_us": 796957719
+      },
+      {
+        "elapsed_us": 110706,
+        "finished_us": 1063208244,
+        "ok": true,
+        "operation": "continue_press_return",
+        "started_us": 1063097538
+      }
+    ]
+  },
+  "roots": {
+    "baseline": {
+      "path": "terminal-baseline-root.zip",
+      "sha256": "739327937312a4b3831d6bcdaf5ce5fe06e5f9707eb27685b54bbd38c984b911",
+      "user_dir": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\15aba19a-5176-40e6-98ee-470a9bbf8a34\\appdata\\Godot\\app_userdata\\DWM",
+      "snapshots": {
+        "saves/autosave.json": {
+          "state": "PLAYING",
+          "checkpoint_sequence": 1,
+          "receipts": 1
+        },
+        "saves/slot_2.json": {
+          "state": "ENDING",
+          "checkpoint_sequence": 71,
+          "receipts": 61
+        },
+        "saves/slot_3.json": {
+          "state": "ENDING",
+          "checkpoint_sequence": 72,
+          "receipts": 61
+        }
+      },
+      "files": 42
+    },
+    "candidate": {
+      "path": "terminal-candidate-root.zip",
+      "sha256": "cd1bb2e531e63ceefe70afe35feaf5fb8ee7a91fd2b683e8072e432e509bbc7a",
+      "user_dir": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\7c169584-c617-4f8e-9e96-b5e13d805547\\appdata\\Godot\\app_userdata\\DWM",
+      "snapshots": {
+        "saves/autosave.json": {
+          "state": "PLAYING",
+          "checkpoint_sequence": 1,
+          "receipts": 1
+        },
+        "saves/slot_2.json": {
+          "state": "ENDING",
+          "checkpoint_sequence": 71,
+          "receipts": 61
+        },
+        "saves/slot_3.json": {
+          "state": "ENDING",
+          "checkpoint_sequence": 72,
+          "receipts": 61
+        }
+      },
+      "files": 42
+    }
+  },
+  "screenshots_inspected": [
+    "computer-authored-restored-slot-3.png",
+    "computer-authored-terminal-fresh-day1.png"
+  ],
+  "limits": [
+    "One matched pair; broad helper timings include test work.",
+    "UI press-return includes original five frame waits; Load Ready is an owner signal, not an exact frame-present measurement.",
+    "No full-week pass or smooth-play claim.",
+    "Exact-source export evidence recorded separately."
+  ]
+}

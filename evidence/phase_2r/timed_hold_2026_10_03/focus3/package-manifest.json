@@ -1,0 +1,35 @@
+{
+  "status": "AUDITED_SUCCESSFUL_CAPTURE_PACKAGED_NOT_NEW_ACCEPTANCE",
+  "label": "timed-hold-focus3",
+  "run_id": 37093670324,
+  "source": "abb7a3cac46ef3499fd797edd164ab8c1ac078f7",
+  "workflow_head": "d5652c4c8b9391cc57d5f5a7b1c1fc950a4db465",
+  "actual_checkout": "abb7a3cac46ef3499fd797edd164ab8c1ac078f7",
+  "archive": {
+    "file": "timed-hold-focus3-evidence.tar.gz",
+    "bytes": 7161415,
+    "sha256": "15d4d4117d108fb98060ba5f7deaea79fb4daac8a05393db555d2d56fc13e4c8"
+  },
+  "archive_members": 65,
+  "archive_inventory": {
+    "bytes": 21132,
+    "sha256": "5f60c7c170a4537c4f5a3e6f3e6c53368c3bd3655ceb02ce1c221f83136dbe35"
+  },
+  "extraction_inventory": {
+    "bytes": 71097,
+    "sha256": "156148a0e066ddc0da9f8ab60b368207ba4eb18ef336fdfdad433753ef5a047b"
+  },
+  "parts": [],
+  "part_size_limit": 8388608,
+  "archive_roundtrip_and_ordered_parts_verified": true,
+  "excluded_export_original_zip": false,
+  "limits": [
+    "Packaging does not create runtime, whole-game, release or PR test-merge acceptance.",
+    "Captionless hold evidence uses an authorized noncanonical fixture duration; no production-authored duration is established.",
+    "No durable mid-hold save/restore cursor, canonical no-Sylvia Hospital completion or production timeline registration is established.",
+    "No native hardware-input, OS accessibility-tree, screen-reader or audible speech-quality acceptance.",
+    "Windows export scope is unsigned cloud export, packaged data and isolated headless startup; known ObjectDB exporter warning remains an explicit unresolved lifetime exclusion.",
+    "No fixed performance threshold, universal speedup, physical-disk or input-to-paint guarantee.",
+    "Original Windows export binaries and transport wrapper/chunk bytes remain outside repository storage; exact identities are not permanent binary archival."
+  ]
+}

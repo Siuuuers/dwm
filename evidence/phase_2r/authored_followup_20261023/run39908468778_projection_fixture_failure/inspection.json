@@ -1,0 +1,203 @@
+{
+  "origin": {
+    "attempt": "1",
+    "tree": "048344b6491616675941eb331074d5f0f2413e85",
+    "event": "7f8b65de77aca338a1be8c7ef730852f533fbcdc",
+    "candidate": "27afc7ba0e8becb739aa948c1dc8f28ec48f1518",
+    "controller": "8335fcca9084d7735d864ccabb4518eeb2c80253",
+    "run_id": "39908468778",
+    "workflow": "7f8b65de77aca338a1be8c7ef730852f533fbcdc"
+  },
+  "outer_sha256": "73edb185e8d0f66d9eee9a03c12591486cab2187d757f94358339cb13ccc1186",
+  "inner_sha256": "770b20706baa8b13ec97d0f145d3e4950d4b4275af9076da71420b0e053d11ce",
+  "verified_members": 86,
+  "reports": [
+    {
+      "file": "playable-native-control.xml",
+      "tests": 9,
+      "assertions": 255,
+      "cases": [
+        {
+          "name": "test_real_caption_installs_exact_control_without_replay_and_consumes_source_once",
+          "assertions": "35",
+          "status": "pass",
+          "classname": "tests/integration/test_scene_playable_native_control.gd",
+          "time": "0.496573"
+        },
+        {
+          "name": "test_unheld_and_forged_tokens_cannot_install_or_consume_the_real_source",
+          "assertions": "22",
+          "status": "pass",
+          "classname": "tests/integration/test_scene_playable_native_control.gd",
+          "time": "0.176321"
+        },
+        {
+          "name": "test_malformed_projection_and_valid_but_unplanned_control_refuse_without_consuming",
+          "assertions": "63",
+          "status": "pass",
+          "classname": "tests/integration/test_scene_playable_native_control.gd",
+          "time": "0.240419"
+        },
+        {
+          "name": "test_end_control_is_not_playable_adoption_authority",
+          "assertions": "22",
+          "status": "pass",
+          "classname": "tests/integration/test_scene_playable_native_control.gd",
+          "time": "0.176714"
+        },
+        {
+          "name": "test_contact_return_control_is_not_playable_adoption_authority",
+          "assertions": "20",
+          "status": "pass",
+          "classname": "tests/integration/test_scene_playable_native_control.gd",
+          "time": "0.176428"
+        },
+        {
+          "name": "test_changed_candidate_and_stale_native_identity_refuse_before_consumption",
+          "assertions": "27",
+          "status": "pass",
+          "classname": "tests/integration/test_scene_playable_native_control.gd",
+          "time": "0.208437"
+        },
+        {
+          "name": "test_callback_input_mutation_is_refused_without_consuming_source",
+          "assertions": "21",
+          "status": "pass",
+          "classname": "tests/integration/test_scene_playable_native_control.gd",
+          "time": "0.208167"
+        },
+        {
+          "name": "test_callback_candidate_mutation_is_refused_before_native_adoption",
+          "assertions": "21",
+          "status": "pass",
+          "classname": "tests/integration/test_scene_playable_native_control.gd",
+          "time": "0.208446"
+        },
+        {
+          "name": "test_callback_reentrant_install_refuses_without_consuming_outer_custody",
+          "assertions": "24",
+          "status": "pass",
+          "classname": "tests/integration/test_scene_playable_native_control.gd",
+          "time": "0.208497"
+        }
+      ],
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "file": "native-activation.xml",
+      "tests": 5,
+      "assertions": 266,
+      "cases": [
+        {
+          "name": "test_real_native_restores_saved_second_caption_without_executing_end_or_republishing",
+          "assertions": "27",
+          "status": "pass",
+          "classname": "tests/integration/test_scene_native_activation_runtime.gd",
+          "time": "0.30491"
+        },
+        {
+          "name": "test_real_native_restores_control_as_held_predecessor_and_consumes_source_once",
+          "assertions": "49",
+          "status": "pass",
+          "classname": "tests/integration/test_scene_native_activation_runtime.gd",
+          "time": "0.256616"
+        },
+        {
+          "name": "test_held_control_projection_is_detached_and_does_not_capture_or_copy_history",
+          "assertions": "105",
+          "status": "pass",
+          "classname": "tests/integration/test_scene_native_activation_runtime.gd",
+          "time": "0.144989"
+        },
+        {
+          "name": "test_held_control_projection_refuses_replaced_session_and_stale_native_source",
+          "assertions": "35",
+          "status": "pass",
+          "classname": "tests/integration/test_scene_native_activation_runtime.gd",
+          "time": "0.112634"
+        },
+        {
+          "name": "test_held_control_actions_revalidate_history_and_preserve_read_only_custody",
+          "assertions": "50",
+          "status": "fail",
+          "classname": "tests/integration/test_scene_native_activation_runtime.gd",
+          "time": "0.128455"
+        }
+      ],
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "processes": [
+    {
+      "file": "playable-native-control.jsonl",
+      "suite_id": "playable-native-control",
+      "argv": [
+        "--rendering-method",
+        "gl_compatibility",
+        "--audio-driver",
+        "Dummy",
+        "--path",
+        "D:\\a\\dwm\\dwm",
+        "--log-file",
+        "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\playable-native-control.log",
+        "-s",
+        "res://addons/gut/gut_cmdln.gd",
+        "-gconfig=",
+        "-gtest=res://tests/integration/test_scene_playable_native_control.gd",
+        "-gexit",
+        "-glog=2",
+        "-gjunit_xml_file=res://.godot/ci/playable-native-control.xml"
+      ],
+      "exit_code": 0,
+      "log_path": "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\playable-native-control.log",
+      "test_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\9553c90d-5d3d-491d-acdd-5b3576e7f5c5",
+      "user_dir": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\9553c90d-5d3d-491d-acdd-5b3576e7f5c5\\appdata\\Godot\\app_userdata\\DWM",
+      "started_at_utc": "2026-10-23T05:56:48.8544499Z",
+      "ended_at_utc": "2026-10-23T05:56:59.4848396Z"
+    },
+    {
+      "file": "native-activation.jsonl",
+      "suite_id": "native-activation",
+      "argv": [
+        "--rendering-method",
+        "gl_compatibility",
+        "--audio-driver",
+        "Dummy",
+        "--path",
+        "D:\\a\\dwm\\dwm",
+        "--log-file",
+        "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\native-activation.log",
+        "-s",
+        "res://addons/gut/gut_cmdln.gd",
+        "-gconfig=",
+        "-gtest=res://tests/integration/test_scene_native_activation_runtime.gd",
+        "-gexit",
+        "-glog=2",
+        "-gjunit_xml_file=res://.godot/ci/native-activation.xml"
+      ],
+      "exit_code": 1,
+      "log_path": "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\native-activation.log",
+      "test_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\43346f2b-739e-4b5b-95b8-5f73ec25c183",
+      "user_dir": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\43346f2b-739e-4b5b-95b8-5f73ec25c183\\appdata\\Godot\\app_userdata\\DWM",
+      "started_at_utc": "2026-10-23T05:57:05.6739785Z",
+      "ended_at_utc": "2026-10-23T05:57:14.4818820Z"
+    }
+  ],
+  "profiles": [],
+  "operation_profiles": [],
+  "errors": [
+    {
+      "file": "native-activation.log",
+      "line": "    [Failed]:  Unexpected Errors:"
+    },
+    {
+      "file": "native-activation.log",
+      "line": "    [Failed]:  Unexpected Errors:"
+    }
+  ],
+  "screenshots": []
+}

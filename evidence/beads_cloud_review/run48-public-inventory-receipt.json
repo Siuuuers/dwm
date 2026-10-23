@@ -1,0 +1,23 @@
+{
+  "run": 35648249324,
+  "head": "eccf563e5cf5fbe287b4e55a6ea6d81578f8baae",
+  "job": 106493936856,
+  "inventories": [
+    {
+      "path": "evidence/phase_2r/runtime/game_state_surface.json",
+      "encoding": "gzip+base64",
+      "sha256": "ef281c85af19571d203f4db1bf934d15aa08f306c1b1154f1f88cddbb57a55af",
+      "bytes": 543284,
+      "compressed_bytes": 60519,
+      "parts": 40
+    },
+    {
+      "path": "evidence/phase_2r/runtime/save_manager_surface.json",
+      "encoding": "gzip+base64",
+      "sha256": "93f594f4257f45f371da02be808e60814c30fd9a9f890ab45b54668e4d8c46ff",
+      "bytes": 138711,
+      "compressed_bytes": 16351,
+      "parts": 11
+    }
+  ]
+}

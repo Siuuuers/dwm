@@ -1,0 +1,316 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+---  GUT  ---
+[INFO]:  using [C:/Users/glori/Documents/dwm/temp-artifacts/worktrees/minesweeper-view-controls/.godot/phase2r_tests/fixture-root-disposable-20260913/.godot/phase2r_tests/421617a4-02ec-414c-b77a-c992394e6209/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+ROOT_GUARD_PROBE {"mode":"stale","phase":"run","root":"C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\minesweeper-view-controls\\.godot\\phase2r_tests\\fixture-root-disposable-20260913\\.godot\\phase2r_tests\\421617a4-02ec-414c-b77a-c992394e6209\\dwm_test_root"}
+
+
+res://tests/unit/test_desktop_publication_ledger.gd
+ROOT_GUARD_PROBE {"mode":"stale","phase":"start_script","root_restored":true,"script":1}
+* test_fixed_path_and_kinds_are_frozen
+ROOT_GUARD_PROBE {"mode":"stale","phase":"first_end_test","root_cleared":true,"script":1,"snapshot":{"directories":[".","25096","25096/1","25096/1/desktop-publication-desktop-ledger"],"errors":[],"exists":true,"files":{}}}
+* test_missing_file_initializes_the_exact_empty_document
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+    [Failed]:  desktop ledger temporary storage is unavailable
+      at line 149
+* test_three_exact_kind_unions_accepted_and_extra_kind_rejected
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+    [Failed]:  desktop ledger temporary storage is unavailable
+      at line 162
+* test_document_and_record_union_is_exact_after_one_publication
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+    [Failed]:  desktop ledger temporary storage is unavailable
+      at line 181
+* test_causal_sequence_keys_are_nonblank_and_distinct_per_transaction
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+    [Failed]:  desktop ledger temporary storage is unavailable
+      at line 206
+* test_action_source_key_derives_from_commit_receipt_id_not_receipt_id
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+    [Failed]:  desktop ledger temporary storage is unavailable
+      at line 223
+* test_board_fate_key_derives_from_ordinary_receipt_id
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+    [Failed]:  desktop ledger temporary storage is unavailable
+      at line 233
+* test_causal_sequence_semantic_receipt_equals_publication_in_its_entirety
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+    [Failed]:  desktop ledger temporary storage is unavailable
+      at line 246
+* test_first_delivery_then_byte_identical_replay_across_a_cold_restart
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+    [Failed]:  desktop ledger temporary storage is unavailable
+      at line 260
+* test_occupied_key_with_changed_bytes_conflicts_without_rewriting_storage
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+    [Failed]:  desktop ledger temporary storage is unavailable
+      at line 277
+* test_request_hash_and_receipt_binding_enforced_before_any_write
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+    [Failed]:  desktop ledger temporary storage is unavailable
+      at line 299
+* test_configure_requires_the_root_scoped_capability_and_refuses_replacement
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+    [Failed]:  desktop ledger temporary storage is unavailable
+      at line 319
+* test_load_fails_closed_on_malformed_on_disk_json
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+    [Failed]:  desktop ledger temporary storage is unavailable
+      at line 344
+* test_exact_text_validation_cache_is_bounded_and_changed_bytes_fail_closed
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+    [Failed]:  desktop ledger temporary storage is unavailable
+      at line 363
+* test_disjoint_from_plan01_schedule_foundation_ledger
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+    [Failed]:  desktop ledger temporary storage is unavailable
+      at line 386
+1/15 passed.
+ROOT_GUARD_PROBE {"after":{"directories":[".","25096","25096/1","25096/1/desktop-publication-desktop-ledger"],"errors":[],"exists":true,"files":{}},"before":{"directories":[".","25096","25096/1","25096/1/desktop-publication-desktop-ledger"],"errors":[],"exists":true,"files":{}},"mode":"stale","ok":true,"phase":"end_script","script":1}
+
+
+res://tests/unit/test_schedule_foundation_publication_ledger.gd
+ROOT_GUARD_PROBE {"mode":"stale","phase":"start_script","root_restored":true,"script":2}
+* test_fixed_path_and_published_schema_are_frozen
+ROOT_GUARD_PROBE {"mode":"stale","phase":"first_end_test","root_cleared":true,"script":2,"snapshot":{"directories":[".","25096","25096/1","25096/1/desktop-publication-desktop-ledger","25096/2","25096/2/schedule-publication-ledger"],"errors":[],"exists":true,"files":{}}}
+* test_missing_file_initializes_the_exact_empty_document
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+    [Failed]:  schedule ledger temporary storage is unavailable
+      at line 213
+* test_document_and_record_union_is_exact_after_one_publication
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+    [Failed]:  schedule ledger temporary storage is unavailable
+      at line 231
+* test_first_delivery_then_byte_identical_replay_across_a_cold_restart
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+    [Failed]:  schedule ledger temporary storage is unavailable
+      at line 271
+* test_occupied_key_with_changed_bytes_conflicts_without_rewriting_storage
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+    [Failed]:  schedule ledger temporary storage is unavailable
+      at line 296
+* test_request_member_hash_and_receipt_binding_are_enforced_before_any_write
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+    [Failed]:  schedule ledger temporary storage is unavailable
+      at line 326
+* test_load_rejects_every_extra_missing_or_type_changed_document_member
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+    [Failed]:  schedule ledger temporary storage is unavailable
+      at line 389
+* test_records_and_documents_are_strictly_detached_primitives
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+    [Failed]:  schedule ledger temporary storage is unavailable
+      at line 480
+* test_write_read_and_schema_failures_return_failure_without_recording
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+    [Failed]:  schedule ledger temporary storage is unavailable
+      at line 501
+* test_configure_requires_the_root_scoped_capability_and_refuses_replacement
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+      at line -1
+    [Failed]:  schedule ledger temporary storage is unavailable
+      at line 542
+1/10 passed.
+ROOT_GUARD_PROBE {"after":{"directories":[".","25096","25096/1","25096/1/desktop-publication-desktop-ledger","25096/2","25096/2/schedule-publication-ledger"],"errors":[],"exists":true,"files":{}},"before":{"directories":[".","25096","25096/1","25096/1/desktop-publication-desktop-ledger","25096/2","25096/2/schedule-publication-ledger"],"errors":[],"exists":true,"files":{}},"mode":"stale","ok":true,"phase":"end_script","script":2}
+
+
+
+
+==============================================
+= 24 Orphans
+==============================================
+res://tests/unit/test_desktop_publication_ledger.gd
+    - Outside Tests
+        * [<Node#128681248531>(subsystem_animation.gd)]
+        * [<Node#128698025763>(subsystem_audio.gd)]
+        * [<Node#128714802990>]
+        * [<Node#128731580211>]
+        * [<Node#128748357430>(subsystem_backgrounds.gd)]
+        * [<Node#129285228345>(subsystem_choices.gd)]
+        * [<Timer#129302005563>]
+        * [<Node#129318782780>(subsystem_expression.gd)]
+        * [<Node#129352337218>(subsystem_glossary.gd)]
+        * [<Node#129369114435>(subsystem_history.gd)]
+        * [<Node#129385891652>(subsystem_input.gd)]
+        * [<Timer#129402668869>]
+        * [<Node#129419446086>(subsystem_jump.gd)]
+        * [<Node#129436223303>(subsystem_containers.gd)]
+        * [<Node#129453000520>(subsystem_portraits.gd)]
+        * [<Node#129989871433>(subsystem_save.gd)]
+        * [<Timer#130006648650>]
+        * [<Node#130023425867>(subsystem_settings.gd)]
+        * [<Node#130040203087>(subsystem_styles.gd)]
+        * [<Node#130056980304>(subsystem_text.gd)]
+        * [<Node#130140866389>(subsystem_text_input.gd)]
+        * [<Node#130157643606>(subsystem_variables.gd)]
+        * [<Node#130174420823>(subsystem_voice.gd)]
+        * [<AudioStreamPlayer#130191198040>]
+
+
+==============================================
+= Run Summary
+==============================================
+
+res://tests/unit/test_desktop_publication_ledger.gd
+- test_missing_file_initializes_the_exact_empty_document
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+    [Failed]:  desktop ledger temporary storage is unavailable
+          at line 149
+- test_three_exact_kind_unions_accepted_and_extra_kind_rejected
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+    [Failed]:  desktop ledger temporary storage is unavailable
+          at line 162
+- test_document_and_record_union_is_exact_after_one_publication
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+    [Failed]:  desktop ledger temporary storage is unavailable
+          at line 181
+- test_causal_sequence_keys_are_nonblank_and_distinct_per_transaction
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+    [Failed]:  desktop ledger temporary storage is unavailable
+          at line 206
+- test_action_source_key_derives_from_commit_receipt_id_not_receipt_id
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+    [Failed]:  desktop ledger temporary storage is unavailable
+          at line 223
+- test_board_fate_key_derives_from_ordinary_receipt_id
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+    [Failed]:  desktop ledger temporary storage is unavailable
+          at line 233
+- test_causal_sequence_semantic_receipt_equals_publication_in_its_entirety
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+    [Failed]:  desktop ledger temporary storage is unavailable
+          at line 246
+- test_first_delivery_then_byte_identical_replay_across_a_cold_restart
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+    [Failed]:  desktop ledger temporary storage is unavailable
+          at line 260
+- test_occupied_key_with_changed_bytes_conflicts_without_rewriting_storage
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+    [Failed]:  desktop ledger temporary storage is unavailable
+          at line 277
+- test_request_hash_and_receipt_binding_enforced_before_any_write
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+    [Failed]:  desktop ledger temporary storage is unavailable
+          at line 299
+- test_configure_requires_the_root_scoped_capability_and_refuses_replacement
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+    [Failed]:  desktop ledger temporary storage is unavailable
+          at line 319
+- test_load_fails_closed_on_malformed_on_disk_json
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+    [Failed]:  desktop ledger temporary storage is unavailable
+          at line 344
+- test_exact_text_validation_cache_is_bounded_and_changed_bytes_fail_closed
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+    [Failed]:  desktop ledger temporary storage is unavailable
+          at line 363
+- test_disjoint_from_plan01_schedule_foundation_ledger
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+    [Failed]:  desktop ledger temporary storage is unavailable
+          at line 386
+
+res://tests/unit/test_schedule_foundation_publication_ledger.gd
+- test_missing_file_initializes_the_exact_empty_document
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+    [Failed]:  schedule ledger temporary storage is unavailable
+          at line 213
+- test_document_and_record_union_is_exact_after_one_publication
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+    [Failed]:  schedule ledger temporary storage is unavailable
+          at line 231
+- test_first_delivery_then_byte_identical_replay_across_a_cold_restart
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+    [Failed]:  schedule ledger temporary storage is unavailable
+          at line 271
+- test_occupied_key_with_changed_bytes_conflicts_without_rewriting_storage
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+    [Failed]:  schedule ledger temporary storage is unavailable
+          at line 296
+- test_request_member_hash_and_receipt_binding_are_enforced_before_any_write
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+    [Failed]:  schedule ledger temporary storage is unavailable
+          at line 326
+- test_load_rejects_every_extra_missing_or_type_changed_document_member
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+    [Failed]:  schedule ledger temporary storage is unavailable
+          at line 389
+- test_records_and_documents_are_strictly_detached_primitives
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+    [Failed]:  schedule ledger temporary storage is unavailable
+          at line 480
+- test_write_read_and_schema_failures_return_failure_without_recording
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+    [Failed]:  schedule ledger temporary storage is unavailable
+          at line 501
+- test_configure_requires_the_root_scoped_capability_and_refuses_replacement
+    [Failed]:  { "ok": false, "code": &"test_root_missing", "message": "DWM_TEST_ROOT is required" }
+          at line -1
+    [Failed]:  schedule ledger temporary storage is unavailable
+          at line 542
+
+Totals
+------
+Scripts               2
+Tests                25
+Passing Tests         2
+Failing Tests        23
+Asserts            7/53
+Orphans              24
+Time              0.437s
+
+
+---- 23 failing tests ----
+
+ROOT_GUARD_PROBE {"mode":"stale","phase":"end_run","scripts":2}
+ROOT_GUARD_PROBE {"mode":"stale","ok":true,"phase":"restored"}

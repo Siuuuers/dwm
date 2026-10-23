@@ -1,0 +1,1830 @@
+{
+  "schema_version": 1,
+  "source_checkout": "cd9020c6a326b800a74966e9ad04dc38ad56bff0",
+  "accepted_baseline": "2e0de5d54a872ba5af8fd9cb4b2419d0de6008e0",
+  "trigger_branch": "codex/hospital-manual-policy-cloud-20261003",
+  "workflow_repository_path": ".github/workflows/hospital-reading-cloud.yml",
+  "canonical_workflow": {
+    "path": ".github/workflows/windows-tests.yml",
+    "bytes": 65937,
+    "sha256": "bc87c351ea8c77542cf882c87e19167ecda48f166151398d706ac4bf47d6fccd"
+  },
+  "job_definition_count": 3,
+  "job_count": 4,
+  "expected_ordinary_xml_count": 3,
+  "focused_suites": [
+    "reading_delivery",
+    "persistence"
+  ],
+  "public_regeneration": true,
+  "all_selected_jobs_required": true,
+  "canonical_dependencies_retained": true,
+  "canonical_job_content_verification": "Only pinned checkout/fetch depth, selected matrix and optional explicit public regeneration differ.",
+  "suite_census": {
+    "suite_runner": {
+      "path": "tools/testing/Invoke-CloudTests.ps1",
+      "bytes": 21114,
+      "sha256": "c509077e0a56cd7ed89362b97b6f496ac4e20b34ca1caba1dac3a89a861c7646"
+    },
+    "affected_fixture_suites": {
+      "tests/unit/test_hospital_presentation_port.gd": [
+        "reading_delivery"
+      ],
+      "tests/unit/test_dialogic_presentation_owner_adapter.gd": [
+        "reading_delivery"
+      ],
+      "tests/integration/test_hospital_dating_adapter_negative_contract.gd": [
+        "reading_delivery"
+      ],
+      "tests/integration/test_hospital_reading_session_runtime.gd": [
+        "reading_delivery"
+      ],
+      "tests/unit/test_solo_reading_session.gd": [
+        "reading_delivery"
+      ],
+      "tests/unit/test_hospital_frozen_context.gd": [
+        "reading_delivery"
+      ],
+      "tests/unit/test_reading_pause_save.gd": [
+        "reading_delivery"
+      ],
+      "tests/unit/test_production_pause_controller.gd": [
+        "reading_delivery"
+      ],
+      "tests/integration/test_narrative_pause_frontier.gd": [
+        "reading_delivery"
+      ],
+      "tests/scene/test_hospital_scene.gd": [
+        "reading_delivery"
+      ],
+      "tests/unit/test_frozen_run_context.gd": [
+        "persistence"
+      ],
+      "tests/unit/test_reading_restore_admission.gd": [
+        "persistence"
+      ]
+    },
+    "suites": {
+      "public_surfaces": {
+        "scripts": [
+          {
+            "path": "tests/unit/tooling/test_public_surface_inventory.gd",
+            "bytes": 23739,
+            "sha256": "536097a273d289c829688ca6070c2c8162e40e6fbee03f38aacc9947ede812be",
+            "static_test_names": [
+              "test_public_surface_inventory_exists",
+              "test_build_produces_complete_sorted_records",
+              "test_validation_failure_matrix",
+              "test_reserved_symbol_rules",
+              "test_write_canonical_json_round_trip",
+              "test_game_state_required_surface_reservations",
+              "test_task3_required_surface_realizes_authenticated_contacts_and_retires_legacy_reply",
+              "test_task4_committed_schedule_seams_carry_their_exact_frozen_signatures",
+              "test_save_manager_required_surface_freezes_realized_facade",
+              "test_both_live_inventories_reproduce_every_canonical_byte",
+              "test_read_only_check_detects_call_site_dynamic_reference_and_signature_drift"
+            ],
+            "static_case_count": 11
+          }
+        ],
+        "script_count": 1,
+        "static_case_count": 11
+      },
+      "reading_delivery": {
+        "scripts": [
+          {
+            "path": "tests/unit/test_dtl_master_structure.gd",
+            "bytes": 10602,
+            "sha256": "bca721cfd9b4f88721c17d424fa47affd83c4a4b8353cadc249874e500d7e076",
+            "static_test_names": [
+              "test_all_137_semantic_entries_resolve_to_scene_files_with_isolated_hooks",
+              "test_followup_uses_delivery_day_and_shared_scenes_keep_distinct_entries",
+              "test_original_opening_and_tutorial_are_registered_dialogue_free_files",
+              "test_scene_metadata_and_registered_legacy_labels_are_allowed",
+              "test_missing_duplicate_unregistered_and_fallthrough_labels_are_refused",
+              "test_unlabeled_execution_dialogue_and_changed_hook_contracts_are_refused",
+              "test_scene_builder_preserves_the_current_manifest_and_master_generator_cannot_overwrite",
+              "test_trailing_fallthrough_reports_unterminated_label_line",
+              "test_resource_path_event_is_classified_without_other_hazard_terms",
+              "test_user_path_event_is_classified_without_other_hazard_terms",
+              "test_load_event_is_classified_without_a_resource_path",
+              "test_direct_domain_call_is_classified_without_a_resource_path",
+              "test_direct_call_classifier_requires_open_parenthesis",
+              "test_direct_call_classifier_requires_close_parenthesis",
+              "test_direct_call_classifier_requires_member_separator",
+              "test_comments_with_hazard_text_remain_inert",
+              "test_playable_scene_rejects_foreign_jumps_and_untrusted_expression_events",
+              "test_playable_outcome_routing_only_reads_declared_frozen_result",
+              "test_every_registered_post_challenge_file_has_all_three_result_routes"
+            ],
+            "static_case_count": 19
+          },
+          {
+            "path": "tests/unit/test_schedule_done_dispatcher.gd",
+            "bytes": 11511,
+            "sha256": "b11e188f6e189370d79aa67e73969037d47bfaede4a678c44ae908ff3c6a400c",
+            "static_test_names": [
+              "test_dispatcher_script_loads",
+              "test_configure_rejects_null_and_signalless_owners",
+              "test_configure_identical_replay_is_idempotent_and_replacement_is_refused",
+              "test_dispatch_before_configure_fails_closed",
+              "test_dispatch_done_forwards_the_command_and_returns_the_walk_result",
+              "test_a_published_completion_drives_complete_presentation_stage_exactly_once",
+              "test_both_retained_ports_drive_the_dispatch",
+              "test_a_failed_completion_dispatch_is_retained_not_raised",
+              "test_a_completion_published_mid_dispatch_is_queued_never_nested",
+              "test_failed_completion_retries_only_exact_retained_receipt_once",
+              "test_settled_completion_retries_forward_walk_without_recompleting_hospital",
+              "test_retry_rejects_a_replaced_coordinator_receipt_in_both_modes"
+            ],
+            "static_case_count": 12
+          },
+          {
+            "path": "tests/unit/test_day_resolution_coordinator.gd",
+            "bytes": 82160,
+            "sha256": "310f6d805255756c0f4571505ddea1c3669e71c47113b04948670ccaf42357bf",
+            "static_test_names": [
+              "test_checkpoint_commit_failure_rolls_back_without_publication",
+              "test_configuration_matrix_and_gate_identity",
+              "test_day3_full_resolution_reaches_plan_complete",
+              "test_registered_command_pause_and_completion",
+              "test_recoverable_failures_restore_pre_command_state",
+              "test_rollback_failure_latches_shared_gate_and_returns_fatal",
+              "test_a_published_completion_is_checkpointed_and_then_advances_the_stage",
+              "test_a_completion_that_does_not_settle_the_awaiting_command_is_refused",
+              "test_a_duplicate_completion_does_not_leave_the_coordinator_awaiting_a_finished_stage",
+              "test_a_stage_awaiting_a_presentation_refuses_a_route_completion",
+              "test_a_refused_route_completion_leaves_the_presentation_showing_and_still_settleable",
+              "test_a_presentation_left_in_history_is_refused_by_the_route_door_too",
+              "test_a_substage_settles_through_the_route_door_on_its_own_contract",
+              "test_the_parent_aggregate_envelope_cannot_settle_a_substage",
+              "test_a_substage_resolved_from_history_still_answers_to_its_own_contract",
+              "test_a_replayed_identical_substage_completion_is_a_duplicate_with_no_second_checkpoint",
+              "test_an_ordinary_substage_presentation_is_refused_with_no_checkpoint",
+              "test_a_surviving_date_presentation_settles_with_the_substage_shaped_envelope",
+              "test_a_never_presenting_stage_presentation_is_refused_with_no_checkpoint",
+              "test_a_deferred_pair_presentation_settles_through_the_fake_state_port",
+              "test_the_presentation_router_seam_configures_once_and_rejects_replacement",
+              "test_a_paused_presentation_starts_the_physical_owner_then_routes_the_scene",
+              "test_an_unconfigured_router_never_starts_a_physical_presentation",
+              "test_a_presentation_site_with_no_configured_ports_fails_closed",
+              "test_a_router_whose_ports_are_unconfigured_never_starts_a_physical_presentation",
+              "test_a_presentation_command_with_no_transaction_id_is_refused",
+              "test_a_refused_route_leaves_the_stage_active_and_replays_the_identical_command",
+              "test_a_port_that_cannot_start_never_reaches_the_router",
+              "test_a_presentation_already_showing_is_not_launched_a_second_time",
+              "test_duplicate_transaction_returns_stored_receipt_without_new_checkpoint",
+              "test_a_stage_replay_with_different_bytes_is_a_conflict_with_no_second_checkpoint",
+              "test_checkpoint_preview_matches_prepare_without_mutation",
+              "test_day_advance_identity_seam_configures_once_and_rejects_replacement",
+              "test_day_advance_identity_seam_requires_the_exact_capability",
+              "test_resume_fails_closed_at_increment_day_without_the_identity_port",
+              "test_day7_resume_never_needs_the_identity_port",
+              "test_same_frozen_presentation_relaunches_once_after_route_generation_changes",
+              "test_dispatcher_retries_failed_hospital_checkpoint_without_replaying_presentation",
+              "test_dispatcher_resumes_after_hospital_is_durable_but_following_checkpoint_fails"
+            ],
+            "static_case_count": 39
+          },
+          {
+            "path": "tests/unit/test_startup_route_publication.gd",
+            "bytes": 8765,
+            "sha256": "6ba9fd13e93e5b0781e056eebcc6c848a1a10025e2079e4902a4ce9f911f0e04",
+            "static_test_names": [
+              "test_hold_is_idempotent_and_foreign_publication_cannot_remove_title",
+              "test_repeated_finalize_publishes_only_final_target_once",
+              "test_restore_rollback_recovers_prior_held_target_and_rejects_foreign_backup",
+              "test_rollback_preserves_a_semantic_route_pending_before_finalize",
+              "test_presentation_route_cannot_bypass_hold_and_reentrant_requests_are_refused",
+              "test_failed_presentation_publication_retains_request_and_same_hold_for_retry",
+              "test_ordinary_routing_and_backup_shape_remain_unchanged_without_hold",
+              "test_empty_hold_publication_keeps_title_and_invalid_route_does_not_replace_request"
+            ],
+            "static_case_count": 8
+          },
+          {
+            "path": "tests/integration/test_committed_schedule_effect_order.gd",
+            "bytes": 27684,
+            "sha256": "cc6efe90ae563491cdbf82adce44f1f021be74718e14d30da6f6da995a2fd727",
+            "static_test_names": [
+              "test_each_committed_ordinary_entry_applies_its_registered_effects_exactly_once",
+              "test_repeated_ordinary_entries_apply_once_each_through_distinct_substage_ids",
+              "test_ordinary_effects_commit_before_the_hospital_and_date_stages",
+              "test_a_faint_supersedes_every_committed_date_before_any_board_runs",
+              "test_a_hospital_that_presented_records_the_faint_it_presented_on",
+              "test_without_a_faint_the_committed_dates_survive",
+              "test_a_superseded_sylvia_date_commits_its_witness_into_the_contacts_index",
+              "test_a_faint_without_a_sylvia_date_writes_no_witness",
+              "test_rolling_back_the_hospital_stage_restores_the_contacts_index"
+            ],
+            "static_case_count": 9
+          },
+          {
+            "path": "tests/integration/test_committed_schedule_presentation_resume.gd",
+            "bytes": 52753,
+            "sha256": "d2f6808e3af6ae67986f957eb9eabf64a4d9c4aa2e0297c3343fa29dfb9b47f6",
+            "static_test_names": [
+              "test_a_crash_before_or_after_intent_derivation_rebuilds_the_same_children",
+              "test_a_crash_never_renumbers_a_surviving_presentation",
+              "test_a_crash_after_the_route_command_replays_the_identical_command_and_token",
+              "test_a_duplicate_physical_completion_publishes_exactly_one_receipt",
+              "test_a_settled_completion_replays_the_identical_receipt_and_envelope",
+              "test_a_receipt_that_does_not_bind_the_command_never_reaches_a_stage",
+              "test_a_crash_after_the_stage_checkpoint_never_presents_again",
+              "test_a_superseded_date_never_presents_across_a_crash",
+              "test_the_presentation_seam_refuses_a_superseded_date_transaction",
+              "test_a_dating_round_begins_from_the_active_date_substage_evidence",
+              "test_a_superseded_date_substage_yields_no_dating_evidence",
+              "test_dating_evidence_names_the_active_date_not_a_settled_one",
+              "test_a_crash_across_the_hospital_presentation_restores_the_flag_with_the_plan"
+            ],
+            "static_case_count": 13
+          },
+          {
+            "path": "tests/unit/test_hospital_frozen_context.gd",
+            "bytes": 16383,
+            "sha256": "a1abbba017b8ef49f945fa47d763fe26d3e5464b64dec8adc9f74caca9729928",
+            "static_test_names": [
+              "test_schedule_freezes_eligible_scene_without_claiming_a_future_witness",
+              "test_condition_hospital_names_only_its_already_committed_witness",
+              "test_schedule_physical_completion_retains_actual_miss_sources_for_later_contacts",
+              "test_owner_uses_shared_timeline_for_both_frozen_sylvia_variants",
+              "test_context_requires_exact_schema_source_set_and_matching_day",
+              "test_schedule_resume_uses_saved_request_before_consulting_later_live_state",
+              "test_game_owner_hospital_request_is_bound_durable_detached_and_idempotent"
+            ],
+            "static_case_count": 7
+          },
+          {
+            "path": "tests/unit/test_hospital_presentation_port.gd",
+            "bytes": 33035,
+            "sha256": "32899471404f1f2f4a7cfc7902dabbc3d515c49acf9b68b67bb00e1722d39954",
+            "static_test_names": [
+              "test_configure_is_idempotent_and_refuses_a_replacement_dependency",
+              "test_an_unconfigured_port_routes_nothing_and_starts_no_physical_presentation",
+              "test_the_hospital_port_refuses_a_dating_challenge_owner",
+              "test_an_incomplete_issuer_or_owner_is_refused",
+              "test_a_valid_intent_returns_the_canonical_command_and_nothing_else",
+              "test_the_request_member_set_is_exact",
+              "test_a_dating_route_is_refused_by_the_hospital_port",
+              "test_an_unregistered_locator_is_refused",
+              "test_the_hospital_context_member_set_and_kind_are_exact",
+              "test_hospital_context_arrays_must_be_sorted_and_unique",
+              "test_an_unverified_resolution_root_is_refused_before_any_physical_start",
+              "test_a_locally_derived_completion_id_is_refused",
+              "test_a_completion_child_of_the_wrong_kind_or_parent_is_refused",
+              "test_every_projected_field_binds_the_completion_child",
+              "test_a_changed_context_preimage_breaks_the_completion_binding",
+              "test_a_byte_identical_replay_returns_the_identical_command_and_token",
+              "test_a_drifted_replay_cannot_overwrite_the_stored_command",
+              "test_a_bypassed_binding_still_conflicts_on_command_identity",
+              "test_a_trusted_owner_completion_produces_the_exact_frozen_receipt_once",
+              "test_a_duplicate_owner_emission_returns_the_same_receipt_without_a_second_publication",
+              "test_a_scene_authored_receipt_never_reaches_a_stage",
+              "test_owner_receipt_drift_is_refused_before_any_stage_mutation",
+              "test_a_command_this_port_never_issued_is_refused",
+              "test_a_tampered_command_is_a_conflict_not_a_completion",
+              "test_the_complete_request_member_set_is_exact",
+              "test_an_owner_failure_publishes_exactly_one_failure_and_no_completion",
+              "test_an_emission_for_an_unknown_command_fails_rather_than_completing"
+            ],
+            "static_case_count": 27
+          },
+          {
+            "path": "tests/unit/test_dialogic_presentation_owner_adapter.gd",
+            "bytes": 26895,
+            "sha256": "cfcfca8a501a7adb4781c31df2748c91bcafc30d37db87dc753464dc9eda6248",
+            "static_test_names": [
+              "test_configure_is_idempotent_for_the_same_bridge_and_refuses_a_replacement",
+              "test_an_unconfigured_owner_starts_nothing_and_validates_nothing",
+              "test_an_incomplete_bridge_contract_is_refused",
+              "test_the_owner_declares_the_narrative_kind_only",
+              "test_begin_physical_starts_the_timeline_and_returns_the_derived_token",
+              "test_an_exact_replay_returns_the_identical_token_without_restarting_the_timeline",
+              "test_the_same_completion_id_with_changed_bytes_is_a_command_conflict",
+              "test_the_command_member_set_is_exact",
+              "test_an_unregistered_timeline_never_starts_a_presentation",
+              "test_the_runtime_end_signal_produces_exactly_one_trusted_completion",
+              "test_a_duplicate_runtime_end_signal_emits_no_second_completion",
+              "test_a_foreign_timeline_completion_is_ignored",
+              "test_no_public_bridge_method_can_forge_a_completion",
+              "test_the_emitted_receipt_validates_and_a_drifted_one_does_not",
+              "test_a_scene_authored_result_is_refused",
+              "test_a_completion_that_never_happened_cannot_be_validated",
+              "test_a_receipt_from_another_command_is_refused",
+              "test_the_validate_request_and_receipt_member_sets_are_exact",
+              "test_failure_observer_can_immediately_retry_without_reusing_the_retired_layout",
+              "test_ordinary_faint_uses_native_playback_and_one_exact_completion"
+            ],
+            "static_case_count": 20
+          },
+          {
+            "path": "tests/integration/test_hospital_dating_adapter_negative_contract.gd",
+            "bytes": 30814,
+            "sha256": "341e9d4d4ba71fe1092ad90ccd856155d9204c6c90cae07a351cc50411647081",
+            "static_test_names": [
+              "test_the_committed_entry_contract_retired_the_old_nine_key_shape",
+              "test_every_retired_entry_field_is_refused_by_the_committed_validator",
+              "test_no_retired_field_reaches_the_adapter_over_a_real_committed_schedule",
+              "test_the_presentation_route_is_a_registry_fact_and_never_an_entry_field",
+              "test_twofriends_survives_only_as_a_stage_and_never_as_a_route",
+              "test_the_router_refuses_the_pseudo_route_and_the_stage_name_alike",
+              "test_only_resolution_owners_dispatch_route_presentation_and_bootstrap_only_injects_it",
+              "test_the_real_router_satisfies_the_capability_the_coordinator_requires",
+              "test_the_legacy_pseudo_route_producer_has_no_caller_in_production",
+              "test_only_the_narrative_owner_may_start_a_dialogic_timeline",
+              "test_neither_presentation_port_exposes_a_timeline_start",
+              "test_no_presentation_adapter_names_a_gameplay_mutation_seam",
+              "test_the_comment_stripper_is_doing_real_work"
+            ],
+            "static_case_count": 13
+          },
+          {
+            "path": "tests/integration/test_hospital_reading_session_runtime.gd",
+            "bytes": 31839,
+            "sha256": "852bec8e2222591784e0d4cd9a6781b662e39781e8b20c7fed501862a7f5200a",
+            "static_test_names": [
+              "test_native_hospital_replaces_retained_prior_ledger_and_completes_exact_owner_once",
+              "test_ordinary_and_foreign_semantic_signals_cannot_complete_live_hospital",
+              "test_abandoned_partial_hospital_retires_owner_and_old_command_cannot_complete_fresh_entry",
+              "test_staged_restore_adopts_retained_command_and_publishes_only_saved_b_without_speech",
+              "test_same_process_cached_port_readopts_saved_b_and_completes_restored_occurrence_once"
+            ],
+            "static_case_count": 5
+          },
+          {
+            "path": "tests/unit/test_frozen_replay_context.gd",
+            "bytes": 2725,
+            "sha256": "b6224bf2b13e9610c5a1d22828d100044d5b5e98eaa6c8a010b1c52e743b38ba",
+            "static_test_names": [
+              "test_replay_fields_are_detached_readonly_and_never_acquire_canonical_authority",
+              "test_replay_validation_rejects_added_missing_or_changed_fields",
+              "test_old_alone_and_ordinary_records_do_not_invent_missing_prose_selectors"
+            ],
+            "static_case_count": 3
+          },
+          {
+            "path": "tests/unit/test_minesweeper_delivery_notice.gd",
+            "bytes": 10291,
+            "sha256": "548780337803831515b54ba631239de489d337206ad741bb04cda8fb4a9dd0fc",
+            "static_test_names": [
+              "test_terminal_publication_starts_loop_without_restarting_on_refresh",
+              "test_delivered_waits_for_matching_corner_notice_and_fades_only_with_time",
+              "test_new_round_replaces_fade_and_old_queued_notices_cannot_finish_it",
+              "test_no_message_settlement_clears_without_false_success",
+              "test_cold_settled_inspection_and_duplicate_notifications_do_not_replay",
+              "test_failure_clears_spinner_and_successful_retry_can_deliver",
+              "test_home_keeps_feedback_but_desktop_retirement_invalidates_queued_completion",
+              "test_day_reset_invalidates_pending_feedback",
+              "test_notice_inherits_scale_and_stays_centered_at_large_text",
+              "test_notice_has_no_modal_or_focus_and_mouse_reaches_control_beneath"
+            ],
+            "static_case_count": 10
+          },
+          {
+            "path": "tests/unit/test_narrative_caption_ledger.gd",
+            "bytes": 14239,
+            "sha256": "1bb876cb920f71a6be89458faaaef45fc15e870018dd7f600b681d9c2d823c7b",
+            "static_test_names": [
+              "test_actual_publication_order_is_independent_of_registry_order",
+              "test_same_publication_is_idempotent_but_a_new_occurrence_is_retained",
+              "test_conflicting_publication_refuses_without_changing_the_sequence",
+              "test_foreign_token_unknown_line_and_foreign_owner_apply_zero_mutation",
+              "test_inputs_and_returned_snapshots_are_recursively_detached",
+              "test_initialized_session_cannot_be_rebound_or_recaptured",
+              "test_registry_requires_explicit_unique_identity_and_declared_entry_membership",
+              "test_nonprimitive_context_and_signature_are_refused_before_any_session_install",
+              "test_uninitialized_ledger_and_empty_publication_identity_are_refused",
+              "test_entry_context_admission_is_causal_immutable_and_detached",
+              "test_framed_reconstruction_validates_all_contexts_and_occurrences_before_installing",
+              "test_original_unframed_snapshot_and_restore_contract_remains_available"
+            ],
+            "static_case_count": 12
+          },
+          {
+            "path": "tests/unit/test_solo_reading_session.gd",
+            "bytes": 22838,
+            "sha256": "1ae9af5244632a48e44ca36d7b39a94a9db4b537232f5f524bff88eb702e9725",
+            "static_test_names": [
+              "test_next_plan_is_pure_and_stops_before_first_exact_unseen_variant",
+              "test_next_completion_retains_exact_source_and_destination_then_retires_at_new_frame",
+              "test_next_source_record_rejects_future_variant_tampering_even_with_recomputed_digest",
+              "test_next_plan_requires_boolean_exact_membership_result_and_current_frontier",
+              "test_real_phase_frames_are_causal_and_one_history_survives_board_boundary",
+              "test_invalid_suffix_frontier_or_completed_prefix_never_replace_retained_history",
+              "test_projection_and_capture_are_detached_and_rebinding_an_entry_is_refused",
+              "test_route_finalize_failure_retires_only_the_started_restore_and_reinstates_session",
+              "test_current_variant_is_detached_and_requires_the_admitted_published_tail",
+              "test_hospital_catalogue_is_one_closed_day_entry_with_exact_fixed_line_registration",
+              "test_hospital_registration_and_frame_admission_never_prefill_history",
+              "test_ordinary_hospital_frame_admits_and_restores_without_fabricating_sylvia_or_history",
+              "test_hospital_frame_refuses_other_causes_foreign_phase_and_changed_eligibility_without_rebinding",
+              "test_hospital_v3_restores_exact_published_prefix_and_refuses_downgrade_or_foreign_rows",
+              "test_hospital_completed_anchor_requires_full_prefix_without_a_new_publication"
+            ],
+            "static_case_count": 15
+          },
+          {
+            "path": "tests/unit/test_solo_reading_catalogue.gd",
+            "bytes": 10430,
+            "sha256": "f6230e396ff3e908675f6a5c67ac5248f76fc48f6f27b9df4d6afed48529b46f",
+            "static_test_names": [
+              "test_exact_frame_selects_same_line_variant_and_detached_projection",
+              "test_causal_frame_changes_preserve_exact_caption_and_entry_selector_identity",
+              "test_line_subset_does_not_turn_unrelated_entry_selector_into_caption_variant",
+              "test_missing_duplicate_unknown_and_causal_selector_contracts_refuse",
+              "test_ambiguous_missing_and_malformed_selection_fail_closed",
+              "test_compile_rejects_wrong_types_constants_outcomes_and_unregistered_echoes",
+              "test_identical_descriptor_cannot_alias_different_text",
+              "test_line_identity_and_native_label_cannot_alias_foreign_programmes",
+              "test_unrelated_entry_and_unknown_document_fields_refuse",
+              "test_physical_explosion_rows_use_committed_attitude_and_share_sweet_closing"
+            ],
+            "static_case_count": 10
+          },
+          {
+            "path": "tests/integration/test_solo_authored_selector_witness.gd",
+            "bytes": 20110,
+            "sha256": "f0de3479b80a21f241228063554aaf89a14b0bdfa2aabfea154ea62e6a03b394",
+            "static_test_names": [
+              "test_changed_authored_tone_keeps_stable_identity_but_requires_an_exact_new_witness",
+              "test_changed_causal_receipts_preserve_selected_variant_without_rewriting_profile",
+              "test_post_result_selects_different_prose_and_signature_at_the_same_stable_beat",
+              "test_phase_admission_freezes_only_available_facts_and_restores_one_ordered_history",
+              "test_next_queries_the_selected_variant_and_never_substitutes_a_coarse_visit",
+              "test_restore_rejects_known_alternate_signature_and_frame_mismatch_without_replacing_state",
+              "test_next_restore_checks_unpublished_future_variant_against_the_admitted_frame",
+              "test_failed_profile_commit_and_explicit_retry_keep_selected_variant_unseen_baseline",
+              "test_reveal_callback_cannot_reclassify_the_selected_unseen_variant_as_previously_seen"
+            ],
+            "static_case_count": 9
+          },
+          {
+            "path": "tests/integration/test_solo_authored_selector_runtime.gd",
+            "bytes": 23903,
+            "sha256": "e6cf4ff30d9870466b216f99439a6f241a357fdef192c8774ae4aba1ff865b18",
+            "static_test_names": [
+              "test_real_bridge_plays_only_selected_pre_and_post_programmes_for_every_fixture_context",
+              "test_whole_selected_label_refuses_other_tone_even_when_first_post_caption_matches",
+              "test_bridge_next_keeps_selected_label_and_fresh_resume_preserves_history_without_speech_replay"
+            ],
+            "static_case_count": 3
+          },
+          {
+            "path": "tests/integration/test_dialogic_caption_variant_witness.gd",
+            "bytes": 13919,
+            "sha256": "ab5ab235ad2ddc5c7e439ad1686c543e2d94a25bc20e7418d9275f32c9e2eaae",
+            "static_test_names": [
+              "test_registered_visible_acknowledgement_writes_exact_and_base_once_then_read_only_stops",
+              "test_causal_run_branch_attempt_and_publication_changes_do_not_create_another_variant",
+              "test_same_stable_line_with_another_variant_or_revision_starts_unseen",
+              "test_unpublished_or_stale_semantic_occurrence_never_falls_back_to_coarse_witness",
+              "test_recoverable_profile_write_failure_preserves_exact_baseline_for_explicit_retry",
+              "test_synchronous_exact_publication_blocks_reentrant_commands_and_rejects_replaced_source",
+              "test_reveal_callback_cannot_turn_a_fresh_exact_variant_into_previously_seen_text"
+            ],
+            "static_case_count": 7
+          },
+          {
+            "path": "tests/integration/test_dialogic_next_traversal.gd",
+            "bytes": 18642,
+            "sha256": "1228ca8ba33cf9d678b59c7fc1830497ef1022fc4823450fff9c5806ff82d668",
+            "static_test_names": [
+              "test_partial_unseen_next_finishes_and_witnesses_current_line_without_seek_or_run_write",
+              "test_complete_source_seeks_first_unseen_caption_after_both_durable_phases_without_witnessing_target",
+              "test_exact_witnessed_tail_goes_to_natural_completion_with_once_only_history_and_no_profile_growth",
+              "test_auto_on_refuses_next_without_profile_acknowledgement_or_native_motion",
+              "test_source_write_refusal_keeps_native_source_and_retries_the_same_operation",
+              "test_destination_write_refusal_keeps_exact_durable_source_then_retry_uses_identical_plan",
+              "test_exclusive_next_coalesces_identical_activation_and_blocks_every_intermediate_command",
+              "test_reentrant_source_replacement_after_source_commit_fences_without_overwriting_new_owner",
+              "test_changed_exact_revision_stops_even_when_base_line_and_previous_variant_were_witnessed",
+              "test_normal_publication_after_refused_destination_retires_only_the_live_operation",
+              "test_durable_destination_with_native_rejection_keeps_exact_target_and_fatal_custody"
+            ],
+            "static_case_count": 11
+          },
+          {
+            "path": "tests/integration/test_dialogic_skip.gd",
+            "bytes": 25123,
+            "sha256": "a197a793bd75c4c99c3d116494122bcb5948382915fd1ab24bd8193497fea370",
+            "static_test_names": [
+              "test_bridge_exposes_the_skip_command",
+              "test_all_text_fast_forwards_through_unread_text",
+              "test_read_only_stops_at_the_first_unread_line",
+              "test_read_only_advances_through_previously_visited_text",
+              "test_visited_is_read_before_it_is_marked",
+              "test_every_boundary_stops_the_skip_without_being_consumed",
+              "test_profile_write_failure_halts_advancement",
+              "test_skip_requires_a_configured_context",
+              "test_reentrant_reveal_callback_cannot_run_a_second_skip_step",
+              "test_frontier_moved_during_reveal_cannot_mark_or_advance_another_line",
+              "test_replaced_runtime_during_visited_publication_cannot_advance",
+              "test_changed_entry_token_during_reveal_cannot_mark_or_advance",
+              "test_failed_presentation_acknowledgement_stays_pending_for_exact_retry",
+              "test_reentrant_presentation_acknowledgement_is_refused",
+              "test_stale_presentation_frontier_is_refused_before_profile_publication",
+              "test_replaced_runtime_during_presentation_publication_cannot_acknowledge_new_frontier",
+              "test_mutation_gate_blocks_ack_but_not_opaque_capture_or_later_exact_retry",
+              "test_skip_checks_mutation_custody_before_reveal_or_profile_write",
+              "test_skip_checks_fatal_acknowledgement_latch_before_reveal",
+              "test_fatal_acknowledgement_latch_survives_frontier_replacement_until_profile_rebind",
+              "test_auto_step_requires_acknowledged_complete_exact_source",
+              "test_auto_step_stops_before_every_nontext_boundary_with_preference_on",
+              "test_auto_step_refuses_off_stale_proof_pause_and_mutation_custody"
+            ],
+            "static_case_count": 23
+          },
+          {
+            "path": "tests/integration/test_dialogic_live_admission.gd",
+            "bytes": 43446,
+            "sha256": "c254544c9ad7f76757205ceb66916b684e51d9502e4faa816d2ba748facb674c",
+            "static_test_names": [
+              "test_runtime_failure_cancels_pending_hospital_without_a_natural_completion",
+              "test_normal_faint_uses_native_playback_without_applying_gameplay_effects",
+              "test_real_hospital_deferred_start_reserves_admission_until_one_physical_completion",
+              "test_real_semantic_deferred_start_refuses_other_playback_vocabularies",
+              "test_real_ending_deferred_start_refuses_other_playback_vocabularies",
+              "test_metadata_only_restore_cache_never_claims_live_activity_or_completion",
+              "test_abort_pending_semantic_start_cancels_native_ready_work_before_fresh_hospital",
+              "test_real_natural_cleanup_keeps_admission_until_native_end_signal",
+              "test_pending_before_event_restore_rollback_cancels_unstarted_native_work",
+              "test_live_paused_before_event_restore_rollback_drains_without_executing_old_event",
+              "test_pending_before_event_restore_rollback_restores_prior_paused_true",
+              "test_live_before_event_restore_rollback_restores_prior_paused_true",
+              "test_invalid_runtime_event_halts_live_paused_restore_before_restoring_unpaused_backup",
+              "test_deferred_hospital_start_failure_releases_physical_owner_for_same_command_retry",
+              "test_fresh_adapter_bound_during_real_cleanup_remains_busy_until_qualified_end",
+              "test_late_older_qualified_end_cannot_consume_new_pending_or_live_hospital",
+              "test_direct_native_replacement_never_completes_the_old_physical_hospital",
+              "test_reentrant_same_path_native_start_during_preference_reapply_fails_the_old_owner",
+              "test_pending_same_path_native_start_cancels_the_queued_admitted_start",
+              "test_failed_deferred_before_event_restore_preserves_cache_pause_and_cancels_queued_resume",
+              "test_deferred_semantic_start_failure_reports_exact_token_preserves_cache_and_allows_retry"
+            ],
+            "static_case_count": 21
+          },
+          {
+            "path": "tests/integration/test_dialogic_timed_hold_runtime.gd",
+            "bytes": 34213,
+            "sha256": "528298883ce823695bff9a2c1de114490cbce52d3f7f33b255c6d2ad1a71bebe",
+            "static_test_names": [
+              "test_normal_native_hold_waits_then_completes_once_without_caption_or_history",
+              "test_cancel_then_same_path_replacement_outlives_old_wait_deadline_without_stale_effects",
+              "test_native_pause_freezes_hold_and_resume_preserves_remaining_time",
+              "test_cancel_after_native_dispatch_retires_deferred_execute_before_same_path_restart",
+              "test_retired_bound_callbacks_and_duplicate_timeout_cannot_affect_replacement_or_complete_twice",
+              "test_hidden_non_skippable_hold_keeps_full_duration_under_native_autoskip_and_input",
+              "test_legacy_skippable_wait_keeps_native_autoskip_delay_and_has_no_hold_frontier",
+              "test_legacy_visible_wait_keeps_native_autoskip_delay_and_has_no_hold_frontier",
+              "test_only_live_eligible_hold_exposes_stable_pause_identity_without_save_or_history",
+              "test_foreign_native_same_path_replacement_cannot_inherit_adapter_or_bridge_pause_admission"
+            ],
+            "static_case_count": 10
+          },
+          {
+            "path": "tests/integration/test_narrative_caption_ledger_runtime.gd",
+            "bytes": 17333,
+            "sha256": "99e200d884e2fc633ab568dd2b59aa71fb3ed5667784641469ac005a9c8a880c",
+            "static_test_names": [
+              "test_native_publications_use_authored_identity_and_actual_order_before_reveal_finishes",
+              "test_duplicate_native_signal_and_glyph_completion_do_not_duplicate_the_ledger",
+              "test_same_path_foreign_playback_and_late_signals_cannot_enter_the_bound_session",
+              "test_halt_retires_the_binding_before_failure_and_late_publication_callbacks",
+              "test_missing_authored_id_is_refused_without_inference_from_prose_or_position",
+              "test_multiple_text_segments_cannot_share_one_registered_caption_identity",
+              "test_paused_publication_duplicate_remains_bound_without_enabling_skip",
+              "test_unconfigured_runtime_has_no_ledger_side_effects",
+              "test_native_entries_share_one_sequence_across_retirement_reconstruction_and_fresh_publication"
+            ],
+            "static_case_count": 9
+          },
+          {
+            "path": "tests/unit/test_witnessed_reading_rail.gd",
+            "bytes": 16380,
+            "sha256": "507eb83261fe13a245483670755dd63c8264a4b7d3aaac76b33e4fe1badc9092",
+            "static_test_names": [
+              "test_history_and_save_require_their_own_projection_and_final_admission",
+              "test_history_and_save_retire_stale_native_activation_when_capability_changes",
+              "test_history_is_plain_opaque_caption_projection_with_two_focus_anchors",
+              "test_history_localizes_existing_operational_copy_and_refuses_revoked_custody",
+              "test_history_retires_old_assistive_close_and_background_input",
+              "test_next_has_independent_admission_and_contextual_help_without_a_mode",
+              "test_next_cannot_reuse_old_or_repeated_native_callbacks_after_exclusive_custody",
+              "test_next_preference_refusal_cannot_take_traversal_custody_or_call_bridge",
+              "test_next_rechecks_source_after_auto_off_and_submits_only_its_exact_frontier",
+              "test_next_completion_requires_exact_source_and_current_callback_generation"
+            ],
+            "static_case_count": 10
+          },
+          {
+            "path": "tests/unit/test_reading_pause_save.gd",
+            "bytes": 28812,
+            "sha256": "8a56405d9d2eb9eab7727c81cb1f6892bc21420b81685ea4e57bb44503ac1f5b",
+            "static_test_names": [
+              "test_hospital_manual_save_and_load_refuse_without_capture_or_reveal",
+              "test_hospital_live_rail_disables_save_load_but_preserves_history",
+              "test_hospital_pause_quick_commands_share_manual_restriction",
+              "test_hospital_restriction_also_applies_without_a_reading_frontier",
+              "test_hospital_save_manager_capture_accepts_only_qualified_line_without_mutation",
+              "test_bootstrap_hospital_provider_requires_paused_exact_registered_scene",
+              "test_hospital_completed_anchor_retires_only_after_actual_main_publication",
+              "test_hospital_anchor_retirement_refuses_replaced_live_session_after_publication",
+              "test_qualified_full_line_save_captures_same_semantics_without_revealing_or_releasing",
+              "test_partial_pause_capability_and_capture_are_available_without_finishing_literal_reveal",
+              "test_unregistered_reading_stays_unavailable_without_capture",
+              "test_refused_explicit_preparation_cannot_capture_or_finish_partial_reading",
+              "test_reading_capture_rejects_changed_route_run_checkpoint_or_semantic_source",
+              "test_history_custody_blocks_backup_and_quick_without_discarding_pause_handle",
+              "test_paused_board_save_retains_earlier_reading_history_and_exact_board_without_reveal",
+              "test_paused_board_refuses_reading_history_drift_or_a_live_line_boundary",
+              "test_router_reading_facades_refuse_without_a_production_owner",
+              "test_direct_backup_save_uses_save_mode_and_failed_entry_keeps_continue_focus",
+              "test_paused_save_commit_prepares_reveal_once_before_owner_commit_and_consumes_token",
+              "test_refused_paused_save_preparation_cancels_exact_token_before_commit_and_load_stays_literal"
+            ],
+            "static_case_count": 20
+          },
+          {
+            "path": "tests/unit/test_dialogic_pause_recovery.gd",
+            "bytes": 14712,
+            "sha256": "f87a758792aa977452116adee5b704565081a46ecb204ec3b57d90fd2fef7775",
+            "static_test_names": [
+              "test_only_retained_pause_handle_can_request_explicit_reading_completion",
+              "test_begin_setter_failure_retains_custody_until_exact_compensation",
+              "test_resume_failure_after_mutation_is_indeterminate_and_exactly_retryable",
+              "test_changed_source_keeps_custody_blocks_all_starts_and_resumes_after_repair",
+              "test_unowned_runtime_frontier_cannot_open_pause",
+              "test_semantic_and_ending_pause_require_the_owned_runtime_frontier",
+              "test_retirement_cancels_native_ending_without_emitting_completion_and_can_retry_release",
+              "test_retired_ending_releases_retained_adapter_without_completion_and_can_start_next_run",
+              "test_ordinary_retirement_releases_only_matching_pending_owner_without_failure"
+            ],
+            "static_case_count": 9
+          },
+          {
+            "path": "tests/unit/test_pause_surface.gd",
+            "bytes": 10100,
+            "sha256": "00c93ec9f90a9319dbd2c900decf5d7958cf26ec62d36de8ec0a11b1d430d245",
+            "static_test_names": [
+              "test_all_locales_scales_and_target_modes_keep_full_copy_and_exact_geometry",
+              "test_invalid_copy_and_presentation_leave_previous_tuple_focus_and_copy_unchanged",
+              "test_native_navigation_previews_without_entering_and_never_wraps",
+              "test_injected_host_enters_on_right_and_back_performs_one_retreat",
+              "test_backup_preview_never_prepares_and_refused_activation_keeps_root_custody",
+              "test_released_pointer_enters_once_and_return_cancel_restores_exact_row",
+              "test_controller_accept_and_return_confirmation_only_emit_intents",
+              "test_inert_custody_and_close_prevent_commands_without_claiming_disabled_rows"
+            ],
+            "static_case_count": 8
+          },
+          {
+            "path": "tests/integration/test_narrative_reading_frontier_runtime.gd",
+            "bytes": 29970,
+            "sha256": "d560dd86ffad9322dee2d379c0af1608bd2cb4fd6e931761513365ecca5b00db",
+            "static_test_names": [
+              "test_paused_save_completes_only_the_current_semantic_occurrence",
+              "test_hidden_pause_save_finishes_once_and_rebases_exact_view_for_continue",
+              "test_hidden_save_rejects_foreign_node_and_replaced_reveal_without_rebinding_pause",
+              "test_restore_resolves_the_second_authored_line_and_reuses_its_publication",
+              "test_resume_rejects_nonfinal_occurrences_and_unowned_authored_lines_without_starting",
+              "test_fixed_entry_preflight_rejects_extra_caption_and_early_return_despite_valid_line_lookups",
+              "test_next_terminal_crosses_witnessed_tail_without_executing_or_publishing_it",
+              "test_next_unseen_destination_reuses_committed_occurrence_with_ordinary_partial_publication",
+              "test_next_rejects_changed_plan_missing_history_and_stale_source_before_native_motion",
+              "test_next_same_unseen_source_completes_once_without_restarting_its_publication",
+              "test_next_rechecks_native_catalogue_and_source_finish_callbacks_before_installing_target",
+              "test_next_rejects_future_caption_mutated_by_source_finish_callback",
+              "test_next_pending_publication_halt_reports_one_failure_instead_of_leaving_an_await"
+            ],
+            "static_case_count": 13
+          },
+          {
+            "path": "tests/integration/test_narrative_pause_frontier.gd",
+            "bytes": 61003,
+            "sha256": "220746c9a241dd412f1e1d5257499be1e28dc3d31225efde78800f2ec0084e73",
+            "static_test_names": [
+              "test_live_reveal_handle_is_exact_idempotent_and_resumes_without_completion",
+              "test_idle_text_frontier_preserves_an_existing_runtime_pause",
+              "test_native_pause_effect_preserves_remaining_time_through_bridge_custody",
+              "test_no_playback_deferred_start_and_native_cleanup_have_no_frontier",
+              "test_native_visible_wait_refuses_pause_without_changing_playback",
+              "test_retained_physical_owner_publishes_same_source_without_a_completion",
+              "test_mounted_hospital_refuses_direct_and_paused_load_without_changing_native_source",
+              "test_witnessed_recovery_refuses_pause_and_backup_before_session_capture",
+              "test_later_same_viewport_recovery_blocks_load_while_subviewport_recovery_does_not",
+              "test_mounted_witnessed_load_is_cheap_then_opens_backup_and_continue_restores_exact_frontier",
+              "test_mounted_witnessed_load_focus_repair_does_not_steal_a_new_caption_focus",
+              "test_mounted_witnessed_failed_load_keeps_suspension_and_exact_source",
+              "test_mounted_witnessed_successful_changed_session_never_restores_old_reveal",
+              "test_direct_reading_quick_load_cancel_restores_exact_partial_source_and_focus",
+              "test_direct_reading_quick_failed_load_keeps_original_suspension_and_continue",
+              "test_combined_native_pause_restores_caption_owner_and_quarantines_closing_contact",
+              "test_combined_native_source_mismatch_refuses_before_any_suspension",
+              "test_production_pause_view_adapter_covers_actual_caption_layer_node_and_restores_its_anchor",
+              "test_witnessed_restore_failure_keeps_exact_native_reveal_and_original_pause_handle",
+              "test_witnessed_load_publishes_only_after_new_session_and_never_completes_old_prose",
+              "test_retiring_partial_native_text_releases_reveal_wait_without_completing_or_touching_fresh_caption",
+              "test_synchronous_text_started_retirement_never_installs_a_late_reveal_wait"
+            ],
+            "static_case_count": 22
+          },
+          {
+            "path": "tests/integration/test_witnessed_caption_runtime.gd",
+            "bytes": 96056,
+            "sha256": "532af8e71d1c7c580060ae47753b82ca8314157e1e2a95497dd3e71fdc856af6",
+            "static_test_names": [
+              "test_speech_starts_with_visible_primary_during_reveal_without_speaker_or_markup",
+              "test_accept_or_custody_cancels_current_speech_and_uncover_cannot_replay",
+              "test_disabled_or_restored_current_line_never_replays_but_next_line_can_speak",
+              "test_turning_read_aloud_on_does_not_replay_a_line_presented_while_off",
+              "test_stale_caption_cancellation_cannot_stop_a_replacing_settings_sample",
+              "test_mounted_auto_expiry_calls_caption_barrier_and_advances_once_after_speech",
+              "test_appended_primary_speaks_only_new_words_without_repeating_the_current_card",
+              "test_current_speech_failure_notice_is_nonmodal_in_english",
+              "test_current_speech_failure_notice_is_nonmodal_in_simplified_chinese",
+              "test_current_speech_failure_notice_is_nonmodal_in_traditional_chinese",
+              "test_deferred_first_mount_reapplies_bound_bridge_preferences_before_first_text",
+              "test_real_timeline_reveal_append_clear_and_end_keep_one_text_node",
+              "test_presentation_matrix_preserves_live_reveal_history_and_event_position",
+              "test_overflow_scroll_is_local_and_reconfigure_does_not_complete_text",
+              "test_actual_hospital_bridge_path_selects_caption_then_natural_end_restores_default_scope",
+              "test_hospital_missing_styles_refuses_before_clear_start_or_bridge_context",
+              "test_real_touch_drag_with_mouse_emulation_scrolls_without_finishing_native_reveal",
+              "test_stack_keeps_newest_three_published_captions_with_one_native_current",
+              "test_stack_append_newline_sections_and_identical_copy_are_distinct_publications",
+              "test_silent_retained_reprojection_and_remeasurement_preserve_reveal_history_and_manual_scroll",
+              "test_runtime_pause_preserves_the_pending_native_pause_remaining_time",
+              "test_hidden_caption_preserves_the_pending_native_pause_remaining_time",
+              "test_hidden_same_frame_clear_and_replace_and_next_timeline_do_not_retain_old_caption",
+              "test_clear_holds_empty_without_finishing_a_hidden_incomplete_reveal",
+              "test_hiding_and_showing_incomplete_caption_pauses_without_cancelling_its_reveal",
+              "test_skipping_a_native_pause_cannot_resume_effects_or_reveal_on_the_replacement_line",
+              "test_real_text_clear_and_immediate_replacement_invalidate_an_awaiting_native_pause",
+              "test_actual_background_and_caption_accept_share_one_release_gesture",
+              "test_actual_enter_and_same_frame_unrelated_packets_issue_one_accept",
+              "test_actual_accept_waits_for_all_held_contacts_to_release",
+              "test_actual_current_short_tap_accepts_but_drag_only_scrolls",
+              "test_actual_joypad_accept_refuses_paused_or_held_contact_then_rearms",
+              "test_actual_focused_gui_button_gets_first_refusal_before_caption_accept",
+              "test_actual_accept_held_before_policy_mount_and_simulated_focus_return_requires_release",
+              "test_actual_controller_shoulders_page_shared_caption_without_narrative_changes",
+              "test_actual_scroll_gestures_cancel_armed_pointer_accept_before_inside_release",
+              "test_real_profile_font_style_preserves_live_caption_and_retires_old_pointer_contact",
+              "test_real_profile_large_targets_resize_current_caption_without_accepting_held_click",
+              "test_large_target_overflow_scrollbar_keeps_reading_position_and_minimum_hit_geometry",
+              "test_native_scrollbar_wide_hit_area_pages_and_drags_without_accepting_caption",
+              "test_real_profile_material_preferences_preserve_native_reading_and_pending_click",
+              "test_real_profile_target_resize_cancels_held_native_thumb_drag_until_fresh_contact",
+              "test_review_wheel_moves_exactly_one_three_caption_window_and_clamps_without_story_changes",
+              "test_review_background_click_returns_live_before_a_fresh_click_reveals",
+              "test_review_reset_and_reprojection_restore_the_live_caption",
+              "test_background_tap_cancellation_and_other_buttons_never_advance",
+              "test_review_pauses_real_pending_text_effect_and_never_replays_speech",
+              "test_background_mixed_control_edges_and_review_pause_do_not_accept"
+            ],
+            "static_case_count": 48
+          },
+          {
+            "path": "tests/unit/test_witnessed_pause_view.gd",
+            "bytes": 21826,
+            "sha256": "fbe722b597d74bf7834e04b6446fd9cd546359b620df077992e471416178fb24",
+            "static_test_names": [
+              "test_cover_hides_complete_native_view_without_changing_reveal_or_history_then_restores_pan_focus",
+              "test_tampered_stale_and_foreign_view_anchors_are_refused_without_mutation",
+              "test_settings_reprojection_under_cover_preserves_native_copy_and_restores_clamped_pan",
+              "test_no_source_focus_is_not_invented_and_empty_capture_is_refused",
+              "test_next_matte_retains_native_composition_and_excludes_input_pause_and_rail_commands",
+              "test_next_success_after_native_host_detachment_cannot_republish_or_refocus",
+              "test_next_failure_after_native_host_detachment_cannot_mount_old_recovery",
+              "test_next_can_finish_after_native_presenter_is_freed",
+              "test_next_storage_refusal_retries_through_signal_and_restores_current_caption_focus",
+              "test_next_completion_from_retired_owner_generation_cannot_publish_or_attach_fatal_recovery",
+              "test_reconfiguring_next_presenter_releases_old_matte_and_ignores_old_completion"
+            ],
+            "static_case_count": 11
+          },
+          {
+            "path": "tests/unit/test_witnessed_timed_hold.gd",
+            "bytes": 8058,
+            "sha256": "8e66e68a9092e29f44bcecf2040b56250467ad5daa71c64c539432dcb5509a26",
+            "static_test_names": [
+              "test_admitted_hold_withdraws_caption_and_all_command_edges_but_keeps_stationary_rail",
+              "test_hold_pause_anchor_retains_empty_view_and_refuses_replacement_frontier",
+              "test_waiting_state_and_foreign_source_do_not_create_an_admitted_hold",
+              "test_following_real_caption_publication_restores_the_operable_caption_focus"
+            ],
+            "static_case_count": 4
+          },
+          {
+            "path": "tests/unit/test_witnessed_auto_controller.gd",
+            "bytes": 14090,
+            "sha256": "7b25c11cc9fabb7f094a0d20189b190f739eb7e43b8cf71fda3f45a73469cc36",
+            "static_test_names": [
+              "test_toggle_commits_the_profile_and_a_failed_commit_preserves_truth",
+              "test_explicit_auto_target_is_idempotent_and_retries_the_same_failed_target",
+              "test_reentrant_auto_source_replacement_retires_the_old_setter",
+              "test_exact_delays_advance_once_and_never_restart_for_duplicate_finished_signal",
+              "test_suspension_preserves_remaining_time_and_skips_the_resume_delta",
+              "test_suspension_notification_quarantines_resume_without_an_ineligible_tick",
+              "test_source_identity_and_bridge_barriers_fail_closed_without_retry",
+              "test_preference_changes_and_restore_replace_the_timer_with_one_full_delay",
+              "test_retirement_and_reentrant_replacement_cannot_leak_an_old_generation",
+              "test_completion_barrier_spends_foreground_delay_concurrently_then_holds_at_zero",
+              "test_zero_delay_wait_still_obeys_custody_and_quarantines_resume_delta",
+              "test_frontier_or_semantic_boundary_change_retires_a_zero_delay_wait",
+              "test_empty_optional_barrier_preserves_existing_auto_timing"
+            ],
+            "static_case_count": 13
+          },
+          {
+            "path": "tests/unit/test_witnessed_skip_controller.gd",
+            "bytes": 9218,
+            "sha256": "dd09fd0956d6f364cdb528b65d6b86f710fe06a292f5b081178faf3a89af968b",
+            "static_test_names": [
+              "test_auto_off_is_durable_before_the_first_step_and_failure_does_not_start",
+              "test_explicit_skip_target_is_idempotent_and_retries_the_same_failed_start",
+              "test_reentrant_skip_source_replacement_retires_the_old_setter",
+              "test_stop_during_auto_commit_retires_the_pending_start",
+              "test_second_toggle_stops_and_each_frame_runs_at_most_one_step",
+              "test_failure_false_decision_and_boundary_each_stop_the_session",
+              "test_reentrant_replacement_cannot_let_the_old_step_stop_the_new_session",
+              "test_external_auto_on_and_admission_loss_stop_without_an_extra_step",
+              "test_profile_restore_retires_skip_even_when_auto_remains_off",
+              "test_freed_dependencies_fail_closed_before_another_step"
+            ],
+            "static_case_count": 10
+          },
+          {
+            "path": "tests/scene/test_witnessed_transport_recovery.gd",
+            "bytes": 14888,
+            "sha256": "7a85c48aa3433c73c21d3863a0119b482c429565b57fbb0a2048ab470753ce92",
+            "static_test_names": [
+              "test_determinate_failure_is_a_modal_retry_cancel_surface_above_the_frozen_composition",
+              "test_buttons_emit_only_guarded_fresh_actions_and_dismiss_retires_old_native_callbacks",
+              "test_uncertain_failure_has_truthful_inert_copy_and_no_false_retry_or_cancel",
+              "test_determinate_recovery_consumes_keyboard_and_controller_back_without_acting_or_escaping",
+              "test_uncertain_recovery_consumes_back_while_exposing_no_false_action",
+              "test_hidden_and_dismissed_recovery_return_back_to_the_lower_owner",
+              "test_determinate_recovery_tabs_only_between_its_two_actions",
+              "test_three_locales_and_accessibility_sizes_publish_one_atomic_complete_tuple",
+              "test_locale_mismatch_and_invalid_capability_tuple_change_nothing",
+              "test_next_recovery_uses_command_truth_instead_of_preference_failure_copy",
+              "test_hospital_failure_offers_only_admitted_retry_and_shared_step_copy"
+            ],
+            "static_case_count": 11
+          },
+          {
+            "path": "tests/integration/test_witnessed_speech_projection.gd",
+            "bytes": 12857,
+            "sha256": "a690edae94d7640483dd183bef5e79b13b441524ddeef01088c9e0b49ee28402",
+            "static_test_names": [
+              "test_semantic_entry_projects_native_primary_and_resolved_fallback_locale_without_read_identity",
+              "test_append_projects_only_new_primary_suffix_while_retaining_full_display_proof",
+              "test_ordinary_hospital_projects_without_registered_line_or_visited_receipt",
+              "test_ordered_ending_projects_from_active_playback_without_semantic_entry_receipt",
+              "test_about_to_show_and_native_or_owner_replacement_refuse_the_stale_publication",
+              "test_resume_suppresses_only_the_first_exact_native_publication",
+              "test_restored_append_retains_suppressed_display_as_base_for_the_next_fresh_suffix",
+              "test_idle_empty_and_unparsed_publications_fail_closed"
+            ],
+            "static_case_count": 8
+          },
+          {
+            "path": "tests/integration/test_dating_caption_style.gd",
+            "bytes": 56441,
+            "sha256": "72f22845e15c4e23f0ea16e5375d287dec68c3a99d59426367832e538f90de4b",
+            "static_test_names": [
+              "test_ending_frozen_prose_keeps_stable_completion_identity_across_runtime_counter_restart",
+              "test_hospital_plays_exact_day_label_with_frozen_facts_and_keeps_physical_completion_owner",
+              "test_gallery_real_dtl_reads_only_saved_signature_and_releases_frozen_variables",
+              "test_noncanon_conditional_dtl_keeps_canonical_and_saved_signature_branches_equal",
+              "test_frozen_context_drives_real_dtl_without_mutable_source_aliases",
+              "test_full_context_start_resume_and_preflight_refuse_the_same_invalid_fields",
+              "test_saved_full_context_resumes_real_prose_and_abort_restores_variables",
+              "test_artless_solo_group_and_twofriends_pre_and_post_select_nameless_style",
+              "test_production_post_challenge_routes_each_frozen_result_to_only_its_own_label",
+              "test_resumed_dating_entry_selects_same_style_without_optional_art",
+              "test_return_only_date_with_available_art_completes_without_continue_hold",
+              "test_dating_adapter_waits_for_both_real_dialogue_lines_and_natural_end",
+              "test_named_dialogue_in_dating_style_keeps_identity_but_has_no_speaker_plate",
+              "test_dating_natural_end_restores_ordinary_default_style",
+              "test_dating_subtitles_keep_all_four_labels_transparent_and_centered_at_each_text_size",
+              "test_dating_art_extends_behind_subtitles_without_consuming_control_or_challenge_space",
+              "test_long_dating_caption_stays_centered_and_scrollable_with_both_scrollbar_sizes",
+              "test_dating_review_and_hospital_scope_reset_preserve_native_text_and_history",
+              "test_dating_split_mouse_commits_on_release_without_advancing_caption",
+              "test_dating_split_touch_keyboard_and_reading_custody_preserve_native_text"
+            ],
+            "static_case_count": 20
+          },
+          {
+            "path": "tests/unit/test_scene_art_bindings.gd",
+            "bytes": 19664,
+            "sha256": "b8704eedc8fcf793bf350916d5dc8011c9b8a2bbbd636626702b9bbe333dd27d",
+            "static_test_names": [
+              "test_art_is_inert_and_clipped_above_each_caption_aperture",
+              "test_challenge_retains_left_portraits_and_empty_mapping_clears_old_images",
+              "test_dating_solo_crop_stays_centered_at_fixed_height_with_shared_background",
+              "test_two_portraits_keep_equal_centers_and_overlap_only_for_transparent_art",
+              "test_unadjusted_kinds_follow_desktop_until_each_kind_is_committed",
+              "test_presentation_changes_noop_and_cancellation_do_not_freeze_inheritance",
+              "test_failed_width_save_rolls_back_to_the_previous_preference_policy",
+              "test_group_entry_with_one_portrait_uses_the_group_preference",
+              "test_dating_mapping_uses_one_fixed_scene_for_all_phases_and_no_variants",
+              "test_actual_dating_host_keeps_art_left_and_fits_board_in_right_panel",
+              "test_ordinary_hospital_host_preserves_command_without_a_notice_button",
+              "test_hospital_requires_this_days_exact_saved_witness_sources",
+              "test_bridge_projects_only_retained_entry_and_style_mounts_art_below_captions"
+            ],
+            "static_case_count": 13
+          },
+          {
+            "path": "tests/unit/test_scene_art_hold.gd",
+            "bytes": 11674,
+            "sha256": "4cd048ca9d297b1a6e18eefed3e0f3c1f120ed6fcdca9d5f3826a3364193c954",
+            "static_test_names": [
+              "test_portrait_only_return_scene_waits_then_executes_original_dtl_once",
+              "test_pause_reuses_exact_art_view_and_continue_does_not_execute_while_suspended",
+              "test_failed_load_keeps_same_art_then_successful_idle_load_retires_it_without_completion",
+              "test_return_retirement_cancels_card_and_never_starts_its_dtl",
+              "test_only_proven_empty_blocks_hold_and_no_art_preserves_native_auto_completion",
+              "test_witnessed_hospital_start_runs_its_dtl_instead_of_holding_on_its_art"
+            ],
+            "static_case_count": 6
+          },
+          {
+            "path": "tests/unit/test_production_pause_controller.gd",
+            "bytes": 80348,
+            "sha256": "0e359c4aca346d6822a8e8ba0564940deba521dd7c8fda238822329e42f40edc",
+            "static_test_names": [
+              "test_witnessed_load_refuses_foreign_caption_without_session_or_backup_work",
+              "test_router_witnessed_load_facade_refuses_when_pause_owner_is_absent",
+              "test_desktop_pause_continue_preserves_scene_focus_and_real_input_custody",
+              "test_day7_overlay_is_covered_and_continue_restores_its_card_and_focus",
+              "test_day7_preparation_retry_survives_pause_without_preparing_or_acknowledging",
+              "test_retired_day7_overlay_cannot_restore_focus_into_the_same_desktop",
+              "test_day7_lost_view_anchor_keeps_desktop_hidden_during_recovery",
+              "test_failed_day7_load_keeps_view_input_and_tree_suspended_through_restore_handoff",
+              "test_production_pause_reuses_hosts_with_current_day_and_appearance_cannot_touch_backup_action",
+              "test_physical_dating_source_resumes_exact_command_and_changed_command_refuses",
+              "test_return_route_failure_retains_paused_retry_and_never_saves_or_resumes_discarded_source",
+              "test_foreign_runtime_and_title_cannot_be_admitted_as_idle_playback",
+              "test_pause_backup_inspects_nine_records_and_does_not_claim_unsupported_operations",
+              "test_global_back_does_not_steal_a_text_field_event",
+              "test_pause_delete_keeps_exact_suspension_and_never_saves_the_source",
+              "test_idle_pause_load_failure_reacquires_exact_source_then_retry_follows_new_session",
+              "test_failed_load_with_changed_session_cannot_resume_either_source",
+              "test_paused_dating_manual_and_quick_save_restore_exact_board_and_command",
+              "test_paused_dating_save_cancellation_and_board_drift_preserve_suspension_and_disk",
+              "test_desktop_pause_capture_preserves_the_covered_app_and_suspension",
+              "test_desktop_pause_capture_refuses_route_session_and_narrative_drift",
+              "test_paused_debug_preparation_save_preserves_exact_frontier_without_entering_attempt",
+              "test_paused_quick_save_uses_real_dating_capture_without_changing_focus_or_backup_selection",
+              "test_paused_quick_rebinding_quarantines_the_held_new_key_until_release",
+              "test_paused_quick_rejects_unsupported_modifier_binding_and_preserves_default",
+              "test_paused_quick_load_cancel_retains_backup_drawer_mode_and_exact_focus",
+              "test_paused_controller_quick_load_uses_saved_binding_and_compensates_failure",
+              "test_paused_settings_quick_save_keeps_host_focus_and_exact_canonical_source",
+              "test_paused_settings_quick_load_cancel_retains_exact_focus_after_deferred_visibility",
+              "test_paused_settings_quick_load_modal_contacts_do_not_wake_after_cancel",
+              "test_paused_quick_refusal_is_visible_and_settings_custody_blocks_shortcuts",
+              "test_paused_settings_reset_window_forwards_contacts_without_saving_or_queued_replay",
+              "test_paused_settings_option_popup_forwards_release_and_retires_same_frame_save",
+              "test_paused_settings_binding_capture_never_saves_and_requires_fresh_release",
+              "test_paused_settings_pending_preference_commit_retires_save_until_release",
+              "test_paused_quick_load_success_releases_only_through_the_existing_restore_owner",
+              "test_paused_quick_focus_loss_cancels_prepared_consent_without_loading",
+              "test_paused_quick_cancel_restores_rebuilt_backup_action_by_semantic_focus",
+              "test_quick_focus_out_and_in_before_a_frame_still_retires_load_consent",
+              "test_failed_quick_load_while_backgrounded_restores_origin_on_focus_return",
+              "test_paused_settings_load_failure_retains_source_palette_profile_and_focus",
+              "test_paused_settings_load_success_uses_destination_palette_without_changing_pending_choice",
+              "test_paused_settings_load_stale_record_or_source_never_reaches_restore",
+              "test_paused_settings_load_focus_loss_cancels_and_restores_exact_origin_after_frames",
+              "test_paused_settings_cancel_uses_category_rail_when_origin_is_no_longer_actionable",
+              "test_paused_settings_load_option_popup_retains_same_frame_contact_until_release",
+              "test_paused_settings_binding_capture_never_loads_or_replays_the_captured_contact",
+              "test_paused_settings_rebound_controller_load_requires_neutrality_and_survives_disconnect",
+              "test_paused_settings_load_waits_for_detached_audio_and_tts_cleanup_then_fresh_input"
+            ],
+            "static_case_count": 49
+          },
+          {
+            "path": "tests/scene/test_hospital_scene.gd",
+            "bytes": 8154,
+            "sha256": "682550b406dd7713dea455f236ddeeb7b205e745076d2817f7b3f67b615e8bf6",
+            "static_test_names": [
+              "test_the_scene_is_configured_off_tree_and_reports_it",
+              "test_configuration_is_idempotent_and_refuses_a_replacement_port",
+              "test_an_incomplete_port_or_empty_command_is_refused",
+              "test_the_scene_holds_only_a_detached_projection",
+              "test_ready_mutates_no_gameplay_state",
+              "test_an_unconfigured_scene_reaching_the_tree_does_nothing_at_all",
+              "test_ordinary_host_leaves_all_reading_input_to_the_shared_caption_owner",
+              "test_host_ignores_input_without_advancing_the_day_or_entering_an_ending",
+              "test_the_scene_exposes_no_mutation_seam"
+            ],
+            "static_case_count": 9
+          },
+          {
+            "path": "tests/unit/test_day7_font_preferences.gd",
+            "bytes": 6473,
+            "sha256": "a25af3d1f9e66af1ea00c6e227e906f5fc9c0dab24de6946da5861b3a1eeb69b",
+            "static_test_names": [
+              "test_live_typography_keeps_card_history_palette_and_auto_clock",
+              "test_typography_only_binding_is_profile_scoped_and_restore_observed",
+              "test_actual_bootstrap_day7_mount_passes_bound_font_and_tracks_changes"
+            ],
+            "static_case_count": 3
+          },
+          {
+            "path": "tests/unit/test_gallery_replay_owner.gd",
+            "bytes": 20437,
+            "sha256": "e85fd562507075f8b89bb9201493d8df81d802939393cf79e62d937f95adae97",
+            "static_test_names": [
+              "test_canonical_completion_records_the_exact_label_then_gallery_has_no_canonical_effects",
+              "test_discovery_is_not_permission_for_an_unreached_signature",
+              "test_return_cancels_only_its_token_and_a_late_old_completion_cannot_close_replay",
+              "test_gallery_exceptional_variants_are_full_and_pair_alone_reject_solo_fields",
+              "test_public_record_titles_preserve_chinese_characters",
+              "test_public_gallery_selects_only_reached_versions_and_return_cancels_its_playback",
+              "test_deferred_start_failure_releases_gallery_without_canonical_failure_and_can_retry",
+              "test_ending_versions_keep_first_witness_order_and_replay_does_not_reorder",
+              "test_date_versions_preserve_owner_order_and_filter_chronology_by_exact_entry",
+              "test_gallery_refresh_retains_selected_identity_when_a_newest_version_is_added",
+              "test_nonending_replay_requires_milestone_and_exact_reached_signature",
+              "test_reached_date_renders_its_actual_phase_and_only_drawn_acknowledgment_finishes",
+              "test_pair_post_replay_is_readonly_and_old_card_cannot_finish_replacement",
+              "test_public_gallery_includes_reached_date_stages_without_new_ending_discoveries",
+              "test_reached_date_card_uses_its_bound_profile_fonts_without_changing_replay"
+            ],
+            "static_case_count": 15
+          }
+        ],
+        "script_count": 44,
+        "static_case_count": 617
+      },
+      "persistence": {
+        "scripts": [
+          {
+            "path": "tests/unit/test_frozen_run_context.gd",
+            "bytes": 23439,
+            "sha256": "74a423d06b3a09f6cc16e05b6b5671457a3115a5ad65ae04ea7aff00c18f9023",
+            "static_test_names": [
+              "test_v6_does_not_backfill_absent_cache_and_v7_refuses_generated_dating_gap",
+              "test_minimal_gameplay_without_route_bag_remains_legal",
+              "test_saved_dating_binds_run_board_and_effect_but_keeps_original_branch_and_tier",
+              "test_present_dating_cache_is_exact_and_requires_its_reached_phases",
+              "test_pair_pending_count_snapshot_stays_pending_after_actual_rollover",
+              "test_schedule_hospital_uses_saved_plan_and_allows_lawful_pending_first_capture",
+              "test_full_saved_run_boundary_rejects_hospital_checkpoint_frame_forgery",
+              "test_full_saved_run_boundary_preserves_completed_hospital_anchor_until_destination",
+              "test_condition_hospital_binds_historical_prepared_request_after_identity_remap",
+              "test_ending_admission_seed_must_match_saved_eligibility_and_missing_seed_is_versioned",
+              "test_present_contact_cache_delegates_strict_shape_without_mutating_source",
+              "test_hospital_miss_container_wrong_types_refuse_before_typed_contact_calls",
+              "test_malformed_contact_source_rows_refuse_instead_of_entering_typed_loops",
+              "test_semantic_checkpoint_cannot_disagree_with_its_saved_canonical_projection",
+              "test_hospital_annotation_requires_its_saved_closure_receipt",
+              "test_prepared_condition_owner_cache_is_validated_before_it_can_be_installed",
+              "test_strict_prepared_condition_candidate_requires_its_generated_dating_cache_without_repair",
+              "test_strict_historical_candidate_does_not_inherit_a_later_ending_requirement",
+              "test_strict_prepared_pair_keeps_pending_projection_after_a_real_saved_rollover",
+              "test_strict_semantic_checkpoint_requires_both_discriminators_and_preserves_generic_restart"
+            ],
+            "static_case_count": 20
+          },
+          {
+            "path": "tests/unit/test_profile_presentation_chronology.gd",
+            "bytes": 14298,
+            "sha256": "e110feb79a9ef4f6ec908cd1faa688245a1d19b1d58d4967789b7e68efcecb00",
+            "static_test_names": [
+              "test_v8_upgrade_preserves_signatures_and_explicitly_unknown_order",
+              "test_first_witness_order_is_durable_and_duplicate_completion_is_write_free",
+              "test_v8_migration_write_failure_does_not_publish_or_change_older_profile_bytes",
+              "test_failed_atomic_write_keeps_both_membership_and_chronology_then_retry_commits_once",
+              "test_indeterminate_write_latches_before_another_chronology_append",
+              "test_schema_requires_complete_disjoint_and_closed_chronology_provenance",
+              "test_ordinary_commit_and_restore_cannot_reorder_or_downgrade_known_history",
+              "test_legacy_rewitness_stays_unknown_and_new_witnesses_precede_unknown_membership",
+              "test_resets_preserve_or_clear_chronology_with_its_reached_signatures_atomically"
+            ],
+            "static_case_count": 9
+          },
+          {
+            "path": "tests/unit/test_profile_dating_attempts.gd",
+            "bytes": 15356,
+            "sha256": "f2eb65337319183daae60e0fcb43b8308d7979ce354effcd63568a1de9f04073",
+            "static_test_names": [
+              "test_entry_is_detached_idempotent_and_cannot_be_replaced_or_rewound",
+              "test_first_cell_layout_and_action_prefix_survive_only_monotonic_progress",
+              "test_painted_terminal_board_awaiting_settlement_is_valid_monotonic_progress",
+              "test_clear_and_terminal_choices_are_write_once_without_full_snapshot_history",
+              "test_v5_upgrade_adds_empty_ledger_and_preserves_other_profile_facts",
+              "test_profile_ahead_record_survives_restart_gallery_clear_and_old_run_patch",
+              "test_frozen_effect_and_completion_survive_retry_without_recalculation",
+              "test_commit_requires_causal_custody_and_rejects_stale_profile_preparation",
+              "test_closed_slot_identity_and_typed_receipts_reject_fabricated_state",
+              "test_failed_profile_write_keeps_live_history_and_allows_exact_retry"
+            ],
+            "static_case_count": 10
+          },
+          {
+            "path": "tests/unit/test_profile_dating_branches.gd",
+            "bytes": 14406,
+            "sha256": "24b3c2361a6fb13ef8e1826a0afc3aae27e2a60be53daea40a3f0100304f5d9f",
+            "static_test_names": [
+              "test_v6_migration_retains_original_attempt_progress_and_receipts",
+              "test_fresh_entries_append_generations_and_default_lookup_keeps_first_lock",
+              "test_copied_midboard_keeps_exact_saved_progress_and_original_first_cell",
+              "test_entered_unmaterialized_save_does_not_import_later_first_click",
+              "test_terminal_choices_are_independent_across_saved_continuations_but_frozen_within_each",
+              "test_profile_continuation_is_milestone_gated_and_first_action_write_is_atomic",
+              "test_branch_shape_rejects_missing_history_changed_generations_and_unknown_fields"
+            ],
+            "static_case_count": 7
+          },
+          {
+            "path": "tests/unit/test_profile_pair_form_witness.gd",
+            "bytes": 2748,
+            "sha256": "611c3e7d33179beb4ad369b93b86367c01d849149143ca141275540ee5180379",
+            "static_test_names": [
+              "test_v4_profile_upgrade_preserves_facts_without_inventing_pair_witnesses",
+              "test_only_presented_forms_are_persisted_once_and_conflicts_do_not_overwrite",
+              "test_pair_witness_ledger_rejects_unknown_forms_and_empty_receipt_ids"
+            ],
+            "static_case_count": 3
+          },
+          {
+            "path": "tests/unit/test_contact_invitation_state.gd",
+            "bytes": 66609,
+            "sha256": "538b5c046914241692276b58ddea61aeb25e195bdeb87368ea663da44114486c",
+            "static_test_names": [
+              "test_defaults_are_empty_and_valid",
+              "test_solo_offer_returns_linked_candidate_batch_and_parent_receipt",
+              "test_opening_solo_offer_marks_read_and_accepts_without_a_reply",
+              "test_replying_solo_offer_is_rejected_as_not_required",
+              "test_reply_rejects_when_no_available_offer",
+              "test_prepare_does_not_mutate_input_state",
+              "test_duplicate_offer_transaction_is_idempotent",
+              "test_resolve_unanswered_solo_queues_nevermind",
+              "test_resolve_accepted_but_uncommitted_is_a_missed_question",
+              "test_resolve_attended_solo_no_message",
+              "test_resolve_accepted_but_absent_queues_missed_question",
+              "test_resolve_day7_marks_run_end_no_message",
+              "test_resolve_is_idempotent",
+              "test_either_group_participant_can_reply_first",
+              "test_group_activation_rejected_when_a_solo_missing",
+              "test_group_second_open_and_second_reply",
+              "test_one_continued_game_keeps_later_solos_and_both_group_windows",
+              "test_group_window_replacement_keeps_accepted_history_and_refuses_live_or_same_day",
+              "test_group_untouched_resolves_unanswered_with_busy",
+              "test_group_opened_unanswered_resolves_nevermind",
+              "test_group_one_reply_attended_judges_unreplied",
+              "test_group_accepted_not_attended_misses_and_defers_twofriends",
+              "test_group_ordinary_miss_reasons_keep_their_two_questions",
+              "test_group_hospital_supersession_defers_without_generic_missed_question",
+              "test_group_day7_forces_run_end",
+              "test_pl_window_group_attended_counts_once",
+              "test_pl_window_accepted_missed_counts_once",
+              "test_pl_window_both_unread_is_private_visible_counts",
+              "test_pl_window_never_activated_is_private_offscreen_counts",
+              "test_pl_window_solo_dated_one_is_prevented_no_count",
+              "test_solo_day_has_no_pl_window",
+              "test_validate_state_rejects_recursive_task3_union_tampers",
+              "test_validate_state_accepts_every_genuine_task3_transition_variant",
+              "test_validate_state_enforces_offer_visibility_and_watermark_by_solo_lineage",
+              "test_validate_state_requires_one_exact_canonical_resolution_envelope",
+              "test_validate_state_rejects_valid_typed_resolve_history_tampers",
+              "test_validate_state_rejects_day7_prestates_that_disagree_with_retained_history",
+              "test_validate_state_preserves_every_legal_resolution_history_variant",
+              "test_a_valid_sylvia_witness_record_is_accepted_by_the_opened_index",
+              "test_the_witness_index_rejects_malformed_records",
+              "test_the_witness_index_only_accepts_the_schedule_done_resolution_kind",
+              "test_the_friend_roster_has_one_owner_and_two_aliases"
+            ],
+            "static_case_count": 42
+          },
+          {
+            "path": "tests/unit/test_seven_day_calendar.gd",
+            "bytes": 7440,
+            "sha256": "a1b9b033e2aacb854bd32c407a90f1ab6101fa329a20563a58346704a1c6f9f7",
+            "static_test_names": [
+              "test_all_twelve_solo_windows_and_round_orders_match_each_live_facade",
+              "test_all_six_ordinary_messages_keep_three_choices_and_day7_has_none",
+              "test_group_windows_are_exact_and_do_not_create_a_third_solo",
+              "test_day7_ending_delivery_remains_separate_from_ordinary_and_dating_windows",
+              "test_sylvia_achieved_third_round_offer_uses_tier_without_granting_a_round",
+              "test_calendar_results_are_detached_and_default_facades_use_the_active_day",
+              "test_invalid_calendar_queries_never_fabricate_an_invitation_or_ordinary_choice"
+            ],
+            "static_case_count": 7
+          },
+          {
+            "path": "tests/unit/test_pair_deck_draw.gd",
+            "bytes": 2463,
+            "sha256": "e8d01067c75511ef59afbe2ae42aee65090b02ab684858f17154ef76ac0a1121",
+            "static_test_names": [
+              "test_unseen_pool_is_uniform_and_resets_only_when_every_form_was_witnessed",
+              "test_three_form_pool_rejects_the_incomplete_random_bucket",
+              "test_receipt_pins_pool_nonce_fingerprint_and_form_and_returns_detached_bytes",
+              "test_legacy_import_preserves_established_form_without_inventing_draw_inputs"
+            ],
+            "static_case_count": 4
+          },
+          {
+            "path": "tests/unit/test_pair_deck_draw_port.gd",
+            "bytes": 14169,
+            "sha256": "52f76b0bdaad0ecd7f75bf06570b59882e5898f0a5a2363f9480ffa2bcb68514",
+            "static_test_names": [
+              "test_first_count_draw_is_profile_durable_before_run_candidate_and_retry_reuses_it",
+              "test_profile_failure_refuses_count_and_presentation_projection_until_retry",
+              "test_selected_pre_pair_save_imports_form_already_reached_in_original_profile_history",
+              "test_existing_offscreen_count_imports_established_form_without_witness_or_rng",
+              "test_unreached_old_placeholder_uses_current_unseen_pool_and_independent_nonce",
+              "test_loaded_older_branch_reuses_original_run_draw_even_after_profile_discoveries",
+              "test_condition_count_candidate_uses_same_draw_without_borrowing_or_releasing_foreign_lease",
+              "test_stale_condition_token_cannot_authorize_same_kind_replacement_lease",
+              "test_legacy_offscreen_ending_preserves_its_form_from_an_older_save_after_clear_gallery",
+              "test_another_runs_ending_cannot_supply_this_runs_legacy_form",
+              "test_conflicting_or_unpaired_legacy_ending_witnesses_refuse_before_drawing"
+            ],
+            "static_case_count": 11
+          },
+          {
+            "path": "tests/unit/test_profile_v4_upgrade.gd",
+            "bytes": 15455,
+            "sha256": "bb26f137ccaf169a35b66a8ff953aa5d4e6546a0f66ba02282c9a59cdb51f1f3",
+            "static_test_names": [
+              "test_v1_upgrade_maps_canonical_peers_and_archives_every_original_preference",
+              "test_unmappable_v1_values_use_defaults_only_at_runtime_and_remain_archived",
+              "test_invalid_v1_skip_is_the_only_repair_and_the_repaired_archive_is_valid",
+              "test_v3_upgrade_closes_legacy_replay_without_inventing_archived_values",
+              "test_initialize_persists_v4_before_publish_and_resets_clear_only_archive",
+              "test_initialize_reconcile_uses_semantic_migration_validation_for_v1_through_v4",
+              "test_every_reset_refuses_cleanly_before_initialization",
+              "test_deferred_raw_mapping_publication_survives_as_inert_compatibility_signal",
+              "test_historical_tutorial_boolean_survives_v1_current_backup_migration_and_restart",
+              "test_optional_tutorial_compatibility_rejects_non_boolean_unknown_and_runtime_fields"
+            ],
+            "static_case_count": 10
+          },
+          {
+            "path": "tests/unit/test_profile_new_run_consumption.gd",
+            "bytes": 19438,
+            "sha256": "6841b6c8c8879a338f91c8aaead76e4d8dcf725b72a3b1273ae1f5d295f3c804",
+            "static_test_names": [
+              "test_storage_binding_is_quiet_immutable_and_can_precede_initialization",
+              "test_preparation_freezes_current_first_process_profile_without_legacy_patch_or_side_effects",
+              "test_preparation_rejects_stale_revision_invalid_dark_and_live_disk_disagreement_without_writes",
+              "test_canonical_journal_roundtrip_persists_without_adoption_and_is_idempotent",
+              "test_source_revision_binds_actual_bytes_and_accepts_valid_noncanonical_source_formatting",
+              "test_disabled_selector_is_already_persisted_without_writes",
+              "test_persistence_requires_exact_nonfatal_new_run_custody",
+              "test_malformed_or_rewritten_material_is_refused_before_storage_mutation",
+              "test_foreign_final_bytes_and_stale_live_revision_are_refused",
+              "test_pending_preparation_is_pure_and_foreign_marker_is_never_reconciled",
+              "test_inline_or_restart_recovers_failures_before_promotion_and_after_committed_write_without_adoption",
+              "test_consumption_proof_is_read_only_before_adoption_after_restart_and_with_foreign_bytes"
+            ],
+            "static_case_count": 12
+          },
+          {
+            "path": "tests/unit/test_save_migrations.gd",
+            "bytes": 11117,
+            "sha256": "64a8cbd071870c8f2afc81705f07e626b42dcbe54e88e11c5d372fb8f5d6107b",
+            "static_test_names": [
+              "test_current_documents_are_admitted_for_their_exact_locator_and_dark_value",
+              "test_current_result_is_detached_from_source_and_preserves_checkpoint_history",
+              "test_saved_time_is_retained_exactly_and_absence_is_not_synthesized",
+              "test_v0_through_v4_are_unsupported_without_creating_captured_dark",
+              "test_both_incompatible_v5_variants_are_refused_without_repair",
+              "test_retained_v6_snapshot_is_refused_without_repair_or_profile_patch",
+              "test_future_fractional_missing_and_wrong_type_versions_are_refused",
+              "test_json_integral_numbers_are_accepted_without_coercing_dark",
+              "test_expected_locator_shape_is_strict_and_does_not_relabel_a_document",
+              "test_current_legacy_members_are_rejected_instead_of_stripped",
+              "test_current_document_does_not_repair_missing_dark_or_old_embedded_snapshot"
+            ],
+            "static_case_count": 11
+          },
+          {
+            "path": "tests/integration/test_save_manager_journal.gd",
+            "bytes": 10596,
+            "sha256": "c2816d8706aceca54a6eb96c859dce4aedcc8988b83f97f9d568c18f503b42bc",
+            "static_test_names": [
+              "test_record_checkpoint_advances_journal_and_persists_disk",
+              "test_real_port_preview_is_pure_and_matches_prepare",
+              "test_real_port_commit_and_autosave_round_trip",
+              "test_real_port_rollback_failure_latches_shared_gate",
+              "test_configure_fatal_latch_matrix",
+              "test_no_local_gate_or_projector_in_save_layer"
+            ],
+            "static_case_count": 6
+          },
+          {
+            "path": "tests/integration/test_restore_transaction.gd",
+            "bytes": 15504,
+            "sha256": "4b4d2e5fddb49f87874de9c856c0b86b4fd320007d45c997838425a631eccbbf",
+            "static_test_names": [
+              "test_configure_restore_participants_validates_nine_keys",
+              "test_restore_success_applies_and_finalizes_in_order",
+              "test_apply_failure_rolls_back_in_reverse_and_emits_nothing",
+              "test_rollback_failure_latches_shared_gate",
+              "test_later_route_refusal_restores_real_audio_exactly",
+              "test_later_route_finalization_refusal_preserves_audio_after_audio_finalize",
+              "test_real_audio_capture_refusal_precedes_all_participant_mutation",
+              "test_real_audio_failed_compensation_latches_shared_restore_gate",
+              "test_narrative_content_incompatibility_is_typed_for_bundle_fallback",
+              "test_empty_playhead_stays_compatible_across_bundles",
+              "test_malformed_narrative_input_is_fail_closed_not_incompatible",
+              "test_failed_restore_finalization_restores_prior_journal_and_releases_save_lock"
+            ],
+            "static_case_count": 12
+          },
+          {
+            "path": "tests/unit/test_reading_restore_admission.gd",
+            "bytes": 34986,
+            "sha256": "119df1c5a822171fa16a7e26cbb1f0f54c7f96e79186d1d82a909c2227ae28b7",
+            "static_test_names": [
+              "test_all_history_frames_bind_independently_to_saved_canonical_facts",
+              "test_session_and_each_phase_identity_belong_to_the_saved_physical_command",
+              "test_board_boundary_retains_only_reached_frames_without_starting_future_prose",
+              "test_causal_entry_order_and_unknown_history_owners_refuse",
+              "test_reading_discriminator_cannot_downgrade_to_legacy_empty_playhead",
+              "test_invalid_version_or_containers_stay_fail_closed_even_with_stale_content",
+              "test_capture_boundary_refuses_stripped_or_expanded_semantic_envelopes",
+              "test_prepare_checks_complete_catalogue_before_staging_and_finalization_is_one_shot",
+              "test_catalogue_refusal_and_rollback_cannot_leave_a_future_resume",
+              "test_active_playback_refusal_does_not_install_a_staged_helper",
+              "test_next_source_and_destination_validate_and_restore_their_exact_own_frontiers",
+              "test_next_checkpoint_rejects_changed_operation_and_sequence_without_staging",
+              "test_next_plan_refuses_duplicate_source_and_foreign_entry_suffix",
+              "test_next_completion_record_survives_exact_physical_board_boundary",
+              "test_hospital_v3_prepares_exact_saved_frames_without_starting_or_changing_sources",
+              "test_hospital_single_frame_forgery_cannot_rewrite_current_and_history_authority_together",
+              "test_hospital_membership_checks_earlier_and_current_captions_and_exact_tail",
+              "test_hospital_versions_family_and_operation_are_closed_without_solo_downgrade",
+              "test_hospital_line_requires_active_retained_schedule_and_real_sylvia_sources",
+              "test_hospital_saved_authority_refuses_other_cause_but_admits_coherent_ordinary_recovery",
+              "test_hospital_internal_completed_anchor_survives_lawful_following_day_capture",
+              "test_hospital_completed_anchor_requires_exact_committed_physical_receipt"
+            ],
+            "static_case_count": 22
+          },
+          {
+            "path": "tests/unit/test_desktop_consequence_source_port.gd",
+            "bytes": 22340,
+            "sha256": "b7b6f891a7d938fb7e0b3725f56926fe4cf6f3b565e5f1b280878457e28cbcca",
+            "static_test_names": [
+              "test_source_port_script_loads",
+              "test_configure_rejects_a_missing_dependency",
+              "test_configure_identical_replay_is_idempotent_and_replacement_is_refused",
+              "test_resolve_board_fate_rejects_extra_or_missing_keys",
+              "test_resolve_board_fate_settles_a_real_schedule_done_departure",
+              "test_resolve_board_fate_replay_binds_the_same_receipt_without_a_second_departure",
+              "test_resolve_board_fate_returns_detached_bytes",
+              "test_resolve_condition_fails_closed_when_no_action_committed_one",
+              "test_condition_receipt_uses_committed_current_run_outcome_and_ignores_old_action_history",
+              "test_condition_receipt_reconstructs_from_restored_gameplay_and_resolution_with_empty_action_history",
+              "test_condition_receipt_uses_retained_plan_after_live_continuation_identity_is_remapped",
+              "test_condition_receipt_refuses_unproven_identity_remap_and_mismatched_start_day",
+              "test_condition_receipt_refuses_stale_continuation_and_an_unresolved_current_day",
+              "test_current_condition_owner_binding_rejects_replacement"
+            ],
+            "static_case_count": 14
+          },
+          {
+            "path": "tests/unit/test_reading_next_checkpoint.gd",
+            "bytes": 13212,
+            "sha256": "f6574bec1d93a8d94f3e8755cb5554d431838ac76094114e519d430448d8df73",
+            "static_test_names": [
+              "test_bootstrap_real_desktop_stringname_is_admitted_by_next_autosave_provider",
+              "test_bootstrap_provider_preserves_bad_host_values_for_strict_next_refusal",
+              "test_next_persists_source_then_destination_through_real_autosave_schema",
+              "test_next_refuses_missing_source_and_changed_command_before_storage",
+              "test_next_destination_rejects_unrelated_autosave_or_restored_journal",
+              "test_next_postwrite_failure_restores_both_disk_and_journal_and_allows_exact_retry",
+              "test_next_failed_first_write_restores_absence_and_grants_no_destination_credit",
+              "test_next_indeterminate_promotion_latches_gate_and_cold_storage_recovers_exact_destination",
+              "test_next_reentrant_checkpoint_writes_refuse_until_outer_commit_finishes"
+            ],
+            "static_case_count": 9
+          },
+          {
+            "path": "tests/integration/test_unified_restore_contract.gd",
+            "bytes": 4893,
+            "sha256": "a2b737aa77a4f124781191a82da72e3b451af5438e52fbf07fc9a3bfe21f5dde",
+            "static_test_names": [
+              "test_schedule_restores_with_the_other_owners_before_route_dispatch",
+              "test_late_failure_rolls_back_schedule_without_dispatching_the_route",
+              "test_failed_first_restore_returns_schedule_to_its_unopened_state"
+            ],
+            "static_case_count": 3
+          },
+          {
+            "path": "tests/integration/test_run_restore_isolation.gd",
+            "bytes": 16211,
+            "sha256": "98657300052b174b4063723f03f308f90602f1993fc8788c0d83bb931fdff953",
+            "static_test_names": [
+              "test_frozen_owner_reproduces_all_six_historical_alias_directions",
+              "test_captured_backup_mutation_cannot_change_live_gameplay",
+              "test_live_gameplay_mutation_cannot_change_captured_backup",
+              "test_prepared_restore_plan_and_installed_owner_remain_independent_until_finalize",
+              "test_rollback_backup_and_restored_owner_remain_independent_until_finalize"
+            ],
+            "static_case_count": 5
+          },
+          {
+            "path": "tests/integration/test_live_run_rollback_isolation.gd",
+            "bytes": 5808,
+            "sha256": "3f814514afae40020154dbfb36db60a26233c145a36d7b14683e1e4bcffcb1be",
+            "static_test_names": [
+              "test_frozen_live_run_control_reproduces_capture_and_rollback_aliases",
+              "test_active_run_capture_and_owner_keep_independent_nested_gameplay",
+              "test_active_run_rollback_keeps_independent_nested_gameplay_and_existing_publication"
+            ],
+            "static_case_count": 3
+          },
+          {
+            "path": "tests/integration/test_save_manager_public_boundaries.gd",
+            "bytes": 24419,
+            "sha256": "0fb2ada58f0847dcd5cc77cef5608d56da12d1ecaad06a20e2a89cbb4de48f05",
+            "static_test_names": [
+              "test_responsive_prepared_commit_yields_with_custody_and_publishes_one_live_run",
+              "test_real_new_run_sparse_dating_supports_current_contacts_and_first_earned_offer",
+              "test_old_v6_load_refusal_preserves_run_files_and_profile_v9_history",
+              "test_responsive_retry_reuses_the_durable_decision_without_replaying_preparation",
+              "test_session_exit_checkpoint_requires_current_custody_and_preserves_live_session_on_failure",
+              "test_load_context_reads_the_exact_retained_snapshot_without_mutation"
+            ],
+            "static_case_count": 6
+          },
+          {
+            "path": "tests/integration/test_save_capability.gd",
+            "bytes": 7877,
+            "sha256": "3276d8fc87ba9830dda1b30242038cab3e5af0b981564ae7e017e7af89a3de5b",
+            "static_test_names": [
+              "test_capability_values_per_owner",
+              "test_lock_idempotence_and_cross_owner_release",
+              "test_board_lock_is_silent_and_transition_defers",
+              "test_deferred_save_fulfilled_at_next_checkpoint"
+            ],
+            "static_case_count": 4
+          }
+        ],
+        "script_count": 22,
+        "static_case_count": 230
+      }
+    },
+    "predicted_case_executions": 858,
+    "predicted_script_executions": 67,
+    "predicted_unique_cases": 858,
+    "predicted_unique_scripts": 67,
+    "limit": "Static source census is not execution evidence. Audit actual cloud XML against these named scripts/tests; reject failures, errors, skips and undiscovered fixtures. Parameterized runtime cases can require an explicitly reviewed count adjustment."
+  },
+  "automatically_discovered_changed_fixtures": [
+    "tests/integration/test_narrative_pause_frontier.gd",
+    "tests/unit/test_reading_pause_save.gd"
+  ],
+  "source_file_identities": {
+    ".github/workflows/windows-tests.yml": {
+      "bytes": 65937,
+      "sha256": "bc87c351ea8c77542cf882c87e19167ecda48f166151398d706ac4bf47d6fccd"
+    },
+    "tools/testing/Invoke-CloudTests.ps1": {
+      "bytes": 21114,
+      "sha256": "c509077e0a56cd7ed89362b97b6f496ac4e20b34ca1caba1dac3a89a861c7646"
+    },
+    "tests/unit/tooling/test_public_surface_inventory.gd": {
+      "bytes": 23739,
+      "sha256": "536097a273d289c829688ca6070c2c8162e40e6fbee03f38aacc9947ede812be"
+    },
+    "tests/unit/test_dtl_master_structure.gd": {
+      "bytes": 10602,
+      "sha256": "bca721cfd9b4f88721c17d424fa47affd83c4a4b8353cadc249874e500d7e076"
+    },
+    "tests/unit/test_schedule_done_dispatcher.gd": {
+      "bytes": 11511,
+      "sha256": "b11e188f6e189370d79aa67e73969037d47bfaede4a678c44ae908ff3c6a400c"
+    },
+    "tests/unit/test_day_resolution_coordinator.gd": {
+      "bytes": 82160,
+      "sha256": "310f6d805255756c0f4571505ddea1c3669e71c47113b04948670ccaf42357bf"
+    },
+    "tests/unit/test_startup_route_publication.gd": {
+      "bytes": 8765,
+      "sha256": "6ba9fd13e93e5b0781e056eebcc6c848a1a10025e2079e4902a4ce9f911f0e04"
+    },
+    "tests/integration/test_committed_schedule_effect_order.gd": {
+      "bytes": 27684,
+      "sha256": "cc6efe90ae563491cdbf82adce44f1f021be74718e14d30da6f6da995a2fd727"
+    },
+    "tests/integration/test_committed_schedule_presentation_resume.gd": {
+      "bytes": 52753,
+      "sha256": "d2f6808e3af6ae67986f957eb9eabf64a4d9c4aa2e0297c3343fa29dfb9b47f6"
+    },
+    "tests/unit/test_hospital_frozen_context.gd": {
+      "bytes": 16383,
+      "sha256": "a1abbba017b8ef49f945fa47d763fe26d3e5464b64dec8adc9f74caca9729928"
+    },
+    "tests/unit/test_hospital_presentation_port.gd": {
+      "bytes": 33035,
+      "sha256": "32899471404f1f2f4a7cfc7902dabbc3d515c49acf9b68b67bb00e1722d39954"
+    },
+    "tests/unit/test_dialogic_presentation_owner_adapter.gd": {
+      "bytes": 26895,
+      "sha256": "cfcfca8a501a7adb4781c31df2748c91bcafc30d37db87dc753464dc9eda6248"
+    },
+    "tests/integration/test_hospital_dating_adapter_negative_contract.gd": {
+      "bytes": 30814,
+      "sha256": "341e9d4d4ba71fe1092ad90ccd856155d9204c6c90cae07a351cc50411647081"
+    },
+    "tests/integration/test_hospital_reading_session_runtime.gd": {
+      "bytes": 31839,
+      "sha256": "852bec8e2222591784e0d4cd9a6781b662e39781e8b20c7fed501862a7f5200a"
+    },
+    "tests/unit/test_frozen_replay_context.gd": {
+      "bytes": 2725,
+      "sha256": "b6224bf2b13e9610c5a1d22828d100044d5b5e98eaa6c8a010b1c52e743b38ba"
+    },
+    "tests/unit/test_minesweeper_delivery_notice.gd": {
+      "bytes": 10291,
+      "sha256": "548780337803831515b54ba631239de489d337206ad741bb04cda8fb4a9dd0fc"
+    },
+    "tests/unit/test_narrative_caption_ledger.gd": {
+      "bytes": 14239,
+      "sha256": "1bb876cb920f71a6be89458faaaef45fc15e870018dd7f600b681d9c2d823c7b"
+    },
+    "tests/unit/test_solo_reading_session.gd": {
+      "bytes": 22838,
+      "sha256": "1ae9af5244632a48e44ca36d7b39a94a9db4b537232f5f524bff88eb702e9725"
+    },
+    "tests/unit/test_solo_reading_catalogue.gd": {
+      "bytes": 10430,
+      "sha256": "f6230e396ff3e908675f6a5c67ac5248f76fc48f6f27b9df4d6afed48529b46f"
+    },
+    "tests/integration/test_solo_authored_selector_witness.gd": {
+      "bytes": 20110,
+      "sha256": "f0de3479b80a21f241228063554aaf89a14b0bdfa2aabfea154ea62e6a03b394"
+    },
+    "tests/integration/test_solo_authored_selector_runtime.gd": {
+      "bytes": 23903,
+      "sha256": "e6cf4ff30d9870466b216f99439a6f241a357fdef192c8774ae4aba1ff865b18"
+    },
+    "tests/integration/test_dialogic_caption_variant_witness.gd": {
+      "bytes": 13919,
+      "sha256": "ab5ab235ad2ddc5c7e439ad1686c543e2d94a25bc20e7418d9275f32c9e2eaae"
+    },
+    "tests/integration/test_dialogic_next_traversal.gd": {
+      "bytes": 18642,
+      "sha256": "1228ca8ba33cf9d678b59c7fc1830497ef1022fc4823450fff9c5806ff82d668"
+    },
+    "tests/integration/test_dialogic_skip.gd": {
+      "bytes": 25123,
+      "sha256": "a197a793bd75c4c99c3d116494122bcb5948382915fd1ab24bd8193497fea370"
+    },
+    "tests/integration/test_dialogic_live_admission.gd": {
+      "bytes": 43446,
+      "sha256": "c254544c9ad7f76757205ceb66916b684e51d9502e4faa816d2ba748facb674c"
+    },
+    "tests/integration/test_dialogic_timed_hold_runtime.gd": {
+      "bytes": 34213,
+      "sha256": "528298883ce823695bff9a2c1de114490cbce52d3f7f33b255c6d2ad1a71bebe"
+    },
+    "tests/integration/test_narrative_caption_ledger_runtime.gd": {
+      "bytes": 17333,
+      "sha256": "99e200d884e2fc633ab568dd2b59aa71fb3ed5667784641469ac005a9c8a880c"
+    },
+    "tests/unit/test_witnessed_reading_rail.gd": {
+      "bytes": 16380,
+      "sha256": "507eb83261fe13a245483670755dd63c8264a4b7d3aaac76b33e4fe1badc9092"
+    },
+    "tests/unit/test_reading_pause_save.gd": {
+      "bytes": 28812,
+      "sha256": "8a56405d9d2eb9eab7727c81cb1f6892bc21420b81685ea4e57bb44503ac1f5b"
+    },
+    "tests/unit/test_dialogic_pause_recovery.gd": {
+      "bytes": 14712,
+      "sha256": "f87a758792aa977452116adee5b704565081a46ecb204ec3b57d90fd2fef7775"
+    },
+    "tests/unit/test_pause_surface.gd": {
+      "bytes": 10100,
+      "sha256": "00c93ec9f90a9319dbd2c900decf5d7958cf26ec62d36de8ec0a11b1d430d245"
+    },
+    "tests/integration/test_narrative_reading_frontier_runtime.gd": {
+      "bytes": 29970,
+      "sha256": "d560dd86ffad9322dee2d379c0af1608bd2cb4fd6e931761513365ecca5b00db"
+    },
+    "tests/integration/test_narrative_pause_frontier.gd": {
+      "bytes": 61003,
+      "sha256": "220746c9a241dd412f1e1d5257499be1e28dc3d31225efde78800f2ec0084e73"
+    },
+    "tests/integration/test_witnessed_caption_runtime.gd": {
+      "bytes": 96056,
+      "sha256": "532af8e71d1c7c580060ae47753b82ca8314157e1e2a95497dd3e71fdc856af6"
+    },
+    "tests/unit/test_witnessed_pause_view.gd": {
+      "bytes": 21826,
+      "sha256": "fbe722b597d74bf7834e04b6446fd9cd546359b620df077992e471416178fb24"
+    },
+    "tests/unit/test_witnessed_timed_hold.gd": {
+      "bytes": 8058,
+      "sha256": "8e66e68a9092e29f44bcecf2040b56250467ad5daa71c64c539432dcb5509a26"
+    },
+    "tests/unit/test_witnessed_auto_controller.gd": {
+      "bytes": 14090,
+      "sha256": "7b25c11cc9fabb7f094a0d20189b190f739eb7e43b8cf71fda3f45a73469cc36"
+    },
+    "tests/unit/test_witnessed_skip_controller.gd": {
+      "bytes": 9218,
+      "sha256": "dd09fd0956d6f364cdb528b65d6b86f710fe06a292f5b081178faf3a89af968b"
+    },
+    "tests/scene/test_witnessed_transport_recovery.gd": {
+      "bytes": 14888,
+      "sha256": "7a85c48aa3433c73c21d3863a0119b482c429565b57fbb0a2048ab470753ce92"
+    },
+    "tests/integration/test_witnessed_speech_projection.gd": {
+      "bytes": 12857,
+      "sha256": "a690edae94d7640483dd183bef5e79b13b441524ddeef01088c9e0b49ee28402"
+    },
+    "tests/integration/test_dating_caption_style.gd": {
+      "bytes": 56441,
+      "sha256": "72f22845e15c4e23f0ea16e5375d287dec68c3a99d59426367832e538f90de4b"
+    },
+    "tests/unit/test_scene_art_bindings.gd": {
+      "bytes": 19664,
+      "sha256": "b8704eedc8fcf793bf350916d5dc8011c9b8a2bbbd636626702b9bbe333dd27d"
+    },
+    "tests/unit/test_scene_art_hold.gd": {
+      "bytes": 11674,
+      "sha256": "4cd048ca9d297b1a6e18eefed3e0f3c1f120ed6fcdca9d5f3826a3364193c954"
+    },
+    "tests/unit/test_production_pause_controller.gd": {
+      "bytes": 80348,
+      "sha256": "0e359c4aca346d6822a8e8ba0564940deba521dd7c8fda238822329e42f40edc"
+    },
+    "tests/scene/test_hospital_scene.gd": {
+      "bytes": 8154,
+      "sha256": "682550b406dd7713dea455f236ddeeb7b205e745076d2817f7b3f67b615e8bf6"
+    },
+    "tests/unit/test_day7_font_preferences.gd": {
+      "bytes": 6473,
+      "sha256": "a25af3d1f9e66af1ea00c6e227e906f5fc9c0dab24de6946da5861b3a1eeb69b"
+    },
+    "tests/unit/test_gallery_replay_owner.gd": {
+      "bytes": 20437,
+      "sha256": "e85fd562507075f8b89bb9201493d8df81d802939393cf79e62d937f95adae97"
+    },
+    "tests/unit/test_frozen_run_context.gd": {
+      "bytes": 23439,
+      "sha256": "74a423d06b3a09f6cc16e05b6b5671457a3115a5ad65ae04ea7aff00c18f9023"
+    },
+    "tests/unit/test_profile_presentation_chronology.gd": {
+      "bytes": 14298,
+      "sha256": "e110feb79a9ef4f6ec908cd1faa688245a1d19b1d58d4967789b7e68efcecb00"
+    },
+    "tests/unit/test_profile_dating_attempts.gd": {
+      "bytes": 15356,
+      "sha256": "f2eb65337319183daae60e0fcb43b8308d7979ce354effcd63568a1de9f04073"
+    },
+    "tests/unit/test_profile_dating_branches.gd": {
+      "bytes": 14406,
+      "sha256": "24b3c2361a6fb13ef8e1826a0afc3aae27e2a60be53daea40a3f0100304f5d9f"
+    },
+    "tests/unit/test_profile_pair_form_witness.gd": {
+      "bytes": 2748,
+      "sha256": "611c3e7d33179beb4ad369b93b86367c01d849149143ca141275540ee5180379"
+    },
+    "tests/unit/test_contact_invitation_state.gd": {
+      "bytes": 66609,
+      "sha256": "538b5c046914241692276b58ddea61aeb25e195bdeb87368ea663da44114486c"
+    },
+    "tests/unit/test_seven_day_calendar.gd": {
+      "bytes": 7440,
+      "sha256": "a1b9b033e2aacb854bd32c407a90f1ab6101fa329a20563a58346704a1c6f9f7"
+    },
+    "tests/unit/test_pair_deck_draw.gd": {
+      "bytes": 2463,
+      "sha256": "e8d01067c75511ef59afbe2ae42aee65090b02ab684858f17154ef76ac0a1121"
+    },
+    "tests/unit/test_pair_deck_draw_port.gd": {
+      "bytes": 14169,
+      "sha256": "52f76b0bdaad0ecd7f75bf06570b59882e5898f0a5a2363f9480ffa2bcb68514"
+    },
+    "tests/unit/test_profile_v4_upgrade.gd": {
+      "bytes": 15455,
+      "sha256": "bb26f137ccaf169a35b66a8ff953aa5d4e6546a0f66ba02282c9a59cdb51f1f3"
+    },
+    "tests/unit/test_profile_new_run_consumption.gd": {
+      "bytes": 19438,
+      "sha256": "6841b6c8c8879a338f91c8aaead76e4d8dcf725b72a3b1273ae1f5d295f3c804"
+    },
+    "tests/unit/test_save_migrations.gd": {
+      "bytes": 11117,
+      "sha256": "64a8cbd071870c8f2afc81705f07e626b42dcbe54e88e11c5d372fb8f5d6107b"
+    },
+    "tests/integration/test_save_manager_journal.gd": {
+      "bytes": 10596,
+      "sha256": "c2816d8706aceca54a6eb96c859dce4aedcc8988b83f97f9d568c18f503b42bc"
+    },
+    "tests/integration/test_restore_transaction.gd": {
+      "bytes": 15504,
+      "sha256": "4b4d2e5fddb49f87874de9c856c0b86b4fd320007d45c997838425a631eccbbf"
+    },
+    "tests/unit/test_reading_restore_admission.gd": {
+      "bytes": 34986,
+      "sha256": "119df1c5a822171fa16a7e26cbb1f0f54c7f96e79186d1d82a909c2227ae28b7"
+    },
+    "tests/unit/test_desktop_consequence_source_port.gd": {
+      "bytes": 22340,
+      "sha256": "b7b6f891a7d938fb7e0b3725f56926fe4cf6f3b565e5f1b280878457e28cbcca"
+    },
+    "tests/unit/test_reading_next_checkpoint.gd": {
+      "bytes": 13212,
+      "sha256": "f6574bec1d93a8d94f3e8755cb5554d431838ac76094114e519d430448d8df73"
+    },
+    "tests/integration/test_unified_restore_contract.gd": {
+      "bytes": 4893,
+      "sha256": "a2b737aa77a4f124781191a82da72e3b451af5438e52fbf07fc9a3bfe21f5dde"
+    },
+    "tests/integration/test_run_restore_isolation.gd": {
+      "bytes": 16211,
+      "sha256": "98657300052b174b4063723f03f308f90602f1993fc8788c0d83bb931fdff953"
+    },
+    "tests/integration/test_live_run_rollback_isolation.gd": {
+      "bytes": 5808,
+      "sha256": "3f814514afae40020154dbfb36db60a26233c145a36d7b14683e1e4bcffcb1be"
+    },
+    "tests/integration/test_save_manager_public_boundaries.gd": {
+      "bytes": 24419,
+      "sha256": "0fb2ada58f0847dcd5cc77cef5608d56da12d1ecaad06a20e2a89cbb4de48f05"
+    },
+    "tests/integration/test_save_capability.gd": {
+      "bytes": 7877,
+      "sha256": "3276d8fc87ba9830dda1b30242038cab3e5af0b981564ae7e017e7af89a3de5b"
+    },
+    ".beads/issues.jsonl": {
+      "bytes": 2024081,
+      "sha256": "1c7c6c8a16aca46257fdd00e6808afc5cd8d02ee28c48d92343d553629cc2716"
+    },
+    "docs/agent/2026-09-23-next-session-handoff.md": {
+      "bytes": 27179,
+      "sha256": "a2f6125f5899c0011b6f7c9a165f7e50389d0d6afd60d3fd07d181625d89009d"
+    },
+    "docs/agent/execution-map.md": {
+      "bytes": 24648,
+      "sha256": "57e8c9a717f87a914247a264142504e0f0f4892d37859e85ee0546fbf050fb2f"
+    },
+    "docs/design/2026-08-13-narrative-scene-host-dating-hospital-challenge-ui-ux-amendment.md": {
+      "bytes": 88083,
+      "sha256": "1d1001b6633091552a6faeb7ee28d4f0085455559a85c75985557dd23b27b2ed"
+    },
+    "docs/design/2026-08-22-hospital-ordered-ending-current-v1-ui-disposition.md": {
+      "bytes": 20679,
+      "sha256": "ca7de79b10dd56f9683a01d4ac1a1ba8fc79f79362cc15bf2428cefbe7b247ac"
+    },
+    "docs/design/current-ui/witnessed-scene.md": {
+      "bytes": 132148,
+      "sha256": "8705172a73d129bd1e60c29c93fa2fd014cfb1a5b0773b2de95487d0970bdac6"
+    },
+    "scripts/application/lifecycle/ProductionPauseController.gd": {
+      "bytes": 38806,
+      "sha256": "851182d786dfe326fd5ef9e21e16254e74db535e7ba6e5e74cb9f3a268eafb4e"
+    },
+    "tests/integration/verify_hospital_reading_journey.gd": {
+      "bytes": 50679,
+      "sha256": "5728c1025abb68943f04328a7c6b015ad24bcd7adc6cfe66d7b0f9cd45c3b843"
+    },
+    "tools/testing/run_hospital_reading_journey.py": {
+      "bytes": 43695,
+      "sha256": "0fbb6e385569b9afcff9ebebfa7a2d962a8e69f73868304cb6e948370baef39e"
+    }
+  },
+  "hospital_command": "python3 tools/testing/run_hospital_reading_journey.py",
+  "hospital_fixture": "tests/integration/verify_hospital_reading_journey.gd",
+  "hospital_artifact_root": ".godot/ci/hospital-reading/",
+  "derivation_helpers": [
+    {
+      "path": "/workspace/scratch/74fc70f9384e/dwm/evidence/phase_2r/hospital_reading_2026_10_02/audit-records/workflow-derivations/build-hospital-focused-workflow.py",
+      "bytes": 10164,
+      "sha256": "b1415dc0caa4749ae663471b093b282491eaa558ae15c4b4f0f099c0c7023457"
+    },
+    {
+      "path": "/workspace/scratch/74fc70f9384e/dwm/evidence/phase_2r/paused_settings_load_2026_10_02/audit-tools/build_paused_settings_f9_workflow.py",
+      "bytes": 18484,
+      "sha256": "173bec04a4c007f7fb5037a25362e30d4ea27f0e593cc5a46db02fba51da4a6e"
+    }
+  ],
+  "limits": [
+    "Focused diagnostic subset only; canonical broad gate remains final acceptance and reruns original Solo/F5/F9 and all other jobs.",
+    "No original Solo/F5/F9 rendered command is run by this focused subset; its previous seals are not changed or resealed.",
+    "Static named suite census is not execution evidence; actual XML must show every expected fixture/case with zero failure/error/skip.",
+    "Hospital semantic, saved-authority, raw file, speech and strict process-lifetime evidence requires independent source-bound audit.",
+    "Regeneration, if selected, requires payload review/adoption and subsequent committed-inventory canonical validation.",
+    "Workflow head differs from source checkout; bind all jobs to observed logs and original artifact identities.",
+    "Noncanonical Schedule-Done/Sylvia-present fixture does not admit production prose, other ingresses, no-Sylvia timing, endings, all days or native accessibility."
+  ],
+  "workflow_sha256": "c44fecc31ea7c6bb7251172aa2dfb97a2b1e9144242e038424e091fb549b9334"
+}

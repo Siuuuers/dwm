@@ -1,0 +1,270 @@
+{
+  "schema_version": 1,
+  "scope": "Retire obsolete agent entry files, preserve working guidance, and update dependent documentation tooling.",
+  "baseline": "96f95c67db6c7358b5f846651fef5c88babfbf92",
+  "tested_source": "e18f832deca10f7d000a45e470ce5c48c9b68b56",
+  "accepted_run": {
+    "number": 118,
+    "id": 36937492913,
+    "attempt": 1,
+    "url": "https://github.com/Siuuuers/dwm/actions/runs/36937492913",
+    "workflow_head": "b510129b2721e40b74490336b0ff3963866cd4f6",
+    "actual_checkout": "e18f832deca10f7d000a45e470ce5c48c9b68b56",
+    "jobs_passed": 1
+  },
+  "gut": {
+    "case_executions": 56,
+    "unique_cases": 56,
+    "unique_scripts": 8,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "both_documentation_clis_passed": true,
+  "codegraph_active_instruction_fixture_passed": true,
+  "retirement_inputs": {
+    "base": "96f95c67db6c7358b5f846651fef5c88babfbf92",
+    "files": [
+      {
+        "bytes": 6635,
+        "git_blob": "8dd36608663c88d96e68fb517a0946ca80e211f0",
+        "path": "Prompt.md",
+        "sha256": "4c81e4b2c4c027379882296c5902591e1008d7d8bc40ab04c7837f46c9c9b9e8"
+      },
+      {
+        "bytes": 2357,
+        "git_blob": "daced9bd64f25908ebedeb4701fb406985dc8366",
+        "path": "CLAUDE.md",
+        "sha256": "694a2d721e41c385f3db492838c23299826df5ba9809e3b0721aac70021e196a"
+      },
+      {
+        "bytes": 10932,
+        "git_blob": "9ece781c8daa61f958864eff05b4ae52915f4b57",
+        "path": "docs/agent/AGENT_WORKFLOW.md",
+        "sha256": "0c30d1e246dbe5201fbd796abaf07de816927c53c5222393c7a4a0f7ae6bae20"
+      },
+      {
+        "bytes": 2006508,
+        "git_blob": "d1395ebef278f958a6a9224db4591bd1f53401cc",
+        "path": ".beads/issues.jsonl",
+        "sha256": "27097bbef59b4abfd9b2c0ed20c7bc5efc700f7c00ebcded55c04c7e700c1b20"
+      }
+    ]
+  },
+  "beads": {
+    "all_bytes_preserved": true,
+    "bytes": 2006508,
+    "git_blob": "d1395ebef278f958a6a9224db4591bd1f53401cc",
+    "live_dolt_queried": false,
+    "records": 191,
+    "sha256": "27097bbef59b4abfd9b2c0ed20c7bc5efc700f7c00ebcded55c04c7e700c1b20",
+    "unfinished": 23
+  },
+  "all_previous_evidence_and_runtime_bytes_preserved": true,
+  "previous_runtime_acceptance": {
+    "rerun_by_this_job": false,
+    "run_id": 36928901183,
+    "run_number": 114,
+    "runtime_objects_unchanged": [
+      {
+        "accepted_runtime_and_current_object": "9ad31810c0922f72dfafd05a802d8b47cde7fe3d",
+        "path": "addons"
+      },
+      {
+        "accepted_runtime_and_current_object": "7ab2296fe5aca2c0e3125ed657030d7479a5107e",
+        "path": "art"
+      },
+      {
+        "accepted_runtime_and_current_object": "15a2d3b807cfbd447047423d102c80795dc15d96",
+        "path": "art_source"
+      },
+      {
+        "accepted_runtime_and_current_object": "d35a94912839c06232b56916b1407fc5411809ef",
+        "path": "assets"
+      },
+      {
+        "accepted_runtime_and_current_object": "9aafe5e000768c07fb2fe74265aef1311ab3b3d9",
+        "path": "autoload"
+      },
+      {
+        "accepted_runtime_and_current_object": "fc634e1b42113b367847d70b3e3a89f91bbe691f",
+        "path": "data"
+      },
+      {
+        "accepted_runtime_and_current_object": "e1ee14617568ee1dc0e1b29b68702912f5287fdb",
+        "path": "dialogic"
+      },
+      {
+        "accepted_runtime_and_current_object": "1d64a83f84823748551ba18e61608efc21929e39",
+        "path": "localization"
+      },
+      {
+        "accepted_runtime_and_current_object": "5557dff7ef31cf11471c9239aba51f77bc301884",
+        "path": "scenes"
+      },
+      {
+        "accepted_runtime_and_current_object": "4568c366af34b9f94768376c43d07ced7230cba4",
+        "path": "schemas"
+      },
+      {
+        "accepted_runtime_and_current_object": "b2acbcae8959b8ea2a34b2c5213c87c8d537457f",
+        "path": "scripts"
+      },
+      {
+        "accepted_runtime_and_current_object": "0593a2ab614158efcf4e51eef48aba2ce3ac439a",
+        "path": "story"
+      },
+      {
+        "accepted_runtime_and_current_object": "400f73e0559e082a6e89fabda8134e8e49f4337f",
+        "path": "project.godot"
+      },
+      {
+        "accepted_runtime_and_current_object": "140286738eef7a6993c8c46c2aa3101184abed93",
+        "path": "export_presets.cfg"
+      }
+    ],
+    "source": "900118a5dc16b89b82a4e5d946767c080083c750"
+  },
+  "diagnostic_attempts": [
+    {
+      "run": 115,
+      "id": 36936345169,
+      "accepted": false,
+      "reason": "Missing cloud rg prerequisite; 56 GUT cases and both CLIs passed before the PowerShell fixture setup refusal."
+    },
+    {
+      "run": 116,
+      "id": 36936829054,
+      "accepted": false,
+      "reason": "Bootstrap misread upstream CertUtil checksum formatting; requested tests did not run. Corrected by pinning the independently verified upstream SHA256."
+    },
+    {
+      "run": 117,
+      "id": 36937207578,
+      "accepted": false,
+      "reason": "Pinned checksum passed, but prematurely truncating native version output caused a setup refusal. The final workflow captures complete output before inspecting exit status. Requested tests did not run."
+    }
+  ],
+  "merge_time_followup": {
+    "master": "6a5ddf1564870b43aa9140cad7e0e5b12e43f399",
+    "path": "AGENTS.md",
+    "observation": "Absent from this PR source; master's newer router still links to CLAUDE.md and is introduced by PR merge.",
+    "required_on_future_integration": "Repoint the technical entry to README/current handoff while preserving narrative routes. This cleanup does not authorize or perform a merge, master edit, or story edit."
+  },
+  "limits": [
+    "This one-job acceptance covers guidance retirement, documentation/authority tooling and preserved task records only.",
+    "Runtime acceptance remains source 900118a5dc16b89b82a4e5d946767c080083c750 / Run114; no gameplay, render, export or broad runtime suite ran in this guidance job.",
+    "All 191 retained Beads records and 23 unfinished tasks are byte-preserved; the retained snapshot does not claim live Dolt query or synchronization.",
+    "The temporary CLI snapshot may contain only the specifically audited lossless trailing-zero timestamp normalization; its raw bytes are retained, and it is not claimed byte-identical to the physical Beads export.",
+    "Workflow head and actual tested source are distinct; every retained job log and cloud receipt binds the exact source checkout.",
+    "No engines or PowerShell run during this local evidence audit or packaging.",
+    "The final handoff/evidence publication is records-only and is not another engine-tested source."
+  ],
+  "retained_files": [
+    {
+      "path": "audit_guidance_retirement.py",
+      "bytes": 22709,
+      "sha256": "d755301c8add22accfab7de3d2e2e0e28db12bbdeeea19c548cb90aefec49a52"
+    },
+    {
+      "path": "cloud_evidence.py",
+      "bytes": 38100,
+      "sha256": "1cb2478797d9373630f9ab5b9424bacd44b4c721cdf72df7a93ae2f40b1c94d9"
+    },
+    {
+      "path": "guidance-retirement-inputs.json",
+      "bytes": 931,
+      "sha256": "a8c8207ef01fec3d49b2e0554ad289c394631a84239f2cbcc914607584ccff28"
+    },
+    {
+      "path": "run115/SHA256SUMS.txt",
+      "bytes": 186,
+      "sha256": "fc0afba9a7e7afbac078cc54216846936038d43789ac7e7839267c3bb37e0d81"
+    },
+    {
+      "path": "run115/bundle-receipt.json",
+      "bytes": 413,
+      "sha256": "cc1cf118c456716ad2a50649f59b471858dd0dda7c6c775805df05ba1f12e06d"
+    },
+    {
+      "path": "run115/cloud-guidance-diagnostic-run115.tar.gz",
+      "bytes": 757453,
+      "sha256": "bf42b207b5fb0e4a88e9eb4e779010c8c8a32b888db5c2e28b2b327b03e0f31d"
+    },
+    {
+      "path": "run115/manifest.json",
+      "bytes": 8566,
+      "sha256": "cdfdfef4a158cae6c2f6459643de0e570fb1cfbeaf0131bc1adc09fed57a97db"
+    },
+    {
+      "path": "run116/SHA256SUMS.txt",
+      "bytes": 186,
+      "sha256": "34c994d18476f2eeb8faedccf2f73f3dac4099b886da76c6a2c81d84d8b9fe8a"
+    },
+    {
+      "path": "run116/bundle-receipt.json",
+      "bytes": 410,
+      "sha256": "3b2dfba65d9b5f114a29ce0efd03d085b60b8c7c1cf4da920293319241bd7ef6"
+    },
+    {
+      "path": "run116/cloud-guidance-diagnostic-run116.tar.gz",
+      "bytes": 66292,
+      "sha256": "ecd205b5f532ce01da896851502de11cd75dd615e683fe6fe074c2608305272b"
+    },
+    {
+      "path": "run116/manifest.json",
+      "bytes": 4651,
+      "sha256": "f93604b409f70fdfd48a4b0a5511546eec2bb837c4495a30fd916dd2045537b4"
+    },
+    {
+      "path": "run117/SHA256SUMS.txt",
+      "bytes": 186,
+      "sha256": "af0668ccb0d34bca8709106376e18dffaa51cc121f9245a051d8631f38041008"
+    },
+    {
+      "path": "run117/bundle-receipt.json",
+      "bytes": 410,
+      "sha256": "c9025e7df0fad89e74bc2c2cb5e29db143a627a8f3dcb36899d6ddc52f9d3973"
+    },
+    {
+      "path": "run117/cloud-guidance-diagnostic-run117.tar.gz",
+      "bytes": 66663,
+      "sha256": "faa89289168b4634dd730861a2cd6962008eaf0e0434794854f9aa906c28f1eb"
+    },
+    {
+      "path": "run117/manifest.json",
+      "bytes": 4651,
+      "sha256": "4d958d940c6257f1099543ee5156ac891e56f6c8a5255f1efdd1ec42ddc91fda"
+    },
+    {
+      "path": "run118/SHA256SUMS.txt",
+      "bytes": 184,
+      "sha256": "09af0a047de7015b05dda04594ca6d6f0562923e2af7099817c75e8873a25578"
+    },
+    {
+      "path": "run118/acceptance-summary.json",
+      "bytes": 27534,
+      "sha256": "ca4ed9464281f3902c32c37e9e4790189e35a638d22b3bc33a22c03b9c713022"
+    },
+    {
+      "path": "run118/bundle-receipt.json",
+      "bytes": 413,
+      "sha256": "79916a6ababd5a9d521bc38f7c646366d579dd368c187e22a5709f9d45091e8e"
+    },
+    {
+      "path": "run118/cloud-guidance-accepted-run118.tar.gz",
+      "bytes": 788934,
+      "sha256": "952d60f91e61352f15160b6870914e9470d43e33f76e75f07e4d995520c51ab6"
+    },
+    {
+      "path": "run118/guidance-retirement-audit.json",
+      "bytes": 23128,
+      "sha256": "61aaf8105de245775f18662f6402a7b31fe8d6e4af363b980c53d2e3ae1bb0ee"
+    },
+    {
+      "path": "run118/manifest.json",
+      "bytes": 11132,
+      "sha256": "95f9c389ddebe837e6eea7bf4094ec2511697847e5ae813cafc21a48f6339a13"
+    }
+  ]
+}

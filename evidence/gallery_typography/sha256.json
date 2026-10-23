@@ -1,0 +1,390 @@
+{
+  "files": [
+    {
+      "path": ".gdignore",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "logs/gallery-typography-final-regression.log",
+      "bytes": 13273,
+      "sha256": "551db43cf6cccb2b682499be7aad7ec9f2b8508c37c004e9edfef0eb06e1ba4d"
+    },
+    {
+      "path": "logs/gallery-typography-game_state-inventory.log",
+      "bytes": 393,
+      "sha256": "5473a1fa6ac1bb00ee3856fe8536f721d319d86154bcd7fc838f358b2ec316f6"
+    },
+    {
+      "path": "logs/gallery-typography-green.log",
+      "bytes": 5909,
+      "sha256": "0b684d23ca2a96cf3d0611bf0cc279957e4eb8b6f88d64f2d346fbab89bab54a"
+    },
+    {
+      "path": "logs/gallery-typography-import.log",
+      "bytes": 33837,
+      "sha256": "3d4f8a281d540f47f4d5b87822de2ae5f11035d972ade6ab66339d5369d288de"
+    },
+    {
+      "path": "logs/gallery-typography-localized-regression.log",
+      "bytes": 13273,
+      "sha256": "a15ec753cd8ebfdb04f13ee20a8a12f41a6df3d5f229d6725c721e2d215c1a32"
+    },
+    {
+      "path": "logs/gallery-typography-native-localized-retry.log",
+      "bytes": 834,
+      "sha256": "16f0f4c499fdd8528045dd20408bea41c656b5885e89153aadf1bf8a50a1cd3a"
+    },
+    {
+      "path": "logs/gallery-typography-native-retry.log",
+      "bytes": 834,
+      "sha256": "0de76003620faad677b3efef9df6d916ae573bcff5f9d6e95a69deb412decd30"
+    },
+    {
+      "path": "logs/gallery-typography-native-title.log",
+      "bytes": 737,
+      "sha256": "6d651ba6c6829d6fac0cdd0690675acbf2872a9e20c1ab4ac1210723946df8b5"
+    },
+    {
+      "path": "logs/gallery-typography-red-parsed.log",
+      "bytes": 14500,
+      "sha256": "193710c5dc3608da79897b36d714d8902c8831a422d3cff1ef7ef0482efa815a"
+    },
+    {
+      "path": "logs/gallery-typography-red.log",
+      "bytes": 3809,
+      "sha256": "08317216435e51856c423c134352056682c026694b119e21e6dc5817fe499be9"
+    },
+    {
+      "path": "logs/gallery-typography-save_manager-inventory.log",
+      "bytes": 393,
+      "sha256": "5473a1fa6ac1bb00ee3856fe8536f721d319d86154bcd7fc838f358b2ec316f6"
+    },
+    {
+      "path": "native-retry/en-100-AfterHours-error.png",
+      "bytes": 5464,
+      "sha256": "8eee7e9033b25e6a36a063547cf50b20c5524d6954da35272ea3121acaef9ecd"
+    },
+    {
+      "path": "native-retry/en-100-AfterHours-retry-success.png",
+      "bytes": 5652,
+      "sha256": "6c52caa78030ca4d8c32d051a20a11106e96fd49fb9777b326b28317d2d8c8cc"
+    },
+    {
+      "path": "native-retry/en-100-Midnight-error.png",
+      "bytes": 5462,
+      "sha256": "eb00d7a9c62f694fd8a4182efd0cb12377ce2946339c1a1d6c0f5febb7c8f3aa"
+    },
+    {
+      "path": "native-retry/en-125-AfterHours-error.png",
+      "bytes": 5536,
+      "sha256": "2ad590bc2f86f49c2e3e7c6a1222c83cfac1cdcf2b1c8a38cb09694400530976"
+    },
+    {
+      "path": "native-retry/en-125-Midnight-error.png",
+      "bytes": 5536,
+      "sha256": "cbd061b2180b8fc50955e2b5a0b73dabdbdba19d8a9ecb55f3a74a861aca7d17"
+    },
+    {
+      "path": "native-retry/en-150-AfterHours-error.png",
+      "bytes": 5627,
+      "sha256": "6fef723dafb8330fc42aeab514abff9e905545fc01338f25d43d9cc6a984ed8b"
+    },
+    {
+      "path": "native-retry/en-150-Midnight-error.png",
+      "bytes": 5626,
+      "sha256": "e503b900b78b62799498c1d0eabedf2fcf0e271dbf2aef6828a060d81b6bc8fd"
+    },
+    {
+      "path": "native-retry/gallery-retry-native.json",
+      "bytes": 18515,
+      "sha256": "accf14a6ba73d51e5586427475a0e6725e0911eb5aa3c8ee24035ce05ec6a21f"
+    },
+    {
+      "path": "native-retry/zh-CN-100-AfterHours-error.png",
+      "bytes": 5500,
+      "sha256": "96aaf651ee955e605363421bb1bdb90f06f0de0f6b9e027dd8d1c5dfcfcc3762"
+    },
+    {
+      "path": "native-retry/zh-CN-100-Midnight-error.png",
+      "bytes": 5501,
+      "sha256": "895b2865cbbdf59cf08578113196821526c06da10581f50ae10fa6c395627b65"
+    },
+    {
+      "path": "native-retry/zh-CN-125-AfterHours-error.png",
+      "bytes": 5633,
+      "sha256": "cfc1ea9e93bf4074a5b4b012c4854132305d4c294a96e4196b5b0e6fd5204208"
+    },
+    {
+      "path": "native-retry/zh-CN-125-Midnight-error.png",
+      "bytes": 5632,
+      "sha256": "e0e1acba32d9cb2cc51bfb416eadd6fa4e20c6caf93aa2d4436222700772d632"
+    },
+    {
+      "path": "native-retry/zh-CN-150-AfterHours-error.png",
+      "bytes": 5790,
+      "sha256": "ae0af59d362de7a5708045bd0006aac6c7df2a3263d66a729a9670b96cdf13e7"
+    },
+    {
+      "path": "native-retry/zh-CN-150-Midnight-error.png",
+      "bytes": 5789,
+      "sha256": "dcded81ad0530bc038abad331b86c60d28d7436d25faa16804292a76a3570763"
+    },
+    {
+      "path": "native-retry/zh-HK-100-AfterHours-error.png",
+      "bytes": 5486,
+      "sha256": "d5b1c36be4ea795d88566ffcc5d6cac7183c710d81259d278ed07ad29bd2c15b"
+    },
+    {
+      "path": "native-retry/zh-HK-100-Midnight-error.png",
+      "bytes": 5482,
+      "sha256": "86bfbdea6ccc48484a50c9693d2e11115d729254a48cc740a073f428cbba645b"
+    },
+    {
+      "path": "native-retry/zh-HK-125-AfterHours-error.png",
+      "bytes": 5670,
+      "sha256": "bf0030e16a2a13abdea897b44323fbe0584d89d4bc051161f3ed56f678baec2e"
+    },
+    {
+      "path": "native-retry/zh-HK-125-Midnight-error.png",
+      "bytes": 5671,
+      "sha256": "62e5a920c0e8e232c56a9049ba57e1dc3931a85c17c47135855c320d8a0a85b1"
+    },
+    {
+      "path": "native-retry/zh-HK-150-AfterHours-error.png",
+      "bytes": 5796,
+      "sha256": "02c30bb1c222c5540c0a3c4bdca3cd0f228bdac48cc1d6a99db54bfa4f0ba2ba"
+    },
+    {
+      "path": "native-retry/zh-HK-150-Midnight-error.png",
+      "bytes": 5795,
+      "sha256": "bda6753d6a61573584b91d672675caee78ecc796be47be1ee2f243f8d2c8e23b"
+    },
+    {
+      "path": "native-retry-historical/en-100-AfterHours-error.png",
+      "bytes": 5464,
+      "sha256": "8eee7e9033b25e6a36a063547cf50b20c5524d6954da35272ea3121acaef9ecd"
+    },
+    {
+      "path": "native-retry-historical/en-100-AfterHours-retry-success.png",
+      "bytes": 5652,
+      "sha256": "6c52caa78030ca4d8c32d051a20a11106e96fd49fb9777b326b28317d2d8c8cc"
+    },
+    {
+      "path": "native-retry-historical/en-100-Midnight-error.png",
+      "bytes": 5462,
+      "sha256": "eb00d7a9c62f694fd8a4182efd0cb12377ce2946339c1a1d6c0f5febb7c8f3aa"
+    },
+    {
+      "path": "native-retry-historical/en-125-AfterHours-error.png",
+      "bytes": 5536,
+      "sha256": "2ad590bc2f86f49c2e3e7c6a1222c83cfac1cdcf2b1c8a38cb09694400530976"
+    },
+    {
+      "path": "native-retry-historical/en-125-Midnight-error.png",
+      "bytes": 5536,
+      "sha256": "cbd061b2180b8fc50955e2b5a0b73dabdbdba19d8a9ecb55f3a74a861aca7d17"
+    },
+    {
+      "path": "native-retry-historical/en-150-AfterHours-error.png",
+      "bytes": 5627,
+      "sha256": "6fef723dafb8330fc42aeab514abff9e905545fc01338f25d43d9cc6a984ed8b"
+    },
+    {
+      "path": "native-retry-historical/en-150-Midnight-error.png",
+      "bytes": 5626,
+      "sha256": "e503b900b78b62799498c1d0eabedf2fcf0e271dbf2aef6828a060d81b6bc8fd"
+    },
+    {
+      "path": "native-retry-historical/gallery-retry-native.json",
+      "bytes": 18515,
+      "sha256": "accf14a6ba73d51e5586427475a0e6725e0911eb5aa3c8ee24035ce05ec6a21f"
+    },
+    {
+      "path": "native-retry-historical/zh-CN-100-AfterHours-error.png",
+      "bytes": 5500,
+      "sha256": "96aaf651ee955e605363421bb1bdb90f06f0de0f6b9e027dd8d1c5dfcfcc3762"
+    },
+    {
+      "path": "native-retry-historical/zh-CN-100-Midnight-error.png",
+      "bytes": 5501,
+      "sha256": "895b2865cbbdf59cf08578113196821526c06da10581f50ae10fa6c395627b65"
+    },
+    {
+      "path": "native-retry-historical/zh-CN-125-AfterHours-error.png",
+      "bytes": 5633,
+      "sha256": "cfc1ea9e93bf4074a5b4b012c4854132305d4c294a96e4196b5b0e6fd5204208"
+    },
+    {
+      "path": "native-retry-historical/zh-CN-125-Midnight-error.png",
+      "bytes": 5632,
+      "sha256": "e0e1acba32d9cb2cc51bfb416eadd6fa4e20c6caf93aa2d4436222700772d632"
+    },
+    {
+      "path": "native-retry-historical/zh-CN-150-AfterHours-error.png",
+      "bytes": 5790,
+      "sha256": "ae0af59d362de7a5708045bd0006aac6c7df2a3263d66a729a9670b96cdf13e7"
+    },
+    {
+      "path": "native-retry-historical/zh-CN-150-Midnight-error.png",
+      "bytes": 5789,
+      "sha256": "dcded81ad0530bc038abad331b86c60d28d7436d25faa16804292a76a3570763"
+    },
+    {
+      "path": "native-retry-historical/zh-HK-100-AfterHours-error.png",
+      "bytes": 5488,
+      "sha256": "042e8179babe1c5cc7e8995770fbb5583e1c77964bbe4b76073b69481a153d76"
+    },
+    {
+      "path": "native-retry-historical/zh-HK-100-Midnight-error.png",
+      "bytes": 5485,
+      "sha256": "5f87eb140190d3cb49b31705a53aa45e1e601baf0872e094e06e166e81c5cdce"
+    },
+    {
+      "path": "native-retry-historical/zh-HK-125-AfterHours-error.png",
+      "bytes": 5660,
+      "sha256": "6ea28fd6b6fbb47825da30634e4a39290b1d7876c26ffa4b14ba592c56de33c1"
+    },
+    {
+      "path": "native-retry-historical/zh-HK-125-Midnight-error.png",
+      "bytes": 5660,
+      "sha256": "80665f637d7a9f0336551fcadefbbdaca2903d2080ae5f3b43a51c950cc2e758"
+    },
+    {
+      "path": "native-retry-historical/zh-HK-150-AfterHours-error.png",
+      "bytes": 5798,
+      "sha256": "a926aabb59149e80c5408d1d8fed91129f9ce101d69824cf633727468a47c741"
+    },
+    {
+      "path": "native-retry-historical/zh-HK-150-Midnight-error.png",
+      "bytes": 5797,
+      "sha256": "74764fb0234ab5eb10f3348189604cff5d8236366cf505d54b9d4d31fe12afb9"
+    },
+    {
+      "path": "native-title/en-100-AfterHours-scrolled.png",
+      "bytes": 9884,
+      "sha256": "e99ff73897d3aef0e3f71bbeb00164f6323ad3e4ed078319c1fbd45a46c56103"
+    },
+    {
+      "path": "native-title/en-100-AfterHours-title-return.png",
+      "bytes": 9902,
+      "sha256": "9beeb546d733a5221cfeb81e301a3743efd59c88c3188beafef7bfe91e558221"
+    },
+    {
+      "path": "native-title/en-100-Midnight-scrolled.png",
+      "bytes": 9892,
+      "sha256": "f452965dfbf116014953ff7eb77dbbcb600e1b795c5d05ebb61da857dd11f718"
+    },
+    {
+      "path": "native-title/en-125-AfterHours-scrolled.png",
+      "bytes": 13032,
+      "sha256": "e761348e2d7546dd9d93b1809ce515bda17ab478a0b4141b79111a21637bcefa"
+    },
+    {
+      "path": "native-title/en-125-Midnight-scrolled.png",
+      "bytes": 13030,
+      "sha256": "6f3dd70bb8fad7a43e0c84850e26f3211651feda1a8babc31dbc2269cdf8abd4"
+    },
+    {
+      "path": "native-title/en-150-AfterHours-scrolled.png",
+      "bytes": 15108,
+      "sha256": "00091586f0d8e9c7f384d8b8167c5102318bf8e3702242b7be3dfe156ea6110f"
+    },
+    {
+      "path": "native-title/en-150-Midnight-scrolled.png",
+      "bytes": 15102,
+      "sha256": "968d15aa3a1b854af5577cb130d9a39281bc6eb4da292ba3aba5a4bf0d8ed605"
+    },
+    {
+      "path": "native-title/gallery-measurements.json",
+      "bytes": 80639,
+      "sha256": "f9f30635bc73da35656f3c6cb5047ee9392cd6f3f208ce4c874da193b0a03d64"
+    },
+    {
+      "path": "native-title/zh_CN-100-AfterHours-scrolled.png",
+      "bytes": 12260,
+      "sha256": "c89f1f7e6a2f4197582ebc6dd7403c59b3ae84790063dc2a26f0da23f75ab16d"
+    },
+    {
+      "path": "native-title/zh_CN-100-Midnight-scrolled.png",
+      "bytes": 12266,
+      "sha256": "fe6eaf1866c0ad17c39cf95ddfe901e0504ac6ac7a173e99d8a4368a40088166"
+    },
+    {
+      "path": "native-title/zh_CN-125-AfterHours-scrolled.png",
+      "bytes": 14907,
+      "sha256": "dc190993574141c32c02305471c987f72ef7f6023768333535a45dcda871a3da"
+    },
+    {
+      "path": "native-title/zh_CN-125-Midnight-scrolled.png",
+      "bytes": 14902,
+      "sha256": "7a2a47bf00779cc85f0d9657bac03332dd2e2e88bfaf76b3979e217776b46520"
+    },
+    {
+      "path": "native-title/zh_CN-150-AfterHours-scrolled.png",
+      "bytes": 18291,
+      "sha256": "8450ab092a213ebc9da70d6e7a0d583988dfdaa3f83cbc85b81140745f345993"
+    },
+    {
+      "path": "native-title/zh_CN-150-Midnight-scrolled.png",
+      "bytes": 18280,
+      "sha256": "65f54bffbafdea90083743ea526a198fa3fdf78cc0147770ef526c954b4e7a7d"
+    },
+    {
+      "path": "native-title/zh_HK-100-AfterHours-scrolled.png",
+      "bytes": 12816,
+      "sha256": "6adced1d3407ff91d224264374bde6b1e77ebc279241af6346edc33231f4727b"
+    },
+    {
+      "path": "native-title/zh_HK-100-Midnight-scrolled.png",
+      "bytes": 12812,
+      "sha256": "9fea489971bf1fde144a63209f06f1e68a4a516d0b545e7ec2b6b712e47b1fda"
+    },
+    {
+      "path": "native-title/zh_HK-125-AfterHours-scrolled.png",
+      "bytes": 15563,
+      "sha256": "2b8debf04af82a8d0a2ec81ebae64088970bea429aba9a078f9540dd25984467"
+    },
+    {
+      "path": "native-title/zh_HK-125-Midnight-scrolled.png",
+      "bytes": 15558,
+      "sha256": "40323da3c381be6b4d73326b56068c40c7401571fac20a9cfef8f7cc66d7abd9"
+    },
+    {
+      "path": "native-title/zh_HK-150-AfterHours-scrolled.png",
+      "bytes": 19329,
+      "sha256": "198d299688fb26d3325a42bf637c933f51248151e88c620a9bfeca5287193f58"
+    },
+    {
+      "path": "native-title/zh_HK-150-Midnight-scrolled.png",
+      "bytes": 19309,
+      "sha256": "9f75520a4df6f866c0f0f548dc30f5fcf6fd03cea22c682f47e49e10b81abe36"
+    },
+    {
+      "path": "pixel-receipt.json",
+      "bytes": 5629,
+      "sha256": "7604051aba6080b8b1e250089bb2c5895325a312ea7e1c6b45b40743ad29b5ca"
+    },
+    {
+      "path": "README.md",
+      "bytes": 5283,
+      "sha256": "ae5f27b8ce0f86650d4293794328639c3042f89bb271c76454f73f680d8f1904"
+    },
+    {
+      "path": "runs.jsonl",
+      "bytes": 13537,
+      "sha256": "cdc822d6617eaa1c4618582ac8f78842279d3f3e5e7d0fb4c5ac1898c546f058"
+    },
+    {
+      "path": "source-sha256.json",
+      "bytes": 8585,
+      "sha256": "f65ac630d8687cf12e0c838a8a4206f0eadeaaf3e96771e749ea55294d673823"
+    },
+    {
+      "path": "verify_pixels.py",
+      "bytes": 3510,
+      "sha256": "84bdf84f93af77e080e3a27dce4db64564e1064c61d8f00341f454cdbe4fcd15"
+    }
+  ],
+  "scope": "Every archived artifact in evidence/gallery_typography except this self-referential manifest."
+}

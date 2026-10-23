@@ -1,0 +1,10 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+ERROR: UiLiteralAudit: {"code":"unclassified_scene_literal","line":87,"ok":false,"path":"res://scenes/desktop/ComputerDesktop.tscn"}
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _fail (res://tools/localization/UiLiteralAudit.gd:224)
+       [1] _init (res://tools/localization/UiLiteralAudit.gd:16)
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character

@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "purpose": "Exact original GitHub artifact ZIP transport; no engine execution or evidence reinterpretation.",
+  "source_artifact": {
+    "repository": "Siuuuers/dwm",
+    "id": 11244640103,
+    "name": "windows-export-37044894986-1",
+    "size_in_bytes": 98850774,
+    "digest": "sha256:e2739823bc11ab4a336072c1a437af8711f54c3dee248a6e388b42c6947d8cc9",
+    "run_id": 37044894986,
+    "workflow_head": "1bc4f6afd759e969f82b9c2134eb178479c19d13"
+  },
+  "original_zip": {
+    "bytes": 98850774,
+    "sha256": "e2739823bc11ab4a336072c1a437af8711f54c3dee248a6e388b42c6947d8cc9",
+    "crc_verified": true,
+    "member_count": 11
+  },
+  "chunk_size_limit": 26214400,
+  "chunk_count": 4,
+  "chunks": [
+    {
+      "index": 1,
+      "file": "original.zip.part001",
+      "offset": 0,
+      "bytes": 26214400,
+      "sha256": "24893db091ab295ea0440949138d822b3353541df7972306fdcff373bc9f1965"
+    },
+    {
+      "index": 2,
+      "file": "original.zip.part002",
+      "offset": 26214400,
+      "bytes": 26214400,
+      "sha256": "38f816e0a25ab38b6168b7296f1f29deb407b398b3a57df5b790b56fa1f3f444"
+    },
+    {
+      "index": 3,
+      "file": "original.zip.part003",
+      "offset": 52428800,
+      "bytes": 26214400,
+      "sha256": "925effa620f0f8d08454069c8cb4152c96aeaa7d8838415ee1a055ac1ad6f316"
+    },
+    {
+      "index": 4,
+      "file": "original.zip.part004",
+      "offset": 78643200,
+      "bytes": 20207574,
+      "sha256": "5985e0a9362acb9983f07a066fa2f6a231c59f97fe0b5395c0b73c65f314ef00"
+    }
+  ],
+  "ordered_chunk_reassembly_matches_original": true,
+  "transport_execution": {
+    "GITHUB_REPOSITORY": "Siuuuers/dwm",
+    "GITHUB_RUN_ID": "37047435988",
+    "GITHUB_RUN_ATTEMPT": "1",
+    "GITHUB_SHA": "35da7aad3d95253fa0530cdb664f1ef8773d78e9",
+    "GITHUB_JOB": "transport-original-export"
+  },
+  "reassembly": "Concatenate raw chunk contents in ascending index, verify each chunk and final original size/SHA256, then verify original ZIP CRC before normal extraction/audit.",
+  "limits": [
+    "Transport success is not original workflow or exported-build acceptance.",
+    "Uploaded chunk artifacts are wrappers; use their extracted raw part files for original ZIP reconstruction."
+  ]
+}

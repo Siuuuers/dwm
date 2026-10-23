@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "observed_at_utc": "2026-09-14T13:59:44.0798805Z",
+  "ok": false,
+  "code": "gallery_empty_accessibility_failed",
+  "failures": [
+    "Exception calling \"ToInt32\" with \"2\" argument(s): \"Unable to cast object of type 'System.ArgumentException' to type 'System.IConvertible'.\""
+  ],
+  "source_log_path": "C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\minesweeper-view-controls\\.godot\\phase2r_logs\\gallery-empty-native-en.log",
+  "target": {
+    "pid": 13952,
+    "repository_root": "C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\minesweeper-view-controls",
+    "script": "res://tests/manual/verify_gallery_empty_accessibility.gd",
+    "expected_window_title": "DWM Gallery Empty 13952",
+    "expected_empty": "No records are filed here yet.",
+    "expected_return": "Return",
+    "command_path": "C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\minesweeper-view-controls\\.godot\\phase2r_tests\\9c92fcf6-a867-4649-a40c-2164aca3de61\\dwm_test_root\\gallery-empty-command.json",
+    "completion_path": "C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\minesweeper-view-controls\\.godot\\phase2r_tests\\9c92fcf6-a867-4649-a40c-2164aca3de61\\dwm_test_root\\gallery-empty-complete.json"
+  },
+  "process": {
+    "process_id": 13952,
+    "name": "Godot_v4.6.3-stable_mono_win64.exe",
+    "command_line": "\"C:\\Program Files\\Godot_v4.6.3-stable_mono_win64\\Godot_v4.6.3-stable_mono_win64.exe\" --headless --path C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\minesweeper-view-controls --log-file C:\\Users\\glori\\Documents\\dwm\\temp-artifacts\\worktrees\\minesweeper-view-controls\\.godot\\phase2r_logs\\gallery-empty-native-en.log --display-driver windows --rendering-method gl_compatibility --rendering-driver opengl3 --accessibility always --position -32000,-32000 -s res://tests/manual/verify_gallery_empty_accessibility.gd -- --phase2r-bootstrap-mode=test_manual --gallery-test-locale=en"
+  },
+  "window": {
+    "name": "DWM (DEBUG) ",
+    "process_id": 13952,
+    "automation_id": "",
+    "native_window_handle": 2231810,
+    "native_title": "DWM Gallery Empty 13952"
+  },
+  "identifiers": {
+    "live_region_changed_event_id": 20024,
+    "live_setting_property_id": 30135,
+    "polite": 1,
+    "off": 0
+  },
+  "phases": {
+    "open": {
+      "projection": null,
+      "matching_events": []
+    },
+    "refresh": {
+      "projection": null,
+      "matching_events": []
+    },
+    "reopen": {
+      "projection": null,
+      "matching_events": []
+    }
+  }
+}

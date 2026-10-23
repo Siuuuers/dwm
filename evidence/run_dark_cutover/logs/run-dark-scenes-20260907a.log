@@ -1,0 +1,32 @@
+Godot Engine v4.6.3.stable.mono.official.7d41c59c4 - https://godotengine.org
+
+OK: res://scenes/menu/MenuScene.tscn
+OK: res://scenes/menu/GalleryScene.tscn
+OK: res://scenes/menu/Setting.tscn
+OK: res://scenes/main/MainGameScene.tscn
+OK: res://scenes/desktop/ComputerDesktop.tscn
+OK: res://scenes/apps/MinesweeperApp.tscn
+OK: res://scenes/apps/ContactListApp.tscn
+OK: res://scenes/apps/ShopApp.tscn
+OK: res://scenes/apps/ScheduleApp.tscn
+OK: res://scenes/apps/SettingsApp.tscn
+OK: res://scenes/apps/LogOutApp.tscn
+OK: res://scenes/apps/BackupApp.tscn
+OK: res://scenes/ending/EndingScene.tscn
+OK: res://scenes/hospital/HospitalScene.tscn
+OK: res://scenes/dating/DatingScene.tscn
+OK: res://scenes/dating/MinesweeperChallengeOverlay.tscn
+OK: res://scenes/shared/BoxMeter.tscn
+OK: res://scenes/shared/StatHud.tscn
+OK: res://scenes/shared/AppWindowBase.tscn
+OK: res://scenes/shared/IconButton.tscn
+OK: res://scenes/shared/ContactBox.tscn
+OK: res://scenes/shared/ChatBubble.tscn
+OK: res://scenes/shared/ShopItemBox.tscn
+OK: res://scenes/shared/ScheduleEntryBox.tscn
+OK: res://scenes/shared/SaveSlotRow.tscn
+OK: res://scenes/shared/DialogueBox.tscn
+SMOKE_LOAD_SCENES: PASS (26/26)
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character
+Unicode parsing error, some characters were replaced with � (U+FFFD): Unexpected NUL character

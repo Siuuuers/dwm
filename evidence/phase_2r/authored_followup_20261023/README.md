@@ -1,0 +1,27 @@
+# Authored follow-up evidence — 23 October 2026
+
+Keep source identities and scopes separate. These records are not release acceptance.
+
+| Run / job | Source | Result and scope |
+| --- | --- | --- |
+| 39888007872 / 120200658624 | a8d9838207db24a7837417eb895a5b1ed656262b | Original cloud run failed its Gallery PNG dimension gate. All135 GUT cases /30968 assertions and11 child exits passed;95 Gallery captures /726 checks passed. Offline verification authenticates109 original992x558 PNGs; Gallery had not explicitly recorded native dimensions. |
+| 39888749357 / 120203109815 | 8783f46c5ad8417757a13755bc64ed6b0e7c84fd | Failed Settings renderer setup.31 interaction tests /3120 assertions passed; renderer captured0 because its app lacked the desktop parent. Keep failure. |
+| 39888749357 / 120203110068 | 8783f46c5ad8417757a13755bc64ed6b0e7c84fd | Windows export/startup passed.136 runtime data hashes,19 packaged members, fresh-profile headless startup. Predates artwork publication fix. |
+| 39890170868 / 120207757923 | 473cdc819a03bf13f9e8cd8855e83aa2893affd8 | Failed protocol harness:22/23 cases,375/377 assertions; stale refusal expectation and repeated immutable fixture configuration. Rendering/inventories skipped. Original archive retained and15 member hashes verified. |
+| 39889234425 / 120204710682 | caaf565a892fba89f6336c967ff69d06bee5cac3 | Corrected Settings renderer passed11 native640x360 captures. Native inventories generated/checked; these outputs precede the later artwork fix. |
+
+Original current qualification artifact is retained as three binary parts under run39888007872. Concatenate in archive-parts.json order, verify SHA25625d61f68dbef89675fd40a5e81f3c15dd5edff14f8ec7b5731fffa451996683b, then unzip. No PNG bytes were changed. Both Settings original artifacts are retained whole. Their ZIP CRC and every retained member hash were verified (46 failed-run members;64 retry members).
+
+Export evidence files are retained exactly as extracted from the verified original artifact12473314956 (outer SHA2569d7e1dddbb1d2f99e11978ec9f6107f7e326d66af02cd779a838ec90e77c4c8e). The110MB original build archive is not duplicated into Git: download it from https://github.com/Siuuuers/dwm/actions/runs/39888749357/artifacts/12473314956 before its recorded22 November2026 expiration. Export inspection.json preserves build/member digests and limits.
+
+Visual inspection: all6 current-title captures and4 story/glyph samples were inspected. Title captures disclosed missing artwork on initial start and fresh Load; passing text/state assertions do not cover that defect. Gallery failed/uncertain real captures and Japanese readable/Korean pixel150% samples were inspected; not all95 Gallery images were visually inspected. All11 corrected Settings captures were inspected. These layout fixtures do not certify full authored content or every language.
+
+The current qualification verifier in run39888007872/inspect.py records an offline corrected size check, not a rewritten successful cloud result. It was executed against the original retained source tree.
+
+## Collected artwork retry and authored timeout
+
+Artwork retry39891351724 passed:25 tests,558 case assertions plus2 setup assertions,8 clean child exits. Both ZIP CRCs and85 member hashes verified. All6 native992x558 screenshots inspected: initial and loaded artwork appears. The two cloud-generated caller inventories were adopted byte-for-byte in e6b3adf657b37bcac07c0d6d219978c8bf34a2c7.
+
+Authored job120203110074 in39888749357 failed by1800-second creator timeout (exit124). It checked290 captions through line.Day2.answer.019;2661 passed assertion records are not a completed-test result. Load/replay never started. Both ZIP CRCs and52 member hashes verified. Original artifacts and inspection summaries are in run39891351724_art and run39888749357_journey.
+
+The next bounded profile is run39895040994, source e6b3adf657b37bcac07c0d6d219978c8bf34a2c7, tree9f007fab92e9f43284c123ab9f79b50ae37a1b3d, controller b1c07d1697c36ec92234e5f2fab778cbdf78ff3b. It measures first32 captions only; consult the continuation handoff for current status. No production optimization is claimed.

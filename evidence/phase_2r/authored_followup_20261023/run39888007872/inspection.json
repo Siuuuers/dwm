@@ -1,0 +1,1263 @@
+{
+  "run_id": 39888007872,
+  "original_workflow_conclusion": "failure",
+  "offline_validation": "pass for retained bounded evidence with corrected framebuffer assumption; does not rewrite cloud conclusion",
+  "source": "a8d9838207db24a7837417eb895a5b1ed656262b",
+  "tree": "0b50482e5881c92511354dead9f1db629a8b7e28",
+  "origin": {
+    "event": "5f97798f6ba915032ca02a83529ca4ccac5eefea",
+    "tree": "0b50482e5881c92511354dead9f1db629a8b7e28",
+    "candidate": "a8d9838207db24a7837417eb895a5b1ed656262b",
+    "run_id": "39888007872",
+    "controller": "c5cfa46b63b4f148d50d47dc25863ece721f771e",
+    "workflow": "5f97798f6ba915032ca02a83529ca4ccac5eefea",
+    "attempt": "1"
+  },
+  "outer_sha256": "25d61f68dbef89675fd40a5e81f3c15dd5edff14f8ec7b5731fffa451996683b",
+  "inner_sha256": "e10ef0e25de2d012c0422990c3f2130db704201712f38efd890ed88da5430a5f",
+  "zip_crc": "pass outer and inner",
+  "retained_members_verified": 735,
+  "source_files_matched_to_pinned_git": 585,
+  "generated_uid_files": [],
+  "reports": [
+    {
+      "suite": "geometry",
+      "tests": 33,
+      "assertions": 25515
+    },
+    {
+      "suite": "fixture-scope",
+      "tests": 18,
+      "assertions": 428
+    },
+    {
+      "suite": "display",
+      "tests": 65,
+      "assertions": 4359
+    },
+    {
+      "suite": "negative",
+      "tests": 13,
+      "assertions": 321
+    },
+    {
+      "suite": "pause-load",
+      "tests": 1,
+      "assertions": 56
+    },
+    {
+      "suite": "pause-quick-load",
+      "tests": 1,
+      "assertions": 70
+    },
+    {
+      "suite": "pause-write-refusal",
+      "tests": 1,
+      "assertions": 37
+    },
+    {
+      "suite": "story-localization",
+      "tests": 1,
+      "assertions": 93
+    },
+    {
+      "suite": "current-title-create",
+      "tests": 1,
+      "assertions": 40
+    },
+    {
+      "suite": "current-title-load",
+      "tests": 1,
+      "assertions": 49
+    }
+  ],
+  "test_count": 135,
+  "assertion_count": 30968,
+  "test_and_render_process_count": 11,
+  "processes": {
+    "geometry": [
+      {
+        "suite_id": "geometry",
+        "argv": [
+          "--headless",
+          "--path",
+          "D:\\a\\dwm\\dwm",
+          "--log-file",
+          "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\geometry.log",
+          "-s",
+          "res://addons/gut/gut_cmdln.gd",
+          "-gconfig=",
+          "-gtest=res://tests/unit/test_witnessed_transport_rail.gd,res://tests/unit/test_minesweeper_view_controls.gd,res://tests/unit/test_gallery_typography.gd,res://tests/unit/test_font_styles.gd",
+          "-gexit",
+          "-glog=2",
+          "-gjunit_xml_file=res://.godot/ci/geometry.xml"
+        ],
+        "exit_code": 0,
+        "log_path": "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\geometry.log",
+        "test_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\e697ce78-9e99-4cda-94fb-e8d1127fc15a",
+        "user_dir": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\e697ce78-9e99-4cda-94fb-e8d1127fc15a\\appdata\\Godot\\app_userdata\\DWM",
+        "started_at_utc": "2026-10-23T02:10:30.9628090Z",
+        "ended_at_utc": "2026-10-23T02:11:17.0086063Z"
+      }
+    ],
+    "fixture-scope": [
+      {
+        "suite_id": "fixture-scope",
+        "argv": [
+          "--headless",
+          "--path",
+          "D:\\a\\dwm\\dwm",
+          "--log-file",
+          "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\fixture-scope.log",
+          "-s",
+          "res://addons/gut/gut_cmdln.gd",
+          "-gconfig=",
+          "-gtest=res://tests/integration/test_application_bootstrap.gd,res://tests/integration/test_cold_run_rollback.gd,res://tests/integration/test_scene_controls_localization.gd",
+          "-gexit",
+          "-glog=2",
+          "-gjunit_xml_file=res://.godot/ci/fixture-scope.xml"
+        ],
+        "exit_code": 0,
+        "log_path": "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\fixture-scope.log",
+        "test_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\8b77994a-06ea-4f33-a4f9-428569805e56",
+        "user_dir": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\8b77994a-06ea-4f33-a4f9-428569805e56\\appdata\\Godot\\app_userdata\\DWM",
+        "started_at_utc": "2026-10-23T02:11:26.7056887Z",
+        "ended_at_utc": "2026-10-23T02:11:52.0167146Z"
+      }
+    ],
+    "display": [
+      {
+        "suite_id": "display",
+        "argv": [
+          "--headless",
+          "--path",
+          "D:\\a\\dwm\\dwm",
+          "--log-file",
+          "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\display.log",
+          "-s",
+          "res://addons/gut/gut_cmdln.gd",
+          "-gconfig=",
+          "-gtest=res://tests/unit/test_witnessed_reading_rail.gd,res://tests/integration/test_witnessed_caption_runtime.gd",
+          "-gexit",
+          "-glog=2",
+          "-gjunit_xml_file=res://.godot/ci/display.xml"
+        ],
+        "exit_code": 0,
+        "log_path": "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\display.log",
+        "test_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\b10fc6ee-2246-420f-a9b1-06c5cb6f7c9f",
+        "user_dir": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\b10fc6ee-2246-420f-a9b1-06c5cb6f7c9f\\appdata\\Godot\\app_userdata\\DWM",
+        "started_at_utc": "2026-10-23T02:12:00.3180339Z",
+        "ended_at_utc": "2026-10-23T02:12:46.1538669Z"
+      }
+    ],
+    "negative": [
+      {
+        "suite_id": "negative",
+        "argv": [
+          "--headless",
+          "--path",
+          "D:\\a\\dwm\\dwm",
+          "--log-file",
+          "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\negative.log",
+          "-s",
+          "res://addons/gut/gut_cmdln.gd",
+          "-gconfig=",
+          "-gtest=res://tests/integration/test_hospital_dating_adapter_negative_contract.gd",
+          "-gexit",
+          "-glog=2",
+          "-gjunit_xml_file=res://.godot/ci/negative.xml"
+        ],
+        "exit_code": 0,
+        "log_path": "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\negative.log",
+        "test_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\a90f4550-2328-46b9-bf72-d5e9e9b30a51",
+        "user_dir": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\a90f4550-2328-46b9-bf72-d5e9e9b30a51\\appdata\\Godot\\app_userdata\\DWM",
+        "started_at_utc": "2026-10-23T02:12:54.8727172Z",
+        "ended_at_utc": "2026-10-23T02:13:04.2986501Z"
+      }
+    ],
+    "pause-load": [
+      {
+        "suite_id": "pause-load",
+        "argv": [
+          "--headless",
+          "--path",
+          "D:\\a\\dwm\\dwm",
+          "--log-file",
+          "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\pause-load.log",
+          "-s",
+          "res://addons/gut/gut_cmdln.gd",
+          "-gconfig=",
+          "-gtest=res://tests/integration/test_scene_pause_load.gd",
+          "-gexit",
+          "-glog=2",
+          "-gjunit_xml_file=res://.godot/ci/pause-load.xml"
+        ],
+        "exit_code": 0,
+        "log_path": "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\pause-load.log",
+        "test_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\786bc929-84ab-4a00-ae75-e290556ddbb8",
+        "user_dir": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\786bc929-84ab-4a00-ae75-e290556ddbb8\\appdata\\Godot\\app_userdata\\DWM",
+        "started_at_utc": "2026-10-23T02:13:12.6652277Z",
+        "ended_at_utc": "2026-10-23T02:13:30.2678202Z"
+      }
+    ],
+    "pause-quick-load": [
+      {
+        "suite_id": "pause-quick-load",
+        "argv": [
+          "--headless",
+          "--path",
+          "D:\\a\\dwm\\dwm",
+          "--log-file",
+          "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\pause-quick-load.log",
+          "-s",
+          "res://addons/gut/gut_cmdln.gd",
+          "-gconfig=",
+          "-gtest=res://tests/integration/test_scene_pause_quick_load.gd",
+          "-gexit",
+          "-glog=2",
+          "-gjunit_xml_file=res://.godot/ci/pause-quick-load.xml"
+        ],
+        "exit_code": 0,
+        "log_path": "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\pause-quick-load.log",
+        "test_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\9b974968-d035-4f0f-b30c-20f3ec2e0666",
+        "user_dir": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\9b974968-d035-4f0f-b30c-20f3ec2e0666\\appdata\\Godot\\app_userdata\\DWM",
+        "started_at_utc": "2026-10-23T02:13:38.5262756Z",
+        "ended_at_utc": "2026-10-23T02:13:58.9294563Z"
+      }
+    ],
+    "pause-write-refusal": [
+      {
+        "suite_id": "pause-write-refusal",
+        "argv": [
+          "--headless",
+          "--path",
+          "D:\\a\\dwm\\dwm",
+          "--log-file",
+          "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\pause-write-refusal.log",
+          "-s",
+          "res://addons/gut/gut_cmdln.gd",
+          "-gconfig=",
+          "-gtest=res://tests/integration/test_scene_pause_write_refusal.gd",
+          "-gexit",
+          "-glog=2",
+          "-gjunit_xml_file=res://.godot/ci/pause-write-refusal.xml"
+        ],
+        "exit_code": 0,
+        "log_path": "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\pause-write-refusal.log",
+        "test_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\e59ec4be-055a-4019-8e66-1d239890b02a",
+        "user_dir": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\e59ec4be-055a-4019-8e66-1d239890b02a\\appdata\\Godot\\app_userdata\\DWM",
+        "started_at_utc": "2026-10-23T02:14:07.0954217Z",
+        "ended_at_utc": "2026-10-23T02:14:21.1754331Z"
+      }
+    ],
+    "story-localization": [
+      {
+        "suite_id": "story-localization",
+        "argv": [
+          "--rendering-method",
+          "gl_compatibility",
+          "--audio-driver",
+          "Dummy",
+          "--path",
+          "D:\\a\\dwm\\dwm",
+          "--log-file",
+          "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\story-localization.log",
+          "-s",
+          "res://addons/gut/gut_cmdln.gd",
+          "-gconfig=",
+          "-gtest=res://tests/integration/test_story_localization.gd",
+          "-gexit",
+          "-glog=2",
+          "-gjunit_xml_file=res://.godot/ci/story-localization.xml"
+        ],
+        "exit_code": 0,
+        "log_path": "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\story-localization.log",
+        "test_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\e87f055b-1ecc-4500-a219-9703f2096f97",
+        "user_dir": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\e87f055b-1ecc-4500-a219-9703f2096f97\\appdata\\Godot\\app_userdata\\DWM",
+        "started_at_utc": "2026-10-23T02:14:29.4559749Z",
+        "ended_at_utc": "2026-10-23T02:17:08.6912823Z"
+      }
+    ],
+    "current-title": [
+      {
+        "suite_id": "current-title",
+        "argv": [
+          "--rendering-method",
+          "gl_compatibility",
+          "--audio-driver",
+          "Dummy",
+          "--path",
+          "D:\\a\\dwm\\dwm",
+          "--log-file",
+          "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\current-title-create.log",
+          "-s",
+          "res://addons/gut/gut_cmdln.gd",
+          "-gconfig=",
+          "-gtest=res://tests/integration/test_current_title_scene_create.gd",
+          "-gexit",
+          "-glog=2",
+          "-gjunit_xml_file=res://.godot/ci/current-title-create.xml"
+        ],
+        "exit_code": 0,
+        "log_path": "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\current-title-create.log",
+        "test_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\ef5af1ba-6afe-4f82-a6fc-ffb4c0b6cdfd",
+        "user_dir": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\ef5af1ba-6afe-4f82-a6fc-ffb4c0b6cdfd\\appdata\\Godot\\app_userdata\\DWM",
+        "started_at_utc": "2026-10-23T02:17:16.8060225Z",
+        "ended_at_utc": "2026-10-23T02:18:57.6832060Z"
+      },
+      {
+        "suite_id": "current-title",
+        "argv": [
+          "--rendering-method",
+          "gl_compatibility",
+          "--audio-driver",
+          "Dummy",
+          "--path",
+          "D:\\a\\dwm\\dwm",
+          "--log-file",
+          "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\current-title-load.log",
+          "-s",
+          "res://addons/gut/gut_cmdln.gd",
+          "-gconfig=",
+          "-gtest=res://tests/integration/test_current_title_scene_load.gd",
+          "-gexit",
+          "-glog=2",
+          "-gjunit_xml_file=res://.godot/ci/current-title-load.xml"
+        ],
+        "exit_code": 0,
+        "log_path": "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\current-title-load.log",
+        "test_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\ef5af1ba-6afe-4f82-a6fc-ffb4c0b6cdfd",
+        "user_dir": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\ef5af1ba-6afe-4f82-a6fc-ffb4c0b6cdfd\\appdata\\Godot\\app_userdata\\DWM",
+        "started_at_utc": "2026-10-23T02:18:57.8171134Z",
+        "ended_at_utc": "2026-10-23T02:20:40.8058390Z"
+      }
+    ],
+    "gallery-render": [
+      {
+        "suite_id": "gallery-render",
+        "argv": [
+          "--rendering-method",
+          "gl_compatibility",
+          "--audio-driver",
+          "Dummy",
+          "--path",
+          "D:\\a\\dwm\\dwm",
+          "--log-file",
+          "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\gallery-render.log",
+          "--script",
+          "res://tests/ui/render_gallery_caption_collection.gd",
+          "--",
+          "--phase2r-bootstrap-mode=final"
+        ],
+        "exit_code": 0,
+        "log_path": "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\gallery-render.log",
+        "test_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\4cc49473-ca27-43e1-927a-4b0a35b69bb3",
+        "user_dir": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\4cc49473-ca27-43e1-927a-4b0a35b69bb3\\appdata\\Godot\\app_userdata\\DWM",
+        "started_at_utc": "2026-10-23T02:20:48.8510793Z",
+        "ended_at_utc": "2026-10-23T02:21:41.0545705Z"
+      }
+    ]
+  },
+  "import_exit_code": 0,
+  "gallery_captures": 95,
+  "gallery_checks": 726,
+  "png_count": 109,
+  "png_dimensions_census": {
+    "992x558": 109
+  },
+  "pngs": [
+    {
+      "path": "ci/computer-story-zh_CN.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 860212
+    },
+    {
+      "path": "ci/computer-glyphs-ko.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 618299
+    },
+    {
+      "path": "ci/computer-current-title-save.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 25976
+    },
+    {
+      "path": "ci/computer-glyphs-zh_CN.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 621182
+    },
+    {
+      "path": "ci/computer-current-title-day1.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 25681
+    },
+    {
+      "path": "ci/computer-current-title-menu.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 11419
+    },
+    {
+      "path": "ci/computer-current-title-loaded-computer.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 23128
+    },
+    {
+      "path": "ci/computer-glyphs-ja.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 627126
+    },
+    {
+      "path": "ci/computer-story-ja.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 865930
+    },
+    {
+      "path": "ci/computer-story-zh_HK.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 857837
+    },
+    {
+      "path": "ci/computer-glyphs-zh_HK.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 619410
+    },
+    {
+      "path": "ci/computer-story-ko.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 858007
+    },
+    {
+      "path": "ci/computer-current-title-loaded-day1.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 25814
+    },
+    {
+      "path": "ci/computer-current-title-computer.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 22969
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-pixel-ko-150-uncertain.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 19943
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-readable-zh_CN-125-added.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 136065
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-pixel-zh_CN-100-uncertain.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 24421
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-readable-en-125-uncertain.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 129016
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-pixel-ko-125-added.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 22651
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-readable-ko-125-failed.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 130356
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-pixel-zh_CN-125-failed.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 26110
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-readable-ja-100-uncertain.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 126608
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-readable-ja-150-uncertain.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 92983
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-pixel-zh_HK-150-uncertain.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 25231
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-pixel-en-100-added.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 24685
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-pixel-zh_CN-150-added.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 23962
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-pixel-en-100-uncertain.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 24732
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-readable-ko-100-added.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 119017
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-readable-zh_HK-150-uncertain.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 91727
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-readable-en-125-failed.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 128350
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-pixel-en-125-failed.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 24863
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-pixel-ja-150-uncertain.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 23834
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-readable-ja-150-added.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 92434
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-pixel-en-150-added.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 22970
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-pixel-en-150-uncertain.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 23145
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-pixel-ko-100-added.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 22530
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-readable-zh_CN-125-failed.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 134768
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-pixel-zh_CN-150-uncertain.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 23915
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-readable-zh_HK-150-added.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 91003
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-pixel-en-150-failed.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 22918
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-pixel-ko-100-uncertain.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 22578
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-pixel-zh_HK-100-failed.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 24925
+    },
+    {
+      "path": "ci/gallery-caption-collection/second-visible-not-collectable.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 575944
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-readable-zh_CN-150-uncertain.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 88201
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-readable-ko-100-failed.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 119170
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-pixel-zh_CN-125-added.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 26236
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-pixel-zh_CN-100-added.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 24484
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-pixel-ko-150-added.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 19834
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-readable-zh_CN-150-added.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 88537
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-readable-zh_HK-125-uncertain.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 137653
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-pixel-ja-100-uncertain.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 24772
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-readable-zh_HK-100-added.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 124823
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-pixel-zh_HK-100-added.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 24972
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-readable-zh_CN-100-failed.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 122761
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-pixel-en-125-added.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 24907
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-pixel-zh_CN-125-uncertain.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 26188
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-readable-zh_HK-150-failed.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 90417
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-pixel-ko-150-failed.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 19855
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-readable-ja-125-uncertain.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 140107
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-pixel-ja-125-added.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 25792
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-readable-ja-100-failed.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 126189
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-readable-en-125-added.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 128585
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-readable-ja-125-failed.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 139698
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-pixel-zh_HK-125-added.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 26853
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-readable-en-100-added.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 105130
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-pixel-ko-100-failed.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 22530
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-readable-en-150-failed.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 108632
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-readable-ko-150-added.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 80502
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-readable-ko-150-failed.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 80745
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-pixel-zh_CN-150-failed.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 23819
+    },
+    {
+      "path": "ci/gallery-caption-collection/restarted-visible.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 569457
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-readable-zh_HK-100-failed.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 124437
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-pixel-zh_CN-100-failed.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 24376
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-pixel-zh_HK-125-failed.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 26784
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-readable-en-150-uncertain.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 110791
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-readable-zh_CN-150-failed.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 87101
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-pixel-ja-100-failed.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 24759
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-readable-zh_CN-100-added.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 123614
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-pixel-ko-125-uncertain.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 22725
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-readable-en-150-added.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 109159
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-pixel-en-100-failed.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 24652
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-readable-zh_HK-100-uncertain.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 125242
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-pixel-ja-150-added.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 23824
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-pixel-ja-125-failed.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 25731
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-readable-ko-150-uncertain.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 81332
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-pixel-ja-150-failed.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 23725
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-pixel-zh_HK-150-added.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 25185
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-pixel-ko-125-failed.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 22668
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-readable-ja-125-added.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 139815
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-readable-ko-125-added.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 130207
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-pixel-zh_HK-125-uncertain.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 26882
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-readable-zh_HK-125-added.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 137253
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-pixel-ja-125-uncertain.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 25773
+    },
+    {
+      "path": "ci/gallery-caption-collection/failed-real.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 24745
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-pixel-zh_HK-100-uncertain.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 25000
+    },
+    {
+      "path": "ci/gallery-caption-collection/uncertain-real.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 24819
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-readable-zh_CN-100-uncertain.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 123457
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-readable-ja-150-failed.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 91902
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-pixel-zh_HK-150-failed.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 25128
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-pixel-ja-100-added.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 24808
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-readable-ko-125-uncertain.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 130848
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-pixel-en-125-uncertain.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 25058
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-readable-zh_HK-125-failed.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 136757
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-readable-en-100-failed.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 104851
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-readable-ja-100-added.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 126304
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-readable-ko-100-uncertain.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 119689
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-readable-zh_CN-125-uncertain.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 135653
+    },
+    {
+      "path": "ci/gallery-caption-collection/status-readable-en-100-uncertain.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 104928
+    },
+    {
+      "path": "ci/gallery-caption-collection/first-visible.png",
+      "dimensions": [
+        992,
+        558
+      ],
+      "bytes": 569457
+    }
+  ],
+  "title_create_process": 4788,
+  "title_load_process": 3040,
+  "title_native_window": [
+    992,
+    558
+  ],
+  "title_logical_viewport": [
+    1280.0,
+    720.0
+  ],
+  "known_gate_defect": "Gallery check_png default assumed 1280x720. All 95 original Gallery PNGs are 992x558, as are 6 title and8 story/glyph captures. Gallery script saves root.get_texture().get_image() directly, with no resize; it records logical control geometry but not native window dimensions.",
+  "limitations": [
+    "Original cloud run remains failed; offline corrected evidence validation is distinct.",
+    "Gallery native framebuffer size comes from original PNG IHDR, not an explicit Gallery window-size measurement.",
+    "Title proofs independently record native992x558/logical1280x720, but belong to different processes.",
+    "No screenshots altered; visual review is separate and pending parent.",
+    "Only135 current bounded cases; not full canonical integration or all routes.",
+    "Gallery replay is explicitly fixture-only, not authored-production content admission."
+  ],
+  "omitted_asset_hashes_verified_to_pinned_git": 4,
+  "missing_retained_sources": []
+}
