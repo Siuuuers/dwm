@@ -17,7 +17,7 @@ class RestoreFixture extends "res://autoload/SaveManager.gd":
 	var final_record_fallback := false
 	var restore_prepares := 0
 	var restore_commits := 0
-	func _prepare_restore_document(_locator: Dictionary, document: Dictionary, _migration: Dictionary) -> Dictionary:
+	func _prepare_restore_document(_locator: Dictionary, document: Dictionary, _migration: Dictionary, _scene_seed_material: Dictionary = {}) -> Dictionary:
 		restore_prepares += 1
 		if restore_unavailable:
 			return {"ok": false, "code": restore_failure_code}
@@ -52,7 +52,7 @@ class QuickWriteProbe extends "res://tests/support/ManualSaveWitnessPort.gd":
 		if result.get("ok", false) and result.get("value") is Dictionary and result.value.is_empty():
 			compact_successes += 1
 		return result
-	func _prepare_restore_document(_locator: Dictionary, document: Dictionary, _migration: Dictionary) -> Dictionary:
+	func _prepare_restore_document(_locator: Dictionary, document: Dictionary, _migration: Dictionary, _scene_seed_material: Dictionary = {}) -> Dictionary:
 		var bundle: Dictionary = document["current_snapshot"].duplicate(true)
 		return {"ok": true, "value": {"prepared": {
 			"bundle": bundle, "checkpoint_id": bundle["snapshot"]["checkpoint_id"]}}}
