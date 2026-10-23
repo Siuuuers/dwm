@@ -1,5 +1,9 @@
 extends "res://addons/gut/test.gd"
 
+# These synthetic catalogues exercise retained reading contracts, independently
+# of the shipped scene registry. Restore the exact outer graph after each case.
+var _retained_reading_scope := preload("res://tests/support/SceneValidationScope.gd").new()
+
 ## Authored noncanonical selector programmes cross the actual semantic ledger,
 ## Bridge acknowledgement and durable Profile transaction. Only native playback
 ## is replaced; this does not claim rendered or production-catalogue acceptance.
@@ -62,6 +66,7 @@ var _files: RetryableFiles
 var _document: Dictionary
 
 func before_each() -> void:
+	_retained_reading_scope.install(true)
 	var wrapper := OS.get_environment("DWM_TEST_ROOT").strip_edges()
 	assert_false(wrapper.is_empty(), "cloud wrapper owns the isolated storage root")
 	_files = RetryableFiles.new()
@@ -370,3 +375,7 @@ func test_reveal_callback_cannot_reclassify_the_selected_unseen_variant_as_previ
 	assert_false(result.value.advance)
 	assert_false(result.receipt.was_visited_before_reveal)
 	assert_eq(_native.advances, 0)
+
+
+func after_each() -> void:
+	_retained_reading_scope.restore()

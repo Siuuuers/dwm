@@ -1,4 +1,7 @@
 extends GutTest
+
+# Isolate retained semantic fixture dependencies from the authored startup registry.
+var _retained_scope := preload("res://tests/support/SceneValidationScope.gd").new()
 ## Manual checkpoint admission/composition: the native suspension/resume contract remains
 ## covered by test_narrative_pause_frontier. This fixture never writes a player record.
 const CONTROLLER := preload("res://scripts/application/lifecycle/ProductionPauseController.gd")
@@ -161,6 +164,7 @@ var _prior_scene: Node
 var _prior_tree_paused := false
 
 func before_each() -> void:
+	_retained_scope.install(true)
 	_prior_scene = get_tree().current_scene
 	_prior_tree_paused = get_tree().paused
 	_provider_calls = 0
@@ -193,6 +197,8 @@ func after_each() -> void:
 	_controller.free()
 	_caption.free()
 	_native.free()
+	_retained_scope.restore()
+
 
 func _capture() -> Dictionary:
 	_provider_calls += 1

@@ -1,4 +1,7 @@
 extends GutTest
+
+# Retained semantic fixtures exercise current playback owners, not shipped story startup.
+var _scene_validation_scope := preload("res://tests/support/SceneValidationScope.gd").new()
 const BRIDGE := preload("res://autoload/DialogicBridge.gd")
 const PORT := preload("res://scripts/application/ending/DialogicEndingPlaybackPort.gd")
 const REPLAY := preload("res://scripts/application/ending/GalleryReplayOwner.gd")
@@ -46,6 +49,7 @@ var runtime: Runtime
 var replay: RefCounted
 
 func before_each() -> void:
+	_scene_validation_scope.install(true)
 	profile = preload("res://autoload/ProfileManager.gd").new()
 	add_child_autofree(profile)
 	var storage := preload("res://scripts/infrastructure/storage/JsonFileStorage.gd").new("replay-memory", preload("res://tests/support/FakeFileOps.gd").new())
@@ -56,6 +60,10 @@ func before_each() -> void:
 	assert_true(bridge.initialize(null,runtime).ok)
 	replay = REPLAY.new()
 	assert_true(replay.configure(profile,bridge).ok)
+
+func after_each() -> void:
+	_scene_validation_scope.restore()
+
 
 func _alone(form: String = "alone_normal") -> Dictionary:
 	return {"entry_id":"ending.alone.normal" if form == "alone_normal" else "ending.alone.dark_mode",

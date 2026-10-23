@@ -1,5 +1,8 @@
 extends "res://addons/gut/test.gd"
 
+# Isolate retained semantic fixture dependencies from the authored startup registry.
+var _retained_scope := preload("res://tests/support/SceneValidationScope.gd").new()
+
 const BRIDGE := preload("res://autoload/DialogicBridge.gd")
 const HANDLE := {
 	"generation": 1,
@@ -69,6 +72,7 @@ var _runtime: RuntimeDouble
 
 
 func before_each() -> void:
+	_retained_scope.install(true)
 	_runtime = RuntimeDouble.new()
 	_bridge = BRIDGE.new()
 	add_child_autofree(_bridge)
@@ -323,3 +327,6 @@ func test_ordinary_retirement_releases_only_matching_pending_owner_without_failu
 	bridge.timeline_finished.emit(TIMELINE_ID, {"outcome": "completed"})
 	assert_signal_emit_count(narrative, "physical_completion_ready", 1)
 	assert_signal_not_emitted(narrative, "physical_completion_failed")
+
+func after_each() -> void:
+	_retained_scope.restore()

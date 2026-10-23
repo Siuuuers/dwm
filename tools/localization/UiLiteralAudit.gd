@@ -80,6 +80,9 @@ const SCRIPT_LOCALIZATION_HELPERS := {
 }
 
 const SCRIPT_LITERAL_OWNERS := {
+	'res://scripts/ui/SceneHost.gd|text|preload("res://scripts/localization/StoryLocalization.gd").text(locale, key, option.text)': {"disposition": "localized_call", "key": "dynamic", "reason": "story choice catalogue lookup with its registered source fallback"},
+	'res://scripts/ui/witnessed/WitnessedCaptionLayer.gd|text|preload("res://scripts/localization/StoryLocalization.gd").display_markup(retained.text)': {"disposition": "runtime_data", "key": "", "reason": "display markup for already projected story captions; resource path is not display copy"},
+	'res://scripts/ui/witnessed/WitnessedHistory.gd|text|preload("res://scripts/localization/StoryLocalization.gd").display_markup(_captions[index])': {"disposition": "runtime_data", "key": "", "reason": "display markup for retained story history; resource path is not display copy"},
 	"res://scripts/ui/ComputerDesktop.gd|text|\"New message\"": {"disposition": "localized_call",
 		"key": "desktop.notification.new_message_title", "reason": "English fallback for the adjacent catalog lookup",
 		"marker": 'notification_title.text = _localization.t("desktop.notification.new_message_title")'},

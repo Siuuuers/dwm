@@ -1,4 +1,7 @@
 extends GutTest
+
+# Retained semantic fixtures exercise current playback owners, not shipped story startup.
+var _scene_validation_scope := preload("res://tests/support/SceneValidationScope.gd").new()
 ## Transient speech presentation proof. These fixtures model Dialogic's native Text signals and
 ## current_state_info without creating a visited-line owner or a durable narrative receipt.
 
@@ -52,6 +55,7 @@ var _original_localization_index := 0
 
 
 func before_each() -> void:
+	_scene_validation_scope.install(true)
 	_original_runtime = get_node("/root/Dialogic")
 	_original_runtime_index = _original_runtime.get_index()
 	get_tree().root.remove_child(_original_runtime)
@@ -79,6 +83,7 @@ func after_each() -> void:
 	get_tree().root.move_child(_original_runtime, _original_runtime_index)
 	get_tree().root.add_child(_original_localization)
 	get_tree().root.move_child(_original_localization, _original_localization_index)
+	_scene_validation_scope.restore()
 
 
 func _has_projection_api() -> bool:

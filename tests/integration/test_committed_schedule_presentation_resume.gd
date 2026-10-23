@@ -1,5 +1,8 @@
 extends "res://addons/gut/test.gd"
 
+# Isolate retained semantic fixture dependencies from the authored startup registry.
+var _retained_scope := preload("res://tests/support/SceneValidationScope.gd").new()
+
 const TEMPORARY_STORAGE := preload("res://tests/support/TemporaryStorage.gd")
 
 # Plan 01 Task 8 Step 8.2: RESUME across every presentation crash cut (dwm-p2r.18).
@@ -76,6 +79,7 @@ var _commands: Dictionary = {}
 
 
 func before_each() -> void:
+	_retained_scope.install(true)
 	_commands = {}
 	_root = ""
 	_root_counter += 1
@@ -1008,3 +1012,6 @@ func _crash_from_document(document: Dictionary) -> bool:
 	var restored: Dictionary = _game_state._apply_run_snapshot_silent(snapshot)
 	assert_true(restored.get("ok", false), JSON.stringify(restored))
 	return restored.get("ok", false)
+
+func after_each() -> void:
+	_retained_scope.restore()

@@ -50,6 +50,7 @@ class FailingPresentationRoot extends Node:
 
 var _shared_root := ""
 var _root_counter := 0
+var _scene_validation_scope := preload("res://tests/support/SceneValidationScope.gd").new()
 
 
 func _isolated_root() -> String:
@@ -60,6 +61,7 @@ func _isolated_root() -> String:
 
 
 func before_each() -> void:
+	_scene_validation_scope.install()
 	_shared_root = ""
 	assert_true(SHOP_REGISTRY.initialize().get("ok", false))
 	var result: Dictionary = TEMPORARY_STORAGE.create("desktop-crash-recovery-shared")
@@ -69,10 +71,16 @@ func before_each() -> void:
 	_shared_root = str(result["value"])
 
 
+func after_each() -> void:
+	_scene_validation_scope.restore()
+
+
 ## Builds one full "process" (Bootstrap + GameState + SaveManager) over `storage_root`, exactly the
 ## same graph _configure_desktop_production_graph() builds, so a second call over the SAME root
 ## models a fresh process reopening the same on-disk state after a crash.
 func _boot_process(storage_root: String) -> Dictionary:
+	# Each graph models a new process; retain registration, not the prior graph's owners.
+	_scene_validation_scope.clear_validation_bindings()
 	var storage: RefCounted = JSON_STORAGE.new(storage_root)
 	var root_store: RefCounted = ROOT_STORE.new()
 	assert_true(root_store.configure(storage, NAMESPACE_SOURCE.new()).get("ok", false))
@@ -145,7 +153,8 @@ func _boot_process(storage_root: String) -> Dictionary:
 
 	assert_true(bootstrap.call(&"_configure_causal_day_advance_identity", coordinator).get("ok", false))
 	assert_true(bootstrap.call(&"_construct_schedule_foundation", game_state, state_port).get("ok", false))
-	assert_true(bootstrap.call(&"_configure_restore_participants").get("ok", false))
+	var restore_result: Dictionary = bootstrap.call(&"_configure_restore_participants")
+	assert_true(restore_result.get("ok", false), "restore participants: " + str(restore_result))
 	var graph_result: Dictionary = bootstrap.call(&"_configure_desktop_production_graph")
 	assert_true(graph_result.get("ok", false), "desktop production graph: " + str(graph_result))
 

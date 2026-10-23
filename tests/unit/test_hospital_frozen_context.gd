@@ -1,5 +1,8 @@
 extends "res://addons/gut/test.gd"
 
+# Isolate retained semantic fixture dependencies from the authored startup registry.
+var _retained_scope := preload("res://tests/support/SceneValidationScope.gd").new()
+
 const FROZEN := preload("res://scripts/narrative/HospitalFrozenContext.gd")
 const CONTEXT := preload("res://scripts/narrative/FrozenPresentationContext.gd")
 const CONTACTS := preload("res://scripts/domain/contact/ContactInvitationState.gd")
@@ -300,3 +303,9 @@ func test_game_owner_hospital_request_is_bound_durable_detached_and_idempotent()
 	game.route_context.hospital_frozen_contexts_v1.requests[root.token].resolution_issuer_receipt = {}
 	assert_eq(game.read_hospital_presentation_request(root.token).get("code"), &"hospital_frozen_request_mismatch")
 	assert_eq(writer.snapshots.size(), 1)
+
+func before_each() -> void:
+	_retained_scope.install(true)
+
+func after_each() -> void:
+	_retained_scope.restore()

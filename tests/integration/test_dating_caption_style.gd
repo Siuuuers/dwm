@@ -1,4 +1,7 @@
 extends GutTest
+
+# Retained semantic fixtures exercise current playback owners, not shipped story startup.
+var _scene_validation_scope := preload("res://tests/support/SceneValidationScope.gd").new()
 ## Real Bridge/Styles selection, with optional artwork deliberately unavailable.
 ## Authored dating masters currently contain return stubs, so named prose uses a fixture.
 
@@ -56,6 +59,7 @@ var _replaced_timeline_path := ""
 var _replaced_timeline_source: PackedByteArray
 
 func before_each() -> void:
+	_scene_validation_scope.install(true)
 	_root_size = get_tree().root.size
 	_root_content_size = get_tree().root.content_scale_size
 	_mouse_from_touch = Input.emulate_mouse_from_touch
@@ -141,6 +145,8 @@ func after_each() -> void:
 	DialogicStylesUtil.style_directory = _style_directory
 	ART._placements = _art
 	ART._placements_loaded = _art_loaded
+	_scene_validation_scope.restore()
+
 
 func _context() -> Dictionary:
 	return {"expected_stage": "dating_pre", "playback_id": "caption-fixture",

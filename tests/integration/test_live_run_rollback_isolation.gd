@@ -100,7 +100,7 @@ func _assert_all_isolated(observation: Dictionary, isolated: bool, label: String
 
 func test_frozen_live_run_control_reproduces_capture_and_rollback_aliases() -> void:
 	# The companion restore-isolation witness checks these exact frozen method
-	# hashes, reinstates the exact retired source, and reverses all five isolation edits.
+	# hashes and verifies that the controls inherit the current GameState owner.
 	for owner_to_backup: bool in [false, true]:
 		_assert_all_isolated(_capture_probe(owner_to_backup, true), false, "historical capture")
 		for wrapped: bool in [false, true]:

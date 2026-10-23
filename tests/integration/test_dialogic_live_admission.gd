@@ -1,4 +1,7 @@
 extends GutTest
+
+# Retained semantic fixtures exercise current playback owners, not shipped story startup.
+var _scene_validation_scope := preload("res://tests/support/SceneValidationScope.gd").new()
 ## Real installed Dialogic, with the application's runtime and layout restored after each test.
 
 const BRIDGE := preload("res://autoload/DialogicBridge.gd")
@@ -24,6 +27,7 @@ var _finished: Array[Dictionary] = []
 var _original_contacts: Dictionary = {}
 
 func before_each() -> void:
+	_scene_validation_scope.install(true)
 	_native_starts = 0
 	_native_ends = 0
 	_finished.clear()
@@ -86,6 +90,8 @@ func after_each() -> void:
 	DialogicStylesUtil.style_directory = _style_directory
 	GameState.contacts = _original_contacts.duplicate(true)
 	_original_layout_parent = null
+	_scene_validation_scope.restore()
+
 
 func test_runtime_failure_cancels_pending_hospital_without_a_natural_completion() -> void:
 	var owner: RefCounted = PHYSICAL_OWNER.new()

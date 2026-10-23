@@ -48,9 +48,9 @@ const BACKUP_THEME := preload("res://scripts/ui/backup/BackupTheme.gd")
 
 class BackupSpy extends "res://scripts/ui/BackupApp.gd":
 	var calendar_calls := 0
-	func configure_backup(port: Object, localization: Object = null, profile: Object = null, palette: StringName = &"after_hours", day: int = 1) -> Dictionary:
+	func configure_backup(port: Object, localization: Object = null, profile: Object = null, palette: StringName = &"after_hours", day: int = 1, refresh_on_configure: bool = true) -> Dictionary:
 		calendar_calls += 1
-		return super.configure_backup(port, localization, profile, palette, day)
+		return super.configure_backup(port, localization, profile, palette, day, refresh_on_configure)
 	func configure_run_presentation(palette: StringName, day: int) -> Dictionary:
 		calendar_calls += 1
 		return super.configure_run_presentation(palette, day)

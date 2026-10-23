@@ -1,4 +1,7 @@
 extends "res://addons/gut/test.gd"
+
+# Retained semantic fixtures exercise current playback owners, not shipped story startup.
+var _scene_validation_scope := preload("res://tests/support/SceneValidationScope.gd").new()
 # Held fast-forward through DialogicBridge (dwm-p2r.8, Plan-05 Task 4 Steps 4.2/4.3).
 # Repeated request_skip_step() must reveal each line, mark it globally visited BEFORE deciding,
 # and stop before every boundary WITHOUT consuming it.
@@ -100,8 +103,13 @@ class _FakeMutationGate extends Node:
 
 
 func before_each() -> void:
+	_scene_validation_scope.install(true)
 	_bridge = BRIDGE.new()
 	add_child_autofree(_bridge)
+
+
+func after_each() -> void:
+	_scene_validation_scope.restore()
 
 
 func _active_entry_fixture(token: String = "skip-fixture-token") -> Dictionary:

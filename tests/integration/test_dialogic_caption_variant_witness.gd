@@ -1,5 +1,9 @@
 extends "res://addons/gut/test.gd"
 
+# These synthetic catalogues exercise retained reading contracts, independently
+# of the shipped scene registry. Restore the exact outer graph after each case.
+var _retained_reading_scope := preload("res://tests/support/SceneValidationScope.gd").new()
+
 ## Real registered Solo occurrences and Profile transactions, with only the native
 ## playhead replaced. Physical mounted/fresh-process evidence lives in the journey.
 const BRIDGE := preload("res://autoload/DialogicBridge.gd")
@@ -57,6 +61,7 @@ var _files: RetryableFiles
 var _document: Dictionary
 
 func before_each() -> void:
+	_retained_reading_scope.install(true)
 	var wrapper := OS.get_environment("DWM_TEST_ROOT").strip_edges()
 	assert_false(wrapper.is_empty(), "cloud wrapper owns the isolated storage root")
 	_files = RetryableFiles.new()
@@ -254,3 +259,7 @@ func test_reveal_callback_cannot_turn_a_fresh_exact_variant_into_previously_seen
 	assert_false(result.value.advance)
 	assert_false(result.receipt.was_visited_before_reveal)
 	assert_eq(_native.advances, 0)
+
+
+func after_each() -> void:
+	_retained_reading_scope.restore()

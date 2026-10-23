@@ -1,4 +1,7 @@
 extends GutTest
+
+# Retained semantic fixtures exercise current playback owners, not shipped story startup.
+var _scene_validation_scope := preload("res://tests/support/SceneValidationScope.gd").new()
 ## Real installed Wait, Bridge, adapter and mounted layout. Only the locator and
 ## completion recorder are test seams; durations are explicitly noncanonical.
 ## Adapter Pause tests the native timer, not production Pause admission/UI.
@@ -47,6 +50,7 @@ var _native_text: Array[Dictionary] = []
 var _observed_wait_start_msec := 0
 
 func before_each() -> void:
+	_scene_validation_scope.install(true)
 	FixtureCatalog.fixture_path = FIXTURE
 	FixtureCatalog.fixture_label = "timed_hold"
 	_native_starts = 0
@@ -136,6 +140,8 @@ func after_each() -> void:
 	_original_layout_parent = null
 	assert_eq(get_node("/root/ProfileManager").get_profile_snapshot(), _profile_before,
 		"native hold tests never mutate the real Profile")
+	_scene_validation_scope.restore()
+
 
 func _mount_fixture() -> bool:
 	var layout: Node = _runtime.Styles.load_style(STYLE, _viewport)

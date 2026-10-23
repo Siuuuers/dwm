@@ -9,7 +9,7 @@ coordinator owns workflow changes and the combined cloud campaign.
 | Job or step in `windows-tests.yml` | Disposition and reason |
 | --- | --- |
 | `public-surfaces`, `focused-tests`, `windows-export` | Keep current. Preserve the six scene suites and existing owner/contract checks. |
-| `checkpoint-performance`, `seven-day-history-producer`, `history-comparisons`, `seven-day-history` | Historical chain. The producers require old desktop/calendar gameplay; dependent comparisons consume those exact old payloads. Move the complete producer/consumer chain together, including provenance and aggregate checks. |
+| `checkpoint-performance`, `seven-day-history-producer`, `history-comparisons`, `seven-day-history` | Historical chain. The producers require old desktop/calendar gameplay; dependent comparisons consume those exact old payloads. Retain the complete producer/consumer chain at the pinned historical workflow, including provenance and aggregate checks; remove it together from current selection. |
 | `rendered-hospital-reading` | Historical. Hospital manual-refusal and saved-fixture journey uses retired health/calendar entry. |
 | `rendered-timed-hold` | Historical. Its startup requires ComputerDesktop before old Schedule/Dating progression. |
 | `rendered-ending-reading` | Historical. `verify_ending_reading_journey.gd` waits for ComputerDesktop, seeds lifecycle Day7 and a retained Schedule view, then enters a legacy two-step Sylvia ending. `verify_ending_auto_journey.gd` inherits that setup. |
@@ -56,6 +56,13 @@ and tree assertions in any manual historical lane. Exact historical scripts and
 original controls remain available there, rather than altering their mechanics
 to fit current gameplay.
 
+The minimal edit reuses the immutable PR5 workflow and its recorded result;
+it does not duplicate the large historical workflow into the current branch.
+`historical-contracts.yml` remains the existing manual unit/integration lane.
+Re-executing the broader historical campaign, if later needed, requires that
+exact historical workflow/source and its original controls and producer chain;
+the current manual unit lane is not represented as running those broad jobs.
+
 Source inspection commands (static only):
 
 ```sh
@@ -68,6 +75,16 @@ GitHub job APIs used for this audit are `/actions/runs/39873079868/jobs` and
 `/actions/jobs/120154297845/logs`, `/actions/jobs/120154298163/logs` in this repo.
 
 ## Current counterparts and remaining scope
+
+The combined run39970090322 exposed nine failures in
+`tests/integration/test_committed_schedule_effect_order.gd`. Every method requires
+retired ordinary Schedule health/pressure effects. The entire file is byte-identical
+to pinned PR5 and remains selected in that historical `reading_delivery` suite;
+remove only its current runner selection, preserving the file and its assertions.
+The thirteen presentation/resume cases in the adjacent
+`test_committed_schedule_presentation_resume.gd` remain selected: they exercise
+retained command, receipt, recovery and presentation owners with explicit legacy
+fixtures. Their failures do not justify removing that compatible coverage.
 
 Existing `current_title` runs actual rendered Title → authored Day1 → Computer
 → manual Save and a separate fresh-process Load. It checks visible text, reading

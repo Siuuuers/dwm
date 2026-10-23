@@ -1,5 +1,9 @@
 extends "res://addons/gut/test.gd"
 
+# These synthetic catalogues exercise retained reading contracts, independently
+# of the shipped scene registry. Restore the exact outer graph after each case.
+var _retained_reading_scope := preload("res://tests/support/SceneValidationScope.gd").new()
+
 const SESSION := preload("res://scripts/narrative/SoloReadingSession.gd")
 const FROZEN := preload("res://scripts/narrative/FrozenPresentationContext.gd")
 const STRICT_JSON := preload("res://scripts/validation/StrictJson.gd")
@@ -571,3 +575,11 @@ func test_ending_catalogue_order_is_bound_to_the_saved_history() -> void:
 			"empty_lines": document.entries[0].lines = []
 			"duplicate_line": document.entries[1].lines[0].line_id = document.entries[0].lines[0].line_id
 		assert_false(SESSION.new().configure(document).ok, mutation)
+
+
+func before_each() -> void:
+	_retained_reading_scope.install(true)
+
+
+func after_each() -> void:
+	_retained_reading_scope.restore()

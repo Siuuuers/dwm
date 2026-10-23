@@ -383,6 +383,8 @@ jobs:
       - name: Install Godot and software display
         timeout-minutes: 12
         run: |
+          # The runner Azure mirror repeatedly exceeded this install budget.
+          sudo sed -i 's|http://azure.archive.ubuntu.com/ubuntu|https://archive.ubuntu.com/ubuntu|g' /etc/apt/apt-mirrors.txt
           sudo apt-get update
           sudo apt-get install --yes --no-install-recommends xvfb xauth libgl1-mesa-dri pulseaudio pulseaudio-utils libspeechd2 speech-dispatcher speech-dispatcher-audio-plugins speech-dispatcher-espeak-ng
           archive="$RUNNER_TEMP/godot-4.6.3-linux.zip"
@@ -481,6 +483,8 @@ jobs:
       - name: Install Godot and software display
         timeout-minutes: 12
         run: |
+          # The runner Azure mirror repeatedly exceeded this install budget.
+          sudo sed -i 's|http://azure.archive.ubuntu.com/ubuntu|https://archive.ubuntu.com/ubuntu|g' /etc/apt/apt-mirrors.txt
           sudo apt-get update
           sudo apt-get install --yes --no-install-recommends xvfb xauth libgl1-mesa-dri pulseaudio pulseaudio-utils libspeechd2 speech-dispatcher speech-dispatcher-audio-plugins speech-dispatcher-espeak-ng
           archive="$RUNNER_TEMP/godot-4.6.3-linux.zip"

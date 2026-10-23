@@ -1,4 +1,8 @@
 extends "res://addons/gut/test.gd"
+
+# These synthetic catalogues exercise retained reading contracts, independently
+# of the shipped scene registry. Restore the exact outer graph after each case.
+var _retained_reading_scope := preload("res://tests/support/SceneValidationScope.gd").new()
 ## Real Bridge -> mounted Dialogic -> caption ledger, with explicitly noncanon
 ## selector prose. The isolated Profile uses FakeFileOps; no real save is written.
 
@@ -79,6 +83,7 @@ var _baseline_text_nodes: Array[Node] = []
 var _baseline_text_ids: Array[int] = []
 
 func before_each() -> void:
+	_retained_reading_scope.install(true)
 	_fixture_layouts.clear()
 	_fixture_text_nodes.clear()
 	_baseline_text_nodes.assign(get_tree().get_nodes_in_group("dialogic_dialog_text"))
@@ -199,6 +204,8 @@ func after_each() -> void:
 	else: Engine.remove_meta("dialogic_persistent_style_info")
 	DialogicStylesUtil.style_directory = _style_directory
 	_original_layout_parent = null
+	_retained_reading_scope.restore()
+
 
 func _node_diagnostic(node: Variant) -> String:
 	if not is_instance_valid(node): return "<freed>"

@@ -1,5 +1,9 @@
 extends "res://addons/gut/test.gd"
 
+# These synthetic catalogues exercise retained reading contracts, independently
+# of the shipped scene registry. Restore the exact outer graph after each case.
+var _retained_reading_scope := preload("res://tests/support/SceneValidationScope.gd").new()
+
 ## Real Bridge admission, caption ledger and Profile; only the native playhead is
 ## replaced. Explicit TEST copy is noncanonical. This proves collection contracts,
 ## durable exit merging, not mounted visibility or production admission.
@@ -114,6 +118,7 @@ var _document: Dictionary
 var _identity := ""
 
 func before_each() -> void:
+	_retained_reading_scope.install(true)
 	var wrapper := OS.get_environment("DWM_TEST_ROOT").strip_edges()
 	assert_false(wrapper.is_empty(), "cloud wrapper owns isolated storage")
 	_files = ExitFaultFiles.new()
@@ -570,3 +575,7 @@ func test_natural_completion_proven_refusal_can_retry_without_an_active_entry() 
 	assert_true(result.history_added)
 	assert_false(owner.is_playing())
 	_assert_durable_caption(FIRST)
+
+
+func after_each() -> void:
+	_retained_reading_scope.restore()

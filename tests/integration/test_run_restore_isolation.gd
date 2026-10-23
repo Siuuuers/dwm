@@ -128,180 +128,28 @@ func _source_method(source: String, method_name: String) -> String:
 	return "\n".join(lines).strip_edges(false, true) + "\n" if started else ""
 
 
-func _restore_retired_source(source: String) -> String:
-	# The removed unused methods are evidence, never executable compatibility APIs.
-	# Pin their exact historical bytes without exempting test code from retirement.
-	var text := FileAccess.get_file_as_string("res://tests/fixtures/source/game_state_retired_candidate_seams.json").replace("\r\n", "\n")
-	const SOURCE_ARTIFACT_SHA256 := "a5cdc71da32cc7d6bbe2298157d63e8edda3511658b346e8536023ecd4874e82"
-	assert_eq(text.sha256_text(), SOURCE_ARTIFACT_SHA256, "exact non-executable retirement source artifact")
-	if text.sha256_text() != SOURCE_ARTIFACT_SHA256: return ""
-	var parsed: Variant = JSON.parse_string(text)
-	assert_true(parsed is Dictionary, "retirement source artifact is an object")
-	if not parsed is Dictionary: return ""
-	var keys: Array = parsed.keys()
-	keys.sort()
-	var expected_keys := ["before_live_capture", "before_live_restore", "schema", "source_commit", "source_sha256"]
-	assert_eq(keys, expected_keys, "exact retirement source fields")
-	if keys != expected_keys: return ""
-	assert_eq(parsed.schema, "dwm_retired_game_state_source.v1")
-	assert_eq(parsed.source_commit, REFERENCE.SOURCE_COMMIT, "retirement and alias controls share the historical source")
-	assert_eq(parsed.source_sha256, REFERENCE.SOURCE_SHA256)
-	if parsed.schema != "dwm_retired_game_state_source.v1" or parsed.source_commit != REFERENCE.SOURCE_COMMIT \
-			or parsed.source_sha256 != REFERENCE.SOURCE_SHA256: return ""
-	for placement: Array in [
-			["before_live_capture", "func capture_live_run_state() -> Dictionary:"],
-			["before_live_restore", "func restore_live_run_state(backup: Dictionary) -> Dictionary:"]]:
-		var fragment: Variant = parsed[placement[0]]
-		var anchor: String = placement[1]
-		assert_true(fragment is String and not fragment.is_empty(), "historical source fragment is present")
-		assert_eq(source.count(anchor), 1, "one retained method anchors the historical fragment")
-		if not fragment is String or fragment.is_empty() or source.count(anchor) != 1: return ""
-		source = source.replace(anchor, fragment + anchor)
-	return source
-
-
-func _restore_retired_query_source(source: String) -> String:
-	# Superseded query bodies and their old comment remain non-executable evidence.
-	var text := FileAccess.get_file_as_string("res://tests/fixtures/source/game_state_retired_query_seams.json").replace("\r\n", "\n")
-	const SOURCE_ARTIFACT_SHA256 := "9c896f9f868f5d3b7d4fcbc59c4db013ba626284974d428a440e54cc174fe442"
-	assert_eq(text.sha256_text(), SOURCE_ARTIFACT_SHA256, "exact non-executable query retirement artifact")
-	if text.sha256_text() != SOURCE_ARTIFACT_SHA256: return ""
-	var parsed: Variant = JSON.parse_string(text)
-	assert_true(parsed is Dictionary, "query retirement artifact is an object")
-	if not parsed is Dictionary: return ""
-	var keys: Array = parsed.keys()
-	keys.sort()
-	var expected_keys := ["before_app_start", "before_scheduled_friends", "current_schedule_comment",
-		"historical_schedule_comment", "schema", "source_commit", "source_sha256"]
-	assert_eq(keys, expected_keys, "exact query retirement source fields")
-	if keys != expected_keys: return ""
-	assert_eq(parsed.schema, "dwm_retired_game_state_queries.v1")
-	assert_eq(parsed.source_commit, REFERENCE.SOURCE_COMMIT, "query retirement shares the historical source")
-	assert_eq(parsed.source_sha256, REFERENCE.SOURCE_SHA256)
-	if parsed.schema != "dwm_retired_game_state_queries.v1" or parsed.source_commit != REFERENCE.SOURCE_COMMIT \
-			or parsed.source_sha256 != REFERENCE.SOURCE_SHA256: return ""
-	for placement: Array in [
-			["before_app_start", "func can_start_minesweeper_app_round() -> bool:"],
-			["before_scheduled_friends", "func get_scheduled_date_friend_ids() -> Array[String]:"]]:
-		var fragment: Variant = parsed[placement[0]]
-		var anchor: String = placement[1]
-		assert_true(fragment is String and not fragment.is_empty(), "historical query source fragment is present")
-		assert_eq(source.count(anchor), 1, "one retained method anchors each retired query")
-		if not fragment is String or fragment.is_empty() or source.count(anchor) != 1: return ""
-		source = source.replace(anchor, fragment + anchor)
-	var current_comment: Variant = parsed.current_schedule_comment
-	var historical_comment: Variant = parsed.historical_schedule_comment
-	assert_true(current_comment is String and not current_comment.is_empty(), "current comment anchor is present")
-	assert_true(historical_comment is String and not historical_comment.is_empty(), "historical comment is present")
-	if not current_comment is String or current_comment.is_empty() \
-			or not historical_comment is String or historical_comment.is_empty(): return ""
-	assert_eq(source.count(current_comment), 1, "one exact current comment anchors the historical comment")
-	if source.count(current_comment) != 1: return ""
-	return source.replace(current_comment, historical_comment)
-
-
-func _without_authenticated_scene_composition(source: String) -> String:
-	# Fixed inverse of reviewed 7d2db1fb owner to accepted 23d8b3df.
-	# Byte offsets apply only after the complete normalized owner is authenticated.
-	# This is evidence reconstruction, never execution or a runtime migration.
-	const CURRENT_SHA256 := "fd26d735c2c5ffa62aefdb5ca56ddd08985da5f4534c327f5c7237acb286f3b9"
-	const ACCEPTED_SHA256 := "6cbd8f935e2fb6c02db5e78cbafd915d5cd2971712d061c5d9e8f336bbea100f"
-	assert_eq(source.sha256_text(), CURRENT_SHA256, "exact current inherited owner")
-	if source.sha256_text() != CURRENT_SHA256: return ""
-	# [inclusive byte start, exclusive byte end, historical replacement].
-	const SPANS := [
-		[24638, 24952, "func preview_open_contact(friend_id: String, command_id: String, command_issuer_receipt: Dictionary) -> Dictionary:\n\tvar day7_admitted := require_day7_presentations_complete()\n"],
-		[36101, 36452, "func open_contact(friend_id: String, command_id: String, command_issuer_receipt: Dictionary) -> Dictionary:\n\tvar replayed: bool = (contacts.get(\"transaction_receipts\", {}) as Dictionary).has(command_id)\n"],
-		[61983, 62304, "\tvar lifecycle: Dictionary = _run_lifecycle.to_dict()\n\tvar cached: Variant = route_context.get(\"ending_frozen_contexts_v1\")\n"],
-		[64086, 64580, "\t\treturn _transaction_failure(&\"ending_presentation_command_mismatch\", ending_id)\n\tif _frozen_ending_contexts_enabled:\n"],
-		[133806, 134148, "\t\tif not saved.get(\"ok\", false):\n\t\t\tvar restored: Dictionary = rollback_restore_silent(captured.value.backup)\n"],
-		[143587, 143812, "\tvar gameplay := to_save_dict().duplicate(true)\n\tgameplay[\"narrative_variables\"] = _narrative_variables.duplicate(true)\n"],
-		[144271, 144416, "\t\t\"session_generation\": _live_session_generation,\n\t\t\"contacts\": contacts.duplicate(true),\n"],
-		[155198, 155305, "\tif not admitted.value.already_active:\n\t\t_live_session_generation += 1\n"],
-		[157304, 157621, "\t\treturn {\"ok\": false, \"code\": &\"run_configuration_unavailable\"}\n\treturn {\"ok\": true, \"value\": {\"dark_mode\": _run_lifecycle.to_dict()[\"dark_mode\"]}}\n\n"],
-		[159408, 160260, "func capture_run_snapshot_input() -> Dictionary:\n\tvar current: Dictionary = to_save_dict()\n"],
-		[164234, 164510, "\t\treturn {\"ok\": false, \"code\": &\"invalid_run_backup\", \"message\": \"run installation evidence is required\"}\n\tvar gameplay_check: Dictionary = _prepare_note_restore_gameplay(source[\"gameplay\"])\n"],
-		[164676, 165122, "\t\treturn bookkeeping\n\tvar restored: Dictionary = _run_lifecycle.prepare_restore((source as Dictionary)[\"lifecycle\"])\n\tif not restored.get(\"ok\", false):\n"],
-		[165560, 165817, "\tvar desktop_backup: Variant = (source as Dictionary).get(\"desktop\")\n\tif typeof(desktop_backup) == TYPE_DICTIONARY:\n\t\tvar desktop_error := _RUN_SNAPSHOT_SCHEMA_DESKTOP._validate_desktop(desktop_backup)\n"],
-		[166596, 167141, "\t\treturn _transaction_failure(&\"invalid_dating_reconciliation_backup\", \"local owner is not configured\")\n\t_run_lifecycle.commit_restore(restored[\"value\"][\"candidate\"])\n\t_apply_gameplay_silent(gameplay_check[\"value\"][\"gameplay\"])\n\t_apply_restore_bookkeeping(bookkeeping[\"value\"])\n\t_restore_contacts_section((source as Dictionary).get(\"contacts\"))\n\tif not validated_backup.is_empty():\n"],
-		[167276, 167485, "\t\t_desktop_snapshot = (desktop_backup as Dictionary).duplicate(true)\n\t_run_configuration_installed = source[\"run_configuration_installed\"]\n"],
-		[168913, 169255, "func _apply_run_snapshot_silent(snapshot: Dictionary) -> Dictionary:\n\tif typeof(snapshot.get(\"lifecycle\")) != TYPE_DICTIONARY:\n"],
-		[171157, 171289, "\t\t_desktop_snapshot = (desktop as Dictionary).duplicate(true)\n\t_run_configuration_installed = true\n"],
-		[198452, 198876, "func scene_event_registration(event: Dictionary) -> Dictionary:\n\tvar row: Dictionary = _scene_event_registry.get(event.source.entry_id, {})\n"],
-		[199587, 199799, "func scene_event_context() -> Dictionary:\n\tif not is_instance_valid(_scene_event_bridge) or _identity_issuer == null:\n"],
-		[201864, 202177, "func accept_scene_event(event: Dictionary, digest: String, lease: String) -> Dictionary:\n\tif not is_instance_valid(_mutation_gate) or not _mutation_gate.is_lease_active(&\"causal_transaction\", lease):\n"],
-		[207237, 323311, "\treturn {\"ok\": true}\n"],
-	]
-	var encoded := source.to_utf8_buffer()
-	var restored := PackedByteArray()
-	var cursor := 0
-	for span: Array in SPANS:
-		var start: int = span[0]
-		var finish: int = span[1]
-		if start < cursor or finish <= start or finish > encoded.size():
-			fail_test("invalid fixed scene-composition inverse span")
-			return ""
-		restored.append_array(encoded.slice(cursor, start))
-		var replacement: String = span[2]
-		restored.append_array(replacement.to_utf8_buffer())
-		cursor = finish
-	restored.append_array(encoded.slice(cursor))
-	var accepted := restored.get_string_from_utf8()
-	assert_eq(accepted.sha256_text(), ACCEPTED_SHA256, "exact accepted Notes owner before existing inverses")
-	return accepted if accepted.sha256_text() == ACCEPTED_SHA256 else ""
-
-
 func _assert_frozen_provenance() -> bool:
-	# A later owner edit must deliberately rebase this comparison contract and
-	# retain a reproducible failing control; do not silently loosen these hashes.
+	# Pin the actual historical overrides, not unrelated parts of today's owner.
+	# Both controls reuse the current owner; the probes below must reproduce the
+	# old aliases while current capture/install/rollback retain isolation.
 	const LIVE_REFERENCE := preload("res://tests/support/LiveRunRollbackAliasingReference.gd")
-	# Authenticate current composition -> E Notes -> A marker -> af944020.
-	var notes_owner := _without_authenticated_scene_composition(FileAccess.get_file_as_string("res://autoload/GameState.gd").replace("\r\n", "\n"))
-	if notes_owner.is_empty(): return false
-	var marker_owner := _without_authenticated_note_counts(notes_owner)
-	if marker_owner.is_empty(): return false
-	var accepted_owner := _without_authenticated_marker_validation(marker_owner)
-	if accepted_owner.is_empty(): return false
-	var source := _without_authenticated_scene_event_extension(accepted_owner)
+	assert_same(REFERENCE.get_base_script(), GAME_STATE, "restore control inherits the current owner")
+	assert_same(LIVE_REFERENCE.get_base_script(), GAME_STATE, "live rollback control inherits the current owner")
 	var reference := FileAccess.get_file_as_string("res://tests/support/RunRestoreAliasingReference.gd").replace("\r\n", "\n")
 	var live_reference := FileAccess.get_file_as_string("res://tests/support/LiveRunRollbackAliasingReference.gd").replace("\r\n", "\n")
-	var capture := _source_method(source, "capture_restore_state")
-	var install := _source_method(source, "_apply_gameplay_silent")
-	var live_capture := _source_method(source, "capture_live_run_state")
-	var live_rollback := _source_method(source, "restore_live_run_state")
-	var capture_reference := _source_method(reference, "capture_restore_state")
-	var install_reference := _source_method(reference, "_apply_gameplay_silent")
-	var live_capture_reference := _source_method(live_reference, "capture_live_run_state")
-	var live_rollback_reference := _source_method(live_reference, "restore_live_run_state")
-	assert_eq(capture_reference.sha256_text(), REFERENCE.CAPTURE_RESTORE_STATE_SHA256, "exact historical capture control")
-	assert_eq(install_reference.sha256_text(), REFERENCE.APPLY_GAMEPLAY_SILENT_SHA256, "exact historical installation control")
-	assert_eq(live_capture_reference.sha256_text(), LIVE_REFERENCE.CAPTURE_LIVE_RUN_STATE_SHA256, "exact historical active-run capture control")
-	assert_eq(live_rollback_reference.sha256_text(), LIVE_REFERENCE.RESTORE_LIVE_RUN_STATE_SHA256, "exact historical active-run rollback control")
-	assert_eq(capture.count("to_save_dict().duplicate(true)"), 1, "one capture detachment edit")
-	assert_eq(install.count("v.duplicate(true)"), 2, "dictionary and array installation edits")
-	assert_eq(live_capture.count("to_save_dict().duplicate(true)"), 1, "one active-run capture detachment edit")
-	assert_eq(live_rollback.count('detached["gameplay"].duplicate(true)'), 1, "one active-run rollback detachment edit")
-	if capture.is_empty() or install.is_empty() or capture.count("to_save_dict().duplicate(true)") != 1 \
-			or install.count("v.duplicate(true)") != 2 or live_capture.is_empty() or live_rollback.is_empty() \
-			or live_capture.count("to_save_dict().duplicate(true)") != 1 \
-			or live_rollback.count('detached["gameplay"].duplicate(true)') != 1:
-		return false
-	assert_eq(source.count(capture), 1, "unique capture source body")
-	assert_eq(source.count(install), 1, "unique installation source body")
-	assert_eq(source.count(live_capture), 1, "unique active-run capture source body")
-	assert_eq(source.count(live_rollback), 1, "unique active-run rollback source body")
-	var restored := source.replace(capture, capture.replace("to_save_dict().duplicate(true)", "to_save_dict()"))
-	restored = restored.replace(install, install.replace("v.duplicate(true)", "v.duplicate()"))
-	restored = restored.replace(live_capture, live_capture.replace("to_save_dict().duplicate(true)", "to_save_dict()"))
-	restored = restored.replace(live_rollback, live_rollback.replace('detached["gameplay"].duplicate(true)', 'detached["gameplay"]'))
-	restored = _restore_retired_source(restored)
-	restored = _restore_retired_query_source(restored)
-	assert_eq(restored.sha256_text(), REFERENCE.SOURCE_SHA256, "reconstructed foundation: five isolation edits and exact retirement fragments recover the historical owner")
-	return capture_reference.sha256_text() == REFERENCE.CAPTURE_RESTORE_STATE_SHA256 \
-		and install_reference.sha256_text() == REFERENCE.APPLY_GAMEPLAY_SILENT_SHA256 \
-		and live_capture_reference.sha256_text() == LIVE_REFERENCE.CAPTURE_LIVE_RUN_STATE_SHA256 \
-		and live_rollback_reference.sha256_text() == LIVE_REFERENCE.RESTORE_LIVE_RUN_STATE_SHA256 \
-		and restored.sha256_text() == REFERENCE.SOURCE_SHA256
+	var capture := _source_method(reference, "capture_restore_state").sha256_text()
+	var install := _source_method(reference, "_apply_gameplay_silent").sha256_text()
+	var live_capture := _source_method(live_reference, "capture_live_run_state").sha256_text()
+	var live_rollback := _source_method(live_reference, "restore_live_run_state").sha256_text()
+	assert_eq(capture, REFERENCE.CAPTURE_RESTORE_STATE_SHA256, "exact historical capture control")
+	assert_eq(install, REFERENCE.APPLY_GAMEPLAY_SILENT_SHA256, "exact historical installation control")
+	assert_eq(live_capture, LIVE_REFERENCE.CAPTURE_LIVE_RUN_STATE_SHA256, "exact historical active-run capture control")
+	assert_eq(live_rollback, LIVE_REFERENCE.RESTORE_LIVE_RUN_STATE_SHA256, "exact historical active-run rollback control")
+	return REFERENCE.get_base_script() == GAME_STATE and LIVE_REFERENCE.get_base_script() == GAME_STATE \
+		and capture == REFERENCE.CAPTURE_RESTORE_STATE_SHA256 \
+		and install == REFERENCE.APPLY_GAMEPLAY_SILENT_SHA256 \
+		and live_capture == LIVE_REFERENCE.CAPTURE_LIVE_RUN_STATE_SHA256 \
+		and live_rollback == LIVE_REFERENCE.RESTORE_LIVE_RUN_STATE_SHA256
 
 
 func test_frozen_owner_reproduces_all_six_historical_alias_directions() -> void:
@@ -329,52 +177,3 @@ func test_prepared_restore_plan_and_installed_owner_remain_independent_until_fin
 func test_rollback_backup_and_restored_owner_remain_independent_until_finalize() -> void:
 	for owner_to_payload: bool in [false, true]:
 		_assert_all_isolated(_installation_probe(true, owner_to_payload), true, "rollback")
-
-
-func _without_authenticated_scene_event_extension(source: String) -> String:
-	# Reverse only this reviewed append-only extension; preserve the historical oracle.
-	const ANCHOR := "\n\n# Scene events share the existing Run receipt map."
-	const EXTENSION_SHA256 := "e11d2990a0737baf57a85b43ed0fd3d2755dc3929cbef9231a9b62e5b0f99552"
-	const FOUNDATION_SHA256 := "02ed11392633e9ded43609d93977adb0805870880add55b67c483d5d305694bc"
-	assert_eq(source.count(ANCHOR), 1, "one exact scene-event extension anchor")
-	if source.count(ANCHOR) != 1: return ""
-	var offset := source.find(ANCHOR)
-	var extension := source.substr(offset)
-	var foundation := source.substr(0, offset)
-	assert_eq(extension.to_utf8_buffer().size(), 10108, "exact scene-event extension byte count")
-	assert_eq(extension.sha256_text(), EXTENSION_SHA256, "exact complete scene-event extension")
-	assert_eq(foundation.sha256_text(), FOUNDATION_SHA256, "exact accepted foundation owner")
-	if extension.to_utf8_buffer().size() != 10108 or extension.sha256_text() != EXTENSION_SHA256 \
-			or foundation.sha256_text() != FOUNDATION_SHA256:
-		return ""
-	return foundation
-
-
-func _without_authenticated_marker_validation(source: String) -> String:
-	# Reverse only A's exact scoped validator, then authenticate the accepted owner.
-	const FRAGMENT := "\t# Cursor-to-receipt proof is required even for an empty receipt map.\n\tif is_instance_valid(_scene_event_bridge) and _scene_event_bridge.has_method(\"validate_scene_marker_snapshot\"):\n\t\tvar cursor: Dictionary = _scene_event_bridge.validate_scene_marker_snapshot(snapshot)\n\t\tif not cursor.get(\"ok\", false): return cursor\n\telif snapshot.get(\"narrative_checkpoint\", {}).get(\"reading_session\", {}).get(\"schema_version\") == 4:\n\t\treturn _transaction_failure(&\"event_dependency_invalid\", \"marker validator required\")\n"
-	const FRAGMENT_SHA256 := "7401f988303d931993df50fda5123ef43f2488185b9443bdb95bc9eac94d116f"
-	const ACCEPTED_SHA256 := "ce2fb9fc8c9821c8857641a377d0832fb1a862bafd86268c43226b24329ff2a8"
-	assert_eq(FRAGMENT.to_utf8_buffer().size(), 509, "exact marker-validator bytes")
-	assert_eq(FRAGMENT.sha256_text(), FRAGMENT_SHA256, "exact marker-validator fragment")
-	assert_eq(source.count(FRAGMENT), 1, "one complete marker-validator delta")
-	if FRAGMENT.to_utf8_buffer().size() != 509 or FRAGMENT.sha256_text() != FRAGMENT_SHA256 or source.count(FRAGMENT) != 1: return ""
-	var accepted := source.replace(FRAGMENT, "")
-	assert_eq(accepted.sha256_text(), ACCEPTED_SHA256, "exact af944020 owner before historical reversal")
-	return accepted if accepted.sha256_text() == ACCEPTED_SHA256 else ""
-
-
-func _without_authenticated_note_counts(source: String) -> String:
-	# Reverse only the finite reviewed E count delta; unknown drift fails closed.
-	var fragments: Array = [{"current": "const _DAY7_FOLLOWUPS := preload(\"res://scripts/domain/contact/Day7FollowupState.gd\")\nconst _DATING_ENDING_RULES := preload(\"res://scripts/domain/ending/DatingEndingRules.gd\")\nconst _PROVISIONAL_RELATIONSHIP_RULES := preload(\"res://scripts/domain/relationship/ProvisionalProgressionRules.gd\")\nconst _NOTE_PURCHASE_RULES := preload(\"res://scripts/domain/shop/RunNotePurchaseRules.gd\")\nconst _SCHEDULE_ACTION_REGISTRY := preload(\"res://scripts/domain/schedule/ScheduleActionRegistry.gd\")\n\nvar _run_lifecycle: RefCounted = _RUN_LIFECYCLE_SCRIPT.new()\n", "accepted": "const _DAY7_FOLLOWUPS := preload(\"res://scripts/domain/contact/Day7FollowupState.gd\")\nconst _DATING_ENDING_RULES := preload(\"res://scripts/domain/ending/DatingEndingRules.gd\")\nconst _PROVISIONAL_RELATIONSHIP_RULES := preload(\"res://scripts/domain/relationship/ProvisionalProgressionRules.gd\")\nconst _SCHEDULE_ACTION_REGISTRY := preload(\"res://scripts/domain/schedule/ScheduleActionRegistry.gd\")\n\nvar _run_lifecycle: RefCounted = _RUN_LIFECYCLE_SCRIPT.new()\n", "bytes": 548, "sha256": "89be671feaffb4954ff28e0ae381d97d2089c8499cb8a197f275a748e01f5c5e"}, {"current": "\t\treturn _transaction_failure(&\"invalid_run_backup\", \"backup was not issued by capture_live_run_state\")\n\tvar detached: Dictionary = source as Dictionary\n\tif typeof(detached.get(\"gameplay\")) == TYPE_DICTIONARY:\n\t\tvar gameplay_check: Dictionary = _prepare_note_restore_gameplay(detached[\"gameplay\"])\n\t\tif not gameplay_check.get(\"ok\", false):\n\t\t\treturn gameplay_check\n\t\tapply_save_dict(gameplay_check[\"value\"][\"gameplay\"].duplicate(true))\n\tif typeof(detached.get(\"contacts\")) == TYPE_DICTIONARY:\n\t\tcontacts = (detached[\"contacts\"] as Dictionary).duplicate(true)\n\t_command_receipts = (detached[\"command_receipts\"] as Dictionary).duplicate(true)\n", "accepted": "\t\treturn _transaction_failure(&\"invalid_run_backup\", \"backup was not issued by capture_live_run_state\")\n\tvar detached: Dictionary = source as Dictionary\n\tif typeof(detached.get(\"gameplay\")) == TYPE_DICTIONARY:\n\t\tapply_save_dict(detached[\"gameplay\"].duplicate(true))\n\tif typeof(detached.get(\"contacts\")) == TYPE_DICTIONARY:\n\t\tcontacts = (detached[\"contacts\"] as Dictionary).duplicate(true)\n\t_command_receipts = (detached[\"command_receipts\"] as Dictionary).duplicate(true)\n", "bytes": 641, "sha256": "9153868acdee74aea0fdd813be91d71a888b3b9181a8cc939177de4e97f5f793"}, {"current": "\t\treturn {\"ok\": false, \"code\": &\"invalid_run_backup\", \"message\": \"run backup requires gameplay and lifecycle\"}\n\tif typeof(source.get(\"run_configuration_installed\")) != TYPE_BOOL:\n\t\treturn {\"ok\": false, \"code\": &\"invalid_run_backup\", \"message\": \"run installation evidence is required\"}\n\tvar gameplay_check: Dictionary = _prepare_note_restore_gameplay(source[\"gameplay\"])\n\tif not gameplay_check.get(\"ok\", false):\n\t\treturn gameplay_check\n\tvar bookkeeping := _prepare_restore_bookkeeping(source, true)\n\tif not bookkeeping.get(\"ok\", false):\n\t\treturn bookkeeping\n", "accepted": "\t\treturn {\"ok\": false, \"code\": &\"invalid_run_backup\", \"message\": \"run backup requires gameplay and lifecycle\"}\n\tif typeof(source.get(\"run_configuration_installed\")) != TYPE_BOOL:\n\t\treturn {\"ok\": false, \"code\": &\"invalid_run_backup\", \"message\": \"run installation evidence is required\"}\n\tvar bookkeeping := _prepare_restore_bookkeeping(source, true)\n\tif not bookkeeping.get(\"ok\", false):\n\t\treturn bookkeeping\n", "bytes": 557, "sha256": "30d2dda19667d8f8922fd72f2fb47272c9bf59f7080d70f9b4029ee66932cec3"}, {"current": "\telif dating_backup != null:\n\t\treturn _transaction_failure(&\"invalid_dating_reconciliation_backup\", \"local owner is not configured\")\n\t_run_lifecycle.commit_restore(restored[\"value\"][\"candidate\"])\n\t_apply_gameplay_silent(gameplay_check[\"value\"][\"gameplay\"])\n\t_apply_restore_bookkeeping(bookkeeping[\"value\"])\n\t_restore_contacts_section((source as Dictionary).get(\"contacts\"))\n\tif not validated_backup.is_empty():\n", "accepted": "\telif dating_backup != null:\n\t\treturn _transaction_failure(&\"invalid_dating_reconciliation_backup\", \"local owner is not configured\")\n\t_run_lifecycle.commit_restore(restored[\"value\"][\"candidate\"])\n\t_apply_gameplay_silent((source as Dictionary)[\"gameplay\"])\n\t_apply_restore_bookkeeping(bookkeeping[\"value\"])\n\t_restore_contacts_section((source as Dictionary).get(\"contacts\"))\n\tif not validated_backup.is_empty():\n", "bytes": 411, "sha256": "c0c117401758a810021bfe6f6ee5d726f05a25f6265be10a254f79ad8c385459"}, {"current": "func _apply_run_snapshot_silent(snapshot: Dictionary) -> Dictionary:\n\tif typeof(snapshot.get(\"lifecycle\")) != TYPE_DICTIONARY:\n\t\treturn {\"ok\": false, \"code\": &\"invalid_run_plan\", \"message\": \"snapshot.lifecycle is required\"}\n\tvar gameplay_check: Dictionary = {}\n\tif typeof(snapshot.get(\"gameplay\")) == TYPE_DICTIONARY:\n\t\tgameplay_check = _prepare_note_restore_gameplay(snapshot[\"gameplay\"])\n\t\tif not gameplay_check.get(\"ok\", false):\n\t\t\treturn gameplay_check\n\tvar bookkeeping := _prepare_restore_bookkeeping(snapshot)\n\tif not bookkeeping.get(\"ok\", false):\n\t\treturn bookkeeping\n", "accepted": "func _apply_run_snapshot_silent(snapshot: Dictionary) -> Dictionary:\n\tif typeof(snapshot.get(\"lifecycle\")) != TYPE_DICTIONARY:\n\t\treturn {\"ok\": false, \"code\": &\"invalid_run_plan\", \"message\": \"snapshot.lifecycle is required\"}\n\tvar bookkeeping := _prepare_restore_bookkeeping(snapshot)\n\tif not bookkeeping.get(\"ok\", false):\n\t\treturn bookkeeping\n", "bytes": 575, "sha256": "de939370595e2717226206d36b1fb1f5dfcb1fbc6251e03c1da9ca8ba1c80e11"}, {"current": "\t\t\treturn {\"ok\": false, \"code\": &\"invalid_run_plan\", \"message\": desktop_error}\n\t_run_lifecycle.commit_restore(restored[\"value\"][\"candidate\"])\n\tif typeof(snapshot.get(\"gameplay\")) == TYPE_DICTIONARY:\n\t\t_apply_gameplay_silent(gameplay_check[\"value\"][\"gameplay\"])\n\t_apply_restore_bookkeeping(bookkeeping[\"value\"])\n\t_restore_contacts_section(snapshot.get(\"contacts\"))\n\tif not validated_committed.is_empty():\n", "accepted": "\t\t\treturn {\"ok\": false, \"code\": &\"invalid_run_plan\", \"message\": desktop_error}\n\t_run_lifecycle.commit_restore(restored[\"value\"][\"candidate\"])\n\tif typeof(snapshot.get(\"gameplay\")) == TYPE_DICTIONARY:\n\t\t_apply_gameplay_silent(snapshot[\"gameplay\"])\n\t_apply_restore_bookkeeping(bookkeeping[\"value\"])\n\t_restore_contacts_section(snapshot.get(\"contacts\"))\n\tif not validated_committed.is_empty():\n", "bytes": 404, "sha256": "fc1b53ce409591a325b940f546d2cc40641fdd6286da3e66de41bac1183b61ed"}, {"current": "\t\t_desktop_snapshot = (desktop as Dictionary).duplicate(true)\n\t_run_configuration_installed = true\n\treturn {\"ok\": true, \"code\": &\"ok\"}\n\n\n## Only restore defaults an omitted count map. Runtime floats remain invalid.\nfunc _prepare_note_restore_gameplay(gameplay: Dictionary) -> Dictionary:\n\tvar checked: Dictionary = _NOTE_PURCHASE_RULES.validate_counts(gameplay.get(\"shop_purchase_counts\", {}))\n\tif not checked.get(\"ok\", false):\n\t\treturn checked\n\tvar detached: Dictionary = gameplay.duplicate()\n\tdetached[\"shop_purchase_counts\"] = checked[\"value\"][\"shop_purchase_counts\"]\n\treturn {\"ok\": true, \"code\": &\"ok\", \"value\": {\"gameplay\": detached}}\n\n\n## Canonical saves carry all receipt fields; old partial owner plans may omit the\n", "accepted": "\t\t_desktop_snapshot = (desktop as Dictionary).duplicate(true)\n\t_run_configuration_installed = true\n\treturn {\"ok\": true, \"code\": &\"ok\"}\n\n\n## Canonical saves carry all receipt fields; old partial owner plans may omit the\n", "bytes": 724, "sha256": "71dcee620ccf4be5ca1d3a60fb647ded1e738c466f2d0134a338ec77bd302319"}]
-	for fragment: Dictionary in fragments:
-		var current: String = fragment.current
-		assert_eq(source.count(current), 1, "unique exact Notes count fragment")
-		assert_eq(current.to_utf8_buffer().size(), fragment.bytes, "Notes count fragment bytes")
-		assert_eq(current.sha256_text(), fragment.sha256, "Notes count fragment hash")
-		if source.count(current) != 1 or current.to_utf8_buffer().size() != fragment.bytes or current.sha256_text() != fragment.sha256:
-			return ""
-		source = source.replace(current, fragment.accepted)
-	const MARKER_OWNER_SHA256 := "264c91220e99977085838f24ced5f9a4ef95eb74f8c24609aebcbf98b63707db"
-	assert_eq(source.sha256_text(), MARKER_OWNER_SHA256, "exact accepted ab33586a marker owner after Notes reversal")
-	return source if source.sha256_text() == MARKER_OWNER_SHA256 else ""

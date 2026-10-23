@@ -2,8 +2,8 @@ extends "res://autoload/GameState.gd"
 ## Frozen active effect/variable rollback control from the accepted owner.
 ## The exact historical methods deliberately retain nested gameplay aliases.
 ## Source/method hashes use UTF-8/LF with one final LF, no trailing blank lines.
-## test_run_restore_isolation verifies these bodies and reverses all five scoped
-## GameState edits back to the exact historical whole-file hash.
+## test_run_restore_isolation verifies these exact bodies and that this control
+## inherits the current GameState; runtime probes reproduce the historical aliases.
 
 const SOURCE_COMMIT := "226d3da868784baacc6fc33f58823f95b5815a51"
 const SOURCE_SHA256 := "95073205c6016935a3fb6339f004129e0ac93cf8728e64f812a940891a27da5c"

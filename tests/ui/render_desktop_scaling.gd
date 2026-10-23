@@ -280,17 +280,18 @@ func _shop_samples(app: Control, catalog: RefCounted) -> void:
 	check(app.page_index == 1,"Shop page two reached without a purchase")
 	await _hover_shop_item(app,"debug_key")
 	await pair("shop-page-two")
-	var matches: Array = catalog.rows.filter(func(row: Dictionary) -> bool: return row.id == "lucky_charm")
+	# Lucky Charm is now on page one; keep this page-two sample on Bookend.
+	var matches: Array = catalog.rows.filter(func(row: Dictionary) -> bool: return row.id == "bookend_keepsake")
 	check(matches.size() == 1,"sold-out preview has one exact ordinary item")
 	if matches.size() != 1: return
 	var sold_out: Dictionary = matches[0]
-	check(sold_out.id == "lucky_charm","sold-out preview uses the intended ordinary item")
+	check(sold_out.id == "bookend_keepsake","sold-out preview uses the intended ordinary item")
 	sold_out.available = false
 	sold_out.legal_max = 0
 	catalog.catalog_changed.emit()
 	await settle()
-	await _hover_shop_item(app,"lucky_charm")
-	check(app.cards.lucky_charm.availability_label.text == "Sold out","sold-out item remains inspectable")
+	await _hover_shop_item(app,"bookend_keepsake")
+	check(app.cards.bookend_keepsake.availability_label.text == "Sold out","sold-out item remains inspectable")
 	await capture("shop-page-two-sold-out",960)
 	profile.present_font("readable")
 	profile.present(150,true)
@@ -315,6 +316,8 @@ func _shop_samples(app: Control, catalog: RefCounted) -> void:
 
 func _hover_shop_item(app: Control, item_id: String) -> void:
 	var card: Button = app.cards[item_id]
+	check(card.is_visible_in_tree(),"hover fixture targets a card on the current page: "+item_id)
+	if not card.is_visible_in_tree(): return
 	desktop.app_scroll.ensure_control_visible(card)
 	await settle()
 	var motion := InputEventMouseMotion.new()
@@ -328,7 +331,7 @@ func _hover_shop_item(app: Control, item_id: String) -> void:
 
 func _check_shop_geometry(name: String) -> void:
 	var app: Control = desktop._cached_app_windows[&"shop"]
-	check(app.cards.size() == 17 and not app.cards.has("supportz"),name+": blank position gains no card or art target")
+	check(app.cards.size() == 12 and not app.cards.has("supportz"),name+": twelve catalog items and the blank position gains no card or art target")
 	for row: Dictionary in app._records:
 		if row.blank: continue
 		check(app.cards[row.id].get("_art") == row.card_art,name+": card keeps matching production art for "+row.id)

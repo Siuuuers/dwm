@@ -233,7 +233,7 @@ $suites = @{
         'tests/unit/test_schedule_done_dispatcher.gd'
         'tests/unit/test_day_resolution_coordinator.gd'
         'tests/unit/test_startup_route_publication.gd'
-        'tests/integration/test_committed_schedule_effect_order.gd'
+        # Retired health/pressure effects: exact nine-case file remains on pinned PR5.
         'tests/integration/test_committed_schedule_presentation_resume.gd'
         'tests/unit/test_hospital_frozen_context.gd'
         'tests/unit/test_hospital_presentation_port.gd'

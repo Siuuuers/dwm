@@ -1,4 +1,8 @@
 extends "res://addons/gut/test.gd"
+
+# These synthetic catalogues exercise retained reading contracts, independently
+# of the shipped scene registry. Restore the exact outer graph after each case.
+var _retained_reading_scope := preload("res://tests/support/SceneValidationScope.gd").new()
 ## Real Bridge, frozen Solo session, Profile and application gate. The physical
 ## storage refusal and native renderer are isolated here; mounted runtime and
 ## fresh-process durability are proved by their separate cloud suites.
@@ -106,6 +110,7 @@ var _gate: ApplicationMutationGate
 var _document: Dictionary
 
 func before_each() -> void:
+	_retained_reading_scope.install(true)
 	var wrapper := OS.get_environment("DWM_TEST_ROOT").strip_edges()
 	assert_false(wrapper.is_empty(), "the cloud wrapper supplies isolated storage")
 	_gate = GATE.new()
@@ -378,3 +383,7 @@ func test_durable_destination_with_native_rejection_keeps_exact_target_and_fatal
 	assert_eq(_port.persisted.reading_session.next_operation.phase, "destination")
 	assert_eq(_bridge._reading_session.next_operation, _port.persisted.reading_session.next_operation)
 	assert_eq(_port.completions, [])
+
+
+func after_each() -> void:
+	_retained_reading_scope.restore()

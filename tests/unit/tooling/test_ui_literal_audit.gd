@@ -384,3 +384,18 @@ func test_scene_thought_and_computer_toggle_owners_are_exact() -> void:
 	assert_false(changed_key.get("ok", true), "changed conditional copy cannot inherit the exact expression owner")
 	var wrong_path := _script("res://scripts/ui/Fixture.gd", snippet)
 	assert_false(wrong_path.get("ok", true), "unrelated paths receive no conditional lookup waiver")
+
+
+func test_story_projection_owners_do_not_exempt_sibling_literals() -> void:
+	var expressions := {
+		"res://scripts/ui/SceneHost.gd": 'preload("res://scripts/localization/StoryLocalization.gd").text(locale, key, option.text)',
+		"res://scripts/ui/witnessed/WitnessedCaptionLayer.gd": 'preload("res://scripts/localization/StoryLocalization.gd").display_markup(retained.text)',
+		"res://scripts/ui/witnessed/WitnessedHistory.gd": 'preload("res://scripts/localization/StoryLocalization.gd").display_markup(_captions[index])',
+	}
+	for path: String in expressions:
+		var snippet := "extends Control\nfunc refresh():\n\tlabel.text = " + expressions[path] + "\n"
+		var exact := _script(path, snippet)
+		assert_true(exact.get("ok", false), JSON.stringify(exact))
+		var sibling := snippet.replace(expressions[path], expressions[path] + ' + "Untranslated sibling"')
+		assert_false(_script(path, sibling).get("ok", true), "story projection does not own extra UI copy")
+		assert_false(_script("res://scripts/ui/Fixture.gd", snippet).get("ok", true), "ownership is path-specific")

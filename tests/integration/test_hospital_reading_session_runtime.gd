@@ -1,4 +1,7 @@
 extends "res://addons/gut/test.gd"
+
+# Isolate retained semantic fixture dependencies from the authored startup registry.
+var _retained_scope := preload("res://tests/support/SceneValidationScope.gd").new()
 ## Real mounted Dialogic -> Bridge -> retained Hospital physical adapter.
 ## Catalogue prose and command provenance are explicit fixtures. This suite proves
 ## the native family/owner seam, not receipt-proven Contacts/Schedule ingress or
@@ -88,6 +91,7 @@ var _baseline_text_nodes: Array[Node] = []
 var _baseline_text_ids: Array[int] = []
 
 func before_each() -> void:
+	_retained_scope.install(true)
 	_fixture_layouts.clear()
 	_fixture_text_nodes.clear()
 	_baseline_text_nodes.assign(get_tree().get_nodes_in_group("dialogic_dialog_text"))
@@ -225,6 +229,8 @@ func after_each() -> void:
 	else: Engine.remove_meta("dialogic_persistent_style_info")
 	DialogicStylesUtil.style_directory = _style_directory
 	_original_layout_parent = null
+	_retained_scope.restore()
+
 
 func _node_diagnostic(node: Variant) -> String:
 	if not is_instance_valid(node): return "<freed>"

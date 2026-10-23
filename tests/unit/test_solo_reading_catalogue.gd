@@ -1,5 +1,9 @@
 extends "res://addons/gut/test.gd"
 
+# These synthetic catalogues exercise retained reading contracts, independently
+# of the shipped scene registry. Restore the exact outer graph after each case.
+var _retained_reading_scope := preload("res://tests/support/SceneValidationScope.gd").new()
+
 const CATALOGUE := preload("res://scripts/narrative/SoloReadingCatalogue.gd")
 const FROZEN := preload("res://scripts/narrative/FrozenPresentationContext.gd")
 const STRICT_JSON := preload("res://scripts/validation/StrictJson.gd")
@@ -191,3 +195,11 @@ func test_physical_explosion_rows_use_committed_attitude_and_share_sweet_closing
 		frame.fields.attitude = ""
 		assert_eq(CATALOGUE.select(entry, frame).code, &"reading_selector_unavailable",
 			"physical terminal rows require the committed attitude, with no synthetic fallback")
+
+
+func before_each() -> void:
+	_retained_reading_scope.install(true)
+
+
+func after_each() -> void:
+	_retained_reading_scope.restore()
