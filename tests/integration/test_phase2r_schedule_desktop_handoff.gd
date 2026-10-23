@@ -1,5 +1,7 @@
 extends "res://addons/gut/test.gd"
 
+var _scene_validation_scope := preload("res://tests/support/SceneValidationScope.gd").new()
+
 const TEMPORARY_STORAGE := preload("res://tests/support/TemporaryStorage.gd")
 # Plan 01's Schedule participant and Plan 02's desktop participants, proven consumable TOGETHER by
 # a later owner without composing the Plan-03/dwm-oyo.3 player-facing departure
@@ -167,6 +169,7 @@ var _fixture_ready: bool = false
 
 
 func before_all() -> void:
+	_scene_validation_scope.install()
 	_fixture_ready = false
 	_gate = _read_seal(GATE_PATH)
 	_desktop = _read_seal(DESKTOP_PATH)
@@ -184,6 +187,7 @@ func after_all() -> void:
 				parent.remove_child(node)
 			node.free()
 	_graph_nodes.clear()
+	_scene_validation_scope.restore()
 
 
 func _read_seal(path: String) -> Dictionary:

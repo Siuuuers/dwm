@@ -1,5 +1,7 @@
 extends "res://addons/gut/test.gd"
 
+var _scene_validation_scope := preload("res://tests/support/SceneValidationScope.gd").new()
+
 const GAME_STATE := preload("res://autoload/GameState.gd")
 const PARTICIPANT := preload("res://scripts/application/restore/RunRestoreParticipant.gd")
 
@@ -75,3 +77,9 @@ func test_scene_install_compensation_preserves_cold_state_and_configured_owners(
 		assert_same(owner._scene_event_bridge, bridge_owner)
 	assert_signal_not_emitted(owner, "save_relevant_state_changed")
 	fixture.close()
+
+func before_each() -> void:
+	_scene_validation_scope.install(true)
+
+func after_each() -> void:
+	_scene_validation_scope.restore()

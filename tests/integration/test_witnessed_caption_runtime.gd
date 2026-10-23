@@ -247,6 +247,7 @@ class MemoryProfile extends Node:
 class CaptionFixtureLocale extends Node:
 	signal locale_changed(locale: String)
 	var locale := "en"
+	func get_readiness() -> StringName: return &"ready"
 	func get_locale() -> String: return locale
 	func has_key(_key: String) -> bool: return true
 	func t(key: String) -> String: return key.get_slice(".", 2).capitalize()

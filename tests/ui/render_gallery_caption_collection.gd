@@ -314,14 +314,16 @@ func _status_capture(name: String) -> void:
 	var status: Label = _gallery.get_node("%ReplayStatus")
 	_check(not status.text.is_empty() and not status.text.begins_with("gallery."), "status untranslated")
 	var line_height: float = status.get_theme_font("font").get_height(status.get_theme_font_size("font_size"))
-	_check(status.get_line_count() * line_height <= 64.0, "status exceeds dock height")
-	_check(status.position.x + status.size.x <= _gallery.get_node("%ReplayButton").position.x, "status overlaps Replay action")
+	_check(status.get_line_count() * line_height <= status.size.y, "status lines exceed their allocated height")
+	_check(status.get_minimum_size().y <= status.size.y, "native status text exceeds its allocated height")
+	_check(status.position.y >= 564.0 and status.position.y + status.size.y <= 636.0, "status exceeds dock height")
+	_check(status.position.x + status.size.x + 8.0 <= _gallery.get_node("%ReplayButton").position.x, "status overlaps Replay action")
 	if _gallery.get("_status_key") == "gallery.history.added":
 		_check(not _gallery.get("_canvas").history_failed and status.get_theme_color("font_color") == _gallery.theme.get_color("ink", "Gallery"), "success inherited failure styling")
 	await RenderingServer.frame_post_draw
 	var image := root.get_texture().get_image()
 	_check(image != null and not image.is_empty() and image.save_png(_folder.path_join(name + ".png")) == OK, "status capture failed")
-	_samples.append({"file": name + ".png", "status": status.text, "rect": str(status.get_rect()), "context": _context()})
+	_samples.append({"file": name + ".png", "status": status.text, "rect": str(status.get_rect()), "native_minimum_height": status.get_minimum_size().y, "line_count": status.get_line_count(), "line_height": line_height, "context": _context()})
 
 func _signature() -> Dictionary:
 	return {"entry_id": ENTRY, "schema_version": 1,

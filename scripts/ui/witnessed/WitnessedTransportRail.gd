@@ -383,6 +383,13 @@ func _apply_button_material(button: Button, mode_on: bool) -> void:
 	button.add_theme_stylebox_override(&"hover_pressed", _plate(face, state_edge, 4))
 	button.add_theme_stylebox_override(&"disabled", _plate(face, state_edge, 4))
 	button.add_theme_stylebox_override(&"focus", StyleBoxEmpty.new())
+	# Measure the native shaped line, including fallback glyphs, before adding
+	# padding. Font.get_height() alone can undercount that line at 150%.
+	var padding := minf(8.0, floorf(maxf(0.0, button.custom_minimum_size.y - button.get_minimum_size().y) / 2.0))
+	for state: StringName in [&"normal", &"hover", &"pressed", &"hover_pressed", &"disabled"]:
+		var plate := button.get_theme_stylebox(state)
+		plate.content_margin_top = padding
+		plate.content_margin_bottom = padding
 	for state: StringName in [
 		&"font_color", &"font_hover_color", &"font_pressed_color",
 		&"font_hover_pressed_color", &"font_focus_color", &"font_disabled_color",
@@ -399,9 +406,7 @@ func _plate(fill: Color, edge: Color, edge_width: int) -> StyleBoxFlat:
 	result.set_border_width_all(edge_width)
 	for side: int in [SIDE_LEFT, SIDE_TOP, SIDE_RIGHT, SIDE_BOTTOM]:
 		result.set_expand_margin(side, -PLATE_INSET)
-		# The 150% pixel face has a 48px line box: 8px above/below fits the
-		# 64px rail without shrinking the requested text or clipping the plate.
-		result.set_content_margin(side, 8.0 if side in [SIDE_TOP, SIDE_BOTTOM] else 10.0)
+		result.set_content_margin(side, 0.0 if side in [SIDE_TOP, SIDE_BOTTOM] else 10.0)
 	return result
 
 
