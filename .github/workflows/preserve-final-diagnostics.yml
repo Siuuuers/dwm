@@ -1,0 +1,56 @@
+name: Preserve final visual and journal timing evidence
+on:
+  push:
+    branches: [codex/preserve-final-diagnostics-20261024]
+permissions:
+  actions: read
+  contents: write
+jobs:
+  preserve:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: f8c6c1105fedf2267f11a9fa2b10c84e4f8d5540
+          persist-credentials: true
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const fs=require('fs'),crypto=require('crypto');
+            const items=[{"run":39981619080,"id":12514331157,"name":"font-choices-render-39981619080-1","sha":"bed969e00fe3174a9a1dfdbe9541f2f6c4faed9dd8bd310bb495c408fd6e3b09"},{"run":39981619080,"id":12513921765,"name":"desktop-scaling-render-39981619080-1","sha":"32c9db29e6d3561603df160119efaf8004a17d797db88e7cc6b205f802147204"},{"run":39981619080,"id":12513558183,"name":"japanese-korean-ui-render-39981619080-1","sha":"2d01e7198229f1e24a5eef423bb5b7d46fad6873fe6362a86f188a3d1518e1fa"},{"run":39981619080,"id":12513433213,"name":"angela-overlay-render-39981619080-1","sha":"8bf40fed0d90d594118e013b4d8c5c5935b60c092c96bd7c5b49791de91bce24"},{"run":39981619080,"id":12513284048,"name":"cloud-speech-rendered-desktop-39981619080-1","sha":"1edc86059146d09737e9ce7d47e8396549db6f35d48d07a352e9923a9416876a"},{"run":39981619080,"id":12513239166,"name":"ui-literal-audit-39981619080-1","sha":"e69c984989056fbe24115e0115f9b591d84fb328a46956a49c2b614b432e12b1"},{"run":39981619080,"id":12512709669,"name":"delivery-dialogue-render-39981619080-1","sha":"74d1279a22d22cee3c9d3b56cb7abb16d554fc35761fa4d4091ec95892408743"},{"run":39979681421,"id":12514425452,"name":"seed-diagnostic","sha":"2dec82d7d84c0b92ae288b8bc41bad2a511e95cc9c604549759f07d9f98a94d4"}];
+            fs.mkdirSync('.godot/ci/preserve',{recursive:true});
+            for(const item of items){
+              const a=await github.rest.actions.downloadArtifact({owner:context.repo.owner,repo:context.repo.repo,artifact_id:item.id,archive_format:'zip'});
+              const bytes=Buffer.from(a.data);
+              if(crypto.createHash('sha256').update(bytes).digest('hex')!==item.sha) throw new Error('Hash mismatch '+item.id);
+              fs.writeFileSync('.godot/ci/preserve/'+item.id+'.zip',bytes);
+            }
+            fs.writeFileSync('.godot/ci/preserve/items.json',JSON.stringify(items));
+      - name: Verify archives and retain reports
+        run: |
+          python - <<'PY'
+          import json,pathlib,zipfile,shutil
+          tmp=pathlib.Path('.godot/ci/preserve');root=pathlib.Path('evidence/phase_2r/current_ci_20261023')
+          items=json.loads((tmp/'items.json').read_text())
+          for item in items:
+              out=root/('run'+str(item['run']));out.mkdir(parents=True,exist_ok=True)
+              archive=tmp/(str(item['id'])+'.zip')
+              with zipfile.ZipFile(archive) as z:
+                  assert z.testzip() is None
+                  for n in z.namelist():
+                      if n.endswith('.json'):
+                          target=(out/str(item['id'])/n).resolve()
+                          assert target.is_relative_to(out.resolve())
+                          target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(z.read(n))
+              if item['run']==39979681421 or item['name'].startswith('delivery-dialogue'):
+                  shutil.copyfile(archive,out/('original-'+str(item['id'])+'.zip'))
+          for run in {x['run'] for x in items}:
+              (root/('run'+str(run))/'artifacts.json').write_text(json.dumps([x for x in items if x['run']==run],indent=2)+'\n')
+          (root/'run39981619080'/'qualification.json').write_text(json.dumps({'source':'d2e737d2da04db29c410d0a13e9ca369d32b91b8','tree':'52dcf432a30a343ca0af778bbba378d89d0cd52b','controller':'e236698c8f03cc532ed9e93ab30de2818f89ac99','captures':{'desktop':38,'delivery':25,'hud':10,'japanese_korean':30,'fonts':30},'reported_failures':0},indent=2)+'\n')
+          PY
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add evidence/phase_2r/current_ci_20261023
+          git commit -m 'Retain final visual reports and measured journal seed evidence [skip ci]'
+          git push origin HEAD:refs/heads/codex/final-diagnostics-evidence-20261024
