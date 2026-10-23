@@ -87,7 +87,7 @@ jobs:
                           subprocess.run(["git", "fetch", "--no-tags", "--depth=1", "origin", previous], check=True)
                       changed = subprocess.run(["git", "diff", "--name-only", "-z", previous, "HEAD"], capture_output=True, check=True)
                       comparison_paths = set(changed.stdout.decode().strip("\0").split("\0"))
-                  comparison = bool(comparison_paths & {"scripts/infrastructure/save/DesktopContinuationOperationJournal.gd", "autoload/SaveManager.gd", "autoload/ProfileManager.gd", "scripts/narrative/DialogicRuntimeAdapter.gd", "scripts/application/backup/BackupPresentationPort.gd", "scripts/ui/BackupApp.gd", "scripts/ui/desktop/DesktopQuickCommands.gd", "scripts/ui/desktop/QuickStatusEdge.gd", "scripts/ui/dating/DatingQuickCommands.gd", "scripts/ui/pause/PauseQuickCommands.gd"})
+                  comparison = bool(comparison_paths & {"scripts/infrastructure/save/CheckpointJournal.gd", "scripts/infrastructure/save/DesktopContinuationOperationJournal.gd", "autoload/SaveManager.gd", "autoload/ProfileManager.gd", "scripts/narrative/DialogicRuntimeAdapter.gd", "scripts/application/backup/BackupPresentationPort.gd", "scripts/ui/BackupApp.gd", "scripts/ui/desktop/DesktopQuickCommands.gd", "scripts/ui/desktop/QuickStatusEdge.gd", "scripts/ui/dating/DatingQuickCommands.gd", "scripts/ui/pause/PauseQuickCommands.gd"})
                   focused = bool(paths) and "" not in paths and paths <= allowed
                   if focused:
                       focused = all(unchanged_outside_method(path, method)

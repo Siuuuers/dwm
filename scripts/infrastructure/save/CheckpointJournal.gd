@@ -9,7 +9,7 @@ const CANONICAL_JSON := preload("res://scripts/validation/CanonicalJsonWriter.gd
 
 const LINE_RETENTION := 32
 const MANUAL_SAVE_RETENTION := 32
-# The current full snapshot plus two recent semantic fallbacks implement completed-action recovery.
+# Legacy snapshots retain two recent semantic fallbacks for completed-action recovery.
 # Older snapshots duplicate the complete run; durable story/receipt history lives inside current.
 const SEMANTIC_RETENTION := 2
 const SEMANTIC_KINDS: Array[String] = [
@@ -68,9 +68,13 @@ func prepare_record(snapshot: Dictionary, checkpoint_kind: StringName,
 	if int(candidate_snapshot["checkpoint_sequence"]) != _next_sequence:
 		return _fail(&"sequence_mismatch",
 			"expected %d, got %d" % [_next_sequence, int(candidate_snapshot["checkpoint_sequence"])])
-	var earlier: Array[Dictionary] = _earlier.duplicate(true)
-	if not _current.is_empty():
-		earlier.append(_current.duplicate(true))
+	# Current scene snapshots contain the complete durable state. Previous full
+	# snapshots are no longer Load fallbacks; keep legacy retention unchanged.
+	var earlier: Array[Dictionary] = []
+	if candidate_snapshot.get("schema_version") != RUN_SNAPSHOT_SCHEMA.SCENE_SCHEMA_VERSION:
+		earlier = _earlier.duplicate(true)
+		if not _current.is_empty():
+			earlier.append(_current.duplicate(true))
 	return {"ok": true, "code": &"ok", "value": {"candidate": {
 		"candidate_kind": "record",
 		"run_id": _run_id,
@@ -262,6 +266,10 @@ func get_current_bundle() -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {"bundle": _current.duplicate(true)}}
 
 func get_bundles_for_disk() -> Array[Dictionary]:
+	# A freshly loaded older Save9 can still have retained history. New writes
+	# omit it without changing the admitted source or any pending continuation.
+	if _current.get("snapshot", {}).get("schema_version") == RUN_SNAPSHOT_SCHEMA.SCENE_SCHEMA_VERSION:
+		return []
 	return _earlier.duplicate(true)
 
 func prepare_seed(document: Dictionary, selected_bundle: Dictionary) -> Dictionary:
