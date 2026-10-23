@@ -171,6 +171,10 @@ func create_current_title_scene() -> void:
 		fail_test("current title manual Save timeout: " + str(app.last_result))
 		return
 	if not _ok(app.last_result): return
+	var written: Dictionary = PARSER.parse_object(FileAccess.get_file_as_string(TITLE_SLOT))
+	if not _ok(written): return
+	assert_eq(written.value.schema_version, 9)
+	assert_eq(written.value.recovery_journal, [], "the real manual Save emits no fallback snapshots")
 	await _screenshot("current-title-save")
 	if not await _press(pause.surface._sheet_back): return
 	assert_false(get_tree().paused)

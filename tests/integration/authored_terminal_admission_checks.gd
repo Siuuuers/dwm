@@ -41,6 +41,52 @@ func _frozen_checks(source: Dictionary) -> Dictionary:
 		"full validation authenticates terminal authority once, like direct checkpoint validation")
 	assert_eq(full_counts.physical_proof_calls, checkpoint_counts.physical_proof_calls)
 	assert_gt(int(full_counts.physical_proof_calls), 0, "same-call reuse still proves current physical Profile")
+	var ledger: Dictionary = TERMINAL_CONTRACT.validate_selected_scene_receipts(
+		source.command_receipts, game._identity_issuer, saves, source.contacts)
+	if not _ok(ledger): return {}
+	assert_eq(full.scene_commands, ledger.value.commands, "terminal frames expose only freshly authenticated source commands")
+	var source_before := source.duplicate(true)
+	var live_before: Dictionary = game.capture_restore_state()
+	assert_true(TERMINAL_TIMING.begin_scope("terminal_semantic_reuse", "ENDING", "PRIMARY_PENDING", 0))
+	var semantic: Dictionary = game._prepare_scene_snapshot_semantics(source, AUTHORED_MANIFEST.scene_registration().value)
+	var semantic_counts: Dictionary = TERMINAL_TIMING._record.duplicate(true)
+	TERMINAL_TIMING.end_scope(bool(semantic.get("ok", false)))
+	if not _ok(semantic): return {}
+	assert_eq(semantic_counts.receipt_validation_calls, full_counts.receipt_validation_calls,
+		"semantic validation reuses source commands instead of authenticating the ledger once more")
+	assert_gt(int(semantic_counts.physical_proof_calls), 0)
+	assert_eq(semantic.pending_anchors.size(), ledger.value.commands.size())
+	assert_false(semantic.pending_anchors.is_empty(), "genuine terminal source carries native anchors")
+	if not semantic.pending_anchors.is_empty():
+		var invented: Array[Dictionary] = []
+		invented.assign(semantic.pending_anchors.duplicate(true))
+		invented[0].publication_id = "TEST.invented.publication"
+		assert_false(game._validate_scene_snapshot_anchors(invented, semantic.checkpoint).ok,
+			"authenticated commands never bypass the native publication join")
+	assert_true(game.validate_scene_snapshot_semantics(source, AUTHORED_MANIFEST.scene_registration().value).ok,
+		"reused commands still pass the real native anchor join")
+	full.scene_commands.clear()
+	assert_eq(TERMINAL_FROZEN.validate(source).scene_commands, ledger.value.commands,
+		"editing returned commands cannot change a later validation")
+	assert_eq(source, source_before)
+	assert_eq(game.capture_restore_state(), live_before, "validation never applies or repeats gameplay consequences")
+	var original_issuer: Object = game._identity_issuer
+	var unbound_issuer := TERMINAL_ISSUER.new()
+	if not _ok(unbound_issuer.configure(OTHER_ROOT.new("ed".repeat(32), 1))): return {}
+	assert_false(TERMINAL_FROZEN.scene_validation_uses(unbound_issuer, saves))
+	assert_false(TERMINAL_FROZEN.scene_validation_uses(original_issuer, null))
+	game._identity_issuer = unbound_issuer
+	var unbound: Dictionary = game._prepare_scene_snapshot_semantics(source, AUTHORED_MANIFEST.scene_registration().value)
+	game._identity_issuer = original_issuer
+	assert_false(unbound.ok, "another issuer cannot reuse the bound owner's command proof")
+	var wrong_bundle: Dictionary = AUTHORED_MANIFEST.scene_registration().value.duplicate(true)
+	wrong_bundle.extra_table = []
+	assert_false(game._prepare_scene_snapshot_semantics(source, wrong_bundle).ok, "registration mismatch still rejects")
+	for field: String in ["active_occurrence_id", "active_admission_receipt_id", "registration_sha256"]:
+		var wrong_context: Dictionary = source.duplicate(true)
+		wrong_context.scene[field] = "TEST.changed.context"
+		assert_false(game._prepare_scene_snapshot_semantics(wrong_context, AUTHORED_MANIFEST.scene_registration().value).ok,
+			"reused commands remain bound to " + field)
 
 	var changed: Dictionary = source.duplicate(true)
 	changed.lifecycle.ending_plan.source_reading_checkpoint = {}
@@ -54,7 +100,10 @@ func _frozen_checks(source: Dictionary) -> Dictionary:
 		"public checkpoint validation independently rechecks later receipts")
 	changed = source.duplicate(true)
 	changed.narrative_checkpoint = {}
-	assert_true(TERMINAL_FROZEN.validate(changed).ok, "initial terminal admission retains its allowed empty checkpoint")
+	var empty: Dictionary = TERMINAL_FROZEN.validate(changed)
+	assert_true(empty.ok, "initial terminal admission retains its allowed empty checkpoint")
+	assert_eq(empty.get("scene_commands"), ledger.value.commands)
+	assert_true(game._prepare_scene_snapshot_semantics(changed, AUTHORED_MANIFEST.scene_registration().value).ok)
 	assert_eq(TERMINAL_FROZEN.validate_reading_checkpoint({}, changed).code, &"reading_session_invalid",
 		"standalone checkpoint API still requires a checkpoint envelope")
 	changed.narrative_checkpoint = null
@@ -64,7 +113,7 @@ func _frozen_checks(source: Dictionary) -> Dictionary:
 		"terminal authority refusal precedes malformed current checkpoint")
 	assert_eq(TERMINAL_FROZEN.validate_reading_checkpoint({}, changed).code, &"scene_terminal_admission_mismatch",
 		"standalone checkpoint preserves the same terminal-first error order")
-	return {"full_counts": full_counts, "checkpoint_counts": checkpoint_counts}
+	return {"full_counts": full_counts, "checkpoint_counts": checkpoint_counts, "semantic_counts": semantic_counts}
 
 func test_selected_terminal_admission_rechecks_genuine_saved_authority() -> void:
 	_phase = "terminal-admission"
@@ -140,11 +189,13 @@ func test_selected_terminal_admission_rechecks_genuine_saved_authority() -> void
 	var physical_refusal := _selected(record, receipts, contacts)
 	var full_physical_refusal: Dictionary = TERMINAL_FROZEN.validate(source)
 	var checkpoint_physical_refusal: Dictionary = TERMINAL_FROZEN.validate_reading_checkpoint(source.narrative_checkpoint, source)
+	var semantic_physical_refusal: Dictionary = game._prepare_scene_snapshot_semantics(source, bundle)
 	var restored := _restore_profile_bytes()
 	assert_true(restored, "original Profile bytes restored immediately")
 	assert_false(physical_refusal.ok, "later changed physical Profile is not replaced by cached proof")
 	assert_false(full_physical_refusal.ok, "full validation rechecks physical Profile on each call")
 	assert_false(checkpoint_physical_refusal.ok, "standalone checkpoint validation rechecks physical Profile on each call")
+	assert_false(semantic_physical_refusal.ok, "semantic reuse never caches physical Profile proof")
 	if not restored: return
 	assert_true(_selected(record, receipts, contacts).ok, "original valid inputs remain admissible after all mutations")
 	assert_true(TERMINAL_FROZEN.validate(source).ok, "valid full context recovers after physical bytes are restored")
