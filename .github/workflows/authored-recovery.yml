@@ -7,7 +7,7 @@ jobs:
       run:
         shell: pwsh
     if: github.head_ref == 'codex/story-day-qualification-20261023' || github.ref == 'refs/heads/codex/story-day-qualification-20261023'
-    name: Windows / Caption ledger index and genuine Day2 recovery
+    name: Windows / Fresh transition proof and genuine Day2 recovery
     runs-on: windows-2022
     steps:
     - name: Preserve source bytes
@@ -16,18 +16,18 @@ jobs:
       with:
         fetch-depth: 2
         persist-credentials: true
-        ref: 86668705820ca91676f14455d71df4fe5b36c138
+        ref: 4785ef958e947fb60b72c936783b5cd087e32fd5
     - name: Record pinned source
       run: '$ErrorActionPreference = ''Stop''
 
-        if ((git rev-parse HEAD) -cne ''86668705820ca91676f14455d71df4fe5b36c138'') { throw ''Candidate mismatch'' }
+        if ((git rev-parse HEAD) -cne ''4785ef958e947fb60b72c936783b5cd087e32fd5'') { throw ''Candidate mismatch'' }
 
-        if ((git rev-parse ''HEAD^{tree}'') -cne ''14b77bc54dd2e87fc1d8038d005b154fd95d1c13'') { throw ''Candidate tree mismatch''
+        if ((git rev-parse ''HEAD^{tree}'') -cne ''06ba0847d5a9e39629af811a22d65f79f5d7a0da'') { throw ''Candidate tree mismatch''
         }
 
         New-Item -ItemType Directory -Force ''.godot/ci'' | Out-Null
 
-        @{candidate=''86668705820ca91676f14455d71df4fe5b36c138''; tree=(git rev-parse ''HEAD^{tree}''); controller=''${{ github.event.pull_request.head.sha
+        @{candidate=''4785ef958e947fb60b72c936783b5cd087e32fd5''; tree=(git rev-parse ''HEAD^{tree}''); controller=''${{ github.event.pull_request.head.sha
         }}''; workflow=''${{ github.workflow_sha }}''; event=''${{ github.sha }}''; run_id=''${{ github.run_id }}''; attempt=''${{
         github.run_attempt }}''} | ConvertTo-Json | Set-Content ''.godot/ci/audit-origin.json''
 
@@ -70,11 +70,11 @@ jobs:
         \ -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) {\n  throw\
         \ 'Project import reported script errors; inspect import.log.'\n}\n"
       timeout-minutes: 8
-    - name: Verify caption ledger
-      timeout-minutes: 4
-      run: './tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId ''caption-ledger'' -LogName ''caption-ledger.log'' -EvidenceLogPath
-        ''.godot/ci/caption-ledger.jsonl'' -TimeoutSeconds 120 -KeepRoot -GodotArgs @(''-s'', ''res://addons/gut/gut_cmdln.gd'',
-        ''-gconfig='', ''-gtest=res://tests/unit/test_narrative_caption_ledger.gd'', ''-gexit'', ''-glog=2'', ''-gjunit_xml_file=res://.godot/ci/caption-ledger.xml'')
+    - name: Verify scene reading
+      timeout-minutes: 6
+      run: './tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId ''scene-reading'' -LogName ''scene-reading.log'' -EvidenceLogPath
+        ''.godot/ci/scene-reading.jsonl'' -TimeoutSeconds 240 -KeepRoot -Rendered -GodotArgs @(''-s'', ''res://addons/gut/gut_cmdln.gd'',
+        ''-gconfig='', ''-gtest=res://tests/integration/test_scene_day_reading.gd'', ''-gexit'', ''-glog=2'', ''-gjunit_xml_file=res://.godot/ci/scene-reading.xml'')
 
         if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
@@ -170,13 +170,13 @@ jobs:
 
         print(''Genuine Day2 recovery and bounded continuation passed; not whole-week acceptance'')
 
-        unit=ET.parse(p/''caption-ledger.xml'').getroot(); unit_cases=list(unit.iter(''testcase''))
+        unit=ET.parse(p/''scene-reading.xml'').getroot(); unit_cases=list(unit.iter(''testcase''))
 
-        assert len(unit_cases)==18 and all(c.attrib[''status'']==''pass'' for c in unit_cases)
+        assert len(unit_cases)==15 and all(c.attrib[''status'']==''pass'' for c in unit_cases)
 
         assert not any(list(unit.iter(t)) for t in [''failure'',''error'',''skipped''])
 
-        unit_events=[json.loads(s) for s in (p/''caption-ledger.jsonl'').read_text(encoding=''utf-8-sig'').splitlines() if
+        unit_events=[json.loads(s) for s in (p/''scene-reading.jsonl'').read_text(encoding=''utf-8-sig'').splitlines() if
         s.strip()]
 
         assert len(unit_events)==1 and unit_events[0][''exit_code'']==0
@@ -208,7 +208,7 @@ jobs:
         \ uid_paths.add(uid)\nfor p in sorted(uid_paths):\n    target=out/'native-uids'/(pathlib.Path(p.name) if p.parent==pathlib.Path('tests/integration')\
         \ else p);target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(p.read_bytes())\n    tracked=subprocess.run(['git','ls-files','--error-unmatch','--',str(p)],capture_output=True).returncode==0\n\
         \    records.append({'path':p.as_posix(),'retained_path':target.relative_to(out).as_posix(),'sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'provenance':'candidate_tracked'\
-        \ if tracked else 'cloud_editor_import','source':'86668705820ca91676f14455d71df4fe5b36c138','source_tree':'14b77bc54dd2e87fc1d8038d005b154fd95d1c13'})\n\
+        \ if tracked else 'cloud_editor_import','source':'4785ef958e947fb60b72c936783b5cd087e32fd5','source_tree':'06ba0847d5a9e39629af811a22d65f79f5d7a0da'})\n\
         (out/'uid-provenance.json').write_text(json.dumps(records,indent=2))\n(out/'final-status.txt').write_text(subprocess.check_output(['git','status','--porcelain'],text=True))\n\
         manifest_source=subprocess.check_output(['git','ls-tree','-r','HEAD'],text=True)\n(out/'source-tree.txt').write_text(manifest_source)\n\
         files=[p for p in out.rglob('*') if p.is_file() and 'import-user' not in p.parts and p.name not in ['original-evidence.zip','retained-hashes.json']]+list(pathlib.Path('.godot/phase2r_logs').glob('*.log'))\n\
@@ -227,7 +227,7 @@ jobs:
         path: .godot/ci/original-evidence.zip
         retention-days: 30
     timeout-minutes: 35
-name: Caption ledger lookup and genuine authored recovery
+name: Fresh transition proof and genuine authored recovery
 'on':
   workflow_dispatch: null
   pull_request:
