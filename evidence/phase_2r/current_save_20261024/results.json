@@ -1,0 +1,475 @@
+{
+  "status": "accepted_and_merged",
+  "pull_request": "https://github.com/Siuuuers/dwm/pull/59",
+  "qualified_source": "91704781f81c3fdcf1c397f937acdcbeb4ed04c8",
+  "merge_commit": "87ed3a1aafb68aafccfaf3faa7aeb1bdec8bc75c",
+  "qualified_and_merged_tree": "15354cb42c1d8a8279af248c29549dc16a109758",
+  "tree_equality_verified": true,
+  "final_ci": {
+    "run_id": 40014024806,
+    "url": "https://github.com/Siuuuers/dwm/actions/runs/40014024806",
+    "conclusion": "success",
+    "jobs": {
+      "success": 30,
+      "skipped": 1
+    },
+    "skipped_job": "Matched native comparison intentionally reused separately qualified runtime evidence",
+    "matrix_suites": 25,
+    "matrix_primary_cases": 2796,
+    "public_surface_primary_cases": 11
+  },
+  "junit_groups": {
+    "final_primary": {
+      "cases": 2807,
+      "assertions": 155313,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "final_fresh_process_load": {
+      "cases": 3,
+      "assertions": 195,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "intentional_storage_refusal_children": {
+      "cases": 166,
+      "assertions": 198,
+      "failures": 160,
+      "errors": 0,
+      "skipped": 0
+    },
+    "prior_native": {
+      "cases": 2,
+      "assertions": 224,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "counting_note": "Primary counts are test executions, not unique behavior claims. The three fresh-process Load cases are separate. Native baseline and candidate each passed one case/112 assertions. The two storage-refusal child runs each intentionally exit 1 with 80 refused cases and 3 storage-free passes; their failure elements are expected and excluded from passing primary totals. Diagnostic inventory generation is not additional coverage.",
+  "standalone_checks": {
+    "backup_ui": {
+      "checks": 17011,
+      "failures": 0
+    },
+    "manual_witness_revision_storage": {
+      "assertions": 61180,
+      "failures": 0,
+      "distinct_snapshots": 94,
+      "refusal_pairs": 30,
+      "restart_fault_pairs": 1604,
+      "restart_pairs": 2218,
+      "write_fault_pairs": 154,
+      "write_pairs": 14
+    }
+  },
+  "native_comparison": {
+    "run_id": 40010510207,
+    "url": "https://github.com/Siuuuers/dwm/actions/runs/40010510207",
+    "runtime_source": "794777c675c58faa8cf25115236287d689699786",
+    "baseline_source": "3ed6d3b0d8d69f2b2aa6e95855ba2b5c5f65211e",
+    "order": "baseline_first",
+    "pairs": 1,
+    "candidate_runtime_files_match_final_source": true,
+    "rendered_images_reviewed": "Independently reviewed by root coordinator",
+    "seconds": {
+      "complete_load": {
+        "baseline": 312.803923,
+        "candidate": 136.429109
+      },
+      "load_to_ready": {
+        "baseline": 233.637087,
+        "candidate": 133.844274
+      },
+      "complete_save": {
+        "baseline": 195.129515,
+        "candidate": 84.653772
+      }
+    },
+    "limits": "Nested timing intervals overlap. One ordered pair is not a latency distribution or order-independent performance guarantee. Runtime equality is established for the seven swapped files; helper and input provenance is in comparison.json."
+  },
+  "evidence": {
+    "file": "exact-evidence.zip",
+    "sha256": "f6d0acade17fb14dcee62ce9b3aa3cb5ca605f10418feddec28291cf7524f93e",
+    "bytes": 2734706,
+    "source_archives": 38,
+    "included_members": 224,
+    "excluded_members": 330,
+    "deduplicated_objects": 192,
+    "verification": "All 38 downloaded source archive sizes, GitHub SHA256 digests and ZIP CRCs verified; every retained object SHA256 and compact ZIP CRC verified.",
+    "storage": "Exact uncompressed member bytes are stored as objects/<sha256>; manifest maps each included source path. Original ZIP container bytes are not retained.",
+    "exclusion_policy": "Manifest explicitly marks all omitted member paths and preserves their original size/hash/metadata without an object pointer. Bulky final render captures, raw user roots/runtime assets, duplicate generated inventories, verbose speech traces/voice inventories, and raw native capture intermediates are omitted. The full 21-member passing native comparison is retained. Export distribution archive (110865501 bytes) was not downloaded and its content digest/CRC was not verified; its GitHub metadata and completed job API log are retained. Omitted bytes are not claimed preserved.",
+    "archive_provenance": [
+      {
+        "scope": "passing_native_comparison",
+        "id": 12526174041,
+        "name": "startup-load-comparison-40010510207-1",
+        "run_id": 40010510207,
+        "head_sha": "794777c675c58faa8cf25115236287d689699786",
+        "sha256": "b302ad64bfcca850c78e19e12d6feefffb1aa4639ec9bb0691eec2bdda725cb9",
+        "bytes": 2562927
+      },
+      {
+        "scope": "inventory_diagnostic",
+        "id": 12528035504,
+        "name": "regenerated-surfaces-40013436598-1",
+        "run_id": 40013436598,
+        "head_sha": "9c6ea2d55278ad85af498386546a45428f79979a",
+        "sha256": "210f1f5af68580187c462bceab245c690e00808fca9d1398ca0bfe3e6d0889db",
+        "bytes": 216562
+      },
+      {
+        "scope": "final_ci",
+        "id": 12528296987,
+        "name": "angela-overlay-render-40014024806-1",
+        "run_id": 40014024806,
+        "head_sha": "91704781f81c3fdcf1c397f937acdcbeb4ed04c8",
+        "sha256": "0295d7e56649bd3067e41f83d55c68836e951fd12d1ff4ba3876c575ba670674",
+        "bytes": 3575386
+      },
+      {
+        "scope": "final_ci",
+        "id": 12527936921,
+        "name": "cloud-speech-rendered-desktop-40014024806-1",
+        "run_id": 40014024806,
+        "head_sha": "91704781f81c3fdcf1c397f937acdcbeb4ed04c8",
+        "sha256": "4a9a32c1dbd88acafdf3e3a18b7362ea3a6d79e0a1c9d4d59fc8ee72ba26f207",
+        "bytes": 385039
+      },
+      {
+        "scope": "final_ci",
+        "id": 12528041922,
+        "name": "cloud-speech-rendered-journeys-40014024806-1",
+        "run_id": 40014024806,
+        "head_sha": "91704781f81c3fdcf1c397f937acdcbeb4ed04c8",
+        "sha256": "f78cd75ccd6b0760a926f1906eb7b46528a96bf531215a75afa2afddbe5dce72",
+        "bytes": 386647
+      },
+      {
+        "scope": "final_ci",
+        "id": 12528431062,
+        "name": "delivery-dialogue-render-40014024806-1",
+        "run_id": 40014024806,
+        "head_sha": "91704781f81c3fdcf1c397f937acdcbeb4ed04c8",
+        "sha256": "ba33d8cbf92a1ee3e1736b0b7142824893b75eef0b597bb0128d7a6bb15be991",
+        "bytes": 15066237
+      },
+      {
+        "scope": "final_ci",
+        "id": 12527204323,
+        "name": "desktop-scaling-render-40014024806-1",
+        "run_id": 40014024806,
+        "head_sha": "91704781f81c3fdcf1c397f937acdcbeb4ed04c8",
+        "sha256": "88537616942d173b32b772dbd2341338bdb81961068bd0999836110c8e5a7c2c",
+        "bytes": 13186731
+      },
+      {
+        "scope": "final_ci",
+        "id": 12527718169,
+        "name": "font-choices-render-40014024806-1",
+        "run_id": 40014024806,
+        "head_sha": "91704781f81c3fdcf1c397f937acdcbeb4ed04c8",
+        "sha256": "bc799afd4cca718d36608594703bb528bd579ec5a415b13f102c34e703c7aec7",
+        "bytes": 7110966
+      },
+      {
+        "scope": "final_ci",
+        "id": 12527444378,
+        "name": "gallery-caption-collection-40014024806-1",
+        "run_id": 40014024806,
+        "head_sha": "91704781f81c3fdcf1c397f937acdcbeb4ed04c8",
+        "sha256": "ed8040a22344ef26cde64da8676095b99e2dbc47424df1c16373259d5129a685",
+        "bytes": 8862456
+      },
+      {
+        "scope": "final_ci",
+        "id": 12527553074,
+        "name": "gallery-version-register-40014024806-1",
+        "run_id": 40014024806,
+        "head_sha": "91704781f81c3fdcf1c397f937acdcbeb4ed04c8",
+        "sha256": "8804276500e98fb1010f79e8910e9f9a95e902a43843e88dd1816c93af29a98f",
+        "bytes": 85691
+      },
+      {
+        "scope": "final_ci",
+        "id": 12528681174,
+        "name": "japanese-korean-ui-render-40014024806-1",
+        "run_id": 40014024806,
+        "head_sha": "91704781f81c3fdcf1c397f937acdcbeb4ed04c8",
+        "sha256": "5c705b414df0ad985f5a365ccdd1f9627458169d3865db620701f8da579960a1",
+        "bytes": 8399524
+      },
+      {
+        "scope": "final_ci",
+        "id": 12528385841,
+        "name": "public-surfaces-40014024806-1",
+        "run_id": 40014024806,
+        "head_sha": "91704781f81c3fdcf1c397f937acdcbeb4ed04c8",
+        "sha256": "b31ee1cfc5d66a7c43de22b3196922081ff483377ad1ee94e60e88b78140c7f7",
+        "bytes": 241947
+      },
+      {
+        "scope": "final_ci",
+        "id": 12528007362,
+        "name": "ui-literal-audit-40014024806-1",
+        "run_id": 40014024806,
+        "head_sha": "91704781f81c3fdcf1c397f937acdcbeb4ed04c8",
+        "sha256": "2e332e919bcb936292b6b34d01f8e9415106e2969d944cfe4283ad008c609a40",
+        "bytes": 30771
+      },
+      {
+        "scope": "final_ci",
+        "id": 12527509186,
+        "name": "windows-audio-40014024806-1",
+        "run_id": 40014024806,
+        "head_sha": "91704781f81c3fdcf1c397f937acdcbeb4ed04c8",
+        "sha256": "7c7a7109457a88e985f084eab3690cc5e543349843b52c7437c97a47b4cc7a20",
+        "bytes": 11695
+      },
+      {
+        "scope": "final_ci",
+        "id": 12528640481,
+        "name": "windows-authored_week-40014024806-1",
+        "run_id": 40014024806,
+        "head_sha": "91704781f81c3fdcf1c397f937acdcbeb4ed04c8",
+        "sha256": "b572bef77255ffeafae394dfadd02b8855408f33d2e132e0e57edbe2f9d6f3ea",
+        "bytes": 9232
+      },
+      {
+        "scope": "final_ci",
+        "id": 12528606033,
+        "name": "windows-backup_current_build-40014024806-1",
+        "run_id": 40014024806,
+        "head_sha": "91704781f81c3fdcf1c397f937acdcbeb4ed04c8",
+        "sha256": "931f044304ed3589bfda592276ccb8aee8c4ac2c2bdefdbf99dd8d0f023c56f3",
+        "bytes": 63008
+      },
+      {
+        "scope": "final_ci",
+        "id": 12528570690,
+        "name": "windows-checkpoint_diagnostics-40014024806-1",
+        "run_id": 40014024806,
+        "head_sha": "91704781f81c3fdcf1c397f937acdcbeb4ed04c8",
+        "sha256": "e008b22141c87afd4a7cb73e274d65bafaa5a1671bf6e9f54bb535c974f6f297",
+        "bytes": 12991
+      },
+      {
+        "scope": "final_ci",
+        "id": 12528561305,
+        "name": "windows-current_title-40014024806-1",
+        "run_id": 40014024806,
+        "head_sha": "91704781f81c3fdcf1c397f937acdcbeb4ed04c8",
+        "sha256": "3af41ee49fd1ed08329bb61f71bd74b8842e5b1a242dec14f05b0c04878eaccf",
+        "bytes": 17285
+      },
+      {
+        "scope": "final_ci",
+        "id": 12527588627,
+        "name": "windows-dating-40014024806-1",
+        "run_id": 40014024806,
+        "head_sha": "91704781f81c3fdcf1c397f937acdcbeb4ed04c8",
+        "sha256": "af384bebcfd8f551767ece09ad064ca91a97292ca6687d1f535e960609784c77",
+        "bytes": 20378
+      },
+      {
+        "scope": "final_ci",
+        "id": 12528561372,
+        "name": "windows-desktop-40014024806-1",
+        "run_id": 40014024806,
+        "head_sha": "91704781f81c3fdcf1c397f937acdcbeb4ed04c8",
+        "sha256": "8e387c46564e2449213912166f84945bd3edbf7a2cc928665da8aff7d47c51bf",
+        "bytes": 30452
+      },
+      {
+        "scope": "final_ci",
+        "id": 12527857461,
+        "name": "windows-endings-40014024806-1",
+        "run_id": 40014024806,
+        "head_sha": "91704781f81c3fdcf1c397f937acdcbeb4ed04c8",
+        "sha256": "3acabe972cd768a024ff4939acee8a3760641136a186026bcdaae713ab2e43a7",
+        "bytes": 19799
+      },
+      {
+        "scope": "final_ci",
+        "id": 12527662679,
+        "name": "windows-localization-40014024806-1",
+        "run_id": 40014024806,
+        "head_sha": "91704781f81c3fdcf1c397f937acdcbeb4ed04c8",
+        "sha256": "3b03e0f89e393a71deb762a92ca9026dab7caafffd7ee91b1c781a29db03665b",
+        "bytes": 23997
+      },
+      {
+        "scope": "final_ci",
+        "id": 12527967133,
+        "name": "windows-minesweeper-40014024806-1",
+        "run_id": 40014024806,
+        "head_sha": "91704781f81c3fdcf1c397f937acdcbeb4ed04c8",
+        "sha256": "37ba9fbb9f479fab28d327d11b290678fbaf79fc79a63550d52db3f9f56d32d3",
+        "bytes": 40538
+      },
+      {
+        "scope": "final_ci",
+        "id": 12527678307,
+        "name": "windows-new_account-40014024806-1",
+        "run_id": 40014024806,
+        "head_sha": "91704781f81c3fdcf1c397f937acdcbeb4ed04c8",
+        "sha256": "c4acbcc2c0e93beaedffeb28588c67cbba9dccae6e872e9424abcc520ed632c5",
+        "bytes": 21466
+      },
+      {
+        "scope": "final_ci",
+        "id": 12528421344,
+        "name": "windows-persistence-40014024806-1",
+        "run_id": 40014024806,
+        "head_sha": "91704781f81c3fdcf1c397f937acdcbeb4ed04c8",
+        "sha256": "a456180a670e01e493b88c1637e447e04288bb3b7495f22c5e7882500dc68456",
+        "bytes": 25316
+      },
+      {
+        "scope": "final_ci",
+        "id": 12527029663,
+        "name": "windows-profile_parse-40014024806-1",
+        "run_id": 40014024806,
+        "head_sha": "91704781f81c3fdcf1c397f937acdcbeb4ed04c8",
+        "sha256": "24eb81184ee02a00193aa2e12a183996c4657a936054c254641a80539d962be3",
+        "bytes": 12170
+      },
+      {
+        "scope": "final_ci",
+        "id": 12528880415,
+        "name": "windows-reading_delivery-40014024806-1",
+        "run_id": 40014024806,
+        "head_sha": "91704781f81c3fdcf1c397f937acdcbeb4ed04c8",
+        "sha256": "d60f5a6d1cd9896c929a5dd70ffcfa83b3433a017ea500d991c91f3afed29a49",
+        "bytes": 49368
+      },
+      {
+        "scope": "final_ci",
+        "id": 12527458432,
+        "name": "windows-scene_apps-40014024806-1",
+        "run_id": 40014024806,
+        "head_sha": "91704781f81c3fdcf1c397f937acdcbeb4ed04c8",
+        "sha256": "92c3cef574994c0f87a97522f144cba16b7fe7175e81be5990f3982d991c6e31",
+        "bytes": 19483
+      },
+      {
+        "scope": "final_ci",
+        "id": 12528456076,
+        "name": "windows-scene_backup_inspection-40014024806-1",
+        "run_id": 40014024806,
+        "head_sha": "91704781f81c3fdcf1c397f937acdcbeb4ed04c8",
+        "sha256": "c06a6b42ad812800e82a247e7373d058c42c29912bba260af19d5ace116106ea",
+        "bytes": 9591
+      },
+      {
+        "scope": "final_ci",
+        "id": 12527508904,
+        "name": "windows-scene_controls_localization-40014024806-1",
+        "run_id": 40014024806,
+        "head_sha": "91704781f81c3fdcf1c397f937acdcbeb4ed04c8",
+        "sha256": "80bf490cce775c3e6de4eb3a0c110afb91c4696afbebfaba694724de9b20a47d",
+        "bytes": 9634
+      },
+      {
+        "scope": "final_ci",
+        "id": 12528331203,
+        "name": "windows-scene_desktop_first_reveal-40014024806-1",
+        "run_id": 40014024806,
+        "head_sha": "91704781f81c3fdcf1c397f937acdcbeb4ed04c8",
+        "sha256": "77183c6aaaca191ec20dfd4727479b2569224c8b6aa293f5030330fba7127dff",
+        "bytes": 19032
+      },
+      {
+        "scope": "final_ci",
+        "id": 12528500820,
+        "name": "windows-scene_five_outcomes-40014024806-1",
+        "run_id": 40014024806,
+        "head_sha": "91704781f81c3fdcf1c397f937acdcbeb4ed04c8",
+        "sha256": "62ada0cc09d9a369b9e5321d0f79f4c767b66c60a458238bb47c48de577cf5dc",
+        "bytes": 9531
+      },
+      {
+        "scope": "final_ci",
+        "id": 12527484110,
+        "name": "windows-scene_round_checkpoint-40014024806-1",
+        "run_id": 40014024806,
+        "head_sha": "91704781f81c3fdcf1c397f937acdcbeb4ed04c8",
+        "sha256": "450451b80af2c3ed126b09204d1269263054e0f53ad502b2193fc9f5c61b5127",
+        "bytes": 9352
+      },
+      {
+        "scope": "final_ci",
+        "id": 12527508933,
+        "name": "windows-scene_shop_checkpoint-40014024806-1",
+        "run_id": 40014024806,
+        "head_sha": "91704781f81c3fdcf1c397f937acdcbeb4ed04c8",
+        "sha256": "19ebaff419afe369f5839f00d45636b2554b620dca98a4973a6a5853051664e9",
+        "bytes": 10355
+      },
+      {
+        "scope": "final_ci",
+        "id": 12528051979,
+        "name": "windows-scene_story_localization-40014024806-1",
+        "run_id": 40014024806,
+        "head_sha": "91704781f81c3fdcf1c397f937acdcbeb4ed04c8",
+        "sha256": "600611e94d6e4410cf8e0889c4087da6a258e59b1646fe718ad3e75f60b8e3df",
+        "bytes": 9659
+      },
+      {
+        "scope": "final_ci",
+        "id": 12528441596,
+        "name": "windows-settings-40014024806-1",
+        "run_id": 40014024806,
+        "head_sha": "91704781f81c3fdcf1c397f937acdcbeb4ed04c8",
+        "sha256": "4e15cca0207ddb3d5ece51e87cd643052dfdef17e9fc9b17973227938f074a53",
+        "bytes": 2977493
+      },
+      {
+        "scope": "final_ci",
+        "id": 12528281540,
+        "name": "windows-shop-40014024806-1",
+        "run_id": 40014024806,
+        "head_sha": "91704781f81c3fdcf1c397f937acdcbeb4ed04c8",
+        "sha256": "9e362f7051790a7e460774dd27349364937a2a7f122d7e2553d09b380db2e478",
+        "bytes": 18817
+      },
+      {
+        "scope": "final_ci",
+        "id": 12528466199,
+        "name": "windows-timeline_resources-40014024806-1",
+        "run_id": 40014024806,
+        "head_sha": "91704781f81c3fdcf1c397f937acdcbeb4ed04c8",
+        "sha256": "47820bb7ad38280cf93c272af0f08e0e2df5d6a7280c8c70f7e9774ee67c66a3",
+        "bytes": 9393
+      }
+    ],
+    "excluded_artifacts": [
+      {
+        "metadata": {
+          "id": 12527413515,
+          "node_id": "MDg6QXJ0aWZhY3QxMjUyNzQxMzUxNQ==",
+          "name": "windows-export-40014024806-1",
+          "size_in_bytes": 110865501,
+          "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12527413515",
+          "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12527413515/zip",
+          "expired": false,
+          "digest": "sha256:6d93584021af413ed6a31860f12e1e1320a43a031f80e128af82c527328775a1",
+          "created_at": "2026-10-23T19:55:28Z",
+          "updated_at": "2026-10-23T19:55:28Z",
+          "expires_at": "2026-10-30T19:55:24Z",
+          "workflow_run": {
+            "id": 40014024806,
+            "repository_id": 1302529453,
+            "head_repository_id": 1302529453,
+            "head_branch": "codex/current-build-backup-20261024",
+            "head_sha": "91704781f81c3fdcf1c397f937acdcbeb4ed04c8"
+          }
+        },
+        "reason": "Export distribution binary excluded; completed job metadata and API job log retained. Archive not downloaded or digest/CRC verified."
+      }
+    ]
+  },
+  "followup": "Further redundant-work removal is in preflight; no unmerged followup is included as accepted behavior or performance evidence."
+}

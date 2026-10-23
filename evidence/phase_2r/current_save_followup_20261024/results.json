@@ -1,0 +1,711 @@
+{
+  "status": "accepted_and_merged",
+  "pull_request": "https://github.com/Siuuuers/dwm/pull/60",
+  "qualified_source": "2a5d99e4a7e43eb90adfe0e47a526e6c75e96c28",
+  "qualified_tree": "88d6a43b2967a2aecf3f9167cf3b593e5e82022d",
+  "merge_commit": "1e1ff7be7ff84a0e57a3ece9f8064ed6cc17e854",
+  "merged_tree": "88d6a43b2967a2aecf3f9167cf3b593e5e82022d",
+  "full_ci": {
+    "run": 40016618456,
+    "url": "https://github.com/Siuuuers/dwm/actions/runs/40016618456",
+    "head_sha": "2a5d99e4a7e43eb90adfe0e47a526e6c75e96c28",
+    "conclusion": "success",
+    "jobs": 31,
+    "job_conclusions": {
+      "success": 31
+    }
+  },
+  "junit_groups": {
+    "final_primary": {
+      "cases": 2824,
+      "assertions": 155636,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "final_fresh_process_load": {
+      "cases": 3,
+      "assertions": 206,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "intentional_storage_refusal_children": {
+      "cases": 166,
+      "assertions": 198,
+      "failures": 160,
+      "errors": 0,
+      "skipped": 0
+    },
+    "native_comparison": {
+      "cases": 2,
+      "assertions": 224,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "native_reverse_comparison": {
+      "cases": 2,
+      "assertions": 224,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "counting_note": "Primary, fresh-process Load, each native comparison and intentional refusal children are separate execution groups. The two refusal children each have 80 expected root refusals and three storage-free passes; do not count their intentional failure elements as regressions or as passing primary coverage.",
+  "native_pairs": [
+    {
+      "run": 40016618456,
+      "artifact_id": 12529711325,
+      "artifact_sha256": "sha256:d2df9f58e76208b59c390467a28dce4e21e8976a4ddf580e4d8899415bc8e522",
+      "event_source": "2a5d99e4a7e43eb90adfe0e47a526e6c75e96c28",
+      "recorded_candidate_ref": "ba2a841449b8e05057c4b20f1b361af0684800db",
+      "baseline_ref": "87ed3a1aafb68aafccfaf3faa7aeb1bdec8bc75c",
+      "retained_helper_archive_sha256": "c49053565e4b9430f2e9f0157eea9c1602898156de13df2837ca714235279670",
+      "helper_hashes": {
+        "pair.gd": "387f335b758d06ac1762302423151d47d57aa1df90adc933cdee3855cf04ff65",
+        "pair-next.gd": "ebf4e9380066cd769c10c64ae21bddf605c972a5955324c445654d8d959540c7",
+        "seed.gd": "1eeae3d5a83dc645758def40e371408187bca8009e5ef9c0916b3d489f36be3d",
+        "replay.gd": "945a7a75a9cae6e14e2e70e9b99866a929ba1cbe36d8249bb9f177f9b3026a20"
+      },
+      "scope": "Same candidate checkout and retained 40-file input; only the named runtime files are replaced by base bytes for the baseline. Fresh processes and isolated roots per variant. Timings are one matched pair, not a latency distribution.",
+      "execution_order": [
+        "baseline",
+        "candidate"
+      ],
+      "variants": [
+        {
+          "variant": "baseline",
+          "runtime_sha256": {
+            "scripts/infrastructure/save/DesktopContinuationOperationJournal.gd": "2135940d2ae019669135362e188bec9df5a224fff4a982355efbca4668cd7b0c",
+            "autoload/SaveManager.gd": "bcf6638b22c96d1f37817bc9e8308b87a360f7cd1fa861263b2d523fe1d608c9",
+            "scripts/application/backup/BackupPresentationPort.gd": "5dbbe86cf9aad515211f8390a79297d5f56de8c7de2229229b3838bab0fc198b"
+          },
+          "wall_seconds": 371.0328938,
+          "assertions": 112,
+          "complete": true,
+          "pending_phase": "",
+          "source_slot_sha256": "17934c8199a7d25f97c69890f0ca609e5106c6bb6dc187464d58c40d2baf987c",
+          "phase_seconds": {
+            "boot": 62.466147,
+            "load": 172.017868,
+            "save": 107.06829
+          },
+          "ui_seconds": {
+            "title_backup_open_press_return": 1.187716,
+            "load_slot_select_press_return": 0.095473,
+            "load_action_to_ready": 168.769551,
+            "load_action_press_return": 170.002856,
+            "ending_backup_open_press_return": 9.48314,
+            "save_slot_select_press_return": 0.11104,
+            "save_action_press_return": 95.533059,
+            "continue_press_return": 0.110693
+          }
+        },
+        {
+          "variant": "candidate",
+          "runtime_sha256": {
+            "scripts/infrastructure/save/DesktopContinuationOperationJournal.gd": "5853706fffa671e1f3379fe43892955f9a13f8f11863c2c9190b3fe3f4c08e9b",
+            "autoload/SaveManager.gd": "deecfd544b5eeb380fc79efde69a68e5a652990fc874200c4b594f15372fc769",
+            "scripts/application/backup/BackupPresentationPort.gd": "270d724c966e3f56de2a66a3f6b58f5c95bc5290322db44a83e17fcfb56b1164"
+          },
+          "wall_seconds": 346.0669456,
+          "assertions": 112,
+          "complete": true,
+          "pending_phase": "",
+          "source_slot_sha256": "17934c8199a7d25f97c69890f0ca609e5106c6bb6dc187464d58c40d2baf987c",
+          "phase_seconds": {
+            "boot": 53.005616,
+            "load": 156.555308,
+            "save": 109.356821
+          },
+          "ui_seconds": {
+            "title_backup_open_press_return": 1.197135,
+            "load_slot_select_press_return": 0.079821,
+            "load_action_to_ready": 153.30535,
+            "load_action_press_return": 154.563491,
+            "ending_backup_open_press_return": 9.636051,
+            "save_slot_select_press_return": 0.110574,
+            "save_action_press_return": 97.641867,
+            "continue_press_return": 0.1108
+          }
+        }
+      ]
+    },
+    {
+      "run": 40018514503,
+      "artifact_id": 12530376632,
+      "artifact_sha256": "sha256:bd537a557c88191a94299a9b4fc6ee2861d8e6f6dcdc50c7ea15bcfdcf1fdfe8",
+      "event_source": "d785834f70994e1609497bf26ff6119ead006d81",
+      "recorded_candidate_ref": "d785834f70994e1609497bf26ff6119ead006d81",
+      "baseline_ref": "87ed3a1aafb68aafccfaf3faa7aeb1bdec8bc75c",
+      "retained_helper_archive_sha256": "c49053565e4b9430f2e9f0157eea9c1602898156de13df2837ca714235279670",
+      "helper_hashes": {
+        "pair.gd": "387f335b758d06ac1762302423151d47d57aa1df90adc933cdee3855cf04ff65",
+        "pair-next.gd": "ebf4e9380066cd769c10c64ae21bddf605c972a5955324c445654d8d959540c7",
+        "seed.gd": "1eeae3d5a83dc645758def40e371408187bca8009e5ef9c0916b3d489f36be3d",
+        "replay.gd": "945a7a75a9cae6e14e2e70e9b99866a929ba1cbe36d8249bb9f177f9b3026a20"
+      },
+      "scope": "Same candidate checkout and retained 40-file input; only the named runtime files are replaced by base bytes for the baseline. Fresh processes and isolated roots per variant. Timings are one matched pair, not a latency distribution.",
+      "execution_order": [
+        "candidate",
+        "baseline"
+      ],
+      "variants": [
+        {
+          "variant": "candidate",
+          "runtime_sha256": {
+            "scripts/application/backup/BackupPresentationPort.gd": "270d724c966e3f56de2a66a3f6b58f5c95bc5290322db44a83e17fcfb56b1164",
+            "autoload/SaveManager.gd": "deecfd544b5eeb380fc79efde69a68e5a652990fc874200c4b594f15372fc769",
+            "scripts/infrastructure/save/DesktopContinuationOperationJournal.gd": "5853706fffa671e1f3379fe43892955f9a13f8f11863c2c9190b3fe3f4c08e9b"
+          },
+          "wall_seconds": 350.9457361,
+          "assertions": 112,
+          "complete": true,
+          "pending_phase": "",
+          "source_slot_sha256": "17934c8199a7d25f97c69890f0ca609e5106c6bb6dc187464d58c40d2baf987c",
+          "phase_seconds": {
+            "boot": 52.595265,
+            "load": 156.226448,
+            "save": 113.845481
+          },
+          "ui_seconds": {
+            "title_backup_open_press_return": 1.189007,
+            "load_slot_select_press_return": 0.079826,
+            "load_action_to_ready": 152.92561,
+            "load_action_press_return": 154.157824,
+            "ending_backup_open_press_return": 9.963948,
+            "save_slot_select_press_return": 0.126453,
+            "save_action_press_return": 101.674151,
+            "continue_press_return": 0.1267
+          }
+        },
+        {
+          "variant": "baseline",
+          "runtime_sha256": {
+            "scripts/application/backup/BackupPresentationPort.gd": "5dbbe86cf9aad515211f8390a79297d5f56de8c7de2229229b3838bab0fc198b",
+            "autoload/SaveManager.gd": "bcf6638b22c96d1f37817bc9e8308b87a360f7cd1fa861263b2d523fe1d608c9",
+            "scripts/infrastructure/save/DesktopContinuationOperationJournal.gd": "2135940d2ae019669135362e188bec9df5a224fff4a982355efbca4668cd7b0c"
+          },
+          "wall_seconds": 380.8728487,
+          "assertions": 112,
+          "complete": true,
+          "pending_phase": "",
+          "source_slot_sha256": "17934c8199a7d25f97c69890f0ca609e5106c6bb6dc187464d58c40d2baf987c",
+          "phase_seconds": {
+            "boot": 63.896751,
+            "load": 177.145043,
+            "save": 111.130282
+          },
+          "ui_seconds": {
+            "title_backup_open_press_return": 1.186397,
+            "load_slot_select_press_return": 0.095822,
+            "load_action_to_ready": 173.842738,
+            "load_action_press_return": 175.077855,
+            "ending_backup_open_press_return": 9.900518,
+            "save_slot_select_press_return": 0.158522,
+            "save_action_press_return": 99.092086,
+            "continue_press_return": 0.110346
+          }
+        }
+      ]
+    }
+  ],
+  "root_native_verifications": [
+    {
+      "run": 40016618456,
+      "artifact": 12529711325,
+      "archive_sha256": "d2df9f58e76208b59c390467a28dce4e21e8976a4ddf580e4d8899415bc8e522",
+      "qualified_source": "2a5d99e4a7e43eb90adfe0e47a526e6c75e96c28",
+      "recorded_candidate_event_ref": "ba2a841449b8e05057c4b20f1b361af0684800db",
+      "baseline_source": "87ed3a1aafb68aafccfaf3faa7aeb1bdec8bc75c",
+      "runtime_files": [
+        "autoload/SaveManager.gd",
+        "scripts/application/backup/BackupPresentationPort.gd",
+        "scripts/infrastructure/save/DesktopContinuationOperationJournal.gd"
+      ],
+      "runtime_hashes_match_qualified_sources": true,
+      "equal_reported_fields": {
+        "snapshot": true,
+        "checkpoint": true,
+        "profile": true,
+        "saved_native": true,
+        "profile_sha256": true,
+        "registration_sha256": true,
+        "autosave_sha256": true
+      },
+      "rendered_review": "Root inspected all four post-Load/post-Save PNGs: same visible, fully revealed courtyard/rain caption, with expected post-Save button focus.",
+      "limits": [
+        "One baseline-first pair; reverse comparison pending.",
+        "Helper clocks include verification/capture; not launch-to-title or latency distribution.",
+        "Output slot bytes are not asserted identical."
+      ]
+    },
+    {
+      "run": 40018514503,
+      "artifact": 12530376632,
+      "archive_sha256": "bd537a557c88191a94299a9b4fc6ee2861d8e6f6dcdc50c7ea15bcfdcf1fdfe8",
+      "qualified_source": "2a5d99e4a7e43eb90adfe0e47a526e6c75e96c28",
+      "recorded_candidate_event_ref": "d785834f70994e1609497bf26ff6119ead006d81",
+      "baseline_source": "87ed3a1aafb68aafccfaf3faa7aeb1bdec8bc75c",
+      "runtime_files": [
+        "autoload/SaveManager.gd",
+        "scripts/application/backup/BackupPresentationPort.gd",
+        "scripts/infrastructure/save/DesktopContinuationOperationJournal.gd"
+      ],
+      "runtime_hashes_match_qualified_sources": true,
+      "equal_reported_fields": {
+        "snapshot": true,
+        "checkpoint": true,
+        "profile": true,
+        "saved_native": true,
+        "profile_sha256": true,
+        "registration_sha256": true,
+        "autosave_sha256": true
+      },
+      "rendered_review": "Root inspected all four post-Load/post-Save PNGs: same visible, fully revealed courtyard/rain caption, with expected post-Save button focus.",
+      "limits": [
+        "One candidate-first pair supplements the baseline-first pair; not a latency distribution.",
+        "Load improves in both orders; complete Save is 2.1\u20132.4% slower in these pairs, with unchanged validation counts.",
+        "Helper clocks include verification/capture; not launch-to-title.",
+        "Output slot bytes are not asserted identical."
+      ]
+    }
+  ],
+  "scope_limits": [
+    "Nested timings overlap; do not sum inclusive measurements.",
+    "Two ordered pairs do not establish a latency distribution or universal speed guarantee.",
+    "Boot starts inside the helper after process startup; complete operations include verification and captures.",
+    "Output slot bytes are not asserted identical.",
+    "This evidence does not establish release, installation, uninterrupted full-story, or unsupported-save acceptance."
+  ],
+  "bundle": {
+    "archives": 38,
+    "included_members": 235,
+    "excluded_members": 326,
+    "objects": 201,
+    "zip_bytes": 2915063,
+    "sha256": "0c45366dda5af43535b334127a58625958b3c177ab3c91b50fca9f766b46e2db",
+    "junit_totals": {
+      "final_primary": {
+        "cases": 2824,
+        "assertions": 155636,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "final_fresh_process_load": {
+        "cases": 3,
+        "assertions": 206,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "intentional_storage_refusal_children": {
+        "cases": 166,
+        "assertions": 198,
+        "failures": 160,
+        "errors": 0,
+        "skipped": 0
+      },
+      "native_comparison": {
+        "cases": 2,
+        "assertions": 224,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "native_reverse_comparison": {
+        "cases": 2,
+        "assertions": 224,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    "file": "compact-exact-evidence.zip"
+  },
+  "exclusions": [
+    {
+      "metadata": {
+        "id": 12529660429,
+        "node_id": "MDg6QXJ0aWZhY3QxMjUyOTY2MDQyOQ==",
+        "name": "windows-export-40016618456-1",
+        "size_in_bytes": 110864667,
+        "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12529660429",
+        "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12529660429/zip",
+        "expired": false,
+        "digest": "sha256:ec94fbb4acd35d7f68b27cb4c53c14847cbd9f7bf32ee0662c3d98db658265d0",
+        "created_at": "2026-10-23T20:15:06Z",
+        "updated_at": "2026-10-23T20:15:06Z",
+        "expires_at": "2026-10-30T20:15:03Z",
+        "workflow_run": {
+          "id": 40016618456,
+          "repository_id": 1302529453,
+          "head_repository_id": 1302529453,
+          "head_branch": "codex/restore-needed-work-20261024",
+          "head_sha": "2a5d99e4a7e43eb90adfe0e47a526e6c75e96c28"
+        }
+      },
+      "reason": "Export distribution omitted; archive not downloaded, digest and CRC not verified. Completed export job API log retained."
+    }
+  ],
+  "retention_policy": "Full native artifact members, JUnit and selected verification/result/proof reports retained exactly. Manifest explicitly lists excluded member paths/hash/size without object bytes. Original ZIP container bytes and excluded export distribution are not retained.",
+  "archive_provenance": [
+    {
+      "run": 40016618456,
+      "head_sha": "2a5d99e4a7e43eb90adfe0e47a526e6c75e96c28",
+      "id": 12529002145,
+      "name": "public-surfaces-40016618456-1",
+      "size": 241731,
+      "sha256": "sha256:9ec3c591539ed45eb3651d6852cb9ba206186b5835b06d7380fa22ba2e7ae104"
+    },
+    {
+      "run": 40016618456,
+      "head_sha": "2a5d99e4a7e43eb90adfe0e47a526e6c75e96c28",
+      "id": 12529755175,
+      "name": "cloud-speech-rendered-desktop-40016618456-1",
+      "size": 387009,
+      "sha256": "sha256:d104653f1c3d74e097000710d564e8be87ca79d38abc80988ed75f2c0969d8ab"
+    },
+    {
+      "run": 40016618456,
+      "head_sha": "2a5d99e4a7e43eb90adfe0e47a526e6c75e96c28",
+      "id": 12529600397,
+      "name": "windows-shop-40016618456-1",
+      "size": 18803,
+      "sha256": "sha256:92cd4cc28e2e60627bebd6156368324b5e7db6b0a53ef142cb26b8ea7809cd9c"
+    },
+    {
+      "run": 40016618456,
+      "head_sha": "2a5d99e4a7e43eb90adfe0e47a526e6c75e96c28",
+      "id": 12529291166,
+      "name": "windows-scene_controls_localization-40016618456-1",
+      "size": 9625,
+      "sha256": "sha256:a50bcd17ab62053776422649ec6dafbaa42a084af0215ad9272eb51e7f8383f6"
+    },
+    {
+      "run": 40016618456,
+      "head_sha": "2a5d99e4a7e43eb90adfe0e47a526e6c75e96c28",
+      "id": 12528967458,
+      "name": "windows-scene_five_outcomes-40016618456-1",
+      "size": 9529,
+      "sha256": "sha256:d44f4b9ee1879a2266ce73164bf259459049c1d7d3c63bdb3cac78224111b6a2"
+    },
+    {
+      "run": 40016618456,
+      "head_sha": "2a5d99e4a7e43eb90adfe0e47a526e6c75e96c28",
+      "id": 12528962817,
+      "name": "windows-scene_apps-40016618456-1",
+      "size": 19572,
+      "sha256": "sha256:decdcacb187906da5dc17294d7ce09e9321ba992eceb7d4295a86cdd0fffed03"
+    },
+    {
+      "run": 40016618456,
+      "head_sha": "2a5d99e4a7e43eb90adfe0e47a526e6c75e96c28",
+      "id": 12528878514,
+      "name": "windows-checkpoint_diagnostics-40016618456-1",
+      "size": 12957,
+      "sha256": "sha256:be45aeb446c64d6ce8d8d144292e300753bd787e5d248c3debc6b5195709ce6d"
+    },
+    {
+      "run": 40016618456,
+      "head_sha": "2a5d99e4a7e43eb90adfe0e47a526e6c75e96c28",
+      "id": 12528803786,
+      "name": "gallery-version-register-40016618456-1",
+      "size": 85691,
+      "sha256": "sha256:ad8a49f5db2216a9d4a3e8a76e5eeb3fb2628deec031042eb3d8febc24ba0074"
+    },
+    {
+      "run": 40016618456,
+      "head_sha": "2a5d99e4a7e43eb90adfe0e47a526e6c75e96c28",
+      "id": 12528604361,
+      "name": "windows-authored_week-40016618456-1",
+      "size": 9233,
+      "sha256": "sha256:dc0b2fbbc5382cb7ffbe10a21c66f583ced3ddaa12901d22a2f37c11a875520b"
+    },
+    {
+      "run": 40016618456,
+      "head_sha": "2a5d99e4a7e43eb90adfe0e47a526e6c75e96c28",
+      "id": 12528543521,
+      "name": "windows-scene_round_checkpoint-40016618456-1",
+      "size": 9354,
+      "sha256": "sha256:e10fc84abe29a2d7ae41a81de03627fe17ecd5328b719456d95513c2ef7157da"
+    },
+    {
+      "run": 40016618456,
+      "head_sha": "2a5d99e4a7e43eb90adfe0e47a526e6c75e96c28",
+      "id": 12528493583,
+      "name": "windows-audio-40016618456-1",
+      "size": 11702,
+      "sha256": "sha256:ae9a8bd9e0519e1a2fceafe57c765675ba1593cd84126b9126691c5fb1d54826"
+    },
+    {
+      "run": 40016618456,
+      "head_sha": "2a5d99e4a7e43eb90adfe0e47a526e6c75e96c28",
+      "id": 12528214610,
+      "name": "cloud-speech-rendered-journeys-40016618456-1",
+      "size": 382972,
+      "sha256": "sha256:d6ecd4672deace9ffdac5e2599eb14a3bb71af05dfdd0b1939e6de41a2d1f62b"
+    },
+    {
+      "run": 40016618456,
+      "head_sha": "2a5d99e4a7e43eb90adfe0e47a526e6c75e96c28",
+      "id": 12528084444,
+      "name": "windows-scene_desktop_first_reveal-40016618456-1",
+      "size": 19104,
+      "sha256": "sha256:6c9d0dd5d8181a0e5b268df54255b4fb6fa0bf1d5bf942bd36bea8201205077c"
+    },
+    {
+      "run": 40016618456,
+      "head_sha": "2a5d99e4a7e43eb90adfe0e47a526e6c75e96c28",
+      "id": 12529615536,
+      "name": "windows-localization-40016618456-1",
+      "size": 24716,
+      "sha256": "sha256:234648e1ed50269ba458790b5cbabd04d28168872429f6caf8dd683ca3e4fd17"
+    },
+    {
+      "run": 40016618456,
+      "head_sha": "2a5d99e4a7e43eb90adfe0e47a526e6c75e96c28",
+      "id": 12528738089,
+      "name": "windows-scene_story_localization-40016618456-1",
+      "size": 9663,
+      "sha256": "sha256:7e7906c138af83eb2f4aea038cddbaa6a7ec91258a35afc864e78a1d9f919c4b"
+    },
+    {
+      "run": 40016618456,
+      "head_sha": "2a5d99e4a7e43eb90adfe0e47a526e6c75e96c28",
+      "id": 12528714268,
+      "name": "windows-backup_current_build-40016618456-1",
+      "size": 62999,
+      "sha256": "sha256:ecff31a081194a35aa00e110eff8e0cd8634c0f4b6613ef3d02d44385b162f3d"
+    },
+    {
+      "run": 40016618456,
+      "head_sha": "2a5d99e4a7e43eb90adfe0e47a526e6c75e96c28",
+      "id": 12528623281,
+      "name": "gallery-caption-collection-40016618456-1",
+      "size": 8878053,
+      "sha256": "sha256:32698085a53bc6b5811eee3bd648e0c9edb0897fd6585da4c27bbf04b35c617b"
+    },
+    {
+      "run": 40016618456,
+      "head_sha": "2a5d99e4a7e43eb90adfe0e47a526e6c75e96c28",
+      "id": 12528598796,
+      "name": "windows-profile_parse-40016618456-1",
+      "size": 12151,
+      "sha256": "sha256:1e508760fdede8324bd5ed13ca4c8b4d6d67322109f9787f3ef927994c257567"
+    },
+    {
+      "run": 40016618456,
+      "head_sha": "2a5d99e4a7e43eb90adfe0e47a526e6c75e96c28",
+      "id": 12528469004,
+      "name": "desktop-scaling-render-40016618456-1",
+      "size": 13186926,
+      "sha256": "sha256:44511664b443eb231653c2acef61c241744f658d0c6e7ffce9b1b43e399fc7b3"
+    },
+    {
+      "run": 40016618456,
+      "head_sha": "2a5d99e4a7e43eb90adfe0e47a526e6c75e96c28",
+      "id": 12528104696,
+      "name": "windows-persistence-40016618456-1",
+      "size": 25319,
+      "sha256": "sha256:2e9661e834c5f57e739c769fe58b8105d74cd6915eb31fd93e88e4b63527497a"
+    },
+    {
+      "run": 40016618456,
+      "head_sha": "2a5d99e4a7e43eb90adfe0e47a526e6c75e96c28",
+      "id": 12529760405,
+      "name": "windows-desktop-40016618456-1",
+      "size": 30802,
+      "sha256": "sha256:66ff235b17f90c108fb2d791a64fb3295e0306bedb7abc788cc87f3e74866801"
+    },
+    {
+      "run": 40016618456,
+      "head_sha": "2a5d99e4a7e43eb90adfe0e47a526e6c75e96c28",
+      "id": 12529711325,
+      "name": "startup-load-comparison-40016618456-1",
+      "size": 2550509,
+      "sha256": "sha256:d2df9f58e76208b59c390467a28dce4e21e8976a4ddf580e4d8899415bc8e522"
+    },
+    {
+      "run": 40016618456,
+      "head_sha": "2a5d99e4a7e43eb90adfe0e47a526e6c75e96c28",
+      "id": 12529646005,
+      "name": "windows-settings-40016618456-1",
+      "size": 2977700,
+      "sha256": "sha256:857ee287bca34795f58a960d2ea0f5d4f07d5d59e8f7050407d3235dcb4ef266"
+    },
+    {
+      "run": 40016618456,
+      "head_sha": "2a5d99e4a7e43eb90adfe0e47a526e6c75e96c28",
+      "id": 12529640802,
+      "name": "ui-literal-audit-40016618456-1",
+      "size": 30771,
+      "sha256": "sha256:f577ff241f7b58b96f7f80ed2237585e8ddd9d5afd012524535941cce03936a3"
+    },
+    {
+      "run": 40016618456,
+      "head_sha": "2a5d99e4a7e43eb90adfe0e47a526e6c75e96c28",
+      "id": 12529565688,
+      "name": "japanese-korean-ui-render-40016618456-1",
+      "size": 8399801,
+      "sha256": "sha256:3052939b795d207907c0cb617d9dd3583a835ad319e8a36cb34bec1ce5f3080c"
+    },
+    {
+      "run": 40016618456,
+      "head_sha": "2a5d99e4a7e43eb90adfe0e47a526e6c75e96c28",
+      "id": 12529556182,
+      "name": "windows-new_account-40016618456-1",
+      "size": 21465,
+      "sha256": "sha256:1cb79f6d80ac8da95a060e7ec7bf5d2db21108c38ad1dd227b8df7274d0969b4"
+    },
+    {
+      "run": 40016618456,
+      "head_sha": "2a5d99e4a7e43eb90adfe0e47a526e6c75e96c28",
+      "id": 12529481078,
+      "name": "windows-dating-40016618456-1",
+      "size": 20381,
+      "sha256": "sha256:6ac277b794ff7b1a04006de0e82660929325ae5ed6de93dead7928b39005ad06"
+    },
+    {
+      "run": 40016618456,
+      "head_sha": "2a5d99e4a7e43eb90adfe0e47a526e6c75e96c28",
+      "id": 12529401380,
+      "name": "windows-reading_delivery-40016618456-1",
+      "size": 49385,
+      "sha256": "sha256:370d98a8224a56cbe046c9b2435ad1e7a2ee49d768927937c03970d353f4c469"
+    },
+    {
+      "run": 40016618456,
+      "head_sha": "2a5d99e4a7e43eb90adfe0e47a526e6c75e96c28",
+      "id": 12529147075,
+      "name": "windows-scene_shop_checkpoint-40016618456-1",
+      "size": 10359,
+      "sha256": "sha256:d8855be500916821089f93b01d658ed20d6cbf36285041a058f2e47843bf91dd"
+    },
+    {
+      "run": 40016618456,
+      "head_sha": "2a5d99e4a7e43eb90adfe0e47a526e6c75e96c28",
+      "id": 12529142014,
+      "name": "windows-endings-40016618456-1",
+      "size": 19796,
+      "sha256": "sha256:4e71db648f22ccb719911b98ab9c875df18a5f6e87c43fe0542f6fe7c0c86a6f"
+    },
+    {
+      "run": 40016618456,
+      "head_sha": "2a5d99e4a7e43eb90adfe0e47a526e6c75e96c28",
+      "id": 12528858106,
+      "name": "windows-minesweeper-40016618456-1",
+      "size": 40595,
+      "sha256": "sha256:9148d7939b178203fa87b828b94761859a2ef9d946a523372f559928ca7b4259"
+    },
+    {
+      "run": 40016618456,
+      "head_sha": "2a5d99e4a7e43eb90adfe0e47a526e6c75e96c28",
+      "id": 12528539917,
+      "name": "windows-current_title-40016618456-1",
+      "size": 17292,
+      "sha256": "sha256:876016e93f28bd526a73ca7ba6bbc251b5af32664bf9c53d422573c93ea657fd"
+    },
+    {
+      "run": 40016618456,
+      "head_sha": "2a5d99e4a7e43eb90adfe0e47a526e6c75e96c28",
+      "id": 12528448989,
+      "name": "delivery-dialogue-render-40016618456-1",
+      "size": 15066935,
+      "sha256": "sha256:dd765085d545bb98d0780f9bbfeca86e058a1e61f58dcc72a018427a63ade420"
+    },
+    {
+      "run": 40016618456,
+      "head_sha": "2a5d99e4a7e43eb90adfe0e47a526e6c75e96c28",
+      "id": 12528309463,
+      "name": "angela-overlay-render-40016618456-1",
+      "size": 3576376,
+      "sha256": "sha256:4064381fe356e84d4ceca3623b3c4c2b010c791dacbf638673b462373acc3259"
+    },
+    {
+      "run": 40016618456,
+      "head_sha": "2a5d99e4a7e43eb90adfe0e47a526e6c75e96c28",
+      "id": 12528269611,
+      "name": "windows-scene_backup_inspection-40016618456-1",
+      "size": 9673,
+      "sha256": "sha256:81cc99707b31444e5bdc16e8236f6940e5d361cb74c59064105dcdd80c4194c3"
+    },
+    {
+      "run": 40016618456,
+      "head_sha": "2a5d99e4a7e43eb90adfe0e47a526e6c75e96c28",
+      "id": 12528264365,
+      "name": "windows-timeline_resources-40016618456-1",
+      "size": 9392,
+      "sha256": "sha256:c607d6f842485704f1e796a5bc1a2bd0ae13f51fd87f777af1065025f2387296"
+    },
+    {
+      "run": 40016618456,
+      "head_sha": "2a5d99e4a7e43eb90adfe0e47a526e6c75e96c28",
+      "id": 12528154635,
+      "name": "font-choices-render-40016618456-1",
+      "size": 7100030,
+      "sha256": "sha256:bec149a5c8f5bf0d04de2325680c1838afbc807196c2612588bd0089db9c3d18"
+    },
+    {
+      "run": 40018514503,
+      "head_sha": "d785834f70994e1609497bf26ff6119ead006d81",
+      "id": 12530376632,
+      "name": "startup-load-comparison-40018514503-1",
+      "size": 2550712,
+      "sha256": "sha256:bd537a557c88191a94299a9b4fc6ee2861d8e6f6dcdc50c7ea15bcfdcf1fdfe8"
+    }
+  ],
+  "merge_proof": {
+    "pull_request": "https://github.com/Siuuuers/dwm/pull/60",
+    "merged": true,
+    "merged_at": "2026-10-23T20:35:30Z",
+    "qualified_source": "2a5d99e4a7e43eb90adfe0e47a526e6c75e96c28",
+    "qualified_tree": "88d6a43b2967a2aecf3f9167cf3b593e5e82022d",
+    "merge_commit": "1e1ff7be7ff84a0e57a3ece9f8064ed6cc17e854",
+    "merged_tree": "88d6a43b2967a2aecf3f9167cf3b593e5e82022d",
+    "tree_equality_verified": true,
+    "merge_commit_api_payload": {
+      "sha": "1e1ff7be7ff84a0e57a3ece9f8064ed6cc17e854",
+      "node_id": "C_kwDOTaMFrdoAKDFlMWZmN2JlN2ZmODRhMGU1N2EzZWNlOWY4MDY0ZWQ2Y2MxN2U4NTQ",
+      "url": "https://api.github.com/repos/Siuuuers/dwm/git/commits/1e1ff7be7ff84a0e57a3ece9f8064ed6cc17e854",
+      "html_url": "https://github.com/Siuuuers/dwm/commit/1e1ff7be7ff84a0e57a3ece9f8064ed6cc17e854",
+      "author": {
+        "name": "Siuuuers",
+        "email": "119431590+Siuuuers@users.noreply.github.com",
+        "date": "2026-10-23T20:35:29Z"
+      },
+      "committer": {
+        "name": "GitHub",
+        "email": "noreply@github.com",
+        "date": "2026-10-23T20:35:29Z"
+      },
+      "tree": {
+        "sha": "88d6a43b2967a2aecf3f9167cf3b593e5e82022d",
+        "url": "https://api.github.com/repos/Siuuuers/dwm/git/trees/88d6a43b2967a2aecf3f9167cf3b593e5e82022d"
+      },
+      "message": "Avoid unused current-scene restore work (#60) [skip ci]\n\nAll 31 jobs passed on qualified source. Both native comparison orders preserve state and improve Load; the measured 2.1\u20132.4% Save increase is retained in the PR evidence. Skip only duplicate post-merge execution.",
+      "parents": [
+        {
+          "sha": "87ed3a1aafb68aafccfaf3faa7aeb1bdec8bc75c",
+          "url": "https://api.github.com/repos/Siuuuers/dwm/git/commits/87ed3a1aafb68aafccfaf3faa7aeb1bdec8bc75c",
+          "html_url": "https://github.com/Siuuuers/dwm/commit/87ed3a1aafb68aafccfaf3faa7aeb1bdec8bc75c"
+        },
+        {
+          "sha": "2a5d99e4a7e43eb90adfe0e47a526e6c75e96c28",
+          "url": "https://api.github.com/repos/Siuuuers/dwm/git/commits/2a5d99e4a7e43eb90adfe0e47a526e6c75e96c28",
+          "html_url": "https://github.com/Siuuuers/dwm/commit/2a5d99e4a7e43eb90adfe0e47a526e6c75e96c28"
+        }
+      ],
+      "verification": {
+        "verified": true,
+        "reason": "valid",
+        "signature": "-----BEGIN PGP SIGNATURE-----\n\nwsFcBAABCAAQBQJq28URCRC1aQ7uu5UhlAAATb4QAGjzMpvLhNmmMh6LUFHcwhP4\nyojcmdo+xMC79kG2NNeTqgWCXYsFLCMCo/vQ4DeSwA1XVhpE7f87xm0CiGa15nFn\nU9JkMql5ji/Qj7bFAdtwy5/6Iq/Utuy8VOVR7kw/bNaxHlwkROrsjPx9uT48q8Xa\nj3feM23FeHT3gm/Mc8A5hgO6ArSsq/E3YR4IQ+46C6q3yS+8SH5JAoFJmGAxvkMp\nEoG+7EQgDb7/jI+cLR1ILAgJGqVHKmDPn1txt4CQKTPgWVnyb7xullUe5cht+CGW\nzidWNhwDxp9JRrM0NiCho6PBg6+T4kjuktZ8rTZwRUS7uEaKrgcaF1VIZTClcLp/\nqyHMcUcbWm5agmI5/tRHoigW43bUaU3aw+cCHy1aEpQ+xO0przKmbUqWaauB/53p\nSg17YbmNHzE7hRarD2KSTUKsA9qe6EV+iHIkoJgTTxNKwH2pm7gopg7qyzGbIu4u\nLiSOPB4Gsbg1PYZ2P0T8vSMdOyxZyjwseqh0giZMEP5hl30PHmATLOE8fNEFtCnF\n29T3zuNQF/Rjh82KTBYuxePAImEG9vObqIhjMrp7iyyH4EAP/NNliBTec58LQNzM\ndJL6muoGC8t0QDY3Jtw8re3qTbMKYZJkt2TVK7E66C6SaYES8f4Hbx2TIRwqZFDz\nGRyoITuhPlp5fmHqADLN\n=Y2g2\n-----END PGP SIGNATURE-----\n",
+        "payload": "tree 88d6a43b2967a2aecf3f9167cf3b593e5e82022d\nparent 87ed3a1aafb68aafccfaf3faa7aeb1bdec8bc75c\nparent 2a5d99e4a7e43eb90adfe0e47a526e6c75e96c28\nauthor Siuuuers <119431590+Siuuuers@users.noreply.github.com> 1792787729 -0500\ncommitter GitHub <noreply@github.com> 1792787729 -0500\n\nAvoid unused current-scene restore work (#60) [skip ci]\n\nAll 31 jobs passed on qualified source. Both native comparison orders preserve state and improve Load; the measured 2.1\u20132.4% Save increase is retained in the PR evidence. Skip only duplicate post-merge execution.",
+        "verified_at": "2026-10-23T20:35:30Z"
+      }
+    }
+  },
+  "performance_acceptance": "Load helper improved by approximately 9.0% and 11.8% in the baseline-first and candidate-first pairs. Save helper was approximately 2.1% and 2.4% slower respectively; this measured tradeoff is retained, not attributed to noise. No universal speed claim."
+}
