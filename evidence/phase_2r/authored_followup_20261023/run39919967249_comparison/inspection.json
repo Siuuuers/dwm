@@ -3,7 +3,6 @@
   "source": "c27f94a1d6142f4b2e91722d1ee83269137f74c9",
   "tree": "8dcc2d5e9813795a0744fbca17df05a44c2d42ba",
   "artifact": 12486598235,
-  "artifact_sha256": "f37cb12022305f5aa57061d8496f17c17be240eeb45ba7119722611c339a6857",
   "archive_crc_checked": true,
   "cases": 24,
   "clean_child_exits": 5,
@@ -24,5 +23,12 @@
     "validation-profile.json": "811e65aa417df477121daa33a55775cbb5807ed7bc9c8630a0e229a000787ecd",
     "audit-origin.json": "677c2aae54362ab1d3a65e48297d586b0a3176ed7ef4fabf43cb392a4efab54a",
     "joint-new-run.xml": "a91c90bf7cfc1a3616112f2d865e1ce7b45cc5820100f259430fbd926a6cbf98"
+  },
+  "outer_artifact_sha256": "f37cb12022305f5aa57061d8496f17c17be240eeb45ba7119722611c339a6857",
+  "inner_evidence_sha256": "4b1e4b3a7dc02fd1115429719cd6085ba0ede01ba759ae5d7a75eab99e6a3ffa",
+  "independent_audit": {
+    "retained_manifest_members_verified": 192,
+    "source_to_restored": "gameplay/scene/receipts/effects exact; same run, new branch; ready ledger exact",
+    "continuation": "17 to19 receipts with prefix intact;290 to293 captions with prefix intact;5 Profile consequence guards unchanged; durable hashes match"
   }
 }
