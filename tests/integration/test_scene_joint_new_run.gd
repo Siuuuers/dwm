@@ -189,6 +189,52 @@ func test_committed_receipt_survives_evolved_checkpoint_and_unrelated_profile_wr
 	assert_true(historical.ok, "unrelated later Profile bytes preserve creation authority: " + str(historical))
 	assert_eq(_observed_state(started.transaction_id), before)
 
+func test_initial_receipt_rechecks_registration_and_physical_profile_after_success() -> void:
+	assert_true(fixture_ready)
+	if not fixture_ready: return
+	var started: Dictionary = fixture.start()
+	assert_eq(started.get("code"), &"scene_activation_pending", str(started))
+	if started.get("code") != &"scene_activation_pending": return
+	fixture.confirm_activation()
+	var proof: Dictionary = fixture.manager.capture_committed_scene_creation(started.transaction_id)
+	assert_true(proof.ok, str(proof))
+	if not proof.ok: return
+	var receipt: Dictionary = proof.value.initial_receipt
+	var bag := {receipt.transaction_id: receipt}
+	var bundle: Dictionary = MANIFEST.scene_registration().value
+	var checked: Dictionary = CONTRACT.validate_scene_receipts(bag, bundle, fixture.issuer, fixture.manager)
+	assert_true(checked.ok, str(checked))
+	if not checked.ok: return
+	checked.value.admissions[receipt.transaction_id].entry_id = "TEST.changed"
+	assert_true(CONTRACT.validate_scene_receipts(bag, bundle, fixture.issuer, fixture.manager).ok,
+		"returned tables cannot alter the retained initial admission")
+	var changed: Dictionary = bundle.duplicate(true)
+	changed.caption_registry.TEST = "changed registration"
+	assert_false(CONTRACT.validate_scene_receipts(bag, changed, fixture.issuer, fixture.manager).ok,
+		"warm validation cannot authorize a changed bundle")
+	assert_false(CONTRACT.validate_scene_initial_admission_candidate(receipt, proof.value.allocation_candidate,
+		proof.value.profile_material, changed, fixture.issuer).ok,
+		"the public candidate entry still validates its own bundle")
+	assert_true(CONTRACT.validate_scene_receipts(bag, bundle, fixture.issuer, fixture.manager).ok)
+	# Damage only this isolated fixture's physical file, then restore exact bytes.
+	# The in-memory Profile remains valid, exposing accidental proof caching.
+	var path: String = fixture.storage.describe_root().path_join("profile.json")
+	var original: PackedByteArray = FileAccess.get_file_as_bytes(path)
+	var file := FileAccess.open(path, FileAccess.WRITE)
+	assert_not_null(file)
+	if file == null: return
+	file.store_string("{}")
+	file.close()
+	var refused: Dictionary = CONTRACT.validate_scene_receipts(bag, bundle, fixture.issuer, fixture.manager)
+	file = FileAccess.open(path, FileAccess.WRITE)
+	assert_not_null(file)
+	if file == null: return
+	file.store_buffer(original)
+	file.close()
+	assert_false(refused.ok, "each validation still requires the physical Profile proof")
+	assert_true(CONTRACT.validate_scene_receipts(bag, bundle, fixture.issuer, fixture.manager).ok,
+		"restoring the actual proof permits validation again")
+
 func _observed_state(transaction: String) -> Dictionary:
 	return {"game": fixture.game.capture_restore_state(), "profile": fixture.profile.get_profile_snapshot(),
 		"profile_revision": fixture.profile.get_profile_revision(), "root": fixture.issuer.capture_root(),

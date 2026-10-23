@@ -708,7 +708,7 @@ static func _validate_scene_receipts_observed_body(receipts: Dictionary, bundle:
 		if receipt.get("kind") == "scene_admission":
 			var admitted: Dictionary
 			if receipt.get("scene_admission") is Dictionary and receipt.scene_admission.get("schema_version") == 3:
-				admitted = _validate_committed_initial_admission(receipt, bundle, issuer, creation_owner)
+				admitted = _validate_committed_initial_admission(receipt, registered, issuer, creation_owner)
 			else:
 				admitted = _validate_scene_admission_receipt(receipt, registered, issuer)
 			if not admitted.ok: return admitted
@@ -991,6 +991,12 @@ static func prepare_scene_initial_admission(allocation_candidate: Dictionary,
 	if not materials.ok: return materials
 	var registered := validate_bundle_structure(bundle)
 	if not registered.ok: return registered
+	return _prepare_scene_initial_admission_registered(allocation_candidate, profile_material, target_id, registered, issuer)
+
+
+## Only structural registration tables are reused; materials and creation proofs stay fresh.
+static func _prepare_scene_initial_admission_registered(allocation_candidate: Dictionary,
+		profile_material: Dictionary, target_id: String, registered: Dictionary, issuer: Object) -> Dictionary:
 	if not registered.value.targets.has(target_id): return _fail(&"scene_target_unregistered")
 	var target: Dictionary = registered.value.targets[target_id].target
 	if target.kind != "scene": return _fail(&"scene_initial_target_invalid")
@@ -1022,6 +1028,16 @@ static func prepare_scene_initial_admission(allocation_candidate: Dictionary,
 static func validate_scene_initial_admission_candidate(receipt: Dictionary,
 		allocation_candidate: Dictionary, profile_material: Dictionary,
 		bundle: Dictionary, issuer: Object) -> Dictionary:
+	var shaped := _validate_scene_initial_receipt_shape(receipt)
+	if not shaped.ok: return shaped
+	var materials := _validate_initial_materials(allocation_candidate, profile_material, issuer)
+	if not materials.ok: return materials
+	var registered := validate_bundle_structure(bundle)
+	if not registered.ok: return registered
+	return _validate_scene_initial_admission_registered(receipt, allocation_candidate, profile_material, registered, issuer)
+
+
+static func _validate_scene_initial_receipt_shape(receipt: Dictionary) -> Dictionary:
 	if not _json_data(receipt) or not _keys(receipt, ["transaction_id", "request_fingerprint", "kind", "source_id", "scene_admission"]):
 		return _fail(&"scene_initial_receipt_invalid")
 	var saved: Variant = receipt.scene_admission
@@ -1030,7 +1046,15 @@ static func validate_scene_initial_admission_candidate(receipt: Dictionary,
 			or typeof(saved.schema_version) != TYPE_INT or saved.schema_version != 3 \
 			or not _keys(saved.result, ["kind", "occurrence_id", "entry_id", "target_id"]) \
 			or not _id(saved.result.target_id): return _fail(&"scene_initial_receipt_invalid")
-	var rebuilt := prepare_scene_initial_admission(allocation_candidate, profile_material, saved.result.target_id, bundle, issuer)
+	return {"ok": true}
+
+
+static func _validate_scene_initial_admission_registered(receipt: Dictionary,
+		allocation_candidate: Dictionary, profile_material: Dictionary,
+		registered: Dictionary, issuer: Object) -> Dictionary:
+	var saved: Dictionary = receipt.scene_admission
+	var rebuilt := _prepare_scene_initial_admission_registered(allocation_candidate, profile_material,
+		saved.result.target_id, registered, issuer)
 	if not rebuilt.ok: return rebuilt
 	if not _equal(receipt, rebuilt.value): return _fail(&"scene_initial_receipt_mismatch")
 	var child: Dictionary = issuer.validate_child(saved.provenance, &"continuation_operation")
@@ -1087,7 +1111,7 @@ static func _validate_initial_materials(candidate: Dictionary, profile: Dictiona
 	return {"ok": true}
 
 
-static func _validate_committed_initial_admission(receipt: Dictionary, bundle: Dictionary,
+static func _validate_committed_initial_admission(receipt: Dictionary, registered: Dictionary,
 		issuer: Object, creation_owner: Object) -> Dictionary:
 	# Caller-supplied dictionaries/callbacks cannot assert durable creation authority.
 	if creation_owner == null or creation_owner.get_script() != load("res://autoload/SaveManager.gd"):
@@ -1098,7 +1122,12 @@ static func _validate_committed_initial_admission(receipt: Dictionary, bundle: D
 	if not proof is Dictionary or not proof.get("allocation_candidate") is Dictionary \
 			or not proof.get("profile_material") is Dictionary \
 			or not proof.get("initial_receipt") is Dictionary: return _fail(&"scene_creation_proof_invalid")
-	var validated := validate_scene_initial_admission_candidate(receipt, proof.allocation_candidate, proof.profile_material, bundle, issuer)
+	var shaped := _validate_scene_initial_receipt_shape(receipt)
+	if not shaped.ok: return shaped
+	var materials := _validate_initial_materials(proof.allocation_candidate, proof.profile_material, issuer)
+	if not materials.ok: return materials
+	var validated := _validate_scene_initial_admission_registered(receipt, proof.allocation_candidate,
+		proof.profile_material, registered, issuer)
 	if not validated.ok: return validated
 	if not _equal(receipt, proof.initial_receipt):
 		return _fail(&"scene_initial_committed_receipt_mismatch")
