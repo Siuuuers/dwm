@@ -1,0 +1,113 @@
+name: Separate frozen historical contracts
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/historical-contracts.yml'
+      - 'tools/testing/verify_historical_contracts.py'
+permissions:
+  contents: read
+concurrency:
+  group: historical-contracts-${{ github.event.pull_request.number }}
+  cancel-in-progress: false
+jobs:
+  historical:
+    if: github.head_ref == 'codex/story-day-qualification-20261023'
+    name: Windows / Historical contracts only
+    runs-on: windows-2022
+    timeout-minutes: 35
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - name: Preserve source bytes
+        run: git config --global core.autocrlf false
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          path: controller
+          persist-credentials: true
+          sparse-checkout: |
+            tools/testing/verify_historical_contracts.py
+            evidence/phase_2r/hospital_reading_2026_10_02/receipt.json
+          sparse-checkout-cone-mode: false
+      - name: Prepare controller credential cleanup
+        working-directory: controller
+        run: |
+          git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - uses: actions/checkout@v7
+        with:
+          ref: a24f71766a624b57601814dda487b53c66518c39
+          path: historical
+          # The unchanged Schedule seal independently reads historical Git blobs.
+          fetch-depth: 0
+          persist-credentials: true
+      - name: Authenticate historical source and accepted receipt
+        working-directory: historical
+        run: |
+          python ../controller/tools/testing/verify_historical_contracts.py prepare --prior-receipt ../controller/evidence/phase_2r/hospital_reading_2026_10_02/receipt.json
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          @{mode='historical-contracts-only'; controller='${{ github.event.pull_request.head.sha }}'; workflow='${{ github.workflow_sha }}'; event='${{ github.sha }}'; run_id='${{ github.run_id }}'; attempt='${{ github.run_attempt }}'} | ConvertTo-Json | Set-Content '.godot/ci/historical/controller-origin.json'
+          git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Install authenticated Godot 4.6.3 standard
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $archive = Join-Path $env:RUNNER_TEMP 'historical-godot-4.6.3.zip'
+          Invoke-WebRequest -Uri 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_win64.exe.zip' -OutFile $archive
+          if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -cne 'e39986a178d585ce7ac198fb8de6ea436366dc0cc00e594810c2e3e104c04b90') { throw 'Godot archive checksum mismatch' }
+          $editor = Join-Path $env:RUNNER_TEMP 'historical-godot-4.6.3'
+          Expand-Archive -LiteralPath $archive -DestinationPath $editor
+          $console = Join-Path $editor 'Godot_v4.6.3-stable_win64_console.exe'
+          "GODOT_CONSOLE_PATH=$console" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          & $console --version
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Import only the separate historical checkout
+        working-directory: historical
+        timeout-minutes: 8
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $output = Join-Path (Get-Location) '.godot/ci/historical'
+          $env:APPDATA = Join-Path $output 'import-user/appdata'
+          $env:LOCALAPPDATA = Join-Path $output 'import-user/localappdata'
+          $env:DWM_TEST_ROOT = Join-Path $output 'import-user/test-root'
+          New-Item -ItemType Directory -Force -Path $env:APPDATA,$env:LOCALAPPDATA,$env:DWM_TEST_ROOT | Out-Null
+          & $env:GODOT_CONSOLE_PATH --headless --path (Get-Location) --import --log-file "$output/import.log"
+          $result = $LASTEXITCODE
+          @{exit_code=$result} | ConvertTo-Json | Set-Content "$output/import-process.json"
+          git restore -- project.godot
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          if ($result -ne 0) { exit $result }
+      - name: Execute unchanged historical registration and health contracts
+        working-directory: historical
+        continue-on-error: true
+        timeout-minutes: 12
+        run: |
+          ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId 'historical-contracts' -LogName 'historical-contracts.log' -EvidenceLogPath '.godot/ci/historical/contracts.jsonl' -TimeoutSeconds 600 -GodotArgs @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/unit/test_dtl_master_structure.gd,res://tests/unit/test_effect_resolver.gd,res://tests/unit/tooling/test_phase2r_schedule_gate.gd,res://tests/unit/test_hospital_rules.gd','-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/historical/contracts.xml')
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Execute unchanged historical restore controls
+        working-directory: historical
+        continue-on-error: true
+        timeout-minutes: 8
+        run: |
+          ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId 'historical-controls' -LogName 'historical-controls.log' -EvidenceLogPath '.godot/ci/historical/controls.jsonl' -TimeoutSeconds 360 -GodotArgs @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/integration/test_run_restore_isolation.gd,res://tests/integration/test_live_run_rollback_isolation.gd','-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/historical/controls.xml')
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Require exact census, unchanged source and isolated processes
+        working-directory: historical
+        run: |
+          python ../controller/tools/testing/verify_historical_contracts.py verify
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Preserve original historical evidence on success or failure
+        if: always()
+        working-directory: historical
+        run: |
+          python ../controller/tools/testing/verify_historical_contracts.py archive
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: historical-contracts-${{ github.run_id }}-${{ github.run_attempt }}
+          path: historical/.godot/ci/historical/original-evidence.zip
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 30
