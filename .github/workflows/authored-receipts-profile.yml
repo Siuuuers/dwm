@@ -6,7 +6,7 @@ jobs:
     defaults:
       run:
         shell: pwsh
-    if: github.head_ref == 'codex/story-day-qualification-20261023'
+    if: github.ref == 'refs/heads/codex/story-day-qualification-20261023'
     name: Windows / Bounded authored progression profile
     runs-on: windows-2022
     steps:
@@ -168,11 +168,6 @@ jobs:
 name: Bounded authored progression profile
 'on':
   workflow_dispatch: null
-  pull_request:
-    types:
-    - synchronize
-    paths:
-    - .github/workflows/authored-receipts-profile.yml
 permissions:
   actions: read
   contents: read
