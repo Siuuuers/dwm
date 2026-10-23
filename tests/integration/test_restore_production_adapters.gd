@@ -243,7 +243,7 @@ func test_commit_prepared_restore_rejects_stray_transaction_remap_key() -> void:
 		"no continuation-journal write either")
 
 
-func test_late_narrative_incompatibility_selects_earlier_bundle() -> void:
+func test_late_narrative_failure_does_not_substitute_earlier_bundle() -> void:
 	var m := _manager(Owner.new())
 	if m == null:
 		return
@@ -251,10 +251,19 @@ func test_late_narrative_incompatibility_selects_earlier_bundle() -> void:
 	m._journal.commit_prepared(m._journal.prepare_record(_snapshot("run-b", 1), &"day_start")["value"]["candidate"])
 	m._journal.commit_prepared(m._journal.prepare_record(_snapshot("run-b", 2, {"timeline_id": "x"}), &"line")["value"]["candidate"])
 	assert_true(m.save_latest_to_slot(2)["ok"])
+	var run_owner: Node = m.get_meta("run_owner")
+	var before_run: Dictionary = run_owner.capture_restore_state()
+	var before_journal: Dictionary = m._journal.capture_state()
+	var before_file: Dictionary = m._storage.read_text("slot_2.json")
+	var before_continuations: Dictionary = m._continuation_journal.list_incomplete()
 	var prepared: Dictionary = m.prepare_restore_slot(2)
-	assert_true(prepared.get("ok", false), JSON.stringify(prepared))
-	assert_eq(str(prepared["value"]["prepared"]["checkpoint_id"]), "run-b:1",
-		"the current bundle is narrative-incompatible, so the earlier compatible bundle wins")
+	assert_false(prepared.get("ok", true), "a failed current snapshot cannot select its compatible earlier snapshot")
+	assert_eq(prepared.get("code"), &"NARRATIVE_CONTENT_UNAVAILABLE")
+	assert_false(prepared.has("value"), "failure exposes no substitute restore plan")
+	assert_eq(run_owner.capture_restore_state(), before_run, "preparation failure leaves the live Run unchanged")
+	assert_eq(m._journal.capture_state(), before_journal, "preparation failure leaves the current checkpoint unchanged")
+	assert_eq(m._storage.read_text("slot_2.json"), before_file, "preparation failure never rewrites the selected save")
+	assert_eq(m._continuation_journal.list_incomplete(), before_continuations, "preparation failure creates no continuation")
 
 func test_profile_prepare_failure_is_structural_not_content() -> void:
 	var owner := Owner.new()
