@@ -1,0 +1,62 @@
+{
+  "ci/art-protocol.jsonl": {
+    "bytes": 776,
+    "sha256": "7e4123b84346107a00a2afe0a0eb3480bb6117ddd105272c78fa92ebd6ee6b09"
+  },
+  "ci/art-protocol.xml": {
+    "bytes": 5568,
+    "sha256": "6076b521edd1f5c4b865c0fba05c33a1c93eb16b34e1b93a7a7d2ae384973986"
+  },
+  "ci/audit-origin.json": {
+    "bytes": 343,
+    "sha256": "8b0f8885e1c1c73d697717dd9013a020eda5b333785f318fe2e5d3b4322fe465"
+  },
+  "ci/final-status.txt": {
+    "bytes": 78,
+    "sha256": "e9ea381f63c5204fbd6d980c19443954d39f7c6a7fe147b99ddf3955528814dd"
+  },
+  "ci/import-process.json": {
+    "bytes": 24,
+    "sha256": "75876e0e3f497cad271143ba85bd4f36569cd81195509043f860dab14265b716"
+  },
+  "ci/import.log": {
+    "bytes": 96271,
+    "sha256": "3f77e1d026720c949ecaa90457e5c10a853055abf60f7487273a21d3b4061980"
+  },
+  "ci/source-tree.txt": {
+    "bytes": 1704416,
+    "sha256": "38879bfc3a3e244ced9f732f198d63b5fdfacf7dd3e697929a7be2b72d22b95a"
+  },
+  "ci/uid-provenance.json": {
+    "bytes": 1272,
+    "sha256": "1fc36e23b5837c0100a90b5db583c75b4c1a57a2f4037fac39c8729fd16660f7"
+  },
+  "ci/native-uids/authored_week_child.gd.uid": {
+    "bytes": 20,
+    "sha256": "26a07eb1a8b8bcb11f34f35f50a8f6991cabfcec4284123256b710978b3c4512"
+  },
+  "ci/native-uids/authored_week_create.gd.uid": {
+    "bytes": 20,
+    "sha256": "efaa90685c346674983f2d245919b662c600ee8e8438a9130b8d79df5c310ad9"
+  },
+  "ci/native-uids/authored_week_load.gd.uid": {
+    "bytes": 20,
+    "sha256": "0807c4e888870ae647e6a62fe9cad1d383fe0b815c92906731ad067bd3bded09"
+  },
+  "ci/native-uids/authored_week_replay.gd.uid": {
+    "bytes": 20,
+    "sha256": "67e7d792639072893c0af6ab932f72a9e7c9ae49a00e21ea5c2129ca503961f6"
+  },
+  "ci/native/art-protocol/0/user-dir-proof.log": {
+    "bytes": 193,
+    "sha256": "bca0cd60d30a8dbe180b66e0a75ffeb67a86376e0df4d887cb94673f0413f0f6"
+  },
+  "ci/native/art-protocol/0/appdata/Godot/app_userdata/DWM/dialogic/saves/global_info.txt": {
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "phase2r_logs/art-protocol.log": {
+    "bytes": 125603,
+    "sha256": "0498c238152c6239e2963e4f20522d70461baacc3c5d61280e9524de6cae38c6"
+  }
+}

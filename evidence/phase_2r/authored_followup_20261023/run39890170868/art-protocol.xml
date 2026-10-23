@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="GutTests" failures="1" tests="23" >
+  <testsuite name="tests/integration/test_scene_day_reading.gd" tests="13" failures="1" skipped="0" time="0.285899" >
+      <testcase name="test_simulated_configuration_reentrancy_refuses_nested_owners_and_releases_refusal_guard" assertions="19" status="pass" classname="tests/integration/test_scene_day_reading.gd" time="0.003729" >
+      </testcase>
+      <testcase name="test_simulated_checkpoint_authority_binds_private_candidate_and_call_phase" assertions="28" status="pass" classname="tests/integration/test_scene_day_reading.gd" time="0.025887" >
+      </testcase>
+      <testcase name="test_simulated_staging_requires_exact_candidate_and_confirmation_then_installs_once" assertions="17" status="pass" classname="tests/integration/test_scene_day_reading.gd" time="0.034779" >
+      </testcase>
+      <testcase name="test_simulated_wrong_acknowledgement_and_uncertainty_keep_fatal_custody" assertions="18" status="pass" classname="tests/integration/test_scene_day_reading.gd" time="0.014459" >
+      </testcase>
+      <testcase name="test_simulated_confirmed_save_then_native_failure_never_retries_adoption" assertions="9" status="pass" classname="tests/integration/test_scene_day_reading.gd" time="0.008589" >
+      </testcase>
+      <testcase name="test_synchronous_restore_then_native_failure_retains_committed_target_without_adoption" assertions="42" status="pass" classname="tests/integration/test_scene_day_reading.gd" time="0.034222" >
+      </testcase>
+      <testcase name="test_selected_registration_rejects_late_or_changed_configuration" assertions="5" status="pass" classname="tests/integration/test_scene_day_reading.gd" time="0.003028" >
+      </testcase>
+      <testcase name="test_reentry_loop_snapshot_restore_and_history_keep_all_publications" assertions="19" status="pass" classname="tests/integration/test_scene_day_reading.gd" time="0.090218" >
+      </testcase>
+      <testcase name="test_fully_witnessed_next_stops_at_revisited_backward_caption" assertions="19" status="pass" classname="tests/integration/test_scene_day_reading.gd" time="0.041345" >
+      </testcase>
+      <testcase name="test_next_planning_is_detached_and_stops_at_registered_control" assertions="9" status="pass" classname="tests/integration/test_scene_day_reading.gd" time="0.011934" >
+      </testcase>
+      <testcase name="test_forged_path_and_historical_frame_refuse_without_installation" assertions="6" status="pass" classname="tests/integration/test_scene_day_reading.gd" time="0.006301" >
+      </testcase>
+      <testcase name="test_full_run_validation_stays_closed_without_scene_receipt_owner" assertions="6" status="fail" classname="tests/integration/test_scene_day_reading.gd" time="0.006164" >
+      <failure message="failed"><![CDATA[[STRING_NAME(reading_saved_run_required)] expected to equal [STRING_NAME(scene_owner_validation_unavailable)]:  
+            at line 457]]></failure></testcase>
+      <testcase name="test_actual_dialogic_resource_compiles_to_registered_finite_programmes" assertions="14" status="pass" classname="tests/integration/test_scene_day_reading.gd" time="0.005244" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/integration/test_scene_native_activation.gd" tests="10" failures="1" skipped="0" time="0.480094" >
+      <testcase name="test_async_native_proof_requires_exact_operation_and_actual_frontier" assertions="17" status="pass" classname="tests/integration/test_scene_native_activation.gd" time="0.015795" >
+      </testcase>
+      <testcase name="test_wrong_native_callback_fences_target_and_never_retries" assertions="10" status="pass" classname="tests/integration/test_scene_native_activation.gd" time="0.010386" >
+      </testcase>
+      <testcase name="test_synchronous_success_then_failure_never_confirms" assertions="15" status="pass" classname="tests/integration/test_scene_native_activation.gd" time="0.012689" >
+      </testcase>
+      <testcase name="test_silent_rollback_removes_activation_permission" assertions="7" status="pass" classname="tests/integration/test_scene_native_activation.gd" time="0.00572" >
+      </testcase>
+      <testcase name="test_participant_holds_native_until_completion_and_subscribes_before_sync_start" assertions="19" status="pass" classname="tests/integration/test_scene_native_activation.gd" time="0.024003" >
+      </testcase>
+      <testcase name="test_participant_rejects_changed_checkpoint_or_missing_private_operation" assertions="6" status="pass" classname="tests/integration/test_scene_native_activation.gd" time="0.004119" >
+      </testcase>
+      <testcase name="test_control_requires_distinct_transport_proof_and_rejects_poisoned_callback" assertions="17" status="pass" classname="tests/integration/test_scene_native_activation.gd" time="0.073886" >
+      </testcase>
+      <testcase name="test_duplicate_control_proof_never_publishes_and_changed_physical_proof_refuses" assertions="17" status="pass" classname="tests/integration/test_scene_native_activation.gd" time="0.096345" >
+      </testcase>
+      <testcase name="test_control_proof_refuses_changed_candidate_or_runtime" assertions="39" status="pass" classname="tests/integration/test_scene_native_activation.gd" time="0.197926" >
+      </testcase>
+      <testcase name="test_control_refuses_real_first_caption_as_terminal_predecessor_before_staging" assertions="17" status="pass" classname="tests/integration/test_scene_native_activation.gd" time="0.039225" >
+      </testcase>
+  </testsuite>
+</testsuites>

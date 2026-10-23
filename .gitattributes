@@ -27,3 +27,6 @@
 
 # Preserve original cloud receipts and logs for the authored-week evidence.
 /evidence/phase_2r/authored_week_20261023/** -text
+
+# Preserve original follow-up archives, receipts and logs.
+/evidence/phase_2r/authored_followup_20261023/** -text
