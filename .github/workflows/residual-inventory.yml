@@ -1,0 +1,125 @@
+name: Diagnose residual tests and regenerate inventories
+'on':
+  push:
+    branches:
+    - codex/residual-inventory-controller-20261023
+permissions:
+  contents: read
+concurrency:
+  group: residual-inventory-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  measure:
+    name: Diagnose residual tests and regenerate inventories
+    runs-on: windows-2022
+    timeout-minutes: 20
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+    - name: Preserve source bytes
+      run: git config --global core.autocrlf false
+    - uses: actions/checkout@v7
+      with:
+        fetch-depth: 4
+        persist-credentials: true
+        ref: 7525c910b4d6fae0bfc27b3c76d87f64fc7beb1c
+    - name: Record pinned source
+      run: |
+        $ErrorActionPreference = 'Stop'
+        if ((git rev-parse HEAD) -cne '7525c910b4d6fae0bfc27b3c76d87f64fc7beb1c') { throw 'Candidate mismatch' }
+        if ((git rev-parse 'HEAD^{tree}') -cne '1f181108ad61dd4f4f263b81c7058c09cd6e9a8e') { throw 'Candidate tree mismatch' }
+        New-Item -ItemType Directory -Force '.godot/ci' | Out-Null
+        @{candidate='7525c910b4d6fae0bfc27b3c76d87f64fc7beb1c'; tree=(git rev-parse 'HEAD^{tree}'); controller='${{ github.event.pull_request.head.sha }}'; workflow='${{ github.workflow_sha }}'; event='${{ github.sha }}'; run_id='${{ github.run_id }}'; attempt='${{ github.run_attempt }}'} | ConvertTo-Json | Set-Content '.godot/ci/audit-origin.json'
+    - name: Prepare disposable checkout for credential cleanup
+      run: |
+        $ErrorActionPreference = 'Stop'
+        # These legacy tooling gitlinks have no .gitmodules URLs. Git's
+        # submodule foreach reads the index even with sparse checkout.
+        # The source commit and working files remain unchanged.
+        git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+        git submodule foreach --recursive 'true'
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+    - name: Install Godot 4.6.3 standard
+      run: |
+        $ErrorActionPreference = 'Stop'
+        $archive = Join-Path $env:RUNNER_TEMP 'godot-4.6.3.zip'
+        Invoke-WebRequest -Uri 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_win64.exe.zip' -OutFile $archive
+        # SHA256 published with the official 4.6.3-stable release asset.
+        $expected = 'e39986a178d585ce7ac198fb8de6ea436366dc0cc00e594810c2e3e104c04b90'
+        if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expected) {
+          throw 'Godot archive checksum mismatch.'
+        }
+        $editor = Join-Path $env:RUNNER_TEMP 'godot-4.6.3'
+        Expand-Archive -LiteralPath $archive -DestinationPath $editor
+        $console = Join-Path $editor 'Godot_v4.6.3-stable_win64_console.exe'
+        if (-not (Test-Path -LiteralPath $console)) { throw 'Godot console executable missing.' }
+        "GODOT_CONSOLE_PATH=$console" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+        & $console --version
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+    - name: Import project
+      run: |
+        $ErrorActionPreference = 'Stop'
+        $output = Join-Path $env:GITHUB_WORKSPACE '.godot/ci'
+        $env:APPDATA = Join-Path $output 'import-user/appdata'
+        $env:LOCALAPPDATA = Join-Path $output 'import-user/localappdata'
+        $env:DWM_TEST_ROOT = Join-Path $output 'import-user/test-root'
+        New-Item -ItemType Directory -Force -Path $output, $env:APPDATA, $env:LOCALAPPDATA, $env:DWM_TEST_ROOT | Out-Null
+        & $env:GODOT_CONSOLE_PATH --headless --path $env:GITHUB_WORKSPACE --import --log-file "$output/import.log"
+        $importExit = $LASTEXITCODE
+        @{exit_code=$importExit} | ConvertTo-Json | Set-Content "$output/import-process.json"
+        if ($importExit -ne 0) { exit $importExit }
+        if (Select-String -Path "$output/import.log" -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) {
+          throw 'Project import reported script errors; inspect import.log.'
+        }
+      timeout-minutes: 8
+    - name: Restore committed project settings after editor import
+      run: |
+        # Dialogic's editor scan rewrites its timeline lookup during import.
+        # Execute the committed configuration with the freshly imported assets.
+        git restore -- project.godot
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+    - name: Verify five changed current test scripts
+      timeout-minutes: 10
+      run: |
+        $ErrorActionPreference = 'Stop'
+        ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId 'residual-current' -LogName 'residual-current.log' -EvidenceLogPath '.godot/ci/residual-current.jsonl' -TimeoutSeconds 480 -GodotArgs @('-s','res://addons/gut/gut_cmdln.gd','-gconfig=','-gtest=res://tests/integration/test_hospital_reading_session_runtime.gd,res://tests/integration/test_solo_authored_selector_runtime.gd,res://tests/integration/test_witnessed_speech_projection.gd,res://tests/integration/test_run_restore_isolation.gd,res://tests/unit/tooling/test_ui_literal_audit.gd','-gexit','-glog=2','-gjunit_xml_file=res://.godot/ci/residual-current.xml')
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+        @'
+        import pathlib, re, xml.etree.ElementTree as ET
+        paths = ['tests/integration/test_hospital_reading_session_runtime.gd', 'tests/integration/test_solo_authored_selector_runtime.gd', 'tests/integration/test_witnessed_speech_projection.gd', 'tests/integration/test_run_restore_isolation.gd', 'tests/unit/tooling/test_ui_literal_audit.gd']
+        root = ET.parse('.godot/ci/residual-current.xml').getroot()
+        cases = list(root.iter('testcase'))
+        expected = {(p, n) for p in paths for n in re.findall(r'^func (test_\w+)\(', pathlib.Path(p).read_text(encoding="utf-8"), re.M)}
+        actual = [(c.get('classname'), c.get('name')) for c in cases]
+        assert len(actual) == len(expected) and set(actual) == expected, (actual, expected)
+        assert all(c.get('status') == 'pass' and int(c.get('assertions', '0')) > 0 for c in cases)
+        assert not any(list(root.iter(tag)) for tag in ('failure', 'error', 'skipped'))
+        print(f'RESIDUAL_CURRENT_VERIFIED cases={len(cases)} scripts={len(paths)}')
+        '@ | python -
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+    - name: Regenerate and verify inventories
+      run: |-
+        ./tools/testing/Invoke-PublicSurfaceValidation.ps1 -Regenerate -EmitPayloads
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+        ./tools/testing/Invoke-CloudTests.ps1 -Suite public_surfaces
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      if: ${{ !cancelled() }}
+    - name: Collect exact changed files
+      if: always()
+      run: |-
+        git diff HEAD -- autoload scripts scenes project.godot | Set-Content .godot/ci/final-runtime.patch
+        git status --porcelain | Set-Content .godot/ci/final-status.txt
+    - name: Upload generated inventories
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: residual-inventories-${{ github.run_id }}-${{ github.run_attempt }}
+        path: |-
+          .godot/ci/
+          .godot/phase2r_logs/
+          evidence/phase_2r/runtime/game_state_surface.json
+          evidence/phase_2r/runtime/save_manager_surface.json
+        include-hidden-files: true
+        retention-days: 30
