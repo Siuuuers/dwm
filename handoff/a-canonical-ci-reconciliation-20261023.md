@@ -1,10 +1,11 @@
 # Canonical CI reconciliation — 23 October 2026
 
-Read-only audit of PR51 run39873079868 against continuation
-`46bc029f5219fdc39d5d6859765c0fd412f91252`. This document changes no selector,
-runtime, test assertion, historical seal or acceptance status. No new engine
-execution was performed. The concurrent Backup retention fix is a separate
-qualification scope.
+The initial read-only audit compared PR51 run39873079868 with continuation
+`46bc029f5219fdc39d5d6859765c0fd412f91252`. The subsequent test-only reconciliation
+changed current selectors and removed named retired methods from mixed files,
+with exact historical source mappings. Focused cloud execution has now occurred;
+its results and remaining limits are recorded below. The concurrent Backup
+retention fix remains a separate qualification scope.
 
 ## Outcome and scope
 
@@ -18,6 +19,42 @@ current scene startup, current saves, authored progression or current performanc
 Do not rerun the unchanged broad workflow: it still selects known incompatible
 historical fixtures. Do not remove their assertions, restore retired mechanics,
 raise deadlines, or substitute a historical result for current behavior.
+
+## Implemented candidate and focused qualification
+
+Candidate `149c5cde96f021385fa3e9a1789362e3989b75b9` was tested in
+[focused run39960111488](https://github.com/Siuuuers/dwm/actions/runs/39960111488).
+All **74 retained mixed-file cases passed**, and all **six new isolated suites
+passed**. Apps completed in approximately 49 seconds and Title in 122 seconds,
+within the existing ten-minute canonical job budget. Inventory and final
+validation are **pending coordinator completion**; these passing subsets are
+not a declaration that the entire run or master integration is accepted.
+
+The implementation preserves 20 desktop identity/composition cases, nine JA/KO
+cases, 33 schedule-gate cases, and 12 registry-independent DTL validator cases.
+Independent review corrected the initial whole-file DTL classification: only
+seven registry-dependent DTL methods moved to historical disposition. The 12
+current label and executable-event controls remain selected and unchanged.
+
+[`canonical-test-disposition.json`](../tools/testing/canonical-test-disposition.json)
+records 27 historical method mappings: 16 removed from four mixed files and 11
+in the excluded ordinary-reply file. Offline review verified their exact PR5
+method hashes, the complete removed-method census, and all 74 unchanged current
+method bodies. The retired standalone New Account desktop-latency source is
+also pinned byte-for-byte. Historical bodies and mechanics were not rewritten.
+
+The six current suite names are `scene_round_checkpoint`,
+`scene_shop_checkpoint`, `scene_story_localization`, `scene_controls_localization`,
+`scene_apps`, and `current_title`. Round and Shop checkpoint tests moved
+one-for-one out of grouped suites. Apps and Title use the existing
+`NextGodotArgs` path: sequential fresh processes sharing one isolated storage
+root. Story, Apps and Title use the renderer; primary and loader JUnit guards
+require passing assertions and reject skipped coverage.
+
+Broad legacy benchmark and rendered-journey classification remains outstanding.
+Current authored-flow performance is not certified by the historical timing
+probe, and no full-master acceptance is claimed. Reuse pinned historical
+receipts where applicable rather than repeating their broad campaign.
 
 ## Source pins and reusable evidence
 
@@ -46,7 +83,7 @@ raise deadlines, or substitute a historical result for current behavior.
   assertions, and native initial/fresh-load images. See
   [retained evidence](../evidence/phase_2r/authored_followup_20261023/README.md).
 
-## Exact mixed-file disposition
+## Initial audit: exact mixed-file disposition
 
 `tests/integration/test_desktop_bootstrap_wiring.gd` has 27 methods. Keep its
 20 identity/composition methods in current qualification. The following seven
@@ -86,8 +123,8 @@ to historical selection. Do not replace the current census with an old census.
 The existing historical lane already selects the complete historical schedule
 gate, DTL structure, EffectResolver and Hospital rules files.
 
-Implementation should use explicit method manifests or split current/historical
-test classes with exact source/method census verification. GUT's stock
+Implementation used explicit method mappings and removed only named historical
+methods, with exact source/method census verification. GUT's stock
 `-gunit_test_name` is only a substring filter, not an exclusion list; avoid an
 unreviewed broad-name filter or inherited duplicate discovery. Preserve every
 method in an explicit current or historical disposition before changing selectors.
@@ -103,9 +140,9 @@ method in an explicit current or historical disposition before changing selector
 | Current authored locale and controls | `test_story_localization.gd`, `test_scene_controls_localization.gd` |
 | Shipped Title and exact fresh Load | `test_current_title_scene_create.gd` then `test_current_title_scene_load.gd` |
 
-These are concrete existing tests, not newly executed results or one-to-one
-proofs of retired mechanics. Use their retained exact-source receipts where
-applicable; qualify changed owners once after review.
+These current counterparts do not claim one-to-one equivalence with retired
+mechanics. The six newly selected isolated suites now have the focused passing
+results above; other coverage retains its own source-specific receipts.
 
 ## Benchmarks and rendered startup
 
@@ -134,7 +171,7 @@ board journey, explicitly identifying their different scope. The handoff's
 multi-minute authored stalls remain a real current issue. Uninterrupted full-week
 run39920770730 remains timed out; later ending recovery is stitched coverage.
 
-## Smallest coherent implementation order
+## Initial implementation order and remaining acceptance boundary
 
 1. Finish the separate Backup retention fix with focused inspection and one
    affected native Load/Save journey. Reuse unchanged ending-replay evidence.
@@ -193,3 +230,7 @@ the recorded PR5 evidence for unchanged source rather than repeating it here.
 Focused current qualification and regenerated inventory adoption are pending
 at this document checkpoint. Legacy benchmark/rendered job classification in
 the broad workflow remains outstanding; this is not full master acceptance.
+
+## Final focused qualification
+
+Run [39960111488](https://github.com/Siuuuers/dwm/actions/runs/39960111488) passed in full: 96 XML cases, including 74 retained mixed-file cases, 11 current scene journey cases and 11 public-surface contracts. Both inventories were regenerated and checked on Windows; their original bytes are adopted in this records commit. Original ZIP bytes and inspection are retained under `evidence/phase_2r/backup_ci_20261023`. This supersedes the pending inventory checkpoint above. Full broad-workflow/master acceptance remains outstanding.

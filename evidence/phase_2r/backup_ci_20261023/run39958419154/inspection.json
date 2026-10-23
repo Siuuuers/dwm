@@ -1,0 +1,52 @@
+{
+  "archive": "run39958419154.zip",
+  "sha256": "07023003f446ff83a108cf94a97ff6123c0556c23c2abacbf7de771f97737bc7",
+  "bytes": 6320125,
+  "crc_ok": true,
+  "reports": [
+    {
+      "file": "backup-host.xml",
+      "cases": 8,
+      "assertions": 126,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0
+    },
+    {
+      "file": "backup-baseline.xml",
+      "cases": 2,
+      "assertions": 58,
+      "failures": 1,
+      "errors": 0,
+      "skips": 0
+    },
+    {
+      "file": "terminal-candidate.xml",
+      "cases": 1,
+      "assertions": 112,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0
+    },
+    {
+      "file": "backup-inspection.xml",
+      "cases": 2,
+      "assertions": 58,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0
+    },
+    {
+      "file": "public_surfaces.xml",
+      "cases": 11,
+      "assertions": 352,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0
+    }
+  ],
+  "pngs": [
+    "computer-authored-restored-slot-2.png",
+    "computer-authored-terminal-pair.png"
+  ]
+}

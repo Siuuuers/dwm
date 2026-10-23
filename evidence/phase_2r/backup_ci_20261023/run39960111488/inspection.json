@@ -1,0 +1,139 @@
+{
+  "archive": "run39960111488.zip",
+  "sha256": "56d6a5634d3b10eb37c85389a8c5510657c80c7d74f32bd25493ec8cb57093d7",
+  "bytes": 12637156,
+  "crc_ok": true,
+  "reports": [
+    {
+      "file": "current_title.xml",
+      "cases": 1,
+      "assertions": 77,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0
+    },
+    {
+      "file": "scene_apps.xml",
+      "cases": 1,
+      "assertions": 86,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0
+    },
+    {
+      "file": "current-dtl-validator.xml",
+      "cases": 12,
+      "assertions": 35,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0
+    },
+    {
+      "file": "current-jako.xml",
+      "cases": 9,
+      "assertions": 3282,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0
+    },
+    {
+      "file": "current-desktop.xml",
+      "cases": 20,
+      "assertions": 376,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0
+    },
+    {
+      "file": "scene_round_checkpoint.xml",
+      "cases": 1,
+      "assertions": 70,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0
+    },
+    {
+      "file": "scene_apps-load.xml",
+      "cases": 1,
+      "assertions": 39,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0
+    },
+    {
+      "file": "current-schedule-contract.xml",
+      "cases": 33,
+      "assertions": 1632,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0
+    },
+    {
+      "file": "scene_story_localization.xml",
+      "cases": 1,
+      "assertions": 93,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0
+    },
+    {
+      "file": "public_surfaces.xml",
+      "cases": 11,
+      "assertions": 352,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0
+    },
+    {
+      "file": "scene_controls_localization.xml",
+      "cases": 4,
+      "assertions": 132,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0
+    },
+    {
+      "file": "scene_shop_checkpoint.xml",
+      "cases": 1,
+      "assertions": 66,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0
+    },
+    {
+      "file": "current_title-load.xml",
+      "cases": 1,
+      "assertions": 105,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0
+    }
+  ],
+  "pngs": [
+    "computer-apps-contacts.png",
+    "computer-apps-fresh-load-board.png",
+    "computer-story-zh_CN.png",
+    "computer-apps-shop-before-buy.png",
+    "computer-glyphs-ko.png",
+    "computer-apps-shop-during-challenge.png",
+    "computer-current-title-save.png",
+    "computer-apps-same-caption-return.png",
+    "computer-glyphs-zh_CN.png",
+    "computer-current-title-day1.png",
+    "computer-current-title-menu.png",
+    "computer-current-title-loaded-computer.png",
+    "computer-apps-challenge-before-switch.png",
+    "computer-glyphs-ja.png",
+    "computer-apps-shop-purchased.png",
+    "computer-story-ja.png",
+    "computer-apps-challenge-return.png",
+    "computer-story-zh_HK.png",
+    "computer-glyphs-zh_HK.png",
+    "computer-story-ko.png",
+    "computer-apps-fresh-load-shop.png",
+    "computer-current-title-loaded-day1.png",
+    "computer-apps-ordinary-caption.png",
+    "computer-current-title-computer.png",
+    "computer-apps-home.png"
+  ]
+}
