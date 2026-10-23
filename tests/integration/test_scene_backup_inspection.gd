@@ -3,6 +3,17 @@ extends "res://addons/gut/test.gd"
 ## restore participants are diagnostic; no rendered or production UI claim.
 const FIXTURE := preload("res://tests/support/SceneNewRunFixture.gd")
 const PORT := preload("res://scripts/application/backup/BackupPresentationPort.gd")
+const ADMISSION := preload("res://scripts/infrastructure/save/SaveMigrations.gd")
+
+class EditingNarrative extends RefCounted:
+	var delegate: RefCounted
+	var calls := 0
+	func prepare(input: Dictionary) -> Dictionary:
+		calls += 1
+		# Deliberate injected participant violation after successful admission.
+		input.snapshot.content_version = -1
+		return delegate.prepare(input)
+
 var fixture: RefCounted
 var fixture_ready := false
 
@@ -114,3 +125,86 @@ func _observed() -> Dictionary:
 		"profile_revision": fixture.profile.get_profile_revision(), "journal": fixture.manager._journal.capture_state(),
 		"route_publications": fixture.participants.route.publications,
 		"narrative_publications": fixture.participants.narrative.publications}
+
+func test_scene_admission_seed_matches_generic_and_detaches_all_owned_material() -> void:
+	assert_true(fixture_ready)
+	if not fixture_ready: return
+	var raw: Dictionary = fixture.read_autosave().value
+	# Schema diagnostic from a real admitted creation, not a played checkpoint journey.
+	var first: Dictionary = raw.current_snapshot.duplicate(true)
+	var second: Dictionary = first.duplicate(true)
+	second.checkpoint_kind = "safe_marker"
+	second.snapshot.checkpoint_sequence = 2
+	second.snapshot.checkpoint_id = second.snapshot.run_id + ":2"
+	raw.current_snapshot.checkpoint_kind = "safe_marker"
+	raw.current_snapshot.snapshot.checkpoint_sequence = 3
+	raw.current_snapshot.snapshot.checkpoint_id = raw.current_snapshot.snapshot.run_id + ":3"
+	raw.recovery_journal = [second, first]
+	var source := raw.duplicate(true)
+	var material := {}
+	var admitted: Dictionary = ADMISSION.migrate_document(raw, {"kind": "autosave", "slot_id": null},
+		fixture.manager._capture_scene_seed_material.bind(material))
+	assert_true(admitted.ok, str(admitted))
+	if not admitted.ok: return
+	assert_eq(admitted.value.keys(), ["document", "legacy_profile_patch_input", "migration_receipts"])
+	assert_false(material.is_empty())
+	var document: Dictionary = admitted.value.document
+	var selected: Dictionary = document.current_snapshot
+	var before := _observed()
+	var generic: Dictionary = fixture.manager._journal.prepare_seed(document, selected)
+	var reused: Dictionary = fixture.manager._prepare_restore_seed(document, selected, material)
+	assert_true(generic.ok, str(generic))
+	assert_eq(reused, generic, "candidate and diagnostics equal full validation")
+	for earlier: Dictionary in document.recovery_journal:
+		assert_eq(fixture.manager._prepare_restore_seed(document, earlier, material),
+			fixture.manager._journal.prepare_seed(document, earlier),
+			"earlier selection excludes later history with identical order, bounds and diagnostics")
+	var invalid := source.duplicate(true)
+	invalid.recovery_journal.append(invalid.recovery_journal[0].duplicate(true))
+	var refused_material := {}
+	var refused: Dictionary = ADMISSION.migrate_document(invalid, {"kind": "autosave", "slot_id": null},
+		fixture.manager._capture_scene_seed_material.bind(refused_material))
+	assert_eq(refused, ADMISSION.migrate_document(invalid, {"kind": "autosave", "slot_id": null}))
+	assert_false(refused.ok, "duplicate scene history is refused before producing reuse material")
+	assert_true(refused_material.is_empty())
+	var observer_result: Dictionary = ADMISSION.migrate_document(raw, {"kind": "autosave", "slot_id": null},
+		func(received: Dictionary, bundles: Array) -> void:
+			received.clear()
+			bundles.clear())
+	assert_eq(observer_result, admitted, "receiver cannot mutate the public validated candidate")
+	assert_eq(_observed(), before, "pure seeding changes no owner or file")
+	if not reused.ok: return
+	reused.value.candidate.current.snapshot.content_version = -1
+	assert_eq(reused.value.candidate.earlier.size(), 2)
+	if reused.value.candidate.earlier.size() == 2:
+		reused.value.candidate.earlier[0].snapshot.content_version = -1
+	assert_eq(fixture.manager._prepare_restore_seed(document, selected, material), generic,
+		"returned candidate cannot mutate retained admission material")
+	assert_eq(raw, source)
+	var selected_drift := selected.duplicate(true)
+	selected_drift.snapshot.checkpoint_id = "not-admitted"
+	assert_eq(fixture.manager._prepare_restore_seed(document, selected_drift, material),
+		fixture.manager._journal.prepare_seed(document, selected_drift), "unknown selection uses ordinary refusal")
+	document.current_snapshot.snapshot.content_version = -1
+	var changed: Dictionary = fixture.manager._prepare_restore_seed(document, document.current_snapshot, material)
+	assert_eq(changed, fixture.manager._journal.prepare_seed(document, document.current_snapshot),
+		"edited admission result cannot borrow its earlier proof")
+	assert_false(changed.ok)
+	assert_eq(material.document, source, "private proof does not alias the mutable admission result")
+	assert_eq(raw, source)
+
+func test_scene_restore_participant_edit_reenters_generic_seed_validation() -> void:
+	assert_true(fixture_ready)
+	if not fixture_ready: return
+	var before := _observed()
+	var retained_before: Array = fixture.manager._scene_restore_preparations.keys()
+	var original: RefCounted = fixture.manager._restore_participants.narrative
+	var editor := EditingNarrative.new()
+	editor.delegate = original
+	fixture.manager._restore_participants.narrative = editor
+	var refused: Dictionary = fixture.manager.prepare_restore_autosave()
+	fixture.manager._restore_participants.narrative = original
+	assert_eq(editor.calls, 1, "edit occurs after full admission and earlier participant prepares")
+	assert_eq(refused.get("code"), &"selected_bundle_missing", str(refused))
+	assert_eq(fixture.manager._scene_restore_preparations.keys(), retained_before)
+	assert_eq(_observed(), before, "a callback edit cannot install a seed or change stored/live state")

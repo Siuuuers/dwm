@@ -1705,8 +1705,10 @@ func _inspect_backup_profiled(locator_id: String, profile: Dictionary) -> Dictio
 		return {"ok": true, "value": record}
 	# Admission validates the original evidence, including its version and locator, and
 	# returns a detached candidate. It does not reconstruct or relabel outer fields.
+	var scene_seed_material := {}
 	var migrated := SAVE_MIGRATIONS.migrate_document(parsed["value"],
-		{"kind": locator["kind"], "slot_id": locator["slot_id"]})
+		{"kind": locator["kind"], "slot_id": locator["slot_id"]},
+		_capture_scene_seed_material.bind(scene_seed_material))
 	_save_load_profile_phase(profile, "admission_us")
 	if not migrated.get("ok", false):
 		var version: Variant = parsed["value"].get("schema_version")
@@ -1724,7 +1726,7 @@ func _inspect_backup_profiled(locator_id: String, profile: Dictionary) -> Dictio
 	if record["family"] == "legacy_day":
 		record["day"] = int(snapshot["lifecycle"]["day"])
 	record["saved_time"] = document.get("saved_time", {}).get("hhmm")
-	var prepared := _prepare_restore_document(locator, document, migrated["value"])
+	var prepared := _prepare_restore_document(locator, document, migrated["value"], scene_seed_material)
 	_save_load_profile_phase(profile, "restore_prepare_us")
 	if prepared.get("ok", false):
 		var target: Dictionary = prepared["value"]["prepared"]
@@ -2210,21 +2212,45 @@ func _prepare_restore(locator: Dictionary) -> Dictionary:
 
 	# Migrate the document and every retained bundle. Structural/future-schema
 	# failures are frozen and never fall back to compatibility selection.
+	var scene_seed_material := {}
 	var migrated: Dictionary = SAVE_MIGRATIONS.migrate_document(parsed["value"],
-		{"kind": str(locator["kind"]), "slot_id": locator["slot_id"]})
+		{"kind": str(locator["kind"]), "slot_id": locator["slot_id"]},
+		_capture_scene_seed_material.bind(scene_seed_material))
 	if not migrated.get("ok", false):
 		return migrated
 	var document: Dictionary = migrated["value"]["document"]
 	# Admission already returned the validated, detached document.
-	return _prepare_restore_document(locator, document, migrated["value"])
+	return _prepare_restore_document(locator, document, migrated["value"], scene_seed_material)
+
+## Admission owns these normalized materials. Never expose them to participants or
+## retain them beyond this synchronous preparation; recovery uses generic seeding.
+func _capture_scene_seed_material(document: Dictionary, bundles: Array, material: Dictionary) -> void:
+	material.assign({"document": document, "bundles": bundles})
+
+func _prepare_restore_seed(document: Dictionary, selected: Dictionary, material: Dictionary) -> Dictionary:
+	if not material.is_empty() and CANONICAL_JSON._deep_same(document, material.document):
+		for admitted: Dictionary in material.bundles:
+			if CANONICAL_JSON._deep_same(selected, admitted):
+				var diagnostics: Array[Dictionary] = []
+				var seed: Dictionary = _journal._prepare_seed_from_valid_bundles(material.bundles, selected, diagnostics)
+				# Generic seeding owns fresh validated bundles. Reuse must detach
+				# retained earlier bundles from the local admission material too.
+				if seed.get("ok", false):
+					seed.value.candidate.earlier = seed.value.candidate.earlier.duplicate(true)
+				return seed
+	# A participant may edit even a structurally valid input. Preserve generic
+	# validation/diagnostics whenever either document or selected bundle drifts.
+	return _journal.prepare_seed(document, selected)
 
 ## Pure shared preparation: Backup inspections do not reconcile files or acquire leases.
-func _prepare_restore_document(locator: Dictionary, document: Dictionary, migration_output: Dictionary) -> Dictionary:
+func _prepare_restore_document(locator: Dictionary, document: Dictionary, migration_output: Dictionary,
+		scene_seed_material: Dictionary = {}) -> Dictionary:
 	var profile := _save_load_profile_begin("restore_prepare", "", locator)
-	return _save_load_profile_finish(profile, _prepare_restore_document_profiled(locator, document, migration_output, profile))
+	return _save_load_profile_finish(profile, _prepare_restore_document_profiled(locator, document, migration_output, profile, scene_seed_material))
 
 
-func _prepare_restore_document_profiled(locator: Dictionary, document: Dictionary, migration_output: Dictionary, profile: Dictionary) -> Dictionary:
+func _prepare_restore_document_profiled(locator: Dictionary, document: Dictionary, migration_output: Dictionary,
+		profile: Dictionary, scene_seed_material: Dictionary = {}) -> Dictionary:
 	if _restore_participants.is_empty():
 		return _fail(&"TRANSACTION_PARTICIPANTS_NOT_CONFIGURED", "")
 
@@ -2240,7 +2266,7 @@ func _prepare_restore_document_profiled(locator: Dictionary, document: Dictionar
 
 	var causes: Array = []
 	for bundle: Dictionary in candidates:
-		var prepared := _prepare_bundle_with_all_participants(bundle, migration_output, document, locator)
+		var prepared := _prepare_bundle_with_all_participants(bundle, migration_output, document, locator, scene_seed_material)
 		_save_load_profile_phase(profile, "participant_prepare_us")
 		if prepared.get("ok", false):
 			return {"ok": true, "code": &"ok", "value": {"prepared": prepared["value"]}}
@@ -2251,7 +2277,8 @@ func _prepare_restore_document_profiled(locator: Dictionary, document: Dictionar
 		return prepared
 	return {"ok": false, "code": &"NO_COMPATIBLE_BUNDLE", "message": "", "details": {"causes": causes}}
 
-func _prepare_bundle_with_all_participants(bundle: Dictionary, migration_output: Dictionary, document: Dictionary, locator: Dictionary) -> Dictionary:
+func _prepare_bundle_with_all_participants(bundle: Dictionary, migration_output: Dictionary, document: Dictionary,
+		locator: Dictionary, scene_seed_material: Dictionary = {}) -> Dictionary:
 	var snapshot: Dictionary = bundle["snapshot"]
 	var sequence := int(snapshot["checkpoint_sequence"])
 	var plans := {}
@@ -2321,7 +2348,7 @@ func _prepare_bundle_with_all_participants(bundle: Dictionary, migration_output:
 		return _content_incompatible_or_fail("narrative", sequence, narr_prep)
 	plans["narrative"] = narr_prep["value"]["narrative_plan"]
 
-	var seed: Dictionary = _journal.prepare_seed(document, bundle)
+	var seed: Dictionary = _prepare_restore_seed(document, bundle, scene_seed_material)
 	if not seed.get("ok", false):
 		return seed
 
