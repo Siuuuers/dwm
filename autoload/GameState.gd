@@ -4269,8 +4269,8 @@ func _prepare_scene_snapshot_semantics(snapshot: Dictionary, bundle: Dictionary)
 	var selected := _SCENE_MANIFEST.scene_registration()
 	if not selected.ok: return selected
 	if not _SCENE_EVENT._equal(bundle, selected.value): return _transaction_failure(&"scene_registration_mismatch", "")
-	var reuse_scene_commands: bool = not _SCENE_FROZEN._scene_terminal_plan(snapshot) \
-		and _SCENE_FROZEN._is_scene_checkpoint(snapshot.get("narrative_checkpoint")) \
+	var reuse_scene_commands: bool = (_SCENE_FROZEN._scene_terminal_plan(snapshot) \
+		or _SCENE_FROZEN._is_scene_checkpoint(snapshot.get("narrative_checkpoint"))) \
 		and _SCENE_FROZEN.scene_validation_uses(_identity_issuer, get_node_or_null("/root/SaveManager"))
 	var commands: Dictionary
 	var frozen: Dictionary
