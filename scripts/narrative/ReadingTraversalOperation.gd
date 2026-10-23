@@ -398,12 +398,31 @@ static func _validate_scene_operation(reading: Dictionary, entry_id: String) -> 
 	if not _same(without_operation(reading), _scene_projection(operation.plan, operation.phase)): return _fail(&"reading_next_projection_mismatch")
 	return {"ok": true, "value": operation.duplicate(true)}
 
+## Fresh operation and programme proof for a reading owner that already validated
+## the selected endpoint. Return only its detached opposite endpoint; the plan hash
+## binds both phases and never needs to be recomputed merely to change phase.
+static func validate_scene_operation_path(reading: Dictionary, entry_id: String, nodes: Array) -> Dictionary:
+	var checked := _validate_scene_operation(reading, entry_id)
+	if not checked.ok: return checked
+	var operation: Dictionary = checked.value
+	var plan: Dictionary = operation.plan
+	var path := _validate_scene_path(plan, nodes)
+	if not path.ok: return path
+	var phase := "destination" if operation.phase == "source" else "source"
+	var opposite := _scene_projection(plan, phase)
+	operation.phase = phase
+	opposite.next_operation = operation
+	return {"ok": true, "value": opposite}
+
 ## Called only with nodes recompiled from the selected immutable registration.
 ## Every caption encountered is represented once in the appended suffix; the
 ## first control and every backwards jump target terminate this one operation.
 static func validate_scene_path(plan: Dictionary, nodes: Array) -> Dictionary:
 	var checked := _validate_scene_plan_shape(plan)
 	if not checked.ok: return checked
+	return _validate_scene_path(plan, nodes)
+
+static func _validate_scene_path(plan: Dictionary, nodes: Array) -> Dictionary:
 	var source: Dictionary = plan.source_reading
 	if source.program_index >= nodes.size() or not nodes[source.program_index] is Dictionary:
 		return _fail(&"reading_next_source_invalid")

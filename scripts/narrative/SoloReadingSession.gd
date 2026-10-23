@@ -165,16 +165,12 @@ func _validate_scene_saved(saved: Dictionary, entry_id: String) -> Dictionary:
 	var checked := _validate_scene_base(saved, entry_id)
 	if not checked.ok: return checked
 	if saved.next_operation == null: return checked
-	var operation := TRAVERSAL.validate(saved, entry_id)
+	var operation := TRAVERSAL.validate_scene_operation_path(saved, entry_id, _scene_nodes[entry_id])
 	if not operation.ok: return operation
-	var plan: Dictionary = operation.value.plan
-	var path := TRAVERSAL.validate_scene_path(plan, _scene_nodes[entry_id])
-	if not path.ok: return path
-	for phase: String in ["source", "destination"]:
-		var projected := TRAVERSAL.project(plan, phase)
-		if not projected.ok: return projected
-		var endpoint := _validate_scene_base(projected.value, entry_id)
-		if not endpoint.ok: return endpoint
+	# The operation proves saved is its selected projection. Its base was checked
+	# above, so only the opposite endpoint still needs ledger/catalogue admission.
+	var endpoint := _validate_scene_base(operation.value, entry_id)
+	if not endpoint.ok: return endpoint
 	return checked
 
 ## Pure plan only; the Run owner must authorize departure from the Challenge.

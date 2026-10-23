@@ -419,6 +419,65 @@ func test_next_planning_is_detached_and_stops_at_registered_control() -> void:
 		func(_beat: Dictionary) -> bool: return false).ok,
 		"ordinary Next cannot cross a held owner boundary")
 
+func test_scene_operation_path_returns_exact_detached_opposite_for_both_phases() -> void:
+	var created := FIXTURE.create_session()
+	assert_true(created.ok, str(created))
+	if not created.ok: return
+	var session: RefCounted = created.value
+	assert_true(FIXTURE.enter(session, FIXTURE.A, "a:1").ok)
+	var planned: Dictionary = session.prepare_next(FIXTURE.frontier(session),
+		func(_beat: Dictionary) -> bool: return false)
+	assert_true(planned.ok, str(planned))
+	if not planned.ok: return
+	for phase: String in ["source", "destination"]:
+		var selected := OP.project(planned.value, phase)
+		assert_true(selected.ok, str(selected))
+		if not selected.ok: return
+		var before: Dictionary = selected.value.duplicate(true)
+		var expected := OP.project(planned.value, "destination" if phase == "source" else "source")
+		assert_true(expected.ok, str(expected))
+		var checked := OP.validate_scene_operation_path(selected.value, FIXTURE.A, session._scene_nodes[FIXTURE.A])
+		assert_true(checked.ok, str(checked))
+		if not checked.ok: return
+		assert_eq(checked.value, expected.value)
+		assert_true(session.restore(selected.value, FIXTURE.A).ok, phase)
+		checked.value.ledger.captions.clear()
+		checked.value.next_operation.plan.source_reading.ledger.captions.clear()
+		assert_eq(selected.value, before, "returned endpoint and operation cannot mutate caller input")
+		assert_eq(OP.validate_scene_operation_path(selected.value, FIXTURE.A,
+			session._scene_nodes[FIXTURE.A]).value, expected.value)
+		selected.value.next_operation.operation_id = "0".repeat(64)
+		assert_false(OP.validate_scene_operation_path(selected.value, FIXTURE.A,
+			session._scene_nodes[FIXTURE.A]).ok, "each call freshly authenticates the plan hash")
+
+func test_scene_restore_still_refuses_invalid_opposite_endpoint_without_installing() -> void:
+	var created := FIXTURE.create_session()
+	assert_true(created.ok, str(created))
+	if not created.ok: return
+	var session: RefCounted = created.value
+	assert_true(FIXTURE.enter(session, FIXTURE.A, "a:1").ok)
+	var planned: Dictionary = session.prepare_next(FIXTURE.frontier(session),
+		func(_beat: Dictionary) -> bool: return false)
+	assert_true(planned.ok, str(planned))
+	if not planned.ok: return
+	var before: Dictionary = session.ledger.snapshot()
+	for phase: String in ["source", "destination"]:
+		var forged: Dictionary = planned.value.duplicate(true)
+		if phase == "source":
+			# Valid identity shape and path, but the inactive destination beat is not registered.
+			forged.destination.caption.beat.presentation_signature["forged"] = true
+		else:
+			# The selected destination remains valid, but the source names the wrong programme node.
+			forged.source_reading.program_index = 1
+			forged.path[0].from = 1
+		var selected := OP.project(forged, phase)
+		assert_true(selected.ok, "plan shape/hash alone cannot admit the opposite endpoint")
+		if not selected.ok: return
+		assert_true(session._validate_scene_base(selected.value, FIXTURE.A).ok,
+			"the selected endpoint alone passes before checking its opposite")
+		assert_false(session.restore(selected.value, FIXTURE.A).ok, phase)
+		assert_eq(session.ledger.snapshot(), before, "failed opposite endpoint never installs a prefix")
+
 func test_forged_path_and_historical_frame_refuse_without_installation() -> void:
 	var created := FIXTURE.create_session()
 	assert_true(created.ok, str(created))
