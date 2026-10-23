@@ -1,0 +1,132 @@
+concurrency:
+  cancel-in-progress: false
+  group: authored-profile-${{ github.event.pull_request.number }}
+jobs:
+  authored-profile:
+    defaults:
+      run:
+        shell: pwsh
+    if: github.head_ref == 'codex/story-day-qualification-20261023'
+    name: Windows / Bounded authored progression profile
+    runs-on: windows-2022
+    steps:
+    - name: Preserve source bytes
+      run: git config --global core.autocrlf false
+    - uses: actions/checkout@v7
+      with:
+        fetch-depth: 2
+        persist-credentials: true
+        ref: e6b3adf657b37bcac07c0d6d219978c8bf34a2c7
+    - name: Record pinned source
+      run: '$ErrorActionPreference = ''Stop''
+
+        if ((git rev-parse HEAD) -cne ''e6b3adf657b37bcac07c0d6d219978c8bf34a2c7'') { throw ''Candidate mismatch'' }
+
+        if ((git rev-parse ''HEAD^{tree}'') -cne ''9f007fab92e9f43284c123ab9f79b50ae37a1b3d'') { throw ''Candidate tree mismatch'' }
+
+        New-Item -ItemType Directory -Force ''.godot/ci'' | Out-Null
+
+        @{candidate=''e6b3adf657b37bcac07c0d6d219978c8bf34a2c7''; tree=(git rev-parse ''HEAD^{tree}''); controller=''${{ github.event.pull_request.head.sha }}''; workflow=''${{ github.workflow_sha }}''; event=''${{ github.sha }}''; run_id=''${{ github.run_id }}''; attempt=''${{ github.run_attempt }}''} | ConvertTo-Json | Set-Content ''.godot/ci/audit-origin.json''
+
+        '
+    - name: Prepare disposable checkout for credential cleanup
+      run: '$ErrorActionPreference = ''Stop''
+
+        # These legacy tooling gitlinks have no .gitmodules URLs. Git''s
+
+        # submodule foreach reads the index even with sparse checkout.
+
+        # The source commit and working files remain unchanged.
+
+        git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
+
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+        git submodule foreach --recursive ''true''
+
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+        '
+    - name: Install Godot 4.6.3 standard
+      run: "$ErrorActionPreference = 'Stop'\n$archive = Join-Path $env:RUNNER_TEMP 'godot-4.6.3.zip'\nInvoke-WebRequest -Uri 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_win64.exe.zip' -OutFile $archive\n# SHA256 published with the official 4.6.3-stable release asset.\n$expected = 'e39986a178d585ce7ac198fb8de6ea436366dc0cc00e594810c2e3e104c04b90'\nif ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expected) {\n  throw 'Godot archive checksum mismatch.'\n}\n$editor = Join-Path $env:RUNNER_TEMP 'godot-4.6.3'\nExpand-Archive -LiteralPath $archive -DestinationPath $editor\n$console = Join-Path $editor 'Godot_v4.6.3-stable_win64_console.exe'\nif (-not (Test-Path -LiteralPath $console)) { throw 'Godot console executable missing.' }\n\"GODOT_CONSOLE_PATH=$console\" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8\n& $console --version\nif ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }\n"
+    - name: Import project
+      run: "$ErrorActionPreference = 'Stop'\n$output = Join-Path $env:GITHUB_WORKSPACE '.godot/ci'\n$env:APPDATA = Join-Path $output 'import-user/appdata'\n$env:LOCALAPPDATA = Join-Path $output 'import-user/localappdata'\n$env:DWM_TEST_ROOT = Join-Path $output 'import-user/test-root'\nNew-Item -ItemType Directory -Force -Path $output, $env:APPDATA, $env:LOCALAPPDATA, $env:DWM_TEST_ROOT | Out-Null\n& $env:GODOT_CONSOLE_PATH --headless --path $env:GITHUB_WORKSPACE --import --log-file \"$output/import.log\"\n$importExit = $LASTEXITCODE\n@{exit_code=$importExit} | ConvertTo-Json | Set-Content \"$output/import-process.json\"\nif ($importExit -ne 0) { exit $importExit }\nif (Select-String -Path \"$output/import.log\" -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) {\n  throw 'Project import reported script errors; inspect import.log.'\n}\n"
+      timeout-minutes: 8
+    - name: Restore committed project settings after editor import
+      run: '# Dialogic''s editor scan rewrites its timeline lookup during import.
+
+        # Execute the committed configuration with the freshly imported assets.
+
+        git restore -- project.godot
+
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+        '
+    - name: Profile first 32 authored captions
+      env:
+        DWM_SCENE_VALIDATION_PROFILE: '1'
+      timeout-minutes: 12
+      run: './tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId ''authored-profile'' -LogName ''authored-profile.log'' -EvidenceLogPath ''.godot/ci/authored-profile.jsonl'' -TimeoutSeconds 600 -KeepRoot -Rendered -GodotArgs @(''-s'', ''res://addons/gut/gut_cmdln.gd'', ''-gconfig='', ''-gprefix=authored_week_'', ''-gtest=res://tests/integration/authored_week_profile.gd'', ''-gexit'', ''-glog=2'', ''-gjunit_xml_file=res://.godot/ci/authored-profile.xml'')
+
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }'
+    - name: Verify bounded diagnostic census
+      run: '$ErrorActionPreference = ''Stop''
+
+        @''
+
+        import json,pathlib,xml.etree.ElementTree as ET
+
+        p=pathlib.Path(''.godot/ci'')
+
+        r=ET.parse(p/''authored-profile.xml'').getroot(); rows=list(r.iter(''testcase''))
+
+        assert len(rows)==1 and rows[0].attrib[''name'']==''test_profile_first_32_authored_captions''
+
+        assert rows[0].attrib[''status'']==''pass'' and not any(list(r.iter(t)) for t in [''failure'',''error'',''skipped''])
+
+        events=[json.loads(s) for s in (p/''authored-profile.jsonl'').read_text(encoding=''utf-8-sig'').splitlines() if s.strip()]
+
+        assert len(events)==1 and events[0][''exit_code'']==0
+
+        proof=json.loads((p/''authored-profile.json'').read_text(encoding=''utf-8-sig''))
+
+        assert proof[''scope'']==''fresh_title_first_32_captions'' and len(proof[''observed_lines''])==32 and len(proof[''timings''])==31
+
+        log=pathlib.Path(''.godot/phase2r_logs/authored-profile.log'').read_text(encoding=''utf-8-sig'')
+
+        assert log.count(''DWM_SCENE_VALIDATION_PROFILE {'')==31
+
+        assert log.count(''AUTHORED_MEMORY_TIMING {'')==2
+
+        assert not any(s in log for s in [''SCRIPT ERROR:'', ''ERROR: Failed to load''])
+
+        print(''Bounded diagnostic passed; not whole-week acceptance'')
+
+        ''@ | python -
+
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }'
+    - if: always()
+      name: Retain native evidence from isolated roots
+      run: "$ErrorActionPreference = 'Stop'\n@'\nimport json,pathlib,shutil\nout=pathlib.Path('.godot/ci')\nfor p in sorted(out.glob('*.jsonl')):\n    events=[json.loads(x) for x in p.read_text(encoding='utf-8-sig').splitlines() if x.strip()]\n    for i,event in enumerate(events):\n        source=pathlib.Path(event['test_root']).resolve()\n        assert source.is_relative_to(pathlib.Path('.godot').resolve()),str(source)\n        if source.is_dir():\n            destination=out/'native'/p.stem/str(i)\n            if i and events[i-1]['test_root']==event['test_root']: continue\n            shutil.copytree(source,destination,dirs_exist_ok=True)\n'@ | python -\nif ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }\n"
+    - if: always()
+      name: Retain original evidence and native UID provenance
+      run: "$ErrorActionPreference = 'Stop'\n@'\nimport hashlib,json,pathlib,subprocess,zipfile\nout=pathlib.Path('.godot/ci');out.mkdir(parents=True,exist_ok=True)\nrecords=[]\nfor p in pathlib.Path('tests/integration').glob('authored_week*.gd.uid'):\n    target=out/'native-uids'/p.name;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(p.read_bytes())\n    tracked=subprocess.run(['git','ls-files','--error-unmatch','--',str(p)],capture_output=True).returncode==0\n    records.append({'path':p.as_posix(),'sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'provenance':'candidate_tracked' if tracked else 'cloud_editor_import','source':'e6b3adf657b37bcac07c0d6d219978c8bf34a2c7','source_tree':'9f007fab92e9f43284c123ab9f79b50ae37a1b3d'})\n(out/'uid-provenance.json').write_text(json.dumps(records,indent=2))\n(out/'final-status.txt').write_text(subprocess.check_output(['git','status','--porcelain'],text=True))\nmanifest_source=subprocess.check_output(['git','ls-tree','-r','HEAD'],text=True)\n\
+        (out/'source-tree.txt').write_text(manifest_source)\nfiles=[p for p in out.rglob('*') if p.is_file() and 'import-user' not in p.parts and p.name not in ['original-evidence.zip','retained-hashes.json']]+list(pathlib.Path('.godot/phase2r_logs').glob('*.log'))\nmanifest={p.relative_to('.godot').as_posix():{'bytes':p.stat().st_size,'sha256':hashlib.sha256(p.read_bytes()).hexdigest()} for p in files}\nretained=out/'retained-hashes.json';retained.write_text(json.dumps(manifest,indent=2));files.append(retained)\narchive=out/'original-evidence.zip'\nwith zipfile.ZipFile(archive,'w',zipfile.ZIP_DEFLATED) as z:\n    for p in files:z.write(p,p.relative_to('.godot').as_posix())\nwith zipfile.ZipFile(archive) as z:assert z.testzip() is None\nprint(json.dumps({'bytes':archive.stat().st_size,'sha256':hashlib.sha256(archive.read_bytes()).hexdigest()}))\n'@ | python -\nif ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }\n"
+    - if: always()
+      name: Upload original evidence
+      uses: actions/upload-artifact@v4
+      with:
+        if-no-files-found: error
+        include-hidden-files: true
+        name: authored-profile-${{ github.run_id }}-${{ github.run_attempt }}
+        path: .godot/ci/original-evidence.zip
+        retention-days: 30
+    timeout-minutes: 25
+name: Bounded authored progression profile
+'on':
+  pull_request:
+    paths:
+    - .github/workflows/authored-profile.yml
+permissions:
+  actions: read
+  contents: read
