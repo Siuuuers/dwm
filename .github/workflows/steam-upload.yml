@@ -1,5 +1,5 @@
 name: Steam private upload
-run-name: Steam ${{ inputs.mode }} - integrated week e5cf80a
+run-name: Steam ${{ inputs.mode }} - integrated week e5cf80a - game.exe
 permissions:
   contents: read
   actions: read
@@ -103,6 +103,9 @@ jobs:
         from pathlib import Path
         p = Path('tools/testing/Invoke-WindowsExportValidation.ps1')
         s = p.read_text(encoding='utf-8-sig')
+        # Export and smoke-test the final Steam filenames together.
+        assert "'DWM.exe'" in s and "'DWM.pck'" in s
+        s = s.replace('DWM.exe', 'game.exe').replace('DWM.pck', 'game.pck')
         marker = '$expected | ConvertTo-Json -Depth 3'
         assert s.count(marker) == 1
         music_import = Path('audio/bgm/menu_theme.ogg.import').read_text(encoding='utf-8')
@@ -147,6 +150,8 @@ jobs:
             archive.extractall(dest)
         (dest / 'validation.json').unlink()
         actual = {p.relative_to(dest).as_posix() for p in dest.rglob('*') if p.is_file()}
+        assert {'game.exe', 'game.pck'} <= actual
+        assert not {'DWM.exe', 'DWM.pck'} & actual
         expected = {entry['path'] for entry in receipt['files']}
         assert actual == expected
         for entry in receipt['files']:
@@ -241,6 +246,8 @@ jobs:
             stop('Export receipt does not identify the requested validated source.')
         expected = {entry['path'] for entry in receipt['files']}
         actual = {p.relative_to(source).as_posix() for p in source.rglob('*') if p.is_file()}
+        if not {'game.exe', 'game.pck'} <= actual or {'DWM.exe', 'DWM.pck'} & actual:
+            stop('Package must contain game.exe and game.pck with no old DWM pair.')
         if expected != actual:
             stop('Downloaded package does not match the export receipt file list.')
         for entry in receipt['files']:
