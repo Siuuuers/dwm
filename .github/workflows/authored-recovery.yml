@@ -16,14 +16,14 @@ jobs:
       with:
         fetch-depth: 2
         persist-credentials: true
-        ref: 4956a2abdd5f26e1060883dacb051309461cc8a2
+        ref: 2e5ab55cdb5dc48298dea4af8341605d247b9aba
     - name: Record pinned source
       run: |
         $ErrorActionPreference = 'Stop'
-        if ((git rev-parse HEAD) -cne '4956a2abdd5f26e1060883dacb051309461cc8a2') { throw 'Candidate mismatch' }
-        if ((git rev-parse 'HEAD^{tree}') -cne 'b38cf4b6746f9d59046ef28c8bcdea092227e988') { throw 'Candidate tree mismatch' }
+        if ((git rev-parse HEAD) -cne '2e5ab55cdb5dc48298dea4af8341605d247b9aba') { throw 'Candidate mismatch' }
+        if ((git rev-parse 'HEAD^{tree}') -cne '00fb66e69dcda7e0cfc9df04af4f003b75caa6bb') { throw 'Candidate tree mismatch' }
         New-Item -ItemType Directory -Force '.godot/ci' | Out-Null
-        @{candidate='4956a2abdd5f26e1060883dacb051309461cc8a2'; tree=(git rev-parse 'HEAD^{tree}'); controller='${{ github.event.pull_request.head.sha }}'; workflow='${{ github.workflow_sha }}'; event='${{ github.sha }}'; run_id='${{ github.run_id }}'; attempt='${{ github.run_attempt }}'} | ConvertTo-Json | Set-Content '.godot/ci/audit-origin.json'
+        @{candidate='2e5ab55cdb5dc48298dea4af8341605d247b9aba'; tree=(git rev-parse 'HEAD^{tree}'); controller='${{ github.event.pull_request.head.sha }}'; workflow='${{ github.workflow_sha }}'; event='${{ github.sha }}'; run_id='${{ github.run_id }}'; attempt='${{ github.run_attempt }}'} | ConvertTo-Json | Set-Content '.godot/ci/audit-origin.json'
     - name: Prepare disposable checkout for credential cleanup
       run: |
         $ErrorActionPreference = 'Stop'
@@ -130,6 +130,7 @@ jobs:
       env:
         DWM_SCENE_VALIDATION_PROFILE: '1'
         DWM_SAVE_LOAD_PROFILE: '1'
+        DWM_CHECKPOINT_PROFILE: '1'
       timeout-minutes: 12
       run: |
         ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId 'authored-recovery' -LogName 'authored-recovery-seed.log' -EvidenceLogPath '.godot/ci/authored-recovery.jsonl' -TimeoutSeconds 600 -KeepRoot -Rendered -GodotArgs @('-s', 'res://.godot/ci/seed-authored-recovery.gd') -NextLogName 'authored-recovery.log' -NextGodotArgs @('-s', 'res://addons/gut/gut_cmdln.gd', '-gconfig=', '-gprefix=authored_week_', '-gtest=res://tests/integration/authored_week_recovery.gd', '-gexit', '-glog=2', '-gjunit_xml_file=res://.godot/ci/authored-recovery.xml')
@@ -198,7 +199,7 @@ jobs:
         for p in pathlib.Path('tests/integration').glob('authored_week*.gd.uid'):
             target=out/'native-uids'/p.name;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(p.read_bytes())
             tracked=subprocess.run(['git','ls-files','--error-unmatch','--',str(p)],capture_output=True).returncode==0
-            records.append({'path':p.as_posix(),'sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'provenance':'candidate_tracked' if tracked else 'cloud_editor_import','source':'4956a2abdd5f26e1060883dacb051309461cc8a2','source_tree':'b38cf4b6746f9d59046ef28c8bcdea092227e988'})
+            records.append({'path':p.as_posix(),'sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'provenance':'candidate_tracked' if tracked else 'cloud_editor_import','source':'2e5ab55cdb5dc48298dea4af8341605d247b9aba','source_tree':'00fb66e69dcda7e0cfc9df04af4f003b75caa6bb'})
         (out/'uid-provenance.json').write_text(json.dumps(records,indent=2))
         (out/'final-status.txt').write_text(subprocess.check_output(['git','status','--porcelain'],text=True))
         manifest_source=subprocess.check_output(['git','ls-tree','-r','HEAD'],text=True)
