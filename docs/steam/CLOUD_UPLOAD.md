@@ -4,10 +4,13 @@ Workflow: [Steam private upload](https://github.com/Siuuuers/dwm/actions/workflo
 
 ## Selected source
 
-The owner selected cc40aee5722afaa24e8a8daa556e8c27bc956810 from PR #42.
-It integrates PR #43's English authored week, Traditional/Simplified Chinese,
-Japanese and Korean display catalogs, current paintings and Bach Title/story music.
-The previous delivery commit 1b988866 is no longer selected by this workflow.
+The owner authorized the newer integrated build despite unfinished UI functions.
+Selected source: e5cf80a5417c05bd0bb7fa2f60f59e8905e839a6 from PR #52.
+It includes the localized authored week, later scene Apps and Save/Load work,
+current paintings and Bach Title/story music. Panel, six-reading-control and
+caption-layout discrepancies remain; this selection does not fix them.
+The workflow always exports this exact source anew. It cannot reuse the old
+cc40aee package or the previous binary delivery branch.
 AppID: 5199120. DepotID: 5199121.
 
 ## Start a new run
@@ -67,7 +70,7 @@ References:
 - https://partner.steamgames.com/doc/sdk/uploading
 - https://game.ci/docs/github/deployment/steam/
 
-## Verified export and upload retry — 2026-10-23
+## Historical: old-source export and upload retry — 2026-10-23
 
 Run 39867537354 passed the localized Windows export, package audit, isolated
 startup, license checks and staged-file integrity. Clean package artifact:
@@ -82,10 +85,9 @@ second invocation to pass normal exit/error checks; authenticated commands are
 never retried automatically. Five mocked success/failure cases passed locally.
 A cloud retry is still required; this is not evidence of working Steam authentication.
 
-For the next NEW Run workflow, select master and upload, leaving rebuild off.
-The default reuses package and receipt from run 39867537354, validates all hashes,
-and skips Godot export. Select rebuild only if that artifact has expired or a
-fresh export of the same pinned source is needed. Failed exports still block upload.
+At that historical checkpoint, the workflow reused run 39867537354 with rebuild
+off. That option has now been removed: the current workflow always builds the
+new selected source and downloads artifacts only from its own run.
 The artifact expires 2026-10-30 at approximately 06:50 Hong Kong time.
 
 ## Confirmed Steam upload — 2026-10-23 06:56 Hong Kong time
@@ -103,3 +105,16 @@ on a protected Steam test branch, verify the Windows launch option DWM.exe and
 testing-package depot access, then install through Steam and check language,
 art/music and Save/Load with fresh saves. No Steam installation, graphical
 whole-game acceptance, public release or Valve review approval is claimed.
+
+## Integrated replacement prepared — 2026-10-24 Hong Kong time
+
+Source e5cf80a5417c05bd0bb7fa2f60f59e8905e839a6 is pinned in checkout and both
+receipt checks. A successful build job is mandatory before Steam preview/upload;
+there is no skipped-build or old-run artifact fallback. Existing authentication,
+file-hash, license and package checks remain. YAML, embedded Python, source pin,
+artifact selection, success gate and audit-patch anchors were checked locally.
+New cloud export/upload is pending. No replacement BuildID has been reported.
+
+Start a NEW Run workflow on master with mode upload. There is no rebuild input.
+The GitHub connector has no workflow-dispatch operation, so the owner must click
+Run workflow. This uploads a build without setting any Steam branch live.
