@@ -1,0 +1,306 @@
+name: Diagnostic Settings primary heartbeat
+'on':
+  push:
+    branches:
+    - codex/settings-heartbeat-diagnostic-20261023
+  workflow_dispatch: {}
+permissions:
+  contents: read
+concurrency:
+  group: settings-heartbeat-diagnostic-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  settings-primary-heartbeat:
+    runs-on: windows-2022
+    timeout-minutes: 20
+    defaults:
+      run:
+        shell: pwsh
+    env:
+      SETTINGS_SOURCE_SHA: e5cf80a5417c05bd0bb7fa2f60f59e8905e839a6
+    steps:
+    - uses: actions/checkout@v7
+      with:
+        ref: e5cf80a5417c05bd0bb7fa2f60f59e8905e839a6
+        fetch-depth: 1
+        persist-credentials: true
+    - name: Prepare disposable checkout for credential cleanup
+      run: |
+        $ErrorActionPreference = 'Stop'
+        # These legacy tooling gitlinks have no .gitmodules URLs. Git's
+        # submodule foreach reads the index even with sparse checkout.
+        # The source commit and working files remain unchanged.
+        git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+        git submodule foreach --recursive 'true'
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+    - name: Install Godot 4.6.3 standard
+      run: |
+        $ErrorActionPreference = 'Stop'
+        $archive = Join-Path $env:RUNNER_TEMP 'godot-4.6.3.zip'
+        Invoke-WebRequest -Uri 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_win64.exe.zip' -OutFile $archive
+        # SHA256 published with the official 4.6.3-stable release asset.
+        $expected = 'e39986a178d585ce7ac198fb8de6ea436366dc0cc00e594810c2e3e104c04b90'
+        if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expected) {
+          throw 'Godot archive checksum mismatch.'
+        }
+        $editor = Join-Path $env:RUNNER_TEMP 'godot-4.6.3'
+        Expand-Archive -LiteralPath $archive -DestinationPath $editor
+        $console = Join-Path $editor 'Godot_v4.6.3-stable_win64_console.exe'
+        if (-not (Test-Path -LiteralPath $console)) { throw 'Godot console executable missing.' }
+        "GODOT_CONSOLE_PATH=$console" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+        & $console --version
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+    - name: Import project
+      timeout-minutes: 8
+      run: |
+        $ErrorActionPreference = 'Stop'
+        $output = Join-Path $env:GITHUB_WORKSPACE '.godot/ci'
+        $env:APPDATA = Join-Path $output 'import-user/appdata'
+        $env:LOCALAPPDATA = Join-Path $output 'import-user/localappdata'
+        $env:DWM_TEST_ROOT = Join-Path $output 'import-user/test-root'
+        New-Item -ItemType Directory -Force -Path $output, $env:APPDATA, $env:LOCALAPPDATA, $env:DWM_TEST_ROOT | Out-Null
+        & $env:GODOT_CONSOLE_PATH --headless --path $env:GITHUB_WORKSPACE --import --log-file "$output/import.log"
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+        if (Select-String -Path "$output/import.log" -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) {
+          throw 'Project import reported script errors; inspect import.log.'
+        }
+    - name: Restore committed project settings after editor import
+      run: |
+        # Dialogic's editor scan rewrites its timeline lookup during import.
+        # Execute the committed configuration with the freshly imported assets.
+        git restore -- project.godot
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+    - name: Pin source and split only the Settings phase dispatch
+      run: |-
+        $ErrorActionPreference = 'Stop'
+        $env:DIAGNOSTIC_CONTROLLER_SHA = '${{ github.sha }}'
+        @'
+        import hashlib,json,os,pathlib,subprocess
+        root=pathlib.Path.cwd()
+        source=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()
+        expected=os.environ['SETTINGS_SOURCE_SHA']
+        assert source==expected, (source,expected)
+        path=root/'tools/testing/Invoke-CloudTests.ps1'
+        original=path.read_bytes()
+        text=original.decode().replace('\r\n','\n')
+        anchor="if ($Suite -eq 'settings') {\n    # Expected fixture refusals are reported separately from passing GUT cases."
+        assert text.count(anchor)==1, 'Settings extras dispatch anchor changed'
+        manual_start='    # The diagnostic uses the real revision protocol with deterministic FileOps'
+        manual_end='\n    Get-Content -LiteralPath $witnessLog\n}'
+        assert text.count(manual_start)==1 and text.count(manual_end)==1
+        start=text.index(manual_start);end=text.index(manual_end,start)+len(manual_end)-2
+        manual=text[start:end]
+        assert '-TimeoutSeconds 180' in manual and 'MANUAL_WITNESS_REVISION_STORAGE_PASS' in manual
+        manual_header="$ErrorActionPreference = 'Stop'\n$repositoryRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))\n"
+        manual_path=root/'tools/testing/Invoke-SettingsManualDiagnostic.ps1'
+        assert not manual_path.exists()
+        manual_path.write_text(manual_header+manual+'\n',encoding='utf-8',newline='\n')
+        replacement=anchor.replace("if ($Suite -eq 'settings')",'if ($false)')
+        patched=text.replace(anchor,replacement)
+        path.write_text(patched,encoding='utf-8',newline='\n')
+        assert patched.replace(replacement,anchor)==text
+        out=root/'.godot/ci/settings-phases';out.mkdir(parents=True,exist_ok=True)
+        (out/'dispatch.patch').write_bytes(subprocess.check_output(['git','diff','--','tools/testing/Invoke-CloudTests.ps1']))
+        (out/'original-Invoke-CloudTests.ps1').write_bytes(original)
+        (out/'manual-phase.ps1').write_bytes(manual_path.read_bytes())
+        proof={'source_sha':source,'source_tree':subprocess.check_output(['git','rev-parse','HEAD^{tree}'],text=True).strip(),
+         'controller_sha':os.environ['DIAGNOSTIC_CONTROLLER_SHA'],'scope':'diagnostic dispatch split only; primary tests and phase assertions unchanged',
+         'anchor_count':text.count(anchor),'original_sha256':hashlib.sha256(original).hexdigest(),
+         'patched_sha256':hashlib.sha256(path.read_bytes()).hexdigest(),'manual_sha256':hashlib.sha256(manual_path.read_bytes()).hexdigest()}
+        (out/'source-proof.json').write_text(json.dumps(proof,indent=2)+'\n')
+        print(json.dumps(proof))
+        '@ | python -
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+    - name: Retain source evidence
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: settings-source-${{ github.run_id }}-${{ github.run_attempt }}
+        path: |-
+          .godot/ci/
+          .godot/phase2r_logs/
+        include-hidden-files: true
+        if-no-files-found: error
+    - name: Start detached primary and independent ten-minute watchdog
+      timeout-minutes: 1
+      run: |
+        $ErrorActionPreference = 'Stop'
+        $heartbeat = Join-Path $env:GITHUB_WORKSPACE '.godot/ci/settings-heartbeat'
+        New-Item -ItemType Directory -Force -Path $heartbeat | Out-Null
+        @'
+        $ErrorActionPreference = 'Stop'
+        $root = $env:GITHUB_WORKSPACE
+        $heartbeat = Join-Path $root '.godot/ci/settings-heartbeat'
+        $code = 1
+        try {
+            & (Join-Path $root 'tools/testing/Invoke-CloudTests.ps1') -Suite settings
+            $code = $LASTEXITCODE
+        } catch {
+            $_ | Out-String | Write-Output
+        } finally {
+            @{ exit_code = $code; completed_utc = [DateTime]::UtcNow.ToString('o') } |
+                ConvertTo-Json | Set-Content (Join-Path $heartbeat 'exit-status.tmp') -Encoding utf8
+            Move-Item (Join-Path $heartbeat 'exit-status.tmp') (Join-Path $heartbeat 'exit-status.json')
+        }
+        exit $code
+        '@ | Set-Content (Join-Path $heartbeat 'primary.ps1') -Encoding utf8
+        @'
+        param([string]$Mode, [int]$Index = 0)
+        $ErrorActionPreference = 'Stop'
+        $heartbeat = Join-Path $env:GITHUB_WORKSPACE '.godot/ci/settings-heartbeat'
+        $record = Get-Content (Join-Path $heartbeat 'process.json') -Raw | ConvertFrom-Json
+        function Find-ExactProcess($identity) {
+            $found = Get-Process -Id $identity.pid -ErrorAction SilentlyContinue
+            if ($null -eq $found) { return $null }
+            if ($found.StartTime.ToUniversalTime().Ticks.ToString() -cne [string]$identity.start_ticks) {
+                throw 'HEARTBEAT_PID_IDENTITY_CHANGED'
+            }
+            return $found
+        }
+        function Stop-ExactTree($identity) {
+            $found = Find-ExactProcess $identity
+            if ($null -ne $found) {
+                $found.Kill($true)
+                if (-not $found.WaitForExit(10000)) { throw 'HEARTBEAT_TERMINATION_TIMEOUT' }
+            }
+        }
+        $deadline = [DateTime]::Parse($record.deadline_utc).ToUniversalTime()
+        if ($Mode -eq 'watchdog') {
+            while ([DateTime]::UtcNow -lt $deadline) {
+                if ($null -eq (Find-ExactProcess $record.child)) { exit 0 }
+                Start-Sleep -Seconds 1
+            }
+            @{ timeout_seconds = 600; observed_utc = [DateTime]::UtcNow.ToString('o') } |
+                ConvertTo-Json | Set-Content (Join-Path $heartbeat 'outer-timeout.json') -Encoding utf8
+            Stop-ExactTree $record.child
+            exit 124
+        }
+        if ($Mode -eq 'cleanup') {
+            Stop-ExactTree $record.child
+            if ($null -ne $record.watchdog) { Stop-ExactTree $record.watchdog }
+            exit 0
+        }
+        if ($Mode -eq 'snapshot') {
+            $until = [DateTime]::UtcNow.AddSeconds(60)
+            while ([DateTime]::UtcNow -lt $until -and [DateTime]::UtcNow -lt $deadline) {
+                if (Test-Path (Join-Path $heartbeat 'exit-status.json')) { break }
+                Start-Sleep -Seconds 1
+            }
+            $snapshot = Join-Path $heartbeat "snapshot-$Index"
+            New-Item -ItemType Directory -Force -Path $snapshot | Out-Null
+            # Copy live files to a stable artifact directory; the final lines may be partial.
+            foreach ($path in @((Join-Path $heartbeat 'primary.stdout.log'), (Join-Path $heartbeat 'primary.stderr.log'),
+                (Join-Path $env:GITHUB_WORKSPACE '.godot/phase2r_logs/cloud-settings.log'),
+                (Join-Path $env:GITHUB_WORKSPACE '.godot/phase2r_logs/cloud-settings.log.timeout.log'),
+                (Join-Path $env:GITHUB_WORKSPACE '.godot/ci/settings.xml'),
+                (Join-Path $env:GITHUB_WORKSPACE '.godot/ci/settings.jsonl'))) {
+                if (Test-Path $path) { Copy-Item $path $snapshot }
+            }
+            Get-ChildItem $heartbeat -File -Filter '*.json' | Copy-Item -Destination $snapshot
+            @{ observed_utc = [DateTime]::UtcNow.ToString('o'); primary_alive = ($null -ne (Find-ExactProcess $record.child));
+                elapsed_seconds = ([DateTime]::UtcNow - [DateTime]::Parse($record.started_utc).ToUniversalTime()).TotalSeconds } |
+                ConvertTo-Json | Set-Content (Join-Path $snapshot 'observation.json') -Encoding utf8
+            exit 0
+        }
+        if ($Mode -ne 'wait') { throw 'HEARTBEAT_MODE_INVALID' }
+        while ([DateTime]::UtcNow -lt $deadline -and -not (Test-Path (Join-Path $heartbeat 'exit-status.json'))) {
+            if ($null -eq (Find-ExactProcess $record.child)) { break }
+            Start-Sleep -Seconds 1
+        }
+        if (-not (Test-Path (Join-Path $heartbeat 'exit-status.json'))) {
+            Stop-ExactTree $record.child
+            throw 'HEARTBEAT_PRIMARY_EXIT_STATUS_MISSING_OR_OUTER_TIMEOUT'
+        }
+        $status = Get-Content (Join-Path $heartbeat 'exit-status.json') -Raw | ConvertFrom-Json
+        if ([int]$status.exit_code -ne 0) { throw "HEARTBEAT_PRIMARY_FAILED: $($status.exit_code)" }
+        [xml]$xml = Get-Content (Join-Path $env:GITHUB_WORKSPACE '.godot/ci/settings.xml') -Raw
+        if ($xml.SelectNodes('//testcase').Count -eq 0 -or $xml.SelectNodes('//failure | //error | //skipped').Count -ne 0) {
+            throw 'HEARTBEAT_PRIMARY_JUNIT_INVALID'
+        }
+        Write-Host 'SETTINGS_PRIMARY_HEARTBEAT_PASS'
+        '@ | Set-Content (Join-Path $heartbeat 'observe.ps1') -Encoding utf8
+        @'
+        import os,pathlib,subprocess,sys
+        root=pathlib.Path(os.environ['GITHUB_WORKSPACE'])
+        folder=root/'.godot/ci/settings-heartbeat'
+        name=sys.argv[1]
+        # File handles are opened at OS launch; no live Actions stdout/stderr pipe is inherited.
+        with (folder/(name+'.stdout.log')).open('wb') as out, (folder/(name+'.stderr.log')).open('wb') as err:
+            process=subprocess.Popen(['pwsh','-NoLogo','-NoProfile','-NonInteractive','-File',str(folder/(name+'.ps1'))]+sys.argv[2:],
+                cwd=root,stdin=subprocess.DEVNULL,stdout=out,stderr=err,close_fds=True,
+                creationflags=subprocess.DETACHED_PROCESS|subprocess.CREATE_NEW_PROCESS_GROUP)
+        print(process.pid)
+        '@ | Set-Content (Join-Path $heartbeat 'launch.py') -Encoding utf8
+        $started = [DateTime]::UtcNow
+        $childId = [int](python (Join-Path $heartbeat 'launch.py') primary)
+        if ($LASTEXITCODE -ne 0) { throw 'HEARTBEAT_LAUNCH_FAILED' }
+        $child = Get-Process -Id $childId -ErrorAction Stop
+        $record = @{ child = @{ pid = $childId; start_ticks = $child.StartTime.ToUniversalTime().Ticks.ToString() };
+            source_sha = $env:SETTINGS_SOURCE_SHA; inner_godot_seconds = 480; outer_seconds = 600;
+            script_hashes = @(Get-ChildItem $heartbeat -File | Where-Object { $_.Extension -in @('.ps1','.py') } | Get-FileHash -Algorithm SHA256 | Select-Object Path, Hash);
+            watchdog = $null; started_utc = $started.ToString('o'); deadline_utc = $started.AddSeconds(600).ToString('o') }
+        $record | ConvertTo-Json -Depth 4 | Set-Content (Join-Path $heartbeat 'process.json') -Encoding utf8
+        $watchdogId = [int](python (Join-Path $heartbeat 'launch.py') observe -Mode watchdog)
+        if ($LASTEXITCODE -ne 0) { $child.Kill($true); throw 'HEARTBEAT_WATCHDOG_LAUNCH_FAILED' }
+        $watchdog = Get-Process -Id $watchdogId -ErrorAction Stop
+        $record.watchdog = @{ pid = $watchdogId; start_ticks = $watchdog.StartTime.ToUniversalTime().Ticks.ToString() }
+        $record | ConvertTo-Json -Depth 4 | Set-Content (Join-Path $heartbeat 'process.tmp') -Encoding utf8
+        Move-Item (Join-Path $heartbeat 'process.tmp') (Join-Path $heartbeat 'process.json') -Force
+        $record | ConvertTo-Json -Depth 4 | Write-Host
+    - name: Observe primary heartbeat 1
+      timeout-minutes: 2
+      run: '& ./.godot/ci/settings-heartbeat/observe.ps1 -Mode snapshot -Index 1'
+    - name: Upload live primary snapshot 1
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: settings-heartbeat-1-${{ github.run_id }}-${{ github.run_attempt }}
+        path: |-
+          .godot/ci/settings-heartbeat/snapshot-1/
+          .godot/ci/settings-phases/
+        include-hidden-files: true
+        if-no-files-found: error
+    - name: Observe primary heartbeat 2
+      timeout-minutes: 2
+      run: '& ./.godot/ci/settings-heartbeat/observe.ps1 -Mode snapshot -Index 2'
+    - name: Upload live primary snapshot 2
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: settings-heartbeat-2-${{ github.run_id }}-${{ github.run_attempt }}
+        path: |-
+          .godot/ci/settings-heartbeat/snapshot-2/
+          .godot/ci/settings-phases/
+        include-hidden-files: true
+        if-no-files-found: error
+    - name: Observe primary heartbeat 3
+      timeout-minutes: 2
+      run: '& ./.godot/ci/settings-heartbeat/observe.ps1 -Mode snapshot -Index 3'
+    - name: Upload live primary snapshot 3
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: settings-heartbeat-3-${{ github.run_id }}-${{ github.run_attempt }}
+        path: |-
+          .godot/ci/settings-heartbeat/snapshot-3/
+          .godot/ci/settings-phases/
+        include-hidden-files: true
+        if-no-files-found: error
+    - name: Wait only until original ten-minute primary deadline
+      timeout-minutes: 10
+      run: '& ./.godot/ci/settings-heartbeat/observe.ps1 -Mode wait'
+    - name: Clean up only recorded matching process trees
+      if: always() && hashFiles('.godot/ci/settings-heartbeat/process.json') != ''
+      timeout-minutes: 1
+      run: '& ./.godot/ci/settings-heartbeat/observe.ps1 -Mode cleanup'
+    - name: Retain final primary evidence
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: settings-heartbeat-final-${{ github.run_id }}-${{ github.run_attempt }}
+        path: |-
+          .godot/ci/
+          .godot/phase2r_logs/
+        include-hidden-files: true
+        if-no-files-found: error
