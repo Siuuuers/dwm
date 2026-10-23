@@ -200,6 +200,26 @@ func load_current_title_scene() -> void:
 	assert_not_null(app, "title LogIn mounts the actual Backup app")
 	if not is_instance_valid(app): return
 	if not await _press(app.drawer_buttons.get("slot:1")): return
+	# A retained Run plan still protects the exact prepared scene after source
+	# board/consequence plans have been deferred to destination allocation.
+	var before: Dictionary = game.capture_run_snapshot_input().duplicate(true)
+	var prepared: Dictionary = app._port.prepare_action("load", "slot:1")
+	if not _ok(prepared): return
+	var opaque: Dictionary = saves._backup_actions[prepared.value.token].prepared_restore
+	assert_false(opaque.participant_plans.has("desktop_board"))
+	assert_false(opaque.participant_plans.has("desktop_consequence"))
+	assert_true(saves._same_scene_preparation(opaque, opaque.duplicate(true)))
+	assert_eq(typeof(opaque.participant_plans.run.snapshot.schema_version), TYPE_INT)
+	for changed_version: Variant in [9.0, -1]:
+		var altered: Dictionary = opaque.duplicate(true)
+		altered.participant_plans.run.snapshot.schema_version = changed_version
+		assert_eq(saves.commit_prepared_restore(altered).get("code"),
+			&"invalid_scene_restore_preparation", "changed type or value is refused before allocation")
+	assert_eq(game.capture_run_snapshot_input(), before)
+	assert_eq(profile.get_profile_snapshot(), witness.profile)
+	assert_eq(FileAccess.get_sha256(TITLE_SLOT), witness.slot_sha256)
+	app._port.cancel_action(prepared.value.token)
+	assert_false(saves._scene_restore_preparations.has(opaque.scene_preparation_token))
 	if not await _press(app.action_buttons.get("load")): return
 	if is_instance_valid(app) and is_instance_valid(app.confirmation):
 		if not await _press(app.confirmation.confirm_button): return

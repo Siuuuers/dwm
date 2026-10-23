@@ -77,7 +77,9 @@ func test_admitted_scene_inspection_and_cancelled_consent_preserve_physical_and_
 	var consent: Dictionary = port.prepare_action("load", "autosave")
 	assert_true(consent.ok, str(consent))
 	if not consent.ok: return
-	assert_eq(consent.value.record, shown)
+	var expected_consent := shown.duplicate(true)
+	expected_consent.actions = {"save": false, "load": true, "delete": false}
+	assert_eq(consent.value.record, expected_consent)
 	assert_false(consent.value.confirmation_required, "Title loads the selected current state without extra confirmation")
 	var held: Dictionary = fixture.manager._backup_actions[consent.value.token].prepared_restore.duplicate(true)
 	var retained: Dictionary = fixture.manager._scene_restore_preparations.duplicate(true)
@@ -209,3 +211,28 @@ func test_scene_restore_participant_edit_reenters_generic_seed_validation() -> v
 	assert_eq(refused.get("code"), &"selected_bundle_missing", str(refused))
 	assert_eq(fixture.manager._scene_restore_preparations.keys(), retained_before)
 	assert_eq(_observed(), before, "a callback edit cannot install a seed or change stored/live state")
+
+func test_current_scene_source_admission_preserves_state_and_rejects_changed_hash() -> void:
+	assert_true(fixture_ready)
+	if not fixture_ready: return
+	var before: Dictionary = _observed()
+	var document: Dictionary = fixture.read_autosave().value
+	var locator: Dictionary = fixture.manager._build_source_locator(document.kind, document.slot_id, document.current_snapshot)
+	# The real created Save9 is the source. This diagnostic exercises only the
+	# journal's source binding, without allocating or committing a new operation.
+	var operation := {"kind": "scene_restore", "transaction_id": "source-binding-diagnostic",
+		"selected_document": document, "source_locator": locator}
+	operation["request_fingerprint"] = fixture.manager._canonical_sha256(operation)
+	var journal: RefCounted = fixture.manager._continuation_journal
+	var accepted: Dictionary = journal._validate_scene_source(operation)
+	assert_true(accepted.get("ok", false), str(accepted))
+	var changed := operation.duplicate(true)
+	changed.source_locator.document_sha256 = "0".repeat(64)
+	# Bind the changed request itself so rejection must come from the source hash.
+	var request := changed.duplicate(true)
+	request.erase("request_fingerprint")
+	changed.request_fingerprint = fixture.manager._canonical_sha256(request)
+	var refused: Dictionary = journal._validate_scene_source(changed)
+	assert_false(refused.get("ok", true))
+	assert_eq(refused.get("message"), "DesktopContinuationOperationJournal: selected checkpoint identity or content conflicts")
+	assert_eq(_observed(), before, "source admission changes no saved or live gameplay state")

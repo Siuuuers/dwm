@@ -2250,25 +2250,20 @@ func _prepare_bundle_with_all_participants(bundle: Dictionary, migration_output:
 		return run_prep
 	plans["run"] = run_prep["value"]["run_plan"]
 
-	# Plan 02 Task 6 (dwm-p2r.32), Phase C2. Built here against the UN-remapped snapshot bytes so a
-	# plan genuinely exists right after prepare_restore_slot|quick|autosave (proven by
-	# test_persisted_snapshot_is_restorable_by_the_save_manager and
-	# test_prepare_builds_six_plans_and_commits); `commit_prepared_restore()` OVERWRITES all three of
-	# "run"/"desktop_consequence"/"desktop_board" with fresh plans built against the REMAPPED snapshot
-	# once real identity allocation runs (see `_begin_restore_continuation()`), so a plan prepared
-	# here is never the one actually applied for a genuine production restore.
-	var consequence_prep: Dictionary = _restore_participants["desktop_consequence"].prepare(
-		{"state": snapshot["desktop"]["consequence"]})
-	if not consequence_prep.get("ok", false):
-		return consequence_prep
-	plans["desktop_consequence"] = consequence_prep["value"]["consequence_plan"]
-
-	var board_prep: Dictionary = _restore_participants["desktop_board"].prepare(
-		{"state": snapshot["desktop"]["board"], "schema_version": snapshot.get("schema_version")})
-	if not board_prep.get("ok", false):
-		return board_prep
-	plans["desktop_board"] = board_prep["value"]["board_plan"]
+	# Run9 admission fully validates the desktop aggregate, so its source plans
+	# would only be discarded after allocation. Legacy admission still needs
+	# these participant checks before allocating destination identities.
 	if snapshot.get("schema_version") != 9:
+		var consequence_prep: Dictionary = _restore_participants["desktop_consequence"].prepare(
+			{"state": snapshot["desktop"]["consequence"]})
+		if not consequence_prep.get("ok", false):
+			return consequence_prep
+		plans["desktop_consequence"] = consequence_prep["value"]["consequence_plan"]
+		var board_prep: Dictionary = _restore_participants["desktop_board"].prepare(
+			{"state": snapshot["desktop"]["board"], "schema_version": snapshot.get("schema_version")})
+		if not board_prep.get("ok", false):
+			return board_prep
+		plans["desktop_board"] = board_prep["value"]["board_plan"]
 		var view_prep: Dictionary = _restore_participants["schedule_view"].prepare(_schedule_view_input(snapshot))
 		if not view_prep.get("ok", false):
 			return view_prep

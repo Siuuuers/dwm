@@ -23,6 +23,7 @@ $suites = @{
     )
     backup_presentation = @(
         'tests/unit/test_backup_presentation.gd'
+        'tests/unit/test_backup_host_admission.gd'
         'tests/integration/test_scene_app_preparation.gd'
         'tests/unit/test_production_pause_controller.gd'
     )
@@ -310,6 +311,7 @@ $suites = @{
         'tests/unit/test_controls_binding_rules.gd'
         'tests/unit/test_backup_panel_resize.gd'
         'tests/unit/test_backup_presentation.gd'
+        'tests/unit/test_backup_host_admission.gd'
         'tests/integration/test_scene_app_preparation.gd'
         'tests/integration/test_desktop_crash_recovery.gd'
         'tests/scene/test_ending_recovery_localization.gd'

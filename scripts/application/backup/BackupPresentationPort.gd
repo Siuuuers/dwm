@@ -4,6 +4,8 @@ extends RefCounted
 signal projection_changed()
 
 ## Backup presentation context. File custody, stable snapshots and restore routing stay in SaveManager.
+## get_projection records describe all currently available actions. Prepared records
+## describe one confirmation: only its selected action can be enabled.
 const LOCATORS: Array[String] = ["autosave", "quick", "slot:1", "slot:2", "slot:3", "slot:4", "slot:5", "slot:6", "slot:7"]
 
 var _owner: Object
@@ -57,9 +59,8 @@ func _publish_projection_changed() -> void:
 func get_projection() -> Dictionary:
 	if not is_instance_valid(_owner):
 		return _fail(&"backup_owner_unavailable")
-	var capability: Dictionary = _owner.get_backup_save_capability()
-	if _context == "title":
-		capability = {"enabled": false, "reason": "title_load_only"}
+	var capability: Dictionary = {"enabled": false, "reason": "title_load_only"} \
+		if _context == "title" else _owner.get_backup_save_capability()
 	var operations_admitted: bool = bool(_admission_result().get("ok", false))
 	var records: Array[Dictionary] = []
 	for locator: String in LOCATORS:
@@ -100,7 +101,7 @@ func prepare_quick_action(action: String) -> Dictionary:
 	if not _pending.is_empty() or not is_quick_condition_current(value["condition"]):
 		_owner.cancel_backup_action(token)
 		return _quick_refusal(get_quick_capability(action))
-	var record := _project_record(value["record"], _owner.get_backup_save_capability(), true)
+	var record := _project_prepared_record(value["record"], action, true)
 	var kind := "none"
 	if action == "load":
 		kind = "replace_progress"
@@ -144,7 +145,7 @@ func prepare_action(action: String, locator: String) -> Dictionary:
 		return prepared
 	var token := str(prepared["value"]["token"])
 	admitted = _admission_result()
-	var record := _project_record(prepared["value"]["record"], _owner.get_backup_save_capability(), admitted.get("ok", false))
+	var record := _project_prepared_record(prepared["value"]["record"], action, admitted.get("ok", false))
 	if not record["actions"][action]:
 		_owner.cancel_backup_action(token)
 		return _fail(&"backup_action_unavailable") if admitted.get("ok", false) else admitted
@@ -192,6 +193,16 @@ func cancel_action(token: String) -> void:
 		if is_instance_valid(_owner):
 			_owner.cancel_backup_action(token)
 		_pending.erase(token)
+
+## A prepared token cannot authorize a different action. Do not capture the live
+## game's Save capability just to describe a Load or Delete confirmation.
+func _project_prepared_record(source: Dictionary, action: String, admitted: bool) -> Dictionary:
+	var capability: Dictionary = _owner.get_backup_save_capability() if action == "save" else {"enabled": false}
+	var record := _project_record(source, capability, admitted)
+	for other: String in record["actions"]:
+		if other != action:
+			record["actions"][other] = false
+	return record
 
 func _project_record(source: Dictionary, capability: Dictionary, admitted: bool) -> Dictionary:
 	var record := {}
