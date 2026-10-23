@@ -1,0 +1,135 @@
+{
+	"captures": 10,
+	"crop_checks": [
+		{
+			"identical": true,
+			"maximum_channel_difference": 0,
+			"sample_height": 720,
+			"sample_width": 256,
+			"source_width": 480,
+			"source_x": 80,
+			"target_width": 320
+		},
+		{
+			"identical": true,
+			"maximum_channel_difference": 0,
+			"sample_height": 720,
+			"sample_width": 414,
+			"source_width": 480,
+			"source_x": 1,
+			"target_width": 478
+		}
+	],
+	"evidence": [
+		{
+			"art_rect": "[P: (0.0, 0.0), S: (480.0, 720.0)]",
+			"divider_rect": "[P: (416.0, 328.0), S: (64.0, 64.0)]",
+			"face": "151b25ff",
+			"hud_absent": true,
+			"locale": "en",
+			"name": "wide-en100",
+			"percent": 100,
+			"width": 480
+		},
+		{
+			"art_rect": "[P: (0.0, 0.0), S: (320.0, 720.0)]",
+			"divider_rect": "[P: (256.0, 328.0), S: (64.0, 64.0)]",
+			"face": "151b25ff",
+			"hud_absent": true,
+			"locale": "en",
+			"name": "narrow-en100",
+			"percent": 100,
+			"width": 320
+		},
+		{
+			"art_rect": "[P: (0.0, 0.0), S: (320.0, 720.0)]",
+			"divider_rect": "[P: (256.0, 328.0), S: (64.0, 64.0)]",
+			"face": "151b25ff",
+			"hud_absent": true,
+			"locale": "en",
+			"name": "narrow-en150",
+			"percent": 150,
+			"width": 320
+		},
+		{
+			"art_rect": "[P: (0.0, 0.0), S: (320.0, 720.0)]",
+			"contrast": true,
+			"divider_rect": "[P: (256.0, 328.0), S: (64.0, 64.0)]",
+			"face": "0b1018ff",
+			"hud_absent": true,
+			"locale": "en",
+			"name": "narrow-en150-high-contrast",
+			"percent": 150,
+			"width": 320
+		},
+		{
+			"art_rect": "[P: (0.0, 0.0), S: (320.0, 720.0)]",
+			"contrast": true,
+			"divider_rect": "[P: (256.0, 328.0), S: (64.0, 64.0)]",
+			"face": "0b1018ff",
+			"hud_absent": true,
+			"locale": "zh-CN",
+			"name": "narrow-zh-CN150-high-contrast",
+			"percent": 150,
+			"width": 320
+		},
+		{
+			"art_rect": "[P: (0.0, 0.0), S: (320.0, 720.0)]",
+			"divider_rect": "[P: (256.0, 328.0), S: (64.0, 64.0)]",
+			"face": "151b25ff",
+			"hud_absent": true,
+			"locale": "zh-HK",
+			"name": "narrow-zh-HK150",
+			"percent": 150,
+			"width": 320
+		},
+		{
+			"art_rect": "[P: (0.0, 0.0), S: (480.0, 720.0)]",
+			"divider_rect": "[P: (416.0, 328.0), S: (64.0, 64.0)]",
+			"face": "151b25ff",
+			"hud_absent": true,
+			"locale": "zh-HK",
+			"name": "wide-zh-HK150",
+			"percent": 150,
+			"width": 480
+		},
+		{
+			"art_rect": "[P: (0.0, 0.0), S: (480.0, 720.0)]",
+			"divider_rect": "[P: (416.0, 328.0), S: (64.0, 64.0)]",
+			"face": "151b25ff",
+			"hud_absent": true,
+			"locale": "en",
+			"name": "wide-en100-day1",
+			"percent": 100,
+			"width": 480
+		},
+		{
+			"art_rect": "[P: (0.0, 0.0), S: (480.0, 720.0)]",
+			"day": 7,
+			"divider_rect": "[P: (416.0, 328.0), S: (64.0, 64.0)]",
+			"face": "0a0e14ff",
+			"hud_absent": true,
+			"locale": "en",
+			"name": "wide-en100-day7",
+			"percent": 100,
+			"width": 480
+		},
+		{
+			"art_rect": "[P: (0.0, 0.0), S: (480.0, 720.0)]",
+			"contrast": true,
+			"day": 7,
+			"divider_rect": "[P: (416.0, 328.0), S: (64.0, 64.0)]",
+			"face": "0b1018ff",
+			"hud_absent": true,
+			"locale": "en",
+			"name": "wide-en100-day7-high-contrast",
+			"percent": 100,
+			"width": 480
+		}
+	],
+	"failures": [],
+	"ok": true,
+	"renderer": "X11",
+	"samples": 10,
+	"scope": "mounted Main without HUD; retained authored artwork, real divider and ComputerDesktop theme propagation"
+}
