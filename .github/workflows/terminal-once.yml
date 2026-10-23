@@ -395,9 +395,6 @@ jobs:
     timeout-minutes: 35
 name: Single fresh terminal admission qualification
 'on':
-  push:
-    branches:
-    - codex/terminal-once-controller-20261023
   workflow_dispatch: null
 permissions:
   contents: read
