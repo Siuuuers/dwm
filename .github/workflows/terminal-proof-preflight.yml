@@ -1,7 +1,5 @@
 name: Terminal fresh Save Load comparison
 on:
-  push:
-    branches: [codex/terminal-reading-proof-20261024]
   workflow_dispatch:
 permissions:
   contents: read

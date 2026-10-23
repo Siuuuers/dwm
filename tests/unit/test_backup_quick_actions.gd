@@ -15,8 +15,8 @@ class AdmittedRecord extends RefCounted:
 	static func project(manager: Node, locator_id: String, result: Dictionary) -> Dictionary:
 		if not result.get("ok", false) or result.value.get("reason") != "older_version": return result
 		var locator: Dictionary = manager._backup_locator(locator_id)
-		var read: Dictionary = manager._storage.read_text(locator.relative_path)
-		var parsed: Dictionary = manager.STRICT_JSON.parse_object(read.value)
+		var read: Dictionary = manager._storage.inspect_revision(locator.relative_path)
+		var parsed: Dictionary = manager.STRICT_JSON.parse_object(read.get("value", {}).get("text", ""))
 		if not parsed.get("ok", false) or parsed.value.get("schema_version") != 8: return result
 		var record: Dictionary = result.value
 		record.state = "occupied"
