@@ -16,14 +16,14 @@ jobs:
       with:
         fetch-depth: 2
         persist-credentials: true
-        ref: 21bb2f3ba91e92534192d963a20df713838b8367
+        ref: 4956a2abdd5f26e1060883dacb051309461cc8a2
     - name: Record pinned source
       run: |
         $ErrorActionPreference = 'Stop'
-        if ((git rev-parse HEAD) -cne '21bb2f3ba91e92534192d963a20df713838b8367') { throw 'Candidate mismatch' }
-        if ((git rev-parse 'HEAD^{tree}') -cne '318c61a0b2e1ae5320397489591bcec1c04f9134') { throw 'Candidate tree mismatch' }
+        if ((git rev-parse HEAD) -cne '4956a2abdd5f26e1060883dacb051309461cc8a2') { throw 'Candidate mismatch' }
+        if ((git rev-parse 'HEAD^{tree}') -cne 'b38cf4b6746f9d59046ef28c8bcdea092227e988') { throw 'Candidate tree mismatch' }
         New-Item -ItemType Directory -Force '.godot/ci' | Out-Null
-        @{candidate='21bb2f3ba91e92534192d963a20df713838b8367'; tree=(git rev-parse 'HEAD^{tree}'); controller='${{ github.event.pull_request.head.sha }}'; workflow='${{ github.workflow_sha }}'; event='${{ github.sha }}'; run_id='${{ github.run_id }}'; attempt='${{ github.run_attempt }}'} | ConvertTo-Json | Set-Content '.godot/ci/audit-origin.json'
+        @{candidate='4956a2abdd5f26e1060883dacb051309461cc8a2'; tree=(git rev-parse 'HEAD^{tree}'); controller='${{ github.event.pull_request.head.sha }}'; workflow='${{ github.workflow_sha }}'; event='${{ github.sha }}'; run_id='${{ github.run_id }}'; attempt='${{ github.run_attempt }}'} | ConvertTo-Json | Set-Content '.godot/ci/audit-origin.json'
     - name: Prepare disposable checkout for credential cleanup
       run: |
         $ErrorActionPreference = 'Stop'
@@ -73,6 +73,23 @@ jobs:
         # Execute the committed configuration with the freshly imported assets.
         git restore -- project.godot
         if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+    - name: Verify anchor-membership
+      timeout-minutes: 12
+      run: |
+        ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId 'anchor-membership' -LogName 'anchor-membership.log' -EvidenceLogPath '.godot/ci/anchor-membership.jsonl' -TimeoutSeconds 600 -KeepRoot -GodotArgs @('-s', 'res://addons/gut/gut_cmdln.gd', '-gconfig=', '-gtest=res://tests/integration/test_scene_event_anchor_membership.gd', '-gexit', '-glog=2', '-gjunit_xml_file=res://.godot/ci/anchor-membership.xml')
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+    - name: Verify saved-event-anchor
+      timeout-minutes: 12
+      run: |
+        ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId 'saved-event-anchor' -LogName 'saved-event-anchor.log' -EvidenceLogPath '.godot/ci/saved-event-anchor.jsonl' -TimeoutSeconds 600 -KeepRoot -GodotArgs @('-s', 'res://addons/gut/gut_cmdln.gd', '-gconfig=', '-gtest=res://tests/integration/test_scene_saved_event_anchor.gd', '-gexit', '-glog=2', '-gjunit_xml_file=res://.godot/ci/saved-event-anchor.xml')
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+    - name: Generate current public surface inventories
+      timeout-minutes: 4
+      run: |
+        ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId 'public-inventory' -LogName 'game-state-inventory.log' -EvidenceLogPath '.godot/ci/public-inventory.jsonl' -TimeoutSeconds 60 -KeepRoot -GodotArgs @('-s', 'res://tools/runtime/generate_public_surface_inventory.gd', '--', '--script=res://autoload/GameState.gd', '--search-root=res://autoload', '--search-root=res://scripts', '--search-root=res://scenes', '--search-root=res://tests', '--required=res://evidence/phase_2r/runtime/game_state_required_surface.json', '--output=res://evidence/phase_2r/runtime/game_state_surface.json') -NextLogName 'save-manager-inventory.log' -NextGodotArgs @('-s', 'res://tools/runtime/generate_public_surface_inventory.gd', '--', '--script=res://autoload/SaveManager.gd', '--search-root=res://autoload', '--search-root=res://scripts', '--search-root=res://scenes', '--search-root=res://tests', '--required=res://evidence/phase_2r/runtime/save_manager_required_surface.json', '--output=res://evidence/phase_2r/runtime/save_manager_surface.json')
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+        New-Item -ItemType Directory -Force '.godot/ci/generated' | Out-Null
+        Copy-Item 'evidence/phase_2r/runtime/game_state_surface.json','evidence/phase_2r/runtime/save_manager_surface.json' '.godot/ci/generated/'
     - name: Authenticate and stage the genuine interrupted Day2 root
       run: |
         $ErrorActionPreference = 'Stop'
@@ -138,6 +155,18 @@ jobs:
         assert log.count('DWM_SCENE_VALIDATION_PROFILE {')==8
         assert not any(s in log for s in ['SCRIPT ERROR:', 'ERROR: Failed to load', '[Failed]'])
         print('Genuine Day2 recovery and bounded continuation passed; not whole-week acceptance')
+        for suite,expected in [('anchor-membership',3),('saved-event-anchor',10)]:
+            report=ET.parse(p/(suite+'.xml')).getroot(); cases=list(report.iter('testcase'))
+            assert len(cases)==expected and all(c.attrib['status']=='pass' for c in cases),suite
+            assert not any(list(report.iter(t)) for t in ['failure','error','skipped']),suite
+            events=[json.loads(s) for s in (p/(suite+'.jsonl')).read_text(encoding='utf-8-sig').splitlines() if s.strip()]
+            assert len(events)==1 and events[0]['exit_code']==0,suite
+            log=pathlib.Path('.godot/phase2r_logs',suite+'.log').read_text(encoding='utf-8-sig')
+            assert not any(s in log for s in ['SCRIPT ERROR:', 'ERROR: Failed to load','[Failed]']),suite
+        events=[json.loads(s) for s in (p/'public-inventory.jsonl').read_text(encoding='utf-8-sig').splitlines() if s.strip()]
+        assert len(events)==2 and all(e['exit_code']==0 for e in events)
+        for facade in ['game_state','save_manager']:
+            assert (p/'generated'/(facade+'_surface.json')).is_file()
         '@ | python -
         if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
     - if: always()
@@ -169,7 +198,7 @@ jobs:
         for p in pathlib.Path('tests/integration').glob('authored_week*.gd.uid'):
             target=out/'native-uids'/p.name;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(p.read_bytes())
             tracked=subprocess.run(['git','ls-files','--error-unmatch','--',str(p)],capture_output=True).returncode==0
-            records.append({'path':p.as_posix(),'sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'provenance':'candidate_tracked' if tracked else 'cloud_editor_import','source':'21bb2f3ba91e92534192d963a20df713838b8367','source_tree':'318c61a0b2e1ae5320397489591bcec1c04f9134'})
+            records.append({'path':p.as_posix(),'sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'provenance':'candidate_tracked' if tracked else 'cloud_editor_import','source':'4956a2abdd5f26e1060883dacb051309461cc8a2','source_tree':'b38cf4b6746f9d59046ef28c8bcdea092227e988'})
         (out/'uid-provenance.json').write_text(json.dumps(records,indent=2))
         (out/'final-status.txt').write_text(subprocess.check_output(['git','status','--porcelain'],text=True))
         manifest_source=subprocess.check_output(['git','ls-tree','-r','HEAD'],text=True)
