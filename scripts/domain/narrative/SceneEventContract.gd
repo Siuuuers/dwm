@@ -582,7 +582,7 @@ static func _validate_scene_result_inspected(envelope: Dictionary, result: Varia
 ## Resolve only a saved closure in this Run; callers authenticate the receipt ledger.
 ## Never closes a board, consults a newer Profile attempt, or reapplies its effects.
 static func resolve_scene_challenge_recall(event: Dictionary, receipts: Dictionary, bundle: Dictionary) -> Dictionary:
-	var checked := inspect_scene(event, bundle)
+	var checked := _inspect_scene_context(event, bundle)
 	if not checked.ok: return checked
 	if event.kind != "challenge.recall" or not _positive_int(event.issuer_receipt.get("counter")):
 		return _fail(&"scene_challenge_recall_invalid")
@@ -603,7 +603,13 @@ static func resolve_scene_challenge_recall(event: Dictionary, receipts: Dictiona
 		if semantic.issuer_receipt.counter >= event.issuer_receipt.counter: continue
 		var envelope: Dictionary = semantic.duplicate(true)
 		envelope["playback_token"] = "recall.validation"
-		var rebuilt := make_scene_receipt(envelope, saved.get("reading_anchor", {}), saved.result, bundle)
+		# No callbacks occur after this call's fresh bundle admission. Reuse only
+		# those local tables; each saved closure still validates its own envelope.
+		var shaped := _inspect_scene_versioned_shape(envelope)
+		if not shaped.ok: return shaped
+		var context := _bind_scene_context(envelope, shaped, checked.registered)
+		if not context.ok: return context
+		var rebuilt := _make_scene_receipt_from_context(envelope, saved.get("reading_anchor", {}), saved.result, context)
 		if not rebuilt.ok: return rebuilt
 		if not _equal(receipt, rebuilt.value): return _fail(&"scene_receipt_mismatch")
 		if not found.is_empty(): return _fail(&"scene_challenge_recall_ambiguous")
