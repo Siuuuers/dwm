@@ -1,0 +1,77 @@
+{
+  "run_id": 40095531928,
+  "artifact_id": 12560970915,
+  "controller_ref": "605629140e505932c39e2943f708a2672712195f",
+  "candidate_ref": "fe73efbee464295b3dddb14fbc7472f42fd825f0",
+  "archive": "readonly.zip",
+  "bytes": 225114,
+  "sha256": "ed749cb9670340b2a24d76e3ec9e0d467b94aa91055f2c4cb8bf229f4b8395e2",
+  "crc_verified": true,
+  "members": [
+    {
+      "path": "candidate/.godot/ci/import-stdout.log",
+      "bytes": 151109,
+      "sha256": "c563fe7c2439bd7922d26f063aa34e22c48a77ebd7e5044bf1f734d32f11f07d"
+    },
+    {
+      "path": "candidate/.godot/ci/import.log",
+      "bytes": 96586,
+      "sha256": "ab4845ce01334ecc9336b474460c10b2726a020ab865ffd17a1f443a53453c54"
+    },
+    {
+      "path": "candidate/.godot/ci/import-stderr.log",
+      "bytes": 126,
+      "sha256": "e3e9582cfc1659ab624949d8fbdf43ec09f34ede8590bcc20749ca738dffff1b"
+    },
+    {
+      "path": "candidate/.godot/ci/public-surfaces/game_state-check.jsonl",
+      "bytes": 1117,
+      "sha256": "8c541d4ec0dc3eb0f7a8b679cac79c150e7fdc4ea8959794c48a923d1ab87a1b"
+    },
+    {
+      "path": "candidate/.godot/ci/public-surfaces/game_state_surface.json",
+      "bytes": 660971,
+      "sha256": "2175828c973519a4d823f0bacc196392b1951b0018c43f50bfaec705e3599bf4"
+    },
+    {
+      "path": "candidate/.godot/ci/public-surfaces/retirement-audit.json",
+      "bytes": 564,
+      "sha256": "f7ab8dca7fcd2a2c5325d3acc2fb6ae11baed7859e39d3536ac86af40fde7674"
+    },
+    {
+      "path": "candidate/.godot/ci/public-surfaces/save_manager-check.jsonl",
+      "bytes": 1129,
+      "sha256": "5cb8c52f436bcadfd1e864d6233d87cec775359a792c8aebd5bc869117b4783b"
+    },
+    {
+      "path": "candidate/.godot/ci/public-surfaces/save_manager_surface.json",
+      "bytes": 183948,
+      "sha256": "fa14ce2a806169ea6238ccb5641734382a99fd54ad5e2537cc4b33d78e0e6169"
+    },
+    {
+      "path": "candidate/.godot/phase2r_logs/cloud-public-surface-game_state-check.log",
+      "bytes": 97,
+      "sha256": "f905573f8dd52f9b85362666ac54f7c7145d1ce376dec030e86792970fc2e2c7"
+    },
+    {
+      "path": "candidate/.godot/phase2r_logs/cloud-public-surface-save_manager-check.log",
+      "bytes": 97,
+      "sha256": "f905573f8dd52f9b85362666ac54f7c7145d1ce376dec030e86792970fc2e2c7"
+    },
+    {
+      "path": "candidate/game_state_surface.json",
+      "bytes": 660971,
+      "sha256": "2175828c973519a4d823f0bacc196392b1951b0018c43f50bfaec705e3599bf4"
+    },
+    {
+      "path": "candidate/save_manager_surface.json",
+      "bytes": 183948,
+      "sha256": "fa14ce2a806169ea6238ccb5641734382a99fd54ad5e2537cc4b33d78e0e6169"
+    },
+    {
+      "path": "qualification.json",
+      "bytes": 1474,
+      "sha256": "3f1fb361b664fbfc5431d0d8d52ef88b89032851c8e9b0b9cda570a4125ae853"
+    }
+  ]
+}

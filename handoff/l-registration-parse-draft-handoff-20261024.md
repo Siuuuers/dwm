@@ -1,5 +1,7 @@
 # Registration-local parse reuse — draft checkpoint, 24 October 2026
 
+**Superseded by [the qualified handoff](m-registration-parse-qualified-20261024.md). The text below preserves the original draft checkpoint.**
+
 **Start here in the next session. The user requested a useful handoff before further qualification. Draft PR [#77](https://github.com/Siuuuers/dwm/pull/77) is NOT qualified or merged. No cloud run is pending for this draft.**
 
 ## Current published state
