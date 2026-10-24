@@ -1,0 +1,355 @@
+{
+  "source_artifact": {
+    "id": 12561149284,
+    "run_id": 40096923561,
+    "repository": "Siuuuers/dwm",
+    "archive_size": 3924547,
+    "archive_sha256": "368a83c7d5f93cf0da086e23cb468781a099df56a29a703bda7fd6c9a976da1b",
+    "crc_verified": true,
+    "members": 36
+  },
+  "scope": "Every original member is accounted for. Retained bytes are unmodified. Only byte-identical current members are omitted with an exact retained reconstruction source. No historical member omitted. Reverse native captures are split by variant only to keep archives small. Final focused baseline expected fixture failure is diagnostic evidence, not a passing-test count.",
+  "archives": [
+    {
+      "name": "save-load.zip",
+      "size": 1602387,
+      "sha256": "b20db5025ddb970d56cd009115b2532d1fccd756d358702e6ff9025c42afc2ad",
+      "members": 32,
+      "crc_verified": true
+    }
+  ],
+  "counts": {
+    "retained": 32,
+    "omitted_duplicate": 4
+  },
+  "members": [
+    {
+      "name": "candidate/.godot/ci/fresh-save-load-comparison/baseline/authored-week-terminal-pair.json",
+      "size": 684562,
+      "sha256": "8a51b7269c2fb79ebb2e701f85e7abb1e9c03be622a2f2fb3b9f2813916cd391",
+      "crc32": "22277825",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/ci/fresh-save-load-comparison/baseline/authored-week-terminal-pair.json",
+      "retained_archive": "save-load.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/fresh-save-load-comparison/baseline/computer-authored-restored-slot-2.png",
+      "size": 577257,
+      "sha256": "518dc6bccd41ef7ef77da8963cb6ba7216de4b48a2f8f81b892262dd25e4502a",
+      "crc32": "a2cfcc7f",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/ci/fresh-save-load-comparison/baseline/computer-authored-restored-slot-2.png",
+      "retained_archive": "save-load.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/fresh-save-load-comparison/baseline/computer-authored-restored-slot-3.png",
+      "size": 577257,
+      "sha256": "518dc6bccd41ef7ef77da8963cb6ba7216de4b48a2f8f81b892262dd25e4502a",
+      "crc32": "a2cfcc7f",
+      "disposition": "omitted_duplicate",
+      "reason": "Byte-identical current member retained once; use retained_name and retained_archive to reconstruct.",
+      "retained_name": "candidate/.godot/ci/fresh-save-load-comparison/baseline/computer-authored-restored-slot-2.png",
+      "retained_archive": "save-load.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/fresh-save-load-comparison/baseline/computer-authored-terminal-pair.png",
+      "size": 577421,
+      "sha256": "9903526552d99c2b5a0ff91a270ede867ada1628b902c874ede2a4e09811c8ea",
+      "crc32": "5f858709",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/ci/fresh-save-load-comparison/baseline/computer-authored-terminal-pair.png",
+      "retained_archive": "save-load.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/fresh-save-load-comparison/baseline/fresh-load.json",
+      "size": 2201,
+      "sha256": "30d040f9782a1622ee45b4e7a41265d165557cd8fdc05a1c6f90d173c04de56e",
+      "crc32": "b22a5891",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/ci/fresh-save-load-comparison/baseline/fresh-load.json",
+      "retained_archive": "save-load.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/fresh-save-load-comparison/baseline/fresh-pair-import.log",
+      "size": 96586,
+      "sha256": "5935748b7c664dc7343bcf909ed90525e70451f15dd6a90be613a464bc3672cb",
+      "crc32": "7a0a7184",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/ci/fresh-save-load-comparison/baseline/fresh-pair-import.log",
+      "retained_archive": "save-load.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/fresh-save-load-comparison/baseline/fresh-save-load.log",
+      "size": 53239,
+      "sha256": "f2b98c8c90e703018300ad45c06dd9a6bbd2733f0fa0f8b40b5a4344d5ab5301",
+      "crc32": "e3ccf7f0",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/ci/fresh-save-load-comparison/baseline/fresh-save-load.log",
+      "retained_archive": "save-load.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/fresh-save-load-comparison/baseline/fresh-save-seed.log",
+      "size": 14410,
+      "sha256": "71b9ed219e9ccd44edc337cf477ec6b3c3c76def75aea78b87c099c83f5e08e9",
+      "crc32": "09970fc0",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/ci/fresh-save-load-comparison/baseline/fresh-save-seed.log",
+      "retained_archive": "save-load.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/fresh-save-load-comparison/baseline/fresh-save-write.log",
+      "size": 76067,
+      "sha256": "b908e1291e9d4b890687224174ee4a5d8024a5aeb0ce9d3bf64f1c1b7397ba3a",
+      "crc32": "9df326a0",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/ci/fresh-save-load-comparison/baseline/fresh-save-write.log",
+      "retained_archive": "save-load.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/fresh-save-load-comparison/baseline/import-console.log",
+      "size": 151233,
+      "sha256": "21e48d4ec66199b732ba4f26f8495d6d1049e153ae1a9fc3776c04c3b3990cd5",
+      "crc32": "a5cbf28c",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/ci/fresh-save-load-comparison/baseline/import-console.log",
+      "retained_archive": "save-load.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/fresh-save-load-comparison/baseline/load.xml",
+      "size": 410,
+      "sha256": "b11a5ae04be2cc22f642fafca8732cb3c0cc098f9240e6c2e515b44e541b6b6a",
+      "crc32": "2f592e63",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/ci/fresh-save-load-comparison/baseline/load.xml",
+      "retained_archive": "save-load.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/fresh-save-load-comparison/baseline/processes.jsonl",
+      "size": 3068,
+      "sha256": "5b716fc393068187bd625ee21fed6aee272a40f81a0de5a038b28aa5e6fbae3e",
+      "crc32": "bdfbc94d",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/ci/fresh-save-load-comparison/baseline/processes.jsonl",
+      "retained_archive": "save-load.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/fresh-save-load-comparison/baseline/result.json",
+      "size": 7391,
+      "sha256": "fdac642c153e0c58ddcb56ae9d97913108edd8e2160918ab8fd6add09b3afbf8",
+      "crc32": "8b8128b3",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/ci/fresh-save-load-comparison/baseline/result.json",
+      "retained_archive": "save-load.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/fresh-save-load-comparison/baseline/slot_3.json",
+      "size": 448631,
+      "sha256": "6c27e9e3d162a96a430750c352a15bc84ff65ca41c344a628e4fd970c45160e0",
+      "crc32": "7444f204",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/ci/fresh-save-load-comparison/baseline/slot_3.json",
+      "retained_archive": "save-load.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/fresh-save-load-comparison/baseline/terminal-pair.json",
+      "size": 1533,
+      "sha256": "8c08322eda22accebc8e77df524ff8c11ead8f4191b5a9b63de5ea8564fcf20b",
+      "crc32": "bda209db",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/ci/fresh-save-load-comparison/baseline/terminal-pair.json",
+      "retained_archive": "save-load.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/fresh-save-load-comparison/baseline/write.xml",
+      "size": 375,
+      "sha256": "9112d78f470528d41867a1f74a1e0facaa2bcefaab8380bf7b710f6d95fb9eff",
+      "crc32": "39d6f3f6",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/ci/fresh-save-load-comparison/baseline/write.xml",
+      "retained_archive": "save-load.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/fresh-save-load-comparison/candidate/authored-week-terminal-pair.json",
+      "size": 684563,
+      "sha256": "c29acbc24ecc1baec0c5ec04161526437b56da3cf77bd3dbeb9da3fca1676bdf",
+      "crc32": "4330d754",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/ci/fresh-save-load-comparison/candidate/authored-week-terminal-pair.json",
+      "retained_archive": "save-load.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/fresh-save-load-comparison/candidate/computer-authored-restored-slot-2.png",
+      "size": 577257,
+      "sha256": "518dc6bccd41ef7ef77da8963cb6ba7216de4b48a2f8f81b892262dd25e4502a",
+      "crc32": "a2cfcc7f",
+      "disposition": "omitted_duplicate",
+      "reason": "Byte-identical current member retained once; use retained_name and retained_archive to reconstruct.",
+      "retained_name": "candidate/.godot/ci/fresh-save-load-comparison/baseline/computer-authored-restored-slot-2.png",
+      "retained_archive": "save-load.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/fresh-save-load-comparison/candidate/computer-authored-restored-slot-3.png",
+      "size": 577257,
+      "sha256": "518dc6bccd41ef7ef77da8963cb6ba7216de4b48a2f8f81b892262dd25e4502a",
+      "crc32": "a2cfcc7f",
+      "disposition": "omitted_duplicate",
+      "reason": "Byte-identical current member retained once; use retained_name and retained_archive to reconstruct.",
+      "retained_name": "candidate/.godot/ci/fresh-save-load-comparison/baseline/computer-authored-restored-slot-2.png",
+      "retained_archive": "save-load.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/fresh-save-load-comparison/candidate/computer-authored-terminal-pair.png",
+      "size": 577421,
+      "sha256": "9903526552d99c2b5a0ff91a270ede867ada1628b902c874ede2a4e09811c8ea",
+      "crc32": "5f858709",
+      "disposition": "omitted_duplicate",
+      "reason": "Byte-identical current member retained once; use retained_name and retained_archive to reconstruct.",
+      "retained_name": "candidate/.godot/ci/fresh-save-load-comparison/baseline/computer-authored-terminal-pair.png",
+      "retained_archive": "save-load.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/fresh-save-load-comparison/candidate/fresh-load.json",
+      "size": 2201,
+      "sha256": "46764fd2afc6435d5cf56cd1ee04094a46fc9bead2b5757a82c35ece8385aad2",
+      "crc32": "13105bcb",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/ci/fresh-save-load-comparison/candidate/fresh-load.json",
+      "retained_archive": "save-load.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/fresh-save-load-comparison/candidate/fresh-pair-import.log",
+      "size": 96586,
+      "sha256": "f37cb69658c31b1c3f4de749e46b562be92bbbc110ced4db130ce4e768c3e3f1",
+      "crc32": "08494647",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/ci/fresh-save-load-comparison/candidate/fresh-pair-import.log",
+      "retained_archive": "save-load.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/fresh-save-load-comparison/candidate/fresh-save-load.log",
+      "size": 53245,
+      "sha256": "10bfc504a732c51eed828b889c73609da88f35d18fe1b000d79e5f34770768b1",
+      "crc32": "bdc2dc1e",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/ci/fresh-save-load-comparison/candidate/fresh-save-load.log",
+      "retained_archive": "save-load.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/fresh-save-load-comparison/candidate/fresh-save-seed.log",
+      "size": 14410,
+      "sha256": "362b402024f9a9323fbb2f998497ec07d2eeb85ead3b48c2c09b53b0262344a7",
+      "crc32": "a0111a1f",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/ci/fresh-save-load-comparison/candidate/fresh-save-seed.log",
+      "retained_archive": "save-load.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/fresh-save-load-comparison/candidate/fresh-save-write.log",
+      "size": 76060,
+      "sha256": "739a64ed56dbac4f4fcdae0291d075fa321cc8dd67339e53a35970d77fca9e0c",
+      "crc32": "c35e636b",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/ci/fresh-save-load-comparison/candidate/fresh-save-write.log",
+      "retained_archive": "save-load.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/fresh-save-load-comparison/candidate/import-console.log",
+      "size": 151233,
+      "sha256": "e437d2fb60a1fed3ebe6594c60223680727729194266efa5749da03de6cd844f",
+      "crc32": "4f628923",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/ci/fresh-save-load-comparison/candidate/import-console.log",
+      "retained_archive": "save-load.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/fresh-save-load-comparison/candidate/load.xml",
+      "size": 412,
+      "sha256": "1964a24faeb873ea45e207d08f095f60f93a06bdc8fada8c316e58a5332f62fa",
+      "crc32": "d4b5948e",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/ci/fresh-save-load-comparison/candidate/load.xml",
+      "retained_archive": "save-load.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/fresh-save-load-comparison/candidate/processes.jsonl",
+      "size": 3083,
+      "sha256": "2ab226a941812f333659b5d7466cac273cf8ee0d4e71dc32255649a9b003c206",
+      "crc32": "ab9e1590",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/ci/fresh-save-load-comparison/candidate/processes.jsonl",
+      "retained_archive": "save-load.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/fresh-save-load-comparison/candidate/result.json",
+      "size": 7393,
+      "sha256": "e4b657762d4efe4ffe725194f4130912bd0c5cef5b1f8e88e0a7e06827232500",
+      "crc32": "c951d621",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/ci/fresh-save-load-comparison/candidate/result.json",
+      "retained_archive": "save-load.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/fresh-save-load-comparison/candidate/slot_3.json",
+      "size": 448631,
+      "sha256": "f5521c3700ffeb0299e399ed04ec25d9fa2987930f6f75e3ffa644c00e1dbd86",
+      "crc32": "137f92e4",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/ci/fresh-save-load-comparison/candidate/slot_3.json",
+      "retained_archive": "save-load.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/fresh-save-load-comparison/candidate/terminal-pair.json",
+      "size": 1535,
+      "sha256": "3f54c5435e6dfebbbd905f33761c91d52269c686d10610fcf4d7dce41896a5d2",
+      "crc32": "a4d808c0",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/ci/fresh-save-load-comparison/candidate/terminal-pair.json",
+      "retained_archive": "save-load.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/fresh-save-load-comparison/candidate/write.xml",
+      "size": 375,
+      "sha256": "48c839b291adf5e3ad3a8f2187aa054d7f5247a5c9e1ab7878287ef22a5a0655",
+      "crc32": "53b1bd45",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/ci/fresh-save-load-comparison/candidate/write.xml",
+      "retained_archive": "save-load.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/fresh-save-load-comparison/comparison.json",
+      "size": 19908,
+      "sha256": "dec5be5fe8415499435d0855f97504aaafb4ee8b1fc14bef42c4d5fe463b02e1",
+      "crc32": "f4cefb54",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/ci/fresh-save-load-comparison/comparison.json",
+      "retained_archive": "save-load.zip"
+    },
+    {
+      "name": "candidate/game_state_surface.json",
+      "size": 660971,
+      "sha256": "2175828c973519a4d823f0bacc196392b1951b0018c43f50bfaec705e3599bf4",
+      "crc32": "19845b82",
+      "disposition": "retained",
+      "retained_name": "candidate/game_state_surface.json",
+      "retained_archive": "save-load.zip"
+    },
+    {
+      "name": "candidate/save_manager_surface.json",
+      "size": 183948,
+      "sha256": "fa14ce2a806169ea6238ccb5641734382a99fd54ad5e2537cc4b33d78e0e6169",
+      "crc32": "2d6fc1ae",
+      "disposition": "retained",
+      "retained_name": "candidate/save_manager_surface.json",
+      "retained_archive": "save-load.zip"
+    },
+    {
+      "name": "qualification.json",
+      "size": 24497,
+      "sha256": "44ec1b2d7e5863e04aa25d7bdb97b45d624be2ca3cf2a600faa8c4ac675d26e0",
+      "crc32": "fe21c200",
+      "disposition": "retained",
+      "retained_name": "qualification.json",
+      "retained_archive": "save-load.zip"
+    }
+  ]
+}

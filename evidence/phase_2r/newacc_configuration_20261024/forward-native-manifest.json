@@ -1,0 +1,404 @@
+{
+  "source_artifact": {
+    "id": 12561700372,
+    "run_id": 40096923561,
+    "repository": "Siuuuers/dwm",
+    "archive_size": 3440537,
+    "archive_sha256": "3377be7f2f2dd1c1b7e1869b42e1b51876968af4592a698d685d8224c8a13d18",
+    "crc_verified": true,
+    "members": 40
+  },
+  "scope": "Every original member is accounted for. Retained bytes are unmodified. Historical reports are not current passing evidence. Initial focused qualification failed and remains failed. Native captures are split by variant only to keep archives small.",
+  "archives": [
+    {
+      "name": "forward-native-baseline.zip",
+      "size": 1705855,
+      "sha256": "b6143a9a1614bad0f9a0ed54b9215b2e883f760b7d799b37e4bf9ba4549a60f9",
+      "members": 19,
+      "crc_verified": true
+    },
+    {
+      "name": "forward-native-candidate.zip",
+      "size": 1582096,
+      "sha256": "273c6cd8df838b2f8f0a7ec7fc4129e20676c7ec180a9114a3ef7536264eae60",
+      "members": 11,
+      "crc_verified": true
+    }
+  ],
+  "counts": {
+    "retained": 30,
+    "omitted_duplicate": 10
+  },
+  "members": [
+    {
+      "name": "baseline/.godot/ci/import-stderr.log",
+      "size": 126,
+      "sha256": "e3e9582cfc1659ab624949d8fbdf43ec09f34ede8590bcc20749ca738dffff1b",
+      "crc32": "c3d75eca",
+      "disposition": "retained",
+      "retained_name": "baseline/.godot/ci/import-stderr.log",
+      "retained_archive": "forward-native-baseline.zip"
+    },
+    {
+      "name": "baseline/.godot/ci/import-stdout.log",
+      "size": 151227,
+      "sha256": "30aefc46cfb7cc17b8c6a41d3bcd609085b1f35c4ef50aad3f99cdbf9d46a389",
+      "crc32": "b33d48f7",
+      "disposition": "retained",
+      "retained_name": "baseline/.godot/ci/import-stdout.log",
+      "retained_archive": "forward-native-baseline.zip"
+    },
+    {
+      "name": "baseline/.godot/ci/import.log",
+      "size": 96656,
+      "sha256": "29db527cb6e20e0599ec173f705aa2d4f34a990250573c98a2f7a66f1ff8b3b7",
+      "crc32": "724ea7fc",
+      "disposition": "retained",
+      "retained_name": "baseline/.godot/ci/import.log",
+      "retained_archive": "forward-native-baseline.zip"
+    },
+    {
+      "name": "baseline/.godot/ci/startup-newacc/fresh/caption.png",
+      "size": 773250,
+      "sha256": "3d50b2229198cd5eb721868fc89b3d931989f5db0b052116b96d81903d488815",
+      "crc32": "ca98f61d",
+      "disposition": "retained",
+      "retained_name": "baseline/.godot/ci/startup-newacc/fresh/caption.png",
+      "retained_archive": "forward-native-baseline.zip"
+    },
+    {
+      "name": "baseline/.godot/ci/startup-newacc/fresh/render.log",
+      "size": 11135,
+      "sha256": "92e85441057f3da6f6d5d8c8bf595de7df5bc5fefdfa5eb37c51bac80faf5326",
+      "crc32": "61c139e2",
+      "disposition": "retained",
+      "retained_name": "baseline/.godot/ci/startup-newacc/fresh/render.log",
+      "retained_archive": "forward-native-baseline.zip"
+    },
+    {
+      "name": "baseline/.godot/ci/startup-newacc/fresh/results.json",
+      "size": 10142,
+      "sha256": "1516109fa50c53ade733c16295024802200f3e2c1d60719ea01cb0990218641d",
+      "crc32": "5798af62",
+      "disposition": "retained",
+      "retained_name": "baseline/.godot/ci/startup-newacc/fresh/results.json",
+      "retained_archive": "forward-native-baseline.zip"
+    },
+    {
+      "name": "baseline/.godot/ci/startup-newacc/fresh/stderr.log",
+      "size": 2,
+      "sha256": "7eb70257593da06f682a3ddda54a9d260d4fc514f645237f5ca74b08f8da61a6",
+      "crc32": "14a285ac",
+      "disposition": "retained",
+      "retained_name": "baseline/.godot/ci/startup-newacc/fresh/stderr.log",
+      "retained_archive": "forward-native-baseline.zip"
+    },
+    {
+      "name": "baseline/.godot/ci/startup-newacc/fresh/stdout.log",
+      "size": 11145,
+      "sha256": "bd7ca052eb6e4418d707dc03a5b585a2b0acfb2c5c01a8f6441fc748061eaf3b",
+      "crc32": "43442ee1",
+      "disposition": "retained",
+      "retained_name": "baseline/.godot/ci/startup-newacc/fresh/stdout.log",
+      "retained_archive": "forward-native-baseline.zip"
+    },
+    {
+      "name": "baseline/.godot/ci/startup-newacc/fresh/title.png",
+      "size": 9866,
+      "sha256": "2b01f0beb4d153b753ce29839f256788066c26da86a5db7ae07b16fc1fc9b53c",
+      "crc32": "1d748b63",
+      "disposition": "retained",
+      "retained_name": "baseline/.godot/ci/startup-newacc/fresh/title.png",
+      "retained_archive": "forward-native-baseline.zip"
+    },
+    {
+      "name": "baseline/.godot/ci/startup-newacc/processes.json",
+      "size": 9655,
+      "sha256": "b721e998dd5765db06eef0bce999d9c6f077a9211861bd9c3cd4b9bfe571caf2",
+      "crc32": "86b26052",
+      "disposition": "retained",
+      "retained_name": "baseline/.godot/ci/startup-newacc/processes.json",
+      "retained_archive": "forward-native-baseline.zip"
+    },
+    {
+      "name": "baseline/.godot/ci/startup-newacc/retained/caption.png",
+      "size": 773185,
+      "sha256": "23de0e00a80e8cad334ab34d1e96cd4af5b113aaaa732864015cab77d223996b",
+      "crc32": "dfa4c019",
+      "disposition": "retained",
+      "retained_name": "baseline/.godot/ci/startup-newacc/retained/caption.png",
+      "retained_archive": "forward-native-baseline.zip"
+    },
+    {
+      "name": "baseline/.godot/ci/startup-newacc/retained/consent.png",
+      "size": 17152,
+      "sha256": "5995b8d05380123789d5572b14c3bb2817924e5fe9435a92773ab515f96d1a4c",
+      "crc32": "1ef9f0cd",
+      "disposition": "retained",
+      "retained_name": "baseline/.godot/ci/startup-newacc/retained/consent.png",
+      "retained_archive": "forward-native-baseline.zip"
+    },
+    {
+      "name": "baseline/.godot/ci/startup-newacc/retained/render.log",
+      "size": 14336,
+      "sha256": "ef2aec6e1d55c8b1f6a9bd1981a75d5288e6a06b2855dc46045a05a7ded39680",
+      "crc32": "b0998851",
+      "disposition": "retained",
+      "retained_name": "baseline/.godot/ci/startup-newacc/retained/render.log",
+      "retained_archive": "forward-native-baseline.zip"
+    },
+    {
+      "name": "baseline/.godot/ci/startup-newacc/retained/results.json",
+      "size": 11514,
+      "sha256": "e1637aaabb13d9f20ba05cf54c9f49a9342a826fbc5d06b26b189e68621d80de",
+      "crc32": "8ca60c3e",
+      "disposition": "retained",
+      "retained_name": "baseline/.godot/ci/startup-newacc/retained/results.json",
+      "retained_archive": "forward-native-baseline.zip"
+    },
+    {
+      "name": "baseline/.godot/ci/startup-newacc/retained/stderr.log",
+      "size": 2,
+      "sha256": "7eb70257593da06f682a3ddda54a9d260d4fc514f645237f5ca74b08f8da61a6",
+      "crc32": "14a285ac",
+      "disposition": "omitted_duplicate",
+      "reason": "Byte-identical current member retained once; use retained_name and retained_archive to reconstruct.",
+      "retained_name": "baseline/.godot/ci/startup-newacc/fresh/stderr.log",
+      "retained_archive": "forward-native-baseline.zip"
+    },
+    {
+      "name": "baseline/.godot/ci/startup-newacc/retained/stdout.log",
+      "size": 14348,
+      "sha256": "c51d8ed622167a1c1bc696e9658e0f66705c6580df267e33f05e2bbf81a0a880",
+      "crc32": "9478094c",
+      "disposition": "retained",
+      "retained_name": "baseline/.godot/ci/startup-newacc/retained/stdout.log",
+      "retained_archive": "forward-native-baseline.zip"
+    },
+    {
+      "name": "baseline/.godot/ci/startup-newacc/retained/title.png",
+      "size": 9866,
+      "sha256": "2b01f0beb4d153b753ce29839f256788066c26da86a5db7ae07b16fc1fc9b53c",
+      "crc32": "1d748b63",
+      "disposition": "omitted_duplicate",
+      "reason": "Byte-identical current member retained once; use retained_name and retained_archive to reconstruct.",
+      "retained_name": "baseline/.godot/ci/startup-newacc/fresh/title.png",
+      "retained_archive": "forward-native-baseline.zip"
+    },
+    {
+      "name": "baseline/game_state_surface.json",
+      "size": 660971,
+      "sha256": "2175828c973519a4d823f0bacc196392b1951b0018c43f50bfaec705e3599bf4",
+      "crc32": "19845b82",
+      "disposition": "retained",
+      "retained_name": "baseline/game_state_surface.json",
+      "retained_archive": "forward-native-baseline.zip"
+    },
+    {
+      "name": "baseline/save_manager_surface.json",
+      "size": 183948,
+      "sha256": "fa14ce2a806169ea6238ccb5641734382a99fd54ad5e2537cc4b33d78e0e6169",
+      "crc32": "2d6fc1ae",
+      "disposition": "retained",
+      "retained_name": "baseline/save_manager_surface.json",
+      "retained_archive": "forward-native-baseline.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/import-stderr.log",
+      "size": 126,
+      "sha256": "e3e9582cfc1659ab624949d8fbdf43ec09f34ede8590bcc20749ca738dffff1b",
+      "crc32": "c3d75eca",
+      "disposition": "omitted_duplicate",
+      "reason": "Byte-identical current member retained once; use retained_name and retained_archive to reconstruct.",
+      "retained_name": "baseline/.godot/ci/import-stderr.log",
+      "retained_archive": "forward-native-baseline.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/import-stdout.log",
+      "size": 151227,
+      "sha256": "da234e9b011d5d2ad67526ea93ede1d12c10dd6b0cde85d827d0e9dbab0c1abf",
+      "crc32": "54038295",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/ci/import-stdout.log",
+      "retained_archive": "forward-native-candidate.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/import.log",
+      "size": 96656,
+      "sha256": "50d3301dec034c982087e0e06032c19c8945bed14db1cbf20c6db74ef0f7e5a5",
+      "crc32": "e56a153c",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/ci/import.log",
+      "retained_archive": "forward-native-candidate.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/startup-newacc/fresh/caption.png",
+      "size": 773284,
+      "sha256": "74629eaea9b64ce6b47cd311ed71192a7480311390b8fc8a1df9ec1f80df9a40",
+      "crc32": "8c605b9e",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/ci/startup-newacc/fresh/caption.png",
+      "retained_archive": "forward-native-candidate.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/startup-newacc/fresh/render.log",
+      "size": 11122,
+      "sha256": "aa1698edc3ecb14720746d63e554d1453f500a17968b596a7cb4490da8cbb4bd",
+      "crc32": "ea8fe6f2",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/ci/startup-newacc/fresh/render.log",
+      "retained_archive": "forward-native-candidate.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/startup-newacc/fresh/results.json",
+      "size": 10130,
+      "sha256": "1f31e882f1325ebde4e88832386bfe4527d6bfcd8308d21bf5e9cf29575759c6",
+      "crc32": "d1a66231",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/ci/startup-newacc/fresh/results.json",
+      "retained_archive": "forward-native-candidate.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/startup-newacc/fresh/stderr.log",
+      "size": 2,
+      "sha256": "7eb70257593da06f682a3ddda54a9d260d4fc514f645237f5ca74b08f8da61a6",
+      "crc32": "14a285ac",
+      "disposition": "omitted_duplicate",
+      "reason": "Byte-identical current member retained once; use retained_name and retained_archive to reconstruct.",
+      "retained_name": "baseline/.godot/ci/startup-newacc/fresh/stderr.log",
+      "retained_archive": "forward-native-baseline.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/startup-newacc/fresh/stdout.log",
+      "size": 11132,
+      "sha256": "ac546e7e3d39a0050c7b950dc98cc5f66ce4dd2059b0571594b788d0bb7952f7",
+      "crc32": "1ce8db50",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/ci/startup-newacc/fresh/stdout.log",
+      "retained_archive": "forward-native-candidate.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/startup-newacc/fresh/title.png",
+      "size": 9866,
+      "sha256": "2b01f0beb4d153b753ce29839f256788066c26da86a5db7ae07b16fc1fc9b53c",
+      "crc32": "1d748b63",
+      "disposition": "omitted_duplicate",
+      "reason": "Byte-identical current member retained once; use retained_name and retained_archive to reconstruct.",
+      "retained_name": "baseline/.godot/ci/startup-newacc/fresh/title.png",
+      "retained_archive": "forward-native-baseline.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/startup-newacc/processes.json",
+      "size": 9657,
+      "sha256": "6d3c65e91d98f38fcfea8faf88b8052138eb3ea2eeb549db7b34d4564ce74ef4",
+      "crc32": "e0c6950e",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/ci/startup-newacc/processes.json",
+      "retained_archive": "forward-native-candidate.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/startup-newacc/retained/caption.png",
+      "size": 773344,
+      "sha256": "e696f1d6f5ef4cc5aea02cbc0ee5717de432335f06106f6613fd260ca91f9660",
+      "crc32": "8143a968",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/ci/startup-newacc/retained/caption.png",
+      "retained_archive": "forward-native-candidate.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/startup-newacc/retained/consent.png",
+      "size": 17152,
+      "sha256": "5995b8d05380123789d5572b14c3bb2817924e5fe9435a92773ab515f96d1a4c",
+      "crc32": "1ef9f0cd",
+      "disposition": "omitted_duplicate",
+      "reason": "Byte-identical current member retained once; use retained_name and retained_archive to reconstruct.",
+      "retained_name": "baseline/.godot/ci/startup-newacc/retained/consent.png",
+      "retained_archive": "forward-native-baseline.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/startup-newacc/retained/render.log",
+      "size": 14331,
+      "sha256": "e67fc72f2f6a39e4658888edb3cbdb6769f70781e159914fe4dd9638a047e8a7",
+      "crc32": "2adc15fb",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/ci/startup-newacc/retained/render.log",
+      "retained_archive": "forward-native-candidate.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/startup-newacc/retained/results.json",
+      "size": 11510,
+      "sha256": "a2aff65c0f025107c3df04e345575908a2e22bbb563925d915d2f076fb7a82d4",
+      "crc32": "4867f0db",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/ci/startup-newacc/retained/results.json",
+      "retained_archive": "forward-native-candidate.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/startup-newacc/retained/stderr.log",
+      "size": 2,
+      "sha256": "7eb70257593da06f682a3ddda54a9d260d4fc514f645237f5ca74b08f8da61a6",
+      "crc32": "14a285ac",
+      "disposition": "omitted_duplicate",
+      "reason": "Byte-identical current member retained once; use retained_name and retained_archive to reconstruct.",
+      "retained_name": "baseline/.godot/ci/startup-newacc/fresh/stderr.log",
+      "retained_archive": "forward-native-baseline.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/startup-newacc/retained/stdout.log",
+      "size": 14343,
+      "sha256": "d22509790d0a2d68ed3a169cf57b144d1bfd1f59cffd2a0c6fe8097bdf5c2121",
+      "crc32": "f0a5d1de",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/ci/startup-newacc/retained/stdout.log",
+      "retained_archive": "forward-native-candidate.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/startup-newacc/retained/title.png",
+      "size": 9866,
+      "sha256": "2b01f0beb4d153b753ce29839f256788066c26da86a5db7ae07b16fc1fc9b53c",
+      "crc32": "1d748b63",
+      "disposition": "omitted_duplicate",
+      "reason": "Byte-identical current member retained once; use retained_name and retained_archive to reconstruct.",
+      "retained_name": "baseline/.godot/ci/startup-newacc/fresh/title.png",
+      "retained_archive": "forward-native-baseline.zip"
+    },
+    {
+      "name": "candidate/game_state_surface.json",
+      "size": 660971,
+      "sha256": "2175828c973519a4d823f0bacc196392b1951b0018c43f50bfaec705e3599bf4",
+      "crc32": "19845b82",
+      "disposition": "omitted_duplicate",
+      "reason": "Byte-identical current member retained once; use retained_name and retained_archive to reconstruct.",
+      "retained_name": "baseline/game_state_surface.json",
+      "retained_archive": "forward-native-baseline.zip"
+    },
+    {
+      "name": "candidate/save_manager_surface.json",
+      "size": 183948,
+      "sha256": "fa14ce2a806169ea6238ccb5641734382a99fd54ad5e2537cc4b33d78e0e6169",
+      "crc32": "2d6fc1ae",
+      "disposition": "omitted_duplicate",
+      "reason": "Byte-identical current member retained once; use retained_name and retained_archive to reconstruct.",
+      "retained_name": "baseline/save_manager_surface.json",
+      "retained_archive": "forward-native-baseline.zip"
+    },
+    {
+      "name": "qualification.json",
+      "size": 15312,
+      "sha256": "578ba424146359e0efd763ce0c12c81f95127a23f6e3799b670800cb5171a880",
+      "crc32": "47381906",
+      "disposition": "retained",
+      "retained_name": "qualification.json",
+      "retained_archive": "forward-native-baseline.zip"
+    },
+    {
+      "name": "startup-instrumentation.patch",
+      "size": 9774,
+      "sha256": "16f5ffffeb1f50caf57fff4629469115847065c730f72b2f50900546a21ee019",
+      "crc32": "ef64c050",
+      "disposition": "retained",
+      "retained_name": "startup-instrumentation.patch",
+      "retained_archive": "forward-native-baseline.zip"
+    }
+  ]
+}

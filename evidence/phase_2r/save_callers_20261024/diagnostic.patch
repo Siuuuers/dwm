@@ -1,0 +1,147 @@
+diff --git a/autoload/GameState.gd b/autoload/GameState.gd
+index 47aeb0ce..dcac3548 100644
+--- a/autoload/GameState.gd
++++ b/autoload/GameState.gd
+@@ -1,5 +1,7 @@
+ extends Node
+ 
++const _SAVE_ATTRIBUTION_TIMING := preload("res://scripts/narrative/SceneValidationTiming.gd")
++
+ # GameState autoload — owns all mutable runtime state for the prototype.
+ # Authority: prompt_docs/INDEX.md (runtime ownership, dating, persistence, and narrative
+ # requirement packets). No human-facing prose; machine-precise, contradiction-free.
+@@ -4277,7 +4279,9 @@ func _prepare_scene_snapshot_semantics(snapshot: Dictionary, bundle: Dictionary)
+ 	if reuse_scene_commands:
+ 		# The public frame validator also authenticates receipts; consume only its fresh output.
+ 		# Combined corruption follows frame-validator order: envelope, receipts, frames, then Profile.
++		var frozen_started: int = _SAVE_ATTRIBUTION_TIMING.start_sample()
+ 		frozen = _SCENE_FROZEN.validate(snapshot, true)
++		_SAVE_ATTRIBUTION_TIMING.finish_detail("semantic_frozen", frozen_started, frozen)
+ 		if not frozen.get("ok", false): return frozen
+ 		commands = frozen.scene_commands
+ 	else:
+@@ -4287,14 +4291,20 @@ func _prepare_scene_snapshot_semantics(snapshot: Dictionary, bundle: Dictionary)
+ 	var profile: Node = get_node_or_null("/root/ProfileManager")
+ 	if profile == null or not profile.has_method("get_pair_deck_draw"):
+ 		return _transaction_failure(&"scene_profile_owner_required", "")
++	var assignment_started: int = _SAVE_ATTRIBUTION_TIMING.start_sample()
+ 	var assignment: Dictionary = profile.get_pair_deck_draw(snapshot.run_id)
++	_SAVE_ATTRIBUTION_TIMING.finish_detail("semantic_assignment", assignment_started, assignment)
+ 	if not assignment.get("ok", false): return assignment
+ 	if not _SCENE_EVENT._equal(assignment.get("value"), snapshot.lifecycle.scene_assignment):
+ 		return _transaction_failure(&"scene_assignment_profile_mismatch", "")
++	var physical_started: int = _SAVE_ATTRIBUTION_TIMING.start_sample()
+ 	var physical := _validate_scene_profile_references(snapshot, profile)
++	_SAVE_ATTRIBUTION_TIMING.finish_detail("semantic_physical", physical_started, physical)
+ 	if not physical.ok: return physical
+ 	if not reuse_scene_commands:
++		var frozen_started: int = _SAVE_ATTRIBUTION_TIMING.start_sample()
+ 		frozen = _SCENE_FROZEN.validate(snapshot, true)
++		_SAVE_ATTRIBUTION_TIMING.finish_detail("semantic_frozen", frozen_started, frozen)
+ 		if not frozen.get("ok", false): return frozen
+ 	# Receipt authentication and frozen frame derivation are independent proofs.
+ 	# Join every authenticated event to the actual retained reading ledger as well:
+@@ -4316,7 +4326,9 @@ func _validate_scene_snapshot_anchors(anchors: Array[Dictionary], checkpoint: Di
+ 	if not is_instance_valid(_scene_event_bridge) or not _scene_event_bridge.has_method("validate_scene_event_anchor"):
+ 		return _transaction_failure(&"event_dependency_invalid", "scene reading anchor validator required")
+ 	if _scene_event_bridge.has_method("validate_scene_event_anchors"):
++		var anchors_started: int = _SAVE_ATTRIBUTION_TIMING.start_sample()
+ 		var anchored: Dictionary = _scene_event_bridge.validate_scene_event_anchors(anchors, checkpoint)
++		_SAVE_ATTRIBUTION_TIMING.finish_detail("semantic_anchors", anchors_started, anchored)
+ 		return {"ok": true} if anchored.get("ok", false) else anchored
+ 	for anchor: Dictionary in anchors:
+ 		var anchored: Dictionary = _scene_event_bridge.validate_scene_event_anchor(anchor, checkpoint)
+diff --git a/scripts/domain/run/RunSnapshotSchema.gd b/scripts/domain/run/RunSnapshotSchema.gd
+index 0d7b5f79..208afb3b 100644
+--- a/scripts/domain/run/RunSnapshotSchema.gd
++++ b/scripts/domain/run/RunSnapshotSchema.gd
+@@ -795,6 +795,15 @@ static func validate_scene(snapshot: Dictionary, bundle: Dictionary) -> Dictiona
+ 	var started_us: int = SCENE_VALIDATION_TIMING.start_sample()
+ 	if started_us < 0: return _validate_scene_observed_body(snapshot, bundle)
+ 	var observation: Dictionary = {}
++	var diagnostic_started: int = Time.get_ticks_usec()
++	observation["callers"] = get_stack()
++	var snapshot_encoded: Dictionary = SCENE_CANONICAL.stringify(snapshot)
++	var bundle_encoded: Dictionary = SCENE_CANONICAL.stringify(bundle)
++	observation["snapshot_hash_ok"] = snapshot_encoded.get("ok", false)
++	observation["bundle_hash_ok"] = bundle_encoded.get("ok", false)
++	observation["snapshot_sha256"] = str(snapshot_encoded.get("value", "")).sha256_text() if snapshot_encoded.get("ok", false) else ""
++	observation["bundle_sha256"] = str(bundle_encoded.get("value", "")).sha256_text() if bundle_encoded.get("ok", false) else ""
++	observation["diagnostic_metadata_us"] = Time.get_ticks_usec() - diagnostic_started
+ 	var sequence: Variant = snapshot.get("checkpoint_sequence")
+ 	if typeof(sequence) == TYPE_INT: observation["checkpoint_sequence"] = sequence
+ 	var lifecycle_label: Variant = snapshot.get("lifecycle")
+@@ -809,7 +818,9 @@ static func validate_scene(snapshot: Dictionary, bundle: Dictionary) -> Dictiona
+ 				observation["playback_stage"] = String(stage_label)
+ 	# An active record must remain nonempty even when malformed input has no admitted labels.
+ 	observation["inclusive_nested"] = true
++	SCENE_VALIDATION_TIMING.enter_snapshot(observation)
+ 	var result: Dictionary = _validate_scene_observed_body(snapshot, bundle, observation)
++	SCENE_VALIDATION_TIMING.leave_snapshot()
+ 	SCENE_VALIDATION_TIMING.finish_snapshot(started_us, observation, bool(result.get("ok", false)))
+ 	return result
+ 
+@@ -878,7 +889,9 @@ static func _validate_scene_observed_body(snapshot: Dictionary, bundle: Dictiona
+ 	# Other owners and terminal snapshots retain the independent proof here. On deferral,
+ 	# combined corruption reports audio/reading errors before receipt-authentication errors.
+ 	if terminal or not _scene_semantic_authenticates_receipts():
++		var receipt_started: int = SCENE_VALIDATION_TIMING.start_sample()
+ 		var scene_receipts: Dictionary = SCENE_EVENT_CONTRACT.validate_scene_receipts(candidate.command_receipts, bundle, _scene_issuer, _scene_creation_owner, candidate.contacts)
++		SCENE_VALIDATION_TIMING.finish_detail("snapshot_direct_receipts", receipt_started, scene_receipts)
+ 		if not scene_receipts.ok: return scene_receipts
+ 	var audio := _validate_scene_audio(candidate, bundle)
+ 	if not audio.ok: return audio
+@@ -939,6 +952,12 @@ static func is_scene_terminal(snapshot: Dictionary) -> bool:
+ 		and lifecycle.get("state") in ["ENDING", "COMPLETED"]
+ 
+ static func _validate_scene_reading(candidate: Dictionary) -> Dictionary:
++	var started_us: int = SCENE_VALIDATION_TIMING.start_sample()
++	var result: Dictionary = _validate_scene_reading_diagnostic_body(candidate)
++	SCENE_VALIDATION_TIMING.finish_detail("reading_terminal" if is_scene_terminal(candidate) else "reading_scene", started_us, result)
++	return result
++
++static func _validate_scene_reading_diagnostic_body(candidate: Dictionary) -> Dictionary:
+ 	if not candidate.get("narrative_checkpoint") is Dictionary:
+ 		return _fail(&"reading_checkpoint_invalid", "narrative checkpoint must be an object")
+ 	if is_scene_terminal(candidate):
+diff --git a/scripts/narrative/SceneValidationTiming.gd b/scripts/narrative/SceneValidationTiming.gd
+index 39a650d2..7ea582bf 100644
+--- a/scripts/narrative/SceneValidationTiming.gd
++++ b/scripts/narrative/SceneValidationTiming.gd
+@@ -4,6 +4,7 @@ extends RefCounted
+ static var _active := false
+ static var _record: Dictionary = {}
+ static var _started_us := 0
++static var _snapshot_stack: Array[Dictionary] = []
+ 
+ static func begin_scope(operation: String, state: String, stage: String, step: int) -> bool:
+ 	if _active or OS.get_environment("DWM_SCENE_VALIDATION_PROFILE") != "1": return false
+@@ -35,6 +36,22 @@ static func snapshot_phase(observation: Dictionary, phase: String, started_us: i
+ 	observation[phase] = now - started_us
+ 	return now
+ 
++## Diagnostic-only nesting: exact inputs and callers belong to the snapshot observation.
++static func enter_snapshot(observation: Dictionary) -> void:
++	if _active: _snapshot_stack.append(observation)
++
++static func leave_snapshot() -> void:
++	if _active and not _snapshot_stack.is_empty(): _snapshot_stack.pop_back()
++
++static func finish_detail(label: String, started_us: int, result: Dictionary) -> void:
++	if started_us < 0 or not _active or _snapshot_stack.is_empty(): return
++	var record := {"phase": label, "elapsed_us": Time.get_ticks_usec() - started_us,
++		"ok": result.get("ok", false) == true, "code": str(result.get("code", "")),
++		"inclusive_nested": true}
++	var observation: Dictionary = _snapshot_stack.back()
++	if not observation.has("details"): observation["details"] = []
++	observation.details.append(record)
++
+ static func finish_snapshot(started_us: int, observation: Dictionary, ok: bool) -> void:
+ 	if started_us < 0 or not _active: return
+ 	var records: Array = _record["snapshot_validations"]
+@@ -51,4 +68,5 @@ static func end_scope(ok: bool) -> void:
+ 	_active = false
+ 	print("DWM_SCENE_VALIDATION_PROFILE " + JSON.stringify(_record))
+ 	_record = {}
++	_snapshot_stack.clear()
+ 	_started_us = 0
