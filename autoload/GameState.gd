@@ -4264,7 +4264,8 @@ func validate_scene_snapshot_semantics(snapshot: Dictionary, bundle: Dictionary)
 	return _validate_scene_snapshot_anchors(anchors, prepared.checkpoint)
 
 ## Partial semantic preparation. Success still requires every pending anchor join.
-func _prepare_scene_snapshot_semantics(snapshot: Dictionary, bundle: Dictionary) -> Dictionary:
+func _prepare_scene_snapshot_semantics(snapshot: Dictionary, bundle: Dictionary,
+		terminal_reading: Dictionary = {}) -> Dictionary:
 	if _identity_issuer == null: return _transaction_failure(&"scene_identity_issuer_required", "")
 	var selected := _SCENE_MANIFEST.scene_registration()
 	if not selected.ok: return selected
@@ -4277,7 +4278,13 @@ func _prepare_scene_snapshot_semantics(snapshot: Dictionary, bundle: Dictionary)
 	if reuse_scene_commands:
 		# The public frame validator also authenticates receipts; consume only its fresh output.
 		# Combined corruption follows frame-validator order: envelope, receipts, frames, then Profile.
-		frozen = _SCENE_FROZEN.validate(snapshot, true)
+		# Schema alone supplies its immediately preceding terminal proof. Public
+		# semantic calls stay fresh; recheck original owners at the consumption point.
+		if not terminal_reading.is_empty() and terminal_reading.owners[0] == self \
+				and _NARRATIVE_VARIABLE_SCHEMA._scene_terminal_reading_owners_match(terminal_reading.owners):
+			frozen = terminal_reading.result
+		else:
+			frozen = _SCENE_FROZEN.validate(snapshot, true)
 		if not frozen.get("ok", false): return frozen
 		commands = frozen.scene_commands
 	else:

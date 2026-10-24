@@ -884,6 +884,11 @@ static func _validate_scene_observed_body(snapshot: Dictionary, bundle: Dictiona
 		if not scene_receipts.ok: return scene_receipts
 	var audio := _validate_scene_audio(candidate, bundle)
 	if not audio.ok: return audio
+	# Capture before reading: issuer/creation callbacks may replace even a
+	# coordinated owner group. Only this call's unchanged input can reuse its proof.
+	var terminal_owners: Array = _scene_terminal_reading_owners() if terminal \
+		and candidate.narrative_checkpoint is Dictionary and not candidate.narrative_checkpoint.is_empty() else []
+	var reading_before := _scene_hash(candidate) if not terminal_owners.is_empty() else ""
 	var reading := _validate_scene_reading(candidate)
 	if not reading.ok: return reading
 	# The real live owner authenticates historical/current admissions, issuer
@@ -899,7 +904,15 @@ static func _validate_scene_observed_body(snapshot: Dictionary, bundle: Dictiona
 	var semantic_owner: Object = _scene_authority
 	_scene_semantic_busy = true
 	var semantic: Variant
-	if not terminal and reading.has("session") and _scene_can_reuse_reading():
+	if not terminal_owners.is_empty() and reading_before == before \
+			and _scene_terminal_reading_owners_match(terminal_owners):
+		semantic = semantic_owner.call("_prepare_scene_snapshot_semantics", detached, detached_bundle,
+			{"owners": terminal_owners, "result": reading})
+		if semantic is Dictionary and semantic.get("ok", false):
+			var anchors: Array[Dictionary] = []
+			anchors.assign(semantic.pending_anchors)
+			semantic = semantic_owner.call("_validate_scene_snapshot_anchors", anchors, semantic.checkpoint)
+	elif not terminal and reading.has("session") and _scene_can_reuse_reading():
 		semantic = semantic_owner.call("_prepare_scene_snapshot_semantics", detached, detached_bundle)
 		if semantic is Dictionary and semantic.get("ok", false):
 			var anchors: Array[Dictionary] = []
@@ -933,6 +946,15 @@ static func _scene_can_reuse_reading() -> bool:
 	if not _scene_semantic_authenticates_receipts(): return false
 	var bridge: Variant = _scene_authority.get("_scene_event_bridge")
 	return is_instance_valid(bridge) and bridge.get_script() == load("res://autoload/DialogicBridge.gd")
+
+static func _scene_terminal_reading_owners() -> Array:
+	if not _scene_semantic_authenticates_receipts(): return []
+	var frozen := preload("res://scripts/narrative/FrozenRunContext.gd")
+	if not frozen.scene_validation_uses(_scene_issuer, _scene_creation_owner): return []
+	return [_scene_authority, _scene_issuer, _scene_creation_owner]
+
+static func _scene_terminal_reading_owners_match(owners: Array) -> bool:
+	return not owners.is_empty() and owners == _scene_terminal_reading_owners()
 
 static func is_scene_terminal(snapshot: Dictionary) -> bool:
 	var lifecycle: Variant = snapshot.get("lifecycle")
