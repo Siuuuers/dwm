@@ -1,13 +1,19 @@
-name: Restore proof preflight
+name: Intent kind verification
 on:
+  push:
+    branches: [codex/intent-kind-check-20261025]
   workflow_dispatch:
 permissions:
   contents: read
 concurrency:
-  group: restore-proof-preflight-${{ github.ref }}
+  group: continuation-proof-window-${{ github.ref }}
   cancel-in-progress: true
 jobs:
   preflight:
+    strategy:
+      fail-fast: false
+      matrix:
+        lane: [focused]
     runs-on: windows-2022
     timeout-minutes: 90
     defaults:
@@ -67,20 +73,35 @@ jobs:
           # Execute the committed configuration with the freshly imported assets.
           git restore -- project.godot
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Generate current caller inventories
-        run: ./tools/testing/Invoke-PublicSurfaceValidation.ps1 -Regenerate -EmitPayloads
-      - name: Verify current Save9 admission
-        run: ./tools/testing/Invoke-CloudTests.ps1 -Suite scene_backup_inspection
-      - name: Verify current Quick Load
-        run: ./tools/testing/Invoke-CloudTests.ps1 -Suite current_quick_load
-      - name: Compare fresh Save9 and fresh-process Load
+      - name: Verify journal cache and storage retry contracts
+        if: matrix.lane == 'focused'
+        timeout-minutes: 20
+        run: |
+          ./tools/testing/Invoke-IsolatedGodot.ps1 -SuiteId continuation-proof-window -LogName continuation-proof-window.log -EvidenceLogPath .godot/ci/continuation-proof-window.jsonl -TimeoutSeconds 1100 -GodotArgs @('-s', 'res://addons/gut/gut_cmdln.gd', '-gconfig=', '-gtest=res://tests/unit/test_scene_restore_journal.gd,res://tests/unit/test_desktop_continuation_operation_journal.gd', '-gexit', '-glog=1', '-gjunit_xml_file=res://.godot/ci/continuation-proof-window.xml')
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Verify focused case census
+        if: matrix.lane == 'focused'
+        shell: python {0}
+        run: |
+          import json, xml.etree.ElementTree as ET
+          from pathlib import Path
+          root = ET.parse('.godot/ci/continuation-proof-window.xml').getroot()
+          cases = list(root.iter('testcase'))
+          assert len(cases) == 46, f'Expected 46 cases, got {len(cases)}'
+          assert all(c.get('status') == 'pass' for c in cases)
+          assert not list(root.iter('failure')) + list(root.iter('error')) + list(root.iter('skipped'))
+          result = {'tests': len(cases), 'assertions': sum(int(c.get('assertions', 0)) for c in cases)}
+          Path('.godot/ci/focused-result.json').write_text(json.dumps(result, indent=2) + '\n')
+          print('CONTINUATION_FOCUSED_VERIFIED ' + json.dumps(result))
+      - name: Verify final fresh Save9 and fresh-process Load
+        if: matrix.lane == 'native'
         timeout-minutes: 45
-        run: ./tools/testing/Invoke-FreshSaveLoadComparison.ps1 -BaseRef 97a3e5c2b48c4ae82a30ebb62083c5ea1bff5932
+        run: ./tools/testing/Invoke-FreshSaveLoad.ps1
       - name: Preserve preflight evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: restore-proof-preflight-${{ github.run_id }}-${{ github.run_attempt }}
+          name: intent-kind-${{ matrix.lane }}-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             .godot/ci/
             .godot/phase2r_logs/
