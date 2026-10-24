@@ -253,8 +253,6 @@ eligible consciousness.
 Perceptual prose may be subjective without becoming unrestricted interior
 monologue. It may not:
 
-- diagnose another character's emotion or motive;
-- identify an unresolved cause;
 - explain symbolism or tell the audience how to interpret an image;
 - reveal information unavailable to the active anchor;
 - use a narrator identity or omniscient explanatory voice; or
