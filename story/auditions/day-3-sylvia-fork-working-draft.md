@@ -935,7 +935,7 @@ We go back inside together.
 - **Result-specific facts:** A returns after a delayed and brief outing; B remains through the credits and then leaves; C/E return after a candid conversation and agree to talk afterwards; D stops in the foyer after the disturbance. Do not give B an unseen request, let D inherit C's after-film promise, or make C/E remember the publicly obstructed view.
 - **POV and thought placement:** Priscilla alone supplies access. The common private thought devalues genuine company in her own momentary terms. Result-specific thoughts register limitation, temporary acceptance, anticipated company or the absence of preparation. They are not diagnostic verdicts. The action thought is the one local Challenge proposal; the other private passages have no control and confer no awareness by themselves.
 - **Prior-aware replacement for E's recognition paragraph, not assembled into the leading intake:** “You again. The same attention at the edge of another ordinary evening. I recognise it before I look for anything in the glass.” Earlier-aware intakes also need their appropriate awareness treatment on completed C/D results; that broader intake adaptation is not supplied by this one replacement. A/B must not erase existing awareness or invent a newly recognised completed intervention.
-- **Scope of permission and continuity:** the cancellation remains sent, not necessarily read. No Lavinia reply is added, and no P–L walk fact crosses into this route. The shared exhibition and Day 1 D breach are not forgiven or undone. No false emergency, recording, no-forward restriction, medical authority, new staff enforcement system, forced kiss, sexualised restraint or lasting injury supplies the turn.
+- **Scope of permission and continuity:** the cancellation remains sent, not necessarily read. No Lavinia reply is added, and no P–L walk fact crosses into this route. The shared exhibition and Day 1 D breach are not forgiven or undone.
 
 ## 6. Beats and the private field
 
@@ -1082,9 +1082,9 @@ The private thoughts add particular information to those visible sequences. **Ag
 
 The encounters are not equally shocking. The gallery supplies an absurd image and chillingly petty conduct whose cost needs the surrounding sequence. P–L D has the clearest immediate physical eruption, using a familiar damaged-gift image made particular by the ignored refusal and gathering. P–S D has the freshest emotional contradiction: offered intimacy is abandoned in pursuit of total attention, and the demand exceeds Priscilla's social competence.
 
-Those are editorial judgments about distinctiveness and an excerpt's legibility, not predictions of social-media circulation. No audience, excerpt-sharing or performed-reading study was run. A “viral moment in every scene/result” would be a new quota, not a requirement of the bibles or a reliable way to make the whole reading immersive.
+A “viral moment in every scene/result” would be a new quota, not a requirement of the bibles or a reliable way to make the whole reading immersive.
 
-Some beats earn their place through pleasure and rhythm. Removing the bicycle exchange would make the gift more conspicuously supplied for destruction. The visitor's enjoyment makes their invention briefly work. P–S B lets ordinary contact last through the film. A modest or pleasant passage need not secretly conceal another shock to count.
+Some beats earn their place through pleasure and rhythm. Removing the bicycle exchange would make the gift more conspicuously supplied for destruction. The visitor's enjoyment makes their invention briefly work. P–S B lets ordinary contact last through the film. A modest or pleasant passage may need not secretly conceal another shock to count.
 
 ### Remaining whole-reading risk and stop decision
 
