@@ -25,20 +25,20 @@ $overlayRef = '3ed9cf1fd51cc1910d1d2a96fb4eb87784bb822c'
 $output = Join-Path $controller ".godot/ci/parse-$Lane"
 if (Test-Path $output) { throw 'Fresh qualification output required.' }
 New-Item -ItemType Directory -Path $output | Out-Null
-function Git([string[]]$Arguments) {
+function Invoke-ControllerGit([string[]]$Arguments) {
     $value = & git -C $controller -c core.autocrlf=false @Arguments
     if ($LASTEXITCODE -ne 0) { throw "git failed: $Arguments" }
     return $value
 }
-foreach ($ref in @($baseRef, $CandidateRef, $overlayRef)) { Git -Arguments @('fetch', '--no-tags', 'origin', $ref) | Out-Null }
+foreach ($ref in @($baseRef, $CandidateRef, $overlayRef)) { Invoke-ControllerGit -Arguments @('fetch', '--no-tags', 'origin', $ref) | Out-Null }
 $runtimeAllow = @('scripts/narrative/DialogicRuntimeAdapter.gd', 'scripts/narrative/DialogicEntryManifest.gd')
-$runtimeChanges = @(Git -Arguments @('diff', '--name-only', $baseRef, $CandidateRef, '--', 'autoload', 'scripts', 'addons', 'scenes', 'assets', 'data', 'project.godot'))
+$runtimeChanges = @(Invoke-ControllerGit -Arguments @('diff', '--name-only', $baseRef, $CandidateRef, '--', 'autoload', 'scripts', 'addons', 'scenes', 'assets', 'data', 'project.godot'))
 if ($runtimeChanges.Count -eq 0 -or @($runtimeChanges | Where-Object { $_ -notin $runtimeAllow }).Count) { throw "Unexpected runtime change set: $runtimeChanges" }
 $overlays = @('autoload/ApplicationBootstrap.gd', 'autoload/SaveManager.gd', 'scripts/ui/MenuScene.gd',
     'tests/support/StartupAttributionTiming.gd', 'tests/integration/startup_new_acc_attribution.gd',
     'tools/testing/Invoke-StartupNewAccAttribution.ps1')
 $record = [ordered]@{
-    controller_ref = (Git -Arguments @('rev-parse', 'HEAD')).Trim(); baseline_ref = $baseRef; candidate_ref = $CandidateRef
+    controller_ref = (Invoke-ControllerGit -Arguments @('rev-parse', 'HEAD')).Trim(); baseline_ref = $baseRef; candidate_ref = $CandidateRef
     overlay_ref = $overlayRef; lane = $Lane; runtime_changed_files = $runtimeChanges
     legacy_helper_runtime_base = '88e44efbf6d65cc3b70118e73923eb408db98b7e'
     provenance_note = 'Legacy helper runtime_base describes original instrumentation base. This wrapper records actual baseline/candidate commits; six overlay bytes are exact3ed9cf1. Baseline game code equals88e44. Compiler/manifest are never overlaid.'
@@ -46,7 +46,7 @@ $record = [ordered]@{
     order = @(); runs = @(); status = 'started'
 }
 if ($record.engine_sha256 -ne '63b3b2208819714c9677fbfdd8217c5b7dee8ecf5f383502e826bc9e2227ff5a') { throw 'Unexpected Godot executable.' }
-$equivalence = @(Git -Arguments @('diff', '--name-only', $record.legacy_helper_runtime_base, $baseRef, '--', 'autoload', 'scripts', 'addons', 'scenes', 'assets', 'data', 'project.godot'))
+$equivalence = @(Invoke-ControllerGit -Arguments @('diff', '--name-only', $record.legacy_helper_runtime_base, $baseRef, '--', 'autoload', 'scripts', 'addons', 'scenes', 'assets', 'data', 'project.godot'))
 if ($equivalence.Count) { throw 'Baseline game code differs from legacy runtime base.' }
 function Save-Record { $record | ConvertTo-Json -Depth 50 | Set-Content (Join-Path $output 'qualification.json') -Encoding utf8 }
 function Preserve([string]$runtime, [string]$label) {
@@ -74,13 +74,13 @@ try {
         $ref = if ($label -eq 'baseline') { $baseRef } else { $CandidateRef }
         $runtime = Join-Path $env:RUNNER_TEMP "parse-$Lane-$label"
         if (Test-Path $runtime) { throw 'Runtime checkout already exists.' }
-        Git -Arguments @('worktree', 'add', '--detach', $runtime, $ref) | Out-Null
+        Invoke-ControllerGit -Arguments @('worktree', 'add', '--detach', $runtime, $ref) | Out-Null
         $run = [ordered]@{ label = $label; runtime_ref = $ref; overlay_hashes = @{}; runtime_hashes = @{}; status = 'started' }
         $record.order += $label; $record.runs += $run; Save-Record
         try {
             foreach ($path in $runtimeAllow) {
                 $blob = (& git -C $runtime hash-object --no-filters -- $path).Trim()
-                if ($blob -ne (Git -Arguments @('rev-parse', "${ref}:$path")).Trim()) { throw "Runtime checkout byte mismatch: $path" }
+                if ($blob -ne (Invoke-ControllerGit -Arguments @('rev-parse', "${ref}:$path")).Trim()) { throw "Runtime checkout byte mismatch: $path" }
                 $run.runtime_hashes[$path] = (Get-FileHash (Join-Path $runtime $path) -Algorithm SHA256).Hash.ToLowerInvariant()
             }
             if ($Lane -eq 'native') {
@@ -89,7 +89,7 @@ try {
                     & git -C $runtime -c core.autocrlf=false restore --source=$overlayRef --worktree -- $path
                     if ($LASTEXITCODE -ne 0) { throw "Overlay restore failed: $path" }
                     $blob = (& git -C $runtime hash-object --no-filters -- $path).Trim()
-                    $expected = (Git -Arguments @('rev-parse', "${overlayRef}:$path")).Trim()
+                    $expected = (Invoke-ControllerGit -Arguments @('rev-parse', "${overlayRef}:$path")).Trim()
                     if ($blob -ne $expected) { throw "Overlay byte mismatch: $path" }
                     $run.overlay_hashes[$path] = @{ git_blob = $blob; sha256 = (Get-FileHash (Join-Path $runtime $path) -Algorithm SHA256).Hash.ToLowerInvariant() }
                 }
