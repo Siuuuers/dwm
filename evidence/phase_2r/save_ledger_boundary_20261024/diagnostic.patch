@@ -1,0 +1,128 @@
+diff --git a/scripts/domain/narrative/SceneEventContract.gd b/scripts/domain/narrative/SceneEventContract.gd
+index f1a18d8a..4a5ddd55 100644
+--- a/scripts/domain/narrative/SceneEventContract.gd
++++ b/scripts/domain/narrative/SceneEventContract.gd
+@@ -1159,6 +1159,7 @@ static func _validate_initial_materials(candidate: Dictionary, profile: Dictiona
+ 
+ static func _validate_committed_initial_admission(receipt: Dictionary, registered: Dictionary,
+ 		issuer: Object, creation_owner: Object) -> Dictionary:
++	_VALIDATION_TIMING._terminal_physical_proof()
+ 	# Caller-supplied dictionaries/callbacks cannot assert durable creation authority.
+ 	if creation_owner == null or creation_owner.get_script() != load("res://autoload/SaveManager.gd"):
+ 		return _fail(&"scene_creation_owner_unbound")
+@@ -1413,7 +1414,10 @@ static func validate_selected_scene_terminal_admission(record: Dictionary, issue
+ 		receipts: Dictionary, creation_owner: Object = null, contacts: Dictionary = {}) -> Dictionary:
+ 	var shaped := validate_scene_terminal_admission_shape(record, issuer)
+ 	if not shaped.get("ok", false): return shaped
++	var ledger_observation: Dictionary = _VALIDATION_TIMING._terminal_diagnostic_begin(
++		"terminal_first_ledger", receipts, contacts, issuer, creation_owner, record)
+ 	var ledger := validate_selected_scene_receipts(receipts, issuer, creation_owner, contacts)
++	_VALIDATION_TIMING._terminal_diagnostic_end(ledger_observation, receipts, contacts, issuer, creation_owner, ledger, record)
+ 	if not ledger.ok: return ledger
+ 	var source: Dictionary = ledger.value.admissions.get(record.source_admission_receipt_id, {})
+ 	if source.is_empty() or source.get("return_to") != null:
+@@ -1427,9 +1431,12 @@ static func validate_selected_scene_terminal_admission(record: Dictionary, issue
+ 	var manifest: Script = load("res://scripts/narrative/DialogicEntryManifest.gd")
+ 	var registered: Dictionary = manifest.scene_contract_tables()
+ 	if not registered.ok: return registered
++	var rebuild_observation: Dictionary = _VALIDATION_TIMING._terminal_diagnostic_begin(
++		"terminal_admission_reconstruction", receipts, contacts, issuer, creation_owner, record)
+ 	var rebuilt := _make_scene_terminal_admission_registered(record.source_identity, record.issuer_receipt,
+ 		record.source_occurrence_id, record.source_admission_receipt_id, trigger, record.source_checkpoint,
+ 		record.target_id, registered, issuer)
++	_VALIDATION_TIMING._terminal_diagnostic_end(rebuild_observation, receipts, contacts, issuer, creation_owner, rebuilt, record)
+ 	if not rebuilt.ok: return rebuilt
+ 	if not _equal(rebuilt.value, record): return _fail(&"scene_terminal_admission_mismatch")
+ 	return {"ok": true}
+diff --git a/scripts/narrative/FrozenRunContext.gd b/scripts/narrative/FrozenRunContext.gd
+index b5250dae..db7c8699 100644
+--- a/scripts/narrative/FrozenRunContext.gd
++++ b/scripts/narrative/FrozenRunContext.gd
+@@ -1,5 +1,6 @@
+ class_name FrozenRunContext
+ extends RefCounted
++const _VALIDATION_TIMING := preload("res://scripts/narrative/SceneValidationTiming.gd")
+ 
+ ## Pure saved-document validation. RunSnapshotSchema calls this after the owning
+ ## structural schemas, before any restore participant installs the candidate.
+@@ -125,7 +126,11 @@ static func _validate_reading_checkpoint_body(checkpoint: Dictionary, snapshot:
+ 		if snapshot.get("schema_version") != 9 or snapshot.get("route_id") != "scene" \
+ 				or not snapshot.get("command_receipts") is Dictionary or not snapshot.get("scene") is Dictionary:
+ 			return _saved_run_failure(snapshot, "scene_envelope")
++		var ledger_observation: Dictionary = _VALIDATION_TIMING._terminal_diagnostic_begin(
++			"reading_source_ledger", snapshot.command_receipts, snapshot.contacts, _scene_issuer, _scene_creation_owner, checkpoint)
+ 		var receipts: Dictionary = SCENE_CONTRACT.validate_selected_scene_receipts(snapshot.command_receipts, _scene_issuer, _scene_creation_owner, snapshot.contacts)
++		_VALIDATION_TIMING._terminal_diagnostic_end(ledger_observation, snapshot.command_receipts,
++			snapshot.contacts, _scene_issuer, _scene_creation_owner, receipts, checkpoint)
+ 		if not receipts.get("ok", false): return receipts
+ 		var scene_reading: Dictionary = checkpoint.reading_session
+ 		if snapshot.scene.get("registration_sha256") != scene_reading.registration_sha256 \
+diff --git a/scripts/narrative/SceneValidationTiming.gd b/scripts/narrative/SceneValidationTiming.gd
+index 39a650d2..1518fd7a 100644
+--- a/scripts/narrative/SceneValidationTiming.gd
++++ b/scripts/narrative/SceneValidationTiming.gd
+@@ -7,6 +7,7 @@ static var _started_us := 0
+ 
+ static func begin_scope(operation: String, state: String, stage: String, step: int) -> bool:
+ 	if _active or OS.get_environment("DWM_SCENE_VALIDATION_PROFILE") != "1": return false
++	_terminal_scope_ordinal += 1
+ 	_record = {"operation": operation, "lifecycle_state": state, "playback_stage": stage,
+ 		"next_step_index": step, "configuration_calls": 0, "configuration_us": 0,
+ 		"configuration_failures": 0, "compilation_calls": 0, "compilation_us": 0,
+@@ -52,3 +53,56 @@ static func end_scope(ok: bool) -> void:
+ 	print("DWM_SCENE_VALIDATION_PROFILE " + JSON.stringify(_record))
+ 	_record = {}
+ 	_started_us = 0
++
++# Controller-only terminal ledger diagnostics. Never merge into product source.
++static var _terminal_scope_ordinal := 0
++static var _terminal_diagnostic_ordinal := 0
++static var _terminal_physical_proof_calls := 0
++
++static func _terminal_diagnostic_enabled() -> bool:
++	return OS.get_environment("DWM_TERMINAL_LEDGER_DIAGNOSTIC") == "1"
++
++static func _terminal_physical_proof() -> void:
++	if _terminal_diagnostic_enabled(): _terminal_physical_proof_calls += 1
++
++static func _terminal_diagnostic_inputs(receipts: Dictionary, contacts: Dictionary) -> String:
++	var writer: Script = load("res://scripts/validation/CanonicalJsonWriter.gd")
++	var encoded: Dictionary = writer.stringify({"receipts": receipts, "contacts": contacts})
++	return str(encoded.value).sha256_text() if encoded.get("ok", false) else "canonical_encoding_failed"
++
++static func _terminal_diagnostic_owners(issuer: Object, creation_owner: Object) -> Dictionary:
++	var root: Object = issuer.get("_root") if is_instance_valid(issuer) else null
++	return {"issuer": issuer.get_instance_id() if is_instance_valid(issuer) else 0,
++		"creation_owner": creation_owner.get_instance_id() if is_instance_valid(creation_owner) else 0,
++		"issuer_root": root.get_instance_id() if is_instance_valid(root) else 0}
++
++static func _terminal_diagnostic_begin(phase: String, receipts: Dictionary, contacts: Dictionary,
++		issuer: Object, creation_owner: Object, context: Dictionary = {}) -> Dictionary:
++	if not _terminal_diagnostic_enabled(): return {}
++	_terminal_diagnostic_ordinal += 1
++	# Hashing, caller discovery and identity reads precede the measured interval.
++	var row := {"phase": phase, "ordinal": _terminal_diagnostic_ordinal,
++		"process_id": OS.get_process_id(), "scope_ordinal": _terminal_scope_ordinal,
++		"scope_active": _active, "operation": str(_record.get("operation", "outside_scope")),
++		"completed_snapshot_count": _record.get("snapshot_validations", []).size(), "input_before": _terminal_diagnostic_inputs(receipts, contacts),
++		"context_before": _terminal_diagnostic_inputs(context, {}),
++		"owners_before": _terminal_diagnostic_owners(issuer, creation_owner), "callers": get_stack(),
++		"physical_proof_before": _terminal_physical_proof_calls,
++		"receipt_validation_before": int(_record.get("receipt_validation_calls", 0)),
++		"diagnostic_only": true, "nested_inclusive": true}
++	row["started_us"] = Time.get_ticks_usec()
++	return row
++
++static func _terminal_diagnostic_end(row: Dictionary, receipts: Dictionary, contacts: Dictionary,
++		issuer: Object, creation_owner: Object, result: Dictionary, context: Dictionary = {}) -> void:
++	var finished_us := Time.get_ticks_usec()
++	if row.is_empty(): return
++	row["elapsed_us"] = finished_us - int(row.started_us)
++	row["physical_proof_attempts"] = _terminal_physical_proof_calls - int(row.physical_proof_before)
++	row["receipt_validation_calls"] = int(_record.get("receipt_validation_calls", 0)) - int(row.receipt_validation_before)
++	row["input_after"] = _terminal_diagnostic_inputs(receipts, contacts)
++	row["context_after"] = _terminal_diagnostic_inputs(context, {})
++	row["owners_after"] = _terminal_diagnostic_owners(issuer, creation_owner)
++	row["ok"] = bool(result.get("ok", false))
++	row["code"] = str(result.get("code", ""))
++	print("DWM_TERMINAL_LEDGER_DIAGNOSTIC " + JSON.stringify(row))

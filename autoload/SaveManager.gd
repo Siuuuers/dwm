@@ -2157,8 +2157,15 @@ func _write_latest(locator: Dictionary, save_reason: String, session_exit: bool 
 	if not canonical.get("ok", false):
 		return _fail(&"canonical_serialization_failed", "")
 	var relative_path := str(locator["relative_path"])
-	var written: Dictionary = _storage.write_atomic(
-		relative_path, str(canonical["value"]) + "\n", _document_text_validator)
+	# The previous target is replaceable data, not a restoration prerequisite.
+	# Bind this write to its exact bytes so a competing write is still refused.
+	var inspected: Dictionary = _storage.inspect_revision(relative_path)
+	if not inspected.get("ok", false):
+		save_failed.emit(inspected)
+		return inspected
+	var written: Dictionary = _storage.write_atomic_if_revision(
+		relative_path, str(canonical["value"]) + "\n", _document_text_validator,
+		str(inspected["value"]["revision"]))
 	if not written.get("ok", false):
 		save_failed.emit(written)
 		return written

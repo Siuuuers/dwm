@@ -78,6 +78,32 @@ class MutatingRoot:
 			mutations += 1
 		return result
 
+# The first ledger has returned before terminal reconstruction calls this root.
+# Change external proof state only; all issuer/owner bindings and saved bytes stay fixed.
+class PhysicalMutationRoot:
+	extends SwitchingRoot
+	var mutate: Callable
+	var mutations := 0
+	var first_ledger_calls := 0
+	var source_proof_calls := 0
+	func verify_receipt(receipt: Dictionary, purpose: StringName) -> Dictionary:
+		var result: Dictionary = delegate.verify_receipt(receipt, purpose)
+		var reconstructing := false
+		for frame: Dictionary in get_stack():
+			if frame.get("function") == "_make_scene_terminal_admission_registered":
+				reconstructing = true
+		if reconstructing and mutations == 0:
+			first_ledger_calls = int(TERMINAL_TIMING._record.receipt_validation_calls)
+			mutations += 1
+			mutate.call()
+		return result
+	func capture() -> Dictionary:
+		if mutations > 0:
+			for frame: Dictionary in get_stack():
+				if frame.get("function") == "capture_committed_scene_creation":
+					source_proof_calls += 1
+		return delegate.capture()
+
 func _selected(record: Dictionary, receipts: Dictionary, contacts: Dictionary) -> Dictionary:
 	return TERMINAL_CONTRACT.validate_selected_scene_terminal_admission(record,
 		game._identity_issuer, receipts, saves, contacts)
@@ -99,6 +125,68 @@ func _measured_run(source: Dictionary, label: String) -> Dictionary:
 	var counts: Dictionary = TERMINAL_TIMING._record.duplicate(true)
 	TERMINAL_TIMING.end_scope(bool(result.get("ok", false)))
 	return {"result": result, "counts": counts}
+
+func _physical_callback_checks(source: Dictionary) -> Dictionary:
+	var original_source := source.duplicate(true)
+	var original_live: Dictionary = game.capture_restore_state()
+	var issuer: Object = game._identity_issuer
+	var original_root: Object = issuer._root
+	var original_document: Dictionary = original_root._document.duplicate(true)
+	var original_owners: Array = TERMINAL_SCHEMA._scene_terminal_reading_owners()
+	assert_eq(saves._identity_issuer, issuer, "creation and Frozen proofs use the same real issuer")
+	var initial_id := ""
+	for id: String in source.command_receipts:
+		var receipt: Dictionary = source.command_receipts[id]
+		if receipt.get("kind") == "scene_admission" and receipt.scene_admission.get("schema_version") == 3:
+			initial_id = id
+	assert_false(initial_id.is_empty())
+	if initial_id.is_empty(): return {}
+	var results := {}
+	for mode: String in ["profile", "root"]:
+		var root := PhysicalMutationRoot.new()
+		root.delegate = original_root
+		var write_status := {"ok": false}
+		root.mutate = func() -> void:
+			if mode == "profile":
+				var file := FileAccess.open("user://profile.json", FileAccess.WRITE)
+				if file == null: return
+				file.store_string("{}")
+				file.close()
+				write_status.ok = FileAccess.get_file_as_string("user://profile.json") == "{}"
+			else:
+				# Keep identity fields intact: terminal reconstruction still passes its
+				# identity join, but the retained allocation no longer proves creation.
+				original_root._document.allocation_receipts[initial_id]["TEST.changed_after_ledger"] = true
+				write_status.ok = true
+		issuer._root = root
+		assert_true(TERMINAL_TIMING.begin_scope("terminal_physical_callback_" + mode, "ENDING", "PRIMARY_PENDING", 0))
+		var result: Dictionary = TERMINAL_FROZEN.validate(source)
+		var measured := {"result": result, "counts": TERMINAL_TIMING._record.duplicate(true)}
+		TERMINAL_TIMING.end_scope(bool(result.get("ok", false)))
+		var owners_unchanged := TERMINAL_SCHEMA._scene_terminal_reading_owners() == original_owners
+		# Restore before any assertion or early return can leave changed proof state.
+		issuer._root = original_root
+		original_root._document = original_document.duplicate(true)
+		var restored := _restore_profile_bytes()
+		assert_true(restored)
+		assert_true(write_status.ok, "external proof mutation was applied")
+		assert_eq(root.mutations, 1, "mutation occurs in terminal reconstruction")
+		assert_eq(root.first_ledger_calls, 1, "first complete ledger succeeded before mutation")
+		assert_eq(measured.counts.receipt_validation_calls, 2, "second ledger refuses before current-frame derivation")
+		assert_gt(root.source_proof_calls, 0, "retained source rechecks changed physical proof")
+		assert_true(owners_unchanged, "owner identities cannot detect this external mutation")
+		assert_false(measured.result.get("ok", true), "first ledger result cannot authorize changed physical proof")
+		var expected_code: StringName = &"scene_creation_allocation_unproven"
+		if mode == "profile": expected_code = profile._profile_text_validator("{}").code
+		assert_eq(measured.result.get("code"), expected_code, "source proof refusal retains its exact precedence")
+		assert_eq(source, original_source, "callback leaves caller snapshot bytes unchanged")
+		assert_eq(game.capture_restore_state(), original_live, "refusal applies no gameplay consequences")
+		assert_eq(original_root._document, original_document)
+		results[mode] = {"code": str(measured.result.get("code", "")),
+			"counts": measured.counts, "source_proof_calls": root.source_proof_calls}
+		if not restored: return results
+	assert_true(TERMINAL_SCHEMA.validate(source).ok, "restored external proofs admit the original save")
+	return results
 
 func _mutated_terminal_run(source: Dictionary, authority: Object, label: String) -> Dictionary:
 	var original_authority: Object = TERMINAL_SCHEMA._scene_authority
@@ -392,6 +480,7 @@ func test_selected_terminal_admission_rechecks_genuine_saved_authority() -> void
 	var schema_reading_counts := _schema_reading_checks(source, frozen_counts.checkpoint_counts)
 	if schema_reading_counts.is_empty(): return
 	var same_call_counts := _same_call_terminal_checks(source, frozen_counts.full_counts)
+	var physical_callback_counts := _physical_callback_checks(source)
 
 	var changed: Dictionary = receipts.duplicate(true)
 	changed.erase(record.trigger_command_id)
@@ -447,5 +536,6 @@ func test_selected_terminal_admission_rechecks_genuine_saved_authority() -> void
 		"frozen_counts": frozen_counts,
 		"schema_reading_counts": schema_reading_counts,
 		"same_call_counts": same_call_counts,
+		"physical_callback_counts": physical_callback_counts,
 		"physical_refusal_code": str(physical_refusal.get("code", "")),
 		"profile_restored": restored})

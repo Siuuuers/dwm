@@ -1,0 +1,44 @@
+diff --git a/.github/workflows/load-qualification.yml b/.github/workflows/load-qualification.yml
+index 9d1a9740..51003448 100644
+--- a/.github/workflows/load-qualification.yml
++++ b/.github/workflows/load-qualification.yml
+@@ -15,7 +15,7 @@ jobs:
+     strategy:
+       fail-fast: false
+       matrix:
+-        lane: [inventory, focused, terminal, diagnostic]
++        lane: [inventory, focused]
+     runs-on: windows-2022
+     timeout-minutes: 90
+     defaults:
+@@ -32,7 +32,7 @@ jobs:
+           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+       - name: Require exact candidate
+         env:
+-          CANDIDATE_REF: ${{ matrix.lane == 'diagnostic' && '1864369b38dd1660406f843440bbd32682d50f7e' || '7e89b349407b46fca889da19e67b6f60e86761cd' }}
++          CANDIDATE_REF: ${{ matrix.lane == 'diagnostic' && '1864369b38dd1660406f843440bbd32682d50f7e' || '7d002b728f045c6380ed5100129bdea2831dbdcb' }}
+         run: |
+           if ($env:CANDIDATE_REF -cnotmatch '^[0-9a-f]{40}$') { throw 'Exact candidate SHA required; no branch/default candidate permitted.' }
+       - name: Install Godot 4.6.3 standard
+@@ -54,7 +54,7 @@ jobs:
+           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+       - name: Run isolated qualification
+         env:
+-          CANDIDATE_REF: ${{ matrix.lane == 'diagnostic' && '1864369b38dd1660406f843440bbd32682d50f7e' || '7e89b349407b46fca889da19e67b6f60e86761cd' }}
++          CANDIDATE_REF: ${{ matrix.lane == 'diagnostic' && '1864369b38dd1660406f843440bbd32682d50f7e' || '7d002b728f045c6380ed5100129bdea2831dbdcb' }}
+           QUALIFICATION_LANE: ${{ matrix.lane }}
+         run: |
+           ./tools/testing/Invoke-LoadQualification.ps1 -CandidateRef $env:CANDIDATE_REF -Lane $env:QUALIFICATION_LANE -RegenerateInventories
+diff --git a/tools/testing/Invoke-LoadQualification.ps1 b/tools/testing/Invoke-LoadQualification.ps1
+index ae46a802..ec6a61e4 100644
+--- a/tools/testing/Invoke-LoadQualification.ps1
++++ b/tools/testing/Invoke-LoadQualification.ps1
+@@ -24,7 +24,7 @@ $runtimePaths = @('autoload/SaveManager.gd', 'scripts/narrative/FrozenRunContext
+ $runtimeChanges = @(Invoke-Git -Arguments @('diff', '--name-only', $baseRef, $CandidateRef, '--', 'autoload', 'scripts', 'addons', 'scenes', 'assets', 'data', 'dialogic', 'localization', 'project.godot'))
+ $allowed = if ($Lane -eq 'diagnostic') { @('scripts/narrative/FrozenRunContext.gd', 'scripts/domain/narrative/SceneEventContract.gd', 'scripts/narrative/SceneValidationTiming.gd') } else { @('autoload/SaveManager.gd') }
+ if (@($runtimeChanges | Where-Object { $_ -notin $allowed }).Count) { throw "Unexpected runtime changes: $runtimeChanges" }
+-$tests = @('tests/integration/test_backup_current_build.gd', 'tests/integration/test_save_manager_public_boundaries.gd', 'tests/unit/test_save_manager.gd', 'tests/unit/test_session_exit_coordinator.gd')
++$tests = @('tests/integration/test_backup_current_build.gd', 'tests/integration/test_save_manager_public_boundaries.gd')
+ $record = [ordered]@{ controller_ref = (Invoke-Git -Arguments @('rev-parse', 'HEAD')).Trim()
+     baseline_ref = $baseRef; candidate_ref = $CandidateRef; lane = $Lane; runtime_changed_files = $runtimeChanges
+     engine_sha256 = Get-Sha256 $env:GODOT_CONSOLE_PATH; source_hashes = @{}; suites = @(); status = 'started'
