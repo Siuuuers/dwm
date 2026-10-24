@@ -132,3 +132,82 @@ func test_refused_write_reports_failure_without_changing_live_state() -> void:
 	assert_eq(manager._journal.capture_state(), before_journal)
 	assert_true(observer.snapshots.is_empty())
 	assert_eq(manager.commit_backup_action(saved.value.token).get("code"), &"stale_backup_action")
+
+
+func _replace_target(path: String, text: String) -> Dictionary:
+	var absolute: String = fixture.storage.describe_root().path_join(path)
+	var written: Dictionary = fixture.storage._file_ops.write_bytes(absolute, text.to_utf8_buffer())
+	if not written.get("ok", false): return written
+	return fixture.storage._file_ops.flush_path(absolute)
+
+
+func test_current_session_exit_replaces_unrestorable_autosave_without_retiring_session() -> void:
+	assert_true(fixture_ready)
+	if not fixture_ready: return
+	var source: Dictionary = fixture.read_autosave()
+	assert_true(source.get("ok", false), str(source))
+	if not source.get("ok", false): return
+	var snapshot: Dictionary = source.value.current_snapshot.snapshot
+	assert_eq(snapshot.schema_version, 9, "the outgoing state is a genuine current scene save")
+	var inputs := {"snapshot_input": fixture.game.capture_run_snapshot_input(),
+		"dialogic_checkpoint": snapshot.narrative_checkpoint, "route_id": snapshot.route_id,
+		"active_app_id": snapshot.active_app_id, "audio_context": snapshot.audio_context,
+		"content_version": snapshot.content_version}
+	var handle: Dictionary = fixture.game.capture_live_session().value
+	var before_profile: Dictionary = fixture.profile.get_profile_snapshot()
+	var replaced := _replace_target("autosave.json", "not a restorable save\n")
+	assert_true(replaced.get("ok", false), str(replaced))
+	if not replaced.get("ok", false): return
+	var lease: Dictionary = fixture.gate.acquire(&"session_abandonment")
+	assert_true(lease.get("ok", false), str(lease))
+	if not lease.get("ok", false): return
+	var result: Dictionary = manager.save_session_exit_checkpoint(inputs, handle)
+	assert_true(fixture.gate.is_lease_active(&"session_abandonment", lease.value.token))
+	assert_true(fixture.gate.release(&"session_abandonment", lease.value.token).get("ok", false))
+	assert_true(result.get("ok", false), str(result))
+	assert_eq(fixture.game.capture_live_session().value, handle, "the exit coordinator owns retirement")
+	assert_eq(fixture.profile.get_profile_snapshot(), before_profile)
+	assert_true(observer.snapshots.is_empty(), "replacing an Autosave never prepares restoration")
+	if not result.get("ok", false): return
+	assert_eq(result.value.save_reason, "logout")
+	var saved: Dictionary = fixture.read_autosave()
+	assert_true(saved.get("ok", false), str(saved))
+	if not saved.get("ok", false): return
+	assert_eq(saved.value.save_reason, "logout")
+	assert_eq(saved.value.current_snapshot, manager.get_latest_stable_checkpoint().value.bundle)
+
+
+func test_latest_save_refuses_concurrent_target_change_and_retry_preserves_current_state() -> void:
+	assert_true(fixture_ready)
+	if not fixture_ready: return
+	var replaced := _replace_target("slot_3.json", "old replaceable bytes\n")
+	assert_true(replaced.get("ok", false), str(replaced))
+	if not replaced.get("ok", false): return
+	var before_game: Dictionary = fixture.game.capture_restore_state()
+	var before_profile: Dictionary = fixture.profile.get_profile_snapshot()
+	var before_journal: Dictionary = manager._journal.capture_state()
+	var completed: Array[Dictionary] = []
+	var on_completed := func(result: Dictionary) -> void: completed.append(result.duplicate(true))
+	manager.save_completed.connect(on_completed)
+	var original: Callable = fixture.storage._before_write
+	fixture.storage._before_write = func() -> Dictionary:
+		return _replace_target("slot_3.json", "concurrent replacement\n")
+	var refused: Dictionary = manager.save_latest_to_slot(3)
+	fixture.storage._before_write = original
+	manager.save_completed.disconnect(on_completed)
+	assert_eq(refused.get("code"), &"revision_changed", str(refused))
+	assert_eq(fixture.storage.read_text("slot_3.json").get("value"), "concurrent replacement\n")
+	assert_true(completed.is_empty(), "a refused write emits no completion")
+	assert_eq(fixture.game.capture_restore_state(), before_game)
+	assert_eq(fixture.profile.get_profile_snapshot(), before_profile)
+	assert_eq(manager._journal.capture_state(), before_journal)
+	var retried: Dictionary = manager.save_latest_to_slot(3)
+	assert_true(retried.get("ok", false), str(retried))
+	if not retried.get("ok", false): return
+	var parsed: Dictionary = STRICT.parse_object(fixture.storage.read_text("slot_3.json").value)
+	assert_true(parsed.get("ok", false), str(parsed))
+	if parsed.get("ok", false):
+		assert_eq(parsed.value.current_snapshot, manager.get_latest_stable_checkpoint().value.bundle)
+	assert_eq(fixture.game.capture_restore_state(), before_game)
+	assert_eq(fixture.profile.get_profile_snapshot(), before_profile)
+	assert_eq(manager._journal.capture_state(), before_journal)
