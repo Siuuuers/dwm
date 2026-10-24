@@ -400,6 +400,9 @@ func write_atomic_reconciled(relative_path: String, text: String, validator: Cal
 
 func _write_atomic(relative_path: String, text: String, validator: Callable, keep_backup: bool,
 		reuse_reconciled: bool) -> Dictionary:
+	var profiling := relative_path == "desktop-continuation-operations.json" \
+		and OS.get_environment("DWM_CONTINUATION_STORAGE_PROFILE") == "1"
+	var started_us := Time.get_ticks_usec() if profiling else 0
 	_leases.erase(relative_path)
 	var reconciled: Dictionary = {}
 	if reuse_reconciled:
@@ -408,16 +411,21 @@ func _write_atomic(relative_path: String, text: String, validator: Callable, kee
 	var request := _validate_request(relative_path, validator)
 	if not request.get("ok", false):
 		return request
+	var admission_done_us := Time.get_ticks_usec() if profiling else 0
 	var outgoing_validation := _call_validator(validator, text)
 	if not outgoing_validation.get("ok", false):
 		return _failure(&"outgoing_validation_failed", str(outgoing_validation.get("message", "Outgoing document rejected")))
+	var validation_done_us := Time.get_ticks_usec() if profiling else 0
 	var outgoing_bytes := text.to_utf8_buffer()
 	if outgoing_bytes.get_string_from_utf8() != text:
 		return _failure(&"invalid_utf8", "Outgoing text is not stable UTF-8")
+	var bytes_done_us := Time.get_ticks_usec() if profiling else 0
 	var gate := _run_before_write()
 	if not gate.get("ok", false):
 		return gate
+	var before_write_done_us := Time.get_ticks_usec() if profiling else 0
 	var outgoing_hash: String = _file_ops.call(&"sha256", outgoing_bytes)
+	var hash_done_us := Time.get_ticks_usec() if profiling else 0
 	# A configured pre-write hook is the one thing that CAN run between an owner's reconcile and its
 	# write, so a root that owns one never reuses a classification taken before the hook ran.
 	var existing: Dictionary = {}
@@ -427,6 +435,7 @@ func _write_atomic(relative_path: String, text: String, validator: Callable, kee
 		existing = _reconcile(relative_path, validator)
 		if not existing.get("ok", false):
 			return existing
+	var reconcile_done_us := Time.get_ticks_usec() if profiling else 0
 	var previous_hash: Variant = existing.get("hash") if existing.get("exists", false) else null
 	var intent := {
 		"operation": "write", "relative_path": relative_path,
@@ -437,15 +446,18 @@ func _write_atomic(relative_path: String, text: String, validator: Callable, kee
 	var step := _write_marker(relative_path, marker)
 	if not step.get("ok", false):
 		return _recover_known_write(intent, validator)
+	var prepared_marker_done_us := Time.get_ticks_usec() if profiling else 0
 	step = _write_and_flush(_next_path(relative_path), outgoing_bytes)
 	if not step.get("ok", false):
 		return _recover_known_write(intent, validator)
+	var temp_write_done_us := Time.get_ticks_usec() if profiling else 0
 	# dwm-634.1: the candidate was validated before it was written and flushed under the hash the
 	# marker carries; recovery re-reads it on any interruption, so the happy path does not.
 	marker = _make_write_marker(relative_path, "next_validated", outgoing_hash, previous_hash, outgoing_hash, null, keep_backup)
 	step = _write_marker(relative_path, marker)
 	if not step.get("ok", false):
 		return _recover_known_write(intent, validator)
+	var next_marker_done_us := Time.get_ticks_usec() if profiling else 0
 	var backup_hash: Variant = null
 	if previous_hash != null:
 		if _file_ops.call(&"exists", _backup_path(relative_path)):
@@ -456,22 +468,27 @@ func _write_atomic(relative_path: String, text: String, validator: Callable, kee
 		if not step.get("ok", false):
 			return _recover_known_write(intent, validator)
 		backup_hash = previous_hash
+	var backup_rename_done_us := Time.get_ticks_usec() if profiling else 0
 	marker = _make_write_marker(relative_path, "backup_preserved", outgoing_hash, previous_hash, outgoing_hash, backup_hash, keep_backup)
 	step = _write_marker(relative_path, marker)
 	if not step.get("ok", false):
 		return _recover_known_write(intent, validator)
+	var backup_marker_done_us := Time.get_ticks_usec() if profiling else 0
 	step = _file_ops.call(&"rename_path", _next_path(relative_path), _path(relative_path))
 	if not step.get("ok", false):
 		return _recover_known_write(intent, validator)
+	var promote_done_us := Time.get_ticks_usec() if profiling else 0
 	# The one read-back that stays: the promoted final is what every later start will read, so
 	# it must re-read to the outgoing hash and validate before the transaction is declared won.
 	var verified_final := _classify_document(_path(relative_path), validator)
 	if verified_final["state"] != &"valid" or verified_final["hash"] != outgoing_hash or verified_final["bytes"] != outgoing_bytes:
 		return _recover_known_write(intent, validator)
+	var readback_done_us := Time.get_ticks_usec() if profiling else 0
 	marker = _make_write_marker(relative_path, "final_promoted", outgoing_hash, previous_hash, outgoing_hash, backup_hash, keep_backup)
 	step = _write_marker(relative_path, marker)
 	if not step.get("ok", false):
 		return _recover_known_write(intent, validator)
+	var final_marker_done_us := Time.get_ticks_usec() if profiling else 0
 	if _file_ops.call(&"exists", _next_path(relative_path)):
 		step = _file_ops.call(&"remove_path", _next_path(relative_path))
 		if not step.get("ok", false):
@@ -483,8 +500,41 @@ func _write_atomic(relative_path: String, text: String, validator: Callable, kee
 	step = _file_ops.call(&"remove_path", _marker_path(relative_path))
 	if not step.get("ok", false):
 		return _recover_known_write(intent, validator)
+	var cleanup_done_us := Time.get_ticks_usec() if profiling else 0
 	_set_lease(relative_path, verified_final)
-	return {"ok": true, "exists": true, "value": (verified_final["value"] as Dictionary).duplicate(true), "hash": outgoing_hash, "text": verified_final["text"]}
+	var result := {"ok": true, "exists": true, "value": (verified_final["value"] as Dictionary).duplicate(true), "hash": outgoing_hash, "text": verified_final["text"]}
+	if profiling:
+		var finished_us := Time.get_ticks_usec()
+		var phases := {
+			"admission_us": admission_done_us - started_us,
+			"outgoing_validation_us": validation_done_us - admission_done_us,
+			"outgoing_bytes_us": bytes_done_us - validation_done_us,
+			"before_write_us": before_write_done_us - bytes_done_us,
+			"outgoing_hash_us": hash_done_us - before_write_done_us,
+			"reconcile_us": reconcile_done_us - hash_done_us,
+			"prepared_marker_us": prepared_marker_done_us - reconcile_done_us,
+			"temp_write_flush_us": temp_write_done_us - prepared_marker_done_us,
+			"next_marker_us": next_marker_done_us - temp_write_done_us,
+			"backup_rename_us": backup_rename_done_us - next_marker_done_us,
+			"backup_marker_us": backup_marker_done_us - backup_rename_done_us,
+			"promote_rename_us": promote_done_us - backup_marker_done_us,
+			"promoted_readback_us": readback_done_us - promote_done_us,
+			"final_marker_us": final_marker_done_us - readback_done_us,
+			"cleanup_us": cleanup_done_us - final_marker_done_us,
+			"publication_return_copy_us": finished_us - cleanup_done_us,
+		}
+		var phase_sum_us := 0
+		for duration: int in phases.values(): phase_sum_us += duration
+		# These phases are exclusive, but this entire record is nested inside the journal's
+		# atomic_storage_us. Formatting/logging is outside this record's measured interval.
+		print("DWM_CONTINUATION_STORAGE_PROFILE " + JSON.stringify({
+			"kind": "write_atomic", "relative_path": relative_path,
+			"written": true, "ok": true, "normal_path": true,
+			"started_us": started_us, "finished_us": finished_us,
+			"elapsed_us": finished_us - started_us, "phases": phases,
+			"phase_sum_us": phase_sum_us, "unphased_us": finished_us - started_us - phase_sum_us,
+		}))
+	return result
 
 func remove(relative_path: String) -> Dictionary:
 	_reconciled.erase(relative_path)

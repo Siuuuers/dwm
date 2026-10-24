@@ -108,6 +108,7 @@ jobs:
         env:
           DWM_SCENE_VALIDATION_CALLERS: '1'
           DWM_CONTINUATION_PROGRESS_PROFILE: '1'
+          DWM_CONTINUATION_STORAGE_PROFILE: '1'
         run: ./tools/testing/Invoke-FreshSaveLoad.ps1
       - name: Verify and summarize snapshot callers
         shell: python {0}
@@ -191,6 +192,28 @@ jobs:
                     for key in records[0]['write']['phases']}
           result = {'scope': 'Instrumented attribution only, not a performance comparison. Nested write phases must not be added to advance totals.',
                     'durable_advances': len(records), 'target_advances': len(target), 'write_phase_totals_us': totals, 'records': records}
+          storage_marker = 'DWM_CONTINUATION_STORAGE_PROFILE '
+          storage = [json.loads(line.split(storage_marker, 1)[1])
+                     for line in (root / 'fresh-save-load.log').read_text(encoding='utf-8-sig').splitlines()
+                     if storage_marker in line]
+          for observation in storage:
+              assert observation['ok'] and observation['written'] and observation['normal_path']
+              assert observation['relative_path'] == 'desktop-continuation-operations.json'
+              assert all(isinstance(v, int) and v >= 0 for v in observation['phases'].values())
+              assert sum(observation['phases'].values()) == observation['phase_sum_us']
+              assert observation['phase_sum_us'] + observation['unphased_us'] == observation['elapsed_us']
+              assert observation['finished_us'] - observation['started_us'] == observation['elapsed_us']
+          matched = []
+          for advance in target:
+              children = [s for s in storage if advance['started_us'] <= s['started_us'] and s['finished_us'] <= advance['finished_us']]
+              assert len(children) == 1, 'Each target advance must contain one normal atomic write'
+              assert children[0]['elapsed_us'] <= advance['write']['phases']['atomic_storage_us']
+              matched.append(children[0])
+          assert len({s['started_us'] for s in matched}) == 10
+          storage_totals = {key: sum(s['phases'][key] for s in matched) for key in matched[0]['phases']}
+          result['target_storage_phase_totals_us'] = storage_totals
+          result['storage_records'] = storage
+          print('CONTINUATION_STORAGE_VERIFIED ' + json.dumps(storage_totals))
           (root / 'continuation-progress-summary.json').write_text(json.dumps(result, indent=2) + '\n', encoding='utf-8')
           print('CONTINUATION_PROGRESS_VERIFIED ' + json.dumps({'advances': len(records), 'write_phase_totals_us': totals}))
       - name: Preserve attribution evidence
