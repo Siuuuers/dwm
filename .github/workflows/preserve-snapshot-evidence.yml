@@ -1,0 +1,23 @@
+name: Preserve qualified snapshot evidence (controller only)
+on:
+  push:
+    branches: [codex/snapshot-publication-controller-20261025]
+permissions:
+  contents: write
+  actions: read
+jobs:
+  preserve:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: controller
+      - uses: actions/checkout@v4
+        with:
+          ref: 0ccaaed82bb0f896e998118ee8b5db5d2a25a7e3
+          fetch-depth: 0
+          path: candidate
+      - name: Reconstruct and verify reviewed bytes, then publish with branch lease
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 controller/publish-evidence.py
