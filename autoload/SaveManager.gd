@@ -2262,12 +2262,27 @@ func _prepare_restore_document_profiled(locator: Dictionary, document: Dictionar
 		return prepared
 	return {"ok": true, "code": &"ok", "value": {"prepared": prepared["value"]}}
 
+## The first participant runs before any external preparation callback. Only the
+## built-in owner may consume admission's unchanged, detached current snapshot.
+func _prepare_run_restore(bundle: Dictionary, document: Dictionary, material: Dictionary) -> Dictionary:
+	var participant: Object = _restore_participants["run"]
+	if participant.get_script() == load("res://scripts/application/restore/RunRestoreParticipant.gd") \
+			and bundle.snapshot.get("schema_version") == 9 and not material.is_empty() \
+			and RUN_SNAPSHOT_SCHEMA._scene_can_reuse_reading() \
+			and RUN_SNAPSHOT_SCHEMA._scene_authority == participant._owner \
+			and RUN_SNAPSHOT_SCHEMA._scene_issuer == _identity_issuer \
+			and RUN_SNAPSHOT_SCHEMA._scene_creation_owner == self \
+			and CANONICAL_JSON._deep_same(document, material.document) \
+			and CANONICAL_JSON._deep_same(bundle, document.current_snapshot):
+		return participant._prepare_admitted_snapshot(bundle.snapshot)
+	return participant.prepare({"snapshot": bundle.snapshot})
+
 func _prepare_bundle_with_all_participants(bundle: Dictionary, migration_output: Dictionary, document: Dictionary,
 		locator: Dictionary, scene_seed_material: Dictionary = {}) -> Dictionary:
 	var snapshot: Dictionary = bundle["snapshot"]
 	var plans := {}
 
-	var run_prep: Dictionary = _restore_participants["run"].prepare({"snapshot": snapshot})
+	var run_prep: Dictionary = _prepare_run_restore(bundle, document, scene_seed_material)
 	if not run_prep.get("ok", false):
 		return run_prep
 	plans["run"] = run_prep["value"]["run_plan"]

@@ -39,7 +39,14 @@ func prepare(input: Dictionary) -> Dictionary:
 	elif _owner.has_method("validate_scene_event_snapshot"):
 		var events: Dictionary = _owner.validate_scene_event_snapshot(input["snapshot"])
 		if not events.get("ok", false): return events
-	return {"ok": true, "code": &"ok", "value": {"run_plan": {"snapshot": (input["snapshot"] as Dictionary).duplicate(true)}}}
+	return _prepare_admitted_snapshot(input.snapshot)
+
+## SaveManager may call this only for its unchanged, same-call admitted input.
+## Ordinary prepare above retains validation and clears stale creation on refusal.
+func _prepare_admitted_snapshot(snapshot: Dictionary) -> Dictionary:
+	_scene_creation_plan = {}
+	_scene_creation_owner = null
+	return {"ok": true, "code": &"ok", "value": {"run_plan": {"snapshot": snapshot.duplicate(true)}}}
 
 func prepare_scene_new_run_snapshot_input(allocation_candidate: Dictionary, profile_material: Dictionary,
 		admission: Dictionary, bundle: Dictionary) -> Dictionary:

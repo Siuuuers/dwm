@@ -4,6 +4,16 @@ extends "res://addons/gut/test.gd"
 const FIXTURE := preload("res://tests/support/SceneNewRunFixture.gd")
 const PORT := preload("res://scripts/application/backup/BackupPresentationPort.gd")
 const ADMISSION := preload("res://scripts/infrastructure/save/SaveMigrations.gd")
+const RUN_SCHEMA := preload("res://scripts/domain/run/RunSnapshotSchema.gd")
+const VALIDATION_TIMING := preload("res://scripts/narrative/SceneValidationTiming.gd")
+
+class RefusingRun extends "res://scripts/application/restore/RunRestoreParticipant.gd":
+	var calls := 0
+	func _init(owner: Object) -> void:
+		super(owner)
+	func prepare(_input: Dictionary) -> Dictionary:
+		calls += 1
+		return {"ok": false, "code": &"custom_run_refusal"}
 
 class EditingNarrative extends RefCounted:
 	var delegate: RefCounted
@@ -290,6 +300,109 @@ func test_scene_restore_participant_edit_reenters_generic_seed_validation() -> v
 	assert_eq(refused.get("code"), &"selected_bundle_missing", str(refused))
 	assert_eq(fixture.manager._scene_restore_preparations.keys(), retained_before)
 	assert_eq(_observed(), before, "a callback edit cannot install a seed or change stored/live state")
+
+func _measure_run_prepare(operation: Callable) -> Dictionary:
+	var had_environment := OS.has_environment("DWM_SCENE_VALIDATION_PROFILE")
+	var previous := OS.get_environment("DWM_SCENE_VALIDATION_PROFILE")
+	OS.set_environment("DWM_SCENE_VALIDATION_PROFILE", "1")
+	var started := VALIDATION_TIMING.begin_scope("restore_run_diagnostic", "", "", 0)
+	var result: Dictionary = {}
+	var validations := -1
+	if started:
+		result = operation.call()
+		validations = VALIDATION_TIMING._record.snapshot_validations.size()
+		VALIDATION_TIMING.end_scope(bool(result.get("ok", false)))
+	if had_environment:
+		OS.set_environment("DWM_SCENE_VALIDATION_PROFILE", previous)
+	else:
+		OS.unset_environment("DWM_SCENE_VALIDATION_PROFILE")
+	assert_true(started, "diagnostic scope is independent and restores its environment")
+	return {"result": result, "validations": validations}
+
+func _admitted_run_material() -> Dictionary:
+	var material := {}
+	var admitted: Dictionary = ADMISSION.migrate_document(fixture.read_autosave().value,
+		{"kind": "autosave", "slot_id": null}, fixture.manager._capture_scene_seed_material.bind(material))
+	assert_true(admitted.ok, str(admitted))
+	if not admitted.ok: return {}
+	return {"document": admitted.value.document, "material": material}
+
+func test_admitted_run_plan_reuses_one_validation_and_remains_detached() -> void:
+	assert_true(fixture_ready)
+	if not fixture_ready: return
+	assert_true(RUN_SCHEMA._scene_can_reuse_reading(), "fixture uses the real GameState, bridge and SaveManager owners")
+	var source := _admitted_run_material()
+	if source.is_empty(): return
+	var document: Dictionary = source.document
+	var source_before := document.duplicate(true)
+	var before := _observed()
+	var participant: RefCounted = fixture.manager._restore_participants.run
+	var generic := _measure_run_prepare(func() -> Dictionary:
+		return participant.prepare({"snapshot": document.current_snapshot.snapshot}))
+	participant._scene_creation_plan = {"stale": true}
+	participant._scene_creation_owner = fixture.manager
+	var reused := _measure_run_prepare(func() -> Dictionary:
+		return fixture.manager._prepare_run_restore(document.current_snapshot, document, source.material))
+	assert_true(reused.result.get("ok", false), str(reused))
+	assert_eq(reused.result, generic.result)
+	assert_eq(generic.validations, 1, "real initial snapshot performs one complete validation")
+	assert_eq(reused.validations, 0, "same-call admission discharges only that repeated validation")
+	assert_true(participant._scene_creation_plan.is_empty())
+	assert_null(participant._scene_creation_owner)
+	if not reused.result.get("ok", false): return
+	reused.result.value.run_plan.snapshot.lifecycle.state = "INVALID"
+	assert_eq(document, source_before, "returned plan cannot mutate its source")
+	assert_eq(source.material.document, source_before, "returned plan cannot mutate private admission material")
+	assert_eq(_observed(), before, "preparing either plan changes no physical or live owner")
+
+func test_run_reuse_falls_back_for_missing_material_changed_input_and_owner() -> void:
+	assert_true(fixture_ready)
+	if not fixture_ready: return
+	var source := _admitted_run_material()
+	if source.is_empty(): return
+	var document: Dictionary = source.document
+	var participant: RefCounted = fixture.manager._restore_participants.run
+	var missing := _measure_run_prepare(func() -> Dictionary:
+		return fixture.manager._prepare_run_restore(document.current_snapshot, document, {}))
+	assert_true(missing.result.get("ok", false), str(missing))
+	assert_eq(missing.validations, 1)
+	var owner: Object = participant._owner
+	participant._owner = fixture.profile
+	var foreign := _measure_run_prepare(func() -> Dictionary:
+		return fixture.manager._prepare_run_restore(document.current_snapshot, document, source.material))
+	participant._owner = owner
+	assert_eq(foreign.result, missing.result, "mismatched participant owner keeps ordinary validation")
+	assert_eq(foreign.validations, 1)
+	var changed: Dictionary = document.duplicate(true)
+	changed.current_snapshot.snapshot.content_version = -1
+	participant._scene_creation_plan = {"stale": true}
+	participant._scene_creation_owner = fixture.manager
+	var refused := _measure_run_prepare(func() -> Dictionary:
+		return fixture.manager._prepare_run_restore(changed.current_snapshot, changed, source.material))
+	assert_false(refused.result.get("ok", true), str(refused))
+	assert_eq(refused.validations, 1, "mutated source cannot borrow its prior admission")
+	assert_true(participant._scene_creation_plan.is_empty(), "failed ordinary preparation clears stale creation")
+	assert_null(participant._scene_creation_owner)
+	assert_eq(refused.result, participant.prepare({"snapshot": changed.current_snapshot.snapshot}))
+	var retried := _measure_run_prepare(func() -> Dictionary:
+		return fixture.manager._prepare_run_restore(document.current_snapshot, document, source.material))
+	assert_eq(retried.result, missing.result, "a refusal does not poison later valid admission")
+	assert_eq(retried.validations, 0)
+
+func test_run_reuse_preserves_custom_participant_refusal_on_public_load() -> void:
+	assert_true(fixture_ready)
+	if not fixture_ready: return
+	var before := _observed()
+	var retained: Array = fixture.manager._scene_restore_preparations.keys()
+	var original: RefCounted = fixture.manager._restore_participants.run
+	var custom := RefusingRun.new(fixture.game)
+	fixture.manager._restore_participants.run = custom
+	var refused: Dictionary = fixture.manager.prepare_restore_autosave()
+	fixture.manager._restore_participants.run = original
+	assert_eq(refused.get("code"), &"custom_run_refusal")
+	assert_eq(custom.calls, 1, "a subclass keeps control of its own prepare contract")
+	assert_eq(fixture.manager._scene_restore_preparations.keys(), retained)
+	assert_eq(_observed(), before)
 
 func test_current_scene_source_admission_preserves_state_and_rejects_changed_hash() -> void:
 	assert_true(fixture_ready)
