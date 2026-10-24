@@ -3,6 +3,7 @@ const ADAPTER := preload("res://scripts/narrative/DialogicRuntimeAdapter.gd")
 const PATH := "res://tests/fixtures/dialogic/_scene_compiler_cache_probe.dtl"
 const COUNTED_PATH := "res://tests/fixtures/dialogic/_scene_compiler_cache_probe.counted_timeline"
 const MANIFEST := preload("res://scripts/narrative/DialogicEntryManifest.gd")
+const STRICT := preload("res://scripts/validation/StrictJson.gd")
 const SHARED_SOURCE := "label first\n\\TEST first. #id:line.cache.one\nlabel first.marker\nreturn\nlabel second\n\\TEST second. #id:line.cache.two\nreturn\n"
 const CALLABLES := ["first", "second"]
 
@@ -214,8 +215,8 @@ func test_translation_changes_are_fresh_even_with_the_same_registration_scope() 
 		"unchanged physical bytes cannot authenticate an obsolete translation")
 
 func test_separate_registration_validations_recheck_physical_bytes_and_keep_approved_hashes() -> void:
-	var bundle: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(
-		"res://tests/fixtures/dialogic/scene_reading_registration.json"))
+	var bundle: Dictionary = STRICT.parse_object(FileAccess.get_file_as_string(
+		"res://tests/fixtures/dialogic/scene_reading_registration.json")).value
 	var source := FileAccess.get_file_as_string("res://tests/fixtures/dialogic/scene_day_terminal.dtl")
 	_write(source)
 	for entry: Dictionary in bundle.entry_manifest.entries: entry.locators.en.path = PATH
@@ -224,15 +225,19 @@ func test_separate_registration_validations_recheck_physical_bytes_and_keep_appr
 		"all three shared-file entries must retain the checked-in programme and content hashes")
 	assert_eq(bundle, original_bundle, "validation does not rewrite the caller's registration")
 	_write(source + "\n# changed physical revision\n")
-	assert_false(MANIFEST.validate_scene_registration(bundle).ok, "a separate call must not reuse old physical content authentication")
+	var changed := MANIFEST.validate_scene_registration(bundle)
+	assert_false(changed.ok, "a separate call must not reuse old physical content authentication")
+	assert_eq(changed.get("message"), "programme hash", "changed bytes reach physical content authentication")
 	_write(source)
 	assert_true(MANIFEST.validate_scene_registration(bundle).ok, "restored bytes validate after a failed call")
 	DirAccess.remove_absolute(PATH)
-	assert_false(MANIFEST.validate_scene_registration(bundle).ok, "a separate call cannot validate a deleted source")
+	var deleted := MANIFEST.validate_scene_registration(bundle)
+	assert_false(deleted.ok, "a separate call cannot validate a deleted source")
+	assert_eq(deleted.get("code"), &"scene_programme_unavailable", "deleted bytes reach the physical source check")
 
 func test_all_shipped_entries_match_independent_cold_compilation_exactly() -> void:
-	var bundle: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(
-		"res://data/manifests/scene_story_registration.json"))
+	var bundle: Dictionary = STRICT.parse_object(FileAccess.get_file_as_string(
+		"res://data/manifests/scene_story_registration.json")).value
 	var entries: Array = bundle.entry_manifest.entries
 	assert_eq(entries.size(), bundle.entry_manifest.entry_count, "this comparison covers the complete declared registration")
 	var labels: Array = []

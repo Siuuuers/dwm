@@ -1,7 +1,8 @@
 extends "res://addons/gut/test.gd"
-## Closed semantic Dialogic entry manifest (Seven-Day Flow Plan 01 Task 2, sub-commit 2A, dwm-oyo.2).
+## Historical semantic manifest validators and current default-registration loading.
+## The retained Plan 01 Task 2 fixture laws below do not define the installed story catalogue.
 ##
-## WHAT THIS SUITE BINDS. data/manifests/dialogic_entries.json holds all 137 externally callable
+## HISTORICAL FIXTURE. data/manifests/dialogic_entries.json retains the 137 formerly callable
 ## entries: the 119 day entries enumerated bullet by bullet in specification sections 13.1 through
 ## 13.7, plus the 18 ending presentation entries the 13.8 table expands to. No identifier here was
 ## typed from memory. The suite re-parses the specification off disk at runtime and rebuilds the
@@ -100,6 +101,9 @@ extends "res://addons/gut/test.gd"
 ## equality is not a deep comparison; CanonicalJsonWriter carries its own _deep_same for the same
 ## reason.
 
+## Historical document validators below retain their 137-entry fixture. Default loading
+## instead follows the installed authored-week registration, which has its own schema.
+const STORY_BUNDLE_PATH := "res://data/manifests/scene_story_registration.json"
 const MANIFEST_PATH := "res://data/manifests/dialogic_entries.json"
 const SCHEMA_PATH := "res://schemas/manifests/dialogic-entries.schema.json"
 const SCRIPT_PATH := "res://scripts/narrative/DialogicEntryManifest.gd"
@@ -1419,7 +1423,9 @@ func test_load_default_returns_the_shipped_document() -> void:
 		return
 	var loaded := _canonical(result.get("value"))
 	assert_false(loaded.is_empty(), "the loaded value serializes canonically")
-	assert_eq(loaded, _canonical(_document()), "it returns the parsed manifest document")
+	var expected: Dictionary = _parse(STORY_BUNDLE_PATH).get("entry_manifest", {})
+	assert_false(expected.is_empty(), "the installed story registration is present")
+	assert_eq(loaded, _canonical(expected), "default loading returns the installed story entry manifest")
 
 
 func test_validate_document_accepts_the_shipped_manifest() -> void:
@@ -1702,8 +1708,12 @@ func test_resolve_entry_uses_an_explicit_retired_registry_without_default_disk_l
 		assert_eq(result.get("code"), case["expected"], str(case))
 	var default_result: Dictionary = script.call(&"resolve_entry", document, retired_id, "en")
 	assert_false(default_result.get("ok", true), "The existing three-argument path still refuses retired IDs")
-	assert_eq(default_result.get("code"), CODE_RETIRED_ENTRY,
-		"The default path still reads the shipped retired registry")
+	assert_eq(default_result.get("code"), CODE_UNKNOWN_ENTRY,
+		"The installed story registry has no historical retired-label grants")
+	var historical_result: Dictionary = script.call(&"resolve_entry", document, retired_id, "en",
+		_parse("res://data/manifests/dialogic_ids.json"))
+	assert_eq(historical_result.get("code"), CODE_RETIRED_ENTRY,
+		"The explicit historical registry still diagnoses its retired label")
 
 
 func test_resolve_entry_fails_on_a_missing_english_label() -> void:

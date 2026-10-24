@@ -1,23 +1,11 @@
 extends "res://addons/gut/test.gd"
 ## Closed entry vocabulary on the timeline catalog (Seven-Day Flow Plan 01 Task 4, dwm-oyo.2).
 ##
-## WHAT THIS SUITE BINDS. scripts/data/DialogicTimelineCatalog.gd answers TWO vocabularies, and
-## this suite owns exactly one of them: the closed 137-entry vocabulary of
-## data/manifests/dialogic_entries.json, reached through the five methods Task 4 adds - get_entry,
-## has_entry_id, get_required_entry_ids, get_required_master_paths and build_validation_report.
-## tests/unit/test_timeline_manifest.gd keeps owning the legacy 59-id timeline vocabulary and is
-## left byte-untouched (DEVIATION-8 Ruling X). There is no third file to consult: what is not
-## asserted here is asserted there.
-##
-## WHY TASK 4 ADDS AND NEVER RE-POINTS (DEVIATION-8 Ruling U). The two vocabularies share only 34
-## ids. hospital.faint is a timeline id with NO entry counterpart, and
-## scripts/application/run/GameStateDayResolutionPort.gd returns it only while
-## has_timeline_id answers for timelines.json; re-pointing that method at the 137-entry manifest
-## makes the port return the empty string and moves the frozen schedule gate. A union lookup is
-## equally forbidden, because specification 12.2 orders an absent id to fail closed. The
-## separateness is therefore a LAW here, not an accident, and
-## test_the_entry_and_timeline_vocabularies_stay_separate is what fails first if anyone merges
-## them.
+## WHAT THIS SUITE BINDS. Default entry queries follow the installed authored-week
+## bundle in scene_story_registration.json. Timeline queries retain timelines.json.
+## The historical 137-entry document remains an explicit fixture for resolver
+## mutation laws and its legacy vocabulary-overlap check. It is not the default
+## runtime catalogue. No registration is replaced or test cache injected here.
 ##
 ## ACCESS IDIOM. The five new methods are reached through a Script value loaded at runtime by
 ## tests/support/DynamicScriptProbe.gd, then called by name. That is deliberate and it is the same
@@ -31,18 +19,9 @@ extends "res://addons/gut/test.gd"
 ## legacy timeline methods are called by static syntax, because they already exist and their
 ## continued existence is itself a Ruling U law.
 ##
-## TWO INDEPENDENT DERIVATIONS, NEVER ONE. Every count and every id below is pinned as a literal
-## AND re-derived at runtime by parsing data/manifests/dialogic_entries.json,
-## data/manifests/timelines.json and data/manifests/dialogic_ids.json off disk. A manifest defect
-## cannot vouch for itself by moving both sides at once.
-##
-## FIXTURE-DRIVEN LAWS (DEVIATION-8 controller ruling (a)). All 137 shipped records carry a
-## non-empty English label and there are 137 distinct labels, so the missing-label and
-## duplicated-label laws of specification 14.1 cannot be driven by the shipped manifest at all.
-## They are driven instead through DialogicEntryManifest.resolve_entry, which takes its document
-## as a parameter, against a deep copy of the shipped document with exactly one field mutated.
-## That is what makes them mutation-killable rather than laws that name themselves and are never
-## reached.
+## Current enumeration is compared with the on-disk story bundle, fixed boundary
+## IDs and the seven explicit Day1–Day7 masters. Historical missing/duplicate-label
+## fixtures still use the document-taking resolver; they do not replace startup.
 ##
 ## SIBLING BRANCHES ASSERT THEIR OWN MESSAGE. ENTRY_MANIFEST_UNKNOWN_ENTRY and
 ## ENTRY_MANIFEST_RETIRED_ENTRY are emitted by the same unregistered-entry branch, so a test that
@@ -60,6 +39,7 @@ extends "res://addons/gut/test.gd"
 ## text by test_the_cached_entry_document_is_validated_before_it_is_cached.
 
 const CATALOG_SOURCE := "res://scripts/data/DialogicTimelineCatalog.gd"
+const STORY_BUNDLE_PATH := "res://data/manifests/scene_story_registration.json"
 const ENTRIES_MANIFEST_PATH := "res://data/manifests/dialogic_entries.json"
 const TIMELINES_MANIFEST_PATH := "res://data/manifests/timelines.json"
 const IDS_MANIFEST_PATH := "res://data/manifests/dialogic_ids.json"
@@ -69,8 +49,9 @@ const PROBE := preload("res://tests/support/DynamicScriptProbe.gd")
 const CATALOG := preload("res://scripts/data/DialogicTimelineCatalog.gd")
 const ENTRY_MANIFEST := preload("res://scripts/narrative/DialogicEntryManifest.gd")
 
-const EXPECTED_ENTRY_COUNT := 137
-const EXPECTED_SCENE_COUNT := 62
+const EXPECTED_ENTRY_COUNT := 92
+const HISTORICAL_ENTRY_COUNT := 137
+const EXPECTED_SCENE_COUNT := 7
 const EXPECTED_TIMELINE_COUNT := 64
 const EXPECTED_SHARED_ID_COUNT := 33
 
@@ -105,17 +86,17 @@ const DEPRECATION_MARKER := "## DEPRECATED (Plan 01 Task 4)"
 ## shipped manifest, so no behavioural test can reach it.
 const VALIDATION_CALL := "DialogicEntryManifest.validate_document(loaded[\"value\"])"
 
-const SAMPLE_ENTRY_ID := "contact.ordinary.lavinia.day1"
-const SAMPLE_ENTRY_PATH := "res://dialogic/timelines/en/contacts/lavinia_day1.dtl"
-const FIRST_SORTED_ENTRY_ID := "contact.hospital_care.sylvia.day2"
-const LAST_SORTED_ENTRY_ID := "hospital.faint.day7"
-const ARBITRARY_SUFFIX_ID := "contact.ordinary.lavinia.day1.extra"
+const SAMPLE_ENTRY_ID := "Day1"
+const SAMPLE_ENTRY_PATH := "res://dialogic/timelines/authored_week/Day1.dtl"
+const FIRST_SORTED_ENTRY_ID := "Day1"
+const LAST_SORTED_ENTRY_ID := "ending.alone.normal"
+const ARBITRARY_SUFFIX_ID := "Day1.extra"
 
 const RETIRED_LABEL_IDS := ["ending.lavinia.true", "ending.priscilla.true", "ending.sylvia.true"]
 
 ## Measured, not assumed: each of these resolves in exactly one of the two vocabularies.
 const TIMELINE_ONLY_IDS := ["hospital.faint", "contact.lavinia.day1", "ending.sylvia"]
-const ENTRY_ONLY_IDS := ["hospital.faint.day7", "ending.alone.normal", FIRST_SORTED_ENTRY_ID]
+const ENTRY_ONLY_IDS := ["Day7", "ending.alone.normal", FIRST_SORTED_ENTRY_ID]
 
 const HOSPITAL_TIMELINE_ID := "hospital.faint"
 const HOSPITAL_TIMELINE_PATH := "res://dialogic/timelines/en/core/hospital_faint.dtl"
@@ -134,7 +115,7 @@ const ALL_FAILURE_CODES := [
 ]
 
 const UNKNOWN_FRAGMENT := "is not a registered semantic entry"
-const RETIRED_FRAGMENT := "was retired by the 61-to-8 migration"
+const RETIRED_FRAGMENT := "is a retired semantic ID"
 const LOCATOR_MISSING_FRAGMENT := "nothing starts and the event stays pending"
 const LOCATOR_AMBIGUOUS_FRAGMENT := "entries claim the same English path and label"
 
@@ -153,7 +134,7 @@ func _parse(path: String) -> Dictionary:
 
 
 func _entries_document() -> Dictionary:
-	return _parse(ENTRIES_MANIFEST_PATH)
+	return _parse(STORY_BUNDLE_PATH).get("entry_manifest", {})
 
 
 func _catalog_source() -> String:
@@ -173,9 +154,8 @@ func _document_entry_ids() -> Array:
 
 func _expected_scene_paths() -> Array:
 	var out: Array = []
-	for record: Dictionary in _parse(TIMELINES_MANIFEST_PATH).get("records", []):
-		if record["id"] in ["opening.day1", "tutorial.desktop_day1"]: continue
-		out.append("res://" + str(record["path"]))
+	for day: int in range(1, 8):
+		out.append("res://dialogic/timelines/authored_week/Day%d.dtl" % day)
 	out.sort()
 	return out
 
@@ -211,7 +191,7 @@ func _guard() -> bool:
 			return false
 	if _entries_document().is_empty():
 		assert_false(_entries_document().is_empty(),
-			"expected RED: missing or unparseable " + ENTRIES_MANIFEST_PATH)
+			"expected RED: missing or unparseable " + STORY_BUNDLE_PATH)
 		return false
 	return true
 
@@ -307,7 +287,7 @@ func test_every_declared_failure_code_exists_in_the_production_source() -> void:
 
 
 # --------------------------------------------------------------------------------------------
-# Exact resolution through the closed 137-entry manifest.
+# Exact resolution through the installed authored-week manifest.
 # --------------------------------------------------------------------------------------------
 
 func test_get_entry_resolves_the_exact_registered_english_locator() -> void:
@@ -357,8 +337,14 @@ func test_get_entry_refuses_every_retired_true_ending_label() -> void:
 	if not _guard():
 		return
 	for retired: String in RETIRED_LABEL_IDS:
-		_reject_naming(retired, CODE_RETIRED_ENTRY, RETIRED_FRAGMENT, UNKNOWN_FRAGMENT,
-			"%s: a save that still carries a retired label is refused by name" % retired)
+		_reject_naming(retired, CODE_UNKNOWN_ENTRY, UNKNOWN_FRAGMENT, RETIRED_FRAGMENT,
+			"%s: historical labels are absent from the installed story registry" % retired)
+		var historical := ENTRY_MANIFEST.resolve_entry(_parse(ENTRIES_MANIFEST_PATH), retired,
+			DEFAULT_LOCALE, _parse(IDS_MANIFEST_PATH))
+		assert_false(historical.get("ok", true), "explicit historical resolution also refuses the label")
+		assert_eq(historical.get("code"), CODE_RETIRED_ENTRY, "the historical registry retains its named refusal")
+		assert_true(str(historical.get("message", "")).contains(RETIRED_FRAGMENT))
+		assert_false(str(historical.get("message", "")).contains(UNKNOWN_FRAGMENT))
 
 
 func test_has_entry_id_answers_only_for_registered_entries() -> void:
@@ -416,7 +402,7 @@ func test_the_master_path_set_is_identical_for_every_locale() -> void:
 # Enumeration. The manifest exposes none, so the catalog owns these outright.
 # --------------------------------------------------------------------------------------------
 
-func test_get_required_entry_ids_lists_all_one_hundred_thirty_seven_sorted() -> void:
+func test_get_required_entry_ids_lists_the_installed_story_sorted() -> void:
 	if not _guard():
 		return
 	var ids: Array = _call(&"get_required_entry_ids", [])
@@ -440,7 +426,7 @@ func test_get_required_master_paths_lists_scene_paths_sorted() -> void:
 		return
 	var paths: Array = _call(&"get_required_master_paths", [DEFAULT_LOCALE])
 	assert_eq(paths, _expected_scene_paths(),
-		"the 137 entries are deduplicated to the scene files, in sorted order")
+		"the installed entries are deduplicated to the scene files, in sorted order")
 	assert_eq(paths.size(), EXPECTED_SCENE_COUNT, "scene files and no more")
 	var derived := {}
 	for record: Variant in _entries_document().get("entries", []):
@@ -484,12 +470,16 @@ func test_build_validation_report_echoes_the_requested_locale() -> void:
 # DEVIATION-8 Ruling U. The two vocabularies coexist; neither is re-pointed at the other.
 # --------------------------------------------------------------------------------------------
 
-func test_the_two_vocabularies_share_exactly_thirty_three_ids() -> void:
+func test_historical_vocabularies_overlap_but_current_story_is_disjoint() -> void:
 	if not _guard():
 		return
-	var entry_ids := _document_entry_ids()
+	var entry_ids: Array = []
+	for row: Dictionary in _parse(ENTRIES_MANIFEST_PATH).get("entries", []):
+		entry_ids.append(row.entry_id)
 	var timeline_ids := _timeline_ids()
-	assert_eq(entry_ids.size(), EXPECTED_ENTRY_COUNT, "137 entry ids")
+	assert_eq(entry_ids.size(), HISTORICAL_ENTRY_COUNT, "historical fixture retains 137 entry ids")
+	for entry_id: String in _document_entry_ids():
+		assert_false(entry_id in timeline_ids, "current story entries and legacy timeline IDs are disjoint")
 	assert_eq(timeline_ids.size(), EXPECTED_TIMELINE_COUNT, "64 timeline ids")
 	var shared: Array = []
 	for entry_id: Variant in entry_ids:
@@ -505,7 +495,7 @@ func test_the_entry_and_timeline_vocabularies_stay_separate() -> void:
 	assert_eq(CATALOG.get_required_timeline_ids().size(), EXPECTED_TIMELINE_COUNT,
 		"the timeline vocabulary is current at 64")
 	var entry_ids: Array = _call(&"get_required_entry_ids", [])
-	assert_eq(entry_ids.size(), EXPECTED_ENTRY_COUNT, "the entry vocabulary is current at 137")
+	assert_eq(entry_ids.size(), EXPECTED_ENTRY_COUNT, "the entry vocabulary matches the installed story")
 	for timeline_id: String in TIMELINE_ONLY_IDS:
 		assert_true(CATALOG.has_timeline_id(timeline_id),
 			"%s: still resolves as a timeline id" % timeline_id)
@@ -535,24 +525,24 @@ func test_has_timeline_id_still_answers_for_the_hospital_locator() -> void:
 # Fixture-driven English locator laws (DEVIATION-8 controller ruling (a), specification 14.1).
 # --------------------------------------------------------------------------------------------
 
-func test_the_shipped_manifest_cannot_drive_the_two_label_laws() -> void:
+func test_the_historical_manifest_requires_mutation_to_drive_the_two_label_laws() -> void:
 	if not _guard():
 		return
 	var labels := {}
-	for record: Variant in _entries_document().get("entries", []):
+	for record: Variant in _parse(ENTRIES_MANIFEST_PATH).get("entries", []):
 		var locator: Dictionary = ((record as Dictionary)["locators"] as Dictionary)[DEFAULT_LOCALE]
 		var label := str(locator.get("label", ""))
 		assert_false(label.is_empty(), "every shipped record carries an English label")
 		assert_false(labels.has(label), "and no label is shipped twice: " + label)
 		labels[label] = true
-	assert_eq(labels.size(), EXPECTED_ENTRY_COUNT,
+	assert_eq(labels.size(), HISTORICAL_ENTRY_COUNT,
 		"so the missing-label and duplicated-label laws need a fabricated document, not this one")
 
 
 func test_a_missing_english_label_starts_nothing() -> void:
 	if not _guard():
 		return
-	var document := _entries_document()
+	var document := _parse(ENTRIES_MANIFEST_PATH)
 	var entry_id := str(((document["entries"] as Array)[0] as Dictionary)["entry_id"])
 	var result: Dictionary = ENTRY_MANIFEST.resolve_entry(
 		_with_missing_label(document), entry_id, DEFAULT_LOCALE)
@@ -565,7 +555,7 @@ func test_a_missing_english_label_starts_nothing() -> void:
 func test_a_duplicated_english_locator_starts_nothing() -> void:
 	if not _guard():
 		return
-	var document := _entries_document()
+	var document := _parse(ENTRIES_MANIFEST_PATH)
 	var entry_id := str(((document["entries"] as Array)[0] as Dictionary)["entry_id"])
 	var result: Dictionary = ENTRY_MANIFEST.resolve_entry(
 		_with_duplicated_label(document), entry_id, DEFAULT_LOCALE)
