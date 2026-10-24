@@ -1,0 +1,340 @@
+{
+  "baseline_master": "08e9471a589fde0ebc9e460ab650047f465aef93",
+  "initial_product": "7e89b349407b46fca889da19e67b6f60e86761cd",
+  "corrected_tests_product": "7d002b728f045c6380ed5100129bdea2831dbdcb",
+  "committed_inventory_product": "ebcf566a809d97799b4a7b440f9ed77b782ac041",
+  "diagnostic": "1864369b38dd1660406f843440bbd32682d50f7e",
+  "runs": [
+    40109171228,
+    40109497833,
+    40110921861
+  ],
+  "current_product_coverage": {
+    "focused_cases": 23,
+    "focused_case_assertions": 476,
+    "terminal_cases": 1,
+    "terminal_case_assertions": 213,
+    "total_cases": 24,
+    "total_case_assertions": 689
+  },
+  "diagnostic_native_coverage": {
+    "cases": 2,
+    "assertions": 213,
+    "processes": 3,
+    "exit_codes": [
+      0,
+      0,
+      0
+    ],
+    "screenshots_reviewed": 3,
+    "scope": "Separate diagnostic branch on baseline runtime, not product save-change E2E acceptance or performance comparison."
+  },
+  "first_run_failures": "Two raw-byte assertions wrongly used read_text after a refused revision write. Corrected tests use inspect_revision and exact text/hash; exit refusal also checks all persisted files. Runtime unchanged.",
+  "acceptance_basis": "Final corrected suites plus unchanged successful suites from first run; historical retained-input XML excluded. Committed inventories passed read-only verification in run40110921861.",
+  "inventory_sha256": {
+    "game_state_surface.json": "7b57914bc1f86a8fa7318a493b572a68591cfd9c6e4ccbcbabfadda000a38f34",
+    "save_manager_surface.json": "046d1f66301f47a14762dd62b63419be8bd2e6234f1f902c4049e88921075ef1"
+  },
+  "qualifications": {
+    "focused-first": {
+      "controller_ref": "ae4de34ba5e9d80209e8f7d39cd816880f7c968f",
+      "baseline_ref": "08e9471a589fde0ebc9e460ab650047f465aef93",
+      "candidate_ref": "7e89b349407b46fca889da19e67b6f60e86761cd",
+      "lane": "focused",
+      "runtime_changed_files": [
+        "autoload/SaveManager.gd"
+      ],
+      "engine_sha256": "63b3b2208819714c9677fbfdd8217c5b7dee8ecf5f383502e826bc9e2227ff5a",
+      "source_hashes": {
+        "tools/testing/Invoke-IsolatedGodot.ps1": "1fe67f2db677fb869ee82126834a83d519b77888328a690ec55bbb3fbda7fa5f",
+        "tests/integration/test_save_manager_public_boundaries.gd": "931dd5cf4ace31b3ad6335b7e12bfe8cb30156b963a47a458dce926ab5a7badf",
+        "tools/testing/Invoke-CloudTests.ps1": "3ad8510a5bbcc1979cdef90c64736d830d628ba824637ad65357a4016adbeae7",
+        "autoload/SaveManager.gd": "e4ad91fcf1b1686d67c142eb84bbd3a7f6eee97a343a0329a1d643555cbb9f97",
+        "tests/integration/authored_week_child.gd": "e509c60688afccc407bd920120169bd50edbaffbe48747674362284a09e77e38",
+        "tests/unit/test_save_manager.gd": "2fb1a896f5cd307b29441b9b1fc3bb88b4e1981c0b65e2d363c6fbf56a3c0ffe",
+        "scripts/narrative/SceneValidationTiming.gd": "377fdc07a6ba19e8c2727d83a22e58a54999d981ce9f14efd80372e3e3c7d8e8",
+        "tools/testing/Invoke-FreshSaveLoad.ps1": "9b95c418b3d475876e91516e0893a2d70f4f85040fb1b2862b97aa09b37bc0e6",
+        "tests/integration/test_backup_current_build.gd": "e3d5756d2a63d846722811808ab3c90701d47ed5e867324187c73237bc7eb302",
+        "tests/unit/test_session_exit_coordinator.gd": "fcdf29900acc69395b1d1c1ee72c4251a2d4ccf471a953537ac854d7f17886a0",
+        "tools/testing/Invoke-FreshSaveLoadComparison.ps1": "fa089ac82039000c0b6196e68d021032c9c5563025da3ac3d291290cb31dc42b",
+        "scripts/domain/narrative/SceneEventContract.gd": "49cffa3b51534c6ffb951c116a3b2deed41f03cd19bfd25754a5d7bbe175429c",
+        "tests/integration/authored_terminal_admission_checks.gd": "79b37e132223e178f184448d469ce653a99e18e0a5285d0ded31e22a86776c83",
+        "scripts/narrative/FrozenRunContext.gd": "541225d59ac04c627b20aeedd4b29f04f0972c22daf9dbf1a609923244225b5e",
+        "tools/testing/Invoke-PublicSurfaceValidation.ps1": "de02f5eb28b087fe858622dbcae5e45aa38293de694c4df284ae487443e3f11a",
+        "tests/integration/fresh_save_load_child.gd": "4b43bad936ad8ac66f4e015e183c8e3c2d8374d2798e49dd85eb79ddb4b145aa"
+      },
+      "suites": [
+        {
+          "file": "tests/integration/test_backup_current_build.gd",
+          "expected_tests": 5,
+          "actual_tests": 5,
+          "assertions": 61.0,
+          "status": "failed",
+          "error": "Suite failed/census mismatch: tests/integration/test_backup_current_build.gd",
+          "exit_code": 1
+        },
+        {
+          "file": "tests/integration/test_save_manager_public_boundaries.gd",
+          "expected_tests": 6,
+          "actual_tests": 6,
+          "assertions": 257.0,
+          "status": "failed",
+          "error": "Suite failed/census mismatch: tests/integration/test_save_manager_public_boundaries.gd",
+          "exit_code": 1
+        },
+        {
+          "file": "tests/unit/test_save_manager.gd",
+          "expected_tests": 7,
+          "actual_tests": 7,
+          "assertions": 87.0,
+          "status": "passed",
+          "error": "",
+          "exit_code": 0
+        },
+        {
+          "file": "tests/unit/test_session_exit_coordinator.gd",
+          "expected_tests": 5,
+          "actual_tests": 5,
+          "assertions": 53.0,
+          "status": "passed",
+          "error": "",
+          "exit_code": 0
+        }
+      ],
+      "status": "failed",
+      "inventory_mode": "not_executed_in_this_lane",
+      "import": {
+        "exit_code": 0,
+        "timed_out": false
+      },
+      "error": "tests/integration/test_backup_current_build.gd: Suite failed/census mismatch: tests/integration/test_backup_current_build.gd\r\ntests/integration/test_save_manager_public_boundaries.gd: Suite failed/census mismatch: tests/integration/test_save_manager_public_boundaries.gd"
+    },
+    "terminal-first": {
+      "controller_ref": "ae4de34ba5e9d80209e8f7d39cd816880f7c968f",
+      "baseline_ref": "08e9471a589fde0ebc9e460ab650047f465aef93",
+      "candidate_ref": "7e89b349407b46fca889da19e67b6f60e86761cd",
+      "lane": "terminal",
+      "runtime_changed_files": [
+        "autoload/SaveManager.gd"
+      ],
+      "engine_sha256": "63b3b2208819714c9677fbfdd8217c5b7dee8ecf5f383502e826bc9e2227ff5a",
+      "source_hashes": {
+        "tests/integration/authored_terminal_admission_checks.gd": "79b37e132223e178f184448d469ce653a99e18e0a5285d0ded31e22a86776c83",
+        "scripts/narrative/SceneValidationTiming.gd": "377fdc07a6ba19e8c2727d83a22e58a54999d981ce9f14efd80372e3e3c7d8e8",
+        "tools/testing/Invoke-IsolatedGodot.ps1": "1fe67f2db677fb869ee82126834a83d519b77888328a690ec55bbb3fbda7fa5f",
+        "autoload/SaveManager.gd": "e4ad91fcf1b1686d67c142eb84bbd3a7f6eee97a343a0329a1d643555cbb9f97",
+        "tools/testing/Invoke-PublicSurfaceValidation.ps1": "de02f5eb28b087fe858622dbcae5e45aa38293de694c4df284ae487443e3f11a",
+        "tests/unit/test_save_manager.gd": "2fb1a896f5cd307b29441b9b1fc3bb88b4e1981c0b65e2d363c6fbf56a3c0ffe",
+        "tools/testing/Invoke-FreshSaveLoad.ps1": "9b95c418b3d475876e91516e0893a2d70f4f85040fb1b2862b97aa09b37bc0e6",
+        "tools/testing/Invoke-FreshSaveLoadComparison.ps1": "fa089ac82039000c0b6196e68d021032c9c5563025da3ac3d291290cb31dc42b",
+        "tests/integration/test_save_manager_public_boundaries.gd": "931dd5cf4ace31b3ad6335b7e12bfe8cb30156b963a47a458dce926ab5a7badf",
+        "tools/testing/Invoke-CloudTests.ps1": "3ad8510a5bbcc1979cdef90c64736d830d628ba824637ad65357a4016adbeae7",
+        "tests/integration/fresh_save_load_child.gd": "4b43bad936ad8ac66f4e015e183c8e3c2d8374d2798e49dd85eb79ddb4b145aa",
+        "scripts/domain/narrative/SceneEventContract.gd": "49cffa3b51534c6ffb951c116a3b2deed41f03cd19bfd25754a5d7bbe175429c",
+        "scripts/narrative/FrozenRunContext.gd": "541225d59ac04c627b20aeedd4b29f04f0972c22daf9dbf1a609923244225b5e",
+        "tests/integration/authored_week_child.gd": "e509c60688afccc407bd920120169bd50edbaffbe48747674362284a09e77e38",
+        "tests/unit/test_session_exit_coordinator.gd": "fcdf29900acc69395b1d1c1ee72c4251a2d4ccf471a953537ac854d7f17886a0",
+        "tests/integration/test_backup_current_build.gd": "e3d5756d2a63d846722811808ab3c90701d47ed5e867324187c73237bc7eb302"
+      },
+      "suites": [],
+      "status": "passed_requires_evidence_review",
+      "inventory_mode": "not_executed_in_this_lane",
+      "import": {
+        "timed_out": false,
+        "exit_code": 0
+      }
+    },
+    "inventory-first": {
+      "controller_ref": "ae4de34ba5e9d80209e8f7d39cd816880f7c968f",
+      "baseline_ref": "08e9471a589fde0ebc9e460ab650047f465aef93",
+      "candidate_ref": "7e89b349407b46fca889da19e67b6f60e86761cd",
+      "lane": "inventory",
+      "runtime_changed_files": [
+        "autoload/SaveManager.gd"
+      ],
+      "engine_sha256": "63b3b2208819714c9677fbfdd8217c5b7dee8ecf5f383502e826bc9e2227ff5a",
+      "source_hashes": {
+        "tools/testing/Invoke-CloudTests.ps1": "3ad8510a5bbcc1979cdef90c64736d830d628ba824637ad65357a4016adbeae7",
+        "tests/integration/fresh_save_load_child.gd": "4b43bad936ad8ac66f4e015e183c8e3c2d8374d2798e49dd85eb79ddb4b145aa",
+        "scripts/domain/narrative/SceneEventContract.gd": "49cffa3b51534c6ffb951c116a3b2deed41f03cd19bfd25754a5d7bbe175429c",
+        "tests/integration/authored_week_child.gd": "e509c60688afccc407bd920120169bd50edbaffbe48747674362284a09e77e38",
+        "tools/testing/Invoke-IsolatedGodot.ps1": "1fe67f2db677fb869ee82126834a83d519b77888328a690ec55bbb3fbda7fa5f",
+        "tools/testing/Invoke-PublicSurfaceValidation.ps1": "de02f5eb28b087fe858622dbcae5e45aa38293de694c4df284ae487443e3f11a",
+        "tests/integration/authored_terminal_admission_checks.gd": "79b37e132223e178f184448d469ce653a99e18e0a5285d0ded31e22a86776c83",
+        "tools/testing/Invoke-FreshSaveLoad.ps1": "9b95c418b3d475876e91516e0893a2d70f4f85040fb1b2862b97aa09b37bc0e6",
+        "scripts/narrative/SceneValidationTiming.gd": "377fdc07a6ba19e8c2727d83a22e58a54999d981ce9f14efd80372e3e3c7d8e8",
+        "scripts/narrative/FrozenRunContext.gd": "541225d59ac04c627b20aeedd4b29f04f0972c22daf9dbf1a609923244225b5e",
+        "tests/integration/test_save_manager_public_boundaries.gd": "931dd5cf4ace31b3ad6335b7e12bfe8cb30156b963a47a458dce926ab5a7badf",
+        "autoload/SaveManager.gd": "e4ad91fcf1b1686d67c142eb84bbd3a7f6eee97a343a0329a1d643555cbb9f97",
+        "tests/unit/test_save_manager.gd": "2fb1a896f5cd307b29441b9b1fc3bb88b4e1981c0b65e2d363c6fbf56a3c0ffe",
+        "tests/integration/test_backup_current_build.gd": "e3d5756d2a63d846722811808ab3c90701d47ed5e867324187c73237bc7eb302",
+        "tools/testing/Invoke-FreshSaveLoadComparison.ps1": "fa089ac82039000c0b6196e68d021032c9c5563025da3ac3d291290cb31dc42b",
+        "tests/unit/test_session_exit_coordinator.gd": "fcdf29900acc69395b1d1c1ee72c4251a2d4ccf471a953537ac854d7f17886a0"
+      },
+      "suites": [],
+      "status": "diagnostic_inventory_generated",
+      "inventory_mode": "diagnostic_generation_not_committed_verification",
+      "import": {
+        "timed_out": false,
+        "exit_code": 0
+      }
+    },
+    "diagnostic": {
+      "controller_ref": "ae4de34ba5e9d80209e8f7d39cd816880f7c968f",
+      "baseline_ref": "08e9471a589fde0ebc9e460ab650047f465aef93",
+      "candidate_ref": "1864369b38dd1660406f843440bbd32682d50f7e",
+      "lane": "diagnostic",
+      "runtime_changed_files": [
+        "scripts/domain/narrative/SceneEventContract.gd",
+        "scripts/narrative/FrozenRunContext.gd",
+        "scripts/narrative/SceneValidationTiming.gd"
+      ],
+      "engine_sha256": "63b3b2208819714c9677fbfdd8217c5b7dee8ecf5f383502e826bc9e2227ff5a",
+      "source_hashes": {
+        "tools/testing/Invoke-FreshSaveLoad.ps1": "9b95c418b3d475876e91516e0893a2d70f4f85040fb1b2862b97aa09b37bc0e6",
+        "scripts/narrative/FrozenRunContext.gd": "3e525112d43033d814519f9d83bfcfee952a8799fc294e8c41b5fb81d70461cd",
+        "tests/integration/authored_terminal_admission_checks.gd": "aa7cfeb17b14333380c1a95630357c30e317f49e472a778b6ed9a9739191a291",
+        "tests/unit/test_session_exit_coordinator.gd": "fcdf29900acc69395b1d1c1ee72c4251a2d4ccf471a953537ac854d7f17886a0",
+        "tests/integration/authored_week_child.gd": "e509c60688afccc407bd920120169bd50edbaffbe48747674362284a09e77e38",
+        "tools/testing/Invoke-IsolatedGodot.ps1": "1fe67f2db677fb869ee82126834a83d519b77888328a690ec55bbb3fbda7fa5f",
+        "scripts/narrative/SceneValidationTiming.gd": "914101e74cacf7b73cf4c0d286ffb780f4fde5435080bea5c5b490731de9f182",
+        "tests/integration/test_save_manager_public_boundaries.gd": "931dd5cf4ace31b3ad6335b7e12bfe8cb30156b963a47a458dce926ab5a7badf",
+        "tests/unit/test_save_manager.gd": "2fb1a896f5cd307b29441b9b1fc3bb88b4e1981c0b65e2d363c6fbf56a3c0ffe",
+        "scripts/domain/narrative/SceneEventContract.gd": "5970a7ff4cf3ba26bafb8284e141f6cd0e0a8d2c46cd38828977f3f27f1e9d49",
+        "autoload/SaveManager.gd": "90b37d0bc46d1c955a452d45f0387992efa291ebb8aa6240f24ae20a3cec67cd",
+        "tools/testing/Invoke-FreshSaveLoadComparison.ps1": "fa089ac82039000c0b6196e68d021032c9c5563025da3ac3d291290cb31dc42b",
+        "tools/testing/Invoke-CloudTests.ps1": "3ad8510a5bbcc1979cdef90c64736d830d628ba824637ad65357a4016adbeae7",
+        "tools/testing/Invoke-PublicSurfaceValidation.ps1": "de02f5eb28b087fe858622dbcae5e45aa38293de694c4df284ae487443e3f11a",
+        "tests/integration/fresh_save_load_child.gd": "4b43bad936ad8ac66f4e015e183c8e3c2d8374d2798e49dd85eb79ddb4b145aa",
+        "tests/integration/test_backup_current_build.gd": "b828302efcca914c5d5976206df89e571327af6c7351ea06212f1c2aa7041131"
+      },
+      "suites": [],
+      "status": "passed_requires_evidence_review",
+      "inventory_mode": "not_executed_in_this_lane",
+      "import": {
+        "timed_out": false,
+        "exit_code": 0
+      }
+    },
+    "focused-final": {
+      "controller_ref": "dd88e74a51efb2f5abccf445ef3b543cb6e36ff0",
+      "baseline_ref": "08e9471a589fde0ebc9e460ab650047f465aef93",
+      "candidate_ref": "7d002b728f045c6380ed5100129bdea2831dbdcb",
+      "lane": "focused",
+      "runtime_changed_files": [
+        "autoload/SaveManager.gd"
+      ],
+      "engine_sha256": "63b3b2208819714c9677fbfdd8217c5b7dee8ecf5f383502e826bc9e2227ff5a",
+      "source_hashes": {
+        "tests/integration/authored_week_child.gd": "e509c60688afccc407bd920120169bd50edbaffbe48747674362284a09e77e38",
+        "tools/testing/Invoke-CloudTests.ps1": "3ad8510a5bbcc1979cdef90c64736d830d628ba824637ad65357a4016adbeae7",
+        "tests/integration/test_backup_current_build.gd": "034852d6ca130db861d9f255372562dd170820f7b74524139dfbe5f71f983f68",
+        "scripts/narrative/FrozenRunContext.gd": "541225d59ac04c627b20aeedd4b29f04f0972c22daf9dbf1a609923244225b5e",
+        "tools/testing/Invoke-FreshSaveLoad.ps1": "9b95c418b3d475876e91516e0893a2d70f4f85040fb1b2862b97aa09b37bc0e6",
+        "scripts/narrative/SceneValidationTiming.gd": "377fdc07a6ba19e8c2727d83a22e58a54999d981ce9f14efd80372e3e3c7d8e8",
+        "autoload/SaveManager.gd": "e4ad91fcf1b1686d67c142eb84bbd3a7f6eee97a343a0329a1d643555cbb9f97",
+        "tools/testing/Invoke-FreshSaveLoadComparison.ps1": "fa089ac82039000c0b6196e68d021032c9c5563025da3ac3d291290cb31dc42b",
+        "tools/testing/Invoke-IsolatedGodot.ps1": "1fe67f2db677fb869ee82126834a83d519b77888328a690ec55bbb3fbda7fa5f",
+        "tests/integration/authored_terminal_admission_checks.gd": "79b37e132223e178f184448d469ce653a99e18e0a5285d0ded31e22a86776c83",
+        "tests/integration/test_save_manager_public_boundaries.gd": "6572ae0283bfa6060d505a54cce15314082c57903cc432c9c4c76c616bef4af0",
+        "tools/testing/Invoke-PublicSurfaceValidation.ps1": "de02f5eb28b087fe858622dbcae5e45aa38293de694c4df284ae487443e3f11a",
+        "scripts/domain/narrative/SceneEventContract.gd": "49cffa3b51534c6ffb951c116a3b2deed41f03cd19bfd25754a5d7bbe175429c",
+        "tests/integration/fresh_save_load_child.gd": "4b43bad936ad8ac66f4e015e183c8e3c2d8374d2798e49dd85eb79ddb4b145aa"
+      },
+      "suites": [
+        {
+          "file": "tests/integration/test_backup_current_build.gd",
+          "expected_tests": 5,
+          "actual_tests": 5,
+          "assertions": 63.0,
+          "status": "passed",
+          "error": "",
+          "exit_code": 0
+        },
+        {
+          "file": "tests/integration/test_save_manager_public_boundaries.gd",
+          "expected_tests": 6,
+          "actual_tests": 6,
+          "assertions": 273.0,
+          "status": "passed",
+          "error": "",
+          "exit_code": 0
+        }
+      ],
+      "status": "passed_requires_evidence_review",
+      "inventory_mode": "not_executed_in_this_lane",
+      "import": {
+        "exit_code": 0,
+        "timed_out": false
+      }
+    },
+    "inventory-final": {
+      "controller_ref": "dd88e74a51efb2f5abccf445ef3b543cb6e36ff0",
+      "baseline_ref": "08e9471a589fde0ebc9e460ab650047f465aef93",
+      "candidate_ref": "7d002b728f045c6380ed5100129bdea2831dbdcb",
+      "lane": "inventory",
+      "runtime_changed_files": [
+        "autoload/SaveManager.gd"
+      ],
+      "engine_sha256": "63b3b2208819714c9677fbfdd8217c5b7dee8ecf5f383502e826bc9e2227ff5a",
+      "source_hashes": {
+        "tests/integration/authored_week_child.gd": "e509c60688afccc407bd920120169bd50edbaffbe48747674362284a09e77e38",
+        "tests/integration/test_backup_current_build.gd": "034852d6ca130db861d9f255372562dd170820f7b74524139dfbe5f71f983f68",
+        "tools/testing/Invoke-IsolatedGodot.ps1": "1fe67f2db677fb869ee82126834a83d519b77888328a690ec55bbb3fbda7fa5f",
+        "scripts/narrative/SceneValidationTiming.gd": "377fdc07a6ba19e8c2727d83a22e58a54999d981ce9f14efd80372e3e3c7d8e8",
+        "tools/testing/Invoke-FreshSaveLoadComparison.ps1": "fa089ac82039000c0b6196e68d021032c9c5563025da3ac3d291290cb31dc42b",
+        "tests/integration/authored_terminal_admission_checks.gd": "79b37e132223e178f184448d469ce653a99e18e0a5285d0ded31e22a86776c83",
+        "scripts/domain/narrative/SceneEventContract.gd": "49cffa3b51534c6ffb951c116a3b2deed41f03cd19bfd25754a5d7bbe175429c",
+        "autoload/SaveManager.gd": "e4ad91fcf1b1686d67c142eb84bbd3a7f6eee97a343a0329a1d643555cbb9f97",
+        "tools/testing/Invoke-FreshSaveLoad.ps1": "9b95c418b3d475876e91516e0893a2d70f4f85040fb1b2862b97aa09b37bc0e6",
+        "tools/testing/Invoke-PublicSurfaceValidation.ps1": "de02f5eb28b087fe858622dbcae5e45aa38293de694c4df284ae487443e3f11a",
+        "tools/testing/Invoke-CloudTests.ps1": "3ad8510a5bbcc1979cdef90c64736d830d628ba824637ad65357a4016adbeae7",
+        "scripts/narrative/FrozenRunContext.gd": "541225d59ac04c627b20aeedd4b29f04f0972c22daf9dbf1a609923244225b5e",
+        "tests/integration/test_save_manager_public_boundaries.gd": "6572ae0283bfa6060d505a54cce15314082c57903cc432c9c4c76c616bef4af0",
+        "tests/integration/fresh_save_load_child.gd": "4b43bad936ad8ac66f4e015e183c8e3c2d8374d2798e49dd85eb79ddb4b145aa"
+      },
+      "suites": [],
+      "status": "diagnostic_inventory_generated",
+      "inventory_mode": "diagnostic_generation_not_committed_verification",
+      "import": {
+        "timed_out": false,
+        "exit_code": 0
+      }
+    },
+    "inventory-checked": {
+      "controller_ref": "1f72cf284285f3c63f572f20f1eeb181485398b3",
+      "baseline_ref": "08e9471a589fde0ebc9e460ab650047f465aef93",
+      "candidate_ref": "ebcf566a809d97799b4a7b440f9ed77b782ac041",
+      "lane": "inventory",
+      "runtime_changed_files": [
+        "autoload/SaveManager.gd"
+      ],
+      "engine_sha256": "63b3b2208819714c9677fbfdd8217c5b7dee8ecf5f383502e826bc9e2227ff5a",
+      "source_hashes": {
+        "tools/testing/Invoke-PublicSurfaceValidation.ps1": "de02f5eb28b087fe858622dbcae5e45aa38293de694c4df284ae487443e3f11a",
+        "tests/integration/fresh_save_load_child.gd": "4b43bad936ad8ac66f4e015e183c8e3c2d8374d2798e49dd85eb79ddb4b145aa",
+        "scripts/narrative/FrozenRunContext.gd": "541225d59ac04c627b20aeedd4b29f04f0972c22daf9dbf1a609923244225b5e",
+        "tests/integration/test_save_manager_public_boundaries.gd": "6572ae0283bfa6060d505a54cce15314082c57903cc432c9c4c76c616bef4af0",
+        "tests/integration/authored_terminal_admission_checks.gd": "79b37e132223e178f184448d469ce653a99e18e0a5285d0ded31e22a86776c83",
+        "tools/testing/Invoke-IsolatedGodot.ps1": "1fe67f2db677fb869ee82126834a83d519b77888328a690ec55bbb3fbda7fa5f",
+        "tools/testing/Invoke-FreshSaveLoadComparison.ps1": "fa089ac82039000c0b6196e68d021032c9c5563025da3ac3d291290cb31dc42b",
+        "tools/testing/Invoke-CloudTests.ps1": "3ad8510a5bbcc1979cdef90c64736d830d628ba824637ad65357a4016adbeae7",
+        "autoload/SaveManager.gd": "e4ad91fcf1b1686d67c142eb84bbd3a7f6eee97a343a0329a1d643555cbb9f97",
+        "scripts/domain/narrative/SceneEventContract.gd": "49cffa3b51534c6ffb951c116a3b2deed41f03cd19bfd25754a5d7bbe175429c",
+        "tools/testing/Invoke-FreshSaveLoad.ps1": "9b95c418b3d475876e91516e0893a2d70f4f85040fb1b2862b97aa09b37bc0e6",
+        "tests/integration/authored_week_child.gd": "e509c60688afccc407bd920120169bd50edbaffbe48747674362284a09e77e38",
+        "scripts/narrative/SceneValidationTiming.gd": "377fdc07a6ba19e8c2727d83a22e58a54999d981ce9f14efd80372e3e3c7d8e8",
+        "tests/integration/test_backup_current_build.gd": "034852d6ca130db861d9f255372562dd170820f7b74524139dfbe5f71f983f68"
+      },
+      "suites": [],
+      "status": "passed_requires_evidence_review",
+      "inventory_mode": "read_only_committed_verification",
+      "import": {
+        "timed_out": false,
+        "exit_code": 0
+      }
+    }
+  },
+  "evidence_bundle_sha256": "e311eca69097b1626ec2a9fc7773a9ab36c752335e6ff40083aea2875c00c5b7",
+  "final_inventory_status": "passed"
+}
