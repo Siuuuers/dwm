@@ -1,0 +1,682 @@
+{
+  "source_artifact": {
+    "id": 12561213399,
+    "run_id": 40096860109,
+    "repository": "Siuuuers/dwm",
+    "archive_size": 7019121,
+    "archive_sha256": "f199dd61ac075f779440a945b20aafcdf21154dd46c9e7c8060cd77dfac1a862",
+    "crc_verified": true,
+    "members": 64
+  },
+  "scope": "Every original member is accounted for. Retained bytes are unmodified. Historical reports are not current passing evidence. Initial focused qualification failed and remains failed. Native captures are split by variant only to keep archives small.",
+  "archives": [
+    {
+      "name": "attribution.zip",
+      "size": 1448844,
+      "sha256": "50afcf6db29923d90427a3d7fbe312eb47e557e9187528048ac40cb434059e35",
+      "members": 21,
+      "crc_verified": true
+    }
+  ],
+  "counts": {
+    "retained": 21,
+    "omitted_duplicate": 9,
+    "omitted": 34
+  },
+  "members": [
+    {
+      "name": "candidate/.godot/ci/authored-week-terminal-pair.json",
+      "size": 684537,
+      "sha256": "36a2cda5ae7a13108c00589552a359ce193ed859d831c77dc29122eabccb5d14",
+      "crc32": "352ca2cc",
+      "disposition": "omitted_duplicate",
+      "reason": "Byte-identical current member retained once; use retained_name and retained_archive to reconstruct.",
+      "retained_name": "candidate/.godot/ci/fresh-save-load/authored-week-terminal-pair.json",
+      "retained_archive": "attribution.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/computer-authored-restored-slot-2.png",
+      "size": 577257,
+      "sha256": "518dc6bccd41ef7ef77da8963cb6ba7216de4b48a2f8f81b892262dd25e4502a",
+      "crc32": "a2cfcc7f",
+      "disposition": "omitted_duplicate",
+      "reason": "Byte-identical current member retained once; use retained_name and retained_archive to reconstruct.",
+      "retained_name": "candidate/.godot/ci/fresh-save-load/computer-authored-restored-slot-2.png",
+      "retained_archive": "attribution.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/computer-authored-restored-slot-3.png",
+      "size": 577257,
+      "sha256": "518dc6bccd41ef7ef77da8963cb6ba7216de4b48a2f8f81b892262dd25e4502a",
+      "crc32": "a2cfcc7f",
+      "disposition": "omitted_duplicate",
+      "reason": "Byte-identical current member retained once; use retained_name and retained_archive to reconstruct.",
+      "retained_name": "candidate/.godot/ci/fresh-save-load/computer-authored-restored-slot-2.png",
+      "retained_archive": "attribution.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/computer-authored-terminal-pair.png",
+      "size": 577421,
+      "sha256": "9903526552d99c2b5a0ff91a270ede867ada1628b902c874ede2a4e09811c8ea",
+      "crc32": "5f858709",
+      "disposition": "omitted_duplicate",
+      "reason": "Byte-identical current member retained once; use retained_name and retained_archive to reconstruct.",
+      "retained_name": "candidate/.godot/ci/fresh-save-load/computer-authored-terminal-pair.png",
+      "retained_archive": "attribution.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/fresh-save-load/authored-week-terminal-pair.json",
+      "size": 684537,
+      "sha256": "36a2cda5ae7a13108c00589552a359ce193ed859d831c77dc29122eabccb5d14",
+      "crc32": "352ca2cc",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/ci/fresh-save-load/authored-week-terminal-pair.json",
+      "retained_archive": "attribution.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/fresh-save-load/computer-authored-restored-slot-2.png",
+      "size": 577257,
+      "sha256": "518dc6bccd41ef7ef77da8963cb6ba7216de4b48a2f8f81b892262dd25e4502a",
+      "crc32": "a2cfcc7f",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/ci/fresh-save-load/computer-authored-restored-slot-2.png",
+      "retained_archive": "attribution.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/fresh-save-load/computer-authored-restored-slot-3.png",
+      "size": 577257,
+      "sha256": "518dc6bccd41ef7ef77da8963cb6ba7216de4b48a2f8f81b892262dd25e4502a",
+      "crc32": "a2cfcc7f",
+      "disposition": "omitted_duplicate",
+      "reason": "Byte-identical current member retained once; use retained_name and retained_archive to reconstruct.",
+      "retained_name": "candidate/.godot/ci/fresh-save-load/computer-authored-restored-slot-2.png",
+      "retained_archive": "attribution.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/fresh-save-load/computer-authored-terminal-pair.png",
+      "size": 577421,
+      "sha256": "9903526552d99c2b5a0ff91a270ede867ada1628b902c874ede2a4e09811c8ea",
+      "crc32": "5f858709",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/ci/fresh-save-load/computer-authored-terminal-pair.png",
+      "retained_archive": "attribution.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/fresh-save-load/fresh-load.json",
+      "size": 2201,
+      "sha256": "1f681124ae3c224d748709c5254873499487accefd58f3445da022b309ff4a07",
+      "crc32": "dd65430c",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/ci/fresh-save-load/fresh-load.json",
+      "retained_archive": "attribution.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/fresh-save-load/fresh-save-load.log",
+      "size": 125671,
+      "sha256": "493c6fe8e5a05ca4bcb881b8e0d8794f338251302007205b368dcb9ada2122a9",
+      "crc32": "037e2a09",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/ci/fresh-save-load/fresh-save-load.log",
+      "retained_archive": "attribution.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/fresh-save-load/fresh-save-seed.log",
+      "size": 14410,
+      "sha256": "4b85097e613d9b116bccd0c12256043c8ad686e5c4ed46c6fe905aa82eb703a1",
+      "crc32": "e3849b7f",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/ci/fresh-save-load/fresh-save-seed.log",
+      "retained_archive": "attribution.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/fresh-save-load/fresh-save-write.log",
+      "size": 187430,
+      "sha256": "b6ff6c95d73f396a3df2af6991ec09d9f643ebb61ebadf2970e7e3f699a0cf40",
+      "crc32": "aab39fe6",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/ci/fresh-save-load/fresh-save-write.log",
+      "retained_archive": "attribution.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/fresh-save-load/load.xml",
+      "size": 414,
+      "sha256": "e8cd32d44d2b780f740fdf4d53f2cc797b43be2282087a4184779fbcae2a74bc",
+      "crc32": "f44bbd7b",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/ci/fresh-save-load/load.xml",
+      "retained_archive": "attribution.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/fresh-save-load/processes.jsonl",
+      "size": 2633,
+      "sha256": "3f7917485df3ab92da4722de9312e85ee3cd1e838dfa63633c26cd92418c38b9",
+      "crc32": "278aa5fc",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/ci/fresh-save-load/processes.jsonl",
+      "retained_archive": "attribution.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/fresh-save-load/result.json",
+      "size": 7396,
+      "sha256": "33bffda78f4e1248aa29001dc2aecb7288c288e040f3f6bc9d88819534e3bf79",
+      "crc32": "a23c38c1",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/ci/fresh-save-load/result.json",
+      "retained_archive": "attribution.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/fresh-save-load/slot_3.json",
+      "size": 448631,
+      "sha256": "c22a4fc5408989e6cad8bffa682827b1f83c12c24260115e5e7f4e17d207fc07",
+      "crc32": "b3fbc7dc",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/ci/fresh-save-load/slot_3.json",
+      "retained_archive": "attribution.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/fresh-save-load/terminal-pair.json",
+      "size": 1538,
+      "sha256": "619bc1b5f8fff73ce5d49751ef1b00ef9c1ee80165139e93e33fb4c7adbcce8a",
+      "crc32": "9d65198e",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/ci/fresh-save-load/terminal-pair.json",
+      "retained_archive": "attribution.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/fresh-save-load/write.xml",
+      "size": 375,
+      "sha256": "58a6fc7a3527bbb3a25fcdda386e3d0735bad45a222b46aff3a1882f50f926a4",
+      "crc32": "680cdcbc",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/ci/fresh-save-load/write.xml",
+      "retained_archive": "attribution.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/fresh-save-retained-input/audit-origin.json",
+      "size": 303,
+      "sha256": "c503b84e007392c9c2aff0c4f6ed79e719eac31119a6a0e2f269a6c377f5dbe4",
+      "crc32": "2e9a6e92",
+      "disposition": "omitted",
+      "reason": "Historical retained workload input or its verified byte-identical mirror, not a current execution result.",
+      "retained_source_archive": "evidence/phase_2r/current_ci_20261023/final_retention/run39988834004/original-12517208437.zip",
+      "retained_source_member": "audit-origin.json",
+      "retained_source_sha256_verified": true
+    },
+    {
+      "name": "candidate/.godot/ci/fresh-save-retained-input/authored-week-terminal-pair.json",
+      "size": 684510,
+      "sha256": "d021f7411218be20c88c29c1a55538b625612ab448766487d31a17d4b49a8221",
+      "crc32": "1078e1ac",
+      "disposition": "omitted",
+      "reason": "Historical retained workload input or its verified byte-identical mirror, not a current execution result.",
+      "retained_source_archive": "evidence/phase_2r/current_ci_20261023/final_retention/run39988834004/original-12517208437.zip",
+      "retained_source_member": "authored-week-terminal-pair.json",
+      "retained_source_sha256_verified": true
+    },
+    {
+      "name": "candidate/.godot/ci/fresh-save-retained-input/comparison-origin.json",
+      "size": 305,
+      "sha256": "77a0b38535ed0113c0f88efd1f036755aae047c9109a6ad214299fc0cbc08009",
+      "crc32": "8e387291",
+      "disposition": "omitted",
+      "reason": "Historical retained workload input or its verified byte-identical mirror, not a current execution result.",
+      "retained_source_archive": "evidence/phase_2r/current_ci_20261023/final_retention/run39988834004/original-12517208437.zip",
+      "retained_source_member": "comparison-origin.json",
+      "retained_source_sha256_verified": true
+    },
+    {
+      "name": "candidate/.godot/ci/fresh-save-retained-input/computer-authored-restored-slot-2.png",
+      "size": 577257,
+      "sha256": "518dc6bccd41ef7ef77da8963cb6ba7216de4b48a2f8f81b892262dd25e4502a",
+      "crc32": "a2cfcc7f",
+      "disposition": "omitted",
+      "reason": "Historical retained workload input or its verified byte-identical mirror, not a current execution result.",
+      "retained_source_archive": "evidence/phase_2r/current_ci_20261023/final_retention/run39988834004/original-12517208437.zip",
+      "retained_source_member": "computer-authored-restored-slot-2.png",
+      "retained_source_sha256_verified": true
+    },
+    {
+      "name": "candidate/.godot/ci/fresh-save-retained-input/computer-authored-terminal-pair.png",
+      "size": 577421,
+      "sha256": "9903526552d99c2b5a0ff91a270ede867ada1628b902c874ede2a4e09811c8ea",
+      "crc32": "5f858709",
+      "disposition": "omitted",
+      "reason": "Historical retained workload input or its verified byte-identical mirror, not a current execution result.",
+      "retained_source_archive": "evidence/phase_2r/current_ci_20261023/final_retention/run39988834004/original-12517208437.zip",
+      "retained_source_member": "computer-authored-terminal-pair.png",
+      "retained_source_sha256_verified": true
+    },
+    {
+      "name": "candidate/.godot/ci/fresh-save-retained-input/helper-hashes.json",
+      "size": 338,
+      "sha256": "8e52a836ed5f4dfcad382e61f557d90bdae562fe6e505c9a255e8d9b81558fe4",
+      "crc32": "4385af0a",
+      "disposition": "omitted",
+      "reason": "Historical retained workload input or its verified byte-identical mirror, not a current execution result.",
+      "retained_source_archive": "evidence/phase_2r/current_ci_20261023/final_retention/run39988834004/original-12517208437.zip",
+      "retained_source_member": "helper-hashes.json",
+      "retained_source_sha256_verified": true
+    },
+    {
+      "name": "candidate/.godot/ci/fresh-save-retained-input/import-process.json",
+      "size": 24,
+      "sha256": "75876e0e3f497cad271143ba85bd4f36569cd81195509043f860dab14265b716",
+      "crc32": "16ac5177",
+      "disposition": "omitted",
+      "reason": "Historical retained workload input or its verified byte-identical mirror, not a current execution result.",
+      "retained_source_archive": "evidence/phase_2r/current_ci_20261023/final_retention/run39988834004/original-12517208437.zip",
+      "retained_source_member": "import-process.json",
+      "retained_source_sha256_verified": true
+    },
+    {
+      "name": "candidate/.godot/ci/fresh-save-retained-input/import.log",
+      "size": 96411,
+      "sha256": "7201e67afe0ad7847474ddcd874ac497325ef27e0c6a97cb440b58f835d2e015",
+      "crc32": "cfa55d1c",
+      "disposition": "omitted",
+      "reason": "Historical retained workload input or its verified byte-identical mirror, not a current execution result.",
+      "retained_source_archive": "evidence/phase_2r/current_ci_20261023/final_retention/run39988834004/original-12517208437.zip",
+      "retained_source_member": "import.log",
+      "retained_source_sha256_verified": true
+    },
+    {
+      "name": "candidate/.godot/ci/fresh-save-retained-input/terminal-candidate-seed.log",
+      "size": 584,
+      "sha256": "0bcc5678c9de2ffab480358e27565c8b7842d40c943c8708bdfa6b34715f53c9",
+      "crc32": "0a7def2d",
+      "disposition": "omitted",
+      "reason": "Historical retained workload input or its verified byte-identical mirror, not a current execution result.",
+      "retained_source_archive": "evidence/phase_2r/current_ci_20261023/final_retention/run39988834004/original-12517208437.zip",
+      "retained_source_member": "terminal-candidate-seed.log",
+      "retained_source_sha256_verified": true
+    },
+    {
+      "name": "candidate/.godot/ci/fresh-save-retained-input/terminal-candidate.jsonl",
+      "size": 1443,
+      "sha256": "e82f3b04a7fc959afd5cc3bef82355dcc3314591c210d8e24e25abaef880675f",
+      "crc32": "4067a2d5",
+      "disposition": "omitted",
+      "reason": "Historical retained workload input or its verified byte-identical mirror, not a current execution result.",
+      "retained_source_archive": "evidence/phase_2r/current_ci_20261023/final_retention/run39988834004/original-12517208437.zip",
+      "retained_source_member": "terminal-candidate.jsonl",
+      "retained_source_sha256_verified": true
+    },
+    {
+      "name": "candidate/.godot/ci/fresh-save-retained-input/terminal-candidate.log",
+      "size": 167956,
+      "sha256": "0130df1d357114383707e772fe945ece3125416756cd7ae17c7af556c1d7e98c",
+      "crc32": "797ccd89",
+      "disposition": "omitted",
+      "reason": "Historical retained workload input or its verified byte-identical mirror, not a current execution result.",
+      "retained_source_archive": "evidence/phase_2r/current_ci_20261023/final_retention/run39988834004/original-12517208437.zip",
+      "retained_source_member": "terminal-candidate.log",
+      "retained_source_sha256_verified": true
+    },
+    {
+      "name": "candidate/.godot/ci/fresh-save-retained-input/terminal-candidate.xml",
+      "size": 375,
+      "sha256": "2b29bf25841a2c5dab633ed4b68fe19d566e4fa5e5f77d4f8d481f9160d563ba",
+      "crc32": "bb16bdb0",
+      "disposition": "omitted",
+      "reason": "Historical retained workload input or its verified byte-identical mirror, not a current execution result.",
+      "retained_source_archive": "evidence/phase_2r/current_ci_20261023/final_retention/run39988834004/original-12517208437.zip",
+      "retained_source_member": "terminal-candidate.xml",
+      "retained_source_sha256_verified": true
+    },
+    {
+      "name": "candidate/.godot/ci/fresh-save-retained-input/terminal-pair.json",
+      "size": 1549,
+      "sha256": "bc87c7bb2c34ed37c60a8fe02ce5d3591f8eb7bc18c5bc35346ebda53f7f154d",
+      "crc32": "6895a3f4",
+      "disposition": "omitted",
+      "reason": "Historical retained workload input or its verified byte-identical mirror, not a current execution result.",
+      "retained_source_archive": "evidence/phase_2r/current_ci_20261023/final_retention/run39988834004/original-12517208437.zip",
+      "retained_source_member": "terminal-pair.json",
+      "retained_source_sha256_verified": true
+    },
+    {
+      "name": "candidate/.godot/ci/fresh-save-retained-input/terminal-root-hashes.json",
+      "size": 5173,
+      "sha256": "d0d652dac2f6221dc3a8ca81069b19b011d145108a68ce485a01eaa6ae1ef47c",
+      "crc32": "f4e0312d",
+      "disposition": "omitted",
+      "reason": "Historical retained workload input or its verified byte-identical mirror, not a current execution result.",
+      "retained_source_archive": "evidence/phase_2r/current_ci_20261023/final_retention/run39988834004/original-12517208437.zip",
+      "retained_source_member": "terminal-root-hashes.json",
+      "retained_source_sha256_verified": true
+    },
+    {
+      "name": "candidate/.godot/ci/fresh-save-retained-input/terminal-root/authored-week-day4.json",
+      "size": 745849,
+      "sha256": "28c243435f3ba67404766e655c14be81e567f6823aa639ed1b6016a07907831f",
+      "crc32": "fc4ed5df",
+      "disposition": "omitted",
+      "reason": "Historical retained workload input or its verified byte-identical mirror, not a current execution result.",
+      "retained_source_archive": "evidence/phase_2r/current_ci_20261023/final_retention/run39988834004/original-12517208437.zip",
+      "retained_source_member": "terminal-root/authored-week-day4.json",
+      "retained_source_sha256_verified": true
+    },
+    {
+      "name": "candidate/.godot/ci/fresh-save-retained-input/terminal-root/authored-week-ending.json",
+      "size": 677619,
+      "sha256": "c0e07eb724a437da9e6f2ec9a28346e555c1e440289be6eea1bccd621fd0155c",
+      "crc32": "9a86bf04",
+      "disposition": "omitted",
+      "reason": "Historical retained workload input or its verified byte-identical mirror, not a current execution result.",
+      "retained_source_archive": "evidence/phase_2r/current_ci_20261023/final_retention/run39988834004/original-12517208437.zip",
+      "retained_source_member": "terminal-root/authored-week-ending.json",
+      "retained_source_sha256_verified": true
+    },
+    {
+      "name": "candidate/.godot/ci/fresh-save-retained-input/terminal-root/desktop-issuer-root.json",
+      "size": 65790,
+      "sha256": "fc7ca1c8fec152d44e7c800fa87774c354967af809b1c9afc48e8a064e89bff4",
+      "crc32": "74c25de9",
+      "disposition": "omitted",
+      "reason": "Historical retained workload input or its verified byte-identical mirror, not a current execution result.",
+      "retained_source_archive": "evidence/phase_2r/current_ci_20261023/final_retention/run39988834004/original-12517208437.zip",
+      "retained_source_member": "terminal-root/desktop-issuer-root.json",
+      "retained_source_sha256_verified": true
+    },
+    {
+      "name": "candidate/.godot/ci/fresh-save-retained-input/terminal-root/desktop-publications.json",
+      "size": 34,
+      "sha256": "902849ab2604217a878bc4de507660ced78f981a72c1d6343dd9ef55af64d4e4",
+      "crc32": "0fd226aa",
+      "disposition": "omitted",
+      "reason": "Historical retained workload input or its verified byte-identical mirror, not a current execution result.",
+      "retained_source_archive": "evidence/phase_2r/current_ci_20261023/final_retention/run39988834004/original-12517208437.zip",
+      "retained_source_member": "terminal-root/desktop-publications.json",
+      "retained_source_sha256_verified": true
+    },
+    {
+      "name": "candidate/.godot/ci/fresh-save-retained-input/terminal-root/profile.json",
+      "size": 231435,
+      "sha256": "40a3166a287790295a5270a42934337fc7bdd5f63c759d193d0d555c89c71f43",
+      "crc32": "1e571c6e",
+      "disposition": "omitted",
+      "reason": "Historical retained workload input or its verified byte-identical mirror, not a current execution result.",
+      "retained_source_archive": "evidence/phase_2r/current_ci_20261023/final_retention/run39988834004/original-12517208437.zip",
+      "retained_source_member": "terminal-root/profile.json",
+      "retained_source_sha256_verified": true
+    },
+    {
+      "name": "candidate/.godot/ci/fresh-save-retained-input/terminal-root/saves/autosave.json",
+      "size": 9102,
+      "sha256": "54b47a2637f33b4937fa63e63c5b8571038d3adde0576437bad1c415b13454a3",
+      "crc32": "69cb9871",
+      "disposition": "omitted",
+      "reason": "Historical retained workload input or its verified byte-identical mirror, not a current execution result.",
+      "retained_source_archive": "evidence/phase_2r/current_ci_20261023/final_retention/run39988834004/original-12517208437.zip",
+      "retained_source_member": "terminal-root/saves/autosave.json",
+      "retained_source_sha256_verified": true
+    },
+    {
+      "name": "candidate/.godot/ci/fresh-save-retained-input/terminal-root/saves/desktop-continuation-operations.json",
+      "size": 5160096,
+      "sha256": "04c5dd615ed91e42378a7e5e5b8d9506337fa913c746bae62c0fb57a29cb227a",
+      "crc32": "79c149ee",
+      "disposition": "omitted",
+      "reason": "Historical retained workload input or its verified byte-identical mirror, not a current execution result.",
+      "retained_source_archive": "evidence/phase_2r/current_ci_20261023/final_retention/run39988834004/original-12517208437.zip",
+      "retained_source_member": "terminal-root/saves/desktop-continuation-operations.json",
+      "retained_source_sha256_verified": true
+    },
+    {
+      "name": "candidate/.godot/ci/fresh-save-retained-input/terminal-root/saves/slot_1.json",
+      "size": 715995,
+      "sha256": "abfc0aa1c5438a3d3c747e1a539532866c9dfddbd67bcbc57c6562325367449e",
+      "crc32": "1e4af510",
+      "disposition": "omitted",
+      "reason": "Historical retained workload input or its verified byte-identical mirror, not a current execution result.",
+      "retained_source_archive": "evidence/phase_2r/current_ci_20261023/final_retention/run39988834004/original-12517208437.zip",
+      "retained_source_member": "terminal-root/saves/slot_1.json",
+      "retained_source_sha256_verified": true
+    },
+    {
+      "name": "candidate/.godot/ci/fresh-save-retained-input/terminal-root/saves/slot_2.json",
+      "size": 1577281,
+      "sha256": "17934c8199a7d25f97c69890f0ca609e5106c6bb6dc187464d58c40d2baf987c",
+      "crc32": "0b253ebc",
+      "disposition": "omitted",
+      "reason": "Historical retained workload input or its verified byte-identical mirror, not a current execution result.",
+      "retained_source_archive": "evidence/phase_2r/current_ci_20261023/final_retention/run39988834004/original-12517208437.zip",
+      "retained_source_member": "terminal-root/saves/slot_2.json",
+      "retained_source_sha256_verified": true
+    },
+    {
+      "name": "candidate/.godot/ci/fresh-save-retained-input/terminal-root/schedule-foundation-publications.json",
+      "size": 34,
+      "sha256": "902849ab2604217a878bc4de507660ced78f981a72c1d6343dd9ef55af64d4e4",
+      "crc32": "0fd226aa",
+      "disposition": "omitted",
+      "reason": "Historical retained workload input or its verified byte-identical mirror, not a current execution result.",
+      "retained_source_archive": "evidence/phase_2r/current_ci_20261023/final_retention/run39988834004/original-12517208437.zip",
+      "retained_source_member": "terminal-root/schedule-foundation-publications.json",
+      "retained_source_sha256_verified": true
+    },
+    {
+      "name": "candidate/.godot/ci/import-stderr.log",
+      "size": 126,
+      "sha256": "e3e9582cfc1659ab624949d8fbdf43ec09f34ede8590bcc20749ca738dffff1b",
+      "crc32": "c3d75eca",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/ci/import-stderr.log",
+      "retained_archive": "attribution.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/import-stdout.log",
+      "size": 151109,
+      "sha256": "0523d3dc9effcc8a9d213bbcf1c7165cdb727bf52e22837dd0ee804723418d5d",
+      "crc32": "8196be84",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/ci/import-stdout.log",
+      "retained_archive": "attribution.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/import.log",
+      "size": 96586,
+      "sha256": "85f2e6683da42e01f33e5186ba4f91416ec578eb7247a4cf301e0194021d4b88",
+      "crc32": "26f75a65",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/ci/import.log",
+      "retained_archive": "attribution.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/snapshot-callers.json",
+      "size": 344322,
+      "sha256": "8be31466636e03eb413928d1947e059dafc18949c160a06239cf8dac8a8a5859",
+      "crc32": "664f1d55",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/ci/snapshot-callers.json",
+      "retained_archive": "attribution.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/terminal-pair.json",
+      "size": 1538,
+      "sha256": "619bc1b5f8fff73ce5d49751ef1b00ef9c1ee80165139e93e33fb4c7adbcce8a",
+      "crc32": "9d65198e",
+      "disposition": "omitted_duplicate",
+      "reason": "Byte-identical current member retained once; use retained_name and retained_archive to reconstruct.",
+      "retained_name": "candidate/.godot/ci/fresh-save-load/terminal-pair.json",
+      "retained_archive": "attribution.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/terminal-root-hashes.json",
+      "size": 5173,
+      "sha256": "d0d652dac2f6221dc3a8ca81069b19b011d145108a68ce485a01eaa6ae1ef47c",
+      "crc32": "f4e0312d",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/ci/terminal-root-hashes.json",
+      "retained_archive": "attribution.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/terminal-root/authored-week-day4.json",
+      "size": 745849,
+      "sha256": "28c243435f3ba67404766e655c14be81e567f6823aa639ed1b6016a07907831f",
+      "crc32": "fc4ed5df",
+      "disposition": "omitted",
+      "reason": "Historical retained workload input or its verified byte-identical mirror, not a current execution result.",
+      "retained_source_archive": "evidence/phase_2r/current_ci_20261023/final_retention/run39988834004/original-12517208437.zip",
+      "retained_source_member": "terminal-root/authored-week-day4.json",
+      "retained_source_sha256_verified": true
+    },
+    {
+      "name": "candidate/.godot/ci/terminal-root/authored-week-ending.json",
+      "size": 677619,
+      "sha256": "c0e07eb724a437da9e6f2ec9a28346e555c1e440289be6eea1bccd621fd0155c",
+      "crc32": "9a86bf04",
+      "disposition": "omitted",
+      "reason": "Historical retained workload input or its verified byte-identical mirror, not a current execution result.",
+      "retained_source_archive": "evidence/phase_2r/current_ci_20261023/final_retention/run39988834004/original-12517208437.zip",
+      "retained_source_member": "terminal-root/authored-week-ending.json",
+      "retained_source_sha256_verified": true
+    },
+    {
+      "name": "candidate/.godot/ci/terminal-root/desktop-issuer-root.json",
+      "size": 65790,
+      "sha256": "fc7ca1c8fec152d44e7c800fa87774c354967af809b1c9afc48e8a064e89bff4",
+      "crc32": "74c25de9",
+      "disposition": "omitted",
+      "reason": "Historical retained workload input or its verified byte-identical mirror, not a current execution result.",
+      "retained_source_archive": "evidence/phase_2r/current_ci_20261023/final_retention/run39988834004/original-12517208437.zip",
+      "retained_source_member": "terminal-root/desktop-issuer-root.json",
+      "retained_source_sha256_verified": true
+    },
+    {
+      "name": "candidate/.godot/ci/terminal-root/desktop-publications.json",
+      "size": 34,
+      "sha256": "902849ab2604217a878bc4de507660ced78f981a72c1d6343dd9ef55af64d4e4",
+      "crc32": "0fd226aa",
+      "disposition": "omitted",
+      "reason": "Historical retained workload input or its verified byte-identical mirror, not a current execution result.",
+      "retained_source_archive": "evidence/phase_2r/current_ci_20261023/final_retention/run39988834004/original-12517208437.zip",
+      "retained_source_member": "terminal-root/desktop-publications.json",
+      "retained_source_sha256_verified": true
+    },
+    {
+      "name": "candidate/.godot/ci/terminal-root/profile.json",
+      "size": 231435,
+      "sha256": "40a3166a287790295a5270a42934337fc7bdd5f63c759d193d0d555c89c71f43",
+      "crc32": "1e571c6e",
+      "disposition": "omitted",
+      "reason": "Historical retained workload input or its verified byte-identical mirror, not a current execution result.",
+      "retained_source_archive": "evidence/phase_2r/current_ci_20261023/final_retention/run39988834004/original-12517208437.zip",
+      "retained_source_member": "terminal-root/profile.json",
+      "retained_source_sha256_verified": true
+    },
+    {
+      "name": "candidate/.godot/ci/terminal-root/saves/autosave.json",
+      "size": 9102,
+      "sha256": "54b47a2637f33b4937fa63e63c5b8571038d3adde0576437bad1c415b13454a3",
+      "crc32": "69cb9871",
+      "disposition": "omitted",
+      "reason": "Historical retained workload input or its verified byte-identical mirror, not a current execution result.",
+      "retained_source_archive": "evidence/phase_2r/current_ci_20261023/final_retention/run39988834004/original-12517208437.zip",
+      "retained_source_member": "terminal-root/saves/autosave.json",
+      "retained_source_sha256_verified": true
+    },
+    {
+      "name": "candidate/.godot/ci/terminal-root/saves/desktop-continuation-operations.json",
+      "size": 5160096,
+      "sha256": "04c5dd615ed91e42378a7e5e5b8d9506337fa913c746bae62c0fb57a29cb227a",
+      "crc32": "79c149ee",
+      "disposition": "omitted",
+      "reason": "Historical retained workload input or its verified byte-identical mirror, not a current execution result.",
+      "retained_source_archive": "evidence/phase_2r/current_ci_20261023/final_retention/run39988834004/original-12517208437.zip",
+      "retained_source_member": "terminal-root/saves/desktop-continuation-operations.json",
+      "retained_source_sha256_verified": true
+    },
+    {
+      "name": "candidate/.godot/ci/terminal-root/saves/slot_1.json",
+      "size": 715995,
+      "sha256": "abfc0aa1c5438a3d3c747e1a539532866c9dfddbd67bcbc57c6562325367449e",
+      "crc32": "1e4af510",
+      "disposition": "omitted",
+      "reason": "Historical retained workload input or its verified byte-identical mirror, not a current execution result.",
+      "retained_source_archive": "evidence/phase_2r/current_ci_20261023/final_retention/run39988834004/original-12517208437.zip",
+      "retained_source_member": "terminal-root/saves/slot_1.json",
+      "retained_source_sha256_verified": true
+    },
+    {
+      "name": "candidate/.godot/ci/terminal-root/saves/slot_2.json",
+      "size": 1577281,
+      "sha256": "17934c8199a7d25f97c69890f0ca609e5106c6bb6dc187464d58c40d2baf987c",
+      "crc32": "0b253ebc",
+      "disposition": "omitted",
+      "reason": "Historical retained workload input or its verified byte-identical mirror, not a current execution result.",
+      "retained_source_archive": "evidence/phase_2r/current_ci_20261023/final_retention/run39988834004/original-12517208437.zip",
+      "retained_source_member": "terminal-root/saves/slot_2.json",
+      "retained_source_sha256_verified": true
+    },
+    {
+      "name": "candidate/.godot/ci/terminal-root/schedule-foundation-publications.json",
+      "size": 34,
+      "sha256": "902849ab2604217a878bc4de507660ced78f981a72c1d6343dd9ef55af64d4e4",
+      "crc32": "0fd226aa",
+      "disposition": "omitted",
+      "reason": "Historical retained workload input or its verified byte-identical mirror, not a current execution result.",
+      "retained_source_archive": "evidence/phase_2r/current_ci_20261023/final_retention/run39988834004/original-12517208437.zip",
+      "retained_source_member": "terminal-root/schedule-foundation-publications.json",
+      "retained_source_sha256_verified": true
+    },
+    {
+      "name": "candidate/.godot/phase2r_logs/fresh-save-load.log",
+      "size": 125671,
+      "sha256": "493c6fe8e5a05ca4bcb881b8e0d8794f338251302007205b368dcb9ada2122a9",
+      "crc32": "037e2a09",
+      "disposition": "omitted_duplicate",
+      "reason": "Byte-identical current member retained once; use retained_name and retained_archive to reconstruct.",
+      "retained_name": "candidate/.godot/ci/fresh-save-load/fresh-save-load.log",
+      "retained_archive": "attribution.zip"
+    },
+    {
+      "name": "candidate/.godot/phase2r_logs/fresh-save-seed.log",
+      "size": 14410,
+      "sha256": "4b85097e613d9b116bccd0c12256043c8ad686e5c4ed46c6fe905aa82eb703a1",
+      "crc32": "e3849b7f",
+      "disposition": "omitted_duplicate",
+      "reason": "Byte-identical current member retained once; use retained_name and retained_archive to reconstruct.",
+      "retained_name": "candidate/.godot/ci/fresh-save-load/fresh-save-seed.log",
+      "retained_archive": "attribution.zip"
+    },
+    {
+      "name": "candidate/.godot/phase2r_logs/fresh-save-write.log",
+      "size": 187430,
+      "sha256": "b6ff6c95d73f396a3df2af6991ec09d9f643ebb61ebadf2970e7e3f699a0cf40",
+      "crc32": "aab39fe6",
+      "disposition": "omitted_duplicate",
+      "reason": "Byte-identical current member retained once; use retained_name and retained_archive to reconstruct.",
+      "retained_name": "candidate/.godot/ci/fresh-save-load/fresh-save-write.log",
+      "retained_archive": "attribution.zip"
+    },
+    {
+      "name": "candidate/game_state_surface.json",
+      "size": 660971,
+      "sha256": "2175828c973519a4d823f0bacc196392b1951b0018c43f50bfaec705e3599bf4",
+      "crc32": "19845b82",
+      "disposition": "retained",
+      "retained_name": "candidate/game_state_surface.json",
+      "retained_archive": "attribution.zip"
+    },
+    {
+      "name": "candidate/save_manager_surface.json",
+      "size": 183948,
+      "sha256": "fa14ce2a806169ea6238ccb5641734382a99fd54ad5e2537cc4b33d78e0e6169",
+      "crc32": "2d6fc1ae",
+      "disposition": "retained",
+      "retained_name": "candidate/save_manager_surface.json",
+      "retained_archive": "attribution.zip"
+    },
+    {
+      "name": "qualification.json",
+      "size": 10891,
+      "sha256": "518e142ffd1de4eed5c113d7f6b2b336e040933454cd01eec3a0d2fc99d2fa9a",
+      "crc32": "3166c2fd",
+      "disposition": "retained",
+      "retained_name": "qualification.json",
+      "retained_archive": "attribution.zip"
+    }
+  ],
+  "historical_source_archive_sha256": "c49053565e4b9430f2e9f0157eea9c1602898156de13df2837ca714235279670"
+}

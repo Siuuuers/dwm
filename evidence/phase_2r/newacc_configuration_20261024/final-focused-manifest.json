@@ -1,0 +1,517 @@
+{
+  "source_artifact": {
+    "id": 12561178418,
+    "run_id": 40097392016,
+    "repository": "Siuuuers/dwm",
+    "archive_size": 371428,
+    "archive_sha256": "53b866fbad31d83806252694e733ad1183138ac1b450e7cca8857d1004c37e55",
+    "crc_verified": true,
+    "members": 54
+  },
+  "scope": "Every original member is accounted for. Retained bytes are unmodified. Only byte-identical current members are omitted with an exact retained reconstruction source. No historical member omitted. Reverse native captures are split by variant only to keep archives small. Final focused baseline expected fixture failure is diagnostic evidence, not a passing-test count.",
+  "archives": [
+    {
+      "name": "final-focused.zip",
+      "size": 250416,
+      "sha256": "7f565487ee0f7b65f523d7a06b90165209920cf45aa2689c5e5c765ea03489d6",
+      "members": 50,
+      "crc_verified": true
+    }
+  ],
+  "counts": {
+    "retained": 50,
+    "omitted_duplicate": 4
+  },
+  "members": [
+    {
+      "name": "baseline/.godot/ci/import-stderr.log",
+      "size": 126,
+      "sha256": "e3e9582cfc1659ab624949d8fbdf43ec09f34ede8590bcc20749ca738dffff1b",
+      "crc32": "c3d75eca",
+      "disposition": "retained",
+      "retained_name": "baseline/.godot/ci/import-stderr.log",
+      "retained_archive": "final-focused.zip"
+    },
+    {
+      "name": "baseline/.godot/ci/import-stdout.log",
+      "size": 151109,
+      "sha256": "d2abd6ec1e2295959db40dcb15ee858b99defa7535ecb01938119569ae3e7eb0",
+      "crc32": "d85bd474",
+      "disposition": "retained",
+      "retained_name": "baseline/.godot/ci/import-stdout.log",
+      "retained_archive": "final-focused.zip"
+    },
+    {
+      "name": "baseline/.godot/ci/import.log",
+      "size": 96586,
+      "sha256": "04fd3023f95d12fc008c7dfca3d3b2ca62b2e3ec02dfd34e4d6435456c55dbfc",
+      "crc32": "97e4a676",
+      "disposition": "retained",
+      "retained_name": "baseline/.godot/ci/import.log",
+      "retained_archive": "final-focused.zip"
+    },
+    {
+      "name": "baseline/.godot/ci/newacc-test_scene_new_run_materials.jsonl",
+      "size": 921,
+      "sha256": "71d8fcb8762ce297df04b0e9e353d042cf01f5edc474281d1c640bbe5f783c08",
+      "crc32": "8ea29a97",
+      "disposition": "retained",
+      "retained_name": "baseline/.godot/ci/newacc-test_scene_new_run_materials.jsonl",
+      "retained_archive": "final-focused.zip"
+    },
+    {
+      "name": "baseline/.godot/ci/newacc-test_scene_new_run_materials.xml",
+      "size": 1265,
+      "sha256": "c8442163b66406f4ec85423ef1d31da1f48d5bc7e0c664001967a60c0d2e230b",
+      "crc32": "1d8c7781",
+      "disposition": "retained",
+      "retained_name": "baseline/.godot/ci/newacc-test_scene_new_run_materials.xml",
+      "retained_archive": "final-focused.zip"
+    },
+    {
+      "name": "baseline/.godot/phase2r_logs/newacc-test_scene_new_run_materials.log",
+      "size": 1411,
+      "sha256": "2ed0033122fc8033aaae3d185d5b6401e0de24699045368a7f3e0ee5586467cf",
+      "crc32": "5f1b9263",
+      "disposition": "retained",
+      "retained_name": "baseline/.godot/phase2r_logs/newacc-test_scene_new_run_materials.log",
+      "retained_archive": "final-focused.zip"
+    },
+    {
+      "name": "baseline/game_state_surface.json",
+      "size": 660971,
+      "sha256": "2175828c973519a4d823f0bacc196392b1951b0018c43f50bfaec705e3599bf4",
+      "crc32": "19845b82",
+      "disposition": "retained",
+      "retained_name": "baseline/game_state_surface.json",
+      "retained_archive": "final-focused.zip"
+    },
+    {
+      "name": "baseline/save_manager_surface.json",
+      "size": 183948,
+      "sha256": "fa14ce2a806169ea6238ccb5641734382a99fd54ad5e2537cc4b33d78e0e6169",
+      "crc32": "2d6fc1ae",
+      "disposition": "retained",
+      "retained_name": "baseline/save_manager_surface.json",
+      "retained_archive": "final-focused.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/import-stderr.log",
+      "size": 126,
+      "sha256": "e3e9582cfc1659ab624949d8fbdf43ec09f34ede8590bcc20749ca738dffff1b",
+      "crc32": "c3d75eca",
+      "disposition": "omitted_duplicate",
+      "reason": "Byte-identical current member retained once; use retained_name and retained_archive to reconstruct.",
+      "retained_name": "baseline/.godot/ci/import-stderr.log",
+      "retained_archive": "final-focused.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/import-stdout.log",
+      "size": 151109,
+      "sha256": "850008d87333c794639cba2a4ee67c53a64f9ab5a2b703c2e8959442b974b269",
+      "crc32": "d35ae88e",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/ci/import-stdout.log",
+      "retained_archive": "final-focused.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/import.log",
+      "size": 96586,
+      "sha256": "efd2bb6a97924b49947ff4ff5f28d4099c29375a3e7cce0da87078e51fb01760",
+      "crc32": "79aad5e5",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/ci/import.log",
+      "retained_archive": "final-focused.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/newacc-test_new_run_pair_durability.jsonl",
+      "size": 933,
+      "sha256": "b4822e93e2157907a3bd6c18d3f9069fb02014f85844cd9c8ba7fa56ce50e1b8",
+      "crc32": "ed218deb",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/ci/newacc-test_new_run_pair_durability.jsonl",
+      "retained_archive": "final-focused.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/newacc-test_new_run_pair_durability.xml",
+      "size": 2045,
+      "sha256": "c5094c3ed8f182224b1375c046a41d0eed0fdddf6ee11d0ef3f2cefa018cf071",
+      "crc32": "d210b727",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/ci/newacc-test_new_run_pair_durability.xml",
+      "retained_archive": "final-focused.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/newacc-test_new_run_transaction.jsonl",
+      "size": 913,
+      "sha256": "6868974bd9d1c554d3b829c9d1d49fa39d500d84889355dc3276456f22c3bdc9",
+      "crc32": "b8a219f3",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/ci/newacc-test_new_run_transaction.jsonl",
+      "retained_archive": "final-focused.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/newacc-test_new_run_transaction.xml",
+      "size": 2731,
+      "sha256": "1ab90331f5cf729061ce82b69ce576d531bce43481b72bd220185003c2a3bf7a",
+      "crc32": "184977bf",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/ci/newacc-test_new_run_transaction.xml",
+      "retained_archive": "final-focused.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/newacc-test_scene_initial_admission.jsonl",
+      "size": 933,
+      "sha256": "9ebb4d7b0c9d70c905d7c064122b0fe4922b363b8813f0fc9e4ed3b5c3df32bf",
+      "crc32": "81d88446",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/ci/newacc-test_scene_initial_admission.jsonl",
+      "retained_archive": "final-focused.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/newacc-test_scene_initial_admission.xml",
+      "size": 1146,
+      "sha256": "6d57f5a4816ab855f3e0d81d3036a6197396d7a7ef94966b892b1e36cf061fa1",
+      "crc32": "fd250750",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/ci/newacc-test_scene_initial_admission.xml",
+      "retained_archive": "final-focused.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/newacc-test_scene_initial_candidate.jsonl",
+      "size": 933,
+      "sha256": "7978e0d933f2f7be798fb8bd4a8e7958dee2414ffa1a9dc2194dc64b34933b3a",
+      "crc32": "28b8b41b",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/ci/newacc-test_scene_initial_candidate.jsonl",
+      "retained_archive": "final-focused.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/newacc-test_scene_initial_candidate.xml",
+      "size": 2266,
+      "sha256": "442f09d8ed7b4cddbd2d5021df97916a6fae595212e658b1ea5bbd4f847696b4",
+      "crc32": "1fddddd7",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/ci/newacc-test_scene_initial_candidate.xml",
+      "retained_archive": "final-focused.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/newacc-test_scene_initial_frozen.jsonl",
+      "size": 911,
+      "sha256": "8db06eb403c2a1b3f943d0ffd1187d5dab44774ff9b832eb10b722d6a2e3834e",
+      "crc32": "77a784dc",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/ci/newacc-test_scene_initial_frozen.jsonl",
+      "retained_archive": "final-focused.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/newacc-test_scene_initial_frozen.xml",
+      "size": 838,
+      "sha256": "5088970fec470fe5c93bece3b7fb9d2d2ecc8e2516027bd03883f78b1eb43e0b",
+      "crc32": "b5e083bb",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/ci/newacc-test_scene_initial_frozen.xml",
+      "retained_archive": "final-focused.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/newacc-test_scene_joint_new_run.jsonl",
+      "size": 913,
+      "sha256": "927c779a7dc21f2f991bd488dbc78ac8dab961d66c914a37acf4dc750721f288",
+      "crc32": "12360c74",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/ci/newacc-test_scene_joint_new_run.jsonl",
+      "retained_archive": "final-focused.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/newacc-test_scene_joint_new_run.xml",
+      "size": 1376,
+      "sha256": "235048204d98fb3ba797aa367dffdce0c0a800ca0a6d65f5f2fbdcdeddb751e7",
+      "crc32": "bfceb5c4",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/ci/newacc-test_scene_joint_new_run.xml",
+      "retained_archive": "final-focused.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/newacc-test_scene_new_run_assignment.jsonl",
+      "size": 931,
+      "sha256": "544d74c1abf0a3390a3c22058ec18cf714778227dfd9a1062e12e4fb6606a757",
+      "crc32": "6772a16f",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/ci/newacc-test_scene_new_run_assignment.jsonl",
+      "retained_archive": "final-focused.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/newacc-test_scene_new_run_assignment.xml",
+      "size": 2266,
+      "sha256": "833c83730ef56ec979cef014cef6263708b4e55ed4f0f52397b3aed8ebd3042a",
+      "crc32": "679daf57",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/ci/newacc-test_scene_new_run_assignment.xml",
+      "retained_archive": "final-focused.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/newacc-test_scene_new_run_journal.jsonl",
+      "size": 916,
+      "sha256": "141bbea39dd79f50a3256d429b33221570eb9274190bebaa858eae59c791cc69",
+      "crc32": "adf2848a",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/ci/newacc-test_scene_new_run_journal.jsonl",
+      "retained_archive": "final-focused.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/newacc-test_scene_new_run_journal.xml",
+      "size": 1481,
+      "sha256": "02970da19514ae2e93e82f9b13d7bb15914d4cb17d57f5219944385f4995bda6",
+      "crc32": "fefb10cd",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/ci/newacc-test_scene_new_run_journal.xml",
+      "retained_archive": "final-focused.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/newacc-test_scene_new_run_materials.jsonl",
+      "size": 926,
+      "sha256": "406a56ed5046bf055c75e347953edd779c360fe1452efb8b124258cb2deac457",
+      "crc32": "7df74765",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/ci/newacc-test_scene_new_run_materials.jsonl",
+      "retained_archive": "final-focused.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/newacc-test_scene_new_run_materials.xml",
+      "size": 1101,
+      "sha256": "b3e06bd30c0405cef6dcbf16bb227bc72ab09129dbdc0da641d54e7377ecd23d",
+      "crc32": "e892f3b8",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/ci/newacc-test_scene_new_run_materials.xml",
+      "retained_archive": "final-focused.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/newacc-test_scene_reading_registration.jsonl",
+      "size": 941,
+      "sha256": "577b5b5155b71bf9c88aba710ecfc8777be95206c5118701ab68daaaee2482b0",
+      "crc32": "03270cbd",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/ci/newacc-test_scene_reading_registration.jsonl",
+      "retained_archive": "final-focused.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/newacc-test_scene_reading_registration.xml",
+      "size": 1475,
+      "sha256": "baecc00c3c1c608d1e3c6cf99f06a6826ad2ed118cacdc2b564624fe59192f54",
+      "crc32": "297d6db7",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/ci/newacc-test_scene_reading_registration.xml",
+      "retained_archive": "final-focused.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/newacc-test_solo_reading_session.jsonl",
+      "size": 911,
+      "sha256": "cff0cf1a2b2c2dd3c6ca03f1ae731a4c42779ff0f5de41a96d6d9f4ca1e6f90e",
+      "crc32": "2cc5f5e7",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/ci/newacc-test_solo_reading_session.jsonl",
+      "retained_archive": "final-focused.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/newacc-test_solo_reading_session.xml",
+      "size": 4617,
+      "sha256": "dbe59cd211c746440c7b7af494947c667a2e244e05f79507f48af1c82732eaa6",
+      "crc32": "6cfb9f04",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/ci/newacc-test_solo_reading_session.xml",
+      "retained_archive": "final-focused.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/public-surfaces/game_state-check.jsonl",
+      "size": 1112,
+      "sha256": "dfc5205419ce311a257e42352654eaa201dd2995d4fd52c5914d04c2fe7ed293",
+      "crc32": "dbef227b",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/ci/public-surfaces/game_state-check.jsonl",
+      "retained_archive": "final-focused.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/public-surfaces/game_state_surface.json",
+      "size": 660971,
+      "sha256": "af2faf714b9a61dd282fb5ede16ccee5f0a71117cadd8f903650a2fb11f0c8f1",
+      "crc32": "24b1d55f",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/ci/public-surfaces/game_state_surface.json",
+      "retained_archive": "final-focused.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/public-surfaces/retirement-audit.json",
+      "size": 564,
+      "sha256": "534448aa1dfbe1ca760bed3a8f19c983cc5be1c23e805a817cf918c98a7c0564",
+      "crc32": "6b7c079d",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/ci/public-surfaces/retirement-audit.json",
+      "retained_archive": "final-focused.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/public-surfaces/save_manager-check.jsonl",
+      "size": 1124,
+      "sha256": "126c106813ed73bfcda2dac7f9b1c134910867151c0dc0bd8aa37eb4268e2a54",
+      "crc32": "957731fc",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/ci/public-surfaces/save_manager-check.jsonl",
+      "retained_archive": "final-focused.zip"
+    },
+    {
+      "name": "candidate/.godot/ci/public-surfaces/save_manager_surface.json",
+      "size": 183949,
+      "sha256": "839034b1ff2d89bdd23c18e6f62947939f826db91e5bc52ea12174f00ced427b",
+      "crc32": "be103c0e",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/ci/public-surfaces/save_manager_surface.json",
+      "retained_archive": "final-focused.zip"
+    },
+    {
+      "name": "candidate/.godot/phase2r_logs/cloud-public-surface-game_state-check.log",
+      "size": 97,
+      "sha256": "f905573f8dd52f9b85362666ac54f7c7145d1ce376dec030e86792970fc2e2c7",
+      "crc32": "f8d88c83",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/phase2r_logs/cloud-public-surface-game_state-check.log",
+      "retained_archive": "final-focused.zip"
+    },
+    {
+      "name": "candidate/.godot/phase2r_logs/cloud-public-surface-save_manager-check.log",
+      "size": 97,
+      "sha256": "f905573f8dd52f9b85362666ac54f7c7145d1ce376dec030e86792970fc2e2c7",
+      "crc32": "f8d88c83",
+      "disposition": "omitted_duplicate",
+      "reason": "Byte-identical current member retained once; use retained_name and retained_archive to reconstruct.",
+      "retained_name": "candidate/.godot/phase2r_logs/cloud-public-surface-game_state-check.log",
+      "retained_archive": "final-focused.zip"
+    },
+    {
+      "name": "candidate/.godot/phase2r_logs/newacc-test_new_run_pair_durability.log",
+      "size": 1326,
+      "sha256": "9c9bb65f2789e6062d592842e1829d32c2aa8bc99421081391edb829118feaf5",
+      "crc32": "ff074fe0",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/phase2r_logs/newacc-test_new_run_pair_durability.log",
+      "retained_archive": "final-focused.zip"
+    },
+    {
+      "name": "candidate/.godot/phase2r_logs/newacc-test_new_run_transaction.log",
+      "size": 1462,
+      "sha256": "a0a4c6f99249471b11f77b84c3491664ae1f48dc6871553e59a5ae096ea68643",
+      "crc32": "ff44801c",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/phase2r_logs/newacc-test_new_run_transaction.log",
+      "retained_archive": "final-focused.zip"
+    },
+    {
+      "name": "candidate/.godot/phase2r_logs/newacc-test_scene_initial_admission.log",
+      "size": 1023,
+      "sha256": "8183083a0ab06108812642a18b994d1843a63bb198fe102a4c6c927cbe6d7b7c",
+      "crc32": "3bf71f8d",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/phase2r_logs/newacc-test_scene_initial_admission.log",
+      "retained_archive": "final-focused.zip"
+    },
+    {
+      "name": "candidate/.godot/phase2r_logs/newacc-test_scene_initial_candidate.log",
+      "size": 2012,
+      "sha256": "71a7e83db816c7a69b14614d73ca45e83ef59c4eaa1acc490dc74dc9aed8ecf9",
+      "crc32": "9c40d035",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/phase2r_logs/newacc-test_scene_initial_candidate.log",
+      "retained_archive": "final-focused.zip"
+    },
+    {
+      "name": "candidate/.godot/phase2r_logs/newacc-test_scene_initial_frozen.log",
+      "size": 891,
+      "sha256": "b65e758da951734f619b7caf52834a3907e119cf308033fb27f5b57e8e000fbc",
+      "crc32": "1445aafd",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/phase2r_logs/newacc-test_scene_initial_frozen.log",
+      "retained_archive": "final-focused.zip"
+    },
+    {
+      "name": "candidate/.godot/phase2r_logs/newacc-test_scene_joint_new_run.log",
+      "size": 1121,
+      "sha256": "e329ba185afd0c93b1b04a685450a71eef5b2544915eea7bb026b753a52b7df7",
+      "crc32": "a7e94f18",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/phase2r_logs/newacc-test_scene_joint_new_run.log",
+      "retained_archive": "final-focused.zip"
+    },
+    {
+      "name": "candidate/.godot/phase2r_logs/newacc-test_scene_new_run_assignment.log",
+      "size": 1453,
+      "sha256": "a65f9a72b6dd4f7103f83b6073c88b47596055a8f6f2b04a347f81014ff256b6",
+      "crc32": "06ae0084",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/phase2r_logs/newacc-test_scene_new_run_assignment.log",
+      "retained_archive": "final-focused.zip"
+    },
+    {
+      "name": "candidate/.godot/phase2r_logs/newacc-test_scene_new_run_journal.log",
+      "size": 1113,
+      "sha256": "542ac0ba636ee62448532070d3dc5f1c62693dd97064701a19c4876246766cc0",
+      "crc32": "f48ed403",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/phase2r_logs/newacc-test_scene_new_run_journal.log",
+      "retained_archive": "final-focused.zip"
+    },
+    {
+      "name": "candidate/.godot/phase2r_logs/newacc-test_scene_new_run_materials.log",
+      "size": 1009,
+      "sha256": "1ba76d9c2505cce60301a1bf6c688fc7efef598d6a11e6adda4a33e01ab127e8",
+      "crc32": "8afc8146",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/phase2r_logs/newacc-test_scene_new_run_materials.log",
+      "retained_archive": "final-focused.zip"
+    },
+    {
+      "name": "candidate/.godot/phase2r_logs/newacc-test_scene_reading_registration.log",
+      "size": 1086,
+      "sha256": "7f79aaa462057200ddcd843a268785843d0e47a0c85f9413f2af6adf750147e4",
+      "crc32": "85cbfad4",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/phase2r_logs/newacc-test_scene_reading_registration.log",
+      "retained_archive": "final-focused.zip"
+    },
+    {
+      "name": "candidate/.godot/phase2r_logs/newacc-test_solo_reading_session.log",
+      "size": 2307,
+      "sha256": "4a3d7fe730154ff11ae0941f6a4ce83e36a06087d77e0dce852016dd865179e1",
+      "crc32": "b81efbb8",
+      "disposition": "retained",
+      "retained_name": "candidate/.godot/phase2r_logs/newacc-test_solo_reading_session.log",
+      "retained_archive": "final-focused.zip"
+    },
+    {
+      "name": "candidate/game_state_surface.json",
+      "size": 660971,
+      "sha256": "af2faf714b9a61dd282fb5ede16ccee5f0a71117cadd8f903650a2fb11f0c8f1",
+      "crc32": "24b1d55f",
+      "disposition": "omitted_duplicate",
+      "reason": "Byte-identical current member retained once; use retained_name and retained_archive to reconstruct.",
+      "retained_name": "candidate/.godot/ci/public-surfaces/game_state_surface.json",
+      "retained_archive": "final-focused.zip"
+    },
+    {
+      "name": "candidate/save_manager_surface.json",
+      "size": 183949,
+      "sha256": "839034b1ff2d89bdd23c18e6f62947939f826db91e5bc52ea12174f00ced427b",
+      "crc32": "be103c0e",
+      "disposition": "omitted_duplicate",
+      "reason": "Byte-identical current member retained once; use retained_name and retained_archive to reconstruct.",
+      "retained_name": "candidate/.godot/ci/public-surfaces/save_manager_surface.json",
+      "retained_archive": "final-focused.zip"
+    },
+    {
+      "name": "qualification.json",
+      "size": 7190,
+      "sha256": "f073a316221cebbfb79400a36b837921ecf20925ff0ed99613e783f8e75336be",
+      "crc32": "7fac825a",
+      "disposition": "retained",
+      "retained_name": "qualification.json",
+      "retained_archive": "final-focused.zip"
+    }
+  ]
+}

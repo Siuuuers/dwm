@@ -1,0 +1,1337 @@
+{
+  "run_id": 40096860109,
+  "runtime_ref": "f0a6285168f86a95cdb58f65c4299d174e52b1d3",
+  "baseline_ref": "a5a7da03b9573ab2d751129de0063027dd2d2d50",
+  "controller_ref": "755f595990e677fdd1d0048b798301469a28894c",
+  "artifact_zip_sha256": "f199dd61ac075f779440a945b20aafcdf21154dd46c9e7c8060cd77dfac1a862",
+  "qualification": "Attribution only, no optimization candidate or matched performance comparison",
+  "source_hashes_verified": {
+    "scripts/domain/run/RunSnapshotSchema.gd": "2d5023e0f73bf11e389952088b609fb7299ead2c93733906405c0a74cadd7a04",
+    "scripts/narrative/SceneValidationTiming.gd": "fdd8156ca7c76c5fcea0fba7f99c6e600efd1f4ba2846ae59732ff61558fd712",
+    "autoload/GameState.gd": "411a61beb7d48fcd79b26979fc58ce9ca63a0168663ee7e445ae7445bd5886ae",
+    "scripts/infrastructure/save/SaveMigrations.gd": "b48230ed3adbe11eb92b0d829e090766ce56154279d23c37e6d3c9aa953cb0cb",
+    "scripts/infrastructure/save/CheckpointJournal.gd": "841e641348b5afb5f64e90334098557d787efc043f9a6ee8cb54f5ab83a46542",
+    "scripts/infrastructure/save/DesktopContinuationOperationJournal.gd": "e3a58e2891426a9cad6f40a06d19b70c2df3603208767b09d81c353afa035d57",
+    "scripts/infrastructure/save/SaveDocumentSchema.gd": "e53ef8ef6e5d3d3762d05aa00aba3f1758df06ec16bb47e483e898a6632e14b0",
+    "autoload/SaveManager.gd": "90b37d0bc46d1c955a452d45f0387992efa291ebb8aa6240f24ae20a3cec67cd",
+    "scripts/narrative/FrozenRunContext.gd": "541225d59ac04c627b20aeedd4b29f04f0972c22daf9dbf1a609923244225b5e"
+  },
+  "current_cases": [
+    {
+      "name": "test_genuine_ending_load_save",
+      "assertions": "112",
+      "status": "pass",
+      "classname": ".godot/ci/pair-next.gd",
+      "time": "170.315156"
+    },
+    {
+      "name": "test_fresh_current_save_load",
+      "assertions": "101",
+      "status": "pass",
+      "classname": "tests/integration/fresh_save_load_child.gd",
+      "time": "108.439529"
+    }
+  ],
+  "current_case_count": 2,
+  "current_assertions": 213,
+  "process_exit_codes": [
+    0,
+    0,
+    0
+  ],
+  "historical_input_reports_excluded": true,
+  "source_slot_sha256": "c22a4fc5408989e6cad8bffa682827b1f83c12c24260115e5e7f4e17d207fc07",
+  "source_slot_bytes": 448631,
+  "snapshot_is_nonempty_terminal_checkpoint": true,
+  "fresh_load_scope": {
+    "bundle_validation_calls": 50,
+    "bundle_validation_failures": 0,
+    "bundle_validation_us": 6371030,
+    "compilation_calls": 1472,
+    "compilation_failures": 0,
+    "compilation_us": 788703,
+    "configuration_calls": 16,
+    "configuration_failures": 0,
+    "configuration_us": 1219971,
+    "elapsed_us": 48660768,
+    "inclusive_nested": true,
+    "lifecycle_state": "ENDING",
+    "next_step_index": 0,
+    "ok": true,
+    "operation": "fresh_save_load",
+    "physical_proof_calls": 42,
+    "physical_proof_failures": 0,
+    "physical_proof_us": 4884295,
+    "playback_stage": "PRIMARY_PENDING",
+    "receipt_validation_calls": 42,
+    "receipt_validation_failures": 0,
+    "receipt_validation_us": 18281045
+  },
+  "snapshot_phase_sums_us": {
+    "elapsed_us": 29734011,
+    "diagnostic_metadata_us": 1178604,
+    "pre_semantic_us": 16127006,
+    "semantic_us": 9932698,
+    "guard_prepare_us": 1227408,
+    "guard_verify_us": 1183728,
+    "snapshot_direct_receipts": 4316186,
+    "reading_scene": 1138170,
+    "reading_terminal": 8334285,
+    "semantic_frozen": 7121219,
+    "semantic_assignment": 96,
+    "semantic_physical": 750,
+    "semantic_anchors": 1254481
+  },
+  "snapshots": [
+    {
+      "bundle_hash_ok": true,
+      "bundle_sha256": "33be6b0a64cbad7105dcd397e10a5be0ff7b90e0fb27d8100380a2050a1eb33a",
+      "callers": [
+        {
+          "function": "validate_scene",
+          "line": 799,
+          "source": "res://scripts/domain/run/RunSnapshotSchema.gd"
+        },
+        {
+          "function": "validate",
+          "line": 149,
+          "source": "res://scripts/domain/run/RunSnapshotSchema.gd"
+        },
+        {
+          "function": "_validate_bundle",
+          "line": 481,
+          "source": "res://scripts/infrastructure/save/SaveDocumentSchema.gd"
+        },
+        {
+          "function": "_validate_document",
+          "line": 246,
+          "source": "res://scripts/infrastructure/save/SaveDocumentSchema.gd"
+        },
+        {
+          "function": "validate",
+          "line": 153,
+          "source": "res://scripts/infrastructure/save/SaveDocumentSchema.gd"
+        },
+        {
+          "function": "migrate_document",
+          "line": 18,
+          "source": "res://scripts/infrastructure/save/SaveMigrations.gd"
+        },
+        {
+          "function": "_prepare_restore",
+          "line": 2216,
+          "source": "res://autoload/SaveManager.gd"
+        },
+        {
+          "function": "_prepare_backup_action_profiled",
+          "line": 1785,
+          "source": "res://autoload/SaveManager.gd"
+        },
+        {
+          "function": "prepare_backup_action",
+          "line": 1738,
+          "source": "res://autoload/SaveManager.gd"
+        },
+        {
+          "function": "prepare_action",
+          "line": 143,
+          "source": "res://scripts/application/backup/BackupPresentationPort.gd"
+        },
+        {
+          "function": "_action_pressed",
+          "line": 570,
+          "source": "res://scripts/ui/BackupApp.gd"
+        },
+        {
+          "function": "_click",
+          "line": 24,
+          "source": "res://tests/integration/scene_computer_child.gd"
+        }
+      ],
+      "checkpoint_sequence": 72,
+      "details": [
+        {
+          "code": "",
+          "elapsed_us": 543526,
+          "inclusive_nested": true,
+          "ok": true,
+          "phase": "snapshot_direct_receipts"
+        },
+        {
+          "code": "",
+          "elapsed_us": 141461,
+          "inclusive_nested": true,
+          "ok": true,
+          "phase": "reading_scene"
+        },
+        {
+          "code": "",
+          "elapsed_us": 1025482,
+          "inclusive_nested": true,
+          "ok": true,
+          "phase": "reading_terminal"
+        },
+        {
+          "code": "",
+          "elapsed_us": 881075,
+          "inclusive_nested": true,
+          "ok": true,
+          "phase": "semantic_frozen"
+        },
+        {
+          "code": "",
+          "elapsed_us": 11,
+          "inclusive_nested": true,
+          "ok": true,
+          "phase": "semantic_assignment"
+        },
+        {
+          "code": "",
+          "elapsed_us": 94,
+          "inclusive_nested": true,
+          "ok": true,
+          "phase": "semantic_physical"
+        },
+        {
+          "code": "",
+          "elapsed_us": 158011,
+          "inclusive_nested": true,
+          "ok": true,
+          "phase": "semantic_anchors"
+        }
+      ],
+      "diagnostic_metadata_us": 140255,
+      "elapsed_us": 3663358,
+      "guard_prepare_us": 149307,
+      "guard_verify_us": 144424,
+      "inclusive_nested": true,
+      "lifecycle_state": "ENDING",
+      "ok": true,
+      "ordinal": 0,
+      "playback_stage": "PRIMARY_PENDING",
+      "pre_semantic_us": 1989742,
+      "semantic_us": 1230093,
+      "snapshot_hash_ok": true,
+      "snapshot_sha256": "86b6f0fa25b3bea371da64aade21fe04d775c74d8b46843fd5c52060ec348fe3",
+      "boundary": "Selected Save9 admission through SaveMigrations"
+    },
+    {
+      "bundle_hash_ok": true,
+      "bundle_sha256": "33be6b0a64cbad7105dcd397e10a5be0ff7b90e0fb27d8100380a2050a1eb33a",
+      "callers": [
+        {
+          "function": "validate_scene",
+          "line": 799,
+          "source": "res://scripts/domain/run/RunSnapshotSchema.gd"
+        },
+        {
+          "function": "validate",
+          "line": 149,
+          "source": "res://scripts/domain/run/RunSnapshotSchema.gd"
+        },
+        {
+          "function": "derive_route_restore_context",
+          "line": 384,
+          "source": "res://scripts/domain/run/RunSnapshotSchema.gd"
+        },
+        {
+          "function": "_prepare_bundle_with_all_participants",
+          "line": 2329,
+          "source": "res://autoload/SaveManager.gd"
+        },
+        {
+          "function": "_prepare_restore_document_profiled",
+          "line": 2258,
+          "source": "res://autoload/SaveManager.gd"
+        },
+        {
+          "function": "_prepare_restore_document",
+          "line": 2249,
+          "source": "res://autoload/SaveManager.gd"
+        },
+        {
+          "function": "_prepare_restore",
+          "line": 2223,
+          "source": "res://autoload/SaveManager.gd"
+        },
+        {
+          "function": "_prepare_backup_action_profiled",
+          "line": 1785,
+          "source": "res://autoload/SaveManager.gd"
+        },
+        {
+          "function": "prepare_backup_action",
+          "line": 1738,
+          "source": "res://autoload/SaveManager.gd"
+        },
+        {
+          "function": "prepare_action",
+          "line": 143,
+          "source": "res://scripts/application/backup/BackupPresentationPort.gd"
+        },
+        {
+          "function": "_action_pressed",
+          "line": 570,
+          "source": "res://scripts/ui/BackupApp.gd"
+        },
+        {
+          "function": "_click",
+          "line": 24,
+          "source": "res://tests/integration/scene_computer_child.gd"
+        }
+      ],
+      "checkpoint_sequence": 72,
+      "details": [
+        {
+          "code": "",
+          "elapsed_us": 524750,
+          "inclusive_nested": true,
+          "ok": true,
+          "phase": "snapshot_direct_receipts"
+        },
+        {
+          "code": "",
+          "elapsed_us": 135332,
+          "inclusive_nested": true,
+          "ok": true,
+          "phase": "reading_scene"
+        },
+        {
+          "code": "",
+          "elapsed_us": 1028304,
+          "inclusive_nested": true,
+          "ok": true,
+          "phase": "reading_terminal"
+        },
+        {
+          "code": "",
+          "elapsed_us": 879060,
+          "inclusive_nested": true,
+          "ok": true,
+          "phase": "semantic_frozen"
+        },
+        {
+          "code": "",
+          "elapsed_us": 12,
+          "inclusive_nested": true,
+          "ok": true,
+          "phase": "semantic_assignment"
+        },
+        {
+          "code": "",
+          "elapsed_us": 93,
+          "inclusive_nested": true,
+          "ok": true,
+          "phase": "semantic_physical"
+        },
+        {
+          "code": "",
+          "elapsed_us": 152625,
+          "inclusive_nested": true,
+          "ok": true,
+          "phase": "semantic_anchors"
+        }
+      ],
+      "diagnostic_metadata_us": 144051,
+      "elapsed_us": 3669317,
+      "guard_prepare_us": 158515,
+      "guard_verify_us": 149724,
+      "inclusive_nested": true,
+      "lifecycle_state": "ENDING",
+      "ok": true,
+      "ordinal": 1,
+      "playback_stage": "PRIMARY_PENDING",
+      "pre_semantic_us": 1978317,
+      "semantic_us": 1226971,
+      "snapshot_hash_ok": true,
+      "snapshot_sha256": "86b6f0fa25b3bea371da64aade21fe04d775c74d8b46843fd5c52060ec348fe3",
+      "boundary": "Route restore-context derivation"
+    },
+    {
+      "bundle_hash_ok": true,
+      "bundle_sha256": "33be6b0a64cbad7105dcd397e10a5be0ff7b90e0fb27d8100380a2050a1eb33a",
+      "callers": [
+        {
+          "function": "validate_scene",
+          "line": 799,
+          "source": "res://scripts/domain/run/RunSnapshotSchema.gd"
+        },
+        {
+          "function": "validate",
+          "line": 149,
+          "source": "res://scripts/domain/run/RunSnapshotSchema.gd"
+        },
+        {
+          "function": "prepare",
+          "line": 95,
+          "source": "res://scripts/application/restore/NarrativeRestoreParticipant.gd"
+        },
+        {
+          "function": "_prepare_bundle_with_all_participants",
+          "line": 2338,
+          "source": "res://autoload/SaveManager.gd"
+        },
+        {
+          "function": "_prepare_restore_document_profiled",
+          "line": 2258,
+          "source": "res://autoload/SaveManager.gd"
+        },
+        {
+          "function": "_prepare_restore_document",
+          "line": 2249,
+          "source": "res://autoload/SaveManager.gd"
+        },
+        {
+          "function": "_prepare_restore",
+          "line": 2223,
+          "source": "res://autoload/SaveManager.gd"
+        },
+        {
+          "function": "_prepare_backup_action_profiled",
+          "line": 1785,
+          "source": "res://autoload/SaveManager.gd"
+        },
+        {
+          "function": "prepare_backup_action",
+          "line": 1738,
+          "source": "res://autoload/SaveManager.gd"
+        },
+        {
+          "function": "prepare_action",
+          "line": 143,
+          "source": "res://scripts/application/backup/BackupPresentationPort.gd"
+        },
+        {
+          "function": "_action_pressed",
+          "line": 570,
+          "source": "res://scripts/ui/BackupApp.gd"
+        },
+        {
+          "function": "_click",
+          "line": 24,
+          "source": "res://tests/integration/scene_computer_child.gd"
+        }
+      ],
+      "checkpoint_sequence": 72,
+      "details": [
+        {
+          "code": "",
+          "elapsed_us": 527661,
+          "inclusive_nested": true,
+          "ok": true,
+          "phase": "snapshot_direct_receipts"
+        },
+        {
+          "code": "",
+          "elapsed_us": 138998,
+          "inclusive_nested": true,
+          "ok": true,
+          "phase": "reading_scene"
+        },
+        {
+          "code": "",
+          "elapsed_us": 1012729,
+          "inclusive_nested": true,
+          "ok": true,
+          "phase": "reading_terminal"
+        },
+        {
+          "code": "",
+          "elapsed_us": 881724,
+          "inclusive_nested": true,
+          "ok": true,
+          "phase": "semantic_frozen"
+        },
+        {
+          "code": "",
+          "elapsed_us": 12,
+          "inclusive_nested": true,
+          "ok": true,
+          "phase": "semantic_assignment"
+        },
+        {
+          "code": "",
+          "elapsed_us": 91,
+          "inclusive_nested": true,
+          "ok": true,
+          "phase": "semantic_physical"
+        },
+        {
+          "code": "",
+          "elapsed_us": 154900,
+          "inclusive_nested": true,
+          "ok": true,
+          "phase": "semantic_anchors"
+        }
+      ],
+      "diagnostic_metadata_us": 148006,
+      "elapsed_us": 3641740,
+      "guard_prepare_us": 149334,
+      "guard_verify_us": 145387,
+      "inclusive_nested": true,
+      "lifecycle_state": "ENDING",
+      "ok": true,
+      "ordinal": 2,
+      "playback_stage": "PRIMARY_PENDING",
+      "pre_semantic_us": 1963168,
+      "semantic_us": 1225525,
+      "snapshot_hash_ok": true,
+      "snapshot_sha256": "86b6f0fa25b3bea371da64aade21fe04d775c74d8b46843fd5c52060ec348fe3",
+      "boundary": "Narrative restore participant preparation"
+    },
+    {
+      "bundle_hash_ok": true,
+      "bundle_sha256": "33be6b0a64cbad7105dcd397e10a5be0ff7b90e0fb27d8100380a2050a1eb33a",
+      "callers": [
+        {
+          "function": "validate_scene",
+          "line": 799,
+          "source": "res://scripts/domain/run/RunSnapshotSchema.gd"
+        },
+        {
+          "function": "validate",
+          "line": 149,
+          "source": "res://scripts/domain/run/RunSnapshotSchema.gd"
+        },
+        {
+          "function": "_validate_bundle",
+          "line": 481,
+          "source": "res://scripts/infrastructure/save/SaveDocumentSchema.gd"
+        },
+        {
+          "function": "_validate_document",
+          "line": 246,
+          "source": "res://scripts/infrastructure/save/SaveDocumentSchema.gd"
+        },
+        {
+          "function": "validate",
+          "line": 153,
+          "source": "res://scripts/infrastructure/save/SaveDocumentSchema.gd"
+        },
+        {
+          "function": "_validate_scene_source",
+          "line": 1658,
+          "source": "res://scripts/infrastructure/save/DesktopContinuationOperationJournal.gd"
+        },
+        {
+          "function": "_validate_kind_fields",
+          "line": 828,
+          "source": "res://scripts/infrastructure/save/DesktopContinuationOperationJournal.gd"
+        },
+        {
+          "function": "_validate_intent_request",
+          "line": 1040,
+          "source": "res://scripts/infrastructure/save/DesktopContinuationOperationJournal.gd"
+        },
+        {
+          "function": "prepare_intent",
+          "line": 205,
+          "source": "res://scripts/infrastructure/save/DesktopContinuationOperationJournal.gd"
+        },
+        {
+          "function": "_begin_restore_continuation",
+          "line": 442,
+          "source": "res://autoload/SaveManager.gd"
+        },
+        {
+          "function": "_commit_prepared_restore_profiled",
+          "line": 333,
+          "source": "res://autoload/SaveManager.gd"
+        },
+        {
+          "function": "commit_prepared_restore",
+          "line": 279,
+          "source": "res://autoload/SaveManager.gd"
+        },
+        {
+          "function": "_commit_backup_action_profiled",
+          "line": 1841,
+          "source": "res://autoload/SaveManager.gd"
+        },
+        {
+          "function": "commit_backup_action",
+          "line": 1812,
+          "source": "res://autoload/SaveManager.gd"
+        },
+        {
+          "function": "commit_action",
+          "line": 175,
+          "source": "res://scripts/application/backup/BackupPresentationPort.gd"
+        },
+        {
+          "function": "_commit_pending",
+          "line": 634,
+          "source": "res://scripts/ui/BackupApp.gd"
+        },
+        {
+          "function": "_action_pressed",
+          "line": 598,
+          "source": "res://scripts/ui/BackupApp.gd"
+        },
+        {
+          "function": "_click",
+          "line": 24,
+          "source": "res://tests/integration/scene_computer_child.gd"
+        }
+      ],
+      "checkpoint_sequence": 72,
+      "details": [
+        {
+          "code": "",
+          "elapsed_us": 524019,
+          "inclusive_nested": true,
+          "ok": true,
+          "phase": "snapshot_direct_receipts"
+        },
+        {
+          "code": "",
+          "elapsed_us": 138322,
+          "inclusive_nested": true,
+          "ok": true,
+          "phase": "reading_scene"
+        },
+        {
+          "code": "",
+          "elapsed_us": 1021803,
+          "inclusive_nested": true,
+          "ok": true,
+          "phase": "reading_terminal"
+        },
+        {
+          "code": "",
+          "elapsed_us": 883542,
+          "inclusive_nested": true,
+          "ok": true,
+          "phase": "semantic_frozen"
+        },
+        {
+          "code": "",
+          "elapsed_us": 12,
+          "inclusive_nested": true,
+          "ok": true,
+          "phase": "semantic_assignment"
+        },
+        {
+          "code": "",
+          "elapsed_us": 97,
+          "inclusive_nested": true,
+          "ok": true,
+          "phase": "semantic_physical"
+        },
+        {
+          "code": "",
+          "elapsed_us": 158248,
+          "inclusive_nested": true,
+          "ok": true,
+          "phase": "semantic_anchors"
+        }
+      ],
+      "diagnostic_metadata_us": 141722,
+      "elapsed_us": 3644995,
+      "guard_prepare_us": 148699,
+      "guard_verify_us": 145034,
+      "inclusive_nested": true,
+      "lifecycle_state": "ENDING",
+      "ok": true,
+      "ordinal": 3,
+      "playback_stage": "PRIMARY_PENDING",
+      "pre_semantic_us": 1970423,
+      "semantic_us": 1229384,
+      "snapshot_hash_ok": true,
+      "snapshot_sha256": "86b6f0fa25b3bea371da64aade21fe04d775c74d8b46843fd5c52060ec348fe3",
+      "boundary": "Continuation journal prepare_intent"
+    },
+    {
+      "bundle_hash_ok": true,
+      "bundle_sha256": "33be6b0a64cbad7105dcd397e10a5be0ff7b90e0fb27d8100380a2050a1eb33a",
+      "callers": [
+        {
+          "function": "validate_scene",
+          "line": 799,
+          "source": "res://scripts/domain/run/RunSnapshotSchema.gd"
+        },
+        {
+          "function": "validate",
+          "line": 149,
+          "source": "res://scripts/domain/run/RunSnapshotSchema.gd"
+        },
+        {
+          "function": "_validate_bundle",
+          "line": 481,
+          "source": "res://scripts/infrastructure/save/SaveDocumentSchema.gd"
+        },
+        {
+          "function": "_validate_document",
+          "line": 246,
+          "source": "res://scripts/infrastructure/save/SaveDocumentSchema.gd"
+        },
+        {
+          "function": "validate",
+          "line": 153,
+          "source": "res://scripts/infrastructure/save/SaveDocumentSchema.gd"
+        },
+        {
+          "function": "_validate_scene_source",
+          "line": 1658,
+          "source": "res://scripts/infrastructure/save/DesktopContinuationOperationJournal.gd"
+        },
+        {
+          "function": "_validate_kind_fields",
+          "line": 828,
+          "source": "res://scripts/infrastructure/save/DesktopContinuationOperationJournal.gd"
+        },
+        {
+          "function": "_validate_operation",
+          "line": 743,
+          "source": "res://scripts/infrastructure/save/DesktopContinuationOperationJournal.gd"
+        },
+        {
+          "function": "commit_intent",
+          "line": 239,
+          "source": "res://scripts/infrastructure/save/DesktopContinuationOperationJournal.gd"
+        },
+        {
+          "function": "_begin_restore_continuation",
+          "line": 447,
+          "source": "res://autoload/SaveManager.gd"
+        },
+        {
+          "function": "_commit_prepared_restore_profiled",
+          "line": 333,
+          "source": "res://autoload/SaveManager.gd"
+        },
+        {
+          "function": "commit_prepared_restore",
+          "line": 279,
+          "source": "res://autoload/SaveManager.gd"
+        },
+        {
+          "function": "_commit_backup_action_profiled",
+          "line": 1841,
+          "source": "res://autoload/SaveManager.gd"
+        },
+        {
+          "function": "commit_backup_action",
+          "line": 1812,
+          "source": "res://autoload/SaveManager.gd"
+        },
+        {
+          "function": "commit_action",
+          "line": 175,
+          "source": "res://scripts/application/backup/BackupPresentationPort.gd"
+        },
+        {
+          "function": "_commit_pending",
+          "line": 634,
+          "source": "res://scripts/ui/BackupApp.gd"
+        },
+        {
+          "function": "_action_pressed",
+          "line": 598,
+          "source": "res://scripts/ui/BackupApp.gd"
+        },
+        {
+          "function": "_click",
+          "line": 24,
+          "source": "res://tests/integration/scene_computer_child.gd"
+        }
+      ],
+      "checkpoint_sequence": 72,
+      "details": [
+        {
+          "code": "",
+          "elapsed_us": 543348,
+          "inclusive_nested": true,
+          "ok": true,
+          "phase": "snapshot_direct_receipts"
+        },
+        {
+          "code": "",
+          "elapsed_us": 139968,
+          "inclusive_nested": true,
+          "ok": true,
+          "phase": "reading_scene"
+        },
+        {
+          "code": "",
+          "elapsed_us": 1035636,
+          "inclusive_nested": true,
+          "ok": true,
+          "phase": "reading_terminal"
+        },
+        {
+          "code": "",
+          "elapsed_us": 873052,
+          "inclusive_nested": true,
+          "ok": true,
+          "phase": "semantic_frozen"
+        },
+        {
+          "code": "",
+          "elapsed_us": 13,
+          "inclusive_nested": true,
+          "ok": true,
+          "phase": "semantic_assignment"
+        },
+        {
+          "code": "",
+          "elapsed_us": 91,
+          "inclusive_nested": true,
+          "ok": true,
+          "phase": "semantic_physical"
+        },
+        {
+          "code": "",
+          "elapsed_us": 148884,
+          "inclusive_nested": true,
+          "ok": true,
+          "phase": "semantic_anchors"
+        }
+      ],
+      "diagnostic_metadata_us": 149328,
+      "elapsed_us": 3677823,
+      "guard_prepare_us": 150464,
+      "guard_verify_us": 143998,
+      "inclusive_nested": true,
+      "lifecycle_state": "ENDING",
+      "ok": true,
+      "ordinal": 4,
+      "playback_stage": "PRIMARY_PENDING",
+      "pre_semantic_us": 2013963,
+      "semantic_us": 1210104,
+      "snapshot_hash_ok": true,
+      "snapshot_sha256": "86b6f0fa25b3bea371da64aade21fe04d775c74d8b46843fd5c52060ec348fe3",
+      "boundary": "Continuation journal commit_intent"
+    },
+    {
+      "bundle_hash_ok": true,
+      "bundle_sha256": "33be6b0a64cbad7105dcd397e10a5be0ff7b90e0fb27d8100380a2050a1eb33a",
+      "callers": [
+        {
+          "function": "validate_scene",
+          "line": 799,
+          "source": "res://scripts/domain/run/RunSnapshotSchema.gd"
+        },
+        {
+          "function": "validate",
+          "line": 149,
+          "source": "res://scripts/domain/run/RunSnapshotSchema.gd"
+        },
+        {
+          "function": "_validate_bundle",
+          "line": 481,
+          "source": "res://scripts/infrastructure/save/SaveDocumentSchema.gd"
+        },
+        {
+          "function": "_validate_document",
+          "line": 246,
+          "source": "res://scripts/infrastructure/save/SaveDocumentSchema.gd"
+        },
+        {
+          "function": "validate",
+          "line": 153,
+          "source": "res://scripts/infrastructure/save/SaveDocumentSchema.gd"
+        },
+        {
+          "function": "_validate_scene_source",
+          "line": 1658,
+          "source": "res://scripts/infrastructure/save/DesktopContinuationOperationJournal.gd"
+        },
+        {
+          "function": "_selected_scene_restore_bundle",
+          "line": 3003,
+          "source": "res://autoload/SaveManager.gd"
+        },
+        {
+          "function": "load_restore_context",
+          "line": 3015,
+          "source": "res://autoload/SaveManager.gd"
+        },
+        {
+          "function": "prepare",
+          "line": 63,
+          "source": "res://scripts/application/restore/DesktopIdentityAllocationRestoreParticipant.gd"
+        },
+        {
+          "function": "_begin_restore_continuation",
+          "line": 457,
+          "source": "res://autoload/SaveManager.gd"
+        },
+        {
+          "function": "_commit_prepared_restore_profiled",
+          "line": 333,
+          "source": "res://autoload/SaveManager.gd"
+        },
+        {
+          "function": "commit_prepared_restore",
+          "line": 279,
+          "source": "res://autoload/SaveManager.gd"
+        },
+        {
+          "function": "_commit_backup_action_profiled",
+          "line": 1841,
+          "source": "res://autoload/SaveManager.gd"
+        },
+        {
+          "function": "commit_backup_action",
+          "line": 1812,
+          "source": "res://autoload/SaveManager.gd"
+        },
+        {
+          "function": "commit_action",
+          "line": 175,
+          "source": "res://scripts/application/backup/BackupPresentationPort.gd"
+        },
+        {
+          "function": "_commit_pending",
+          "line": 634,
+          "source": "res://scripts/ui/BackupApp.gd"
+        },
+        {
+          "function": "_action_pressed",
+          "line": 598,
+          "source": "res://scripts/ui/BackupApp.gd"
+        },
+        {
+          "function": "_click",
+          "line": 24,
+          "source": "res://tests/integration/scene_computer_child.gd"
+        }
+      ],
+      "checkpoint_sequence": 72,
+      "details": [
+        {
+          "code": "",
+          "elapsed_us": 542000,
+          "inclusive_nested": true,
+          "ok": true,
+          "phase": "snapshot_direct_receipts"
+        },
+        {
+          "code": "",
+          "elapsed_us": 150076,
+          "inclusive_nested": true,
+          "ok": true,
+          "phase": "reading_scene"
+        },
+        {
+          "code": "",
+          "elapsed_us": 1060122,
+          "inclusive_nested": true,
+          "ok": true,
+          "phase": "reading_terminal"
+        },
+        {
+          "code": "",
+          "elapsed_us": 902779,
+          "inclusive_nested": true,
+          "ok": true,
+          "phase": "semantic_frozen"
+        },
+        {
+          "code": "",
+          "elapsed_us": 11,
+          "inclusive_nested": true,
+          "ok": true,
+          "phase": "semantic_assignment"
+        },
+        {
+          "code": "",
+          "elapsed_us": 94,
+          "inclusive_nested": true,
+          "ok": true,
+          "phase": "semantic_physical"
+        },
+        {
+          "code": "",
+          "elapsed_us": 160329,
+          "inclusive_nested": true,
+          "ok": true,
+          "phase": "semantic_anchors"
+        }
+      ],
+      "diagnostic_metadata_us": 147783,
+      "elapsed_us": 3771922,
+      "guard_prepare_us": 155201,
+      "guard_verify_us": 147696,
+      "inclusive_nested": true,
+      "lifecycle_state": "ENDING",
+      "ok": true,
+      "ordinal": 5,
+      "playback_stage": "PRIMARY_PENDING",
+      "pre_semantic_us": 2047609,
+      "semantic_us": 1262808,
+      "snapshot_hash_ok": true,
+      "snapshot_sha256": "86b6f0fa25b3bea371da64aade21fe04d775c74d8b46843fd5c52060ec348fe3",
+      "boundary": "Identity allocation source-context load"
+    },
+    {
+      "bundle_hash_ok": true,
+      "bundle_sha256": "33be6b0a64cbad7105dcd397e10a5be0ff7b90e0fb27d8100380a2050a1eb33a",
+      "callers": [
+        {
+          "function": "validate_scene",
+          "line": 799,
+          "source": "res://scripts/domain/run/RunSnapshotSchema.gd"
+        },
+        {
+          "function": "validate",
+          "line": 149,
+          "source": "res://scripts/domain/run/RunSnapshotSchema.gd"
+        },
+        {
+          "function": "_apply_run_snapshot_silent",
+          "line": 3473,
+          "source": "res://autoload/GameState.gd"
+        },
+        {
+          "function": "apply_restore_silent",
+          "line": 3374,
+          "source": "res://autoload/GameState.gd"
+        },
+        {
+          "function": "apply_silent",
+          "line": 111,
+          "source": "res://scripts/application/restore/RunRestoreParticipant.gd"
+        },
+        {
+          "function": "_run_scene_restore_transaction",
+          "line": 3082,
+          "source": "res://autoload/SaveManager.gd"
+        },
+        {
+          "function": "_run_participant_transaction_profiled",
+          "line": 1253,
+          "source": "res://autoload/SaveManager.gd"
+        },
+        {
+          "function": "_run_participant_transaction",
+          "line": 1242,
+          "source": "res://autoload/SaveManager.gd"
+        },
+        {
+          "function": "_commit_prepared_restore_profiled",
+          "line": 383,
+          "source": "res://autoload/SaveManager.gd"
+        },
+        {
+          "function": "commit_prepared_restore",
+          "line": 279,
+          "source": "res://autoload/SaveManager.gd"
+        },
+        {
+          "function": "_commit_backup_action_profiled",
+          "line": 1841,
+          "source": "res://autoload/SaveManager.gd"
+        },
+        {
+          "function": "commit_backup_action",
+          "line": 1812,
+          "source": "res://autoload/SaveManager.gd"
+        },
+        {
+          "function": "commit_action",
+          "line": 175,
+          "source": "res://scripts/application/backup/BackupPresentationPort.gd"
+        },
+        {
+          "function": "_commit_pending",
+          "line": 634,
+          "source": "res://scripts/ui/BackupApp.gd"
+        },
+        {
+          "function": "_action_pressed",
+          "line": 598,
+          "source": "res://scripts/ui/BackupApp.gd"
+        },
+        {
+          "function": "_click",
+          "line": 24,
+          "source": "res://tests/integration/scene_computer_child.gd"
+        }
+      ],
+      "checkpoint_sequence": 72,
+      "details": [
+        {
+          "code": "",
+          "elapsed_us": 548746,
+          "inclusive_nested": true,
+          "ok": true,
+          "phase": "snapshot_direct_receipts"
+        },
+        {
+          "code": "",
+          "elapsed_us": 144796,
+          "inclusive_nested": true,
+          "ok": true,
+          "phase": "reading_scene"
+        },
+        {
+          "code": "",
+          "elapsed_us": 1068629,
+          "inclusive_nested": true,
+          "ok": true,
+          "phase": "reading_terminal"
+        },
+        {
+          "code": "",
+          "elapsed_us": 897579,
+          "inclusive_nested": true,
+          "ok": true,
+          "phase": "semantic_frozen"
+        },
+        {
+          "code": "",
+          "elapsed_us": 13,
+          "inclusive_nested": true,
+          "ok": true,
+          "phase": "semantic_assignment"
+        },
+        {
+          "code": "",
+          "elapsed_us": 93,
+          "inclusive_nested": true,
+          "ok": true,
+          "phase": "semantic_physical"
+        },
+        {
+          "code": "",
+          "elapsed_us": 157352,
+          "inclusive_nested": true,
+          "ok": true,
+          "phase": "semantic_anchors"
+        }
+      ],
+      "diagnostic_metadata_us": 152600,
+      "elapsed_us": 3792749,
+      "guard_prepare_us": 157165,
+      "guard_verify_us": 148228,
+      "inclusive_nested": true,
+      "lifecycle_state": "ENDING",
+      "ok": true,
+      "ordinal": 6,
+      "playback_stage": "PRIMARY_PENDING",
+      "pre_semantic_us": 2066035,
+      "semantic_us": 1257983,
+      "snapshot_hash_ok": true,
+      "snapshot_sha256": "54aa1c1e5acd86dbdb24796974361c2f233ec5b0a0c298d6960bbbb040e7c210",
+      "boundary": "Remapped Run application"
+    },
+    {
+      "bundle_hash_ok": true,
+      "bundle_sha256": "33be6b0a64cbad7105dcd397e10a5be0ff7b90e0fb27d8100380a2050a1eb33a",
+      "callers": [
+        {
+          "function": "validate_scene",
+          "line": 799,
+          "source": "res://scripts/domain/run/RunSnapshotSchema.gd"
+        },
+        {
+          "function": "validate",
+          "line": 149,
+          "source": "res://scripts/domain/run/RunSnapshotSchema.gd"
+        },
+        {
+          "function": "_validate_candidate",
+          "line": 371,
+          "source": "res://scripts/infrastructure/save/CheckpointJournal.gd"
+        },
+        {
+          "function": "commit_prepared",
+          "line": 136,
+          "source": "res://scripts/infrastructure/save/CheckpointJournal.gd"
+        },
+        {
+          "function": "_run_scene_restore_transaction",
+          "line": 3116,
+          "source": "res://autoload/SaveManager.gd"
+        },
+        {
+          "function": "_run_participant_transaction_profiled",
+          "line": 1253,
+          "source": "res://autoload/SaveManager.gd"
+        },
+        {
+          "function": "_run_participant_transaction",
+          "line": 1242,
+          "source": "res://autoload/SaveManager.gd"
+        },
+        {
+          "function": "_commit_prepared_restore_profiled",
+          "line": 383,
+          "source": "res://autoload/SaveManager.gd"
+        },
+        {
+          "function": "commit_prepared_restore",
+          "line": 279,
+          "source": "res://autoload/SaveManager.gd"
+        },
+        {
+          "function": "_commit_backup_action_profiled",
+          "line": 1841,
+          "source": "res://autoload/SaveManager.gd"
+        },
+        {
+          "function": "commit_backup_action",
+          "line": 1812,
+          "source": "res://autoload/SaveManager.gd"
+        },
+        {
+          "function": "commit_action",
+          "line": 175,
+          "source": "res://scripts/application/backup/BackupPresentationPort.gd"
+        },
+        {
+          "function": "_commit_pending",
+          "line": 634,
+          "source": "res://scripts/ui/BackupApp.gd"
+        },
+        {
+          "function": "_action_pressed",
+          "line": 598,
+          "source": "res://scripts/ui/BackupApp.gd"
+        },
+        {
+          "function": "_click",
+          "line": 24,
+          "source": "res://tests/integration/scene_computer_child.gd"
+        }
+      ],
+      "checkpoint_sequence": 72,
+      "details": [
+        {
+          "code": "",
+          "elapsed_us": 562136,
+          "inclusive_nested": true,
+          "ok": true,
+          "phase": "snapshot_direct_receipts"
+        },
+        {
+          "code": "",
+          "elapsed_us": 149217,
+          "inclusive_nested": true,
+          "ok": true,
+          "phase": "reading_scene"
+        },
+        {
+          "code": "",
+          "elapsed_us": 1081580,
+          "inclusive_nested": true,
+          "ok": true,
+          "phase": "reading_terminal"
+        },
+        {
+          "code": "",
+          "elapsed_us": 922408,
+          "inclusive_nested": true,
+          "ok": true,
+          "phase": "semantic_frozen"
+        },
+        {
+          "code": "",
+          "elapsed_us": 12,
+          "inclusive_nested": true,
+          "ok": true,
+          "phase": "semantic_assignment"
+        },
+        {
+          "code": "",
+          "elapsed_us": 97,
+          "inclusive_nested": true,
+          "ok": true,
+          "phase": "semantic_physical"
+        },
+        {
+          "code": "",
+          "elapsed_us": 164132,
+          "inclusive_nested": true,
+          "ok": true,
+          "phase": "semantic_anchors"
+        }
+      ],
+      "diagnostic_metadata_us": 154859,
+      "elapsed_us": 3872107,
+      "guard_prepare_us": 158723,
+      "guard_verify_us": 159237,
+      "inclusive_nested": true,
+      "lifecycle_state": "ENDING",
+      "ok": true,
+      "ordinal": 7,
+      "playback_stage": "PRIMARY_PENDING",
+      "pre_semantic_us": 2097749,
+      "semantic_us": 1289830,
+      "snapshot_hash_ok": true,
+      "snapshot_sha256": "86b6f0fa25b3bea371da64aade21fe04d775c74d8b46843fd5c52060ec348fe3",
+      "boundary": "Checkpoint journal seed commit"
+    }
+  ],
+  "fresh_load_action_to_ready_us": 45076904,
+  "interpretation": {
+    "same_source_canonical_hash_ordinals": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      7
+    ],
+    "different_remapped_input_ordinal": 6,
+    "dominant_nested_phases": [
+      "reading_terminal",
+      "semantic_frozen"
+    ],
+    "not_selected": "Semantic anchor restoration is only 1.254481 s across eight validations and crosses callbacks; it is not the dominant target.",
+    "proposed_next_target": "Nonempty terminal schema-reading Frozen output and immediately following exact-owner semantic Frozen validation execute equivalent terminal/frame validation. Audit same-call reuse of fresh output in this callback-free interval, retaining Profile and anchor checks. Public semantic/Frozen entry points and empty-terminal fallback must remain fresh.",
+    "limits": [
+      "Canonical hash equality is not runtime object identity or evidence of unchanged external state.",
+      "Metadata overhead is included in enclosing clocks and separately recorded.",
+      "reading_scene is nested inside reading_terminal; receipt/bundle/physical totals overlap these phases.",
+      "No speedup, latency distribution, installed Steam, or full-week claim."
+    ]
+  },
+  "next_candidate_owner_audit": {
+    "reference_revision": "a5a7da03b9573ab2d751129de0063027dd2d2d50",
+    "equivalent_success_paths": {
+      "schema_return": "scripts/domain/run/RunSnapshotSchema.gd:972",
+      "checkpoint_api": "scripts/narrative/FrozenRunContext.gd:101-107",
+      "full_api": "scripts/narrative/FrozenRunContext.gd:44-61",
+      "semantic_duplicate": "autoload/GameState.gd:4277-4282",
+      "conditions": [
+        "The snapshot is a validated terminal Run9 with a nonempty Dictionary narrative_checkpoint.",
+        "Both calls receive the same complete snapshot/checkpoint values and the same Frozen issuer/creation-owner binding.",
+        "require_complete does not affect the terminal branch of Frozen.validate.",
+        "Both call _validate_scene_terminal, then _validate_reading_checkpoint_body, and attach that terminal result's scene_commands."
+      ]
+    },
+    "required_owner_binding": [
+      "Capture semantic owner, issuer, creation owner and Frozen binding before the first qualifying Frozen call; callbacks inside that call may replace them.",
+      "Immediately before consumption require the same actual GameState instance/script, its _identity_issuer equal to the captured schema issuer, root SaveManager equal to the captured creation owner, and Frozen.scene_validation_uses for those same captured owners. Checking only agreement among current owners is insufficient: all could have changed together.",
+      "On any mismatch, retain the existing fresh public semantic path. Never interpret a supplied success Boolean as proof."
+    ],
+    "callback_free_interval": [
+      "RunSnapshotSchema:885-911 performs success checks, phase timing, canonical hashes, deep copies and selection of the semantic owner.",
+      "GameState:4268-4274 performs issuer presence, selected-registration lookup/equality and binding checks before the duplicate Frozen call.",
+      "The registration is already selected: DialogicEntryManifest:158-174 returns the existing detached bundle/immutable tables. No issuer/Profile/bridge callbacks occur in that interval."
+    ],
+    "not_reusable_across": [
+      "Profile.get_pair_deck_draw and get_dating_attempt callbacks at GameState:4290-4295 and 5485 onward.",
+      "Earlier/later separate public Run/Save/Frozen calls, continuation storage operations, participant preparation, or destination remapping."
+    ],
+    "refusal_order": [
+      "Keep direct terminal receipt validation before audio/reading (RunSnapshotSchema:880-886).",
+      "Keep initial terminal authority refusal before malformed terminal checkpoint in Frozen APIs.",
+      "Keep GameState issuer/registration refusals before output consumption; assignment and physical checks remain before anchors.",
+      "Keep detached snapshot/bundle mutation refusal above semantic/anchor refusal (RunSnapshotSchema:914-919).",
+      "Empty terminal checkpoint remains original path; standalone validate_reading_checkpoint({}, snapshot) continues to refuse even where Frozen.validate permits initial empty playback."
+    ],
+    "required_tests": [
+      "Compare actual full/checkpoint Frozen outputs for nonempty terminal input including detached scene_commands; one removed duplicate per eligible snapshot, no reduction for public standalone calls or empty fallback.",
+      "Change receipt, source history, terminal admission, physical Profile and registration between calls: fresh refusal.",
+      "Replace semantic authority/issuer/creation owner/Frozen binding during first validation; no proof crosses owner change, including coordinated replacement to another matching group.",
+      "Replace bridge in later Profile callback: original fresh anchor route remains, including mutation-over-anchor-refusal precedence.",
+      "Authenticated nonexistent publication/wrong catalogue and changed frozen frame still refuse.",
+      "Whole current Save/Load matched comparison on one runner with exact saved bytes, complete caption, unchanged consequences and clean exits."
+    ]
+  }
+}

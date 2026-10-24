@@ -17,6 +17,7 @@ const MATERIALS := preload("res://scripts/infrastructure/save/NewRunMaterials.gd
 const BRIDGE := preload("res://autoload/DialogicBridge.gd")
 const GAME := preload("res://autoload/GameState.gd")
 const WRITER := preload("res://scripts/validation/CanonicalJsonWriter.gd")
+const TIMING := preload("res://scripts/narrative/SceneValidationTiming.gd")
 var document: Dictionary
 var context: Dictionary
 var materials: Dictionary
@@ -167,3 +168,113 @@ func test_candidate_requires_installed_registration_and_complete_profile_materia
 	changed = document.duplicate(true)
 	changed.current_snapshot.snapshot.contacts.next_sequence = 2
 	assert_false(_validate(changed).ok)
+
+func test_initial_validation_reuses_only_its_same_call_reading_configuration() -> void:
+	if not _prepare(): return
+	var original: Dictionary = document.duplicate(true)
+	var previous_profile := OS.get_environment("DWM_SCENE_VALIDATION_PROFILE")
+	OS.set_environment("DWM_SCENE_VALIDATION_PROFILE", "1")
+	var started := TIMING.begin_scope("initial_candidate_configuration", "PLAYING", "", 0)
+	assert_true(started)
+	if not started:
+		OS.set_environment("DWM_SCENE_VALIDATION_PROFILE", previous_profile)
+		return
+	var checked := _validate(document)
+	var observation: Dictionary = TIMING._record.duplicate(true)
+	TIMING.end_scope(checked.ok)
+	OS.set_environment("DWM_SCENE_VALIDATION_PROFILE", previous_profile)
+	assert_true(checked.ok, str(checked))
+	assert_eq(observation.configuration_calls, 1, "one fresh complete reading configuration per initial candidate")
+	if not checked.ok: return
+	assert_eq(checked.value.candidate, original, "candidate canonical contents remain exact")
+	assert_eq(WRITER.stringify(checked.value.candidate).value, WRITER.stringify(original).value,
+		"canonical candidate bytes remain exact")
+	assert_eq(document, original, "validation cannot modify its saved input")
+
+func test_restorable_foreign_first_publication_is_not_used_as_initial_expected_ledger() -> void:
+	if not _prepare(): return
+	var changed: Dictionary = document.duplicate(true)
+	var checkpoint: Dictionary = changed.current_snapshot.snapshot.narrative_checkpoint
+	checkpoint.reading_session.ledger.captions[0].publication_id = "caption:999"
+	checkpoint.reading_session.frontier.publication_id = "caption:999"
+	var reading: Dictionary = RUN._validate_scene_reading(changed.current_snapshot.snapshot)
+	assert_true(reading.ok, "ordinary reading allows a retained publication identity: " + str(reading))
+	if not reading.ok: return
+	var prior_ledger: Dictionary = reading.session.ledger.snapshot()
+	var independent: Dictionary = BRIDGE._build_scene_initial_checkpoint(receipt, bundle, reading.session)
+	assert_true(independent.ok, str(independent))
+	if not independent.ok: return
+	assert_eq(independent.value, context.dialogic_checkpoint, "expected first publication is built independently")
+	assert_eq(reading.session.ledger.snapshot(), prior_ledger, "reconstruction does not reset the restored ledger")
+	var checked := _validate(changed)
+	assert_false(checked.ok)
+	assert_eq(checked.get("code"), &"scene_initial_state_invalid")
+	assert_eq(checked.get("message"), "initial checkpoint must be the registered target's exact first caption")
+	assert_true(_validate(document).ok, "failed reconstruction does not contaminate another call")
+
+func test_configuration_fork_keeps_fresh_mutable_session_state() -> void:
+	if not _prepare(): return
+	var reading: Dictionary = RUN._validate_scene_reading(document.current_snapshot.snapshot)
+	assert_true(reading.ok, str(reading))
+	if not reading.ok: return
+	var sibling: RefCounted = reading.session._fork_scene_configuration()
+	assert_null(sibling.ledger)
+	assert_eq(sibling.command_id, "")
+	assert_eq(sibling.latest_entry, "")
+	assert_eq(sibling.scene_occurrence, "")
+	assert_eq(sibling.scene_index, 0)
+	assert_eq(sibling.boundary, "between_entries")
+	assert_true(sibling.next_operation.is_empty())
+	assert_true(sibling.catalogue.is_read_only())
+	assert_true(sibling.registry.is_read_only())
+	assert_true(sibling._scene_nodes.is_read_only())
+	sibling.manifest.clear()
+	sibling._caption_variants_by_line.clear()
+	assert_false(reading.session.manifest.is_empty(), "mutable manifest belongs to each session")
+	assert_false(reading.session._caption_variants_by_line.is_empty(), "mutable lookup belongs to each session")
+	assert_true(BRIDGE.build_scene_initial_checkpoint(receipt, bundle).ok, "private fork cannot change public reconstruction")
+
+func test_next_public_build_and_candidate_validation_recheck_physical_content() -> void:
+	if not _prepare(): return
+	var source_path := ""
+	for entry: Dictionary in bundle.entry_manifest.entries:
+		if entry.entry_id == receipt.scene_admission.result.entry_id: source_path = entry.locators.en.path
+	assert_false(source_path.is_empty())
+	if source_path.is_empty(): return
+	var original := FileAccess.get_file_as_string(source_path)
+	var source := FileAccess.open(source_path, FileAccess.WRITE)
+	assert_not_null(source)
+	if source == null: return
+	source.store_string(original + "\n")
+	source.close()
+	# A trailing empty line preserves the programme but changes its physical hash.
+	# Both public entries must still configure and compare current source bytes.
+	var rebuilt: Dictionary = BRIDGE.build_scene_initial_checkpoint(receipt, bundle)
+	var checked := _validate(document)
+	source = FileAccess.open(source_path, FileAccess.WRITE)
+	assert_not_null(source)
+	if source == null: return
+	source.store_string(original)
+	source.close()
+	assert_false(rebuilt.ok)
+	assert_eq(rebuilt.get("code"), &"reading_catalogue_mismatch")
+	assert_false(checked.ok)
+	assert_eq(checked.get("code"), &"reading_catalogue_mismatch")
+	var restored: Dictionary = BRIDGE.build_scene_initial_checkpoint(receipt, bundle)
+	assert_true(restored.ok, str(restored))
+	if restored.ok: assert_eq(restored.value, context.dialogic_checkpoint)
+	assert_true(_validate(document).ok, "restoring source bytes permits a new fresh validation")
+
+func test_restorable_foreign_saved_frame_is_not_used_as_initial_expected_context() -> void:
+	if not _prepare(): return
+	var changed: Dictionary = document.duplicate(true)
+	var contexts: Dictionary = changed.current_snapshot.snapshot.narrative_checkpoint.reading_session.ledger.entry_contexts
+	contexts.values()[0].transaction_id = "TEST.foreign.saved.frame"
+	var reading: Dictionary = RUN._validate_scene_reading(changed.current_snapshot.snapshot)
+	assert_true(reading.ok, "general reading shape does not grant initial frame authority: " + str(reading))
+	if not reading.ok: return
+	var checked := _validate(changed)
+	assert_false(checked.ok)
+	assert_eq(checked.get("code"), &"scene_initial_state_invalid")
+	assert_eq(checked.get("message"), "initial checkpoint must be the registered target's exact first caption")
+	assert_true(_validate(document).ok)

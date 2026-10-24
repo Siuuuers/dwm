@@ -66,7 +66,9 @@ func test_scene_creation_binding_rejects_valid_assignment_for_other_transaction(
 
 func test_scene_initial_context_cannot_downgrade_or_add_legacy_dark_selector() -> void:
 	var fixture := _fixture()
-	fixture.context.dark_mode = false
+	fixture.context["dark_mode"] = false
+	assert_true(preload("res://scripts/domain/run/RunSnapshotSchema.gd").validate_primitive_tree(fixture.context).ok,
+		"the legacy-selector case must reach the context-member check")
 	assert_eq(_validate(fixture).code, &"new_run_materials_invalid")
 	fixture.context.erase("dark_mode")
 	fixture.context.dialogic_checkpoint = {}
