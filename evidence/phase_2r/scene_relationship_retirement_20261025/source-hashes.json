@@ -1,0 +1,9 @@
+{
+  "autoload/GameState.gd": "8851c09119a1ccfb69c952f32fccdf0053cb56c48bad793aa11729f054b37d44",
+  "scripts/domain/run/RunSnapshotSchema.gd": "89a8a5589ce7879b94583e03d87189c65413bae30c1445fa5efb5e5b06b885fe",
+  "tests/unit/test_scene_save_schema.gd": "51356405f21c086a9b7354cf8e40f09ed5ed0908b8aac9bb5e27ee2f5d094472",
+  "tests/integration/test_scene_backup_inspection.gd": "cdb13f2031133dd0e5915256d798fb90d11e56376f91e70d50485b6ea14457a9",
+  "tests/integration/test_scene_saved_event_anchor.gd": "d64452d72fbba06c24807c79faefe99528f7fb2a2fe1a76e79a193672a0757ea",
+  "tests/integration/test_cold_run_rollback.gd": "d03c4a85384cc1a920ed6bc372493f62bbc71919e5d9265f69df50b303d41a82",
+  "tests/support/SceneRunSaveFixture.gd": "99b674188a74f42f9aadd1bc095fc1c70250de432a0a0241575769b32827ac42"
+}

@@ -49,3 +49,19 @@ func test_new_scene_builder_never_fills_calendar_or_missing_owner_defaults() -> 
 	assert_eq(incomplete, before)
 	assert_false(incomplete.has("dating"))
 	assert_false(incomplete.has("committed_schedule"))
+
+func test_current_scene_gameplay_omits_retired_relationship_fields_and_requires_progress() -> void:
+	var game := preload("res://autoload/GameState.gd")
+	var gameplay: Dictionary = game.make_scene_new_run_gameplay()
+	assert_eq(RUN._validate_scene_gameplay(gameplay), "")
+	for key: String in ["affection", "friend_attitude", "friends", "inter_friend_affection"]:
+		assert_false(gameplay.has(key), "new scene state omits " + key)
+		var previous_shape := gameplay.duplicate(true)
+		previous_shape[key] = {}
+		assert_ne(RUN._validate_scene_gameplay(previous_shape), "",
+			"previous-build fields are refused instead of silently migrated: " + key)
+	for key: String in ["coins", "inventory", "money", "minesweeper_task_rewards_claimed",
+			"minesweeper_rounds_left", "shop_purchase_counts", "stats", "story_flags"]:
+		var incomplete := gameplay.duplicate(true)
+		incomplete.erase(key)
+		assert_ne(RUN._validate_scene_gameplay(incomplete), "", "required progress remains: " + key)

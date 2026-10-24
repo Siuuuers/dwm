@@ -48,6 +48,30 @@ File size and validation cost are different measurements. Small metadata removal
 
 Save during a real DTL beat with an unfinished Challenge/board, earlier choice/outcome state and active economy values. Load in a fresh Windows cloud process. Verify the same full caption, correct background/music derived from DTL, exact board and values, normal input, and the same subsequent branch. Verify loading does not repeat purchases, charges or rewards; global unlocks/read history remain. Cover Day 7 dialogue under both saved fork values as authored DTL permits. Compare complete Save/Load operations against PR83. Do not claim a speedup or remove the old production path solely because a smaller JSON example works.
 
+## Current-scene relationship-field removal candidate
+
+The first runtime increment removes `affection`, `friend_attitude`, `friends`,
+and `inter_friend_affection` from Scene9 defaults, capture, restoration input,
+and required-field validation. Legacy calendar gameplay remains outside this
+increment. Current authored scene callers do not consume these four fields.
+
+This deliberately changes the current-build Scene9 member contract. Existing
+exact-member checks refuse previous development saves containing these fields;
+no migration or silent field conversion is added. The numeric scene family
+remains 9. Keep progress, contacts, inventory, economy, rewards and board data.
+
+This increment does not implement compact direct restoration, remove command
+history, retire the legacy relationship subsystem, or establish a speedup.
+Current-build acceptance must create its input under the changed source.
+The retained terminal archive used by `terminal_admission`,
+`Invoke-FreshSaveLoad.ps1`, and related comparisons contains the previous field
+contract and cannot qualify this candidate unchanged. Current CI uses the short,
+explicitly synthetic rendered seven-day terminal fixture with newly created saves.
+The archived startup/Load timing lane is selected only when both compared
+revisions have the archive's gameplay member contract. An incompatible lane is
+not measured and is not a passing performance result. The historical archive
+and its diagnostic commands remain available at the preceding revision.
+
 ## Observable outcome
 
 Loading a current save restores the same playable board and complete visible caption, with the recorded consequences applied once. Invalid persisted state is refused before live owners adopt it. This audit does not introduce migration, recovery or injected mid-call mutation requirements.

@@ -1,0 +1,23 @@
+[
+  {
+    "id": 12574219294,
+    "name": "windows-scene_backup_inspection-40131013035-1",
+    "digest": "sha256:ca8c6bf27ae60e72101ece9496cd80e8fe731def063266e1572615611ea06a95",
+    "size_in_bytes": 11181,
+    "head_sha": "0dcd92579ce8db28fdc31414b9bb1bcea88ba8b3"
+  },
+  {
+    "id": 12575171560,
+    "name": "windows-current_title-40131013035-1",
+    "digest": "sha256:d8dd78ebba83e8ed1c05be24aa86aa0889d9f03c52e06101adf0dce304cc4917",
+    "size_in_bytes": 2784237,
+    "head_sha": "0dcd92579ce8db28fdc31414b9bb1bcea88ba8b3"
+  },
+  {
+    "id": 12575406423,
+    "name": "windows-current_terminal_fixture-40131013035-1",
+    "digest": "sha256:f1ddd87886c5f2283c738deeca1fcb92b08b19cec267d0c80c003837462a700e",
+    "size_in_bytes": 4780350,
+    "head_sha": "0dcd92579ce8db28fdc31414b9bb1bcea88ba8b3"
+  }
+]

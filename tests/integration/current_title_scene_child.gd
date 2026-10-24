@@ -115,6 +115,8 @@ func _current_proof() -> Dictionary:
 	var reading: Dictionary = bridge.capture_reading_checkpoint(false)
 	if not _ok(reading): return {}
 	var snapshot: Dictionary = game.capture_run_snapshot_input()
+	for key: String in ["affection", "friend_attitude", "friends", "inter_friend_affection"]:
+		assert_false(snapshot.gameplay.has(key), "current creation and fresh Load omit " + key)
 	return {"scope": "current_shipped_title_authored_day1", "process_id": OS.get_process_id(),
 		"window_size": [get_window().size.x, get_window().size.y],
 		"viewport_size": [get_viewport().get_visible_rect().size.x, get_viewport().get_visible_rect().size.y],

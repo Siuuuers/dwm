@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="GutTests" failures="0" tests="1" >
+  <testsuite name="tests/integration/test_current_title_scene_create.gd" tests="1" failures="0" skipped="0" time="23.297133" >
+      <testcase name="test_current_title_authored_day1_manual_save" assertions="88" status="pass" classname="tests/integration/test_current_title_scene_create.gd" time="23.297133" >
+      </testcase>
+  </testsuite>
+</testsuites>
