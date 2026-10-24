@@ -143,6 +143,17 @@ jobs:
           result = {'scope': 'Diagnostic caller attribution only; instrumented durations are not performance comparisons.',
                     'profile_records': len(records), 'snapshots': snapshots, 'groups': list(groups.values()),
                     'load_pressed_scope_offset_us': press_offset, 'ready_scope_offset_us': ready_offset}
+          phase_marker = 'DWM_SAVE_LOAD_PROFILE '
+          phases = [json.loads(line.split(phase_marker, 1)[1])
+                    for line in (root / 'fresh-save-load.log').read_text(encoding='utf-8-sig').splitlines()
+                    if phase_marker in line]
+          transactions = [p for p in phases if p['scope'] == 'restore_transaction']
+          assert len(transactions) == 1
+          transaction = transactions[0]
+          durations = {k: v for k, v in transaction.items() if k.startswith('scene_') and k.endswith('_us')}
+          assert durations and all(v >= 0 for v in durations.values())
+          assert sum(durations.values()) + transaction['unphased_us'] == transaction['elapsed_us']
+          result['restore_transaction'] = transaction
           (root / 'caller-summary.json').write_text(json.dumps(result, indent=2) + '\n', encoding='utf-8')
           print(f'CALLER_ATTRIBUTION_VERIFIED records={len(records)} snapshots={snapshots} stacks={len(groups)}')
       - name: Preserve attribution evidence

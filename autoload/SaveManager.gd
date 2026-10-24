@@ -1251,7 +1251,7 @@ func _run_participant_transaction_profiled(
 ) -> Dictionary:
 	if continuation.get("kind") == "scene_restore":
 		return _run_scene_restore_transaction(plans, journal_candidate, route_id, checkpoint_id,
-			emit_restored, continuation, pre_acquired_gate_token, already_applied)
+			emit_restored, continuation, pre_acquired_gate_token, already_applied, profile)
 	# `restore` also holds the SaveManager save lock; `new_run` relies on the gate.
 	# acquire_save_lock() is idempotent for an already-held `restore` lock, so this is safe to call
 	# again even when the caller pre-acquired the lock itself before this transaction began.
@@ -3037,7 +3037,7 @@ func _advance_scene_restore(continuation: Dictionary, expected: String, next: St
 
 func _run_scene_restore_transaction(plans: Dictionary, journal_candidate: Variant,
 		route_id: String, checkpoint_id: String, _emit_restored: bool, continuation: Dictionary,
-		gate_token: String, already_applied: bool) -> Dictionary:
+		gate_token: String, already_applied: bool, profile: Dictionary = {}) -> Dictionary:
 	if not _scene_restore_activation.is_empty(): return _fail(&"scene_restore_busy", "")
 	var operation_id: String = continuation.transaction_id
 	var found: Dictionary = _continuation_journal.get_operation(operation_id)
@@ -3060,6 +3060,7 @@ func _run_scene_restore_transaction(plans: Dictionary, journal_candidate: Varian
 			return _scene_restore_early_failure(_fail(&"scene_activation_owner_unavailable", key), committed or creating, gate_token)
 	var held: Dictionary = _restore_participants.route.begin_scene_publication_hold(operation_id)
 	if not held.get("ok", false): return _scene_restore_early_failure(held, committed or creating, gate_token)
+	_save_load_profile_phase(profile, "scene_owner_activation_setup_us")
 	var backups := {}
 	var applied: Array[String] = []
 	var journal_backup: Variant = null
@@ -3072,6 +3073,7 @@ func _run_scene_restore_transaction(plans: Dictionary, journal_candidate: Varian
 		if not backup.get("ok", false):
 			return _scene_restore_prepare_failure(backup, committed or creating, applied, backups, gate_token, operation_id, null)
 		backups[key] = backup.value
+	_save_load_profile_phase(profile, "scene_capture_us")
 	var route_token: Dictionary = {}
 	for index: int in _SCENE_PARTICIPANT_ORDER.size():
 		var key: String = _SCENE_PARTICIPANT_ORDER[index]
@@ -3084,22 +3086,26 @@ func _run_scene_restore_transaction(plans: Dictionary, journal_candidate: Varian
 			return _scene_restore_prepare_failure(result, committed or creating, applied, backups, gate_token, operation_id, journal_backup)
 		applied.append(key)
 		if key == "route": route_token = result.get("value", {}).get("route_ready_token", {})
+		if not profile.is_empty(): _save_load_profile_phase(profile, "scene_apply_" + key + "_us")
 		if key == "run" and continuation.has("remap"):
 			var remap: Dictionary = continuation.remap
 			var remapped: Dictionary = _restore_participants.run.apply_continuation_remap(
 				operation_id, remap.identity_allocation_bundle, remap.source_identity)
 			if not remapped.get("ok", false):
 				return _scene_restore_prepare_failure(remapped, committed or creating, applied, backups, gate_token, operation_id, journal_backup)
+			if not profile.is_empty(): _save_load_profile_phase(profile, "scene_remap_" + key + "_us")
 		if not already_applied and index >= recorded_participants:
 			var advanced := _advance_scene_restore(continuation, CONTINUATION_JOURNAL.STAGE_APPLYING,
 				CONTINUATION_JOURNAL.STAGE_APPLYING, index, key, result.get("value", {}))
 			if not advanced.get("ok", false):
 				return _scene_restore_prepare_failure(advanced, committed or creating, applied, backups, gate_token, operation_id, journal_backup)
+			if not profile.is_empty(): _save_load_profile_phase(profile, "scene_advance_" + key + "_us")
 	if not already_applied:
 		var applied_result := _advance_scene_restore(continuation, CONTINUATION_JOURNAL.STAGE_APPLYING,
 			CONTINUATION_JOURNAL.STAGE_APPLIED, _SCENE_PARTICIPANT_ORDER.size())
 		if not applied_result.get("ok", false):
 			return _scene_restore_prepare_failure(applied_result, creating, applied, backups, gate_token, operation_id, journal_backup)
+		_save_load_profile_phase(profile, "scene_applied_stage_us")
 	if journal_candidate is Dictionary:
 		var seeded: Dictionary
 		if creating:
@@ -3116,6 +3122,7 @@ func _run_scene_restore_transaction(plans: Dictionary, journal_candidate: Varian
 			seeded = _journal.commit_prepared(journal_candidate)
 		if not seeded.get("ok", false):
 			return _scene_restore_prepare_failure(seeded, committed or creating, applied, backups, gate_token, operation_id, journal_backup)
+		_save_load_profile_phase(profile, "scene_journal_commit_us")
 	if not committed:
 		var completed := _advance_scene_restore(continuation, CONTINUATION_JOURNAL.STAGE_APPLIED,
 			CONTINUATION_JOURNAL.STAGE_COMPLETED, _SCENE_PARTICIPANT_ORDER.size())
@@ -3129,6 +3136,7 @@ func _run_scene_restore_transaction(plans: Dictionary, journal_candidate: Varian
 				return _scene_restore_prepare_failure(completed, creating, applied, backups, gate_token, operation_id, journal_backup)
 			else:
 				return _fatal_transaction_recovery("scene_restore", [{"owner_id": "journal", "operation": "completion_state_conflict", "result": reread}])
+		_save_load_profile_phase(profile, "scene_completion_us")
 	_scene_restore_activation = {"operation_id": operation_id, "continuation": continuation.duplicate(true),
 		"ticket": activation.value.duplicate(true), "gate_token": gate_token, "route_id": route_id,
 		"owner": "new_run" if creating else "restore",
@@ -3143,7 +3151,10 @@ func _run_scene_restore_transaction(plans: Dictionary, journal_candidate: Varian
 			_restore_participants[key].connect("scene_activation_confirmed", callback)
 	if not _restore_participants.narrative.is_connected("scene_activation_failed", _on_scene_restore_failed):
 		_restore_participants.narrative.connect("scene_activation_failed", _on_scene_restore_failed)
-	return _drive_scene_restore_activation()
+	_save_load_profile_phase(profile, "scene_finalize_connect_us")
+	var activated := _drive_scene_restore_activation()
+	_save_load_profile_phase(profile, "scene_activation_kickoff_us")
+	return activated
 
 func _scene_restore_prepare_failure(failure: Dictionary, committed: bool, applied: Array[String],
 		backups: Dictionary, gate_token: String, operation_id: String, journal_backup: Variant) -> Dictionary:
