@@ -4,6 +4,7 @@ extends RefCounted
 static var _active := false
 static var _record: Dictionary = {}
 static var _started_us := 0
+static var _snapshot_stack: Array[Dictionary] = []
 
 static func begin_scope(operation: String, state: String, stage: String, step: int) -> bool:
 	if _active or OS.get_environment("DWM_SCENE_VALIDATION_PROFILE") != "1": return false
@@ -35,6 +36,22 @@ static func snapshot_phase(observation: Dictionary, phase: String, started_us: i
 	observation[phase] = now - started_us
 	return now
 
+## Diagnostic-only nesting: exact inputs and callers belong to the snapshot observation.
+static func enter_snapshot(observation: Dictionary) -> void:
+	if _active: _snapshot_stack.append(observation)
+
+static func leave_snapshot() -> void:
+	if _active and not _snapshot_stack.is_empty(): _snapshot_stack.pop_back()
+
+static func finish_detail(label: String, started_us: int, result: Dictionary) -> void:
+	if started_us < 0 or not _active or _snapshot_stack.is_empty(): return
+	var record := {"phase": label, "elapsed_us": Time.get_ticks_usec() - started_us,
+		"ok": result.get("ok", false) == true, "code": str(result.get("code", "")),
+		"inclusive_nested": true}
+	var observation: Dictionary = _snapshot_stack.back()
+	if not observation.has("details"): observation["details"] = []
+	observation.details.append(record)
+
 static func finish_snapshot(started_us: int, observation: Dictionary, ok: bool) -> void:
 	if started_us < 0 or not _active: return
 	var records: Array = _record["snapshot_validations"]
@@ -51,4 +68,5 @@ static func end_scope(ok: bool) -> void:
 	_active = false
 	print("DWM_SCENE_VALIDATION_PROFILE " + JSON.stringify(_record))
 	_record = {}
+	_snapshot_stack.clear()
 	_started_us = 0

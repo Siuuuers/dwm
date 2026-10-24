@@ -795,6 +795,15 @@ static func validate_scene(snapshot: Dictionary, bundle: Dictionary) -> Dictiona
 	var started_us: int = SCENE_VALIDATION_TIMING.start_sample()
 	if started_us < 0: return _validate_scene_observed_body(snapshot, bundle)
 	var observation: Dictionary = {}
+	var diagnostic_started: int = Time.get_ticks_usec()
+	observation["callers"] = get_stack()
+	var snapshot_encoded: Dictionary = SCENE_CANONICAL.stringify(snapshot)
+	var bundle_encoded: Dictionary = SCENE_CANONICAL.stringify(bundle)
+	observation["snapshot_hash_ok"] = snapshot_encoded.get("ok", false)
+	observation["bundle_hash_ok"] = bundle_encoded.get("ok", false)
+	observation["snapshot_sha256"] = str(snapshot_encoded.get("value", "")).sha256_text() if snapshot_encoded.get("ok", false) else ""
+	observation["bundle_sha256"] = str(bundle_encoded.get("value", "")).sha256_text() if bundle_encoded.get("ok", false) else ""
+	observation["diagnostic_metadata_us"] = Time.get_ticks_usec() - diagnostic_started
 	var sequence: Variant = snapshot.get("checkpoint_sequence")
 	if typeof(sequence) == TYPE_INT: observation["checkpoint_sequence"] = sequence
 	var lifecycle_label: Variant = snapshot.get("lifecycle")
@@ -809,7 +818,9 @@ static func validate_scene(snapshot: Dictionary, bundle: Dictionary) -> Dictiona
 				observation["playback_stage"] = String(stage_label)
 	# An active record must remain nonempty even when malformed input has no admitted labels.
 	observation["inclusive_nested"] = true
+	SCENE_VALIDATION_TIMING.enter_snapshot(observation)
 	var result: Dictionary = _validate_scene_observed_body(snapshot, bundle, observation)
+	SCENE_VALIDATION_TIMING.leave_snapshot()
 	SCENE_VALIDATION_TIMING.finish_snapshot(started_us, observation, bool(result.get("ok", false)))
 	return result
 
@@ -878,7 +889,9 @@ static func _validate_scene_observed_body(snapshot: Dictionary, bundle: Dictiona
 	# Other owners and terminal snapshots retain the independent proof here. On deferral,
 	# combined corruption reports audio/reading errors before receipt-authentication errors.
 	if terminal or not _scene_semantic_authenticates_receipts():
+		var receipt_started: int = SCENE_VALIDATION_TIMING.start_sample()
 		var scene_receipts: Dictionary = SCENE_EVENT_CONTRACT.validate_scene_receipts(candidate.command_receipts, bundle, _scene_issuer, _scene_creation_owner, candidate.contacts)
+		SCENE_VALIDATION_TIMING.finish_detail("snapshot_direct_receipts", receipt_started, scene_receipts)
 		if not scene_receipts.ok: return scene_receipts
 	var audio := _validate_scene_audio(candidate, bundle)
 	if not audio.ok: return audio
@@ -939,6 +952,12 @@ static func is_scene_terminal(snapshot: Dictionary) -> bool:
 		and lifecycle.get("state") in ["ENDING", "COMPLETED"]
 
 static func _validate_scene_reading(candidate: Dictionary) -> Dictionary:
+	var started_us: int = SCENE_VALIDATION_TIMING.start_sample()
+	var result: Dictionary = _validate_scene_reading_diagnostic_body(candidate)
+	SCENE_VALIDATION_TIMING.finish_detail("reading_terminal" if is_scene_terminal(candidate) else "reading_scene", started_us, result)
+	return result
+
+static func _validate_scene_reading_diagnostic_body(candidate: Dictionary) -> Dictionary:
 	if not candidate.get("narrative_checkpoint") is Dictionary:
 		return _fail(&"reading_checkpoint_invalid", "narrative checkpoint must be an object")
 	if is_scene_terminal(candidate):

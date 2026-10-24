@@ -1,5 +1,7 @@
 extends Node
 
+const _SAVE_ATTRIBUTION_TIMING := preload("res://scripts/narrative/SceneValidationTiming.gd")
+
 # GameState autoload — owns all mutable runtime state for the prototype.
 # Authority: prompt_docs/INDEX.md (runtime ownership, dating, persistence, and narrative
 # requirement packets). No human-facing prose; machine-precise, contradiction-free.
@@ -4277,7 +4279,9 @@ func _prepare_scene_snapshot_semantics(snapshot: Dictionary, bundle: Dictionary)
 	if reuse_scene_commands:
 		# The public frame validator also authenticates receipts; consume only its fresh output.
 		# Combined corruption follows frame-validator order: envelope, receipts, frames, then Profile.
+		var frozen_started: int = _SAVE_ATTRIBUTION_TIMING.start_sample()
 		frozen = _SCENE_FROZEN.validate(snapshot, true)
+		_SAVE_ATTRIBUTION_TIMING.finish_detail("semantic_frozen", frozen_started, frozen)
 		if not frozen.get("ok", false): return frozen
 		commands = frozen.scene_commands
 	else:
@@ -4287,14 +4291,20 @@ func _prepare_scene_snapshot_semantics(snapshot: Dictionary, bundle: Dictionary)
 	var profile: Node = get_node_or_null("/root/ProfileManager")
 	if profile == null or not profile.has_method("get_pair_deck_draw"):
 		return _transaction_failure(&"scene_profile_owner_required", "")
+	var assignment_started: int = _SAVE_ATTRIBUTION_TIMING.start_sample()
 	var assignment: Dictionary = profile.get_pair_deck_draw(snapshot.run_id)
+	_SAVE_ATTRIBUTION_TIMING.finish_detail("semantic_assignment", assignment_started, assignment)
 	if not assignment.get("ok", false): return assignment
 	if not _SCENE_EVENT._equal(assignment.get("value"), snapshot.lifecycle.scene_assignment):
 		return _transaction_failure(&"scene_assignment_profile_mismatch", "")
+	var physical_started: int = _SAVE_ATTRIBUTION_TIMING.start_sample()
 	var physical := _validate_scene_profile_references(snapshot, profile)
+	_SAVE_ATTRIBUTION_TIMING.finish_detail("semantic_physical", physical_started, physical)
 	if not physical.ok: return physical
 	if not reuse_scene_commands:
+		var frozen_started: int = _SAVE_ATTRIBUTION_TIMING.start_sample()
 		frozen = _SCENE_FROZEN.validate(snapshot, true)
+		_SAVE_ATTRIBUTION_TIMING.finish_detail("semantic_frozen", frozen_started, frozen)
 		if not frozen.get("ok", false): return frozen
 	# Receipt authentication and frozen frame derivation are independent proofs.
 	# Join every authenticated event to the actual retained reading ledger as well:
@@ -4316,7 +4326,9 @@ func _validate_scene_snapshot_anchors(anchors: Array[Dictionary], checkpoint: Di
 	if not is_instance_valid(_scene_event_bridge) or not _scene_event_bridge.has_method("validate_scene_event_anchor"):
 		return _transaction_failure(&"event_dependency_invalid", "scene reading anchor validator required")
 	if _scene_event_bridge.has_method("validate_scene_event_anchors"):
+		var anchors_started: int = _SAVE_ATTRIBUTION_TIMING.start_sample()
 		var anchored: Dictionary = _scene_event_bridge.validate_scene_event_anchors(anchors, checkpoint)
+		_SAVE_ATTRIBUTION_TIMING.finish_detail("semantic_anchors", anchors_started, anchored)
 		return {"ok": true} if anchored.get("ok", false) else anchored
 	for anchor: Dictionary in anchors:
 		var anchored: Dictionary = _scene_event_bridge.validate_scene_event_anchor(anchor, checkpoint)
