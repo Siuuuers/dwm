@@ -659,7 +659,9 @@ func _remember_validated_text(text: String, document: Dictionary) -> void:
 		_validated_text_order.erase(text)
 	_validated_text_documents[text] = document.duplicate(true)
 	_validated_text_order.append(text)
-	while _validated_text_order.size() > 3:
+	# Reconciliation touches the old backup after the current final. Keep that stale text
+	# alongside outgoing/current/next-backup so the next outgoing insertion evicts only stale proof.
+	while _validated_text_order.size() > 4:
 		_validated_text_documents.erase(_validated_text_order.pop_front())
 
 

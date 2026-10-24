@@ -2655,8 +2655,8 @@ func test_exact_text_validation_window_is_bounded_detached_and_never_admits_othe
 		"a caller cannot mutate the retained exact-text proof")
 	assert_false(journal._parse_known_document(text + " garbage").get("ok", false),
 		"a nearby but distinct byte string still receives strict parsing")
-	for index: int in 3:
+	for index: int in 4:
 		journal._remember_validated_text("{\"entry\":%d}" % index, {"entry": index})
-	assert_eq((journal.get("_validated_text_order") as Array).size(), 3)
+	assert_eq((journal.get("_validated_text_order") as Array).size(), 4)
 	assert_false((journal.get("_validated_text_documents") as Dictionary).has(text),
 		"the proof window evicts its oldest exact text")
