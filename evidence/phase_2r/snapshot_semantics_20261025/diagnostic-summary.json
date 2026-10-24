@@ -1,0 +1,430 @@
+{
+  "run_id": 40118441660,
+  "controller_ref": "bcee4693c6a2c5f801138fd2f68fd12a64fa1aca",
+  "baseline_ref": "a7a9707dae17b648c09e70a139e1c37d4a7a4d37",
+  "scope": "Instrumented Windows diagnostic only; nested intervals are not added to complete-operation totals. Not a performance comparison.",
+  "current_cases": 2,
+  "case_assertions": 213,
+  "intervals": [
+    {
+      "operation": "terminal_pair_boot",
+      "phase": "write",
+      "scope_elapsed_s": 26.841626,
+      "snapshot_calls": 11,
+      "guard_prepare_s": 1.13383,
+      "guard_verify_s": 1.039756,
+      "diagnostic": {
+        "context": {
+          "operation": "terminal_pair_boot",
+          "stage": "PRIMARY_PENDING",
+          "state": "ENDING",
+          "step": 0
+        },
+        "note": "diagnostic overhead present; inclusive timings overlap; exclusive timings omit uninstrumented outer work",
+        "ok": true,
+        "root_capture_parent": {
+          "committed_creation_proof": {
+            "calls": 14,
+            "us": 1894
+          },
+          "committed_initial_admission": {
+            "calls": 14,
+            "us": 1523
+          },
+          "issuer_parent_lookup": {
+            "calls": 858,
+            "us": 103561
+          },
+          "outside_instrumented_methods": {
+            "calls": 9,
+            "us": 2456
+          },
+          "receipt_ledger": {
+            "calls": 358,
+            "us": 43111
+          }
+        },
+        "timings": {
+          "committed_creation_proof": {
+            "calls": 14,
+            "exclusive_us": 1135154,
+            "failures": 0,
+            "inclusive_us": 1137048
+          },
+          "committed_initial_admission": {
+            "calls": 14,
+            "exclusive_us": 11989,
+            "failures": 0,
+            "inclusive_us": 1291526
+          },
+          "initial_materials": {
+            "calls": 18,
+            "exclusive_us": 765729,
+            "failures": 0,
+            "inclusive_us": 765729
+          },
+          "initial_reconstruction": {
+            "calls": 18,
+            "exclusive_us": 13053,
+            "failures": 0,
+            "inclusive_us": 23534
+          },
+          "issuer_parent_lookup": {
+            "calls": 858,
+            "exclusive_us": 39030,
+            "failures": 0,
+            "inclusive_us": 142591
+          },
+          "receipt_ledger": {
+            "calls": 14,
+            "exclusive_us": 902219,
+            "failures": 0,
+            "inclusive_us": 2362996
+          },
+          "root_capture": {
+            "calls": 1253,
+            "exclusive_us": 152545,
+            "failures": 0,
+            "inclusive_us": 152545
+          }
+        }
+      }
+    },
+    {
+      "operation": "terminal_pair_load",
+      "phase": "write",
+      "scope_elapsed_s": 38.877702,
+      "snapshot_calls": 20,
+      "guard_prepare_s": 1.844316,
+      "guard_verify_s": 1.715401,
+      "diagnostic": {
+        "context": {
+          "operation": "terminal_pair_load",
+          "stage": "PRIMARY_PENDING",
+          "state": "ENDING",
+          "step": 0
+        },
+        "note": "diagnostic overhead present; inclusive timings overlap; exclusive timings omit uninstrumented outer work",
+        "ok": true,
+        "root_capture_parent": {
+          "committed_creation_proof": {
+            "calls": 37,
+            "us": 4860
+          },
+          "committed_initial_admission": {
+            "calls": 37,
+            "us": 4043
+          },
+          "issuer_parent_lookup": {
+            "calls": 2716,
+            "us": 318983
+          },
+          "outside_instrumented_methods": {
+            "calls": 57,
+            "us": 14924
+          },
+          "receipt_ledger": {
+            "calls": 1116,
+            "us": 136696
+          }
+        },
+        "timings": {
+          "committed_creation_proof": {
+            "calls": 37,
+            "exclusive_us": 2639385,
+            "failures": 0,
+            "inclusive_us": 2644245
+          },
+          "committed_initial_admission": {
+            "calls": 37,
+            "exclusive_us": 29137,
+            "failures": 0,
+            "inclusive_us": 3031891
+          },
+          "initial_materials": {
+            "calls": 37,
+            "exclusive_us": 312655,
+            "failures": 0,
+            "inclusive_us": 312655
+          },
+          "initial_reconstruction": {
+            "calls": 37,
+            "exclusive_us": 24130,
+            "failures": 0,
+            "inclusive_us": 41811
+          },
+          "issuer_parent_lookup": {
+            "calls": 2716,
+            "exclusive_us": 126484,
+            "failures": 0,
+            "inclusive_us": 445467
+          },
+          "receipt_ledger": {
+            "calls": 37,
+            "exclusive_us": 3178302,
+            "failures": 0,
+            "inclusive_us": 6746398
+          },
+          "root_capture": {
+            "calls": 3963,
+            "exclusive_us": 479506,
+            "failures": 0,
+            "inclusive_us": 479506
+          }
+        }
+      }
+    },
+    {
+      "operation": "terminal_pair_save",
+      "phase": "write",
+      "scope_elapsed_s": 18.03098,
+      "snapshot_calls": 10,
+      "guard_prepare_s": 0.89792,
+      "guard_verify_s": 0.850878,
+      "diagnostic": {
+        "context": {
+          "operation": "terminal_pair_save",
+          "stage": "PRIMARY_PENDING",
+          "state": "ENDING",
+          "step": 0
+        },
+        "note": "diagnostic overhead present; inclusive timings overlap; exclusive timings omit uninstrumented outer work",
+        "ok": true,
+        "root_capture_parent": {
+          "committed_creation_proof": {
+            "calls": 25,
+            "us": 3423
+          },
+          "committed_initial_admission": {
+            "calls": 25,
+            "us": 2882
+          },
+          "issuer_parent_lookup": {
+            "calls": 1965,
+            "us": 234386
+          },
+          "outside_instrumented_methods": {
+            "calls": 50,
+            "us": 12787
+          },
+          "receipt_ledger": {
+            "calls": 800,
+            "us": 99712
+          }
+        },
+        "timings": {
+          "committed_creation_proof": {
+            "calls": 25,
+            "exclusive_us": 1724009,
+            "failures": 0,
+            "inclusive_us": 1727432
+          },
+          "committed_initial_admission": {
+            "calls": 25,
+            "exclusive_us": 18672,
+            "failures": 0,
+            "inclusive_us": 1981093
+          },
+          "initial_materials": {
+            "calls": 25,
+            "exclusive_us": 206061,
+            "failures": 0,
+            "inclusive_us": 206061
+          },
+          "initial_reconstruction": {
+            "calls": 25,
+            "exclusive_us": 15509,
+            "failures": 0,
+            "inclusive_us": 26046
+          },
+          "issuer_parent_lookup": {
+            "calls": 1965,
+            "exclusive_us": 93709,
+            "failures": 0,
+            "inclusive_us": 328095
+          },
+          "receipt_ledger": {
+            "calls": 25,
+            "exclusive_us": 2348657,
+            "failures": 0,
+            "inclusive_us": 4723732
+          },
+          "root_capture": {
+            "calls": 2865,
+            "exclusive_us": 353190,
+            "failures": 0,
+            "inclusive_us": 353190
+          }
+        }
+      }
+    },
+    {
+      "operation": "fresh_save_boot",
+      "phase": "load",
+      "scope_elapsed_s": 30.976854,
+      "snapshot_calls": 15,
+      "guard_prepare_s": 1.252236,
+      "guard_verify_s": 1.226264,
+      "diagnostic": {
+        "context": {
+          "operation": "fresh_save_boot",
+          "stage": "PRIMARY_PENDING",
+          "state": "ENDING",
+          "step": 0
+        },
+        "note": "diagnostic overhead present; inclusive timings overlap; exclusive timings omit uninstrumented outer work",
+        "ok": true,
+        "root_capture_parent": {
+          "committed_creation_proof": {
+            "calls": 21,
+            "us": 2718
+          },
+          "committed_initial_admission": {
+            "calls": 21,
+            "us": 2416
+          },
+          "issuer_parent_lookup": {
+            "calls": 1358,
+            "us": 161550
+          },
+          "outside_instrumented_methods": {
+            "calls": 18,
+            "us": 4356
+          },
+          "receipt_ledger": {
+            "calls": 565,
+            "us": 68239
+          }
+        },
+        "timings": {
+          "committed_creation_proof": {
+            "calls": 21,
+            "exclusive_us": 1506965,
+            "failures": 0,
+            "inclusive_us": 1509683
+          },
+          "committed_initial_admission": {
+            "calls": 21,
+            "exclusive_us": 15406,
+            "failures": 0,
+            "inclusive_us": 1720521
+          },
+          "initial_materials": {
+            "calls": 25,
+            "exclusive_us": 759872,
+            "failures": 0,
+            "inclusive_us": 759872
+          },
+          "initial_reconstruction": {
+            "calls": 25,
+            "exclusive_us": 15645,
+            "failures": 0,
+            "inclusive_us": 25293
+          },
+          "issuer_parent_lookup": {
+            "calls": 1358,
+            "exclusive_us": 63433,
+            "failures": 0,
+            "inclusive_us": 224983
+          },
+          "receipt_ledger": {
+            "calls": 21,
+            "exclusive_us": 1431251,
+            "failures": 0,
+            "inclusive_us": 3424764
+          },
+          "root_capture": {
+            "calls": 1983,
+            "exclusive_us": 239279,
+            "failures": 0,
+            "inclusive_us": 239279
+          }
+        }
+      }
+    },
+    {
+      "operation": "fresh_save_load",
+      "phase": "load",
+      "scope_elapsed_s": 22.386219,
+      "snapshot_calls": 8,
+      "guard_prepare_s": 0.697878,
+      "guard_verify_s": 0.673401,
+      "diagnostic": {
+        "context": {
+          "operation": "fresh_save_load",
+          "stage": "PRIMARY_PENDING",
+          "state": "ENDING",
+          "step": 0
+        },
+        "note": "diagnostic overhead present; inclusive timings overlap; exclusive timings omit uninstrumented outer work",
+        "ok": true,
+        "root_capture_parent": {
+          "committed_creation_proof": {
+            "calls": 17,
+            "us": 2267
+          },
+          "committed_initial_admission": {
+            "calls": 17,
+            "us": 1967
+          },
+          "issuer_parent_lookup": {
+            "calls": 1344,
+            "us": 163416
+          },
+          "outside_instrumented_methods": {
+            "calls": 37,
+            "us": 9499
+          },
+          "receipt_ledger": {
+            "calls": 544,
+            "us": 67727
+          }
+        },
+        "timings": {
+          "committed_creation_proof": {
+            "calls": 17,
+            "exclusive_us": 1182401,
+            "failures": 0,
+            "inclusive_us": 1184668
+          },
+          "committed_initial_admission": {
+            "calls": 17,
+            "exclusive_us": 12542,
+            "failures": 0,
+            "inclusive_us": 1355156
+          },
+          "initial_materials": {
+            "calls": 17,
+            "exclusive_us": 139367,
+            "failures": 0,
+            "inclusive_us": 139367
+          },
+          "initial_reconstruction": {
+            "calls": 17,
+            "exclusive_us": 10305,
+            "failures": 0,
+            "inclusive_us": 16612
+          },
+          "issuer_parent_lookup": {
+            "calls": 1344,
+            "exclusive_us": 64689,
+            "failures": 0,
+            "inclusive_us": 228105
+          },
+          "receipt_ledger": {
+            "calls": 17,
+            "exclusive_us": 1682618,
+            "failures": 0,
+            "inclusive_us": 3309067
+          },
+          "root_capture": {
+            "calls": 1959,
+            "exclusive_us": 244876,
+            "failures": 0,
+            "inclusive_us": 244876
+          }
+        }
+      }
+    }
+  ]
+}

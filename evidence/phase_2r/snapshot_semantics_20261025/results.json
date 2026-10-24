@@ -1,0 +1,400 @@
+{
+  "stage": "Qualified for publication: mechanical and visual reviews complete",
+  "candidate_ref": "0ccaaed82bb0f896e998118ee8b5db5d2a25a7e3",
+  "qualified_candidate_refs": [
+    "0ccaaed82bb0f896e998118ee8b5db5d2a25a7e3",
+    "13b6853a6f66b92022a589489bf5f0187c18d1e3"
+  ],
+  "failed_attempts_excluded": [
+    {
+      "artifact": "load-inventory-40118557868-1",
+      "lane": "inventory",
+      "status": "failed",
+      "error": "Public surface game_state check failed with exit 1.",
+      "candidate_ref": "13b6853a6f66b92022a589489bf5f0187c18d1e3",
+      "controller_ref": "de0113da3641aa24a0d6e0f4d76d5f2e94c6a9db"
+    }
+  ],
+  "diagnostics_separate": [
+    {
+      "artifact": "terminal-proof-preflight-40118441660-1",
+      "source_ref": "bcee4693c6a2c5f801138fd2f68fd12a64fa1aca",
+      "current_cases": [
+        {
+          "path": ".godot/ci/fresh-save-load/write.xml",
+          "cases": [
+            {
+              "name": "test_genuine_ending_load_save",
+              "source": ".godot/ci/pair-next.gd",
+              "status": "pass",
+              "assertions": 112
+            }
+          ]
+        },
+        {
+          "path": ".godot/ci/fresh-save-load/load.xml",
+          "cases": [
+            {
+              "name": "test_fresh_current_save_load",
+              "source": "tests/integration/fresh_save_load_child.gd",
+              "status": "pass",
+              "assertions": 101
+            }
+          ]
+        }
+      ],
+      "excluded_xml": [
+        ".godot/ci/fresh-save-retained-input/terminal-candidate.xml"
+      ],
+      "scope": "Separate instrumented diagnostic; not candidate qualification or matched performance evidence."
+    }
+  ],
+  "baseline_ref": "a7a9707dae17b648c09e70a139e1c37d4a7a4d37",
+  "engine_sha256": "63b3b2208819714c9677fbfdd8217c5b7dee8ecf5f383502e826bc9e2227ff5a",
+  "source_hashes": {
+    "tests/integration/test_restore_transaction.gd": "e1e75a5cafb122c2289ed33b222f3006962c02e621fed4ff41dab059509c6ff9",
+    "tests/integration/test_scene_challenge_recall_create.gd": "7106beba3060c0688a1bc82f5750a799915cdf575bece7c22c90092cbfd9a556",
+    "tests/unit/test_run_snapshot_schema.gd": "f0dc6519a9919ae0ec339f7ad33820777a9ab7466b2327ce32b8ca370f45ded3",
+    "tests/integration/authored_week_child.gd": "e509c60688afccc407bd920120169bd50edbaffbe48747674362284a09e77e38",
+    "tools/testing/Invoke-FreshSaveLoadComparison.ps1": "fa089ac82039000c0b6196e68d021032c9c5563025da3ac3d291290cb31dc42b",
+    "tests/integration/authored_terminal_admission_checks.gd": "19c3090b2d1ca1018fab065d024ee6ea933c21547d4f87efaff03e1e4ad46e45",
+    "tests/integration/fresh_save_load_child.gd": "4b43bad936ad8ac66f4e015e183c8e3c2d8374d2798e49dd85eb79ddb4b145aa",
+    "tests/unit/test_scene_terminal_lifecycle.gd": "82f996cee273ab38a69f8e54d5eaaba64699f80f883170e0e8e4b60627cd46fc",
+    "tests/unit/test_scene_restore_journal.gd": "ba6e745ed52c1ba1f9e8c9d394e56037a0da63ce81347b06433802b51797d0e5",
+    "tests/unit/test_scene_route_restore_context.gd": "0c67f7a8f60fe13a3cbd2a9678587d43dd27e74f6fb1ccb6b53fe5933b795280",
+    "tests/unit/test_scene_event_contract.gd": "bb76f3be03e112b0712fd8f19fc2f7fc39cf74286e2279b4da2df307ccd7bf4c",
+    "tests/integration/test_scene_challenge_recall_load.gd": "2dc305f6b83ca8e75ba5d7ca4ee397fd2045894183ffb9618023fd687d3754fb",
+    "tests/integration/scene_challenge_recall_child.gd": "7c34d63935883b1cec8e1ec6e6ac25abab4956ebcb6a04c8e12dd7516d43d445",
+    "tests/unit/test_scene_receipt_validation.gd": "864fb738fcf4656da6b4e595fd40552b56f694a8dd8481942b8ae889971bf451",
+    "tests/integration/test_unified_restore_contract.gd": "a2b737aa77a4f124781191a82da72e3b451af5438e52fbf07fc9a3bfe21f5dde",
+    "tests/unit/test_scene_save_schema.gd": "731d6122d8a588a8cfadee828dc24a8bebcc173472bb4a885768ae5718867e2e",
+    "tests/integration/test_scene_saved_event_anchor.gd": "d64452d72fbba06c24807c79faefe99528f7fb2a2fe1a76e79a193672a0757ea",
+    "tests/unit/test_scene_challenge_recall.gd": "94ff74ae636ef86c29bffd005a9e2504d20457e90f81f0214d2681970ddb7ea6",
+    "tests/unit/test_frozen_run_context.gd": "90ce90bd7f8b444b483b8bc979338aec349e34315bbf160077ab4314a7f4e140",
+    "tools/testing/Invoke-FreshSaveLoad.ps1": "9b95c418b3d475876e91516e0893a2d70f4f85040fb1b2862b97aa09b37bc0e6",
+    "tools/testing/Invoke-CloudTests.ps1": "3ad8510a5bbcc1979cdef90c64736d830d628ba824637ad65357a4016adbeae7",
+    "tools/testing/Invoke-PublicSurfaceValidation.ps1": "de02f5eb28b087fe858622dbcae5e45aa38293de694c4df284ae487443e3f11a",
+    "tools/testing/Invoke-IsolatedGodot.ps1": "1fe67f2db677fb869ee82126834a83d519b77888328a690ec55bbb3fbda7fa5f",
+    "tests/unit/test_scene_terminal_snapshot.gd": "c94bfba582c230d4443ae7e73234a9387ff4bd34277c4e832ec390e84d0dd8ec",
+    "scripts/domain/run/RunSnapshotSchema.gd": "8ec3aa913176d737a304645e1a6146e13a96d85ee3c82b1323cfb843a4bde741",
+    "tests/unit/test_scene_save_history_run.gd": "90e2d50693fdb77daca2dcf4c69f1395cc5f4f11e6a681eee01bb3f394e04b63"
+  },
+  "qualifications": {
+    "recall": {
+      "status": "passed_requires_evidence_review",
+      "lane": "recall",
+      "candidate_ref": "13b6853a6f66b92022a589489bf5f0187c18d1e3",
+      "baseline_ref": "a7a9707dae17b648c09e70a139e1c37d4a7a4d37",
+      "controller_ref": "de0113da3641aa24a0d6e0f4d76d5f2e94c6a9db",
+      "inventory_mode": "not_executed_in_this_lane"
+    },
+    "terminal": {
+      "status": "passed_requires_evidence_review",
+      "lane": "terminal",
+      "candidate_ref": "13b6853a6f66b92022a589489bf5f0187c18d1e3",
+      "baseline_ref": "a7a9707dae17b648c09e70a139e1c37d4a7a4d37",
+      "controller_ref": "de0113da3641aa24a0d6e0f4d76d5f2e94c6a9db",
+      "inventory_mode": "not_executed_in_this_lane"
+    },
+    "inventory": {
+      "status": "passed_requires_evidence_review",
+      "lane": "inventory",
+      "candidate_ref": "0ccaaed82bb0f896e998118ee8b5db5d2a25a7e3",
+      "baseline_ref": "a7a9707dae17b648c09e70a139e1c37d4a7a4d37",
+      "controller_ref": "710824b4afc22cb1d841a888b4b83f524b8c9378",
+      "inventory_mode": "read_only_committed_verification"
+    },
+    "focused": {
+      "status": "passed_requires_evidence_review",
+      "lane": "focused",
+      "candidate_ref": "13b6853a6f66b92022a589489bf5f0187c18d1e3",
+      "baseline_ref": "a7a9707dae17b648c09e70a139e1c37d4a7a4d37",
+      "controller_ref": "de0113da3641aa24a0d6e0f4d76d5f2e94c6a9db",
+      "inventory_mode": "not_executed_in_this_lane"
+    },
+    "baseline-first": {
+      "status": "passed_requires_evidence_review",
+      "lane": "baseline-first",
+      "candidate_ref": "13b6853a6f66b92022a589489bf5f0187c18d1e3",
+      "baseline_ref": "a7a9707dae17b648c09e70a139e1c37d4a7a4d37",
+      "controller_ref": "de0113da3641aa24a0d6e0f4d76d5f2e94c6a9db",
+      "inventory_mode": "not_executed_in_this_lane"
+    },
+    "candidate-first": {
+      "status": "passed_requires_evidence_review",
+      "lane": "candidate-first",
+      "candidate_ref": "13b6853a6f66b92022a589489bf5f0187c18d1e3",
+      "baseline_ref": "a7a9707dae17b648c09e70a139e1c37d4a7a4d37",
+      "controller_ref": "de0113da3641aa24a0d6e0f4d76d5f2e94c6a9db",
+      "inventory_mode": "not_executed_in_this_lane"
+    }
+  },
+  "current_xml_summary": {
+    "recall": {
+      "cases": 2,
+      "case_assertions": 168
+    },
+    "terminal": {
+      "cases": 1,
+      "case_assertions": 190
+    },
+    "inventory": {
+      "cases": 0,
+      "case_assertions": 0
+    },
+    "focused": {
+      "cases": 165,
+      "case_assertions": 1759
+    },
+    "baseline-first": {
+      "cases": 4,
+      "case_assertions": 426
+    },
+    "candidate-first": {
+      "cases": 4,
+      "case_assertions": 426
+    }
+  },
+  "excluded_historical_xml": [
+    "terminal/candidate/.godot/ci/terminal-admission-input/terminal-candidate.xml"
+  ],
+  "comparisons": {
+    "baseline-first": {
+      "order": [
+        "baseline",
+        "candidate"
+      ],
+      "operations": {
+        "baseline": {
+          "save_press_return_s": 24.758643,
+          "retained_load_ready_s": 57.810677,
+          "fresh_load_ready_s": 33.513221
+        },
+        "candidate": {
+          "save_press_return_s": 21.690353,
+          "retained_load_ready_s": 51.386524,
+          "fresh_load_ready_s": 30.852309
+        }
+      },
+      "change_percent": {
+        "save_press_return_s": -12.392803595899816,
+        "retained_load_ready_s": -11.11239883940469,
+        "fresh_load_ready_s": -7.939887365645937
+      }
+    },
+    "candidate-first": {
+      "order": [
+        "candidate",
+        "baseline"
+      ],
+      "operations": {
+        "candidate": {
+          "save_press_return_s": 22.206715,
+          "retained_load_ready_s": 51.840342,
+          "fresh_load_ready_s": 30.670355
+        },
+        "baseline": {
+          "save_press_return_s": 25.659605,
+          "retained_load_ready_s": 59.73182,
+          "fresh_load_ready_s": 33.919373
+        }
+      },
+      "change_percent": {
+        "save_press_return_s": -13.456520472548195,
+        "retained_load_ready_s": -13.211514398858093,
+        "fresh_load_ready_s": -9.578649935539785
+      }
+    }
+  },
+  "ready_native": {
+    "event_done": true,
+    "ledger": {
+      "captions": [
+        {
+          "beat": {
+            "beat_id": "beat.line.ending.alone.normal.001",
+            "line_id": "line.ending.alone.normal.001",
+            "owning_entry_id": "ending.alone.normal",
+            "presentation_signature": {
+              "content_revision": "1",
+              "variant_id": "beat.line.ending.alone.normal.001"
+            }
+          },
+          "publication_id": "caption:1"
+        }
+      ],
+      "entry_contexts": {
+        "ending.alone.normal": {
+          "expected_stage": "PRIMARY_PENDING",
+          "playback_id": "run_id.ec5ebbe37aaeb707b927fbe22281544e0dfcf8f395b204a0dba301ac0185c34e:ending:0",
+          "presentation": {
+            "fields": {
+              "alone_cause": "scene_terminal",
+              "ending_form": "alone_normal",
+              "ending_id": "ending.alone",
+              "ending_role": "core",
+              "entry_id": "ending.alone.normal",
+              "entry_role": "alone_step",
+              "playback_mode": "full",
+              "prerequisite_receipt_ids": [],
+              "step_token": "run_id.ec5ebbe37aaeb707b927fbe22281544e0dfcf8f395b204a0dba301ac0185c34e:ending:0"
+            },
+            "schema_id": "context.alone_step.ending.alone.normal.v1",
+            "schema_version": 1
+          },
+          "role": "core",
+          "transaction_id": "run_id.ec5ebbe37aaeb707b927fbe22281544e0dfcf8f395b204a0dba301ac0185c34e:ending:0:complete"
+        }
+      },
+      "frozen_context": {
+        "completion_transaction_id": "run_id.ec5ebbe37aaeb707b927fbe22281544e0dfcf8f395b204a0dba301ac0185c34e:ending",
+        "entry_id": "ending.alone.normal",
+        "family": "ending"
+      },
+      "session_token": "run_id.ec5ebbe37aaeb707b927fbe22281544e0dfcf8f395b204a0dba301ac0185c34e:ending"
+    },
+    "line_id": "line.ending.alone.normal.001",
+    "revealing": false,
+    "text": "At the rear doors of the building, the evening rain falls straight down through the courtyard lamp light.",
+    "visible": true,
+    "visible_ratio": 1.0
+  },
+  "all_four_ready_payloads_equal": true,
+  "accepted_current_product_coverage": {
+    "cases": 168,
+    "case_assertions": 2117
+  },
+  "matched_comparison_execution_coverage": {
+    "cases": 8,
+    "case_assertions": 852
+  },
+  "limits": "Two ordered pairs are not a latency distribution. Windows source project/software rendering, not installed Steam. Only current testcase assertions counted; preserved historical fixture XML excluded. Visual review covers the retained terminal state and authored recall fixture only.",
+  "runs": [
+    40118441660,
+    40118557868,
+    40118687135
+  ],
+  "visual_review": "visual-review.json",
+  "png_integrity_verified": [
+    {
+      "path": "recall/candidate/.godot/ci/computer-challenge-recall-restored-selected.png",
+      "size": [
+        992,
+        558
+      ],
+      "sha256": "acf44894f7e4b95a77719bac7cb7c45a2c538033db0231a04b5572f3de1824fe"
+    },
+    {
+      "path": "recall/candidate/.godot/ci/computer-challenge-recall-selected.png",
+      "size": [
+        992,
+        558
+      ],
+      "sha256": "976536cd4d81483b6b6e4071ca2d53e72a05c496479c016a52b960eaa4407038"
+    },
+    {
+      "path": "recall/candidate/.godot/ci/computer-challenge-recall-saved.png",
+      "size": [
+        992,
+        558
+      ],
+      "sha256": "cb841206b6a8def33657211309898671d3d514a7d8c9b39ad3d9d8a158c0648a"
+    },
+    {
+      "path": "baseline-first/candidate/.godot/ci/fresh-save-load-comparison/baseline/computer-authored-restored-slot-2.png",
+      "size": [
+        992,
+        558
+      ],
+      "sha256": "518dc6bccd41ef7ef77da8963cb6ba7216de4b48a2f8f81b892262dd25e4502a"
+    },
+    {
+      "path": "baseline-first/candidate/.godot/ci/fresh-save-load-comparison/baseline/computer-authored-terminal-pair.png",
+      "size": [
+        992,
+        558
+      ],
+      "sha256": "9903526552d99c2b5a0ff91a270ede867ada1628b902c874ede2a4e09811c8ea"
+    },
+    {
+      "path": "baseline-first/candidate/.godot/ci/fresh-save-load-comparison/baseline/computer-authored-restored-slot-3.png",
+      "size": [
+        992,
+        558
+      ],
+      "sha256": "518dc6bccd41ef7ef77da8963cb6ba7216de4b48a2f8f81b892262dd25e4502a"
+    },
+    {
+      "path": "baseline-first/candidate/.godot/ci/fresh-save-load-comparison/candidate/computer-authored-restored-slot-2.png",
+      "size": [
+        992,
+        558
+      ],
+      "sha256": "518dc6bccd41ef7ef77da8963cb6ba7216de4b48a2f8f81b892262dd25e4502a"
+    },
+    {
+      "path": "baseline-first/candidate/.godot/ci/fresh-save-load-comparison/candidate/computer-authored-terminal-pair.png",
+      "size": [
+        992,
+        558
+      ],
+      "sha256": "9903526552d99c2b5a0ff91a270ede867ada1628b902c874ede2a4e09811c8ea"
+    },
+    {
+      "path": "baseline-first/candidate/.godot/ci/fresh-save-load-comparison/candidate/computer-authored-restored-slot-3.png",
+      "size": [
+        992,
+        558
+      ],
+      "sha256": "518dc6bccd41ef7ef77da8963cb6ba7216de4b48a2f8f81b892262dd25e4502a"
+    },
+    {
+      "path": "candidate-first/candidate/.godot/ci/fresh-save-load-comparison/candidate/computer-authored-restored-slot-2.png",
+      "size": [
+        992,
+        558
+      ],
+      "sha256": "518dc6bccd41ef7ef77da8963cb6ba7216de4b48a2f8f81b892262dd25e4502a"
+    },
+    {
+      "path": "candidate-first/candidate/.godot/ci/fresh-save-load-comparison/candidate/computer-authored-terminal-pair.png",
+      "size": [
+        992,
+        558
+      ],
+      "sha256": "9903526552d99c2b5a0ff91a270ede867ada1628b902c874ede2a4e09811c8ea"
+    },
+    {
+      "path": "candidate-first/candidate/.godot/ci/fresh-save-load-comparison/candidate/computer-authored-restored-slot-3.png",
+      "size": [
+        992,
+        558
+      ],
+      "sha256": "518dc6bccd41ef7ef77da8963cb6ba7216de4b48a2f8f81b892262dd25e4502a"
+    },
+    {
+      "path": "candidate-first/candidate/.godot/ci/fresh-save-load-comparison/baseline/computer-authored-restored-slot-2.png",
+      "size": [
+        992,
+        558
+      ],
+      "sha256": "518dc6bccd41ef7ef77da8963cb6ba7216de4b48a2f8f81b892262dd25e4502a"
+    },
+    {
+      "path": "candidate-first/candidate/.godot/ci/fresh-save-load-comparison/baseline/computer-authored-terminal-pair.png",
+      "size": [
+        992,
+        558
+      ],
+      "sha256": "9903526552d99c2b5a0ff91a270ede867ada1628b902c874ede2a4e09811c8ea"
+    },
+    {
+      "path": "candidate-first/candidate/.godot/ci/fresh-save-load-comparison/baseline/computer-authored-restored-slot-3.png",
+      "size": [
+        992,
+        558
+      ],
+      "sha256": "518dc6bccd41ef7ef77da8963cb6ba7216de4b48a2f8f81b892262dd25e4502a"
+    }
+  ]
+}

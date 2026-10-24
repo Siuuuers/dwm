@@ -1,0 +1,154 @@
+[
+  {
+    "id": 12569267808,
+    "name": "terminal-proof-preflight-40118441660-1",
+    "size_in_bytes": 11604424,
+    "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12569267808",
+    "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12569267808/zip",
+    "expired": false,
+    "created_at": "2026-10-24T18:00:34Z",
+    "expires_at": "2026-10-31T18:00:32Z",
+    "updated_at": "2026-10-24T18:00:34Z",
+    "digest": "sha256:0615bb8e6fbc90bf79d17f0d1b604b262e3ab7857c341e7e71be7c5e08bfc9d2",
+    "workflow_run": {
+      "id": 40118441660,
+      "repository_id": 1302529453,
+      "head_repository_id": 1302529453,
+      "head_branch": "codex/save-diagnostic-controller-20261025",
+      "head_sha": "bcee4693c6a2c5f801138fd2f68fd12a64fa1aca"
+    }
+  },
+  {
+    "id": 12570108561,
+    "name": "load-inventory-40118557868-1",
+    "size_in_bytes": 122791,
+    "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12570108561",
+    "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12570108561/zip",
+    "expired": false,
+    "created_at": "2026-10-24T18:00:38Z",
+    "expires_at": "2026-10-31T18:00:37Z",
+    "updated_at": "2026-10-24T18:00:38Z",
+    "digest": "sha256:a67b14adb64ccc3ac6136073c2c703b4ca66386cc345c41d28a5740aaf8c5f72",
+    "workflow_run": {
+      "id": 40118557868,
+      "repository_id": 1302529453,
+      "head_repository_id": 1302529453,
+      "head_branch": "codex/run9-semantic-guard-controller-20261025",
+      "head_sha": "de0113da3641aa24a0d6e0f4d76d5f2e94c6a9db"
+    }
+  },
+  {
+    "id": 12569263826,
+    "name": "load-recall-40118557868-1",
+    "size_in_bytes": 172138,
+    "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12569263826",
+    "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12569263826/zip",
+    "expired": false,
+    "created_at": "2026-10-24T18:00:49Z",
+    "expires_at": "2026-10-31T18:00:49Z",
+    "updated_at": "2026-10-24T18:00:49Z",
+    "digest": "sha256:9b6dac4ea384e363fe46b5a1ef82773c62ad0d550eaea765dcf10d40e2793fae",
+    "workflow_run": {
+      "id": 40118557868,
+      "repository_id": 1302529453,
+      "head_repository_id": 1302529453,
+      "head_branch": "codex/run9-semantic-guard-controller-20261025",
+      "head_sha": "de0113da3641aa24a0d6e0f4d76d5f2e94c6a9db"
+    }
+  },
+  {
+    "id": 12570412608,
+    "name": "load-terminal-40118557868-1",
+    "size_in_bytes": 3256466,
+    "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12570412608",
+    "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12570412608/zip",
+    "expired": false,
+    "created_at": "2026-10-24T18:01:27Z",
+    "expires_at": "2026-10-31T18:01:25Z",
+    "updated_at": "2026-10-24T18:01:27Z",
+    "digest": "sha256:0a551e6f656099e73bd05900bff7d95c31b43a4a967778bb899edc074841da9d",
+    "workflow_run": {
+      "id": 40118557868,
+      "repository_id": 1302529453,
+      "head_repository_id": 1302529453,
+      "head_branch": "codex/run9-semantic-guard-controller-20261025",
+      "head_sha": "de0113da3641aa24a0d6e0f4d76d5f2e94c6a9db"
+    }
+  },
+  {
+    "id": 12570562063,
+    "name": "load-inventory-40118687135-1",
+    "size_in_bytes": 226315,
+    "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12570562063",
+    "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12570562063/zip",
+    "expired": false,
+    "created_at": "2026-10-24T18:02:29Z",
+    "expires_at": "2026-10-31T18:02:28Z",
+    "updated_at": "2026-10-24T18:02:29Z",
+    "digest": "sha256:c28f9789bca5f54ae3e70aa318df2c0b4142717a8b351a4078d3dab48b75c4d0",
+    "workflow_run": {
+      "id": 40118687135,
+      "repository_id": 1302529453,
+      "head_repository_id": 1302529453,
+      "head_branch": "codex/run9-semantic-inventory-controller-20261025",
+      "head_sha": "710824b4afc22cb1d841a888b4b83f524b8c9378"
+    }
+  },
+  {
+    "id": 12569414011,
+    "name": "load-focused-40118557868-1",
+    "size_in_bytes": 154789,
+    "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12569414011",
+    "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12569414011/zip",
+    "expired": false,
+    "created_at": "2026-10-24T18:03:34Z",
+    "expires_at": "2026-10-31T18:03:33Z",
+    "updated_at": "2026-10-24T18:03:34Z",
+    "digest": "sha256:b595b9cde394c95f09cc79b09a2f40d565bd64283346c27552fcb385bb181a31",
+    "workflow_run": {
+      "id": 40118557868,
+      "repository_id": 1302529453,
+      "head_repository_id": 1302529453,
+      "head_branch": "codex/run9-semantic-guard-controller-20261025",
+      "head_sha": "de0113da3641aa24a0d6e0f4d76d5f2e94c6a9db"
+    }
+  },
+  {
+    "id": 12569284698,
+    "name": "load-baseline-first-40118557868-1",
+    "size_in_bytes": 3923580,
+    "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12569284698",
+    "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12569284698/zip",
+    "expired": false,
+    "created_at": "2026-10-24T18:09:54Z",
+    "expires_at": "2026-10-31T18:09:53Z",
+    "updated_at": "2026-10-24T18:09:54Z",
+    "digest": "sha256:64f83dcb5f44e94789052c10f21d4b8fbf0c6c0ad715ef7c95250207803ccf71",
+    "workflow_run": {
+      "id": 40118557868,
+      "repository_id": 1302529453,
+      "head_repository_id": 1302529453,
+      "head_branch": "codex/run9-semantic-guard-controller-20261025",
+      "head_sha": "de0113da3641aa24a0d6e0f4d76d5f2e94c6a9db"
+    }
+  },
+  {
+    "id": 12570034903,
+    "name": "load-candidate-first-40118557868-1",
+    "size_in_bytes": 3923410,
+    "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12570034903",
+    "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12570034903/zip",
+    "expired": false,
+    "created_at": "2026-10-24T18:09:59Z",
+    "expires_at": "2026-10-31T18:09:57Z",
+    "updated_at": "2026-10-24T18:09:59Z",
+    "digest": "sha256:c97b729b5264de89e81456553f03a2c8da1e695fa5fbc62c8f1de8af84764e97",
+    "workflow_run": {
+      "id": 40118557868,
+      "repository_id": 1302529453,
+      "head_repository_id": 1302529453,
+      "head_branch": "codex/run9-semantic-guard-controller-20261025",
+      "head_sha": "de0113da3641aa24a0d6e0f4d76d5f2e94c6a9db"
+    }
+  }
+]
