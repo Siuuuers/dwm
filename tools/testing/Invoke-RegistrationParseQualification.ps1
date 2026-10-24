@@ -14,7 +14,7 @@
 
 param(
     [Parameter(Mandatory)][ValidatePattern('^[0-9a-f]{40}$')][string]$CandidateRef,
-    [Parameter(Mandatory)][ValidateSet('focused', 'native')][string]$Lane
+    [Parameter(Mandatory)][ValidateSet('focused', 'native', 'inventory')][string]$Lane
 )
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
@@ -140,6 +140,9 @@ try {
                     if (-not $child.clean_exit -or $child.exit_code -ne 0 -or $child.timed_out) { throw 'Native process failed.' }
                 }
                 $run.processes = $receipt.processes
+            } elseif ($Lane -eq 'inventory') {
+                & (Join-Path $runtime 'tools/testing/Invoke-PublicSurfaceValidation.ps1') -EmitPayloads
+                if ($LASTEXITCODE -ne 0) { throw 'Read-only inventory verification failed.' }
             } else {
                 & (Join-Path $runtime 'tools/testing/Invoke-PublicSurfaceValidation.ps1') -Regenerate -EmitPayloads
                 $tests = @('test_scene_compiler_cache', 'test_dialogic_entry_manifest', 'test_scene_reading_registration',
