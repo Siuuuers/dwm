@@ -1,0 +1,42 @@
+{
+  "object_count": 56,
+  "unique_object_bytes": 4438256,
+  "included_member_count": 68,
+  "omitted_member_count": 224,
+  "junit_groups": {
+    "caller_attribution.historical_input": {
+      "reports": 1,
+      "cases": 1,
+      "assertions": 112,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "caller_attribution.native": {
+      "reports": 2,
+      "cases": 2,
+      "assertions": 213,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "scene_phase_attribution.historical_input": {
+      "reports": 1,
+      "cases": 1,
+      "assertions": 112,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "scene_phase_attribution.native": {
+      "reports": 2,
+      "cases": 2,
+      "assertions": 213,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "sha256": "87406174b61b545ffc35d27f3179c11fb84e78300009b8c94c260c2b7584e601",
+  "bytes": 1565920
+}
