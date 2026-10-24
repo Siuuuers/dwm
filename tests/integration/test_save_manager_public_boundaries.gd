@@ -373,7 +373,14 @@ func test_session_exit_checkpoint_requires_current_custody_and_preserves_live_se
 	var failed: Dictionary = f.manager.save_session_exit_checkpoint(_inputs(f), handle)
 	assert_false(failed.get("ok", true), str(failed))
 	assert_eq(f.gs.capture_live_session().value, handle, "save failure cannot retire the session")
-	assert_eq(f.saves.read_text("autosave.json").value, original_autosave, "the last durable save remains readable")
+	# A refused revision write clears its read lease; inspect the preserved bytes
+	# without asking storage to certify them as an admitted restore document.
+	var retained: Dictionary = f.saves.inspect_revision("autosave.json")
+	assert_true(retained.get("ok", false), str(retained))
+	if retained.get("ok", false):
+		assert_eq(retained.value.text, original_autosave, "the last durable save remains unchanged")
+		assert_eq(retained.value.revision, original_autosave.sha256_text())
+	assert_eq(f.ops.snapshot_persisted(), original_files, "the refused marker write leaves no durable mutation")
 	assert_eq(completed.size(), 0)
 	assert_true(f.gate.is_lease_active(&"session_abandonment", lease.value.token))
 	var result: Dictionary = f.manager.save_session_exit_checkpoint(_inputs(f), handle)

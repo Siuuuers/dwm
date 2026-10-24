@@ -196,7 +196,12 @@ func test_latest_save_refuses_concurrent_target_change_and_retry_preserves_curre
 	fixture.storage._before_write = original
 	manager.save_completed.disconnect(on_completed)
 	assert_eq(refused.get("code"), &"revision_changed", str(refused))
-	assert_eq(fixture.storage.read_text("slot_3.json").get("value"), "concurrent replacement\n")
+	# Refusal cannot grant a read lease to the competing writer's unvalidated bytes.
+	var retained: Dictionary = fixture.storage.inspect_revision("slot_3.json")
+	assert_true(retained.get("ok", false), str(retained))
+	if retained.get("ok", false):
+		assert_eq(retained.value.text, "concurrent replacement\n")
+		assert_eq(retained.value.revision, "concurrent replacement\n".sha256_text())
 	assert_true(completed.is_empty(), "a refused write emits no completion")
 	assert_eq(fixture.game.capture_restore_state(), before_game)
 	assert_eq(fixture.profile.get_profile_snapshot(), before_profile)
