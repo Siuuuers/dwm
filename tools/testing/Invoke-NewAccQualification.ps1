@@ -68,8 +68,9 @@ function Preserve([string]$runtime, [string]$label) {
         if (Test-Path $from) { New-Item -ItemType Directory -Force $dest | Out-Null; Copy-Item $from (Join-Path $dest $name) }
     }
 }
+$qualificationFailures = @()
 try {
-    $labels = if ($Lane -eq 'native') { if ($CandidateFirst) { @('candidate', 'baseline') } else { @('baseline', 'candidate') } } else { @('candidate') }
+    $labels = if ($Lane -eq 'native') { if ($CandidateFirst) { @('candidate', 'baseline') } else { @('baseline', 'candidate') } } elseif ($Lane -eq 'focused') { @('baseline', 'candidate') } else { @('candidate') }
     foreach ($label in $labels) {
         $ref = if ($label -eq 'baseline') { $baseRef } else { $CandidateRef }
         $runtime = Join-Path $env:RUNNER_TEMP "newacc-$Lane-$label"
@@ -190,25 +191,56 @@ try {
                 & (Join-Path $runtime 'tools/testing/Invoke-PublicSurfaceValidation.ps1') -EmitPayloads
                 if ($LASTEXITCODE -ne 0) { throw 'Read-only inventory verification failed.' }
             } else {
-                & (Join-Path $runtime 'tools/testing/Invoke-PublicSurfaceValidation.ps1') -Regenerate -EmitPayloads
-                if ($LASTEXITCODE -ne 0) { throw 'Inventory regeneration/check failed.' }
-                $tests = $FocusedTests
-                $expectedTests = 0
-                foreach ($name in $tests) {
-                    $file = Join-Path $runtime "$name"
-                    $expectedTests += @(Select-String -LiteralPath $file -Pattern '^func test_[^(]+\(').Count
+                if ($label -eq 'candidate') {
+                    & (Join-Path $runtime 'tools/testing/Invoke-PublicSurfaceValidation.ps1') -EmitPayloads
+                    if ($LASTEXITCODE -ne 0) { throw 'Committed inventory verification failed.' }
                 }
-                $testArg = '-gtest=' + (($tests | ForEach-Object { "res://$_" }) -join ',')
-                & (Join-Path $runtime 'tools/testing/Invoke-IsolatedGodot.ps1') -SuiteId newacc-focused -LogName newacc-focused.log -EvidenceLogPath .godot/ci/newacc-focused.jsonl -TimeoutSeconds 1800 -GodotArgs @('-s', 'res://addons/gut/gut_cmdln.gd', '-gconfig=', $testArg, '-gexit', '-glog=1', '-gjunit_xml_file=res://.godot/ci/newacc-focused.xml')
-                if ($LASTEXITCODE -ne 0) { throw 'Focused suite failed.' }
-                if (Select-String (Join-Path $runtime '.godot/phase2r_logs/newacc-focused.log') -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) { throw 'Focused suite logged script or Unicode errors.' }
-                [xml]$xml = Get-Content "$ci/newacc-focused.xml" -Raw
-                $cases = @($xml.SelectNodes('//testcase'))
-                if ($cases.Count -ne $expectedTests -or @($cases | Where-Object { $_.status -ne 'pass' }).Count -or $xml.SelectNodes('//failure|//error|//skipped').Count) { throw "Focused census/pass mismatch: $($cases.Count) expected$expectedTests" }
-                $run.tests = $tests; $run.expected_tests = $expectedTests; $run.actual_tests = $cases.Count
-                $run.assertions = ($cases | ForEach-Object { [int]$_.assertions } | Measure-Object -Sum).Sum
+                # Registration fixtures select immutable process-global state. Give each
+                # complete suite its own process/profile instead of sharing one GUT host.
+                $tests = if ($label -eq 'baseline') { @('tests/unit/test_scene_new_run_materials.gd') } else { $FocusedTests }
+                $run.tests = $tests; $run.suites = @(); $run.expected_tests = 0; $run.actual_tests = 0; $run.assertions = 0
+                foreach ($name in $tests) {
+                    $suiteId = 'newacc-' + [IO.Path]::GetFileNameWithoutExtension($name)
+                    $expectedTests = @(Select-String -LiteralPath (Join-Path $runtime $name) -Pattern '^func test_[^(]+\(').Count
+                    $suite = [ordered]@{ file = $name; expected_tests = $expectedTests; actual_tests = 0; assertions = 0; status = 'started'; error = '' }
+                    $run.suites += $suite; $run.expected_tests += $expectedTests
+                    try {
+                        & (Join-Path $runtime 'tools/testing/Invoke-IsolatedGodot.ps1') -SuiteId $suiteId -LogName "$suiteId.log" -EvidenceLogPath ".godot/ci/$suiteId.jsonl" -TimeoutSeconds 1800 -GodotArgs @('-s', 'res://addons/gut/gut_cmdln.gd', '-gconfig=', "-gtest=res://$name", '-gexit', '-glog=1', "-gjunit_xml_file=res://.godot/ci/$suiteId.xml")
+                        $suite.exit_code = $LASTEXITCODE
+                        [xml]$xml = Get-Content (Join-Path $ci "$suiteId.xml") -Raw
+                        $cases = @($xml.SelectNodes('//testcase'))
+                        $suite.actual_tests = $cases.Count
+                        $suite.assertions = ($cases | ForEach-Object { [int]$_.assertions } | Measure-Object -Sum).Sum
+                        $run.actual_tests += $suite.actual_tests; $run.assertions += $suite.assertions
+                        # GUT does not include before_all failures in its testcase census.
+                        $logPath = Join-Path $runtime ".godot/phase2r_logs/$suiteId.log"
+                        $logErrors = Select-String $logPath -Pattern 'SCRIPT ERROR:|ERROR:|Unicode parsing error|Unexpected NUL character|before_all/after_all assert failed' -Quiet
+                        $failedCases = @($cases | Where-Object { $_.status -ne 'pass' })
+                        if ($label -eq 'baseline') {
+                            # This lane proves the unchanged baseline fixture's exact known
+                            # StringName-key refusal; it is not counted as passing tests.
+                            if ($suite.exit_code -ne 1 -or $logErrors -or $cases.Count -ne $expectedTests -or $failedCases.Count -ne 1 -or
+                                $failedCases[0].name -ne 'test_scene_initial_context_cannot_downgrade_or_add_legacy_dark_selector' -or
+                                $failedCases[0].InnerText -notmatch 'invalid_primitive.*new_run_materials_invalid' -or
+                                $xml.SelectNodes('//failure').Count -ne 1 -or $xml.SelectNodes('//error|//skipped').Count) {
+                                throw 'Baseline did not reproduce exactly the reviewed materials fixture failure.'
+                            }
+                            $suite.status = 'expected_baseline_failure'
+                        } else {
+                            $logFailed = Select-String $logPath -Pattern '\[Failed\]' -Quiet
+                            if ($suite.exit_code -ne 0 -or $logErrors -or $logFailed -or $cases.Count -ne $expectedTests -or $failedCases.Count -or $xml.SelectNodes('//failure|//error|//skipped').Count) {
+                                throw "Suite failed or census mismatch: $name ($($cases.Count)/$expectedTests)."
+                            }
+                            $suite.status = 'passed'
+                        }
+                    } catch {
+                        $suite.status = 'failed'; $suite.error = $_.Exception.Message
+                        $qualificationFailures += "$label/$name`: $($suite.error)"
+                    }
+                    Save-Record
+                }
             }
-            $run.status = 'passed'
+            $run.status = if ($Lane -eq 'focused' -and @($run.suites | Where-Object { $_.status -notin @('passed', 'expected_baseline_failure') }).Count) { 'failed' } else { 'passed' }
         } finally { Preserve $runtime $label; Save-Record }
     }
     if ($Lane -eq 'native') {
@@ -222,6 +254,10 @@ try {
             }
         }
         $record.limits = 'One ordered pair on same runner; actual order recorded above. Fresh profile is not cold OS cache. No acceptance speed threshold; NewAcc variations require review. Inclusive phase/profile times overlap. Both variants use the same contextual instrumentation patch and identical helper bytes; no compiler attribution probes. All captures require visual review.'
+    }
+    if ($qualificationFailures.Count) {
+        $record.failures = $qualificationFailures; $record.status = 'failed'
+        throw ($qualificationFailures -join [Environment]::NewLine)
     }
     $record.status = 'passed_requires_evidence_review'
 } finally { Save-Record }

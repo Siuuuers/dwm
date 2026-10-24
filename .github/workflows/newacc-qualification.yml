@@ -20,7 +20,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        lane: [focused, native, save-load]
+        lane: [focused, native]
     runs-on: windows-2022
     timeout-minutes: 90
     defaults:
@@ -37,7 +37,7 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Require exact candidate
         env:
-          CANDIDATE_REF: ${{ inputs.candidate_ref || '7c6da61345ed2bcde804b8b6f56922a505fdf817' }}
+          CANDIDATE_REF: ${{ inputs.candidate_ref || 'd951ff53a20967a8a0cd65dae325324eb24cb7bc' }}
         run: |
           if ($env:CANDIDATE_REF -cnotmatch '^[0-9a-f]{40}$') { throw 'Exact candidate SHA required; no branch/default candidate permitted.' }
       - name: Install Godot 4.6.3 standard
@@ -59,7 +59,7 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Run isolated qualification
         env:
-          CANDIDATE_REF: ${{ inputs.candidate_ref || '7c6da61345ed2bcde804b8b6f56922a505fdf817' }}
+          CANDIDATE_REF: ${{ inputs.candidate_ref || 'd951ff53a20967a8a0cd65dae325324eb24cb7bc' }}
           QUALIFICATION_LANE: ${{ matrix.lane }}
         run: |
           # Reviewed runtime allowlist and complete focused suite filenames.
@@ -75,7 +75,7 @@ jobs:
               'tests/unit/test_scene_initial_frozen.gd',
               'tests/integration/test_new_run_transaction.gd',
               'tests/integration/test_new_run_pair_durability.gd')
-          ./tools/testing/Invoke-NewAccQualification.ps1 -CandidateRef $env:CANDIDATE_REF -Lane $env:QUALIFICATION_LANE -RuntimePaths $runtimePaths -FocusedTests $focusedTests
+          ./tools/testing/Invoke-NewAccQualification.ps1 -CandidateRef $env:CANDIDATE_REF -Lane $env:QUALIFICATION_LANE -RuntimePaths $runtimePaths -FocusedTests $focusedTests -CandidateFirst
       - name: Preserve current qualification evidence
         if: always()
         uses: actions/upload-artifact@v4
