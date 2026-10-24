@@ -1,0 +1,187 @@
+{
+  "original": {
+    "artifact_id": 12558999332,
+    "job_id": 120866635846,
+    "run_id": 40092073156,
+    "source_ref": "3fbc22320962ec0cba1ccc1fb05dcb1746e9b7a1",
+    "runtime_base": "88e44efbf6d65cc3b70118e73923eb408db98b7e",
+    "size_bytes": 4508897,
+    "sha256": "a8d83be8d702475896d9974426242b8e0afd8ece340f3b247e05e8bf297dae92",
+    "job_conclusion": "success"
+  },
+  "retained_archive": {
+    "path": "compiler-evidence.zip",
+    "size_bytes": 26179,
+    "sha256": "9b4792598778b1869d2dc37a5757f836e6532da42a6da3dab862ac470084e6e2",
+    "members": 7,
+    "crc_verified": true,
+    "all_retained_members_byte_identical": true
+  },
+  "manifest": "compiler-manifest.json",
+  "source_patch": {
+    "path": "compiler-source.patch",
+    "size_bytes": 38725,
+    "sha256": "605d0c92ed49cb07f6b224e75880e55d0c036ea245b43b094740cc27c3b6ce3e",
+    "base_ref": "88e44efbf6d65cc3b70118e73923eb408db98b7e",
+    "source_ref": "3fbc22320962ec0cba1ccc1fb05dcb1746e9b7a1",
+    "changed_files": [
+      ".github/workflows/restore-proof-preflight.yml",
+      "autoload/ApplicationBootstrap.gd",
+      "autoload/SaveManager.gd",
+      "scripts/narrative/DialogicRuntimeAdapter.gd",
+      "scripts/ui/MenuScene.gd",
+      "tests/integration/startup_new_acc_attribution.gd",
+      "tests/support/StartupAttributionTiming.gd",
+      "tools/testing/Invoke-StartupNewAccAttribution.ps1"
+    ],
+    "source_hashes_verified_count": 10,
+    "font_hashes_verified_count": 36
+  },
+  "original_receipts": [
+    {
+      "archive": "compiler-evidence.zip",
+      "member": ".godot/ci/compiler-attribution/fresh/results.json",
+      "size_bytes": 7887,
+      "sha256": "d70acbf5d039f03cab2db74520bdea3a03db97b92e1f1fb5cdcee902531b3263"
+    },
+    {
+      "archive": "compiler-evidence.zip",
+      "member": ".godot/ci/compiler-attribution/processes.json",
+      "size_bytes": 9711,
+      "sha256": "224a7de7418c16a1e93183945e1620c663649becfa18f9b9f647045d6151309f"
+    }
+  ],
+  "status": "complete_startup_attribution_not_performance_fix",
+  "clean_processes": 1,
+  "capture_count": 1,
+  "title_capture": {
+    "member": ".godot/ci/compiler-attribution/fresh/title.png",
+    "size": 9866,
+    "sha256": "2b01f0beb4d153b753ce29839f256788066c26da86a5db7ae07b16fc1fc9b53c",
+    "name": "title.png",
+    "dimensions": [
+      992,
+      558
+    ]
+  },
+  "engine_sha256_recorded": "63b3b2208819714c9677fbfdd8217c5b7dee8ecf5f383502e826bc9e2227ff5a",
+  "engine_verification_limit": "Executable not retained; recorded hash matches pinned Godot provenance, not independently recomputed here.",
+  "source_hashes_verified": {
+    "project.godot": "5e8009d890f9e4359b24bb68a59fdec1bf56ef0a3ea94be06c3e43a6d2353053",
+    "scripts/narrative/DialogicRuntimeAdapter.gd": "110cb016de3747d707560db96695c5d27f03e495a8d16d7bfea6ee685edb21ad",
+    "tests/support/StartupAttributionTiming.gd": "7333db59c28da0cf34e6f6dca9a51477bf7251d5c1731dabba4d386f3d9d665a",
+    "data/manifests/scene_story_registration.json": "af472daf6e4b5bcce5b345a0e814e1361780577894acc7c4cbbb6601f31d02b1",
+    "scripts/ui/MenuScene.gd": "a8e097d4e758881764d74f7abac42cce8673dcff41f1c6d33b6a819d0cf44d88",
+    "scripts/ui/UiTypography.gd": "d4fd518c41b011ed087c257360f4fe5000bbadbf0072cb0de0a5d3e451dd2a8c",
+    "tests/integration/startup_new_acc_attribution.gd": "b6ca29a0585c979a05f80e05fc225175a59bd0485d1e461b6e257c0116fd256f",
+    "tools/testing/Invoke-StartupNewAccAttribution.ps1": "9ba116520006bc03817e860762655a1057b8d2d0265495e1c2d29187709b904d",
+    "autoload/ApplicationBootstrap.gd": "4bd54cdf98b52439260a2b12865337a5b5045eade944e564276c16800253134d",
+    "autoload/SaveManager.gd": "2b942d9350f36b55b885ca57c30795a8f57c1a4100a7d69f6534cf0162b85e9f"
+  },
+  "compiler_attribution": {
+    "native_events_parsed": 25048,
+    "path_calls": {
+      "res://dialogic/timelines/authored_week/Day1.dtl": 10,
+      "res://dialogic/timelines/authored_week/Day2.dtl": 12,
+      "res://dialogic/timelines/authored_week/Day3.dtl": 13,
+      "res://dialogic/timelines/authored_week/Day4.dtl": 12,
+      "res://dialogic/timelines/authored_week/Day5.dtl": 13,
+      "res://dialogic/timelines/authored_week/Day6.dtl": 12,
+      "res://dialogic/timelines/authored_week/Day7.dtl": 20
+    },
+    "phases": {
+      "argument_encoding": {
+        "calls": 92,
+        "elapsed_us": 23616
+      },
+      "entry_projection_and_graph": {
+        "calls": 92,
+        "elapsed_us": 23379
+      },
+      "loader_type_check": {
+        "calls": 7,
+        "elapsed_us": 2559
+      },
+      "physical_read": {
+        "calls": 92,
+        "elapsed_us": 12474
+      },
+      "programme_encoding_and_hash": {
+        "calls": 92,
+        "elapsed_us": 39031
+      },
+      "timeline_create_from_text": {
+        "calls": 92,
+        "elapsed_us": 11186
+      },
+      "timeline_process": {
+        "calls": 92,
+        "elapsed_us": 3026983
+      }
+    },
+    "requests": 92,
+    "result_cache_hits": 0,
+    "result_cache_misses": 92,
+    "scope": "Cumulative diagnostic counts. Normally completed intervals only, not validation success; early-return/interrupted intervals are omitted. Compile totals include these phases and instrumentation overhead; do not add them to compilation totals.",
+    "selected_events_projected": 1950,
+    "translation_uncached_calls": 0
+  },
+  "enclosing_validation_profile": {
+    "bundle_validation_calls": 2,
+    "bundle_validation_failures": 0,
+    "bundle_validation_us": 229671,
+    "compilation_calls": 92,
+    "compilation_failures": 0,
+    "compilation_us": 3259659,
+    "configuration_calls": 0,
+    "configuration_failures": 0,
+    "configuration_us": 0,
+    "elapsed_us": 4461366,
+    "inclusive_nested": true,
+    "lifecycle_state": "",
+    "next_step_index": 0,
+    "ok": true,
+    "operation": "startup",
+    "physical_proof_calls": 0,
+    "physical_proof_failures": 0,
+    "physical_proof_us": 0,
+    "playback_stage": "",
+    "receipt_validation_calls": 0,
+    "receipt_validation_failures": 0,
+    "receipt_validation_us": 0,
+    "snapshot_validations": []
+  },
+  "bootstrap_total_us": 4461376,
+  "bootstrap_scene_creation_us": 4004019,
+  "launch_to_bootstrap_start_ms": 10535.0,
+  "launch_to_title_drawn_ms": 15049.0,
+  "timeline_process_share_of_compilation_percent": 92.86195273800112,
+  "other_named_compiler_phase_us": 112245,
+  "logs_checked": [
+    ".godot/ci/compiler-attribution/fresh/render.log",
+    ".godot/ci/compiler-attribution/fresh/stderr.log",
+    ".godot/ci/compiler-attribution/fresh/stdout.log",
+    ".godot/ci/import.log"
+  ],
+  "engine_error_matches": 0,
+  "rendering": {
+    "get_current_rendering_driver_name": "d3d12",
+    "get_current_rendering_method": "forward_plus",
+    "get_video_adapter_api_version": "12_0",
+    "get_video_adapter_name": "Microsoft Basic Render Driver"
+  },
+  "visual_review": {
+    "reviewer": "independent source and evidence auditor",
+    "original_title_reviewed": true,
+    "observation": "Native 992x558 Title shows DWM, Welcome and the complete left menu; New Acc has the focus border. Visible English menu text is legible with no widespread glyph corruption. Screenshot alone does not prove input delivery."
+  },
+  "limits": [
+    "One instrumented fresh-profile startup only; no New Acc input/action latency, gameplay, export or user-device acceptance.",
+    "Different run/runner timings cannot establish an improvement; no runtime performance candidate was applied.",
+    "Compiler subphases overlap enclosing compilation, scene-creation and bootstrap totals. Normally completed intervals do not independently prove validation success.",
+    "Counts are repeated events processed, not distinct authored events;92 misses share7 physical DTL paths.",
+    "Pre-bootstrap interval includes native renderer/autoload/preload/diagnostic attachment and is not attributed exclusively to resource loading.",
+    "The window was requested at1280x720, but the retained root capture is992x558; do not relabel it1280x720.",
+    "Native Timeline.process dominates this observed compilation cost. Registration-local primitive parse reuse is a proposed investigation, not an implemented fix; mutable parser registries/character resolution complicate byte-only cross-entry caching."
+  ]
+}

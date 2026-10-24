@@ -1,0 +1,407 @@
+{
+  "original": {
+    "artifact_id": 12559396690,
+    "job_id": 120864024630,
+    "run_id": 40091188748,
+    "source_ref": "d20bd9a69b7cec4abc1302d531b7a9131a9f1b9b",
+    "runtime_base": "88e44efbf6d65cc3b70118e73923eb408db98b7e",
+    "size_bytes": 4505993,
+    "sha256": "460f6e3e3de9378d09a9a981119ece44ada0468f5bf46446493a81476b250502",
+    "job_conclusion": "failure"
+  },
+  "retained_archive": {
+    "path": "first-failure-evidence.zip",
+    "size_bytes": 24031,
+    "sha256": "215a344f6317cc90bc3ac34bfa6022342ea10d8bbc6a5f0bc6876732c8591493",
+    "members": 7,
+    "crc_verified": true,
+    "all_retained_members_byte_identical": true
+  },
+  "manifest": "first-failure-manifest.json",
+  "source_patch": {
+    "path": "first-source.patch",
+    "size_bytes": 26744,
+    "sha256": "f75588e6c161866fd1680410c0e88b93388d83dd4439027e22fece61b1f73825",
+    "base_ref": "88e44efbf6d65cc3b70118e73923eb408db98b7e",
+    "source_ref": "d20bd9a69b7cec4abc1302d531b7a9131a9f1b9b",
+    "files": 7,
+    "provenance": "All seven GitHub commit file patches reconstructed into one applicable diff against its verified parent 88e44; application checked in scratch only and reconstructed bytes match all nine recorded source hashes.",
+    "source_hashes_verified": {
+      "scripts/ui/UiTypography.gd": "d4fd518c41b011ed087c257360f4fe5000bbadbf0072cb0de0a5d3e451dd2a8c",
+      "scripts/ui/MenuScene.gd": "a8e097d4e758881764d74f7abac42cce8673dcff41f1c6d33b6a819d0cf44d88",
+      "data/manifests/scene_story_registration.json": "af472daf6e4b5bcce5b345a0e814e1361780577894acc7c4cbbb6601f31d02b1",
+      "project.godot": "5e8009d890f9e4359b24bb68a59fdec1bf56ef0a3ea94be06c3e43a6d2353053",
+      "autoload/SaveManager.gd": "2b942d9350f36b55b885ca57c30795a8f57c1a4100a7d69f6534cf0162b85e9f",
+      "autoload/ApplicationBootstrap.gd": "c273ccbb9cd1ba23a9dd1bffeafb7e71490df96f193e82c37b3ebfd1d801f8b1",
+      "tools/testing/Invoke-StartupNewAccAttribution.ps1": "ebfff6744f02a66ff9c43ded6b237a42d01f7ef794b751b4addba55a65dc77c7",
+      "tests/integration/startup_new_acc_attribution.gd": "3e23ed24fccf4c60e72a90d4e4c078d97e80ab7e549527883b66f0f789d99506",
+      "tests/support/StartupAttributionTiming.gd": "7333db59c28da0cf34e6f6dca9a51477bf7251d5c1731dabba4d386f3d9d665a"
+    },
+    "font_hashes_verified_count": 36
+  },
+  "original_receipts": {
+    "process": {
+      "archive": "first-failure-evidence.zip",
+      "member": ".godot/ci/startup-newacc/processes.json",
+      "size_bytes": 6940,
+      "sha256": "1173bc4be89bafc113e3eb0394ece1c914299e20e81859db7719393f4c7ce32c"
+    },
+    "result": {
+      "archive": "first-failure-evidence.zip",
+      "member": ".godot/ci/startup-newacc/fresh/results.json",
+      "size_bytes": 6089,
+      "sha256": "7b429db9dd5bf693c043b0dae943650a947e6e79d2cb6edf9ac514ef5d5ad2f4"
+    }
+  },
+  "status": "failed_diagnostic_input_not_product_latency",
+  "successful_complete_journeys": 0,
+  "executed_processes": 1,
+  "clean_processes": 0,
+  "exit_code": 1,
+  "external_process_timeout": false,
+  "retained_profile_case_executed": false,
+  "failure": "first caption or expected consent not reached",
+  "partial_observations": {
+    "launch_to_drawn_title_ms": 16684.0,
+    "launch_to_bootstrap_start_ms": 10693.0,
+    "bootstrap_elapsed_us": 5930539,
+    "new_acc_wait_scope_us": 300008407,
+    "new_acc_owner_phase_count": 0,
+    "new_acc_validation_call_counts_zero": true,
+    "max_post_input_frame_gap_us": 19339,
+    "title_to_input_ms": 24.0
+  },
+  "bootstrap_phases": [
+    {
+      "elapsed_us": 2556,
+      "end": {
+        "ticks_us": 10608603,
+        "unix_ms": 1792842411548.0
+      },
+      "ok": true,
+      "phase": "menu.title_art",
+      "start": {
+        "ticks_us": 10606047,
+        "unix_ms": 1792842411545.0
+      }
+    },
+    {
+      "elapsed_us": 37805,
+      "end": {
+        "ticks_us": 10646417,
+        "unix_ms": 1792842411586.0
+      },
+      "ok": true,
+      "phase": "menu.login_shell",
+      "start": {
+        "ticks_us": 10608612,
+        "unix_ms": 1792842411548.0
+      }
+    },
+    {
+      "elapsed_us": 54,
+      "end": {
+        "ticks_us": 10666312,
+        "unix_ms": 1792842411606.0
+      },
+      "ok": true,
+      "phase": "bootstrap.select_and_prove_roots",
+      "start": {
+        "ticks_us": 10666258,
+        "unix_ms": 1792842411606.0
+      }
+    },
+    {
+      "elapsed_us": 154,
+      "end": {
+        "ticks_us": 10666475,
+        "unix_ms": 1792842411606.0
+      },
+      "ok": true,
+      "phase": "bootstrap.construct_and_inject_mutation_gate",
+      "start": {
+        "ticks_us": 10666321,
+        "unix_ms": 1792842411606.0
+      }
+    },
+    {
+      "elapsed_us": 2269,
+      "end": {
+        "ticks_us": 10668748,
+        "unix_ms": 1792842411608.0
+      },
+      "ok": true,
+      "phase": "bootstrap.construct_identity_issuer_and_contact_commands",
+      "start": {
+        "ticks_us": 10666479,
+        "unix_ms": 1792842411606.0
+      }
+    },
+    {
+      "elapsed_us": 5330225,
+      "end": {
+        "ticks_us": 15998979,
+        "unix_ms": 1792842416938.0
+      },
+      "ok": true,
+      "phase": "bootstrap.initialize_saves",
+      "start": {
+        "ticks_us": 10668754,
+        "unix_ms": 1792842411608.0
+      }
+    },
+    {
+      "elapsed_us": 102634,
+      "end": {
+        "ticks_us": 16101627,
+        "unix_ms": 1792842417041.0
+      },
+      "ok": true,
+      "phase": "bootstrap.initialize_profile",
+      "start": {
+        "ticks_us": 15998993,
+        "unix_ms": 1792842416938.0
+      }
+    },
+    {
+      "elapsed_us": 341361,
+      "end": {
+        "ticks_us": 16442999,
+        "unix_ms": 1792842417382.0
+      },
+      "ok": true,
+      "phase": "bootstrap.initialize_localization",
+      "start": {
+        "ticks_us": 16101638,
+        "unix_ms": 1792842417041.0
+      }
+    },
+    {
+      "elapsed_us": 190,
+      "end": {
+        "ticks_us": 16443202,
+        "unix_ms": 1792842417382.0
+      },
+      "ok": true,
+      "phase": "bootstrap.initialize_input",
+      "start": {
+        "ticks_us": 16443012,
+        "unix_ms": 1792842417382.0
+      }
+    },
+    {
+      "elapsed_us": 17,
+      "end": {
+        "ticks_us": 16443224,
+        "unix_ms": 1792842417382.0
+      },
+      "ok": true,
+      "phase": "bootstrap.initialize_accessibility",
+      "start": {
+        "ticks_us": 16443207,
+        "unix_ms": 1792842417382.0
+      }
+    },
+    {
+      "elapsed_us": 1440,
+      "end": {
+        "ticks_us": 16444667,
+        "unix_ms": 1792842417383.0
+      },
+      "ok": true,
+      "phase": "bootstrap.initialize_audio",
+      "start": {
+        "ticks_us": 16443227,
+        "unix_ms": 1792842417382.0
+      }
+    },
+    {
+      "elapsed_us": 5873,
+      "end": {
+        "ticks_us": 16450545,
+        "unix_ms": 1792842417389.0
+      },
+      "ok": true,
+      "phase": "bootstrap.initialize_window_mode",
+      "start": {
+        "ticks_us": 16444672,
+        "unix_ms": 1792842417383.0
+      }
+    },
+    {
+      "elapsed_us": 91356,
+      "end": {
+        "ticks_us": 16541909,
+        "unix_ms": 1792842417481.0
+      },
+      "ok": true,
+      "phase": "bootstrap.initialize_dialogic_bridge",
+      "start": {
+        "ticks_us": 16450553,
+        "unix_ms": 1792842417389.0
+      }
+    },
+    {
+      "elapsed_us": 41430,
+      "end": {
+        "ticks_us": 16583351,
+        "unix_ms": 1792842417522.0
+      },
+      "ok": true,
+      "phase": "bootstrap.configure_restore_participants",
+      "start": {
+        "ticks_us": 16541921,
+        "unix_ms": 1792842417481.0
+      }
+    },
+    {
+      "elapsed_us": 3963,
+      "end": {
+        "ticks_us": 16587328,
+        "unix_ms": 1792842417526.0
+      },
+      "ok": true,
+      "phase": "bootstrap.configure_day_resolution",
+      "start": {
+        "ticks_us": 16583365,
+        "unix_ms": 1792842417522.0
+      }
+    },
+    {
+      "elapsed_us": 95,
+      "end": {
+        "ticks_us": 16587430,
+        "unix_ms": 1792842417526.0
+      },
+      "ok": true,
+      "phase": "bootstrap.configure_minesweeper_rounds",
+      "start": {
+        "ticks_us": 16587335,
+        "unix_ms": 1792842417526.0
+      }
+    },
+    {
+      "elapsed_us": 7795,
+      "end": {
+        "ticks_us": 16595229,
+        "unix_ms": 1792842417534.0
+      },
+      "ok": true,
+      "phase": "bootstrap.publish_application_ready",
+      "start": {
+        "ticks_us": 16587434,
+        "unix_ms": 1792842417526.0
+      }
+    },
+    {
+      "elapsed_us": 19,
+      "end": {
+        "ticks_us": 16595254,
+        "unix_ms": 1792842417534.0
+      },
+      "ok": true,
+      "phase": "bootstrap.publish_route_hold",
+      "start": {
+        "ticks_us": 16595235,
+        "unix_ms": 1792842417534.0
+      }
+    },
+    {
+      "elapsed_us": 5930539,
+      "end": {
+        "ticks_us": 16596770,
+        "unix_ms": 1792842417535.0
+      },
+      "ok": true,
+      "phase": "bootstrap.total",
+      "start": {
+        "ticks_us": 10666231,
+        "unix_ms": 1792842411606.0
+      }
+    }
+  ],
+  "validation_profiles": [
+    {
+      "bundle_validation_calls": 2,
+      "bundle_validation_failures": 0,
+      "bundle_validation_us": 249340,
+      "compilation_calls": 92,
+      "compilation_failures": 0,
+      "compilation_us": 4502068,
+      "configuration_calls": 0,
+      "configuration_failures": 0,
+      "configuration_us": 0,
+      "elapsed_us": 5930529,
+      "inclusive_nested": true,
+      "lifecycle_state": "",
+      "next_step_index": 0,
+      "ok": true,
+      "operation": "startup",
+      "physical_proof_calls": 0,
+      "physical_proof_failures": 0,
+      "physical_proof_us": 0,
+      "playback_stage": "",
+      "receipt_validation_calls": 0,
+      "receipt_validation_failures": 0,
+      "receipt_validation_us": 0,
+      "snapshot_validations": []
+    },
+    {
+      "bundle_validation_calls": 0,
+      "bundle_validation_failures": 0,
+      "bundle_validation_us": 0,
+      "compilation_calls": 0,
+      "compilation_failures": 0,
+      "compilation_us": 0,
+      "configuration_calls": 0,
+      "configuration_failures": 0,
+      "configuration_us": 0,
+      "elapsed_us": 300008407,
+      "inclusive_nested": true,
+      "lifecycle_state": "",
+      "next_step_index": 0,
+      "ok": false,
+      "operation": "new_acc_fresh",
+      "physical_proof_calls": 0,
+      "physical_proof_failures": 0,
+      "physical_proof_us": 0,
+      "playback_stage": "",
+      "receipt_validation_calls": 0,
+      "receipt_validation_failures": 0,
+      "receipt_validation_us": 0,
+      "snapshot_validations": []
+    }
+  ],
+  "rendering": {
+    "get_current_rendering_driver_name": "d3d12",
+    "get_current_rendering_method": "forward_plus",
+    "get_video_adapter_api_version": "12_0",
+    "get_video_adapter_name": "Microsoft Basic Render Driver"
+  },
+  "preferences": {
+    "preferences.accessibility.font_style": "pixel",
+    "preferences.accessibility.text_size": 100,
+    "preferences.reading.auto_enabled": false,
+    "preferences.reading.reveal_speed": "normal"
+  },
+  "capture": {
+    "path": ".godot/ci/startup-newacc/fresh/title.png",
+    "sha256": "2b01f0beb4d153b753ce29839f256788066c26da86a5db7ae07b16fc1fc9b53c",
+    "visually_reviewed": true,
+    "observation": "Title menu and New Acc button visible; no caption capture exists."
+  },
+  "logs_checked": [
+    ".godot/ci/import.log",
+    ".godot/ci/startup-newacc/fresh/render.log",
+    ".godot/ci/startup-newacc/fresh/stderr.log",
+    ".godot/ci/startup-newacc/fresh/stdout.log"
+  ],
+  "engine_error_matches": 0,
+  "interpretation": "The diagnostic reached the drawn Title but never entered a measured New Acc owner phase. A roughly 300-second polling deadline then failed while recorded frame gaps stayed below 20 ms. This is consistent with the synthetic click not triggering the intended action; exact input cause requires the corrected diagnostic. It is not evidence that product New Acc takes 300 seconds.",
+  "limits": [
+    "No completed New Acc or retained-profile journey; no performance improvement or regression claim.",
+    "Partial launch/Title timing comes from a failed diagnostic and is not final acceptance.",
+    "No engine parse/load errors observed; deliberate diagnostic failure remains exit 1 and must not be relabeled as success.",
+    "Source probes are diagnostic-only and must not be merged as product runtime."
+  ]
+}

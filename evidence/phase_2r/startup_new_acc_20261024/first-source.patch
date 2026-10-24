@@ -1,0 +1,465 @@
+diff --git a/.github/workflows/restore-proof-preflight.yml b/.github/workflows/restore-proof-preflight.yml
+--- a/.github/workflows/restore-proof-preflight.yml
++++ b/.github/workflows/restore-proof-preflight.yml
+@@ -1,6 +1,8 @@
+-name: Restore proof preflight
++name: Startup and New Acc attribution
+ on:
+   workflow_dispatch:
++  push:
++    branches: [codex/startup-newacc-attribution-20261024]
+ permissions:
+   contents: read
+ concurrency:
+@@ -67,20 +69,14 @@ jobs:
+           # Execute the committed configuration with the freshly imported assets.
+           git restore -- project.godot
+           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+-      - name: Generate current caller inventories
+-        run: ./tools/testing/Invoke-PublicSurfaceValidation.ps1 -Regenerate -EmitPayloads
+-      - name: Verify current Save9 admission
+-        run: ./tools/testing/Invoke-CloudTests.ps1 -Suite scene_backup_inspection
+-      - name: Verify current Quick Load
+-        run: ./tools/testing/Invoke-CloudTests.ps1 -Suite current_quick_load
+-      - name: Compare fresh Save9 and fresh-process Load
+-        timeout-minutes: 45
+-        run: ./tools/testing/Invoke-FreshSaveLoadComparison.ps1 -BaseRef 97a3e5c2b48c4ae82a30ebb62083c5ea1bff5932
++      - name: Attribute fresh and retained-profile startup and New Acc
++        timeout-minutes: 22
++        run: ./tools/testing/Invoke-StartupNewAccAttribution.ps1
+       - name: Preserve preflight evidence
+         if: always()
+         uses: actions/upload-artifact@v4
+         with:
+-          name: restore-proof-preflight-${{ github.run_id }}-${{ github.run_attempt }}
++          name: startup-newacc-attribution-${{ github.run_id }}-${{ github.run_attempt }}
+           path: |
+             .godot/ci/
+             .godot/phase2r_logs/
+diff --git a/autoload/ApplicationBootstrap.gd b/autoload/ApplicationBootstrap.gd
+--- a/autoload/ApplicationBootstrap.gd
++++ b/autoload/ApplicationBootstrap.gd
+@@ -1,4 +1,5 @@
+ extends Node
++const STARTUP_TIMING := preload("res://tests/support/StartupAttributionTiming.gd")
+ 
+ signal application_ready()
+ signal development_subset_ready(subset_id: StringName)
+@@ -273,8 +274,13 @@ var _state := {
+ }
+ 
+ func _ready() -> void:
++	if OS.get_environment("DWM_STARTUP_ATTRIBUTION") == "1":
++		_attach_startup_diagnostic.call_deferred()
+ 	call_deferred("start", _requested_mode_from_debug_args())
+ 
++func _attach_startup_diagnostic() -> void:
++	get_tree().root.add_child(load("res://tests/integration/startup_new_acc_attribution.gd").new())
++
+ func _exit_tree() -> void:
+ 	_release_runtime_dependencies()
+ 
+@@ -303,6 +309,14 @@ func configure_debug_mutation_gate_factory(factory: Callable) -> Dictionary:
+ 	return {"ok": true, "code": &"ok", "value": {"configured": true}, "receipt": {}}
+ 
+ func start(mode: StringName = MODE_FINAL) -> Dictionary:
++	var began := STARTUP_TIMING.stamp()
++	var profiling := preload("res://scripts/narrative/SceneValidationTiming.gd").begin_scope("startup", "", "", 0)
++	var result := _attribution_start(mode)
++	STARTUP_TIMING.finish("bootstrap.total", began, result.get("ok", false))
++	if profiling: preload("res://scripts/narrative/SceneValidationTiming.gd").end_scope(result.get("ok", false))
++	return result
++
++func _attribution_start(mode: StringName = MODE_FINAL) -> Dictionary:
+ 	if _started or _start_begun: return _failure(&"bootstrap_already_started", "ApplicationBootstrap starts exactly once")
+ 	_start_begun = true
+ 	_state["started"] = true
+@@ -319,13 +333,17 @@ func start(mode: StringName = MODE_FINAL) -> Dictionary:
+ 		if stage_id not in selected_stages:
+ 			_state["planned_blockers"].append({"stage": stage_id, "code": &"planned_blocker"})
+ 			continue
++		var stage_began := STARTUP_TIMING.stamp()
+ 		var stage_result := _run_stage(stage_id, mode)
++		STARTUP_TIMING.finish("bootstrap." + str(stage_id), stage_began, stage_result.get("ok", false))
+ 		if not stage_result.get("ok", false):
+ 			return _record_startup_stage_failure(stage_id, stage_result)
+ 		_state["completed_stages"].append(stage_id)
+ 	_started = true
+ 	if mode == MODE_FINAL:
++		var publication_began := STARTUP_TIMING.stamp()
+ 		var published: Dictionary = _publish_startup_route_hold()
++		STARTUP_TIMING.finish("bootstrap.publish_route_hold", publication_began, published.get("ok", false))
+ 		if not published.get("ok", false):
+ 			_state["completed_stages"].erase(&"publish_application_ready")
+ 			return _record_startup_stage_failure(&"publish_application_ready", published)
+diff --git a/autoload/SaveManager.gd b/autoload/SaveManager.gd
+--- a/autoload/SaveManager.gd
++++ b/autoload/SaveManager.gd
+@@ -1,4 +1,5 @@
+ extends Node
++const STARTUP_TIMING := preload("res://tests/support/StartupAttributionTiming.gd")
+ 
+ ## SaveManager — isolated, atomic save-document and checkpoint persistence
+ ## (docs/superpowers/plans/2026-07-17-phase-2r-03-lifecycle-save.md Task 6).
+@@ -565,6 +566,12 @@ func start_scene_new_run(target_id: String, initial_context: Dictionary, rng_non
+ 	return result
+ 
+ func _prepare_scene_new_run_decision(target_id: String, initial_context: Dictionary, rng_nonce: Variant) -> Dictionary:
++	var began := STARTUP_TIMING.stamp()
++	var result := _attribution_prepare_scene_new_run_decision(target_id, initial_context, rng_nonce)
++	STARTUP_TIMING.finish("new_acc._prepare_scene_new_run_decision", began, result.get("ok", false))
++	return result
++
++func _attribution_prepare_scene_new_run_decision(target_id: String, initial_context: Dictionary, rng_nonce: Variant) -> Dictionary:
+ 	var source := _capture_prepared_autosave_baseline()
+ 	if not source.get("ok", false): return source
+ 	var chronology := _validate_scene_creation_chronology()
+@@ -630,6 +637,12 @@ func _prepare_scene_new_run_decision(target_id: String, initial_context: Diction
+ 		"transaction_issuer_receipt": issued.value.issuer_receipt, "new_run_materials": materials})
+ 
+ func _prepare_scene_new_run_plans(snapshot: Dictionary, allocation: Dictionary, profile_material: Dictionary) -> Dictionary:
++	var began := STARTUP_TIMING.stamp()
++	var result := _attribution_prepare_scene_new_run_plans(snapshot, allocation, profile_material)
++	STARTUP_TIMING.finish("new_acc._prepare_scene_new_run_plans", began, result.get("ok", false))
++	return result
++
++func _attribution_prepare_scene_new_run_plans(snapshot: Dictionary, allocation: Dictionary, profile_material: Dictionary) -> Dictionary:
+ 	var run: Dictionary = _restore_participants.run.prepare_scene_new_run(snapshot, allocation,
+ 		profile_material, _scene_new_run_bundle, _identity_issuer, self)
+ 	if not run.get("ok", false): return run
+@@ -658,12 +671,20 @@ func _prepare_scene_new_run_plans(snapshot: Dictionary, allocation: Dictionary,
+ 	return {"ok": true, "value": plans}
+ 
+ func _resume_scene_new_run(operation: Dictionary, gate_token: String) -> Dictionary:
++	var began := STARTUP_TIMING.stamp()
++	var result := _attribution_resume_scene_new_run(operation, gate_token)
++	STARTUP_TIMING.finish("new_acc._resume_scene_new_run", began, result.get("ok", false))
++	return result
++
++func _attribution_resume_scene_new_run(operation: Dictionary, gate_token: String) -> Dictionary:
+ 	if not _scene_restore_activation.is_empty():
+ 		if _scene_restore_activation.operation_id != operation.transaction_id: return _fail(&"new_run_recovery_conflict", "")
+ 		return _drive_scene_restore_activation()
+ 	if operation.stage == CONTINUATION_JOURNAL.STAGE_COMPLETED and operation.activation_state == "acknowledged":
+ 		return _release_new_run_custody()
++	var settle_began := STARTUP_TIMING.stamp()
+ 	var settled: Dictionary = call("_settle_new_run_pair", operation, false)
++	STARTUP_TIMING.finish("new_acc.settle_pair", settle_began, settled.get("ok", false))
+ 	if not settled.get("ok", false): return _new_run_failure(settled)
+ 	operation = settled.value
+ 	if operation.stage == CONTINUATION_JOURNAL.STAGE_ALLOCATED:
+@@ -750,6 +771,12 @@ func _admit_new_run_journal_io() -> Dictionary:
+ ## read-only operation: it neither loads the continuation journal nor allocates
+ ## identity, reconciles storage, or changes live run state.
+ func prepare_new_run_action(initial_context: Dictionary) -> Dictionary:
++	var began := STARTUP_TIMING.stamp()
++	var result := _attribution_prepare_new_run_action(initial_context)
++	STARTUP_TIMING.finish("new_acc.prepare_new_run_action", began, result.get("ok", false))
++	return result
++
++func _attribution_prepare_new_run_action(initial_context: Dictionary) -> Dictionary:
+ 	if _new_run_busy or not _scene_restore_activation.is_empty(): return _fail(&"new_run_busy", "")
+ 	if not _scene_title_new_run_target.is_empty():
+ 		for key: String in _SCENE_PARTICIPANT_ORDER:
+@@ -946,7 +973,9 @@ func _commit_new_run_intent(prepared: Dictionary, responsive: bool = false) -> D
+ 	# The complete decision is retained for Retry before yielding; it is never resampled.
+ 	if responsive: await _render_new_run_frame()
+ 	# Even an uncertain journal write keeps the exact candidate for an explicit retry.
++	var journal_began := STARTUP_TIMING.stamp()
+ 	var committed: Dictionary = _continuation_journal.commit_intent(_new_run_intent)
++	STARTUP_TIMING.finish("new_acc.commit_intent", journal_began, committed.get("ok", false))
+ 	if not committed.get("ok", false): return _new_run_failure(committed)
+ 	_new_run_intent.clear()
+ 	return await _resume_new_run(committed["value"], _new_run_gate_token, responsive)
+diff --git a/scripts/ui/MenuScene.gd b/scripts/ui/MenuScene.gd
+--- a/scripts/ui/MenuScene.gd
++++ b/scripts/ui/MenuScene.gd
+@@ -1,5 +1,6 @@
+ extends Control
+ class_name MenuScene
++const STARTUP_TIMING := preload("res://tests/support/StartupAttributionTiming.gd")
+ 
+ ## Menu logic: New Acc / Log in / Gallery / Setting / Shut down (prompt_docs/INDEX.md).
+ 
+@@ -106,8 +107,12 @@ func _menu_localization() -> Node:
+ 	return _settings_services.get("localization", get_node_or_null("/root/LocalizationManager"))
+ 
+ func _ready() -> void:
++	var art_began := STARTUP_TIMING.stamp()
+ 	_mount_title_art()
++	STARTUP_TIMING.finish("menu.title_art", art_began)
++	var shell_began := STARTUP_TIMING.stamp()
+ 	_build_login_shell()
++	STARTUP_TIMING.finish("menu.login_shell", shell_began)
+ 	if is_instance_valid(_new_acc_button) and not _new_acc_button.pressed.is_connected(_on_new_acc_pressed):
+ 		_new_acc_button.pressed.connect(_on_new_acc_pressed)
+ 	if is_instance_valid(_log_in_button) and not _log_in_button.pressed.is_connected(_on_log_in_pressed):
+diff --git a/tests/integration/startup_new_acc_attribution.gd b/tests/integration/startup_new_acc_attribution.gd
+new file mode 100644
+--- /dev/null
++++ b/tests/integration/startup_new_acc_attribution.gd
+@@ -0,0 +1,143 @@
++extends Node
++## Native project main scene, FINAL bootstrap, actual viewport clicks; diagnostic only.
++const TIMING := preload("res://tests/support/StartupAttributionTiming.gd")
++const VALIDATION := preload("res://scripts/narrative/SceneValidationTiming.gd")
++const FIRST_LINE := "line.Day1.one"
++const FIRST_EN := "Sylvia slides the fuller teacup onto my mat and keeps the one with the small chip on the rim for herself."
++var folder := OS.get_environment("DWM_STARTUP_OUTPUT")
++var phase := OS.get_environment("DWM_STARTUP_CASE")
++var milestones: Dictionary = {}
++var failures: Array[String] = []
++var max_frame_gap_us := 0
++var previous_frame_us := 0
++var profiling := false
++var observation: Dictionary = {}
++
++func _ready() -> void:
++	get_tree().process_frame.connect(_frame)
++	_run.call_deferred()
++
++func _frame() -> void:
++	var now := Time.get_ticks_usec()
++	if previous_frame_us > 0: max_frame_gap_us = maxi(max_frame_gap_us, now - previous_frame_us)
++	previous_frame_us = now
++
++func _mark(key: String) -> void:
++	milestones[key] = TIMING.stamp()
++
++func _check(ok: bool, message: String) -> bool:
++	if ok: return true
++	failures.append(message)
++	_finish(false)
++	return false
++
++func _capture(name_: String) -> bool:
++	var image := get_viewport().get_texture().get_image()
++	return not image.is_empty() and image.save_png(folder.path_join(name_ + ".png")) == OK
++
++func _click(control: Control) -> void:
++	var point := control.get_global_transform_with_canvas() * (control.size / 2.0)
++	for down: bool in [true, false]:
++		var event := InputEventMouseButton.new()
++		event.position = point
++		event.global_position = point
++		event.button_index = MOUSE_BUTTON_LEFT
++		event.pressed = down
++		get_viewport().push_input(event, true)
++		await get_tree().process_frame
++
++func _run() -> void:
++	var user_path := ProjectSettings.globalize_path("user://").replace("\\", "/").to_lower()
++	var appdata := OS.get_environment("APPDATA").replace("\\", "/").to_lower()
++	if not _check(not folder.is_empty() and phase in ["fresh", "retained"] and not appdata.is_empty()
++			and user_path.begins_with(appdata + "/") and DisplayServer.get_name() != "headless", "isolated rendered invocation required"): return
++	var tree := get_tree()
++	var bootstrap: Node = tree.root.get_node("ApplicationBootstrap")
++	var deadline := Time.get_ticks_msec() + 300000
++	var menu: Node
++	var button: Button
++	while Time.get_ticks_msec() < deadline:
++		menu = tree.current_scene
++		if menu != null and menu.has_node("%NewAccButton") and bootstrap.get_startup_state().get("ready", false):
++			button = menu.get_node("%NewAccButton")
++			if button.is_visible_in_tree() and not button.disabled and not menu._title_transition: break
++		await tree.process_frame
++	if not _check(is_instance_valid(button) and button.is_visible_in_tree() and not button.disabled
++			and bootstrap.get_startup_state().get("ready", false), "Title did not become usable"): return
++	await RenderingServer.frame_post_draw
++	_mark("title_drawn_usable")
++	if not _check(_capture("title"), "Title screenshot failed"): return
++	var saves: Node = tree.root.get_node("SaveManager")
++	var bridge: Node = tree.root.get_node("DialogicBridge")
++	var game: Node = tree.root.get_node("GameState")
++	profiling = VALIDATION.begin_scope("new_acc_" + phase, "", "", 0)
++	previous_frame_us = Time.get_ticks_usec()
++	max_frame_gap_us = 0
++	_mark("new_acc_input")
++	await _click(button)
++	var confirmed := false
++	deadline = Time.get_ticks_msec() + 300000
++	var caption: Node
++	while Time.get_ticks_msec() < deadline:
++		if is_instance_valid(menu) and is_instance_valid(menu._confirmation) and menu._confirmation.is_visible_in_tree() and not menu._title_transition:
++			if not _check(phase == "retained" and not confirmed and not str(menu._new_acc_token).is_empty()
++					and not menu._confirmation.confirm_button.disabled, "unexpected or invalid New Acc consent"): return
++			await RenderingServer.frame_post_draw
++			_mark("consent_drawn")
++			if not _check(_capture("consent"), "consent screenshot failed"): return
++			confirmed = true
++			previous_frame_us = Time.get_ticks_usec() # Exclude deliberate screenshot dwell from frame-gap sampling.
++			_mark("confirm_input")
++			await _click(menu._confirmation.confirm_button)
++		caption = tree.root.get_node("SceneRouter")._production_pause._find_caption(tree.root)
++		if is_instance_valid(caption) and caption.caption_text.is_visible_in_tree():
++			if not milestones.has("caption_first_visible"): _mark("caption_first_visible")
++			var native: Node = caption.caption_text
++			var event: DialogicTextEvent = bridge._runtime_adapter._current_skip_text(true)
++			if bridge._runtime_adapter.current_line_id() == FIRST_LINE and event != null \
++					and event.state == DialogicTextEvent.States.DONE and not native.revealing \
++					and native.visible_ratio == 1.0 and bridge.is_current_line_presentation_acknowledged() \
++					and not saves._new_run_busy and game.capture_live_session().value.active:
++				await RenderingServer.frame_post_draw
++				_mark("caption_complete_drawn_idle")
++				observation = {"line_id": FIRST_LINE, "text": native.get_parsed_text(),
++					"visible": native.is_visible_in_tree(), "revealing": native.revealing,
++					"visible_ratio": native.visible_ratio, "event_done": true,
++					"new_run_busy": saves._new_run_busy, "active": game.capture_live_session().value.active}
++				break
++		await tree.process_frame
++	if not _check(not observation.is_empty() and confirmed == (phase == "retained"), "first caption or expected consent not reached"): return
++	if profiling:
++		VALIDATION.end_scope(true)
++		profiling = false
++	var locale: String = tree.root.get_node("LocalizationManager").get_locale()
++	var texts: Dictionary = load("res://scripts/localization/StoryLocalization.gd").catalog(locale)
++	if not _check(observation.text == texts.get(FIRST_LINE, FIRST_EN), "first caption text differs from authored text"): return
++	var incomplete: Dictionary = saves._continuation_journal.list_incomplete()
++	if not _check(incomplete.get("ok", false) and incomplete.value.is_empty(), "New Acc left incomplete journal operations"): return
++	if not _check(_capture("caption"), "caption screenshot failed"): return
++	_finish(true)
++
++func _finish(ok: bool) -> void:
++	if profiling:
++		VALIDATION.end_scope(false)
++		profiling = false
++	var rendering := {}
++	for method: String in ["get_current_rendering_method", "get_current_rendering_driver_name", "get_video_adapter_name", "get_video_adapter_api_version"]:
++		if RenderingServer.has_method(method): rendering[method] = RenderingServer.call(method)
++	var profile: Node = get_tree().root.get_node("ProfileManager")
++	var preferences := {}
++	for key: String in ["preferences.accessibility.text_size", "preferences.accessibility.font_style", "preferences.reading.reveal_speed", "preferences.reading.auto_enabled"]:
++		preferences[key] = profile.get_preference(key, null)
++	var report := {"complete": ok, "case": phase, "milestones": milestones, "phases": TIMING.rows,
++		"observation": observation, "failures": failures, "max_new_acc_frame_gap_us": max_frame_gap_us,
++		"engine": Engine.get_version_info(), "rendering": rendering, "preferences": preferences,
++		"user_path": ProjectSettings.globalize_path("user://"), "argv": OS.get_cmdline_args(),
++		"scope": "Instrumented native project launch; inclusive phases overlap. Natural default text reveal. Consent screenshot dwell separate. Two same-runner processes; fresh means empty user profile, not cold OS disk cache. No performance acceptance threshold or user-device claim."}
++	var output := FileAccess.open(folder.path_join("results.json"), FileAccess.WRITE)
++	if output != null:
++		output.store_string(JSON.stringify(report, "\t") + "\n")
++		output.close()
++	else: ok = false
++	print("STARTUP_NEW_ACC_ATTRIBUTION ", JSON.stringify(report))
++	get_tree().quit(0 if ok else 1)
+diff --git a/tests/support/StartupAttributionTiming.gd b/tests/support/StartupAttributionTiming.gd
+new file mode 100644
+--- /dev/null
++++ b/tests/support/StartupAttributionTiming.gd
+@@ -0,0 +1,10 @@
++extends RefCounted
++## Temporary diagnostic-branch instrumentation. Inclusive phases overlap.
++static var rows: Array[Dictionary] = []
++static func stamp() -> Dictionary:
++	return {"ticks_us": Time.get_ticks_usec(), "unix_ms": Time.get_unix_time_from_system() * 1000.0}
++static func finish(phase: String, began: Dictionary, ok: bool = true) -> void:
++	if OS.get_environment("DWM_STARTUP_ATTRIBUTION") != "1": return
++	var ended := stamp()
++	rows.append({"phase": phase, "start": began, "end": ended,
++		"elapsed_us": int(ended.ticks_us) - int(began.ticks_us), "ok": ok})
+diff --git a/tools/testing/Invoke-StartupNewAccAttribution.ps1 b/tools/testing/Invoke-StartupNewAccAttribution.ps1
+new file mode 100644
+--- /dev/null
++++ b/tools/testing/Invoke-StartupNewAccAttribution.ps1
+@@ -0,0 +1,101 @@
++#requires -Version 7.0
++Set-StrictMode -Version Latest
++$ErrorActionPreference = 'Stop'
++if (-not $IsWindows) { throw 'Windows cloud runner required.' }
++$repositoryRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
++$output = Join-Path $repositoryRoot '.godot/ci/startup-newacc'
++if (Test-Path -LiteralPath $output) { throw 'Fresh diagnostic output required.' }
++New-Item -ItemType Directory -Path $output | Out-Null
++$engine = $env:GODOT_CONSOLE_PATH
++if (-not (Test-Path -LiteralPath $engine -PathType Leaf)) { throw 'Pinned Godot executable required.' }
++$record = [ordered]@{
++    source_ref = (git -C $repositoryRoot rev-parse HEAD).Trim()
++    runtime_base = '88e44efbf6d65cc3b70118e73923eb408db98b7e'
++    renderer_request = 'ProjectDefault'; status = 'started'; processes = @()
++    engine_sha256 = (Get-FileHash -LiteralPath $engine -Algorithm SHA256).Hash.ToLowerInvariant()
++    source_hashes = @{}; font_hashes = @{}
++    clock_note = 'External launch UTC and child UTC share one host; launch intervals have millisecond wall-clock precision. Named child intervals use monotonic microseconds. Pre-bootstrap includes native renderer, autoload/preload and diagnostic attachment; it does not attribute that entire interval to resources.'
++}
++foreach ($relative in @('autoload/ApplicationBootstrap.gd', 'autoload/SaveManager.gd', 'scripts/ui/MenuScene.gd',
++    'tests/integration/startup_new_acc_attribution.gd', 'tests/support/StartupAttributionTiming.gd',
++    'tools/testing/Invoke-StartupNewAccAttribution.ps1', 'scripts/ui/UiTypography.gd', 'project.godot',
++    'data/manifests/scene_story_registration.json')) {
++    $record.source_hashes[$relative] = (Get-FileHash -LiteralPath (Join-Path $repositoryRoot $relative) -Algorithm SHA256).Hash.ToLowerInvariant()
++}
++foreach ($font in @(git -C $repositoryRoot ls-files '*.ttf' '*.otf' '*.woff' '*.woff2')) {
++    $record.font_hashes[$font] = (Get-FileHash -LiteralPath (Join-Path $repositoryRoot $font) -Algorithm SHA256).Hash.ToLowerInvariant()
++}
++try {
++    foreach ($case in @('fresh', 'retained')) {
++        $caseOutput = Join-Path $output $case
++        New-Item -ItemType Directory -Path $caseOutput | Out-Null
++        $argv = @('--path', $repositoryRoot, '--audio-driver', 'Dummy', '--windowed', '--resolution', '1280x720',
++            '--log-file', (Join-Path $caseOutput 'render.log'))
++        $start = [Diagnostics.ProcessStartInfo]::new()
++        $start.FileName = $engine; $start.WorkingDirectory = $repositoryRoot
++        $start.UseShellExecute = $false; $start.RedirectStandardOutput = $true; $start.RedirectStandardError = $true
++        foreach ($argument in $argv) { $start.ArgumentList.Add($argument) }
++        foreach ($key in @('APPDATA', 'LOCALAPPDATA', 'DWM_TEST_ROOT')) {
++            $value = Join-Path $output "shared-user/$key"
++            New-Item -ItemType Directory -Path $value -Force | Out-Null
++            $start.Environment[$key] = $value
++        }
++        $start.Environment['DWM_STARTUP_ATTRIBUTION'] = '1'
++        $start.Environment['DWM_SCENE_VALIDATION_PROFILE'] = '1'
++        $start.Environment['DWM_STARTUP_CASE'] = $case
++        $start.Environment['DWM_STARTUP_OUTPUT'] = $caseOutput
++        $processRecord = [ordered]@{ case = $case; argv = $argv; clean_exit = $false; timed_out = $false }
++        $record.processes += $processRecord
++        $process = $null
++        try {
++            $clock = [Diagnostics.Stopwatch]::StartNew()
++            $processRecord.launch_unix_ms = [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()
++            $process = [Diagnostics.Process]::Start($start)
++            $processRecord.pid = $process.Id
++            $stdout = $process.StandardOutput.ReadToEndAsync()
++            $stderr = $process.StandardError.ReadToEndAsync()
++            $finished = $process.WaitForExit(600000)
++            if (-not $finished) {
++                $processRecord.timed_out = $true
++                $process.Kill($true)
++                $process.WaitForExit(10000) | Out-Null
++            }
++            $clock.Stop()
++            $processRecord.lifetime_ms = $clock.Elapsed.TotalMilliseconds
++            if (-not [Threading.Tasks.Task]::WaitAll([Threading.Tasks.Task[]]@($stdout, $stderr), 10000)) { throw 'Output did not close.' }
++            $stdout.Result | Set-Content -LiteralPath (Join-Path $caseOutput 'stdout.log') -Encoding utf8
++            $stderr.Result | Set-Content -LiteralPath (Join-Path $caseOutput 'stderr.log') -Encoding utf8
++            $processRecord.exit_code = $process.ExitCode
++            $processRecord.clean_exit = $finished -and $process.ExitCode -eq 0
++            $report = Get-Content -LiteralPath (Join-Path $caseOutput 'results.json') -Raw | ConvertFrom-Json -AsHashtable
++            $text = $stdout.Result + $stderr.Result + (Get-Content -LiteralPath (Join-Path $caseOutput 'render.log') -Raw)
++            if (-not $processRecord.clean_exit -or -not $report.complete -or $report.failures.Count -ne 0 -or
++                $text -match 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character') { throw "$case diagnostic failed." }
++            $bootstrap = @($report.phases | Where-Object phase -eq 'bootstrap.total')
++            if ($bootstrap.Count -ne 1) { throw 'Expected one FINAL bootstrap.' }
++            $m = $report.milestones
++            $processRecord.launch_to_bootstrap_start_ms = $bootstrap[0].start.unix_ms - $processRecord.launch_unix_ms
++            $processRecord.launch_to_title_drawn_ms = $m.title_drawn_usable.unix_ms - $processRecord.launch_unix_ms
++            $processRecord.new_acc_to_caption_complete_ms = ($m.caption_complete_drawn_idle.ticks_us - $m.new_acc_input.ticks_us) / 1000.0
++            $processRecord.rendering = $report.rendering
++            $processRecord.user_path = $report.user_path
++            if ($case -eq 'retained') {
++                $processRecord.input_to_consent_ms = ($m.consent_drawn.ticks_us - $m.new_acc_input.ticks_us) / 1000.0
++                $processRecord.consent_dwell_ms = ($m.confirm_input.ticks_us - $m.consent_drawn.ticks_us) / 1000.0
++                $processRecord.confirm_to_caption_complete_ms = ($m.caption_complete_drawn_idle.ticks_us - $m.confirm_input.ticks_us) / 1000.0
++            }
++            $processRecord.images = @(Get-ChildItem -LiteralPath $caseOutput -Filter '*.png' | ForEach-Object {
++                @{ name = $_.Name; size = $_.Length; sha256 = (Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant() }
++            })
++            $expectedImages = if ($case -eq 'fresh') { 2 } else { 3 }
++            if ($processRecord.images.Count -ne $expectedImages) { throw 'Missing milestone screenshots.' }
++        } finally {
++            if ($null -ne $process) { $process.Dispose() }
++        }
++    }
++    if ($record.processes[0].user_path -ne $record.processes[1].user_path) { throw 'Processes did not share a user profile.' }
++    $record.status = 'collected_requires_attribution_and_visual_review'
++} finally {
++    $record | ConvertTo-Json -Depth 40 | Set-Content -LiteralPath (Join-Path $output 'processes.json') -Encoding utf8
++}
++Write-Host ('STARTUP_NEW_ACC_COLLECTION ' + ($record | ConvertTo-Json -Depth 40 -Compress))
