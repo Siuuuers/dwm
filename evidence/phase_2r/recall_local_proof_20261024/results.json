@@ -1,0 +1,792 @@
+{
+  "base_master": "5c12b1f35d175582490adace0bc04e3c67bfb138",
+  "runtime_product": "8a701902b387190f1f0965785b970d011a4c88db",
+  "controller": "5d2373e02ad44d4e5dbf80f6425369fe2ceb6737",
+  "cloud_only_runtime": true,
+  "runtime_files": [
+    "scripts/domain/narrative/SceneEventContract.gd"
+  ],
+  "focused": {
+    "run_id": 40077022792,
+    "job_id": 120822471999,
+    "artifact_id": 12553966101,
+    "original_size": 3353067,
+    "original_sha256": "eeae3e27f9a8f91b9b42490f92507ba5978c1b783752948b217014f2e5068ba3",
+    "crc_verified": true,
+    "cases": 48,
+    "assertions": 537,
+    "new_cases": 3,
+    "new_case_assertions": [
+      6,
+      16,
+      6
+    ],
+    "exit_code": 0,
+    "inventory_processes": 4,
+    "caller_lines_refreshed": 21
+  },
+  "native_recall": {
+    "run_id": 40077022792,
+    "job_id": 120822471864,
+    "artifact_id": 12553840944,
+    "original_size": 3291785,
+    "original_sha256": "1fe29c05fd747789049c1c98702af6420ec954a053454916ec927c070df3f24f",
+    "crc_verified": true,
+    "cases": 2,
+    "assertions": 128,
+    "create_assertions": 81,
+    "load_assertions": 47,
+    "clean_processes": 2,
+    "captures_reviewed": [
+      "computer-challenge-recall-saved.png",
+      "computer-challenge-recall-selected.png",
+      "computer-challenge-recall-restored-selected.png"
+    ],
+    "scope": "Synthetic authored registration over real native owners/storage; never_started closure retained through distinct-process Load. Pure unit tests cover all five outcomes."
+  },
+  "reviews": [
+    "Independent source/refusal-boundary review passed.",
+    "Independent archive hash/size/CRC, exact census, process and retained-byte review passed.",
+    "Independent matched comparison source, engine/helper/input provenance, counts, timing arithmetic and CRC review passed."
+  ],
+  "comparison": {
+    "run_id": 40077022792,
+    "artifact_id": 12554285443,
+    "original_sha256": "9105fafff2f8f1e023bf458f454ff41b78a4e3ddf121029651f0934e6bd18673",
+    "source": {
+      "complete": true,
+      "base_ref": "5c12b1f35d175582490adace0bc04e3c67bfb138",
+      "candidate_ref": "5d2373e02ad44d4e5dbf80f6425369fe2ceb6737",
+      "order": [
+        "baseline",
+        "candidate"
+      ],
+      "scope": "Same runner, exact separate Git worktrees, identical measurement helpers and retained input. Each variant writes a new Save9 and loads it in another process. One ordered pair is not a latency distribution. Generated slot identities may differ.",
+      "runtime_files": [
+        "scripts/domain/narrative/SceneEventContract.gd"
+      ],
+      "measurement_sha256": {
+        "tools/testing/Invoke-FreshSaveLoad.ps1": "9b95c418b3d475876e91516e0893a2d70f4f85040fb1b2862b97aa09b37bc0e6",
+        "tests/integration/authored_week_child.gd": "e509c60688afccc407bd920120169bd50edbaffbe48747674362284a09e77e38",
+        "evidence/phase_2r/current_ci_20261023/final_retention/run39988834004/original-12517208437.zip": "c49053565e4b9430f2e9f0157eea9c1602898156de13df2837ca714235279670",
+        "tests/integration/fresh_save_load_child.gd": "4b43bad936ad8ac66f4e015e183c8e3c2d8374d2798e49dd85eb79ddb4b145aa",
+        "tools/testing/Invoke-IsolatedGodot.ps1": "1fe67f2db677fb869ee82126834a83d519b77888328a690ec55bbb3fbda7fa5f"
+      },
+      "variants": [
+        {
+          "variant": "baseline",
+          "source_ref": "5c12b1f35d175582490adace0bc04e3c67bfb138",
+          "runtime_sha256": {
+            "scripts/domain/narrative/SceneEventContract.gd": "27b1d0d8c1f3be44270000e893c1122f24c16522eb3d36f49c268777f2909e7d"
+          },
+          "complete": true,
+          "result": {
+            "source_ref": "5c12b1f35d175582490adace0bc04e3c67bfb138",
+            "archive_sha256": "c49053565e4b9430f2e9f0157eea9c1602898156de13df2837ca714235279670",
+            "scope": "One current-build native Save followed by a fresh-process native Load of its history-free slot. Source state is the retained ending workload; no baseline pair or latency distribution is claimed.",
+            "helper_sha256": {
+              "pair.gd": "387f335b758d06ac1762302423151d47d57aa1df90adc933cdee3855cf04ff65",
+              "pair-next.gd": "ebf4e9380066cd769c10c64ae21bddf605c972a5955324c445654d8d959540c7",
+              "seed.gd": "1eeae3d5a83dc645758def40e371408187bca8009e5ef9c0916b3d489f36be3d",
+              "replay.gd": "945a7a75a9cae6e14e2e70e9b99866a929ba1cbe36d8249bb9f177f9b3026a20"
+            },
+            "runtime_sha256": {
+              "scripts/infrastructure/save/SaveMigrations.gd": "b48230ed3adbe11eb92b0d829e090766ce56154279d23c37e6d3c9aa953cb0cb",
+              "scripts/infrastructure/save/DesktopContinuationOperationJournal.gd": "e3a58e2891426a9cad6f40a06d19b70c2df3603208767b09d81c353afa035d57",
+              "scripts/infrastructure/save/CheckpointJournal.gd": "841e641348b5afb5f64e90334098557d787efc043f9a6ee8cb54f5ab83a46542",
+              "autoload/GameState.gd": "a7122b8cbb258ce10b02550414af5934f6662bc4c7ea2c807f298b2452844c03",
+              "scripts/infrastructure/save/SaveDocumentSchema.gd": "e53ef8ef6e5d3d3762d05aa00aba3f1758df06ec16bb47e483e898a6632e14b0",
+              "scripts/narrative/FrozenRunContext.gd": "541225d59ac04c627b20aeedd4b29f04f0972c22daf9dbf1a609923244225b5e",
+              "autoload/SaveManager.gd": "90b37d0bc46d1c955a452d45f0387992efa291ebb8aa6240f24ae20a3cec67cd"
+            },
+            "fresh_helper_sha256": "4b43bad936ad8ac66f4e015e183c8e3c2d8374d2798e49dd85eb79ddb4b145aa",
+            "runner_sha256": "9b95c418b3d475876e91516e0893a2d70f4f85040fb1b2862b97aa09b37bc0e6",
+            "assertions": {
+              "load": 101,
+              "write": 112
+            },
+            "wall_seconds": 387.8264351,
+            "write": {
+              "complete": true,
+              "observed_lines": [
+                "line.ending.alone.normal.001"
+              ],
+              "pending_phase": "",
+              "phases": [
+                {
+                  "elapsed_us": 52955819,
+                  "ok": true,
+                  "phase": "boot"
+                },
+                {
+                  "elapsed_us": 96188303,
+                  "ok": true,
+                  "phase": "load"
+                },
+                {
+                  "elapsed_us": 66515971,
+                  "ok": true,
+                  "phase": "save"
+                }
+              ],
+              "process_id": 1700,
+              "source_slot_sha256": "17934c8199a7d25f97c69890f0ca609e5106c6bb6dc187464d58c40d2baf987c",
+              "ui_timing_scope": "Press-return includes the existing five frame waits; Load Ready is the existing owner signal. No added validation, screenshot or wait.",
+              "ui_timings": [
+                {
+                  "elapsed_us": 1195210,
+                  "finished_us": 63920219,
+                  "ok": true,
+                  "operation": "title_backup_open_press_return",
+                  "started_us": 62725009
+                },
+                {
+                  "elapsed_us": 79758,
+                  "finished_us": 64000144,
+                  "ok": true,
+                  "operation": "load_slot_select_press_return",
+                  "started_us": 63920386
+                },
+                {
+                  "elapsed_us": 92922745,
+                  "finished_us": 156922933,
+                  "operation": "load_action_to_ready",
+                  "started_us": 64000188
+                },
+                {
+                  "elapsed_us": 94176203,
+                  "finished_us": 158176391,
+                  "ok": true,
+                  "operation": "load_action_press_return",
+                  "started_us": 64000188
+                },
+                {
+                  "elapsed_us": 8570235,
+                  "finished_us": 167399909,
+                  "ok": true,
+                  "operation": "ending_backup_open_press_return",
+                  "started_us": 158829674
+                },
+                {
+                  "elapsed_us": 94958,
+                  "finished_us": 167496098,
+                  "ok": true,
+                  "operation": "save_slot_select_press_return",
+                  "started_us": 167401140
+                },
+                {
+                  "elapsed_us": 56690037,
+                  "finished_us": 224187066,
+                  "ok": true,
+                  "operation": "save_action_press_return",
+                  "save_in_operation_at_return": false,
+                  "save_result_ok_at_return": true,
+                  "started_us": 167497029
+                },
+                {
+                  "elapsed_us": 110905,
+                  "finished_us": 224347068,
+                  "ok": true,
+                  "operation": "continue_press_return",
+                  "started_us": 224236163
+                }
+              ]
+            },
+            "load": {
+              "autosave_sha256": "54b47a2637f33b4937fa63e63c5b8571038d3adde0576437bad1c415b13454a3",
+              "complete": true,
+              "creator_process_id": 1700,
+              "load_action_to_ready_us": 57302625,
+              "observed_lines": [
+                "line.ending.alone.normal.001"
+              ],
+              "pending_phase": "",
+              "phases": [
+                {
+                  "elapsed_us": 70169590,
+                  "ok": true,
+                  "phase": "boot"
+                },
+                {
+                  "elapsed_us": 60950919,
+                  "ok": true,
+                  "phase": "load"
+                }
+              ],
+              "process_id": 2244,
+              "profile_sha256": "40a3166a287790295a5270a42934337fc7bdd5f63c759d193d0d555c89c71f43",
+              "ready_native": {
+                "event_done": true,
+                "ledger": {
+                  "captions": [
+                    {
+                      "beat": {
+                        "beat_id": "beat.line.ending.alone.normal.001",
+                        "line_id": "line.ending.alone.normal.001",
+                        "owning_entry_id": "ending.alone.normal",
+                        "presentation_signature": {
+                          "content_revision": "1",
+                          "variant_id": "beat.line.ending.alone.normal.001"
+                        }
+                      },
+                      "publication_id": "caption:1"
+                    }
+                  ],
+                  "entry_contexts": {
+                    "ending.alone.normal": {
+                      "expected_stage": "PRIMARY_PENDING",
+                      "playback_id": "run_id.ec5ebbe37aaeb707b927fbe22281544e0dfcf8f395b204a0dba301ac0185c34e:ending:0",
+                      "presentation": {
+                        "fields": {
+                          "alone_cause": "scene_terminal",
+                          "ending_form": "alone_normal",
+                          "ending_id": "ending.alone",
+                          "ending_role": "core",
+                          "entry_id": "ending.alone.normal",
+                          "entry_role": "alone_step",
+                          "playback_mode": "full",
+                          "prerequisite_receipt_ids": [],
+                          "step_token": "run_id.ec5ebbe37aaeb707b927fbe22281544e0dfcf8f395b204a0dba301ac0185c34e:ending:0"
+                        },
+                        "schema_id": "context.alone_step.ending.alone.normal.v1",
+                        "schema_version": 1
+                      },
+                      "role": "core",
+                      "transaction_id": "run_id.ec5ebbe37aaeb707b927fbe22281544e0dfcf8f395b204a0dba301ac0185c34e:ending:0:complete"
+                    }
+                  },
+                  "frozen_context": {
+                    "completion_transaction_id": "run_id.ec5ebbe37aaeb707b927fbe22281544e0dfcf8f395b204a0dba301ac0185c34e:ending",
+                    "entry_id": "ending.alone.normal",
+                    "family": "ending"
+                  },
+                  "session_token": "run_id.ec5ebbe37aaeb707b927fbe22281544e0dfcf8f395b204a0dba301ac0185c34e:ending"
+                },
+                "line_id": "line.ending.alone.normal.001",
+                "revealing": false,
+                "text": "At the rear doors of the building, the evening rain falls straight down through the courtyard lamp light.",
+                "visible": true,
+                "visible_ratio": 1.0
+              },
+              "recovery_journal_count": 0,
+              "registration_sha256": "33be6b0a64cbad7105dcd397e10a5be0ff7b90e0fb27d8100380a2050a1eb33a",
+              "source_slot_bytes": 448631,
+              "source_slot_sha256": "21ba0814aca8cd41d256dda1ea856083a141bfcd9b63ef815ddd7eea4677090b"
+            }
+          },
+          "error": null
+        },
+        {
+          "variant": "candidate",
+          "source_ref": "5d2373e02ad44d4e5dbf80f6425369fe2ceb6737",
+          "runtime_sha256": {
+            "scripts/domain/narrative/SceneEventContract.gd": "a292efe4740be38fa801d36e4f815ef73e132b948f7d0c9cbf8a239e2ddc092e"
+          },
+          "complete": true,
+          "result": {
+            "source_ref": "5d2373e02ad44d4e5dbf80f6425369fe2ceb6737",
+            "archive_sha256": "c49053565e4b9430f2e9f0157eea9c1602898156de13df2837ca714235279670",
+            "scope": "One current-build native Save followed by a fresh-process native Load of its history-free slot. Source state is the retained ending workload; no baseline pair or latency distribution is claimed.",
+            "helper_sha256": {
+              "pair.gd": "387f335b758d06ac1762302423151d47d57aa1df90adc933cdee3855cf04ff65",
+              "pair-next.gd": "ebf4e9380066cd769c10c64ae21bddf605c972a5955324c445654d8d959540c7",
+              "seed.gd": "1eeae3d5a83dc645758def40e371408187bca8009e5ef9c0916b3d489f36be3d",
+              "replay.gd": "945a7a75a9cae6e14e2e70e9b99866a929ba1cbe36d8249bb9f177f9b3026a20"
+            },
+            "runtime_sha256": {
+              "scripts/infrastructure/save/SaveMigrations.gd": "b48230ed3adbe11eb92b0d829e090766ce56154279d23c37e6d3c9aa953cb0cb",
+              "scripts/infrastructure/save/DesktopContinuationOperationJournal.gd": "e3a58e2891426a9cad6f40a06d19b70c2df3603208767b09d81c353afa035d57",
+              "scripts/infrastructure/save/CheckpointJournal.gd": "841e641348b5afb5f64e90334098557d787efc043f9a6ee8cb54f5ab83a46542",
+              "autoload/GameState.gd": "a7122b8cbb258ce10b02550414af5934f6662bc4c7ea2c807f298b2452844c03",
+              "scripts/infrastructure/save/SaveDocumentSchema.gd": "e53ef8ef6e5d3d3762d05aa00aba3f1758df06ec16bb47e483e898a6632e14b0",
+              "scripts/narrative/FrozenRunContext.gd": "541225d59ac04c627b20aeedd4b29f04f0972c22daf9dbf1a609923244225b5e",
+              "autoload/SaveManager.gd": "90b37d0bc46d1c955a452d45f0387992efa291ebb8aa6240f24ae20a3cec67cd"
+            },
+            "fresh_helper_sha256": "4b43bad936ad8ac66f4e015e183c8e3c2d8374d2798e49dd85eb79ddb4b145aa",
+            "runner_sha256": "9b95c418b3d475876e91516e0893a2d70f4f85040fb1b2862b97aa09b37bc0e6",
+            "assertions": {
+              "load": 101,
+              "write": 112
+            },
+            "wall_seconds": 334.1546668,
+            "write": {
+              "complete": true,
+              "observed_lines": [
+                "line.ending.alone.normal.001"
+              ],
+              "pending_phase": "",
+              "phases": [
+                {
+                  "elapsed_us": 49021007,
+                  "ok": true,
+                  "phase": "boot"
+                },
+                {
+                  "elapsed_us": 80212377,
+                  "ok": true,
+                  "phase": "load"
+                },
+                {
+                  "elapsed_us": 51411773,
+                  "ok": true,
+                  "phase": "save"
+                }
+              ],
+              "process_id": 704,
+              "source_slot_sha256": "17934c8199a7d25f97c69890f0ca609e5106c6bb6dc187464d58c40d2baf987c",
+              "ui_timing_scope": "Press-return includes the existing five frame waits; Load Ready is the existing owner signal. No added validation, screenshot or wait.",
+              "ui_timings": [
+                {
+                  "elapsed_us": 1171122,
+                  "finished_us": 59363230,
+                  "ok": true,
+                  "operation": "title_backup_open_press_return",
+                  "started_us": 58192108
+                },
+                {
+                  "elapsed_us": 79836,
+                  "finished_us": 59443221,
+                  "ok": true,
+                  "operation": "load_slot_select_press_return",
+                  "started_us": 59363385
+                },
+                {
+                  "elapsed_us": 77034223,
+                  "finished_us": 136477483,
+                  "operation": "load_action_to_ready",
+                  "started_us": 59443260
+                },
+                {
+                  "elapsed_us": 78255803,
+                  "finished_us": 137699063,
+                  "ok": true,
+                  "operation": "load_action_press_return",
+                  "started_us": 59443260
+                },
+                {
+                  "elapsed_us": 6838532,
+                  "finished_us": 145170745,
+                  "ok": true,
+                  "operation": "ending_backup_open_press_return",
+                  "started_us": 138332213
+                },
+                {
+                  "elapsed_us": 126711,
+                  "finished_us": 145298421,
+                  "ok": true,
+                  "operation": "save_slot_select_press_return",
+                  "started_us": 145171710
+                },
+                {
+                  "elapsed_us": 43285473,
+                  "finished_us": 188584806,
+                  "ok": true,
+                  "operation": "save_action_press_return",
+                  "save_in_operation_at_return": false,
+                  "save_result_ok_at_return": true,
+                  "started_us": 145299333
+                },
+                {
+                  "elapsed_us": 111080,
+                  "finished_us": 188760891,
+                  "ok": true,
+                  "operation": "continue_press_return",
+                  "started_us": 188649811
+                }
+              ]
+            },
+            "load": {
+              "autosave_sha256": "54b47a2637f33b4937fa63e63c5b8571038d3adde0576437bad1c415b13454a3",
+              "complete": true,
+              "creator_process_id": 704,
+              "load_action_to_ready_us": 47670913,
+              "observed_lines": [
+                "line.ending.alone.normal.001"
+              ],
+              "pending_phase": "",
+              "phases": [
+                {
+                  "elapsed_us": 63093659,
+                  "ok": true,
+                  "phase": "boot"
+                },
+                {
+                  "elapsed_us": 51318895,
+                  "ok": true,
+                  "phase": "load"
+                }
+              ],
+              "process_id": 4956,
+              "profile_sha256": "40a3166a287790295a5270a42934337fc7bdd5f63c759d193d0d555c89c71f43",
+              "ready_native": {
+                "event_done": true,
+                "ledger": {
+                  "captions": [
+                    {
+                      "beat": {
+                        "beat_id": "beat.line.ending.alone.normal.001",
+                        "line_id": "line.ending.alone.normal.001",
+                        "owning_entry_id": "ending.alone.normal",
+                        "presentation_signature": {
+                          "content_revision": "1",
+                          "variant_id": "beat.line.ending.alone.normal.001"
+                        }
+                      },
+                      "publication_id": "caption:1"
+                    }
+                  ],
+                  "entry_contexts": {
+                    "ending.alone.normal": {
+                      "expected_stage": "PRIMARY_PENDING",
+                      "playback_id": "run_id.ec5ebbe37aaeb707b927fbe22281544e0dfcf8f395b204a0dba301ac0185c34e:ending:0",
+                      "presentation": {
+                        "fields": {
+                          "alone_cause": "scene_terminal",
+                          "ending_form": "alone_normal",
+                          "ending_id": "ending.alone",
+                          "ending_role": "core",
+                          "entry_id": "ending.alone.normal",
+                          "entry_role": "alone_step",
+                          "playback_mode": "full",
+                          "prerequisite_receipt_ids": [],
+                          "step_token": "run_id.ec5ebbe37aaeb707b927fbe22281544e0dfcf8f395b204a0dba301ac0185c34e:ending:0"
+                        },
+                        "schema_id": "context.alone_step.ending.alone.normal.v1",
+                        "schema_version": 1
+                      },
+                      "role": "core",
+                      "transaction_id": "run_id.ec5ebbe37aaeb707b927fbe22281544e0dfcf8f395b204a0dba301ac0185c34e:ending:0:complete"
+                    }
+                  },
+                  "frozen_context": {
+                    "completion_transaction_id": "run_id.ec5ebbe37aaeb707b927fbe22281544e0dfcf8f395b204a0dba301ac0185c34e:ending",
+                    "entry_id": "ending.alone.normal",
+                    "family": "ending"
+                  },
+                  "session_token": "run_id.ec5ebbe37aaeb707b927fbe22281544e0dfcf8f395b204a0dba301ac0185c34e:ending"
+                },
+                "line_id": "line.ending.alone.normal.001",
+                "revealing": false,
+                "text": "At the rear doors of the building, the evening rain falls straight down through the courtyard lamp light.",
+                "visible": true,
+                "visible_ratio": 1.0
+              },
+              "recovery_journal_count": 0,
+              "registration_sha256": "33be6b0a64cbad7105dcd397e10a5be0ff7b90e0fb27d8100380a2050a1eb33a",
+              "source_slot_bytes": 448631,
+              "source_slot_sha256": "afd1456e1c91f755a34a1667b6dcc32cf6f7711c1fc963b5cde34efd25f076f0"
+            }
+          },
+          "error": null
+        }
+      ],
+      "error": null,
+      "wrapper_sha256": "fa089ac82039000c0b6196e68d021032c9c5563025da3ac3d291290cb31dc42b",
+      "engine_sha256": "63b3b2208819714c9677fbfdd8217c5b7dee8ecf5f383502e826bc9e2227ff5a",
+      "engine_version": "4.6.3.stable.official.7d41c59c4",
+      "engine_provenance": "Workflow verifies the official release archive; this helper records and rechecks the installed executable."
+    },
+    "variants": [
+      {
+        "variant": "baseline",
+        "fresh_load_us": 57302625,
+        "retained_load_us": 92922745,
+        "save_us": 56690037,
+        "journey_seconds": 387.8264351,
+        "bundle_calls": 92,
+        "bundle_us": 18943974,
+        "receipt_calls": 42,
+        "receipt_us": 31021736,
+        "physical_calls": 42,
+        "physical_us": 5009922,
+        "profile": {
+          "bundle_validation_calls": 92,
+          "bundle_validation_failures": 0,
+          "bundle_validation_us": 18943974,
+          "compilation_calls": 1472,
+          "compilation_failures": 0,
+          "compilation_us": 868187,
+          "configuration_calls": 16,
+          "configuration_failures": 0,
+          "configuration_us": 1356407,
+          "elapsed_us": 60950668,
+          "inclusive_nested": true,
+          "lifecycle_state": "ENDING",
+          "next_step_index": 0,
+          "ok": true,
+          "operation": "fresh_save_load",
+          "physical_proof_calls": 42,
+          "physical_proof_failures": 0,
+          "physical_proof_us": 5009922,
+          "playback_stage": "PRIMARY_PENDING",
+          "receipt_validation_calls": 42,
+          "receipt_validation_failures": 0,
+          "receipt_validation_us": 31021736,
+          "snapshot_validations": [
+            {
+              "checkpoint_sequence": 72,
+              "elapsed_us": 5146081,
+              "guard_prepare_us": 159242,
+              "guard_verify_us": 149609,
+              "inclusive_nested": true,
+              "lifecycle_state": "ENDING",
+              "ok": true,
+              "ordinal": 0,
+              "playback_stage": "PRIMARY_PENDING",
+              "pre_semantic_us": 2988602,
+              "semantic_us": 1836908
+            },
+            {
+              "checkpoint_sequence": 72,
+              "elapsed_us": 5081241,
+              "guard_prepare_us": 162363,
+              "guard_verify_us": 151249,
+              "inclusive_nested": true,
+              "lifecycle_state": "ENDING",
+              "ok": true,
+              "ordinal": 1,
+              "playback_stage": "PRIMARY_PENDING",
+              "pre_semantic_us": 2941704,
+              "semantic_us": 1813427
+            },
+            {
+              "checkpoint_sequence": 72,
+              "elapsed_us": 5085191,
+              "guard_prepare_us": 161187,
+              "guard_verify_us": 149656,
+              "inclusive_nested": true,
+              "lifecycle_state": "ENDING",
+              "ok": true,
+              "ordinal": 2,
+              "playback_stage": "PRIMARY_PENDING",
+              "pre_semantic_us": 2940128,
+              "semantic_us": 1823469
+            },
+            {
+              "checkpoint_sequence": 72,
+              "elapsed_us": 5110141,
+              "guard_prepare_us": 163083,
+              "guard_verify_us": 151542,
+              "inclusive_nested": true,
+              "lifecycle_state": "ENDING",
+              "ok": true,
+              "ordinal": 3,
+              "playback_stage": "PRIMARY_PENDING",
+              "pre_semantic_us": 2945627,
+              "semantic_us": 1838894
+            },
+            {
+              "checkpoint_sequence": 72,
+              "elapsed_us": 5111225,
+              "guard_prepare_us": 160005,
+              "guard_verify_us": 146171,
+              "inclusive_nested": true,
+              "lifecycle_state": "ENDING",
+              "ok": true,
+              "ordinal": 4,
+              "playback_stage": "PRIMARY_PENDING",
+              "pre_semantic_us": 2967499,
+              "semantic_us": 1826090
+            },
+            {
+              "checkpoint_sequence": 72,
+              "elapsed_us": 5143938,
+              "guard_prepare_us": 160002,
+              "guard_verify_us": 149982,
+              "inclusive_nested": true,
+              "lifecycle_state": "ENDING",
+              "ok": true,
+              "ordinal": 5,
+              "playback_stage": "PRIMARY_PENDING",
+              "pre_semantic_us": 2978595,
+              "semantic_us": 1842481
+            },
+            {
+              "checkpoint_sequence": 72,
+              "elapsed_us": 5249328,
+              "guard_prepare_us": 166750,
+              "guard_verify_us": 154993,
+              "inclusive_nested": true,
+              "lifecycle_state": "ENDING",
+              "ok": true,
+              "ordinal": 6,
+              "playback_stage": "PRIMARY_PENDING",
+              "pre_semantic_us": 3033586,
+              "semantic_us": 1881758
+            },
+            {
+              "checkpoint_sequence": 72,
+              "elapsed_us": 5439545,
+              "guard_prepare_us": 173168,
+              "guard_verify_us": 164691,
+              "inclusive_nested": true,
+              "lifecycle_state": "ENDING",
+              "ok": true,
+              "ordinal": 7,
+              "playback_stage": "PRIMARY_PENDING",
+              "pre_semantic_us": 3137929,
+              "semantic_us": 1950245
+            }
+          ]
+        }
+      },
+      {
+        "variant": "candidate",
+        "fresh_load_us": 47670913,
+        "retained_load_us": 77034223,
+        "save_us": 43285473,
+        "journey_seconds": 334.1546668,
+        "bundle_calls": 50,
+        "bundle_us": 10048277,
+        "receipt_calls": 42,
+        "receipt_us": 22010275,
+        "physical_calls": 42,
+        "physical_us": 4937861,
+        "profile": {
+          "bundle_validation_calls": 50,
+          "bundle_validation_failures": 0,
+          "bundle_validation_us": 10048277,
+          "compilation_calls": 1472,
+          "compilation_failures": 0,
+          "compilation_us": 853314,
+          "configuration_calls": 16,
+          "configuration_failures": 0,
+          "configuration_us": 1303094,
+          "elapsed_us": 51318638,
+          "inclusive_nested": true,
+          "lifecycle_state": "ENDING",
+          "next_step_index": 0,
+          "ok": true,
+          "operation": "fresh_save_load",
+          "physical_proof_calls": 42,
+          "physical_proof_failures": 0,
+          "physical_proof_us": 4937861,
+          "playback_stage": "PRIMARY_PENDING",
+          "receipt_validation_calls": 42,
+          "receipt_validation_failures": 0,
+          "receipt_validation_us": 22010275,
+          "snapshot_validations": [
+            {
+              "checkpoint_sequence": 72,
+              "elapsed_us": 3966622,
+              "guard_prepare_us": 151754,
+              "guard_verify_us": 146711,
+              "inclusive_nested": true,
+              "lifecycle_state": "ENDING",
+              "ok": true,
+              "ordinal": 0,
+              "playback_stage": "PRIMARY_PENDING",
+              "pre_semantic_us": 2285634,
+              "semantic_us": 1372813
+            },
+            {
+              "checkpoint_sequence": 72,
+              "elapsed_us": 3943011,
+              "guard_prepare_us": 150052,
+              "guard_verify_us": 147418,
+              "inclusive_nested": true,
+              "lifecycle_state": "ENDING",
+              "ok": true,
+              "ordinal": 1,
+              "playback_stage": "PRIMARY_PENDING",
+              "pre_semantic_us": 2282439,
+              "semantic_us": 1353035
+            },
+            {
+              "checkpoint_sequence": 72,
+              "elapsed_us": 3936115,
+              "guard_prepare_us": 152552,
+              "guard_verify_us": 146066,
+              "inclusive_nested": true,
+              "lifecycle_state": "ENDING",
+              "ok": true,
+              "ordinal": 2,
+              "playback_stage": "PRIMARY_PENDING",
+              "pre_semantic_us": 2247774,
+              "semantic_us": 1380695
+            },
+            {
+              "checkpoint_sequence": 72,
+              "elapsed_us": 4025888,
+              "guard_prepare_us": 158081,
+              "guard_verify_us": 155775,
+              "inclusive_nested": true,
+              "lifecycle_state": "ENDING",
+              "ok": true,
+              "ordinal": 3,
+              "playback_stage": "PRIMARY_PENDING",
+              "pre_semantic_us": 2287205,
+              "semantic_us": 1414465
+            },
+            {
+              "checkpoint_sequence": 72,
+              "elapsed_us": 4011841,
+              "guard_prepare_us": 155447,
+              "guard_verify_us": 149213,
+              "inclusive_nested": true,
+              "lifecycle_state": "ENDING",
+              "ok": true,
+              "ordinal": 4,
+              "playback_stage": "PRIMARY_PENDING",
+              "pre_semantic_us": 2319418,
+              "semantic_us": 1378461
+            },
+            {
+              "checkpoint_sequence": 72,
+              "elapsed_us": 4036425,
+              "guard_prepare_us": 164524,
+              "guard_verify_us": 151914,
+              "inclusive_nested": true,
+              "lifecycle_state": "ENDING",
+              "ok": true,
+              "ordinal": 5,
+              "playback_stage": "PRIMARY_PENDING",
+              "pre_semantic_us": 2310068,
+              "semantic_us": 1398148
+            },
+            {
+              "checkpoint_sequence": 72,
+              "elapsed_us": 4146205,
+              "guard_prepare_us": 163328,
+              "guard_verify_us": 150640,
+              "inclusive_nested": true,
+              "lifecycle_state": "ENDING",
+              "ok": true,
+              "ordinal": 6,
+              "playback_stage": "PRIMARY_PENDING",
+              "pre_semantic_us": 2400160,
+              "semantic_us": 1422522
+            },
+            {
+              "checkpoint_sequence": 72,
+              "elapsed_us": 4254892,
+              "guard_prepare_us": 175767,
+              "guard_verify_us": 163845,
+              "inclusive_nested": true,
+              "lifecycle_state": "ENDING",
+              "ok": true,
+              "ordinal": 7,
+              "playback_stage": "PRIMARY_PENDING",
+              "pre_semantic_us": 2415218,
+              "semantic_us": 1490114
+            }
+          ]
+        }
+      }
+    ],
+    "reduction_percent": {
+      "fresh_load_us": 16.808500483180307,
+      "retained_load_us": 17.098636076667773,
+      "save_us": 23.645361176956015,
+      "journey_seconds": 13.839120658745433
+    },
+    "original_size": 7058733,
+    "job_id": 120822471944,
+    "crc_verified": true,
+    "current_cases": 4,
+    "assertions": 426,
+    "clean_processes": 6,
+    "restored_capture_pixels_equal": true,
+    "limits": "One baseline-first matched pair, not a latency distribution or hardware guarantee. Nested timing totals are not additive."
+  }
+}

@@ -133,3 +133,66 @@ func test_recall_receipt_binds_outcome_target_and_anchor_shape() -> void:
 	anchor.line_id = "line." + FIXTURE.LATER + ".one"
 	result.closure_command_id = ""
 	assert_false(CONTRACT.make_scene_receipt(event, anchor, result, built.value).ok)
+
+func test_recall_rechecks_changed_bundle_on_each_public_call() -> void:
+	var built: Dictionary = FIXTURE.bundle()
+	assert_true(built.ok)
+	if not built.ok: return
+	var event := _event()
+	var receipts := {"TEST.closed": _closure(event, "won")}
+	assert_true(CONTRACT.resolve_scene_challenge_recall(event, receipts, built.value).ok)
+	var changed: Dictionary = built.value.duplicate(true)
+	changed.caption_registry["TEST.changed"] = "different registration"
+	assert_true(CONTRACT.validate_bundle_structure(changed).ok,
+		"the changed registration remains structurally valid")
+	var refused: Dictionary = CONTRACT.resolve_scene_challenge_recall(event, receipts, changed)
+	assert_eq(refused.get("code"), &"scene_receipt_mismatch",
+		"a prior call cannot authorize a closure under a different bundle fingerprint")
+	assert_true(CONTRACT.resolve_scene_challenge_recall(event, receipts, built.value).ok,
+		"the original registration still proves the retained closure")
+
+func test_recall_revalidates_matching_closure_shape_anchor_result_and_fingerprint() -> void:
+	var built: Dictionary = FIXTURE.bundle()
+	assert_true(built.ok)
+	if not built.ok: return
+	var event := _event()
+	var closure := _closure(event, "won")
+	var expected := {"version": &"scene_event_version_invalid", "marker": &"scene_marker_unregistered",
+		"anchor": &"event_anchor_invalid", "target": &"scene_result_invalid",
+		"attempt": &"scene_attempt_proof_invalid", "registration": &"scene_receipt_mismatch",
+		"fingerprint": &"scene_receipt_mismatch"}
+	for mutation: String in expected:
+		var changed: Dictionary = closure.duplicate(true)
+		match mutation:
+			"version": changed.scene_event.semantic.schema_version = 2.0
+			"marker": changed.scene_event.semantic.event_id = "TEST.missing"
+			"anchor": changed.scene_event.reading_anchor.line_id = "TEST.other.line"
+			"target": changed.scene_event.result.target_id = "TEST.other.target"
+			"attempt": changed.scene_event.result.attempt_proof = null
+			"registration": changed.scene_event.registration_fingerprint = "0".repeat(64)
+			"fingerprint": changed.request_fingerprint = "0".repeat(64)
+		var before: Dictionary = changed.duplicate(true)
+		var refused: Dictionary = CONTRACT.resolve_scene_challenge_recall(event, {"TEST.closed": changed}, built.value)
+		assert_eq(refused.get("code"), expected[mutation], mutation)
+		assert_eq(changed, before, mutation + " refusal preserves the submitted closure")
+
+func test_recall_keeps_event_bundle_and_closure_refusal_order() -> void:
+	var built: Dictionary = FIXTURE.bundle()
+	assert_true(built.ok)
+	if not built.ok: return
+	var event := _event()
+	var closure := _closure(event, "won")
+	var bad_event: Dictionary = event.duplicate(true)
+	bad_event.schema_version = 2.0
+	var bad_closure: Dictionary = closure.duplicate(true)
+	bad_closure.scene_event.semantic.schema_version = 2.0
+	var receipts := {"TEST.closed": bad_closure}
+	assert_eq(CONTRACT.resolve_scene_challenge_recall(bad_event, receipts, {}).get("code"),
+		&"scene_event_version_invalid", "the recall envelope precedes bundle and closure admission")
+	assert_eq(CONTRACT.resolve_scene_challenge_recall(event, receipts, {}).get("code"),
+		&"scene_bundle_invalid", "fresh bundle admission precedes matching closure admission")
+	var second := _closure(event, "lost", "TEST.second")
+	second.scene_event.reading_anchor.line_id = "TEST.other.line"
+	assert_eq(CONTRACT.resolve_scene_challenge_recall(event,
+		{"TEST.closed": closure, "TEST.second": second}, built.value).get("code"),
+		&"event_anchor_invalid", "the second closure must validate before reporting ambiguity")

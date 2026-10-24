@@ -1,0 +1,188 @@
+{
+  "run_id": 40076834736,
+  "source": "5c12b1f35d175582490adace0bc04e3c67bfb138",
+  "observed_at": "2026-10-24T08:24:08.008Z",
+  "scope": "Broader workflow on merged guard source before recall optimization; not exact-head full-release coverage of PR71.",
+  "jobs": [
+    {
+      "id": 120821882025,
+      "name": "Select current change coverage",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 120821949731,
+      "name": "Windows / public API surface contracts",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 120821950368,
+      "name": "Windows / matched startup and Load",
+      "status": "completed",
+      "conclusion": "skipped"
+    },
+    {
+      "id": 120823237861,
+      "name": "Rendered current Gallery components",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 120823237879,
+      "name": "Windows / exported release startup",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 120823237884,
+      "name": "Rendered desktop and dialogue / Linux software OpenGL",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 120823237962,
+      "name": "Windows / localization",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 120823237969,
+      "name": "Windows / reading_delivery",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 120823237972,
+      "name": "Windows / checkpoint_diagnostics",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 120823237991,
+      "name": "Windows / scene_desktop_first_reveal",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 120823237999,
+      "name": "Windows / scene_apps",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 120823238002,
+      "name": "Windows / minesweeper",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 120823238005,
+      "name": "Windows / new_account",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 120823238008,
+      "name": "Windows / scene_shop_checkpoint",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 120823238013,
+      "name": "Windows / scene_round_checkpoint",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 120823238015,
+      "name": "Windows / scene_backup_inspection",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 120823238016,
+      "name": "Windows / desktop",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 120823238018,
+      "name": "Windows / authored_week",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 120823238025,
+      "name": "Windows / current_title",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 120823238031,
+      "name": "Windows / dating",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 120823238044,
+      "name": "Windows / audio",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 120823238046,
+      "name": "Windows / scene_five_outcomes",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 120823238047,
+      "name": "Windows / scene_story_localization",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 120823238048,
+      "name": "Windows / terminal_admission",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 120823238054,
+      "name": "Windows / shop",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 120823238065,
+      "name": "Windows / persistence",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 120823238070,
+      "name": "Windows / settings",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 120823238077,
+      "name": "Windows / backup_current_build",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 120823238079,
+      "name": "Windows / scene_controls_localization",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 120823238087,
+      "name": "Windows / profile_parse",
+      "status": "completed",
+      "conclusion": "success"
+    }
+  ]
+}

@@ -1,0 +1,171 @@
+diff --git a/autoload/SaveManager.gd b/autoload/SaveManager.gd
+index f5fd27f5..8c44aa63 100644
+--- a/autoload/SaveManager.gd
++++ b/autoload/SaveManager.gd
+@@ -3287,9 +3287,13 @@ func configure_scene_restore_participants(participants: Dictionary) -> Dictionar
+ ## committed allocation and its still-physical Profile assignment. Autosave may
+ ## legitimately have advanced since creation; its historical target receipt remains.
+ func capture_committed_scene_creation(transaction_id: String) -> Dictionary:
++	var probe_clock = preload("res://scripts/narrative/SceneValidationTiming.gd")
++	var probe_started: int = probe_clock.start_sample()
+ 	if _identity_issuer == null or _new_run_profile_owner == null:
+ 		return _fail(&"scene_creation_owner_unavailable", "")
+ 	var found: Dictionary = _continuation_journal.get_creation_operation(transaction_id)
++	probe_clock.finish_sample("probe_creation_journal", probe_started, true)
++	probe_started = probe_clock.start_sample()
+ 	if not found.get("ok", false): return found
+ 	var operation: Dictionary = found.value
+ 	if operation.get("kind") != "scene_new_run" or operation.get("stage") != CONTINUATION_JOURNAL.STAGE_COMPLETED \
+@@ -3297,16 +3301,22 @@ func capture_committed_scene_creation(transaction_id: String) -> Dictionary:
+ 		return _fail(&"scene_creation_not_activated", "durable completed creation and activation required")
+ 	var materials: Dictionary = operation.new_run_materials
+ 	var captured: Dictionary = _identity_issuer.capture_root()
++	probe_clock.finish_sample("probe_creation_issuer", probe_started, true)
++	probe_started = probe_clock.start_sample()
+ 	if not captured.get("ok", false): return captured
+ 	var root: Dictionary = captured.value
+ 	if not CANONICAL_JSON._deep_same(root.get("allocation_receipts", {}).get(transaction_id), materials.allocation_candidate):
+ 		return _fail(&"scene_creation_allocation_unproven", "")
+ 	var profile: Dictionary = _new_run_profile_owner.prove_scene_assignment(materials.allocation_candidate.run_id,
+ 		materials.profile.scene_assignment.receipt)
++	probe_clock.finish_sample("probe_creation_profile", probe_started, true)
++	probe_started = probe_clock.start_sample()
+ 	if not profile.get("ok", false): return profile
+ 	# The retained canonical initial document fixes the actual first scene. Never
+ 	# read today's mutable Autosave or require later snapshots to equal this one.
+ 	var initial: Dictionary = _parse_document_text(materials.autosave.outgoing_text)
++	probe_clock.finish_sample("probe_creation_initial_parse", probe_started, true)
++	probe_started = probe_clock.start_sample()
+ 	if not initial.get("ok", false): return initial
+ 	var initial_receipt: Variant = initial.value.current_snapshot.snapshot.command_receipts.get(transaction_id)
+ 	if not initial_receipt is Dictionary:
+diff --git a/scripts/domain/narrative/SceneEventContract.gd b/scripts/domain/narrative/SceneEventContract.gd
+index 689093ed..59bd98f6 100644
+--- a/scripts/domain/narrative/SceneEventContract.gd
++++ b/scripts/domain/narrative/SceneEventContract.gd
+@@ -487,6 +487,13 @@ static func make_scene_receipt(envelope: Dictionary, anchor: Dictionary, result:
+ 
+ static func _make_scene_receipt_from_context(envelope: Dictionary, anchor: Dictionary,
+ 		result: Dictionary, context: Dictionary) -> Dictionary:
++	var probe_started := _VALIDATION_TIMING.start_sample()
++	var probe_result := _make_scene_receipt_from_context_probe_body(envelope, anchor, result, context)
++	_VALIDATION_TIMING.finish_sample("probe__make_scene_receipt_from_context", probe_started, bool(probe_result.get("ok", false)))
++	return probe_result
++
++static func _make_scene_receipt_from_context_probe_body(envelope: Dictionary, anchor: Dictionary,
++		result: Dictionary, context: Dictionary) -> Dictionary:
+ 	var checked: Dictionary = context.inspection
+ 	var registered: Dictionary = context.registered
+ 	if not _valid_anchor(anchor, envelope.source): return _fail(&"event_anchor_invalid")
+@@ -582,6 +589,12 @@ static func _validate_scene_result_inspected(envelope: Dictionary, result: Varia
+ ## Resolve only a saved closure in this Run; callers authenticate the receipt ledger.
+ ## Never closes a board, consults a newer Profile attempt, or reapplies its effects.
+ static func resolve_scene_challenge_recall(event: Dictionary, receipts: Dictionary, bundle: Dictionary) -> Dictionary:
++	var probe_started := _VALIDATION_TIMING.start_sample()
++	var probe_result := resolve_scene_challenge_recall_probe_body(event, receipts, bundle)
++	_VALIDATION_TIMING.finish_sample("probe_resolve_scene_challenge_recall", probe_started, bool(probe_result.get("ok", false)))
++	return probe_result
++
++static func resolve_scene_challenge_recall_probe_body(event: Dictionary, receipts: Dictionary, bundle: Dictionary) -> Dictionary:
+ 	var checked := inspect_scene(event, bundle)
+ 	if not checked.ok: return checked
+ 	if event.kind != "challenge.recall" or not _positive_int(event.issuer_receipt.get("counter")):
+@@ -698,6 +711,13 @@ static func _validate_scene_receipts_observed_body(receipts: Dictionary, bundle:
+ 
+ static func _validate_scene_receipts_registered(receipts: Dictionary, bundle: Dictionary, registered: Dictionary, issuer: Object,
+ 		creation_owner: Object, contacts: Dictionary) -> Dictionary:
++	var probe_started := _VALIDATION_TIMING.start_sample()
++	var probe_result := _validate_scene_receipts_registered_probe_body(receipts, bundle, registered, issuer, creation_owner, contacts)
++	_VALIDATION_TIMING.finish_sample("probe_validate_scene_receipts_registered", probe_started, bool(probe_result.get("ok", false)))
++	return probe_result
++
++static func _validate_scene_receipts_registered_probe_body(receipts: Dictionary, bundle: Dictionary, registered: Dictionary, issuer: Object,
++		creation_owner: Object, contacts: Dictionary) -> Dictionary:
+ 	var occurrences := {}
+ 	var commands := {}
+ 	var admissions := {}
+@@ -983,6 +1003,12 @@ static func _make_scene_admission_registered(identity: Dictionary, root_issuer_r
+ 
+ 
+ static func _validate_scene_admission_receipt(receipt: Dictionary, registered: Dictionary, issuer: Object) -> Dictionary:
++	var probe_started := _VALIDATION_TIMING.start_sample()
++	var probe_result := _validate_scene_admission_receipt_probe_body(receipt, registered, issuer)
++	_VALIDATION_TIMING.finish_sample("probe__validate_scene_admission_receipt", probe_started, bool(probe_result.get("ok", false)))
++	return probe_result
++
++static func _validate_scene_admission_receipt_probe_body(receipt: Dictionary, registered: Dictionary, issuer: Object) -> Dictionary:
+ 	if not _keys(receipt, ["transaction_id", "request_fingerprint", "kind", "source_id", "scene_admission"]):
+ 		return _fail(&"scene_admission_receipt_invalid")
+ 	var saved: Variant = receipt.scene_admission
+@@ -1074,6 +1100,14 @@ static func _validate_scene_initial_receipt_shape(receipt: Dictionary) -> Dictio
+ static func _validate_scene_initial_admission_registered(receipt: Dictionary,
+ 		allocation_candidate: Dictionary, profile_material: Dictionary,
+ 		registered: Dictionary, issuer: Object) -> Dictionary:
++	var probe_started := _VALIDATION_TIMING.start_sample()
++	var probe_result := _validate_scene_initial_admission_registered_probe_body(receipt, allocation_candidate, profile_material, registered, issuer)
++	_VALIDATION_TIMING.finish_sample("probe_validate_scene_initial_admission_registered", probe_started, bool(probe_result.get("ok", false)))
++	return probe_result
++
++static func _validate_scene_initial_admission_registered_probe_body(receipt: Dictionary,
++		allocation_candidate: Dictionary, profile_material: Dictionary,
++		registered: Dictionary, issuer: Object) -> Dictionary:
+ 	var saved: Dictionary = receipt.scene_admission
+ 	var rebuilt := _prepare_scene_initial_admission_registered(allocation_candidate, profile_material,
+ 		saved.result.target_id, registered, issuer)
+@@ -1085,6 +1119,12 @@ static func _validate_scene_initial_admission_registered(receipt: Dictionary,
+ 
+ 
+ static func _validate_initial_materials(candidate: Dictionary, profile: Dictionary, issuer: Object) -> Dictionary:
++	var probe_started := _VALIDATION_TIMING.start_sample()
++	var probe_result := _validate_initial_materials_probe_body(candidate, profile, issuer)
++	_VALIDATION_TIMING.finish_sample("probe_validate_initial_materials", probe_started, bool(probe_result.get("ok", false)))
++	return probe_result
++
++static func _validate_initial_materials_probe_body(candidate: Dictionary, profile: Dictionary, issuer: Object) -> Dictionary:
+ 	if issuer == null or issuer.get_script() != SCENE_RECEIPT_ISSUER:
+ 		return _fail(&"scene_receipt_issuer_unbound")
+ 	if not _json_data(candidate) or not _keys(candidate, ["branch_id", "branch_id_issuer_receipt",
+@@ -1135,6 +1175,13 @@ static func _validate_initial_materials(candidate: Dictionary, profile: Dictiona
+ 
+ static func _validate_committed_initial_admission(receipt: Dictionary, registered: Dictionary,
+ 		issuer: Object, creation_owner: Object) -> Dictionary:
++	var probe_started := _VALIDATION_TIMING.start_sample()
++	var probe_result := _validate_committed_initial_admission_probe_body(receipt, registered, issuer, creation_owner)
++	_VALIDATION_TIMING.finish_sample("probe_validate_committed_initial_admission", probe_started, bool(probe_result.get("ok", false)))
++	return probe_result
++
++static func _validate_committed_initial_admission_probe_body(receipt: Dictionary, registered: Dictionary,
++		issuer: Object, creation_owner: Object) -> Dictionary:
+ 	# Caller-supplied dictionaries/callbacks cannot assert durable creation authority.
+ 	if creation_owner == null or creation_owner.get_script() != load("res://autoload/SaveManager.gd"):
+ 		return _fail(&"scene_creation_owner_unbound")
+@@ -1228,6 +1275,12 @@ static func _sha(value: Variant) -> String:
+ 	return str(encoded.value).sha256_text() if encoded.get("ok", false) else ""
+ 
+ static func _equal(actual: Variant, expected: Variant) -> bool:
++	var probe_started := _VALIDATION_TIMING.start_sample()
++	var probe_result := _equal_probe_body(actual, expected)
++	_VALIDATION_TIMING.finish_sample("probe_equal", probe_started, probe_result)
++	return probe_result
++
++static func _equal_probe_body(actual: Variant, expected: Variant) -> bool:
+ 	if not _same_types(actual, expected): return false
+ 	var actual_hash := _sha(actual)
+ 	return actual_hash != "" and actual_hash == _sha(expected)
+diff --git a/scripts/narrative/SceneValidationTiming.gd b/scripts/narrative/SceneValidationTiming.gd
+index 39a650d2..97f662e6 100644
+--- a/scripts/narrative/SceneValidationTiming.gd
++++ b/scripts/narrative/SceneValidationTiming.gd
+@@ -23,9 +23,9 @@ static func start_sample() -> int:
+ 
+ static func finish_sample(kind: String, started_us: int, ok: bool) -> void:
+ 	if started_us < 0 or not _active: return
+-	_record[kind + "_calls"] += 1
+-	_record[kind + "_us"] += Time.get_ticks_usec() - started_us
+-	if not ok: _record[kind + "_failures"] += 1
++	_record[kind + "_calls"] = int(_record.get(kind + "_calls", 0)) + 1
++	_record[kind + "_us"] = int(_record.get(kind + "_us", 0)) + Time.get_ticks_usec() - started_us
++	if not ok: _record[kind + "_failures"] = int(_record.get(kind + "_failures", 0)) + 1
+ 
+ ## Snapshot phases are inclusive children of the existing operation scope.
+ ## This helper has no dependency on the schema whose calls it observes.

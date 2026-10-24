@@ -1,0 +1,282 @@
+{
+  "base_master": "1168a48a38edef9827e6642025c5ebe0ca1dad60",
+  "product": "64fb38d1c454a05b4284db3a464121dd971b85fc",
+  "controller": "2c7105cf887c9ecffcf44354fe3edf531462b0b7",
+  "cloud_only_runtime": true,
+  "focused": {
+    "run_id": 40075859440,
+    "job_id": 120818926456,
+    "artifact_id": 12552912425,
+    "original_size": 3246650,
+    "original_sha256": "51222d595c60c8d01c52aa3b6c36712a90b3b6d7123b7de2261aa22bd505f050",
+    "crc_verified": true,
+    "cases": 46,
+    "assertions": 3411,
+    "new_regression_assertions": 61,
+    "exit_code": 0
+  },
+  "limits": "Current focused and native coverage; no performance improvement from the guard or full-release acceptance claimed.",
+  "merge_commit": "5c12b1f35d175582490adace0bc04e3c67bfb138",
+  "final_product": "0cda75754784078ef1ee30ec343d18694ddeab47",
+  "public_inventory": {
+    "regeneration_run": 40076271294,
+    "regeneration_controller": "fb01a892ac98494f600477254e3a6c797cc1f248",
+    "final_check_run": 40076584748,
+    "final_check_controller": "931ba077771d035f9654983b3d114631d524f595",
+    "cases": 11,
+    "assertions": 352,
+    "caller_lines_refreshed": 15,
+    "public_api_changed": false,
+    "required_contract_changed": false
+  },
+  "original_pr_run": {
+    "run_id": 40075910962,
+    "conclusion": "failure",
+    "cause": "stale generated inventories; corrected and verified by later runs",
+    "downstream_release_jobs": "skipped"
+  },
+  "matched_startup": {
+    "run_id": 40075910962,
+    "job_id": 120819155759,
+    "job_conclusion": "success",
+    "comparison": {
+      "base_ref": "1168a48a38edef9827e6642025c5ebe0ca1dad60",
+      "candidate_ref": "a24d9073b97b2886f9447f334100e2c80b8daa78",
+      "archive_sha256": "c49053565e4b9430f2e9f0157eea9c1602898156de13df2837ca714235279670",
+      "scope": "Same candidate checkout and retained 40-file input; only the named runtime files are replaced by base bytes for the baseline. Fresh processes and isolated roots per variant. Timings are one matched pair, not a latency distribution.",
+      "runtime_files": [
+        "scripts/infrastructure/save/DesktopContinuationOperationJournal.gd"
+      ],
+      "helper_hashes": {
+        "pair.gd": "387f335b758d06ac1762302423151d47d57aa1df90adc933cdee3855cf04ff65",
+        "pair-next.gd": "ebf4e9380066cd769c10c64ae21bddf605c972a5955324c445654d8d959540c7",
+        "seed.gd": "1eeae3d5a83dc645758def40e371408187bca8009e5ef9c0916b3d489f36be3d",
+        "replay.gd": "945a7a75a9cae6e14e2e70e9b99866a929ba1cbe36d8249bb9f177f9b3026a20"
+      },
+      "variants": [
+        {
+          "variant": "baseline",
+          "runtime_sha256": {
+            "scripts/infrastructure/save/DesktopContinuationOperationJournal.gd": "d6d1c7a4dbc3c5659f4ca12fc2075c2995920184c5e2d5b54f53454335842baa"
+          },
+          "wall_seconds": 227.8576792,
+          "assertions": 112,
+          "authored_day_resource_load_messages": 12,
+          "result": {
+            "complete": true,
+            "observed_lines": [
+              "line.ending.alone.normal.001"
+            ],
+            "pending_phase": "",
+            "phases": [
+              {
+                "elapsed_us": 49300944,
+                "ok": true,
+                "phase": "boot"
+              },
+              {
+                "elapsed_us": 89895491,
+                "ok": true,
+                "phase": "load"
+              },
+              {
+                "elapsed_us": 61240084,
+                "ok": true,
+                "phase": "save"
+              }
+            ],
+            "process_id": 5432,
+            "source_slot_sha256": "17934c8199a7d25f97c69890f0ca609e5106c6bb6dc187464d58c40d2baf987c",
+            "ui_timing_scope": "Press-return includes the existing five frame waits; Load Ready is the existing owner signal. No added validation, screenshot or wait.",
+            "ui_timings": [
+              {
+                "elapsed_us": 1162046,
+                "finished_us": 59541222,
+                "ok": true,
+                "operation": "title_backup_open_press_return",
+                "started_us": 58379176
+              },
+              {
+                "elapsed_us": 79586,
+                "finished_us": 59620995,
+                "ok": true,
+                "operation": "load_slot_select_press_return",
+                "started_us": 59541409
+              },
+              {
+                "elapsed_us": 86732054,
+                "finished_us": 146353090,
+                "operation": "load_action_to_ready",
+                "started_us": 59621036
+              },
+              {
+                "elapsed_us": 87936771,
+                "finished_us": 147557807,
+                "ok": true,
+                "operation": "load_action_press_return",
+                "started_us": 59621036
+              },
+              {
+                "elapsed_us": 7951506,
+                "finished_us": 156142596,
+                "ok": true,
+                "operation": "ending_backup_open_press_return",
+                "started_us": 148191090
+              },
+              {
+                "elapsed_us": 111251,
+                "finished_us": 156254701,
+                "ok": true,
+                "operation": "save_slot_select_press_return",
+                "started_us": 156143450
+              },
+              {
+                "elapsed_us": 52046661,
+                "finished_us": 208302294,
+                "ok": true,
+                "operation": "save_action_press_return",
+                "save_in_operation_at_return": false,
+                "save_result_ok_at_return": true,
+                "started_us": 156255633
+              },
+              {
+                "elapsed_us": 111167,
+                "finished_us": 208462480,
+                "ok": true,
+                "operation": "continue_press_return",
+                "started_us": 208351313
+              }
+            ]
+          }
+        },
+        {
+          "variant": "candidate",
+          "runtime_sha256": {
+            "scripts/infrastructure/save/DesktopContinuationOperationJournal.gd": "e3a58e2891426a9cad6f40a06d19b70c2df3603208767b09d81c353afa035d57"
+          },
+          "wall_seconds": 232.0063412,
+          "assertions": 112,
+          "authored_day_resource_load_messages": 12,
+          "result": {
+            "complete": true,
+            "observed_lines": [
+              "line.ending.alone.normal.001"
+            ],
+            "pending_phase": "",
+            "phases": [
+              {
+                "elapsed_us": 50081422,
+                "ok": true,
+                "phase": "boot"
+              },
+              {
+                "elapsed_us": 91718376,
+                "ok": true,
+                "phase": "load"
+              },
+              {
+                "elapsed_us": 62633133,
+                "ok": true,
+                "phase": "save"
+              }
+            ],
+            "process_id": 2172,
+            "source_slot_sha256": "17934c8199a7d25f97c69890f0ca609e5106c6bb6dc187464d58c40d2baf987c",
+            "ui_timing_scope": "Press-return includes the existing five frame waits; Load Ready is the existing owner signal. No added validation, screenshot or wait.",
+            "ui_timings": [
+              {
+                "elapsed_us": 1176314,
+                "finished_us": 60302392,
+                "ok": true,
+                "operation": "title_backup_open_press_return",
+                "started_us": 59126078
+              },
+              {
+                "elapsed_us": 79562,
+                "finished_us": 60382173,
+                "ok": true,
+                "operation": "load_slot_select_press_return",
+                "started_us": 60302611
+              },
+              {
+                "elapsed_us": 88543606,
+                "finished_us": 148925822,
+                "operation": "load_action_to_ready",
+                "started_us": 60382216
+              },
+              {
+                "elapsed_us": 89769333,
+                "finished_us": 150151549,
+                "ok": true,
+                "operation": "load_action_press_return",
+                "started_us": 60382216
+              },
+              {
+                "elapsed_us": 8105509,
+                "finished_us": 158879598,
+                "ok": true,
+                "operation": "ending_backup_open_press_return",
+                "started_us": 150774089
+              },
+              {
+                "elapsed_us": 127064,
+                "finished_us": 159007632,
+                "ok": true,
+                "operation": "save_slot_select_press_return",
+                "started_us": 158880568
+              },
+              {
+                "elapsed_us": 53250154,
+                "finished_us": 212258770,
+                "ok": true,
+                "operation": "save_action_press_return",
+                "save_in_operation_at_return": false,
+                "save_result_ok_at_return": true,
+                "started_us": 159008616
+              },
+              {
+                "elapsed_us": 95640,
+                "finished_us": 212419433,
+                "ok": true,
+                "operation": "continue_press_return",
+                "started_us": 212323793
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "original_artifacts": [
+    {
+      "file": "guard.zip",
+      "artifact_id": 12552912425,
+      "size": 3246650,
+      "sha256": "51222d595c60c8d01c52aa3b6c36712a90b3b6d7123b7de2261aa22bd505f050"
+    },
+    {
+      "file": "regenerated.zip",
+      "artifact_id": 12552659080,
+      "size": 3353259,
+      "sha256": "a11b1d26efe7a04b8491c2df3ded82e2cb93bca894c2c1ceaab49513a165b778"
+    },
+    {
+      "file": "startup.zip",
+      "artifact_id": 12553850317,
+      "size": 2545573,
+      "sha256": "abc3317d5d8c6b39df7c334a433a18cab33157a6c968081be4fb881411139df5"
+    },
+    {
+      "file": "surface-failed.zip",
+      "artifact_id": 12553322231,
+      "size": 137260,
+      "sha256": "63007ee5ed0c2b3d1fdfd2e56c5f6be039eb7594c45206a11002d5cd34d7bc77"
+    },
+    {
+      "file": "surface-final.zip",
+      "artifact_id": 12553123813,
+      "size": 3348883,
+      "sha256": "73aaa27eab13a785825dc17b805017eaf7de91274b59ece27eed73d3e9810a45"
+    }
+  ]
+}
