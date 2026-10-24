@@ -1,15 +1,21 @@
-name: Restore proof preflight
+name: Font scale native diagnostic
 on:
+  push:
+    branches: [codex/font-scale-diagnostic-20261024]
   workflow_dispatch:
 permissions:
   contents: read
 concurrency:
-  group: restore-proof-preflight-${{ github.ref }}
+  group: font-scale-diagnostic-${{ github.ref }}
   cancel-in-progress: true
 jobs:
   preflight:
+    strategy:
+      fail-fast: false
+      matrix:
+        renderer: [gl_compatibility, ProjectDefault]
     runs-on: windows-2022
-    timeout-minutes: 90
+    timeout-minutes: 20
     defaults:
       run:
         shell: pwsh
@@ -67,25 +73,15 @@ jobs:
           # Execute the committed configuration with the freshly imported assets.
           git restore -- project.godot
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Generate current caller inventories
-        run: ./tools/testing/Invoke-PublicSurfaceValidation.ps1 -Regenerate -EmitPayloads
-      - name: Verify current Save9 admission
-        run: ./tools/testing/Invoke-CloudTests.ps1 -Suite scene_backup_inspection
-      - name: Verify current Quick Load
-        run: ./tools/testing/Invoke-CloudTests.ps1 -Suite current_quick_load
-      - name: Compare fresh Save9 and fresh-process Load
-        timeout-minutes: 45
-        run: ./tools/testing/Invoke-FreshSaveLoadComparison.ps1 -BaseRef 97a3e5c2b48c4ae82a30ebb62083c5ea1bff5932
-      - name: Preserve preflight evidence
+      - name: Capture requested renderer font matrix
+        timeout-minutes: 7
+        run: ./tools/testing/Invoke-FontScaleDiagnostic.ps1 -Renderer '${{ matrix.renderer }}'
+      - name: Preserve diagnostic evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: restore-proof-preflight-${{ github.run_id }}-${{ github.run_attempt }}
-          path: |
-            .godot/ci/
-            .godot/phase2r_logs/
-            evidence/phase_2r/runtime/game_state_surface.json
-            evidence/phase_2r/runtime/save_manager_surface.json
+          name: font-scale-${{ matrix.renderer }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .godot/ci/
           include-hidden-files: true
           if-no-files-found: error
           retention-days: 7
