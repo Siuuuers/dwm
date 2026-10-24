@@ -57,6 +57,7 @@ $suites = @{
     )
 
     scene_backup_inspection = @(
+        'tests/unit/test_scene_save_schema.gd'
         'tests/integration/test_scene_backup_inspection.gd'
     )
     authored_week = @(

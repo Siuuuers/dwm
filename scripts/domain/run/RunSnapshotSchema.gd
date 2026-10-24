@@ -613,7 +613,7 @@ const SCENE_TOP_KEYS := ["active_app_id", "applied_effect_transaction_ids", "app
 	"desktop", "gameplay", "lifecycle", "narrative_checkpoint", "route_id", "run_id", "scene", "schema_version"]
 const SCENE_LIFECYCLE_KEYS := ["run_id", "branch_id", "desktop_timeline_generation", "causal_day_instance",
 	"causal_day_instance_issuer_receipt", "restore_provenance", "state", "scene_assignment"]
-const SCENE_GAMEPLAY_KEYS := ["affection", "coins", "friend_attitude", "friends", "inter_friend_affection", "inventory",
+const SCENE_GAMEPLAY_KEYS := ["coins", "inventory",
 	"minesweeper_app_rounds_finished_today", "minesweeper_money_earned_today", "minesweeper_rng_seed",
 	"minesweeper_round_floor", "minesweeper_rounds_left", "minesweeper_selected_difficulty", "minesweeper_task_rewards_claimed",
 	"money", "narrative_variables", "penalty_points_today", "penalty_points_total", "route_context",
@@ -1150,7 +1150,7 @@ static func _validate_scene_audio(snapshot: Dictionary, bundle: Dictionary) -> D
 
 static func _validate_scene_gameplay(gameplay: Variant) -> String:
 	if not _scene_keys(gameplay, SCENE_GAMEPLAY_KEYS): return "unexpected scene gameplay members"
-	for key: String in ["affection", "friend_attitude", "friends", "inter_friend_affection", "inventory",
+	for key: String in ["inventory",
 			"minesweeper_task_rewards_claimed", "narrative_variables", "route_context", "shop_purchase_counts", "story_flags"]:
 		if not gameplay[key] is Dictionary: return key + " must be an object"
 	if not _scene_keys(gameplay.stats, ["pressure"]) or not _scene_int(gameplay.stats.pressure, 0, 12):
@@ -1164,14 +1164,6 @@ static func _validate_scene_gameplay(gameplay: Variant) -> String:
 			or not _scene_int(gameplay.minesweeper_rounds_left, gameplay.minesweeper_round_floor, 2): return "invalid desktop round bounds"
 	if gameplay.minesweeper_selected_difficulty not in ["beginner", "intermediate", "expert"]:
 		return "unregistered desktop difficulty"
-	if not _scene_keys(gameplay.affection, SCENE_CONTACTS.FRIEND_IDS) \
-			or not _scene_keys(gameplay.friend_attitude, SCENE_CONTACTS.FRIEND_IDS): return "invalid friend indexes"
-	for friend: String in SCENE_CONTACTS.FRIEND_IDS:
-		if not _scene_int(gameplay.affection[friend], -4, 10) or not gameplay.friend_attitude[friend] is String:
-			return "invalid friend affection/attitude"
-	for pair: Variant in gameplay.inter_friend_affection:
-		if pair not in ["lavinia_priscilla", "lavinia_sylvia", "priscilla_sylvia"] \
-				or typeof(gameplay.inter_friend_affection[pair]) != TYPE_INT: return "invalid inter-friend affection"
 	for item: Variant in gameplay.inventory:
 		if not _scene_id(item) or not _scene_int(gameplay.inventory[item], 0): return "invalid inventory count"
 	var owned: Dictionary = SCENE_CAPABILITIES.resolve_owned(gameplay.inventory)

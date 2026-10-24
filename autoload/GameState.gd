@@ -4175,8 +4175,8 @@ func validate_scene_event_snapshot(snapshot: Dictionary) -> Dictionary:
 
 
 # Scene9 uses the same live fields and lifecycle owner, with an explicit wire family.
-const SCENE_GAMEPLAY_KEYS := ["affection", "coins", "friend_attitude", "friends", "inter_friend_affection",
-	"inventory", "minesweeper_app_rounds_finished_today", "minesweeper_money_earned_today", "minesweeper_rng_seed",
+const SCENE_GAMEPLAY_KEYS := ["coins", "inventory", "minesweeper_app_rounds_finished_today",
+	"minesweeper_money_earned_today", "minesweeper_rng_seed",
 	"minesweeper_round_floor", "minesweeper_rounds_left", "minesweeper_selected_difficulty",
 	"minesweeper_task_rewards_claimed", "money", "narrative_variables", "penalty_points_today",
 	"penalty_points_total", "route_context", "shop_purchase_counts", "stats", "story_flags"]
@@ -4192,16 +4192,12 @@ var _scene_new_run_plan_owner: Object
 static func make_scene_new_run_gameplay() -> Dictionary:
 	# Canonical scene defaults share the reset values. The dormant board seed keeps
 	# its declared zero value; preparing/validating a candidate must not draw RNG.
-	var gameplay := {"affection": {}, "coins": 0, "friend_attitude": {}, "friends": {},
-		"inter_friend_affection": {}, "inventory": {}, "minesweeper_app_rounds_finished_today": 0,
+	var gameplay := {"coins": 0, "inventory": {}, "minesweeper_app_rounds_finished_today": 0,
 		"minesweeper_money_earned_today": 0, "minesweeper_rng_seed": 0, "minesweeper_round_floor": 0,
 		"minesweeper_rounds_left": 2, "minesweeper_selected_difficulty": "beginner",
 		"minesweeper_task_rewards_claimed": {}, "money": 0, "narrative_variables": {},
 		"penalty_points_today": 0, "penalty_points_total": 0, "route_context": {},
 		"shop_purchase_counts": {}, "stats": {"pressure": 3}, "story_flags": {}}
-	for friend: String in _CONTACT_INVITATION_STATE.FRIEND_IDS:
-		gameplay.affection[friend] = 0
-		gameplay.friend_attitude[friend] = ""
 	return gameplay
 
 func prepare_scene_new_run_snapshot_input(allocation_candidate: Dictionary, profile_material: Dictionary,

@@ -476,3 +476,39 @@ func test_new_scene_writes_omit_fallback_snapshots_without_changing_admitted_his
 	assert_eq(journal.capture_state().value.backup, rollback, "rollback restores prior cursor and admitted history exactly")
 	assert_eq(admitted.value.document, unchanged, "new writing never edits the admitted source document")
 	assert_eq(_observed(), before, "isolated journal writes do not alter live or durable creation owners")
+
+func test_scene_gameplay_adoption_and_recapture_preserve_progress_without_relationship_fields() -> void:
+	assert_true(fixture_ready)
+	if not fixture_ready: return
+	var source: Dictionary = fixture.read_autosave().value.current_snapshot.snapshot.duplicate(true)
+	source.gameplay.money = 37
+	source.gameplay.coins = 4
+	source.gameplay.inventory = {"lucky_charm": 1}
+	source.gameplay.stats.pressure = 7
+	source.gameplay.minesweeper_rounds_left = 1
+	source.gameplay.minesweeper_app_rounds_finished_today = 1
+	source.gameplay.minesweeper_money_earned_today = 9
+	source.gameplay.minesweeper_task_rewards_claimed = {"complete_beginner": true}
+	source.gameplay.penalty_points_today = 2
+	source.gameplay.penalty_points_total = 5
+	source.gameplay.story_flags = {"TEST.retained": true}
+	var admitted := RUN_SCHEMA.validate(source)
+	assert_true(admitted.ok, str(admitted))
+	if not admitted.ok: return
+	# Exercise actual silent GameState adoption/capture, not SaveManager or native Load.
+	var restored := preload("res://autoload/GameState.gd").new()
+	restored.reset_game()
+	var configured: Dictionary = restored._run_lifecycle.configure_scene_issuer(fixture.issuer)
+	assert_true(configured.ok, str(configured))
+	var installed: Dictionary = restored._install_scene_snapshot_silent(admitted.value.candidate)
+	assert_true(installed.ok, str(installed))
+	if installed.ok:
+		var captured: Dictionary = restored.capture_run_snapshot_input()
+		assert_eq(captured.gameplay, source.gameplay, "adoption preserves every saved gameplay value")
+		for key: String in ["affection", "friend_attitude", "friends", "inter_friend_affection"]:
+			assert_false(captured.gameplay.has(key), "scene capture cannot reintroduce " + key)
+		assert_eq(captured.desktop, source.desktop, "board state is untouched")
+		assert_eq(captured.contacts, source.contacts, "contact progress is untouched")
+		captured.gameplay.inventory.lucky_charm = 99
+		assert_eq(restored.inventory.lucky_charm, 1, "captured inventory stays detached")
+	restored.free()

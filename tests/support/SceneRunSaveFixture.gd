@@ -170,16 +170,12 @@ func setup(scene_tree: SceneTree) -> Dictionary:
 	if not receipt.ok: return receipt
 	var lifecycle: Dictionary = identity.duplicate(true)
 	lifecycle.merge({"restore_provenance": null, "state": "PLAYING", "scene_assignment": retained.value})
-	var gameplay := {"affection": {}, "coins": 0, "friend_attitude": {}, "friends": {},
-		"inter_friend_affection": {}, "inventory": {}, "minesweeper_app_rounds_finished_today": 0,
+	var gameplay := {"coins": 0, "inventory": {}, "minesweeper_app_rounds_finished_today": 0,
 		"minesweeper_money_earned_today": 0, "minesweeper_rng_seed": 0, "minesweeper_round_floor": 0,
 		"minesweeper_rounds_left": 2, "minesweeper_selected_difficulty": "beginner",
 		"minesweeper_task_rewards_claimed": {}, "money": 0, "narrative_variables": {},
 		"penalty_points_today": 0, "penalty_points_total": 0, "route_context": {},
 		"shop_purchase_counts": {}, "stats": {"pressure": 3}, "story_flags": {}}
-	for friend: String in CONTACTS.FRIEND_IDS:
-		gameplay.affection[friend] = 0
-		gameplay.friend_attitude[friend] = "neutral"
 	var input := {"lifecycle": lifecycle, "gameplay": gameplay, "contacts": CONTACTS.make_scene_defaults(),
 		"desktop": game._empty_desktop_snapshot(identity.causal_day_instance, identity.causal_day_instance_issuer_receipt),
 		"scene": {"registration_sha256": MANIFEST.scene_registration_fingerprint(),
