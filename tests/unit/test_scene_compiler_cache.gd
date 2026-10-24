@@ -2,6 +2,11 @@ extends "res://addons/gut/test.gd"
 const ADAPTER := preload("res://scripts/narrative/DialogicRuntimeAdapter.gd")
 const PATH := "res://tests/fixtures/dialogic/_scene_compiler_cache_probe.dtl"
 const COUNTED_PATH := "res://tests/fixtures/dialogic/_scene_compiler_cache_probe.counted_timeline"
+const MANIFEST := preload("res://scripts/narrative/DialogicEntryManifest.gd")
+const STRICT := preload("res://scripts/validation/StrictJson.gd")
+const SHARED_SOURCE := "label first\n\\TEST first. #id:line.cache.one\nlabel first.marker\nreturn\nlabel second\n\\TEST second. #id:line.cache.two\nreturn\n"
+const CALLABLES := ["first", "second"]
+
 
 class CountingTimelineLoader extends ResourceFormatLoader:
 	var loads := 0
@@ -24,6 +29,16 @@ class CountingTimelineLoader extends ResourceFormatLoader:
 		return timeline
 
 var _counting_loader: CountingTimelineLoader
+var _translation: Translation
+var _translation_enabled_before: Variant
+var _translation_setting_existed := false
+var _locale_before := ""
+
+func before_each() -> void:
+	_translation_setting_existed = ProjectSettings.has_setting("dialogic/translation/enabled")
+	_translation_enabled_before = ProjectSettings.get_setting("dialogic/translation/enabled", false)
+	_locale_before = TranslationServer.get_locale()
+	ProjectSettings.set_setting("dialogic/translation/enabled", false)
 
 func _write(text: String) -> void:
 	var file := FileAccess.open(PATH, FileAccess.WRITE)
@@ -32,6 +47,11 @@ func _write(text: String) -> void:
 	file.close()
 
 func after_each() -> void:
+	if _translation != null:
+		TranslationServer.remove_translation(_translation)
+		_translation = null
+	TranslationServer.set_locale(_locale_before)
+	ProjectSettings.set_setting("dialogic/translation/enabled", _translation_enabled_before if _translation_setting_existed else null)
 	DirAccess.remove_absolute(PATH)
 	ADAPTER._scene_compile_cache.erase(PATH)
 	DirAccess.remove_absolute(COUNTED_PATH)
@@ -97,3 +117,153 @@ func test_compiled_values_are_detached_and_follow_physical_source_and_arguments(
 	DirAccess.remove_absolute(PATH)
 	assert_false(ADAPTER.compile_scene_programme(PATH, "cache", ["cache"]).ok,
 		"deleted source cannot reuse a valid cache")
+
+func _registration_compile(entry: String, scope: Dictionary, markers: Array = [],
+		callables: Array = CALLABLES) -> Dictionary:
+	return ADAPTER._compile_scene_programme_in_registration(PATH, entry, callables, markers, scope)
+
+func test_shared_source_preserves_each_entry_graph_native_indices_hashes_and_detachment() -> void:
+	_write(SHARED_SOURCE)
+	var marker := {"label": "first.marker", "marker_id": "first.control", "kind": "scene.transition"}
+	var first: Dictionary = ADAPTER.compile_scene_programme(PATH, "first", CALLABLES, [marker])
+	var second: Dictionary = ADAPTER.compile_scene_programme(PATH, "second", CALLABLES)
+	assert_true(first.ok)
+	assert_true(second.ok)
+	if not first.ok or not second.ok: return
+	assert_eq(first.value.native_indices, [1, 2, 3], "held marker remains at its actual native event")
+	assert_eq(second.value.native_indices, [5, 6], "second entry retains full-file native indices")
+	assert_eq(first.value.nodes, [{"kind": "caption", "line_id": "line.cache.one", "next": 1},
+		{"kind": "control", "marker_id": "first.control"}, {"kind": "completion"}])
+	assert_eq(second.value.nodes, [{"kind": "caption", "line_id": "line.cache.two", "next": 1},
+		{"kind": "completion"}])
+	assert_eq(first.value.content_sha256, SHARED_SOURCE.sha256_text())
+	assert_eq(second.value.content_sha256, first.value.content_sha256)
+	assert_ne(first.value.program_sha256, second.value.program_sha256)
+	# Establish public API expectations, then exercise new entry projections in one scope.
+	ADAPTER._scene_compile_cache.erase(PATH)
+	var scope := {}
+	var shared_first := _registration_compile("first", scope, [marker])
+	assert_eq(shared_first, first)
+	assert_eq(_registration_compile("second", scope), second)
+	shared_first.value.nodes.clear()
+	shared_first.value.events.clear()
+	assert_eq(_registration_compile("first", scope, [marker]), first, "returned arrays remain detached")
+	var alternate_marker := marker.duplicate(true)
+	alternate_marker.marker_id = "alternate.control"
+	var alternate := _registration_compile("first", scope, [alternate_marker])
+	assert_true(alternate.ok)
+	if alternate.ok:
+		assert_eq(alternate.value.nodes[1].marker_id, "alternate.control", "parsed source cannot retain another entry's marker projection")
+		assert_eq(alternate.value.program_sha256, first.value.program_sha256, "marker identity does not change authored event bytes")
+	var wider := _registration_compile("first", scope, [], ["first"])
+	assert_true(wider.ok)
+	if wider.ok:
+		assert_eq(wider.value.native_indices, [1, 3, 5, 6], "callable labels determine the selected entry boundary")
+		assert_ne(wider.value.program_sha256, first.value.program_sha256)
+	assert_false(_registration_compile("first", scope, [], []).ok, "a prior parse cannot authorize a non-callable entry")
+
+func test_invalid_sibling_is_refused_only_when_selected_from_shared_source() -> void:
+	_write(SHARED_SOURCE.replace("TEST second. #id:line.cache.two", "TEST missing stable ID."))
+	var scope := {}
+	assert_true(_registration_compile("first", scope).ok, "unselected invalid text does not invalidate a separate entry")
+	var invalid := _registration_compile("second", scope)
+	assert_false(invalid.ok, "shared parsing does not skip entry-specific validation")
+	assert_eq(invalid.code, &"scene_text_invalid")
+	assert_false(_registration_compile("first", scope, [{"label": "missing", "marker_id": "missing"}]).ok,
+		"each projection still checks its own marker labels")
+
+func test_registration_scope_observes_changed_and_deleted_physical_source() -> void:
+	_write(SHARED_SOURCE)
+	var scope := {}
+	var first := _registration_compile("first", scope)
+	assert_true(first.ok)
+	var changed_source := SHARED_SOURCE.replace("TEST second.", "TEST replacement.")
+	_write(changed_source)
+	var changed := _registration_compile("second", scope)
+	assert_true(changed.ok)
+	if changed.ok:
+		assert_eq(changed.value.content_sha256, changed_source.sha256_text())
+		assert_eq(changed.value.events[1].text, "TEST replacement.")
+		assert_ne(changed.value.content_sha256, first.value.content_sha256)
+	_write("label second\n\\TEST malformed replacement.\nreturn\n")
+	assert_false(_registration_compile("second", scope).ok, "changed malformed bytes cannot reuse the earlier parse")
+	DirAccess.remove_absolute(PATH)
+	assert_false(_registration_compile("first", scope).ok, "deleted source cannot be supplied by the scope")
+
+func test_translation_changes_are_fresh_even_with_the_same_registration_scope() -> void:
+	_write(SHARED_SOURCE)
+	var scope := {}
+	var original := _registration_compile("first", scope)
+	assert_true(original.ok)
+	ProjectSettings.set_setting("dialogic/translation/enabled", true)
+	_translation = Translation.new()
+	_translation.set_locale("en")
+	_translation.add_message("Text/line.cache.one/text", "TEST translated once.")
+	TranslationServer.add_translation(_translation)
+	TranslationServer.set_locale("en")
+	var translated := _registration_compile("first", scope)
+	assert_true(translated.ok)
+	if not translated.ok: return
+	assert_eq(translated.value.events[1].text, "TEST translated once.")
+	_translation.add_message("Text/line.cache.one/text", "TEST translated again.")
+	var refreshed := _registration_compile("first", scope)
+	assert_true(refreshed.ok)
+	if not refreshed.ok: return
+	assert_eq(refreshed.value.events[1].text, "TEST translated again.")
+	assert_eq(refreshed.value.content_sha256, translated.value.content_sha256)
+	assert_ne(refreshed.value.program_sha256, translated.value.program_sha256,
+		"unchanged physical bytes cannot authenticate an obsolete translation")
+
+func test_separate_registration_validations_recheck_physical_bytes_and_keep_approved_hashes() -> void:
+	var bundle: Dictionary = STRICT.parse_object(FileAccess.get_file_as_string(
+		"res://tests/fixtures/dialogic/scene_reading_registration.json")).value
+	var source := FileAccess.get_file_as_string("res://tests/fixtures/dialogic/scene_day_terminal.dtl")
+	_write(source)
+	for entry: Dictionary in bundle.entry_manifest.entries: entry.locators.en.path = PATH
+	var original_bundle := bundle.duplicate(true)
+	assert_true(MANIFEST.validate_scene_registration(bundle).ok,
+		"all three shared-file entries must retain the checked-in programme and content hashes")
+	assert_eq(bundle, original_bundle, "validation does not rewrite the caller's registration")
+	_write(source + "\n# changed physical revision\n")
+	var changed := MANIFEST.validate_scene_registration(bundle)
+	assert_false(changed.ok, "a separate call must not reuse old physical content authentication")
+	assert_eq(changed.get("message"), "programme hash", "changed bytes reach physical content authentication")
+	_write(source)
+	assert_true(MANIFEST.validate_scene_registration(bundle).ok, "restored bytes validate after a failed call")
+	DirAccess.remove_absolute(PATH)
+	var deleted := MANIFEST.validate_scene_registration(bundle)
+	assert_false(deleted.ok, "a separate call cannot validate a deleted source")
+	assert_eq(deleted.get("code"), &"scene_programme_unavailable", "deleted bytes reach the physical source check")
+
+func test_all_shipped_entries_match_independent_cold_compilation_exactly() -> void:
+	var bundle: Dictionary = STRICT.parse_object(FileAccess.get_file_as_string(
+		"res://data/manifests/scene_story_registration.json")).value
+	var entries: Array = bundle.entry_manifest.entries
+	assert_eq(entries.size(), bundle.entry_manifest.entry_count, "this comparison covers the complete declared registration")
+	var labels: Array = []
+	var programmes := {}
+	var paths := {}
+	for row: Dictionary in bundle.scene_programme.entries: programmes[row.entry_id] = row
+	for entry: Dictionary in entries:
+		labels.append(entry.entry_id)
+		paths[entry.locators.en.path] = true
+	for path: String in paths: ADAPTER._scene_compile_cache.erase(path)
+	var independent := {}
+	for entry: Dictionary in entries:
+		var row: Dictionary = programmes[entry.entry_id]
+		var compiled: Dictionary = ADAPTER.compile_scene_programme(entry.locators.en.path,
+			entry.entry_id, labels, row.markers)
+		assert_true(compiled.ok, entry.entry_id + ": independent compilation")
+		if compiled.ok:
+			assert_eq(compiled.value.content_sha256, row.content_sha256, entry.entry_id + ": registered content hash")
+			assert_eq(compiled.value.program_sha256, row.program_sha256, entry.entry_id + ": registered programme hash")
+		independent[entry.entry_id] = compiled
+	# Discard compiled-result hits before the registration-local pass.
+	for path: String in paths: ADAPTER._scene_compile_cache.erase(path)
+	var scope := {}
+	for entry: Dictionary in entries:
+		var compiled: Dictionary = ADAPTER._compile_scene_programme_in_registration(
+			entry.locators.en.path, entry.entry_id, labels, programmes[entry.entry_id].markers, scope)
+		assert_eq(compiled, independent[entry.entry_id],
+			entry.entry_id + ": exact events, graph, labels, native indices and hashes")
+	for path: String in paths: ADAPTER._scene_compile_cache.erase(path)

@@ -1,0 +1,303 @@
+{
+  "status": "qualified_for_merge",
+  "baseline_ref": "bb518236c741497d657b8b5bac19838b3ce1a4f0",
+  "tested_product_ref": "c2c7411b50816b2571a6af3635f938df33263ae2",
+  "inventory_verified_ref": "fe73efbee464295b3dddb14fbc7472f42fd825f0",
+  "focused": {
+    "tests": 165,
+    "assertions": 7734,
+    "failures": 0,
+    "skips": 0,
+    "run_id": 40094723213
+  },
+  "native": [
+    {
+      "order": [
+        "baseline",
+        "candidate"
+      ],
+      "controller_ref": "630d3e3e4a357364ad68418c2924a74caa73867b",
+      "candidate_ref": "660d8fdaff7602eb34de471b8b79dfb86fe39a69",
+      "comparisons": [
+        {
+          "baseline": 10409.0,
+          "delta_ms": -478.0,
+          "percent": -4.592179844365453,
+          "case": "fresh",
+          "candidate": 9931.0,
+          "metric": "launch_to_bootstrap_start_ms"
+        },
+        {
+          "baseline": 16436.0,
+          "delta_ms": -4525.0,
+          "percent": -27.53102944755415,
+          "case": "fresh",
+          "candidate": 11911.0,
+          "metric": "launch_to_title_drawn_ms"
+        },
+        {
+          "baseline": 13065.804,
+          "delta_ms": -14.468000000000757,
+          "percent": -0.11073180035458022,
+          "case": "fresh",
+          "candidate": 13051.336,
+          "metric": "new_acc_to_caption_complete_ms"
+        },
+        {
+          "baseline": 8211.0,
+          "delta_ms": -205.0,
+          "percent": -2.496650834246742,
+          "case": "retained",
+          "candidate": 8006.0,
+          "metric": "launch_to_bootstrap_start_ms"
+        },
+        {
+          "baseline": 15695.0,
+          "delta_ms": -4302.0,
+          "percent": -27.410003185727938,
+          "case": "retained",
+          "candidate": 11393.0,
+          "metric": "launch_to_title_drawn_ms"
+        },
+        {
+          "baseline": 14024.912,
+          "delta_ms": -145.13800000000083,
+          "percent": -1.034858543140954,
+          "case": "retained",
+          "candidate": 13879.774,
+          "metric": "new_acc_to_caption_complete_ms"
+        },
+        {
+          "baseline": 13924.743,
+          "delta_ms": -145.21600000000035,
+          "percent": -1.04286305319962,
+          "case": "retained",
+          "candidate": 13779.527,
+          "metric": "confirm_to_caption_complete_ms"
+        }
+      ],
+      "observations": [
+        {
+          "label": "baseline",
+          "case": "fresh",
+          "complete": true,
+          "failures": [],
+          "observation": {
+            "active": true,
+            "event_done": true,
+            "line_id": "line.Day1.one",
+            "new_run_busy": false,
+            "revealing": false,
+            "text": "Sylvia slides the fuller teacup onto my mat and keeps the one with the small chip on the rim for herself.",
+            "visible": true,
+            "visible_ratio": 1.0
+          },
+          "max_frame_gap_ms": 8573.302,
+          "bootstrap_ms": 5962.025
+        },
+        {
+          "label": "baseline",
+          "case": "retained",
+          "complete": true,
+          "failures": [],
+          "observation": {
+            "active": true,
+            "event_done": true,
+            "line_id": "line.Day1.one",
+            "new_run_busy": false,
+            "revealing": false,
+            "text": "Sylvia slides the fuller teacup onto my mat and keeps the one with the small chip on the rim for herself.",
+            "visible": true,
+            "visible_ratio": 1.0
+          },
+          "max_frame_gap_ms": 8578.864,
+          "bootstrap_ms": 7421.866
+        },
+        {
+          "label": "candidate",
+          "case": "fresh",
+          "complete": true,
+          "failures": [],
+          "observation": {
+            "active": true,
+            "event_done": true,
+            "line_id": "line.Day1.one",
+            "new_run_busy": false,
+            "revealing": false,
+            "text": "Sylvia slides the fuller teacup onto my mat and keeps the one with the small chip on the rim for herself.",
+            "visible": true,
+            "visible_ratio": 1.0
+          },
+          "max_frame_gap_ms": 8574.201,
+          "bootstrap_ms": 1916.768
+        },
+        {
+          "label": "candidate",
+          "case": "retained",
+          "complete": true,
+          "failures": [],
+          "observation": {
+            "active": true,
+            "event_done": true,
+            "line_id": "line.Day1.one",
+            "new_run_busy": false,
+            "revealing": false,
+            "text": "Sylvia slides the fuller teacup onto my mat and keeps the one with the small chip on the rim for herself.",
+            "visible": true,
+            "visible_ratio": 1.0
+          },
+          "max_frame_gap_ms": 8579.156,
+          "bootstrap_ms": 3324.782
+        }
+      ]
+    },
+    {
+      "order": [
+        "candidate",
+        "baseline"
+      ],
+      "controller_ref": "aaaf82e5031129a2170a89e9b19dae731698a5b8",
+      "candidate_ref": "c2c7411b50816b2571a6af3635f938df33263ae2",
+      "comparisons": [
+        {
+          "delta_ms": 214.0,
+          "percent": 2.0223020223020223,
+          "case": "fresh",
+          "candidate": 10796.0,
+          "baseline": 10582.0,
+          "metric": "launch_to_bootstrap_start_ms"
+        },
+        {
+          "delta_ms": -4036.0,
+          "percent": -23.969592588193372,
+          "case": "fresh",
+          "candidate": 12802.0,
+          "baseline": 16838.0,
+          "metric": "launch_to_title_drawn_ms"
+        },
+        {
+          "delta_ms": -684.3419999999987,
+          "percent": -4.8046502621648814,
+          "case": "fresh",
+          "candidate": 13558.984,
+          "baseline": 14243.326,
+          "metric": "new_acc_to_caption_complete_ms"
+        },
+        {
+          "delta_ms": 199.0,
+          "percent": 2.419452887537994,
+          "case": "retained",
+          "candidate": 8424.0,
+          "baseline": 8225.0,
+          "metric": "launch_to_bootstrap_start_ms"
+        },
+        {
+          "delta_ms": -3841.0,
+          "percent": -24.435396653731154,
+          "case": "retained",
+          "candidate": 11878.0,
+          "baseline": 15719.0,
+          "metric": "launch_to_title_drawn_ms"
+        },
+        {
+          "delta_ms": -669.9760000000006,
+          "percent": -4.549734041541787,
+          "case": "retained",
+          "candidate": 14055.632,
+          "baseline": 14725.608,
+          "metric": "new_acc_to_caption_complete_ms"
+        },
+        {
+          "delta_ms": -677.719000000001,
+          "percent": -4.631730035595736,
+          "case": "retained",
+          "candidate": 13954.373,
+          "baseline": 14632.092,
+          "metric": "confirm_to_caption_complete_ms"
+        }
+      ],
+      "observations": [
+        {
+          "label": "baseline",
+          "case": "fresh",
+          "complete": true,
+          "failures": [],
+          "observation": {
+            "active": true,
+            "event_done": true,
+            "line_id": "line.Day1.one",
+            "new_run_busy": false,
+            "revealing": false,
+            "text": "Sylvia slides the fuller teacup onto my mat and keeps the one with the small chip on the rim for herself.",
+            "visible": true,
+            "visible_ratio": 1.0
+          },
+          "max_frame_gap_ms": 9176.62,
+          "bootstrap_ms": 6184.364
+        },
+        {
+          "label": "baseline",
+          "case": "retained",
+          "complete": true,
+          "failures": [],
+          "observation": {
+            "active": true,
+            "event_done": true,
+            "line_id": "line.Day1.one",
+            "new_run_busy": false,
+            "revealing": false,
+            "text": "Sylvia slides the fuller teacup onto my mat and keeps the one with the small chip on the rim for herself.",
+            "visible": true,
+            "visible_ratio": 1.0
+          },
+          "max_frame_gap_ms": 9111.737,
+          "bootstrap_ms": 7426.673
+        },
+        {
+          "label": "candidate",
+          "case": "fresh",
+          "complete": true,
+          "failures": [],
+          "observation": {
+            "active": true,
+            "event_done": true,
+            "line_id": "line.Day1.one",
+            "new_run_busy": false,
+            "revealing": false,
+            "text": "Sylvia slides the fuller teacup onto my mat and keeps the one with the small chip on the rim for herself.",
+            "visible": true,
+            "visible_ratio": 1.0
+          },
+          "max_frame_gap_ms": 8855.097,
+          "bootstrap_ms": 1928.873
+        },
+        {
+          "label": "candidate",
+          "case": "retained",
+          "complete": true,
+          "failures": [],
+          "observation": {
+            "active": true,
+            "event_done": true,
+            "line_id": "line.Day1.one",
+            "new_run_busy": false,
+            "revealing": false,
+            "text": "Sylvia slides the fuller teacup onto my mat and keeps the one with the small chip on the rim for herself.",
+            "visible": true,
+            "visible_ratio": 1.0
+          },
+          "max_frame_gap_ms": 8722.816,
+          "bootstrap_ms": 3392.693
+        }
+      ]
+    }
+  ],
+  "readonly_run_id": 40095531928,
+  "limits": [
+    "Source project under Windows software D3D12 rendering; not installed Steam build.",
+    "Fresh user profile is not cold OS cache. Two paired comparisons, not latency distribution.",
+    "New Acc responsiveness remains unresolved.",
+    "No exact parser-invocation count measured for candidate.",
+    "Editor import ObjectDB warning occurs on both sides; gameplay exits cleanly without error/warning."
+  ]
+}

@@ -1,0 +1,112 @@
+{
+  "run_id": 40094723213,
+  "artifact_id": 12560955272,
+  "controller_ref": "aaaf82e5031129a2170a89e9b19dae731698a5b8",
+  "candidate_ref": "c2c7411b50816b2571a6af3635f938df33263ae2",
+  "archive": "final-focused.zip",
+  "bytes": 237539,
+  "sha256": "523b1b50b58123f2779f022e56107011898bee1e675b05a4a53fd6aa5eef1f56",
+  "crc_verified": true,
+  "members": [
+    {
+      "path": "candidate/.godot/ci/import-stderr.log",
+      "bytes": 126,
+      "sha256": "e3e9582cfc1659ab624949d8fbdf43ec09f34ede8590bcc20749ca738dffff1b"
+    },
+    {
+      "path": "candidate/.godot/ci/import-stdout.log",
+      "bytes": 151109,
+      "sha256": "1746166a16ff05f5bc16b85c7e18bb59441d69879158d14ae46277a136add341"
+    },
+    {
+      "path": "candidate/.godot/ci/import.log",
+      "bytes": 96586,
+      "sha256": "ece1b275ed01fd5be288365dca935efcee291c115d4d9e714a24ad0ebd0bc7f2"
+    },
+    {
+      "path": "candidate/.godot/ci/parse-focused.jsonl",
+      "bytes": 1258,
+      "sha256": "37133b7454475750d404c224783f90298e9c0d82501a5b3c7701ba388240d3ad"
+    },
+    {
+      "path": "candidate/.godot/ci/parse-focused.xml",
+      "bytes": 34967,
+      "sha256": "f7f68802913cf9b9fdea140eaf3710cea5f261e1cf32ca35105b783446b5503b"
+    },
+    {
+      "path": "candidate/.godot/ci/public-surfaces/game_state-check.jsonl",
+      "bytes": 1107,
+      "sha256": "1e0462a260c8f15e1b45b363b706345ec4e4c44b0492221449d2fee739ca845c"
+    },
+    {
+      "path": "candidate/.godot/ci/public-surfaces/game_state-generate.jsonl",
+      "bytes": 1106,
+      "sha256": "429f6c20672d4c3bc32838e6fed2de6164b4b6283969e32fe9a1a48439bea276"
+    },
+    {
+      "path": "candidate/.godot/ci/public-surfaces/game_state_surface.json",
+      "bytes": 660971,
+      "sha256": "2175828c973519a4d823f0bacc196392b1951b0018c43f50bfaec705e3599bf4"
+    },
+    {
+      "path": "candidate/.godot/ci/public-surfaces/retirement-audit.json",
+      "bytes": 564,
+      "sha256": "e8099939f35715bf9884ad74612d178d3a404a3fd1e4c52eb07ce60a7381f57a"
+    },
+    {
+      "path": "candidate/.godot/ci/public-surfaces/save_manager-check.jsonl",
+      "bytes": 1119,
+      "sha256": "eb6f172df0c19b8fe2ddf4ca162d0687e83f45ae6416d92105a9b994ab7de4de"
+    },
+    {
+      "path": "candidate/.godot/ci/public-surfaces/save_manager-generate.jsonl",
+      "bytes": 1118,
+      "sha256": "bc9e3cea30482350dd0ebdc97a83500e1ddfa4660ca497ddf3cfc12a81eb0a30"
+    },
+    {
+      "path": "candidate/.godot/ci/public-surfaces/save_manager_surface.json",
+      "bytes": 183948,
+      "sha256": "fa14ce2a806169ea6238ccb5641734382a99fd54ad5e2537cc4b33d78e0e6169"
+    },
+    {
+      "path": "candidate/.godot/phase2r_logs/cloud-public-surface-game_state-check.log",
+      "bytes": 97,
+      "sha256": "f905573f8dd52f9b85362666ac54f7c7145d1ce376dec030e86792970fc2e2c7"
+    },
+    {
+      "path": "candidate/.godot/phase2r_logs/cloud-public-surface-game_state-generate.log",
+      "bytes": 97,
+      "sha256": "f905573f8dd52f9b85362666ac54f7c7145d1ce376dec030e86792970fc2e2c7"
+    },
+    {
+      "path": "candidate/.godot/phase2r_logs/cloud-public-surface-save_manager-check.log",
+      "bytes": 97,
+      "sha256": "f905573f8dd52f9b85362666ac54f7c7145d1ce376dec030e86792970fc2e2c7"
+    },
+    {
+      "path": "candidate/.godot/phase2r_logs/cloud-public-surface-save_manager-generate.log",
+      "bytes": 97,
+      "sha256": "f905573f8dd52f9b85362666ac54f7c7145d1ce376dec030e86792970fc2e2c7"
+    },
+    {
+      "path": "candidate/.godot/phase2r_logs/parse-focused.log",
+      "bytes": 11595,
+      "sha256": "4235394d66804c9f78df9badd4f47f8da23600bbc6b8f1d8839f79a51c9f44ea"
+    },
+    {
+      "path": "candidate/game_state_surface.json",
+      "bytes": 660971,
+      "sha256": "2175828c973519a4d823f0bacc196392b1951b0018c43f50bfaec705e3599bf4"
+    },
+    {
+      "path": "candidate/save_manager_surface.json",
+      "bytes": 183948,
+      "sha256": "fa14ce2a806169ea6238ccb5641734382a99fd54ad5e2537cc4b33d78e0e6169"
+    },
+    {
+      "path": "qualification.json",
+      "bytes": 1980,
+      "sha256": "288a784c131b3dd29ea8ca9449544ce1d5245cddc32a9922d67cb71acecd2b38"
+    }
+  ]
+}
