@@ -1431,6 +1431,13 @@ static func validate_scene_terminal_admission(record: Dictionary, bundle: Dictio
 ## Only the selected owner supplies structural tables; receipt and physical proofs stay fresh.
 static func validate_selected_scene_terminal_admission(record: Dictionary, issuer: Object,
 		receipts: Dictionary, creation_owner: Object = null, contacts: Dictionary = {}) -> Dictionary:
+	var checked := _validate_selected_scene_terminal_with_ledger(record, issuer, receipts, creation_owner, contacts)
+	return {"ok": true} if checked.ok else checked
+
+## Call-local authenticated material for the synchronous terminal/source reading join.
+## Concrete production issuer verification only reads the already-loaded root.
+static func _validate_selected_scene_terminal_with_ledger(record: Dictionary, issuer: Object,
+		receipts: Dictionary, creation_owner: Object, contacts: Dictionary) -> Dictionary:
 	var shaped := validate_scene_terminal_admission_shape(record, issuer)
 	if not shaped.get("ok", false): return shaped
 	var ledger := validate_selected_scene_receipts(receipts, issuer, creation_owner, contacts)
@@ -1452,7 +1459,7 @@ static func validate_selected_scene_terminal_admission(record: Dictionary, issue
 		record.target_id, registered, issuer)
 	if not rebuilt.ok: return rebuilt
 	if not _equal(rebuilt.value, record): return _fail(&"scene_terminal_admission_mismatch")
-	return {"ok": true}
+	return {"ok": true, "value": ledger.value}
 
 ## A saved quote authenticates the accepted purchase, never a later catalogue price.
 ## Purchases are outside authored marker order; the Run ledger joins their admission.
