@@ -1,0 +1,158 @@
+name: Restore validation attribution
+on:
+  push:
+    branches:
+      - codex/restore-validation-attribution-20261024
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: restore-attribution-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  preflight:
+    runs-on: windows-2022
+    timeout-minutes: 60
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 2
+          # Defer credential removal until the post-job cleanup, after the
+          # malformed gitlinks are removed from this disposable runner's index.
+          persist-credentials: true
+      - name: Prepare disposable checkout for credential cleanup
+        run: |
+          $ErrorActionPreference = 'Stop'
+          # These legacy tooling gitlinks have no .gitmodules URLs. Git's
+          # submodule foreach reads the index even with sparse checkout.
+          # The source commit and working files remain unchanged.
+          git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          git submodule foreach --recursive 'true'
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Install Godot 4.6.3 standard
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $archive = Join-Path $env:RUNNER_TEMP 'godot-4.6.3.zip'
+          Invoke-WebRequest -Uri 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_win64.exe.zip' -OutFile $archive
+          # SHA256 published with the official 4.6.3-stable release asset.
+          $expected = 'e39986a178d585ce7ac198fb8de6ea436366dc0cc00e594810c2e3e104c04b90'
+          if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expected) {
+            throw 'Godot archive checksum mismatch.'
+          }
+          $editor = Join-Path $env:RUNNER_TEMP 'godot-4.6.3'
+          Expand-Archive -LiteralPath $archive -DestinationPath $editor
+          $console = Join-Path $editor 'Godot_v4.6.3-stable_win64_console.exe'
+          if (-not (Test-Path -LiteralPath $console)) { throw 'Godot console executable missing.' }
+          "GODOT_CONSOLE_PATH=$console" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          & $console --version
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Import project
+        timeout-minutes: 8
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $output = Join-Path $env:GITHUB_WORKSPACE '.godot/ci'
+          $env:APPDATA = Join-Path $output 'import-user/appdata'
+          $env:LOCALAPPDATA = Join-Path $output 'import-user/localappdata'
+          $env:DWM_TEST_ROOT = Join-Path $output 'import-user/test-root'
+          New-Item -ItemType Directory -Force -Path $output, $env:APPDATA, $env:LOCALAPPDATA, $env:DWM_TEST_ROOT | Out-Null
+          & $env:GODOT_CONSOLE_PATH --headless --path $env:GITHUB_WORKSPACE --import --log-file "$output/import.log"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          if (Select-String -Path "$output/import.log" -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) {
+            throw 'Project import reported script errors; inspect import.log.'
+          }
+      - name: Restore committed project settings after editor import
+        run: |
+          # Dialogic's editor scan rewrites its timeline lookup during import.
+          # Execute the committed configuration with the freshly imported assets.
+          git restore -- project.godot
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Verify editor call stack availability
+        timeout-minutes: 2
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $output = Join-Path $env:GITHUB_WORKSPACE '.godot/ci'
+          $env:APPDATA = Join-Path $output 'import-user/appdata'
+          $env:LOCALAPPDATA = Join-Path $output 'import-user/localappdata'
+          $env:DWM_TEST_ROOT = Join-Path $output 'import-user/test-root'
+          # Godot 4.6 get_stack is available by default in editor/debug builds:
+          # https://docs.godotengine.org/en/4.6/classes/class_@gdscript.html#class-gdscript-method-get-stack
+          @'
+          extends SceneTree
+          func _initialize() -> void:
+              _probe()
+          func _probe() -> void:
+              var frames := get_stack()
+              if frames.size() < 2:
+                  push_error("Nested editor call stack is unavailable")
+                  quit(1)
+                  return
+              for frame in frames:
+                  if str(frame.get("source", "")).is_empty() or str(frame.get("function", "")).is_empty():
+                      push_error("Editor call stack lacks source/function")
+                      quit(1)
+                      return
+              print("DWM_STACK_PROBE " + JSON.stringify(frames))
+              quit(0)
+          '@ | Set-Content -LiteralPath "$output/stack-probe.gd" -Encoding utf8
+          & $env:GODOT_CONSOLE_PATH --headless --path $env:GITHUB_WORKSPACE -s res://.godot/ci/stack-probe.gd --log-file "$output/stack-probe.log"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          if (-not (Select-String -LiteralPath "$output/stack-probe.log" -Pattern 'DWM_STACK_PROBE ' -Quiet)) {
+            throw 'Editor stack probe did not complete.'
+          }
+      - name: Attribute fresh Save9 and fresh-process Load
+        timeout-minutes: 25
+        env:
+          DWM_SCENE_VALIDATION_CALLERS: '1'
+        run: ./tools/testing/Invoke-FreshSaveLoad.ps1
+      - name: Verify and summarize snapshot callers
+        shell: python {0}
+        run: |
+          import json
+          from pathlib import Path
+          root = Path('.godot/ci/fresh-save-load')
+          marker = 'DWM_SCENE_VALIDATION_PROFILE '
+          records = [json.loads(line.split(marker, 1)[1])
+                     for line in (root / 'fresh-save-load.log').read_text(encoding='utf-8-sig').splitlines()
+                     if marker in line]
+          groups = {}
+          snapshots = 0
+          ready = json.loads((root / 'fresh-load.json').read_text(encoding='utf-8-sig'))
+          press_offset = ready['load_pressed_scope_offset_us']
+          ready_offset = ready['ready_scope_offset_us']
+          assert 0 <= press_offset < ready_offset
+          assert ready_offset - press_offset == ready['load_action_to_ready_us']
+          for record in records:
+              for sample in record['snapshot_validations']:
+                  frames = sample.get('caller_frames', [])
+                  assert frames and all(f.get('source') and f.get('function') for f in frames), 'Missing caller frames'
+                  offset = sample.get('scope_offset_us', -1)
+                  assert isinstance(offset, (int, float)) and offset >= 0, 'Invalid scope offset'
+                  key = (record['operation'], json.dumps(frames, sort_keys=True))
+                  group = groups.setdefault(key, {'operation': record['operation'], 'caller_frames': frames,
+                                                 'count': 0, 'ordinals': [], 'scope_offsets_us': []})
+                  group['count'] += 1
+                  group['ordinals'].append(sample['ordinal'])
+                  group['scope_offsets_us'].append(offset)
+                  snapshots += 1
+          assert records and snapshots, 'No attributed snapshot observations'
+          assert any(g['operation'] == 'fresh_save_load' for g in groups.values()), 'Fresh Load scope absent'
+          result = {'scope': 'Diagnostic caller attribution only; instrumented durations are not performance comparisons.',
+                    'profile_records': len(records), 'snapshots': snapshots, 'groups': list(groups.values()),
+                    'load_pressed_scope_offset_us': press_offset, 'ready_scope_offset_us': ready_offset}
+          (root / 'caller-summary.json').write_text(json.dumps(result, indent=2) + '\n', encoding='utf-8')
+          print(f'CALLER_ATTRIBUTION_VERIFIED records={len(records)} snapshots={snapshots} stacks={len(groups)}')
+      - name: Preserve attribution evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: restore-attribution-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            .godot/ci/
+            .godot/phase2r_logs/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 7

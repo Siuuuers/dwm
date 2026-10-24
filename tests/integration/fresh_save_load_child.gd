@@ -21,6 +21,9 @@ func _end_fresh(label: String, started: int, succeeded: bool) -> void:
 func _observe_fresh_ready() -> void:
 	if _load_pressed_us != 0:
 		_fresh_result.load_action_to_ready_us = Time.get_ticks_usec() - _load_pressed_us
+		if OS.get_environment("DWM_SCENE_VALIDATION_CALLERS") == "1":
+			_fresh_result.load_pressed_scope_offset_us = _load_pressed_us - TIMING._started_us
+			_fresh_result.ready_scope_offset_us = _fresh_result.load_pressed_scope_offset_us + _fresh_result.load_action_to_ready_us
 		_load_pressed_us = 0
 
 func _press_authored(control: Control) -> bool:

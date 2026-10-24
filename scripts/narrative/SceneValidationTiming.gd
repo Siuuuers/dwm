@@ -39,6 +39,13 @@ static func finish_snapshot(started_us: int, observation: Dictionary, ok: bool) 
 	if started_us < 0 or not _active: return
 	var records: Array = _record["snapshot_validations"]
 	observation["elapsed_us"] = Time.get_ticks_usec() - started_us
+	if OS.get_environment("DWM_SCENE_VALIDATION_CALLERS") == "1":
+		var callers: Array[Dictionary] = []
+		for frame: Dictionary in get_stack():
+			callers.append({"source": str(frame.get("source", "")),
+				"function": str(frame.get("function", "")), "line": int(frame.get("line", 0))})
+		observation["caller_frames"] = callers
+		observation["scope_offset_us"] = started_us - _started_us
 	observation["ok"] = ok
 	# Ordinal is completion order; an interrupted call emits no fabricated record.
 	observation["ordinal"] = records.size()
