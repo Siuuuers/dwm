@@ -1,0 +1,696 @@
+{
+  "original": {
+    "artifact_id": 12559396690,
+    "job_id": 120864024630,
+    "run_id": 40091188748,
+    "source_ref": "d20bd9a69b7cec4abc1302d531b7a9131a9f1b9b",
+    "runtime_base": "88e44efbf6d65cc3b70118e73923eb408db98b7e",
+    "size_bytes": 4505993,
+    "sha256": "460f6e3e3de9378d09a9a981119ece44ada0468f5bf46446493a81476b250502",
+    "job_conclusion": "failure"
+  },
+  "original_crc_verified": true,
+  "original_member_count": 84,
+  "retained_archive": {
+    "path": "first-failure-evidence.zip",
+    "size_bytes": 24031,
+    "sha256": "215a344f6317cc90bc3ac34bfa6022342ea10d8bbc6a5f0bc6876732c8591493",
+    "members": 7,
+    "crc_verified": true,
+    "all_retained_members_byte_identical": true
+  },
+  "members": [
+    {
+      "original_path": ".godot/ci/import-user/appdata/Godot/app_userdata/DWM/dialogic/editor_settings.cfg",
+      "size_bytes": 132,
+      "sha256": "2485d95142e6f5f1b3f4653d1778baa04a88113e83bfeadc8f6571164f63b8e3",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user/editor state or shader cache; exact source/receipts/logs retained."
+    },
+    {
+      "original_path": ".godot/ci/import-user/appdata/Godot/app_userdata/DWM/gut_temp_directory/versions.json",
+      "size_bytes": 477,
+      "sha256": "9a01a487bb447cd01349f3d3657124d9e99acda6905af55d1f59e062aaea8db2",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user/editor state or shader cache; exact source/receipts/logs retained."
+    },
+    {
+      "original_path": ".godot/ci/import-user/appdata/Godot/editor_settings-4.6.tres",
+      "size_bytes": 3775,
+      "sha256": "4fad7736957e94c78f6113e43230f8c83082f288a34c8cad3be48afe92953905",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user/editor state or shader cache; exact source/receipts/logs retained."
+    },
+    {
+      "original_path": ".godot/ci/import-user/appdata/Godot/keystores/debug.keystore",
+      "size_bytes": 2194,
+      "sha256": "c7ded8530fd1d872a36faffdb4a9a3fdee05fae5382697d300c82eb6f4bd641b",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user/editor state or shader cache; exact source/receipts/logs retained."
+    },
+    {
+      "original_path": ".godot/ci/import-user/localappdata/Godot/editor_doc_cache-4.6.res",
+      "size_bytes": 3142854,
+      "sha256": "6feb794d024c4511948c3269a108c9c3513f62dd504962e50c06022afaddd6e3",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user/editor state or shader cache; exact source/receipts/logs retained."
+    },
+    {
+      "original_path": ".godot/ci/import.log",
+      "size_bytes": 96656,
+      "sha256": "50d3301dec034c982087e0e06032c19c8945bed14db1cbf20c6db74ef0f7e5a5",
+      "retained": true,
+      "retained_path": ".godot/ci/import.log",
+      "reason": "Current failed diagnostic log/receipt/title capture retained byte-for-byte."
+    },
+    {
+      "original_path": ".godot/ci/startup-newacc/fresh/render.log",
+      "size_bytes": 6095,
+      "sha256": "64b7cc55c87f9be3482c488891b927121324ddaa5bfcf616f42c3ee2f8f2f622",
+      "retained": true,
+      "retained_path": ".godot/ci/startup-newacc/fresh/render.log",
+      "reason": "Current failed diagnostic log/receipt/title capture retained byte-for-byte."
+    },
+    {
+      "original_path": ".godot/ci/startup-newacc/fresh/results.json",
+      "size_bytes": 6089,
+      "sha256": "7b429db9dd5bf693c043b0dae943650a947e6e79d2cb6edf9ac514ef5d5ad2f4",
+      "retained": true,
+      "retained_path": ".godot/ci/startup-newacc/fresh/results.json",
+      "reason": "Current failed diagnostic log/receipt/title capture retained byte-for-byte."
+    },
+    {
+      "original_path": ".godot/ci/startup-newacc/fresh/stderr.log",
+      "size_bytes": 2,
+      "sha256": "7eb70257593da06f682a3ddda54a9d260d4fc514f645237f5ca74b08f8da61a6",
+      "retained": true,
+      "retained_path": ".godot/ci/startup-newacc/fresh/stderr.log",
+      "reason": "Current failed diagnostic log/receipt/title capture retained byte-for-byte."
+    },
+    {
+      "original_path": ".godot/ci/startup-newacc/fresh/stdout.log",
+      "size_bytes": 6103,
+      "sha256": "2bd232138deb4eaeeb7c7e3ef11c483b712d56f3f8bbfb3dc2b80d6a1dbf071c",
+      "retained": true,
+      "retained_path": ".godot/ci/startup-newacc/fresh/stdout.log",
+      "reason": "Current failed diagnostic log/receipt/title capture retained byte-for-byte."
+    },
+    {
+      "original_path": ".godot/ci/startup-newacc/fresh/title.png",
+      "size_bytes": 9866,
+      "sha256": "2b01f0beb4d153b753ce29839f256788066c26da86a5db7ae07b16fc1fc9b53c",
+      "retained": true,
+      "retained_path": ".godot/ci/startup-newacc/fresh/title.png",
+      "reason": "Current failed diagnostic log/receipt/title capture retained byte-for-byte."
+    },
+    {
+      "original_path": ".godot/ci/startup-newacc/processes.json",
+      "size_bytes": 6940,
+      "sha256": "1173bc4be89bafc113e3eb0394ece1c914299e20e81859db7719393f4c7ce32c",
+      "retained": true,
+      "retained_path": ".godot/ci/startup-newacc/processes.json",
+      "reason": "Current failed diagnostic log/receipt/title capture retained byte-for-byte."
+    },
+    {
+      "original_path": ".godot/ci/startup-newacc/shared-user/APPDATA/Godot/app_userdata/DWM/desktop-issuer-root.json",
+      "size_bytes": 192,
+      "sha256": "d9e943c3f2966f540f0219bd714219ec964848ead41b1e443f81876ff9864648",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user/editor state or shader cache; exact source/receipts/logs retained."
+    },
+    {
+      "original_path": ".godot/ci/startup-newacc/shared-user/APPDATA/Godot/app_userdata/DWM/desktop-publications.json",
+      "size_bytes": 34,
+      "sha256": "902849ab2604217a878bc4de507660ced78f981a72c1d6343dd9ef55af64d4e4",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user/editor state or shader cache; exact source/receipts/logs retained."
+    },
+    {
+      "original_path": ".godot/ci/startup-newacc/shared-user/APPDATA/Godot/app_userdata/DWM/dialogic/saves/global_info.txt",
+      "size_bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user/editor state or shader cache; exact source/receipts/logs retained."
+    },
+    {
+      "original_path": ".godot/ci/startup-newacc/shared-user/APPDATA/Godot/app_userdata/DWM/profile.json",
+      "size_bytes": 2744,
+      "sha256": "1d2b6c170f287ce0d7e33cf77ac5ac9ac01a3781e94081643b802a90fd8020b2",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user/editor state or shader cache; exact source/receipts/logs retained."
+    },
+    {
+      "original_path": ".godot/ci/startup-newacc/shared-user/APPDATA/Godot/app_userdata/DWM/schedule-foundation-publications.json",
+      "size_bytes": 34,
+      "sha256": "902849ab2604217a878bc4de507660ced78f981a72c1d6343dd9ef55af64d4e4",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user/editor state or shader cache; exact source/receipts/logs retained."
+    },
+    {
+      "original_path": ".godot/ci/startup-newacc/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/BestFitNormalShaderRD/ff55ede486711a617cfa6eca8952f824e1de5c6fd727c4514cd603e8e7c9264e/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 1780,
+      "sha256": "44bf819776bd80915b53c2a85640b6b8a26816a62da248cc28bb58ed43110d39",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user/editor state or shader cache; exact source/receipts/logs retained."
+    },
+    {
+      "original_path": ".godot/ci/startup-newacc/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/BlitShaderRD/cff12a2b56a5c7d70f6de186c786c80ec84b1844045fdaf13152862c6a82baf6/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 17272,
+      "sha256": "c7cb815b5538060ee39510ac103cec4ada05f3ebd59718bd7feac681a93a5afa",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user/editor state or shader cache; exact source/receipts/logs retained."
+    },
+    {
+      "original_path": ".godot/ci/startup-newacc/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/BokehDofShaderRD/3d294ab0ec5302046ff36ecad7f72d70d1c4b3efbc3ca1bb29fe6a80be9abb65/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 14044,
+      "sha256": "dd583adfca49a4d0a8b7923f35b1038a772db270ce569d8ac33277c0721c1719",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user/editor state or shader cache; exact source/receipts/logs retained."
+    },
+    {
+      "original_path": ".godot/ci/startup-newacc/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/CanvasOcclusionShaderRD/e397c50e1a9e03519ccb486acfdaddf8be9986511a5738dd0fa77e62980f0ad0/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 10252,
+      "sha256": "1c2c884aa366adc711263097531df8a86d99e09b70045a12dee8db66d0e6b37b",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user/editor state or shader cache; exact source/receipts/logs retained."
+    },
+    {
+      "original_path": ".godot/ci/startup-newacc/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/CanvasSdfShaderRD/f5163131ffbf6578b3e403ae4a2e93b16c3b4d4f74b7d313965240c9159ca4a3/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 13768,
+      "sha256": "9bb0a2d8259be9a0d443787c6fdf8d663c22e842041a08e56247acb492bf579b",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user/editor state or shader cache; exact source/receipts/logs retained."
+    },
+    {
+      "original_path": ".godot/ci/startup-newacc/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/CanvasShaderRD/f30a5b440b1341c6eaa19af108108f7adb605232e31fd6aeac74e4825e07ec28/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 96056,
+      "sha256": "72c43982f5fc0f531da1a1b034190e860f176e295e023b39bc649678e870c584",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user/editor state or shader cache; exact source/receipts/logs retained."
+    },
+    {
+      "original_path": ".godot/ci/startup-newacc/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/CanvasShaderRD/f30a5b440b1341c6eaa19af108108f7adb605232e31fd6aeac74e4825e07ec28/45fb1ddc6499e56682916a355ce2839e61f42dfe.d3d12.cache",
+      "size_bytes": 50392,
+      "sha256": "095822f9893034f770488dbb72cf2304d25d0d639e1ac6bbcddc5bf452b551d5",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user/editor state or shader cache; exact source/receipts/logs retained."
+    },
+    {
+      "original_path": ".godot/ci/startup-newacc/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/CanvasShaderRD/f30a5b440b1341c6eaa19af108108f7adb605232e31fd6aeac74e4825e07ec28/4d35b4f1b981d75cb121b24f26aba4271d0d7a2f.d3d12.cache",
+      "size_bytes": 93416,
+      "sha256": "80f353f90fe37fc6c8f14d22368b34a0d37a8367d017554b98cfb7f8ac203e24",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user/editor state or shader cache; exact source/receipts/logs retained."
+    },
+    {
+      "original_path": ".godot/ci/startup-newacc/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/CanvasShaderRD/f30a5b440b1341c6eaa19af108108f7adb605232e31fd6aeac74e4825e07ec28/8a7277c8d3ac029b087c3fa9c55de85560be5119.d3d12.cache",
+      "size_bytes": 51056,
+      "sha256": "cc4232425775f0d59739f794fda300954eb51e8f83a65061db0cdbb8519a89f2",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user/editor state or shader cache; exact source/receipts/logs retained."
+    },
+    {
+      "original_path": ".godot/ci/startup-newacc/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/ClusterDebugShaderRD/2775e502fff54bad7c5a36ee96cb93f9bb26a0835936a36809e0142a020d1da5/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 4120,
+      "sha256": "1b9c9e5d8333e2149fcf4ce7096d361469b97695c75065a5ea5dfdff9b0c00f4",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user/editor state or shader cache; exact source/receipts/logs retained."
+    },
+    {
+      "original_path": ".godot/ci/startup-newacc/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/ClusterRenderShaderRD/d7d33a009d89531a62355652a94a4bbbcb6ecafd4849629a6a81ebc41fb55f82/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 10364,
+      "sha256": "88a81102cb75ba3456d7512da2c73c6c768c75a367abd1c48c2a4b82d98d2924",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user/editor state or shader cache; exact source/receipts/logs retained."
+    },
+    {
+      "original_path": ".godot/ci/startup-newacc/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/ClusterStoreShaderRD/04f77ac6fc3ac39e10dba3d8b90afbac54f16ae6134a60264841ff0154dd1be9/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 2564,
+      "sha256": "5d38f13c92cc044d93ebdb3a44f466fdb6e8df82ae1867907fa4c086bb8cff42",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user/editor state or shader cache; exact source/receipts/logs retained."
+    },
+    {
+      "original_path": ".godot/ci/startup-newacc/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/CopyShaderRD/bef3ebc581956c1e4cad1b19a4c57b168d4fd3a373a0481f33e26003ca1fa6c6/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 39800,
+      "sha256": "e18a3e95e2deae26b626eb6892cc1b14c02585e564abd3e1e4ed048b02eea5c2",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user/editor state or shader cache; exact source/receipts/logs retained."
+    },
+    {
+      "original_path": ".godot/ci/startup-newacc/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/CopyToFbShaderRD/d2ff28d6e27943750d2e72da5da60d486f9b37ab66241467d62296b893eb4cd0/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 17700,
+      "sha256": "0983ba8323ccd3699744a6923f48b2fc2cbc6ec83ae2333d4674670d93d33c2e",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user/editor state or shader cache; exact source/receipts/logs retained."
+    },
+    {
+      "original_path": ".godot/ci/startup-newacc/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/CubeToDpShaderRD/a1c0c9b7619044d7ba83959f645735ee8e1d34ad23904a6ac0af8e55d7ba00db/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 3744,
+      "sha256": "d36b53c42cba51bcac3beac13d33f39cbd2cb85579b9c09f812789370f3d1ff5",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user/editor state or shader cache; exact source/receipts/logs retained."
+    },
+    {
+      "original_path": ".godot/ci/startup-newacc/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/CubeToOctmapShaderRD/c8b61d04732bfd2b54191babf0cd12bfae13c795c34c47b484abdf9f06f00205/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 3668,
+      "sha256": "a01b68453d20435f0a65d2e4f8ee1f15ab228c6cf1eb5767bf893dc18e66edb7",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user/editor state or shader cache; exact source/receipts/logs retained."
+    },
+    {
+      "original_path": ".godot/ci/startup-newacc/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/FsrUpscaleShaderRD/d659c02701a99861f3054fa8c67cabb79f0491aa3388020f008051107cf1fec5/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 30656,
+      "sha256": "219800778f2bfbc5d2d365e451f7ae8e3b45cbcda1436f3457ccebf8394ca5e9",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user/editor state or shader cache; exact source/receipts/logs retained."
+    },
+    {
+      "original_path": ".godot/ci/startup-newacc/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/IntegrateDfgShaderRD/6d20d114a76402f30530dc6983c20cd78a5bdebe815ba021289a607f6c4541f5/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 2240,
+      "sha256": "18e5d739b45a283bb5dd671bcbbe63916294bc5d5ecd1e0e02f9316ce7d7de79",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user/editor state or shader cache; exact source/receipts/logs retained."
+    },
+    {
+      "original_path": ".godot/ci/startup-newacc/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/GiShaderRD/0a1109506856e7902e872dda83faa67adac822d90e694417c64c101b2b904810/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 57960,
+      "sha256": "5ec4e8c63faf58b5d355e1eaba84def183aff4b330e0e93812e2c6b9680d42de",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user/editor state or shader cache; exact source/receipts/logs retained."
+    },
+    {
+      "original_path": ".godot/ci/startup-newacc/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/LuminanceReduceShaderRD/3484522051e094e151b4a7cbd88cfc9eb2721ea1d26cd66d6ebdd36e30657cc2/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 8256,
+      "sha256": "bbe75acdd0a0f245658fb7d841d0ecfba43d399817b86c6a681fa963c4cad842",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user/editor state or shader cache; exact source/receipts/logs retained."
+    },
+    {
+      "original_path": ".godot/ci/startup-newacc/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/MotionVectorsShaderRD/00e39c95d2d9272edadd9be2db6dbe65b3460f21d2341c92a77371c843cf4d00/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 4300,
+      "sha256": "077a557bde1dfb345bb8372e7871a8087ffbe978fe4faeb78f84f8c11eddd456",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user/editor state or shader cache; exact source/receipts/logs retained."
+    },
+    {
+      "original_path": ".godot/ci/startup-newacc/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/OctmapDownsamplerShaderRD/ffe6788f20aa023afaf7e888e2cf33c840f3084c8fbb309ed784918a44ebcf23/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 7044,
+      "sha256": "9eb81bcb3a44cd78f54c2131f6edd79e0b05bac8ba2b5b32dd0e9162412462be",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user/editor state or shader cache; exact source/receipts/logs retained."
+    },
+    {
+      "original_path": ".godot/ci/startup-newacc/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/OctmapFilterShaderRD/5fc5fea9e3fe54191ff165540faa285b099e7909be69e7349c971f7ab0a609cc/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 42564,
+      "sha256": "ba1b8889bb8c4f3b72f35dbeaadcb6d6fba10bd454bffcfcca28d9533cb6fc7a",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user/editor state or shader cache; exact source/receipts/logs retained."
+    },
+    {
+      "original_path": ".godot/ci/startup-newacc/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/OctmapRoughnessShaderRD/15e894f5c1a4917d83d34012ecf1ede2bee251fefc7b887b728834d4d817ad55/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 7852,
+      "sha256": "84f17935a57f821a10813d0f327e9bfd60d7a61dab1f9a204587b82b15b25eb8",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user/editor state or shader cache; exact source/receipts/logs retained."
+    },
+    {
+      "original_path": ".godot/ci/startup-newacc/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/ParticlesCopyShaderRD/bcec80ba01e935ed0dc85d792ce6064d3b9920ff6f4ad7f021c39739c998092c/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 86920,
+      "sha256": "ee6713e452f944e2e1c07df7d9c0c909f7bee31b0e2f42d82bc29ebed61c1840",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user/editor state or shader cache; exact source/receipts/logs retained."
+    },
+    {
+      "original_path": ".godot/ci/startup-newacc/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/ParticlesShaderRD/527b8e067ac0ad8d5ca4af3230efbc7edb63fc49fd10c48dd765f7d4134c2606/f128cab0b22fb7e0d9f023d6cdb81309be392d95.d3d12.cache",
+      "size_bytes": 7672,
+      "sha256": "c638802d5221eb430c0bf30ff37473a5696bf5b5f16b599a15de7c805da6cb16",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user/editor state or shader cache; exact source/receipts/logs retained."
+    },
+    {
+      "original_path": ".godot/ci/startup-newacc/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/ResolveShaderRD/27dd92d92212d9fee97e14b2c5e5e102610e3124706ce6710bb99bb01c1723a2/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 9712,
+      "sha256": "7d5586ad63f8f850bf7a246122bf9589a86a9ff90710ab06e3d4453a2153846b",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user/editor state or shader cache; exact source/receipts/logs retained."
+    },
+    {
+      "original_path": ".godot/ci/startup-newacc/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/SceneForwardClusteredShaderRD/72441e69a5110c34824334c2d7284287eeb225010e6fb8c9f80ad241154df663/111f8cfd3c260d918df85827eb251dc36a43cb13.d3d12.cache",
+      "size_bytes": 165712,
+      "sha256": "4a447344444447239a6b0eb3dbcf800d584cc1836a9cd85598a029af8e4755ba",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user/editor state or shader cache; exact source/receipts/logs retained."
+    },
+    {
+      "original_path": ".godot/ci/startup-newacc/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/SceneForwardClusteredShaderRD/72441e69a5110c34824334c2d7284287eeb225010e6fb8c9f80ad241154df663/ab0b960474f1491b42ef9f2ca13dbd4ccaf64911.d3d12.cache",
+      "size_bytes": 93744,
+      "sha256": "2da343304a0b682e0467442c3403a12cc4e56f68459a3ece1517df5621f66ddd",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user/editor state or shader cache; exact source/receipts/logs retained."
+    },
+    {
+      "original_path": ".godot/ci/startup-newacc/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/SceneForwardClusteredShaderRD/72441e69a5110c34824334c2d7284287eeb225010e6fb8c9f80ad241154df663/a38af1e47720abf30ca44f3d3c099c07b046df81.d3d12.cache",
+      "size_bytes": 169824,
+      "sha256": "eebc10cc159ecef212f994ee1a04fe0bccc4feca0f2460734939be8f7a4f965d",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user/editor state or shader cache; exact source/receipts/logs retained."
+    },
+    {
+      "original_path": ".godot/ci/startup-newacc/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/ScreenSpaceReflectionDownsampleShaderRD/e2b08e2f67ca3648565b1054827dd95ce07c1b31c4deeb5c87adb959b48c3662/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 10244,
+      "sha256": "bb1672137a2d60ab9108ae2df9bdef8ac0703f6deac2a85eae4dbe591d9f23a3",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user/editor state or shader cache; exact source/receipts/logs retained."
+    },
+    {
+      "original_path": ".godot/ci/startup-newacc/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/ScreenSpaceReflectionFilterShaderRD/3e7cbd9d8999cd16cf5e5b03b2bc462b40767703140a0757280c95895703123d/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 4432,
+      "sha256": "5e9c2c7668f700b9cf77bfcf75bd52081b72f57d7cd02fac35092eb85a2788b1",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user/editor state or shader cache; exact source/receipts/logs retained."
+    },
+    {
+      "original_path": ".godot/ci/startup-newacc/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/ScreenSpaceReflectionHizShaderRD/baf8f4bfe602462ece1270390433485b1e3018fbbd45bae7c8bbedf320c26cd6/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 8664,
+      "sha256": "c9938afea0c06478a8491ae12aafb35c95a53ea55ae0e777e1466df7e14946a0",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user/editor state or shader cache; exact source/receipts/logs retained."
+    },
+    {
+      "original_path": ".godot/ci/startup-newacc/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/ScreenSpaceReflectionShaderRD/4ec3777007532ddcd638ae82ef6adc97739054897ed48a2ef8401e7a025ee2da/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 6556,
+      "sha256": "4702ba5bd7beaa5ae23120b11b1263c8554272c47433532e8e9e9d18bd7fccf1",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user/editor state or shader cache; exact source/receipts/logs retained."
+    },
+    {
+      "original_path": ".godot/ci/startup-newacc/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/ScreenSpaceReflectionResolveShaderRD/e628cc87f903d3043b8b7a44bb5d54638465b46e0ab7bb37b1ddb9b91f4f1b3a/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 4476,
+      "sha256": "ad233ea378e64404341d6c2877745ffa087772377ab05a7fc93dc7372c7c5b0f",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user/editor state or shader cache; exact source/receipts/logs retained."
+    },
+    {
+      "original_path": ".godot/ci/startup-newacc/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/SdfgiDebugProbesShaderRD/5e74420cdc840f19f82244b066217b3888799930df17d31ff133420b1a916076/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 19508,
+      "sha256": "d987dffca93f66ca1e168fcf474e5832a2f22df16909b5d97e82595894722cb0",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user/editor state or shader cache; exact source/receipts/logs retained."
+    },
+    {
+      "original_path": ".godot/ci/startup-newacc/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/SdfgiDebugShaderRD/4597a244d5202b1178081479b348d60a48501cb16fc54b1fea4c8395c5e68675/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 4348,
+      "sha256": "06d3d34ff494b94f957ce4f222ad7a53282b03bfdbf080bf87ea1cb1d402b670",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user/editor state or shader cache; exact source/receipts/logs retained."
+    },
+    {
+      "original_path": ".godot/ci/startup-newacc/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/SdfgiDirectLightShaderRD/16f822b671cd6f4a687e51e33b1c8c2148121c1c091f7ff39f76127556ff3ec3/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 16328,
+      "sha256": "71f66bf296fcf2eea5e62fed26338efbd2ca82eceb7f4c5b5aa53c9c235b6c5e",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user/editor state or shader cache; exact source/receipts/logs retained."
+    },
+    {
+      "original_path": ".godot/ci/startup-newacc/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/SdfgiIntegrateShaderRD/c5e82715048eb54d931afaa6dadaca3cb48a98f8c3376dd7913485bd1ce2989f/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 23888,
+      "sha256": "c8ca7c69bdfd2da8bd660ea99b8908e48ca8c9d43d789e6a08d4f7e699849dcf",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user/editor state or shader cache; exact source/receipts/logs retained."
+    },
+    {
+      "original_path": ".godot/ci/startup-newacc/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/SdfgiPreprocessShaderRD/f3ef78a3d2f1c9d4496e3afe61867e94fb32829809548b265a8a1154b66aec33/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 34500,
+      "sha256": "dc08490c0eaafea6c23cb66d2c467a07a728954d4006eba6435db195cfd6c80c",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user/editor state or shader cache; exact source/receipts/logs retained."
+    },
+    {
+      "original_path": ".godot/ci/startup-newacc/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/ShadowFrustumShaderRD/b56bc1e62633ec9304336b7e957397468d55950f317fcf5a6473439810432caa/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 2932,
+      "sha256": "b62be800b78bbb3a7e3dba539c6306c31f446e3a28f8bb7064051a0cb1a3e4d3",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user/editor state or shader cache; exact source/receipts/logs retained."
+    },
+    {
+      "original_path": ".godot/ci/startup-newacc/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/SkeletonShaderRD/54e50a68f8252031f493dd1ea6200e9ef718d5bd8693e28030efe1b120eb7905/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 9964,
+      "sha256": "c71686c4cd769460039ef0801ac2c963d85d2fc293abaabf79c623a4beef8ffc",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user/editor state or shader cache; exact source/receipts/logs retained."
+    },
+    {
+      "original_path": ".godot/ci/startup-newacc/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/SkyShaderRD/21f924306eb18caac3ace30e495c78ba40ae7b2f490d5e4f3b13a79479216b9c/03e3b11c69e24394b2d955a8c0ba85587bb70839.d3d12.cache",
+      "size_bytes": 33408,
+      "sha256": "529fe02f7f8591d3a4aa83fd1f62db1b94bb9f4917055a8304350477ec7aa946",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user/editor state or shader cache; exact source/receipts/logs retained."
+    },
+    {
+      "original_path": ".godot/ci/startup-newacc/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/SkyShaderRD/21f924306eb18caac3ace30e495c78ba40ae7b2f490d5e4f3b13a79479216b9c/de678811d1bad3cad4892a8db7b6ea0be197d51d.d3d12.cache",
+      "size_bytes": 31560,
+      "sha256": "25375c3522b15b0c651fecf0b08ba159b0308b1fb8ad08998a31aeabc613a6ef",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user/editor state or shader cache; exact source/receipts/logs retained."
+    },
+    {
+      "original_path": ".godot/ci/startup-newacc/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/SmaaBlendingShaderRD/3d0a167a9f66fe724550ee422e5f78e94ee25cd28f8d2dd9770c61d98fee5f61/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 5192,
+      "sha256": "ee9f5a968054a4d71d839f7606e094fede87afc57636f0a33498c12fd01aef6f",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user/editor state or shader cache; exact source/receipts/logs retained."
+    },
+    {
+      "original_path": ".godot/ci/startup-newacc/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/SmaaEdgeDetectionShaderRD/d5021a9d8471f798a9fea1996ea85751035ea859c7fdd21721cc24e149d1e4fe/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 4692,
+      "sha256": "472bda4cd51afe226b3b0b10db40ef7334046940c4cb113a716837abcc476d65",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user/editor state or shader cache; exact source/receipts/logs retained."
+    },
+    {
+      "original_path": ".godot/ci/startup-newacc/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/SmaaWeightCalculationShaderRD/96902d6fbf74206adb55a50fd070fc6de4aaf8dc634f04f92751ac8b307948c7/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 7852,
+      "sha256": "8729d9d2d485f8d4ff4d348a760ff921a16727706842ab2fa2cba408dcdcd421",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user/editor state or shader cache; exact source/receipts/logs retained."
+    },
+    {
+      "original_path": ".godot/ci/startup-newacc/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/SortShaderRD/967234006fae085a9579b3ffd489cee602c4f145dc18ff2bf240e4d8c13498cd/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 6512,
+      "sha256": "00f807664600c76262a2b16ef130a66f1d480dab49456342ca8a839a0e3511c9",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user/editor state or shader cache; exact source/receipts/logs retained."
+    },
+    {
+      "original_path": ".godot/ci/startup-newacc/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/SpecularMergeShaderRD/d91816cf1f28c63908a9133ffc50683b675ef9859b0616c7436f475405b22c27/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 13748,
+      "sha256": "80cd868f561eb23dc5273d20816528d72cb8ab205e38206884b5e513fe21510e",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user/editor state or shader cache; exact source/receipts/logs retained."
+    },
+    {
+      "original_path": ".godot/ci/startup-newacc/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/SsaoBlurShaderRD/9821a28f9d156aaaed0a7fab3de6738b2c4022738da0a9b7cb77ffb499f40e38/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 7392,
+      "sha256": "fa79294cd1151536fbf464751712267cb776b3942eef1e9ba06cccd28a4f94f0",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user/editor state or shader cache; exact source/receipts/logs retained."
+    },
+    {
+      "original_path": ".godot/ci/startup-newacc/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/SsaoImportanceMapShaderRD/09886b051a7294522d484a6b5de82ee75778fa16804f3f4f13d1605e7f39b69d/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 7256,
+      "sha256": "1713a74a0d5a2a244f95aeddf72b1c0807a6883ec79e178e9c2874e4e27708ea",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user/editor state or shader cache; exact source/receipts/logs retained."
+    },
+    {
+      "original_path": ".godot/ci/startup-newacc/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/SsaoInterleaveShaderRD/5762f4757375a26f8fda6d1bcb2a452f1c2c429e857969bb128d7270760b56f7/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 7148,
+      "sha256": "bb575558fe5d7608b53eb5dac5b5d8fc9dee3964e06e18bf38c39217db87cbab",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user/editor state or shader cache; exact source/receipts/logs retained."
+    },
+    {
+      "original_path": ".godot/ci/startup-newacc/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/SsaoShaderRD/6e8f8fd45ceab920597432cb2a5447c53291203857121f3a3b38a4b9b27c2c50/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 24996,
+      "sha256": "2f1e077b78801e9ec4619a26c31ea2df735ee22cc53a2d07d81aa528ddea5317",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user/editor state or shader cache; exact source/receipts/logs retained."
+    },
+    {
+      "original_path": ".godot/ci/startup-newacc/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/SsEffectsDownsampleShaderRD/bd37175ba48fdd02099abbbeee5452079e89a3727fd5fe1de649551c99081c36/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 20628,
+      "sha256": "409be58431af43fd8ecf9ca1f24d4d67941dc90bae3828f2413fd92e4b7dd054",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user/editor state or shader cache; exact source/receipts/logs retained."
+    },
+    {
+      "original_path": ".godot/ci/startup-newacc/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/SsilBlurShaderRD/e74ed13ec93f83efa28f3bba922e68d5e345173ff5670ca6f557df8d614a782f/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 8472,
+      "sha256": "de24e0efd13962b43e5641080c9275ef814d48bb0f439859aa46cfa9e97bb2df",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user/editor state or shader cache; exact source/receipts/logs retained."
+    },
+    {
+      "original_path": ".godot/ci/startup-newacc/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/SsilImportanceMapShaderRD/a4219fd46be62ae37b0e06fd10ebbd2798ad85088678db4c0b425f823042d4be/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 7228,
+      "sha256": "d236bd5796d41ad4cb5bb2a4354ddee9731ab9f72953893998b1c4816c45aa7c",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user/editor state or shader cache; exact source/receipts/logs retained."
+    },
+    {
+      "original_path": ".godot/ci/startup-newacc/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/SsilInterleaveShaderRD/88e29bdd44daa6cf920ee2050e7a7237fd88bfa9c8880c62168f4b0a4502f4d0/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 7944,
+      "sha256": "b6c8dc00377125ff0ad5ecc64a84ba3d0514fb64a6bfb09a2d3ff0692d25e1d0",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user/editor state or shader cache; exact source/receipts/logs retained."
+    },
+    {
+      "original_path": ".godot/ci/startup-newacc/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/SsilShaderRD/af35f1233e4d0591e9dad8d6301cf258931ca4d79c210c67076cd8fb624c6da0/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 28696,
+      "sha256": "932c4c78e2779f12a98081eff657cb38bee5d5ff65b71d44d7a30526ba28fc74",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user/editor state or shader cache; exact source/receipts/logs retained."
+    },
+    {
+      "original_path": ".godot/ci/startup-newacc/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/SubsurfaceScatteringShaderRD/69df93a2334ebca4dc3af3f7aef99cad7870b6623865bd4671963fae81796b41/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 14560,
+      "sha256": "bb53668c83df76ce0032b9714909131e1e6d8839b961609a05cebbc198d88283",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user/editor state or shader cache; exact source/receipts/logs retained."
+    },
+    {
+      "original_path": ".godot/ci/startup-newacc/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/TaaResolveShaderRD/21a8f8e3a65237efe11f4640388d4d1a1fac34dfb3102a6aa4c5b6bf6c85e8ea/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 6348,
+      "sha256": "fe5712e6e2af6be63f17d5f9bc581479bda59ca05ca660e28574a5680f823045",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user/editor state or shader cache; exact source/receipts/logs retained."
+    },
+    {
+      "original_path": ".godot/ci/startup-newacc/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/TonemapShaderRD/c3f5c8110f44921262b756899cc7d2c51c74e9333ffe1f8450a95bbd12872516/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 61336,
+      "sha256": "2dea10171fb27e0c6b9cef4da2b1beb66783d824194cd22b6cc8f13d6adc3686",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user/editor state or shader cache; exact source/receipts/logs retained."
+    },
+    {
+      "original_path": ".godot/ci/startup-newacc/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/VolumetricFogProcessShaderRD/c323a941682e364f2ac33c4d96c03f043ff01d2d1a8ec923fb6520953aed2e93/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 37236,
+      "sha256": "34b6779cbbd6573cf4d7af8a90ab077e4b259bf96aa180a7e21eae654f0bb2a3",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user/editor state or shader cache; exact source/receipts/logs retained."
+    },
+    {
+      "original_path": ".godot/ci/startup-newacc/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/VolumetricFogShaderRD/48422ca2db267dec13a7aa41ba356cdfc7cbfa667e28e02e98b968145e4cc2f5/9a227745af2d65830f930370a9fbba551fbd6f60.d3d12.cache",
+      "size_bytes": 5844,
+      "sha256": "f4e81385c1be19c55210079012e62940246635014e590f28b6a1227c5f747b03",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user/editor state or shader cache; exact source/receipts/logs retained."
+    },
+    {
+      "original_path": ".godot/ci/startup-newacc/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/VoxelGiDebugShaderRD/4e91a9ddbecad298ed67c31222afae9756053363f06befd837e376dd85b639aa/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 19560,
+      "sha256": "866aa7596db948a65c9dbcd36c10ec5758d40b98fbc00ced2bf2da2bea5ddf18",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user/editor state or shader cache; exact source/receipts/logs retained."
+    },
+    {
+      "original_path": ".godot/ci/startup-newacc/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/VoxelGiShaderRD/44b979a30a4cc4de0f731a25d26286e14abc01718fe9a838d597bd153538c665/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 30604,
+      "sha256": "ccd257a4d202d1966ce12bf36a1edc50143a912ca78e27ca28c6bfbb4cb8a45e",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user/editor state or shader cache; exact source/receipts/logs retained."
+    },
+    {
+      "original_path": "evidence/phase_2r/runtime/game_state_surface.json",
+      "size_bytes": 660920,
+      "sha256": "8b4a944dac8741bc2d8fe8320622959945fb9ecd3985807d0745659382f5a8a2",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Unregenerated inventory unrelated to this diagnostic."
+    },
+    {
+      "original_path": "evidence/phase_2r/runtime/save_manager_surface.json",
+      "size_bytes": 183948,
+      "sha256": "bd14d2f342c0277e920f4fa1622ecdacae1e15e2329a89c6dd609b4ea619e04c",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Unregenerated inventory unrelated to this diagnostic."
+    }
+  ]
+}

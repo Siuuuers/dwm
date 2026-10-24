@@ -1,0 +1,1277 @@
+{
+  "original": {
+    "artifact_id": 12559596181,
+    "job_id": 120865979193,
+    "run_id": 40091850701,
+    "source_ref": "3ed9cf1fd51cc1910d1d2a96fb4eb87784bb822c",
+    "runtime_base": "88e44efbf6d65cc3b70118e73923eb408db98b7e",
+    "size_bytes": 6106777,
+    "sha256": "1fd2887e76c3af743b09d67cfc140d1ea85b96ca48b174ae614e8def5122118d",
+    "job_conclusion": "success"
+  },
+  "retained_archive": {
+    "path": "valid-evidence.zip",
+    "size_bytes": 1603874,
+    "sha256": "154d944b778823be7c8bb576fd95a439150aee2f9b2a53b04af3488d680f949a",
+    "members": 15,
+    "crc_verified": true,
+    "all_retained_members_byte_identical": true
+  },
+  "manifest": "valid-manifest.json",
+  "source_patch": {
+    "path": "valid-source.patch",
+    "size_bytes": 31924,
+    "sha256": "8ad18dfdbaefab23f1ab050197058190ff0489afd4baf69a3bd5e5bf77e7c595",
+    "base_ref": "88e44efbf6d65cc3b70118e73923eb408db98b7e",
+    "source_ref": "3ed9cf1fd51cc1910d1d2a96fb4eb87784bb822c",
+    "changed_files": [
+      ".github/workflows/restore-proof-preflight.yml",
+      "autoload/ApplicationBootstrap.gd",
+      "autoload/SaveManager.gd",
+      "scripts/ui/MenuScene.gd",
+      "tests/integration/startup_new_acc_attribution.gd",
+      "tests/support/StartupAttributionTiming.gd",
+      "tools/testing/Invoke-StartupNewAccAttribution.ps1"
+    ],
+    "provenance": "Exact git binary diff between available commit objects; all nine recorded source hashes match source commit bytes, all36 font hashes match source and runtime base."
+  },
+  "original_receipts": [
+    {
+      "archive": "valid-evidence.zip",
+      "member": ".godot/ci/startup-newacc/fresh/results.json",
+      "size_bytes": 10122,
+      "sha256": "eb29ad14c71005a1bb20d80903c3177f603459e80871cf56cb7d4271cdc7677f"
+    },
+    {
+      "archive": "valid-evidence.zip",
+      "member": ".godot/ci/startup-newacc/processes.json",
+      "size_bytes": 9530,
+      "sha256": "02ee51d387bd35ae4f29f08e84b73dfcb761ed0b3a5dd1b58980f1b93bbcf3a6"
+    },
+    {
+      "archive": "valid-evidence.zip",
+      "member": ".godot/ci/startup-newacc/retained/results.json",
+      "size_bytes": 11495,
+      "sha256": "a4e8dab0083e4dfd0dbde7aca109fe62667eeadd876369a75abc804f005ccb68"
+    }
+  ],
+  "status": "complete_diagnostic_pair_not_performance_fix",
+  "successful_complete_journeys": 2,
+  "clean_processes": 2,
+  "capture_count": 5,
+  "captures": [
+    {
+      "member": ".godot/ci/startup-newacc/fresh/caption.png",
+      "sha256": "89a673548bdb08a45771888a386c216d735855abfc276d6d81bcad72e6353f2c",
+      "name": "caption.png",
+      "size": 773137
+    },
+    {
+      "member": ".godot/ci/startup-newacc/fresh/title.png",
+      "sha256": "2b01f0beb4d153b753ce29839f256788066c26da86a5db7ae07b16fc1fc9b53c",
+      "name": "title.png",
+      "size": 9866
+    },
+    {
+      "member": ".godot/ci/startup-newacc/retained/caption.png",
+      "sha256": "4efd5d7f171e83e3485b3a02b908379a451a9e903782f99b1777e7c362d3716d",
+      "name": "caption.png",
+      "size": 773207
+    },
+    {
+      "member": ".godot/ci/startup-newacc/retained/consent.png",
+      "sha256": "5995b8d05380123789d5572b14c3bb2817924e5fe9435a92773ab515f96d1a4c",
+      "name": "consent.png",
+      "size": 17152
+    },
+    {
+      "member": ".godot/ci/startup-newacc/retained/title.png",
+      "sha256": "2b01f0beb4d153b753ce29839f256788066c26da86a5db7ae07b16fc1fc9b53c",
+      "name": "title.png",
+      "size": 9866
+    }
+  ],
+  "source_hashes_verified": {
+    "project.godot": "5e8009d890f9e4359b24bb68a59fdec1bf56ef0a3ea94be06c3e43a6d2353053",
+    "scripts/ui/UiTypography.gd": "d4fd518c41b011ed087c257360f4fe5000bbadbf0072cb0de0a5d3e451dd2a8c",
+    "tests/integration/startup_new_acc_attribution.gd": "29cd7f4674b1a123514eadb9529ec7dfc6d1d5777c06e837c0e69487576b5053",
+    "scripts/ui/MenuScene.gd": "a8e097d4e758881764d74f7abac42cce8673dcff41f1c6d33b6a819d0cf44d88",
+    "tests/support/StartupAttributionTiming.gd": "7333db59c28da0cf34e6f6dca9a51477bf7251d5c1731dabba4d386f3d9d665a",
+    "tools/testing/Invoke-StartupNewAccAttribution.ps1": "ebfff6744f02a66ff9c43ded6b237a42d01f7ef794b751b4addba55a65dc77c7",
+    "autoload/SaveManager.gd": "2b942d9350f36b55b885ca57c30795a8f57c1a4100a7d69f6534cf0162b85e9f",
+    "autoload/ApplicationBootstrap.gd": "4bd54cdf98b52439260a2b12865337a5b5045eade944e564276c16800253134d",
+    "data/manifests/scene_story_registration.json": "af472daf6e4b5bcce5b345a0e814e1361780577894acc7c4cbbb6601f31d02b1"
+  },
+  "font_hashes_verified_count": 36,
+  "engine_sha256_recorded": "63b3b2208819714c9677fbfdd8217c5b7dee8ecf5f383502e826bc9e2227ff5a",
+  "engine_verification_limit": "Executable not retained in artifact; hash recorded by helper and pinned download/workflow provenance, not independently recomputed from executable here.",
+  "cases": {
+    "fresh": {
+      "process": {
+        "case": "fresh",
+        "argv": [
+          "--path",
+          "D:\\a\\dwm\\dwm",
+          "--audio-driver",
+          "Dummy",
+          "--windowed",
+          "--resolution",
+          "1280x720",
+          "--log-file",
+          "D:\\a\\dwm\\dwm\\.godot\\ci\\startup-newacc\\fresh\\render.log"
+        ],
+        "clean_exit": true,
+        "timed_out": false,
+        "launch_unix_ms": 1792843013609,
+        "pid": 7880,
+        "lifetime_ms": 30623.8504,
+        "exit_code": 0,
+        "launch_to_bootstrap_start_ms": 10383.0,
+        "launch_to_title_drawn_ms": 16427.0,
+        "new_acc_to_caption_complete_ms": 13578.555,
+        "rendering": {
+          "get_current_rendering_driver_name": "d3d12",
+          "get_current_rendering_method": "forward_plus",
+          "get_video_adapter_api_version": "12_0",
+          "get_video_adapter_name": "Microsoft Basic Render Driver"
+        },
+        "user_path": "D:/a/dwm/dwm/.godot/ci/startup-newacc/shared-user/APPDATA/Godot/app_userdata/DWM/",
+        "images": [
+          {
+            "sha256": "89a673548bdb08a45771888a386c216d735855abfc276d6d81bcad72e6353f2c",
+            "name": "caption.png",
+            "size": 773137
+          },
+          {
+            "sha256": "2b01f0beb4d153b753ce29839f256788066c26da86a5db7ae07b16fc1fc9b53c",
+            "name": "title.png",
+            "size": 9866
+          }
+        ]
+      },
+      "milestones": {
+        "caption_complete_drawn_idle": {
+          "ticks_us": 30004444,
+          "unix_ms": 1792843043640.0
+        },
+        "caption_first_visible": {
+          "ticks_us": 29962783,
+          "unix_ms": 1792843043598.0
+        },
+        "new_acc_input": {
+          "ticks_us": 16425889,
+          "unix_ms": 1792843030061.0
+        },
+        "title_drawn_usable": {
+          "ticks_us": 16400252,
+          "unix_ms": 1792843030036.0
+        }
+      },
+      "inputs": [
+        {
+          "button_mouse_filter": 0,
+          "can_leave_login": true,
+          "label": "title_admission",
+          "new_acc_transaction": "",
+          "startup_recovery": false,
+          "title_transition": false
+        },
+        {
+          "button_down_count": 1,
+          "button_up_count": 1,
+          "can_process": true,
+          "canvas_transform": "[X: (1.0, 0.0), Y: (0.0, 1.0), O: (0.0, 0.0)]",
+          "control": "/root/MenuScene/MenuPanel/ButtonList/NewAccButton",
+          "disabled": false,
+          "global_rect": "[P: (0.0, 0.0), S: (320.0, 64.0)]",
+          "gui_events": [
+            {
+              "down": true,
+              "local_position": "(160.0, 32.0)"
+            },
+            {
+              "down": false,
+              "local_position": "(160.0, 32.0)"
+            }
+          ],
+          "hovered_after_warp": true,
+          "hovered_before": false,
+          "hovered_control": "/root/MenuScene/MenuPanel/ButtonList/NewAccButton",
+          "label": "new_acc",
+          "mouse_filter": 0,
+          "mouse_position": "(160.0, 30.96774)",
+          "point": "(160.0, 32.0)",
+          "pressed_count": 1,
+          "size": "(320.0, 64.0)",
+          "viewport_final_transform": "[X: (0.775, 0.0), Y: (0.0, 0.775), O: (0.0, 0.0)]",
+          "viewport_rect": "[P: (0.0, 0.0), S: (1280.0, 720.0)]",
+          "viewport_screen_transform": "[X: (0.775, 0.0), Y: (0.0, 0.775), O: (0.0, 0.0)]",
+          "window_focused": true,
+          "window_id": 0,
+          "window_position": "(16, 85)",
+          "window_size": "(992, 558)"
+        }
+      ],
+      "observation": {
+        "active": true,
+        "event_done": true,
+        "line_id": "line.Day1.one",
+        "new_run_busy": false,
+        "revealing": false,
+        "text": "Sylvia slides the fuller teacup onto my mat and keeps the one with the small chip on the rim for herself.",
+        "visible": true,
+        "visible_ratio": 1.0
+      },
+      "max_new_acc_frame_gap_us": 8927761,
+      "inclusive_phases": [
+        {
+          "elapsed_us": 2474,
+          "end": {
+            "ticks_us": 10295858,
+            "unix_ms": 1792843023931.0
+          },
+          "ok": true,
+          "phase": "menu.title_art",
+          "start": {
+            "ticks_us": 10293384,
+            "unix_ms": 1792843023929.0
+          }
+        },
+        {
+          "elapsed_us": 37413,
+          "end": {
+            "ticks_us": 10333278,
+            "unix_ms": 1792843023969.0
+          },
+          "ok": true,
+          "phase": "menu.login_shell",
+          "start": {
+            "ticks_us": 10295865,
+            "unix_ms": 1792843023931.0
+          }
+        },
+        {
+          "elapsed_us": 56,
+          "end": {
+            "ticks_us": 10356148,
+            "unix_ms": 1792843023992.0
+          },
+          "ok": true,
+          "phase": "bootstrap.select_and_prove_roots",
+          "start": {
+            "ticks_us": 10356092,
+            "unix_ms": 1792843023992.0
+          }
+        },
+        {
+          "elapsed_us": 148,
+          "end": {
+            "ticks_us": 10356304,
+            "unix_ms": 1792843023992.0
+          },
+          "ok": true,
+          "phase": "bootstrap.construct_and_inject_mutation_gate",
+          "start": {
+            "ticks_us": 10356156,
+            "unix_ms": 1792843023992.0
+          }
+        },
+        {
+          "elapsed_us": 2357,
+          "end": {
+            "ticks_us": 10358665,
+            "unix_ms": 1792843023994.0
+          },
+          "ok": true,
+          "phase": "bootstrap.construct_identity_issuer_and_contact_commands",
+          "start": {
+            "ticks_us": 10356308,
+            "unix_ms": 1792843023992.0
+          }
+        },
+        {
+          "elapsed_us": 5366669,
+          "end": {
+            "ticks_us": 15725447,
+            "unix_ms": 1792843029360.0
+          },
+          "ok": true,
+          "phase": "bootstrap.saves.configure_scene_creation",
+          "start": {
+            "ticks_us": 10358778,
+            "unix_ms": 1792843023994.0
+          }
+        },
+        {
+          "elapsed_us": 382,
+          "end": {
+            "ticks_us": 15725841,
+            "unix_ms": 1792843029361.0
+          },
+          "ok": true,
+          "phase": "bootstrap.saves.reconcile_new_run_storage",
+          "start": {
+            "ticks_us": 15725459,
+            "unix_ms": 1792843029360.0
+          }
+        },
+        {
+          "elapsed_us": 5367185,
+          "end": {
+            "ticks_us": 15725857,
+            "unix_ms": 1792843029361.0
+          },
+          "ok": true,
+          "phase": "bootstrap.initialize_saves",
+          "start": {
+            "ticks_us": 10358672,
+            "unix_ms": 1792843023994.0
+          }
+        },
+        {
+          "elapsed_us": 107701,
+          "end": {
+            "ticks_us": 15833563,
+            "unix_ms": 1792843029469.0
+          },
+          "ok": true,
+          "phase": "bootstrap.initialize_profile",
+          "start": {
+            "ticks_us": 15725862,
+            "unix_ms": 1792843029361.0
+          }
+        },
+        {
+          "elapsed_us": 347942,
+          "end": {
+            "ticks_us": 16181520,
+            "unix_ms": 1792843029817.0
+          },
+          "ok": true,
+          "phase": "bootstrap.initialize_localization",
+          "start": {
+            "ticks_us": 15833578,
+            "unix_ms": 1792843029469.0
+          }
+        },
+        {
+          "elapsed_us": 190,
+          "end": {
+            "ticks_us": 16181723,
+            "unix_ms": 1792843029817.0
+          },
+          "ok": true,
+          "phase": "bootstrap.initialize_input",
+          "start": {
+            "ticks_us": 16181533,
+            "unix_ms": 1792843029817.0
+          }
+        },
+        {
+          "elapsed_us": 16,
+          "end": {
+            "ticks_us": 16181744,
+            "unix_ms": 1792843029817.0
+          },
+          "ok": true,
+          "phase": "bootstrap.initialize_accessibility",
+          "start": {
+            "ticks_us": 16181728,
+            "unix_ms": 1792843029817.0
+          }
+        },
+        {
+          "elapsed_us": 1506,
+          "end": {
+            "ticks_us": 16183253,
+            "unix_ms": 1792843029819.0
+          },
+          "ok": true,
+          "phase": "bootstrap.initialize_audio",
+          "start": {
+            "ticks_us": 16181747,
+            "unix_ms": 1792843029817.0
+          }
+        },
+        {
+          "elapsed_us": 5716,
+          "end": {
+            "ticks_us": 16188978,
+            "unix_ms": 1792843029824.0
+          },
+          "ok": true,
+          "phase": "bootstrap.initialize_window_mode",
+          "start": {
+            "ticks_us": 16183262,
+            "unix_ms": 1792843029819.0
+          }
+        },
+        {
+          "elapsed_us": 92896,
+          "end": {
+            "ticks_us": 16281892,
+            "unix_ms": 1792843029917.0
+          },
+          "ok": true,
+          "phase": "bootstrap.initialize_dialogic_bridge",
+          "start": {
+            "ticks_us": 16188996,
+            "unix_ms": 1792843029825.0
+          }
+        },
+        {
+          "elapsed_us": 42164,
+          "end": {
+            "ticks_us": 16324067,
+            "unix_ms": 1792843029960.0
+          },
+          "ok": true,
+          "phase": "bootstrap.configure_restore_participants",
+          "start": {
+            "ticks_us": 16281903,
+            "unix_ms": 1792843029917.0
+          }
+        },
+        {
+          "elapsed_us": 3201,
+          "end": {
+            "ticks_us": 16327281,
+            "unix_ms": 1792843029963.0
+          },
+          "ok": true,
+          "phase": "bootstrap.configure_day_resolution",
+          "start": {
+            "ticks_us": 16324080,
+            "unix_ms": 1792843029960.0
+          }
+        },
+        {
+          "elapsed_us": 87,
+          "end": {
+            "ticks_us": 16327375,
+            "unix_ms": 1792843029963.0
+          },
+          "ok": true,
+          "phase": "bootstrap.configure_minesweeper_rounds",
+          "start": {
+            "ticks_us": 16327288,
+            "unix_ms": 1792843029963.0
+          }
+        },
+        {
+          "elapsed_us": 7846,
+          "end": {
+            "ticks_us": 16335225,
+            "unix_ms": 1792843029971.0
+          },
+          "ok": true,
+          "phase": "bootstrap.publish_application_ready",
+          "start": {
+            "ticks_us": 16327379,
+            "unix_ms": 1792843029963.0
+          }
+        },
+        {
+          "elapsed_us": 17,
+          "end": {
+            "ticks_us": 16335248,
+            "unix_ms": 1792843029971.0
+          },
+          "ok": true,
+          "phase": "bootstrap.publish_route_hold",
+          "start": {
+            "ticks_us": 16335231,
+            "unix_ms": 1792843029971.0
+          }
+        },
+        {
+          "elapsed_us": 5980659,
+          "end": {
+            "ticks_us": 16336726,
+            "unix_ms": 1792843029972.0
+          },
+          "ok": true,
+          "phase": "bootstrap.total",
+          "start": {
+            "ticks_us": 10356067,
+            "unix_ms": 1792843023992.0
+          }
+        },
+        {
+          "elapsed_us": 10102,
+          "end": {
+            "ticks_us": 16464208,
+            "unix_ms": 1792843030099.0
+          },
+          "ok": true,
+          "phase": "new_acc.prepare_new_run_action",
+          "start": {
+            "ticks_us": 16454106,
+            "unix_ms": 1792843030090.0
+          }
+        },
+        {
+          "elapsed_us": 1697765,
+          "end": {
+            "ticks_us": 19612826,
+            "unix_ms": 1792843033248.0
+          },
+          "ok": true,
+          "phase": "new_acc._prepare_scene_new_run_plans",
+          "start": {
+            "ticks_us": 17915061,
+            "unix_ms": 1792843031550.0
+          }
+        },
+        {
+          "elapsed_us": 4549626,
+          "end": {
+            "ticks_us": 21033159,
+            "unix_ms": 1792843034668.0
+          },
+          "ok": true,
+          "phase": "new_acc._prepare_scene_new_run_decision",
+          "start": {
+            "ticks_us": 16483533,
+            "unix_ms": 1792843030118.0
+          }
+        },
+        {
+          "elapsed_us": 756447,
+          "end": {
+            "ticks_us": 21791161,
+            "unix_ms": 1792843035426.0
+          },
+          "ok": true,
+          "phase": "new_acc.commit_intent",
+          "start": {
+            "ticks_us": 21034714,
+            "unix_ms": 1792843034670.0
+          }
+        },
+        {
+          "elapsed_us": 3639905,
+          "end": {
+            "ticks_us": 25431108,
+            "unix_ms": 1792843039067.0
+          },
+          "ok": true,
+          "phase": "new_acc.settle_pair",
+          "start": {
+            "ticks_us": 21791203,
+            "unix_ms": 1792843035426.0
+          }
+        },
+        {
+          "elapsed_us": 1720298,
+          "end": {
+            "ticks_us": 27166666,
+            "unix_ms": 1792843040802.0
+          },
+          "ok": true,
+          "phase": "new_acc._prepare_scene_new_run_plans",
+          "start": {
+            "ticks_us": 25446368,
+            "unix_ms": 1792843039082.0
+          }
+        },
+        {
+          "elapsed_us": 7217410,
+          "end": {
+            "ticks_us": 29008609,
+            "unix_ms": 1792843042644.0
+          },
+          "ok": false,
+          "phase": "new_acc._resume_scene_new_run",
+          "start": {
+            "ticks_us": 21791199,
+            "unix_ms": 1792843035426.0
+          }
+        }
+      ],
+      "validation_profiles": [
+        {
+          "bundle_validation_calls": 2,
+          "bundle_validation_failures": 0,
+          "bundle_validation_us": 256687,
+          "compilation_calls": 92,
+          "compilation_failures": 0,
+          "compilation_us": 4522071,
+          "configuration_calls": 0,
+          "configuration_failures": 0,
+          "configuration_us": 0,
+          "elapsed_us": 5980650,
+          "inclusive_nested": true,
+          "lifecycle_state": "",
+          "next_step_index": 0,
+          "ok": true,
+          "operation": "startup",
+          "physical_proof_calls": 0,
+          "physical_proof_failures": 0,
+          "physical_proof_us": 0,
+          "playback_stage": "",
+          "receipt_validation_calls": 0,
+          "receipt_validation_failures": 0,
+          "receipt_validation_us": 0,
+          "snapshot_validations": []
+        },
+        {
+          "bundle_validation_calls": 17,
+          "bundle_validation_failures": 0,
+          "bundle_validation_us": 2200802,
+          "compilation_calls": 3146,
+          "compilation_failures": 0,
+          "compilation_us": 1672924,
+          "configuration_calls": 34,
+          "configuration_failures": 0,
+          "configuration_us": 2661302,
+          "elapsed_us": 13578603,
+          "inclusive_nested": true,
+          "lifecycle_state": "",
+          "next_step_index": 0,
+          "ok": true,
+          "operation": "new_acc_fresh",
+          "physical_proof_calls": 0,
+          "physical_proof_failures": 0,
+          "physical_proof_us": 0,
+          "playback_stage": "",
+          "receipt_validation_calls": 0,
+          "receipt_validation_failures": 0,
+          "receipt_validation_us": 0,
+          "snapshot_validations": []
+        }
+      ],
+      "preferences": {
+        "preferences.accessibility.font_style": "pixel",
+        "preferences.accessibility.text_size": 100,
+        "preferences.reading.auto_enabled": false,
+        "preferences.reading.reveal_speed": "normal"
+      },
+      "scope": "Instrumented native project launch; inclusive phases overlap. Natural default text reveal. Consent screenshot/pointer-preparation dwell separate. Native pointer focus/warp precedes timed action input. Two same-runner processes; fresh means empty user profile, not cold OS disk cache. No performance acceptance threshold or user-device claim."
+    },
+    "retained": {
+      "process": {
+        "case": "retained",
+        "argv": [
+          "--path",
+          "D:\\a\\dwm\\dwm",
+          "--audio-driver",
+          "Dummy",
+          "--windowed",
+          "--resolution",
+          "1280x720",
+          "--log-file",
+          "D:\\a\\dwm\\dwm\\.godot\\ci\\startup-newacc\\retained\\render.log"
+        ],
+        "clean_exit": true,
+        "timed_out": false,
+        "launch_unix_ms": 1792843044307,
+        "pid": 7644,
+        "lifetime_ms": 30513.2109,
+        "exit_code": 0,
+        "launch_to_bootstrap_start_ms": 8321.0,
+        "launch_to_title_drawn_ms": 15897.0,
+        "new_acc_to_caption_complete_ms": 14050.211,
+        "rendering": {
+          "get_current_rendering_driver_name": "d3d12",
+          "get_current_rendering_method": "forward_plus",
+          "get_video_adapter_api_version": "12_0",
+          "get_video_adapter_name": "Microsoft Basic Render Driver"
+        },
+        "user_path": "D:/a/dwm/dwm/.godot/ci/startup-newacc/shared-user/APPDATA/Godot/app_userdata/DWM/",
+        "input_to_consent_ms": 43.102,
+        "consent_dwell_ms": 58.271,
+        "confirm_to_caption_complete_ms": 13948.838,
+        "images": [
+          {
+            "sha256": "4efd5d7f171e83e3485b3a02b908379a451a9e903782f99b1777e7c362d3716d",
+            "name": "caption.png",
+            "size": 773207
+          },
+          {
+            "sha256": "5995b8d05380123789d5572b14c3bb2817924e5fe9435a92773ab515f96d1a4c",
+            "name": "consent.png",
+            "size": 17152
+          },
+          {
+            "sha256": "2b01f0beb4d153b753ce29839f256788066c26da86a5db7ae07b16fc1fc9b53c",
+            "name": "title.png",
+            "size": 9866
+          }
+        ]
+      },
+      "milestones": {
+        "caption_complete_drawn_idle": {
+          "ticks_us": 29950494,
+          "unix_ms": 1792843074280.0
+        },
+        "caption_first_visible": {
+          "ticks_us": 29913954,
+          "unix_ms": 1792843074244.0
+        },
+        "confirm_input": {
+          "ticks_us": 16001656,
+          "unix_ms": 1792843060331.0
+        },
+        "consent_drawn": {
+          "ticks_us": 15943385,
+          "unix_ms": 1792843060273.0
+        },
+        "new_acc_input": {
+          "ticks_us": 15900283,
+          "unix_ms": 1792843060229.0
+        },
+        "title_drawn_usable": {
+          "ticks_us": 15875295,
+          "unix_ms": 1792843060204.0
+        }
+      },
+      "inputs": [
+        {
+          "button_mouse_filter": 0,
+          "can_leave_login": true,
+          "label": "title_admission",
+          "new_acc_transaction": "",
+          "startup_recovery": false,
+          "title_transition": false
+        },
+        {
+          "button_down_count": 1,
+          "button_up_count": 1,
+          "can_process": true,
+          "canvas_transform": "[X: (1.0, 0.0), Y: (0.0, 1.0), O: (0.0, 0.0)]",
+          "control": "/root/MenuScene/MenuPanel/ButtonList/NewAccButton",
+          "disabled": false,
+          "global_rect": "[P: (0.0, 0.0), S: (320.0, 64.0)]",
+          "gui_events": [
+            {
+              "down": true,
+              "local_position": "(160.0, 32.0)"
+            },
+            {
+              "down": false,
+              "local_position": "(160.0, 32.0)"
+            }
+          ],
+          "hovered_after_warp": true,
+          "hovered_before": false,
+          "hovered_control": "/root/MenuScene/MenuPanel/ButtonList/NewAccButton",
+          "label": "new_acc",
+          "mouse_filter": 0,
+          "mouse_position": "(160.0, 30.96774)",
+          "point": "(160.0, 32.0)",
+          "pressed_count": 1,
+          "size": "(320.0, 64.0)",
+          "viewport_final_transform": "[X: (0.775, 0.0), Y: (0.0, 0.775), O: (0.0, 0.0)]",
+          "viewport_rect": "[P: (0.0, 0.0), S: (1280.0, 720.0)]",
+          "viewport_screen_transform": "[X: (0.775, 0.0), Y: (0.0, 0.775), O: (0.0, 0.0)]",
+          "window_focused": true,
+          "window_id": 0,
+          "window_position": "(16, 85)",
+          "window_size": "(992, 558)"
+        },
+        {
+          "button_down_count": 1,
+          "button_up_count": 1,
+          "can_process": true,
+          "canvas_transform": "[X: (1.0, 0.0), Y: (0.0, 1.0), O: (808.0, 512.0)]",
+          "control": "/root/MenuScene/@Control@23/ConfirmationSheet/@VBoxContainer@24/ConfirmationActions/ConfirmButton",
+          "disabled": false,
+          "global_rect": "[P: (808.0, 512.0), S: (256.0, 64.0)]",
+          "gui_events": [
+            {
+              "down": true,
+              "local_position": "(128.0, 32.0)"
+            },
+            {
+              "down": false,
+              "local_position": "(128.0, 32.0)"
+            }
+          ],
+          "hovered_after_warp": true,
+          "hovered_before": false,
+          "hovered_control": "/root/MenuScene/@Control@23/ConfirmationSheet/@VBoxContainer@24/ConfirmationActions/ConfirmButton",
+          "label": "consent",
+          "mouse_filter": 0,
+          "mouse_position": "(935.4839, 543.2258)",
+          "point": "(936.0, 544.0)",
+          "pressed_count": 1,
+          "size": "(256.0, 64.0)",
+          "viewport_final_transform": "[X: (0.775, 0.0), Y: (0.0, 0.775), O: (0.0, 0.0)]",
+          "viewport_rect": "[P: (0.0, 0.0), S: (1280.0, 720.0)]",
+          "viewport_screen_transform": "[X: (0.775, 0.0), Y: (0.0, 0.775), O: (0.0, 0.0)]",
+          "window_focused": true,
+          "window_id": 0,
+          "window_position": "(16, 85)",
+          "window_size": "(992, 558)"
+        }
+      ],
+      "observation": {
+        "active": true,
+        "event_done": true,
+        "line_id": "line.Day1.one",
+        "new_run_busy": false,
+        "revealing": false,
+        "text": "Sylvia slides the fuller teacup onto my mat and keeps the one with the small chip on the rim for herself.",
+        "visible": true,
+        "visible_ratio": 1.0
+      },
+      "max_new_acc_frame_gap_us": 8713427,
+      "inclusive_phases": [
+        {
+          "elapsed_us": 4230,
+          "end": {
+            "ticks_us": 8238326,
+            "unix_ms": 1792843052568.0
+          },
+          "ok": true,
+          "phase": "menu.title_art",
+          "start": {
+            "ticks_us": 8234096,
+            "unix_ms": 1792843052564.0
+          }
+        },
+        {
+          "elapsed_us": 37913,
+          "end": {
+            "ticks_us": 8276247,
+            "unix_ms": 1792843052606.0
+          },
+          "ok": true,
+          "phase": "menu.login_shell",
+          "start": {
+            "ticks_us": 8238334,
+            "unix_ms": 1792843052568.0
+          }
+        },
+        {
+          "elapsed_us": 94,
+          "end": {
+            "ticks_us": 8299088,
+            "unix_ms": 1792843052629.0
+          },
+          "ok": true,
+          "phase": "bootstrap.select_and_prove_roots",
+          "start": {
+            "ticks_us": 8298994,
+            "unix_ms": 1792843052628.0
+          }
+        },
+        {
+          "elapsed_us": 160,
+          "end": {
+            "ticks_us": 8299258,
+            "unix_ms": 1792843052629.0
+          },
+          "ok": true,
+          "phase": "bootstrap.construct_and_inject_mutation_gate",
+          "start": {
+            "ticks_us": 8299098,
+            "unix_ms": 1792843052629.0
+          }
+        },
+        {
+          "elapsed_us": 3853,
+          "end": {
+            "ticks_us": 8303115,
+            "unix_ms": 1792843052633.0
+          },
+          "ok": true,
+          "phase": "bootstrap.construct_identity_issuer_and_contact_commands",
+          "start": {
+            "ticks_us": 8299262,
+            "unix_ms": 1792843052629.0
+          }
+        },
+        {
+          "elapsed_us": 5411424,
+          "end": {
+            "ticks_us": 13714652,
+            "unix_ms": 1792843058044.0
+          },
+          "ok": true,
+          "phase": "bootstrap.saves.configure_scene_creation",
+          "start": {
+            "ticks_us": 8303228,
+            "unix_ms": 1792843052633.0
+          }
+        },
+        {
+          "elapsed_us": 776265,
+          "end": {
+            "ticks_us": 14490928,
+            "unix_ms": 1792843058820.0
+          },
+          "ok": true,
+          "phase": "bootstrap.saves.reconcile_new_run_storage",
+          "start": {
+            "ticks_us": 13714663,
+            "unix_ms": 1792843058044.0
+          }
+        },
+        {
+          "elapsed_us": 6187829,
+          "end": {
+            "ticks_us": 14490950,
+            "unix_ms": 1792843058820.0
+          },
+          "ok": true,
+          "phase": "bootstrap.initialize_saves",
+          "start": {
+            "ticks_us": 8303121,
+            "unix_ms": 1792843052633.0
+          }
+        },
+        {
+          "elapsed_us": 107820,
+          "end": {
+            "ticks_us": 14598776,
+            "unix_ms": 1792843058928.0
+          },
+          "ok": true,
+          "phase": "bootstrap.initialize_profile",
+          "start": {
+            "ticks_us": 14490956,
+            "unix_ms": 1792843058820.0
+          }
+        },
+        {
+          "elapsed_us": 344493,
+          "end": {
+            "ticks_us": 14943279,
+            "unix_ms": 1792843059273.0
+          },
+          "ok": true,
+          "phase": "bootstrap.initialize_localization",
+          "start": {
+            "ticks_us": 14598786,
+            "unix_ms": 1792843058928.0
+          }
+        },
+        {
+          "elapsed_us": 192,
+          "end": {
+            "ticks_us": 14943483,
+            "unix_ms": 1792843059273.0
+          },
+          "ok": true,
+          "phase": "bootstrap.initialize_input",
+          "start": {
+            "ticks_us": 14943291,
+            "unix_ms": 1792843059273.0
+          }
+        },
+        {
+          "elapsed_us": 15,
+          "end": {
+            "ticks_us": 14943503,
+            "unix_ms": 1792843059273.0
+          },
+          "ok": true,
+          "phase": "bootstrap.initialize_accessibility",
+          "start": {
+            "ticks_us": 14943488,
+            "unix_ms": 1792843059273.0
+          }
+        },
+        {
+          "elapsed_us": 1480,
+          "end": {
+            "ticks_us": 14944986,
+            "unix_ms": 1792843059275.0
+          },
+          "ok": true,
+          "phase": "bootstrap.initialize_audio",
+          "start": {
+            "ticks_us": 14943506,
+            "unix_ms": 1792843059273.0
+          }
+        },
+        {
+          "elapsed_us": 5481,
+          "end": {
+            "ticks_us": 14950484,
+            "unix_ms": 1792843059280.0
+          },
+          "ok": true,
+          "phase": "bootstrap.initialize_window_mode",
+          "start": {
+            "ticks_us": 14945003,
+            "unix_ms": 1792843059275.0
+          }
+        },
+        {
+          "elapsed_us": 92569,
+          "end": {
+            "ticks_us": 15043059,
+            "unix_ms": 1792843059373.0
+          },
+          "ok": true,
+          "phase": "bootstrap.initialize_dialogic_bridge",
+          "start": {
+            "ticks_us": 14950490,
+            "unix_ms": 1792843059280.0
+          }
+        },
+        {
+          "elapsed_us": 32992,
+          "end": {
+            "ticks_us": 15076060,
+            "unix_ms": 1792843059405.0
+          },
+          "ok": true,
+          "phase": "bootstrap.configure_restore_participants",
+          "start": {
+            "ticks_us": 15043068,
+            "unix_ms": 1792843059373.0
+          }
+        },
+        {
+          "elapsed_us": 1152,
+          "end": {
+            "ticks_us": 15077224,
+            "unix_ms": 1792843059406.0
+          },
+          "ok": true,
+          "phase": "bootstrap.configure_day_resolution",
+          "start": {
+            "ticks_us": 15076072,
+            "unix_ms": 1792843059405.0
+          }
+        },
+        {
+          "elapsed_us": 87,
+          "end": {
+            "ticks_us": 15077317,
+            "unix_ms": 1792843059406.0
+          },
+          "ok": true,
+          "phase": "bootstrap.configure_minesweeper_rounds",
+          "start": {
+            "ticks_us": 15077230,
+            "unix_ms": 1792843059406.0
+          }
+        },
+        {
+          "elapsed_us": 734522,
+          "end": {
+            "ticks_us": 15811842,
+            "unix_ms": 1792843060141.0
+          },
+          "ok": true,
+          "phase": "bootstrap.publish_application_ready",
+          "start": {
+            "ticks_us": 15077320,
+            "unix_ms": 1792843059406.0
+          }
+        },
+        {
+          "elapsed_us": 18,
+          "end": {
+            "ticks_us": 15811870,
+            "unix_ms": 1792843060141.0
+          },
+          "ok": true,
+          "phase": "bootstrap.publish_route_hold",
+          "start": {
+            "ticks_us": 15811852,
+            "unix_ms": 1792843060141.0
+          }
+        },
+        {
+          "elapsed_us": 7514364,
+          "end": {
+            "ticks_us": 15813334,
+            "unix_ms": 1792843060142.0
+          },
+          "ok": true,
+          "phase": "bootstrap.total",
+          "start": {
+            "ticks_us": 8298970,
+            "unix_ms": 1792843052628.0
+          }
+        },
+        {
+          "elapsed_us": 14953,
+          "end": {
+            "ticks_us": 15936729,
+            "unix_ms": 1792843060266.0
+          },
+          "ok": true,
+          "phase": "new_acc.prepare_new_run_action",
+          "start": {
+            "ticks_us": 15921776,
+            "unix_ms": 1792843060251.0
+          }
+        },
+        {
+          "elapsed_us": 1627822,
+          "end": {
+            "ticks_us": 19802705,
+            "unix_ms": 1792843064132.0
+          },
+          "ok": true,
+          "phase": "new_acc._prepare_scene_new_run_plans",
+          "start": {
+            "ticks_us": 18174883,
+            "unix_ms": 1792843062504.0
+          }
+        },
+        {
+          "elapsed_us": 5146668,
+          "end": {
+            "ticks_us": 21198635,
+            "unix_ms": 1792843065528.0
+          },
+          "ok": true,
+          "phase": "new_acc._prepare_scene_new_run_decision",
+          "start": {
+            "ticks_us": 16051967,
+            "unix_ms": 1792843060381.0
+          }
+        },
+        {
+          "elapsed_us": 737351,
+          "end": {
+            "ticks_us": 21937565,
+            "unix_ms": 1792843066266.0
+          },
+          "ok": true,
+          "phase": "new_acc.commit_intent",
+          "start": {
+            "ticks_us": 21200214,
+            "unix_ms": 1792843065529.0
+          }
+        },
+        {
+          "elapsed_us": 3623443,
+          "end": {
+            "ticks_us": 25561058,
+            "unix_ms": 1792843069890.0
+          },
+          "ok": true,
+          "phase": "new_acc.settle_pair",
+          "start": {
+            "ticks_us": 21937615,
+            "unix_ms": 1792843066266.0
+          }
+        },
+        {
+          "elapsed_us": 1665992,
+          "end": {
+            "ticks_us": 27244408,
+            "unix_ms": 1792843071573.0
+          },
+          "ok": true,
+          "phase": "new_acc._prepare_scene_new_run_plans",
+          "start": {
+            "ticks_us": 25578416,
+            "unix_ms": 1792843069908.0
+          }
+        },
+        {
+          "elapsed_us": 7107601,
+          "end": {
+            "ticks_us": 29045212,
+            "unix_ms": 1792843073375.0
+          },
+          "ok": false,
+          "phase": "new_acc._resume_scene_new_run",
+          "start": {
+            "ticks_us": 21937611,
+            "unix_ms": 1792843066266.0
+          }
+        }
+      ],
+      "validation_profiles": [
+        {
+          "bundle_validation_calls": 4,
+          "bundle_validation_failures": 0,
+          "bundle_validation_us": 501902,
+          "compilation_calls": 462,
+          "compilation_failures": 0,
+          "compilation_us": 4757097,
+          "configuration_calls": 4,
+          "configuration_failures": 0,
+          "configuration_us": 314163,
+          "elapsed_us": 7514355,
+          "inclusive_nested": true,
+          "lifecycle_state": "",
+          "next_step_index": 0,
+          "ok": true,
+          "operation": "startup",
+          "physical_proof_calls": 0,
+          "physical_proof_failures": 0,
+          "physical_proof_us": 0,
+          "playback_stage": "",
+          "receipt_validation_calls": 0,
+          "receipt_validation_failures": 0,
+          "receipt_validation_us": 0,
+          "snapshot_validations": []
+        },
+        {
+          "bundle_validation_calls": 18,
+          "bundle_validation_failures": 0,
+          "bundle_validation_us": 2274390,
+          "compilation_calls": 3331,
+          "compilation_failures": 0,
+          "compilation_us": 1711806,
+          "configuration_calls": 36,
+          "configuration_failures": 0,
+          "configuration_us": 2737095,
+          "elapsed_us": 14050249,
+          "inclusive_nested": true,
+          "lifecycle_state": "",
+          "next_step_index": 0,
+          "ok": true,
+          "operation": "new_acc_retained",
+          "physical_proof_calls": 1,
+          "physical_proof_failures": 0,
+          "physical_proof_us": 4201,
+          "playback_stage": "",
+          "receipt_validation_calls": 0,
+          "receipt_validation_failures": 0,
+          "receipt_validation_us": 0,
+          "snapshot_validations": []
+        }
+      ],
+      "preferences": {
+        "preferences.accessibility.font_style": "pixel",
+        "preferences.accessibility.text_size": 100,
+        "preferences.reading.auto_enabled": false,
+        "preferences.reading.reveal_speed": "normal"
+      },
+      "scope": "Instrumented native project launch; inclusive phases overlap. Natural default text reveal. Consent screenshot/pointer-preparation dwell separate. Native pointer focus/warp precedes timed action input. Two same-runner processes; fresh means empty user profile, not cold OS disk cache. No performance acceptance threshold or user-device claim."
+    }
+  },
+  "logs_checked": [
+    ".godot/ci/import.log",
+    ".godot/ci/startup-newacc/fresh/render.log",
+    ".godot/ci/startup-newacc/fresh/stderr.log",
+    ".godot/ci/startup-newacc/fresh/stdout.log",
+    ".godot/ci/startup-newacc/retained/render.log",
+    ".godot/ci/startup-newacc/retained/stderr.log",
+    ".godot/ci/startup-newacc/retained/stdout.log"
+  ],
+  "engine_error_matches": 0,
+  "visual_review": {
+    "reviewer": "independent retention auditor",
+    "all_five_contact_sheet_reviewed": true,
+    "both_caption_and_consent_originals_reviewed": true,
+    "observations": "Both Title screens show usable New Acc menu. Retained consent visibly warns autosave replacement. Both complete first-line captions match the authored teacup line and are legible; no widespread glyph corruption observed."
+  },
+  "interpretation": [
+    "Title launch includes external process creation, native engine/renderer, autoload/preload and bootstrap. Pre-bootstrap is not exclusively resource loading.",
+    "Named phases are inclusive and overlap. bootstrap.initialize_saves contains configure_scene_creation/reconcile; bootstrap.total contains stages. New Acc resume contains settle_pair and a second prepare_plans. Do not sum these phases or add validation profile totals to parent phases.",
+    "Compilation counters count calls including cache hits, not distinct source reparses. Fresh bootstrap92calls/4.522071s; fresh NewAcc3146calls/1.672924s.",
+    "Resume phase ok:false is the existing scene_activation_pending async handoff; completed caption, empty continuation journal checks, and zero-exit establish the final journey outcome.",
+    "Retained NewAcc14.050211s includes43.102ms to consent and58.271ms deliberate dwell; confirmation-to-complete13.948838s separates that dwell."
+  ],
+  "limits": [
+    "One instrumented pair on one Windows Microsoft Basic Render Driver runner; not a timing distribution or physical GPU/user-device prediction.",
+    "Fresh means empty profile, not cold OS disk cache.",
+    "No product performance fix, improvement claim, or acceptance threshold. Temporary instrumentation must not merge as production runtime.",
+    "Maximum frame-gap sampling excludes deliberate consent capture/pointer preparation; natural text reveal remains included.",
+    "Exact source hashes and capture consistency do not substitute for complete game coverage."
+  ]
+}

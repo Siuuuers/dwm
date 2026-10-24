@@ -1,0 +1,696 @@
+{
+  "original": {
+    "artifact_id": 12558999332,
+    "job_id": 120866635846,
+    "run_id": 40092073156,
+    "source_ref": "3fbc22320962ec0cba1ccc1fb05dcb1746e9b7a1",
+    "runtime_base": "88e44efbf6d65cc3b70118e73923eb408db98b7e",
+    "size_bytes": 4508897,
+    "sha256": "a8d83be8d702475896d9974426242b8e0afd8ece340f3b247e05e8bf297dae92",
+    "job_conclusion": "success"
+  },
+  "original_crc_verified": true,
+  "original_member_count": 84,
+  "retained_archive": {
+    "path": "compiler-evidence.zip",
+    "size_bytes": 26179,
+    "sha256": "9b4792598778b1869d2dc37a5757f836e6532da42a6da3dab862ac470084e6e2",
+    "members": 7,
+    "crc_verified": true,
+    "all_retained_members_byte_identical": true
+  },
+  "members": [
+    {
+      "original_path": ".godot/ci/compiler-attribution/fresh/render.log",
+      "size_bytes": 6978,
+      "sha256": "6ee142e4628af490715c3dcc112459fd88258a80b5ebf31880e0fccd74adee7f",
+      "retained": true,
+      "retained_path": ".godot/ci/compiler-attribution/fresh/render.log",
+      "reason": "Current diagnostic log/report/capture retained byte-for-byte."
+    },
+    {
+      "original_path": ".godot/ci/compiler-attribution/fresh/results.json",
+      "size_bytes": 7887,
+      "sha256": "d70acbf5d039f03cab2db74520bdea3a03db97b92e1f1fb5cdcee902531b3263",
+      "retained": true,
+      "retained_path": ".godot/ci/compiler-attribution/fresh/results.json",
+      "reason": "Current diagnostic log/report/capture retained byte-for-byte."
+    },
+    {
+      "original_path": ".godot/ci/compiler-attribution/fresh/stderr.log",
+      "size_bytes": 2,
+      "sha256": "7eb70257593da06f682a3ddda54a9d260d4fc514f645237f5ca74b08f8da61a6",
+      "retained": true,
+      "retained_path": ".godot/ci/compiler-attribution/fresh/stderr.log",
+      "reason": "Current diagnostic log/report/capture retained byte-for-byte."
+    },
+    {
+      "original_path": ".godot/ci/compiler-attribution/fresh/stdout.log",
+      "size_bytes": 6985,
+      "sha256": "4b4ab6a7a40a3a2a16e9ead2d937c8c9730a1a6f05020f116fb4e7e271670e11",
+      "retained": true,
+      "retained_path": ".godot/ci/compiler-attribution/fresh/stdout.log",
+      "reason": "Current diagnostic log/report/capture retained byte-for-byte."
+    },
+    {
+      "original_path": ".godot/ci/compiler-attribution/fresh/title.png",
+      "size_bytes": 9866,
+      "sha256": "2b01f0beb4d153b753ce29839f256788066c26da86a5db7ae07b16fc1fc9b53c",
+      "retained": true,
+      "retained_path": ".godot/ci/compiler-attribution/fresh/title.png",
+      "reason": "Current diagnostic log/report/capture retained byte-for-byte."
+    },
+    {
+      "original_path": ".godot/ci/compiler-attribution/processes.json",
+      "size_bytes": 9711,
+      "sha256": "224a7de7418c16a1e93183945e1620c663649becfa18f9b9f647045d6151309f",
+      "retained": true,
+      "retained_path": ".godot/ci/compiler-attribution/processes.json",
+      "reason": "Current diagnostic log/report/capture retained byte-for-byte."
+    },
+    {
+      "original_path": ".godot/ci/compiler-attribution/shared-user/APPDATA/Godot/app_userdata/DWM/desktop-issuer-root.json",
+      "size_bytes": 192,
+      "sha256": "038545122665478f807fbce1e2074639cc0544df7dbf5a4fc1832807173418b7",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated profile/editor/import/shader state; diagnostic/source records retained."
+    },
+    {
+      "original_path": ".godot/ci/compiler-attribution/shared-user/APPDATA/Godot/app_userdata/DWM/desktop-publications.json",
+      "size_bytes": 34,
+      "sha256": "902849ab2604217a878bc4de507660ced78f981a72c1d6343dd9ef55af64d4e4",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated profile/editor/import/shader state; diagnostic/source records retained."
+    },
+    {
+      "original_path": ".godot/ci/compiler-attribution/shared-user/APPDATA/Godot/app_userdata/DWM/dialogic/saves/global_info.txt",
+      "size_bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated profile/editor/import/shader state; diagnostic/source records retained."
+    },
+    {
+      "original_path": ".godot/ci/compiler-attribution/shared-user/APPDATA/Godot/app_userdata/DWM/profile.json",
+      "size_bytes": 2744,
+      "sha256": "1d2b6c170f287ce0d7e33cf77ac5ac9ac01a3781e94081643b802a90fd8020b2",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated profile/editor/import/shader state; diagnostic/source records retained."
+    },
+    {
+      "original_path": ".godot/ci/compiler-attribution/shared-user/APPDATA/Godot/app_userdata/DWM/schedule-foundation-publications.json",
+      "size_bytes": 34,
+      "sha256": "902849ab2604217a878bc4de507660ced78f981a72c1d6343dd9ef55af64d4e4",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated profile/editor/import/shader state; diagnostic/source records retained."
+    },
+    {
+      "original_path": ".godot/ci/compiler-attribution/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/BestFitNormalShaderRD/ff55ede486711a617cfa6eca8952f824e1de5c6fd727c4514cd603e8e7c9264e/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 1780,
+      "sha256": "44bf819776bd80915b53c2a85640b6b8a26816a62da248cc28bb58ed43110d39",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated profile/editor/import/shader state; diagnostic/source records retained."
+    },
+    {
+      "original_path": ".godot/ci/compiler-attribution/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/BlitShaderRD/cff12a2b56a5c7d70f6de186c786c80ec84b1844045fdaf13152862c6a82baf6/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 17272,
+      "sha256": "ec6befdc154da5bf7a4866720ce6b1f61163e78eed37fbbff67ef3b922098d5f",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated profile/editor/import/shader state; diagnostic/source records retained."
+    },
+    {
+      "original_path": ".godot/ci/compiler-attribution/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/BokehDofShaderRD/3d294ab0ec5302046ff36ecad7f72d70d1c4b3efbc3ca1bb29fe6a80be9abb65/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 14044,
+      "sha256": "25adc71593a60a15ee4616867bf0f9cff6c21c0427c8863f7f972932e9c50a81",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated profile/editor/import/shader state; diagnostic/source records retained."
+    },
+    {
+      "original_path": ".godot/ci/compiler-attribution/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/CanvasOcclusionShaderRD/e397c50e1a9e03519ccb486acfdaddf8be9986511a5738dd0fa77e62980f0ad0/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 10252,
+      "sha256": "ea363e29d9f986409341b46d3e1b555912fcd7c89691a63d1ccced1bb84b8d26",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated profile/editor/import/shader state; diagnostic/source records retained."
+    },
+    {
+      "original_path": ".godot/ci/compiler-attribution/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/CanvasSdfShaderRD/f5163131ffbf6578b3e403ae4a2e93b16c3b4d4f74b7d313965240c9159ca4a3/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 13768,
+      "sha256": "1a3bbf1b5102d6331118de1ded298c2e8a32924eb509f0d5651d9c2b15b9d43f",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated profile/editor/import/shader state; diagnostic/source records retained."
+    },
+    {
+      "original_path": ".godot/ci/compiler-attribution/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/CanvasShaderRD/f30a5b440b1341c6eaa19af108108f7adb605232e31fd6aeac74e4825e07ec28/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 96056,
+      "sha256": "678b5cc325424f3a4bc3ba57c7d23cd83352f826c0fef7ad9840acc7dc94f562",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated profile/editor/import/shader state; diagnostic/source records retained."
+    },
+    {
+      "original_path": ".godot/ci/compiler-attribution/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/CanvasShaderRD/f30a5b440b1341c6eaa19af108108f7adb605232e31fd6aeac74e4825e07ec28/45fb1ddc6499e56682916a355ce2839e61f42dfe.d3d12.cache",
+      "size_bytes": 50392,
+      "sha256": "504e4bc97cdc8e4a935ffedea1f0414e3ee6bdb078c7ff9a3cefd0185f5d63a4",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated profile/editor/import/shader state; diagnostic/source records retained."
+    },
+    {
+      "original_path": ".godot/ci/compiler-attribution/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/CanvasShaderRD/f30a5b440b1341c6eaa19af108108f7adb605232e31fd6aeac74e4825e07ec28/8a7277c8d3ac029b087c3fa9c55de85560be5119.d3d12.cache",
+      "size_bytes": 51056,
+      "sha256": "1be57f910d385b846e8976df9855c042203fce3996807db047c454c7398d835d",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated profile/editor/import/shader state; diagnostic/source records retained."
+    },
+    {
+      "original_path": ".godot/ci/compiler-attribution/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/CanvasShaderRD/f30a5b440b1341c6eaa19af108108f7adb605232e31fd6aeac74e4825e07ec28/4d35b4f1b981d75cb121b24f26aba4271d0d7a2f.d3d12.cache",
+      "size_bytes": 93416,
+      "sha256": "2737907d784eb25dda996b6e3491b2bf9f35336b966e4a6233cf15ffb45824ad",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated profile/editor/import/shader state; diagnostic/source records retained."
+    },
+    {
+      "original_path": ".godot/ci/compiler-attribution/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/ClusterDebugShaderRD/2775e502fff54bad7c5a36ee96cb93f9bb26a0835936a36809e0142a020d1da5/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 4120,
+      "sha256": "03bb94b5921b5916e0b0db343427f60ba588441d2bd0a894a31ec30d0c14cdbf",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated profile/editor/import/shader state; diagnostic/source records retained."
+    },
+    {
+      "original_path": ".godot/ci/compiler-attribution/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/ClusterRenderShaderRD/d7d33a009d89531a62355652a94a4bbbcb6ecafd4849629a6a81ebc41fb55f82/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 10364,
+      "sha256": "a8480807218b89ad27bca7ba9f4e5bc3531d8570995d24abc0c2d52fc8bea561",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated profile/editor/import/shader state; diagnostic/source records retained."
+    },
+    {
+      "original_path": ".godot/ci/compiler-attribution/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/ClusterStoreShaderRD/04f77ac6fc3ac39e10dba3d8b90afbac54f16ae6134a60264841ff0154dd1be9/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 2564,
+      "sha256": "e8d94bfea8e1910525bfe8202668c5fee2c09669dadb093aeacbb2b8d0426f84",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated profile/editor/import/shader state; diagnostic/source records retained."
+    },
+    {
+      "original_path": ".godot/ci/compiler-attribution/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/CopyShaderRD/bef3ebc581956c1e4cad1b19a4c57b168d4fd3a373a0481f33e26003ca1fa6c6/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 39800,
+      "sha256": "0f5927fa6033771dcbb6421c3b14539838141f51a8200ef19e68ece826e75d9a",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated profile/editor/import/shader state; diagnostic/source records retained."
+    },
+    {
+      "original_path": ".godot/ci/compiler-attribution/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/CopyToFbShaderRD/d2ff28d6e27943750d2e72da5da60d486f9b37ab66241467d62296b893eb4cd0/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 17700,
+      "sha256": "5801d679f245d1e42e959eb6944ef5cde1cfed0a3ee0ac01012117f58f5af5a0",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated profile/editor/import/shader state; diagnostic/source records retained."
+    },
+    {
+      "original_path": ".godot/ci/compiler-attribution/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/CubeToDpShaderRD/a1c0c9b7619044d7ba83959f645735ee8e1d34ad23904a6ac0af8e55d7ba00db/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 3744,
+      "sha256": "9e1dbdad25be1c8da8113fae99256be88b6061021123651be3a2d7231074a626",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated profile/editor/import/shader state; diagnostic/source records retained."
+    },
+    {
+      "original_path": ".godot/ci/compiler-attribution/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/CubeToOctmapShaderRD/c8b61d04732bfd2b54191babf0cd12bfae13c795c34c47b484abdf9f06f00205/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 3668,
+      "sha256": "6fd0ea74e3871d68eb4531b01b7ba7e9c664e3f927fd7ee44c0da3eef8174332",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated profile/editor/import/shader state; diagnostic/source records retained."
+    },
+    {
+      "original_path": ".godot/ci/compiler-attribution/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/FsrUpscaleShaderRD/d659c02701a99861f3054fa8c67cabb79f0491aa3388020f008051107cf1fec5/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 30656,
+      "sha256": "2949f3c8d2dc5cc3d61449a430dfbc743c4d1bef10bb58bb9f59bb97d778790a",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated profile/editor/import/shader state; diagnostic/source records retained."
+    },
+    {
+      "original_path": ".godot/ci/compiler-attribution/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/GiShaderRD/0a1109506856e7902e872dda83faa67adac822d90e694417c64c101b2b904810/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 57960,
+      "sha256": "3c88efe0127adfca08480936bb4baf72e44977b30bde5e0b7431197bab77ae08",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated profile/editor/import/shader state; diagnostic/source records retained."
+    },
+    {
+      "original_path": ".godot/ci/compiler-attribution/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/IntegrateDfgShaderRD/6d20d114a76402f30530dc6983c20cd78a5bdebe815ba021289a607f6c4541f5/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 2240,
+      "sha256": "884970140398b9b5f8fb63cf3370ef1859a896c62f448654389c2a13186360bb",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated profile/editor/import/shader state; diagnostic/source records retained."
+    },
+    {
+      "original_path": ".godot/ci/compiler-attribution/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/OctmapDownsamplerShaderRD/ffe6788f20aa023afaf7e888e2cf33c840f3084c8fbb309ed784918a44ebcf23/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 7044,
+      "sha256": "2827103e6733ea1ffd549d5240abf75a5c545eef981e0899b0516380305584c1",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated profile/editor/import/shader state; diagnostic/source records retained."
+    },
+    {
+      "original_path": ".godot/ci/compiler-attribution/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/MotionVectorsShaderRD/00e39c95d2d9272edadd9be2db6dbe65b3460f21d2341c92a77371c843cf4d00/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 4300,
+      "sha256": "cb7b4afef3a82ad25e6e12e7b024c6a6b6e7ce77468f0a7d9c452967f5a6b35a",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated profile/editor/import/shader state; diagnostic/source records retained."
+    },
+    {
+      "original_path": ".godot/ci/compiler-attribution/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/LuminanceReduceShaderRD/3484522051e094e151b4a7cbd88cfc9eb2721ea1d26cd66d6ebdd36e30657cc2/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 8256,
+      "sha256": "290257341adef8d3693f4686928552263db3cd428084b301016b26367e7297e1",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated profile/editor/import/shader state; diagnostic/source records retained."
+    },
+    {
+      "original_path": ".godot/ci/compiler-attribution/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/OctmapFilterShaderRD/5fc5fea9e3fe54191ff165540faa285b099e7909be69e7349c971f7ab0a609cc/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 42564,
+      "sha256": "ce770662e64492c143bbb1b89f44da0390b3544b6dd67c326c7c4ec3d05ff8a1",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated profile/editor/import/shader state; diagnostic/source records retained."
+    },
+    {
+      "original_path": ".godot/ci/compiler-attribution/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/OctmapRoughnessShaderRD/15e894f5c1a4917d83d34012ecf1ede2bee251fefc7b887b728834d4d817ad55/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 7852,
+      "sha256": "42e3336f636dc3aab3f683bc4c1a51a07b15c5672a9624aa651d88f81a841e26",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated profile/editor/import/shader state; diagnostic/source records retained."
+    },
+    {
+      "original_path": ".godot/ci/compiler-attribution/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/ParticlesCopyShaderRD/bcec80ba01e935ed0dc85d792ce6064d3b9920ff6f4ad7f021c39739c998092c/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 86920,
+      "sha256": "c167da2764968ea493d10b174d62b9e45024b5ad2fc5ea414f1b2f2bda642a59",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated profile/editor/import/shader state; diagnostic/source records retained."
+    },
+    {
+      "original_path": ".godot/ci/compiler-attribution/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/ParticlesShaderRD/527b8e067ac0ad8d5ca4af3230efbc7edb63fc49fd10c48dd765f7d4134c2606/f128cab0b22fb7e0d9f023d6cdb81309be392d95.d3d12.cache",
+      "size_bytes": 7672,
+      "sha256": "fedfe01272a4460a8a1b743141a5c7509963993ce5ccc036a1817a512003af12",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated profile/editor/import/shader state; diagnostic/source records retained."
+    },
+    {
+      "original_path": ".godot/ci/compiler-attribution/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/ResolveShaderRD/27dd92d92212d9fee97e14b2c5e5e102610e3124706ce6710bb99bb01c1723a2/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 9712,
+      "sha256": "3f3e571869fdec9bb25f363dae9dc3644f62b82b34c6fc257c559a271226dfb9",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated profile/editor/import/shader state; diagnostic/source records retained."
+    },
+    {
+      "original_path": ".godot/ci/compiler-attribution/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/SceneForwardClusteredShaderRD/72441e69a5110c34824334c2d7284287eeb225010e6fb8c9f80ad241154df663/111f8cfd3c260d918df85827eb251dc36a43cb13.d3d12.cache",
+      "size_bytes": 165712,
+      "sha256": "2dcf55bb151895c6f1b6cedfe9918158e50edde409f6921f03f115f8b4370886",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated profile/editor/import/shader state; diagnostic/source records retained."
+    },
+    {
+      "original_path": ".godot/ci/compiler-attribution/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/SceneForwardClusteredShaderRD/72441e69a5110c34824334c2d7284287eeb225010e6fb8c9f80ad241154df663/a38af1e47720abf30ca44f3d3c099c07b046df81.d3d12.cache",
+      "size_bytes": 169824,
+      "sha256": "ee8a68021729312366b38eb35adf80109ca66c87442d8ec9e7985c4af4831dc3",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated profile/editor/import/shader state; diagnostic/source records retained."
+    },
+    {
+      "original_path": ".godot/ci/compiler-attribution/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/SceneForwardClusteredShaderRD/72441e69a5110c34824334c2d7284287eeb225010e6fb8c9f80ad241154df663/ab0b960474f1491b42ef9f2ca13dbd4ccaf64911.d3d12.cache",
+      "size_bytes": 93744,
+      "sha256": "2b76d5fedc426e5aa568f42dcd4283f13a0243083d92564de9ba7684d03871c8",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated profile/editor/import/shader state; diagnostic/source records retained."
+    },
+    {
+      "original_path": ".godot/ci/compiler-attribution/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/ScreenSpaceReflectionDownsampleShaderRD/e2b08e2f67ca3648565b1054827dd95ce07c1b31c4deeb5c87adb959b48c3662/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 10244,
+      "sha256": "11b816c2123a12e5d94aababd87624bff39778f330d9112b0acdbe4b627c2f3f",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated profile/editor/import/shader state; diagnostic/source records retained."
+    },
+    {
+      "original_path": ".godot/ci/compiler-attribution/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/ScreenSpaceReflectionFilterShaderRD/3e7cbd9d8999cd16cf5e5b03b2bc462b40767703140a0757280c95895703123d/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 4432,
+      "sha256": "5a54f9d773afa26e597675d8786075266959e0bcd6cd5959f1a2965b5be374e2",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated profile/editor/import/shader state; diagnostic/source records retained."
+    },
+    {
+      "original_path": ".godot/ci/compiler-attribution/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/ScreenSpaceReflectionResolveShaderRD/e628cc87f903d3043b8b7a44bb5d54638465b46e0ab7bb37b1ddb9b91f4f1b3a/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 4476,
+      "sha256": "803471b6cc0323881ab603206b6025d492c33e4e0fd8ebe1a1d6f3c6ab4e2bb2",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated profile/editor/import/shader state; diagnostic/source records retained."
+    },
+    {
+      "original_path": ".godot/ci/compiler-attribution/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/ScreenSpaceReflectionHizShaderRD/baf8f4bfe602462ece1270390433485b1e3018fbbd45bae7c8bbedf320c26cd6/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 8664,
+      "sha256": "15f1bb418ccdbaa1f61773d01afeaae7508a4903e1e30639b4791673f8b4b0f6",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated profile/editor/import/shader state; diagnostic/source records retained."
+    },
+    {
+      "original_path": ".godot/ci/compiler-attribution/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/ScreenSpaceReflectionShaderRD/4ec3777007532ddcd638ae82ef6adc97739054897ed48a2ef8401e7a025ee2da/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 6556,
+      "sha256": "814c55e3a834fbda5cd8e309d9f3265776732f8807bca8de9e62f6ffd6ff9c04",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated profile/editor/import/shader state; diagnostic/source records retained."
+    },
+    {
+      "original_path": ".godot/ci/compiler-attribution/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/SdfgiDebugProbesShaderRD/5e74420cdc840f19f82244b066217b3888799930df17d31ff133420b1a916076/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 19508,
+      "sha256": "23f95eb07604f287d5d3ab4de66361d51c133df02de6d6e159756141597e2671",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated profile/editor/import/shader state; diagnostic/source records retained."
+    },
+    {
+      "original_path": ".godot/ci/compiler-attribution/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/SdfgiDebugShaderRD/4597a244d5202b1178081479b348d60a48501cb16fc54b1fea4c8395c5e68675/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 4348,
+      "sha256": "9e8f8d5f703d9fd3824b530e08d4e4fac28a597258637df846ae43b3aa763bb8",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated profile/editor/import/shader state; diagnostic/source records retained."
+    },
+    {
+      "original_path": ".godot/ci/compiler-attribution/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/SdfgiDirectLightShaderRD/16f822b671cd6f4a687e51e33b1c8c2148121c1c091f7ff39f76127556ff3ec3/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 16328,
+      "sha256": "12da9e634372e85bd1765ca56b599d449d1939901655e86bcf0466f2e37edaf8",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated profile/editor/import/shader state; diagnostic/source records retained."
+    },
+    {
+      "original_path": ".godot/ci/compiler-attribution/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/SdfgiIntegrateShaderRD/c5e82715048eb54d931afaa6dadaca3cb48a98f8c3376dd7913485bd1ce2989f/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 23888,
+      "sha256": "fa3a30cbb7fb136ae49c9de81f39a76a7dda342f8c9cb5f5e247212748f52d27",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated profile/editor/import/shader state; diagnostic/source records retained."
+    },
+    {
+      "original_path": ".godot/ci/compiler-attribution/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/SdfgiPreprocessShaderRD/f3ef78a3d2f1c9d4496e3afe61867e94fb32829809548b265a8a1154b66aec33/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 34500,
+      "sha256": "6216d7bd1e404e0ab0fbb00d128fdead87c1e49acb3d574a15f65c559b7c01ff",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated profile/editor/import/shader state; diagnostic/source records retained."
+    },
+    {
+      "original_path": ".godot/ci/compiler-attribution/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/ShadowFrustumShaderRD/b56bc1e62633ec9304336b7e957397468d55950f317fcf5a6473439810432caa/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 2932,
+      "sha256": "908b7143049f4a3f1e6c5c73503a7302bb94b5a1c150b635464ceccb4b31a179",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated profile/editor/import/shader state; diagnostic/source records retained."
+    },
+    {
+      "original_path": ".godot/ci/compiler-attribution/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/SkeletonShaderRD/54e50a68f8252031f493dd1ea6200e9ef718d5bd8693e28030efe1b120eb7905/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 9964,
+      "sha256": "cde2f1daaf9c1f61bdaf4e68e067e77469303671fc5ee6ea82f7dd41ebac2f0b",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated profile/editor/import/shader state; diagnostic/source records retained."
+    },
+    {
+      "original_path": ".godot/ci/compiler-attribution/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/SkyShaderRD/21f924306eb18caac3ace30e495c78ba40ae7b2f490d5e4f3b13a79479216b9c/03e3b11c69e24394b2d955a8c0ba85587bb70839.d3d12.cache",
+      "size_bytes": 33408,
+      "sha256": "83b1a2b1fcb6933c90710f8eab4676839077117cceebddb4949f4496dcd5e748",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated profile/editor/import/shader state; diagnostic/source records retained."
+    },
+    {
+      "original_path": ".godot/ci/compiler-attribution/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/SkyShaderRD/21f924306eb18caac3ace30e495c78ba40ae7b2f490d5e4f3b13a79479216b9c/de678811d1bad3cad4892a8db7b6ea0be197d51d.d3d12.cache",
+      "size_bytes": 31560,
+      "sha256": "fb4a93242d056f448184b54ebab20d0bffdb633c8a3aa1a98eada1bdbbb93a85",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated profile/editor/import/shader state; diagnostic/source records retained."
+    },
+    {
+      "original_path": ".godot/ci/compiler-attribution/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/SmaaBlendingShaderRD/3d0a167a9f66fe724550ee422e5f78e94ee25cd28f8d2dd9770c61d98fee5f61/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 5192,
+      "sha256": "ee9f5a968054a4d71d839f7606e094fede87afc57636f0a33498c12fd01aef6f",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated profile/editor/import/shader state; diagnostic/source records retained."
+    },
+    {
+      "original_path": ".godot/ci/compiler-attribution/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/SmaaEdgeDetectionShaderRD/d5021a9d8471f798a9fea1996ea85751035ea859c7fdd21721cc24e149d1e4fe/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 4692,
+      "sha256": "c5d5f5622b0618e5075f00f0e4936777a4226e8d2e210cfeb65becb5d7d3d1ee",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated profile/editor/import/shader state; diagnostic/source records retained."
+    },
+    {
+      "original_path": ".godot/ci/compiler-attribution/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/SmaaWeightCalculationShaderRD/96902d6fbf74206adb55a50fd070fc6de4aaf8dc634f04f92751ac8b307948c7/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 7852,
+      "sha256": "c267eebda8d4278b954e2098a8825120b359d345e7721869b38052790408625d",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated profile/editor/import/shader state; diagnostic/source records retained."
+    },
+    {
+      "original_path": ".godot/ci/compiler-attribution/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/SortShaderRD/967234006fae085a9579b3ffd489cee602c4f145dc18ff2bf240e4d8c13498cd/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 6512,
+      "sha256": "58c3624bbe78f9d9f2d2f671e815ead7f8dd627804c42cfaa50a43ab73be7b31",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated profile/editor/import/shader state; diagnostic/source records retained."
+    },
+    {
+      "original_path": ".godot/ci/compiler-attribution/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/SpecularMergeShaderRD/d91816cf1f28c63908a9133ffc50683b675ef9859b0616c7436f475405b22c27/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 13748,
+      "sha256": "76e2efaf7b3f6b013a01254eae80f1d6e776ad5c0044341bada44be7999360d0",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated profile/editor/import/shader state; diagnostic/source records retained."
+    },
+    {
+      "original_path": ".godot/ci/compiler-attribution/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/SsaoBlurShaderRD/9821a28f9d156aaaed0a7fab3de6738b2c4022738da0a9b7cb77ffb499f40e38/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 7392,
+      "sha256": "5e122365730cd4894c4f4c2e970f7730f2b25a9b47af3e2144031aec62ba48de",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated profile/editor/import/shader state; diagnostic/source records retained."
+    },
+    {
+      "original_path": ".godot/ci/compiler-attribution/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/SsaoImportanceMapShaderRD/09886b051a7294522d484a6b5de82ee75778fa16804f3f4f13d1605e7f39b69d/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 7256,
+      "sha256": "3551292363c67c35ff52bffebcea4ade4061236e823c07aee50b40923baaa7ae",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated profile/editor/import/shader state; diagnostic/source records retained."
+    },
+    {
+      "original_path": ".godot/ci/compiler-attribution/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/SsaoShaderRD/6e8f8fd45ceab920597432cb2a5447c53291203857121f3a3b38a4b9b27c2c50/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 24996,
+      "sha256": "bfddbcfea7b2f71ddde033d1004c34a351ca2c6c9876b7534972f88205278534",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated profile/editor/import/shader state; diagnostic/source records retained."
+    },
+    {
+      "original_path": ".godot/ci/compiler-attribution/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/SsaoInterleaveShaderRD/5762f4757375a26f8fda6d1bcb2a452f1c2c429e857969bb128d7270760b56f7/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 7148,
+      "sha256": "b63595619a74f517ef5f0285dbb25a905975a8f0da9f9a7a4ee900ee531ff85a",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated profile/editor/import/shader state; diagnostic/source records retained."
+    },
+    {
+      "original_path": ".godot/ci/compiler-attribution/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/SsEffectsDownsampleShaderRD/bd37175ba48fdd02099abbbeee5452079e89a3727fd5fe1de649551c99081c36/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 20628,
+      "sha256": "8aa646a899d07e27cc30eedea4ecccc590e1abf934bc7a21098ec7acc8d88495",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated profile/editor/import/shader state; diagnostic/source records retained."
+    },
+    {
+      "original_path": ".godot/ci/compiler-attribution/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/SsilBlurShaderRD/e74ed13ec93f83efa28f3bba922e68d5e345173ff5670ca6f557df8d614a782f/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 8472,
+      "sha256": "930fe852ca10b9118b3491abbd0250b41bfcea2786b00ae4ab9638b765954a37",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated profile/editor/import/shader state; diagnostic/source records retained."
+    },
+    {
+      "original_path": ".godot/ci/compiler-attribution/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/SsilImportanceMapShaderRD/a4219fd46be62ae37b0e06fd10ebbd2798ad85088678db4c0b425f823042d4be/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 7228,
+      "sha256": "6655bcb87621f056d708126fd36107f227e632eade267e8bf58c4fe844948576",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated profile/editor/import/shader state; diagnostic/source records retained."
+    },
+    {
+      "original_path": ".godot/ci/compiler-attribution/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/SsilInterleaveShaderRD/88e29bdd44daa6cf920ee2050e7a7237fd88bfa9c8880c62168f4b0a4502f4d0/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 7944,
+      "sha256": "16151c33e59c2894e06f4e97ca72220d8861a4ee9d849b7afc35951761e2fb1f",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated profile/editor/import/shader state; diagnostic/source records retained."
+    },
+    {
+      "original_path": ".godot/ci/compiler-attribution/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/SsilShaderRD/af35f1233e4d0591e9dad8d6301cf258931ca4d79c210c67076cd8fb624c6da0/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 28696,
+      "sha256": "cdaccb090c74430135e6a08f6df4c97a793ae9ce0d2134e1afbf7e7fc59ea21b",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated profile/editor/import/shader state; diagnostic/source records retained."
+    },
+    {
+      "original_path": ".godot/ci/compiler-attribution/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/TonemapShaderRD/c3f5c8110f44921262b756899cc7d2c51c74e9333ffe1f8450a95bbd12872516/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 61336,
+      "sha256": "3a209760bd636ed1b01874d4fdf1658872ee8ac061c171fbc193bd19b78df177",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated profile/editor/import/shader state; diagnostic/source records retained."
+    },
+    {
+      "original_path": ".godot/ci/compiler-attribution/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/TaaResolveShaderRD/21a8f8e3a65237efe11f4640388d4d1a1fac34dfb3102a6aa4c5b6bf6c85e8ea/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 6348,
+      "sha256": "7450fc7d735d73db112e4b84f0d6778752b588765900ded99c6dcbf77ec42f3d",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated profile/editor/import/shader state; diagnostic/source records retained."
+    },
+    {
+      "original_path": ".godot/ci/compiler-attribution/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/SubsurfaceScatteringShaderRD/69df93a2334ebca4dc3af3f7aef99cad7870b6623865bd4671963fae81796b41/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 14560,
+      "sha256": "f7657104aeaed75976cd000967bec8f5516451c6f3965866af9cfefdcd8d649d",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated profile/editor/import/shader state; diagnostic/source records retained."
+    },
+    {
+      "original_path": ".godot/ci/compiler-attribution/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/VolumetricFogProcessShaderRD/c323a941682e364f2ac33c4d96c03f043ff01d2d1a8ec923fb6520953aed2e93/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 37236,
+      "sha256": "5aad6a2533bff0679993705dc917bbb960bd001621bca2d9810af05612b6a5f4",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated profile/editor/import/shader state; diagnostic/source records retained."
+    },
+    {
+      "original_path": ".godot/ci/compiler-attribution/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/VolumetricFogShaderRD/48422ca2db267dec13a7aa41ba356cdfc7cbfa667e28e02e98b968145e4cc2f5/9a227745af2d65830f930370a9fbba551fbd6f60.d3d12.cache",
+      "size_bytes": 5844,
+      "sha256": "1109ff35b405f72a8edbb1d7a1e4359365dedf8b8396ee9398481f8fe86ae18b",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated profile/editor/import/shader state; diagnostic/source records retained."
+    },
+    {
+      "original_path": ".godot/ci/compiler-attribution/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/VoxelGiDebugShaderRD/4e91a9ddbecad298ed67c31222afae9756053363f06befd837e376dd85b639aa/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 19560,
+      "sha256": "2fc4f72b9226aaf1233a1929465fe8525112a4ed7531f49ae8560d3d4bd1a5b7",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated profile/editor/import/shader state; diagnostic/source records retained."
+    },
+    {
+      "original_path": ".godot/ci/compiler-attribution/shared-user/APPDATA/Godot/app_userdata/DWM/shader_cache/VoxelGiShaderRD/44b979a30a4cc4de0f731a25d26286e14abc01718fe9a838d597bd153538c665/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 30604,
+      "sha256": "266fce6074adec7518347de9cca1bceaef033b44207894bc6981bda36a1dad5d",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated profile/editor/import/shader state; diagnostic/source records retained."
+    },
+    {
+      "original_path": ".godot/ci/import-user/appdata/Godot/app_userdata/DWM/dialogic/editor_settings.cfg",
+      "size_bytes": 132,
+      "sha256": "2485d95142e6f5f1b3f4653d1778baa04a88113e83bfeadc8f6571164f63b8e3",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated profile/editor/import/shader state; diagnostic/source records retained."
+    },
+    {
+      "original_path": ".godot/ci/import-user/appdata/Godot/app_userdata/DWM/gut_temp_directory/versions.json",
+      "size_bytes": 477,
+      "sha256": "753b37ae830307277698ef2f0c15dacdce5d0de541d2dc797835532a2e9bd1d6",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated profile/editor/import/shader state; diagnostic/source records retained."
+    },
+    {
+      "original_path": ".godot/ci/import-user/appdata/Godot/editor_settings-4.6.tres",
+      "size_bytes": 3775,
+      "sha256": "4fad7736957e94c78f6113e43230f8c83082f288a34c8cad3be48afe92953905",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated profile/editor/import/shader state; diagnostic/source records retained."
+    },
+    {
+      "original_path": ".godot/ci/import-user/appdata/Godot/keystores/debug.keystore",
+      "size_bytes": 2197,
+      "sha256": "03b7d5317ad7ceae3e61f435acd9049b73d6cc17eab6f3169b79d98db439e3f1",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated profile/editor/import/shader state; diagnostic/source records retained."
+    },
+    {
+      "original_path": ".godot/ci/import-user/localappdata/Godot/editor_doc_cache-4.6.res",
+      "size_bytes": 3142854,
+      "sha256": "6feb794d024c4511948c3269a108c9c3513f62dd504962e50c06022afaddd6e3",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated profile/editor/import/shader state; diagnostic/source records retained."
+    },
+    {
+      "original_path": ".godot/ci/import.log",
+      "size_bytes": 96656,
+      "sha256": "a6d2d6e96bcf1b527af5fcb73f5f8386b3eb3b058abf51667ac2a92304e60608",
+      "retained": true,
+      "retained_path": ".godot/ci/import.log",
+      "reason": "Current diagnostic log/report/capture retained byte-for-byte."
+    },
+    {
+      "original_path": "evidence/phase_2r/runtime/game_state_surface.json",
+      "size_bytes": 660920,
+      "sha256": "8b4a944dac8741bc2d8fe8320622959945fb9ecd3985807d0745659382f5a8a2",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Unregenerated inventory unrelated to diagnostic."
+    },
+    {
+      "original_path": "evidence/phase_2r/runtime/save_manager_surface.json",
+      "size_bytes": 183948,
+      "sha256": "bd14d2f342c0277e920f4fa1622ecdacae1e15e2329a89c6dd609b4ea619e04c",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Unregenerated inventory unrelated to diagnostic."
+    }
+  ]
+}
