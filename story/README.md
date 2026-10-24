@@ -29,7 +29,7 @@ A normal writing pass needs the requested scene, foundation and relevant charact
 
 The Day 3 manuscript supplies a bounded shared encounter and both fork families after Day 1 D → Day 2 D-staying. It is not every incoming history or the complete remaining day/week. [The audition index](auditions/README.md) also routes retained shared work.
 
-There is one **identically presented Dark Priscilla–Lavinia ending**. Softer and harsher local conduct can create different actual histories and readings of it. Those facts still need compatible carry; the Priscilla–Sylvia resolution remains open. Complete DTL follows the whole-week plot review, while bounded prose auditions can continue now.
+There is one **identically presented Dark Priscilla–Lavinia ending**. Softer and harsher local conduct can create different actual histories and readings of it. Those facts still need compatible carry. The [25 October refinement](09-priscilla-foundation-amendment.md#save-and-ending-scope-refinement-2026-10-25) specifies one ending per fork, two total; the other fork’s exact ending content remains open. Complete DTL follows the whole-week plot review, while bounded prose auditions can continue now.
 
 ## Where each kind of information belongs
 

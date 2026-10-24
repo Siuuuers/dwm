@@ -53,6 +53,13 @@ The fork's exact action, wording, placement, chapter and labels are OPEN. Exampl
 
 ## 3. Ending form is separate from partner and local conduct
 
+### Save and ending scope refinement, 2026-10-25
+
+**Status/source:** explicit owner clarification in the Save/Load simplification discussion after PR83: an earlier DTL choice selects one of two forks, with one ending per fork, two endings total. This supersedes retained requirements for multiple Sweet/Dark endpoints or a separate random ending-form selection in either fork. It does not select new ending prose, labels, placement, or disclose the still-unannounced choice mechanism. The one-ending P–L requirement remains compatible; the other fork's exact ending content is not settled by its count.
+
+Earlier choices and Challenge outcomes must survive Save/Load because they can affect later play. The new save should retain the selected fork and direct DTL/ending position rather than an ending's historical source-reading checkpoint. Audio is determined by DTL position. Affection remains active; `friend_attitude`, `friends`, and `inter_friend_affection` retire. Gallery unlocks and read-text history remain global. See the [technical replacement requirements](../docs/design/2026-10-25-save-load-validator-audit.md#owner-approved-replacement-direction--later-25-october-discussion) for the full persistence scope and implementation limits. These decisions do not certify that both fork endpoints or the replacement save are implemented.
+
+
 ### P–L-specific ending amendment, 2026-10-18
 
 **Owner-directed refinement:** Priscilla–Lavinia has **one identically presented

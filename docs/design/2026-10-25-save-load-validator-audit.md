@@ -1,5 +1,32 @@
 # Save/Load validator audit — 25 October 2026
 
+## Owner-approved replacement direction — later 25 October discussion
+
+**Status:** requirements approved by the owner in the Save/Load discussion after PR83; implementation and performance qualification are pending. The audit below describes the existing architecture. Its reasons for retaining historical proofs do not require keeping that architecture. This section supersedes the earlier preference to optimize only duplicate terminal traversals as the immediate design direction.
+
+The owner requires a compact save of current state, restored without replaying past actions. Preserve the current DTL beat (restore the full caption), current Challenge/board, affection, earlier choices and Challenge outcomes that affect later play, money, owned inventory/capabilities, shop purchases, pressure, penalties and daily round limits. Preserve the necessary counters and reward-claim state of those active mechanics; do not silently reset them because they were not individually named. Do not infer retirement of coins or active rewards from the shorter list of headline requirements.
+
+Global storage keeps gallery unlocks and previously read text. Run loading must not rewind those global records. Retire `friend_attitude`, `friends`, and `inter_friend_affection` from gameplay, capture, restoration and validation; affection remains. Identify dependent presentation paths and tests rather than deleting identifiers by substring (`friends_changed` currently also signals affection).
+
+Remove `save_reason`, `audio_context`, and `active_app_id` from the proposed player-save payload. Save reason may remain an operation/logging label, not a load-admission condition. The owner states that music is determined by the DTL position; derive the applicable music without replaying gameplay effects. Exact audio playback-offset restoration is not required by this decision. Resume the required gameplay surface without persisting the previously open application. Do not discard the active board.
+
+Remove the ending's retained source-reading checkpoint from the replacement save. The owner has confirmed one ending for each of two earlier DTL forks, two endings total; the [story owner](../../story/09-priscilla-foundation-amendment.md#save-and-ending-scope-refinement-2026-10-25) records that scoped change. Use the chosen fork and direct ending resume position rather than historical source-reading proof. This records intended behavior, not a claim that current DTL already implements both endpoints.
+
+The recommended implementation is to eliminate the saved command-history ledger and its historical validators after establishing direct state restoration. The owner asked for this recommendation; do not represent the current ledger as already deleted. Preserve any small required choice/outcome state independently before removing the history that currently carries it. Keep minimal required-field/type/range/position checks and safe file writing. Missing or incompatible optional metadata must not reject otherwise usable required state. Do not silently reinterpret incompatible required gameplay data. No old-save migration or injected mid-call mutation requirement is introduced.
+
+### Existing implementation evidence and unresolved details
+
+Inspected baseline: PR83 merge `2ebb30a450a832ad892bd08cc4ae968d39dfff9f`.
+
+- `SceneEventContract` already supports `thought.select`, `choice_id`, target selection and `thought_resolved` results; `DialogicBridge` accepts these scene envelopes. This establishes an existing choice mechanism, not implementation of the owner's new, not-yet-announced choice design. Record stable choice/opportunity and selected-option identifiers in the replacement save. The new choice rules, placement and presentation remain unspecified.
+- `RunNotePurchaseRules` uses `shop_purchase_counts` for note purchasing and caps. `GameStateMinesweeperShopPort` also grants inventory, and `MinesweeperCapabilityRules.resolve_owned` reads it. Current purchase counts do not prove all owned capabilities. Retain inventory until a caller audit establishes a single complete owner; do not reconstruct it from incomplete purchase counts.
+- DTL position must resolve the correct background/music/presentation without executing preceding consequences. Inspect actual authored commands and branching before choosing a reconstruction method; a line number alone is not assumed sufficient.
+- The two fork endpoint identifiers and any unfinished authored route remain implementation questions. The owner did not specify replacement ending text, new choice UI, or a mapping for obsolete endpoint identifiers.
+
+### First replacement acceptance journey
+
+Save during a real DTL beat with an unfinished Challenge/board, non-default affection, earlier choice/outcome state and active economy values. Load in a fresh Windows cloud process. Verify the same full caption, correct background/music derived from DTL, exact board and values, normal input, and the same subsequent branch. Verify loading does not repeat purchases, charges, rewards or affection changes; global unlocks/read history remain. Cover both ending forks when their authored endpoints are available. Compare complete Save/Load operations against PR83. Do not claim a speedup or remove the old production path solely because a smaller JSON example works.
+
 ## Observable outcome
 
 Loading a current save restores the same playable board and complete visible caption, with the recorded consequences applied once. Invalid persisted state is refused before live owners adopt it. This audit does not introduce migration, recovery or injected mid-call mutation requirements.
