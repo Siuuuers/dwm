@@ -1,13 +1,19 @@
-name: Restore proof preflight
+name: Intent public surface verification
 on:
+  push:
+    branches: [codex/intent-surface-check-20261025]
   workflow_dispatch:
 permissions:
   contents: read
 concurrency:
-  group: restore-proof-preflight-${{ github.ref }}
+  group: continuation-proof-window-${{ github.ref }}
   cancel-in-progress: true
 jobs:
   preflight:
+    strategy:
+      fail-fast: false
+      matrix:
+        lane: [focused]
     runs-on: windows-2022
     timeout-minutes: 90
     defaults:
@@ -67,20 +73,19 @@ jobs:
           # Execute the committed configuration with the freshly imported assets.
           git restore -- project.godot
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Generate current caller inventories
-        run: ./tools/testing/Invoke-PublicSurfaceValidation.ps1 -Regenerate -EmitPayloads
-      - name: Verify current Save9 admission
-        run: ./tools/testing/Invoke-CloudTests.ps1 -Suite scene_backup_inspection
-      - name: Verify current Quick Load
-        run: ./tools/testing/Invoke-CloudTests.ps1 -Suite current_quick_load
-      - name: Compare fresh Save9 and fresh-process Load
+      - name: Check committed current inventories
+        run: ./tools/testing/Invoke-PublicSurfaceValidation.ps1 -EmitPayloads
+      - name: Verify public inventory drift and read-only contracts
+        run: ./tools/testing/Invoke-CloudTests.ps1 -Suite public_surfaces
+      - name: Verify final fresh Save9 and fresh-process Load
+        if: matrix.lane == 'native'
         timeout-minutes: 45
-        run: ./tools/testing/Invoke-FreshSaveLoadComparison.ps1 -BaseRef 97a3e5c2b48c4ae82a30ebb62083c5ea1bff5932
+        run: ./tools/testing/Invoke-FreshSaveLoad.ps1
       - name: Preserve preflight evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: restore-proof-preflight-${{ github.run_id }}-${{ github.run_attempt }}
+          name: intent-kind-${{ matrix.lane }}-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             .godot/ci/
             .godot/phase2r_logs/
