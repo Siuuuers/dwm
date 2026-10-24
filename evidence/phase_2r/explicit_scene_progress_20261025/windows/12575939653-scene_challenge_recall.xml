@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="GutTests" failures="0" tests="1" >
+  <testsuite name="tests/integration/test_scene_challenge_recall_create.gd" tests="1" failures="0" skipped="0" time="7.42347" >
+      <testcase name="test_never_started_end_save_then_later_recall" assertions="105" status="pass" classname="tests/integration/test_scene_challenge_recall_create.gd" time="7.42347" >
+      </testcase>
+  </testsuite>
+</testsuites>

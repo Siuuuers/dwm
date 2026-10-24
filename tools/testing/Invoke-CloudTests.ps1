@@ -1,6 +1,6 @@
 param(
     [Parameter(Mandatory = $true)]
-    [ValidateSet('minesweeper', 'shop', 'desktop', 'settings', 'checkpoint_diagnostics', 'new_account', 'reading_delivery', 'localization', 'dating', 'persistence', 'endings', 'audio', 'public_surfaces', 'scene_desktop_first_reveal', 'scene_round_checkpoint', 'scene_shop_checkpoint', 'scene_story_localization', 'scene_controls_localization', 'scene_apps', 'current_title', 'scene_backup_inspection', 'authored_week', 'scene_five_outcomes', 'timeline_resources', 'backup_presentation', 'profile_parse', 'backup_current_build', 'terminal_admission', 'current_quick_load', 'current_terminal_fixture')]
+    [ValidateSet('minesweeper', 'shop', 'desktop', 'settings', 'checkpoint_diagnostics', 'new_account', 'reading_delivery', 'localization', 'dating', 'persistence', 'endings', 'audio', 'public_surfaces', 'scene_desktop_first_reveal', 'scene_round_checkpoint', 'scene_shop_checkpoint', 'scene_story_localization', 'scene_controls_localization', 'scene_apps', 'current_title', 'scene_backup_inspection', 'authored_week', 'scene_five_outcomes', 'timeline_resources', 'backup_presentation', 'profile_parse', 'backup_current_build', 'terminal_admission', 'current_quick_load', 'current_terminal_fixture', 'scene_multiple_thoughts', 'scene_challenge_recall')]
     [string]$Suite
 )
 
@@ -15,6 +15,12 @@ if ($Suite -eq 'current_terminal_fixture') {
 # Deliberate, bounded UI and input regression coverage. Each path must actually
 # execute; Invoke-IsolatedGodot also rejects GUT's silent suite-load failures.
 $suites = @{
+    scene_multiple_thoughts = @(
+        'tests/integration/test_scene_multiple_thoughts_create.gd'
+    )
+    scene_challenge_recall = @(
+        'tests/integration/test_scene_challenge_recall_create.gd'
+    )
     current_quick_load = @(
         'tests/integration/test_scene_pause_quick_load.gd'
     )
@@ -350,12 +356,14 @@ $arguments = @(
 )
 # Creator and loader must share storage but never a process/registration registry.
 $loadScripts = @{
+    scene_multiple_thoughts = 'tests/integration/test_scene_multiple_thoughts_load.gd'
+    scene_challenge_recall = 'tests/integration/test_scene_challenge_recall_load.gd'
     scene_desktop_first_reveal = 'tests/integration/test_scene_desktop_first_reveal_load.gd'
     scene_apps = 'tests/integration/test_scene_apps_connected_load.gd'
     current_title = 'tests/integration/test_current_title_scene_load.gd'
 }
 $extra = @{}
-if ($Suite -in @('scene_story_localization', 'scene_apps', 'current_title', 'scene_desktop_first_reveal', 'current_quick_load')) { $extra.Rendered = $true }
+if ($Suite -in @('scene_story_localization', 'scene_apps', 'current_title', 'scene_desktop_first_reveal', 'current_quick_load', 'scene_multiple_thoughts', 'scene_challenge_recall')) { $extra.Rendered = $true }
 if ($loadScripts.ContainsKey($Suite)) {
     $loadScript = $loadScripts[$Suite]
     if (-not (Test-Path -LiteralPath (Join-Path $repositoryRoot $loadScript))) { throw "Requested test does not exist: $loadScript" }

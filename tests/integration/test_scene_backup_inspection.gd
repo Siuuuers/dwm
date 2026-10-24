@@ -512,3 +512,20 @@ func test_scene_gameplay_adoption_and_recapture_preserve_progress_without_relati
 		captured.gameplay.inventory.lucky_charm = 99
 		assert_eq(restored.inventory.lucky_charm, 1, "captured inventory stays detached")
 	restored.free()
+
+func test_scene_progress_without_matching_command_is_refused_without_mutation() -> void:
+	assert_true(fixture_ready)
+	if not fixture_ready: return
+	var source: Dictionary = fixture.read_autosave().value.current_snapshot.snapshot.duplicate(true)
+	assert_true(RUN_SCHEMA.validate(source).ok)
+	var before := _observed()
+	for field: String in ["scene_choices", "scene_challenge_outcomes"]:
+		var changed := source.duplicate(true)
+		changed.gameplay[field] = {"TEST.opportunity": "pass"} if field == "scene_choices" else {
+			"a".repeat(64): {"challenge_id": "TEST.challenge", "outcome": "never_started"}}
+		var unchanged := changed.duplicate(true)
+		var refused := RUN_SCHEMA.validate(changed)
+		assert_false(refused.ok, "well-shaped facts require matching committed events")
+		assert_eq(refused.get("code"), &"scene_progress_mismatch", str(refused))
+		assert_eq(changed, unchanged, "refusal does not rewrite submitted facts")
+	assert_eq(_observed(), before, "invalid progress does not alter owners or files")

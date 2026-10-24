@@ -160,11 +160,7 @@ func _process(delta: float) -> void:
 	if available:
 		var game := get_node_or_null("/root/GameState")
 		if game == null: available = false
-		else:
-			for receipt: Dictionary in game.capture_run_snapshot_input().command_receipts.values():
-				var result: Dictionary = receipt.get("scene_event", {}).get("result", {})
-				if result.get("kind") == "thought_resolved" and result.opportunity_id == marker.value.payload.opportunity_id:
-					available = false
+		else: available = not game.scene_choices.has(marker.value.payload.opportunity_id)
 	_thought_frontier = bridge.capture_current_line_presentation_frontier() if available else {}
 	var shown: bool = available and _thought_frontier.get("ok", false)
 	button.visible = shown and marker.value.kind == "thought.pass"

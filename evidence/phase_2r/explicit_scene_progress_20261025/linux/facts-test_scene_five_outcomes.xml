@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="GutTests" failures="0" tests="6" >
+  <testsuite name="tests/unit/test_scene_five_outcomes.gd" tests="6" failures="0" skipped="0" time="1.387098" >
+      <testcase name="test_not_started_view_and_refused_pre_reveal_flag_select_a" assertions="15" status="pass" classname="tests/unit/test_scene_five_outcomes.gd" time="0.016653" >
+      </testcase>
+      <testcase name="test_unfinished_selects_b" assertions="15" status="pass" classname="tests/unit/test_scene_five_outcomes.gd" time="0.198926" >
+      </testcase>
+      <testcase name="test_ordinary_win_selects_c_only" assertions="18" status="pass" classname="tests/unit/test_scene_five_outcomes.gd" time="0.368864" >
+      </testcase>
+      <testcase name="test_loss_selects_d" assertions="16" status="pass" classname="tests/unit/test_scene_five_outcomes.gd" time="0.302844" >
+      </testcase>
+      <testcase name="test_perfect_selects_e_without_changing_persisted_won_state" assertions="17" status="pass" classname="tests/unit/test_scene_five_outcomes.gd" time="0.301252" >
+      </testcase>
+      <testcase name="test_historical_four_target_perfect_projection_stays_won" assertions="7" status="pass" classname="tests/unit/test_scene_five_outcomes.gd" time="0.198559" >
+      </testcase>
+  </testsuite>
+</testsuites>

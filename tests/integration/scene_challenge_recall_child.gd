@@ -24,6 +24,13 @@ func _assert_no_reward_change(before: Dictionary) -> void:
 
 func _recall_and_assert(proof: Dictionary) -> bool:
 	assert_eq(_result_receipts("challenge_closed"), [proof.closure], "retained closure remains exact")
+	var closed: Dictionary = proof.closure.scene_event
+	var expected := {closed.result.challenge_occurrence: {
+		"challenge_id": closed.semantic.payload.challenge_id, "outcome": "never_started"}}
+	assert_eq(game.scene_challenge_outcomes, expected, "saved outcome is explicit before recall")
+	var detached: Dictionary = game.capture_run_snapshot_input()
+	detached.gameplay.scene_challenge_outcomes[closed.result.challenge_occurrence].outcome = "won"
+	assert_eq(game.scene_challenge_outcomes, expected, "snapshot callers cannot mutate nested live outcomes")
 	assert_true(_result_receipts("challenge_recalled").is_empty())
 	var before: Dictionary = game.capture_run_snapshot_input().duplicate(true)
 	var profile_before: Dictionary = profile.get_profile_snapshot().duplicate(true)
@@ -79,6 +86,7 @@ func create_recall() -> void:
 	assert_eq(held.value.reading_session.boundary, "control")
 	assert_eq(bridge._runtime_adapter.current_line_id(), "line.scene.test.recall.start.one")
 	assert_true(game.capture_dating_challenge_state().value.is_empty())
+	assert_eq(game.scene_challenge_outcomes, {}, "playable without closure has no outcome fact")
 	# Playable admission holds the caption; a separate physical Accept departs.
 	await _click(_caption().caption_text)
 	if not await _wait_line("line.scene.test.recall.start.two"): return
@@ -89,6 +97,9 @@ func create_recall() -> void:
 	if closures.size() != 1: return
 	assert_eq(closures[0].scene_event.result.outcome, "never_started")
 	assert_null(closures[0].scene_event.result.attempt_proof)
+	assert_eq(game.scene_challenge_outcomes, {closures[0].scene_event.result.challenge_occurrence: {
+		"challenge_id": closures[0].scene_event.semantic.payload.challenge_id, "outcome": "never_started"}},
+		"closure commits never_started as an outcome, distinct from absent closure")
 	await _accept()
 	if not await _wait_line(MEMORY_LINE): return
 	if not await _save_partner(1): return
