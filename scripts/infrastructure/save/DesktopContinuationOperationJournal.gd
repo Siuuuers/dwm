@@ -268,6 +268,8 @@ func commit_intent(candidate: Dictionary) -> Dictionary:
 
 
 func advance(request: Dictionary) -> Dictionary:
+	var profiling := OS.get_environment("DWM_CONTINUATION_PROGRESS_PROFILE") == "1"
+	var started_us := Time.get_ticks_usec() if profiling else 0
 	var ready := _require_configured("advance")
 	if not ready.get("ok", false):
 		return ready
@@ -302,7 +304,9 @@ func advance(request: Dictionary) -> Dictionary:
 		return _failed(&"advance_blocked_by_recovery_diagnostic",
 			"the retained diagnostic must be proven and durably cleared before forward advancement")
 
+	var admission_done_us := Time.get_ticks_usec() if profiling else 0
 	var next := _advance_one_step(operation, request)
+	var transition_done_us := Time.get_ticks_usec() if profiling else 0
 	if not next.get("ok", false):
 		var replay := _replay_for_advanced_transition(operation, request)
 		if replay.get("ok", false):
@@ -312,13 +316,40 @@ func advance(request: Dictionary) -> Dictionary:
 	var progressed: Dictionary = next.get("value", {})
 	if _operation_equals(progressed, operation):
 		return {"ok": true, "value": operation.duplicate(true)}
+	var equality_done_us := Time.get_ticks_usec() if profiling else 0
 	var next_document := _document.duplicate(true)
 	next_document["operations"][txid] = progressed
-	var written := _write(next_document, txid)
+	var copy_done_us := Time.get_ticks_usec() if profiling else 0
+	var write_profile: Dictionary = {"kind": "write"} if profiling else {}
+	var written := _write(next_document, txid, write_profile)
+	var write_done_us := Time.get_ticks_usec() if profiling else 0
 	if not written.get("ok", false):
 		return written
 	_document["operations"][txid] = progressed
-	return {"ok": true, "value": progressed.duplicate(true)}
+	var result := {"ok": true, "value": progressed.duplicate(true)}
+	if profiling:
+		var finished_us := Time.get_ticks_usec()
+		var phases := {
+			"admission_us": admission_done_us - started_us,
+			"transition_us": transition_done_us - admission_done_us,
+			"equality_us": equality_done_us - transition_done_us,
+			"document_copy_us": copy_done_us - equality_done_us,
+			"write_inclusive_us": write_done_us - copy_done_us,
+			"publication_return_copy_us": finished_us - write_done_us,
+		}
+		var phase_sum_us := 0
+		for duration: int in phases.values(): phase_sum_us += duration
+		# Phases within each object are exclusive. The nested write object is contained in
+		# write_inclusive_us; never add it to the outer phases. Formatting is outside timing.
+		print("DWM_CONTINUATION_PROGRESS_PROFILE " + JSON.stringify({
+			"kind": "advance", "transaction_id": txid, "stage": progressed.get("stage"),
+			"next_participant_index": progressed.get("next_participant_index"),
+			"written": true, "ok": true, "started_us": started_us, "finished_us": finished_us,
+			"elapsed_us": finished_us - started_us, "phases": phases,
+			"phase_sum_us": phase_sum_us, "unphased_us": finished_us - started_us - phase_sum_us,
+			"write": write_profile,
+		}))
+	return result
 
 
 ## Records readback proof for one frozen New Run durability target. Target order is strict and an
@@ -579,7 +610,9 @@ func _load_owned() -> Dictionary:
 	return {"ok": true}
 
 
-func _write(document: Dictionary, changed_transaction: String = "") -> Dictionary:
+func _write(document: Dictionary, changed_transaction: String = "", progress_profile: Dictionary = {}) -> Dictionary:
+	var profiling := not progress_profile.is_empty()
+	var started_us := Time.get_ticks_usec() if profiling else 0
 	if _creation_storage_recovery and (changed_transaction.is_empty()
 			or not _is_new_run(document.get("operations", {}).get(changed_transaction, {}))):
 		return _failed(&"creation_storage_recovery_only", changed_transaction)
@@ -588,18 +621,37 @@ func _write(document: Dictionary, changed_transaction: String = "") -> Dictionar
 	# already-validated failure. _document itself was validated on load. Avoid rescanning all
 	# historical completed operations on every forward step. Reuse their exact canonical bytes;
 	# changed operations still pass through the canonical writer.
+	var setup_done_us := Time.get_ticks_usec() if profiling else 0
 	var emitted := _serialize_document(document, changed_transaction)
+	var serialization_done_us := Time.get_ticks_usec() if profiling else 0
 	if not emitted.get("ok", false):
 		return _failed(&"journal_serialization_failed", str(emitted.get("message", "cannot serialize journal")))
 	_remember_validated_text(str(emitted["value"]), document)
+	var proof_cache_done_us := Time.get_ticks_usec() if profiling else 0
 	var write_result: Dictionary = _storage.call(
 		&"write_atomic", JOURNAL_PATH, str(emitted["value"]), Callable(self, "_parse_known_document"), true
 	)
+	var storage_done_us := Time.get_ticks_usec() if profiling else 0
 	if not write_result.get("ok", false):
 		# An atomic adapter may report failure after the destination promotion became durable.
 		# Drop the process-local cache so the next operation reconciles physical bytes before retry.
 		_loaded = false
 		return _storage_failure(write_result)
+	if profiling:
+		var finished_us := Time.get_ticks_usec()
+		var phases := {
+			"setup_us": setup_done_us - started_us,
+			"serialization_us": serialization_done_us - setup_done_us,
+			"proof_cache_us": proof_cache_done_us - serialization_done_us,
+			"atomic_storage_us": storage_done_us - proof_cache_done_us,
+			"finish_us": finished_us - storage_done_us,
+		}
+		var phase_sum_us := 0
+		for duration: int in phases.values(): phase_sum_us += duration
+		progress_profile["elapsed_us"] = finished_us - started_us
+		progress_profile["phases"] = phases
+		progress_profile["phase_sum_us"] = phase_sum_us
+		progress_profile["unphased_us"] = finished_us - started_us - phase_sum_us
 	return {"ok": true}
 
 ## The surrounding schema is fixed and was validated on load/construction. Only internal writers

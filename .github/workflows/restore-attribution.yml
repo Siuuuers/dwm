@@ -1,8 +1,8 @@
-name: Restore validation attribution
+name: Continuation progress attribution
 on:
   push:
     branches:
-      - codex/restore-validation-attribution-20261024
+      - codex/continuation-progress-attribution-20261024
   workflow_dispatch:
 permissions:
   contents: read
@@ -107,6 +107,7 @@ jobs:
         timeout-minutes: 25
         env:
           DWM_SCENE_VALIDATION_CALLERS: '1'
+          DWM_CONTINUATION_PROGRESS_PROFILE: '1'
         run: ./tools/testing/Invoke-FreshSaveLoad.ps1
       - name: Verify and summarize snapshot callers
         shell: python {0}
@@ -156,6 +157,42 @@ jobs:
           result['restore_transaction'] = transaction
           (root / 'caller-summary.json').write_text(json.dumps(result, indent=2) + '\n', encoding='utf-8')
           print(f'CALLER_ATTRIBUTION_VERIFIED records={len(records)} snapshots={snapshots} stacks={len(groups)}')
+      - name: Verify continuation progress phase accounting
+        shell: python {0}
+        run: |
+          import json
+          from pathlib import Path
+          root = Path('.godot/ci/fresh-save-load')
+          marker = 'DWM_CONTINUATION_PROGRESS_PROFILE '
+          records = [json.loads(line.split(marker, 1)[1])
+                     for line in (root / 'fresh-save-load.log').read_text(encoding='utf-8-sig').splitlines()
+                     if marker in line]
+          assert records, 'No durable continuation progress observations'
+          for record in records:
+              assert record['kind'] == 'advance' and record['ok'] and record['written']
+              assert record['transaction_id'] and record['stage']
+              for observation in (record, record['write']):
+                  phases = observation['phases']
+                  assert phases and all(isinstance(v, int) and v >= 0 for v in phases.values())
+                  assert sum(phases.values()) == observation['phase_sum_us']
+                  assert observation['phase_sum_us'] + observation['unphased_us'] == observation['elapsed_us']
+              assert record['write']['elapsed_us'] <= record['phases']['write_inclusive_us']
+          transactions = {}
+          for record in records:
+              transactions.setdefault(record['transaction_id'], []).append(record)
+          expected = [('identity_allocation_committed', 0), ('participants_applying', 0)] + [
+              ('participants_applying', index) for index in range(1, 9)] + [
+              ('participants_applied', 8), ('completed', 8)]
+          assert len(transactions) == 1, 'Expected one fresh Load transaction'
+          group = next(iter(transactions.values()))
+          assert [(r['stage'], r['next_participant_index']) for r in group] == expected, 'Unexpected restore progress sequence'
+          target = group[-10:]
+          totals = {key: sum(record['write']['phases'][key] for record in target)
+                    for key in records[0]['write']['phases']}
+          result = {'scope': 'Instrumented attribution only, not a performance comparison. Nested write phases must not be added to advance totals.',
+                    'durable_advances': len(records), 'target_advances': len(target), 'write_phase_totals_us': totals, 'records': records}
+          (root / 'continuation-progress-summary.json').write_text(json.dumps(result, indent=2) + '\n', encoding='utf-8')
+          print('CONTINUATION_PROGRESS_VERIFIED ' + json.dumps({'advances': len(records), 'write_phase_totals_us': totals}))
       - name: Preserve attribution evidence
         if: always()
         uses: actions/upload-artifact@v4
