@@ -152,9 +152,7 @@ attachment has ordinarily concluded. If the new plot explicitly retains the
 former premature roster, her return may make that inclusion current without
 explaining why the name appeared early; the return does not require the roster
 to survive. Day 2 adds no automatic dedicated message pair, pre-echo, timing
-contradiction, or replacement anomaly. Priscilla–Lavinia residence and access
-history remains under its explicit migration hold and cannot be used to
-manufacture a Day 2 mystery.
+contradiction, or replacement anomaly.
 
 ### Day 4 — Sylvia’s Preparation
 
@@ -411,8 +409,7 @@ Before the company attachment, their conduct became openly flirtatious and near-
 **SUPERSEDED FOR FORWARD USE — CANON MIGRATION OPEN:** This subsection preserves
 the former cohabitation premise as inspectable history; it is not current
 residence authority. The later owner-confirmed working premise makes Lavinia
-the sole resident of the family-provided flat, places Priscilla elsewhere, and
-grants Priscilla no bedroom, tenancy, or resident status there. Repeated
+the sole resident of the family-provided flat, places Priscilla elsewhere. Repeated
 separately admitted crossings may create domestic fluency and bounded traces
 without becoming cohabitation or a relationship label. Exact access, object,
 key, bar, and residue facts must await the required raw chronological
