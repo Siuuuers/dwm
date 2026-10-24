@@ -602,6 +602,22 @@ static func _validate_scene_result_inspected(envelope: Dictionary, result: Varia
 static func resolve_scene_challenge_recall(event: Dictionary, receipts: Dictionary, bundle: Dictionary) -> Dictionary:
 	var checked := _inspect_scene_context(event, bundle)
 	if not checked.ok: return checked
+	return _resolve_scene_challenge_recall_inspected(event, receipts, checked)
+
+static func _resolve_selected_scene_challenge_recall(event: Dictionary, receipts: Dictionary) -> Dictionary:
+	var shaped := _inspect_scene_versioned_shape(event)
+	if not shaped.ok: return shaped
+	var manifest: Script = load("res://scripts/narrative/DialogicEntryManifest.gd")
+	var registered: Dictionary = manifest.scene_contract_tables()
+	if not registered.ok: return registered
+	var checked := _bind_scene_context(event, shaped, registered)
+	if not checked.ok: return checked
+	return _resolve_scene_challenge_recall_inspected(event, receipts, checked)
+
+## The selected owner supplies immutable registration, never receipt or physical proof.
+## Both callers freshly bind the recall envelope before entering this callback-free body.
+static func _resolve_scene_challenge_recall_inspected(event: Dictionary, receipts: Dictionary,
+		checked: Dictionary) -> Dictionary:
 	if event.kind != "challenge.recall" or not _positive_int(event.issuer_receipt.get("counter")):
 		return _fail(&"scene_challenge_recall_invalid")
 	var found := {}
@@ -709,7 +725,7 @@ static func _validate_selected_scene_receipts(receipts: Dictionary, issuer: Obje
 	var manifest: Script = load("res://scripts/narrative/DialogicEntryManifest.gd")
 	var registered: Dictionary = manifest.scene_contract_tables()
 	if not registered.ok: return registered
-	return _validate_scene_receipts_registered(receipts, registered.bundle, registered, issuer, creation_owner, contacts)
+	return _validate_scene_receipts_registered(receipts, registered.bundle, registered, issuer, creation_owner, contacts, true)
 
 static func _validate_scene_receipts_observed_body(receipts: Dictionary, bundle: Dictionary, issuer: Object,
 		creation_owner: Object = null, contacts: Dictionary = {}) -> Dictionary:
@@ -721,7 +737,7 @@ static func _validate_scene_receipts_observed_body(receipts: Dictionary, bundle:
 	return _validate_scene_receipts_registered(receipts, bundle, registered, issuer, creation_owner, contacts)
 
 static func _validate_scene_receipts_registered(receipts: Dictionary, bundle: Dictionary, registered: Dictionary, issuer: Object,
-		creation_owner: Object, contacts: Dictionary) -> Dictionary:
+		creation_owner: Object, contacts: Dictionary, selected_registration: bool = false) -> Dictionary:
 	var occurrences := {}
 	var commands := {}
 	var admissions := {}
@@ -848,7 +864,11 @@ static func _validate_scene_receipts_registered(receipts: Dictionary, bundle: Di
 		elif result.kind == "challenge_recalled":
 			var envelope: Dictionary = semantic.duplicate(true)
 			envelope["playback_token"] = "recall.validation"
-			var recalled := resolve_scene_challenge_recall(envelope, commands, bundle)
+			var recalled: Dictionary
+			if selected_registration:
+				recalled = _resolve_selected_scene_challenge_recall(envelope, commands)
+			else:
+				recalled = resolve_scene_challenge_recall(envelope, commands, bundle)
 			if not recalled.ok: return recalled
 			if not _equal(result, recalled.value): return _fail(&"scene_challenge_recall_mismatch")
 		elif result.kind == "contact_entry_accepted":
@@ -1639,3 +1659,4 @@ static func validate_scene_day_allocation(trigger: Dictionary, identity: Diction
 			return _fail(&"scene_day_allocation_mismatch")
 		return {"ok": true}
 	return _fail(&"scene_day_allocation_missing")
+

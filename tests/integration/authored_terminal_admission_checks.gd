@@ -470,8 +470,8 @@ func test_selected_terminal_admission_rechecks_genuine_saved_authority() -> void
 	TERMINAL_TIMING.end_scope(bool(selected.get("ok", false)))
 	if not _ok(selected): return
 	assert_eq(selected, generic, "selected owner retains public admission result")
-	assert_eq(generic_counts.bundle_validation_calls - selected_counts.bundle_validation_calls, 2,
-		"selected terminal admission removes the two repeated structural checks")
+	assert_eq(generic_counts.bundle_validation_calls - selected_counts.bundle_validation_calls, 3,
+		"selected terminal admission removes two structural checks plus the retained recall check")
 	assert_eq(selected_counts.receipt_validation_calls, generic_counts.receipt_validation_calls)
 	assert_eq(selected_counts.physical_proof_calls, generic_counts.physical_proof_calls)
 	assert_gt(int(selected_counts.physical_proof_calls), 0, "actual current Profile proof is exercised")
@@ -539,3 +539,4 @@ func test_selected_terminal_admission_rechecks_genuine_saved_authority() -> void
 		"physical_callback_counts": physical_callback_counts,
 		"physical_refusal_code": str(physical_refusal.get("code", "")),
 		"profile_restored": restored})
+

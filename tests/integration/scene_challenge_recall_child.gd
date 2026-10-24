@@ -56,7 +56,7 @@ func _recall_and_assert(proof: Dictionary) -> bool:
 	var snapshot: Dictionary = game.capture_run_snapshot_input()
 	var bundle: Dictionary = RECALL.bundle().value
 	var issuer: RefCounted = bootstrap._desktop_identity_nonce_issuer
-	assert_true(RECALL_CONTRACT.validate_scene_receipts(snapshot.command_receipts, bundle, issuer, saves, snapshot.contacts).ok)
+	if not _check_selected_recall_ledger(snapshot, bundle, issuer, recalled[0], proof.closure): return false
 	var forged: Dictionary = snapshot.command_receipts.duplicate(true)
 	forged[recalled[0].transaction_id].scene_event.result.closure_command_id = "TEST.missing.closure"
 	assert_false(RECALL_CONTRACT.validate_scene_receipts(forged, bundle, issuer, saves, snapshot.contacts).ok,
@@ -117,3 +117,64 @@ func load_recall() -> void:
 	if not await _recall_and_assert(proof): return
 	assert_eq(FileAccess.get_sha256("user://saves/slot_1.json"), proof.slot_sha256)
 	await _screenshot("challenge-recall-restored-selected")
+
+# Exercise the public selected ledger on the real issued, persisted recall journey.
+# Generic callers retain fresh validation of their arbitrary bundle.
+func _check_selected_recall_ledger(snapshot: Dictionary, bundle: Dictionary, issuer: Object,
+		recall_receipt: Dictionary, closure: Dictionary) -> bool:
+	var timing := preload("res://scripts/narrative/SceneValidationTiming.gd")
+	var prior_environment := OS.get_environment("DWM_SCENE_VALIDATION_PROFILE")
+	OS.set_environment("DWM_SCENE_VALIDATION_PROFILE", "1")
+	var generic_started: bool = timing.begin_scope("recall_generic_ledger", "PLAYING", "", 0)
+	assert_true(generic_started)
+	var expected := RECALL_CONTRACT.validate_scene_receipts(snapshot.command_receipts,
+		bundle, issuer, saves, snapshot.contacts)
+	var generic_calls: int = timing._record.get("bundle_validation_calls", -1)
+	if generic_started: timing.end_scope(expected.ok)
+	var selected_started: bool = timing.begin_scope("recall_selected_ledger", "PLAYING", "", 0)
+	assert_true(selected_started)
+	var actual := RECALL_CONTRACT.validate_selected_scene_receipts(snapshot.command_receipts,
+		issuer, saves, snapshot.contacts)
+	var selected_calls: int = timing._record.get("bundle_validation_calls", -1)
+	if selected_started: timing.end_scope(actual.ok)
+	OS.set_environment("DWM_SCENE_VALIDATION_PROFILE", prior_environment)
+	assert_true(expected.ok, str(expected))
+	assert_eq(actual, expected, "selected registration preserves the complete authenticated ledger")
+	assert_eq(generic_calls, selected_calls + 2,
+		"one recall removes the outer and recall-specific structural bundle checks")
+	if not expected.ok or not actual.ok: return false
+	var source_before: Dictionary = snapshot.command_receipts.duplicate(true)
+	for mutation: String in ["recall_version", "recall_closure", "closure_anchor", "missing_closure"]:
+		var changed: Dictionary = source_before.duplicate(true)
+		var code: StringName
+		match mutation:
+			"recall_version":
+				changed[recall_receipt.transaction_id].scene_event.semantic.schema_version = 2.0
+				code = &"scene_event_version_invalid"
+			"recall_closure":
+				changed[recall_receipt.transaction_id].scene_event.result.closure_command_id = "TEST.missing.closure"
+				code = &"scene_challenge_recall_mismatch"
+			"closure_anchor":
+				changed[closure.transaction_id].scene_event.reading_anchor.line_id = "TEST.other.line"
+				changed[recall_receipt.transaction_id].scene_event.semantic.schema_version = 2.0
+				code = &"event_anchor_invalid"
+			"missing_closure":
+				changed.erase(closure.transaction_id)
+				code = &"scene_challenge_recall_missing"
+		var before: Dictionary = changed.duplicate(true)
+		var generic := RECALL_CONTRACT.validate_scene_receipts(changed, bundle, issuer, saves, snapshot.contacts)
+		var selected := RECALL_CONTRACT.validate_selected_scene_receipts(changed, issuer, saves, snapshot.contacts)
+		assert_eq(generic.get("code"), code, mutation)
+		assert_eq(selected, generic, mutation + " preserves fresh refusal and order")
+		assert_eq(changed, before, mutation + " preserves caller bytes")
+	var changed_bundle: Dictionary = bundle.duplicate(true)
+	changed_bundle.caption_registry["TEST.changed"] = "different registration"
+	assert_true(RECALL_CONTRACT.validate_bundle_structure(changed_bundle).ok)
+	assert_false(RECALL_CONTRACT.validate_scene_receipts(source_before,
+		changed_bundle, issuer, saves, snapshot.contacts).ok,
+		"generic bundle input cannot use selected registration authority")
+	assert_eq(RECALL_CONTRACT.validate_selected_scene_receipts(source_before,
+		issuer, saves, snapshot.contacts), expected, "later calls freshly authenticate original receipts")
+	assert_eq(snapshot.command_receipts, source_before)
+	return true
+
