@@ -261,16 +261,22 @@ func test_continuation_journal_skeletons_load() -> void:
 			"%s must parse and load: %s" % [label, str(probe.get("message", ""))])
 
 
-func test_journal_public_surface_adds_only_explicit_new_run_target_proof() -> void:
+func test_journal_public_surface_retains_creation_and_scene_recovery_entries() -> void:
 	var expected: Array[String] = [
 		"configure",
+		"configure_scene_new_run_validation",
+		"with_creation_storage_recovery",
 		"prepare_intent",
 		"commit_intent",
 		"advance",
 		"record_new_run_target",
 		"get_operation",
+		"capture_completed_creation_chronology",
+		"get_creation_operation",
 		"list_incomplete",
+		"reload_operation_from_storage",
 		"reconcile_startup",
+		"acknowledge_scene_activation",
 	]
 	var actual: Array[String] = []
 	var source := FileAccess.get_file_as_string(JOURNAL_SOURCE_PATH)
@@ -282,7 +288,7 @@ func test_journal_public_surface_adds_only_explicit_new_run_target_proof() -> vo
 		if not method_name.begins_with("_"):
 			actual.append(method_name)
 	assert_eq(actual, expected,
-		"v4 retains explicit target proof to the retained journal API")
+		"the retained journal API includes explicit creation proofs and scene recovery")
 
 
 func test_v4_combines_durable_new_run_targets_with_the_schedule_view_participant() -> void:

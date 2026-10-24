@@ -684,7 +684,8 @@ func _validate_document(document: Variant) -> Dictionary:
 	for key: Variant in document["operations"]:
 		var raw: Variant = document["operations"][key]
 		if typeof(raw) != TYPE_DICTIONARY or not _is_new_run(raw): continue
-		if typeof(key) != TYPE_STRING or raw.get("transaction_id") != key:
+		if typeof(key) != TYPE_STRING or typeof(raw.get("transaction_id")) != TYPE_STRING \
+				or raw.get("transaction_id") != key:
 			return _failed(_schema_error, "creation transaction must match its operations key")
 		if document["schema_version"] == SCHEMA_VERSION and _is_scene(raw):
 			return _failed(_schema_error, "scene operation requires journal5")
@@ -1632,7 +1633,7 @@ func _participant_order(operation: Dictionary) -> Array[String]:
 
 func _operation_keys(operation: Dictionary) -> Array[String]:
 	var keys := OPERATION_KEYS.duplicate()
-	if operation.get("kind") == "scene_restore":
+	if typeof(operation.get("kind")) == TYPE_STRING and operation.get("kind") == "scene_restore":
 		keys.append("selected_document")
 	if _is_scene(operation): keys.append("activation_state")
 	return keys
