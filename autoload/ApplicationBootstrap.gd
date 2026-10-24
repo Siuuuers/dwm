@@ -594,9 +594,14 @@ func _run_stage(stage_id: StringName, mode: StringName) -> Dictionary:
 			if not recovery_bound.get("ok", false): return recovery_bound
 			# Journal loading validates retained scene creations, including completed ones,
 			# before Profile initialization. Bind their immutable validation inputs first.
+			var creation_began := STARTUP_TIMING.stamp()
 			var scene_creation := _configure_registered_scene_creation()
+			STARTUP_TIMING.finish("bootstrap.saves.configure_scene_creation", creation_began, scene_creation.get("ok", false))
 			if not scene_creation.get("ok", false): return scene_creation
-			return save_manager.call(&"reconcile_new_run_storage")
+			var reconcile_began := STARTUP_TIMING.stamp()
+			var reconciled: Dictionary = save_manager.call(&"reconcile_new_run_storage")
+			STARTUP_TIMING.finish("bootstrap.saves.reconcile_new_run_storage", reconcile_began, reconciled.get("ok", false))
+			return reconciled
 		&"initialize_dialogic_bridge":
 			var bridge := _target(&"DialogicBridge")
 			var profile := _target(&"ProfileManager")
