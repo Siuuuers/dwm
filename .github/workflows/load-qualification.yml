@@ -1,0 +1,74 @@
+name: Load qualification (controller only)
+on:
+  push:
+    branches: [codex/load-qualification-controller-20261024]
+  workflow_dispatch:
+    inputs:
+      candidate_ref:
+        description: Exact reviewed product candidate SHA (40 lowercase hex)
+        required: true
+        type: string
+# Isolated controller branch only; exact product candidate is pinned below.
+# This workflow must not merge into the product branch.
+permissions:
+  contents: read
+concurrency:
+  group: load-qualification-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  qualification:
+    strategy:
+      fail-fast: false
+      matrix:
+        lane: [inventory, focused, terminal, baseline-first, candidate-first]
+    runs-on: windows-2022
+    timeout-minutes: 90
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+      - name: Prepare disposable checkout for credential cleanup
+        run: |
+          git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Require exact candidate
+        env:
+          CANDIDATE_REF: ${{ inputs.candidate_ref || 'b8383c64941eb58ed55195531510f565af41d65a' }}
+        run: |
+          if ($env:CANDIDATE_REF -cnotmatch '^[0-9a-f]{40}$') { throw 'Exact candidate SHA required; no branch/default candidate permitted.' }
+      - name: Install Godot 4.6.3 standard
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $archive = Join-Path $env:RUNNER_TEMP 'godot-4.6.3.zip'
+          Invoke-WebRequest -Uri 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_win64.exe.zip' -OutFile $archive
+          # SHA256 published with the official 4.6.3-stable release asset.
+          $expected = 'e39986a178d585ce7ac198fb8de6ea436366dc0cc00e594810c2e3e104c04b90'
+          if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expected) {
+            throw 'Godot archive checksum mismatch.'
+          }
+          $editor = Join-Path $env:RUNNER_TEMP 'godot-4.6.3'
+          Expand-Archive -LiteralPath $archive -DestinationPath $editor
+          $console = Join-Path $editor 'Godot_v4.6.3-stable_win64_console.exe'
+          if (-not (Test-Path -LiteralPath $console)) { throw 'Godot console executable missing.' }
+          "GODOT_CONSOLE_PATH=$console" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          & $console --version
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Run isolated qualification
+        env:
+          CANDIDATE_REF: ${{ inputs.candidate_ref || 'b8383c64941eb58ed55195531510f565af41d65a' }}
+          QUALIFICATION_LANE: ${{ matrix.lane }}
+        run: |
+          ./tools/testing/Invoke-LoadQualification.ps1 -CandidateRef $env:CANDIDATE_REF -Lane $env:QUALIFICATION_LANE -RegenerateInventories
+      - name: Preserve current qualification evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: load-${{ matrix.lane }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .godot/ci/load-${{ matrix.lane }}/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 7
