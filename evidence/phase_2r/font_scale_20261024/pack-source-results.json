@@ -1,0 +1,31 @@
+{
+  "source_ref": "8bdf183a89d795743f4e7ab6f10f5586eabc7940",
+  "tree_sha": "6f8e36b7097134bc389b9b456dffe519c1851f53",
+  "verification": "Root coordinator verified remote source commit tree equals staged local whole-tree SHA; snapshot reads staged blobs, not working-tree approximations.",
+  "archive": {
+    "path": "pack-source.zip",
+    "size_bytes": 7708,
+    "sha256": "99f78dd8acef96e21e9207ce148c27a92393d15fbac71a93ab0cc0f0d83dc23f",
+    "crc_verified": true
+  },
+  "files": [
+    {
+      "path": "tests/ui/render_pack_font_diagnostic.gd",
+      "size_bytes": 6127,
+      "sha256": "f03821bd4437a68d084ce9fdcedc4c1aadda3da7a3bddac6415fc0051b8938d0",
+      "git_blob_sha": "7707f4550ef4e7e4dc6f2d0cd14188ab6165a9b3"
+    },
+    {
+      "path": "tools/testing/Invoke-PackFontDiagnostic.ps1",
+      "size_bytes": 7540,
+      "sha256": "b844fcb15249e274f8403c4959869a4df75578f72066ed70f357dc2df284cb3e",
+      "git_blob_sha": "d486e444991440700b69855992f7bb5544adf6dc"
+    },
+    {
+      "path": ".github/workflows/restore-proof-preflight.yml",
+      "size_bytes": 4136,
+      "sha256": "edb7e47f56b393536c8c47215e588495995806420b75d4acf9da82e584de68d2",
+      "git_blob_sha": "7f4491530114ab3fddc4cc7f60ad71d054ab36e5"
+    }
+  ]
+}

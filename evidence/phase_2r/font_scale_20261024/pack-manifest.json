@@ -1,0 +1,693 @@
+{
+  "original": {
+    "run_id": 40091687370,
+    "artifact_id": 12559495560,
+    "source_ref": "8bdf183a89d795743f4e7ab6f10f5586eabc7940",
+    "size_bytes": 1682146,
+    "sha256": "0eb764e2d8a22ab57a35edf45d94969ff992f08a281d4e622e4dcd233187efea"
+  },
+  "original_crc_verified": true,
+  "original_member_count": 84,
+  "retained_archive": {
+    "path": "pack-evidence.zip",
+    "size_bytes": 433624,
+    "sha256": "e332c4254117052dce5d4e018353fe54b9e58348b339c548fe3148662a9d280d",
+    "members": 14,
+    "crc_verified": true,
+    "all_retained_members_byte_identical": true
+  },
+  "members": [
+    {
+      "original_path": "font-pack-evidence/export-receipt.json",
+      "size_bytes": 5209,
+      "sha256": "5fbd0e0f127884ec4f2a9b063111c7f2c249ce363e91af1bb7a782370a78ebfb",
+      "retained": true,
+      "retained_path": "font-pack-evidence/export-receipt.json",
+      "reason": "Exact capture/log/receipt/script or artifact metadata."
+    },
+    {
+      "original_path": "font-pack-evidence/pixel-100.png",
+      "size_bytes": 42494,
+      "sha256": "9f1e275453d83103ef174140f9bc60bdfb54aceed62fd73f4b61e78926f2c419",
+      "retained": true,
+      "retained_path": "font-pack-evidence/pixel-100.png",
+      "reason": "Exact capture/log/receipt/script or artifact metadata."
+    },
+    {
+      "original_path": "font-pack-evidence/pixel-125.png",
+      "size_bytes": 44509,
+      "sha256": "5fd9ce8e32b04fdc30cc95d3ed264f8e6122e8f8b88b4ebffd23022c92320081",
+      "retained": true,
+      "retained_path": "font-pack-evidence/pixel-125.png",
+      "reason": "Exact capture/log/receipt/script or artifact metadata."
+    },
+    {
+      "original_path": "font-pack-evidence/pixel-150.png",
+      "size_bytes": 45404,
+      "sha256": "05c497d4f867b5e087d4fa7bed4cedea119ada4ed483bcfa9a53b5fb1717c708",
+      "retained": true,
+      "retained_path": "font-pack-evidence/pixel-150.png",
+      "reason": "Exact capture/log/receipt/script or artifact metadata."
+    },
+    {
+      "original_path": "font-pack-evidence/process.json",
+      "size_bytes": 2865,
+      "sha256": "251e4711bfbe0aa4e2cd90d689a1406a4e8dc23bcdd08d56803d1937d06a059b",
+      "retained": true,
+      "retained_path": "font-pack-evidence/process.json",
+      "reason": "Exact capture/log/receipt/script or artifact metadata."
+    },
+    {
+      "original_path": "font-pack-evidence/readable-100.png",
+      "size_bytes": 89511,
+      "sha256": "9c9673c55efdb20a683bedc01354aa9c271a9c714a7e946895ea7fc383fc8fe1",
+      "retained": true,
+      "retained_path": "font-pack-evidence/readable-100.png",
+      "reason": "Exact capture/log/receipt/script or artifact metadata."
+    },
+    {
+      "original_path": "font-pack-evidence/readable-125.png",
+      "size_bytes": 104982,
+      "sha256": "292e666b4b669e8ab0fabe1b6a1dc36c44fffe6c2df486c98e93b51989461ff3",
+      "retained": true,
+      "retained_path": "font-pack-evidence/readable-125.png",
+      "reason": "Exact capture/log/receipt/script or artifact metadata."
+    },
+    {
+      "original_path": "font-pack-evidence/readable-150.png",
+      "size_bytes": 119877,
+      "sha256": "627365fb2aade7d6cde754550684e749cfd7b06245cf089135bdc58a7f822151",
+      "retained": true,
+      "retained_path": "font-pack-evidence/readable-150.png",
+      "reason": "Exact capture/log/receipt/script or artifact metadata."
+    },
+    {
+      "original_path": "font-pack-evidence/render.log",
+      "size_bytes": 42115,
+      "sha256": "dbb6e02c60b4ea96e6ae8e6364beec913580cf4b804f1c9ec40f39f7641f1f6f",
+      "retained": true,
+      "retained_path": "font-pack-evidence/render.log",
+      "reason": "Exact capture/log/receipt/script or artifact metadata."
+    },
+    {
+      "original_path": "font-pack-evidence/render_pack_font_diagnostic.gd",
+      "size_bytes": 6127,
+      "sha256": "f03821bd4437a68d084ce9fdcedc4c1aadda3da7a3bddac6415fc0051b8938d0",
+      "retained": true,
+      "retained_path": "font-pack-evidence/render_pack_font_diagnostic.gd",
+      "reason": "Exact capture/log/receipt/script or artifact metadata."
+    },
+    {
+      "original_path": "font-pack-evidence/results.json",
+      "size_bytes": 62977,
+      "sha256": "d940476f25dcfc18158c891c1c8fff765236856d3e8a02ffc88c65f4de85ce31",
+      "retained": true,
+      "retained_path": "font-pack-evidence/results.json",
+      "reason": "Exact capture/log/receipt/script or artifact metadata."
+    },
+    {
+      "original_path": "font-pack-evidence/stderr.log",
+      "size_bytes": 2,
+      "sha256": "7eb70257593da06f682a3ddda54a9d260d4fc514f645237f5ca74b08f8da61a6",
+      "retained": true,
+      "retained_path": "font-pack-evidence/stderr.log",
+      "reason": "Exact capture/log/receipt/script or artifact metadata."
+    },
+    {
+      "original_path": "font-pack-evidence/stdout.log",
+      "size_bytes": 42121,
+      "sha256": "30e17489586881ff48c4b8e35e56af91144dc3dfe08ffe1a852b2872c2bd9574",
+      "retained": true,
+      "retained_path": "font-pack-evidence/stdout.log",
+      "reason": "Exact capture/log/receipt/script or artifact metadata."
+    },
+    {
+      "original_path": "font-pack-evidence/user/APPDATA/Godot/app_userdata/DWM/desktop-issuer-root.json",
+      "size_bytes": 192,
+      "sha256": "25ee5fa0e8e3eeeb559d8e81cb149c5b435cb9b0bb9b478a105496fd7310c854",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user state and rendering cache."
+    },
+    {
+      "original_path": "font-pack-evidence/user/APPDATA/Godot/app_userdata/DWM/desktop-publications.json",
+      "size_bytes": 34,
+      "sha256": "902849ab2604217a878bc4de507660ced78f981a72c1d6343dd9ef55af64d4e4",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user state and rendering cache."
+    },
+    {
+      "original_path": "font-pack-evidence/user/APPDATA/Godot/app_userdata/DWM/dialogic/saves/global_info.txt",
+      "size_bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user state and rendering cache."
+    },
+    {
+      "original_path": "font-pack-evidence/user/APPDATA/Godot/app_userdata/DWM/profile.json",
+      "size_bytes": 2744,
+      "sha256": "1d2b6c170f287ce0d7e33cf77ac5ac9ac01a3781e94081643b802a90fd8020b2",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user state and rendering cache."
+    },
+    {
+      "original_path": "font-pack-evidence/user/APPDATA/Godot/app_userdata/DWM/schedule-foundation-publications.json",
+      "size_bytes": 34,
+      "sha256": "902849ab2604217a878bc4de507660ced78f981a72c1d6343dd9ef55af64d4e4",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user state and rendering cache."
+    },
+    {
+      "original_path": "font-pack-evidence/user/APPDATA/Godot/app_userdata/DWM/shader_cache/BestFitNormalShaderRD/ff55ede486711a617cfa6eca8952f824e1de5c6fd727c4514cd603e8e7c9264e/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 1780,
+      "sha256": "f05134cdb8da29416d0f8d918f2b9abe45bef571822614addb955d7924775790",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user state and rendering cache."
+    },
+    {
+      "original_path": "font-pack-evidence/user/APPDATA/Godot/app_userdata/DWM/shader_cache/BlitShaderRD/cff12a2b56a5c7d70f6de186c786c80ec84b1844045fdaf13152862c6a82baf6/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 17272,
+      "sha256": "eddeaa4d4603720f371c9e923b29bf036042348210be7864c3b2e1da3934db12",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user state and rendering cache."
+    },
+    {
+      "original_path": "font-pack-evidence/user/APPDATA/Godot/app_userdata/DWM/shader_cache/BokehDofShaderRD/3d294ab0ec5302046ff36ecad7f72d70d1c4b3efbc3ca1bb29fe6a80be9abb65/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 14044,
+      "sha256": "eda503193710a1dacc334c081953603471d11db23c1ec002eef4ab83fabffe21",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user state and rendering cache."
+    },
+    {
+      "original_path": "font-pack-evidence/user/APPDATA/Godot/app_userdata/DWM/shader_cache/CanvasOcclusionShaderRD/e397c50e1a9e03519ccb486acfdaddf8be9986511a5738dd0fa77e62980f0ad0/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 10252,
+      "sha256": "d1893e64a0d2e7761b86d9ca96ba4541ed6337701b5cfd26020638772541c19e",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user state and rendering cache."
+    },
+    {
+      "original_path": "font-pack-evidence/user/APPDATA/Godot/app_userdata/DWM/shader_cache/CanvasSdfShaderRD/f5163131ffbf6578b3e403ae4a2e93b16c3b4d4f74b7d313965240c9159ca4a3/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 13768,
+      "sha256": "b5d086019303bfa34d12ee03f03cbc76ee5cca14c0a9be317b1e0360d765a882",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user state and rendering cache."
+    },
+    {
+      "original_path": "font-pack-evidence/user/APPDATA/Godot/app_userdata/DWM/shader_cache/CanvasShaderRD/f30a5b440b1341c6eaa19af108108f7adb605232e31fd6aeac74e4825e07ec28/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 96056,
+      "sha256": "82f903d0dddbcbe2b1756658498d9a003e78c19450b13e013ce65698781eea09",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user state and rendering cache."
+    },
+    {
+      "original_path": "font-pack-evidence/user/APPDATA/Godot/app_userdata/DWM/shader_cache/CanvasShaderRD/f30a5b440b1341c6eaa19af108108f7adb605232e31fd6aeac74e4825e07ec28/45fb1ddc6499e56682916a355ce2839e61f42dfe.d3d12.cache",
+      "size_bytes": 50392,
+      "sha256": "0028524d70962c1e8b4626ac158c0cbe553d31c72dd520cd4ec0ecc193c1cb08",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user state and rendering cache."
+    },
+    {
+      "original_path": "font-pack-evidence/user/APPDATA/Godot/app_userdata/DWM/shader_cache/CanvasShaderRD/f30a5b440b1341c6eaa19af108108f7adb605232e31fd6aeac74e4825e07ec28/4d35b4f1b981d75cb121b24f26aba4271d0d7a2f.d3d12.cache",
+      "size_bytes": 93416,
+      "sha256": "7e243552d9ef135aee7f9e31a1f22435eb3ed5332fed80c7ba7b7c5d063fb472",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user state and rendering cache."
+    },
+    {
+      "original_path": "font-pack-evidence/user/APPDATA/Godot/app_userdata/DWM/shader_cache/CanvasShaderRD/f30a5b440b1341c6eaa19af108108f7adb605232e31fd6aeac74e4825e07ec28/8a7277c8d3ac029b087c3fa9c55de85560be5119.d3d12.cache",
+      "size_bytes": 51056,
+      "sha256": "29f72c23c86119994593bfef4c903861bbed9cb5d628cd2709beef513e361acb",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user state and rendering cache."
+    },
+    {
+      "original_path": "font-pack-evidence/user/APPDATA/Godot/app_userdata/DWM/shader_cache/ClusterDebugShaderRD/2775e502fff54bad7c5a36ee96cb93f9bb26a0835936a36809e0142a020d1da5/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 4120,
+      "sha256": "689c517206b99878626acdb38bd2ddf44d65064b5b28800d402bea0514cd30ea",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user state and rendering cache."
+    },
+    {
+      "original_path": "font-pack-evidence/user/APPDATA/Godot/app_userdata/DWM/shader_cache/ClusterRenderShaderRD/d7d33a009d89531a62355652a94a4bbbcb6ecafd4849629a6a81ebc41fb55f82/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 10364,
+      "sha256": "efceb892f8fae96c7c67e74d45543a665f36efc7080140f1bea07b55971a7684",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user state and rendering cache."
+    },
+    {
+      "original_path": "font-pack-evidence/user/APPDATA/Godot/app_userdata/DWM/shader_cache/ClusterStoreShaderRD/04f77ac6fc3ac39e10dba3d8b90afbac54f16ae6134a60264841ff0154dd1be9/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 2564,
+      "sha256": "e84695d443449f81105ea79958d588f03debb6b6e2e1eac5ee9339d816bcad36",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user state and rendering cache."
+    },
+    {
+      "original_path": "font-pack-evidence/user/APPDATA/Godot/app_userdata/DWM/shader_cache/CopyShaderRD/bef3ebc581956c1e4cad1b19a4c57b168d4fd3a373a0481f33e26003ca1fa6c6/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 39800,
+      "sha256": "64558ab9c3015a7813721db52e6a4dc33acb625f5fb79462632c8d11f761ee3d",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user state and rendering cache."
+    },
+    {
+      "original_path": "font-pack-evidence/user/APPDATA/Godot/app_userdata/DWM/shader_cache/CopyToFbShaderRD/d2ff28d6e27943750d2e72da5da60d486f9b37ab66241467d62296b893eb4cd0/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 17700,
+      "sha256": "e0882d3b5b6f03b2e4a65d997a4899d7b77ac9add41bd758638d1abfe3feae39",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user state and rendering cache."
+    },
+    {
+      "original_path": "font-pack-evidence/user/APPDATA/Godot/app_userdata/DWM/shader_cache/CubeToDpShaderRD/a1c0c9b7619044d7ba83959f645735ee8e1d34ad23904a6ac0af8e55d7ba00db/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 3744,
+      "sha256": "d36b53c42cba51bcac3beac13d33f39cbd2cb85579b9c09f812789370f3d1ff5",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user state and rendering cache."
+    },
+    {
+      "original_path": "font-pack-evidence/user/APPDATA/Godot/app_userdata/DWM/shader_cache/CubeToOctmapShaderRD/c8b61d04732bfd2b54191babf0cd12bfae13c795c34c47b484abdf9f06f00205/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 3668,
+      "sha256": "3f6b70af75466ec0830d2a963f5df9400e9ef833bd158eebbd0cc8a920cf1a4d",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user state and rendering cache."
+    },
+    {
+      "original_path": "font-pack-evidence/user/APPDATA/Godot/app_userdata/DWM/shader_cache/FsrUpscaleShaderRD/d659c02701a99861f3054fa8c67cabb79f0491aa3388020f008051107cf1fec5/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 30656,
+      "sha256": "be39e42d8207bff2c6a83534b0f74d2f0d9597ee90c5c289017f377b100c98aa",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user state and rendering cache."
+    },
+    {
+      "original_path": "font-pack-evidence/user/APPDATA/Godot/app_userdata/DWM/shader_cache/GiShaderRD/0a1109506856e7902e872dda83faa67adac822d90e694417c64c101b2b904810/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 57960,
+      "sha256": "d2a646c65b5e29039d355783a70c9f74d07804ba0ed13516a8fb038092951d40",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user state and rendering cache."
+    },
+    {
+      "original_path": "font-pack-evidence/user/APPDATA/Godot/app_userdata/DWM/shader_cache/IntegrateDfgShaderRD/6d20d114a76402f30530dc6983c20cd78a5bdebe815ba021289a607f6c4541f5/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 2240,
+      "sha256": "9d10af6fedc7acb9313252905fe7b8c0452c556db2d4c36061e8ab4f465ffed2",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user state and rendering cache."
+    },
+    {
+      "original_path": "font-pack-evidence/user/APPDATA/Godot/app_userdata/DWM/shader_cache/LuminanceReduceShaderRD/3484522051e094e151b4a7cbd88cfc9eb2721ea1d26cd66d6ebdd36e30657cc2/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 8256,
+      "sha256": "0d115b8c159cd7ca24fd124472e99797936357f0324016689756e8330cb3194b",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user state and rendering cache."
+    },
+    {
+      "original_path": "font-pack-evidence/user/APPDATA/Godot/app_userdata/DWM/shader_cache/MotionVectorsShaderRD/00e39c95d2d9272edadd9be2db6dbe65b3460f21d2341c92a77371c843cf4d00/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 4300,
+      "sha256": "6af66adb9d823b639df1fa3d0177c0ffb17ccd981d4804ae46d384511f9cc2ed",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user state and rendering cache."
+    },
+    {
+      "original_path": "font-pack-evidence/user/APPDATA/Godot/app_userdata/DWM/shader_cache/OctmapDownsamplerShaderRD/ffe6788f20aa023afaf7e888e2cf33c840f3084c8fbb309ed784918a44ebcf23/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 7044,
+      "sha256": "602ff49b0c0e63d34294cd863c6e778d5818adb5201d09d599babaf62cf85e7c",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user state and rendering cache."
+    },
+    {
+      "original_path": "font-pack-evidence/user/APPDATA/Godot/app_userdata/DWM/shader_cache/OctmapFilterShaderRD/5fc5fea9e3fe54191ff165540faa285b099e7909be69e7349c971f7ab0a609cc/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 42564,
+      "sha256": "c2090abbdea4435c8ccb2454826f217924d4b4dea047077a1ae3c55204e4d9a2",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user state and rendering cache."
+    },
+    {
+      "original_path": "font-pack-evidence/user/APPDATA/Godot/app_userdata/DWM/shader_cache/OctmapRoughnessShaderRD/15e894f5c1a4917d83d34012ecf1ede2bee251fefc7b887b728834d4d817ad55/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 7852,
+      "sha256": "663598ac9914aa23a51d5f3d40978d6b5a5b031c621f2611e2559a88d436bdd2",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user state and rendering cache."
+    },
+    {
+      "original_path": "font-pack-evidence/user/APPDATA/Godot/app_userdata/DWM/shader_cache/ParticlesShaderRD/527b8e067ac0ad8d5ca4af3230efbc7edb63fc49fd10c48dd765f7d4134c2606/f128cab0b22fb7e0d9f023d6cdb81309be392d95.d3d12.cache",
+      "size_bytes": 7672,
+      "sha256": "bdbab0f80a261c8d84f387aa25f1aebd24b971bc23d16e19c9b2b54e464aae73",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user state and rendering cache."
+    },
+    {
+      "original_path": "font-pack-evidence/user/APPDATA/Godot/app_userdata/DWM/shader_cache/ParticlesCopyShaderRD/bcec80ba01e935ed0dc85d792ce6064d3b9920ff6f4ad7f021c39739c998092c/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 86920,
+      "sha256": "f5ad6af17f6ffc3ad2dff99deabcb83a74fd2fd93332e293d25a8ba1c3cc1a12",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user state and rendering cache."
+    },
+    {
+      "original_path": "font-pack-evidence/user/APPDATA/Godot/app_userdata/DWM/shader_cache/ResolveShaderRD/27dd92d92212d9fee97e14b2c5e5e102610e3124706ce6710bb99bb01c1723a2/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 9712,
+      "sha256": "b1b17814355db151f9f2fe439efc754f55b26ef0a118377165b37d9deab81ea1",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user state and rendering cache."
+    },
+    {
+      "original_path": "font-pack-evidence/user/APPDATA/Godot/app_userdata/DWM/shader_cache/SceneForwardClusteredShaderRD/72441e69a5110c34824334c2d7284287eeb225010e6fb8c9f80ad241154df663/111f8cfd3c260d918df85827eb251dc36a43cb13.d3d12.cache",
+      "size_bytes": 165712,
+      "sha256": "c6b333017fc74076da3fad7e628184f056258b56eb03033207ac3cae67f238c3",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user state and rendering cache."
+    },
+    {
+      "original_path": "font-pack-evidence/user/APPDATA/Godot/app_userdata/DWM/shader_cache/SceneForwardClusteredShaderRD/72441e69a5110c34824334c2d7284287eeb225010e6fb8c9f80ad241154df663/a38af1e47720abf30ca44f3d3c099c07b046df81.d3d12.cache",
+      "size_bytes": 169824,
+      "sha256": "62c54b6361f7403c0c10db5f4708f9f34f4372c88b733f72daf8bf97ee495f4e",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user state and rendering cache."
+    },
+    {
+      "original_path": "font-pack-evidence/user/APPDATA/Godot/app_userdata/DWM/shader_cache/SceneForwardClusteredShaderRD/72441e69a5110c34824334c2d7284287eeb225010e6fb8c9f80ad241154df663/ab0b960474f1491b42ef9f2ca13dbd4ccaf64911.d3d12.cache",
+      "size_bytes": 93744,
+      "sha256": "ab5af2ffec8ae899113e84d1a669c51ba7cf3886a7fc2240d52799f4f1bef11a",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user state and rendering cache."
+    },
+    {
+      "original_path": "font-pack-evidence/user/APPDATA/Godot/app_userdata/DWM/shader_cache/ScreenSpaceReflectionDownsampleShaderRD/e2b08e2f67ca3648565b1054827dd95ce07c1b31c4deeb5c87adb959b48c3662/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 10244,
+      "sha256": "b2c7ef23bd285d990244d4589dfaf040f72697b2ff81663a33e30fe9598efa26",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user state and rendering cache."
+    },
+    {
+      "original_path": "font-pack-evidence/user/APPDATA/Godot/app_userdata/DWM/shader_cache/ScreenSpaceReflectionFilterShaderRD/3e7cbd9d8999cd16cf5e5b03b2bc462b40767703140a0757280c95895703123d/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 4432,
+      "sha256": "5e9c2c7668f700b9cf77bfcf75bd52081b72f57d7cd02fac35092eb85a2788b1",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user state and rendering cache."
+    },
+    {
+      "original_path": "font-pack-evidence/user/APPDATA/Godot/app_userdata/DWM/shader_cache/ScreenSpaceReflectionHizShaderRD/baf8f4bfe602462ece1270390433485b1e3018fbbd45bae7c8bbedf320c26cd6/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 8664,
+      "sha256": "845b28c5fb9f64da3cac0563faf406bc619cb89d9a45acf8e2c8761cc2648458",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user state and rendering cache."
+    },
+    {
+      "original_path": "font-pack-evidence/user/APPDATA/Godot/app_userdata/DWM/shader_cache/ScreenSpaceReflectionResolveShaderRD/e628cc87f903d3043b8b7a44bb5d54638465b46e0ab7bb37b1ddb9b91f4f1b3a/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 4476,
+      "sha256": "f7bc448554a9e53ea4120ee021593a28007dfcbf1688e7e5572a6b7e90e5d758",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user state and rendering cache."
+    },
+    {
+      "original_path": "font-pack-evidence/user/APPDATA/Godot/app_userdata/DWM/shader_cache/ScreenSpaceReflectionShaderRD/4ec3777007532ddcd638ae82ef6adc97739054897ed48a2ef8401e7a025ee2da/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 6556,
+      "sha256": "4702ba5bd7beaa5ae23120b11b1263c8554272c47433532e8e9e9d18bd7fccf1",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user state and rendering cache."
+    },
+    {
+      "original_path": "font-pack-evidence/user/APPDATA/Godot/app_userdata/DWM/shader_cache/SdfgiDebugProbesShaderRD/5e74420cdc840f19f82244b066217b3888799930df17d31ff133420b1a916076/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 19508,
+      "sha256": "281e02259b656111b07cb3209d55d7bc4db2a4f392afc5804bd3f72ef5dca5c5",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user state and rendering cache."
+    },
+    {
+      "original_path": "font-pack-evidence/user/APPDATA/Godot/app_userdata/DWM/shader_cache/SdfgiDebugShaderRD/4597a244d5202b1178081479b348d60a48501cb16fc54b1fea4c8395c5e68675/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 4348,
+      "sha256": "06d3d34ff494b94f957ce4f222ad7a53282b03bfdbf080bf87ea1cb1d402b670",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user state and rendering cache."
+    },
+    {
+      "original_path": "font-pack-evidence/user/APPDATA/Godot/app_userdata/DWM/shader_cache/SdfgiDirectLightShaderRD/16f822b671cd6f4a687e51e33b1c8c2148121c1c091f7ff39f76127556ff3ec3/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 16328,
+      "sha256": "1cc297eb3c7398ffb1eba8c4172adf956a032ae8373a962f44bdf7ed4a3eb1c7",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user state and rendering cache."
+    },
+    {
+      "original_path": "font-pack-evidence/user/APPDATA/Godot/app_userdata/DWM/shader_cache/SdfgiIntegrateShaderRD/c5e82715048eb54d931afaa6dadaca3cb48a98f8c3376dd7913485bd1ce2989f/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 23888,
+      "sha256": "04e4b41972a69b018db38800813226a59b7eb073cab0974f56b63b232a02f201",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user state and rendering cache."
+    },
+    {
+      "original_path": "font-pack-evidence/user/APPDATA/Godot/app_userdata/DWM/shader_cache/SdfgiPreprocessShaderRD/f3ef78a3d2f1c9d4496e3afe61867e94fb32829809548b265a8a1154b66aec33/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 34500,
+      "sha256": "c959cc1fabe9d884ffc068f86482992b9cb8e883611398942e1eeb611b1dc7ec",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user state and rendering cache."
+    },
+    {
+      "original_path": "font-pack-evidence/user/APPDATA/Godot/app_userdata/DWM/shader_cache/ShadowFrustumShaderRD/b56bc1e62633ec9304336b7e957397468d55950f317fcf5a6473439810432caa/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 2932,
+      "sha256": "98894bf833f3dd8ffaae89d512b7a0bbc70b16e4dc339ff6c0705154b3d473b8",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user state and rendering cache."
+    },
+    {
+      "original_path": "font-pack-evidence/user/APPDATA/Godot/app_userdata/DWM/shader_cache/SkeletonShaderRD/54e50a68f8252031f493dd1ea6200e9ef718d5bd8693e28030efe1b120eb7905/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 9964,
+      "sha256": "c4f3f1abc572bdf81dc0d7fdaaf3f4cdad0f5fc781b40d906c251ed2bfe3cf23",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user state and rendering cache."
+    },
+    {
+      "original_path": "font-pack-evidence/user/APPDATA/Godot/app_userdata/DWM/shader_cache/SkyShaderRD/21f924306eb18caac3ace30e495c78ba40ae7b2f490d5e4f3b13a79479216b9c/03e3b11c69e24394b2d955a8c0ba85587bb70839.d3d12.cache",
+      "size_bytes": 33408,
+      "sha256": "7f6f84ff6f2afd51c41f66c5c6d82c8b33f81e4cfb206301a635759da7cd0fea",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user state and rendering cache."
+    },
+    {
+      "original_path": "font-pack-evidence/user/APPDATA/Godot/app_userdata/DWM/shader_cache/SkyShaderRD/21f924306eb18caac3ace30e495c78ba40ae7b2f490d5e4f3b13a79479216b9c/de678811d1bad3cad4892a8db7b6ea0be197d51d.d3d12.cache",
+      "size_bytes": 31560,
+      "sha256": "93ec183bdbddbcfab0c7815271554d31f1045d5b05ae0688306ad306a1b4d565",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user state and rendering cache."
+    },
+    {
+      "original_path": "font-pack-evidence/user/APPDATA/Godot/app_userdata/DWM/shader_cache/SmaaBlendingShaderRD/3d0a167a9f66fe724550ee422e5f78e94ee25cd28f8d2dd9770c61d98fee5f61/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 5192,
+      "sha256": "074e76152bc4ee0946e1f38ccc533aff5190d98ec5cac9795ff45f6cc9b841a9",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user state and rendering cache."
+    },
+    {
+      "original_path": "font-pack-evidence/user/APPDATA/Godot/app_userdata/DWM/shader_cache/SmaaEdgeDetectionShaderRD/d5021a9d8471f798a9fea1996ea85751035ea859c7fdd21721cc24e149d1e4fe/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 4692,
+      "sha256": "ef063241244d908bb6808da344ef5321c3ad30e7c795d03172369a7f014beb40",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user state and rendering cache."
+    },
+    {
+      "original_path": "font-pack-evidence/user/APPDATA/Godot/app_userdata/DWM/shader_cache/SmaaWeightCalculationShaderRD/96902d6fbf74206adb55a50fd070fc6de4aaf8dc634f04f92751ac8b307948c7/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 7852,
+      "sha256": "8729d9d2d485f8d4ff4d348a760ff921a16727706842ab2fa2cba408dcdcd421",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user state and rendering cache."
+    },
+    {
+      "original_path": "font-pack-evidence/user/APPDATA/Godot/app_userdata/DWM/shader_cache/SortShaderRD/967234006fae085a9579b3ffd489cee602c4f145dc18ff2bf240e4d8c13498cd/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 6512,
+      "sha256": "0f645d8e1f3c891c4bde29ce633c29e11d93d222176098770e15a0ffa9f245ed",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user state and rendering cache."
+    },
+    {
+      "original_path": "font-pack-evidence/user/APPDATA/Godot/app_userdata/DWM/shader_cache/SpecularMergeShaderRD/d91816cf1f28c63908a9133ffc50683b675ef9859b0616c7436f475405b22c27/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 13748,
+      "sha256": "4114449481fbc3627435ed80456e601614a2c1d37880e73402b5ee27b61ea44d",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user state and rendering cache."
+    },
+    {
+      "original_path": "font-pack-evidence/user/APPDATA/Godot/app_userdata/DWM/shader_cache/SsaoBlurShaderRD/9821a28f9d156aaaed0a7fab3de6738b2c4022738da0a9b7cb77ffb499f40e38/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 7392,
+      "sha256": "bcd20b5570d78ab19de52484d1a0e116120228930dac4db4caf58ea2915382c7",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user state and rendering cache."
+    },
+    {
+      "original_path": "font-pack-evidence/user/APPDATA/Godot/app_userdata/DWM/shader_cache/SsaoImportanceMapShaderRD/09886b051a7294522d484a6b5de82ee75778fa16804f3f4f13d1605e7f39b69d/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 7256,
+      "sha256": "01ccf84857e28fee3b74d5360f1a66b04d7f993ffba5edaf2bfc1b001979060f",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user state and rendering cache."
+    },
+    {
+      "original_path": "font-pack-evidence/user/APPDATA/Godot/app_userdata/DWM/shader_cache/SsaoInterleaveShaderRD/5762f4757375a26f8fda6d1bcb2a452f1c2c429e857969bb128d7270760b56f7/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 7148,
+      "sha256": "a10e659635eadede058a84bda40cf27b7bd3c636df16d76fd3e51f457ff3b192",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user state and rendering cache."
+    },
+    {
+      "original_path": "font-pack-evidence/user/APPDATA/Godot/app_userdata/DWM/shader_cache/SsaoShaderRD/6e8f8fd45ceab920597432cb2a5447c53291203857121f3a3b38a4b9b27c2c50/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 24996,
+      "sha256": "abfc56e68fe2925171b5363a3681e112b9720f5eaa9dffa5df692c789efc173d",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user state and rendering cache."
+    },
+    {
+      "original_path": "font-pack-evidence/user/APPDATA/Godot/app_userdata/DWM/shader_cache/SsEffectsDownsampleShaderRD/bd37175ba48fdd02099abbbeee5452079e89a3727fd5fe1de649551c99081c36/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 20628,
+      "sha256": "829853a4edb9631c06bfdd06aa07bfd6644c0aabcddcead92c2f9bda5a1d1892",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user state and rendering cache."
+    },
+    {
+      "original_path": "font-pack-evidence/user/APPDATA/Godot/app_userdata/DWM/shader_cache/SsilBlurShaderRD/e74ed13ec93f83efa28f3bba922e68d5e345173ff5670ca6f557df8d614a782f/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 8472,
+      "sha256": "4cff125a3d195a4257c41cbcb3e43af8a1ed312747aec560f5fd977115fc655f",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user state and rendering cache."
+    },
+    {
+      "original_path": "font-pack-evidence/user/APPDATA/Godot/app_userdata/DWM/shader_cache/SsilImportanceMapShaderRD/a4219fd46be62ae37b0e06fd10ebbd2798ad85088678db4c0b425f823042d4be/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 7228,
+      "sha256": "f635c54d0c0c9e037071e39b5c43dfc13bef841581541b1e00f9d6eaa7b299fc",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user state and rendering cache."
+    },
+    {
+      "original_path": "font-pack-evidence/user/APPDATA/Godot/app_userdata/DWM/shader_cache/SsilInterleaveShaderRD/88e29bdd44daa6cf920ee2050e7a7237fd88bfa9c8880c62168f4b0a4502f4d0/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 7944,
+      "sha256": "b93dd1a68bb4c66e485e0fd294eb6f15dc1fa27c1e89d8392dcda0972ca8940e",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user state and rendering cache."
+    },
+    {
+      "original_path": "font-pack-evidence/user/APPDATA/Godot/app_userdata/DWM/shader_cache/SsilShaderRD/af35f1233e4d0591e9dad8d6301cf258931ca4d79c210c67076cd8fb624c6da0/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 28696,
+      "sha256": "73ef8f5db3900bcad98c314d834666ee1106873f7b117c1b1c5f3fa30a5b5728",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user state and rendering cache."
+    },
+    {
+      "original_path": "font-pack-evidence/user/APPDATA/Godot/app_userdata/DWM/shader_cache/SubsurfaceScatteringShaderRD/69df93a2334ebca4dc3af3f7aef99cad7870b6623865bd4671963fae81796b41/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 14560,
+      "sha256": "7b66dfea78a01f057e8bbbddd2bf8377d3fc1366f6436763d62d8c23fc290317",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user state and rendering cache."
+    },
+    {
+      "original_path": "font-pack-evidence/user/APPDATA/Godot/app_userdata/DWM/shader_cache/TaaResolveShaderRD/21a8f8e3a65237efe11f4640388d4d1a1fac34dfb3102a6aa4c5b6bf6c85e8ea/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 6348,
+      "sha256": "fe5712e6e2af6be63f17d5f9bc581479bda59ca05ca660e28574a5680f823045",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user state and rendering cache."
+    },
+    {
+      "original_path": "font-pack-evidence/user/APPDATA/Godot/app_userdata/DWM/shader_cache/TonemapShaderRD/c3f5c8110f44921262b756899cc7d2c51c74e9333ffe1f8450a95bbd12872516/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 61336,
+      "sha256": "ccd74290d80f6e2d14270462db3f36ee35c4d0078f420b84525bdd74d31533ed",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user state and rendering cache."
+    },
+    {
+      "original_path": "font-pack-evidence/user/APPDATA/Godot/app_userdata/DWM/shader_cache/VolumetricFogProcessShaderRD/c323a941682e364f2ac33c4d96c03f043ff01d2d1a8ec923fb6520953aed2e93/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 37236,
+      "sha256": "c70852829b5e8697c523e14474aeebb5d0ab178bd444bd28b12e7dc74bd25890",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user state and rendering cache."
+    },
+    {
+      "original_path": "font-pack-evidence/user/APPDATA/Godot/app_userdata/DWM/shader_cache/VolumetricFogShaderRD/48422ca2db267dec13a7aa41ba356cdfc7cbfa667e28e02e98b968145e4cc2f5/9a227745af2d65830f930370a9fbba551fbd6f60.d3d12.cache",
+      "size_bytes": 5844,
+      "sha256": "95f68f1b62f4000dd2f43fffd259aa8a881291ad326b05b06848b30aec89ca80",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user state and rendering cache."
+    },
+    {
+      "original_path": "font-pack-evidence/user/APPDATA/Godot/app_userdata/DWM/shader_cache/VoxelGiDebugShaderRD/4e91a9ddbecad298ed67c31222afae9756053363f06befd837e376dd85b639aa/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 19560,
+      "sha256": "372faba349522fc552983e98ac80a65ddf94013d2167b2a9223af3d8173c7084",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user state and rendering cache."
+    },
+    {
+      "original_path": "font-pack-evidence/user/APPDATA/Godot/app_userdata/DWM/shader_cache/VoxelGiShaderRD/44b979a30a4cc4de0f731a25d26286e14abc01718fe9a838d597bd153538c665/087916079fba7c625e62b0c2cca570e0fb87c99a.d3d12.cache",
+      "size_bytes": 30604,
+      "sha256": "0dc7752fc628493015fcedb5dd0ef269cb4c5ac4afa05a19c404cafcb5c51776",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable isolated user state and rendering cache."
+    },
+    {
+      "original_path": "font-pack-artifact.json",
+      "size_bytes": 811,
+      "sha256": "652fa75201a34668af7b1a5f2f92c8a5f9bdea0c4d1f8187b55b39522f62775b",
+      "retained": true,
+      "retained_path": "font-pack-artifact.json",
+      "reason": "Exact capture/log/receipt/script or artifact metadata."
+    }
+  ]
+}
