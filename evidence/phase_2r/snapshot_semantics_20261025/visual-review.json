@@ -1,0 +1,29 @@
+{
+  "reviewed": true,
+  "comparison_images": {
+    "518dc6bccd41ef7ef77da8963cb6ba7216de4b48a2f8f81b892262dd25e4502a": [
+      "baseline-first/candidate/.godot/ci/fresh-save-load-comparison/baseline/computer-authored-restored-slot-2.png",
+      "baseline-first/candidate/.godot/ci/fresh-save-load-comparison/baseline/computer-authored-restored-slot-3.png",
+      "baseline-first/candidate/.godot/ci/fresh-save-load-comparison/candidate/computer-authored-restored-slot-2.png",
+      "baseline-first/candidate/.godot/ci/fresh-save-load-comparison/candidate/computer-authored-restored-slot-3.png",
+      "candidate-first/candidate/.godot/ci/fresh-save-load-comparison/baseline/computer-authored-restored-slot-2.png",
+      "candidate-first/candidate/.godot/ci/fresh-save-load-comparison/baseline/computer-authored-restored-slot-3.png",
+      "candidate-first/candidate/.godot/ci/fresh-save-load-comparison/candidate/computer-authored-restored-slot-2.png",
+      "candidate-first/candidate/.godot/ci/fresh-save-load-comparison/candidate/computer-authored-restored-slot-3.png"
+    ],
+    "9903526552d99c2b5a0ff91a270ede867ada1628b902c874ede2a4e09811c8ea": [
+      "baseline-first/candidate/.godot/ci/fresh-save-load-comparison/baseline/computer-authored-terminal-pair.png",
+      "baseline-first/candidate/.godot/ci/fresh-save-load-comparison/candidate/computer-authored-terminal-pair.png",
+      "candidate-first/candidate/.godot/ci/fresh-save-load-comparison/baseline/computer-authored-terminal-pair.png",
+      "candidate-first/candidate/.godot/ci/fresh-save-load-comparison/candidate/computer-authored-terminal-pair.png"
+    ]
+  },
+  "comparison_observation": "All twelve comparison screenshots reduce to two exact byte hashes across baseline/candidate and both orders. Both reviewed images show the complete two-line caption beginning At the rear doors of the building, with the same backdrop and no clipping. Save-button focus differs at the expected save-return state.",
+  "recall_images": {
+    "computer-challenge-recall-restored-selected.png": "acf44894f7e4b95a77719bac7cb7c45a2c538033db0231a04b5572f3de1824fe",
+    "computer-challenge-recall-selected.png": "976536cd4d81483b6b6e4071ca2d53e72a05c496479c016a52b960eaa4407038",
+    "computer-challenge-recall-saved.png": "cb841206b6a8def33657211309898671d3d514a7d8c9b39ad3d9d8a158c0648a"
+  },
+  "recall_observation": "The complete TEST later memory before recall. caption is visible before recall. TEST recall_a selected. is complete before and after fresh-process Load.",
+  "scope": "Rendered-state regression review only; not a full production-art or installed Steam review."
+}

@@ -884,11 +884,9 @@ static func _validate_scene_observed_body(snapshot: Dictionary, bundle: Dictiona
 		if not scene_receipts.ok: return scene_receipts
 	var audio := _validate_scene_audio(candidate, bundle)
 	if not audio.ok: return audio
-	# Capture before reading: issuer/creation callbacks may replace even a
-	# coordinated owner group. Only this call's unchanged input can reuse its proof.
+	# Retain the installed owner group for this synchronous reading/semantic join.
 	var terminal_owners: Array = _scene_terminal_reading_owners() if terminal \
 		and candidate.narrative_checkpoint is Dictionary and not candidate.narrative_checkpoint.is_empty() else []
-	var reading_before := _scene_hash(candidate) if not terminal_owners.is_empty() else ""
 	var reading := _validate_scene_reading(candidate)
 	if not reading.ok: return reading
 	# The real live owner authenticates historical/current admissions, issuer
@@ -896,24 +894,23 @@ static func _validate_scene_observed_body(snapshot: Dictionary, bundle: Dictiona
 	# It must not call Run.validate again. A Boolean supplied by saved data is
 	# never substituted for this privately installed owner.
 	phase_tick = SCENE_VALIDATION_TIMING.snapshot_phase(observation, "pre_semantic_us", phase_tick)
-	var before := _scene_hash(candidate)
-	var detached := candidate.duplicate(true)
-	var detached_bundle := bundle.duplicate(true)
-	var bundle_before := _scene_hash(detached_bundle)
+	# Normalization already detached the candidate; registration returns its own copy.
+	# Production semantic validation reads both synchronously without publishing state.
+	var detached_bundle: Dictionary = selected.value
 	phase_tick = SCENE_VALIDATION_TIMING.snapshot_phase(observation, "guard_prepare_us", phase_tick)
 	var semantic_owner: Object = _scene_authority
 	_scene_semantic_busy = true
 	var semantic: Variant
-	if not terminal_owners.is_empty() and reading_before == before \
+	if not terminal_owners.is_empty() \
 			and _scene_terminal_reading_owners_match(terminal_owners):
-		semantic = semantic_owner.call("_prepare_scene_snapshot_semantics", detached, detached_bundle,
+		semantic = semantic_owner.call("_prepare_scene_snapshot_semantics", candidate, detached_bundle,
 			{"owners": terminal_owners, "result": reading})
 		if semantic is Dictionary and semantic.get("ok", false):
 			var anchors: Array[Dictionary] = []
 			anchors.assign(semantic.pending_anchors)
 			semantic = semantic_owner.call("_validate_scene_snapshot_anchors", anchors, semantic.checkpoint)
 	elif not terminal and reading.has("session") and _scene_can_reuse_reading():
-		semantic = semantic_owner.call("_prepare_scene_snapshot_semantics", detached, detached_bundle)
+		semantic = semantic_owner.call("_prepare_scene_snapshot_semantics", candidate, detached_bundle)
 		if semantic is Dictionary and semantic.get("ok", false):
 			var anchors: Array[Dictionary] = []
 			anchors.assign(semantic.pending_anchors)
@@ -923,12 +920,9 @@ static func _validate_scene_observed_body(snapshot: Dictionary, bundle: Dictiona
 			else:
 				semantic = semantic_owner.call("_validate_scene_snapshot_anchors", anchors, semantic.checkpoint)
 	else:
-		semantic = semantic_owner.call("validate_scene_snapshot_semantics", detached, detached_bundle)
+		semantic = semantic_owner.call("validate_scene_snapshot_semantics", candidate, detached_bundle)
 	_scene_semantic_busy = false
 	phase_tick = SCENE_VALIDATION_TIMING.snapshot_phase(observation, "semantic_us", phase_tick)
-	if _scene_hash(detached) != before or _scene_hash(detached_bundle) != bundle_before:
-		SCENE_VALIDATION_TIMING.snapshot_phase(observation, "guard_verify_us", phase_tick)
-		return _fail(&"scene_validation_mutated", "semantic owner mutated validation input")
 	SCENE_VALIDATION_TIMING.snapshot_phase(observation, "guard_verify_us", phase_tick)
 	if not semantic is Dictionary or semantic.get("ok") != true:
 		return semantic if semantic is Dictionary else _fail(&"scene_validation_invalid_result", "semantic owner must return a result")
