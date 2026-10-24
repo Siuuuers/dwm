@@ -309,9 +309,13 @@ static func _validate_bundle_structure_observed_body(bundle: Variant) -> Diction
 	var header: Dictionary = manifest.validate_scene_bundle_header(bundle)
 	if not header.get("ok", false): return _fail(&"scene_bundle_invalid")
 	# Deliberately no replacement for A's nested validators or caller trust flag.
+	var nested_encodings := {}
 	for key: String in ["entry_manifest", "context_registry", "ids_registry", "caption_registry"]:
-		if not bundle[key] is Dictionary or bundle[key].is_empty() or not WRITER.stringify(bundle[key]).get("ok", false):
+		if not bundle[key] is Dictionary or bundle[key].is_empty():
 			return _fail(&"scene_bundle_nested_invalid")
+		var encoded: Dictionary = WRITER.stringify(bundle[key])
+		if not encoded.get("ok", false): return _fail(&"scene_bundle_nested_invalid")
+		nested_encodings[key] = encoded.value
 	var programme: Variant = bundle.scene_programme
 	var programme_keys := ["kind", "schema_version", "entries"]
 	if programme is Dictionary and programme.has("story_days"): programme_keys.append("story_days")
@@ -401,11 +405,25 @@ static func _validate_bundle_structure_observed_body(bundle: Variant) -> Diction
 				if not _table_has(tables.contacts, marker.payload.contact_event_id): return _fail(&"scene_contact_registration_invalid")
 				if marker.kind == "contact.return" and tables.contacts[marker.payload.contact_event_id].entry_id != bound.entry_id:
 					return _fail(&"scene_contact_registration_invalid")
-	var encoded: Dictionary = WRITER.stringify(bundle)
-	if not encoded.get("ok", false): return _fail(&"scene_bundle_invalid")
+	# The header admits only fixed ASCII member names. The intervening checks are
+	# synchronous and callback-free, so reuse this call's checked registry encodings.
+	# Every remaining value still reaches the canonical writer at this final stage.
+	var members: Array = bundle.keys()
+	members.sort()
+	var parts: Array[String] = []
+	for key: String in members:
+		var value: String
+		if nested_encodings.has(key):
+			value = nested_encodings[key]
+		else:
+			var encoded: Dictionary = WRITER.stringify(bundle[key])
+			if not encoded.get("ok", false): return _fail(&"scene_bundle_invalid")
+			value = encoded.value
+		parts.append('"' + key + '":' + value)
+	var canonical := "{" + ",".join(parts) + "}"
 
 	tables["markers"] = markers
-	tables["fingerprint"] = str(encoded.value).sha256_text()
+	tables["fingerprint"] = canonical.sha256_text()
 	return {"ok": true, "value": tables.duplicate(true)}
 
 static func bundle_fingerprint(bundle: Variant) -> Dictionary:

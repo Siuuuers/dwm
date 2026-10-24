@@ -1,0 +1,91 @@
+{
+  "original": {
+    "run_id": 40089558681,
+    "job_id": 120859274553,
+    "artifact_id": 12557674070,
+    "source_ref": "bc6a43041c76996c3f3d8bdb6e0b801af97f9fdd",
+    "size_bytes": 3243765,
+    "sha256": "e868a5f420cc03027eff2073c3ec629ba02421e69e3b5f5f3068a95cb91ecd95"
+  },
+  "retained_archive": {
+    "path": "compatibility-evidence.zip",
+    "size_bytes": 9214,
+    "sha256": "fbf4b5745dd03a09e785622a853cca51b8cb9b9a9bc8f6d870c9c7f342f1c0ac",
+    "members": 4,
+    "crc_verified": true,
+    "all_retained_members_byte_identical": true
+  },
+  "manifest": "compatibility-manifest.json",
+  "current_cases": [
+    {
+      "report": ".godot/ci/bundle-compatibility.xml",
+      "name": "test_unmodified_fixture_bytes_and_ordinary_internal_return_are_compatible",
+      "source": "tests/integration/test_scene_bundle_compatibility.gd",
+      "assertions": 11,
+      "status": "pass"
+    },
+    {
+      "report": ".godot/ci/bundle-compatibility.xml",
+      "name": "test_both_owners_share_the_selected_complete_bundle_fingerprint",
+      "source": "tests/integration/test_scene_bundle_compatibility.gd",
+      "assertions": 13,
+      "status": "pass"
+    },
+    {
+      "report": ".godot/ci/bundle-compatibility.xml",
+      "name": "test_structural_internal_label_acceptance_requires_actual_dtl_owner",
+      "source": "tests/integration/test_scene_bundle_compatibility.gd",
+      "assertions": 5,
+      "status": "pass"
+    },
+    {
+      "report": ".godot/ci/bundle-compatibility.xml",
+      "name": "test_g_exact_members_and_callable_label_law_remain_closed",
+      "source": "tests/integration/test_scene_bundle_compatibility.gd",
+      "assertions": 18,
+      "status": "pass"
+    }
+  ],
+  "current_case_count": 4,
+  "current_assertions": 47,
+  "clean_processes": 1,
+  "processes": [
+    {
+      "suite_id": "bundle-compatibility",
+      "argv": [
+        "--headless",
+        "--path",
+        "D:\\a\\dwm\\dwm",
+        "--log-file",
+        "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\bundle-compatibility.log",
+        "-s",
+        "res://addons/gut/gut_cmdln.gd",
+        "-gconfig=",
+        "-gtest=res://tests/integration/test_scene_bundle_compatibility.gd",
+        "-gexit",
+        "-glog=1",
+        "-gjunit_xml_file=res://.godot/ci/bundle-compatibility.xml"
+      ],
+      "exit_code": 0,
+      "log_path": "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\bundle-compatibility.log",
+      "test_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\6a254819-2c2a-41c6-b364-eed5de277e8c",
+      "user_dir": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\6a254819-2c2a-41c6-b364-eed5de277e8c\\appdata\\Godot\\app_userdata\\DWM",
+      "started_at_utc": "2026-10-24T11:22:27.7626598Z",
+      "ended_at_utc": "2026-10-24T11:22:36.4277486Z"
+    }
+  ],
+  "logs_checked": [
+    ".godot/ci/import.log",
+    ".godot/phase2r_logs/bundle-compatibility.log"
+  ],
+  "log_error_matches": 0,
+  "test_source_sha256": {
+    "tests/integration/test_scene_bundle_compatibility.gd": "61360e737f83bbbac8a9f1c581adeefe69d790d420f1531d8c5bfa6e595a8da7"
+  },
+  "captures": [],
+  "scope": "Four fixture composition cases bind exact original fixture bytes/fingerprint, internal return-label handling, and closed structural laws to the installed DTL owner. DWM_SCENE_READING_FIXTURE=1 selects synthetic registration, not production authored week.",
+  "limits": [
+    "No full authored-week, exported graphical build, or all-five-outcome rendered acceptance claimed.",
+    "Run/job/source association is supplied from workflow metadata; exact expected names are independently checked against the pinned source. Artifacts contain no separate source-hash receipt."
+  ]
+}

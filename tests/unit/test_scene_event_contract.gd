@@ -2,6 +2,8 @@ extends "res://addons/gut/test.gd"
 const CONTRACT := preload("res://scripts/domain/narrative/SceneEventContract.gd")
 const STRICT := preload("res://scripts/validation/StrictJson.gd")
 const FIXTURE := preload("res://tests/support/SceneEventFixture.gd")
+const WRITER := preload("res://scripts/validation/CanonicalJsonWriter.gd")
+const WRITER_CORPUS := preload("res://tests/support/CanonicalWriterCompatibilityCorpus.gd")
 
 func test_all_nine_registered_kinds_have_narrow_fixture_payloads() -> void:
 	var fixture: RefCounted = FIXTURE.new()
@@ -514,3 +516,108 @@ func test_admission_public_validation_rechecks_bundle_before_result() -> void:
 	assert_eq(CONTRACT.validate_scene_admission({}, bundle).code, &"scene_admission_invalid")
 	result.source_checkpoint.checkpoint_sequence = 1.0
 	assert_eq(CONTRACT.validate_scene_admission(result, bundle).code, &"scene_admission_invalid")
+
+
+# Structural fixtures only: nested DTL admission remains the manifest owner's job.
+func _encoding_bundle(version: int) -> Dictionary:
+	var bundle := _scene_bundle()
+	bundle.schema_version = version
+	if version >= 2:
+		bundle["contact_definitions"] = {"kind": "scene_contact_definitions",
+			"schema_version": 1, "messages": [], "replies": []}
+	if version == 3:
+		bundle.entry_manifest["entries"] = [{"entry_id": "TEST.scene"}]
+		bundle["audio_catalogue"] = {"kind": "scene_audio_catalogue", "schema_version": 1,
+			"assets": [], "plans": [], "bindings": [{"entry_id": "TEST.scene", "plan_id": null}]}
+	return bundle
+
+func _assert_whole_bundle_fingerprint(bundle: Dictionary) -> Dictionary:
+	var encoded: Dictionary = WRITER.stringify(bundle)
+	var checked: Dictionary = CONTRACT.validate_bundle_structure(bundle)
+	assert_true(encoded.ok, str(encoded))
+	assert_true(checked.ok, str(checked))
+	if encoded.ok and checked.ok:
+		assert_eq(checked.value.fingerprint, str(encoded.value).sha256_text())
+	return checked
+
+func test_bundle_encoding_matches_whole_writer_across_versions_and_member_order() -> void:
+	for version: int in [1, 2, 3]:
+		var bundle := _encoding_bundle(version)
+		var text := "中😽\"\\\b\t\n\f\r" + String.chr(0x0b)
+		bundle.entry_manifest["opaque"] = {text: [null, false, 9007199254740993, text]}
+		bundle.context_registry["opaque"] = {"z": 1.0, "a": -0.0, "é": 0.1}
+		bundle.ids_registry["opaque"] = [0.0, 1.0, 0.5]
+		bundle.caption_registry["opaque"] = {"e\u0301": "combining", "é": "composed"}
+		var original := bundle.duplicate(true)
+		var first := _assert_whole_bundle_fingerprint(bundle)
+		assert_eq(bundle, original, "encoding cannot normalize caller data")
+		if not first.ok: continue
+		var reversed := {}
+		var keys: Array = bundle.keys()
+		keys.reverse()
+		for key: String in keys: reversed[key] = bundle[key]
+		var reordered := _assert_whole_bundle_fingerprint(reversed)
+		if reordered.ok: assert_eq(reordered.value.fingerprint, first.value.fingerprint)
+		bundle.caption_registry.opaque["é"] = "changed after first call"
+		var changed := _assert_whole_bundle_fingerprint(bundle)
+		if changed.ok: assert_ne(changed.value.fingerprint, first.value.fingerprint)
+
+func test_bundle_encoding_depth_offset_preserves_canonical_bytes_and_json_limit() -> void:
+	# The nested registry root is one level shallower than the whole bundle root.
+	for array_depth: int in [62, 63, 64, 126, 127]:
+		var nested: Variant = "end"
+		for _level: int in range(array_depth): nested = [nested]
+		var bundle := _scene_bundle()
+		bundle.entry_manifest = {"opaque": nested}
+		if array_depth <= 64:
+			assert_eq(WRITER._can_use_native_encoder(bundle.entry_manifest), array_depth <= 63)
+			assert_eq(WRITER._can_use_native_encoder(bundle), array_depth <= 62)
+		if array_depth == 127:
+			assert_eq(CONTRACT.validate_bundle_structure(bundle).code, &"scene_bundle_invalid",
+				"whole-bundle depth 129 remains outside the JSON domain")
+		else:
+			_assert_whole_bundle_fingerprint(bundle)
+
+func test_bundle_nested_encoding_refusal_precedes_later_table_failure() -> void:
+	# Use the established deterministic corpus: Godot replaces malformed characters
+	# passed to String.chr, so those would not be honest writer-refusal fixtures.
+	var lossy: Variant = null
+	for value: Variant in WRITER_CORPUS.values():
+		if typeof(value) != TYPE_FLOAT or not is_finite(value): continue
+		if WRITER.stringify(value).get("code") == &"self_check_failed":
+			lossy = value
+			break
+	assert_not_null(lossy, "the retained writer corpus must exercise finite float refusal")
+	if lossy == null: return
+	var bundle := _scene_bundle()
+	bundle.entry_manifest["opaque"] = lossy
+	bundle.targets = null
+	assert_eq(CONTRACT.validate_bundle_structure(bundle).code, &"scene_bundle_nested_invalid")
+	bundle.entry_manifest.erase("opaque")
+	assert_eq(CONTRACT.validate_bundle_structure(bundle).code, &"scene_table_invalid")
+
+func test_bundle_json_domain_refuses_before_nested_and_header_faults() -> void:
+	for value: Variant in [StringName("named"), INF, NAN, Vector2.ZERO, {1: "bad key"}]:
+		var bundle := _scene_bundle()
+		bundle.entry_manifest = {}
+		bundle.caption_registry["opaque"] = value
+		assert_eq(CONTRACT.validate_bundle_structure(bundle).code, &"scene_bundle_invalid",
+			"JSON-domain failure precedes the empty nested registry")
+		bundle["unknown_header_member"] = true
+		assert_eq(CONTRACT.validate_bundle_structure(bundle).code, &"scene_bundle_invalid")
+		bundle.erase("unknown_header_member")
+		bundle.caption_registry.erase("opaque")
+		assert_eq(CONTRACT.validate_bundle_structure(bundle).code, &"scene_bundle_nested_invalid")
+
+func test_bundle_validation_detaches_entries_targets_and_markers() -> void:
+	var bundle := _scene_bundle()
+	var before := bundle.duplicate(true)
+	var checked := _assert_whole_bundle_fingerprint(bundle)
+	if not checked.ok: return
+	checked.value.entries["TEST.scene"].markers[0].payload.target_id = "TEST.changed"
+	checked.value.targets["TEST.target"].target.label = "TEST.changed"
+	checked.value.markers["TEST.transition"].marker.label = "TEST.changed"
+	assert_eq(bundle, before)
+	var again := _assert_whole_bundle_fingerprint(bundle)
+	if again.ok:
+		assert_eq(again.value.markers["TEST.transition"].marker.label, "TEST.exit")

@@ -1,0 +1,822 @@
+{
+  "original": {
+    "artifact_id": 12559015274,
+    "size_bytes": 3356005,
+    "sha256": "04b62b8df4b0dd5eb1f1caae49b612770a47a5c84bea68ae8d2d01b876ffc10c",
+    "run_id": 40089558681,
+    "job_id": 120859274441,
+    "source_ref": "bc6a43041c76996c3f3d8bdb6e0b801af97f9fdd"
+  },
+  "retained_archive": {
+    "path": "focused-evidence.zip",
+    "size_bytes": 208285,
+    "sha256": "fa9553388795665e1152fbca2a496156007e1729aec9675012d2af50f5f44e45",
+    "members": 18,
+    "crc_verified": true,
+    "all_retained_members_byte_identical": true
+  },
+  "manifest": "focused-manifest.json",
+  "current_case_count": 65,
+  "current_assertions": 1440,
+  "current_cases": [
+    {
+      "name": "test_all_nine_registered_kinds_have_narrow_fixture_payloads",
+      "source": "tests/unit/test_scene_event_contract.gd",
+      "assertions": 21,
+      "status": "pass"
+    },
+    {
+      "name": "test_token_is_ephemeral_but_payload_and_source_are_semantic",
+      "source": "tests/unit/test_scene_event_contract.gd",
+      "assertions": 3,
+      "status": "pass"
+    },
+    {
+      "name": "test_closed_envelope_rejects_malformed_values_without_throwing",
+      "source": "tests/unit/test_scene_event_contract.gd",
+      "assertions": 26,
+      "status": "pass"
+    },
+    {
+      "name": "test_source_and_payload_types_are_strict_and_no_paths_are_commands",
+      "source": "tests/unit/test_scene_event_contract.gd",
+      "assertions": 37,
+      "status": "pass"
+    },
+    {
+      "name": "test_day_bounds_and_parameter_dictionary_are_closed_primitives",
+      "source": "tests/unit/test_scene_event_contract.gd",
+      "assertions": 9,
+      "status": "pass"
+    },
+    {
+      "name": "test_registration_matches_whole_payload_identity_and_predecessor",
+      "source": "tests/unit/test_scene_event_contract.gd",
+      "assertions": 7,
+      "status": "pass"
+    },
+    {
+      "name": "test_digest_and_registration_results_are_detached",
+      "source": "tests/unit/test_scene_event_contract.gd",
+      "assertions": 2,
+      "status": "pass"
+    },
+    {
+      "name": "test_scene_bundle_binds_every_nested_document_and_g_table",
+      "source": "tests/unit/test_scene_event_contract.gd",
+      "assertions": 9,
+      "status": "pass"
+    },
+    {
+      "name": "test_scene_marker_binds_whole_source_payload_and_registered_version",
+      "source": "tests/unit/test_scene_event_contract.gd",
+      "assertions": 10,
+      "status": "pass"
+    },
+    {
+      "name": "test_local_return_targets_are_structural_and_callable_targets_require_entry",
+      "source": "tests/unit/test_scene_event_contract.gd",
+      "assertions": 20,
+      "status": "pass"
+    },
+    {
+      "name": "test_authentic_registration_accepts_ordinary_return_label_without_effect_marker",
+      "source": "tests/unit/test_scene_event_contract.gd",
+      "assertions": 7,
+      "status": "pass"
+    },
+    {
+      "name": "test_original_scene_completion_has_exact_nine_canonical_projections",
+      "source": "tests/unit/test_scene_event_contract.gd",
+      "assertions": 10,
+      "status": "pass"
+    },
+    {
+      "name": "test_transition_receipt_rederives_c0_instead_of_accepting_an_arbitrary_child",
+      "source": "tests/unit/test_scene_event_contract.gd",
+      "assertions": 4,
+      "status": "pass"
+    },
+    {
+      "name": "test_scene_tables_reject_dangling_markers_unsorted_ids_and_untyped_hashes",
+      "source": "tests/unit/test_scene_event_contract.gd",
+      "assertions": 4,
+      "status": "pass"
+    },
+    {
+      "name": "test_challenge_closure_separates_never_started_from_exact_attempt_proof",
+      "source": "tests/unit/test_scene_event_contract.gd",
+      "assertions": 7,
+      "status": "pass"
+    },
+    {
+      "name": "test_every_additional_table_is_in_the_one_bundle_fingerprint",
+      "source": "tests/unit/test_scene_event_contract.gd",
+      "assertions": 5,
+      "status": "pass"
+    },
+    {
+      "name": "test_scene_admission_shape_never_claims_pristine_or_checkpoint_authentication",
+      "source": "tests/unit/test_scene_event_contract.gd",
+      "assertions": 3,
+      "status": "pass"
+    },
+    {
+      "name": "test_scene_contract_rejects_engine_string_aliases_before_canonicalization",
+      "source": "tests/unit/test_scene_event_contract.gd",
+      "assertions": 4,
+      "status": "pass"
+    },
+    {
+      "name": "test_playable_result_is_exact_availability_not_start_or_closure",
+      "source": "tests/unit/test_scene_event_contract.gd",
+      "assertions": 16,
+      "status": "pass"
+    },
+    {
+      "name": "test_playable_result_rejects_missing_extra_and_non_json_members",
+      "source": "tests/unit/test_scene_event_contract.gd",
+      "assertions": 24,
+      "status": "pass"
+    },
+    {
+      "name": "test_playable_result_requires_lowercase_exact_occurrence_hash",
+      "source": "tests/unit/test_scene_event_contract.gd",
+      "assertions": 9,
+      "status": "pass"
+    },
+    {
+      "name": "test_playable_result_binds_registered_marker_kind_payload_and_version",
+      "source": "tests/unit/test_scene_event_contract.gd",
+      "assertions": 12,
+      "status": "pass"
+    },
+    {
+      "name": "test_playable_result_rederives_occurrence_from_semantic_source",
+      "source": "tests/unit/test_scene_event_contract.gd",
+      "assertions": 4,
+      "status": "pass"
+    },
+    {
+      "name": "test_playable_receipt_keeps_semantic_identity_across_live_token_change",
+      "source": "tests/unit/test_scene_event_contract.gd",
+      "assertions": 3,
+      "status": "pass"
+    },
+    {
+      "name": "test_playable_receipt_requires_exact_predecessor_anchor_and_detaches_result",
+      "source": "tests/unit/test_scene_event_contract.gd",
+      "assertions": 8,
+      "status": "pass"
+    },
+    {
+      "name": "test_scene_public_entries_preserve_mixed_invalid_refusal_order",
+      "source": "tests/unit/test_scene_event_contract.gd",
+      "assertions": 12,
+      "status": "pass"
+    },
+    {
+      "name": "test_scene_inspection_detaches_programme_and_revalidates_later_bundle",
+      "source": "tests/unit/test_scene_event_contract.gd",
+      "assertions": 9,
+      "status": "pass"
+    },
+    {
+      "name": "test_admission_public_validation_rechecks_bundle_before_result",
+      "source": "tests/unit/test_scene_event_contract.gd",
+      "assertions": 7,
+      "status": "pass"
+    },
+    {
+      "name": "test_bundle_encoding_matches_whole_writer_across_versions_and_member_order",
+      "source": "tests/unit/test_scene_event_contract.gd",
+      "assertions": 36,
+      "status": "pass"
+    },
+    {
+      "name": "test_bundle_encoding_depth_offset_preserves_canonical_bytes_and_json_limit",
+      "source": "tests/unit/test_scene_event_contract.gd",
+      "assertions": 19,
+      "status": "pass"
+    },
+    {
+      "name": "test_bundle_nested_encoding_refusal_precedes_later_table_failure",
+      "source": "tests/unit/test_scene_event_contract.gd",
+      "assertions": 3,
+      "status": "pass"
+    },
+    {
+      "name": "test_bundle_json_domain_refuses_before_nested_and_header_faults",
+      "source": "tests/unit/test_scene_event_contract.gd",
+      "assertions": 15,
+      "status": "pass"
+    },
+    {
+      "name": "test_bundle_validation_detaches_entries_targets_and_markers",
+      "source": "tests/unit/test_scene_event_contract.gd",
+      "assertions": 8,
+      "status": "pass"
+    },
+    {
+      "name": "test_exact_v1_and_v2_admitted_without_changing_inputs",
+      "source": "tests/unit/test_scene_registration_v2.gd",
+      "assertions": 8,
+      "status": "pass"
+    },
+    {
+      "name": "test_definitions_cannot_be_smuggled_into_v1_or_omitted_from_v2",
+      "source": "tests/unit/test_scene_registration_v2.gd",
+      "assertions": 5,
+      "status": "pass"
+    },
+    {
+      "name": "test_unknown_version_and_extra_member_refused",
+      "source": "tests/unit/test_scene_registration_v2.gd",
+      "assertions": 5,
+      "status": "pass"
+    },
+    {
+      "name": "test_unregistered_fact_and_duplicate_definition_fact_refused",
+      "source": "tests/unit/test_scene_registration_v2.gd",
+      "assertions": 6,
+      "status": "pass"
+    },
+    {
+      "name": "test_malformed_contacts_fail_without_indexing_untrusted_rows",
+      "source": "tests/unit/test_scene_registration_v2.gd",
+      "assertions": 15,
+      "status": "pass"
+    },
+    {
+      "name": "test_definition_text_changes_whole_bundle_fingerprint",
+      "source": "tests/unit/test_scene_registration_v2.gd",
+      "assertions": 6,
+      "status": "pass"
+    },
+    {
+      "name": "test_definition_validation_does_not_replace_nested_dtl_admission",
+      "source": "tests/unit/test_scene_registration_v2.gd",
+      "assertions": 3,
+      "status": "pass"
+    },
+    {
+      "name": "test_installed_fixture_binds_five_distinct_end_targets_and_recall_targets",
+      "source": "tests/unit/test_scene_challenge_recall.gd",
+      "assertions": 10,
+      "status": "pass"
+    },
+    {
+      "name": "test_legacy_four_and_exact_five_maps_allow_convergent_content_but_no_partial_shape",
+      "source": "tests/unit/test_scene_challenge_recall.gd",
+      "assertions": 5,
+      "status": "pass"
+    },
+    {
+      "name": "test_pure_recall_selects_each_recorded_outcome_without_mutating_inputs",
+      "source": "tests/unit/test_scene_challenge_recall.gd",
+      "assertions": 36,
+      "status": "pass"
+    },
+    {
+      "name": "test_pure_recall_refuses_missing_wrong_run_future_or_ambiguous_closure",
+      "source": "tests/unit/test_scene_challenge_recall.gd",
+      "assertions": 13,
+      "status": "pass"
+    },
+    {
+      "name": "test_recall_receipt_binds_outcome_target_and_anchor_shape",
+      "source": "tests/unit/test_scene_challenge_recall.gd",
+      "assertions": 6,
+      "status": "pass"
+    },
+    {
+      "name": "test_recall_rechecks_changed_bundle_on_each_public_call",
+      "source": "tests/unit/test_scene_challenge_recall.gd",
+      "assertions": 6,
+      "status": "pass"
+    },
+    {
+      "name": "test_recall_revalidates_matching_closure_shape_anchor_result_and_fingerprint",
+      "source": "tests/unit/test_scene_challenge_recall.gd",
+      "assertions": 16,
+      "status": "pass"
+    },
+    {
+      "name": "test_recall_keeps_event_bundle_and_closure_refusal_order",
+      "source": "tests/unit/test_scene_challenge_recall.gd",
+      "assertions": 6,
+      "status": "pass"
+    },
+    {
+      "name": "test_preserves_canonical_bytes_and_refusals_for_boundary_and_random_values",
+      "source": "tests/unit/test_canonical_writer_compatibility.gd",
+      "assertions": 554,
+      "status": "pass"
+    },
+    {
+      "name": "test_printable_ascii_keys_keep_byte_order_after_string_name_normalization",
+      "source": "tests/unit/test_canonical_writer_compatibility.gd",
+      "assertions": 1,
+      "status": "pass"
+    },
+    {
+      "name": "test_control_and_unicode_keys_keep_utf8_order",
+      "source": "tests/unit/test_canonical_writer_compatibility.gd",
+      "assertions": 3,
+      "status": "pass"
+    },
+    {
+      "name": "test_sorted_key_order_preserves_first_structural_refusal",
+      "source": "tests/unit/test_canonical_writer_compatibility.gd",
+      "assertions": 2,
+      "status": "pass"
+    },
+    {
+      "name": "test_native_integer_document_preserves_values_beyond_double_precision",
+      "source": "tests/unit/test_canonical_writer_compatibility.gd",
+      "assertions": 17,
+      "status": "pass"
+    },
+    {
+      "name": "test_native_document_escapes_every_printable_ascii_character_in_keys_and_values",
+      "source": "tests/unit/test_canonical_writer_compatibility.gd",
+      "assertions": 3,
+      "status": "pass"
+    },
+    {
+      "name": "test_native_document_preserves_nested_string_names_typed_arrays_and_shared_children",
+      "source": "tests/unit/test_canonical_writer_compatibility.gd",
+      "assertions": 6,
+      "status": "pass"
+    },
+    {
+      "name": "test_native_depth_limit_changes_only_encoder_selection_not_accepted_bytes",
+      "source": "tests/unit/test_canonical_writer_compatibility.gd",
+      "assertions": 6,
+      "status": "pass"
+    },
+    {
+      "name": "test_native_preflight_exclusions_retain_original_values_and_refusals",
+      "source": "tests/unit/test_canonical_writer_compatibility.gd",
+      "assertions": 33,
+      "status": "pass"
+    },
+    {
+      "name": "test_native_unicode_scalar_boundaries_retain_exact_unescaped_bytes",
+      "source": "tests/unit/test_canonical_writer_compatibility.gd",
+      "assertions": 50,
+      "status": "pass"
+    },
+    {
+      "name": "test_native_unicode_keys_keep_utf8_order_without_normalizing_combining_sequences",
+      "source": "tests/unit/test_canonical_writer_compatibility.gd",
+      "assertions": 5,
+      "status": "pass"
+    },
+    {
+      "name": "test_native_unicode_documents_escape_quotes_and_backslashes_without_stripping_bom",
+      "source": "tests/unit/test_canonical_writer_compatibility.gd",
+      "assertions": 4,
+      "status": "pass"
+    },
+    {
+      "name": "test_c0_controls_keep_exact_bytes_and_only_json_short_escapes_use_native_encoding",
+      "source": "tests/unit/test_canonical_writer_compatibility.gd",
+      "assertions": 217,
+      "status": "pass"
+    },
+    {
+      "name": "test_short_controls_and_unicode_keep_exact_bytes_with_quotes_backslashes_and_string_names",
+      "source": "tests/unit/test_canonical_writer_compatibility.gd",
+      "assertions": 5,
+      "status": "pass"
+    },
+    {
+      "name": "test_multiline_autosave_payload_retains_exact_bytes_inside_float_profile_materials",
+      "source": "tests/unit/test_canonical_writer_compatibility.gd",
+      "assertions": 9,
+      "status": "pass"
+    },
+    {
+      "name": "test_control_string_optimization_keeps_structural_error_precedence",
+      "source": "tests/unit/test_canonical_writer_compatibility.gd",
+      "assertions": 3,
+      "status": "pass"
+    },
+    {
+      "name": "test_native_short_control_keys_retain_canonical_order_after_normalization",
+      "source": "tests/unit/test_canonical_writer_compatibility.gd",
+      "assertions": 3,
+      "status": "pass"
+    }
+  ],
+  "new_tests": [
+    {
+      "name": "test_bundle_encoding_matches_whole_writer_across_versions_and_member_order",
+      "source": "tests/unit/test_scene_event_contract.gd",
+      "assertions": 36,
+      "status": "pass"
+    },
+    {
+      "name": "test_bundle_encoding_depth_offset_preserves_canonical_bytes_and_json_limit",
+      "source": "tests/unit/test_scene_event_contract.gd",
+      "assertions": 19,
+      "status": "pass"
+    },
+    {
+      "name": "test_bundle_nested_encoding_refusal_precedes_later_table_failure",
+      "source": "tests/unit/test_scene_event_contract.gd",
+      "assertions": 3,
+      "status": "pass"
+    },
+    {
+      "name": "test_bundle_json_domain_refuses_before_nested_and_header_faults",
+      "source": "tests/unit/test_scene_event_contract.gd",
+      "assertions": 15,
+      "status": "pass"
+    },
+    {
+      "name": "test_bundle_validation_detaches_entries_targets_and_markers",
+      "source": "tests/unit/test_scene_event_contract.gd",
+      "assertions": 8,
+      "status": "pass"
+    }
+  ],
+  "new_test_count": 5,
+  "new_test_assertions": 81,
+  "test_clean_processes": 1,
+  "inventory_clean_processes": 4,
+  "total_clean_processes": 5,
+  "processes": [
+    {
+      "record_path": ".godot/ci/bundle-focused.jsonl",
+      "suite_id": "bundle-focused",
+      "argv": [
+        "--headless",
+        "--path",
+        "D:\\a\\dwm\\dwm",
+        "--log-file",
+        "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\bundle-focused.log",
+        "-s",
+        "res://addons/gut/gut_cmdln.gd",
+        "-gconfig=",
+        "-gtest=res://tests/unit/test_scene_event_contract.gd,res://tests/unit/test_scene_registration_v2.gd,res://tests/unit/test_scene_challenge_recall.gd,res://tests/unit/test_canonical_writer_compatibility.gd",
+        "-gexit",
+        "-glog=1",
+        "-gjunit_xml_file=res://.godot/ci/bundle-focused.xml"
+      ],
+      "exit_code": 0,
+      "log_path": "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\bundle-focused.log",
+      "test_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\420a3c14-fd17-427b-b34c-7d19f85992c2",
+      "user_dir": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\420a3c14-fd17-427b-b34c-7d19f85992c2\\appdata\\Godot\\app_userdata\\DWM",
+      "started_at_utc": "2026-10-24T11:23:39.9163035Z",
+      "ended_at_utc": "2026-10-24T11:23:47.7290285Z"
+    },
+    {
+      "record_path": ".godot/ci/public-surfaces/game_state-check.jsonl",
+      "suite_id": "cloud-public-surface-game_state-check",
+      "argv": [
+        "--headless",
+        "--path",
+        "D:\\a\\dwm\\dwm",
+        "--log-file",
+        "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\cloud-public-surface-game_state-check.log",
+        "-s",
+        "res://tools/runtime/generate_public_surface_inventory.gd",
+        "--",
+        "--script=res://autoload/GameState.gd",
+        "--required=res://evidence/phase_2r/runtime/game_state_required_surface.json",
+        "--output=res://evidence/phase_2r/runtime/game_state_surface.json",
+        "--search-root=res://autoload",
+        "--search-root=res://scripts",
+        "--search-root=res://scenes",
+        "--search-root=res://tests",
+        "--check"
+      ],
+      "exit_code": 0,
+      "log_path": "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\cloud-public-surface-game_state-check.log",
+      "test_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\0266d50a-10e3-4e88-aac9-9d9c3ca17270",
+      "user_dir": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\0266d50a-10e3-4e88-aac9-9d9c3ca17270\\appdata\\Godot\\app_userdata\\DWM",
+      "started_at_utc": "2026-10-24T11:22:46.4557851Z",
+      "ended_at_utc": "2026-10-24T11:23:03.9241484Z"
+    },
+    {
+      "record_path": ".godot/ci/public-surfaces/game_state-generate.jsonl",
+      "suite_id": "cloud-public-surface-game_state-generate",
+      "argv": [
+        "--headless",
+        "--path",
+        "D:\\a\\dwm\\dwm",
+        "--log-file",
+        "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\cloud-public-surface-game_state-generate.log",
+        "-s",
+        "res://tools/runtime/generate_public_surface_inventory.gd",
+        "--",
+        "--script=res://autoload/GameState.gd",
+        "--required=res://evidence/phase_2r/runtime/game_state_required_surface.json",
+        "--output=res://evidence/phase_2r/runtime/game_state_surface.json",
+        "--search-root=res://autoload",
+        "--search-root=res://scripts",
+        "--search-root=res://scenes",
+        "--search-root=res://tests"
+      ],
+      "exit_code": 0,
+      "log_path": "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\cloud-public-surface-game_state-generate.log",
+      "test_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\c133c34e-8c1c-4dc4-848f-efe35ed8e928",
+      "user_dir": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\c133c34e-8c1c-4dc4-848f-efe35ed8e928\\appdata\\Godot\\app_userdata\\DWM",
+      "started_at_utc": "2026-10-24T11:22:22.9477062Z",
+      "ended_at_utc": "2026-10-24T11:22:40.7959665Z"
+    },
+    {
+      "record_path": ".godot/ci/public-surfaces/save_manager-check.jsonl",
+      "suite_id": "cloud-public-surface-save_manager-check",
+      "argv": [
+        "--headless",
+        "--path",
+        "D:\\a\\dwm\\dwm",
+        "--log-file",
+        "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\cloud-public-surface-save_manager-check.log",
+        "-s",
+        "res://tools/runtime/generate_public_surface_inventory.gd",
+        "--",
+        "--script=res://autoload/SaveManager.gd",
+        "--required=res://evidence/phase_2r/runtime/save_manager_required_surface.json",
+        "--output=res://evidence/phase_2r/runtime/save_manager_surface.json",
+        "--search-root=res://autoload",
+        "--search-root=res://scripts",
+        "--search-root=res://scenes",
+        "--search-root=res://tests",
+        "--check"
+      ],
+      "exit_code": 0,
+      "log_path": "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\cloud-public-surface-save_manager-check.log",
+      "test_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\30b8fe00-9723-42bd-9777-6a139e565ce4",
+      "user_dir": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\30b8fe00-9723-42bd-9777-6a139e565ce4\\appdata\\Godot\\app_userdata\\DWM",
+      "started_at_utc": "2026-10-24T11:23:24.5394494Z",
+      "ended_at_utc": "2026-10-24T11:23:33.9266629Z"
+    },
+    {
+      "record_path": ".godot/ci/public-surfaces/save_manager-generate.jsonl",
+      "suite_id": "cloud-public-surface-save_manager-generate",
+      "argv": [
+        "--headless",
+        "--path",
+        "D:\\a\\dwm\\dwm",
+        "--log-file",
+        "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\cloud-public-surface-save_manager-generate.log",
+        "-s",
+        "res://tools/runtime/generate_public_surface_inventory.gd",
+        "--",
+        "--script=res://autoload/SaveManager.gd",
+        "--required=res://evidence/phase_2r/runtime/save_manager_required_surface.json",
+        "--output=res://evidence/phase_2r/runtime/save_manager_surface.json",
+        "--search-root=res://autoload",
+        "--search-root=res://scripts",
+        "--search-root=res://scenes",
+        "--search-root=res://tests"
+      ],
+      "exit_code": 0,
+      "log_path": "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\cloud-public-surface-save_manager-generate.log",
+      "test_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\6dd2c9be-beae-4c97-accb-99c87219b31c",
+      "user_dir": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\6dd2c9be-beae-4c97-accb-99c87219b31c\\appdata\\Godot\\app_userdata\\DWM",
+      "started_at_utc": "2026-10-24T11:23:09.6310797Z",
+      "ended_at_utc": "2026-10-24T11:23:19.0108711Z"
+    }
+  ],
+  "logs_checked": [
+    ".godot/ci/import.log",
+    ".godot/phase2r_logs/bundle-focused.log",
+    ".godot/phase2r_logs/cloud-public-surface-game_state-check.log",
+    ".godot/phase2r_logs/cloud-public-surface-game_state-generate.log",
+    ".godot/phase2r_logs/cloud-public-surface-save_manager-check.log",
+    ".godot/phase2r_logs/cloud-public-surface-save_manager-generate.log"
+  ],
+  "log_error_matches": 0,
+  "test_source_sha256": {
+    "tests/unit/test_scene_event_contract.gd": "bb76f3be03e112b0712fd8f19fc2f7fc39cf74286e2279b4da2df307ccd7bf4c",
+    "tests/unit/test_scene_registration_v2.gd": "d3225873a9de4772ac9687c1231f674ec2ac7a4c64da60438d6e5db27d10158c",
+    "tests/unit/test_scene_challenge_recall.gd": "94ff74ae636ef86c29bffd005a9e2504d20457e90f81f0214d2681970ddb7ea6",
+    "tests/unit/test_canonical_writer_compatibility.gd": "195c69b0680ba0ecdb1021fad4913a09f4b0cb58a61c4ae309864736a739a00b"
+  },
+  "retirement_audit": {
+    "checkout_ref": "bc6a43041c76996c3f3d8bdb6e0b801af97f9fdd",
+    "retired_symbols": [
+      "get_affection_tier",
+      "is_contact_choice_selected",
+      "get_contact_choices",
+      "can_respond_to_invitation",
+      "can_buy_supportz",
+      "has_unread_friend_messages",
+      "prepare_run_candidate",
+      "commit_run_candidate",
+      "get_minesweeper_safety_level",
+      "should_warn_minesweeper_before_schedule_done"
+    ],
+    "search_roots": [
+      "autoload",
+      "scripts",
+      "scenes",
+      "tests"
+    ],
+    "source_files": 1233,
+    "references": []
+  },
+  "inventory_comparison_base": "ba7ecd57afaadac5f25df14d24300037e57edec6",
+  "inventories": [
+    {
+      "path": "evidence/phase_2r/runtime/game_state_surface.json",
+      "sha256": "ab100b5f9211b7b31d40af290a3cd92866481151aa910648559597ad341a0642",
+      "base_sha256": "8b4a944dac8741bc2d8fe8320622959945fb9ecd3985807d0745659382f5a8a2",
+      "line_reference_changes": 33,
+      "only_line_numbers_changed": true,
+      "changes": [
+        {
+          "location": "$.dynamic_references.contacts[58]",
+          "before": "scripts/domain/narrative/SceneEventContract.gd:323",
+          "after": "scripts/domain/narrative/SceneEventContract.gd:327"
+        },
+        {
+          "location": "$.dynamic_references.contacts[304]",
+          "before": "tests/unit/test_scene_event_contract.gd:101",
+          "after": "tests/unit/test_scene_event_contract.gd:103"
+        },
+        {
+          "location": "$.dynamic_references.money[28]",
+          "before": "scripts/domain/narrative/SceneEventContract.gd:1445",
+          "after": "scripts/domain/narrative/SceneEventContract.gd:1463"
+        },
+        {
+          "location": "$.records[122].call_sites[99]",
+          "before": "scripts/domain/narrative/SceneEventContract.gd:368",
+          "after": "scripts/domain/narrative/SceneEventContract.gd:372"
+        },
+        {
+          "location": "$.records[122].call_sites[100]",
+          "before": "scripts/domain/narrative/SceneEventContract.gd:401",
+          "after": "scripts/domain/narrative/SceneEventContract.gd:405"
+        },
+        {
+          "location": "$.records[122].call_sites[101]",
+          "before": "scripts/domain/narrative/SceneEventContract.gd:402",
+          "after": "scripts/domain/narrative/SceneEventContract.gd:406"
+        },
+        {
+          "location": "$.records[122].call_sites[102]",
+          "before": "scripts/domain/narrative/SceneEventContract.gd:564",
+          "after": "scripts/domain/narrative/SceneEventContract.gd:582"
+        },
+        {
+          "location": "$.records[122].call_sites[103]",
+          "before": "scripts/domain/narrative/SceneEventContract.gd:576",
+          "after": "scripts/domain/narrative/SceneEventContract.gd:594"
+        },
+        {
+          "location": "$.records[122].call_sites[104]",
+          "before": "scripts/domain/narrative/SceneEventContract.gd:672",
+          "after": "scripts/domain/narrative/SceneEventContract.gd:690"
+        },
+        {
+          "location": "$.records[122].call_sites[105]",
+          "before": "scripts/domain/narrative/SceneEventContract.gd:674",
+          "after": "scripts/domain/narrative/SceneEventContract.gd:692"
+        },
+        {
+          "location": "$.records[122].call_sites[106]",
+          "before": "scripts/domain/narrative/SceneEventContract.gd:680",
+          "after": "scripts/domain/narrative/SceneEventContract.gd:698"
+        },
+        {
+          "location": "$.records[122].call_sites[107]",
+          "before": "scripts/domain/narrative/SceneEventContract.gd:682",
+          "after": "scripts/domain/narrative/SceneEventContract.gd:700"
+        },
+        {
+          "location": "$.records[122].call_sites[108]",
+          "before": "scripts/domain/narrative/SceneEventContract.gd:687",
+          "after": "scripts/domain/narrative/SceneEventContract.gd:705"
+        },
+        {
+          "location": "$.records[122].call_sites[109]",
+          "before": "scripts/domain/narrative/SceneEventContract.gd:694",
+          "after": "scripts/domain/narrative/SceneEventContract.gd:712"
+        },
+        {
+          "location": "$.records[122].call_sites[110]",
+          "before": "scripts/domain/narrative/SceneEventContract.gd:697",
+          "after": "scripts/domain/narrative/SceneEventContract.gd:715"
+        },
+        {
+          "location": "$.records[122].call_sites[111]",
+          "before": "scripts/domain/narrative/SceneEventContract.gd:703",
+          "after": "scripts/domain/narrative/SceneEventContract.gd:721"
+        },
+        {
+          "location": "$.records[122].call_sites[112]",
+          "before": "scripts/domain/narrative/SceneEventContract.gd:706",
+          "after": "scripts/domain/narrative/SceneEventContract.gd:724"
+        },
+        {
+          "location": "$.records[122].call_sites[113]",
+          "before": "scripts/domain/narrative/SceneEventContract.gd:840",
+          "after": "scripts/domain/narrative/SceneEventContract.gd:858"
+        },
+        {
+          "location": "$.records[122].call_sites[114]",
+          "before": "scripts/domain/narrative/SceneEventContract.gd:887",
+          "after": "scripts/domain/narrative/SceneEventContract.gd:905"
+        },
+        {
+          "location": "$.records[122].call_sites[115]",
+          "before": "scripts/domain/narrative/SceneEventContract.gd:1372",
+          "after": "scripts/domain/narrative/SceneEventContract.gd:1390"
+        },
+        {
+          "location": "$.records[122].call_sites[116]",
+          "before": "scripts/domain/narrative/SceneEventContract.gd:1375",
+          "after": "scripts/domain/narrative/SceneEventContract.gd:1393"
+        },
+        {
+          "location": "$.records[122].call_sites[117]",
+          "before": "scripts/domain/narrative/SceneEventContract.gd:1395",
+          "after": "scripts/domain/narrative/SceneEventContract.gd:1413"
+        },
+        {
+          "location": "$.records[122].call_sites[118]",
+          "before": "scripts/domain/narrative/SceneEventContract.gd:1398",
+          "after": "scripts/domain/narrative/SceneEventContract.gd:1416"
+        },
+        {
+          "location": "$.records[122].call_sites[862]",
+          "before": "tests/unit/test_scene_event_contract.gd:291",
+          "after": "tests/unit/test_scene_event_contract.gd:293"
+        },
+        {
+          "location": "$.records[122].call_sites[863]",
+          "before": "tests/unit/test_scene_event_contract.gd:295",
+          "after": "tests/unit/test_scene_event_contract.gd:297"
+        },
+        {
+          "location": "$.records[122].call_sites[864]",
+          "before": "tests/unit/test_scene_event_contract.gd:297",
+          "after": "tests/unit/test_scene_event_contract.gd:299"
+        },
+        {
+          "location": "$.records[133].call_sites[447]",
+          "before": "scripts/domain/narrative/SceneEventContract.gd:1582",
+          "after": "scripts/domain/narrative/SceneEventContract.gd:1600"
+        },
+        {
+          "location": "$.records[133].call_sites[448]",
+          "before": "scripts/domain/narrative/SceneEventContract.gd:1583",
+          "after": "scripts/domain/narrative/SceneEventContract.gd:1601"
+        },
+        {
+          "location": "$.records[133].call_sites[449]",
+          "before": "scripts/domain/narrative/SceneEventContract.gd:1596",
+          "after": "scripts/domain/narrative/SceneEventContract.gd:1614"
+        },
+        {
+          "location": "$.records[133].call_sites[2270]",
+          "before": "tests/unit/test_scene_event_contract.gd:61",
+          "after": "tests/unit/test_scene_event_contract.gd:63"
+        },
+        {
+          "location": "$.records[133].call_sites[2271]",
+          "before": "tests/unit/test_scene_event_contract.gd:63",
+          "after": "tests/unit/test_scene_event_contract.gd:65"
+        },
+        {
+          "location": "$.records[133].call_sites[2272]",
+          "before": "tests/unit/test_scene_event_contract.gd:64",
+          "after": "tests/unit/test_scene_event_contract.gd:66"
+        },
+        {
+          "location": "$.records[180].call_sites[27]",
+          "before": "scripts/domain/narrative/SceneEventContract.gd:1455",
+          "after": "scripts/domain/narrative/SceneEventContract.gd:1473"
+        }
+      ],
+      "extracted_path": "/workspace/scratch/eeb43c916e49/bundle-retention/inventories/evidence/phase_2r/runtime/game_state_surface.json"
+    },
+    {
+      "path": "evidence/phase_2r/runtime/save_manager_surface.json",
+      "sha256": "934bf2d69b6f1aaa69721497b03252c85f74f394a88c6166013e358fd9b62920",
+      "base_sha256": "bd14d2f342c0277e920f4fa1622ecdacae1e15e2329a89c6dd609b4ea619e04c",
+      "line_reference_changes": 1,
+      "only_line_numbers_changed": true,
+      "changes": [
+        {
+          "location": "$.dynamic_references.capture_committed_scene_creation[0]",
+          "before": "scripts/domain/narrative/SceneEventContract.gd:1147",
+          "after": "scripts/domain/narrative/SceneEventContract.gd:1165"
+        }
+      ],
+      "extracted_path": "/workspace/scratch/eeb43c916e49/bundle-retention/inventories/evidence/phase_2r/runtime/save_manager_surface.json"
+    }
+  ],
+  "total_inventory_line_changes": 34,
+  "limits": [
+    "Focused validation and inventory qualification, not full release or graphical acceptance.",
+    "Run/job/source association is supplied from workflow metadata; exact test names are independently checked against pinned source."
+  ]
+}

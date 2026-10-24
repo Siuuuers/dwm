@@ -1,0 +1,351 @@
+{
+  "original": {
+    "artifact_id": 12558408647,
+    "size_bytes": 7058808,
+    "sha256": "29cca096acd5ec89c4cac04763671387a8dbb2be43d4fac3d5d8d16135a2de15",
+    "run_id": 40089558681,
+    "job_id": 120859274604,
+    "source_ref": "bc6a43041c76996c3f3d8bdb6e0b801af97f9fdd",
+    "baseline_ref": "ba7ecd57afaadac5f25df14d24300037e57edec6"
+  },
+  "original_crc_verified": true,
+  "original_member_count": 41,
+  "retained_archive": {
+    "path": "comparison-evidence.zip",
+    "size_bytes": 1509901,
+    "sha256": "f53ec79257ca3535234c4a1888fbfeea3de10f31130b094f949caac841625736",
+    "members": 30,
+    "crc_verified": true,
+    "all_retained_members_byte_identical": true
+  },
+  "members": [
+    {
+      "original_path": ".godot/ci/fresh-save-load-comparison/baseline/computer-authored-restored-slot-3.png",
+      "size_bytes": 577257,
+      "sha256": "518dc6bccd41ef7ef77da8963cb6ba7216de4b48a2f8f81b892262dd25e4502a",
+      "retained": true,
+      "retained_path": ".godot/ci/fresh-save-load-comparison/baseline/computer-authored-restored-slot-3.png",
+      "reason": "Current matched-comparison evidence retained byte-for-byte."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-load-comparison/baseline/authored-week-terminal-pair.json",
+      "size_bytes": 684562,
+      "sha256": "917790c7347d7d5038153da005830a80b8aee4d329576947c6e231e20cad9bff",
+      "retained": true,
+      "retained_path": ".godot/ci/fresh-save-load-comparison/baseline/authored-week-terminal-pair.json",
+      "reason": "Current matched-comparison evidence retained byte-for-byte."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-load-comparison/baseline/computer-authored-restored-slot-2.png",
+      "size_bytes": 577257,
+      "sha256": "518dc6bccd41ef7ef77da8963cb6ba7216de4b48a2f8f81b892262dd25e4502a",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Intermediate capture omitted; final restored caption retained for each variant."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-load-comparison/baseline/computer-authored-terminal-pair.png",
+      "size_bytes": 577421,
+      "sha256": "9903526552d99c2b5a0ff91a270ede867ada1628b902c874ede2a4e09811c8ea",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Intermediate capture omitted; final restored caption retained for each variant."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-load-comparison/baseline/fresh-load.json",
+      "size_bytes": 2201,
+      "sha256": "fe266426bc238272c4b8ca02e4ef32e9d0b65829c235c1aa1f6397dd5e95a8ee",
+      "retained": true,
+      "retained_path": ".godot/ci/fresh-save-load-comparison/baseline/fresh-load.json",
+      "reason": "Current matched-comparison evidence retained byte-for-byte."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-load-comparison/baseline/fresh-pair-import.log",
+      "size_bytes": 96586,
+      "sha256": "68dcb43e65d7eb9171586935b47b0c7a66daebadbc89b6fd8ca6985113502286",
+      "retained": true,
+      "retained_path": ".godot/ci/fresh-save-load-comparison/baseline/fresh-pair-import.log",
+      "reason": "Current matched-comparison evidence retained byte-for-byte."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-load-comparison/baseline/fresh-save-seed.log",
+      "size_bytes": 14410,
+      "sha256": "6f39e53f5534e966d42d40a13d643ca88b538a8f63b992ae52dec25bb175724c",
+      "retained": true,
+      "retained_path": ".godot/ci/fresh-save-load-comparison/baseline/fresh-save-seed.log",
+      "reason": "Current matched-comparison evidence retained byte-for-byte."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-load-comparison/baseline/fresh-save-load.log",
+      "size_bytes": 53246,
+      "sha256": "8522123e1a57c5f2049bd06d6a6bc8e439905538d44d73c19a5061363801b2dc",
+      "retained": true,
+      "retained_path": ".godot/ci/fresh-save-load-comparison/baseline/fresh-save-load.log",
+      "reason": "Current matched-comparison evidence retained byte-for-byte."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-load-comparison/baseline/fresh-save-write.log",
+      "size_bytes": 76082,
+      "sha256": "d487e6a81213a2f72fee50c6331aca8965296619737ed0bf5970e03d92bf8fff",
+      "retained": true,
+      "retained_path": ".godot/ci/fresh-save-load-comparison/baseline/fresh-save-write.log",
+      "reason": "Current matched-comparison evidence retained byte-for-byte."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-load-comparison/baseline/import-console.log",
+      "size_bytes": 151233,
+      "sha256": "7665ccbc47368baae396287852406d28fc7023ace551785a378abeab09f4a298",
+      "retained": true,
+      "retained_path": ".godot/ci/fresh-save-load-comparison/baseline/import-console.log",
+      "reason": "Current matched-comparison evidence retained byte-for-byte."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-load-comparison/baseline/load.xml",
+      "size_bytes": 414,
+      "sha256": "e0f1d9793e3408e439c391fb5b131ba1538ada5088b5b2532caca7baa747a64a",
+      "retained": true,
+      "retained_path": ".godot/ci/fresh-save-load-comparison/baseline/load.xml",
+      "reason": "Current matched-comparison evidence retained byte-for-byte."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-load-comparison/baseline/processes.jsonl",
+      "size_bytes": 3068,
+      "sha256": "b86aa66fafb402bd85de8e71dadcc21615d89ace48f8fa5fe0f851914c9cd4c8",
+      "retained": true,
+      "retained_path": ".godot/ci/fresh-save-load-comparison/baseline/processes.jsonl",
+      "reason": "Current matched-comparison evidence retained byte-for-byte."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-load-comparison/baseline/result.json",
+      "size_bytes": 7397,
+      "sha256": "a78f276580598feefcd4b89b1b9026b927e73b5d9ffb8ff03301c750d87ab1c2",
+      "retained": true,
+      "retained_path": ".godot/ci/fresh-save-load-comparison/baseline/result.json",
+      "reason": "Current matched-comparison evidence retained byte-for-byte."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-load-comparison/baseline/slot_3.json",
+      "size_bytes": 448631,
+      "sha256": "a0dcac8f99ada2d1f10ec41b04bb9c424f807839fc926ddeda92f91a760513a0",
+      "retained": true,
+      "retained_path": ".godot/ci/fresh-save-load-comparison/baseline/slot_3.json",
+      "reason": "Current matched-comparison evidence retained byte-for-byte."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-load-comparison/baseline/terminal-pair.json",
+      "size_bytes": 1539,
+      "sha256": "2b3f32ed74875fb6f6f760d8648946d04c050cbfefeefe1955e9ec7ea34997f4",
+      "retained": true,
+      "retained_path": ".godot/ci/fresh-save-load-comparison/baseline/terminal-pair.json",
+      "reason": "Current matched-comparison evidence retained byte-for-byte."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-load-comparison/baseline/write.xml",
+      "size_bytes": 375,
+      "sha256": "0daeb3b45b19554427bc531dde9888dde20bf02be31430cf2e01bed9460e2595",
+      "retained": true,
+      "retained_path": ".godot/ci/fresh-save-load-comparison/baseline/write.xml",
+      "reason": "Current matched-comparison evidence retained byte-for-byte."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-load-comparison/candidate/authored-week-terminal-pair.json",
+      "size_bytes": 684563,
+      "sha256": "73d89f9f55038bf10bc3d945ac2be32a0b50c8caf225145ed8f5ef4a62882c7a",
+      "retained": true,
+      "retained_path": ".godot/ci/fresh-save-load-comparison/candidate/authored-week-terminal-pair.json",
+      "reason": "Current matched-comparison evidence retained byte-for-byte."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-load-comparison/candidate/computer-authored-restored-slot-2.png",
+      "size_bytes": 577257,
+      "sha256": "518dc6bccd41ef7ef77da8963cb6ba7216de4b48a2f8f81b892262dd25e4502a",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Intermediate capture omitted; final restored caption retained for each variant."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-load-comparison/candidate/computer-authored-restored-slot-3.png",
+      "size_bytes": 577257,
+      "sha256": "518dc6bccd41ef7ef77da8963cb6ba7216de4b48a2f8f81b892262dd25e4502a",
+      "retained": true,
+      "retained_path": ".godot/ci/fresh-save-load-comparison/candidate/computer-authored-restored-slot-3.png",
+      "reason": "Current matched-comparison evidence retained byte-for-byte."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-load-comparison/candidate/computer-authored-terminal-pair.png",
+      "size_bytes": 577421,
+      "sha256": "9903526552d99c2b5a0ff91a270ede867ada1628b902c874ede2a4e09811c8ea",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Intermediate capture omitted; final restored caption retained for each variant."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-load-comparison/candidate/fresh-load.json",
+      "size_bytes": 2201,
+      "sha256": "b6a5630912d86b955b8bdc52a5d5844c3c85b3abe7a27f324cdeec5171b9f11a",
+      "retained": true,
+      "retained_path": ".godot/ci/fresh-save-load-comparison/candidate/fresh-load.json",
+      "reason": "Current matched-comparison evidence retained byte-for-byte."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-load-comparison/candidate/fresh-save-load.log",
+      "size_bytes": 53244,
+      "sha256": "f5eca16cca4e6d119f81a112587d73ac256fc80ff6c72869df8826bfc9b3f01d",
+      "retained": true,
+      "retained_path": ".godot/ci/fresh-save-load-comparison/candidate/fresh-save-load.log",
+      "reason": "Current matched-comparison evidence retained byte-for-byte."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-load-comparison/candidate/fresh-save-seed.log",
+      "size_bytes": 14410,
+      "sha256": "54e9e8a05cf1a17c3bb8797e7723a3653d8a702d79d32fcc6ac63337a76564c2",
+      "retained": true,
+      "retained_path": ".godot/ci/fresh-save-load-comparison/candidate/fresh-save-seed.log",
+      "reason": "Current matched-comparison evidence retained byte-for-byte."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-load-comparison/candidate/fresh-save-write.log",
+      "size_bytes": 76019,
+      "sha256": "882ba200ac46e25ae3824808ef9ec2194d3dc1575065b9b28ce5567e27ad2368",
+      "retained": true,
+      "retained_path": ".godot/ci/fresh-save-load-comparison/candidate/fresh-save-write.log",
+      "reason": "Current matched-comparison evidence retained byte-for-byte."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-load-comparison/candidate/fresh-pair-import.log",
+      "size_bytes": 96586,
+      "sha256": "4490edd1daa05283768c74eb7256f44e088e656a1864160dcd406cb4a6397e5a",
+      "retained": true,
+      "retained_path": ".godot/ci/fresh-save-load-comparison/candidate/fresh-pair-import.log",
+      "reason": "Current matched-comparison evidence retained byte-for-byte."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-load-comparison/candidate/import-console.log",
+      "size_bytes": 151233,
+      "sha256": "1b3653aa4ccdcca9f63b5218977ebb84309eae7a332c68806cbc1ac84960695c",
+      "retained": true,
+      "retained_path": ".godot/ci/fresh-save-load-comparison/candidate/import-console.log",
+      "reason": "Current matched-comparison evidence retained byte-for-byte."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-load-comparison/candidate/load.xml",
+      "size_bytes": 412,
+      "sha256": "8a667f14e168c44e7718b52fc77659ca7ed601c7d813198e7b38a6f6d4bf78cd",
+      "retained": true,
+      "retained_path": ".godot/ci/fresh-save-load-comparison/candidate/load.xml",
+      "reason": "Current matched-comparison evidence retained byte-for-byte."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-load-comparison/candidate/processes.jsonl",
+      "size_bytes": 3083,
+      "sha256": "fe6cedeccb882bcd58d7caa7b7cd6f0e106bbb00614b8dbc7411cfa4efc7cd98",
+      "retained": true,
+      "retained_path": ".godot/ci/fresh-save-load-comparison/candidate/processes.jsonl",
+      "reason": "Current matched-comparison evidence retained byte-for-byte."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-load-comparison/candidate/result.json",
+      "size_bytes": 7396,
+      "sha256": "182de49643987d3295d2b2911df61dcebe6d251f1b9333cfbfe7dacddf920ba7",
+      "retained": true,
+      "retained_path": ".godot/ci/fresh-save-load-comparison/candidate/result.json",
+      "reason": "Current matched-comparison evidence retained byte-for-byte."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-load-comparison/candidate/slot_3.json",
+      "size_bytes": 448631,
+      "sha256": "67114d80bcdd766a042bd73a72c40198a68f453438831ceec4f5d0cbea529d60",
+      "retained": true,
+      "retained_path": ".godot/ci/fresh-save-load-comparison/candidate/slot_3.json",
+      "reason": "Current matched-comparison evidence retained byte-for-byte."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-load-comparison/candidate/terminal-pair.json",
+      "size_bytes": 1538,
+      "sha256": "eb7218abfa1a6ccd45cc004786d58fcaff00afe32318cd45754eb27f29dd917f",
+      "retained": true,
+      "retained_path": ".godot/ci/fresh-save-load-comparison/candidate/terminal-pair.json",
+      "reason": "Current matched-comparison evidence retained byte-for-byte."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-load-comparison/candidate/write.xml",
+      "size_bytes": 375,
+      "sha256": "024895ac7f6d2e558a6cc347ca1f6def451f025dab028809114bee8c692b53cb",
+      "retained": true,
+      "retained_path": ".godot/ci/fresh-save-load-comparison/candidate/write.xml",
+      "reason": "Current matched-comparison evidence retained byte-for-byte."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-load-comparison/comparison.json",
+      "size_bytes": 19401,
+      "sha256": "714d2a5292662a56efccd5f472937d64d4b15c0b0e82e40974b842c79b7b3f22",
+      "retained": true,
+      "retained_path": ".godot/ci/fresh-save-load-comparison/comparison.json",
+      "reason": "Current matched-comparison evidence retained byte-for-byte."
+    },
+    {
+      "original_path": ".godot/ci/import-user/appdata/Godot/app_userdata/DWM/dialogic/editor_settings.cfg",
+      "size_bytes": 132,
+      "sha256": "2485d95142e6f5f1b3f4653d1778baa04a88113e83bfeadc8f6571164f63b8e3",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable import cache/settings; import logs retained."
+    },
+    {
+      "original_path": ".godot/ci/import-user/appdata/Godot/app_userdata/DWM/gut_temp_directory/versions.json",
+      "size_bytes": 477,
+      "sha256": "9da71ad7b8842949d9dfb792008eae5a12c1cea2eadb39756231eda4db4d1b60",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable import cache/settings; import logs retained."
+    },
+    {
+      "original_path": ".godot/ci/import-user/appdata/Godot/editor_settings-4.6.tres",
+      "size_bytes": 3775,
+      "sha256": "4fad7736957e94c78f6113e43230f8c83082f288a34c8cad3be48afe92953905",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable import cache/settings; import logs retained."
+    },
+    {
+      "original_path": ".godot/ci/import-user/appdata/Godot/keystores/debug.keystore",
+      "size_bytes": 2194,
+      "sha256": "35631e600cf9326ef09f8960c181a3fbf8aa84c846c6b562a7578b5aee6cce81",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable import cache/settings; import logs retained."
+    },
+    {
+      "original_path": ".godot/ci/import-user/localappdata/Godot/editor_doc_cache-4.6.res",
+      "size_bytes": 3142854,
+      "sha256": "6feb794d024c4511948c3269a108c9c3513f62dd504962e50c06022afaddd6e3",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable import cache/settings; import logs retained."
+    },
+    {
+      "original_path": ".godot/ci/import.log",
+      "size_bytes": 96586,
+      "sha256": "4b0f289e4554da1a0936c027476bdd9e4b79d1bb0ee89778e384bc818ae36a48",
+      "retained": true,
+      "retained_path": ".godot/ci/import.log",
+      "reason": "Current matched-comparison evidence retained byte-for-byte."
+    },
+    {
+      "original_path": "evidence/phase_2r/runtime/game_state_surface.json",
+      "size_bytes": 660920,
+      "sha256": "8b4a944dac8741bc2d8fe8320622959945fb9ecd3985807d0745659382f5a8a2",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Unregenerated inventory copied by generic workflow; inventory qualification retained separately."
+    },
+    {
+      "original_path": "evidence/phase_2r/runtime/save_manager_surface.json",
+      "size_bytes": 183948,
+      "sha256": "bd14d2f342c0277e920f4fa1622ecdacae1e15e2329a89c6dd609b4ea619e04c",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Unregenerated inventory copied by generic workflow; inventory qualification retained separately."
+    }
+  ]
+}

@@ -1,0 +1,1152 @@
+{
+  "original": {
+    "artifact_id": 12558152538,
+    "run_id": 40089000697,
+    "job_id": 120857636329,
+    "source_ref": "2ac7401b97f5029cd2aae3f4c90153d41a44af07",
+    "base_master": "ba7ecd57afaadac5f25df14d24300037e57edec6",
+    "size_bytes": 14737272,
+    "sha256": "587693cfba677d02848db32be343295bf7e40cbd0f5235739cec47e8b1c0f5c1"
+  },
+  "original_crc_verified": true,
+  "original_member_count": 141,
+  "retained_archive": {
+    "path": "attribution-evidence.zip",
+    "size_bytes": 742328,
+    "sha256": "efac5b3b183a830c8047775a30a41b7078e0f49fdea53f00d8ffbbca08146e10",
+    "members": 14,
+    "crc_verified": true,
+    "all_retained_members_byte_identical": true
+  },
+  "members": [
+    {
+      "original_path": ".godot/ci/authored-week-terminal-pair.json",
+      "size_bytes": 684510,
+      "sha256": "be6792bbf2c1aa42f3ed0c6008b1ea0a7ca734f1d494ef3665925ae643639147",
+      "retained": false,
+      "retained_path": ".godot/ci/fresh-save-load/authored-week-terminal-pair.json",
+      "reason": "Duplicate bytes; canonical current-evidence copy retained at mapped path."
+    },
+    {
+      "original_path": ".godot/ci/bundle-attribution-source.json",
+      "size_bytes": 1445,
+      "sha256": "48dc48e94b4468668d7faf0a8d8137cc72a542a0916917f4cdabc6afdd659e85",
+      "retained": true,
+      "retained_path": ".godot/ci/bundle-attribution-source.json",
+      "reason": "Current diagnostic evidence retained byte-for-byte."
+    },
+    {
+      "original_path": ".godot/ci/computer-authored-restored-slot-2.png",
+      "size_bytes": 577257,
+      "sha256": "518dc6bccd41ef7ef77da8963cb6ba7216de4b48a2f8f81b892262dd25e4502a",
+      "retained": false,
+      "retained_path": ".godot/ci/fresh-save-load/computer-authored-restored-slot-3.png",
+      "reason": "Duplicate bytes; canonical current-evidence copy retained at mapped path."
+    },
+    {
+      "original_path": ".godot/ci/computer-authored-restored-slot-3.png",
+      "size_bytes": 577257,
+      "sha256": "518dc6bccd41ef7ef77da8963cb6ba7216de4b48a2f8f81b892262dd25e4502a",
+      "retained": false,
+      "retained_path": ".godot/ci/fresh-save-load/computer-authored-restored-slot-3.png",
+      "reason": "Duplicate bytes; canonical current-evidence copy retained at mapped path."
+    },
+    {
+      "original_path": ".godot/ci/computer-authored-terminal-pair.png",
+      "size_bytes": 577421,
+      "sha256": "9903526552d99c2b5a0ff91a270ede867ada1628b902c874ede2a4e09811c8ea",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Additional current intermediate capture omitted; final fresh-process restored caption capture retained."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-load/authored-week-terminal-pair.json",
+      "size_bytes": 684510,
+      "sha256": "be6792bbf2c1aa42f3ed0c6008b1ea0a7ca734f1d494ef3665925ae643639147",
+      "retained": true,
+      "retained_path": ".godot/ci/fresh-save-load/authored-week-terminal-pair.json",
+      "reason": "Current diagnostic evidence retained byte-for-byte."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-load/computer-authored-restored-slot-2.png",
+      "size_bytes": 577257,
+      "sha256": "518dc6bccd41ef7ef77da8963cb6ba7216de4b48a2f8f81b892262dd25e4502a",
+      "retained": false,
+      "retained_path": ".godot/ci/fresh-save-load/computer-authored-restored-slot-3.png",
+      "reason": "Duplicate bytes; canonical current-evidence copy retained at mapped path."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-load/computer-authored-restored-slot-3.png",
+      "size_bytes": 577257,
+      "sha256": "518dc6bccd41ef7ef77da8963cb6ba7216de4b48a2f8f81b892262dd25e4502a",
+      "retained": true,
+      "retained_path": ".godot/ci/fresh-save-load/computer-authored-restored-slot-3.png",
+      "reason": "Current diagnostic evidence retained byte-for-byte."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-load/computer-authored-terminal-pair.png",
+      "size_bytes": 577421,
+      "sha256": "9903526552d99c2b5a0ff91a270ede867ada1628b902c874ede2a4e09811c8ea",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Additional current intermediate capture omitted; final fresh-process restored caption capture retained."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-load/fresh-load.json",
+      "size_bytes": 2201,
+      "sha256": "f1c8afa796c3645734c5f97cd5032f690a81e6b2953e5dc031a03cf0db8f3678",
+      "retained": true,
+      "retained_path": ".godot/ci/fresh-save-load/fresh-load.json",
+      "reason": "Current diagnostic evidence retained byte-for-byte."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-load/fresh-save-load.log",
+      "size_bytes": 55939,
+      "sha256": "dc3ca478ab01135c7c8afed20759bbc6206eb4c71ea6c4807b0750510e560968",
+      "retained": true,
+      "retained_path": ".godot/ci/fresh-save-load/fresh-save-load.log",
+      "reason": "Current diagnostic evidence retained byte-for-byte."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-load/fresh-save-seed.log",
+      "size_bytes": 14410,
+      "sha256": "19d7d778d7ba94ad4fb2ca1bf611dd78ab260ae103a21a0d87b6b517fe58494d",
+      "retained": true,
+      "retained_path": ".godot/ci/fresh-save-load/fresh-save-seed.log",
+      "reason": "Current diagnostic evidence retained byte-for-byte."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-load/fresh-save-write.log",
+      "size_bytes": 80190,
+      "sha256": "6a6cede74414cca3ba65960d6f6d2565a1e1a90b53304356d9b419bf6b52aeaf",
+      "retained": true,
+      "retained_path": ".godot/ci/fresh-save-load/fresh-save-write.log",
+      "reason": "Current diagnostic evidence retained byte-for-byte."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-load/load.xml",
+      "size_bytes": 414,
+      "sha256": "7b2d6f194a1fd76d5f30f4862717c2687e0999cf7ba86525a8880928bc2bb8f5",
+      "retained": true,
+      "retained_path": ".godot/ci/fresh-save-load/load.xml",
+      "reason": "Current diagnostic evidence retained byte-for-byte."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-load/processes.jsonl",
+      "size_bytes": 2228,
+      "sha256": "7e932df711b74f3cb183b90e5cec2eaf1a4857921b21a6c3b0ca91c207b2cf36",
+      "retained": true,
+      "retained_path": ".godot/ci/fresh-save-load/processes.jsonl",
+      "reason": "Current diagnostic evidence retained byte-for-byte."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-load/result.json",
+      "size_bytes": 7397,
+      "sha256": "6c0a2f87e012aaf3ce64352baf82b0fe01334f9c934b136d7394cb1c954b00e4",
+      "retained": true,
+      "retained_path": ".godot/ci/fresh-save-load/result.json",
+      "reason": "Current diagnostic evidence retained byte-for-byte."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-load/slot_3.json",
+      "size_bytes": 448631,
+      "sha256": "adc3122e6dc991606da325d031eddd0707871c9158fbd5d9b999752a086f7b92",
+      "retained": true,
+      "retained_path": ".godot/ci/fresh-save-load/slot_3.json",
+      "reason": "Current diagnostic evidence retained byte-for-byte."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-load/terminal-pair.json",
+      "size_bytes": 1539,
+      "sha256": "58f61a781239325c2932297055bb347de85d3383caab953dda34467858bae346",
+      "retained": true,
+      "retained_path": ".godot/ci/fresh-save-load/terminal-pair.json",
+      "reason": "Current diagnostic evidence retained byte-for-byte."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-load/write.xml",
+      "size_bytes": 375,
+      "sha256": "bd0dde50a6931e3060733def38f7185fd137c3cc9f0dc6852fbde4b644ec5f85",
+      "retained": true,
+      "retained_path": ".godot/ci/fresh-save-load/write.xml",
+      "reason": "Current diagnostic evidence retained byte-for-byte."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-retained-input/audit-origin.json",
+      "size_bytes": 303,
+      "sha256": "c503b84e007392c9c2aff0c4f6ed79e719eac31119a6a0e2f269a6c377f5dbe4",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-retained-input/authored-week-terminal-pair.json",
+      "size_bytes": 684510,
+      "sha256": "d021f7411218be20c88c29c1a55538b625612ab448766487d31a17d4b49a8221",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-retained-input/candidate.patch",
+      "size_bytes": 21382,
+      "sha256": "a86b927a7633409ef67ff3034abcd1737b2278eefb35392d162417347e00f45d",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-retained-input/comparison-origin.json",
+      "size_bytes": 305,
+      "sha256": "77a0b38535ed0113c0f88efd1f036755aae047c9109a6ad214299fc0cbc08009",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-retained-input/computer-authored-restored-slot-2.png",
+      "size_bytes": 577257,
+      "sha256": "518dc6bccd41ef7ef77da8963cb6ba7216de4b48a2f8f81b892262dd25e4502a",
+      "retained": false,
+      "retained_path": ".godot/ci/fresh-save-load/computer-authored-restored-slot-3.png",
+      "reason": "Duplicate bytes; canonical current-evidence copy retained at mapped path."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-retained-input/computer-authored-terminal-pair.png",
+      "size_bytes": 577421,
+      "sha256": "9903526552d99c2b5a0ff91a270ede867ada1628b902c874ede2a4e09811c8ea",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-retained-input/final-status.txt",
+      "size_bytes": 142,
+      "sha256": "ce27fc5d743054c0ee27209aff653ab1233c0f24e270c1a65e9ba06aa41a8b98",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-retained-input/helper-hashes.json",
+      "size_bytes": 338,
+      "sha256": "8e52a836ed5f4dfcad382e61f557d90bdae562fe6e505c9a255e8d9b81558fe4",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-retained-input/import-process.json",
+      "size_bytes": 24,
+      "sha256": "75876e0e3f497cad271143ba85bd4f36569cd81195509043f860dab14265b716",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-retained-input/import-user/appdata/Godot/app_userdata/DWM/dialogic/editor_settings.cfg",
+      "size_bytes": 132,
+      "sha256": "2485d95142e6f5f1b3f4653d1778baa04a88113e83bfeadc8f6571164f63b8e3",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-retained-input/import-user/appdata/Godot/app_userdata/DWM/gut_temp_directory/versions.json",
+      "size_bytes": 477,
+      "sha256": "bc3d23291fd7f108428c373ea81156292bb56cf82699ab21cff2674fe424477f",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-retained-input/import-user/appdata/Godot/editor_settings-4.6.tres",
+      "size_bytes": 3775,
+      "sha256": "4fad7736957e94c78f6113e43230f8c83082f288a34c8cad3be48afe92953905",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-retained-input/import-user/appdata/Godot/keystores/debug.keystore",
+      "size_bytes": 2194,
+      "sha256": "31633424675537ae6b4d430c9e946646c3814be680bac2ecd00570755aec1c8f",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-retained-input/import-user/localappdata/Godot/editor_doc_cache-4.6.res",
+      "size_bytes": 3142854,
+      "sha256": "6feb794d024c4511948c3269a108c9c3513f62dd504962e50c06022afaddd6e3",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-retained-input/import.log",
+      "size_bytes": 96411,
+      "sha256": "7201e67afe0ad7847474ddcd874ac497325ef27e0c6a97cb440b58f835d2e015",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-retained-input/pair-next.gd",
+      "size_bytes": 3007,
+      "sha256": "ebf4e9380066cd769c10c64ae21bddf605c972a5955324c445654d8d959540c7",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-retained-input/pair.gd",
+      "size_bytes": 3845,
+      "sha256": "387f335b758d06ac1762302423151d47d57aa1df90adc933cdee3855cf04ff65",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-retained-input/replay.gd",
+      "size_bytes": 2556,
+      "sha256": "945a7a75a9cae6e14e2e70e9b99866a929ba1cbe36d8249bb9f177f9b3026a20",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-retained-input/seed.gd",
+      "size_bytes": 1475,
+      "sha256": "1eeae3d5a83dc645758def40e371408187bca8009e5ef9c0916b3d489f36be3d",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-retained-input/terminal-candidate-seed.log",
+      "size_bytes": 584,
+      "sha256": "0bcc5678c9de2ffab480358e27565c8b7842d40c943c8708bdfa6b34715f53c9",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-retained-input/terminal-candidate.jsonl",
+      "size_bytes": 1443,
+      "sha256": "e82f3b04a7fc959afd5cc3bef82355dcc3314591c210d8e24e25abaef880675f",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-retained-input/terminal-candidate.log",
+      "size_bytes": 167956,
+      "sha256": "0130df1d357114383707e772fe945ece3125416756cd7ae17c7af556c1d7e98c",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-retained-input/terminal-candidate.xml",
+      "size_bytes": 375,
+      "sha256": "2b29bf25841a2c5dab633ed4b68fe19d566e4fa5e5f77d4f8d481f9160d563ba",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-retained-input/terminal-pair.json",
+      "size_bytes": 1549,
+      "sha256": "bc87c7bb2c34ed37c60a8fe02ce5d3591f8eb7bc18c5bc35346ebda53f7f154d",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-retained-input/terminal-root/authored-week-day4.json",
+      "size_bytes": 745849,
+      "sha256": "28c243435f3ba67404766e655c14be81e567f6823aa639ed1b6016a07907831f",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-retained-input/terminal-root/authored-week-ending.json",
+      "size_bytes": 677619,
+      "sha256": "c0e07eb724a437da9e6f2ec9a28346e555c1e440289be6eea1bccd621fd0155c",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-retained-input/terminal-root/desktop-issuer-root.json",
+      "size_bytes": 65790,
+      "sha256": "fc7ca1c8fec152d44e7c800fa87774c354967af809b1c9afc48e8a064e89bff4",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-retained-input/terminal-root/desktop-issuer-root.json.bak",
+      "size_bytes": 61514,
+      "sha256": "703c3d56aa7d32f655f4944ab14e9dd42656a6aa1c66bd4ced2690ace2cb3cdc",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-retained-input/terminal-root/desktop-publications.json",
+      "size_bytes": 34,
+      "sha256": "902849ab2604217a878bc4de507660ced78f981a72c1d6343dd9ef55af64d4e4",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-retained-input/terminal-root/dialogic/saves/global_info.txt",
+      "size_bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-retained-input/terminal-root/profile.json",
+      "size_bytes": 231435,
+      "sha256": "40a3166a287790295a5270a42934337fc7bdd5f63c759d193d0d555c89c71f43",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-retained-input/terminal-root/saves/autosave.json",
+      "size_bytes": 9102,
+      "sha256": "54b47a2637f33b4937fa63e63c5b8571038d3adde0576437bad1c415b13454a3",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-retained-input/terminal-root/saves/desktop-continuation-operations.json",
+      "size_bytes": 5160096,
+      "sha256": "04c5dd615ed91e42378a7e5e5b8d9506337fa913c746bae62c0fb57a29cb227a",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-retained-input/terminal-root/saves/desktop-continuation-operations.json.bak",
+      "size_bytes": 5160091,
+      "sha256": "5a48b23539720eb5658907cde08fb4967ffc9a3435105b1b131c0f5caf3f2b38",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-retained-input/terminal-root/saves/slot_1.json",
+      "size_bytes": 715995,
+      "sha256": "abfc0aa1c5438a3d3c747e1a539532866c9dfddbd67bcbc57c6562325367449e",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-retained-input/terminal-root/saves/slot_2.json",
+      "size_bytes": 1577281,
+      "sha256": "17934c8199a7d25f97c69890f0ca609e5106c6bb6dc187464d58c40d2baf987c",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-retained-input/terminal-root/schedule-foundation-publications.json",
+      "size_bytes": 34,
+      "sha256": "902849ab2604217a878bc4de507660ced78f981a72c1d6343dd9ef55af64d4e4",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-retained-input/terminal-root/shader_cache/CanvasShaderGLES3/e6624fe2264e206b0e4d7e025633fd052f5ad01a74f8e4ead975432d9ed35cd4/fa7b62523470356194bdf709eb2639ab149a07cc.cache",
+      "size_bytes": 76182,
+      "sha256": "7af3f4baaeaa308d45f82b2af2972e5f2b8e094bc937981352e03dff36aba3ce",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-retained-input/terminal-root/shader_cache/CopyShaderGLES3/4b67ab47c152ed26b01d35bc017f7687b5361d62499e2aafa5d4b9fc04a691b8/fa7b62523470356194bdf709eb2639ab149a07cc.cache",
+      "size_bytes": 109350,
+      "sha256": "1146eea9f5f0d90f6d67f27743eae3d0ac26ea3452dee28290b33b1d9035cc65",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-retained-input/terminal-root/shader_cache/EGL/+0NJXO2tED5GYLHkSpn8uswoUus=.cache",
+      "size_bytes": 2147,
+      "sha256": "d7192d85c653d2d6c824efab36d4f4e19380d9c52ba4b8e934c4fc3afb68645a",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-retained-input/terminal-root/shader_cache/EGL/1i7knzMo7uaabWbXZiMWG8SyZZM=.cache",
+      "size_bytes": 1865,
+      "sha256": "31e8bd5ac6d049380a9634d5934bb1951f9d95470066b9f47a3ee8878343c055",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-retained-input/terminal-root/shader_cache/EGL/3ANL6jEa5jkTN52sf1zAbOadg60=.cache",
+      "size_bytes": 2966,
+      "sha256": "ef70e24200814195de76bf155f32a3cc8a1f297215f69c8fef912e93aa0ddd61",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-retained-input/terminal-root/shader_cache/EGL/4yodjWkp9eF7T5QAUZ4OHZkc3EE=.cache",
+      "size_bytes": 2855,
+      "sha256": "a7b4888366a036b56efb0d417883237df6b998086d482b7d53094568f4556da0",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-retained-input/terminal-root/shader_cache/EGL/cKiSeHOqfE__FhUArKuSnJOfeAk=.cache",
+      "size_bytes": 5279,
+      "sha256": "910190ad8f3ff02113846d6f6d93909a0c46ded83b0c5c5a5cc0e18cd4af1b88",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-retained-input/terminal-root/shader_cache/EGL/e5ZRf0mclyCvDPypBYCs3280Jsw=.cache",
+      "size_bytes": 5449,
+      "sha256": "b9d8bd3a228a031ec93738e6ab5a3f8aee604c427a8537728d1274c98b1fd14d",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-retained-input/terminal-root/shader_cache/EGL/FPBf1TfevjZruRDFPN9QENniw_w=.cache",
+      "size_bytes": 2384,
+      "sha256": "f5016ae3e6edc629210a8e6e23c3cf33dedd7d00408c70b6216b01f1d1232398",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-retained-input/terminal-root/shader_cache/EGL/GfGxaGsWNxrtAGZ8j976VACJbxw=.cache",
+      "size_bytes": 5974,
+      "sha256": "bbbbf14f46d2366b77d168b534744fd5405c9cb90f09915558944051a9105e13",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-retained-input/terminal-root/shader_cache/EGL/gfI6W6tQ2GR+Uuy7X9mSPdNu+RA=.cache",
+      "size_bytes": 2512,
+      "sha256": "3e9da6f4a3470e5255e0c02a16df6cc2b6a20c5f726d8ae1b097e9e55f9f9d79",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-retained-input/terminal-root/shader_cache/EGL/gtD_9jA4D+GfNkO4XZ5sEGj6GzI=.cache",
+      "size_bytes": 2381,
+      "sha256": "3cb18379d76be64eae98d04960db0509d42dc6d8f621828b03a1165bec5fb817",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-retained-input/terminal-root/shader_cache/EGL/I+JSrTCBsZhyPh2Iem61_sd1KKs=.cache",
+      "size_bytes": 6024,
+      "sha256": "7d0ebf2d73e81d405133cc877d583d7f7afec29e0147a095b4f1ecf50b872761",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-retained-input/terminal-root/shader_cache/EGL/j+hHg7Y5LIS776xQvnSjjpeGnvI=.cache",
+      "size_bytes": 2185,
+      "sha256": "637695040dfae1aa9ef3dd8844840f29ecaff223bac4c1a9adce897916b540b7",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-retained-input/terminal-root/shader_cache/EGL/j0HcUyvJKtU2zyYFsOzUNEQoxJw=.cache",
+      "size_bytes": 2477,
+      "sha256": "8890869f3f93bfc103b00cd00b4cdc6ded67357daa1b13ed6bf341a2dc42cc9b",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-retained-input/terminal-root/shader_cache/EGL/K7koK4h3btXYT65x6VfWJpRcbtY=.cache",
+      "size_bytes": 2237,
+      "sha256": "1f2b48d52330bdddb4596a79b036b0e78cacf3f985e22f831f2cba8a9fa50b4c",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-retained-input/terminal-root/shader_cache/EGL/kbP6M7ytmmjhR_i103gyq8UhGIA=.cache",
+      "size_bytes": 6024,
+      "sha256": "7d0ebf2d73e81d405133cc877d583d7f7afec29e0147a095b4f1ecf50b872761",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-retained-input/terminal-root/shader_cache/EGL/kKFGsrcUJw77eat1Kvd4uiEDuyE=.cache",
+      "size_bytes": 6454,
+      "sha256": "a250202151d9f8458395146cf507ce1c1e97a4eda7ebdd20e04c84cf2ea2648f",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-retained-input/terminal-root/shader_cache/EGL/MxTypYjy3isoQ0fsbfqtkMJ94ds=.cache",
+      "size_bytes": 27236,
+      "sha256": "902298d14eb985aba2c4e9bc1daa6683771810f4f9d9a3e3b5586a981ba3c849",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-retained-input/terminal-root/shader_cache/EGL/NJaQ_DtLjOwHNVCa+4UWgWHrG+w=.cache",
+      "size_bytes": 4273,
+      "sha256": "6e554249f335e1cb07a0f5cd72da67ded64d05e86216f296fdd4292edacc2d20",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-retained-input/terminal-root/shader_cache/EGL/rCQyKqY25wyrYCwvUvoU9dLIyr8=.cache",
+      "size_bytes": 2034,
+      "sha256": "e53a259223db7ef33f0e5ac62b1d92468264ed6db8bb52a49f5f050063bf5b4c",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-retained-input/terminal-root/shader_cache/EGL/RJKbaJL3NdpdOIBNASR7evmKxS8=.cache",
+      "size_bytes": 27662,
+      "sha256": "7d01cac9f90eac9c0f8e9a63502ff55711f4c4babe0207765e77d47c729cc4b7",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-retained-input/terminal-root/shader_cache/EGL/VaLFKy58efOr6Lm38kYaeeAen40=.cache",
+      "size_bytes": 2024,
+      "sha256": "ef3da4ef70c0f35e8ca0674878684c9e7d0a2a9462f19f4a0a7c2b73373aa1c2",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-retained-input/terminal-root/shader_cache/EGL/yFYGcekbaBYxMPgglGePiG6RAH0=.cache",
+      "size_bytes": 1535,
+      "sha256": "b3d8930a4c5b43f5ff1ca525c217e4851dfbe57ad6413698f09da7f53cc10675",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-retained-input/terminal-root/shader_cache/FeedShaderGLES3/0b8b6c50cd99ef8772e9faa2517ae00c3fd765fbba160ada73bc7b5a1ed57166/fa7b62523470356194bdf709eb2639ab149a07cc.cache",
+      "size_bytes": 7872,
+      "sha256": "1f79c100a0a032e059afda33907d8dea2af9ee11a207876054951f90e0972ba8",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-retained-input/terminal-root/shader_cache/SceneShaderGLES3/ae7bdf39be385d6c58bd4296942ac7dade1a132b1337f930759d4a5c900eab2c/fa7b62523470356194bdf709eb2639ab149a07cc.cache",
+      "size_bytes": 468952,
+      "sha256": "5500cd2cd2d451340aaf8b52a7ecbb3bf88359e07d7dc7eda554d9db1cd4f641",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-retained-input/terminal-root/shader_cache/PostShaderGLES3/b83436dcdfb9b4864b27d9e0e5900eb89cd96c53f8161e4f673e1eaf9008e42b/fa7b62523470356194bdf709eb2639ab149a07cc.cache",
+      "size_bytes": 15572,
+      "sha256": "90830d109f1944bc58f1b4452d3a73e866c7c90c07af7a24e74cde94a8979d71",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/fresh-save-retained-input/terminal-root-hashes.json",
+      "size_bytes": 5173,
+      "sha256": "d0d652dac2f6221dc3a8ca81069b19b011d145108a68ce485a01eaa6ae1ef47c",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/import-user/appdata/Godot/app_userdata/DWM/dialogic/editor_settings.cfg",
+      "size_bytes": 132,
+      "sha256": "2485d95142e6f5f1b3f4653d1778baa04a88113e83bfeadc8f6571164f63b8e3",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable editor cache or settings; current import log retained."
+    },
+    {
+      "original_path": ".godot/ci/import-user/appdata/Godot/app_userdata/DWM/gut_temp_directory/versions.json",
+      "size_bytes": 477,
+      "sha256": "866fb0fd88c4a834f6c55d01548f1958b774cf8305e148587278a31ee057f417",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable editor cache or settings; current import log retained."
+    },
+    {
+      "original_path": ".godot/ci/import-user/appdata/Godot/editor_settings-4.6.tres",
+      "size_bytes": 3775,
+      "sha256": "4fad7736957e94c78f6113e43230f8c83082f288a34c8cad3be48afe92953905",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable editor cache or settings; current import log retained."
+    },
+    {
+      "original_path": ".godot/ci/import-user/appdata/Godot/keystores/debug.keystore",
+      "size_bytes": 2193,
+      "sha256": "010b8632b9ca41151c1b5f3f0c00e734599ad59bc1e34518a7376684c72b2e84",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable editor cache or settings; current import log retained."
+    },
+    {
+      "original_path": ".godot/ci/import-user/localappdata/Godot/editor_doc_cache-4.6.res",
+      "size_bytes": 3142854,
+      "sha256": "6feb794d024c4511948c3269a108c9c3513f62dd504962e50c06022afaddd6e3",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable editor cache or settings; current import log retained."
+    },
+    {
+      "original_path": ".godot/ci/import.log",
+      "size_bytes": 96586,
+      "sha256": "ece1b275ed01fd5be288365dca935efcee291c115d4d9e714a24ad0ebd0bc7f2",
+      "retained": true,
+      "retained_path": ".godot/ci/import.log",
+      "reason": "Current diagnostic evidence retained byte-for-byte."
+    },
+    {
+      "original_path": ".godot/ci/pair-next.gd",
+      "size_bytes": 3007,
+      "sha256": "ebf4e9380066cd769c10c64ae21bddf605c972a5955324c445654d8d959540c7",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload helper reproduced from pinned input archive; exact helper hashes retained in result.json."
+    },
+    {
+      "original_path": ".godot/ci/pair.gd",
+      "size_bytes": 3845,
+      "sha256": "387f335b758d06ac1762302423151d47d57aa1df90adc933cdee3855cf04ff65",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload helper reproduced from pinned input archive; exact helper hashes retained in result.json."
+    },
+    {
+      "original_path": ".godot/ci/replay.gd",
+      "size_bytes": 2556,
+      "sha256": "945a7a75a9cae6e14e2e70e9b99866a929ba1cbe36d8249bb9f177f9b3026a20",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload helper reproduced from pinned input archive; exact helper hashes retained in result.json."
+    },
+    {
+      "original_path": ".godot/ci/seed.gd",
+      "size_bytes": 1475,
+      "sha256": "1eeae3d5a83dc645758def40e371408187bca8009e5ef9c0916b3d489f36be3d",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload helper reproduced from pinned input archive; exact helper hashes retained in result.json."
+    },
+    {
+      "original_path": ".godot/ci/terminal-pair.json",
+      "size_bytes": 1539,
+      "sha256": "58f61a781239325c2932297055bb347de85d3383caab953dda34467858bae346",
+      "retained": false,
+      "retained_path": ".godot/ci/fresh-save-load/terminal-pair.json",
+      "reason": "Duplicate bytes; canonical current-evidence copy retained at mapped path."
+    },
+    {
+      "original_path": ".godot/ci/terminal-root/authored-week-day4.json",
+      "size_bytes": 745849,
+      "sha256": "28c243435f3ba67404766e655c14be81e567f6823aa639ed1b6016a07907831f",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/terminal-root/authored-week-ending.json",
+      "size_bytes": 677619,
+      "sha256": "c0e07eb724a437da9e6f2ec9a28346e555c1e440289be6eea1bccd621fd0155c",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/terminal-root/desktop-issuer-root.json",
+      "size_bytes": 65790,
+      "sha256": "fc7ca1c8fec152d44e7c800fa87774c354967af809b1c9afc48e8a064e89bff4",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/terminal-root/desktop-issuer-root.json.bak",
+      "size_bytes": 61514,
+      "sha256": "703c3d56aa7d32f655f4944ab14e9dd42656a6aa1c66bd4ced2690ace2cb3cdc",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/terminal-root/desktop-publications.json",
+      "size_bytes": 34,
+      "sha256": "902849ab2604217a878bc4de507660ced78f981a72c1d6343dd9ef55af64d4e4",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/terminal-root/dialogic/saves/global_info.txt",
+      "size_bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/terminal-root/profile.json",
+      "size_bytes": 231435,
+      "sha256": "40a3166a287790295a5270a42934337fc7bdd5f63c759d193d0d555c89c71f43",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/terminal-root/saves/autosave.json",
+      "size_bytes": 9102,
+      "sha256": "54b47a2637f33b4937fa63e63c5b8571038d3adde0576437bad1c415b13454a3",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/terminal-root/saves/desktop-continuation-operations.json",
+      "size_bytes": 5160096,
+      "sha256": "04c5dd615ed91e42378a7e5e5b8d9506337fa913c746bae62c0fb57a29cb227a",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/terminal-root/saves/desktop-continuation-operations.json.bak",
+      "size_bytes": 5160091,
+      "sha256": "5a48b23539720eb5658907cde08fb4967ffc9a3435105b1b131c0f5caf3f2b38",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/terminal-root/saves/slot_1.json",
+      "size_bytes": 715995,
+      "sha256": "abfc0aa1c5438a3d3c747e1a539532866c9dfddbd67bcbc57c6562325367449e",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/terminal-root/saves/slot_2.json",
+      "size_bytes": 1577281,
+      "sha256": "17934c8199a7d25f97c69890f0ca609e5106c6bb6dc187464d58c40d2baf987c",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/terminal-root/shader_cache/CanvasShaderGLES3/e6624fe2264e206b0e4d7e025633fd052f5ad01a74f8e4ead975432d9ed35cd4/fa7b62523470356194bdf709eb2639ab149a07cc.cache",
+      "size_bytes": 76182,
+      "sha256": "7af3f4baaeaa308d45f82b2af2972e5f2b8e094bc937981352e03dff36aba3ce",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/terminal-root/schedule-foundation-publications.json",
+      "size_bytes": 34,
+      "sha256": "902849ab2604217a878bc4de507660ced78f981a72c1d6343dd9ef55af64d4e4",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/terminal-root/shader_cache/CopyShaderGLES3/4b67ab47c152ed26b01d35bc017f7687b5361d62499e2aafa5d4b9fc04a691b8/fa7b62523470356194bdf709eb2639ab149a07cc.cache",
+      "size_bytes": 109350,
+      "sha256": "1146eea9f5f0d90f6d67f27743eae3d0ac26ea3452dee28290b33b1d9035cc65",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/terminal-root/shader_cache/EGL/+0NJXO2tED5GYLHkSpn8uswoUus=.cache",
+      "size_bytes": 2147,
+      "sha256": "d7192d85c653d2d6c824efab36d4f4e19380d9c52ba4b8e934c4fc3afb68645a",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/terminal-root/shader_cache/EGL/1i7knzMo7uaabWbXZiMWG8SyZZM=.cache",
+      "size_bytes": 1865,
+      "sha256": "31e8bd5ac6d049380a9634d5934bb1951f9d95470066b9f47a3ee8878343c055",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/terminal-root/shader_cache/EGL/3ANL6jEa5jkTN52sf1zAbOadg60=.cache",
+      "size_bytes": 2966,
+      "sha256": "ef70e24200814195de76bf155f32a3cc8a1f297215f69c8fef912e93aa0ddd61",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/terminal-root/shader_cache/EGL/cKiSeHOqfE__FhUArKuSnJOfeAk=.cache",
+      "size_bytes": 5279,
+      "sha256": "910190ad8f3ff02113846d6f6d93909a0c46ded83b0c5c5a5cc0e18cd4af1b88",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/terminal-root/shader_cache/EGL/4yodjWkp9eF7T5QAUZ4OHZkc3EE=.cache",
+      "size_bytes": 2855,
+      "sha256": "a7b4888366a036b56efb0d417883237df6b998086d482b7d53094568f4556da0",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/terminal-root/shader_cache/EGL/e5ZRf0mclyCvDPypBYCs3280Jsw=.cache",
+      "size_bytes": 5449,
+      "sha256": "b9d8bd3a228a031ec93738e6ab5a3f8aee604c427a8537728d1274c98b1fd14d",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/terminal-root/shader_cache/EGL/FPBf1TfevjZruRDFPN9QENniw_w=.cache",
+      "size_bytes": 2384,
+      "sha256": "f5016ae3e6edc629210a8e6e23c3cf33dedd7d00408c70b6216b01f1d1232398",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/terminal-root/shader_cache/EGL/GfGxaGsWNxrtAGZ8j976VACJbxw=.cache",
+      "size_bytes": 5974,
+      "sha256": "bbbbf14f46d2366b77d168b534744fd5405c9cb90f09915558944051a9105e13",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/terminal-root/shader_cache/EGL/gfI6W6tQ2GR+Uuy7X9mSPdNu+RA=.cache",
+      "size_bytes": 2512,
+      "sha256": "3e9da6f4a3470e5255e0c02a16df6cc2b6a20c5f726d8ae1b097e9e55f9f9d79",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/terminal-root/shader_cache/EGL/gtD_9jA4D+GfNkO4XZ5sEGj6GzI=.cache",
+      "size_bytes": 2381,
+      "sha256": "3cb18379d76be64eae98d04960db0509d42dc6d8f621828b03a1165bec5fb817",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/terminal-root/shader_cache/EGL/I+JSrTCBsZhyPh2Iem61_sd1KKs=.cache",
+      "size_bytes": 6024,
+      "sha256": "7d0ebf2d73e81d405133cc877d583d7f7afec29e0147a095b4f1ecf50b872761",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/terminal-root/shader_cache/EGL/j+hHg7Y5LIS776xQvnSjjpeGnvI=.cache",
+      "size_bytes": 2185,
+      "sha256": "637695040dfae1aa9ef3dd8844840f29ecaff223bac4c1a9adce897916b540b7",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/terminal-root/shader_cache/EGL/j0HcUyvJKtU2zyYFsOzUNEQoxJw=.cache",
+      "size_bytes": 2477,
+      "sha256": "8890869f3f93bfc103b00cd00b4cdc6ded67357daa1b13ed6bf341a2dc42cc9b",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/terminal-root/shader_cache/EGL/K7koK4h3btXYT65x6VfWJpRcbtY=.cache",
+      "size_bytes": 2237,
+      "sha256": "1f2b48d52330bdddb4596a79b036b0e78cacf3f985e22f831f2cba8a9fa50b4c",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/terminal-root/shader_cache/EGL/kbP6M7ytmmjhR_i103gyq8UhGIA=.cache",
+      "size_bytes": 6024,
+      "sha256": "7d0ebf2d73e81d405133cc877d583d7f7afec29e0147a095b4f1ecf50b872761",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/terminal-root/shader_cache/EGL/kKFGsrcUJw77eat1Kvd4uiEDuyE=.cache",
+      "size_bytes": 6454,
+      "sha256": "a250202151d9f8458395146cf507ce1c1e97a4eda7ebdd20e04c84cf2ea2648f",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/terminal-root/shader_cache/EGL/MxTypYjy3isoQ0fsbfqtkMJ94ds=.cache",
+      "size_bytes": 27236,
+      "sha256": "902298d14eb985aba2c4e9bc1daa6683771810f4f9d9a3e3b5586a981ba3c849",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/terminal-root/shader_cache/EGL/NJaQ_DtLjOwHNVCa+4UWgWHrG+w=.cache",
+      "size_bytes": 4273,
+      "sha256": "6e554249f335e1cb07a0f5cd72da67ded64d05e86216f296fdd4292edacc2d20",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/terminal-root/shader_cache/EGL/rCQyKqY25wyrYCwvUvoU9dLIyr8=.cache",
+      "size_bytes": 2034,
+      "sha256": "e53a259223db7ef33f0e5ac62b1d92468264ed6db8bb52a49f5f050063bf5b4c",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/terminal-root/shader_cache/EGL/RJKbaJL3NdpdOIBNASR7evmKxS8=.cache",
+      "size_bytes": 27662,
+      "sha256": "7d01cac9f90eac9c0f8e9a63502ff55711f4c4babe0207765e77d47c729cc4b7",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/terminal-root/shader_cache/EGL/VaLFKy58efOr6Lm38kYaeeAen40=.cache",
+      "size_bytes": 2024,
+      "sha256": "ef3da4ef70c0f35e8ca0674878684c9e7d0a2a9462f19f4a0a7c2b73373aa1c2",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/terminal-root/shader_cache/EGL/yFYGcekbaBYxMPgglGePiG6RAH0=.cache",
+      "size_bytes": 1535,
+      "sha256": "b3d8930a4c5b43f5ff1ca525c217e4851dfbe57ad6413698f09da7f53cc10675",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/terminal-root/shader_cache/FeedShaderGLES3/0b8b6c50cd99ef8772e9faa2517ae00c3fd765fbba160ada73bc7b5a1ed57166/fa7b62523470356194bdf709eb2639ab149a07cc.cache",
+      "size_bytes": 7872,
+      "sha256": "1f79c100a0a032e059afda33907d8dea2af9ee11a207876054951f90e0972ba8",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/terminal-root/shader_cache/PostShaderGLES3/b83436dcdfb9b4864b27d9e0e5900eb89cd96c53f8161e4f673e1eaf9008e42b/fa7b62523470356194bdf709eb2639ab149a07cc.cache",
+      "size_bytes": 15572,
+      "sha256": "90830d109f1944bc58f1b4452d3a73e866c7c90c07af7a24e74cde94a8979d71",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/terminal-root/shader_cache/SceneShaderGLES3/ae7bdf39be385d6c58bd4296942ac7dade1a132b1337f930759d4a5c900eab2c/fa7b62523470356194bdf709eb2639ab149a07cc.cache",
+      "size_bytes": 468952,
+      "sha256": "5500cd2cd2d451340aaf8b52a7ecbb3bf88359e07d7dc7eda554d9db1cd4f641",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/ci/terminal-root-hashes.json",
+      "size_bytes": 5173,
+      "sha256": "d0d652dac2f6221dc3a8ca81069b19b011d145108a68ce485a01eaa6ae1ef47c",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Historical workload input or historical report, not current execution evidence; source archive is pinned in current result.json."
+    },
+    {
+      "original_path": ".godot/phase2r_logs/fresh-save-load.log",
+      "size_bytes": 55939,
+      "sha256": "dc3ca478ab01135c7c8afed20759bbc6206eb4c71ea6c4807b0750510e560968",
+      "retained": false,
+      "retained_path": ".godot/ci/fresh-save-load/fresh-save-load.log",
+      "reason": "Duplicate bytes; canonical current-evidence copy retained at mapped path."
+    },
+    {
+      "original_path": ".godot/phase2r_logs/fresh-save-seed.log",
+      "size_bytes": 14410,
+      "sha256": "19d7d778d7ba94ad4fb2ca1bf611dd78ab260ae103a21a0d87b6b517fe58494d",
+      "retained": false,
+      "retained_path": ".godot/ci/fresh-save-load/fresh-save-seed.log",
+      "reason": "Duplicate bytes; canonical current-evidence copy retained at mapped path."
+    },
+    {
+      "original_path": ".godot/phase2r_logs/fresh-save-write.log",
+      "size_bytes": 80190,
+      "sha256": "6a6cede74414cca3ba65960d6f6d2565a1e1a90b53304356d9b419bf6b52aeaf",
+      "retained": false,
+      "retained_path": ".godot/ci/fresh-save-load/fresh-save-write.log",
+      "reason": "Duplicate bytes; canonical current-evidence copy retained at mapped path."
+    },
+    {
+      "original_path": "evidence/phase_2r/runtime/game_state_surface.json",
+      "size_bytes": 660920,
+      "sha256": "8b4a944dac8741bc2d8fe8320622959945fb9ecd3985807d0745659382f5a8a2",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Unregenerated public inventory copied by generic workflow; diagnostic does not qualify inventory changes."
+    },
+    {
+      "original_path": "evidence/phase_2r/runtime/save_manager_surface.json",
+      "size_bytes": 183948,
+      "sha256": "bd14d2f342c0277e920f4fa1622ecdacae1e15e2329a89c6dd609b4ea619e04c",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Unregenerated public inventory copied by generic workflow; diagnostic does not qualify inventory changes."
+    }
+  ],
+  "counting_rule": "Only fresh-save-load/write.xml and fresh-save-load/load.xml are current test reports; all fresh-save-retained-input reports are historical and excluded."
+}
