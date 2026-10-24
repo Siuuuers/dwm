@@ -12,10 +12,14 @@ jobs:
       - uses: actions/checkout@v4
         with:
           path: controller
+          sparse-checkout: |
+            publish-evidence.py
+            publication-payload.b64
+          sparse-checkout-cone-mode: false
       - uses: actions/checkout@v4
         with:
           ref: 0ccaaed82bb0f896e998118ee8b5db5d2a25a7e3
-          fetch-depth: 0
+          fetch-depth: 1
           path: candidate
       - name: Reconstruct and verify reviewed bytes, then publish with branch lease
         env:

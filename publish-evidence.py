@@ -9,8 +9,9 @@ def blob(data): return hashlib.sha1(b"blob "+str(len(data)).encode()+b"\0"+data)
 objects={}
 metadata=json.loads(base64.b64decode(next(x["content"] for x in entries if x["path"].endswith("original-artifacts.json"))))
 for e in metadata:
- req=urllib.request.Request(e["archive_download_url"],headers={"Authorization":"Bearer "+os.environ["GH_TOKEN"],"Accept":"application/vnd.github+json"})
- with urllib.request.urlopen(req) as response: data=response.read()
+ process=subprocess.run(["curl","--fail","--silent","--show-error","--location","--retry","3","--header","Authorization: Bearer "+os.environ["GH_TOKEN"],"--header","Accept: application/vnd.github+json",e["archive_download_url"]],stdout=subprocess.PIPE)
+ assert process.returncode==0, ("artifact download failed",e["id"])
+ data=process.stdout
  assert len(data)==e["size_in_bytes"]
  assert "sha256:"+hashlib.sha256(data).hexdigest()==e["digest"]
  with zipfile.ZipFile(io.BytesIO(data)) as z:
