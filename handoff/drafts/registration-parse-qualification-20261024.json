@@ -1,0 +1,39 @@
+{
+  "status": "UNQUALIFIED controller draft; not installed as active workflow",
+  "baseline_ref": "bb518236c741497d657b8b5bac19838b3ce1a4f0",
+  "product_test_candidate_ref": "d4fa64d22385d1aa4bacf3645f889c00ff61edb7",
+  "overlay_ref": "3ed9cf1fd51cc1910d1d2a96fb4eb87784bb822c",
+  "candidate_in_template": "REPLACE_WITH_REVIEWED_40_HEX_SHA",
+  "archive": {
+    "path": "registration-parse-qualification-20261024.zip",
+    "bytes": 6331,
+    "sha256": "6ea4302cb741851f1a787e688bffd92f31be8b64d9dcfded57e91d1d5c45fb28"
+  },
+  "files": [
+    {
+      "path": ".github/workflows/restore-proof-preflight.yml",
+      "bytes": 3321,
+      "sha256": "4fccb49a903c5391290c63f202f50170d9e471f55946106bbf1116cb52e0bcdc",
+      "git_blob": "186585ffcc31cde99083b7b3c65c1142184d7375"
+    },
+    {
+      "path": "tools/testing/Invoke-RegistrationParseQualification.ps1",
+      "bytes": 12580,
+      "sha256": "d9d28ba78799771c827b72626c59d000b2c3e0ec963a992d1385087941f60c98",
+      "git_blob": "7ccb84d38601dfbb66476320d929b04492a69d20"
+    }
+  ],
+  "checks": [
+    "YAML parse",
+    "git diff --check",
+    "ZIP CRC",
+    "all archive members byte-identical to draft sources"
+  ],
+  "not_run": [
+    "PowerShell",
+    "Godot import",
+    "focused tests",
+    "native baseline/candidate comparison"
+  ],
+  "known_followup": "Bound editor import child before cloud launch; review complete controller."
+}
