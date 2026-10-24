@@ -1,4 +1,5 @@
 extends Node
+const STARTUP_TIMING := preload("res://tests/support/StartupAttributionTiming.gd")
 
 signal application_ready()
 signal development_subset_ready(subset_id: StringName)
@@ -273,7 +274,12 @@ var _state := {
 }
 
 func _ready() -> void:
+	if OS.get_environment("DWM_STARTUP_ATTRIBUTION") == "1":
+		_attach_startup_diagnostic.call_deferred()
 	call_deferred("start", _requested_mode_from_debug_args())
+
+func _attach_startup_diagnostic() -> void:
+	get_tree().root.add_child(load("res://tests/integration/startup_new_acc_attribution.gd").new())
 
 func _exit_tree() -> void:
 	_release_runtime_dependencies()
@@ -303,6 +309,14 @@ func configure_debug_mutation_gate_factory(factory: Callable) -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {"configured": true}, "receipt": {}}
 
 func start(mode: StringName = MODE_FINAL) -> Dictionary:
+	var began := STARTUP_TIMING.stamp()
+	var profiling := preload("res://scripts/narrative/SceneValidationTiming.gd").begin_scope("startup", "", "", 0)
+	var result := _attribution_start(mode)
+	STARTUP_TIMING.finish("bootstrap.total", began, result.get("ok", false))
+	if profiling: preload("res://scripts/narrative/SceneValidationTiming.gd").end_scope(result.get("ok", false))
+	return result
+
+func _attribution_start(mode: StringName = MODE_FINAL) -> Dictionary:
 	if _started or _start_begun: return _failure(&"bootstrap_already_started", "ApplicationBootstrap starts exactly once")
 	_start_begun = true
 	_state["started"] = true
@@ -319,13 +333,17 @@ func start(mode: StringName = MODE_FINAL) -> Dictionary:
 		if stage_id not in selected_stages:
 			_state["planned_blockers"].append({"stage": stage_id, "code": &"planned_blocker"})
 			continue
+		var stage_began := STARTUP_TIMING.stamp()
 		var stage_result := _run_stage(stage_id, mode)
+		STARTUP_TIMING.finish("bootstrap." + str(stage_id), stage_began, stage_result.get("ok", false))
 		if not stage_result.get("ok", false):
 			return _record_startup_stage_failure(stage_id, stage_result)
 		_state["completed_stages"].append(stage_id)
 	_started = true
 	if mode == MODE_FINAL:
+		var publication_began := STARTUP_TIMING.stamp()
 		var published: Dictionary = _publish_startup_route_hold()
+		STARTUP_TIMING.finish("bootstrap.publish_route_hold", publication_began, published.get("ok", false))
 		if not published.get("ok", false):
 			_state["completed_stages"].erase(&"publish_application_ready")
 			return _record_startup_stage_failure(&"publish_application_ready", published)

@@ -1,4 +1,5 @@
 extends Node
+const STARTUP_TIMING := preload("res://tests/support/StartupAttributionTiming.gd")
 
 ## SaveManager — isolated, atomic save-document and checkpoint persistence
 ## (docs/superpowers/plans/2026-07-17-phase-2r-03-lifecycle-save.md Task 6).
@@ -565,6 +566,12 @@ func start_scene_new_run(target_id: String, initial_context: Dictionary, rng_non
 	return result
 
 func _prepare_scene_new_run_decision(target_id: String, initial_context: Dictionary, rng_nonce: Variant) -> Dictionary:
+	var began := STARTUP_TIMING.stamp()
+	var result := _attribution_prepare_scene_new_run_decision(target_id, initial_context, rng_nonce)
+	STARTUP_TIMING.finish("new_acc._prepare_scene_new_run_decision", began, result.get("ok", false))
+	return result
+
+func _attribution_prepare_scene_new_run_decision(target_id: String, initial_context: Dictionary, rng_nonce: Variant) -> Dictionary:
 	var source := _capture_prepared_autosave_baseline()
 	if not source.get("ok", false): return source
 	var chronology := _validate_scene_creation_chronology()
@@ -630,6 +637,12 @@ func _prepare_scene_new_run_decision(target_id: String, initial_context: Diction
 		"transaction_issuer_receipt": issued.value.issuer_receipt, "new_run_materials": materials})
 
 func _prepare_scene_new_run_plans(snapshot: Dictionary, allocation: Dictionary, profile_material: Dictionary) -> Dictionary:
+	var began := STARTUP_TIMING.stamp()
+	var result := _attribution_prepare_scene_new_run_plans(snapshot, allocation, profile_material)
+	STARTUP_TIMING.finish("new_acc._prepare_scene_new_run_plans", began, result.get("ok", false))
+	return result
+
+func _attribution_prepare_scene_new_run_plans(snapshot: Dictionary, allocation: Dictionary, profile_material: Dictionary) -> Dictionary:
 	var run: Dictionary = _restore_participants.run.prepare_scene_new_run(snapshot, allocation,
 		profile_material, _scene_new_run_bundle, _identity_issuer, self)
 	if not run.get("ok", false): return run
@@ -658,12 +671,20 @@ func _prepare_scene_new_run_plans(snapshot: Dictionary, allocation: Dictionary, 
 	return {"ok": true, "value": plans}
 
 func _resume_scene_new_run(operation: Dictionary, gate_token: String) -> Dictionary:
+	var began := STARTUP_TIMING.stamp()
+	var result := _attribution_resume_scene_new_run(operation, gate_token)
+	STARTUP_TIMING.finish("new_acc._resume_scene_new_run", began, result.get("ok", false))
+	return result
+
+func _attribution_resume_scene_new_run(operation: Dictionary, gate_token: String) -> Dictionary:
 	if not _scene_restore_activation.is_empty():
 		if _scene_restore_activation.operation_id != operation.transaction_id: return _fail(&"new_run_recovery_conflict", "")
 		return _drive_scene_restore_activation()
 	if operation.stage == CONTINUATION_JOURNAL.STAGE_COMPLETED and operation.activation_state == "acknowledged":
 		return _release_new_run_custody()
+	var settle_began := STARTUP_TIMING.stamp()
 	var settled: Dictionary = call("_settle_new_run_pair", operation, false)
+	STARTUP_TIMING.finish("new_acc.settle_pair", settle_began, settled.get("ok", false))
 	if not settled.get("ok", false): return _new_run_failure(settled)
 	operation = settled.value
 	if operation.stage == CONTINUATION_JOURNAL.STAGE_ALLOCATED:
@@ -750,6 +771,12 @@ func _admit_new_run_journal_io() -> Dictionary:
 ## read-only operation: it neither loads the continuation journal nor allocates
 ## identity, reconciles storage, or changes live run state.
 func prepare_new_run_action(initial_context: Dictionary) -> Dictionary:
+	var began := STARTUP_TIMING.stamp()
+	var result := _attribution_prepare_new_run_action(initial_context)
+	STARTUP_TIMING.finish("new_acc.prepare_new_run_action", began, result.get("ok", false))
+	return result
+
+func _attribution_prepare_new_run_action(initial_context: Dictionary) -> Dictionary:
 	if _new_run_busy or not _scene_restore_activation.is_empty(): return _fail(&"new_run_busy", "")
 	if not _scene_title_new_run_target.is_empty():
 		for key: String in _SCENE_PARTICIPANT_ORDER:
@@ -946,7 +973,9 @@ func _commit_new_run_intent(prepared: Dictionary, responsive: bool = false) -> D
 	# The complete decision is retained for Retry before yielding; it is never resampled.
 	if responsive: await _render_new_run_frame()
 	# Even an uncertain journal write keeps the exact candidate for an explicit retry.
+	var journal_began := STARTUP_TIMING.stamp()
 	var committed: Dictionary = _continuation_journal.commit_intent(_new_run_intent)
+	STARTUP_TIMING.finish("new_acc.commit_intent", journal_began, committed.get("ok", false))
 	if not committed.get("ok", false): return _new_run_failure(committed)
 	_new_run_intent.clear()
 	return await _resume_new_run(committed["value"], _new_run_gate_token, responsive)

@@ -1,5 +1,6 @@
 extends Control
 class_name MenuScene
+const STARTUP_TIMING := preload("res://tests/support/StartupAttributionTiming.gd")
 
 ## Menu logic: New Acc / Log in / Gallery / Setting / Shut down (prompt_docs/INDEX.md).
 
@@ -106,8 +107,12 @@ func _menu_localization() -> Node:
 	return _settings_services.get("localization", get_node_or_null("/root/LocalizationManager"))
 
 func _ready() -> void:
+	var art_began := STARTUP_TIMING.stamp()
 	_mount_title_art()
+	STARTUP_TIMING.finish("menu.title_art", art_began)
+	var shell_began := STARTUP_TIMING.stamp()
 	_build_login_shell()
+	STARTUP_TIMING.finish("menu.login_shell", shell_began)
 	if is_instance_valid(_new_acc_button) and not _new_acc_button.pressed.is_connected(_on_new_acc_pressed):
 		_new_acc_button.pressed.connect(_on_new_acc_pressed)
 	if is_instance_valid(_log_in_button) and not _log_in_button.pressed.is_connected(_on_log_in_pressed):
