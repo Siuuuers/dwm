@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="GutTests" failures="0" tests="3" >
+  <testsuite name="tests/integration/test_cold_run_rollback.gd" tests="3" failures="0" skipped="0" time="0.284476" >
+      <testcase name="test_cold_compensation_restores_exact_baseline_and_allows_retry" assertions="15" status="pass" classname="tests/integration/test_cold_run_rollback.gd" time="0.008601" >
+      </testcase>
+      <testcase name="test_cold_backup_cannot_bypass_installed_or_session_validation" assertions="8" status="pass" classname="tests/integration/test_cold_run_rollback.gd" time="0.011754" >
+      </testcase>
+      <testcase name="test_scene_install_compensation_preserves_cold_state_and_configured_owners" assertions="18" status="pass" classname="tests/integration/test_cold_run_rollback.gd" time="0.264121" >
+      </testcase>
+  </testsuite>
+</testsuites>

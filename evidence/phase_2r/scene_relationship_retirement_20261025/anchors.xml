@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="GutTests" failures="0" tests="14" >
+  <testsuite name="tests/integration/test_scene_saved_event_anchor.gd" tests="14" failures="0" skipped="0" time="0.896987" >
+      <testcase name="test_real_issuer_profile_reading_and_storage_pass_full_run_and_save_apis" assertions="7" status="pass" classname="tests/integration/test_scene_saved_event_anchor.gd" time="0.051456" >
+      </testcase>
+      <testcase name="test_selected_receipt_projection_is_owned_frozen_and_matches_fresh_validation" assertions="17" status="pass" classname="tests/integration/test_scene_saved_event_anchor.gd" time="0.032962" >
+      </testcase>
+      <testcase name="test_selected_receipt_refusal_order_keeps_input_and_issuer_checks" assertions="2" status="pass" classname="tests/integration/test_scene_saved_event_anchor.gd" time="0.000364" >
+      </testcase>
+      <testcase name="test_one_run_reading_admission_and_custom_bridge_fallback" assertions="11" status="pass" classname="tests/integration/test_scene_saved_event_anchor.gd" time="0.050028" >
+      </testcase>
+      <testcase name="test_run9_candidate_detaches_receipts_and_reading_from_caller" assertions="12" status="pass" classname="tests/integration/test_scene_saved_event_anchor.gd" time="0.126524" >
+      </testcase>
+      <testcase name="test_rebuilt_authenticated_absent_publication_fails_full_run_and_save_anchor_join" assertions="15" status="pass" classname="tests/integration/test_scene_saved_event_anchor.gd" time="0.091751" >
+      </testcase>
+      <testcase name="test_frozen_commands_are_authenticated_detached_and_rechecked_on_next_call" assertions="11" status="pass" classname="tests/integration/test_scene_saved_event_anchor.gd" time="0.061793" >
+      </testcase>
+      <testcase name="test_semantic_owner_does_not_reuse_another_issuers_frozen_proof" assertions="5" status="pass" classname="tests/integration/test_scene_saved_event_anchor.gd" time="0.023154" >
+      </testcase>
+      <testcase name="test_custom_semantic_authority_cannot_bypass_receipt_authentication" assertions="12" status="pass" classname="tests/integration/test_scene_saved_event_anchor.gd" time="0.086578" >
+      </testcase>
+      <testcase name="test_rebuilt_authenticated_wrong_catalogue_fails_full_run_and_save_anchor_join" assertions="15" status="pass" classname="tests/integration/test_scene_saved_event_anchor.gd" time="0.09477" >
+      </testcase>
+      <testcase name="test_other_occurrence_anchor_is_refused_by_authenticated_source_binding" assertions="7" status="pass" classname="tests/integration/test_scene_saved_event_anchor.gd" time="0.02824" >
+      </testcase>
+      <testcase name="test_warm_scene_splice_preserves_history_and_admits_exact_document_proofs" assertions="25" status="pass" classname="tests/integration/test_scene_saved_event_anchor.gd" time="0.157747" >
+      </testcase>
+      <testcase name="test_scene_splice_still_refuses_missing_or_substituted_history_proofs" assertions="14" status="pass" classname="tests/integration/test_scene_saved_event_anchor.gd" time="0.090515" >
+      </testcase>
+      <testcase name="test_legacy_splice_normalization_keeps_empty_history_shortcut_and_cold_path" assertions="8" status="pass" classname="tests/integration/test_scene_saved_event_anchor.gd" time="0.001105" >
+      </testcase>
+  </testsuite>
+</testsuites>

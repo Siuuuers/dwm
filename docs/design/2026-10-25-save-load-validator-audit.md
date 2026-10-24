@@ -65,7 +65,12 @@ history, retire the legacy relationship subsystem, or establish a speedup.
 Current-build acceptance must create its input under the changed source.
 The retained terminal archive used by `terminal_admission`,
 `Invoke-FreshSaveLoad.ps1`, and related comparisons contains the previous field
-contract and cannot qualify this candidate unchanged.
+contract and cannot qualify this candidate unchanged. Current CI uses the short,
+explicitly synthetic rendered seven-day terminal fixture with newly created saves.
+The archived startup/Load timing lane is selected only when both compared
+revisions have the archive's gameplay member contract. An incompatible lane is
+not measured and is not a passing performance result. The historical archive
+and its diagnostic commands remain available at the preceding revision.
 
 ## Observable outcome
 
