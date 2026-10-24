@@ -3287,9 +3287,13 @@ func configure_scene_restore_participants(participants: Dictionary) -> Dictionar
 ## committed allocation and its still-physical Profile assignment. Autosave may
 ## legitimately have advanced since creation; its historical target receipt remains.
 func capture_committed_scene_creation(transaction_id: String) -> Dictionary:
+	var probe_clock = preload("res://scripts/narrative/SceneValidationTiming.gd")
+	var probe_started: int = probe_clock.start_sample()
 	if _identity_issuer == null or _new_run_profile_owner == null:
 		return _fail(&"scene_creation_owner_unavailable", "")
 	var found: Dictionary = _continuation_journal.get_creation_operation(transaction_id)
+	probe_clock.finish_sample("probe_creation_journal", probe_started, true)
+	probe_started = probe_clock.start_sample()
 	if not found.get("ok", false): return found
 	var operation: Dictionary = found.value
 	if operation.get("kind") != "scene_new_run" or operation.get("stage") != CONTINUATION_JOURNAL.STAGE_COMPLETED \
@@ -3297,16 +3301,22 @@ func capture_committed_scene_creation(transaction_id: String) -> Dictionary:
 		return _fail(&"scene_creation_not_activated", "durable completed creation and activation required")
 	var materials: Dictionary = operation.new_run_materials
 	var captured: Dictionary = _identity_issuer.capture_root()
+	probe_clock.finish_sample("probe_creation_issuer", probe_started, true)
+	probe_started = probe_clock.start_sample()
 	if not captured.get("ok", false): return captured
 	var root: Dictionary = captured.value
 	if not CANONICAL_JSON._deep_same(root.get("allocation_receipts", {}).get(transaction_id), materials.allocation_candidate):
 		return _fail(&"scene_creation_allocation_unproven", "")
 	var profile: Dictionary = _new_run_profile_owner.prove_scene_assignment(materials.allocation_candidate.run_id,
 		materials.profile.scene_assignment.receipt)
+	probe_clock.finish_sample("probe_creation_profile", probe_started, true)
+	probe_started = probe_clock.start_sample()
 	if not profile.get("ok", false): return profile
 	# The retained canonical initial document fixes the actual first scene. Never
 	# read today's mutable Autosave or require later snapshots to equal this one.
 	var initial: Dictionary = _parse_document_text(materials.autosave.outgoing_text)
+	probe_clock.finish_sample("probe_creation_initial_parse", probe_started, true)
+	probe_started = probe_clock.start_sample()
 	if not initial.get("ok", false): return initial
 	var initial_receipt: Variant = initial.value.current_snapshot.snapshot.command_receipts.get(transaction_id)
 	if not initial_receipt is Dictionary:

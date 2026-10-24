@@ -23,9 +23,9 @@ static func start_sample() -> int:
 
 static func finish_sample(kind: String, started_us: int, ok: bool) -> void:
 	if started_us < 0 or not _active: return
-	_record[kind + "_calls"] += 1
-	_record[kind + "_us"] += Time.get_ticks_usec() - started_us
-	if not ok: _record[kind + "_failures"] += 1
+	_record[kind + "_calls"] = int(_record.get(kind + "_calls", 0)) + 1
+	_record[kind + "_us"] = int(_record.get(kind + "_us", 0)) + Time.get_ticks_usec() - started_us
+	if not ok: _record[kind + "_failures"] = int(_record.get(kind + "_failures", 0)) + 1
 
 ## Snapshot phases are inclusive children of the existing operation scope.
 ## This helper has no dependency on the schema whose calls it observes.

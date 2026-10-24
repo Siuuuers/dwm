@@ -698,6 +698,13 @@ static func _validate_scene_receipts_observed_body(receipts: Dictionary, bundle:
 
 static func _validate_scene_receipts_registered(receipts: Dictionary, bundle: Dictionary, registered: Dictionary, issuer: Object,
 		creation_owner: Object, contacts: Dictionary) -> Dictionary:
+	var probe_started := _VALIDATION_TIMING.start_sample()
+	var probe_result := _validate_scene_receipts_registered_probe_body(receipts, bundle, registered, issuer, creation_owner, contacts)
+	_VALIDATION_TIMING.finish_sample("probe_validate_scene_receipts_registered", probe_started, bool(probe_result.get("ok", false)))
+	return probe_result
+
+static func _validate_scene_receipts_registered_probe_body(receipts: Dictionary, bundle: Dictionary, registered: Dictionary, issuer: Object,
+		creation_owner: Object, contacts: Dictionary) -> Dictionary:
 	var occurrences := {}
 	var commands := {}
 	var admissions := {}
@@ -1074,6 +1081,14 @@ static func _validate_scene_initial_receipt_shape(receipt: Dictionary) -> Dictio
 static func _validate_scene_initial_admission_registered(receipt: Dictionary,
 		allocation_candidate: Dictionary, profile_material: Dictionary,
 		registered: Dictionary, issuer: Object) -> Dictionary:
+	var probe_started := _VALIDATION_TIMING.start_sample()
+	var probe_result := _validate_scene_initial_admission_registered_probe_body(receipt, allocation_candidate, profile_material, registered, issuer)
+	_VALIDATION_TIMING.finish_sample("probe_validate_scene_initial_admission_registered", probe_started, bool(probe_result.get("ok", false)))
+	return probe_result
+
+static func _validate_scene_initial_admission_registered_probe_body(receipt: Dictionary,
+		allocation_candidate: Dictionary, profile_material: Dictionary,
+		registered: Dictionary, issuer: Object) -> Dictionary:
 	var saved: Dictionary = receipt.scene_admission
 	var rebuilt := _prepare_scene_initial_admission_registered(allocation_candidate, profile_material,
 		saved.result.target_id, registered, issuer)
@@ -1085,6 +1100,12 @@ static func _validate_scene_initial_admission_registered(receipt: Dictionary,
 
 
 static func _validate_initial_materials(candidate: Dictionary, profile: Dictionary, issuer: Object) -> Dictionary:
+	var probe_started := _VALIDATION_TIMING.start_sample()
+	var probe_result := _validate_initial_materials_probe_body(candidate, profile, issuer)
+	_VALIDATION_TIMING.finish_sample("probe_validate_initial_materials", probe_started, bool(probe_result.get("ok", false)))
+	return probe_result
+
+static func _validate_initial_materials_probe_body(candidate: Dictionary, profile: Dictionary, issuer: Object) -> Dictionary:
 	if issuer == null or issuer.get_script() != SCENE_RECEIPT_ISSUER:
 		return _fail(&"scene_receipt_issuer_unbound")
 	if not _json_data(candidate) or not _keys(candidate, ["branch_id", "branch_id_issuer_receipt",
@@ -1134,6 +1155,13 @@ static func _validate_initial_materials(candidate: Dictionary, profile: Dictiona
 
 
 static func _validate_committed_initial_admission(receipt: Dictionary, registered: Dictionary,
+		issuer: Object, creation_owner: Object) -> Dictionary:
+	var probe_started := _VALIDATION_TIMING.start_sample()
+	var probe_result := _validate_committed_initial_admission_probe_body(receipt, registered, issuer, creation_owner)
+	_VALIDATION_TIMING.finish_sample("probe_validate_committed_initial_admission", probe_started, bool(probe_result.get("ok", false)))
+	return probe_result
+
+static func _validate_committed_initial_admission_probe_body(receipt: Dictionary, registered: Dictionary,
 		issuer: Object, creation_owner: Object) -> Dictionary:
 	# Caller-supplied dictionaries/callbacks cannot assert durable creation authority.
 	if creation_owner == null or creation_owner.get_script() != load("res://autoload/SaveManager.gd"):
