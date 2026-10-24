@@ -12,6 +12,7 @@ var max_frame_gap_us := 0
 var previous_frame_us := 0
 var profiling := false
 var observation: Dictionary = {}
+var compiler_attribution: Dictionary = {}
 var input_records: Array[Dictionary] = []
 
 func _ready() -> void:
@@ -114,6 +115,10 @@ func _run() -> void:
 	await RenderingServer.frame_post_draw
 	_mark("title_drawn_usable")
 	if not _check(_capture("title"), "Title screenshot failed"): return
+	if OS.get_environment("DWM_STARTUP_ONLY") == "1":
+		compiler_attribution = load("res://scripts/narrative/DialogicRuntimeAdapter.gd")._scene_compile_attribution.duplicate(true)
+		_finish(true)
+		return
 	var saves: Node = tree.root.get_node("SaveManager")
 	var bridge: Node = tree.root.get_node("DialogicBridge")
 	var game: Node = tree.root.get_node("GameState")
@@ -193,6 +198,11 @@ func _finish(ok: bool) -> void:
 		"engine": Engine.get_version_info(), "rendering": rendering, "preferences": preferences,
 		"user_path": ProjectSettings.globalize_path("user://"), "argv": OS.get_cmdline_args(),
 		"scope": "Instrumented native project launch; inclusive phases overlap. Natural default text reveal. Consent screenshot/pointer-preparation dwell separate. Native pointer focus/warp precedes timed action input. Two same-runner processes; fresh means empty user profile, not cold OS disk cache. No performance acceptance threshold or user-device claim."}
+	if OS.get_environment("DWM_STARTUP_ONLY") == "1":
+		report["startup_only"] = true
+		report["compiler_attribution"] = compiler_attribution
+		report["scope"] = "Compiler attribution through native rendered Title only. One empty-profile process; no New Acc input or action-latency evidence. Current instrumented source, not an identified installed Steam build. Inclusive timing phases overlap; empty profile does not imply cold OS cache."
+		for key: String in ["observation", "inputs", "max_new_acc_frame_gap_us"]: report.erase(key)
 	var output := FileAccess.open(folder.path_join("results.json"), FileAccess.WRITE)
 	if output != null:
 		output.store_string(JSON.stringify(report, "\t") + "\n")

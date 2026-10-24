@@ -1,8 +1,8 @@
-name: Startup and New Acc attribution
+name: Startup compiler attribution
 on:
   workflow_dispatch:
   push:
-    branches: [codex/startup-newacc-attribution-20261024]
+    branches: [codex/compiler-attribution-20261024]
 permissions:
   contents: read
 concurrency:
@@ -69,14 +69,14 @@ jobs:
           # Execute the committed configuration with the freshly imported assets.
           git restore -- project.godot
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Attribute fresh and retained-profile startup and New Acc
+      - name: Attribute compiler work through fresh-profile Title
         timeout-minutes: 22
         run: ./tools/testing/Invoke-StartupNewAccAttribution.ps1
       - name: Preserve preflight evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: startup-newacc-attribution-${{ github.run_id }}-${{ github.run_attempt }}
+          name: compiler-attribution-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             .godot/ci/
             .godot/phase2r_logs/

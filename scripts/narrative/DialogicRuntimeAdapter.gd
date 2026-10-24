@@ -511,29 +511,65 @@ static func compile_scene_programme(path: String, entry_label: String,
 # Translation-enabled Dialogic can change independently of source bytes; never cache that mode.
 static var _scene_compile_cache: Dictionary = {}
 
+# Diagnostic-only aggregate; never a compilation proof or a persisted cache.
+# The controller captures snapshots. Completed intervals are not validation proofs.
+static var _scene_compile_attribution: Dictionary = {}
+
+static func _scene_compile_attribution_start() -> int:
+	if OS.get_environment("DWM_STARTUP_ATTRIBUTION") != "1": return -1
+	if _scene_compile_attribution.is_empty():
+		_scene_compile_attribution = {"requests": 0, "path_calls": {}, "phases": {},
+			"result_cache_hits": 0, "result_cache_misses": 0, "translation_uncached_calls": 0,
+			"native_events_parsed": 0, "selected_events_projected": 0,
+			"scope": "Cumulative diagnostic counts. Normally completed intervals only, not validation success; early-return/interrupted intervals are omitted. Compile totals include these phases and instrumentation overhead; do not add them to compilation totals."}
+	return Time.get_ticks_usec()
+
+static func _scene_compile_attribution_finish(phase: String, began: int) -> void:
+	if began < 0: return
+	var elapsed := Time.get_ticks_usec() - began
+	var phases: Dictionary = _scene_compile_attribution.phases
+	if not phases.has(phase): phases[phase] = {"calls": 0, "elapsed_us": 0}
+	phases[phase].calls += 1
+	phases[phase].elapsed_us += elapsed
+
 static func _compile_scene_programme_observed_body(path: String, entry_label: String,
 		callable_labels: Array, markers: Array = []) -> Dictionary:
+	var attribution_began := _scene_compile_attribution_start()
+	if attribution_began >= 0:
+		_scene_compile_attribution.requests += 1
+		var paths: Dictionary = _scene_compile_attribution.path_calls
+		paths[path] = int(paths.get(path, 0)) + 1
 	if not path.begins_with("res://") or not ResourceLoader.exists(path) or entry_label not in callable_labels:
 		return {"ok": false, "code": &"scene_programme_unavailable"}
+	var read_began := _scene_compile_attribution_start()
 	var source := FileAccess.open(path, FileAccess.READ)
 	if source == null: return {"ok": false, "code": &"scene_programme_unavailable"}
 	var bytes := source.get_buffer(source.get_length())
 	source.close()
+	_scene_compile_attribution_finish("physical_read", read_began)
+	var arguments_began := _scene_compile_attribution_start()
 	var arguments := SCENE_JSON.stringify([entry_label, callable_labels, markers])
 	if not arguments.ok: return arguments
+	_scene_compile_attribution_finish("argument_encoding", arguments_began)
 	var cacheable: bool = not ProjectSettings.get_setting("dialogic/translation/enabled", false)
 	var cached: Dictionary = _scene_compile_cache.get(path, {})
 	if cached.is_empty() or cached.bytes != bytes:
 		# Entries can share one DTL. Check its loader once per physical revision;
 		# retaining the loaded resource would also retain mutable playback events.
+		var loader_began := _scene_compile_attribution_start()
 		var resource := load(path)
 		if not resource is DialogicTimeline:
 			return {"ok": false, "code": &"scene_programme_unavailable"}
+		_scene_compile_attribution_finish("loader_type_check", loader_began)
 		cached = {"bytes": bytes, "results": {}}
 		_scene_compile_cache[path] = cached
 	var key: String = arguments.value
 	if cacheable and cached.results.has(key):
+		if attribution_began >= 0: _scene_compile_attribution.result_cache_hits += 1
 		return cached.results[key].duplicate(true)
+	if attribution_began >= 0:
+		if cacheable: _scene_compile_attribution.result_cache_misses += 1
+		else: _scene_compile_attribution.translation_uncached_calls += 1
 	var result := _compile_scene_programme_source(bytes.get_string_from_utf8(), entry_label, callable_labels, markers)
 	if cacheable and result.get("ok", false):
 		if cached.results.size() >= 256: cached.results.clear()
@@ -542,9 +578,15 @@ static func _compile_scene_programme_observed_body(path: String, entry_label: St
 
 static func _compile_scene_programme_source(text: String, entry_label: String,
 		callable_labels: Array, markers: Array) -> Dictionary:
+	var from_text_began := _scene_compile_attribution_start()
 	var timeline := DialogicTimeline.new()
 	timeline.from_text(text)
+	_scene_compile_attribution_finish("timeline_create_from_text", from_text_began)
+	var process_began := _scene_compile_attribution_start()
 	timeline.process()
+	_scene_compile_attribution_finish("timeline_process", process_began)
+	if process_began >= 0: _scene_compile_attribution.native_events_parsed += timeline.events.size()
+	var projection_began := _scene_compile_attribution_start()
 	var selected := false
 	var found := 0
 	var events: Array = []
@@ -628,11 +670,16 @@ static func _compile_scene_programme_source(text: String, entry_label: String,
 				if visited.has(cursor): return {"ok": false, "code": &"scene_control_cycle"}
 				visited[cursor] = true
 				cursor = int(nodes[cursor].next)
+	_scene_compile_attribution_finish("entry_projection_and_graph", projection_began)
+	if projection_began >= 0: _scene_compile_attribution.selected_events_projected += events.size()
+	var encoding_began := _scene_compile_attribution_start()
 	var encoded := SCENE_JSON.stringify(events)
 	if not encoded.ok: return encoded
-	return {"ok": true, "value": {"events": events, "nodes": nodes, "label_nodes": label_nodes,
+	var result := {"ok": true, "value": {"events": events, "nodes": nodes, "label_nodes": label_nodes,
 		"native_indices": native_indices, "content_sha256": text.sha256_text(),
 		"program_sha256": str(encoded.value).sha256_text()}}
+	_scene_compile_attribution_finish("programme_encoding_and_hash", encoding_began)
+	return result
 const CLEAR_KEEP_TEXT := 4
 const REQUIRED_METHODS := ["start", "start_timeline", "end_timeline", "handle_next_event", "handle_event", "clear", "has_subsystem", "get_subsystem"]
 const REQUIRED_SIGNALS := ["timeline_started", "timeline_ended", "event_handled", "signal_event"]
