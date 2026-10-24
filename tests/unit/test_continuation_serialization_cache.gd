@@ -2,12 +2,25 @@ extends GutTest
 ## The cache must emit exactly the canonical whole document while encoding only changed operations.
 const JOURNAL := preload("res://scripts/infrastructure/save/DesktopContinuationOperationJournal.gd")
 const WRITER := preload("res://scripts/validation/CanonicalJsonWriter.gd")
+const STORAGE := preload("res://scripts/infrastructure/storage/JsonFileStorage.gd")
+const FILE_OPS := preload("res://tests/support/FakeFileOps.gd")
 
 class CountingJournal extends "res://scripts/infrastructure/save/DesktopContinuationOperationJournal.gd":
 	var encodes := 0
+	var strict_parses := 0
 	func _serialize_operation(operation: Dictionary) -> Dictionary:
 		encodes += 1
 		return super._serialize_operation(operation)
+	func _parse_document(text: String) -> Dictionary:
+		if not _validated_text_documents.has(text): strict_parses += 1
+		return super._parse_document(text)
+
+class ThreeTextJournal extends CountingJournal:
+	# Historical control: same storage callbacks and parser, with only the old bound restored.
+	func _remember_validated_text(text: String, document: Dictionary) -> void:
+		super._remember_validated_text(text, document)
+		while _validated_text_order.size() > 3:
+			_validated_text_documents.erase(_validated_text_order.pop_front())
 
 func _document() -> Dictionary:
 	return {"schema_version": JOURNAL.SCHEMA_VERSION, "operations": {
@@ -108,10 +121,45 @@ func test_strict_cold_parse_is_reused_without_aliasing_or_relaxing_schema() -> v
 
 func test_parse_proof_lru_keeps_active_outgoing_current_and_backup_texts() -> void:
 	var journal := CountingJournal.new()
-	for text: String in ['{"a":1}', '{"b":2}', '{"c":3}']:
+	for text: String in ['{"a":1}', '{"b":2}', '{"c":3}', '{"d":4}']:
 		assert_true(journal._parse_document(text).ok)
 	journal._parse_known_document('{"a":1}')
-	journal._parse_document('{"d":4}')
-	assert_eq(journal._validated_text_documents.size(), 3)
+	journal._parse_document('{"e":5}')
+	assert_eq(journal._validated_text_documents.size(), 4)
 	assert_true(journal._validated_text_documents.has('{"a":1}'), "storage read refreshed the active proof")
 	assert_false(journal._validated_text_documents.has('{"b":2}'), "least recently used proof was evicted")
+
+func test_repeated_atomic_writes_keep_next_backup_proof_without_skipping_cold_parsing() -> void:
+	_assert_atomic_write_sequence(ThreeTextJournal.new(), 9)
+	_assert_atomic_write_sequence(CountingJournal.new(), 0)
+
+func _assert_atomic_write_sequence(journal: CountingJournal, expected_strict_parses: int) -> void:
+	var files := FILE_OPS.new()
+	var root := "continuation-cache-fixture"
+	var storage := STORAGE.new(root, files)
+	var loader := RefCounted.new()
+	assert_true(journal.configure(storage, loader).ok)
+	var final_path := root.path_join(JOURNAL.JOURNAL_PATH)
+	var previous_text := ""
+	var document := _document()
+	# Serialization fixtures exercise the real atomic adapter; they are not scene-admission proof.
+	for generation: int in range(12):
+		document.operations.new.receipt.amount = generation
+		var expected: String = WRITER.stringify(document).value
+		var written: Dictionary = journal._write(document, "new")
+		assert_true(written.get("ok", false), str(written))
+		if not written.get("ok", false): return
+		var persisted: Dictionary = files.snapshot_persisted()
+		assert_eq(persisted[final_path], expected.to_utf8_buffer())
+		if generation > 0:
+			assert_eq(persisted[final_path + ".bak"], previous_text.to_utf8_buffer())
+		assert_true(journal._validated_text_documents.size() <= 4, "proof window stays bounded")
+		previous_text = expected
+	assert_eq(journal.strict_parses, expected_strict_parses,
+		"the old three-text window reparses nine backups; the fourth slot retains them")
+	var cold := CountingJournal.new()
+	var restarted := STORAGE.new(root, files)
+	var reconciled: Dictionary = restarted.reconcile(JOURNAL.JOURNAL_PATH, Callable(cold, "_parse_document"))
+	assert_true(reconciled.get("ok", false), str(reconciled))
+	assert_eq(cold.strict_parses, 2, "a fresh journal strictly parses physical final and backup")
+	assert_eq(reconciled.get("value"), document)
