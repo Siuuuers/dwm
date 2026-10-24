@@ -1,5 +1,19 @@
 # Unshipped development-save policy — 29 September 2026
 
+## Synchronous snapshot validation clarification — 25 October 2026
+
+Run9 normalization already creates a detached snapshot, and installed story
+registration returns a detached bundle. Production semantic validation reads these
+synchronously. It does not yield, publish gameplay state, or advance playback.
+Repeated copies and before/after hashes solely to detect an injected callback
+mutating these inputs are not supported gameplay requirements.
+
+Keep the ordinary pre-call checks for registration, shape, receipts, current
+physical Profile proof, historical frames, and native anchors. Keep returned
+snapshots detached from caller inputs. Review this boundary if production semantic
+validation introduces mutation, asynchronous work, or gameplay publication.
+This clarification does not authorize removing semantic validation itself.
+
 ## Terminal validation clarification — 25 October 2026
 
 Current supported gameplay does not require two complete ledger traversals inside
