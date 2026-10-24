@@ -1,0 +1,396 @@
+{
+  "status": "qualified_for_merge",
+  "pr": 79,
+  "baseline_ref": "1cf751ffebd8336b53732c56ef7488873e3ab2a8",
+  "runtime_and_tests_ref": "b8383c64941eb58ed55195531510f565af41d65a",
+  "final_source_and_inventories_ref": "3e4162ae5be27c7d997a48c0adaea543a7a8f8c9",
+  "qualification_run": 40100173179,
+  "qualification_controller": "261559ec5548ef93253b88b4f65286f8103be0a3",
+  "inventory_check_run": 40100495757,
+  "inventory_controller": "c0511c0c07655da8a2cda2ed2dca7ee5bc19d63e",
+  "engine_version": "Godot 4.6.3 standard Windows",
+  "engine_sha256": "63b3b2208819714c9677fbfdd8217c5b7dee8ecf5f383502e826bc9e2227ff5a",
+  "regression_tests": {
+    "cases": 81,
+    "assertions": 1095,
+    "suite_processes": 10,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0
+  },
+  "native_comparisons": {
+    "current_case_executions": 8,
+    "assertions": 852,
+    "process_exits_zero": 12,
+    "screenshots_reviewed": 12
+  },
+  "comparisons": {
+    "baseline-first": {
+      "order": [
+        "baseline",
+        "candidate"
+      ],
+      "measurement_sha256": {
+        "tools/testing/Invoke-IsolatedGodot.ps1": "1fe67f2db677fb869ee82126834a83d519b77888328a690ec55bbb3fbda7fa5f",
+        "tests/integration/authored_week_child.gd": "e509c60688afccc407bd920120169bd50edbaffbe48747674362284a09e77e38",
+        "tools/testing/Invoke-FreshSaveLoad.ps1": "9b95c418b3d475876e91516e0893a2d70f4f85040fb1b2862b97aa09b37bc0e6",
+        "tests/integration/fresh_save_load_child.gd": "4b43bad936ad8ac66f4e015e183c8e3c2d8374d2798e49dd85eb79ddb4b145aa",
+        "evidence/phase_2r/current_ci_20261023/final_retention/run39988834004/original-12517208437.zip": "c49053565e4b9430f2e9f0157eea9c1602898156de13df2837ca714235279670"
+      },
+      "variants": {
+        "baseline": {
+          "source_ref": "1cf751ffebd8336b53732c56ef7488873e3ab2a8",
+          "runtime_sha256": {
+            "scripts/domain/run/RunSnapshotSchema.gd": "63174a9666c42ebd92879d23c19afd8486270358514af5e3b667d67fc3952bd5",
+            "autoload/GameState.gd": "a7122b8cbb258ce10b02550414af5934f6662bc4c7ea2c807f298b2452844c03"
+          },
+          "fresh_load_ready_us": 44191023,
+          "retained_load_ready_us": 70839878,
+          "save_press_return_us": 38218446,
+          "fresh_load_phases": [
+            {
+              "elapsed_us": 56487900,
+              "ok": true,
+              "phase": "boot"
+            },
+            {
+              "elapsed_us": 47987821,
+              "ok": true,
+              "phase": "load"
+            }
+          ],
+          "write_phases": [
+            {
+              "elapsed_us": 41883573,
+              "ok": true,
+              "phase": "boot"
+            },
+            {
+              "elapsed_us": 74302898,
+              "ok": true,
+              "phase": "load"
+            },
+            {
+              "elapsed_us": 45881281,
+              "ok": true,
+              "phase": "save"
+            }
+          ],
+          "assertions": {
+            "load": 101,
+            "write": 112
+          },
+          "fresh_slot_sha256": "b8916d3b663ebdb3eebe01799d70f802adf8581e07b3771245ea88121f1684ee",
+          "fresh_slot_bytes": 448631,
+          "writer_pid": 2992,
+          "reader_pid": 6156,
+          "profile_sha256": "40a3166a287790295a5270a42934337fc7bdd5f63c759d193d0d555c89c71f43",
+          "caption": "At the rear doors of the building, the evening rain falls straight down through the courtyard lamp light.",
+          "caption_line_id": "line.ending.alone.normal.001",
+          "visible_ratio": 1.0,
+          "event_done": true,
+          "revealing": false,
+          "fresh_load_validation": {
+            "snapshots": 8,
+            "snapshot_us": 28284614,
+            "pre_semantic_us": 15966960,
+            "semantic_us": 9871339,
+            "receipt_calls": 42,
+            "physical_proof_calls": 42,
+            "inclusive_nested": true
+          }
+        },
+        "candidate": {
+          "source_ref": "b8383c64941eb58ed55195531510f565af41d65a",
+          "runtime_sha256": {
+            "scripts/domain/run/RunSnapshotSchema.gd": "80bf2e33425940df19e5c3684fa774cfe09d88d2ff3ea1d56cb0b627b18a90f7",
+            "autoload/GameState.gd": "fd5f592a1bdbe1f45c758e384d546af28e0b4b1b2d892a911ed3be254fb478dc"
+          },
+          "fresh_load_ready_us": 38093101,
+          "retained_load_ready_us": 63499690,
+          "save_press_return_us": 30518586,
+          "fresh_load_phases": [
+            {
+              "elapsed_us": 54984547,
+              "ok": true,
+              "phase": "boot"
+            },
+            {
+              "elapsed_us": 41919280,
+              "ok": true,
+              "phase": "load"
+            }
+          ],
+          "write_phases": [
+            {
+              "elapsed_us": 40573584,
+              "ok": true,
+              "phase": "boot"
+            },
+            {
+              "elapsed_us": 66931377,
+              "ok": true,
+              "phase": "load"
+            },
+            {
+              "elapsed_us": 37224299,
+              "ok": true,
+              "phase": "save"
+            }
+          ],
+          "assertions": {
+            "load": 101,
+            "write": 112
+          },
+          "fresh_slot_sha256": "3d9f51ecd361629b45801bb2d754e839c2bd864f1a1bcc41f96ee42424bef8b6",
+          "fresh_slot_bytes": 448631,
+          "writer_pid": 4036,
+          "reader_pid": 1288,
+          "profile_sha256": "40a3166a287790295a5270a42934337fc7bdd5f63c759d193d0d555c89c71f43",
+          "caption": "At the rear doors of the building, the evening rain falls straight down through the courtyard lamp light.",
+          "caption_line_id": "line.ending.alone.normal.001",
+          "visible_ratio": 1.0,
+          "event_done": true,
+          "revealing": false,
+          "fresh_load_validation": {
+            "snapshots": 8,
+            "snapshot_us": 22226146,
+            "pre_semantic_us": 16732267,
+            "semantic_us": 2951582,
+            "receipt_calls": 26,
+            "physical_proof_calls": 26,
+            "inclusive_nested": true
+          }
+        }
+      },
+      "screenshots": [
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/baseline/computer-authored-restored-slot-3.png",
+          "bytes": 577257,
+          "sha256": "518dc6bccd41ef7ef77da8963cb6ba7216de4b48a2f8f81b892262dd25e4502a"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/baseline/computer-authored-terminal-pair.png",
+          "bytes": 577421,
+          "sha256": "9903526552d99c2b5a0ff91a270ede867ada1628b902c874ede2a4e09811c8ea"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/baseline/computer-authored-restored-slot-2.png",
+          "bytes": 577257,
+          "sha256": "518dc6bccd41ef7ef77da8963cb6ba7216de4b48a2f8f81b892262dd25e4502a"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/candidate/computer-authored-restored-slot-2.png",
+          "bytes": 577257,
+          "sha256": "518dc6bccd41ef7ef77da8963cb6ba7216de4b48a2f8f81b892262dd25e4502a"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/candidate/computer-authored-restored-slot-3.png",
+          "bytes": 577257,
+          "sha256": "518dc6bccd41ef7ef77da8963cb6ba7216de4b48a2f8f81b892262dd25e4502a"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/candidate/computer-authored-terminal-pair.png",
+          "bytes": 577421,
+          "sha256": "9903526552d99c2b5a0ff91a270ede867ada1628b902c874ede2a4e09811c8ea"
+        }
+      ]
+    },
+    "candidate-first": {
+      "order": [
+        "candidate",
+        "baseline"
+      ],
+      "measurement_sha256": {
+        "evidence/phase_2r/current_ci_20261023/final_retention/run39988834004/original-12517208437.zip": "c49053565e4b9430f2e9f0157eea9c1602898156de13df2837ca714235279670",
+        "tools/testing/Invoke-FreshSaveLoad.ps1": "9b95c418b3d475876e91516e0893a2d70f4f85040fb1b2862b97aa09b37bc0e6",
+        "tests/integration/fresh_save_load_child.gd": "4b43bad936ad8ac66f4e015e183c8e3c2d8374d2798e49dd85eb79ddb4b145aa",
+        "tools/testing/Invoke-IsolatedGodot.ps1": "1fe67f2db677fb869ee82126834a83d519b77888328a690ec55bbb3fbda7fa5f",
+        "tests/integration/authored_week_child.gd": "e509c60688afccc407bd920120169bd50edbaffbe48747674362284a09e77e38"
+      },
+      "variants": {
+        "candidate": {
+          "source_ref": "b8383c64941eb58ed55195531510f565af41d65a",
+          "runtime_sha256": {
+            "scripts/domain/run/RunSnapshotSchema.gd": "80bf2e33425940df19e5c3684fa774cfe09d88d2ff3ea1d56cb0b627b18a90f7",
+            "autoload/GameState.gd": "fd5f592a1bdbe1f45c758e384d546af28e0b4b1b2d892a911ed3be254fb478dc"
+          },
+          "fresh_load_ready_us": 32308134,
+          "retained_load_ready_us": 55881137,
+          "save_press_return_us": 26678283,
+          "fresh_load_phases": [
+            {
+              "elapsed_us": 45706762,
+              "ok": true,
+              "phase": "boot"
+            },
+            {
+              "elapsed_us": 35294446,
+              "ok": true,
+              "phase": "load"
+            }
+          ],
+          "write_phases": [
+            {
+              "elapsed_us": 34243757,
+              "ok": true,
+              "phase": "boot"
+            },
+            {
+              "elapsed_us": 58637811,
+              "ok": true,
+              "phase": "load"
+            },
+            {
+              "elapsed_us": 32349808,
+              "ok": true,
+              "phase": "save"
+            }
+          ],
+          "assertions": {
+            "write": 112,
+            "load": 101
+          },
+          "fresh_slot_sha256": "9c37b9b6d38c8564efbb9bf06a3143063274ce4812e1323789dfd57984d9a73b",
+          "fresh_slot_bytes": 448631,
+          "writer_pid": 7236,
+          "reader_pid": 4956,
+          "profile_sha256": "40a3166a287790295a5270a42934337fc7bdd5f63c759d193d0d555c89c71f43",
+          "caption": "At the rear doors of the building, the evening rain falls straight down through the courtyard lamp light.",
+          "caption_line_id": "line.ending.alone.normal.001",
+          "visible_ratio": 1.0,
+          "event_done": true,
+          "revealing": false,
+          "fresh_load_validation": {
+            "snapshots": 8,
+            "snapshot_us": 18525738,
+            "pre_semantic_us": 13853848,
+            "semantic_us": 2547386,
+            "receipt_calls": 26,
+            "physical_proof_calls": 26,
+            "inclusive_nested": true
+          }
+        },
+        "baseline": {
+          "source_ref": "1cf751ffebd8336b53732c56ef7488873e3ab2a8",
+          "runtime_sha256": {
+            "scripts/domain/run/RunSnapshotSchema.gd": "63174a9666c42ebd92879d23c19afd8486270358514af5e3b667d67fc3952bd5",
+            "autoload/GameState.gd": "a7122b8cbb258ce10b02550414af5934f6662bc4c7ea2c807f298b2452844c03"
+          },
+          "fresh_load_ready_us": 35970540,
+          "retained_load_ready_us": 60072225,
+          "save_press_return_us": 31350471,
+          "fresh_load_phases": [
+            {
+              "elapsed_us": 44888289,
+              "ok": true,
+              "phase": "boot"
+            },
+            {
+              "elapsed_us": 38904676,
+              "ok": true,
+              "phase": "load"
+            }
+          ],
+          "write_phases": [
+            {
+              "elapsed_us": 35106970,
+              "ok": true,
+              "phase": "boot"
+            },
+            {
+              "elapsed_us": 62875266,
+              "ok": true,
+              "phase": "load"
+            },
+            {
+              "elapsed_us": 37339476,
+              "ok": true,
+              "phase": "save"
+            }
+          ],
+          "assertions": {
+            "write": 112,
+            "load": 101
+          },
+          "fresh_slot_sha256": "23c4b118b6e20967a6cb75b62be49b3e80fde495a3aa7fcccc35bf0593e12dff",
+          "fresh_slot_bytes": 448631,
+          "writer_pid": 6552,
+          "reader_pid": 7324,
+          "profile_sha256": "40a3166a287790295a5270a42934337fc7bdd5f63c759d193d0d555c89c71f43",
+          "caption": "At the rear doors of the building, the evening rain falls straight down through the courtyard lamp light.",
+          "caption_line_id": "line.ending.alone.normal.001",
+          "visible_ratio": 1.0,
+          "event_done": true,
+          "revealing": false,
+          "fresh_load_validation": {
+            "snapshots": 8,
+            "snapshot_us": 23045734,
+            "pre_semantic_us": 12988414,
+            "semantic_us": 7971354,
+            "receipt_calls": 42,
+            "physical_proof_calls": 42,
+            "inclusive_nested": true
+          }
+        }
+      },
+      "screenshots": [
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/baseline/computer-authored-restored-slot-2.png",
+          "bytes": 577257,
+          "sha256": "518dc6bccd41ef7ef77da8963cb6ba7216de4b48a2f8f81b892262dd25e4502a"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/baseline/computer-authored-restored-slot-3.png",
+          "bytes": 577257,
+          "sha256": "518dc6bccd41ef7ef77da8963cb6ba7216de4b48a2f8f81b892262dd25e4502a"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/baseline/computer-authored-terminal-pair.png",
+          "bytes": 577421,
+          "sha256": "9903526552d99c2b5a0ff91a270ede867ada1628b902c874ede2a4e09811c8ea"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/candidate/computer-authored-restored-slot-2.png",
+          "bytes": 577257,
+          "sha256": "518dc6bccd41ef7ef77da8963cb6ba7216de4b48a2f8f81b892262dd25e4502a"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/candidate/computer-authored-restored-slot-3.png",
+          "bytes": 577257,
+          "sha256": "518dc6bccd41ef7ef77da8963cb6ba7216de4b48a2f8f81b892262dd25e4502a"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/candidate/computer-authored-terminal-pair.png",
+          "bytes": 577421,
+          "sha256": "9903526552d99c2b5a0ff91a270ede867ada1628b902c874ede2a4e09811c8ea"
+        }
+      ]
+    }
+  },
+  "inventory_sha256": {
+    "game_state": "d6e9579b1b280c1222525286b5f839f8a1c106658496ad524404e71d8744f183",
+    "save_manager": "08dc0c802484d9cf22fe1d8044b32c98bb5bc98b57eb373d95b3ce8d669a640f"
+  },
+  "review": {
+    "runtime_owner_and_refusal_audit": "passed",
+    "mutation_test_source_audit": "passed",
+    "regression_evidence_independent_audit": "passed",
+    "both_comparison_evidence_independent_audit": "passed",
+    "visual_review": "All twelve current captures show the complete expected ending caption. Save/Load focus states are expected."
+  },
+  "limits": [
+    "Two ordered pairs are not a latency distribution.",
+    "Fresh user roots do not establish a cold OS cache.",
+    "Windows source-project launches use software rendering, not an installed Steam executable or player GPU.",
+    "Long multi-second pauses remain; this is a bounded improvement, not smooth-play acceptance.",
+    "Nested timing scopes overlap and must not be added.",
+    "Intermediate scene_activation_pending results precede successful final Ready assertions."
+  ],
+  "diagnostics": [
+    "Import ObjectDB leak warnings occur in baseline and candidate.",
+    "Native logs show the recorded OpenGL-to-ANGLE fallback.",
+    "Candidate-first baseline fresh-pair-import.log and import-console.log contain GUT update-check HTTP403; this occurs before the timed native processes."
+  ],
+  "next_investigation": "Attribute duplicate ledger validation inside FrozenRunContext._validate_scene_terminal. Intervening issuer/root callbacks can change physical state without changing owner identities or snapshot hashes. No further reuse is qualified."
+}
