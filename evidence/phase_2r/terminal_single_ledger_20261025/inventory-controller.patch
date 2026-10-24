@@ -1,0 +1,44 @@
+diff --git a/.github/workflows/load-qualification.yml b/.github/workflows/load-qualification.yml
+index e1e4a216..4b54724f 100644
+--- a/.github/workflows/load-qualification.yml
++++ b/.github/workflows/load-qualification.yml
+@@ -1,7 +1,7 @@
+ name: Single terminal ledger qualification (controller only)
+ on:
+   push:
+-    branches: [codex/terminal-single-ledger-controller-20261025]
++    branches: [codex/terminal-single-ledger-inventory-20261025]
+   workflow_dispatch:
+     inputs:
+       candidate_ref:
+@@ -20,7 +20,7 @@ jobs:
+     strategy:
+       fail-fast: false
+       matrix:
+-        lane: [inventory, focused, terminal, recall, baseline-first, candidate-first]
++        lane: [inventory]
+     runs-on: windows-2022
+     timeout-minutes: 90
+     defaults:
+@@ -37,7 +37,7 @@ jobs:
+           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+       - name: Require exact candidate
+         env:
+-          CANDIDATE_REF: ${{ inputs.candidate_ref || '2c014e11198b853278be4fd1e63b8fbd0e68133f' }}
++          CANDIDATE_REF: ${{ inputs.candidate_ref || 'e31ebf580db251b01c5417ce1171b99d13b5da8d' }}
+         run: |
+           if ($env:CANDIDATE_REF -cnotmatch '^[0-9a-f]{40}$') { throw 'Exact candidate SHA required; no branch/default candidate permitted.' }
+       - name: Install Godot 4.6.3 standard
+@@ -59,10 +59,10 @@ jobs:
+           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+       - name: Run isolated qualification
+         env:
+-          CANDIDATE_REF: ${{ inputs.candidate_ref || '2c014e11198b853278be4fd1e63b8fbd0e68133f' }}
++          CANDIDATE_REF: ${{ inputs.candidate_ref || 'e31ebf580db251b01c5417ce1171b99d13b5da8d' }}
+           QUALIFICATION_LANE: ${{ matrix.lane }}
+         run: |
+-          ./tools/testing/Invoke-LoadQualification.ps1 -CandidateRef $env:CANDIDATE_REF -Lane $env:QUALIFICATION_LANE -RegenerateInventories
++          ./tools/testing/Invoke-LoadQualification.ps1 -CandidateRef $env:CANDIDATE_REF -Lane $env:QUALIFICATION_LANE
+       - name: Preserve current qualification evidence
+         if: always()
+         uses: actions/upload-artifact@v4

@@ -108,7 +108,8 @@ static func validate_reading_checkpoint(checkpoint: Dictionary, snapshot: Dictio
 	return _validate_reading_checkpoint_body(checkpoint, snapshot)
 
 ## Both entry points authenticate terminal authority before this synchronous body.
-static func _validate_reading_checkpoint_body(checkpoint: Dictionary, snapshot: Dictionary) -> Dictionary:
+static func _validate_reading_checkpoint_body(checkpoint: Dictionary, snapshot: Dictionary,
+		scene_receipts: Dictionary = {}) -> Dictionary:
 	# Save capture reaches this pure boundary before a Run is serialized, while
 	# restore also has the participant's exact envelope checks. Both paths must
 	# refuse bytes that would be unwritable by the versioned reading producer.
@@ -125,18 +126,12 @@ static func _validate_reading_checkpoint_body(checkpoint: Dictionary, snapshot: 
 		if snapshot.get("schema_version") != 9 or snapshot.get("route_id") != "scene" \
 				or not snapshot.get("command_receipts") is Dictionary or not snapshot.get("scene") is Dictionary:
 			return _saved_run_failure(snapshot, "scene_envelope")
-		var receipts: Dictionary = SCENE_CONTRACT.validate_selected_scene_receipts(snapshot.command_receipts, _scene_issuer, _scene_creation_owner, snapshot.contacts)
-		if not receipts.get("ok", false): return receipts
-		var scene_reading: Dictionary = checkpoint.reading_session
-		if snapshot.scene.get("registration_sha256") != scene_reading.registration_sha256 \
-				or snapshot.scene.get("active_occurrence_id") != scene_reading.occurrence_id \
-				or snapshot.scene.get("active_admission_receipt_id") != scene_reading.occurrence_id:
-			return _fail(&"reading_scene_admission_invalid")
-		var frames := derive_scene_frames(receipts.value.admissions, scene_reading)
-		if not frames.ok: return frames
-		# Fresh authenticated output for the semantic owner's anchor joins; never an input bypass.
-		frames["scene_commands"] = receipts.value.commands
-		return frames
+		if scene_receipts.is_empty():
+			var receipts: Dictionary = SCENE_CONTRACT.validate_selected_scene_receipts(snapshot.command_receipts,
+				_scene_issuer, _scene_creation_owner, snapshot.contacts)
+			if not receipts.get("ok", false): return receipts
+			scene_receipts = receipts.value
+		return _scene_reading_frames(checkpoint, snapshot.scene, scene_receipts)
 
 	if not snapshot.get("lifecycle") is Dictionary or not snapshot.get("gameplay") is Dictionary \
 			or not snapshot.get("contacts") is Dictionary \
@@ -251,6 +246,18 @@ static func _is_scene_checkpoint(checkpoint: Variant) -> bool:
 	return (reading is Dictionary and ((typeof(reading.get("schema_version")) == TYPE_INT and reading.schema_version == 5) \
 			or reading.has("registration_sha256") or reading.has("occurrence_id"))) \
 			or (frame is Dictionary and (frame.get("role") is String and frame.role == "scene"))
+
+## Input is the ledger authenticated earlier in this call, never a saved proof.
+static func _scene_reading_frames(checkpoint: Dictionary, scene: Dictionary, receipts: Dictionary) -> Dictionary:
+	var reading: Dictionary = checkpoint.reading_session
+	if scene.get("registration_sha256") != reading.registration_sha256 \
+			or scene.get("active_occurrence_id") != reading.occurrence_id \
+			or scene.get("active_admission_receipt_id") != reading.occurrence_id:
+		return _fail(&"reading_scene_admission_invalid")
+	var frames := derive_scene_frames(receipts.admissions, reading)
+	if not frames.ok: return frames
+	frames["scene_commands"] = receipts.commands
+	return frames
 
 static func _validate_scene_envelope(checkpoint: Dictionary) -> Dictionary:
 	var reading: Variant = checkpoint.get("reading_session")
@@ -895,7 +902,7 @@ static func _validate_scene_terminal(snapshot: Dictionary) -> Dictionary:
 		return _fail(&"reading_scene_admission_invalid")
 	var registered := SCENE_ENTRIES.scene_contract_tables()
 	if not registered.ok: return registered
-	var authenticated: Dictionary = SCENE_CONTRACT.validate_selected_scene_terminal_admission(plan.admission,
+	var authenticated: Dictionary = SCENE_CONTRACT._validate_selected_scene_terminal_with_ledger(plan.admission,
 		_scene_issuer, snapshot.command_receipts, _scene_creation_owner, snapshot.contacts)
 	if not authenticated.get("ok", false): return authenticated
 	if plan.admission.source_occurrence_id != snapshot.scene.get("active_occurrence_id") \
@@ -904,8 +911,10 @@ static func _validate_scene_terminal(snapshot: Dictionary) -> Dictionary:
 	var source: Dictionary = snapshot.duplicate(true)
 	source.route_id = "scene"
 	source.lifecycle.ending_plan = null
-	# Validate the retained source with its existing scene receipt/frame owner.
-	return validate_reading_checkpoint(plan.source_reading_checkpoint, source)
+	# Concrete terminal verification is synchronous and read-only: no gameplay can
+	# change the ledger between these joins. Keep every source envelope/frame check;
+	# only the already-completed receipt traversal is shared within this call.
+	return _validate_reading_checkpoint_body(plan.source_reading_checkpoint, source, authenticated.value)
 
 static func _stage(plan: Dictionary, id: String) -> Dictionary:
 	for stage: Dictionary in plan.get("stages", []):

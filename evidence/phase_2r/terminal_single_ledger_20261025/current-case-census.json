@@ -1,0 +1,991 @@
+{
+  "focused": [
+    {
+      "path": "focused/candidate/.godot/ci/load-test_frozen_run_context.xml",
+      "cases": [
+        {
+          "name": "test_v6_does_not_backfill_absent_cache_and_v7_refuses_generated_dating_gap",
+          "source": "tests/unit/test_frozen_run_context.gd",
+          "status": "pass",
+          "assertions": 6
+        },
+        {
+          "name": "test_minimal_gameplay_without_route_bag_remains_legal",
+          "source": "tests/unit/test_frozen_run_context.gd",
+          "status": "pass",
+          "assertions": 4
+        },
+        {
+          "name": "test_saved_dating_binds_run_board_and_effect_but_keeps_original_branch_and_tier",
+          "source": "tests/unit/test_frozen_run_context.gd",
+          "status": "pass",
+          "assertions": 8
+        },
+        {
+          "name": "test_present_dating_cache_is_exact_and_requires_its_reached_phases",
+          "source": "tests/unit/test_frozen_run_context.gd",
+          "status": "pass",
+          "assertions": 6
+        },
+        {
+          "name": "test_pair_pending_count_snapshot_stays_pending_after_actual_rollover",
+          "source": "tests/unit/test_frozen_run_context.gd",
+          "status": "pass",
+          "assertions": 7
+        },
+        {
+          "name": "test_schedule_hospital_uses_saved_plan_and_allows_lawful_pending_first_capture",
+          "source": "tests/unit/test_frozen_run_context.gd",
+          "status": "pass",
+          "assertions": 5
+        },
+        {
+          "name": "test_full_saved_run_boundary_rejects_hospital_checkpoint_frame_forgery",
+          "source": "tests/unit/test_frozen_run_context.gd",
+          "status": "pass",
+          "assertions": 15
+        },
+        {
+          "name": "test_full_saved_run_boundary_preserves_completed_hospital_anchor_until_destination",
+          "source": "tests/unit/test_frozen_run_context.gd",
+          "status": "pass",
+          "assertions": 15
+        },
+        {
+          "name": "test_condition_hospital_binds_historical_prepared_request_after_identity_remap",
+          "source": "tests/unit/test_frozen_run_context.gd",
+          "status": "pass",
+          "assertions": 4
+        },
+        {
+          "name": "test_ending_admission_seed_must_match_saved_eligibility_and_missing_seed_is_versioned",
+          "source": "tests/unit/test_frozen_run_context.gd",
+          "status": "pass",
+          "assertions": 5
+        },
+        {
+          "name": "test_present_contact_cache_delegates_strict_shape_without_mutating_source",
+          "source": "tests/unit/test_frozen_run_context.gd",
+          "status": "pass",
+          "assertions": 3
+        },
+        {
+          "name": "test_hospital_miss_container_wrong_types_refuse_before_typed_contact_calls",
+          "source": "tests/unit/test_frozen_run_context.gd",
+          "status": "pass",
+          "assertions": 11
+        },
+        {
+          "name": "test_malformed_contact_source_rows_refuse_instead_of_entering_typed_loops",
+          "source": "tests/unit/test_frozen_run_context.gd",
+          "status": "pass",
+          "assertions": 17
+        },
+        {
+          "name": "test_semantic_checkpoint_cannot_disagree_with_its_saved_canonical_projection",
+          "source": "tests/unit/test_frozen_run_context.gd",
+          "status": "pass",
+          "assertions": 6
+        },
+        {
+          "name": "test_hospital_annotation_requires_its_saved_closure_receipt",
+          "source": "tests/unit/test_frozen_run_context.gd",
+          "status": "pass",
+          "assertions": 4
+        },
+        {
+          "name": "test_prepared_condition_owner_cache_is_validated_before_it_can_be_installed",
+          "source": "tests/unit/test_frozen_run_context.gd",
+          "status": "pass",
+          "assertions": 2
+        },
+        {
+          "name": "test_strict_prepared_condition_candidate_requires_its_generated_dating_cache_without_repair",
+          "source": "tests/unit/test_frozen_run_context.gd",
+          "status": "pass",
+          "assertions": 7
+        },
+        {
+          "name": "test_strict_historical_candidate_does_not_inherit_a_later_ending_requirement",
+          "source": "tests/unit/test_frozen_run_context.gd",
+          "status": "pass",
+          "assertions": 4
+        },
+        {
+          "name": "test_strict_prepared_pair_keeps_pending_projection_after_a_real_saved_rollover",
+          "source": "tests/unit/test_frozen_run_context.gd",
+          "status": "pass",
+          "assertions": 9
+        },
+        {
+          "name": "test_strict_semantic_checkpoint_requires_both_discriminators_and_preserves_generic_restart",
+          "source": "tests/unit/test_frozen_run_context.gd",
+          "status": "pass",
+          "assertions": 11
+        },
+        {
+          "name": "test_ending_reading_restore_binds_old_and_current_frames_to_saved_plan",
+          "source": "tests/unit/test_frozen_run_context.gd",
+          "status": "pass",
+          "assertions": 6
+        },
+        {
+          "name": "test_ending_reading_between_steps_accepts_future_cache_without_fabricating_frame",
+          "source": "tests/unit/test_frozen_run_context.gd",
+          "status": "pass",
+          "assertions": 6
+        },
+        {
+          "name": "test_ending_reading_refuses_reordered_history_foreign_session_and_missing_prerequisite",
+          "source": "tests/unit/test_frozen_run_context.gd",
+          "status": "pass",
+          "assertions": 10
+        },
+        {
+          "name": "test_ending_reading_completed_tail_remains_an_inert_history_anchor",
+          "source": "tests/unit/test_frozen_run_context.gd",
+          "status": "pass",
+          "assertions": 6
+        }
+      ]
+    },
+    {
+      "path": "focused/candidate/.godot/ci/load-test_restore_transaction.xml",
+      "cases": [
+        {
+          "name": "test_configure_restore_participants_validates_nine_keys",
+          "source": "tests/integration/test_restore_transaction.gd",
+          "status": "pass",
+          "assertions": 4
+        },
+        {
+          "name": "test_restore_success_applies_and_finalizes_in_order",
+          "source": "tests/integration/test_restore_transaction.gd",
+          "status": "pass",
+          "assertions": 9
+        },
+        {
+          "name": "test_apply_failure_rolls_back_in_reverse_and_emits_nothing",
+          "source": "tests/integration/test_restore_transaction.gd",
+          "status": "pass",
+          "assertions": 8
+        },
+        {
+          "name": "test_rollback_failure_latches_shared_gate",
+          "source": "tests/integration/test_restore_transaction.gd",
+          "status": "pass",
+          "assertions": 6
+        },
+        {
+          "name": "test_later_route_refusal_restores_real_audio_exactly",
+          "source": "tests/integration/test_restore_transaction.gd",
+          "status": "pass",
+          "assertions": 22
+        },
+        {
+          "name": "test_later_route_finalization_refusal_preserves_audio_after_audio_finalize",
+          "source": "tests/integration/test_restore_transaction.gd",
+          "status": "pass",
+          "assertions": 22
+        },
+        {
+          "name": "test_real_audio_capture_refusal_precedes_all_participant_mutation",
+          "source": "tests/integration/test_restore_transaction.gd",
+          "status": "pass",
+          "assertions": 18
+        },
+        {
+          "name": "test_real_audio_failed_compensation_latches_shared_restore_gate",
+          "source": "tests/integration/test_restore_transaction.gd",
+          "status": "pass",
+          "assertions": 11
+        },
+        {
+          "name": "test_narrative_content_failure_is_reported_directly",
+          "source": "tests/integration/test_restore_transaction.gd",
+          "status": "pass",
+          "assertions": 3
+        },
+        {
+          "name": "test_empty_playhead_needs_no_narrative_content",
+          "source": "tests/integration/test_restore_transaction.gd",
+          "status": "pass",
+          "assertions": 1
+        },
+        {
+          "name": "test_malformed_narrative_input_is_fail_closed_not_incompatible",
+          "source": "tests/integration/test_restore_transaction.gd",
+          "status": "pass",
+          "assertions": 2
+        },
+        {
+          "name": "test_failed_restore_finalization_restores_prior_journal_and_releases_save_lock",
+          "source": "tests/integration/test_restore_transaction.gd",
+          "status": "pass",
+          "assertions": 25
+        },
+        {
+          "name": "test_failed_rollback_preserves_sparse_owner_and_original_refusals",
+          "source": "tests/integration/test_restore_transaction.gd",
+          "status": "pass",
+          "assertions": 18
+        }
+      ]
+    },
+    {
+      "path": "focused/candidate/.godot/ci/load-test_scene_challenge_recall.xml",
+      "cases": [
+        {
+          "name": "test_installed_fixture_binds_five_distinct_end_targets_and_recall_targets",
+          "source": "tests/unit/test_scene_challenge_recall.gd",
+          "status": "pass",
+          "assertions": 10
+        },
+        {
+          "name": "test_legacy_four_and_exact_five_maps_allow_convergent_content_but_no_partial_shape",
+          "source": "tests/unit/test_scene_challenge_recall.gd",
+          "status": "pass",
+          "assertions": 5
+        },
+        {
+          "name": "test_pure_recall_selects_each_recorded_outcome_without_mutating_inputs",
+          "source": "tests/unit/test_scene_challenge_recall.gd",
+          "status": "pass",
+          "assertions": 36
+        },
+        {
+          "name": "test_pure_recall_refuses_missing_wrong_run_future_or_ambiguous_closure",
+          "source": "tests/unit/test_scene_challenge_recall.gd",
+          "status": "pass",
+          "assertions": 13
+        },
+        {
+          "name": "test_recall_receipt_binds_outcome_target_and_anchor_shape",
+          "source": "tests/unit/test_scene_challenge_recall.gd",
+          "status": "pass",
+          "assertions": 6
+        },
+        {
+          "name": "test_recall_rechecks_changed_bundle_on_each_public_call",
+          "source": "tests/unit/test_scene_challenge_recall.gd",
+          "status": "pass",
+          "assertions": 6
+        },
+        {
+          "name": "test_recall_revalidates_matching_closure_shape_anchor_result_and_fingerprint",
+          "source": "tests/unit/test_scene_challenge_recall.gd",
+          "status": "pass",
+          "assertions": 16
+        },
+        {
+          "name": "test_recall_keeps_event_bundle_and_closure_refusal_order",
+          "source": "tests/unit/test_scene_challenge_recall.gd",
+          "status": "pass",
+          "assertions": 6
+        }
+      ]
+    },
+    {
+      "path": "focused/candidate/.godot/ci/load-test_scene_event_contract.xml",
+      "cases": [
+        {
+          "name": "test_all_nine_registered_kinds_have_narrow_fixture_payloads",
+          "source": "tests/unit/test_scene_event_contract.gd",
+          "status": "pass",
+          "assertions": 21
+        },
+        {
+          "name": "test_token_is_ephemeral_but_payload_and_source_are_semantic",
+          "source": "tests/unit/test_scene_event_contract.gd",
+          "status": "pass",
+          "assertions": 3
+        },
+        {
+          "name": "test_closed_envelope_rejects_malformed_values_without_throwing",
+          "source": "tests/unit/test_scene_event_contract.gd",
+          "status": "pass",
+          "assertions": 26
+        },
+        {
+          "name": "test_source_and_payload_types_are_strict_and_no_paths_are_commands",
+          "source": "tests/unit/test_scene_event_contract.gd",
+          "status": "pass",
+          "assertions": 37
+        },
+        {
+          "name": "test_day_bounds_and_parameter_dictionary_are_closed_primitives",
+          "source": "tests/unit/test_scene_event_contract.gd",
+          "status": "pass",
+          "assertions": 9
+        },
+        {
+          "name": "test_registration_matches_whole_payload_identity_and_predecessor",
+          "source": "tests/unit/test_scene_event_contract.gd",
+          "status": "pass",
+          "assertions": 7
+        },
+        {
+          "name": "test_digest_and_registration_results_are_detached",
+          "source": "tests/unit/test_scene_event_contract.gd",
+          "status": "pass",
+          "assertions": 2
+        },
+        {
+          "name": "test_scene_bundle_binds_every_nested_document_and_g_table",
+          "source": "tests/unit/test_scene_event_contract.gd",
+          "status": "pass",
+          "assertions": 9
+        },
+        {
+          "name": "test_scene_marker_binds_whole_source_payload_and_registered_version",
+          "source": "tests/unit/test_scene_event_contract.gd",
+          "status": "pass",
+          "assertions": 10
+        },
+        {
+          "name": "test_local_return_targets_are_structural_and_callable_targets_require_entry",
+          "source": "tests/unit/test_scene_event_contract.gd",
+          "status": "pass",
+          "assertions": 20
+        },
+        {
+          "name": "test_authentic_registration_accepts_ordinary_return_label_without_effect_marker",
+          "source": "tests/unit/test_scene_event_contract.gd",
+          "status": "pass",
+          "assertions": 7
+        },
+        {
+          "name": "test_original_scene_completion_has_exact_nine_canonical_projections",
+          "source": "tests/unit/test_scene_event_contract.gd",
+          "status": "pass",
+          "assertions": 10
+        },
+        {
+          "name": "test_transition_receipt_rederives_c0_instead_of_accepting_an_arbitrary_child",
+          "source": "tests/unit/test_scene_event_contract.gd",
+          "status": "pass",
+          "assertions": 4
+        },
+        {
+          "name": "test_scene_tables_reject_dangling_markers_unsorted_ids_and_untyped_hashes",
+          "source": "tests/unit/test_scene_event_contract.gd",
+          "status": "pass",
+          "assertions": 4
+        },
+        {
+          "name": "test_challenge_closure_separates_never_started_from_exact_attempt_proof",
+          "source": "tests/unit/test_scene_event_contract.gd",
+          "status": "pass",
+          "assertions": 7
+        },
+        {
+          "name": "test_every_additional_table_is_in_the_one_bundle_fingerprint",
+          "source": "tests/unit/test_scene_event_contract.gd",
+          "status": "pass",
+          "assertions": 5
+        },
+        {
+          "name": "test_scene_admission_shape_never_claims_pristine_or_checkpoint_authentication",
+          "source": "tests/unit/test_scene_event_contract.gd",
+          "status": "pass",
+          "assertions": 3
+        },
+        {
+          "name": "test_scene_contract_rejects_engine_string_aliases_before_canonicalization",
+          "source": "tests/unit/test_scene_event_contract.gd",
+          "status": "pass",
+          "assertions": 4
+        },
+        {
+          "name": "test_playable_result_is_exact_availability_not_start_or_closure",
+          "source": "tests/unit/test_scene_event_contract.gd",
+          "status": "pass",
+          "assertions": 16
+        },
+        {
+          "name": "test_playable_result_rejects_missing_extra_and_non_json_members",
+          "source": "tests/unit/test_scene_event_contract.gd",
+          "status": "pass",
+          "assertions": 24
+        },
+        {
+          "name": "test_playable_result_requires_lowercase_exact_occurrence_hash",
+          "source": "tests/unit/test_scene_event_contract.gd",
+          "status": "pass",
+          "assertions": 9
+        },
+        {
+          "name": "test_playable_result_binds_registered_marker_kind_payload_and_version",
+          "source": "tests/unit/test_scene_event_contract.gd",
+          "status": "pass",
+          "assertions": 12
+        },
+        {
+          "name": "test_playable_result_rederives_occurrence_from_semantic_source",
+          "source": "tests/unit/test_scene_event_contract.gd",
+          "status": "pass",
+          "assertions": 4
+        },
+        {
+          "name": "test_playable_receipt_keeps_semantic_identity_across_live_token_change",
+          "source": "tests/unit/test_scene_event_contract.gd",
+          "status": "pass",
+          "assertions": 3
+        },
+        {
+          "name": "test_playable_receipt_requires_exact_predecessor_anchor_and_detaches_result",
+          "source": "tests/unit/test_scene_event_contract.gd",
+          "status": "pass",
+          "assertions": 8
+        },
+        {
+          "name": "test_scene_public_entries_preserve_mixed_invalid_refusal_order",
+          "source": "tests/unit/test_scene_event_contract.gd",
+          "status": "pass",
+          "assertions": 12
+        },
+        {
+          "name": "test_scene_inspection_detaches_programme_and_revalidates_later_bundle",
+          "source": "tests/unit/test_scene_event_contract.gd",
+          "status": "pass",
+          "assertions": 9
+        },
+        {
+          "name": "test_admission_public_validation_rechecks_bundle_before_result",
+          "source": "tests/unit/test_scene_event_contract.gd",
+          "status": "pass",
+          "assertions": 7
+        },
+        {
+          "name": "test_bundle_encoding_matches_whole_writer_across_versions_and_member_order",
+          "source": "tests/unit/test_scene_event_contract.gd",
+          "status": "pass",
+          "assertions": 36
+        },
+        {
+          "name": "test_bundle_encoding_depth_offset_preserves_canonical_bytes_and_json_limit",
+          "source": "tests/unit/test_scene_event_contract.gd",
+          "status": "pass",
+          "assertions": 19
+        },
+        {
+          "name": "test_bundle_nested_encoding_refusal_precedes_later_table_failure",
+          "source": "tests/unit/test_scene_event_contract.gd",
+          "status": "pass",
+          "assertions": 3
+        },
+        {
+          "name": "test_bundle_json_domain_refuses_before_nested_and_header_faults",
+          "source": "tests/unit/test_scene_event_contract.gd",
+          "status": "pass",
+          "assertions": 15
+        },
+        {
+          "name": "test_bundle_validation_detaches_entries_targets_and_markers",
+          "source": "tests/unit/test_scene_event_contract.gd",
+          "status": "pass",
+          "assertions": 8
+        }
+      ]
+    },
+    {
+      "path": "focused/candidate/.godot/ci/load-test_scene_receipt_validation.xml",
+      "cases": [
+        {
+          "name": "test_registered_issuer_receipt_and_completion_child_rebuild_exactly",
+          "source": "tests/unit/test_scene_receipt_validation.gd",
+          "status": "pass",
+          "assertions": 11
+        },
+        {
+          "name": "test_receipt_validation_rechecks_nested_bundle_and_issuer_after_success",
+          "source": "tests/unit/test_scene_receipt_validation.gd",
+          "status": "pass",
+          "assertions": 13
+        },
+        {
+          "name": "test_receipt_validation_outputs_cannot_mutate_inputs_or_later_proof",
+          "source": "tests/unit/test_scene_receipt_validation.gd",
+          "status": "pass",
+          "assertions": 13
+        },
+        {
+          "name": "test_unissued_command_and_completion_child_forgery_refuse",
+          "source": "tests/unit/test_scene_receipt_validation.gd",
+          "status": "pass",
+          "assertions": 10
+        },
+        {
+          "name": "test_shape_scalar_version_registration_and_result_tampering_refuse",
+          "source": "tests/unit/test_scene_receipt_validation.gd",
+          "status": "pass",
+          "assertions": 13
+        },
+        {
+          "name": "test_hole_predecessor_and_unknown_receipt_family_refuse",
+          "source": "tests/unit/test_scene_receipt_validation.gd",
+          "status": "pass",
+          "assertions": 10
+        },
+        {
+          "name": "test_legacy_partitions_remain_explicit_and_unknown_or_extended_members_refuse",
+          "source": "tests/unit/test_scene_receipt_validation.gd",
+          "status": "pass",
+          "assertions": 7
+        },
+        {
+          "name": "test_admission_has_real_root_and_exact_child_bound_request",
+          "source": "tests/unit/test_scene_receipt_validation.gd",
+          "status": "pass",
+          "assertions": 15
+        },
+        {
+          "name": "test_second_root_and_missing_admission_refuse_without_guessing_lineage",
+          "source": "tests/unit/test_scene_receipt_validation.gd",
+          "status": "pass",
+          "assertions": 11
+        },
+        {
+          "name": "test_triggered_admission_reuses_accepted_transition_and_refuses_changed_preimage",
+          "source": "tests/unit/test_scene_receipt_validation.gd",
+          "status": "pass",
+          "assertions": 11
+        },
+        {
+          "name": "test_notification_result_is_exact_and_clear_requires_retained_set",
+          "source": "tests/unit/test_scene_receipt_validation.gd",
+          "status": "pass",
+          "assertions": 11
+        },
+        {
+          "name": "test_admission_constructor_detaches_and_revalidates_changed_inputs",
+          "source": "tests/unit/test_scene_receipt_validation.gd",
+          "status": "pass",
+          "assertions": 22
+        }
+      ]
+    },
+    {
+      "path": "focused/candidate/.godot/ci/load-test_scene_restore_journal.xml",
+      "cases": [
+        {
+          "name": "test_atomic_completed_pending_survives_fresh_journal_and_uses_retained_loader",
+          "source": "tests/unit/test_scene_restore_journal.gd",
+          "status": "pass",
+          "assertions": 24
+        },
+        {
+          "name": "test_acknowledgement_is_durable_idempotent_and_not_historical_boot_replay",
+          "source": "tests/unit/test_scene_restore_journal.gd",
+          "status": "pass",
+          "assertions": 24
+        },
+        {
+          "name": "test_definite_and_uncertain_completion_write_require_physical_reconciliation",
+          "source": "tests/unit/test_scene_restore_journal.gd",
+          "status": "pass",
+          "assertions": 21
+        },
+        {
+          "name": "test_pending_fences_new_intent_and_ack_refusal_retains_pending",
+          "source": "tests/unit/test_scene_restore_journal.gd",
+          "status": "pass",
+          "assertions": 20
+        },
+        {
+          "name": "test_conflicting_pending_records_and_schema4_scene_smuggling_refuse",
+          "source": "tests/unit/test_scene_restore_journal.gd",
+          "status": "pass",
+          "assertions": 19
+        },
+        {
+          "name": "test_old_operation_members_and_canonical_bytes_survive_envelope_extension",
+          "source": "tests/unit/test_scene_restore_journal.gd",
+          "status": "pass",
+          "assertions": 11
+        },
+        {
+          "name": "test_actual_journal_refuses_primitive_only_save9_and_early_ack",
+          "source": "tests/unit/test_scene_restore_journal.gd",
+          "status": "pass",
+          "assertions": 6
+        },
+        {
+          "name": "test_pending_diagnostic_retains_identity_and_requires_reverified_source",
+          "source": "tests/unit/test_scene_restore_journal.gd",
+          "status": "pass",
+          "assertions": 22
+        },
+        {
+          "name": "test_ack_uncertain_write_reloads_without_second_activation_write",
+          "source": "tests/unit/test_scene_restore_journal.gd",
+          "status": "pass",
+          "assertions": 19
+        },
+        {
+          "name": "test_scene_member_and_activation_shape_are_exact",
+          "source": "tests/unit/test_scene_restore_journal.gd",
+          "status": "pass",
+          "assertions": 5
+        },
+        {
+          "name": "test_explicit_reload_observes_physical_change_and_revalidates",
+          "source": "tests/unit/test_scene_restore_journal.gd",
+          "status": "pass",
+          "assertions": 18
+        }
+      ]
+    },
+    {
+      "path": "focused/candidate/.godot/ci/load-test_scene_route_restore_context.xml",
+      "cases": [
+        {
+          "name": "test_scene_restore_keeps_gameplay_context_owned_by_run",
+          "source": "tests/unit/test_scene_route_restore_context.gd",
+          "status": "pass",
+          "assertions": 6
+        },
+        {
+          "name": "test_legacy_restore_still_merges_safe_context_without_losing_gameplay",
+          "source": "tests/unit/test_scene_route_restore_context.gd",
+          "status": "pass",
+          "assertions": 4
+        }
+      ]
+    },
+    {
+      "path": "focused/candidate/.godot/ci/load-test_scene_save_schema.xml",
+      "cases": [
+        {
+          "name": "test_scene_versions_do_not_replace_or_migrate_legacy_versions",
+          "source": "tests/unit/test_scene_save_schema.gd",
+          "status": "pass",
+          "assertions": 8
+        },
+        {
+          "name": "test_scene_recovery_cannot_enter_legacy_document_via_proof_family",
+          "source": "tests/unit/test_scene_save_schema.gd",
+          "status": "pass",
+          "assertions": 6
+        },
+        {
+          "name": "test_scene_admissions_do_not_claim_effect_or_variable_application",
+          "source": "tests/unit/test_scene_save_schema.gd",
+          "status": "pass",
+          "assertions": 5
+        },
+        {
+          "name": "test_new_scene_builder_never_fills_calendar_or_missing_owner_defaults",
+          "source": "tests/unit/test_scene_save_schema.gd",
+          "status": "pass",
+          "assertions": 5
+        }
+      ]
+    },
+    {
+      "path": "focused/candidate/.godot/ci/load-test_scene_saved_event_anchor.xml",
+      "cases": [
+        {
+          "name": "test_real_issuer_profile_reading_and_storage_pass_full_run_and_save_apis",
+          "source": "tests/integration/test_scene_saved_event_anchor.gd",
+          "status": "pass",
+          "assertions": 7
+        },
+        {
+          "name": "test_selected_receipt_projection_is_owned_frozen_and_matches_fresh_validation",
+          "source": "tests/integration/test_scene_saved_event_anchor.gd",
+          "status": "pass",
+          "assertions": 17
+        },
+        {
+          "name": "test_selected_receipt_refusal_order_keeps_input_and_issuer_checks",
+          "source": "tests/integration/test_scene_saved_event_anchor.gd",
+          "status": "pass",
+          "assertions": 2
+        },
+        {
+          "name": "test_one_run_reading_admission_and_custom_bridge_fallback",
+          "source": "tests/integration/test_scene_saved_event_anchor.gd",
+          "status": "pass",
+          "assertions": 11
+        },
+        {
+          "name": "test_prepare_callback_replacements_keep_mutation_over_anchor_refusal",
+          "source": "tests/integration/test_scene_saved_event_anchor.gd",
+          "status": "pass",
+          "assertions": 5
+        },
+        {
+          "name": "test_rebuilt_authenticated_absent_publication_fails_full_run_and_save_anchor_join",
+          "source": "tests/integration/test_scene_saved_event_anchor.gd",
+          "status": "pass",
+          "assertions": 15
+        },
+        {
+          "name": "test_frozen_commands_are_authenticated_detached_and_rechecked_on_next_call",
+          "source": "tests/integration/test_scene_saved_event_anchor.gd",
+          "status": "pass",
+          "assertions": 11
+        },
+        {
+          "name": "test_semantic_owner_does_not_reuse_another_issuers_frozen_proof",
+          "source": "tests/integration/test_scene_saved_event_anchor.gd",
+          "status": "pass",
+          "assertions": 5
+        },
+        {
+          "name": "test_custom_semantic_authority_cannot_bypass_receipt_authentication",
+          "source": "tests/integration/test_scene_saved_event_anchor.gd",
+          "status": "pass",
+          "assertions": 12
+        },
+        {
+          "name": "test_rebuilt_authenticated_wrong_catalogue_fails_full_run_and_save_anchor_join",
+          "source": "tests/integration/test_scene_saved_event_anchor.gd",
+          "status": "pass",
+          "assertions": 15
+        },
+        {
+          "name": "test_other_occurrence_anchor_is_refused_by_authenticated_source_binding",
+          "source": "tests/integration/test_scene_saved_event_anchor.gd",
+          "status": "pass",
+          "assertions": 7
+        },
+        {
+          "name": "test_warm_scene_splice_preserves_history_and_admits_exact_document_proofs",
+          "source": "tests/integration/test_scene_saved_event_anchor.gd",
+          "status": "pass",
+          "assertions": 25
+        },
+        {
+          "name": "test_scene_splice_still_refuses_missing_or_substituted_history_proofs",
+          "source": "tests/integration/test_scene_saved_event_anchor.gd",
+          "status": "pass",
+          "assertions": 14
+        },
+        {
+          "name": "test_legacy_splice_normalization_keeps_empty_history_shortcut_and_cold_path",
+          "source": "tests/integration/test_scene_saved_event_anchor.gd",
+          "status": "pass",
+          "assertions": 8
+        }
+      ]
+    },
+    {
+      "path": "focused/candidate/.godot/ci/load-test_scene_terminal_lifecycle.xml",
+      "cases": [
+        {
+          "name": "test_authenticated_terminal_roundtrip_retains_source_without_legacy_day",
+          "source": "tests/unit/test_scene_terminal_lifecycle.gd",
+          "status": "pass",
+          "assertions": 23
+        },
+        {
+          "name": "test_terminal_tampering_stale_source_and_ordinary_admission_are_refused",
+          "source": "tests/unit/test_scene_terminal_lifecycle.gd",
+          "status": "pass",
+          "assertions": 20
+        },
+        {
+          "name": "test_physical_completion_and_gallery_are_ordered_and_persisted",
+          "source": "tests/unit/test_scene_terminal_lifecycle.gd",
+          "status": "pass",
+          "assertions": 26
+        },
+        {
+          "name": "test_delayed_duplicate_admission_preserves_ending_reader_and_completed_run",
+          "source": "tests/unit/test_scene_terminal_lifecycle.gd",
+          "status": "pass",
+          "assertions": 31
+        },
+        {
+          "name": "test_terminal_route_waits_for_transaction_then_rejects_replaced_session",
+          "source": "tests/unit/test_scene_terminal_lifecycle.gd",
+          "status": "pass",
+          "assertions": 20
+        },
+        {
+          "name": "test_terminal_constructor_preserves_mixed_invalid_first_refusal",
+          "source": "tests/unit/test_scene_terminal_lifecycle.gd",
+          "status": "pass",
+          "assertions": 24
+        },
+        {
+          "name": "test_terminal_constructor_detaches_and_rechecks_changed_bundle_on_next_call",
+          "source": "tests/unit/test_scene_terminal_lifecycle.gd",
+          "status": "pass",
+          "assertions": 25
+        }
+      ]
+    },
+    {
+      "path": "focused/candidate/.godot/ci/load-test_scene_terminal_snapshot.xml",
+      "cases": [
+        {
+          "name": "test_terminal_reading_never_accepts_missing_source_history",
+          "source": "tests/unit/test_scene_terminal_snapshot.gd",
+          "status": "pass",
+          "assertions": 4
+        },
+        {
+          "name": "test_terminal_restore_remaps_live_identity_but_retains_admission_and_reading",
+          "source": "tests/unit/test_scene_terminal_snapshot.gd",
+          "status": "pass",
+          "assertions": 6
+        }
+      ]
+    },
+    {
+      "path": "focused/candidate/.godot/ci/load-test_unified_restore_contract.xml",
+      "cases": [
+        {
+          "name": "test_schedule_restores_with_the_other_owners_before_route_dispatch",
+          "source": "tests/integration/test_unified_restore_contract.gd",
+          "status": "pass",
+          "assertions": 9
+        },
+        {
+          "name": "test_late_failure_rolls_back_schedule_without_dispatching_the_route",
+          "source": "tests/integration/test_unified_restore_contract.gd",
+          "status": "pass",
+          "assertions": 8
+        },
+        {
+          "name": "test_failed_first_restore_returns_schedule_to_its_unopened_state",
+          "source": "tests/integration/test_unified_restore_contract.gd",
+          "status": "pass",
+          "assertions": 12
+        }
+      ]
+    }
+  ],
+  "recall": [
+    {
+      "path": "recall/candidate/.godot/ci/recall-create.xml",
+      "cases": [
+        {
+          "name": "test_never_started_end_save_then_later_recall",
+          "source": "tests/integration/test_scene_challenge_recall_create.gd",
+          "status": "pass",
+          "assertions": 101
+        }
+      ]
+    },
+    {
+      "path": "recall/candidate/.godot/ci/recall-load.xml",
+      "cases": [
+        {
+          "name": "test_fresh_load_retains_closure_and_repeats_only_later_recall",
+          "source": "tests/integration/test_scene_challenge_recall_load.gd",
+          "status": "pass",
+          "assertions": 67
+        }
+      ]
+    }
+  ],
+  "terminal": [
+    {
+      "path": "terminal/candidate/.godot/ci/terminal_admission.xml",
+      "cases": [
+        {
+          "name": "test_selected_terminal_admission_rechecks_genuine_saved_authority",
+          "source": "tests/integration/authored_terminal_admission_checks.gd",
+          "status": "pass",
+          "assertions": 190
+        }
+      ]
+    }
+  ],
+  "baseline-first": [
+    {
+      "path": "baseline-first/candidate/.godot/ci/fresh-save-load-comparison/baseline/load.xml",
+      "cases": [
+        {
+          "name": "test_fresh_current_save_load",
+          "source": "tests/integration/fresh_save_load_child.gd",
+          "status": "pass",
+          "assertions": 101
+        }
+      ]
+    },
+    {
+      "path": "baseline-first/candidate/.godot/ci/fresh-save-load-comparison/baseline/write.xml",
+      "cases": [
+        {
+          "name": "test_genuine_ending_load_save",
+          "source": ".godot/ci/pair-next.gd",
+          "status": "pass",
+          "assertions": 112
+        }
+      ]
+    },
+    {
+      "path": "baseline-first/candidate/.godot/ci/fresh-save-load-comparison/candidate/load.xml",
+      "cases": [
+        {
+          "name": "test_fresh_current_save_load",
+          "source": "tests/integration/fresh_save_load_child.gd",
+          "status": "pass",
+          "assertions": 101
+        }
+      ]
+    },
+    {
+      "path": "baseline-first/candidate/.godot/ci/fresh-save-load-comparison/candidate/write.xml",
+      "cases": [
+        {
+          "name": "test_genuine_ending_load_save",
+          "source": ".godot/ci/pair-next.gd",
+          "status": "pass",
+          "assertions": 112
+        }
+      ]
+    }
+  ],
+  "candidate-first": [
+    {
+      "path": "candidate-first/candidate/.godot/ci/fresh-save-load-comparison/baseline/load.xml",
+      "cases": [
+        {
+          "name": "test_fresh_current_save_load",
+          "source": "tests/integration/fresh_save_load_child.gd",
+          "status": "pass",
+          "assertions": 101
+        }
+      ]
+    },
+    {
+      "path": "candidate-first/candidate/.godot/ci/fresh-save-load-comparison/baseline/write.xml",
+      "cases": [
+        {
+          "name": "test_genuine_ending_load_save",
+          "source": ".godot/ci/pair-next.gd",
+          "status": "pass",
+          "assertions": 112
+        }
+      ]
+    },
+    {
+      "path": "candidate-first/candidate/.godot/ci/fresh-save-load-comparison/candidate/load.xml",
+      "cases": [
+        {
+          "name": "test_fresh_current_save_load",
+          "source": "tests/integration/fresh_save_load_child.gd",
+          "status": "pass",
+          "assertions": 101
+        }
+      ]
+    },
+    {
+      "path": "candidate-first/candidate/.godot/ci/fresh-save-load-comparison/candidate/write.xml",
+      "cases": [
+        {
+          "name": "test_genuine_ending_load_save",
+          "source": ".godot/ci/pair-next.gd",
+          "status": "pass",
+          "assertions": 112
+        }
+      ]
+    }
+  ]
+}

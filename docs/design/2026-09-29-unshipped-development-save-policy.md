@@ -1,5 +1,29 @@
 # Unshipped development-save policy — 29 September 2026
 
+## Terminal validation clarification — 25 October 2026
+
+Current supported gameplay does not require two complete ledger traversals inside
+one synchronous terminal/source-reading validation. The concrete production issuer
+root only reads its loaded state during terminal reconstruction. That interval has
+no yield, signal publication, write, or allocation commit. The source checkpoint
+may use the ledger authenticated earlier in that same call.
+
+Keep source-checkpoint shape, registration, occurrence, immutable-frame and caption
+checks. Independent public calls and later restore phases still validate fresh.
+There is no persistent validation cache or public skip flag.
+
+The injected root proxies in PR #80 deliberately changed Profile/root state inside
+this otherwise read-only interval. Those tests demonstrated an additional callback
+contract, not a reachable ordinary gameplay failure. Their requirement for a second
+ledger traversal is superseded here. Concurrent external file edits and injected
+mid-call owner mutations are not supported gameplay requirements. Invalid state
+present before a public validation call must still be refused.
+
+If production reconstruction later yields, publishes signals, writes state, or
+introduces mutable callbacks, review this local reuse boundary. This clarification
+does not remove source-reading validation, Save ownership, or ordinary gameplay
+correctness. Runtime qualification is recorded separately from this policy.
+
 ## Current amendment — 24 October 2026
 
 The [startup and Load handoff](../../handoff/a-startup-load-handoff-20261024.md) records the latest approved contract and supersedes the compatibility and deterministic-recovery requirements below. Only valid current-build saves are supported; old development saves may be discarded. Malformed/incomplete data, migration, repair and recovery are not product requirements.
