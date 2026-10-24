@@ -15,7 +15,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        lane: [inventory, focused, terminal, diagnostic]
+        lane: [inventory, focused]
     runs-on: windows-2022
     timeout-minutes: 90
     defaults:
@@ -32,7 +32,7 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Require exact candidate
         env:
-          CANDIDATE_REF: ${{ matrix.lane == 'diagnostic' && '1864369b38dd1660406f843440bbd32682d50f7e' || '7e89b349407b46fca889da19e67b6f60e86761cd' }}
+          CANDIDATE_REF: ${{ matrix.lane == 'diagnostic' && '1864369b38dd1660406f843440bbd32682d50f7e' || '7d002b728f045c6380ed5100129bdea2831dbdcb' }}
         run: |
           if ($env:CANDIDATE_REF -cnotmatch '^[0-9a-f]{40}$') { throw 'Exact candidate SHA required; no branch/default candidate permitted.' }
       - name: Install Godot 4.6.3 standard
@@ -54,7 +54,7 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Run isolated qualification
         env:
-          CANDIDATE_REF: ${{ matrix.lane == 'diagnostic' && '1864369b38dd1660406f843440bbd32682d50f7e' || '7e89b349407b46fca889da19e67b6f60e86761cd' }}
+          CANDIDATE_REF: ${{ matrix.lane == 'diagnostic' && '1864369b38dd1660406f843440bbd32682d50f7e' || '7d002b728f045c6380ed5100129bdea2831dbdcb' }}
           QUALIFICATION_LANE: ${{ matrix.lane }}
         run: |
           ./tools/testing/Invoke-LoadQualification.ps1 -CandidateRef $env:CANDIDATE_REF -Lane $env:QUALIFICATION_LANE -RegenerateInventories

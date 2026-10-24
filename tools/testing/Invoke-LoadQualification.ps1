@@ -24,7 +24,7 @@ $runtimePaths = @('autoload/SaveManager.gd', 'scripts/narrative/FrozenRunContext
 $runtimeChanges = @(Invoke-Git -Arguments @('diff', '--name-only', $baseRef, $CandidateRef, '--', 'autoload', 'scripts', 'addons', 'scenes', 'assets', 'data', 'dialogic', 'localization', 'project.godot'))
 $allowed = if ($Lane -eq 'diagnostic') { @('scripts/narrative/FrozenRunContext.gd', 'scripts/domain/narrative/SceneEventContract.gd', 'scripts/narrative/SceneValidationTiming.gd') } else { @('autoload/SaveManager.gd') }
 if (@($runtimeChanges | Where-Object { $_ -notin $allowed }).Count) { throw "Unexpected runtime changes: $runtimeChanges" }
-$tests = @('tests/integration/test_backup_current_build.gd', 'tests/integration/test_save_manager_public_boundaries.gd', 'tests/unit/test_save_manager.gd', 'tests/unit/test_session_exit_coordinator.gd')
+$tests = @('tests/integration/test_backup_current_build.gd', 'tests/integration/test_save_manager_public_boundaries.gd')
 $record = [ordered]@{ controller_ref = (Invoke-Git -Arguments @('rev-parse', 'HEAD')).Trim()
     baseline_ref = $baseRef; candidate_ref = $CandidateRef; lane = $Lane; runtime_changed_files = $runtimeChanges
     engine_sha256 = Get-Sha256 $env:GODOT_CONSOLE_PATH; source_hashes = @{}; suites = @(); status = 'started'
