@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="GutTests" failures="0" tests="1" >
+  <testsuite name="tests/integration/test_scene_multiple_thoughts_create.gd" tests="1" failures="0" skipped="0" time="5.923736" >
+      <testcase name="test_multiple_thoughts_create_refusal_retry_and_selection" assertions="51" status="pass" classname="tests/integration/test_scene_multiple_thoughts_create.gd" time="5.923736" >
+      </testcase>
+  </testsuite>
+</testsuites>

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="GutTests" failures="0" tests="21" >
+  <testsuite name="tests/unit/test_scene_save_schema.gd" tests="7" failures="0" skipped="0" time="0.007169" >
+      <testcase name="test_scene_versions_do_not_replace_or_migrate_legacy_versions" assertions="8" status="pass" classname="tests/unit/test_scene_save_schema.gd" time="0.000632" >
+      </testcase>
+      <testcase name="test_scene_recovery_cannot_enter_legacy_document_via_proof_family" assertions="6" status="pass" classname="tests/unit/test_scene_save_schema.gd" time="0.000562" >
+      </testcase>
+      <testcase name="test_scene_admissions_do_not_claim_effect_or_variable_application" assertions="5" status="pass" classname="tests/unit/test_scene_save_schema.gd" time="0.000382" >
+      </testcase>
+      <testcase name="test_new_scene_builder_never_fills_calendar_or_missing_owner_defaults" assertions="5" status="pass" classname="tests/unit/test_scene_save_schema.gd" time="0.000402" >
+      </testcase>
+      <testcase name="test_current_scene_gameplay_omits_retired_relationship_fields_and_requires_progress" assertions="19" status="pass" classname="tests/unit/test_scene_save_schema.gd" time="0.001896" >
+      </testcase>
+      <testcase name="test_scene_progress_distinguishes_no_closure_from_never_started_and_keeps_occurrences" assertions="4" status="pass" classname="tests/unit/test_scene_save_schema.gd" time="0.001701" >
+      </testcase>
+      <testcase name="test_scene_progress_refuses_malformed_required_facts" assertions="12" status="pass" classname="tests/unit/test_scene_save_schema.gd" time="0.001594" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/integration/test_scene_backup_inspection.gd" tests="14" failures="0" skipped="0" time="2.305949" >
+      <testcase name="test_admitted_scene_inspection_and_cancelled_consent_preserve_physical_and_live_state" assertions="46" status="pass" classname="tests/integration/test_scene_backup_inspection.gd" time="0.097334" >
+      </testcase>
+      <testcase name="test_unadmitted_scene_shaped_bytes_have_no_family_or_load_permission" assertions="13" status="pass" classname="tests/integration/test_scene_backup_inspection.gd" time="0.003291" >
+      </testcase>
+      <testcase name="test_player_format_check_accepts_only_current_integral_version_without_mutation" assertions="28" status="pass" classname="tests/integration/test_scene_backup_inspection.gd" time="0.00154" >
+      </testcase>
+      <testcase name="test_player_load_refuses_old_slot_quick_and_autosave_before_restoration" assertions="34" status="pass" classname="tests/integration/test_scene_backup_inspection.gd" time="0.068385" >
+      </testcase>
+      <testcase name="test_unsupported_slot_can_be_deleted_or_overwritten_with_current_scene" assertions="25" status="pass" classname="tests/integration/test_scene_backup_inspection.gd" time="0.116208" >
+      </testcase>
+      <testcase name="test_scene_admission_seed_matches_generic_and_detaches_all_owned_material" assertions="21" status="pass" classname="tests/integration/test_scene_backup_inspection.gd" time="0.959023" >
+      </testcase>
+      <testcase name="test_scene_restore_participant_edit_reenters_generic_seed_validation" assertions="5" status="pass" classname="tests/integration/test_scene_backup_inspection.gd" time="0.080012" >
+      </testcase>
+      <testcase name="test_admitted_run_plan_reuses_one_validation_and_remains_detached" assertions="14" status="pass" classname="tests/integration/test_scene_backup_inspection.gd" time="0.101809" >
+      </testcase>
+      <testcase name="test_run_reuse_falls_back_for_missing_material_changed_input_and_owner" assertions="17" status="pass" classname="tests/integration/test_scene_backup_inspection.gd" time="0.114035" >
+      </testcase>
+      <testcase name="test_run_reuse_preserves_custom_participant_refusal_on_public_load" assertions="5" status="pass" classname="tests/integration/test_scene_backup_inspection.gd" time="0.051543" >
+      </testcase>
+      <testcase name="test_current_scene_source_admission_preserves_state_and_rejects_changed_hash" assertions="5" status="pass" classname="tests/integration/test_scene_backup_inspection.gd" time="0.078272" >
+      </testcase>
+      <testcase name="test_new_scene_writes_omit_fallback_snapshots_without_changing_admitted_history" assertions="37" status="pass" classname="tests/integration/test_scene_backup_inspection.gd" time="0.498453" >
+      </testcase>
+      <testcase name="test_scene_gameplay_adoption_and_recapture_preserve_progress_without_relationship_fields" assertions="12" status="pass" classname="tests/integration/test_scene_backup_inspection.gd" time="0.031001" >
+      </testcase>
+      <testcase name="test_scene_progress_without_matching_command_is_refused_without_mutation" assertions="9" status="pass" classname="tests/integration/test_scene_backup_inspection.gd" time="0.105043" >
+      </testcase>
+  </testsuite>
+</testsuites>
