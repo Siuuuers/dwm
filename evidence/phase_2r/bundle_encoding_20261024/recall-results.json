@@ -1,0 +1,124 @@
+{
+  "original": {
+    "run_id": 40089558681,
+    "job_id": 120859274556,
+    "artifact_id": 12558328282,
+    "source_ref": "bc6a43041c76996c3f3d8bdb6e0b801af97f9fdd",
+    "size_bytes": 3291308,
+    "sha256": "cd975401ec91dfd0c141ad1a69dc1e60bc1afe899af7ba33058aa4f7747b24b3"
+  },
+  "retained_archive": {
+    "path": "recall-evidence.zip",
+    "size_bytes": 56111,
+    "sha256": "1e6a531e5b63e6b28698254e2e59994fbcb1b5f531339b7aaa654c0cf6db04ca",
+    "members": 9,
+    "crc_verified": true,
+    "all_retained_members_byte_identical": true
+  },
+  "manifest": "recall-manifest.json",
+  "current_cases": [
+    {
+      "report": ".godot/ci/recall-create.xml",
+      "name": "test_never_started_end_save_then_later_recall",
+      "source": "tests/integration/test_scene_challenge_recall_create.gd",
+      "assertions": 81,
+      "status": "pass"
+    },
+    {
+      "report": ".godot/ci/recall-load.xml",
+      "name": "test_fresh_load_retains_closure_and_repeats_only_later_recall",
+      "source": "tests/integration/test_scene_challenge_recall_load.gd",
+      "assertions": 47,
+      "status": "pass"
+    }
+  ],
+  "current_case_count": 2,
+  "current_assertions": 128,
+  "clean_processes": 2,
+  "processes": [
+    {
+      "suite_id": "recall-native",
+      "argv": [
+        "--rendering-method",
+        "gl_compatibility",
+        "--audio-driver",
+        "Dummy",
+        "--path",
+        "D:\\a\\dwm\\dwm",
+        "--log-file",
+        "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\recall-create.log",
+        "-s",
+        "res://addons/gut/gut_cmdln.gd",
+        "-gconfig=",
+        "-gtest=res://tests/integration/test_scene_challenge_recall_create.gd",
+        "-gexit",
+        "-glog=1",
+        "-gjunit_xml_file=res://.godot/ci/recall-create.xml"
+      ],
+      "exit_code": 0,
+      "log_path": "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\recall-create.log",
+      "test_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\ce66f7e0-5671-48e6-bfed-a30c37163290",
+      "user_dir": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\ce66f7e0-5671-48e6-bfed-a30c37163290\\appdata\\Godot\\app_userdata\\DWM",
+      "started_at_utc": "2026-10-24T11:22:37.0016342Z",
+      "ended_at_utc": "2026-10-24T11:22:58.7959822Z"
+    },
+    {
+      "suite_id": "recall-native",
+      "argv": [
+        "--rendering-method",
+        "gl_compatibility",
+        "--audio-driver",
+        "Dummy",
+        "--path",
+        "D:\\a\\dwm\\dwm",
+        "--log-file",
+        "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\recall-load.log",
+        "-s",
+        "res://addons/gut/gut_cmdln.gd",
+        "-gconfig=",
+        "-gtest=res://tests/integration/test_scene_challenge_recall_load.gd",
+        "-gexit",
+        "-glog=1",
+        "-gjunit_xml_file=res://.godot/ci/recall-load.xml"
+      ],
+      "exit_code": 0,
+      "log_path": "D:\\a\\dwm\\dwm\\.godot\\phase2r_logs\\recall-load.log",
+      "test_root": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\ce66f7e0-5671-48e6-bfed-a30c37163290",
+      "user_dir": "D:\\a\\dwm\\dwm\\.godot\\phase2r_tests\\ce66f7e0-5671-48e6-bfed-a30c37163290\\appdata\\Godot\\app_userdata\\DWM",
+      "started_at_utc": "2026-10-24T11:22:58.8760794Z",
+      "ended_at_utc": "2026-10-24T11:23:12.2737555Z"
+    }
+  ],
+  "logs_checked": [
+    ".godot/ci/import.log",
+    ".godot/phase2r_logs/recall-create.log",
+    ".godot/phase2r_logs/recall-load.log"
+  ],
+  "log_error_matches": 0,
+  "test_source_sha256": {
+    "tests/integration/test_scene_challenge_recall_create.gd": "7106beba3060c0688a1bc82f5750a799915cdf575bece7c22c90092cbfd9a556",
+    "tests/integration/test_scene_challenge_recall_load.gd": "2dc305f6b83ca8e75ba5d7ca4ee397fd2045894183ffb9618023fd687d3754fb"
+  },
+  "captures": [
+    {
+      "path": ".godot/ci/computer-challenge-recall-saved.png",
+      "sha256": "9927c12e42f6542fbbde8fa64f9637e65c26f995d133414e9e57da1cdd808391",
+      "visually_reviewed": true
+    },
+    {
+      "path": ".godot/ci/computer-challenge-recall-restored-selected.png",
+      "sha256": "09e16ebdaefa9fdf06df11a0df23bb5ec4fb4c6e26a98d885a3e219af196039e",
+      "visually_reviewed": true
+    },
+    {
+      "path": ".godot/ci/computer-challenge-recall-selected.png",
+      "sha256": "058bfed40ee3ed94b8a04881a5f6406e28f7f91b7c240c552108908dc875bd40",
+      "visually_reviewed": true
+    }
+  ],
+  "scope": "Two rendered native processes over synthetic authored registration: never_started closure saved before recall, recalled once, restored then recalled with exact closure, unchanged slot bytes, no repeated rewards or Profile consequences. Captures show pre-recall caption and matching selected/restored recall_a caption; clock and selected controls differ.",
+  "limits": [
+    "No full authored-week, exported graphical build, or all-five-outcome rendered acceptance claimed.",
+    "Run/job/source association is supplied from workflow metadata; exact expected names are independently checked against the pinned source. Artifacts contain no separate source-hash receipt."
+  ]
+}

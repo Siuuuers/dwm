@@ -1,0 +1,98 @@
+diff --git a/scripts/domain/narrative/SceneEventContract.gd b/scripts/domain/narrative/SceneEventContract.gd
+index 406cb2e3..00dfc778 100644
+--- a/scripts/domain/narrative/SceneEventContract.gd
++++ b/scripts/domain/narrative/SceneEventContract.gd
+@@ -301,17 +301,26 @@ static func validate_bundle_structure(bundle: Variant) -> Dictionary:
+ 	return result
+ 
+ static func _validate_bundle_structure_observed_body(bundle: Variant) -> Dictionary:
++	var phase_us: int = _VALIDATION_TIMING.start_sample()
+ 	if not _json_data(bundle):
+ 		return _fail(&"scene_bundle_invalid")
++	_VALIDATION_TIMING.finish_sample("bundle_json_domain", phase_us, true)
++	phase_us = _VALIDATION_TIMING.start_sample()
+ 	# One envelope/Contacts definition owner; no full DTL admission or cache here.
+ 	var manifest: Script = load("res://scripts/narrative/DialogicEntryManifest.gd")
+ 	if manifest == null: return _fail(&"scene_bundle_invalid")
+ 	var header: Dictionary = manifest.validate_scene_bundle_header(bundle)
+ 	if not header.get("ok", false): return _fail(&"scene_bundle_invalid")
++	_VALIDATION_TIMING.finish_sample("bundle_header", phase_us, true)
++	phase_us = _VALIDATION_TIMING.start_sample()
+ 	# Deliberately no replacement for A's nested validators or caller trust flag.
+ 	for key: String in ["entry_manifest", "context_registry", "ids_registry", "caption_registry"]:
++		var nested_us: int = _VALIDATION_TIMING.start_sample()
+ 		if not bundle[key] is Dictionary or bundle[key].is_empty() or not WRITER.stringify(bundle[key]).get("ok", false):
+ 			return _fail(&"scene_bundle_nested_invalid")
++		_VALIDATION_TIMING.finish_sample("bundle_nested_" + key, nested_us, true)
++	_VALIDATION_TIMING.finish_sample("bundle_nested", phase_us, true)
++	phase_us = _VALIDATION_TIMING.start_sample()
+ 	var programme: Variant = bundle.scene_programme
+ 	var programme_keys := ["kind", "schema_version", "entries"]
+ 	if programme is Dictionary and programme.has("story_days"): programme_keys.append("story_days")
+@@ -328,6 +337,8 @@ static func _validate_bundle_structure_observed_body(bundle: Variant) -> Diction
+ 	if tables.entries.is_empty(): return _fail(&"scene_programme_invalid")
+ 	var days := validate_story_days(programme)
+ 	if not days.ok: return days
++	_VALIDATION_TIMING.finish_sample("bundle_indexing", phase_us, true)
++	phase_us = _VALIDATION_TIMING.start_sample()
+ 	var markers := {}
+ 	for entry: Dictionary in tables.entries.values():
+ 		if not _keys(entry, PROGRAMME_ENTRY_KEYS) or not _positive_int(entry.content_version) \
+@@ -342,6 +353,8 @@ static func _validate_bundle_structure_observed_body(bundle: Variant) -> Diction
+ 				return _fail(&"scene_marker_invalid")
+ 			markers[marker.marker_id] = {"entry_id": entry.entry_id, "marker": marker}
+ 			labels[marker.label] = true
++	_VALIDATION_TIMING.finish_sample("bundle_markers", phase_us, true)
++	phase_us = _VALIDATION_TIMING.start_sample()
+ 	for row: Dictionary in tables.targets.values():
+ 		if not _keys(row, ["target_id", "target"]) or not _target_valid(row.target, tables.entries):
+ 			return _fail(&"scene_target_invalid")
+@@ -370,6 +383,8 @@ static func _validate_bundle_structure_observed_body(bundle: Variant) -> Diction
+ 				or not _table_has(tables.entries, contact.entry_id) or not _sorted_ids(contact.source_fact_ids) \
+ 				or not _table_has(tables.targets, contact.return_target_id): return _fail(&"scene_contact_registration_invalid")
+ 		if tables.targets[contact.return_target_id].target.kind != "return": return _fail(&"scene_contact_registration_invalid")
++	_VALIDATION_TIMING.finish_sample("bundle_registrations", phase_us, true)
++	phase_us = _VALIDATION_TIMING.start_sample()
+ 	var opportunities := {}
+ 	for bound: Dictionary in markers.values():
+ 		var marker: Dictionary = bound.marker
+@@ -401,12 +416,20 @@ static func _validate_bundle_structure_observed_body(bundle: Variant) -> Diction
+ 				if not _table_has(tables.contacts, marker.payload.contact_event_id): return _fail(&"scene_contact_registration_invalid")
+ 				if marker.kind == "contact.return" and tables.contacts[marker.payload.contact_event_id].entry_id != bound.entry_id:
+ 					return _fail(&"scene_contact_registration_invalid")
++	_VALIDATION_TIMING.finish_sample("bundle_bindings", phase_us, true)
++	phase_us = _VALIDATION_TIMING.start_sample()
+ 	var encoded: Dictionary = WRITER.stringify(bundle)
+ 	if not encoded.get("ok", false): return _fail(&"scene_bundle_invalid")
++	_VALIDATION_TIMING.finish_sample("bundle_encoding", phase_us, true)
++	phase_us = _VALIDATION_TIMING.start_sample()
+ 
+ 	tables["markers"] = markers
+ 	tables["fingerprint"] = str(encoded.value).sha256_text()
+-	return {"ok": true, "value": tables.duplicate(true)}
++	_VALIDATION_TIMING.finish_sample("bundle_fingerprint", phase_us, true)
++	phase_us = _VALIDATION_TIMING.start_sample()
++	var detached: Dictionary = tables.duplicate(true)
++	_VALIDATION_TIMING.finish_sample("bundle_detachment", phase_us, true)
++	return {"ok": true, "value": detached}
+ 
+ static func bundle_fingerprint(bundle: Variant) -> Dictionary:
+ 	var checked := validate_bundle_structure(bundle)
+diff --git a/scripts/narrative/SceneValidationTiming.gd b/scripts/narrative/SceneValidationTiming.gd
+index 39a650d2..02bafd61 100644
+--- a/scripts/narrative/SceneValidationTiming.gd
++++ b/scripts/narrative/SceneValidationTiming.gd
+@@ -14,6 +14,13 @@ static func begin_scope(operation: String, state: String, stage: String, step: i
+ 		"physical_proof_failures": 0, "receipt_validation_calls": 0, "receipt_validation_us": 0,
+ 		"receipt_validation_failures": 0, "bundle_validation_calls": 0, "bundle_validation_us": 0,
+ 		"bundle_validation_failures": 0, "inclusive_nested": true, "snapshot_validations": []}
++	# Diagnostic-only successful phase samples; early-refused phases emit no record.
++	for kind: String in ["json_domain", "header", "nested", "nested_entry_manifest",
++			"nested_context_registry", "nested_ids_registry", "nested_caption_registry",
++			"indexing", "markers", "registrations", "bindings", "encoding", "fingerprint", "detachment"]:
++		_record["bundle_" + kind + "_calls"] = 0
++		_record["bundle_" + kind + "_us"] = 0
++		_record["bundle_" + kind + "_failures"] = 0
+ 	_started_us = Time.get_ticks_usec()
+ 	_active = true
+ 	return true

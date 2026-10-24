@@ -1,0 +1,206 @@
+{
+  "original": {
+    "artifact_id": 12559015274,
+    "size_bytes": 3356005,
+    "sha256": "04b62b8df4b0dd5eb1f1caae49b612770a47a5c84bea68ae8d2d01b876ffc10c",
+    "run_id": 40089558681,
+    "job_id": 120859274441,
+    "source_ref": "bc6a43041c76996c3f3d8bdb6e0b801af97f9fdd"
+  },
+  "original_crc_verified": true,
+  "original_member_count": 23,
+  "retained_archive": {
+    "path": "focused-evidence.zip",
+    "size_bytes": 208285,
+    "sha256": "fa9553388795665e1152fbca2a496156007e1729aec9675012d2af50f5f44e45",
+    "members": 18,
+    "crc_verified": true,
+    "all_retained_members_byte_identical": true
+  },
+  "members": [
+    {
+      "original_path": ".godot/ci/bundle-focused.xml",
+      "size_bytes": 14367,
+      "sha256": "de0aad6180173c78f0f3c09b4521678be936baf2981bd9febfd2ddbb726a3307",
+      "retained": true,
+      "retained_path": ".godot/ci/bundle-focused.xml",
+      "reason": "Current test/inventory evidence retained byte-for-byte."
+    },
+    {
+      "original_path": ".godot/ci/bundle-focused-result.json",
+      "size_bytes": 5017,
+      "sha256": "13f820adcb16b59414c5bc42baebeb1cc4f926faec5b0128023b5c22fa31df1c",
+      "retained": true,
+      "retained_path": ".godot/ci/bundle-focused-result.json",
+      "reason": "Current test/inventory evidence retained byte-for-byte."
+    },
+    {
+      "original_path": ".godot/ci/bundle-focused.jsonl",
+      "size_bytes": 875,
+      "sha256": "b19bc26f927ce0f55f0a97ba4fefefdbf06d0fe9e34c8ec7cdc3ca441aa1d95b",
+      "retained": true,
+      "retained_path": ".godot/ci/bundle-focused.jsonl",
+      "reason": "Current test/inventory evidence retained byte-for-byte."
+    },
+    {
+      "original_path": ".godot/ci/import-user/appdata/Godot/app_userdata/DWM/dialogic/editor_settings.cfg",
+      "size_bytes": 132,
+      "sha256": "2485d95142e6f5f1b3f4653d1778baa04a88113e83bfeadc8f6571164f63b8e3",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable import cache/settings; import.log retained."
+    },
+    {
+      "original_path": ".godot/ci/import-user/appdata/Godot/app_userdata/DWM/gut_temp_directory/versions.json",
+      "size_bytes": 477,
+      "sha256": "2baad1042c2b38ee1e6d252c77780282fb4f9f3b075bfd8f419449d6b432d92a",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable import cache/settings; import.log retained."
+    },
+    {
+      "original_path": ".godot/ci/import-user/appdata/Godot/editor_settings-4.6.tres",
+      "size_bytes": 3775,
+      "sha256": "4fad7736957e94c78f6113e43230f8c83082f288a34c8cad3be48afe92953905",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable import cache/settings; import.log retained."
+    },
+    {
+      "original_path": ".godot/ci/import-user/appdata/Godot/keystores/debug.keystore",
+      "size_bytes": 2194,
+      "sha256": "599c7737221b4ba55ea849a5b0c2f2e9c20519ba6ae00484af45208937867ce8",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable import cache/settings; import.log retained."
+    },
+    {
+      "original_path": ".godot/ci/import-user/localappdata/Godot/editor_doc_cache-4.6.res",
+      "size_bytes": 3142854,
+      "sha256": "6feb794d024c4511948c3269a108c9c3513f62dd504962e50c06022afaddd6e3",
+      "retained": false,
+      "retained_path": null,
+      "reason": "Disposable import cache/settings; import.log retained."
+    },
+    {
+      "original_path": ".godot/ci/import.log",
+      "size_bytes": 96586,
+      "sha256": "3840959b734b16c8be4ed0551046f5a27514f6ca59fb3c94c31498800a39e98a",
+      "retained": true,
+      "retained_path": ".godot/ci/import.log",
+      "reason": "Current test/inventory evidence retained byte-for-byte."
+    },
+    {
+      "original_path": ".godot/ci/public-surfaces/game_state-check.jsonl",
+      "size_bytes": 997,
+      "sha256": "f8af3a3398f1e143017a200eca2c26f158019b8aad5540fab6c36a4397e011b7",
+      "retained": true,
+      "retained_path": ".godot/ci/public-surfaces/game_state-check.jsonl",
+      "reason": "Current test/inventory evidence retained byte-for-byte."
+    },
+    {
+      "original_path": ".godot/ci/public-surfaces/game_state-generate.jsonl",
+      "size_bytes": 996,
+      "sha256": "9f040ed59c624756b933c2e915ce5e892d5f87de2b9afa61553d9d2cd0998bcb",
+      "retained": true,
+      "retained_path": ".godot/ci/public-surfaces/game_state-generate.jsonl",
+      "reason": "Current test/inventory evidence retained byte-for-byte."
+    },
+    {
+      "original_path": ".godot/ci/public-surfaces/game_state_surface.json",
+      "size_bytes": 660920,
+      "sha256": "ab100b5f9211b7b31d40af290a3cd92866481151aa910648559597ad341a0642",
+      "retained": true,
+      "retained_path": ".godot/ci/public-surfaces/game_state_surface.json",
+      "reason": "Current test/inventory evidence retained byte-for-byte."
+    },
+    {
+      "original_path": ".godot/ci/public-surfaces/retirement-audit.json",
+      "size_bytes": 564,
+      "sha256": "f17a39993c66157c89fa96fd5936c6552705cb2c5a0031e41f0d78c5ab6c1f45",
+      "retained": true,
+      "retained_path": ".godot/ci/public-surfaces/retirement-audit.json",
+      "reason": "Current test/inventory evidence retained byte-for-byte."
+    },
+    {
+      "original_path": ".godot/ci/public-surfaces/save_manager-check.jsonl",
+      "size_bytes": 1009,
+      "sha256": "06703fcba92864f358274c33d99e1b2942e5e751fb1c8573c40c6b17d9fe37b5",
+      "retained": true,
+      "retained_path": ".godot/ci/public-surfaces/save_manager-check.jsonl",
+      "reason": "Current test/inventory evidence retained byte-for-byte."
+    },
+    {
+      "original_path": ".godot/ci/public-surfaces/save_manager-generate.jsonl",
+      "size_bytes": 1008,
+      "sha256": "c6652d025ae122c2565114e8abda6faaf4dc3045bcd88be34e0255de5af4df48",
+      "retained": true,
+      "retained_path": ".godot/ci/public-surfaces/save_manager-generate.jsonl",
+      "reason": "Current test/inventory evidence retained byte-for-byte."
+    },
+    {
+      "original_path": ".godot/ci/public-surfaces/save_manager_surface.json",
+      "size_bytes": 183948,
+      "sha256": "934bf2d69b6f1aaa69721497b03252c85f74f394a88c6166013e358fd9b62920",
+      "retained": true,
+      "retained_path": ".godot/ci/public-surfaces/save_manager_surface.json",
+      "reason": "Current test/inventory evidence retained byte-for-byte."
+    },
+    {
+      "original_path": ".godot/phase2r_logs/bundle-focused.log",
+      "size_bytes": 5413,
+      "sha256": "824f28c5bed7bc6a0f4a7dbc2674fe8af040e8819bbf38d66fbbba8507b53681",
+      "retained": true,
+      "retained_path": ".godot/phase2r_logs/bundle-focused.log",
+      "reason": "Current test/inventory evidence retained byte-for-byte."
+    },
+    {
+      "original_path": ".godot/phase2r_logs/cloud-public-surface-game_state-check.log",
+      "size_bytes": 97,
+      "sha256": "f905573f8dd52f9b85362666ac54f7c7145d1ce376dec030e86792970fc2e2c7",
+      "retained": true,
+      "retained_path": ".godot/phase2r_logs/cloud-public-surface-game_state-check.log",
+      "reason": "Current test/inventory evidence retained byte-for-byte."
+    },
+    {
+      "original_path": ".godot/phase2r_logs/cloud-public-surface-game_state-generate.log",
+      "size_bytes": 97,
+      "sha256": "f905573f8dd52f9b85362666ac54f7c7145d1ce376dec030e86792970fc2e2c7",
+      "retained": true,
+      "retained_path": ".godot/phase2r_logs/cloud-public-surface-game_state-generate.log",
+      "reason": "Current test/inventory evidence retained byte-for-byte."
+    },
+    {
+      "original_path": ".godot/phase2r_logs/cloud-public-surface-save_manager-check.log",
+      "size_bytes": 97,
+      "sha256": "f905573f8dd52f9b85362666ac54f7c7145d1ce376dec030e86792970fc2e2c7",
+      "retained": true,
+      "retained_path": ".godot/phase2r_logs/cloud-public-surface-save_manager-check.log",
+      "reason": "Current test/inventory evidence retained byte-for-byte."
+    },
+    {
+      "original_path": ".godot/phase2r_logs/cloud-public-surface-save_manager-generate.log",
+      "size_bytes": 97,
+      "sha256": "f905573f8dd52f9b85362666ac54f7c7145d1ce376dec030e86792970fc2e2c7",
+      "retained": true,
+      "retained_path": ".godot/phase2r_logs/cloud-public-surface-save_manager-generate.log",
+      "reason": "Current test/inventory evidence retained byte-for-byte."
+    },
+    {
+      "original_path": "evidence/phase_2r/runtime/game_state_surface.json",
+      "size_bytes": 660920,
+      "sha256": "ab100b5f9211b7b31d40af290a3cd92866481151aa910648559597ad341a0642",
+      "retained": true,
+      "retained_path": "evidence/phase_2r/runtime/game_state_surface.json",
+      "reason": "Current test/inventory evidence retained byte-for-byte."
+    },
+    {
+      "original_path": "evidence/phase_2r/runtime/save_manager_surface.json",
+      "size_bytes": 183948,
+      "sha256": "934bf2d69b6f1aaa69721497b03252c85f74f394a88c6166013e358fd9b62920",
+      "retained": true,
+      "retained_path": "evidence/phase_2r/runtime/save_manager_surface.json",
+      "reason": "Current test/inventory evidence retained byte-for-byte."
+    }
+  ]
+}
