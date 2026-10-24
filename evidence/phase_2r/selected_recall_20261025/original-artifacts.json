@@ -1,0 +1,156 @@
+{
+  "artifacts": [
+    {
+      "id": 12568455574,
+      "name": "load-terminal-40114725820-1",
+      "size_in_bytes": 3256959,
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12568455574",
+      "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12568455574/zip",
+      "expired": false,
+      "created_at": "2026-10-24T17:11:23Z",
+      "expires_at": "2026-10-31T17:11:21Z",
+      "updated_at": "2026-10-24T17:11:23Z",
+      "digest": "sha256:5e41a8390078a22b531b6c3f42db2bc36f85a424b247a9fab14ce75a15958489",
+      "workflow_run": {
+        "id": 40114725820,
+        "repository_id": 1302529453,
+        "head_repository_id": 1302529453,
+        "head_branch": "codex/ledger-local-controller-20261025",
+        "head_sha": "387e730405de40f30777eef14a7a8f48d4046d30"
+      }
+    },
+    {
+      "id": 12568451641,
+      "name": "load-candidate-first-40114725820-1",
+      "size_in_bytes": 3924292,
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12568451641",
+      "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12568451641/zip",
+      "expired": false,
+      "created_at": "2026-10-24T17:19:43Z",
+      "expires_at": "2026-10-31T17:19:41Z",
+      "updated_at": "2026-10-24T17:19:43Z",
+      "digest": "sha256:f836c2f22d820fd74fac4cc603a24981e222a4d586a4f93e860da415832f2e44",
+      "workflow_run": {
+        "id": 40114725820,
+        "repository_id": 1302529453,
+        "head_repository_id": 1302529453,
+        "head_branch": "codex/ledger-local-controller-20261025",
+        "head_sha": "387e730405de40f30777eef14a7a8f48d4046d30"
+      }
+    },
+    {
+      "id": 12568362005,
+      "name": "load-baseline-first-40114725820-1",
+      "size_in_bytes": 3924357,
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12568362005",
+      "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12568362005/zip",
+      "expired": false,
+      "created_at": "2026-10-24T17:20:01Z",
+      "expires_at": "2026-10-31T17:19:59Z",
+      "updated_at": "2026-10-24T17:20:01Z",
+      "digest": "sha256:5d7edd464e8b8b70f7cc054d96c58a84ef6880d0e7df8eb95cbfc2cc0069bd2d",
+      "workflow_run": {
+        "id": 40114725820,
+        "repository_id": 1302529453,
+        "head_repository_id": 1302529453,
+        "head_branch": "codex/ledger-local-controller-20261025",
+        "head_sha": "387e730405de40f30777eef14a7a8f48d4046d30"
+      }
+    },
+    {
+      "id": 12568260699,
+      "name": "load-focused-40114725820-1",
+      "size_in_bytes": 149817,
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12568260699",
+      "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12568260699/zip",
+      "expired": false,
+      "created_at": "2026-10-24T17:13:17Z",
+      "expires_at": "2026-10-31T17:13:15Z",
+      "updated_at": "2026-10-24T17:13:17Z",
+      "digest": "sha256:9b2b9df3a081501cd63174b183187107a6adbc8b8afe459041a8248f2766f091",
+      "workflow_run": {
+        "id": 40114725820,
+        "repository_id": 1302529453,
+        "head_repository_id": 1302529453,
+        "head_branch": "codex/ledger-local-controller-20261025",
+        "head_sha": "387e730405de40f30777eef14a7a8f48d4046d30"
+      }
+    },
+    {
+      "id": 12568216467,
+      "name": "load-inventory-40114725820-1",
+      "size_in_bytes": 228230,
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12568216467",
+      "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12568216467/zip",
+      "expired": false,
+      "created_at": "2026-10-24T17:11:19Z",
+      "expires_at": "2026-10-31T17:11:18Z",
+      "updated_at": "2026-10-24T17:11:19Z",
+      "digest": "sha256:daca73aed72009b77dffa3504375dfda7ce0dcb7e17194120c089e74a41fb411",
+      "workflow_run": {
+        "id": 40114725820,
+        "repository_id": 1302529453,
+        "head_repository_id": 1302529453,
+        "head_branch": "codex/ledger-local-controller-20261025",
+        "head_sha": "387e730405de40f30777eef14a7a8f48d4046d30"
+      }
+    },
+    {
+      "id": 12567368432,
+      "name": "load-recall-40114725820-1",
+      "size_in_bytes": 171968,
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12567368432",
+      "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12567368432/zip",
+      "expired": false,
+      "created_at": "2026-10-24T17:10:18Z",
+      "expires_at": "2026-10-31T17:10:16Z",
+      "updated_at": "2026-10-24T17:10:18Z",
+      "digest": "sha256:d99464a1e5c2f140e374940eb41080f29be616be8b55d555a76b9b5a9fa00d04",
+      "workflow_run": {
+        "id": 40114725820,
+        "repository_id": 1302529453,
+        "head_repository_id": 1302529453,
+        "head_branch": "codex/ledger-local-controller-20261025",
+        "head_sha": "387e730405de40f30777eef14a7a8f48d4046d30"
+      }
+    },
+    {
+      "id": 12568083876,
+      "name": "load-terminal-40115097278-1",
+      "size_in_bytes": 3256775,
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12568083876",
+      "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12568083876/zip",
+      "expired": false,
+      "created_at": "2026-10-24T17:23:58Z",
+      "expires_at": "2026-10-31T17:23:56Z",
+      "updated_at": "2026-10-24T17:23:58Z",
+      "digest": "sha256:a8bcaf4943ed552a1f94cac83c1ba0040793cc849ef7f1a1ec1935064021616b",
+      "workflow_run": {
+        "id": 40115097278,
+        "repository_id": 1302529453,
+        "head_repository_id": 1302529453,
+        "head_branch": "codex/ledger-local-controller-20261025",
+        "head_sha": "2279af4c16701cada92c376fe895352f8d332bf7"
+      }
+    },
+    {
+      "id": 12567932819,
+      "name": "load-inventory-40115097278-1",
+      "size_in_bytes": 226309,
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12567932819",
+      "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12567932819/zip",
+      "expired": false,
+      "created_at": "2026-10-24T17:22:07Z",
+      "expires_at": "2026-10-31T17:22:06Z",
+      "updated_at": "2026-10-24T17:22:07Z",
+      "digest": "sha256:65a188367c7526d5fde08d7332043cf7eccddf668c661f6432641baa4f543dce",
+      "workflow_run": {
+        "id": 40115097278,
+        "repository_id": 1302529453,
+        "head_repository_id": 1302529453,
+        "head_branch": "codex/ledger-local-controller-20261025",
+        "head_sha": "2279af4c16701cada92c376fe895352f8d332bf7"
+      }
+    }
+  ]
+}
