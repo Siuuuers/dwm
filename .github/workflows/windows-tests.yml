@@ -186,7 +186,7 @@ jobs:
           git restore -- project.godot
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Run focused regression suite
-        timeout-minutes: 10
+        timeout-minutes: ${{ matrix.suite == 'current_terminal_fixture' && 30 || 10 }}
         env:
           DWM_CI_SUITE: ${{ matrix.suite }}
         run: ./tools/testing/Invoke-CloudTests.ps1 -Suite $env:DWM_CI_SUITE

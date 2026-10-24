@@ -1,0 +1,27 @@
+{
+  "source_ref": "1fd4180c62ff6b1bf5b63bf0eb6a14bb6a3c2cfa",
+  "scope": "Three rendered current-build processes: short TEST seven-day registration, ending Save and fresh-process Load. Not authored-week acceptance or a latency comparison.",
+  "assertions": {
+    "terminal": 72,
+    "load": 180,
+    "create": 102
+  },
+  "original_manifest_sha256": {
+    "data/manifests/scene_ending_reading_catalogue.json": "8b2eb1535862a95312d4a6d4891f4280367f445439053e5ee849c20b53fc7836",
+    "data/manifests/scene_story_registration.json": "af472daf6e4b5bcce5b345a0e814e1361780577894acc7c4cbbb6601f31d02b1"
+  },
+  "fixture_manifest_sha256": {
+    "data/manifests/scene_ending_reading_catalogue.json": "d412b96e1dfa3b019921bf2a6b8c93a1ccc0a0fe4d6373c901d39b410ebd5eb6",
+    "data/manifests/scene_story_registration.json": "fa5b043946436382e49e5ea6f32d104ef9852efaa87dfcae663c289e9b23b501"
+  },
+  "source_sha256": {
+    "scripts/domain/run/RunSnapshotSchema.gd": "89a8a5589ce7879b94583e03d87189c65413bae30c1445fa5efb5e5b06b885fe",
+    "autoload/GameState.gd": "8851c09119a1ccfb69c952f32fccdf0053cb56c48bad793aa11729f054b37d44",
+    "tests/templates/seven_day/SevenDayTemplates.gd": "900bb73a560124bf1f6ece678b36e1d521b41a25c477e5f834459842f3a7f471",
+    "tests/templates/seven_day/ExportTerminalFixture.gd": "8e0263e8fc61005173a2471b3dab0e204bef760e27b7b04931962beb6234ce91",
+    "tests/integration/scene_seven_day_terminal_child.gd": "fa1bf051a9b91c4567ee66e13239e40d970ee99a463cda30115f94509e630daf",
+    "tests/integration/scene_seven_day_connected_child.gd": "1ae0943ad187e6f85d42345a439178cd01f692ca61348a9cf40330ace6c9f7fb",
+    "tools/testing/Invoke-CurrentTerminalFixture.ps1": "0604c2040de1618605bcb6ac1745fc7d52e18a883189099633a67f54991512c5"
+  },
+  "authored_manifests_restored": true
+}

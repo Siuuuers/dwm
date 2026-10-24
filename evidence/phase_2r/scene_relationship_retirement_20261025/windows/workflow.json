@@ -1,0 +1,14 @@
+{
+  "workflow_runs": [
+    {
+      "id": 40131013035,
+      "name": "Windows automated tests",
+      "status": "completed",
+      "conclusion": "success",
+      "run_number": 787,
+      "jobs_url": "https://api.github.com/repos/Siuuuers/dwm/actions/runs/40131013035/jobs",
+      "logs_url": "https://api.github.com/repos/Siuuuers/dwm/actions/runs/40131013035/logs",
+      "workflow_id": 362618109
+    }
+  ]
+}
