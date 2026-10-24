@@ -1,0 +1,235 @@
+{
+  "schema_version": 1,
+  "base_master": "9db0b69f49266c26776dedd29e3b61a410c46002",
+  "cache_only_product": "5882873aee5ab4f2e6ada282fdb260be670348d6",
+  "final_product": "b8defca3e7743d34e47af5853b7c3e43e4733490",
+  "final_controller": "1c4932059963da071f74d505a8bd931eb209ce62",
+  "cloud_only_runtime": true,
+  "original_artifacts": [
+    {
+      "file": "run1.zip",
+      "run_id": 40073066135,
+      "artifact_id": 12552370960,
+      "size": 14656464,
+      "sha256": "ab539cd0f8e6952108367cc93092be7e4aaa582810e647b4527dc374f8556e3c",
+      "members": 147,
+      "crc_verified": true
+    },
+    {
+      "file": "run2.zip",
+      "run_id": 40073625626,
+      "artifact_id": 12552646985,
+      "size": 14664056,
+      "sha256": "b04cb05e8a1e1de673a940a025b8d259389e090b2a0abf64e701b1b24ef5801d",
+      "members": 147,
+      "crc_verified": true
+    },
+    {
+      "file": "focused-first.zip",
+      "run_id": 40074198023,
+      "artifact_id": 12552248575,
+      "size": 3249406,
+      "sha256": "05f31502b496cdb0c64df8379bb30a256eba2ab47647542fea0623ddfe95e089",
+      "members": 11,
+      "crc_verified": true
+    },
+    {
+      "file": "focused-final.zip",
+      "run_id": 40074441693,
+      "artifact_id": 12552626553,
+      "size": 3248557,
+      "sha256": "12c994f6e8e9861578786fd4a5e946dc25c0ec8de0c12e36bc5b25be2394fca7",
+      "members": 12,
+      "crc_verified": true
+    },
+    {
+      "file": "native-final.zip",
+      "run_id": 40074441693,
+      "artifact_id": 12552078759,
+      "size": 14733803,
+      "sha256": "4001ab7442c4adf5634b7355d89cd262c1cedaf0fa23c5796138514add420fc7",
+      "members": 140,
+      "crc_verified": true
+    },
+    {
+      "file": "comparison.zip",
+      "run_id": 40074198023,
+      "artifact_id": 12551964420,
+      "size": 3919096,
+      "sha256": "1b1d7b5699967aee3dc527b3460d697ed53dc844cd44998c01df141d1630c225",
+      "members": 35,
+      "crc_verified": true
+    }
+  ],
+  "diagnostic_runs": [
+    {
+      "run_id": 40073066135,
+      "source": "c312fab7fd5764daaa151bef7d7915ddff0ddbbc",
+      "target_advances": 10,
+      "target_advance_us": 29880232,
+      "atomic_storage_us": 27122112,
+      "proof_cache_us": 1254532,
+      "serialization_us": 657772,
+      "current_cases": 2,
+      "assertions": 213,
+      "clean_processes": 3
+    },
+    {
+      "run_id": 40073625626,
+      "source": "ee175b953a7f63ceb50292dde6c19af70c459c63",
+      "target_advances": 10,
+      "target_advance_us": 40225703,
+      "atomic_storage_us": 37072254,
+      "reconcile_us": 35863364,
+      "marker_and_temp_write_flush_us": 40048,
+      "current_cases": 2,
+      "assertions": 213,
+      "clean_processes": 3
+    }
+  ],
+  "initial_focused": {
+    "cases": 75,
+    "assertions": 3744,
+    "passing": 73,
+    "failing_names": [
+      "test_journal_public_surface_adds_only_explicit_new_run_target_proof",
+      "test_the_journal_document_and_operation_record_have_exactly_the_frozen_key_sets"
+    ]
+  },
+  "final_focused": {
+    "cases": 75,
+    "assertions": 3743,
+    "passing": 75,
+    "failing_names": []
+  },
+  "cache_regression": {
+    "writes_per_variant": 12,
+    "historical_three_entry_strict_parses": 9,
+    "four_entry_strict_parses": 0,
+    "cold_strict_parses": 2,
+    "assertions": 104,
+    "storage": "Actual JsonFileStorage with FakeFileOps; not scene admission proof"
+  },
+  "comparison": {
+    "run_id": 40074198023,
+    "job_id": 120813963205,
+    "job_conclusion": "success",
+    "overall_run_conclusion": "failure due to initial focused job, preserved separately",
+    "baseline_ref": "9db0b69f49266c26776dedd29e3b61a410c46002",
+    "candidate_ref": "af817a6db0654b03676344fe06a210a1491fb288",
+    "order": [
+      "baseline",
+      "candidate"
+    ],
+    "scope": "Same runner, exact separate Git worktrees, identical measurement helpers and retained input. Each variant writes a new Save9 and loads it in another process. One ordered pair is not a latency distribution. Generated slot identities may differ.",
+    "runtime_files": [
+      "scripts/infrastructure/save/DesktopContinuationOperationJournal.gd"
+    ],
+    "engine_sha256": "63b3b2208819714c9677fbfdd8217c5b7dee8ecf5f383502e826bc9e2227ff5a",
+    "engine_version": "4.6.3.stable.official.7d41c59c4",
+    "measurement_sha256": {
+      "tools/testing/Invoke-IsolatedGodot.ps1": "1fe67f2db677fb869ee82126834a83d519b77888328a690ec55bbb3fbda7fa5f",
+      "tests/integration/fresh_save_load_child.gd": "4b43bad936ad8ac66f4e015e183c8e3c2d8374d2798e49dd85eb79ddb4b145aa",
+      "evidence/phase_2r/current_ci_20261023/final_retention/run39988834004/original-12517208437.zip": "c49053565e4b9430f2e9f0157eea9c1602898156de13df2837ca714235279670",
+      "tools/testing/Invoke-FreshSaveLoad.ps1": "9b95c418b3d475876e91516e0893a2d70f4f85040fb1b2862b97aa09b37bc0e6",
+      "tests/integration/authored_week_child.gd": "e509c60688afccc407bd920120169bd50edbaffbe48747674362284a09e77e38"
+    },
+    "variants": [
+      {
+        "variant": "baseline",
+        "source_ref": "9db0b69f49266c26776dedd29e3b61a410c46002",
+        "assertions": {
+          "write": 112,
+          "load": 101
+        },
+        "wall_seconds": 460.3716366,
+        "fresh_load_to_ready_us": 102201894,
+        "retained_load_to_ready_us": 129337417,
+        "save_press_return_us": 52385623,
+        "runtime_sha256": {
+          "scripts/infrastructure/save/DesktopContinuationOperationJournal.gd": "5853706fffa671e1f3379fe43892955f9a13f8f11863c2c9190b3fe3f4c08e9b"
+        }
+      },
+      {
+        "variant": "candidate",
+        "source_ref": "af817a6db0654b03676344fe06a210a1491fb288",
+        "assertions": {
+          "write": 112,
+          "load": 101
+        },
+        "wall_seconds": 367.2562449,
+        "fresh_load_to_ready_us": 53918454,
+        "retained_load_to_ready_us": 86494261,
+        "save_press_return_us": 52584855,
+        "runtime_sha256": {
+          "scripts/infrastructure/save/DesktopContinuationOperationJournal.gd": "956af87a9a4cce97c3c090993410ffc5d0fbe4986d777248cda0b2d75718794f"
+        }
+      }
+    ],
+    "fresh_load_reduction_percent": 47.243194925526524,
+    "journey_reduction_percent": 20.226135647210718,
+    "current_cases": 4,
+    "assertions": 426,
+    "clean_processes": 6
+  },
+  "final_native": {
+    "run_id": 40074441693,
+    "job_id": 120814680874,
+    "source_ref": "1c4932059963da071f74d505a8bd931eb209ce62",
+    "assertions": {
+      "load": 101,
+      "write": 112
+    },
+    "current_cases": 2,
+    "clean_processes": 3,
+    "load_to_ready_us": 57923055,
+    "wall_seconds": 387.0312734,
+    "runtime_sha256": {
+      "autoload/SaveManager.gd": "90b37d0bc46d1c955a452d45f0387992efa291ebb8aa6240f24ae20a3cec67cd",
+      "scripts/narrative/FrozenRunContext.gd": "541225d59ac04c627b20aeedd4b29f04f0972c22daf9dbf1a609923244225b5e",
+      "autoload/GameState.gd": "a7122b8cbb258ce10b02550414af5934f6662bc4c7ea2c807f298b2452844c03",
+      "scripts/infrastructure/save/SaveMigrations.gd": "b48230ed3adbe11eb92b0d829e090766ce56154279d23c37e6d3c9aa953cb0cb",
+      "scripts/infrastructure/save/CheckpointJournal.gd": "841e641348b5afb5f64e90334098557d787efc043f9a6ee8cb54f5ab83a46542",
+      "scripts/infrastructure/save/DesktopContinuationOperationJournal.gd": "d6d1c7a4dbc3c5659f4ca12fc2075c2995920184c5e2d5b54f53454335842baa",
+      "scripts/infrastructure/save/SaveDocumentSchema.gd": "e53ef8ef6e5d3d3762d05aa00aba3f1758df06ec16bb47e483e898a6632e14b0"
+    },
+    "source_slot_sha256": "a386df482e6660e245c310b16b6d02a0053d54034791c852ee9d55fee7388c51",
+    "scope": "Final guards qualified separately; not the cache-only matched performance source"
+  },
+  "reviews": {
+    "independent_source_review": "Cache and storage diagnostics, regression mechanism, type guards and controller equivalence reviewed; no blocking finding.",
+    "independent_evidence_review": "Original archive hashes/CRCs, current XML counts, clean process exits, source hashes and restored captures verified. Comparison reviewed separately before merge.",
+    "failure_handling": "Initial focused failures were retained, corrected with narrow guards and current API fixture, and requalified on final source."
+  },
+  "limits": [
+    "One baseline-first pair is not a latency distribution.",
+    "Diagnostic phase timings are nested as documented and cannot be freely added.",
+    "Final refusal guards were tested in a separate final native journey, not included in the cache-only pair.",
+    "Historical fixture reports excluded from current passing counts.",
+    "No full release suite, uninterrupted authored week, export or Steam upload."
+  ],
+  "next_target": {
+    "owner": "scripts/domain/narrative/SceneEventContract.gd",
+    "receipt_validation_calls": 42,
+    "receipt_validation_us": 31200315,
+    "bundle_validation_calls": 92,
+    "bundle_validation_us": 19065230,
+    "timing_scope": "Final fresh_save_load, inclusive nested totals; attribute before removing any check."
+  },
+  "separate_static_followup": "_intent_keys has an untyped prepare-request kind comparison; not exercised or repaired in this batch.",
+  "retained_archives": {
+    "diagnostic-evidence.zip": {
+      "size": 1556795,
+      "sha256": "f7e7df39633fa7d47a73f2d8735630585809d345f5e77889f390ef7eeac66049"
+    },
+    "acceptance-evidence.zip": {
+      "size": 2306747,
+      "sha256": "b7aa443200857c52498567ae894c6252b2e7eccc4c996e0792633eb1758e1cd3"
+    }
+  },
+  "final_changed_files": [
+    "scripts/infrastructure/save/DesktopContinuationOperationJournal.gd",
+    "tests/unit/test_continuation_serialization_cache.gd",
+    "tests/unit/test_desktop_continuation_operation_journal.gd"
+  ]
+}
