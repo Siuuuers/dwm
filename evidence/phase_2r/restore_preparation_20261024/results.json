@@ -1,0 +1,177 @@
+{
+  "object_count": 324,
+  "unique_object_bytes": 23659958,
+  "included_member_count": 379,
+  "omitted_member_count": 299,
+  "junit_groups": {
+    "final66.fresh_process_load": {
+      "reports": 3,
+      "cases": 3,
+      "assertions": 206,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "final66.intentional_storage_refusal": {
+      "reports": 2,
+      "cases": 166,
+      "assertions": 198,
+      "failures": 160,
+      "errors": 0,
+      "skipped": 0
+    },
+    "final66.native": {
+      "reports": 2,
+      "cases": 2,
+      "assertions": 224,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "final66.primary": {
+      "reports": 28,
+      "cases": 2833,
+      "assertions": 155948,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "forward_preflight.native_baseline": {
+      "reports": 2,
+      "cases": 2,
+      "assertions": 213,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "forward_preflight.native_candidate": {
+      "reports": 2,
+      "cases": 2,
+      "assertions": 213,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "forward_preflight.primary": {
+      "reports": 2,
+      "cases": 13,
+      "assertions": 320,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "reverse_comparison.native_baseline": {
+      "reports": 2,
+      "cases": 2,
+      "assertions": 213,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "reverse_comparison.native_candidate": {
+      "reports": 2,
+      "cases": 2,
+      "assertions": 213,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "reverse_comparison.primary": {
+      "reports": 2,
+      "cases": 13,
+      "assertions": 320,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "sha256": "98ed858cdcde366a509fb6711e91ad2f68ede6b8ee37cc6c60cb0d971c7eb300",
+  "bytes": 4263104,
+  "archive": "exact-evidence.zip",
+  "source_archive_count": 42,
+  "primary_run": 40056342262,
+  "qualified_head": "5ed4a85ec6e9e24d24111277b3db05405acbe1a2",
+  "qualified_tree": "317fc698150559d74b9de92118fbcd7cf2909bb6",
+  "merge": "e31b9bf400743ccde44490df07853b3738af7f1b",
+  "all_33_jobs_passed": true,
+  "measurement": {
+    "baseline_first": {
+      "run": 40055223802,
+      "timings_seconds": {
+        "baseline": {
+          "writer_boot": 32.746803,
+          "writer_load": 96.565889,
+          "writer_save": 38.37883,
+          "fresh_boot": 46.061024,
+          "fresh_load": 78.238035,
+          "fresh_load_to_ready": 75.620652,
+          "whole_variant": 319.1041107,
+          "load_action_to_ready": 94.329697,
+          "save_action_press_return": 32.509185
+        },
+        "candidate": {
+          "writer_boot": 35.488774,
+          "writer_load": 96.907748,
+          "writer_save": 47.113134,
+          "fresh_boot": 49.197461,
+          "fresh_load": 74.060343,
+          "fresh_load_to_ready": 71.499396,
+          "whole_variant": 331.463161,
+          "load_action_to_ready": 94.503935,
+          "save_action_press_return": 40.211691
+        }
+      },
+      "observed_reduction_percent": {
+        "writer_boot": -8.373247916750826,
+        "writer_load": -0.3540163131517282,
+        "writer_save": -22.758129937780815,
+        "fresh_boot": -6.809308017120919,
+        "fresh_load": 5.339719996802062,
+        "fresh_load_to_ready": 5.44990804892822,
+        "whole_variant": -3.8730464088628347,
+        "load_action_to_ready": -0.18471171385190388,
+        "save_action_press_return": -23.693322364125713
+      }
+    },
+    "candidate_first": {
+      "run": 40056369380,
+      "timings_seconds": {
+        "candidate": {
+          "writer_boot": 49.432074,
+          "writer_load": 131.829495,
+          "writer_save": 62.595558,
+          "fresh_boot": 66.702107,
+          "fresh_load": 103.325146,
+          "fresh_load_to_ready": 99.740621,
+          "whole_variant": 453.1512987,
+          "load_action_to_ready": 128.631352,
+          "save_action_press_return": 53.00306
+        },
+        "baseline": {
+          "writer_boot": 50.184335,
+          "writer_load": 137.185268,
+          "writer_save": 61.543106,
+          "fresh_boot": 67.895184,
+          "fresh_load": 108.246852,
+          "fresh_load_to_ready": 104.674825,
+          "whole_variant": 464.1524374,
+          "load_action_to_ready": 134.013266,
+          "save_action_press_return": 52.266863
+        }
+      },
+      "observed_reduction_percent": {
+        "writer_boot": 1.4989956527270865,
+        "writer_load": 3.9040438365437358,
+        "writer_save": -1.7101054340676214,
+        "fresh_boot": 1.757233620576093,
+        "fresh_load": 4.546742846618768,
+        "fresh_load_to_ready": 4.713840218982924,
+        "whole_variant": 2.3701563998293484,
+        "load_action_to_ready": 4.0159561516842635,
+        "save_action_press_return": -1.408534887582591
+      }
+    }
+  },
+  "decision": "Accept bounded Load optimization: preserved state and one fewer snapshot proof; fresh Load improves in both orders. Save slower in both pairs and total timing mixed. No overall speedup, zero-cost, statistical guarantee or smooth-loading claim.",
+  "coverage_note": "Execution counts, not unique behaviors. Intentional storage-refusal failures are separate from passing primary/native/fresh-process cases. All original archive member omissions are explicit in manifest."
+}
