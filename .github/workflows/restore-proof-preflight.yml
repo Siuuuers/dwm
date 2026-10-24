@@ -37,7 +37,7 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Require exact candidate
         env:
-          CANDIDATE_REF: ${{ inputs.candidate_ref || '660d8fdaff7602eb34de471b8b79dfb86fe39a69' }}
+          CANDIDATE_REF: ${{ inputs.candidate_ref || 'c2c7411b50816b2571a6af3635f938df33263ae2' }}
         run: |
           if ($env:CANDIDATE_REF -cnotmatch '^[0-9a-f]{40}$') { throw 'Exact candidate SHA required; no branch/default candidate permitted.' }
       - name: Install Godot 4.6.3 standard
@@ -59,7 +59,7 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Run isolated qualification
         env:
-          CANDIDATE_REF: ${{ inputs.candidate_ref || '660d8fdaff7602eb34de471b8b79dfb86fe39a69' }}
+          CANDIDATE_REF: ${{ inputs.candidate_ref || 'c2c7411b50816b2571a6af3635f938df33263ae2' }}
           QUALIFICATION_LANE: ${{ matrix.lane }}
         run: ./tools/testing/Invoke-RegistrationParseQualification.ps1 -CandidateRef $env:CANDIDATE_REF -Lane $env:QUALIFICATION_LANE
       - name: Preserve current qualification evidence

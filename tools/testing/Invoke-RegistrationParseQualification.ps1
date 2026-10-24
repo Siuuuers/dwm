@@ -69,7 +69,7 @@ function Preserve([string]$runtime, [string]$label) {
     }
 }
 try {
-    $labels = if ($Lane -eq 'native') { @('baseline', 'candidate') } else { @('candidate') }
+    $labels = if ($Lane -eq 'native') { @('candidate', 'baseline') } else { @('candidate') }
     foreach ($label in $labels) {
         $ref = if ($label -eq 'baseline') { $baseRef } else { $CandidateRef }
         $runtime = Join-Path $env:RUNNER_TEMP "parse-$Lane-$label"
@@ -166,14 +166,14 @@ try {
     if ($Lane -eq 'native') {
         $record.comparison = @()
         foreach ($case in @('fresh', 'retained')) {
-            $before = @($record.runs[0].processes | Where-Object case -eq $case)[0]
-            $after = @($record.runs[1].processes | Where-Object case -eq $case)[0]
+            $before = @((@($record.runs | Where-Object label -eq 'baseline')[0]).processes | Where-Object case -eq $case)[0]
+            $after = @((@($record.runs | Where-Object label -eq 'candidate')[0]).processes | Where-Object case -eq $case)[0]
             foreach ($metric in @('launch_to_bootstrap_start_ms', 'launch_to_title_drawn_ms', 'new_acc_to_caption_complete_ms', 'confirm_to_caption_complete_ms')) {
                 if (-not $before.ContainsKey($metric)) { continue }
                 $record.comparison += @{ case = $case; metric = $metric; baseline = $before[$metric]; candidate = $after[$metric]; delta_ms = $after[$metric] - $before[$metric]; percent = 100.0 * ($after[$metric] - $before[$metric]) / $before[$metric] }
             }
         }
-        $record.limits = 'One ordered baseline then candidate pair on same runner. Fresh profile is not cold OS cache. No acceptance speed threshold; NewAcc variations require review. Inclusive phase/profile times overlap. Sources contain identical temporary instrumentation; no compiler attribution probes. All captures require visual review.'
+        $record.limits = 'One ordered candidate then baseline pair on same runner. Fresh profile is not cold OS cache. No acceptance speed threshold; NewAcc variations require review. Inclusive phase/profile times overlap. Sources contain identical temporary instrumentation; no compiler attribution probes. All captures require visual review.'
     }
     $record.status = 'passed_requires_evidence_review'
 } finally { Save-Record }
