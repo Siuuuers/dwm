@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="GutTests" failures="0" tests="7" >
+  <testsuite name="tests/unit/test_scene_save_schema.gd" tests="7" failures="0" skipped="0" time="0.004428" >
+      <testcase name="test_scene_versions_do_not_replace_or_migrate_legacy_versions" assertions="8" status="pass" classname="tests/unit/test_scene_save_schema.gd" time="0.000421" >
+      </testcase>
+      <testcase name="test_scene_recovery_cannot_enter_legacy_document_via_proof_family" assertions="6" status="pass" classname="tests/unit/test_scene_save_schema.gd" time="0.000222" >
+      </testcase>
+      <testcase name="test_scene_admissions_do_not_claim_effect_or_variable_application" assertions="5" status="pass" classname="tests/unit/test_scene_save_schema.gd" time="0.000199" >
+      </testcase>
+      <testcase name="test_new_scene_builder_never_fills_calendar_or_missing_owner_defaults" assertions="5" status="pass" classname="tests/unit/test_scene_save_schema.gd" time="0.000215" >
+      </testcase>
+      <testcase name="test_current_scene_gameplay_omits_retired_relationship_fields_and_requires_progress" assertions="19" status="pass" classname="tests/unit/test_scene_save_schema.gd" time="0.001479" >
+      </testcase>
+      <testcase name="test_scene_progress_distinguishes_no_closure_from_never_started_and_keeps_occurrences" assertions="4" status="pass" classname="tests/unit/test_scene_save_schema.gd" time="0.001065" >
+      </testcase>
+      <testcase name="test_scene_progress_refuses_malformed_required_facts" assertions="12" status="pass" classname="tests/unit/test_scene_save_schema.gd" time="0.000827" >
+      </testcase>
+  </testsuite>
+</testsuites>

@@ -69,14 +69,45 @@ func test_scene_install_compensation_preserves_cold_state_and_configured_owners(
 		assert_true(applied.get("ok", false), str(applied))
 		if not applied.get("ok", false): break
 		assert_true(owner.capture_restore_state().value.backup.lifecycle.has("scene_assignment"))
+		# Simulate progress installed before a later restore participant refuses.
+		# The empty fixture alone cannot expose leaked progress during compensation.
+		owner.scene_choices = {"test.opportunity": "second"}
+		owner.scene_challenge_outcomes = {"test.occurrence".sha256_text(): {
+			"challenge_id": "test.challenge", "outcome": "perfect"}}
 		var rolled: Dictionary = participant.rollback_silent(captured.value)
 		assert_true(rolled.get("ok", false), str(rolled))
 		assert_eq(owner.capture_restore_state().value, captured.value, "scene identity, references, receipts and contacts return exactly")
+		assert_true(owner.scene_choices.is_empty(), "cold compensation clears partially installed choices")
+		assert_true(owner.scene_challenge_outcomes.is_empty(), "cold compensation clears partially installed outcomes")
 		assert_same(owner._run_lifecycle, lifecycle_owner)
 		assert_same(owner._run_lifecycle._scene_issuer, fixture.issuer)
 		assert_same(owner._scene_event_bridge, bridge_owner)
 	assert_signal_not_emitted(owner, "save_relevant_state_changed")
 	fixture.close()
+
+func test_live_run_backup_restores_detached_scene_progress() -> void:
+	var owner: Node = autofree(GAME_STATE.new())
+	owner.reset_game()
+	var occurrence := "test.occurrence".sha256_text()
+	owner.scene_choices = {"test.opportunity": "second"}
+	owner.scene_challenge_outcomes = {occurrence: {"challenge_id": "test.challenge", "outcome": "perfect"}}
+	var captured: Dictionary = owner.capture_live_run_state()
+	assert_true(captured.ok)
+	var baseline: Dictionary = captured.value.duplicate(true)
+	for attempt: int in 2:
+		owner.scene_choices["test.opportunity"] = "pass"
+		owner.scene_challenge_outcomes[occurrence].outcome = "lost"
+		assert_eq(captured.value, baseline, "live mutation cannot alter the retained backup")
+		var restored: Dictionary = owner.restore_live_run_state(captured.value)
+		assert_true(restored.get("ok", false), str(restored))
+		assert_eq(owner.scene_choices, baseline.backup.scene_choices)
+		assert_eq(owner.scene_challenge_outcomes, baseline.backup.scene_challenge_outcomes)
+		assert_eq(owner.capture_live_run_state().value, baseline, "retry restores the complete captured live state")
+	# Restored nested dictionaries must also detach from caller-owned backup bytes.
+	captured.value.backup.scene_choices["test.opportunity"] = "first"
+	captured.value.backup.scene_challenge_outcomes[occurrence].outcome = "unfinished"
+	assert_eq(owner.scene_choices, baseline.backup.scene_choices)
+	assert_eq(owner.scene_challenge_outcomes, baseline.backup.scene_challenge_outcomes)
 
 func before_each() -> void:
 	_scene_validation_scope.install(true)

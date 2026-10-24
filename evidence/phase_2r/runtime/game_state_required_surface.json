@@ -698,6 +698,22 @@
       "contract_test": "test_game_owner_hospital_request_is_bound_durable_detached_and_idempotent"
     },
     {
+      "symbol": "scene_choices",
+      "kind": "property",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_live_run_backup_restores_detached_scene_progress"
+    },
+    {
+      "symbol": "scene_challenge_outcomes",
+      "kind": "property",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_live_run_backup_restores_detached_scene_progress"
+    },
+    {
       "symbol": "reset_game",
       "kind": "function",
       "availability": "current",

@@ -617,6 +617,7 @@ const SCENE_GAMEPLAY_KEYS := ["coins", "inventory",
 	"minesweeper_app_rounds_finished_today", "minesweeper_money_earned_today", "minesweeper_rng_seed",
 	"minesweeper_round_floor", "minesweeper_rounds_left", "minesweeper_selected_difficulty", "minesweeper_task_rewards_claimed",
 	"money", "narrative_variables", "penalty_points_today", "penalty_points_total", "route_context",
+	"scene_choices", "scene_challenge_outcomes",
 	"shop_purchase_counts", "stats", "story_flags"]
 const SCENE_CHECKPOINT_KEYS := ["content_version", "entry_id", "frozen_context", "manifest_fingerprint", "stage",
 	"transaction_id", "reading_session"]
@@ -1179,7 +1180,21 @@ static func _validate_scene_gameplay(gameplay: Variant) -> String:
 	var registered := _registered_narrative_variables()
 	for variable: Variant in gameplay.narrative_variables:
 		if variable not in registered: return "unregistered narrative variable"
+	var progress_error := _validate_scene_progress(gameplay.scene_choices, gameplay.scene_challenge_outcomes)
+	if progress_error != "": return progress_error
 	return _validate_scene_route_context(gameplay.route_context)
+
+## Scene progress is current Run state; receipt agreement is checked by GameState.
+static func _validate_scene_progress(choices: Variant, outcomes: Variant) -> String:
+	if not choices is Dictionary or not outcomes is Dictionary: return "scene progress must be objects"
+	for opportunity: Variant in choices:
+		if not _scene_id(opportunity) or not _scene_id(choices[opportunity]): return "invalid scene choice"
+	for occurrence: Variant in outcomes:
+		var outcome: Variant = outcomes[occurrence]
+		if not _scene_digest(occurrence) or not _scene_keys(outcome, ["challenge_id", "outcome"]) \
+				or not _scene_id(outcome.challenge_id) or outcome.outcome not in ["never_started", "unfinished", "lost", "won", "perfect"]:
+			return "invalid scene challenge outcome"
+	return ""
 
 static func _validate_scene_route_context(context: Dictionary) -> String:
 	for key: String in context:

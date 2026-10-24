@@ -175,6 +175,7 @@ func setup(scene_tree: SceneTree) -> Dictionary:
 		"minesweeper_rounds_left": 2, "minesweeper_selected_difficulty": "beginner",
 		"minesweeper_task_rewards_claimed": {}, "money": 0, "narrative_variables": {},
 		"penalty_points_today": 0, "penalty_points_total": 0, "route_context": {},
+		"scene_choices": {}, "scene_challenge_outcomes": {},
 		"shop_purchase_counts": {}, "stats": {"pressure": 3}, "story_flags": {}}
 	var input := {"lifecycle": lifecycle, "gameplay": gameplay, "contacts": CONTACTS.make_scene_defaults(),
 		"desktop": game._empty_desktop_snapshot(identity.causal_day_instance, identity.causal_day_instance_issuer_receipt),

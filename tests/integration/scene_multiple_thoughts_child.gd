@@ -25,6 +25,7 @@ func create_multiple_thoughts() -> void:
 	var stale: Dictionary = bridge.capture_current_line_presentation_frontier()
 	assert_false(game.accept_scene_thought(stale, "missing").ok)
 	assert_true(_thoughts().is_empty())
+	assert_eq(game.scene_choices, {}, "invalid selection does not choose an option")
 	var original: RefCounted = saves._storage._file_ops
 	var refusal = WRITE_REFUSAL.WriteRefusal.new()
 	refusal.refuse_on = 1
@@ -32,6 +33,7 @@ func create_multiple_thoughts() -> void:
 	await _click(column.get_child(0))
 	assert_eq(refusal.refused, 1)
 	assert_true(_thoughts().is_empty(), "failed persistence cannot choose any option")
+	assert_eq(game.scene_choices, {}, "refused persistence leaves explicit choice state unchanged")
 	assert_eq(bridge._runtime_adapter.current_line_id(), OFFER)
 	saves._storage._file_ops = original
 	for frame: int in 12: await get_tree().process_frame
@@ -41,6 +43,11 @@ func create_multiple_thoughts() -> void:
 	assert_eq(_thoughts().size(), 1)
 	assert_eq(_thoughts()[0].scene_event.result.choice, "second")
 	assert_eq(_thoughts()[0].scene_event.result.target_id, "partner.lavinia")
+	var selected: Dictionary = _thoughts()[0].scene_event.result
+	assert_eq(game.scene_choices, {selected.opportunity_id: "second"})
+	var detached: Dictionary = game.capture_run_snapshot_input()
+	detached.gameplay.scene_choices[selected.opportunity_id] = "first"
+	assert_eq(game.scene_choices[selected.opportunity_id], "second", "snapshot callers cannot mutate live choices")
 	assert_false(game.accept_scene_thought(stale, "first").ok)
 	if not await _save_partner(2): return
 	_write_json("user://multiple-thought-proof.json", {"pid": OS.get_process_id(), "receipt": _thoughts()[0],
@@ -54,14 +61,18 @@ func load_multiple_thoughts() -> void:
 	if not await _wait_line("line.scene.test.partner.lavinia.after"): return
 	assert_eq(_thoughts().size(), 1)
 	assert_eq(_thoughts()[0], proof.value.receipt, "fresh process retains exact selected option receipt")
+	var selected: Dictionary = proof.value.receipt.scene_event.result
+	assert_eq(game.scene_choices, {selected.opportunity_id: "second"}, "fresh Load restores explicit chosen branch")
 	var stale: Dictionary = bridge.capture_current_line_presentation_frontier()
 	if not await _load_partner(1) or not await _wait_line(OFFER): return
 	assert_true(_thoughts().is_empty(), "selected earlier save restores unresolved opportunity")
+	assert_eq(game.scene_choices, {}, "earlier save restores unresolved choice state")
 	assert_false(game.accept_scene_thought(stale, "first").ok)
 	await _accept()
 	if not await _wait_line("line.scene.test.partner.benchmark.after"): return
 	assert_eq(_thoughts().size(), 1)
 	assert_eq(_thoughts()[0].scene_event.result.choice, "pass")
 	assert_eq(_thoughts()[0].scene_event.result.target_id, "partner.benchmark")
+	assert_eq(game.scene_choices, {selected.opportunity_id: "pass"}, "ordinary continuation explicitly records pass")
 	assert_eq(FileAccess.get_sha256("user://saves/slot_1.json"), proof.value.unresolved)
 	assert_eq(FileAccess.get_sha256("user://saves/slot_2.json"), proof.value.resolved)

@@ -61,7 +61,38 @@ func test_current_scene_gameplay_omits_retired_relationship_fields_and_requires_
 		assert_ne(RUN._validate_scene_gameplay(previous_shape), "",
 			"previous-build fields are refused instead of silently migrated: " + key)
 	for key: String in ["coins", "inventory", "money", "minesweeper_task_rewards_claimed",
-			"minesweeper_rounds_left", "shop_purchase_counts", "stats", "story_flags"]:
+			"minesweeper_rounds_left", "shop_purchase_counts", "stats", "story_flags",
+			"scene_choices", "scene_challenge_outcomes"]:
 		var incomplete := gameplay.duplicate(true)
 		incomplete.erase(key)
 		assert_ne(RUN._validate_scene_gameplay(incomplete), "", "required progress remains: " + key)
+
+func test_scene_progress_distinguishes_no_closure_from_never_started_and_keeps_occurrences() -> void:
+	var gameplay: Dictionary = preload("res://autoload/GameState.gd").make_scene_new_run_gameplay()
+	assert_eq(gameplay.scene_choices, {})
+	assert_eq(gameplay.scene_challenge_outcomes, {}, "no completed Challenge is not never_started")
+	gameplay.scene_choices = {"thought.test": "second", "thought.default": "pass", "thought.accepted": "yes"}
+	var first := "a".repeat(64)
+	var second := "b".repeat(64)
+	gameplay.scene_challenge_outcomes = {
+		first: {"challenge_id": "challenge.test", "outcome": "never_started"},
+		second: {"challenge_id": "challenge.test", "outcome": "perfect"}}
+	var before := gameplay.duplicate(true)
+	assert_eq(RUN._validate_scene_gameplay(gameplay), "", "separate occurrences retain separate outcomes")
+	assert_eq(gameplay, before, "shape validation does not collapse or synthesize progress")
+
+func test_scene_progress_refuses_malformed_required_facts() -> void:
+	var initial: Dictionary = preload("res://autoload/GameState.gd").make_scene_new_run_gameplay()
+	for invalid: Variant in [null, [], {"": "pass"}, {"thought.test": ""}, {"thought.test": false}]:
+		var gameplay := initial.duplicate(true)
+		gameplay.scene_choices = invalid
+		assert_ne(RUN._validate_scene_gameplay(gameplay), "", "invalid choice fact: " + str(invalid))
+	var occurrence := "a".repeat(64)
+	for invalid: Variant in [null, [], {"bad-occurrence": {"challenge_id": "challenge.test", "outcome": "won"}},
+			{occurrence: {"challenge_id": "", "outcome": "won"}},
+			{occurrence: {"challenge_id": "challenge.test", "outcome": "missing"}},
+			{occurrence: {"challenge_id": "challenge.test"}},
+			{occurrence: {"challenge_id": "challenge.test", "outcome": "won", "receipt": "extra"}}]:
+		var gameplay := initial.duplicate(true)
+		gameplay.scene_challenge_outcomes = invalid
+		assert_ne(RUN._validate_scene_gameplay(gameplay), "", "invalid outcome fact: " + str(invalid))

@@ -220,6 +220,8 @@ var hospital_skipped_sylvia_solo_count: int = 0
 
 var story_flags: Dictionary
 var route_context: Dictionary
+var scene_choices: Dictionary = {}
+var scene_challenge_outcomes: Dictionary = {}
 func _ready() -> void:
 	pass
 
@@ -248,6 +250,8 @@ func reset_game() -> void:
 	# A new run starts with an empty effect/variable ledger (dwm-p2r.8, Plan-05 Task 3): receipts
 	# and applied transaction ids are run-scoped and must never leak across runs.
 	_command_receipts = {}
+	scene_choices = {}
+	scene_challenge_outcomes = {}
 	_applied_effect_transaction_ids = []
 	_applied_variable_transaction_ids = []
 	_narrative_variables = {}
@@ -3025,6 +3029,8 @@ func capture_restore_state() -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {"backup": {
 		"gameplay": gameplay,
 		"dating_reconciliation": dating_backup,
+		"scene_choices": scene_choices.duplicate(true),
+		"scene_challenge_outcomes": scene_challenge_outcomes.duplicate(true),
 		"command_receipts": _command_receipts.duplicate(true),
 		"applied_effect_transaction_ids": _applied_effect_transaction_ids.duplicate(true),
 		"applied_variable_transaction_ids": _applied_variable_transaction_ids.duplicate(true),
@@ -3144,6 +3150,8 @@ func capture_live_run_state() -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {"backup": {
 		"gameplay": to_save_dict().duplicate(true),
 		"contacts": contacts.duplicate(true),
+		"scene_choices": scene_choices.duplicate(true),
+		"scene_challenge_outcomes": scene_challenge_outcomes.duplicate(true),
 		"command_receipts": _command_receipts.duplicate(true),
 		"applied_effect_transaction_ids": _applied_effect_transaction_ids.duplicate(true),
 		"applied_variable_transaction_ids": _applied_variable_transaction_ids.duplicate(true),
@@ -3156,6 +3164,9 @@ func restore_live_run_state(backup: Dictionary) -> Dictionary:
 	if typeof(source) != TYPE_DICTIONARY or not (source as Dictionary).has("command_receipts"):
 		return _transaction_failure(&"invalid_run_backup", "backup was not issued by capture_live_run_state")
 	var detached: Dictionary = source as Dictionary
+	var progress_error := _NARRATIVE_VARIABLE_SCHEMA._validate_scene_progress(
+		detached.get("scene_choices", {}), detached.get("scene_challenge_outcomes", {}))
+	if progress_error != "": return _transaction_failure(&"invalid_run_backup", progress_error)
 	if typeof(detached.get("gameplay")) == TYPE_DICTIONARY:
 		var gameplay_check: Dictionary = _prepare_note_restore_gameplay(detached["gameplay"])
 		if not gameplay_check.get("ok", false):
@@ -3163,6 +3174,8 @@ func restore_live_run_state(backup: Dictionary) -> Dictionary:
 		apply_save_dict(gameplay_check["value"]["gameplay"].duplicate(true))
 	if typeof(detached.get("contacts")) == TYPE_DICTIONARY:
 		contacts = (detached["contacts"] as Dictionary).duplicate(true)
+	scene_choices = detached.get("scene_choices", {}).duplicate(true)
+	scene_challenge_outcomes = detached.get("scene_challenge_outcomes", {}).duplicate(true)
 	_command_receipts = (detached["command_receipts"] as Dictionary).duplicate(true)
 	_applied_effect_transaction_ids = (detached["applied_effect_transaction_ids"] as Array).duplicate(true)
 	_applied_variable_transaction_ids = (detached["applied_variable_transaction_ids"] as Array).duplicate(true)
@@ -3526,6 +3539,12 @@ func _prepare_note_restore_gameplay(gameplay: Dictionary) -> Dictionary:
 ## whole group. Live rollback preserves insertion order, unlike sorted disk IDs.
 func _prepare_restore_bookkeeping(source: Dictionary, live_backup: bool = false) -> Dictionary:
 	var candidate := {}
+	var choices: Variant = source.get("scene_choices", {}) if live_backup else {}
+	var outcomes: Variant = source.get("scene_challenge_outcomes", {}) if live_backup else {}
+	var progress_error := _NARRATIVE_VARIABLE_SCHEMA._validate_scene_progress(choices, outcomes)
+	if progress_error != "": return _transaction_failure(&"invalid_run_bookkeeping", progress_error)
+	candidate["scene_choices"] = choices.duplicate(true)
+	candidate["scene_challenge_outcomes"] = outcomes.duplicate(true)
 	var ledger_fields := ["command_receipts", "applied_effect_transaction_ids", "applied_variable_transaction_ids"]
 	var has_ledger := false
 	for field: String in ledger_fields:
@@ -3574,6 +3593,8 @@ func _prepare_restore_bookkeeping(source: Dictionary, live_backup: bool = false)
 
 
 func _apply_restore_bookkeeping(candidate: Dictionary) -> void:
+	scene_choices = candidate.scene_choices.duplicate(true)
+	scene_challenge_outcomes = candidate.scene_challenge_outcomes.duplicate(true)
 	if candidate.has("command_receipts"):
 		_command_receipts = candidate["command_receipts"].duplicate(true)
 		_applied_effect_transaction_ids = candidate["applied_effect_transaction_ids"].duplicate(true)
@@ -4179,7 +4200,8 @@ const SCENE_GAMEPLAY_KEYS := ["coins", "inventory", "minesweeper_app_rounds_fini
 	"minesweeper_money_earned_today", "minesweeper_rng_seed",
 	"minesweeper_round_floor", "minesweeper_rounds_left", "minesweeper_selected_difficulty",
 	"minesweeper_task_rewards_claimed", "money", "narrative_variables", "penalty_points_today",
-	"penalty_points_total", "route_context", "shop_purchase_counts", "stats", "story_flags"]
+	"penalty_points_total", "route_context", "scene_choices", "scene_challenge_outcomes",
+	"shop_purchase_counts", "stats", "story_flags"]
 const _SCENE_MANIFEST := preload("res://scripts/narrative/DialogicEntryManifest.gd")
 const _SCENE_FROZEN := preload("res://scripts/narrative/FrozenRunContext.gd")
 var _scene_snapshot_references: Dictionary = {}
@@ -4197,6 +4219,7 @@ static func make_scene_new_run_gameplay() -> Dictionary:
 		"minesweeper_rounds_left": 2, "minesweeper_selected_difficulty": "beginner",
 		"minesweeper_task_rewards_claimed": {}, "money": 0, "narrative_variables": {},
 		"penalty_points_today": 0, "penalty_points_total": 0, "route_context": {},
+		"scene_choices": {}, "scene_challenge_outcomes": {},
 		"shop_purchase_counts": {}, "stats": {"pressure": 3}, "story_flags": {}}
 	return gameplay
 
@@ -4302,13 +4325,25 @@ func _prepare_scene_snapshot_semantics(snapshot: Dictionary, bundle: Dictionary,
 	# Receipt authentication and frozen frame derivation are independent proofs.
 	# Join every authenticated event to the actual retained reading ledger as well:
 	# historical occurrences remain valid, but invented publications never do.
+	var expected_choices := {}
+	var expected_outcomes := {}
+	var anchors: Array[Dictionary] = []
 	if not commands.is_empty():
 		if not is_instance_valid(_scene_event_bridge) \
 				or not _scene_event_bridge.has_method("validate_scene_event_anchor"):
 			return _transaction_failure(&"event_dependency_invalid", "scene reading anchor validator required")
-		var anchors: Array[Dictionary] = []
 		for receipt: Dictionary in commands.values():
 			anchors.append(receipt.scene_event.reading_anchor)
+			var result: Dictionary = receipt.scene_event.result
+			if result.kind == "thought_resolved":
+				expected_choices[result.opportunity_id] = result.choice
+			elif result.kind == "challenge_closed":
+				expected_outcomes[result.challenge_occurrence] = {
+					"challenge_id": receipt.scene_event.semantic.payload.challenge_id, "outcome": result.outcome}
+	if not _SCENE_EVENT._equal(snapshot.gameplay.scene_choices, expected_choices) \
+			or not _SCENE_EVENT._equal(snapshot.gameplay.scene_challenge_outcomes, expected_outcomes):
+		return _transaction_failure(&"scene_progress_mismatch", "")
+	if not commands.is_empty():
 		var checkpoint: Dictionary = snapshot.lifecycle.ending_plan.source_reading_checkpoint \
 			if snapshot.lifecycle.get("ending_plan") is Dictionary and snapshot.lifecycle.ending_plan.get("source_kind") == "scene" else snapshot.narrative_checkpoint
 		return {"ok": true, "pending_anchors": anchors, "checkpoint": checkpoint}
@@ -4331,6 +4366,8 @@ func _install_scene_snapshot_silent(snapshot: Dictionary) -> Dictionary:
 	if not lifecycle.get("ok", false): return lifecycle
 	_apply_gameplay_silent(snapshot.gameplay)
 	_narrative_variables = snapshot.gameplay.narrative_variables.duplicate(true)
+	scene_choices = snapshot.gameplay.scene_choices.duplicate(true)
+	scene_challenge_outcomes = snapshot.gameplay.scene_challenge_outcomes.duplicate(true)
 	contacts = snapshot.contacts.duplicate(true)
 	_desktop_snapshot = snapshot.desktop.duplicate(true)
 	_scene_snapshot_references = snapshot.scene.duplicate(true)
@@ -4671,6 +4708,8 @@ func _accept_scene_runtime_event(event: Dictionary, digest: String, lease: Strin
 	if prior.has(event.command_id): return lookup_scene_event(event.command_id, digest)
 	var candidate := capture_run_snapshot_input()
 	candidate.command_receipts[event.command_id] = receipt.value.duplicate(true)
+	if result.kind == "thought_resolved":
+		candidate.gameplay.scene_choices[result.opportunity_id] = result.choice
 	var ledger := _SCENE_EVENT.validate_selected_scene_receipts(candidate.command_receipts,
 		_identity_issuer, _scene_save_owner, candidate.contacts)
 	if not ledger.ok: return ledger
@@ -4683,6 +4722,7 @@ func _accept_scene_runtime_event(event: Dictionary, digest: String, lease: Strin
 			or not _mutation_gate.is_lease_active(&"causal_transaction", lease):
 		return _scene_event_fatal(&"event_adoption_source_changed")
 	_command_receipts = candidate.command_receipts.duplicate(true)
+	scene_choices = candidate.gameplay.scene_choices.duplicate(true)
 	return {"ok": true, "value": result.duplicate(true), "duplicate": false}
 
 var _scene_save_owner: Object
@@ -5039,6 +5079,8 @@ func commit_scene_challenge_closure(command: Dictionary, result: Dictionary) -> 
 	if made.value.request_fingerprint != operation.digest: return _transaction_failure(&"event_digest_mismatch", "")
 	var candidate := capture_run_snapshot_input().duplicate(true)
 	candidate.command_receipts[operation.event.command_id] = made.value
+	candidate.gameplay.scene_challenge_outcomes[result.challenge_occurrence] = {
+		"challenge_id": operation.event.payload.challenge_id, "outcome": result.outcome}
 	var validated := _SCENE_EVENT.validate_selected_scene_receipts(candidate.command_receipts, _identity_issuer, _scene_save_owner, candidate.contacts)
 	if not validated.ok: return validated
 	var committed: Dictionary
@@ -5069,6 +5111,7 @@ func commit_scene_challenge_closure(command: Dictionary, result: Dictionary) -> 
 			or not _mutation_gate.is_lease_active(&"causal_transaction", operation.lease):
 		return _scene_event_fatal(&"event_adoption_source_changed")
 	_command_receipts = candidate.command_receipts.duplicate(true)
+	scene_challenge_outcomes = candidate.gameplay.scene_challenge_outcomes.duplicate(true)
 	return {"ok": true, "duplicate": false, "value": result.duplicate(true)}
 
 func _scene_challenge_profile_matches(record: Dictionary, reference: Dictionary) -> bool:
@@ -5137,6 +5180,9 @@ func _validate_scene_challenge_checkpoint(snapshot: Dictionary, checkpoint: Dict
 			var expected: Dictionary = operation.source_snapshot.duplicate(true)
 			if end.get("ok", false):
 				expected.command_receipts[_scene_end_operation.event.command_id] = snapshot.command_receipts.get(_scene_end_operation.event.command_id)
+				var closure: Dictionary = expected.command_receipts[_scene_end_operation.event.command_id].scene_event.result
+				expected.gameplay.scene_challenge_outcomes[closure.challenge_occurrence] = {
+					"challenge_id": _scene_end_operation.event.payload.challenge_id, "outcome": closure.outcome}
 			valid = valid and end.get("ok", false) \
 				and _SCENE_EVENT._equal(capture_run_snapshot_input(), operation.source_snapshot) \
 				and _SCENE_EVENT._equal(expected, snapshot)
