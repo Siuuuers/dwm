@@ -854,6 +854,30 @@ func test_new_run_and_restore_have_mutually_exclusive_source_and_context_fields(
 			"plan line 780: prepare_intent missing %s is exact-key-invalid" % missing)
 
 
+func test_prepare_rejects_non_string_kind_before_storage_access() -> void:
+	var journal: Variant = _configured_journal()
+	if journal == null:
+		return
+	var template: Dictionary = _restore_intent_request()
+	for selected_document_present: bool in [false, true]:
+		for malformed_kind: Variant in [null, false, 7, 1.0, [], {}]:
+			var request: Dictionary = template.duplicate(true)
+			request["kind"] = malformed_kind
+			if selected_document_present:
+				request["selected_document"] = {}
+			var request_before: Dictionary = request.duplicate(true)
+			var calls_before: Array[Dictionary] = _storage.call_log.duplicate(true)
+			var durable_before: Dictionary = _storage.snapshot()
+			var label := "kind type %s, selected document %s" % [
+				typeof(malformed_kind), selected_document_present]
+			_assert_rejected(journal.prepare_intent(request), label)
+			assert_eq(_storage.call_log, calls_before,
+				"%s rejects before reading or writing storage" % label)
+			assert_eq(_storage.snapshot(), durable_before,
+				"%s preserves durable bytes" % label)
+			assert_eq(request, request_before, "%s preserves the submitted request" % label)
+
+
 func test_new_run_requires_exactly_empty_dialogic_and_audio_subcontexts() -> void:
 	var journal: Variant = _configured_journal()
 	if journal == null:

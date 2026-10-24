@@ -1641,7 +1641,8 @@ func _operation_keys(operation: Dictionary) -> Array[String]:
 
 func _intent_keys(request: Dictionary) -> Array[String]:
 	var keys := PREPARE_INTENT_KEYS.duplicate()
-	if request.get("kind") == "scene_restore": keys.append("selected_document")
+	if typeof(request.get("kind")) == TYPE_STRING and request.get("kind") == "scene_restore":
+		keys.append("selected_document")
 	return keys
 
 
