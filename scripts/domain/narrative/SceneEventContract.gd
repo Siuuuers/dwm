@@ -487,6 +487,13 @@ static func make_scene_receipt(envelope: Dictionary, anchor: Dictionary, result:
 
 static func _make_scene_receipt_from_context(envelope: Dictionary, anchor: Dictionary,
 		result: Dictionary, context: Dictionary) -> Dictionary:
+	var probe_started := _VALIDATION_TIMING.start_sample()
+	var probe_result := _make_scene_receipt_from_context_probe_body(envelope, anchor, result, context)
+	_VALIDATION_TIMING.finish_sample("probe__make_scene_receipt_from_context", probe_started, bool(probe_result.get("ok", false)))
+	return probe_result
+
+static func _make_scene_receipt_from_context_probe_body(envelope: Dictionary, anchor: Dictionary,
+		result: Dictionary, context: Dictionary) -> Dictionary:
 	var checked: Dictionary = context.inspection
 	var registered: Dictionary = context.registered
 	if not _valid_anchor(anchor, envelope.source): return _fail(&"event_anchor_invalid")
@@ -582,6 +589,12 @@ static func _validate_scene_result_inspected(envelope: Dictionary, result: Varia
 ## Resolve only a saved closure in this Run; callers authenticate the receipt ledger.
 ## Never closes a board, consults a newer Profile attempt, or reapplies its effects.
 static func resolve_scene_challenge_recall(event: Dictionary, receipts: Dictionary, bundle: Dictionary) -> Dictionary:
+	var probe_started := _VALIDATION_TIMING.start_sample()
+	var probe_result := resolve_scene_challenge_recall_probe_body(event, receipts, bundle)
+	_VALIDATION_TIMING.finish_sample("probe_resolve_scene_challenge_recall", probe_started, bool(probe_result.get("ok", false)))
+	return probe_result
+
+static func resolve_scene_challenge_recall_probe_body(event: Dictionary, receipts: Dictionary, bundle: Dictionary) -> Dictionary:
 	var checked := inspect_scene(event, bundle)
 	if not checked.ok: return checked
 	if event.kind != "challenge.recall" or not _positive_int(event.issuer_receipt.get("counter")):
@@ -990,6 +1003,12 @@ static func _make_scene_admission_registered(identity: Dictionary, root_issuer_r
 
 
 static func _validate_scene_admission_receipt(receipt: Dictionary, registered: Dictionary, issuer: Object) -> Dictionary:
+	var probe_started := _VALIDATION_TIMING.start_sample()
+	var probe_result := _validate_scene_admission_receipt_probe_body(receipt, registered, issuer)
+	_VALIDATION_TIMING.finish_sample("probe__validate_scene_admission_receipt", probe_started, bool(probe_result.get("ok", false)))
+	return probe_result
+
+static func _validate_scene_admission_receipt_probe_body(receipt: Dictionary, registered: Dictionary, issuer: Object) -> Dictionary:
 	if not _keys(receipt, ["transaction_id", "request_fingerprint", "kind", "source_id", "scene_admission"]):
 		return _fail(&"scene_admission_receipt_invalid")
 	var saved: Variant = receipt.scene_admission
@@ -1256,6 +1275,12 @@ static func _sha(value: Variant) -> String:
 	return str(encoded.value).sha256_text() if encoded.get("ok", false) else ""
 
 static func _equal(actual: Variant, expected: Variant) -> bool:
+	var probe_started := _VALIDATION_TIMING.start_sample()
+	var probe_result := _equal_probe_body(actual, expected)
+	_VALIDATION_TIMING.finish_sample("probe_equal", probe_started, probe_result)
+	return probe_result
+
+static func _equal_probe_body(actual: Variant, expected: Variant) -> bool:
 	if not _same_types(actual, expected): return false
 	var actual_hash := _sha(actual)
 	return actual_hash != "" and actual_hash == _sha(expected)
