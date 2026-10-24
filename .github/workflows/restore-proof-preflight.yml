@@ -1,10 +1,12 @@
-name: Restore proof preflight
+name: Bundle validation cost attribution
 on:
+  push:
+    branches: [codex/bundle-attribution-20261024]
   workflow_dispatch:
 permissions:
   contents: read
 concurrency:
-  group: restore-proof-preflight-${{ github.ref }}
+  group: bundle-attribution-${{ github.ref }}
   cancel-in-progress: true
 jobs:
   preflight:
@@ -67,20 +69,43 @@ jobs:
           # Execute the committed configuration with the freshly imported assets.
           git restore -- project.godot
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Generate current caller inventories
-        run: ./tools/testing/Invoke-PublicSurfaceValidation.ps1 -Regenerate -EmitPayloads
-      - name: Verify current Save9 admission
-        run: ./tools/testing/Invoke-CloudTests.ps1 -Suite scene_backup_inspection
-      - name: Verify current Quick Load
-        run: ./tools/testing/Invoke-CloudTests.ps1 -Suite current_quick_load
-      - name: Compare fresh Save9 and fresh-process Load
+      - name: Record diagnostic source provenance
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $paths = @(
+            '.github/workflows/restore-proof-preflight.yml',
+            'scripts/domain/narrative/SceneEventContract.gd',
+            'scripts/narrative/SceneValidationTiming.gd',
+            'scripts/narrative/DialogicEntryManifest.gd',
+            'scripts/validation/CanonicalJsonWriter.gd',
+            'tools/testing/Invoke-FreshSaveLoad.ps1',
+            'tools/testing/Invoke-IsolatedGodot.ps1',
+            'tests/integration/fresh_save_load_child.gd'
+          )
+          $hashes = @{}
+          foreach ($path in $paths) {
+            $hashes[$path] = (Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash.ToLowerInvariant()
+          }
+          $source = (git rev-parse HEAD).Trim()
+          if ($LASTEXITCODE -ne 0 -or $source -cne $env:GITHUB_SHA) { throw 'Diagnostic source differs from workflow event.' }
+          $record = [ordered]@{
+            source_ref = $source
+            base_master = 'ba7ecd57afaadac5f25df14d24300037e57edec6'
+            source_sha256 = $hashes
+            engine_sha256 = (Get-FileHash -LiteralPath $env:GODOT_CONSOLE_PATH -Algorithm SHA256).Hash.ToLowerInvariant()
+            run_id = $env:GITHUB_RUN_ID
+            run_attempt = $env:GITHUB_RUN_ATTEMPT
+            scope = 'Diagnostic attribution only; no matched baseline or performance improvement claim. Current cases are write.xml and load.xml under fresh-save-load; retained-input reports are historical.'
+          }
+          $record | ConvertTo-Json -Depth 10 | Set-Content -LiteralPath '.godot/ci/bundle-attribution-source.json' -Encoding utf8
+      - name: Verify final fresh Save9 and fresh-process Load
         timeout-minutes: 45
-        run: ./tools/testing/Invoke-FreshSaveLoadComparison.ps1 -BaseRef 97a3e5c2b48c4ae82a30ebb62083c5ea1bff5932
+        run: ./tools/testing/Invoke-FreshSaveLoad.ps1
       - name: Preserve preflight evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: restore-proof-preflight-${{ github.run_id }}-${{ github.run_attempt }}
+          name: bundle-attribution-native-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             .godot/ci/
             .godot/phase2r_logs/

@@ -14,6 +14,13 @@ static func begin_scope(operation: String, state: String, stage: String, step: i
 		"physical_proof_failures": 0, "receipt_validation_calls": 0, "receipt_validation_us": 0,
 		"receipt_validation_failures": 0, "bundle_validation_calls": 0, "bundle_validation_us": 0,
 		"bundle_validation_failures": 0, "inclusive_nested": true, "snapshot_validations": []}
+	# Diagnostic-only successful phase samples; early-refused phases emit no record.
+	for kind: String in ["json_domain", "header", "nested", "nested_entry_manifest",
+			"nested_context_registry", "nested_ids_registry", "nested_caption_registry",
+			"indexing", "markers", "registrations", "bindings", "encoding", "fingerprint", "detachment"]:
+		_record["bundle_" + kind + "_calls"] = 0
+		_record["bundle_" + kind + "_us"] = 0
+		_record["bundle_" + kind + "_failures"] = 0
 	_started_us = Time.get_ticks_usec()
 	_active = true
 	return true
