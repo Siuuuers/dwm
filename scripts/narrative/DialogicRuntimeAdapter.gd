@@ -500,10 +500,16 @@ func _start_held_scene_target(path: String, native_index: int) -> Dictionary:
 ## native event indices. Only the returned native map may drive installed playback.
 static func compile_scene_programme(path: String, entry_label: String,
 		callable_labels: Array, markers: Array = []) -> Dictionary:
+	return _compile_scene_programme_in_registration(path, entry_label, callable_labels, markers, {})
+
+# Only the manifest's synchronous validation loop shares this private parse scope.
+# Public calls start empty; neither this scope nor its native events enter the result cache.
+static func _compile_scene_programme_in_registration(path: String, entry_label: String,
+		callable_labels: Array, markers: Array, parsed_sources: Dictionary) -> Dictionary:
 	var timing := preload("res://scripts/narrative/SceneValidationTiming.gd")
 	var started_us: int = timing.start_sample()
-	if started_us < 0: return _compile_scene_programme_observed_body(path, entry_label, callable_labels, markers)
-	var result: Dictionary = _compile_scene_programme_observed_body(path, entry_label, callable_labels, markers)
+	if started_us < 0: return _compile_scene_programme_observed_body(path, entry_label, callable_labels, markers, parsed_sources)
+	var result: Dictionary = _compile_scene_programme_observed_body(path, entry_label, callable_labels, markers, parsed_sources)
 	timing.finish_sample("compilation", started_us, bool(result.get("ok", false)))
 	return result
 
@@ -512,7 +518,7 @@ static func compile_scene_programme(path: String, entry_label: String,
 static var _scene_compile_cache: Dictionary = {}
 
 static func _compile_scene_programme_observed_body(path: String, entry_label: String,
-		callable_labels: Array, markers: Array = []) -> Dictionary:
+		callable_labels: Array, markers: Array, parsed_sources: Dictionary) -> Dictionary:
 	if not path.begins_with("res://") or not ResourceLoader.exists(path) or entry_label not in callable_labels:
 		return {"ok": false, "code": &"scene_programme_unavailable"}
 	var source := FileAccess.open(path, FileAccess.READ)
@@ -534,7 +540,12 @@ static func _compile_scene_programme_observed_body(path: String, entry_label: St
 	var key: String = arguments.value
 	if cacheable and cached.results.has(key):
 		return cached.results[key].duplicate(true)
-	var result := _compile_scene_programme_source(bytes.get_string_from_utf8(), entry_label, callable_labels, markers)
+	var text: String = bytes.get_string_from_utf8()
+	var parsed: Dictionary = parsed_sources.get(path, {}) if cacheable else {}
+	if parsed.is_empty() or parsed.bytes != bytes:
+		parsed = {"bytes": bytes, "timeline": _parse_scene_programme_source(text)}
+		if cacheable: parsed_sources[path] = parsed
+	var result := _compile_scene_programme_timeline(parsed.timeline, text, entry_label, callable_labels, markers)
 	if cacheable and result.get("ok", false):
 		if cached.results.size() >= 256: cached.results.clear()
 		cached.results[key] = result.duplicate(true)
@@ -542,9 +553,16 @@ static func _compile_scene_programme_observed_body(path: String, entry_label: St
 
 static func _compile_scene_programme_source(text: String, entry_label: String,
 		callable_labels: Array, markers: Array) -> Dictionary:
+	return _compile_scene_programme_timeline(_parse_scene_programme_source(text), text, entry_label, callable_labels, markers)
+
+static func _parse_scene_programme_source(text: String) -> DialogicTimeline:
 	var timeline := DialogicTimeline.new()
 	timeline.from_text(text)
 	timeline.process()
+	return timeline
+
+static func _compile_scene_programme_timeline(timeline: DialogicTimeline, text: String,
+		entry_label: String, callable_labels: Array, markers: Array) -> Dictionary:
 	var selected := false
 	var found := 0
 	var events: Array = []

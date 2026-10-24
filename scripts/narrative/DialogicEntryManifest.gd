@@ -323,6 +323,9 @@ static func validate_scene_registration(bundle: Dictionary) -> Dictionary:
 	if not programmes.ok or programmes.value.size() != entries.size(): return _scene_fail("programme coverage")
 	var compiled := {}
 	var markers := {}
+	# Invocation-local only: native parsing is shared across entries in one DTL,
+	# while every entry still reads current bytes and validates its own programme.
+	var parsed_sources := {}
 	for id: String in entries:
 		var row: Dictionary = programmes.value.get(id, {})
 		if not _scene_version(row.get("content_version")) or row.content_version != entries[id].content_version \
@@ -334,7 +337,8 @@ static func validate_scene_registration(bundle: Dictionary) -> Dictionary:
 			for field: String in ["marker_id", "label", "after_line_id", "kind"]:
 				if not _scene_id(marker[field]): return _scene_fail("marker value")
 			if not marker.payload is Dictionary: return _scene_fail("marker payload")
-		var native := DialogicRuntimeAdapter.compile_scene_programme(entries[id].locators.en.path, id, entries.keys(), row.markers)
+		var native := DialogicRuntimeAdapter._compile_scene_programme_in_registration(
+			entries[id].locators.en.path, id, entries.keys(), row.markers, parsed_sources)
 		if not native.ok: return native
 		if row.content_sha256 != native.value.content_sha256 or row.program_sha256 != native.value.program_sha256:
 			return _scene_fail("programme hash")
