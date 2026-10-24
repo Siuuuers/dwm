@@ -1,0 +1,1303 @@
+{
+  "format": 1,
+  "scope": "Each unique uncompressed artifact-member byte sequence is retained under objects/<sha256>. Original ZIP container bytes are not retained; original hashes and member paths are recorded.",
+  "archives": [
+    {
+      "name": "load-candidate-first-40115954165-1.zip",
+      "artifact_id": 12569930580,
+      "run_id": 40115954165,
+      "controller_ref": "09b3cc34507865723bceb132a03dc161e212ae92",
+      "size_bytes": 3924238,
+      "sha256": "64af17dbdb53695419bb49f2468d7c5a4dcde6478e60224637563a910cca3d25",
+      "members": [
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/baseline/computer-authored-restored-slot-3.png",
+          "size_bytes": 577257,
+          "sha256": "518dc6bccd41ef7ef77da8963cb6ba7216de4b48a2f8f81b892262dd25e4502a",
+          "object": "objects/518dc6bccd41ef7ef77da8963cb6ba7216de4b48a2f8f81b892262dd25e4502a"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/baseline/authored-week-terminal-pair.json",
+          "size_bytes": 684562,
+          "sha256": "030098d3bf53d4054acbeede238fece18526c847a755926f488b2aa2435ff2c1",
+          "object": "objects/030098d3bf53d4054acbeede238fece18526c847a755926f488b2aa2435ff2c1"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/baseline/computer-authored-restored-slot-2.png",
+          "size_bytes": 577257,
+          "sha256": "518dc6bccd41ef7ef77da8963cb6ba7216de4b48a2f8f81b892262dd25e4502a",
+          "object": "objects/518dc6bccd41ef7ef77da8963cb6ba7216de4b48a2f8f81b892262dd25e4502a"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/baseline/computer-authored-terminal-pair.png",
+          "size_bytes": 577421,
+          "sha256": "9903526552d99c2b5a0ff91a270ede867ada1628b902c874ede2a4e09811c8ea",
+          "object": "objects/9903526552d99c2b5a0ff91a270ede867ada1628b902c874ede2a4e09811c8ea"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/baseline/fresh-load.json",
+          "size_bytes": 2201,
+          "sha256": "717e971a6270846b2a518d3e0af0fb7a190ba7adb22dc9bc92f4fd8ff438b5f8",
+          "object": "objects/717e971a6270846b2a518d3e0af0fb7a190ba7adb22dc9bc92f4fd8ff438b5f8"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/baseline/fresh-pair-import.log",
+          "size_bytes": 96586,
+          "sha256": "62adb91bdf790ae1505bb7397cdaf1583940452ca3dfb912cbdef9bcbc1b194e",
+          "object": "objects/62adb91bdf790ae1505bb7397cdaf1583940452ca3dfb912cbdef9bcbc1b194e"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/baseline/fresh-save-load.log",
+          "size_bytes": 49660,
+          "sha256": "93dcdf15150e07377c3b28e8ecd1e032ed82db7f7f52f4c7f6523eaa32f2f9fd",
+          "object": "objects/93dcdf15150e07377c3b28e8ecd1e032ed82db7f7f52f4c7f6523eaa32f2f9fd"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/baseline/fresh-save-seed.log",
+          "size_bytes": 14410,
+          "sha256": "0700ef361122e779d896d9c3e61dc07ea0be0876632a6c29a8c3d440014a665f",
+          "object": "objects/0700ef361122e779d896d9c3e61dc07ea0be0876632a6c29a8c3d440014a665f"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/baseline/fresh-save-write.log",
+          "size_bytes": 69297,
+          "sha256": "9dc2ccbcf442a1a1b70ba61d57266d0a5edd6424a25e787ba9611d802a345ce7",
+          "object": "objects/9dc2ccbcf442a1a1b70ba61d57266d0a5edd6424a25e787ba9611d802a345ce7"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/baseline/import-console.log",
+          "size_bytes": 151233,
+          "sha256": "3232ee688de3aef89f131e83ae0d53e4584295348b50cbd3529230202183675d",
+          "object": "objects/3232ee688de3aef89f131e83ae0d53e4584295348b50cbd3529230202183675d"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/baseline/load.xml",
+          "size_bytes": 412,
+          "sha256": "d9103ff887b3fa18cfb3e87ff65917dd4ce359c9603ede8b46e591735a5dd06a",
+          "object": "objects/d9103ff887b3fa18cfb3e87ff65917dd4ce359c9603ede8b46e591735a5dd06a"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/baseline/processes.jsonl",
+          "size_bytes": 3068,
+          "sha256": "dded1ea75a8f3b802a7318abee6a057f437e5e80ccb71741cbf46af06df929fe",
+          "object": "objects/dded1ea75a8f3b802a7318abee6a057f437e5e80ccb71741cbf46af06df929fe"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/baseline/result.json",
+          "size_bytes": 7397,
+          "sha256": "58cddd283317f106ee525eb6ee01e07b5ff8c2a4d7983ed8dfbd8863420976fe",
+          "object": "objects/58cddd283317f106ee525eb6ee01e07b5ff8c2a4d7983ed8dfbd8863420976fe"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/baseline/slot_3.json",
+          "size_bytes": 448631,
+          "sha256": "69adc8d831b2dbc043cbed4b532bcc89f5d7caadff68fbb412c5378c5f856ae5",
+          "object": "objects/69adc8d831b2dbc043cbed4b532bcc89f5d7caadff68fbb412c5378c5f856ae5"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/baseline/terminal-pair.json",
+          "size_bytes": 1539,
+          "sha256": "03a329982a01b7e987c69f8ea6ef7d12b6cdbac8c573852049c82c9b14308b8e",
+          "object": "objects/03a329982a01b7e987c69f8ea6ef7d12b6cdbac8c573852049c82c9b14308b8e"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/baseline/write.xml",
+          "size_bytes": 375,
+          "sha256": "636e69302825c0aafcd00b2c852043782d5ee428bcf57019fed8c4e2056b254b",
+          "object": "objects/636e69302825c0aafcd00b2c852043782d5ee428bcf57019fed8c4e2056b254b"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/candidate/authored-week-terminal-pair.json",
+          "size_bytes": 684563,
+          "sha256": "959634ed540143d3c80e1a8b34d8bdc8cb10f7d142bc26e7a602d29f15d257f3",
+          "object": "objects/959634ed540143d3c80e1a8b34d8bdc8cb10f7d142bc26e7a602d29f15d257f3"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/candidate/computer-authored-restored-slot-2.png",
+          "size_bytes": 577257,
+          "sha256": "518dc6bccd41ef7ef77da8963cb6ba7216de4b48a2f8f81b892262dd25e4502a",
+          "object": "objects/518dc6bccd41ef7ef77da8963cb6ba7216de4b48a2f8f81b892262dd25e4502a"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/candidate/computer-authored-restored-slot-3.png",
+          "size_bytes": 577257,
+          "sha256": "518dc6bccd41ef7ef77da8963cb6ba7216de4b48a2f8f81b892262dd25e4502a",
+          "object": "objects/518dc6bccd41ef7ef77da8963cb6ba7216de4b48a2f8f81b892262dd25e4502a"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/candidate/computer-authored-terminal-pair.png",
+          "size_bytes": 577421,
+          "sha256": "9903526552d99c2b5a0ff91a270ede867ada1628b902c874ede2a4e09811c8ea",
+          "object": "objects/9903526552d99c2b5a0ff91a270ede867ada1628b902c874ede2a4e09811c8ea"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/candidate/fresh-load.json",
+          "size_bytes": 2201,
+          "sha256": "2eb2ce7b10f27372e774442f513d0107ae1d8850b39883e8d9954358d49b4fe1",
+          "object": "objects/2eb2ce7b10f27372e774442f513d0107ae1d8850b39883e8d9954358d49b4fe1"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/candidate/fresh-pair-import.log",
+          "size_bytes": 96586,
+          "sha256": "63888b2ca7645e454df9c00927045c69669836d0003d9c83a995f7d29679e083",
+          "object": "objects/63888b2ca7645e454df9c00927045c69669836d0003d9c83a995f7d29679e083"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/candidate/fresh-save-load.log",
+          "size_bytes": 47327,
+          "sha256": "d13a063cab9bd865a70dd5226bd10a30ed380070507e29a6e35b7bdee09033fb",
+          "object": "objects/d13a063cab9bd865a70dd5226bd10a30ed380070507e29a6e35b7bdee09033fb"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/candidate/fresh-save-seed.log",
+          "size_bytes": 14410,
+          "sha256": "1b1b897ac339c98c0852d8d340a0f6ef2896f985cf222feeb5c136159e83029e",
+          "object": "objects/1b1b897ac339c98c0852d8d340a0f6ef2896f985cf222feeb5c136159e83029e"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/candidate/fresh-save-write.log",
+          "size_bytes": 63889,
+          "sha256": "529f477509f07b6c4897d58eaa442f42bbac049d0836239c41aa033e927452d5",
+          "object": "objects/529f477509f07b6c4897d58eaa442f42bbac049d0836239c41aa033e927452d5"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/candidate/import-console.log",
+          "size_bytes": 151233,
+          "sha256": "942648050dc1e72857b7ad6d53304ab53d2ef99baf36d0f8e164204c0db10fe5",
+          "object": "objects/942648050dc1e72857b7ad6d53304ab53d2ef99baf36d0f8e164204c0db10fe5"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/candidate/load.xml",
+          "size_bytes": 412,
+          "sha256": "ee48ca9cef82b0c16c4eb86e51782a153484bcb86a7d1ae92a9921ec3a8a8322",
+          "object": "objects/ee48ca9cef82b0c16c4eb86e51782a153484bcb86a7d1ae92a9921ec3a8a8322"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/candidate/processes.jsonl",
+          "size_bytes": 3083,
+          "sha256": "179e498ff7260f056d9cea65dca3bfff07eab180db2fb082450bbdb668520a30",
+          "object": "objects/179e498ff7260f056d9cea65dca3bfff07eab180db2fb082450bbdb668520a30"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/candidate/result.json",
+          "size_bytes": 7397,
+          "sha256": "75cb8131d670d3360b17b13878795224669d07ce36b85fdc324769b34c1a84f7",
+          "object": "objects/75cb8131d670d3360b17b13878795224669d07ce36b85fdc324769b34c1a84f7"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/candidate/slot_3.json",
+          "size_bytes": 448631,
+          "sha256": "5a65d22c58b7d019d2747ade9bd952d3c253dacc8a3f41419f8127b7b98c4f8b",
+          "object": "objects/5a65d22c58b7d019d2747ade9bd952d3c253dacc8a3f41419f8127b7b98c4f8b"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/candidate/terminal-pair.json",
+          "size_bytes": 1539,
+          "sha256": "2a43dda4721f692c434245394d6e5520a4ba7d5d906bc37663453c042dae3655",
+          "object": "objects/2a43dda4721f692c434245394d6e5520a4ba7d5d906bc37663453c042dae3655"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/candidate/write.xml",
+          "size_bytes": 375,
+          "sha256": "9126e2553cf6ce089c2c9421ed2e75b0c7981c940c08e44d574511b682e83fd4",
+          "object": "objects/9126e2553cf6ce089c2c9421ed2e75b0c7981c940c08e44d574511b682e83fd4"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/comparison.json",
+          "size_bytes": 19684,
+          "sha256": "f7ebd2aca4fa77ed6144cd9ec140d18dcb7fa44d3678b4b73844c8656db3613c",
+          "object": "objects/f7ebd2aca4fa77ed6144cd9ec140d18dcb7fa44d3678b4b73844c8656db3613c"
+        },
+        {
+          "path": "game_state_surface.json",
+          "size_bytes": 661943,
+          "sha256": "3e303a0d84da2734d53392ff3323d232357589d61bce19d7471dc600e7b4c100",
+          "object": "objects/3e303a0d84da2734d53392ff3323d232357589d61bce19d7471dc600e7b4c100"
+        },
+        {
+          "path": "qualification.json",
+          "size_bytes": 24185,
+          "sha256": "568da0df7dd76ed78ce971eea275da0ec2a68ef98d657d48395322fe133c99bc",
+          "object": "objects/568da0df7dd76ed78ce971eea275da0ec2a68ef98d657d48395322fe133c99bc"
+        },
+        {
+          "path": "save_manager_surface.json",
+          "size_bytes": 184435,
+          "sha256": "8bc84c6104708752d6ecf85dce29eb7cff94b66f4913d1286b39abf171c87aef",
+          "object": "objects/8bc84c6104708752d6ecf85dce29eb7cff94b66f4913d1286b39abf171c87aef"
+        }
+      ]
+    },
+    {
+      "name": "load-baseline-first-40115954165-1.zip",
+      "artifact_id": 12569740444,
+      "run_id": 40115954165,
+      "controller_ref": "09b3cc34507865723bceb132a03dc161e212ae92",
+      "size_bytes": 3924172,
+      "sha256": "33887ddaa67022d4f05dad709555ce16e71e53d466409325365eb1df4e10ab29",
+      "members": [
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/baseline/authored-week-terminal-pair.json",
+          "size_bytes": 684562,
+          "sha256": "0d812ef04083f5d907e982fb3d783244b0bfb5bac22e90e61822ba6ce19b6407",
+          "object": "objects/0d812ef04083f5d907e982fb3d783244b0bfb5bac22e90e61822ba6ce19b6407"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/baseline/computer-authored-restored-slot-2.png",
+          "size_bytes": 577257,
+          "sha256": "518dc6bccd41ef7ef77da8963cb6ba7216de4b48a2f8f81b892262dd25e4502a",
+          "object": "objects/518dc6bccd41ef7ef77da8963cb6ba7216de4b48a2f8f81b892262dd25e4502a"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/baseline/computer-authored-restored-slot-3.png",
+          "size_bytes": 577257,
+          "sha256": "518dc6bccd41ef7ef77da8963cb6ba7216de4b48a2f8f81b892262dd25e4502a",
+          "object": "objects/518dc6bccd41ef7ef77da8963cb6ba7216de4b48a2f8f81b892262dd25e4502a"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/baseline/computer-authored-terminal-pair.png",
+          "size_bytes": 577421,
+          "sha256": "9903526552d99c2b5a0ff91a270ede867ada1628b902c874ede2a4e09811c8ea",
+          "object": "objects/9903526552d99c2b5a0ff91a270ede867ada1628b902c874ede2a4e09811c8ea"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/baseline/fresh-load.json",
+          "size_bytes": 2201,
+          "sha256": "bfb55f229f56c86ff172f700d4d9974fa954d54b03cf9f501165480c7874f56e",
+          "object": "objects/bfb55f229f56c86ff172f700d4d9974fa954d54b03cf9f501165480c7874f56e"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/baseline/fresh-pair-import.log",
+          "size_bytes": 96586,
+          "sha256": "12c803a9a02e072d4f9635867977bdc500db93c04cd5bdd70c68b382b3939efd",
+          "object": "objects/12c803a9a02e072d4f9635867977bdc500db93c04cd5bdd70c68b382b3939efd"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/baseline/fresh-save-load.log",
+          "size_bytes": 49638,
+          "sha256": "bb6e26479b0d7a0478f09375c36d1893c25c7303fb570fe0e319afddc491ccda",
+          "object": "objects/bb6e26479b0d7a0478f09375c36d1893c25c7303fb570fe0e319afddc491ccda"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/baseline/fresh-save-seed.log",
+          "size_bytes": 14410,
+          "sha256": "92beb58ac33223b5ad289dabe0665db2ec42731ee5d1bdab43fddb7af2d97f81",
+          "object": "objects/92beb58ac33223b5ad289dabe0665db2ec42731ee5d1bdab43fddb7af2d97f81"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/baseline/fresh-save-write.log",
+          "size_bytes": 69271,
+          "sha256": "b22225b16e0e17ae4f0d47aebbad8d8b9ed126b5d4081a3706b9631413ef8649",
+          "object": "objects/b22225b16e0e17ae4f0d47aebbad8d8b9ed126b5d4081a3706b9631413ef8649"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/baseline/import-console.log",
+          "size_bytes": 151233,
+          "sha256": "69dd46db1771ed2980d4b0acab8caf23d11868b7d64222747f8bac7035572d3c",
+          "object": "objects/69dd46db1771ed2980d4b0acab8caf23d11868b7d64222747f8bac7035572d3c"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/baseline/load.xml",
+          "size_bytes": 412,
+          "sha256": "b2cad59cb2db2bff5c37a67b61026cd1e2dcfa142b98f6c969729cbdcc023620",
+          "object": "objects/b2cad59cb2db2bff5c37a67b61026cd1e2dcfa142b98f6c969729cbdcc023620"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/baseline/processes.jsonl",
+          "size_bytes": 3068,
+          "sha256": "f5676efa30a25621ae1270786d1bae6a042c097a4e82551d7f128c117afe5baf",
+          "object": "objects/f5676efa30a25621ae1270786d1bae6a042c097a4e82551d7f128c117afe5baf"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/baseline/result.json",
+          "size_bytes": 7387,
+          "sha256": "2beb8186c397f9b6d093ef2fdc6ffd318886b786b6044fe7ae73bf91dc0bee74",
+          "object": "objects/2beb8186c397f9b6d093ef2fdc6ffd318886b786b6044fe7ae73bf91dc0bee74"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/baseline/slot_3.json",
+          "size_bytes": 448631,
+          "sha256": "4c34c994e3b636490b44447e2c38e23e3b9e6ee768518d3d887b25ec7971ff94",
+          "object": "objects/4c34c994e3b636490b44447e2c38e23e3b9e6ee768518d3d887b25ec7971ff94"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/baseline/terminal-pair.json",
+          "size_bytes": 1529,
+          "sha256": "136ca8303ce16f5cb9755f10a5ff97122d34e5e8b6e152f1662e4ccc92e03a0e",
+          "object": "objects/136ca8303ce16f5cb9755f10a5ff97122d34e5e8b6e152f1662e4ccc92e03a0e"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/baseline/write.xml",
+          "size_bytes": 375,
+          "sha256": "c62d99e0f675522d55d31078a196931a2e71c081faf5a85c7fee928896ed88d9",
+          "object": "objects/c62d99e0f675522d55d31078a196931a2e71c081faf5a85c7fee928896ed88d9"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/candidate/authored-week-terminal-pair.json",
+          "size_bytes": 684563,
+          "sha256": "96420c246eab813d8e5b1043d5971420cb02bbb68426eb02bfbb1441b691349c",
+          "object": "objects/96420c246eab813d8e5b1043d5971420cb02bbb68426eb02bfbb1441b691349c"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/candidate/computer-authored-restored-slot-2.png",
+          "size_bytes": 577257,
+          "sha256": "518dc6bccd41ef7ef77da8963cb6ba7216de4b48a2f8f81b892262dd25e4502a",
+          "object": "objects/518dc6bccd41ef7ef77da8963cb6ba7216de4b48a2f8f81b892262dd25e4502a"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/candidate/computer-authored-restored-slot-3.png",
+          "size_bytes": 577257,
+          "sha256": "518dc6bccd41ef7ef77da8963cb6ba7216de4b48a2f8f81b892262dd25e4502a",
+          "object": "objects/518dc6bccd41ef7ef77da8963cb6ba7216de4b48a2f8f81b892262dd25e4502a"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/candidate/computer-authored-terminal-pair.png",
+          "size_bytes": 577421,
+          "sha256": "9903526552d99c2b5a0ff91a270ede867ada1628b902c874ede2a4e09811c8ea",
+          "object": "objects/9903526552d99c2b5a0ff91a270ede867ada1628b902c874ede2a4e09811c8ea"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/candidate/fresh-load.json",
+          "size_bytes": 2201,
+          "sha256": "5d1f0345ff80b3f0c26390ca79c27e0d9e44c292784d965c30caa73cee0b799a",
+          "object": "objects/5d1f0345ff80b3f0c26390ca79c27e0d9e44c292784d965c30caa73cee0b799a"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/candidate/fresh-pair-import.log",
+          "size_bytes": 96586,
+          "sha256": "e466da5ef6059d46543ab5e03f4d8fe3d39063859f3ac309d9c5b6c7f48c0b9c",
+          "object": "objects/e466da5ef6059d46543ab5e03f4d8fe3d39063859f3ac309d9c5b6c7f48c0b9c"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/candidate/fresh-save-load.log",
+          "size_bytes": 47316,
+          "sha256": "0c0ef78538e1612f10e67827827cba5a90fe7c5ddbf22e36abb89ed915ef70ca",
+          "object": "objects/0c0ef78538e1612f10e67827827cba5a90fe7c5ddbf22e36abb89ed915ef70ca"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/candidate/fresh-save-seed.log",
+          "size_bytes": 14410,
+          "sha256": "7f3aa2d1765016648c07a5ee87d9bdecbaf5f36e158980a785319a9a180fbb36",
+          "object": "objects/7f3aa2d1765016648c07a5ee87d9bdecbaf5f36e158980a785319a9a180fbb36"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/candidate/fresh-save-write.log",
+          "size_bytes": 63817,
+          "sha256": "409519e0a964309572f2f8937117993169d14c580fd084c004432d06db966282",
+          "object": "objects/409519e0a964309572f2f8937117993169d14c580fd084c004432d06db966282"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/candidate/import-console.log",
+          "size_bytes": 151233,
+          "sha256": "76036489b217d119eb9c9963a026535859f79ca55be72d7c1967b67341244ab3",
+          "object": "objects/76036489b217d119eb9c9963a026535859f79ca55be72d7c1967b67341244ab3"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/candidate/load.xml",
+          "size_bytes": 412,
+          "sha256": "7bfb8aae49d821adb82441c7d5502d93878114a25f3777d1fb95b60f4240db30",
+          "object": "objects/7bfb8aae49d821adb82441c7d5502d93878114a25f3777d1fb95b60f4240db30"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/candidate/processes.jsonl",
+          "size_bytes": 3083,
+          "sha256": "3a9e2d45a61e8c82fe6fc849a2ae88cb1e28918d7e55c9935fdddd9e549ef89e",
+          "object": "objects/3a9e2d45a61e8c82fe6fc849a2ae88cb1e28918d7e55c9935fdddd9e549ef89e"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/candidate/result.json",
+          "size_bytes": 7387,
+          "sha256": "dfb31dbc8a4c520ac58a425a84fbaabaa9d2b75d1187212601bdb8ce9d7ac6f9",
+          "object": "objects/dfb31dbc8a4c520ac58a425a84fbaabaa9d2b75d1187212601bdb8ce9d7ac6f9"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/candidate/slot_3.json",
+          "size_bytes": 448631,
+          "sha256": "8c36c8620c88190f0e3277a2a6a83031d2c675abcdc77d3f6376ec8aa76a8062",
+          "object": "objects/8c36c8620c88190f0e3277a2a6a83031d2c675abcdc77d3f6376ec8aa76a8062"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/candidate/terminal-pair.json",
+          "size_bytes": 1529,
+          "sha256": "f7a9df07f7513b8a70f36863795ccbcb195db36b464242c4b8edbfaf5a066e00",
+          "object": "objects/f7a9df07f7513b8a70f36863795ccbcb195db36b464242c4b8edbfaf5a066e00"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/candidate/write.xml",
+          "size_bytes": 375,
+          "sha256": "d54122ba1a54705d9ff4158d8447d5eaef94164249784fbf66034ebc3a33a465",
+          "object": "objects/d54122ba1a54705d9ff4158d8447d5eaef94164249784fbf66034ebc3a33a465"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/comparison.json",
+          "size_bytes": 19664,
+          "sha256": "ec18785543d4a038426bf77264d43a2ac81d6e35a1363d386b074b629046319c",
+          "object": "objects/ec18785543d4a038426bf77264d43a2ac81d6e35a1363d386b074b629046319c"
+        },
+        {
+          "path": "game_state_surface.json",
+          "size_bytes": 661943,
+          "sha256": "3e303a0d84da2734d53392ff3323d232357589d61bce19d7471dc600e7b4c100",
+          "object": "objects/3e303a0d84da2734d53392ff3323d232357589d61bce19d7471dc600e7b4c100"
+        },
+        {
+          "path": "qualification.json",
+          "size_bytes": 24164,
+          "sha256": "ebbae0235aed76ab241b5af00bcbab70fc362d4dc7713b8dfa96e2f30e79d608",
+          "object": "objects/ebbae0235aed76ab241b5af00bcbab70fc362d4dc7713b8dfa96e2f30e79d608"
+        },
+        {
+          "path": "save_manager_surface.json",
+          "size_bytes": 184435,
+          "sha256": "8bc84c6104708752d6ecf85dce29eb7cff94b66f4913d1286b39abf171c87aef",
+          "object": "objects/8bc84c6104708752d6ecf85dce29eb7cff94b66f4913d1286b39abf171c87aef"
+        }
+      ]
+    },
+    {
+      "name": "load-inventory-40115954165-1.zip",
+      "artifact_id": 12568651772,
+      "run_id": 40115954165,
+      "controller_ref": "09b3cc34507865723bceb132a03dc161e212ae92",
+      "size_bytes": 228208,
+      "sha256": "8549124153d1a6099cf5c206c643bf29fc7d79b4d712b7b220f88fe8df6104c4",
+      "members": [
+        {
+          "path": "candidate/.godot/ci/import-stderr.log",
+          "size_bytes": 126,
+          "sha256": "e3e9582cfc1659ab624949d8fbdf43ec09f34ede8590bcc20749ca738dffff1b",
+          "object": "objects/e3e9582cfc1659ab624949d8fbdf43ec09f34ede8590bcc20749ca738dffff1b"
+        },
+        {
+          "path": "candidate/.godot/ci/import.log",
+          "size_bytes": 96586,
+          "sha256": "6793d54b5713735dee15d7b90ceb84374752725c1d9c32c37ed2dc8f6fa7c273",
+          "object": "objects/6793d54b5713735dee15d7b90ceb84374752725c1d9c32c37ed2dc8f6fa7c273"
+        },
+        {
+          "path": "candidate/.godot/ci/import-stdout.log",
+          "size_bytes": 151109,
+          "sha256": "27224c0d2b09c2a08eb447d07714956abdae7ad09998c301b8a944cfc4031692",
+          "object": "objects/27224c0d2b09c2a08eb447d07714956abdae7ad09998c301b8a944cfc4031692"
+        },
+        {
+          "path": "candidate/.godot/ci/public-surfaces/game_state-check.jsonl",
+          "size_bytes": 1112,
+          "sha256": "18ad7f479e4912cf8925d06dbfb9d9ddfbf24746f5167c5056b6ba6675c47350",
+          "object": "objects/18ad7f479e4912cf8925d06dbfb9d9ddfbf24746f5167c5056b6ba6675c47350"
+        },
+        {
+          "path": "candidate/.godot/ci/public-surfaces/game_state-generate.jsonl",
+          "size_bytes": 1111,
+          "sha256": "205269d2bd77d2f94fe2fb20c116d9fbfa340913a5459bbf7d95aa777848d7d9",
+          "object": "objects/205269d2bd77d2f94fe2fb20c116d9fbfa340913a5459bbf7d95aa777848d7d9"
+        },
+        {
+          "path": "candidate/.godot/ci/public-surfaces/game_state_surface.json",
+          "size_bytes": 662048,
+          "sha256": "3bf7e740e29177de648cfe9cbee8437ca75d0f30ec3e14581f7037e380a8f924",
+          "object": "objects/3bf7e740e29177de648cfe9cbee8437ca75d0f30ec3e14581f7037e380a8f924"
+        },
+        {
+          "path": "candidate/.godot/ci/public-surfaces/retirement-audit.json",
+          "size_bytes": 564,
+          "sha256": "783c521d672d23b40fc32093451c4e01c4fbbd9c3d932f5bcc6d2b9f541706da",
+          "object": "objects/783c521d672d23b40fc32093451c4e01c4fbbd9c3d932f5bcc6d2b9f541706da"
+        },
+        {
+          "path": "candidate/.godot/ci/public-surfaces/save_manager-check.jsonl",
+          "size_bytes": 1124,
+          "sha256": "7c0604633c8f19f91d37f518060f28e96adbb5609143bd2460bb9eb938ec3baf",
+          "object": "objects/7c0604633c8f19f91d37f518060f28e96adbb5609143bd2460bb9eb938ec3baf"
+        },
+        {
+          "path": "candidate/.godot/ci/public-surfaces/save_manager-generate.jsonl",
+          "size_bytes": 1123,
+          "sha256": "9b94d65d17410dc34b0b081489335de5c1f051c8c3620963057f173cb4ad7453",
+          "object": "objects/9b94d65d17410dc34b0b081489335de5c1f051c8c3620963057f173cb4ad7453"
+        },
+        {
+          "path": "candidate/.godot/ci/public-surfaces/save_manager_surface.json",
+          "size_bytes": 184373,
+          "sha256": "c8228fcfe947a60661e5e80eed4aa4d37c523abc9426e0ed5729fa264dc64e95",
+          "object": "objects/c8228fcfe947a60661e5e80eed4aa4d37c523abc9426e0ed5729fa264dc64e95"
+        },
+        {
+          "path": "candidate/.godot/phase2r_logs/cloud-public-surface-game_state-check.log",
+          "size_bytes": 97,
+          "sha256": "f905573f8dd52f9b85362666ac54f7c7145d1ce376dec030e86792970fc2e2c7",
+          "object": "objects/f905573f8dd52f9b85362666ac54f7c7145d1ce376dec030e86792970fc2e2c7"
+        },
+        {
+          "path": "candidate/.godot/phase2r_logs/cloud-public-surface-game_state-generate.log",
+          "size_bytes": 97,
+          "sha256": "f905573f8dd52f9b85362666ac54f7c7145d1ce376dec030e86792970fc2e2c7",
+          "object": "objects/f905573f8dd52f9b85362666ac54f7c7145d1ce376dec030e86792970fc2e2c7"
+        },
+        {
+          "path": "candidate/.godot/phase2r_logs/cloud-public-surface-save_manager-check.log",
+          "size_bytes": 97,
+          "sha256": "f905573f8dd52f9b85362666ac54f7c7145d1ce376dec030e86792970fc2e2c7",
+          "object": "objects/f905573f8dd52f9b85362666ac54f7c7145d1ce376dec030e86792970fc2e2c7"
+        },
+        {
+          "path": "candidate/.godot/phase2r_logs/cloud-public-surface-save_manager-generate.log",
+          "size_bytes": 97,
+          "sha256": "f905573f8dd52f9b85362666ac54f7c7145d1ce376dec030e86792970fc2e2c7",
+          "object": "objects/f905573f8dd52f9b85362666ac54f7c7145d1ce376dec030e86792970fc2e2c7"
+        },
+        {
+          "path": "game_state_surface.json",
+          "size_bytes": 662048,
+          "sha256": "3bf7e740e29177de648cfe9cbee8437ca75d0f30ec3e14581f7037e380a8f924",
+          "object": "objects/3bf7e740e29177de648cfe9cbee8437ca75d0f30ec3e14581f7037e380a8f924"
+        },
+        {
+          "path": "qualification.json",
+          "size_bytes": 3696,
+          "sha256": "cf39bc66ad1580d24c55de0892a66b41d7ac97278ad127ab5c056b4a2e53f923",
+          "object": "objects/cf39bc66ad1580d24c55de0892a66b41d7ac97278ad127ab5c056b4a2e53f923"
+        },
+        {
+          "path": "save_manager_surface.json",
+          "size_bytes": 184373,
+          "sha256": "c8228fcfe947a60661e5e80eed4aa4d37c523abc9426e0ed5729fa264dc64e95",
+          "object": "objects/c8228fcfe947a60661e5e80eed4aa4d37c523abc9426e0ed5729fa264dc64e95"
+        }
+      ]
+    },
+    {
+      "name": "load-focused-40115954165-1.zip",
+      "artifact_id": 12568253418,
+      "run_id": 40115954165,
+      "controller_ref": "09b3cc34507865723bceb132a03dc161e212ae92",
+      "size_bytes": 149887,
+      "sha256": "2acbe0836c4959129a4a0fecf3c717474e6c66aa401149656289c28079c8646a",
+      "members": [
+        {
+          "path": "candidate/.godot/ci/import-stderr.log",
+          "size_bytes": 126,
+          "sha256": "e3e9582cfc1659ab624949d8fbdf43ec09f34ede8590bcc20749ca738dffff1b",
+          "object": "objects/e3e9582cfc1659ab624949d8fbdf43ec09f34ede8590bcc20749ca738dffff1b"
+        },
+        {
+          "path": "candidate/.godot/ci/import-stdout.log",
+          "size_bytes": 151109,
+          "sha256": "50cceb850c5139d955360cef8e68e0bf6552c02481ade60657bd809897c06f80",
+          "object": "objects/50cceb850c5139d955360cef8e68e0bf6552c02481ade60657bd809897c06f80"
+        },
+        {
+          "path": "candidate/.godot/ci/import.log",
+          "size_bytes": 96586,
+          "sha256": "499ad2cf96b1d7a8ce32402ea2a463afca603f66f49e720cc6c05007db6bd09c",
+          "object": "objects/499ad2cf96b1d7a8ce32402ea2a463afca603f66f49e720cc6c05007db6bd09c"
+        },
+        {
+          "path": "candidate/.godot/ci/load-test_frozen_run_context.jsonl",
+          "size_bytes": 883,
+          "sha256": "263ea3b25f44ae7868f1c1f7e853ab93b527fd4c997ca7181562afa64091d280",
+          "object": "objects/263ea3b25f44ae7868f1c1f7e853ab93b527fd4c997ca7181562afa64091d280"
+        },
+        {
+          "path": "candidate/.godot/ci/load-test_frozen_run_context.xml",
+          "size_bytes": 5374,
+          "sha256": "070838095cbaffd198519915ddacd59bccacae30af5979d5b2d5e40c27d7bca9",
+          "object": "objects/070838095cbaffd198519915ddacd59bccacae30af5979d5b2d5e40c27d7bca9"
+        },
+        {
+          "path": "candidate/.godot/ci/load-test_restore_transaction.jsonl",
+          "size_bytes": 895,
+          "sha256": "42a866693672b8f176cb185963ca0657f95cdd82270fe8d31cfa18e7b6183e58",
+          "object": "objects/42a866693672b8f176cb185963ca0657f95cdd82270fe8d31cfa18e7b6183e58"
+        },
+        {
+          "path": "candidate/.godot/ci/load-test_restore_transaction.xml",
+          "size_bytes": 2918,
+          "sha256": "767336ad1ed19487e6a0761d616b8fcfd4a7f3e63d414b47c145a1465b31942e",
+          "object": "objects/767336ad1ed19487e6a0761d616b8fcfd4a7f3e63d414b47c145a1465b31942e"
+        },
+        {
+          "path": "candidate/.godot/ci/load-test_scene_challenge_recall.jsonl",
+          "size_bytes": 903,
+          "sha256": "b15d643962343b98199ff1519c3fdb39fc1eba6b6357b8fe10e37fc061cad65c",
+          "object": "objects/b15d643962343b98199ff1519c3fdb39fc1eba6b6357b8fe10e37fc061cad65c"
+        },
+        {
+          "path": "candidate/.godot/ci/load-test_scene_challenge_recall.xml",
+          "size_bytes": 1919,
+          "sha256": "6b6625f58f8997e841b6de29488eb8cefa2da18b0a2ae245812b9485e43f4d2a",
+          "object": "objects/6b6625f58f8997e841b6de29488eb8cefa2da18b0a2ae245812b9485e43f4d2a"
+        },
+        {
+          "path": "candidate/.godot/ci/load-test_scene_event_contract.jsonl",
+          "size_bytes": 893,
+          "sha256": "09148596862dd0b76b764d13ecbdcdbb9d32abdf6af81bb0a9081c70a82bd85a",
+          "object": "objects/09148596862dd0b76b764d13ecbdcdbb9d32abdf6af81bb0a9081c70a82bd85a"
+        },
+        {
+          "path": "candidate/.godot/ci/load-test_scene_event_contract.xml",
+          "size_bytes": 7084,
+          "sha256": "ae3fb6630698000cddd3a3e0ad4715649706f13d4717ba1a17dc04ce9f6c2c07",
+          "object": "objects/ae3fb6630698000cddd3a3e0ad4715649706f13d4717ba1a17dc04ce9f6c2c07"
+        },
+        {
+          "path": "candidate/.godot/ci/load-test_scene_receipt_validation.jsonl",
+          "size_bytes": 913,
+          "sha256": "31a268003627cba41ff0361c8cb1a54e499550169da3853fcecedf4bb7439349",
+          "object": "objects/31a268003627cba41ff0361c8cb1a54e499550169da3853fcecedf4bb7439349"
+        },
+        {
+          "path": "candidate/.godot/ci/load-test_scene_receipt_validation.xml",
+          "size_bytes": 2783,
+          "sha256": "026eff3900feef5df679a2e792adefe0fd193d30bdd9585dcd827a1be81628dc",
+          "object": "objects/026eff3900feef5df679a2e792adefe0fd193d30bdd9585dcd827a1be81628dc"
+        },
+        {
+          "path": "candidate/.godot/ci/load-test_scene_restore_journal.jsonl",
+          "size_bytes": 898,
+          "sha256": "5742f0654e2f71fc8861828b942e9f012566e71d88093e4b0572a50d2be605d9",
+          "object": "objects/5742f0654e2f71fc8861828b942e9f012566e71d88093e4b0572a50d2be605d9"
+        },
+        {
+          "path": "candidate/.godot/ci/load-test_scene_restore_journal.xml",
+          "size_bytes": 2540,
+          "sha256": "81593a16b76e819d6b90177a14faa9585b52dbcdd26fb8fc97f6a1890d55c8df",
+          "object": "objects/81593a16b76e819d6b90177a14faa9585b52dbcdd26fb8fc97f6a1890d55c8df"
+        },
+        {
+          "path": "candidate/.godot/ci/load-test_scene_route_restore_context.jsonl",
+          "size_bytes": 928,
+          "sha256": "871a5532a24da0e06c78f56fa9eabaf3d4c2f6e994e8e6065574ef7600ee3c0f",
+          "object": "objects/871a5532a24da0e06c78f56fa9eabaf3d4c2f6e994e8e6065574ef7600ee3c0f"
+        },
+        {
+          "path": "candidate/.godot/ci/load-test_scene_route_restore_context.xml",
+          "size_bytes": 659,
+          "sha256": "cdf44f323d070a8e9f509073daa6ad2c65c3617045e11e758cd403c718cb433f",
+          "object": "objects/cdf44f323d070a8e9f509073daa6ad2c65c3617045e11e758cd403c718cb433f"
+        },
+        {
+          "path": "candidate/.godot/ci/load-test_scene_saved_event_anchor.jsonl",
+          "size_bytes": 920,
+          "sha256": "c185547ddfeb85e80e8b2d9bd30663f3b777b97f7d87e3ec67137a42baf7cd1a",
+          "object": "objects/c185547ddfeb85e80e8b2d9bd30663f3b777b97f7d87e3ec67137a42baf7cd1a"
+        },
+        {
+          "path": "candidate/.godot/ci/load-test_scene_save_schema.jsonl",
+          "size_bytes": 878,
+          "sha256": "9e0217affbba876ac3b5f86dec378080aeeffe216e9edf4a1a0d6f72a4c74a68",
+          "object": "objects/9e0217affbba876ac3b5f86dec378080aeeffe216e9edf4a1a0d6f72a4c74a68"
+        },
+        {
+          "path": "candidate/.godot/ci/load-test_scene_saved_event_anchor.xml",
+          "size_bytes": 3370,
+          "sha256": "f5b83dbbb8e63e02d5bf44d9ed5b78ee447dfed0c595ac94e4c16b90191985db",
+          "object": "objects/f5b83dbbb8e63e02d5bf44d9ed5b78ee447dfed0c595ac94e4c16b90191985db"
+        },
+        {
+          "path": "candidate/.godot/ci/load-test_scene_save_schema.xml",
+          "size_bytes": 1042,
+          "sha256": "c76b82a7a7519ce9d8a662b35a91041916006a4f130e2a20753ac98b5dbc848e",
+          "object": "objects/c76b82a7a7519ce9d8a662b35a91041916006a4f130e2a20753ac98b5dbc848e"
+        },
+        {
+          "path": "candidate/.godot/ci/load-test_scene_terminal_lifecycle.jsonl",
+          "size_bytes": 913,
+          "sha256": "4b2ed92af9655779c38c094e64ebff6d269c67eb1ba7b09a0e5dcd438bf9206d",
+          "object": "objects/4b2ed92af9655779c38c094e64ebff6d269c67eb1ba7b09a0e5dcd438bf9206d"
+        },
+        {
+          "path": "candidate/.godot/ci/load-test_scene_terminal_lifecycle.xml",
+          "size_bytes": 1745,
+          "sha256": "100288c5f6e3a1061512ed743330f4413e518efc58a6297d9c56adcd6c9731e5",
+          "object": "objects/100288c5f6e3a1061512ed743330f4413e518efc58a6297d9c56adcd6c9731e5"
+        },
+        {
+          "path": "candidate/.godot/ci/load-test_scene_terminal_snapshot.jsonl",
+          "size_bytes": 908,
+          "sha256": "ed6bdb4128ac275176a93d922fd74f87899c13631ae3e80063fec2c81d75a085",
+          "object": "objects/ed6bdb4128ac275176a93d922fd74f87899c13631ae3e80063fec2c81d75a085"
+        },
+        {
+          "path": "candidate/.godot/ci/load-test_scene_terminal_snapshot.xml",
+          "size_bytes": 658,
+          "sha256": "10bae807218aff21d70e2bd39a602e14174e787efd0d053719548c6bf9374990",
+          "object": "objects/10bae807218aff21d70e2bd39a602e14174e787efd0d053719548c6bf9374990"
+        },
+        {
+          "path": "candidate/.godot/ci/load-test_unified_restore_contract.jsonl",
+          "size_bytes": 920,
+          "sha256": "e8917672b00a8b0e7ee897822252ba385402c8c1b30ba3c994fdd68e47a09f22",
+          "object": "objects/e8917672b00a8b0e7ee897822252ba385402c8c1b30ba3c994fdd68e47a09f22"
+        },
+        {
+          "path": "candidate/.godot/ci/load-test_unified_restore_contract.xml",
+          "size_bytes": 897,
+          "sha256": "5c435c6186459e1db02cf8587b39ca7b97587eae9915fc9ecceb7dfb0586452d",
+          "object": "objects/5c435c6186459e1db02cf8587b39ca7b97587eae9915fc9ecceb7dfb0586452d"
+        },
+        {
+          "path": "candidate/.godot/phase2r_logs/load-test_frozen_run_context.log",
+          "size_bytes": 2568,
+          "sha256": "333d9e1caf4d044ce1ec7dfc7a091b41ba4c7be624d7a697d8e03c7c4e83c687",
+          "object": "objects/333d9e1caf4d044ce1ec7dfc7a091b41ba4c7be624d7a697d8e03c7c4e83c687"
+        },
+        {
+          "path": "candidate/.godot/phase2r_logs/load-test_restore_transaction.log",
+          "size_bytes": 1505,
+          "sha256": "5ece822932fab1b8a541858a6485a8f435e592c604268bd90f8e7196cc8d1a5d",
+          "object": "objects/5ece822932fab1b8a541858a6485a8f435e592c604268bd90f8e7196cc8d1a5d"
+        },
+        {
+          "path": "candidate/.godot/phase2r_logs/load-test_scene_challenge_recall.log",
+          "size_bytes": 1265,
+          "sha256": "802898a08cf73c8ac169a65c403111d577d3814cf2113be3fac35a2a3af7c051",
+          "object": "objects/802898a08cf73c8ac169a65c403111d577d3814cf2113be3fac35a2a3af7c051"
+        },
+        {
+          "path": "candidate/.godot/phase2r_logs/load-test_scene_event_contract.log",
+          "size_bytes": 2985,
+          "sha256": "7115c3489d7d2377e3afa0d35deca518ace65ca1d6208d488b5f33e044eefc66",
+          "object": "objects/7115c3489d7d2377e3afa0d35deca518ace65ca1d6208d488b5f33e044eefc66"
+        },
+        {
+          "path": "candidate/.godot/phase2r_logs/load-test_scene_receipt_validation.log",
+          "size_bytes": 1543,
+          "sha256": "d915edfdd1c65222176bbefb17d1c86df8f783c34c674dfb411f3146da367baa",
+          "object": "objects/d915edfdd1c65222176bbefb17d1c86df8f783c34c674dfb411f3146da367baa"
+        },
+        {
+          "path": "candidate/.godot/phase2r_logs/load-test_scene_restore_journal.log",
+          "size_bytes": 1469,
+          "sha256": "585cbb438eb5c596aaa39adc8a06ba384bb894db82581b2526199cfcbd917753",
+          "object": "objects/585cbb438eb5c596aaa39adc8a06ba384bb894db82581b2526199cfcbd917753"
+        },
+        {
+          "path": "candidate/.godot/phase2r_logs/load-test_scene_route_restore_context.log",
+          "size_bytes": 841,
+          "sha256": "7a5c035fe2213424e006902cffbaa01dd4557cbaf277cfb9194016d65e08e9b9",
+          "object": "objects/7a5c035fe2213424e006902cffbaa01dd4557cbaf277cfb9194016d65e08e9b9"
+        },
+        {
+          "path": "candidate/.godot/phase2r_logs/load-test_scene_saved_event_anchor.log",
+          "size_bytes": 3361,
+          "sha256": "ba1e0592fb202790ee46b9c805607a7c311ab6913bb5fbb961ba13a2ffd48f45",
+          "object": "objects/ba1e0592fb202790ee46b9c805607a7c311ab6913bb5fbb961ba13a2ffd48f45"
+        },
+        {
+          "path": "candidate/.godot/phase2r_logs/load-test_scene_save_schema.log",
+          "size_bytes": 964,
+          "sha256": "0dee7fa9ff4b03bc710497136dc26208ba4e1585039828996a783cbcd50319c3",
+          "object": "objects/0dee7fa9ff4b03bc710497136dc26208ba4e1585039828996a783cbcd50319c3"
+        },
+        {
+          "path": "candidate/.godot/phase2r_logs/load-test_scene_terminal_lifecycle.log",
+          "size_bytes": 1214,
+          "sha256": "617abcf6cc7c2e7bc3f8811765eaf7a07e7260ed044680fca57fc4e444028edb",
+          "object": "objects/617abcf6cc7c2e7bc3f8811765eaf7a07e7260ed044680fca57fc4e444028edb"
+        },
+        {
+          "path": "candidate/.godot/phase2r_logs/load-test_scene_terminal_snapshot.log",
+          "size_bytes": 844,
+          "sha256": "7b9fc0e719bcb49a921a9b45050ae103c45de5cd7415469dc9b7841df915c495",
+          "object": "objects/7b9fc0e719bcb49a921a9b45050ae103c45de5cd7415469dc9b7841df915c495"
+        },
+        {
+          "path": "candidate/.godot/phase2r_logs/load-test_unified_restore_contract.log",
+          "size_bytes": 919,
+          "sha256": "3cf336e5683999d77d939b175ea1ce75371361ac56b86d3bcf8e15988ec5c783",
+          "object": "objects/3cf336e5683999d77d939b175ea1ce75371361ac56b86d3bcf8e15988ec5c783"
+        },
+        {
+          "path": "game_state_surface.json",
+          "size_bytes": 661943,
+          "sha256": "3e303a0d84da2734d53392ff3323d232357589d61bce19d7471dc600e7b4c100",
+          "object": "objects/3e303a0d84da2734d53392ff3323d232357589d61bce19d7471dc600e7b4c100"
+        },
+        {
+          "path": "qualification.json",
+          "size_bytes": 6414,
+          "sha256": "80fd3bc494f155e5bddea2f998f602b7a71db488d23ddfdc333b28ee441461b6",
+          "object": "objects/80fd3bc494f155e5bddea2f998f602b7a71db488d23ddfdc333b28ee441461b6"
+        },
+        {
+          "path": "save_manager_surface.json",
+          "size_bytes": 184435,
+          "sha256": "8bc84c6104708752d6ecf85dce29eb7cff94b66f4913d1286b39abf171c87aef",
+          "object": "objects/8bc84c6104708752d6ecf85dce29eb7cff94b66f4913d1286b39abf171c87aef"
+        }
+      ]
+    },
+    {
+      "name": "load-terminal-40115954165-1.zip",
+      "artifact_id": 12567474860,
+      "run_id": 40115954165,
+      "controller_ref": "09b3cc34507865723bceb132a03dc161e212ae92",
+      "size_bytes": 3256571,
+      "sha256": "7f6818d8f214a0e981710096dd4f30cfa0484a02b6cf84339772957e1a981c2b",
+      "members": [
+        {
+          "path": "candidate/.godot/ci/import-stderr.log",
+          "size_bytes": 126,
+          "sha256": "e3e9582cfc1659ab624949d8fbdf43ec09f34ede8590bcc20749ca738dffff1b",
+          "object": "objects/e3e9582cfc1659ab624949d8fbdf43ec09f34ede8590bcc20749ca738dffff1b"
+        },
+        {
+          "path": "candidate/.godot/ci/import-stdout.log",
+          "size_bytes": 151109,
+          "sha256": "50cceb850c5139d955360cef8e68e0bf6552c02481ade60657bd809897c06f80",
+          "object": "objects/50cceb850c5139d955360cef8e68e0bf6552c02481ade60657bd809897c06f80"
+        },
+        {
+          "path": "candidate/.godot/ci/authored-terminal-admission-checks.json",
+          "size_bytes": 8316,
+          "sha256": "17c1935fbcff548843a884f84d9ea1783e43e447e58e3f182ab12ab7e5a7d922",
+          "object": "objects/17c1935fbcff548843a884f84d9ea1783e43e447e58e3f182ab12ab7e5a7d922"
+        },
+        {
+          "path": "candidate/.godot/ci/import.log",
+          "size_bytes": 96586,
+          "sha256": "499ad2cf96b1d7a8ce32402ea2a463afca603f66f49e720cc6c05007db6bd09c",
+          "object": "objects/499ad2cf96b1d7a8ce32402ea2a463afca603f66f49e720cc6c05007db6bd09c"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-admission-input/audit-origin.json",
+          "size_bytes": 303,
+          "sha256": "c503b84e007392c9c2aff0c4f6ed79e719eac31119a6a0e2f269a6c377f5dbe4",
+          "object": "objects/c503b84e007392c9c2aff0c4f6ed79e719eac31119a6a0e2f269a6c377f5dbe4"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-admission-input/authored-week-terminal-pair.json",
+          "size_bytes": 684510,
+          "sha256": "d021f7411218be20c88c29c1a55538b625612ab448766487d31a17d4b49a8221",
+          "object": "objects/d021f7411218be20c88c29c1a55538b625612ab448766487d31a17d4b49a8221"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-admission-input/comparison-origin.json",
+          "size_bytes": 305,
+          "sha256": "77a0b38535ed0113c0f88efd1f036755aae047c9109a6ad214299fc0cbc08009",
+          "object": "objects/77a0b38535ed0113c0f88efd1f036755aae047c9109a6ad214299fc0cbc08009"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-admission-input/computer-authored-restored-slot-2.png",
+          "size_bytes": 577257,
+          "sha256": "518dc6bccd41ef7ef77da8963cb6ba7216de4b48a2f8f81b892262dd25e4502a",
+          "object": "objects/518dc6bccd41ef7ef77da8963cb6ba7216de4b48a2f8f81b892262dd25e4502a"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-admission-input/computer-authored-terminal-pair.png",
+          "size_bytes": 577421,
+          "sha256": "9903526552d99c2b5a0ff91a270ede867ada1628b902c874ede2a4e09811c8ea",
+          "object": "objects/9903526552d99c2b5a0ff91a270ede867ada1628b902c874ede2a4e09811c8ea"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-admission-input/helper-hashes.json",
+          "size_bytes": 338,
+          "sha256": "8e52a836ed5f4dfcad382e61f557d90bdae562fe6e505c9a255e8d9b81558fe4",
+          "object": "objects/8e52a836ed5f4dfcad382e61f557d90bdae562fe6e505c9a255e8d9b81558fe4"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-admission-input/import-process.json",
+          "size_bytes": 24,
+          "sha256": "75876e0e3f497cad271143ba85bd4f36569cd81195509043f860dab14265b716",
+          "object": "objects/75876e0e3f497cad271143ba85bd4f36569cd81195509043f860dab14265b716"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-admission-input/import.log",
+          "size_bytes": 96411,
+          "sha256": "7201e67afe0ad7847474ddcd874ac497325ef27e0c6a97cb440b58f835d2e015",
+          "object": "objects/7201e67afe0ad7847474ddcd874ac497325ef27e0c6a97cb440b58f835d2e015"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-admission-input/terminal-candidate-seed.log",
+          "size_bytes": 584,
+          "sha256": "0bcc5678c9de2ffab480358e27565c8b7842d40c943c8708bdfa6b34715f53c9",
+          "object": "objects/0bcc5678c9de2ffab480358e27565c8b7842d40c943c8708bdfa6b34715f53c9"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-admission-input/terminal-candidate.jsonl",
+          "size_bytes": 1443,
+          "sha256": "e82f3b04a7fc959afd5cc3bef82355dcc3314591c210d8e24e25abaef880675f",
+          "object": "objects/e82f3b04a7fc959afd5cc3bef82355dcc3314591c210d8e24e25abaef880675f"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-admission-input/terminal-candidate.log",
+          "size_bytes": 167956,
+          "sha256": "0130df1d357114383707e772fe945ece3125416756cd7ae17c7af556c1d7e98c",
+          "object": "objects/0130df1d357114383707e772fe945ece3125416756cd7ae17c7af556c1d7e98c"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-admission-input/terminal-candidate.xml",
+          "size_bytes": 375,
+          "sha256": "2b29bf25841a2c5dab633ed4b68fe19d566e4fa5e5f77d4f8d481f9160d563ba",
+          "object": "objects/2b29bf25841a2c5dab633ed4b68fe19d566e4fa5e5f77d4f8d481f9160d563ba"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-admission-input/terminal-pair.json",
+          "size_bytes": 1549,
+          "sha256": "bc87c7bb2c34ed37c60a8fe02ce5d3591f8eb7bc18c5bc35346ebda53f7f154d",
+          "object": "objects/bc87c7bb2c34ed37c60a8fe02ce5d3591f8eb7bc18c5bc35346ebda53f7f154d"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-admission-input/terminal-root/authored-week-day4.json",
+          "size_bytes": 745849,
+          "sha256": "28c243435f3ba67404766e655c14be81e567f6823aa639ed1b6016a07907831f",
+          "object": "objects/28c243435f3ba67404766e655c14be81e567f6823aa639ed1b6016a07907831f"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-admission-input/terminal-root/authored-week-ending.json",
+          "size_bytes": 677619,
+          "sha256": "c0e07eb724a437da9e6f2ec9a28346e555c1e440289be6eea1bccd621fd0155c",
+          "object": "objects/c0e07eb724a437da9e6f2ec9a28346e555c1e440289be6eea1bccd621fd0155c"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-admission-input/terminal-root/desktop-issuer-root.json",
+          "size_bytes": 65790,
+          "sha256": "fc7ca1c8fec152d44e7c800fa87774c354967af809b1c9afc48e8a064e89bff4",
+          "object": "objects/fc7ca1c8fec152d44e7c800fa87774c354967af809b1c9afc48e8a064e89bff4"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-admission-input/terminal-root/desktop-publications.json",
+          "size_bytes": 34,
+          "sha256": "902849ab2604217a878bc4de507660ced78f981a72c1d6343dd9ef55af64d4e4",
+          "object": "objects/902849ab2604217a878bc4de507660ced78f981a72c1d6343dd9ef55af64d4e4"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-admission-input/terminal-root/profile.json",
+          "size_bytes": 231435,
+          "sha256": "40a3166a287790295a5270a42934337fc7bdd5f63c759d193d0d555c89c71f43",
+          "object": "objects/40a3166a287790295a5270a42934337fc7bdd5f63c759d193d0d555c89c71f43"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-admission-input/terminal-root/saves/autosave.json",
+          "size_bytes": 9102,
+          "sha256": "54b47a2637f33b4937fa63e63c5b8571038d3adde0576437bad1c415b13454a3",
+          "object": "objects/54b47a2637f33b4937fa63e63c5b8571038d3adde0576437bad1c415b13454a3"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-admission-input/terminal-root/saves/desktop-continuation-operations.json",
+          "size_bytes": 5160096,
+          "sha256": "04c5dd615ed91e42378a7e5e5b8d9506337fa913c746bae62c0fb57a29cb227a",
+          "object": "objects/04c5dd615ed91e42378a7e5e5b8d9506337fa913c746bae62c0fb57a29cb227a"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-admission-input/terminal-root/saves/slot_1.json",
+          "size_bytes": 715995,
+          "sha256": "abfc0aa1c5438a3d3c747e1a539532866c9dfddbd67bcbc57c6562325367449e",
+          "object": "objects/abfc0aa1c5438a3d3c747e1a539532866c9dfddbd67bcbc57c6562325367449e"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-admission-input/terminal-root/saves/slot_2.json",
+          "size_bytes": 1577281,
+          "sha256": "17934c8199a7d25f97c69890f0ca609e5106c6bb6dc187464d58c40d2baf987c",
+          "object": "objects/17934c8199a7d25f97c69890f0ca609e5106c6bb6dc187464d58c40d2baf987c"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-admission-input/terminal-root/schedule-foundation-publications.json",
+          "size_bytes": 34,
+          "sha256": "902849ab2604217a878bc4de507660ced78f981a72c1d6343dd9ef55af64d4e4",
+          "object": "objects/902849ab2604217a878bc4de507660ced78f981a72c1d6343dd9ef55af64d4e4"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-root/authored-week-day4.json",
+          "size_bytes": 745849,
+          "sha256": "28c243435f3ba67404766e655c14be81e567f6823aa639ed1b6016a07907831f",
+          "object": "objects/28c243435f3ba67404766e655c14be81e567f6823aa639ed1b6016a07907831f"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-root/authored-week-ending.json",
+          "size_bytes": 677619,
+          "sha256": "c0e07eb724a437da9e6f2ec9a28346e555c1e440289be6eea1bccd621fd0155c",
+          "object": "objects/c0e07eb724a437da9e6f2ec9a28346e555c1e440289be6eea1bccd621fd0155c"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-root/desktop-issuer-root.json",
+          "size_bytes": 65790,
+          "sha256": "fc7ca1c8fec152d44e7c800fa87774c354967af809b1c9afc48e8a064e89bff4",
+          "object": "objects/fc7ca1c8fec152d44e7c800fa87774c354967af809b1c9afc48e8a064e89bff4"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-admission-input/terminal-root-hashes.json",
+          "size_bytes": 5173,
+          "sha256": "d0d652dac2f6221dc3a8ca81069b19b011d145108a68ce485a01eaa6ae1ef47c",
+          "object": "objects/d0d652dac2f6221dc3a8ca81069b19b011d145108a68ce485a01eaa6ae1ef47c"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-root/desktop-publications.json",
+          "size_bytes": 34,
+          "sha256": "902849ab2604217a878bc4de507660ced78f981a72c1d6343dd9ef55af64d4e4",
+          "object": "objects/902849ab2604217a878bc4de507660ced78f981a72c1d6343dd9ef55af64d4e4"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-root/saves/autosave.json",
+          "size_bytes": 9102,
+          "sha256": "54b47a2637f33b4937fa63e63c5b8571038d3adde0576437bad1c415b13454a3",
+          "object": "objects/54b47a2637f33b4937fa63e63c5b8571038d3adde0576437bad1c415b13454a3"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-root/profile.json",
+          "size_bytes": 231435,
+          "sha256": "40a3166a287790295a5270a42934337fc7bdd5f63c759d193d0d555c89c71f43",
+          "object": "objects/40a3166a287790295a5270a42934337fc7bdd5f63c759d193d0d555c89c71f43"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-root/saves/desktop-continuation-operations.json",
+          "size_bytes": 5160096,
+          "sha256": "04c5dd615ed91e42378a7e5e5b8d9506337fa913c746bae62c0fb57a29cb227a",
+          "object": "objects/04c5dd615ed91e42378a7e5e5b8d9506337fa913c746bae62c0fb57a29cb227a"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-root/saves/slot_1.json",
+          "size_bytes": 715995,
+          "sha256": "abfc0aa1c5438a3d3c747e1a539532866c9dfddbd67bcbc57c6562325367449e",
+          "object": "objects/abfc0aa1c5438a3d3c747e1a539532866c9dfddbd67bcbc57c6562325367449e"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-root/saves/slot_2.json",
+          "size_bytes": 1577281,
+          "sha256": "17934c8199a7d25f97c69890f0ca609e5106c6bb6dc187464d58c40d2baf987c",
+          "object": "objects/17934c8199a7d25f97c69890f0ca609e5106c6bb6dc187464d58c40d2baf987c"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-root/schedule-foundation-publications.json",
+          "size_bytes": 34,
+          "sha256": "902849ab2604217a878bc4de507660ced78f981a72c1d6343dd9ef55af64d4e4",
+          "object": "objects/902849ab2604217a878bc4de507660ced78f981a72c1d6343dd9ef55af64d4e4"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-root-hashes.json",
+          "size_bytes": 5173,
+          "sha256": "d0d652dac2f6221dc3a8ca81069b19b011d145108a68ce485a01eaa6ae1ef47c",
+          "object": "objects/d0d652dac2f6221dc3a8ca81069b19b011d145108a68ce485a01eaa6ae1ef47c"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal_admission.jsonl",
+          "size_bytes": 1716,
+          "sha256": "e27462f90d9c4407f59fa1e350dd42c95f936587f4da62625171ef1c2828ad17",
+          "object": "objects/e27462f90d9c4407f59fa1e350dd42c95f936587f4da62625171ef1c2828ad17"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal_admission.xml",
+          "size_bytes": 471,
+          "sha256": "65331b540ee9cc1ce3a551d201e269e986dbfe1fdb745ce1dab069d02d68c18b",
+          "object": "objects/65331b540ee9cc1ce3a551d201e269e986dbfe1fdb745ce1dab069d02d68c18b"
+        },
+        {
+          "path": "candidate/.godot/phase2r_logs/cloud-terminal_admission-seed.log",
+          "size_bytes": 584,
+          "sha256": "85e28e446d1005b9d89c9c59a33572cdf33e8b7978fdcd60977c4981c3598cf7",
+          "object": "objects/85e28e446d1005b9d89c9c59a33572cdf33e8b7978fdcd60977c4981c3598cf7"
+        },
+        {
+          "path": "candidate/.godot/phase2r_logs/cloud-terminal_admission.log",
+          "size_bytes": 10665,
+          "sha256": "c9598176b96fb53bb161f6f7d5e95fc4d154ca124ed9800300f692df3e39a075",
+          "object": "objects/c9598176b96fb53bb161f6f7d5e95fc4d154ca124ed9800300f692df3e39a075"
+        },
+        {
+          "path": "qualification.json",
+          "size_bytes": 3673,
+          "sha256": "564aeb094d713216152ce0687cbfba69918b301c9376af4b3c3884e7fdb3b119",
+          "object": "objects/564aeb094d713216152ce0687cbfba69918b301c9376af4b3c3884e7fdb3b119"
+        },
+        {
+          "path": "game_state_surface.json",
+          "size_bytes": 661943,
+          "sha256": "3e303a0d84da2734d53392ff3323d232357589d61bce19d7471dc600e7b4c100",
+          "object": "objects/3e303a0d84da2734d53392ff3323d232357589d61bce19d7471dc600e7b4c100"
+        },
+        {
+          "path": "save_manager_surface.json",
+          "size_bytes": 184435,
+          "sha256": "8bc84c6104708752d6ecf85dce29eb7cff94b66f4913d1286b39abf171c87aef",
+          "object": "objects/8bc84c6104708752d6ecf85dce29eb7cff94b66f4913d1286b39abf171c87aef"
+        }
+      ]
+    },
+    {
+      "name": "load-recall-40115954165-1.zip",
+      "artifact_id": 12567424652,
+      "run_id": 40115954165,
+      "controller_ref": "09b3cc34507865723bceb132a03dc161e212ae92",
+      "size_bytes": 171864,
+      "sha256": "b7bceb7f77fe584a12b0c784e518e5d185abc13558581835a4123581e454876e",
+      "members": [
+        {
+          "path": "candidate/.godot/ci/computer-challenge-recall-saved.png",
+          "size_bytes": 18652,
+          "sha256": "a73a926e80f92f0b395e9d08b379381c2bc54070d8b2c72f8ea5e101a2385283",
+          "object": "objects/a73a926e80f92f0b395e9d08b379381c2bc54070d8b2c72f8ea5e101a2385283"
+        },
+        {
+          "path": "candidate/.godot/ci/computer-challenge-recall-restored-selected.png",
+          "size_bytes": 17427,
+          "sha256": "20ccedd4423b0ce1d8be259f3bb611ffb8982716774f0d50c59cac17f166fc36",
+          "object": "objects/20ccedd4423b0ce1d8be259f3bb611ffb8982716774f0d50c59cac17f166fc36"
+        },
+        {
+          "path": "candidate/.godot/ci/computer-challenge-recall-selected.png",
+          "size_bytes": 17519,
+          "sha256": "1366099ed50b2b26eadd71ecda34fcf6df96b8db45b9336cd90e0797ed2594c2",
+          "object": "objects/1366099ed50b2b26eadd71ecda34fcf6df96b8db45b9336cd90e0797ed2594c2"
+        },
+        {
+          "path": "candidate/.godot/ci/import-stderr.log",
+          "size_bytes": 126,
+          "sha256": "e3e9582cfc1659ab624949d8fbdf43ec09f34ede8590bcc20749ca738dffff1b",
+          "object": "objects/e3e9582cfc1659ab624949d8fbdf43ec09f34ede8590bcc20749ca738dffff1b"
+        },
+        {
+          "path": "candidate/.godot/ci/import-stdout.log",
+          "size_bytes": 151109,
+          "sha256": "e450e1e6a7e93346a43bd1acfd150ba4c29e3b95e72b53e2a91da511d0df1974",
+          "object": "objects/e450e1e6a7e93346a43bd1acfd150ba4c29e3b95e72b53e2a91da511d0df1974"
+        },
+        {
+          "path": "candidate/.godot/ci/import.log",
+          "size_bytes": 96586,
+          "sha256": "29619706f4481eb7c510b6c8677e646d5f268fabadead7e418044948d70e6529",
+          "object": "objects/29619706f4481eb7c510b6c8677e646d5f268fabadead7e418044948d70e6529"
+        },
+        {
+          "path": "candidate/.godot/ci/recall-create.xml",
+          "size_bytes": 453,
+          "sha256": "dab0016a33ff9b410037cd7518277b5525965a0d0b656d9da03e9b606bda8ad5",
+          "object": "objects/dab0016a33ff9b410037cd7518277b5525965a0d0b656d9da03e9b606bda8ad5"
+        },
+        {
+          "path": "candidate/.godot/ci/recall-load.xml",
+          "size_bytes": 464,
+          "sha256": "25385309b773803d628df3701669e48048c9b7ba0648af7bf4dc2c330f0b4601",
+          "object": "objects/25385309b773803d628df3701669e48048c9b7ba0648af7bf4dc2c330f0b4601"
+        },
+        {
+          "path": "candidate/.godot/ci/recall-processes.jsonl",
+          "size_bytes": 1768,
+          "sha256": "c280d41b14c70c0e16d772484070b61cfbdec0eddf7b8c612f0544fc1c736bd8",
+          "object": "objects/c280d41b14c70c0e16d772484070b61cfbdec0eddf7b8c612f0544fc1c736bd8"
+        },
+        {
+          "path": "candidate/.godot/phase2r_logs/recall-create.log",
+          "size_bytes": 2372,
+          "sha256": "7ae26a524e328e981383f569355f1b4f11805581c27ca934d4e75d4fdab9d762",
+          "object": "objects/7ae26a524e328e981383f569355f1b4f11805581c27ca934d4e75d4fdab9d762"
+        },
+        {
+          "path": "candidate/.godot/phase2r_logs/recall-load.log",
+          "size_bytes": 2385,
+          "sha256": "dc2d097dc14c056152c21e1df3c4cc4ab52e2dd02a7edb691499e75ec2f9507b",
+          "object": "objects/dc2d097dc14c056152c21e1df3c4cc4ab52e2dd02a7edb691499e75ec2f9507b"
+        },
+        {
+          "path": "game_state_surface.json",
+          "size_bytes": 661943,
+          "sha256": "3e303a0d84da2734d53392ff3323d232357589d61bce19d7471dc600e7b4c100",
+          "object": "objects/3e303a0d84da2734d53392ff3323d232357589d61bce19d7471dc600e7b4c100"
+        },
+        {
+          "path": "qualification.json",
+          "size_bytes": 6772,
+          "sha256": "e27138689c653bea18070827d7e5a6e69131881401aea29957db6f38ac27f38c",
+          "object": "objects/e27138689c653bea18070827d7e5a6e69131881401aea29957db6f38ac27f38c"
+        },
+        {
+          "path": "save_manager_surface.json",
+          "size_bytes": 184435,
+          "sha256": "8bc84c6104708752d6ecf85dce29eb7cff94b66f4913d1286b39abf171c87aef",
+          "object": "objects/8bc84c6104708752d6ecf85dce29eb7cff94b66f4913d1286b39abf171c87aef"
+        }
+      ]
+    },
+    {
+      "name": "load-inventory-40116348959-1.zip",
+      "artifact_id": 12569480070,
+      "run_id": 40116348959,
+      "controller_ref": "089762e7bb4a26b1ac969a38805eb098d2c1dd64",
+      "size_bytes": 226280,
+      "sha256": "941d93524112d01acd64fe456cab6d2e11c16d11c96374e94c9296496ad9da7e",
+      "members": [
+        {
+          "path": "candidate/.godot/ci/import-stderr.log",
+          "size_bytes": 126,
+          "sha256": "e3e9582cfc1659ab624949d8fbdf43ec09f34ede8590bcc20749ca738dffff1b",
+          "object": "objects/e3e9582cfc1659ab624949d8fbdf43ec09f34ede8590bcc20749ca738dffff1b"
+        },
+        {
+          "path": "candidate/.godot/ci/import-stdout.log",
+          "size_bytes": 151109,
+          "sha256": "9c057ecde2cf22fb5640692586f9540949e673b7018269c2247cbf35bdbb638d",
+          "object": "objects/9c057ecde2cf22fb5640692586f9540949e673b7018269c2247cbf35bdbb638d"
+        },
+        {
+          "path": "candidate/.godot/ci/import.log",
+          "size_bytes": 96586,
+          "sha256": "882098ac6599cd2f3c727f48f464fa150a52d29601d4ee5bf404b61c1cec28d4",
+          "object": "objects/882098ac6599cd2f3c727f48f464fa150a52d29601d4ee5bf404b61c1cec28d4"
+        },
+        {
+          "path": "candidate/.godot/ci/public-surfaces/game_state-check.jsonl",
+          "size_bytes": 1112,
+          "sha256": "df582184ccf888b657f069485b1cf44ea1208f9b9564d307ecaf9f62013b2695",
+          "object": "objects/df582184ccf888b657f069485b1cf44ea1208f9b9564d307ecaf9f62013b2695"
+        },
+        {
+          "path": "candidate/.godot/ci/public-surfaces/game_state_surface.json",
+          "size_bytes": 662048,
+          "sha256": "3bf7e740e29177de648cfe9cbee8437ca75d0f30ec3e14581f7037e380a8f924",
+          "object": "objects/3bf7e740e29177de648cfe9cbee8437ca75d0f30ec3e14581f7037e380a8f924"
+        },
+        {
+          "path": "candidate/.godot/ci/public-surfaces/save_manager-check.jsonl",
+          "size_bytes": 1124,
+          "sha256": "d93922afc42bb6240729d9836a9c07ea45d9458e91d5e4508705f4c42c3cc0a9",
+          "object": "objects/d93922afc42bb6240729d9836a9c07ea45d9458e91d5e4508705f4c42c3cc0a9"
+        },
+        {
+          "path": "candidate/.godot/ci/public-surfaces/retirement-audit.json",
+          "size_bytes": 564,
+          "sha256": "d35aaab9a61bac39ea454f7df8c0437d987970bd8a244ef0bd10f15c5806724e",
+          "object": "objects/d35aaab9a61bac39ea454f7df8c0437d987970bd8a244ef0bd10f15c5806724e"
+        },
+        {
+          "path": "candidate/.godot/ci/public-surfaces/save_manager_surface.json",
+          "size_bytes": 184373,
+          "sha256": "c8228fcfe947a60661e5e80eed4aa4d37c523abc9426e0ed5729fa264dc64e95",
+          "object": "objects/c8228fcfe947a60661e5e80eed4aa4d37c523abc9426e0ed5729fa264dc64e95"
+        },
+        {
+          "path": "candidate/.godot/phase2r_logs/cloud-public-surface-game_state-check.log",
+          "size_bytes": 97,
+          "sha256": "f905573f8dd52f9b85362666ac54f7c7145d1ce376dec030e86792970fc2e2c7",
+          "object": "objects/f905573f8dd52f9b85362666ac54f7c7145d1ce376dec030e86792970fc2e2c7"
+        },
+        {
+          "path": "candidate/.godot/phase2r_logs/cloud-public-surface-save_manager-check.log",
+          "size_bytes": 97,
+          "sha256": "f905573f8dd52f9b85362666ac54f7c7145d1ce376dec030e86792970fc2e2c7",
+          "object": "objects/f905573f8dd52f9b85362666ac54f7c7145d1ce376dec030e86792970fc2e2c7"
+        },
+        {
+          "path": "game_state_surface.json",
+          "size_bytes": 662048,
+          "sha256": "3bf7e740e29177de648cfe9cbee8437ca75d0f30ec3e14581f7037e380a8f924",
+          "object": "objects/3bf7e740e29177de648cfe9cbee8437ca75d0f30ec3e14581f7037e380a8f924"
+        },
+        {
+          "path": "qualification.json",
+          "size_bytes": 3681,
+          "sha256": "7491b9d814303f09468ff913f261296c0d4e82a3764ae5bfdc436376684e9b8f",
+          "object": "objects/7491b9d814303f09468ff913f261296c0d4e82a3764ae5bfdc436376684e9b8f"
+        },
+        {
+          "path": "save_manager_surface.json",
+          "size_bytes": 184373,
+          "sha256": "c8228fcfe947a60661e5e80eed4aa4d37c523abc9426e0ed5729fa264dc64e95",
+          "object": "objects/c8228fcfe947a60661e5e80eed4aa4d37c523abc9426e0ed5729fa264dc64e95"
+        }
+      ]
+    }
+  ],
+  "member_mapping_count": 204,
+  "unique_object_count": 155,
+  "bundle_sha256": "f2fae7635b57ee5b9824d52d02ed7a652dec0135210530ddc027035e647231fa"
+}

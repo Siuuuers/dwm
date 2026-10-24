@@ -1,0 +1,316 @@
+{
+  "stage": "Final PR81 qualification passed after corrected terminal expectation and committed inventory verification",
+  "run_id": 40114725820,
+  "controller_ref": "387e730405de40f30777eef14a7a8f48d4046d30",
+  "baseline_ref": "bf6fe97e8bc0e2056621ec813014070938076284",
+  "runtime_sha256": "d9e1d9eae4e6b36e1002ac28f3bf22b037ec7c9b6d7b0938835961cbe179ca77",
+  "engine_sha256": "63b3b2208819714c9677fbfdd8217c5b7dee8ecf5f383502e826bc9e2227ff5a",
+  "source_hashes": {
+    "tests/unit/test_frozen_run_context.gd": "90ce90bd7f8b444b483b8bc979338aec349e34315bbf160077ab4314a7f4e140",
+    "tools/testing/Invoke-CloudTests.ps1": "3ad8510a5bbcc1979cdef90c64736d830d628ba824637ad65357a4016adbeae7",
+    "tests/unit/test_scene_challenge_recall.gd": "94ff74ae636ef86c29bffd005a9e2504d20457e90f81f0214d2681970ddb7ea6",
+    "tools/testing/Invoke-FreshSaveLoadComparison.ps1": "fa089ac82039000c0b6196e68d021032c9c5563025da3ac3d291290cb31dc42b",
+    "tests/integration/authored_terminal_admission_checks.gd": "79b37e132223e178f184448d469ce653a99e18e0a5285d0ded31e22a86776c83",
+    "tools/testing/Invoke-FreshSaveLoad.ps1": "9b95c418b3d475876e91516e0893a2d70f4f85040fb1b2862b97aa09b37bc0e6",
+    "tests/unit/test_scene_terminal_snapshot.gd": "c94bfba582c230d4443ae7e73234a9387ff4bd34277c4e832ec390e84d0dd8ec",
+    "tests/integration/scene_challenge_recall_child.gd": "7c34d63935883b1cec8e1ec6e6ac25abab4956ebcb6a04c8e12dd7516d43d445",
+    "tests/unit/test_scene_receipt_validation.gd": "864fb738fcf4656da6b4e595fd40552b56f694a8dd8481942b8ae889971bf451",
+    "tests/unit/test_scene_route_restore_context.gd": "0c67f7a8f60fe13a3cbd2a9678587d43dd27e74f6fb1ccb6b53fe5933b795280",
+    "tests/integration/test_scene_challenge_recall_load.gd": "2dc305f6b83ca8e75ba5d7ca4ee397fd2045894183ffb9618023fd687d3754fb",
+    "tests/integration/test_scene_challenge_recall_create.gd": "7106beba3060c0688a1bc82f5750a799915cdf575bece7c22c90092cbfd9a556",
+    "tests/integration/test_scene_saved_event_anchor.gd": "8f161b3c8848e93dbffdc54d7d43d1f9b3fcc0e345b868fc5ac5a63a43fbde42",
+    "tests/integration/authored_week_child.gd": "e509c60688afccc407bd920120169bd50edbaffbe48747674362284a09e77e38",
+    "tests/integration/fresh_save_load_child.gd": "4b43bad936ad8ac66f4e015e183c8e3c2d8374d2798e49dd85eb79ddb4b145aa",
+    "tests/unit/test_scene_restore_journal.gd": "ba6e745ed52c1ba1f9e8c9d394e56037a0da63ce81347b06433802b51797d0e5",
+    "tests/unit/test_scene_event_contract.gd": "bb76f3be03e112b0712fd8f19fc2f7fc39cf74286e2279b4da2df307ccd7bf4c",
+    "tools/testing/Invoke-IsolatedGodot.ps1": "1fe67f2db677fb869ee82126834a83d519b77888328a690ec55bbb3fbda7fa5f",
+    "tests/integration/test_unified_restore_contract.gd": "a2b737aa77a4f124781191a82da72e3b451af5438e52fbf07fc9a3bfe21f5dde",
+    "scripts/domain/narrative/SceneEventContract.gd": "d9e1d9eae4e6b36e1002ac28f3bf22b037ec7c9b6d7b0938835961cbe179ca77",
+    "tests/unit/test_scene_terminal_lifecycle.gd": "82f996cee273ab38a69f8e54d5eaaba64699f80f883170e0e8e4b60627cd46fc",
+    "tools/testing/Invoke-PublicSurfaceValidation.ps1": "de02f5eb28b087fe858622dbcae5e45aa38293de694c4df284ae487443e3f11a",
+    "tests/integration/test_restore_transaction.gd": "e1e75a5cafb122c2289ed33b222f3006962c02e621fed4ff41dab059509c6ff9",
+    "tests/unit/test_scene_save_schema.gd": "731d6122d8a588a8cfadee828dc24a8bebcc173472bb4a885768ae5718867e2e"
+  },
+  "current_xml_summary": {
+    "focused": {
+      "cases": 133,
+      "case_assertions": 1529,
+      "failed_cases": 0
+    },
+    "recall": {
+      "cases": 2,
+      "case_assertions": 168,
+      "failed_cases": 0
+    },
+    "terminal": {
+      "cases": 1,
+      "case_assertions": 213,
+      "failed_cases": 1
+    },
+    "baseline-first": {
+      "cases": 4,
+      "case_assertions": 426,
+      "failed_cases": 0
+    },
+    "candidate-first": {
+      "cases": 4,
+      "case_assertions": 426,
+      "failed_cases": 0
+    },
+    "terminal-corrected": {
+      "cases": 1,
+      "case_assertions": 213,
+      "failed_cases": 0
+    }
+  },
+  "excluded_historical_xml": [
+    "terminal/candidate/.godot/ci/terminal-admission-input/terminal-candidate.xml",
+    "terminal-corrected/candidate/.godot/ci/terminal-admission-input/terminal-candidate.xml"
+  ],
+  "qualifications": {
+    "focused": {
+      "status": "passed_requires_evidence_review",
+      "lane": "focused",
+      "candidate_ref": "7978de5f0940686ba81301131a1fb2166f50edb4",
+      "baseline_ref": "bf6fe97e8bc0e2056621ec813014070938076284",
+      "controller_ref": "387e730405de40f30777eef14a7a8f48d4046d30",
+      "inventory_mode": "not_executed_in_this_lane"
+    },
+    "recall": {
+      "status": "passed_requires_evidence_review",
+      "lane": "recall",
+      "candidate_ref": "7978de5f0940686ba81301131a1fb2166f50edb4",
+      "baseline_ref": "bf6fe97e8bc0e2056621ec813014070938076284",
+      "controller_ref": "387e730405de40f30777eef14a7a8f48d4046d30",
+      "inventory_mode": "not_executed_in_this_lane"
+    },
+    "terminal": {
+      "status": "failed",
+      "lane": "terminal",
+      "candidate_ref": "7978de5f0940686ba81301131a1fb2166f50edb4",
+      "baseline_ref": "bf6fe97e8bc0e2056621ec813014070938076284",
+      "controller_ref": "387e730405de40f30777eef14a7a8f48d4046d30",
+      "inventory_mode": "not_executed_in_this_lane",
+      "error": "Genuine terminal admission failed."
+    },
+    "inventory": {
+      "status": "diagnostic_inventory_generated",
+      "lane": "inventory",
+      "candidate_ref": "7978de5f0940686ba81301131a1fb2166f50edb4",
+      "baseline_ref": "bf6fe97e8bc0e2056621ec813014070938076284",
+      "controller_ref": "387e730405de40f30777eef14a7a8f48d4046d30",
+      "inventory_mode": "diagnostic_generation_not_committed_verification"
+    },
+    "baseline-first": {
+      "status": "passed_requires_evidence_review",
+      "lane": "baseline-first",
+      "candidate_ref": "7978de5f0940686ba81301131a1fb2166f50edb4",
+      "baseline_ref": "bf6fe97e8bc0e2056621ec813014070938076284",
+      "controller_ref": "387e730405de40f30777eef14a7a8f48d4046d30",
+      "inventory_mode": "not_executed_in_this_lane"
+    },
+    "candidate-first": {
+      "status": "passed_requires_evidence_review",
+      "lane": "candidate-first",
+      "candidate_ref": "7978de5f0940686ba81301131a1fb2166f50edb4",
+      "baseline_ref": "bf6fe97e8bc0e2056621ec813014070938076284",
+      "controller_ref": "387e730405de40f30777eef14a7a8f48d4046d30",
+      "inventory_mode": "not_executed_in_this_lane"
+    },
+    "terminal-corrected": {
+      "status": "passed_requires_evidence_review",
+      "lane": "terminal",
+      "candidate_ref": "6c8b5bcf01b6264253d8d918558a005ac941a770",
+      "baseline_ref": "bf6fe97e8bc0e2056621ec813014070938076284",
+      "controller_ref": "2279af4c16701cada92c376fe895352f8d332bf7",
+      "inventory_mode": "not_executed_in_this_lane"
+    },
+    "inventory-corrected": {
+      "status": "passed_requires_evidence_review",
+      "lane": "inventory",
+      "candidate_ref": "6c8b5bcf01b6264253d8d918558a005ac941a770",
+      "baseline_ref": "bf6fe97e8bc0e2056621ec813014070938076284",
+      "controller_ref": "2279af4c16701cada92c376fe895352f8d332bf7",
+      "inventory_mode": "read_only_committed_verification"
+    }
+  },
+  "comparisons": [
+    {
+      "lane": "baseline-first",
+      "order": [
+        "baseline",
+        "candidate"
+      ],
+      "complete": true,
+      "metrics": [
+        {
+          "operation": "Save action press return",
+          "baseline_us": 32013631,
+          "candidate_us": 27646345,
+          "candidate_change_percent": -13.641957702329988
+        },
+        {
+          "operation": "Retained Load action to Ready",
+          "baseline_us": 64727008,
+          "candidate_us": 59156600,
+          "candidate_change_percent": -8.606002613314057
+        },
+        {
+          "operation": "Retained Load action press return",
+          "baseline_us": 65973973,
+          "candidate_us": 60399926,
+          "candidate_change_percent": -8.448857551749988
+        },
+        {
+          "operation": "Fresh-process Load action to Ready",
+          "baseline_us": 37055351,
+          "candidate_us": 33298483,
+          "candidate_change_percent": -10.138530329938044
+        }
+      ],
+      "measurement_sha256": {
+        "tests/integration/fresh_save_load_child.gd": "4b43bad936ad8ac66f4e015e183c8e3c2d8374d2798e49dd85eb79ddb4b145aa",
+        "tools/testing/Invoke-IsolatedGodot.ps1": "1fe67f2db677fb869ee82126834a83d519b77888328a690ec55bbb3fbda7fa5f",
+        "evidence/phase_2r/current_ci_20261023/final_retention/run39988834004/original-12517208437.zip": "c49053565e4b9430f2e9f0157eea9c1602898156de13df2837ca714235279670",
+        "tests/integration/authored_week_child.gd": "e509c60688afccc407bd920120169bd50edbaffbe48747674362284a09e77e38",
+        "tools/testing/Invoke-FreshSaveLoad.ps1": "9b95c418b3d475876e91516e0893a2d70f4f85040fb1b2862b97aa09b37bc0e6"
+      },
+      "runtime_variants": [
+        {
+          "variant": "baseline",
+          "source_ref": "bf6fe97e8bc0e2056621ec813014070938076284",
+          "runtime_sha256": {
+            "scripts/domain/narrative/SceneEventContract.gd": "49cffa3b51534c6ffb951c116a3b2deed41f03cd19bfd25754a5d7bbe175429c"
+          }
+        },
+        {
+          "variant": "candidate",
+          "source_ref": "7978de5f0940686ba81301131a1fb2166f50edb4",
+          "runtime_sha256": {
+            "scripts/domain/narrative/SceneEventContract.gd": "d9e1d9eae4e6b36e1002ac28f3bf22b037ec7c9b6d7b0938835961cbe179ca77"
+          }
+        }
+      ],
+      "current_native_cases": 4,
+      "current_native_assertions": 426
+    },
+    {
+      "lane": "candidate-first",
+      "order": [
+        "candidate",
+        "baseline"
+      ],
+      "complete": true,
+      "metrics": [
+        {
+          "operation": "Save action press return",
+          "baseline_us": 27820344,
+          "candidate_us": 25841136,
+          "candidate_change_percent": -7.114247041661315
+        },
+        {
+          "operation": "Retained Load action to Ready",
+          "baseline_us": 56347753,
+          "candidate_us": 57243922,
+          "candidate_change_percent": 1.5904254425194164
+        },
+        {
+          "operation": "Retained Load action press return",
+          "baseline_us": 57485574,
+          "candidate_us": 58466160,
+          "candidate_change_percent": 1.7057949182172294
+        },
+        {
+          "operation": "Fresh-process Load action to Ready",
+          "baseline_us": 35463805,
+          "candidate_us": 31712148,
+          "candidate_change_percent": -10.578833827898615
+        }
+      ],
+      "measurement_sha256": {
+        "tests/integration/fresh_save_load_child.gd": "4b43bad936ad8ac66f4e015e183c8e3c2d8374d2798e49dd85eb79ddb4b145aa",
+        "tools/testing/Invoke-IsolatedGodot.ps1": "1fe67f2db677fb869ee82126834a83d519b77888328a690ec55bbb3fbda7fa5f",
+        "tools/testing/Invoke-FreshSaveLoad.ps1": "9b95c418b3d475876e91516e0893a2d70f4f85040fb1b2862b97aa09b37bc0e6",
+        "tests/integration/authored_week_child.gd": "e509c60688afccc407bd920120169bd50edbaffbe48747674362284a09e77e38",
+        "evidence/phase_2r/current_ci_20261023/final_retention/run39988834004/original-12517208437.zip": "c49053565e4b9430f2e9f0157eea9c1602898156de13df2837ca714235279670"
+      },
+      "runtime_variants": [
+        {
+          "variant": "candidate",
+          "source_ref": "7978de5f0940686ba81301131a1fb2166f50edb4",
+          "runtime_sha256": {
+            "scripts/domain/narrative/SceneEventContract.gd": "d9e1d9eae4e6b36e1002ac28f3bf22b037ec7c9b6d7b0938835961cbe179ca77"
+          }
+        },
+        {
+          "variant": "baseline",
+          "source_ref": "bf6fe97e8bc0e2056621ec813014070938076284",
+          "runtime_sha256": {
+            "scripts/domain/narrative/SceneEventContract.gd": "49cffa3b51534c6ffb951c116a3b2deed41f03cd19bfd25754a5d7bbe175429c"
+          }
+        }
+      ],
+      "current_native_cases": 4,
+      "current_native_assertions": 426
+    }
+  ],
+  "semantic_ready_all_four_identical": true,
+  "visual_review": {
+    "reviewed": [
+      "recall selected",
+      "recall restored selected",
+      "baseline-first candidate terminal pair",
+      "baseline-first baseline terminal pair"
+    ],
+    "finding": "Recall selected/restored show complete TEST recall_a selected caption. Baseline/candidate ending shows identical complete rear-doors caption and matching backdrop. Clock and Save/Load controls differ where expected between sessions."
+  },
+  "initial_terminal_failure": "One current case with 213 testcase assertions contains a stale structural-check count expectation (expected 2, actual 3). This is a failed initial terminal qualification, not a pass. The historical retained-input XML is excluded. Corrected test explicitly expects the retained recall check reduction; corrected current terminal XML now passes 213 assertions.",
+  "inventory_status": "passed read_only_committed_verification",
+  "scope_limits": [
+    "Windows source-project software-rendered evidence; not installed Steam performance or release acceptance.",
+    "Each order is one matched pair, not a latency distribution. Save and fresh Load improved in both pairs; retained Load is mixed. No universal speedup claim.",
+    "Current testcase assertions exclude setup assertions and retained historical input reports.",
+    "This evidence covers only PR81 initial selected-recall ledger optimization, not any second-ledger-removal candidate."
+  ],
+  "bundle_sha256": "c21aa9995e275ea3aaab624f535c51fe394a7bccc58db1bf50e8eeb2e9ee8ae7",
+  "current_case_census": "current-case-census.json",
+  "runs": [
+    40114725820,
+    40115097278
+  ],
+  "final_candidate_ref": "6c8b5bcf01b6264253d8d918558a005ac941a770",
+  "initial_candidate_ref": "7978de5f0940686ba81301131a1fb2166f50edb4",
+  "accepted_current_product_coverage": {
+    "cases": 136,
+    "case_assertions": 1910,
+    "components": [
+      "focused: 133/1529",
+      "recall: 2/168",
+      "terminal-corrected: 1/213"
+    ],
+    "failures": 0,
+    "skips": 0
+  },
+  "matched_comparison_execution_coverage": {
+    "cases": 8,
+    "case_assertions": 852,
+    "scope": "Two cases per variant, two variants per order, two orders. Repeated execution evidence, not eight unique test bodies."
+  },
+  "acceptance_basis": "Unchanged successful focused/recall/comparison suites at initial candidate plus corrected terminal suite and read-only committed inventory verification at final candidate. Git diff confirms only the terminal expectation/comment and inventory hashes changed; runtime is byte-identical.",
+  "inventory_sha256": {
+    "game_state_surface.json": "3e303a0d84da2734d53392ff3323d232357589d61bce19d7471dc600e7b4c100",
+    "save_manager_surface.json": "8bc84c6104708752d6ecf85dce29eb7cff94b66f4913d1286b39abf171c87aef"
+  },
+  "controller_patches": {
+    "initial-controller.patch": {
+      "base_ref": "bf6fe97e8bc0e2056621ec813014070938076284",
+      "controller_ref": "387e730405de40f30777eef14a7a8f48d4046d30",
+      "sha256": "4dc87d729eb164cdd56e64919347b9706309fad009965ded4b9a62dda1f0bc40"
+    },
+    "correction-controller.patch": {
+      "base_ref": "387e730405de40f30777eef14a7a8f48d4046d30",
+      "controller_ref": "2279af4c16701cada92c376fe895352f8d332bf7",
+      "sha256": "50ba725fdf3f851ee7c5ebda28301d51080a1fffc4b9a615a3a50ef830ac72fb"
+    }
+  }
+}

@@ -1,0 +1,1589 @@
+{
+  "format": 1,
+  "scope": "Each unique uncompressed artifact-member byte sequence is retained under objects/<sha256>. Original ZIP container bytes are not retained; original hashes and member paths are recorded.",
+  "archives": [
+    {
+      "name": "load-terminal-40114725820-1.zip",
+      "artifact_id": 12568455574,
+      "run_id": 40114725820,
+      "controller_ref": "387e730405de40f30777eef14a7a8f48d4046d30",
+      "size_bytes": 3256959,
+      "sha256": "5e41a8390078a22b531b6c3f42db2bc36f85a424b247a9fab14ce75a15958489",
+      "members": [
+        {
+          "path": "candidate/.godot/ci/authored-terminal-admission-checks.json",
+          "size_bytes": 9279,
+          "sha256": "e10e8c538c546aacc215fa427cb89230c009ccc521dced62e38d4e91d91c4114",
+          "object": "objects/e10e8c538c546aacc215fa427cb89230c009ccc521dced62e38d4e91d91c4114"
+        },
+        {
+          "path": "candidate/.godot/ci/import-stderr.log",
+          "size_bytes": 126,
+          "sha256": "e3e9582cfc1659ab624949d8fbdf43ec09f34ede8590bcc20749ca738dffff1b",
+          "object": "objects/e3e9582cfc1659ab624949d8fbdf43ec09f34ede8590bcc20749ca738dffff1b"
+        },
+        {
+          "path": "candidate/.godot/ci/import-stdout.log",
+          "size_bytes": 151109,
+          "sha256": "0523d3dc9effcc8a9d213bbcf1c7165cdb727bf52e22837dd0ee804723418d5d",
+          "object": "objects/0523d3dc9effcc8a9d213bbcf1c7165cdb727bf52e22837dd0ee804723418d5d"
+        },
+        {
+          "path": "candidate/.godot/ci/import.log",
+          "size_bytes": 96586,
+          "sha256": "85f2e6683da42e01f33e5186ba4f91416ec578eb7247a4cf301e0194021d4b88",
+          "object": "objects/85f2e6683da42e01f33e5186ba4f91416ec578eb7247a4cf301e0194021d4b88"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-admission-input/audit-origin.json",
+          "size_bytes": 303,
+          "sha256": "c503b84e007392c9c2aff0c4f6ed79e719eac31119a6a0e2f269a6c377f5dbe4",
+          "object": "objects/c503b84e007392c9c2aff0c4f6ed79e719eac31119a6a0e2f269a6c377f5dbe4"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-admission-input/authored-week-terminal-pair.json",
+          "size_bytes": 684510,
+          "sha256": "d021f7411218be20c88c29c1a55538b625612ab448766487d31a17d4b49a8221",
+          "object": "objects/d021f7411218be20c88c29c1a55538b625612ab448766487d31a17d4b49a8221"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-admission-input/comparison-origin.json",
+          "size_bytes": 305,
+          "sha256": "77a0b38535ed0113c0f88efd1f036755aae047c9109a6ad214299fc0cbc08009",
+          "object": "objects/77a0b38535ed0113c0f88efd1f036755aae047c9109a6ad214299fc0cbc08009"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-admission-input/computer-authored-restored-slot-2.png",
+          "size_bytes": 577257,
+          "sha256": "518dc6bccd41ef7ef77da8963cb6ba7216de4b48a2f8f81b892262dd25e4502a",
+          "object": "objects/518dc6bccd41ef7ef77da8963cb6ba7216de4b48a2f8f81b892262dd25e4502a"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-admission-input/computer-authored-terminal-pair.png",
+          "size_bytes": 577421,
+          "sha256": "9903526552d99c2b5a0ff91a270ede867ada1628b902c874ede2a4e09811c8ea",
+          "object": "objects/9903526552d99c2b5a0ff91a270ede867ada1628b902c874ede2a4e09811c8ea"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-admission-input/helper-hashes.json",
+          "size_bytes": 338,
+          "sha256": "8e52a836ed5f4dfcad382e61f557d90bdae562fe6e505c9a255e8d9b81558fe4",
+          "object": "objects/8e52a836ed5f4dfcad382e61f557d90bdae562fe6e505c9a255e8d9b81558fe4"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-admission-input/import-process.json",
+          "size_bytes": 24,
+          "sha256": "75876e0e3f497cad271143ba85bd4f36569cd81195509043f860dab14265b716",
+          "object": "objects/75876e0e3f497cad271143ba85bd4f36569cd81195509043f860dab14265b716"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-admission-input/import.log",
+          "size_bytes": 96411,
+          "sha256": "7201e67afe0ad7847474ddcd874ac497325ef27e0c6a97cb440b58f835d2e015",
+          "object": "objects/7201e67afe0ad7847474ddcd874ac497325ef27e0c6a97cb440b58f835d2e015"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-admission-input/terminal-candidate-seed.log",
+          "size_bytes": 584,
+          "sha256": "0bcc5678c9de2ffab480358e27565c8b7842d40c943c8708bdfa6b34715f53c9",
+          "object": "objects/0bcc5678c9de2ffab480358e27565c8b7842d40c943c8708bdfa6b34715f53c9"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-admission-input/terminal-candidate.jsonl",
+          "size_bytes": 1443,
+          "sha256": "e82f3b04a7fc959afd5cc3bef82355dcc3314591c210d8e24e25abaef880675f",
+          "object": "objects/e82f3b04a7fc959afd5cc3bef82355dcc3314591c210d8e24e25abaef880675f"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-admission-input/terminal-candidate.log",
+          "size_bytes": 167956,
+          "sha256": "0130df1d357114383707e772fe945ece3125416756cd7ae17c7af556c1d7e98c",
+          "object": "objects/0130df1d357114383707e772fe945ece3125416756cd7ae17c7af556c1d7e98c"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-admission-input/terminal-candidate.xml",
+          "size_bytes": 375,
+          "sha256": "2b29bf25841a2c5dab633ed4b68fe19d566e4fa5e5f77d4f8d481f9160d563ba",
+          "object": "objects/2b29bf25841a2c5dab633ed4b68fe19d566e4fa5e5f77d4f8d481f9160d563ba"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-admission-input/terminal-pair.json",
+          "size_bytes": 1549,
+          "sha256": "bc87c7bb2c34ed37c60a8fe02ce5d3591f8eb7bc18c5bc35346ebda53f7f154d",
+          "object": "objects/bc87c7bb2c34ed37c60a8fe02ce5d3591f8eb7bc18c5bc35346ebda53f7f154d"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-admission-input/terminal-root/authored-week-day4.json",
+          "size_bytes": 745849,
+          "sha256": "28c243435f3ba67404766e655c14be81e567f6823aa639ed1b6016a07907831f",
+          "object": "objects/28c243435f3ba67404766e655c14be81e567f6823aa639ed1b6016a07907831f"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-admission-input/terminal-root/desktop-issuer-root.json",
+          "size_bytes": 65790,
+          "sha256": "fc7ca1c8fec152d44e7c800fa87774c354967af809b1c9afc48e8a064e89bff4",
+          "object": "objects/fc7ca1c8fec152d44e7c800fa87774c354967af809b1c9afc48e8a064e89bff4"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-admission-input/terminal-root/authored-week-ending.json",
+          "size_bytes": 677619,
+          "sha256": "c0e07eb724a437da9e6f2ec9a28346e555c1e440289be6eea1bccd621fd0155c",
+          "object": "objects/c0e07eb724a437da9e6f2ec9a28346e555c1e440289be6eea1bccd621fd0155c"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-admission-input/terminal-root/desktop-publications.json",
+          "size_bytes": 34,
+          "sha256": "902849ab2604217a878bc4de507660ced78f981a72c1d6343dd9ef55af64d4e4",
+          "object": "objects/902849ab2604217a878bc4de507660ced78f981a72c1d6343dd9ef55af64d4e4"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-admission-input/terminal-root/profile.json",
+          "size_bytes": 231435,
+          "sha256": "40a3166a287790295a5270a42934337fc7bdd5f63c759d193d0d555c89c71f43",
+          "object": "objects/40a3166a287790295a5270a42934337fc7bdd5f63c759d193d0d555c89c71f43"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-admission-input/terminal-root/saves/autosave.json",
+          "size_bytes": 9102,
+          "sha256": "54b47a2637f33b4937fa63e63c5b8571038d3adde0576437bad1c415b13454a3",
+          "object": "objects/54b47a2637f33b4937fa63e63c5b8571038d3adde0576437bad1c415b13454a3"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-admission-input/terminal-root/saves/desktop-continuation-operations.json",
+          "size_bytes": 5160096,
+          "sha256": "04c5dd615ed91e42378a7e5e5b8d9506337fa913c746bae62c0fb57a29cb227a",
+          "object": "objects/04c5dd615ed91e42378a7e5e5b8d9506337fa913c746bae62c0fb57a29cb227a"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-admission-input/terminal-root/saves/slot_1.json",
+          "size_bytes": 715995,
+          "sha256": "abfc0aa1c5438a3d3c747e1a539532866c9dfddbd67bcbc57c6562325367449e",
+          "object": "objects/abfc0aa1c5438a3d3c747e1a539532866c9dfddbd67bcbc57c6562325367449e"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-admission-input/terminal-root/saves/slot_2.json",
+          "size_bytes": 1577281,
+          "sha256": "17934c8199a7d25f97c69890f0ca609e5106c6bb6dc187464d58c40d2baf987c",
+          "object": "objects/17934c8199a7d25f97c69890f0ca609e5106c6bb6dc187464d58c40d2baf987c"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-admission-input/terminal-root/schedule-foundation-publications.json",
+          "size_bytes": 34,
+          "sha256": "902849ab2604217a878bc4de507660ced78f981a72c1d6343dd9ef55af64d4e4",
+          "object": "objects/902849ab2604217a878bc4de507660ced78f981a72c1d6343dd9ef55af64d4e4"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-admission-input/terminal-root-hashes.json",
+          "size_bytes": 5173,
+          "sha256": "d0d652dac2f6221dc3a8ca81069b19b011d145108a68ce485a01eaa6ae1ef47c",
+          "object": "objects/d0d652dac2f6221dc3a8ca81069b19b011d145108a68ce485a01eaa6ae1ef47c"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-root/authored-week-day4.json",
+          "size_bytes": 745849,
+          "sha256": "28c243435f3ba67404766e655c14be81e567f6823aa639ed1b6016a07907831f",
+          "object": "objects/28c243435f3ba67404766e655c14be81e567f6823aa639ed1b6016a07907831f"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-root/authored-week-ending.json",
+          "size_bytes": 677619,
+          "sha256": "c0e07eb724a437da9e6f2ec9a28346e555c1e440289be6eea1bccd621fd0155c",
+          "object": "objects/c0e07eb724a437da9e6f2ec9a28346e555c1e440289be6eea1bccd621fd0155c"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-root/desktop-issuer-root.json",
+          "size_bytes": 65790,
+          "sha256": "fc7ca1c8fec152d44e7c800fa87774c354967af809b1c9afc48e8a064e89bff4",
+          "object": "objects/fc7ca1c8fec152d44e7c800fa87774c354967af809b1c9afc48e8a064e89bff4"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-root/desktop-publications.json",
+          "size_bytes": 34,
+          "sha256": "902849ab2604217a878bc4de507660ced78f981a72c1d6343dd9ef55af64d4e4",
+          "object": "objects/902849ab2604217a878bc4de507660ced78f981a72c1d6343dd9ef55af64d4e4"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-root/profile.json",
+          "size_bytes": 231435,
+          "sha256": "40a3166a287790295a5270a42934337fc7bdd5f63c759d193d0d555c89c71f43",
+          "object": "objects/40a3166a287790295a5270a42934337fc7bdd5f63c759d193d0d555c89c71f43"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-root/saves/autosave.json",
+          "size_bytes": 9102,
+          "sha256": "54b47a2637f33b4937fa63e63c5b8571038d3adde0576437bad1c415b13454a3",
+          "object": "objects/54b47a2637f33b4937fa63e63c5b8571038d3adde0576437bad1c415b13454a3"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-root/saves/desktop-continuation-operations.json",
+          "size_bytes": 5160096,
+          "sha256": "04c5dd615ed91e42378a7e5e5b8d9506337fa913c746bae62c0fb57a29cb227a",
+          "object": "objects/04c5dd615ed91e42378a7e5e5b8d9506337fa913c746bae62c0fb57a29cb227a"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-root/saves/slot_1.json",
+          "size_bytes": 715995,
+          "sha256": "abfc0aa1c5438a3d3c747e1a539532866c9dfddbd67bcbc57c6562325367449e",
+          "object": "objects/abfc0aa1c5438a3d3c747e1a539532866c9dfddbd67bcbc57c6562325367449e"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-root/saves/slot_2.json",
+          "size_bytes": 1577281,
+          "sha256": "17934c8199a7d25f97c69890f0ca609e5106c6bb6dc187464d58c40d2baf987c",
+          "object": "objects/17934c8199a7d25f97c69890f0ca609e5106c6bb6dc187464d58c40d2baf987c"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-root/schedule-foundation-publications.json",
+          "size_bytes": 34,
+          "sha256": "902849ab2604217a878bc4de507660ced78f981a72c1d6343dd9ef55af64d4e4",
+          "object": "objects/902849ab2604217a878bc4de507660ced78f981a72c1d6343dd9ef55af64d4e4"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-root-hashes.json",
+          "size_bytes": 5173,
+          "sha256": "d0d652dac2f6221dc3a8ca81069b19b011d145108a68ce485a01eaa6ae1ef47c",
+          "object": "objects/d0d652dac2f6221dc3a8ca81069b19b011d145108a68ce485a01eaa6ae1ef47c"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal_admission.jsonl",
+          "size_bytes": 1716,
+          "sha256": "2b20e79f30b8fd0c6161440da85a6bb011ec8505aafff0baf09075507ed08940",
+          "object": "objects/2b20e79f30b8fd0c6161440da85a6bb011ec8505aafff0baf09075507ed08940"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal_admission.xml",
+          "size_bytes": 645,
+          "sha256": "0d8bebb8bde1d0780f2df25a1b8b0f28a41c99d80e627f93fbb8347ea4f5e877",
+          "object": "objects/0d8bebb8bde1d0780f2df25a1b8b0f28a41c99d80e627f93fbb8347ea4f5e877"
+        },
+        {
+          "path": "candidate/.godot/phase2r_logs/cloud-terminal_admission-seed.log",
+          "size_bytes": 584,
+          "sha256": "e64d8c978de3e1d4953eefa60703d3a8030479dd645f995c55d5b4ad1879cd1c",
+          "object": "objects/e64d8c978de3e1d4953eefa60703d3a8030479dd645f995c55d5b4ad1879cd1c"
+        },
+        {
+          "path": "candidate/.godot/phase2r_logs/cloud-terminal_admission.log",
+          "size_bytes": 12917,
+          "sha256": "fe50dd392c2ff2558ee0c7a1d480f2e86c051b8b8e25afa6381997064cc911cf",
+          "object": "objects/fe50dd392c2ff2558ee0c7a1d480f2e86c051b8b8e25afa6381997064cc911cf"
+        },
+        {
+          "path": "game_state_surface.json",
+          "size_bytes": 661662,
+          "sha256": "7b57914bc1f86a8fa7318a493b572a68591cfd9c6e4ccbcbabfadda000a38f34",
+          "object": "objects/7b57914bc1f86a8fa7318a493b572a68591cfd9c6e4ccbcbabfadda000a38f34"
+        },
+        {
+          "path": "qualification.json",
+          "size_bytes": 3538,
+          "sha256": "4ba4e450a68e51d2c36a2af73cab990bfb2f7f3161f52e05c3388cac68356425",
+          "object": "objects/4ba4e450a68e51d2c36a2af73cab990bfb2f7f3161f52e05c3388cac68356425"
+        },
+        {
+          "path": "save_manager_surface.json",
+          "size_bytes": 184435,
+          "sha256": "046d1f66301f47a14762dd62b63419be8bd2e6234f1f902c4049e88921075ef1",
+          "object": "objects/046d1f66301f47a14762dd62b63419be8bd2e6234f1f902c4049e88921075ef1"
+        }
+      ]
+    },
+    {
+      "name": "load-candidate-first-40114725820-1.zip",
+      "artifact_id": 12568451641,
+      "run_id": 40114725820,
+      "controller_ref": "387e730405de40f30777eef14a7a8f48d4046d30",
+      "size_bytes": 3924292,
+      "sha256": "f836c2f22d820fd74fac4cc603a24981e222a4d586a4f93e860da415832f2e44",
+      "members": [
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/baseline/authored-week-terminal-pair.json",
+          "size_bytes": 684562,
+          "sha256": "9bb9cef8fe80c4a6b65384e2612b65049a175a765f7f394d60a6c08795febbf5",
+          "object": "objects/9bb9cef8fe80c4a6b65384e2612b65049a175a765f7f394d60a6c08795febbf5"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/baseline/computer-authored-restored-slot-3.png",
+          "size_bytes": 577257,
+          "sha256": "518dc6bccd41ef7ef77da8963cb6ba7216de4b48a2f8f81b892262dd25e4502a",
+          "object": "objects/518dc6bccd41ef7ef77da8963cb6ba7216de4b48a2f8f81b892262dd25e4502a"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/baseline/computer-authored-restored-slot-2.png",
+          "size_bytes": 577257,
+          "sha256": "518dc6bccd41ef7ef77da8963cb6ba7216de4b48a2f8f81b892262dd25e4502a",
+          "object": "objects/518dc6bccd41ef7ef77da8963cb6ba7216de4b48a2f8f81b892262dd25e4502a"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/baseline/computer-authored-terminal-pair.png",
+          "size_bytes": 577421,
+          "sha256": "9903526552d99c2b5a0ff91a270ede867ada1628b902c874ede2a4e09811c8ea",
+          "object": "objects/9903526552d99c2b5a0ff91a270ede867ada1628b902c874ede2a4e09811c8ea"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/baseline/fresh-load.json",
+          "size_bytes": 2201,
+          "sha256": "d635c269e4e2f04fb37cd4b12f77a371e0af97f1fbd9ff26f3a3b0476d1814bc",
+          "object": "objects/d635c269e4e2f04fb37cd4b12f77a371e0af97f1fbd9ff26f3a3b0476d1814bc"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/baseline/fresh-pair-import.log",
+          "size_bytes": 96586,
+          "sha256": "c8b91f69f36298c0c8c6b6ddc4571ebe330717ce196ca8f221a9827eeda7d782",
+          "object": "objects/c8b91f69f36298c0c8c6b6ddc4571ebe330717ce196ca8f221a9827eeda7d782"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/baseline/fresh-save-load.log",
+          "size_bytes": 49637,
+          "sha256": "3cee40e774ff3507173164ac38b86877075d7be76c091de4b2c791245d651256",
+          "object": "objects/3cee40e774ff3507173164ac38b86877075d7be76c091de4b2c791245d651256"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/baseline/fresh-save-seed.log",
+          "size_bytes": 14410,
+          "sha256": "fef8dde805e9216e45cf7ca1cb2cdedb5c1c7804fd380a6a5b2f916b6f6d979c",
+          "object": "objects/fef8dde805e9216e45cf7ca1cb2cdedb5c1c7804fd380a6a5b2f916b6f6d979c"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/baseline/fresh-save-write.log",
+          "size_bytes": 69185,
+          "sha256": "cdbb1cc299ee420edb66b28603a0db9bc2e0645892ea26d32311b19d19552be7",
+          "object": "objects/cdbb1cc299ee420edb66b28603a0db9bc2e0645892ea26d32311b19d19552be7"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/baseline/import-console.log",
+          "size_bytes": 151233,
+          "sha256": "188dcb4e4eb26d15b70b97aa7751101bb25f5ecc8ed17116e2162f4c09fc2801",
+          "object": "objects/188dcb4e4eb26d15b70b97aa7751101bb25f5ecc8ed17116e2162f4c09fc2801"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/baseline/load.xml",
+          "size_bytes": 412,
+          "sha256": "d81fc99b0899f16033b02f1c0f7170f01219c37ab1c5ddbbf50fc70b1a017bad",
+          "object": "objects/d81fc99b0899f16033b02f1c0f7170f01219c37ab1c5ddbbf50fc70b1a017bad"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/baseline/processes.jsonl",
+          "size_bytes": 3068,
+          "sha256": "9ab661c021856bcccd9421fbb3153d0e22a8188c9d41595e14cd0e27895444b0",
+          "object": "objects/9ab661c021856bcccd9421fbb3153d0e22a8188c9d41595e14cd0e27895444b0"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/baseline/result.json",
+          "size_bytes": 7396,
+          "sha256": "7b85e67f986f1362907d6727bb68cbda21c5b19a388427caaa1e2fd56f8b018d",
+          "object": "objects/7b85e67f986f1362907d6727bb68cbda21c5b19a388427caaa1e2fd56f8b018d"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/baseline/slot_3.json",
+          "size_bytes": 448631,
+          "sha256": "d5d5b6117d76687e5fb3d2bd53aae3e21915f089f048b1ab650eb57ed5481989",
+          "object": "objects/d5d5b6117d76687e5fb3d2bd53aae3e21915f089f048b1ab650eb57ed5481989"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/baseline/terminal-pair.json",
+          "size_bytes": 1538,
+          "sha256": "2462f20aa6f9dbfe8e340405ab4a672ee3d6a78e9dca6dd82543659cbac92975",
+          "object": "objects/2462f20aa6f9dbfe8e340405ab4a672ee3d6a78e9dca6dd82543659cbac92975"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/baseline/write.xml",
+          "size_bytes": 375,
+          "sha256": "0447f57fff31579482e478366a984157247d077d78520c0d38bacb494ceea485",
+          "object": "objects/0447f57fff31579482e478366a984157247d077d78520c0d38bacb494ceea485"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/candidate/authored-week-terminal-pair.json",
+          "size_bytes": 684563,
+          "sha256": "b7d9cc42cf0d1904679faabf6e0e293dad38546cb040a8e2610c1dbc8e477f02",
+          "object": "objects/b7d9cc42cf0d1904679faabf6e0e293dad38546cb040a8e2610c1dbc8e477f02"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/candidate/computer-authored-restored-slot-2.png",
+          "size_bytes": 577257,
+          "sha256": "518dc6bccd41ef7ef77da8963cb6ba7216de4b48a2f8f81b892262dd25e4502a",
+          "object": "objects/518dc6bccd41ef7ef77da8963cb6ba7216de4b48a2f8f81b892262dd25e4502a"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/candidate/computer-authored-restored-slot-3.png",
+          "size_bytes": 577257,
+          "sha256": "518dc6bccd41ef7ef77da8963cb6ba7216de4b48a2f8f81b892262dd25e4502a",
+          "object": "objects/518dc6bccd41ef7ef77da8963cb6ba7216de4b48a2f8f81b892262dd25e4502a"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/candidate/computer-authored-terminal-pair.png",
+          "size_bytes": 577421,
+          "sha256": "9903526552d99c2b5a0ff91a270ede867ada1628b902c874ede2a4e09811c8ea",
+          "object": "objects/9903526552d99c2b5a0ff91a270ede867ada1628b902c874ede2a4e09811c8ea"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/candidate/fresh-load.json",
+          "size_bytes": 2201,
+          "sha256": "0c28a099e4fbc74fd369fb9a5102acd262f50f4afd8a758ce7328f97156a5d33",
+          "object": "objects/0c28a099e4fbc74fd369fb9a5102acd262f50f4afd8a758ce7328f97156a5d33"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/candidate/fresh-pair-import.log",
+          "size_bytes": 96714,
+          "sha256": "7aa92a44d1eb6431e18f8e842da6dd3ee2557ff141837a3da91780549fe42ce0",
+          "object": "objects/7aa92a44d1eb6431e18f8e842da6dd3ee2557ff141837a3da91780549fe42ce0"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/candidate/fresh-save-load.log",
+          "size_bytes": 49626,
+          "sha256": "45dcbe3fe87590ec9f6fa5d45369ce40d0c120ee4310c603d552d46963d55574",
+          "object": "objects/45dcbe3fe87590ec9f6fa5d45369ce40d0c120ee4310c603d552d46963d55574"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/candidate/fresh-save-seed.log",
+          "size_bytes": 14410,
+          "sha256": "00b75e1becbf6535c8d5d4324d8d39e7e099e4755f98596a4bc2f8b0aa9badd7",
+          "object": "objects/00b75e1becbf6535c8d5d4324d8d39e7e099e4755f98596a4bc2f8b0aa9badd7"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/candidate/fresh-save-write.log",
+          "size_bytes": 69258,
+          "sha256": "51494901f892e0d455a8baf44ad707b0bf0b79202156ad8da93bd84ce4e74492",
+          "object": "objects/51494901f892e0d455a8baf44ad707b0bf0b79202156ad8da93bd84ce4e74492"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/candidate/import-console.log",
+          "size_bytes": 151409,
+          "sha256": "e0316590100862be9c12cebac6843d92d0740dfb2a90718312175f279de59455",
+          "object": "objects/e0316590100862be9c12cebac6843d92d0740dfb2a90718312175f279de59455"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/candidate/processes.jsonl",
+          "size_bytes": 3083,
+          "sha256": "50876b567e842105750c70d64401716a35d9e47aa0e9c6427ccabc4e35a129cf",
+          "object": "objects/50876b567e842105750c70d64401716a35d9e47aa0e9c6427ccabc4e35a129cf"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/candidate/load.xml",
+          "size_bytes": 408,
+          "sha256": "042640f9b82124944f5372aa330fced5593be9825b53f1e2b47e48427db8b3e3",
+          "object": "objects/042640f9b82124944f5372aa330fced5593be9825b53f1e2b47e48427db8b3e3"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/candidate/result.json",
+          "size_bytes": 7396,
+          "sha256": "58e23d888e28ea85af7ffe180a56e63c7ac7ca63d5f0ee3531d5d7c85d7f510a",
+          "object": "objects/58e23d888e28ea85af7ffe180a56e63c7ac7ca63d5f0ee3531d5d7c85d7f510a"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/candidate/slot_3.json",
+          "size_bytes": 448631,
+          "sha256": "7d1ce2b800b35e3b7c78454948633f34c75a04555a18029ffe5c17c01318772f",
+          "object": "objects/7d1ce2b800b35e3b7c78454948633f34c75a04555a18029ffe5c17c01318772f"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/candidate/terminal-pair.json",
+          "size_bytes": 1538,
+          "sha256": "f91e9c781cc841fda5bcd4c69d2c5360e1282b95903a65e8eddde33eaad5bf68",
+          "object": "objects/f91e9c781cc841fda5bcd4c69d2c5360e1282b95903a65e8eddde33eaad5bf68"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/candidate/write.xml",
+          "size_bytes": 375,
+          "sha256": "2a0f1e5b8f0b7ba929a05cd828fb138edbab3d6e4963a7a687a9dc74c60a7695",
+          "object": "objects/2a0f1e5b8f0b7ba929a05cd828fb138edbab3d6e4963a7a687a9dc74c60a7695"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/comparison.json",
+          "size_bytes": 19400,
+          "sha256": "0c5da92bc7b40be3c3483b4751200bffff46c449e6c3bd935f4ca59b9e3aa28c",
+          "object": "objects/0c5da92bc7b40be3c3483b4751200bffff46c449e6c3bd935f4ca59b9e3aa28c"
+        },
+        {
+          "path": "game_state_surface.json",
+          "size_bytes": 661662,
+          "sha256": "7b57914bc1f86a8fa7318a493b572a68591cfd9c6e4ccbcbabfadda000a38f34",
+          "object": "objects/7b57914bc1f86a8fa7318a493b572a68591cfd9c6e4ccbcbabfadda000a38f34"
+        },
+        {
+          "path": "qualification.json",
+          "size_bytes": 23735,
+          "sha256": "dd8382342c982ea08b911b7e321888941bf5aed1fa31e7422232614ddae9b950",
+          "object": "objects/dd8382342c982ea08b911b7e321888941bf5aed1fa31e7422232614ddae9b950"
+        },
+        {
+          "path": "save_manager_surface.json",
+          "size_bytes": 184435,
+          "sha256": "046d1f66301f47a14762dd62b63419be8bd2e6234f1f902c4049e88921075ef1",
+          "object": "objects/046d1f66301f47a14762dd62b63419be8bd2e6234f1f902c4049e88921075ef1"
+        }
+      ]
+    },
+    {
+      "name": "load-baseline-first-40114725820-1.zip",
+      "artifact_id": 12568362005,
+      "run_id": 40114725820,
+      "controller_ref": "387e730405de40f30777eef14a7a8f48d4046d30",
+      "size_bytes": 3924357,
+      "sha256": "5d7edd464e8b8b70f7cc054d96c58a84ef6880d0e7df8eb95cbfc2cc0069bd2d",
+      "members": [
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/baseline/authored-week-terminal-pair.json",
+          "size_bytes": 684562,
+          "sha256": "506d9d409c9474a7106325d8c8fe5cd669ac73f16b8175f233199b20598fd6d9",
+          "object": "objects/506d9d409c9474a7106325d8c8fe5cd669ac73f16b8175f233199b20598fd6d9"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/baseline/computer-authored-restored-slot-2.png",
+          "size_bytes": 577257,
+          "sha256": "518dc6bccd41ef7ef77da8963cb6ba7216de4b48a2f8f81b892262dd25e4502a",
+          "object": "objects/518dc6bccd41ef7ef77da8963cb6ba7216de4b48a2f8f81b892262dd25e4502a"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/baseline/computer-authored-restored-slot-3.png",
+          "size_bytes": 577257,
+          "sha256": "518dc6bccd41ef7ef77da8963cb6ba7216de4b48a2f8f81b892262dd25e4502a",
+          "object": "objects/518dc6bccd41ef7ef77da8963cb6ba7216de4b48a2f8f81b892262dd25e4502a"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/baseline/computer-authored-terminal-pair.png",
+          "size_bytes": 577421,
+          "sha256": "9903526552d99c2b5a0ff91a270ede867ada1628b902c874ede2a4e09811c8ea",
+          "object": "objects/9903526552d99c2b5a0ff91a270ede867ada1628b902c874ede2a4e09811c8ea"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/baseline/fresh-load.json",
+          "size_bytes": 2201,
+          "sha256": "a12296a26cc04af06d64cbf369d187e367275e7c8d511df80a2526eb34d34adf",
+          "object": "objects/a12296a26cc04af06d64cbf369d187e367275e7c8d511df80a2526eb34d34adf"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/baseline/fresh-pair-import.log",
+          "size_bytes": 96586,
+          "sha256": "9c1f9311f4c089680fd1165cbaf91d704b261c390570856c4898355798dc64d0",
+          "object": "objects/9c1f9311f4c089680fd1165cbaf91d704b261c390570856c4898355798dc64d0"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/baseline/fresh-save-load.log",
+          "size_bytes": 49639,
+          "sha256": "c4a790fe7ad75d0fcaafd2354bce67b2be521041bd388f58c8f6382faca18c96",
+          "object": "objects/c4a790fe7ad75d0fcaafd2354bce67b2be521041bd388f58c8f6382faca18c96"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/baseline/fresh-save-seed.log",
+          "size_bytes": 14410,
+          "sha256": "a2b94635207229bc1de9cd088c1b0a565ab832c5e47a8c7f97fd49cd4df98a9c",
+          "object": "objects/a2b94635207229bc1de9cd088c1b0a565ab832c5e47a8c7f97fd49cd4df98a9c"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/baseline/fresh-save-write.log",
+          "size_bytes": 69299,
+          "sha256": "2a549e2701d86ea5dbcffcf3681b01bed6cfa5350d69c16b2a961735fe1c8562",
+          "object": "objects/2a549e2701d86ea5dbcffcf3681b01bed6cfa5350d69c16b2a961735fe1c8562"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/baseline/import-console.log",
+          "size_bytes": 151233,
+          "sha256": "4380bd0255d049af6b18c0ca263502cd315614d82267268a84818e50e00befc2",
+          "object": "objects/4380bd0255d049af6b18c0ca263502cd315614d82267268a84818e50e00befc2"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/baseline/load.xml",
+          "size_bytes": 412,
+          "sha256": "72e5e05262531a525a06f154f1a0507a328b3647300be24e4ddce941b0b7b6b5",
+          "object": "objects/72e5e05262531a525a06f154f1a0507a328b3647300be24e4ddce941b0b7b6b5"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/baseline/processes.jsonl",
+          "size_bytes": 3068,
+          "sha256": "d490c18b84ea0cb6ad507b5bd498176b9c6b602ed117c8d157d7c03235f8a149",
+          "object": "objects/d490c18b84ea0cb6ad507b5bd498176b9c6b602ed117c8d157d7c03235f8a149"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/baseline/result.json",
+          "size_bytes": 7397,
+          "sha256": "cf4e4f1300350f0d10556596bf4bc40aaa6fcda7f9194d4798dd31769fe8b7c8",
+          "object": "objects/cf4e4f1300350f0d10556596bf4bc40aaa6fcda7f9194d4798dd31769fe8b7c8"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/baseline/slot_3.json",
+          "size_bytes": 448631,
+          "sha256": "6d132136957031dce6b1e8e8490b012dc84ffe44666edb83bfb1994075879201",
+          "object": "objects/6d132136957031dce6b1e8e8490b012dc84ffe44666edb83bfb1994075879201"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/baseline/terminal-pair.json",
+          "size_bytes": 1539,
+          "sha256": "7f7af9dc164c84a4f39ed1821e0943223fa01785e931acbc0f964366bd2e4c91",
+          "object": "objects/7f7af9dc164c84a4f39ed1821e0943223fa01785e931acbc0f964366bd2e4c91"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/baseline/write.xml",
+          "size_bytes": 375,
+          "sha256": "54b324bd6ee089d6e85ef2f717788e02abf9b809bd61858efca7737b57a1bddc",
+          "object": "objects/54b324bd6ee089d6e85ef2f717788e02abf9b809bd61858efca7737b57a1bddc"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/candidate/authored-week-terminal-pair.json",
+          "size_bytes": 684563,
+          "sha256": "bdeca0a0d80b53c4c59b331498e31fa5b384dd3ac5d462771f2c71d108527bd7",
+          "object": "objects/bdeca0a0d80b53c4c59b331498e31fa5b384dd3ac5d462771f2c71d108527bd7"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/candidate/computer-authored-restored-slot-2.png",
+          "size_bytes": 577257,
+          "sha256": "518dc6bccd41ef7ef77da8963cb6ba7216de4b48a2f8f81b892262dd25e4502a",
+          "object": "objects/518dc6bccd41ef7ef77da8963cb6ba7216de4b48a2f8f81b892262dd25e4502a"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/candidate/computer-authored-restored-slot-3.png",
+          "size_bytes": 577257,
+          "sha256": "518dc6bccd41ef7ef77da8963cb6ba7216de4b48a2f8f81b892262dd25e4502a",
+          "object": "objects/518dc6bccd41ef7ef77da8963cb6ba7216de4b48a2f8f81b892262dd25e4502a"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/candidate/computer-authored-terminal-pair.png",
+          "size_bytes": 577421,
+          "sha256": "9903526552d99c2b5a0ff91a270ede867ada1628b902c874ede2a4e09811c8ea",
+          "object": "objects/9903526552d99c2b5a0ff91a270ede867ada1628b902c874ede2a4e09811c8ea"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/candidate/fresh-load.json",
+          "size_bytes": 2201,
+          "sha256": "7c1479c66dc4af1dce5781a5441d5fae9911ab4684c98423030704d6cbc100de",
+          "object": "objects/7c1479c66dc4af1dce5781a5441d5fae9911ab4684c98423030704d6cbc100de"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/candidate/fresh-pair-import.log",
+          "size_bytes": 96586,
+          "sha256": "9c1f9311f4c089680fd1165cbaf91d704b261c390570856c4898355798dc64d0",
+          "object": "objects/9c1f9311f4c089680fd1165cbaf91d704b261c390570856c4898355798dc64d0"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/candidate/fresh-save-load.log",
+          "size_bytes": 49596,
+          "sha256": "9d2f59e549edcbfb3d9f58c6caca8e87d789beef085d27cc94f1104dc56c317d",
+          "object": "objects/9d2f59e549edcbfb3d9f58c6caca8e87d789beef085d27cc94f1104dc56c317d"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/candidate/fresh-save-seed.log",
+          "size_bytes": 14410,
+          "sha256": "5c6f6ccd2d3fb48654f1a84266cbb3de9f3f774152babdc64238698479f88eaf",
+          "object": "objects/5c6f6ccd2d3fb48654f1a84266cbb3de9f3f774152babdc64238698479f88eaf"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/candidate/fresh-save-write.log",
+          "size_bytes": 69221,
+          "sha256": "189767679d588a994e865d98c172e734e1559968ac86a52063a877662f9b0920",
+          "object": "objects/189767679d588a994e865d98c172e734e1559968ac86a52063a877662f9b0920"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/candidate/import-console.log",
+          "size_bytes": 151233,
+          "sha256": "4380bd0255d049af6b18c0ca263502cd315614d82267268a84818e50e00befc2",
+          "object": "objects/4380bd0255d049af6b18c0ca263502cd315614d82267268a84818e50e00befc2"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/candidate/load.xml",
+          "size_bytes": 410,
+          "sha256": "4a5d647990961d1a18466c395c8aa752ea50d1ae7024d902e8df49c0ea1acb2c",
+          "object": "objects/4a5d647990961d1a18466c395c8aa752ea50d1ae7024d902e8df49c0ea1acb2c"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/candidate/processes.jsonl",
+          "size_bytes": 3083,
+          "sha256": "39c6559194e0788796f770178e31ae8904ce2d349aef3fdcb0f347155a4a33df",
+          "object": "objects/39c6559194e0788796f770178e31ae8904ce2d349aef3fdcb0f347155a4a33df"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/candidate/result.json",
+          "size_bytes": 7396,
+          "sha256": "275d5117863cdc5d464cc337eff5627d5d533561c86529d6da197e7fbc4bed3b",
+          "object": "objects/275d5117863cdc5d464cc337eff5627d5d533561c86529d6da197e7fbc4bed3b"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/candidate/slot_3.json",
+          "size_bytes": 448631,
+          "sha256": "7f3b30d335556e338623620fd49e682230546b71902fd995d2c3904a14cad476",
+          "object": "objects/7f3b30d335556e338623620fd49e682230546b71902fd995d2c3904a14cad476"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/candidate/terminal-pair.json",
+          "size_bytes": 1538,
+          "sha256": "e45eb1559f28b1e7ff220ca35c2632955adbfd2a32eefaae2748330ea1f3f288",
+          "object": "objects/e45eb1559f28b1e7ff220ca35c2632955adbfd2a32eefaae2748330ea1f3f288"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/candidate/write.xml",
+          "size_bytes": 375,
+          "sha256": "955ad41439b79b0191f9eca33f34fc625c51321353f4cf67347d1b3952b192f9",
+          "object": "objects/955ad41439b79b0191f9eca33f34fc625c51321353f4cf67347d1b3952b192f9"
+        },
+        {
+          "path": "candidate/.godot/ci/fresh-save-load-comparison/comparison.json",
+          "size_bytes": 19401,
+          "sha256": "1b5a6577f7ac717c21da2b1647eb9c9a672c673500cad07ba2af6fa3247113a9",
+          "object": "objects/1b5a6577f7ac717c21da2b1647eb9c9a672c673500cad07ba2af6fa3247113a9"
+        },
+        {
+          "path": "game_state_surface.json",
+          "size_bytes": 661662,
+          "sha256": "7b57914bc1f86a8fa7318a493b572a68591cfd9c6e4ccbcbabfadda000a38f34",
+          "object": "objects/7b57914bc1f86a8fa7318a493b572a68591cfd9c6e4ccbcbabfadda000a38f34"
+        },
+        {
+          "path": "qualification.json",
+          "size_bytes": 23735,
+          "sha256": "3b11609b6ba262b999a7463bd31196ad216353424d7fe3b566fe2626da142cb8",
+          "object": "objects/3b11609b6ba262b999a7463bd31196ad216353424d7fe3b566fe2626da142cb8"
+        },
+        {
+          "path": "save_manager_surface.json",
+          "size_bytes": 184435,
+          "sha256": "046d1f66301f47a14762dd62b63419be8bd2e6234f1f902c4049e88921075ef1",
+          "object": "objects/046d1f66301f47a14762dd62b63419be8bd2e6234f1f902c4049e88921075ef1"
+        }
+      ]
+    },
+    {
+      "name": "load-focused-40114725820-1.zip",
+      "artifact_id": 12568260699,
+      "run_id": 40114725820,
+      "controller_ref": "387e730405de40f30777eef14a7a8f48d4046d30",
+      "size_bytes": 149817,
+      "sha256": "9b2b9df3a081501cd63174b183187107a6adbc8b8afe459041a8248f2766f091",
+      "members": [
+        {
+          "path": "candidate/.godot/ci/import-stderr.log",
+          "size_bytes": 126,
+          "sha256": "e3e9582cfc1659ab624949d8fbdf43ec09f34ede8590bcc20749ca738dffff1b",
+          "object": "objects/e3e9582cfc1659ab624949d8fbdf43ec09f34ede8590bcc20749ca738dffff1b"
+        },
+        {
+          "path": "candidate/.godot/ci/import-stdout.log",
+          "size_bytes": 151109,
+          "sha256": "e9e86e8a9741948802a8dfbf1bbeed26e9daaa5917d75767207a115167afc509",
+          "object": "objects/e9e86e8a9741948802a8dfbf1bbeed26e9daaa5917d75767207a115167afc509"
+        },
+        {
+          "path": "candidate/.godot/ci/import.log",
+          "size_bytes": 96586,
+          "sha256": "e755916f1ca3b555d493d1c710a7cc1689cf4af333bc850217df249a354d07ed",
+          "object": "objects/e755916f1ca3b555d493d1c710a7cc1689cf4af333bc850217df249a354d07ed"
+        },
+        {
+          "path": "candidate/.godot/ci/load-test_frozen_run_context.jsonl",
+          "size_bytes": 883,
+          "sha256": "dad470a0f541bb23bce26f2cb24d61aa98a1c9cb0a963b77c1d7f42acfd67fa9",
+          "object": "objects/dad470a0f541bb23bce26f2cb24d61aa98a1c9cb0a963b77c1d7f42acfd67fa9"
+        },
+        {
+          "path": "candidate/.godot/ci/load-test_frozen_run_context.xml",
+          "size_bytes": 5372,
+          "sha256": "7d384f70498ba48205284620937b9b6a1f654dd0b74beda18becdba3b4e008f7",
+          "object": "objects/7d384f70498ba48205284620937b9b6a1f654dd0b74beda18becdba3b4e008f7"
+        },
+        {
+          "path": "candidate/.godot/ci/load-test_restore_transaction.jsonl",
+          "size_bytes": 895,
+          "sha256": "922434bb6f3190263f9fb34d27ebbf9d3e639c57cd634b7b286a193a49733857",
+          "object": "objects/922434bb6f3190263f9fb34d27ebbf9d3e639c57cd634b7b286a193a49733857"
+        },
+        {
+          "path": "candidate/.godot/ci/load-test_restore_transaction.xml",
+          "size_bytes": 2918,
+          "sha256": "7e802a71041275c4f97e9da12c3647eef9457651ae277e9fc5f885de803ad4ba",
+          "object": "objects/7e802a71041275c4f97e9da12c3647eef9457651ae277e9fc5f885de803ad4ba"
+        },
+        {
+          "path": "candidate/.godot/ci/load-test_scene_challenge_recall.jsonl",
+          "size_bytes": 903,
+          "sha256": "31d50425da94259f0e80b831a9fa74aa8251c00cc806a10752fe85e451f180d3",
+          "object": "objects/31d50425da94259f0e80b831a9fa74aa8251c00cc806a10752fe85e451f180d3"
+        },
+        {
+          "path": "candidate/.godot/ci/load-test_scene_challenge_recall.xml",
+          "size_bytes": 1920,
+          "sha256": "beb1cedb5e0724a3f5f9961ba9f7378707db9963f6dcf0c05e5b50f7518876ba",
+          "object": "objects/beb1cedb5e0724a3f5f9961ba9f7378707db9963f6dcf0c05e5b50f7518876ba"
+        },
+        {
+          "path": "candidate/.godot/ci/load-test_scene_event_contract.jsonl",
+          "size_bytes": 893,
+          "sha256": "7ebbe32b45600121d3a9c1e24cb25bf0bf1f82f72993d8836595d911f59ba465",
+          "object": "objects/7ebbe32b45600121d3a9c1e24cb25bf0bf1f82f72993d8836595d911f59ba465"
+        },
+        {
+          "path": "candidate/.godot/ci/load-test_scene_event_contract.xml",
+          "size_bytes": 7085,
+          "sha256": "d880ecf7019f0f7799b4331d49552c4b308718e9357d53b2f216036dc46bd3fe",
+          "object": "objects/d880ecf7019f0f7799b4331d49552c4b308718e9357d53b2f216036dc46bd3fe"
+        },
+        {
+          "path": "candidate/.godot/ci/load-test_scene_receipt_validation.jsonl",
+          "size_bytes": 913,
+          "sha256": "ec0a1dc3dadd51add6c8175d02d1b5c76864b4cf7a9418b88819fe98dba0b4ab",
+          "object": "objects/ec0a1dc3dadd51add6c8175d02d1b5c76864b4cf7a9418b88819fe98dba0b4ab"
+        },
+        {
+          "path": "candidate/.godot/ci/load-test_scene_receipt_validation.xml",
+          "size_bytes": 2789,
+          "sha256": "d2e24dbb079b67f98024a135dfb419cf3808eb4c1954da6162b47eb62e312f2a",
+          "object": "objects/d2e24dbb079b67f98024a135dfb419cf3808eb4c1954da6162b47eb62e312f2a"
+        },
+        {
+          "path": "candidate/.godot/ci/load-test_scene_restore_journal.jsonl",
+          "size_bytes": 898,
+          "sha256": "b4c5c14e2bcdf6c64d6096275c249cb56b87639e29a7e8b2309804769fc98add",
+          "object": "objects/b4c5c14e2bcdf6c64d6096275c249cb56b87639e29a7e8b2309804769fc98add"
+        },
+        {
+          "path": "candidate/.godot/ci/load-test_scene_restore_journal.xml",
+          "size_bytes": 2537,
+          "sha256": "1881fe1ab8de5a0ffd73f37a6988be0a71e478b7ee77dd800b9a25dac0feab08",
+          "object": "objects/1881fe1ab8de5a0ffd73f37a6988be0a71e478b7ee77dd800b9a25dac0feab08"
+        },
+        {
+          "path": "candidate/.godot/ci/load-test_scene_route_restore_context.jsonl",
+          "size_bytes": 928,
+          "sha256": "c6226a4fe90e990aaff34db527c4277301fcd4c2ed792ffdbc837ebcc094d51a",
+          "object": "objects/c6226a4fe90e990aaff34db527c4277301fcd4c2ed792ffdbc837ebcc094d51a"
+        },
+        {
+          "path": "candidate/.godot/ci/load-test_scene_route_restore_context.xml",
+          "size_bytes": 658,
+          "sha256": "56129bf2ef0375faa3eff39a7ae8e57ec33731de6cf2ba8b4257d0ecda9fce5d",
+          "object": "objects/56129bf2ef0375faa3eff39a7ae8e57ec33731de6cf2ba8b4257d0ecda9fce5d"
+        },
+        {
+          "path": "candidate/.godot/ci/load-test_scene_saved_event_anchor.jsonl",
+          "size_bytes": 920,
+          "sha256": "21bef9ecdcbcb1be4333f210c89513096674486664e7ad9e6c8f1003c4268953",
+          "object": "objects/21bef9ecdcbcb1be4333f210c89513096674486664e7ad9e6c8f1003c4268953"
+        },
+        {
+          "path": "candidate/.godot/ci/load-test_scene_saved_event_anchor.xml",
+          "size_bytes": 3372,
+          "sha256": "2d6442a1f298fd39ed41e1cf6990cf8c3261244576802db7c046ca66578b088f",
+          "object": "objects/2d6442a1f298fd39ed41e1cf6990cf8c3261244576802db7c046ca66578b088f"
+        },
+        {
+          "path": "candidate/.godot/ci/load-test_scene_save_schema.jsonl",
+          "size_bytes": 878,
+          "sha256": "3c2b5f0d96785cee86cad6344be1f2be77d8937a470bdca4b5541df77a0da020",
+          "object": "objects/3c2b5f0d96785cee86cad6344be1f2be77d8937a470bdca4b5541df77a0da020"
+        },
+        {
+          "path": "candidate/.godot/ci/load-test_scene_save_schema.xml",
+          "size_bytes": 1042,
+          "sha256": "c63841d033f2c72267ab4b54992340c85e8d2e46dd38d7e0a06d7096d9ecc031",
+          "object": "objects/c63841d033f2c72267ab4b54992340c85e8d2e46dd38d7e0a06d7096d9ecc031"
+        },
+        {
+          "path": "candidate/.godot/ci/load-test_scene_terminal_lifecycle.jsonl",
+          "size_bytes": 913,
+          "sha256": "1663f1aa6a2110503cac994fa12778a80b8476d2ae470f50bf420e314bbd267c",
+          "object": "objects/1663f1aa6a2110503cac994fa12778a80b8476d2ae470f50bf420e314bbd267c"
+        },
+        {
+          "path": "candidate/.godot/ci/load-test_scene_terminal_lifecycle.xml",
+          "size_bytes": 1744,
+          "sha256": "8e9529ebf4499c70402446ce4ae94ad02b2aa9c9a2484b122612472d12223151",
+          "object": "objects/8e9529ebf4499c70402446ce4ae94ad02b2aa9c9a2484b122612472d12223151"
+        },
+        {
+          "path": "candidate/.godot/ci/load-test_scene_terminal_snapshot.jsonl",
+          "size_bytes": 908,
+          "sha256": "0ae68c92315acec7d83ac0156a808352eb99443b1275870acbfb075d5b2e9762",
+          "object": "objects/0ae68c92315acec7d83ac0156a808352eb99443b1275870acbfb075d5b2e9762"
+        },
+        {
+          "path": "candidate/.godot/ci/load-test_scene_terminal_snapshot.xml",
+          "size_bytes": 658,
+          "sha256": "fb6c76482d2f9ff3ddf9b379dc7f19144b9c48538a38e33251427a9de08405bb",
+          "object": "objects/fb6c76482d2f9ff3ddf9b379dc7f19144b9c48538a38e33251427a9de08405bb"
+        },
+        {
+          "path": "candidate/.godot/ci/load-test_unified_restore_contract.jsonl",
+          "size_bytes": 920,
+          "sha256": "b17d584d756924d748d6bb3eda44a430d6608c6fa3f05a25d055d544b62e1a41",
+          "object": "objects/b17d584d756924d748d6bb3eda44a430d6608c6fa3f05a25d055d544b62e1a41"
+        },
+        {
+          "path": "candidate/.godot/ci/load-test_unified_restore_contract.xml",
+          "size_bytes": 897,
+          "sha256": "0a88f47c093a97b27a16e349d5e59ec53e38a29c74ded559dded31bd96e41d9f",
+          "object": "objects/0a88f47c093a97b27a16e349d5e59ec53e38a29c74ded559dded31bd96e41d9f"
+        },
+        {
+          "path": "candidate/.godot/phase2r_logs/load-test_frozen_run_context.log",
+          "size_bytes": 2568,
+          "sha256": "4083b63a59d30694841d63933aba83445b6376634eb9cfb2b72e10d0ae081c6c",
+          "object": "objects/4083b63a59d30694841d63933aba83445b6376634eb9cfb2b72e10d0ae081c6c"
+        },
+        {
+          "path": "candidate/.godot/phase2r_logs/load-test_restore_transaction.log",
+          "size_bytes": 1505,
+          "sha256": "96b8dcf5db88bca45392eb84ae9e6119017740042c338070217ea9095e29a201",
+          "object": "objects/96b8dcf5db88bca45392eb84ae9e6119017740042c338070217ea9095e29a201"
+        },
+        {
+          "path": "candidate/.godot/phase2r_logs/load-test_scene_challenge_recall.log",
+          "size_bytes": 1265,
+          "sha256": "09cf4eef95b9df1bfd3aeb9b03dff853d1608e0dcc4f55475241cd5de352f506",
+          "object": "objects/09cf4eef95b9df1bfd3aeb9b03dff853d1608e0dcc4f55475241cd5de352f506"
+        },
+        {
+          "path": "candidate/.godot/phase2r_logs/load-test_scene_event_contract.log",
+          "size_bytes": 2985,
+          "sha256": "ec581537eed74a466b25970f247bba6563b3c299d78a81d641958b5db1b0d58e",
+          "object": "objects/ec581537eed74a466b25970f247bba6563b3c299d78a81d641958b5db1b0d58e"
+        },
+        {
+          "path": "candidate/.godot/phase2r_logs/load-test_scene_receipt_validation.log",
+          "size_bytes": 1543,
+          "sha256": "6fe70284db4a477c6af5cef273bb828c53fbd4fd01960b2adec4b43a0c166231",
+          "object": "objects/6fe70284db4a477c6af5cef273bb828c53fbd4fd01960b2adec4b43a0c166231"
+        },
+        {
+          "path": "candidate/.godot/phase2r_logs/load-test_scene_restore_journal.log",
+          "size_bytes": 1469,
+          "sha256": "f62ec3865f12b607179b0fa0308981e43b14145f5f5f868b34e060e1f33868fb",
+          "object": "objects/f62ec3865f12b607179b0fa0308981e43b14145f5f5f868b34e060e1f33868fb"
+        },
+        {
+          "path": "candidate/.godot/phase2r_logs/load-test_scene_route_restore_context.log",
+          "size_bytes": 841,
+          "sha256": "fe08bd7e07714674114ed9d50c813aa5f7f9d31157d7ed6eedb88a82903d25dd",
+          "object": "objects/fe08bd7e07714674114ed9d50c813aa5f7f9d31157d7ed6eedb88a82903d25dd"
+        },
+        {
+          "path": "candidate/.godot/phase2r_logs/load-test_scene_saved_event_anchor.log",
+          "size_bytes": 3362,
+          "sha256": "8506337a5d8440cfb24577872e41e11181abbef05bc36fab03da73f3f70dd713",
+          "object": "objects/8506337a5d8440cfb24577872e41e11181abbef05bc36fab03da73f3f70dd713"
+        },
+        {
+          "path": "candidate/.godot/phase2r_logs/load-test_scene_save_schema.log",
+          "size_bytes": 964,
+          "sha256": "310c7d0b813021d4aa8a38ddfe84e40fd819f35dc86cc002d435076c131eff91",
+          "object": "objects/310c7d0b813021d4aa8a38ddfe84e40fd819f35dc86cc002d435076c131eff91"
+        },
+        {
+          "path": "candidate/.godot/phase2r_logs/load-test_scene_terminal_lifecycle.log",
+          "size_bytes": 1214,
+          "sha256": "6260261bb4f6a86a009290371bfb1f24f67cee6e3cc9361aa95c7adddb5b0dc5",
+          "object": "objects/6260261bb4f6a86a009290371bfb1f24f67cee6e3cc9361aa95c7adddb5b0dc5"
+        },
+        {
+          "path": "candidate/.godot/phase2r_logs/load-test_scene_terminal_snapshot.log",
+          "size_bytes": 844,
+          "sha256": "01238b7cf9e915b6c48dc3ef35fca4a24b1824ff0b3b140f231993ade0a04d5a",
+          "object": "objects/01238b7cf9e915b6c48dc3ef35fca4a24b1824ff0b3b140f231993ade0a04d5a"
+        },
+        {
+          "path": "candidate/.godot/phase2r_logs/load-test_unified_restore_contract.log",
+          "size_bytes": 919,
+          "sha256": "5b29cf13c50df4fd61e471ce93aa8419f11c2feda7913e91cc34d7f042734c27",
+          "object": "objects/5b29cf13c50df4fd61e471ce93aa8419f11c2feda7913e91cc34d7f042734c27"
+        },
+        {
+          "path": "game_state_surface.json",
+          "size_bytes": 661662,
+          "sha256": "7b57914bc1f86a8fa7318a493b572a68591cfd9c6e4ccbcbabfadda000a38f34",
+          "object": "objects/7b57914bc1f86a8fa7318a493b572a68591cfd9c6e4ccbcbabfadda000a38f34"
+        },
+        {
+          "path": "qualification.json",
+          "size_bytes": 6254,
+          "sha256": "ddf5bef68c4880674478123dad3a0c4b1d7a5cad9716f01c87e7b895d233c8e8",
+          "object": "objects/ddf5bef68c4880674478123dad3a0c4b1d7a5cad9716f01c87e7b895d233c8e8"
+        },
+        {
+          "path": "save_manager_surface.json",
+          "size_bytes": 184435,
+          "sha256": "046d1f66301f47a14762dd62b63419be8bd2e6234f1f902c4049e88921075ef1",
+          "object": "objects/046d1f66301f47a14762dd62b63419be8bd2e6234f1f902c4049e88921075ef1"
+        }
+      ]
+    },
+    {
+      "name": "load-inventory-40114725820-1.zip",
+      "artifact_id": 12568216467,
+      "run_id": 40114725820,
+      "controller_ref": "387e730405de40f30777eef14a7a8f48d4046d30",
+      "size_bytes": 228230,
+      "sha256": "daca73aed72009b77dffa3504375dfda7ce0dcb7e17194120c089e74a41fb411",
+      "members": [
+        {
+          "path": "candidate/.godot/ci/import-stderr.log",
+          "size_bytes": 126,
+          "sha256": "e3e9582cfc1659ab624949d8fbdf43ec09f34ede8590bcc20749ca738dffff1b",
+          "object": "objects/e3e9582cfc1659ab624949d8fbdf43ec09f34ede8590bcc20749ca738dffff1b"
+        },
+        {
+          "path": "candidate/.godot/ci/import-stdout.log",
+          "size_bytes": 151109,
+          "sha256": "27312ed51f1673ce27861fa0e7e55d8f78df1d56c5d77fe9491af3e39e7d796e",
+          "object": "objects/27312ed51f1673ce27861fa0e7e55d8f78df1d56c5d77fe9491af3e39e7d796e"
+        },
+        {
+          "path": "candidate/.godot/ci/import.log",
+          "size_bytes": 96586,
+          "sha256": "475a876f8c88e9c738d412fa70d78d571f7a89d310b0e438bc4b61ca4a858c5e",
+          "object": "objects/475a876f8c88e9c738d412fa70d78d571f7a89d310b0e438bc4b61ca4a858c5e"
+        },
+        {
+          "path": "candidate/.godot/ci/public-surfaces/game_state-check.jsonl",
+          "size_bytes": 1112,
+          "sha256": "ae0fe88910ff0ed8c744f1d1148be2db886ce30f27a3c0b53b7f8b0ab393eb67",
+          "object": "objects/ae0fe88910ff0ed8c744f1d1148be2db886ce30f27a3c0b53b7f8b0ab393eb67"
+        },
+        {
+          "path": "candidate/.godot/ci/public-surfaces/game_state-generate.jsonl",
+          "size_bytes": 1111,
+          "sha256": "4b769dda674994ca7edbaa932edfb7587ea1b6e4766cc0e41e5b82593749650c",
+          "object": "objects/4b769dda674994ca7edbaa932edfb7587ea1b6e4766cc0e41e5b82593749650c"
+        },
+        {
+          "path": "candidate/.godot/ci/public-surfaces/game_state_surface.json",
+          "size_bytes": 661943,
+          "sha256": "3e303a0d84da2734d53392ff3323d232357589d61bce19d7471dc600e7b4c100",
+          "object": "objects/3e303a0d84da2734d53392ff3323d232357589d61bce19d7471dc600e7b4c100"
+        },
+        {
+          "path": "candidate/.godot/ci/public-surfaces/save_manager-check.jsonl",
+          "size_bytes": 1124,
+          "sha256": "7b822aa9b56230641bc4cf4100766e6d786f0198cc6d95af0a7a97d9a5de4eac",
+          "object": "objects/7b822aa9b56230641bc4cf4100766e6d786f0198cc6d95af0a7a97d9a5de4eac"
+        },
+        {
+          "path": "candidate/.godot/ci/public-surfaces/retirement-audit.json",
+          "size_bytes": 564,
+          "sha256": "85a02fc3a20ae5fe41eb2d8835339ee976dec82b9ba53c37894dd16fa27e1523",
+          "object": "objects/85a02fc3a20ae5fe41eb2d8835339ee976dec82b9ba53c37894dd16fa27e1523"
+        },
+        {
+          "path": "candidate/.godot/ci/public-surfaces/save_manager-generate.jsonl",
+          "size_bytes": 1123,
+          "sha256": "5fea3ac3b5abf58788d619fc9e1d2946775bd876b42c8464191223ac51d738ce",
+          "object": "objects/5fea3ac3b5abf58788d619fc9e1d2946775bd876b42c8464191223ac51d738ce"
+        },
+        {
+          "path": "candidate/.godot/ci/public-surfaces/save_manager_surface.json",
+          "size_bytes": 184435,
+          "sha256": "8bc84c6104708752d6ecf85dce29eb7cff94b66f4913d1286b39abf171c87aef",
+          "object": "objects/8bc84c6104708752d6ecf85dce29eb7cff94b66f4913d1286b39abf171c87aef"
+        },
+        {
+          "path": "candidate/.godot/phase2r_logs/cloud-public-surface-game_state-check.log",
+          "size_bytes": 97,
+          "sha256": "f905573f8dd52f9b85362666ac54f7c7145d1ce376dec030e86792970fc2e2c7",
+          "object": "objects/f905573f8dd52f9b85362666ac54f7c7145d1ce376dec030e86792970fc2e2c7"
+        },
+        {
+          "path": "candidate/.godot/phase2r_logs/cloud-public-surface-game_state-generate.log",
+          "size_bytes": 97,
+          "sha256": "f905573f8dd52f9b85362666ac54f7c7145d1ce376dec030e86792970fc2e2c7",
+          "object": "objects/f905573f8dd52f9b85362666ac54f7c7145d1ce376dec030e86792970fc2e2c7"
+        },
+        {
+          "path": "candidate/.godot/phase2r_logs/cloud-public-surface-save_manager-check.log",
+          "size_bytes": 97,
+          "sha256": "f905573f8dd52f9b85362666ac54f7c7145d1ce376dec030e86792970fc2e2c7",
+          "object": "objects/f905573f8dd52f9b85362666ac54f7c7145d1ce376dec030e86792970fc2e2c7"
+        },
+        {
+          "path": "candidate/.godot/phase2r_logs/cloud-public-surface-save_manager-generate.log",
+          "size_bytes": 97,
+          "sha256": "f905573f8dd52f9b85362666ac54f7c7145d1ce376dec030e86792970fc2e2c7",
+          "object": "objects/f905573f8dd52f9b85362666ac54f7c7145d1ce376dec030e86792970fc2e2c7"
+        },
+        {
+          "path": "game_state_surface.json",
+          "size_bytes": 661943,
+          "sha256": "3e303a0d84da2734d53392ff3323d232357589d61bce19d7471dc600e7b4c100",
+          "object": "objects/3e303a0d84da2734d53392ff3323d232357589d61bce19d7471dc600e7b4c100"
+        },
+        {
+          "path": "qualification.json",
+          "size_bytes": 3536,
+          "sha256": "6d7b7660b49e76fd5ed3dbe4679392dca66662126a5d0926f6f838526fa39aa5",
+          "object": "objects/6d7b7660b49e76fd5ed3dbe4679392dca66662126a5d0926f6f838526fa39aa5"
+        },
+        {
+          "path": "save_manager_surface.json",
+          "size_bytes": 184435,
+          "sha256": "8bc84c6104708752d6ecf85dce29eb7cff94b66f4913d1286b39abf171c87aef",
+          "object": "objects/8bc84c6104708752d6ecf85dce29eb7cff94b66f4913d1286b39abf171c87aef"
+        }
+      ]
+    },
+    {
+      "name": "load-recall-40114725820-1.zip",
+      "artifact_id": 12567368432,
+      "run_id": 40114725820,
+      "controller_ref": "387e730405de40f30777eef14a7a8f48d4046d30",
+      "size_bytes": 171968,
+      "sha256": "d99464a1e5c2f140e374940eb41080f29be616be8b55d555a76b9b5a9fa00d04",
+      "members": [
+        {
+          "path": "candidate/.godot/ci/computer-challenge-recall-restored-selected.png",
+          "size_bytes": 17467,
+          "sha256": "45a982981e53cd9e32b6f37942f9b5c9008898f05c6012e1c6fbcb24b014f712",
+          "object": "objects/45a982981e53cd9e32b6f37942f9b5c9008898f05c6012e1c6fbcb24b014f712"
+        },
+        {
+          "path": "candidate/.godot/ci/computer-challenge-recall-saved.png",
+          "size_bytes": 18764,
+          "sha256": "ad7c60f9c8a6c589104eb46812a5fb39eac652b6a370036c0d3de853119ea1c6",
+          "object": "objects/ad7c60f9c8a6c589104eb46812a5fb39eac652b6a370036c0d3de853119ea1c6"
+        },
+        {
+          "path": "candidate/.godot/ci/computer-challenge-recall-selected.png",
+          "size_bytes": 17624,
+          "sha256": "3e7a54e3f29b5a05c68eae36e35c98f955bc26fe2a9c350bcf52dab9cfd0f652",
+          "object": "objects/3e7a54e3f29b5a05c68eae36e35c98f955bc26fe2a9c350bcf52dab9cfd0f652"
+        },
+        {
+          "path": "candidate/.godot/ci/import-stderr.log",
+          "size_bytes": 126,
+          "sha256": "e3e9582cfc1659ab624949d8fbdf43ec09f34ede8590bcc20749ca738dffff1b",
+          "object": "objects/e3e9582cfc1659ab624949d8fbdf43ec09f34ede8590bcc20749ca738dffff1b"
+        },
+        {
+          "path": "candidate/.godot/ci/import-stdout.log",
+          "size_bytes": 151109,
+          "sha256": "0523d3dc9effcc8a9d213bbcf1c7165cdb727bf52e22837dd0ee804723418d5d",
+          "object": "objects/0523d3dc9effcc8a9d213bbcf1c7165cdb727bf52e22837dd0ee804723418d5d"
+        },
+        {
+          "path": "candidate/.godot/ci/import.log",
+          "size_bytes": 96586,
+          "sha256": "85f2e6683da42e01f33e5186ba4f91416ec578eb7247a4cf301e0194021d4b88",
+          "object": "objects/85f2e6683da42e01f33e5186ba4f91416ec578eb7247a4cf301e0194021d4b88"
+        },
+        {
+          "path": "candidate/.godot/ci/recall-create.xml",
+          "size_bytes": 453,
+          "sha256": "47fb10a114b4c20a1db7e2cf53780da069cb6a9a47661b7aac871703ebd207b6",
+          "object": "objects/47fb10a114b4c20a1db7e2cf53780da069cb6a9a47661b7aac871703ebd207b6"
+        },
+        {
+          "path": "candidate/.godot/ci/recall-load.xml",
+          "size_bytes": 464,
+          "sha256": "b23ef2e06807df2bb74e22b378a6243464ef7a89f3b3fcaa474717cf7c3c6f55",
+          "object": "objects/b23ef2e06807df2bb74e22b378a6243464ef7a89f3b3fcaa474717cf7c3c6f55"
+        },
+        {
+          "path": "candidate/.godot/ci/recall-processes.jsonl",
+          "size_bytes": 1768,
+          "sha256": "1439d91205d54cfd78413e7d829d6a97c07c078fcfc3d6e2d3272828500f0fe7",
+          "object": "objects/1439d91205d54cfd78413e7d829d6a97c07c078fcfc3d6e2d3272828500f0fe7"
+        },
+        {
+          "path": "candidate/.godot/phase2r_logs/recall-create.log",
+          "size_bytes": 2375,
+          "sha256": "2afb625d1849aac7c22a7227968840c7216bcd613e5752c20bcfcc2fb8ff436a",
+          "object": "objects/2afb625d1849aac7c22a7227968840c7216bcd613e5752c20bcfcc2fb8ff436a"
+        },
+        {
+          "path": "candidate/.godot/phase2r_logs/recall-load.log",
+          "size_bytes": 2385,
+          "sha256": "ed094d7b35f18331920389567d5af303f21629d08d439cdc878a2e2500794ff0",
+          "object": "objects/ed094d7b35f18331920389567d5af303f21629d08d439cdc878a2e2500794ff0"
+        },
+        {
+          "path": "game_state_surface.json",
+          "size_bytes": 661662,
+          "sha256": "7b57914bc1f86a8fa7318a493b572a68591cfd9c6e4ccbcbabfadda000a38f34",
+          "object": "objects/7b57914bc1f86a8fa7318a493b572a68591cfd9c6e4ccbcbabfadda000a38f34"
+        },
+        {
+          "path": "qualification.json",
+          "size_bytes": 6612,
+          "sha256": "cd38907219836032539133a89315c1b017f908c1a9f13bbcb22794dd2c79cfcc",
+          "object": "objects/cd38907219836032539133a89315c1b017f908c1a9f13bbcb22794dd2c79cfcc"
+        },
+        {
+          "path": "save_manager_surface.json",
+          "size_bytes": 184435,
+          "sha256": "046d1f66301f47a14762dd62b63419be8bd2e6234f1f902c4049e88921075ef1",
+          "object": "objects/046d1f66301f47a14762dd62b63419be8bd2e6234f1f902c4049e88921075ef1"
+        }
+      ]
+    },
+    {
+      "name": "load-terminal-40115097278-1.zip",
+      "artifact_id": 12568083876,
+      "run_id": 40115097278,
+      "controller_ref": "2279af4c16701cada92c376fe895352f8d332bf7",
+      "size_bytes": 3256775,
+      "sha256": "a8bcaf4943ed552a1f94cac83c1ba0040793cc849ef7f1a1ec1935064021616b",
+      "members": [
+        {
+          "path": "candidate/.godot/ci/authored-terminal-admission-checks.json",
+          "size_bytes": 9279,
+          "sha256": "4b3c1326fa16de27d11b10bc8bef946b1708df6691a6c9c877498f54cc7ea273",
+          "object": "objects/4b3c1326fa16de27d11b10bc8bef946b1708df6691a6c9c877498f54cc7ea273"
+        },
+        {
+          "path": "candidate/.godot/ci/import-stderr.log",
+          "size_bytes": 126,
+          "sha256": "e3e9582cfc1659ab624949d8fbdf43ec09f34ede8590bcc20749ca738dffff1b",
+          "object": "objects/e3e9582cfc1659ab624949d8fbdf43ec09f34ede8590bcc20749ca738dffff1b"
+        },
+        {
+          "path": "candidate/.godot/ci/import-stdout.log",
+          "size_bytes": 151109,
+          "sha256": "a60a4f7a8e2d73c108c122511b372c0ec11b69791b2bf3a3c3a0d2f3e9912131",
+          "object": "objects/a60a4f7a8e2d73c108c122511b372c0ec11b69791b2bf3a3c3a0d2f3e9912131"
+        },
+        {
+          "path": "candidate/.godot/ci/import.log",
+          "size_bytes": 96586,
+          "sha256": "8c11665c4a635ea536014df9e656d33f533a4938456006c90e3914f511bec72f",
+          "object": "objects/8c11665c4a635ea536014df9e656d33f533a4938456006c90e3914f511bec72f"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-admission-input/audit-origin.json",
+          "size_bytes": 303,
+          "sha256": "c503b84e007392c9c2aff0c4f6ed79e719eac31119a6a0e2f269a6c377f5dbe4",
+          "object": "objects/c503b84e007392c9c2aff0c4f6ed79e719eac31119a6a0e2f269a6c377f5dbe4"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-admission-input/authored-week-terminal-pair.json",
+          "size_bytes": 684510,
+          "sha256": "d021f7411218be20c88c29c1a55538b625612ab448766487d31a17d4b49a8221",
+          "object": "objects/d021f7411218be20c88c29c1a55538b625612ab448766487d31a17d4b49a8221"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-admission-input/comparison-origin.json",
+          "size_bytes": 305,
+          "sha256": "77a0b38535ed0113c0f88efd1f036755aae047c9109a6ad214299fc0cbc08009",
+          "object": "objects/77a0b38535ed0113c0f88efd1f036755aae047c9109a6ad214299fc0cbc08009"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-admission-input/computer-authored-restored-slot-2.png",
+          "size_bytes": 577257,
+          "sha256": "518dc6bccd41ef7ef77da8963cb6ba7216de4b48a2f8f81b892262dd25e4502a",
+          "object": "objects/518dc6bccd41ef7ef77da8963cb6ba7216de4b48a2f8f81b892262dd25e4502a"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-admission-input/computer-authored-terminal-pair.png",
+          "size_bytes": 577421,
+          "sha256": "9903526552d99c2b5a0ff91a270ede867ada1628b902c874ede2a4e09811c8ea",
+          "object": "objects/9903526552d99c2b5a0ff91a270ede867ada1628b902c874ede2a4e09811c8ea"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-admission-input/helper-hashes.json",
+          "size_bytes": 338,
+          "sha256": "8e52a836ed5f4dfcad382e61f557d90bdae562fe6e505c9a255e8d9b81558fe4",
+          "object": "objects/8e52a836ed5f4dfcad382e61f557d90bdae562fe6e505c9a255e8d9b81558fe4"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-admission-input/import-process.json",
+          "size_bytes": 24,
+          "sha256": "75876e0e3f497cad271143ba85bd4f36569cd81195509043f860dab14265b716",
+          "object": "objects/75876e0e3f497cad271143ba85bd4f36569cd81195509043f860dab14265b716"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-admission-input/import.log",
+          "size_bytes": 96411,
+          "sha256": "7201e67afe0ad7847474ddcd874ac497325ef27e0c6a97cb440b58f835d2e015",
+          "object": "objects/7201e67afe0ad7847474ddcd874ac497325ef27e0c6a97cb440b58f835d2e015"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-admission-input/terminal-candidate-seed.log",
+          "size_bytes": 584,
+          "sha256": "0bcc5678c9de2ffab480358e27565c8b7842d40c943c8708bdfa6b34715f53c9",
+          "object": "objects/0bcc5678c9de2ffab480358e27565c8b7842d40c943c8708bdfa6b34715f53c9"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-admission-input/terminal-candidate.jsonl",
+          "size_bytes": 1443,
+          "sha256": "e82f3b04a7fc959afd5cc3bef82355dcc3314591c210d8e24e25abaef880675f",
+          "object": "objects/e82f3b04a7fc959afd5cc3bef82355dcc3314591c210d8e24e25abaef880675f"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-admission-input/terminal-candidate.log",
+          "size_bytes": 167956,
+          "sha256": "0130df1d357114383707e772fe945ece3125416756cd7ae17c7af556c1d7e98c",
+          "object": "objects/0130df1d357114383707e772fe945ece3125416756cd7ae17c7af556c1d7e98c"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-admission-input/terminal-candidate.xml",
+          "size_bytes": 375,
+          "sha256": "2b29bf25841a2c5dab633ed4b68fe19d566e4fa5e5f77d4f8d481f9160d563ba",
+          "object": "objects/2b29bf25841a2c5dab633ed4b68fe19d566e4fa5e5f77d4f8d481f9160d563ba"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-admission-input/terminal-pair.json",
+          "size_bytes": 1549,
+          "sha256": "bc87c7bb2c34ed37c60a8fe02ce5d3591f8eb7bc18c5bc35346ebda53f7f154d",
+          "object": "objects/bc87c7bb2c34ed37c60a8fe02ce5d3591f8eb7bc18c5bc35346ebda53f7f154d"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-admission-input/terminal-root/authored-week-day4.json",
+          "size_bytes": 745849,
+          "sha256": "28c243435f3ba67404766e655c14be81e567f6823aa639ed1b6016a07907831f",
+          "object": "objects/28c243435f3ba67404766e655c14be81e567f6823aa639ed1b6016a07907831f"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-admission-input/terminal-root/authored-week-ending.json",
+          "size_bytes": 677619,
+          "sha256": "c0e07eb724a437da9e6f2ec9a28346e555c1e440289be6eea1bccd621fd0155c",
+          "object": "objects/c0e07eb724a437da9e6f2ec9a28346e555c1e440289be6eea1bccd621fd0155c"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-admission-input/terminal-root/desktop-issuer-root.json",
+          "size_bytes": 65790,
+          "sha256": "fc7ca1c8fec152d44e7c800fa87774c354967af809b1c9afc48e8a064e89bff4",
+          "object": "objects/fc7ca1c8fec152d44e7c800fa87774c354967af809b1c9afc48e8a064e89bff4"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-admission-input/terminal-root/desktop-publications.json",
+          "size_bytes": 34,
+          "sha256": "902849ab2604217a878bc4de507660ced78f981a72c1d6343dd9ef55af64d4e4",
+          "object": "objects/902849ab2604217a878bc4de507660ced78f981a72c1d6343dd9ef55af64d4e4"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-admission-input/terminal-root/profile.json",
+          "size_bytes": 231435,
+          "sha256": "40a3166a287790295a5270a42934337fc7bdd5f63c759d193d0d555c89c71f43",
+          "object": "objects/40a3166a287790295a5270a42934337fc7bdd5f63c759d193d0d555c89c71f43"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-admission-input/terminal-root/saves/autosave.json",
+          "size_bytes": 9102,
+          "sha256": "54b47a2637f33b4937fa63e63c5b8571038d3adde0576437bad1c415b13454a3",
+          "object": "objects/54b47a2637f33b4937fa63e63c5b8571038d3adde0576437bad1c415b13454a3"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-admission-input/terminal-root/saves/desktop-continuation-operations.json",
+          "size_bytes": 5160096,
+          "sha256": "04c5dd615ed91e42378a7e5e5b8d9506337fa913c746bae62c0fb57a29cb227a",
+          "object": "objects/04c5dd615ed91e42378a7e5e5b8d9506337fa913c746bae62c0fb57a29cb227a"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-admission-input/terminal-root/saves/slot_1.json",
+          "size_bytes": 715995,
+          "sha256": "abfc0aa1c5438a3d3c747e1a539532866c9dfddbd67bcbc57c6562325367449e",
+          "object": "objects/abfc0aa1c5438a3d3c747e1a539532866c9dfddbd67bcbc57c6562325367449e"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-admission-input/terminal-root/saves/slot_2.json",
+          "size_bytes": 1577281,
+          "sha256": "17934c8199a7d25f97c69890f0ca609e5106c6bb6dc187464d58c40d2baf987c",
+          "object": "objects/17934c8199a7d25f97c69890f0ca609e5106c6bb6dc187464d58c40d2baf987c"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-admission-input/terminal-root/schedule-foundation-publications.json",
+          "size_bytes": 34,
+          "sha256": "902849ab2604217a878bc4de507660ced78f981a72c1d6343dd9ef55af64d4e4",
+          "object": "objects/902849ab2604217a878bc4de507660ced78f981a72c1d6343dd9ef55af64d4e4"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-admission-input/terminal-root-hashes.json",
+          "size_bytes": 5173,
+          "sha256": "d0d652dac2f6221dc3a8ca81069b19b011d145108a68ce485a01eaa6ae1ef47c",
+          "object": "objects/d0d652dac2f6221dc3a8ca81069b19b011d145108a68ce485a01eaa6ae1ef47c"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-root/authored-week-day4.json",
+          "size_bytes": 745849,
+          "sha256": "28c243435f3ba67404766e655c14be81e567f6823aa639ed1b6016a07907831f",
+          "object": "objects/28c243435f3ba67404766e655c14be81e567f6823aa639ed1b6016a07907831f"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-root/authored-week-ending.json",
+          "size_bytes": 677619,
+          "sha256": "c0e07eb724a437da9e6f2ec9a28346e555c1e440289be6eea1bccd621fd0155c",
+          "object": "objects/c0e07eb724a437da9e6f2ec9a28346e555c1e440289be6eea1bccd621fd0155c"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-root/desktop-issuer-root.json",
+          "size_bytes": 65790,
+          "sha256": "fc7ca1c8fec152d44e7c800fa87774c354967af809b1c9afc48e8a064e89bff4",
+          "object": "objects/fc7ca1c8fec152d44e7c800fa87774c354967af809b1c9afc48e8a064e89bff4"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-root/desktop-publications.json",
+          "size_bytes": 34,
+          "sha256": "902849ab2604217a878bc4de507660ced78f981a72c1d6343dd9ef55af64d4e4",
+          "object": "objects/902849ab2604217a878bc4de507660ced78f981a72c1d6343dd9ef55af64d4e4"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-root/profile.json",
+          "size_bytes": 231435,
+          "sha256": "40a3166a287790295a5270a42934337fc7bdd5f63c759d193d0d555c89c71f43",
+          "object": "objects/40a3166a287790295a5270a42934337fc7bdd5f63c759d193d0d555c89c71f43"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-root/saves/autosave.json",
+          "size_bytes": 9102,
+          "sha256": "54b47a2637f33b4937fa63e63c5b8571038d3adde0576437bad1c415b13454a3",
+          "object": "objects/54b47a2637f33b4937fa63e63c5b8571038d3adde0576437bad1c415b13454a3"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-root/saves/desktop-continuation-operations.json",
+          "size_bytes": 5160096,
+          "sha256": "04c5dd615ed91e42378a7e5e5b8d9506337fa913c746bae62c0fb57a29cb227a",
+          "object": "objects/04c5dd615ed91e42378a7e5e5b8d9506337fa913c746bae62c0fb57a29cb227a"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-root/saves/slot_1.json",
+          "size_bytes": 715995,
+          "sha256": "abfc0aa1c5438a3d3c747e1a539532866c9dfddbd67bcbc57c6562325367449e",
+          "object": "objects/abfc0aa1c5438a3d3c747e1a539532866c9dfddbd67bcbc57c6562325367449e"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-root/saves/slot_2.json",
+          "size_bytes": 1577281,
+          "sha256": "17934c8199a7d25f97c69890f0ca609e5106c6bb6dc187464d58c40d2baf987c",
+          "object": "objects/17934c8199a7d25f97c69890f0ca609e5106c6bb6dc187464d58c40d2baf987c"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-root/schedule-foundation-publications.json",
+          "size_bytes": 34,
+          "sha256": "902849ab2604217a878bc4de507660ced78f981a72c1d6343dd9ef55af64d4e4",
+          "object": "objects/902849ab2604217a878bc4de507660ced78f981a72c1d6343dd9ef55af64d4e4"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal-root-hashes.json",
+          "size_bytes": 5173,
+          "sha256": "d0d652dac2f6221dc3a8ca81069b19b011d145108a68ce485a01eaa6ae1ef47c",
+          "object": "objects/d0d652dac2f6221dc3a8ca81069b19b011d145108a68ce485a01eaa6ae1ef47c"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal_admission.jsonl",
+          "size_bytes": 1716,
+          "sha256": "86a87ead998624f28c3f049cef6ce9961f8f75e41151654e5473d08ace857ac9",
+          "object": "objects/86a87ead998624f28c3f049cef6ce9961f8f75e41151654e5473d08ace857ac9"
+        },
+        {
+          "path": "candidate/.godot/ci/terminal_admission.xml",
+          "size_bytes": 475,
+          "sha256": "bf2e2fa7c26cb57fbc618d6201a4b00b5eb492ecfee1f3e6f71657f01a078138",
+          "object": "objects/bf2e2fa7c26cb57fbc618d6201a4b00b5eb492ecfee1f3e6f71657f01a078138"
+        },
+        {
+          "path": "candidate/.godot/phase2r_logs/cloud-terminal_admission.log",
+          "size_bytes": 12494,
+          "sha256": "f4c991c0fb4d9252c92a4eb775c289720e9b32eb7a4b70371e828cf218b21b99",
+          "object": "objects/f4c991c0fb4d9252c92a4eb775c289720e9b32eb7a4b70371e828cf218b21b99"
+        },
+        {
+          "path": "candidate/.godot/phase2r_logs/cloud-terminal_admission-seed.log",
+          "size_bytes": 584,
+          "sha256": "fe4d67f1102f6cba6571d3aa4db9e65244bacb3752c8527af2ac30622b89254d",
+          "object": "objects/fe4d67f1102f6cba6571d3aa4db9e65244bacb3752c8527af2ac30622b89254d"
+        },
+        {
+          "path": "game_state_surface.json",
+          "size_bytes": 661943,
+          "sha256": "3e303a0d84da2734d53392ff3323d232357589d61bce19d7471dc600e7b4c100",
+          "object": "objects/3e303a0d84da2734d53392ff3323d232357589d61bce19d7471dc600e7b4c100"
+        },
+        {
+          "path": "qualification.json",
+          "size_bytes": 3513,
+          "sha256": "225ebade251b3fee2f97154c65d69b3a55cf229cf471eb7989151a435932d540",
+          "object": "objects/225ebade251b3fee2f97154c65d69b3a55cf229cf471eb7989151a435932d540"
+        },
+        {
+          "path": "save_manager_surface.json",
+          "size_bytes": 184435,
+          "sha256": "8bc84c6104708752d6ecf85dce29eb7cff94b66f4913d1286b39abf171c87aef",
+          "object": "objects/8bc84c6104708752d6ecf85dce29eb7cff94b66f4913d1286b39abf171c87aef"
+        }
+      ]
+    },
+    {
+      "name": "load-inventory-40115097278-1.zip",
+      "artifact_id": 12567932819,
+      "run_id": 40115097278,
+      "controller_ref": "2279af4c16701cada92c376fe895352f8d332bf7",
+      "size_bytes": 226309,
+      "sha256": "65a188367c7526d5fde08d7332043cf7eccddf668c661f6432641baa4f543dce",
+      "members": [
+        {
+          "path": "candidate/.godot/ci/import-stdout.log",
+          "size_bytes": 151109,
+          "sha256": "58029733ab06dff7f42bfbad8685eb9e0942ad49add5dec04e7e3116fa97076b",
+          "object": "objects/58029733ab06dff7f42bfbad8685eb9e0942ad49add5dec04e7e3116fa97076b"
+        },
+        {
+          "path": "candidate/.godot/ci/import.log",
+          "size_bytes": 96586,
+          "sha256": "419130dc32589ec5a7b94a1936481e62b9b825a8749e3df0062819a2b8aa855a",
+          "object": "objects/419130dc32589ec5a7b94a1936481e62b9b825a8749e3df0062819a2b8aa855a"
+        },
+        {
+          "path": "candidate/.godot/ci/import-stderr.log",
+          "size_bytes": 126,
+          "sha256": "e3e9582cfc1659ab624949d8fbdf43ec09f34ede8590bcc20749ca738dffff1b",
+          "object": "objects/e3e9582cfc1659ab624949d8fbdf43ec09f34ede8590bcc20749ca738dffff1b"
+        },
+        {
+          "path": "candidate/.godot/ci/public-surfaces/game_state-check.jsonl",
+          "size_bytes": 1112,
+          "sha256": "9f75f6ed02102e5b1b1e34a925adf65acb21942f946b11e4d2db4275d547d7e9",
+          "object": "objects/9f75f6ed02102e5b1b1e34a925adf65acb21942f946b11e4d2db4275d547d7e9"
+        },
+        {
+          "path": "candidate/.godot/ci/public-surfaces/game_state_surface.json",
+          "size_bytes": 661943,
+          "sha256": "3e303a0d84da2734d53392ff3323d232357589d61bce19d7471dc600e7b4c100",
+          "object": "objects/3e303a0d84da2734d53392ff3323d232357589d61bce19d7471dc600e7b4c100"
+        },
+        {
+          "path": "candidate/.godot/ci/public-surfaces/retirement-audit.json",
+          "size_bytes": 564,
+          "sha256": "6c40075261a2d3d1df4d36291362dade968decea3583fe9192f4849e17c8ae51",
+          "object": "objects/6c40075261a2d3d1df4d36291362dade968decea3583fe9192f4849e17c8ae51"
+        },
+        {
+          "path": "candidate/.godot/ci/public-surfaces/save_manager_surface.json",
+          "size_bytes": 184435,
+          "sha256": "8bc84c6104708752d6ecf85dce29eb7cff94b66f4913d1286b39abf171c87aef",
+          "object": "objects/8bc84c6104708752d6ecf85dce29eb7cff94b66f4913d1286b39abf171c87aef"
+        },
+        {
+          "path": "candidate/.godot/ci/public-surfaces/save_manager-check.jsonl",
+          "size_bytes": 1124,
+          "sha256": "a97d53a97a992414fab6f95d0544ec0a71a09955c6164367506e010326d0f7be",
+          "object": "objects/a97d53a97a992414fab6f95d0544ec0a71a09955c6164367506e010326d0f7be"
+        },
+        {
+          "path": "candidate/.godot/phase2r_logs/cloud-public-surface-game_state-check.log",
+          "size_bytes": 97,
+          "sha256": "f905573f8dd52f9b85362666ac54f7c7145d1ce376dec030e86792970fc2e2c7",
+          "object": "objects/f905573f8dd52f9b85362666ac54f7c7145d1ce376dec030e86792970fc2e2c7"
+        },
+        {
+          "path": "candidate/.godot/phase2r_logs/cloud-public-surface-save_manager-check.log",
+          "size_bytes": 97,
+          "sha256": "f905573f8dd52f9b85362666ac54f7c7145d1ce376dec030e86792970fc2e2c7",
+          "object": "objects/f905573f8dd52f9b85362666ac54f7c7145d1ce376dec030e86792970fc2e2c7"
+        },
+        {
+          "path": "game_state_surface.json",
+          "size_bytes": 661943,
+          "sha256": "3e303a0d84da2734d53392ff3323d232357589d61bce19d7471dc600e7b4c100",
+          "object": "objects/3e303a0d84da2734d53392ff3323d232357589d61bce19d7471dc600e7b4c100"
+        },
+        {
+          "path": "qualification.json",
+          "size_bytes": 3521,
+          "sha256": "e367bf011fe3d30214c72e0ca8830dab97175a8e7f133e466b20c2995a0776a5",
+          "object": "objects/e367bf011fe3d30214c72e0ca8830dab97175a8e7f133e466b20c2995a0776a5"
+        },
+        {
+          "path": "save_manager_surface.json",
+          "size_bytes": 184435,
+          "sha256": "8bc84c6104708752d6ecf85dce29eb7cff94b66f4913d1286b39abf171c87aef",
+          "object": "objects/8bc84c6104708752d6ecf85dce29eb7cff94b66f4913d1286b39abf171c87aef"
+        }
+      ]
+    }
+  ],
+  "member_mapping_count": 250,
+  "unique_object_count": 161,
+  "bundle_sha256": "c21aa9995e275ea3aaab624f535c51fe394a7bccc58db1bf50e8eeb2e9ee8ae7"
+}
