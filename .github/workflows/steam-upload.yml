@@ -1,5 +1,5 @@
 name: Steam private upload
-run-name: Steam ${{ inputs.mode }} - integrated week e5cf80a - game.exe
+run-name: Steam upload - integrated week 14648617 - game.exe
 permissions:
   contents: read
   actions: read
@@ -18,7 +18,7 @@ jobs:
     - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       with:
         persist-credentials: true
-        ref: e5cf80a5417c05bd0bb7fa2f60f59e8905e839a6
+        ref: 14648617b55a4c67bef7b7cc0d23461f0502f23c
     - name: Prepare disposable checkout for credential cleanup
       run: |
         $ErrorActionPreference = 'Stop'
@@ -143,7 +143,7 @@ jobs:
         import hashlib, json, pathlib, shutil, zipfile
         root = pathlib.Path('.godot/ci/windows-export')
         receipt = json.loads((root / 'validation.json').read_text(encoding='utf-8-sig'))
-        assert receipt['ok'] and receipt['commit'] == 'e5cf80a5417c05bd0bb7fa2f60f59e8905e839a6'
+        assert receipt['ok'] and receipt['commit'] == '14648617b55a4c67bef7b7cc0d23461f0502f23c'
         dest = pathlib.Path('steam-package')
         dest.mkdir()
         with zipfile.ZipFile(root / 'DWM-windows-x86_64-validation.zip') as archive:
@@ -211,7 +211,7 @@ jobs:
       env:
         STEAM_USERNAME: ${{ secrets.STEAM_USERNAME }}
         STEAM_CONFIG_VDF: ${{ secrets.STEAM_CONFIG_VDF }}
-        UPLOAD_MODE: ${{ inputs.mode }}
+        UPLOAD_MODE: upload
       run: |
         import base64, json, hashlib, os, pathlib, re, shutil, subprocess, sys, urllib.request, zipfile
         root = pathlib.Path(os.environ['RUNNER_TEMP']) / 'dwm-steam'
@@ -242,7 +242,7 @@ jobs:
             stop('Decoded configuration is not a Steam config.vdf. Check the source file privately.')
         source = pathlib.Path('game-build')
         receipt = json.loads(pathlib.Path('receipt/steam-package-receipt.json').read_text(encoding='utf-8-sig'))
-        if not receipt['ok'] or receipt['commit'] != 'e5cf80a5417c05bd0bb7fa2f60f59e8905e839a6':
+        if not receipt['ok'] or receipt['commit'] != '14648617b55a4c67bef7b7cc0d23461f0502f23c':
             stop('Export receipt does not identify the requested validated source.')
         expected = {entry['path'] for entry in receipt['files']}
         actual = {p.relative_to(source).as_posix() for p in source.rglob('*') if p.is_file()}
@@ -256,7 +256,7 @@ jobs:
                 stop('Downloaded runtime file hash mismatch.')
         shutil.copytree(source, content, dirs_exist_ok=True)
         files = sorted(p for p in content.rglob('*') if p.is_file())
-        report('Runtime source: e5cf80a5417c05bd0bb7fa2f60f59e8905e839a6. Integrated authored week with localized story, Apps, current paintings, and Bach music; fresh Windows export verified. Panel, six-control, and caption layout issues remain.')
+        report('Runtime source: 14648617b55a4c67bef7b7cc0d23461f0502f23c. Current merged runtime with recall-local validation reuse; fresh Windows export verified. Remaining Load latency is documented in the recall handoff.')
         report('AppID 5199120; DepotID 5199121. No SetLive directive. This is an upload test, not release approval.')
         for p in files:
             report(p.relative_to(content).as_posix() + ' — SHA256 ' + hashlib.sha256(p.read_bytes()).hexdigest())
@@ -304,7 +304,7 @@ jobs:
             encoded = ''
             script = root / 'app_build_5199120.vdf'
             def build(preview):
-                script.write_text('"AppBuild" { "AppID" "5199120" "Desc" "DWM localized week source e5cf80a" '
+                script.write_text('"AppBuild" { "AppID" "5199120" "Desc" "DWM localized week source 14648617" '
                     + '"ContentRoot" "' + content.as_posix() + '" "BuildOutput" "' + output.as_posix()
                     + '" "Preview" "' + str(preview) + '" "Depots" { "5199121" { '
                     + '"FileMapping" { "LocalPath" "*" "DepotPath" "." "Recursive" "1" } } } }', encoding='utf-8')
@@ -333,13 +333,5 @@ jobs:
     needs: build
     if: ${{ !cancelled() && needs.build.result == 'success' }}
 'on':
-  workflow_dispatch:
-    inputs:
-      mode:
-        description: Preview only, or preview then upload (never sets a branch live)
-        type: choice
-        options:
-        - preview
-        - upload
-        default: preview
-        required: true
+  push:
+    branches: [codex/steam-recall-upload-20261024]
