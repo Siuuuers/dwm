@@ -73,6 +73,8 @@ jobs:
           # Execute the committed configuration with the freshly imported assets.
           git restore -- project.godot
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Generate current public inventories
+        run: ./tools/testing/Invoke-PublicSurfaceValidation.ps1 -Regenerate -EmitPayloads
       - name: Verify journal cache and storage retry contracts
         if: matrix.lane == 'focused'
         timeout-minutes: 20
