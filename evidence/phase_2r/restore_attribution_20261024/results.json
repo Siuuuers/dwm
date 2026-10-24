@@ -1,0 +1,1187 @@
+{
+  "scope": "Diagnostic attribution only; no production change or speedup claim",
+  "base_master": "5e9657d1a1417c699ba555b49a2e584cde6a37b5",
+  "runs": [
+    {
+      "id": 40070845864,
+      "source": "e421fb585ef655bd5a913c723731e4b724576cbf",
+      "native_cases": 2,
+      "native_assertions": 213,
+      "successful_processes": 3
+    },
+    {
+      "id": 40071569303,
+      "source": "3adfc26238ba13cfa005d925fd9189aa71d83765",
+      "native_cases": 2,
+      "native_assertions": 213,
+      "successful_processes": 3
+    }
+  ],
+  "archive": {
+    "object_count": 56,
+    "unique_object_bytes": 4438256,
+    "included_member_count": 68,
+    "omitted_member_count": 224,
+    "junit_groups": {
+      "caller_attribution.historical_input": {
+        "reports": 1,
+        "cases": 1,
+        "assertions": 112,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "caller_attribution.native": {
+        "reports": 2,
+        "cases": 2,
+        "assertions": 213,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "scene_phase_attribution.historical_input": {
+        "reports": 1,
+        "cases": 1,
+        "assertions": 112,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "scene_phase_attribution.native": {
+        "reports": 2,
+        "cases": 2,
+        "assertions": 213,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    "sha256": "87406174b61b545ffc35d27f3179c11fb84e78300009b8c94c260c2b7584e601",
+    "bytes": 1565920
+  },
+  "phase_review": {
+    "run_id": 40071569303,
+    "source_ref": "3adfc26238ba13cfa005d925fd9189aa71d83765",
+    "press_to_ready_us": 100056530,
+    "press_offset_us": 1580940,
+    "ready_offset_us": 101637470,
+    "restore_transaction": {
+      "action": "",
+      "code": "scene_activation_pending",
+      "context": "",
+      "elapsed_us": 52152770,
+      "locator": "",
+      "ok": false,
+      "scene_activation_kickoff_us": 140970,
+      "scene_advance_audio_us": 4131572,
+      "scene_advance_desktop_board_us": 4154535,
+      "scene_advance_desktop_consequence_us": 4120008,
+      "scene_advance_localization_us": 4153541,
+      "scene_advance_narrative_us": 4119322,
+      "scene_advance_profile_us": 4190975,
+      "scene_advance_route_us": 4212933,
+      "scene_advance_run_us": 4166044,
+      "scene_applied_stage_us": 4133482,
+      "scene_apply_audio_us": 211945,
+      "scene_apply_desktop_board_us": 2135,
+      "scene_apply_desktop_consequence_us": 3894,
+      "scene_apply_localization_us": 10125,
+      "scene_apply_narrative_us": 57161,
+      "scene_apply_profile_us": 67278,
+      "scene_apply_route_us": 5071,
+      "scene_apply_run_us": 5041305,
+      "scene_capture_us": 5439,
+      "scene_completion_us": 4113387,
+      "scene_finalize_connect_us": 54164,
+      "scene_journal_commit_us": 5031806,
+      "scene_owner_activation_setup_us": 3060,
+      "scene_remap_run_us": 18994,
+      "scope": "restore_transaction",
+      "unphased_us": 3624
+    },
+    "exclusive_phase_sum_us": 52152770,
+    "exclusive_sum_equals_elapsed": true,
+    "ranked_phases": [
+      {
+        "phase": "scene_apply_run_us",
+        "us": 5041305
+      },
+      {
+        "phase": "scene_journal_commit_us",
+        "us": 5031806
+      },
+      {
+        "phase": "scene_advance_route_us",
+        "us": 4212933
+      },
+      {
+        "phase": "scene_advance_profile_us",
+        "us": 4190975
+      },
+      {
+        "phase": "scene_advance_run_us",
+        "us": 4166044
+      },
+      {
+        "phase": "scene_advance_desktop_board_us",
+        "us": 4154535
+      },
+      {
+        "phase": "scene_advance_localization_us",
+        "us": 4153541
+      },
+      {
+        "phase": "scene_applied_stage_us",
+        "us": 4133482
+      },
+      {
+        "phase": "scene_advance_audio_us",
+        "us": 4131572
+      },
+      {
+        "phase": "scene_advance_desktop_consequence_us",
+        "us": 4120008
+      },
+      {
+        "phase": "scene_advance_narrative_us",
+        "us": 4119322
+      },
+      {
+        "phase": "scene_completion_us",
+        "us": 4113387
+      },
+      {
+        "phase": "scene_apply_audio_us",
+        "us": 211945
+      },
+      {
+        "phase": "scene_activation_kickoff_us",
+        "us": 140970
+      },
+      {
+        "phase": "scene_apply_profile_us",
+        "us": 67278
+      },
+      {
+        "phase": "scene_apply_narrative_us",
+        "us": 57161
+      },
+      {
+        "phase": "scene_finalize_connect_us",
+        "us": 54164
+      },
+      {
+        "phase": "scene_remap_run_us",
+        "us": 18994
+      },
+      {
+        "phase": "scene_apply_localization_us",
+        "us": 10125
+      },
+      {
+        "phase": "scene_capture_us",
+        "us": 5439
+      },
+      {
+        "phase": "scene_apply_route_us",
+        "us": 5071
+      },
+      {
+        "phase": "scene_apply_desktop_consequence_us",
+        "us": 3894
+      },
+      {
+        "phase": "unphased_us",
+        "us": 3624
+      },
+      {
+        "phase": "scene_owner_activation_setup_us",
+        "us": 3060
+      },
+      {
+        "phase": "scene_apply_desktop_board_us",
+        "us": 2135
+      }
+    ],
+    "groups_us": {
+      "participant_advances": 33248930,
+      "applied_and_completed_advances": 8246869,
+      "participant_apply": 5398914,
+      "checkpoint_journal_commit": 5031806,
+      "remaining": 226251,
+      "all_ten_continuation_advances": 41495799
+    },
+    "continuation_advances_fraction_transaction": 0.7956585815096686,
+    "continuation_advances_fraction_press_ready": 0.4147235467790058,
+    "snapshot_interval_union_us": 38317404,
+    "snapshot_intervals": [
+      [
+        1839192,
+        6541429
+      ],
+      [
+        6878009,
+        11568957
+      ],
+      [
+        11583004,
+        16275012
+      ],
+      [
+        18242638,
+        22969159
+      ],
+      [
+        23187116,
+        27842355
+      ],
+      [
+        28856565,
+        33679303
+      ],
+      [
+        42088305,
+        47100314
+      ],
+      [
+        84887772,
+        89903476
+      ]
+    ],
+    "snapshot_count": 8,
+    "snapshot_records": [
+      {
+        "caller_frames": [
+          {
+            "function": "finish_snapshot",
+            "line": 44,
+            "source": "res://scripts/narrative/SceneValidationTiming.gd"
+          },
+          {
+            "function": "validate_scene",
+            "line": 813,
+            "source": "res://scripts/domain/run/RunSnapshotSchema.gd"
+          },
+          {
+            "function": "validate",
+            "line": 149,
+            "source": "res://scripts/domain/run/RunSnapshotSchema.gd"
+          },
+          {
+            "function": "_validate_bundle",
+            "line": 481,
+            "source": "res://scripts/infrastructure/save/SaveDocumentSchema.gd"
+          },
+          {
+            "function": "_validate_document",
+            "line": 246,
+            "source": "res://scripts/infrastructure/save/SaveDocumentSchema.gd"
+          },
+          {
+            "function": "validate",
+            "line": 153,
+            "source": "res://scripts/infrastructure/save/SaveDocumentSchema.gd"
+          },
+          {
+            "function": "migrate_document",
+            "line": 18,
+            "source": "res://scripts/infrastructure/save/SaveMigrations.gd"
+          },
+          {
+            "function": "_prepare_restore",
+            "line": 2216,
+            "source": "res://autoload/SaveManager.gd"
+          },
+          {
+            "function": "_prepare_backup_action_profiled",
+            "line": 1785,
+            "source": "res://autoload/SaveManager.gd"
+          },
+          {
+            "function": "prepare_backup_action",
+            "line": 1738,
+            "source": "res://autoload/SaveManager.gd"
+          },
+          {
+            "function": "prepare_action",
+            "line": 143,
+            "source": "res://scripts/application/backup/BackupPresentationPort.gd"
+          },
+          {
+            "function": "_action_pressed",
+            "line": 570,
+            "source": "res://scripts/ui/BackupApp.gd"
+          },
+          {
+            "function": "_click",
+            "line": 24,
+            "source": "res://tests/integration/scene_computer_child.gd"
+          }
+        ],
+        "checkpoint_sequence": 72,
+        "elapsed_us": 4702237,
+        "guard_prepare_us": 145001,
+        "guard_verify_us": 135607,
+        "inclusive_nested": true,
+        "lifecycle_state": "ENDING",
+        "ok": true,
+        "ordinal": 0,
+        "playback_stage": "PRIMARY_PENDING",
+        "pre_semantic_us": 2733832,
+        "scope_offset_us": 1839192,
+        "semantic_us": 1679302
+      },
+      {
+        "caller_frames": [
+          {
+            "function": "finish_snapshot",
+            "line": 44,
+            "source": "res://scripts/narrative/SceneValidationTiming.gd"
+          },
+          {
+            "function": "validate_scene",
+            "line": 813,
+            "source": "res://scripts/domain/run/RunSnapshotSchema.gd"
+          },
+          {
+            "function": "validate",
+            "line": 149,
+            "source": "res://scripts/domain/run/RunSnapshotSchema.gd"
+          },
+          {
+            "function": "derive_route_restore_context",
+            "line": 384,
+            "source": "res://scripts/domain/run/RunSnapshotSchema.gd"
+          },
+          {
+            "function": "_prepare_bundle_with_all_participants",
+            "line": 2329,
+            "source": "res://autoload/SaveManager.gd"
+          },
+          {
+            "function": "_prepare_restore_document_profiled",
+            "line": 2258,
+            "source": "res://autoload/SaveManager.gd"
+          },
+          {
+            "function": "_prepare_restore_document",
+            "line": 2249,
+            "source": "res://autoload/SaveManager.gd"
+          },
+          {
+            "function": "_prepare_restore",
+            "line": 2223,
+            "source": "res://autoload/SaveManager.gd"
+          },
+          {
+            "function": "_prepare_backup_action_profiled",
+            "line": 1785,
+            "source": "res://autoload/SaveManager.gd"
+          },
+          {
+            "function": "prepare_backup_action",
+            "line": 1738,
+            "source": "res://autoload/SaveManager.gd"
+          },
+          {
+            "function": "prepare_action",
+            "line": 143,
+            "source": "res://scripts/application/backup/BackupPresentationPort.gd"
+          },
+          {
+            "function": "_action_pressed",
+            "line": 570,
+            "source": "res://scripts/ui/BackupApp.gd"
+          },
+          {
+            "function": "_click",
+            "line": 24,
+            "source": "res://tests/integration/scene_computer_child.gd"
+          }
+        ],
+        "checkpoint_sequence": 72,
+        "elapsed_us": 4690948,
+        "guard_prepare_us": 145227,
+        "guard_verify_us": 138530,
+        "inclusive_nested": true,
+        "lifecycle_state": "ENDING",
+        "ok": true,
+        "ordinal": 1,
+        "playback_stage": "PRIMARY_PENDING",
+        "pre_semantic_us": 2730769,
+        "scope_offset_us": 6878009,
+        "semantic_us": 1667495
+      },
+      {
+        "caller_frames": [
+          {
+            "function": "finish_snapshot",
+            "line": 44,
+            "source": "res://scripts/narrative/SceneValidationTiming.gd"
+          },
+          {
+            "function": "validate_scene",
+            "line": 813,
+            "source": "res://scripts/domain/run/RunSnapshotSchema.gd"
+          },
+          {
+            "function": "validate",
+            "line": 149,
+            "source": "res://scripts/domain/run/RunSnapshotSchema.gd"
+          },
+          {
+            "function": "prepare",
+            "line": 95,
+            "source": "res://scripts/application/restore/NarrativeRestoreParticipant.gd"
+          },
+          {
+            "function": "_prepare_bundle_with_all_participants",
+            "line": 2338,
+            "source": "res://autoload/SaveManager.gd"
+          },
+          {
+            "function": "_prepare_restore_document_profiled",
+            "line": 2258,
+            "source": "res://autoload/SaveManager.gd"
+          },
+          {
+            "function": "_prepare_restore_document",
+            "line": 2249,
+            "source": "res://autoload/SaveManager.gd"
+          },
+          {
+            "function": "_prepare_restore",
+            "line": 2223,
+            "source": "res://autoload/SaveManager.gd"
+          },
+          {
+            "function": "_prepare_backup_action_profiled",
+            "line": 1785,
+            "source": "res://autoload/SaveManager.gd"
+          },
+          {
+            "function": "prepare_backup_action",
+            "line": 1738,
+            "source": "res://autoload/SaveManager.gd"
+          },
+          {
+            "function": "prepare_action",
+            "line": 143,
+            "source": "res://scripts/application/backup/BackupPresentationPort.gd"
+          },
+          {
+            "function": "_action_pressed",
+            "line": 570,
+            "source": "res://scripts/ui/BackupApp.gd"
+          },
+          {
+            "function": "_click",
+            "line": 24,
+            "source": "res://tests/integration/scene_computer_child.gd"
+          }
+        ],
+        "checkpoint_sequence": 72,
+        "elapsed_us": 4692008,
+        "guard_prepare_us": 146726,
+        "guard_verify_us": 136382,
+        "inclusive_nested": true,
+        "lifecycle_state": "ENDING",
+        "ok": true,
+        "ordinal": 2,
+        "playback_stage": "PRIMARY_PENDING",
+        "pre_semantic_us": 2734743,
+        "scope_offset_us": 11583004,
+        "semantic_us": 1665782
+      },
+      {
+        "caller_frames": [
+          {
+            "function": "finish_snapshot",
+            "line": 44,
+            "source": "res://scripts/narrative/SceneValidationTiming.gd"
+          },
+          {
+            "function": "validate_scene",
+            "line": 813,
+            "source": "res://scripts/domain/run/RunSnapshotSchema.gd"
+          },
+          {
+            "function": "validate",
+            "line": 149,
+            "source": "res://scripts/domain/run/RunSnapshotSchema.gd"
+          },
+          {
+            "function": "_validate_bundle",
+            "line": 481,
+            "source": "res://scripts/infrastructure/save/SaveDocumentSchema.gd"
+          },
+          {
+            "function": "_validate_document",
+            "line": 246,
+            "source": "res://scripts/infrastructure/save/SaveDocumentSchema.gd"
+          },
+          {
+            "function": "validate",
+            "line": 153,
+            "source": "res://scripts/infrastructure/save/SaveDocumentSchema.gd"
+          },
+          {
+            "function": "_validate_scene_source",
+            "line": 1654,
+            "source": "res://scripts/infrastructure/save/DesktopContinuationOperationJournal.gd"
+          },
+          {
+            "function": "_validate_kind_fields",
+            "line": 825,
+            "source": "res://scripts/infrastructure/save/DesktopContinuationOperationJournal.gd"
+          },
+          {
+            "function": "_validate_intent_request",
+            "line": 1037,
+            "source": "res://scripts/infrastructure/save/DesktopContinuationOperationJournal.gd"
+          },
+          {
+            "function": "prepare_intent",
+            "line": 205,
+            "source": "res://scripts/infrastructure/save/DesktopContinuationOperationJournal.gd"
+          },
+          {
+            "function": "_begin_restore_continuation",
+            "line": 442,
+            "source": "res://autoload/SaveManager.gd"
+          },
+          {
+            "function": "_commit_prepared_restore_profiled",
+            "line": 333,
+            "source": "res://autoload/SaveManager.gd"
+          },
+          {
+            "function": "commit_prepared_restore",
+            "line": 279,
+            "source": "res://autoload/SaveManager.gd"
+          },
+          {
+            "function": "_commit_backup_action_profiled",
+            "line": 1841,
+            "source": "res://autoload/SaveManager.gd"
+          },
+          {
+            "function": "commit_backup_action",
+            "line": 1812,
+            "source": "res://autoload/SaveManager.gd"
+          },
+          {
+            "function": "commit_action",
+            "line": 175,
+            "source": "res://scripts/application/backup/BackupPresentationPort.gd"
+          },
+          {
+            "function": "_commit_pending",
+            "line": 634,
+            "source": "res://scripts/ui/BackupApp.gd"
+          },
+          {
+            "function": "_action_pressed",
+            "line": 598,
+            "source": "res://scripts/ui/BackupApp.gd"
+          },
+          {
+            "function": "_click",
+            "line": 24,
+            "source": "res://tests/integration/scene_computer_child.gd"
+          }
+        ],
+        "checkpoint_sequence": 72,
+        "elapsed_us": 4726521,
+        "guard_prepare_us": 146502,
+        "guard_verify_us": 136557,
+        "inclusive_nested": true,
+        "lifecycle_state": "ENDING",
+        "ok": true,
+        "ordinal": 3,
+        "playback_stage": "PRIMARY_PENDING",
+        "pre_semantic_us": 2748903,
+        "scope_offset_us": 18242638,
+        "semantic_us": 1685104
+      },
+      {
+        "caller_frames": [
+          {
+            "function": "finish_snapshot",
+            "line": 44,
+            "source": "res://scripts/narrative/SceneValidationTiming.gd"
+          },
+          {
+            "function": "validate_scene",
+            "line": 813,
+            "source": "res://scripts/domain/run/RunSnapshotSchema.gd"
+          },
+          {
+            "function": "validate",
+            "line": 149,
+            "source": "res://scripts/domain/run/RunSnapshotSchema.gd"
+          },
+          {
+            "function": "_validate_bundle",
+            "line": 481,
+            "source": "res://scripts/infrastructure/save/SaveDocumentSchema.gd"
+          },
+          {
+            "function": "_validate_document",
+            "line": 246,
+            "source": "res://scripts/infrastructure/save/SaveDocumentSchema.gd"
+          },
+          {
+            "function": "validate",
+            "line": 153,
+            "source": "res://scripts/infrastructure/save/SaveDocumentSchema.gd"
+          },
+          {
+            "function": "_validate_scene_source",
+            "line": 1654,
+            "source": "res://scripts/infrastructure/save/DesktopContinuationOperationJournal.gd"
+          },
+          {
+            "function": "_validate_kind_fields",
+            "line": 825,
+            "source": "res://scripts/infrastructure/save/DesktopContinuationOperationJournal.gd"
+          },
+          {
+            "function": "_validate_operation",
+            "line": 740,
+            "source": "res://scripts/infrastructure/save/DesktopContinuationOperationJournal.gd"
+          },
+          {
+            "function": "commit_intent",
+            "line": 239,
+            "source": "res://scripts/infrastructure/save/DesktopContinuationOperationJournal.gd"
+          },
+          {
+            "function": "_begin_restore_continuation",
+            "line": 447,
+            "source": "res://autoload/SaveManager.gd"
+          },
+          {
+            "function": "_commit_prepared_restore_profiled",
+            "line": 333,
+            "source": "res://autoload/SaveManager.gd"
+          },
+          {
+            "function": "commit_prepared_restore",
+            "line": 279,
+            "source": "res://autoload/SaveManager.gd"
+          },
+          {
+            "function": "_commit_backup_action_profiled",
+            "line": 1841,
+            "source": "res://autoload/SaveManager.gd"
+          },
+          {
+            "function": "commit_backup_action",
+            "line": 1812,
+            "source": "res://autoload/SaveManager.gd"
+          },
+          {
+            "function": "commit_action",
+            "line": 175,
+            "source": "res://scripts/application/backup/BackupPresentationPort.gd"
+          },
+          {
+            "function": "_commit_pending",
+            "line": 634,
+            "source": "res://scripts/ui/BackupApp.gd"
+          },
+          {
+            "function": "_action_pressed",
+            "line": 598,
+            "source": "res://scripts/ui/BackupApp.gd"
+          },
+          {
+            "function": "_click",
+            "line": 24,
+            "source": "res://tests/integration/scene_computer_child.gd"
+          }
+        ],
+        "checkpoint_sequence": 72,
+        "elapsed_us": 4655239,
+        "guard_prepare_us": 144213,
+        "guard_verify_us": 136638,
+        "inclusive_nested": true,
+        "lifecycle_state": "ENDING",
+        "ok": true,
+        "ordinal": 4,
+        "playback_stage": "PRIMARY_PENDING",
+        "pre_semantic_us": 2686697,
+        "scope_offset_us": 23187116,
+        "semantic_us": 1678554
+      },
+      {
+        "caller_frames": [
+          {
+            "function": "finish_snapshot",
+            "line": 44,
+            "source": "res://scripts/narrative/SceneValidationTiming.gd"
+          },
+          {
+            "function": "validate_scene",
+            "line": 813,
+            "source": "res://scripts/domain/run/RunSnapshotSchema.gd"
+          },
+          {
+            "function": "validate",
+            "line": 149,
+            "source": "res://scripts/domain/run/RunSnapshotSchema.gd"
+          },
+          {
+            "function": "_validate_bundle",
+            "line": 481,
+            "source": "res://scripts/infrastructure/save/SaveDocumentSchema.gd"
+          },
+          {
+            "function": "_validate_document",
+            "line": 246,
+            "source": "res://scripts/infrastructure/save/SaveDocumentSchema.gd"
+          },
+          {
+            "function": "validate",
+            "line": 153,
+            "source": "res://scripts/infrastructure/save/SaveDocumentSchema.gd"
+          },
+          {
+            "function": "_validate_scene_source",
+            "line": 1654,
+            "source": "res://scripts/infrastructure/save/DesktopContinuationOperationJournal.gd"
+          },
+          {
+            "function": "_selected_scene_restore_bundle",
+            "line": 3003,
+            "source": "res://autoload/SaveManager.gd"
+          },
+          {
+            "function": "load_restore_context",
+            "line": 3015,
+            "source": "res://autoload/SaveManager.gd"
+          },
+          {
+            "function": "prepare",
+            "line": 63,
+            "source": "res://scripts/application/restore/DesktopIdentityAllocationRestoreParticipant.gd"
+          },
+          {
+            "function": "_begin_restore_continuation",
+            "line": 457,
+            "source": "res://autoload/SaveManager.gd"
+          },
+          {
+            "function": "_commit_prepared_restore_profiled",
+            "line": 333,
+            "source": "res://autoload/SaveManager.gd"
+          },
+          {
+            "function": "commit_prepared_restore",
+            "line": 279,
+            "source": "res://autoload/SaveManager.gd"
+          },
+          {
+            "function": "_commit_backup_action_profiled",
+            "line": 1841,
+            "source": "res://autoload/SaveManager.gd"
+          },
+          {
+            "function": "commit_backup_action",
+            "line": 1812,
+            "source": "res://autoload/SaveManager.gd"
+          },
+          {
+            "function": "commit_action",
+            "line": 175,
+            "source": "res://scripts/application/backup/BackupPresentationPort.gd"
+          },
+          {
+            "function": "_commit_pending",
+            "line": 634,
+            "source": "res://scripts/ui/BackupApp.gd"
+          },
+          {
+            "function": "_action_pressed",
+            "line": 598,
+            "source": "res://scripts/ui/BackupApp.gd"
+          },
+          {
+            "function": "_click",
+            "line": 24,
+            "source": "res://tests/integration/scene_computer_child.gd"
+          }
+        ],
+        "checkpoint_sequence": 72,
+        "elapsed_us": 4822738,
+        "guard_prepare_us": 148942,
+        "guard_verify_us": 141432,
+        "inclusive_nested": true,
+        "lifecycle_state": "ENDING",
+        "ok": true,
+        "ordinal": 5,
+        "playback_stage": "PRIMARY_PENDING",
+        "pre_semantic_us": 2789068,
+        "scope_offset_us": 28856565,
+        "semantic_us": 1733396
+      },
+      {
+        "caller_frames": [
+          {
+            "function": "finish_snapshot",
+            "line": 44,
+            "source": "res://scripts/narrative/SceneValidationTiming.gd"
+          },
+          {
+            "function": "validate_scene",
+            "line": 813,
+            "source": "res://scripts/domain/run/RunSnapshotSchema.gd"
+          },
+          {
+            "function": "validate",
+            "line": 149,
+            "source": "res://scripts/domain/run/RunSnapshotSchema.gd"
+          },
+          {
+            "function": "_apply_run_snapshot_silent",
+            "line": 3471,
+            "source": "res://autoload/GameState.gd"
+          },
+          {
+            "function": "apply_restore_silent",
+            "line": 3372,
+            "source": "res://autoload/GameState.gd"
+          },
+          {
+            "function": "apply_silent",
+            "line": 111,
+            "source": "res://scripts/application/restore/RunRestoreParticipant.gd"
+          },
+          {
+            "function": "_run_scene_restore_transaction",
+            "line": 3084,
+            "source": "res://autoload/SaveManager.gd"
+          },
+          {
+            "function": "_run_participant_transaction_profiled",
+            "line": 1253,
+            "source": "res://autoload/SaveManager.gd"
+          },
+          {
+            "function": "_run_participant_transaction",
+            "line": 1242,
+            "source": "res://autoload/SaveManager.gd"
+          },
+          {
+            "function": "_commit_prepared_restore_profiled",
+            "line": 383,
+            "source": "res://autoload/SaveManager.gd"
+          },
+          {
+            "function": "commit_prepared_restore",
+            "line": 279,
+            "source": "res://autoload/SaveManager.gd"
+          },
+          {
+            "function": "_commit_backup_action_profiled",
+            "line": 1841,
+            "source": "res://autoload/SaveManager.gd"
+          },
+          {
+            "function": "commit_backup_action",
+            "line": 1812,
+            "source": "res://autoload/SaveManager.gd"
+          },
+          {
+            "function": "commit_action",
+            "line": 175,
+            "source": "res://scripts/application/backup/BackupPresentationPort.gd"
+          },
+          {
+            "function": "_commit_pending",
+            "line": 634,
+            "source": "res://scripts/ui/BackupApp.gd"
+          },
+          {
+            "function": "_action_pressed",
+            "line": 598,
+            "source": "res://scripts/ui/BackupApp.gd"
+          },
+          {
+            "function": "_click",
+            "line": 24,
+            "source": "res://tests/integration/scene_computer_child.gd"
+          }
+        ],
+        "checkpoint_sequence": 72,
+        "elapsed_us": 5012009,
+        "guard_prepare_us": 158384,
+        "guard_verify_us": 150789,
+        "inclusive_nested": true,
+        "lifecycle_state": "ENDING",
+        "ok": true,
+        "ordinal": 6,
+        "playback_stage": "PRIMARY_PENDING",
+        "pre_semantic_us": 2901093,
+        "scope_offset_us": 42088305,
+        "semantic_us": 1791668
+      },
+      {
+        "caller_frames": [
+          {
+            "function": "finish_snapshot",
+            "line": 44,
+            "source": "res://scripts/narrative/SceneValidationTiming.gd"
+          },
+          {
+            "function": "validate_scene",
+            "line": 813,
+            "source": "res://scripts/domain/run/RunSnapshotSchema.gd"
+          },
+          {
+            "function": "validate",
+            "line": 149,
+            "source": "res://scripts/domain/run/RunSnapshotSchema.gd"
+          },
+          {
+            "function": "_validate_candidate",
+            "line": 371,
+            "source": "res://scripts/infrastructure/save/CheckpointJournal.gd"
+          },
+          {
+            "function": "commit_prepared",
+            "line": 136,
+            "source": "res://scripts/infrastructure/save/CheckpointJournal.gd"
+          },
+          {
+            "function": "_run_scene_restore_transaction",
+            "line": 3122,
+            "source": "res://autoload/SaveManager.gd"
+          },
+          {
+            "function": "_run_participant_transaction_profiled",
+            "line": 1253,
+            "source": "res://autoload/SaveManager.gd"
+          },
+          {
+            "function": "_run_participant_transaction",
+            "line": 1242,
+            "source": "res://autoload/SaveManager.gd"
+          },
+          {
+            "function": "_commit_prepared_restore_profiled",
+            "line": 383,
+            "source": "res://autoload/SaveManager.gd"
+          },
+          {
+            "function": "commit_prepared_restore",
+            "line": 279,
+            "source": "res://autoload/SaveManager.gd"
+          },
+          {
+            "function": "_commit_backup_action_profiled",
+            "line": 1841,
+            "source": "res://autoload/SaveManager.gd"
+          },
+          {
+            "function": "commit_backup_action",
+            "line": 1812,
+            "source": "res://autoload/SaveManager.gd"
+          },
+          {
+            "function": "commit_action",
+            "line": 175,
+            "source": "res://scripts/application/backup/BackupPresentationPort.gd"
+          },
+          {
+            "function": "_commit_pending",
+            "line": 634,
+            "source": "res://scripts/ui/BackupApp.gd"
+          },
+          {
+            "function": "_action_pressed",
+            "line": 598,
+            "source": "res://scripts/ui/BackupApp.gd"
+          },
+          {
+            "function": "_click",
+            "line": 24,
+            "source": "res://tests/integration/scene_computer_child.gd"
+          }
+        ],
+        "checkpoint_sequence": 72,
+        "elapsed_us": 5015704,
+        "guard_prepare_us": 157902,
+        "guard_verify_us": 149284,
+        "inclusive_nested": true,
+        "lifecycle_state": "ENDING",
+        "ok": true,
+        "ordinal": 7,
+        "playback_stage": "PRIMARY_PENDING",
+        "pre_semantic_us": 2902519,
+        "scope_offset_us": 84887772,
+        "semantic_us": 1796030
+      }
+    ],
+    "outer_profiles": [
+      {
+        "action": "",
+        "code": "ok",
+        "context": "",
+        "elapsed_us": 11367842,
+        "locator": "slot_3.json",
+        "ok": true,
+        "participant_prepare_us": 11367827,
+        "scope": "restore_prepare",
+        "unphased_us": 15
+      },
+      {
+        "action": "load",
+        "candidate_copy_us": 14360,
+        "code": "",
+        "context": "",
+        "elapsed_us": 16347365,
+        "inspection_us": 12729,
+        "locator": "slot:3",
+        "ok": true,
+        "restore_prepare_us": 16313938,
+        "scope": "backup_prepare",
+        "unphased_us": 6338
+      },
+      {
+        "action": "load",
+        "code": "scene_activation_pending",
+        "context": "",
+        "elapsed_us": 76285146,
+        "locator": "slot_3.json",
+        "ok": false,
+        "restore_commit_us": 76281715,
+        "revision_read_us": 3311,
+        "scope": "backup_commit",
+        "unphased_us": 120
+      }
+    ],
+    "limits": [
+      "Attribution only; no performance comparison across runs.",
+      "Transaction phases are cursor-based exclusive intervals; unphased_us completes exact total.",
+      "Snapshot durations are inclusive children and cannot be added to parent phase durations.",
+      "No absolute transaction start/end anchors were emitted; placement within press-to-Ready follows synchronous UI commit and scene_activation_pending return, not independently timestamped phase boundaries.",
+      "Advance phases include request preparation, transition validation, cloning, serialization and atomic storage; this evidence does not isolate disk latency."
+    ],
+    "next_choice": "Instrument only DesktopContinuationOperationJournal.advance/_write exclusive subphases before choosing optimization. Prioritize the measured41.5s continuation advancement aggregate over speculative intent-proof skipping; retain every durable stage/receipt and recovery boundary.",
+    "snapshot_child_mapping": [
+      {
+        "ordinal": 0,
+        "us": 4702237,
+        "owner_functions": [
+          "_validate_bundle",
+          "_validate_document",
+          "validate",
+          "migrate_document",
+          "_prepare_restore",
+          "_prepare_backup_action_profiled"
+        ]
+      },
+      {
+        "ordinal": 1,
+        "us": 4690948,
+        "owner_functions": [
+          "derive_route_restore_context",
+          "_prepare_bundle_with_all_participants",
+          "_prepare_restore_document_profiled",
+          "_prepare_restore_document",
+          "_prepare_restore",
+          "_prepare_backup_action_profiled"
+        ]
+      },
+      {
+        "ordinal": 2,
+        "us": 4692008,
+        "owner_functions": [
+          "prepare",
+          "_prepare_bundle_with_all_participants",
+          "_prepare_restore_document_profiled",
+          "_prepare_restore_document",
+          "_prepare_restore",
+          "_prepare_backup_action_profiled"
+        ]
+      },
+      {
+        "ordinal": 3,
+        "us": 4726521,
+        "owner_functions": [
+          "_validate_bundle",
+          "_validate_document",
+          "validate",
+          "_validate_scene_source",
+          "_validate_kind_fields",
+          "_validate_intent_request"
+        ]
+      },
+      {
+        "ordinal": 4,
+        "us": 4655239,
+        "owner_functions": [
+          "_validate_bundle",
+          "_validate_document",
+          "validate",
+          "_validate_scene_source",
+          "_validate_kind_fields",
+          "_validate_operation"
+        ]
+      },
+      {
+        "ordinal": 5,
+        "us": 4822738,
+        "owner_functions": [
+          "_validate_bundle",
+          "_validate_document",
+          "validate",
+          "_validate_scene_source",
+          "_selected_scene_restore_bundle",
+          "load_restore_context"
+        ]
+      },
+      {
+        "ordinal": 6,
+        "us": 5012009,
+        "owner_functions": [
+          "_apply_run_snapshot_silent",
+          "apply_restore_silent",
+          "apply_silent",
+          "_run_scene_restore_transaction",
+          "_run_participant_transaction_profiled",
+          "_run_participant_transaction"
+        ]
+      },
+      {
+        "ordinal": 7,
+        "us": 5015704,
+        "owner_functions": [
+          "_validate_candidate",
+          "commit_prepared",
+          "_run_scene_restore_transaction",
+          "_run_participant_transaction_profiled",
+          "_run_participant_transaction",
+          "_commit_prepared_restore_profiled"
+        ]
+      }
+    ],
+    "all_eight_snapshots_within_press_ready": true,
+    "group_note": "all_ten_continuation_advances is the subtotal of participant_advances plus applied_and_completed_advances; do not add it again to the disjoint groups.",
+    "expected_pending": "restore_transaction/backup_commit ok=false code=scene_activation_pending is intermediate asynchronous activation; native completion passes and Ready was observed.",
+    "snapshot_phase_children": {
+      "scene_apply_run_us": {
+        "phase_us": 5041305,
+        "snapshot_child_us": 5012009
+      },
+      "scene_journal_commit_us": {
+        "phase_us": 5031806,
+        "snapshot_child_us": 5015704
+      }
+    }
+  },
+  "next_target": "Continuation journal advance internals: copy/transition, serialization, proof cache and atomic storage. Preserve durable stages.",
+  "route_validation_decision": "Retain full validation: intervening configurable callbacks can change authority; run plan preserves original rather than normalized input."
+}

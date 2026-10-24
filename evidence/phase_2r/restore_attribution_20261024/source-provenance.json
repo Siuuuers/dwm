@@ -1,0 +1,28 @@
+{
+  "purpose": "Diagnostic-only sources; no production acceptance or speedup claim",
+  "sources": [
+    {
+      "commit": "e421fb585ef655bd5a913c723731e4b724576cbf",
+      "tree": "91609134366c424a92327ec09d11e71953f02a8b",
+      "base": "5e9657d1a1417c699ba555b49a2e584cde6a37b5",
+      "changed_paths": [
+        ".github/workflows/restore-attribution.yml",
+        "scripts/narrative/SceneValidationTiming.gd",
+        "tests/integration/fresh_save_load_child.gd"
+      ]
+    },
+    {
+      "commit": "3adfc26238ba13cfa005d925fd9189aa71d83765",
+      "tree": "8254b985e7d19fc06df9bbffe2b0a8e4094cbe09",
+      "base": "5e9657d1a1417c699ba555b49a2e584cde6a37b5",
+      "changed_paths": [
+        ".github/workflows/restore-attribution.yml",
+        "autoload/SaveManager.gd",
+        "scripts/narrative/SceneValidationTiming.gd",
+        "tests/integration/fresh_save_load_child.gd"
+      ]
+    }
+  ],
+  "runtime_execution": "GitHub Actions only; no local Godot or PowerShell",
+  "native_images": "First-run captures match previously visually reviewed exact hashes: restored 518dc6bccd41ef7ef77da8963cb6ba7216de4b48a2f8f81b892262dd25e4502a; terminal 9903526552d99c2b5a0ff91a270ede867ada1628b902c874ede2a4e09811c8ea"
+}
