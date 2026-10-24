@@ -17,7 +17,7 @@ The exact late-Day-3 relationship placement remains the current audition against
 
 ## Day 2 handoff
 
-The Day 2 stay contains the actual strike, Priscilla's brief obstruction and clearing of the exit, Lavinia's chosen return, the held hair, cold chicken, laughter and the cheek pulling when Priscilla smiles. Day 3 supplies no lasting visible mark, injury discovery, unshown night or repair. Sylvia does not acquire the private dinner history. Day 1's recording breach remains true without being retold here. Continued company does not settle it.
+The Day 2 stay contains the actual strike, Priscilla's brief obstruction and clearing of the exit, Lavinia's chosen return, the held hair, cold chicken, laughter and the cheek pulling when Priscilla smiles. Day 3 may have lasting visible mark, injury discovery, unshown night or repair. Sylvia may not acquire the private dinner history.
 
 ## 1. The empty display
 
