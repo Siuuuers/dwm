@@ -1,0 +1,81 @@
+{
+  "source_ref": "ad82c5f3857bb564a1d670ba7075a5fecc611f3c",
+  "run_id": 40090259974,
+  "source_evidence": "source-results.json",
+  "lanes": [
+    {
+      "kind": "native",
+      "summary": "native-results.json"
+    },
+    {
+      "kind": "gl",
+      "summary": "gl-results.json"
+    }
+  ],
+  "total_captures": 12,
+  "total_samples": 60,
+  "clean_processes": 2,
+  "pixel_comparison": [
+    {
+      "name": "pixel-100.png",
+      "width": 1280,
+      "height": 720,
+      "byte_identical": false,
+      "pixels_identical": false,
+      "max_rgb_channel_difference": 1,
+      "differing_pixels": 2724
+    },
+    {
+      "name": "pixel-125.png",
+      "width": 1280,
+      "height": 720,
+      "byte_identical": false,
+      "pixels_identical": false,
+      "max_rgb_channel_difference": 1,
+      "differing_pixels": 2710
+    },
+    {
+      "name": "pixel-150.png",
+      "width": 1280,
+      "height": 720,
+      "byte_identical": false,
+      "pixels_identical": false,
+      "max_rgb_channel_difference": 1,
+      "differing_pixels": 2829
+    },
+    {
+      "name": "readable-100.png",
+      "width": 1280,
+      "height": 720,
+      "byte_identical": false,
+      "pixels_identical": false,
+      "max_rgb_channel_difference": 1,
+      "differing_pixels": 4813
+    },
+    {
+      "name": "readable-125.png",
+      "width": 1280,
+      "height": 720,
+      "byte_identical": false,
+      "pixels_identical": false,
+      "max_rgb_channel_difference": 1,
+      "differing_pixels": 5418
+    },
+    {
+      "name": "readable-150.png",
+      "width": 1280,
+      "height": 720,
+      "byte_identical": false,
+      "pixels_identical": false,
+      "max_rgb_channel_difference": 1,
+      "differing_pixels": 6076
+    }
+  ],
+  "finding": "Both renderer paths completed the synthetic panel; captures have at most one RGB-channel level difference, not byte/pixel equality. Visual review reported legible glyphs. This does not reproduce or dismiss the reported in-game corruption.",
+  "next_reproduction_targets": [
+    "Real Settings font inheritance/stack",
+    "Main-window scaling and viewports",
+    "Exact player build, font mode, language and display conditions"
+  ],
+  "issue_tracking": "Issue73 administratively closed at owner request; not fixed."
+}

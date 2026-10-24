@@ -1,0 +1,33 @@
+{
+  "source_ref": "ad82c5f3857bb564a1d670ba7075a5fecc611f3c",
+  "fetch_method": "GitHub fetch_file at exact source_ref; every file checked against returned Git blob SHA.",
+  "archive": {
+    "path": "diagnostic-source.zip",
+    "size_bytes": 7074,
+    "sha256": "b90eb8f9b7586caa91971c52cce965634c623c6f71410ca1b758f94b384fd052",
+    "crc_verified": true
+  },
+  "files": [
+    {
+      "path": "tests/ui/render_font_scale_diagnostic.gd",
+      "size_bytes": 5885,
+      "sha256": "c1a8c94cafc592d78ba217a0705e76e5b29fc97b8be376889ec8bfc0926d550f",
+      "github_blob_sha": "aabe829eba80b6227972c024ebc29438b79d83d5",
+      "source_ref": "ad82c5f3857bb564a1d670ba7075a5fecc611f3c"
+    },
+    {
+      "path": "tools/testing/Invoke-FontScaleDiagnostic.ps1",
+      "size_bytes": 5601,
+      "sha256": "a50cfa206c05026732623ce4f7faeab36374a197beb1d6870cf7886431253e45",
+      "github_blob_sha": "2c0302404d3d907b937ec6947608c5064bb5aed6",
+      "source_ref": "ad82c5f3857bb564a1d670ba7075a5fecc611f3c"
+    },
+    {
+      "path": ".github/workflows/restore-proof-preflight.yml",
+      "size_bytes": 4317,
+      "sha256": "6dd2d51a5882da1a7465a82dbde9847fca8ded1ef9a2ff9ba2e5504091cee035",
+      "github_blob_sha": "db7e27d91fc53a243890f18a18ea3c253c207f2f",
+      "source_ref": "ad82c5f3857bb564a1d670ba7075a5fecc611f3c"
+    }
+  ]
+}

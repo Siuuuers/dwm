@@ -1,0 +1,107 @@
+{
+  "original": {
+    "run_id": 40091687370,
+    "artifact_id": 12559495560,
+    "source_ref": "8bdf183a89d795743f4e7ab6f10f5586eabc7940",
+    "size_bytes": 1682146,
+    "sha256": "0eb764e2d8a22ab57a35edf45d94969ff992f08a281d4e622e4dcd233187efea"
+  },
+  "retained_archive": {
+    "path": "pack-evidence.zip",
+    "size_bytes": 433624,
+    "sha256": "e332c4254117052dce5d4e018353fe54b9e58348b339c548fe3148662a9d280d",
+    "members": 14,
+    "crc_verified": true,
+    "all_retained_members_byte_identical": true
+  },
+  "manifest": "pack-manifest.json",
+  "source_evidence": "pack-source-results.json",
+  "runtime_source_ref": "14648617b55a4c67bef7b7cc0d23461f0502f23c",
+  "tested_package": {
+    "run_id": 40078754096,
+    "artifact_id": 12554007624,
+    "artifact_sha256": "b0ec6364ec358516ece538405da0092f86155a09d7a2d1aaae6cc218de4f8a58",
+    "exe_sha256": "91724f15024a3a545e28ccd83134403d31ce2323a38e51c95e4dfa282f732ab6",
+    "pck_sha256": "a0b79e6cd61cdc9c9cdb6746411ea144acc5fd076c9b2fff0cf627aa89587d77",
+    "package_unchanged": true
+  },
+  "clean_exit": true,
+  "exit_code": 0,
+  "captures": 6,
+  "samples": 30,
+  "missing_glyph_reports": 0,
+  "original_font_source_paths_available": 0,
+  "raw_font_source_hashes_available": 0,
+  "rendering": {
+    "get_current_rendering_driver_name": "d3d12",
+    "get_current_rendering_method": "forward_plus",
+    "get_video_adapter_api_version": "12_0",
+    "get_video_adapter_name": "Microsoft Basic Render Driver",
+    "get_video_adapter_vendor": "Microsoft"
+  },
+  "image_dimensions": [
+    1280,
+    720
+  ],
+  "observed_root_window_dimensions": [
+    992,
+    558
+  ],
+  "pixel_comparison": [
+    {
+      "image": "pixel-100.png",
+      "reference_artifact_id": 12558473290,
+      "reference_path": "font-scale-ProjectDefault/pixel-100.png",
+      "rgba_pixels_identical": true
+    },
+    {
+      "image": "pixel-125.png",
+      "reference_artifact_id": 12558473290,
+      "reference_path": "font-scale-ProjectDefault/pixel-125.png",
+      "rgba_pixels_identical": true
+    },
+    {
+      "image": "pixel-150.png",
+      "reference_artifact_id": 12558473290,
+      "reference_path": "font-scale-ProjectDefault/pixel-150.png",
+      "rgba_pixels_identical": true
+    },
+    {
+      "image": "readable-100.png",
+      "reference_artifact_id": 12558473290,
+      "reference_path": "font-scale-ProjectDefault/readable-100.png",
+      "rgba_pixels_identical": true
+    },
+    {
+      "image": "readable-125.png",
+      "reference_artifact_id": 12558473290,
+      "reference_path": "font-scale-ProjectDefault/readable-125.png",
+      "rgba_pixels_identical": true
+    },
+    {
+      "image": "readable-150.png",
+      "reference_artifact_id": 12558473290,
+      "reference_path": "font-scale-ProjectDefault/readable-150.png",
+      "rgba_pixels_identical": true
+    }
+  ],
+  "logs_checked": [
+    "font-pack-evidence/render.log",
+    "font-pack-evidence/stderr.log",
+    "font-pack-evidence/stdout.log"
+  ],
+  "log_error_matches": 0,
+  "visual_review": "All six panels reviewed. Locale samples and digits recognizable; no widespread corruption or unreadable-number pattern reproduced. Pixel fonts retain coarse shapes; Readable fonts smoother. All RGBA pixels match initial native source panels exactly.",
+  "scope": "Pinned editor executable loads untouched retained Steam package resources. Six synthetic SubViewport panels, production font selection and cell renderer.",
+  "limits": [
+    "Not game.exe execution or unknown user-installed Steam build acceptance.",
+    "Pack bootstrap resized root Window to992x558; captured SubViewport stayed1280x720. This lane does not test native window stretch.",
+    "Original raw font paths are absent after export; resource identity is bound by exact verified pack and loaded font metadata, not raw font hashes.",
+    "No product fix justified by this negative reproduction evidence."
+  ],
+  "remaining_minimum_user_evidence": [
+    "Installed Steam BuildID or exact executable/pack hashes.",
+    "One original screenshot of corrupted text and screen/location, active locale, Pixel/Readable choice, text percentage and resolution.",
+    "Whether switching the same screen to Readable changes corruption; GPU/OS/display scaling if exact build still reproduces only on user device."
+  ]
+}

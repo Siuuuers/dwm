@@ -1,0 +1,92 @@
+{
+  "original": {
+    "artifact_id": 12558473290,
+    "job_id": 120861310347,
+    "run_id": 40090259974,
+    "source_ref": "ad82c5f3857bb564a1d670ba7075a5fecc611f3c",
+    "size_bytes": 4819760,
+    "sha256": "d1dbb97a77877b3ca69e158dd688a4c80b2b5f544a5d9185aaba31520f823125"
+  },
+  "retained_archive": {
+    "path": "native-evidence.zip",
+    "size_bytes": 438212,
+    "sha256": "0db89d72e69e63c65f5cd7679f27a2d2a8ed58641fe6a604bdd31bf50bfb5cf7",
+    "members": 12,
+    "crc_verified": true,
+    "all_retained_members_byte_identical": true
+  },
+  "manifest": "native-manifest.json",
+  "complete": true,
+  "clean_processes": 1,
+  "captures": 6,
+  "samples": 30,
+  "missing_glyph_reports": 0,
+  "source_hashes_verified": {
+    "scripts/ui/minesweeper/MinesweeperCell.gd": "db6f7b88810bb5a949c996b6ab655c855b5d791c56be2883a6b421085949cfe2",
+    "project.godot": "5e8009d890f9e4359b24bb68a59fdec1bf56ef0a3ea94be06c3e43a6d2353053",
+    "tests/ui/render_font_scale_diagnostic.gd": "c1a8c94cafc592d78ba217a0705e76e5b29fc97b8be376889ec8bfc0926d550f",
+    "scripts/ui/UiTypography.gd": "d4fd518c41b011ed087c257360f4fe5000bbadbf0072cb0de0a5d3e451dd2a8c",
+    "tools/testing/Invoke-FontScaleDiagnostic.ps1": "a50cfa206c05026732623ce4f7faeab36374a197beb1d6870cf7886431253e45"
+  },
+  "source_verification": "Two diagnostic helpers fetched at exact source and Git blob verified; three production files match the recorded hashes and pinned ba7ecd57 bytes.",
+  "font_hashes_verified": {
+    "assets/ui/gallery/fonts/fusion-pixel-8px-proportional-latin.otf.woff2": "12b9de0769e47f0e49ed34d7bd0ad30a698c356b22751dd47c408bc8edb23b49",
+    "assets/ui/gallery/fonts/fusion-pixel-8px-proportional-zh_hans.otf.woff2": "fb116ab88a719670cc7db94e3eedc1bd4d16f594d6aa94cbbf70efe31348eebb",
+    "assets/ui/gallery/fonts/fusion-pixel-8px-proportional-zh_hant.otf.woff2": "73effe65c21cc54f75d7c4470442127301a071b26fc62b02fab492e32d91267f",
+    "assets/ui/gallery/fonts/fusion-pixel-8px-proportional-ja.otf.woff2": "074afe7265be85f8c4434a0c9da46e5cf03d3c15ab55710d9eb14feb8158e6f2",
+    "assets/ui/gallery/fonts/fusion-pixel-8px-proportional-ko.otf.woff2": "84c24f42e0564dba94299c880cd75d2bb2640523491055bbcb0f58375e8f2aef",
+    "assets/ui/gallery/fonts/fusion-pixel-10px-proportional-latin.otf.woff2": "3150620c48e8278d379aa9292f5540dc1628246d67970e593dededfee2d82684",
+    "assets/ui/gallery/fonts/fusion-pixel-10px-proportional-zh_hans.otf.woff2": "ce4c411b042a0e9e4cf7dd6819d2c14cb581e4bfe933b0ae5286cb5f0ad60364",
+    "assets/ui/gallery/fonts/fusion-pixel-10px-proportional-zh_hant.otf.woff2": "c23e4a08deba7a1ee970d0d550a0bec8f10d15fe905bffbdadf90fe80df3288a",
+    "assets/ui/gallery/fonts/fusion-pixel-10px-proportional-ja.otf.woff2": "eb9ef0199bf79d587c5072aba4c3cba0ca445902c19268eff972e3230d7d4f66",
+    "assets/ui/gallery/fonts/fusion-pixel-10px-proportional-ko.otf.woff2": "722dd039c80a192f9648bb38cb153e12cf08ef76c5cadedc7481f1ea48e2b420",
+    "assets/ui/gallery/fonts/fusion-pixel-12px-proportional-latin.otf.woff2": "14b73fed294e1723db722c444e2152ae2df6a980422a1ba4c0f03a5aeb416cd2",
+    "assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hans.otf.woff2": "e7e57f471045328b6c9583cbd70fa45122c66c78038c3777abfd7a29d476cf44",
+    "assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hant.otf.woff2": "beae5846a49e05963127e362ae4e8fb06b1fd875a895947cfc33cefd70feeeae",
+    "assets/ui/gallery/fonts/fusion-pixel-12px-proportional-ja.otf.woff2": "4822f1b69b9227aa144593e1ed1429d2136539508dced734b7348ce20e86c44d",
+    "assets/ui/gallery/fonts/fusion-pixel-12px-proportional-ko.otf.woff2": "16768c82961a02e0ad730c96d0192060ef655cd5ba55282bd1aeaab99f614fcb",
+    "assets/ui/contacts/fonts/source-sans-3-regular.ttf.woff2": "53492fb3a0def77354f166a55d09b63a10855e91c206c7620a81cf56e97f8ec3",
+    "assets/ui/contacts/fonts/source-han-sans-sc-regular.otf": "f1d8611151880c6c336aabeac4640ef434fa13cbfbf1ffe82d0a71b2a5637256",
+    "assets/ui/contacts/fonts/source-han-sans-hc-regular.otf": "b2ec9fbf96fc77d9d471a1e05d9dfa208c1e8ba539c394519b8d776b972ba17b",
+    "assets/ui/contacts/fonts/source-han-sans-jp-regular.otf": "40d1b760d1135539f6b6e0ee2b9f415de6d97576f7676840b06306c7c190c074",
+    "assets/ui/contacts/fonts/source-han-sans-kr-regular.otf": "d8299926a5284f7461b46fa0617cc05d4f1fce8f034ffff78084225ce8b38071"
+  },
+  "engine_verification": "Recorded executable hash agrees with other qualified runs; exact-source workflow checks official archive checksum before execution.",
+  "logs_checked": [
+    "font-scale-ProjectDefault/render.log",
+    "font-scale-ProjectDefault/stderr.log",
+    "font-scale-ProjectDefault/stdout.log",
+    "import.log"
+  ],
+  "log_error_matches": 0,
+  "scope": "Synthetic multilingual font panel with production Minesweeper cells at 24/36px, two font modes and three sizes. This is diagnostic collection, not the real Settings stack or main-game/exported-build/device reproduction.",
+  "visual_review": "Parent reports font-review agent inspected all twelve captures and found them legible without widespread corruption; root independently inspected native pixel100/125/150, native readable150 and GL pixel150.",
+  "limits": [
+    "No font bug fix or user-symptom reproduction claimed.",
+    "Microsoft software renderers only; no guarantee for user GPU, DPI, display scaling, full game or exported build.",
+    "Zero missing-glyph reports only covers the supplied diagnostic strings; it is not complete language/font coverage.",
+    "Issue73 was closed administratively because a separate issue was not requested; defect remains unresolved."
+  ],
+  "original_receipts": {
+    "process": {
+      "archive": "native-evidence.zip",
+      "member": "font-scale-ProjectDefault/process.json",
+      "size_bytes": 2737,
+      "sha256": "c711bf1882a8f32e67cff8fab7c6c3a05fdfda64b01b58cfb3eb89f07e9e99bf"
+    },
+    "result": {
+      "archive": "native-evidence.zip",
+      "member": "font-scale-ProjectDefault/results.json",
+      "size_bytes": 63713,
+      "sha256": "c091fd66c3da32edab029cc03bd5743730718b004159180c48f03ce5c8957f95"
+    }
+  },
+  "rendering": {
+    "get_current_rendering_driver_name": "d3d12",
+    "get_current_rendering_method": "forward_plus",
+    "get_video_adapter_api_version": "12_0",
+    "get_video_adapter_name": "Microsoft Basic Render Driver",
+    "get_video_adapter_vendor": "Microsoft"
+  },
+  "engine_sha256": "63b3b2208819714c9677fbfdd8217c5b7dee8ecf5f383502e826bc9e2227ff5a"
+}

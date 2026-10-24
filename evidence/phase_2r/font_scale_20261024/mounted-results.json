@@ -1,0 +1,110 @@
+{
+  "original": {
+    "artifact_id": 12559456070,
+    "job_id": 120864108585,
+    "run_id": 40091217010,
+    "source_ref": "29711853b93a9c042e042d818fedb613ae3df7bf",
+    "size_bytes": 18954826,
+    "sha256": "4590e83f82ce6c9ca6a0038624825d30ee6b5de111881617d393dfbad6231730",
+    "github_metadata_verified": true
+  },
+  "retained_archive": {
+    "path": "mounted-evidence.zip",
+    "size_bytes": 14567513,
+    "sha256": "6b249fd377ea695ee2f701887ff371c2cd3c8ebf79ce068f284638f98103ac0b",
+    "members": 38,
+    "crc_verified": true,
+    "all_retained_members_byte_identical": true
+  },
+  "manifest": "mounted-manifest.json",
+  "source_evidence": "mounted-source-results.json",
+  "complete": true,
+  "clean_processes": 1,
+  "captures": 32,
+  "samples": 32,
+  "missing_glyph_reports": 0,
+  "source_hashes_verified": {
+    "scripts/ui/UiTypography.gd": "d4fd518c41b011ed087c257360f4fe5000bbadbf0072cb0de0a5d3e451dd2a8c",
+    "scripts/ui/minesweeper/MinesweeperCell.gd": "db6f7b88810bb5a949c996b6ab655c855b5d791c56be2883a6b421085949cfe2",
+    "tests/ui/render_mounted_font_scale_diagnostic.gd": "3af115228ae7e10441f270ff5c197e80559c3b393c7017fccd64a6bcfa2388a0",
+    "tests/ui/render_font_choices.gd": "8eef8c3ccfb86a8cd68833fedd0af24ccd1dc7b8f01f644023c00192b9feaabe",
+    "tools/testing/Invoke-FontScaleDiagnostic.ps1": "f6c3c737772e5edd89bba60e8f865da9e888ff5cb6e959ab4dcefd878f205cde",
+    "project.godot": "5e8009d890f9e4359b24bb68a59fdec1bf56ef0a3ea94be06c3e43a6d2353053",
+    "tests/ui/render_japanese_korean_ui.gd": "e8a809361b5a5a9e5a66101c90862b9008c415d3e09adc47cf1b4e722dc84809"
+  },
+  "source_verification": "Two diagnostic helpers fetched at exact source and Git blob verified; other five recorded files match pinned base bytes.",
+  "font_hashes_verified": {
+    "assets/ui/gallery/fonts/fusion-pixel-10px-proportional-zh_hant.otf.woff2": "c23e4a08deba7a1ee970d0d550a0bec8f10d15fe905bffbdadf90fe80df3288a",
+    "assets/ui/gallery/fonts/fusion-pixel-10px-proportional-latin.otf.woff2": "3150620c48e8278d379aa9292f5540dc1628246d67970e593dededfee2d82684",
+    "assets/ui/gallery/fonts/fusion-pixel-10px-proportional-zh_hans.otf.woff2": "ce4c411b042a0e9e4cf7dd6819d2c14cb581e4bfe933b0ae5286cb5f0ad60364",
+    "assets/ui/gallery/fonts/fusion-pixel-10px-proportional-ja.otf.woff2": "eb9ef0199bf79d587c5072aba4c3cba0ca445902c19268eff972e3230d7d4f66",
+    "assets/ui/gallery/fonts/fusion-pixel-10px-proportional-ko.otf.woff2": "722dd039c80a192f9648bb38cb153e12cf08ef76c5cadedc7481f1ea48e2b420",
+    "assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hant.otf.woff2": "beae5846a49e05963127e362ae4e8fb06b1fd875a895947cfc33cefd70feeeae",
+    "assets/ui/gallery/fonts/fusion-pixel-12px-proportional-latin.otf.woff2": "14b73fed294e1723db722c444e2152ae2df6a980422a1ba4c0f03a5aeb416cd2",
+    "assets/ui/gallery/fonts/fusion-pixel-12px-proportional-zh_hans.otf.woff2": "e7e57f471045328b6c9583cbd70fa45122c66c78038c3777abfd7a29d476cf44",
+    "assets/ui/gallery/fonts/fusion-pixel-12px-proportional-ja.otf.woff2": "4822f1b69b9227aa144593e1ed1429d2136539508dced734b7348ce20e86c44d",
+    "assets/ui/gallery/fonts/fusion-pixel-12px-proportional-ko.otf.woff2": "16768c82961a02e0ad730c96d0192060ef655cd5ba55282bd1aeaab99f614fcb",
+    "assets/ui/contacts/fonts/source-han-sans-hc-regular.otf": "b2ec9fbf96fc77d9d471a1e05d9dfa208c1e8ba539c394519b8d776b972ba17b",
+    "assets/ui/contacts/fonts/source-sans-3-regular.ttf.woff2": "53492fb3a0def77354f166a55d09b63a10855e91c206c7620a81cf56e97f8ec3",
+    "assets/ui/contacts/fonts/source-han-sans-sc-regular.otf": "f1d8611151880c6c336aabeac4640ef434fa13cbfbf1ffe82d0a71b2a5637256",
+    "assets/ui/contacts/fonts/source-han-sans-jp-regular.otf": "40d1b760d1135539f6b6e0ee2b9f415de6d97576f7676840b06306c7c190c074",
+    "assets/ui/contacts/fonts/source-han-sans-kr-regular.otf": "d8299926a5284f7461b46fa0617cc05d4f1fce8f034ffff78084225ce8b38071"
+  },
+  "logs_checked": [
+    "font-scale-ProjectDefault/render.log",
+    "font-scale-ProjectDefault/stderr.log",
+    "font-scale-ProjectDefault/stdout.log",
+    "import.log"
+  ],
+  "log_error_matches": 0,
+  "visual_review": "Separate review owned by root/font agent; this audit verifies artifact/source/matrix/glyph-report integrity and does not certify visual legibility.",
+  "scope": "Production Settings widgets/selectors and desktop presentation mounted through existing isolated fixtures, with a synthetic Mines board preserved across Settings changes. Root Window canvas_items stretch at 1280/1600/1920. zh_HK covers both font styles at 125%/150%; the other four locales cover Pixel 150% at 1920.",
+  "limits": [
+    "One D3D12/Forward+ Microsoft software-adapter process; no hardware/user-device or exported-build acceptance.",
+    "This script mounts real UI components with isolated fixture services and programmatic selector signals; it is not the full native game main/startup journey.",
+    "No reproduced user corruption or font bug fix claimed by this integrity audit; visual findings must come from the separate capture review.",
+    "Zero missing-glyph reports cover only visible diagnostic labels, not every localized line.",
+    "Issue73 remains administratively closed and unfixed."
+  ],
+  "original_receipts": {
+    "process": {
+      "archive": "mounted-evidence.zip",
+      "member": "font-scale-ProjectDefault/process.json",
+      "size_bytes": 7680,
+      "sha256": "c1d00dcd48ea9c18e760f01682c1bcebddc258338988bfa9969e272d5145ebdb"
+    },
+    "result": {
+      "archive": "mounted-evidence.zip",
+      "member": "font-scale-ProjectDefault/results.json",
+      "size_bytes": 3142105,
+      "sha256": "8fe17f7f02bedeada6e1a432ed945419b9cf660ab08176ea45d37a569f845e3e"
+    }
+  },
+  "rendering": {
+    "get_current_rendering_driver_name": "d3d12",
+    "get_current_rendering_method": "forward_plus",
+    "get_video_adapter_api_version": "12_0",
+    "get_video_adapter_name": "Microsoft Basic Render Driver",
+    "get_video_adapter_vendor": "Microsoft"
+  },
+  "engine_sha256": "63b3b2208819714c9677fbfdd8217c5b7dee8ecf5f383502e826bc9e2227ff5a",
+  "transport_parts": {
+    "method": "Ordered binary concatenation: part01 followed by part02 reconstructs the exact ZIP. Do not unzip individual parts.",
+    "parts": [
+      {
+        "path": "mounted-evidence.zip.part01",
+        "size_bytes": 8388608,
+        "sha256": "3680a81c08f9268dbb2092329f589c3181acade3641314e8c6b31636a240a382"
+      },
+      {
+        "path": "mounted-evidence.zip.part02",
+        "size_bytes": 6178905,
+        "sha256": "90a3b9c8587284a71b6ac8c8ee6fbb3d235212188bb87b9c8fae4d6504823ccb"
+      }
+    ],
+    "reconstructed_path": "mounted-evidence.zip",
+    "reconstructed_size_bytes": 14567513,
+    "reconstructed_sha256": "6b249fd377ea695ee2f701887ff371c2cd3c8ebf79ce068f284638f98103ac0b",
+    "byte_identical_to_retained_zip": true
+  }
+}
