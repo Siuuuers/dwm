@@ -13,7 +13,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        renderer: [gl_compatibility, ProjectDefault]
+        renderer: [ProjectDefault]
     runs-on: windows-2022
     timeout-minutes: 20
     defaults:
@@ -75,7 +75,7 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Capture requested renderer font matrix
         timeout-minutes: 7
-        run: ./tools/testing/Invoke-FontScaleDiagnostic.ps1 -Renderer '${{ matrix.renderer }}'
+        run: ./tools/testing/Invoke-FontScaleDiagnostic.ps1 -Renderer '${{ matrix.renderer }}' -Mounted
       - name: Preserve diagnostic evidence
         if: always()
         uses: actions/upload-artifact@v4

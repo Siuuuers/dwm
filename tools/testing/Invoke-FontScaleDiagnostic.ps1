@@ -1,16 +1,19 @@
 #requires -Version 7.0
-param([Parameter(Mandatory)][ValidateSet('gl_compatibility', 'ProjectDefault')][string]$Renderer)
+param([Parameter(Mandatory)][ValidateSet('gl_compatibility', 'ProjectDefault')][string]$Renderer, [switch]$Mounted)
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 if (-not $IsWindows) { throw 'Windows cloud runner required.' }
 $repositoryRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
+$captureCount = if ($Mounted) { 32 } else { 6 }
+$sampleCount = if ($Mounted) { 32 } else { 30 }
+$scriptPath = if ($Mounted) { 'tests/ui/render_mounted_font_scale_diagnostic.gd' } else { 'tests/ui/render_font_scale_diagnostic.gd' }
 $output = Join-Path $repositoryRoot ".godot/ci/font-scale-$Renderer"
 if (Test-Path -LiteralPath $output) { throw 'Fresh diagnostic output required.' }
 New-Item -ItemType Directory -Path $output | Out-Null
 $engine = $env:GODOT_CONSOLE_PATH
 if (-not (Test-Path -LiteralPath $engine -PathType Leaf)) { throw 'Pinned Godot executable required.' }
 $argv = @('--path', $repositoryRoot, '--audio-driver', 'Dummy', '--windowed', '--resolution', '1280x720',
-    '--log-file', (Join-Path $output 'render.log'), '--script', 'res://tests/ui/render_font_scale_diagnostic.gd')
+    '--log-file', (Join-Path $output 'render.log'), '--script', ('res://' + $scriptPath))
 if ($Renderer -eq 'gl_compatibility') { $argv = @('--rendering-method', 'gl_compatibility') + $argv }
 $record = [ordered]@{
     source_ref = (git -C $repositoryRoot rev-parse HEAD).Trim()
@@ -21,7 +24,7 @@ $record = [ordered]@{
     hashes = @{}; images = @(); report_complete = $false
     scope = 'Diagnostic collection only. Unsupported renderer is not visual success. Main-game, exported-build and user-device reproduction require separate evidence.'
 }
-$paths = @('tests/ui/render_font_scale_diagnostic.gd', 'tools/testing/Invoke-FontScaleDiagnostic.ps1',
+$paths = @($scriptPath, 'tests/ui/render_font_choices.gd', 'tests/ui/render_japanese_korean_ui.gd', 'tools/testing/Invoke-FontScaleDiagnostic.ps1',
     'scripts/ui/UiTypography.gd', 'scripts/ui/minesweeper/MinesweeperCell.gd', 'project.godot')
 foreach ($relative in $paths) {
     $record.hashes[$relative] = (Get-FileHash -LiteralPath (Join-Path $repositoryRoot $relative) -Algorithm SHA256).Hash.ToLowerInvariant()
@@ -65,12 +68,12 @@ try {
     $scriptErrors = $text -match 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character'
     if (Test-Path -LiteralPath $reportPath) {
         $report = Get-Content -LiteralPath $reportPath -Raw | ConvertFrom-Json -AsHashtable
-        $record.report_complete = $report.complete -eq $true -and $report.captures -eq 6 -and $report.samples.Count -eq 30 -and $report.failures.Count -eq 0
+        $record.report_complete = $report.complete -eq $true -and $report.captures -eq $captureCount -and $report.samples.Count -eq $sampleCount -and $report.failures.Count -eq 0
         $record.rendering = $report.rendering
         foreach ($image in @(Get-ChildItem -LiteralPath $output -Filter '*.png')) {
             $record.images += @{ name = $image.Name; size = $image.Length; sha256 = (Get-FileHash -LiteralPath $image.FullName -Algorithm SHA256).Hash.ToLowerInvariant() }
         }
-        if (-not $record.clean_exit -or -not $record.report_complete -or $record.images.Count -ne 6 -or $scriptErrors) {
+        if (-not $record.clean_exit -or -not $record.report_complete -or $record.images.Count -ne $captureCount -or $scriptErrors) {
             $record.status = 'diagnostic_failed'
             throw 'Diagnostic reports incomplete evidence or script/process errors.'
         }
