@@ -80,6 +80,20 @@ func _configure_scene_observed_body() -> Dictionary:
 	FROZEN._freeze(_scene_nodes)
 	return {"ok": true}
 
+## Same synchronous initial-candidate check only. Copy configuration, never the
+## restored ledger/cursor; the sibling must construct its own first publication.
+func _fork_scene_configuration() -> RefCounted:
+	var sibling: RefCounted = get_script().new()
+	sibling.family = family
+	sibling.catalogue_schema_version = catalogue_schema_version
+	sibling.fingerprint = fingerprint
+	sibling.manifest = manifest.duplicate(true)
+	sibling.catalogue = catalogue
+	sibling.registry = registry
+	sibling._scene_nodes = _scene_nodes
+	sibling._caption_variants_by_line = _caption_variants_by_line.duplicate()
+	return sibling
+
 func begin_scene(session_token: String) -> Dictionary:
 	if family != "scene" or ledger != null or session_token.strip_edges().is_empty(): return _fail(&"reading_session_invalid")
 	var candidate := LEDGER.new()

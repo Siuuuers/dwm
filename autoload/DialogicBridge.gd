@@ -160,6 +160,12 @@ func prepare_scene_initial_checkpoint(allocation_candidate: Dictionary, profile_
 ## Pure structural reconstruction after caller-owned admission authentication.
 ## This never admits a Run or installs the detached session into live Bridge state.
 static func build_scene_initial_checkpoint(receipt: Dictionary, bundle: Dictionary) -> Dictionary:
+	return _build_scene_initial_checkpoint(receipt, bundle, null)
+
+## The Run validator may reuse its immediately preceding reading configuration.
+## Public reconstruction still starts fresh; no ledger or saved cursor is reused.
+static func _build_scene_initial_checkpoint(receipt: Dictionary, bundle: Dictionary,
+		configured_session: RefCounted) -> Dictionary:
 	var result: Dictionary = receipt.scene_admission.result
 	var target_id: String = result.target_id
 	var target := {}
@@ -188,9 +194,13 @@ static func build_scene_initial_checkpoint(receipt: Dictionary, bundle: Dictiona
 	if not presentation.ok: return presentation
 	var frame := {"expected_stage": "scene", "playback_id": occurrence, "role": "scene",
 		"transaction_id": occurrence, "presentation": presentation.value}
-	var candidate := _READING_SESSION.new()
-	var configured: Dictionary = candidate.configure_scene()
-	if not configured.ok: return configured
+	var candidate: RefCounted
+	if configured_session == null:
+		candidate = _READING_SESSION.new()
+		var configured: Dictionary = candidate.configure_scene()
+		if not configured.ok: return configured
+	else:
+		candidate = configured_session._fork_scene_configuration()
 	var begun: Dictionary = candidate.begin_scene(occurrence)
 	if not begun.ok: return begun
 	var entered: Dictionary = candidate.admit_scene(result.entry_id, frame, index)
