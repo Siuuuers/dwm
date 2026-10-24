@@ -1,7 +1,7 @@
 name: Load qualification (controller only)
 on:
   push:
-    branches: [codex/load-qualification-controller-20261024]
+    branches: [codex/load-inventory-controller-20261024]
   workflow_dispatch:
     inputs:
       candidate_ref:
@@ -20,7 +20,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        lane: [inventory, focused, terminal, baseline-first, candidate-first]
+        lane: [inventory]
     runs-on: windows-2022
     timeout-minutes: 90
     defaults:
@@ -37,7 +37,7 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Require exact candidate
         env:
-          CANDIDATE_REF: ${{ inputs.candidate_ref || 'b8383c64941eb58ed55195531510f565af41d65a' }}
+          CANDIDATE_REF: ${{ inputs.candidate_ref || '3e4162ae5be27c7d997a48c0adaea543a7a8f8c9' }}
         run: |
           if ($env:CANDIDATE_REF -cnotmatch '^[0-9a-f]{40}$') { throw 'Exact candidate SHA required; no branch/default candidate permitted.' }
       - name: Install Godot 4.6.3 standard
@@ -59,10 +59,10 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Run isolated qualification
         env:
-          CANDIDATE_REF: ${{ inputs.candidate_ref || 'b8383c64941eb58ed55195531510f565af41d65a' }}
+          CANDIDATE_REF: ${{ inputs.candidate_ref || '3e4162ae5be27c7d997a48c0adaea543a7a8f8c9' }}
           QUALIFICATION_LANE: ${{ matrix.lane }}
         run: |
-          ./tools/testing/Invoke-LoadQualification.ps1 -CandidateRef $env:CANDIDATE_REF -Lane $env:QUALIFICATION_LANE -RegenerateInventories
+          ./tools/testing/Invoke-LoadQualification.ps1 -CandidateRef $env:CANDIDATE_REF -Lane $env:QUALIFICATION_LANE
       - name: Preserve current qualification evidence
         if: always()
         uses: actions/upload-artifact@v4
