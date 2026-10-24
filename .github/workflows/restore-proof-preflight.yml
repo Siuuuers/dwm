@@ -1,10 +1,12 @@
-name: Restore proof preflight
+name: Restore proof reverse comparison
 on:
+  push:
+    branches: [codex/restore-proof-reverse-20261024]
   workflow_dispatch:
 permissions:
   contents: read
 concurrency:
-  group: restore-proof-preflight-${{ github.ref }}
+  group: restore-proof-reverse-${{ github.ref }}
   cancel-in-progress: true
 jobs:
   preflight:
@@ -75,12 +77,12 @@ jobs:
         run: ./tools/testing/Invoke-CloudTests.ps1 -Suite current_quick_load
       - name: Compare fresh Save9 and fresh-process Load
         timeout-minutes: 45
-        run: ./tools/testing/Invoke-FreshSaveLoadComparison.ps1 -BaseRef 97a3e5c2b48c4ae82a30ebb62083c5ea1bff5932
+        run: ./tools/testing/Invoke-FreshSaveLoadComparison.ps1 -BaseRef 97a3e5c2b48c4ae82a30ebb62083c5ea1bff5932 -CandidateFirst
       - name: Preserve preflight evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: restore-proof-preflight-${{ github.run_id }}-${{ github.run_attempt }}
+          name: restore-proof-reverse-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             .godot/ci/
             .godot/phase2r_logs/
