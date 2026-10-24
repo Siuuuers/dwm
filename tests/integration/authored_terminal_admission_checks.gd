@@ -9,6 +9,75 @@ const TERMINAL_FROZEN := preload("res://scripts/narrative/FrozenRunContext.gd")
 const TERMINAL_SCHEMA := preload("res://scripts/domain/run/RunSnapshotSchema.gd")
 var _profile_bytes := PackedByteArray()
 
+# A public semantic delegate deliberately cannot select the actual-owner shortcut.
+class FreshSemanticOwner:
+	extends RefCounted
+	var delegate: Object
+	var calls := 0
+	func validate_scene_snapshot_semantics(snapshot: Dictionary, bundle: Dictionary) -> Dictionary:
+		calls += 1
+		return delegate.validate_scene_snapshot_semantics(snapshot, bundle)
+
+# Keep the genuine issuer script and root proofs, but replace the matching owner group during the
+# first Frozen callback. The new group agrees internally, so only a retained
+# pre-call identity check can distinguish it from the original group.
+class SwitchingRoot:
+	extends RefCounted
+	var delegate: Object
+	var switch_owner: Callable
+	var switches := 0
+	func _maybe_switch() -> void:
+		if switches != 0 or not switch_owner.is_valid(): return
+		var frozen_checkpoint := false
+		var schema_reading := false
+		for frame: Dictionary in get_stack():
+			if frame.get("function") == "validate_reading_checkpoint" \
+					and String(frame.get("source", "")).ends_with("/FrozenRunContext.gd"):
+				frozen_checkpoint = true
+			if frame.get("function") == "_validate_scene_reading" \
+					and String(frame.get("source", "")).ends_with("/RunSnapshotSchema.gd"):
+				schema_reading = true
+		if frozen_checkpoint and schema_reading:
+			switches += 1
+			switch_owner.call()
+	func verify_receipt(receipt: Dictionary, purpose: StringName) -> Dictionary:
+		var result: Dictionary = delegate.verify_receipt(receipt, purpose)
+		_maybe_switch()
+		return result
+	func prepare_allocation(request: Dictionary) -> Dictionary:
+		var result: Dictionary = delegate.prepare_allocation(request)
+		_maybe_switch()
+		return result
+	func capture() -> Dictionary:
+		var result: Dictionary = delegate.capture()
+		_maybe_switch()
+		return result
+
+# Retain the actual candidate's receipt alias at the terminal proof boundary,
+# then change it only after that proof while its copied source is being read.
+class MutatingRoot:
+	extends SwitchingRoot
+	var terminal_receipt_id := ""
+	var retained_receipt: Dictionary = {}
+	var mutations := 0
+	var semantic_checks := 0
+	func verify_receipt(receipt: Dictionary, purpose: StringName) -> Dictionary:
+		var result: Dictionary = delegate.verify_receipt(receipt, purpose)
+		var checkpoint_frames := 0
+		for frame: Dictionary in get_stack():
+			if frame.get("function") == "validate_reading_checkpoint" \
+					and String(frame.get("source", "")).ends_with("/FrozenRunContext.gd"):
+				checkpoint_frames += 1
+			if mutations == 1 and frame.get("function") == "_prepare_scene_snapshot_semantics":
+				semantic_checks += 1
+		if checkpoint_frames == 1 and retained_receipt.is_empty() \
+				and receipt.get("receipt_id") == terminal_receipt_id:
+			retained_receipt = receipt
+		if checkpoint_frames == 2 and mutations == 0 and not retained_receipt.is_empty():
+			retained_receipt["TEST.changed_after_terminal_proof"] = true
+			mutations += 1
+		return result
+
 func _selected(record: Dictionary, receipts: Dictionary, contacts: Dictionary) -> Dictionary:
 	return TERMINAL_CONTRACT.validate_selected_scene_terminal_admission(record,
 		game._identity_issuer, receipts, saves, contacts)
@@ -23,6 +92,117 @@ func _restore_profile_bytes() -> bool:
 
 func after_all() -> void:
 	assert_true(_restore_profile_bytes(), "restore original Profile bytes even after an early test return")
+
+func _measured_run(source: Dictionary, label: String) -> Dictionary:
+	assert_true(TERMINAL_TIMING.begin_scope(label, "ENDING", "PRIMARY_PENDING", 0))
+	var result: Dictionary = TERMINAL_SCHEMA.validate(source)
+	var counts: Dictionary = TERMINAL_TIMING._record.duplicate(true)
+	TERMINAL_TIMING.end_scope(bool(result.get("ok", false)))
+	return {"result": result, "counts": counts}
+
+func _mutated_terminal_run(source: Dictionary, authority: Object, label: String) -> Dictionary:
+	var original_authority: Object = TERMINAL_SCHEMA._scene_authority
+	var original_issuer: Object = TERMINAL_SCHEMA._scene_issuer
+	var original_frozen_issuer: Object = TERMINAL_FROZEN._scene_issuer
+	var original_game_issuer: Object = game._identity_issuer
+	var root := MutatingRoot.new()
+	root.delegate = original_issuer._root
+	root.terminal_receipt_id = source.lifecycle.ending_plan.admission.issuer_receipt.receipt_id
+	var issuer := TERMINAL_ISSUER.new()
+	assert_true(issuer.configure(root).ok)
+	game._identity_issuer = issuer
+	TERMINAL_SCHEMA._scene_issuer = issuer
+	TERMINAL_FROZEN._scene_issuer = issuer
+	TERMINAL_SCHEMA._scene_authority = authority
+	var measured := _measured_run(source, label)
+	TERMINAL_SCHEMA._scene_authority = original_authority
+	TERMINAL_SCHEMA._scene_issuer = original_issuer
+	TERMINAL_FROZEN._scene_issuer = original_frozen_issuer
+	game._identity_issuer = original_game_issuer
+	assert_eq(root.mutations, 1, "actual candidate receipt changed during the nested source proof")
+	assert_gt(root.semantic_checks, 0, "first reading succeeded and fresh semantic proof examined the mutation")
+	assert_false(measured.result.get("ok", true), "changed receipt cannot borrow its earlier successful proof")
+	assert_false(source.lifecycle.ending_plan.admission.issuer_receipt.has("TEST.changed_after_terminal_proof"),
+		"callback mutated the internal candidate, not the detached caller's snapshot")
+	return measured
+
+func _same_call_terminal_checks(source: Dictionary, frozen_counts: Dictionary) -> Dictionary:
+	var original_source := source.duplicate(true)
+	var original_live: Dictionary = game.capture_restore_state()
+	var original_authority: Object = TERMINAL_SCHEMA._scene_authority
+	var original_issuer: Object = TERMINAL_SCHEMA._scene_issuer
+	var original_frozen_issuer: Object = TERMINAL_FROZEN._scene_issuer
+	var original_game_issuer: Object = game._identity_issuer
+	assert_eq(original_authority, game, "genuine terminal Run uses the actual semantic owner")
+	assert_false(TERMINAL_SCHEMA._scene_terminal_reading_owners().is_empty())
+	var reused := _measured_run(source, "terminal_run_reused")
+	var fresh_owner := FreshSemanticOwner.new()
+	fresh_owner.delegate = game
+	TERMINAL_SCHEMA._scene_authority = fresh_owner
+	var fresh := _measured_run(source, "terminal_run_fresh")
+	TERMINAL_SCHEMA._scene_authority = original_authority
+	assert_true(reused.result.get("ok", false), str(reused.result))
+	assert_eq(reused.result, fresh.result, "same-call reuse preserves the complete public Run result")
+	assert_eq(fresh_owner.calls, 1, "custom authority still receives its public semantic call")
+	assert_eq(fresh.counts.receipt_validation_calls - reused.counts.receipt_validation_calls,
+		frozen_counts.receipt_validation_calls, "exactly one duplicate Frozen receipt proof is removed")
+	assert_eq(fresh.counts.physical_proof_calls - reused.counts.physical_proof_calls,
+		frozen_counts.physical_proof_calls, "only the same-call Frozen proof is reused")
+	assert_gt(int(reused.counts.physical_proof_calls), 0, "current physical Profile is still proved")
+
+	var replacement_game: Node = load("res://autoload/GameState.gd").new()
+	get_tree().root.add_child(replacement_game)
+	replacement_game._scene_event_bridge = game._scene_event_bridge
+	var first_root := SwitchingRoot.new()
+	first_root.delegate = original_issuer._root
+	var first_issuer := TERMINAL_ISSUER.new()
+	assert_true(first_issuer.configure(first_root).ok)
+	var second_issuer := TERMINAL_ISSUER.new()
+	assert_true(second_issuer.configure(original_issuer._root).ok)
+	replacement_game._identity_issuer = second_issuer
+	first_root.switch_owner = func() -> void:
+		TERMINAL_SCHEMA._scene_authority = replacement_game
+		TERMINAL_SCHEMA._scene_issuer = second_issuer
+		TERMINAL_FROZEN._scene_issuer = second_issuer
+	game._identity_issuer = first_issuer
+	TERMINAL_SCHEMA._scene_issuer = first_issuer
+	TERMINAL_FROZEN._scene_issuer = first_issuer
+	assert_false(TERMINAL_SCHEMA._scene_terminal_reading_owners().is_empty())
+	var replaced := _measured_run(source, "terminal_run_replaced_owners")
+	var new_group_matches := not TERMINAL_SCHEMA._scene_terminal_reading_owners().is_empty()
+	TERMINAL_SCHEMA._scene_authority = original_authority
+	TERMINAL_SCHEMA._scene_issuer = original_issuer
+	TERMINAL_FROZEN._scene_issuer = original_frozen_issuer
+	game._identity_issuer = original_game_issuer
+	replacement_game.free()
+	assert_eq(first_root.switches, 1, "replacement occurred inside the first Frozen validation")
+	assert_true(new_group_matches, "replacement group agrees internally after the callback")
+	assert_eq(replaced.result, fresh.result, "changed owners use fresh validation and preserve valid output")
+	assert_eq(replaced.counts.receipt_validation_calls, fresh.counts.receipt_validation_calls,
+		"coordinated replacement cannot consume the original group's retained proof")
+	assert_eq(replaced.counts.physical_proof_calls, fresh.counts.physical_proof_calls)
+
+	var mutated := _mutated_terminal_run(source, game, "terminal_run_mutated_candidate")
+	var mutated_fresh := _mutated_terminal_run(source, fresh_owner, "terminal_run_mutated_fresh")
+	assert_eq(mutated.result, mutated_fresh.result, "input mutation preserves the fresh semantic refusal")
+	assert_eq(mutated.counts.receipt_validation_calls, mutated_fresh.counts.receipt_validation_calls)
+	assert_eq(mutated.counts.physical_proof_calls, mutated_fresh.counts.physical_proof_calls)
+
+	var empty := source.duplicate(true)
+	empty.narrative_checkpoint = {}
+	var empty_reused := _measured_run(empty, "terminal_empty_actual_owner")
+	TERMINAL_SCHEMA._scene_authority = fresh_owner
+	var empty_fresh := _measured_run(empty, "terminal_empty_fresh_owner")
+	TERMINAL_SCHEMA._scene_authority = original_authority
+	assert_true(empty_reused.result.get("ok", false), str(empty_reused.result))
+	assert_eq(empty_reused.result, empty_fresh.result)
+	assert_eq(empty_reused.counts.receipt_validation_calls, empty_fresh.counts.receipt_validation_calls,
+		"empty terminal checkpoint retains the fresh semantic fallback")
+	assert_eq(empty_reused.counts.physical_proof_calls, empty_fresh.counts.physical_proof_calls)
+	assert_eq(source, original_source)
+	assert_eq(game.capture_restore_state(), original_live, "validation never applies gameplay consequences")
+	return {"reused": reused.counts, "fresh": fresh.counts, "replaced": replaced.counts,
+		"mutated": mutated.counts, "empty": empty_reused.counts}
 
 func _schema_reading_checks(source: Dictionary, frozen_counts: Dictionary) -> Dictionary:
 	var before := source.duplicate(true)
@@ -211,6 +391,7 @@ func test_selected_terminal_admission_rechecks_genuine_saved_authority() -> void
 	if frozen_counts.is_empty(): return
 	var schema_reading_counts := _schema_reading_checks(source, frozen_counts.checkpoint_counts)
 	if schema_reading_counts.is_empty(): return
+	var same_call_counts := _same_call_terminal_checks(source, frozen_counts.full_counts)
 
 	var changed: Dictionary = receipts.duplicate(true)
 	changed.erase(record.trigger_command_id)
@@ -246,6 +427,7 @@ func test_selected_terminal_admission_rechecks_genuine_saved_authority() -> void
 	var checkpoint_physical_refusal: Dictionary = TERMINAL_FROZEN.validate_reading_checkpoint(source.narrative_checkpoint, source)
 	var semantic_physical_refusal: Dictionary = game._prepare_scene_snapshot_semantics(source, bundle)
 	var schema_physical_refusal: Dictionary = TERMINAL_SCHEMA._validate_scene_reading(source)
+	var run_physical_refusal: Dictionary = TERMINAL_SCHEMA.validate(source)
 	var restored := _restore_profile_bytes()
 	assert_true(restored, "original Profile bytes restored immediately")
 	assert_false(physical_refusal.ok, "later changed physical Profile is not replaced by cached proof")
@@ -253,6 +435,7 @@ func test_selected_terminal_admission_rechecks_genuine_saved_authority() -> void
 	assert_false(checkpoint_physical_refusal.ok, "standalone checkpoint validation rechecks physical Profile on each call")
 	assert_false(semantic_physical_refusal.ok, "semantic reuse never caches physical Profile proof")
 	assert_false(schema_physical_refusal.ok, "Run reading delegation rechecks changed physical Profile")
+	assert_false(run_physical_refusal.ok, "full Run never reuses a prior call after physical Profile changes")
 	if not restored: return
 	assert_true(_selected(record, receipts, contacts).ok, "original valid inputs remain admissible after all mutations")
 	assert_true(TERMINAL_FROZEN.validate(source).ok, "valid full context recovers after physical bytes are restored")
@@ -263,5 +446,6 @@ func test_selected_terminal_admission_rechecks_genuine_saved_authority() -> void
 		"generic_counts": generic_counts, "selected_counts": selected_counts,
 		"frozen_counts": frozen_counts,
 		"schema_reading_counts": schema_reading_counts,
+		"same_call_counts": same_call_counts,
 		"physical_refusal_code": str(physical_refusal.get("code", "")),
 		"profile_restored": restored})
