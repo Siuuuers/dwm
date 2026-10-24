@@ -7,6 +7,7 @@ static var _started_us := 0
 
 static func begin_scope(operation: String, state: String, stage: String, step: int) -> bool:
 	if _active or OS.get_environment("DWM_SCENE_VALIDATION_PROFILE") != "1": return false
+	_terminal_scope_ordinal += 1
 	_record = {"operation": operation, "lifecycle_state": state, "playback_stage": stage,
 		"next_step_index": step, "configuration_calls": 0, "configuration_us": 0,
 		"configuration_failures": 0, "compilation_calls": 0, "compilation_us": 0,
@@ -52,3 +53,56 @@ static func end_scope(ok: bool) -> void:
 	print("DWM_SCENE_VALIDATION_PROFILE " + JSON.stringify(_record))
 	_record = {}
 	_started_us = 0
+
+# Controller-only terminal ledger diagnostics. Never merge into product source.
+static var _terminal_scope_ordinal := 0
+static var _terminal_diagnostic_ordinal := 0
+static var _terminal_physical_proof_calls := 0
+
+static func _terminal_diagnostic_enabled() -> bool:
+	return OS.get_environment("DWM_TERMINAL_LEDGER_DIAGNOSTIC") == "1"
+
+static func _terminal_physical_proof() -> void:
+	if _terminal_diagnostic_enabled(): _terminal_physical_proof_calls += 1
+
+static func _terminal_diagnostic_inputs(receipts: Dictionary, contacts: Dictionary) -> String:
+	var writer: Script = load("res://scripts/validation/CanonicalJsonWriter.gd")
+	var encoded: Dictionary = writer.stringify({"receipts": receipts, "contacts": contacts})
+	return str(encoded.value).sha256_text() if encoded.get("ok", false) else "canonical_encoding_failed"
+
+static func _terminal_diagnostic_owners(issuer: Object, creation_owner: Object) -> Dictionary:
+	var root: Object = issuer.get("_root") if is_instance_valid(issuer) else null
+	return {"issuer": issuer.get_instance_id() if is_instance_valid(issuer) else 0,
+		"creation_owner": creation_owner.get_instance_id() if is_instance_valid(creation_owner) else 0,
+		"issuer_root": root.get_instance_id() if is_instance_valid(root) else 0}
+
+static func _terminal_diagnostic_begin(phase: String, receipts: Dictionary, contacts: Dictionary,
+		issuer: Object, creation_owner: Object, context: Dictionary = {}) -> Dictionary:
+	if not _terminal_diagnostic_enabled(): return {}
+	_terminal_diagnostic_ordinal += 1
+	# Hashing, caller discovery and identity reads precede the measured interval.
+	var row := {"phase": phase, "ordinal": _terminal_diagnostic_ordinal,
+		"process_id": OS.get_process_id(), "scope_ordinal": _terminal_scope_ordinal,
+		"scope_active": _active, "operation": str(_record.get("operation", "outside_scope")),
+		"completed_snapshot_count": _record.get("snapshot_validations", []).size(), "input_before": _terminal_diagnostic_inputs(receipts, contacts),
+		"context_before": _terminal_diagnostic_inputs(context, {}),
+		"owners_before": _terminal_diagnostic_owners(issuer, creation_owner), "callers": get_stack(),
+		"physical_proof_before": _terminal_physical_proof_calls,
+		"receipt_validation_before": int(_record.get("receipt_validation_calls", 0)),
+		"diagnostic_only": true, "nested_inclusive": true}
+	row["started_us"] = Time.get_ticks_usec()
+	return row
+
+static func _terminal_diagnostic_end(row: Dictionary, receipts: Dictionary, contacts: Dictionary,
+		issuer: Object, creation_owner: Object, result: Dictionary, context: Dictionary = {}) -> void:
+	var finished_us := Time.get_ticks_usec()
+	if row.is_empty(): return
+	row["elapsed_us"] = finished_us - int(row.started_us)
+	row["physical_proof_attempts"] = _terminal_physical_proof_calls - int(row.physical_proof_before)
+	row["receipt_validation_calls"] = int(_record.get("receipt_validation_calls", 0)) - int(row.receipt_validation_before)
+	row["input_after"] = _terminal_diagnostic_inputs(receipts, contacts)
+	row["context_after"] = _terminal_diagnostic_inputs(context, {})
+	row["owners_after"] = _terminal_diagnostic_owners(issuer, creation_owner)
+	row["ok"] = bool(result.get("ok", false))
+	row["code"] = str(result.get("code", ""))
+	print("DWM_TERMINAL_LEDGER_DIAGNOSTIC " + JSON.stringify(row))

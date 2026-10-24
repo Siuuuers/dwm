@@ -1,5 +1,6 @@
 class_name FrozenRunContext
 extends RefCounted
+const _VALIDATION_TIMING := preload("res://scripts/narrative/SceneValidationTiming.gd")
 
 ## Pure saved-document validation. RunSnapshotSchema calls this after the owning
 ## structural schemas, before any restore participant installs the candidate.
@@ -125,7 +126,11 @@ static func _validate_reading_checkpoint_body(checkpoint: Dictionary, snapshot: 
 		if snapshot.get("schema_version") != 9 or snapshot.get("route_id") != "scene" \
 				or not snapshot.get("command_receipts") is Dictionary or not snapshot.get("scene") is Dictionary:
 			return _saved_run_failure(snapshot, "scene_envelope")
+		var ledger_observation: Dictionary = _VALIDATION_TIMING._terminal_diagnostic_begin(
+			"reading_source_ledger", snapshot.command_receipts, snapshot.contacts, _scene_issuer, _scene_creation_owner, checkpoint)
 		var receipts: Dictionary = SCENE_CONTRACT.validate_selected_scene_receipts(snapshot.command_receipts, _scene_issuer, _scene_creation_owner, snapshot.contacts)
+		_VALIDATION_TIMING._terminal_diagnostic_end(ledger_observation, snapshot.command_receipts,
+			snapshot.contacts, _scene_issuer, _scene_creation_owner, receipts, checkpoint)
 		if not receipts.get("ok", false): return receipts
 		var scene_reading: Dictionary = checkpoint.reading_session
 		if snapshot.scene.get("registration_sha256") != scene_reading.registration_sha256 \

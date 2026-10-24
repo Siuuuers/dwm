@@ -1159,6 +1159,7 @@ static func _validate_initial_materials(candidate: Dictionary, profile: Dictiona
 
 static func _validate_committed_initial_admission(receipt: Dictionary, registered: Dictionary,
 		issuer: Object, creation_owner: Object) -> Dictionary:
+	_VALIDATION_TIMING._terminal_physical_proof()
 	# Caller-supplied dictionaries/callbacks cannot assert durable creation authority.
 	if creation_owner == null or creation_owner.get_script() != load("res://autoload/SaveManager.gd"):
 		return _fail(&"scene_creation_owner_unbound")
@@ -1413,7 +1414,10 @@ static func validate_selected_scene_terminal_admission(record: Dictionary, issue
 		receipts: Dictionary, creation_owner: Object = null, contacts: Dictionary = {}) -> Dictionary:
 	var shaped := validate_scene_terminal_admission_shape(record, issuer)
 	if not shaped.get("ok", false): return shaped
+	var ledger_observation: Dictionary = _VALIDATION_TIMING._terminal_diagnostic_begin(
+		"terminal_first_ledger", receipts, contacts, issuer, creation_owner, record)
 	var ledger := validate_selected_scene_receipts(receipts, issuer, creation_owner, contacts)
+	_VALIDATION_TIMING._terminal_diagnostic_end(ledger_observation, receipts, contacts, issuer, creation_owner, ledger, record)
 	if not ledger.ok: return ledger
 	var source: Dictionary = ledger.value.admissions.get(record.source_admission_receipt_id, {})
 	if source.is_empty() or source.get("return_to") != null:
@@ -1427,9 +1431,12 @@ static func validate_selected_scene_terminal_admission(record: Dictionary, issue
 	var manifest: Script = load("res://scripts/narrative/DialogicEntryManifest.gd")
 	var registered: Dictionary = manifest.scene_contract_tables()
 	if not registered.ok: return registered
+	var rebuild_observation: Dictionary = _VALIDATION_TIMING._terminal_diagnostic_begin(
+		"terminal_admission_reconstruction", receipts, contacts, issuer, creation_owner, record)
 	var rebuilt := _make_scene_terminal_admission_registered(record.source_identity, record.issuer_receipt,
 		record.source_occurrence_id, record.source_admission_receipt_id, trigger, record.source_checkpoint,
 		record.target_id, registered, issuer)
+	_VALIDATION_TIMING._terminal_diagnostic_end(rebuild_observation, receipts, contacts, issuer, creation_owner, rebuilt, record)
 	if not rebuilt.ok: return rebuilt
 	if not _equal(rebuilt.value, record): return _fail(&"scene_terminal_admission_mismatch")
 	return {"ok": true}
