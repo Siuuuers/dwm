@@ -28,6 +28,11 @@ Do not combine these percentages with earlier PRs. Two ordered pairs are not a l
 
 ## Most useful next investigation
 
+**Later owner decision, 25 October:** read the [approved compact-save replacement direction](../docs/design/2026-10-25-save-load-validator-audit.md#owner-approved-replacement-direction--later-25-october-discussion) before the incremental investigation below. Required current state now explicitly includes DTL position, board/Challenge, affection, prior choice/outcome results and active economy values. Global unlocks/read history stay separate. Three relationship fields retire; save reason, audio/application context and the ending source-reading checkpoint leave the proposed payload. The owner confirms two forks with one ending each. The existing choice mechanism is a starting point; the new choice design is not yet specified. No replacement runtime has been implemented or qualified by this documentation update. Prefer proving one direct-restoration journey before spending another session solely optimizing historical proofs that the replacement may remove.
+
+The numbered investigation below remains a bounded fallback for the existing architecture, not the latest product direction.
+
+
 A fresh session is useful after this bounded candidate is merged: it starts from a qualified baseline and a different remaining ownership boundary. No product-design question blocks the following investigation.
 
 1. Confirm live master contains PR83 and read the evidence results. Start from one retained terminal Save/Load workload and measure the complete operation.
