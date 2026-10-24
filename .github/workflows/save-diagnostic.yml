@@ -1,0 +1,80 @@
+name: Save diagnostic baseline (controller only)
+on:
+  push:
+    branches: [codex/save-diagnostic-controller-20261025]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: terminal-proof-preflight-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  preflight:
+    runs-on: windows-2022
+    timeout-minutes: 90
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 2
+          # Defer credential removal until the post-job cleanup, after the
+          # malformed gitlinks are removed from this disposable runner's index.
+          persist-credentials: true
+      - name: Prepare disposable checkout for credential cleanup
+        run: |
+          $ErrorActionPreference = 'Stop'
+          # These legacy tooling gitlinks have no .gitmodules URLs. Git's
+          # submodule foreach reads the index even with sparse checkout.
+          # The source commit and working files remain unchanged.
+          git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          git submodule foreach --recursive 'true'
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Install Godot 4.6.3 standard
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $archive = Join-Path $env:RUNNER_TEMP 'godot-4.6.3.zip'
+          Invoke-WebRequest -Uri 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_win64.exe.zip' -OutFile $archive
+          # SHA256 published with the official 4.6.3-stable release asset.
+          $expected = 'e39986a178d585ce7ac198fb8de6ea436366dc0cc00e594810c2e3e104c04b90'
+          if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expected) {
+            throw 'Godot archive checksum mismatch.'
+          }
+          $editor = Join-Path $env:RUNNER_TEMP 'godot-4.6.3'
+          Expand-Archive -LiteralPath $archive -DestinationPath $editor
+          $console = Join-Path $editor 'Godot_v4.6.3-stable_win64_console.exe'
+          if (-not (Test-Path -LiteralPath $console)) { throw 'Godot console executable missing.' }
+          "GODOT_CONSOLE_PATH=$console" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          & $console --version
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Instrument exact master baseline
+        run: |
+          if ((git rev-parse HEAD~1).Trim() -ne 'a7a9707dae17b648c09e70a139e1c37d4a7a4d37') { throw 'Unexpected baseline' }
+          New-Item -ItemType Directory -Force .godot/ci | Out-Null
+          python tools/testing/diagnostic_save.py . --apply > .godot/ci/diagnostic-manifest.json
+          if ($LASTEXITCODE -ne 0) { throw 'Instrumentation failed' }
+      - name: Import instrumented source
+        timeout-minutes: 8
+        run: |
+          & $env:GODOT_CONSOLE_PATH --headless --path . --import --log-file .godot/ci/import.log
+          if ($LASTEXITCODE -ne 0) { throw 'Import failed' }
+          if (Select-String .godot/ci/import.log -Pattern 'SCRIPT ERROR:|ERROR: Failed to load' -Quiet) { throw 'Import script errors' }
+          git restore -- project.godot
+      - name: Measure current native Save and fresh-process Load
+        timeout-minutes: 45
+        run: ./tools/testing/Invoke-FreshSaveLoad.ps1
+      - name: Preserve preflight evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: terminal-proof-preflight-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            .godot/ci/
+            .godot/phase2r_logs/
+            evidence/phase_2r/runtime/game_state_surface.json
+            evidence/phase_2r/runtime/save_manager_surface.json
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 7
