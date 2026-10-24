@@ -69,6 +69,8 @@ static func story_font(locale: String, percent: int, font_style: String = "pixel
 	var key := primary.resource_path
 	if not _story_loaded.has(key):
 		var face := primary.duplicate() as FontFile
+		# Rasterize the new story face independently of the warmed UI atlas.
+		face.clear_cache()
 		var fallbacks: Array[Font] = [load("res://assets/ui/contacts/fonts/dejavu-sans-fallback.ttf") as FontFile]
 		if font_style == "pixel":
 			fallbacks.append(font(locale, percent, "readable"))
