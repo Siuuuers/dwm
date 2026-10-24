@@ -255,8 +255,6 @@ monologue. It may not:
 
 - explain symbolism or tell the audience how to interpret an image;
 - reveal information unavailable to the active anchor;
-- use a narrator identity or omniscient explanatory voice; or
-- move between consciousnesses inside one continuous passage.
 
 An immediate judgment may be partial, irritated, mistaken, or withholding.
 `Possibly mistaken` means the evidence supports more than one reading; it does
