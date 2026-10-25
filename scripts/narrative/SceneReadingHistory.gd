@@ -31,7 +31,7 @@ static func current_day_route(bundle: Dictionary, day: int, choices: Dictionary,
 	for row: Dictionary in bundle.targets: targets[row.target_id] = row.target
 	var challenges := {}
 	for row: Dictionary in bundle.challenges: challenges[row.challenge_id] = row
-	var start := _day_start(bundle, days, day, targets, challenges, "")
+	var start := _day_start(bundle, days, day, targets, challenges)
 	if not start.ok: return start
 	var entries := {}
 	var pending: Array = [start.value]
@@ -89,7 +89,7 @@ static func _select_target(marker: Dictionary, choices: Dictionary, outcomes: Di
 	return _fail(&"reading_history_control_unsupported")
 
 static func _day_start(bundle: Dictionary, days: Dictionary, day: int, targets: Dictionary,
-		challenges: Dictionary, first_target_id: String) -> Dictionary:
+		challenges: Dictionary) -> Dictionary:
 	var incoming := {}
 	var cross_day := {}
 	for programme: Dictionary in bundle.scene_programme.entries:
@@ -108,10 +108,6 @@ static func _day_start(bundle: Dictionary, days: Dictionary, day: int, targets: 
 				else: cross_day[target.entry_id] = true
 	if cross_day.size() == 1: return {"ok": true, "value": cross_day.keys()[0]}
 	if cross_day.size() > 1: return _fail(&"reading_history_day_ambiguous")
-	if not first_target_id.is_empty() and targets.has(first_target_id):
-		var first: Dictionary = targets[first_target_id]
-		if first.kind == "scene" and days.get(first.entry_id) == day:
-			return {"ok": true, "value": first.entry_id}
 	var roots: Array[String] = []
 	for entry: Dictionary in bundle.entry_manifest.entries:
 		if entry.role == "scene" and days.get(entry.entry_id) == day and not incoming.has(entry.entry_id):
