@@ -48,9 +48,11 @@ func create_passage_scene() -> void:
 	if not await _save_slot(2): return
 	assert_false(PASSAGE_ID in profile.get_profile_snapshot().gallery_unlocks, "last caption is still before finish")
 	await _screenshot("passage-last-before-save")
+	var position: Dictionary = BOARD_READING.project_player_checkpoint(bridge.capture_reading_checkpoint(false).value)
+	if not _ok(position): return
 	var proof := {"process_id": OS.get_process_id(), "slot_1_sha256": FileAccess.get_sha256("user://saves/slot_1.json"),
 		"slot_2_sha256": FileAccess.get_sha256("user://saves/slot_2.json"),
-		"reading": bridge.capture_reading_checkpoint(false).value.reading_session}
+		"reading": position.value.reading_session}
 	if not _write_json("user://passage-proof.json", proof): return
 	_write_json("res://.godot/ci/passage-connected-create-proof.json", proof)
 
@@ -66,7 +68,9 @@ func load_and_finish_passage_scene() -> void:
 	if loaded.get("code") != &"scene_activation_pending" or not await _await_ready(): return
 	if not await _wait_line("scene.test.a", "line.scene.test.a.three"): return
 	assert_eq(get_tree().current_scene.scene_file_path, HOST)
-	assert_eq(bridge.capture_reading_checkpoint(false).value.reading_session, proof.reading)
+	var position: Dictionary = BOARD_READING.project_player_checkpoint(bridge.capture_reading_checkpoint(false).value)
+	if not _ok(position): return
+	assert_eq(position.value.reading_session, proof.reading, "Load preserves compact position and full current caption")
 	assert_false(PASSAGE_ID in profile.get_profile_snapshot().gallery_unlocks)
 	await _screenshot("passage-last-fresh-load")
 	var profile_files: RefCounted = profile._storage._file_ops
