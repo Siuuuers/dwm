@@ -36,5 +36,18 @@ receipts; it is not a complete issuer-backed two-closure journey. Connected
 rendered create/fresh-process Load checks current recall, no reward/Profile
 reapplication, and public ledger refusal of forged outcome/target, missing
 closure, malformed anchor/version and changed registration. Rendered Windows
-qualification is pending. The connected fixture covers `never_started`; all five
-branch mappings have unit coverage.
+qualification for these suites passes. The connected fixture covers `never_started`;
+all five branch mappings have unit coverage.
+
+## Windows evidence
+
+Candidate `cfd54e5d47cb515d27cf94c64e739e8b87176906` runs in
+https://github.com/Siuuuers/dwm/actions/runs/40154201762. The retained Windows
+subset passes 15 cases / 352 assertions: five-outcome plus recall units and the
+connected create/fresh-process Load pair. All three retained screenshots were
+visually inspected: caption and controls are readable, and the restored selected
+caption matches the pre-Load selected caption. Archive SHA-256 digests match
+GitHub metadata in `windows/artifacts.json`; XML newlines are normalized to LF.
+
+The full workflow passed. The archived matched startup/Load lane is
+intentionally skipped for incompatible old save shape and is not a measured result.

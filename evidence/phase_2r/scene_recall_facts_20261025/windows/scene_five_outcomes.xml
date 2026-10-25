@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="GutTests" failures="0" tests="13" >
+  <testsuite name="tests/unit/test_scene_five_outcomes.gd" tests="6" failures="0" skipped="0" time="1.92261" >
+      <testcase name="test_not_started_view_and_refused_pre_reveal_flag_select_a" assertions="15" status="pass" classname="tests/unit/test_scene_five_outcomes.gd" time="0.021895" >
+      </testcase>
+      <testcase name="test_unfinished_selects_b" assertions="15" status="pass" classname="tests/unit/test_scene_five_outcomes.gd" time="0.270298" >
+      </testcase>
+      <testcase name="test_ordinary_win_selects_c_only" assertions="18" status="pass" classname="tests/unit/test_scene_five_outcomes.gd" time="0.5069" >
+      </testcase>
+      <testcase name="test_loss_selects_d" assertions="16" status="pass" classname="tests/unit/test_scene_five_outcomes.gd" time="0.404084" >
+      </testcase>
+      <testcase name="test_perfect_selects_e_without_changing_persisted_won_state" assertions="17" status="pass" classname="tests/unit/test_scene_five_outcomes.gd" time="0.423161" >
+      </testcase>
+      <testcase name="test_historical_four_target_perfect_projection_stays_won" assertions="7" status="pass" classname="tests/unit/test_scene_five_outcomes.gd" time="0.296272" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_scene_challenge_recall.gd" tests="7" failures="0" skipped="0" time="0.58978" >
+      <testcase name="test_installed_fixture_binds_five_distinct_end_targets_and_recall_targets" assertions="10" status="pass" classname="tests/unit/test_scene_challenge_recall.gd" time="0.079335" >
+      </testcase>
+      <testcase name="test_legacy_four_and_exact_five_maps_allow_convergent_content_but_no_partial_shape" assertions="5" status="pass" classname="tests/unit/test_scene_challenge_recall.gd" time="0.03132" >
+      </testcase>
+      <testcase name="test_current_recall_selects_each_saved_outcome_without_receipts_or_mutation" assertions="31" status="pass" classname="tests/unit/test_scene_challenge_recall.gd" time="0.197251" >
+      </testcase>
+      <testcase name="test_current_recall_refuses_missing_or_ambiguous_saved_outcome_without_mutation" assertions="17" status="pass" classname="tests/unit/test_scene_challenge_recall.gd" time="0.154584" >
+      </testcase>
+      <testcase name="test_current_recall_rejects_malformed_facts_after_event_and_registration" assertions="5" status="pass" classname="tests/unit/test_scene_challenge_recall.gd" time="0.030381" >
+      </testcase>
+      <testcase name="test_historical_recall_keeps_earlier_result_when_another_closure_happens_later" assertions="8" status="pass" classname="tests/unit/test_scene_challenge_recall.gd" time="0.054063" >
+      </testcase>
+      <testcase name="test_recall_receipt_binds_outcome_target_and_anchor_shape" assertions="6" status="pass" classname="tests/unit/test_scene_challenge_recall.gd" time="0.042846" >
+      </testcase>
+  </testsuite>
+</testsuites>

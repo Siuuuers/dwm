@@ -26,8 +26,8 @@ unacknowledged checkpoint does not adopt live effects. Same-command and new-comm
 retries cannot reward a settled board twice. Missing/non-Boolean flags and a settled
 nonterminal board are refused by the current owner.
 
-Eleven independent Linux cloud/headless Godot 4.6.3 executions pass 194 cases and
-1,943 testcase assertions. The three connected executions share one storage root
+Twelve independent Linux cloud/headless Godot 4.6.3 executions pass 200 cases and
+2,161 testcase assertions. The three connected executions share one storage root
 but have distinct OS process IDs: save unfinished board; fresh Load then finish
 and save; fresh Load settled board then retry twice. Exact board/economy and source
 bytes are checked. These are connected owner/storage checks, not desktop click
@@ -41,3 +41,19 @@ Windows qualification is pending. The existing rendered same-day Supportz
 create/Load journey is also added to CI: it checks two real completions, retained
 shop eligibility, historical retry refusal and a post-Load purchase. It requires
 a display and is not counted among the headless results.
+
+## First CI correction
+
+Run 40155149867 on initial candidate
+`708b711a3e7d6ad363adc225957fc6952e6f2347` exposed four failures in
+`test_desktop_crash_recovery.gd`. The fixture calls legacy calendar
+`start_new_run(route_id=main)` but allowed current bootstrap to create a strict
+Scene board owner. Its legacy snapshot was correctly refused for missing the
+current settlement field. The fixture now explicitly retains a real legacy board
+owner before participant construction; no production check is relaxed and no
+saved data is relabeled. An isolated baseline reproduced four failures; the fixed
+six-case suite passes 218 testcase assertions. The full localization grouping also
+passes 178 cases / 28,187 assertions; this grouping overlaps retained tests and is
+not added to the distinct diagnostic total. Both inventories were regenerated.
+The current three-process settlement and rendered same-day Supportz journeys passed
+on the initial runtime; final whole-workflow qualification remains required.
