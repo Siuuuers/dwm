@@ -27,6 +27,9 @@ func _wait_route(path: String) -> bool:
 		var scene: Node = get_tree().current_scene
 		if scene != null and scene.scene_file_path == path and scene.is_node_ready(): return true
 		await get_tree().process_frame
+	print("SCENE_ROUTE_TIMEOUT " + JSON.stringify({"lifecycle": game._run_lifecycle.to_dict(),
+		"gate": game._mutation_gate.guard_external(&"scene_entry"), "live": game._live_session_active,
+		"reading": bridge.has_reading_session(), "playback": bridge.has_active_playback()}))
 	fail_test("Route timeout: " + path)
 	return false
 
@@ -227,10 +230,15 @@ func load_and_complete_week(stop_after_load: bool = false, witness_save: bool = 
 	# This opt-in journey keeps slot 2 as the restored Day4 witness, like export.
 	# The original ending-save/terminal-load journey remains unchanged by default.
 	if not witness_save and not await _save_ending_caption(): return
+	var finish_results: Array[Dictionary] = []
+	bridge.next_request_finished.connect(func(_frontier: Dictionary, result: Dictionary) -> void: finish_results.append(result.duplicate(true)), CONNECT_ONE_SHOT)
 	_ending_phase("ending_completion.begin")
 	await _accept()
 	_ending_phase("ending_completion.accept_return")
-	if not await _wait_route(MENU): return
+	if not await _wait_route(MENU):
+		assert_false(finish_results.is_empty(), "Finish delivered its completion result")
+		for result: Dictionary in finish_results: assert_true(result.get("ok", false), "Finish failed: " + str(result))
+		return
 	_ending_phase("title.ready")
 	var finished: Dictionary = game._run_lifecycle.to_dict()
 	assert_eq(finished.state, "COMPLETED")

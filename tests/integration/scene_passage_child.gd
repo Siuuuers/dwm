@@ -27,6 +27,9 @@ func _wait_menu() -> bool:
 	while Time.get_ticks_msec() < deadline:
 		if get_tree().current_scene != null and get_tree().current_scene.scene_file_path == MENU: return true
 		await get_tree().process_frame
+	print("PASSAGE_ROUTE_TIMEOUT " + JSON.stringify({"lifecycle": game._run_lifecycle.to_dict(),
+		"gate": game._mutation_gate.guard_external(&"scene_entry"), "live": game._live_session_active,
+		"reading": bridge.has_reading_session(), "playback": bridge.has_active_playback()}))
 	return _ok({"ok": false, "code": "TEST.passage_title_timeout"})
 
 func create_passage_scene() -> void:
@@ -132,8 +135,12 @@ func load_and_finish_passage_scene() -> void:
 	assert_eq(bridge._runtime_adapter.current_line_id(), "line.scene.test.a.three")
 	assert_true(_caption().is_reading_recovery_active())
 	await _screenshot("passage-finish-retry")
+	var finish_results: Array[Dictionary] = []
+	bridge.next_request_finished.connect(func(_frontier: Dictionary, result: Dictionary) -> void: finish_results.append(result.duplicate(true)), CONNECT_ONE_SHOT)
 	await _click(_caption().recovery_overlay.retry_button)
-	if not await _wait_menu(): return
+	if not await _wait_menu():
+		print("PASSAGE_FINISH_RESULTS " + JSON.stringify(finish_results))
+		return
 	assert_true(PASSAGE_ID in profile.get_profile_snapshot().gallery_unlocks)
 	var latest: Dictionary = saves.get_latest_stable_checkpoint()
 	if not _ok(latest): return

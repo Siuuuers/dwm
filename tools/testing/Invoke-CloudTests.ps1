@@ -501,7 +501,14 @@ try {
 if ($Suite -eq 'settings') { Write-Host "SETTINGS_PHASE $([DateTime]::UtcNow.ToString('o')) primary.end exit=$result" }
 $logPath = Join-Path $repositoryRoot ".godot/phase2r_logs/$logName"
 if ($result -ne 0) {
-    if (Test-Path -LiteralPath $logPath) { Get-Content -LiteralPath $logPath }
+    $phaseLogs = @($initialLogName)
+    foreach ($key in @('NextLogName', 'ThirdLogName')) {
+        if ($extra.ContainsKey($key)) { $phaseLogs += $extra[$key] }
+    }
+    foreach ($name in $phaseLogs) {
+        $phasePath = Join-Path $repositoryRoot ".godot/phase2r_logs/$name"
+        if (Test-Path -LiteralPath $phasePath) { Get-Content -LiteralPath $phasePath }
+    }
     exit $result
 }
 if ($loadScripts.ContainsKey($Suite)) {

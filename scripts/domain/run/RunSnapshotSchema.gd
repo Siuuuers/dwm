@@ -904,7 +904,8 @@ static func build_scene_new_run_candidate(snapshot_input: Dictionary, dialogic_c
 ## Detached initial candidates have their own authority: the reproducible allocation and
 ## frozen Profile material, not a completed creation or current live Profile.
 static func validate_scene_new_run_candidate(snapshot: Dictionary, allocation_candidate: Dictionary,
-		profile_material: Dictionary, bundle: Dictionary, issuer: Object) -> Dictionary:
+		profile_material: Dictionary, bundle: Dictionary, issuer: Object,
+		acknowledged_checkpoint: Dictionary = {}) -> Dictionary:
 	var retained := snapshot.duplicate()
 	retained.erase("audio_context")
 	retained.erase("active_app_id")
@@ -934,13 +935,22 @@ static func validate_scene_new_run_candidate(snapshot: Dictionary, allocation_ca
 			return _fail(&"invalid_lifecycle", "initial lifecycle differs from its allocation")
 	if not _scene_exact_value(candidate.lifecycle.scene_assignment, profile_material.scene_assignment.receipt):
 		return _fail(&"invalid_lifecycle", "initial lifecycle differs from its frozen assignment")
-	var current := validate_current_scene(candidate.scene, bundle)
-	if not current.ok: return current
-	if candidate.scene.active_occurrence_id != transaction_id or not candidate.scene.notification.is_empty() \
-			or not candidate.scene.active_challenge.is_empty() or candidate.scene.return_to != null:
+	if acknowledged_checkpoint.is_empty():
+		var current := validate_current_scene(candidate.scene, bundle)
+		if not current.ok: return current
+		var audio := derive_scene_audio_context(candidate, bundle)
+		if not audio.ok: return audio
+	else:
+		if not _scene_keys(candidate.scene, ["registration_sha256", "active_occurrence_id", "entry_id", "notification", "active_challenge", "return_to"]) \
+				or candidate.scene.registration_sha256 != acknowledged_checkpoint.manifest_fingerprint \
+				or candidate.scene.entry_id != acknowledged_checkpoint.entry_id \
+				or acknowledged_checkpoint.transaction_id != transaction_id \
+				or candidate.content_version != acknowledged_checkpoint.content_version \
+				or not _scene_exact_value(candidate.narrative_checkpoint, acknowledged_checkpoint):
+			return _fail(&"scene_initial_state_invalid", "historical creation differs from retained initial reading")
+	if candidate.scene.active_occurrence_id != transaction_id or candidate.scene.notification != {} \
+			or candidate.scene.active_challenge != {} or candidate.scene.return_to != null:
 		return _fail(&"scene_initial_state_invalid", "initial scene cannot contain prior control state")
-	var audio := derive_scene_audio_context(candidate, bundle)
-	if not audio.ok: return audio
 	var gameplay_error := _validate_scene_gameplay(candidate.gameplay)
 	if not gameplay_error.is_empty(): return _fail(&"invalid_gameplay", gameplay_error)
 	var game_owner: Script = load("res://autoload/GameState.gd")
@@ -961,6 +971,8 @@ static func validate_scene_new_run_candidate(snapshot: Dictionary, allocation_ca
 	desktop.board = player_board.value.snapshot
 	if not _scene_exact_value(candidate.desktop, desktop):
 		return _fail(&"scene_initial_state_invalid", "initial desktop cannot contain prior attempts or consequences")
+	if not acknowledged_checkpoint.is_empty():
+		return {"ok": true, "code": &"ok", "value": {"candidate": candidate}}
 	var reading := _validate_scene_reading(candidate)
 	if not reading.ok: return reading
 	var expanded: Dictionary = SCENE_READING.expand_player_checkpoint(candidate.narrative_checkpoint)
