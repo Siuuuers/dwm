@@ -103,7 +103,11 @@ func test_scene_saves_omit_reason_and_retired_metadata_does_not_gate_load() -> v
 	var document: Dictionary = parsed.value
 	assert_false(document.has("save_reason"))
 	assert_eq(document.current_snapshot, source.value.current_snapshot)
-	assert_eq(manager.get_save_metadata(&"slot", 6).value.save_reason, null)
+	var metadata: Dictionary = manager.get_save_metadata(&"slot", 6)
+	assert_true(metadata.ok, str(metadata))
+	if not metadata.ok: return
+	assert_null(metadata.value.save_reason)
+	assert_null(metadata.value.day, "Scene metadata has no legacy calendar day")
 	var writer := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 	var schema := preload("res://scripts/infrastructure/save/SaveDocumentSchema.gd")
 	for retired: Variant in ["manual", "not-a-reason", 42, null, {"old": true}, ["old"]]:

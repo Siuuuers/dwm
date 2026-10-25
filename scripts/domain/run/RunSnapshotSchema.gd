@@ -1171,7 +1171,11 @@ static func derive_scene_audio_context(snapshot: Dictionary, bundle: Dictionary 
 		var selected: Dictionary = SCENE_MANIFEST.scene_registration()
 		if not selected.ok: return selected
 		bundle = selected.value
-	if bundle.get("schema_version") != 3: return {"ok": true, "value": {}}
+	if bundle.get("schema_version") != 3:
+		# Registrations without authored audio explicitly restore silence. The
+		# AudioManager semantic contract requires all four neutral fields.
+		return {"ok": true, "value": {"ambience_context": {}, "ambience_context_id": "",
+			"music_context": {}, "music_context_id": ""}}
 	var admission_id: String = snapshot.scene.active_admission_receipt_id
 	var receipt: Variant = snapshot.command_receipts.get(admission_id)
 	if not receipt is Dictionary or not receipt.get("scene_admission") is Dictionary:
