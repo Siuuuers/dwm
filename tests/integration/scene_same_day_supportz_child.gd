@@ -54,7 +54,10 @@ func create_same_day_supportz() -> void:
 	if not _ok(slot): return
 	var saved_board: Dictionary = slot.value.current_snapshot.snapshot.desktop.board
 	assert_eq(typeof(saved_board.board.board.outcome), TYPE_STRING)
-	assert_eq(saved_board, run.desktop.board, "strict JSON slot preserves the complete settled board")
+	var player_board: Dictionary = BOARD_STATE.project_player_state(run.desktop.board)
+	if not _ok(player_board): return
+	assert_false(saved_board.has("command_receipts"), "player slot omits transient board retries")
+	assert_eq(saved_board, player_board.value.snapshot, "strict JSON slot preserves exact settled board facts")
 	assert_eq(run.desktop.consequence.shop_ledger.base_completion_receipts.size(), 2)
 	assert_eq(run.desktop.consequence.shop_ledger.supportz_branch_purchase_count, 0)
 	var proof := {"process_id": OS.get_process_id(), "run": run,
@@ -88,7 +91,8 @@ func load_same_day_supportz() -> void:
 		if completion.causal_day_instance == proof.run.lifecycle.causal_day_instance:
 			completion.causal_day_instance = restored.lifecycle.causal_day_instance
 	assert_eq(restored.desktop.consequence.shop_ledger, expected_ledger, "same authored day retains eligibility under new Load identity")
-	assert_eq(restored.desktop.board.board, proof.run.desktop.board.board, "settled layout and history survive")
+	assert_eq(restored.desktop.board.board, proof.run.desktop.board.board, "settled layout and frozen spec survive")
+	assert_true(restored.desktop.board.command_receipts.is_empty(), "Load starts a fresh live board command session")
 	assert_false(proof.run.desktop.board.has("terminal_receipts"))
 	assert_false(restored.desktop.board.has("terminal_receipts"), "Load does not recreate retired terminal history")
 	assert_true(restored.desktop.board.settled_inspection)
