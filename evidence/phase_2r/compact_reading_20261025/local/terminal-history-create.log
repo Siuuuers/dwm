@@ -1,0 +1,32 @@
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+---  GUT  ---
+[1m[INFO]:  [0musing [/workspace/scratch/359fe558320b/dwm/.godot/phase2r_tests/terminal-history-fix/data/godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+[4m
+
+res://tests/integration/test_scene_seven_day_connected_create.gd
+[0m* test_normal_title_new_game_reaches_day4_and_saves_exact_caption
+[1m1/1 passed.
+[0m
+
+
+
+[33m==============================================
+[0m[33m= Run Summary
+[0m[33m==============================================
+[0m
+Totals
+------
+Scripts               1
+Tests                 1
+Passing Tests         1
+Asserts              99
+Time              6.897s
+
+
+Ran Tests matching "test_normal_title_new_game_reaches_day4_and_saves_exact_caption"
+[32m---- All tests passed! ----
+[0m
+Results saved to res://.godot/reading-adapter-tests/terminal-create.xml

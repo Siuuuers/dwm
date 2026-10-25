@@ -11,6 +11,7 @@ func test_seven_days_and_registered_ending_compile_with_explicit_links() -> void
 	assert_true(MANIFEST.validate_scene_registration(bundle).get("ok", false))
 	assert_true(CONTRACT.validate_bundle_structure(bundle).get("ok", false))
 	assert_eq(bundle.schema_version, 3)
+	assert_eq(bundle.scene_programme.story_days, {"Day1": 1, "Day2": 2, "Day3": 3, "Day4": 4, "Day5": 5, "Day6": 6, "Day7": 7, "ending.alone.normal": 7})
 	assert_eq(result.value.first_target_id, "target.Day1")
 	var ids: Array = []
 	for row: Dictionary in bundle.entry_manifest.entries: ids.append(row.entry_id)

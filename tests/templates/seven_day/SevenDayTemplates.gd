@@ -40,7 +40,7 @@ static func prepare() -> Dictionary:
 				"payload_fields": ["entry_id", "line_id", "playback_token", "receipt_id"]},
 				{"signal_id": "scene.transition", "payload_fields": ["target_id"]}]},
 		"caption_registry": {"kind": "scene_caption_registry", "schema_version": 1, "entries": []},
-		"scene_programme": {"kind": "scene_programme", "schema_version": 1, "entries": []},
+		"scene_programme": {"kind": "scene_programme", "schema_version": 1, "entries": [], "story_days": {}},
 		"targets": [], "board_profiles": [], "challenges": [], "contacts": [],
 		"contact_definitions": {"kind": "scene_contact_definitions", "schema_version": 1, "messages": [], "replies": []},
 		"audio_catalogue": {"kind": "scene_audio_catalogue", "schema_version": 2,
@@ -52,6 +52,7 @@ static func prepare() -> Dictionary:
 				"missing_media": "silence", "music": MUSIC_ASSET_ID, "cues": []}], "bindings": []}}
 	for index in range(order.size()):
 		var id: String = order[index]
+		bundle.scene_programme.story_days[id] = index + 1
 		var path: String = DAY_DIRECTORY + id + ".dtl"
 		var markers: Array = []
 		var grants := ["history.line.witness"]
@@ -105,6 +106,7 @@ static func prepare() -> Dictionary:
 	if ending_entry.is_empty(): return {"ok": false, "code": "ending_registration_missing"}
 	ending_entry.locators = {"en": {"path": ENDING_PATH, "label": ENDING_ID}}
 	bundle.entry_manifest.entries.append(ending_entry)
+	bundle.scene_programme.story_days[ENDING_ID] = order.size()
 	for context: Dictionary in contexts.value.schemas:
 		if context.entry_id == ENDING_ID: bundle.context_registry.schemas.append(context.duplicate(true))
 	var ending: Dictionary = ADAPTER.compile_scene_programme(ENDING_PATH, ENDING_ID, all_ids, [])

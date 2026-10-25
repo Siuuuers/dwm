@@ -260,9 +260,13 @@ func load_and_complete_week(stop_after_load: bool = false, witness_save: bool = 
 	var layer: Node = _caption()
 	assert_eq(layer.get_caption_projection().retained_captions, ["TEST Day4 opening."])
 	assert_eq(layer.get_caption_projection().caption_window, ["TEST Day4 opening.", "TEST Day4 closing."])
-	assert_eq(layer._scrollback, ["TEST Day4 opening."], "earlier days cannot leak into this occurrence")
+	assert_eq(layer._scrollback, ["TEST Day4 opening."], "earlier days cannot leak into current-day History")
 	assert_eq(layer._review_offset, 0)
-	assert_eq(bridge.get_reading_history().value.captions.size(), 8)
+	assert_eq(bridge._reading_session.ledger.snapshot().captions.size(), 1, "Load retains only the current live publication")
+	var history: Dictionary = bridge.get_reading_history()
+	if not _ok(history): return
+	assert_eq(history.value.captions.map(func(row: Dictionary) -> String: return row.text),
+		["TEST Day4 opening.", "TEST Day4 closing."], "History reconstructs the complete current day without old-day rows")
 	var stale: Dictionary = layer._presented_line.duplicate(true)
 	stale.value.token = "stale-playback"
 	assert_false(bridge.get_scene_caption_memory(stale).ok)
