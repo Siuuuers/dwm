@@ -3,6 +3,16 @@ extends "res://addons/gut/test.gd"
 const FIXTURE := preload("res://tests/support/SceneChallengeFixture.gd")
 const LEDGER := preload("res://scripts/profile/DatingAttemptLedger.gd")
 const PORT := preload("res://scripts/application/run/DatingPresentationPort.gd")
+# This suite owns physical/Profile transaction seams. Atomic destination persistence
+# and receipt-free player saves are exercised by the rendered integration children.
+class SelectedClosedState extends RefCounted:
+	var record: Dictionary
+	var closure: Dictionary
+	func capture_dating_challenge_state() -> Dictionary:
+		return {"ok": true, "value": record.duplicate(true)}
+	func capture_scene_challenge_closure(_context: Dictionary) -> Dictionary:
+		return {"ok": true, "value": closure.duplicate(true)}
+
 var f: RefCounted
 
 func before_each() -> void:
@@ -502,3 +512,79 @@ func test_before_save_flush_of_pending_checkpoint_still_requires_source_admissio
 	assert_true(retried.value.get("committed", false))
 	assert_eq(f.attempt().value, attempt)
 	assert_eq(f.authority.checkpoints.size(), checkpoints + 1)
+
+func test_closed_current_outcome_without_proof_keeps_exact_board_read_only() -> void:
+	assert_true(f.begin().ok)
+	assert_true(f.action("start").ok)
+	assert_true(f.action("reveal", 36).ok)
+	assert_true(f.action("reveal", 0).ok)
+	var closed: Dictionary = f.owner.close_scene_challenge(f.token)
+	assert_true(closed.ok, str(closed))
+	if not closed.ok: return
+	var selected: Dictionary = f.record()
+	var profile_before: Dictionary = f.profile.get_profile_snapshot()
+	var checkpoints: Array = f.authority.checkpoints.duplicate(true)
+	# Fresh Load projects this current outcome without the old live proof.
+	f.authority.closures[f.state.lifecycle.branch_id].attempt_proof = null
+	f.authority.presentation_held = true
+	var view: Dictionary = f.owner.pull_physical(f.token)
+	assert_true(view.ok, str(view))
+	if view.ok:
+		assert_eq(view.value.phase, "closed")
+		assert_eq(view.value.state, "lost")
+		assert_eq(view.value.actions, [])
+	assert_false(f.action("reveal", 37).ok)
+	f.state.route_context.active_dating_challenge = {}
+	assert_false(f.owner.pull_physical(f.token).ok, "closed view refuses a different selected Run board")
+	f.state.route_context.active_dating_challenge = selected.duplicate(true)
+	# With no playable command after Load, before-save accepts only the exact
+	# retained board and its direct outcome, never a Profile-derived replacement.
+	var current := SelectedClosedState.new()
+	current.record = selected.duplicate(true)
+	current.closure = f.authority.closures[f.state.lifecycle.branch_id].duplicate(true)
+	f.owner.set("_game_state", current)
+	f.owner.set("_admitted_command", {})
+	var flushed: Dictionary = f.owner.flush_pending_attempt()
+	assert_true(flushed.ok, str(flushed))
+	if flushed.ok: assert_false(flushed.value.committed)
+	current.record = {}
+	assert_false(f.owner.flush_pending_attempt().ok, "missing selected board refuses closed no-op")
+	current.record = selected.duplicate(true)
+	current.closure.outcome = "won"
+	assert_false(f.owner.flush_pending_attempt().ok, "contradictory current outcome refuses closed no-op")
+	current.closure = f.authority.closures[f.state.lifecycle.branch_id].duplicate(true)
+	current.closure.playable_command_id = "TEST.foreign.playable"
+	assert_false(f.owner.flush_pending_attempt().ok, "another challenge command cannot close this board")
+	assert_eq(f.record(), selected)
+	assert_eq(f.profile.get_profile_snapshot(), profile_before)
+	assert_eq(f.authority.checkpoints, checkpoints)
+	assert_eq(f.state.effects, 0)
+
+func test_failed_finish_retries_same_board_without_duplicate_profile_or_reward() -> void:
+	assert_true(f.begin().ok)
+	assert_true(f.action("start").ok)
+	assert_true(f.action("reveal", 36).ok)
+	assert_true(f.action("reveal", 0).ok)
+	var selected: Dictionary = f.record()
+	var attempt: Dictionary = f.attempt().value
+	var profile_before: Dictionary = f.profile.get_profile_snapshot()
+	var checkpoints: Array = f.authority.checkpoints.duplicate(true)
+	f.authority.reject_closure = true
+	var refused: Dictionary = f.owner.close_scene_challenge(f.token)
+	assert_false(refused.ok)
+	assert_eq(f.authority.closures, {})
+	assert_eq(f.record(), selected)
+	assert_eq(f.attempt().value, attempt)
+	f.authority.reject_closure = false
+	var retried: Dictionary = f.owner.close_scene_challenge(f.token)
+	assert_true(retried.ok, str(retried))
+	if retried.ok: assert_eq(retried.value.outcome, "lost")
+	assert_false(f.owner.close_scene_challenge(f.token).ok)
+	assert_eq(f.authority.closures.size(), 1)
+	assert_eq(f.record(), selected)
+	assert_eq(f.attempt().value, attempt)
+	assert_eq(f.profile.get_profile_snapshot(), profile_before)
+	assert_eq(f.authority.checkpoints.size(), checkpoints.size() + 2)
+	for checkpoint: Dictionary in f.authority.checkpoints.slice(checkpoints.size()):
+		assert_eq(checkpoint, selected, "each Finish source checkpoint preserves the exact same board")
+	assert_eq(f.state.effects, 0)

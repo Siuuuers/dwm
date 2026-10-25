@@ -214,6 +214,7 @@ label Day7.E.next
 return
 
 label ending.alone.normal
+label ending.alone.normal.start
 \At the rear doors of the building, the evening rain falls straight down through the courtyard lamp light. #id:line.ending.alone.normal.001
 \The long black umbrella stands in the rack beside the threshold. #id:line.ending.alone.normal.002
 \My right hand takes the curved wooden handle; my shoulder pushes the heavy door outward, and my thumb presses the catch. #id:line.ending.alone.normal.003
@@ -236,5 +237,6 @@ label ending.alone.normal
 \“That isn't a time.” #id:line.ending.alone.normal.020
 \“Before then.” #id:line.ending.alone.normal.021
 \Lavinia laughs once under her breath, rests her temple against my shoulder beneath the black canopy, and lets the turn take us up the hill. #id:line.ending.alone.normal.022
+label ending.alone.normal.finish
 return
 

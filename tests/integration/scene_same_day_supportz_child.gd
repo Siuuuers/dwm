@@ -58,6 +58,8 @@ func create_same_day_supportz() -> void:
 	if not _ok(player_board): return
 	assert_false(saved_board.has("command_receipts"), "player slot omits transient board retries")
 	assert_eq(saved_board, player_board.value.snapshot, "strict JSON slot preserves exact settled board facts")
+	assert_false(slot.value.current_snapshot.snapshot.has("command_receipts"),
+		"player slot contains current facts without command history")
 	assert_eq(run.desktop.consequence.shop_ledger.base_completion_receipts.size(), 2)
 	assert_eq(run.desktop.consequence.shop_ledger.supportz_branch_purchase_count, 0)
 	var proof := {"process_id": OS.get_process_id(), "run": run,
@@ -85,7 +87,7 @@ func load_same_day_supportz() -> void:
 	if not await _wait_line("scene.test.b", "line.scene.test.b.one"): return
 	var restored: Dictionary = BOARD_STATE._inspection_normalize(game.capture_run_snapshot_input())
 	assert_eq(restored.gameplay, proof.run.gameplay, "Load preserves rewards and daily completion count")
-	assert_eq(restored.command_receipts, proof.run.command_receipts)
+	assert_true(restored.command_receipts.is_empty(), "Load starts a fresh command session")
 	var expected_ledger: Dictionary = proof.run.desktop.consequence.shop_ledger.duplicate(true)
 	for completion: Dictionary in expected_ledger.base_completion_receipts:
 		if completion.causal_day_instance == proof.run.lifecycle.causal_day_instance:
@@ -107,18 +109,28 @@ func load_same_day_supportz() -> void:
 	var disk: Dictionary = saves._storage.read_text("autosave.json")
 	var owner: Object = bootstrap._retained_minesweeper_round_coordinator_app
 	var completions := _completion_receipts()
-	assert_eq(completions.size(), 2)
-	for receipt: Dictionary in completions.values():
+	assert_true(completions.is_empty(), "Load does not restore app-round retry acknowledgements")
+	for receipt: Dictionary in proof.run.command_receipts.values():
+		if receipt.get("kind") != "scene_round_completion": continue
 		var saved: Dictionary = receipt.scene_round_completion
 		var request := {"transaction_id": receipt.transaction_id, "transaction_issuer_receipt": saved.issuer_receipt,
 			"expected_identity": saved.completion.board_identity, "expected_revision": saved.completion.revision}
 		var retried: Dictionary = owner.complete_round(request)
-		if not _ok(retried): return
-		assert_true(retried.get("already_applied", false))
+		assert_false(retried.get("ok", false), "pre-Load command belongs to the prior board identity")
 		assert_eq(BOARD_STATE._inspection_normalize(game.capture_run_snapshot_input()), restored)
-		assert_eq(saves._storage.read_text("autosave.json"), disk, "historical retry makes no new checkpoint")
+		assert_eq(saves._storage.read_text("autosave.json"), disk, "stale retry makes no new checkpoint")
 		request.expected_revision += 1
 		assert_false(owner.complete_round(request).get("ok", false), "changed historical request conflicts")
+	var issued: Dictionary = bootstrap._desktop_identity_nonce_issuer.issue(&"transaction_id")
+	if not _ok(issued): return
+	var current_board: Dictionary = bootstrap._desktop_board_state.capture()
+	var current_retry: Dictionary = owner.complete_round({"transaction_id": issued.value.token,
+		"transaction_issuer_receipt": issued.value.issuer_receipt,
+		"expected_identity": current_board.identity.duplicate(true), "expected_revision": int(current_board.revision)})
+	if not _ok(current_retry): return
+	assert_true(current_retry.get("already_applied", false), "settled board prevents repeat reward without historical receipts")
+	assert_eq(BOARD_STATE._inspection_normalize(game.capture_run_snapshot_input()), restored)
+	assert_eq(saves._storage.read_text("autosave.json"), disk)
 	var host: Control = get_tree().current_scene
 	var shell: Control = await _open_apps(host)
 	if shell == null or not await _launch_app(shell, &"minesweeper"): return

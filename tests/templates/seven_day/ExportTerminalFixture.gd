@@ -1,5 +1,5 @@
 extends SceneTree
-## Test-only short registration. The caller restores both installed files after use.
+## Test-only short registration. The caller restores the installed registration after use.
 const TEMPLATES := preload("res://tests/templates/seven_day/SevenDayTemplates.gd")
 const WRITER := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 
@@ -10,12 +10,7 @@ func _initialize() -> void:
 		quit(1)
 		return
 	var registration: Dictionary = prepared.value.registration
-	var lines: Array = []
-	for row: Dictionary in registration.caption_registry.entries:
-		if row.entry_id == TEMPLATES.ENDING_ID: lines = row.lines.duplicate(true)
-	var catalogue := {"kind": "ending_reading_catalogue", "schema_version": 1,
-		"entries": [{"entry_id": TEMPLATES.ENDING_ID, "content_version": 1, "lines": lines}]}
-	for item: Array in [["scene_story_registration.json", registration], ["scene_ending_reading_catalogue.json", catalogue]]:
+	for item: Array in [["scene_story_registration.json", registration]]:
 		var encoded: Dictionary = WRITER.stringify(item[1])
 		if not encoded.ok:
 			push_error(str(encoded))

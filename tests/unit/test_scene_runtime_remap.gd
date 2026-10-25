@@ -21,15 +21,14 @@ func _source() -> Dictionary:
 				"selection_kind": "initial_random", "rng_nonce": 0, "predecessor_run_id": null,
 				"predecessor_assignment_sha256": null, "creation_transaction_id": "TEST.creation"}},
 		"scene": {"registration_sha256": "a".repeat(64), "active_occurrence_id": "TEST.contact.occurrence",
-			"active_admission_receipt_id": "TEST.contact.admission"},
+			"entry_id": "TEST.contact.entry", "notification": {}, "active_challenge": {},
+			"return_to": {"parent": {"active_occurrence_id": "TEST.parent", "entry_id": "TEST.parent.entry",
+				"notification": {}, "active_challenge": {"challenge_id": "TEST.challenge", "playable_command_id": "TEST.playable"}},
+				"target_id": "TEST.parent.target", "contact_event_id": "TEST.contact.event"}},
 		"desktop": {"board": BOARD.new().capture(), "consequence": consequence},
-		"command_receipts": {"TEST.contact.admission": {"TEST.historical": {"return_to": {
-			"scene_occurrence": "TEST.parent", "admission_receipt_id": "TEST.parent.admission",
-			"entry_id": "TEST.parent.entry", "target_id": "TEST.parent.target", "source_checkpoint": "TEST.checkpoint"}}}},
 		"contacts": {"TEST.historical": "TEST.old.branch"},
 		"narrative_checkpoint": {"TEST.logical_occurrence": "TEST.contact.occurrence"},
-		"gameplay": {"TEST.physical_history": {"branch_id": "TEST.old.branch", "preimage": "unchanged"}},
-		"applied_effect_transaction_ids": ["TEST.effect"], "applied_variable_transaction_ids": ["TEST.variable"]}
+		"gameplay": {"TEST.physical_history": {"branch_id": "TEST.old.branch", "preimage": "unchanged"}}}
 
 func _bundle() -> Dictionary:
 	return {"transaction_id": "TEST.restore", "transaction_issuer_receipt": _receipt("transaction_id", "TEST.restore"),
@@ -48,8 +47,7 @@ func test_scene_without_live_commands_preserves_all_historical_and_logical_refer
 	assert_true(result.ok, str(result))
 	if not result.ok: return
 	var candidate: Dictionary = result.value.snapshot
-	for key: String in ["scene", "command_receipts", "contacts", "narrative_checkpoint", "gameplay",
-			"applied_effect_transaction_ids", "applied_variable_transaction_ids"]:
+	for key: String in ["scene", "contacts", "narrative_checkpoint", "gameplay"]:
 		assert_eq(candidate[key], source[key], key)
 	assert_false(candidate.has("audio_context"), "remapping keeps presentation metadata out of player state")
 	assert_eq(candidate.lifecycle.scene_assignment, source.lifecycle.scene_assignment, "Load preserves assigned form and creation receipt")
@@ -59,7 +57,7 @@ func test_scene_without_live_commands_preserves_all_historical_and_logical_refer
 	assert_eq(candidate.desktop.consequence.causal_day_instance, "TEST.new.causal")
 	assert_eq(source, before, "pure remap retains selected source")
 	assert_true(REMAPPER.validate_remap(source, candidate, bundle).ok)
-	candidate.command_receipts["TEST.contact.admission"]["TEST.historical"].return_to.scene_occurrence = "TEST.forged"
+	candidate.scene.return_to.parent.active_occurrence_id = "TEST.forged"
 	assert_false(REMAPPER.validate_remap(source, candidate, bundle).ok)
 
 func test_scene_live_desktop_keys_move_without_importing_scene_history_into_census() -> void:
@@ -150,7 +148,7 @@ func test_scene_same_day_load_preserves_supportz_eligibility_and_purchase_limits
 				"daily_purchase_done": projected.supportz_last_purchase_causal_day_instance == bundle.causal_day_instance})
 			assert_true(eligibility.ok)
 			assert_eq(eligibility.value.eligible, not purchased)
-			assert_eq(candidate.command_receipts, before.command_receipts)
+			assert_eq(candidate.scene, before.scene)
 			assert_true(REMAPPER.validate_remap(source, candidate, bundle).ok)
 			if load_index == 0: assert_eq(source, before, "remapping never edits the selected save")
 			source = candidate

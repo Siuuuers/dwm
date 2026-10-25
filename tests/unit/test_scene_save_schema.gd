@@ -71,28 +71,29 @@ func test_scene_progress_distinguishes_no_closure_from_never_started_and_keeps_o
 	var gameplay: Dictionary = preload("res://autoload/GameState.gd").make_scene_new_run_gameplay()
 	assert_eq(gameplay.scene_choices, {})
 	assert_eq(gameplay.scene_challenge_outcomes, {}, "no completed Challenge is not never_started")
-	gameplay.scene_choices = {"thought.test": "second", "thought.default": "pass", "thought.accepted": "yes"}
+	gameplay.scene_choices = {"Day2.threshold": "stay", "Day2.food": "pass", "Day1.photo": "yes"}
 	var first := "a".repeat(64)
 	var second := "b".repeat(64)
 	gameplay.scene_challenge_outcomes = {
-		first: {"challenge_id": "challenge.test", "outcome": "never_started"},
-		second: {"challenge_id": "challenge.test", "outcome": "perfect"}}
+		first: {"challenge_id": "Day1.challenge", "outcome": "never_started"},
+		second: {"challenge_id": "Day1.challenge", "outcome": "perfect"}}
 	var before := gameplay.duplicate(true)
 	assert_eq(RUN._validate_scene_gameplay(gameplay), "", "separate occurrences retain separate outcomes")
 	assert_eq(gameplay, before, "shape validation does not collapse or synthesize progress")
 
 func test_scene_progress_refuses_malformed_required_facts() -> void:
 	var initial: Dictionary = preload("res://autoload/GameState.gd").make_scene_new_run_gameplay()
-	for invalid: Variant in [null, [], {"": "pass"}, {"thought.test": ""}, {"thought.test": false}]:
+	for invalid: Variant in [null, [], {"": "pass"}, {"Day1.photo": ""}, {"Day1.photo": false}, {"unregistered.thought": "pass"}, {"Day1.photo": "missing"}]:
 		var gameplay := initial.duplicate(true)
 		gameplay.scene_choices = invalid
 		assert_ne(RUN._validate_scene_gameplay(gameplay), "", "invalid choice fact: " + str(invalid))
 	var occurrence := "a".repeat(64)
-	for invalid: Variant in [null, [], {"bad-occurrence": {"challenge_id": "challenge.test", "outcome": "won"}},
+	for invalid: Variant in [null, [], {"bad-occurrence": {"challenge_id": "Day1.challenge", "outcome": "won"}},
 			{occurrence: {"challenge_id": "", "outcome": "won"}},
-			{occurrence: {"challenge_id": "challenge.test", "outcome": "missing"}},
-			{occurrence: {"challenge_id": "challenge.test"}},
-			{occurrence: {"challenge_id": "challenge.test", "outcome": "won", "receipt": "extra"}}]:
+			{occurrence: {"challenge_id": "unregistered.challenge", "outcome": "won"}},
+			{occurrence: {"challenge_id": "Day1.challenge", "outcome": "missing"}},
+			{occurrence: {"challenge_id": "Day1.challenge"}},
+			{occurrence: {"challenge_id": "Day1.challenge", "outcome": "won", "receipt": "extra"}}]:
 		var gameplay := initial.duplicate(true)
 		gameplay.scene_challenge_outcomes = invalid
 		assert_ne(RUN._validate_scene_gameplay(gameplay), "", "invalid outcome fact: " + str(invalid))

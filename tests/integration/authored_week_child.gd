@@ -128,20 +128,9 @@ func _save_authored(slot: int, label: String) -> Dictionary:
 		fail_test("Authored physical Save timeout")
 		return {}
 	if not _ok(app.last_result): return {}
-	if sheet.surface._direct_host:
-		if not await _press_authored(sheet.surface._sheet_back): return {}
-	else:
-		# Ending uses the retained Pause host: Escape leaves Backup, then Continue.
-		for pressed: bool in [true, false]:
-			var event := InputEventKey.new()
-			event.keycode = KEY_ESCAPE
-			event.physical_keycode = KEY_ESCAPE
-			event.pressed = pressed
-			get_viewport().push_input(event, true)
-			await get_tree().process_frame
-		assert_eq(sheet.surface.entered_action, &"", "native Back leaves ending Backup")
-		if sheet.surface.entered_action != &"": return {}
-		if not await _press_authored(sheet.surface.rows[&"continue"]): return {}
+	assert_true(sheet.surface._direct_host, "all authored captions use ordinary Scene Backup")
+	if not sheet.surface._direct_host: return {}
+	if not await _press_authored(sheet.surface._sheet_back): return {}
 	assert_false(get_tree().paused)
 	var parsed: Dictionary = PARSER.parse_object(FileAccess.get_file_as_string(path))
 	if not _ok(parsed): return {}
@@ -198,7 +187,7 @@ func _load_authored(slot: int, proof: Dictionary) -> bool:
 	var current: Dictionary = game.capture_run_snapshot_input()
 	assert_eq(current.lifecycle.run_id, proof.snapshot.lifecycle.run_id)
 	assert_ne(current.lifecycle.branch_id, proof.snapshot.lifecycle.branch_id)
-	for key: String in ["gameplay", "scene", "command_receipts", "applied_effect_transaction_ids", "applied_variable_transaction_ids"]:
+	for key: String in ["gameplay", "scene"]:
 		assert_eq(current[key], proof.snapshot[key], "Load preserves " + key)
 	assert_eq(profile.get_profile_snapshot(), profile_before, "Load preserves current profile")
 	assert_eq(FileAccess.get_sha256(path), proof.slot_sha256)
@@ -210,13 +199,13 @@ func _complete_authored() -> Dictionary:
 	if not await _wait_route(MENU): return {}
 	var finished: Dictionary = game._run_lifecycle.to_dict().duplicate(true)
 	assert_eq(finished.state, "COMPLETED")
-	assert_eq(finished.ending_plan.playback_stage, "GALLERY_RECORDED")
-	assert_eq(finished.ending_plan.next_step_index, 1)
+	assert_false(finished.has("ending_plan"), "ordinary passage completion has no terminal plan")
 	assert_false(game.capture_live_session().value.active)
 	var durable: Dictionary = PARSER.parse_object(FileAccess.get_file_as_string("user://saves/autosave.json"))
 	if not _ok(durable): return {}
 	assert_eq(durable.value.current_snapshot.snapshot.lifecycle.state, "COMPLETED")
-	assert_eq(durable.value.current_snapshot.snapshot.lifecycle.ending_plan, finished.ending_plan)
+	assert_false(durable.value.current_snapshot.snapshot.lifecycle.has("ending_plan"))
+	assert_eq(durable.value.current_snapshot.snapshot.narrative_checkpoint.entry_id, "ending.alone.normal")
 	await _screenshot("authored-" + _phase + "-completed-title")
 	return finished
 
@@ -243,7 +232,7 @@ func load_authored_week() -> void:
 	assert_eq(profile.get_profile_snapshot(), proof.profile)
 	if not await _load_authored(1, proof): return
 	if not await _walk_authored(DAY4_INDEX + 1, ENDING_INDEX): return
-	assert_true(get_tree().current_scene is EndingScene)
+	assert_eq(get_tree().current_scene.scene_file_path, HOST, "umbrella passage remains ordinary Scene playback")
 	var ending_proof: Dictionary = await _save_authored(2, "ending")
 	if ending_proof.is_empty(): return
 	if not await _walk_authored(ENDING_INDEX + 1, _expected.size() - 1): return
@@ -251,8 +240,8 @@ func load_authored_week() -> void:
 	var finished: Dictionary = await _complete_authored()
 	if finished.is_empty(): return
 	var completed_profile: Dictionary = profile.get_profile_snapshot()
-	var gallery_id := "ending:%s:gallery:ending.alone" % str(proof.snapshot.lifecycle.run_id)
-	assert_eq(completed_profile.gallery_transaction_receipts.get(gallery_id), {"ending_id": "ending.alone", "unlocked": true})
+	var gallery_id := "passage:%s:gallery:passage.umbrella" % str(proof.snapshot.lifecycle.run_id)
+	assert_eq(completed_profile.gallery_transaction_receipts.get(gallery_id), {"ending_id": "passage.umbrella", "unlocked": true})
 	assert_eq(completed_profile.gallery_transaction_receipts.size(), proof.profile.gallery_transaction_receipts.size() + 1)
 	assert_eq(FileAccess.get_sha256("user://saves/slot_1.json"), proof.slot_sha256)
 	assert_eq(FileAccess.get_sha256("user://saves/slot_2.json"), ending_proof.slot_sha256)
@@ -271,7 +260,7 @@ func replay_authored_ending() -> void:
 	var proof: Dictionary = parsed.value
 	if not _setup_authored(): return
 	var before: Dictionary = profile.get_profile_snapshot().duplicate(true)
-	var gallery_id := "ending:%s:gallery:ending.alone" % str(proof.snapshot.lifecycle.run_id)
+	var gallery_id := "passage:%s:gallery:passage.umbrella" % str(proof.snapshot.lifecycle.run_id)
 	assert_true(before.gallery_transaction_receipts.has(gallery_id), "previous process completed ending")
 	var day4_hash := FileAccess.get_sha256("user://saves/slot_1.json")
 	if not await _load_authored(2, proof): return

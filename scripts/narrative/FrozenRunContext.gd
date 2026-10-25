@@ -122,22 +122,39 @@ static func _validate_reading_checkpoint_body(checkpoint: Dictionary, snapshot: 
 	for key: String in ["entry_id", "manifest_fingerprint", "stage", "transaction_id"]:
 		if not FROZEN._field(checkpoint[key], "id"): return _fail(&"reading_session_invalid")
 	if _is_scene_checkpoint(checkpoint):
-		# The compact player position reconstructs only its retained caption strip.
-		# Actual admission receipts still own those occurrences; no history is invented.
+		# Historical terminal fixtures carry an independently authenticated source.
+		# Current Scene saves never enter this receipt-based compatibility branch.
+		if not scene_receipts.is_empty():
+			var legacy: Dictionary = SCENE_READING.expand_player_checkpoint(checkpoint)
+			if not legacy.ok: return legacy
+			var envelope := _validate_scene_envelope(legacy.value)
+			if not envelope.ok: return envelope
+			if not snapshot.get("scene") is Dictionary: return _saved_run_failure(snapshot, "scene_envelope")
+			var reading: Dictionary = legacy.value.reading_session
+			if snapshot.scene.get("registration_sha256") != reading.registration_sha256 \
+					or snapshot.scene.get("active_occurrence_id") != reading.occurrence_id \
+					or snapshot.scene.get("active_admission_receipt_id") != reading.occurrence_id:
+				return _fail(&"reading_scene_admission_invalid")
+			var frames := derive_scene_frames(scene_receipts.admissions, reading)
+			if frames.ok: frames["scene_commands"] = scene_receipts.commands
+			return frames
+		# Only current presentation belongs to a player checkpoint. Its Scene owner
+		# supplies identity directly; no historical admission receipts are rebuilt.
+		var supplied_reading: Variant = checkpoint.get("reading_session")
+		if not supplied_reading is Dictionary: return _fail(&"reading_session_invalid")
+		if supplied_reading.get("schema_version") == 5:
+			var projected: Dictionary = SCENE_READING.project_player_checkpoint(checkpoint)
+			if not projected.ok: return projected
+			checkpoint = projected.value
 		var expanded: Dictionary = SCENE_READING.expand_player_checkpoint(checkpoint)
 		if not expanded.ok: return expanded
 		checkpoint = expanded.value
 		var scene := _validate_scene_envelope(checkpoint)
 		if not scene.ok: return scene
 		if snapshot.get("schema_version") != 9 or snapshot.get("route_id") != "scene" \
-				or not snapshot.get("command_receipts") is Dictionary or not snapshot.get("scene") is Dictionary:
+				or not snapshot.get("scene") is Dictionary:
 			return _saved_run_failure(snapshot, "scene_envelope")
-		if scene_receipts.is_empty():
-			var receipts: Dictionary = SCENE_CONTRACT.validate_selected_scene_receipts(snapshot.command_receipts,
-				_scene_issuer, _scene_creation_owner, snapshot.contacts)
-			if not receipts.get("ok", false): return receipts
-			scene_receipts = receipts.value
-		return _scene_reading_frames(checkpoint, snapshot.scene, scene_receipts)
+		return derive_current_scene_frames(snapshot.scene, checkpoint.reading_session)
 
 	if not snapshot.get("lifecycle") is Dictionary or not snapshot.get("gameplay") is Dictionary \
 			or not snapshot.get("contacts") is Dictionary \
@@ -254,16 +271,33 @@ static func _is_scene_checkpoint(checkpoint: Variant) -> bool:
 			or (frame is Dictionary and (frame.get("role") is String and frame.role == "scene"))
 
 ## Input is the ledger authenticated earlier in this call, never a saved proof.
-static func _scene_reading_frames(checkpoint: Dictionary, scene: Dictionary, receipts: Dictionary) -> Dictionary:
-	var reading: Dictionary = checkpoint.reading_session
-	if scene.get("registration_sha256") != reading.registration_sha256 \
-			or scene.get("active_occurrence_id") != reading.occurrence_id \
-			or scene.get("active_admission_receipt_id") != reading.occurrence_id:
+## Validate the one current presentation against authoritative Scene facts and
+## installed content. The frame's historical field name is an occurrence alias.
+static func derive_current_scene_frames(scene: Dictionary, reading: Dictionary) -> Dictionary:
+	if not READING_NEXT.valid_scene_reading_shape(reading): return _fail(&"reading_session_invalid")
+	var occurrence: Variant = scene.get("active_occurrence_id")
+	var entry_id: Variant = scene.get("entry_id")
+	if not FROZEN._field(occurrence, "id") or not FROZEN._field(entry_id, "id") \
+			or scene.get("registration_sha256") != SCENE_ENTRIES.scene_registration_fingerprint() \
+			or reading.registration_sha256 != scene.registration_sha256 \
+			or reading.occurrence_id != occurrence or reading.entry_id != entry_id:
 		return _fail(&"reading_scene_admission_invalid")
-	var frames := derive_scene_frames(receipts.admissions, reading)
-	if not frames.ok: return frames
-	frames["scene_commands"] = receipts.commands
-	return frames
+	var registered := SCENE_ENTRIES.scene_registration()
+	if not registered.ok: return registered
+	var role: String = "contact" if scene.get("return_to") != null else "scene"
+	var found := false
+	for row: Dictionary in registered.value.targets:
+		if row.target.entry_id == entry_id and row.target.kind == role:
+			found = true
+	if not found: return _fail(&"reading_scene_admission_invalid")
+	var presentation := FROZEN.build(entry_id, {"entry_id": entry_id,
+		"entry_role": "scene", "occurrence_id": occurrence, "admission_receipt_id": occurrence})
+	if not presentation.ok: return presentation
+	var frame := {"expected_stage": "scene", "playback_id": occurrence, "role": "scene",
+		"transaction_id": occurrence, "presentation": presentation.value}
+	var frames := {SCENE_LEDGER.scene_frame_key(occurrence, entry_id): frame}
+	if reading.ledger.entry_contexts != frames: return _fail(&"reading_entry_context_mismatch")
+	return {"ok": true, "value": {"entry_contexts": frames}}
 
 static func _validate_scene_envelope(checkpoint: Dictionary) -> Dictionary:
 	var reading: Variant = checkpoint.get("reading_session")

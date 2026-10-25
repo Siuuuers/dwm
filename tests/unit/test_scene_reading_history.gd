@@ -109,6 +109,8 @@ func test_day7_both_clipboards_results_recording_recall_and_all_aftermath_paths(
 						choices[recalled_entry + ".aftermath"] = after
 						path.append("Day7." + side + ".D.board" if after == "board" else "Day7.D." + ("default" if after == "pass" else after))
 					else: path.append("Day7." + RESULTS[outcome])
+					# Every authored Day7 route continues through the complete ordinary umbrella passage.
+					path.append("ending.alone.normal")
 					_check_path(path, choices, {"Day1.challenge": recalled, "Day7." + side + ".challenge": outcome})
 
 func test_current_prefix_and_held_choice_need_no_future_facts() -> void:

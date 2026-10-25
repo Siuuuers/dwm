@@ -850,6 +850,8 @@ func _focusable(control: Control) -> bool:
 	return is_instance_valid(control) and control.is_visible_in_tree() and control.focus_mode != Control.FOCUS_NONE
 
 func _reveal_focused_row() -> void:
+	# Loading a Run can detach the title before its queued layout reveal runs.
+	if not is_inside_tree(): return
 	var focus := get_viewport().gui_get_focus_owner()
 	if focus != null and focus.get_parent() == _ending_tile_grid: _reveal_row(focus)
 

@@ -41,4 +41,17 @@ func test_authored_week_compiles_and_preserves_conditional_branch_bindings() -> 
 		assert_eq(markers[0].after_line_id, markers[1].after_line_id, "one real cue caption, no invented intermediate witness")
 	var ending: Dictionary = bundle.entry_manifest.entries.back()
 	assert_eq(ending.entry_id, "ending.alone.normal")
-	assert_eq(ending.role, "alone_step")
+	assert_eq(ending.role, "scene")
+	var passages: Dictionary = preload("res://scripts/narrative/ScenePassageCatalog.gd").inspect(bundle)
+	assert_true(passages.ok, str(passages))
+	if not passages.ok: return
+	var umbrella: Dictionary = passages.value.records.get("passage.umbrella", {})
+	assert_false(umbrella.is_empty())
+	if umbrella.is_empty(): return
+	assert_eq(umbrella.entry_id, "ending.alone.normal")
+	assert_eq(umbrella.line_ids.size(), 22)
+	assert_eq(umbrella.line_ids.front(), "line.ending.alone.normal.001")
+	assert_eq(umbrella.line_ids.back(), "line.ending.alone.normal.022")
+	assert_eq(entries["ending.alone.normal"].markers[0].after_line_id, "")
+	for target: Dictionary in bundle.targets:
+		assert_ne(target.target.kind, "ending", "production finishes through ordinary passage markers")

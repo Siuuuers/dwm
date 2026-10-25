@@ -459,7 +459,7 @@ func test_new_scene_writes_omit_fallback_snapshots_without_changing_admitted_his
 		if not built.ok: return
 		assert_eq(built.value.recovery_journal, [])
 		assert_eq(built.value.current_snapshot, unchanged.current_snapshot,
-			"writing preserves the complete selected snapshot, including receipts and creation authority")
+			"writing preserves the complete selected snapshot, including current state and creation authority")
 	for kind: StringName in [&"line", &"manual_save", &"safe_marker"]:
 		var next: Dictionary = journal.get_current_bundle().value.bundle.snapshot
 		next.checkpoint_sequence = journal.peek_next_sequence(next.run_id).value.checkpoint_sequence
@@ -513,7 +513,7 @@ func test_scene_gameplay_adoption_and_recapture_preserve_progress_without_relati
 		assert_eq(restored.inventory.lucky_charm, 1, "captured inventory stays detached")
 	restored.free()
 
-func test_scene_progress_without_matching_command_is_refused_without_mutation() -> void:
+func test_unregistered_scene_progress_is_refused_without_mutation() -> void:
 	assert_true(fixture_ready)
 	if not fixture_ready: return
 	var source: Dictionary = fixture.read_autosave().value.current_snapshot.snapshot.duplicate(true)
@@ -525,8 +525,8 @@ func test_scene_progress_without_matching_command_is_refused_without_mutation() 
 			"a".repeat(64): {"challenge_id": "TEST.challenge", "outcome": "never_started"}}
 		var unchanged := changed.duplicate(true)
 		var refused := RUN_SCHEMA.validate(changed)
-		assert_false(refused.ok, "well-shaped facts require matching committed events")
-		assert_eq(refused.get("code"), &"scene_progress_mismatch", str(refused))
+		assert_false(refused.ok, "current progress must name registered choices and Challenges")
+		assert_eq(refused.get("code"), &"invalid_gameplay", str(refused))
 		assert_eq(changed, unchanged, "refusal does not rewrite submitted facts")
 	assert_eq(_observed(), before, "invalid progress does not alter owners or files")
 

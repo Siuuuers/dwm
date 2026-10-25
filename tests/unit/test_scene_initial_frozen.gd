@@ -65,3 +65,27 @@ func test_later_result_still_requires_complete_source_checkpoint() -> void:
 	assert_false(FROZEN.derive_scene_frames({OCCURRENCE: later}, reading).ok)
 	later.erase("source_checkpoint")
 	assert_false(FROZEN.derive_scene_frames({OCCURRENCE: later}, reading).ok)
+
+
+func test_current_scene_derives_frame_without_saved_admission() -> void:
+	var scene := {"registration_sha256": MANIFEST.scene_registration_fingerprint(),
+		"active_occurrence_id": OCCURRENCE, "entry_id": BASE.A,
+		"notification": {}, "active_challenge": {}, "return_to": null}
+	var result: Dictionary = FROZEN.derive_current_scene_frames(scene, reading)
+	assert_true(result.ok, str(result))
+	if result.ok: assert_eq(result.value.entry_contexts, reading.ledger.entry_contexts)
+	assert_false(scene.has("command_receipts"))
+
+
+func test_current_scene_refuses_foreign_position_and_frame() -> void:
+	var scene := {"registration_sha256": MANIFEST.scene_registration_fingerprint(),
+		"active_occurrence_id": OCCURRENCE, "entry_id": BASE.A,
+		"notification": {}, "active_challenge": {}, "return_to": null}
+	for key: String in ["registration_sha256", "active_occurrence_id", "entry_id"]:
+		var altered := scene.duplicate(true)
+		altered[key] = "TEST.foreign"
+		assert_false(FROZEN.derive_current_scene_frames(altered, reading).ok)
+	var altered := reading.duplicate(true)
+	var frame_key: String = altered.ledger.entry_contexts.keys()[0]
+	altered.ledger.entry_contexts[frame_key].presentation.fields.admission_receipt_id = "TEST.foreign"
+	assert_false(FROZEN.derive_current_scene_frames(scene, altered).ok)

@@ -60,6 +60,9 @@ The fork's exact action, wording, placement, chapter and labels are OPEN. Exampl
 Earlier choices and Challenge outcomes must survive Save/Load because they can affect later play. Latest owner clarification: play proceeds directly to Day 7 and the selected fork determines the dialogue shown in DTL. There is no separate ending selection. The new save retains ordinary DTL position and choice/fork state; it does not need an ending-specific resume system or historical source-reading checkpoint. Audio is determined by DTL position. Affection is also retired, superseding the earlier retention decision; retire `affection`, `friend_attitude`, `friends`, and `inter_friend_affection`. Gallery unlocks and read-text history remain global. See the [technical replacement requirements](../docs/design/2026-10-25-save-load-validator-audit.md#owner-approved-replacement-direction--later-25-october-discussion) for the full persistence scope and implementation limits. These decisions do not certify that both fork endpoints or the replacement save are implemented.
 
 
+**Production passage approval, 2026-10-25:** during the direct-state Save/Load continuation, the owner approved converting the existing umbrella block in `dialogic/timelines/authored_week/Day7.dtl`, entry `ending.alone.normal`, into an ordinary passage. Preserve all 22 captions and their line IDs exactly. Place passive Start before `.001` and Finish after `.022`; Finish records the passage in Gallery and returns to title after the completion save. This supersedes the separate terminal dispatcher for this existing block only. It selects no new prose, second endpoint, or earlier fork rule.
+
+
 ### P–L-specific ending amendment, 2026-10-18
 
 **Owner-directed refinement:** Priscilla–Lavinia has **one identically presented

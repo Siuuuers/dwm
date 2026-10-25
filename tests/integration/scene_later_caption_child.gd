@@ -150,9 +150,9 @@ func create_later_caption() -> void:
 		"autosave_sha256": FileAccess.get_sha256("user://saves/autosave.json"),
 		"profile_sha256": FileAccess.get_sha256("user://profile.json"),
 		"profile": profile.get_profile_snapshot(), "gameplay": snapshot.gameplay,
-		"scene": snapshot.scene, "command_receipts": snapshot.command_receipts,
-		"applied_effect_transaction_ids": snapshot.applied_effect_transaction_ids,
-		"applied_variable_transaction_ids": snapshot.applied_variable_transaction_ids}
+		"scene": snapshot.scene}
+	for field: String in ["command_receipts", "applied_effect_transaction_ids", "applied_variable_transaction_ids"]:
+		assert_false(snapshot.has(field), "player save omits live retry state: " + field)
 	for key: String in ["slot_sha256", "autosave_sha256", "profile_sha256"]:
 		assert_eq(str(proof[key]).length(), 64)
 	if not _write_json(PROOF_PATH, proof): return
@@ -194,9 +194,9 @@ func load_later_caption() -> void:
 	var current: Dictionary = game.capture_run_snapshot_input()
 	assert_true(current.gameplay == proof.gameplay, "Load replays no gameplay consequence")
 	assert_true(current.scene == proof.scene, "Load preserves scene progress")
-	assert_true(current.command_receipts == proof.command_receipts, "Load creates no command receipt")
-	assert_true(current.applied_effect_transaction_ids == proof.applied_effect_transaction_ids, "Load applies no effect")
-	assert_true(current.applied_variable_transaction_ids == proof.applied_variable_transaction_ids, "Load applies no variable transaction")
+	assert_true(current.command_receipts.is_empty(), "Load creates no command receipt")
+	assert_true(current.applied_effect_transaction_ids.is_empty(), "Load applies no effect")
+	assert_true(current.applied_variable_transaction_ids.is_empty(), "Load applies no variable transaction")
 	assert_true(game.capture_dating_challenge_state().value.is_empty(), "Load creates no board")
 	assert_true(profile.get_profile_snapshot() == proof.profile, "Load writes no Profile history")
 	_assert_source_files(proof)

@@ -169,8 +169,8 @@ func load_ordinary_day() -> void:
 	if not await _wait_line("scene.test.a", "line.scene.test.a.one"): return
 	var restored: Dictionary = game.capture_run_snapshot_input()
 	assert_eq(restored.gameplay, proof.gameplay)
-	assert_eq(_completion_receipts(), proof.completion_receipts)
-	assert_eq(_shop_receipts(), proof.shop_receipts)
+	assert_true(_completion_receipts().is_empty(), "Load starts a fresh app-round command session")
+	assert_true(_shop_receipts().is_empty(), "Load starts a fresh shop command session")
 	assert_eq(restored.desktop.consequence.shop_ledger, proof.shop_ledger)
 	assert_eq(restored.desktop.board.phase, "NONE")
 	assert_null(restored.desktop.board.board)
@@ -185,7 +185,7 @@ func load_ordinary_day() -> void:
 	if not await _launch_app(shell, &"shop"): return
 	var shop: Control = shell._cached_app_windows[&"shop"]
 	assert_false(shop._supportz_button.is_visible_in_tree(), "New day needs its own two completed base rounds.")
-	assert_eq(_completion_receipts(), proof.completion_receipts, "Opening apps cannot replay settlement.")
+	assert_true(_completion_receipts().is_empty(), "Opening apps cannot replay settlement.")
 	await _screenshot("ordinary-fresh-load-shop")
 	proof["loader_process_id"] = OS.get_process_id()
 	_write_json("res://.godot/ci/ordinary-day-load-proof.json", proof)

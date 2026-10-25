@@ -335,6 +335,7 @@ static func validate_scene_registration(bundle: Dictionary) -> Dictionary:
 			if not _scene_exact(marker, ["marker_id", "label", "after_line_id", "kind", "payload"]):
 				return _scene_fail("marker shape")
 			for field: String in ["marker_id", "label", "after_line_id", "kind"]:
+				if field == "after_line_id" and marker.kind == "passage.start" and marker[field] == "": continue
 				if not _scene_id(marker[field]): return _scene_fail("marker value")
 			if not marker.payload is Dictionary: return _scene_fail("marker payload")
 		var native := DialogicRuntimeAdapter._compile_scene_programme_in_registration(
@@ -360,7 +361,7 @@ static func validate_scene_registration(bundle: Dictionary) -> Dictionary:
 			if not _scene_exact(marker, ["marker_id", "label", "after_line_id", "kind", "payload"]) \
 					or not _scene_id(marker.marker_id) or markers.has(marker.marker_id) \
 					or marker_labels.has(marker.label) or marker.label not in labels \
-					or lines.get(marker.after_line_id) != id or marker.kind not in payloads \
+					or (lines.get(marker.after_line_id) != id and not (marker.kind == "passage.start" and marker.after_line_id == "")) or marker.kind not in payloads \
 					or marker.kind == WITNESS_SIGNAL or marker.kind not in entries[id].allowed_signals \
 					or not _scene_exact(marker.payload, payloads[marker.kind]): return _scene_fail("marker")
 			if marker.kind == "thought.options":

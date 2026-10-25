@@ -46,6 +46,24 @@ func create_passage_scene() -> void:
 	await _click(_caption().caption_text)
 	if not await _wait_line("scene.test.a", "line.scene.test.a.three"): return
 	if not await _save_slot(2): return
+	var schema := preload("res://scripts/domain/run/RunSnapshotSchema.gd")
+	var early: Dictionary = PARSER.parse_object(FileAccess.get_file_as_string("user://saves/slot_1.json"))
+	var final_caption: Dictionary = PARSER.parse_object(FileAccess.get_file_as_string("user://saves/slot_2.json"))
+	if not _ok(early) or not _ok(final_caption): return
+	for document: Dictionary in [early.value, final_caption.value]:
+		for key: String in ["command_receipts", "applied_effect_transaction_ids", "applied_variable_transaction_ids"]:
+			assert_false(document.current_snapshot.snapshot.has(key), "player snapshot omits " + key)
+	var invalid_completion: Dictionary = early.value.current_snapshot.snapshot.duplicate(true)
+	invalid_completion.lifecycle.state = "COMPLETED"
+	assert_false(schema.validate(invalid_completion).get("ok", false), "nonfinal caption cannot be a completed passage")
+	var completed: Dictionary = final_caption.value.current_snapshot.snapshot.duplicate(true)
+	assert_eq(completed.lifecycle.state, "PLAYING", "last caption is playable until Finish commits")
+	completed.lifecycle.state = "COMPLETED"
+	var before_profile: Dictionary = profile.get_profile_snapshot().duplicate(true)
+	var before_run: Dictionary = game.capture_run_snapshot_input().duplicate(true)
+	assert_true(schema.validate(completed).get("ok", false), "final caption and lifecycle suffice for completion admission")
+	assert_eq(profile.get_profile_snapshot(), before_profile, "validation never unlocks Gallery")
+	assert_eq(game.capture_run_snapshot_input(), before_run)
 	assert_false(PASSAGE_ID in profile.get_profile_snapshot().gallery_unlocks, "last caption is still before finish")
 	await _screenshot("passage-last-before-save")
 	var position: Dictionary = BOARD_READING.project_player_checkpoint(bridge.capture_reading_checkpoint(false).value)
@@ -121,6 +139,13 @@ func load_and_finish_passage_scene() -> void:
 	if not _ok(latest): return
 	assert_eq(latest.value.bundle.snapshot.lifecycle.state, "COMPLETED")
 	assert_false(latest.value.bundle.snapshot.lifecycle.has("ending_plan"))
+	var completed_file: Dictionary = PARSER.parse_object(FileAccess.get_file_as_string("user://saves/autosave.json"))
+	if not _ok(completed_file): return
+	for key: String in ["command_receipts", "applied_effect_transaction_ids", "applied_variable_transaction_ids"]:
+		assert_false(completed_file.value.current_snapshot.snapshot.has(key), "completed player snapshot omits " + key)
+	assert_eq(completed_file.value.current_snapshot.snapshot, latest.value.bundle.snapshot)
+	assert_true(preload("res://scripts/domain/run/RunSnapshotSchema.gd").validate(latest.value.bundle.snapshot).get("ok", false),
+		"completed checkpoint is independently loadable without command history")
 	assert_eq(FileAccess.get_sha256("user://saves/slot_1.json"), proof.slot_1_sha256)
 	assert_eq(FileAccess.get_sha256("user://saves/slot_2.json"), proof.slot_2_sha256)
 	proof["finisher_process_id"] = OS.get_process_id()
@@ -185,3 +210,10 @@ func replay_completed_passage_scene() -> void:
 	_write_json("res://.godot/ci/passage-connected-replay-proof.json", {"process_id": OS.get_process_id(),
 		"completed_creator": proof.finisher_process_id, "replayed_line_ids": ["line.scene.test.a.two", "line.scene.test.a.three"],
 		"profile_unchanged": true, "run_unchanged": true, "finish_count": finishes.size()})
+	# Selecting an earlier Run preserves global Gallery discovery.
+	var earlier := _load_passage("slot:1")
+	assert_eq(earlier.get("code"), &"scene_activation_pending", str(earlier))
+	if earlier.get("code") != &"scene_activation_pending" or not await _await_ready(): return
+	if not await _wait_line("scene.test.a", "line.scene.test.a.two"): return
+	assert_eq(game.capture_run_snapshot_input().lifecycle.state, "PLAYING")
+	assert_true(PASSAGE_ID in profile.get_profile_snapshot().gallery_unlocks)

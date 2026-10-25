@@ -4,92 +4,8 @@ extends "res://tests/integration/scene_later_caption_child.gd"
 const WEEK_PROOF := "user://scene-seven-day-proof.json"
 const MENU := "res://scenes/menu/MenuScene.tscn"
 const SAVED_LINE := "line.Day4.two"
+const PASSAGE_ID := "passage.test.seven_day"
 var observed_lines: Array[String] = []
-
-# Diagnostic-only pass-through: original owners retain arguments/results and all policy.
-class TimedEndingCheckpointPort extends RefCounted:
-	var owner_port: RefCounted
-	var mark: Callable
-	var prefix: String
-	var lifecycle_state: String
-	var playback_stage: String
-	var next_step_index: int
-
-	func capture() -> Dictionary:
-		mark.call(prefix + ".capture.begin")
-		var timing := preload("res://scripts/narrative/SceneValidationTiming.gd")
-		var observed: bool = timing.begin_scope(prefix + ".capture", lifecycle_state, playback_stage, next_step_index)
-		var result: Dictionary = owner_port.capture()
-		if observed: timing.end_scope(bool(result.get("ok", false)))
-		mark.call(prefix + ".capture.return")
-		return result
-
-	func prepare(inputs: Dictionary, kind: StringName, disk_write: Dictionary) -> Dictionary:
-		mark.call(prefix + ".prepare.begin")
-		var timing := preload("res://scripts/narrative/SceneValidationTiming.gd")
-		var observed: bool = timing.begin_scope(prefix + ".prepare", lifecycle_state, playback_stage, next_step_index)
-		var result: Dictionary = owner_port.prepare(inputs, kind, disk_write)
-		if observed: timing.end_scope(bool(result.get("ok", false)))
-		mark.call(prefix + ".prepare.return")
-		return result
-
-	func commit(candidate: Dictionary) -> Dictionary:
-		mark.call(prefix + ".commit.begin")
-		var timing := preload("res://scripts/narrative/SceneValidationTiming.gd")
-		var observed: bool = timing.begin_scope(prefix + ".commit", lifecycle_state, playback_stage, next_step_index)
-		var result: Dictionary = owner_port.commit(candidate)
-		if observed: timing.end_scope(bool(result.get("ok", false)))
-		mark.call(prefix + ".commit.return")
-		return result
-
-	func rollback(backup: Dictionary) -> Dictionary:
-		mark.call(prefix + ".rollback.begin")
-		var timing := preload("res://scripts/narrative/SceneValidationTiming.gd")
-		var observed: bool = timing.begin_scope(prefix + ".rollback", lifecycle_state, playback_stage, next_step_index)
-		var result: Dictionary = owner_port.rollback(backup)
-		if observed: timing.end_scope(bool(result.get("ok", false)))
-		mark.call(prefix + ".rollback.return")
-		return result
-
-var _original_ending_writer: Callable
-var _writer_bootstrap: Node
-var _ending_writer_calls: int = 0
-
-func _install_ending_writer_timing() -> bool:
-	_writer_bootstrap = get_node("/root/ApplicationBootstrap")
-	_original_ending_writer = game._ending_checkpoint_writer
-	assert_true(_original_ending_writer.is_valid())
-	if not _original_ending_writer.is_valid(): return false
-	assert_eq(_original_ending_writer.get_object(), _writer_bootstrap)
-	assert_eq(_original_ending_writer.get_method(), &"_commit_ending_checkpoint")
-	if _original_ending_writer.get_object() != _writer_bootstrap \
-			or _original_ending_writer.get_method() != &"_commit_ending_checkpoint": return false
-	assert_not_null(_writer_bootstrap._retained_checkpoint_port)
-	if _writer_bootstrap._retained_checkpoint_port == null: return false
-	# The public configuration deliberately refuses replacement. This private test
-	# seam is installed only for final witness Accept, never application setup.
-	game._ending_checkpoint_writer = Callable(self, "_timed_ending_writer")
-	return true
-
-func _timed_ending_writer() -> Dictionary:
-	_ending_writer_calls += 1
-	var prefix: String = "ending_writer.%d" % _ending_writer_calls
-	_ending_phase(prefix + ".begin")
-	var original_port: RefCounted = _writer_bootstrap._retained_checkpoint_port
-	var timed_port := TimedEndingCheckpointPort.new()
-	timed_port.owner_port = original_port
-	timed_port.mark = Callable(self, "_ending_phase")
-	timed_port.prefix = prefix
-	# Scalar labels only; do not capture/copy the lifecycle or retained history.
-	timed_port.lifecycle_state = str(game._run_lifecycle._state)
-	timed_port.playback_stage = str(game._run_lifecycle._ending_plan.get("playback_stage", ""))
-	timed_port.next_step_index = int(game._run_lifecycle._ending_plan.get("next_step_index", -1))
-	# No await or policy logic: narrow substitution lasts one synchronous call.
-	_writer_bootstrap._retained_checkpoint_port = timed_port
-	var result: Dictionary = _original_ending_writer.call()
-	_writer_bootstrap._retained_checkpoint_port = original_port
-	_ending_phase(prefix + ".return")
-	return result
 
 func _ok(result: Dictionary) -> bool:
 	assert_true(result.get("ok", false), str(result))
@@ -101,7 +17,6 @@ func _install_content_registration() -> Dictionary:
 	assert_false(OS.get_cmdline_user_args().has("--scene-reading-fixture"))
 	assert_false(OS.get_cmdline_args().has("--scene-reading-fixture"))
 	assert_true(FileAccess.file_exists("res://data/manifests/scene_story_registration.json"))
-	assert_true(FileAccess.file_exists("res://data/manifests/scene_ending_reading_catalogue.json"))
 	return {"ok": OS.get_environment("DWM_SCENE_READING_FIXTURE") != "1"
 		and not OS.get_cmdline_user_args().has("--scene-reading-fixture")
 		and not OS.get_cmdline_args().has("--scene-reading-fixture")}
@@ -251,7 +166,7 @@ func load_and_complete_week(stop_after_load: bool = false, witness_save: bool = 
 	var current: Dictionary = game.capture_run_snapshot_input()
 	assert_eq(current.lifecycle.run_id, proof.source_run)
 	assert_ne(current.lifecycle.branch_id, proof.source_branch)
-	for key: String in ["gameplay", "scene", "command_receipts", "applied_effect_transaction_ids", "applied_variable_transaction_ids"]:
+	for key: String in ["gameplay", "scene"]:
 		assert_eq(current[key], proof.snapshot[key], "Load preserves " + key)
 	assert_eq(profile.get_profile_snapshot(), proof.profile, "Load writes no history")
 	_assert_source_files(proof)
@@ -300,42 +215,35 @@ func load_and_complete_week(stop_after_load: bool = false, witness_save: bool = 
 		await _record_witness_ending(prior_layout_ref, prior_layout_id, ending_ready)
 		_ending_phase("ending_evidence.return")
 	if not ending_ready: return
-	var terminal_scene: Node = get_tree().current_scene
-	assert_true(terminal_scene is EndingScene, "terminal registration mounts real EndingScene")
+	assert_eq(get_tree().current_scene.scene_file_path, HOST, "passage remains ordinary Scene dialogue")
 	var ending_state: Dictionary = game.capture_run_snapshot_input().lifecycle
-	assert_eq(ending_state.state, "ENDING")
-	assert_eq(ending_state.ending_plan.source_kind, "scene")
-	assert_eq(ending_state.ending_plan.ending_id, "ending.alone")
-	assert_eq(ending_state.ending_plan.next_step_index, 0, "starting physical playback cannot complete ending")
-	assert_eq(ending_state.ending_plan.source_reading_checkpoint.reading_session.position_id, "line.Day7.two")
-	assert_eq(terminal_scene.get_presentation_projection().kind, "play_ending")
+	assert_eq(ending_state.state, "PLAYING", "last caption precedes Finish")
+	assert_false(ending_state.has("ending_plan"))
+	assert_false(PASSAGE_ID in profile.get_profile_snapshot().gallery_unlocks)
 	await _screenshot("seven-day-ending")
 	# This opt-in journey keeps slot 2 as the restored Day4 witness, like export.
 	# The original ending-save/terminal-load journey remains unchanged by default.
 	if not witness_save and not await _save_ending_caption(): return
-	if witness_save and not _install_ending_writer_timing(): return
 	_ending_phase("ending_completion.begin")
 	await _accept()
-	if witness_save: game._ending_checkpoint_writer = _original_ending_writer
 	_ending_phase("ending_completion.accept_return")
 	if not await _wait_route(MENU): return
 	_ending_phase("title.ready")
 	var finished: Dictionary = game._run_lifecycle.to_dict()
 	assert_eq(finished.state, "COMPLETED")
-	assert_eq(finished.ending_plan.next_step_index, 1, "physical ending completed once")
-	assert_eq(finished.ending_plan.playback_stage, "GALLERY_RECORDED")
+	assert_false(finished.has("ending_plan"), "completion is ordinary lifecycle state")
 	assert_false(game.capture_live_session().value.active, "completion retires live authority")
 	var durable: Dictionary = PARSER.parse_object(FileAccess.get_file_as_string("user://saves/autosave.json"))
 	if not _ok(durable): return
 	assert_eq(durable.value.current_snapshot.snapshot.lifecycle.state, "COMPLETED", "completion durable before Title")
-	assert_eq(durable.value.current_snapshot.snapshot.lifecycle.ending_plan, finished.ending_plan)
+	assert_false(durable.value.current_snapshot.snapshot.lifecycle.has("ending_plan"))
 	assert_eq(FileAccess.get_sha256("user://saves/slot_1.json"), proof.slot_sha256, "ending preserves source save")
 	await _screenshot("seven-day-completed-title")
 	var completed_profile: Dictionary = profile.get_profile_snapshot().duplicate(true)
-	var gallery_id := "ending:%s:gallery:ending.alone" % str(proof.source_run)
-	assert_eq(completed_profile.gallery_transaction_receipts.get(gallery_id), {"ending_id": "ending.alone", "unlocked": true})
+	var gallery_id := "passage:%s:gallery:%s" % [str(proof.source_run), PASSAGE_ID]
+	assert_eq(completed_profile.gallery_transaction_receipts.get(gallery_id), {"ending_id": PASSAGE_ID, "unlocked": true})
 	assert_eq(completed_profile.gallery_transaction_receipts.size(), proof.profile.gallery_transaction_receipts.size() + 1)
-	assert_true("ending.alone" in completed_profile.gallery_unlocks)
+	assert_true(PASSAGE_ID in completed_profile.gallery_unlocks)
 	if witness_save:
 		var witness: Dictionary = PARSER.parse_object(FileAccess.get_file_as_string("res://.godot/ci/scene-seven-day-witness-proof.json"))
 		if not _ok(witness): return
@@ -425,7 +333,7 @@ func _save_restored_witness(proof: Dictionary) -> bool:
 	var parsed: Dictionary = PARSER.parse_object(FileAccess.get_file_as_string(PATH))
 	if not _ok(parsed): return false
 	var snapshot: Dictionary = parsed.value.current_snapshot.snapshot
-	for key: String in ["narrative_checkpoint", "gameplay", "scene", "command_receipts", "applied_effect_transaction_ids", "applied_variable_transaction_ids"]:
+	for key: String in ["narrative_checkpoint", "gameplay", "scene"]:
 		assert_eq(snapshot[key], proof.snapshot[key], "witness preserves " + key)
 	assert_eq(snapshot.lifecycle.run_id, proof.source_run)
 	assert_ne(snapshot.lifecycle.branch_id, proof.source_branch)
@@ -473,10 +381,9 @@ func _record_witness_ending(prior_ref: WeakRef, prior_id: int, ending_ready: boo
 	if not ending_ready: return
 	assert_eq(observation.style, "res://dialogic/styles/witnessed_caption_style.tres")
 	assert_eq(observation.caption_script, "res://scripts/ui/witnessed/WitnessedCaptionLayer.gd")
-	assert_ne(observation.layout_id, prior_id)
-	assert_false(observation.prior_layout_in_tree)
-	assert_true(observation.ending_layout)
-	assert_false(observation.clock_visible)
+	assert_true(observation.layout_id != 0)
+	assert_false(observation.ending_layout)
+	assert_true(observation.clock_visible)
 
 func _save_ending_caption() -> bool:
 	var checkpoint: Dictionary = bridge.capture_reading_checkpoint(false)
@@ -496,15 +403,23 @@ func _save_ending_caption() -> bool:
 	var prepared: Dictionary = sheet._backup_port.prepare_action("save", "slot:2")
 	if not _ok(prepared): return false
 	if not _ok(await sheet._backup_port.commit_action(prepared.value.token)): return false
+	# Ordinary Scene Save is a direct host: leaving it already requests Continue.
 	sheet.surface.leave_host()
-	if not _ok(await sheet.request_continue()): return false
 	for frame: int in 4: await get_tree().process_frame
+	if not _ok(sheet.last_result): return false
+	assert_false(sheet.surface.visible, "Save Back closes the direct host")
+	assert_false(get_tree().paused, "Save Back resumes the ordinary passage")
+	if sheet.surface.visible or get_tree().paused: return false
 	var parsed: Dictionary = PARSER.parse_object(FileAccess.get_file_as_string("user://saves/slot_2.json"))
 	if not _ok(parsed): return false
 	var snapshot: Dictionary = parsed.value.current_snapshot.snapshot
-	assert_eq(snapshot.narrative_checkpoint, checkpoint.value, "ending Save keeps exact visible reading frontier")
-	assert_eq(snapshot.lifecycle.state, "ENDING")
-	assert_eq(snapshot.lifecycle.ending_plan.next_step_index, 0)
+	var projected := preload("res://scripts/narrative/SoloReadingSession.gd").project_player_checkpoint(checkpoint.value)
+	if not _ok(projected): return false
+	assert_eq(snapshot.narrative_checkpoint, projected.value, "passage Save keeps exact visible reading frontier")
+	assert_eq(snapshot.lifecycle.state, "PLAYING")
+	assert_false(snapshot.lifecycle.has("ending_plan"))
+	for key: String in ["command_receipts", "applied_effect_transaction_ids", "applied_variable_transaction_ids"]:
+		assert_false(snapshot.has(key), "player passage omits historical ledger " + key)
 	var proof := {"process_id": OS.get_process_id(), "user_dir": ProjectSettings.globalize_path("user://"),
 		"checkpoint": snapshot.narrative_checkpoint, "snapshot": snapshot, "saved_native": native,
 		"profile": profile.get_profile_snapshot(), "slot_sha256": FileAccess.get_sha256("user://saves/slot_2.json")}

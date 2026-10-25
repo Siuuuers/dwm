@@ -52,6 +52,9 @@ func create_caption_challenge() -> void:
 	var cue_document: Dictionary = PARSER.parse_object(FileAccess.get_file_as_string("user://saves/slot_1.json"))
 	if not _ok(cue_document): return
 	var cue_snapshot: Dictionary = cue_document.value.current_snapshot.snapshot
+	for key: String in ["command_receipts", "applied_effect_transaction_ids", "applied_variable_transaction_ids"]:
+		assert_false(cue_snapshot.has(key), "player snapshot omits " + key)
+	assert_false(cue_snapshot.scene.active_challenge.is_empty(), "available Challenge is current saved state")
 	assert_eq(cue_snapshot.narrative_checkpoint.reading_session.schema_version, 6)
 	assert_false(cue_snapshot.narrative_checkpoint.reading_session.has("ledger"))
 	assert_false(cue_snapshot.narrative_checkpoint.reading_session.has("next_operation"))
@@ -73,17 +76,11 @@ func create_caption_challenge() -> void:
 	assert_eq(bridge._runtime_adapter.current_line_id(), "line.scene.test.a.one")
 	assert_false(game.capture_scene_challenge_command().get("ok", false))
 	assert_false((await bridge.request_next(held)).get("ok", false), "Old cue cannot advance the new outcome.")
-	var playable := 0
-	var closures: Array = []
-	for receipt: Dictionary in game.capture_run_snapshot_input().command_receipts.values():
-		var result: Dictionary = receipt.get("scene_event", {}).get("result", {})
-		if result.get("kind") == "challenge_playable": playable += 1
-		if result.get("kind") == "challenge_closed": closures.append(result)
-	assert_eq(playable, 1)
-	assert_eq(closures.size(), 1)
-	if closures.size() != 1: return
-	assert_eq(closures[0].outcome, "never_started")
-	assert_null(closures[0].attempt_proof)
+	var outcomes: Dictionary = game.scene_challenge_outcomes.duplicate(true)
+	assert_eq(outcomes.size(), 1)
+	if outcomes.size() != 1: return
+	assert_eq(outcomes.values()[0].outcome, "never_started")
+	assert_true(game.capture_run_snapshot_input().scene.active_challenge.is_empty(), "Finish closes the opportunity")
 	assert_true(profile.get_profile_snapshot().dating_attempts.is_empty())
 	assert_eq(FileAccess.get_sha256("user://saves/slot_1.json"), manual_sha)
 	for row: Dictionary in bridge._reading_session.ledger.snapshot().captions:
@@ -96,11 +93,15 @@ func create_caption_challenge() -> void:
 	var closed_document: Dictionary = PARSER.parse_object(FileAccess.get_file_as_string("user://saves/slot_2.json"))
 	if not _ok(closed_document): return
 	var closed_snapshot: Dictionary = closed_document.value.current_snapshot.snapshot
+	for key: String in ["command_receipts", "applied_effect_transaction_ids", "applied_variable_transaction_ids"]:
+		assert_false(closed_snapshot.has(key), "closed snapshot omits " + key)
+	assert_eq(closed_snapshot.gameplay.scene_challenge_outcomes, outcomes)
+	assert_true(closed_snapshot.scene.active_challenge.is_empty())
 	assert_eq(closed_snapshot.narrative_checkpoint.reading_session.schema_version, 6)
 	assert_false(closed_snapshot.narrative_checkpoint.reading_session.has("ledger"))
 	var proof := {"creator_process_id": OS.get_process_id(), "user_dir": ProjectSettings.globalize_path("user://"),
 		"cue_sha256": manual_sha, "closed_sha256": FileAccess.get_sha256("user://saves/slot_2.json"),
-		"closure": closures[0], "profile": profile.get_profile_snapshot(),
+		"outcomes": outcomes, "profile": profile.get_profile_snapshot(),
 		"cue_checkpoint": cue_snapshot.narrative_checkpoint, "cue_gameplay": cue_snapshot.gameplay,
 		"closed_checkpoint": closed_snapshot.narrative_checkpoint, "closed_gameplay": closed_snapshot.gameplay}
 	if not _write_json("user://caption-challenge-proof.json", proof): return
@@ -112,13 +113,6 @@ func _wait_caption(line: String) -> bool:
 		if bridge._runtime_adapter.current_line_id() == line and bridge._runtime_adapter.is_current_line_complete(): return true
 		await get_tree().process_frame
 	return _ok({"ok": false, "code": "TEST.caption_timeout", "line": line})
-
-func _retained_closures() -> Array:
-	var closures: Array = []
-	for receipt: Dictionary in game.capture_run_snapshot_input().command_receipts.values():
-		var result: Dictionary = receipt.get("scene_event", {}).get("result", {})
-		if result.get("kind") == "challenge_closed": closures.append(result)
-	return closures
 
 func load_caption_challenge() -> void:
 	var parsed: Dictionary = PARSER.parse_object(FileAccess.get_file_as_string("user://caption-challenge-proof.json"))
@@ -137,7 +131,7 @@ func load_caption_challenge() -> void:
 	assert_eq(loaded.get("code"), &"scene_activation_pending", str(loaded))
 	if loaded.get("code") != &"scene_activation_pending" or not await _await_ready(): return
 	if not await _wait_caption("line.scene.test.b.one"): return
-	assert_eq(_retained_closures().size(), 0, "Selected cue precedes closure.")
+	assert_true(game.scene_challenge_outcomes.is_empty(), "Selected cue precedes Finish.")
 	assert_eq(bridge.capture_reading_checkpoint(false).value.reading_session.boundary, "control")
 	var cue_expected: Dictionary = COMPACT_READING.expand_player_checkpoint(proof.cue_checkpoint)
 	if not _ok(cue_expected): return
@@ -150,14 +144,11 @@ func load_caption_challenge() -> void:
 	assert_eq(pending.value.kind, "challenge.end")
 	await _click(_caption().caption_text)
 	if not await _wait_caption("line.scene.test.a.one"): return
-	var after: Array = _retained_closures()
-	assert_eq(after.size(), 1)
-	if after.size() != 1: return
-	assert_eq(after[0].outcome, "never_started")
-	assert_null(after[0].attempt_proof)
+	assert_eq(game.scene_challenge_outcomes, proof.outcomes, "Finish selects the same outcome after Load")
+	assert_true(game.capture_run_snapshot_input().scene.active_challenge.is_empty())
 	assert_true(profile.get_profile_snapshot().dating_attempts.is_empty())
-	# Select the creator's already-closed save. It must restore that exact receipt,
-	# rather than rerunning End or retaining the closure from the abandoned branch.
+	# Select the creator's already-closed save. Restore its exact outcome and
+	# destination without rerunning Finish or adopting the abandoned branch.
 	var pause: Node = get_node("/root/SceneRouter")._production_pause
 	if not _ok(await pause.request_pause()): return
 	prepared = pause._backup_port.prepare_action("load", "slot:2")
@@ -167,8 +158,8 @@ func load_caption_challenge() -> void:
 	while ready_count < 2 and Time.get_ticks_msec() < deadline: await get_tree().process_frame
 	assert_eq(ready_count, 2)
 	if ready_count != 2 or not await _wait_caption("line.scene.test.a.one"): return
-	after = _retained_closures()
-	assert_eq(after, [proof.closure], "Closed-save Load retains one exact closure.")
+	assert_eq(game.scene_challenge_outcomes, proof.outcomes, "Closed-save Load restores the recorded outcome directly.")
+	assert_true(game.capture_run_snapshot_input().command_receipts.is_empty(), "Load starts a fresh live command session")
 	var closed_expected: Dictionary = COMPACT_READING.expand_player_checkpoint(proof.closed_checkpoint)
 	if not _ok(closed_expected): return
 	assert_true(bridge.capture_reading_checkpoint(false).value == closed_expected.value,

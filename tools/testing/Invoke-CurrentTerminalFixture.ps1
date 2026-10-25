@@ -5,7 +5,7 @@ $relative = '.godot/ci/current-terminal-fixture'
 $output = Join-Path $repositoryRoot $relative
 if (Test-Path -LiteralPath $output) { throw 'Terminal fixture output exists; refusing stale evidence.' }
 New-Item -ItemType Directory -Path $output | Out-Null
-$manifests = @('data/manifests/scene_story_registration.json', 'data/manifests/scene_ending_reading_catalogue.json')
+$manifests = @('data/manifests/scene_story_registration.json')
 $original = @{}
 $originalHashes = @{}
 foreach ($path in $manifests) {
@@ -33,7 +33,7 @@ foreach ($path in @('autoload/GameState.gd', 'scripts/domain/run/RunSnapshotSche
     $sourceHashes[$path] = (Get-FileHash -LiteralPath (Join-Path $repositoryRoot $path) -Algorithm SHA256).Hash.ToLowerInvariant()
 }
 try {
-    # Only the two short TEST manifests change, in this disposable runner checkout.
+    # Only the short TEST registration changes, in this disposable runner checkout.
     # No old saved bytes are converted and no full authored-week claim is made.
     & (Join-Path $PSScriptRoot 'Invoke-IsolatedGodot.ps1') -SuiteId 'terminal-fixture-registration' `
         -LogName 'terminal-fixture-registration.log' -EvidenceLogPath "$relative/registration.jsonl" `
@@ -70,7 +70,7 @@ try {
 }
 $result = [ordered]@{
     source_ref = (git -C $repositoryRoot rev-parse HEAD).Trim()
-    scope = 'Three rendered current-build processes: short TEST seven-day registration, ending Save and fresh-process Load. Not authored-week acceptance or a latency comparison.'
+    scope = 'Three rendered current-build processes: short TEST seven-day registration, ordinary passage Save, fresh-process Load and read-only Gallery replay. Not authored-week acceptance or a latency comparison.'
     assertions = $assertions; original_manifest_sha256 = $originalHashes; fixture_manifest_sha256 = $fixtureHashes
     source_sha256 = $sourceHashes
     authored_manifests_restored = $true

@@ -149,9 +149,7 @@ func prepare_scene_new_run(snapshot: Dictionary, allocation_candidate: Dictionar
 	var checkpoint: Dictionary = snapshot.narrative_checkpoint
 	var expanded := preload("res://scripts/narrative/SoloReadingSession.gd").expand_player_checkpoint(checkpoint)
 	if not expanded.ok: return expanded
-	var occurrence: String = allocation_candidate.request.transaction_id
-	var result: Dictionary = snapshot.command_receipts[occurrence].scene_admission.result
-	var frames := FROZEN_RUN.derive_scene_frames({occurrence: result}, expanded.value.reading_session)
+	var frames := FROZEN_RUN.derive_current_scene_frames(snapshot.scene, expanded.value.reading_session)
 	if not frames.ok: return frames
 	if not _owner.has_method("validate_reading_checkpoint") or not _owner.has_method("stage_scene_reading_restore"):
 		return _content_unavailable("scene creation owner unavailable")
@@ -298,7 +296,7 @@ static func _same_scene_value(left: Variant, right: Variant) -> bool:
 ## Ruling 14-D's semantic branch. It validates compatibility and starts nothing: every resolution
 ## question is asked of the bridge, so this file holds no second copy of the entry-resolution law.
 func _prepare_semantic(checkpoint: Dictionary) -> Dictionary:
-	# Scene admission requires the complete receipt-bearing Run and reading5.
+	# Scene admission requires the complete current Run and its reading position.
 	# A stripped six-field scene frame cannot use the historical resume seam.
 	if FROZEN_RUN._is_scene_checkpoint(checkpoint):
 		return _fail(&"invalid_narrative_checkpoint", "scene_owner_validation_unavailable")

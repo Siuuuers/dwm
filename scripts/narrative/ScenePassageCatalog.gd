@@ -43,10 +43,12 @@ static func inspect(bundle: Dictionary) -> Dictionary:
 					or not lines[index].get("text") is String or indices.has(lines[index].line_id):
 				return _fail(&"scene_passage_registration_invalid")
 			indices[lines[index].line_id] = index
-		if not indices.has(start.after_line_id) or not indices.has(finish.after_line_id) \
-				or indices[start.after_line_id] >= indices[finish.after_line_id]:
+		# Empty preceding-line identity means the passive label is at entry start.
+		var start_index: int = -1 if start.after_line_id == "" else int(indices.get(start.after_line_id, -2))
+		if start_index < -1 or not indices.has(finish.after_line_id) \
+				or start_index >= indices[finish.after_line_id]:
 			return _fail(&"scene_passage_range_invalid")
-		var first: int = indices[start.after_line_id] + 1
+		var first: int = start_index + 1
 		var last: int = indices[finish.after_line_id]
 		for marker: Dictionary in entry.markers:
 			if marker == start or marker == finish: continue

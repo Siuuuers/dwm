@@ -86,16 +86,38 @@ func test_scene_install_compensation_preserves_cold_state_and_configured_owners(
 	fixture.close()
 
 func test_live_run_backup_restores_detached_scene_progress() -> void:
+	var manifest := preload("res://scripts/narrative/DialogicEntryManifest.gd")
+	var loaded: Dictionary = preload("res://scripts/validation/StrictJson.gd").parse_object(
+		FileAccess.get_file_as_string("res://data/manifests/scene_story_registration.json"))
+	assert_true(loaded.ok, str(loaded))
+	if not loaded.ok: return
+	var installed: Dictionary = manifest.configure_test_scene_registration(loaded.value)
+	assert_true(installed.ok, str(installed))
+	if not installed.ok: return
+	var opportunity := ""
+	var choice := ""
+	for entry: Dictionary in loaded.value.scene_programme.entries:
+		for marker: Dictionary in entry.markers:
+			if marker.kind == "thought.pass":
+				opportunity = marker.payload.opportunity_id
+				choice = "yes"
+			elif marker.kind == "thought.options":
+				opportunity = marker.payload.opportunity_id
+				choice = marker.payload.options[0].choice_id
+	assert_false(opportunity.is_empty(), "installed story supplies an actual choice")
+	assert_false(loaded.value.challenges.is_empty(), "installed story supplies an actual challenge")
+	if opportunity.is_empty() or loaded.value.challenges.is_empty(): return
+	var challenge_id: String = loaded.value.challenges[0].challenge_id
 	var owner: Node = autofree(GAME_STATE.new())
 	owner.reset_game()
 	var occurrence := "test.occurrence".sha256_text()
-	owner.scene_choices = {"test.opportunity": "second"}
-	owner.scene_challenge_outcomes = {occurrence: {"challenge_id": "test.challenge", "outcome": "perfect"}}
+	owner.scene_choices = {opportunity: choice}
+	owner.scene_challenge_outcomes = {occurrence: {"challenge_id": challenge_id, "outcome": "perfect"}}
 	var captured: Dictionary = owner.capture_live_run_state()
 	assert_true(captured.ok)
 	var baseline: Dictionary = captured.value.duplicate(true)
 	for attempt: int in 2:
-		owner.scene_choices["test.opportunity"] = "pass"
+		owner.scene_choices[opportunity] = "pass"
 		owner.scene_challenge_outcomes[occurrence].outcome = "lost"
 		assert_eq(captured.value, baseline, "live mutation cannot alter the retained backup")
 		var restored: Dictionary = owner.restore_live_run_state(captured.value)
@@ -104,10 +126,37 @@ func test_live_run_backup_restores_detached_scene_progress() -> void:
 		assert_eq(owner.scene_challenge_outcomes, baseline.backup.scene_challenge_outcomes)
 		assert_eq(owner.capture_live_run_state().value, baseline, "retry restores the complete captured live state")
 	# Restored nested dictionaries must also detach from caller-owned backup bytes.
-	captured.value.backup.scene_choices["test.opportunity"] = "first"
+	captured.value.backup.scene_choices[opportunity] = "pass"
 	captured.value.backup.scene_challenge_outcomes[occurrence].outcome = "unfinished"
 	assert_eq(owner.scene_choices, baseline.backup.scene_choices)
 	assert_eq(owner.scene_challenge_outcomes, baseline.backup.scene_challenge_outcomes)
+
+func test_nested_registration_scope_restores_matching_derived_tables() -> void:
+	var manifest := preload("res://scripts/narrative/DialogicEntryManifest.gd")
+	var parsed: Dictionary = preload("res://scripts/validation/StrictJson.gd").parse_object(
+		FileAccess.get_file_as_string("res://data/manifests/scene_story_registration.json"))
+	assert_true(parsed.ok, str(parsed))
+	if not parsed.ok: return
+	var installed: Dictionary = manifest.configure_test_scene_registration(parsed.value)
+	assert_true(installed.ok, str(installed))
+	if not installed.ok: return
+	var original: Dictionary = manifest.scene_contract_tables()
+	assert_true(original.ok, str(original))
+	if not original.ok: return
+	var nested := preload("res://tests/support/SceneValidationScope.gd").new()
+	nested.install(true)
+	assert_true(manifest._scene_contract_tables.is_empty(), "registration reset clears its derived tables")
+	var replacement: Dictionary = preload("res://tests/support/SceneContactFixture.gd").install_registration()
+	assert_true(replacement.ok, str(replacement))
+	if replacement.ok:
+		assert_ne(manifest.scene_contract_tables().value.fingerprint, original.value.fingerprint)
+	nested.restore()
+	var restored: Dictionary = manifest.scene_contract_tables()
+	assert_true(restored.ok, str(restored))
+	if not restored.ok: return
+	assert_eq(restored.value, original.value, "nested fixture restores all outer registration tables")
+	assert_eq(restored.bundle, original.bundle)
+	assert_eq(restored.value.fingerprint, manifest.scene_registration_fingerprint())
 
 func before_each() -> void:
 	_scene_validation_scope.install(true)

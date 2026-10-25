@@ -291,3 +291,16 @@ func test_overflow_scroll_clamps_without_changing_selection_and_uses_standard_pa
 		var roles: Dictionary = registry.resolve(&"midnight" if midnight else &"after_hours", false, "standard")
 		for role: String in ["face", "paper", "paper_ink", "filed", "ink", "focus"]:
 			assert_eq(_scene.theme.get_color(role, "Gallery"), roles[role])
+
+func test_queued_layout_reveal_is_harmless_after_title_detaches() -> void:
+	await _mount()
+	var profile_before: Dictionary = _profile.get_profile_snapshot().duplicate(true)
+	var selected: String = _scene.get("_selected_id")
+	_scene._relayout_rows()
+	var host: Node = _scene.get_parent()
+	_surface.remove_child(host)
+	assert_false(_scene.is_inside_tree())
+	await _settle()
+	assert_eq(_scene.get("_selected_id"), selected)
+	assert_eq(_profile.get_profile_snapshot(), profile_before)
+	host.free()

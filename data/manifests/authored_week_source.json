@@ -11830,9 +11830,28 @@
     {
       "entry_id": "ending.alone.normal",
       "path": "res://dialogic/timelines/authored_week/Day7.dtl",
-      "role": "ending",
+      "role": "scene",
       "story_day": 7,
-      "markers": [],
+      "markers": [
+        {
+          "marker_id": "ending.alone.normal.start",
+          "label": "ending.alone.normal.start",
+          "after_line_id": "",
+          "kind": "passage.start",
+          "payload": {
+            "passage_id": "passage.umbrella"
+          }
+        },
+        {
+          "marker_id": "ending.alone.normal.finish",
+          "label": "ending.alone.normal.finish",
+          "after_line_id": "line.ending.alone.normal.022",
+          "kind": "passage.finish",
+          "payload": {
+            "passage_id": "passage.umbrella"
+          }
+        }
+      ],
       "lines": [
         {
           "text": "At the rear doors of the building, the evening rain falls straight down through the courtyard lamp light.",

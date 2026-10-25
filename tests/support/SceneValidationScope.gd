@@ -16,6 +16,7 @@ func install(select_registration: bool = false) -> void:
 		"frozen": [FROZEN._scene_issuer, FROZEN._scene_creation_owner],
 		"manifest": [MANIFEST._scene_bundle, MANIFEST._scene_bundle_fingerprint, MANIFEST._registration_used,
 			MANIFEST._startup_selection_checked, MANIFEST._startup_selection_error, MANIFEST._first_target_id],
+		"contract_tables": MANIFEST._scene_contract_tables,
 		"signatures": SIGNATURE._entries,
 		"presentation": [PRESENTATION._schemas, PRESENTATION._ids]}
 	SIGNATURE._entries = SIGNATURE._entries.duplicate(true)
@@ -24,6 +25,7 @@ func install(select_registration: bool = false) -> void:
 	clear_validation_bindings()
 	if select_registration:
 		MANIFEST._scene_bundle = {}
+		MANIFEST._scene_contract_tables = {}
 		MANIFEST._scene_bundle_fingerprint = ""
 		MANIFEST._registration_used = false
 		MANIFEST._startup_selection_checked = true
@@ -51,6 +53,7 @@ func restore() -> void:
 	FROZEN._scene_issuer = _saved.frozen[0]
 	FROZEN._scene_creation_owner = _saved.frozen[1]
 	MANIFEST._scene_bundle = _saved.manifest[0]
+	MANIFEST._scene_contract_tables = _saved.contract_tables
 	MANIFEST._scene_bundle_fingerprint = _saved.manifest[1]
 	MANIFEST._registration_used = _saved.manifest[2]
 	MANIFEST._startup_selection_checked = _saved.manifest[3]

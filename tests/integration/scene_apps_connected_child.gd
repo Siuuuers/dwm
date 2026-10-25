@@ -163,7 +163,15 @@ func load_apps_scene() -> void:
 	_write_json("res://.godot/ci/scene-apps-cold-load-timing.json", timing)
 	assert_eq(game.money, proof.money)
 	assert_eq(game.inventory, proof.inventory)
-	assert_eq(_shop_receipts(), proof.shop_receipts, "Load does not replay the purchase.")
+	assert_true(_shop_receipts().is_empty(), "Load preserves purchase effects without restoring live retry receipts.")
+	for receipt: Dictionary in proof.shop_receipts.values():
+		var purchase: Dictionary = receipt.scene_shop_purchase
+		var stale: Dictionary = game.commit_scene_shop_purchase(purchase.purchase.item_id, purchase.purchase.quantity,
+			receipt.transaction_id, purchase.issuer_receipt,
+			{"identity": purchase.source_identity, "scene_occurrence": receipt.source_id})
+		assert_false(stale.get("ok", false), "pre-Load purchase command cannot debit the restored branch")
+		assert_eq(game.money, proof.money)
+		assert_eq(game.inventory, proof.inventory)
 	assert_eq(game.capture_dating_challenge_state().value, proof.record)
 	var player_reading: Dictionary = preload("res://scripts/narrative/SoloReadingSession.gd").project_player_checkpoint(proof.reading)
 	if not _ok(player_reading): return
@@ -181,7 +189,7 @@ func load_apps_scene() -> void:
 	if not await _launch_app(shell, &"shop"): return
 	assert_eq(game.money, proof.money)
 	assert_eq(game.inventory, proof.inventory)
-	assert_eq(_shop_receipts(), proof.shop_receipts)
+	assert_true(_shop_receipts().is_empty(), "Opening Shop does not replay the purchase.")
 	await _screenshot("apps-fresh-load-shop")
 	proof["loader_process_id"] = OS.get_process_id()
 	_write_json("res://.godot/ci/scene-apps-load-proof.json", proof)

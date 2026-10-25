@@ -96,6 +96,9 @@ func _assert_scene_snapshot(snapshot: Dictionary, reading: Dictionary, run: Dict
 	var normalized: Dictionary = DESKTOP_STATE._inspection_normalize(run)
 	normalized.desktop.board.erase("command_receipts")
 	assert_false(snapshot.desktop.board.has("command_receipts"), "player snapshot omits live retry state")
+	for field: String in ["command_receipts", "applied_effect_transaction_ids", "applied_variable_transaction_ids"]:
+		assert_false(snapshot.has(field), "player snapshot omits live retry state: " + field)
+		normalized.erase(field)
 	for key: String in normalized:
 		assert_eq(snapshot[key], normalized[key], "durable candidate matches complete live owner input: " + key)
 	assert_eq(typeof(snapshot.desktop.board.board.board.outcome), TYPE_STRING, "saved reducer outcome is JSON primitive text")
@@ -278,7 +281,7 @@ func load_scene_desktop_first_reveal() -> void:
 	assert_eq(current.lifecycle.run_id, witness.run.lifecycle.run_id)
 	assert_ne(current.lifecycle.branch_id, witness.run.lifecycle.branch_id)
 	assert_eq(current.gameplay, witness.run.gameplay, "Load never charges another round")
-	assert_eq(current.command_receipts, witness.run.command_receipts, "scene receipt history is not replayed")
+	assert_true(current.command_receipts.is_empty(), "Load starts an empty live retry session")
 	assert_eq(current.scene, witness.run.scene)
 	assert_eq(current.desktop.board.phase, witness.run.desktop.board.phase)
 	assert_eq(bootstrap._desktop_host_state.get_state().active_app_id, &"minesweeper",

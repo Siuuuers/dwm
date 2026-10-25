@@ -106,6 +106,11 @@ func _source() -> Dictionary:
 	return {"ok": true, "value": {"source_kind": "schedule_done"}}
 
 func test_game_owner_admits_ending_with_real_nullable_day_closures_and_retains_only_counted_pair_receipts() -> void:
+	# Calendar-owner coverage explicitly installs its retained presentation contract;
+	# production Scene passages no longer declare calendar ending fields.
+	var installed: Dictionary = _retained_contexts.install(["ending.alone.normal"])
+	assert_true(installed.ok, str(installed))
+	if not installed.ok: return
 	var state: Node = autofree(STATE.new())
 	state.reset_game()
 	var gate := GATE.new()
@@ -154,6 +159,11 @@ func test_game_owner_admits_ending_with_real_nullable_day_closures_and_retains_o
 	assert_true(state.capture_ending_frozen_presentation(command.ending_id, command.playback_context).ok)
 
 func test_game_owner_freezes_admission_then_checkpoints_exact_current_step_and_refuses_missing_seed() -> void:
+	# Calendar-owner coverage explicitly installs its retained presentation contract;
+	# production Scene passages no longer declare calendar ending fields.
+	var installed: Dictionary = _retained_contexts.install(["ending.alone.normal"])
+	assert_true(installed.ok, str(installed))
+	if not installed.ok: return
 	var state: Node = autofree(STATE.new())
 	state.reset_game()
 	state._lifecycle_set_playing_day(7)

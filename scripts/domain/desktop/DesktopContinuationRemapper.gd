@@ -523,19 +523,15 @@ static func _scene_runtime_boundary(snapshot: Dictionary) -> Dictionary:
 	if not requested: return {"ok": true, "value": false}
 	var event := preload("res://scripts/domain/narrative/SceneEventContract.gd")
 	if typeof(snapshot.get("schema_version")) != TYPE_INT or snapshot.schema_version != 9 \
-			or typeof(snapshot.get("route_id")) != TYPE_STRING or snapshot.route_id not in ["scene", "ending"]:
+			or typeof(snapshot.get("route_id")) != TYPE_STRING or snapshot.route_id != "scene":
 		return _fail(&"remap_scene_family_invalid", "scene requires explicit Run9 and scene host", {})
 	for retired: String in ["dating", "committed_schedule", "schedule_view"]:
 		if snapshot.has(retired): return _fail(&"remap_scene_family_invalid", "retired scene member: " + retired, {})
 	var lifecycle: Variant = snapshot.get("lifecycle")
-	var terminal: bool = lifecycle is Dictionary and lifecycle.get("ending_plan") is Dictionary \
-		and lifecycle.ending_plan.get("source_kind") == "scene" and lifecycle.get("state") in ["ENDING", "COMPLETED"]
 	var lifecycle_keys := ["run_id", "branch_id", "desktop_timeline_generation", "causal_day_instance",
 		"causal_day_instance_issuer_receipt", "restore_provenance", "state", "scene_assignment"]
-	if terminal: lifecycle_keys.append("ending_plan")
 	if not event._keys(lifecycle, lifecycle_keys) or not event._json_data(lifecycle) \
-			or (snapshot.route_id == "ending") != terminal \
-			or (not terminal and lifecycle.state not in ["PLAYING", "COMPLETED"]):
+			or lifecycle.state not in ["PLAYING", "COMPLETED"]:
 		return _fail(&"remap_scene_lifecycle_invalid", "exact scene lifecycle required", {})
 	var assignment := preload("res://scripts/domain/relationship/PairDeckDraw.gd").validate_scene(lifecycle.scene_assignment)
 	if not assignment.get("ok", false):
@@ -550,11 +546,14 @@ static func _scene_runtime_boundary(snapshot: Dictionary) -> Dictionary:
 			or causal.purpose != "causal_day_instance" or causal.token != lifecycle.causal_day_instance:
 		return _fail(&"remap_scene_lifecycle_invalid", "causal pair mismatch", {})
 	var scene: Variant = snapshot.get("scene")
-	if not event._keys(scene, ["registration_sha256", "active_occurrence_id", "active_admission_receipt_id"]) \
+	if not event._keys(scene, ["registration_sha256", "active_occurrence_id", "entry_id", "notification", "active_challenge", "return_to"]) \
 			or not event._json_data(scene):
 		return _fail(&"remap_scene_references_invalid", "exact scene references required", {})
-	for key: String in scene:
+	for key: String in ["registration_sha256", "active_occurrence_id", "entry_id"]:
 		if not event._id(scene[key]): return _fail(&"remap_scene_references_invalid", key, {})
+	if not scene.notification is Dictionary or not scene.active_challenge is Dictionary \
+			or (scene.return_to != null and not scene.return_to is Dictionary):
+		return _fail(&"remap_scene_references_invalid", "current scene owners are malformed", {})
 	var desktop := _require_desktop(snapshot)
 	if not desktop.get("ok", false): return desktop
 	var consequence: Dictionary = desktop.value.consequence

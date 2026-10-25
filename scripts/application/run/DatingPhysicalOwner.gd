@@ -648,14 +648,12 @@ func flush_pending_attempt() -> Dictionary:
 		if not _scene_fatal and not _routine_pending and _pending_checkpoint.is_empty() \
 				and _attempt_gate != null and _attempt_gate.is_internal_owner_active(&"restore"):
 			return _ok({"committed": false})
-		# A selected completed save keeps its historical closure. There is no
-		# playable input to re-admit and no new physical progress to flush.
+		# A selected closed board is already the Run's exact current physical
+		# record. Its saved outcome needs no historical closure proof or write.
 		if not _routine_pending and _pending_checkpoint.is_empty() \
 				and is_instance_valid(_game_state) and _game_state.has_method("capture_scene_challenge_closure"):
 			var closed: Dictionary = _game_state.capture_scene_challenge_closure(_record.context)
-			var digest: Dictionary = CANONICAL.canonical_sha256(_record)
-			if closed.get("ok", false) and digest.get("ok", false) \
-					and closed.value.get("attempt_proof", {}).get("record_sha256") == digest.value.sha256:
+			if closed.get("ok", false) and _scene_closed_record_matches(closed.value):
 				return _ok({"committed": false})
 		return _fail(&"scene_challenge_readmission_required")
 	if _scene_command(): return _flush_scene_pending()
@@ -1547,6 +1545,35 @@ func _scene_input_open() -> bool:
 func _scene_closed() -> Dictionary:
 	return _scene_authority.capture_scene_challenge_closure(_admitted_command.context.duplicate(true))
 
+## Closed-board presentation and no-op flush use only the selected Run record.
+## Never replace that record with a later Profile attempt while checking closure.
+func _scene_closed_record_matches(closed: Dictionary) -> bool:
+	if closed.is_empty() or not is_instance_valid(_game_state) \
+			or _routine_pending or not _pending_checkpoint.is_empty(): return false
+	var captured: Dictionary = _game_state.capture_dating_challenge_state()
+	if not captured.get("ok", false) or captured.value != _record: return false
+	var context: Dictionary = _record.get("context", _admitted_command.get("context", {}))
+	var slot := ATTEMPTS.semantic_slot(context)
+	if slot.is_empty() or closed.get("kind") != "challenge_closed" \
+			or closed.get("challenge_occurrence") != slot.trim_prefix("scene.challenge.") \
+			or closed.get("playable_command_id") != context.get("playable_command_id"): return false
+	if _record.is_empty(): return closed.get("outcome") == "never_started"
+	if not _valid_record(_record, {}): return false
+	var bundle := _scene_bundle
+	# Fresh Load can retain a closed board inside Contacts without ever admitting
+	# a playable command. Resolve only its immutable registration for this check.
+	if bundle.is_empty():
+		var selected: Dictionary = preload("res://scripts/narrative/DialogicEntryManifest.gd").scene_registration()
+		if not selected.get("ok", false): return false
+		bundle = selected.value
+	var hashed: Dictionary = CANONICAL.canonical_sha256(bundle)
+	if not hashed.get("ok", false) or hashed.value.sha256 != context.registration_sha256: return false
+	for challenge: Dictionary in bundle.get("challenges", []):
+		if challenge.challenge_id != context.challenge_id: continue
+		var outcome := scene_closure_outcome(_record, challenge.targets)
+		return closed.get("outcome") == outcome and closed.get("target_id") == challenge.targets.get(outcome)
+	return false
+
 func _begin_scene(command: Dictionary) -> Dictionary:
 	if _scene_absence_busy:
 		_scene_absence_reentered = true
@@ -1604,11 +1631,13 @@ func _pull_scene(token: String) -> Dictionary:
 	if not _scene_command(): return _fail(&"scene_challenge_unadmitted")
 	if _scene_fatal: return _fail(&"scene_challenge_fatal_custody")
 	if token != _token(_admitted_command.completion_transaction_id, _admitted_command.command_sha256): return _fail(&"scene_challenge_unavailable")
-	var admitted := _scene_authorize(_admitted_command)
-	if not admitted.ok: return admitted
 	var closed := _scene_closed()
 	if not closed.ok: return closed
-	if not closed.value.is_empty(): return _ok({"phase": "closed", "state": closed.value.outcome, "actions": [], "board": null})
+	if not closed.value.is_empty():
+		if not _scene_closed_record_matches(closed.value): return _fail(&"scene_challenge_record_conflict")
+		return _ok({"phase": "closed", "state": closed.value.outcome, "actions": [], "board": null})
+	var admitted := _scene_authorize(_admitted_command)
+	if not admitted.ok: return admitted
 	if not _pending_checkpoint.is_empty(): _record = _pending_checkpoint.duplicate(true)
 	if _record.is_empty(): return _ok({"phase": "never_started", "state": "never_started", "actions": ["start"], "board": null, "revision": 0})
 	if not _valid_record(_record, _admitted_command): return _fail(&"scene_challenge_record_invalid")
@@ -1985,11 +2014,12 @@ func _flush_scene_pending() -> Dictionary:
 	# Save owns a presentation pause. Already checkpointed state needs no new
 	# playable admission; actual pending writes still validate their source below.
 	if _record.is_empty() or (_history_committed and not _routine_pending and _pending_checkpoint.is_empty()): return _ok({"committed": false})
-	var admitted := _scene_authorize(_admitted_command)
-	if not admitted.ok: return admitted
 	var closed := _scene_closed()
 	if not closed.ok: return closed
-	if not closed.value.is_empty(): return _ok({"committed": false})
+	if not closed.value.is_empty():
+		return _ok({"committed": false}) if _scene_closed_record_matches(closed.value) else _fail(&"scene_challenge_record_conflict")
+	var admitted := _scene_authorize(_admitted_command)
+	if not admitted.ok: return admitted
 	var lease := {}
 	var prior_lease := _scene_lease
 	if not _attempt_gate.is_internal_owner_active(&"causal_transaction"):

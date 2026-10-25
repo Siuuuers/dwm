@@ -114,8 +114,8 @@ foreach ($case in @('empty', 'whitespace')) {
         $cases = $xml.SelectNodes('//testcase')
         $failures = $xml.SelectNodes('//failure')
         $passes = $xml.SelectNodes('//testcase[not(failure) and not(error) and not(skipped)]')
-        # Five new checkpoint proof regressions use _isolated_wired() first and
-        # must refuse a missing root just like the original storage-backed cases.
+        # Storage-backed cases, including rollback diagnostic regressions, use
+        # _isolated_wired() first and must refuse a missing test root.
         foreach ($failure in $failures) {
             if ($failure.InnerText -notmatch 'test_root_missing') {
                 $detail = $failure.InnerText
@@ -123,7 +123,7 @@ foreach ($case in @('empty', 'whitespace')) {
                 throw "Unexpected refusal failure: $($failure.ParentNode.GetAttribute('name')): $detail"
             }
         }
-        if ($cases.Count -ne 83 -or $failures.Count -ne 80 -or $passes.Count -ne 3 -or
+        if ($cases.Count -ne 85 -or $failures.Count -ne 82 -or $passes.Count -ne 3 -or
             $xml.SelectNodes('//error | //skipped').Count -ne 0) {
             throw "Refusal counts changed: $($cases.Count) cases, $($failures.Count) failures, $($passes.Count) passes."
         }
