@@ -2,8 +2,6 @@ name: Exported startup desktop dependency comparison
 run-name: Rendered startup baseline and deferred desktop dependencies
 
 on:
-  push:
-    branches: [codex/startup-attribution-20261025]
   workflow_dispatch:
 
 permissions:
