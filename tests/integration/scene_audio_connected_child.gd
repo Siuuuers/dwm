@@ -93,9 +93,9 @@ func _audio_checkpoint() -> Dictionary:
 	var selected: Dictionary = saves.get_latest_stable_checkpoint()
 	if not _ok(selected): return {}
 	var snapshot: Dictionary = selected.value.bundle.snapshot
-	var admission: String = snapshot.scene.active_admission_receipt_id
-	var entry: String = snapshot.command_receipts[admission].scene_admission.result.entry_id
-	var expected: Dictionary = AUDIO_MANIFEST.make_scene_context(registered.value, entry, admission)
+	var occurrence: String = snapshot.scene.active_occurrence_id
+	var entry: String = snapshot.scene.entry_id
+	var expected: Dictionary = AUDIO_MANIFEST.make_scene_context(registered.value, entry, occurrence)
 	if not _ok(expected): return {}
 	assert_false(snapshot.has("audio_context"), "player snapshot stores no duplicated audio context")
 	var derived: Dictionary = RUN_SCHEMA.derive_scene_audio_context(snapshot)
@@ -127,7 +127,7 @@ func load_audio_scene() -> void:
 	expected_start = 1.0
 	await load_computer_board()
 	var context: Dictionary = _audio_checkpoint()
-	assert_eq(context, parsed.value.context, "Load retains admission and canonical selection")
+	assert_eq(context, parsed.value.context, "Load retains occurrence and canonical selection")
 	assert_ne(OS.get_process_id(), parsed.value.process_id)
 	assert_gte(continuity.size(), 1)
 	# Saving the restored and continued board must retain the same audio identity.

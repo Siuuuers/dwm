@@ -28,6 +28,8 @@ class CheckpointSeam extends "res://tests/support/FakeNarrativeCheckpointContext
 		calls.append("prepare")
 		if not prepare_ok: return {"ok": false, "code": &"prepare_failed"}
 		var snapshot: Dictionary = inputs.snapshot_input.duplicate(true)
+		for key: String in ["command_receipts", "applied_effect_transaction_ids", "applied_variable_transaction_ids"]:
+			snapshot.erase(key)
 		var player_board: Dictionary = BOARD_STATE.project_player_state(snapshot.desktop.board)
 		if not player_board.ok: return player_board
 		snapshot.desktop.board = player_board.value.snapshot
@@ -98,7 +100,8 @@ func _fixture() -> Dictionary:
 	board["settled_inspection"] = false
 	board["round_paid"] = false
 	var input := {"lifecycle": {}, "gameplay": {"money": 5}, "contacts": {}, "desktop": {"board": board, "consequence": {}},
-		"scene": {"registration_sha256": session.fingerprint, "active_occurrence_id": occurrence, "active_admission_receipt_id": occurrence},
+		"scene": {"registration_sha256": session.fingerprint, "active_occurrence_id": occurrence,
+			"entry_id": entry, "notification": {}, "active_challenge": {}, "return_to": null},
 		"command_receipts": {}, "applied_effect_transaction_ids": {}, "applied_variable_transaction_ids": {}}
 	real.current["narrative_checkpoint"] = SESSION.project_player_checkpoint(checkpoint).value
 	return {"real": real, "owner": owner, "port": port, "input": input, "checkpoint": checkpoint}
@@ -117,6 +120,10 @@ func test_shop_and_contact_keep_one_lower_commit_and_three_owner_phases() -> voi
 		assert_true(f.real.committed_same_object)
 		assert_true(f.input.desktop.board.has("command_receipts"), "live input keeps its retry state")
 		assert_false(f.real.current.desktop.board.has("command_receipts"), "lower seam produces player facts")
+		for key: String in ["command_receipts", "applied_effect_transaction_ids", "applied_variable_transaction_ids"]:
+			assert_true(f.input.has(key), "live custody retains retry cache: %s" % key)
+			assert_false(f.real.current.has(key), "player save excludes retry cache: %s" % key)
+		assert_eq(f.real.current.scene, f.input.scene, "player save retains exact current Scene state")
 		assert_eq(f.real.current.narrative_checkpoint, SESSION.project_player_checkpoint(f.checkpoint).value)
 		assert_false(f.real.current.narrative_checkpoint.reading_session.has("ledger"))
 		assert_true(f.checkpoint.reading_session.has("ledger"), "live custody retains complete reading state")

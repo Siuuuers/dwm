@@ -119,7 +119,12 @@ func test_current_recall_refuses_missing_or_ambiguous_saved_outcome_without_muta
 func test_current_recall_rejects_malformed_facts_after_event_and_registration() -> void:
 	var bundle: Dictionary = FIXTURE.bundle().value
 	var event := _event()
-	for invalid: Variant in [null, [], {"a".repeat(64): {"challenge_id": FIXTURE.CHALLENGE_ID, "outcome": "unknown"}}]:
+	for invalid: Variant in [null, [],
+			{"invalid-occurrence": {"challenge_id": FIXTURE.CHALLENGE_ID, "outcome": "won"}},
+			{"a".repeat(64): null},
+			{"a".repeat(64): {"challenge_id": "", "outcome": "won"}},
+			{"a".repeat(64): {"challenge_id": FIXTURE.CHALLENGE_ID, "outcome": "won", "extra": true}},
+			{"a".repeat(64): {"challenge_id": FIXTURE.CHALLENGE_ID, "outcome": "unknown"}}]:
 		assert_eq(CONTRACT.resolve_scene_challenge_recall(event, invalid, bundle).get("code"),
 			&"scene_challenge_recall_invalid")
 	assert_eq(CONTRACT.resolve_scene_challenge_recall(event, null, {}).get("code"), &"scene_bundle_invalid")

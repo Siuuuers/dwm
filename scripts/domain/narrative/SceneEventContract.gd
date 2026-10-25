@@ -616,9 +616,15 @@ static func resolve_scene_challenge_recall(event: Dictionary, outcomes: Variant,
 	if not checked.ok: return checked
 	if event.kind != "challenge.recall" or not _positive_int(event.issuer_receipt.get("counter")):
 		return _fail(&"scene_challenge_recall_invalid")
-	# Reuse the save owner's fact shape; loading here avoids a preload cycle.
-	var schema: Script = load("res://scripts/domain/run/RunSnapshotSchema.gd")
-	if schema._validate_scene_progress({}, outcomes) != "": return _fail(&"scene_challenge_recall_invalid")
+	# This selector uses its explicitly validated bundle, not a second global
+	# registration lookup. Save admission separately checks all registered facts.
+	if not outcomes is Dictionary: return _fail(&"scene_challenge_recall_invalid")
+	for occurrence: Variant in outcomes:
+		var outcome: Variant = outcomes[occurrence]
+		if not _hash(occurrence) or not _keys(outcome, ["challenge_id", "outcome"]) \
+				or not _id(outcome.challenge_id) \
+				or outcome.outcome not in ["never_started", "unfinished", "lost", "won", "perfect"]:
+			return _fail(&"scene_challenge_recall_invalid")
 	var found := {}
 	for outcome: Dictionary in outcomes.values():
 		if outcome.challenge_id != event.payload.challenge_id: continue

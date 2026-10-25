@@ -71,7 +71,18 @@ func create_contacts_scene() -> void:
 	assert_false(game.resolve_scene_contact_facts(["TEST.fact.read"]).ok)
 	await _click(_controls(host, "CheckComputer"))
 	assert_true(host.is_computer_open())
-	var app: Control = host.get_challenge_mount().get_node_or_null("SceneContactsApp")
+	await _click(_controls(host, "Apps"))
+	var shell: Control = host.get_computer_mount().get_node_or_null("SceneComputerDesktop")
+	assert_not_null(shell, "Apps opens the current computer desktop")
+	if shell == null: return
+	assert_true(shell.is_visible_in_tree())
+	var launcher: Button = shell.launcher_buttons[&"contacts"]
+	assert_true(launcher.is_visible_in_tree())
+	assert_false(launcher.disabled)
+	if not launcher.is_visible_in_tree() or launcher.disabled: return
+	await _click(launcher)
+	assert_eq(shell._active_id, &"contacts")
+	var app: Control = shell._cached_app_windows.get(&"contacts")
 	assert_not_null(app)
 	if app == null: return
 	assert_true(app.is_visible_in_tree())

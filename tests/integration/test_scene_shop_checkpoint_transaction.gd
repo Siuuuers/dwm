@@ -100,7 +100,12 @@ func test_shop_checkpoint_retry_custody_and_uncertain_commit() -> void:
 	assert_eq(bridge.capture_reading_checkpoint(false), reading)
 	var writes: int = fault.autosave_writes
 	var accepted_disk: Dictionary = storage.read_text("autosave.json")
-	var persisted: Dictionary = JSON.parse_string(str(accepted_disk.value))
+	# Preserve integer tokens so the full gameplay comparison checks exact saved values.
+	var parsed_disk: Dictionary = PARSER.parse_object(str(accepted_disk.value))
+	if not _ok(parsed_disk):
+		storage._file_ops = original_files
+		return
+	var persisted: Dictionary = parsed_disk.value
 	assert_false(persisted.current_snapshot.snapshot.has("command_receipts"),
 		"player save retains purchase effects without the live retry receipt")
 	assert_eq(persisted.current_snapshot.snapshot.gameplay, after.gameplay)

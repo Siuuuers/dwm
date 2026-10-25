@@ -403,9 +403,13 @@ func _save_ending_caption() -> bool:
 	var prepared: Dictionary = sheet._backup_port.prepare_action("save", "slot:2")
 	if not _ok(prepared): return false
 	if not _ok(await sheet._backup_port.commit_action(prepared.value.token)): return false
+	# Ordinary Scene Save is a direct host: leaving it already requests Continue.
 	sheet.surface.leave_host()
-	if not _ok(await sheet.request_continue()): return false
 	for frame: int in 4: await get_tree().process_frame
+	if not _ok(sheet.last_result): return false
+	assert_false(sheet.surface.visible, "Save Back closes the direct host")
+	assert_false(get_tree().paused, "Save Back resumes the ordinary passage")
+	if sheet.surface.visible or get_tree().paused: return false
 	var parsed: Dictionary = PARSER.parse_object(FileAccess.get_file_as_string("user://saves/slot_2.json"))
 	if not _ok(parsed): return false
 	var snapshot: Dictionary = parsed.value.current_snapshot.snapshot
