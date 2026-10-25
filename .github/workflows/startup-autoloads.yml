@@ -2,8 +2,6 @@ name: Exported startup autoload attribution
 run-name: Rendered autoload timing - baseline 47234a3
 
 on:
-  push:
-    branches: [codex/startup-attribution-20261025]
   workflow_dispatch:
 
 permissions:
