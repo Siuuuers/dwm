@@ -2,8 +2,6 @@ name: Exported startup renderer comparison
 run-name: Same-package D3D12 and OpenGL startup comparison
 
 on:
-  push:
-    branches: [codex/startup-attribution-20261025]
   workflow_dispatch:
 
 permissions:

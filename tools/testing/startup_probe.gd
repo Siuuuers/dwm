@@ -231,6 +231,8 @@ func _finish(ok: bool) -> void:
 		for key: String in ["preferences.language.primary_locale_id", "preferences.accessibility.text_size", "preferences.accessibility.font_style", "preferences.reading.reveal_speed", "preferences.reading.auto_enabled"]:
 			preferences[key] = profile.get_preference(key, null)
 	var report := {"complete": ok, "case": case_name, "journey": journey, "minimal": minimal,
+		"autoload_trace": Engine.get_meta("_dwm_autoload_trace", []),
+		"autoload_trace_scope": "Optional constructor begin/end stamps. Previous constructor end to next constructor begin includes dependency loading, member initialization and engine bookkeeping. It is not pure disk time or an exclusive dependency cost. All autoloads are constructed before the first root add_child; probe_enter_tree is later than these constructors.",
 		"milestones": milestones, "phases": phases, "inputs": inputs, "observation": observation, "font_cache": font_cache,
 		"max_frame_gap_us": frame_gaps, "failures": failures, "rendering": rendering,
 		"engine": Engine.get_version_info(), "preferences": preferences, "display_server": DisplayServer.get_name(),

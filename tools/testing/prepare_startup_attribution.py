@@ -3,6 +3,7 @@ import argparse
 import hashlib
 import json
 from pathlib import Path
+import re
 import shutil
 
 
@@ -12,7 +13,7 @@ def replace_once(text, old, new):
     return text.replace(old, new, 1)
 
 
-def prepare(root, variant):
+def prepare(root, variant, trace_autoloads=False):
     root.mkdir(parents=True, exist_ok=True)
     changes = {}
 
@@ -21,8 +22,8 @@ def prepare(root, variant):
         before = target.read_bytes()
         after = transform(before.decode("utf-8")).encode("utf-8")
         target.write_bytes(after)
-        changes[path] = {"before": hashlib.sha256(before).hexdigest(),
-                         "after": hashlib.sha256(after).hexdigest()}
+        changes.setdefault(path, {"before": hashlib.sha256(before).hexdigest()})
+        changes[path]["after"] = hashlib.sha256(after).hexdigest()
 
     shutil.copyfile(Path(__file__).with_name("startup_probe.gd"), root / "startup_probe.gd")
     if variant == "minimal":
@@ -128,7 +129,65 @@ func _probe_start(mode: StringName = MODE_FINAL) -> Dictionary:
             "FONTS.SIMPLIFIED", 'load("res://scripts/ui/UiTypography.gd").font("zh-CN", 100, "readable")'),
             "FONTS.TRADITIONAL", 'load("res://scripts/ui/UiTypography.gd").font("zh-HK", 100, "readable")'))
 
+    autoload_sources = {}
+    if trace_autoloads:
+        # Godot constructs every autoload before adding the first one to root.
+        # Consecutive constructor stamps bound loading, member initialization and
+        # engine bookkeeping together; they are not exclusive resource I/O costs.
+        project = (root / "project.godot").read_text(encoding="utf-8")
+        block = re.search(r"(?ms)^\[autoload\]\n(.*?)(?=^\[|\Z)", project)
+        if block is None:
+            raise ValueError("Autoload section missing")
+        entries = re.findall(r'^([A-Za-z_][A-Za-z_0-9]*)="\*([^"\n]+)"$', block[1], re.M)
+        if len(entries) != (1 if variant == "minimal" else 15) or entries[0] != ("StartupProbe", "res://startup_probe.gd"):
+            raise ValueError("Expected StartupProbe followed by the 14 production autoloads")
+        constructors = {
+            "AudioManager": ("playback_port: RefCounted = null", "playback_port"),
+            "WindowModeManager": ("port: RefCounted = null", "port"),
+            "SystemTtsCoordinator": ("speech_port: Object = null, duck_port: Object = null", "speech_port, duck_port"),
+        }
+
+        def trace_constructor(text, owner):
+            if "_probe_original_init" in text or "_dwm_autoload_trace" in text:
+                # The observer reads this metadata in its report; it has no ctor yet.
+                if owner != "StartupProbe" or re.search(r"(?m)^func _init\(", text):
+                    raise ValueError(f"Constructor already instrumented: {owner}")
+            parameters, arguments = constructors.get(owner, ("", ""))
+            header = f"func _init({parameters}) -> void:\n"
+            wrapper = header
+            if owner == "StartupProbe":
+                wrapper += '\tEngine.set_meta("_dwm_autoload_trace", [])\n'
+            wrapper += '\tvar trace: Array = Engine.get_meta("_dwm_autoload_trace")\n'
+
+            def event(kind):
+                return ('\ttrace.append({"ticks_us": Time.get_ticks_usec(), '
+                        '"unix_ms": Time.get_unix_time_from_system() * 1000.0, '
+                        f'"owner": "{owner}", "event": "{kind}"}})\n')
+
+            wrapper += event("begin")
+            if owner in constructors:
+                wrapper += f"\t_probe_original_init({arguments})\n"
+            wrapper += event("end")
+            if owner in constructors:
+                return replace_once(text, header, wrapper + "\n" + header.replace("_init(", "_probe_original_init("))
+            if re.search(r"(?m)^func _init\(", text):
+                raise ValueError(f"Unreviewed constructor: {owner}")
+            return text.rstrip() + "\n\n" + wrapper
+
+        for owner, resource in entries:
+            if resource.startswith("uid://"):
+                path = "addons/dialogic/Core/DialogicGameHandler.gd"
+                if owner != "Dialogic" or (root / (path + ".uid")).read_text(encoding="utf-8").strip() != resource:
+                    raise ValueError(f"Unreviewed autoload UID: {owner} {resource}")
+            elif resource.startswith("res://") and resource.endswith(".gd"):
+                path = resource.removeprefix("res://")
+            else:
+                raise ValueError(f"Unreviewed autoload resource: {owner} {resource}")
+            autoload_sources[owner] = path
+            edit(path, lambda text, owner=owner: trace_constructor(text, owner))
+
     (root / "startup-variant.json").write_text(json.dumps({"variant": variant,
+        "trace_autoloads": trace_autoloads, "autoload_sources": autoload_sources,
         "changes": changes, "probe_sha256": hashlib.sha256((root / "startup_probe.gd").read_bytes()).hexdigest()}, indent=2), encoding="utf-8")
 
 
@@ -136,5 +195,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--project-root", type=Path, required=True)
     parser.add_argument("--variant", choices=["baseline", "menu", "fonts", "minimal"], required=True)
+    parser.add_argument("--trace-autoloads", action="store_true",
+                        help="Trace constructors in disposable exports; gaps also include loading and member initialization")
     args = parser.parse_args()
-    prepare(args.project_root, args.variant)
+    prepare(args.project_root, args.variant, args.trace_autoloads)
