@@ -1,0 +1,415 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="GutTests" failures="0" tests="200" >
+  <testsuite name="tests/unit/test_desktop_board_state.gd" tests="53" failures="0" skipped="0" time="0.256461" >
+      <testcase name="test_state_script_loads" assertions="1" status="pass" classname="tests/unit/test_desktop_board_state.gd" time="0.000133" >
+      </testcase>
+      <testcase name="test_state_instantiates" assertions="1" status="pass" classname="tests/unit/test_desktop_board_state.gd" time="0.000073" >
+      </testcase>
+      <testcase name="test_fresh_state_is_none_phase_with_zero_revision" assertions="9" status="pass" classname="tests/unit/test_desktop_board_state.gd" time="0.000293" >
+      </testcase>
+      <testcase name="test_capture_shape_is_exactly_nine_keys" assertions="1" status="pass" classname="tests/unit/test_desktop_board_state.gd" time="0.000292" >
+      </testcase>
+      <testcase name="test_reset_returns_to_fresh_state" assertions="3" status="pass" classname="tests/unit/test_desktop_board_state.gd" time="0.000489" >
+      </testcase>
+      <testcase name="test_capture_is_detached_from_internal_state" assertions="2" status="pass" classname="tests/unit/test_desktop_board_state.gd" time="0.000115" >
+      </testcase>
+      <testcase name="test_prepare_debug_candidate_from_none_transitions_to_preparing" assertions="7" status="pass" classname="tests/unit/test_desktop_board_state.gd" time="0.001168" >
+      </testcase>
+      <testcase name="test_prepare_debug_candidate_rejects_when_not_none_phase" assertions="3" status="pass" classname="tests/unit/test_desktop_board_state.gd" time="0.000421" >
+      </testcase>
+      <testcase name="test_prepare_debug_candidate_rejects_stale_revision" assertions="2" status="pass" classname="tests/unit/test_desktop_board_state.gd" time="0.000169" >
+      </testcase>
+      <testcase name="test_prepare_debug_candidate_rejects_invalid_identity" assertions="2" status="pass" classname="tests/unit/test_desktop_board_state.gd" time="0.00015" >
+      </testcase>
+      <testcase name="test_prepare_debug_slice_progress_stays_in_preparing" assertions="4" status="pass" classname="tests/unit/test_desktop_board_state.gd" time="0.000494" >
+      </testcase>
+      <testcase name="test_prepare_debug_slice_certified_transitions_to_prepared_unstarted" assertions="5" status="pass" classname="tests/unit/test_desktop_board_state.gd" time="0.000551" >
+      </testcase>
+      <testcase name="test_debug_is_cost_free_through_prepared_unstarted" assertions="3" status="pass" classname="tests/unit/test_desktop_board_state.gd" time="0.000448" >
+      </testcase>
+      <testcase name="test_prepare_debug_slice_rejects_wrong_phase" assertions="2" status="pass" classname="tests/unit/test_desktop_board_state.gd" time="0.000194" >
+      </testcase>
+      <testcase name="test_prepare_debug_slice_rejects_identity_mismatch" assertions="2" status="pass" classname="tests/unit/test_desktop_board_state.gd" time="0.000313" >
+      </testcase>
+      <testcase name="test_default_and_lucky_remain_none_until_reveal" assertions="3" status="pass" classname="tests/unit/test_desktop_board_state.gd" time="0.000499" >
+      </testcase>
+      <testcase name="test_prepare_first_reveal_from_none_populates_board_and_receipt" assertions="7" status="pass" classname="tests/unit/test_desktop_board_state.gd" time="0.000732" >
+      </testcase>
+      <testcase name="test_prepare_first_reveal_from_prepared_unstarted_adopts_certified_layout" assertions="3" status="pass" classname="tests/unit/test_desktop_board_state.gd" time="0.000977" >
+      </testcase>
+      <testcase name="test_prepare_first_reveal_rejects_forced_cell_mismatch_from_prepared_unstarted" assertions="2" status="pass" classname="tests/unit/test_desktop_board_state.gd" time="0.000623" >
+      </testcase>
+      <testcase name="test_prepare_first_reveal_rejects_wrong_phase" assertions="2" status="pass" classname="tests/unit/test_desktop_board_state.gd" time="0.00048" >
+      </testcase>
+      <testcase name="test_prepare_board_command_reveal_commits_new_revision" assertions="5" status="pass" classname="tests/unit/test_desktop_board_state.gd" time="0.00091" >
+      </testcase>
+      <testcase name="test_prepare_board_command_rejects_when_suspended" assertions="2" status="pass" classname="tests/unit/test_desktop_board_state.gd" time="0.00069" >
+      </testcase>
+      <testcase name="test_prepare_visibility_suspend_then_resume" assertions="4" status="pass" classname="tests/unit/test_desktop_board_state.gd" time="0.000852" >
+      </testcase>
+      <testcase name="test_prepare_visibility_rejects_from_none" assertions="2" status="pass" classname="tests/unit/test_desktop_board_state.gd" time="0.000144" >
+      </testcase>
+      <testcase name="test_prepare_settlement_requires_terminal_board" assertions="2" status="pass" classname="tests/unit/test_desktop_board_state.gd" time="0.000404" >
+      </testcase>
+      <testcase name="test_prepare_settlement_on_terminal_board_transitions_to_settling" assertions="5" status="pass" classname="tests/unit/test_desktop_board_state.gd" time="0.000614" >
+      </testcase>
+      <testcase name="test_commit_duplicate_transaction_id_same_payload_replays_result" assertions="4" status="pass" classname="tests/unit/test_desktop_board_state.gd" time="0.001658" >
+      </testcase>
+      <testcase name="test_routine_receipts_keep_latest_retry_but_compact_older_boards_after_acceptance" assertions="14" status="pass" classname="tests/unit/test_desktop_board_state.gd" time="0.015767" >
+      </testcase>
+      <testcase name="test_legacy_compacted_board_receipt_sheds_metadata_only_after_new_acceptance" assertions="23" status="pass" classname="tests/unit/test_desktop_board_state.gd" time="0.028342" >
+      </testcase>
+      <testcase name="test_receipt_metadata_compaction_preserves_unknown_extended_and_minimal_records" assertions="19" status="pass" classname="tests/unit/test_desktop_board_state.gd" time="0.003473" >
+      </testcase>
+      <testcase name="test_commit_duplicate_transaction_id_changed_payload_conflicts" assertions="2" status="pass" classname="tests/unit/test_desktop_board_state.gd" time="0.000423" >
+      </testcase>
+      <testcase name="test_stale_revision_rejected_across_every_prepare_method" assertions="1" status="pass" classname="tests/unit/test_desktop_board_state.gd" time="0.000536" >
+      </testcase>
+      <testcase name="test_prepare_candidate_mutation_before_commit_does_not_leak_into_a_prior_capture" assertions="2" status="pass" classname="tests/unit/test_desktop_board_state.gd" time="0.000305" >
+      </testcase>
+      <testcase name="test_captured_result_mutation_does_not_leak_into_internal_state" assertions="2" status="pass" classname="tests/unit/test_desktop_board_state.gd" time="0.000473" >
+      </testcase>
+      <testcase name="test_prepare_restore_round_trips_a_captured_snapshot" assertions="5" status="pass" classname="tests/unit/test_desktop_board_state.gd" time="0.002791" >
+      </testcase>
+      <testcase name="test_prepare_restore_rejects_bad_member_set" assertions="2" status="pass" classname="tests/unit/test_desktop_board_state.gd" time="0.000236" >
+      </testcase>
+      <testcase name="test_prepare_restore_rejects_phase_invariant_violation" assertions="2" status="pass" classname="tests/unit/test_desktop_board_state.gd" time="0.000133" >
+      </testcase>
+      <testcase name="test_scene_first_reveal_uses_issued_round_only_payment_and_refuses_legacy_live" assertions="11" status="pass" classname="tests/unit/test_desktop_board_state.gd" time="0.00673" >
+      </testcase>
+      <testcase name="test_scene_payment_refuses_missing_changed_and_type_coerced_proof_before_mutation" assertions="22" status="pass" classname="tests/unit/test_desktop_board_state.gd" time="0.007832" >
+      </testcase>
+      <testcase name="test_scene_restore_checks_suspended_settling_and_retained_result_payments" assertions="15" status="pass" classname="tests/unit/test_desktop_board_state.gd" time="0.009654" >
+      </testcase>
+      <testcase name="test_scene_replacement_and_remap_preserve_original_payment_without_layout_rebinding" assertions="11" status="pass" classname="tests/unit/test_desktop_board_state.gd" time="0.018542" >
+      </testcase>
+      <testcase name="test_scene_historical_legacy_payment_stays_exact_and_cannot_become_live" assertions="9" status="pass" classname="tests/unit/test_desktop_board_state.gd" time="0.00965" >
+      </testcase>
+      <testcase name="test_scene_compacted_acknowledgement_is_distinct_from_payment_result" assertions="6" status="pass" classname="tests/unit/test_desktop_board_state.gd" time="0.004324" >
+      </testcase>
+      <testcase name="test_scene_commit_rechecks_mutated_detached_restore_and_live_candidates" assertions="10" status="pass" classname="tests/unit/test_desktop_board_state.gd" time="0.006556" >
+      </testcase>
+      <testcase name="test_scene_coordinator_receipt_override_and_publication_are_both_checked" assertions="8" status="pass" classname="tests/unit/test_desktop_board_state.gd" time="0.005176" >
+      </testcase>
+      <testcase name="test_scene_paid_debug_preparation_retains_anchor_and_original_proof" assertions="17" status="pass" classname="tests/unit/test_desktop_board_state.gd" time="0.023452" >
+      </testcase>
+      <testcase name="test_scene_configuration_cannot_relabel_already_installed_legacy_state" assertions="6" status="pass" classname="tests/unit/test_desktop_board_state.gd" time="0.004894" >
+      </testcase>
+      <testcase name="test_scene_unpaid_debug_history_does_not_acquire_a_retroactive_payment_requirement" assertions="9" status="pass" classname="tests/unit/test_desktop_board_state.gd" time="0.004833" >
+      </testcase>
+      <testcase name="test_scene_settled_flag_is_required_boolean_and_requires_terminal_board" assertions="12" status="pass" classname="tests/unit/test_desktop_board_state.gd" time="0.038582" >
+      </testcase>
+      <testcase name="test_scene_settled_board_restores_without_terminal_history_and_preserves_visibility_and_remap" assertions="25" status="pass" classname="tests/unit/test_desktop_board_state.gd" time="0.025966" >
+      </testcase>
+      <testcase name="test_scene_dismiss_and_reset_clear_settlement_without_terminal_history" assertions="17" status="pass" classname="tests/unit/test_desktop_board_state.gd" time="0.009774" >
+      </testcase>
+      <testcase name="test_scene_round_paid_is_required_boolean_and_agrees_with_active_phase" assertions="14" status="pass" classname="tests/unit/test_desktop_board_state.gd" time="0.003806" >
+      </testcase>
+      <testcase name="test_scene_new_unpaid_preparation_ignores_previous_day_matching_round_ordinal" assertions="14" status="pass" classname="tests/unit/test_desktop_board_state.gd" time="0.010325" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_desktop_paid_replacement.gd" tests="21" failures="0" skipped="0" time="0.241419" >
+      <testcase name="test_untouched_new_board_and_same_tier_are_byte_equal_without_spec_or_storage" assertions="8" status="pass" classname="tests/unit/test_desktop_paid_replacement.gd" time="0.000683" >
+      </testcase>
+      <testcase name="test_unpaid_flags_are_saved_without_capacity_then_preserved_by_first_reveal" assertions="17" status="pass" classname="tests/unit/test_desktop_paid_replacement.gd" time="0.003482" >
+      </testcase>
+      <testcase name="test_free_difficulty_checkpoint_resets_shell_and_does_not_allocate_layout" assertions="13" status="pass" classname="tests/unit/test_desktop_paid_replacement.gd" time="0.002402" >
+      </testcase>
+      <testcase name="test_paid_replacement_retains_original_payment_and_fresh_spec_on_each_touch" assertions="23" status="pass" classname="tests/unit/test_desktop_paid_replacement.gd" time="0.009918" >
+      </testcase>
+      <testcase name="test_failed_final_reread_rolls_back_full_artifact_then_exact_retry_reuses_spec" assertions="16" status="pass" classname="tests/unit/test_desktop_paid_replacement.gd" time="0.013442" >
+      </testcase>
+      <testcase name="test_prepare_failure_keeps_original_board_and_exact_retry_does_not_refreeze_inputs" assertions="10" status="pass" classname="tests/unit/test_desktop_paid_replacement.gd" time="0.007329" >
+      </testcase>
+      <testcase name="test_paid_shell_save_restore_keeps_layout_recipe_and_flags_without_second_charge" assertions="15" status="pass" classname="tests/unit/test_desktop_paid_replacement.gd" time="0.012105" >
+      </testcase>
+      <testcase name="test_restore_to_new_identity_rejects_stale_replacement_retry_and_discards_local_candidate" assertions="10" status="pass" classname="tests/unit/test_desktop_paid_replacement.gd" time="0.003552" >
+      </testcase>
+      <testcase name="test_shell_public_projection_and_departure_fate_preserve_paid_status" assertions="13" status="pass" classname="tests/unit/test_desktop_paid_replacement.gd" time="0.004939" >
+      </testcase>
+      <testcase name="test_terminal_and_foreign_gate_refuse_configuration_before_spec_or_checkpoint" assertions="11" status="pass" classname="tests/unit/test_desktop_paid_replacement.gd" time="0.002712" >
+      </testcase>
+      <testcase name="test_paid_first_reveal_failed_checkpoint_retries_same_materialization_once" assertions="13" status="pass" classname="tests/unit/test_desktop_paid_replacement.gd" time="0.01272" >
+      </testcase>
+      <testcase name="test_replacement_terminal_reward_uses_current_tier_and_original_paid_session" assertions="14" status="pass" classname="tests/unit/test_desktop_paid_replacement.gd" time="0.009639" >
+      </testcase>
+      <testcase name="test_failed_artifact_rollback_latches_shared_fatal_fence" assertions="9" status="pass" classname="tests/unit/test_desktop_paid_replacement.gd" time="0.002859" >
+      </testcase>
+      <testcase name="test_owned_debug_refuses_direct_first_reveal_before_spec_or_layout_allocation" assertions="8" status="pass" classname="tests/unit/test_desktop_paid_replacement.gd" time="0.000773" >
+      </testcase>
+      <testcase name="test_paid_frozen_debug_refuses_materialization_even_if_live_debug_was_removed" assertions="8" status="pass" classname="tests/unit/test_desktop_paid_replacement.gd" time="0.0061" >
+      </testcase>
+      <testcase name="test_certified_unpaid_flags_can_be_removed_without_changing_layout_or_payment" assertions="18" status="pass" classname="tests/unit/test_desktop_paid_replacement.gd" time="0.005266" >
+      </testcase>
+      <testcase name="test_certified_unpaid_difficulty_change_drops_recipe_without_new_spec_or_cost" assertions="17" status="pass" classname="tests/unit/test_desktop_paid_replacement.gd" time="0.007208" >
+      </testcase>
+      <testcase name="test_certified_paid_difficulty_change_retains_payment_and_new_board_is_noop" assertions="20" status="pass" classname="tests/unit/test_desktop_paid_replacement.gd" time="0.01303" >
+      </testcase>
+      <testcase name="test_cold_paid_shell_remaps_identity_keeps_recipe_and_rejects_old_reveal_without_repayment" assertions="60" status="pass" classname="tests/unit/test_desktop_paid_replacement.gd" time="0.042755" >
+      </testcase>
+      <testcase name="test_cold_paid_preparing_restore_keeps_frontier_and_rejects_old_issued_slice" assertions="55" status="pass" classname="tests/unit/test_desktop_paid_replacement.gd" time="0.031187" >
+      </testcase>
+      <testcase name="test_cost_free_failure_uses_captured_journal_with_real_candidate_storage_descriptor" assertions="18" status="pass" classname="tests/unit/test_desktop_paid_replacement.gd" time="0.049318" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_desktop_first_reveal_snapshot_composer.gd" tests="15" failures="0" skipped="0" time="0.035757" >
+      <testcase name="test_compose_projects_decremented_round_without_stat_charge_and_revealed_board" assertions="10" status="pass" classname="tests/unit/test_desktop_first_reveal_snapshot_composer.gd" time="0.001901" >
+      </testcase>
+      <testcase name="test_compose_rejects_transaction_id_disagreement" assertions="3" status="pass" classname="tests/unit/test_desktop_first_reveal_snapshot_composer.gd" time="0.000515" >
+      </testcase>
+      <testcase name="test_compose_rejects_a_consequence_revision_that_no_longer_matches_the_base" assertions="3" status="pass" classname="tests/unit/test_desktop_first_reveal_snapshot_composer.gd" time="0.000541" >
+      </testcase>
+      <testcase name="test_compose_rejects_a_stale_board_pre_revision" assertions="3" status="pass" classname="tests/unit/test_desktop_first_reveal_snapshot_composer.gd" time="0.000704" >
+      </testcase>
+      <testcase name="test_compose_rejects_a_desktop_less_base_snapshot_input" assertions="3" status="pass" classname="tests/unit/test_desktop_first_reveal_snapshot_composer.gd" time="0.000483" >
+      </testcase>
+      <testcase name="test_compose_rejects_a_board_only_desktop_value" assertions="2" status="pass" classname="tests/unit/test_desktop_first_reveal_snapshot_composer.gd" time="0.000479" >
+      </testcase>
+      <testcase name="test_compose_rejects_an_extra_desktop_key" assertions="2" status="pass" classname="tests/unit/test_desktop_first_reveal_snapshot_composer.gd" time="0.000445" >
+      </testcase>
+      <testcase name="test_compose_rejects_a_non_first_reveal_board_candidate" assertions="1" status="pass" classname="tests/unit/test_desktop_first_reveal_snapshot_composer.gd" time="0.000184" >
+      </testcase>
+      <testcase name="test_compose_refuses_retired_candidate_fields_without_mutating_input" assertions="8" status="pass" classname="tests/unit/test_desktop_first_reveal_snapshot_composer.gd" time="0.003201" >
+      </testcase>
+      <testcase name="test_scene_composer_refuses_legacy_outer_members_and_missing_scene" assertions="11" status="pass" classname="tests/unit/test_desktop_first_reveal_snapshot_composer.gd" time="0.004535" >
+      </testcase>
+      <testcase name="test_scene_composer_refuses_retired_stats_and_coercible_candidates" assertions="14" status="pass" classname="tests/unit/test_desktop_first_reveal_snapshot_composer.gd" time="0.0029" >
+      </testcase>
+      <testcase name="test_scene_composer_refuses_wrong_debit_and_coerced_revisions" assertions="6" status="pass" classname="tests/unit/test_desktop_first_reveal_snapshot_composer.gd" time="0.001112" >
+      </testcase>
+      <testcase name="test_projection_matches_actual_board_commit_and_its_retry_result" assertions="8" status="pass" classname="tests/unit/test_desktop_first_reveal_snapshot_composer.gd" time="0.005362" >
+      </testcase>
+      <testcase name="test_scene_composer_requires_canonical_result_before_projection" assertions="3" status="pass" classname="tests/unit/test_desktop_first_reveal_snapshot_composer.gd" time="0.000601" >
+      </testcase>
+      <testcase name="test_scene_composer_refuses_malformed_or_disagreeing_results_without_mutation" assertions="37" status="pass" classname="tests/unit/test_desktop_first_reveal_snapshot_composer.gd" time="0.012794" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_desktop_board_restore_participant.gd" tests="6" failures="0" skipped="0" time="0.001229" >
+      <testcase name="test_participant_exists" assertions="1" status="pass" classname="tests/unit/test_desktop_board_restore_participant.gd" time="0.000087" >
+      </testcase>
+      <testcase name="test_prepare_rejects_missing_or_invalid_state" assertions="2" status="pass" classname="tests/unit/test_desktop_board_restore_participant.gd" time="0.000114" >
+      </testcase>
+      <testcase name="test_capture_wraps_the_raw_capture_dict_in_an_ok_envelope" assertions="2" status="pass" classname="tests/unit/test_desktop_board_restore_participant.gd" time="0.000391" >
+      </testcase>
+      <testcase name="test_prepare_capture_apply_and_rollback_round_trip" assertions="7" status="pass" classname="tests/unit/test_desktop_board_restore_participant.gd" time="0.000471" >
+      </testcase>
+      <testcase name="test_apply_silent_rejects_a_malformed_plan" assertions="1" status="pass" classname="tests/unit/test_desktop_board_restore_participant.gd" time="0.000092" >
+      </testcase>
+      <testcase name="test_rollback_silent_rejects_a_malformed_backup" assertions="1" status="pass" classname="tests/unit/test_desktop_board_restore_participant.gd" time="0.000074" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_desktop_board_fate_port.gd" tests="35" failures="0" skipped="0" time="0.350063" >
+      <testcase name="test_port_script_loads" assertions="1" status="pass" classname="tests/unit/test_desktop_board_fate_port.gd" time="0.000228" >
+      </testcase>
+      <testcase name="test_port_instantiates" assertions="1" status="pass" classname="tests/unit/test_desktop_board_fate_port.gd" time="0.000134" >
+      </testcase>
+      <testcase name="test_configure_publication_ledger_is_idempotent_on_identical_replay" assertions="2" status="pass" classname="tests/unit/test_desktop_board_fate_port.gd" time="0.000136" >
+      </testcase>
+      <testcase name="test_configure_publication_ledger_rejects_replacement" assertions="2" status="pass" classname="tests/unit/test_desktop_board_fate_port.gd" time="0.000156" >
+      </testcase>
+      <testcase name="test_configure_rejects_before_publication_ledger_configured" assertions="2" status="pass" classname="tests/unit/test_desktop_board_fate_port.gd" time="0.000148" >
+      </testcase>
+      <testcase name="test_configure_is_idempotent_on_identical_replay" assertions="7" status="pass" classname="tests/unit/test_desktop_board_fate_port.gd" time="0.014678" >
+      </testcase>
+      <testcase name="test_configure_rejects_a_replacement_board_state" assertions="7" status="pass" classname="tests/unit/test_desktop_board_fate_port.gd" time="0.017143" >
+      </testcase>
+      <testcase name="test_configure_rejects_an_invalid_board_state" assertions="2" status="pass" classname="tests/unit/test_desktop_board_fate_port.gd" time="0.000231" >
+      </testcase>
+      <testcase name="test_prepare_causal_departure_from_none_yields_fate_none" assertions="12" status="pass" classname="tests/unit/test_desktop_board_fate_port.gd" time="0.003365" >
+      </testcase>
+      <testcase name="test_prepare_causal_departure_from_preparing_yields_discarded_unstarted" assertions="13" status="pass" classname="tests/unit/test_desktop_board_fate_port.gd" time="0.019387" >
+      </testcase>
+      <testcase name="test_prepare_causal_departure_from_active_visible_yields_forfeited_started" assertions="10" status="pass" classname="tests/unit/test_desktop_board_fate_port.gd" time="0.017909" >
+      </testcase>
+      <testcase name="test_prepare_causal_departure_rejects_a_non_schedule_reason" assertions="7" status="pass" classname="tests/unit/test_desktop_board_fate_port.gd" time="0.033523" >
+      </testcase>
+      <testcase name="test_prepare_causal_departure_rejects_stale_revision" assertions="7" status="pass" classname="tests/unit/test_desktop_board_fate_port.gd" time="0.016366" >
+      </testcase>
+      <testcase name="test_prepare_causal_departure_rejects_identity_mismatch" assertions="7" status="pass" classname="tests/unit/test_desktop_board_fate_port.gd" time="0.018918" >
+      </testcase>
+      <testcase name="test_prepare_causal_departure_duplicate_replay_returns_identical_result" assertions="7" status="pass" classname="tests/unit/test_desktop_board_fate_port.gd" time="0.018021" >
+      </testcase>
+      <testcase name="test_prepare_causal_departure_changed_request_at_same_command_id_conflicts" assertions="7" status="pass" classname="tests/unit/test_desktop_board_fate_port.gd" time="0.001697" >
+      </testcase>
+      <testcase name="test_prepare_causal_departure_from_settling_is_rejected" assertions="12" status="pass" classname="tests/unit/test_desktop_board_fate_port.gd" time="0.003683" >
+      </testcase>
+      <testcase name="test_prepare_projected_departure_minesweeper_round_none_projection_yields_fate_none" assertions="10" status="pass" classname="tests/unit/test_desktop_board_fate_port.gd" time="0.002293" >
+      </testcase>
+      <testcase name="test_prepare_projected_departure_rejects_a_nonterminal_minesweeper_round_projection" assertions="9" status="pass" classname="tests/unit/test_desktop_board_fate_port.gd" time="0.003069" >
+      </testcase>
+      <testcase name="test_prepare_projected_departure_shop_purchase_applies_ordinary_current_board_fate" assertions="10" status="pass" classname="tests/unit/test_desktop_board_fate_port.gd" time="0.003734" >
+      </testcase>
+      <testcase name="test_prepare_projected_departure_rejects_a_shop_projection_that_diverges_from_current_board" assertions="8" status="pass" classname="tests/unit/test_desktop_board_fate_port.gd" time="0.002849" >
+      </testcase>
+      <testcase name="test_prepare_projected_departure_rejects_a_changed_projection_hash" assertions="8" status="pass" classname="tests/unit/test_desktop_board_fate_port.gd" time="0.001632" >
+      </testcase>
+      <testcase name="test_prepare_projected_departure_rejects_an_action_receipt_transaction_mismatch" assertions="8" status="pass" classname="tests/unit/test_desktop_board_fate_port.gd" time="0.00155" >
+      </testcase>
+      <testcase name="test_prepare_projected_departure_rejects_stale_pre_state" assertions="8" status="pass" classname="tests/unit/test_desktop_board_fate_port.gd" time="0.001798" >
+      </testcase>
+      <testcase name="test_commit_adopts_the_fate_none_candidate_and_publish_records_once" assertions="21" status="pass" classname="tests/unit/test_desktop_board_fate_port.gd" time="0.008422" >
+      </testcase>
+      <testcase name="test_commit_adopts_a_discard_and_rollback_restores_pre_commit" assertions="11" status="pass" classname="tests/unit/test_desktop_board_fate_port.gd" time="0.008672" >
+      </testcase>
+      <testcase name="test_commit_rejects_a_wrapped_candidate" assertions="7" status="pass" classname="tests/unit/test_desktop_board_fate_port.gd" time="0.002996" >
+      </testcase>
+      <testcase name="test_rollback_rejects_an_unknown_backup" assertions="7" status="pass" classname="tests/unit/test_desktop_board_fate_port.gd" time="0.001452" >
+      </testcase>
+      <testcase name="test_publish_rejects_changed_receipt_bytes" assertions="7" status="pass" classname="tests/unit/test_desktop_board_fate_port.gd" time="0.001523" >
+      </testcase>
+      <testcase name="test_publish_rejects_a_candidate_not_yet_committed" assertions="7" status="pass" classname="tests/unit/test_desktop_board_fate_port.gd" time="0.001572" >
+      </testcase>
+      <testcase name="test_board_fate_receipt_provenance_validates_against_the_issuer" assertions="7" status="pass" classname="tests/unit/test_desktop_board_fate_port.gd" time="0.019087" >
+      </testcase>
+      <testcase name="test_fresh_shop_departure_rebuilds_frozen_preparation_and_retries_after_commit" assertions="28" status="pass" classname="tests/unit/test_desktop_board_fate_port.gd" time="0.069446" >
+      </testcase>
+      <testcase name="test_fresh_departure_refuses_changed_frozen_bytes_without_poisoning_valid_retry" assertions="24" status="pass" classname="tests/unit/test_desktop_board_fate_port.gd" time="0.016559" >
+      </testcase>
+      <testcase name="test_fresh_round_departure_prepares_before_source_projection_then_commits_fate_none" assertions="28" status="pass" classname="tests/unit/test_desktop_board_fate_port.gd" time="0.032208" >
+      </testcase>
+      <testcase name="test_scene_departure_discards_preparation_without_adding_terminal_history" assertions="16" status="pass" classname="tests/unit/test_desktop_board_fate_port.gd" time="0.005478" >
+      </testcase>
+  </testsuite>
+  <testsuite name="tests/unit/test_desktop_continuation_remapper.gd" tests="70" failures="0" skipped="0" time="0.183825" >
+      <testcase name="test_remapper_exists" assertions="1" status="pass" classname="tests/unit/test_desktop_continuation_remapper.gd" time="0.000096" >
+      </testcase>
+      <testcase name="test_remap_table_only_marks_current_v4_members_handled" assertions="34" status="pass" classname="tests/unit/test_desktop_continuation_remapper.gd" time="0.000162" >
+      </testcase>
+      <testcase name="test_collect_rewindable_transaction_ids_covers_board_and_pending" assertions="3" status="pass" classname="tests/unit/test_desktop_continuation_remapper.gd" time="0.000412" >
+      </testcase>
+      <testcase name="test_prepare_remaps_board_identity_receipts_and_consequence_pending" assertions="28" status="pass" classname="tests/unit/test_desktop_continuation_remapper.gd" time="0.001783" >
+      </testcase>
+      <testcase name="test_prepare_rekeys_compact_and_full_command_receipts_without_inventing_metadata" assertions="18" status="pass" classname="tests/unit/test_desktop_continuation_remapper.gd" time="0.011378" >
+      </testcase>
+      <testcase name="test_prepare_rejects_a_transaction_remap_missing_a_rewindable_id" assertions="3" status="pass" classname="tests/unit/test_desktop_continuation_remapper.gd" time="0.000476" >
+      </testcase>
+      <testcase name="test_prepare_rejects_an_extra_transaction_remap_entry" assertions="3" status="pass" classname="tests/unit/test_desktop_continuation_remapper.gd" time="0.000302" >
+      </testcase>
+      <testcase name="test_prepare_rejects_two_sources_mapped_to_the_same_target" assertions="3" status="pass" classname="tests/unit/test_desktop_continuation_remapper.gd" time="0.000406" >
+      </testcase>
+      <testcase name="test_prepare_is_a_pure_function_of_its_inputs" assertions="3" status="pass" classname="tests/unit/test_desktop_continuation_remapper.gd" time="0.003297" >
+      </testcase>
+      <testcase name="test_prepare_remaps_source_ids_that_are_real_transaction_ids" assertions="5" status="pass" classname="tests/unit/test_desktop_continuation_remapper.gd" time="0.000967" >
+      </testcase>
+      <testcase name="test_prepare_leaves_genuinely_opaque_source_ids_unchanged" assertions="3" status="pass" classname="tests/unit/test_desktop_continuation_remapper.gd" time="0.000927" >
+      </testcase>
+      <testcase name="test_prepare_rejects_an_unsorted_historical_source_ids_record" assertions="3" status="pass" classname="tests/unit/test_desktop_continuation_remapper.gd" time="0.000467" >
+      </testcase>
+      <testcase name="test_prepare_rejects_a_duplicate_historical_source_ids_record" assertions="3" status="pass" classname="tests/unit/test_desktop_continuation_remapper.gd" time="0.000517" >
+      </testcase>
+      <testcase name="test_prepare_rejects_a_source_id_that_is_not_canonically_representable" assertions="7" status="pass" classname="tests/unit/test_desktop_continuation_remapper.gd" time="0.000914" >
+      </testcase>
+      <testcase name="test_validate_remap_accepts_its_own_prepare_output_and_rejects_a_tampered_candidate" assertions="4" status="pass" classname="tests/unit/test_desktop_continuation_remapper.gd" time="0.001375" >
+      </testcase>
+      <testcase name="test_prepare_rederives_a_source_commit_child_through_the_real_issuer_byte_for_byte" assertions="8" status="pass" classname="tests/unit/test_desktop_continuation_remapper.gd" time="0.001127" >
+      </testcase>
+      <testcase name="test_prepare_rejects_a_historical_source_commit_with_an_unregistered_child_kind" assertions="3" status="pass" classname="tests/unit/test_desktop_continuation_remapper.gd" time="0.000518" >
+      </testcase>
+      <testcase name="test_the_remappers_duplicated_child_kinds_equal_the_real_issuers_child_kinds_exactly" assertions="29" status="pass" classname="tests/unit/test_desktop_continuation_remapper.gd" time="0.001074" >
+      </testcase>
+      <testcase name="test_collect_includes_the_pending_warning_activation_root" assertions="5" status="pass" classname="tests/unit/test_desktop_continuation_remapper.gd" time="0.00064" >
+      </testcase>
+      <testcase name="test_collect_includes_a_pending_condition_departure_root_exactly_once" assertions="4" status="pass" classname="tests/unit/test_desktop_continuation_remapper.gd" time="0.000409" >
+      </testcase>
+      <testcase name="test_collect_includes_every_failed_attempt_and_consumed_terminal_root" assertions="8" status="pass" classname="tests/unit/test_desktop_continuation_remapper.gd" time="0.000834" >
+      </testcase>
+      <testcase name="test_collect_includes_a_nonnull_active_condition_hospital_root" assertions="5" status="pass" classname="tests/unit/test_desktop_continuation_remapper.gd" time="0.000589" >
+      </testcase>
+      <testcase name="test_collect_excludes_completed_condition_hospital_history_roots" assertions="6" status="pass" classname="tests/unit/test_desktop_continuation_remapper.gd" time="0.001898" >
+      </testcase>
+      <testcase name="test_collect_rejects_an_attempt_key_that_disagrees_with_its_receipt_transaction_id" assertions="6" status="pass" classname="tests/unit/test_desktop_continuation_remapper.gd" time="0.000648" >
+      </testcase>
+      <testcase name="test_collect_includes_a_nonnull_terminal_intent_handoff_root" assertions="5" status="pass" classname="tests/unit/test_desktop_continuation_remapper.gd" time="0.000505" >
+      </testcase>
+      <testcase name="test_collect_leaves_a_v4_snapshot_census_byte_identical" assertions="5" status="pass" classname="tests/unit/test_desktop_continuation_remapper.gd" time="0.002989" >
+      </testcase>
+      <testcase name="test_remap_table_declares_every_v5_region" assertions="14" status="pass" classname="tests/unit/test_desktop_continuation_remapper.gd" time="0.000315" >
+      </testcase>
+      <testcase name="test_remap_table_marks_the_v5_regions_handled" assertions="13" status="pass" classname="tests/unit/test_desktop_continuation_remapper.gd" time="0.000146" >
+      </testcase>
+      <testcase name="test_prepare_rekeys_consumed_warning_receipts_to_the_recomputed_digest" assertions="10" status="pass" classname="tests/unit/test_desktop_continuation_remapper.gd" time="0.002226" >
+      </testcase>
+      <testcase name="test_prepare_rekeys_attempt_receipts_to_the_new_transaction_id" assertions="11" status="pass" classname="tests/unit/test_desktop_continuation_remapper.gd" time="0.002805" >
+      </testcase>
+      <testcase name="test_prepare_recomputes_the_warning_fingerprint_from_the_remapped_stored_preimage" assertions="8" status="pass" classname="tests/unit/test_desktop_continuation_remapper.gd" time="0.001487" >
+      </testcase>
+      <testcase name="test_prepare_never_substitutes_the_live_view_or_context_for_the_stored_preimage" assertions="6" status="pass" classname="tests/unit/test_desktop_continuation_remapper.gd" time="0.001903" >
+      </testcase>
+      <testcase name="test_prepare_rejects_a_string_edited_warning_preimage" assertions="7" status="pass" classname="tests/unit/test_desktop_continuation_remapper.gd" time="0.001352" >
+      </testcase>
+      <testcase name="test_prepare_rejects_a_string_edited_activation_provenance" assertions="6" status="pass" classname="tests/unit/test_desktop_continuation_remapper.gd" time="0.001041" >
+      </testcase>
+      <testcase name="test_prepare_rederives_the_activation_child_under_the_mapped_parent_receipt" assertions="7" status="pass" classname="tests/unit/test_desktop_continuation_remapper.gd" time="0.001827" >
+      </testcase>
+      <testcase name="test_prepare_rederives_a_navigation_terminal_receipt_with_the_new_activation_projection" assertions="9" status="pass" classname="tests/unit/test_desktop_continuation_remapper.gd" time="0.001977" >
+      </testcase>
+      <testcase name="test_prepare_rejects_a_warning_context_that_disagrees_with_the_mapped_board_identity" assertions="6" status="pass" classname="tests/unit/test_desktop_continuation_remapper.gd" time="0.000856" >
+      </testcase>
+      <testcase name="test_prepare_rekeys_the_pending_condition_departure_receipt_to_the_rederived_condition_id" assertions="7" status="pass" classname="tests/unit/test_desktop_continuation_remapper.gd" time="0.001408" >
+      </testcase>
+      <testcase name="test_prepare_leaves_every_unrelated_completed_ledger_entry_byte_identical" assertions="5" status="pass" classname="tests/unit/test_desktop_continuation_remapper.gd" time="0.00128" >
+      </testcase>
+      <testcase name="test_prepare_recomputes_both_view_hashes_from_the_remapped_recovery_payload" assertions="13" status="pass" classname="tests/unit/test_desktop_continuation_remapper.gd" time="0.002129" >
+      </testcase>
+      <testcase name="test_prepare_rejects_a_ledger_hash_that_disagrees_with_the_remapped_payload" assertions="10" status="pass" classname="tests/unit/test_desktop_continuation_remapper.gd" time="0.002036" >
+      </testcase>
+      <testcase name="test_the_view_ledger_is_excluded_from_the_optimistic_fingerprint_preimage" assertions="4" status="pass" classname="tests/unit/test_desktop_continuation_remapper.gd" time="0.004914" >
+      </testcase>
+      <testcase name="test_the_remappers_warning_digest_equals_the_real_schedule_warning_policy_digest" assertions="3" status="pass" classname="tests/unit/test_desktop_continuation_remapper.gd" time="0.000475" >
+      </testcase>
+      <testcase name="test_the_remappers_projection_helper_equals_the_real_controllers_p" assertions="7" status="pass" classname="tests/unit/test_desktop_continuation_remapper.gd" time="0.001359" >
+      </testcase>
+      <testcase name="test_prepare_preserves_the_condition_hospital_cursor_and_prepared_receipt_partition" assertions="38" status="pass" classname="tests/unit/test_desktop_continuation_remapper.gd" time="0.003852" >
+      </testcase>
+      <testcase name="test_prepare_carries_a_committed_allocator_root_with_stage_four_still_pending_as_recovery" assertions="15" status="pass" classname="tests/unit/test_desktop_continuation_remapper.gd" time="0.003859" >
+      </testcase>
+      <testcase name="test_prepare_rejects_an_active_stage_four_paired_with_source_current_live_state" assertions="15" status="pass" classname="tests/unit/test_desktop_continuation_remapper.gd" time="0.004392" >
+      </testcase>
+      <testcase name="test_prepare_rejects_a_nonstage_four_active_stage_paired_with_split_identities" assertions="15" status="pass" classname="tests/unit/test_desktop_continuation_remapper.gd" time="0.004199" >
+      </testcase>
+      <testcase name="test_prepare_preserves_the_historical_source_identity_after_completed_stage_four" assertions="12" status="pass" classname="tests/unit/test_desktop_continuation_remapper.gd" time="0.003927" >
+      </testcase>
+      <testcase name="test_prepare_recomputes_every_stage_key_from_the_rederived_resolution_receipt" assertions="20" status="pass" classname="tests/unit/test_desktop_continuation_remapper.gd" time="0.004043" >
+      </testcase>
+      <testcase name="test_prepare_rederives_stage_five_references_hashes_and_children_from_the_mapped_target" assertions="24" status="pass" classname="tests/unit/test_desktop_continuation_remapper.gd" time="0.006704" >
+      </testcase>
+      <testcase name="test_prepare_keeps_accepted_sources_in_their_frozen_order_after_rederivation" assertions="12" status="pass" classname="tests/unit/test_desktop_continuation_remapper.gd" time="0.003358" >
+      </testcase>
+      <testcase name="test_prepare_follows_the_post_advance_rule_at_cursor_six_before_and_after_the_retirement_checkpoint" assertions="22" status="pass" classname="tests/unit/test_desktop_continuation_remapper.gd" time="0.017569" >
+      </testcase>
+      <testcase name="test_prepare_rejects_an_abandoned_future_stage_receipt" assertions="14" status="pass" classname="tests/unit/test_desktop_continuation_remapper.gd" time="0.002909" >
+      </testcase>
+      <testcase name="test_prepare_leaves_condition_hospital_history_byte_identical" assertions="16" status="pass" classname="tests/unit/test_desktop_continuation_remapper.gd" time="0.014529" >
+      </testcase>
+      <testcase name="test_prepare_requires_the_live_outbox_to_match_the_remapped_destination_record" assertions="13" status="pass" classname="tests/unit/test_desktop_continuation_remapper.gd" time="0.002815" >
+      </testcase>
+      <testcase name="test_prepare_rejects_a_publication_bit_flip_without_a_remapped_acceptance" assertions="7" status="pass" classname="tests/unit/test_desktop_continuation_remapper.gd" time="0.001427" >
+      </testcase>
+      <testcase name="test_prepare_remaps_a_nonnull_terminal_intent_handoff_root_intent_and_outbox_together" assertions="15" status="pass" classname="tests/unit/test_desktop_continuation_remapper.gd" time="0.001239" >
+      </testcase>
+      <testcase name="test_validate_remap_accepts_its_own_v5_prepare_output" assertions="4" status="pass" classname="tests/unit/test_desktop_continuation_remapper.gd" time="0.002195" >
+      </testcase>
+      <testcase name="test_validate_remap_rejects_a_v5_candidate_with_a_hand_edited_fingerprint" assertions="6" status="pass" classname="tests/unit/test_desktop_continuation_remapper.gd" time="0.002095" >
+      </testcase>
+      <testcase name="test_validate_remap_rejects_a_v5_candidate_with_a_stale_consumed_key" assertions="6" status="pass" classname="tests/unit/test_desktop_continuation_remapper.gd" time="0.001692" >
+      </testcase>
+      <testcase name="test_prepare_v5_source_ids_change_the_continuation_operation_remap_receipt" assertions="8" status="pass" classname="tests/unit/test_desktop_continuation_remapper.gd" time="0.002086" >
+      </testcase>
+      <testcase name="test_prepare_is_a_pure_function_of_a_v5_snapshot" assertions="6" status="pass" classname="tests/unit/test_desktop_continuation_remapper.gd" time="0.022382" >
+      </testcase>
+      <testcase name="test_prepare_rejects_a_dangling_v5_transaction_reference" assertions="6" status="pass" classname="tests/unit/test_desktop_continuation_remapper.gd" time="0.00144" >
+      </testcase>
+      <testcase name="test_prepare_rejects_a_string_edited_terminal_receipt_provenance" assertions="6" status="pass" classname="tests/unit/test_desktop_continuation_remapper.gd" time="0.00111" >
+      </testcase>
+      <testcase name="test_validate_remap_accepts_a_v5_candidate_with_attempt_and_consumed_roots" assertions="5" status="pass" classname="tests/unit/test_desktop_continuation_remapper.gd" time="0.004034" >
+      </testcase>
+      <testcase name="test_prepare_refuses_an_active_plan_beside_a_lifecycle_missing_its_identity_receipt" assertions="5" status="pass" classname="tests/unit/test_desktop_continuation_remapper.gd" time="0.001317" >
+      </testcase>
+      <testcase name="test_prepare_rejects_an_unsplit_plan_whose_issuer_receipt_disagrees_with_the_lifecycle" assertions="6" status="pass" classname="tests/unit/test_desktop_continuation_remapper.gd" time="0.001245" >
+      </testcase>
+      <testcase name="test_prepare_rejects_an_unsplit_plan_whose_branch_or_run_disagrees_with_the_lifecycle" assertions="18" status="pass" classname="tests/unit/test_desktop_continuation_remapper.gd" time="0.002832" >
+      </testcase>
+      <testcase name="test_remap_preserves_scene_settlement_fact_without_creating_terminal_history" assertions="11" status="pass" classname="tests/unit/test_desktop_continuation_remapper.gd" time="0.002329" >
+      </testcase>
+  </testsuite>
+</testsuites>

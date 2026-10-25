@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="GutTests" failures="0" tests="1" >
+  <testsuite name="tests/integration/test_scene_same_day_supportz_load.gd" tests="1" failures="0" skipped="0" time="5.661972" >
+      <testcase name="test_fresh_same_day_load_keeps_settled_board_and_supportz_without_replay" assertions="68" status="pass" classname="tests/integration/test_scene_same_day_supportz_load.gd" time="5.661972" >
+      </testcase>
+  </testsuite>
+</testsuites>

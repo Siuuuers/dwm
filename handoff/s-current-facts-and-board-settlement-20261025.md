@@ -1,5 +1,8 @@
 # Current facts and board settlement — 25 October 2026
 
+Latest continuation: [current board facts and live retries](t-current-board-facts-and-live-retries-20261025.md).
+The successor records qualified PR90/PR91 work and the next reading-restoration task.
+
 Writing reference: [ASD-STE100, Issue 9](https://www.asd-ste100.org/assets/files/ASD-STE100_ISSUE9.pdf).
 
 ## Main blocker and next task

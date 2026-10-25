@@ -1,0 +1,36 @@
+{
+  "run_id": 40163559243,
+  "head_sha": "107eddbdbc8333461660704b41d78188ed7a9ea2",
+  "artifacts": [
+    {
+      "id": 12587940478,
+      "name": "windows-scene_same_day_supportz-40163559243-1",
+      "digest": "sha256:8111e6e28b20b9ba05fb7d84dc5a4b22a579099b6310275be5aef680955b14cf",
+      "size_in_bytes": 212648
+    },
+    {
+      "id": 12587587974,
+      "name": "windows-scene_desktop_first_reveal-40163559243-1",
+      "digest": "sha256:84ca2f8dc403da9ad2afdc0d5c850dda6aa1ed9e683827cdd558475bc3bac2a3",
+      "size_in_bytes": 27630
+    },
+    {
+      "id": 12587223761,
+      "name": "windows-desktop-40163559243-1",
+      "digest": "sha256:876c943a4c4e47f5deac56d856932d7de2ab950c1e32c266904d77e5a73b256f",
+      "size_in_bytes": 30518
+    },
+    {
+      "id": 12587143867,
+      "name": "windows-shop-40163559243-1",
+      "digest": "sha256:4c7b95b7a8d2192c78f1686261ba9e90323acf0103e193abd468e57377ab3b11",
+      "size_in_bytes": 18846
+    },
+    {
+      "id": 12587029054,
+      "name": "windows-backup_current_build-40163559243-1",
+      "digest": "sha256:e0b49fadffcd736c5e71e84621af4269f36712878ba21b11d7f5d271d66de326",
+      "size_in_bytes": 63138
+    }
+  ]
+}

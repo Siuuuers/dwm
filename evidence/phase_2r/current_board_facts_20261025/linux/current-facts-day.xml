@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="GutTests" failures="0" tests="5" >
+  <testsuite name="tests/integration/test_scene_day_commit_ordering.gd" tests="5" failures="0" skipped="0" time="3.149731" >
+      <testcase name="test_refused_checkpoint_retains_board_counters_and_identity_then_retry_adopts_once" assertions="36" status="pass" classname="tests/integration/test_scene_day_commit_ordering.gd" time="0.054789" >
+      </testcase>
+      <testcase name="test_committed_checkpoint_native_failure_latches_fatal_and_retains_recoverable_target" assertions="35" status="pass" classname="tests/integration/test_scene_day_commit_ordering.gd" time="0.037452" >
+      </testcase>
+      <testcase name="test_next_day_debug_round_one_does_not_inherit_yesterdays_payment" assertions="53" status="pass" classname="tests/integration/test_scene_day_commit_ordering.gd" time="2.845827" >
+      </testcase>
+      <testcase name="test_paid_debug_preparing_and_certified_restore_preserve_spec_and_never_charge_again" assertions="67" status="pass" classname="tests/integration/test_scene_day_commit_ordering.gd" time="0.173839" >
+      </testcase>
+      <testcase name="test_scene_first_reveal_failed_write_keeps_payment_and_allowance_consistent_on_retry" assertions="30" status="pass" classname="tests/integration/test_scene_day_commit_ordering.gd" time="0.037824" >
+      </testcase>
+  </testsuite>
+</testsuites>

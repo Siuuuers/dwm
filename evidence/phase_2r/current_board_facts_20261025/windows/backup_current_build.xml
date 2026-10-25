@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="GutTests" failures="0" tests="5" >
+  <testsuite name="tests/integration/test_backup_current_build.gd" tests="5" failures="0" skipped="0" time="0.855046" >
+      <testcase name="test_listing_save_and_delete_never_prepare_restoration" assertions="16" status="pass" classname="tests/integration/test_backup_current_build.gd" time="0.158885" >
+      </testcase>
+      <testcase name="test_selected_load_prepares_current_state_once_without_older_substitution" assertions="6" status="pass" classname="tests/integration/test_backup_current_build.gd" time="0.112646" >
+      </testcase>
+      <testcase name="test_refused_write_reports_failure_without_changing_live_state" assertions="10" status="pass" classname="tests/integration/test_backup_current_build.gd" time="0.086916" >
+      </testcase>
+      <testcase name="test_current_session_exit_replaces_unrestorable_autosave_without_retiring_session" assertions="18" status="pass" classname="tests/integration/test_backup_current_build.gd" time="0.249734" >
+      </testcase>
+      <testcase name="test_latest_save_refuses_concurrent_target_change_and_retry_preserves_current_state" assertions="16" status="pass" classname="tests/integration/test_backup_current_build.gd" time="0.246865" >
+      </testcase>
+  </testsuite>
+</testsuites>

@@ -1,0 +1,226 @@
+{
+  "run_id": 40163559243,
+  "head_sha": "107eddbdbc8333461660704b41d78188ed7a9ea2",
+  "status": "completed",
+  "conclusion": "success",
+  "html_url": "https://github.com/Siuuuers/dwm/actions/runs/40163559243",
+  "qualified_tree": "f031387f092eb1ac82d94b4511921dfad884e140",
+  "jobs": [
+    {
+      "id": 121079911435,
+      "name": "Select current change coverage",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121079985727,
+      "name": "Windows / public API surface contracts",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121079986848,
+      "name": "Windows / matched startup and Load",
+      "status": "completed",
+      "conclusion": "skipped"
+    },
+    {
+      "id": 121081154333,
+      "name": "Rendered desktop and dialogue / Linux software OpenGL",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121081154366,
+      "name": "Windows / exported release startup",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121081154395,
+      "name": "Rendered current Gallery components",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121081154540,
+      "name": "Windows / minesweeper",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121081154546,
+      "name": "Windows / scene_controls_localization",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121081154547,
+      "name": "Windows / dating",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121081154550,
+      "name": "Windows / desktop",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121081154574,
+      "name": "Windows / persistence",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121081154576,
+      "name": "Windows / localization",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121081154592,
+      "name": "Windows / checkpoint_diagnostics",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121081154595,
+      "name": "Windows / settings",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121081154598,
+      "name": "Windows / scene_shop_checkpoint",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121081154609,
+      "name": "Windows / new_account",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121081154613,
+      "name": "Windows / scene_story_localization",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121081154617,
+      "name": "Windows / scene_round_checkpoint",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121081154620,
+      "name": "Windows / audio",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121081154636,
+      "name": "Windows / scene_desktop_first_reveal",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121081154650,
+      "name": "Windows / endings",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121081154660,
+      "name": "Windows / profile_parse",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121081154670,
+      "name": "Windows / shop",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121081154701,
+      "name": "Windows / current_terminal_fixture",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121081154704,
+      "name": "Windows / scene_apps",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121081154709,
+      "name": "Windows / scene_multiple_thoughts",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121081154714,
+      "name": "Windows / current_quick_load",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121081154716,
+      "name": "Windows / timeline_resources",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121081154717,
+      "name": "Windows / backup_current_build",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121081154728,
+      "name": "Windows / current_title",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121081154748,
+      "name": "Windows / reading_delivery",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121081154749,
+      "name": "Windows / scene_same_day_supportz",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121081154752,
+      "name": "Windows / scene_five_outcomes",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121081154767,
+      "name": "Windows / authored_week",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121081154774,
+      "name": "Windows / scene_backup_inspection",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121081154816,
+      "name": "Windows / scene_challenge_recall",
+      "status": "completed",
+      "conclusion": "success"
+    }
+  ]
+}
