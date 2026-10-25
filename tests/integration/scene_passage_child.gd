@@ -72,6 +72,15 @@ func load_and_finish_passage_scene() -> void:
 	if not _ok(position): return
 	assert_eq(position.value.reading_session, proof.reading, "Load preserves compact position and full current caption")
 	assert_false(PASSAGE_ID in profile.get_profile_snapshot().gallery_unlocks)
+	var finish: Dictionary = bridge.capture_scene_pending_marker()
+	if not _ok(finish): return
+	assert_eq(finish.value.kind, "passage.finish")
+	assert_true(bridge.can_next_current_line(), "the final caption admits the real Next command")
+	var native: Dictionary = _computer_caption_observation()
+	assert_eq(native.text, "TEST passage last.")
+	assert_true(native.event_done)
+	assert_false(native.revealing)
+	assert_eq(native.visible_ratio, 1.0)
 	await _screenshot("passage-last-fresh-load")
 	var profile_files: RefCounted = profile._storage._file_ops
 	var profile_fault := ProfileWriteRefusal.new()
