@@ -128,20 +128,9 @@ func _save_authored(slot: int, label: String) -> Dictionary:
 		fail_test("Authored physical Save timeout")
 		return {}
 	if not _ok(app.last_result): return {}
-	if sheet.surface._direct_host:
-		if not await _press_authored(sheet.surface._sheet_back): return {}
-	else:
-		# Ending uses the retained Pause host: Escape leaves Backup, then Continue.
-		for pressed: bool in [true, false]:
-			var event := InputEventKey.new()
-			event.keycode = KEY_ESCAPE
-			event.physical_keycode = KEY_ESCAPE
-			event.pressed = pressed
-			get_viewport().push_input(event, true)
-			await get_tree().process_frame
-		assert_eq(sheet.surface.entered_action, &"", "native Back leaves ending Backup")
-		if sheet.surface.entered_action != &"": return {}
-		if not await _press_authored(sheet.surface.rows[&"continue"]): return {}
+	assert_true(sheet.surface._direct_host, "all authored captions use ordinary Scene Backup")
+	if not sheet.surface._direct_host: return {}
+	if not await _press_authored(sheet.surface._sheet_back): return {}
 	assert_false(get_tree().paused)
 	var parsed: Dictionary = PARSER.parse_object(FileAccess.get_file_as_string(path))
 	if not _ok(parsed): return {}

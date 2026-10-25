@@ -1081,7 +1081,7 @@ static func validate_current_scene(scene: Variant, bundle: Dictionary) -> Dictio
 	var target: Dictionary = tables.targets[back.target_id].target
 	if back.parent.active_occurrence_id == scene.active_occurrence_id \
 			or contact.entry_id != scene.entry_id or contact.return_target_id != back.target_id \
-			or target.kind != "scene" or target.entry_id != back.parent.entry_id:
+			or target.kind != "return" or target.entry_id != back.parent.entry_id:
 		return _fail(&"scene_contact_parent_invalid", "Contacts return differs from its registered parent")
 	return {"ok": true}
 

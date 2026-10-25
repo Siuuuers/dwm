@@ -93,7 +93,7 @@ func create_partner() -> void:
 	if not await _wait_line("line.scene.test.partner.sylvia.after"): return
 	assert_eq(game.scene_choices.size(), 1)
 	assert_eq(game.scene_choices["TEST.partner"], "yes")
-	assert_eq(game.capture_run_snapshot_input().scene.entry_id, "partner.sylvia")
+	assert_eq(game.capture_run_snapshot_input().scene.entry_id, "scene.test.partner.sylvia")
 	assert_false(game.accept_scene_thought(stale).ok)
 	assert_false(game.accept_scene_thought({}).ok)
 	assert_eq(game.scene_choices.size(), 1)
@@ -114,7 +114,7 @@ func load_partner_manual() -> void:
 	if not await _wait_line("line.scene.test.partner.lavinia.after"): return
 	assert_eq(game.scene_choices.size(), 1)
 	assert_eq(game.scene_choices["TEST.partner"], "pass")
-	assert_eq(game.capture_run_snapshot_input().scene.entry_id, "partner.lavinia")
+	assert_eq(game.capture_run_snapshot_input().scene.entry_id, "scene.test.partner.lavinia")
 	await _screenshot("partner-manual-lavinia")
 
 func load_partner_auto() -> void:

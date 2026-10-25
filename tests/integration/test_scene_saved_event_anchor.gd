@@ -248,9 +248,9 @@ func test_other_occurrence_anchor_is_refused_by_authenticated_source_binding() -
 	var rebuilt: Dictionary = fixture.rebuild_event(changed)
 	assert_false(rebuilt.ok, "issuer-backed builder refuses a foreign occurrence anchor")
 	var candidate: Dictionary = fixture.snapshot.duplicate(true)
-	candidate.command_receipts[fixture.event.command_id].scene_event.reading_anchor = changed
+	candidate.scene.active_occurrence_id = changed.session_id
 	assert_false(RUN.validate(candidate).ok, "public Run also refuses unrebuilt foreign occurrence")
-	assert_false(SAVE.validate(fixture.document_for(candidate)).ok, "public Save preserves receipt refusal")
+	assert_false(SAVE.validate(fixture.document_for(candidate)).ok, "public Save preserves current-frame refusal")
 	assert_eq(fixture.observed_state(), before)
 
 

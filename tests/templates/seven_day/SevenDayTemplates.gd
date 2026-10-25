@@ -103,7 +103,7 @@ static func prepare() -> Dictionary:
 		{"marker_id": "seven_day.passage.finish", "label": "seven_day.passage.finish", "after_line_id": "line.ending.alone.normal.one",
 			"kind": "passage.finish", "payload": {"passage_id": PASSAGE_ID}}]
 	bundle.entry_manifest.entries.append({"entry_id": ENDING_ID, "role": "scene",
-		"allowed_signals": ["history.line.witness", "passage.finish"], "atom_namespace": "atom." + ENDING_ID,
+		"allowed_signals": ["history.line.witness", "passage.finish", "passage.start"], "atom_namespace": "atom." + ENDING_ID,
 		"line_namespace": "line." + ENDING_ID, "content_version": CONTENT_VERSION,
 		"context_schema_id": "context.scene." + ENDING_ID + ".v1",
 		"locators": {"en": {"path": ENDING_PATH, "label": ENDING_ID}},
@@ -114,7 +114,9 @@ static func prepare() -> Dictionary:
 		"schema_id": "context.scene." + ENDING_ID + ".v1", "schema_version": 1,
 		"fields": {"entry_id": {"const": ENDING_ID}, "entry_role": {"const": "scene"},
 			"occurrence_id": "id", "admission_receipt_id": "id"}})
-	bundle.ids_registry.signals.append({"signal_id": "passage.finish", "payload_fields": ["passage_id"]})
+	for kind: String in ["passage.finish", "passage.start"]:
+		bundle.ids_registry.signals.append({"signal_id": kind, "payload_fields": ["passage_id"]})
+	bundle.ids_registry.signals.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return a.signal_id < b.signal_id)
 	var ending: Dictionary = ADAPTER.compile_scene_programme(ENDING_PATH, ENDING_ID, all_ids, ending_markers)
 	if not ending.ok: return ending
 	var ending_lines: Array = []

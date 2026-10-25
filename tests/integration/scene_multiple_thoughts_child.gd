@@ -4,7 +4,7 @@ const MULTIPLE := preload("res://tests/support/SceneMultipleThoughtFixture.gd")
 func _install_content_registration() -> Dictionary:
 	return MULTIPLE.install()
 
-func create_multiplegame.scene_choices -> void:
+func create_multiple_thoughts() -> void:
 	if not _start_services(): return
 	if not _ok(profile.set_preference(&"preferences.reading.auto_enabled", false)): return
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path("res://.godot/ci"))
@@ -42,7 +42,7 @@ func create_multiplegame.scene_choices -> void:
 	if not await _wait_line("line.scene.test.partner.lavinia.after"): return
 	assert_eq(game.scene_choices.size(), 1)
 	assert_eq(game.scene_choices["TEST.partner"], "second")
-	assert_eq(game.capture_run_snapshot_input().scene.entry_id, "partner.lavinia")
+	assert_eq(game.capture_run_snapshot_input().scene.entry_id, "scene.test.partner.lavinia")
 	assert_eq(game.scene_choices, {"TEST.partner": "second"})
 	var detached: Dictionary = game.capture_run_snapshot_input()
 	detached.gameplay.scene_choices["TEST.partner"] = "first"
@@ -52,7 +52,7 @@ func create_multiplegame.scene_choices -> void:
 	_write_json("user://multiple-thought-proof.json", {"pid": OS.get_process_id(), "choices": game.scene_choices.duplicate(true),
 		"unresolved": FileAccess.get_sha256("user://saves/slot_1.json"), "resolved": FileAccess.get_sha256("user://saves/slot_2.json")})
 
-func load_multiplegame.scene_choices -> void:
+func load_multiple_thoughts() -> void:
 	var proof: Dictionary = PARSER.parse_object(FileAccess.get_file_as_string("user://multiple-thought-proof.json"))
 	if not _ok(proof): return
 	assert_ne(OS.get_process_id(), proof.value.pid)
@@ -70,7 +70,7 @@ func load_multiplegame.scene_choices -> void:
 	if not await _wait_line("line.scene.test.partner.benchmark.after"): return
 	assert_eq(game.scene_choices.size(), 1)
 	assert_eq(game.scene_choices["TEST.partner"], "pass")
-	assert_eq(game.capture_run_snapshot_input().scene.entry_id, "partner.benchmark")
+	assert_eq(game.capture_run_snapshot_input().scene.entry_id, "scene.test.partner.benchmark")
 	assert_eq(game.scene_choices, {"TEST.partner": "pass"}, "ordinary continuation explicitly records pass")
 	assert_eq(FileAccess.get_sha256("user://saves/slot_1.json"), proof.value.unresolved)
 	assert_eq(FileAccess.get_sha256("user://saves/slot_2.json"), proof.value.resolved)

@@ -5464,6 +5464,17 @@ func _validate_scene_profile_references(snapshot: Dictionary, profile: Object) -
 		if retained.value.is_empty() or retained.value.generation != reference.generation \
 				or not _SCENE_EVENT._equal(retained.value.entry_receipt, ATTEMPTS._entry(record)):
 			return _transaction_failure(&"scene_physical_profile_mismatch", "")
+		var occurrence: String = slot.trim_prefix("scene.challenge.")
+		var outcome: Dictionary = snapshot.gameplay.scene_challenge_outcomes.get(occurrence, {})
+		if not outcome.is_empty():
+			var registered := _SCENE_MANIFEST.scene_registration()
+			if not registered.ok: return registered
+			var targets := {}
+			for challenge: Dictionary in registered.value.challenges:
+				if challenge.challenge_id == record.context.challenge_id: targets = challenge.targets
+			if targets.is_empty() or outcome.challenge_id != record.context.challenge_id \
+					or outcome.outcome != preload("res://scripts/application/run/DatingPhysicalOwner.gd").scene_closure_outcome(record, targets):
+				return _transaction_failure(&"scene_challenge_outcome_mismatch", "")
 	for slot: String in route.get("dating_canonical_heads", {}):
 		var head: Dictionary = route.dating_canonical_heads[slot]
 		var retained: Dictionary = profile.get_dating_attempt(snapshot.run_id, slot, head.attempt_id, head.branch_id)

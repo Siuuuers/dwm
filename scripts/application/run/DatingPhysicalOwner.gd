@@ -1559,9 +1559,7 @@ func _scene_closed_record_matches(closed: Dictionary) -> bool:
 			or closed.get("playable_command_id") != context.get("playable_command_id"): return false
 	if _record.is_empty(): return closed.get("outcome") == "never_started"
 	if not _valid_record(_record, {}): return false
-	var selected: Dictionary = preload("res://scripts/narrative/DialogicEntryManifest.gd").scene_registration()
-	if not selected.get("ok", false): return false
-	for challenge: Dictionary in selected.value.challenges:
+	for challenge: Dictionary in _scene_bundle.get("challenges", []):
 		if challenge.challenge_id != context.challenge_id: continue
 		var outcome := scene_closure_outcome(_record, challenge.targets)
 		return closed.get("outcome") == outcome and closed.get("target_id") == challenge.targets.get(outcome)
