@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="GutTests" failures="0" tests="4" >
+  <testsuite name="tests/unit/test_scene_day_renewal.gd" tests="4" failures="0" skipped="0" time="0.048343" >
+      <testcase name="test_explicit_day_metadata_controls_boundaries_not_entry_spelling" assertions="5" status="pass" classname="tests/unit/test_scene_day_renewal.gd" time="0.000163" >
+      </testcase>
+      <testcase name="test_day_metadata_requires_complete_exact_integer_coverage" assertions="10" status="pass" classname="tests/unit/test_scene_day_renewal.gd" time="0.000109" >
+      </testcase>
+      <testcase name="test_daily_renewal_preserves_cumulative_rewards_purchases_pressure_and_task_claims" assertions="21" status="pass" classname="tests/unit/test_scene_day_renewal.gd" time="0.001329" >
+      </testcase>
+      <testcase name="test_real_day_allocator_retry_and_selected_load_do_not_share_day_tokens" assertions="13" status="pass" classname="tests/unit/test_scene_day_renewal.gd" time="0.046742" >
+      </testcase>
+  </testsuite>
+</testsuites>

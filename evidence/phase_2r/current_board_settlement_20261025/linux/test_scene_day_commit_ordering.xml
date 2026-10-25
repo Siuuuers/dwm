@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="GutTests" failures="0" tests="2" >
+  <testsuite name="tests/integration/test_scene_day_commit_ordering.gd" tests="2" failures="0" skipped="0" time="0.088113" >
+      <testcase name="test_refused_checkpoint_retains_board_counters_and_identity_then_retry_adopts_once" assertions="36" status="pass" classname="tests/integration/test_scene_day_commit_ordering.gd" time="0.052149" >
+      </testcase>
+      <testcase name="test_committed_checkpoint_native_failure_latches_fatal_and_retains_recoverable_target" assertions="35" status="pass" classname="tests/integration/test_scene_day_commit_ordering.gd" time="0.035964" >
+      </testcase>
+  </testsuite>
+</testsuites>

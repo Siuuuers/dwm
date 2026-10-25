@@ -730,6 +730,8 @@ static func validate_scene_new_run_candidate(snapshot: Dictionary, allocation_ca
 		"causal_day_instance_issuer_receipt": allocation_candidate.causal_day_instance_issuer_receipt})
 	if not consequence.ok: return consequence
 	var desktop := {"board": DESKTOP_BOARD_STATE.new().capture(), "consequence": consequence.value.state}
+	desktop.board.erase("terminal_receipts")
+	desktop.board["settled_inspection"] = false
 	if not _scene_exact_value(candidate.desktop, desktop):
 		return _fail(&"scene_initial_state_invalid", "initial desktop cannot contain prior attempts or consequences")
 	var reading := _validate_scene_reading(candidate)

@@ -2519,3 +2519,27 @@ func test_prepare_rejects_an_unsplit_plan_whose_branch_or_run_disagrees_with_the
 		var result: Dictionary = _remapper().call("prepare", snapshot, "restore-txn-r48", bundle)
 		_assert_refuses_with(result, &"remap_condition_hospital_identity_split_invalid",
 			"R48 an unsplit plan whose " + field + " is not the lifecycle's own")
+
+
+func test_remap_preserves_scene_settlement_fact_without_creating_terminal_history() -> void:
+	var source_commit := _child_provenance(_transaction_receipt("old-tx-1"), "board_start", 0, [])
+	var snapshot := _snapshot("old-tx-1", source_commit)
+	snapshot.desktop.board.erase("terminal_receipts")
+	snapshot.desktop.board["settled_inspection"] = true
+	snapshot.desktop.board.phase = "ACTIVE_VISIBLE"
+	snapshot.desktop.board.settlement = null
+	snapshot.desktop.consequence.pending = null
+	var before := snapshot.duplicate(true)
+	var collected: Dictionary = _remapper().call("collect_rewindable_transaction_ids", snapshot)
+	assert_true(collected.ok, str(collected))
+	assert_eq(collected.value.transaction_ids, ["old-tx-1"])
+	var result: Dictionary = _remapper().call("prepare", snapshot, "restore-txn-1", _bundle("old-tx-1", "new-tx-1"))
+	assert_true(result.ok, str(result))
+	if not result.ok: return
+	var board: Dictionary = result.value.snapshot.desktop.board
+	assert_true(board.settled_inspection)
+	assert_false(board.has("terminal_receipts"), "remapping cannot recreate the removed field")
+	assert_eq(board.identity.branch_id, "branch-new")
+	assert_true(board.command_receipts.has("new-tx-1"))
+	assert_eq(board.board, before.desktop.board.board)
+	assert_eq(snapshot, before, "remapping leaves the saved source untouched")

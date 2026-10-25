@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="GutTests" failures="0" tests="2" >
+  <testsuite name="tests/unit/test_scene_terminal_snapshot.gd" tests="2" failures="0" skipped="0" time="0.00364" >
+      <testcase name="test_terminal_reading_never_accepts_missing_source_history" assertions="4" status="pass" classname="tests/unit/test_scene_terminal_snapshot.gd" time="0.000234" >
+      </testcase>
+      <testcase name="test_terminal_restore_remaps_live_identity_but_retains_admission_and_reading" assertions="6" status="pass" classname="tests/unit/test_scene_terminal_snapshot.gd" time="0.003406" >
+      </testcase>
+  </testsuite>
+</testsuites>

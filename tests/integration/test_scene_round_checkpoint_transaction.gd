@@ -44,6 +44,7 @@ func _terminal_board() -> bool:
 	if not _ok(owner.reveal(request)): return false
 	assert_true(bootstrap._desktop_board_state.capture().board.board.terminal)
 	assert_false(bootstrap._desktop_board_state.has_settled_inspection())
+	assert_false(bootstrap._desktop_board_state.capture().settled_inspection)
 	return true
 
 func test_scene_round_physical_refusal_retry_conflict_and_uncertain_acknowledgment() -> void:
@@ -84,6 +85,7 @@ func test_scene_round_physical_refusal_retry_conflict_and_uncertain_acknowledgme
 	assert_eq(game.capture_run_snapshot_input(), before)
 	assert_eq(saves._storage.read_text("autosave.json"), disk)
 	assert_false(bootstrap._desktop_board_state.has_settled_inspection())
+	assert_false(bootstrap._desktop_board_state.capture().settled_inspection)
 	var accepted: Dictionary = owner.complete_round(request)
 	if not _ok(accepted): return
 	var after: Dictionary = game.capture_run_snapshot_input().duplicate(true)
@@ -91,6 +93,9 @@ func test_scene_round_physical_refusal_retry_conflict_and_uncertain_acknowledgme
 	assert_eq(after.gameplay.minesweeper_app_rounds_finished_today, 1)
 	assert_eq(after.desktop.consequence.shop_ledger.base_completion_receipts.size(), 1)
 	assert_true(bootstrap._desktop_board_state.has_settled_inspection())
+	assert_true(after.desktop.board.settled_inspection)
+	assert_false(after.desktop.board.has("terminal_receipts"),
+		"current settlement stores its fact without terminal history")
 	assert_eq(after.lifecycle, before.lifecycle)
 	assert_eq(after.contacts, before.contacts)
 	assert_eq(bridge.capture_reading_checkpoint(false), reading)
@@ -98,8 +103,17 @@ func test_scene_round_physical_refusal_retry_conflict_and_uncertain_acknowledgme
 	var written: Dictionary = JSON.parse_string(str(accepted_disk.value))
 	assert_eq(written.schema_version, 9)
 	assert_eq(written.recovery_journal, [], "the real round checkpoint emits no fallback snapshots")
+	assert_true(written.current_snapshot.snapshot.desktop.board.settled_inspection,
+		"settled state and the reward share one durable checkpoint")
+	assert_eq(written.current_snapshot.snapshot.gameplay.money, after.gameplay.money)
 	if not _ok(owner.complete_round(request)): return
 	assert_eq(game.capture_run_snapshot_input(), after)
+	assert_eq(saves._storage.read_text("autosave.json"), accepted_disk)
+	var fresh_retry := _request()
+	var retried: Dictionary = owner.complete_round(fresh_retry)
+	if not _ok(retried): return
+	assert_true(retried.get("already_applied", false))
+	assert_eq(game.capture_run_snapshot_input(), after, "new command cannot pay a settled board twice")
 	assert_eq(saves._storage.read_text("autosave.json"), accepted_disk)
 	var changed := request.duplicate(true)
 	changed.expected_revision += 1
@@ -113,6 +127,7 @@ func test_scene_round_physical_refusal_retry_conflict_and_uncertain_acknowledgme
 	var replacement := _request()
 	replacement.difficulty_id = "beginner"
 	if not _ok(owner.replace_board(replacement)): return
+	assert_false(bootstrap._desktop_board_state.capture().settled_inspection, "replacement clears old settlement")
 	if not await _terminal_board(): return
 	request = _request()
 	before = game.capture_run_snapshot_input().duplicate(true)
@@ -124,3 +139,4 @@ func test_scene_round_physical_refusal_retry_conflict_and_uncertain_acknowledgme
 	assert_true(uncertain.get("committed", false), str(uncertain))
 	assert_eq(game.capture_run_snapshot_input(), before, "uncertain acknowledgment must not adopt live effects")
 	assert_false(bootstrap._desktop_board_state.has_settled_inspection())
+	assert_false(bootstrap._desktop_board_state.capture().settled_inspection)

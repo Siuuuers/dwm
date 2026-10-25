@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="GutTests" failures="0" tests="15" >
+  <testsuite name="tests/unit/test_desktop_first_reveal_snapshot_composer.gd" tests="15" failures="0" skipped="0" time="0.049866" >
+      <testcase name="test_compose_projects_decremented_round_without_stat_charge_and_revealed_board" assertions="10" status="pass" classname="tests/unit/test_desktop_first_reveal_snapshot_composer.gd" time="0.002242" >
+      </testcase>
+      <testcase name="test_compose_rejects_transaction_id_disagreement" assertions="3" status="pass" classname="tests/unit/test_desktop_first_reveal_snapshot_composer.gd" time="0.000742" >
+      </testcase>
+      <testcase name="test_compose_rejects_a_consequence_revision_that_no_longer_matches_the_base" assertions="3" status="pass" classname="tests/unit/test_desktop_first_reveal_snapshot_composer.gd" time="0.000666" >
+      </testcase>
+      <testcase name="test_compose_rejects_a_stale_board_pre_revision" assertions="3" status="pass" classname="tests/unit/test_desktop_first_reveal_snapshot_composer.gd" time="0.000614" >
+      </testcase>
+      <testcase name="test_compose_rejects_a_desktop_less_base_snapshot_input" assertions="3" status="pass" classname="tests/unit/test_desktop_first_reveal_snapshot_composer.gd" time="0.00066" >
+      </testcase>
+      <testcase name="test_compose_rejects_a_board_only_desktop_value" assertions="2" status="pass" classname="tests/unit/test_desktop_first_reveal_snapshot_composer.gd" time="0.000673" >
+      </testcase>
+      <testcase name="test_compose_rejects_an_extra_desktop_key" assertions="2" status="pass" classname="tests/unit/test_desktop_first_reveal_snapshot_composer.gd" time="0.000614" >
+      </testcase>
+      <testcase name="test_compose_rejects_a_non_first_reveal_board_candidate" assertions="1" status="pass" classname="tests/unit/test_desktop_first_reveal_snapshot_composer.gd" time="0.00015" >
+      </testcase>
+      <testcase name="test_compose_refuses_retired_candidate_fields_without_mutating_input" assertions="8" status="pass" classname="tests/unit/test_desktop_first_reveal_snapshot_composer.gd" time="0.004204" >
+      </testcase>
+      <testcase name="test_scene_composer_refuses_legacy_outer_members_and_missing_scene" assertions="11" status="pass" classname="tests/unit/test_desktop_first_reveal_snapshot_composer.gd" time="0.00662" >
+      </testcase>
+      <testcase name="test_scene_composer_refuses_retired_stats_and_coercible_candidates" assertions="14" status="pass" classname="tests/unit/test_desktop_first_reveal_snapshot_composer.gd" time="0.003567" >
+      </testcase>
+      <testcase name="test_scene_composer_refuses_wrong_debit_and_coerced_revisions" assertions="6" status="pass" classname="tests/unit/test_desktop_first_reveal_snapshot_composer.gd" time="0.001615" >
+      </testcase>
+      <testcase name="test_projection_matches_actual_board_commit_and_its_retry_result" assertions="8" status="pass" classname="tests/unit/test_desktop_first_reveal_snapshot_composer.gd" time="0.008158" >
+      </testcase>
+      <testcase name="test_scene_composer_requires_canonical_result_before_projection" assertions="3" status="pass" classname="tests/unit/test_desktop_first_reveal_snapshot_composer.gd" time="0.000692" >
+      </testcase>
+      <testcase name="test_scene_composer_refuses_malformed_or_disagreeing_results_without_mutation" assertions="37" status="pass" classname="tests/unit/test_desktop_first_reveal_snapshot_composer.gd" time="0.018649" >
+      </testcase>
+  </testsuite>
+</testsuites>

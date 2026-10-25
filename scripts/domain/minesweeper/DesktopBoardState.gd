@@ -65,8 +65,10 @@ var _board: Variant = null
 var _settlement: Variant = null
 var _command_receipts: Dictionary = {}
 var _terminal_receipts: Dictionary = {}
-# Recomputed at mutation/restore boundaries; idle reads do not hash the board.
+# Scene saves own this current fact; legacy restores derive it from terminal records.
 var _settled_inspection := false
+# Structural Scene format also survives unconfigured projection/inspection clones.
+var _scene_snapshot_format := false
 # Explicit Run9 admission. Legacy owners retain their separately admitted contract.
 # A configures the actual retained issuer before scene restore or live commands.
 var _scene_payment_issuer: Object = null
@@ -89,6 +91,7 @@ func configure_scene_payments(issuer: Object) -> Dictionary:
 			or not _command_receipts.is_empty() or not _terminal_receipts.is_empty()):
 		return _fail(&"scene_payment_configuration_requires_empty_state", "", {})
 	_scene_payment_issuer = issuer
+	_scene_snapshot_format = true
 	return {"ok": true}
 
 
@@ -120,13 +123,15 @@ func preparation_header() -> Dictionary:
 
 
 func capture() -> Dictionary:
-	return {
+	var snapshot := {
 		"schema_version": 1, "phase": _phase, "revision": _revision,
 		"identity": _dup_or_null(_identity), "candidate": _dup_or_null(_candidate),
 		"board": _dup_or_null(_board), "settlement": _dup_or_null(_settlement),
 		"command_receipts": _command_receipts.duplicate(true),
-		"terminal_receipts": _terminal_receipts.duplicate(true),
 	}
+	if _scene_snapshot_format: snapshot["settled_inspection"] = _settled_inspection
+	else: snapshot["terminal_receipts"] = _terminal_receipts.duplicate(true)
+	return snapshot
 
 
 # ---------------------------------------------------------------------------------------------
@@ -135,7 +140,11 @@ func capture() -> Dictionary:
 # ---------------------------------------------------------------------------------------------
 
 func prepare_restore(snapshot: Dictionary) -> Dictionary:
-	var shape := _exact_keys(snapshot, _CAPTURE_KEYS, &"snapshot_member_set_invalid")
+	var keys := _CAPTURE_KEYS.duplicate()
+	if _scene_payment_issuer != null or snapshot.has("settled_inspection"):
+		keys.erase("terminal_receipts")
+		keys.append("settled_inspection")
+	var shape := _exact_keys(snapshot, keys, &"snapshot_member_set_invalid")
 	if not shape.get("ok", false):
 		return shape
 	if typeof(snapshot["schema_version"]) != TYPE_INT or int(snapshot["schema_version"]) != 1:
@@ -158,8 +167,11 @@ func prepare_restore(snapshot: Dictionary) -> Dictionary:
 			return identity_valid
 	if typeof(snapshot["command_receipts"]) != TYPE_DICTIONARY:
 		return _fail(&"snapshot_field_invalid", "command_receipts must be a dictionary", {"field": "command_receipts"})
-	if typeof(snapshot["terminal_receipts"]) != TYPE_DICTIONARY:
+	if snapshot.has("terminal_receipts") and typeof(snapshot["terminal_receipts"]) != TYPE_DICTIONARY:
 		return _fail(&"snapshot_field_invalid", "terminal_receipts must be a dictionary", {"field": "terminal_receipts"})
+	if snapshot.has("settled_inspection"):
+		var settled := _validate_scene_settlement(snapshot)
+		if not settled.ok: return settled
 	if _scene_payment_issuer != null:
 		var payments := _validate_scene_payments(snapshot)
 		if not payments.ok: return payments
@@ -430,7 +442,8 @@ func commit(candidate: Dictionary) -> Dictionary:
 		_board = _dup_or_null(snapshot["board"])
 		_settlement = _dup_or_null(snapshot["settlement"])
 		_command_receipts = (snapshot["command_receipts"] as Dictionary).duplicate(true)
-		_terminal_receipts = (snapshot["terminal_receipts"] as Dictionary).duplicate(true)
+		_terminal_receipts = snapshot.get("terminal_receipts", {}).duplicate(true)
+		_scene_snapshot_format = snapshot.has("settled_inspection")
 		_settled_inspection = is_settled_inspection(snapshot)
 		return _state_view()
 
@@ -450,10 +463,11 @@ func commit(candidate: Dictionary) -> Dictionary:
 		return _fail(&"stale_revision",
 			"the candidate was prepared against a different revision than the current one",
 			{"expected": _revision, "candidate_pre_revision": candidate["pre_revision"]})
+	if _scene_snapshot_format and candidate.has("result_override") and not candidate.result_override is Dictionary:
+		return _fail(&"invalid_scene_board_result", "", {})
+	var projected: Dictionary = _scene_candidate_snapshot(candidate) if _scene_snapshot_format else {}
 	if _scene_payment_issuer != null:
-		if candidate.has("result_override") and not candidate.result_override is Dictionary:
-			return _fail(&"invalid_scene_board_result", "", {})
-		var checked := _validate_scene_payments(_scene_candidate_snapshot(candidate))
+		var checked := _validate_scene_payments(projected)
 		if not checked.ok: return checked
 
 	_phase = String(candidate["phase_after"])
@@ -462,7 +476,7 @@ func commit(candidate: Dictionary) -> Dictionary:
 	_board = _dup_or_null(candidate.get("board_after"))
 	_settlement = _dup_or_null(candidate.get("settlement_after"))
 	_revision += 1
-	_settled_inspection = is_settled_inspection(capture())
+	_settled_inspection = bool(projected.settled_inspection) if _scene_snapshot_format else is_settled_inspection(capture())
 
 	var result: Dictionary = _state_view()
 	if candidate.has("result_override"):
@@ -708,6 +722,8 @@ static func inspection_board_sha256(wrapper: Dictionary) -> String:
 
 
 static func is_settled_inspection(snapshot: Dictionary) -> bool:
+	if snapshot.has("settled_inspection"):
+		return _validate_scene_settlement(snapshot).ok and snapshot.settled_inspection
 	if str(snapshot.get("phase", "")) not in [_PHASE_ACTIVE_VISIBLE, _PHASE_ACTIVE_SUSPENDED]: return false
 	if not snapshot.get("identity") is Dictionary or not snapshot.get("board") is Dictionary: return false
 	if not snapshot.get("terminal_receipts") is Dictionary: return false
@@ -725,8 +741,20 @@ static func is_settled_inspection(snapshot: Dictionary) -> bool:
 	return false
 
 
+## Scene settlement belongs to the current terminal board, never historical records.
+static func _validate_scene_settlement(snapshot: Dictionary) -> Dictionary:
+	if typeof(snapshot.get("settled_inspection")) != TYPE_BOOL:
+		return {"ok": false, "code": &"invalid_scene_settlement"}
+	if snapshot.settled_inspection and (snapshot.get("phase") not in [_PHASE_ACTIVE_VISIBLE, _PHASE_ACTIVE_SUSPENDED] \
+			or not snapshot.get("identity") is Dictionary or not snapshot.get("board") is Dictionary \
+			or not snapshot.board.get("board") is Dictionary or snapshot.board.board.get("terminal") != true):
+		return {"ok": false, "code": &"invalid_scene_settlement"}
+	return {"ok": true}
+
+
 static func dismissed_inspection_snapshot(snapshot: Dictionary) -> Dictionary:
 	var cleared := snapshot.duplicate(true)
+	if cleared.has("settled_inspection"): cleared.settled_inspection = false
 	cleared["phase"] = _PHASE_NONE
 	cleared["revision"] = int(snapshot.revision) + 1
 	for key: String in ["identity", "candidate", "board", "settlement"]: cleared[key] = null
@@ -771,6 +799,10 @@ func _scene_candidate_snapshot(candidate: Dictionary) -> Dictionary:
 	projected.revision = _revision + 1
 	for slot: String in ["identity", "candidate", "board", "settlement"]:
 		projected[slot] = candidate.get(slot + "_after")
+	if _scene_snapshot_format:
+		projected.settled_inspection = _settled_inspection \
+			and projected.phase in [_PHASE_ACTIVE_VISIBLE, _PHASE_ACTIVE_SUSPENDED] \
+			and _same_typed(projected.identity, _identity) and _same_typed(projected.board, _board)
 	var result := {"ok": true, "code": &"ok", "value": {
 		"phase": projected.phase, "revision": projected.revision, "identity": projected.identity,
 		"candidate": projected.candidate, "board": projected.board, "settlement": projected.settlement}, "receipt": {}}

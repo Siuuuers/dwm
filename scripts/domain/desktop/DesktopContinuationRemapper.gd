@@ -95,6 +95,7 @@ const _REMAP_TABLE: Array[Dictionary] = [
 	{"path": "desktop.board.identity", "handled": true},
 	{"path": "desktop.board.command_receipts", "handled": true},
 	{"path": "desktop.board.terminal_receipts", "handled": true},
+	{"path": "desktop.board.settled_inspection", "handled": true},
 	{"path": "desktop.consequence.causal_day_instance+receipt", "handled": true},
 	{"path": "desktop.consequence.pending.transaction_id+receipt", "handled": true},
 	{"path": "desktop.consequence.pending.source_commit_receipt_id+provenance", "handled": true},
@@ -975,6 +976,7 @@ static func _remap_board(board: Dictionary, bundle: Dictionary, transaction_rema
 		new_identity = (remapped_identity["value"] as Dictionary)["identity"]
 		remapped["identity"] = new_identity
 	for key: String in ["command_receipts", "terminal_receipts"]:
+		if not board.has(key): continue
 		var receipts: Variant = board.get(key, {})
 		if typeof(receipts) != TYPE_DICTIONARY:
 			continue
