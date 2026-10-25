@@ -1,0 +1,283 @@
+{
+  "run_id": 40200659481,
+  "artifact_id": 12601548992,
+  "package_artifact_id": 12602037172,
+  "downloaded_zip_sha256": "d0d1214e429937f21c760d7106868b45bdfba005933f351e069884e1081d1d09",
+  "members": [
+    {
+      "path": "baseline/import.log",
+      "bytes": 153535,
+      "sha256": "df7879305b228469b50dcd719f4c12149b5add1a4cf70ace2e407011b6a66be8"
+    },
+    {
+      "path": "baseline/export.log",
+      "bytes": 265283,
+      "sha256": "8a0ab6154ca2a4518b649316ec2320f0fc4f07fde04ed1d9f670fc72d2573e41"
+    },
+    {
+      "path": "baseline/package.json",
+      "bytes": 412,
+      "sha256": "e71eeae628b6c56e076be322760bcdca335234de7617e4fc8f566b6e97ad57c6"
+    },
+    {
+      "path": "baseline/startup-variant.json",
+      "bytes": 4653,
+      "sha256": "7ae23239324bdd02bf5b70688f0c2f776f9d50f8d0a9debbab91a551b4658fd6"
+    },
+    {
+      "path": "measurements/pair1-fresh/caption.png",
+      "bytes": 773293,
+      "sha256": "a5492b9c37f3c56a079b04d41e2909c4c1ab9a0db3b11aa01c94a92bc83ec31f"
+    },
+    {
+      "path": "measurements/pair1-fresh/render.log",
+      "bytes": 9118,
+      "sha256": "ec407fed467ae976a9af3b166b80786fc92deca17096c1f5115573e736225d23"
+    },
+    {
+      "path": "measurements/pair1-fresh/results.json",
+      "bytes": 11294,
+      "sha256": "b4d72d5e3551af7bf133cce19c9c86fb36237f3a3624cc74c57080ad2d52cea9"
+    },
+    {
+      "path": "measurements/pair1-fresh/process.json",
+      "bytes": 20976,
+      "sha256": "63485ad2514fe6c1e1501fb877ba029329c962edeeb9d9a22da48e88cffa075d"
+    },
+    {
+      "path": "measurements/pair1-fresh/stderr.log",
+      "bytes": 2,
+      "sha256": "7eb70257593da06f682a3ddda54a9d260d4fc514f645237f5ca74b08f8da61a6"
+    },
+    {
+      "path": "measurements/pair1-fresh/stdout.log",
+      "bytes": 9124,
+      "sha256": "ef5ec2e5b54929543f753a51b04ac38384d9e71d1767f9f1a7babcbe696dff18"
+    },
+    {
+      "path": "measurements/pair1-fresh/title.png",
+      "bytes": 9866,
+      "sha256": "2b01f0beb4d153b753ce29839f256788066c26da86a5db7ae07b16fc1fc9b53c"
+    },
+    {
+      "path": "measurements/pair1-retained/caption.png",
+      "bytes": 773289,
+      "sha256": "8a532c7bd24f8425f0b5fb50083852413b6a1afe6c1222ed3fcb7fbb0f116cce"
+    },
+    {
+      "path": "measurements/pair1-retained/consent.png",
+      "bytes": 17152,
+      "sha256": "5995b8d05380123789d5572b14c3bb2817924e5fe9435a92773ab515f96d1a4c"
+    },
+    {
+      "path": "measurements/pair1-retained/process.json",
+      "bytes": 39618,
+      "sha256": "4eb63381b1d6b36d1d3467f9ad805154073724b504be3f7fbf324cd24cd09a74"
+    },
+    {
+      "path": "measurements/pair1-retained/results.json",
+      "bytes": 11837,
+      "sha256": "2f2f4712761efb2c6991c37f4aee6a82ff612ac8b4ab75608e12f9ca9d35b10e"
+    },
+    {
+      "path": "measurements/pair1-retained/render.log",
+      "bytes": 9556,
+      "sha256": "810aaa1ee218a94ed2b3f5e68e20e440bdcf909a9533646701595ef018d18c67"
+    },
+    {
+      "path": "measurements/pair1-retained/stderr.log",
+      "bytes": 2,
+      "sha256": "7eb70257593da06f682a3ddda54a9d260d4fc514f645237f5ca74b08f8da61a6"
+    },
+    {
+      "path": "measurements/pair1-retained/stdout.log",
+      "bytes": 9562,
+      "sha256": "6a5c1cf5a27793abd2a4492a9b351556fc850cdb5c6b301c5b7b5695f8694434"
+    },
+    {
+      "path": "measurements/pair1-retained/title.png",
+      "bytes": 9866,
+      "sha256": "2b01f0beb4d153b753ce29839f256788066c26da86a5db7ae07b16fc1fc9b53c"
+    },
+    {
+      "path": "measurements/pair2-fresh/caption.png",
+      "bytes": 773346,
+      "sha256": "4310f84079a90cce7743a192e5b7c7ae5966a6ae2e9dd074ff7b063c9cf4ddc1"
+    },
+    {
+      "path": "measurements/pair2-fresh/process.json",
+      "bytes": 20976,
+      "sha256": "77ce73542ef28fb324bec5697579cfd62bda7d18aa05acd8397fa4fb12adcb04"
+    },
+    {
+      "path": "measurements/pair2-fresh/render.log",
+      "bytes": 9119,
+      "sha256": "b47510053e76d1cacc813d5c8768e91f9dfd942d44ee1d897dde720cbf44467c"
+    },
+    {
+      "path": "measurements/pair2-fresh/results.json",
+      "bytes": 11295,
+      "sha256": "2df9f70c863d94d98980f4fd9765d8f6f4cc9ac36c8ad036e7254d6d5c5d367c"
+    },
+    {
+      "path": "measurements/pair2-fresh/stdout.log",
+      "bytes": 9125,
+      "sha256": "a6b2d7e8be80ff92a0188c60dc2f35af84040952a4303e7e02b70a490c206f10"
+    },
+    {
+      "path": "measurements/pair2-fresh/stderr.log",
+      "bytes": 2,
+      "sha256": "7eb70257593da06f682a3ddda54a9d260d4fc514f645237f5ca74b08f8da61a6"
+    },
+    {
+      "path": "measurements/pair2-fresh/title.png",
+      "bytes": 9866,
+      "sha256": "2b01f0beb4d153b753ce29839f256788066c26da86a5db7ae07b16fc1fc9b53c"
+    },
+    {
+      "path": "measurements/pair2-retained/consent.png",
+      "bytes": 17152,
+      "sha256": "5995b8d05380123789d5572b14c3bb2817924e5fe9435a92773ab515f96d1a4c"
+    },
+    {
+      "path": "measurements/pair2-retained/caption.png",
+      "bytes": 773294,
+      "sha256": "35971756b1fd0830fbb4db729e3bc214173e3dce6051dab07a924191a7054f34"
+    },
+    {
+      "path": "measurements/pair2-retained/process.json",
+      "bytes": 39617,
+      "sha256": "30ac48c65b6d64be54bd6b55bacc6bc49f4bd2f05d4a0fb6f091fd919930748a"
+    },
+    {
+      "path": "measurements/pair2-retained/render.log",
+      "bytes": 9556,
+      "sha256": "ad76f73c07cfbeed9e4c3f96e99d66bb9e10e0cfec3c3f35a5b3ad565f1f4aff"
+    },
+    {
+      "path": "measurements/pair2-retained/results.json",
+      "bytes": 11837,
+      "sha256": "ee4285478e25cefc0bb31ea542dd421a9ee4ebc7442bf3d6f54bd7ee2c16fb75"
+    },
+    {
+      "path": "measurements/pair2-retained/stderr.log",
+      "bytes": 2,
+      "sha256": "7eb70257593da06f682a3ddda54a9d260d4fc514f645237f5ca74b08f8da61a6"
+    },
+    {
+      "path": "measurements/pair2-retained/stdout.log",
+      "bytes": 9562,
+      "sha256": "c0f205ef9c2be690fccb2cde57ff9d62d11ac45c1a6a3c652375e79e0335f541"
+    },
+    {
+      "path": "measurements/pair2-retained/title.png",
+      "bytes": 9866,
+      "sha256": "2b01f0beb4d153b753ce29839f256788066c26da86a5db7ae07b16fc1fc9b53c"
+    },
+    {
+      "path": "profiles/pair1/APPDATA/Godot/app_userdata/DWM/desktop-issuer-root.json",
+      "bytes": 9541,
+      "sha256": "dc339120ab943bfbe75688701eced4c8a4aa0c8bf61e114aef1ba478e4c796d3"
+    },
+    {
+      "path": "operating-system.json",
+      "bytes": 118,
+      "sha256": "b881eebf36de2c13dbc603453f1ba2c875e18646382830d9753a8dbcffc82839"
+    },
+    {
+      "path": "profiles/pair1/APPDATA/Godot/app_userdata/DWM/desktop-issuer-root.json.bak",
+      "bytes": 5272,
+      "sha256": "2d7bf52e5dc91fe59f94b5727eec8b1774b60b98c7433b23de8025d938a06b45"
+    },
+    {
+      "path": "profiles/pair1/APPDATA/Godot/app_userdata/DWM/desktop-publications.json",
+      "bytes": 34,
+      "sha256": "902849ab2604217a878bc4de507660ced78f981a72c1d6343dd9ef55af64d4e4"
+    },
+    {
+      "path": "profiles/pair1/APPDATA/Godot/app_userdata/DWM/dialogic/saves/global_info.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "profiles/pair1/APPDATA/Godot/app_userdata/DWM/profile.json",
+      "bytes": 3837,
+      "sha256": "5ff7c32702923d2f5803d6830b736cea51084818c97c33d7d660f4c79422e280"
+    },
+    {
+      "path": "profiles/pair1/APPDATA/Godot/app_userdata/DWM/saves/autosave.json",
+      "bytes": 4831,
+      "sha256": "2cf37d90d7a856ec0e422108f08261f5c9cd8579e2fca8fe3edf8a7db993aef7"
+    },
+    {
+      "path": "profiles/pair1/APPDATA/Godot/app_userdata/DWM/saves/desktop-continuation-operations.json",
+      "bytes": 53599,
+      "sha256": "5563fd26999bb1dab9362891cf67cda3196ced7bb64414cabe546c3d9a0b9820"
+    },
+    {
+      "path": "profiles/pair1/APPDATA/Godot/app_userdata/DWM/schedule-foundation-publications.json",
+      "bytes": 34,
+      "sha256": "902849ab2604217a878bc4de507660ced78f981a72c1d6343dd9ef55af64d4e4"
+    },
+    {
+      "path": "profiles/pair1/APPDATA/Godot/app_userdata/DWM/saves/desktop-continuation-operations.json.bak",
+      "bytes": 53594,
+      "sha256": "e0251aeb79db7318597bfbb1ecd811bdfd04d179c8141ac829a700eeea65c68d"
+    },
+    {
+      "path": "profiles/pair2/APPDATA/Godot/app_userdata/DWM/desktop-issuer-root.json",
+      "bytes": 9541,
+      "sha256": "118ae5c2cc048c1b96f5eeab810c335affddcc67b22e8d74a01f447b48111dbd"
+    },
+    {
+      "path": "profiles/pair2/APPDATA/Godot/app_userdata/DWM/desktop-issuer-root.json.bak",
+      "bytes": 5272,
+      "sha256": "6f4d99322274d61f758ec5816ce31c6d7242c730d38f47f5d82ba3dca0660f3d"
+    },
+    {
+      "path": "profiles/pair2/APPDATA/Godot/app_userdata/DWM/desktop-publications.json",
+      "bytes": 34,
+      "sha256": "902849ab2604217a878bc4de507660ced78f981a72c1d6343dd9ef55af64d4e4"
+    },
+    {
+      "path": "profiles/pair2/APPDATA/Godot/app_userdata/DWM/dialogic/saves/global_info.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "profiles/pair2/APPDATA/Godot/app_userdata/DWM/profile.json",
+      "bytes": 3837,
+      "sha256": "27566a57ceffee66b10205fde7d7722fac536e6522a53ee82faa6b622bee443c"
+    },
+    {
+      "path": "profiles/pair2/APPDATA/Godot/app_userdata/DWM/saves/autosave.json",
+      "bytes": 4831,
+      "sha256": "15f3a8146040c5b7f1c49b92029ccf2bf405d4deba1664b73536c5fa945bdab7"
+    },
+    {
+      "path": "profiles/pair2/APPDATA/Godot/app_userdata/DWM/saves/desktop-continuation-operations.json",
+      "bytes": 53599,
+      "sha256": "193d336283ff1d54e75573260bd865db789da56c9a5cd7db0a75b1eb63e88ed1"
+    },
+    {
+      "path": "profiles/pair2/APPDATA/Godot/app_userdata/DWM/saves/desktop-continuation-operations.json.bak",
+      "bytes": 53594,
+      "sha256": "cb99cef528b4f2578d066f8dc68bc29e33914648773a9d273a6518dd94336009"
+    },
+    {
+      "path": "source.json",
+      "bytes": 559,
+      "sha256": "eb02a0e58735ee872c3a37a89b51c5c39551ea4bb16ca3333d4e1784c8464640"
+    },
+    {
+      "path": "profiles/pair2/APPDATA/Godot/app_userdata/DWM/schedule-foundation-publications.json",
+      "bytes": 34,
+      "sha256": "902849ab2604217a878bc4de507660ced78f981a72c1d6343dd9ef55af64d4e4"
+    },
+    {
+      "path": "video-controller.json",
+      "bytes": 102,
+      "sha256": "5dce6454799a069fe35951475933d0a58d91d539213e8c1ab158a0790c9d5894"
+    }
+  ]
+}

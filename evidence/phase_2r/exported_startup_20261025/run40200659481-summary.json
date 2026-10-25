@@ -1,0 +1,342 @@
+[
+  {
+    "case": "pair1-fresh",
+    "before_first_constructor_ms": 2755.0,
+    "launch_to_bootstrap_start_ms": 6007.0,
+    "launch_to_usable_title_ms": 7037.0,
+    "autoloads": [
+      {
+        "owner": "StartupProbe",
+        "preparation_ms": null,
+        "constructor_ms": 0.014
+      },
+      {
+        "owner": "ProfileManager",
+        "preparation_ms": 334.397,
+        "constructor_ms": 0.01
+      },
+      {
+        "owner": "GameState",
+        "preparation_ms": 679.524,
+        "constructor_ms": 0.011
+      },
+      {
+        "owner": "SaveManager",
+        "preparation_ms": 211.043,
+        "constructor_ms": 0.01
+      },
+      {
+        "owner": "LocalizationManager",
+        "preparation_ms": 14.363,
+        "constructor_ms": 0.007
+      },
+      {
+        "owner": "AudioManager",
+        "preparation_ms": 33.662,
+        "constructor_ms": 0.01
+      },
+      {
+        "owner": "SystemTtsCoordinator",
+        "preparation_ms": 2.821,
+        "constructor_ms": 0.004
+      },
+      {
+        "owner": "WindowModeManager",
+        "preparation_ms": 5.191,
+        "constructor_ms": 0.038
+      },
+      {
+        "owner": "EffectResolver",
+        "preparation_ms": 2.206,
+        "constructor_ms": 0.003
+      },
+      {
+        "owner": "SceneRouter",
+        "preparation_ms": 334.262,
+        "constructor_ms": 0.01
+      },
+      {
+        "owner": "InputManager",
+        "preparation_ms": 7.402,
+        "constructor_ms": 0.005
+      },
+      {
+        "owner": "AccessibilityManager",
+        "preparation_ms": 2.043,
+        "constructor_ms": 0.002
+      },
+      {
+        "owner": "Dialogic",
+        "preparation_ms": 0.103,
+        "constructor_ms": 0.002
+      },
+      {
+        "owner": "DialogicBridge",
+        "preparation_ms": 355.236,
+        "constructor_ms": 0.014
+      },
+      {
+        "owner": "ApplicationBootstrap",
+        "preparation_ms": 962.449,
+        "constructor_ms": 0.008
+      }
+    ],
+    "last_constructor_to_tree_ms": 218.087,
+    "tree_to_bootstrap_ms": 89.066
+  },
+  {
+    "case": "pair1-retained",
+    "before_first_constructor_ms": 796.0,
+    "launch_to_bootstrap_start_ms": 4024.0,
+    "launch_to_usable_title_ms": 6824.0,
+    "autoloads": [
+      {
+        "owner": "StartupProbe",
+        "preparation_ms": null,
+        "constructor_ms": 0.009
+      },
+      {
+        "owner": "ProfileManager",
+        "preparation_ms": 473.674,
+        "constructor_ms": 0.01
+      },
+      {
+        "owner": "GameState",
+        "preparation_ms": 654.434,
+        "constructor_ms": 0.012
+      },
+      {
+        "owner": "SaveManager",
+        "preparation_ms": 190.447,
+        "constructor_ms": 0.009
+      },
+      {
+        "owner": "LocalizationManager",
+        "preparation_ms": 13.937,
+        "constructor_ms": 0.007
+      },
+      {
+        "owner": "AudioManager",
+        "preparation_ms": 31.934,
+        "constructor_ms": 0.01
+      },
+      {
+        "owner": "SystemTtsCoordinator",
+        "preparation_ms": 2.654,
+        "constructor_ms": 0.004
+      },
+      {
+        "owner": "WindowModeManager",
+        "preparation_ms": 4.953,
+        "constructor_ms": 0.02
+      },
+      {
+        "owner": "EffectResolver",
+        "preparation_ms": 2.154,
+        "constructor_ms": 0.002
+      },
+      {
+        "owner": "SceneRouter",
+        "preparation_ms": 314.009,
+        "constructor_ms": 0.009
+      },
+      {
+        "owner": "InputManager",
+        "preparation_ms": 6.393,
+        "constructor_ms": 0.003
+      },
+      {
+        "owner": "AccessibilityManager",
+        "preparation_ms": 1.831,
+        "constructor_ms": 0.003
+      },
+      {
+        "owner": "Dialogic",
+        "preparation_ms": 0.088,
+        "constructor_ms": 0.002
+      },
+      {
+        "owner": "DialogicBridge",
+        "preparation_ms": 328.569,
+        "constructor_ms": 0.01
+      },
+      {
+        "owner": "ApplicationBootstrap",
+        "preparation_ms": 897.637,
+        "constructor_ms": 0.008
+      }
+    ],
+    "last_constructor_to_tree_ms": 217.384,
+    "tree_to_bootstrap_ms": 87.956
+  },
+  {
+    "case": "pair2-fresh",
+    "before_first_constructor_ms": 2204.0,
+    "launch_to_bootstrap_start_ms": 5450.0,
+    "launch_to_usable_title_ms": 6414.0,
+    "autoloads": [
+      {
+        "owner": "StartupProbe",
+        "preparation_ms": null,
+        "constructor_ms": 0.009
+      },
+      {
+        "owner": "ProfileManager",
+        "preparation_ms": 323.616,
+        "constructor_ms": 0.01
+      },
+      {
+        "owner": "GameState",
+        "preparation_ms": 638.525,
+        "constructor_ms": 0.01
+      },
+      {
+        "owner": "SaveManager",
+        "preparation_ms": 203.79,
+        "constructor_ms": 0.01
+      },
+      {
+        "owner": "LocalizationManager",
+        "preparation_ms": 14.443,
+        "constructor_ms": 0.007
+      },
+      {
+        "owner": "AudioManager",
+        "preparation_ms": 33.85,
+        "constructor_ms": 0.01
+      },
+      {
+        "owner": "SystemTtsCoordinator",
+        "preparation_ms": 2.794,
+        "constructor_ms": 0.004
+      },
+      {
+        "owner": "WindowModeManager",
+        "preparation_ms": 5.144,
+        "constructor_ms": 0.022
+      },
+      {
+        "owner": "EffectResolver",
+        "preparation_ms": 2.176,
+        "constructor_ms": 0.003
+      },
+      {
+        "owner": "SceneRouter",
+        "preparation_ms": 328.443,
+        "constructor_ms": 0.01
+      },
+      {
+        "owner": "InputManager",
+        "preparation_ms": 7.067,
+        "constructor_ms": 0.004
+      },
+      {
+        "owner": "AccessibilityManager",
+        "preparation_ms": 1.976,
+        "constructor_ms": 0.003
+      },
+      {
+        "owner": "Dialogic",
+        "preparation_ms": 0.097,
+        "constructor_ms": 0.001
+      },
+      {
+        "owner": "DialogicBridge",
+        "preparation_ms": 354.086,
+        "constructor_ms": 0.011
+      },
+      {
+        "owner": "ApplicationBootstrap",
+        "preparation_ms": 1001.31,
+        "constructor_ms": 0.008
+      }
+    ],
+    "last_constructor_to_tree_ms": 239.898,
+    "tree_to_bootstrap_ms": 88.488
+  },
+  {
+    "case": "pair2-retained",
+    "before_first_constructor_ms": 903.0,
+    "launch_to_bootstrap_start_ms": 4114.0,
+    "launch_to_usable_title_ms": 7121.0,
+    "autoloads": [
+      {
+        "owner": "StartupProbe",
+        "preparation_ms": null,
+        "constructor_ms": 0.008
+      },
+      {
+        "owner": "ProfileManager",
+        "preparation_ms": 341.435,
+        "constructor_ms": 0.008
+      },
+      {
+        "owner": "GameState",
+        "preparation_ms": 672.506,
+        "constructor_ms": 0.011
+      },
+      {
+        "owner": "SaveManager",
+        "preparation_ms": 193.346,
+        "constructor_ms": 0.008
+      },
+      {
+        "owner": "LocalizationManager",
+        "preparation_ms": 13.848,
+        "constructor_ms": 0.006
+      },
+      {
+        "owner": "AudioManager",
+        "preparation_ms": 31.526,
+        "constructor_ms": 0.009
+      },
+      {
+        "owner": "SystemTtsCoordinator",
+        "preparation_ms": 2.738,
+        "constructor_ms": 0.004
+      },
+      {
+        "owner": "WindowModeManager",
+        "preparation_ms": 5.46,
+        "constructor_ms": 0.019
+      },
+      {
+        "owner": "EffectResolver",
+        "preparation_ms": 2.235,
+        "constructor_ms": 0.002
+      },
+      {
+        "owner": "SceneRouter",
+        "preparation_ms": 331.369,
+        "constructor_ms": 0.009
+      },
+      {
+        "owner": "InputManager",
+        "preparation_ms": 7.39,
+        "constructor_ms": 0.005
+      },
+      {
+        "owner": "AccessibilityManager",
+        "preparation_ms": 2.134,
+        "constructor_ms": 0.004
+      },
+      {
+        "owner": "Dialogic",
+        "preparation_ms": 0.105,
+        "constructor_ms": 0.002
+      },
+      {
+        "owner": "DialogicBridge",
+        "preparation_ms": 365.427,
+        "constructor_ms": 0.011
+      },
+      {
+        "owner": "ApplicationBootstrap",
+        "preparation_ms": 918.596,
+        "constructor_ms": 0.008
+      }
+    ],
+    "last_constructor_to_tree_ms": 228.481,
+    "tree_to_bootstrap_ms": 93.673
+  }
+]
