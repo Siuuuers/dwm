@@ -4,6 +4,9 @@ const PATH := "res://tests/fixtures/dialogic/_scene_compiler_cache_probe.dtl"
 const COUNTED_PATH := "res://tests/fixtures/dialogic/_scene_compiler_cache_probe.counted_timeline"
 const MANIFEST := preload("res://scripts/narrative/DialogicEntryManifest.gd")
 const STRICT := preload("res://scripts/validation/StrictJson.gd")
+const SESSION := preload("res://scripts/narrative/SoloReadingSession.gd")
+const SCOPE := preload("res://tests/support/SceneValidationScope.gd")
+const READING := preload("res://tests/support/SceneDayReadingFixture.gd")
 const SHARED_SOURCE := "label first\n\\TEST first. #id:line.cache.one\nlabel first.marker\nreturn\nlabel second\n\\TEST second. #id:line.cache.two\nreturn\n"
 const CALLABLES := ["first", "second"]
 
@@ -33,8 +36,12 @@ var _translation: Translation
 var _translation_enabled_before: Variant
 var _translation_setting_existed := false
 var _locale_before := ""
+var _scope: RefCounted
+var _prepared_before: Dictionary
 
 func before_each() -> void:
+	_prepared_before = SESSION._prepared_scene_configuration
+	SESSION._prepared_scene_configuration = {}
 	_translation_setting_existed = ProjectSettings.has_setting("dialogic/translation/enabled")
 	_translation_enabled_before = ProjectSettings.get_setting("dialogic/translation/enabled", false)
 	_locale_before = TranslationServer.get_locale()
@@ -47,6 +54,10 @@ func _write(text: String) -> void:
 	file.close()
 
 func after_each() -> void:
+	if _scope != null:
+		_scope.restore()
+		_scope = null
+	SESSION._prepared_scene_configuration = _prepared_before
 	if _translation != null:
 		TranslationServer.remove_translation(_translation)
 		_translation = null
@@ -248,6 +259,7 @@ func test_all_shipped_entries_match_independent_cold_compilation_exactly() -> vo
 		labels.append(entry.entry_id)
 		paths[entry.locators.en.path] = true
 	for path: String in paths: ADAPTER._scene_compile_cache.erase(path)
+
 	var independent := {}
 	for entry: Dictionary in entries:
 		var row: Dictionary = programmes[entry.entry_id]
@@ -267,3 +279,99 @@ func test_all_shipped_entries_match_independent_cold_compilation_exactly() -> vo
 		assert_eq(compiled, independent[entry.entry_id],
 			entry.entry_id + ": exact events, graph, labels, native indices and hashes")
 	for path: String in paths: ADAPTER._scene_compile_cache.erase(path)
+
+func _install_reading_source() -> Dictionary:
+	_scope = SCOPE.new()
+	_scope.install(true)
+	var bundle: Dictionary = STRICT.parse_object(FileAccess.get_file_as_string(READING.REGISTRATION)).value
+	_write(FileAccess.get_file_as_string("res://tests/fixtures/dialogic/scene_day_terminal.dtl"))
+	for entry: Dictionary in bundle.entry_manifest.entries: entry.locators.en.path = PATH
+	assert_true(MANIFEST.configure_test_scene_registration(bundle).ok)
+	return bundle
+
+func test_prepared_configuration_shares_frozen_data_but_not_reading_progress() -> void:
+	var bundle := _install_reading_source()
+	var first := SESSION.new()
+	var second := SESSION.new()
+	assert_true(first.configure_scene().ok)
+	assert_true(second.configure_scene().ok)
+	for field: String in ["manifest", "catalogue", "registry", "_scene_nodes", "_scene_bundle", "_caption_variants_by_line"]:
+		assert_true(is_same(first.get(field), second.get(field)), field + " has one immutable owner")
+		assert_true(first.get(field).is_read_only(), field)
+	assert_true(first._scene_nodes[READING.A].is_read_only())
+	assert_true(first._scene_nodes[READING.A][0].is_read_only())
+	assert_true(first.begin_scene(READING.TOKEN).ok)
+	assert_true(second.begin_scene(READING.TOKEN).ok)
+	assert_false(is_same(first.ledger, second.ledger))
+	assert_true(READING.enter(first, READING.A, "test:first").ok)
+	assert_true(READING.enter(second, READING.A, "test:second").ok)
+	var retained := READING.checkpoint(second)
+	assert_true(READING.advance_detached(first).ok)
+	assert_eq(READING.checkpoint(second), retained, "advancing one session cannot advance the other")
+	var labels: Array = []
+	for entry: Dictionary in bundle.entry_manifest.entries: labels.append(entry.entry_id)
+	var programme: Dictionary = bundle.scene_programme.entries[0]
+	var compiled := ADAPTER.compile_scene_programme(PATH, programme.entry_id, labels, programme.markers)
+	assert_true(compiled.ok)
+	if not compiled.ok: return
+	var pristine: Dictionary = compiled.duplicate(true)
+	compiled.value.nodes[0]["caller_mutation"] = true
+	compiled.value.nodes.clear()
+	assert_eq(ADAPTER.compile_scene_programme(PATH, programme.entry_id, labels, programme.markers), pristine,
+		"freezing prepared data must not freeze or alias public compiler results")
+	assert_eq(first._scene_nodes[programme.entry_id], pristine.value.nodes)
+	assert_eq(second._scene_nodes[programme.entry_id], pristine.value.nodes)
+
+func test_prepared_configuration_rejects_changed_malformed_and_deleted_sources() -> void:
+	_install_reading_source()
+	var original := FileAccess.get_file_as_string(PATH)
+	assert_true(SESSION.new().configure_scene().ok)
+	var prepared: Dictionary = SESSION._prepared_scene_configuration
+	for replacement: String in [original + "\n# changed source\n", "label scene.test.a\nMissing stable identity.\nreturn\n"]:
+		_write(replacement)
+		var refused := SESSION.new()
+		assert_false(refused.configure_scene().ok, "changed physical input cannot reuse prepared nodes")
+		assert_true(refused.catalogue.is_empty(), "failed preparation does not install partial data")
+		assert_true(is_same(SESSION._prepared_scene_configuration, prepared))
+		_write(original)
+		assert_true(SESSION.new().configure_scene().ok, "restored bytes recover without retaining a failed cache")
+	DirAccess.remove_absolute(PATH)
+	assert_false(SESSION.new().configure_scene().ok, "deleted source cannot be hidden by prepared data")
+
+func test_prepared_configuration_bypasses_translation_enabled_compilation() -> void:
+	var bundle := _install_reading_source()
+	var canonical := SESSION.new()
+	assert_true(canonical.configure_scene().ok)
+	ProjectSettings.set_setting("dialogic/translation/enabled", true)
+	var translated := SESSION.new()
+	assert_true(translated.configure_scene().ok)
+	assert_false(is_same(canonical._scene_nodes, translated._scene_nodes), "translation mode recompiles independently")
+	var line: Dictionary = bundle.caption_registry.entries[0].lines[0]
+	_translation = Translation.new()
+	_translation.set_locale("en")
+	_translation.add_message("Text/%s/text" % line.line_id, "TEST changed translation.")
+	TranslationServer.add_translation(_translation)
+	TranslationServer.set_locale("en")
+	assert_false(SESSION.new().configure_scene().ok, "changed translation cannot reuse the canonical registered programme")
+	ProjectSettings.set_setting("dialogic/translation/enabled", false)
+	var restored := SESSION.new()
+	assert_true(restored.configure_scene().ok)
+	assert_true(is_same(restored._scene_nodes, canonical._scene_nodes))
+
+func test_prepared_configuration_follows_selected_registration_identity() -> void:
+	var bundle := _install_reading_source()
+	var first := SESSION.new()
+	assert_true(first.configure_scene().ok)
+	var inner := SCOPE.new()
+	inner.install(true)
+	assert_true(MANIFEST.configure_test_scene_registration(bundle).ok)
+	var replacement := SESSION.new()
+	assert_true(replacement.configure_scene().ok)
+	assert_eq(first.fingerprint, replacement.fingerprint, "equal content is not equal selected-registration lifetime")
+	assert_false(is_same(first._scene_bundle, replacement._scene_bundle))
+	assert_false(is_same(first._scene_nodes, replacement._scene_nodes))
+	inner.restore()
+	var restored := SESSION.new()
+	assert_true(restored.configure_scene().ok)
+	assert_true(is_same(first._scene_bundle, restored._scene_bundle))
+	assert_eq(first._scene_nodes, restored._scene_nodes)

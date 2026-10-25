@@ -32,6 +32,9 @@ var scene_occurrence := ""
 var scene_index := 0
 var _scene_nodes: Dictionary = {}
 var _scene_bundle: Dictionary = {}
+# Only immutable semantic data is shared; native playback resources and each
+# session's ledger/cursor stay separate. Physical source changes still refuse.
+static var _prepared_scene_configuration: Dictionary = {}
 
 func configure_scene() -> Dictionary:
 	var timing := preload("res://scripts/narrative/SceneValidationTiming.gd")
@@ -44,58 +47,78 @@ func configure_scene() -> Dictionary:
 func _configure_scene_observed_body() -> Dictionary:
 	if not catalogue.is_empty() or ledger != null: return _fail(&"reading_catalogue_already_configured")
 	var owner := preload("res://scripts/narrative/DialogicEntryManifest.gd")
-	var selected := owner.scene_registration()
+	var selected := owner.scene_contract_tables()
 	if not selected.ok: return selected
-	var bundle: Dictionary = selected.value
+	var bundle: Dictionary = selected.bundle
 	var entries := {}
 	for entry: Dictionary in bundle.entry_manifest.entries: entries[entry.entry_id] = entry
-	var compiled_nodes := {}
-	for programme: Dictionary in bundle.scene_programme.entries:
-		var entry: Dictionary = entries[programme.entry_id]
-		var compiled := DialogicRuntimeAdapter.compile_scene_programme(entry.locators.en.path,
-			programme.entry_id, entries.keys(), programme.markers)
-		if not compiled.ok: return compiled
-		if compiled.value.content_sha256 != programme.content_sha256 or compiled.value.program_sha256 != programme.program_sha256:
-			return _fail(&"reading_catalogue_mismatch")
-		compiled_nodes[programme.entry_id] = compiled.value.nodes.duplicate(true)
-	var compiled_catalogue := {}
-	var beats: Array = []
-	for entry: Dictionary in bundle.caption_registry.entries:
-		var row: Dictionary = entry.duplicate(true)
-		row["label"] = entry.entry_id
-		row["content_version"] = entries[entry.entry_id].content_version
-		compiled_catalogue[entry.entry_id] = row
-		for line: Dictionary in entry.lines:
-			beats.append({"beat_id": line.beat_id, "line_id": line.line_id, "owning_entry_id": entry.entry_id,
-				"presentation_signature": {"content_revision": line.revision, "variant_id": line.beat_id}})
+	var cacheable: bool = not ProjectSettings.get_setting("dialogic/translation/enabled", false)
+	var sources := {}
+	if cacheable:
+		for entry: Dictionary in entries.values():
+			var path: String = entry.locators.en.path
+			if sources.has(path): continue
+			if not ResourceLoader.exists(path): return _fail(&"scene_programme_unavailable")
+			var source := FileAccess.open(path, FileAccess.READ)
+			if source == null: return _fail(&"scene_programme_unavailable")
+			sources[path] = source.get_buffer(source.get_length())
+			source.close()
+	var prepared := {}
+	if cacheable and is_same(_prepared_scene_configuration.get("bundle"), bundle) \
+			and _prepared_scene_configuration.sources == sources:
+		prepared = _prepared_scene_configuration
+	else:
+		var compiled_nodes := {}
+		for programme: Dictionary in bundle.scene_programme.entries:
+			var entry: Dictionary = entries[programme.entry_id]
+			var compiled := DialogicRuntimeAdapter.compile_scene_programme(entry.locators.en.path,
+				programme.entry_id, entries.keys(), programme.markers)
+			if not compiled.ok: return compiled
+			if compiled.value.content_sha256 != programme.content_sha256 or compiled.value.program_sha256 != programme.program_sha256:
+				return _fail(&"reading_catalogue_mismatch")
+			compiled_nodes[programme.entry_id] = compiled.value.nodes
+		var compiled_catalogue := {}
+		var beats: Array = []
+		var variants := {}
+		for entry: Dictionary in bundle.caption_registry.entries:
+			var row: Dictionary = entry.duplicate(true)
+			row["label"] = entry.entry_id
+			row["content_version"] = entries[entry.entry_id].content_version
+			compiled_catalogue[entry.entry_id] = row
+			for line: Dictionary in entry.lines:
+				var beat := {"beat_id": line.beat_id, "line_id": line.line_id, "owning_entry_id": entry.entry_id,
+					"presentation_signature": {"content_revision": line.revision, "variant_id": line.beat_id}}
+				beats.append(beat)
+				variants[beat.line_id] = beat
+		prepared = {"bundle": bundle, "sources": sources, "manifest": bundle.entry_manifest,
+			"catalogue": compiled_catalogue, "nodes": compiled_nodes, "variants": variants,
+			"registry": {"kind": "narrative_caption_registry", "schema_version": 1, "beats": beats}}
+		FROZEN._freeze(prepared)
+		if cacheable: _prepared_scene_configuration = prepared
 	family = "scene"
 	catalogue_schema_version = 5
 	fingerprint = owner.scene_registration_fingerprint()
-	manifest = bundle.entry_manifest.duplicate(true)
-	catalogue = compiled_catalogue
-	registry = {"kind": "narrative_caption_registry", "schema_version": 1, "beats": beats}
-	_scene_nodes = compiled_nodes
+	manifest = prepared.manifest
+	catalogue = prepared.catalogue
+	registry = prepared.registry
+	_scene_nodes = prepared.nodes
 	_scene_bundle = bundle
-	FROZEN._freeze(_scene_bundle)
-	for beat: Dictionary in beats: _caption_variants_by_line[beat.line_id] = beat
-	FROZEN._freeze(catalogue)
-	FROZEN._freeze(registry)
-	FROZEN._freeze(_scene_nodes)
+	_caption_variants_by_line = prepared.variants
 	return {"ok": true}
 
-## Same synchronous initial-candidate check only. Copy configuration, never the
+## Same synchronous initial-candidate check only. Share configuration, never the
 ## restored ledger/cursor; the sibling must construct its own first publication.
 func _fork_scene_configuration() -> RefCounted:
 	var sibling: RefCounted = get_script().new()
 	sibling.family = family
 	sibling.catalogue_schema_version = catalogue_schema_version
 	sibling.fingerprint = fingerprint
-	sibling.manifest = manifest.duplicate(true)
+	sibling.manifest = manifest
 	sibling.catalogue = catalogue
 	sibling.registry = registry
 	sibling._scene_nodes = _scene_nodes
 	sibling._scene_bundle = _scene_bundle
-	sibling._caption_variants_by_line = _caption_variants_by_line.duplicate()
+	sibling._caption_variants_by_line = _caption_variants_by_line
 	return sibling
 
 func begin_scene(session_token: String) -> Dictionary:

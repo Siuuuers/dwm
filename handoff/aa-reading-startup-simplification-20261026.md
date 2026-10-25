@@ -15,6 +15,69 @@ That record remains the source for measured costs and diagnostic evidence.
 Do not automatically resume its narrow second-copy experiment as the main task.
 The user now wants the larger simplification described here.
 
+## Implementation continuation — 26 October 2026
+
+Current candidate: PR #104, `codex/shared-reading-configuration-20261026`.
+The candidate shares immutable prepared scene configuration, keeps explicit DTL
+IDs during authoring, preserves unchanged caption revisions, and marks displayed
+Gallery Replay captions through Profile. Matched exported New Acc measurements passed: 5.14–5.92 seconds faster in
+four matched fresh/retained comparisons; pauses remain 7.19–7.51 seconds. See
+[the retained evidence](../evidence/phase_2r/reading_configuration_20261026/README.md).
+Matched exported Load measurements also passed: 1.16–1.86 seconds faster, with
+5.31–5.69-second frame gaps remaining. See [Load evidence](../evidence/phase_2r/reading_load_20261026/README.md).
+Full correctness CI is still pending. This is not completed save migration.
+
+The owner clarified these decisions during implementation:
+
+- Use explicit major checkpoints, not every scene-entry label. The initial set
+  is each day start and the first caption reached after a resolved choice or
+  Challenge. Update the recovery anchor when that caption is reached.
+- History shows current wording without adding global read marks. Content ahead
+  of an intact saved line appears during normal continuation. Do not force a
+  rewind for inserted content before that line. Keep encountered-only History;
+  old saves can initially retain only their provable current caption.
+- Read status is shared across languages. Canonical story revision owns it.
+- Re-encountering an unresolved Challenge resumes the exact board. A Challenge
+  with a saved result stays unavailable and follows that result.
+- If an update deletes Challenge A while its board is unresolved, carry its
+  exact placement and unfinished progress to the next eligible Challenge B.
+  The eventual story result belongs to B. This replaces the earlier suggestion
+  to refuse the removed-Challenge case or require a separate recovery screen.
+
+### Save migration audit to use next
+
+Normalize external saves once at `SaveMigrations.migrate_document`, before
+current-content validation. Keep strict internal live checks after migration.
+Do not merely remove the reading registration-hash comparison.
+
+Physical Challenge context also contains the whole-story registration hash.
+Its context and spec are frozen into the Profile attempt, semantic slot,
+command hash and physical envelope. Rewriting A's physical context to B would
+break those identities. Preserve the physical record and attempt reference;
+let the Run own the current story binding to that record. A wording edit must
+not replace a saved board or its rules.
+
+Only an unresolved board may transfer. An `in_progress` physical record can
+already have a saved `unfinished` story result because the player left the
+Challenge cue. Check saved outcomes before deciding whether to resume or transfer.
+Transfer must not change money, inventory, pressure, penalties or round limits.
+Commit the new story binding and checkpoint together; failed persistence must
+leave the old binding and board intact.
+
+Fallback must follow saved choices and resolved Challenge outcomes without
+repeating effects. Prior Challenge outcomes retain a hash plus Challenge ID
+and result, not recoverable old occurrence IDs. Do not invent those old IDs.
+Do not repeat day-renewal effects. Preserve retired historical choices/results
+instead of requiring every old fact to remain in current registration.
+
+Keep the active physical board separate from a temporarily rewound reading
+cursor. An absent later eligible Challenge must not discard the suspended board.
+The owner confirmed that transfer carries the exact state even for a terminal
+board. There is no player-facing Finish button: terminal boards automatically
+continue, while leaving an unfinished cue records its result. Do not confuse
+internal test wording with the visible UI. Entire-day deletion will not occur
+and is outside supported authoring changes; do not add a recovery mechanism for it.
+
 ## Confirmed player behavior
 
 ### Content and saved progress

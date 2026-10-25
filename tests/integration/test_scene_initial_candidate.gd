@@ -289,10 +289,10 @@ func test_configuration_fork_keeps_fresh_mutable_session_state() -> void:
 	assert_true(sibling.catalogue.is_read_only())
 	assert_true(sibling.registry.is_read_only())
 	assert_true(sibling._scene_nodes.is_read_only())
-	sibling.manifest.clear()
-	sibling._caption_variants_by_line.clear()
-	assert_false(reading.session.manifest.is_empty(), "mutable manifest belongs to each session")
-	assert_false(reading.session._caption_variants_by_line.is_empty(), "mutable lookup belongs to each session")
+	assert_true(sibling.manifest.is_read_only())
+	assert_true(sibling._caption_variants_by_line.is_read_only())
+	assert_true(is_same(sibling.manifest, reading.session.manifest), "frozen manifest is shared")
+	assert_true(is_same(sibling._caption_variants_by_line, reading.session._caption_variants_by_line), "frozen lookup is shared")
 	assert_true(BRIDGE.build_scene_initial_checkpoint(receipt, bundle).ok, "private fork cannot change public reconstruction")
 
 func test_next_public_build_and_candidate_validation_recheck_physical_content() -> void:
