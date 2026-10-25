@@ -1,0 +1,7 @@
+{
+  "autoload/GameState.gd": "f7b2ab12d0986117f56fad99a5174cb54b9dbf4c24702d877e825da3735c7812",
+  "scripts/domain/narrative/SceneEventContract.gd": "e487e8a5f5da5f8e39f35368db29e5713c076520ad38a2fb0a413c7c5e33c4db",
+  "tests/unit/test_scene_challenge_recall.gd": "fec5ac92e72c59ab3b9e1118b3a417dc2957ccc417879063345cce47fa350ed5",
+  "tests/integration/scene_challenge_recall_child.gd": "129babbf9591e9c2a48f4329e965739ff5f3bc5b8d9b7dea3226ed6538bd9960",
+  "tools/testing/Invoke-CloudTests.ps1": "bf7d641e21ce87503d865b5d42320c7761c2ea9456498786a57782ed8b519f1f"
+}

@@ -1,5 +1,6 @@
 extends "res://addons/gut/test.gd"
-## Pure synthetic receipt selection, not issuer/ledger/persistence qualification.
+## Pure current-fact selection and chronology on valid synthetic commands.
+## These tests do not qualify issuer authority or persistence.
 ## Rendered create/load separately exercises the real retained ledger and storage.
 const FIXTURE := preload("res://tests/support/SceneChallengeRecallFixture.gd")
 const CONTRACT := preload("res://scripts/domain/narrative/SceneEventContract.gd")
@@ -16,16 +17,17 @@ func _event() -> Dictionary:
 	event.issuer_receipt.counter = 100
 	return event
 
-func _closure(event: Dictionary, outcome: String, command_id: String = "TEST.closed") -> Dictionary:
+func _closure(event: Dictionary, outcome: String, command_id: String = "TEST.closed",
+		counter: int = 50, occurrence_id: String = "TEST.earlier.occurrence") -> Dictionary:
 	var envelope: Dictionary = event.duplicate(true)
 	envelope.source.entry_id = FIXTURE.START
-	envelope.source.scene_occurrence = "TEST.earlier.occurrence"
+	envelope.source.scene_occurrence = occurrence_id
 	envelope.event_id = FIXTURE.START + ".end"
 	envelope.kind = "challenge.end"
 	envelope.payload = {"challenge_id": FIXTURE.CHALLENGE_ID}
 	envelope.command_id = command_id
 	envelope.issuer_receipt.token = command_id
-	envelope.issuer_receipt.counter = 50
+	envelope.issuer_receipt.counter = counter
 	var occurrence: String = str(CONTRACT.WRITER.stringify([envelope.source.scene_occurrence, FIXTURE.CHALLENGE_ID]).value).sha256_text()
 	var proof: Variant = null
 	if outcome != "never_started":
@@ -76,40 +78,74 @@ func test_legacy_four_and_exact_five_maps_allow_convergent_content_but_no_partia
 	bundle.challenges[0].targets["extra"] = "echo_a_day1"
 	assert_false(CONTRACT.validate_bundle_structure(bundle).ok)
 
-func test_pure_recall_selects_each_recorded_outcome_without_mutating_inputs() -> void:
+func test_current_recall_selects_each_saved_outcome_without_receipts_or_mutation() -> void:
 	var built: Dictionary = FIXTURE.bundle()
 	assert_true(built.ok)
 	if not built.ok: return
 	for outcome: String in FIXTURE.OUTCOMES:
 		var event := _event()
-		var receipts := {"TEST.closed": _closure(event, outcome)}
-		var before := {"event": event.duplicate(true), "receipts": receipts.duplicate(true), "bundle": built.value.duplicate(true)}
-		var resolved: Dictionary = CONTRACT.resolve_scene_challenge_recall(event, receipts, built.value)
+		var outcomes := {"a".repeat(64): {"challenge_id": FIXTURE.CHALLENGE_ID, "outcome": outcome}}
+		var before := {"event": event.duplicate(true), "outcomes": outcomes.duplicate(true), "bundle": built.value.duplicate(true)}
+		var resolved: Dictionary = CONTRACT.resolve_scene_challenge_recall(event, outcomes, built.value)
 		assert_true(resolved.ok, str(resolved))
 		if not resolved.ok: continue
-		assert_eq(resolved.value, {"kind": "challenge_recalled", "closure_command_id": "TEST.closed",
-			"outcome": outcome, "target_id": FIXTURE.target_id(outcome, true)})
+		assert_eq(resolved.value, {"kind": "challenge_recalled", "outcome": outcome,
+			"target_id": FIXTURE.target_id(outcome, true)})
 		assert_eq(event, before.event)
-		assert_eq(receipts, before.receipts)
+		assert_eq(outcomes, before.outcomes)
 		assert_eq(built.value, before.bundle)
 		resolved.value.outcome = "changed"
-		assert_eq(receipts, before.receipts, "returned selection is detached")
+		assert_eq(outcomes, before.outcomes, "returned selection is detached")
 
-func test_pure_recall_refuses_missing_wrong_run_future_or_ambiguous_closure() -> void:
+func test_current_recall_refuses_missing_or_ambiguous_saved_outcome_without_mutation() -> void:
 	var built: Dictionary = FIXTURE.bundle()
 	assert_true(built.ok)
 	if not built.ok: return
 	var event := _event()
-	assert_false(CONTRACT.resolve_scene_challenge_recall(event, {}, built.value).ok)
-	for invalid: String in ["wrong_run", "wrong_challenge", "future", "equal_counter", "ambiguous"]:
-		var receipts := {"TEST.closed": _closure(event, "won")}
-		match invalid:
-			"wrong_run": receipts["TEST.closed"].scene_event.semantic.source.run_id = "TEST.other.run"
-			"wrong_challenge": receipts["TEST.closed"].scene_event.semantic.payload.challenge_id = "TEST.other.challenge"
-			"future": receipts["TEST.closed"].scene_event.semantic.issuer_receipt.counter = 101
-			"equal_counter": receipts["TEST.closed"].scene_event.semantic.issuer_receipt.counter = 100
-			"ambiguous": receipts["TEST.second"] = _closure(event, "lost", "TEST.second")
-		assert_false(CONTRACT.resolve_scene_challenge_recall(event, receipts, built.value).ok, invalid)
+	for case: String in ["missing", "other_challenge", "ambiguous", "ambiguous_equal"]:
+		var outcomes := {}
+		if case == "other_challenge":
+			outcomes["a".repeat(64)] = {"challenge_id": "TEST.other.challenge", "outcome": "never_started"}
+		elif case.begins_with("ambiguous"):
+			outcomes["a".repeat(64)] = {"challenge_id": FIXTURE.CHALLENGE_ID, "outcome": "won"}
+			outcomes["b".repeat(64)] = {"challenge_id": FIXTURE.CHALLENGE_ID, "outcome": "won" if case == "ambiguous_equal" else "lost"}
+		var before := {"event": event.duplicate(true), "outcomes": outcomes.duplicate(true), "bundle": built.value.duplicate(true)}
+		var refused: Dictionary = CONTRACT.resolve_scene_challenge_recall(event, outcomes, built.value)
+		assert_eq(refused.get("code"), &"scene_challenge_recall_ambiguous" if case.begins_with("ambiguous") else &"scene_challenge_recall_missing", case)
+		assert_eq(event, before.event, case + " preserves the event")
+		assert_eq(outcomes, before.outcomes, case + " preserves saved facts")
+		assert_eq(built.value, before.bundle, case + " preserves registration")
+
+func test_current_recall_rejects_malformed_facts_after_event_and_registration() -> void:
+	var bundle: Dictionary = FIXTURE.bundle().value
+	var event := _event()
+	for invalid: Variant in [null, [], {"a".repeat(64): {"challenge_id": FIXTURE.CHALLENGE_ID, "outcome": "unknown"}}]:
+		assert_eq(CONTRACT.resolve_scene_challenge_recall(event, invalid, bundle).get("code"),
+			&"scene_challenge_recall_invalid")
+	assert_eq(CONTRACT.resolve_scene_challenge_recall(event, null, {}).get("code"), &"scene_bundle_invalid")
+	event.schema_version = 2.0
+	assert_eq(CONTRACT.resolve_scene_challenge_recall(event, null, {}).get("code"), &"scene_event_version_invalid")
+
+func test_historical_recall_keeps_earlier_result_when_another_closure_happens_later() -> void:
+	var built: Dictionary = FIXTURE.bundle()
+	assert_true(built.ok)
+	if not built.ok: return
+	var event := _event()
+	var earlier := _closure(event, "won")
+	var later := _closure(event, "lost", "TEST.later", 150, "TEST.later.occurrence")
+	var receipts := {"TEST.later": later, "TEST.closed": earlier}
+	var before := receipts.duplicate(true)
+	var resolved: Dictionary = CONTRACT._resolve_scene_challenge_recall_history(event, receipts)
+	assert_true(resolved.ok, str(resolved))
+	assert_eq(resolved.get("value"), {"kind": "challenge_recalled", "outcome": "won", "target_id": FIXTURE.target_id("won", true)},
+		"a closure after the recall cannot retroactively make the saved recall ambiguous")
+	assert_eq(receipts, before)
+	event.issuer_receipt.counter = 150
+	assert_eq(CONTRACT._resolve_scene_challenge_recall_history(event, receipts), resolved,
+		"a closure at the recall counter is not an earlier completion")
+	event.issuer_receipt.counter = 200
+	assert_eq(CONTRACT._resolve_scene_challenge_recall_history(event, receipts).get("code"),
+		&"scene_challenge_recall_ambiguous", "a later recall sees both completed occurrences")
 
 func test_recall_receipt_binds_outcome_target_and_anchor_shape() -> void:
 	var built: Dictionary = FIXTURE.bundle()
@@ -119,8 +155,7 @@ func test_recall_receipt_binds_outcome_target_and_anchor_shape() -> void:
 	var anchor := {"session_id": event.source.scene_occurrence, "entry_id": FIXTURE.LATER,
 		"content_version": 1, "catalogue_fingerprint": "TEST.catalogue", "publication_id": "TEST.publication",
 		"line_id": "line." + FIXTURE.LATER + ".one"}
-	var result := {"kind": "challenge_recalled", "closure_command_id": "TEST.closed",
-		"outcome": "perfect", "target_id": "recall_e_day1"}
+	var result := {"kind": "challenge_recalled", "outcome": "perfect", "target_id": "recall_e_day1"}
 	assert_true(CONTRACT.make_scene_receipt(event, anchor, result, built.value).ok)
 	result.target_id = "recall_c_day1"
 	assert_false(CONTRACT.make_scene_receipt(event, anchor, result, built.value).ok)
@@ -131,68 +166,5 @@ func test_recall_receipt_binds_outcome_target_and_anchor_shape() -> void:
 	anchor.line_id = "line." + FIXTURE.START + ".one"
 	assert_false(CONTRACT.make_scene_receipt(event, anchor, result, built.value).ok)
 	anchor.line_id = "line." + FIXTURE.LATER + ".one"
-	result.closure_command_id = ""
+	result["closure_command_id"] = "TEST.closed"
 	assert_false(CONTRACT.make_scene_receipt(event, anchor, result, built.value).ok)
-
-func test_recall_rechecks_changed_bundle_on_each_public_call() -> void:
-	var built: Dictionary = FIXTURE.bundle()
-	assert_true(built.ok)
-	if not built.ok: return
-	var event := _event()
-	var receipts := {"TEST.closed": _closure(event, "won")}
-	assert_true(CONTRACT.resolve_scene_challenge_recall(event, receipts, built.value).ok)
-	var changed: Dictionary = built.value.duplicate(true)
-	changed.caption_registry["TEST.changed"] = "different registration"
-	assert_true(CONTRACT.validate_bundle_structure(changed).ok,
-		"the changed registration remains structurally valid")
-	var refused: Dictionary = CONTRACT.resolve_scene_challenge_recall(event, receipts, changed)
-	assert_eq(refused.get("code"), &"scene_receipt_mismatch",
-		"a prior call cannot authorize a closure under a different bundle fingerprint")
-	assert_true(CONTRACT.resolve_scene_challenge_recall(event, receipts, built.value).ok,
-		"the original registration still proves the retained closure")
-
-func test_recall_revalidates_matching_closure_shape_anchor_result_and_fingerprint() -> void:
-	var built: Dictionary = FIXTURE.bundle()
-	assert_true(built.ok)
-	if not built.ok: return
-	var event := _event()
-	var closure := _closure(event, "won")
-	var expected := {"version": &"scene_event_version_invalid", "marker": &"scene_marker_unregistered",
-		"anchor": &"event_anchor_invalid", "target": &"scene_result_invalid",
-		"attempt": &"scene_attempt_proof_invalid", "registration": &"scene_receipt_mismatch",
-		"fingerprint": &"scene_receipt_mismatch"}
-	for mutation: String in expected:
-		var changed: Dictionary = closure.duplicate(true)
-		match mutation:
-			"version": changed.scene_event.semantic.schema_version = 2.0
-			"marker": changed.scene_event.semantic.event_id = "TEST.missing"
-			"anchor": changed.scene_event.reading_anchor.line_id = "TEST.other.line"
-			"target": changed.scene_event.result.target_id = "TEST.other.target"
-			"attempt": changed.scene_event.result.attempt_proof = null
-			"registration": changed.scene_event.registration_fingerprint = "0".repeat(64)
-			"fingerprint": changed.request_fingerprint = "0".repeat(64)
-		var before: Dictionary = changed.duplicate(true)
-		var refused: Dictionary = CONTRACT.resolve_scene_challenge_recall(event, {"TEST.closed": changed}, built.value)
-		assert_eq(refused.get("code"), expected[mutation], mutation)
-		assert_eq(changed, before, mutation + " refusal preserves the submitted closure")
-
-func test_recall_keeps_event_bundle_and_closure_refusal_order() -> void:
-	var built: Dictionary = FIXTURE.bundle()
-	assert_true(built.ok)
-	if not built.ok: return
-	var event := _event()
-	var closure := _closure(event, "won")
-	var bad_event: Dictionary = event.duplicate(true)
-	bad_event.schema_version = 2.0
-	var bad_closure: Dictionary = closure.duplicate(true)
-	bad_closure.scene_event.semantic.schema_version = 2.0
-	var receipts := {"TEST.closed": bad_closure}
-	assert_eq(CONTRACT.resolve_scene_challenge_recall(bad_event, receipts, {}).get("code"),
-		&"scene_event_version_invalid", "the recall envelope precedes bundle and closure admission")
-	assert_eq(CONTRACT.resolve_scene_challenge_recall(event, receipts, {}).get("code"),
-		&"scene_bundle_invalid", "fresh bundle admission precedes matching closure admission")
-	var second := _closure(event, "lost", "TEST.second")
-	second.scene_event.reading_anchor.line_id = "TEST.other.line"
-	assert_eq(CONTRACT.resolve_scene_challenge_recall(event,
-		{"TEST.closed": closure, "TEST.second": second}, built.value).get("code"),
-		&"event_anchor_invalid", "the second closure must validate before reporting ambiguity")

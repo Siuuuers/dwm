@@ -4663,7 +4663,7 @@ func _accept_scene_runtime_event(event: Dictionary, digest: String, lease: Strin
 		if not marker.get("ok", false) or marker.value.marker_id != event.event_id \
 				or marker.value.kind != event.kind or not _SCENE_EVENT._equal(marker.value.payload, event.payload):
 			return _transaction_failure(&"scene_challenge_recall_unavailable", "")
-		var recalled := _SCENE_EVENT.resolve_scene_challenge_recall(event, _command_receipts, registered.value)
+		var recalled := _SCENE_EVENT.resolve_scene_challenge_recall(event, scene_challenge_outcomes, registered.value)
 		if not recalled.ok: return recalled
 		result = recalled.value
 	elif event.kind in ["thought.accept", "thought.pass", "thought.options", "thought.select"]:

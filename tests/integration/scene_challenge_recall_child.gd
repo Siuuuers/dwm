@@ -40,7 +40,7 @@ func _recall_and_assert(proof: Dictionary) -> bool:
 	assert_eq(recalled.size(), 1)
 	if recalled.size() != 1: return false
 	assert_eq(recalled[0].scene_event.result, {"kind": "challenge_recalled",
-		"closure_command_id": proof.closure.transaction_id, "outcome": "never_started", "target_id": "recall_a_day1"})
+		"outcome": "never_started", "target_id": "recall_a_day1"})
 	assert_eq(_result_receipts("challenge_closed"), [proof.closure])
 	_assert_no_reward_change(before)
 	var profile_after: Dictionary = profile.get_profile_snapshot().duplicate(true)
@@ -65,9 +65,9 @@ func _recall_and_assert(proof: Dictionary) -> bool:
 	var issuer: RefCounted = bootstrap._desktop_identity_nonce_issuer
 	if not _check_selected_recall_ledger(snapshot, bundle, issuer, recalled[0], proof.closure): return false
 	var forged: Dictionary = snapshot.command_receipts.duplicate(true)
-	forged[recalled[0].transaction_id].scene_event.result.closure_command_id = "TEST.missing.closure"
+	forged[recalled[0].transaction_id].scene_event.result.target_id = "recall_e_day1"
 	assert_false(RECALL_CONTRACT.validate_scene_receipts(forged, bundle, issuer, saves, snapshot.contacts).ok,
-		"authentic ledger refuses recall with unrelated closure provenance")
+		"authentic ledger refuses a target that disagrees with the recalled outcome")
 	return true
 
 func create_recall() -> void:
@@ -151,20 +151,29 @@ func _check_selected_recall_ledger(snapshot: Dictionary, bundle: Dictionary, iss
 	OS.set_environment("DWM_SCENE_VALIDATION_PROFILE", prior_environment)
 	assert_true(expected.ok, str(expected))
 	assert_eq(actual, expected, "selected registration preserves the complete authenticated ledger")
-	assert_eq(generic_calls, selected_calls + 2,
-		"one recall removes the outer and recall-specific structural bundle checks")
+	assert_eq(generic_calls, selected_calls + 1,
+		"selected registration removes the outer structural bundle check; history reuses authenticated commands")
 	if not expected.ok or not actual.ok: return false
 	var source_before: Dictionary = snapshot.command_receipts.duplicate(true)
-	for mutation: String in ["recall_version", "recall_closure", "closure_anchor", "missing_closure"]:
+	for mutation: String in ["recall_version", "recall_outcome", "recall_target", "closure_anchor", "missing_closure"]:
 		var changed: Dictionary = source_before.duplicate(true)
 		var code: StringName
 		match mutation:
 			"recall_version":
 				changed[recall_receipt.transaction_id].scene_event.semantic.schema_version = 2.0
 				code = &"scene_event_version_invalid"
-			"recall_closure":
-				changed[recall_receipt.transaction_id].scene_event.result.closure_command_id = "TEST.missing.closure"
+			"recall_outcome":
+				var saved: Dictionary = changed[recall_receipt.transaction_id].scene_event
+				var envelope: Dictionary = saved.semantic.duplicate(true)
+				envelope["playback_token"] = "TEST.forged.recall"
+				var result := {"kind": "challenge_recalled", "outcome": "perfect", "target_id": "recall_e_day1"}
+				var rebuilt := RECALL_CONTRACT.make_scene_receipt(envelope, saved.reading_anchor, result, bundle)
+				if not _ok(rebuilt): return false
+				changed[recall_receipt.transaction_id] = rebuilt.value
 				code = &"scene_challenge_recall_mismatch"
+			"recall_target":
+				changed[recall_receipt.transaction_id].scene_event.result.target_id = "recall_e_day1"
+				code = &"scene_result_invalid"
 			"closure_anchor":
 				changed[closure.transaction_id].scene_event.reading_anchor.line_id = "TEST.other.line"
 				changed[recall_receipt.transaction_id].scene_event.semantic.schema_version = 2.0
