@@ -5199,8 +5199,15 @@ func _validate_scene_challenge_checkpoint(snapshot: Dictionary, checkpoint: Dict
 	elif valid:
 		var saved: Dictionary = stable.value.bundle.snapshot
 		valid = _SCENE_EVENT._equal(saved.get("narrative_checkpoint"), checkpoint)
+		var player_board: Dictionary = _DESKTOP_BOARD_STATE.project_player_state(snapshot.desktop.board)
+		var expected_desktop: Dictionary = snapshot.desktop.duplicate(true)
+		if player_board.ok: expected_desktop.board = player_board.value.snapshot
+		else: valid = false
 		for key: String in snapshot:
-			if not _SCENE_EVENT._equal(saved.get(key), snapshot[key]): valid = false
+			# The durable checkpoint omits only transient board retries; the earlier
+			# live source and lease checks still compare complete owner state.
+			var expected: Variant = expected_desktop if key == "desktop" else snapshot[key]
+			if not _SCENE_EVENT._equal(saved.get(key), expected): valid = false
 	_scene_challenge_validating = false
 	return valid and _SCENE_EVENT._equal(operation, _scene_challenge_operation) \
 		and _mutation_gate.is_lease_active(&"causal_transaction", operation.lease)
@@ -5957,7 +5964,7 @@ func _commit_scene_round_owned(request: Dictionary, lease: String) -> Dictionary
 		return _transaction_failure(&"scene_round_board_changed", "")
 	var boundary: Dictionary = _scene_event_bridge.capture_scene_event_boundary()
 	if not boundary.get("ok", false): return boundary
-	var difficulty: String = str(captured.board.get("spec", {}).get("difficulty_id", captured.board.paid_start_receipt.get("difficulty_id", "")))
+	var difficulty: String = str(captured.board.spec.difficulty_id)
 	var reward: Dictionary = _scene_round_reward.prepare_scene_complete(difficulty, captured.board.board)
 	if not reward.get("ok", false): return reward
 	var completion := {"board_identity": captured.identity.duplicate(true),

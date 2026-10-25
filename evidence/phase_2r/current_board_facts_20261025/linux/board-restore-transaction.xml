@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="GutTests" failures="0" tests="14" >
+  <testsuite name="tests/integration/test_restore_transaction.gd" tests="14" failures="0" skipped="0" time="0.149218" >
+      <testcase name="test_configure_restore_participants_validates_nine_keys" assertions="4" status="pass" classname="tests/integration/test_restore_transaction.gd" time="0.003251" >
+      </testcase>
+      <testcase name="test_restore_success_applies_and_finalizes_in_order" assertions="9" status="pass" classname="tests/integration/test_restore_transaction.gd" time="0.001121" >
+      </testcase>
+      <testcase name="test_apply_failure_rolls_back_in_reverse_and_emits_nothing" assertions="8" status="pass" classname="tests/integration/test_restore_transaction.gd" time="0.000644" >
+      </testcase>
+      <testcase name="test_rollback_failure_latches_shared_gate" assertions="6" status="pass" classname="tests/integration/test_restore_transaction.gd" time="0.000741" >
+      </testcase>
+      <testcase name="test_later_route_refusal_restores_real_audio_exactly" assertions="22" status="pass" classname="tests/integration/test_restore_transaction.gd" time="0.00712" >
+      </testcase>
+      <testcase name="test_later_route_finalization_refusal_preserves_audio_after_audio_finalize" assertions="22" status="pass" classname="tests/integration/test_restore_transaction.gd" time="0.008268" >
+      </testcase>
+      <testcase name="test_real_audio_capture_refusal_precedes_all_participant_mutation" assertions="18" status="pass" classname="tests/integration/test_restore_transaction.gd" time="0.006941" >
+      </testcase>
+      <testcase name="test_real_audio_failed_compensation_latches_shared_restore_gate" assertions="11" status="pass" classname="tests/integration/test_restore_transaction.gd" time="0.001705" >
+      </testcase>
+      <testcase name="test_narrative_content_failure_is_reported_directly" assertions="3" status="pass" classname="tests/integration/test_restore_transaction.gd" time="0.000242" >
+      </testcase>
+      <testcase name="test_empty_playhead_needs_no_narrative_content" assertions="1" status="pass" classname="tests/integration/test_restore_transaction.gd" time="0.000065" >
+      </testcase>
+      <testcase name="test_malformed_narrative_input_is_fail_closed_not_incompatible" assertions="2" status="pass" classname="tests/integration/test_restore_transaction.gd" time="0.000095" >
+      </testcase>
+      <testcase name="test_failed_restore_finalization_restores_prior_journal_and_releases_save_lock" assertions="25" status="pass" classname="tests/integration/test_restore_transaction.gd" time="0.112508" >
+      </testcase>
+      <testcase name="test_failed_rollback_preserves_sparse_owner_and_original_refusals" assertions="18" status="pass" classname="tests/integration/test_restore_transaction.gd" time="0.001749" >
+      </testcase>
+      <testcase name="test_later_audio_failure_restores_real_scene_board_and_genuine_retry_result" assertions="19" status="pass" classname="tests/integration/test_restore_transaction.gd" time="0.004768" >
+      </testcase>
+  </testsuite>
+</testsuites>

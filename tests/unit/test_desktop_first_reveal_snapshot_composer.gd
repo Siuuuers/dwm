@@ -260,3 +260,45 @@ func test_scene_composer_refuses_malformed_or_disagreeing_results_without_mutati
 		assert_false(result.ok, str(malformed))
 		assert_eq(result.code, &"invalid_board_result")
 		assert_eq(base, before)
+
+
+func test_current_projection_retains_frozen_spec_and_revision_ack_with_one_debit() -> void:
+	var base := _base_snapshot_input()
+	base.desktop.board.erase("terminal_receipts")
+	base.desktop.board["settled_inspection"] = false
+	base.desktop.board["round_paid"] = false
+	var candidate := _board_candidate()
+	candidate.board_after = {"board": candidate.board_after.board, "spec": _spec()}
+	candidate.result_override = {"ok": true, "code": &"first_reveal_committed",
+		"value": {"revision": 1}, "receipt": {}}
+	var before := base.duplicate(true)
+	var composed: Dictionary = COMPOSER.compose(base, _game_state_candidate(), candidate, _consequence_candidate())
+	assert_true(composed.ok, str(composed))
+	if not composed.ok: return
+	var saved: Dictionary = composed.value.snapshot_input
+	assert_eq(saved.gameplay.minesweeper_rounds_left, 4)
+	assert_true(saved.desktop.board.round_paid)
+	assert_eq(saved.desktop.board.board.spec, _spec())
+	assert_false(saved.desktop.board.board.has("paid_start_receipt"))
+	assert_eq(saved.desktop.board.command_receipts[candidate.transaction_id].result, candidate.result_override)
+	assert_eq(base, before, "projection must not debit or change the source")
+	saved.desktop.board.board.spec.pressure = 11
+	assert_eq(candidate.board_after.spec, _spec(), "the saved spec is detached")
+
+
+func test_current_projection_refuses_wrong_ack_revision_and_historical_payment_payload() -> void:
+	var base := _base_snapshot_input()
+	base.desktop.board.erase("terminal_receipts")
+	base.desktop.board["settled_inspection"] = false
+	base.desktop.board["round_paid"] = false
+	var candidate := _board_candidate()
+	candidate.board_after = {"board": candidate.board_after.board, "spec": _spec()}
+	var historic: Dictionary = candidate.result_override.duplicate(true)
+	for result: Dictionary in [historic, {"ok": true, "code": &"first_reveal_committed",
+			"value": {"revision": 2}, "receipt": {}}]:
+		candidate.result_override = result
+		var composed: Dictionary = COMPOSER.compose(base, _game_state_candidate(), candidate, _consequence_candidate())
+		assert_false(composed.ok)
+		assert_eq(composed.code, &"invalid_board_result")
+	assert_false(base.desktop.board.round_paid)
+	assert_eq(base.gameplay.minesweeper_rounds_left, 5)

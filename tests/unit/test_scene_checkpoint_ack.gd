@@ -4,6 +4,7 @@ extends "res://addons/gut/test.gd"
 # ordering, NOT disk persistence, native adoption, or acceptance by the held Run/Save format.
 const PORT := preload("res://scripts/application/narrative/SaveManagerNarrativeCheckpointPort.gd")
 const JSON_WRITER := preload("res://scripts/validation/CanonicalJsonWriter.gd")
+const BOARD_STATE := preload("res://scripts/domain/minesweeper/DesktopBoardState.gd")
 
 class CheckpointSeam extends "res://tests/support/FakeNarrativeCheckpointContext.gd":
 	var current := {"checkpoint_id": "run:1", "checkpoint_sequence": 1, "narrative_checkpoint": {"source": true}}
@@ -31,6 +32,9 @@ class CheckpointSeam extends "res://tests/support/FakeNarrativeCheckpointContext
 		if scene_family:
 			snapshot.erase("payload")
 			snapshot.merge(inputs.snapshot_input.duplicate(true))
+			var player_board: Dictionary = BOARD_STATE.project_player_state(snapshot.desktop.board)
+			if not player_board.ok: return player_board
+			snapshot.desktop.board = player_board.value.snapshot
 			snapshot["schema_version"] = 9
 			snapshot["route_id"] = inputs.route_id
 		if bad_target: snapshot.narrative_checkpoint["altered"] = true
@@ -371,7 +375,11 @@ func test_final_external_callbacks_cannot_mutate_prepared_candidate_before_write
 
 # Protocol-only lower seam: complete scene Run/Save validation is A's composed gate.
 func _scene_input(f: Dictionary) -> Dictionary:
-	return {"lifecycle": {}, "gameplay": {}, "contacts": {}, "desktop": {},
+	var board: Dictionary = BOARD_STATE.new().capture()
+	board.erase("terminal_receipts")
+	board["settled_inspection"] = false
+	board["round_paid"] = false
+	return {"lifecycle": {}, "gameplay": {}, "contacts": {}, "desktop": {"board": board, "consequence": {}},
 		"scene": {"registration_sha256": f.binding.registration_sha256,
 			"active_occurrence_id": f.binding.target_occurrence_id,
 			"active_admission_receipt_id": f.binding.admission_receipt_id},
@@ -387,7 +395,11 @@ func test_scene_route_keeps_real_candidate_identity_and_exact_checkpoint_ack() -
 		assert_true(committed.ok, str(committed))
 		assert_true(f.real.committed_same_object)
 		assert_eq(committed.value.checkpoint_reference.snapshot_sha256, _hash(f.real.current))
-		for key: String in input: assert_eq(f.real.current[key], input[key])
+		var expected: Dictionary = input.duplicate(true)
+		expected.desktop.board = BOARD_STATE.project_player_state(input.desktop.board).value.snapshot
+		for key: String in input: assert_eq(f.real.current[key], expected[key])
+		assert_true(input.desktop.board.has("command_receipts"), "admitted live input stays unchanged")
+		assert_false(f.real.current.desktop.board.has("command_receipts"), "candidate is the exact persisted projection")
 		var ack: Dictionary = f.port.consume_scene_entry_ack("cap:1")
 		assert_eq(ack.ok, entry)
 		if entry: assert_eq(ack.value.narrative_checkpoint_sha256, _hash(f.real.current.narrative_checkpoint))
@@ -469,3 +481,23 @@ func test_scene_route_rejects_candidate_payload_change_and_uncertain_readback() 
 	assert_false(uncertain.ok)
 	assert_true(uncertain.committed)
 	assert_false(f.real.calls.has("rollback"))
+
+
+func test_scene_route_refuses_changed_board_facts_and_reintroduced_retry_ledger() -> void:
+	for mode: String in ["revision", "ledger"]:
+		var f := _fixture(false)
+		f.real.route_id_value = "scene"
+		f.real.scene_family = true
+		f.real.after_prepare = func() -> void:
+			var snapshot: Dictionary = f.real.prepared_object.journal_candidate.current.snapshot
+			if mode == "revision": snapshot.desktop.board.revision += 1
+			else: snapshot.desktop.board["command_receipts"] = {}
+			f.real.prepared_object.autosave_document.current_snapshot.snapshot = snapshot.duplicate(true)
+		var input := _scene_input(f)
+		var before := input.duplicate(true)
+		var refused: Dictionary = f.port.commit_scene_event(input, f.checkpoint)
+		assert_false(refused.ok, mode)
+		assert_eq(refused.code, &"scene_entry_candidate_invalid", mode)
+		assert_false(f.real.calls.has("commit"), mode)
+		assert_eq(input, before, "projection and refusal do not mutate the admitted source")
+		f.real.after_prepare = Callable()

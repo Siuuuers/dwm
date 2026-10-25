@@ -4,6 +4,8 @@ extends "res://tests/integration/scene_bootstrap_restart_child.gd"
 ## is connected owner coverage, not a claim of desktop UI availability on SceneHost.
 const PRESENTATION := preload("res://scripts/application/minesweeper/MinesweeperPresentationPort.gd")
 const DESKTOP_STATE := preload("res://scripts/domain/minesweeper/DesktopBoardState.gd")
+const RUN_SCHEMA := preload("res://scripts/domain/run/RunSnapshotSchema.gd")
+const SCENE_MANIFEST := preload("res://scripts/narrative/DialogicEntryManifest.gd")
 const PROOF := "user://scene-desktop-first-reveal-proof.json"
 
 class ObservedFiles extends "res://scripts/infrastructure/storage/FileOps.gd":
@@ -85,10 +87,31 @@ func _assert_scene_snapshot(snapshot: Dictionary, reading: Dictionary, run: Dict
 	assert_eq(snapshot.narrative_checkpoint.reading_session.program_index, reading.program_index)
 	assert_eq(snapshot.narrative_checkpoint.reading_session.boundary, "line")
 	var normalized: Dictionary = DESKTOP_STATE._inspection_normalize(run)
+	normalized.desktop.board.erase("command_receipts")
+	assert_false(snapshot.desktop.board.has("command_receipts"), "player snapshot omits live retry state")
 	for key: String in normalized:
 		assert_eq(snapshot[key], normalized[key], "durable candidate matches complete live owner input: " + key)
 	assert_eq(typeof(snapshot.desktop.board.board.board.outcome), TYPE_STRING, "saved reducer outcome is JSON primitive text")
 	assert_eq(typeof(run.desktop.board.board.board.outcome), TYPE_STRING_NAME, "serialization never mutates the live reducer outcome")
+
+func _assert_board_identity_admission(snapshot: Dictionary, live: Dictionary) -> void:
+	# Input admission takes primitive owner data, retaining the full live ledger.
+	var live_input: Dictionary = DESKTOP_STATE._inspection_normalize(live)
+	var selected: Dictionary = SCENE_MANIFEST.scene_registration()
+	if not _ok(selected): return
+	if not _ok(RUN_SCHEMA.validate_scene(snapshot, selected.value)): return
+	if not _ok(RUN_SCHEMA.validate_scene_input_fields(live_input, selected.value)): return
+	for member: String in ["run_id", "branch_id", "desktop_timeline_generation", "causal_day_instance"]:
+		for player_data: bool in [true, false]:
+			var changed: Dictionary = (snapshot if player_data else live_input).duplicate(true)
+			if member == "desktop_timeline_generation":
+				changed.desktop.board.identity[member] += 1
+			else:
+				changed.desktop.board.identity[member] += ":other"
+			var refused: Dictionary = RUN_SCHEMA.validate_scene(changed, selected.value) if player_data \
+				else RUN_SCHEMA.validate_scene_input_fields(changed, selected.value)
+			assert_false(refused.get("ok", false), "mismatched board identity refused: " + member)
+			assert_eq(refused.get("code"), &"scene_board_identity_mismatch", str(refused))
 
 func create_scene_desktop_first_reveal() -> void:
 	if not _start_services(): return
@@ -169,7 +192,14 @@ func create_scene_desktop_first_reveal() -> void:
 	assert_false(after.desktop.board.board.board.terminal, "beginner first Reveal stays playable")
 	assert_true((after.desktop.board.board.board.revealed_indices as Array).has(0))
 	assert_eq(after.desktop.board.command_receipts.size(), 1)
-	assert_false(after.desktop.board.board.paid_start_receipt.is_empty())
+	var first_ack: Dictionary = after.desktop.board.command_receipts.values()[0].result
+	assert_eq(first_ack.value, {"revision": after.desktop.board.revision},
+		"live first-Reveal retry acknowledgement contains no payment or publication archive")
+	assert_true(after.desktop.board.round_paid)
+	assert_false(after.desktop.board.board.has("paid_start_receipt"), "current board stores payment fact without historical proof")
+	assert_eq(after.desktop.board.board.spec.difficulty_id, "beginner")
+	assert_eq(after.desktop.board.board.spec.width, after.desktop.board.board.board.width)
+	assert_eq(after.desktop.board.board.spec.height, after.desktop.board.board.board.height)
 	assert_eq(after.command_receipts, before.command_receipts, "ordinary scene frontier has no extra story consequences")
 	assert_eq(profile.get_profile_snapshot(), history)
 	assert_eq(FileAccess.get_sha256("user://saves/slot_1.json"), hashes.slot_sha256)
@@ -178,17 +208,21 @@ func create_scene_desktop_first_reveal() -> void:
 	if not _ok(committed): return
 	var snapshot: Dictionary = committed.value.bundle.snapshot
 	_assert_scene_snapshot(snapshot, reading.value.reading_session, after)
+	_assert_board_identity_admission(snapshot, after)
 	var disk: Dictionary = PARSER.parse_object(FileAccess.get_file_as_string("user://saves/autosave.json"))
 	if not _ok(disk): return
 	assert_eq(disk.value.schema_version, 9)
 	assert_eq(disk.value.current_snapshot.snapshot, snapshot, "physical Save9 carries the complete committed Run9")
+	var stale_request := _settlement_request()
+	if stale_request.is_empty(): return
+	stale_request["cell_index"] = 0
 	if not _ok(saves.save_latest_to_slot(1)): return
 	assert_eq(game.capture_run_snapshot_input(), after, "serializing autosave and selected slot leaves live state untouched")
 	assert_eq(typeof(game.capture_run_snapshot_input().desktop.board.board.board.outcome), TYPE_STRING_NAME)
 	var proof := {"phase": "create", "process_id": OS.get_process_id(),
 		"user_dir": ProjectSettings.globalize_path("user://"), "file_hashes": _file_hashes(),
 		"run": DESKTOP_STATE._inspection_normalize(after), "profile": history, "reading_session": snapshot.narrative_checkpoint.reading_session,
-		"ready_count": ready_count, "refused_writes": observed.refused_writes}
+		"ready_count": ready_count, "refused_writes": observed.refused_writes, "stale_request": stale_request}
 	if not _write_json(PROOF, proof): return
 	_write_json("res://.godot/ci/scene-desktop-first-reveal-create-proof.json", proof)
 
@@ -240,17 +274,18 @@ func load_scene_desktop_first_reveal() -> void:
 	assert_eq(current.command_receipts, witness.run.command_receipts, "scene receipt history is not replayed")
 	assert_eq(current.scene, witness.run.scene)
 	assert_eq(current.desktop.board.phase, witness.run.desktop.board.phase)
+	assert_true(current.desktop.board.round_paid)
+	assert_false(current.desktop.board.board.has("paid_start_receipt"))
 	assert_eq(current.desktop.board.revision, witness.run.desktop.board.revision)
-	assert_eq(current.desktop.board.board, witness.run.desktop.board.board, "layout, reveal state and historical paid receipt survive Load")
+	assert_eq(current.desktop.board.board, witness.run.desktop.board.board, "layout, reveal state and frozen BoardSpec survive Load")
 	assert_ne(current.desktop.board.identity.branch_id, witness.run.desktop.board.identity.branch_id)
-	assert_eq(current.desktop.board.command_receipts.size(), witness.run.desktop.board.command_receipts.size())
-	# Live command identities are remapped; their committed results and revisions remain history.
-	var restored_receipts: Array = current.desktop.board.command_receipts.values()
-	var source_receipts: Array = witness.run.desktop.board.command_receipts.values()
-	assert_eq(restored_receipts.size(), 1)
-	if restored_receipts.size() != 1 or source_receipts.size() != 1: return
-	for key: String in ["result", "pre_revision", "post_revision", "command_kind"]:
-		assert_eq(restored_receipts[0][key], source_receipts[0][key], key)
+	assert_true(current.desktop.board.command_receipts.is_empty(), "successful Load starts a fresh board command session")
+	var issuer: Object = bootstrap._desktop_identity_nonce_issuer
+	assert_true(issuer.verify_issued(witness.stale_request.transaction_issuer_receipt, &"transaction_id").ok,
+		"pre-Load request is genuinely issued, not a forged test token")
+	var stale: Dictionary = bootstrap._retained_minesweeper_round_coordinator_app.reveal(witness.stale_request)
+	assert_eq(stale.get("code"), &"identity_mismatch", "pre-Load board request is stale under the restored identity")
+	assert_eq(game.capture_run_snapshot_input(), current_raw, "stale command changes neither board nor economy")
 	var reading: Dictionary = bridge.capture_reading_checkpoint(false)
 	if not _ok(reading): return
 	assert_eq(reading.value.reading_session.entry_id, witness.reading_session.entry_id)
@@ -314,6 +349,7 @@ func load_scene_desktop_settled_result() -> void:
 	var settled_raw: Dictionary = game.capture_run_snapshot_input().duplicate(true)
 	var settled: Dictionary = DESKTOP_STATE._inspection_normalize(settled_raw)
 	assert_true(settled.desktop.board.settled_inspection)
+	assert_true(settled.desktop.board.command_receipts.is_empty())
 	assert_true(bootstrap._desktop_board_state.has_settled_inspection())
 	assert_eq(settled.gameplay, witness.settled.gameplay, "settled Load preserves exact economy without another payment")
 	assert_eq(settled.desktop.board.board, witness.settled.desktop.board.board, "terminal layout and inspection restore exactly")

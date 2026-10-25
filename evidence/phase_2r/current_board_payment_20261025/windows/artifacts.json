@@ -1,0 +1,25 @@
+[
+  {
+    "artifact_id": 12585962459,
+    "name": "windows-scene_same_day_supportz-40160795575-1",
+    "sha256": "cc5eec63f1977ca546931c67ef625dcd14a34b1e953d27cd1856d3968fcc9cc4",
+    "run_id": 40160795575,
+    "candidate": "145adb3ca8ea31092550b0f9e69070024cf17ec7",
+    "inspected": [
+      "computer-same-day-fresh-load-settled-board.png",
+      "computer-same-day-fresh-load-supportz-purchased.png"
+    ]
+  },
+  {
+    "artifact_id": 12586428365,
+    "sha256": "d0d00f26aae3d5f96ba9c616bbeb87f1b78e6b011892e8062deb28add60dad98",
+    "run_id": 40160795575,
+    "candidate": "145adb3ca8ea31092550b0f9e69070024cf17ec7"
+  },
+  {
+    "artifact_id": 12586033926,
+    "sha256": "7ef68a25bb646dfdc88a57451d4eeec77a94696470bf67cd58b263592d0c41b0",
+    "run_id": 40160795575,
+    "candidate": "145adb3ca8ea31092550b0f9e69070024cf17ec7"
+  }
+]

@@ -74,15 +74,14 @@ static func compose(base_snapshot_input: Dictionary, game_state_candidate: Dicti
 		return _fail(&"first_reveal_candidate_transaction_mismatch",
 			"game_state_candidate and board_candidate must share one transaction_id")
 
-	var result_check := _validate_result(board_candidate)
-	if not result_check.ok: return result_check
-
 	var base_desktop: Dictionary = base_snapshot_input["desktop"]
 	var desktop_shape := _exact_keys(base_desktop, ["board", "consequence"], &"invalid_base_snapshot_input")
 	if not desktop_shape.get("ok", false):
 		return desktop_shape
 	if typeof(base_desktop.get("board")) != TYPE_DICTIONARY or typeof(base_desktop.get("consequence")) != TYPE_DICTIONARY:
 		return _fail(&"invalid_base_snapshot_input", "base_snapshot_input.desktop.{board,consequence} are required")
+	var result_check := _validate_result(board_candidate, base_desktop.board.has("round_paid"))
+	if not result_check.ok: return result_check
 	var base_consequence: Dictionary = base_desktop["consequence"]
 	if typeof(base_consequence.get("run_revision")) != TYPE_INT or typeof(base_desktop.board.get("revision")) != TYPE_INT:
 		return _fail(&"invalid_base_snapshot_input", "typed board and consequence revisions required")
@@ -144,12 +143,19 @@ static func _project_board(base_board: Dictionary, candidate: Dictionary) -> Dic
 	return {"ok": true, "value": {"board": projected}}
 
 
-## The coordinator owns the payment/publication result. Project it unchanged; the board
-## and Run owners still authenticate payment provenance before any durable write.
-static func _validate_result(candidate: Dictionary) -> Dictionary:
+## The coordinator owns the exact retry result. Current Scene commands acknowledge the
+## committed revision; legacy commands retain their payment/publication contract.
+static func _validate_result(candidate: Dictionary, current: bool) -> Dictionary:
 	var result: Variant = candidate.get("result_override")
 	if not result is Dictionary or not _exact_keys(result, ["ok", "code", "value", "receipt"], &"invalid_board_result").ok:
 		return _fail(&"invalid_board_result", "complete first-Reveal result required")
+	if current:
+		if typeof(result.ok) != TYPE_BOOL or not result.ok or result.code != &"first_reveal_committed" \
+				or not result.receipt is Dictionary or not result.receipt.is_empty() \
+				or not result.value is Dictionary or not _exact_keys(result.value, ["revision"], &"invalid_board_result").ok \
+				or typeof(result.value.revision) != TYPE_INT or result.value.revision != int(candidate.pre_revision) + 1:
+			return _fail(&"invalid_board_result", "committed board revision required")
+		return {"ok": true}
 	if typeof(result.ok) != TYPE_BOOL or not result.ok \
 			or typeof(result.code) not in [TYPE_STRING, TYPE_STRING_NAME] or result.code != &"first_reveal_committed" \
 			or not result.receipt is Dictionary or not result.receipt.is_empty() \

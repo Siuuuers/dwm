@@ -28,7 +28,7 @@ func prepare(input: Dictionary) -> Dictionary:
 	var prepared: Dictionary
 	if input.get("schema_version") == 9:
 		if _issuer == null: return _fail(&"scene_payment_issuer_required", "scene restore requires the retained issuer")
-		prepared = _state.prepare_restore_scene(input["state"], _issuer)
+		prepared = _state.prepare_player_restore_scene(input["state"], _issuer)
 	else:
 		prepared = _state.prepare_restore(input["state"])
 	if not prepared.get("ok", false):

@@ -11,6 +11,7 @@ extends RefCounted
 
 const CANONICAL_JSON := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 const READING_NEXT := preload("res://scripts/narrative/ReadingTraversalOperation.gd")
+const BOARD_STATE := preload("res://scripts/domain/minesweeper/DesktopBoardState.gd")
 
 const REAL_PORT_METHODS := ["preview_checkpoint_id", "capture", "prepare", "commit", "rollback"]
 const PROVIDER_KEYS := ["active_app_id", "audio_context", "content_version", "narrative_checkpoint", "route_id", "snapshot_input"]
@@ -610,8 +611,16 @@ func _scene_route_candidate_valid(candidate: Dictionary, input: Dictionary, chec
 	if typeof(snapshot.get("schema_version")) != TYPE_INT or snapshot.schema_version != 9 \
 			or snapshot.get("route_id") != "scene" or typeof(candidate.autosave_document.get("schema_version")) != TYPE_INT \
 			or candidate.autosave_document.schema_version != 9: return false
+	if not input.desktop.get("board") is Dictionary: return false
+	var player_board: Dictionary = BOARD_STATE.project_player_state(input.desktop.board)
+	if not player_board.ok: return false
+	var expected_desktop: Dictionary = input.desktop.duplicate(true)
+	expected_desktop.board = player_board.value.snapshot
 	for key: String in SCENE_INPUT_KEYS:
-		if not snapshot.has(key) or _fingerprint(snapshot[key]) != _fingerprint(input[key]): return false
+		# Compare the exact persisted projection, while admission/custody above keeps
+		# the full live input (including retry records) unchanged.
+		var expected: Variant = expected_desktop if key == "desktop" else input[key]
+		if not snapshot.has(key) or _fingerprint(snapshot[key]) != _fingerprint(expected): return false
 	return not _scene_candidate_reference(candidate, checkpoint).is_empty()
 
 

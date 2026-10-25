@@ -25,9 +25,12 @@ static func desktop(snapshot: Dictionary, difficulty: String, entry_eligible: bo
 	if phase in ["PREPARING", "PREPARED_UNSTARTED"]:
 		return _candidate(snapshot)
 	var wrapper: Dictionary = snapshot.board
-	if not (_keys(wrapper, ["board", "paid_start_receipt"]) or _keys(wrapper, ["board", "paid_start_receipt", "spec"])) or not wrapper.board is Dictionary or not wrapper.paid_start_receipt is Dictionary:
-		return _fail()
-	if wrapper.paid_start_receipt.is_empty(): return _fail()
+	if snapshot.has("round_paid"):
+		if not _keys(wrapper, ["board", "spec"]): return _fail()
+	else:
+		if not (_keys(wrapper, ["board", "paid_start_receipt"]) or _keys(wrapper, ["board", "paid_start_receipt", "spec"])) or not wrapper.board is Dictionary or not wrapper.paid_start_receipt is Dictionary:
+			return _fail()
+		if wrapper.paid_start_receipt.is_empty(): return _fail()
 	if wrapper.has("spec"):
 		if not wrapper.spec is Dictionary or not SCHEMA.validate_spec(wrapper.spec).get("ok", false): return _fail()
 	var validated := SCHEMA.validate_board(wrapper.board)

@@ -4,6 +4,7 @@ extends "res://addons/gut/test.gd"
 # complete Run9 receipt-validation evidence. GameState owns the causal lease.
 const PORT := preload("res://scripts/application/narrative/SaveManagerNarrativeCheckpointPort.gd")
 const JSON_WRITER := preload("res://scripts/validation/CanonicalJsonWriter.gd")
+const BOARD_STATE := preload("res://scripts/domain/minesweeper/DesktopBoardState.gd")
 
 class CheckpointSeam extends "res://tests/support/FakeNarrativeCheckpointContext.gd":
 	var current := {"checkpoint_id": "run:1", "checkpoint_sequence": 1}
@@ -24,6 +25,9 @@ class CheckpointSeam extends "res://tests/support/FakeNarrativeCheckpointContext
 		calls.append("prepare")
 		if not prepare_ok: return {"ok": false, "code": &"prepare_failed"}
 		var snapshot: Dictionary = inputs.snapshot_input.duplicate(true)
+		var player_board: Dictionary = BOARD_STATE.project_player_state(snapshot.desktop.board)
+		if not player_board.ok: return player_board
+		snapshot.desktop.board = player_board.value.snapshot
 		snapshot.merge({"schema_version": 9, "route_id": "scene", "checkpoint_id": "run:2", "checkpoint_sequence": 2,
 			"narrative_checkpoint": inputs.dialogic_checkpoint.duplicate(true)})
 		prepared_object = {"checkpoint_id": "run:2", "journal_candidate": {"current": {"snapshot": snapshot}},
@@ -65,7 +69,11 @@ func _fixture() -> Dictionary:
 	var checkpoint := {"stage": "scene", "manifest_fingerprint": "a".repeat(64),
 		"reading_session": {"schema_version": 5, "boundary": "control"},
 		"frozen_context": {"playback_id": "occurrence:1", "presentation": {"fields": {"admission_receipt_id": "admission:1"}}}}
-	var input := {"lifecycle": {}, "gameplay": {"money": 5}, "contacts": {}, "desktop": {"consequence": {}},
+	var board: Dictionary = BOARD_STATE.new().capture()
+	board.erase("terminal_receipts")
+	board["settled_inspection"] = false
+	board["round_paid"] = false
+	var input := {"lifecycle": {}, "gameplay": {"money": 5}, "contacts": {}, "desktop": {"board": board, "consequence": {}},
 		"scene": {"registration_sha256": "a".repeat(64), "active_occurrence_id": "occurrence:1", "active_admission_receipt_id": "admission:1"},
 		"command_receipts": {}, "applied_effect_transaction_ids": {}, "applied_variable_transaction_ids": {}}
 	real.current["narrative_checkpoint"] = checkpoint.duplicate(true)
@@ -83,6 +91,8 @@ func test_shop_and_contact_keep_one_lower_commit_and_three_owner_phases() -> voi
 		assert_eq(f.real.calls.count("prepare"), 1)
 		assert_eq(f.real.calls.count("commit"), 1)
 		assert_true(f.real.committed_same_object)
+		assert_true(f.input.desktop.board.has("command_receipts"), "live input keeps its retry state")
+		assert_false(f.real.current.desktop.board.has("command_receipts"), "lower seam produces player facts")
 		assert_eq(f.real.current.narrative_checkpoint, f.checkpoint)
 		assert_eq(result.value.checkpoint_reference.snapshot_sha256, str(JSON_WRITER.stringify(f.real.current).value).sha256_text())
 

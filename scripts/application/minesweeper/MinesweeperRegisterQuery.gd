@@ -73,7 +73,9 @@ static func difficulty_of(snapshot: Dictionary, game_state: Object) -> Variant:
 			difficulty = candidate.spec.get("difficulty_id")
 		"ACTIVE_VISIBLE", "ACTIVE_SUSPENDED", "SETTLING":
 			var wrapper: Variant = snapshot.get("board")
-			if not wrapper is Dictionary or not wrapper.get("paid_start_receipt") is Dictionary: return _unavailable()
+			if not wrapper is Dictionary: return _unavailable()
+			if snapshot.has("round_paid") and not wrapper.get("spec") is Dictionary: return _unavailable()
+			if not snapshot.has("round_paid") and not wrapper.get("paid_start_receipt") is Dictionary: return _unavailable()
 			if wrapper.has("spec"):
 				if not wrapper.spec is Dictionary: return _unavailable()
 				difficulty = wrapper.spec.get("difficulty_id")
