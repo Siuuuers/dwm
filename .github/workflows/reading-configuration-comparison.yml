@@ -2,12 +2,6 @@ name: Reading configuration matched comparison
 run-name: Reading configuration matched exported comparison
 
 on:
-  pull_request:
-    paths:
-      - 'scripts/narrative/SoloReadingSession.gd'
-      - 'autoload/DialogicBridge.gd'
-      - '.github/workflows/reading-configuration-comparison.yml'
-      - 'tools/testing/reading_configuration_comparison.py'
   workflow_dispatch:
 
 permissions:

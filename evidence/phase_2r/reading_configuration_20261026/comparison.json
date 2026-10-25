@@ -1,0 +1,413 @@
+{
+  "scope": "Eight instrumented exported New Acc journeys, two matched orders on one Windows runner. Fresh means empty user data, not cold OS/driver caches. Retained profiles continue their own variant's fresh run. No Load measurement. Inclusive child phases must not be summed into parents. Screenshot visual review remains required; two samples per variant/case do not establish statistical certainty.",
+  "samples": [
+    {
+      "pair": "ab",
+      "variant": "baseline",
+      "case": "fresh",
+      "metrics": {
+        "lifetime_ms": 25019.8713,
+        "launch_to_probe_enter_tree_ms": 6633.0,
+        "launch_to_first_title_drawn_ms": 7748.0,
+        "launch_to_title_drawn_usable_ms": 7748.0,
+        "launch_to_first_title_input_accepted_ms": 7790.0,
+        "launch_to_bootstrap_start_ms": 6734.0,
+        "new_acc_to_caption_complete_ms": 16724.273,
+        "new_acc_excluding_consent_dwell_ms": 16724.273
+      },
+      "max_frame_gap_us": {
+        "new_acc": 10706722
+      },
+      "phases_ms": {
+        "decision": [
+          5881.696
+        ],
+        "plans": [
+          2301.597,
+          2275.941
+        ],
+        "resume": [
+          9066.837
+        ],
+        "apply_transaction": [
+          1240.98
+        ],
+        "settle_pair": [
+          4691.859
+        ],
+        "commit_intent": [
+          973.225
+        ]
+      },
+      "configuration_calls": 90,
+      "compilation_calls": 8300
+    },
+    {
+      "pair": "ab",
+      "variant": "baseline",
+      "case": "retained",
+      "metrics": {
+        "lifetime_ms": 26101.7722,
+        "launch_to_probe_enter_tree_ms": 4183.0,
+        "launch_to_first_title_drawn_ms": 7374.0,
+        "launch_to_title_drawn_usable_ms": 7374.0,
+        "launch_to_first_title_input_accepted_ms": 7394.0,
+        "launch_to_bootstrap_start_ms": 4285.0,
+        "new_acc_to_caption_complete_ms": 18268.761,
+        "input_to_consent_ms": 35.454,
+        "consent_dwell_ms": 30.939,
+        "confirm_to_caption_complete_ms": 18202.368,
+        "new_acc_excluding_consent_dwell_ms": 18237.822
+      },
+      "max_frame_gap_us": {
+        "confirm": 10967305,
+        "new_acc": 9097
+      },
+      "phases_ms": {
+        "decision": [
+          7148.646
+        ],
+        "plans": [
+          2331.958,
+          2330.546
+        ],
+        "resume": [
+          9284.03
+        ],
+        "apply_transaction": [
+          1324.689
+        ],
+        "settle_pair": [
+          4741.84
+        ],
+        "commit_intent": [
+          995.207
+        ]
+      },
+      "configuration_calls": 96,
+      "compilation_calls": 8853
+    },
+    {
+      "pair": "ab",
+      "variant": "candidate",
+      "case": "fresh",
+      "metrics": {
+        "lifetime_ms": 19224.9948,
+        "launch_to_probe_enter_tree_ms": 5967.0,
+        "launch_to_first_title_drawn_ms": 7119.0,
+        "launch_to_title_drawn_usable_ms": 7119.0,
+        "launch_to_first_title_input_accepted_ms": 7154.0,
+        "launch_to_bootstrap_start_ms": 6070.0,
+        "new_acc_to_caption_complete_ms": 11585.339,
+        "new_acc_excluding_consent_dwell_ms": 11585.339
+      },
+      "max_frame_gap_us": {
+        "new_acc": 7509445
+      },
+      "phases_ms": {
+        "decision": [
+          3948.603
+        ],
+        "plans": [
+          1489.344,
+          1556.44
+        ],
+        "resume": [
+          6174.495
+        ],
+        "apply_transaction": [
+          910.016
+        ],
+        "settle_pair": [
+          3114.4
+        ],
+        "commit_intent": [
+          628.034
+        ]
+      },
+      "configuration_calls": 90,
+      "compilation_calls": 112
+    },
+    {
+      "pair": "ab",
+      "variant": "candidate",
+      "case": "retained",
+      "metrics": {
+        "lifetime_ms": 19513.129,
+        "launch_to_probe_enter_tree_ms": 4151.0,
+        "launch_to_first_title_drawn_ms": 6687.0,
+        "launch_to_title_drawn_usable_ms": 6687.0,
+        "launch_to_first_title_input_accepted_ms": 6706.0,
+        "launch_to_bootstrap_start_ms": 4248.0,
+        "new_acc_to_caption_complete_ms": 12349.414,
+        "input_to_consent_ms": 32.42,
+        "consent_dwell_ms": 38.331,
+        "confirm_to_caption_complete_ms": 12278.663,
+        "new_acc_excluding_consent_dwell_ms": 12311.083
+      },
+      "max_frame_gap_us": {
+        "confirm": 7479088,
+        "new_acc": 8920
+      },
+      "phases_ms": {
+        "decision": [
+          4713.528
+        ],
+        "plans": [
+          1564.593,
+          1558.78
+        ],
+        "resume": [
+          6176.839
+        ],
+        "apply_transaction": [
+          916.517
+        ],
+        "settle_pair": [
+          3112.797
+        ],
+        "commit_intent": [
+          649.0
+        ]
+      },
+      "configuration_calls": 96,
+      "compilation_calls": 21
+    },
+    {
+      "pair": "ba",
+      "variant": "candidate",
+      "case": "fresh",
+      "metrics": {
+        "lifetime_ms": 18195.2809,
+        "launch_to_probe_enter_tree_ms": 5348.0,
+        "launch_to_first_title_drawn_ms": 6472.0,
+        "launch_to_title_drawn_usable_ms": 6472.0,
+        "launch_to_first_title_input_accepted_ms": 6514.0,
+        "launch_to_bootstrap_start_ms": 5447.0,
+        "new_acc_to_caption_complete_ms": 11216.235,
+        "new_acc_excluding_consent_dwell_ms": 11216.235
+      },
+      "max_frame_gap_us": {
+        "new_acc": 7194487
+      },
+      "phases_ms": {
+        "decision": [
+          3900.673
+        ],
+        "plans": [
+          1485.329,
+          1475.592
+        ],
+        "resume": [
+          5902.912
+        ],
+        "apply_transaction": [
+          852.723
+        ],
+        "settle_pair": [
+          3003.922
+        ],
+        "commit_intent": [
+          604.165
+        ]
+      },
+      "configuration_calls": 90,
+      "compilation_calls": 112
+    },
+    {
+      "pair": "ba",
+      "variant": "candidate",
+      "case": "retained",
+      "metrics": {
+        "lifetime_ms": 18842.3666,
+        "launch_to_probe_enter_tree_ms": 3937.0,
+        "launch_to_first_title_drawn_ms": 6384.0,
+        "launch_to_title_drawn_usable_ms": 6384.0,
+        "launch_to_first_title_input_accepted_ms": 6403.0,
+        "launch_to_bootstrap_start_ms": 4037.0,
+        "new_acc_to_caption_complete_ms": 11981.092,
+        "input_to_consent_ms": 33.153,
+        "consent_dwell_ms": 38.124,
+        "confirm_to_caption_complete_ms": 11909.815,
+        "new_acc_excluding_consent_dwell_ms": 11942.968
+      },
+      "max_frame_gap_us": {
+        "confirm": 7259202,
+        "new_acc": 9346
+      },
+      "phases_ms": {
+        "decision": [
+          4561.024
+        ],
+        "plans": [
+          1532.303,
+          1536.648
+        ],
+        "resume": [
+          5981.841
+        ],
+        "apply_transaction": [
+          876.259
+        ],
+        "settle_pair": [
+          2993.335
+        ],
+        "commit_intent": [
+          610.093
+        ]
+      },
+      "configuration_calls": 96,
+      "compilation_calls": 21
+    },
+    {
+      "pair": "ba",
+      "variant": "baseline",
+      "case": "fresh",
+      "metrics": {
+        "lifetime_ms": 23644.6087,
+        "launch_to_probe_enter_tree_ms": 5303.0,
+        "launch_to_first_title_drawn_ms": 6433.0,
+        "launch_to_title_drawn_usable_ms": 6433.0,
+        "launch_to_first_title_input_accepted_ms": 6474.0,
+        "launch_to_bootstrap_start_ms": 5403.0,
+        "new_acc_to_caption_complete_ms": 16693.661,
+        "new_acc_excluding_consent_dwell_ms": 16693.661
+      },
+      "max_frame_gap_us": {
+        "new_acc": 10858193
+      },
+      "phases_ms": {
+        "decision": [
+          5717.471
+        ],
+        "plans": [
+          2259.444,
+          2305.924
+        ],
+        "resume": [
+          9197.103
+        ],
+        "apply_transaction": [
+          1260.274
+        ],
+        "settle_pair": [
+          4752.316
+        ],
+        "commit_intent": [
+          979.848
+        ]
+      },
+      "configuration_calls": 90,
+      "compilation_calls": 8300
+    },
+    {
+      "pair": "ba",
+      "variant": "baseline",
+      "case": "retained",
+      "metrics": {
+        "lifetime_ms": 25153.8556,
+        "launch_to_probe_enter_tree_ms": 3884.0,
+        "launch_to_first_title_drawn_ms": 7050.0,
+        "launch_to_title_drawn_usable_ms": 7050.0,
+        "launch_to_first_title_input_accepted_ms": 7069.0,
+        "launch_to_bootstrap_start_ms": 3982.0,
+        "new_acc_to_caption_complete_ms": 17574.774,
+        "input_to_consent_ms": 32.274,
+        "consent_dwell_ms": 38.802,
+        "confirm_to_caption_complete_ms": 17503.698,
+        "new_acc_excluding_consent_dwell_ms": 17535.972
+      },
+      "max_frame_gap_us": {
+        "confirm": 10725709,
+        "new_acc": 8954
+      },
+      "phases_ms": {
+        "decision": [
+          6684.716
+        ],
+        "plans": [
+          2260.447,
+          2274.346
+        ],
+        "resume": [
+          9076.378
+        ],
+        "apply_transaction": [
+          1289.046
+        ],
+        "settle_pair": [
+          4630.804
+        ],
+        "commit_intent": [
+          977.886
+        ]
+      },
+      "configuration_calls": 96,
+      "compilation_calls": 8853
+    }
+  ],
+  "paired_differences": [
+    {
+      "pair": "ab",
+      "case": "fresh",
+      "candidate_minus_baseline_ms": {
+        "lifetime_ms": -5794.8764999999985,
+        "launch_to_probe_enter_tree_ms": -666.0,
+        "launch_to_first_title_drawn_ms": -629.0,
+        "launch_to_title_drawn_usable_ms": -629.0,
+        "launch_to_first_title_input_accepted_ms": -636.0,
+        "launch_to_bootstrap_start_ms": -664.0,
+        "new_acc_to_caption_complete_ms": -5138.934000000001,
+        "new_acc_excluding_consent_dwell_ms": -5138.934000000001
+      }
+    },
+    {
+      "pair": "ab",
+      "case": "retained",
+      "candidate_minus_baseline_ms": {
+        "lifetime_ms": -6588.643199999999,
+        "launch_to_probe_enter_tree_ms": -32.0,
+        "launch_to_first_title_drawn_ms": -687.0,
+        "launch_to_title_drawn_usable_ms": -687.0,
+        "launch_to_first_title_input_accepted_ms": -688.0,
+        "launch_to_bootstrap_start_ms": -37.0,
+        "new_acc_to_caption_complete_ms": -5919.346999999998,
+        "input_to_consent_ms": -3.033999999999999,
+        "consent_dwell_ms": 7.392000000000003,
+        "confirm_to_caption_complete_ms": -5923.704999999998,
+        "new_acc_excluding_consent_dwell_ms": -5926.739
+      }
+    },
+    {
+      "pair": "ba",
+      "case": "fresh",
+      "candidate_minus_baseline_ms": {
+        "lifetime_ms": -5449.327799999999,
+        "launch_to_probe_enter_tree_ms": 45.0,
+        "launch_to_first_title_drawn_ms": 39.0,
+        "launch_to_title_drawn_usable_ms": 39.0,
+        "launch_to_first_title_input_accepted_ms": 40.0,
+        "launch_to_bootstrap_start_ms": 44.0,
+        "new_acc_to_caption_complete_ms": -5477.4259999999995,
+        "new_acc_excluding_consent_dwell_ms": -5477.4259999999995
+      }
+    },
+    {
+      "pair": "ba",
+      "case": "retained",
+      "candidate_minus_baseline_ms": {
+        "lifetime_ms": -6311.488999999998,
+        "launch_to_probe_enter_tree_ms": 53.0,
+        "launch_to_first_title_drawn_ms": -666.0,
+        "launch_to_title_drawn_usable_ms": -666.0,
+        "launch_to_first_title_input_accepted_ms": -666.0,
+        "launch_to_bootstrap_start_ms": 55.0,
+        "new_acc_to_caption_complete_ms": -5593.682000000001,
+        "input_to_consent_ms": 0.8789999999999978,
+        "consent_dwell_ms": -0.6779999999999973,
+        "confirm_to_caption_complete_ms": -5593.883,
+        "new_acc_excluding_consent_dwell_ms": -5593.004000000001
+      }
+    }
+  ]
+}

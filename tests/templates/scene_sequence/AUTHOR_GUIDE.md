@@ -14,6 +14,12 @@ and Challenge bindings. Its `lines` lists are historical import provenance,
 not a second editable copy of current dialogue. Update a marker's `after_line_id`
 when changing the caption that directly precedes that control.
 
+Update `localization/story/en.json` to match the current DTL and choice text.
+Keep the same caption and choice IDs in all four translated catalogs; add or
+remove their entries together with the English source. Run
+`python tools/localization/validate_story_catalogs.py` to check source equality,
+matching IDs, character names and plain-text formatting.
+
 On the cloud Godot runner, regenerate the committed registration with
 `tools/authoring/ExportSevenDayRegistration.gd`, then run the authored-week tests
 and the relevant connected journeys. Native DTL compilation owns current text,
