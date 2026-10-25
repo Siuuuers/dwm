@@ -513,7 +513,7 @@ func test_scene_gameplay_adoption_and_recapture_preserve_progress_without_relati
 		assert_eq(restored.inventory.lucky_charm, 1, "captured inventory stays detached")
 	restored.free()
 
-func test_unregistered_scene_progress_is_refused_without_mutation() -> void:
+func test_retired_scene_progress_is_preserved_but_malformed_facts_and_controls_are_refused() -> void:
 	assert_true(fixture_ready)
 	if not fixture_ready: return
 	var source: Dictionary = fixture.read_autosave().value.current_snapshot.snapshot.duplicate(true)
@@ -521,14 +521,28 @@ func test_unregistered_scene_progress_is_refused_without_mutation() -> void:
 	var before := _observed()
 	for field: String in ["scene_choices", "scene_challenge_outcomes"]:
 		var changed := source.duplicate(true)
-		changed.gameplay[field] = {"TEST.opportunity": "pass"} if field == "scene_choices" else {
-			"a".repeat(64): {"challenge_id": "TEST.challenge", "outcome": "never_started"}}
+		changed.gameplay[field] = {"TEST.retired.opportunity": "retired.option"} if field == "scene_choices" else {
+			"a".repeat(64): {"challenge_id": "TEST.retired.challenge", "outcome": "never_started", "physical_slot": ""}}
 		var unchanged := changed.duplicate(true)
+		var admitted := RUN_SCHEMA.validate(changed)
+		assert_true(admitted.ok, "encountered facts survive removed authoring IDs: " + str(admitted))
+		if admitted.ok:
+			assert_eq(admitted.value.candidate.gameplay[field], unchanged.gameplay[field])
+		assert_eq(changed, unchanged, "admission does not rewrite submitted facts")
+		changed.gameplay[field] = {"TEST.retired.opportunity": false} if field == "scene_choices" else {
+			"a".repeat(64): {"challenge_id": "TEST.retired.challenge", "outcome": "invalid", "physical_slot": ""}}
+		unchanged = changed.duplicate(true)
 		var refused := RUN_SCHEMA.validate(changed)
-		assert_false(refused.ok, "current progress must name registered choices and Challenges")
+		assert_false(refused.ok, "retired facts still require valid value shapes")
 		assert_eq(refused.get("code"), &"invalid_gameplay", str(refused))
 		assert_eq(changed, unchanged, "refusal does not rewrite submitted facts")
-	assert_eq(_observed(), before, "invalid progress does not alter owners or files")
+	var invalid_control := source.duplicate(true)
+	invalid_control.scene.active_challenge = {"challenge_id": "TEST.retired.challenge", "playable_command_id": "TEST.invalid.command"}
+	var control_before := invalid_control.duplicate(true)
+	assert_false(RUN_SCHEMA.validate(invalid_control).ok,
+		"a historical fact cannot authorize an unregistered current Challenge without its physical record")
+	assert_eq(invalid_control, control_before)
+	assert_eq(_observed(), before, "validation does not alter owners or files")
 
 func test_scene_app_metadata_is_omitted_and_cannot_select_restore_surface() -> void:
 	assert_true(fixture_ready)

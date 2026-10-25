@@ -770,6 +770,13 @@ static func normalize_scene_content(snapshot: Dictionary) -> Dictionary:
 		if not binding.ok: return binding
 		var reading := SCENE_READING.expand_player_checkpoint(checkpoint)
 		if not reading.ok: return reading
+	# Preserve the content against which completion was decided. Rebuilt reading
+	# may fall back, but it cannot turn that completed lifecycle into a new play.
+	if candidate.get("lifecycle") is Dictionary and candidate.lifecycle.get("state") == "COMPLETED" \
+			and not candidate.lifecycle.has("ending_plan") \
+			and not candidate.lifecycle.has("completed_registration_sha256") \
+			and candidate.scene.registration_sha256 != SCENE_MANIFEST.scene_registration_fingerprint():
+		candidate.lifecycle["completed_registration_sha256"] = candidate.scene.registration_sha256
 	var normalized: Dictionary = SCENE_READING.normalize_player_checkpoint(candidate.narrative_checkpoint,
 		gameplay.scene_choices, gameplay.scene_challenge_outcomes,
 		int(READING6_STORY_DAYS.get(candidate.narrative_checkpoint.get("entry_id", ""), 0)))
@@ -1052,7 +1059,9 @@ static func _validate_scene_observed_body(snapshot: Dictionary, bundle: Dictiona
 		return _fail(&"invalid_snapshot_shape", "invalid Run9 header or member set")
 	if not candidate.lifecycle is Dictionary or candidate.lifecycle.get("run_id") != candidate.run_id:
 		return _fail(&"invalid_lifecycle", "scene lifecycle must belong to its Run")
-	if not _scene_keys(candidate.lifecycle, SCENE_LIFECYCLE_KEYS) or candidate.lifecycle.state not in ["PLAYING", "COMPLETED"]:
+	var lifecycle_keys := SCENE_LIFECYCLE_KEYS.duplicate()
+	if candidate.lifecycle.has("completed_registration_sha256"): lifecycle_keys.append("completed_registration_sha256")
+	if not _scene_keys(candidate.lifecycle, lifecycle_keys) or candidate.lifecycle.state not in ["PLAYING", "COMPLETED"]:
 		return _fail(&"invalid_lifecycle", "current Scene uses ordinary passage lifecycle")
 	var lifecycle: Dictionary = RUN_LIFECYCLE.validate_scene(candidate.lifecycle, _scene_issuer)
 	if not lifecycle.ok: return lifecycle

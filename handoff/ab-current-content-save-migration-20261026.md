@@ -9,6 +9,9 @@ encountered History, and separate story binding for retained physical Challenges
 Ten rendered create/load/reload cases cover content edits, fallback, History, board resumption/transfer, resolved
 unfinished Challenges, and completed passages with appended/deleted final text. Focused owner and boundary tests
 complement those journeys. Godot execution remains cloud-only.
+Ordinary completed passages additionally retain `lifecycle.completed_registration_sha256`. This preserves the
+content version against which completion occurred, while same-content completion still requires the final passage
+caption. Legacy completed saves acquire their original registration hash only when content admission rebases them.
 
 Read [the accepted reading/startup decisions](aa-reading-startup-simplification-20261026.md) first. [PR #104](https://github.com/Siuuuers/dwm/pull/104) contains the independent prepared-configuration, authoring-identity and
 Replay work, merged as `8b8e73929801a9527872b1485a289a1ffca6e5a8`. Its exact candidate passed cloud run

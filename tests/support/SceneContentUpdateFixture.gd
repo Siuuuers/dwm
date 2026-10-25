@@ -75,7 +75,7 @@ static func install(updated: bool, case_id: String) -> Dictionary:
 			var destination: String = {"Day1": "update.one", "update.one": "update.two", "update.two": "update.three", "update.three": "update.four"}[id]
 			markers.append({"marker_id": id + ".choice", "label": id + ".choice", "after_line_id": last,
 				"kind": "thought.pass", "payload": {"opportunity_id": "TEST.choice." + id,
-				"yes_target_id": "target." + destination, "pass_target_id": "target." + destination}})
+				"yes_target_id": "target." + destination + ".yes", "pass_target_id": "target." + destination}})
 		elif id in ["update.a", "update.b"] and not remove_a:
 			var challenge_id := A if id == "update.a" else B
 			markers = [{"marker_id": id + ".playable", "label": id + ".playable", "after_line_id": line(id, "cue"),
@@ -146,5 +146,9 @@ static func install(updated: bool, case_id: String) -> Dictionary:
 		bundle.scene_programme.story_days[id] = 1
 		bundle.targets.append({"target_id": "target." + id, "target": {"kind": "scene", "entry_id": id,
 			"label": id, "content_version": 1, "program_sha256": compiled.value.program_sha256}})
+		# Distinct authored choice targets may converge on the same next entry.
+		# The choice owner still persists yes/pass independently of this route.
+		if id in ["update.one", "update.two", "update.three", "update.four"]:
+			bundle.targets.append({"target_id": "target." + id + ".yes", "target": bundle.targets.back().target.duplicate(true)})
 	bundle.ids_registry.lines.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return a.line_id < b.line_id)
 	return MANIFEST.configure_test_scene_registration(bundle)

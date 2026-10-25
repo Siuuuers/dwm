@@ -4306,15 +4306,25 @@ func _prepare_scene_snapshot_semantics(snapshot: Dictionary, bundle: Dictionary,
 	if not frozen.get("ok", false): return frozen
 	return _validate_scene_passage_completion(snapshot, bundle)
 
-func _validate_scene_passage_completion(snapshot: Dictionary, _bundle: Dictionary) -> Dictionary:
+func _validate_scene_passage_completion(snapshot: Dictionary, bundle: Dictionary) -> Dictionary:
 	if snapshot.lifecycle.get("state") != "COMPLETED" or snapshot.lifecycle.has("ending_plan"):
 		return {"ok": true}
 	if snapshot.scene.return_to != null:
 		return _transaction_failure(&"scene_passage_completion_mismatch", "")
-	# Completion belongs to the validated lifecycle, not today's final caption.
-	# Current-content normalization may move a completed save to an earlier
-	# caption or day start when the original passage was edited or removed.
-	return {"ok": true}
+	# Historical completion survives current-content fallback. Current completion
+	# still requires the final passage caption; changing state alone is not proof.
+	var completed_registration: String = snapshot.lifecycle.get("completed_registration_sha256", "")
+	if not completed_registration.is_empty() and completed_registration != snapshot.scene.registration_sha256:
+		return {"ok": true}
+	var catalogue: Dictionary = preload("res://scripts/narrative/ScenePassageCatalog.gd").inspect(bundle)
+	if not catalogue.ok: return catalogue
+	var expanded: Dictionary = preload("res://scripts/narrative/SoloReadingSession.gd").expand_player_checkpoint(snapshot.narrative_checkpoint)
+	if not expanded.ok: return expanded
+	var checkpoint: Dictionary = expanded.value
+	for passage: Dictionary in catalogue.value.records.values():
+		if checkpoint.entry_id == passage.entry_id and checkpoint.reading_session.boundary == "line" \
+				and checkpoint.reading_session.frontier.line_id == passage.line_ids.back(): return {"ok": true}
+	return _transaction_failure(&"scene_passage_completion_mismatch", "")
 
 func _install_scene_snapshot_silent(snapshot: Dictionary) -> Dictionary:
 	var lifecycle: Dictionary = _run_lifecycle.commit_restore(snapshot.lifecycle)
@@ -4680,6 +4690,7 @@ func _accept_scene_runtime_event(event: Dictionary, digest: String, lease: Strin
 		candidate.gameplay.scene_choices[result.opportunity_id] = result.choice
 	elif result.kind == "passage_finished":
 		candidate.lifecycle.state = "COMPLETED"
+		candidate.lifecycle.completed_registration_sha256 = candidate.scene.registration_sha256
 	elif result.kind == "notification_updated":
 		candidate.scene.notification = result.notification.duplicate(true)
 	if result.kind in ["scene_transition_accepted", "thought_resolved", "challenge_recalled", "contact_entry_accepted", "contact_returned"]:
@@ -4738,6 +4749,13 @@ static func scene_physical_consumed(record: Dictionary, outcomes: Dictionary) ->
 		if result.get("physical_slot", "") == slot or (result.get("physical_slot", "").is_empty() \
 				and result.challenge_id == record.context.challenge_id): return true
 	return false
+
+## Rewound reading can retain a board without granting playable custody. Only
+## this current story owner can authorize a save of that unchanged suspension.
+func scene_challenge_is_suspended(record: Dictionary) -> bool:
+	if record.is_empty() or route_context.get("active_dating_challenge", {}) != record \
+			or scene_physical_consumed(record, scene_challenge_outcomes): return false
+	return not capture_scene_challenge_command().get("ok", false)
 
 func _current_scene_challenge_command(scene: Dictionary) -> Dictionary:
 	var active: Dictionary = scene.get("active_challenge", {})

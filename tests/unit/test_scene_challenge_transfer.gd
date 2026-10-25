@@ -31,9 +31,13 @@ func _transfer() -> TransferAuthority:
 	authority.state = f.state
 	authority.profile = f.profile
 	authority.command = f.command.duplicate(true)
-	authority.bundle = JSON.parse_string(JSON.stringify(f.authority.bundle).replace("TEST.challenge", "TEST.replacement"))
+	authority.bundle = f.authority.bundle.duplicate(true)
+	authority.bundle.challenges[0].challenge_id = "TEST.replacement"
+	for marker: Dictionary in authority.bundle.scene_programme.entries[0].markers:
+		marker.payload.challenge_id = "TEST.replacement"
 	f.authority = authority
-	assert_true(f.recreate_owner().ok)
+	var configured: Dictionary = f.recreate_owner()
+	assert_true(configured.ok, str(configured))
 	return authority
 
 func test_current_binding_retains_exact_physical_command_and_stays_suspended_without_native_control() -> void:
@@ -158,12 +162,34 @@ func test_resolved_story_challenge_cannot_reopen_an_unfinished_board() -> void:
 func test_completed_lifecycle_survives_removed_or_appended_final_caption_without_reactivation() -> void:
 	var game: Node = autofree(GAME.new())
 	for restored_line: String in ["TEST.earlier.day.start", "TEST.former.final"]:
-		var snapshot := {"lifecycle": {"state": "COMPLETED"}, "scene": {"return_to": null},
+		var snapshot := {"lifecycle": {"state": "COMPLETED", "completed_registration_sha256": "a".repeat(64)},
+			"scene": {"return_to": null, "registration_sha256": "b".repeat(64)},
 			"narrative_checkpoint": {"entry_id": "TEST.current", "reading_session":
 				{"boundary": "line", "frontier": {"line_id": restored_line}}}}
 		var before := snapshot.duplicate(true)
 		assert_true(game._validate_scene_passage_completion(snapshot, {}).ok)
 		assert_eq(snapshot, before, "completion validation cannot reactivate or award effects")
 		assert_eq(snapshot.lifecycle.state, "COMPLETED")
+		snapshot.lifecycle.completed_registration_sha256 = snapshot.scene.registration_sha256
+		assert_false(game._validate_scene_passage_completion(snapshot, {}).ok, "current completion must still prove its final caption")
+		snapshot.lifecycle.erase("completed_registration_sha256")
+		assert_false(game._validate_scene_passage_completion(snapshot, {}).ok, "no provenance cannot bypass current final caption")
 	assert_false(game._validate_scene_passage_completion(
 		{"lifecycle": {"state": "COMPLETED"}, "scene": {"return_to": {"entry_id": "TEST.parent"}}}, {}).ok)
+
+func test_suspended_save_requires_exact_unconsumed_record_and_no_current_native_custody() -> void:
+	assert_true(f.begin().ok)
+	assert_true(f.action("start").ok)
+	var game: Node = autofree(GAME.new())
+	var record: Dictionary = f.record()
+	game.route_context = f.state.route_context.duplicate(true)
+	var bridge := HeldMarker.new()
+	game._scene_event_bridge = bridge
+	assert_true(game.scene_challenge_is_suspended(record))
+	assert_false(game.scene_challenge_is_suspended({}))
+	var changed := record.duplicate(true)
+	changed.command_sha256 = "f".repeat(64)
+	assert_false(game.scene_challenge_is_suspended(changed))
+	game.scene_challenge_outcomes = {"saved.B": {"challenge_id": "TEST.replacement",
+		"outcome": "unfinished", "physical_slot": LEDGER.semantic_slot(record.context)}}
+	assert_false(game.scene_challenge_is_suspended(record), "a closed board must use validated closure custody")

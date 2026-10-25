@@ -212,7 +212,7 @@ func _is_major_marker(marker_id: String) -> bool:
 
 func inherit_player_progress(source_session: RefCounted, major_checkpoint: bool = false) -> void:
 	player_progress = source_session.player_progress.duplicate(true)
-	_progress_serial = _scene_publication_high_water(ledger.snapshot().captions) if ledger != null else 0
+	# Keep this ledger's encounter cursor; inherited metadata has a separate publication history.
 	_pending_checkpoint = major_checkpoint
 
 ## Player saves retain a stable authored position and its current genuine caption.
@@ -292,6 +292,16 @@ static func normalize_player_checkpoint(checkpoint: Dictionary, choices: Diction
 	var configured: Dictionary = session.configure_scene()
 	if not configured.ok: return configured
 	var days: Dictionary = session._scene_bundle.scene_programme.get("story_days", {})
+	# Older unchanged registrations need no day-route recovery. Their strict
+	# cursor restore is sufficient; changed content still requires authored days.
+	if days.is_empty() and saved.registration_sha256 == session.fingerprint:
+		var unchanged: Dictionary = session.restore_player(saved, saved.entry_id)
+		if not unchanged.ok: return unchanged
+		var retained: Dictionary = checkpoint.duplicate(true)
+		retained.reading_session.schema_version = 7
+		retained.reading_session.merge(session.player_progress, true)
+		return {"ok": true, "value": {"checkpoint": retained,
+			"story_day": session.player_progress.story_day, "fallback": false}}
 	var entry_day: int = int(days.get(saved.entry_id, progress.get("story_day", story_day_hint)))
 	if entry_day < 1 or entry_day > 7: return _fail(&"reading_history_day_unavailable")
 	var day: int = maxi(entry_day, int(progress.get("story_day", entry_day)))

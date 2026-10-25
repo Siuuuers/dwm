@@ -2364,6 +2364,14 @@
       "disposition": "retain",
       "replacement": "",
       "contract_test": "test_saved_choice_projection_selects_stored_route_without_mutating_progress"
+    },
+    {
+      "availability": "current",
+      "contract_test": "test_suspended_save_requires_exact_unconsumed_record_and_no_current_native_custody",
+      "disposition": "retain",
+      "kind": "function",
+      "replacement": "",
+      "symbol": "scene_challenge_is_suspended"
     }
   ]
 }

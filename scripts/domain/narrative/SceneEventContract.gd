@@ -621,9 +621,15 @@ static func resolve_scene_challenge_recall(event: Dictionary, outcomes: Variant,
 	if not outcomes is Dictionary: return _fail(&"scene_challenge_recall_invalid")
 	for occurrence: Variant in outcomes:
 		var outcome: Variant = outcomes[occurrence]
-		if not _hash(occurrence) or not _keys(outcome, ["challenge_id", "outcome"]) \
+		if not _hash(occurrence) or (not _keys(outcome, ["challenge_id", "outcome"]) \
+				and not _keys(outcome, ["challenge_id", "outcome", "physical_slot"])) \
 				or not _id(outcome.challenge_id) \
 				or outcome.outcome not in ["never_started", "unfinished", "lost", "won", "perfect"]:
+			return _fail(&"scene_challenge_recall_invalid")
+		var slot: Variant = outcome.get("physical_slot", "")
+		if not slot is String or (slot != "" and (not slot.begins_with("scene.challenge.") \
+				or not _hash(slot.trim_prefix("scene.challenge.")))) \
+				or (outcome.outcome == "never_started" and slot != ""):
 			return _fail(&"scene_challenge_recall_invalid")
 	var found := {}
 	for outcome: Dictionary in outcomes.values():

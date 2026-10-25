@@ -643,9 +643,10 @@ func _commit_attempt() -> Dictionary:
 ## is active, otherwise takes and releases its own; a foreign lease refuses pending progress.
 func flush_pending_attempt() -> Dictionary:
 	if _record.get("schema_version") == 4 and not _scene_command():
+		if _scene_fatal: return _fail(&"scene_challenge_fatal_custody")
 		# Restore journal writes can run after silent reconciliation, before playable
 		# readmission. Unchanged staged state has no source progress to flush.
-		if not _scene_fatal and not _routine_pending and _pending_checkpoint.is_empty() \
+		if not _routine_pending and _pending_checkpoint.is_empty() \
 				and _attempt_gate != null and _attempt_gate.is_internal_owner_active(&"restore"):
 			return _ok({"committed": false})
 		# A selected closed board is already the Run's exact current physical
@@ -655,9 +656,10 @@ func flush_pending_attempt() -> Dictionary:
 			var closed: Dictionary = _game_state.capture_scene_challenge_closure(_record.context)
 			if closed.get("ok", false) and _scene_closed_record_matches(closed.value):
 				return _ok({"committed": false})
-		if not _routine_pending and _pending_checkpoint.is_empty() and is_instance_valid(_game_state):
-			var selected: Dictionary = _game_state.capture_dating_challenge_state()
-			if selected.get("ok", false) and selected.value == _record: return _ok({"committed": false})
+		if not _routine_pending and _pending_checkpoint.is_empty() \
+				and is_instance_valid(_game_state) and _game_state.has_method("scene_challenge_is_suspended") \
+				and _game_state.scene_challenge_is_suspended(_record):
+			return _ok({"committed": false})
 		return _fail(&"scene_challenge_readmission_required")
 	if _scene_command(): return _flush_scene_pending()
 	if not _routine_pending or _attempt_gate == null or not _pending_checkpoint.is_empty(): return _ok({"committed": false})

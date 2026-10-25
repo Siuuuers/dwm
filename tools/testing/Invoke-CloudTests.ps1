@@ -94,6 +94,7 @@ $suites = @{
     # while backup integration installs its bounded Contacts fixture.
     scene_progress_schema = @(
         'tests/unit/test_scene_save_schema.gd'
+        'tests/unit/test_scene_lifecycle_state.gd'
     )
     scene_backup_inspection = @(
         'tests/integration/test_scene_backup_inspection.gd'

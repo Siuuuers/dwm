@@ -303,7 +303,8 @@ func test_compact_later_caption_restores_current_publication_without_replay() ->
 	assert_true(memory.ok)
 	assert_eq(memory.value.captions.size(), 1)
 	assert_eq(restored.next_operation, {}, "old traversal retry is not restored")
-	assert_eq(_bridge.get_reading_history().value.captions.size(), 1, "fixture without story days retains its current caption")
+	assert_eq(_bridge.get_reading_history().value.captions.map(func(row: Dictionary) -> String: return row.line_id),
+		["line.scene.test.a.one", "line.scene.test.a.two"], "encountered History retains the opening and deduplicates the loop")
 	assert_false(_results.is_empty())
 	for result: Dictionary in _results:
 		assert_true(result.ok)

@@ -173,3 +173,20 @@ func test_recall_receipt_binds_outcome_target_and_anchor_shape() -> void:
 	anchor.line_id = "line." + FIXTURE.LATER + ".one"
 	result["closure_command_id"] = "TEST.closed"
 	assert_false(CONTRACT.make_scene_receipt(event, anchor, result, built.value).ok)
+
+func test_current_recall_accepts_transferred_physical_slot_and_refuses_malformed_slot() -> void:
+	var bundle: Dictionary = FIXTURE.bundle().value
+	var event := _event()
+	var occurrence := "a".repeat(64)
+	var outcomes := {occurrence: {"challenge_id": FIXTURE.CHALLENGE_ID, "outcome": "won",
+		"physical_slot": "scene.challenge." + "b".repeat(64)}}
+	var before := outcomes.duplicate(true)
+	assert_true(CONTRACT.resolve_scene_challenge_recall(event, outcomes, bundle).ok)
+	assert_eq(outcomes, before)
+	for invalid: Variant in [null, 1, "wrong", "scene.challenge.not_a_digest"]:
+		outcomes[occurrence].physical_slot = invalid
+		assert_false(CONTRACT.resolve_scene_challenge_recall(event, outcomes, bundle).ok)
+	outcomes[occurrence] = {"challenge_id": FIXTURE.CHALLENGE_ID, "outcome": "never_started", "physical_slot": ""}
+	assert_true(CONTRACT.resolve_scene_challenge_recall(event, outcomes, bundle).ok)
+	outcomes[occurrence].physical_slot = "scene.challenge." + "b".repeat(64)
+	assert_false(CONTRACT.resolve_scene_challenge_recall(event, outcomes, bundle).ok)

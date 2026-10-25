@@ -16,7 +16,7 @@ func after_each() -> void:
 	DirAccess.remove_absolute(PATH)
 	ADAPTER._scene_compile_cache.erase(PATH)
 
-func _install(text: String) -> void:
+func _install(text: String, include_days: bool = true) -> void:
 	if _scope != null: _scope.restore()
 	_scope = SCOPE.new()
 	_scope.install(true)
@@ -24,7 +24,7 @@ func _install(text: String) -> void:
 	file.store_string(text)
 	file.close()
 	var bundle: Dictionary = STRICT.parse_object(FileAccess.get_file_as_string(FIXTURE.REGISTRATION)).value
-	bundle.scene_programme["story_days"] = {FIXTURE.A: 1, FIXTURE.B: 1, FIXTURE.CONTACT: 2}
+	if include_days: bundle.scene_programme["story_days"] = {FIXTURE.A: 1, FIXTURE.B: 1, FIXTURE.CONTACT: 2}
 	var ids: Array = []
 	for entry: Dictionary in bundle.entry_manifest.entries:
 		ids.append(entry.entry_id)
@@ -239,5 +239,30 @@ func test_ordinary_lower_day_admission_does_not_rotate_high_water_history() -> v
 		assert_eq(captured.value.player_progress.story_day, 2)
 		assert_eq(captured.value.player_progress.recovery_anchor, previous.recovery_anchor)
 		assert_eq(captured.value.player_progress.history_sections.size(), previous.history_sections.size())
+		assert_eq(captured.value.player_progress.history_sections.back().size(), previous.history_sections.back().size() + 1)
+		assert_eq(captured.value.player_progress.history_sections.back().back(), "line.scene.test.a.one")
 		assert_eq(captured.value.player_progress.history_sections.back().slice(0, previous.history_sections.back().size()),
 			previous.history_sections.back(), "ordinary entry extends the existing section")
+
+func test_unchanged_registration_without_days_restores_but_stale_content_requires_days() -> void:
+	_install(_source(), false)
+	var saved := _saved_second()
+	for schema: int in [6, 7]:
+		var source: Dictionary = saved.duplicate(true)
+		if schema == 6:
+			source.reading_session.schema_version = 6
+			for key: String in ["story_day", "recovery_anchor", "history_sections"]: source.reading_session.erase(key)
+		var normalized := SESSION.normalize_player_checkpoint(source, {}, {})
+		assert_true(normalized.ok, str(normalized))
+		if normalized.ok:
+			assert_eq(normalized.value.checkpoint.reading_session.schema_version, 7)
+			assert_eq(normalized.value.checkpoint.reading_session.position_id, "line.scene.test.b.two")
+			assert_false(normalized.value.fallback)
+	var broken: Dictionary = saved.duplicate(true)
+	broken.reading_session.position_id = "missing"
+	broken.reading_session.captions[0].line_id = "missing"
+	assert_false(SESSION.normalize_player_checkpoint(broken, {}, {}).ok)
+	_install(_source().replace("B second.", "B changed."), false)
+	var stale := SESSION.normalize_player_checkpoint(saved, {}, {})
+	assert_false(stale.ok)
+	assert_eq(stale.code, &"reading_history_day_unavailable")
