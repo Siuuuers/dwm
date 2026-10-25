@@ -1,5 +1,41 @@
 # Steam cloud export and upload
 
+## Current verified build — 25 October 2026
+
+Steam BuildID: **26196642**. AppID: **5199120**. DepotID: **5199121**.
+Runtime source: `cf60203f077ad0bb39a0d2b06068988153fb53c3` (merged PR #97).
+Executable: `game.exe`, with `game.pck`.
+
+[Run 40191013566](https://github.com/Siuuuers/dwm/actions/runs/40191013566)
+passed Windows export, package hashes, license/media checks, isolated executable
+startup, SteamPipe preview and Steam upload. No branch was set live.
+Select this BuildID on the intended Steam test branch before installing it.
+Confirm that the Windows launch option is `game.exe`.
+
+The source passed [50 cloud jobs](https://github.com/Siuuuers/dwm/actions/runs/40187985765).
+One obsolete timing comparison was intentionally skipped. The upload does not
+certify the installed Steam client, unfinished UI or older development data.
+Older saves and retained operation journals are not migrated. If startup fails,
+retain the diagnostic and data before choosing an archive/reset scope.
+Do not silently erase the Profile or claim that reinstalling Steam clears it.
+
+[Current feature inventory](../agent/2026-10-25-current-feature-status.md)
+separates missing implementation, open design, unresolved reports and retired
+requirements.
+
+The upload used a one-time, exact-message-gated push on the dedicated build
+branch because browser workflow dispatch required sign-in. That trigger was
+removed after success. The retained workflow is manual-only and pins the source
+above. For a later authorized upload, run `Steam private upload` with mode
+`upload`; mode `preview` does not upload. Do not rerun this successful upload
+merely to retrieve its BuildID.
+
+## Historical procedures and results
+
+The sections below record previous builds and their then-current instructions.
+Their source hashes, pending states and launch names do not override the current
+verified build above.
+
 Workflow: [Steam private upload](https://github.com/Siuuuers/dwm/actions/workflows/steam-upload.yml).
 
 ## Selected source
