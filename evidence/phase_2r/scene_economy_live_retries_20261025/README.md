@@ -1,5 +1,11 @@
 # Scene economy retries — 25 October 2026
 
+> Superseded implementation note: PR #96 was closed unmerged. PR #97 replaces
+> the partial receipt projection below with direct current Scene state and omits
+> all three saved command/transaction ledgers. The description below records the
+> earlier slice; it is not the final implementation or acceptance evidence.
+> See [the current design](../../../docs/design/2026-10-25-current-scene-state.md).
+
 ## Required result
 
 Save and Load retain purchases, balances, inventory, round rewards, counters and

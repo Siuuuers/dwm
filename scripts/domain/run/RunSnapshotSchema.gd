@@ -680,17 +680,6 @@ static func build_scene(snapshot_input: Dictionary, dialogic_checkpoint: Diction
 	if not checked.ok: return checked
 	return {"ok": true, "code": &"ok", "value": {"snapshot": checked.value.candidate}}
 
-## Shop and app-round consequences already live in gameplay and settled board
-## state. Their command acknowledgements serve only the current live session.
-## Story/admission receipts remain required until their consumers are replaced.
-static func project_player_command_receipts(receipts: Dictionary) -> Dictionary:
-	var projected := receipts.duplicate(true)
-	for id: Variant in receipts:
-		var receipt: Variant = receipts[id]
-		if receipt is Dictionary and receipt.get("kind") in ["scene_shop_purchase", "scene_round_completion"]:
-			projected.erase(id)
-	return projected
-
 ## Producer construction uses the same exact initial candidate proof, never ordinary Load.
 static func build_scene_new_run_candidate(snapshot_input: Dictionary, dialogic_checkpoint: Dictionary,
 		_audio_context: Dictionary, content_version: int, allocation_candidate: Dictionary,
@@ -1111,72 +1100,6 @@ static func _validate_current_scene_frame(frame: Dictionary, tables: Dictionary)
 				or tables.challenges[challenge.challenge_id].entry_id != frame.entry_id:
 			return _fail(&"scene_challenge_state_invalid", "active Challenge must belong to the current entry")
 	return {"ok": true}
-
-## Historical receipts keep their original branch/generation. Only the Run is
-## invariant across the entire retained command ledger, including unused rows.
-static func _validate_scene_history_run(receipts: Variant, run_id: Variant) -> String:
-	if not receipts is Dictionary or not _scene_id(run_id): return ""
-	for id: Variant in receipts:
-		var receipt: Variant = receipts[id]
-		if not receipt is Dictionary: continue # Exact shapes are checked below.
-		var source: Variant = null
-		if receipt.get("kind") in ["scene_shop_purchase", "scene_round_completion"]:
-			var purchase: Variant = receipt.get(receipt.kind)
-			if purchase is Dictionary: source = purchase.get("source_identity")
-		elif receipt.get("kind") == "scene_admission":
-			var admission: Variant = receipt.get("scene_admission")
-			if admission is Dictionary: source = admission.get("source_identity")
-		elif receipt.get("kind") == "scene_event":
-			var event: Variant = receipt.get("scene_event")
-			if event is Dictionary and event.get("semantic") is Dictionary:
-				source = event.semantic.get("source")
-		else: continue
-		if not source is Dictionary or source.get("run_id") != run_id:
-			return "scene receipt %s belongs to another or missing Run" % str(id)
-	return ""
-
-static func _validate_scene_receipt_shapes(snapshot: Dictionary) -> String:
-	for id: Variant in snapshot.command_receipts:
-		var receipt: Variant = snapshot.command_receipts[id]
-		if not _scene_id(id) or not receipt is Dictionary or receipt.get("transaction_id") != id \
-				or not _scene_digest(receipt.get("request_fingerprint")) or not _scene_id(receipt.get("source_id")):
-			return "invalid command receipt identity"
-		if receipt.get("kind") == "scene_round_completion":
-			if not SCENE_EVENT_CONTRACT.scene_round_completion_shape_valid(receipt):
-				return "invalid scene round completion receipt members"
-		elif receipt.get("kind") == "scene_shop_purchase":
-			if not SCENE_EVENT_CONTRACT.scene_shop_purchase_shape_valid(receipt):
-				return "invalid scene shop purchase receipt members"
-		elif receipt.get("kind") == "scene_admission":
-			if not _scene_keys(receipt, ["transaction_id", "request_fingerprint", "kind", "source_id", "scene_admission"]) \
-					or not receipt.scene_admission is Dictionary:
-				return "invalid scene admission receipt members"
-			var admission: Dictionary = receipt.scene_admission
-			var admission_keys := ["schema_version", "registration_fingerprint", "source_identity", "issuer_receipt", "provenance", "result"]
-			if admission.get("schema_version") == 3:
-				admission_keys.append_array(["allocation_candidate_sha256", "scene_assignment_sha256"])
-			if not _scene_keys(admission, admission_keys): return "invalid scene admission receipt members"
-			if typeof(admission.schema_version) != TYPE_INT or admission.schema_version not in [2, 3] \
-					or admission.registration_fingerprint != snapshot.scene.registration_sha256 \
-					or not admission.source_identity is Dictionary or not admission.issuer_receipt is Dictionary \
-					or not admission.provenance is Dictionary or not admission.result is Dictionary:
-				return "invalid scene admission receipt family/registration"
-		elif receipt.get("kind") == "scene_event":
-			if not _scene_keys(receipt, ["transaction_id", "request_fingerprint", "kind", "source_id", "scene_event"]) \
-					or not _scene_keys(receipt.scene_event, ["schema_version", "semantic", "registration_fingerprint", "reading_anchor", "result"]):
-				return "invalid scene command receipt members"
-			var event: Dictionary = receipt.scene_event
-			if typeof(event.schema_version) != TYPE_INT or event.schema_version != 2 \
-					or event.registration_fingerprint != snapshot.scene.registration_sha256 \
-					or not event.semantic is Dictionary or not event.result is Dictionary or not event.reading_anchor is Dictionary:
-				return "invalid scene command receipt family/registration"
-		else:
-			if not _scene_keys(receipt, COMMAND_RECEIPT_KEYS) or receipt.get("kind") not in COMMAND_RECEIPT_KINDS:
-				return "invalid effect/variable command receipt"
-	if not snapshot.command_receipts.has(snapshot.scene.active_admission_receipt_id):
-		return "active admission receipt is absent"
-	return _validate_receipt_partition(snapshot.command_receipts,
-		snapshot.applied_effect_transaction_ids, snapshot.applied_variable_transaction_ids)
 
 ## Audio is derived for the live participant, never restored from player metadata.
 ## Terminal snapshots retain the source admission and therefore its soundtrack.

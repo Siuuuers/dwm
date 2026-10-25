@@ -124,14 +124,9 @@ func test_retained_quote_is_not_repriced_and_partition_excludes_purchase() -> vo
 	assert_true(CONTRACT.validate_scene_receipts(_bag(made.value), fixture.bundle, fixture.issuer).ok)
 	assert_eq(SCHEMA._validate_receipt_partition(_bag(made.value), [], []), "")
 	assert_ne(SCHEMA._validate_receipt_partition(_bag(made.value), [made.value.transaction_id], []), "")
-	assert_eq(SCHEMA._validate_scene_history_run(_bag(made.value), fixture.identity.run_id), "")
-	assert_ne(SCHEMA._validate_scene_history_run(_bag(made.value), "TEST.foreign"), "")
-	var snapshot := {"command_receipts": _bag(made.value), "applied_effect_transaction_ids": [],
-		"applied_variable_transaction_ids": [], "scene": {"active_admission_receipt_id": fixture.admission.transaction_id,
-		"registration_sha256": fixture.admission.scene_admission.registration_fingerprint}}
-	assert_eq(SCHEMA._validate_scene_receipt_shapes(snapshot), "")
+	assert_true(CONTRACT.scene_shop_purchase_shape_valid(made.value))
 	made.value.scene_shop_purchase.schema_version = 1.0
-	assert_ne(SCHEMA._validate_scene_receipt_shapes(snapshot), "")
+	assert_false(CONTRACT.scene_shop_purchase_shape_valid(made.value), "live receipt requires exact integer version")
 
 func test_restore_identity_can_buy_from_retained_admission_without_rewriting_history() -> void:
 	var original := _make()
