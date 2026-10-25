@@ -274,7 +274,7 @@ static func _validate_autosave(value: Variant, initial_context: Dictionary,
 		return _fail(&"new_run_autosave_invalid", "Autosave bytes are not canonical with one final newline")
 	if document.get("kind") != "autosave" or document.get("slot_id") != null \
 			or (scene_assignment.is_empty() and document.get("save_reason") != "day_start") \
-			or not document.has("saved_time") \
+			or (scene_assignment.is_empty() and not document.has("saved_time")) \
 			or typeof(document.get("recovery_journal")) != TYPE_ARRAY \
 			or not (document["recovery_journal"] as Array).is_empty():
 		return _fail(&"new_run_autosave_invalid", "initial Autosave discriminator/history is invalid")

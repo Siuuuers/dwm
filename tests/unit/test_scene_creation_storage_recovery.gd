@@ -77,12 +77,13 @@ func test_successful_scope_does_not_cache_partial_restore_admission() -> void:
 func test_failed_scope_does_not_cache_partial_restore_admission() -> void:
 	_scope_and_full_read(true)
 
-func test_early_scope_ignores_retired_reason_without_rewriting_retained_operation() -> void:
+func test_early_scope_ignores_optional_metadata_without_rewriting_retained_operation() -> void:
 	var storage := ObservedStorage.new()
 	var journal := JOURNAL.new()
 	assert_true(journal.configure(storage, RESTORE.SourceLoader.new()).ok)
 	var operation := _restore_operation(journal)
 	operation.selected_document["save_reason"] = {"obsolete": true}
+	operation.selected_document["saved_time"] = "invalid-time"
 	operation.request_fingerprint = _hash({"kind": "scene_restore", "transaction_id": operation.transaction_id,
 		"source_locator": operation.source_locator, "selected_document": operation.selected_document})
 	storage.text = WRITER.stringify({"schema_version": 5, "operations": {operation.transaction_id: operation}}).value

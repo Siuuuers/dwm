@@ -1659,6 +1659,9 @@ func _validate_scene_source(operation: Dictionary) -> Dictionary:
 		if not admitted.get("ok", false): return admitted
 		var progress_document: Dictionary = document.duplicate(true)
 		progress_document.erase("save_reason")
+		var display_time := _SAVE_DOCUMENT.normalize_optional_saved_time(progress_document.get("saved_time"))
+		progress_document.erase("saved_time")
+		if not display_time.is_empty(): progress_document["saved_time"] = display_time
 		# SaveDocumentSchema normalizes the current snapshot but retains historical
 		# journal bytes after validating them. Mirror that boundary for equality.
 		progress_document.current_snapshot.snapshot.erase("audio_context")
@@ -1714,8 +1717,6 @@ func _validate_retained_scene_envelope(document: Dictionary) -> Dictionary:
 		return _failed(_schema_error, "retained Save9 envelope is malformed")
 	if _SAVE_DOCUMENT._validate_locator(document.kind, document.slot_id) != "":
 		return _failed(_schema_error, "retained Save9 discriminators are invalid")
-	if document.has("saved_time") and not _SAVE_DOCUMENT.validate_saved_time(document.saved_time):
-		return _failed(_schema_error, "retained Save9 saved time is invalid")
 	var bundles: Array = [document.current_snapshot]
 	bundles.append_array(document.recovery_journal)
 	for raw: Variant in bundles:
