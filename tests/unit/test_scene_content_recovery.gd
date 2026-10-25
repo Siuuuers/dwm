@@ -216,3 +216,28 @@ func test_normalization_keeps_encountered_previous_day_sections() -> void:
 	if normalized.ok:
 		assert_eq(normalized.value.checkpoint.reading_session.history_sections,
 			[["line.scene.test.b.one", "line.scene.test.b.two"], ["line.contact.test.a.one"]])
+
+func test_ordinary_lower_day_admission_does_not_rotate_high_water_history() -> void:
+	_install(_source())
+	var saved := _saved_second()
+	saved.reading_session.story_day = 2
+	for fresh: bool in [false, true]:
+		var restored := SESSION.new()
+		assert_true(restored.configure_scene().ok)
+		assert_true(restored.restore_player(saved.reading_session, FIXTURE.B).ok)
+		var session: RefCounted = restored
+		if fresh:
+			var made := FIXTURE.create_session()
+			assert_true(made.ok)
+			session = made.value
+			session.inherit_player_progress(restored)
+		var previous: Dictionary = session.player_progress.duplicate(true)
+		assert_true(FIXTURE.enter(session, FIXTURE.A, "test:ordinary").ok)
+		var captured: Dictionary = session.capture(FIXTURE.frontier(session))
+		assert_true(captured.ok, str(captured))
+		if not captured.ok: continue
+		assert_eq(captured.value.player_progress.story_day, 2)
+		assert_eq(captured.value.player_progress.recovery_anchor, previous.recovery_anchor)
+		assert_eq(captured.value.player_progress.history_sections.size(), previous.history_sections.size())
+		assert_eq(captured.value.player_progress.history_sections.back().slice(0, previous.history_sections.back().size()),
+			previous.history_sections.back(), "ordinary entry extends the existing section")

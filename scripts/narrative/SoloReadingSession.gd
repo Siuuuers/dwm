@@ -147,7 +147,7 @@ func admit_scene(entry_id: String, context: Dictionary, index: int = 0) -> Dicti
 	if not latest_entry.is_empty() and boundary == "control":
 		_pending_checkpoint = _pending_checkpoint or _is_major_marker(_scene_nodes[latest_entry][scene_index].marker_id)
 	_pending_checkpoint = _pending_checkpoint or player_progress.is_empty() \
-		or player_progress.get("story_day", 0) != _story_day(entry_id)
+		or _story_day(latest_entry if not latest_entry.is_empty() else player_progress.recovery_anchor.entry_id) != _story_day(entry_id)
 	latest_entry = entry_id
 	scene_occurrence = occurrence
 	scene_index = index
