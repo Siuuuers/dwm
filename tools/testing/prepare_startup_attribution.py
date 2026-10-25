@@ -13,6 +13,21 @@ def replace_once(text, old, new):
     return text.replace(old, new, 1)
 
 
+def defer_desktop_scene(text):
+    """One production owner, also usable by an uninstrumented regression checkout."""
+    start = text.index("func _ensure_scene_desktop(host: Control) -> Dictionary:\n")
+    end = text.index("\nfunc ", start + 1)
+    body = text[start:end]
+    body = replace_once(body, '\tif not admitted.get("ok", false): return admitted\n',
+        '\tif not admitted.get("ok", false): return admitted\n'
+        '\tvar desktop_scene := load("res://scenes/desktop/ComputerDesktop.tscn") as PackedScene\n'
+        '\tif desktop_scene == null: return _failure(&"scene_desktop_unavailable", "")\n')
+    body = replace_once(body,
+        '\tdesktop = preload("res://scenes/desktop/ComputerDesktop.tscn").instantiate()\n',
+        '\tdesktop = desktop_scene.instantiate()\n')
+    return text[:start] + body + text[end:]
+
+
 def prepare(root, variant, trace_autoloads=False):
     root.mkdir(parents=True, exist_ok=True)
     changes = {}
@@ -114,6 +129,9 @@ func _probe_start(mode: StringName = MODE_FINAL) -> Dictionary:
             return text
         edit("scripts/ui/MenuScene.gd", menu)
 
+    if variant == "desktop":
+        edit("autoload/ApplicationBootstrap.gd", defer_desktop_scene)
+
     if variant == "fonts":
         def fonts(text):
             for constant, filename in [("SIMPLIFIED", "source-han-sans-sc-regular.otf"),
@@ -194,7 +212,7 @@ func _probe_start(mode: StringName = MODE_FINAL) -> Dictionary:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--project-root", type=Path, required=True)
-    parser.add_argument("--variant", choices=["baseline", "menu", "fonts", "minimal"], required=True)
+    parser.add_argument("--variant", choices=["baseline", "menu", "fonts", "minimal", "desktop"], required=True)
     parser.add_argument("--trace-autoloads", action="store_true",
                         help="Trace constructors in disposable exports; gaps also include loading and member initialization")
     args = parser.parse_args()

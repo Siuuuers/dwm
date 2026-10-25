@@ -9,9 +9,12 @@ var inputs: Array[Dictionary] = []
 var frame_gaps: Dictionary = {}
 var observation: Dictionary = {}
 var font_cache: Dictionary = {}
+var desktop_cache: Dictionary = {}
+var apps_observation: Dictionary = {}
 var folder := OS.get_environment("DWM_STARTUP_OUTPUT")
 var case_name := OS.get_environment("DWM_STARTUP_CASE")
 var journey := OS.get_environment("DWM_STARTUP_JOURNEY")
+var variant := OS.get_environment("DWM_STARTUP_VARIANT")
 var minimal := OS.get_environment("DWM_STARTUP_MINIMAL") == "1"
 var gap_scope := "startup"
 var previous_frame_us := 0
@@ -31,6 +34,7 @@ func finish_phase(phase: String, began: Dictionary, ok: bool = true) -> void:
 func _enter_tree() -> void:
 	mark("probe_enter_tree")
 	_sample_font_cache("probe_enter_tree")
+	_sample_desktop_cache("probe_enter_tree")
 	get_tree().process_frame.connect(_frame)
 	RenderingServer.frame_post_draw.connect(_drawn)
 
@@ -41,6 +45,18 @@ func _sample_font_cache(key: String) -> void:
 	font_cache[key] = {
 		"sc": ResourceLoader.has_cached("res://assets/ui/contacts/fonts/source-han-sans-sc-regular.otf"),
 		"hc": ResourceLoader.has_cached("res://assets/ui/contacts/fonts/source-han-sans-hc-regular.otf")}
+
+func _sample_desktop_cache(key: String) -> void:
+	desktop_cache[key] = {
+		"scene": ResourceLoader.has_cached("res://scenes/desktop/ComputerDesktop.tscn"),
+		"script": ResourceLoader.has_cached("res://scripts/ui/ComputerDesktop.gd")}
+
+func _check_desktop_cache_before_use(key: String) -> bool:
+	_sample_desktop_cache(key)
+	if variant not in ["baseline", "desktop"]: return true
+	return _check(bool(desktop_cache[key].scene) == (variant == "baseline")
+		and bool(desktop_cache[key].script) == (variant == "baseline"),
+		key + ": desktop scene/script cache differs from the isolated variant expectation")
 
 func _frame() -> void:
 	var now := Time.get_ticks_usec()
@@ -140,6 +156,7 @@ func _run() -> void:
 	await RenderingServer.frame_post_draw
 	mark("title_drawn_usable")
 	_sample_font_cache("title_drawn_usable")
+	if not _check_desktop_cache_before_use("title_drawn_usable"): return
 	gap_scope = ""
 	if not _capture("title"): return
 	if journey == "screens":
@@ -217,6 +234,66 @@ func _new_acc(menu: Node, button: Button) -> void:
 	var incomplete: Dictionary = saves._continuation_journal.list_incomplete()
 	if not _check(incomplete.get("ok", false) and incomplete.value.is_empty(), "New Acc journal not settled"): return
 	if not _capture("caption"): return
+	if journey == "apps":
+		await _apps()
+	else:
+		_finish(true)
+
+func _apps() -> void:
+	var host: Control = get_tree().current_scene
+	var game := get_node("/root/GameState")
+	var bridge := get_node("/root/DialogicBridge")
+	if not _check(host != null and host.scene_file_path == "res://scenes/narrative/SceneHost.tscn"
+		and not host.is_computer_open() and not game.capture_scene_challenge_command().get("ok", false),
+		"Apps measurement requires the ordinary first caption with computer closed"): return
+	if not _check_desktop_cache_before_use("caption_before_apps"): return
+	var before: Dictionary = game.capture_run_snapshot_input().duplicate(true)
+	var reading: Dictionary = bridge.capture_reading_checkpoint(false)
+	if not _check(reading.get("ok", false), "Apps initial reading capture failed"): return
+	var button: Button = host.get_node("SceneControlsLayer/Surface/Controls/CheckComputer")
+	var first_instance := 0
+	for label: String in ["apps_first", "apps_warm"]:
+		if not await _prepare_pointer(button, label): return
+		if not await _click(button, label): return
+		var deadline := Time.get_ticks_msec() + 60000
+		var desktop: Control = host.get_computer_mount().get_node_or_null("SceneComputerDesktop")
+		while (desktop == null or not desktop.is_visible_in_tree() or host._busy) and Time.get_ticks_msec() < deadline:
+			await get_tree().process_frame
+			desktop = host.get_computer_mount().get_node_or_null("SceneComputerDesktop")
+		if not _check(desktop != null and desktop.is_visible_in_tree() and host.is_computer_open()
+			and not host._busy and desktop._active_id == &"", label + " desktop Home unavailable"): return
+		if not _check(desktop.get_script() != null
+			and desktop.get_script().resource_path == "res://scripts/ui/ComputerDesktop.gd",
+			label + " is not the production ComputerDesktop script"): return
+		if label == "apps_first": first_instance = desktop.get_instance_id()
+		if not _check(desktop.get_instance_id() == first_instance, "Warm Apps opening replaced the cached desktop"): return
+		await RenderingServer.frame_post_draw
+		mark(label + "_drawn")
+		gap_scope = ""
+		_sample_desktop_cache(label + "_drawn")
+		# A lazy PackedScene can be released after instantiation; the live instance
+		# retains its script, and the host retains the same instance for warm reopen.
+		if not _check(bool(desktop_cache[label + "_drawn"].script), "Opened desktop script absent from resource cache"): return
+		if not _capture(label): return
+		if not await _prepare_pointer(button, label + "_close"): return
+		if not await _click(button, label + "_close"): return
+		deadline = Time.get_ticks_msec() + 10000
+		while (host.is_computer_open() or host._busy) and Time.get_ticks_msec() < deadline:
+			await get_tree().process_frame
+		var after: Dictionary = game.capture_run_snapshot_input()
+		var after_reading: Dictionary = bridge.capture_reading_checkpoint(false)
+		if not _check(not host.is_computer_open() and not host._busy and not desktop.is_visible_in_tree()
+			and after.scene == before.scene and after.gameplay == before.gameplay
+			and after_reading.get("ok", false) and after_reading.value == reading.value
+			and bridge._runtime_adapter.current_line_id() == FIRST_LINE,
+			label + " close changed scene, gameplay or the exact reading checkpoint"): return
+	apps_observation = {"same_instance": true, "instance_id": first_instance,
+		"first_control": str(button.get_path()), "line_id": FIRST_LINE,
+		"script_path": "res://scripts/ui/ComputerDesktop.gd",
+		"scene_unchanged": true, "gameplay_unchanged": true, "reading_unchanged": true}
+	await RenderingServer.frame_post_draw
+	gap_scope = ""
+	if not _capture("apps_caption_return"): return
 	_finish(true)
 
 func _finish(ok: bool) -> void:
@@ -230,10 +307,11 @@ func _finish(ok: bool) -> void:
 	if profile != null:
 		for key: String in ["preferences.language.primary_locale_id", "preferences.accessibility.text_size", "preferences.accessibility.font_style", "preferences.reading.reveal_speed", "preferences.reading.auto_enabled"]:
 			preferences[key] = profile.get_preference(key, null)
-	var report := {"complete": ok, "case": case_name, "journey": journey, "minimal": minimal,
+	var report := {"complete": ok, "case": case_name, "journey": journey, "minimal": minimal, "variant": variant,
 		"autoload_trace": Engine.get_meta("_dwm_autoload_trace", []),
 		"autoload_trace_scope": "Optional constructor begin/end stamps. Previous constructor end to next constructor begin includes dependency loading, member initialization and engine bookkeeping. It is not pure disk time or an exclusive dependency cost. All autoloads are constructed before the first root add_child; probe_enter_tree is later than these constructors.",
 		"milestones": milestones, "phases": phases, "inputs": inputs, "observation": observation, "font_cache": font_cache,
+		"desktop_cache": desktop_cache, "apps_observation": apps_observation,
 		"max_frame_gap_us": frame_gaps, "failures": failures, "rendering": rendering,
 		"engine": Engine.get_version_info(), "preferences": preferences, "display_server": DisplayServer.get_name(),
 		"window_size": str(get_window().size), "viewport_size": str(get_viewport().get_visible_rect().size),

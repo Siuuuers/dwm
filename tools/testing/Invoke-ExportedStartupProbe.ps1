@@ -5,7 +5,7 @@ param(
     [Parameter(Mandatory)][string]$ProfileRoot,
     [Parameter(Mandatory)][ValidateSet('fresh', 'retained')][string]$Case,
     [Parameter(Mandatory)][string]$Variant,
-    [ValidateSet('new_acc', 'screens')][string]$Journey = 'new_acc',
+    [ValidateSet('new_acc', 'screens', 'apps')][string]$Journey = 'new_acc',
     [ValidateSet('ProjectDefault', 'gl_compatibility')][string]$RenderingMethod = 'ProjectDefault',
     [switch]$Minimal
 )
@@ -56,6 +56,7 @@ foreach ($key in @('APPDATA', 'LOCALAPPDATA', 'DWM_TEST_ROOT')) {
 $start.Environment['DWM_STARTUP_OUTPUT'] = $Output
 $start.Environment['DWM_STARTUP_CASE'] = $Case
 $start.Environment['DWM_STARTUP_JOURNEY'] = $Journey
+$start.Environment['DWM_STARTUP_VARIANT'] = $Variant
 $start.Environment['DWM_STARTUP_MINIMAL'] = $(if ($Minimal) { '1' } else { '0' })
 $process = $null
 try {
@@ -103,12 +104,21 @@ try {
         $bootstrap = @($report.phases | Where-Object phase -eq 'bootstrap.total')
         if ($bootstrap.Count -ne 1 -or @($report.phases | Where-Object { -not $_.ok }).Count -ne 0) { throw 'Expected one successful FINAL bootstrap.' }
         $record.launch_to_bootstrap_start_ms = $bootstrap[0].start.unix_ms - $record.launch_unix_ms
-        if ($Journey -eq 'new_acc') {
+        if ($Journey -in @('new_acc', 'apps')) {
             $record.new_acc_to_caption_complete_ms = ($m.caption_complete_drawn_idle.ticks_us - $m.new_acc_input.ticks_us) / 1000.0
             if ($Case -eq 'retained') {
                 $record.input_to_consent_ms = ($m.consent_drawn.ticks_us - $m.new_acc_input.ticks_us) / 1000.0
                 $record.consent_dwell_ms = ($m.confirm_input.ticks_us - $m.consent_drawn.ticks_us) / 1000.0
                 $record.confirm_to_caption_complete_ms = ($m.caption_complete_drawn_idle.ticks_us - $m.confirm_input.ticks_us) / 1000.0
+            }
+            if ($Journey -eq 'apps') {
+                foreach ($opening in @('apps_first', 'apps_warm')) {
+                    $record["${opening}_open_ms"] = ($m["${opening}_drawn"].ticks_us - $m["${opening}_input"].ticks_us) / 1000.0
+                }
+                if (-not $report.apps_observation.same_instance -or -not $report.apps_observation.scene_unchanged -or
+                    -not $report.apps_observation.gameplay_unchanged -or -not $report.apps_observation.reading_unchanged) {
+                    throw 'Apps opening/reopening changed player progress or replaced the cached desktop.'
+                }
             }
         } else {
             foreach ($screen in @('settings', 'backup', 'gallery')) {
@@ -123,6 +133,7 @@ try {
         @{name = $_.Name; size = $_.Length; sha256 = (Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant()}
     })
     $expected = if ($Minimal) { @('title.png') } elseif ($Journey -eq 'screens') { @('title.png', 'settings.png', 'backup.png', 'gallery.png') } elseif ($Case -eq 'retained') { @('title.png', 'caption.png', 'consent.png') } else { @('title.png', 'caption.png') }
+    if ($Journey -eq 'apps') { $expected += @('apps_first.png', 'apps_warm.png', 'apps_caption_return.png') }
     if (@(Compare-Object ($record.images.name | Sort-Object) ($expected | Sort-Object)).Count -ne 0 -or @($record.images | Where-Object size -le 0).Count -ne 0) { throw 'Milestone screenshots incomplete.' }
     $record.status = 'collected_requires_visual_review'
 } finally {
