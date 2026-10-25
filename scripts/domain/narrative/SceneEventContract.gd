@@ -570,8 +570,8 @@ static func _validate_scene_result_inspected(envelope: Dictionary, result: Varia
 				if result.attempt_proof != null: return _fail(&"scene_attempt_proof_invalid")
 			elif not _attempt_proof(result.attempt_proof, envelope.source.run_id, occurrence): return _fail(&"scene_attempt_proof_invalid")
 		"challenge_recalled":
-			if not _keys(result, ["kind", "closure_command_id", "outcome", "target_id"]) \
-					or envelope.kind != "challenge.recall" or not _id(result.closure_command_id) \
+			if not _keys(result, ["kind", "outcome", "target_id"]) \
+					or envelope.kind != "challenge.recall" \
 					or typeof(result.outcome) != TYPE_STRING or result.outcome not in OUTCOMES \
 					or result.target_id != envelope.payload[result.outcome + "_target_id"] \
 					or not _table_has(targets, result.target_id) or targets[result.target_id].target.kind != "scene":
@@ -597,58 +597,40 @@ static func _validate_scene_result_inspected(envelope: Dictionary, result: Varia
 			return _fail(&"scene_result_unsupported")
 	return {"ok": true}
 
-## Resolve only a saved closure in this Run; callers authenticate the receipt ledger.
-## Never closes a board, consults a newer Profile attempt, or reapplies its effects.
-static func resolve_scene_challenge_recall(event: Dictionary, receipts: Dictionary, bundle: Dictionary) -> Dictionary:
+## Current recall reads only this Run's explicit outcomes. It never closes a board,
+## consults newer Profile attempts, or reapplies consequences.
+static func resolve_scene_challenge_recall(event: Dictionary, outcomes: Variant, bundle: Dictionary) -> Dictionary:
 	var checked := _inspect_scene_context(event, bundle)
 	if not checked.ok: return checked
-	return _resolve_scene_challenge_recall_inspected(event, receipts, checked)
-
-static func _resolve_selected_scene_challenge_recall(event: Dictionary, receipts: Dictionary) -> Dictionary:
-	var shaped := _inspect_scene_versioned_shape(event)
-	if not shaped.ok: return shaped
-	var manifest: Script = load("res://scripts/narrative/DialogicEntryManifest.gd")
-	var registered: Dictionary = manifest.scene_contract_tables()
-	if not registered.ok: return registered
-	var checked := _bind_scene_context(event, shaped, registered)
-	if not checked.ok: return checked
-	return _resolve_scene_challenge_recall_inspected(event, receipts, checked)
-
-## The selected owner supplies immutable registration, never receipt or physical proof.
-## Both callers freshly bind the recall envelope before entering this callback-free body.
-static func _resolve_scene_challenge_recall_inspected(event: Dictionary, receipts: Dictionary,
-		checked: Dictionary) -> Dictionary:
 	if event.kind != "challenge.recall" or not _positive_int(event.issuer_receipt.get("counter")):
 		return _fail(&"scene_challenge_recall_invalid")
+	# Reuse the save owner's fact shape; loading here avoids a preload cycle.
+	var schema: Script = load("res://scripts/domain/run/RunSnapshotSchema.gd")
+	if schema._validate_scene_progress({}, outcomes) != "": return _fail(&"scene_challenge_recall_invalid")
 	var found := {}
-	for receipt: Variant in receipts.values():
-		if not receipt is Dictionary or receipt.get("kind") != "scene_event": continue
-		var saved: Variant = receipt.get("scene_event", {})
-		if not saved is Dictionary or not saved.get("result") is Dictionary \
-				or saved.result.get("kind") != "challenge_closed": continue
-		var semantic: Variant = saved.get("semantic")
-		if not semantic is Dictionary or not semantic.get("source") is Dictionary \
-				or not semantic.get("payload") is Dictionary: return _fail(&"scene_challenge_recall_invalid")
-		if semantic.source.get("run_id") != event.source.run_id \
-				or semantic.payload.get("challenge_id") != event.payload.challenge_id: continue
-		if not semantic.get("issuer_receipt") is Dictionary \
-				or not _positive_int(semantic.issuer_receipt.get("counter")):
-			return _fail(&"scene_challenge_recall_invalid")
-		if semantic.issuer_receipt.counter >= event.issuer_receipt.counter: continue
-		var envelope: Dictionary = semantic.duplicate(true)
-		envelope["playback_token"] = "recall.validation"
-		# No callbacks occur after this call's fresh bundle admission. Reuse only
-		# those local tables; each saved closure still validates its own envelope.
-		var shaped := _inspect_scene_versioned_shape(envelope)
-		if not shaped.ok: return shaped
-		var context := _bind_scene_context(envelope, shaped, checked.registered)
-		if not context.ok: return context
-		var rebuilt := _make_scene_receipt_from_context(envelope, saved.get("reading_anchor", {}), saved.result, context)
-		if not rebuilt.ok: return rebuilt
-		if not _equal(receipt, rebuilt.value): return _fail(&"scene_receipt_mismatch")
+	for outcome: Dictionary in outcomes.values():
+		if outcome.challenge_id != event.payload.challenge_id: continue
 		if not found.is_empty(): return _fail(&"scene_challenge_recall_ambiguous")
-		found = {"kind": "challenge_recalled", "closure_command_id": semantic.command_id,
-			"outcome": saved.result.outcome, "target_id": event.payload[saved.result.outcome + "_target_id"]}
+		found = {"kind": "challenge_recalled", "outcome": outcome.outcome,
+			"target_id": event.payload[outcome.outcome + "_target_id"]}
+	if found.is_empty(): return _fail(&"scene_challenge_recall_missing")
+	return {"ok": true, "value": found}
+
+## Private join for _validate_scene_receipts_registered only: its first pass has
+## reconstructed and authenticated every command and bound the recall event.
+## Historical recalls exclude closures issued later, even when current facts include them.
+static func _resolve_scene_challenge_recall_history(event: Dictionary, commands: Dictionary) -> Dictionary:
+	var found := {}
+	for receipt: Dictionary in commands.values():
+		var saved: Dictionary = receipt.scene_event
+		if saved.result.kind != "challenge_closed": continue
+		var semantic: Dictionary = saved.semantic
+		if semantic.source.run_id != event.source.run_id \
+				or semantic.payload.challenge_id != event.payload.challenge_id \
+				or semantic.issuer_receipt.counter >= event.issuer_receipt.counter: continue
+		if not found.is_empty(): return _fail(&"scene_challenge_recall_ambiguous")
+		found = {"kind": "challenge_recalled", "outcome": saved.result.outcome,
+			"target_id": event.payload[saved.result.outcome + "_target_id"]}
 	if found.is_empty(): return _fail(&"scene_challenge_recall_missing")
 	return {"ok": true, "value": found}
 
@@ -725,7 +707,7 @@ static func _validate_selected_scene_receipts(receipts: Dictionary, issuer: Obje
 	var manifest: Script = load("res://scripts/narrative/DialogicEntryManifest.gd")
 	var registered: Dictionary = manifest.scene_contract_tables()
 	if not registered.ok: return registered
-	return _validate_scene_receipts_registered(receipts, registered.bundle, registered, issuer, creation_owner, contacts, true)
+	return _validate_scene_receipts_registered(receipts, registered.bundle, registered, issuer, creation_owner, contacts)
 
 static func _validate_scene_receipts_observed_body(receipts: Dictionary, bundle: Dictionary, issuer: Object,
 		creation_owner: Object = null, contacts: Dictionary = {}) -> Dictionary:
@@ -737,7 +719,7 @@ static func _validate_scene_receipts_observed_body(receipts: Dictionary, bundle:
 	return _validate_scene_receipts_registered(receipts, bundle, registered, issuer, creation_owner, contacts)
 
 static func _validate_scene_receipts_registered(receipts: Dictionary, bundle: Dictionary, registered: Dictionary, issuer: Object,
-		creation_owner: Object, contacts: Dictionary, selected_registration: bool = false) -> Dictionary:
+		creation_owner: Object, contacts: Dictionary) -> Dictionary:
 	var occurrences := {}
 	var commands := {}
 	var admissions := {}
@@ -862,13 +844,7 @@ static func _validate_scene_receipts_registered(receipts: Dictionary, bundle: Di
 					or playable_result.kind != "challenge_playable" or playable_result.challenge_occurrence != result.challenge_occurrence:
 				return _fail(&"scene_playable_receipt_mismatch")
 		elif result.kind == "challenge_recalled":
-			var envelope: Dictionary = semantic.duplicate(true)
-			envelope["playback_token"] = "recall.validation"
-			var recalled: Dictionary
-			if selected_registration:
-				recalled = _resolve_selected_scene_challenge_recall(envelope, commands)
-			else:
-				recalled = resolve_scene_challenge_recall(envelope, commands, bundle)
+			var recalled := _resolve_scene_challenge_recall_history(semantic, commands)
 			if not recalled.ok: return recalled
 			if not _equal(result, recalled.value): return _fail(&"scene_challenge_recall_mismatch")
 		elif result.kind == "contact_entry_accepted":

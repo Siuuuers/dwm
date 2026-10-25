@@ -76,6 +76,7 @@ $suites = @{
     )
     scene_five_outcomes = @(
         'tests/unit/test_scene_five_outcomes.gd'
+        'tests/unit/test_scene_challenge_recall.gd'
     )
     public_surfaces = @(
         'tests/unit/tooling/test_public_surface_inventory.gd'
