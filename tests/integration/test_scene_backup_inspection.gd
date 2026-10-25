@@ -24,6 +24,11 @@ class EditingNarrative extends RefCounted:
 		input.snapshot.content_version = -1
 		return delegate.prepare(input)
 
+class CheckpointStorageOwner extends RefCounted:
+	var _storage: RefCounted
+	var _journal: RefCounted
+	var _restore_participants := {}
+
 var fixture: RefCounted
 var fixture_ready := false
 
@@ -613,3 +618,77 @@ func test_acknowledged_creation_retains_historical_content_bytes_but_pending_cre
 	altered.transaction_issuer_receipt.counter += 1
 	assert_false(journal._validate_operation(altered).ok, "historical creation retains its exact allocation receipt")
 	assert_eq(_observed(), before, "read-only history admission changes no owner or file")
+
+func test_old_content_autosave_backup_rolls_back_exact_bytes_and_allows_retry() -> void:
+	assert_true(fixture_ready)
+	if not fixture_ready: return
+	const CHECKPOINT := preload("res://scripts/application/run/SaveManagerCheckpointPort.gd")
+	const STORAGE := preload("res://scripts/infrastructure/storage/JsonFileStorage.gd")
+	const JOURNAL := preload("res://scripts/infrastructure/save/CheckpointJournal.gd")
+	const WRITER := preload("res://scripts/validation/CanonicalJsonWriter.gd")
+	var current_document: Dictionary = fixture.read_autosave().value
+	var historical := current_document.duplicate(true)
+	var snapshot: Dictionary = historical.current_snapshot.snapshot
+	snapshot.scene.registration_sha256 = "a".repeat(64)
+	snapshot.narrative_checkpoint.manifest_fingerprint = "a".repeat(64)
+	snapshot.narrative_checkpoint.reading_session.registration_sha256 = "a".repeat(64)
+	var old_text: String = WRITER.stringify(historical).value + "\n"
+	var current_text: String = WRITER.stringify(current_document).value + "\n"
+	var temporary := TemporaryStorage.create("scene_content_checkpoint_rollback")
+	assert_true(temporary.ok, str(temporary))
+	if not temporary.ok: return
+	var path: String = temporary.value.path_join("autosave.json")
+	var file := FileAccess.open(path, FileAccess.WRITE)
+	assert_not_null(file)
+	if file == null: return
+	file.store_string(old_text)
+	file.close()
+	var owner := CheckpointStorageOwner.new()
+	owner._storage = STORAGE.new(temporary.value)
+	owner._journal = JOURNAL.new()
+	var journal_backup: Dictionary = fixture.manager._journal.capture_state().value.backup
+	assert_true(owner._journal.restore_state(journal_backup).ok)
+	var checkpoint := CHECKPOINT.new(owner)
+	assert_true(checkpoint.configure_fatal_latch(fixture.gate).ok)
+	assert_false(checkpoint._validate_document_text(old_text).ok, "new outgoing checkpoints still require current content")
+	var validated_texts := {}
+	var captured: Dictionary = checkpoint._capture_storage_backup("autosave.json", validated_texts)
+	assert_true(captured.ok, str(captured))
+	if not captured.ok: return
+	var descriptor: Dictionary = captured.value.descriptor
+	assert_eq(descriptor.validated_text, old_text)
+	assert_eq(descriptor.sha256, old_text.sha256_text())
+	assert_eq(FileAccess.get_file_as_string(path), old_text, "admission does not migrate source bytes on disk")
+	var captured_input: Dictionary = fixture.game.capture_run_snapshot_input()
+	assert_eq(captured_input.scene, current_document.current_snapshot.snapshot.scene)
+	assert_eq(captured_input.lifecycle, current_document.current_snapshot.snapshot.lifecycle)
+	var inputs := {"snapshot_input": captured_input,
+		"dialogic_checkpoint": current_document.current_snapshot.snapshot.narrative_checkpoint,
+		"route_id": "scene", "active_app_id": null, "audio_context": {},
+		"content_version": current_document.current_snapshot.snapshot.content_version}
+	for remembered: bool in [false, true]:
+		if remembered: checkpoint._remember_proven_documents(validated_texts)
+		var prepared: Dictionary = checkpoint.prepare(inputs, &"safe_marker", {"kind": &"autosave", "reason": &"automatic"})
+		assert_true(prepared.ok, str(prepared))
+		if not prepared.ok: return
+		var edited: Dictionary = prepared.value.candidate
+		edited.autosave_document = historical.duplicate(true)
+		var before_journal: Dictionary = owner._journal.capture_state()
+		var refused: Dictionary = checkpoint.commit(edited)
+		assert_false(refused.ok, "source migration proof cannot authorize identical historical bytes as new outgoing data")
+		assert_eq(refused.get("code"), &"outgoing_validation_failed", str(refused))
+		assert_eq(FileAccess.get_file_as_string(path), old_text)
+		assert_eq(owner._journal.capture_state(), before_journal, "refused candidate cannot advance the checkpoint")
+	var witness: Callable = checkpoint._witness_document_text_validator.bind(validated_texts)
+	assert_false(owner._storage.write_atomic("autosave.json", "{broken", witness).ok)
+	assert_eq(FileAccess.get_file_as_string(path), old_text, "rejected outgoing data preserves historical source")
+	assert_true(owner._storage.write_atomic("autosave.json", current_text, witness).ok)
+	# Simulate compensation after a later participant refuses the transaction.
+	var rolled_back: Dictionary = checkpoint.rollback({"journal_backup": journal_backup, "storage_backup": descriptor})
+	assert_true(rolled_back.ok, str(rolled_back))
+	assert_eq(FileAccess.get_file_as_string(path), old_text, "rollback restores exact historical bytes")
+	validated_texts = {}
+	assert_true(checkpoint._capture_storage_backup("autosave.json", validated_texts).ok)
+	witness = checkpoint._witness_document_text_validator.bind(validated_texts)
+	assert_true(owner._storage.write_atomic("autosave.json", current_text, witness).ok, "retry can replace the restored source")
+	assert_eq(FileAccess.get_file_as_string(path), current_text)

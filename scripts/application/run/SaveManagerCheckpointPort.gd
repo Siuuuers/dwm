@@ -345,6 +345,7 @@ func commit(candidate: Dictionary) -> Dictionary:
 		# value now (the caller may have edited it since prepare), preserving JSON's
 		# StringName conversion. Only successful proof can seed this exact-text cache.
 		var sub_tick := Time.get_ticks_usec() if not profile.is_empty() else 0
+		var outgoing_proven := false
 		var normalized: Variant = _normalize_outgoing_document(candidate["autosave_document"], spliced)
 		sub_tick = _profile_phase(profile, "outgoing_normalize_us", sub_tick)
 		if normalized is Dictionary:
@@ -360,6 +361,7 @@ func commit(candidate: Dictionary) -> Dictionary:
 			sub_tick = _profile_phase(profile, "outgoing_validate_us", sub_tick)
 			if not profile.is_empty(): profile["outgoing_validation_ok"] = bool(checked.get("ok", false))
 			if checked.get("ok", false):
+				outgoing_proven = true
 				validated_texts[outgoing_text] = {"ok": true, "code": &"ok", "value": checked["value"]["candidate"]}
 				var checked_current: Dictionary = checked["value"]["candidate"]["current_snapshot"]
 				# Equal JSON-shaped values may differ in container types, but a numeric change
@@ -372,8 +374,14 @@ func commit(candidate: Dictionary) -> Dictionary:
 					written_history = (normalized["recovery_journal"] as Array).duplicate(true)
 					written_document_text = document_text
 			_profile_phase(profile, "outgoing_history_capture_us", sub_tick)
-		# Failed proof and all unknown physical bytes retain the original strict parser
-		# and storage refusal path. Physical writes, hashes and final reread are unchanged.
+		if not outgoing_proven:
+			# A source-only migration proof may share these exact bytes. It cannot
+			# authorize a caller-edited outgoing candidate, even on a cache hit.
+			var checked_text := _document_text_validator(outgoing_text)
+			if not checked_text.get("ok", false) or not checked_text.get("value") is Dictionary:
+				return _profile_result(profile, {"ok": false, "code": &"outgoing_validation_failed",
+					"message": "Outgoing document rejected", "fatal": false})
+			validated_texts[outgoing_text] = checked_text
 		tick = _profile_phase(profile, "outgoing_schema_us", tick)
 		# dwm-634.3: neither storage nor the reread below reads the value of these validations, so
 		# both are answered by the witness, which copies no already-proven candidate.
@@ -608,7 +616,7 @@ func rollback(backup: Dictionary) -> Dictionary:
 		# dwm-634.3: rollback reads nothing but `ok` from either result, so the witness answers
 		# both. `_forget_proven_documents()` above left nothing proven, so its only hit is the
 		# restored text this call itself validates and seeds.
-		var witness := _witness_document_text_validator.bind({})
+		var witness := _witness_document_text_validator.bind({}, true)
 		if bool(descriptor.get("existed", false)):
 			storage_result = _storage().write_atomic(
 				relative_path, str(descriptor.get("validated_text", "")), witness)
@@ -966,7 +974,7 @@ func _capture_storage_backup(relative_path: String, validated_texts: Dictionary)
 			# reconciliation only enables an explicit later retry in that case.
 			var lease_missing := str(read.get("reason", "")) == "lease_missing"
 			var reconciled: Dictionary = _storage().reconcile(
-				relative_path, _witness_document_text_validator.bind(validated_texts))
+				relative_path, _witness_document_text_validator.bind(validated_texts, true))
 			if not reconciled.get("ok", false):
 				return reconciled
 			if not lease_missing:
@@ -1023,15 +1031,13 @@ func _cached_document_text_validator(text: String, cache: Dictionary) -> Diction
 		cache[text] = result.duplicate(true)
 	return result
 
-## The same question as `_cached_document_text_validator()` -- is this exact text a valid document? --
-## for the one caller that reads nothing but `ok`. A proven text answers without copying the 450 KB
-## candidate; refusals are returned verbatim, because `_capture_storage_backup()` returns them to its
-## own caller. A cold miss still seeds `cache[text]` with the WHOLE validation: that seed is what lets
-## `write_atomic()`'s reconcile answer from the cache instead of parsing the existing document again.
+## Existing backup bytes use content admission; the caller retains their original text/hash.
+## A proven text answers without copying its candidate. A cold admission seeds the full
+## validation so write_atomic can classify the same existing bytes without parsing again.
 func _cached_document_text_proof(text: String, cache: Dictionary) -> Dictionary:
 	if cache.has(text) or _proven_document_validations.has(text):
 		return {"ok": true, "code": &"ok"}
-	var result := _document_text_validator(text)
+	var result := _document_text_validator(text, true)
 	if not result.get("ok", false):
 		return result
 	# Nothing else holds `result`: this method never hands the value out, so the cache may own it.
@@ -1042,31 +1048,37 @@ func _cached_document_text_proof(text: String, cache: Dictionary) -> Dictionary:
 ## calls whose returned value this port discards. Storage only asks whether the value is a
 ## Dictionary (`_classify_document()`), so a proven text is witnessed with an empty one instead of
 ## the 450 KB candidate, which `_classify_document()`, `reconcile()` and `write_atomic()` would each
-## deep-copy again. A cold miss behaves exactly like `_cached_document_text_validator()`: the FULL
-## validation is returned, so every refusal and its order are unchanged, and a success seeds the
-## cache so the same call's later classifications answer from it.
-func _witness_document_text_validator(text: String, cache: Dictionary) -> Dictionary:
+## deep-copy again. Cold backup/rollback sources may use content admission; outgoing bytes
+## remain strict. A success seeds the cache for later classification of that exact text.
+func _witness_document_text_validator(text: String, cache: Dictionary, existing_source: bool = false) -> Dictionary:
 	if cache.has(text) or _proven_document_validations.has(text):
 		return {"ok": true, "code": &"ok", "value": {}}
-	var result := _document_text_validator(text)
+	var result := _document_text_validator(text, existing_source)
 	if result.get("ok", false):
 		cache[text] = result.duplicate(true)
 	return result
 
-func _document_text_validator(text: String) -> Dictionary:
+func _document_text_validator(text: String, existing_source: bool = false) -> Dictionary:
 	if OS.get_environment("DWM_CHECKPOINT_PROFILE") != "1":
-		return _validate_document_text(text)
+		return _validate_document_text(text, existing_source)
 	var started_us := Time.get_ticks_usec()
-	var result := _validate_document_text(text)
+	var result := _validate_document_text(text, existing_source)
 	_profile_text_validator_calls += 1
 	_profile_text_validator_us += Time.get_ticks_usec() - started_us
 	return result
 
 
-func _validate_document_text(text: String) -> Dictionary:
+func _validate_document_text(text: String, existing_source: bool = false) -> Dictionary:
 	var parsed: Dictionary = STRICT_JSON.parse_object(text)
 	if not parsed.get("ok", false):
 		return {"ok": false, "code": &"invalid_json", "message": "strict parse failed"}
+	if existing_source and parsed.value.get("schema_version") == SAVE_DOCUMENT_SCHEMA.SCENE_DOCUMENT_VERSION:
+		# The old Autosave is rollback evidence. Admit its content compatibility
+		# without replacing the exact bytes/hash retained by the storage descriptor.
+		var admitted: Dictionary = preload("res://scripts/infrastructure/save/SaveMigrations.gd").migrate_document(
+			parsed.value, {"kind": "autosave", "slot_id": null})
+		if not admitted.ok: return admitted
+		return {"ok": true, "code": &"ok", "value": admitted.value.document}
 	var validated: Dictionary = SAVE_DOCUMENT_SCHEMA.validate(parsed["value"])
 	if not validated.get("ok", false):
 		return validated

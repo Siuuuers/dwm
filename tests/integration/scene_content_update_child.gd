@@ -22,7 +22,8 @@ func _walk_to(line_id: String) -> bool:
 			return await _wait_line(line_id)
 		if not current.is_empty() and not await _wait_line(current): return false
 		await _accept()
-		if _caption().is_reading_recovery_active():
+		var caption: Node = _caption()
+		if caption != null and caption.is_reading_recovery_active():
 			fail_test("content update traversal refused at " + current + ": " + str(last_next_result))
 			return false
 	fail_test("content update target not reached: " + line_id + "; actual=" + bridge._runtime_adapter.current_line_id()
@@ -219,7 +220,7 @@ func load_content_update() -> void:
 			if not await _wait_line(UPDATE.line("update.one", "inserted_after")): return
 			assert_eq(game.capture_run_snapshot_input().gameplay, proof.snapshot.gameplay, "new prose changes no gameplay")
 	else:
-		await _verify_board_continuation(proof)
+		if not await _verify_board_continuation(proof): return
 	await _screenshot("content-update-" + case_id + "-loaded")
 	if not await _save_partner(3): return
 	var persisted: Dictionary = PARSER.parse_object(FileAccess.get_file_as_string("user://saves/slot_3.json"))
@@ -233,19 +234,19 @@ func load_content_update() -> void:
 		"loader_pid": OS.get_process_id(), "case": case_id, "source_sha256": proof.source_sha256,
 		"preserved_run_id": proof.snapshot.lifecycle.run_id, "ready_count": ready_count})
 
-func _verify_board_continuation(proof: Dictionary) -> void:
+func _verify_board_continuation(proof: Dictionary) -> bool:
 	if case_id == "active_board":
 		var panel: Control = await _open_board()
-		if panel == null: return
+		if panel == null: return false
 		assert_eq(game.capture_dating_challenge_state().value, proof.record)
 		assert_eq(panel.public_view.board, proof.public_board, "restored board is rendered from saved cells")
 		await _screenshot("content-update-active-board")
-		return
+		return true
 	var outcomes_before: Dictionary = game.scene_challenge_outcomes.duplicate(true)
-	if not await _walk_to(UPDATE.line("update.b", "cue")): return
+	if not await _walk_to(UPDATE.line("update.b", "cue")): return false
 	if case_id == "transfer_active":
 		# Persist suspension before admitting B, then refuse a real binding write.
-		if not await _save_partner(2): return
+		if not await _save_partner(2): return false
 		var source: Dictionary = game.capture_run_snapshot_input().duplicate(true)
 		var source_reading: Dictionary = bridge.capture_reading_checkpoint(false)
 		var attempts: Dictionary = profile.get_profile_snapshot().dating_attempts.duplicate(true)
@@ -279,16 +280,16 @@ func _verify_board_continuation(proof: Dictionary) -> void:
 	if case_id == "resolved_unfinished":
 		assert_eq(game.scene_challenge_outcomes, outcomes_before)
 		var panel: Control = await _open_board()
-		if panel == null: return
+		if panel == null: return false
 		assert_eq(panel.public_view.phase, "never_started", "resolved A is not transferred into B")
-		return
+		return true
 	assert_eq(game.capture_dating_challenge_state().value, proof.record, "binding B does not rewrite physical A")
 	var before: Dictionary = game.capture_run_snapshot_input().gameplay.duplicate(true)
 	if case_id == "transfer_terminal":
 		await _click(_controls(get_tree().current_scene, "CheckComputer"))
-		if not await _wait_line(UPDATE.line("update.b", "following")): return
+		if not await _wait_line(UPDATE.line("update.b", "following")): return false
 		await _accept()
-		if not await _wait_line(UPDATE.line("update.end", "anchor")): return
+		if not await _wait_line(UPDATE.line("update.end", "anchor")): return false
 		assert_eq(game.scene_challenge_outcomes.size(), 1)
 		var result: Dictionary = game.scene_challenge_outcomes.values()[0]
 		assert_eq(result.challenge_id, UPDATE.B)
@@ -299,10 +300,12 @@ func _verify_board_continuation(proof: Dictionary) -> void:
 				assert_eq(game.capture_run_snapshot_input().gameplay[key], before[key], "terminal transfer does not repeat " + key)
 	else:
 		var panel: Control = await _open_board()
-		if panel == null: return
+		if panel == null: return false
 		assert_eq(game.capture_dating_challenge_state().value, proof.record)
 		assert_eq(panel.public_view.board, proof.public_board)
 		await _screenshot("content-update-transferred-active-board")
+
+	return true
 
 func reload_current_content() -> void:
 	updated_content = true
