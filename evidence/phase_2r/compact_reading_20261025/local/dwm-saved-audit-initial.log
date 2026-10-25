@@ -1,0 +1,40 @@
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+---  GUT  ---
+[1m[INFO]:  [0musing [/workspace/scratch/359fe558320b/dwm/.godot/phase2r_tests/saved-audit-initial/data/godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+[4m
+
+res://tests/integration/test_scene_initial_candidate.gd
+[0m* test_complete_initial_candidate_is_read_only_and_not_committed_authority
+* test_initial_candidate_refuses_prior_state_and_forged_first_reading
+* test_raw_initial_receipt_and_save_header_float_types_are_refused_before_normalization
+* test_candidate_requires_installed_registration_and_complete_profile_material
+* test_initial_validation_preserves_canonical_input_and_prepared_position
+DWM_SCENE_VALIDATION_PROFILE {"bundle_validation_calls":1,"bundle_validation_failures":0,"bundle_validation_us":1592,"compilation_calls":16,"compilation_failures":0,"compilation_us":1651,"configuration_calls":5,"configuration_failures":0,"configuration_us":2774,"elapsed_us":21752,"inclusive_nested":true,"lifecycle_state":"PLAYING","next_step_index":0,"ok":true,"operation":"initial_candidate_configuration","physical_proof_calls":0,"physical_proof_failures":0,"physical_proof_us":0,"playback_stage":"","receipt_validation_calls":0,"receipt_validation_failures":0,"receipt_validation_us":0,"snapshot_validations":[]}
+* test_restorable_foreign_first_publication_is_not_used_as_initial_expected_ledger
+* test_configuration_fork_keeps_fresh_mutable_session_state
+* test_next_public_build_and_candidate_validation_recheck_physical_content
+* test_foreign_current_frame_is_refused_before_initial_admission
+[1m9/9 passed.
+[0m
+
+
+
+[33m==============================================
+[0m[33m= Run Summary
+[0m[33m==============================================
+[0m
+Totals
+------
+Scripts               1
+Tests                 9
+Passing Tests         9
+Asserts             175
+Time              1.599s
+
+
+[32m---- All tests passed! ----
+[0m
+Results saved to res://.godot/saved-audit-initial.xml

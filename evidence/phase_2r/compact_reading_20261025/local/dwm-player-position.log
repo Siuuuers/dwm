@@ -1,0 +1,34 @@
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+---  GUT  ---
+[1m[INFO]:  [0musing [/workspace/scratch/359fe558320b/dwm/.godot/player-position-test/godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+[4m
+
+res://tests/unit/test_scene_player_position.gd
+[0m* test_compact_position_preserves_current_caption_and_continues_without_id_reuse
+* test_held_control_keeps_authored_predecessor_without_traversal_proof
+* test_invalid_locator_memory_and_compatibility_refuse_before_adoption
+* test_compact_publication_requires_canonical_positive_unexhausted_counter
+* test_publication_exhaustion_refuses_before_increment_or_collision_wrap
+[1m5/5 passed.
+[0m
+
+
+
+[33m==============================================
+[0m[33m= Run Summary
+[0m[33m==============================================
+[0m
+Totals
+------
+Scripts               1
+Tests                 5
+Passing Tests         5
+Asserts             100
+Time              0.485s
+
+
+[32m---- All tests passed! ----
+[0m

@@ -1,0 +1,50 @@
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+---  GUT  ---
+[1m[INFO]:  [0musing [/root/.local/share/godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+[4m
+
+res://tests/unit/test_dialogic_runtime_adapter.gd
+[0m* test_adapter_script_exists
+* test_bind_connects_audited_signals_once
+* test_bind_rejects_missing_text_subsystem
+* test_bind_rejects_missing_choices_subsystem
+* test_bind_rejects_null_runtime
+* test_bind_rejects_partial_qualified_lifecycle_without_query_methods
+* test_start_timeline_orders_clear_reapply_then_start
+* test_capture_checkpoint_never_serializes_full_state
+* test_runtime_start_refusal_does_not_leave_admission_occupied
+* test_ready_layout_without_timeline_is_removed_after_failed_start
+* test_reentrant_cancel_before_native_start_cannot_be_overwritten_by_startup
+* test_capture_and_restore_state_roundtrip
+* test_halt_ends_timeline_and_returns_error
+* test_held_control_authored_predecessor_needs_no_saved_history
+* test_held_control_authored_predecessor_refuses_wrong_position_and_marker
+* test_held_control_live_predecessor_still_binds_latest_publication
+[1m16/16 passed.
+[0m
+
+
+
+[33m==============================================
+[0m[33m= Run Summary
+[0m[33m==============================================
+[0m
+Totals
+------
+Scripts               1
+Tests                16
+Passing Tests        16
+Asserts              59
+Time              0.511s
+
+
+[32m---- All tests passed! ----
+[0m
+Results saved to res://.godot/reading-adapter-tests/unit.xml
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+   at: cleanup (core/object/object.cpp:2663)
+ERROR: 3 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:810)

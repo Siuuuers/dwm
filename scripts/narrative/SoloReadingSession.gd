@@ -31,6 +31,7 @@ var marker_frontier: Dictionary = {}
 var scene_occurrence := ""
 var scene_index := 0
 var _scene_nodes: Dictionary = {}
+var _scene_bundle: Dictionary = {}
 
 func configure_scene() -> Dictionary:
 	var timing := preload("res://scripts/narrative/SceneValidationTiming.gd")
@@ -74,6 +75,8 @@ func _configure_scene_observed_body() -> Dictionary:
 	catalogue = compiled_catalogue
 	registry = {"kind": "narrative_caption_registry", "schema_version": 1, "beats": beats}
 	_scene_nodes = compiled_nodes
+	_scene_bundle = bundle
+	FROZEN._freeze(_scene_bundle)
 	for beat: Dictionary in beats: _caption_variants_by_line[beat.line_id] = beat
 	FROZEN._freeze(catalogue)
 	FROZEN._freeze(registry)
@@ -91,6 +94,7 @@ func _fork_scene_configuration() -> RefCounted:
 	sibling.catalogue = catalogue
 	sibling.registry = registry
 	sibling._scene_nodes = _scene_nodes
+	sibling._scene_bundle = _scene_bundle
 	sibling._caption_variants_by_line = _caption_variants_by_line.duplicate()
 	return sibling
 
@@ -155,6 +159,145 @@ func _capture_scene(frontier: Dictionary) -> Dictionary:
 		"next_operation": null if next_operation.is_empty() else next_operation.duplicate(true)}
 	var checked := _validate_scene_saved(saved, latest_entry)
 	return {"ok": true, "value": saved} if checked.ok else checked
+
+## Player saves retain a stable authored position and its current genuine caption.
+## History is derived separately; full capture/restore remains the live contract.
+static func project_player_checkpoint(checkpoint: Dictionary) -> Dictionary:
+	var reading: Variant = checkpoint.get("reading_session")
+	if not reading is Dictionary or reading.get("schema_version") not in [5, 6]:
+		return {"ok": true, "value": checkpoint.duplicate(true)}
+	var session: RefCounted = load("res://scripts/narrative/SoloReadingSession.gd").new()
+	var configured: Dictionary = session.configure_scene()
+	if not configured.ok: return configured
+	if reading.schema_version == 6:
+		var checked: Dictionary = session.restore_player(reading, str(checkpoint.get("entry_id", "")))
+		return {"ok": true, "value": checkpoint.duplicate(true)} if checked.ok else checked
+	var restored: Dictionary = session.restore(reading, str(checkpoint.get("entry_id", "")))
+	if not restored.ok: return restored
+	var projected: Dictionary = session._project_player_reading(reading)
+	if not projected.ok: return projected
+	var result := checkpoint.duplicate(true)
+	result.reading_session = projected.value
+	return {"ok": true, "value": result}
+
+static func expand_player_checkpoint(checkpoint: Dictionary) -> Dictionary:
+	var reading: Variant = checkpoint.get("reading_session")
+	if not reading is Dictionary or reading.get("schema_version") != 6:
+		return {"ok": true, "value": checkpoint.duplicate(true)}
+	var session: RefCounted = load("res://scripts/narrative/SoloReadingSession.gd").new()
+	var configured: Dictionary = session.configure_scene()
+	if not configured.ok: return configured
+	var restored: Dictionary = session.restore_player(reading, str(checkpoint.get("entry_id", "")))
+	if not restored.ok: return restored
+	var frontier := {}
+	if reading.boundary == "line":
+		var tail: Dictionary = reading.captions.back()
+		frontier = {"line_id": tail.line_id, "publication_id": tail.publication_id}
+	var captured: Dictionary = session.capture(frontier)
+	if not captured.ok: return captured
+	var result := checkpoint.duplicate(true)
+	result.reading_session = captured.value
+	return {"ok": true, "value": result}
+
+func _project_player_reading(saved: Dictionary) -> Dictionary:
+	var captions: Array[Dictionary] = []
+	for row: Dictionary in saved.ledger.captions:
+		if row.occurrence_id == saved.occurrence_id and row.beat.owning_entry_id == saved.entry_id:
+			captions.append({"line_id": row.beat.line_id, "publication_id": row.publication_id})
+	if captions.is_empty(): return _fail(&"reading_frontier_invalid")
+	captions = [captions.back()]
+	var node: Dictionary = _scene_nodes[saved.entry_id][saved.program_index]
+	var position: String = node.marker_id if saved.boundary == "control" else captions.back().line_id
+	var compact := {"schema_version": 6, "registration_sha256": fingerprint,
+		"entry_id": saved.entry_id, "occurrence_id": saved.occurrence_id,
+		"boundary": saved.boundary, "position_id": position,
+		"session_token": saved.ledger.session_token,
+		"publication_serial": _scene_publication_high_water(saved.ledger.captions), "captions": captions}
+	# Authoritative current position must also resolve without the removed history.
+	var candidate: RefCounted = _fork_scene_configuration()
+	var checked: Dictionary = candidate.restore_player(compact, saved.entry_id)
+	return {"ok": true, "value": compact} if checked.ok else checked
+
+func restore_player(saved: Dictionary, entry_id: String) -> Dictionary:
+	if family != "scene" or not FROZEN._exact(saved, ["schema_version", "registration_sha256",
+			"entry_id", "occurrence_id", "boundary", "position_id", "session_token", "publication_serial", "captions"]) \
+			or typeof(saved.schema_version) != TYPE_INT or saved.schema_version != 6 \
+			or saved.registration_sha256 != fingerprint or saved.entry_id != entry_id \
+			or not _scene_nodes.has(entry_id) or saved.boundary not in ["line", "control", "between_entries"] \
+			or not saved.position_id is String or saved.position_id.is_empty() \
+			or not saved.session_token is String or saved.session_token.strip_edges().is_empty() \
+			or not saved.occurrence_id is String or saved.occurrence_id.strip_edges().is_empty() \
+			or typeof(saved.publication_serial) != TYPE_INT or saved.publication_serial <= 0 \
+			or saved.publication_serial == 9223372036854775807 \
+			or not saved.captions is Array or saved.captions.size() != 1:
+		return _fail(&"reading_checkpoint_invalid")
+	var rows: Array[Dictionary] = []
+	var publications := {}
+	for value: Variant in saved.captions:
+		if not value is Dictionary or not FROZEN._exact(value, ["line_id", "publication_id"]) \
+				or not value.line_id is String or not _caption_variants_by_line.has(value.line_id) \
+				or not value.publication_id is String or value.publication_id.strip_edges().is_empty() \
+				or value.publication_id != "caption:%d" % saved.publication_serial \
+				or publications.has(value.publication_id): return _fail(&"reading_frontier_invalid")
+		var beat: Dictionary = _caption_variants_by_line[value.line_id]
+		if beat.owning_entry_id != entry_id: return _fail(&"reading_frontier_invalid")
+		publications[value.publication_id] = true
+		rows.append({"publication_id": value.publication_id, "occurrence_id": saved.occurrence_id,
+			"beat": beat.duplicate(true)})
+	# The retained caption includes the latest production allocation. Never restart
+	# caption numbering and accidentally reuse an older command's reading anchor.
+	if saved.publication_serial != _scene_publication_high_water(rows):
+		return _fail(&"reading_frontier_invalid")
+	var nodes: Array = _scene_nodes[entry_id]
+	var index := -1
+	for cursor: int in nodes.size():
+		var node: Dictionary = nodes[cursor]
+		if (saved.boundary == "control" and node.kind == "control" and node.marker_id == saved.position_id) \
+				or (saved.boundary != "control" and node.kind == "caption" and node.line_id == saved.position_id):
+			if index >= 0: return _fail(&"reading_frontier_invalid")
+			index = cursor
+	if index < 0: return _fail(&"reading_frontier_invalid")
+	var tail: Dictionary = rows.back()
+	if saved.boundary == "control":
+		var registered := preload("res://scripts/narrative/DialogicEntryManifest.gd").scene_registration()
+		if not registered.ok: return registered
+		var predecessor := _fail(&"reading_frontier_invalid")
+		for programme: Dictionary in registered.value.scene_programme.entries:
+			if programme.entry_id == entry_id:
+				predecessor = DialogicRuntimeAdapter._scene_control_authored_predecessor(index, {"nodes": nodes}, programme.markers)
+		if not predecessor.ok or predecessor.value.line_id != tail.beat.line_id:
+			return _fail(&"reading_frontier_invalid")
+	else:
+		if tail.beat.line_id != saved.position_id: return _fail(&"reading_frontier_invalid")
+		if saved.boundary == "between_entries":
+			index = nodes[index].next
+			var visited := {}
+			while index >= 0 and index < nodes.size() and nodes[index].kind == "jump" and not visited.has(index):
+				visited[index] = true
+				index = nodes[index].next
+			if index < 0 or index >= nodes.size() or nodes[index].kind != "completion":
+				return _fail(&"reading_frontier_invalid")
+	var presentation := FROZEN.build(entry_id, {"entry_id": entry_id, "entry_role": "scene",
+		"occurrence_id": saved.occurrence_id, "admission_receipt_id": saved.occurrence_id})
+	if not presentation.ok: return presentation
+	var frame := {"expected_stage": "scene", "playback_id": saved.occurrence_id, "role": "scene",
+		"transaction_id": saved.occurrence_id, "presentation": presentation.value}
+	var live := {"schema_version": 5, "registration_sha256": fingerprint, "entry_id": entry_id,
+		"occurrence_id": saved.occurrence_id, "program_index": index, "boundary": saved.boundary,
+		"ledger": {"schema_version": 2, "session_token": saved.session_token,
+			"frozen_context": {"family": "scene", "session_token": saved.session_token, "registration_sha256": fingerprint},
+			"entry_contexts": {LEDGER.scene_frame_key(saved.occurrence_id, entry_id): frame}, "captions": rows},
+		"frontier": {"line_id": tail.beat.line_id, "publication_id": tail.publication_id} if saved.boundary == "line" else {},
+		"next_operation": null}
+	return restore(live, entry_id)
+
+static func _scene_publication_high_water(captions: Array) -> int:
+	var result := 0
+	for row: Dictionary in captions:
+		var publication: String = row.publication_id
+		if publication.begins_with("caption:") and publication.trim_prefix("caption:").is_valid_int():
+			result = maxi(result, int(publication.trim_prefix("caption:")))
+	return result
 
 func _validate_scene_base(saved: Dictionary, entry_id: String) -> Dictionary:
 	if not TRAVERSAL.valid_scene_reading_shape(saved) or saved.entry_id != entry_id \
@@ -259,6 +402,31 @@ func prepare_scene_next(frontier: Dictionary, is_witnessed: Callable) -> Diction
 		"path": path, "traversed_captions": captions, "destination": destination}
 	var checked := TRAVERSAL.validate_scene_path(plan, nodes)
 	return {"ok": true, "value": plan} if checked.ok else checked
+
+## Display-only current-day passage. Reconstructed rows are never published to
+## the live ledger or used to authenticate gameplay commands.
+func project_scene_day_history(frontier: Dictionary, choices: Dictionary, outcomes: Dictionary) -> Dictionary:
+	if family != "scene": return _fail(&"reading_session_unavailable")
+	if not _scene_bundle.get("scene_programme", {}).has("story_days"):
+		var historical := _project_scene(frontier)
+		if historical.ok: historical.value["occurrence_id"] = scene_occurrence
+		return historical
+	var captured := _capture_scene(frontier)
+	if not captured.ok: return captured
+	var captions: Array = captured.value.ledger.captions
+	if captions.is_empty(): return _fail(&"reading_frontier_invalid")
+	var tail: Dictionary = captions.back()
+	if tail.occurrence_id != scene_occurrence or tail.beat.owning_entry_id != latest_entry:
+		return _fail(&"reading_frontier_invalid")
+	var projected: Dictionary = load("res://scripts/narrative/SceneReadingHistory.gd").project(
+		_scene_bundle, _scene_nodes, latest_entry, scene_index, choices, outcomes)
+	if not projected.ok: return projected
+	var rows: Array = projected.value.captions
+	if rows.is_empty() or rows.back().line_id != tail.beat.line_id or rows.back().entry_id != latest_entry:
+		return _fail(&"reading_frontier_invalid")
+	rows.back().publication_id = tail.publication_id
+	return {"ok": true, "value": {"captions": rows, "frontier": frontier.duplicate(true),
+		"session_id": command_id, "occurrence_id": scene_occurrence}}
 
 func _project_scene(frontier: Dictionary) -> Dictionary:
 	var captured := _capture_scene(frontier)

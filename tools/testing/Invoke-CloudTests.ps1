@@ -1,6 +1,6 @@
 param(
     [Parameter(Mandatory = $true)]
-    [ValidateSet('minesweeper', 'shop', 'desktop', 'settings', 'checkpoint_diagnostics', 'new_account', 'reading_delivery', 'localization', 'dating', 'persistence', 'endings', 'audio', 'public_surfaces', 'scene_desktop_first_reveal', 'scene_round_checkpoint', 'scene_shop_checkpoint', 'scene_story_localization', 'scene_controls_localization', 'scene_apps', 'current_title', 'scene_backup_inspection', 'authored_week', 'scene_five_outcomes', 'timeline_resources', 'backup_presentation', 'profile_parse', 'backup_current_build', 'terminal_admission', 'current_quick_load', 'current_terminal_fixture', 'scene_multiple_thoughts', 'scene_challenge_recall', 'scene_same_day_supportz')]
+    [ValidateSet('minesweeper', 'shop', 'desktop', 'settings', 'checkpoint_diagnostics', 'new_account', 'reading_delivery', 'localization', 'dating', 'persistence', 'endings', 'audio', 'public_surfaces', 'scene_desktop_first_reveal', 'scene_round_checkpoint', 'scene_shop_checkpoint', 'scene_story_localization', 'scene_controls_localization', 'scene_apps', 'current_title', 'scene_backup_inspection', 'authored_week', 'scene_five_outcomes', 'timeline_resources', 'backup_presentation', 'profile_parse', 'backup_current_build', 'terminal_admission', 'current_quick_load', 'current_terminal_fixture', 'scene_multiple_thoughts', 'scene_challenge_recall', 'scene_same_day_supportz', 'scene_player_position', 'scene_native_restore', 'scene_day_history', 'scene_later_caption', 'scene_caption_challenge')]
     [string]$Suite
 )
 
@@ -15,6 +15,11 @@ if ($Suite -eq 'current_terminal_fixture') {
 # Deliberate, bounded UI and input regression coverage. Each path must actually
 # execute; Invoke-IsolatedGodot also rejects GUT's silent suite-load failures.
 $suites = @{
+    scene_player_position = @('tests/unit/test_scene_player_position.gd')
+    scene_native_restore = @('tests/integration/test_scene_native_activation_runtime.gd')
+    scene_day_history = @('tests/unit/test_scene_reading_history.gd', 'tests/unit/test_scene_day_history_session.gd')
+    scene_later_caption = @('tests/integration/test_scene_later_caption_create.gd')
+    scene_caption_challenge = @('tests/integration/test_scene_caption_challenge.gd')
     scene_multiple_thoughts = @(
         'tests/integration/test_scene_multiple_thoughts_create.gd'
     )
@@ -360,6 +365,8 @@ $arguments = @(
 )
 # Creator and loader must share storage but never a process/registration registry.
 $loadScripts = @{
+    scene_later_caption = 'tests/integration/test_scene_later_caption_load.gd'
+    scene_caption_challenge = 'tests/integration/test_scene_caption_challenge_load.gd'
     scene_same_day_supportz = 'tests/integration/test_scene_same_day_supportz_load.gd'
     scene_multiple_thoughts = 'tests/integration/test_scene_multiple_thoughts_load.gd'
     scene_challenge_recall = 'tests/integration/test_scene_challenge_recall_load.gd'
@@ -368,7 +375,7 @@ $loadScripts = @{
     current_title = 'tests/integration/test_current_title_scene_load.gd'
 }
 $extra = @{}
-if ($Suite -in @('scene_story_localization', 'scene_apps', 'current_title', 'scene_desktop_first_reveal', 'current_quick_load', 'scene_multiple_thoughts', 'scene_challenge_recall', 'scene_same_day_supportz')) { $extra.Rendered = $true }
+if ($Suite -in @('scene_native_restore', 'scene_later_caption', 'scene_caption_challenge', 'scene_story_localization', 'scene_apps', 'current_title', 'scene_desktop_first_reveal', 'current_quick_load', 'scene_multiple_thoughts', 'scene_challenge_recall', 'scene_same_day_supportz')) { $extra.Rendered = $true }
 if ($loadScripts.ContainsKey($Suite)) {
     $loadScript = $loadScripts[$Suite]
     if (-not (Test-Path -LiteralPath (Join-Path $repositoryRoot $loadScript))) { throw "Requested test does not exist: $loadScript" }
@@ -516,7 +523,7 @@ if (-not (Test-Path -LiteralPath $report)) { throw 'GUT did not produce its JUni
 $executed = $xml.SelectNodes('//testcase').Count
 if ($executed -eq 0) { throw 'GUT did not report any executed tests.' }
 if ($xml.SelectNodes('//failure | //error').Count -ne 0) { throw 'GUT reported test failures.' }
-if ($Suite -in @('scene_same_day_supportz', 'scene_desktop_first_reveal', 'scene_round_checkpoint', 'scene_shop_checkpoint', 'scene_story_localization', 'scene_controls_localization', 'scene_apps', 'current_title', 'scene_backup_inspection', 'authored_week', 'scene_five_outcomes', 'timeline_resources', 'backup_presentation', 'profile_parse', 'backup_current_build', 'terminal_admission', 'current_quick_load')) {
+if ($Suite -in @('scene_player_position', 'scene_native_restore', 'scene_day_history', 'scene_later_caption', 'scene_caption_challenge', 'scene_same_day_supportz', 'scene_desktop_first_reveal', 'scene_round_checkpoint', 'scene_shop_checkpoint', 'scene_story_localization', 'scene_controls_localization', 'scene_apps', 'current_title', 'scene_backup_inspection', 'authored_week', 'scene_five_outcomes', 'timeline_resources', 'backup_presentation', 'profile_parse', 'backup_current_build', 'terminal_admission', 'current_quick_load')) {
     foreach ($case in $xml.SelectNodes('//testcase')) {
         if ($case.GetAttribute('classname') -cnotin $suites[$Suite] -or
             $case.GetAttribute('status') -cne 'pass' -or [int]$case.GetAttribute('assertions') -le 0) {

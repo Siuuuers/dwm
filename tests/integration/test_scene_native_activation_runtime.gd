@@ -219,6 +219,143 @@ func test_real_native_restores_control_as_held_predecessor_and_consumes_source_o
 	assert_eq(checkpoint, before)
 
 
+## Real detached TEST admission, using the current Scene frame identity law.
+## It supplies no fake historical admissions or native restoration capabilities.
+func _compact_source(entry: String, advances: int, held: bool = false) -> Dictionary:
+	var created: Dictionary = BASE.create_session()
+	assert_true(created.ok)
+	if not created.ok: return {}
+	var session: RefCounted = created.value
+	var occurrence := "TEST.native.compact." + entry
+	var context: Dictionary = BASE.frame(entry, occurrence)
+	context.transaction_id = occurrence
+	context.presentation.fields.admission_receipt_id = occurrence
+	assert_true(session.admit_scene(entry, context).ok)
+	var allocated: Dictionary = session.ledger.allocate_publication(session.command_id, entry, occurrence)
+	assert_true(allocated.ok)
+	var first: String = session.entry_program(entry).value.lines[0].line_id
+	assert_true(session.ledger.publish_line(session.command_id, allocated.value, entry, first, occurrence).ok)
+	for index: int in advances:
+		assert_true(BASE.advance_detached(session).ok)
+	var saved: Dictionary = BASE.checkpoint(session)
+	assert_true(saved.ok)
+	if not saved.ok: return {}
+	saved.value.frozen_context = context
+	saved.value.transaction_id = occurrence
+	if held:
+		assert_true(BASE.advance_detached(session).ok)
+		var control: Dictionary = session.capture({})
+		assert_true(control.ok)
+		if not control.ok: return {}
+		saved.value.reading_session = control.value
+	var compact: Dictionary = preload("res://scripts/narrative/SoloReadingSession.gd").project_player_checkpoint(saved.value)
+	assert_true(compact.ok, str(compact))
+	if not compact.ok: return {}
+	return {"source": session, "live": saved.value, "compact": compact.value}
+
+
+func _assert_full_compact_caption(text: String) -> void:
+	assert_not_null(_adapter._caption_event)
+	assert_eq(_adapter._caption_event.state, DialogicTextEvent.States.DONE)
+	assert_eq(_adapter._caption_event.get_property_translated("text"), text)
+	var found := false
+	for node: Node in get_tree().get_nodes_in_group("dialogic_dialog_text"):
+		if not _viewport.is_ancestor_of(node): continue
+		found = true
+		assert_eq(node.get_parsed_text(), text)
+		assert_eq(node.visible_ratio, 1.0, "full caption is revealed")
+		assert_false(node.revealing)
+	assert_true(found, "actual native caption node exists")
+
+
+func test_compact_later_caption_restores_current_publication_without_replay() -> void:
+	var fixture := _compact_source(BASE.A, 4)
+	if fixture.is_empty(): return
+	var compact: Dictionary = fixture.compact
+	assert_eq(fixture.live.reading_session.ledger.captions.size(), 5)
+	assert_eq(compact.reading_session.schema_version, 6)
+	assert_eq(compact.reading_session.captions.size(), 1)
+	assert_false(compact.reading_session.has("ledger"))
+	assert_false(compact.reading_session.has("next_operation"))
+	var before: Dictionary = compact.duplicate(true)
+	var confirmations: Array[String] = []
+	var markers: Array = []
+	_bridge.scene_activation_confirmed.connect(func(id: String) -> void: confirmations.append(id))
+	_adapter.runtime_signal_event.connect(func(value: Variant) -> void: markers.append(value))
+	var checked: Dictionary = _bridge.validate_reading_checkpoint(compact)
+	assert_true(checked.ok, str(checked))
+	var staged: Dictionary = _bridge.stage_scene_reading_restore(compact, "restore.compact.caption")
+	assert_true(staged.ok, str(staged))
+	if not staged.ok: return
+	assert_false(_adapter.has_active_playback())
+	assert_true(_bridge.begin_scene_activation("restore.compact.caption").ok)
+	for frame: int in 30:
+		if not confirmations.is_empty(): break
+		await get_tree().process_frame
+	assert_eq(confirmations, ["restore.compact.caption"])
+	assert_true(_bridge.validate_scene_activation("restore.compact.caption").ok)
+	_assert_full_compact_caption("A loop.")
+	var restored: RefCounted = _bridge._reading_session
+	var frontier: Dictionary = _adapter.capture_reading_frontier().value
+	assert_eq(frontier, fixture.live.reading_session.frontier)
+	assert_eq(restored.ledger.snapshot().captions, fixture.live.reading_session.ledger.captions.slice(4))
+	var memory: Dictionary = restored.project_scene_caption_memory(frontier)
+	assert_true(memory.ok)
+	assert_eq(memory.value.captions.size(), 1)
+	assert_eq(restored.next_operation, {}, "old traversal retry is not restored")
+	assert_eq(_bridge.get_reading_history().value.captions.size(), 1, "fixture without story days retains its current caption")
+	assert_false(_results.is_empty())
+	for result: Dictionary in _results:
+		assert_true(result.ok)
+		assert_true(result.value.get("duplicate", false), "restoration does not allocate another caption")
+	assert_eq(markers, [])
+	assert_true(_bridge.begin_scene_activation("restore.compact.caption").ok)
+	assert_eq(confirmations.size(), 1)
+	assert_eq(compact, before, "restoration leaves player bytes unchanged")
+
+
+func test_compact_control_restores_full_held_predecessor_without_firing_marker() -> void:
+	var fixture := _compact_source(BASE.B, 1, true)
+	if fixture.is_empty(): return
+	var compact: Dictionary = fixture.compact
+	assert_eq(compact.reading_session.boundary, "control")
+	assert_eq(compact.reading_session.position_id, "scene.test.b.end")
+	assert_false(compact.reading_session.has("ledger"))
+	var confirmations: Array[String] = []
+	var markers: Array = []
+	_bridge.scene_activation_confirmed.connect(func(id: String) -> void: confirmations.append(id))
+	_adapter.runtime_signal_event.connect(func(value: Variant) -> void: markers.append(value))
+	var staged: Dictionary = _bridge.stage_scene_reading_restore(compact, "restore.compact.control")
+	assert_true(staged.ok, str(staged))
+	if not staged.ok: return
+	assert_false(_adapter.has_active_playback())
+	assert_true(_bridge.begin_scene_activation("restore.compact.control").ok)
+	for frame: int in 30:
+		if not confirmations.is_empty(): break
+		await get_tree().process_frame
+	assert_eq(confirmations, ["restore.compact.control"])
+	assert_true(_bridge.validate_scene_activation("restore.compact.control").ok)
+	_assert_full_compact_caption("B second.")
+	assert_true(_adapter.is_marker_source_held())
+	var restored: RefCounted = _bridge._reading_session
+	var held: Dictionary = _adapter.capture_scene_control_position(restored)
+	assert_true(held.ok)
+	assert_eq(held.value.boundary, "control")
+	assert_eq(restored.next_operation, {})
+	assert_eq(restored.ledger.snapshot().captions, fixture.live.reading_session.ledger.captions.slice(1))
+	assert_false(_adapter.capture_scene_control_position(fixture.source).ok, "old owner cannot borrow new native custody")
+	var round_trip: Dictionary = preload("res://scripts/narrative/SoloReadingSession.gd").project_player_checkpoint(
+		_bridge.capture_reading_checkpoint(false).value)
+	assert_true(round_trip.ok)
+	assert_eq(round_trip.value, compact)
+	for result: Dictionary in _results:
+		assert_true(result.ok)
+		assert_true(result.value.get("duplicate", false))
+	assert_eq(markers, [], "restoration never executes the control signal")
+	assert_true(_bridge.begin_scene_activation("restore.compact.control").ok)
+	assert_eq(confirmations.size(), 1)
+
+
 func _restore_counted_control() -> Dictionary:
 	var created: Dictionary = BASE.create_session()
 	assert_true(created.ok)

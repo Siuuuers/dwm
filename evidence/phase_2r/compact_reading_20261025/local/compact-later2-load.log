@@ -1,0 +1,46 @@
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+---  GUT  ---
+[1m[INFO]:  [0musing [/workspace/scratch/359fe558320b/dwm/.godot/phase2r_tests/compact-later-pair2/user/godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+[4m
+
+res://tests/integration/test_scene_later_caption_load.gd
+[0m* test_fresh_process_load_restores_later_caption_and_accept_reenters_loop_once
+[31m    [Failed]:  [0m["39f266197a1e64d278acac8e208257ac88760d3f4250e99ad60f1918267cc1b4"] expected to equal ["eda1ab9477b755237383cba4c4d56bf459769f5cd39f64e55e814b6253a2b075"]:  
+      at line 3
+[31m    [Failed]:  [0mscene_activation_pending
+      at line 3
+[33m    22 Orphans[0m
+[33m        * [SceneHost:<Control#1551422720590>(SceneHost.gd)] + 16[0m
+[33m22 orphans[0m
+[1m0/1 passed.
+[0m
+
+
+
+[33m==============================================
+[0m[33m= Run Summary
+[0m[33m==============================================
+[0m[4m
+res://tests/integration/test_scene_later_caption_load.gd
+[0m- test_fresh_process_load_restores_later_caption_and_accept_reenters_loop_once
+[31m    [Failed]:  [0m["39f266197a1e64d278acac8e208257ac88760d3f4250e99ad60f1918267cc1b4"] expected to equal ["eda1ab9477b755237383cba4c4d56bf459769f5cd39f64e55e814b6253a2b075"]:  
+          at line 3
+[31m    [Failed]:  [0mscene_activation_pending
+          at line 3
+
+Totals
+------
+Scripts               1
+Tests                 1
+Passing Tests      none
+Failing Tests         1
+Asserts            9/11
+Time              1.129s
+
+
+[31m---- 1 failing tests ----
+[0m
+Results saved to res://.godot/compact-admission-tests/later2-load.xml

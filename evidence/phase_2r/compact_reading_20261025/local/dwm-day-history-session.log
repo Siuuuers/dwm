@@ -1,0 +1,31 @@
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+---  GUT  ---
+[1m[INFO]:  [0musing [/workspace/scratch/359fe558320b/dwm/.godot/day-history-session-test/godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+[4m
+
+res://tests/unit/test_scene_day_history_session.gd
+[0m* test_reconstructed_day_passage_does_not_create_historical_publications
+* test_day_two_passage_starts_at_day_two
+[1m2/2 passed.
+[0m
+
+
+
+[33m==============================================
+[0m[33m= Run Summary
+[0m[33m==============================================
+[0m
+Totals
+------
+Scripts               1
+Tests                 2
+Passing Tests         2
+Asserts              22
+Time              0.803s
+
+
+[32m---- All tests passed! ----
+[0m

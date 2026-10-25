@@ -143,9 +143,11 @@ func restore_snapshot(session_token: String, frozen_context: Dictionary,
 func allocate_publication(session_token: String, entry_id: String, occurrence_id: String = "") -> Dictionary:
 	var checked := check_session(session_token, entry_id, occurrence_id)
 	if not checked.ok: return checked
+	if _publication_serial == 9223372036854775807: return _fail(&"caption_publication_exhausted")
 	_publication_serial += 1
 	var publication_id := "caption:%d" % _publication_serial
 	while _published.has(publication_id):
+		if _publication_serial == 9223372036854775807: return _fail(&"caption_publication_exhausted")
 		_publication_serial += 1
 		publication_id = "caption:%d" % _publication_serial
 	return {"ok": true, "value": publication_id}
@@ -313,6 +315,12 @@ func _restore_scene_snapshot(session_token: String, frozen_context: Dictionary,
 	_published = candidate._published
 	_sequence = candidate._sequence
 	_publication_serial = _sequence.size()
+	# A compact player restore retains only the current genuine publication.
+	# Traversal clones must not reuse the identifiers omitted from the saved reading.
+	for row: Dictionary in _sequence:
+		var publication: String = row.publication_id
+		if publication.begins_with("caption:") and publication.trim_prefix("caption:").is_valid_int():
+			_publication_serial = maxi(_publication_serial, int(publication.trim_prefix("caption:")))
 	return {"ok": true}
 
 static func _has_exact_fields(value: Dictionary, fields: Array) -> bool:

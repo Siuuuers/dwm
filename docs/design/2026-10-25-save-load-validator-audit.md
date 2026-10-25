@@ -48,6 +48,31 @@ File size and validation cost are different measurements. Small metadata removal
 
 Save during a real DTL beat with an unfinished Challenge/board, earlier choice/outcome state and active economy values. Load in a fresh Windows cloud process. Verify the same full caption, correct background/music derived from DTL, exact board and values, normal input, and the same subsequent branch. Verify loading does not repeat purchases, charges or rewards; global unlocks/read history remain. Cover Day 7 dialogue under both saved fork values as authored DTL permits. Compare complete Save/Load operations against PR83. Do not claim a speedup or remove the old production path solely because a smaller JSON example works.
 
+## Current-day History refinement — 25 October 2026
+
+The owner clarified that History preserves the current day's read passage and caption
+scrolling uses the same History source. Clear the displayed passage when the next day
+begins; global read flags and Gallery unlocks remain. The earlier three-caption-only
+Load preference was superseded in the same discussion. Contacts are excluded from
+this reconstruction task.
+
+The selected design reconstructs the authored passage up to the current stable
+position from saved choices and Challenge outcomes, without executing story controls.
+The inspected production registration contains 92 entries, unique choice opportunities,
+no Contacts and no cycles. Choices alone are insufficient: Challenge result branches
+and recalls also determine the passage. Resolve text from the installed caption catalogue;
+do not persist duplicate passage text or a historical transaction log solely for History.
+Both the History overlay and caption scrolling consume this one display projection.
+Reconstructed display rows are never native publication or command-admission evidence.
+
+The first implementation increment retains the existing genuine top-level story receipts
+for their active Challenge/Contacts consumers. Compact scene reading uses schema 6,
+a stable line/control locator and one current caption reference. Its publication high-water
+prevents new live captions from reusing earlier IDs. Full live reading capture and genuine
+retry data remain separate for traversal and rollback. This is not yet elimination of every
+story receipt, ending-source field, audio context or saved application field, nor a measured
+performance improvement.
+
 ## Current-scene relationship-field removal candidate
 
 The first runtime increment removes `affection`, `friend_attitude`, `friends`,

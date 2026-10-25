@@ -1,0 +1,40 @@
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+---  GUT  ---
+[1m[INFO]:  [0musing [/root/.local/share/godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+[4m
+
+res://tests/unit/test_scene_reading_history.gd
+[0m* test_day1_all_photo_and_challenge_paths_to_shared_coda
+* test_day2_all_food_result_and_threshold_paths
+* test_day3_both_partner_routes_and_all_results
+* test_day4_all_pastille_results_and_aftermath_paths
+* test_day5_prior_day_recall_both_cheek_paths_and_all_results
+* test_day6_all_rehearsal_results_and_aftermath_paths
+* test_day7_both_clipboards_results_recording_recall_and_all_aftermath_paths
+* test_current_prefix_and_held_choice_need_no_future_facts
+* test_missing_invalid_ambiguous_facts_and_unreachable_position_refuse
+* test_day_start_is_authored_and_ambiguous_cross_day_entry_is_refused
+[1m10/10 passed.
+[0m
+
+
+
+[33m==============================================
+[0m[33m= Run Summary
+[0m[33m==============================================
+[0m
+Totals
+------
+Scripts               1
+Tests                10
+Passing Tests        10
+Asserts            3027
+Time              14.21s
+
+
+[32m---- All tests passed! ----
+[0m
+Results saved to res://.godot/reading-adapter-tests/history.xml

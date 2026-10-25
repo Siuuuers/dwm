@@ -146,12 +146,14 @@ func _save_authored(slot: int, label: String) -> Dictionary:
 	var parsed: Dictionary = PARSER.parse_object(FileAccess.get_file_as_string(path))
 	if not _ok(parsed): return {}
 	var snapshot: Dictionary = parsed.value.current_snapshot.snapshot
-	assert_eq(snapshot.narrative_checkpoint, reading.value, "physical Save preserves exact visible frontier")
+	var player_reading: Dictionary = preload("res://scripts/narrative/SoloReadingSession.gd").project_player_checkpoint(reading.value)
+	if not _ok(player_reading): return {}
+	assert_eq(snapshot.narrative_checkpoint, player_reading.value, "physical Save preserves exact visible position without history")
 	assert_eq(bridge.capture_reading_checkpoint(false).value, reading.value, "Back preserves frontier")
 	await _screenshot("authored-" + label)
 	var proof := {"process_id": OS.get_process_id(), "user_dir": ProjectSettings.globalize_path("user://"),
 		"registration_sha256": AUTHORED_MANIFEST.scene_registration_fingerprint(),
-		"checkpoint": reading.value, "snapshot": snapshot, "saved_native": native,
+		"checkpoint": snapshot.narrative_checkpoint, "snapshot": snapshot, "saved_native": native,
 		"profile": profile.get_profile_snapshot(), "slot_sha256": FileAccess.get_sha256(path),
 		"autosave_sha256": FileAccess.get_sha256("user://saves/autosave.json"),
 		"profile_sha256": FileAccess.get_sha256("user://profile.json"),
@@ -182,15 +184,17 @@ func _load_authored(slot: int, proof: Dictionary) -> bool:
 	if is_instance_valid(app) and is_instance_valid(app.confirmation):
 		if not await _press_authored(app.confirmation.confirm_button): return false
 	if not await _await_ready(): return false
-	var line_id: String = proof.checkpoint.reading_session.frontier.line_id
+	var expanded: Dictionary = preload("res://scripts/narrative/SoloReadingSession.gd").expand_player_checkpoint(proof.checkpoint)
+	if not _ok(expanded): return false
+	var line_id: String = expanded.value.reading_session.frontier.line_id
 	if not await _wait_line(line_id): return false
 	assert_eq(_ready_observation.line_id, line_id)
 	assert_true(_ready_observation.visible)
 	assert_false(_ready_observation.revealing)
 	assert_true(_ready_observation.event_done)
 	assert_eq(float(_ready_observation.visible_ratio), 1.0)
-	assert_eq(_ready_observation.ledger, proof.checkpoint.reading_session.ledger)
-	assert_eq(bridge.capture_reading_checkpoint(false).value, proof.checkpoint)
+	assert_eq(_ready_observation.ledger, expanded.value.reading_session.ledger)
+	assert_eq(bridge.capture_reading_checkpoint(false).value, expanded.value)
 	var current: Dictionary = game.capture_run_snapshot_input()
 	assert_eq(current.lifecycle.run_id, proof.snapshot.lifecycle.run_id)
 	assert_ne(current.lifecycle.branch_id, proof.snapshot.lifecycle.branch_id)

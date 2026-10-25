@@ -662,6 +662,15 @@ static func build_scene(snapshot_input: Dictionary, dialogic_checkpoint: Diction
 		"checkpoint_id": "%s:%d" % [str(snapshot_input.lifecycle.get("run_id", "")), checkpoint_sequence],
 		"route_id": route_id, "active_app_id": active_app_id,
 		"narrative_checkpoint": dialogic_checkpoint.duplicate(true), "audio_context": audio_context.duplicate(true)})
+	var player_reading: Dictionary = SCENE_READING.project_player_checkpoint(snapshot.narrative_checkpoint)
+	if not player_reading.ok: return player_reading
+	snapshot.narrative_checkpoint = player_reading.value
+	if is_scene_terminal(snapshot):
+		if not snapshot.lifecycle.ending_plan.get("source_reading_checkpoint") is Dictionary:
+			return _fail(&"reading_checkpoint_invalid", "terminal source reading must be an object")
+		var source_reading: Dictionary = SCENE_READING.project_player_checkpoint(snapshot.lifecycle.ending_plan.source_reading_checkpoint)
+		if not source_reading.ok: return source_reading
+		snapshot.lifecycle.ending_plan.source_reading_checkpoint = source_reading.value
 	var checked := validate(snapshot)
 	if not checked.ok: return checked
 	return {"ok": true, "code": &"ok", "value": {"snapshot": checked.value.candidate}}
@@ -685,6 +694,9 @@ static func build_scene_new_run_candidate(snapshot_input: Dictionary, dialogic_c
 		"checkpoint_id": str(snapshot_input.lifecycle.get("run_id", "")) + ":1",
 		"route_id": "scene", "active_app_id": null,
 		"narrative_checkpoint": dialogic_checkpoint.duplicate(true), "audio_context": audio_context.duplicate(true)})
+	var player_reading: Dictionary = SCENE_READING.project_player_checkpoint(snapshot.narrative_checkpoint)
+	if not player_reading.ok: return player_reading
+	snapshot.narrative_checkpoint = player_reading.value
 	var checked := validate_scene_new_run_candidate(snapshot, allocation_candidate, profile_material, bundle, issuer)
 	if not checked.ok: return checked
 	return {"ok": true, "code": &"ok", "value": {"snapshot": checked.value.candidate}}
@@ -754,7 +766,9 @@ static func validate_scene_new_run_candidate(snapshot: Dictionary, allocation_ca
 		return _fail(&"scene_initial_state_invalid", "initial desktop cannot contain prior attempts or consequences")
 	var reading := _validate_scene_reading(candidate)
 	if not reading.ok: return reading
-	var checkpoint: Dictionary = candidate.narrative_checkpoint
+	var expanded: Dictionary = SCENE_READING.expand_player_checkpoint(candidate.narrative_checkpoint)
+	if not expanded.ok: return expanded
+	var checkpoint: Dictionary = expanded.value
 	var saved: Dictionary = checkpoint.reading_session
 	var result: Dictionary = receipt.scene_admission.result
 	if checkpoint.transaction_id != transaction_id or checkpoint.entry_id != result.entry_id \
@@ -768,7 +782,11 @@ static func validate_scene_new_run_candidate(snapshot: Dictionary, allocation_ca
 	# tail can reuse that configuration while rebuilding a wholly new ledger.
 	var initial_reading: Dictionary = bridge_owner._build_scene_initial_checkpoint(receipt, bundle, reading.session)
 	if not initial_reading.ok: return initial_reading
-	if not _scene_exact_value(checkpoint, initial_reading.value):
+	var projected_initial: Dictionary = SCENE_READING.project_player_checkpoint(initial_reading.value)
+	if not projected_initial.ok: return projected_initial
+	var projected_candidate: Dictionary = SCENE_READING.project_player_checkpoint(checkpoint)
+	if not projected_candidate.ok: return projected_candidate
+	if not _scene_exact_value(projected_candidate.value, projected_initial.value):
 		return _fail(&"scene_initial_state_invalid", "initial checkpoint must be the registered target's exact first caption")
 	var frozen_owner: Script = load("res://scripts/narrative/FrozenRunContext.gd")
 	var frames: Dictionary = frozen_owner.derive_scene_frames({transaction_id: result}, saved)
@@ -928,20 +946,6 @@ static func _validate_scene_observed_body(snapshot: Dictionary, bundle: Dictiona
 			and _scene_terminal_reading_owners_match(terminal_owners):
 		semantic = semantic_owner.call("_prepare_scene_snapshot_semantics", candidate, detached_bundle,
 			{"owners": terminal_owners, "result": reading})
-		if semantic is Dictionary and semantic.get("ok", false):
-			var anchors: Array[Dictionary] = []
-			anchors.assign(semantic.pending_anchors)
-			semantic = semantic_owner.call("_validate_scene_snapshot_anchors", anchors, semantic.checkpoint)
-	elif not terminal and reading.has("session") and _scene_can_reuse_reading():
-		semantic = semantic_owner.call("_prepare_scene_snapshot_semantics", candidate, detached_bundle)
-		if semantic is Dictionary and semantic.get("ok", false):
-			var anchors: Array[Dictionary] = []
-			anchors.assign(semantic.pending_anchors)
-			# Receipt/Profile callbacks can replace the bridge. Recheck at the join.
-			if _scene_authority == semantic_owner and _scene_can_reuse_reading():
-				semantic = reading.session.validate_scene_event_anchors(anchors)
-			else:
-				semantic = semantic_owner.call("_validate_scene_snapshot_anchors", anchors, semantic.checkpoint)
 	else:
 		semantic = semantic_owner.call("validate_scene_snapshot_semantics", candidate, detached_bundle)
 	_scene_semantic_busy = false
@@ -1011,7 +1015,9 @@ static func _validate_scene_reading(candidate: Dictionary) -> Dictionary:
 				and plan.next_step_index == 0 and plan.playback_stage == "PRIMARY_PENDING" \
 				else _fail(&"reading_checkpoint_invalid", "only the admitted pre-playback boundary can be empty")
 		return frozen.validate_reading_checkpoint(candidate.narrative_checkpoint, candidate)
-	var checkpoint: Variant = candidate.narrative_checkpoint
+	var expanded: Dictionary = SCENE_READING.expand_player_checkpoint(candidate.narrative_checkpoint)
+	if not expanded.ok: return expanded
+	var checkpoint: Variant = expanded.value
 	if not _scene_keys(checkpoint, SCENE_CHECKPOINT_KEYS) or checkpoint.stage != "scene" \
 			or not _scene_id(checkpoint.entry_id) or not _scene_id(checkpoint.transaction_id) \
 			or checkpoint.content_version != candidate.content_version \

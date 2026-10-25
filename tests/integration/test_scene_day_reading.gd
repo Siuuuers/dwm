@@ -550,6 +550,40 @@ func test_full_run_validation_stays_closed_without_scene_receipt_owner() -> void
 	assert_eq(checked.details.phase, "scene_envelope")
 	assert_eq(var_to_bytes(snapshot), before)
 
+func test_compact_position_does_not_supply_its_own_run_admission() -> void:
+	var created := FIXTURE.create_session()
+	assert_true(created.ok, str(created))
+	if not created.ok: return
+	var session: RefCounted = created.value
+	var frame: Dictionary = FIXTURE.frame(FIXTURE.A, "a:1")
+	frame.transaction_id = "a:1"
+	frame.presentation.fields.admission_receipt_id = "a:1"
+	assert_true(session.admit_scene(FIXTURE.A, frame).ok)
+	var programme: Dictionary = session.entry_program(FIXTURE.A, frame)
+	assert_true(programme.ok, str(programme))
+	if not programme.ok: return
+	var publication: Dictionary = session.ledger.allocate_publication(FIXTURE.TOKEN, FIXTURE.A, "a:1")
+	assert_true(publication.ok, str(publication))
+	if not publication.ok: return
+	assert_true(session.ledger.publish_line(FIXTURE.TOKEN, publication.value, FIXTURE.A,
+		programme.value.lines[0].line_id, "a:1").ok)
+	var checkpoint := FIXTURE.checkpoint(session)
+	assert_true(checkpoint.ok, str(checkpoint))
+	if not checkpoint.ok: return
+	checkpoint.value.transaction_id = "a:1"
+	checkpoint.value.frozen_context = frame
+	var projected: Dictionary = SESSION.project_player_checkpoint(checkpoint.value)
+	assert_true(projected.ok, str(projected))
+	if not projected.ok: return
+	assert_eq(projected.value.reading_session.schema_version, 6)
+	var snapshot := {"narrative_checkpoint": projected.value}
+	var before := var_to_bytes(snapshot)
+	var checked := RUN.validate(snapshot, true)
+	assert_false(checked.ok)
+	assert_eq(checked.code, &"reading_saved_run_required")
+	assert_eq(checked.details.phase, "scene_envelope")
+	assert_eq(var_to_bytes(snapshot), before)
+
 func test_actual_dialogic_resource_compiles_to_registered_finite_programmes() -> void:
 	var selected := FIXTURE.MANIFEST.scene_registration()
 	assert_true(selected.ok, str(selected))

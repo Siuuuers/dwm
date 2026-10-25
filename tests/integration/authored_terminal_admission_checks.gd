@@ -284,16 +284,13 @@ func _frozen_checks(source: Dictionary) -> Dictionary:
 	assert_eq(semantic_counts.receipt_validation_calls, full_counts.receipt_validation_calls,
 		"semantic validation reuses source commands instead of authenticating the ledger once more")
 	assert_gt(int(semantic_counts.physical_proof_calls), 0)
-	assert_eq(semantic.pending_anchors.size(), ledger.value.commands.size())
-	assert_false(semantic.pending_anchors.is_empty(), "genuine terminal source carries native anchors")
-	if not semantic.pending_anchors.is_empty():
-		var invented: Array[Dictionary] = []
-		invented.assign(semantic.pending_anchors.duplicate(true))
-		invented[0].publication_id = "TEST.invented.publication"
-		assert_false(game._validate_scene_snapshot_anchors(invented, semantic.checkpoint).ok,
-			"authenticated commands never bypass the native publication join")
+	assert_eq(semantic, {"ok": true}, "semantic admission is complete without historical caption joins")
+	var corrupt_receipt: Dictionary = source.duplicate(true)
+	corrupt_receipt.command_receipts[source.lifecycle.ending_plan.admission.trigger_command_id].request_fingerprint = "0".repeat(64)
+	assert_false(game.validate_scene_snapshot_semantics(corrupt_receipt, AUTHORED_MANIFEST.scene_registration().value).ok,
+		"removing historical caption joins preserves genuine receipt integrity checks")
 	assert_true(game.validate_scene_snapshot_semantics(source, AUTHORED_MANIFEST.scene_registration().value).ok,
-		"reused commands still pass the real native anchor join")
+		"current reading and retained genuine commands are admitted")
 	full.scene_commands.clear()
 	assert_eq(TERMINAL_FROZEN.validate(source).scene_commands, ledger.value.commands,
 		"editing returned commands cannot change a later validation")

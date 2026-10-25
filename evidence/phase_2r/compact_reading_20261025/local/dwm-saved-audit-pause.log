@@ -1,0 +1,35 @@
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+---  GUT  ---
+[1m[INFO]:  [0musing [/workspace/scratch/359fe558320b/dwm/.godot/phase2r_tests/saved-audit-pause/data/godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+[4m
+
+res://tests/integration/test_scene_pause_quick_load.gd
+[0m* test_real_text_quick_load_retains_pending_identity_and_rejects_old_pause_completion
+[1m1/1 passed.
+[0m
+
+
+
+[33m==============================================
+[0m[33m= Run Summary
+[0m[33m==============================================
+[0m
+Totals
+------
+Scripts               1
+Tests                 1
+Passing Tests         1
+Asserts              72
+Time              2.954s
+
+
+[32m---- All tests passed! ----
+[0m
+Results saved to res://.godot/saved-audit-pause.xml
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+   at: cleanup (core/object/object.cpp:2663)
+ERROR: 22 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:810)

@@ -147,9 +147,11 @@ func prepare_scene_new_run(snapshot: Dictionary, allocation_candidate: Dictionar
 		snapshot, allocation_candidate, profile_material, bundle, issuer)
 	if not checked.get("ok", false): return checked
 	var checkpoint: Dictionary = snapshot.narrative_checkpoint
+	var expanded := preload("res://scripts/narrative/SoloReadingSession.gd").expand_player_checkpoint(checkpoint)
+	if not expanded.ok: return expanded
 	var occurrence: String = allocation_candidate.request.transaction_id
 	var result: Dictionary = snapshot.command_receipts[occurrence].scene_admission.result
-	var frames := FROZEN_RUN.derive_scene_frames({occurrence: result}, checkpoint.reading_session)
+	var frames := FROZEN_RUN.derive_scene_frames({occurrence: result}, expanded.value.reading_session)
 	if not frames.ok: return frames
 	if not _owner.has_method("validate_reading_checkpoint") or not _owner.has_method("stage_scene_reading_restore"):
 		return _content_unavailable("scene creation owner unavailable")

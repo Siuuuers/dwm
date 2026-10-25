@@ -16,6 +16,7 @@ const HOSPITAL := preload("res://scripts/narrative/HospitalFrozenContext.gd")
 const ENDING := preload("res://scripts/narrative/EndingFrozenContext.gd")
 const SCENE_ENTRIES := preload("res://scripts/narrative/DialogicEntryManifest.gd")
 const SCENE_LEDGER := preload("res://scripts/narrative/NarrativeCaptionLedger.gd")
+const SCENE_READING := preload("res://scripts/narrative/SoloReadingSession.gd")
 const SCENE_CONTRACT := preload("res://scripts/domain/narrative/SceneEventContract.gd")
 static var _scene_issuer: Object
 static var _scene_creation_owner: Object
@@ -121,6 +122,11 @@ static func _validate_reading_checkpoint_body(checkpoint: Dictionary, snapshot: 
 	for key: String in ["entry_id", "manifest_fingerprint", "stage", "transaction_id"]:
 		if not FROZEN._field(checkpoint[key], "id"): return _fail(&"reading_session_invalid")
 	if _is_scene_checkpoint(checkpoint):
+		# The compact player position reconstructs only its retained caption strip.
+		# Actual admission receipts still own those occurrences; no history is invented.
+		var expanded: Dictionary = SCENE_READING.expand_player_checkpoint(checkpoint)
+		if not expanded.ok: return expanded
+		checkpoint = expanded.value
 		var scene := _validate_scene_envelope(checkpoint)
 		if not scene.ok: return scene
 		if snapshot.get("schema_version") != 9 or snapshot.get("route_id") != "scene" \

@@ -179,7 +179,7 @@ func _commit_reading_next_autosave(checkpoint: Dictionary, operation_id: String,
 		var source_header: Dictionary = _next_source.checkpoint.duplicate(true)
 		source_header.erase("reading_session")
 		if current.get("checkpoint_id") != _next_source.checkpoint_id \
-				or current.get("narrative_checkpoint") != _next_source.checkpoint or header != source_header:
+				or not _player_checkpoint_same(current.get("narrative_checkpoint"), _next_source.checkpoint) or header != source_header:
 			_next_source = {}
 			return _fail(&"reading_next_source_changed", "the durable source no longer owns the current journal")
 	var prepared: Dictionary = _real_port.prepare(inputs, &"safe_marker",
@@ -394,7 +394,7 @@ func _commit_scene_mutation(snapshot_input: Dictionary, checkpoint: Dictionary, 
 		result = _fail(StringName(prefix + "_source_unavailable"), "real journal capture required")
 	elif not _scene_reference_valid(_scene_snapshot_reference(_scene_bundle_snapshot(captured.value.backup.get("current")))):
 		result = _fail(StringName(prefix + "_source_unavailable"), "stable journal source required")
-	elif kind in ["shop", "round"] and _fingerprint(_scene_bundle_snapshot(captured.value.backup.get("current")).get("narrative_checkpoint")) != _scene_mutation.checkpoint_hash:
+	elif kind in ["shop", "round"] and not _player_checkpoint_same(_scene_bundle_snapshot(captured.value.backup.get("current")).get("narrative_checkpoint"), _scene_mutation.checkpoint):
 		result = _fail(StringName(prefix + "_source_changed"), "mutation must retain the exact stable reading checkpoint")
 	else:
 		_scene_mutation["source_hash"] = _fingerprint(captured.value.backup)
@@ -841,7 +841,7 @@ func _scene_control_source_matches(captured: Dictionary) -> bool:
 	var current := _scene_bundle_snapshot(captured.get("value", {}).get("backup", {}).get("current"))
 	return captured.get("ok", false) \
 		and READING_NEXT._same(_scene_snapshot_reference(current), _scene_control.source_reference) \
-		and READING_NEXT._same(current.get("narrative_checkpoint"), _scene_control.material.source_checkpoint)
+		and _player_checkpoint_same(current.get("narrative_checkpoint"), _scene_control.material.source_checkpoint)
 
 
 func _scene_hash(value: Variant) -> bool:
@@ -870,12 +870,11 @@ func _scene_candidate_reference(candidate: Dictionary, checkpoint: Dictionary) -
 	var reference := _scene_snapshot_reference(snapshot)
 	# Entry acknowledgement names the privately retained target, never a caller's
 	# potentially callback-mutated copy. Ordinary source checkpoints use their input.
-	var narrative_hash := _fingerprint(snapshot.get("narrative_checkpoint"))
-	if not _scene_entry.is_empty() and (narrative_hash != _scene_entry.narrative_checkpoint_sha256 \
-			or narrative_hash != _fingerprint(_scene_entry.checkpoint)):
+	if not _scene_entry.is_empty() and (not _player_checkpoint_same(snapshot.get("narrative_checkpoint"), _scene_entry.checkpoint) \
+			or _fingerprint(_scene_entry.checkpoint) != _scene_entry.narrative_checkpoint_sha256):
 		return {}
 	if reference.is_empty() or reference.checkpoint_id != candidate.get("checkpoint_id") \
-			or _fingerprint(snapshot.get("narrative_checkpoint")) != _fingerprint(checkpoint) \
+			or not _player_checkpoint_same(snapshot.get("narrative_checkpoint"), checkpoint) \
 			or _fingerprint(_scene_bundle_snapshot(candidate.get("autosave_document", {}).get("current_snapshot"))) != reference.snapshot_sha256:
 		return {}
 	return reference
@@ -1094,7 +1093,7 @@ func _validate_marker_commit(snapshot: Dictionary, checkpoint: Dictionary) -> Di
 	if not captured.get("ok", false): return captured
 	var current: Dictionary = captured.value.backup.get("current", {}).get("snapshot", {})
 	if current.get("checkpoint_id") != _next_source.checkpoint_id \
-			or current.get("narrative_checkpoint") != _next_source.checkpoint:
+			or not _player_checkpoint_same(current.get("narrative_checkpoint"), _next_source.checkpoint):
 		return _fail(&"reading_next_source_changed", "")
 	var before_header: Dictionary = _next_source.checkpoint.duplicate(true)
 	var after_header := checkpoint.duplicate(true)
@@ -1102,3 +1101,13 @@ func _validate_marker_commit(snapshot: Dictionary, checkpoint: Dictionary) -> Di
 	after_header.erase("reading_session")
 	if before_header != after_header: return _fail(&"reading_next_source_changed", "")
 	return _marker_validator.call(snapshot.duplicate(true), checkpoint.duplicate(true), _next_source.duplicate(true))
+
+
+## Compare a persisted reading position with its full live transaction source.
+## Other custody hashes still cover complete live owner data.
+func _player_checkpoint_same(left: Variant, right: Variant) -> bool:
+	if not left is Dictionary or not right is Dictionary: return false
+	var owner := preload("res://scripts/narrative/SoloReadingSession.gd")
+	var a: Dictionary = owner.project_player_checkpoint(left)
+	var b: Dictionary = owner.project_player_checkpoint(right)
+	return a.ok and b.ok and READING_NEXT._same(a.value, b.value)

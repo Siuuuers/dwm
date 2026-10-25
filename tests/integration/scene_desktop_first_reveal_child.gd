@@ -84,7 +84,9 @@ func _assert_scene_snapshot(snapshot: Dictionary, reading: Dictionary, run: Dict
 	assert_eq(snapshot.schema_version, 9)
 	assert_eq(snapshot.route_id, "scene")
 	assert_eq(snapshot.narrative_checkpoint.reading_session.entry_id, reading.entry_id)
-	assert_eq(snapshot.narrative_checkpoint.reading_session.program_index, reading.program_index)
+	assert_eq(snapshot.narrative_checkpoint.reading_session.schema_version, 6)
+	assert_eq(snapshot.narrative_checkpoint.reading_session.position_id, reading.frontier.line_id)
+	assert_false(snapshot.narrative_checkpoint.reading_session.has("ledger"))
 	assert_eq(snapshot.narrative_checkpoint.reading_session.boundary, "line")
 	var normalized: Dictionary = DESKTOP_STATE._inspection_normalize(run)
 	normalized.desktop.board.erase("command_receipts")
@@ -289,7 +291,9 @@ func load_scene_desktop_first_reveal() -> void:
 	var reading: Dictionary = bridge.capture_reading_checkpoint(false)
 	if not _ok(reading): return
 	assert_eq(reading.value.reading_session.entry_id, witness.reading_session.entry_id)
-	assert_eq(reading.value.reading_session.program_index, witness.reading_session.program_index)
+	var player_position: Dictionary = preload("res://scripts/narrative/SoloReadingSession.gd").project_player_checkpoint(reading.value)
+	if not _ok(player_position): return
+	assert_eq(player_position.value.reading_session, witness.reading_session)
 	assert_true(bridge.is_current_line_presentation_acknowledged())
 	assert_eq(profile.get_profile_snapshot(), witness.profile)
 	var port: RefCounted = _desktop_port()
