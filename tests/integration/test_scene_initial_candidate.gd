@@ -114,6 +114,7 @@ func test_initial_candidate_ignores_retired_reason_but_preserves_exact_write_mat
 		var input: Dictionary = document.duplicate(true)
 		input["save_reason"] = retired
 		input.current_snapshot.snapshot["audio_context"] = retired
+		input.current_snapshot.snapshot["active_app_id"] = retired
 		var admitted := _validate(input)
 		assert_true(admitted.ok, str(admitted))
 		if admitted.ok: assert_eq(admitted.value.candidate, document)

@@ -135,6 +135,45 @@ func test_scene_saves_omit_reason_and_retired_metadata_does_not_gate_load() -> v
 	assert_false(STRICT.parse_object(fixture.storage.read_text("quicksave.json").value).value.has("save_reason"))
 
 
+func test_retained_restore_source_preserves_retired_metadata_in_historical_bundles() -> void:
+	assert_true(fixture_ready)
+	if not fixture_ready: return
+	var source: Dictionary = fixture.read_autosave()
+	assert_true(source.ok, str(source))
+	if not source.ok: return
+	var document: Dictionary = source.value.duplicate(true)
+	var earlier: Dictionary = document.current_snapshot.duplicate(true)
+	earlier.snapshot["audio_context"] = {"obsolete": true}
+	earlier.snapshot["active_app_id"] = "obsolete-app"
+	document.recovery_journal = [earlier]
+	var current: Dictionary = document.current_snapshot.snapshot
+	current.checkpoint_sequence += 1
+	current.checkpoint_id = current.run_id + ":" + str(current.checkpoint_sequence)
+	current["audio_context"] = "obsolete-audio"
+	current["active_app_id"] = {"obsolete": true}
+	var writer := preload("res://scripts/validation/CanonicalJsonWriter.gd")
+	var schema := preload("res://scripts/infrastructure/save/SaveDocumentSchema.gd")
+	var admitted: Dictionary = schema.validate(document)
+	assert_true(admitted.ok, str(admitted))
+	if not admitted.ok: return
+	assert_eq(admitted.value.candidate.recovery_journal, [earlier], "history is validated without rewriting its retained bytes")
+	assert_false(admitted.value.candidate.current_snapshot.snapshot.has("audio_context"))
+	assert_false(admitted.value.candidate.current_snapshot.snapshot.has("active_app_id"))
+	var locator := {"slot_id": "autosave", "checkpoint_id": current.checkpoint_id,
+		"bundle_id": writer.stringify(document.current_snapshot).value.sha256_text(),
+		"document_sha256": writer.stringify(current).value.sha256_text()}
+	var operation := {"kind": "scene_restore", "transaction_id": "TEST.retained-source",
+		"selected_document": document, "source_locator": locator}
+	operation["request_fingerprint"] = writer.stringify(operation).value.sha256_text()
+	var before: Dictionary = operation.duplicate(true)
+	var checked: Dictionary = manager._continuation_journal._validate_scene_source(operation)
+	assert_true(checked.ok, str(checked))
+	assert_eq(operation, before, "source admission preserves the retained operation and its hashes")
+	operation.source_locator.document_sha256 = "0".repeat(64)
+	assert_false(manager._continuation_journal._validate_scene_source(operation).ok,
+		"retiring metadata does not bypass selected-source byte custody")
+
+
 func test_selected_load_prepares_current_state_once_without_older_substitution() -> void:
 	assert_true(fixture_ready)
 	if not fixture_ready: return

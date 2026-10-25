@@ -1659,11 +1659,10 @@ func _validate_scene_source(operation: Dictionary) -> Dictionary:
 		if not admitted.get("ok", false): return admitted
 		var progress_document: Dictionary = document.duplicate(true)
 		progress_document.erase("save_reason")
-		var progress_bundles: Array = [progress_document.current_snapshot]
-		progress_bundles.append_array(progress_document.recovery_journal)
-		for progress_bundle: Dictionary in progress_bundles:
-			progress_bundle.snapshot.erase("audio_context")
-			progress_bundle.snapshot.erase("active_app_id")
+		# SaveDocumentSchema normalizes the current snapshot but retains historical
+		# journal bytes after validating them. Mirror that boundary for equality.
+		progress_document.current_snapshot.snapshot.erase("audio_context")
+		progress_document.current_snapshot.snapshot.erase("active_app_id")
 		if not _CANONICAL_WRITER._deep_same(progress_document, admitted["value"]["candidate"]):
 			return _failed(_schema_error, "selected_document must already be the exact validated Save9 value")
 	var locator: Dictionary = operation["source_locator"]
