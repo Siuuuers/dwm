@@ -64,7 +64,14 @@ jobs:
           & $env:GODOT_CONSOLE_PATH --headless --path $env:GITHUB_WORKSPACE -s res://tools/authoring/ExportSevenDayRegistration.gd -- --validate-seven-day-export --phase2r-bootstrap-mode=test_manual
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Generate canonical API inventories
+        id: inventories
         run: ./tools/testing/Invoke-PublicSurfaceValidation.ps1 -Regenerate -EmitPayloads
+      - name: Diagnose Contacts return
+        if: ${{ !cancelled() && steps.inventories.outcome == 'success' }}
+        run: ./tools/testing/Invoke-CloudTests.ps1 -Suite scene_contacts
+      - name: Diagnose seven-day passage reload
+        if: ${{ !cancelled() && steps.inventories.outcome == 'success' }}
+        run: ./tools/testing/Invoke-CloudTests.ps1 -Suite current_terminal_fixture
       - name: Upload generated data and diagnostics
         if: always()
         uses: actions/upload-artifact@v4
@@ -76,4 +83,9 @@ jobs:
             evidence/phase_2r/runtime/*_surface.json
             .godot/ci/import.log
             .godot/ci/public-surfaces/
+            .godot/ci/scene_contacts*.xml
+            .godot/ci/current-terminal-fixture/
+            .godot/ci/*.png
+            .godot/phase2r_logs/cloud-scene_contacts*.log
+            .godot/phase2r_logs/current-terminal-*.log
             .godot/phase2r_logs/cloud-public-surface-*.log

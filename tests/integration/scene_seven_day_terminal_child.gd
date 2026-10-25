@@ -15,7 +15,9 @@ func load_saved_terminal_line() -> void:
 	assert_false(proof.snapshot.lifecycle.has("ending_plan"))
 	var expanded: Dictionary = preload("res://scripts/narrative/SoloReadingSession.gd").expand_player_checkpoint(proof.checkpoint)
 	if not _ok(expanded): return
-	assert_eq(expanded.value.reading_session.family, "scene")
+	assert_eq(expanded.value.stage, "scene")
+	assert_eq(expanded.value.reading_session.schema_version, 5)
+	assert_eq(expanded.value.reading_session.ledger.frozen_context.family, "scene")
 	assert_eq(expanded.value.reading_session.boundary, "line")
 	assert_eq(expanded.value.reading_session.frontier.line_id, TERMINAL_LINE)
 	for key: String in ["command_receipts", "applied_effect_transaction_ids", "applied_variable_transaction_ids"]:

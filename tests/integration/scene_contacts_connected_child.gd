@@ -152,8 +152,17 @@ func load_contacts_scene() -> void:
 	assert_true(game.capture_run_snapshot_input().command_receipts.is_empty(), "Load restores no Scene command history")
 	await _screenshot("contacts-child-fresh-load")
 	var profile_before: Dictionary = profile.get_profile_snapshot().duplicate(true)
+	var return_results: Array[Dictionary] = []
+	var observe_return := func(_frontier: Dictionary, result: Dictionary) -> void:
+		return_results.append(result.duplicate(true))
+	bridge.next_request_finished.connect(observe_return)
 	await _click(_caption().caption_text)
-	if not await _wait_line("scene.test.a", "line.scene.test.a.two"): return
+	var returned_to_parent: bool = await _wait_line("scene.test.a", "line.scene.test.a.two")
+	bridge.next_request_finished.disconnect(observe_return)
+	assert_false(return_results.is_empty(), "caption input issues the Contacts return command")
+	for result: Dictionary in return_results:
+		assert_true(result.get("ok", false), "Contacts return result: " + str(result))
+	if not returned_to_parent: return
 	var returned: Dictionary = game.capture_run_snapshot_input()
 	assert_eq(returned.scene, proof.parent_scene, "return restores the saved parent Scene directly")
 	assert_eq(returned.contacts, proof.contacts)
