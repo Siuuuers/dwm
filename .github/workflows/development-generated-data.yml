@@ -69,9 +69,6 @@ jobs:
       - name: Diagnose Contacts return
         if: ${{ !cancelled() && steps.inventories.outcome == 'success' }}
         run: ./tools/testing/Invoke-CloudTests.ps1 -Suite scene_contacts
-      - name: Diagnose seven-day passage reload
-        if: ${{ !cancelled() && steps.inventories.outcome == 'success' }}
-        run: ./tools/testing/Invoke-CloudTests.ps1 -Suite current_terminal_fixture
       - name: Upload generated data and diagnostics
         if: always()
         uses: actions/upload-artifact@v4

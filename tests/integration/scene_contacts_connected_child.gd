@@ -3,6 +3,14 @@ extends "res://tests/integration/scene_manual_entry_child.gd"
 ## correspondence selection and all caption/board actions use Viewport input.
 const CONTACT_CONTENT := preload("res://tests/support/SceneContactsRegistrationFixture.gd")
 
+class ReturnObserver extends RefCounted:
+	var delegate: RefCounted
+	var results: Array[Dictionary] = []
+	func dispatch(envelope: Variant) -> Dictionary:
+		var result: Dictionary = delegate.dispatch(envelope)
+		results.append(result.duplicate(true))
+		return result
+
 func _install_content_registration() -> Dictionary:
 	return CONTACT_CONTENT.new()._install_registration()
 
@@ -152,15 +160,18 @@ func load_contacts_scene() -> void:
 	assert_true(game.capture_run_snapshot_input().command_receipts.is_empty(), "Load restores no Scene command history")
 	await _screenshot("contacts-child-fresh-load")
 	var profile_before: Dictionary = profile.get_profile_snapshot().duplicate(true)
-	var return_results: Array[Dictionary] = []
-	var observe_return := func(_frontier: Dictionary, result: Dictionary) -> void:
-		return_results.append(result.duplicate(true))
-	bridge.next_request_finished.connect(observe_return)
+	# Marker accepts use the command port directly, rather than ordinary Next.
+	var observer := ReturnObserver.new()
+	observer.delegate = bridge._scene_event_port
+	bridge._scene_event_port = observer
+	assert_true(bridge.capture_scene_pending_marker().get("ok", false),
+		"restored contact exposes its return marker: " + str(bridge.capture_scene_pending_marker()))
 	await _click(_caption().caption_text)
 	var returned_to_parent: bool = await _wait_line("scene.test.a", "line.scene.test.a.two")
-	bridge.next_request_finished.disconnect(observe_return)
-	assert_false(return_results.is_empty(), "caption input issues the Contacts return command")
-	for result: Dictionary in return_results:
+	bridge._scene_event_port = observer.delegate
+	assert_false(observer.results.is_empty(), "caption input dispatches the Contacts return command; context="
+		+ str(game.scene_event_context()) + "; presentation=" + str(bridge._line_presentation_context()))
+	for result: Dictionary in observer.results:
 		assert_true(result.get("ok", false), "Contacts return result: " + str(result))
 	if not returned_to_parent: return
 	var returned: Dictionary = game.capture_run_snapshot_input()
