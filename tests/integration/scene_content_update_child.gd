@@ -7,20 +7,32 @@ const PROOF := "user://content-update-proof.json"
 var updated_content := false
 var case_id := ""
 var binding_retry := {}
+var last_next_result := {}
 
 func _install_content_registration() -> Dictionary:
 	case_id = UPDATE.selected_case()
 	return UPDATE.install(updated_content, case_id)
 
 func _walk_to(line_id: String) -> bool:
+	if not bridge.next_request_finished.is_connected(_observe_next_result):
+		bridge.next_request_finished.connect(_observe_next_result)
 	for step: int in 60:
 		var current: String = bridge._runtime_adapter.current_line_id()
 		if current == line_id:
 			return await _wait_line(line_id)
 		if not current.is_empty() and not await _wait_line(current): return false
 		await _accept()
-	fail_test("content update target not reached: " + line_id)
+		if _caption().is_reading_recovery_active():
+			fail_test("content update traversal refused at " + current + ": " + str(last_next_result))
+			return false
+	fail_test("content update target not reached: " + line_id + "; actual=" + bridge._runtime_adapter.current_line_id()
+		+ "; can_next=" + str(bridge.can_next_current_line()) + "; pending=" + str(bridge.capture_scene_pending_marker())
+		+ "; next_result=" + str(last_next_result))
 	return false
+
+func _observe_next_result(_frontier: Dictionary, result: Dictionary) -> void:
+	last_next_result = result.duplicate(true)
+	if not result.get("ok", false): print("CONTENT_UPDATE_NEXT_REFUSED ", result)
 
 func _assert_gameplay_preserved(before: Dictionary) -> void:
 	var after: Dictionary = game.capture_run_snapshot_input().gameplay
@@ -241,7 +253,7 @@ func _verify_board_continuation(proof: Dictionary) -> void:
 		var fault := WRITE_REFUSAL.WriteRefusal.new()
 		fault.refuse_on = 1
 		saves._storage._file_ops = fault
-		await _click(_caption().transport_rail._next_button)
+		await _accept()
 		saves._storage._file_ops = files
 		assert_eq(fault.refused, 1)
 		assert_eq(game.capture_run_snapshot_input().gameplay, source.gameplay)

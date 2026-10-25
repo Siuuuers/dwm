@@ -2024,6 +2024,13 @@ func _flush_scene_pending() -> Dictionary:
 	if not closed.ok: return closed
 	if not closed.value.is_empty():
 		return _ok({"committed": false}) if _scene_closed_record_matches(closed.value) else _fail(&"scene_challenge_record_conflict")
+	# Opening a selected older prefix only plans its branch continuation. A
+	# paused Save can preserve that exact selected record/reference; no move has
+	# occurred that requires publishing a new Profile branch inside this pause.
+	if _history_selection.get("mode") == "continue" and not _routine_pending and _pending_checkpoint.is_empty() \
+			and _game_state.has_method("scene_challenge_is_suspended") \
+			and _game_state.scene_challenge_is_suspended(_record, true):
+		return _ok({"committed": false})
 	var admitted := _scene_authorize(_admitted_command)
 	if not admitted.ok: return admitted
 	var lease := {}

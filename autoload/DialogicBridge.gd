@@ -2106,8 +2106,7 @@ func can_next_current_line() -> bool:
 		if _next_active or _line_ack_in_progress or _auto_step_in_progress or _skip_step_in_progress:
 			return false
 		var marker := capture_scene_pending_marker()
-		return marker.get("ok", false) and marker.value.kind == "passage.finish" \
-			and _line_presentation_context().get("ok", false)
+		return marker.get("ok", false) and _line_presentation_context().get("ok", false)
 	if _next_active or _line_ack_in_progress or _auto_step_in_progress or _skip_step_in_progress \
 			or not _has_exact_caption_source() or _mutation_gate == null \
 			or _reading_session.family != "solo" \
@@ -2176,11 +2175,11 @@ func _perform_caption_next(expected_frontier: Dictionary) -> Dictionary:
 			return _command_failure(&"presentation_frontier_changed")
 	var acknowledged := _acknowledge_next_source(expected_frontier)
 	if not acknowledged.get("ok", false): return acknowledged
-	# Finish is a causal command at the final caption, never a generic traversal
-	# into its label. Keep this after reveal/ack so Next and normal Accept share
-	# the same visible source and retryable storage failure presentation.
+	# Registered markers remain causal commands, never generic label traversal.
+	# Dispatch after reveal/ack so Next and normal Accept share the same visible
+	# source and retryable storage failure presentation.
 	var marker := capture_scene_pending_marker()
-	if marker.get("ok", false) and marker.value.kind == "passage.finish":
+	if marker.get("ok", false):
 		var finished := request_scene_marker_step(expected_frontier)
 		if not finished.get("ok", false) and _line_presentation_context(expected_frontier).get("ok", false):
 			finished["scene_departure_profile_revision"] = _skip_profile.get_profile_revision()

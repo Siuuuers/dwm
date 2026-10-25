@@ -4690,7 +4690,7 @@ func _accept_scene_runtime_event(event: Dictionary, digest: String, lease: Strin
 		candidate.gameplay.scene_choices[result.opportunity_id] = result.choice
 	elif result.kind == "passage_finished":
 		candidate.lifecycle.state = "COMPLETED"
-		candidate.lifecycle.completed_registration_sha256 = candidate.scene.registration_sha256
+		candidate.lifecycle["completed_registration_sha256"] = candidate.scene.registration_sha256
 	elif result.kind == "notification_updated":
 		candidate.scene.notification = result.notification.duplicate(true)
 	if result.kind in ["scene_transition_accepted", "thought_resolved", "challenge_recalled", "contact_entry_accepted", "contact_returned"]:
@@ -4752,9 +4752,13 @@ static func scene_physical_consumed(record: Dictionary, outcomes: Dictionary) ->
 
 ## Rewound reading can retain a board without granting playable custody. Only
 ## this current story owner can authorize a save of that unchanged suspension.
-func scene_challenge_is_suspended(record: Dictionary) -> bool:
+func scene_challenge_is_suspended(record: Dictionary, require_pause: bool = false) -> bool:
 	if record.is_empty() or route_context.get("active_dating_challenge", {}) != record \
 			or scene_physical_consumed(record, scene_challenge_outcomes): return false
+	if require_pause:
+		if not is_instance_valid(_scene_event_bridge): return false
+		var pause: Dictionary = _scene_event_bridge.get_state()
+		if not pause.get("ok", false) or pause.value.get("state") != &"Suspended": return false
 	return not capture_scene_challenge_command().get("ok", false)
 
 func _current_scene_challenge_command(scene: Dictionary) -> Dictionary:

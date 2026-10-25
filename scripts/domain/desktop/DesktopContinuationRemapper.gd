@@ -530,6 +530,10 @@ static func _scene_runtime_boundary(snapshot: Dictionary) -> Dictionary:
 	var lifecycle: Variant = snapshot.get("lifecycle")
 	var lifecycle_keys := ["run_id", "branch_id", "desktop_timeline_generation", "causal_day_instance",
 		"causal_day_instance_issuer_receipt", "restore_provenance", "state", "scene_assignment"]
+	if lifecycle is Dictionary and lifecycle.has("completed_registration_sha256"):
+		if lifecycle.get("state") != "COMPLETED" or not event._hash(lifecycle.completed_registration_sha256):
+			return _fail(&"remap_scene_lifecycle_invalid", "completion registration requires completed passage", {})
+		lifecycle_keys.append("completed_registration_sha256")
 	if not event._keys(lifecycle, lifecycle_keys) or not event._json_data(lifecycle) \
 			or lifecycle.state not in ["PLAYING", "COMPLETED"]:
 		return _fail(&"remap_scene_lifecycle_invalid", "exact scene lifecycle required", {})

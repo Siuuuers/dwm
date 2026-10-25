@@ -333,11 +333,7 @@ func _before_normal_accept() -> bool:
 	if not _acknowledge_visible_line(): return false
 	if is_instance_valid(_transport_bridge) and _transport_bridge.has_method("capture_scene_pending_marker") \
 			and _transport_bridge.capture_scene_pending_marker().get("ok", false):
-		var marker: Dictionary = _transport_bridge.capture_scene_pending_marker()
-		if marker.value.kind == "passage.finish":
-			if _next_admitted(): _request_reading_command(&"next", true)
-		else:
-			_transport_bridge.request_scene_marker_step(_presented_line)
+		if _next_admitted(): _request_reading_command(&"next", true)
 		# The acknowledged marker owner handles this accept; native labels/Return
 		# must never run independently of its saved receipt.
 		return false

@@ -12,8 +12,16 @@ class TransferAuthority extends FIXTURE.Authority:
 		if not validate_scene_challenge_command(candidate, bundle).ok: return {"ok": false}
 		return {"ok": true, "value": binding.duplicate(true)}
 
+class HeldSelectedState extends FIXTURE.State:
+	var held := false
+	func scene_challenge_is_suspended(record: Dictionary, _require_pause: bool = false) -> bool:
+		return held and record == route_context.get("active_dating_challenge", {})
+
 class HeldMarker extends RefCounted:
+	var paused := false
 	var marker: Dictionary
+	func get_state() -> Dictionary:
+		return {"ok": true, "value": {"state": &"Suspended" if paused else &"Active"}}
 	func capture_scene_pending_marker() -> Dictionary:
 		return {"ok": true, "value": marker.duplicate(true)}
 	func capture_scene_challenge_control() -> Dictionary:
@@ -186,6 +194,9 @@ func test_suspended_save_requires_exact_unconsumed_record_and_no_current_native_
 	var bridge := HeldMarker.new()
 	game._scene_event_bridge = bridge
 	assert_true(game.scene_challenge_is_suspended(record))
+	assert_false(game.scene_challenge_is_suspended(record, true), "unavailable native control alone is not pause custody")
+	bridge.paused = true
+	assert_true(game.scene_challenge_is_suspended(record, true))
 	assert_false(game.scene_challenge_is_suspended({}))
 	var changed := record.duplicate(true)
 	changed.command_sha256 = "f".repeat(64)
@@ -193,3 +204,31 @@ func test_suspended_save_requires_exact_unconsumed_record_and_no_current_native_
 	game.scene_challenge_outcomes = {"saved.B": {"challenge_id": "TEST.replacement",
 		"outcome": "unfinished", "physical_slot": LEDGER.semantic_slot(record.context)}}
 	assert_false(game.scene_challenge_is_suspended(record), "a closed board must use validated closure custody")
+
+func test_paused_save_of_opened_selected_prefix_keeps_source_reference_without_forking_profile() -> void:
+	var state := HeldSelectedState.new()
+	f.state = state
+	f.authority.state = state
+	assert_true(f.recreate_owner().ok)
+	assert_true(f.begin().ok)
+	assert_true(f.action("start").ok)
+	var selected: Dictionary = state.capture_restore_state().value.backup
+	assert_true(f.action("reveal", 323).ok)
+	selected.lifecycle.branch_id = "TEST.paused.selected"
+	assert_true(state.rollback_restore_silent(selected).ok)
+	assert_true(f.recreate_owner().ok)
+	assert_true(f.begin().ok)
+	var run_before: Dictionary = state.capture_restore_state()
+	var profile_before: Dictionary = f.profile.get_profile_snapshot()
+	state.held = true
+	f.authority.presentation_held = true
+	var saved: Dictionary = f.owner.flush_pending_attempt()
+	assert_true(saved.ok, str(saved))
+	if saved.ok: assert_false(saved.value.committed)
+	assert_eq(state.capture_restore_state(), run_before)
+	assert_eq(f.profile.get_profile_snapshot(), profile_before)
+	assert_false(f.action("reveal", 36).ok, "paused save authority grants no board input")
+	state.held = false
+	f.authority.presentation_held = false
+	assert_true(f.owner.flush_pending_attempt().ok, "unpaused explicit flush still commits the selected continuation")
+	assert_eq(state.route_context.dating_active_attempt_ref.branch_id, "TEST.paused.selected")
