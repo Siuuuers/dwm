@@ -118,15 +118,17 @@ jobs:
               output.write("comparison=" + str(comparison).lower() + "\n")
 
   focused-tests:
-    needs: [test-scope, public-surfaces]
-    if: ${{ always() && needs.test-scope.result == 'success' && (needs.public-surfaces.result == 'success' || needs.test-scope.outputs.focused == 'true') }}
+    # Independent suites use committed source; inventory verification remains a
+    # separate required result and cannot be satisfied by diagnostic regeneration.
+    needs: test-scope
+    if: ${{ needs.test-scope.result == 'success' }}
     name: Windows / ${{ matrix.suite }}
     runs-on: windows-2022
     timeout-minutes: ${{ matrix.suite == 'current_terminal_fixture' && 35 || 20 }}
     strategy:
       fail-fast: false
       matrix:
-        suite: ${{ fromJSON(needs.test-scope.outputs.focused == 'true' && '["timeline_resources","backup_presentation","profile_parse","authored_week","scene_backup_inspection","scene_progress_schema","current_title"]' || '["minesweeper","shop","desktop","settings","checkpoint_diagnostics","new_account","reading_delivery","localization","dating","persistence","endings","audio","scene_desktop_first_reveal","scene_round_checkpoint","scene_shop_checkpoint","scene_story_localization","scene_controls_localization","scene_apps","current_title","scene_backup_inspection","scene_progress_schema","authored_week","scene_five_outcomes","timeline_resources","profile_parse","backup_current_build","current_terminal_fixture","current_quick_load","scene_multiple_thoughts","scene_challenge_recall","scene_same_day_supportz","scene_player_position","scene_native_restore","scene_day_history","scene_later_caption","scene_caption_challenge","scene_audio_connected","scene_save_metadata","scene_passage_connected","scene_passage_catalogue","scene_contacts","scene_current_creation","scene_current_frames","scene_current_challenge","scene_current_snapshot"]') }}
+        suite: ${{ fromJSON(needs.test-scope.outputs.focused == 'true' && '["timeline_resources","backup_presentation","profile_parse","authored_week","scene_backup_inspection","scene_progress_schema","current_title"]' || '["minesweeper","shop","desktop","settings","checkpoint_diagnostics","new_account","reading_delivery","localization","dating","persistence","endings","audio","scene_desktop_first_reveal","scene_round_checkpoint","scene_shop_checkpoint","scene_story_localization","scene_controls_localization","scene_apps","current_title","scene_backup_inspection","scene_progress_schema","authored_week","scene_five_outcomes","timeline_resources","profile_parse","backup_current_build","current_terminal_fixture","current_quick_load","scene_multiple_thoughts","scene_challenge_recall","scene_same_day_supportz","scene_player_position","scene_native_restore","scene_day_history","scene_later_caption","scene_caption_challenge","scene_audio_connected","scene_save_metadata","scene_passage_connected","scene_passage_catalogue","scene_contacts","scene_current_creation","scene_current_frames","scene_current_challenge","scene_current_snapshot","scene_content_update_wording","scene_content_update_deleted_line","scene_content_update_deleted_checkpoint","scene_content_update_history","scene_content_update_active_board","scene_content_update_transfer_active","scene_content_update_transfer_terminal","scene_content_update_resolved_unfinished","scene_content_update_completed_appended","scene_content_update_completed_deleted","scene_content_contracts"]') }}
     defaults:
       run:
         shell: pwsh

@@ -56,3 +56,27 @@ func test_scene_refuses_form_nonce_mismatch_and_missing_issuer() -> void:
 	source.scene_assignment.form = "dark"
 	assert_false(LIFECYCLE.validate_scene(source, IssuerProbe.new()).ok)
 	assert_false(LIFECYCLE.validate_scene(_scene(), null).ok)
+
+func test_completed_passage_content_provenance_survives_restore_and_clears_for_new_play() -> void:
+	var owner := LIFECYCLE.new()
+	assert_true(owner.configure_scene_issuer(IssuerProbe.new()).ok)
+	var completed := _scene()
+	completed.state = "COMPLETED"
+	completed["completed_registration_sha256"] = "a".repeat(64)
+	assert_true(owner.commit_restore(completed).ok)
+	assert_eq(owner.to_dict(), completed)
+	assert_true(owner.commit_restore(_scene()).ok)
+	assert_false(owner.to_dict().has("completed_registration_sha256"))
+
+func test_completion_content_provenance_cannot_mark_playing_or_terminal_lifecycle() -> void:
+	var issuer := IssuerProbe.new()
+	var source := _scene()
+	source["completed_registration_sha256"] = "a".repeat(64)
+	assert_false(LIFECYCLE.validate_scene(source, issuer).ok)
+	source.state = "COMPLETED"
+	for invalid: Variant in [null, 1, "", "a".repeat(63), "g".repeat(64)]:
+		source.completed_registration_sha256 = invalid
+		assert_false(LIFECYCLE.validate_scene(source, issuer).ok)
+	source.completed_registration_sha256 = "a".repeat(64)
+	source["ending_plan"] = {}
+	assert_false(LIFECYCLE.validate_scene(source, issuer).ok)

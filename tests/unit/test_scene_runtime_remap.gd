@@ -156,3 +156,32 @@ func test_scene_same_day_load_preserves_supportz_eligibility_and_purchase_limits
 			bundle.causal_day_instance_issuer_receipt = _receipt("causal_day_instance", bundle.causal_day_instance)
 			bundle.branch_id = "TEST.next.branch"
 			bundle.desktop_timeline_generation = 2
+
+func test_completed_scene_content_provenance_survives_identity_remap() -> void:
+	var source := _source()
+	source.lifecycle.state = "COMPLETED"
+	source.scene.return_to = null
+	source.lifecycle["completed_registration_sha256"] = "b".repeat(64)
+	var before := source.duplicate(true)
+	var allocation := _bundle()
+	var result := REMAPPER.prepare(source, "TEST.restore", allocation)
+	assert_true(result.ok, str(result))
+	if not result.ok: return
+	var candidate: Dictionary = result.value.snapshot
+	assert_eq(candidate.lifecycle.state, "COMPLETED")
+	assert_eq(candidate.lifecycle.completed_registration_sha256, "b".repeat(64))
+	assert_ne(candidate.lifecycle.branch_id, source.lifecycle.branch_id)
+	assert_true(REMAPPER.validate_remap(source, candidate, allocation).ok)
+	assert_eq(source, before)
+	candidate.lifecycle.completed_registration_sha256 = "c".repeat(64)
+	assert_false(REMAPPER.validate_remap(source, candidate, allocation).ok, "remapping cannot alter completion provenance")
+
+func test_scene_remap_refuses_malformed_or_playing_completion_provenance() -> void:
+	var source := _source()
+	source.lifecycle.state = "COMPLETED"
+	for invalid: Variant in [null, 1, "", "g".repeat(64), "a".repeat(63)]:
+		source.lifecycle["completed_registration_sha256"] = invalid
+		assert_false(REMAPPER.prepare(source, "TEST.restore", _bundle()).ok)
+	source.lifecycle.completed_registration_sha256 = "a".repeat(64)
+	source.lifecycle.state = "PLAYING"
+	assert_false(REMAPPER.prepare(source, "TEST.restore", _bundle()).ok)

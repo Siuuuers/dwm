@@ -4311,6 +4311,11 @@ func _validate_scene_passage_completion(snapshot: Dictionary, bundle: Dictionary
 		return {"ok": true}
 	if snapshot.scene.return_to != null:
 		return _transaction_failure(&"scene_passage_completion_mismatch", "")
+	# Historical completion survives current-content fallback. Current completion
+	# still requires the final passage caption; changing state alone is not proof.
+	var completed_registration: String = snapshot.lifecycle.get("completed_registration_sha256", "")
+	if not completed_registration.is_empty() and completed_registration != snapshot.scene.registration_sha256:
+		return {"ok": true}
 	var catalogue: Dictionary = preload("res://scripts/narrative/ScenePassageCatalog.gd").inspect(bundle)
 	if not catalogue.ok: return catalogue
 	var expanded: Dictionary = preload("res://scripts/narrative/SoloReadingSession.gd").expand_player_checkpoint(snapshot.narrative_checkpoint)
@@ -4462,6 +4467,10 @@ func _prepare_scene_playable_event(event: Dictionary, digest: String, lease: Str
 		candidate.command_receipts[event.command_id] = made.value.duplicate(true)
 		candidate.scene.active_challenge = {"challenge_id": event.payload.challenge_id,
 			"playable_command_id": event.command_id}
+		var previous_physical: Dictionary = candidate.gameplay.route_context.get("active_dating_challenge", {})
+		if scene_physical_consumed(previous_physical, candidate.gameplay.scene_challenge_outcomes):
+			candidate.gameplay.route_context.erase("active_dating_challenge")
+			candidate.gameplay.route_context.erase("dating_active_attempt_ref")
 		material = {"source_context": current.duplicate(true), "source_input": source_input,
 			"snapshot_input": candidate, "receipt": made.value.duplicate(true), "result": result.duplicate(true)}
 	# Preparation is not a lock or saved authority. Reject changes made by any
@@ -4516,6 +4525,7 @@ func _accept_scene_playable_event(event: Dictionary, digest: String, lease: Stri
 		return _scene_event_fatal(&"event_adoption_source_changed")
 	_command_receipts = material.snapshot_input.command_receipts.duplicate(true)
 	_scene_snapshot_references = material.snapshot_input.scene.duplicate(true)
+	route_context = material.snapshot_input.gameplay.route_context.duplicate(true)
 	return {"ok": true, "duplicate": false, "value": material.result.duplicate(true)}
 
 
@@ -4543,35 +4553,28 @@ func continue_optional_scene_challenge() -> Dictionary:
 	var acquired: Dictionary = _mutation_gate.acquire(&"causal_transaction")
 	if not acquired.get("ok", false): return acquired
 	var lease: String = acquired.value.token
-	var result := _continue_completed_scene_challenge_owned(lease, true)
+	var result := _continue_completed_scene_challenge_owned(lease)
 	var released: Dictionary = _mutation_gate.release(&"causal_transaction", lease)
 	return result if released.get("ok", false) else released
 
 func continue_completed_scene_challenge() -> Dictionary:
 	var guarded: Dictionary = _mutation_gate.guard_external(&"scene_challenge_continuation")
 	if not guarded.get("ok", false): return guarded
-	var adjacent: Dictionary = _scene_event_bridge.capture_scene_pending_marker()
-	if adjacent.get("ok", false) and adjacent.value.kind == "challenge.end":
-		var record: Dictionary = capture_run_snapshot_input().gameplay.route_context.get("active_dating_challenge", {})
-		if record.get("phase") != "terminal" or record.get("state") not in ["won", "lost"]:
-			return _transaction_failure(&"scene_challenge_not_complete", "")
-		return continue_optional_scene_challenge()
-	var acquired: Dictionary = _mutation_gate.acquire(&"causal_transaction")
-	if not acquired.get("ok", false): return acquired
-	var lease: String = acquired.value.token
-	var result := _continue_completed_scene_challenge_owned(lease)
-	var released: Dictionary = _mutation_gate.release(&"causal_transaction", lease)
-	return result if released.get("ok", false) else released
+	var record: Dictionary = capture_run_snapshot_input().gameplay.route_context.get("active_dating_challenge", {})
+	if record.get("phase") != "terminal" or record.get("state") not in ["won", "lost"]:
+		return _transaction_failure(&"scene_challenge_not_complete", "")
+	# A loaded terminal board may still reference the selected source branch.
+	# The common departure owner commits that exact prefix before either an
+	# adjacent End or a following caption can consume its physical result.
+	return continue_optional_scene_challenge()
 
-func _continue_completed_scene_challenge_owned(lease: String, optional: bool = false) -> Dictionary:
+func _continue_completed_scene_challenge_owned(lease: String) -> Dictionary:
 	if not _scene_playable_operation.is_empty(): return _transaction_failure(&"event_in_progress", "")
 	var admitted := capture_scene_challenge_command()
 	if not admitted.ok: return admitted
 	var source_input := capture_run_snapshot_input().duplicate(true)
 	var route: Dictionary = source_input.gameplay.route_context
 	var record: Dictionary = route.get("active_dating_challenge", {})
-	if not optional and (record.get("phase") != "terminal" or record.get("state") not in ["won", "lost"]):
-		return _transaction_failure(&"scene_challenge_not_complete", "")
 	if not record.is_empty() and (record.get("context") != admitted.value.command.context \
 			or not _scene_challenge_profile_matches(record, route.get("dating_active_attempt_ref", {}))):
 		return _transaction_failure(&"scene_challenge_profile_mismatch", "")
@@ -4680,6 +4683,7 @@ func _accept_scene_runtime_event(event: Dictionary, digest: String, lease: Strin
 		candidate.gameplay.scene_choices[result.opportunity_id] = result.choice
 	elif result.kind == "passage_finished":
 		candidate.lifecycle.state = "COMPLETED"
+		candidate.lifecycle["completed_registration_sha256"] = candidate.scene.registration_sha256
 	elif result.kind == "notification_updated":
 		candidate.scene.notification = result.notification.duplicate(true)
 	if result.kind in ["scene_transition_accepted", "thought_resolved", "challenge_recalled", "contact_entry_accepted", "contact_returned"]:
@@ -4729,16 +4733,57 @@ func configure_scene_challenge_runtime() -> Dictionary:
 	if not configured.get("ok", false): return configured
 	return profile.configure_scene_absence_validator(Callable(self, "validate_selected_scene_absence"))
 
-## Derive the physical command from the current Challenge identity and native control.
-## Merely asking for this projection never creates a physical attempt or a save.
+## The story binding may consume an older frozen physical attempt. Never rename
+## that attempt's context, spec or Profile slot to match revised story content.
+static func scene_physical_consumed(record: Dictionary, outcomes: Dictionary) -> bool:
+	if record.is_empty(): return false
+	var slot: String = preload("res://scripts/profile/DatingAttemptLedger.gd").semantic_slot(record.context)
+	for result: Dictionary in outcomes.values():
+		if result.get("physical_slot", "") == slot or (result.get("physical_slot", "").is_empty() \
+				and result.challenge_id == record.context.challenge_id): return true
+	return false
+
+## Rewound reading can retain a board without granting playable custody. Only
+## this current story owner can authorize a save of that unchanged suspension.
+func scene_challenge_is_suspended(record: Dictionary, require_pause: bool = false) -> bool:
+	if record.is_empty() or route_context.get("active_dating_challenge", {}) != record \
+			or scene_physical_consumed(record, scene_challenge_outcomes): return false
+	if require_pause:
+		if not is_instance_valid(_scene_event_bridge): return false
+		var pause: Dictionary = _scene_event_bridge.get_state()
+		if not pause.get("ok", false) or pause.value.get("state") != &"Suspended": return false
+	return not capture_scene_challenge_command().get("ok", false)
+
 func _current_scene_challenge_command(scene: Dictionary) -> Dictionary:
 	var active: Dictionary = scene.get("active_challenge", {})
 	if active.is_empty(): return _transaction_failure(&"scene_challenge_unadmitted", "")
+	for outcome: Dictionary in scene_challenge_outcomes.values():
+		if outcome.challenge_id == active.challenge_id:
+			return _transaction_failure(&"scene_challenge_already_closed", "")
+	var stored: Dictionary = route_context.get("active_dating_challenge", {})
+	if not stored.is_empty() and not scene_physical_consumed(stored, scene_challenge_outcomes):
+		var reference: Dictionary = route_context.get("dating_active_attempt_ref", {})
+		if reference.get("attempt_id") != stored.spec.board_token:
+			return _transaction_failure(&"scene_challenge_profile_mismatch", "")
+		return {"ok": true, "value": {"completion_transaction_id": stored.completion_transaction_id,
+			"command_sha256": stored.command_sha256, "context": stored.context.duplicate(true)}}
 	var context := {"kind": "scene_challenge", "scene_occurrence": scene.active_occurrence_id,
 		"challenge_id": active.challenge_id, "playable_command_id": active.playable_command_id,
 		"registration_sha256": scene.registration_sha256}
 	return {"ok": true, "value": {"completion_transaction_id": active.playable_command_id,
 		"command_sha256": _SCENE_EVENT._sha(context), "context": context}}
+
+## Command equality proves physical custody; current Scene owns narrative B.
+func capture_scene_challenge_binding(command: Dictionary) -> Dictionary:
+	var current := _current_scene_challenge_command(_scene_snapshot_references)
+	var detached := command.duplicate(true)
+	detached.erase("physical_token")
+	if not current.ok or not _SCENE_EVENT._equal(current.value, detached):
+		return _transaction_failure(&"scene_challenge_command_refused", "")
+	var active: Dictionary = _scene_snapshot_references.active_challenge
+	return {"ok": true, "value": {"challenge_id": active.challenge_id,
+		"scene_occurrence": _scene_snapshot_references.active_occurrence_id,
+		"playable_command_id": active.playable_command_id}}
 
 func capture_scene_challenge_command() -> Dictionary:
 	if not is_instance_valid(_scene_event_bridge): return _transaction_failure(&"scene_challenge_unavailable", "")
@@ -4750,7 +4795,7 @@ func capture_scene_challenge_command() -> Dictionary:
 	if not registered.ok: return registered
 	var matched := false
 	for challenge: Dictionary in registered.value.challenges:
-		if challenge.challenge_id == command.value.context.challenge_id:
+		if challenge.challenge_id == _scene_snapshot_references.active_challenge.challenge_id:
 			matched = challenge.entry_id == _scene_snapshot_references.entry_id and challenge.playable_marker_id == held.value.marker_id
 	if not matched: return _transaction_failure(&"scene_challenge_control_mismatch", "")
 	return {"ok": true, "value": {"command": command.value, "bundle": registered.value,
@@ -4934,20 +4979,30 @@ func capture_scene_challenge_closure(context: Dictionary) -> Dictionary:
 	if _scene_live_closures.has(key): return {"ok": true, "value": _scene_live_closures[key].duplicate(true)}
 	var occurrence := _SCENE_EVENT._sha([context.get("scene_occurrence"), context.get("challenge_id")])
 	var outcome: Dictionary = scene_challenge_outcomes.get(occurrence, {})
+	if outcome.is_empty():
+		var slot: String = preload("res://scripts/profile/DatingAttemptLedger.gd").semantic_slot(context)
+		for saved_occurrence: String in scene_challenge_outcomes:
+			var saved: Dictionary = scene_challenge_outcomes[saved_occurrence]
+			if saved.get("physical_slot", "") == slot:
+				occurrence = saved_occurrence
+				outcome = saved
+				break
 	if outcome.is_empty(): return {"ok": true, "value": {}}
 	var registered := _SCENE_MANIFEST.scene_registration()
 	if not registered.ok: return registered
+	var target_id := ""
 	for challenge: Dictionary in registered.value.challenges:
-		if challenge.challenge_id == outcome.challenge_id and challenge.targets.has(outcome.outcome):
-			return {"ok": true, "value": {"kind": "challenge_closed", "challenge_occurrence": occurrence,
-				"playable_command_id": context.get("playable_command_id"), "attempt_proof": null,
-				"outcome": outcome.outcome, "target_id": challenge.targets[outcome.outcome]}}
-	return _transaction_failure(&"scene_challenge_outcome_invalid", "")
+		if challenge.challenge_id == outcome.challenge_id:
+			target_id = challenge.targets.get(outcome.outcome, "")
+	return {"ok": true, "value": {"kind": "challenge_closed", "challenge_occurrence": occurrence,
+		"playable_command_id": context.get("playable_command_id"), "attempt_proof": null,
+		"outcome": outcome.outcome, "target_id": target_id}}
+
 
 var _scene_end_operation: Dictionary = {}
 
-func advance_scene_registered_marker() -> Dictionary:
-	return _advance_scene_registered_marker(false)
+func advance_scene_registered_marker(retry_event: Dictionary = {}) -> Dictionary:
+	return _advance_scene_registered_marker(false, "", retry_event)
 
 ## Choice intent receives a live presentation proof and optional registered choice ID.
 ## Targets remain owner data; an omitted ID preserves the legacy Yes command.
@@ -4958,12 +5013,42 @@ func accept_scene_thought(expected: Dictionary, choice_id: String = "") -> Dicti
 	if not current.get("ok", false): return current
 	return _advance_scene_registered_marker(true, choice_id)
 
-func _advance_scene_registered_marker(accept_thought: bool, choice_id: String = "") -> Dictionary:
+## Saved outcomes/choices decide recovery traversal; this projection writes nothing.
+func capture_resolved_scene_marker() -> Dictionary:
+	var held: Dictionary = _scene_event_bridge.capture_scene_pending_marker()
+	if not held.get("ok", false): return held
+	var marker: Dictionary = held.value
+	var result := {}
+	if marker.kind in ["thought.pass", "thought.options"] and scene_choices.has(marker.payload.opportunity_id):
+		var choice: String = scene_choices[marker.payload.opportunity_id]
+		var target: String = marker.payload.pass_target_id if choice == "pass" else (
+			_SCENE_EVENT.thought_option_target(marker.payload, choice) if marker.kind == "thought.options" else marker.payload.yes_target_id)
+		if target.is_empty(): return _transaction_failure(&"scene_saved_choice_unavailable", "")
+		result = {"kind": "thought_resolved", "opportunity_id": marker.payload.opportunity_id,
+			"choice": choice, "target_id": target}
+	elif marker.kind in ["challenge.playable", "challenge.end"]:
+		var saved := {}
+		for outcome: Dictionary in scene_challenge_outcomes.values():
+			if outcome.challenge_id != marker.payload.challenge_id: continue
+			if not saved.is_empty(): return _transaction_failure(&"scene_challenge_recall_ambiguous", "")
+			saved = outcome
+		if not saved.is_empty():
+			var registration := _SCENE_MANIFEST.scene_registration()
+			if not registration.ok: return registration
+			for challenge: Dictionary in registration.value.challenges:
+				if challenge.challenge_id == marker.payload.challenge_id:
+					result = {"kind": "challenge_recalled", "outcome": saved.outcome,
+						"target_id": challenge.targets[saved.outcome]}
+	return {"ok": true, "value": result}
+
+func _advance_scene_registered_marker(accept_thought: bool, choice_id: String = "", retry_event: Dictionary = {}) -> Dictionary:
 	if not is_instance_valid(_mutation_gate) or not is_instance_valid(_scene_event_bridge):
 		return _transaction_failure(&"scene_event_unavailable", "")
 	var guarded: Dictionary = _mutation_gate.guard_external(&"scene_event")
 	if not guarded.get("ok", false): return guarded
 	if _scene_entry_operation.has("candidate"):
+		if _scene_entry_operation.get("recovery", false):
+			return admit_scene_target(_scene_entry_operation.binding.target_id, _scene_entry_operation.binding.trigger_command_id)
 		var retained: Dictionary = _scene_entry_operation.result
 		if retained.get("kind") == "thought_resolved":
 			var trigger: Dictionary = _scene_entry_operation.candidate.command_receipts[_scene_entry_operation.binding.trigger_command_id]
@@ -4976,6 +5061,22 @@ func _advance_scene_registered_marker(accept_thought: bool, choice_id: String = 
 		elif accept_thought:
 			return _transaction_failure(&"scene_thought_unavailable", "")
 		return admit_scene_target(_scene_entry_operation.binding.target_id, _scene_entry_operation.binding.trigger_command_id)
+	var resolved := capture_resolved_scene_marker()
+	if not resolved.ok: return resolved
+	if not resolved.value.is_empty():
+		var context := _scene_runtime_event_context()
+		if not context.ok: return context
+		var acquired: Dictionary = _mutation_gate.acquire(&"causal_transaction")
+		if not acquired.ok: return acquired
+		var lease: String = acquired.value.token
+		var issued: Dictionary = _identity_issuer.issue(&"transaction_id")
+		var resumed: Dictionary = issued
+		if issued.ok:
+			var trigger := {"scene_event": {"semantic": {"source": context.value.source.duplicate(true)},
+				"result": resolved.value.duplicate(true)}}
+			resumed = _admit_scene_target_owned(resolved.value.target_id, issued.value.token, lease, {}, trigger)
+		var released: Dictionary = _mutation_gate.release(&"causal_transaction", lease)
+		return resumed if released.ok else released
 	var marker: Dictionary = _scene_event_bridge.capture_scene_pending_marker()
 	if not marker.get("ok", false): return marker
 	if accept_thought:
@@ -4993,14 +5094,25 @@ func _advance_scene_registered_marker(accept_thought: bool, choice_id: String = 
 				and _SCENE_EVENT._equal(saved.semantic.source, current.value.source):
 			if accept_thought and saved.result.get("choice") != (choice_id if marker.value.kind == "thought.options" else "yes"): return _transaction_failure(&"scene_thought_conflict", "")
 			return {"ok": true, "duplicate": true, "value": saved.result}
-	var issued: Dictionary = _identity_issuer.issue(&"transaction_id")
-	if not issued.get("ok", false): return issued
-	var event := {"schema_version": 2, "source": current.value.source.duplicate(true),
-		"event_id": marker.value.marker_id, "kind": ("thought.select" if marker.value.kind == "thought.options" else "thought.accept") if accept_thought else marker.value.kind, "payload": marker.value.payload.duplicate(true),
-		"ordinal": current.value.next_ordinal, "predecessor": current.value.predecessor,
-		"command_id": issued.value.token, "issuer_receipt": issued.value.issuer_receipt,
-		"playback_token": current.value.playback_token}
-	if event.kind == "thought.select": event.payload["choice_id"] = choice_id
+	var event: Dictionary
+	if not retry_event.is_empty():
+		# Bridge already owns the failed caption-to-playable material. Retry its
+		# issued command instead of minting an identity that cannot match it.
+		if accept_thought or marker.value.kind != "challenge.playable" \
+				or retry_event.get("kind") != marker.value.kind or retry_event.get("event_id") != marker.value.marker_id \
+				or not _SCENE_EVENT._equal(retry_event.get("payload"), marker.value.payload) \
+				or not _SCENE_EVENT._equal(retry_event.get("source"), current.value.source):
+			return _transaction_failure(&"scene_playable_retry_mismatch", "")
+		event = retry_event.duplicate(true)
+	else:
+		var issued: Dictionary = _identity_issuer.issue(&"transaction_id")
+		if not issued.get("ok", false): return issued
+		event = {"schema_version": 2, "source": current.value.source.duplicate(true),
+			"event_id": marker.value.marker_id, "kind": ("thought.select" if marker.value.kind == "thought.options" else "thought.accept") if accept_thought else marker.value.kind, "payload": marker.value.payload.duplicate(true),
+			"ordinal": current.value.next_ordinal, "predecessor": current.value.predecessor,
+			"command_id": issued.value.token, "issuer_receipt": issued.value.issuer_receipt,
+			"playback_token": current.value.playback_token}
+		if event.kind == "thought.select": event.payload["choice_id"] = choice_id
 	var session := capture_live_session()
 	if not session.ok: return session
 	var accepted: Dictionary = _scene_event_bridge.dispatch_scene_event(session.value, event)
@@ -5038,7 +5150,7 @@ func validate_scene_challenge_end(command: Dictionary) -> Dictionary:
 	var marker: Dictionary = _scene_event_bridge.capture_scene_pending_marker()
 	if not _SCENE_EVENT._equal(detached, current.value.command) or not marker.get("ok", false) \
 			or marker.value.marker_id != _scene_end_operation.event.event_id \
-			or _scene_end_operation.event.payload.challenge_id != detached.context.challenge_id \
+			or _scene_end_operation.event.payload.challenge_id != _scene_snapshot_references.active_challenge.challenge_id \
 			or marker.value.kind != "challenge.end" or marker.value.payload != _scene_end_operation.event.payload:
 		return _transaction_failure(&"scene_challenge_end_refused", "")
 	return {"ok": true}
@@ -5052,13 +5164,24 @@ func commit_scene_challenge_closure(command: Dictionary, result: Dictionary) -> 
 	var current := _scene_runtime_event_context()
 	if not current.ok: return current
 	if not _SCENE_EVENT._equal(current.value, operation.context): return _transaction_failure(&"event_source_mismatch", "")
+	var record: Dictionary = route_context.get("active_dating_challenge", {})
+	if result.get("attempt_proof") != null:
+		var proof: Dictionary = result.attempt_proof
+		var reference: Dictionary = route_context.get("dating_active_attempt_ref", {})
+		if record.is_empty() or not _scene_challenge_profile_matches(record, reference) \
+				or proof.slot_id != preload("res://scripts/profile/DatingAttemptLedger.gd").semantic_slot(command.context) \
+				or proof.record_sha256 != _SCENE_EVENT._sha(record) or proof.attempt_id != reference.attempt_id \
+				or proof.branch_id != reference.branch_id or proof.generation != reference.generation:
+			return _transaction_failure(&"scene_attempt_proof_mismatch", "")
+	elif not record.is_empty(): return _transaction_failure(&"scene_attempt_absence_unverified", "")
 	var made := _SCENE_EVENT.make_scene_receipt(operation.event, current.value.anchor, result, registration.value)
 	if not made.ok: return made
 	if made.value.request_fingerprint != operation.digest: return _transaction_failure(&"event_digest_mismatch", "")
 	var candidate := capture_run_snapshot_input().duplicate(true)
 	candidate.command_receipts[operation.event.command_id] = made.value
 	candidate.gameplay.scene_challenge_outcomes[result.challenge_occurrence] = {
-		"challenge_id": operation.event.payload.challenge_id, "outcome": result.outcome}
+		"challenge_id": operation.event.payload.challenge_id, "outcome": result.outcome,
+		"physical_slot": "" if result.attempt_proof == null else str(result.attempt_proof.slot_id)}
 	var committed := _admit_scene_target_owned(result.target_id, operation.event.command_id, operation.lease, candidate)
 	if not committed.get("ok", false): return committed
 	_scene_live_closures[_SCENE_EVENT._sha(command.context)] = result.duplicate(true)
@@ -5277,6 +5400,12 @@ func _prepare_scene_day_renewal(trigger: Dictionary, target_id: String, registra
 	var boundary := _SCENE_EVENT.scene_day_boundary(registration, trigger.scene_event.semantic.source.entry_id, target.entry_id)
 	if not boundary.ok: return boundary
 	if not boundary.value: return {"ok": true, "value": {}}
+	var target_day: int = registration.scene_programme.get("story_days", {}).get(target.entry_id, 0)
+	var held: Dictionary = _scene_event_bridge.capture_reading_checkpoint(false)
+	if not held.get("ok", false): return held
+	var reading: Dictionary = held.value.reading_session
+	var saved_day: int = reading.get("player_progress", {}).get("story_day", reading.get("story_day", 0))
+	if target_day > 0 and target_day <= saved_day: return {"ok": true, "value": {}}
 	if trigger.scene_event.result.kind != "scene_transition_accepted" or target.kind != "scene":
 		return _transaction_failure(&"scene_day_transition_required", "")
 	if not is_instance_valid(_scene_day_allocator) or not is_instance_valid(_scene_day_board) \
@@ -5329,7 +5458,7 @@ func _prepare_scene_day_renewal(trigger: Dictionary, target_id: String, registra
 		"board_candidate": board_candidate.value.candidate, "consequence_candidate": consequence_candidate.value.candidate}}
 
 func _admit_scene_target_owned(target_id: String, trigger_command_id: String, lease: String,
-		prepared_input: Dictionary = {}) -> Dictionary:
+		prepared_input: Dictionary = {}, recovery_trigger: Dictionary = {}) -> Dictionary:
 	var session := capture_live_session()
 	if not session.ok: return session
 	var registration := _SCENE_MANIFEST.scene_registration()
@@ -5337,7 +5466,14 @@ func _admit_scene_target_owned(target_id: String, trigger_command_id: String, le
 	var tables := _SCENE_EVENT.validate_bundle_structure(registration.value)
 	if not tables.ok: return tables
 	var candidate: Dictionary = prepared_input.duplicate(true) if not prepared_input.is_empty() else capture_run_snapshot_input()
-	var trigger: Variant = candidate.command_receipts.get(trigger_command_id)
+	var trigger: Variant = candidate.command_receipts.get(trigger_command_id) if recovery_trigger.is_empty() else recovery_trigger
+	if not recovery_trigger.is_empty():
+		var resolved := capture_resolved_scene_marker()
+		var source_context := _scene_runtime_event_context()
+		if not _mutation_gate.is_lease_active(&"causal_transaction", lease) or not resolved.ok or resolved.value.is_empty() \
+				or not source_context.ok or recovery_trigger.scene_event.result != resolved.value \
+				or recovery_trigger.scene_event.semantic.source != source_context.value.source:
+			return _transaction_failure(&"scene_recovery_source_changed", "")
 	if not trigger is Dictionary or trigger.get("scene_event", {}).get("result", {}).get("target_id") != target_id \
 			or trigger.scene_event.semantic.source.scene_occurrence != _scene_snapshot_references.active_occurrence_id \
 			or not tables.value.targets.has(target_id):
@@ -5354,6 +5490,9 @@ func _admit_scene_target_owned(target_id: String, trigger_command_id: String, le
 	if not day_plan.ok: return day_plan
 	var next_scene := {"registration_sha256": _SCENE_MANIFEST.scene_registration_fingerprint(),
 		"active_occurrence_id": "", "entry_id": target.entry_id, "notification": {}, "active_challenge": {}, "return_to": null}
+	var physical: Dictionary = candidate.gameplay.route_context.get("active_dating_challenge", {})
+	if not physical.is_empty() and not scene_physical_consumed(physical, candidate.gameplay.scene_challenge_outcomes):
+		next_scene.active_challenge = _scene_snapshot_references.active_challenge.duplicate(true)
 	var returning: bool = trigger.scene_event.result.kind == "contact_returned"
 	if returning:
 		if _scene_snapshot_references.return_to == null or _scene_snapshot_references.return_to.target_id != target_id:
@@ -5384,7 +5523,8 @@ func _admit_scene_target_owned(target_id: String, trigger_command_id: String, le
 		"registration_sha256": next_scene.registration_sha256}
 	_scene_entry_operation = {"lease": lease, "live_session": session.value,
 		"entry_id": next_scene.entry_id, "frame": frame, "binding": binding,
-		"prior_receipts": _command_receipts.duplicate(true), "prior_input": capture_run_snapshot_input()}
+		"prior_receipts": _command_receipts.duplicate(true), "prior_input": capture_run_snapshot_input(),
+		"recovery": not recovery_trigger.is_empty()}
 	if registration.value.get("schema_version") == 3:
 		var audio_owner: Script = load("res://scripts/data/AudioManifest.gd")
 		var audio := get_node_or_null("/root/AudioManager")
@@ -5472,17 +5612,13 @@ func _validate_scene_profile_references(snapshot: Dictionary, profile: Object) -
 		if retained.value.is_empty() or retained.value.generation != reference.generation \
 				or not _SCENE_EVENT._equal(retained.value.entry_receipt, ATTEMPTS._entry(record)):
 			return _transaction_failure(&"scene_physical_profile_mismatch", "")
-		var occurrence: String = slot.trim_prefix("scene.challenge.")
-		var outcome: Dictionary = snapshot.gameplay.scene_challenge_outcomes.get(occurrence, {})
-		if not outcome.is_empty():
-			var registered := _SCENE_MANIFEST.scene_registration()
-			if not registered.ok: return registered
-			var targets := {}
-			for challenge: Dictionary in registered.value.challenges:
-				if challenge.challenge_id == record.context.challenge_id: targets = challenge.targets
-			if targets.is_empty() or outcome.challenge_id != record.context.challenge_id \
-					or outcome.outcome != preload("res://scripts/application/run/DatingPhysicalOwner.gd").scene_closure_outcome(record, targets):
+		for outcome: Dictionary in snapshot.gameplay.scene_challenge_outcomes.values():
+			if outcome.get("physical_slot", "") != slot and not (outcome.get("physical_slot", "").is_empty() \
+					and outcome.challenge_id == record.context.challenge_id): continue
+			var expected: String = preload("res://scripts/application/run/DatingPhysicalOwner.gd").scene_closure_outcome(record, {"perfect": true})
+			if outcome.outcome != expected and not (expected == "perfect" and outcome.outcome == "won"):
 				return _transaction_failure(&"scene_challenge_outcome_mismatch", "")
+
 	for slot: String in route.get("dating_canonical_heads", {}):
 		var head: Dictionary = route.dating_canonical_heads[slot]
 		var retained: Dictionary = profile.get_dating_attempt(snapshot.run_id, slot, head.attempt_id, head.branch_id)

@@ -1,7 +1,6 @@
 extends "res://addons/gut/test.gd"
 ## Real filesystem/issuer/Profile/Run/Save owners. Activation and ancillary
 ## restore participants are diagnostic; no rendered or production UI claim.
-const FIXTURE := preload("res://tests/support/SceneNewRunFixture.gd")
 const PORT := preload("res://scripts/application/backup/BackupPresentationPort.gd")
 const ADMISSION := preload("res://scripts/infrastructure/save/SaveMigrations.gd")
 const RUN_SCHEMA := preload("res://scripts/domain/run/RunSnapshotSchema.gd")
@@ -24,11 +23,29 @@ class EditingNarrative extends RefCounted:
 		input.snapshot.content_version = -1
 		return delegate.prepare(input)
 
+class StoryDayFixture extends "res://tests/support/SceneNewRunFixture.gd":
+	func _install_registration() -> Dictionary:
+		var loaded := PARSER.parse_object(FileAccess.get_file_as_string("res://tests/fixtures/dialogic/scene_reading_registration.json"))
+		if not loaded.ok: return loaded
+		var bundle: Dictionary = loaded.value
+		bundle.schema_version = 2
+		bundle["contact_definitions"] = REGISTRATION.definitions()
+		bundle.contacts[0].source_fact_ids = ["TEST.fact.read"]
+		# The source fixture predates day metadata. Content-update admission needs
+		# explicit authored days and one scene root per day, as production has.
+		bundle.scene_programme["story_days"] = {"scene.test.a": 1, "scene.test.b": 1, "contact.test.a": 2}
+		return REGISTRATION.MANIFEST.configure_test_scene_registration(bundle)
+
+class CheckpointStorageOwner extends RefCounted:
+	var _storage: RefCounted
+	var _journal: RefCounted
+	var _restore_participants := {}
+
 var fixture: RefCounted
 var fixture_ready := false
 
 func before_all() -> void:
-	fixture = FIXTURE.new()
+	fixture = StoryDayFixture.new()
 	var setup: Dictionary = fixture.setup(get_tree())
 	assert_true(setup.get("ok", false), str(setup))
 	if not setup.get("ok", false): return
@@ -513,7 +530,7 @@ func test_scene_gameplay_adoption_and_recapture_preserve_progress_without_relati
 		assert_eq(restored.inventory.lucky_charm, 1, "captured inventory stays detached")
 	restored.free()
 
-func test_unregistered_scene_progress_is_refused_without_mutation() -> void:
+func test_retired_scene_progress_is_preserved_but_malformed_facts_and_controls_are_refused() -> void:
 	assert_true(fixture_ready)
 	if not fixture_ready: return
 	var source: Dictionary = fixture.read_autosave().value.current_snapshot.snapshot.duplicate(true)
@@ -521,14 +538,28 @@ func test_unregistered_scene_progress_is_refused_without_mutation() -> void:
 	var before := _observed()
 	for field: String in ["scene_choices", "scene_challenge_outcomes"]:
 		var changed := source.duplicate(true)
-		changed.gameplay[field] = {"TEST.opportunity": "pass"} if field == "scene_choices" else {
-			"a".repeat(64): {"challenge_id": "TEST.challenge", "outcome": "never_started"}}
+		changed.gameplay[field] = {"TEST.retired.opportunity": "retired.option"} if field == "scene_choices" else {
+			"a".repeat(64): {"challenge_id": "TEST.retired.challenge", "outcome": "never_started", "physical_slot": ""}}
 		var unchanged := changed.duplicate(true)
+		var admitted := RUN_SCHEMA.validate(changed)
+		assert_true(admitted.ok, "encountered facts survive removed authoring IDs: " + str(admitted))
+		if admitted.ok:
+			assert_eq(admitted.value.candidate.gameplay[field], unchanged.gameplay[field])
+		assert_eq(changed, unchanged, "admission does not rewrite submitted facts")
+		changed.gameplay[field] = {"TEST.retired.opportunity": false} if field == "scene_choices" else {
+			"a".repeat(64): {"challenge_id": "TEST.retired.challenge", "outcome": "invalid", "physical_slot": ""}}
+		unchanged = changed.duplicate(true)
 		var refused := RUN_SCHEMA.validate(changed)
-		assert_false(refused.ok, "current progress must name registered choices and Challenges")
+		assert_false(refused.ok, "retired facts still require valid value shapes")
 		assert_eq(refused.get("code"), &"invalid_gameplay", str(refused))
 		assert_eq(changed, unchanged, "refusal does not rewrite submitted facts")
-	assert_eq(_observed(), before, "invalid progress does not alter owners or files")
+	var invalid_control := source.duplicate(true)
+	invalid_control.scene.active_challenge = {"challenge_id": "TEST.retired.challenge", "playable_command_id": "TEST.invalid.command"}
+	var control_before := invalid_control.duplicate(true)
+	assert_false(RUN_SCHEMA.validate(invalid_control).ok,
+		"a historical fact cannot authorize an unregistered current Challenge without its physical record")
+	assert_eq(invalid_control, control_before)
+	assert_eq(_observed(), before, "validation does not alter owners or files")
 
 func test_scene_app_metadata_is_omitted_and_cannot_select_restore_surface() -> void:
 	assert_true(fixture_ready)
@@ -553,3 +584,134 @@ func test_scene_app_metadata_is_omitted_and_cannot_select_restore_surface() -> v
 			"required surface comes from current gameplay, not saved window selection")
 		assert_eq(with_metadata, unchanged, "admission never edits selected bytes")
 	assert_eq(_observed(), before, "metadata admission changes no live or durable owner")
+
+func test_acknowledged_creation_retains_historical_content_bytes_but_pending_creation_stays_current() -> void:
+	assert_true(fixture_ready)
+	if not fixture_ready: return
+	var source: Dictionary = fixture.read_autosave().value.current_snapshot.snapshot
+	var creation_id: String = source.lifecycle.scene_assignment.creation_transaction_id
+	var journal: RefCounted = fixture.manager._continuation_journal
+	var captured: Dictionary = journal.get_creation_operation(creation_id)
+	assert_true(captured.ok, str(captured))
+	if not captured.ok: return
+	var historical: Dictionary = captured.value.duplicate(true)
+	assert_eq(historical.activation_state, "acknowledged")
+	var before := _observed()
+	const WRITER := preload("res://scripts/validation/CanonicalJsonWriter.gd")
+	const PARSER := preload("res://scripts/validation/StrictJson.gd")
+	var old_hash := "a".repeat(64)
+	var initial: Dictionary = historical.initial_context.dialogic_checkpoint
+	initial.manifest_fingerprint = old_hash
+	initial.reading_session.registration_sha256 = old_hash
+	initial.reading_session.ledger.frozen_context.registration_sha256 = old_hash
+	var document: Dictionary = PARSER.parse_object(historical.new_run_materials.autosave.outgoing_text).value
+	var snapshot: Dictionary = document.current_snapshot.snapshot
+	snapshot.scene.registration_sha256 = old_hash
+	snapshot.narrative_checkpoint.manifest_fingerprint = old_hash
+	snapshot.narrative_checkpoint.reading_session.registration_sha256 = old_hash
+	var outgoing: String = WRITER.stringify(document).value + "\n"
+	historical.new_run_materials.autosave.outgoing_text = outgoing
+	historical.new_run_materials.autosave.outgoing_hash = outgoing.sha256_text()
+	historical.new_run_targets.autosave = outgoing.sha256_text()
+	historical.initial_context_sha256 = WRITER.stringify(historical.initial_context).value.sha256_text()
+	historical.request_fingerprint = WRITER.stringify({"kind": historical.kind, "transaction_id": historical.transaction_id,
+		"initial_context": historical.initial_context, "new_run_materials": historical.new_run_materials}).value.sha256_text()
+	var untouched := historical.duplicate(true)
+	var admitted: Dictionary = journal._validate_operation(historical)
+	assert_true(admitted.ok, str(admitted))
+	assert_eq(historical, untouched, "historical audit never rewrites evidence")
+	var pending := historical.duplicate(true)
+	pending.activation_state = "pending"
+	assert_false(journal._validate_operation(pending).ok, "unacknowledged activation must still reproduce current content")
+	var altered := historical.duplicate(true)
+	altered.new_run_materials.autosave.outgoing_text += " "
+	assert_false(journal._validate_operation(altered).ok, "exact outgoing bytes remain hash-bound")
+	altered = historical.duplicate(true)
+	altered.transaction_issuer_receipt.counter += 1
+	assert_false(journal._validate_operation(altered).ok, "historical creation retains its exact allocation receipt")
+	assert_eq(_observed(), before, "read-only history admission changes no owner or file")
+
+func test_old_content_autosave_backup_rolls_back_exact_bytes_and_allows_retry() -> void:
+	assert_true(fixture_ready)
+	if not fixture_ready: return
+	const CHECKPOINT := preload("res://scripts/application/run/SaveManagerCheckpointPort.gd")
+	const STORAGE := preload("res://scripts/infrastructure/storage/JsonFileStorage.gd")
+	const JOURNAL := preload("res://scripts/infrastructure/save/CheckpointJournal.gd")
+	const WRITER := preload("res://scripts/validation/CanonicalJsonWriter.gd")
+	var current_document: Dictionary = fixture.read_autosave().value
+	var historical := current_document.duplicate(true)
+	var snapshot: Dictionary = historical.current_snapshot.snapshot
+	snapshot.scene.registration_sha256 = "a".repeat(64)
+	snapshot.narrative_checkpoint.manifest_fingerprint = "a".repeat(64)
+	snapshot.narrative_checkpoint.reading_session.registration_sha256 = "a".repeat(64)
+	var old_text: String = WRITER.stringify(historical).value + "\n"
+	var current_text: String = WRITER.stringify(current_document).value + "\n"
+	var temporary := TemporaryStorage.create("scene_content_checkpoint_rollback")
+	assert_true(temporary.ok, str(temporary))
+	if not temporary.ok: return
+	var path: String = temporary.value.path_join("autosave.json")
+	var file := FileAccess.open(path, FileAccess.WRITE)
+	assert_not_null(file)
+	if file == null: return
+	file.store_string(old_text)
+	file.close()
+	var owner := CheckpointStorageOwner.new()
+	owner._storage = STORAGE.new(temporary.value)
+	owner._journal = JOURNAL.new()
+	var journal_backup: Dictionary = fixture.manager._journal.capture_state().value.backup
+	assert_true(owner._journal.restore_state(journal_backup).ok)
+	var checkpoint := CHECKPOINT.new(owner)
+	assert_true(checkpoint.configure_fatal_latch(fixture.gate).ok)
+	assert_false(checkpoint._validate_document_text(old_text).ok, "new outgoing checkpoints still require current content")
+	var source_admission: Dictionary = checkpoint._validate_document_text(old_text, true)
+	assert_true(source_admission.ok, "historical source must be admissible before storage: " + str(source_admission))
+	if not source_admission.ok: return
+	var validated_texts := {}
+	var captured: Dictionary = checkpoint._capture_storage_backup("autosave.json", validated_texts)
+	assert_true(captured.ok, str(captured))
+	if not captured.ok: return
+	var descriptor: Dictionary = captured.value.descriptor
+	assert_eq(descriptor.validated_text, old_text)
+	assert_eq(descriptor.sha256, old_text.sha256_text())
+	assert_eq(FileAccess.get_file_as_string(path), old_text, "admission does not migrate source bytes on disk")
+	var captured_input: Dictionary = fixture.game.capture_run_snapshot_input()
+	# This activation fixture uses a diagnostic desktop participant. Expand the
+	# player projection through the real board owner before testing a live producer.
+	var live_board := preload("res://scripts/domain/minesweeper/DesktopBoardState.gd").new()
+	var board_plan: Dictionary = live_board.prepare_player_restore_scene(current_document.current_snapshot.snapshot.desktop.board, fixture.issuer)
+	assert_true(board_plan.ok, str(board_plan))
+	if not board_plan.ok: return
+	assert_true(live_board.commit(board_plan.value.candidate).ok)
+	captured_input.desktop.board = live_board.capture()
+	assert_eq(captured_input.scene, current_document.current_snapshot.snapshot.scene)
+	assert_eq(captured_input.lifecycle, current_document.current_snapshot.snapshot.lifecycle)
+	var inputs := {"snapshot_input": captured_input,
+		"dialogic_checkpoint": current_document.current_snapshot.snapshot.narrative_checkpoint,
+		"route_id": "scene", "active_app_id": null, "audio_context": {},
+		"content_version": current_document.current_snapshot.snapshot.content_version}
+	for remembered: bool in [false, true]:
+		if remembered: checkpoint._remember_proven_documents(validated_texts)
+		var prepared: Dictionary = checkpoint.prepare(inputs, &"safe_marker", {"kind": &"autosave", "reason": &"automatic"})
+		assert_true(prepared.ok, str(prepared))
+		if not prepared.ok: return
+		var edited: Dictionary = prepared.value.candidate
+		edited.autosave_document = historical.duplicate(true)
+		var before_journal: Dictionary = owner._journal.capture_state()
+		var refused: Dictionary = checkpoint.commit(edited)
+		assert_false(refused.ok, "source migration proof cannot authorize identical historical bytes as new outgoing data")
+		assert_eq(refused.get("code"), &"outgoing_validation_failed", str(refused))
+		assert_eq(FileAccess.get_file_as_string(path), old_text)
+		assert_eq(owner._journal.capture_state(), before_journal, "refused candidate cannot advance the checkpoint")
+	var witness: Callable = checkpoint._witness_document_text_validator.bind(validated_texts)
+	assert_false(owner._storage.write_atomic("autosave.json", "{broken", witness).ok)
+	assert_eq(FileAccess.get_file_as_string(path), old_text, "rejected outgoing data preserves historical source")
+	assert_true(owner._storage.write_atomic("autosave.json", current_text, witness).ok)
+	# Simulate compensation after a later participant refuses the transaction.
+	var rolled_back: Dictionary = checkpoint.rollback({"journal_backup": journal_backup, "storage_backup": descriptor})
+	assert_true(rolled_back.ok, str(rolled_back))
+	assert_eq(FileAccess.get_file_as_string(path), old_text, "rollback restores exact historical bytes")
+	validated_texts = {}
+	assert_true(checkpoint._capture_storage_backup("autosave.json", validated_texts).ok)
+	witness = checkpoint._witness_document_text_validator.bind(validated_texts)
+	assert_true(owner._storage.write_atomic("autosave.json", current_text, witness).ok, "retry can replace the restored source")
+	assert_eq(FileAccess.get_file_as_string(path), current_text)

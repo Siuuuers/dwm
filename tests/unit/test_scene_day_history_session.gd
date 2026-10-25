@@ -33,15 +33,15 @@ func test_reconstructed_day_passage_does_not_create_historical_publications() ->
 	var history: Dictionary = session.project_scene_day_history(frontier, {}, {})
 	assert_true(history.ok, str(history))
 	if not history.ok: return
-	assert_eq(history.value.captions.size(), 6)
-	assert_eq(history.value.captions[0].line_id, "line.Day1.one")
+	assert_eq(history.value.captions.size(), 1)
+	assert_eq(history.value.captions[0].line_id, frontier.line_id)
 	assert_eq(history.value.captions.back().publication_id, frontier.publication_id)
 	assert_eq(history.value.captions.back().line_id, frontier.line_id)
 	assert_eq(history.value.frontier, frontier)
-	assert_eq(session.ledger.snapshot().captions.size(), 1, "earlier reconstructed text is display-only")
+	assert_eq(session.ledger.snapshot().captions.size(), 1, "unencountered earlier text is never backfilled")
 	assert_eq(session.capture(frontier).value, before, "projection has no live publication or cursor effects")
 	history.value.captions.clear()
-	assert_eq(session.project_scene_day_history(frontier, {}, {}).value.captions.size(), 6)
+	assert_eq(session.project_scene_day_history(frontier, {}, {}).value.captions.size(), 1)
 
 func test_day_two_passage_starts_at_day_two() -> void:
 	var session := _position("Day2", 0)

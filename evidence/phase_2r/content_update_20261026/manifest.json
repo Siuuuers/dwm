@@ -1,0 +1,12 @@
+{
+  "run_id": 40236005017,
+  "head_sha": "458919e1625b08531bf4363fe71e6b0423fe2895",
+  "archive": "rendered-content-update.zip",
+  "bytes": 2329544,
+  "sha256": "f32ce19e218a77093e4e80b26a586a0e2b7d640212f71e131cdd22aff260e193",
+  "files": 70,
+  "screenshots": 40,
+  "junit_files": 30,
+  "excluded": "Raw artifacts and Profile-containing proof JSON",
+  "acceptance": "Scenario evidence only. Full matrix pending regenerated inventories."
+}

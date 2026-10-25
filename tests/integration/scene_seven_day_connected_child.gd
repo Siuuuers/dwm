@@ -27,6 +27,9 @@ func _wait_route(path: String) -> bool:
 		var scene: Node = get_tree().current_scene
 		if scene != null and scene.scene_file_path == path and scene.is_node_ready(): return true
 		await get_tree().process_frame
+	print("SCENE_ROUTE_TIMEOUT " + JSON.stringify({"lifecycle": game._run_lifecycle.to_dict(),
+		"gate": game._mutation_gate.guard_external(&"scene_entry"), "live": game._live_session_active,
+		"reading": bridge.has_reading_session(), "playback": bridge.has_active_playback()}))
 	fail_test("Route timeout: " + path)
 	return false
 
@@ -173,15 +176,18 @@ func load_and_complete_week(stop_after_load: bool = false, witness_save: bool = 
 	# Session publication uses a deferred display refresh. Native Ready stays full-line.
 	for frame: int in 4: await get_tree().process_frame
 	var layer: Node = _caption()
-	assert_eq(layer.get_caption_projection().retained_captions, ["TEST Day4 opening."])
-	assert_eq(layer.get_caption_projection().caption_window, ["TEST Day4 opening.", "TEST Day4 closing."])
-	assert_eq(layer._scrollback, ["TEST Day4 opening."], "earlier days cannot leak into current-day History")
+	assert_eq(layer.get_caption_projection().retained_captions, ["TEST Day3 closing.", "TEST Day4 opening."])
+	assert_eq(layer.get_caption_projection().caption_window, ["TEST Day3 closing.", "TEST Day4 opening.", "TEST Day4 closing."])
+	assert_eq(layer._scrollback, ["TEST Day2 opening.", "TEST Day2 closing.", "TEST Day3 opening.",
+		"TEST Day3 closing.", "TEST Day4 opening."], "History keeps the two preceding encountered checkpoint sections")
 	assert_eq(layer._review_offset, 0)
 	assert_eq(bridge._reading_session.ledger.snapshot().captions.size(), 1, "Load retains only the current live publication")
 	var history: Dictionary = bridge.get_reading_history()
 	if not _ok(history): return
 	assert_eq(history.value.captions.map(func(row: Dictionary) -> String: return row.text),
-		["TEST Day4 opening.", "TEST Day4 closing."], "History reconstructs the complete current day without old-day rows")
+		["TEST Day2 opening.", "TEST Day2 closing.", "TEST Day3 opening.", "TEST Day3 closing.",
+			"TEST Day4 opening.", "TEST Day4 closing."], "History retains exactly the last three encountered sections")
+	assert_eq(reading.value.reading_session.player_progress.history_sections.size(), 3)
 	var stale: Dictionary = layer._presented_line.duplicate(true)
 	stale.value.token = "stale-playback"
 	assert_false(bridge.get_scene_caption_memory(stale).ok)
@@ -190,7 +196,7 @@ func load_and_complete_week(stop_after_load: bool = false, witness_save: bool = 
 	layer._refresh_reading_session()
 	assert_eq(bridge._runtime_adapter._dialogic.current_event_idx, native_index)
 	assert_eq(preload("res://scripts/narrative/SoloReadingSession.gd").project_player_checkpoint(bridge.capture_reading_checkpoint(false).value).value, proof.checkpoint)
-	assert_eq(layer.get_caption_projection().caption_window, ["TEST Day4 opening.", "TEST Day4 closing."])
+	assert_eq(layer.get_caption_projection().caption_window, ["TEST Day3 closing.", "TEST Day4 opening.", "TEST Day4 closing."])
 	assert_eq(profile.get_profile_snapshot(), proof.profile)
 	await _screenshot("seven-day-day4-restored-full")
 	if stop_after_load: return
@@ -224,10 +230,15 @@ func load_and_complete_week(stop_after_load: bool = false, witness_save: bool = 
 	# This opt-in journey keeps slot 2 as the restored Day4 witness, like export.
 	# The original ending-save/terminal-load journey remains unchanged by default.
 	if not witness_save and not await _save_ending_caption(): return
+	var finish_results: Array[Dictionary] = []
+	bridge.next_request_finished.connect(func(_frontier: Dictionary, result: Dictionary) -> void: finish_results.append(result.duplicate(true)), CONNECT_ONE_SHOT)
 	_ending_phase("ending_completion.begin")
 	await _accept()
 	_ending_phase("ending_completion.accept_return")
-	if not await _wait_route(MENU): return
+	if not await _wait_route(MENU):
+		assert_false(finish_results.is_empty(), "Finish delivered its completion result")
+		for result: Dictionary in finish_results: assert_true(result.get("ok", false), "Finish failed: " + str(result))
+		return
 	_ending_phase("title.ready")
 	var finished: Dictionary = game._run_lifecycle.to_dict()
 	assert_eq(finished.state, "COMPLETED")

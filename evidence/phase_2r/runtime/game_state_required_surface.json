@@ -2340,6 +2340,38 @@
       "disposition": "retain",
       "replacement": "",
       "contract_test": "test_completed_load_returns_title_and_gallery_replays_only_passage"
+    },
+    {
+      "symbol": "scene_physical_consumed",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_consumed_physical_slot_prevents_second_transfer_even_after_story_id_changes"
+    },
+    {
+      "symbol": "capture_scene_challenge_binding",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_current_binding_retains_exact_physical_command_and_stays_suspended_without_native_control"
+    },
+    {
+      "symbol": "capture_resolved_scene_marker",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_saved_choice_projection_selects_stored_route_without_mutating_progress"
+    },
+    {
+      "availability": "current",
+      "contract_test": "test_suspended_save_requires_exact_unconsumed_record_and_no_current_native_custody",
+      "disposition": "retain",
+      "kind": "function",
+      "replacement": "",
+      "symbol": "scene_challenge_is_suspended"
     }
   ]
 }

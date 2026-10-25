@@ -125,13 +125,15 @@ func test_run9_candidate_detaches_receipts_and_reading_from_caller() -> void:
 	assert_eq(fixture.snapshot, original, "the reusable fixture remains intact")
 	assert_eq(fixture.observed_state(), live_before, "refused admission applies no gameplay consequences")
 
-func test_compact_player_save_retains_current_caption_without_reading_history() -> void:
+func test_compact_player_save_retains_current_caption_and_bounded_encounters() -> void:
 	if not _ready_fixture(): return
 	var reading: Dictionary = fixture.snapshot.narrative_checkpoint.reading_session
-	assert_eq(reading.schema_version, 6)
+	assert_eq(reading.schema_version, 7)
 	assert_false(reading.has("ledger"), "player reading omits the traversal ledger")
 	assert_false(reading.has("next_operation"), "player reading omits temporary traversal plans")
-	assert_eq(reading.captions.size(), 1, "only the native current caption is stored")
+	assert_eq(reading.captions.size(), 1, "only the native current publication is stored")
+	assert_true(reading.history_sections.size() >= 1 and reading.history_sections.size() <= 3)
+	assert_eq(reading.history_sections.back().back(), reading.position_id, "encounter history reaches the selected caption")
 	var expanded: Dictionary = READING.expand_player_checkpoint(fixture.snapshot.narrative_checkpoint)
 	assert_true(expanded.ok, str(expanded))
 	if not expanded.ok: return

@@ -55,7 +55,7 @@ func create_caption_challenge() -> void:
 	for key: String in ["command_receipts", "applied_effect_transaction_ids", "applied_variable_transaction_ids"]:
 		assert_false(cue_snapshot.has(key), "player snapshot omits " + key)
 	assert_false(cue_snapshot.scene.active_challenge.is_empty(), "available Challenge is current saved state")
-	assert_eq(cue_snapshot.narrative_checkpoint.reading_session.schema_version, 6)
+	assert_eq(cue_snapshot.narrative_checkpoint.reading_session.schema_version, 7)
 	assert_false(cue_snapshot.narrative_checkpoint.reading_session.has("ledger"))
 	assert_false(cue_snapshot.narrative_checkpoint.reading_session.has("next_operation"))
 	var next_results: Array = []
@@ -97,7 +97,7 @@ func create_caption_challenge() -> void:
 		assert_false(closed_snapshot.has(key), "closed snapshot omits " + key)
 	assert_eq(closed_snapshot.gameplay.scene_challenge_outcomes, outcomes)
 	assert_true(closed_snapshot.scene.active_challenge.is_empty())
-	assert_eq(closed_snapshot.narrative_checkpoint.reading_session.schema_version, 6)
+	assert_eq(closed_snapshot.narrative_checkpoint.reading_session.schema_version, 7)
 	assert_false(closed_snapshot.narrative_checkpoint.reading_session.has("ledger"))
 	var proof := {"creator_process_id": OS.get_process_id(), "user_dir": ProjectSettings.globalize_path("user://"),
 		"cue_sha256": manual_sha, "closed_sha256": FileAccess.get_sha256("user://saves/slot_2.json"),

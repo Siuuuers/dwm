@@ -180,3 +180,20 @@ func test_ack_detaches_public_command_and_line_before_live_callback() -> void:
 	var saved: Dictionary = fixture.contacts.transaction_receipts[original_id]
 	assert_eq(saved.result.reply_id, "TEST.reply")
 	assert_eq(saved.result.rendered_line.text, "TEST reply.")
+
+func test_retained_contact_receipt_keeps_its_original_story_registration() -> void:
+	assert_true(fixture.emit_message().ok)
+	var historical: Dictionary = fixture.contacts.duplicate(true)
+	var command: String = historical.transaction_receipts.keys()[0]
+	# A historical story hash is retained on both receipt and its command
+	# context; the real issuer and unchanged Contacts definition still bind it.
+	historical.transaction_receipts[command].registration_sha256 = "a".repeat(64)
+	historical.transaction_receipts[command].context.registration_sha256 = "a".repeat(64)
+	assert_true(STATE.validate_scene_state(historical, fixture.registration, fixture.issuer).ok)
+	var mismatched := historical.duplicate(true)
+	mismatched.transaction_receipts[command].context.registration_sha256 = "b".repeat(64)
+	assert_false(STATE.validate_scene_state(mismatched, fixture.registration, fixture.issuer).ok)
+	var current: Dictionary = fixture.command()
+	current.context.registration_sha256 = "a".repeat(64)
+	assert_false(STATE.prepare_scene_message(fixture.contacts, "TEST.message", current.command_id,
+		current.proof, current.context, fixture.issuer).ok, "new commands still require installed content")

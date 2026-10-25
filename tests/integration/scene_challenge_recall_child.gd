@@ -89,7 +89,7 @@ func create_recall() -> void:
 	var outcomes: Dictionary = game.scene_challenge_outcomes.duplicate(true)
 	assert_eq(outcomes.size(), 1)
 	if outcomes.size() != 1: return
-	assert_eq(outcomes.values()[0], {"challenge_id": RECALL.CHALLENGE_ID, "outcome": "never_started"},
+	assert_eq(outcomes.values()[0], {"challenge_id": RECALL.CHALLENGE_ID, "outcome": "never_started", "physical_slot": ""},
 		"Finish records never_started distinctly from an open opportunity")
 	assert_true(game.capture_run_snapshot_input().scene.active_challenge.is_empty())
 	assert_true(profile.get_profile_snapshot().dating_attempts.is_empty(), "never_started creates no physical attempt")
@@ -110,7 +110,7 @@ func create_recall() -> void:
 	assert_true(schema.validate(persisted).get("ok", false), "direct outcome snapshot is admissible")
 	for field: String in ["challenge_id", "outcome"]:
 		var changed: Dictionary = persisted.duplicate(true)
-		changed.gameplay.scene_challenge_outcomes[outcomes.keys()[0]][field] = "TEST.unregistered"
+		changed.gameplay.scene_challenge_outcomes[outcomes.keys()[0]][field] = "" if field == "challenge_id" else "TEST.invalid_outcome"
 		assert_false(schema.validate(changed).get("ok", false), "required outcome rejects invalid " + field)
 	assert_eq(persisted.gameplay.scene_challenge_outcomes, outcomes, "validation never mutates the selected outcome")
 	if not _write_json(RECALL_PROOF, proof): return

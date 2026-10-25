@@ -134,7 +134,8 @@ static func build(
 ## The initial durable candidate cannot use ordinary committed-creation admission.
 ## Validate this complete and deliberately narrower Save9 envelope before any write.
 static func validate_scene_new_run_candidate(document: Dictionary, allocation_candidate: Dictionary,
-		profile_material: Dictionary, bundle: Dictionary, issuer: Object) -> Dictionary:
+		profile_material: Dictionary, bundle: Dictionary, issuer: Object,
+		acknowledged_checkpoint: Dictionary = {}) -> Dictionary:
 	# Retired optional metadata never participates in Scene admission.
 	document = document.duplicate()
 	document.erase("save_reason")
@@ -155,7 +156,7 @@ static func validate_scene_new_run_candidate(document: Dictionary, allocation_ca
 			or current.checkpoint_kind != "day_start" or not current.snapshot is Dictionary:
 		return _fail(&"invalid_bundle_shape", "initial bundle must be day_start")
 	var checked := RUN_SNAPSHOT_SCHEMA.validate_scene_new_run_candidate(current.snapshot,
-		allocation_candidate, profile_material, bundle, issuer)
+		allocation_candidate, profile_material, bundle, issuer, acknowledged_checkpoint)
 	if not checked.ok: return checked
 	var candidate := document.duplicate(true)
 	candidate.current_snapshot.snapshot = checked.value.candidate

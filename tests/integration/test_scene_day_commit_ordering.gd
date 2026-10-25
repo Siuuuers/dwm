@@ -15,6 +15,9 @@ const STRICT := preload("res://scripts/validation/StrictJson.gd")
 class NativeEntry extends RefCounted:
 	var refuse := false
 	var calls := 0
+	var reading := {"schema_version": 5, "player_progress": {"story_day": 1}}
+	func capture_reading_checkpoint(_include_native: bool) -> Dictionary:
+		return {"ok": true, "value": {"reading_session": reading.duplicate(true)}}
 	func commit_day_entry(_staged: Dictionary) -> Dictionary:
 		calls += 1
 		return {"ok": not refuse, "code": &"TEST.native_refused"}
@@ -100,15 +103,15 @@ func _setup() -> bool:
 	if not _ok(game.configure_scene_day_runtime(fixture.port, board, consequence), "day binding"): return false
 	before = game.capture_run_snapshot_input().duplicate(true)
 	trigger = fixture.command_receipts[fixture.event.command_id].duplicate(true)
+	native = NativeEntry.new()
+	game._scene_event_bridge = native
 	prepared = game._prepare_scene_day_renewal(trigger, "TEST.target", fixture.bundle, identity)
 	if not _ok(prepared, "day preparation"): return false
 	day_plan = prepared.value
 	assert_eq(game.capture_run_snapshot_input(), before, "allocation does not adopt gameplay or board")
 	transport = CheckpointTransport.new()
 	transport.storage = fixture.storage
-	native = NativeEntry.new()
 	game._narrative_checkpoint_port = transport
-	game._scene_event_bridge = native
 	return true
 
 func _stage(lease: String) -> void:
@@ -375,3 +378,16 @@ func test_scene_first_reveal_failed_write_keeps_payment_and_allowance_consistent
 	assert_eq(game.minesweeper_rounds_left, 1)
 	assert_eq(coordinator.reveal(request), retried)
 	assert_eq(game.minesweeper_rounds_left, 1)
+
+func test_recovered_story_day_highwater_skips_renewal_for_already_reached_day() -> void:
+	if not _setup(): return
+	var retained: Dictionary = game.capture_run_snapshot_input().duplicate(true)
+	for reading: Dictionary in [
+		{"schema_version": 5, "player_progress": {"story_day": 2}},
+		{"schema_version": 7, "story_day": 3}]:
+		native.reading = reading
+		var repeated: Dictionary = game._prepare_scene_day_renewal(trigger, "TEST.target",
+			fixture.bundle, FIXTURE.identity(fixture.lifecycle))
+		if not _ok(repeated, "recovered day already reached"): return
+		assert_eq(repeated.value, {}, "no renewal plan or new causal day")
+		assert_eq(game.capture_run_snapshot_input(), retained, "reading fallback preserves board, counters and identity")

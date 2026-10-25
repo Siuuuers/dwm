@@ -295,13 +295,16 @@ static func valid_scene_reading_shape(reading: Dictionary) -> bool:
 ## checked source's publication set through its suffix without scanning it again.
 static func _valid_scene_reading_shape(reading: Dictionary, publications: Dictionary,
 		checked_frames: Dictionary) -> bool:
-	if not FROZEN._exact(reading, SCENE_READING_KEYS) or not FROZEN._primitive(reading) \
+	var keys: Array = SCENE_READING_KEYS.duplicate()
+	if reading.has("player_progress"): keys.append("player_progress")
+	if not FROZEN._exact(reading, keys) or not FROZEN._primitive(reading) \
 			or typeof(reading.schema_version) != TYPE_INT or reading.schema_version != 5 \
 			or not _hash(reading.registration_sha256) or not _id(reading.entry_id) or not _id(reading.occurrence_id) \
 			or typeof(reading.program_index) != TYPE_INT or reading.program_index < 0 \
 			or reading.boundary not in ["line", "control", "between_entries"] \
 			or not reading.ledger is Dictionary or not reading.frontier is Dictionary \
 			or (reading.next_operation != null and not reading.next_operation is Dictionary): return false
+	if reading.has("player_progress") and not valid_player_progress(reading.player_progress): return false
 	var retained: Dictionary = reading.ledger
 	if not FROZEN._exact(retained, ["schema_version", "session_token", "frozen_context", "entry_contexts", "captions"]) \
 			or typeof(retained.schema_version) != TYPE_INT or retained.schema_version != 2 \
@@ -347,7 +350,11 @@ static func _create_scene_operation(plan: Dictionary, phase: String) -> Dictiona
 		"phase": phase, "plan": plan.duplicate(true)}}
 
 static func _validate_scene_plan_shape(plan: Dictionary) -> Dictionary:
-	if not FROZEN._exact(plan, ["schema_version", "entry_id", "source_reading", "path", "traversed_captions", "destination"]) \
+	var keys := ["schema_version", "entry_id", "source_reading", "path", "traversed_captions", "destination"]
+	if plan.has("major_checkpoint"):
+		keys.append("major_checkpoint")
+		if not plan.major_checkpoint is bool: return _fail(&"reading_next_plan_invalid")
+	if not FROZEN._exact(plan, keys) \
 			or not FROZEN._primitive(plan) or typeof(plan.schema_version) != TYPE_INT or plan.schema_version != 3 \
 			or not _id(plan.entry_id) or not plan.source_reading is Dictionary \
 			or not plan.path is Array or plan.path.is_empty() or not plan.traversed_captions is Array \
@@ -397,7 +404,47 @@ static func _scene_projection(plan: Dictionary, phase: String) -> Dictionary:
 		"completion":
 			result.boundary = "between_entries"
 			result.frontier = {}
+	if result.has("player_progress"):
+		for row: Dictionary in plan.traversed_captions:
+			append_player_caption(result.player_progress, row.beat.owning_entry_id, row.beat.line_id,
+				result.player_progress.story_day)
+		if plan.destination.kind == "line":
+			var beat: Dictionary = plan.destination.caption.beat
+			append_player_caption(result.player_progress, beat.owning_entry_id, beat.line_id,
+				result.player_progress.story_day, plan.get("major_checkpoint", false))
 	return result
+
+static func valid_player_progress(value: Variant) -> bool:
+	if not value is Dictionary or not FROZEN._exact(value, ["story_day", "recovery_anchor", "history_sections"]) \
+			or typeof(value.story_day) != TYPE_INT or value.story_day < 1 or value.story_day > 7 \
+			or not value.recovery_anchor is Dictionary \
+			or not FROZEN._exact(value.recovery_anchor, ["entry_id", "line_id"]) \
+			or not _id(value.recovery_anchor.entry_id) or not _id(value.recovery_anchor.line_id) \
+			or not value.history_sections is Array or value.history_sections.is_empty() or value.history_sections.size() > 3:
+		return false
+	for section: Variant in value.history_sections:
+		if not section is Array: return false
+		for line_id: Variant in section:
+			if not _id(line_id): return false
+	return true
+
+## Display encounters and one recovery anchor; no gameplay or read-status writes.
+static func append_player_caption(progress: Dictionary, entry_id: String, line_id: String,
+		day: int, major: bool = false) -> void:
+	if progress.is_empty():
+		progress.clear()
+		progress.merge({"story_day": day, "recovery_anchor": {"entry_id": entry_id, "line_id": line_id},
+			"history_sections": [[]]})
+	elif (major or day > progress.story_day) and progress.recovery_anchor != {"entry_id": entry_id, "line_id": line_id}:
+		progress.recovery_anchor = {"entry_id": entry_id, "line_id": line_id}
+		progress.history_sections.append([])
+		if progress.history_sections.size() > 3: progress.history_sections.pop_front()
+	progress.story_day = maxi(progress.story_day, day)
+	# A boundary belongs only to the new section; repeated publications of the
+	# same moment do not duplicate it in the bounded display window.
+	for section: Array in progress.history_sections:
+		while line_id in section: section.erase(line_id)
+	progress.history_sections.back().append(line_id)
 
 static func _validate_scene_operation(reading: Dictionary, entry_id: String) -> Dictionary:
 	if not valid_scene_reading_shape(reading) or not reading.next_operation is Dictionary: return _fail(&"reading_next_operation_invalid")

@@ -188,10 +188,15 @@ func pull_scene_panel(physical_token: String) -> Dictionary:
 	if not _scene_command(): return _fail(&"scene_challenge_unadmitted")
 	var view: Dictionary = _pull_scene(physical_token)
 	if not view.get("ok", false): return view
-	var profile: Dictionary = _scene_board_profile()
-	if not profile.get("ok", false): return profile
 	var value: Dictionary = view.value.duplicate(true)
-	value.host = str(profile.value.difficulty_id)
+	if not _record.is_empty():
+		# Retained physics owns its board host and geometry even when its authored
+		# Challenge/profile has been removed from the installed story bundle.
+		value["host"] = str(_record.spec.difficulty_id)
+	else:
+		var profile: Dictionary = _scene_board_profile()
+		if not profile.get("ok", false): return profile
+		value["host"] = str(profile.value.difficulty_id)
 	if value.get("phase") != "never_started": return _ok(value)
 	var preview: Dictionary = _scene_unstarted_board()
 	if not preview.get("ok", false): return preview
@@ -643,9 +648,10 @@ func _commit_attempt() -> Dictionary:
 ## is active, otherwise takes and releases its own; a foreign lease refuses pending progress.
 func flush_pending_attempt() -> Dictionary:
 	if _record.get("schema_version") == 4 and not _scene_command():
+		if _scene_fatal: return _fail(&"scene_challenge_fatal_custody")
 		# Restore journal writes can run after silent reconciliation, before playable
 		# readmission. Unchanged staged state has no source progress to flush.
-		if not _scene_fatal and not _routine_pending and _pending_checkpoint.is_empty() \
+		if not _routine_pending and _pending_checkpoint.is_empty() \
 				and _attempt_gate != null and _attempt_gate.is_internal_owner_active(&"restore"):
 			return _ok({"committed": false})
 		# A selected closed board is already the Run's exact current physical
@@ -655,6 +661,10 @@ func flush_pending_attempt() -> Dictionary:
 			var closed: Dictionary = _game_state.capture_scene_challenge_closure(_record.context)
 			if closed.get("ok", false) and _scene_closed_record_matches(closed.value):
 				return _ok({"committed": false})
+		if not _routine_pending and _pending_checkpoint.is_empty() \
+				and is_instance_valid(_game_state) and _game_state.has_method("scene_challenge_is_suspended") \
+				and _game_state.scene_challenge_is_suspended(_record):
+			return _ok({"committed": false})
 		return _fail(&"scene_challenge_readmission_required")
 	if _scene_command(): return _flush_scene_pending()
 	if not _routine_pending or _attempt_gate == null or not _pending_checkpoint.is_empty(): return _ok({"committed": false})
@@ -1516,9 +1526,6 @@ func _scene_authorize(command: Dictionary) -> Dictionary:
 		return _fail(&"invalid_scene_challenge_command")
 	if _scene_authority == null or ATTEMPTS.semantic_slot(command.get("context", {})).is_empty():
 		return _fail(&"scene_challenge_unconfigured")
-	var hashed: Dictionary = CANONICAL.canonical_sha256(_scene_bundle)
-	if not hashed.ok or command.context.registration_sha256 != hashed.value.sha256:
-		return _fail(&"scene_challenge_registration_mismatch")
 	return _scene_authority.validate_scene_challenge_command(command.duplicate(true), _scene_bundle.duplicate(true))
 
 ## Admission alone creates no attempt. Preserve already admitted in-memory moves
@@ -1542,6 +1549,14 @@ func _scene_input_open() -> bool:
 	var current: Dictionary = _scene_authority.capture_scene_challenge_command()
 	return current.get("ok", false) and current.value.command == _admitted_command
 
+func _scene_story_binding() -> Dictionary:
+	if _scene_authority.has_method("capture_scene_challenge_binding"):
+		return _scene_authority.capture_scene_challenge_binding(_admitted_command.duplicate(true))
+	# Retained isolated authorities bind one command directly.
+	return _ok({"challenge_id": _admitted_command.context.challenge_id,
+		"scene_occurrence": _admitted_command.context.scene_occurrence,
+		"playable_command_id": _admitted_command.context.playable_command_id})
+
 func _scene_closed() -> Dictionary:
 	return _scene_authority.capture_scene_challenge_closure(_admitted_command.context.duplicate(true))
 
@@ -1554,25 +1569,16 @@ func _scene_closed_record_matches(closed: Dictionary) -> bool:
 	if not captured.get("ok", false) or captured.value != _record: return false
 	var context: Dictionary = _record.get("context", _admitted_command.get("context", {}))
 	var slot := ATTEMPTS.semantic_slot(context)
-	if slot.is_empty() or closed.get("kind") != "challenge_closed" \
-			or closed.get("challenge_occurrence") != slot.trim_prefix("scene.challenge.") \
-			or closed.get("playable_command_id") != context.get("playable_command_id"): return false
+	if slot.is_empty() or closed.get("kind") != "challenge_closed": return false
+	if closed.get("challenge_occurrence") != slot.trim_prefix("scene.challenge.") \
+			or closed.get("playable_command_id") != context.get("playable_command_id"):
+		if not _game_state.has_method("scene_physical_consumed") \
+				or not _game_state.scene_physical_consumed(_record, _game_state.scene_challenge_outcomes): return false
 	if _record.is_empty(): return closed.get("outcome") == "never_started"
 	if not _valid_record(_record, {}): return false
-	var bundle := _scene_bundle
-	# Fresh Load can retain a closed board inside Contacts without ever admitting
-	# a playable command. Resolve only its immutable registration for this check.
-	if bundle.is_empty():
-		var selected: Dictionary = preload("res://scripts/narrative/DialogicEntryManifest.gd").scene_registration()
-		if not selected.get("ok", false): return false
-		bundle = selected.value
-	var hashed: Dictionary = CANONICAL.canonical_sha256(bundle)
-	if not hashed.get("ok", false) or hashed.value.sha256 != context.registration_sha256: return false
-	for challenge: Dictionary in bundle.get("challenges", []):
-		if challenge.challenge_id != context.challenge_id: continue
-		var outcome := scene_closure_outcome(_record, challenge.targets)
-		return closed.get("outcome") == outcome and closed.get("target_id") == challenge.targets.get(outcome)
-	return false
+	var expected := scene_closure_outcome(_record, {"perfect": true})
+	return closed.get("kind") == "challenge_closed" and (closed.get("outcome") == expected \
+		or (expected == "perfect" and closed.get("outcome") == "won"))
 
 func _begin_scene(command: Dictionary) -> Dictionary:
 	if _scene_absence_busy:
@@ -1985,13 +1991,18 @@ func _close_scene_locked() -> Dictionary:
 			_scene_start_admission = selected.value
 			var authorized: Dictionary = _validate_scene_start_absence()
 			if not authorized.ok: return authorized
+	var binding := _scene_story_binding()
+	if not binding.ok: return binding
 	var challenge := {}
 	for row: Dictionary in _scene_bundle.challenges:
-		if row.challenge_id == _admitted_command.context.challenge_id: challenge = row
+		if row.challenge_id == binding.value.challenge_id: challenge = row
 	outcome = scene_closure_outcome(_record, challenge.get("targets", {}))
 	if not challenge.get("targets", {}).has(outcome): return _fail(&"scene_challenge_target_missing")
-	var result := {"kind": "challenge_closed", "challenge_occurrence": ATTEMPTS.semantic_slot(_admitted_command.context).trim_prefix("scene.challenge."),
-		"playable_command_id": _admitted_command.context.playable_command_id, "attempt_proof": proof,
+	var result := {"kind": "challenge_closed", "challenge_occurrence": ATTEMPTS.semantic_slot({"kind": "scene_challenge",
+			"scene_occurrence": binding.value.scene_occurrence, "challenge_id": binding.value.challenge_id,
+			"playable_command_id": binding.value.playable_command_id,
+			"registration_sha256": _admitted_command.context.registration_sha256}).trim_prefix("scene.challenge."),
+		"playable_command_id": binding.value.playable_command_id, "attempt_proof": proof,
 		"outcome": outcome, "target_id": challenge.targets[outcome]}
 	var closed: Dictionary = _scene_authority.commit_scene_challenge_closure(_admitted_command.duplicate(true), result)
 	if not closed.get("ok", false):
@@ -2018,6 +2029,13 @@ func _flush_scene_pending() -> Dictionary:
 	if not closed.ok: return closed
 	if not closed.value.is_empty():
 		return _ok({"committed": false}) if _scene_closed_record_matches(closed.value) else _fail(&"scene_challenge_record_conflict")
+	# Opening a selected older prefix only plans its branch continuation. A
+	# paused Save can preserve that exact selected record/reference; no move has
+	# occurred that requires publishing a new Profile branch inside this pause.
+	if _history_selection.get("mode") == "continue" and not _routine_pending and _pending_checkpoint.is_empty() \
+			and _game_state.has_method("scene_challenge_is_suspended") \
+			and _game_state.scene_challenge_is_suspended(_record, true):
+		return _ok({"committed": false})
 	var admitted := _scene_authorize(_admitted_command)
 	if not admitted.ok: return admitted
 	var lease := {}

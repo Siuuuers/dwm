@@ -2432,7 +2432,7 @@ static func validate_scene_state(state: Dictionary, registration_sha256: String,
 	if not selected.get("ok", false): return selected
 	return _s_validate_state(state, registration_sha256, identity_issuer, selected.value)
 
-static func _s_validate_state(state: Dictionary, registration_sha256: String, issuer: Object, definitions: Dictionary) -> Dictionary:
+static func _s_validate_state(state: Dictionary, _registration_sha256: String, issuer: Object, definitions: Dictionary) -> Dictionary:
 	if not _s_json(state) or not _has_exact_keys(state, _SCENE_BAG_KEYS) \
 			or typeof(state.schema_version) != TYPE_INT or state.schema_version != 2 \
 			or not _has_exact_keys(state.messages, FRIEND_IDS) or not _has_exact_keys(state.read_watermarks, FRIEND_IDS) \
@@ -2448,7 +2448,7 @@ static func _s_validate_state(state: Dictionary, registration_sha256: String, is
 		if not _s_id(command_id) or not _has_exact_keys(receipt, _SCENE_RECEIPT_KEYS) \
 				or not _s_id(receipt.kind) or not _s_id(receipt.transaction_id) \
 				or not _s_digest(receipt.registration_sha256) or not _s_digest(receipt.definitions_sha256) \
-				or receipt.transaction_id != command_id or receipt.registration_sha256 != registration_sha256 \
+				or receipt.transaction_id != command_id \
 				or receipt.definitions_sha256 != definitions.definitions_sha256 \
 				or not receipt.command_issuer_receipt is Dictionary or not _has_exact_keys(receipt.context, _SCENE_CONTEXT_KEYS) or not _s_digest(receipt.context.contacts_sha256):
 			return _s_fail("scene_contact_receipt_invalid")
@@ -2465,7 +2465,7 @@ static func _s_validate_state(state: Dictionary, registration_sha256: String, is
 		var prior := _s_hash(candidate)
 		if not by_prior.has(prior): return _s_fail("scene_contact_receipt_disconnected")
 		var receipt: Dictionary = by_prior[prior]
-		var applied := _s_apply(candidate, receipt, definitions, registration_sha256, issuer)
+		var applied := _s_apply(candidate, receipt, definitions, receipt.registration_sha256, issuer)
 		if not applied.get("ok", false): return applied
 		candidate = applied.value.candidate
 		by_prior.erase(prior)

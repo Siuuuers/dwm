@@ -860,7 +860,9 @@ func _validate_kind_fields(operation: Dictionary, kind: String) -> Dictionary:
 	var materials_ok: Dictionary = _NEW_RUN_MATERIALS.validate(operation.get("new_run_materials"),
 		context, str(operation.get("transaction_id", "")),
 		str(operation.get("allocation_candidate_fingerprint", "")),
-		_scene_new_run_bundle, _scene_new_run_issuer)
+		_scene_new_run_bundle, _scene_new_run_issuer,
+		kind == "scene_new_run" and operation.get("stage") == STAGE_COMPLETED
+			and operation.get("activation_state") == "acknowledged")
 	if not materials_ok.get("ok", false):
 		return _failed(_schema_error, str(materials_ok.get("message", "new_run_materials are invalid")))
 	var allocation: Dictionary = operation["new_run_materials"]["allocation_candidate"]

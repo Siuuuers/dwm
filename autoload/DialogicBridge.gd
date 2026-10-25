@@ -295,6 +295,12 @@ func _prepare_scene_entry(entry_id: String, context: Dictionary) -> Dictionary:
 		source_reading = captured.value.reading_session.duplicate(true)
 		var copied: Dictionary = candidate.restore(captured.value.reading_session, captured.value.entry_id)
 		if not copied.ok: return copied
+		# Caption-held Challenge results also establish a checkpoint at the
+		# first destination caption; they need not expose a control boundary.
+		var source_marker := capture_scene_pending_marker()
+		if source_marker.ok and source_marker.value.kind in ["thought.pass", "thought.options",
+				"challenge.playable", "challenge.end", "challenge.recall"]:
+			candidate.inherit_player_progress(source_session, true)
 	else:
 		var begun: Dictionary = candidate.begin_scene(str(binding.operation_id))
 		if not begun.ok: return begun
@@ -2100,8 +2106,7 @@ func can_next_current_line() -> bool:
 		if _next_active or _line_ack_in_progress or _auto_step_in_progress or _skip_step_in_progress:
 			return false
 		var marker := capture_scene_pending_marker()
-		return marker.get("ok", false) and marker.value.kind == "passage.finish" \
-			and _line_presentation_context().get("ok", false)
+		return marker.get("ok", false) and _line_presentation_context().get("ok", false)
 	if _next_active or _line_ack_in_progress or _auto_step_in_progress or _skip_step_in_progress \
 			or not _has_exact_caption_source() or _mutation_gate == null \
 			or _reading_session.family != "solo" \
@@ -2170,11 +2175,11 @@ func _perform_caption_next(expected_frontier: Dictionary) -> Dictionary:
 			return _command_failure(&"presentation_frontier_changed")
 	var acknowledged := _acknowledge_next_source(expected_frontier)
 	if not acknowledged.get("ok", false): return acknowledged
-	# Finish is a causal command at the final caption, never a generic traversal
-	# into its label. Keep this after reveal/ack so Next and normal Accept share
-	# the same visible source and retryable storage failure presentation.
+	# Registered markers remain causal commands, never generic label traversal.
+	# Dispatch after reveal/ack so Next and normal Accept share the same visible
+	# source and retryable storage failure presentation.
 	var marker := capture_scene_pending_marker()
-	if marker.get("ok", false) and marker.value.kind == "passage.finish":
+	if marker.get("ok", false):
 		var finished := request_scene_marker_step(expected_frontier)
 		if not finished.get("ok", false) and _line_presentation_context(expected_frontier).get("ok", false):
 			finished["scene_departure_profile_revision"] = _skip_profile.get_profile_revision()
@@ -2339,7 +2344,7 @@ func request_auto_step(expected_frontier: Dictionary) -> Dictionary:
 	var result: Dictionary
 	var marker := capture_scene_pending_marker()
 	if marker.get("ok", false):
-		result = _scene_event_context_provider.get_object().advance_scene_registered_marker()
+		result = _scene_event_context_provider.get_object().advance_scene_registered_marker(_scene_playable.get("material", {}).get("event", {}))
 	else:
 		result = _runtime_adapter.advance_one_event()
 	_auto_step_in_progress = false
@@ -3004,7 +3009,7 @@ func get_reading_history() -> Dictionary:
 	return _STORY_LOCALE.project(history, _current_locale())
 
 
-## History and caption scrolling share one pure authored-day projection.
+## History and caption scrolling share the same bounded encountered-ID projection.
 ## This never feeds reconstructed display rows into command/publication custody.
 func _scene_day_history(frontier: Dictionary) -> Dictionary:
 	var game := get_node_or_null("/root/GameState") if is_inside_tree() else null
@@ -3402,7 +3407,7 @@ func is_hospital_reading_restore_for(command: Dictionary) -> bool:
 
 
 func _resume_reading_checkpoint(checkpoint: Dictionary, execution_mode: StringName) -> Dictionary:
-	if checkpoint.get("reading_session") is Dictionary and typeof(checkpoint.reading_session.get("schema_version")) == TYPE_INT and checkpoint.reading_session.schema_version in [5, 6]:
+	if checkpoint.get("reading_session") is Dictionary and typeof(checkpoint.reading_session.get("schema_version")) == TYPE_INT and checkpoint.reading_session.schema_version in [5, 6, 7]:
 		return _command_failure(&"scene_restore_owner_unavailable")
 	if execution_mode != &"canonical": return _command_failure(&"rehearsal_commit_denied")
 	var checked := validate_reading_checkpoint(checkpoint)
@@ -4565,10 +4570,13 @@ func request_scene_marker_step(expected: Dictionary) -> Dictionary:
 	var marker := capture_scene_pending_marker()
 	if not marker.get("ok", false): return marker
 	var caption_scoped: bool = marker.value.kind == "challenge.playable" and _scene_caption_challenge_end().get("ok", false)
-	var admitted: Dictionary = _scene_event_context_provider.get_object().advance_scene_registered_marker()
-	if not admitted.get("ok", false) or not caption_scoped: return admitted
+	var game: Object = _scene_event_context_provider.get_object()
+	var resolved: Dictionary = game.capture_resolved_scene_marker()
+	if not resolved.get("ok", false): return resolved
+	var admitted: Dictionary = game.advance_scene_registered_marker(_scene_playable.get("material", {}).get("event", {}))
+	if not admitted.get("ok", false) or not caption_scoped or not resolved.value.is_empty(): return admitted
 	# Continue leaves this caption. Opening Computer uses admission only, below.
-	return _scene_event_context_provider.get_object().continue_optional_scene_challenge()
+	return game.continue_optional_scene_challenge()
 
 ## Lazy admission on explicit Computer input keeps capability reads side-effect free.
 ## The cue is usable as soon as it appears: opening completes its real reveal and
@@ -4577,6 +4585,9 @@ func _admit_caption_challenge_on_open() -> Dictionary:
 	if not has_reading_session() or _reading_session.family != "scene" or _reading_session.boundary != "line":
 		return {"ok": true}
 	if not _scene_caption_challenge_end().get("ok", false): return {"ok": true}
+	var resolved: Dictionary = _scene_event_context_provider.get_object().capture_resolved_scene_marker()
+	if not resolved.get("ok", false): return resolved
+	if not resolved.value.is_empty(): return {"ok": true}
 	var current := _line_presentation_context()
 	if not current.ok: return current
 	var revealed: Dictionary = _runtime_adapter.reveal_current_line(true)
@@ -4584,7 +4595,7 @@ func _admit_caption_challenge_on_open() -> Dictionary:
 	if not _line_presentation_context(current).get("ok", false): return _command_failure(&"presentation_frontier_changed")
 	var acknowledged := _acknowledge_next_source(current)
 	if not acknowledged.ok: return acknowledged
-	return _scene_event_context_provider.get_object().advance_scene_registered_marker()
+	return _scene_event_context_provider.get_object().advance_scene_registered_marker(_scene_playable.get("material", {}).get("event", {}))
 
 ## Only an exact native-proven cue/playable pair can expose its adjacent End.
 ## Both semantic markers retain the same real caption publication; no synthetic

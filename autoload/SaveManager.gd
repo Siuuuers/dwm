@@ -1528,10 +1528,11 @@ func get_save_metadata(kind: StringName, slot_id: int = -1) -> Dictionary:
 	var parsed: Dictionary = STRICT_JSON.parse_object(str(read["value"]))
 	if not parsed.get("ok", false):
 		return _fail(&"corrupt_save_document", relative_path)
-	var validated: Dictionary = SAVE_DOCUMENT_SCHEMA.validate(parsed["value"])
-	if not validated.get("ok", false):
+	var migrated: Dictionary = SAVE_MIGRATIONS.migrate_document(parsed["value"],
+		{"kind": str(locator["kind"]), "slot_id": locator["slot_id"]})
+	if not migrated.get("ok", false):
 		return _fail(&"corrupt_save_document", relative_path)
-	var document: Dictionary = validated["value"]["candidate"]
+	var document: Dictionary = migrated["value"]["document"]
 	var snapshot: Dictionary = document["current_snapshot"]["snapshot"]
 	return {"ok": true, "code": &"ok", "value": {
 		"exists": true,

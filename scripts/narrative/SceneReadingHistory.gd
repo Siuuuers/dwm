@@ -1,69 +1,63 @@
 extends RefCounted
-## Display-only reconstruction of the current authored day. This never dispatches
-## controls, creates admissions, publishes captions, or changes gameplay facts.
+## Encounter-only History display and route admission for current-content saves.
+## Neither operation dispatches controls or publishes read/gameplay facts.
 const EVENTS := preload("res://scripts/domain/narrative/SceneEventContract.gd")
 
-static func project(bundle: Dictionary, nodes: Dictionary, entry_id: String, program_index: int,
-		choices: Dictionary, outcomes: Dictionary, first_target_id: String = "") -> Dictionary:
-	var checked := EVENTS.validate_story_days(bundle.get("scene_programme", {}))
-	if not checked.ok or checked.value.is_empty() or not checked.value.has(entry_id):
-		return _fail(&"reading_history_day_unavailable")
-	var days: Dictionary = checked.value
-	if not nodes.has(entry_id) or program_index < 0 or program_index >= nodes[entry_id].size():
-		return _fail(&"reading_history_position_invalid")
-	var targets := {}
-	for row: Dictionary in bundle.targets: targets[row.target_id] = row.target
-	var challenges := {}
-	for row: Dictionary in bundle.challenges: challenges[row.challenge_id] = row
-	var markers := {}
-	for programme: Dictionary in bundle.scene_programme.entries:
-		for marker: Dictionary in programme.markers: markers[marker.marker_id] = marker
+## Only recorded encounters appear. Current wording is a display projection,
+## never a publication or a global read witness.
+static func project_encountered(bundle: Dictionary, sections: Array) -> Dictionary:
 	var lines := {}
 	for entry: Dictionary in bundle.caption_registry.entries:
 		for line: Dictionary in entry.lines:
 			lines[line.line_id] = {"entry_id": entry.entry_id, "line": line}
-	var start := _day_start(bundle, days, int(days[entry_id]), targets, challenges, first_target_id)
-	if not start.ok: return start
-	var current: String = start.value
-	var index := 0
-	var visited := {}
 	var captions: Array[Dictionary] = []
-	while true:
-		if not nodes.has(current) or days.get(current) != days[entry_id] \
-				or index < 0 or index >= nodes[current].size():
-			return _fail(&"reading_history_position_unreachable")
-		var key := "%s:%d" % [current, index]
-		if visited.has(key): return _fail(&"reading_history_cycle")
-		visited[key] = true
-		var node: Dictionary = nodes[current][index]
-		if node.kind == "caption":
-			if not lines.has(node.line_id) or lines[node.line_id].entry_id != current:
-				return _fail(&"reading_history_line_invalid")
-			var line: Dictionary = lines[node.line_id].line
-			captions.append({"line_id": line.line_id, "entry_id": current, "beat_id": line.beat_id,
-				"text": line.text, "publication_id": "history:" + line.line_id})
-		if current == entry_id and index == program_index:
-			if node.kind not in ["caption", "control", "completion"] or captions.is_empty():
-				return _fail(&"reading_history_position_invalid")
-			return {"ok": true, "value": {"captions": captions, "day": days[entry_id]}}
-		if node.kind in ["caption", "jump"]:
-			index = int(node.next)
-			continue
-		if node.kind != "control" or not markers.has(node.marker_id):
-			return _fail(&"reading_history_position_unreachable")
-		var marker: Dictionary = markers[node.marker_id]
-		if marker.kind == "challenge.playable":
-			index += 1
-			continue
-		var selected := _select_target(marker, choices, outcomes, challenges)
-		if not selected.ok: return selected
-		if not targets.has(selected.value): return _fail(&"reading_history_target_invalid")
-		var target: Dictionary = targets[selected.value]
-		if target.kind != "scene" or target.label != target.entry_id:
-			return _fail(&"reading_history_target_unsupported")
-		current = target.entry_id
-		index = 0
-	return _fail(&"reading_history_position_unreachable")
+	var seen := {}
+	for section: Array in sections:
+		for line_id: String in section:
+			if not lines.has(line_id) or seen.has(line_id): continue
+			seen[line_id] = true
+			var row: Dictionary = lines[line_id]
+			captions.append({"line_id": line_id, "entry_id": row.entry_id, "beat_id": row.line.beat_id,
+				"text": row.line.text, "publication_id": "history:" + line_id})
+	return {"ok": true, "value": {"captions": captions}}
+
+## Route admission for content migration. Known decisions restrict reachable
+## entries; an absent newly-authored decision is not a retroactive prerequisite.
+static func current_day_route(bundle: Dictionary, day: int, choices: Dictionary, outcomes: Dictionary) -> Dictionary:
+	var checked := EVENTS.validate_story_days(bundle.get("scene_programme", {}))
+	if not checked.ok or checked.value.is_empty(): return _fail(&"reading_history_day_unavailable")
+	var days: Dictionary = checked.value
+	var targets := {}
+	for row: Dictionary in bundle.targets: targets[row.target_id] = row.target
+	var challenges := {}
+	for row: Dictionary in bundle.challenges: challenges[row.challenge_id] = row
+	var start := _day_start(bundle, days, day, targets, challenges)
+	if not start.ok: return start
+	var entries := {}
+	var pending: Array = [start.value]
+	while not pending.is_empty():
+		var entry_id: String = pending.pop_back()
+		if entries.has(entry_id): continue
+		entries[entry_id] = true
+		for programme: Dictionary in bundle.scene_programme.entries:
+			if programme.entry_id != entry_id: continue
+			for marker: Dictionary in programme.markers:
+				if marker.kind not in ["scene.transition", "thought.pass", "thought.options", "challenge.end", "challenge.recall"]: continue
+				var selected := _select_target(marker, choices, outcomes, challenges)
+				var ids: Array = []
+				if selected.ok: ids.append(selected.value)
+				elif selected.code in [&"reading_history_choice_missing", &"reading_history_outcome_missing"]:
+					for key: String in marker.payload:
+						if key.ends_with("target_id"): ids.append(marker.payload[key])
+					for option: Dictionary in marker.payload.get("options", []): ids.append(option.target_id)
+					if marker.kind == "challenge.end" and challenges.has(marker.payload.challenge_id):
+						ids.append_array(challenges[marker.payload.challenge_id].targets.values())
+				else: continue
+				for target_id: String in ids:
+					if targets.has(target_id) and targets[target_id].kind == "scene" \
+							and days.get(targets[target_id].entry_id) == day:
+						pending.append(targets[target_id].entry_id)
+	return {"ok": true, "value": {"start_entry": start.value, "entries": entries}}
 
 static func _select_target(marker: Dictionary, choices: Dictionary, outcomes: Dictionary,
 		challenges: Dictionary) -> Dictionary:
@@ -95,7 +89,7 @@ static func _select_target(marker: Dictionary, choices: Dictionary, outcomes: Di
 	return _fail(&"reading_history_control_unsupported")
 
 static func _day_start(bundle: Dictionary, days: Dictionary, day: int, targets: Dictionary,
-		challenges: Dictionary, first_target_id: String) -> Dictionary:
+		challenges: Dictionary) -> Dictionary:
 	var incoming := {}
 	var cross_day := {}
 	for programme: Dictionary in bundle.scene_programme.entries:
@@ -114,10 +108,6 @@ static func _day_start(bundle: Dictionary, days: Dictionary, day: int, targets: 
 				else: cross_day[target.entry_id] = true
 	if cross_day.size() == 1: return {"ok": true, "value": cross_day.keys()[0]}
 	if cross_day.size() > 1: return _fail(&"reading_history_day_ambiguous")
-	if not first_target_id.is_empty() and targets.has(first_target_id):
-		var first: Dictionary = targets[first_target_id]
-		if first.kind == "scene" and days.get(first.entry_id) == day:
-			return {"ok": true, "value": first.entry_id}
 	var roots: Array[String] = []
 	for entry: Dictionary in bundle.entry_manifest.entries:
 		if entry.role == "scene" and days.get(entry.entry_id) == day and not incoming.has(entry.entry_id):

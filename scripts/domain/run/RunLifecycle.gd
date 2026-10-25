@@ -73,6 +73,7 @@ const RESTORE_PROVENANCE_KEYS: Array[String] = [
 ]
 
 var _scene_assignment: Dictionary = {}
+var _completed_registration_sha256 := ""
 var _scene_issuer: Object
 var _run_id := ""
 # Captured once at New Run and replaced only by a validated full restore.
@@ -103,6 +104,7 @@ var _terminal_intent_handoff: Variant = null
 func reset(run_id: String, branch_id: String, desktop_timeline_generation: int,
 		causal_day_instance: String, identity_allocation_receipt: Dictionary, dark_mode: bool) -> void:
 	_scene_assignment = {}
+	_completed_registration_sha256 = ""
 	_run_id = run_id
 	_dark_mode = dark_mode
 	_day = 1
@@ -563,6 +565,8 @@ func to_dict() -> Dictionary:
 		scene["state"] = String(_state)
 		scene["restore_provenance"] = _dup_or_null(_restore_provenance)
 		scene["scene_assignment"] = _scene_assignment.duplicate(true)
+		if not _completed_registration_sha256.is_empty():
+			scene["completed_registration_sha256"] = _completed_registration_sha256
 		if _has_ending_plan: scene["ending_plan"] = _ending_plan.duplicate(true)
 		return scene
 	return {
@@ -625,6 +629,7 @@ func commit_restore(candidate: Dictionary) -> Dictionary:
 		_causal_day_instance_issuer_receipt = candidate.causal_day_instance_issuer_receipt.duplicate(true)
 		_restore_provenance = _dup_or_null(candidate.restore_provenance)
 		_scene_assignment = candidate.scene_assignment.duplicate(true)
+		_completed_registration_sha256 = candidate.get("completed_registration_sha256", "")
 		_state = StringName(candidate.state)
 		_plan = null
 		_has_ending_plan = candidate.has("ending_plan")
@@ -643,6 +648,7 @@ func commit_restore(candidate: Dictionary) -> Dictionary:
 			return restored
 		plan = restored["value"]["plan"]
 	_scene_assignment = {}
+	_completed_registration_sha256 = ""
 	_run_id = str(candidate["run_id"])
 	_dark_mode = candidate["dark_mode"]
 	_day = int(candidate["day"])
@@ -1046,6 +1052,11 @@ static func validate_scene(data: Dictionary, issuer: Object) -> Dictionary:
 	var expected := SCENE_LIFECYCLE_KEYS.duplicate()
 	var terminal: bool = data.get("state") == "ENDING" or (data.get("state") == "COMPLETED" and data.has("ending_plan"))
 	if terminal: expected.append("ending_plan")
+	if data.has("completed_registration_sha256"):
+		if terminal or data.get("state") != "COMPLETED" \
+				or not SCENE_TERMINAL_CONTRACT._hash(data.completed_registration_sha256):
+			return _fail(&"invalid_scene_lifecycle", "completion registration requires ordinary completed passage")
+		expected.append("completed_registration_sha256")
 	expected.sort()
 	if keys != expected or typeof(data.get("run_id")) != TYPE_STRING or data.run_id.is_empty() \
 			or typeof(data.get("state")) != TYPE_STRING or data.state not in ["PLAYING", "ENDING", "COMPLETED"]:

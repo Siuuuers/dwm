@@ -47,7 +47,7 @@ func test_compact_position_preserves_current_caption_and_continues_without_id_re
 	assert_true(player.ok, str(player))
 	if not player.ok: return
 	var saved: Dictionary = player.value.reading_session
-	assert_eq(saved.schema_version, 6)
+	assert_eq(saved.schema_version, 7)
 	assert_eq(saved.captions.size(), 1)
 	assert_eq(saved.publication_serial, 9)
 	assert_false(saved.has("ledger"))

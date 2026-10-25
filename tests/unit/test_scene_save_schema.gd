@@ -83,17 +83,41 @@ func test_scene_progress_distinguishes_no_closure_from_never_started_and_keeps_o
 
 func test_scene_progress_refuses_malformed_required_facts() -> void:
 	var initial: Dictionary = preload("res://autoload/GameState.gd").make_scene_new_run_gameplay()
-	for invalid: Variant in [null, [], {"": "pass"}, {"Day1.photo": ""}, {"Day1.photo": false}, {"unregistered.thought": "pass"}, {"Day1.photo": "missing"}]:
+	for invalid: Variant in [null, [], {"": "pass"}, {"Day1.photo": ""}, {"Day1.photo": false}]:
 		var gameplay := initial.duplicate(true)
 		gameplay.scene_choices = invalid
 		assert_ne(RUN._validate_scene_gameplay(gameplay), "", "invalid choice fact: " + str(invalid))
 	var occurrence := "a".repeat(64)
 	for invalid: Variant in [null, [], {"bad-occurrence": {"challenge_id": "Day1.challenge", "outcome": "won"}},
 			{occurrence: {"challenge_id": "", "outcome": "won"}},
-			{occurrence: {"challenge_id": "unregistered.challenge", "outcome": "won"}},
 			{occurrence: {"challenge_id": "Day1.challenge", "outcome": "missing"}},
 			{occurrence: {"challenge_id": "Day1.challenge"}},
 			{occurrence: {"challenge_id": "Day1.challenge", "outcome": "won", "receipt": "extra"}}]:
 		var gameplay := initial.duplicate(true)
 		gameplay.scene_challenge_outcomes = invalid
 		assert_ne(RUN._validate_scene_gameplay(gameplay), "", "invalid outcome fact: " + str(invalid))
+
+func test_retired_story_facts_survive_without_claiming_a_physical_attempt() -> void:
+	var occurrence := "a".repeat(64)
+	var outcomes := {occurrence: {"challenge_id": "retired.challenge", "outcome": "unfinished", "physical_slot": ""}}
+	assert_eq(RUN._validate_scene_progress({"retired.thought": "retired.option"}, outcomes), "")
+	outcomes[occurrence].physical_slot = "scene.challenge." + "b".repeat(64)
+	assert_eq(RUN._validate_scene_progress({}, outcomes), "", "story occurrence can own a different retained physical attempt")
+	outcomes[occurrence].outcome = "never_started"
+	assert_ne(RUN._validate_scene_progress({}, outcomes), "", "never started cannot consume an attempt")
+	outcomes[occurrence].outcome = "won"
+	for malformed: Variant in [null, 1, "scene.challenge.invalid", "dating." + "b".repeat(64)]:
+		outcomes[occurrence].physical_slot = malformed
+		assert_ne(RUN._validate_scene_progress({}, outcomes), "")
+
+func test_scene_content_normalization_does_not_fill_missing_owners() -> void:
+	for source: Dictionary in [{"schema_version": 9},
+			{"schema_version": 9, "scene": {}, "gameplay": {}, "narrative_checkpoint": {}}]:
+		var before := source.duplicate(true)
+		assert_false(RUN.normalize_scene_content(source).ok)
+		assert_eq(source, before)
+
+func test_legacy_reading_day_metadata_is_explicit_and_does_not_guess_unknown_entries() -> void:
+	assert_eq(RUN.READING6_STORY_DAYS.get("Day3.lavinia"), 3)
+	assert_eq(RUN.READING6_STORY_DAYS.get("ending.alone.normal"), 7)
+	assert_false(RUN.READING6_STORY_DAYS.has("Day3.invented"))

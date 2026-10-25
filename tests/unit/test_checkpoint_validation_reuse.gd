@@ -16,14 +16,14 @@ const WITNESS := "_witness_document_text_validator"
 class CountingPort extends "res://scripts/application/run/SaveManagerCheckpointPort.gd":
 	var validations := {}
 	var reuse := true
-	func _validate_document_text(text: String) -> Dictionary:
+	func _validate_document_text(text: String, existing_source: bool = false) -> Dictionary:
 		validations[text] = int(validations.get(text, 0)) + 1
-		return super._validate_document_text(text)
+		return super._validate_document_text(text, existing_source)
 	func _cached_document_text_validator(text: String, cache: Dictionary) -> Dictionary:
 		if not reuse: return _document_text_validator(text)
 		return super._cached_document_text_validator(text, cache)
 	func _cached_document_text_proof(text: String, cache: Dictionary) -> Dictionary:
-		if not reuse: return _document_text_validator(text)
+		if not reuse: return _document_text_validator(text, true)
 		return super._cached_document_text_proof(text, cache)
 
 # dwm-634.3: the storage witness is the third reader of the exact-text proofs, and commit() seeds the
@@ -33,8 +33,8 @@ class CountingPort extends "res://scripts/application/run/SaveManagerCheckpointP
 # dispatches from the production port itself. Nothing here calls `super` on the witness: that would
 # not compile against a port which does not declare one yet.
 class UncachedPort extends CountingPort:
-	func _witness_document_text_validator(text: String, _cache: Dictionary) -> Dictionary:
-		return _document_text_validator(text)
+	func _witness_document_text_validator(text: String, _cache: Dictionary, existing_source: bool = false) -> Dictionary:
+		return _document_text_validator(text, existing_source)
 
 class Manager extends RefCounted:
 	var _journal := JOURNAL.new()
@@ -792,14 +792,14 @@ func test_commit_and_rollback_hand_storage_the_witness() -> void:
 	_assert_binds(commit_source, "witness.call(reread_text)",
 		"commit() validates its own reread with the witness; it reads nothing but ok")
 	var rollback_source := _function_source(source, "rollback")
-	_assert_binds(rollback_source, WITNESS + ".bind({})", "rollback() binds the witness")
+	_assert_binds(rollback_source, WITNESS + ".bind({}, true)", "rollback() admits exact historical source bytes through the witness")
 	_assert_binds(rollback_source, "str(descriptor.get(\"validated_text\", \"\")), witness)",
 		"rollback() hands write_atomic() the witness")
 	_assert_binds(rollback_source, "reconcile(relative_path, witness)",
 		"rollback() hands reconcile() the witness")
 	var repair_source := _function_source(source, "_capture_storage_backup")
-	_assert_binds(repair_source, "relative_path, " + WITNESS + ".bind(validated_texts))",
-		"the read-repair reconcile takes the witness; only its refusal is read")
+	_assert_binds(repair_source, "relative_path, " + WITNESS + ".bind(validated_texts, true))",
+		"backup reconciliation admits historical source bytes; only its refusal is read")
 
 
 func test_externally_corrupted_autosave_is_refused_and_rolled_back_like_the_reference() -> void:

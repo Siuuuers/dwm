@@ -625,6 +625,187 @@ static var _scene_authority: Object
 static var _scene_creation_owner: Object
 static var _scene_semantic_busy := false
 
+## Reading6 shipped without a day field. Retain only its known entry-to-day
+## identities, independently of later authoring edits (no historical text/DTL).
+const READING6_STORY_DAYS := {
+	"Day1": 1,
+	"Day1.photo.yes": 1,
+	"Day1.photo.default": 1,
+	"Day1.reading": 1,
+	"Day1.result.A": 1,
+	"Day1.result.B": 1,
+	"Day1.result.C": 1,
+	"Day1.result.D": 1,
+	"Day1.result.E": 1,
+	"Day1.coda": 1,
+	"Day2": 2,
+	"Day2.food.yes": 2,
+	"Day2.food.default": 2,
+	"Day2.answer": 2,
+	"Day2.result.A": 2,
+	"Day2.result.B": 2,
+	"Day2.result.C": 2,
+	"Day2.result.E": 2,
+	"Day2.result.D": 2,
+	"Day2.threshold.stay": 2,
+	"Day2.threshold.benchmark": 2,
+	"Day2.threshold.cruel": 2,
+	"Day3": 3,
+	"Day3.lavinia": 3,
+	"Day3.sylvia": 3,
+	"Day3.lavinia.result.A": 3,
+	"Day3.lavinia.result.B": 3,
+	"Day3.lavinia.result.C": 3,
+	"Day3.lavinia.result.D": 3,
+	"Day3.lavinia.result.E": 3,
+	"Day3.sylvia.result.A": 3,
+	"Day3.sylvia.result.B": 3,
+	"Day3.sylvia.result.C": 3,
+	"Day3.sylvia.result.D": 3,
+	"Day3.sylvia.result.E": 3,
+	"Day4": 4,
+	"Day4.pastille.yes": 4,
+	"Day4.pastille.default": 4,
+	"Day4.impulse": 4,
+	"Day4.A": 4,
+	"Day4.B": 4,
+	"Day4.C": 4,
+	"Day4.D": 4,
+	"Day4.D.default": 4,
+	"Day4.D.mirror": 4,
+	"Day4.D.friday": 4,
+	"Day4.E": 4,
+	"Day5": 5,
+	"Day5.cheek": 5,
+	"Day5.cheek.yes": 5,
+	"Day5.cheek.default": 5,
+	"Day5.impulse": 5,
+	"Day5.A": 5,
+	"Day5.B": 5,
+	"Day5.C": 5,
+	"Day5.D": 5,
+	"Day5.D.default": 5,
+	"Day5.D.note": 5,
+	"Day5.D.arch": 5,
+	"Day5.E": 5,
+	"Day6": 6,
+	"Day6.rehearsal.yes": 6,
+	"Day6.rehearsal.default": 6,
+	"Day6.impulse": 6,
+	"Day6.A": 6,
+	"Day6.B": 6,
+	"Day6.C": 6,
+	"Day6.D": 6,
+	"Day6.D.default": 6,
+	"Day6.D.word": 6,
+	"Day6.D.dark": 6,
+	"Day6.E": 6,
+	"Day7": 7,
+	"Day7.clipboard.yes": 7,
+	"Day7.crossed.impulse": 7,
+	"Day7.crossed.D": 7,
+	"Day7.crossed.D.recording": 7,
+	"Day7.crossed.D.no_recording": 7,
+	"Day7.crossed.D.board": 7,
+	"Day7.clipboard.default": 7,
+	"Day7.untouched.impulse": 7,
+	"Day7.untouched.D": 7,
+	"Day7.untouched.D.recording": 7,
+	"Day7.untouched.D.no_recording": 7,
+	"Day7.untouched.D.board": 7,
+	"Day7.A": 7,
+	"Day7.B": 7,
+	"Day7.C": 7,
+	"Day7.D.default": 7,
+	"Day7.D.pocket": 7,
+	"Day7.E": 7,
+	"ending.alone.normal": 7,
+}
+
+## External save admission adapts reading to installed content once. Physical
+## attempts, identity receipts, economy and lifecycle remain historical facts.
+static func normalize_scene_content(snapshot: Dictionary) -> Dictionary:
+	var primitive := validate_primitive_tree(snapshot)
+	if not primitive.ok: return primitive
+	var candidate: Dictionary = _normalize_integral_floats(snapshot)
+	if candidate.get("schema_version") != SCENE_SCHEMA_VERSION \
+			or not candidate.get("scene") is Dictionary or not candidate.get("gameplay") is Dictionary \
+			or not candidate.get("narrative_checkpoint") is Dictionary:
+		return _fail(&"invalid_snapshot_shape", "content normalization requires Run9")
+	var checkpoint: Dictionary = candidate.narrative_checkpoint
+	if not _scene_keys(candidate.scene, ["registration_sha256", "active_occurrence_id", "entry_id", "notification", "active_challenge", "return_to"]) \
+			or not _scene_digest(candidate.scene.registration_sha256) \
+			or not _scene_id(candidate.scene.active_occurrence_id) or not _scene_id(candidate.scene.entry_id) \
+			or not candidate.scene.notification is Dictionary or not candidate.scene.active_challenge is Dictionary \
+			or checkpoint.get("entry_id") != candidate.scene.entry_id \
+			or checkpoint.get("transaction_id") != candidate.scene.active_occurrence_id \
+			or checkpoint.get("manifest_fingerprint") != candidate.scene.registration_sha256 \
+			or checkpoint.get("content_version") != candidate.get("content_version") \
+			or not _scene_int(candidate.get("content_version"), 1):
+		return _fail(&"reading_context_invalid", "original Scene and reading wrapper must agree")
+	if not candidate.scene.active_challenge.is_empty() \
+			and (not _scene_keys(candidate.scene.active_challenge, ["challenge_id", "playable_command_id"]) \
+			or not _scene_id(candidate.scene.active_challenge.challenge_id) \
+			or not _scene_id(candidate.scene.active_challenge.playable_command_id)):
+		return _fail(&"scene_challenge_state_invalid", "invalid saved Challenge binding")
+	if not candidate.scene.notification.is_empty() \
+			and not SCENE_EVENT_CONTRACT._scene_payload("notification.set", candidate.scene.notification):
+		return _fail(&"scene_notification_invalid", "invalid saved notification")
+	var gameplay: Dictionary = candidate.gameplay
+	if not gameplay.get("scene_choices") is Dictionary or not gameplay.get("scene_challenge_outcomes") is Dictionary \
+			or not gameplay.get("route_context") is Dictionary:
+		return _fail(&"invalid_gameplay", "scene progress owners are required")
+	var progress_error := _validate_scene_progress(gameplay.scene_choices, gameplay.scene_challenge_outcomes)
+	if not progress_error.is_empty(): return _fail(&"invalid_gameplay", progress_error)
+	var route_error := _validate_scene_route_context(gameplay.route_context)
+	if not route_error.is_empty(): return _fail(&"invalid_gameplay", route_error)
+	var selected := SCENE_MANIFEST.scene_registration()
+	if not selected.ok: return selected
+	if candidate.scene.registration_sha256 == SCENE_MANIFEST.scene_registration_fingerprint():
+		# An unchanged bundle is not an excuse to repair malformed current
+		# references or a forged caption/control pair.
+		var current := validate_current_scene(candidate.scene, selected.value)
+		if not current.ok: return current
+		var binding := _validate_scene_challenge_binding(candidate.scene, gameplay, selected.value)
+		if not binding.ok: return binding
+		var reading := SCENE_READING.expand_player_checkpoint(checkpoint)
+		if not reading.ok: return reading
+	# Preserve the content against which completion was decided. Rebuilt reading
+	# may fall back, but it cannot turn that completed lifecycle into a new play.
+	if candidate.get("lifecycle") is Dictionary and candidate.lifecycle.get("state") == "COMPLETED" \
+			and not candidate.lifecycle.has("ending_plan") \
+			and not candidate.lifecycle.has("completed_registration_sha256") \
+			and candidate.scene.registration_sha256 != SCENE_MANIFEST.scene_registration_fingerprint():
+		candidate.lifecycle["completed_registration_sha256"] = candidate.scene.registration_sha256
+	var normalized: Dictionary = SCENE_READING.normalize_player_checkpoint(candidate.narrative_checkpoint,
+		gameplay.scene_choices, gameplay.scene_challenge_outcomes,
+		int(READING6_STORY_DAYS.get(candidate.narrative_checkpoint.get("entry_id", ""), 0)))
+	if not normalized.ok: return normalized
+	candidate.narrative_checkpoint = normalized.value.checkpoint
+	candidate.content_version = candidate.narrative_checkpoint.content_version
+	candidate.scene.registration_sha256 = candidate.narrative_checkpoint.manifest_fingerprint
+	candidate.scene.entry_id = candidate.narrative_checkpoint.entry_id
+	if normalized.value.fallback:
+		# Notification is presentation for the previous cursor, not gameplay.
+		candidate.scene.notification = {}
+	var record: Dictionary = gameplay.route_context.get("active_dating_challenge", {})
+	for occurrence: String in gameplay.scene_challenge_outcomes:
+		var outcome: Dictionary = gameplay.scene_challenge_outcomes[occurrence]
+		if outcome.has("physical_slot"): continue
+		outcome["physical_slot"] = ""
+		if not record.is_empty() and outcome.outcome != "never_started" \
+				and outcome.challenge_id == record.context.challenge_id:
+			var slot: String = SCENE_ATTEMPTS.semantic_slot(record.context)
+			if slot == "scene.challenge." + occurrence: outcome.physical_slot = slot
+	if record.is_empty() and candidate.scene.get("active_challenge") is Dictionary \
+			and not candidate.scene.active_challenge.is_empty():
+		var still_registered := false
+		for challenge: Dictionary in selected.value.challenges:
+			if challenge.challenge_id == candidate.scene.active_challenge.get("challenge_id") \
+					and challenge.entry_id == candidate.scene.entry_id: still_registered = true
+		if not still_registered: candidate.scene.active_challenge = {}
+	return {"ok": true, "value": candidate}
+
 static func configure_scene_validation(issuer: Object, authority: Object, creation_owner: Object = null) -> Dictionary:
 	if not is_instance_valid(issuer) or not issuer.has_method("verify_issued") \
 			or not is_instance_valid(authority) or not authority.has_method("validate_scene_snapshot_semantics"):
@@ -723,7 +904,8 @@ static func build_scene_new_run_candidate(snapshot_input: Dictionary, dialogic_c
 ## Detached initial candidates have their own authority: the reproducible allocation and
 ## frozen Profile material, not a completed creation or current live Profile.
 static func validate_scene_new_run_candidate(snapshot: Dictionary, allocation_candidate: Dictionary,
-		profile_material: Dictionary, bundle: Dictionary, issuer: Object) -> Dictionary:
+		profile_material: Dictionary, bundle: Dictionary, issuer: Object,
+		acknowledged_checkpoint: Dictionary = {}) -> Dictionary:
 	var retained := snapshot.duplicate()
 	retained.erase("audio_context")
 	retained.erase("active_app_id")
@@ -753,13 +935,22 @@ static func validate_scene_new_run_candidate(snapshot: Dictionary, allocation_ca
 			return _fail(&"invalid_lifecycle", "initial lifecycle differs from its allocation")
 	if not _scene_exact_value(candidate.lifecycle.scene_assignment, profile_material.scene_assignment.receipt):
 		return _fail(&"invalid_lifecycle", "initial lifecycle differs from its frozen assignment")
-	var current := validate_current_scene(candidate.scene, bundle)
-	if not current.ok: return current
-	if candidate.scene.active_occurrence_id != transaction_id or not candidate.scene.notification.is_empty() \
-			or not candidate.scene.active_challenge.is_empty() or candidate.scene.return_to != null:
+	if acknowledged_checkpoint.is_empty():
+		var current := validate_current_scene(candidate.scene, bundle)
+		if not current.ok: return current
+		var audio := derive_scene_audio_context(candidate, bundle)
+		if not audio.ok: return audio
+	else:
+		if not _scene_keys(candidate.scene, ["registration_sha256", "active_occurrence_id", "entry_id", "notification", "active_challenge", "return_to"]) \
+				or candidate.scene.registration_sha256 != acknowledged_checkpoint.manifest_fingerprint \
+				or candidate.scene.entry_id != acknowledged_checkpoint.entry_id \
+				or acknowledged_checkpoint.transaction_id != transaction_id \
+				or candidate.content_version != acknowledged_checkpoint.content_version \
+				or not _scene_exact_value(candidate.narrative_checkpoint, acknowledged_checkpoint):
+			return _fail(&"scene_initial_state_invalid", "historical creation differs from retained initial reading")
+	if candidate.scene.active_occurrence_id != transaction_id or candidate.scene.notification != {} \
+			or candidate.scene.active_challenge != {} or candidate.scene.return_to != null:
 		return _fail(&"scene_initial_state_invalid", "initial scene cannot contain prior control state")
-	var audio := derive_scene_audio_context(candidate, bundle)
-	if not audio.ok: return audio
 	var gameplay_error := _validate_scene_gameplay(candidate.gameplay)
 	if not gameplay_error.is_empty(): return _fail(&"invalid_gameplay", gameplay_error)
 	var game_owner: Script = load("res://autoload/GameState.gd")
@@ -780,6 +971,8 @@ static func validate_scene_new_run_candidate(snapshot: Dictionary, allocation_ca
 	desktop.board = player_board.value.snapshot
 	if not _scene_exact_value(candidate.desktop, desktop):
 		return _fail(&"scene_initial_state_invalid", "initial desktop cannot contain prior attempts or consequences")
+	if not acknowledged_checkpoint.is_empty():
+		return {"ok": true, "code": &"ok", "value": {"candidate": candidate}}
 	var reading := _validate_scene_reading(candidate)
 	if not reading.ok: return reading
 	var expanded: Dictionary = SCENE_READING.expand_player_checkpoint(candidate.narrative_checkpoint)
@@ -878,7 +1071,9 @@ static func _validate_scene_observed_body(snapshot: Dictionary, bundle: Dictiona
 		return _fail(&"invalid_snapshot_shape", "invalid Run9 header or member set")
 	if not candidate.lifecycle is Dictionary or candidate.lifecycle.get("run_id") != candidate.run_id:
 		return _fail(&"invalid_lifecycle", "scene lifecycle must belong to its Run")
-	if not _scene_keys(candidate.lifecycle, SCENE_LIFECYCLE_KEYS) or candidate.lifecycle.state not in ["PLAYING", "COMPLETED"]:
+	var lifecycle_keys := SCENE_LIFECYCLE_KEYS.duplicate()
+	if candidate.lifecycle.has("completed_registration_sha256"): lifecycle_keys.append("completed_registration_sha256")
+	if not _scene_keys(candidate.lifecycle, lifecycle_keys) or candidate.lifecycle.state not in ["PLAYING", "COMPLETED"]:
 		return _fail(&"invalid_lifecycle", "current Scene uses ordinary passage lifecycle")
 	var lifecycle: Dictionary = RUN_LIFECYCLE.validate_scene(candidate.lifecycle, _scene_issuer)
 	if not lifecycle.ok: return lifecycle
@@ -890,6 +1085,8 @@ static func _validate_scene_observed_body(snapshot: Dictionary, bundle: Dictiona
 	if not current.ok: return current
 	var gameplay_error := _validate_scene_gameplay(candidate.gameplay)
 	if not gameplay_error.is_empty(): return _fail(&"invalid_gameplay", gameplay_error)
+	var binding := _validate_scene_challenge_binding(candidate.scene, candidate.gameplay, bundle)
+	if not binding.ok: return binding
 	var contacts: Dictionary = SCENE_CONTACTS.validate_scene_state(candidate.contacts, candidate.scene.registration_sha256, _scene_issuer)
 	if not contacts.ok: return contacts
 	for receipt: Dictionary in candidate.contacts.transaction_receipts.values():
@@ -1009,7 +1206,16 @@ static func _validate_scene_reading(candidate: Dictionary) -> Dictionary:
 				and nodes[position].get("kind") == "caption"
 		if playable_index < 0 or end_index <= playable_index \
 				or (not cue and (position < playable_index or position >= end_index)):
-			return _fail(&"scene_challenge_position_invalid", "active Challenge does not match current reading position")
+			var record: Dictionary = candidate.gameplay.route_context.get("active_dating_challenge", {})
+			if record.is_empty() or record.context.challenge_id != candidate.scene.active_challenge.challenge_id \
+					or record.context.playable_command_id != candidate.scene.active_challenge.playable_command_id:
+				return _fail(&"scene_challenge_position_invalid", "suspended Challenge requires its retained physical record")
+			# A suspended board cannot authorize another current playable marker.
+			if saved.boundary == "control":
+				var node: Dictionary = nodes[position]
+				for row: Dictionary in selected.value.challenges:
+					if row.entry_id == checkpoint.entry_id and row.playable_marker_id == node.get("marker_id"):
+						return _fail(&"scene_challenge_position_invalid", "held playable differs from suspended Challenge")
 	return {"ok": true, "session": session}
 
 ## For the actual GameState rollback/capture owner. This validates the complete
@@ -1032,6 +1238,8 @@ static func validate_scene_input_fields(input: Dictionary, bundle: Dictionary) -
 	if not current.ok: return current
 	var gameplay_error := _validate_scene_gameplay(input.gameplay)
 	if not gameplay_error.is_empty(): return _fail(&"invalid_gameplay", gameplay_error)
+	var binding := _validate_scene_challenge_binding(input.scene, input.gameplay, bundle)
+	if not binding.ok: return binding
 	if not input.contacts is Dictionary or not input.command_receipts is Dictionary:
 		return _fail(&"invalid_snapshot_input", "Contacts/receipts must be objects")
 	var contacts: Dictionary = SCENE_CONTACTS.validate_scene_state(input.contacts, input.scene.registration_sha256, _scene_issuer)
@@ -1081,6 +1289,18 @@ static func validate_current_scene(scene: Variant, bundle: Dictionary) -> Dictio
 		return _fail(&"scene_contact_parent_invalid", "Contacts return differs from its registered parent")
 	return {"ok": true}
 
+static func _validate_scene_challenge_binding(scene: Dictionary, gameplay: Dictionary, bundle: Dictionary) -> Dictionary:
+	if scene.active_challenge.is_empty(): return {"ok": true}
+	var active: Dictionary = scene.active_challenge
+	for challenge: Dictionary in bundle.challenges:
+		if challenge.challenge_id == active.challenge_id and challenge.entry_id == scene.entry_id:
+			return {"ok": true}
+	var record: Dictionary = gameplay.route_context.get("active_dating_challenge", {})
+	if record.is_empty() or record.context.challenge_id != active.challenge_id \
+			or record.context.playable_command_id != active.playable_command_id:
+		return _fail(&"scene_challenge_state_invalid", "suspended Challenge requires its exact retained physical record")
+	return {"ok": true}
+
 static func _validate_current_scene_frame(frame: Dictionary, tables: Dictionary) -> Dictionary:
 	if not _scene_id(frame.active_occurrence_id) or not _scene_id(frame.entry_id) \
 			or not tables.entries.has(frame.entry_id) or not frame.notification is Dictionary \
@@ -1095,10 +1315,8 @@ static func _validate_current_scene_frame(frame: Dictionary, tables: Dictionary)
 	if not frame.active_challenge.is_empty():
 		var challenge: Dictionary = frame.active_challenge
 		if not _scene_keys(challenge, ["challenge_id", "playable_command_id"]) \
-				or not _scene_id(challenge.challenge_id) or not _scene_id(challenge.playable_command_id) \
-				or not tables.challenges.has(challenge.challenge_id) \
-				or tables.challenges[challenge.challenge_id].entry_id != frame.entry_id:
-			return _fail(&"scene_challenge_state_invalid", "active Challenge must belong to the current entry")
+				or not _scene_id(challenge.challenge_id) or not _scene_id(challenge.playable_command_id):
+			return _fail(&"scene_challenge_state_invalid", "active Challenge binding is malformed")
 	return {"ok": true}
 
 ## Audio is derived for the live participant, never restored from player metadata.
@@ -1159,29 +1377,26 @@ static func _validate_scene_gameplay(gameplay: Variant) -> String:
 static func _validate_scene_progress(choices: Variant, outcomes: Variant) -> String:
 	if not choices is Dictionary or not outcomes is Dictionary: return "scene progress must be objects"
 	if choices.is_empty() and outcomes.is_empty(): return ""
-	var selected := SCENE_MANIFEST.scene_registration()
-	if not selected.ok: return "scene progress registration unavailable"
-	var allowed_choices := {}
-	for entry: Dictionary in selected.value.scene_programme.entries:
-		for marker: Dictionary in entry.markers:
-			if marker.kind not in ["thought.pass", "thought.options"]: continue
-			var options: Array = ["pass"]
-			if marker.kind == "thought.pass": options.append("yes")
-			else:
-				for option: Dictionary in marker.payload.options: options.append(option.choice_id)
-			allowed_choices[marker.payload.opportunity_id] = options
+	# These are encountered facts, including choices and Challenges retired by an
+	# authoring edit. Current controls still validate new commands at dispatch.
 	for opportunity: Variant in choices:
-		if not _scene_id(opportunity) or not _scene_id(choices[opportunity]) \
-				or not allowed_choices.has(opportunity) or choices[opportunity] not in allowed_choices[opportunity]:
-			return "invalid or unregistered scene choice"
-	var challenges := {}
-	for challenge: Dictionary in selected.value.challenges: challenges[challenge.challenge_id] = true
+		if not _scene_id(opportunity) or not _scene_id(choices[opportunity]):
+			return "invalid scene choice"
 	for occurrence: Variant in outcomes:
 		var outcome: Variant = outcomes[occurrence]
-		if not _scene_digest(occurrence) or not _scene_keys(outcome, ["challenge_id", "outcome"]) \
-				or not _scene_id(outcome.challenge_id) or not challenges.has(outcome.challenge_id) \
+		if not _scene_digest(occurrence) or not outcome is Dictionary:
+			return "invalid scene challenge outcome"
+		if not _scene_keys(outcome, ["challenge_id", "outcome"]) \
+				and not _scene_keys(outcome, ["challenge_id", "outcome", "physical_slot"]):
+			return "invalid scene challenge outcome"
+		if not _scene_id(outcome.challenge_id) \
 				or outcome.outcome not in ["never_started", "unfinished", "lost", "won", "perfect"]:
-			return "invalid or unregistered scene challenge outcome"
+			return "invalid scene challenge outcome"
+		var slot: Variant = outcome.get("physical_slot", "")
+		if not slot is String or (slot != "" and (not slot.begins_with("scene.challenge.") \
+				or not _scene_digest(slot.trim_prefix("scene.challenge.")))) \
+				or (outcome.outcome == "never_started" and slot != ""):
+			return "invalid scene challenge physical slot"
 	return ""
 
 static func _validate_scene_route_context(context: Dictionary) -> String:

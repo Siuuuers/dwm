@@ -2834,11 +2834,19 @@ func _scene_challenge_published(host: Control, panel: Control) -> void:
 func _complete_scene_challenge(host: Control, panel: Control) -> void:
 	if not is_instance_valid(panel) or not _scene_host_admitted(host) or not host.is_computer_open() \
 			or panel.public_view.get("phase") != "terminal": return
+	# A deferred publication can outlive its story cue during recovery. Only the
+	# current binding may close the computer and consume this physical result.
+	var game := _target(&"GameState")
+	var current: Dictionary = game.capture_scene_challenge_command()
+	if not current.get("ok", false): return
+	var presented: Dictionary = panel._command.duplicate(true)
+	presented.erase("physical_token")
+	if presented != current.value.command: return
 	var released: Dictionary = close_scene_computer(host)
 	if not released.get("ok", false):
 		panel.presentation_failed.emit(StringName(released.get("code", "scene_continuation_refused")))
 		return
-	var continued: Dictionary = _target(&"GameState").continue_completed_scene_challenge()
+	var continued: Dictionary = game.continue_completed_scene_challenge()
 	if not continued.get("ok", false):
 		_target(&"DialogicBridge").hold_computer_captions(host)
 		host.set_computer_open(true)
