@@ -1,0 +1,21 @@
+{
+  "source_proof_sha256": {
+    "ci/scene-desktop-first-reveal-create-proof.json": "a87899c79bb6acfd0a6839e9c22a5e1ea9d6fad72950546204c377eeb292abb8",
+    "ci/scene-desktop-first-reveal-load-proof.json": "3c02fde320e9517ba030eeab918ca62719e310c4217d954dd0f3228feaca1153",
+    "ci/scene-desktop-settled-load-proof.json": "0534b76493932df790d0c42367c0c7ca5d48a1f76bba0a3ab6695c1cdfb8c626"
+  },
+  "process_ids": [
+    8096,
+    7384,
+    7964
+  ],
+  "same_storage_root": true,
+  "unfinished_saved_settlement": false,
+  "finished_saved_settlement": true,
+  "unfinished_money": 0,
+  "finished_money": 1,
+  "finished_round_count": 1,
+  "saved_board_omits_terminal_receipts": true,
+  "load_branch": "branch_id.87008fc8cb8051b29ac12a5f04a32060aa0475a5ee1b1730f78339d2bb57dd3b",
+  "settled_load_branch": "branch_id.e1ffc1ad669e0a86838885ace0fda8c0f4c817ddf8c8cd14df9ab78bb966802a"
+}
