@@ -575,7 +575,7 @@ func test_compact_position_does_not_supply_its_own_run_admission() -> void:
 	var projected: Dictionary = SESSION.project_player_checkpoint(checkpoint.value)
 	assert_true(projected.ok, str(projected))
 	if not projected.ok: return
-	assert_eq(projected.value.reading_session.schema_version, 6)
+	assert_eq(projected.value.reading_session.schema_version, 7)
 	var snapshot := {"narrative_checkpoint": projected.value}
 	var before := var_to_bytes(snapshot)
 	var checked := RUN.validate(snapshot, true)

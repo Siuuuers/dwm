@@ -273,7 +273,7 @@ func test_compact_later_caption_restores_current_publication_without_replay() ->
 	if fixture.is_empty(): return
 	var compact: Dictionary = fixture.compact
 	assert_eq(fixture.live.reading_session.ledger.captions.size(), 5)
-	assert_eq(compact.reading_session.schema_version, 6)
+	assert_eq(compact.reading_session.schema_version, 7)
 	assert_eq(compact.reading_session.captions.size(), 1)
 	assert_false(compact.reading_session.has("ledger"))
 	assert_false(compact.reading_session.has("next_operation"))

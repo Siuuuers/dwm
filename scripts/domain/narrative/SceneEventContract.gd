@@ -580,7 +580,7 @@ static func _validate_scene_result_inspected(envelope: Dictionary, result: Varia
 					or not challenge.targets.has(result.outcome) or result.target_id != challenge.targets[result.outcome]: return _fail(&"scene_result_invalid")
 			if result.outcome == "never_started":
 				if result.attempt_proof != null: return _fail(&"scene_attempt_proof_invalid")
-			elif not _attempt_proof(result.attempt_proof, envelope.source.run_id, occurrence): return _fail(&"scene_attempt_proof_invalid")
+			elif not _attempt_proof(result.attempt_proof, envelope.source.run_id): return _fail(&"scene_attempt_proof_invalid")
 		"challenge_recalled":
 			if not _keys(result, ["kind", "outcome", "target_id"]) \
 					or envelope.kind != "challenge.recall" \
@@ -661,9 +661,13 @@ static func _completion_matches(parent: Dictionary, request: Dictionary, complet
 		"parent_receipt_id": request.parent_receipt_id, "child_kind": request.child_kind,
 		"ordinal": request.ordinal, "source_ids": request.source_ids, "child_id": child}})
 
-static func _attempt_proof(proof: Variant, run_id: String, occurrence: String) -> bool:
+## Shape only: GameState closure admission joins this retained physical slot to
+## the exact selected record/ref and the current authenticated story binding.
+static func _attempt_proof(proof: Variant, run_id: String) -> bool:
 	if not _keys(proof, ["run_id", "slot_id", "attempt_id", "branch_id", "generation", "revision", "record_sha256", "checkpoint"]): return false
-	if not _id(proof.run_id) or not _id(proof.slot_id) or proof.run_id != run_id or proof.slot_id != "scene.challenge." + occurrence: return false
+	if not _id(proof.run_id) or not _id(proof.slot_id) or proof.run_id != run_id \
+			or not str(proof.slot_id).begins_with("scene.challenge.") \
+			or not _hash(str(proof.slot_id).trim_prefix("scene.challenge.")): return false
 	return _id(proof.attempt_id) and _id(proof.branch_id) and _positive_int(proof.generation) \
 		and _positive_int(proof.revision) and _hash(proof.record_sha256) and _checkpoint(proof.checkpoint)
 

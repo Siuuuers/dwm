@@ -277,6 +277,9 @@ func test_challenge_closure_separates_never_started_from_exact_attempt_proof() -
 	result.outcome = "never_started"
 	assert_false(CONTRACT.validate_scene_result(event, result, bundle).ok)
 	result.outcome = "unfinished"
+	result.attempt_proof.slot_id = "scene.challenge." + "c".repeat(64)
+	assert_true(CONTRACT.validate_scene_result(event, result, bundle).ok,
+		"shape permits retained physical A; GameState authenticates selected A against current story B")
 	result.attempt_proof.slot_id = "scene.challenge.other"
 	assert_false(CONTRACT.validate_scene_result(event, result, bundle).ok)
 

@@ -1,23 +1,14 @@
 extends "res://addons/gut/test.gd"
 ## Real shipped seven-day programmes, independently enumerated expected routes.
 const HISTORY := preload("res://scripts/narrative/SceneReadingHistory.gd")
-const ADAPTER := preload("res://scripts/narrative/DialogicRuntimeAdapter.gd")
 const STRICT := preload("res://scripts/validation/StrictJson.gd")
 const RESULTS := {"never_started": "A", "unfinished": "B", "won": "C", "lost": "D", "perfect": "E"}
 var _bundle: Dictionary
-var _nodes := {}
 var _lines := {}
 var _covered := {}
 
 func before_all() -> void:
 	_bundle = STRICT.parse_object(FileAccess.get_file_as_string("res://data/manifests/scene_story_registration.json")).value
-	var entries := {}
-	for entry: Dictionary in _bundle.entry_manifest.entries: entries[entry.entry_id] = entry
-	for programme: Dictionary in _bundle.scene_programme.entries:
-		var compiled := ADAPTER.compile_scene_programme(entries[programme.entry_id].locators.en.path,
-			programme.entry_id, entries.keys(), programme.markers)
-		assert_true(compiled.ok)
-		if compiled.ok: _nodes[programme.entry_id] = compiled.value.nodes
 	for entry: Dictionary in _bundle.caption_registry.entries: _lines[entry.entry_id] = entry.lines
 
 func _outcomes(pairs: Dictionary) -> Dictionary:
@@ -26,25 +17,16 @@ func _outcomes(pairs: Dictionary) -> Dictionary:
 	return facts
 
 func _check_path(path: Array, choices: Dictionary, pairs: Dictionary) -> void:
-	var expected: Array = []
-	for entry: String in path:
-		_covered[entry] = true
-		for line: Dictionary in _lines[entry]: expected.append(line.line_id)
-		var index := -1
-		for i: int in _nodes[entry].size():
-			if _nodes[entry][i].kind == "caption": index = i
-		var actual := HISTORY.project(_bundle, _nodes, entry, index, choices, _outcomes(pairs), "target.Day1")
-		assert_true(actual.ok, str({"path": path, "entry": entry, "result": actual}))
-		if not actual.ok: return
-		assert_eq(actual.value.day, _bundle.scene_programme.story_days[entry])
-		assert_eq(actual.value.captions.map(func(row: Dictionary) -> String: return row.line_id), expected)
-		assert_true(actual.value.captions.all(func(row: Dictionary) -> bool:
-			return row.publication_id == "history:" + row.line_id), "display identities are not live publications")
-		# Held final controls show the same preceding text and do not select a future path.
-		if index + 1 < _nodes[entry].size() and _nodes[entry][index + 1].kind == "control":
-			var held := HISTORY.project(_bundle, _nodes, entry, index + 1, choices, _outcomes(pairs), "target.Day1")
-			assert_true(held.ok)
-			if held.ok: assert_eq(held.value.captions, actual.value.captions)
+	var day: int = _bundle.scene_programme.story_days[path[0]]
+	var route := HISTORY.current_day_route(_bundle, day, choices, _outcomes(pairs))
+	assert_true(route.ok, str(route))
+	if not route.ok: return
+	var expected: Array = path.duplicate()
+	expected.sort()
+	var actual: Array = route.value.entries.keys()
+	actual.sort()
+	assert_eq(actual, expected, "known choices/results admit only the actual authored route")
+	for entry: String in path: _covered[entry] = true
 
 func test_day1_all_photo_and_challenge_paths_to_shared_coda() -> void:
 	for choice: String in ["pass", "yes"]:
@@ -113,62 +95,48 @@ func test_day7_both_clipboards_results_recording_recall_and_all_aftermath_paths(
 					path.append("ending.alone.normal")
 					_check_path(path, choices, {"Day1.challenge": recalled, "Day7." + side + ".challenge": outcome})
 
-func test_current_prefix_and_held_choice_need_no_future_facts() -> void:
-	var early := HISTORY.project(_bundle, _nodes, "Day1", 0, {}, {})
-	assert_true(early.ok)
-	assert_eq(early.value.captions.size(), 1)
-	assert_eq(early.value.captions[0].text, _lines.Day1[0].text)
-	var control: int = _nodes.Day1.size() - 2
-	assert_eq(_nodes.Day1[control].kind, "control")
-	var held := HISTORY.project(_bundle, _nodes, "Day1", control, {}, {})
-	assert_true(held.ok)
-	assert_eq(held.value.captions.size(), _lines.Day1.size())
+func test_missing_new_prerequisites_do_not_force_rewind_of_an_intact_anchor() -> void:
+	var route := HISTORY.current_day_route(_bundle, 1, {}, {})
+	assert_true(route.ok)
+	if not route.ok: return
+	assert_true(route.value.entries.has("Day1.photo.yes"))
+	assert_true(route.value.entries.has("Day1.photo.default"))
+	assert_true(route.value.entries.has("Day1.coda"))
+	var selected := HISTORY.current_day_route(_bundle, 1, {"Day1.photo": "pass"}, {})
+	assert_true(selected.ok)
+	assert_false(selected.value.entries.has("Day1.photo.yes"))
 
-func test_missing_invalid_ambiguous_facts_and_unreachable_position_refuse() -> void:
-	assert_false(HISTORY.project(_bundle, _nodes, "Day1.photo.yes", 0, {}, {}).ok)
-	assert_false(HISTORY.project(_bundle, _nodes, "Day1.photo.yes", 0, {"Day1.photo": "invalid"}, {}).ok)
-	assert_false(HISTORY.project(_bundle, _nodes, "Day1.photo.yes", 0, {"Day1.photo": "pass"}, {}).ok)
-	assert_false(HISTORY.project(_bundle, _nodes, "Day1.coda", 0, {"Day1.photo": "pass"}, {}).ok)
+func test_invalid_or_ambiguous_saved_facts_do_not_admit_their_destination() -> void:
+	var invalid := HISTORY.current_day_route(_bundle, 1, {"Day1.photo": "invalid"}, {})
+	assert_true(invalid.ok)
+	assert_false(invalid.value.entries.has("Day1.photo.yes"))
 	var outcomes := _outcomes({"Day1.challenge": "won"})
 	outcomes["another"] = {"challenge_id": "Day1.challenge", "outcome": "lost"}
-	assert_eq(HISTORY.project(_bundle, _nodes, "Day1.coda", 0, {"Day1.photo": "pass"}, outcomes).code,
-		&"reading_history_outcome_ambiguous")
-	outcomes = _outcomes({"Day1.challenge": "invalid"})
-	assert_false(HISTORY.project(_bundle, _nodes, "Day1.coda", 0, {"Day1.photo": "pass"}, outcomes).ok)
-	assert_false(HISTORY.project(_bundle, _nodes, "absent", 0, {}, {}).ok)
-	assert_false(HISTORY.project(_bundle, _nodes, "Day1", -1, {}, {}).ok)
-	var loop: Dictionary = _nodes.duplicate(true)
-	loop.Day1[0].next = 0
-	assert_eq(HISTORY.project(_bundle, loop, "Day1", 1, {}, {}).code, &"reading_history_cycle")
-	var bundle: Dictionary = _bundle.duplicate(true)
-	bundle.scene_programme.erase("story_days")
-	assert_eq(HISTORY.project(bundle, _nodes, "Day1", 0, {}, {}).code, &"reading_history_day_unavailable")
+	var ambiguous := HISTORY.current_day_route(_bundle, 1, {"Day1.photo": "pass"}, outcomes)
+	assert_true(ambiguous.ok)
+	assert_false(ambiguous.value.entries.has("Day1.coda"))
 
 func test_day_start_is_authored_and_ambiguous_cross_day_entry_is_refused() -> void:
 	var bundle: Dictionary = _bundle.duplicate(true)
 	for programme: Dictionary in bundle.scene_programme.entries:
 		if programme.entry_id == "Day1.photo.yes":
 			programme.markers[0].payload.target_id = "target.Day2.food.yes"
-	assert_eq(HISTORY.project(bundle, _nodes, "Day2", 0, {}, {}).code, &"reading_history_day_ambiguous")
+	assert_eq(HISTORY.current_day_route(bundle, 2, {}, {}).code, &"reading_history_day_ambiguous")
 	bundle = _bundle.duplicate(true)
 	bundle.scene_programme.story_days.erase("Day2")
-	assert_eq(HISTORY.project(bundle, _nodes, "Day1", 0, {}, {}).code, &"reading_history_day_unavailable")
-	bundle = _bundle.duplicate(true)
-	for programme: Dictionary in bundle.scene_programme.entries:
-		if programme.entry_id == "Day1":
-			programme.markers[0].payload.yes_target_id = "target.Day1.photo.default"
-	assert_eq(HISTORY.project(bundle, _nodes, "Day1", 0, {}, {}).code, &"reading_history_day_ambiguous")
+	assert_eq(HISTORY.current_day_route(bundle, 1, {}, {}).code, &"reading_history_day_unavailable")
+
+func test_encounter_projection_is_detached_and_never_backfills_or_duplicates() -> void:
 	var before: Dictionary = _bundle.duplicate(true)
-	var choices := {"Day1.photo": "yes"}
-	var outcomes := _outcomes({"Day1.challenge": "won"})
-	var facts: Dictionary = outcomes.duplicate(true)
-	var result := HISTORY.project(_bundle, _nodes, "Day1.coda", 0, choices, outcomes, "target.Day1")
-	assert_true(result.ok)
-	assert_eq(_bundle, before)
-	assert_eq(choices, {"Day1.photo": "yes"})
-	assert_eq(outcomes, facts)
+	var first: String = _lines.Day1[0].line_id
+	var third: String = _lines.Day1[2].line_id
+	var result := HISTORY.project_encountered(_bundle, [[first], ["deleted.line", third, third]])
+	assert_eq(result.value.captions.map(func(row: Dictionary) -> String: return row.line_id), [first, third])
+	assert_eq(result.value.captions[1].text, _lines.Day1[2].text)
+	assert_true(result.value.captions.all(func(row: Dictionary) -> bool:
+		return row.publication_id == "history:" + row.line_id))
 	result.value.captions[0].text = "caller mutation"
-	assert_eq(_bundle, before, "returned text rows cannot alter authored content")
+	assert_eq(_bundle, before)
 
 func after_all() -> void:
 	for entry: Dictionary in _bundle.entry_manifest.entries:

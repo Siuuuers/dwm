@@ -1,11 +1,13 @@
 param(
     [Parameter(Mandatory = $true)]
-    [ValidateSet('minesweeper', 'shop', 'desktop', 'settings', 'checkpoint_diagnostics', 'new_account', 'reading_delivery', 'localization', 'dating', 'persistence', 'endings', 'audio', 'public_surfaces', 'scene_desktop_first_reveal', 'scene_round_checkpoint', 'scene_shop_checkpoint', 'scene_story_localization', 'scene_controls_localization', 'scene_apps', 'current_title', 'scene_backup_inspection', 'scene_progress_schema', 'authored_week', 'scene_five_outcomes', 'timeline_resources', 'backup_presentation', 'profile_parse', 'backup_current_build', 'terminal_admission', 'current_quick_load', 'current_terminal_fixture', 'scene_multiple_thoughts', 'scene_challenge_recall', 'scene_same_day_supportz', 'scene_player_position', 'scene_native_restore', 'scene_day_history', 'scene_later_caption', 'scene_caption_challenge', 'scene_audio_connected', 'scene_save_metadata', 'scene_passage_connected', 'scene_passage_catalogue', 'scene_contacts', 'scene_current_creation', 'scene_current_frames', 'scene_current_challenge', 'scene_current_snapshot')]
+    [ValidateSet('minesweeper', 'shop', 'desktop', 'settings', 'checkpoint_diagnostics', 'new_account', 'reading_delivery', 'localization', 'dating', 'persistence', 'endings', 'audio', 'public_surfaces', 'scene_desktop_first_reveal', 'scene_round_checkpoint', 'scene_shop_checkpoint', 'scene_story_localization', 'scene_controls_localization', 'scene_apps', 'current_title', 'scene_backup_inspection', 'scene_progress_schema', 'authored_week', 'scene_five_outcomes', 'timeline_resources', 'backup_presentation', 'profile_parse', 'backup_current_build', 'terminal_admission', 'current_quick_load', 'current_terminal_fixture', 'scene_multiple_thoughts', 'scene_challenge_recall', 'scene_same_day_supportz', 'scene_player_position', 'scene_native_restore', 'scene_day_history', 'scene_later_caption', 'scene_caption_challenge', 'scene_audio_connected', 'scene_save_metadata', 'scene_passage_connected', 'scene_passage_catalogue', 'scene_contacts', 'scene_current_creation', 'scene_current_frames', 'scene_current_challenge', 'scene_current_snapshot', 'scene_content_update_wording', 'scene_content_update_deleted_line', 'scene_content_update_deleted_checkpoint', 'scene_content_update_history', 'scene_content_update_active_board', 'scene_content_update_transfer_active', 'scene_content_update_transfer_terminal', 'scene_content_update_resolved_unfinished', 'scene_content_update_completed_appended', 'scene_content_update_completed_deleted', 'scene_content_contracts')]
     [string]$Suite
 )
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
+$contentUpdate = $Suite.StartsWith('scene_content_update_')
+$contentUpdateCase = if ($contentUpdate) { $Suite.Substring('scene_content_update_'.Length) } else { '' }
 
 if ($Suite -eq 'current_terminal_fixture') {
     & (Join-Path $PSScriptRoot 'Invoke-CurrentTerminalFixture.ps1')
@@ -16,10 +18,11 @@ if ($Suite -eq 'current_terminal_fixture') {
 # execute; Invoke-IsolatedGodot also rejects GUT's silent suite-load failures.
 $suites = @{
     scene_contacts = @('tests/integration/test_scene_contacts_connected_create.gd')
+    scene_content_contracts = @('tests/unit/test_scene_event_contract.gd', 'tests/unit/test_scene_contact_events.gd')
     scene_current_snapshot = @('tests/integration/test_scene_saved_event_anchor.gd')
     scene_current_creation = @('tests/integration/test_scene_joint_new_run.gd')
     scene_current_frames = @('tests/unit/test_scene_initial_frozen.gd')
-    scene_current_challenge = @('tests/unit/test_scene_challenge.gd')
+    scene_current_challenge = @('tests/unit/test_scene_challenge.gd', 'tests/unit/test_scene_challenge_transfer.gd')
     scene_passage_connected = @('tests/integration/test_scene_passage_connected_create.gd')
     scene_passage_catalogue = @('tests/unit/test_scene_passage_gallery.gd')
     scene_audio_connected = @('tests/integration/test_scene_audio_connected_create.gd')
@@ -27,7 +30,7 @@ $suites = @{
         'tests/integration/test_scene_initial_candidate.gd'
         'tests/unit/test_scene_creation_storage_recovery.gd'
     )
-    scene_player_position = @('tests/unit/test_scene_player_position.gd')
+    scene_player_position = @('tests/unit/test_scene_player_position.gd', 'tests/unit/test_scene_content_recovery.gd')
     scene_native_restore = @('tests/integration/test_scene_native_activation_runtime.gd')
     scene_day_history = @('tests/unit/test_scene_reading_history.gd', 'tests/unit/test_scene_day_history_session.gd')
     scene_later_caption = @('tests/integration/test_scene_later_caption_create.gd')
@@ -362,6 +365,8 @@ $suites = @{
     )
 }
 
+if ($contentUpdate) { $suites[$Suite] = @('tests/integration/test_scene_content_update_create.gd') }
+
 $repositoryRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
 $output = Join-Path $repositoryRoot '.godot/ci'
 New-Item -ItemType Directory -Force -Path $output | Out-Null
@@ -399,7 +404,15 @@ $loadScripts = @{
     scene_apps = 'tests/integration/test_scene_apps_connected_load.gd'
     current_title = 'tests/integration/test_current_title_scene_load.gd'
 }
+if ($contentUpdate) { $loadScripts[$Suite] = 'tests/integration/test_scene_content_update_load.gd' }
 $extra = @{}
+if ($contentUpdate) {
+    $extra.Rendered = $true
+    foreach ($phase in @('create', 'load', 'reload')) {
+        $proofPath = Join-Path $output "content-update-$phase-proof.json"
+        if (Test-Path -LiteralPath $proofPath) { Remove-Item -LiteralPath $proofPath -Force }
+    }
+}
 if ($Suite -in @('scene_contacts', 'scene_passage_connected', 'scene_audio_connected', 'scene_native_restore', 'scene_later_caption', 'scene_caption_challenge', 'scene_story_localization', 'scene_apps', 'current_title', 'scene_desktop_first_reveal', 'current_quick_load', 'scene_multiple_thoughts', 'scene_challenge_recall', 'scene_same_day_supportz')) { $extra.Rendered = $true }
 if ($loadScripts.ContainsKey($Suite)) {
     $loadScript = $loadScripts[$Suite]
@@ -410,8 +423,8 @@ if ($loadScripts.ContainsKey($Suite)) {
     $extra.NextGodotArgs = @('-s', 'res://addons/gut/gut_cmdln.gd', '-gconfig=',
         "-gtest=res://$loadScript", '-gexit', '-glog=1', "-gjunit_xml_file=res://.godot/ci/$Suite-load.xml")
 }
-if ($Suite -in @('scene_desktop_first_reveal', 'scene_passage_connected')) {
-    $settledScript = if ($Suite -eq 'scene_passage_connected') { 'tests/integration/test_scene_passage_connected_replay.gd' } else { 'tests/integration/test_scene_desktop_settled_load.gd' }
+if ($contentUpdate -or $Suite -in @('scene_desktop_first_reveal', 'scene_passage_connected')) {
+    $settledScript = if ($contentUpdate) { 'tests/integration/test_scene_content_update_reload.gd' } elseif ($Suite -eq 'scene_passage_connected') { 'tests/integration/test_scene_passage_connected_replay.gd' } else { 'tests/integration/test_scene_desktop_settled_load.gd' }
     if (-not (Test-Path -LiteralPath (Join-Path $repositoryRoot $settledScript))) { throw "Requested test does not exist: $settledScript" }
     $settledReport = Join-Path $output "$Suite-settled-load.xml"
     if (Test-Path -LiteralPath $settledReport) { Remove-Item -LiteralPath $settledReport -Force }
@@ -467,6 +480,8 @@ if ($Suite -eq 'terminal_admission') {
     $initialLogName = "cloud-$Suite-seed.log"
     $env:DWM_SCENE_VALIDATION_PROFILE = '1'
 }
+$contentUpdateBefore = [Environment]::GetEnvironmentVariable('DWM_CONTENT_UPDATE_CASE')
+if ($contentUpdate) { $env:DWM_CONTENT_UPDATE_CASE = $contentUpdateCase }
 if ($Suite -eq 'settings') { Write-Host "SETTINGS_PHASE $([DateTime]::UtcNow.ToString('o')) primary.begin" }
 try {
     & (Join-Path $PSScriptRoot 'Invoke-IsolatedGodot.ps1') `
@@ -477,6 +492,7 @@ try {
         -GodotArgs $arguments @extra
     $result = $LASTEXITCODE
 } finally {
+    if ($contentUpdate) { [Environment]::SetEnvironmentVariable('DWM_CONTENT_UPDATE_CASE', $contentUpdateBefore) }
     if ($Suite -eq 'terminal_admission') {
         [Environment]::SetEnvironmentVariable('DWM_SCENE_VALIDATION_PROFILE', $terminalProfileBefore)
     }
@@ -503,7 +519,7 @@ if ($loadScripts.ContainsKey($Suite)) {
     }
     Write-Host "${Suite}: fresh-process load case passed ($loadScript)."
 }
-if ($Suite -in @('scene_desktop_first_reveal', 'scene_passage_connected')) {
+if ($contentUpdate -or $Suite -in @('scene_desktop_first_reveal', 'scene_passage_connected')) {
     if (-not (Test-Path -LiteralPath $settledReport)) { throw 'Settled Load child did not produce its JUnit report.' }
     [xml]$settledXml = Get-Content -LiteralPath $settledReport -Raw
     $settledCases = @($settledXml.SelectNodes('//testcase'))
@@ -554,7 +570,7 @@ if (-not (Test-Path -LiteralPath $report)) { throw 'GUT did not produce its JUni
 $executed = $xml.SelectNodes('//testcase').Count
 if ($executed -eq 0) { throw 'GUT did not report any executed tests.' }
 if ($xml.SelectNodes('//failure | //error').Count -ne 0) { throw 'GUT reported test failures.' }
-if ($Suite -in @('scene_contacts', 'scene_current_creation', 'scene_current_frames', 'scene_current_challenge', 'scene_current_snapshot', 'scene_passage_connected', 'scene_passage_catalogue', 'scene_audio_connected', 'scene_save_metadata', 'scene_player_position', 'scene_native_restore', 'scene_day_history', 'scene_later_caption', 'scene_caption_challenge', 'scene_same_day_supportz', 'scene_desktop_first_reveal', 'scene_round_checkpoint', 'scene_shop_checkpoint', 'scene_story_localization', 'scene_controls_localization', 'scene_apps', 'current_title', 'scene_backup_inspection', 'scene_progress_schema', 'authored_week', 'scene_five_outcomes', 'timeline_resources', 'backup_presentation', 'profile_parse', 'backup_current_build', 'terminal_admission', 'current_quick_load')) {
+if ($contentUpdate -or $Suite -in @('scene_content_contracts', 'scene_contacts', 'scene_current_creation', 'scene_current_frames', 'scene_current_challenge', 'scene_current_snapshot', 'scene_passage_connected', 'scene_passage_catalogue', 'scene_audio_connected', 'scene_save_metadata', 'scene_player_position', 'scene_native_restore', 'scene_day_history', 'scene_later_caption', 'scene_caption_challenge', 'scene_same_day_supportz', 'scene_desktop_first_reveal', 'scene_round_checkpoint', 'scene_shop_checkpoint', 'scene_story_localization', 'scene_controls_localization', 'scene_apps', 'current_title', 'scene_backup_inspection', 'scene_progress_schema', 'authored_week', 'scene_five_outcomes', 'timeline_resources', 'backup_presentation', 'profile_parse', 'backup_current_build', 'terminal_admission', 'current_quick_load')) {
     foreach ($case in $xml.SelectNodes('//testcase')) {
         if ($case.GetAttribute('classname') -cnotin $suites[$Suite] -or
             $case.GetAttribute('status') -cne 'pass' -or [int]$case.GetAttribute('assertions') -le 0) {
@@ -563,7 +579,7 @@ if ($Suite -in @('scene_contacts', 'scene_current_creation', 'scene_current_fram
     }
     if ($xml.SelectNodes('//skipped').Count -ne 0) { throw 'Selected scene coverage was skipped.' }
 }
-if ($Suite -in @('scene_contacts', 'scene_current_creation', 'scene_current_frames', 'scene_current_challenge', 'scene_current_snapshot', 'scene_passage_connected', 'scene_passage_catalogue', 'scene_audio_connected', 'scene_save_metadata')) {
+if ($contentUpdate -or $Suite -in @('scene_content_contracts', 'scene_contacts', 'scene_current_creation', 'scene_current_frames', 'scene_current_challenge', 'scene_current_snapshot', 'scene_passage_connected', 'scene_passage_catalogue', 'scene_audio_connected', 'scene_save_metadata')) {
     # Require every concrete selected method, not merely a nonempty imported file.
     $caseEvidence = @()
     foreach ($script in $suites[$Suite]) {
@@ -595,6 +611,29 @@ if ($Suite -in @('scene_contacts', 'scene_current_creation', 'scene_current_fram
             $replayProof.completed_creator -ne $loadProof.finisher_process_id -or
             $replayProof.only_displayed_read_marks_changed -ne $true -or $replayProof.run_unchanged -ne $true -or $replayProof.finish_count -ne 1) {
             throw 'Passage evidence must bind three distinct processes and read-only replay.'
+        }
+        foreach ($case in @($loadCases[0], $settledCases[0])) {
+            $caseEvidence += [ordered]@{ script = $case.GetAttribute('classname'); method = $case.GetAttribute('name');
+                assertions = [int]$case.GetAttribute('assertions'); status = $case.GetAttribute('status') }
+        }
+    }
+    if ($contentUpdate) {
+        if ($loadCases[0].GetAttribute('name') -cne 'test_load_current_content_without_replaying_gameplay' -or
+            $settledCases[0].GetAttribute('name') -cne 'test_fresh_reload_preserves_suspended_and_bound_state') {
+            throw 'Content update did not execute its exact fresh-process cases.'
+        }
+        $createProof = Get-Content -LiteralPath (Join-Path $output 'content-update-create-proof.json') -Raw | ConvertFrom-Json
+        $loadProof = Get-Content -LiteralPath (Join-Path $output 'content-update-load-proof.json') -Raw | ConvertFrom-Json
+        $reloadProof = Get-Content -LiteralPath (Join-Path $output 'content-update-reload-proof.json') -Raw | ConvertFrom-Json
+        if ($createProof.case -cne $contentUpdateCase -or $loadProof.case -cne $contentUpdateCase -or
+            $reloadProof.case -cne $contentUpdateCase -or $loadProof.creator_pid -ne $createProof.creator_pid -or
+            $reloadProof.creator_pid -ne $createProof.creator_pid -or $reloadProof.loader_pid -ne $loadProof.loader_pid -or
+            $createProof.creator_pid -eq $loadProof.loader_pid -or $reloadProof.reload_pid -eq $createProof.creator_pid -or
+            $reloadProof.reload_pid -eq $loadProof.loader_pid -or $loadProof.source_sha256 -cne $createProof.source_sha256) {
+            throw 'Content update evidence must bind the selected case, source and three distinct processes.'
+        }
+        if ($contentUpdateCase -eq 'transfer_active' -and $reloadProof.binding_retry -ne $true) {
+            throw 'Active transfer must prove physical write refusal and successful Retry.'
         }
         foreach ($case in @($loadCases[0], $settledCases[0])) {
             $caseEvidence += [ordered]@{ script = $case.GetAttribute('classname'); method = $case.GetAttribute('name');

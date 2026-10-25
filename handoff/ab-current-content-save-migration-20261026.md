@@ -2,8 +2,13 @@
 
 ## Status and outcome
 
-This is the implementation handoff for the next coordinated save migration. The migration, checkpoint fallback, bounded
-History and Challenge transfer described here are **not implemented or runtime-tested** by this record.
+The coordinated migration is implemented on `codex/current-content-save-migration-20261026` and awaiting cloud
+qualification. Static review and diff checks pass; this is **not yet runtime acceptance or a merge claim**.
+The candidate adds player reading schema 7, admission-time normalization of current and journal snapshots, bounded
+encountered History, and separate story binding for retained physical Challenges. Document and Run versions remain 9.
+Ten rendered create/load/reload cases cover content edits, fallback, History, board resumption/transfer, resolved
+unfinished Challenges, and completed passages with appended/deleted final text. Focused owner and boundary tests
+complement those journeys. Godot execution remains cloud-only.
 
 Read [the accepted reading/startup decisions](aa-reading-startup-simplification-20261026.md) first. [PR #104](https://github.com/Siuuuers/dwm/pull/104) contains the independent prepared-configuration, authoring-identity and
 Replay work, merged as `8b8e73929801a9527872b1485a289a1ffca6e5a8`. Its exact candidate passed cloud run
@@ -65,7 +70,7 @@ after the player leaves the cue and the story records `"unfinished"`. Check save
 must not reopen or transfer. Conversely, a terminal physical record can exist before its automatic story-result
 transaction completes, and the owner explicitly permits that unclosed record to transfer.
 
-## Current owners and entry points
+## Baseline owners and entry points before this migration
 
 | Owner | Relevant responsibility |
 |---|---|
@@ -87,7 +92,7 @@ transaction completes, and the owner explicitly permits that unclosed record to 
 
 ## Smallest coherent implementation direction
 
-The following is an audited direction, not a claim that the final schema or method signatures already exist.
+The following records the agreed direction used for this implementation. Acceptance status is stated above.
 
 1. **Own content normalization at save admission.** Validate external shape and required saved facts once. Resolve the
    selected reading position against current content before full current-content validation. Return a detached candidate

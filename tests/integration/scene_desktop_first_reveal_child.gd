@@ -89,7 +89,7 @@ func _assert_scene_snapshot(snapshot: Dictionary, reading: Dictionary, run: Dict
 	if surface.ok:
 		assert_eq(surface.value.active_app_id, "minesweeper", "visible board derives the required desktop handoff")
 	assert_eq(snapshot.narrative_checkpoint.reading_session.entry_id, reading.entry_id)
-	assert_eq(snapshot.narrative_checkpoint.reading_session.schema_version, 6)
+	assert_eq(snapshot.narrative_checkpoint.reading_session.schema_version, 7)
 	assert_eq(snapshot.narrative_checkpoint.reading_session.position_id, reading.frontier.line_id)
 	assert_false(snapshot.narrative_checkpoint.reading_session.has("ledger"))
 	assert_eq(snapshot.narrative_checkpoint.reading_session.boundary, "line")

@@ -83,7 +83,7 @@ func happy_load(quick: bool) -> void:
 	var selected: Dictionary = fixture.manager.get_latest_stable_checkpoint()
 	if not _ok(selected): return
 	var checkpoint: Dictionary = selected.value.bundle.snapshot.narrative_checkpoint.duplicate(true)
-	assert_eq(checkpoint.reading_session.schema_version, 6)
+	assert_eq(checkpoint.reading_session.schema_version, 7)
 	assert_false(checkpoint.reading_session.has("ledger"))
 	assert_eq(checkpoint.reading_session.boundary, "line")
 	_test_stage = "pause_source"

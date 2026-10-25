@@ -140,7 +140,7 @@ func create_later_caption() -> void:
 	if not _ok(projected): return
 	assert_true(snapshot.narrative_checkpoint == projected.value,
 		"real slot retains the canonical current position")
-	assert_eq(snapshot.narrative_checkpoint.reading_session.schema_version, 6)
+	assert_eq(snapshot.narrative_checkpoint.reading_session.schema_version, 7)
 	assert_false(snapshot.narrative_checkpoint.reading_session.has("ledger"))
 	assert_false(snapshot.narrative_checkpoint.reading_session.has("next_operation"))
 	assert_true(game.capture_dating_challenge_state().value.is_empty(), "reading creates no board")
