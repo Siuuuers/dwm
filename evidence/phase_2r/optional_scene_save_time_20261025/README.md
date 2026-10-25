@@ -27,3 +27,12 @@ tests check real Scene creation materials, Backup inspection, Load preparation,
 and retained source custody. The normal regression matrix checks connected
 gameplay. No local Godot test qualifies this change. No speed improvement is
 claimed.
+
+## Initial cloud check
+
+Run `40174571443` found an incorrect read in the new Backup test.
+The test replaced the slot bytes, then used an old read lease.
+Storage correctly refused that read with `reconcile_required`.
+The test now uses `inspect_revision` to check the original text and hash.
+This change does not alter the game code or remove a preservation check.
+The corrected test needs a new cloud run.

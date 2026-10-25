@@ -226,7 +226,13 @@ func test_optional_scene_time_preserves_load_and_raw_source_custody() -> void:
 		if loaded.ok:
 			assert_eq(observer.snapshots, [document.current_snapshot.snapshot])
 			manager.cancel_backup_action(loaded.value.token)
-		assert_eq(fixture.storage.read_text("slot_7.json").value, raw_text, "inspection and Load preparation never repair the file")
+		# Direct fixture replacement invalidates the prior write's read lease.
+		# Observe raw bytes without reconciling or certifying the replaced file.
+		var retained_file: Dictionary = fixture.storage.inspect_revision("slot_7.json")
+		assert_true(retained_file.ok, str(retained_file))
+		if retained_file.ok:
+			assert_eq(retained_file.value.text, raw_text, "inspection and Load preparation never repair the file")
+			assert_eq(retained_file.value.revision, raw_text.sha256_text())
 		# Retained retry admission keeps original document/hash custody while using
 		# the same optional-time projection as ordinary player admission.
 		var current: Dictionary = input.current_snapshot
