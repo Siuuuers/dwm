@@ -792,14 +792,14 @@ func test_commit_and_rollback_hand_storage_the_witness() -> void:
 	_assert_binds(commit_source, "witness.call(reread_text)",
 		"commit() validates its own reread with the witness; it reads nothing but ok")
 	var rollback_source := _function_source(source, "rollback")
-	_assert_binds(rollback_source, WITNESS + ".bind({})", "rollback() binds the witness")
+	_assert_binds(rollback_source, WITNESS + ".bind({}, true)", "rollback() admits exact historical source bytes through the witness")
 	_assert_binds(rollback_source, "str(descriptor.get(\"validated_text\", \"\")), witness)",
 		"rollback() hands write_atomic() the witness")
 	_assert_binds(rollback_source, "reconcile(relative_path, witness)",
 		"rollback() hands reconcile() the witness")
 	var repair_source := _function_source(source, "_capture_storage_backup")
-	_assert_binds(repair_source, "relative_path, " + WITNESS + ".bind(validated_texts))",
-		"the read-repair reconcile takes the witness; only its refusal is read")
+	_assert_binds(repair_source, "relative_path, " + WITNESS + ".bind(validated_texts, true))",
+		"backup reconciliation admits historical source bytes; only its refusal is read")
 
 
 func test_externally_corrupted_autosave_is_refused_and_rolled_back_like_the_reference() -> void:

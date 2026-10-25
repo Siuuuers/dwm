@@ -1,7 +1,6 @@
 extends "res://addons/gut/test.gd"
 ## Real filesystem/issuer/Profile/Run/Save owners. Activation and ancillary
 ## restore participants are diagnostic; no rendered or production UI claim.
-const FIXTURE := preload("res://tests/support/SceneNewRunFixture.gd")
 const PORT := preload("res://scripts/application/backup/BackupPresentationPort.gd")
 const ADMISSION := preload("res://scripts/infrastructure/save/SaveMigrations.gd")
 const RUN_SCHEMA := preload("res://scripts/domain/run/RunSnapshotSchema.gd")
@@ -24,6 +23,19 @@ class EditingNarrative extends RefCounted:
 		input.snapshot.content_version = -1
 		return delegate.prepare(input)
 
+class StoryDayFixture extends "res://tests/support/SceneNewRunFixture.gd":
+	func _install_registration() -> Dictionary:
+		var loaded := PARSER.parse_object(FileAccess.get_file_as_string("res://tests/fixtures/dialogic/scene_reading_registration.json"))
+		if not loaded.ok: return loaded
+		var bundle: Dictionary = loaded.value
+		bundle.schema_version = 2
+		bundle["contact_definitions"] = REGISTRATION.definitions()
+		bundle.contacts[0].source_fact_ids = ["TEST.fact.read"]
+		# The source fixture predates day metadata. Content-update admission needs
+		# explicit authored days and one scene root per day, as production has.
+		bundle.scene_programme["story_days"] = {"scene.test.a": 1, "scene.test.b": 1, "contact.test.a": 2}
+		return REGISTRATION.MANIFEST.configure_test_scene_registration(bundle)
+
 class CheckpointStorageOwner extends RefCounted:
 	var _storage: RefCounted
 	var _journal: RefCounted
@@ -33,7 +45,7 @@ var fixture: RefCounted
 var fixture_ready := false
 
 func before_all() -> void:
-	fixture = FIXTURE.new()
+	fixture = StoryDayFixture.new()
 	var setup: Dictionary = fixture.setup(get_tree())
 	assert_true(setup.get("ok", false), str(setup))
 	if not setup.get("ok", false): return
@@ -651,6 +663,9 @@ func test_old_content_autosave_backup_rolls_back_exact_bytes_and_allows_retry() 
 	var checkpoint := CHECKPOINT.new(owner)
 	assert_true(checkpoint.configure_fatal_latch(fixture.gate).ok)
 	assert_false(checkpoint._validate_document_text(old_text).ok, "new outgoing checkpoints still require current content")
+	var source_admission: Dictionary = checkpoint._validate_document_text(old_text, true)
+	assert_true(source_admission.ok, "historical source must be admissible before storage: " + str(source_admission))
+	if not source_admission.ok: return
 	var validated_texts := {}
 	var captured: Dictionary = checkpoint._capture_storage_backup("autosave.json", validated_texts)
 	assert_true(captured.ok, str(captured))

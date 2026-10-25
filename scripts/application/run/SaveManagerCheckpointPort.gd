@@ -380,7 +380,7 @@ func commit(candidate: Dictionary) -> Dictionary:
 			var checked_text := _document_text_validator(outgoing_text)
 			if not checked_text.get("ok", false) or not checked_text.get("value") is Dictionary:
 				return _profile_result(profile, {"ok": false, "code": &"outgoing_validation_failed",
-					"message": "Outgoing document rejected", "fatal": false})
+					"message": str(checked_text.get("message", "Outgoing document rejected")), "fatal": false})
 			validated_texts[outgoing_text] = checked_text
 		tick = _profile_phase(profile, "outgoing_schema_us", tick)
 		# dwm-634.3: neither storage nor the reread below reads the value of these validations, so

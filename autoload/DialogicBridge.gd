@@ -2344,7 +2344,7 @@ func request_auto_step(expected_frontier: Dictionary) -> Dictionary:
 	var result: Dictionary
 	var marker := capture_scene_pending_marker()
 	if marker.get("ok", false):
-		result = _scene_event_context_provider.get_object().advance_scene_registered_marker()
+		result = _scene_event_context_provider.get_object().advance_scene_registered_marker(_scene_playable.get("material", {}).get("event", {}))
 	else:
 		result = _runtime_adapter.advance_one_event()
 	_auto_step_in_progress = false
@@ -4573,7 +4573,7 @@ func request_scene_marker_step(expected: Dictionary) -> Dictionary:
 	var game: Object = _scene_event_context_provider.get_object()
 	var resolved: Dictionary = game.capture_resolved_scene_marker()
 	if not resolved.get("ok", false): return resolved
-	var admitted: Dictionary = game.advance_scene_registered_marker()
+	var admitted: Dictionary = game.advance_scene_registered_marker(_scene_playable.get("material", {}).get("event", {}))
 	if not admitted.get("ok", false) or not caption_scoped or not resolved.value.is_empty(): return admitted
 	# Continue leaves this caption. Opening Computer uses admission only, below.
 	return game.continue_optional_scene_challenge()
@@ -4595,7 +4595,7 @@ func _admit_caption_challenge_on_open() -> Dictionary:
 	if not _line_presentation_context(current).get("ok", false): return _command_failure(&"presentation_frontier_changed")
 	var acknowledged := _acknowledge_next_source(current)
 	if not acknowledged.ok: return acknowledged
-	return _scene_event_context_provider.get_object().advance_scene_registered_marker()
+	return _scene_event_context_provider.get_object().advance_scene_registered_marker(_scene_playable.get("material", {}).get("event", {}))
 
 ## Only an exact native-proven cue/playable pair can expose its adjacent End.
 ## Both semantic markers retain the same real caption publication; no synthetic
