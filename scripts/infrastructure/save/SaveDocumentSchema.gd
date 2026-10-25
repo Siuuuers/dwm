@@ -18,6 +18,9 @@ const RUN_SNAPSHOT_SCHEMA := preload("res://scripts/domain/run/RunSnapshotSchema
 const DOCUMENT_KEYS: Array[String] = [
 	"current_snapshot", "kind", "recovery_journal", "save_reason", "schema_version", "slot_id",
 ]
+const SCENE_DOCUMENT_KEYS: Array[String] = [
+	"current_snapshot", "kind", "recovery_journal", "schema_version", "slot_id",
+]
 # Every CheckpointJournal-accepted kind may be the persisted current bundle.
 const CHECKPOINT_KINDS: Array[String] = [
 	"line", "day_start", "timeline_start", "timeline_complete", "choice",
@@ -97,13 +100,14 @@ static func build(
 		"schema_version": SCENE_DOCUMENT_VERSION if bundle_error.value.candidate.schema_version == 9 else DOCUMENT_VERSION,
 		"kind": String(kind),
 		"slot_id": RUN_SNAPSHOT_SCHEMA._normalize_integral_floats(slot_id),
-		"save_reason": String(save_reason),
 		"current_snapshot": {
 			"checkpoint_kind": str(current_bundle["checkpoint_kind"]),
 			"snapshot": bundle_error["value"]["candidate"],
 		},
 		"recovery_journal": (_profile_compose_build_journal(journal, proven_journal, proven, profile)),
 	}
+	if document.schema_version == DOCUMENT_VERSION:
+		document["save_reason"] = String(save_reason)
 	tick = _profile_phase(profile, "document_schema_compose_us", tick)
 	var family_error := _journal_family_error(document.schema_version, document.recovery_journal)
 	if not family_error.is_empty(): return _fail(&"invalid_recovery_journal", family_error)
@@ -128,13 +132,16 @@ static func build(
 ## Validate this complete and deliberately narrower Save9 envelope before any write.
 static func validate_scene_new_run_candidate(document: Dictionary, allocation_candidate: Dictionary,
 		profile_material: Dictionary, bundle: Dictionary, issuer: Object) -> Dictionary:
+	# Retired optional metadata never participates in Scene admission.
+	document = document.duplicate()
+	document.erase("save_reason")
 	var primitive := RUN_SNAPSHOT_SCHEMA.validate_primitive_tree(document)
 	if not primitive.ok: return primitive
-	var expected := DOCUMENT_KEYS.duplicate()
+	var expected := SCENE_DOCUMENT_KEYS.duplicate()
 	expected.append("saved_time")
 	if not RUN_SNAPSHOT_SCHEMA._scene_keys(document, expected) \
 			or typeof(document.schema_version) != TYPE_INT or document.schema_version != SCENE_DOCUMENT_VERSION \
-			or document.kind != "autosave" or document.slot_id != null or document.save_reason != "day_start" \
+			or document.kind != "autosave" or document.slot_id != null \
 			or not document.recovery_journal is Array or not document.recovery_journal.is_empty():
 		return _fail(&"invalid_document_shape", "initial Save9 requires Autosave, saved time and empty recovery")
 	if not validate_saved_time(document.saved_time):
@@ -146,7 +153,9 @@ static func validate_scene_new_run_candidate(document: Dictionary, allocation_ca
 	var checked := RUN_SNAPSHOT_SCHEMA.validate_scene_new_run_candidate(current.snapshot,
 		allocation_candidate, profile_material, bundle, issuer)
 	if not checked.ok: return checked
-	return {"ok": true, "code": &"ok", "value": {"candidate": document.duplicate(true)}}
+	var candidate := document.duplicate(true)
+	candidate.current_snapshot.snapshot = checked.value.candidate
+	return {"ok": true, "code": &"ok", "value": {"candidate": candidate}}
 
 static func validate(document: Dictionary, profile: Dictionary = {},
 		scene_seed_receiver: Callable = Callable()) -> Dictionary:
@@ -212,6 +221,7 @@ static func _validate_document(document: Dictionary, proven_journal: Array,
 	# order, and every check below still runs where it ran before.
 	var candidate := {}
 	for key: Variant in document:
+		if document.get("schema_version") == SCENE_DOCUMENT_VERSION and key == "save_reason": continue
 		# The outgoing splice replaces the caller's journal with proven bundles below;
 		# retain only its container here so the existing array check keeps its order.
 		if key == "current_snapshot" or (use_proven_journal and key == "recovery_journal"):
@@ -221,7 +231,7 @@ static func _validate_document(document: Dictionary, proven_journal: Array,
 	tick = _profile_phase(profile, "outgoing_schema_envelope_normalize_us", tick)
 	var keys: Array = candidate.keys()
 	keys.sort()
-	var expected := DOCUMENT_KEYS.duplicate()
+	var expected := (SCENE_DOCUMENT_KEYS if candidate.get("schema_version") == SCENE_DOCUMENT_VERSION else DOCUMENT_KEYS).duplicate()
 	if candidate.has("saved_time"):
 		expected.append("saved_time")
 	expected.sort()
@@ -235,8 +245,9 @@ static func _validate_document(document: Dictionary, proven_journal: Array,
 		return _fail(&"unsupported_schema_version", str(candidate["schema_version"]))
 	if int(candidate["schema_version"]) not in [DOCUMENT_VERSION, SCENE_DOCUMENT_VERSION]:
 		return _fail(&"invalid_document_shape", "schema_version must be %d" % DOCUMENT_VERSION)
-	var discriminator_error := _validate_discriminators(
-		str(candidate["kind"]), candidate["slot_id"], str(candidate["save_reason"]))
+	var discriminator_error := _validate_locator(str(candidate["kind"]), candidate["slot_id"])
+	if candidate.schema_version == DOCUMENT_VERSION:
+		discriminator_error = _validate_discriminators(str(candidate.kind), candidate.slot_id, str(candidate.save_reason))
 	if discriminator_error != "":
 		return _fail(&"invalid_discriminator", discriminator_error)
 	if typeof(candidate["current_snapshot"]) != TYPE_DICTIONARY:
@@ -448,25 +459,30 @@ static func validate_saved_time(value: Variant) -> bool:
 	var clock := Time.get_datetime_dict_from_unix_time(local_seconds)
 	return str(value["hhmm"]) == "%02d:%02d" % [clock["hour"], clock["minute"]]
 
-static func _validate_discriminators(kind: String, slot_id: Variant, save_reason: String) -> String:
+## Storage location is sufficient for Scene documents. Save reason describes the
+## write operation, not the progress a later Load is allowed to restore.
+static func _validate_locator(kind: String, slot_id: Variant) -> String:
 	match kind:
 		"slot":
 			if typeof(slot_id) != TYPE_INT or int(slot_id) < MIN_SLOT or int(slot_id) > MAX_SLOT:
 				return "slot documents require an integer slot_id 1..7"
-			if save_reason != "manual":
-				return "slot documents require save_reason=manual"
-		"quick":
+		"quick", "autosave":
 			if slot_id != null:
-				return "quick documents require a JSON null slot_id"
-			if save_reason != "quick":
-				return "quick documents require save_reason=quick"
-		"autosave":
-			if slot_id != null:
-				return "autosave documents require a JSON null slot_id"
-			if save_reason not in AUTOSAVE_REASONS:
-				return "unknown autosave reason: " + save_reason
+				return kind + " documents require a JSON null slot_id"
 		_:
 			return "unknown document kind: " + kind
+	return ""
+
+static func _validate_discriminators(kind: String, slot_id: Variant, save_reason: String) -> String:
+	var locator_error := _validate_locator(kind, slot_id)
+	if not locator_error.is_empty(): return locator_error
+	match kind:
+		"slot":
+			if save_reason != "manual": return "slot documents require save_reason=manual"
+		"quick":
+			if save_reason != "quick": return "quick documents require save_reason=quick"
+		"autosave":
+			if save_reason not in AUTOSAVE_REASONS: return "unknown autosave reason: " + save_reason
 	return ""
 
 static func _validate_bundle(bundle: Dictionary) -> Dictionary:

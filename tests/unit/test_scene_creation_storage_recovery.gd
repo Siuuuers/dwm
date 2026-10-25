@@ -20,7 +20,7 @@ func _restore_operation(journal: RefCounted) -> Dictionary:
 	var tx := "transaction_id." + "a".repeat(64)
 	var snapshot := {"schema_version": 9, "checkpoint_id": "selected"}
 	var bundle := {"checkpoint_kind": "manual_save", "snapshot": snapshot}
-	var document := {"schema_version": 9, "kind": "slot", "slot_id": 1, "save_reason": "manual",
+	var document := {"schema_version": 9, "kind": "slot", "slot_id": 1,
 		"current_snapshot": bundle, "recovery_journal": []}
 	var locator := {"slot_id": "slot:1", "checkpoint_id": "selected",
 		"bundle_id": _hash(bundle), "document_sha256": _hash(snapshot)}
@@ -76,6 +76,22 @@ func test_successful_scope_does_not_cache_partial_restore_admission() -> void:
 
 func test_failed_scope_does_not_cache_partial_restore_admission() -> void:
 	_scope_and_full_read(true)
+
+func test_early_scope_ignores_retired_reason_without_rewriting_retained_operation() -> void:
+	var storage := ObservedStorage.new()
+	var journal := JOURNAL.new()
+	assert_true(journal.configure(storage, RESTORE.SourceLoader.new()).ok)
+	var operation := _restore_operation(journal)
+	operation.selected_document["save_reason"] = {"obsolete": true}
+	operation.request_fingerprint = _hash({"kind": "scene_restore", "transaction_id": operation.transaction_id,
+		"source_locator": operation.source_locator, "selected_document": operation.selected_document})
+	storage.text = WRITER.stringify({"schema_version": 5, "operations": {operation.transaction_id: operation}}).value
+	var original := storage.text
+	var result: Dictionary = journal.with_creation_storage_recovery(func(): return journal.list_incomplete())
+	assert_true(result.ok, str(result))
+	assert_eq(storage.text, original, "retired metadata never rewrites immutable retry bytes")
+	assert_eq(storage.writes, 0)
+
 
 func test_early_scope_rejects_changed_source_hash_and_request_binding() -> void:
 	for damage: String in ["snapshot_hash", "request_fingerprint", "slot"]:

@@ -370,7 +370,8 @@ static func _scene_source_readback(durable: Dictionary, plan: Dictionary, comman
 	var parsed: Dictionary = preload("res://scripts/validation/StrictJson.gd").parse_object(durable.document_text)
 	if not parsed.get("ok", false): return parsed
 	var document: Dictionary = parsed.value
-	var keys := ["schema_version", "kind", "slot_id", "save_reason", "current_snapshot", "recovery_journal"]
+	document.erase("save_reason")
+	var keys := ["schema_version", "kind", "slot_id", "current_snapshot", "recovery_journal"]
 	if document.has("saved_time"): keys.append("saved_time")
 	if not event._keys(document, keys) or typeof(document.schema_version) != TYPE_INT \
 			or not document.recovery_journal is Array:
@@ -382,13 +383,6 @@ static func _scene_source_readback(durable: Dictionary, plan: Dictionary, comman
 			return _scene_source_failure("checkpoint save slot")
 	elif document.slot_id != null:
 		return _scene_source_failure("automatic/quick save slot must be null")
-	if typeof(document.save_reason) != TYPE_STRING:
-		return _scene_source_failure("checkpoint save reason type")
-	if (document.kind == "slot" and document.save_reason != "manual") \
-			or (document.kind == "quick" and document.save_reason != "quick") \
-			or (document.kind == "autosave" and document.save_reason not in [
-				"automatic", "day_start", "ending", "pre_board", "logout"]):
-		return _scene_source_failure("checkpoint save reason")
 	var expected_slot: String = "slot:" + str(document.slot_id) if document.kind == "slot" else str(document.kind)
 	if expected_slot != locator.slot_id: return _scene_source_failure("checkpoint document locator mismatch")
 	var candidates: Array = [document.current_snapshot]
@@ -399,7 +393,9 @@ static func _scene_source_readback(durable: Dictionary, plan: Dictionary, comman
 			return _scene_source_failure("checkpoint bundle shape")
 		if candidate.snapshot.get("checkpoint_id") == locator.checkpoint_id:
 			if not selected.is_empty(): return _scene_source_failure("ambiguous checkpoint locator")
-			selected = candidate
+			selected = candidate.duplicate(true)
+			selected.snapshot.erase("audio_context")
+			selected.snapshot.erase("active_app_id")
 	if selected.is_empty() or selected.checkpoint_kind != "day_resolution_stage" \
 			or _canonical_sha256(selected) != locator.bundle_id \
 			or _canonical_sha256(selected.snapshot) != locator.document_sha256:

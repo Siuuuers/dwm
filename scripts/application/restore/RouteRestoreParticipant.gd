@@ -72,7 +72,7 @@ func prepare(input: Dictionary) -> Dictionary:
 		if not _desktop_host.has_method("prepare_scene_restore"):
 			return _fail(&"scene_desktop_host_unavailable", "dayless scene host restore is required")
 		if not desktop_context.has("active_app_id"):
-			return _fail(&"invalid_route_input", "scene route requires its saved active_app_id")
+			return _fail(&"invalid_route_input", "scene route requires its derived desktop surface")
 		var restored: Dictionary = _desktop_host.prepare_scene_restore(desktop_context["active_app_id"])
 		if not restored.get("ok", false): return restored
 		value["route_plan"]["desktop"] = restored["value"]["candidate_state"]

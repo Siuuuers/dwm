@@ -102,7 +102,7 @@ func persist_source() -> Dictionary:
 		"command_receipts": command_receipts.duplicate(true)}
 	var current := {"checkpoint_kind": "day_resolution_stage", "snapshot": snapshot}
 	var document := {"schema_version": 1, "kind": "autosave", "slot_id": null,
-		"save_reason": "automatic", "current_snapshot": current, "recovery_journal": []}
+		"current_snapshot": current, "recovery_journal": []}
 	var encoded: Dictionary = WRITER.stringify(document)
 	if not encoded.ok: return encoded
 	var written: Dictionary = storage.write_atomic("source.json", encoded.value, _parse)

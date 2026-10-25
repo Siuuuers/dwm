@@ -1,7 +1,8 @@
 class_name SaveMigrations
 extends RefCounted
 ## Current save-document admission. Unshipped older records do not carry captured
-## run configuration and are unsupported. Never repair, strip, or convert their fields.
+## run configuration and are unsupported. Never repair or convert required gameplay.
+## Scene admission drops retired optional save_reason metadata.
 const SAVE_DOCUMENT_SCHEMA := preload("res://scripts/infrastructure/save/SaveDocumentSchema.gd")
 
 static func migrate_document(raw: Dictionary, expected_locator: Dictionary,

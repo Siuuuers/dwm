@@ -78,7 +78,7 @@ func test_public_run_and_save_reject_foreign_admission_and_event_even_when_unuse
 		var before := snapshot.duplicate(true)
 		assert_eq(RUN.validate(snapshot).code, &"scene_receipt_run_changed", member)
 		assert_eq(RUN.validate_scene(snapshot, {}).code, &"scene_receipt_run_changed", member)
-		var document := {"schema_version": 9, "kind": "quick", "slot_id": null, "save_reason": "quick",
+		var document := {"schema_version": 9, "kind": "quick", "slot_id": null,
 			"current_snapshot": {"checkpoint_kind": "line", "snapshot": snapshot}, "recovery_journal": []}
 		assert_eq(SAVE.validate(document).code, &"scene_receipt_run_changed", member)
 		assert_eq(SAVE.validate_outgoing(document, []).code, &"scene_receipt_run_changed", member)

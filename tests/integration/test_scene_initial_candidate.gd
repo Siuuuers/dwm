@@ -82,7 +82,7 @@ func _prepare(nonce: int = 0) -> bool:
 	assert_true(result.ok, str(result))
 	if not result.ok: return false
 	document = {"schema_version": 9, "kind": "autosave", "slot_id": null,
-		"save_reason": "day_start", "saved_time": {"unix_seconds": 0, "utc_offset_minutes": 0, "hhmm": "00:00"},
+		"saved_time": {"unix_seconds": 0, "utc_offset_minutes": 0, "hhmm": "00:00"},
 		"current_snapshot": {"checkpoint_kind": "day_start", "snapshot": result.value.snapshot}, "recovery_journal": []}
 	context = {"active_app_id": null, "audio_context": {}, "content_version": checkpoint.content_version,
 		"dialogic_checkpoint": checkpoint, "route_id": "scene"}
@@ -107,6 +107,22 @@ func test_complete_initial_candidate_is_read_only_and_not_committed_authority() 
 		assert_true(root_before.value.allocation_receipts.is_empty())
 		assert_false(SAVE.validate(document).ok, "prepared candidate must not admit ordinary Load")
 		assert_eq(document.current_snapshot.snapshot.lifecycle.scene_assignment.form, "sweet" if nonce == 0 else "dark")
+
+func test_initial_candidate_ignores_retired_reason_but_preserves_exact_write_material() -> void:
+	if not _prepare(): return
+	for retired: Variant in ["day_start", "obsolete", 7, null, {"old": true}]:
+		var input: Dictionary = document.duplicate(true)
+		input["save_reason"] = retired
+		input.current_snapshot.snapshot["audio_context"] = retired
+		var admitted := _validate(input)
+		assert_true(admitted.ok, str(admitted))
+		if admitted.ok: assert_eq(admitted.value.candidate, document)
+		var retained: Dictionary = materials.duplicate(true)
+		retained.autosave.outgoing_text = WRITER.stringify(input).value + "\n"
+		retained.autosave.outgoing_hash = retained.autosave.outgoing_text.sha256_text()
+		assert_true(MATERIALS.validate(retained, context, receipt.transaction_id,
+			str(WRITER.stringify(allocation).value).sha256_text(), bundle, issuer).ok)
+
 
 func test_initial_candidate_refuses_prior_state_and_forged_first_reading() -> void:
 	if not _prepare(): return
