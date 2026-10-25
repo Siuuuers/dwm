@@ -1,0 +1,364 @@
+{
+  "archive": "run40203205178-evidence.zip",
+  "bytes": 3335975,
+  "sha256": "72d1d6179b268a4b85255ec17e456733a4036cc8d7e1d0820f2e9b97b14d3834",
+  "crc_verified": true,
+  "member_count": 59,
+  "scope": "Compact retained evidence archive; exported executables/PCK and shader/pipeline caches are not retained here. Current-format profile/save payloads and original source/package/profile hash receipts remain inside.",
+  "members": [
+    {
+      "path": "baseline/export.log",
+      "bytes": 265283,
+      "crc32": "49921dd3",
+      "sha256": "8a0ab6154ca2a4518b649316ec2320f0fc4f07fde04ed1d9f670fc72d2573e41"
+    },
+    {
+      "path": "baseline/import.log",
+      "bytes": 153535,
+      "crc32": "40e71cbc",
+      "sha256": "b17449dc7afcef678139e01bb1a063878be1ed9ddc154f7208d700446ebd4bcf"
+    },
+    {
+      "path": "baseline/package.json",
+      "bytes": 412,
+      "crc32": "08ab5cc2",
+      "sha256": "80a7da7794a4159c515c0823d8e7f1ad82aeb1a1853be04d70b3c735ddcaee2a"
+    },
+    {
+      "path": "baseline/startup-variant.json",
+      "bytes": 4653,
+      "crc32": "34183bfb",
+      "sha256": "7b5ab149916f5b577d610c94e2aef23809f1c826743ade0f25bb0705a28f513e"
+    },
+    {
+      "path": "desktop/export.log",
+      "bytes": 265283,
+      "crc32": "49921dd3",
+      "sha256": "8a0ab6154ca2a4518b649316ec2320f0fc4f07fde04ed1d9f670fc72d2573e41"
+    },
+    {
+      "path": "desktop/import.log",
+      "bytes": 153535,
+      "crc32": "7050a6c9",
+      "sha256": "33a5b73c19f0979507cedb67e5bcdcc20fbf3a7bef9efccc6f54d78bbcc8ae46"
+    },
+    {
+      "path": "desktop/package.json",
+      "bytes": 411,
+      "crc32": "2609e7bd",
+      "sha256": "baba2bb91b7205539f7058af4458ca3686c47c0a2607e4fc2ef8790df734a68d"
+    },
+    {
+      "path": "desktop/startup-variant.json",
+      "bytes": 4652,
+      "crc32": "04fd1995",
+      "sha256": "4a45534050003b65c201d42f9bd358c93b20da0e235d39eb154198e3aeaecfad"
+    },
+    {
+      "path": "measurements/forward-baseline-fresh/caption.png",
+      "bytes": 773259,
+      "crc32": "7c06b0e8",
+      "sha256": "183e1fa45bbc47240b2ca0700871c49b83ae0184fb43a4e2b25b212e09572889"
+    },
+    {
+      "path": "measurements/forward-baseline-fresh/process.json",
+      "bytes": 21001,
+      "crc32": "62405b4a",
+      "sha256": "6f96971cb720126d69ab5c067714d61ced00aab48d9f10bc171a9d97c26bcef2"
+    },
+    {
+      "path": "measurements/forward-baseline-fresh/render.log",
+      "bytes": 9289,
+      "crc32": "724394a6",
+      "sha256": "e99d15dd11e5567d0c440a0594d625675eb638de9b5db68bc42b3ebd47ea96b3"
+    },
+    {
+      "path": "measurements/forward-baseline-fresh/results.json",
+      "bytes": 11513,
+      "crc32": "3877faf4",
+      "sha256": "3e3d2824df6015e595cf0e9dad727b9e459876bb67c6975cfa31f3d39d848624"
+    },
+    {
+      "path": "measurements/forward-baseline-fresh/stderr.log",
+      "bytes": 2,
+      "crc32": "14a285ac",
+      "sha256": "7eb70257593da06f682a3ddda54a9d260d4fc514f645237f5ca74b08f8da61a6"
+    },
+    {
+      "path": "measurements/forward-baseline-fresh/stdout.log",
+      "bytes": 9295,
+      "crc32": "2882e181",
+      "sha256": "90b45f8398d4b29c65e42c9d6bb30fd3a089757ddd08b010676f2d603247fced"
+    },
+    {
+      "path": "measurements/forward-baseline-fresh/title.png",
+      "bytes": 9866,
+      "crc32": "1d748b63",
+      "sha256": "2b01f0beb4d153b753ce29839f256788066c26da86a5db7ae07b16fc1fc9b53c"
+    },
+    {
+      "path": "measurements/forward-baseline-retained/caption.png",
+      "bytes": 773287,
+      "crc32": "c393aac3",
+      "sha256": "bdf6f34b2b7a86968335919a4c37122794e0ac977a3def122e7febe5670b1226"
+    },
+    {
+      "path": "measurements/forward-baseline-retained/consent.png",
+      "bytes": 17152,
+      "crc32": "1ef9f0cd",
+      "sha256": "5995b8d05380123789d5572b14c3bb2817924e5fe9435a92773ab515f96d1a4c"
+    },
+    {
+      "path": "measurements/forward-baseline-retained/process.json",
+      "bytes": 39642,
+      "crc32": "24cb6084",
+      "sha256": "e5a73da2c10c82305bf96fac073c2a5c7ef3c0d30f87cf845bfea08bc3561dd3"
+    },
+    {
+      "path": "measurements/forward-baseline-retained/render.log",
+      "bytes": 9731,
+      "crc32": "d8c35113",
+      "sha256": "64ec4e743a92d8209fddebb4fdf336c7ea3c0523dbd542cb6ed79d889440b713"
+    },
+    {
+      "path": "measurements/forward-baseline-retained/results.json",
+      "bytes": 12060,
+      "crc32": "9fa722c8",
+      "sha256": "54b474b5bee2be64d3a708a3033cf2b7146b85df7f747cc7e77b1f44de125934"
+    },
+    {
+      "path": "measurements/forward-baseline-retained/stderr.log",
+      "bytes": 2,
+      "crc32": "14a285ac",
+      "sha256": "7eb70257593da06f682a3ddda54a9d260d4fc514f645237f5ca74b08f8da61a6"
+    },
+    {
+      "path": "measurements/forward-baseline-retained/stdout.log",
+      "bytes": 9737,
+      "crc32": "17e4bea6",
+      "sha256": "06abee8cd6d92c2d2f8d4e3506ed3a9d217edea9207a0b2b91602e1c249cdc0e"
+    },
+    {
+      "path": "measurements/forward-baseline-retained/title.png",
+      "bytes": 9866,
+      "crc32": "1d748b63",
+      "sha256": "2b01f0beb4d153b753ce29839f256788066c26da86a5db7ae07b16fc1fc9b53c"
+    },
+    {
+      "path": "measurements/forward-desktop-fresh/caption.png",
+      "bytes": 773345,
+      "crc32": "0b8a1c89",
+      "sha256": "89bc586597faed7e44dc97d6a7abc8cf9256dc8650d35667ad402e15d86aa474"
+    },
+    {
+      "path": "measurements/forward-desktop-fresh/process.json",
+      "bytes": 20996,
+      "crc32": "9d777da9",
+      "sha256": "17f3dd0640da64bbcf51d09f3542c64944bb53e7fd399f2bef494c6e8ebfb221"
+    },
+    {
+      "path": "measurements/forward-desktop-fresh/render.log",
+      "bytes": 9291,
+      "crc32": "978bb4cc",
+      "sha256": "285a86772a5cdffac3ee25d9b8f12af1033732acca33896d5308cf14e47f21b0"
+    },
+    {
+      "path": "measurements/forward-desktop-fresh/results.json",
+      "bytes": 11515,
+      "crc32": "e2e6124e",
+      "sha256": "c41de53f3b2f3b9d10800d3159e92cb57bd3daaff558cb559c602aac64d73cc9"
+    },
+    {
+      "path": "measurements/forward-desktop-fresh/stderr.log",
+      "bytes": 2,
+      "crc32": "14a285ac",
+      "sha256": "7eb70257593da06f682a3ddda54a9d260d4fc514f645237f5ca74b08f8da61a6"
+    },
+    {
+      "path": "measurements/forward-desktop-fresh/stdout.log",
+      "bytes": 9297,
+      "crc32": "20ba5a37",
+      "sha256": "762688cc795ab154c22f087fd3b72e2880b9df2b753c6564d9cdfacc704ac308"
+    },
+    {
+      "path": "measurements/forward-desktop-fresh/title.png",
+      "bytes": 9866,
+      "crc32": "1d748b63",
+      "sha256": "2b01f0beb4d153b753ce29839f256788066c26da86a5db7ae07b16fc1fc9b53c"
+    },
+    {
+      "path": "measurements/forward-desktop-retained/caption.png",
+      "bytes": 773265,
+      "crc32": "9ce5d5d9",
+      "sha256": "52fc2c057e038fa6de48581ae8722123950975dd9ba22ddb994e8e0fc1e1ed75"
+    },
+    {
+      "path": "measurements/forward-desktop-retained/consent.png",
+      "bytes": 17152,
+      "crc32": "1ef9f0cd",
+      "sha256": "5995b8d05380123789d5572b14c3bb2817924e5fe9435a92773ab515f96d1a4c"
+    },
+    {
+      "path": "measurements/forward-desktop-retained/process.json",
+      "bytes": 38015,
+      "crc32": "3c723dbd",
+      "sha256": "17f30b27613f430006b2474584054ecd5a33d28eef3508f1c26df173bbb527fd"
+    },
+    {
+      "path": "measurements/forward-desktop-retained/render.log",
+      "bytes": 9730,
+      "crc32": "3ee3a618",
+      "sha256": "1948b3358d20d55cdabb9e80142283314b99fad8ec2156b6dce4237f4b811609"
+    },
+    {
+      "path": "measurements/forward-desktop-retained/results.json",
+      "bytes": 12059,
+      "crc32": "fc850390",
+      "sha256": "dd70055b5619a8da52ef419a128bea27b5d5d80355c56087ce105d48047e6f99"
+    },
+    {
+      "path": "measurements/forward-desktop-retained/stderr.log",
+      "bytes": 242,
+      "crc32": "12005129",
+      "sha256": "c5ce13cc1ac88ba637c8425fafbd14d325c9604c0f0ed05c336f1d6af33f73bd"
+    },
+    {
+      "path": "measurements/forward-desktop-retained/stdout.log",
+      "bytes": 9736,
+      "crc32": "083054b9",
+      "sha256": "df70bc44f3033e3e28cd316cc4ee2b9d1848386f351a066bd5b3bcdc399f174b"
+    },
+    {
+      "path": "measurements/forward-desktop-retained/title.png",
+      "bytes": 9866,
+      "crc32": "1d748b63",
+      "sha256": "2b01f0beb4d153b753ce29839f256788066c26da86a5db7ae07b16fc1fc9b53c"
+    },
+    {
+      "path": "operating-system.json",
+      "bytes": 118,
+      "crc32": "571b84ed",
+      "sha256": "b881eebf36de2c13dbc603453f1ba2c875e18646382830d9753a8dbcffc82839"
+    },
+    {
+      "path": "profiles/forward-baseline/APPDATA/Godot/app_userdata/DWM/desktop-issuer-root.json",
+      "bytes": 9541,
+      "crc32": "b77b3301",
+      "sha256": "75821df73bf91fcb9fd35a4607ab39064f2ac175402aff447ac3d5658dd8b38e"
+    },
+    {
+      "path": "profiles/forward-baseline/APPDATA/Godot/app_userdata/DWM/desktop-issuer-root.json.bak",
+      "bytes": 5272,
+      "crc32": "5d883726",
+      "sha256": "ffacb8065707730743d0f7bd3b190dc8a6bbdebe0d0a13da54191534a26c4296"
+    },
+    {
+      "path": "profiles/forward-baseline/APPDATA/Godot/app_userdata/DWM/desktop-publications.json",
+      "bytes": 34,
+      "crc32": "0fd226aa",
+      "sha256": "902849ab2604217a878bc4de507660ced78f981a72c1d6343dd9ef55af64d4e4"
+    },
+    {
+      "path": "profiles/forward-baseline/APPDATA/Godot/app_userdata/DWM/dialogic/saves/global_info.txt",
+      "bytes": 0,
+      "crc32": "00000000",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "profiles/forward-baseline/APPDATA/Godot/app_userdata/DWM/profile.json",
+      "bytes": 3837,
+      "crc32": "56aa6af6",
+      "sha256": "e635447b5f4e504b9c6edd8ff7a6d3841e22cc7d81b828b583055a8926a8c308"
+    },
+    {
+      "path": "profiles/forward-baseline/APPDATA/Godot/app_userdata/DWM/saves/autosave.json",
+      "bytes": 4831,
+      "crc32": "2807c901",
+      "sha256": "9bbb8cef90a127a852798812deec4d7430a61a621efc7f883c612a10d0f0ccab"
+    },
+    {
+      "path": "profiles/forward-baseline/APPDATA/Godot/app_userdata/DWM/saves/desktop-continuation-operations.json",
+      "bytes": 53599,
+      "crc32": "d2893376",
+      "sha256": "d166aed391711cf1a7f274f983275b72eccbed7d49c88864573212c34a349646"
+    },
+    {
+      "path": "profiles/forward-baseline/APPDATA/Godot/app_userdata/DWM/saves/desktop-continuation-operations.json.bak",
+      "bytes": 53594,
+      "crc32": "e865bf01",
+      "sha256": "e4a683743a70444d5e4e9b44b104933f1fcfbe877b1403838e869e917c70f88d"
+    },
+    {
+      "path": "profiles/forward-baseline/APPDATA/Godot/app_userdata/DWM/schedule-foundation-publications.json",
+      "bytes": 34,
+      "crc32": "0fd226aa",
+      "sha256": "902849ab2604217a878bc4de507660ced78f981a72c1d6343dd9ef55af64d4e4"
+    },
+    {
+      "path": "profiles/forward-desktop/APPDATA/Godot/app_userdata/DWM/desktop-issuer-root.json",
+      "bytes": 9541,
+      "crc32": "09eee703",
+      "sha256": "3bb7185c2723e6de425bca924f9c2569f542c3915e0d88cf1fa869e6dd53ff48"
+    },
+    {
+      "path": "profiles/forward-desktop/APPDATA/Godot/app_userdata/DWM/desktop-issuer-root.json.bak",
+      "bytes": 5272,
+      "crc32": "ca91806c",
+      "sha256": "47c2e3ff8dd8fe1e1fa3779df4eef40e520173ba9163668e9bda685681198e0e"
+    },
+    {
+      "path": "profiles/forward-desktop/APPDATA/Godot/app_userdata/DWM/desktop-publications.json",
+      "bytes": 34,
+      "crc32": "0fd226aa",
+      "sha256": "902849ab2604217a878bc4de507660ced78f981a72c1d6343dd9ef55af64d4e4"
+    },
+    {
+      "path": "profiles/forward-desktop/APPDATA/Godot/app_userdata/DWM/dialogic/saves/global_info.txt",
+      "bytes": 0,
+      "crc32": "00000000",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "profiles/forward-desktop/APPDATA/Godot/app_userdata/DWM/profile.json",
+      "bytes": 3835,
+      "crc32": "b6a67828",
+      "sha256": "112e13eb37986ae8ca5c44a7637b2c3dc5000f7e0df34ebe25c8c4941b60947e"
+    },
+    {
+      "path": "profiles/forward-desktop/APPDATA/Godot/app_userdata/DWM/saves/autosave.json",
+      "bytes": 4831,
+      "crc32": "57af4463",
+      "sha256": "f2e0d26ea88c0d20bef88fa8e9fe663381b4486b3b281b7b500fd4cb32bb9581"
+    },
+    {
+      "path": "profiles/forward-desktop/APPDATA/Godot/app_userdata/DWM/saves/desktop-continuation-operations.json",
+      "bytes": 53585,
+      "crc32": "c28a8dce",
+      "sha256": "861649cfa7eecaef33d76b96aa7bba3dd9c92cb2b6a4e965204c661511c3f9c7"
+    },
+    {
+      "path": "profiles/forward-desktop/APPDATA/Godot/app_userdata/DWM/saves/desktop-continuation-operations.json.bak",
+      "bytes": 53580,
+      "crc32": "6fe35f07",
+      "sha256": "0c4f5c0c7f8837e4445a2850ab1ae4362c4534c426f08092afcc80311af84e23"
+    },
+    {
+      "path": "profiles/forward-desktop/APPDATA/Godot/app_userdata/DWM/schedule-foundation-publications.json",
+      "bytes": 34,
+      "crc32": "0fd226aa",
+      "sha256": "902849ab2604217a878bc4de507660ced78f981a72c1d6343dd9ef55af64d4e4"
+    },
+    {
+      "path": "source.json",
+      "bytes": 556,
+      "crc32": "dcbe6a59",
+      "sha256": "01dab29bbbee084b0b893ab2f57b6a715171a8108e399c2c28d877b0db0a48c9"
+    },
+    {
+      "path": "video-controller.json",
+      "bytes": 102,
+      "crc32": "a4a8ebfb",
+      "sha256": "5dce6454799a069fe35951475933d0a58d91d539213e8c1ab158a0790c9d5894"
+    }
+  ]
+}

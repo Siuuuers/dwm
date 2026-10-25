@@ -1,0 +1,762 @@
+{
+  "run_id": 40203205178,
+  "run_url": "https://github.com/Siuuuers/dwm/actions/runs/40203205178",
+  "status": "exported_timing_experiment_failed_regression_passed",
+  "runtime_source": "47234a3395a4566e840140f1849da55a65d15521",
+  "candidate_scope": "Only defer ComputerDesktop.tscn at ApplicationBootstrap._ensure_scene_desktop; instrumented export controller separately adds observer and constructor timing.",
+  "completed_exported_processes": 4,
+  "strictly_accepted_exported_processes": 3,
+  "planned_exported_processes": 12,
+  "unexecuted_scope": "Reverse-order and Apps first/warm opening measurements were not reached after the forward retained candidate shutdown failure.",
+  "qualified_performance_claim": false,
+  "archives": [
+    {
+      "archive": "run40203205178-evidence.zip",
+      "bytes": 3335975,
+      "sha256": "72d1d6179b268a4b85255ec17e456733a4036cc8d7e1d0820f2e9b97b14d3834",
+      "crc_verified": true,
+      "member_count": 59,
+      "scope": "Compact retained evidence archive; exported executables/PCK and shader/pipeline caches are not retained here. Current-format profile/save payloads and original source/package/profile hash receipts remain inside."
+    },
+    {
+      "archive": "run40203205178-regression.zip",
+      "bytes": 253202,
+      "sha256": "fd8e66f4f917991c2b77f761e76abf9444f10e51485e78babfebcf027d39cdef",
+      "crc_verified": true,
+      "member_count": 21,
+      "scope": "Compact connected Apps regression evidence: test reports, logs, screenshots and patch receipt; no exported game package."
+    }
+  ],
+  "screenshot_verification": {
+    "matched_process_manifest_entries": 7,
+    "retained_images_without_process_manifest": [
+      "measurements/forward-desktop-retained/caption.png",
+      "measurements/forward-desktop-retained/consent.png",
+      "measurements/forward-desktop-retained/title.png"
+    ],
+    "note": "The failed process report stops before its screenshot manifest is populated. Those three PNGs have archive/member and current local SHA-256 hashes, but cannot be compared to a missing original process screenshot manifest. No new visual-review claim."
+  },
+  "measurements": [
+    {
+      "name": "forward-baseline-fresh",
+      "variant": "baseline",
+      "case": "fresh",
+      "journey": "new_acc",
+      "complete": true,
+      "clean_exit": true,
+      "exit_code": 0,
+      "strict_harness_accepted": true,
+      "harness_status": "collected_requires_visual_review",
+      "failure": null,
+      "stderr": "",
+      "timings_ms": {
+        "lifetime_ms": 30097.2439,
+        "launch_to_probe_enter_tree_ms": 7241.0,
+        "launch_to_first_title_drawn_ms": 8813.0,
+        "launch_to_title_drawn_usable_ms": 8813.0,
+        "launch_to_first_title_input_accepted_ms": 8863.0,
+        "launch_to_bootstrap_start_ms": 7384.0,
+        "new_acc_to_caption_complete_ms": 20615.194
+      },
+      "unaccepted_timings_derived_from_child_report_ms": {},
+      "desktop_cache": {
+        "probe_enter_tree": {
+          "scene": true,
+          "script": true
+        },
+        "title_drawn_usable": {
+          "scene": true,
+          "script": true
+        }
+      },
+      "observation": {
+        "active": true,
+        "event_done": true,
+        "line_id": "line.Day1.one",
+        "new_run_busy": false,
+        "text": "Sylvia slides the fuller teacup onto my mat and keeps the one with the small chip on the rim for herself.",
+        "visible_ratio": 1.0
+      },
+      "max_frame_gap_us": {
+        "new_acc": 13320926
+      },
+      "package_hashes": {
+        "game.pck": "a57a0d60e613537fbe292f3551bf441f6d409e2caab89e6800ca490fdaf3e3d1",
+        "game.exe": "91724f15024a3a545e28ccd83134403d31ce2323a38e51c95e4dfa282f732ab6"
+      },
+      "rendering": {
+        "get_current_rendering_driver_name": "d3d12",
+        "get_current_rendering_method": "forward_plus",
+        "get_video_adapter_api_version": "12_0",
+        "get_video_adapter_name": "Microsoft Basic Render Driver"
+      },
+      "preferences": {
+        "preferences.accessibility.font_style": "pixel",
+        "preferences.accessibility.text_size": 100,
+        "preferences.language.primary_locale_id": "en",
+        "preferences.reading.auto_enabled": false,
+        "preferences.reading.reveal_speed": "normal"
+      },
+      "images": [
+        {
+          "size": 773259,
+          "name": "caption.png",
+          "sha256": "183e1fa45bbc47240b2ca0700871c49b83ae0184fb43a4e2b25b212e09572889",
+          "process_manifest_verified": true
+        },
+        {
+          "size": 9866,
+          "name": "title.png",
+          "sha256": "2b01f0beb4d153b753ce29839f256788066c26da86a5db7ae07b16fc1fc9b53c",
+          "process_manifest_verified": true
+        }
+      ],
+      "phases_ms": [
+        {
+          "phase": "bootstrap.select_and_prove_roots",
+          "elapsed_ms": 0.052,
+          "ok": true
+        },
+        {
+          "phase": "bootstrap.construct_and_inject_mutation_gate",
+          "elapsed_ms": 0.151,
+          "ok": true
+        },
+        {
+          "phase": "bootstrap.construct_identity_issuer_and_contact_commands",
+          "elapsed_ms": 2.246,
+          "ok": true
+        },
+        {
+          "phase": "registration.physical",
+          "elapsed_ms": 461.343,
+          "ok": true
+        },
+        {
+          "phase": "registration.structural",
+          "elapsed_ms": 113.683,
+          "ok": true
+        },
+        {
+          "phase": "bootstrap.initialize_saves",
+          "elapsed_ms": 989.491,
+          "ok": true
+        },
+        {
+          "phase": "bootstrap.initialize_profile",
+          "elapsed_ms": 34.382,
+          "ok": true
+        },
+        {
+          "phase": "bootstrap.initialize_localization",
+          "elapsed_ms": 274.871,
+          "ok": true
+        },
+        {
+          "phase": "bootstrap.initialize_input",
+          "elapsed_ms": 0.21,
+          "ok": true
+        },
+        {
+          "phase": "bootstrap.initialize_accessibility",
+          "elapsed_ms": 0.013,
+          "ok": true
+        },
+        {
+          "phase": "bootstrap.initialize_audio",
+          "elapsed_ms": 1.455,
+          "ok": true
+        },
+        {
+          "phase": "bootstrap.initialize_window_mode",
+          "elapsed_ms": 6.768,
+          "ok": true
+        },
+        {
+          "phase": "bootstrap.initialize_dialogic_bridge",
+          "elapsed_ms": 20.058,
+          "ok": true
+        },
+        {
+          "phase": "bootstrap.configure_restore_participants",
+          "elapsed_ms": 19.64,
+          "ok": true
+        },
+        {
+          "phase": "bootstrap.configure_day_resolution",
+          "elapsed_ms": 2.589,
+          "ok": true
+        },
+        {
+          "phase": "bootstrap.configure_minesweeper_rounds",
+          "elapsed_ms": 0.087,
+          "ok": true
+        },
+        {
+          "phase": "bootstrap.publish_application_ready",
+          "elapsed_ms": 6.779,
+          "ok": true
+        },
+        {
+          "phase": "bootstrap.total",
+          "elapsed_ms": 1360.143,
+          "ok": true
+        }
+      ]
+    },
+    {
+      "name": "forward-baseline-retained",
+      "variant": "baseline",
+      "case": "retained",
+      "journey": "new_acc",
+      "complete": true,
+      "clean_exit": true,
+      "exit_code": 0,
+      "strict_harness_accepted": true,
+      "harness_status": "collected_requires_visual_review",
+      "failure": null,
+      "stderr": "",
+      "timings_ms": {
+        "lifetime_ms": 32089.118,
+        "launch_to_probe_enter_tree_ms": 5182.0,
+        "launch_to_first_title_drawn_ms": 9100.0,
+        "launch_to_title_drawn_usable_ms": 9100.0,
+        "launch_to_first_title_input_accepted_ms": 9124.0,
+        "launch_to_bootstrap_start_ms": 5314.0,
+        "new_acc_to_caption_complete_ms": 22455.336,
+        "input_to_consent_ms": 39.99,
+        "consent_dwell_ms": 43.602,
+        "confirm_to_caption_complete_ms": 22371.744
+      },
+      "unaccepted_timings_derived_from_child_report_ms": {},
+      "desktop_cache": {
+        "probe_enter_tree": {
+          "scene": true,
+          "script": true
+        },
+        "title_drawn_usable": {
+          "scene": true,
+          "script": true
+        }
+      },
+      "observation": {
+        "active": true,
+        "event_done": true,
+        "line_id": "line.Day1.one",
+        "new_run_busy": false,
+        "text": "Sylvia slides the fuller teacup onto my mat and keeps the one with the small chip on the rim for herself.",
+        "visible_ratio": 1.0
+      },
+      "max_frame_gap_us": {
+        "confirm": 13870037,
+        "new_acc": 10386
+      },
+      "package_hashes": {
+        "game.pck": "a57a0d60e613537fbe292f3551bf441f6d409e2caab89e6800ca490fdaf3e3d1",
+        "game.exe": "91724f15024a3a545e28ccd83134403d31ce2323a38e51c95e4dfa282f732ab6"
+      },
+      "rendering": {
+        "get_current_rendering_driver_name": "d3d12",
+        "get_current_rendering_method": "forward_plus",
+        "get_video_adapter_api_version": "12_0",
+        "get_video_adapter_name": "Microsoft Basic Render Driver"
+      },
+      "preferences": {
+        "preferences.accessibility.font_style": "pixel",
+        "preferences.accessibility.text_size": 100,
+        "preferences.language.primary_locale_id": "en",
+        "preferences.reading.auto_enabled": false,
+        "preferences.reading.reveal_speed": "normal"
+      },
+      "images": [
+        {
+          "size": 773287,
+          "name": "caption.png",
+          "sha256": "bdf6f34b2b7a86968335919a4c37122794e0ac977a3def122e7febe5670b1226",
+          "process_manifest_verified": true
+        },
+        {
+          "size": 17152,
+          "name": "consent.png",
+          "sha256": "5995b8d05380123789d5572b14c3bb2817924e5fe9435a92773ab515f96d1a4c",
+          "process_manifest_verified": true
+        },
+        {
+          "size": 9866,
+          "name": "title.png",
+          "sha256": "2b01f0beb4d153b753ce29839f256788066c26da86a5db7ae07b16fc1fc9b53c",
+          "process_manifest_verified": true
+        }
+      ],
+      "phases_ms": [
+        {
+          "phase": "bootstrap.select_and_prove_roots",
+          "elapsed_ms": 0.064,
+          "ok": true
+        },
+        {
+          "phase": "bootstrap.construct_and_inject_mutation_gate",
+          "elapsed_ms": 0.196,
+          "ok": true
+        },
+        {
+          "phase": "bootstrap.construct_identity_issuer_and_contact_commands",
+          "elapsed_ms": 3.449,
+          "ok": true
+        },
+        {
+          "phase": "registration.physical",
+          "elapsed_ms": 412.758,
+          "ok": true
+        },
+        {
+          "phase": "registration.structural",
+          "elapsed_ms": 106.54,
+          "ok": true
+        },
+        {
+          "phase": "bootstrap.initialize_saves",
+          "elapsed_ms": 2112.245,
+          "ok": true
+        },
+        {
+          "phase": "bootstrap.initialize_profile",
+          "elapsed_ms": 40.084,
+          "ok": true
+        },
+        {
+          "phase": "bootstrap.initialize_localization",
+          "elapsed_ms": 292.374,
+          "ok": true
+        },
+        {
+          "phase": "bootstrap.initialize_input",
+          "elapsed_ms": 0.188,
+          "ok": true
+        },
+        {
+          "phase": "bootstrap.initialize_accessibility",
+          "elapsed_ms": 0.012,
+          "ok": true
+        },
+        {
+          "phase": "bootstrap.initialize_audio",
+          "elapsed_ms": 1.497,
+          "ok": true
+        },
+        {
+          "phase": "bootstrap.initialize_window_mode",
+          "elapsed_ms": 6.16,
+          "ok": true
+        },
+        {
+          "phase": "bootstrap.initialize_dialogic_bridge",
+          "elapsed_ms": 20.407,
+          "ok": true
+        },
+        {
+          "phase": "bootstrap.configure_restore_participants",
+          "elapsed_ms": 20.218,
+          "ok": true
+        },
+        {
+          "phase": "bootstrap.configure_day_resolution",
+          "elapsed_ms": 1.068,
+          "ok": true
+        },
+        {
+          "phase": "bootstrap.configure_minesweeper_rounds",
+          "elapsed_ms": 0.086,
+          "ok": true
+        },
+        {
+          "phase": "bootstrap.publish_application_ready",
+          "elapsed_ms": 1219.702,
+          "ok": true
+        },
+        {
+          "phase": "bootstrap.total",
+          "elapsed_ms": 3719.137,
+          "ok": true
+        }
+      ]
+    },
+    {
+      "name": "forward-desktop-fresh",
+      "variant": "desktop",
+      "case": "fresh",
+      "journey": "new_acc",
+      "complete": true,
+      "clean_exit": true,
+      "exit_code": 0,
+      "strict_harness_accepted": true,
+      "harness_status": "collected_requires_visual_review",
+      "failure": null,
+      "stderr": "",
+      "timings_ms": {
+        "lifetime_ms": 29675.1073,
+        "launch_to_probe_enter_tree_ms": 7247.0,
+        "launch_to_first_title_drawn_ms": 8732.0,
+        "launch_to_title_drawn_usable_ms": 8732.0,
+        "launch_to_first_title_input_accepted_ms": 8782.0,
+        "launch_to_bootstrap_start_ms": 7378.0,
+        "new_acc_to_caption_complete_ms": 20320.892
+      },
+      "unaccepted_timings_derived_from_child_report_ms": {},
+      "desktop_cache": {
+        "probe_enter_tree": {
+          "scene": false,
+          "script": false
+        },
+        "title_drawn_usable": {
+          "scene": false,
+          "script": false
+        }
+      },
+      "observation": {
+        "active": true,
+        "event_done": true,
+        "line_id": "line.Day1.one",
+        "new_run_busy": false,
+        "text": "Sylvia slides the fuller teacup onto my mat and keeps the one with the small chip on the rim for herself.",
+        "visible_ratio": 1.0
+      },
+      "max_frame_gap_us": {
+        "new_acc": 13199638
+      },
+      "package_hashes": {
+        "game.pck": "c40f33d507ab021fa950e8d2d51ab6e04eb590053e124f546fc0335d7c92cfdc",
+        "game.exe": "91724f15024a3a545e28ccd83134403d31ce2323a38e51c95e4dfa282f732ab6"
+      },
+      "rendering": {
+        "get_current_rendering_driver_name": "d3d12",
+        "get_current_rendering_method": "forward_plus",
+        "get_video_adapter_api_version": "12_0",
+        "get_video_adapter_name": "Microsoft Basic Render Driver"
+      },
+      "preferences": {
+        "preferences.accessibility.font_style": "pixel",
+        "preferences.accessibility.text_size": 100,
+        "preferences.language.primary_locale_id": "en",
+        "preferences.reading.auto_enabled": false,
+        "preferences.reading.reveal_speed": "normal"
+      },
+      "images": [
+        {
+          "size": 773345,
+          "name": "caption.png",
+          "sha256": "89bc586597faed7e44dc97d6a7abc8cf9256dc8650d35667ad402e15d86aa474",
+          "process_manifest_verified": true
+        },
+        {
+          "size": 9866,
+          "name": "title.png",
+          "sha256": "2b01f0beb4d153b753ce29839f256788066c26da86a5db7ae07b16fc1fc9b53c",
+          "process_manifest_verified": true
+        }
+      ],
+      "phases_ms": [
+        {
+          "phase": "bootstrap.select_and_prove_roots",
+          "elapsed_ms": 0.054,
+          "ok": true
+        },
+        {
+          "phase": "bootstrap.construct_and_inject_mutation_gate",
+          "elapsed_ms": 0.16,
+          "ok": true
+        },
+        {
+          "phase": "bootstrap.construct_identity_issuer_and_contact_commands",
+          "elapsed_ms": 2.161,
+          "ok": true
+        },
+        {
+          "phase": "registration.physical",
+          "elapsed_ms": 429.172,
+          "ok": true
+        },
+        {
+          "phase": "registration.structural",
+          "elapsed_ms": 106.71,
+          "ok": true
+        },
+        {
+          "phase": "bootstrap.initialize_saves",
+          "elapsed_ms": 903.373,
+          "ok": true
+        },
+        {
+          "phase": "bootstrap.initialize_profile",
+          "elapsed_ms": 34.147,
+          "ok": true
+        },
+        {
+          "phase": "bootstrap.initialize_localization",
+          "elapsed_ms": 283.898,
+          "ok": true
+        },
+        {
+          "phase": "bootstrap.initialize_input",
+          "elapsed_ms": 0.18,
+          "ok": true
+        },
+        {
+          "phase": "bootstrap.initialize_accessibility",
+          "elapsed_ms": 0.012,
+          "ok": true
+        },
+        {
+          "phase": "bootstrap.initialize_audio",
+          "elapsed_ms": 1.458,
+          "ok": true
+        },
+        {
+          "phase": "bootstrap.initialize_window_mode",
+          "elapsed_ms": 6.633,
+          "ok": true
+        },
+        {
+          "phase": "bootstrap.initialize_dialogic_bridge",
+          "elapsed_ms": 20.943,
+          "ok": true
+        },
+        {
+          "phase": "bootstrap.configure_restore_participants",
+          "elapsed_ms": 19.841,
+          "ok": true
+        },
+        {
+          "phase": "bootstrap.configure_day_resolution",
+          "elapsed_ms": 2.976,
+          "ok": true
+        },
+        {
+          "phase": "bootstrap.configure_minesweeper_rounds",
+          "elapsed_ms": 0.088,
+          "ok": true
+        },
+        {
+          "phase": "bootstrap.publish_application_ready",
+          "elapsed_ms": 6.374,
+          "ok": true
+        },
+        {
+          "phase": "bootstrap.total",
+          "elapsed_ms": 1283.658,
+          "ok": true
+        }
+      ]
+    },
+    {
+      "name": "forward-desktop-retained",
+      "variant": "desktop",
+      "case": "retained",
+      "journey": "new_acc",
+      "complete": true,
+      "clean_exit": true,
+      "exit_code": 0,
+      "strict_harness_accepted": false,
+      "harness_status": null,
+      "failure": "Strict harness rejected shutdown: ObjectDB instances leaked; 2 resources still in use at exit. Underlying journey completed and process exited zero.",
+      "stderr": "WARNING: ObjectDB instances leaked at exit (run with --verbose for details).\n   at: cleanup (core/object/object.cpp:2663)\nERROR: 2 resources still in use at exit (run with --verbose for details).\n   at: clear (core/io/resource.cpp:810)",
+      "timings_ms": {
+        "lifetime_ms": 30432.2165
+      },
+      "unaccepted_timings_derived_from_child_report_ms": {
+        "launch_to_probe_enter_tree_ms": 4936.0,
+        "launch_to_bootstrap_start_ms": 5058.0,
+        "launch_to_title_drawn_usable_ms": 8748.0,
+        "confirm_to_caption_complete_ms": 21084.138
+      },
+      "desktop_cache": {
+        "probe_enter_tree": {
+          "scene": false,
+          "script": false
+        },
+        "title_drawn_usable": {
+          "scene": false,
+          "script": false
+        }
+      },
+      "observation": {
+        "active": true,
+        "event_done": true,
+        "line_id": "line.Day1.one",
+        "new_run_busy": false,
+        "text": "Sylvia slides the fuller teacup onto my mat and keeps the one with the small chip on the rim for herself.",
+        "visible_ratio": 1.0
+      },
+      "max_frame_gap_us": {
+        "confirm": 12901848,
+        "new_acc": 9141
+      },
+      "package_hashes": {
+        "game.pck": "c40f33d507ab021fa950e8d2d51ab6e04eb590053e124f546fc0335d7c92cfdc",
+        "game.exe": "91724f15024a3a545e28ccd83134403d31ce2323a38e51c95e4dfa282f732ab6"
+      },
+      "rendering": {
+        "get_current_rendering_driver_name": "d3d12",
+        "get_current_rendering_method": "forward_plus",
+        "get_video_adapter_api_version": "12_0",
+        "get_video_adapter_name": "Microsoft Basic Render Driver"
+      },
+      "preferences": {
+        "preferences.accessibility.font_style": "pixel",
+        "preferences.accessibility.text_size": 100,
+        "preferences.language.primary_locale_id": "en",
+        "preferences.reading.auto_enabled": false,
+        "preferences.reading.reveal_speed": "normal"
+      },
+      "images": [
+        {
+          "name": "caption.png",
+          "size": 773265,
+          "sha256": "52fc2c057e038fa6de48581ae8722123950975dd9ba22ddb994e8e0fc1e1ed75",
+          "process_manifest_verified": false
+        },
+        {
+          "name": "consent.png",
+          "size": 17152,
+          "sha256": "5995b8d05380123789d5572b14c3bb2817924e5fe9435a92773ab515f96d1a4c",
+          "process_manifest_verified": false
+        },
+        {
+          "name": "title.png",
+          "size": 9866,
+          "sha256": "2b01f0beb4d153b753ce29839f256788066c26da86a5db7ae07b16fc1fc9b53c",
+          "process_manifest_verified": false
+        }
+      ],
+      "phases_ms": [
+        {
+          "phase": "bootstrap.select_and_prove_roots",
+          "elapsed_ms": 0.06,
+          "ok": true
+        },
+        {
+          "phase": "bootstrap.construct_and_inject_mutation_gate",
+          "elapsed_ms": 0.19,
+          "ok": true
+        },
+        {
+          "phase": "bootstrap.construct_identity_issuer_and_contact_commands",
+          "elapsed_ms": 3.26,
+          "ok": true
+        },
+        {
+          "phase": "registration.physical",
+          "elapsed_ms": 398.741,
+          "ok": true
+        },
+        {
+          "phase": "registration.structural",
+          "elapsed_ms": 102.194,
+          "ok": true
+        },
+        {
+          "phase": "bootstrap.initialize_saves",
+          "elapsed_ms": 2058.0,
+          "ok": true
+        },
+        {
+          "phase": "bootstrap.initialize_profile",
+          "elapsed_ms": 37.241,
+          "ok": true
+        },
+        {
+          "phase": "bootstrap.initialize_localization",
+          "elapsed_ms": 273.723,
+          "ok": true
+        },
+        {
+          "phase": "bootstrap.initialize_input",
+          "elapsed_ms": 0.187,
+          "ok": true
+        },
+        {
+          "phase": "bootstrap.initialize_accessibility",
+          "elapsed_ms": 0.012,
+          "ok": true
+        },
+        {
+          "phase": "bootstrap.initialize_audio",
+          "elapsed_ms": 1.506,
+          "ok": true
+        },
+        {
+          "phase": "bootstrap.initialize_window_mode",
+          "elapsed_ms": 6.33,
+          "ok": true
+        },
+        {
+          "phase": "bootstrap.initialize_dialogic_bridge",
+          "elapsed_ms": 20.172,
+          "ok": true
+        },
+        {
+          "phase": "bootstrap.configure_restore_participants",
+          "elapsed_ms": 19.433,
+          "ok": true
+        },
+        {
+          "phase": "bootstrap.configure_day_resolution",
+          "elapsed_ms": 1.058,
+          "ok": true
+        },
+        {
+          "phase": "bootstrap.configure_minesweeper_rounds",
+          "elapsed_ms": 0.081,
+          "ok": true
+        },
+        {
+          "phase": "bootstrap.publish_application_ready",
+          "elapsed_ms": 1201.357,
+          "ok": true
+        },
+        {
+          "phase": "bootstrap.total",
+          "elapsed_ms": 3623.998,
+          "ok": true
+        }
+      ]
+    }
+  ],
+  "regression": {
+    "tests": 2,
+    "testcase_assertions": 130,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "cases": [
+      {
+        "report": "ci/scene_apps-load.xml",
+        "name": "test_fresh_scene_apps_load_preserves_purchase_and_challenge",
+        "class": "tests/integration/test_scene_apps_connected_load.gd",
+        "assertions": 44,
+        "status": "pass",
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "report": "ci/scene_apps.xml",
+        "name": "test_scene_apps_purchase_navigation_challenge_preservation_and_save",
+        "class": "tests/integration/test_scene_apps_connected_create.gd",
+        "assertions": 86,
+        "status": "pass",
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    ],
+    "scope": "Uninstrumented source-project candidate, connected Apps creator then fresh-process loader; not the failing exported retained shutdown case."
+  },
+  "limitations": [
+    "Only the forward-order timing subset completed; no full 12-process pass.",
+    "A zero exit and complete child journey do not override strict shutdown-log rejection.",
+    "The leaked resource types/cause remain unknown in this run; verbose follow-up is separate evidence.",
+    "No product merge or measured optimization acceptance follows from this record.",
+    "All performance values are cloud software-rendered observations, not installed Steam or hardware GPU qualification."
+  ]
+}
