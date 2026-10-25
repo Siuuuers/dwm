@@ -529,3 +529,27 @@ func test_scene_progress_without_matching_command_is_refused_without_mutation() 
 		assert_eq(refused.get("code"), &"scene_progress_mismatch", str(refused))
 		assert_eq(changed, unchanged, "refusal does not rewrite submitted facts")
 	assert_eq(_observed(), before, "invalid progress does not alter owners or files")
+
+func test_scene_app_metadata_is_omitted_and_cannot_select_restore_surface() -> void:
+	assert_true(fixture_ready)
+	if not fixture_ready: return
+	var source: Dictionary = fixture.read_autosave().value.current_snapshot.snapshot.duplicate(true)
+	assert_false(source.has("active_app_id"), "current player saves omit transient app selection")
+	var before := _observed()
+	var context := RUN_SCHEMA.derive_route_restore_context(source)
+	assert_true(context.ok, str(context))
+	if not context.ok: return
+	assert_null(context.value.active_app_id, "a scene without an active visible desktop board resumes with no app")
+	assert_eq(context.value.contacts, source.contacts, "Contacts progress is independent of its window")
+	for old_app: Variant in ["contacts", "shop", "backup", "settings", "minesweeper", "unknown-app", 42, {"invalid": true}]:
+		var with_metadata := source.duplicate(true)
+		with_metadata["active_app_id"] = old_app
+		var unchanged := with_metadata.duplicate(true)
+		var admitted := RUN_SCHEMA.validate(with_metadata)
+		assert_true(admitted.ok, str(admitted))
+		if not admitted.ok: continue
+		assert_eq(admitted.value.candidate, source, "optional app metadata cannot alter progress")
+		assert_eq(RUN_SCHEMA.derive_route_restore_context(with_metadata), context,
+			"required surface comes from current gameplay, not saved window selection")
+		assert_eq(with_metadata, unchanged, "admission never edits selected bytes")
+	assert_eq(_observed(), before, "metadata admission changes no live or durable owner")

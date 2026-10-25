@@ -387,8 +387,10 @@ static func derive_route_restore_context(snapshot: Dictionary) -> Dictionary:
 	var candidate: Dictionary = validated["value"]["candidate"]
 	var lifecycle: Dictionary = candidate["lifecycle"]
 	if candidate.schema_version == SCENE_SCHEMA_VERSION:
+		# Preserve the visible-board handoff when Apps opens; other windows are transient.
 		var context := {"run_id": candidate.run_id, "lifecycle_state": lifecycle.state,
-			"active_app_id": candidate.active_app_id, "scene": candidate.scene.duplicate(true),
+			"active_app_id": "minesweeper" if candidate.desktop.board.phase == "ACTIVE_VISIBLE" else null,
+			"scene": candidate.scene.duplicate(true),
 			"contacts": candidate.contacts.duplicate(true)}
 		if is_scene_terminal(candidate): context["ending_plan"] = lifecycle.ending_plan.duplicate(true)
 		return {"ok": true, "code": &"ok", "value": context}
@@ -608,8 +610,8 @@ const SCENE_CANONICAL := preload("res://scripts/validation/CanonicalJsonWriter.g
 const SCENE_CAPABILITIES := preload("res://scripts/domain/minesweeper/MinesweeperCapabilityRules.gd")
 const SCENE_INPUT_KEYS := ["lifecycle", "gameplay", "contacts", "desktop", "scene",
 	"applied_effect_transaction_ids", "applied_variable_transaction_ids", "command_receipts"]
-const SCENE_TOP_KEYS := ["active_app_id", "applied_effect_transaction_ids", "applied_variable_transaction_ids",
-	"audio_context", "checkpoint_id", "checkpoint_sequence", "command_receipts", "contacts", "content_version",
+const SCENE_TOP_KEYS := ["applied_effect_transaction_ids", "applied_variable_transaction_ids",
+	"checkpoint_id", "checkpoint_sequence", "command_receipts", "contacts", "content_version",
 	"desktop", "gameplay", "lifecycle", "narrative_checkpoint", "route_id", "run_id", "scene", "schema_version"]
 const SCENE_LIFECYCLE_KEYS := ["run_id", "branch_id", "desktop_timeline_generation", "causal_day_instance",
 	"causal_day_instance_issuer_receipt", "restore_provenance", "state", "scene_assignment"]
@@ -645,7 +647,7 @@ static func configure_scene_validation(issuer: Object, authority: Object, creati
 	return {"ok": true}
 
 static func build_scene(snapshot_input: Dictionary, dialogic_checkpoint: Dictionary, route_id: String,
-		active_app_id: Variant, audio_context: Dictionary, content_version: int, checkpoint_sequence: int) -> Dictionary:
+		_active_app_id: Variant, _audio_context: Dictionary, content_version: int, checkpoint_sequence: int) -> Dictionary:
 	if route_id not in ["scene", "ending"] or not _scene_keys(snapshot_input, SCENE_INPUT_KEYS) \
 			or not snapshot_input.lifecycle is Dictionary:
 		return _fail(&"invalid_snapshot_input", "scene input requires its exact complete owner shape")
@@ -660,8 +662,8 @@ static func build_scene(snapshot_input: Dictionary, dialogic_checkpoint: Diction
 	snapshot.merge({"schema_version": SCENE_SCHEMA_VERSION, "content_version": content_version,
 		"run_id": snapshot_input.lifecycle.get("run_id"), "checkpoint_sequence": checkpoint_sequence,
 		"checkpoint_id": "%s:%d" % [str(snapshot_input.lifecycle.get("run_id", "")), checkpoint_sequence],
-		"route_id": route_id, "active_app_id": active_app_id,
-		"narrative_checkpoint": dialogic_checkpoint.duplicate(true), "audio_context": audio_context.duplicate(true)})
+		"route_id": route_id,
+		"narrative_checkpoint": dialogic_checkpoint.duplicate(true)})
 	var player_reading: Dictionary = SCENE_READING.project_player_checkpoint(snapshot.narrative_checkpoint)
 	if not player_reading.ok: return player_reading
 	snapshot.narrative_checkpoint = player_reading.value
@@ -677,7 +679,7 @@ static func build_scene(snapshot_input: Dictionary, dialogic_checkpoint: Diction
 
 ## Producer construction uses the same exact initial candidate proof, never ordinary Load.
 static func build_scene_new_run_candidate(snapshot_input: Dictionary, dialogic_checkpoint: Dictionary,
-		audio_context: Dictionary, content_version: int, allocation_candidate: Dictionary,
+		_audio_context: Dictionary, content_version: int, allocation_candidate: Dictionary,
 		profile_material: Dictionary, bundle: Dictionary, issuer: Object) -> Dictionary:
 	if not _scene_keys(snapshot_input, SCENE_INPUT_KEYS) or not snapshot_input.lifecycle is Dictionary:
 		return _fail(&"invalid_snapshot_input", "initial scene input requires its complete owner shape")
@@ -692,8 +694,8 @@ static func build_scene_new_run_candidate(snapshot_input: Dictionary, dialogic_c
 	snapshot.merge({"schema_version": SCENE_SCHEMA_VERSION, "content_version": content_version,
 		"run_id": snapshot_input.lifecycle.get("run_id"), "checkpoint_sequence": 1,
 		"checkpoint_id": str(snapshot_input.lifecycle.get("run_id", "")) + ":1",
-		"route_id": "scene", "active_app_id": null,
-		"narrative_checkpoint": dialogic_checkpoint.duplicate(true), "audio_context": audio_context.duplicate(true)})
+		"route_id": "scene",
+		"narrative_checkpoint": dialogic_checkpoint.duplicate(true)})
 	var player_reading: Dictionary = SCENE_READING.project_player_checkpoint(snapshot.narrative_checkpoint)
 	if not player_reading.ok: return player_reading
 	snapshot.narrative_checkpoint = player_reading.value
@@ -705,18 +707,21 @@ static func build_scene_new_run_candidate(snapshot_input: Dictionary, dialogic_c
 ## frozen Profile material, not a completed creation or current live Profile.
 static func validate_scene_new_run_candidate(snapshot: Dictionary, allocation_candidate: Dictionary,
 		profile_material: Dictionary, bundle: Dictionary, issuer: Object) -> Dictionary:
-	var primitive := validate_primitive_tree(snapshot)
+	var retained := snapshot.duplicate()
+	retained.erase("audio_context")
+	retained.erase("active_app_id")
+	var primitive := validate_primitive_tree(retained)
 	if not primitive.ok: return primitive
 	var selected: Dictionary = SCENE_MANIFEST.scene_registration()
 	if not selected.ok: return selected
 	if not _scene_exact_value(bundle, selected.value):
 		return _fail(&"scene_registration_mismatch", "initial candidate must use the installed registration")
-	var candidate: Dictionary = snapshot.duplicate(true)
+	var candidate: Dictionary = retained.duplicate(true)
 	if not _scene_keys(candidate, SCENE_TOP_KEYS) or typeof(candidate.schema_version) != TYPE_INT \
 			or candidate.schema_version != SCENE_SCHEMA_VERSION or candidate.route_id != "scene" \
 			or not _scene_id(candidate.run_id) or not _scene_int(candidate.content_version, 1) \
 			or not _scene_int(candidate.checkpoint_sequence, 1, 1) \
-			or candidate.checkpoint_id != candidate.run_id + ":1" or candidate.active_app_id != null:
+			or candidate.checkpoint_id != candidate.run_id + ":1":
 		return _fail(&"invalid_snapshot_shape", "initial Run9 requires the exact sequence-one scene shape")
 	if not _scene_keys(candidate.lifecycle, SCENE_LIFECYCLE_KEYS) \
 			or candidate.lifecycle.state != "PLAYING" or candidate.lifecycle.restore_provenance != null \
@@ -740,9 +745,9 @@ static func validate_scene_new_run_candidate(snapshot: Dictionary, allocation_ca
 		return _fail(&"invalid_lifecycle", "initial lifecycle differs from its frozen assignment")
 	var expected_scene := {"registration_sha256": SCENE_MANIFEST.scene_registration_fingerprint(),
 		"active_occurrence_id": transaction_id, "active_admission_receipt_id": transaction_id}
-	if not _scene_exact_value(candidate.scene, expected_scene) or not candidate.audio_context is Dictionary:
-		return _fail(&"scene_initial_state_invalid", "initial scene reference or audio context is invalid")
-	var audio := _validate_scene_audio(candidate, bundle)
+	if not _scene_exact_value(candidate.scene, expected_scene):
+		return _fail(&"scene_initial_state_invalid", "initial scene reference is invalid")
+	var audio := derive_scene_audio_context(candidate, bundle)
 	if not audio.ok: return audio
 	var gameplay_error := _validate_scene_gameplay(candidate.gameplay)
 	if not gameplay_error.is_empty(): return _fail(&"invalid_gameplay", gameplay_error)
@@ -868,7 +873,10 @@ static func _validate_scene_observed_body(snapshot: Dictionary, bundle: Dictiona
 	if not selected.ok: return selected
 	if not _scene_equal(selected.value, bundle):
 		return _fail(&"scene_registration_mismatch", "saved data cannot select a registration")
-	var candidate: Dictionary = _normalize_integral_floats(snapshot)
+	var retained := snapshot.duplicate()
+	retained.erase("audio_context")
+	retained.erase("active_app_id")
+	var candidate: Dictionary = _normalize_integral_floats(retained)
 	var primitive := validate_primitive_tree(candidate)
 	if not primitive.ok: return primitive
 	if not _scene_keys(candidate, SCENE_TOP_KEYS) or typeof(candidate.schema_version) != TYPE_INT \
@@ -886,10 +894,7 @@ static func _validate_scene_observed_body(snapshot: Dictionary, bundle: Dictiona
 	if not lifecycle.ok: return lifecycle
 	var assignment: Dictionary = SCENE_ASSIGNMENT.validate_scene(candidate.lifecycle.scene_assignment)
 	if not assignment.ok: return assignment
-	if candidate.active_app_id != null and (not candidate.active_app_id is String \
-			or candidate.active_app_id == "logout" or not DESKTOP_APP_REGISTRY.new().has_app(StringName(candidate.active_app_id))):
-		return _fail(&"invalid_snapshot_shape", "invalid active content app")
-	if not candidate.audio_context is Dictionary or not candidate.contacts is Dictionary \
+	if not candidate.contacts is Dictionary \
 			or not candidate.command_receipts is Dictionary:
 		return _fail(&"invalid_snapshot_shape", "scene owner sections must be objects")
 	if not _scene_keys(candidate.scene, ["registration_sha256", "active_occurrence_id", "active_admission_receipt_id"]) \
@@ -923,7 +928,7 @@ static func _validate_scene_observed_body(snapshot: Dictionary, bundle: Dictiona
 	if terminal or not _scene_semantic_authenticates_receipts():
 		var scene_receipts: Dictionary = SCENE_EVENT_CONTRACT.validate_scene_receipts(candidate.command_receipts, bundle, _scene_issuer, _scene_creation_owner, candidate.contacts)
 		if not scene_receipts.ok: return scene_receipts
-	var audio := _validate_scene_audio(candidate, bundle)
+	var audio := derive_scene_audio_context(candidate, bundle)
 	if not audio.ok: return audio
 	# Retain the installed owner group for this synchronous reading/semantic join.
 	var terminal_owners: Array = _scene_terminal_reading_owners() if terminal \
@@ -1159,10 +1164,18 @@ static func _validate_scene_receipt_shapes(snapshot: Dictionary) -> String:
 	return _validate_receipt_partition(snapshot.command_receipts,
 		snapshot.applied_effect_transaction_ids, snapshot.applied_variable_transaction_ids)
 
-## Audio definitions come only from the installed registration. The validated
-## admission ledger, not a saved audio ID, selects this entry's exact binding.
-static func _validate_scene_audio(snapshot: Dictionary, bundle: Dictionary) -> Dictionary:
-	if bundle.get("schema_version") != 3: return {"ok": true}
+## Audio is derived for the live participant, never restored from player metadata.
+## Terminal snapshots retain the source admission and therefore its soundtrack.
+static func derive_scene_audio_context(snapshot: Dictionary, bundle: Dictionary = {}) -> Dictionary:
+	if bundle.is_empty():
+		var selected: Dictionary = SCENE_MANIFEST.scene_registration()
+		if not selected.ok: return selected
+		bundle = selected.value
+	if bundle.get("schema_version") != 3:
+		# Registrations without authored audio explicitly restore silence. The
+		# AudioManager semantic contract requires all four neutral fields.
+		return {"ok": true, "value": {"ambience_context": {}, "ambience_context_id": "",
+			"music_context": {}, "music_context_id": ""}}
 	var admission_id: String = snapshot.scene.active_admission_receipt_id
 	var receipt: Variant = snapshot.command_receipts.get(admission_id)
 	if not receipt is Dictionary or not receipt.get("scene_admission") is Dictionary:
@@ -1173,11 +1186,7 @@ static func _validate_scene_audio(snapshot: Dictionary, bundle: Dictionary) -> D
 	var owner: Script = load("res://scripts/data/AudioManifest.gd")
 	if owner == null or not owner.has_method("make_scene_context"):
 		return _fail(&"scene_audio_owner_unavailable", "canonical audio owner required")
-	var expected: Dictionary = owner.call("make_scene_context", bundle, result.entry_id, admission_id)
-	if not expected.get("ok", false): return expected
-	if not _scene_exact_value(snapshot.audio_context, expected.value):
-		return _fail(&"scene_audio_binding_mismatch", "audio must match the active admitted entry")
-	return {"ok": true}
+	return owner.call("make_scene_context", bundle, result.entry_id, admission_id)
 
 static func _validate_scene_gameplay(gameplay: Variant) -> String:
 	if not _scene_keys(gameplay, SCENE_GAMEPLAY_KEYS): return "unexpected scene gameplay members"

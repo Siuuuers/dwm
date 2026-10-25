@@ -85,6 +85,99 @@ func test_listing_save_and_delete_never_prepare_restoration() -> void:
 	assert_false(fixture.storage.exists("slot_1.json"))
 	assert_true(observer.snapshots.is_empty(), "neither initial Save, overwrite nor Delete prepares a Load")
 
+func test_scene_saves_omit_reason_and_retired_metadata_does_not_gate_load() -> void:
+	assert_true(fixture_ready)
+	if not fixture_ready: return
+	var source: Dictionary = fixture.read_autosave()
+	assert_true(source.ok, str(source))
+	if not source.ok: return
+	assert_false(source.value.has("save_reason"), "initial Scene save has no diagnostic reason")
+	assert_false(source.value.current_snapshot.snapshot.has("audio_context"))
+	var saved: Dictionary = manager.save_latest_to_slot(6)
+	assert_true(saved.ok, str(saved))
+	if not saved.ok: return
+	assert_eq(saved.value.save_reason, "manual", "the operation result retains its diagnostic label")
+	var parsed: Dictionary = STRICT.parse_object(fixture.storage.read_text("slot_6.json").value)
+	assert_true(parsed.ok, str(parsed))
+	if not parsed.ok: return
+	var document: Dictionary = parsed.value
+	assert_false(document.has("save_reason"))
+	assert_eq(document.current_snapshot, source.value.current_snapshot)
+	var metadata: Dictionary = manager.get_save_metadata(&"slot", 6)
+	assert_true(metadata.ok, str(metadata))
+	if not metadata.ok: return
+	assert_null(metadata.value.save_reason)
+	assert_null(metadata.value.day, "Scene metadata has no legacy calendar day")
+	var writer := preload("res://scripts/validation/CanonicalJsonWriter.gd")
+	var schema := preload("res://scripts/infrastructure/save/SaveDocumentSchema.gd")
+	for retired: Variant in ["manual", "not-a-reason", 42, null, {"old": true}, ["old"]]:
+		var input: Dictionary = document.duplicate(true)
+		input["save_reason"] = retired
+		input.current_snapshot.snapshot["audio_context"] = retired
+		var admitted: Dictionary = schema.validate(input)
+		assert_true(admitted.ok, str(admitted))
+		if not admitted.ok: continue
+		assert_eq(admitted.value.candidate, document, "retired metadata does not alter normalized progress")
+		assert_true(input.has("save_reason"), "admission does not mutate its source")
+		assert_true(_replace_target("slot_6.json", writer.stringify(input).value + "\n").ok)
+		observer.snapshots.clear()
+		var loaded: Dictionary = manager.prepare_backup_action("load", "slot:6")
+		assert_true(loaded.ok, str(loaded))
+		if loaded.ok:
+			assert_eq(observer.snapshots, [document.current_snapshot.snapshot])
+			manager.cancel_backup_action(loaded.value.token)
+	var bad: Dictionary = document.duplicate(true)
+	bad.slot_id = 8
+	assert_false(schema.validate(bad).ok, "required slot identity remains checked")
+	bad = document.duplicate(true)
+	bad.current_snapshot.snapshot.gameplay.erase("money")
+	assert_false(schema.validate(bad).ok, "retiring metadata must not admit missing gameplay")
+	assert_true(manager.save_latest_to_slot(6).ok)
+	assert_false(STRICT.parse_object(fixture.storage.read_text("slot_6.json").value).value.has("save_reason"),
+		"a later Save never carries forward retired input metadata")
+	assert_true(manager.quick_save_latest().ok)
+	assert_false(STRICT.parse_object(fixture.storage.read_text("quicksave.json").value).value.has("save_reason"))
+
+
+func test_retained_restore_source_preserves_retired_metadata_in_historical_bundles() -> void:
+	assert_true(fixture_ready)
+	if not fixture_ready: return
+	var source: Dictionary = fixture.read_autosave()
+	assert_true(source.ok, str(source))
+	if not source.ok: return
+	var document: Dictionary = source.value.duplicate(true)
+	var earlier: Dictionary = document.current_snapshot.duplicate(true)
+	earlier.snapshot["audio_context"] = {"obsolete": true}
+	earlier.snapshot["active_app_id"] = "obsolete-app"
+	document.recovery_journal = [earlier]
+	var current: Dictionary = document.current_snapshot.snapshot
+	current.checkpoint_sequence += 1
+	current.checkpoint_id = current.run_id + ":" + str(current.checkpoint_sequence)
+	current["audio_context"] = "obsolete-audio"
+	current["active_app_id"] = {"obsolete": true}
+	var writer := preload("res://scripts/validation/CanonicalJsonWriter.gd")
+	var schema := preload("res://scripts/infrastructure/save/SaveDocumentSchema.gd")
+	var admitted: Dictionary = schema.validate(document)
+	assert_true(admitted.ok, str(admitted))
+	if not admitted.ok: return
+	assert_eq(admitted.value.candidate.recovery_journal, [earlier], "history is validated without rewriting its retained bytes")
+	assert_false(admitted.value.candidate.current_snapshot.snapshot.has("audio_context"))
+	assert_false(admitted.value.candidate.current_snapshot.snapshot.has("active_app_id"))
+	var locator := {"slot_id": "autosave", "checkpoint_id": current.checkpoint_id,
+		"bundle_id": writer.stringify(document.current_snapshot).value.sha256_text(),
+		"document_sha256": writer.stringify(current).value.sha256_text()}
+	var operation := {"kind": "scene_restore", "transaction_id": "TEST.retained-source",
+		"selected_document": document, "source_locator": locator}
+	operation["request_fingerprint"] = writer.stringify(operation).value.sha256_text()
+	var before: Dictionary = operation.duplicate(true)
+	var checked: Dictionary = manager._continuation_journal._validate_scene_source(operation)
+	assert_true(checked.ok, str(checked))
+	assert_eq(operation, before, "source admission preserves the retained operation and its hashes")
+	operation.source_locator.document_sha256 = "0".repeat(64)
+	assert_false(manager._continuation_journal._validate_scene_source(operation).ok,
+		"retiring metadata does not bypass selected-source byte custody")
+
+
 func test_selected_load_prepares_current_state_once_without_older_substitution() -> void:
 	assert_true(fixture_ready)
 	if not fixture_ready: return
@@ -162,7 +255,7 @@ func test_current_session_exit_replaces_unrestorable_autosave_without_retiring_s
 	if not configured.get("ok", false): return
 	var inputs := {"snapshot_input": fixture.game.capture_run_snapshot_input(),
 		"dialogic_checkpoint": snapshot.narrative_checkpoint, "route_id": snapshot.route_id,
-		"active_app_id": snapshot.active_app_id, "audio_context": snapshot.audio_context,
+		"active_app_id": null, "audio_context": preload("res://scripts/domain/run/RunSnapshotSchema.gd").derive_scene_audio_context(snapshot).value,
 		"content_version": snapshot.content_version}
 	var handle: Dictionary = fixture.game.capture_live_session().value
 	var before_profile: Dictionary = fixture.profile.get_profile_snapshot()
@@ -184,7 +277,7 @@ func test_current_session_exit_replaces_unrestorable_autosave_without_retiring_s
 	var saved: Dictionary = fixture.read_autosave()
 	assert_true(saved.get("ok", false), str(saved))
 	if not saved.get("ok", false): return
-	assert_eq(saved.value.save_reason, "logout")
+	assert_false(saved.value.has("save_reason"), "operation labels are not player progress")
 	assert_eq(saved.value.current_snapshot, manager.get_latest_stable_checkpoint().value.bundle)
 
 

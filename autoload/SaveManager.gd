@@ -591,15 +591,9 @@ func _prepare_scene_new_run_decision(target_id: String, initial_context: Diction
 	var input: Dictionary = _restore_participants.run.prepare_scene_new_run_snapshot_input(
 		allocation, profile, reading.value.receipt, _scene_new_run_bundle)
 	if not input.get("ok", false): return input
-	var audio_context: Dictionary = initial_context.audio_context.duplicate(true)
-	if _scene_new_run_bundle.get("schema_version") == 3:
-		var audio_owner: Script = load("res://scripts/data/AudioManifest.gd")
-		if audio_owner == null or not audio_owner.has_method("make_scene_context"):
-			return _fail(&"scene_audio_owner_unavailable", "")
-		var selected: Dictionary = audio_owner.call("make_scene_context", _scene_new_run_bundle,
-			reading.value.receipt.scene_admission.result.entry_id, transaction_id)
-		if not selected.get("ok", false): return selected
-		audio_context = selected.value.duplicate(true)
+	var selected_audio := RUN_SNAPSHOT_SCHEMA.derive_scene_audio_context(input.value.snapshot_input, _scene_new_run_bundle)
+	if not selected_audio.ok: return selected_audio
+	var audio_context: Dictionary = selected_audio.value
 	var built: Dictionary = RUN_SNAPSHOT_SCHEMA.build_scene_new_run_candidate(input.value.snapshot_input,
 		reading.value.checkpoint, audio_context, initial_context.content_version,
 		allocation, profile, _scene_new_run_bundle, _identity_issuer)
@@ -607,7 +601,7 @@ func _prepare_scene_new_run_decision(target_id: String, initial_context: Diction
 	var snapshot: Dictionary = built.value.snapshot
 	var plans := _prepare_scene_new_run_plans(snapshot, allocation, profile)
 	if not plans.get("ok", false): return plans
-	var document := {"schema_version": 9, "kind": "autosave", "slot_id": null, "save_reason": "day_start",
+	var document := {"schema_version": 9, "kind": "autosave", "slot_id": null,
 		"current_snapshot": {"checkpoint_kind": "day_start", "snapshot": snapshot},
 		"recovery_journal": [], "saved_time": _capture_saved_time()}
 	var checked: Dictionary = SAVE_DOCUMENT_SCHEMA.validate_scene_new_run_candidate(document,
@@ -639,11 +633,13 @@ func _prepare_scene_new_run_plans(snapshot: Dictionary, allocation: Dictionary, 
 		profile_material, _scene_new_run_bundle, _identity_issuer, self)
 	if not narrative.get("ok", false): return narrative
 	var plans := {"run": run.value.run_plan, "profile": profile.value.profile_plan, "narrative": narrative.value.narrative_plan}
+	var audio_context := RUN_SNAPSHOT_SCHEMA.derive_scene_audio_context(snapshot, _scene_new_run_bundle)
+	if not audio_context.ok: return audio_context
 	var inputs := {"desktop_consequence": {"state": snapshot.desktop.consequence},
 		"desktop_board": {"state": snapshot.desktop.board, "schema_version": 9},
 		"localization": {"locale_id": profile.value.locale_id, "font_style": profile.value.get("font_style", "pixel"),
 			"text_size": profile.value.get("text_size", 100)},
-		"audio": {"preferences": profile_material.candidate.preferences, "audio_context": snapshot.audio_context},
+		"audio": {"preferences": profile_material.candidate.preferences, "audio_context": audio_context.value},
 		"route": {"route_id": "scene", "route_context": {"run_id": snapshot.run_id,
 			"lifecycle_state": snapshot.lifecycle.state, "active_app_id": null,
 			"scene": snapshot.scene.duplicate(true), "contacts": snapshot.contacts.duplicate(true)}}}
@@ -1541,9 +1537,9 @@ func get_save_metadata(kind: StringName, slot_id: int = -1) -> Dictionary:
 		"exists": true,
 		"kind": str(document["kind"]),
 		"slot_id": document["slot_id"],
-		"save_reason": str(document["save_reason"]),
+		"save_reason": str(document["save_reason"]) if document.has("save_reason") else null,
 		"run_id": str(snapshot["run_id"]),
-		"day": int(snapshot["lifecycle"]["day"]),
+		"day": null if snapshot.get("schema_version") == 9 else int(snapshot["lifecycle"]["day"]),
 		"state": str(snapshot["lifecycle"]["state"]),
 		"checkpoint_id": str(snapshot["checkpoint_id"]),
 	}}
@@ -2179,7 +2175,8 @@ func _write_latest(locator: Dictionary, save_reason: String, session_exit: bool 
 	if not validated.get("ok", false):
 		return _fail(&"reread_mismatch", relative_path)
 	var document: Dictionary = validated["value"]["candidate"]
-	if str(document["kind"]) != str(locator["kind"]) or str(document["save_reason"]) != save_reason:
+	if str(document["kind"]) != str(locator["kind"]) or document["slot_id"] != locator["slot_id"] \
+			or (document.schema_version == SAVE_DOCUMENT_SCHEMA.DOCUMENT_VERSION and document.save_reason != save_reason):
 		return _fail(&"reread_mismatch", "locator or reason drift")
 	if _canonical_sha256(document) != _canonical_sha256(built["value"]):
 		return _fail(&"reread_mismatch", "saved candidate drift")
@@ -2327,8 +2324,15 @@ func _prepare_bundle_with_all_participants(bundle: Dictionary, migration_output:
 		return loc_prep
 	plans["localization"] = loc_prep["value"]["localization_plan"]
 
+	var audio_context: Dictionary
+	if snapshot.get("schema_version") == 9:
+		var derived := RUN_SNAPSHOT_SCHEMA.derive_scene_audio_context(snapshot)
+		if not derived.ok: return derived
+		audio_context = derived.value
+	else:
+		audio_context = snapshot.audio_context
 	var audio_prep: Dictionary = _restore_participants["audio"].prepare(
-		{"preferences": preferences, "audio_context": snapshot["audio_context"]})
+		{"preferences": preferences, "audio_context": audio_context})
 	if not audio_prep.get("ok", false):
 		return audio_prep
 	plans["audio"] = audio_prep["value"]["audio_plan"]

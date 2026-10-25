@@ -83,6 +83,11 @@ func _assert_scene_context_admission(source: Dictionary, reading: Dictionary) ->
 func _assert_scene_snapshot(snapshot: Dictionary, reading: Dictionary, run: Dictionary) -> void:
 	assert_eq(snapshot.schema_version, 9)
 	assert_eq(snapshot.route_id, "scene")
+	assert_false(snapshot.has("active_app_id"), "player save omits desktop window selection")
+	var surface := RUN_SCHEMA.derive_route_restore_context(snapshot)
+	assert_true(surface.ok, str(surface))
+	if surface.ok:
+		assert_eq(surface.value.active_app_id, "minesweeper", "visible board derives the required desktop handoff")
 	assert_eq(snapshot.narrative_checkpoint.reading_session.entry_id, reading.entry_id)
 	assert_eq(snapshot.narrative_checkpoint.reading_session.schema_version, 6)
 	assert_eq(snapshot.narrative_checkpoint.reading_session.position_id, reading.frontier.line_id)
@@ -276,6 +281,8 @@ func load_scene_desktop_first_reveal() -> void:
 	assert_eq(current.command_receipts, witness.run.command_receipts, "scene receipt history is not replayed")
 	assert_eq(current.scene, witness.run.scene)
 	assert_eq(current.desktop.board.phase, witness.run.desktop.board.phase)
+	assert_eq(bootstrap._desktop_host_state.get_state().active_app_id, &"minesweeper",
+		"fresh Load derives the host surface from the saved visible board")
 	assert_true(current.desktop.board.round_paid)
 	assert_false(current.desktop.board.board.has("paid_start_receipt"))
 	assert_eq(current.desktop.board.revision, witness.run.desktop.board.revision)

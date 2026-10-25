@@ -2,6 +2,7 @@ extends "res://tests/integration/scene_bootstrap_restart_child.gd"
 ## FINAL Bootstrap and actual mounted host; only the authored registration is TEST.
 ## Creator and loader run in distinct OS processes sharing real Save/Profile files.
 const CAPTION := preload("res://scripts/ui/witnessed/WitnessedCaptionLayer.gd")
+const BOARD_READING := preload("res://scripts/narrative/SoloReadingSession.gd")
 
 func _screenshot(label: String) -> void:
 	if DisplayServer.get_name() == "headless": return
@@ -50,6 +51,20 @@ func _start_playable() -> bool:
 		"playback_token": context.value.playback_token}
 	var live: Dictionary = game.capture_live_session()
 	return _ok(bridge.dispatch_scene_event(live.value, event))
+
+## Computer custody pauses playback; inspect the retained native cue without
+## asking the active-input API to admit it or modifying its reveal state.
+func _computer_caption_observation() -> Dictionary:
+	var event: DialogicTextEvent = bridge._runtime_adapter._current_skip_text(true)
+	var caption: Node = _caption()
+	assert_not_null(event)
+	assert_not_null(caption)
+	if event == null or caption == null: return {}
+	return {"line_id": bridge._runtime_adapter._authored_line_id(event),
+		"event_done": event.state == DialogicTextEvent.States.DONE,
+		"text": caption.caption_text.get_parsed_text(),
+		"revealing": caption.caption_text.revealing,
+		"visible_ratio": float(caption.caption_text.visible_ratio)}
 
 func create_computer_board() -> void:
 	if not await _start_playable(): return
@@ -131,9 +146,16 @@ func create_computer_board() -> void:
 	assert_false(get_tree().paused)
 	var proof := {"process_id": OS.get_process_id(), "user_dir": ProjectSettings.globalize_path("user://"),
 		"record": record, "board": saved_board, "checkpoint": checkpoint.value,
+		"native_caption": _computer_caption_observation(),
 		"slot_sha256": FileAccess.get_sha256("user://saves/slot_1.json"),
 		"auto": auto_before, "profile": profile.get_profile_snapshot(),
 		"source_branch": game.capture_run_snapshot_input().lifecycle.branch_id}
+	assert_false(proof.native_caption.is_empty())
+	if proof.native_caption.is_empty(): return
+	assert_false(str(proof.native_caption.text).is_empty())
+	assert_true(proof.native_caption.event_done)
+	assert_false(proof.native_caption.revealing)
+	assert_eq(proof.native_caption.visible_ratio, 1.0)
 	assert_eq(str(proof.slot_sha256).length(), 64)
 	if not _write_json("user://computer-board-proof.json", proof): return
 	_write_json("res://.godot/ci/computer-create-proof.json", proof)
@@ -164,7 +186,22 @@ func load_computer_board() -> void:
 	assert_eq(game.capture_dating_challenge_state().value, proof.record)
 	assert_eq(profile.get_profile_snapshot(), proof.profile, "opening restored board is read-only")
 	assert_ne(game.capture_run_snapshot_input().lifecycle.branch_id, proof.source_branch)
-	assert_eq(bridge.capture_reading_checkpoint(false).value, proof.checkpoint)
+	var restored: Dictionary = bridge.capture_reading_checkpoint(false)
+	if not _ok(restored): return
+	var expected_position: Dictionary = BOARD_READING.project_player_checkpoint(proof.checkpoint)
+	var restored_position: Dictionary = BOARD_READING.project_player_checkpoint(restored.value)
+	if not _ok(expected_position) or not _ok(restored_position): return
+	assert_eq(restored_position.value, expected_position.value,
+		"Load retains the complete player position; historical live traversal is not persisted")
+	var native: Dictionary = _computer_caption_observation()
+	assert_false(native.is_empty())
+	if native.is_empty(): return
+	assert_eq(native.line_id, expected_position.value.reading_session.captions.back().line_id,
+		"Native cue is the saved held-control predecessor")
+	assert_eq(native.text, proof.native_caption.text, "The complete native caption text is restored")
+	assert_true(native.event_done)
+	assert_false(native.revealing)
+	assert_eq(native.visible_ratio, 1.0, "The restored cue is fully revealed while Computer holds input")
 	await _screenshot("restored")
 	var hidden := -1
 	for index: int in panel.public_view.board.cells.size():

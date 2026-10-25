@@ -4,6 +4,7 @@ extends "res://tests/integration/scene_manual_entry_child.gd"
 const AUDIO_CONTENT := preload("res://tests/support/SceneAudioRegistrationFixture.gd")
 const AUDIO_OWNER := preload("res://autoload/AudioManager.gd")
 const AUDIO_MANIFEST := preload("res://scripts/data/AudioManifest.gd")
+const RUN_SCHEMA := preload("res://scripts/domain/run/RunSnapshotSchema.gd")
 const REGISTRY := preload("res://scripts/narrative/DialogicEntryManifest.gd")
 
 class ObservedNativePort extends "res://scripts/audio/AudioPlaybackPort.gd":
@@ -96,9 +97,12 @@ func _audio_checkpoint() -> Dictionary:
 	var entry: String = snapshot.command_receipts[admission].scene_admission.result.entry_id
 	var expected: Dictionary = AUDIO_MANIFEST.make_scene_context(registered.value, entry, admission)
 	if not _ok(expected): return {}
-	assert_eq(snapshot.audio_context, expected.value)
+	assert_false(snapshot.has("audio_context"), "player snapshot stores no duplicated audio context")
+	var derived: Dictionary = RUN_SCHEMA.derive_scene_audio_context(snapshot)
+	if not _ok(derived): return {}
+	assert_eq(derived.value, expected.value)
 	assert_eq(get_node("/root/AudioManager").get_semantic_audio_context(), expected.value)
-	assert_false(snapshot.audio_context.has("scene_audio_mode"))
+	assert_false(derived.value.has("scene_audio_mode"))
 	return expected.value
 
 func create_audio_scene() -> void:
@@ -109,6 +113,7 @@ func create_audio_scene() -> void:
 	var context: Dictionary = _audio_checkpoint()
 	assert_false(context.is_empty())
 	_assert_saved_audio("user://saves/slot_1.json", context)
+	if not _retain_obsolete_audio_fixture(): return
 	assert_gte(continuity.size(), 3)
 	var proof := {"process_id": OS.get_process_id(), "context": context,
 		"starts": native.starts, "continuity": continuity, "ready_count": ready_count,
@@ -137,10 +142,38 @@ func load_audio_scene() -> void:
 		"ready_count": ready_count, "renderer": DisplayServer.get_name(),
 		"resaved_slot_sha256": FileAccess.get_sha256("user://saves/slot_2.json")})
 
+## Deliberate test input: the writer has already proved omission above. Fresh
+## Load must ignore an obsolete track selector while retaining the same progress.
+func _retain_obsolete_audio_fixture() -> bool:
+	var path := "user://saves/slot_1.json"
+	var document: Dictionary = PARSER.parse_object(FileAccess.get_file_as_string(path))
+	if not _ok(document): return false
+	document.value.current_snapshot.snapshot["audio_context"] = {"selection": {"plan_id": "obsolete.invalid-track"}}
+	if not _write_json(path, document.value): return false
+	var parsed: Dictionary = PARSER.parse_object(FileAccess.get_file_as_string("user://computer-board-proof.json"))
+	if not _ok(parsed): return false
+	parsed.value["slot_sha256"] = FileAccess.get_sha256(path)
+	parsed.value["obsolete_audio_injected"] = true
+	if not _write_json("user://computer-board-proof.json", parsed.value): return false
+	return _write_json("res://.godot/ci/audio-obsolete-input-proof.json", parsed.value)
+
 func _assert_saved_audio(path: String, expected: Dictionary) -> void:
 	var document: Dictionary = PARSER.parse_object(FileAccess.get_file_as_string(path))
 	if not _ok(document): return
-	assert_eq(document.value.current_snapshot.snapshot.audio_context, expected)
+	var snapshot: Dictionary = document.value.current_snapshot.snapshot
+	assert_false(snapshot.has("audio_context"), "written Scene save omits audio metadata")
+	var derived: Dictionary = RUN_SCHEMA.derive_scene_audio_context(snapshot)
+	if not _ok(derived): return
+	assert_eq(derived.value, expected)
+	# Obsolete fields cannot choose a soundtrack or block admitted progress.
+	for obsolete: Variant in [null, "missing-track", {"selection": {"plan_id": "foreign-track"}}]:
+		var old: Dictionary = snapshot.duplicate(true)
+		old["audio_context"] = obsolete
+		var admitted: Dictionary = RUN_SCHEMA.validate(old)
+		if not _ok(admitted): continue
+		assert_eq(admitted.value.candidate, snapshot)
+		assert_eq(RUN_SCHEMA.derive_scene_audio_context(admitted.value.candidate).value, expected)
+		assert_true(old.has("audio_context"), "normalization leaves source bytes untouched")
 
 func _finish_to_silent_target(source: Dictionary) -> Dictionary:
 	# Continue the restored real board to an authored losing transition. Layout

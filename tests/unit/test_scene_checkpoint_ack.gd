@@ -9,6 +9,7 @@ const BOARD_STATE := preload("res://scripts/domain/minesweeper/DesktopBoardState
 class CheckpointSeam extends "res://tests/support/FakeNarrativeCheckpointContext.gd":
 	var current := {"checkpoint_id": "run:1", "checkpoint_sequence": 1, "narrative_checkpoint": {"source": true}}
 	var scene_family := false
+	var prepared_audio_context: Dictionary = {}
 	var bad_ack := false
 	var bad_target := false
 	var readback_mismatch := false
@@ -28,7 +29,8 @@ class CheckpointSeam extends "res://tests/support/FakeNarrativeCheckpointContext
 		if not prepare_ok: return {"ok": false, "code": &"prepare_failed"}
 		var snapshot := {"checkpoint_id": "run:2", "checkpoint_sequence": 2,
 			"narrative_checkpoint": inputs.dialogic_checkpoint.duplicate(true), "payload": inputs.snapshot_input.duplicate(true)}
-		snapshot["audio_context"] = inputs.audio_context.duplicate(true)
+		prepared_audio_context = inputs.audio_context.duplicate(true)
+		if not scene_family: snapshot["audio_context"] = prepared_audio_context.duplicate(true)
 		if scene_family:
 			snapshot.erase("payload")
 			snapshot.merge(inputs.snapshot_input.duplicate(true))
@@ -417,7 +419,9 @@ func test_scene_entry_captures_target_audio_without_changing_live_provider() -> 
 		assert_true(f.port.retain_scene_entry(f.authority, "cap:1", f.binding, f.checkpoint).ok)
 		var result: Dictionary = f.port.commit_scene_event(_scene_input(f), f.checkpoint)
 		assert_true(result.ok, str(result))
-		assert_eq(f.real.current.audio_context, f.real.audio_context_value if legacy else audio.context)
+		assert_eq(f.real.prepared_audio_context, f.real.audio_context_value if legacy else audio.context,
+			"the adapter captures the destination context before checkpoint preparation")
+		assert_false(f.real.current.has("audio_context"), "Scene player projection omits transient audio capture")
 		assert_eq(f.real.audio_context_value, {"TEST": "old live audio"}, "capture never adopts playback")
 		assert_true(f.port.consume_scene_entry_ack("cap:1").ok)
 

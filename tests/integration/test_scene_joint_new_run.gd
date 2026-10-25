@@ -184,7 +184,6 @@ func test_committed_receipt_survives_evolved_checkpoint_and_unrelated_profile_wr
 	snapshot.checkpoint_id = snapshot.run_id + ":2"
 	snapshot.gameplay.money = 17
 	document.current_snapshot.checkpoint_kind = "safe_marker"
-	document.save_reason = "automatic"
 	var evolved: Dictionary = SAVE.validate(document)
 	assert_true(evolved.ok, "only the immutable receipt must match creation: " + str(evolved))
 	var preference: Dictionary = fixture.profile.set_preference(&"preferences.audio.master_volume", 0.5)

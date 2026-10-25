@@ -1657,7 +1657,13 @@ func _validate_scene_source(operation: Dictionary) -> Dictionary:
 	else:
 		var admitted: Dictionary = _SAVE_DOCUMENT.validate(document)
 		if not admitted.get("ok", false): return admitted
-		if not _CANONICAL_WRITER._deep_same(document, admitted["value"]["candidate"]):
+		var progress_document: Dictionary = document.duplicate(true)
+		progress_document.erase("save_reason")
+		# SaveDocumentSchema normalizes the current snapshot but retains historical
+		# journal bytes after validating them. Mirror that boundary for equality.
+		progress_document.current_snapshot.snapshot.erase("audio_context")
+		progress_document.current_snapshot.snapshot.erase("active_app_id")
+		if not _CANONICAL_WRITER._deep_same(progress_document, admitted["value"]["candidate"]):
 			return _failed(_schema_error, "selected_document must already be the exact validated Save9 value")
 	var locator: Dictionary = operation["source_locator"]
 	var slot := str(document["kind"])
@@ -1697,15 +1703,16 @@ func _validate_scene_source(operation: Dictionary) -> Dictionary:
 ## Only the immutable envelope is independent of initialized Profile/scene owners.
 ## Full Save9 and snapshot admission still runs after the early scope is discarded.
 func _validate_retained_scene_envelope(document: Dictionary) -> Dictionary:
-	var keys: Array[String] = _SAVE_DOCUMENT.DOCUMENT_KEYS.duplicate()
+	var keys: Array[String] = _SAVE_DOCUMENT.SCENE_DOCUMENT_KEYS.duplicate()
+	if document.has("save_reason"): keys.append("save_reason")
 	if document.has("saved_time"): keys.append("saved_time")
 	var shape := _exact_keys(document, keys)
 	if not shape.get("ok", false): return shape
-	if typeof(document.kind) != TYPE_STRING or typeof(document.save_reason) != TYPE_STRING \
+	if typeof(document.kind) != TYPE_STRING \
 			or typeof(document.current_snapshot) != TYPE_DICTIONARY \
 			or typeof(document.recovery_journal) != TYPE_ARRAY:
 		return _failed(_schema_error, "retained Save9 envelope is malformed")
-	if _SAVE_DOCUMENT._validate_discriminators(document.kind, document.slot_id, document.save_reason) != "":
+	if _SAVE_DOCUMENT._validate_locator(document.kind, document.slot_id) != "":
 		return _failed(_schema_error, "retained Save9 discriminators are invalid")
 	if document.has("saved_time") and not _SAVE_DOCUMENT.validate_saved_time(document.saved_time):
 		return _failed(_schema_error, "retained Save9 saved time is invalid")

@@ -267,11 +267,14 @@ static func _validate_autosave(value: Variant, initial_context: Dictionary,
 	if not validated.get("ok", false):
 		return _fail(&"new_run_autosave_invalid", "Autosave bytes do not satisfy the current schema")
 	var document: Dictionary = validated["value"]["candidate"]
-	var canonical := _canonical_text(document)
+	# Retained creation bytes may contain retired metadata. Prove their exact
+	# canonical form while the validated candidate owns only current progress.
+	var canonical := _canonical_text(parsed.value if not scene_assignment.is_empty() else document)
 	if canonical.is_empty() or outgoing_text != canonical + "\n":
 		return _fail(&"new_run_autosave_invalid", "Autosave bytes are not canonical with one final newline")
 	if document.get("kind") != "autosave" or document.get("slot_id") != null \
-			or document.get("save_reason") != "day_start" or not document.has("saved_time") \
+			or (scene_assignment.is_empty() and document.get("save_reason") != "day_start") \
+			or not document.has("saved_time") \
 			or typeof(document.get("recovery_journal")) != TYPE_ARRAY \
 			or not (document["recovery_journal"] as Array).is_empty():
 		return _fail(&"new_run_autosave_invalid", "initial Autosave discriminator/history is invalid")
@@ -295,10 +298,9 @@ static func _validate_autosave(value: Variant, initial_context: Dictionary,
 				or lifecycle.get("state") != "PLAYING" or lifecycle.get("restore_provenance") != null \
 				or lifecycle.get("scene_assignment") != scene_assignment \
 				or snapshot.get("route_id") != "scene" or initial_context.get("route_id") != "scene" \
-				or snapshot.get("active_app_id") != null or initial_context.get("active_app_id") != null \
+				or initial_context.get("active_app_id") != null \
 				or snapshot.get("content_version") != initial_context.get("content_version") \
-				or not SAVE_DOCUMENT_SCHEMA.RUN_SNAPSHOT_SCHEMA._scene_exact_value(snapshot.get("narrative_checkpoint"), player_checkpoint.value) \
-				or not SAVE_DOCUMENT_SCHEMA.RUN_SNAPSHOT_SCHEMA._scene_exact_value(snapshot.get("audio_context"), initial_context.get("audio_context")):
+				or not SAVE_DOCUMENT_SCHEMA.RUN_SNAPSHOT_SCHEMA._scene_exact_value(snapshot.get("narrative_checkpoint"), player_checkpoint.value):
 			return _fail(&"new_run_autosave_invalid", "scene Autosave differs from its allocated assignment or initial context")
 		return {"ok": true, "code": &"ok", "value": autosave.duplicate(true)}
 	if lifecycle.get("day") != 1 or lifecycle.get("state") != "PLAYING" \

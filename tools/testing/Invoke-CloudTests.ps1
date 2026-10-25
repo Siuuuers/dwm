@@ -1,6 +1,6 @@
 param(
     [Parameter(Mandatory = $true)]
-    [ValidateSet('minesweeper', 'shop', 'desktop', 'settings', 'checkpoint_diagnostics', 'new_account', 'reading_delivery', 'localization', 'dating', 'persistence', 'endings', 'audio', 'public_surfaces', 'scene_desktop_first_reveal', 'scene_round_checkpoint', 'scene_shop_checkpoint', 'scene_story_localization', 'scene_controls_localization', 'scene_apps', 'current_title', 'scene_backup_inspection', 'authored_week', 'scene_five_outcomes', 'timeline_resources', 'backup_presentation', 'profile_parse', 'backup_current_build', 'terminal_admission', 'current_quick_load', 'current_terminal_fixture', 'scene_multiple_thoughts', 'scene_challenge_recall', 'scene_same_day_supportz', 'scene_player_position', 'scene_native_restore', 'scene_day_history', 'scene_later_caption', 'scene_caption_challenge')]
+    [ValidateSet('minesweeper', 'shop', 'desktop', 'settings', 'checkpoint_diagnostics', 'new_account', 'reading_delivery', 'localization', 'dating', 'persistence', 'endings', 'audio', 'public_surfaces', 'scene_desktop_first_reveal', 'scene_round_checkpoint', 'scene_shop_checkpoint', 'scene_story_localization', 'scene_controls_localization', 'scene_apps', 'current_title', 'scene_backup_inspection', 'authored_week', 'scene_five_outcomes', 'timeline_resources', 'backup_presentation', 'profile_parse', 'backup_current_build', 'terminal_admission', 'current_quick_load', 'current_terminal_fixture', 'scene_multiple_thoughts', 'scene_challenge_recall', 'scene_same_day_supportz', 'scene_player_position', 'scene_native_restore', 'scene_day_history', 'scene_later_caption', 'scene_caption_challenge', 'scene_audio_connected', 'scene_save_metadata')]
     [string]$Suite
 )
 
@@ -15,6 +15,11 @@ if ($Suite -eq 'current_terminal_fixture') {
 # Deliberate, bounded UI and input regression coverage. Each path must actually
 # execute; Invoke-IsolatedGodot also rejects GUT's silent suite-load failures.
 $suites = @{
+    scene_audio_connected = @('tests/integration/test_scene_audio_connected_create.gd')
+    scene_save_metadata = @(
+        'tests/integration/test_scene_initial_candidate.gd'
+        'tests/unit/test_scene_creation_storage_recovery.gd'
+    )
     scene_player_position = @('tests/unit/test_scene_player_position.gd')
     scene_native_restore = @('tests/integration/test_scene_native_activation_runtime.gd')
     scene_day_history = @('tests/unit/test_scene_reading_history.gd', 'tests/unit/test_scene_day_history_session.gd')
@@ -365,6 +370,7 @@ $arguments = @(
 )
 # Creator and loader must share storage but never a process/registration registry.
 $loadScripts = @{
+    scene_audio_connected = 'tests/integration/test_scene_audio_connected_load.gd'
     scene_later_caption = 'tests/integration/test_scene_later_caption_load.gd'
     scene_caption_challenge = 'tests/integration/test_scene_caption_challenge_load.gd'
     scene_same_day_supportz = 'tests/integration/test_scene_same_day_supportz_load.gd'
@@ -375,7 +381,7 @@ $loadScripts = @{
     current_title = 'tests/integration/test_current_title_scene_load.gd'
 }
 $extra = @{}
-if ($Suite -in @('scene_native_restore', 'scene_later_caption', 'scene_caption_challenge', 'scene_story_localization', 'scene_apps', 'current_title', 'scene_desktop_first_reveal', 'current_quick_load', 'scene_multiple_thoughts', 'scene_challenge_recall', 'scene_same_day_supportz')) { $extra.Rendered = $true }
+if ($Suite -in @('scene_audio_connected', 'scene_native_restore', 'scene_later_caption', 'scene_caption_challenge', 'scene_story_localization', 'scene_apps', 'current_title', 'scene_desktop_first_reveal', 'current_quick_load', 'scene_multiple_thoughts', 'scene_challenge_recall', 'scene_same_day_supportz')) { $extra.Rendered = $true }
 if ($loadScripts.ContainsKey($Suite)) {
     $loadScript = $loadScripts[$Suite]
     if (-not (Test-Path -LiteralPath (Join-Path $repositoryRoot $loadScript))) { throw "Requested test does not exist: $loadScript" }
@@ -393,6 +399,12 @@ if ($Suite -eq 'scene_desktop_first_reveal') {
     $extra.ThirdLogName = "cloud-$Suite-settled-load.log"
     $extra.ThirdGodotArgs = @('-s', 'res://addons/gut/gut_cmdln.gd', '-gconfig=',
         "-gtest=res://$settledScript", '-gexit', '-glog=1', "-gjunit_xml_file=res://.godot/ci/$Suite-settled-load.xml")
+}
+if ($Suite -eq 'scene_audio_connected') {
+    foreach ($proof in @('audio-connected-create-proof.json', 'audio-connected-load-proof.json', 'audio-obsolete-input-proof.json')) {
+        $proofPath = Join-Path $output $proof
+        if (Test-Path -LiteralPath $proofPath) { Remove-Item -LiteralPath $proofPath -Force }
+    }
 }
 # Refuse stale reports if a child exits before writing its result.
 $primaryReport = Join-Path $output "$Suite.xml"
@@ -523,7 +535,7 @@ if (-not (Test-Path -LiteralPath $report)) { throw 'GUT did not produce its JUni
 $executed = $xml.SelectNodes('//testcase').Count
 if ($executed -eq 0) { throw 'GUT did not report any executed tests.' }
 if ($xml.SelectNodes('//failure | //error').Count -ne 0) { throw 'GUT reported test failures.' }
-if ($Suite -in @('scene_player_position', 'scene_native_restore', 'scene_day_history', 'scene_later_caption', 'scene_caption_challenge', 'scene_same_day_supportz', 'scene_desktop_first_reveal', 'scene_round_checkpoint', 'scene_shop_checkpoint', 'scene_story_localization', 'scene_controls_localization', 'scene_apps', 'current_title', 'scene_backup_inspection', 'authored_week', 'scene_five_outcomes', 'timeline_resources', 'backup_presentation', 'profile_parse', 'backup_current_build', 'terminal_admission', 'current_quick_load')) {
+if ($Suite -in @('scene_audio_connected', 'scene_save_metadata', 'scene_player_position', 'scene_native_restore', 'scene_day_history', 'scene_later_caption', 'scene_caption_challenge', 'scene_same_day_supportz', 'scene_desktop_first_reveal', 'scene_round_checkpoint', 'scene_shop_checkpoint', 'scene_story_localization', 'scene_controls_localization', 'scene_apps', 'current_title', 'scene_backup_inspection', 'authored_week', 'scene_five_outcomes', 'timeline_resources', 'backup_presentation', 'profile_parse', 'backup_current_build', 'terminal_admission', 'current_quick_load')) {
     foreach ($case in $xml.SelectNodes('//testcase')) {
         if ($case.GetAttribute('classname') -cnotin $suites[$Suite] -or
             $case.GetAttribute('status') -cne 'pass' -or [int]$case.GetAttribute('assertions') -le 0) {
@@ -531,6 +543,43 @@ if ($Suite -in @('scene_player_position', 'scene_native_restore', 'scene_day_his
         }
     }
     if ($xml.SelectNodes('//skipped').Count -ne 0) { throw 'Selected scene coverage was skipped.' }
+}
+if ($Suite -in @('scene_audio_connected', 'scene_save_metadata')) {
+    # Require every concrete selected method, not merely a nonempty imported file.
+    $caseEvidence = @()
+    foreach ($script in $suites[$Suite]) {
+        $source = Get-Content -LiteralPath (Join-Path $repositoryRoot $script) -Raw
+        $expectedNames = @([regex]::Matches($source, '(?m)^func (test_[A-Za-z0-9_]+)\(') |
+            ForEach-Object { $_.Groups[1].Value } | Sort-Object)
+        $cases = @($xml.SelectNodes('//testcase') | Where-Object { $_.GetAttribute('classname') -ceq $script })
+        $actualNames = @($cases | ForEach-Object { $_.GetAttribute('name') } | Sort-Object)
+        if ($expectedNames.Count -eq 0 -or $cases.Count -ne $expectedNames.Count -or
+            (Compare-Object -ReferenceObject $expectedNames -DifferenceObject $actualNames)) {
+            throw "Selected methods did not execute exactly: $script"
+        }
+        foreach ($case in $cases) {
+            $caseEvidence += [ordered]@{ script = $script; method = $case.GetAttribute('name');
+                assertions = [int]$case.GetAttribute('assertions'); status = $case.GetAttribute('status') }
+        }
+    }
+    if ($Suite -eq 'scene_audio_connected') {
+        if ($loadCases[0].GetAttribute('name') -cne 'test_fresh_scene_audio_load_retains_admission_and_uses_anchor') {
+            throw 'Audio Load did not execute its exact fresh-process case.'
+        }
+        $caseEvidence += [ordered]@{ script = $loadScript; method = $loadCases[0].GetAttribute('name');
+            assertions = [int]$loadCases[0].GetAttribute('assertions'); status = $loadCases[0].GetAttribute('status') }
+        $createProof = Get-Content -LiteralPath (Join-Path $output 'audio-connected-create-proof.json') -Raw | ConvertFrom-Json
+        $loadProof = Get-Content -LiteralPath (Join-Path $output 'audio-connected-load-proof.json') -Raw | ConvertFrom-Json
+        $obsoleteProof = Get-Content -LiteralPath (Join-Path $output 'audio-obsolete-input-proof.json') -Raw | ConvertFrom-Json
+        if ($createProof.process_id -eq $loadProof.process_id -or
+            $loadProof.creator_process_id -ne $createProof.process_id -or
+            $obsoleteProof.obsolete_audio_injected -ne $true) {
+            throw 'Audio evidence must bind distinct creator/loader processes and the obsolete metadata input.'
+        }
+    }
+    [ordered]@{ suite = $Suite; cases = $caseEvidence } | ConvertTo-Json -Depth 5 |
+        Set-Content -LiteralPath (Join-Path $output "$Suite-acceptance.json") -Encoding utf8
+    Write-Host ('SCENE_METADATA_ACCEPTANCE ' + ($caseEvidence | ConvertTo-Json -Depth 4 -Compress))
 }
 if ($Suite -eq 'terminal_admission') {
     $cases = @($xml.SelectNodes('//testcase'))
