@@ -160,6 +160,14 @@ func load_contacts_scene() -> void:
 	assert_true(game.capture_run_snapshot_input().command_receipts.is_empty(), "Load restores no Scene command history")
 	await _screenshot("contacts-child-fresh-load")
 	var profile_before: Dictionary = profile.get_profile_snapshot().duplicate(true)
+	var run_before_flush: Dictionary = game.capture_run_snapshot_input().duplicate(true)
+	var checkpoint_before_flush: Dictionary = saves.get_latest_stable_checkpoint().duplicate(true)
+	var flushed: Dictionary = game._dating_restore_owner.flush_pending_attempt()
+	assert_true(flushed.get("ok", false), "cold Contacts Load flushes the selected closed board without playable readmission: " + str(flushed))
+	assert_eq(flushed.get("value", {}).get("committed"), false, "closed-board flush is a no-op")
+	assert_eq(game.capture_run_snapshot_input(), run_before_flush, "flush preserves the entire selected Run and board")
+	assert_eq(profile.get_profile_snapshot(), profile_before, "flush does not publish another attempt")
+	assert_eq(saves.get_latest_stable_checkpoint(), checkpoint_before_flush, "flush adds no checkpoint")
 	# Marker accepts use the command port directly, rather than ordinary Next.
 	var observer := ReturnObserver.new()
 	observer.delegate = bridge._scene_event_port
