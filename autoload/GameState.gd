@@ -2335,6 +2335,7 @@ func _empty_desktop_snapshot(causal_day_instance: String, causal_day_instance_is
 	if scene:
 		board.erase("terminal_receipts")
 		board["settled_inspection"] = false
+		board["round_paid"] = false
 	return {
 		"board": board,
 		"consequence": (empty_consequence["value"] as Dictionary)["state"],
@@ -5379,6 +5380,7 @@ func _prepare_scene_day_renewal(trigger: Dictionary, target_id: String, registra
 	# Keep revision monotonicity for stale commands.
 	desktop.board.phase = "NONE"
 	desktop.board.settled_inspection = false
+	desktop.board.round_paid = false
 	desktop.board.revision += 1
 	for key: String in ["identity", "candidate", "board", "settlement"]: desktop.board[key] = null
 	desktop.consequence.causal_day_instance = next_identity.causal_day_instance

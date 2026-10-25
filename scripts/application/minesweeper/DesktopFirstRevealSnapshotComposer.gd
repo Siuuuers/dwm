@@ -137,7 +137,9 @@ static func _project_board(base_board: Dictionary, candidate: Dictionary) -> Dic
 		"board": board_after.duplicate(true), "settlement": candidate.get("settlement_after"),
 		"command_receipts": receipts,
 	}
-	if base_board.has("settled_inspection"): projected["settled_inspection"] = false
+	if base_board.has("settled_inspection"):
+		projected["settled_inspection"] = false
+		projected["round_paid"] = true
 	else: projected["terminal_receipts"] = (base_board.get("terminal_receipts", {}) as Dictionary).duplicate(true)
 	return {"ok": true, "value": {"board": projected}}
 

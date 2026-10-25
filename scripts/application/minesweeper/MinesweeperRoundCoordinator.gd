@@ -873,7 +873,7 @@ func reveal(request: Dictionary) -> Dictionary:
 		return guard
 	if request.has("difficulty_id"):
 		var state := _board_state.capture()
-		if state.phase == "PAID_UNSTARTED" or (state.phase == "PREPARED_UNSTARTED" and state.candidate.has("paid_start_receipt")):
+		if state.phase in ["PAID_UNSTARTED", "PREPARED_UNSTARTED"] and _round_is_paid(state):
 			return _paid_shell_reveal(request)
 		if _durable_checkpoint_port != null:
 			return _first_reveal_durable(request)
@@ -1749,7 +1749,7 @@ func _configure_board(request: Dictionary, replace: bool) -> Dictionary:
 		var prepared: Dictionary
 		if facts.settled_inspection:
 			prepared = _board_state.prepare_dismiss_inspection(input)
-		elif facts.phase in ["NONE", "UNPAID_UNSTARTED"] or (facts.phase == "PREPARED_UNSTARTED" and not before.candidate.has("paid_start_receipt")):
+		elif not _round_is_paid(before):
 			prepared = _board_state.prepare_unpaid_shell(input, str(request.difficulty_id), {"flagged_indices": [], "actions": []})
 		else:
 			var spec: Dictionary = _state_port.call(&"prepare_spec", str(request.difficulty_id), str(request.transaction_id), request.transaction_issuer_receipt)
@@ -1889,3 +1889,8 @@ func _commit_cost_free_under_lease(candidate: Dictionary, selected_difficulty: S
 			if _durable_checkpoint_port != null: rollbacks.append(["checkpoint_port", func(): return _durable_checkpoint_port.call(&"rollback", disk_backup)])
 			return _rollback_participants("cost_free_selection", str(candidate.transaction_id), rollbacks, selected)
 	return committed
+
+
+static func _round_is_paid(snapshot: Dictionary) -> bool:
+	if snapshot.has("round_paid"): return snapshot.round_paid
+	return snapshot.phase in ["PAID_UNSTARTED", "ACTIVE_VISIBLE", "ACTIVE_SUSPENDED", "SETTLING"] or (snapshot.get("candidate") is Dictionary and snapshot.candidate.has("paid_start_receipt"))
