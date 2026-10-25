@@ -3297,7 +3297,7 @@ func configure_scene_restore_participants(participants: Dictionary) -> Dictionar
 
 ## Ordinary Load obtains authority only from an acknowledged creation, the exact
 ## committed allocation and its still-physical Profile assignment. Autosave may
-## legitimately have advanced since creation; its historical target receipt remains.
+## legitimately have advanced since creation; the retained initial state fixes its origin.
 func capture_committed_scene_creation(transaction_id: String) -> Dictionary:
 	if _identity_issuer == null or _new_run_profile_owner == null:
 		return _fail(&"scene_creation_owner_unavailable", "")
@@ -3320,12 +3320,12 @@ func capture_committed_scene_creation(transaction_id: String) -> Dictionary:
 	# read today's mutable Autosave or require later snapshots to equal this one.
 	var initial: Dictionary = _parse_document_text(materials.autosave.outgoing_text)
 	if not initial.get("ok", false): return initial
-	var initial_receipt: Variant = initial.value.current_snapshot.snapshot.command_receipts.get(transaction_id)
-	if not initial_receipt is Dictionary:
-		return _fail(&"scene_creation_proof_invalid", "retained initial receipt missing")
+	var initial_scene: Variant = initial.value.current_snapshot.snapshot.get("scene")
+	if not initial_scene is Dictionary or initial_scene.get("active_occurrence_id") != transaction_id:
+		return _fail(&"scene_creation_proof_invalid", "retained initial scene missing")
 	return {"ok": true, "value": {"operation": operation.duplicate(true),
 		"allocation_candidate": materials.allocation_candidate.duplicate(true), "profile_material": materials.profile.duplicate(true),
-		"initial_receipt": initial_receipt.duplicate(true)}}
+		"initial_scene": initial_scene.duplicate(true)}}
 
 func _validate_scene_creation_chronology() -> Dictionary:
 	var chronology: Dictionary = _continuation_journal.capture_completed_creation_chronology(_identity_issuer)

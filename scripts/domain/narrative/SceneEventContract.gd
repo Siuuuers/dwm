@@ -342,6 +342,7 @@ static func _validate_bundle_structure_observed_body(bundle: Variant) -> Diction
 		for marker: Variant in entry.markers:
 			if not _keys(marker, MARKER_KEYS): return _fail(&"scene_marker_invalid")
 			for key: String in ["marker_id", "label", "after_line_id", "kind"]:
+				if key == "after_line_id" and marker.kind == "passage.start" and marker[key] == "": continue
 				if not _id(marker[key]): return _fail(&"scene_marker_invalid")
 			if markers.has(marker.marker_id) or labels.has(marker.label) or not _scene_payload(marker.kind, marker.payload):
 				return _fail(&"scene_marker_invalid")

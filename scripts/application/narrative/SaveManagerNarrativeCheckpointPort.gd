@@ -11,7 +11,6 @@ extends RefCounted
 
 const CANONICAL_JSON := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 const READING_NEXT := preload("res://scripts/narrative/ReadingTraversalOperation.gd")
-const SNAPSHOT_SCHEMA := preload("res://scripts/domain/run/RunSnapshotSchema.gd")
 const BOARD_STATE := preload("res://scripts/domain/minesweeper/DesktopBoardState.gd")
 
 const REAL_PORT_METHODS := ["preview_checkpoint_id", "capture", "prepare", "commit", "rollback"]
@@ -595,15 +594,15 @@ func _scene_route_input_valid(input: Dictionary, checkpoint: Dictionary) -> bool
 			or not _exact_keys(input, SCENE_INPUT_KEYS) or checkpoint.get("stage") != "scene": return false
 	for key: String in ["lifecycle", "gameplay", "contacts", "desktop", "scene", "command_receipts"]:
 		if not input.get(key) is Dictionary: return false
-	if not _exact_keys(input.scene, ["registration_sha256", "active_occurrence_id", "active_admission_receipt_id"]): return false
+	if not _exact_keys(input.scene, ["registration_sha256", "active_occurrence_id", "entry_id", "notification", "active_challenge", "return_to"]): return false
 	if input.scene.registration_sha256 != checkpoint.get("manifest_fingerprint") or not _scene_hash(input.scene.registration_sha256): return false
 	var frame: Variant = checkpoint.get("frozen_context")
 	if not frame is Dictionary or not frame.get("presentation") is Dictionary \
 			or not frame.presentation.get("fields") is Dictionary: return false
 	return input.scene.active_occurrence_id == frame.get("playback_id") \
-		and input.scene.active_admission_receipt_id == frame.presentation.fields.get("admission_receipt_id") \
+		and input.scene.active_occurrence_id == frame.presentation.fields.get("admission_receipt_id") \
 		and input.scene.active_occurrence_id is String and not input.scene.active_occurrence_id.is_empty() \
-		and input.scene.active_admission_receipt_id is String and not input.scene.active_admission_receipt_id.is_empty()
+		and input.scene.entry_id == checkpoint.get("entry_id")
 
 func _scene_route_candidate_valid(candidate: Dictionary, input: Dictionary, checkpoint: Dictionary) -> bool:
 	if not _scene_route_input_valid(input, checkpoint) or not candidate.get("autosave_document") is Dictionary \
@@ -617,13 +616,13 @@ func _scene_route_candidate_valid(candidate: Dictionary, input: Dictionary, chec
 	if not player_board.ok: return false
 	var expected_desktop: Dictionary = input.desktop.duplicate(true)
 	expected_desktop.board = player_board.value.snapshot
-	for key: String in SCENE_INPUT_KEYS:
+	for key: String in ["lifecycle", "gameplay", "contacts", "desktop", "scene"]:
 		# Compare the exact persisted projection, while admission/custody above keeps
 		# the full live input (including retry records) unchanged.
 		var expected: Variant = expected_desktop if key == "desktop" else input[key]
-		if key == "command_receipts":
-			expected = SNAPSHOT_SCHEMA.project_player_command_receipts(input.command_receipts)
 		if not snapshot.has(key) or _fingerprint(snapshot[key]) != _fingerprint(expected): return false
+	for key: String in ["command_receipts", "applied_effect_transaction_ids", "applied_variable_transaction_ids"]:
+		if snapshot.has(key): return false
 	return not _scene_candidate_reference(candidate, checkpoint).is_empty()
 
 

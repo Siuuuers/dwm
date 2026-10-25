@@ -1,6 +1,6 @@
 extends "res://addons/gut/test.gd"
-## Full public Run9/Save9 admission with actual owner-backed receipts and compact
-## current reading positions. Initial prior checkpoint provenance is explicitly injected by fixture.
+## Full public Run9/Save9 admission with authoritative current scene facts and
+## compact reading positions. Live command authentication remains separate.
 ## Uses installed transition marker (not a fabricated notification registration).
 const FIXTURE := preload("res://tests/support/SceneRunSaveFixture.gd")
 const RUN := preload("res://scripts/domain/run/RunSnapshotSchema.gd")
@@ -70,24 +70,14 @@ func test_selected_receipt_projection_is_owned_frozen_and_matches_fresh_validati
 	assert_eq(selected.value, fresh.value)
 	fresh.value.entries.clear()
 	assert_false(manifest.scene_contract_tables().value.entries.is_empty())
-	var owner: Object = fixture.game.get_node_or_null("/root/SaveManager")
-	var expected := CONTRACT.validate_scene_receipts(fixture.snapshot.command_receipts, fixture.bundle,
-		fixture.issuer, owner, fixture.snapshot.contacts)
-	var actual := CONTRACT.validate_selected_scene_receipts(fixture.snapshot.command_receipts,
-		fixture.issuer, owner, fixture.snapshot.contacts)
-	assert_true(expected.ok, str(expected))
-	assert_eq(actual, expected)
-	if not actual.ok: return
-	actual.value.commands.clear()
-	assert_eq(CONTRACT.validate_selected_scene_receipts(fixture.snapshot.command_receipts,
-		fixture.issuer, owner, fixture.snapshot.contacts), expected, "returned receipts are detached")
+	assert_true(RUN.validate_current_scene(fixture.snapshot.scene, fixture.bundle).ok)
+	assert_false(fixture.snapshot.has("command_receipts"))
 	var changed: Dictionary = fixture.bundle.duplicate(true)
 	changed.caption_registry.entries[0].lines[0].text = "Different registered caption."
 	var changed_tables := CONTRACT.validate_bundle_structure(changed)
 	assert_true(changed_tables.ok)
 	assert_ne(changed_tables.value.fingerprint, selected.value.fingerprint, "arbitrary input is freshly derived")
-	assert_false(CONTRACT.validate_scene_receipts(fixture.snapshot.command_receipts, changed,
-		fixture.issuer, owner, fixture.snapshot.contacts).ok, "selected proof cannot authenticate changed registration")
+	assert_false(RUN.validate_current_scene(fixture.snapshot.scene, changed).ok, "current state cannot select changed registration")
 
 func test_selected_receipt_refusal_order_keeps_input_and_issuer_checks() -> void:
 	assert_eq(CONTRACT.validate_selected_scene_receipts({"bad": Vector2.ZERO}, null).code,
@@ -119,19 +109,19 @@ func test_run9_candidate_detaches_receipts_and_reading_from_caller() -> void:
 	if not admitted.ok: return
 	assert_eq(source, original, "Run9 validation leaves the caller snapshot unchanged")
 	var candidate: Dictionary = admitted.value.candidate
-	assert_eq(candidate, original, "valid Run9 preserves exact receipts and reading")
-	candidate.command_receipts[fixture.event.command_id].scene_event.reading_anchor.publication_id = "TEST.detached"
+	assert_eq(candidate, original, "valid Run9 preserves exact current facts and reading")
+	candidate.scene.notification["TEST.detached"] = true
 	candidate.narrative_checkpoint.reading_session.captions.clear()
-	assert_eq(source, original, "returned nested receipts and caption arrays do not alias the caller")
+	assert_eq(source, original, "returned nested scene facts and caption arrays do not alias the caller")
 	assert_eq(fixture.observed_state(), live_before, "returned candidate changes apply no gameplay consequences")
 	var fresh: Dictionary = RUN.validate(source)
 	assert_true(fresh.ok, str(fresh))
 	if not fresh.ok: return
 	assert_eq(fresh.value.candidate, original, "returned candidate changes cannot poison a later admission")
-	source.command_receipts[fixture.event.command_id].scene_event.reading_anchor.publication_id = "TEST.source.changed"
+	source.scene.entry_id = "TEST.source.changed"
 	source.narrative_checkpoint.reading_session.captions.clear()
 	assert_eq(fresh.value.candidate, original, "later caller changes cannot alter an admitted candidate")
-	assert_false(RUN.validate(source).ok, "changed reading and anchor inputs are checked on the next public call")
+	assert_false(RUN.validate(source).ok, "changed reading and scene inputs are checked on the next public call")
 	assert_eq(fixture.snapshot, original, "the reusable fixture remains intact")
 	assert_eq(fixture.observed_state(), live_before, "refused admission applies no gameplay consequences")
 
@@ -161,19 +151,17 @@ func test_frozen_commands_are_authenticated_detached_and_rechecked_on_next_call(
 	var result: Dictionary = FROZEN_RUN.validate(fixture.snapshot, true)
 	assert_true(result.ok, str(result))
 	if not result.ok: return
-	assert_has(result, "scene_commands")
-	if not result.has("scene_commands"): return
-	assert_eq(result.scene_commands[fixture.event.command_id], fixture.snapshot.command_receipts[fixture.event.command_id])
+	assert_false(result.has("scene_commands"), "Frozen current frame does not reconstruct historical commands")
 	var expanded: Dictionary = READING.expand_player_checkpoint(fixture.snapshot.narrative_checkpoint)
 	assert_true(expanded.ok, str(expanded))
 	if not expanded.ok: return
 	assert_eq(result.value.entry_contexts, expanded.value.reading_session.ledger.entry_contexts)
-	result.scene_commands[fixture.event.command_id].scene_event.reading_anchor.publication_id = "TEST.changed"
+	result.value.entry_contexts.clear()
 	assert_eq(fixture.snapshot, original)
-	assert_true(RUN.validate(fixture.snapshot).ok, "a returned command cannot corrupt later semantic admission")
+	assert_true(RUN.validate(fixture.snapshot).ok, "returned frames cannot corrupt later admission")
 	var changed: Dictionary = fixture.snapshot.duplicate(true)
-	changed.command_receipts[fixture.event.command_id].request_fingerprint = "0".repeat(64)
-	assert_false(FROZEN_RUN.validate(changed, true).ok, "each public call authenticates fresh input")
+	changed.scene.active_occurrence_id = "TEST.changed"
+	assert_false(FROZEN_RUN.validate(changed, true).ok, "current frame identity is rechecked")
 	assert_false(RUN.validate(changed).ok)
 	assert_true(FROZEN_RUN.validate(fixture.snapshot, true).ok)
 	assert_eq(fixture.observed_state(), before)
@@ -184,10 +172,10 @@ func test_semantic_owner_does_not_reuse_another_issuers_frozen_proof() -> void:
 	var root := preload("res://tests/support/FakeDesktopIssuerRootStore.gd").new("cd".repeat(32), 1)
 	assert_true(foreign.configure(root).ok)
 	assert_false(FROZEN_RUN.scene_validation_uses(foreign, null))
-	var original: Object = fixture.game._identity_issuer
-	fixture.game._identity_issuer = foreign
-	var refused: Dictionary = fixture.game.validate_scene_snapshot_semantics(fixture.snapshot, fixture.bundle)
-	fixture.game._identity_issuer = original
+	var original: Object = RUN._scene_issuer
+	RUN._scene_issuer = foreign
+	var refused: Dictionary = RUN.validate(fixture.snapshot)
+	RUN._scene_issuer = original
 	assert_false(refused.ok, "a differently bound GameState must still authenticate with its own issuer")
 	assert_true(RUN.validate(fixture.snapshot).ok)
 
@@ -202,7 +190,7 @@ func test_custom_semantic_authority_cannot_bypass_receipt_authentication() -> vo
 	var matched: bool = RUN._scene_semantic_authenticates_receipts()
 	var admitted: Dictionary = RUN.validate(fixture.snapshot)
 	var changed: Dictionary = fixture.snapshot.duplicate(true)
-	changed.command_receipts[fixture.event.command_id].request_fingerprint = "0".repeat(64)
+	changed.scene.entry_id = "TEST.unregistered"
 	var real_refused: Dictionary = RUN.validate(changed)
 	var custom := PermissiveSceneAuthority.new()
 	RUN._scene_authority = custom
@@ -214,15 +202,15 @@ func test_custom_semantic_authority_cannot_bypass_receipt_authentication() -> vo
 	var calls_after_refusal: int = custom.calls
 	RUN._scene_authority = original_authority
 	RUN._scene_creation_owner = original_creation_owner
-	assert_true(matched, "same actual owners exercise deferred receipt authentication")
+	assert_true(matched, "same actual owners are configured")
 	assert_true(admitted.ok, str(admitted))
-	assert_false(real_refused.ok, "the real semantic owner still authenticates deferred receipts")
-	assert_false(custom_matched, "a permissive callback cannot select receipt deferral")
+	assert_false(real_refused.ok, "current scene registration remains required")
+	assert_false(custom_matched, "a permissive callback is not the configured GameState")
 	assert_true(custom_admitted.ok, str(custom_admitted))
 	assert_eq(calls_before_refusal, 1, "valid input reaches the configured custom authority")
-	assert_false(refused_run.ok, "Run independently rejects forged receipts with a custom authority")
-	assert_false(refused_save.ok, "Save preserves the independent receipt refusal")
-	assert_eq(calls_after_refusal, calls_before_refusal, "forged receipts are refused before the permissive callback")
+	assert_false(refused_run.ok, "Run independently rejects unregistered state with a custom authority")
+	assert_false(refused_save.ok, "Save preserves independent current-state refusal")
+	assert_eq(calls_after_refusal, calls_before_refusal, "unregistered state is refused before the permissive callback")
 	assert_true(RUN.validate(fixture.snapshot).ok)
 	assert_eq(fixture.observed_state(), before)
 
@@ -234,8 +222,8 @@ func test_compact_position_refuses_incompatible_programme_and_corrupt_receipts()
 	assert_false(RUN.validate(changed).ok, "compact positions require the installed programme")
 	assert_false(SAVE.validate(fixture.document_for(changed)).ok)
 	changed = fixture.snapshot.duplicate(true)
-	changed.command_receipts[fixture.event.command_id].request_fingerprint = "0".repeat(64)
-	assert_false(RUN.validate(changed).ok, "retained genuine receipt integrity is still required")
+	changed.scene.entry_id = "TEST.unregistered"
+	assert_false(RUN.validate(changed).ok, "current entry must remain registered")
 	assert_false(SAVE.validate(fixture.document_for(changed)).ok)
 	assert_true(RUN.validate(fixture.snapshot).ok)
 	assert_eq(fixture.observed_state(), before, "refusal changes no live owner")

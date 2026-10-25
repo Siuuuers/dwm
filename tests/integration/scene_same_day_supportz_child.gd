@@ -58,9 +58,8 @@ func create_same_day_supportz() -> void:
 	if not _ok(player_board): return
 	assert_false(saved_board.has("command_receipts"), "player slot omits transient board retries")
 	assert_eq(saved_board, player_board.value.snapshot, "strict JSON slot preserves exact settled board facts")
-	assert_eq(slot.value.current_snapshot.snapshot.command_receipts,
-		preload("res://scripts/domain/run/RunSnapshotSchema.gd").project_player_command_receipts(run.command_receipts),
-		"player slot omits completed-round retries without dropping required story receipts")
+	assert_false(slot.value.current_snapshot.snapshot.has("command_receipts"),
+		"player slot contains current facts without command history")
 	assert_eq(run.desktop.consequence.shop_ledger.base_completion_receipts.size(), 2)
 	assert_eq(run.desktop.consequence.shop_ledger.supportz_branch_purchase_count, 0)
 	var proof := {"process_id": OS.get_process_id(), "run": run,
@@ -88,7 +87,7 @@ func load_same_day_supportz() -> void:
 	if not await _wait_line("scene.test.b", "line.scene.test.b.one"): return
 	var restored: Dictionary = BOARD_STATE._inspection_normalize(game.capture_run_snapshot_input())
 	assert_eq(restored.gameplay, proof.run.gameplay, "Load preserves rewards and daily completion count")
-	assert_eq(restored.command_receipts, preload("res://scripts/domain/run/RunSnapshotSchema.gd").project_player_command_receipts(proof.run.command_receipts))
+	assert_true(restored.command_receipts.is_empty(), "Load starts a fresh command session")
 	var expected_ledger: Dictionary = proof.run.desktop.consequence.shop_ledger.duplicate(true)
 	for completion: Dictionary in expected_ledger.base_completion_receipts:
 		if completion.causal_day_instance == proof.run.lifecycle.causal_day_instance:

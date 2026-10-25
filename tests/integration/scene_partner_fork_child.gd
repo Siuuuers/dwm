@@ -7,12 +7,6 @@ const OFFER := "line.scene.test.partner.shared.offer"
 func _install_content_registration() -> Dictionary:
 	return PARTNER.install()
 
-func _thoughts() -> Array:
-	var found: Array = []
-	for receipt: Dictionary in game.capture_run_snapshot_input().command_receipts.values():
-		if receipt.get("scene_event", {}).get("result", {}).get("kind") == "thought_resolved": found.append(receipt)
-	return found
-
 func _save_partner(slot: int) -> bool:
 	await _click(_controls(get_tree().current_scene, "Save"))
 	var sheet: Node = get_node("/root/SceneRouter")._production_pause
@@ -51,7 +45,7 @@ func create_partner() -> void:
 	assert_eq(started.get("code"), &"scene_activation_pending", str(started))
 	if not await _await_ready(): return
 	if not await _wait_line("line.scene.test.partner.shared.before"): return
-	assert_true(_thoughts().is_empty(), "NewRun has no partner")
+	assert_true(game.scene_choices.is_empty(), "NewRun has no partner")
 	assert_false(game.accept_scene_thought(bridge.capture_current_line_presentation_frontier()).ok)
 	await _accept()
 	if not await _wait_line(OFFER): return
@@ -61,7 +55,7 @@ func create_partner() -> void:
 	await caption._on_history_requested()
 	assert_true(caption._history_open)
 	assert_false(game.accept_scene_thought(stale).ok, "History cannot resolve the live offer")
-	assert_true(_thoughts().is_empty())
+	assert_true(game.scene_choices.is_empty())
 	await caption._on_history_close_requested()
 	for frame: int in 4: await get_tree().process_frame
 	var host: Control = get_tree().current_scene
@@ -69,20 +63,20 @@ func create_partner() -> void:
 	assert_true(host.is_computer_open())
 	assert_false(game.accept_scene_thought(stale).ok)
 	assert_false(bridge.request_auto_step(stale).ok)
-	assert_true(_thoughts().is_empty())
+	assert_true(game.scene_choices.is_empty())
 	await _click(_controls(host, "CheckComputer"))
 	for frame: int in 12: await get_tree().process_frame
 	var yes: Button = host.get_node("SceneControlsLayer/Surface/ThoughtYes")
 	assert_true(yes.is_visible_in_tree())
 	await _screenshot("partner-offer")
-	# Refuse the actual first autosave write: no receipt or continuation may appear.
+	# Refuse the actual first autosave write: no choice or continuation may appear.
 	var original_files: RefCounted = saves._storage._file_ops
 	var refused = WRITE_REFUSAL.WriteRefusal.new()
 	refused.refuse_on = 1
 	saves._storage._file_ops = refused
 	await _click(yes)
 	assert_eq(refused.refused, 1)
-	assert_true(_thoughts().is_empty())
+	assert_true(game.scene_choices.is_empty())
 	assert_eq(bridge._runtime_adapter.current_line_id(), OFFER)
 	saves._storage._file_ops = original_files
 	for frame: int in 12: await get_tree().process_frame
@@ -97,16 +91,16 @@ func create_partner() -> void:
 		get_viewport().push_input(key, true)
 		await get_tree().process_frame
 	if not await _wait_line("line.scene.test.partner.sylvia.after"): return
-	assert_eq(_thoughts().size(), 1)
-	assert_eq(_thoughts()[0].scene_event.result.choice, "yes")
-	assert_eq(_thoughts()[0].scene_event.result.target_id, "partner.sylvia")
+	assert_eq(game.scene_choices.size(), 1)
+	assert_eq(game.scene_choices["TEST.partner"], "yes")
+	assert_eq(game.capture_run_snapshot_input().scene.entry_id, "partner.sylvia")
 	assert_false(game.accept_scene_thought(stale).ok)
 	assert_false(game.accept_scene_thought({}).ok)
-	assert_eq(_thoughts().size(), 1)
+	assert_eq(game.scene_choices.size(), 1)
 	if not await _save_partner(2): return
 	await _screenshot("partner-sylvia")
 	_write_json("user://partner-proof.json", {"pid": OS.get_process_id(), "unresolved": FileAccess.get_sha256("user://saves/slot_1.json"),
-		"resolved": FileAccess.get_sha256("user://saves/slot_2.json"), "receipt": _thoughts()[0]})
+		"resolved": FileAccess.get_sha256("user://saves/slot_2.json"), "choices": game.scene_choices.duplicate(true)})
 
 func load_partner_manual() -> void:
 	var proof: Dictionary = PARSER.parse_object(FileAccess.get_file_as_string("user://partner-proof.json"))
@@ -115,12 +109,12 @@ func load_partner_manual() -> void:
 	assert_eq(FileAccess.get_sha256("user://saves/slot_1.json"), proof.value.unresolved)
 	if not _start_services() or not await _load_partner(1, true): return
 	if not await _wait_line(OFFER): return
-	assert_true(_thoughts().is_empty(), "earlier save remains unresolved after later Yes")
+	assert_true(game.scene_choices.is_empty(), "earlier save remains unresolved after later Yes")
 	await _accept()
 	if not await _wait_line("line.scene.test.partner.lavinia.after"): return
-	assert_eq(_thoughts().size(), 1)
-	assert_eq(_thoughts()[0].scene_event.result.choice, "pass")
-	assert_eq(_thoughts()[0].scene_event.result.target_id, "partner.lavinia")
+	assert_eq(game.scene_choices.size(), 1)
+	assert_eq(game.scene_choices["TEST.partner"], "pass")
+	assert_eq(game.capture_run_snapshot_input().scene.entry_id, "partner.lavinia")
 	await _screenshot("partner-manual-lavinia")
 
 func load_partner_auto() -> void:
@@ -129,16 +123,16 @@ func load_partner_auto() -> void:
 	assert_ne(OS.get_process_id(), proof.value.pid)
 	if not _start_services() or not await _load_partner(2, true): return
 	if not await _wait_line("line.scene.test.partner.sylvia.after"): return
-	assert_eq(_thoughts().size(), 1)
-	assert_eq(_thoughts()[0], proof.value.receipt, "resolved receipt survives fresh Load exactly")
+	assert_eq(game.scene_choices.size(), 1)
+	assert_eq(game.scene_choices, proof.value.choices, "resolved choice survives fresh Load exactly")
 	var stale: Dictionary = bridge.capture_current_line_presentation_frontier()
 	if not await _load_partner(1): return
 	if not await _wait_line(OFFER): return
-	assert_true(_thoughts().is_empty())
+	assert_true(game.scene_choices.is_empty())
 	assert_false(game.accept_scene_thought(stale).ok, "pre-Load presentation cannot choose")
 	if not _ok(profile.set_preference(&"preferences.reading.auto_enabled", true)): return
 	if not await _wait_line("line.scene.test.partner.lavinia.after"): return
-	assert_eq(_thoughts().size(), 1)
-	assert_eq(_thoughts()[0].scene_event.result.choice, "pass")
+	assert_eq(game.scene_choices.size(), 1)
+	assert_eq(game.scene_choices["TEST.partner"], "pass")
 	assert_true(profile.get_preference(&"preferences.reading.auto_enabled", false), "Auto continues normally")
 	await _screenshot("partner-auto-lavinia")

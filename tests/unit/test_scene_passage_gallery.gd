@@ -158,6 +158,12 @@ func test_native_passage_registration_refuses_jump_that_skips_a_caption() -> voi
 	if not valid.ok: return
 	var accepted: Dictionary = manifest.validate_scene_registration(valid.value)
 	assert_true(accepted.ok, str(accepted))
+	var misplaced: Dictionary = valid.value.duplicate(true)
+	for entry: Dictionary in misplaced.scene_programme.entries:
+		for marker: Dictionary in entry.markers:
+			if marker.kind == "passage.start": marker.after_line_id = ""
+	assert_false(manifest.validate_scene_registration(misplaced).ok,
+		"empty preceding caption is valid only for a native entry-start label")
 	fixture.source_path = "res://tests/fixtures/dialogic/scene_passage_jump_refused.dtl"
 	var jumped: Dictionary = fixture._registration_bundle()
 	assert_true(jumped.ok, str(jumped))
@@ -165,3 +171,14 @@ func test_native_passage_registration_refuses_jump_that_skips_a_caption() -> voi
 	var rejected: Dictionary = manifest.validate_scene_registration(jumped.value)
 	assert_false(rejected.ok, "Gallery cannot show a caption skipped by native playback")
 	assert_eq(rejected.get("message"), "passage entry must be linear")
+
+
+func test_entry_start_marker_includes_first_caption_without_invented_preceding_text() -> void:
+	var bundle := _bundle()
+	bundle.scene_programme.entries[0].markers[0].after_line_id = ""
+	var result := CATALOG.inspect(bundle)
+	assert_true(result.ok, str(result))
+	if result.ok:
+		assert_eq(result.value.records[ID].line_ids, ["TEST.before", "TEST.first", "TEST.last"])
+	bundle.scene_programme.entries[0].markers[1].after_line_id = ""
+	assert_false(CATALOG.inspect(bundle).ok, "Finish still requires an actual last caption")

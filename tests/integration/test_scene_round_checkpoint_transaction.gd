@@ -115,7 +115,7 @@ func test_scene_round_physical_refusal_retry_conflict_and_uncertain_acknowledgme
 	assert_true(written.current_snapshot.snapshot.desktop.board.settled_inspection,
 		"settled state and the reward share one durable checkpoint")
 	assert_eq(written.current_snapshot.snapshot.gameplay.money, after.gameplay.money)
-	assert_false(written.current_snapshot.snapshot.command_receipts.has(request.transaction_id),
+	assert_false(written.current_snapshot.snapshot.has("command_receipts"),
 		"player save omits the app-round retry receipt while retaining settlement")
 	if not _ok(owner.complete_round(request)): return
 	assert_eq(game.capture_run_snapshot_input(), after)

@@ -330,7 +330,7 @@ static func _validate_initial_types_before_normalization(document: Dictionary) -
 		if not bundle is Dictionary or not bundle.get("snapshot") is Dictionary: continue
 		if not RUN_SNAPSHOT_SCHEMA._scene_has_initial_admission(bundle.snapshot): continue
 		if typeof(document.get("schema_version")) != TYPE_INT:
-			return _fail(&"scene_initial_types_invalid", "initial-admission Save header must retain exact types")
+			return _fail(&"scene_initial_types_invalid", "Scene Save header must retain exact types")
 		var error := RUN_SNAPSHOT_SCHEMA._scene_initial_types_error(bundle.snapshot)
 		if not error.is_empty(): return _fail(&"scene_initial_types_invalid", error)
 	return {"ok": true}

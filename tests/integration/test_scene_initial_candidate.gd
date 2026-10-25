@@ -175,7 +175,7 @@ func test_initial_candidate_refuses_prior_state_and_forged_first_reading() -> vo
 	changed.current_snapshot.snapshot.gameplay.money = 1
 	assert_false(_validate(changed).ok)
 	changed = document.duplicate(true)
-	changed.current_snapshot.snapshot.applied_effect_transaction_ids.append("TEST.prior.effect")
+	changed.current_snapshot.snapshot["applied_effect_transaction_ids"] = ["TEST.prior.effect"]
 	assert_false(_validate(changed).ok)
 	changed = document.duplicate(true)
 	changed.current_snapshot.snapshot.checkpoint_sequence = 2
@@ -192,10 +192,10 @@ func test_initial_candidate_refuses_prior_state_and_forged_first_reading() -> vo
 		changed.current_snapshot.snapshot.narrative_checkpoint.reading_session.captions[0].duplicate(true))
 	assert_false(_validate(changed).ok)
 
-func test_raw_initial_receipt_and_save_header_float_types_are_refused_before_normalization() -> void:
+func test_raw_initial_identity_and_save_header_float_types_are_refused_before_normalization() -> void:
 	if not _prepare(): return
 	var changed: Dictionary = document.duplicate(true)
-	changed.current_snapshot.snapshot.command_receipts[receipt.transaction_id].scene_admission.schema_version = 3.0
+	changed.current_snapshot.snapshot.content_version = 1.0
 	assert_false(_validate(changed).ok)
 	assert_eq(SAVE.validate(changed).code, &"scene_initial_types_invalid")
 	assert_eq(RUN.validate(changed.current_snapshot.snapshot).code, &"scene_initial_types_invalid")
@@ -208,7 +208,7 @@ func test_raw_initial_receipt_and_save_header_float_types_are_refused_before_nor
 	assert_false(_validate(changed).ok)
 	assert_eq(SAVE.validate(changed).code, &"scene_initial_types_invalid")
 	changed = document.duplicate(true)
-	changed.current_snapshot.snapshot.command_receipts[receipt.transaction_id].scene_admission.provenance.ordinal = 0.0
+	changed.current_snapshot.snapshot.lifecycle.causal_day_instance_issuer_receipt.counter = float(changed.current_snapshot.snapshot.lifecycle.causal_day_instance_issuer_receipt.counter)
 	assert_eq(SAVE.validate(changed).code, &"scene_initial_types_invalid")
 	var raw_context: Dictionary = context.duplicate(true)
 	raw_context.dialogic_checkpoint.content_version = float(raw_context.dialogic_checkpoint.content_version)

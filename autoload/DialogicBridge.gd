@@ -175,29 +175,45 @@ static func build_scene_initial_checkpoint(receipt: Dictionary, bundle: Dictiona
 static func _build_scene_initial_checkpoint(receipt: Dictionary, bundle: Dictionary,
 		configured_session: RefCounted) -> Dictionary:
 	var result: Dictionary = receipt.scene_admission.result
-	var target_id: String = result.target_id
+	var matched := false
+	for row: Dictionary in bundle.targets:
+		if row.target_id == result.target_id and row.target.kind == "scene" and row.target.entry_id == result.entry_id:
+			matched = true
+	if not matched: return {"ok": false, "code": &"scene_initial_target_invalid"}
+	var scene := {"registration_sha256": _ENTRY_MANIFEST.scene_registration_fingerprint(),
+		"active_occurrence_id": receipt.transaction_id, "entry_id": result.entry_id,
+		"notification": {}, "active_challenge": {}, "return_to": null}
+	return _build_current_scene_initial_checkpoint(scene, bundle, configured_session)
+
+## Build the first caption from current facts. The caller owns initial allocation
+## and registration validation; this method creates no admission or command record.
+static func _build_current_scene_initial_checkpoint(scene: Dictionary, bundle: Dictionary,
+		configured_session: RefCounted = null) -> Dictionary:
+	var entry_id: String = str(scene.get("entry_id", ""))
+	var occurrence: String = str(scene.get("active_occurrence_id", ""))
+	if entry_id.is_empty() or occurrence.is_empty() or scene.get("return_to") != null:
+		return {"ok": false, "code": &"scene_initial_target_invalid"}
 	var target := {}
 	for row: Dictionary in bundle.targets:
-		if row.target_id == target_id: target = row.target.duplicate(true)
-	if target.is_empty() or target.kind != "scene" or target.entry_id != result.entry_id:
+		if row.target.entry_id == entry_id and row.target.kind == "scene": target = row.target.duplicate(true)
+	if target.is_empty() or target.kind != "scene" or target.entry_id != entry_id:
 		return {"ok": false, "code": &"scene_initial_target_invalid"}
 	var labels: Array = []
 	var path := ""
 	var markers: Array = []
 	for entry: Dictionary in bundle.entry_manifest.entries:
 		labels.append(entry.entry_id)
-		if entry.entry_id == result.entry_id: path = entry.locators.en.path
+		if entry.entry_id == entry_id: path = entry.locators.en.path
 	for programme: Dictionary in bundle.scene_programme.entries:
-		if programme.entry_id == result.entry_id: markers = programme.markers
-	var compiled := DialogicRuntimeAdapter.compile_scene_programme(path, result.entry_id, labels, markers)
+		if programme.entry_id == entry_id: markers = programme.markers
+	var compiled := DialogicRuntimeAdapter.compile_scene_programme(path, entry_id, labels, markers)
 	if not compiled.ok: return compiled
 	if compiled.value.program_sha256 != target.program_sha256 or not compiled.value.label_nodes.has(target.label):
 		return {"ok": false, "code": &"scene_initial_target_invalid"}
 	var index: int = compiled.value.label_nodes[target.label]
 	if index < 0 or index >= compiled.value.nodes.size() or compiled.value.nodes[index].kind != "caption":
 		return {"ok": false, "code": &"scene_initial_target_invalid"}
-	var occurrence: String = receipt.transaction_id
-	var presentation := FrozenPresentationContext.build(result.entry_id, {"entry_id": result.entry_id,
+	var presentation := FrozenPresentationContext.build(entry_id, {"entry_id": entry_id,
 		"entry_role": "scene", "occurrence_id": occurrence, "admission_receipt_id": occurrence})
 	if not presentation.ok: return presentation
 	var frame := {"expected_stage": "scene", "playback_id": occurrence, "role": "scene",
@@ -211,18 +227,18 @@ static func _build_scene_initial_checkpoint(receipt: Dictionary, bundle: Diction
 		candidate = configured_session._fork_scene_configuration()
 	var begun: Dictionary = candidate.begin_scene(occurrence)
 	if not begun.ok: return begun
-	var entered: Dictionary = candidate.admit_scene(result.entry_id, frame, index)
+	var entered: Dictionary = candidate.admit_scene(entry_id, frame, index)
 	if not entered.ok: return entered
-	var allocation: Dictionary = candidate.ledger.allocate_publication(occurrence, result.entry_id, occurrence)
+	var allocation: Dictionary = candidate.ledger.allocate_publication(occurrence, entry_id, occurrence)
 	if not allocation.ok: return allocation
 	var line_id: String = compiled.value.nodes[index].line_id
-	var published: Dictionary = candidate.ledger.publish_line(occurrence, allocation.value, result.entry_id, line_id, occurrence)
+	var published: Dictionary = candidate.ledger.publish_line(occurrence, allocation.value, entry_id, line_id, occurrence)
 	if not published.ok: return published
 	var captured: Dictionary = candidate.capture({"line_id": line_id, "publication_id": allocation.value})
 	if not captured.ok: return captured
-	var frames := FrozenRunContext.derive_scene_frames({occurrence: result}, captured.value)
+	var frames := FrozenRunContext.derive_current_scene_frames(scene, captured.value)
 	if not frames.ok: return frames
-	var checkpoint := {"content_version": target.content_version, "entry_id": result.entry_id,
+	var checkpoint := {"content_version": target.content_version, "entry_id": entry_id,
 		"frozen_context": frame, "manifest_fingerprint": _ENTRY_MANIFEST.scene_registration_fingerprint(),
 		"stage": "scene", "transaction_id": occurrence, "reading_session": captured.value}
 	return {"ok": true, "value": checkpoint}
@@ -3054,7 +3070,7 @@ func _validate_reading_entry(session: RefCounted, entry_id: String, context: Dic
 
 
 ## This is representation/native compatibility only. The participant first
-## admits the complete saved Run through FrozenRunContext and real receipt owners.
+## admits the complete saved Run through FrozenRunContext and current state owners.
 func _prepare_scene_reading_candidate(checkpoint: Dictionary, entry_contexts: Dictionary = {}) -> Dictionary:
 	var expanded := _READING_SESSION.expand_player_checkpoint(checkpoint)
 	if not expanded.ok: return expanded
@@ -4509,12 +4525,14 @@ func dispatch_scene_event(live_session: Dictionary, envelope: Dictionary) -> Dic
 	if not context.get("ok", false): return context
 	if envelope.get("playback_token") != context.value.playback_token:
 		return _command_failure(&"event_stale_token")
-	if not _runtime_adapter.has_method("dispatch_scene_event_acknowledged"):
+	var current_scene: bool = typeof(envelope.get("schema_version")) == TYPE_INT and envelope.schema_version == 2
+	if not current_scene and not _runtime_adapter.has_method("dispatch_scene_event_acknowledged"):
 		return _command_failure(&"event_dependency_invalid")
 	_scene_event_dispatching = true
 	var result: Dictionary
-	if typeof(envelope.get("schema_version")) == TYPE_INT and envelope.schema_version == 2 and envelope.get("kind") in ["passage.finish", "challenge.playable", "challenge.end", "challenge.recall", "thought.accept", "thought.pass", "thought.options", "thought.select"]:
-		# This path holds the actual native caption instead of pausing/resuming it.
+	if current_scene:
+		# The Scene owner stages and commits its destination with the consequences.
+		# A successful transition must not resume the replaced native source.
 		result = _scene_event_port.dispatch(envelope.duplicate(true))
 	else:
 		result = _runtime_adapter.dispatch_scene_event_acknowledged(

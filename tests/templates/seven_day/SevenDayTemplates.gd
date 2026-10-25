@@ -8,6 +8,7 @@ const CONTENT_VERSION := 1
 const ORDER_PATH := "res://tests/templates/scene_sequence/seven_day_order.json"
 const ENDING_PATH := DAY_DIRECTORY + "Day7.dtl"
 const ENDING_ID := "ending.alone.normal"
+const PASSAGE_ID := "passage.test.seven_day"
 const MUSIC_PATH := "res://audio/bgm/story_theme.ogg"
 const MUSIC_ASSET_ID := "template.shared.music"
 const MUSIC_PLAN_ID := "template.shared.music.plan"
@@ -95,21 +96,26 @@ static func prepare() -> Dictionary:
 		bundle.targets.append({"target_id": "target." + id, "target": {"kind": "scene",
 			"entry_id": id, "label": id, "content_version": CONTENT_VERSION,
 			"program_sha256": compiled.value.program_sha256}})
-	# Use the real registered ending role/context, with a dedicated replaceable TEST locator.
-	var legacy: Dictionary = STRICT.parse_object(FileAccess.get_file_as_string("res://data/manifests/dialogic_entries.json"))
-	var contexts: Dictionary = STRICT.parse_object(FileAccess.get_file_as_string("res://data/manifests/dialogic_contexts.json"))
-	if not legacy.ok: return legacy
-	if not contexts.ok: return contexts
-	var ending_entry: Dictionary = {}
-	for entry: Dictionary in legacy.value.entries:
-		if entry.entry_id == ENDING_ID: ending_entry = entry.duplicate(true)
-	if ending_entry.is_empty(): return {"ok": false, "code": "ending_registration_missing"}
-	ending_entry.locators = {"en": {"path": ENDING_PATH, "label": ENDING_ID}}
-	bundle.entry_manifest.entries.append(ending_entry)
+	# The last TEST caption is an ordinary passage, with no separate ending owner.
+	var ending_markers := [
+		{"marker_id": "seven_day.passage.start", "label": "seven_day.passage.start", "after_line_id": "",
+			"kind": "passage.start", "payload": {"passage_id": PASSAGE_ID}},
+		{"marker_id": "seven_day.passage.finish", "label": "seven_day.passage.finish", "after_line_id": "line.ending.alone.normal.one",
+			"kind": "passage.finish", "payload": {"passage_id": PASSAGE_ID}}]
+	bundle.entry_manifest.entries.append({"entry_id": ENDING_ID, "role": "scene",
+		"allowed_signals": ["history.line.witness", "passage.finish"], "atom_namespace": "atom." + ENDING_ID,
+		"line_namespace": "line." + ENDING_ID, "content_version": CONTENT_VERSION,
+		"context_schema_id": "context.scene." + ENDING_ID + ".v1",
+		"locators": {"en": {"path": ENDING_PATH, "label": ENDING_ID}},
+		"visual_ids": {"required": [], "optional": []},
+		"presentation_signature_schema": {"schema_version": 1, "fields": {}}})
 	bundle.scene_programme.story_days[ENDING_ID] = order.size()
-	for context: Dictionary in contexts.value.schemas:
-		if context.entry_id == ENDING_ID: bundle.context_registry.schemas.append(context.duplicate(true))
-	var ending: Dictionary = ADAPTER.compile_scene_programme(ENDING_PATH, ENDING_ID, all_ids, [])
+	bundle.context_registry.schemas.append({"entry_id": ENDING_ID,
+		"schema_id": "context.scene." + ENDING_ID + ".v1", "schema_version": 1,
+		"fields": {"entry_id": {"const": ENDING_ID}, "entry_role": {"const": "scene"},
+			"occurrence_id": "id", "admission_receipt_id": "id"}})
+	bundle.ids_registry.signals.append({"signal_id": "passage.finish", "payload_fields": ["passage_id"]})
+	var ending: Dictionary = ADAPTER.compile_scene_programme(ENDING_PATH, ENDING_ID, all_ids, ending_markers)
 	if not ending.ok: return ending
 	var ending_lines: Array = []
 	for event: Dictionary in ending.value.events:
@@ -117,10 +123,10 @@ static func prepare() -> Dictionary:
 			bundle.ids_registry.lines.append({"line_id": event.line_id, "owning_entry_id": ENDING_ID})
 			ending_lines.append({"beat_id": "beat." + event.line_id, "line_id": event.line_id, "text": event.text, "revision": "1"})
 	bundle.caption_registry.entries.append({"entry_id": ENDING_ID, "lines": ending_lines})
-	bundle.scene_programme.entries.append({"entry_id": ENDING_ID, "content_version": ending_entry.content_version,
-		"content_sha256": ending.value.content_sha256, "program_sha256": ending.value.program_sha256, "markers": []})
-	bundle.targets.append({"target_id": "target." + ENDING_ID, "target": {"kind": "ending",
-		"entry_id": ENDING_ID, "label": ENDING_ID, "content_version": ending_entry.content_version, "program_sha256": ending.value.program_sha256}})
+	bundle.scene_programme.entries.append({"entry_id": ENDING_ID, "content_version": CONTENT_VERSION,
+		"content_sha256": ending.value.content_sha256, "program_sha256": ending.value.program_sha256, "markers": ending_markers})
+	bundle.targets.append({"target_id": "target." + ENDING_ID, "target": {"kind": "scene",
+		"entry_id": ENDING_ID, "label": ENDING_ID, "content_version": CONTENT_VERSION, "program_sha256": ending.value.program_sha256}})
 	for id: String in all_ids: bundle.audio_catalogue.bindings.append({"entry_id": id, "plan_id": MUSIC_PLAN_ID})
 	# Closed registration tables require canonical sorting; story order remains ORDER.
 	for rows: Array in [bundle.entry_manifest.entries, bundle.context_registry.schemas,

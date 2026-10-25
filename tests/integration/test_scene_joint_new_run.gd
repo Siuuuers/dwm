@@ -45,17 +45,17 @@ func test_joint_creation_persists_exact_material_before_activation_and_alternate
 	if not first.ok: return
 	var document: Dictionary = first.value
 	var snapshot: Dictionary = document.current_snapshot.snapshot
-	var admission: Dictionary = snapshot.command_receipts[transaction]
 	assert_eq(snapshot.schema_version, 9)
 	assert_eq(snapshot.checkpoint_sequence, 1)
 	assert_eq(snapshot.scene.active_occurrence_id, transaction)
-	assert_eq(admission.scene_admission.schema_version, 3)
-	assert_eq(admission.scene_admission.result.kind, "scene_initial_admitted")
-	assert_false(admission.scene_admission.result.has("source_checkpoint"), "creation must not invent a predecessor")
+	assert_false(snapshot.has("command_receipts"), "creation stores current facts, no historical admission")
+	assert_eq(snapshot.scene.entry_id, "scene.test.b")
+	assert_true(snapshot.scene.active_challenge.is_empty())
+	assert_null(snapshot.scene.return_to)
 	assert_eq(retained.new_run_materials.autosave.outgoing_text, WRITER.stringify(document).value + "\n")
 	assert_false(fixture.manager.capture_committed_scene_creation(transaction).ok,
 		"durable pending completion grants no public creation authority")
-	assert_false(SAVE.validate(document).ok, "candidate bytes alone cannot become a committed Save")
+	assert_true(SAVE.validate(document).ok, "complete current state admits independently of unpublished activation")
 	var reopened: Dictionary = fixture.reopen_journal()
 	assert_true(reopened.ok, str(reopened))
 	if not reopened.ok: return
@@ -140,7 +140,7 @@ func test_rebuilt_other_initial_target_is_valid_preparation_but_not_committed_au
 	assert_true(rebuilt.ok, str(rebuilt))
 	if not rebuilt.ok: return
 	var receipt: Dictionary = rebuilt.value
-	assert_ne(receipt, proof.value.initial_receipt)
+	assert_ne(receipt.scene_admission.result.entry_id, proof.value.initial_scene.entry_id)
 	assert_true(CONTRACT.validate_scene_initial_admission_candidate(receipt, allocation, material, bundle, fixture.issuer).ok)
 	var checkpoint: Dictionary = BRIDGE.build_scene_initial_checkpoint(receipt, bundle)
 	assert_true(checkpoint.ok, str(checkpoint))
@@ -156,17 +156,14 @@ func test_rebuilt_other_initial_target_is_valid_preparation_but_not_committed_au
 	substituted.current_snapshot.snapshot = candidate.value.snapshot
 	assert_true(SAVE.validate_scene_new_run_candidate(substituted, allocation, material, bundle, fixture.issuer).ok,
 		"the alternative has a correctly rebuilt first reading/frame, not a stale target edit")
-	var direct: Dictionary = CONTRACT.validate_scene_receipts({transaction: receipt}, bundle, fixture.issuer, fixture.manager)
-	assert_eq(direct.get("code"), &"scene_initial_committed_receipt_mismatch", str(direct))
-	var run_result: Dictionary = RUN.validate(candidate.value.snapshot)
-	assert_eq(run_result.get("code"), &"scene_initial_committed_receipt_mismatch", str(run_result))
-	var save_result: Dictionary = SAVE.validate(substituted)
-	assert_eq(save_result.get("code"), &"scene_initial_committed_receipt_mismatch", str(save_result))
-	assert_eq(_observed_state(transaction), before, "reconstruction and refusal preserve physical and live owners")
-	assert_true(SAVE.validate(original.value).ok, "the actual committed initial scene remains admitted")
-	# Returned proof is detached; mutating it cannot rewrite the committed choice.
-	proof.value.initial_receipt = receipt
-	assert_ne(fixture.manager.capture_committed_scene_creation(transaction).value.initial_receipt, receipt)
+	assert_true(RUN.validate(candidate.value.snapshot).ok,
+		"ordinary player admission accepts coherent current state without historical first-target proof")
+	assert_true(SAVE.validate(substituted).ok)
+	assert_eq(_observed_state(transaction), before, "validation does not select or write alternative bytes")
+	assert_true(SAVE.validate(original.value).ok)
+	# Diagnostic creation material remains exact and detached; it does not govern later player state.
+	proof.value.initial_scene = candidate.value.snapshot.scene.duplicate(true)
+	assert_ne(fixture.manager.capture_committed_scene_creation(transaction).value.initial_scene, candidate.value.snapshot.scene)
 
 func test_committed_receipt_survives_evolved_checkpoint_and_unrelated_profile_write() -> void:
 	assert_true(fixture_ready)
@@ -204,23 +201,15 @@ func test_initial_receipt_rechecks_registration_and_physical_profile_after_succe
 	var proof: Dictionary = fixture.manager.capture_committed_scene_creation(started.transaction_id)
 	assert_true(proof.ok, str(proof))
 	if not proof.ok: return
-	var receipt: Dictionary = proof.value.initial_receipt
-	var bag := {receipt.transaction_id: receipt}
+	var current: Dictionary = fixture.read_autosave().value.current_snapshot.snapshot
 	var bundle: Dictionary = MANIFEST.scene_registration().value
-	var checked: Dictionary = CONTRACT.validate_scene_receipts(bag, bundle, fixture.issuer, fixture.manager)
-	assert_true(checked.ok, str(checked))
-	if not checked.ok: return
-	checked.value.admissions[receipt.transaction_id].entry_id = "TEST.changed"
-	assert_true(CONTRACT.validate_scene_receipts(bag, bundle, fixture.issuer, fixture.manager).ok,
-		"returned tables cannot alter the retained initial admission")
+	assert_true(RUN.validate_scene(current, bundle).ok)
+	proof.value.initial_scene.entry_id = "TEST.changed"
+	assert_ne(fixture.manager.capture_committed_scene_creation(started.transaction_id).value.initial_scene.entry_id, "TEST.changed")
 	var changed: Dictionary = bundle.duplicate(true)
 	changed.caption_registry.TEST = "changed registration"
-	assert_false(CONTRACT.validate_scene_receipts(bag, changed, fixture.issuer, fixture.manager).ok,
-		"warm validation cannot authorize a changed bundle")
-	assert_false(CONTRACT.validate_scene_initial_admission_candidate(receipt, proof.value.allocation_candidate,
-		proof.value.profile_material, changed, fixture.issuer).ok,
-		"the public candidate entry still validates its own bundle")
-	assert_true(CONTRACT.validate_scene_receipts(bag, bundle, fixture.issuer, fixture.manager).ok)
+	assert_false(RUN.validate_scene(current, changed).ok, "current state cannot select a changed programme")
+	assert_true(RUN.validate(current).ok)
 	# Damage only this isolated fixture's physical file, then restore exact bytes.
 	# The in-memory Profile remains valid, exposing accidental proof caching.
 	var path: String = fixture.storage.describe_root().path_join("profile.json")
@@ -230,14 +219,14 @@ func test_initial_receipt_rechecks_registration_and_physical_profile_after_succe
 	if file == null: return
 	file.store_string("{}")
 	file.close()
-	var refused: Dictionary = CONTRACT.validate_scene_receipts(bag, bundle, fixture.issuer, fixture.manager)
+	var refused: Dictionary = fixture.manager.capture_committed_scene_creation(started.transaction_id)
 	file = FileAccess.open(path, FileAccess.WRITE)
 	assert_not_null(file)
 	if file == null: return
 	file.store_buffer(original)
 	file.close()
-	assert_false(refused.ok, "each validation still requires the physical Profile proof")
-	assert_true(CONTRACT.validate_scene_receipts(bag, bundle, fixture.issuer, fixture.manager).ok,
+	assert_false(refused.ok, "diagnostic creation proof still checks physical Profile material")
+	assert_true(fixture.manager.capture_committed_scene_creation(started.transaction_id).ok,
 		"restoring the actual proof permits validation again")
 
 func test_schema_without_creation_owner_cannot_borrow_semantic_creation_authority() -> void:
@@ -252,7 +241,7 @@ func test_schema_without_creation_owner_cannot_borrow_semantic_creation_authorit
 	if not original.ok: return
 	var snapshot: Dictionary = original.value.current_snapshot.snapshot
 	var before: Dictionary = _observed_state(started.transaction_id)
-	assert_true(RUN._scene_semantic_authenticates_receipts(), "joint owners exercise receipt deferral")
+	assert_true(RUN._scene_semantic_authenticates_receipts(), "fixture uses configured live owners")
 	assert_true(RUN.validate(snapshot).ok)
 	var owner: Object = RUN._scene_creation_owner
 	RUN._scene_creation_owner = null
@@ -261,10 +250,8 @@ func test_schema_without_creation_owner_cannot_borrow_semantic_creation_authorit
 	var refused_save: Dictionary = SAVE.validate(original.value)
 	RUN._scene_creation_owner = owner
 	assert_false(matched, "schema and semantic creation owners must be identical")
-	assert_false(refused_run.ok)
-	assert_eq(refused_run.get("code"), &"scene_creation_owner_unbound")
-	assert_false(refused_save.ok)
-	assert_eq(refused_save.get("code"), &"scene_creation_owner_unbound")
+	assert_true(refused_run.ok, "player admission does not depend on historical creation owner")
+	assert_true(refused_save.ok, "current state and Profile assignment remain sufficient")
 	assert_true(RUN.validate(snapshot).ok, "restoring the bound owner restores admission")
 	assert_eq(_observed_state(started.transaction_id), before)
 

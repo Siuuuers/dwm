@@ -138,7 +138,9 @@ func happy_load(quick: bool) -> void:
 	assert_eq(fixture.profile_bytes(), profile_before, "Load and publication never repeat Profile consequences")
 	assert_eq(fixture.native_markers, [], "no source challenge marker is replayed")
 	assert_eq(fixture.challenge_record(), {})
-	assert_eq(destination.command_receipts, source.command_receipts, "selected Load does not replay scene effects")
+	assert_true(destination.command_receipts.is_empty(), "selected Load starts a fresh command session")
+	assert_eq(destination.gameplay, source.gameplay, "selected Load preserves consequences without replay")
+	assert_eq(destination.scene, source.scene, "selected Load preserves current story controls")
 	var after: Dictionary = destination.duplicate(true)
 	_test_stage = "duplicate_consent"
 	var duplicate: Dictionary = await fixture.pause._backup_port.commit_action(token)

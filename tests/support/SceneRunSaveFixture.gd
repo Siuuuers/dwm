@@ -180,7 +180,8 @@ func setup(scene_tree: SceneTree) -> Dictionary:
 	var input := {"lifecycle": lifecycle, "gameplay": gameplay, "contacts": CONTACTS.make_scene_defaults(),
 		"desktop": game._empty_desktop_snapshot(identity.causal_day_instance, identity.causal_day_instance_issuer_receipt, true),
 		"scene": {"registration_sha256": MANIFEST.scene_registration_fingerprint(),
-			"active_occurrence_id": occurrence, "active_admission_receipt_id": occurrence},
+			"active_occurrence_id": occurrence, "entry_id": ENTRY, "notification": {},
+			"active_challenge": {}, "return_to": null},
 		"applied_effect_transaction_ids": [], "applied_variable_transaction_ids": [],
 		"command_receipts": {admission.transaction_id: admission, event.command_id: receipt.value}}
 	result = RUN.build_scene(input, checkpoint, "scene", null, {}, 1, 2)
@@ -220,7 +221,7 @@ func rebuild_event(candidate_anchor: Dictionary) -> Dictionary:
 
 func with_receipt(receipt: Dictionary) -> Dictionary:
 	var result: Dictionary = snapshot.duplicate(true)
-	result.command_receipts[event.command_id] = receipt.duplicate(true)
+	result["command_receipts"] = {event.command_id: receipt.duplicate(true)}
 	return result
 
 func document_for(candidate: Dictionary) -> Dictionary:

@@ -2,7 +2,6 @@ extends "res://tests/integration/scene_manual_entry_child.gd"
 ## Real FINAL services/files. Message seeding and Save/Load use application ports;
 ## correspondence selection and all caption/board actions use Viewport input.
 const CONTACT_CONTENT := preload("res://tests/support/SceneContactsRegistrationFixture.gd")
-const CONTACT_CONTRACT := preload("res://scripts/domain/narrative/SceneEventContract.gd")
 
 func _install_content_registration() -> Dictionary:
 	return CONTACT_CONTENT.new()._install_registration()
@@ -30,27 +29,16 @@ func _save_slot(slot: int) -> bool:
 	for frame: int in 5: await get_tree().process_frame
 	return true
 
-func _result_count(kind: String) -> int:
-	var count := 0
-	for receipt: Dictionary in game.capture_run_snapshot_input().command_receipts.values():
-		if receipt.get("scene_event", {}).get("result", {}).get("kind") == kind: count += 1
-	return count
-
-func _check_contact_forgeries(snapshot: Dictionary) -> void:
-	var registered: Dictionary = CONTENT.BASE_READING.MANIFEST.scene_registration()
-	assert_true(registered.ok)
-	var issuer: Object = bootstrap._desktop_identity_nonce_issuer
-	var valid: Dictionary = CONTACT_CONTRACT.validate_scene_receipts(snapshot.command_receipts,
-		registered.value, issuer, saves, snapshot.contacts)
-	assert_true(valid.ok, str(valid))
-	var no_facts: Dictionary = preload("res://scripts/domain/contact/ContactInvitationState.gd").make_scene_defaults()
-	assert_false(CONTACT_CONTRACT.validate_scene_receipts(snapshot.command_receipts, registered.value, issuer, saves, no_facts).ok)
-	var forged: Dictionary = snapshot.command_receipts.duplicate(true)
-	for id: String in forged:
-		if forged[id].get("kind") == "scene_admission" and forged[id].scene_admission.result.get("return_to") is Dictionary:
-			forged[id].scene_admission.result.return_to.scene_occurrence = "TEST.forged-parent"
-			break
-	assert_false(CONTACT_CONTRACT.validate_scene_receipts(forged, registered.value, issuer, saves, snapshot.contacts).ok)
+func _check_contact_state(snapshot: Dictionary) -> void:
+	var schema := preload("res://scripts/domain/run/RunSnapshotSchema.gd")
+	assert_true(schema.validate(snapshot).get("ok", false), "saved Contacts current state is valid")
+	for key: String in ["command_receipts", "applied_effect_transaction_ids", "applied_variable_transaction_ids"]:
+		assert_false(snapshot.has(key), "player snapshot omits " + key)
+	for field: String in ["target_id", "contact_event_id", "parent_entry"]:
+		var changed: Dictionary = snapshot.duplicate(true)
+		if field == "parent_entry": changed.scene.return_to.parent.entry_id = "TEST.unregistered"
+		else: changed.scene.return_to[field] = "TEST.unregistered"
+		assert_false(schema.validate(changed).get("ok", false), "return frame refuses unregistered " + field)
 
 func create_contacts_scene() -> void:
 	if not await _start_playable(): return
@@ -95,7 +83,7 @@ func create_contacts_scene() -> void:
 	if not _ok(game.resolve_scene_contact_facts(["TEST.fact.read"])): return
 	var projection: Dictionary = app._presentation_port.get_projection("lavinia")
 	assert_eq(projection.value.entries[0].texts.en, "TEST incoming.")
-	assert_eq(_result_count("contact_entry_accepted"), 0, "read while computer held establishes eligibility only")
+	assert_eq(game.capture_run_snapshot_input().scene, parent.scene, "reading while Computer is held establishes eligibility without entering Contacts")
 	var read_contacts: Dictionary = game.contacts.duplicate(true)
 	await _click(app.contacts_panel.rows[row_index])
 	assert_eq(game.contacts, read_contacts, "opening already read correspondence creates no new receipt")
@@ -106,18 +94,21 @@ func create_contacts_scene() -> void:
 	await _click(_caption().caption_text)
 	if not await _wait_line("contact.test.a", "line.contact.test.a.one"): return
 	var child: Dictionary = game.capture_run_snapshot_input()
-	assert_eq(_result_count("contact_entry_accepted"), 1)
+	assert_eq(child.scene.entry_id, "contact.test.a")
+	assert_eq(child.scene.return_to.parent.active_occurrence_id, parent.scene.active_occurrence_id)
+	assert_eq(child.scene.return_to.parent.entry_id, parent.scene.entry_id)
 	assert_ne(child.scene.active_occurrence_id, parent.scene.active_occurrence_id)
 	assert_eq(child.gameplay.route_context, parent.gameplay.route_context)
 	assert_eq(child.contacts, read_contacts)
-	_check_contact_forgeries(child)
 	await _screenshot("contacts-child-before-save")
 	if not await _save_slot(1): return
-	var reading: Dictionary = bridge.capture_reading_checkpoint(false)
+	var saved: Dictionary = PARSER.parse_object(FileAccess.get_file_as_string("user://saves/slot_1.json"))
+	if not _ok(saved): return
+	_check_contact_state(saved.value.current_snapshot.snapshot)
 	var proof := {"process_id": OS.get_process_id(), "parent_scene": parent.scene,
 		"child_scene": child.scene, "contacts": read_contacts,
 		"board": child.gameplay.route_context.active_dating_challenge.board,
-		"reading": reading.value.reading_session.ledger,
+		"checkpoint": saved.value.current_snapshot.snapshot.narrative_checkpoint,
 		"slot_sha256": FileAccess.get_sha256("user://saves/slot_1.json")}
 	assert_eq(str(proof.slot_sha256).length(), 64)
 	if not _write_json("user://contacts-proof.json", proof): return
@@ -143,24 +134,25 @@ func load_contacts_scene() -> void:
 	assert_eq(game.capture_dating_challenge_state().value.state, "lost")
 	assert_eq(game.capture_dating_challenge_state().value.phase, "terminal")
 	assert_eq(game.capture_dating_challenge_state().value.board, proof.board)
-	assert_eq(bridge.capture_reading_checkpoint(false).value.reading_session.ledger, proof.reading)
-	assert_eq(_result_count("contact_entry_accepted"), 1)
-	assert_eq(_result_count("contact_returned"), 0)
+	var expected_reading: Dictionary = preload("res://scripts/narrative/SoloReadingSession.gd").expand_player_checkpoint(proof.checkpoint)
+	if not _ok(expected_reading): return
+	assert_eq(bridge.capture_reading_checkpoint(false).value, expected_reading.value,
+		"fresh Load restores full current Contacts caption from compact position")
+	assert_true(game.capture_run_snapshot_input().command_receipts.is_empty(), "Load restores no Scene command history")
 	await _screenshot("contacts-child-fresh-load")
 	var profile_before: Dictionary = profile.get_profile_snapshot().duplicate(true)
 	await _click(_caption().caption_text)
 	if not await _wait_line("scene.test.a", "line.scene.test.a.two"): return
 	var returned: Dictionary = game.capture_run_snapshot_input()
-	assert_eq(returned.scene, proof.parent_scene, "return reuses original parent occurrence and admission")
+	assert_eq(returned.scene, proof.parent_scene, "return restores the saved parent Scene directly")
 	assert_eq(returned.contacts, proof.contacts)
 	assert_eq(game.capture_dating_challenge_state().value.state, "lost")
 	assert_eq(game.capture_dating_challenge_state().value.phase, "terminal")
 	assert_eq(game.capture_dating_challenge_state().value.board, proof.board)
-	assert_eq(_result_count("contact_entry_accepted"), 1)
-	assert_eq(_result_count("contact_returned"), 1)
+	assert_null(returned.scene.return_to, "return consumes the single parent frame")
 	var ledger: Dictionary = bridge.capture_reading_checkpoint(false).value.reading_session.ledger
-	assert_eq(ledger.captions.size(), proof.reading.captions.size() + 1)
-	for index: int in proof.reading.captions.size(): assert_eq(ledger.captions[index], proof.reading.captions[index])
+	assert_eq(bridge._runtime_adapter.current_line_id(), "line.scene.test.a.two")
+	assert_true(bridge._runtime_adapter.is_current_line_complete(), "returned caption is fully visible")
 	# The newly rendered resume caption adds exactly its ordinary Profile witness.
 	var profile_after: Dictionary = profile.get_profile_snapshot().duplicate(true)
 	var expected_visits: Array = profile_before.visited_line_ids.duplicate()
@@ -179,12 +171,11 @@ func load_contacts_scene() -> void:
 	assert_eq(FileAccess.get_sha256("user://saves/slot_1.json"), proof.slot_sha256)
 	await _screenshot("contacts-parent-return")
 	if not await _save_slot(2): return
-	assert_eq(_result_count("contact_returned"), 1)
+	assert_null(game.capture_run_snapshot_input().scene.return_to)
 	assert_eq(game.capture_run_snapshot_input().scene, proof.parent_scene)
 	assert_eq(game.contacts, proof.contacts)
 	assert_eq(ready_count, 1)
 	proof["loader_process_id"] = OS.get_process_id()
 	proof["returned_scene"] = returned.scene
-	proof["return_count"] = _result_count("contact_returned")
 	proof["second_save_sha256"] = FileAccess.get_sha256("user://saves/slot_2.json")
 	_write_json("res://.godot/ci/contacts-connected-load-proof.json", proof)

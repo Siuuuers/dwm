@@ -30,10 +30,13 @@ func test_seven_days_and_registered_ending_compile_with_explicit_links() -> void
 		assert_eq(programme.markers[0].after_line_id, "line.Day%d.two" % (index + 1))
 		var target: String = "target.Day%d" % (index + 2) if index < 6 else "target.ending.alone.normal"
 		assert_eq(programme.markers[0].payload, {"target_id": target})
-	assert_eq(bundle.entry_manifest.entries[7].role, "alone_step")
+	assert_eq(bundle.entry_manifest.entries[7].role, "scene")
 	assert_eq(bundle.entry_manifest.entries[7].locators.en.path, "res://tests/fixtures/dialogic/Day7.dtl")
 	assert_eq(bundle.entry_manifest.entries[7].content_version, 1)
-	assert_eq(bundle.targets[7].target.kind, "ending")
+	assert_eq(bundle.targets[7].target.kind, "scene")
+	var passage := preload("res://scripts/narrative/ScenePassageCatalog.gd").inspect(bundle)
+	assert_true(passage.ok, str(passage))
+	if passage.ok: assert_eq(passage.value.records[TEMPLATES.PASSAGE_ID].line_ids, ["line.ending.alone.normal.one"])
 	assert_eq(bundle.challenges, [], "no mandatory Minesweeper")
 	assert_eq(bundle.board_profiles, [])
 	assert_eq(bundle.contacts, [])
@@ -48,13 +51,13 @@ func test_preparation_is_deterministic_and_detached() -> void:
 	first.value.registration.caption_registry.entries[0].lines[0].text = "changed"
 	assert_eq(second.value.registration.caption_registry.entries[0].lines[0].text, "TEST Day1 opening.")
 
-func test_ending_role_cannot_be_used_as_an_ordinary_scene_or_change_context() -> void:
+func test_passage_cannot_be_changed_to_ending_role_or_foreign_context() -> void:
 	var result: Dictionary = TEMPLATES.prepare()
 	assert_true(result.get("ok", false), str(result))
 	if not result.get("ok", false): return
 	var bundle: Dictionary = result.value.registration.duplicate(true)
-	bundle.targets[7].target.kind = "scene"
+	bundle.targets[7].target.kind = "ending"
 	assert_false(MANIFEST.validate_scene_registration(bundle).get("ok", false))
 	bundle = result.value.registration.duplicate(true)
-	bundle.context_registry.schemas[7].fields.entry_role = {"const": "scene"}
+	bundle.context_registry.schemas[7].fields.entry_role = {"const": "alone_step"}
 	assert_false(MANIFEST.validate_scene_registration(bundle).get("ok", false))

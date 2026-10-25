@@ -5,7 +5,6 @@ const STRICT := preload("res://scripts/validation/StrictJson.gd")
 const ADAPTER := preload("res://scripts/narrative/DialogicRuntimeAdapter.gd")
 const MANIFEST := preload("res://scripts/narrative/DialogicEntryManifest.gd")
 const BASE := preload("res://tests/templates/seven_day/SevenDayTemplates.gd")
-const ENDING_ID := "ending.alone.normal"
 
 static func prepare() -> Dictionary:
 	var parsed: Dictionary = STRICT.parse_object(FileAccess.get_file_as_string(SOURCE_PATH))
@@ -14,12 +13,6 @@ static func prepare() -> Dictionary:
 	var prepared: Dictionary = BASE.prepare()
 	if not prepared.ok: return prepared
 	var bundle: Dictionary = prepared.value.registration
-	var ending_entry := {}
-	var ending_context := {}
-	for row: Dictionary in bundle.entry_manifest.entries:
-		if row.entry_id == ENDING_ID: ending_entry = row.duplicate(true)
-	for row: Dictionary in bundle.context_registry.schemas:
-		if row.entry_id == ENDING_ID: ending_context = row.duplicate(true)
 	bundle.entry_manifest.entries = []
 	bundle.context_registry.schemas = []
 	bundle.ids_registry.lines = []
@@ -34,6 +27,7 @@ static func prepare() -> Dictionary:
 		"difficulty_id": "canonical_solo", "width": 18, "height": 18, "base_mine_count": 36,
 		"generator_version": "dwm_generator_v1", "verifier_version": "visible_deduction_v1", "capability_policy_id": "owned_inventory_v1"}]
 	var payloads := {"history.line.witness": ["entry_id", "line_id", "playback_token", "receipt_id"],
+		"passage.start": ["passage_id"], "passage.finish": ["passage_id"],
 		"scene.transition": ["target_id"], "thought.pass": ["opportunity_id", "yes_target_id", "pass_target_id"],
 		"thought.options": ["opportunity_id", "options", "pass_target_id"],
 		"challenge.playable": ["challenge_id"], "challenge.end": ["challenge_id"],
@@ -51,19 +45,19 @@ static func prepare() -> Dictionary:
 		bundle.scene_programme.story_days[id] = spec.story_day
 		var compiled: Dictionary = ADAPTER.compile_scene_programme(spec.path, id, ids, spec.markers)
 		if not compiled.ok: return compiled
-		var ending: bool = spec.role == "ending"
+		if spec.role != "scene": return {"ok": false, "code": "authored_scene_role_required"}
 		var grants: Array = ["history.line.witness"]
 		for marker: Dictionary in spec.markers:
 			if marker.kind not in grants: grants.append(marker.kind)
 		grants.sort()
-		var entry: Dictionary = ending_entry.duplicate(true) if ending else {
+		var entry: Dictionary = {
 			"entry_id": id, "role": "scene", "allowed_signals": grants,
 			"atom_namespace": "atom." + id, "line_namespace": "line." + id, "content_version": 1,
 			"context_schema_id": "context.scene." + id + ".v1", "visual_ids": {"required": [], "optional": []},
 			"presentation_signature_schema": {"schema_version": 1, "fields": {}}}
 		entry.locators = {"en": {"path": spec.path, "label": id}}
 		bundle.entry_manifest.entries.append(entry)
-		bundle.context_registry.schemas.append(ending_context.duplicate(true) if ending else {
+		bundle.context_registry.schemas.append({
 			"entry_id": id, "schema_id": entry.context_schema_id, "schema_version": 1,
 			"fields": {"entry_id": {"const": id}, "entry_role": {"const": "scene"},
 				"occurrence_id": "id", "admission_receipt_id": "id"}})
@@ -79,7 +73,7 @@ static func prepare() -> Dictionary:
 		bundle.caption_registry.entries.append({"entry_id": id, "lines": lines})
 		bundle.scene_programme.entries.append({"entry_id": id, "content_version": 1,
 			"content_sha256": compiled.value.content_sha256, "program_sha256": compiled.value.program_sha256, "markers": spec.markers})
-		bundle.targets.append({"target_id": "target." + id, "target": {"kind": "ending" if ending else "scene",
+		bundle.targets.append({"target_id": "target." + id, "target": {"kind": "scene",
 			"entry_id": id, "label": id, "content_version": 1, "program_sha256": compiled.value.program_sha256}})
 		bundle.audio_catalogue.bindings.append({"entry_id": id, "plan_id": BASE.MUSIC_PLAN_ID})
 	bundle.entry_manifest.entry_count = ids.size()

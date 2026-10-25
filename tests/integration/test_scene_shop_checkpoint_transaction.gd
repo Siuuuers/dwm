@@ -101,15 +101,15 @@ func test_shop_checkpoint_retry_custody_and_uncertain_commit() -> void:
 	var writes: int = fault.autosave_writes
 	var accepted_disk: Dictionary = storage.read_text("autosave.json")
 	var persisted: Dictionary = JSON.parse_string(str(accepted_disk.value))
-	assert_false(persisted.current_snapshot.snapshot.command_receipts.has(accepted.receipt.transaction_id),
+	assert_false(persisted.current_snapshot.snapshot.has("command_receipts"),
 		"player save retains purchase effects without the live retry receipt")
 	assert_eq(persisted.current_snapshot.snapshot.gameplay, after.gameplay)
 	assert_true(after.command_receipts.has(accepted.receipt.transaction_id), "live duplicate still has its acknowledgement")
 	var invalid_input: Dictionary = after.duplicate(true)
-	invalid_input.command_receipts[accepted.receipt.transaction_id].request_fingerprint = "invalid"
+	invalid_input.scene.entry_id = "missing.entry"
 	var invalid_build: Dictionary = preload("res://scripts/domain/run/RunSnapshotSchema.gd").build_scene(
 		invalid_input, reading.value, "scene", null, {}, 1, 99)
-	assert_false(invalid_build.get("ok", false), "projection cannot hide malformed live purchase receipts")
+	assert_false(invalid_build.get("ok", false), "required current position cannot be omitted with live retry records")
 	assert_eq(game.capture_run_snapshot_input(), after, "projection and rejected build do not mutate the live retry cache")
 	if not _ok(command.call()):
 		storage._file_ops = original_files
@@ -152,7 +152,7 @@ func test_shop_checkpoint_retry_custody_and_uncertain_commit() -> void:
 		var durable: Dictionary = stable.value.bundle.snapshot
 		assert_eq(durable.gameplay.money, after.gameplay.money - catalogue.get_shop_item("quiet_tea").price)
 		assert_eq(durable.gameplay.inventory.get("quiet_tea", 0), after.gameplay.inventory.get("quiet_tea", 0) + 1)
-		assert_eq(durable.command_receipts, preload("res://scripts/domain/run/RunSnapshotSchema.gd").project_player_command_receipts(after.command_receipts),
+		assert_false(durable.has("command_receipts"),
 			"uncertain durable purchase retains effects without either live purchase receipt")
 	assert_false(game._mutation_gate.guard_external(&"scene_shop").get("ok", false), "fatal latch blocks another debit")
 	_write_json("res://.godot/ci/scene-shop-transaction-proof.json", {"custody_faults": probe.hits,

@@ -9,5 +9,7 @@ return
 
 # Keep the registered ending in this seventh file.
 label ending.alone.normal
+label seven_day.passage.start
 TEST Seven-day ending. #id:line.ending.alone.normal.one
+label seven_day.passage.finish
 return
