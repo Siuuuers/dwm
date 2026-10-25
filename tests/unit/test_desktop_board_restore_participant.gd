@@ -69,3 +69,45 @@ func test_rollback_silent_rejects_a_malformed_backup() -> void:
 	if not _exists(): return
 	var participant := _participant(_fresh_state())
 	assert_false(participant.rollback_silent({}).get("ok", true), "rollback_silent requires backup.snapshot")
+
+
+func test_scene_player_restore_starts_empty_retry_session_and_rollback_recovers_genuine_result() -> void:
+	var root := preload("res://tests/support/FakeDesktopIssuerRootStore.gd").new("44".repeat(32), 1)
+	var issuer := preload("res://scripts/application/desktop/DesktopIdentityNonceIssuer.gd").new()
+	assert_true(issuer.configure(root).ok)
+	var state := _fresh_state()
+	assert_true(state.configure_scene_payments(issuer).ok)
+	var prepared: Dictionary = state.prepare_unpaid_shell({"transaction_id": "original-shell",
+		"request_fingerprint": "original-request", "identity": null, "expected_revision": 0},
+		"beginner", {"flagged_indices": [], "actions": []})
+	assert_true(prepared.ok, str(prepared))
+	if not prepared.ok: return
+	var original_candidate: Dictionary = prepared.value.candidate
+	var original_result: Dictionary = state.commit(original_candidate)
+	assert_true(original_result.ok, str(original_result))
+	var live: Dictionary = state.capture()
+	assert_true(live.command_receipts.has("original-shell"))
+	var participant: RefCounted = load(PARTICIPANT_PATH).new(state, issuer)
+	var backup: Dictionary = participant.capture().value
+	var player: Dictionary = load(BOARD_STATE_PATH).project_player_state(live)
+	assert_true(player.ok, str(player))
+	if not player.ok: return
+	assert_false(player.value.snapshot.has("command_receipts"))
+	assert_eq(state.capture(), live, "player projection cannot clear live retry records")
+	assert_eq(backup.snapshot, live, "temporary backup retains genuine retry records")
+	assert_false(participant.prepare({"schema_version": 9, "state": live}).ok,
+		"player admission refuses the full live-only ledger shape")
+	prepared = participant.prepare({"schema_version": 9, "state": player.value.snapshot})
+	assert_true(prepared.ok, str(prepared))
+	if not prepared.ok: return
+	assert_eq(state.capture(), live, "preparing Load leaves the old session intact")
+	assert_true(participant.apply_silent(prepared.value.board_plan).ok)
+	assert_true(state.capture().command_receipts.is_empty(), "successful adoption starts a fresh retry session")
+	assert_eq(state.capture().candidate, live.candidate)
+	assert_eq(state.commit(original_candidate).get("code"), &"stale_revision",
+		"the old acknowledged command is not replayed after player restoration")
+	assert_true(participant.rollback_silent(backup).ok)
+	assert_eq(state.capture(), live, "later participant failure restores the whole prior live board")
+	assert_eq(state.commit(original_candidate), original_result,
+		"rollback restores the genuine acknowledgement needed by the original retry")
+	assert_eq(state.capture(), live, "replayed acknowledgement does not mutate restored state")

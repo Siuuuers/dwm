@@ -247,6 +247,8 @@ func test_next_day_debug_round_one_does_not_inherit_yesterdays_payment() -> void
 	request["cell_index"] = 0
 	if not _ok(coordinator.reveal(request), "Day1 paid Reveal"): return
 	assert_true(board.capture().round_paid)
+	assert_false(board.capture().board.has("paid_start_receipt"))
+	assert_eq(board.capture().board.spec.difficulty_id, "beginner")
 	assert_eq(game.minesweeper_rounds_left, 1)
 	before = game.capture_run_snapshot_input().duplicate(true)
 	var renewal: Dictionary = game._prepare_scene_day_renewal(trigger, "TEST.target", fixture.bundle, FIXTURE.identity(fixture.lifecycle))
@@ -283,7 +285,9 @@ func test_next_day_debug_round_one_does_not_inherit_yesterdays_payment() -> void
 
 
 func _restore_payment_board(saved: Dictionary) -> bool:
-	var encoded: Dictionary = WRITER.stringify(saved)
+	var player := saved.duplicate(true)
+	player.erase("command_receipts")
+	var encoded: Dictionary = WRITER.stringify(player)
 	if not _ok(encoded, "encode payment snapshot"): return false
 	var decoded: Dictionary = STRICT.parse_object(encoded.value)
 	if not _ok(decoded, "decode payment snapshot"): return false
@@ -293,7 +297,10 @@ func _restore_payment_board(saved: Dictionary) -> bool:
 	if not _ok(prepared, "prepare fresh payment owner"): return false
 	if not _ok(participant.apply_silent(prepared.value.board_plan), "adopt restored payment board"): return false
 	if not _ok(participant.finalize(), "finalize payment participant"): return false
-	assert_eq(WRITER.stringify(restored.capture()).value, encoded.value, "serialized state stays byte-equal")
+	var restored_live: Dictionary = restored.capture()
+	assert_true(restored_live.command_receipts.is_empty(), "player restore starts a fresh live command session")
+	restored_live.erase("command_receipts")
+	assert_eq(WRITER.stringify(restored_live).value, encoded.value, "serialized current state stays byte-equal")
 	board = restored
 	# Fixture replaces its participant owner; the snapshot-provider callable reads this same board.
 	game._scene_day_board = board
@@ -318,6 +325,7 @@ func test_paid_debug_preparing_and_certified_restore_preserve_spec_and_never_cha
 	var preparing: Dictionary = board.capture()
 	assert_eq(preparing.phase, "PREPARING")
 	assert_true(preparing.round_paid)
+	assert_false(preparing.candidate.has("paid_start_receipt"))
 	assert_eq(game.minesweeper_rounds_left, 1)
 	if not _restore_payment_board(preparing): return
 	# Changed live inputs cannot reconstruct or replace the frozen recipe on restoration.
@@ -330,6 +338,7 @@ func test_paid_debug_preparing_and_certified_restore_preserve_spec_and_never_cha
 		WRITER.stringify(preparing.candidate.frontier).value)
 	if not _certify_payment_board(coordinator, true, 1): return
 	var certified: Dictionary = board.capture()
+	assert_false(certified.candidate.has("paid_start_receipt"))
 	if not _restore_payment_board(certified): return
 	coordinator = _payment_coordinator()
 	if coordinator == null: return
@@ -359,6 +368,9 @@ func test_scene_first_reveal_failed_write_keeps_payment_and_allowance_consistent
 	assert_eq(game.minesweeper_rounds_left, 2)
 	var retried: Dictionary = coordinator.reveal(request)
 	if not _ok(retried, "retry failed first-Reveal write"): return
+	assert_eq(retried, {"ok": true, "code": &"first_reveal_committed",
+		"value": {"revision": board.capture().revision}, "receipt": {}},
+		"genuine live retry retains only its acknowledgement, not a board/payment/publication archive")
 	assert_true(board.capture().round_paid)
 	assert_eq(game.minesweeper_rounds_left, 1)
 	assert_eq(coordinator.reveal(request), retried)

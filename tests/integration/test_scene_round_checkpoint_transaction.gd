@@ -54,6 +54,13 @@ func test_scene_round_physical_refusal_retry_conflict_and_uncertain_acknowledgme
 	assert_eq(started.get("code"), &"scene_activation_pending", str(started))
 	if started.get("code") != &"scene_activation_pending" or not await _await_ready() or not await _line_ready(): return
 	if not await _terminal_board(): return
+	var original_spec: Dictionary = bootstrap._desktop_board_state.capture().board.spec.duplicate(true)
+	assert_eq(original_spec.difficulty_id, "beginner")
+	assert_false(bootstrap._desktop_board_state.capture().board.has("paid_start_receipt"))
+	# Later selection and ownership changes do not change the first board's frozen reward tier.
+	game.minesweeper_selected_difficulty = "expert"
+	game.inventory["debug_key"] = 1
+	assert_eq(bootstrap._desktop_board_state.capture().board.spec, original_spec)
 	var owner: Object = bootstrap._retained_minesweeper_round_coordinator_app
 	var request := _request()
 	if request.is_empty(): return
@@ -89,7 +96,9 @@ func test_scene_round_physical_refusal_retry_conflict_and_uncertain_acknowledgme
 	var accepted: Dictionary = owner.complete_round(request)
 	if not _ok(accepted): return
 	var after: Dictionary = game.capture_run_snapshot_input().duplicate(true)
-	assert_eq(after.gameplay.money, before.gameplay.money + 1)
+	assert_eq(after.gameplay.money, before.gameplay.money + 1, "beginner explosion reward ignores selected expert tier")
+	assert_eq(after.desktop.board.board.spec, original_spec)
+	assert_eq(after.command_receipts[request.transaction_id].scene_round_completion.completion.difficulty, "beginner")
 	assert_eq(after.gameplay.minesweeper_app_rounds_finished_today, 1)
 	assert_eq(after.desktop.consequence.shop_ledger.base_completion_receipts.size(), 1)
 	assert_true(bootstrap._desktop_board_state.has_settled_inspection())
@@ -120,6 +129,7 @@ func test_scene_round_physical_refusal_retry_conflict_and_uncertain_acknowledgme
 	assert_false(owner.complete_round(changed).get("ok", false))
 	assert_eq(game.capture_run_snapshot_input(), after)
 	# Start the second real ordinary board. Discard only the settled inspection.
+	game.inventory.erase("debug_key")
 	var port: RefCounted = _desktop_port()
 	if not _ok(port.pull("beginner")): return
 	var configuration: Dictionary = owner.get_configuration_context()

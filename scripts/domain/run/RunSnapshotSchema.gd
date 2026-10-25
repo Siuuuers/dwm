@@ -650,6 +650,13 @@ static func build_scene(snapshot_input: Dictionary, dialogic_checkpoint: Diction
 			or not snapshot_input.lifecycle is Dictionary:
 		return _fail(&"invalid_snapshot_input", "scene input requires its exact complete owner shape")
 	var snapshot: Dictionary = snapshot_input.duplicate(true)
+	if not snapshot.get("desktop") is Dictionary or not snapshot.desktop.get("board") is Dictionary:
+		return _fail(&"invalid_desktop_aggregate", "desktop board input is required")
+	# Only the outgoing player document omits transient retries. Live captures and
+	# prospective transactions keep their complete owner state for rollback.
+	var player_board: Dictionary = DESKTOP_BOARD_STATE.project_player_state(snapshot.desktop.board)
+	if not player_board.ok: return player_board
+	snapshot.desktop.board = player_board.value.snapshot
 	snapshot.merge({"schema_version": SCENE_SCHEMA_VERSION, "content_version": content_version,
 		"run_id": snapshot_input.lifecycle.get("run_id"), "checkpoint_sequence": checkpoint_sequence,
 		"checkpoint_id": "%s:%d" % [str(snapshot_input.lifecycle.get("run_id", "")), checkpoint_sequence],
@@ -666,6 +673,13 @@ static func build_scene_new_run_candidate(snapshot_input: Dictionary, dialogic_c
 	if not _scene_keys(snapshot_input, SCENE_INPUT_KEYS) or not snapshot_input.lifecycle is Dictionary:
 		return _fail(&"invalid_snapshot_input", "initial scene input requires its complete owner shape")
 	var snapshot: Dictionary = snapshot_input.duplicate(true)
+	if not snapshot.get("desktop") is Dictionary or not snapshot.desktop.get("board") is Dictionary:
+		return _fail(&"invalid_desktop_aggregate", "desktop board input is required")
+	# Only the outgoing player document omits transient retries. Live captures and
+	# prospective transactions keep their complete owner state for rollback.
+	var player_board: Dictionary = DESKTOP_BOARD_STATE.project_player_state(snapshot.desktop.board)
+	if not player_board.ok: return player_board
+	snapshot.desktop.board = player_board.value.snapshot
 	snapshot.merge({"schema_version": SCENE_SCHEMA_VERSION, "content_version": content_version,
 		"run_id": snapshot_input.lifecycle.get("run_id"), "checkpoint_sequence": 1,
 		"checkpoint_id": str(snapshot_input.lifecycle.get("run_id", "")) + ":1",
@@ -733,6 +747,9 @@ static func validate_scene_new_run_candidate(snapshot: Dictionary, allocation_ca
 	desktop.board.erase("terminal_receipts")
 	desktop.board["settled_inspection"] = false
 	desktop.board["round_paid"] = false
+	var player_board: Dictionary = DESKTOP_BOARD_STATE.project_player_state(desktop.board)
+	if not player_board.ok: return player_board
+	desktop.board = player_board.value.snapshot
 	if not _scene_exact_value(candidate.desktop, desktop):
 		return _fail(&"scene_initial_state_invalid", "initial desktop cannot contain prior attempts or consequences")
 	var reading := _validate_scene_reading(candidate)
@@ -871,7 +888,7 @@ static func _validate_scene_observed_body(snapshot: Dictionary, bundle: Dictiona
 	if not _scene_keys(candidate.desktop, DESKTOP_KEYS) or not candidate.desktop.board is Dictionary \
 			or not candidate.desktop.consequence is Dictionary:
 		return _fail(&"invalid_desktop_aggregate", "desktop requires its exact owners")
-	var board: Dictionary = DESKTOP_BOARD_STATE.new().prepare_restore_scene(candidate.desktop.board, _scene_issuer)
+	var board: Dictionary = DESKTOP_BOARD_STATE.new().prepare_player_restore_scene(candidate.desktop.board, _scene_issuer)
 	if not board.ok: return board
 	var consequence: Dictionary = DESKTOP_CONSEQUENCE_STATE.validate(candidate.desktop.consequence)
 	if not consequence.ok: return consequence

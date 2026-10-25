@@ -1033,7 +1033,7 @@ func _pause_save_board(game: Node, route: String) -> Dictionary:
 		return {"phase": owner.phase, "candidate": owner.candidate.duplicate(true)}
 	if not owner.get("board") is Dictionary: return {}
 	return {"board": owner.board.board.duplicate(true),
-		"spec": owner.board.get("spec", {"difficulty": owner.board.paid_start_receipt.difficulty_id}).duplicate(true),
+		"spec": owner.board.spec.duplicate(true) if owner.board.has("spec") else {"difficulty": owner.board.paid_start_receipt.difficulty_id},
 		"phase": "terminal" if owner.board.board.terminal else "active"}
 
 

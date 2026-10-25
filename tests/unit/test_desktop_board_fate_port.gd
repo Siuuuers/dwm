@@ -760,7 +760,26 @@ func test_fresh_round_departure_prepares_before_source_projection_then_commits_f
 	assert_eq(_ledger_records(fresh["ledger"]).size(), 1)
 
 
+class CurrentSceneGeneration:
+	extends "res://tests/support/FakeMinesweeperGenerationPort.gd"
+
+	func begin_search(spec: Dictionary) -> Dictionary:
+		var kernel := preload("res://scripts/domain/minesweeper/MinesweeperGeneratorKernel.gd")
+		var projected: Dictionary = {}
+		for key: String in kernel.SPEC_KEYS: projected[key] = spec[key]
+		var states: Array[Dictionary] = []
+		for stream: String in ["placement", "debug", "explosion"]:
+			var rng := preload("res://scripts/domain/minesweeper/DeterministicRng32.gd").new()
+			var seeded := rng.seed(StringName(spec[stream + "_stream_id"]), spec[stream + "_nonce"])
+			if not seeded.ok: return seeded
+			states.append(rng.capture().value)
+		var begun := kernel.begin(projected, 0, kernel.MODE_CANDIDATE_SEARCH, states[0], states[1], states[2])
+		if not begun.ok: return begun
+		return {"ok": true, "value": {"frontier": begun.value.preparation}}
+
+
 func test_scene_departure_discards_preparation_without_adding_terminal_history() -> void:
+	_coordinator._generation_port = CurrentSceneGeneration.new()
 	assert_true(_coordinator._board_state.configure_scene_payments(_issuer).ok)
 	var wired := _wired()
 	if wired.is_empty(): return

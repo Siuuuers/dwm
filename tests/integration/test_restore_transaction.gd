@@ -323,3 +323,50 @@ func test_failed_rollback_preserves_sparse_owner_and_original_refusals() -> void
 	assert_eq(diagnostics[1].code, "TEST.original_refusal")
 	assert_eq(diagnostics[1].message, "initial owner refusal")
 	assert_eq(diagnostics[1].details, {})
+
+
+func test_later_audio_failure_restores_real_scene_board_and_genuine_retry_result() -> void:
+	var log: RefCounted = load(CALL_LOG).new()
+	var wired := _manager(log)
+	if wired.is_empty(): return
+	var root := preload("res://tests/support/FakeDesktopIssuerRootStore.gd").new("55".repeat(32), 1)
+	var issuer := preload("res://scripts/application/desktop/DesktopIdentityNonceIssuer.gd").new()
+	assert_true(issuer.configure(root).ok)
+	var board := preload("res://scripts/domain/minesweeper/DesktopBoardState.gd").new()
+	assert_true(board.configure_scene_payments(issuer).ok)
+	var shell: Dictionary = board.prepare_unpaid_shell({"transaction_id": "live-shell",
+		"request_fingerprint": "live-shell-request", "identity": null, "expected_revision": 0},
+		"beginner", {"flagged_indices": [], "actions": []})
+	assert_true(shell.ok, str(shell))
+	if not shell.ok: return
+	var acknowledged: Dictionary = board.commit(shell.value.candidate)
+	assert_true(acknowledged.ok, str(acknowledged))
+	var before: Dictionary = board.capture()
+	assert_true(before.command_receipts.has("live-shell"))
+	var target := before.duplicate(true)
+	target.phase = "NONE"
+	target.candidate = null
+	target.revision += 1
+	var projected: Dictionary = preload("res://scripts/domain/minesweeper/DesktopBoardState.gd").project_player_state(target)
+	assert_true(projected.ok, str(projected))
+	if not projected.ok: return
+	var participant := preload("res://scripts/application/restore/DesktopBoardRestoreParticipant.gd").new(board, issuer)
+	var board_plan: Dictionary = participant.prepare({"schema_version": 9, "state": projected.value.snapshot})
+	assert_true(board_plan.ok, str(board_plan))
+	if not board_plan.ok: return
+	wired.participants.desktop_board = participant
+	assert_true(wired.manager.configure_restore_participants(wired.participants).ok)
+	wired.participants.audio.set_failure(&"apply_silent")
+	var prepared := _prepared()
+	prepared.participant_plans.desktop_board = board_plan.value.board_plan
+	watch_signals(wired.manager)
+	var failed: Dictionary = wired.manager.commit_prepared_restore(prepared)
+	assert_eq(failed.get("code"), &"forced_apply_failure", str(failed))
+	assert_true(log.entries.has("audio.apply_silent"), "failure occurs after the real board participant applies")
+	assert_eq(board.capture(), before, "orchestrated compensation restores facts and the live retry ledger")
+	assert_eq(board.commit(shell.value.candidate), acknowledged, "the original command replays its genuine acknowledgement")
+	assert_eq(board.capture(), before, "retry does not apply the old command again")
+	assert_false(wired.manager.is_save_locked())
+	assert_false(wired.gate.is_active())
+	assert_false(wired.gate.is_fatal_latched())
+	assert_signal_not_emitted(wired.manager, "run_restored")

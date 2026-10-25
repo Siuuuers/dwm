@@ -237,6 +237,18 @@ func prepare_first_reveal(board_candidate: Dictionary, transaction_id: String,
 	if not bool(facts["eligible"]):
 		return _fail(&"insufficient_capacity", "no eligible ordinal or capacity remains", {})
 	var rounds_left: int = int(facts["rounds_left"])
+	var causal_day_instance: String = str(facts["causal_day_instance"])
+	var run_candidate := {
+		"transaction_id": transaction_id, "rounds_left": rounds_left - 1,
+		"starts_today": (_starts_today.duplicate(true) as Dictionary),
+	}
+	(run_candidate["starts_today"] as Dictionary)[causal_day_instance] = \
+		int((run_candidate["starts_today"] as Dictionary).get(causal_day_instance, 0)) + 1
+	if _game_state.has_method("scene_round_completion_active") and _game_state.scene_round_completion_active():
+		return {"ok": true, "code": &"ok", "value": {
+			"run_candidate": run_candidate,
+			"snapshot_input": {"transaction_id": transaction_id, "run_id": str(facts.run_id)},
+		}, "receipt": {}}
 	var board: Dictionary = board_candidate["board"]
 	var layout_view := {
 		"schema_version": 1, "width": board["width"], "height": board["height"],
@@ -264,13 +276,6 @@ func prepare_first_reveal(board_candidate: Dictionary, transaction_id: String,
 		"layout_sha256": layout_sha256,
 		"proof_sha256": board_candidate.get("proof_sha256", null), "checkpoint_id": expected_checkpoint_id,
 	}
-	var causal_day_instance: String = str(facts["causal_day_instance"])
-	var run_candidate := {
-		"transaction_id": transaction_id, "rounds_left": rounds_left - 1,
-		"starts_today": (_starts_today.duplicate(true) as Dictionary),
-	}
-	(run_candidate["starts_today"] as Dictionary)[causal_day_instance] = \
-		int((run_candidate["starts_today"] as Dictionary).get(causal_day_instance, 0)) + 1
 	return {"ok": true, "code": &"ok", "value": {
 		"run_candidate": run_candidate, "receipt": receipt.duplicate(true),
 		"snapshot_input": {"transaction_id": transaction_id, "run_id": str(facts["run_id"])},
@@ -303,12 +308,13 @@ func prepare_first_reveal_consequence(board_candidate: Dictionary, transaction_i
 		if not captured.get("ok", false):
 			return captured
 		expected_run_revision = int(((captured["value"] as Dictionary)["state"] as Dictionary)["run_revision"])
-	return {"ok": true, "code": &"ok", "value": {
+	var value := {
 		"game_state_candidate": (base_value["run_candidate"] as Dictionary).duplicate(true),
 		"consequence_candidate": {"expected_run_revision": expected_run_revision},
-		"receipt": (base_value["receipt"] as Dictionary).duplicate(true),
-		"publication": (base_value["publication"] as Dictionary).duplicate(true),
-	}, "receipt": {}}
+	}
+	for key: String in ["receipt", "publication"]:
+		if base_value.has(key): value[key] = base_value[key].duplicate(true)
+	return {"ok": true, "code": &"ok", "value": value, "receipt": {}}
 
 
 ## Recomputes identity/transaction/revision/checkpoint parity across all three candidates (brief

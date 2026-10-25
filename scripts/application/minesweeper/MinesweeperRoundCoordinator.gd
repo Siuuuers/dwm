@@ -929,13 +929,14 @@ func _first_reveal(request: Dictionary) -> Dictionary:
 		return shape
 	var transaction_id := str(request["transaction_id"])
 	var fingerprint := _fingerprint(request)
-	var ledger: Dictionary = _board_state.capture()["command_receipts"]
+	var captured: Dictionary = _board_state.capture()
+	var ledger: Dictionary = captured.command_receipts
 	if ledger.has(transaction_id):
 		var entry: Dictionary = ledger[transaction_id]
 		if str(entry["request_fingerprint"]) != fingerprint:
 			return _fail(&"transaction_conflict", "", {"transaction_id": transaction_id})
 		var stored: Dictionary = entry["result"]
-		if str(stored.get("code", "")) != "first_reveal_committed": return stored.duplicate(true)
+		if captured.has("round_paid") or str(stored.get("code", "")) != "first_reveal_committed": return stored.duplicate(true)
 		var stored_value: Dictionary = stored.get("value", {})
 		return _republish_first_reveal(stored_value)
 
@@ -943,7 +944,6 @@ func _first_reveal(request: Dictionary) -> Dictionary:
 	if not verify.get("ok", false):
 		return verify
 
-	var captured: Dictionary = _board_state.capture()
 	var phase: String = captured["phase"]
 	if phase not in ["NONE", "UNPAID_UNSTARTED", "PREPARED_UNSTARTED"]:
 		return _fail(&"first_reveal_requires_none_or_prepared_phase", "", {"phase": phase})
@@ -1020,8 +1020,8 @@ func _first_reveal(request: Dictionary) -> Dictionary:
 		return state_prepared
 	var state_value: Dictionary = state_prepared["value"]
 	var run_candidate: Dictionary = state_value["run_candidate"]
-	var receipt: Dictionary = state_value["receipt"]
-	var publication: Dictionary = state_value["publication"]
+	var receipt: Dictionary = state_value.get("receipt", {})
+	var publication: Dictionary = state_value.get("publication", {})
 
 	var checkpoint_prepared: Dictionary = _checkpoint_port.call(&"prepare_checkpoint", state_value["snapshot_input"],
 		&"board_start", {"kind": &"none", "reason": &"stage"})
@@ -1057,6 +1057,9 @@ func _first_reveal(request: Dictionary) -> Dictionary:
 		"value": {"receipt": receipt.duplicate(true), "publication": publication.duplicate(true)},
 		"receipt": {},
 	}
+	if captured.has("round_paid"):
+		board_candidate.result_override = {"ok": true, "code": &"first_reveal_committed",
+			"value": {"revision": int(captured.revision) + 1}, "receipt": {}}
 
 	var checkpoint_commit: Dictionary = _checkpoint_port.call(&"commit_checkpoint", checkpoint_candidate)
 	if not checkpoint_commit.get("ok", false):
@@ -1083,6 +1086,8 @@ func _first_reveal(request: Dictionary) -> Dictionary:
 			["checkpoint_port", func(): return _checkpoint_port.call(&"rollback", checkpoint_backup)],
 		], seal)
 
+	if captured.has("round_paid"):
+		return board_candidate.result_override.duplicate(true)
 	var published: Dictionary = _state_port.call(&"publish", publication)
 	if not published.get("ok", false):
 		return _fail(&"FIRST_REVEAL_COMMITTED_UNPUBLISHED", "",
@@ -1110,13 +1115,14 @@ func _first_reveal_durable(request: Dictionary) -> Dictionary:
 		return shape
 	var transaction_id := str(request["transaction_id"])
 	var fingerprint := _fingerprint(request)
-	var ledger: Dictionary = _board_state.capture()["command_receipts"]
+	var captured: Dictionary = _board_state.capture()
+	var ledger: Dictionary = captured.command_receipts
 	if ledger.has(transaction_id):
 		var entry: Dictionary = ledger[transaction_id]
 		if str(entry["request_fingerprint"]) != fingerprint:
 			return _fail(&"transaction_conflict", "", {"transaction_id": transaction_id})
 		var stored: Dictionary = entry["result"]
-		if str(stored.get("code", "")) != "first_reveal_committed": return stored.duplicate(true)
+		if captured.has("round_paid") or str(stored.get("code", "")) != "first_reveal_committed": return stored.duplicate(true)
 		var stored_value: Dictionary = stored.get("value", {})
 		return _republish_first_reveal(stored_value)
 	profile_tick = _consequence_profile_phase(profile, "board_capture_us", profile_tick)
@@ -1126,7 +1132,6 @@ func _first_reveal_durable(request: Dictionary) -> Dictionary:
 	if not verify.get("ok", false):
 		return verify
 
-	var captured: Dictionary = _board_state.capture()
 	var phase: String = captured["phase"]
 	if phase not in ["NONE", "UNPAID_UNSTARTED", "PREPARED_UNSTARTED"]:
 		return _fail(&"first_reveal_requires_none_or_prepared_phase", "", {"phase": phase})
@@ -1204,8 +1209,8 @@ func _first_reveal_durable(request: Dictionary) -> Dictionary:
 	var prep_value: Dictionary = consequence_prepared["value"]
 	var game_state_candidate: Dictionary = prep_value["game_state_candidate"]
 	var consequence_candidate: Dictionary = prep_value["consequence_candidate"]
-	var receipt: Dictionary = prep_value["receipt"]
-	var publication: Dictionary = prep_value["publication"]
+	var receipt: Dictionary = prep_value.get("receipt", {})
+	var publication: Dictionary = prep_value.get("publication", {})
 
 	var board_input := {
 		"transaction_id": transaction_id, "identity": identity,
@@ -1237,6 +1242,9 @@ func _first_reveal_durable(request: Dictionary) -> Dictionary:
 		"value": {"receipt": receipt.duplicate(true), "publication": publication.duplicate(true)},
 		"receipt": {},
 	}
+	if captured.has("round_paid"):
+		board_candidate.result_override = {"ok": true, "code": &"first_reveal_committed",
+			"value": {"revision": int(captured.revision) + 1}, "receipt": {}}
 
 	var composed: Dictionary = _snapshot_composer.call(&"compose", base_snapshot_input,
 		game_state_candidate, board_candidate, consequence_candidate)
@@ -1286,6 +1294,8 @@ func _first_reveal_durable(request: Dictionary) -> Dictionary:
 			["checkpoint_port", func(): return _durable_checkpoint_port.call(&"rollback", checkpoint_backup)],
 		], board_commit)
 
+	if captured.has("round_paid"):
+		return board_candidate.result_override.duplicate(true)
 	var published: Dictionary = _state_port.call(&"publish", publication)
 	_consequence_profile_phase(profile, "publish_us", profile_tick)
 	if not published.get("ok", false):
@@ -1826,7 +1836,7 @@ func _paid_shell_reveal(request: Dictionary) -> Dictionary:
 	var input := {"transaction_id": str(request.transaction_id), "identity": state.identity,
 		"expected_revision": int(request.expected_revision), "request_fingerprint": str(prior.fingerprint),
 		"cell_index": int(request.cell_index), "spec": candidate.spec}
-	var prepared := _board_state.prepare_first_reveal(input, {"layout": layout, "board": reduced.value.board}, candidate.paid_start_receipt)
+	var prepared := _board_state.prepare_first_reveal(input, {"layout": layout, "board": reduced.value.board}, {} if state.has("round_paid") else candidate.paid_start_receipt)
 	if not prepared.ok: return prepared
 	prepared.value.candidate["result_override"] = {"ok": true, "code": &"paid_reveal_committed", "value": {"revision": int(state.revision) + 1}}
 	_paid_reveal_pending = {"before": state.duplicate(true), "fingerprint": fingerprint, "candidate": prepared.value.candidate.duplicate(true)}
