@@ -188,6 +188,69 @@ Follow [the approved Save/Load design record](../docs/design/2026-10-25-save-loa
 Keep current choices. Do not invent Day7's missing second authored endpoint.
 Do not add an ending selector. Remove approved optional metadata only after replacing its consumers.
 
+## Later owner discussion — 25 October 2026
+
+These notes record the later discussion. They do not claim new runtime changes or test results.
+
+### Day renewal and payment
+
+The owner confirmed that day renewal discards the unfinished board.
+Clear that board's payment status when the board is discarded.
+Start the new unpaid board with payment status false.
+Do not add a day field solely to infer board payment.
+Do not consult yesterday's payment receipts to determine today's payment status.
+Keep required Run and board identity checks for their separate purposes.
+
+GameState owns the daily allowance. DesktopBoardState owns current board payment status.
+Commit the allowance debit and payment status together.
+A failed operation must not leave these values inconsistent.
+The payment collision described above remains unfixed.
+
+### Temporary Load backup
+
+The owner proposed a backup before Load and accepted the explanation of an in-memory backup.
+Use existing owners to preserve the live state that Load can change.
+Do not introduce a hidden disk save slot or a new backup manager for this purpose.
+A disk backup would add another write and could require the same failing Load path.
+
+Run identity checks establish whether data belongs together.
+They do not make updates across owners occur as one indivisible operation.
+Two saves from the same Run can also contain different progress.
+A partial Load can therefore mix states even when each source has a valid identity.
+
+Prepare and validate the requested save before changing live state.
+Keep input paused while installing the prepared state.
+Capture the necessary live backup before the first live change.
+Discard the backup after successful activation.
+If installation fails, restore the previous live state before enabling input.
+Use the existing controlled rollback path. Do not replay gameplay effects or start another normal Load.
+If rollback fails, keep input blocked. Do not expose a partially restored game.
+
+A player save preserves the facts needed to resume later.
+A live backup must also preserve relevant pending operations and genuine retry results.
+Audit actual callers before retaining each temporary field.
+Do not require all historical receipts merely because the current backup contains them.
+
+Retry handling prevents the same operation from charging or mutating state twice.
+A retry is another attempt at the same operation, not an ordinary second player action.
+Successful Load starts a fresh command session.
+Failed Load must preserve the prior session state needed to continue safely.
+
+### Testing and completion status
+
+The owner requested explanation only during this discussion.
+Do not run new tests or benchmarks solely for these questions or this documentation update.
+Defer final acceptance and performance measurement until the planned implementation is ready.
+This request does not establish that untested implementation is qualified.
+
+The original PR83 optimization is complete.
+The broader compact-save replacement remains incomplete.
+Payment status, separate live backups, direct reading restoration, and approved payload omissions still need work.
+Passing functional tests does not establish smooth Save/Load performance.
+The original Windows diagnostic timings are historical source-project measurements.
+They are not current installed-game timings.
+Do not claim a new speed improvement without a matched complete-operation measurement.
+
 ## Work instructions
 
 Check live master before starting. Do not repeat merged work.
