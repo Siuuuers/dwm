@@ -2332,6 +2332,14 @@
       "disposition": "retain",
       "replacement": "",
       "contract_test": "test_scene_round_physical_refusal_retry_conflict_and_uncertain_acknowledgment"
+    },
+    {
+      "symbol": "return_completed_scene_passage",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_completed_load_returns_title_and_gallery_replays_only_passage"
     }
   ]
 }

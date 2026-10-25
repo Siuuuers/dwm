@@ -518,6 +518,13 @@ static func _registered_locale_count() -> int:
 	return 0
 
 
+static func is_scene_passage_id(value: Variant) -> bool:
+	return preload("res://scripts/narrative/ScenePassageCatalog.gd").valid_id(value)
+
+static func valid_gallery_id(value: Variant) -> bool:
+	return value is String and (value in ENDING_IDS or is_scene_passage_id(value))
+
+
 static func _validate_gallery_receipts(value: Variant) -> Dictionary:
 	if typeof(value) != TYPE_DICTIONARY:
 		return _invalid("gallery_transaction_receipts", "receipt ledger must be an object")
@@ -529,7 +536,7 @@ static func _validate_gallery_receipts(value: Variant) -> Dictionary:
 			return _invalid("gallery_transaction_receipts", "receipt must be an object")
 		var exact := _require_keys(receipt, ["ending_id", "unlocked"], "gallery receipt")
 		if not exact.get("ok", false): return exact
-		if typeof(receipt["ending_id"]) != TYPE_STRING or receipt["ending_id"] not in ENDING_IDS or typeof(receipt["unlocked"]) != TYPE_BOOL:
+		if typeof(receipt["ending_id"]) != TYPE_STRING or not valid_gallery_id(receipt["ending_id"]) or typeof(receipt["unlocked"]) != TYPE_BOOL:
 			return _invalid("gallery_transaction_receipts", "receipt values are invalid")
 	return {"ok": true}
 
@@ -596,7 +603,8 @@ static func _validate_unique_strings(value: Variant, path: String, allowlist: Ar
 			return _invalid(path, path + " entries must be nonempty Strings")
 		if seen.has(item):
 			return _invalid(path, path + " entries must be unique")
-		if not allowlist.is_empty() and item not in allowlist:
+		if not allowlist.is_empty() and item not in allowlist \
+				and not (path == "gallery_unlocks" and is_scene_passage_id(item)):
 			return _invalid(path, "unknown ending ID")
 		seen[item] = true
 	return {"ok": true}

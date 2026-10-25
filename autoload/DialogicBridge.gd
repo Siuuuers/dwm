@@ -101,22 +101,30 @@ func hold_scene_entry_source() -> Dictionary:
 	_scene_stage_busy = false
 	return held
 
-## Only a durably admitted terminal plan may retire the source scene. Clear the
+## Only a durable terminal plan or completed passage may retire the source scene. Clear the
 ## old native token before stopping so its late callbacks cannot complete it.
 func retire_scene_for_ending(admission_id: String) -> Dictionary:
 	var game := get_node_or_null("/root/GameState")
 	if game == null or not game.has_method("capture_run_snapshot_input"):
 		return _command_failure(&"scene_terminal_unavailable")
 	var snapshot: Dictionary = game.capture_run_snapshot_input()
-	var plan: Variant = snapshot.get("lifecycle", {}).get("ending_plan")
-	if not plan is Dictionary or plan.get("source_kind") != "scene":
-		return _command_failure(&"scene_terminal_unavailable")
-	if plan.admission.admission_id != admission_id:
-		return _command_failure(&"scene_terminal_admission_mismatch")
+	var lifecycle: Dictionary = snapshot.get("lifecycle", {})
+	var plan: Variant = lifecycle.get("ending_plan")
+	var occurrence := ""
+	if lifecycle.get("state") == "COMPLETED" and not lifecycle.has("ending_plan"):
+		if admission_id != "passage:" + str(lifecycle.get("run_id", "")):
+			return _command_failure(&"scene_terminal_admission_mismatch")
+		occurrence = str(snapshot.get("scene", {}).get("active_occurrence_id", ""))
+	else:
+		if not plan is Dictionary or plan.get("source_kind") != "scene":
+			return _command_failure(&"scene_terminal_unavailable")
+		if plan.admission.admission_id != admission_id:
+			return _command_failure(&"scene_terminal_admission_mismatch")
+		occurrence = plan.admission.source_occurrence_id
 	if not has_reading_session():
 		_publish_scene_terminal_retirement(admission_id)
 		return {"ok": true}
-	if _reading_session.family != "scene" or _reading_session.scene_occurrence != plan.admission.source_occurrence_id:
+	if _reading_session.family != "scene" or _reading_session.scene_occurrence != occurrence:
 		return _command_failure(&"scene_terminal_source_changed")
 	if not _active_entry.is_empty():
 		var retired := abort_current_entry(&"scene_terminal_admitted")
@@ -1776,6 +1784,67 @@ func capture_rehearsal_variables() -> Dictionary:
 		if not current is Dictionary: return _command_failure(&"invalid_rehearsal_variables")
 		variables = current.duplicate(true)
 	return {"ok": true, "value": {"variables": variables}}
+
+## Registered linear DTL passages replay as the same read-only native cards
+## already used by Gallery. No gameplay owner, command dispatcher or save runs.
+func get_scene_passage(passage_id: String) -> Dictionary:
+	var registered: Dictionary = preload("res://scripts/narrative/DialogicEntryManifest.gd").scene_registration()
+	if not registered.ok: return registered
+	var catalogue: Dictionary = preload("res://scripts/narrative/ScenePassageCatalog.gd").inspect(registered.value)
+	if not catalogue.ok: return catalogue
+	if not catalogue.value.records.has(passage_id): return _command_failure(&"scene_passage_unavailable")
+	return {"ok": true, "value": catalogue.value.records[passage_id].duplicate(true)}
+
+func replay_scene_passage(passage_id: String) -> Dictionary:
+	if not _initialized or _replay_profile == null or not is_inside_tree(): return _command_failure(&"replay_unconfigured")
+	if has_active_playback() or not _reached_replay.is_empty(): return _command_failure(&"narrative_playback_active")
+	if _mutation_gate != null:
+		var guarded: Dictionary = _mutation_gate.guard_external(&"gallery_replay")
+		if not guarded.ok: return guarded
+	var discovery: Dictionary = _replay_profile.get_gallery_discovery_snapshot()
+	if not discovery.get("ok", false): return discovery
+	if passage_id not in discovery.value.ending_ids: return _command_failure(&"ending_not_discovered")
+	var passage := get_scene_passage(passage_id)
+	if not passage.ok: return passage
+	_replay_counter += 1
+	var dialogic := get_node_or_null("/root/Dialogic")
+	var variables: Dictionary = dialogic.current_state_info.get("variables", {}).duplicate(true) if dialogic != null else {}
+	_reached_replay = {"signature_id": passage_id, "token": "passage-replay-%d" % _replay_counter,
+		"passage": passage.value, "passage_index": 0, "variables": variables}
+	var card := _scene_passage_replay_card()
+	var surface := _REPLAY_CARD.new()
+	var configured: Dictionary = surface.configure(card, _acknowledge_reached_date_card, _current_locale())
+	if not configured.ok:
+		surface.free()
+		return _reached_start_failure(configured, passage_id)
+	if _replay_profile.has_method("get_preference") and not surface.bind_typography_preferences(_replay_profile):
+		surface.free()
+		return _reached_start_failure(_command_failure(&"replay_typography_unavailable"), passage_id)
+	_reached_replay["surface"] = surface
+	_reached_replay["card"] = card
+	surface.card_acknowledged.connect(_on_scene_passage_card_acknowledged)
+	add_child(surface)
+	return {"ok": true, "code": &"started", "receipt": {"entry_id": passage.value.entry_id,
+		"playback_token": _reached_replay.token}}
+
+func _scene_passage_replay_card() -> Dictionary:
+	var line: Dictionary = _reached_replay.passage.captions[_reached_replay.passage_index]
+	var locale := _current_locale()
+	var titles := {"en": "Ending", "zh-CN": "结局", "zh-HK": "結局", "ja": "エンディング", "ko": "엔딩"}
+	return {"receipt": {"entry_id": _reached_replay.passage.entry_id,
+		"view_token": str(_reached_replay.token) + ":" + str(_reached_replay.passage_index), "line_id": line.line_id},
+		"title": titles.get(locale, "Ending"), "body": _STORY_LOCALE.text(locale, line.line_id, line.text)}
+
+func _on_scene_passage_card_acknowledged(receipt: Dictionary, _result: Dictionary) -> void:
+	if _reached_replay.is_empty() or not _reached_replay.has("passage") or receipt != _reached_replay.card.receipt: return
+	_reached_replay.passage_index += 1
+	if _reached_replay.passage_index == _reached_replay.passage.captions.size():
+		_finish_reached_replay("completed")
+		return
+	var card := _scene_passage_replay_card()
+	_reached_replay.card = card
+	var shown: Dictionary = _reached_replay.surface.present_card(card)
+	if not shown.ok: _finish_reached_replay("failed", str(shown.get("code", "replay_failed")))
 
 func replay_reached_signature(signature_id: String) -> Dictionary:
 	if not _initialized or _replay_profile == null: return _command_failure(&"replay_unconfigured")
@@ -4429,7 +4498,7 @@ func dispatch_scene_event(live_session: Dictionary, envelope: Dictionary) -> Dic
 		return _command_failure(&"event_dependency_invalid")
 	_scene_event_dispatching = true
 	var result: Dictionary
-	if typeof(envelope.get("schema_version")) == TYPE_INT and envelope.schema_version == 2 and envelope.get("kind") in ["challenge.playable", "challenge.end", "challenge.recall", "thought.accept", "thought.pass", "thought.options", "thought.select"]:
+	if typeof(envelope.get("schema_version")) == TYPE_INT and envelope.schema_version == 2 and envelope.get("kind") in ["passage.finish", "challenge.playable", "challenge.end", "challenge.recall", "thought.accept", "thought.pass", "thought.options", "thought.select"]:
 		# This path holds the actual native caption instead of pausing/resuming it.
 		result = _scene_event_port.dispatch(envelope.duplicate(true))
 	else:
@@ -4514,7 +4583,7 @@ func capture_scene_pending_marker() -> Dictionary:
 		return _scene_caption_challenge_end()
 	var source: Dictionary = _runtime_adapter._scene_source_boundary(_reading_session)
 	if not source.get("ok", false): return source
-	if source.value.marker.kind not in ["scene.transition", "challenge.playable", "challenge.end", "contact.enter", "contact.return", "thought.pass", "thought.options", "challenge.recall"]:
+	if source.value.marker.kind not in ["passage.finish", "scene.transition", "challenge.playable", "challenge.end", "contact.enter", "contact.return", "thought.pass", "thought.options", "challenge.recall"]:
 		return _command_failure(&"scene_marker_unavailable")
 	return {"ok": true, "value": source.value.marker.duplicate(true)}
 

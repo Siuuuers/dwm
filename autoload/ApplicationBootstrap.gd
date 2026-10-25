@@ -2564,6 +2564,8 @@ func _resume_live_continuation() -> void:
 	# It has no legacy calendar continuation to resume.
 	if lifecycle.has("scene_assignment"):
 		_pending_live_continuation = {}
+		if lifecycle.get("state") == "COMPLETED" and not lifecycle.has("ending_plan"):
+			game_state.return_completed_scene_passage.call_deferred()
 		return
 	if _present_pending_day7_prelude(game_state, router): return
 	_pending_live_continuation = {}

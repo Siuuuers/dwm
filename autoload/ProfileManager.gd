@@ -1044,6 +1044,11 @@ func get_gallery_discovery_snapshot() -> Dictionary:
 func prepare_ending_unlock(ending_id: String, transaction_id: String) -> Dictionary:
 	if ending_id not in SCHEMA.ENDING_IDS or transaction_id.is_empty():
 		return _failure(&"invalid_gallery_transaction", "Ending and transaction IDs must be valid")
+	return _prepare_gallery_unlock(ending_id, transaction_id)
+
+
+func _prepare_gallery_unlock(ending_id: String, transaction_id: String) -> Dictionary:
+	if not _initialized: return _failure(&"not_initialized", "Profile is not ready")
 	var ledger: Dictionary = _profile["gallery_transaction_receipts"]
 	if ledger.has(transaction_id):
 		var prior: Dictionary = ledger[transaction_id]
@@ -1069,6 +1074,23 @@ func unlock_ending(ending_id: String, transaction_id: String) -> Dictionary:
 		if not committed.get("ok", false):
 			return committed
 	return {"ok": true, "code": &"ok", "value": (value["gallery_receipt"] as Dictionary).duplicate(true)}
+
+
+## Ordinary-DTL Finish calls this once under its causal lease. Start and replay
+## have no Profile write; the stable run/passage identity makes Finish retryable.
+func record_scene_passage_completion(passage_id: String, transaction_id: String) -> Dictionary:
+	if not SCHEMA.is_scene_passage_id(passage_id) or not transaction_id.begins_with("passage:") \
+			or not transaction_id.ends_with(":gallery:" + passage_id) \
+			or transaction_id.trim_prefix("passage:").trim_suffix(":gallery:" + passage_id).is_empty():
+		return _failure(&"invalid_passage_completion", "A run-scoped passage completion is required")
+	if _mutation_gate == null or not _mutation_gate.is_internal_owner_active(&"causal_transaction"):
+		return _failure(&"passage_completion_custody_required", "Passage completion requires its causal lease")
+	var prepared := _prepare_gallery_unlock(passage_id, transaction_id)
+	if not prepared.get("ok", false): return prepared
+	if prepared.value.requires_commit:
+		var committed := _commit_profile_candidate(prepared.value.candidate)
+		if not committed.get("ok", false): return committed
+	return {"ok": true, "value": prepared.value.gallery_receipt.duplicate(true)}
 
 
 ## Called by the ending owner after its exact physical completion, under the shared causal
@@ -1133,7 +1155,8 @@ static func _has_ending_completion_evidence(profile: Dictionary) -> bool:
 	for transaction_id: String in profile.gallery_transaction_receipts:
 		var receipt: Dictionary = profile.gallery_transaction_receipts[transaction_id]
 		if transaction_id == "profile:legacy-ending-milestone": return true
-		if transaction_id.begins_with("ending:") and transaction_id.ends_with(":gallery:" + str(receipt.ending_id)):
+		if (transaction_id.begins_with("ending:") or transaction_id.begins_with("passage:")) \
+				and transaction_id.ends_with(":gallery:" + str(receipt.ending_id)):
 			return true
 	return false
 

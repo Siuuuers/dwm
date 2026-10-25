@@ -2,6 +2,7 @@ extends RefCounted
 
 ## Title-host playback with Profile-owned caption History at exit. Endings require discovery; other reached scenes require the ending milestone.
 signal playback_finished(result: Dictionary)
+const PASSAGES := preload("res://scripts/narrative/ScenePassageCatalog.gd")
 const SIGNATURE := preload("res://scripts/domain/narrative/PresentationSignature.gd")
 var _entry_catalog: Script = preload("res://scripts/data/DialogicTimelineCatalog.gd")
 var _profile: Object
@@ -33,6 +34,13 @@ func get_variants(ending_id: String) -> Dictionary:
 	for identity: String in discovery.value.ending_ids:
 		if SIGNATURE.semantic_ending_id(identity) == canonical_id: discovered = true
 	if not discovered: return _fail(&"ending_not_discovered")
+	if PASSAGES.valid_id(canonical_id):
+		if _bridge == null or not _bridge.has_method("get_scene_passage"):
+			return _fail(&"gallery_record_unavailable")
+		var passage: Dictionary = _bridge.get_scene_passage(canonical_id)
+		if not passage.get("ok", false): return passage
+		return {"ok": true, "value": {"records": [{"signature_id": canonical_id}],
+			"chronology": {"first_witnessed": [canonical_id], "legacy_unordered": []}}}
 	var reached: Dictionary = _profile.get_reached_presentations()
 	if not reached.get("ok", false): return reached
 	var variants: Array[Dictionary] = []
@@ -46,6 +54,19 @@ func get_variants(ending_id: String) -> Dictionary:
 		if not _entry_available(located.value): return _fail(&"gallery_record_unavailable")
 		variants.append(record.duplicate(true))
 	return {"ok":true, "value":{"records":variants, "chronology": _variant_chronology(reached.value, variants)}}
+
+## Temporary mechanism records use neutral localized numbering; authored titles
+## can be added when production passage boundaries are selected.
+func passage_title(passage_id: String, locale: String) -> String:
+	if not PASSAGES.valid_id(passage_id) or not get_variants(passage_id).get("ok", false): return ""
+	var discovery: Dictionary = _profile.get_gallery_discovery_snapshot()
+	if not discovery.get("ok", false): return ""
+	var number := 0
+	for identity: String in discovery.value.ending_ids:
+		if PASSAGES.valid_id(identity): number += 1
+		if identity == passage_id: break
+	var template: String = {"zh-CN": "结局 %d", "zh-HK": "結局 %d", "ja": "エンディング %d", "ko": "엔딩 %d"}.get(locale.replace("_", "-"), "Ending %d")
+	return template % number
 
 ## No new Gallery discovery identities: these are exact already-reached callable scenes.
 func get_reached_entry_variants(entry_id: String = "") -> Dictionary:
@@ -103,7 +124,13 @@ func begin(signature_id: String) -> Dictionary:
 	_active_token = ""
 	_starting = true
 	_early.clear()
-	var started: Dictionary = _bridge.replay_reached_signature(signature_id)
+	var started: Dictionary
+	if PASSAGES.valid_id(signature_id):
+		var available := get_variants(signature_id)
+		started = _bridge.replay_scene_passage(signature_id) if available.get("ok", false) \
+			and _bridge.has_method("replay_scene_passage") else _fail(&"gallery_record_unavailable")
+	else:
+		started = _bridge.replay_reached_signature(signature_id)
 	_starting = false
 	if not started.get("ok", false):
 		_active_signature = ""

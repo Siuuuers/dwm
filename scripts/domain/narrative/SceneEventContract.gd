@@ -209,6 +209,7 @@ const SCENE_PAYLOAD_KEYS := {
 	"thought.accept": ["opportunity_id", "yes_target_id", "pass_target_id"],
 	"thought.options": ["opportunity_id", "options", "pass_target_id"],
 	"thought.select": ["opportunity_id", "options", "pass_target_id", "choice_id"],
+	"passage.start": ["passage_id"], "passage.finish": ["passage_id"],
 	"scene.transition": ["target_id"], "challenge.playable": ["challenge_id"],
 	"challenge.end": ["challenge_id"], "contact.enter": ["contact_event_id"],
 	"challenge.recall": ["challenge_id", "never_started_target_id", "unfinished_target_id", "won_target_id", "lost_target_id", "perfect_target_id"],
@@ -422,6 +423,13 @@ static func _validate_bundle_structure_observed_body(bundle: Variant) -> Diction
 		parts.append('"' + key + '":' + value)
 	var canonical := "{" + ",".join(parts) + "}"
 
+	# Legacy low-level callers fingerprint opaque caption registries. Only the
+	# new passage contract requires inspecting their nested caption structure.
+	for registered: Dictionary in markers.values():
+		if registered.marker.kind not in ["passage.start", "passage.finish"]: continue
+		var passages: Dictionary = preload("res://scripts/narrative/ScenePassageCatalog.gd").inspect(bundle)
+		if not passages.ok: return passages
+		break
 	tables["markers"] = markers
 	tables["fingerprint"] = canonical.sha256_text()
 	return {"ok": true, "value": tables.duplicate(true)}
@@ -532,6 +540,9 @@ static func _validate_scene_result_inspected(envelope: Dictionary, result: Varia
 	if not _json_data(result) or not result is Dictionary or typeof(result.get("kind")) != TYPE_STRING: return _fail(&"scene_result_invalid")
 	var targets: Dictionary = registered.value.targets
 	match result.kind:
+		"passage_finished":
+			if envelope.kind != "passage.finish" or not _equal(result, {"kind": "passage_finished", "passage_id": envelope.payload.passage_id}):
+				return _fail(&"scene_result_invalid")
 		"thought_resolved":
 			if envelope.kind not in ["thought.accept", "thought.pass", "thought.options", "thought.select"] \
 					or not _equal(result, thought_result(envelope)):
@@ -826,9 +837,9 @@ static func _validate_scene_receipts_registered(receipts: Dictionary, bundle: Di
 				return _fail(&"event_notification_clear_invalid")
 			if semantic.kind in ["notification.set", "notification.clear"]:
 				group.notification = receipt.scene_event.result.notification.duplicate(true)
-			if contact_child and semantic.kind in ["contact.enter", "scene.transition", "challenge.end", "challenge.recall", "thought.accept", "thought.pass", "thought.options", "thought.select"]:
+			if contact_child and semantic.kind in ["passage.finish", "contact.enter", "scene.transition", "challenge.end", "challenge.recall", "thought.accept", "thought.pass", "thought.options", "thought.select"]:
 				return _fail(&"scene_contact_exit_refused")
-			transitioned = semantic.kind in ["scene.transition", "contact.return", "challenge.recall", "thought.accept", "thought.pass", "thought.options", "thought.select"]
+			transitioned = semantic.kind in ["passage.finish", "scene.transition", "contact.return", "challenge.recall", "thought.accept", "thought.pass", "thought.options", "thought.select"]
 			seen[semantic.event_id] = true
 			group.next_ordinal += 1
 			group.predecessor = semantic.event_id

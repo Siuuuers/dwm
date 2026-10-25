@@ -479,6 +479,8 @@ func _record_title(ending_id: String) -> String:
 func _trusted_record_title(ending_id: String) -> String:
 	if _replay_owner != null:
 		var locale := str(_localization.get_locale()) if _localization != null else "en"
+		if PROFILE_SCHEMA.is_scene_passage_id(ending_id):
+			return _replay_owner.passage_title(ending_id, locale)
 		var public_title := RECORD_CATALOG.title(ending_id, locale)
 		if not public_title.is_empty(): return public_title
 		var available: Dictionary = _replay_owner.get_reached_entry_variants(ending_id)
@@ -654,7 +656,7 @@ func _valid_snapshot(snapshot: Variant) -> bool:
 	if typeof(value.revision) != TYPE_INT or value.revision < 0 or typeof(value.ending_ids) != TYPE_ARRAY: return false
 	var seen := {}
 	for ending_id: Variant in value.ending_ids:
-		if typeof(ending_id) != TYPE_STRING or ending_id not in PROFILE_SCHEMA.ENDING_IDS or seen.has(ending_id): return false
+		if typeof(ending_id) != TYPE_STRING or not PROFILE_SCHEMA.valid_gallery_id(ending_id) or seen.has(ending_id): return false
 		seen[ending_id] = true
 	return true
 
