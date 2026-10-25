@@ -1,0 +1,690 @@
+{
+  "run_id": 40236005017,
+  "head_sha": "458919e1625b08531bf4363fe71e6b0423fe2895",
+  "scope": "10 content-update scenarios only; full workflow acceptance is separate",
+  "scenario_count": 10,
+  "phase_test_count": 30,
+  "assertion_count": 2280,
+  "png_count": 40,
+  "all_scenario_phases_pass": true,
+  "all_three_processes_distinct": true,
+  "all_artifacts_same_head_and_verified": true,
+  "failure_count": 0,
+  "evidence_limit": "Current-content binding, gameplay/Profile preservation and exact board state are covered by passing assertions in scene_content_update_child.gd; compact proof JSON does not serialize the resulting current-content hash for every case. Do not describe those values as independently compared by this artifact audit.",
+  "compact_archive_exclusions": [
+    "*.zip (raw archives contain full Profile-bearing proofs)",
+    "*/ci/content-update-*-proof.json (creator and embedded old_source contain full Profile snapshots)"
+  ],
+  "scenarios": [
+    {
+      "case": "active_board",
+      "artifact_id": 12615191745,
+      "artifact_name": "windows-scene_content_update_active_board-40236005017-1",
+      "artifact_sha256": "sha256:cd27b3ca6b6b247c487dba9a8a787bf91f433ffbbf67bcad10e46eda64bccc7d",
+      "zip_hash_verified": true,
+      "head_sha": "458919e1625b08531bf4363fe71e6b0423fe2895",
+      "methods": [
+        {
+          "script": "tests/integration/test_scene_content_update_create.gd",
+          "method": "test_create_old_content_save",
+          "assertions": 147,
+          "status": "pass"
+        },
+        {
+          "script": "tests/integration/test_scene_content_update_load.gd",
+          "method": "test_load_current_content_without_replaying_gameplay",
+          "assertions": 53,
+          "status": "pass"
+        },
+        {
+          "script": "tests/integration/test_scene_content_update_reload.gd",
+          "method": "test_fresh_reload_preserves_suspended_and_bound_state",
+          "assertions": 46,
+          "status": "pass"
+        }
+      ],
+      "assertions": 246,
+      "junit": [
+        {
+          "file": "12615191745/ci/scene_content_update_active_board-load.xml",
+          "tests": 1,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "file": "12615191745/ci/scene_content_update_active_board-settled-load.xml",
+          "tests": 1,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "file": "12615191745/ci/scene_content_update_active_board.xml",
+          "tests": 1,
+          "failures": 0,
+          "errors": 0
+        }
+      ],
+      "process_ids": [
+        1608,
+        1524,
+        1636
+      ],
+      "three_distinct_processes": true,
+      "source_hash_consistent": true,
+      "original_content_hash": "1e10f3ae800d68038664340daf198d73d8e4e8d2220de7a6e9c78810412767ac",
+      "source_reading_version": 7,
+      "binding_retry": false,
+      "completed_state": null,
+      "pngs": [
+        "12615191745/ci/computer-content-update-active-board.png",
+        "12615191745/ci/computer-content-update-active_board-loaded.png",
+        "12615191745/ci/computer-content-update-active_board-old.png",
+        "12615191745/ci/computer-content-update-active_board-reloaded.png"
+      ],
+      "runtime_errors": []
+    },
+    {
+      "case": "completed_appended",
+      "artifact_id": 12614907159,
+      "artifact_name": "windows-scene_content_update_completed_appended-40236005017-1",
+      "artifact_sha256": "sha256:d87de2a07fc57268a26446acacdeab7a1f8ec54cd0ae31c5f25901451fd1476f",
+      "zip_hash_verified": true,
+      "head_sha": "458919e1625b08531bf4363fe71e6b0423fe2895",
+      "methods": [
+        {
+          "script": "tests/integration/test_scene_content_update_create.gd",
+          "method": "test_create_old_content_save",
+          "assertions": 57,
+          "status": "pass"
+        },
+        {
+          "script": "tests/integration/test_scene_content_update_load.gd",
+          "method": "test_load_current_content_without_replaying_gameplay",
+          "assertions": 51,
+          "status": "pass"
+        },
+        {
+          "script": "tests/integration/test_scene_content_update_reload.gd",
+          "method": "test_fresh_reload_preserves_suspended_and_bound_state",
+          "assertions": 48,
+          "status": "pass"
+        }
+      ],
+      "assertions": 156,
+      "junit": [
+        {
+          "file": "12614907159/ci/scene_content_update_completed_appended-load.xml",
+          "tests": 1,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "file": "12614907159/ci/scene_content_update_completed_appended-settled-load.xml",
+          "tests": 1,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "file": "12614907159/ci/scene_content_update_completed_appended.xml",
+          "tests": 1,
+          "failures": 0,
+          "errors": 0
+        }
+      ],
+      "process_ids": [
+        2688,
+        4460,
+        3228
+      ],
+      "three_distinct_processes": true,
+      "source_hash_consistent": true,
+      "original_content_hash": "f78840dae8e0148274ebdef8d8f0735a2be57931ccb43a7bf61c95127dc79a6e",
+      "source_reading_version": 7,
+      "binding_retry": null,
+      "completed_state": "COMPLETED",
+      "pngs": [
+        "12614907159/ci/computer-content-update-completed-old-final-caption.png",
+        "12614907159/ci/computer-content-update-completed_appended-completed-title.png",
+        "12614907159/ci/computer-content-update-completed_appended-loaded-title.png",
+        "12614907159/ci/computer-content-update-completed_appended-reloaded-title.png"
+      ],
+      "runtime_errors": []
+    },
+    {
+      "case": "completed_deleted",
+      "artifact_id": 12614609331,
+      "artifact_name": "windows-scene_content_update_completed_deleted-40236005017-1",
+      "artifact_sha256": "sha256:f4111f63b7e087dba7334e3d972a1f9b6caae6de78e41769e24edf54cfff8dfa",
+      "zip_hash_verified": true,
+      "head_sha": "458919e1625b08531bf4363fe71e6b0423fe2895",
+      "methods": [
+        {
+          "script": "tests/integration/test_scene_content_update_create.gd",
+          "method": "test_create_old_content_save",
+          "assertions": 60,
+          "status": "pass"
+        },
+        {
+          "script": "tests/integration/test_scene_content_update_load.gd",
+          "method": "test_load_current_content_without_replaying_gameplay",
+          "assertions": 51,
+          "status": "pass"
+        },
+        {
+          "script": "tests/integration/test_scene_content_update_reload.gd",
+          "method": "test_fresh_reload_preserves_suspended_and_bound_state",
+          "assertions": 48,
+          "status": "pass"
+        }
+      ],
+      "assertions": 159,
+      "junit": [
+        {
+          "file": "12614609331/ci/scene_content_update_completed_deleted-load.xml",
+          "tests": 1,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "file": "12614609331/ci/scene_content_update_completed_deleted-settled-load.xml",
+          "tests": 1,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "file": "12614609331/ci/scene_content_update_completed_deleted.xml",
+          "tests": 1,
+          "failures": 0,
+          "errors": 0
+        }
+      ],
+      "process_ids": [
+        2024,
+        4704,
+        1640
+      ],
+      "three_distinct_processes": true,
+      "source_hash_consistent": true,
+      "original_content_hash": "f78840dae8e0148274ebdef8d8f0735a2be57931ccb43a7bf61c95127dc79a6e",
+      "source_reading_version": 7,
+      "binding_retry": null,
+      "completed_state": "COMPLETED",
+      "pngs": [
+        "12614609331/ci/computer-content-update-completed-old-final-caption.png",
+        "12614609331/ci/computer-content-update-completed_deleted-completed-title.png",
+        "12614609331/ci/computer-content-update-completed_deleted-loaded-title.png",
+        "12614609331/ci/computer-content-update-completed_deleted-reloaded-title.png"
+      ],
+      "runtime_errors": []
+    },
+    {
+      "case": "deleted_checkpoint",
+      "artifact_id": 12615410788,
+      "artifact_name": "windows-scene_content_update_deleted_checkpoint-40236005017-1",
+      "artifact_sha256": "sha256:9fc8e12cf2bec5787bf64d63a808680623a1e1e90042634f07ea3f1b8af7df5d",
+      "zip_hash_verified": true,
+      "head_sha": "458919e1625b08531bf4363fe71e6b0423fe2895",
+      "methods": [
+        {
+          "script": "tests/integration/test_scene_content_update_create.gd",
+          "method": "test_create_old_content_save",
+          "assertions": 64,
+          "status": "pass"
+        },
+        {
+          "script": "tests/integration/test_scene_content_update_load.gd",
+          "method": "test_load_current_content_without_replaying_gameplay",
+          "assertions": 62,
+          "status": "pass"
+        },
+        {
+          "script": "tests/integration/test_scene_content_update_reload.gd",
+          "method": "test_fresh_reload_preserves_suspended_and_bound_state",
+          "assertions": 43,
+          "status": "pass"
+        }
+      ],
+      "assertions": 169,
+      "junit": [
+        {
+          "file": "12615410788/ci/scene_content_update_deleted_checkpoint-load.xml",
+          "tests": 1,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "file": "12615410788/ci/scene_content_update_deleted_checkpoint-settled-load.xml",
+          "tests": 1,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "file": "12615410788/ci/scene_content_update_deleted_checkpoint.xml",
+          "tests": 1,
+          "failures": 0,
+          "errors": 0
+        }
+      ],
+      "process_ids": [
+        2888,
+        7256,
+        5864
+      ],
+      "three_distinct_processes": true,
+      "source_hash_consistent": true,
+      "original_content_hash": "1e10f3ae800d68038664340daf198d73d8e4e8d2220de7a6e9c78810412767ac",
+      "source_reading_version": 6,
+      "binding_retry": false,
+      "completed_state": null,
+      "pngs": [
+        "12615410788/ci/computer-content-update-deleted_checkpoint-history.png",
+        "12615410788/ci/computer-content-update-deleted_checkpoint-loaded.png",
+        "12615410788/ci/computer-content-update-deleted_checkpoint-old.png",
+        "12615410788/ci/computer-content-update-deleted_checkpoint-reloaded.png"
+      ],
+      "runtime_errors": []
+    },
+    {
+      "case": "deleted_line",
+      "artifact_id": 12615346041,
+      "artifact_name": "windows-scene_content_update_deleted_line-40236005017-1",
+      "artifact_sha256": "sha256:c3cab24590d196422c02493e89c92b758e03ffbf244fcba79e7efc9c414141ae",
+      "zip_hash_verified": true,
+      "head_sha": "458919e1625b08531bf4363fe71e6b0423fe2895",
+      "methods": [
+        {
+          "script": "tests/integration/test_scene_content_update_create.gd",
+          "method": "test_create_old_content_save",
+          "assertions": 61,
+          "status": "pass"
+        },
+        {
+          "script": "tests/integration/test_scene_content_update_load.gd",
+          "method": "test_load_current_content_without_replaying_gameplay",
+          "assertions": 65,
+          "status": "pass"
+        },
+        {
+          "script": "tests/integration/test_scene_content_update_reload.gd",
+          "method": "test_fresh_reload_preserves_suspended_and_bound_state",
+          "assertions": 43,
+          "status": "pass"
+        }
+      ],
+      "assertions": 169,
+      "junit": [
+        {
+          "file": "12615346041/ci/scene_content_update_deleted_line-load.xml",
+          "tests": 1,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "file": "12615346041/ci/scene_content_update_deleted_line-settled-load.xml",
+          "tests": 1,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "file": "12615346041/ci/scene_content_update_deleted_line.xml",
+          "tests": 1,
+          "failures": 0,
+          "errors": 0
+        }
+      ],
+      "process_ids": [
+        2740,
+        4960,
+        1820
+      ],
+      "three_distinct_processes": true,
+      "source_hash_consistent": true,
+      "original_content_hash": "1e10f3ae800d68038664340daf198d73d8e4e8d2220de7a6e9c78810412767ac",
+      "source_reading_version": 7,
+      "binding_retry": false,
+      "completed_state": null,
+      "pngs": [
+        "12615346041/ci/computer-content-update-deleted_line-history.png",
+        "12615346041/ci/computer-content-update-deleted_line-loaded.png",
+        "12615346041/ci/computer-content-update-deleted_line-old.png",
+        "12615346041/ci/computer-content-update-deleted_line-reloaded.png"
+      ],
+      "runtime_errors": []
+    },
+    {
+      "case": "history",
+      "artifact_id": 12615525804,
+      "artifact_name": "windows-scene_content_update_history-40236005017-1",
+      "artifact_sha256": "sha256:689cf60bb4ff529a3a44c05d48d508aea49336a7b9d1fb43c1368ad3ac6d9382",
+      "zip_hash_verified": true,
+      "head_sha": "458919e1625b08531bf4363fe71e6b0423fe2895",
+      "methods": [
+        {
+          "script": "tests/integration/test_scene_content_update_create.gd",
+          "method": "test_create_old_content_save",
+          "assertions": 124,
+          "status": "pass"
+        },
+        {
+          "script": "tests/integration/test_scene_content_update_load.gd",
+          "method": "test_load_current_content_without_replaying_gameplay",
+          "assertions": 75,
+          "status": "pass"
+        },
+        {
+          "script": "tests/integration/test_scene_content_update_reload.gd",
+          "method": "test_fresh_reload_preserves_suspended_and_bound_state",
+          "assertions": 43,
+          "status": "pass"
+        }
+      ],
+      "assertions": 242,
+      "junit": [
+        {
+          "file": "12615525804/ci/scene_content_update_history-load.xml",
+          "tests": 1,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "file": "12615525804/ci/scene_content_update_history-settled-load.xml",
+          "tests": 1,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "file": "12615525804/ci/scene_content_update_history.xml",
+          "tests": 1,
+          "failures": 0,
+          "errors": 0
+        }
+      ],
+      "process_ids": [
+        1308,
+        3700,
+        5140
+      ],
+      "three_distinct_processes": true,
+      "source_hash_consistent": true,
+      "original_content_hash": "1e10f3ae800d68038664340daf198d73d8e4e8d2220de7a6e9c78810412767ac",
+      "source_reading_version": 7,
+      "binding_retry": false,
+      "completed_state": null,
+      "pngs": [
+        "12615525804/ci/computer-content-update-history-history.png",
+        "12615525804/ci/computer-content-update-history-loaded.png",
+        "12615525804/ci/computer-content-update-history-old.png",
+        "12615525804/ci/computer-content-update-history-reloaded.png"
+      ],
+      "runtime_errors": []
+    },
+    {
+      "case": "resolved_unfinished",
+      "artifact_id": 12614798887,
+      "artifact_name": "windows-scene_content_update_resolved_unfinished-40236005017-1",
+      "artifact_sha256": "sha256:7b470064cb7abd71ecc02f982aa2d81867cbcff132eeeca3db1682db34a39a3a",
+      "zip_hash_verified": true,
+      "head_sha": "458919e1625b08531bf4363fe71e6b0423fe2895",
+      "methods": [
+        {
+          "script": "tests/integration/test_scene_content_update_create.gd",
+          "method": "test_create_old_content_save",
+          "assertions": 164,
+          "status": "pass"
+        },
+        {
+          "script": "tests/integration/test_scene_content_update_load.gd",
+          "method": "test_load_current_content_without_replaying_gameplay",
+          "assertions": 83,
+          "status": "pass"
+        },
+        {
+          "script": "tests/integration/test_scene_content_update_reload.gd",
+          "method": "test_fresh_reload_preserves_suspended_and_bound_state",
+          "assertions": 46,
+          "status": "pass"
+        }
+      ],
+      "assertions": 293,
+      "junit": [
+        {
+          "file": "12614798887/ci/scene_content_update_resolved_unfinished-load.xml",
+          "tests": 1,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "file": "12614798887/ci/scene_content_update_resolved_unfinished-settled-load.xml",
+          "tests": 1,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "file": "12614798887/ci/scene_content_update_resolved_unfinished.xml",
+          "tests": 1,
+          "failures": 0,
+          "errors": 0
+        }
+      ],
+      "process_ids": [
+        1884,
+        1780,
+        5524
+      ],
+      "three_distinct_processes": true,
+      "source_hash_consistent": true,
+      "original_content_hash": "1e10f3ae800d68038664340daf198d73d8e4e8d2220de7a6e9c78810412767ac",
+      "source_reading_version": 7,
+      "binding_retry": false,
+      "completed_state": null,
+      "pngs": [
+        "12614798887/ci/computer-content-update-resolved_unfinished-loaded.png",
+        "12614798887/ci/computer-content-update-resolved_unfinished-old.png",
+        "12614798887/ci/computer-content-update-resolved_unfinished-reloaded.png"
+      ],
+      "runtime_errors": []
+    },
+    {
+      "case": "transfer_active",
+      "artifact_id": 12615565422,
+      "artifact_name": "windows-scene_content_update_transfer_active-40236005017-1",
+      "artifact_sha256": "sha256:eb31f06a4c846097f0a1f890056a3e2c18f9698c4f8c70214071e4a371b1b8a7",
+      "zip_hash_verified": true,
+      "head_sha": "458919e1625b08531bf4363fe71e6b0423fe2895",
+      "methods": [
+        {
+          "script": "tests/integration/test_scene_content_update_create.gd",
+          "method": "test_create_old_content_save",
+          "assertions": 147,
+          "status": "pass"
+        },
+        {
+          "script": "tests/integration/test_scene_content_update_load.gd",
+          "method": "test_load_current_content_without_replaying_gameplay",
+          "assertions": 126,
+          "status": "pass"
+        },
+        {
+          "script": "tests/integration/test_scene_content_update_reload.gd",
+          "method": "test_fresh_reload_preserves_suspended_and_bound_state",
+          "assertions": 61,
+          "status": "pass"
+        }
+      ],
+      "assertions": 334,
+      "junit": [
+        {
+          "file": "12615565422/ci/scene_content_update_transfer_active-load.xml",
+          "tests": 1,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "file": "12615565422/ci/scene_content_update_transfer_active-settled-load.xml",
+          "tests": 1,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "file": "12615565422/ci/scene_content_update_transfer_active.xml",
+          "tests": 1,
+          "failures": 0,
+          "errors": 0
+        }
+      ],
+      "process_ids": [
+        6812,
+        3836,
+        4464
+      ],
+      "three_distinct_processes": true,
+      "source_hash_consistent": true,
+      "original_content_hash": "1e10f3ae800d68038664340daf198d73d8e4e8d2220de7a6e9c78810412767ac",
+      "source_reading_version": 7,
+      "binding_retry": true,
+      "completed_state": null,
+      "pngs": [
+        "12615565422/ci/computer-content-update-binding-retry.png",
+        "12615565422/ci/computer-content-update-suspended-reloaded.png",
+        "12615565422/ci/computer-content-update-transfer_active-loaded.png",
+        "12615565422/ci/computer-content-update-transfer_active-old.png",
+        "12615565422/ci/computer-content-update-transfer_active-reloaded.png",
+        "12615565422/ci/computer-content-update-transferred-active-board.png"
+      ],
+      "runtime_errors": []
+    },
+    {
+      "case": "transfer_terminal",
+      "artifact_id": 12614664683,
+      "artifact_name": "windows-scene_content_update_transfer_terminal-40236005017-1",
+      "artifact_sha256": "sha256:bdf0a67ebf1a8162d4f87ec31a9e2ec7c1c0d58037753602c48d86e8fd3d8abc",
+      "zip_hash_verified": true,
+      "head_sha": "458919e1625b08531bf4363fe71e6b0423fe2895",
+      "methods": [
+        {
+          "script": "tests/integration/test_scene_content_update_create.gd",
+          "method": "test_create_old_content_save",
+          "assertions": 149,
+          "status": "pass"
+        },
+        {
+          "script": "tests/integration/test_scene_content_update_load.gd",
+          "method": "test_load_current_content_without_replaying_gameplay",
+          "assertions": 138,
+          "status": "pass"
+        },
+        {
+          "script": "tests/integration/test_scene_content_update_reload.gd",
+          "method": "test_fresh_reload_preserves_suspended_and_bound_state",
+          "assertions": 46,
+          "status": "pass"
+        }
+      ],
+      "assertions": 333,
+      "junit": [
+        {
+          "file": "12614664683/ci/scene_content_update_transfer_terminal-load.xml",
+          "tests": 1,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "file": "12614664683/ci/scene_content_update_transfer_terminal-settled-load.xml",
+          "tests": 1,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "file": "12614664683/ci/scene_content_update_transfer_terminal.xml",
+          "tests": 1,
+          "failures": 0,
+          "errors": 0
+        }
+      ],
+      "process_ids": [
+        3024,
+        2804,
+        1548
+      ],
+      "three_distinct_processes": true,
+      "source_hash_consistent": true,
+      "original_content_hash": "1e10f3ae800d68038664340daf198d73d8e4e8d2220de7a6e9c78810412767ac",
+      "source_reading_version": 7,
+      "binding_retry": false,
+      "completed_state": null,
+      "pngs": [
+        "12614664683/ci/computer-content-update-transfer_terminal-loaded.png",
+        "12614664683/ci/computer-content-update-transfer_terminal-old.png",
+        "12614664683/ci/computer-content-update-transfer_terminal-reloaded.png"
+      ],
+      "runtime_errors": []
+    },
+    {
+      "case": "wording",
+      "artifact_id": 12614817283,
+      "artifact_name": "windows-scene_content_update_wording-40236005017-1",
+      "artifact_sha256": "sha256:2348e605378022dd475333af53ab63364ed188008dad3e66edfe9096300d45b2",
+      "zip_hash_verified": true,
+      "head_sha": "458919e1625b08531bf4363fe71e6b0423fe2895",
+      "methods": [
+        {
+          "script": "tests/integration/test_scene_content_update_create.gd",
+          "method": "test_create_old_content_save",
+          "assertions": 61,
+          "status": "pass"
+        },
+        {
+          "script": "tests/integration/test_scene_content_update_load.gd",
+          "method": "test_load_current_content_without_replaying_gameplay",
+          "assertions": 75,
+          "status": "pass"
+        },
+        {
+          "script": "tests/integration/test_scene_content_update_reload.gd",
+          "method": "test_fresh_reload_preserves_suspended_and_bound_state",
+          "assertions": 43,
+          "status": "pass"
+        }
+      ],
+      "assertions": 179,
+      "junit": [
+        {
+          "file": "12614817283/ci/scene_content_update_wording-load.xml",
+          "tests": 1,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "file": "12614817283/ci/scene_content_update_wording-settled-load.xml",
+          "tests": 1,
+          "failures": 0,
+          "errors": 0
+        },
+        {
+          "file": "12614817283/ci/scene_content_update_wording.xml",
+          "tests": 1,
+          "failures": 0,
+          "errors": 0
+        }
+      ],
+      "process_ids": [
+        6744,
+        7412,
+        6328
+      ],
+      "three_distinct_processes": true,
+      "source_hash_consistent": true,
+      "original_content_hash": "1e10f3ae800d68038664340daf198d73d8e4e8d2220de7a6e9c78810412767ac",
+      "source_reading_version": 7,
+      "binding_retry": false,
+      "completed_state": null,
+      "pngs": [
+        "12614817283/ci/computer-content-update-wording-history.png",
+        "12614817283/ci/computer-content-update-wording-loaded.png",
+        "12614817283/ci/computer-content-update-wording-old.png",
+        "12614817283/ci/computer-content-update-wording-reloaded.png"
+      ],
+      "runtime_errors": []
+    }
+  ]
+}

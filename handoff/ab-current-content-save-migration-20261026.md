@@ -2,16 +2,40 @@
 
 ## Status and outcome
 
-The coordinated migration is implemented on `codex/current-content-save-migration-20261026` and awaiting cloud
-qualification. Static review and diff checks pass; this is **not yet runtime acceptance or a merge claim**.
+The coordinated migration is implemented on `codex/current-content-save-migration-20261026`. Cloud run
+[40236005017](https://github.com/Siuuuers/dwm/actions/runs/40236005017), head
+`458919e1625b08531bf4363fe71e6b0423fe2895`, passed all 57 gameplay/selection jobs, including all ten rendered migration
+journeys (30 fresh-process phase tests, 2,280 assertions). The stale public inventory failed, blocking three downstream
+jobs; the separate measurement job was intentionally skipped. Native regenerated inventories are now included for the
+next full qualification run. This is **not yet full-matrix acceptance or a merge claim**.
 The candidate adds player reading schema 7, admission-time normalization of current and journal snapshots, bounded
 encountered History, and separate story binding for retained physical Challenges. Document and Run versions remain 9.
 Ten rendered create/load/reload cases cover content edits, fallback, History, board resumption/transfer, resolved
 unfinished Challenges, and completed passages with appended/deleted final text. Focused owner and boundary tests
 complement those journeys. Godot execution remains cloud-only.
+The [retained scenario manifest](../evidence/phase_2r/content_update_20261026/manifest.json) identifies a verified archive
+of 40 screenshots and 30 JUnit files; the [scenario audit](../evidence/phase_2r/content_update_20261026/scenarios.json)
+records artifact hashes and three distinct process IDs per journey. Full Profile snapshots are excluded. Root visually
+reviewed active transfer, Retry, checkpoint fallback, completed Title, terminal continuation/reload and current History.
 Ordinary completed passages additionally retain `lifecycle.completed_registration_sha256`. This preserves the
 content version against which completion occurred, while same-content completion still requires the final passage
 caption. Legacy completed saves acquire their original registration hash only when content admission rebases them.
+
+Integration fixes preserve the same ownership boundaries:
+
+- Completed, activation-acknowledged new-run journals remain historical audit records. Their original bytes, hash and
+  receipt stay intact; pending creation still requires current-content validation.
+- Existing Autosave backup and rollback sources pass through content admission while retaining their exact source bytes.
+  That source proof cannot authorize an outgoing write: outgoing documents still need current-content validation.
+- A suspended unchanged board may be saved without creating another physical branch. The shortcut requires actual
+  suspended playback and the exact unconsumed selected record; fatal and pending states retain their refusals.
+- Binding Retry reuses the originally issued playable event, through the existing identity and source checks. Terminal
+  departure commits the selected physical prefix before story continuation.
+- Retained Challenge panels use their validated frozen board specification, including display host, even if the old
+  authored Challenge/profile was removed. Fresh boards still require the current authored profile.
+
+The production registration currently contains no Contacts. Existing Contacts contracts are covered, but this batch does
+not establish a rendered content-update journey for newly authored optional Contacts.
 
 Read [the accepted reading/startup decisions](aa-reading-startup-simplification-20261026.md) first. [PR #104](https://github.com/Siuuuers/dwm/pull/104) contains the independent prepared-configuration, authoring-identity and
 Replay work, merged as `8b8e73929801a9527872b1485a289a1ffca6e5a8`. Its exact candidate passed cloud run
