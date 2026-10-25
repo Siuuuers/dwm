@@ -890,6 +890,8 @@ static func _validate_scene_observed_body(snapshot: Dictionary, bundle: Dictiona
 		return _fail(&"invalid_desktop_aggregate", "desktop requires its exact owners")
 	var board: Dictionary = DESKTOP_BOARD_STATE.new().prepare_player_restore_scene(candidate.desktop.board, _scene_issuer)
 	if not board.ok: return board
+	var board_identity := _validate_scene_board_identity(candidate.desktop.board, candidate.lifecycle)
+	if not board_identity.ok: return board_identity
 	var consequence: Dictionary = DESKTOP_CONSEQUENCE_STATE.validate(candidate.desktop.consequence)
 	if not consequence.ok: return consequence
 	for member: String in ["applied_effect_transaction_ids", "applied_variable_transaction_ids"]:
@@ -1072,6 +1074,8 @@ static func validate_scene_input_fields(input: Dictionary, bundle: Dictionary) -
 			or not input.desktop.consequence is Dictionary: return _fail(&"invalid_desktop_aggregate", "invalid desktop owners")
 	var board: Dictionary = DESKTOP_BOARD_STATE.new().prepare_restore_scene(input.desktop.board, _scene_issuer)
 	if not board.ok: return board
+	var board_identity := _validate_scene_board_identity(input.desktop.board, input.lifecycle)
+	if not board_identity.ok: return board_identity
 	var consequence: Dictionary = DESKTOP_CONSEQUENCE_STATE.validate(input.desktop.consequence)
 	if not consequence.ok: return consequence
 	for member: String in ["applied_effect_transaction_ids", "applied_variable_transaction_ids"]:
@@ -1254,6 +1258,16 @@ static func _scene_digest(value: Variant) -> bool:
 static func _scene_hash(value: Variant) -> String:
 	var encoded: Dictionary = SCENE_CANONICAL.stringify(value)
 	return str(encoded.value).sha256_text() if encoded.ok else ""
+
+# The board owner validates its identity shape; this aggregate owns its Run join.
+# This closes an existing consistency gap, not a historical-payment proof check.
+static func _validate_scene_board_identity(board: Dictionary, lifecycle: Dictionary) -> Dictionary:
+	if board.identity == null: return {"ok": true}
+	for member: String in ["run_id", "branch_id", "desktop_timeline_generation", "causal_day_instance"]:
+		if not _scene_exact_value(board.identity[member], lifecycle[member]):
+			return _fail(&"scene_board_identity_mismatch", "board and lifecycle differ: " + member)
+	return {"ok": true}
+
 
 static func _scene_equal(a: Variant, b: Variant) -> bool:
 	var hash := _scene_hash(a)

@@ -4,6 +4,8 @@ extends "res://tests/integration/scene_bootstrap_restart_child.gd"
 ## is connected owner coverage, not a claim of desktop UI availability on SceneHost.
 const PRESENTATION := preload("res://scripts/application/minesweeper/MinesweeperPresentationPort.gd")
 const DESKTOP_STATE := preload("res://scripts/domain/minesweeper/DesktopBoardState.gd")
+const RUN_SCHEMA := preload("res://scripts/domain/run/RunSnapshotSchema.gd")
+const SCENE_MANIFEST := preload("res://scripts/narrative/DialogicEntryManifest.gd")
 const PROOF := "user://scene-desktop-first-reveal-proof.json"
 
 class ObservedFiles extends "res://scripts/infrastructure/storage/FileOps.gd":
@@ -91,6 +93,25 @@ func _assert_scene_snapshot(snapshot: Dictionary, reading: Dictionary, run: Dict
 		assert_eq(snapshot[key], normalized[key], "durable candidate matches complete live owner input: " + key)
 	assert_eq(typeof(snapshot.desktop.board.board.board.outcome), TYPE_STRING, "saved reducer outcome is JSON primitive text")
 	assert_eq(typeof(run.desktop.board.board.board.outcome), TYPE_STRING_NAME, "serialization never mutates the live reducer outcome")
+
+func _assert_board_identity_admission(snapshot: Dictionary, live: Dictionary) -> void:
+	# Input admission takes primitive owner data, retaining the full live ledger.
+	var live_input: Dictionary = DESKTOP_STATE._inspection_normalize(live)
+	var selected: Dictionary = SCENE_MANIFEST.scene_registration()
+	if not _ok(selected): return
+	if not _ok(RUN_SCHEMA.validate_scene(snapshot, selected.value)): return
+	if not _ok(RUN_SCHEMA.validate_scene_input_fields(live_input, selected.value)): return
+	for member: String in ["run_id", "branch_id", "desktop_timeline_generation", "causal_day_instance"]:
+		for player_data: bool in [true, false]:
+			var changed: Dictionary = (snapshot if player_data else live_input).duplicate(true)
+			if member == "desktop_timeline_generation":
+				changed.desktop.board.identity[member] += 1
+			else:
+				changed.desktop.board.identity[member] += ":other"
+			var refused: Dictionary = RUN_SCHEMA.validate_scene(changed, selected.value) if player_data \
+				else RUN_SCHEMA.validate_scene_input_fields(changed, selected.value)
+			assert_false(refused.get("ok", false), "mismatched board identity refused: " + member)
+			assert_eq(refused.get("code"), &"scene_board_identity_mismatch", str(refused))
 
 func create_scene_desktop_first_reveal() -> void:
 	if not _start_services(): return
@@ -187,6 +208,7 @@ func create_scene_desktop_first_reveal() -> void:
 	if not _ok(committed): return
 	var snapshot: Dictionary = committed.value.bundle.snapshot
 	_assert_scene_snapshot(snapshot, reading.value.reading_session, after)
+	_assert_board_identity_admission(snapshot, after)
 	var disk: Dictionary = PARSER.parse_object(FileAccess.get_file_as_string("user://saves/autosave.json"))
 	if not _ok(disk): return
 	assert_eq(disk.value.schema_version, 9)
