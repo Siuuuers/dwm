@@ -1493,3 +1493,44 @@ func test_full_write_history_edits_never_prove_a_different_retained_bundle() -> 
 			assert_eq(wired.manager._journal.get_retained_bundle_text(checkpoint_id), "", edit)
 			assert_true(wired.manager._journal.get_retained_bundle_document(checkpoint_id).is_empty(), edit)
 		assert_true(wired.gate.release(&"causal_transaction", lease.value.token).get("ok", false))
+
+func test_storage_rollback_failure_retains_sparse_owner_diagnostic() -> void:
+	var f := _isolated_wired()
+	if f.is_empty(): return
+	var captured: Dictionary = f.port.capture()
+	assert_true(captured.ok, str(captured))
+	if not captured.ok: return
+	var backup := {"journal_backup": captured.value.backup,
+		"storage_backup": {"relative_path": "autosave.json", "existed": true,
+			"validated_text": "not a save document"}}
+	var before := backup.duplicate(true)
+	# The real storage owner rejects this preimage before writing and returns
+	# its normal sparse failure {ok, code, message, fatal}, without details.
+	var result: Dictionary = f.port.rollback(backup)
+	assert_false(result.ok)
+	assert_eq(result.code, &"APPLICATION_FATAL")
+	var failure: Dictionary = result.details.failure
+	assert_eq(failure.source, "save_checkpoint")
+	assert_eq(failure.code, "fatal_rollback_failed")
+	var diagnostics: Array = failure.details.diagnostics
+	assert_eq(diagnostics.size(), 2)
+	assert_true(diagnostics[0].ok)
+	assert_eq(diagnostics[1].owner_id, "save_storage")
+	assert_eq(diagnostics[1].operation, "rollback")
+	assert_eq(diagnostics[1].code, "outgoing_validation_failed")
+	assert_false(diagnostics[1].message.is_empty())
+	assert_eq(diagnostics[1].details, {})
+	assert_eq(backup, before, "diagnostic projection leaves the retained backup unchanged")
+
+func test_checkpoint_diagnostic_normalization_keeps_malformed_supplied_details_visible() -> void:
+	var f := _isolated_wired()
+	if f.is_empty(): return
+	var raw := [{"owner_id": "save_storage", "operation": "rollback",
+		"result": {"ok": false, "code": "TEST.storage_failed", "message": "refused", "details": null}}]
+	var before := raw.duplicate(true)
+	var result: Dictionary = f.port._fatal_rollback("rollback", "TEST.run", raw)
+	assert_eq(result.code, &"APPLICATION_FATAL")
+	var diagnostic: Dictionary = result.details.failure.details.diagnostics[0]
+	assert_eq(diagnostic.owner_id, "fatal_diagnostic_projector")
+	assert_eq(diagnostic.details.reason, "malformed_diagnostic")
+	assert_eq(raw, before)

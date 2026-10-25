@@ -922,15 +922,23 @@ func _validate_transient_consequence_record(record: Dictionary) -> Dictionary:
 		"canonical_text": str(canonical["value"])}
 
 func _fatal_rollback(phase: String, run_id: String, raw_diagnostics: Array) -> Dictionary:
+	# Storage failures omit optional details. Complete absent fields here without
+	# changing the retained owner result or hiding malformed supplied values.
+	var diagnostics: Array = raw_diagnostics.duplicate(true)
+	for diagnostic: Dictionary in diagnostics:
+		var result: Variant = diagnostic.get("result")
+		if result is Dictionary and typeof(result.get("ok")) == TYPE_BOOL and not result.ok:
+			if not result.has("message"): result["message"] = ""
+			if not result.has("details"): result["details"] = {}
 	var already_retained := false
-	for diagnostic: Dictionary in raw_diagnostics:
+	for diagnostic: Dictionary in diagnostics:
 		if str((diagnostic.get("result", {}) as Dictionary).get("code", "")) == "APPLICATION_FATAL":
 			already_retained = true
 	if not already_retained and not _gate.is_fatal_latched():
 		var projected: Dictionary = PROJECTOR.project_failure(
 			"save_checkpoint", phase, "fatal_rollback_failed",
 			{"run_id": run_id, "relative_path": AUTOSAVE_RELATIVE_PATH},
-			raw_diagnostics)
+			diagnostics)
 		var candidate: Dictionary = PROJECTOR.get_invariant_fallback()
 		if projected.get("ok", false):
 			var failure: Dictionary = projected["value"]["failure"]
