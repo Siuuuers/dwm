@@ -1,0 +1,1957 @@
+{
+  "run_id": 40207210393,
+  "run_url": "https://github.com/Siuuuers/dwm/actions/runs/40207210393",
+  "job_id": 121210607570,
+  "evidence_artifact_id": 12605040192,
+  "package_artifact_id": 12604910495,
+  "status": "four_exported_diagnostic_processes_passed",
+  "source": {
+    "controller": "f0921d50d3e8debdcbf7f97cc0679b63d77d895c",
+    "source": "47234a3395a4566e840140f1849da55a65d15521",
+    "source_tree": "e95ec5ffe158fa70d2c122317d0cb91089621c6c",
+    "scope": "Instrumented exported release baseline with synchronous New Acc phases and inclusive validation counters; not the installed Steam package or an optimization comparison",
+    "source_archive_exclusions": [
+      "evidence",
+      ".claude"
+    ],
+    "cache_state": "Fresh means empty user data; OS and driver caches are not cleared",
+    "renderer": "Production default D3D12 Forward Plus; software cloud GPU recorded by probe"
+  },
+  "package": {
+    "source": "47234a3395a4566e840140f1849da55a65d15521",
+    "variant": "baseline",
+    "files": [
+      {
+        "sha256": "91724f15024a3a545e28ccd83134403d31ce2323a38e51c95e4dfa282f732ab6",
+        "bytes": 104659456,
+        "path": "game.exe"
+      },
+      {
+        "sha256": "31e67203b5a3fce5bdffb0ee3a102373b92f4b6f71d1d3399be67522fd31b3c0",
+        "bytes": 79838956,
+        "path": "game.pck"
+      }
+    ]
+  },
+  "archive": {
+    "archive": "run40207210393-evidence.zip",
+    "bytes": 3312068,
+    "sha256": "7b7c8cb4de36536bc49deb36ea7e84d51776cf2956e7b0425944dd86bceaeb81",
+    "crc_verified": true,
+    "member_count": 55,
+    "scope": "Original compact cloud artifact 12605040192, including logs, screenshots, source/package receipts and current-format profile/save payloads. Executable/PCK package and shader/pipeline caches are separate or excluded."
+  },
+  "completed_exported_processes": 4,
+  "strictly_accepted_exported_processes": 4,
+  "verified_screenshot_entries": 10,
+  "visual_review": "Not performed by this audit; coordinator review is separate.",
+  "qualified_performance_improvement": false,
+  "owner_ranges": {
+    "decision": {
+      "minimum_ms": 4401.345,
+      "maximum_ms": 5881.951
+    },
+    "commit_intent": {
+      "minimum_ms": 719.756,
+      "maximum_ms": 872.469
+    },
+    "resume": {
+      "minimum_ms": 7226.599,
+      "maximum_ms": 7776.409
+    },
+    "settle_pair": {
+      "minimum_ms": 3690.141,
+      "maximum_ms": 4017.178
+    },
+    "apply_transaction": {
+      "minimum_ms": 1019.767,
+      "maximum_ms": 1115.104
+    }
+  },
+  "measurements": [
+    {
+      "name": "pair1-fresh",
+      "case": "fresh",
+      "complete": true,
+      "strict_harness_accepted": true,
+      "exit_code": 0,
+      "timings_ms": {
+        "lifetime_ms": 20677.7663,
+        "launch_to_probe_enter_tree_ms": 5784.0,
+        "launch_to_first_title_drawn_ms": 6744.0,
+        "launch_to_title_drawn_usable_ms": 6744.0,
+        "launch_to_first_title_input_accepted_ms": 6778.0,
+        "launch_to_bootstrap_start_ms": 5887.0,
+        "new_acc_to_caption_complete_ms": 13344.133
+      },
+      "max_frame_gap_us": {
+        "new_acc": 8738143
+      },
+      "observation": {
+        "active": true,
+        "event_done": true,
+        "line_id": "line.Day1.one",
+        "new_run_busy": false,
+        "text": "Sylvia slides the fuller teacup onto my mat and keeps the one with the small chip on the rim for herself.",
+        "visible_ratio": 1.0
+      },
+      "validation_profile": {
+        "bundle_validation_calls": 36,
+        "bundle_validation_failures": 0,
+        "bundle_validation_us": 2442601,
+        "compilation_calls": 8300,
+        "compilation_failures": 0,
+        "compilation_us": 2139138,
+        "configuration_calls": 90,
+        "configuration_failures": 0,
+        "configuration_us": 3846068,
+        "elapsed_us": 13344176,
+        "inclusive_nested": true,
+        "lifecycle_state": "fresh",
+        "next_step_index": 0,
+        "ok": true,
+        "operation": "exported_new_acc",
+        "physical_proof_calls": 0,
+        "physical_proof_failures": 0,
+        "physical_proof_us": 0,
+        "playback_stage": "button_to_caption",
+        "receipt_validation_calls": 0,
+        "receipt_validation_failures": 0,
+        "receipt_validation_us": 0,
+        "snapshot_validations": []
+      },
+      "newacc_owner_phases": [
+        {
+          "code": "",
+          "elapsed_us": 1642012,
+          "end": {
+            "ticks_us": 9717354,
+            "unix_ms": 1792942296548.0
+          },
+          "inclusive_nested": true,
+          "ok": true,
+          "operation_ok": true,
+          "phase": "newacc.plans",
+          "start": {
+            "counters": {
+              "bundle_validation_calls": 6,
+              "bundle_validation_failures": 0,
+              "bundle_validation_us": 454826,
+              "compilation_calls": 646,
+              "compilation_failures": 0,
+              "compilation_us": 176907,
+              "configuration_calls": 7,
+              "configuration_failures": 0,
+              "configuration_us": 335948,
+              "physical_proof_calls": 0,
+              "physical_proof_failures": 0,
+              "physical_proof_us": 0,
+              "receipt_validation_calls": 0,
+              "receipt_validation_failures": 0,
+              "receipt_validation_us": 0,
+              "snapshot_validation_calls": 0,
+              "snapshot_validation_us": 0
+            },
+            "ticks_us": 8075342,
+            "unix_ms": 1792942294907.0
+          },
+          "validation_counter_delta": {
+            "bundle_validation_calls": 5,
+            "bundle_validation_failures": 0,
+            "bundle_validation_us": 317669,
+            "compilation_calls": 1198,
+            "compilation_failures": 0,
+            "compilation_us": 289540,
+            "configuration_calls": 13,
+            "configuration_failures": 0,
+            "configuration_us": 494018,
+            "physical_proof_calls": 0,
+            "physical_proof_failures": 0,
+            "physical_proof_us": 0,
+            "receipt_validation_calls": 0,
+            "receipt_validation_failures": 0,
+            "receipt_validation_us": 0,
+            "snapshot_validation_calls": 0,
+            "snapshot_validation_us": 0
+          }
+        },
+        {
+          "code": "",
+          "elapsed_us": 4490568,
+          "end": {
+            "ticks_us": 11095140,
+            "unix_ms": 1792942297927.0
+          },
+          "inclusive_nested": true,
+          "ok": true,
+          "operation_ok": true,
+          "phase": "newacc.decision",
+          "start": {
+            "counters": {
+              "bundle_validation_calls": 0,
+              "bundle_validation_failures": 0,
+              "bundle_validation_us": 0,
+              "compilation_calls": 0,
+              "compilation_failures": 0,
+              "compilation_us": 0,
+              "configuration_calls": 0,
+              "configuration_failures": 0,
+              "configuration_us": 0,
+              "physical_proof_calls": 0,
+              "physical_proof_failures": 0,
+              "physical_proof_us": 0,
+              "receipt_validation_calls": 0,
+              "receipt_validation_failures": 0,
+              "receipt_validation_us": 0,
+              "snapshot_validation_calls": 0,
+              "snapshot_validation_us": 0
+            },
+            "ticks_us": 6604572,
+            "unix_ms": 1792942293436.0
+          },
+          "validation_counter_delta": {
+            "bundle_validation_calls": 15,
+            "bundle_validation_failures": 0,
+            "bundle_validation_us": 1015194,
+            "compilation_calls": 2858,
+            "compilation_failures": 0,
+            "compilation_us": 734318,
+            "configuration_calls": 31,
+            "configuration_failures": 0,
+            "configuration_us": 1285038,
+            "physical_proof_calls": 0,
+            "physical_proof_failures": 0,
+            "physical_proof_us": 0,
+            "receipt_validation_calls": 0,
+            "receipt_validation_failures": 0,
+            "receipt_validation_us": 0,
+            "snapshot_validation_calls": 0,
+            "snapshot_validation_us": 0
+          }
+        },
+        {
+          "code": "",
+          "elapsed_us": 772296,
+          "end": {
+            "ticks_us": 11868597,
+            "unix_ms": 1792942298700.0
+          },
+          "inclusive_nested": true,
+          "ok": true,
+          "operation_ok": true,
+          "phase": "newacc.commit_intent",
+          "start": {
+            "counters": {
+              "bundle_validation_calls": 15,
+              "bundle_validation_failures": 0,
+              "bundle_validation_us": 1015194,
+              "compilation_calls": 2858,
+              "compilation_failures": 0,
+              "compilation_us": 734318,
+              "configuration_calls": 31,
+              "configuration_failures": 0,
+              "configuration_us": 1285038,
+              "physical_proof_calls": 0,
+              "physical_proof_failures": 0,
+              "physical_proof_us": 0,
+              "receipt_validation_calls": 0,
+              "receipt_validation_failures": 0,
+              "receipt_validation_us": 0,
+              "snapshot_validation_calls": 0,
+              "snapshot_validation_us": 0
+            },
+            "ticks_us": 11096301,
+            "unix_ms": 1792942297928.0
+          },
+          "validation_counter_delta": {
+            "bundle_validation_calls": 2,
+            "bundle_validation_failures": 0,
+            "bundle_validation_us": 132349,
+            "compilation_calls": 553,
+            "compilation_failures": 0,
+            "compilation_us": 146024,
+            "configuration_calls": 6,
+            "configuration_failures": 0,
+            "configuration_us": 257623,
+            "physical_proof_calls": 0,
+            "physical_proof_failures": 0,
+            "physical_proof_us": 0,
+            "receipt_validation_calls": 0,
+            "receipt_validation_failures": 0,
+            "receipt_validation_us": 0,
+            "snapshot_validation_calls": 0,
+            "snapshot_validation_us": 0
+          }
+        },
+        {
+          "code": "",
+          "elapsed_us": 3940405,
+          "end": {
+            "ticks_us": 15809086,
+            "unix_ms": 1792942302640.0
+          },
+          "inclusive_nested": true,
+          "ok": true,
+          "operation_ok": true,
+          "phase": "newacc.settle_pair",
+          "start": {
+            "counters": {
+              "bundle_validation_calls": 17,
+              "bundle_validation_failures": 0,
+              "bundle_validation_us": 1147543,
+              "compilation_calls": 3411,
+              "compilation_failures": 0,
+              "compilation_us": 880342,
+              "configuration_calls": 37,
+              "configuration_failures": 0,
+              "configuration_us": 1542661,
+              "physical_proof_calls": 0,
+              "physical_proof_failures": 0,
+              "physical_proof_us": 0,
+              "receipt_validation_calls": 0,
+              "receipt_validation_failures": 0,
+              "receipt_validation_us": 0,
+              "snapshot_validation_calls": 0,
+              "snapshot_validation_us": 0
+            },
+            "ticks_us": 11868681,
+            "unix_ms": 1792942298700.0
+          },
+          "validation_counter_delta": {
+            "bundle_validation_calls": 10,
+            "bundle_validation_failures": 0,
+            "bundle_validation_us": 715644,
+            "compilation_calls": 2581,
+            "compilation_failures": 0,
+            "compilation_us": 666883,
+            "configuration_calls": 28,
+            "configuration_failures": 0,
+            "configuration_us": 1246108,
+            "physical_proof_calls": 0,
+            "physical_proof_failures": 0,
+            "physical_proof_us": 0,
+            "receipt_validation_calls": 0,
+            "receipt_validation_failures": 0,
+            "receipt_validation_us": 0,
+            "snapshot_validation_calls": 0,
+            "snapshot_validation_us": 0
+          }
+        },
+        {
+          "code": "",
+          "elapsed_us": 1766809,
+          "end": {
+            "ticks_us": 17582955,
+            "unix_ms": 1792942304414.0
+          },
+          "inclusive_nested": true,
+          "ok": true,
+          "operation_ok": true,
+          "phase": "newacc.plans",
+          "start": {
+            "counters": {
+              "bundle_validation_calls": 27,
+              "bundle_validation_failures": 0,
+              "bundle_validation_us": 1863187,
+              "compilation_calls": 5992,
+              "compilation_failures": 0,
+              "compilation_us": 1547225,
+              "configuration_calls": 65,
+              "configuration_failures": 0,
+              "configuration_us": 2788769,
+              "physical_proof_calls": 0,
+              "physical_proof_failures": 0,
+              "physical_proof_us": 0,
+              "receipt_validation_calls": 0,
+              "receipt_validation_failures": 0,
+              "receipt_validation_us": 0,
+              "snapshot_validation_calls": 0,
+              "snapshot_validation_us": 0
+            },
+            "ticks_us": 15816146,
+            "unix_ms": 1792942302647.0
+          },
+          "validation_counter_delta": {
+            "bundle_validation_calls": 5,
+            "bundle_validation_failures": 0,
+            "bundle_validation_us": 324127,
+            "compilation_calls": 1198,
+            "compilation_failures": 0,
+            "compilation_us": 303501,
+            "configuration_calls": 13,
+            "configuration_failures": 0,
+            "configuration_us": 543375,
+            "physical_proof_calls": 0,
+            "physical_proof_failures": 0,
+            "physical_proof_us": 0,
+            "receipt_validation_calls": 0,
+            "receipt_validation_failures": 0,
+            "receipt_validation_us": 0,
+            "snapshot_validation_calls": 0,
+            "snapshot_validation_us": 0
+          }
+        },
+        {
+          "code": "scene_activation_pending",
+          "elapsed_us": 1025850,
+          "end": {
+            "ticks_us": 19271415,
+            "unix_ms": 1792942306103.0
+          },
+          "inclusive_nested": true,
+          "ok": true,
+          "operation_ok": false,
+          "phase": "newacc.apply_transaction",
+          "start": {
+            "counters": {
+              "bundle_validation_calls": 34,
+              "bundle_validation_failures": 0,
+              "bundle_validation_us": 2315063,
+              "compilation_calls": 7651,
+              "compilation_failures": 0,
+              "compilation_us": 1967503,
+              "configuration_calls": 83,
+              "configuration_failures": 0,
+              "configuration_us": 3538728,
+              "physical_proof_calls": 0,
+              "physical_proof_failures": 0,
+              "physical_proof_us": 0,
+              "receipt_validation_calls": 0,
+              "receipt_validation_failures": 0,
+              "receipt_validation_us": 0,
+              "snapshot_validation_calls": 0,
+              "snapshot_validation_us": 0
+            },
+            "ticks_us": 18245565,
+            "unix_ms": 1792942305077.0
+          },
+          "validation_counter_delta": {
+            "bundle_validation_calls": 2,
+            "bundle_validation_failures": 0,
+            "bundle_validation_us": 127538,
+            "compilation_calls": 645,
+            "compilation_failures": 0,
+            "compilation_us": 169993,
+            "configuration_calls": 7,
+            "configuration_failures": 0,
+            "configuration_us": 307340,
+            "physical_proof_calls": 0,
+            "physical_proof_failures": 0,
+            "physical_proof_us": 0,
+            "receipt_validation_calls": 0,
+            "receipt_validation_failures": 0,
+            "receipt_validation_us": 0,
+            "snapshot_validation_calls": 0,
+            "snapshot_validation_us": 0
+          }
+        },
+        {
+          "code": "scene_activation_pending",
+          "elapsed_us": 7403200,
+          "end": {
+            "ticks_us": 19271869,
+            "unix_ms": 1792942306104.0
+          },
+          "inclusive_nested": true,
+          "ok": true,
+          "operation_ok": false,
+          "phase": "newacc.resume",
+          "start": {
+            "counters": {
+              "bundle_validation_calls": 17,
+              "bundle_validation_failures": 0,
+              "bundle_validation_us": 1147543,
+              "compilation_calls": 3411,
+              "compilation_failures": 0,
+              "compilation_us": 880342,
+              "configuration_calls": 37,
+              "configuration_failures": 0,
+              "configuration_us": 1542661,
+              "physical_proof_calls": 0,
+              "physical_proof_failures": 0,
+              "physical_proof_us": 0,
+              "receipt_validation_calls": 0,
+              "receipt_validation_failures": 0,
+              "receipt_validation_us": 0,
+              "snapshot_validation_calls": 0,
+              "snapshot_validation_us": 0
+            },
+            "ticks_us": 11868669,
+            "unix_ms": 1792942298700.0
+          },
+          "validation_counter_delta": {
+            "bundle_validation_calls": 19,
+            "bundle_validation_failures": 0,
+            "bundle_validation_us": 1295058,
+            "compilation_calls": 4885,
+            "compilation_failures": 0,
+            "compilation_us": 1257154,
+            "configuration_calls": 53,
+            "configuration_failures": 0,
+            "configuration_us": 2303407,
+            "physical_proof_calls": 0,
+            "physical_proof_failures": 0,
+            "physical_proof_us": 0,
+            "receipt_validation_calls": 0,
+            "receipt_validation_failures": 0,
+            "receipt_validation_us": 0,
+            "snapshot_validation_calls": 0,
+            "snapshot_validation_us": 0
+          }
+        }
+      ],
+      "snapshot_validation_record_count": 0,
+      "images": [
+        {
+          "sha256": "9ef78fa54a8ebb74667eb3e5e3886c9ba6fed4f3be93bb4fb72e6e9b19219a0a",
+          "size": 773270,
+          "name": "caption.png",
+          "process_manifest_verified": true
+        },
+        {
+          "sha256": "2b01f0beb4d153b753ce29839f256788066c26da86a5db7ae07b16fc1fc9b53c",
+          "size": 9866,
+          "name": "title.png",
+          "process_manifest_verified": true
+        }
+      ],
+      "rendering": {
+        "get_current_rendering_driver_name": "d3d12",
+        "get_current_rendering_method": "forward_plus",
+        "get_video_adapter_api_version": "12_0",
+        "get_video_adapter_name": "Microsoft Basic Render Driver"
+      },
+      "preferences": {
+        "preferences.accessibility.font_style": "pixel",
+        "preferences.accessibility.text_size": 100,
+        "preferences.language.primary_locale_id": "en",
+        "preferences.reading.auto_enabled": false,
+        "preferences.reading.reveal_speed": "normal"
+      },
+      "package_hashes": {
+        "game.exe": "91724f15024a3a545e28ccd83134403d31ce2323a38e51c95e4dfa282f732ab6",
+        "game.pck": "31e67203b5a3fce5bdffb0ee3a102373b92f4b6f71d1d3399be67522fd31b3c0"
+      }
+    },
+    {
+      "name": "pair1-retained",
+      "case": "retained",
+      "complete": true,
+      "strict_harness_accepted": true,
+      "exit_code": 0,
+      "timings_ms": {
+        "lifetime_ms": 20632.0291,
+        "launch_to_probe_enter_tree_ms": 3310.0,
+        "launch_to_first_title_drawn_ms": 5850.0,
+        "launch_to_title_drawn_usable_ms": 5850.0,
+        "launch_to_first_title_input_accepted_ms": 5865.0,
+        "launch_to_bootstrap_start_ms": 3388.0,
+        "new_acc_to_caption_complete_ms": 14391.933,
+        "input_to_consent_ms": 25.228,
+        "consent_dwell_ms": 33.326,
+        "confirm_to_caption_complete_ms": 14333.379
+      },
+      "max_frame_gap_us": {
+        "confirm": 8598212,
+        "new_acc": 6735
+      },
+      "observation": {
+        "active": true,
+        "event_done": true,
+        "line_id": "line.Day1.one",
+        "new_run_busy": false,
+        "text": "Sylvia slides the fuller teacup onto my mat and keeps the one with the small chip on the rim for herself.",
+        "visible_ratio": 1.0
+      },
+      "validation_profile": {
+        "bundle_validation_calls": 38,
+        "bundle_validation_failures": 0,
+        "bundle_validation_us": 2524676,
+        "compilation_calls": 8853,
+        "compilation_failures": 0,
+        "compilation_us": 2300403,
+        "configuration_calls": 96,
+        "configuration_failures": 0,
+        "configuration_us": 4209056,
+        "elapsed_us": 14391974,
+        "inclusive_nested": true,
+        "lifecycle_state": "retained",
+        "next_step_index": 0,
+        "ok": true,
+        "operation": "exported_new_acc",
+        "physical_proof_calls": 1,
+        "physical_proof_failures": 0,
+        "physical_proof_us": 2529,
+        "playback_stage": "button_to_caption",
+        "receipt_validation_calls": 0,
+        "receipt_validation_failures": 0,
+        "receipt_validation_us": 0,
+        "snapshot_validations": []
+      },
+      "newacc_owner_phases": [
+        {
+          "code": "",
+          "elapsed_us": 1931507,
+          "end": {
+            "ticks_us": 10036178,
+            "unix_ms": 1792942317643.0
+          },
+          "inclusive_nested": true,
+          "ok": true,
+          "operation_ok": true,
+          "phase": "newacc.plans",
+          "start": {
+            "counters": {
+              "bundle_validation_calls": 8,
+              "bundle_validation_failures": 0,
+              "bundle_validation_us": 524703,
+              "compilation_calls": 1199,
+              "compilation_failures": 0,
+              "compilation_us": 315315,
+              "configuration_calls": 13,
+              "configuration_failures": 0,
+              "configuration_us": 589718,
+              "physical_proof_calls": 1,
+              "physical_proof_failures": 0,
+              "physical_proof_us": 2529,
+              "receipt_validation_calls": 0,
+              "receipt_validation_failures": 0,
+              "receipt_validation_us": 0,
+              "snapshot_validation_calls": 0,
+              "snapshot_validation_us": 0
+            },
+            "ticks_us": 8104671,
+            "unix_ms": 1792942315713.0
+          },
+          "validation_counter_delta": {
+            "bundle_validation_calls": 5,
+            "bundle_validation_failures": 0,
+            "bundle_validation_us": 346030,
+            "compilation_calls": 1198,
+            "compilation_failures": 0,
+            "compilation_us": 314440,
+            "configuration_calls": 13,
+            "configuration_failures": 0,
+            "configuration_us": 590328,
+            "physical_proof_calls": 0,
+            "physical_proof_failures": 0,
+            "physical_proof_us": 0,
+            "receipt_validation_calls": 0,
+            "receipt_validation_failures": 0,
+            "receipt_validation_us": 0,
+            "snapshot_validation_calls": 0,
+            "snapshot_validation_us": 0
+          }
+        },
+        {
+          "code": "",
+          "elapsed_us": 5634078,
+          "end": {
+            "ticks_us": 11579335,
+            "unix_ms": 1792942319187.0
+          },
+          "inclusive_nested": true,
+          "ok": true,
+          "operation_ok": true,
+          "phase": "newacc.decision",
+          "start": {
+            "counters": {
+              "bundle_validation_calls": 0,
+              "bundle_validation_failures": 0,
+              "bundle_validation_us": 0,
+              "compilation_calls": 0,
+              "compilation_failures": 0,
+              "compilation_us": 0,
+              "configuration_calls": 0,
+              "configuration_failures": 0,
+              "configuration_us": 0,
+              "physical_proof_calls": 0,
+              "physical_proof_failures": 0,
+              "physical_proof_us": 0,
+              "receipt_validation_calls": 0,
+              "receipt_validation_failures": 0,
+              "receipt_validation_us": 0,
+              "snapshot_validation_calls": 0,
+              "snapshot_validation_us": 0
+            },
+            "ticks_us": 5945257,
+            "unix_ms": 1792942313553.0
+          },
+          "validation_counter_delta": {
+            "bundle_validation_calls": 17,
+            "bundle_validation_failures": 0,
+            "bundle_validation_us": 1160489,
+            "compilation_calls": 3411,
+            "compilation_failures": 0,
+            "compilation_us": 893889,
+            "configuration_calls": 37,
+            "configuration_failures": 0,
+            "configuration_us": 1674245,
+            "physical_proof_calls": 1,
+            "physical_proof_failures": 0,
+            "physical_proof_us": 2529,
+            "receipt_validation_calls": 0,
+            "receipt_validation_failures": 0,
+            "receipt_validation_us": 0,
+            "snapshot_validation_calls": 0,
+            "snapshot_validation_us": 0
+          }
+        },
+        {
+          "code": "",
+          "elapsed_us": 785425,
+          "end": {
+            "ticks_us": 12366159,
+            "unix_ms": 1792942319974.0
+          },
+          "inclusive_nested": true,
+          "ok": true,
+          "operation_ok": true,
+          "phase": "newacc.commit_intent",
+          "start": {
+            "counters": {
+              "bundle_validation_calls": 17,
+              "bundle_validation_failures": 0,
+              "bundle_validation_us": 1160489,
+              "compilation_calls": 3411,
+              "compilation_failures": 0,
+              "compilation_us": 893889,
+              "configuration_calls": 37,
+              "configuration_failures": 0,
+              "configuration_us": 1674245,
+              "physical_proof_calls": 1,
+              "physical_proof_failures": 0,
+              "physical_proof_us": 2529,
+              "receipt_validation_calls": 0,
+              "receipt_validation_failures": 0,
+              "receipt_validation_us": 0,
+              "snapshot_validation_calls": 0,
+              "snapshot_validation_us": 0
+            },
+            "ticks_us": 11580734,
+            "unix_ms": 1792942319188.0
+          },
+          "validation_counter_delta": {
+            "bundle_validation_calls": 2,
+            "bundle_validation_failures": 0,
+            "bundle_validation_us": 132868,
+            "compilation_calls": 553,
+            "compilation_failures": 0,
+            "compilation_us": 140334,
+            "configuration_calls": 6,
+            "configuration_failures": 0,
+            "configuration_us": 250846,
+            "physical_proof_calls": 0,
+            "physical_proof_failures": 0,
+            "physical_proof_us": 0,
+            "receipt_validation_calls": 0,
+            "receipt_validation_failures": 0,
+            "receipt_validation_us": 0,
+            "snapshot_validation_calls": 0,
+            "snapshot_validation_us": 0
+          }
+        },
+        {
+          "code": "",
+          "elapsed_us": 3690141,
+          "end": {
+            "ticks_us": 16056383,
+            "unix_ms": 1792942323664.0
+          },
+          "inclusive_nested": true,
+          "ok": true,
+          "operation_ok": true,
+          "phase": "newacc.settle_pair",
+          "start": {
+            "counters": {
+              "bundle_validation_calls": 19,
+              "bundle_validation_failures": 0,
+              "bundle_validation_us": 1293357,
+              "compilation_calls": 3964,
+              "compilation_failures": 0,
+              "compilation_us": 1034223,
+              "configuration_calls": 43,
+              "configuration_failures": 0,
+              "configuration_us": 1925091,
+              "physical_proof_calls": 1,
+              "physical_proof_failures": 0,
+              "physical_proof_us": 2529,
+              "receipt_validation_calls": 0,
+              "receipt_validation_failures": 0,
+              "receipt_validation_us": 0,
+              "snapshot_validation_calls": 0,
+              "snapshot_validation_us": 0
+            },
+            "ticks_us": 12366242,
+            "unix_ms": 1792942319974.0
+          },
+          "validation_counter_delta": {
+            "bundle_validation_calls": 10,
+            "bundle_validation_failures": 0,
+            "bundle_validation_us": 633119,
+            "compilation_calls": 2581,
+            "compilation_failures": 0,
+            "compilation_us": 660183,
+            "configuration_calls": 28,
+            "configuration_failures": 0,
+            "configuration_us": 1181985,
+            "physical_proof_calls": 0,
+            "physical_proof_failures": 0,
+            "physical_proof_us": 0,
+            "receipt_validation_calls": 0,
+            "receipt_validation_failures": 0,
+            "receipt_validation_us": 0,
+            "snapshot_validation_calls": 0,
+            "snapshot_validation_us": 0
+          }
+        },
+        {
+          "code": "",
+          "elapsed_us": 1837627,
+          "end": {
+            "ticks_us": 17902214,
+            "unix_ms": 1792942325510.0
+          },
+          "inclusive_nested": true,
+          "ok": true,
+          "operation_ok": true,
+          "phase": "newacc.plans",
+          "start": {
+            "counters": {
+              "bundle_validation_calls": 29,
+              "bundle_validation_failures": 0,
+              "bundle_validation_us": 1926476,
+              "compilation_calls": 6545,
+              "compilation_failures": 0,
+              "compilation_us": 1694406,
+              "configuration_calls": 71,
+              "configuration_failures": 0,
+              "configuration_us": 3107076,
+              "physical_proof_calls": 1,
+              "physical_proof_failures": 0,
+              "physical_proof_us": 2529,
+              "receipt_validation_calls": 0,
+              "receipt_validation_failures": 0,
+              "receipt_validation_us": 0,
+              "snapshot_validation_calls": 0,
+              "snapshot_validation_us": 0
+            },
+            "ticks_us": 16064587,
+            "unix_ms": 1792942323673.0
+          },
+          "validation_counter_delta": {
+            "bundle_validation_calls": 5,
+            "bundle_validation_failures": 0,
+            "bundle_validation_us": 346147,
+            "compilation_calls": 1198,
+            "compilation_failures": 0,
+            "compilation_us": 310754,
+            "configuration_calls": 13,
+            "configuration_failures": 0,
+            "configuration_us": 564808,
+            "physical_proof_calls": 0,
+            "physical_proof_failures": 0,
+            "physical_proof_us": 0,
+            "receipt_validation_calls": 0,
+            "receipt_validation_failures": 0,
+            "receipt_validation_us": 0,
+            "snapshot_validation_calls": 0,
+            "snapshot_validation_us": 0
+          }
+        },
+        {
+          "code": "scene_activation_pending",
+          "elapsed_us": 1025998,
+          "end": {
+            "ticks_us": 19592354,
+            "unix_ms": 1792942327200.0
+          },
+          "inclusive_nested": true,
+          "ok": true,
+          "operation_ok": false,
+          "phase": "newacc.apply_transaction",
+          "start": {
+            "counters": {
+              "bundle_validation_calls": 36,
+              "bundle_validation_failures": 0,
+              "bundle_validation_us": 2396985,
+              "compilation_calls": 8204,
+              "compilation_failures": 0,
+              "compilation_us": 2123992,
+              "configuration_calls": 89,
+              "configuration_failures": 0,
+              "configuration_us": 3888391,
+              "physical_proof_calls": 1,
+              "physical_proof_failures": 0,
+              "physical_proof_us": 2529,
+              "receipt_validation_calls": 0,
+              "receipt_validation_failures": 0,
+              "receipt_validation_us": 0,
+              "snapshot_validation_calls": 0,
+              "snapshot_validation_us": 0
+            },
+            "ticks_us": 18566356,
+            "unix_ms": 1792942326174.0
+          },
+          "validation_counter_delta": {
+            "bundle_validation_calls": 2,
+            "bundle_validation_failures": 0,
+            "bundle_validation_us": 127691,
+            "compilation_calls": 645,
+            "compilation_failures": 0,
+            "compilation_us": 174610,
+            "configuration_calls": 7,
+            "configuration_failures": 0,
+            "configuration_us": 320665,
+            "physical_proof_calls": 0,
+            "physical_proof_failures": 0,
+            "physical_proof_us": 0,
+            "receipt_validation_calls": 0,
+            "receipt_validation_failures": 0,
+            "receipt_validation_us": 0,
+            "snapshot_validation_calls": 0,
+            "snapshot_validation_us": 0
+          }
+        },
+        {
+          "code": "scene_activation_pending",
+          "elapsed_us": 7226599,
+          "end": {
+            "ticks_us": 19592829,
+            "unix_ms": 1792942327200.0
+          },
+          "inclusive_nested": true,
+          "ok": true,
+          "operation_ok": false,
+          "phase": "newacc.resume",
+          "start": {
+            "counters": {
+              "bundle_validation_calls": 19,
+              "bundle_validation_failures": 0,
+              "bundle_validation_us": 1293357,
+              "compilation_calls": 3964,
+              "compilation_failures": 0,
+              "compilation_us": 1034223,
+              "configuration_calls": 43,
+              "configuration_failures": 0,
+              "configuration_us": 1925091,
+              "physical_proof_calls": 1,
+              "physical_proof_failures": 0,
+              "physical_proof_us": 2529,
+              "receipt_validation_calls": 0,
+              "receipt_validation_failures": 0,
+              "receipt_validation_us": 0,
+              "snapshot_validation_calls": 0,
+              "snapshot_validation_us": 0
+            },
+            "ticks_us": 12366230,
+            "unix_ms": 1792942319974.0
+          },
+          "validation_counter_delta": {
+            "bundle_validation_calls": 19,
+            "bundle_validation_failures": 0,
+            "bundle_validation_us": 1231319,
+            "compilation_calls": 4885,
+            "compilation_failures": 0,
+            "compilation_us": 1264379,
+            "configuration_calls": 53,
+            "configuration_failures": 0,
+            "configuration_us": 2283965,
+            "physical_proof_calls": 0,
+            "physical_proof_failures": 0,
+            "physical_proof_us": 0,
+            "receipt_validation_calls": 0,
+            "receipt_validation_failures": 0,
+            "receipt_validation_us": 0,
+            "snapshot_validation_calls": 0,
+            "snapshot_validation_us": 0
+          }
+        }
+      ],
+      "snapshot_validation_record_count": 0,
+      "images": [
+        {
+          "sha256": "287e79f83491ef0db516e00f1e9999b1bd733eed7d6b0a887030faaade6afb32",
+          "size": 773297,
+          "name": "caption.png",
+          "process_manifest_verified": true
+        },
+        {
+          "sha256": "5995b8d05380123789d5572b14c3bb2817924e5fe9435a92773ab515f96d1a4c",
+          "size": 17152,
+          "name": "consent.png",
+          "process_manifest_verified": true
+        },
+        {
+          "sha256": "2b01f0beb4d153b753ce29839f256788066c26da86a5db7ae07b16fc1fc9b53c",
+          "size": 9866,
+          "name": "title.png",
+          "process_manifest_verified": true
+        }
+      ],
+      "rendering": {
+        "get_current_rendering_driver_name": "d3d12",
+        "get_current_rendering_method": "forward_plus",
+        "get_video_adapter_api_version": "12_0",
+        "get_video_adapter_name": "Microsoft Basic Render Driver"
+      },
+      "preferences": {
+        "preferences.accessibility.font_style": "pixel",
+        "preferences.accessibility.text_size": 100,
+        "preferences.language.primary_locale_id": "en",
+        "preferences.reading.auto_enabled": false,
+        "preferences.reading.reveal_speed": "normal"
+      },
+      "package_hashes": {
+        "game.exe": "91724f15024a3a545e28ccd83134403d31ce2323a38e51c95e4dfa282f732ab6",
+        "game.pck": "31e67203b5a3fce5bdffb0ee3a102373b92f4b6f71d1d3399be67522fd31b3c0"
+      }
+    },
+    {
+      "name": "pair2-fresh",
+      "case": "fresh",
+      "complete": true,
+      "strict_harness_accepted": true,
+      "exit_code": 0,
+      "timings_ms": {
+        "lifetime_ms": 19441.0253,
+        "launch_to_probe_enter_tree_ms": 4956.0,
+        "launch_to_first_title_drawn_ms": 5874.0,
+        "launch_to_title_drawn_usable_ms": 5874.0,
+        "launch_to_first_title_input_accepted_ms": 5901.0,
+        "launch_to_bootstrap_start_ms": 5038.0,
+        "new_acc_to_caption_complete_ms": 13152.205
+      },
+      "max_frame_gap_us": {
+        "new_acc": 8634357
+      },
+      "observation": {
+        "active": true,
+        "event_done": true,
+        "line_id": "line.Day1.one",
+        "new_run_busy": false,
+        "text": "Sylvia slides the fuller teacup onto my mat and keeps the one with the small chip on the rim for herself.",
+        "visible_ratio": 1.0
+      },
+      "validation_profile": {
+        "bundle_validation_calls": 36,
+        "bundle_validation_failures": 0,
+        "bundle_validation_us": 2337894,
+        "compilation_calls": 8300,
+        "compilation_failures": 0,
+        "compilation_us": 2110491,
+        "configuration_calls": 90,
+        "configuration_failures": 0,
+        "configuration_us": 3818279,
+        "elapsed_us": 13152254,
+        "inclusive_nested": true,
+        "lifecycle_state": "fresh",
+        "next_step_index": 0,
+        "ok": true,
+        "operation": "exported_new_acc",
+        "physical_proof_calls": 0,
+        "physical_proof_failures": 0,
+        "physical_proof_us": 0,
+        "playback_stage": "button_to_caption",
+        "receipt_validation_calls": 0,
+        "receipt_validation_failures": 0,
+        "receipt_validation_us": 0,
+        "snapshot_validations": []
+      },
+      "newacc_owner_phases": [
+        {
+          "code": "",
+          "elapsed_us": 1742130,
+          "end": {
+            "ticks_us": 8901980,
+            "unix_ms": 1792942337446.0
+          },
+          "inclusive_nested": true,
+          "ok": true,
+          "operation_ok": true,
+          "phase": "newacc.plans",
+          "start": {
+            "counters": {
+              "bundle_validation_calls": 6,
+              "bundle_validation_failures": 0,
+              "bundle_validation_us": 393526,
+              "compilation_calls": 646,
+              "compilation_failures": 0,
+              "compilation_us": 169082,
+              "configuration_calls": 7,
+              "configuration_failures": 0,
+              "configuration_us": 309707,
+              "physical_proof_calls": 0,
+              "physical_proof_failures": 0,
+              "physical_proof_us": 0,
+              "receipt_validation_calls": 0,
+              "receipt_validation_failures": 0,
+              "receipt_validation_us": 0,
+              "snapshot_validation_calls": 0,
+              "snapshot_validation_us": 0
+            },
+            "ticks_us": 7159850,
+            "unix_ms": 1792942335705.0
+          },
+          "validation_counter_delta": {
+            "bundle_validation_calls": 5,
+            "bundle_validation_failures": 0,
+            "bundle_validation_us": 314309,
+            "compilation_calls": 1198,
+            "compilation_failures": 0,
+            "compilation_us": 302508,
+            "configuration_calls": 13,
+            "configuration_failures": 0,
+            "configuration_us": 536818,
+            "physical_proof_calls": 0,
+            "physical_proof_failures": 0,
+            "physical_proof_us": 0,
+            "receipt_validation_calls": 0,
+            "receipt_validation_failures": 0,
+            "receipt_validation_us": 0,
+            "snapshot_validation_calls": 0,
+            "snapshot_validation_us": 0
+          }
+        },
+        {
+          "code": "",
+          "elapsed_us": 4401345,
+          "end": {
+            "ticks_us": 10245474,
+            "unix_ms": 1792942338790.0
+          },
+          "inclusive_nested": true,
+          "ok": true,
+          "operation_ok": true,
+          "phase": "newacc.decision",
+          "start": {
+            "counters": {
+              "bundle_validation_calls": 0,
+              "bundle_validation_failures": 0,
+              "bundle_validation_us": 0,
+              "compilation_calls": 0,
+              "compilation_failures": 0,
+              "compilation_us": 0,
+              "configuration_calls": 0,
+              "configuration_failures": 0,
+              "configuration_us": 0,
+              "physical_proof_calls": 0,
+              "physical_proof_failures": 0,
+              "physical_proof_us": 0,
+              "receipt_validation_calls": 0,
+              "receipt_validation_failures": 0,
+              "receipt_validation_us": 0,
+              "snapshot_validation_calls": 0,
+              "snapshot_validation_us": 0
+            },
+            "ticks_us": 5844129,
+            "unix_ms": 1792942334388.0
+          },
+          "validation_counter_delta": {
+            "bundle_validation_calls": 15,
+            "bundle_validation_failures": 0,
+            "bundle_validation_us": 951846,
+            "compilation_calls": 2858,
+            "compilation_failures": 0,
+            "compilation_us": 722401,
+            "configuration_calls": 31,
+            "configuration_failures": 0,
+            "configuration_us": 1279153,
+            "physical_proof_calls": 0,
+            "physical_proof_failures": 0,
+            "physical_proof_us": 0,
+            "receipt_validation_calls": 0,
+            "receipt_validation_failures": 0,
+            "receipt_validation_us": 0,
+            "snapshot_validation_calls": 0,
+            "snapshot_validation_us": 0
+          }
+        },
+        {
+          "code": "",
+          "elapsed_us": 719756,
+          "end": {
+            "ticks_us": 10966354,
+            "unix_ms": 1792942339511.0
+          },
+          "inclusive_nested": true,
+          "ok": true,
+          "operation_ok": true,
+          "phase": "newacc.commit_intent",
+          "start": {
+            "counters": {
+              "bundle_validation_calls": 15,
+              "bundle_validation_failures": 0,
+              "bundle_validation_us": 951846,
+              "compilation_calls": 2858,
+              "compilation_failures": 0,
+              "compilation_us": 722401,
+              "configuration_calls": 31,
+              "configuration_failures": 0,
+              "configuration_us": 1279153,
+              "physical_proof_calls": 0,
+              "physical_proof_failures": 0,
+              "physical_proof_us": 0,
+              "receipt_validation_calls": 0,
+              "receipt_validation_failures": 0,
+              "receipt_validation_us": 0,
+              "snapshot_validation_calls": 0,
+              "snapshot_validation_us": 0
+            },
+            "ticks_us": 10246598,
+            "unix_ms": 1792942338791.0
+          },
+          "validation_counter_delta": {
+            "bundle_validation_calls": 2,
+            "bundle_validation_failures": 0,
+            "bundle_validation_us": 120851,
+            "compilation_calls": 553,
+            "compilation_failures": 0,
+            "compilation_us": 137500,
+            "configuration_calls": 6,
+            "configuration_failures": 0,
+            "configuration_us": 236801,
+            "physical_proof_calls": 0,
+            "physical_proof_failures": 0,
+            "physical_proof_us": 0,
+            "receipt_validation_calls": 0,
+            "receipt_validation_failures": 0,
+            "receipt_validation_us": 0,
+            "snapshot_validation_calls": 0,
+            "snapshot_validation_us": 0
+          }
+        },
+        {
+          "code": "",
+          "elapsed_us": 3712797,
+          "end": {
+            "ticks_us": 14679225,
+            "unix_ms": 1792942343224.0
+          },
+          "inclusive_nested": true,
+          "ok": true,
+          "operation_ok": true,
+          "phase": "newacc.settle_pair",
+          "start": {
+            "counters": {
+              "bundle_validation_calls": 17,
+              "bundle_validation_failures": 0,
+              "bundle_validation_us": 1072697,
+              "compilation_calls": 3411,
+              "compilation_failures": 0,
+              "compilation_us": 859901,
+              "configuration_calls": 37,
+              "configuration_failures": 0,
+              "configuration_us": 1515954,
+              "physical_proof_calls": 0,
+              "physical_proof_failures": 0,
+              "physical_proof_us": 0,
+              "receipt_validation_calls": 0,
+              "receipt_validation_failures": 0,
+              "receipt_validation_us": 0,
+              "snapshot_validation_calls": 0,
+              "snapshot_validation_us": 0
+            },
+            "ticks_us": 10966428,
+            "unix_ms": 1792942339511.0
+          },
+          "validation_counter_delta": {
+            "bundle_validation_calls": 10,
+            "bundle_validation_failures": 0,
+            "bundle_validation_us": 656846,
+            "compilation_calls": 2581,
+            "compilation_failures": 0,
+            "compilation_us": 650438,
+            "configuration_calls": 28,
+            "configuration_failures": 0,
+            "configuration_us": 1187095,
+            "physical_proof_calls": 0,
+            "physical_proof_failures": 0,
+            "physical_proof_us": 0,
+            "receipt_validation_calls": 0,
+            "receipt_validation_failures": 0,
+            "receipt_validation_us": 0,
+            "snapshot_validation_calls": 0,
+            "snapshot_validation_us": 0
+          }
+        },
+        {
+          "code": "",
+          "elapsed_us": 1886302,
+          "end": {
+            "ticks_us": 16574004,
+            "unix_ms": 1792942345118.0
+          },
+          "inclusive_nested": true,
+          "ok": true,
+          "operation_ok": true,
+          "phase": "newacc.plans",
+          "start": {
+            "counters": {
+              "bundle_validation_calls": 27,
+              "bundle_validation_failures": 0,
+              "bundle_validation_us": 1729543,
+              "compilation_calls": 5992,
+              "compilation_failures": 0,
+              "compilation_us": 1510339,
+              "configuration_calls": 65,
+              "configuration_failures": 0,
+              "configuration_us": 2703049,
+              "physical_proof_calls": 0,
+              "physical_proof_failures": 0,
+              "physical_proof_us": 0,
+              "receipt_validation_calls": 0,
+              "receipt_validation_failures": 0,
+              "receipt_validation_us": 0,
+              "snapshot_validation_calls": 0,
+              "snapshot_validation_us": 0
+            },
+            "ticks_us": 14687702,
+            "unix_ms": 1792942343233.0
+          },
+          "validation_counter_delta": {
+            "bundle_validation_calls": 5,
+            "bundle_validation_failures": 0,
+            "bundle_validation_us": 341216,
+            "compilation_calls": 1198,
+            "compilation_failures": 0,
+            "compilation_us": 309495,
+            "configuration_calls": 13,
+            "configuration_failures": 0,
+            "configuration_us": 577597,
+            "physical_proof_calls": 0,
+            "physical_proof_failures": 0,
+            "physical_proof_us": 0,
+            "receipt_validation_calls": 0,
+            "receipt_validation_failures": 0,
+            "receipt_validation_us": 0,
+            "snapshot_validation_calls": 0,
+            "snapshot_validation_us": 0
+          }
+        },
+        {
+          "code": "scene_activation_pending",
+          "elapsed_us": 1019767,
+          "end": {
+            "ticks_us": 18306727,
+            "unix_ms": 1792942346852.0
+          },
+          "inclusive_nested": true,
+          "ok": true,
+          "operation_ok": false,
+          "phase": "newacc.apply_transaction",
+          "start": {
+            "counters": {
+              "bundle_validation_calls": 34,
+              "bundle_validation_failures": 0,
+              "bundle_validation_us": 2203661,
+              "compilation_calls": 7651,
+              "compilation_failures": 0,
+              "compilation_us": 1943338,
+              "configuration_calls": 83,
+              "configuration_failures": 0,
+              "configuration_us": 3510107,
+              "physical_proof_calls": 0,
+              "physical_proof_failures": 0,
+              "physical_proof_us": 0,
+              "receipt_validation_calls": 0,
+              "receipt_validation_failures": 0,
+              "receipt_validation_us": 0,
+              "snapshot_validation_calls": 0,
+              "snapshot_validation_us": 0
+            },
+            "ticks_us": 17286960,
+            "unix_ms": 1792942345832.0
+          },
+          "validation_counter_delta": {
+            "bundle_validation_calls": 2,
+            "bundle_validation_failures": 0,
+            "bundle_validation_us": 134233,
+            "compilation_calls": 645,
+            "compilation_failures": 0,
+            "compilation_us": 165576,
+            "configuration_calls": 7,
+            "configuration_failures": 0,
+            "configuration_us": 308172,
+            "physical_proof_calls": 0,
+            "physical_proof_failures": 0,
+            "physical_proof_us": 0,
+            "receipt_validation_calls": 0,
+            "receipt_validation_failures": 0,
+            "receipt_validation_us": 0,
+            "snapshot_validation_calls": 0,
+            "snapshot_validation_us": 0
+          }
+        },
+        {
+          "code": "scene_activation_pending",
+          "elapsed_us": 7340802,
+          "end": {
+            "ticks_us": 18307218,
+            "unix_ms": 1792942346852.0
+          },
+          "inclusive_nested": true,
+          "ok": true,
+          "operation_ok": false,
+          "phase": "newacc.resume",
+          "start": {
+            "counters": {
+              "bundle_validation_calls": 17,
+              "bundle_validation_failures": 0,
+              "bundle_validation_us": 1072697,
+              "compilation_calls": 3411,
+              "compilation_failures": 0,
+              "compilation_us": 859901,
+              "configuration_calls": 37,
+              "configuration_failures": 0,
+              "configuration_us": 1515954,
+              "physical_proof_calls": 0,
+              "physical_proof_failures": 0,
+              "physical_proof_us": 0,
+              "receipt_validation_calls": 0,
+              "receipt_validation_failures": 0,
+              "receipt_validation_us": 0,
+              "snapshot_validation_calls": 0,
+              "snapshot_validation_us": 0
+            },
+            "ticks_us": 10966416,
+            "unix_ms": 1792942339511.0
+          },
+          "validation_counter_delta": {
+            "bundle_validation_calls": 19,
+            "bundle_validation_failures": 0,
+            "bundle_validation_us": 1265197,
+            "compilation_calls": 4885,
+            "compilation_failures": 0,
+            "compilation_us": 1249013,
+            "configuration_calls": 53,
+            "configuration_failures": 0,
+            "configuration_us": 2302325,
+            "physical_proof_calls": 0,
+            "physical_proof_failures": 0,
+            "physical_proof_us": 0,
+            "receipt_validation_calls": 0,
+            "receipt_validation_failures": 0,
+            "receipt_validation_us": 0,
+            "snapshot_validation_calls": 0,
+            "snapshot_validation_us": 0
+          }
+        }
+      ],
+      "snapshot_validation_record_count": 0,
+      "images": [
+        {
+          "sha256": "287e79f83491ef0db516e00f1e9999b1bd733eed7d6b0a887030faaade6afb32",
+          "size": 773297,
+          "name": "caption.png",
+          "process_manifest_verified": true
+        },
+        {
+          "sha256": "2b01f0beb4d153b753ce29839f256788066c26da86a5db7ae07b16fc1fc9b53c",
+          "size": 9866,
+          "name": "title.png",
+          "process_manifest_verified": true
+        }
+      ],
+      "rendering": {
+        "get_current_rendering_driver_name": "d3d12",
+        "get_current_rendering_method": "forward_plus",
+        "get_video_adapter_api_version": "12_0",
+        "get_video_adapter_name": "Microsoft Basic Render Driver"
+      },
+      "preferences": {
+        "preferences.accessibility.font_style": "pixel",
+        "preferences.accessibility.text_size": 100,
+        "preferences.language.primary_locale_id": "en",
+        "preferences.reading.auto_enabled": false,
+        "preferences.reading.reveal_speed": "normal"
+      },
+      "package_hashes": {
+        "game.exe": "91724f15024a3a545e28ccd83134403d31ce2323a38e51c95e4dfa282f732ab6",
+        "game.pck": "31e67203b5a3fce5bdffb0ee3a102373b92f4b6f71d1d3399be67522fd31b3c0"
+      }
+    },
+    {
+      "name": "pair2-retained",
+      "case": "retained",
+      "complete": true,
+      "strict_harness_accepted": true,
+      "exit_code": 0,
+      "timings_ms": {
+        "lifetime_ms": 21779.8021,
+        "launch_to_probe_enter_tree_ms": 3456.0,
+        "launch_to_first_title_drawn_ms": 6037.0,
+        "launch_to_title_drawn_usable_ms": 6037.0,
+        "launch_to_first_title_input_accepted_ms": 6052.0,
+        "launch_to_bootstrap_start_ms": 3533.0,
+        "new_acc_to_caption_complete_ms": 15267.977,
+        "input_to_consent_ms": 26.246,
+        "consent_dwell_ms": 32.122,
+        "confirm_to_caption_complete_ms": 15209.609
+      },
+      "max_frame_gap_us": {
+        "confirm": 9212866,
+        "new_acc": 7128
+      },
+      "observation": {
+        "active": true,
+        "event_done": true,
+        "line_id": "line.Day1.one",
+        "new_run_busy": false,
+        "text": "Sylvia slides the fuller teacup onto my mat and keeps the one with the small chip on the rim for herself.",
+        "visible_ratio": 1.0
+      },
+      "validation_profile": {
+        "bundle_validation_calls": 38,
+        "bundle_validation_failures": 0,
+        "bundle_validation_us": 2614012,
+        "compilation_calls": 8853,
+        "compilation_failures": 0,
+        "compilation_us": 2331760,
+        "configuration_calls": 96,
+        "configuration_failures": 0,
+        "configuration_us": 4473866,
+        "elapsed_us": 15268018,
+        "inclusive_nested": true,
+        "lifecycle_state": "retained",
+        "next_step_index": 0,
+        "ok": true,
+        "operation": "exported_new_acc",
+        "physical_proof_calls": 1,
+        "physical_proof_failures": 0,
+        "physical_proof_us": 2514,
+        "playback_stage": "button_to_caption",
+        "receipt_validation_calls": 0,
+        "receipt_validation_failures": 0,
+        "receipt_validation_us": 0,
+        "snapshot_validations": []
+      },
+      "newacc_owner_phases": [
+        {
+          "code": "",
+          "elapsed_us": 2024797,
+          "end": {
+            "ticks_us": 10440641,
+            "unix_ms": 1792942358525.0
+          },
+          "inclusive_nested": true,
+          "ok": true,
+          "operation_ok": true,
+          "phase": "newacc.plans",
+          "start": {
+            "counters": {
+              "bundle_validation_calls": 8,
+              "bundle_validation_failures": 0,
+              "bundle_validation_us": 553119,
+              "compilation_calls": 1199,
+              "compilation_failures": 0,
+              "compilation_us": 320158,
+              "configuration_calls": 13,
+              "configuration_failures": 0,
+              "configuration_us": 607804,
+              "physical_proof_calls": 1,
+              "physical_proof_failures": 0,
+              "physical_proof_us": 2514,
+              "receipt_validation_calls": 0,
+              "receipt_validation_failures": 0,
+              "receipt_validation_us": 0,
+              "snapshot_validation_calls": 0,
+              "snapshot_validation_us": 0
+            },
+            "ticks_us": 8415844,
+            "unix_ms": 1792942356500.0
+          },
+          "validation_counter_delta": {
+            "bundle_validation_calls": 5,
+            "bundle_validation_failures": 0,
+            "bundle_validation_us": 341287,
+            "compilation_calls": 1198,
+            "compilation_failures": 0,
+            "compilation_us": 321769,
+            "configuration_calls": 13,
+            "configuration_failures": 0,
+            "configuration_us": 639528,
+            "physical_proof_calls": 0,
+            "physical_proof_failures": 0,
+            "physical_proof_us": 0,
+            "receipt_validation_calls": 0,
+            "receipt_validation_failures": 0,
+            "receipt_validation_us": 0,
+            "snapshot_validation_calls": 0,
+            "snapshot_validation_us": 0
+          }
+        },
+        {
+          "code": "",
+          "elapsed_us": 5881951,
+          "end": {
+            "ticks_us": 12046483,
+            "unix_ms": 1792942360130.0
+          },
+          "inclusive_nested": true,
+          "ok": true,
+          "operation_ok": true,
+          "phase": "newacc.decision",
+          "start": {
+            "counters": {
+              "bundle_validation_calls": 0,
+              "bundle_validation_failures": 0,
+              "bundle_validation_us": 0,
+              "compilation_calls": 0,
+              "compilation_failures": 0,
+              "compilation_us": 0,
+              "configuration_calls": 0,
+              "configuration_failures": 0,
+              "configuration_us": 0,
+              "physical_proof_calls": 0,
+              "physical_proof_failures": 0,
+              "physical_proof_us": 0,
+              "receipt_validation_calls": 0,
+              "receipt_validation_failures": 0,
+              "receipt_validation_us": 0,
+              "snapshot_validation_calls": 0,
+              "snapshot_validation_us": 0
+            },
+            "ticks_us": 6164532,
+            "unix_ms": 1792942354248.0
+          },
+          "validation_counter_delta": {
+            "bundle_validation_calls": 17,
+            "bundle_validation_failures": 0,
+            "bundle_validation_us": 1182172,
+            "compilation_calls": 3411,
+            "compilation_failures": 0,
+            "compilation_us": 903742,
+            "configuration_calls": 37,
+            "configuration_failures": 0,
+            "configuration_us": 1740821,
+            "physical_proof_calls": 1,
+            "physical_proof_failures": 0,
+            "physical_proof_us": 2514,
+            "receipt_validation_calls": 0,
+            "receipt_validation_failures": 0,
+            "receipt_validation_us": 0,
+            "snapshot_validation_calls": 0,
+            "snapshot_validation_us": 0
+          }
+        },
+        {
+          "code": "",
+          "elapsed_us": 872469,
+          "end": {
+            "ticks_us": 12920308,
+            "unix_ms": 1792942361004.0
+          },
+          "inclusive_nested": true,
+          "ok": true,
+          "operation_ok": true,
+          "phase": "newacc.commit_intent",
+          "start": {
+            "counters": {
+              "bundle_validation_calls": 17,
+              "bundle_validation_failures": 0,
+              "bundle_validation_us": 1182172,
+              "compilation_calls": 3411,
+              "compilation_failures": 0,
+              "compilation_us": 903742,
+              "configuration_calls": 37,
+              "configuration_failures": 0,
+              "configuration_us": 1740821,
+              "physical_proof_calls": 1,
+              "physical_proof_failures": 0,
+              "physical_proof_us": 2514,
+              "receipt_validation_calls": 0,
+              "receipt_validation_failures": 0,
+              "receipt_validation_us": 0,
+              "snapshot_validation_calls": 0,
+              "snapshot_validation_us": 0
+            },
+            "ticks_us": 12047839,
+            "unix_ms": 1792942360131.0
+          },
+          "validation_counter_delta": {
+            "bundle_validation_calls": 2,
+            "bundle_validation_failures": 0,
+            "bundle_validation_us": 143354,
+            "compilation_calls": 553,
+            "compilation_failures": 0,
+            "compilation_us": 143591,
+            "configuration_calls": 6,
+            "configuration_failures": 0,
+            "configuration_us": 278507,
+            "physical_proof_calls": 0,
+            "physical_proof_failures": 0,
+            "physical_proof_us": 0,
+            "receipt_validation_calls": 0,
+            "receipt_validation_failures": 0,
+            "receipt_validation_us": 0,
+            "snapshot_validation_calls": 0,
+            "snapshot_validation_us": 0
+          }
+        },
+        {
+          "code": "",
+          "elapsed_us": 4017178,
+          "end": {
+            "ticks_us": 16937569,
+            "unix_ms": 1792942365022.0
+          },
+          "inclusive_nested": true,
+          "ok": true,
+          "operation_ok": true,
+          "phase": "newacc.settle_pair",
+          "start": {
+            "counters": {
+              "bundle_validation_calls": 19,
+              "bundle_validation_failures": 0,
+              "bundle_validation_us": 1325526,
+              "compilation_calls": 3964,
+              "compilation_failures": 0,
+              "compilation_us": 1047333,
+              "configuration_calls": 43,
+              "configuration_failures": 0,
+              "configuration_us": 2019328,
+              "physical_proof_calls": 1,
+              "physical_proof_failures": 0,
+              "physical_proof_us": 2514,
+              "receipt_validation_calls": 0,
+              "receipt_validation_failures": 0,
+              "receipt_validation_us": 0,
+              "snapshot_validation_calls": 0,
+              "snapshot_validation_us": 0
+            },
+            "ticks_us": 12920391,
+            "unix_ms": 1792942361004.0
+          },
+          "validation_counter_delta": {
+            "bundle_validation_calls": 10,
+            "bundle_validation_failures": 0,
+            "bundle_validation_us": 675270,
+            "compilation_calls": 2581,
+            "compilation_failures": 0,
+            "compilation_us": 668688,
+            "configuration_calls": 28,
+            "configuration_failures": 0,
+            "configuration_us": 1291233,
+            "physical_proof_calls": 0,
+            "physical_proof_failures": 0,
+            "physical_proof_us": 0,
+            "receipt_validation_calls": 0,
+            "receipt_validation_failures": 0,
+            "receipt_validation_us": 0,
+            "snapshot_validation_calls": 0,
+            "snapshot_validation_us": 0
+          }
+        },
+        {
+          "code": "",
+          "elapsed_us": 1887362,
+          "end": {
+            "ticks_us": 18833384,
+            "unix_ms": 1792942366917.0
+          },
+          "inclusive_nested": true,
+          "ok": true,
+          "operation_ok": true,
+          "phase": "newacc.plans",
+          "start": {
+            "counters": {
+              "bundle_validation_calls": 29,
+              "bundle_validation_failures": 0,
+              "bundle_validation_us": 2000796,
+              "compilation_calls": 6545,
+              "compilation_failures": 0,
+              "compilation_us": 1716021,
+              "configuration_calls": 71,
+              "configuration_failures": 0,
+              "configuration_us": 3310561,
+              "physical_proof_calls": 1,
+              "physical_proof_failures": 0,
+              "physical_proof_us": 2514,
+              "receipt_validation_calls": 0,
+              "receipt_validation_failures": 0,
+              "receipt_validation_us": 0,
+              "snapshot_validation_calls": 0,
+              "snapshot_validation_us": 0
+            },
+            "ticks_us": 16946022,
+            "unix_ms": 1792942365030.0
+          },
+          "validation_counter_delta": {
+            "bundle_validation_calls": 5,
+            "bundle_validation_failures": 0,
+            "bundle_validation_us": 341515,
+            "compilation_calls": 1198,
+            "compilation_failures": 0,
+            "compilation_us": 307576,
+            "configuration_calls": 13,
+            "configuration_failures": 0,
+            "configuration_us": 578925,
+            "physical_proof_calls": 0,
+            "physical_proof_failures": 0,
+            "physical_proof_us": 0,
+            "receipt_validation_calls": 0,
+            "receipt_validation_failures": 0,
+            "receipt_validation_us": 0,
+            "snapshot_validation_calls": 0,
+            "snapshot_validation_us": 0
+          }
+        },
+        {
+          "code": "scene_activation_pending",
+          "elapsed_us": 1115104,
+          "end": {
+            "ticks_us": 20696342,
+            "unix_ms": 1792942368780.0
+          },
+          "inclusive_nested": true,
+          "ok": true,
+          "operation_ok": false,
+          "phase": "newacc.apply_transaction",
+          "start": {
+            "counters": {
+              "bundle_validation_calls": 36,
+              "bundle_validation_failures": 0,
+              "bundle_validation_us": 2473506,
+              "compilation_calls": 8204,
+              "compilation_failures": 0,
+              "compilation_us": 2158417,
+              "configuration_calls": 89,
+              "configuration_failures": 0,
+              "configuration_us": 4141362,
+              "physical_proof_calls": 1,
+              "physical_proof_failures": 0,
+              "physical_proof_us": 2514,
+              "receipt_validation_calls": 0,
+              "receipt_validation_failures": 0,
+              "receipt_validation_us": 0,
+              "snapshot_validation_calls": 0,
+              "snapshot_validation_us": 0
+            },
+            "ticks_us": 19581238,
+            "unix_ms": 1792942367665.0
+          },
+          "validation_counter_delta": {
+            "bundle_validation_calls": 2,
+            "bundle_validation_failures": 0,
+            "bundle_validation_us": 140506,
+            "compilation_calls": 645,
+            "compilation_failures": 0,
+            "compilation_us": 171517,
+            "configuration_calls": 7,
+            "configuration_failures": 0,
+            "configuration_us": 332504,
+            "physical_proof_calls": 0,
+            "physical_proof_failures": 0,
+            "physical_proof_us": 0,
+            "receipt_validation_calls": 0,
+            "receipt_validation_failures": 0,
+            "receipt_validation_us": 0,
+            "snapshot_validation_calls": 0,
+            "snapshot_validation_us": 0
+          }
+        },
+        {
+          "code": "scene_activation_pending",
+          "elapsed_us": 7776409,
+          "end": {
+            "ticks_us": 20696788,
+            "unix_ms": 1792942368781.0
+          },
+          "inclusive_nested": true,
+          "ok": true,
+          "operation_ok": false,
+          "phase": "newacc.resume",
+          "start": {
+            "counters": {
+              "bundle_validation_calls": 19,
+              "bundle_validation_failures": 0,
+              "bundle_validation_us": 1325526,
+              "compilation_calls": 3964,
+              "compilation_failures": 0,
+              "compilation_us": 1047333,
+              "configuration_calls": 43,
+              "configuration_failures": 0,
+              "configuration_us": 2019328,
+              "physical_proof_calls": 1,
+              "physical_proof_failures": 0,
+              "physical_proof_us": 2514,
+              "receipt_validation_calls": 0,
+              "receipt_validation_failures": 0,
+              "receipt_validation_us": 0,
+              "snapshot_validation_calls": 0,
+              "snapshot_validation_us": 0
+            },
+            "ticks_us": 12920379,
+            "unix_ms": 1792942361004.0
+          },
+          "validation_counter_delta": {
+            "bundle_validation_calls": 19,
+            "bundle_validation_failures": 0,
+            "bundle_validation_us": 1288486,
+            "compilation_calls": 4885,
+            "compilation_failures": 0,
+            "compilation_us": 1282601,
+            "configuration_calls": 53,
+            "configuration_failures": 0,
+            "configuration_us": 2454538,
+            "physical_proof_calls": 0,
+            "physical_proof_failures": 0,
+            "physical_proof_us": 0,
+            "receipt_validation_calls": 0,
+            "receipt_validation_failures": 0,
+            "receipt_validation_us": 0,
+            "snapshot_validation_calls": 0,
+            "snapshot_validation_us": 0
+          }
+        }
+      ],
+      "snapshot_validation_record_count": 0,
+      "images": [
+        {
+          "sha256": "936dab8482efc93ae50982764c8023427f48cdac79944120d3cd9f4d212fd791",
+          "size": 773359,
+          "name": "caption.png",
+          "process_manifest_verified": true
+        },
+        {
+          "sha256": "5995b8d05380123789d5572b14c3bb2817924e5fe9435a92773ab515f96d1a4c",
+          "size": 17152,
+          "name": "consent.png",
+          "process_manifest_verified": true
+        },
+        {
+          "sha256": "2b01f0beb4d153b753ce29839f256788066c26da86a5db7ae07b16fc1fc9b53c",
+          "size": 9866,
+          "name": "title.png",
+          "process_manifest_verified": true
+        }
+      ],
+      "rendering": {
+        "get_current_rendering_driver_name": "d3d12",
+        "get_current_rendering_method": "forward_plus",
+        "get_video_adapter_api_version": "12_0",
+        "get_video_adapter_name": "Microsoft Basic Render Driver"
+      },
+      "preferences": {
+        "preferences.accessibility.font_style": "pixel",
+        "preferences.accessibility.text_size": 100,
+        "preferences.language.primary_locale_id": "en",
+        "preferences.reading.auto_enabled": false,
+        "preferences.reading.reveal_speed": "normal"
+      },
+      "package_hashes": {
+        "game.exe": "91724f15024a3a545e28ccd83134403d31ce2323a38e51c95e4dfa282f732ab6",
+        "game.pck": "31e67203b5a3fce5bdffb0ee3a102373b92f4b6f71d1d3399be67522fd31b3c0"
+      }
+    }
+  ],
+  "interpretation": {
+    "nested_intervals": "Owner phases and validation categories are inclusive. Compilation time is included in configuration time. Planning occurs inside decision and resume. Settlement and apply_transaction occur inside resume. Never sum parent and child timings.",
+    "settlement": "The settlement owner includes reconciliation, identity allocation verification/commit, canonical hashing, journal updates, autosave persistence/proof, and profile proof/persistence. Each observed settlement includes 28 reading configurations and 2581 compiler calls. Its elapsed time is not pure disk I/O.",
+    "snapshot_coverage": "All four snapshot_validations arrays are empty and observed snapshot counters are zero. This run cannot identify a largest snapshot subcategory. Absence of these observations does not establish zero snapshot validation work.",
+    "scope": "Instrumented baseline, not an optimization comparison. Differences from earlier runners are not speedups. Whole New Acc duration retains normal caption reveal; retained button-to-caption scope also includes consent dwell.",
+    "configuration_counts": "Fresh cases each configure 90 reading sessions and call the compiler 8300 times; retained cases configure 96 and call it 8853 times. Counts include cache hits and do not imply that every call reparses a file.",
+    "physical_proof": "No fresh physical-proof hook call; one retained call around 2.5 ms. These are hook observations, not proof that all physical/resource validation is absent elsewhere."
+  }
+}

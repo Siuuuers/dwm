@@ -1,0 +1,285 @@
+{
+  "archive": "run40207210393-evidence.zip",
+  "bytes": 3312068,
+  "sha256": "7b7c8cb4de36536bc49deb36ea7e84d51776cf2956e7b0425944dd86bceaeb81",
+  "crc_verified": true,
+  "member_count": 55,
+  "scope": "Original compact cloud artifact 12605040192, including logs, screenshots, source/package receipts and current-format profile/save payloads. Executable/PCK package and shader/pipeline caches are separate or excluded.",
+  "members": [
+    {
+      "path": "baseline/package.json",
+      "bytes": 412,
+      "sha256": "9914fcc6e6889bc917c3e57a5f79e4780cbfdc207e3ff8c1522e410c861b6cca"
+    },
+    {
+      "path": "baseline/import.log",
+      "bytes": 153535,
+      "sha256": "d05094c2ee2a289b4bb897b47922bd9940929d65cbe921d505cdc0c50d20eda3"
+    },
+    {
+      "path": "baseline/export.log",
+      "bytes": 265283,
+      "sha256": "8a0ab6154ca2a4518b649316ec2320f0fc4f07fde04ed1d9f670fc72d2573e41"
+    },
+    {
+      "path": "baseline/startup-variant.json",
+      "bytes": 4678,
+      "sha256": "7c61eae5337a068c733198d37810eb32ad7d027bac811558f66dd1ee238a9ca5"
+    },
+    {
+      "path": "measurements/pair1-fresh/caption.png",
+      "bytes": 773270,
+      "sha256": "9ef78fa54a8ebb74667eb3e5e3886c9ba6fed4f3be93bb4fb72e6e9b19219a0a"
+    },
+    {
+      "path": "measurements/pair1-fresh/render.log",
+      "bytes": 19167,
+      "sha256": "62e2fc9daf3b53c3dd096f8463f9d3d89a709b48746f23d9309c1bfb0a723145"
+    },
+    {
+      "path": "measurements/pair1-fresh/results.json",
+      "bytes": 23093,
+      "sha256": "7dcc4bec67acfcd9c0e20ac17f53d6f4f8c498409b4c2a6b47826c4332e3601f"
+    },
+    {
+      "path": "measurements/pair1-fresh/process.json",
+      "bytes": 20991,
+      "sha256": "05669987e2ab49fb3e1f9f8b1badffa3b75e8018cd05c1fdbf6d63cf8e44f0e3"
+    },
+    {
+      "path": "measurements/pair1-fresh/stderr.log",
+      "bytes": 2,
+      "sha256": "7eb70257593da06f682a3ddda54a9d260d4fc514f645237f5ca74b08f8da61a6"
+    },
+    {
+      "path": "measurements/pair1-fresh/stdout.log",
+      "bytes": 19174,
+      "sha256": "a4b9806db572fb12f3c77f135fad505a4a569533ecd01b443a1d0aed3a87f59a"
+    },
+    {
+      "path": "measurements/pair1-fresh/title.png",
+      "bytes": 9866,
+      "sha256": "2b01f0beb4d153b753ce29839f256788066c26da86a5db7ae07b16fc1fc9b53c"
+    },
+    {
+      "path": "measurements/pair1-retained/caption.png",
+      "bytes": 773297,
+      "sha256": "287e79f83491ef0db516e00f1e9999b1bd733eed7d6b0a887030faaade6afb32"
+    },
+    {
+      "path": "measurements/pair1-retained/consent.png",
+      "bytes": 17152,
+      "sha256": "5995b8d05380123789d5572b14c3bb2817924e5fe9435a92773ab515f96d1a4c"
+    },
+    {
+      "path": "measurements/pair1-retained/process.json",
+      "bytes": 39633,
+      "sha256": "2577df7bdc0279f7673a2f4d5d4202ac602ca3f195f7787cd42ad4e5ab82cf9a"
+    },
+    {
+      "path": "measurements/pair1-retained/render.log",
+      "bytes": 19641,
+      "sha256": "922d7ad5d3b1d03f028f94095b3f69e6221a1404d85bcede009494806a433142"
+    },
+    {
+      "path": "measurements/pair1-retained/results.json",
+      "bytes": 23666,
+      "sha256": "77113ee18ec8524bb7f9fb573d9e277d536a28a06c9883122fa2f18679d3ce94"
+    },
+    {
+      "path": "measurements/pair1-retained/stderr.log",
+      "bytes": 2,
+      "sha256": "7eb70257593da06f682a3ddda54a9d260d4fc514f645237f5ca74b08f8da61a6"
+    },
+    {
+      "path": "measurements/pair1-retained/stdout.log",
+      "bytes": 19648,
+      "sha256": "242e2e1b27e2c4dd1fffc0eca99c01b96153e11506439368143124b0c6d3c047"
+    },
+    {
+      "path": "measurements/pair2-fresh/caption.png",
+      "bytes": 773297,
+      "sha256": "287e79f83491ef0db516e00f1e9999b1bd733eed7d6b0a887030faaade6afb32"
+    },
+    {
+      "path": "measurements/pair2-fresh/process.json",
+      "bytes": 20991,
+      "sha256": "924a2205e3188738af6fefe495f379d42f3b64f6deb202bdb6595c3d821b85ad"
+    },
+    {
+      "path": "measurements/pair1-retained/title.png",
+      "bytes": 9866,
+      "sha256": "2b01f0beb4d153b753ce29839f256788066c26da86a5db7ae07b16fc1fc9b53c"
+    },
+    {
+      "path": "measurements/pair2-fresh/render.log",
+      "bytes": 19163,
+      "sha256": "569bd18b8ba2bd104b17640e1ef1635b9c43f5cbba7f5dad948abe8b5d090f4e"
+    },
+    {
+      "path": "measurements/pair2-fresh/results.json",
+      "bytes": 23089,
+      "sha256": "9ee8bc30297db700ff3a339702832524994e4d48ff7d06c8d967d2525da7657b"
+    },
+    {
+      "path": "measurements/pair2-fresh/stderr.log",
+      "bytes": 2,
+      "sha256": "7eb70257593da06f682a3ddda54a9d260d4fc514f645237f5ca74b08f8da61a6"
+    },
+    {
+      "path": "measurements/pair2-fresh/title.png",
+      "bytes": 9866,
+      "sha256": "2b01f0beb4d153b753ce29839f256788066c26da86a5db7ae07b16fc1fc9b53c"
+    },
+    {
+      "path": "measurements/pair2-fresh/stdout.log",
+      "bytes": 19170,
+      "sha256": "d8022315ddbeb99f3e76d7c213e871c8cef3561fe294a4230997c24d06e16a62"
+    },
+    {
+      "path": "measurements/pair2-retained/caption.png",
+      "bytes": 773359,
+      "sha256": "936dab8482efc93ae50982764c8023427f48cdac79944120d3cd9f4d212fd791"
+    },
+    {
+      "path": "measurements/pair2-retained/consent.png",
+      "bytes": 17152,
+      "sha256": "5995b8d05380123789d5572b14c3bb2817924e5fe9435a92773ab515f96d1a4c"
+    },
+    {
+      "path": "measurements/pair2-retained/render.log",
+      "bytes": 19642,
+      "sha256": "8ab9cc32abc888151f717c912448888d2c1e864c4469c9954427dda363d08afd"
+    },
+    {
+      "path": "measurements/pair2-retained/process.json",
+      "bytes": 39633,
+      "sha256": "816552c81828a4fb257f966e010d8641f8fc3f945425f96cbbb5a98f3109d68c"
+    },
+    {
+      "path": "measurements/pair2-retained/stderr.log",
+      "bytes": 2,
+      "sha256": "7eb70257593da06f682a3ddda54a9d260d4fc514f645237f5ca74b08f8da61a6"
+    },
+    {
+      "path": "measurements/pair2-retained/results.json",
+      "bytes": 23667,
+      "sha256": "e118475d7cb800a4a146db89e53a588a000430c03494de4a7ba5e996b9f5406b"
+    },
+    {
+      "path": "measurements/pair2-retained/stdout.log",
+      "bytes": 19649,
+      "sha256": "e5ec17a3627bfec8f267585c0bf3cfd133b43f9a12066a9296fa238602adabff"
+    },
+    {
+      "path": "measurements/pair2-retained/title.png",
+      "bytes": 9866,
+      "sha256": "2b01f0beb4d153b753ce29839f256788066c26da86a5db7ae07b16fc1fc9b53c"
+    },
+    {
+      "path": "operating-system.json",
+      "bytes": 118,
+      "sha256": "b881eebf36de2c13dbc603453f1ba2c875e18646382830d9753a8dbcffc82839"
+    },
+    {
+      "path": "profiles/pair1/APPDATA/Godot/app_userdata/DWM/desktop-issuer-root.json",
+      "bytes": 9541,
+      "sha256": "1083922282707e0afe59440188ecdcc2e5ada4f8287cd8896f43573fb4cbc277"
+    },
+    {
+      "path": "profiles/pair1/APPDATA/Godot/app_userdata/DWM/desktop-publications.json",
+      "bytes": 34,
+      "sha256": "902849ab2604217a878bc4de507660ced78f981a72c1d6343dd9ef55af64d4e4"
+    },
+    {
+      "path": "profiles/pair1/APPDATA/Godot/app_userdata/DWM/desktop-issuer-root.json.bak",
+      "bytes": 5272,
+      "sha256": "568d66fe8c62a75c6b60afca24bc830c86fea1b69ffaec1c423dc7ef4863e98d"
+    },
+    {
+      "path": "profiles/pair1/APPDATA/Godot/app_userdata/DWM/dialogic/saves/global_info.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "profiles/pair1/APPDATA/Godot/app_userdata/DWM/profile.json",
+      "bytes": 3836,
+      "sha256": "2f0e8c7763be7b9c35acaf3cc78caae6f449630eaf9f44aa26138bb824e55a6b"
+    },
+    {
+      "path": "profiles/pair1/APPDATA/Godot/app_userdata/DWM/saves/autosave.json",
+      "bytes": 4831,
+      "sha256": "63f7b982231bb33dc00330fbaebee52d2a9ebe42ae2eda6bb1b2738bb0aa49e0"
+    },
+    {
+      "path": "profiles/pair1/APPDATA/Godot/app_userdata/DWM/saves/desktop-continuation-operations.json",
+      "bytes": 53592,
+      "sha256": "33e33cb3f7e429837e4731f9fab9f31246389b9e55c427f6f0f378af5c13bb4d"
+    },
+    {
+      "path": "profiles/pair1/APPDATA/Godot/app_userdata/DWM/schedule-foundation-publications.json",
+      "bytes": 34,
+      "sha256": "902849ab2604217a878bc4de507660ced78f981a72c1d6343dd9ef55af64d4e4"
+    },
+    {
+      "path": "profiles/pair1/APPDATA/Godot/app_userdata/DWM/saves/desktop-continuation-operations.json.bak",
+      "bytes": 53587,
+      "sha256": "85f0ae5487bda4ebb33f00554a92435e1918ad429fa0a87d31de359e66885c36"
+    },
+    {
+      "path": "profiles/pair2/APPDATA/Godot/app_userdata/DWM/desktop-issuer-root.json",
+      "bytes": 9541,
+      "sha256": "e2255247f18162a1d54f87cbd2e44f265f9540726476d7631ef1ecd42efd1d89"
+    },
+    {
+      "path": "profiles/pair2/APPDATA/Godot/app_userdata/DWM/desktop-issuer-root.json.bak",
+      "bytes": 5272,
+      "sha256": "9cf2ace4af5bcc114464f279afca08e322358035283e8688687563b86b21ac5d"
+    },
+    {
+      "path": "profiles/pair2/APPDATA/Godot/app_userdata/DWM/desktop-publications.json",
+      "bytes": 34,
+      "sha256": "902849ab2604217a878bc4de507660ced78f981a72c1d6343dd9ef55af64d4e4"
+    },
+    {
+      "path": "profiles/pair2/APPDATA/Godot/app_userdata/DWM/dialogic/saves/global_info.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "profiles/pair2/APPDATA/Godot/app_userdata/DWM/profile.json",
+      "bytes": 3837,
+      "sha256": "f259596603bc7aaceb3da8a2e3361d769919cdbd18cbfdcc77b21843b3e5d9fe"
+    },
+    {
+      "path": "profiles/pair2/APPDATA/Godot/app_userdata/DWM/saves/autosave.json",
+      "bytes": 4832,
+      "sha256": "f6106ce8599accf448df766b79cc90a15a522e1151e1929d79a1b8242e85bb5b"
+    },
+    {
+      "path": "profiles/pair2/APPDATA/Godot/app_userdata/DWM/saves/desktop-continuation-operations.json",
+      "bytes": 53596,
+      "sha256": "b04620c6cc53f1de308cdb82a67b9de3a9a84611ccdafc45f7aac7f25dd4d2ad"
+    },
+    {
+      "path": "profiles/pair2/APPDATA/Godot/app_userdata/DWM/saves/desktop-continuation-operations.json.bak",
+      "bytes": 53591,
+      "sha256": "c0aef483ce0f57f14acdf49fbafa41553267f1a979401ada9b25e6d0dbeb22d1"
+    },
+    {
+      "path": "profiles/pair2/APPDATA/Godot/app_userdata/DWM/schedule-foundation-publications.json",
+      "bytes": 34,
+      "sha256": "902849ab2604217a878bc4de507660ced78f981a72c1d6343dd9ef55af64d4e4"
+    },
+    {
+      "path": "source.json",
+      "bytes": 621,
+      "sha256": "a0c17f045f0972426dfb785e84c27389b0fdb1741bceb6a02cbc7cfadff12bf5"
+    },
+    {
+      "path": "video-controller.json",
+      "bytes": 102,
+      "sha256": "5dce6454799a069fe35951475933d0a58d91d539213e8c1ab158a0790c9d5894"
+    }
+  ]
+}
