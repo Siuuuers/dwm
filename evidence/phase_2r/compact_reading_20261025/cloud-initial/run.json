@@ -1,0 +1,537 @@
+{
+  "run_url": "https://github.com/Siuuuers/dwm/actions/runs/40166451432",
+  "head_sha": "2ce290cadafaa447efa5b54fd7dd64f8ce86058f",
+  "note": "Initial full run:38 success,2 failure (Shop stale checkpoint seam and seven-day stale History fixture),1 intentionally skipped timing lane. Corrections and final qualification recorded on PR92; no speed claim.",
+  "jobs": [
+    {
+      "id": 121088383895,
+      "name": "Select current change coverage",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121088455435,
+      "name": "Windows / public API surface contracts",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121088456031,
+      "name": "Windows / matched startup and Load",
+      "status": "completed",
+      "conclusion": "skipped"
+    },
+    {
+      "id": 121089669293,
+      "name": "Windows / exported release startup",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121089669304,
+      "name": "Rendered desktop and dialogue / Linux software OpenGL",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121089669321,
+      "name": "Rendered current Gallery components",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121089669578,
+      "name": "Windows / minesweeper",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121089669581,
+      "name": "Windows / checkpoint_diagnostics",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121089669582,
+      "name": "Windows / desktop",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121089669583,
+      "name": "Windows / settings",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121089669584,
+      "name": "Windows / localization",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121089669591,
+      "name": "Windows / endings",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121089669593,
+      "name": "Windows / scene_apps",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121089669601,
+      "name": "Windows / scene_story_localization",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121089669603,
+      "name": "Windows / reading_delivery",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121089669609,
+      "name": "Windows / profile_parse",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121089669610,
+      "name": "Windows / timeline_resources",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121089669612,
+      "name": "Windows / scene_controls_localization",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121089669615,
+      "name": "Windows / dating",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121089669616,
+      "name": "Windows / scene_caption_challenge",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121089669627,
+      "name": "Windows / scene_backup_inspection",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121089669628,
+      "name": "Windows / current_title",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121089669630,
+      "name": "Windows / scene_player_position",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121089669633,
+      "name": "Windows / scene_same_day_supportz",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121089669634,
+      "name": "Windows / shop",
+      "status": "completed",
+      "conclusion": "failure"
+    },
+    {
+      "id": 121089669637,
+      "name": "Windows / scene_later_caption",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121089669641,
+      "name": "Windows / scene_native_restore",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121089669645,
+      "name": "Windows / persistence",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121089669654,
+      "name": "Windows / scene_day_history",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121089669656,
+      "name": "Windows / scene_challenge_recall",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121089669658,
+      "name": "Windows / scene_five_outcomes",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121089669661,
+      "name": "Windows / new_account",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121089669666,
+      "name": "Windows / backup_current_build",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121089669668,
+      "name": "Windows / authored_week",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121089669670,
+      "name": "Windows / scene_round_checkpoint",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121089669671,
+      "name": "Windows / scene_desktop_first_reveal",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121089669672,
+      "name": "Windows / audio",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121089669688,
+      "name": "Windows / current_quick_load",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121089669696,
+      "name": "Windows / current_terminal_fixture",
+      "status": "completed",
+      "conclusion": "failure"
+    },
+    {
+      "id": 121089669702,
+      "name": "Windows / scene_multiple_thoughts",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 121089669710,
+      "name": "Windows / scene_shop_checkpoint",
+      "status": "completed",
+      "conclusion": "success"
+    }
+  ],
+  "artifacts": [
+    {
+      "id": 12588887368,
+      "name": "font-choices-render-40166451432-1",
+      "digest": "sha256:95c2ac56cf03602e6a628bc6d89ddaafcc1843b815a9d3c21a91c1dc9c57e5c8",
+      "size_in_bytes": 7094566
+    },
+    {
+      "id": 12588882383,
+      "name": "angela-overlay-render-40166451432-1",
+      "digest": "sha256:3744859d100513bf75bc079dd26d7275f1ef536d129c282819626afe30b77851",
+      "size_in_bytes": 3574797
+    },
+    {
+      "id": 12588868091,
+      "name": "windows-current_title-40166451432-1",
+      "digest": "sha256:c06a93f4183f5b528142e7d8b3e14d86923419513b5be189858ec94c401f1ad3",
+      "size_in_bytes": 2784023
+    },
+    {
+      "id": 12588862693,
+      "name": "desktop-scaling-render-40166451432-1",
+      "digest": "sha256:e434ccf567a76bbcf76bb871db1f5ec48dd1fc65ae6fd9c1c0eeda5bf47b2a16",
+      "size_in_bytes": 13188411
+    },
+    {
+      "id": 12588778229,
+      "name": "windows-backup_current_build-40166451432-1",
+      "digest": "sha256:8860c62ac64a01fe58f844fd2ccc6402cb8629bc140be086292c59386d021417",
+      "size_in_bytes": 63206
+    },
+    {
+      "id": 12588773112,
+      "name": "delivery-dialogue-render-40166451432-1",
+      "digest": "sha256:e273671ef340de13e9276dd287b17aa2dde712f8fabba0d33954213f0053f58f",
+      "size_in_bytes": 15066245
+    },
+    {
+      "id": 12588772994,
+      "name": "windows-scene_five_outcomes-40166451432-1",
+      "digest": "sha256:74a5822525cd73d7ff2c28428b9c0ab46c0fc1d2b4f4f1936a04de1da61362c9",
+      "size_in_bytes": 10122
+    },
+    {
+      "id": 12588708104,
+      "name": "windows-scene_controls_localization-40166451432-1",
+      "digest": "sha256:40f957c0336d2eca0722106b8ddce6430e007701c75e415916d2d29fc8e88828",
+      "size_in_bytes": 9637
+    },
+    {
+      "id": 12588693324,
+      "name": "windows-shop-40166451432-1",
+      "digest": "sha256:52c3092fadeda7c15548481a9035d8f8fc9dedcdfce6e8bd3b9fca521c9d64ab",
+      "size_in_bytes": 19935
+    },
+    {
+      "id": 12588673390,
+      "name": "japanese-korean-ui-render-40166451432-1",
+      "digest": "sha256:90bcdb12784c7baf3d10075fb47d1e8d6a17466562c40d34513105e4f0358d45",
+      "size_in_bytes": 8399829
+    },
+    {
+      "id": 12588658225,
+      "name": "windows-scene_day_history-40166451432-1",
+      "digest": "sha256:c7b85fc582953f98ef97277fe48ecdd438e6977ad4a7e7761d3937d918e70e2b",
+      "size_in_bytes": 10000
+    },
+    {
+      "id": 12588653138,
+      "name": "cloud-speech-rendered-journeys-40166451432-1",
+      "digest": "sha256:7b5d063fad21c3edf75fbb37f188f3f6af3d5c6ccd559965362ba86a50fc2067",
+      "size_in_bytes": 386748
+    },
+    {
+      "id": 12588628377,
+      "name": "windows-export-40166451432-1",
+      "digest": "sha256:f05fc51dbd02e27e6c26ba5cd921c7e964ae700423be2a0a2df50d428be538f4",
+      "size_in_bytes": 110880594
+    },
+    {
+      "id": 12588608291,
+      "name": "windows-minesweeper-40166451432-1",
+      "digest": "sha256:340b82aed17cfdbe042a2b5844f424cd9c31c335c2a5c10cc9875f343ef5a323",
+      "size_in_bytes": 40579
+    },
+    {
+      "id": 12588563579,
+      "name": "windows-scene_same_day_supportz-40166451432-1",
+      "digest": "sha256:f28e344ba0bf5fe4f6e6f66ecabba44749f7eea207dcd01937fe01c9142afaeb",
+      "size_in_bytes": 217664
+    },
+    {
+      "id": 12588543681,
+      "name": "windows-audio-40166451432-1",
+      "digest": "sha256:1275d631f184f84a5ab8aed330cda050aadaf3c71570ba17b08f85f89135b586",
+      "size_in_bytes": 11712
+    },
+    {
+      "id": 12588528550,
+      "name": "windows-scene_story_localization-40166451432-1",
+      "digest": "sha256:6495a5390e76b1ad9720ebc30a5e000afd09c5613c5a5959b98d2227423a4206",
+      "size_in_bytes": 5916521
+    },
+    {
+      "id": 12588518525,
+      "name": "windows-dating-40166451432-1",
+      "digest": "sha256:a2e40cbe7e6014db92628c084e471b3453a7a068a0db1225f54d43028a74cd77",
+      "size_in_bytes": 20382
+    },
+    {
+      "id": 12588503334,
+      "name": "cloud-speech-rendered-desktop-40166451432-1",
+      "digest": "sha256:1860ea00a5ee1dde9ed818b4a78c4c0985d84e3df0bd8f706e68b44a5b6052e8",
+      "size_in_bytes": 386946
+    },
+    {
+      "id": 12588468541,
+      "name": "gallery-version-register-40166451432-1",
+      "digest": "sha256:da8d7d98e3f7e748d342b79a35e05cb31390af2551397c67756196ff97a47341",
+      "size_in_bytes": 85691
+    },
+    {
+      "id": 12588448676,
+      "name": "windows-timeline_resources-40166451432-1",
+      "digest": "sha256:cc19bede4835904758cfa13fe02a266bf0111581c959b473fe965e69561ee485",
+      "size_in_bytes": 9866
+    },
+    {
+      "id": 12588418671,
+      "name": "windows-scene_apps-40166451432-1",
+      "digest": "sha256:ac1a4d9343f6fed730c4bc6f4346d53b8940a5cc5217a5c509423f70f36aeb95",
+      "size_in_bytes": 253499
+    },
+    {
+      "id": 12588399196,
+      "name": "windows-current_terminal_fixture-40166451432-1",
+      "digest": "sha256:658be7db0215cb0e12bcd0a0a461bda8fd426e8f6689a50d82a295a0e0bccecd",
+      "size_in_bytes": 4195480
+    },
+    {
+      "id": 12588369023,
+      "name": "windows-persistence-40166451432-1",
+      "digest": "sha256:f1598306f34efec95f3e8fd47cf1aaffd1ffaa57ad6970ae1da77790550da67e",
+      "size_in_bytes": 25453
+    },
+    {
+      "id": 12588363775,
+      "name": "windows-scene_caption_challenge-40166451432-1",
+      "digest": "sha256:ac6aa0634d32b4b8efdfdcba50a8e3fd0225e5e9a560e63b08dae0b25e1d878d",
+      "size_in_bytes": 15967
+    },
+    {
+      "id": 12588348739,
+      "name": "windows-profile_parse-40166451432-1",
+      "digest": "sha256:a74e3d5d68d785a4c48f2b24f4b7558a7ae005bd42c91f5ddc0a48a5e7bab023",
+      "size_in_bytes": 12165
+    },
+    {
+      "id": 12588333869,
+      "name": "windows-scene_native_restore-40166451432-1",
+      "digest": "sha256:245127eb2fe785af2acff24401fd9f14913ab982c5a84eafc8967c2b96e42145",
+      "size_in_bytes": 10084
+    },
+    {
+      "id": 12588319036,
+      "name": "ui-literal-audit-40166451432-1",
+      "digest": "sha256:8b9af873ee991b0c747b461bea80912b432902abfe6a5f0c3945ceefddb54502",
+      "size_in_bytes": 30777
+    },
+    {
+      "id": 12588304054,
+      "name": "windows-scene_round_checkpoint-40166451432-1",
+      "digest": "sha256:cbd3e0976eb332123033ad18d731a44e4d5b5ee864f3ca854610c044047f01d6",
+      "size_in_bytes": 9426
+    },
+    {
+      "id": 12588298948,
+      "name": "windows-current_quick_load-40166451432-1",
+      "digest": "sha256:7714a9dc6dad380bda2ab90b2177cab4ad33ef9e8b48d0fb0794ba6ce953f5b4",
+      "size_in_bytes": 9614
+    },
+    {
+      "id": 12588289085,
+      "name": "windows-desktop-40166451432-1",
+      "digest": "sha256:05770a7533a4aa782094596686870f7f413e7afe1d07666f70a22a4df72d0735",
+      "size_in_bytes": 30585
+    },
+    {
+      "id": 12588269368,
+      "name": "windows-settings-40166451432-1",
+      "digest": "sha256:800ad83a4a05cf7ddf931c414662fabb3cc3e140383ba6405541cad68d64e873",
+      "size_in_bytes": 3055268
+    },
+    {
+      "id": 12588194601,
+      "name": "windows-new_account-40166451432-1",
+      "digest": "sha256:8ababe8fdbaedaa2505bb229ef37b38ffa83792965a072c6962628e5a238cce7",
+      "size_in_bytes": 21508
+    },
+    {
+      "id": 12588173471,
+      "name": "windows-scene_backup_inspection-40166451432-1",
+      "digest": "sha256:fc8ee1b31886b43e4b183f558424facdf15238ffa7ea70af300ea73216778c34",
+      "size_in_bytes": 11372
+    },
+    {
+      "id": 12588173347,
+      "name": "public-surfaces-40166451432-1",
+      "digest": "sha256:f606aa4536106a3667489166a2c2b5223c69febc81dd0e202ca6f032419d118a",
+      "size_in_bytes": 244159
+    },
+    {
+      "id": 12588163864,
+      "name": "windows-authored_week-40166451432-1",
+      "digest": "sha256:e3ef07d7804aa190a2f86b384461148dfb32686bd969bb8acfd1f370a16a0b28",
+      "size_in_bytes": 9240
+    },
+    {
+      "id": 12588163722,
+      "name": "windows-checkpoint_diagnostics-40166451432-1",
+      "digest": "sha256:5a312dad0d5996709bf97703ef96b6f6f7bab2d2097a32c2a52ab5e45c0b232f",
+      "size_in_bytes": 13042
+    },
+    {
+      "id": 12588148797,
+      "name": "windows-reading_delivery-40166451432-1",
+      "digest": "sha256:ae6824e6f53fe3ec6f9571db018290a2c1f6a966f374cada4ee40097eb997b79",
+      "size_in_bytes": 49301
+    },
+    {
+      "id": 12588078933,
+      "name": "gallery-caption-collection-40166451432-1",
+      "digest": "sha256:59f7901b19b58050a4a0e9d08ab209f601637a9b047c5acbb77b09f2a6b40549",
+      "size_in_bytes": 8859313
+    },
+    {
+      "id": 12588054035,
+      "name": "windows-scene_later_caption-40166451432-1",
+      "digest": "sha256:59bbacd3cf82812ef3e2ab53c7fa11a2fc6fd37652ee4e0cb1039f11d33c0bbd",
+      "size_in_bytes": 58727
+    },
+    {
+      "id": 12588029186,
+      "name": "windows-scene_multiple_thoughts-40166451432-1",
+      "digest": "sha256:02305c621bf5dea801a78f9f7638099f680d1929b99f379ce457e79ec211968d",
+      "size_in_bytes": 41942
+    },
+    {
+      "id": 12588029134,
+      "name": "windows-scene_challenge_recall-40166451432-1",
+      "digest": "sha256:3a37ff404378979b0e75a6c1a0231e0f29fe3e8a0895f70fb173fc32110571db",
+      "size_in_bytes": 74458
+    },
+    {
+      "id": 12587904185,
+      "name": "windows-scene_desktop_first_reveal-40166451432-1",
+      "digest": "sha256:d5f542b837a123b4d8029d408a3f8ce18af6f63889b4632993a88706e78ef041",
+      "size_in_bytes": 27245
+    },
+    {
+      "id": 12587889302,
+      "name": "windows-scene_shop_checkpoint-40166451432-1",
+      "digest": "sha256:d85c6a578d88a944e73d731b187879e1af7e189465dc5e43ab6eee350fb3f8eb",
+      "size_in_bytes": 10362
+    },
+    {
+      "id": 12587764462,
+      "name": "windows-localization-40166451432-1",
+      "digest": "sha256:016a3c960a461602b5e79b70993ce72cccffc8e9f14a1d76be35bc9e3ee53016",
+      "size_in_bytes": 24748
+    },
+    {
+      "id": 12587729676,
+      "name": "windows-endings-40166451432-1",
+      "digest": "sha256:209d31354251df0447d39b03ae155a00a707e55234271fef75109bf70ad68f5a",
+      "size_in_bytes": 19857
+    },
+    {
+      "id": 12587674890,
+      "name": "windows-scene_player_position-40166451432-1",
+      "digest": "sha256:aeb3d8ba99f288aa39970acdaa70618e36e625bf402f28b0f92714ef80e0c09e",
+      "size_in_bytes": 9650
+    }
+  ]
+}

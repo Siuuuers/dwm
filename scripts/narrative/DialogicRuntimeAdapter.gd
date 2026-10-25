@@ -405,23 +405,33 @@ func _install_scene_frontier(session: RefCounted, checkpoint: Dictionary, source
 	return {"ok": true, "value": {"pending": is_reading_frontier_restoring()}}
 
 
-## Only a registered control immediately following the retained publication is
-## supported. Native playback always starts at that caption, never at the label.
-static func _scene_control_predecessor(saved: Dictionary, compiled: Dictionary, markers: Array) -> Dictionary:
-	var index: int = saved.program_index
-	if saved.boundary != "control" or index < 1 or index >= compiled.nodes.size() \
-			or compiled.nodes[index].kind != "control" or saved.ledger.captions.is_empty():
+## Authored position only: direct restoration can find the held caption without
+## historical publications. The live wrapper below separately binds its identity.
+static func _scene_control_authored_predecessor(index: int, compiled: Dictionary, markers: Array) -> Dictionary:
+	if index < 1 or index >= compiled.nodes.size() or compiled.nodes[index].kind != "control":
 		return {"ok": false, "code": &"scene_restore_boundary_unsupported"}
 	var prior: Dictionary = compiled.nodes[index - 1]
-	var row: Dictionary = saved.ledger.captions.back()
-	if prior.kind != "caption" or prior.next != index or row.occurrence_id != saved.occurrence_id \
-			or row.beat.owning_entry_id != saved.entry_id or row.beat.line_id != prior.line_id:
+	if prior.kind != "caption" or prior.next != index:
 		return {"ok": false, "code": &"scene_restore_control_invalid"}
 	for marker: Dictionary in markers:
 		if marker.marker_id == compiled.nodes[index].marker_id and marker.after_line_id == prior.line_id:
-			return {"ok": true, "value": {"index": index - 1, "marker": marker.duplicate(true),
-				"frontier": {"line_id": prior.line_id, "publication_id": row.publication_id}}}
+			return {"ok": true, "value": {"index": index - 1, "line_id": prior.line_id,
+				"marker": marker.duplicate(true)}}
 	return {"ok": false, "code": &"scene_restore_control_invalid"}
+
+## Live custody still requires the actual latest publication at that authored
+## position. Native playback starts at its caption, never at the control label.
+static func _scene_control_predecessor(saved: Dictionary, compiled: Dictionary, markers: Array) -> Dictionary:
+	if saved.boundary != "control" or saved.ledger.captions.is_empty():
+		return {"ok": false, "code": &"scene_restore_boundary_unsupported"}
+	var authored := _scene_control_authored_predecessor(saved.program_index, compiled, markers)
+	if not authored.ok: return authored
+	var row: Dictionary = saved.ledger.captions.back()
+	if row.occurrence_id != saved.occurrence_id or row.beat.owning_entry_id != saved.entry_id \
+			or row.beat.line_id != authored.value.line_id:
+		return {"ok": false, "code": &"scene_restore_control_invalid"}
+	return {"ok": true, "value": {"index": authored.value.index, "marker": authored.value.marker,
+		"frontier": {"line_id": authored.value.line_id, "publication_id": row.publication_id}}}
 
 ## Transient UI identity only. It checks the current held invocation and cursor
 ## without copying or validating historical captions. Activation still requires

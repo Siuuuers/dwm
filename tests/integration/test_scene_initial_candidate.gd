@@ -127,8 +127,8 @@ func test_initial_candidate_refuses_prior_state_and_forged_first_reading() -> vo
 	changed.current_snapshot.snapshot.narrative_checkpoint.frozen_context.transaction_id = "TEST.foreign"
 	assert_false(_validate(changed).ok)
 	changed = document.duplicate(true)
-	changed.current_snapshot.snapshot.narrative_checkpoint.reading_session.ledger.captions.append(
-		changed.current_snapshot.snapshot.narrative_checkpoint.reading_session.ledger.captions[0].duplicate(true))
+	changed.current_snapshot.snapshot.narrative_checkpoint.reading_session.captions.append(
+		changed.current_snapshot.snapshot.narrative_checkpoint.reading_session.captions[0].duplicate(true))
 	assert_false(_validate(changed).ok)
 
 func test_raw_initial_receipt_and_save_header_float_types_are_refused_before_normalization() -> void:
@@ -169,7 +169,7 @@ func test_candidate_requires_installed_registration_and_complete_profile_materia
 	changed.current_snapshot.snapshot.contacts.next_sequence = 2
 	assert_false(_validate(changed).ok)
 
-func test_initial_validation_reuses_only_its_same_call_reading_configuration() -> void:
+func test_initial_validation_preserves_canonical_input_and_prepared_position() -> void:
 	if not _prepare(): return
 	var original: Dictionary = document.duplicate(true)
 	var previous_profile := OS.get_environment("DWM_SCENE_VALIDATION_PROFILE")
@@ -184,7 +184,7 @@ func test_initial_validation_reuses_only_its_same_call_reading_configuration() -
 	TIMING.end_scope(checked.ok)
 	OS.set_environment("DWM_SCENE_VALIDATION_PROFILE", previous_profile)
 	assert_true(checked.ok, str(checked))
-	assert_eq(observation.configuration_calls, 1, "one fresh complete reading configuration per initial candidate")
+	assert_gt(observation.configuration_calls, 0, "candidate position is checked against the installed programme")
 	if not checked.ok: return
 	assert_eq(checked.value.candidate, original, "candidate canonical contents remain exact")
 	assert_eq(WRITER.stringify(checked.value.candidate).value, WRITER.stringify(original).value,
@@ -195,8 +195,8 @@ func test_restorable_foreign_first_publication_is_not_used_as_initial_expected_l
 	if not _prepare(): return
 	var changed: Dictionary = document.duplicate(true)
 	var checkpoint: Dictionary = changed.current_snapshot.snapshot.narrative_checkpoint
-	checkpoint.reading_session.ledger.captions[0].publication_id = "caption:999"
-	checkpoint.reading_session.frontier.publication_id = "caption:999"
+	checkpoint.reading_session.captions[0].publication_id = "caption:999"
+	checkpoint.reading_session.publication_serial = 999
 	var reading: Dictionary = RUN._validate_scene_reading(changed.current_snapshot.snapshot)
 	assert_true(reading.ok, "ordinary reading allows a retained publication identity: " + str(reading))
 	if not reading.ok: return
@@ -265,16 +265,11 @@ func test_next_public_build_and_candidate_validation_recheck_physical_content() 
 	if restored.ok: assert_eq(restored.value, context.dialogic_checkpoint)
 	assert_true(_validate(document).ok, "restoring source bytes permits a new fresh validation")
 
-func test_restorable_foreign_saved_frame_is_not_used_as_initial_expected_context() -> void:
+func test_foreign_current_frame_is_refused_before_initial_admission() -> void:
 	if not _prepare(): return
 	var changed: Dictionary = document.duplicate(true)
-	var contexts: Dictionary = changed.current_snapshot.snapshot.narrative_checkpoint.reading_session.ledger.entry_contexts
-	contexts.values()[0].transaction_id = "TEST.foreign.saved.frame"
+	changed.current_snapshot.snapshot.narrative_checkpoint.frozen_context.transaction_id = "TEST.foreign.saved.frame"
 	var reading: Dictionary = RUN._validate_scene_reading(changed.current_snapshot.snapshot)
-	assert_true(reading.ok, "general reading shape does not grant initial frame authority: " + str(reading))
-	if not reading.ok: return
-	var checked := _validate(changed)
-	assert_false(checked.ok)
-	assert_eq(checked.get("code"), &"scene_initial_state_invalid")
-	assert_eq(checked.get("message"), "initial checkpoint must be the registered target's exact first caption")
+	assert_false(reading.ok, "compact position must agree with its current frame")
+	assert_false(_validate(changed).ok)
 	assert_true(_validate(document).ok)

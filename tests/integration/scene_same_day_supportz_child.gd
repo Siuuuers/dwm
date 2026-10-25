@@ -98,7 +98,12 @@ func load_same_day_supportz() -> void:
 	assert_true(restored.desktop.board.settled_inspection)
 	assert_ne(restored.desktop.board.identity.branch_id, proof.run.desktop.board.identity.branch_id)
 	assert_true(bootstrap._desktop_board_state.has_settled_inspection())
-	assert_eq(bridge.capture_reading_checkpoint(false).value, proof.reading)
+	var player_reading: Dictionary = preload("res://scripts/narrative/SoloReadingSession.gd").project_player_checkpoint(proof.reading)
+	if not _ok(player_reading): return
+	var expected_reading: Dictionary = preload("res://scripts/narrative/SoloReadingSession.gd").expand_player_checkpoint(player_reading.value)
+	if not _ok(expected_reading): return
+	assert_eq(bridge.capture_reading_checkpoint(false).value, expected_reading.value,
+		"Load restores the current reading state without saved traversal history")
 	var disk: Dictionary = saves._storage.read_text("autosave.json")
 	var owner: Object = bootstrap._retained_minesweeper_round_coordinator_app
 	var completions := _completion_receipts()

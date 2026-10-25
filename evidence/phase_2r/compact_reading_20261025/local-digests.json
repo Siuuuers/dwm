@@ -1,0 +1,102 @@
+[
+  {
+    "path": "local/compact-caption2-create.log",
+    "sha256": "ff4249ddd6251679a648277919fee1a281853f3f6e8f1d6a6cbe4de18bad76d2"
+  },
+  {
+    "path": "local/compact-caption2-load.log",
+    "sha256": "79c3070bd7a78745a3a388e9ee716c14a7c54e4f64acc4546f8d3a53e8430d86"
+  },
+  {
+    "path": "local/compact-later2-create.log",
+    "sha256": "dd71b655250e0e8722f9cc9554c9fa8b7526aa7f1706a7388fea56a2f56db29a"
+  },
+  {
+    "path": "local/compact-later2-load.log",
+    "sha256": "7e9c64fd9d2f1475c26035242922ac2bd178c98b30ed9fe1937814bef5b64cd0"
+  },
+  {
+    "path": "local/compact-later4-create.log",
+    "sha256": "256901fd9fda288e45f54a788265cc338d6409610750a1ce8e520854e4b1ee1e"
+  },
+  {
+    "path": "local/compact-later4-load.log",
+    "sha256": "ededbef578b12c88b5f9a5b6930181feed6859436aa1a327a5a0c4b6120d0462"
+  },
+  {
+    "path": "local/dwm-compact-refusal.log",
+    "sha256": "494cc66ebe97abc7e44b0e88170b3adc9f5afa460330813e2fb060d3e0bf2713"
+  },
+  {
+    "path": "local/dwm-compact-round2.log",
+    "sha256": "a80fac13897423b479cfae996b8d30e81fd7686483ef8f7ab33c9546283c5d89"
+  },
+  {
+    "path": "local/dwm-compact-shop.log",
+    "sha256": "d6357db620d6c2cceb0cc619d5c2a0d42e8dddbca6c6bc6a0592140367027d5b"
+  },
+  {
+    "path": "local/dwm-day-history-session.log",
+    "sha256": "1b41548a5c0b339f79e17c575bd70416f1b663a1b2449bb127cb0f27f4c65c9b"
+  },
+  {
+    "path": "local/dwm-inventory-game_state.log",
+    "sha256": "f905573f8dd52f9b85362666ac54f7c7145d1ce376dec030e86792970fc2e2c7"
+  },
+  {
+    "path": "local/dwm-inventory-save_manager.log",
+    "sha256": "f905573f8dd52f9b85362666ac54f7c7145d1ce376dec030e86792970fc2e2c7"
+  },
+  {
+    "path": "local/dwm-player-position.log",
+    "sha256": "b535e8229c4394eb2984226a16014e47c53bb4b7323ebeb70f1913c1f58f4661"
+  },
+  {
+    "path": "local/dwm-saved-audit-initial.log",
+    "sha256": "c5a388017c00f33aa7d55298a270554c39a2d7c27de72df3140a60aa2396bf9d"
+  },
+  {
+    "path": "local/dwm-saved-audit-pause.log",
+    "sha256": "4504f107e3e2dc6a5ab20b6636ba35f3e92a4bf35ee34ba3535a26c6adfb0581"
+  },
+  {
+    "path": "local/later-repeated-summary.json",
+    "sha256": "038c2219131867f8af954313fab8a44d6cb70bb585c4fd898b159ae2c1d59249"
+  },
+  {
+    "path": "local/later4-after-load.json",
+    "sha256": "ee400ca400a92f8a708e5c7caa493b91e8f5d49cc685d21f335be9cf60f1c47f"
+  },
+  {
+    "path": "local/later4-before-load.json",
+    "sha256": "140716c5eeea4750e5620fca6f68e2ce708f49af8092ffa8cba0c800ac4bcd34"
+  },
+  {
+    "path": "local/reading-adapter-native.log",
+    "sha256": "9a371dbc893e88664e305a0e62af65a495aa54277e84594c08e5d5d531e170a5"
+  },
+  {
+    "path": "local/reading-adapter-unit.log",
+    "sha256": "c52509b7d930e07b85d8353d8d8698caabf89d4dc591913ecd25285ae45ce876"
+  },
+  {
+    "path": "local/reading-history.log",
+    "sha256": "c8c391cbc07ac309ab684a8c6d808359e972da938d631562c2934b400a62cb10"
+  },
+  {
+    "path": "local/shop-custody-corrected.log",
+    "sha256": "459cb7cf6d2022ed5e29eb31529aea9c8f501b21eac6b8e1f836dc7f7a87cde1"
+  },
+  {
+    "path": "local/terminal-history-create.log",
+    "sha256": "3eabb414378ad82064e7595b3a1d98c7f69a13faa9cdfb97c3fd48cb93d9dd21"
+  },
+  {
+    "path": "local/terminal-history-load.log",
+    "sha256": "ed3b1cc7189dae96d3227766b7b4b66f9cfca45eedeed4b33b27483f17d74def"
+  },
+  {
+    "path": "local/terminal-history-terminal.log",
+    "sha256": "2ae3ccc34b8bd76ae42da8d1ee67f0befc7a6d761a571afd2c4a836707096bc7"
+  }
+]

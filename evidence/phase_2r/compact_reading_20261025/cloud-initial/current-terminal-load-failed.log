@@ -1,0 +1,67 @@
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+WARNING: Your video card drivers seem not to support the required OpenGL 3.3 version, switching to ANGLE.
+   at: DisplayServerWindows (platform/windows/display_server_windows.cpp:7421)
+OpenGL API OpenGL ES 3.0 (ANGLE 2.1.1 git hash: aaebda1c5a40) - Compatibility - Using Device: Google Inc. (Microsoft) - ANGLE (Microsoft, Microsoft Basic Render Driver (0x0000008C) Direct3D11 vs_5_0 ps_5_0, D3D11-10.0.20348.5756)
+
+---  GUT  ---
+[INFO]:  using [D:/a/dwm/dwm/.godot/phase2r_tests/4c453b94-c38e-4775-9a81-be76eb130f89/appdata/Godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+
+
+res://tests/integration/test_scene_seven_day_connected_load.gd
+* test_fresh_load_finishes_seven_days_and_real_ending_then_starts_fresh_day1
+    [Failed]:  ARRAY([]) != ARRAY(["TEST Day4 opening."]).
+    [] != ["TEST Day4 opening."]  1 of 1 indexes do not match.  
+      at line -1
+    [Failed]:  ARRAY(["TEST Day4 closing."]) != ARRAY(["TEST Day4 opening.", "TEST Day4 closing."]).
+    ["TEST Day4 closing."] != ["TEST Day4 opening.", "TEST Day4 closin...closing."]  2 of 2 indexes do not match.  
+      at line -1
+    [Failed]:  ARRAY([]) != ARRAY(["TEST Day4 opening."]).
+    [] != ["TEST Day4 opening."]  1 of 1 indexes do not match.  earlier days cannot leak into this occurrence
+      at line -1
+    [Failed]:  [1] expected to equal [8]:  
+      at line -1
+    [Failed]:  ARRAY(["TEST Day4 closing."]) != ARRAY(["TEST Day4 opening.", "TEST Day4 closing."]).
+    ["TEST Day4 closing."] != ["TEST Day4 opening.", "TEST Day4 closin...closing."]  2 of 2 indexes do not match.  
+      at line -1
+0/1 passed.
+
+
+
+
+==============================================
+= Run Summary
+==============================================
+
+res://tests/integration/test_scene_seven_day_connected_load.gd
+- test_fresh_load_finishes_seven_days_and_real_ending_then_starts_fresh_day1
+    [Failed]:  ARRAY([]) != ARRAY(["TEST Day4 opening."]).
+    [] != ["TEST Day4 opening."]  1 of 1 indexes do not match.  
+          at line -1
+    [Failed]:  ARRAY(["TEST Day4 closing."]) != ARRAY(["TEST Day4 opening.", "TEST Day4 closing."]).
+    ["TEST Day4 closing."] != ["TEST Day4 opening.", "TEST Day4 closin...closing."]  2 of 2 indexes do not match.  
+          at line -1
+    [Failed]:  ARRAY([]) != ARRAY(["TEST Day4 opening."]).
+    [] != ["TEST Day4 opening."]  1 of 1 indexes do not match.  earlier days cannot leak into this occurrence
+          at line -1
+    [Failed]:  [1] expected to equal [8]:  
+          at line -1
+    [Failed]:  ARRAY(["TEST Day4 closing."]) != ARRAY(["TEST Day4 opening.", "TEST Day4 closing."]).
+    ["TEST Day4 closing."] != ["TEST Day4 opening.", "TEST Day4 closin...closing."]  2 of 2 indexes do not match.  
+          at line -1
+
+Totals
+------
+Scripts               1
+Tests                 1
+Passing Tests      none
+Failing Tests         1
+Asserts           176/181
+Time              16.577s
+
+
+Ran Tests matching "test_fresh_load_finishes_seven_days_and_real_ending_then_starts_fresh_day1"
+---- 1 failing tests ----
+
+Results saved to res://.godot/ci/current-terminal-fixture/load.xml

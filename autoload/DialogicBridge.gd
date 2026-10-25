@@ -2875,7 +2875,7 @@ func get_scene_caption_memory(expected_presentation: Dictionary) -> Dictionary:
 		return _command_failure(&"reading_frontier_unavailable")
 	var current := _line_presentation_context(expected_presentation)
 	if not current.ok: return current
-	var projected: Dictionary = _reading_session.project_scene_caption_memory(current.value.caption_publication)
+	var projected: Dictionary = _scene_day_history(current.value.caption_publication)
 	if not projected.ok: return projected
 	projected.value["presentation"] = current.duplicate(true)
 	return _STORY_LOCALE.project(projected, _current_locale())
@@ -2891,12 +2891,24 @@ func get_reading_history() -> Dictionary:
 		var captured: Dictionary = _runtime_adapter.capture_reading_frontier()
 		if not captured.ok: return captured
 		frontier = captured.value
-	return _STORY_LOCALE.project(_reading_session.project(frontier), _current_locale())
+	var history: Dictionary = _scene_day_history(frontier) if _reading_session.family == "scene" else _reading_session.project(frontier)
+	return _STORY_LOCALE.project(history, _current_locale())
+
+
+## History and caption scrolling share one pure authored-day projection.
+## This never feeds reconstructed display rows into command/publication custody.
+func _scene_day_history(frontier: Dictionary) -> Dictionary:
+	var game := get_node_or_null("/root/GameState") if is_inside_tree() else null
+	return _reading_session.project_scene_day_history(frontier,
+		game.scene_choices if game != null else {}, game.scene_challenge_outcomes if game != null else {})
 
 
 ## Prepare is pure and validates every frame and occurrence, never a prefix.
 ## The restore participant supplies independently admitted saved Run contexts.
 func validate_reading_checkpoint(checkpoint: Dictionary, entry_contexts: Dictionary = {}) -> Dictionary:
+	var expanded := _READING_SESSION.expand_player_checkpoint(checkpoint)
+	if not expanded.ok: return expanded
+	checkpoint = expanded.value
 	if checkpoint.get("reading_session") is Dictionary and typeof(checkpoint.reading_session.get("schema_version")) == TYPE_INT and checkpoint.reading_session.schema_version == 5:
 		var scene := _prepare_scene_reading_candidate(checkpoint, entry_contexts)
 		if not scene.ok: return scene
@@ -2960,6 +2972,9 @@ func _validate_reading_entry(session: RefCounted, entry_id: String, context: Dic
 ## This is representation/native compatibility only. The participant first
 ## admits the complete saved Run through FrozenRunContext and real receipt owners.
 func _prepare_scene_reading_candidate(checkpoint: Dictionary, entry_contexts: Dictionary = {}) -> Dictionary:
+	var expanded := _READING_SESSION.expand_player_checkpoint(checkpoint)
+	if not expanded.ok: return expanded
+	checkpoint = expanded.value
 	var keys := _RESUME_CHECKPOINT_KEYS.duplicate()
 	keys.append("manifest_fingerprint")
 	keys.append("reading_session")
@@ -3005,6 +3020,9 @@ func _prepare_scene_reading_candidate(checkpoint: Dictionary, entry_contexts: Di
 	return {"ok": true, "value": {"candidate": candidate, "path": path}}
 
 func stage_scene_reading_restore(checkpoint: Dictionary, operation_id: String) -> Dictionary:
+	var expanded := _READING_SESSION.expand_player_checkpoint(checkpoint)
+	if not expanded.ok: return expanded
+	checkpoint = expanded.value
 	if operation_id.strip_edges().is_empty() or not _scene_stage.is_empty() \
 			or (not _scene_restore.is_empty() and not _scene_restore.get("confirmed", false)):
 		return _command_failure(&"scene_restore_staging_invalid")
@@ -3275,7 +3293,7 @@ func is_hospital_reading_restore_for(command: Dictionary) -> bool:
 
 
 func _resume_reading_checkpoint(checkpoint: Dictionary, execution_mode: StringName) -> Dictionary:
-	if checkpoint.get("reading_session") is Dictionary and typeof(checkpoint.reading_session.get("schema_version")) == TYPE_INT and checkpoint.reading_session.schema_version == 5:
+	if checkpoint.get("reading_session") is Dictionary and typeof(checkpoint.reading_session.get("schema_version")) == TYPE_INT and checkpoint.reading_session.schema_version in [5, 6]:
 		return _command_failure(&"scene_restore_owner_unavailable")
 	if execution_mode != &"canonical": return _command_failure(&"rehearsal_commit_denied")
 	var checked := validate_reading_checkpoint(checkpoint)
@@ -4596,6 +4614,9 @@ func capture_scene_event_boundary() -> Dictionary:
 ## A historical anchor is not the live frontier. The active session proves exact
 ## ledger membership; previous occurrences prove their immutable registered beat.
 func validate_scene_event_anchor(anchor: Dictionary, checkpoint: Dictionary) -> Dictionary:
+	var expanded := _READING_SESSION.expand_player_checkpoint(checkpoint)
+	if not expanded.ok: return expanded
+	checkpoint = expanded.value
 	if checkpoint.get("reading_session") is Dictionary and typeof(checkpoint.reading_session.get("schema_version")) == TYPE_INT and checkpoint.reading_session.schema_version == 5:
 		return _validate_scene5_event_anchors([anchor], checkpoint)
 	var catalogue := _READING_SESSION.new()
@@ -4626,6 +4647,9 @@ func validate_scene_event_anchor(anchor: Dictionary, checkpoint: Dictionary) -> 
 ## One fresh saved-reading admission for this call; every anchor still joins its
 ## exact retained publication. No candidate survives into another validation.
 func validate_scene_event_anchors(anchors: Array[Dictionary], checkpoint: Dictionary) -> Dictionary:
+	var expanded := _READING_SESSION.expand_player_checkpoint(checkpoint)
+	if not expanded.ok: return expanded
+	checkpoint = expanded.value
 	if checkpoint.get("reading_session") is Dictionary and typeof(checkpoint.reading_session.get("schema_version")) == TYPE_INT and checkpoint.reading_session.schema_version == 5:
 		return _validate_scene5_event_anchors(anchors, checkpoint)
 	for anchor: Dictionary in anchors:

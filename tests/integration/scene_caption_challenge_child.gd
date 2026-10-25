@@ -1,5 +1,6 @@
 extends "res://tests/integration/scene_computer_child.gd"
 ## FINAL Bootstrap, native caption, real save and owners; no synthetic publication.
+const COMPACT_READING := preload("res://scripts/narrative/SoloReadingSession.gd")
 const CAPTION_CONTENT := preload("res://tests/support/SceneCaptionChallengeFixture.gd")
 
 func _install_content_registration() -> Dictionary:
@@ -48,6 +49,12 @@ func create_caption_challenge() -> void:
 	assert_eq(marker.value.kind, "challenge.end")
 	if not _ok(saves.save_latest_to_slot(1)): return
 	var manual_sha := FileAccess.get_sha256("user://saves/slot_1.json")
+	var cue_document: Dictionary = PARSER.parse_object(FileAccess.get_file_as_string("user://saves/slot_1.json"))
+	if not _ok(cue_document): return
+	var cue_snapshot: Dictionary = cue_document.value.current_snapshot.snapshot
+	assert_eq(cue_snapshot.narrative_checkpoint.reading_session.schema_version, 6)
+	assert_false(cue_snapshot.narrative_checkpoint.reading_session.has("ledger"))
+	assert_false(cue_snapshot.narrative_checkpoint.reading_session.has("next_operation"))
 	var next_results: Array = []
 	var capture_next := func(_frontier: Dictionary, result: Dictionary): next_results.append(result.duplicate(true))
 	bridge.next_request_finished.connect(capture_next)
@@ -86,9 +93,16 @@ func create_caption_challenge() -> void:
 	var visible: Dictionary = bridge.capture_current_line_presentation_frontier()
 	if not _ok(visible) or not _ok(bridge.acknowledge_current_line_presentation(visible)): return
 	if not _ok(saves.save_latest_to_slot(2)): return
+	var closed_document: Dictionary = PARSER.parse_object(FileAccess.get_file_as_string("user://saves/slot_2.json"))
+	if not _ok(closed_document): return
+	var closed_snapshot: Dictionary = closed_document.value.current_snapshot.snapshot
+	assert_eq(closed_snapshot.narrative_checkpoint.reading_session.schema_version, 6)
+	assert_false(closed_snapshot.narrative_checkpoint.reading_session.has("ledger"))
 	var proof := {"creator_process_id": OS.get_process_id(), "user_dir": ProjectSettings.globalize_path("user://"),
 		"cue_sha256": manual_sha, "closed_sha256": FileAccess.get_sha256("user://saves/slot_2.json"),
-		"closure": closures[0], "profile": profile.get_profile_snapshot()}
+		"closure": closures[0], "profile": profile.get_profile_snapshot(),
+		"cue_checkpoint": cue_snapshot.narrative_checkpoint, "cue_gameplay": cue_snapshot.gameplay,
+		"closed_checkpoint": closed_snapshot.narrative_checkpoint, "closed_gameplay": closed_snapshot.gameplay}
 	if not _write_json("user://caption-challenge-proof.json", proof): return
 	_write_json("res://.godot/ci/caption-challenge-create-proof.json", proof)
 
@@ -125,6 +139,12 @@ func load_caption_challenge() -> void:
 	if not await _wait_caption("line.scene.test.b.one"): return
 	assert_eq(_retained_closures().size(), 0, "Selected cue precedes closure.")
 	assert_eq(bridge.capture_reading_checkpoint(false).value.reading_session.boundary, "control")
+	var cue_expected: Dictionary = COMPACT_READING.expand_player_checkpoint(proof.cue_checkpoint)
+	if not _ok(cue_expected): return
+	assert_true(bridge.capture_reading_checkpoint(false).value == cue_expected.value,
+		"Load restores the exact held control and full preceding caption")
+	assert_true(game.capture_run_snapshot_input().gameplay == proof.cue_gameplay,
+		"Load restores cue economy and counters without replay")
 	var pending: Dictionary = bridge.capture_scene_pending_marker()
 	if not _ok(pending): return
 	assert_eq(pending.value.kind, "challenge.end")
@@ -149,6 +169,12 @@ func load_caption_challenge() -> void:
 	if ready_count != 2 or not await _wait_caption("line.scene.test.a.one"): return
 	after = _retained_closures()
 	assert_eq(after, [proof.closure], "Closed-save Load retains one exact closure.")
+	var closed_expected: Dictionary = COMPACT_READING.expand_player_checkpoint(proof.closed_checkpoint)
+	if not _ok(closed_expected): return
+	assert_true(bridge.capture_reading_checkpoint(false).value == closed_expected.value,
+		"Load restores the closed branch caption directly")
+	assert_true(game.capture_run_snapshot_input().gameplay == proof.closed_gameplay,
+		"Closed-save Load restores exact economy and counters")
 	assert_false(game.capture_scene_challenge_command().get("ok", false))
 	assert_true(profile.get_profile_snapshot().dating_attempts.is_empty())
 	assert_eq(FileAccess.get_sha256("user://saves/slot_1.json"), proof.cue_sha256)

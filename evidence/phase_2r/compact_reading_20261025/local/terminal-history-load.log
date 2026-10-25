@@ -1,0 +1,32 @@
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+---  GUT  ---
+[1m[INFO]:  [0musing [/workspace/scratch/359fe558320b/dwm/.godot/phase2r_tests/terminal-history-fix/data/godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+[4m
+
+res://tests/integration/test_scene_seven_day_connected_load.gd
+[0m* test_fresh_load_finishes_seven_days_and_real_ending_then_starts_fresh_day1
+[1m1/1 passed.
+[0m
+
+
+
+[33m==============================================
+[0m[33m= Run Summary
+[0m[33m==============================================
+[0m
+Totals
+------
+Scripts               1
+Tests                 1
+Passing Tests         1
+Asserts             173
+Time              12.986s
+
+
+Ran Tests matching "test_fresh_load_finishes_seven_days_and_real_ending_then_starts_fresh_day1"
+[32m---- All tests passed! ----
+[0m
+Results saved to res://.godot/reading-adapter-tests/terminal-load.xml

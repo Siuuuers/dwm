@@ -1,0 +1,247 @@
+[
+  {
+    "case": 1,
+    "processes": [
+      {
+        "phase": "create",
+        "pid": 6,
+        "exit_code": 0
+      },
+      {
+        "phase": "load",
+        "pid": 20,
+        "exit_code": 0
+      }
+    ],
+    "start_ns": 1792906704031845156,
+    "before_load": {
+      "profile_sha256": "09507d6a6855bb80ad697269dee7d063e09db144cde72bc15b2e1b9d69d5c1d1",
+      "proof_profile_sha256": "09507d6a6855bb80ad697269dee7d063e09db144cde72bc15b2e1b9d69d5c1d1",
+      "creator_process_id": 6,
+      "operations": {
+        "transaction_id.c201a14b783ca32215e7c268140f08b0b4bb3900c1d48e7d334c55304b4c7b7e": {
+          "kind": "scene_new_run",
+          "stage": "completed",
+          "activation_state": "acknowledged",
+          "next_participant_index": 8,
+          "failure": null
+        }
+      }
+    },
+    "after_load": {
+      "profile_sha256": "09507d6a6855bb80ad697269dee7d063e09db144cde72bc15b2e1b9d69d5c1d1",
+      "operations": {
+        "transaction_id.72ea684f2fe787eca06a6690a23caf1ca3a46b49ea03c819832ea05af450fc00": {
+          "kind": "scene_restore",
+          "stage": "completed",
+          "activation_state": "acknowledged",
+          "next_participant_index": 8,
+          "failure": null
+        },
+        "transaction_id.c201a14b783ca32215e7c268140f08b0b4bb3900c1d48e7d334c55304b4c7b7e": {
+          "kind": "scene_new_run",
+          "stage": "completed",
+          "activation_state": "acknowledged",
+          "next_participant_index": 8,
+          "failure": null
+        }
+      }
+    }
+  },
+  {
+    "case": 2,
+    "processes": [
+      {
+        "phase": "create",
+        "pid": 34,
+        "exit_code": 0
+      },
+      {
+        "phase": "load",
+        "pid": 48,
+        "exit_code": 0
+      }
+    ],
+    "start_ns": 1792906720059845923,
+    "before_load": {
+      "profile_sha256": "c8b38e2a205434cd411d985492c4841373c27b09a2977b5078f29b9aae73a077",
+      "proof_profile_sha256": "c8b38e2a205434cd411d985492c4841373c27b09a2977b5078f29b9aae73a077",
+      "creator_process_id": 34,
+      "operations": {
+        "transaction_id.fd24146cfa6df410ffbd656d09903d268fd4b07cc55eb74ee00df22322b0bfc9": {
+          "kind": "scene_new_run",
+          "stage": "completed",
+          "activation_state": "acknowledged",
+          "next_participant_index": 8,
+          "failure": null
+        }
+      }
+    },
+    "after_load": {
+      "profile_sha256": "c8b38e2a205434cd411d985492c4841373c27b09a2977b5078f29b9aae73a077",
+      "operations": {
+        "transaction_id.244047033fa951798bdcfcdb13386d7eb88408b636c8cadaa0a6f3f6911555df": {
+          "kind": "scene_restore",
+          "stage": "completed",
+          "activation_state": "acknowledged",
+          "next_participant_index": 8,
+          "failure": null
+        },
+        "transaction_id.fd24146cfa6df410ffbd656d09903d268fd4b07cc55eb74ee00df22322b0bfc9": {
+          "kind": "scene_new_run",
+          "stage": "completed",
+          "activation_state": "acknowledged",
+          "next_participant_index": 8,
+          "failure": null
+        }
+      }
+    }
+  },
+  {
+    "case": 3,
+    "processes": [
+      {
+        "phase": "create",
+        "pid": 62,
+        "exit_code": 0
+      },
+      {
+        "phase": "load",
+        "pid": 76,
+        "exit_code": 0
+      }
+    ],
+    "start_ns": 1792906735894420033,
+    "before_load": {
+      "profile_sha256": "707588ecb1bd51dedcce53d7173f6c5bbcd935f0f265cb56cc9130141de91322",
+      "proof_profile_sha256": "707588ecb1bd51dedcce53d7173f6c5bbcd935f0f265cb56cc9130141de91322",
+      "creator_process_id": 62,
+      "operations": {
+        "transaction_id.f311691dd872e379895e7878dd9301eb138af636918a89cfe88f7ed605d8cf36": {
+          "kind": "scene_new_run",
+          "stage": "completed",
+          "activation_state": "acknowledged",
+          "next_participant_index": 8,
+          "failure": null
+        }
+      }
+    },
+    "after_load": {
+      "profile_sha256": "707588ecb1bd51dedcce53d7173f6c5bbcd935f0f265cb56cc9130141de91322",
+      "operations": {
+        "transaction_id.0649eaaa054655e878e56550cbece1993e4738433e16defa267b461371594164": {
+          "kind": "scene_restore",
+          "stage": "completed",
+          "activation_state": "acknowledged",
+          "next_participant_index": 8,
+          "failure": null
+        },
+        "transaction_id.f311691dd872e379895e7878dd9301eb138af636918a89cfe88f7ed605d8cf36": {
+          "kind": "scene_new_run",
+          "stage": "completed",
+          "activation_state": "acknowledged",
+          "next_participant_index": 8,
+          "failure": null
+        }
+      }
+    }
+  },
+  {
+    "case": 4,
+    "processes": [
+      {
+        "phase": "create",
+        "pid": 90,
+        "exit_code": 0
+      },
+      {
+        "phase": "load",
+        "pid": 104,
+        "exit_code": 0
+      }
+    ],
+    "start_ns": 1792906751821321770,
+    "before_load": {
+      "profile_sha256": "04f1b14bd1c49d212c60fafef28a0ccc7f928f8bae5bee9438d31c9f0fc3ce6a",
+      "proof_profile_sha256": "04f1b14bd1c49d212c60fafef28a0ccc7f928f8bae5bee9438d31c9f0fc3ce6a",
+      "creator_process_id": 90,
+      "operations": {
+        "transaction_id.eeac3a0106e594ac8d1274f59e5ebda10107398899a1a4f9ae875d6003839d58": {
+          "kind": "scene_new_run",
+          "stage": "completed",
+          "activation_state": "acknowledged",
+          "next_participant_index": 8,
+          "failure": null
+        }
+      }
+    },
+    "after_load": {
+      "profile_sha256": "04f1b14bd1c49d212c60fafef28a0ccc7f928f8bae5bee9438d31c9f0fc3ce6a",
+      "operations": {
+        "transaction_id.6c0d68c98b5b3faf72bd482b0d4221c78eaa2d4cfda74f020f80f6a7728d824a": {
+          "kind": "scene_restore",
+          "stage": "completed",
+          "activation_state": "acknowledged",
+          "next_participant_index": 8,
+          "failure": null
+        },
+        "transaction_id.eeac3a0106e594ac8d1274f59e5ebda10107398899a1a4f9ae875d6003839d58": {
+          "kind": "scene_new_run",
+          "stage": "completed",
+          "activation_state": "acknowledged",
+          "next_participant_index": 8,
+          "failure": null
+        }
+      }
+    }
+  },
+  {
+    "case": 5,
+    "processes": [
+      {
+        "phase": "create",
+        "pid": 118,
+        "exit_code": 0
+      },
+      {
+        "phase": "load",
+        "pid": 132,
+        "exit_code": 0
+      }
+    ],
+    "start_ns": 1792906767247485035,
+    "before_load": {
+      "profile_sha256": "5eda50195bdf2c623f8e20c79ad469cc4301369fdb537293bee5a42efed6bbdc",
+      "proof_profile_sha256": "5eda50195bdf2c623f8e20c79ad469cc4301369fdb537293bee5a42efed6bbdc",
+      "creator_process_id": 118,
+      "operations": {
+        "transaction_id.47914a9d49f2ac4941af4584efd2c6e13f6ea3d4074eb78d88638aa57cd3f013": {
+          "kind": "scene_new_run",
+          "stage": "completed",
+          "activation_state": "acknowledged",
+          "next_participant_index": 8,
+          "failure": null
+        }
+      }
+    },
+    "after_load": {
+      "profile_sha256": "5eda50195bdf2c623f8e20c79ad469cc4301369fdb537293bee5a42efed6bbdc",
+      "operations": {
+        "transaction_id.2ec16605fc01fa7b07aadb31c73f07e5969e3676cb9833eb3e847b1a317bb25d": {
+          "kind": "scene_restore",
+          "stage": "completed",
+          "activation_state": "acknowledged",
+          "next_participant_index": 8,
+          "failure": null
+        },
+        "transaction_id.47914a9d49f2ac4941af4584efd2c6e13f6ea3d4074eb78d88638aa57cd3f013": {
+          "kind": "scene_new_run",
+          "stage": "completed",
+          "activation_state": "acknowledged",
+          "next_participant_index": 8,
+          "failure": null
+        }
+      }
+    }
+  }
+]

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="GutTests" failures="0" tests="1" >
+  <testsuite name="tests/integration/test_scene_later_caption_load.gd" tests="1" failures="0" skipped="0" time="1.7188" >
+      <testcase name="test_fresh_process_load_restores_later_caption_and_accept_reenters_loop_once" assertions="61" status="pass" classname="tests/integration/test_scene_later_caption_load.gd" time="1.7188" >
+      </testcase>
+  </testsuite>
+</testsuites>

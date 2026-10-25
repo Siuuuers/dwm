@@ -1,0 +1,52 @@
+[
+  {
+    "path": "scene_later_caption-load.xml",
+    "sha256": "3dc5b7942c3e9cafdd542b34cb3abaa4315c85f47ab1799e5e9cb2dcd0215142"
+  },
+  {
+    "path": "scene_later_caption.xml",
+    "sha256": "18a6423022f246dc194f10de174ae303a4936a77096f0cd6844c80954e80b042"
+  },
+  {
+    "path": "cloud-scene_later_caption-load.log",
+    "sha256": "01965a69f08237b85406883b6ee7578e3b038fe9804f970b22b410890f7c3a5c"
+  },
+  {
+    "path": "cloud-scene_later_caption.log",
+    "sha256": "5a72ef4fbf1666e7c4d19c9fc2fa3612965c5ada35fc83be96387b7ee74cdc6a"
+  },
+  {
+    "artifact_id": 12588054035,
+    "path": "ci/computer-later-caption-partial-source.png",
+    "sha256": "32ccc968f0cf1c7e6f133b9e54ad0633563cde52a04d97b844606f0b2bb06914",
+    "reviewed": false
+  },
+  {
+    "artifact_id": 12588054035,
+    "path": "ci/computer-later-caption-loop-continued.png",
+    "sha256": "9ec578729901cceaeb712f7d95c466bc583d52f76ac74a7ca173dfaca2b5e68a",
+    "reviewed": false
+  },
+  {
+    "artifact_id": 12588054035,
+    "path": "ci/computer-later-caption-restored-full.png",
+    "sha256": "3f5b96f0029910be37543a41692e00d1967f2f5d5740af234e69ced189ecf89f",
+    "reviewed": true
+  },
+  {
+    "path": "scene_caption_challenge-load.xml",
+    "sha256": "bd33f99a3aaaa8404202740a6db16fb77652591c5d05010a201dc3addd38bc82"
+  },
+  {
+    "path": "scene_caption_challenge.xml",
+    "sha256": "12611dc04ccb8635c4a8a6b5e7ca088040bd5aaf94a652bf4e2ba057dbbfa3d0"
+  },
+  {
+    "path": "cloud-scene_caption_challenge-load.log",
+    "sha256": "c1649d7b64972f5e04a99acebb79e9d6af7bccaec956a7728ab668dcf14c5a63"
+  },
+  {
+    "path": "cloud-scene_caption_challenge.log",
+    "sha256": "ccd6c5e92ade9a40ca4929d23d8f946908a68163a0646d33d3e679dbd623f3d0"
+  }
+]

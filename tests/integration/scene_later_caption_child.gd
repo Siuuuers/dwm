@@ -1,6 +1,7 @@
 extends "res://tests/integration/scene_computer_child.gd"
 ## Real FINAL host, Viewport Accept, physical Save and separate-process Load.
 ## Only reveal timing is slowed; no logical/native position is assigned.
+const COMPACT_READING := preload("res://scripts/narrative/SoloReadingSession.gd")
 const PROOF_PATH := "user://scene-later-caption-proof.json"
 const LOOP_LINE := "line.scene.test.a.two"
 var _ready_observation: Dictionary = {}
@@ -73,10 +74,10 @@ func _accept(wait_for_input: bool = true) -> void:
 	for frame: int in 4: await get_tree().process_frame
 	_ending_phase("accept.return")
 
-func _assert_source_files(proof: Dictionary) -> void:
-	assert_eq(FileAccess.get_sha256("user://saves/slot_1.json"), proof.slot_sha256)
-	assert_eq(FileAccess.get_sha256("user://saves/autosave.json"), proof.autosave_sha256)
-	assert_eq(FileAccess.get_sha256("user://profile.json"), proof.profile_sha256)
+func _assert_source_files(proof: Dictionary, phase: String = "after Load") -> void:
+	assert_eq(FileAccess.get_sha256("user://saves/slot_1.json"), proof.slot_sha256, phase + ": source slot unchanged")
+	assert_eq(FileAccess.get_sha256("user://saves/autosave.json"), proof.autosave_sha256, phase + ": source autosave unchanged")
+	assert_eq(FileAccess.get_sha256("user://profile.json"), proof.profile_sha256, phase + ": global Profile unchanged")
 
 func create_later_caption() -> void:
 	if not _start_services(): return
@@ -135,8 +136,13 @@ func create_later_caption() -> void:
 	var document: Dictionary = PARSER.parse_object(FileAccess.get_file_as_string("user://saves/slot_1.json"))
 	if not _ok(document): return
 	var snapshot: Dictionary = document.value.current_snapshot.snapshot
-	assert_true(snapshot.narrative_checkpoint.reading_session == checkpoint.value.reading_session,
-		"real slot retains the later caption and exact publication ledger")
+	var projected: Dictionary = COMPACT_READING.project_player_checkpoint(checkpoint.value)
+	if not _ok(projected): return
+	assert_true(snapshot.narrative_checkpoint == projected.value,
+		"real slot retains the canonical current position")
+	assert_eq(snapshot.narrative_checkpoint.reading_session.schema_version, 6)
+	assert_false(snapshot.narrative_checkpoint.reading_session.has("ledger"))
+	assert_false(snapshot.narrative_checkpoint.reading_session.has("next_operation"))
 	assert_true(game.capture_dating_challenge_state().value.is_empty(), "reading creates no board")
 	var proof := {"process_id": OS.get_process_id(), "user_dir": ProjectSettings.globalize_path("user://"),
 		"checkpoint": snapshot.narrative_checkpoint, "source_native": visible, "saved_native": saved_native,
@@ -158,9 +164,9 @@ func load_later_caption() -> void:
 	var proof: Dictionary = parsed.value
 	assert_ne(OS.get_process_id(), proof.process_id, "fresh process")
 	assert_eq(ProjectSettings.globalize_path("user://"), proof.user_dir)
-	_assert_source_files(proof)
+	_assert_source_files(proof, "before bootstrap")
 	if not _start_services(): return
-	_assert_source_files(proof)
+	_assert_source_files(proof, "after bootstrap")
 	saves.live_session_ready.connect(func() -> void: _ready_observation = _native_observation())
 	var backup: RefCounted = preload("res://scripts/application/backup/BackupPresentationPort.gd").new()
 	if not _ok(backup.configure(saves, "title")): return
@@ -173,14 +179,17 @@ func load_later_caption() -> void:
 	assert_eq(get_tree().current_scene.scene_file_path, HOST)
 	var checkpoint: Dictionary = bridge.capture_reading_checkpoint(false)
 	if not _ok(checkpoint): return
-	assert_true(checkpoint.value == proof.checkpoint, "exact saved line, publication, occurrence and program index")
+	var expanded: Dictionary = COMPACT_READING.expand_player_checkpoint(proof.checkpoint)
+	if not _ok(expanded): return
+	var expected_checkpoint: Dictionary = expanded.value
+	assert_true(checkpoint.value == expected_checkpoint, "same saved current caption, publication and occurrence")
 	assert_eq(_ready_observation.line_id, LOOP_LINE)
 	assert_true(_ready_observation.visible)
 	assert_true("A loop." in _ready_observation.text)
 	assert_false(_ready_observation.revealing, "Load is fully revealed at Ready")
 	assert_eq(float(_ready_observation.visible_ratio), 1.0)
 	assert_true(_ready_observation.event_done, "native text event is DONE at Ready")
-	assert_true(_ready_observation.ledger == proof.checkpoint.reading_session.ledger, "Load allocates no publication")
+	assert_true(_ready_observation.ledger == expected_checkpoint.reading_session.ledger, "Load allocates no publication")
 	await _screenshot("later-caption-restored-full")
 	var current: Dictionary = game.capture_run_snapshot_input()
 	assert_true(current.gameplay == proof.gameplay, "Load replays no gameplay consequence")
@@ -195,10 +204,10 @@ func load_later_caption() -> void:
 	var continued: Dictionary = bridge.capture_reading_checkpoint(false)
 	if not _ok(continued): return
 	assert_eq(continued.value.reading_session.frontier.line_id, LOOP_LINE)
-	assert_eq(continued.value.reading_session.program_index, proof.checkpoint.reading_session.program_index)
+	assert_eq(continued.value.reading_session.program_index, expected_checkpoint.reading_session.program_index)
 	assert_eq(continued.value.reading_session.occurrence_id, proof.checkpoint.reading_session.occurrence_id)
-	assert_ne(continued.value.reading_session.frontier.publication_id, proof.checkpoint.reading_session.frontier.publication_id)
-	assert_eq(continued.value.reading_session.ledger.captions.size(), proof.checkpoint.reading_session.ledger.captions.size() + 1)
+	assert_ne(continued.value.reading_session.frontier.publication_id, expected_checkpoint.reading_session.frontier.publication_id)
+	assert_eq(continued.value.reading_session.ledger.captions.size(), expected_checkpoint.reading_session.ledger.captions.size() + 1)
 	var ledger: Dictionary = bridge._reading_session.ledger.snapshot().duplicate(true)
 	bridge._runtime_adapter._on_caption_about_to_show({})
 	bridge._runtime_adapter._on_caption_text_started({})

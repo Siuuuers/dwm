@@ -4281,13 +4281,9 @@ func apply_scene_new_run_silent(plan: Dictionary, creation_owner: Object) -> Dic
 	return installed
 
 func validate_scene_snapshot_semantics(snapshot: Dictionary, bundle: Dictionary) -> Dictionary:
-	var prepared := _prepare_scene_snapshot_semantics(snapshot, bundle)
-	if not prepared.get("ok", false): return prepared
-	var anchors: Array[Dictionary] = []
-	anchors.assign(prepared.pending_anchors)
-	return _validate_scene_snapshot_anchors(anchors, prepared.checkpoint)
+	return _prepare_scene_snapshot_semantics(snapshot, bundle)
 
-## Partial semantic preparation. Success still requires every pending anchor join.
+## Validate current progress and retained genuine receipts without reading-history joins.
 func _prepare_scene_snapshot_semantics(snapshot: Dictionary, bundle: Dictionary,
 		terminal_reading: Dictionary = {}) -> Dictionary:
 	if _identity_issuer == null: return _transaction_failure(&"scene_identity_issuer_required", "")
@@ -4327,18 +4323,13 @@ func _prepare_scene_snapshot_semantics(snapshot: Dictionary, bundle: Dictionary,
 	if not reuse_scene_commands:
 		frozen = _SCENE_FROZEN.validate(snapshot, true)
 		if not frozen.get("ok", false): return frozen
-	# Receipt authentication and frozen frame derivation are independent proofs.
-	# Join every authenticated event to the actual retained reading ledger as well:
-	# historical occurrences remain valid, but invented publications never do.
+	# Story receipts remain authenticated by their owner. Player reading stores
+	# only the current position and caption, so old event publications are
+	# not a Load prerequisite. Live dispatch still proves its current frontier.
 	var expected_choices := {}
 	var expected_outcomes := {}
-	var anchors: Array[Dictionary] = []
 	if not commands.is_empty():
-		if not is_instance_valid(_scene_event_bridge) \
-				or not _scene_event_bridge.has_method("validate_scene_event_anchor"):
-			return _transaction_failure(&"event_dependency_invalid", "scene reading anchor validator required")
 		for receipt: Dictionary in commands.values():
-			anchors.append(receipt.scene_event.reading_anchor)
 			var result: Dictionary = receipt.scene_event.result
 			if result.kind == "thought_resolved":
 				expected_choices[result.opportunity_id] = result.choice
@@ -4348,22 +4339,6 @@ func _prepare_scene_snapshot_semantics(snapshot: Dictionary, bundle: Dictionary,
 	if not _SCENE_EVENT._equal(snapshot.gameplay.scene_choices, expected_choices) \
 			or not _SCENE_EVENT._equal(snapshot.gameplay.scene_challenge_outcomes, expected_outcomes):
 		return _transaction_failure(&"scene_progress_mismatch", "")
-	if not commands.is_empty():
-		var checkpoint: Dictionary = snapshot.lifecycle.ending_plan.source_reading_checkpoint \
-			if snapshot.lifecycle.get("ending_plan") is Dictionary and snapshot.lifecycle.ending_plan.get("source_kind") == "scene" else snapshot.narrative_checkpoint
-		return {"ok": true, "pending_anchors": anchors, "checkpoint": checkpoint}
-	return {"ok": true, "pending_anchors": [], "checkpoint": {}}
-
-func _validate_scene_snapshot_anchors(anchors: Array[Dictionary], checkpoint: Dictionary) -> Dictionary:
-	if anchors.is_empty(): return {"ok": true}
-	if not is_instance_valid(_scene_event_bridge) or not _scene_event_bridge.has_method("validate_scene_event_anchor"):
-		return _transaction_failure(&"event_dependency_invalid", "scene reading anchor validator required")
-	if _scene_event_bridge.has_method("validate_scene_event_anchors"):
-		var anchored: Dictionary = _scene_event_bridge.validate_scene_event_anchors(anchors, checkpoint)
-		return {"ok": true} if anchored.get("ok", false) else anchored
-	for anchor: Dictionary in anchors:
-		var anchored: Dictionary = _scene_event_bridge.validate_scene_event_anchor(anchor, checkpoint)
-		if not anchored.get("ok", false): return anchored
 	return {"ok": true}
 
 func _install_scene_snapshot_silent(snapshot: Dictionary) -> Dictionary:
@@ -4626,7 +4601,7 @@ func _continue_completed_scene_challenge_owned(lease: String, optional: bool = f
 	if not stable.get("ok", false): return stable
 	var snapshot: Dictionary = stable.value.bundle.snapshot
 	if snapshot.get("gameplay", {}).get("route_context") != route \
-			or not _SCENE_EVENT._equal(snapshot.get("narrative_checkpoint"), admitted.value.checkpoint):
+			or not _scene_player_checkpoint_same(snapshot.get("narrative_checkpoint"), admitted.value.checkpoint):
 		return _transaction_failure(&"scene_challenge_completion_not_saved", "")
 	var context := _scene_runtime_event_context()
 	if not context.ok: return context
@@ -4955,7 +4930,10 @@ func _capture_selected_scene_absence(command: Dictionary, bundle: Dictionary) ->
 ## The saved traversal carries the exact selected prefix, not a guessed nearby
 ## cursor or a Profile sibling's later board. No new absence authority is minted.
 func _scene_absence_checkpoint_matches(selected: Dictionary, current: Dictionary) -> bool:
-	if _SCENE_EVENT._equal(selected, current): return true
+	if _scene_player_checkpoint_same(selected, current): return true
+	var selected_live := preload("res://scripts/narrative/SoloReadingSession.gd").expand_player_checkpoint(selected)
+	if not selected_live.ok: return false
+	selected = selected_live.value
 	var traversal := preload("res://scripts/narrative/ReadingTraversalOperation.gd")
 	var source: Dictionary = selected.get("reading_session", {})
 	var destination: Dictionary = current.get("reading_session", {})
@@ -4967,10 +4945,22 @@ func _scene_absence_checkpoint_matches(selected: Dictionary, current: Dictionary
 	if checked.value.phase != "destination" or plan.path.size() != 1 \
 			or plan.destination.kind != "line" or not plan.traversed_captions.is_empty() \
 			or plan.destination.program_index != int(source.program_index) + 1 \
-			or not _SCENE_EVENT._equal(plan.source_reading, traversal.without_operation(source)): return false
+			or not _scene_player_checkpoint_same(_scene_checkpoint_with_reading(selected, plan.source_reading), selected): return false
 	var restored := current.duplicate(true)
 	restored.reading_session = source
-	return _SCENE_EVENT._equal(restored, selected)
+	return _scene_player_checkpoint_same(restored, selected)
+
+func _scene_checkpoint_with_reading(checkpoint: Dictionary, reading: Dictionary) -> Dictionary:
+	var result := checkpoint.duplicate(true)
+	result.reading_session = reading
+	return result
+
+func _scene_player_checkpoint_same(left: Variant, right: Variant) -> bool:
+	if not left is Dictionary or not right is Dictionary: return false
+	var owner := preload("res://scripts/narrative/SoloReadingSession.gd")
+	var a: Dictionary = owner.project_player_checkpoint(left)
+	var b: Dictionary = owner.project_player_checkpoint(right)
+	return a.ok and b.ok and _SCENE_EVENT._equal(a.value, b.value)
 
 func capture_scene_challenge_closure(context: Dictionary) -> Dictionary:
 	var current := _capture_retained_scene_challenge_command(context)
@@ -5098,7 +5088,7 @@ func commit_scene_challenge_closure(command: Dictionary, result: Dictionary) -> 
 		var stable: Dictionary = _scene_save_owner.get_latest_stable_checkpoint()
 		if not stable.get("ok", false): return stable
 		var source: Dictionary = stable.value.bundle.snapshot
-		if source.run_id != candidate.lifecycle.run_id or not _SCENE_EVENT._equal(source.narrative_checkpoint, current.value.checkpoint):
+		if source.run_id != candidate.lifecycle.run_id or not _scene_player_checkpoint_same(source.narrative_checkpoint, current.value.checkpoint):
 			return _transaction_failure(&"scene_challenge_source_changed", "")
 		_scene_challenge_operation = {"lease": operation.lease, "session": live.value.duplicate(true),
 			"snapshot": candidate.duplicate(true), "checkpoint": current.value.checkpoint.duplicate(true),
@@ -5152,7 +5142,7 @@ func commit_scene_challenge_checkpoint(record: Dictionary, reference: Dictionary
 	if not stable.get("ok", false): return stable
 	var source: Dictionary = stable.value.bundle.snapshot
 	if source.run_id != candidate.lifecycle.run_id \
-			or not _SCENE_EVENT._equal(source.narrative_checkpoint, admitted.value.checkpoint):
+			or not _scene_player_checkpoint_same(source.narrative_checkpoint, admitted.value.checkpoint):
 		return _transaction_failure(&"scene_challenge_source_changed", "")
 	_scene_challenge_operation = {"lease": lease, "session": live.value.duplicate(true),
 		"snapshot": candidate, "checkpoint": admitted.value.checkpoint.duplicate(true),
@@ -5198,7 +5188,7 @@ func _validate_scene_challenge_checkpoint(snapshot: Dictionary, checkpoint: Dict
 		valid = _SCENE_EVENT._sha(stable.value.bundle.snapshot) == operation.source_sha256
 	elif valid:
 		var saved: Dictionary = stable.value.bundle.snapshot
-		valid = _SCENE_EVENT._equal(saved.get("narrative_checkpoint"), checkpoint)
+		valid = _scene_player_checkpoint_same(saved.get("narrative_checkpoint"), checkpoint)
 		var player_board: Dictionary = _DESKTOP_BOARD_STATE.project_player_state(snapshot.desktop.board)
 		var expected_desktop: Dictionary = snapshot.desktop.duplicate(true)
 		if player_board.ok: expected_desktop.board = player_board.value.snapshot

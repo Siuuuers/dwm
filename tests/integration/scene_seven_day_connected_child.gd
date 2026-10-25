@@ -198,7 +198,9 @@ func create_week() -> void:
 	var parsed: Dictionary = PARSER.parse_object(FileAccess.get_file_as_string("user://saves/slot_1.json"))
 	if not _ok(parsed): return
 	var snapshot: Dictionary = parsed.value.current_snapshot.snapshot
-	assert_eq(snapshot.narrative_checkpoint, checkpoint.value, "real Save retains exact Day4.two frontier")
+	var projected: Dictionary = preload("res://scripts/narrative/SoloReadingSession.gd").project_player_checkpoint(checkpoint.value)
+	if not _ok(projected): return
+	assert_eq(snapshot.narrative_checkpoint, projected.value, "real Save retains exact Day4.two position")
 	assert_true(game.capture_dating_challenge_state().value.is_empty(), "first four days require no board")
 	var proof := {"process_id": OS.get_process_id(), "user_dir": ProjectSettings.globalize_path("user://"),
 		"checkpoint": snapshot.narrative_checkpoint, "snapshot": snapshot, "observed_lines": observed_lines,
@@ -239,11 +241,13 @@ func load_and_complete_week(stop_after_load: bool = false, witness_save: bool = 
 	assert_eq(float(_ready_observation.visible_ratio), 1.0)
 	assert_true(_ready_observation.event_done)
 	assert_eq(_ready_observation.text.strip_edges(), "TEST Day4 closing.")
-	assert_eq(_ready_observation.ledger, proof.checkpoint.reading_session.ledger, "Load adds no publication")
+	var expanded: Dictionary = preload("res://scripts/narrative/SoloReadingSession.gd").expand_player_checkpoint(proof.checkpoint)
+	if not _ok(expanded): return
+	assert_eq(_ready_observation.ledger, expanded.value.reading_session.ledger, "Load adds no publication")
 	var restored_native: Dictionary = _ready_observation.duplicate(true)
 	var reading: Dictionary = bridge.capture_reading_checkpoint(false)
 	if not _ok(reading): return
-	assert_eq(reading.value, proof.checkpoint, "Load neither replays nor advances the saved caption")
+	assert_eq(reading.value, expanded.value, "Load neither replays nor advances the saved caption")
 	var current: Dictionary = game.capture_run_snapshot_input()
 	assert_eq(current.lifecycle.run_id, proof.source_run)
 	assert_ne(current.lifecycle.branch_id, proof.source_branch)
@@ -256,9 +260,13 @@ func load_and_complete_week(stop_after_load: bool = false, witness_save: bool = 
 	var layer: Node = _caption()
 	assert_eq(layer.get_caption_projection().retained_captions, ["TEST Day4 opening."])
 	assert_eq(layer.get_caption_projection().caption_window, ["TEST Day4 opening.", "TEST Day4 closing."])
-	assert_eq(layer._scrollback, ["TEST Day4 opening."], "earlier days cannot leak into this occurrence")
+	assert_eq(layer._scrollback, ["TEST Day4 opening."], "earlier days cannot leak into current-day History")
 	assert_eq(layer._review_offset, 0)
-	assert_eq(bridge.get_reading_history().value.captions.size(), 8)
+	assert_eq(bridge._reading_session.ledger.snapshot().captions.size(), 1, "Load retains only the current live publication")
+	var history: Dictionary = bridge.get_reading_history()
+	if not _ok(history): return
+	assert_eq(history.value.captions.map(func(row: Dictionary) -> String: return row.text),
+		["TEST Day4 opening.", "TEST Day4 closing."], "History reconstructs the complete current day without old-day rows")
 	var stale: Dictionary = layer._presented_line.duplicate(true)
 	stale.value.token = "stale-playback"
 	assert_false(bridge.get_scene_caption_memory(stale).ok)
@@ -266,7 +274,7 @@ func load_and_complete_week(stop_after_load: bool = false, witness_save: bool = 
 	layer._refresh_reading_session()
 	layer._refresh_reading_session()
 	assert_eq(bridge._runtime_adapter._dialogic.current_event_idx, native_index)
-	assert_eq(bridge.capture_reading_checkpoint(false).value, proof.checkpoint)
+	assert_eq(preload("res://scripts/narrative/SoloReadingSession.gd").project_player_checkpoint(bridge.capture_reading_checkpoint(false).value).value, proof.checkpoint)
 	assert_eq(layer.get_caption_projection().caption_window, ["TEST Day4 opening.", "TEST Day4 closing."])
 	assert_eq(profile.get_profile_snapshot(), proof.profile)
 	await _screenshot("seven-day-day4-restored-full")
@@ -299,7 +307,7 @@ func load_and_complete_week(stop_after_load: bool = false, witness_save: bool = 
 	assert_eq(ending_state.ending_plan.source_kind, "scene")
 	assert_eq(ending_state.ending_plan.ending_id, "ending.alone")
 	assert_eq(ending_state.ending_plan.next_step_index, 0, "starting physical playback cannot complete ending")
-	assert_eq(ending_state.ending_plan.source_reading_checkpoint.reading_session.frontier.line_id, "line.Day7.two")
+	assert_eq(ending_state.ending_plan.source_reading_checkpoint.reading_session.position_id, "line.Day7.two")
 	assert_eq(terminal_scene.get_presentation_projection().kind, "play_ending")
 	await _screenshot("seven-day-ending")
 	# This opt-in journey keeps slot 2 as the restored Day4 witness, like export.
@@ -434,7 +442,7 @@ func _save_restored_witness(proof: Dictionary) -> bool:
 	if not await _wait_line(SAVED_LINE): return false
 	# _wait_line records observations; this is the restored line, not one of six later captions.
 	observed_lines.pop_back()
-	assert_eq(bridge.capture_reading_checkpoint(false).value, proof.checkpoint)
+	assert_eq(preload("res://scripts/narrative/SoloReadingSession.gd").project_player_checkpoint(bridge.capture_reading_checkpoint(false).value).value, proof.checkpoint)
 	assert_eq(profile.get_profile_snapshot(), proof.profile)
 	return _write_json("res://.godot/ci/scene-seven-day-witness-proof.json", {
 		"process_id": OS.get_process_id(), "checkpoint": snapshot.narrative_checkpoint,

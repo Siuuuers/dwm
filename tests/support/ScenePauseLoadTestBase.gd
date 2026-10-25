@@ -83,7 +83,8 @@ func happy_load(quick: bool) -> void:
 	var selected: Dictionary = fixture.manager.get_latest_stable_checkpoint()
 	if not _ok(selected): return
 	var checkpoint: Dictionary = selected.value.bundle.snapshot.narrative_checkpoint.duplicate(true)
-	assert_eq(checkpoint.reading_session.schema_version, 5)
+	assert_eq(checkpoint.reading_session.schema_version, 6)
+	assert_false(checkpoint.reading_session.has("ledger"))
 	assert_eq(checkpoint.reading_session.boundary, "line")
 	_test_stage = "pause_source"
 	if not _ok(await fixture.pause.request_pause()): return
@@ -131,7 +132,9 @@ func happy_load(quick: bool) -> void:
 	var restored_checkpoint: Dictionary = fixture.bridge.capture_reading_checkpoint(false)
 	if not _ok(restored_checkpoint): return
 	assert_eq(restored_checkpoint.value.reading_session.entry_id, checkpoint.reading_session.entry_id)
-	assert_eq(restored_checkpoint.value.reading_session.program_index, checkpoint.reading_session.program_index)
+	var projected: Dictionary = preload("res://scripts/narrative/SoloReadingSession.gd").project_player_checkpoint(restored_checkpoint.value)
+	if not _ok(projected): return
+	assert_eq(projected.value, checkpoint, "Load restores the exact selected player position")
 	assert_eq(fixture.profile_bytes(), profile_before, "Load and publication never repeat Profile consequences")
 	assert_eq(fixture.native_markers, [], "no source challenge marker is replayed")
 	assert_eq(fixture.challenge_record(), {})

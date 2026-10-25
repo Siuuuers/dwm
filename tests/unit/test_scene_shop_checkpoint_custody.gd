@@ -5,6 +5,9 @@ extends "res://addons/gut/test.gd"
 const PORT := preload("res://scripts/application/narrative/SaveManagerNarrativeCheckpointPort.gd")
 const JSON_WRITER := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 const BOARD_STATE := preload("res://scripts/domain/minesweeper/DesktopBoardState.gd")
+const SESSION := preload("res://scripts/narrative/SoloReadingSession.gd")
+const MANIFEST := preload("res://scripts/narrative/DialogicEntryManifest.gd")
+const FROZEN := preload("res://scripts/narrative/FrozenPresentationContext.gd")
 
 class CheckpointSeam extends "res://tests/support/FakeNarrativeCheckpointContext.gd":
 	var current := {"checkpoint_id": "run:1", "checkpoint_sequence": 1}
@@ -28,8 +31,10 @@ class CheckpointSeam extends "res://tests/support/FakeNarrativeCheckpointContext
 		var player_board: Dictionary = BOARD_STATE.project_player_state(snapshot.desktop.board)
 		if not player_board.ok: return player_board
 		snapshot.desktop.board = player_board.value.snapshot
+		var player_reading: Dictionary = SESSION.project_player_checkpoint(inputs.dialogic_checkpoint)
+		if not player_reading.ok: return player_reading
 		snapshot.merge({"schema_version": 9, "route_id": "scene", "checkpoint_id": "run:2", "checkpoint_sequence": 2,
-			"narrative_checkpoint": inputs.dialogic_checkpoint.duplicate(true)})
+			"narrative_checkpoint": player_reading.value})
 		prepared_object = {"checkpoint_id": "run:2", "journal_candidate": {"current": {"snapshot": snapshot}},
 			"autosave_document": {"schema_version": 9, "current_snapshot": {"snapshot": snapshot.duplicate(true)}},
 			"storage_backup": {"original": true}}
@@ -66,17 +71,36 @@ func _fixture() -> Dictionary:
 	assert_true(port.configure_scene_entry_authority(owner, owner.entry_validate).ok)
 	assert_true(port.configure_scene_contact_authority(owner, owner.validate).ok)
 	assert_true(port.configure_scene_shop_authority(owner, owner.validate).ok)
-	var checkpoint := {"stage": "scene", "manifest_fingerprint": "a".repeat(64),
-		"reading_session": {"schema_version": 5, "boundary": "control"},
-		"frozen_context": {"playback_id": "occurrence:1", "presentation": {"fields": {"admission_receipt_id": "admission:1"}}}}
+	var session := SESSION.new()
+	assert_true(session.configure_scene().ok)
+	assert_true(session.begin_scene("shop-test:session").ok)
+	var registered: Dictionary = MANIFEST.scene_registration().value
+	var entry: String = registered.scene_programme.entries[0].entry_id
+	var occurrence := "occurrence:1"
+	var presentation: Dictionary = FROZEN.build(entry, {"entry_id": entry, "entry_role": "scene",
+		"occurrence_id": occurrence, "admission_receipt_id": occurrence})
+	assert_true(presentation.ok)
+	var frame := {"expected_stage": "scene", "playback_id": occurrence, "role": "scene",
+		"transaction_id": occurrence, "presentation": presentation.value}
+	assert_true(session.admit_scene(entry, frame).ok)
+	var programme: Dictionary = session.entry_program(entry, frame).value
+	var allocation: Dictionary = session.ledger.allocate_publication(session.command_id, entry, occurrence)
+	assert_true(allocation.ok)
+	var line_id: String = programme.lines[0].line_id
+	assert_true(session.ledger.publish_line(session.command_id, allocation.value, entry, line_id, occurrence).ok)
+	var captured: Dictionary = session.capture({"line_id": line_id, "publication_id": allocation.value})
+	assert_true(captured.ok)
+	var checkpoint := {"stage": "scene", "manifest_fingerprint": session.fingerprint,
+		"entry_id": entry, "content_version": programme.content_version, "transaction_id": occurrence,
+		"reading_session": captured.value, "frozen_context": frame}
 	var board: Dictionary = BOARD_STATE.new().capture()
 	board.erase("terminal_receipts")
 	board["settled_inspection"] = false
 	board["round_paid"] = false
 	var input := {"lifecycle": {}, "gameplay": {"money": 5}, "contacts": {}, "desktop": {"board": board, "consequence": {}},
-		"scene": {"registration_sha256": "a".repeat(64), "active_occurrence_id": "occurrence:1", "active_admission_receipt_id": "admission:1"},
+		"scene": {"registration_sha256": session.fingerprint, "active_occurrence_id": occurrence, "active_admission_receipt_id": occurrence},
 		"command_receipts": {}, "applied_effect_transaction_ids": {}, "applied_variable_transaction_ids": {}}
-	real.current["narrative_checkpoint"] = checkpoint.duplicate(true)
+	real.current["narrative_checkpoint"] = SESSION.project_player_checkpoint(checkpoint).value
 	return {"real": real, "owner": owner, "port": port, "input": input, "checkpoint": checkpoint}
 
 func _commit(f: Dictionary, kind: String = "shop") -> Dictionary:
@@ -93,7 +117,9 @@ func test_shop_and_contact_keep_one_lower_commit_and_three_owner_phases() -> voi
 		assert_true(f.real.committed_same_object)
 		assert_true(f.input.desktop.board.has("command_receipts"), "live input keeps its retry state")
 		assert_false(f.real.current.desktop.board.has("command_receipts"), "lower seam produces player facts")
-		assert_eq(f.real.current.narrative_checkpoint, f.checkpoint)
+		assert_eq(f.real.current.narrative_checkpoint, SESSION.project_player_checkpoint(f.checkpoint).value)
+		assert_false(f.real.current.narrative_checkpoint.reading_session.has("ledger"))
+		assert_true(f.checkpoint.reading_session.has("ledger"), "live custody retains complete reading state")
 		assert_eq(result.value.checkpoint_reference.snapshot_sha256, str(JSON_WRITER.stringify(f.real.current).value).sha256_text())
 
 func test_shop_requires_bound_owner_and_refuses_authority_replacement() -> void:
@@ -141,7 +167,7 @@ func test_shop_detaches_public_inputs_before_owner_callback() -> void:
 	var result := _commit(f)
 	assert_true(result.ok, str(result))
 	assert_eq(f.real.current.gameplay, expected_input.gameplay)
-	assert_eq(f.real.current.narrative_checkpoint, expected_checkpoint)
+	assert_eq(f.real.current.narrative_checkpoint, SESSION.project_player_checkpoint(expected_checkpoint).value)
 	f.owner.callback = Callable()
 
 func test_shop_refuses_candidate_mutation_from_final_authority_or_source_callback() -> void:
@@ -204,7 +230,7 @@ func test_shop_reentrant_publication_and_configuration_are_excluded() -> void:
 
 func test_shop_cannot_change_the_saved_reading_boundary() -> void:
 	var f := _fixture()
-	f.checkpoint.reading_session.boundary = "line"
+	f.checkpoint.reading_session.boundary = "control"
 	var result := _commit(f)
 	assert_false(result.ok)
 	assert_false(result.committed)

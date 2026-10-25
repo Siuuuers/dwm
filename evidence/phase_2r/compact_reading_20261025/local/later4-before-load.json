@@ -1,0 +1,12 @@
+{
+  "phase": "before-load",
+  "profile_sha256": "6b9856cdf0c1379ee42fafb212f52eb4a65aa611f81b8e6d577243c6dab84beb",
+  "proof_profile_sha256": "6b9856cdf0c1379ee42fafb212f52eb4a65aa611f81b8e6d577243c6dab84beb",
+  "operations": {
+    "transaction_id.a6aab2dd96252853a438f6e8967aef9743567d0e9d864ddd6405eddf4bda28ac": {
+      "kind": "scene_new_run",
+      "stage": "completed",
+      "activation_state": "acknowledged"
+    }
+  }
+}

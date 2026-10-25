@@ -161,3 +161,71 @@ func test_halt_ends_timeline_and_returns_error() -> void:
 	var result: Dictionary = adapter.halt_with_error({"reason": "bad_event"})
 	assert_false(result.get("ok", true), "halt returns an error result")
 	assert_true("end_timeline:true" in fake.calls, "halt ends the timeline")
+
+
+func _held_control_fixture() -> Dictionary:
+	var bundle: Dictionary = preload("res://scripts/validation/StrictJson.gd").parse_object(
+		FileAccess.get_file_as_string("res://tests/fixtures/dialogic/scene_reading_registration.json")).value
+	var labels: Array = []
+	var path := ""
+	var markers: Array = []
+	for entry: Dictionary in bundle.entry_manifest.entries:
+		labels.append(entry.entry_id)
+		if entry.entry_id == "scene.test.b": path = entry.locators.en.path
+	for programme: Dictionary in bundle.scene_programme.entries:
+		if programme.entry_id == "scene.test.b": markers = programme.markers
+	var compiled: Dictionary = _adapter_script.compile_scene_programme(path, "scene.test.b", labels, markers)
+	assert_true(compiled.ok)
+	var index := -1
+	for i: int in range(compiled.value.nodes.size()):
+		if compiled.value.nodes[i].kind == "control": index = i
+	return {"compiled": compiled.value, "markers": markers, "index": index}
+
+
+func test_held_control_authored_predecessor_needs_no_saved_history() -> void:
+	var fixture := _held_control_fixture()
+	var result: Dictionary = _adapter_script._scene_control_authored_predecessor(
+		fixture.index, fixture.compiled, fixture.markers)
+	assert_true(result.ok)
+	assert_eq(result.value.index, fixture.index - 1)
+	assert_eq(result.value.line_id, "line.scene.test.b.two")
+	assert_eq(result.value.marker, fixture.markers[0])
+	result.value.marker.after_line_id = "changed"
+	assert_eq(fixture.markers[0].after_line_id, "line.scene.test.b.two", "detached authored marker")
+
+
+func test_held_control_authored_predecessor_refuses_wrong_position_and_marker() -> void:
+	var fixture := _held_control_fixture()
+	for index: int in [-1, 0, fixture.compiled.nodes.size()]:
+		assert_false(_adapter_script._scene_control_authored_predecessor(index, fixture.compiled, fixture.markers).ok)
+	for field: String in ["marker_id", "after_line_id"]:
+		var markers: Array = fixture.markers.duplicate(true)
+		markers[0][field] = "foreign"
+		assert_false(_adapter_script._scene_control_authored_predecessor(fixture.index, fixture.compiled, markers).ok, field)
+	for field: String in ["kind", "next"]:
+		var compiled: Dictionary = fixture.compiled.duplicate(true)
+		compiled.nodes[fixture.index - 1][field] = "jump" if field == "kind" else 0
+		assert_false(_adapter_script._scene_control_authored_predecessor(fixture.index, compiled, fixture.markers).ok, field)
+
+
+func test_held_control_live_predecessor_still_binds_latest_publication() -> void:
+	var fixture := _held_control_fixture()
+	var saved := {"boundary": "control", "program_index": fixture.index,
+		"occurrence_id": "occurrence.one", "entry_id": "scene.test.b",
+		"ledger": {"captions": [{"occurrence_id": "occurrence.one", "publication_id": "caption:7",
+			"beat": {"owning_entry_id": "scene.test.b", "line_id": "line.scene.test.b.two"}}]}}
+	var result: Dictionary = _adapter_script._scene_control_predecessor(saved, fixture.compiled, fixture.markers)
+	assert_true(result.ok)
+	assert_eq(result.value.frontier, {"line_id": "line.scene.test.b.two", "publication_id": "caption:7"})
+	for field: String in ["occurrence_id", "owning_entry_id", "line_id"]:
+		var changed: Dictionary = saved.duplicate(true)
+		var row: Dictionary = changed.ledger.captions.back()
+		if field == "occurrence_id": row[field] = "foreign"
+		else: row.beat[field] = "foreign"
+		assert_false(_adapter_script._scene_control_predecessor(changed, fixture.compiled, fixture.markers).ok, field)
+	saved.ledger.captions.append({"occurrence_id": "occurrence.one", "publication_id": "caption:8",
+		"beat": {"owning_entry_id": "scene.test.b", "line_id": "line.scene.test.b.one"}})
+	assert_false(_adapter_script._scene_control_predecessor(saved, fixture.compiled, fixture.markers).ok,
+		"an earlier matching publication cannot replace the latest caption")
+	saved.ledger.captions.clear()
+	assert_false(_adapter_script._scene_control_predecessor(saved, fixture.compiled, fixture.markers).ok)

@@ -1,12 +1,13 @@
 extends "res://addons/gut/test.gd"
-## Full public Run9/Save9 admission with actual owner-backed receipt + reading
-## joins. Initial prior checkpoint provenance is explicitly injected by fixture.
+## Full public Run9/Save9 admission with actual owner-backed receipts and compact
+## current reading positions. Initial prior checkpoint provenance is explicitly injected by fixture.
 ## Uses installed transition marker (not a fabricated notification registration).
 const FIXTURE := preload("res://tests/support/SceneRunSaveFixture.gd")
 const RUN := preload("res://scripts/domain/run/RunSnapshotSchema.gd")
 const SAVE := preload("res://scripts/infrastructure/save/SaveDocumentSchema.gd")
 const CONTRACT := preload("res://scripts/domain/narrative/SceneEventContract.gd")
 const FROZEN_RUN := preload("res://scripts/narrative/FrozenRunContext.gd")
+const READING := preload("res://scripts/narrative/SoloReadingSession.gd")
 class PermissiveSceneAuthority:
 	extends RefCounted
 	var calls := 0
@@ -93,38 +94,20 @@ func test_selected_receipt_refusal_order_keeps_input_and_issuer_checks() -> void
 		&"scene_receipt_invalid")
 	assert_eq(CONTRACT.validate_selected_scene_receipts({}, null).code, &"scene_receipt_issuer_unbound")
 
-func test_one_run_reading_admission_and_custom_bridge_fallback() -> void:
+func test_compact_admission_needs_no_historical_publication_callback() -> void:
 	if not _ready_fixture(): return
-	var timing := preload("res://scripts/narrative/SceneValidationTiming.gd")
-	var prior_environment := OS.get_environment("DWM_SCENE_VALIDATION_PROFILE")
-	var prior_creation: Object = RUN._scene_creation_owner
 	var bridge: Object = fixture.game._scene_event_bridge
-	RUN._scene_creation_owner = fixture.game.get_node_or_null("/root/SaveManager")
-	OS.set_environment("DWM_SCENE_VALIDATION_PROFILE", "1")
-	assert_true(RUN._scene_can_reuse_reading())
-	assert_true(timing.begin_scope("single_reading", "PLAYING", "", 0))
-	var admitted := RUN.validate(fixture.snapshot)
-	var single_count: int = timing._record.configuration_calls
-	timing.end_scope(admitted.ok)
 	var proxy := AnchorBridgeProxy.new()
 	proxy.delegate = bridge
 	fixture.game._scene_event_bridge = proxy
-	assert_false(RUN._scene_can_reuse_reading())
-	assert_true(timing.begin_scope("custom_reading", "PLAYING", "", 0))
-	var fallback := RUN.validate(fixture.snapshot)
-	var fallback_count: int = timing._record.configuration_calls
-	timing.end_scope(fallback.ok)
+	var admitted := RUN.validate(fixture.snapshot)
 	fixture.game._scene_event_bridge = bridge
-	OS.set_environment("DWM_SCENE_VALIDATION_PROFILE", prior_environment)
 	assert_true(admitted.ok, str(admitted))
-	assert_true(fallback.ok, str(fallback))
-	assert_eq(proxy.calls, 1, "custom bridge authority remains invoked")
-	assert_eq(fallback_count, single_count + 1, "normal Run reuses exactly one admitted reading")
+	assert_eq(proxy.calls, 0, "historical caption membership is not a compact Load condition")
 	var changed: Dictionary = fixture.snapshot.duplicate(true)
-	changed.narrative_checkpoint.reading_session.ledger.captions[0].beat.line_id = "TEST.absent"
-	assert_false(RUN.validate(changed).ok, "a second call admits its reading afresh")
+	changed.narrative_checkpoint.reading_session.captions[0].line_id = "TEST.absent"
+	assert_false(RUN.validate(changed).ok, "current caption references are checked afresh")
 	assert_true(RUN.validate(fixture.snapshot).ok)
-	RUN._scene_creation_owner = prior_creation
 
 func test_run9_candidate_detaches_receipts_and_reading_from_caller() -> void:
 	if not _ready_fixture(): return
@@ -138,7 +121,7 @@ func test_run9_candidate_detaches_receipts_and_reading_from_caller() -> void:
 	var candidate: Dictionary = admitted.value.candidate
 	assert_eq(candidate, original, "valid Run9 preserves exact receipts and reading")
 	candidate.command_receipts[fixture.event.command_id].scene_event.reading_anchor.publication_id = "TEST.detached"
-	candidate.narrative_checkpoint.reading_session.ledger.captions.clear()
+	candidate.narrative_checkpoint.reading_session.captions.clear()
 	assert_eq(source, original, "returned nested receipts and caption arrays do not alias the caller")
 	assert_eq(fixture.observed_state(), live_before, "returned candidate changes apply no gameplay consequences")
 	var fresh: Dictionary = RUN.validate(source)
@@ -146,15 +129,30 @@ func test_run9_candidate_detaches_receipts_and_reading_from_caller() -> void:
 	if not fresh.ok: return
 	assert_eq(fresh.value.candidate, original, "returned candidate changes cannot poison a later admission")
 	source.command_receipts[fixture.event.command_id].scene_event.reading_anchor.publication_id = "TEST.source.changed"
-	source.narrative_checkpoint.reading_session.ledger.captions.clear()
+	source.narrative_checkpoint.reading_session.captions.clear()
 	assert_eq(fresh.value.candidate, original, "later caller changes cannot alter an admitted candidate")
 	assert_false(RUN.validate(source).ok, "changed reading and anchor inputs are checked on the next public call")
 	assert_eq(fixture.snapshot, original, "the reusable fixture remains intact")
 	assert_eq(fixture.observed_state(), live_before, "refused admission applies no gameplay consequences")
 
-func test_rebuilt_authenticated_absent_publication_fails_full_run_and_save_anchor_join() -> void:
+func test_compact_player_save_retains_current_caption_without_reading_history() -> void:
 	if not _ready_fixture(): return
-	_check_authenticated_anchor_refusal("publication_id", "TEST.publication.not.retained")
+	var reading: Dictionary = fixture.snapshot.narrative_checkpoint.reading_session
+	assert_eq(reading.schema_version, 6)
+	assert_false(reading.has("ledger"), "player reading omits the traversal ledger")
+	assert_false(reading.has("next_operation"), "player reading omits temporary traversal plans")
+	assert_eq(reading.captions.size(), 1, "only the native current caption is stored")
+	var expanded: Dictionary = READING.expand_player_checkpoint(fixture.snapshot.narrative_checkpoint)
+	assert_true(expanded.ok, str(expanded))
+	if not expanded.ok: return
+	assert_eq(expanded.value.reading_session.frontier.line_id, reading.position_id)
+	assert_true(RUN.validate(fixture.snapshot).ok)
+	assert_true(SAVE.validate(fixture.document).ok)
+	var changed: Dictionary = fixture.snapshot.duplicate(true)
+	changed.narrative_checkpoint.reading_session.position_id = "TEST.absent.current.line"
+	assert_false(RUN.validate(changed).ok, "missing authored current position cannot restore")
+	assert_false(SAVE.validate(fixture.document_for(changed)).ok)
+	assert_true(RUN.validate(fixture.snapshot).ok)
 
 func test_frozen_commands_are_authenticated_detached_and_rechecked_on_next_call() -> void:
 	if not _ready_fixture(): return
@@ -166,7 +164,10 @@ func test_frozen_commands_are_authenticated_detached_and_rechecked_on_next_call(
 	assert_has(result, "scene_commands")
 	if not result.has("scene_commands"): return
 	assert_eq(result.scene_commands[fixture.event.command_id], fixture.snapshot.command_receipts[fixture.event.command_id])
-	assert_eq(result.value.entry_contexts, fixture.snapshot.narrative_checkpoint.reading_session.ledger.entry_contexts)
+	var expanded: Dictionary = READING.expand_player_checkpoint(fixture.snapshot.narrative_checkpoint)
+	assert_true(expanded.ok, str(expanded))
+	if not expanded.ok: return
+	assert_eq(result.value.entry_contexts, expanded.value.reading_session.ledger.entry_contexts)
 	result.scene_commands[fixture.event.command_id].scene_event.reading_anchor.publication_id = "TEST.changed"
 	assert_eq(fixture.snapshot, original)
 	assert_true(RUN.validate(fixture.snapshot).ok, "a returned command cannot corrupt later semantic admission")
@@ -225,45 +226,26 @@ func test_custom_semantic_authority_cannot_bypass_receipt_authentication() -> vo
 	assert_true(RUN.validate(fixture.snapshot).ok)
 	assert_eq(fixture.observed_state(), before)
 
-func test_rebuilt_authenticated_wrong_catalogue_fails_full_run_and_save_anchor_join() -> void:
+func test_compact_position_refuses_incompatible_programme_and_corrupt_receipts() -> void:
 	if not _ready_fixture(): return
-	_check_authenticated_anchor_refusal("catalogue_fingerprint", "b".repeat(64))
-
-func _check_authenticated_anchor_refusal(field: String, value: String) -> void:
-	var prior_creation: Object = RUN._scene_creation_owner
-	RUN._scene_creation_owner = fixture.game.get_node_or_null("/root/SaveManager")
-	assert_true(RUN._scene_can_reuse_reading(), "authenticated anchor refusals exercise the reused reading")
-	_check_authenticated_anchor_refusal_with_bound_owner(field, value)
-	RUN._scene_creation_owner = prior_creation
-
-func _check_authenticated_anchor_refusal_with_bound_owner(field: String, value: String) -> void:
-	assert_true(RUN.validate(fixture.snapshot).ok, "positive full Run prerequisite")
-	assert_true(SAVE.validate(fixture.document).ok, "positive full Save prerequisite")
-	var changed: Dictionary = fixture.anchor.duplicate(true)
-	changed[field] = value
-	var rebuilt: Dictionary = fixture.rebuild_event(changed)
-	assert_true(rebuilt.get("ok", false), "real issuer reconstructs matching completion child: " + str(rebuilt))
-	if not rebuilt.get("ok", false): return
-	var candidate: Dictionary = fixture.with_receipt(rebuilt.value)
-	var receipts: Dictionary = CONTRACT.validate_scene_receipts(candidate.command_receipts, fixture.bundle, fixture.issuer)
-	assert_true(receipts.ok, "authenticated semantic receipts pass before saved-reading membership: " + str(receipts))
-	if not receipts.ok: return
 	var before: Dictionary = fixture.observed_state()
-	assert_true(before.game.get("ok", false), "actual GameState backup capture succeeded")
-	assert_true(before.root.get("ok", false), "actual durable issuer root capture succeeded")
-	var expected_code: StringName = &"event_anchor_invalid" if field == "publication_id" else &"event_anchor_catalogue_mismatch"
-	var candidate_before: Dictionary = candidate.duplicate(true)
-	var candidate_document: Dictionary = fixture.document_for(candidate)
-	var document_before: Dictionary = candidate_document.duplicate(true)
-	var run: Dictionary = RUN.validate(candidate)
-	assert_eq(run.get("code"), expected_code, "actual retained-reading join is the refusal boundary")
-	assert_false(run.ok, "public Run validation must reach and reject absent anchor membership")
-	var save: Dictionary = SAVE.validate(candidate_document)
-	assert_eq(save.get("code"), expected_code, "Save preserves the exact reading-owner refusal")
-	assert_false(save.ok, "public Save validation must preserve Run refusal")
-	assert_eq(candidate, candidate_before, "Run admission does not edit refused bytes")
-	assert_eq(candidate_document, document_before, "Save admission does not edit refused bytes")
-	assert_eq(fixture.observed_state(), before, "refusal occurs without owner mutation")
+	var changed: Dictionary = fixture.snapshot.duplicate(true)
+	changed.narrative_checkpoint.reading_session.registration_sha256 = "b".repeat(64)
+	assert_false(RUN.validate(changed).ok, "compact positions require the installed programme")
+	assert_false(SAVE.validate(fixture.document_for(changed)).ok)
+	changed = fixture.snapshot.duplicate(true)
+	changed.command_receipts[fixture.event.command_id].request_fingerprint = "0".repeat(64)
+	assert_false(RUN.validate(changed).ok, "retained genuine receipt integrity is still required")
+	assert_false(SAVE.validate(fixture.document_for(changed)).ok)
+	assert_true(RUN.validate(fixture.snapshot).ok)
+	assert_eq(fixture.observed_state(), before, "refusal changes no live owner")
+
+func test_live_anchor_validation_still_refuses_an_unpublished_caption() -> void:
+	if not _ready_fixture(): return
+	var changed: Dictionary = fixture.anchor.duplicate(true)
+	changed.publication_id = "TEST.publication.not.retained"
+	var checked: Dictionary = fixture.bridge.validate_scene_event_anchor(changed, fixture.snapshot.narrative_checkpoint)
+	assert_false(checked.ok, "live commands cannot claim an unpublished current caption")
 
 func test_other_occurrence_anchor_is_refused_by_authenticated_source_binding() -> void:
 	if not _ready_fixture(): return

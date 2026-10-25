@@ -165,7 +165,12 @@ func load_apps_scene() -> void:
 	assert_eq(game.inventory, proof.inventory)
 	assert_eq(_shop_receipts(), proof.shop_receipts, "Load does not replay the purchase.")
 	assert_eq(game.capture_dating_challenge_state().value, proof.record)
-	assert_eq(bridge.capture_reading_checkpoint(false).value, proof.reading)
+	var player_reading: Dictionary = preload("res://scripts/narrative/SoloReadingSession.gd").project_player_checkpoint(proof.reading)
+	if not _ok(player_reading): return
+	var expected_reading: Dictionary = preload("res://scripts/narrative/SoloReadingSession.gd").expand_player_checkpoint(player_reading.value)
+	if not _ok(expected_reading): return
+	assert_eq(bridge.capture_reading_checkpoint(false).value, expected_reading.value,
+		"Load restores the current reading state without saved traversal history")
 	var host: Control = get_tree().current_scene
 	await _click(_controls(host, "CheckComputer"))
 	var panel: Control = host.get_challenge_mount().get_node("SceneChallengePanel")

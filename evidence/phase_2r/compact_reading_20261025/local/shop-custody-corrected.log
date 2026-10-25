@@ -1,0 +1,41 @@
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+---  GUT  ---
+[1m[INFO]:  [0musing [/workspace/scratch/359fe558320b/dwm/.godot/phase2r_tests/shop-custody-compact/data/godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+[4m
+
+res://tests/unit/test_scene_shop_checkpoint_custody.gd
+[0m* test_shop_and_contact_keep_one_lower_commit_and_three_owner_phases
+* test_shop_requires_bound_owner_and_refuses_authority_replacement
+* test_shop_refuses_lease_loss_before_write_and_marks_postwrite_loss_uncertain
+* test_shop_detects_source_replacement_at_each_authority_phase
+* test_shop_detaches_public_inputs_before_owner_callback
+* test_shop_refuses_candidate_mutation_from_final_authority_or_source_callback
+* test_shop_prepare_and_write_refusals_preserve_rollback_classification
+* test_shop_bad_durable_ack_or_readback_never_becomes_retryable_refusal
+* test_shop_reentrant_publication_and_configuration_are_excluded
+* test_shop_cannot_change_the_saved_reading_boundary
+* test_shop_explicit_committed_failure_is_not_rolled_back_as_fresh_refusal
+[1m11/11 passed.
+[0m
+
+
+
+[33m==============================================
+[0m[33m= Run Summary
+[0m[33m==============================================
+[0m
+Totals
+------
+Scripts               1
+Tests                11
+Passing Tests        11
+Asserts             336
+Time              18.716s
+
+
+[32m---- All tests passed! ----
+[0m
+Results saved to res://.godot/shop-custody-compact.xml
