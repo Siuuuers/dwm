@@ -6,9 +6,16 @@ const SCHEMA := preload("res://scripts/profile/ProfileSchema.gd")
 const REPLAY := preload("res://scripts/application/ending/GalleryReplayOwner.gd")
 const GATE := preload("res://scripts/application/transaction/ApplicationMutationGate.gd")
 const STORAGE := preload("res://scripts/infrastructure/storage/JsonFileStorage.gd")
-const OPS := preload("res://tests/support/FakeFileOps.gd")
 const ID := "passage.TEST.finish"
 const TRANSACTION := "passage:TEST.run:gallery:" + ID
+
+class WriteRefusal extends "res://tests/support/FakeFileOps.gd":
+	var refuse_write := false
+	func write_bytes(path: String, bytes: PackedByteArray) -> Dictionary:
+		if refuse_write:
+			refuse_write = false
+			return {"ok": false, "code": &"TEST.profile_write_refused"}
+		return super.write_bytes(path, bytes)
 
 static func _bundle() -> Dictionary:
 	return {"caption_registry": {"entries": [{"entry_id": "TEST.scene", "lines": [
@@ -42,7 +49,7 @@ class Bridge extends RefCounted:
 		reached_replay_finished.emit({"signature_id": id, "playback_token": "TEST.replay", "outcome": outcome})
 
 func _fixture() -> Dictionary:
-	var ops := OPS.new()
+	var ops := WriteRefusal.new()
 	var storage := STORAGE.new("passage-gallery/root", ops)
 	var profile: Node = autofree(PROFILE.new())
 	assert_true(profile.initialize(storage).ok)
@@ -108,8 +115,10 @@ func test_failed_finish_profile_write_does_not_unlock_and_can_retry() -> void:
 	var fixture := _fixture()
 	var before: Dictionary = fixture.profile.get_profile_snapshot()
 	var bytes: Dictionary = fixture.ops.snapshot_persisted()
-	fixture.ops.fail_after(fixture.ops.operation_count() + 1)
-	assert_false(_finish(fixture).ok)
+	fixture.ops.refuse_write = true
+	var refused: Dictionary = _finish(fixture)
+	assert_false(refused.ok, str(refused))
+	assert_false(fixture.ops.refuse_write, "failure was injected at a physical write")
 	assert_eq(fixture.profile.get_profile_snapshot(), before)
 	assert_eq(fixture.ops.snapshot_persisted(), bytes)
 	assert_true(_finish(fixture).ok)
