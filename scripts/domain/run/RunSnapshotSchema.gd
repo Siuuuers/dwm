@@ -675,7 +675,20 @@ static func build_scene(snapshot_input: Dictionary, dialogic_checkpoint: Diction
 		snapshot.lifecycle.ending_plan.source_reading_checkpoint = source_reading.value
 	var checked := validate(snapshot)
 	if not checked.ok: return checked
+	# Validate the complete live input before omitting session-only retries.
+	checked.value.candidate.command_receipts = project_player_command_receipts(checked.value.candidate.command_receipts)
 	return {"ok": true, "code": &"ok", "value": {"snapshot": checked.value.candidate}}
+
+## Shop and app-round consequences already live in gameplay and settled board
+## state. Their command acknowledgements serve only the current live session.
+## Story/admission receipts remain required until their consumers are replaced.
+static func project_player_command_receipts(receipts: Dictionary) -> Dictionary:
+	var projected := receipts.duplicate(true)
+	for id: Variant in receipts:
+		var receipt: Variant = receipts[id]
+		if receipt is Dictionary and receipt.get("kind") in ["scene_shop_purchase", "scene_round_completion"]:
+			projected.erase(id)
+	return projected
 
 ## Producer construction uses the same exact initial candidate proof, never ordinary Load.
 static func build_scene_new_run_candidate(snapshot_input: Dictionary, dialogic_checkpoint: Dictionary,

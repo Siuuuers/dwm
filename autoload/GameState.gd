@@ -4953,7 +4953,8 @@ func _capture_selected_scene_absence(command: Dictionary, bundle: Dictionary) ->
 			return _transaction_failure(&"scene_absence_not_authorized", "selected challenge is closed")
 	var current := _capture_retained_scene_challenge_command(command.context)
 	if not current.get("ok", false) or not _scene_absence_checkpoint_matches(source.narrative_checkpoint, current.value.checkpoint) \
-			or not _SCENE_EVENT._equal(source.command_receipts, _command_receipts) \
+			or not _SCENE_EVENT._equal(_NARRATIVE_VARIABLE_SCHEMA.project_player_command_receipts(source.command_receipts),
+				_NARRATIVE_VARIABLE_SCHEMA.project_player_command_receipts(_command_receipts)) \
 			or not _SCENE_EVENT._equal(source.scene, live.scene) \
 			or not _SCENE_EVENT._equal(capture_run_snapshot_input(), live) or not _live_session_active \
 			or not _SCENE_EVENT._equal(_live_session_fact(), session):
@@ -5239,9 +5240,11 @@ func _validate_scene_challenge_checkpoint(snapshot: Dictionary, checkpoint: Dict
 		if player_board.ok: expected_desktop.board = player_board.value.snapshot
 		else: valid = false
 		for key: String in snapshot:
-			# The durable checkpoint omits only transient board retries; the earlier
+			# The durable checkpoint omits transient retries; the earlier
 			# live source and lease checks still compare complete owner state.
 			var expected: Variant = expected_desktop if key == "desktop" else snapshot[key]
+			if key == "command_receipts":
+				expected = _NARRATIVE_VARIABLE_SCHEMA.project_player_command_receipts(snapshot.command_receipts)
 			if not _SCENE_EVENT._equal(saved.get(key), expected): valid = false
 	_scene_challenge_validating = false
 	return valid and _SCENE_EVENT._equal(operation, _scene_challenge_operation) \
@@ -5489,7 +5492,8 @@ func _admit_scene_target_owned(target_id: String, trigger_command_id: String, le
 	if not stable.get("ok", false): return stable
 	var source: Dictionary = stable.value.bundle.snapshot
 	if source.get("schema_version") != 9 or source.run_id != identity.value.run_id \
-			or not _SCENE_EVENT._equal(source.command_receipts, _command_receipts):
+			or not _SCENE_EVENT._equal(_NARRATIVE_VARIABLE_SCHEMA.project_player_command_receipts(source.command_receipts),
+				_NARRATIVE_VARIABLE_SCHEMA.project_player_command_receipts(_command_receipts)):
 		return _transaction_failure(&"scene_entry_source_changed", "")
 	var source_ref := {"checkpoint_id": source.checkpoint_id, "checkpoint_sequence": source.checkpoint_sequence,
 		"snapshot_sha256": _SCENE_EVENT._sha(source)}

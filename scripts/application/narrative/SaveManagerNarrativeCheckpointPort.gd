@@ -11,6 +11,7 @@ extends RefCounted
 
 const CANONICAL_JSON := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 const READING_NEXT := preload("res://scripts/narrative/ReadingTraversalOperation.gd")
+const SNAPSHOT_SCHEMA := preload("res://scripts/domain/run/RunSnapshotSchema.gd")
 const BOARD_STATE := preload("res://scripts/domain/minesweeper/DesktopBoardState.gd")
 
 const REAL_PORT_METHODS := ["preview_checkpoint_id", "capture", "prepare", "commit", "rollback"]
@@ -620,6 +621,8 @@ func _scene_route_candidate_valid(candidate: Dictionary, input: Dictionary, chec
 		# Compare the exact persisted projection, while admission/custody above keeps
 		# the full live input (including retry records) unchanged.
 		var expected: Variant = expected_desktop if key == "desktop" else input[key]
+		if key == "command_receipts":
+			expected = SNAPSHOT_SCHEMA.project_player_command_receipts(input.command_receipts)
 		if not snapshot.has(key) or _fingerprint(snapshot[key]) != _fingerprint(expected): return false
 	return not _scene_candidate_reference(candidate, checkpoint).is_empty()
 
