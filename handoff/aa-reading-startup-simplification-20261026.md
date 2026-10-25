@@ -2,8 +2,9 @@
 
 ## Status and first outcome
 
-This record contains the user's latest design decisions. It does not claim that
-runtime changes are implemented or that performance has improved.
+This record contains the user's design decisions and a separately identified
+implementation continuation. Requirements below are not all implemented; use the
+continuation status and linked PR for actual accepted changes.
 
 First observable outcome: an existing run loads current story content at its
 stable saved line, or at the defined fallback if that line was deleted. Its
@@ -17,7 +18,8 @@ The user now wants the larger simplification described here.
 
 ## Implementation continuation — 26 October 2026
 
-Current candidate: PR #104, `codex/shared-reading-configuration-20261026`.
+Merged first batch: [PR #104](https://github.com/Siuuuers/dwm/pull/104),
+commit `8b8e73929801a9527872b1485a289a1ffca6e5a8`.
 The candidate shares immutable prepared scene configuration, keeps explicit DTL
 IDs during authoring, preserves unchanged caption revisions, and marks displayed
 Gallery Replay captions through Profile. Matched exported New Acc measurements passed: 5.14–5.92 seconds faster in
@@ -25,7 +27,12 @@ four matched fresh/retained comparisons; pauses remain 7.19–7.51 seconds. See
 [the retained evidence](../evidence/phase_2r/reading_configuration_20261026/README.md).
 Matched exported Load measurements also passed: 1.16–1.86 seconds faster, with
 5.31–5.69-second frame gaps remaining. See [Load evidence](../evidence/phase_2r/reading_load_20261026/README.md).
-Full correctness CI is still pending. This is not completed save migration.
+Correctness run [40223513652](https://github.com/Siuuuers/dwm/actions/runs/40223513652)
+passed: 50 successful jobs and one intentionally skipped separate measurement job.
+One slow runner timed out before tests in user-directory proof; that job alone
+passed on retry with unchanged code and limits. [Replay acceptance evidence](../evidence/phase_2r/reading_acceptance_20261026/README.md)
+is retained. This is not completed save migration. Continue with
+[the concrete migration owner map and failure cases](ab-current-content-save-migration-20261026.md).
 
 The owner clarified these decisions during implementation:
 
@@ -264,9 +271,11 @@ Keep strict shutdown-error checks. The desktop-deferral experiment has an
 unresolved intermittent shutdown error; do not merge that diagnostic branch.
 See y-desktop-dependency-investigation-20261025.md.
 
-## Session boundary
+## Original documentation-session boundary
 
-The user explicitly requested this handoff and implementation in the next session.
+The following describes the original documentation session, before the
+implementation continuation above. The user explicitly requested this handoff
+and implementation in the next session.
 No runtime changes or cloud test runs are part of this documentation task.
 The local diagnostic checkout contains existing modified/untracked harness and
 evidence files. Do not discard them or merge the diagnostic branch wholesale.
