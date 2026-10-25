@@ -23,6 +23,8 @@ IDs during authoring, preserves unchanged caption revisions, and marks displayed
 Gallery Replay captions through Profile. Matched exported New Acc measurements passed: 5.14–5.92 seconds faster in
 four matched fresh/retained comparisons; pauses remain 7.19–7.51 seconds. See
 [the retained evidence](../evidence/phase_2r/reading_configuration_20261026/README.md).
+Matched exported Load measurements also passed: 1.16–1.86 seconds faster, with
+5.31–5.69-second frame gaps remaining. See [Load evidence](../evidence/phase_2r/reading_load_20261026/README.md).
 Full correctness CI is still pending. This is not completed save migration.
 
 The owner clarified these decisions during implementation:
@@ -56,8 +58,8 @@ let the Run own the current story binding to that record. A wording edit must
 not replace a saved board or its rules.
 
 Only an unresolved board may transfer. An `in_progress` physical record can
-already have a saved `unfinished` story result because the player pressed
-Finish early. Check saved outcomes before deciding whether to resume or transfer.
+already have a saved `unfinished` story result because the player left the
+Challenge cue. Check saved outcomes before deciding whether to resume or transfer.
 Transfer must not change money, inventory, pressure, penalties or round limits.
 Commit the new story binding and checkpoint together; failed persistence must
 leave the old binding and board intact.
@@ -70,9 +72,11 @@ instead of requiring every old fact to remain in current registration.
 
 Keep the active physical board separate from a temporarily rewound reading
 cursor. An absent later eligible Challenge must not discard the suspended board.
-A terminal board awaiting narrative Finish needs a defined transfer policy
-before that exceptional case is implemented. Entire-day deletion remains the
-other exceptional authoring case; never invent an automatic run reset.
+The owner confirmed that transfer carries the exact state even for a terminal
+board. There is no player-facing Finish button: terminal boards automatically
+continue, while leaving an unfinished cue records its result. Do not confuse
+internal test wording with the visible UI. Entire-day deletion will not occur
+and is outside supported authoring changes; do not add a recovery mechanism for it.
 
 ## Confirmed player behavior
 

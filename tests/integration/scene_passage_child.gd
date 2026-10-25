@@ -204,9 +204,14 @@ func replay_completed_passage_scene() -> void:
 	assert_false(profile.is_caption_variant_witnessed(last_beat))
 	assert_eq(game.capture_run_snapshot_input(), run_before)
 	assert_eq(FileAccess.get_sha256("user://saves/autosave.json"), autosave_before)
-	if not _ok(profile.set_preference(&"preferences.language.primary_locale_id", "ja")): return
+	var localization: Node = get_node("/root/LocalizationManager")
+	if not _ok(localization.set_locale("ja")): return
+	assert_eq(localization.get_locale(), "ja")
+	assert_eq(profile.get_preference(&"preferences.language.primary_locale_id"), "ja")
 	assert_true(profile.is_caption_variant_witnessed(first_beat), "locale selection shares the same read revision")
-	if not _ok(profile.set_preference(&"preferences.language.primary_locale_id", "en")): return
+	assert_false(profile.is_caption_variant_witnessed(last_beat), "language change does not mark unseen text")
+	if not _ok(localization.set_locale("en")): return
+	assert_eq(localization.get_locale(), "en")
 	if not _ok(profile.reset_visited_history()): return
 	profile_before = profile.get_profile_snapshot().duplicate(true)
 	var profile_bytes := FileAccess.get_sha256("user://profile.json")
