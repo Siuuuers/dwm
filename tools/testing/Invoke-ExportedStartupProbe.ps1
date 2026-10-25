@@ -6,6 +6,7 @@ param(
     [Parameter(Mandatory)][ValidateSet('fresh', 'retained')][string]$Case,
     [Parameter(Mandatory)][string]$Variant,
     [ValidateSet('new_acc', 'screens')][string]$Journey = 'new_acc',
+    [ValidateSet('ProjectDefault', 'gl_compatibility')][string]$RenderingMethod = 'ProjectDefault',
     [switch]$Minimal
 )
 Set-StrictMode -Version Latest
@@ -23,7 +24,7 @@ New-Item -ItemType Directory -Path $Output -Force | Out-Null
 $package = Split-Path -Parent $Executable
 $record = [ordered]@{
     case = $Case; variant = $Variant; journey = $Journey; minimal = [bool]$Minimal
-    clean_exit = $false; timed_out = $false; renderer_request = 'ProjectDefault'
+    clean_exit = $false; timed_out = $false; renderer_request = $RenderingMethod
     executable = $Executable; profile_root = $ProfileRoot; preexisting_profile_files = $existing.Count
     package_hashes = @{}; input_profile_hashes = @{}; output_profile_hashes = @{}
     clock_note = 'Launch timestamp immediately precedes Process.Start; child UTC uses same host. Named child intervals are monotonic. Fresh user data does not imply cold OS cache.'
@@ -42,6 +43,9 @@ $start.UseShellExecute = $false
 $start.RedirectStandardOutput = $true
 $start.RedirectStandardError = $true
 $argv = @('--audio-driver', 'Dummy', '--windowed', '--resolution', '1280x720', '--log-file', (Join-Path $Output 'render.log'))
+if ($RenderingMethod -eq 'gl_compatibility') {
+    $argv += @('--rendering-method', 'gl_compatibility', '--rendering-driver', 'opengl3')
+}
 foreach ($argument in $argv) { $start.ArgumentList.Add($argument) }
 $record.argv = $argv
 foreach ($key in @('APPDATA', 'LOCALAPPDATA', 'DWM_TEST_ROOT')) {
@@ -80,6 +84,13 @@ try {
         $report.display_server -eq 'headless' -or $text -match 'SCRIPT ERROR:|(?m)^ERROR:|Unicode parsing error|Unexpected NUL character') {
         throw "$Variant/$Case/$Journey exported probe failed."
     }
+    $record.rendering = $report.rendering
+    $expectedMethod = if ($RenderingMethod -eq 'ProjectDefault') { 'forward_plus' } else { 'gl_compatibility' }
+    $expectedDriver = if ($RenderingMethod -eq 'ProjectDefault') { 'd3d12' } else { 'opengl3' }
+    if ($report.rendering.get_current_rendering_method -cne $expectedMethod -or
+        $report.rendering.get_current_rendering_driver_name -cne $expectedDriver) {
+        throw "Renderer differs from requested $RenderingMethod ($expectedMethod/$expectedDriver)."
+    }
     $m = $report.milestones
     foreach ($key in @('probe_enter_tree', 'first_title_drawn', 'title_drawn_usable', 'first_title_input_accepted')) {
         if (-not $m.ContainsKey($key)) { throw "Missing milestone: $key" }
@@ -105,7 +116,6 @@ try {
             }
         }
     }
-    $record.rendering = $report.rendering
     $record.user_path = $report.user_path
     $record.preferences = $report.preferences
     $record.max_frame_gap_us = $report.max_frame_gap_us
@@ -126,4 +136,10 @@ try {
     }
     $record | ConvertTo-Json -Depth 40 | Set-Content -LiteralPath (Join-Path $Output 'process.json') -Encoding utf8
 }
-Write-Host ('EXPORTED_STARTUP_PROCESS ' + ($record | ConvertTo-Json -Depth 40 -Compress))
+$summary = [ordered]@{}
+foreach ($key in $record.Keys) {
+    if ($key -in @('case', 'variant', 'journey', 'minimal', 'renderer_request', 'status', 'clean_exit', 'timed_out', 'exit_code', 'max_frame_gap_us') -or $key.EndsWith('_ms')) {
+        $summary[$key] = $record[$key]
+    }
+}
+Write-Host ('EXPORTED_STARTUP_PROCESS ' + ($summary | ConvertTo-Json -Depth 10 -Compress))

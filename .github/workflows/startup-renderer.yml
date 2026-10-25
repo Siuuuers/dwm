@@ -1,0 +1,133 @@
+name: Exported startup renderer comparison
+run-name: Same-package D3D12 and OpenGL startup comparison
+
+on:
+  push:
+    branches: [codex/startup-attribution-20261025]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: startup-renderer-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  measure:
+    name: Windows / same exported bytes, two rendering methods
+    runs-on: windows-2022
+    timeout-minutes: 35
+    defaults:
+      run:
+        shell: pwsh
+    env:
+      STARTUP_SOURCE: ${{ github.workspace }}/.godot/ci/startup-renderer-source
+      STARTUP_OUTPUT: ${{ github.workspace }}/.godot/ci/startup-renderer
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 1
+          persist-credentials: true
+      - name: Prepare disposable checkout
+        run: |
+          $ErrorActionPreference = 'Stop'
+          git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          git submodule foreach --recursive 'true'
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Download the qualified diagnostic packages without rebuilding
+        uses: actions/download-artifact@v4
+        with:
+          artifact-ids: 12601131598
+          run-id: 40198504876
+          github-token: ${{ github.token }}
+          path: ${{ env.STARTUP_SOURCE }}
+          merge-multiple: true
+      - name: Verify and retain exact input package identities
+        run: |
+          $ErrorActionPreference = 'Stop'
+          New-Item -ItemType Directory -Path $env:STARTUP_OUTPUT | Out-Null
+          $source = Get-Content (Join-Path $env:STARTUP_SOURCE 'source.json') -Raw | ConvertFrom-Json
+          if ($source.source -cne '47234a3395a4566e840140f1849da55a65d15521') { throw 'Unexpected packaged source revision.' }
+          Copy-Item (Join-Path $env:STARTUP_SOURCE 'source.json') (Join-Path $env:STARTUP_OUTPUT 'original-source.json')
+          foreach ($variant in @('baseline', 'minimal')) {
+            $variantRoot = Join-Path $env:STARTUP_SOURCE $variant
+            $receipt = Get-Content (Join-Path $variantRoot 'package.json') -Raw | ConvertFrom-Json
+            if ($receipt.source -cne $source.source -or $receipt.variant -cne $variant) { throw 'Package receipt identity mismatch.' }
+            $package = Join-Path $variantRoot 'package'
+            $actual = @(Get-ChildItem $package -Recurse -File | ForEach-Object { [IO.Path]::GetRelativePath($package, $_.FullName).Replace('\', '/') })
+            if (@(Compare-Object ($actual | Sort-Object) ($receipt.files.path | Sort-Object)).Count -ne 0) { throw 'Package file set mismatch.' }
+            foreach ($entry in $receipt.files) {
+              $path = Join-Path $package $entry.path
+              if ((Get-Item $path).Length -ne $entry.bytes -or (Get-FileHash $path -Algorithm SHA256).Hash.ToLowerInvariant() -cne $entry.sha256) { throw "Package bytes mismatch: $variant/$($entry.path)" }
+            }
+            $retained = Join-Path $env:STARTUP_OUTPUT $variant
+            New-Item -ItemType Directory -Path $retained | Out-Null
+            Copy-Item (Join-Path $variantRoot 'package.json') $retained
+            Copy-Item (Join-Path $variantRoot 'startup-variant.json') $retained
+            Copy-Item $package $retained -Recurse
+          }
+          $receipt = [ordered]@{
+            controller = (& git rev-parse HEAD).Trim()
+            source_run_id = '40198504876'; source_artifact_id = '12601131598'
+            source_revision = $source.source
+            scope = 'Same instrumented exported release bytes; CLI renderer override only'
+            methods = @('ProjectDefault: D3D12 Forward Plus', 'gl_compatibility: OpenGL 3')
+            cache_state = 'Fresh means empty user data; OS and driver caches are not cleared'
+          }
+          $receipt | ConvertTo-Json -Depth 4 | Set-Content (Join-Path $env:STARTUP_OUTPUT 'comparison.json') -Encoding utf8NoBOM
+          Get-CimInstance Win32_VideoController | Select-Object Name, DriverVersion, AdapterRAM |
+            ConvertTo-Json | Set-Content (Join-Path $env:STARTUP_OUTPUT 'video-controller.json') -Encoding utf8NoBOM
+          Get-CimInstance Win32_OperatingSystem | Select-Object Caption, Version, BuildNumber |
+            ConvertTo-Json | Set-Content (Join-Path $env:STARTUP_OUTPUT 'operating-system.json') -Encoding utf8NoBOM
+      - name: Measure both orders with fresh and retained profiles
+        timeout-minutes: 25
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $passes = @(
+            @{ name = 'forward'; methods = @('ProjectDefault', 'gl_compatibility') },
+            @{ name = 'reverse'; methods = @('gl_compatibility', 'ProjectDefault') }
+          )
+          foreach ($pass in $passes) {
+            foreach ($method in $pass.methods) {
+              foreach ($variant in @('baseline', 'minimal')) {
+                $executable = Join-Path $env:STARTUP_OUTPUT "$variant/package/game.exe"
+                $profile = Join-Path $env:STARTUP_OUTPUT "profiles/$($pass.name)-$method-$variant"
+                foreach ($case in @('fresh', 'retained')) {
+                  if ($variant -eq 'minimal' -and $case -eq 'retained') { continue }
+                  $output = Join-Path $env:STARTUP_OUTPUT "measurements/$($pass.name)-$method-$variant-$case"
+                  $parameters = @{ Executable = $executable; Output = $output; ProfileRoot = $profile; Case = $case; Variant = $variant; RenderingMethod = $method }
+                  if ($variant -eq 'minimal') { $parameters.Minimal = $true }
+                  ./tools/testing/Invoke-ExportedStartupProbe.ps1 @parameters
+                }
+              }
+            }
+          }
+          # Separate profiles keep unopened screen resources out of New Acc timing.
+          foreach ($method in @('ProjectDefault', 'gl_compatibility')) {
+            ./tools/testing/Invoke-ExportedStartupProbe.ps1 -Executable (Join-Path $env:STARTUP_OUTPUT 'baseline/package/game.exe') -Output (Join-Path $env:STARTUP_OUTPUT "measurements/screens-$method") -ProfileRoot (Join-Path $env:STARTUP_OUTPUT "profiles/screens-$method") -Case fresh -Variant baseline -Journey screens -RenderingMethod $method
+          }
+      - name: Confirm measured packages remain unchanged
+        if: always()
+        run: |
+          $ErrorActionPreference = 'Stop'
+          foreach ($variant in @('baseline', 'minimal')) {
+            $receipt = Get-Content (Join-Path $env:STARTUP_OUTPUT "$variant/package.json") -Raw | ConvertFrom-Json
+            $package = Join-Path $env:STARTUP_OUTPUT "$variant/package"
+            $actual = @(Get-ChildItem $package -Recurse -File | ForEach-Object { [IO.Path]::GetRelativePath($package, $_.FullName).Replace('\', '/') })
+            if (@(Compare-Object ($actual | Sort-Object) ($receipt.files.path | Sort-Object)).Count -ne 0) { throw 'Measured package file set changed.' }
+            foreach ($entry in $receipt.files) {
+              if ((Get-FileHash (Join-Path $package $entry.path) -Algorithm SHA256).Hash.ToLowerInvariant() -cne $entry.sha256) { throw "Measured package changed: $variant/$($entry.path)" }
+            }
+          }
+      - name: Retain same packages, identities and all renderer evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: exported-startup-renderer-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .godot/ci/startup-renderer/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 7

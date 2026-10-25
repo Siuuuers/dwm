@@ -2,8 +2,6 @@ name: Exported startup attribution
 run-name: Rendered startup attribution - baseline 47234a3
 
 on:
-  push:
-    branches: [codex/startup-attribution-20261025]
   workflow_dispatch:
 
 permissions:
