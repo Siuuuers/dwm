@@ -119,7 +119,10 @@ static func build(
 			if not proof_error.is_empty(): return _fail(&"invalid_recovery_journal", proof_error)
 		var scene_error := _profile_scene_journal_error(document.current_snapshot, document.recovery_journal, profile, "document_schema")
 		if not scene_error.is_empty(): return _fail(&"invalid_recovery_journal", scene_error)
-	if not saved_time.is_empty():
+	if document.schema_version == SCENE_DOCUMENT_VERSION:
+		var display_time := normalize_optional_saved_time(saved_time)
+		if not display_time.is_empty(): document["saved_time"] = display_time
+	elif not saved_time.is_empty():
 		document["saved_time"] = RUN_SNAPSHOT_SCHEMA._normalize_integral_floats(
 			saved_time.duplicate(true))
 	if document.has("saved_time") and not validate_saved_time(document["saved_time"]):
@@ -135,17 +138,18 @@ static func validate_scene_new_run_candidate(document: Dictionary, allocation_ca
 	# Retired optional metadata never participates in Scene admission.
 	document = document.duplicate()
 	document.erase("save_reason")
+	var display_time := normalize_optional_saved_time(document.get("saved_time"))
+	document.erase("saved_time")
+	if not display_time.is_empty(): document["saved_time"] = display_time
 	var primitive := RUN_SNAPSHOT_SCHEMA.validate_primitive_tree(document)
 	if not primitive.ok: return primitive
 	var expected := SCENE_DOCUMENT_KEYS.duplicate()
-	expected.append("saved_time")
+	if document.has("saved_time"): expected.append("saved_time")
 	if not RUN_SNAPSHOT_SCHEMA._scene_keys(document, expected) \
 			or typeof(document.schema_version) != TYPE_INT or document.schema_version != SCENE_DOCUMENT_VERSION \
 			or document.kind != "autosave" or document.slot_id != null \
 			or not document.recovery_journal is Array or not document.recovery_journal.is_empty():
-		return _fail(&"invalid_document_shape", "initial Save9 requires Autosave, saved time and empty recovery")
-	if not validate_saved_time(document.saved_time):
-		return _fail(&"invalid_saved_time", "initial saved time is invalid")
+		return _fail(&"invalid_document_shape", "initial Save9 requires Autosave and empty recovery")
 	var current: Variant = document.current_snapshot
 	if not RUN_SNAPSHOT_SCHEMA._scene_keys(current, ["checkpoint_kind", "snapshot"]) \
 			or current.checkpoint_kind != "day_start" or not current.snapshot is Dictionary:
@@ -217,11 +221,16 @@ static func _validate_document(document: Dictionary, proven_journal: Array,
 	# twice. The leaves the normalizer passes through by reference rather than copying (Packed
 	# arrays, Objects) can never reach a saved document: `RunSnapshotSchema.validate_primitive_tree()`
 	# refuses them with `invalid_primitive` and `CanonicalJsonWriter._emit()` with `unsupported_type`.
-	# Member order and refusal order are unchanged: this loop preserves the document's own key
-	# order, and every check below still runs where it ran before.
+	# Required members retain their validation order. Scene-only optional metadata is
+	# projected here: retired reason and malformed time cannot reject valid progress.
 	var candidate := {}
 	for key: Variant in document:
-		if document.get("schema_version") == SCENE_DOCUMENT_VERSION and key == "save_reason": continue
+		if document.get("schema_version") == SCENE_DOCUMENT_VERSION:
+			if key == "save_reason": continue
+			if key == "saved_time":
+				var display_time := normalize_optional_saved_time(document[key])
+				if not display_time.is_empty(): candidate[key] = display_time
+				continue
 		# The outgoing splice replaces the caller's journal with proven bundles below;
 		# retain only its container here so the existing array check keeps its order.
 		if key == "current_snapshot" or (use_proven_journal and key == "recovery_journal"):
@@ -320,8 +329,7 @@ static func _validate_initial_types_before_normalization(document: Dictionary) -
 	for bundle: Variant in bundles:
 		if not bundle is Dictionary or not bundle.get("snapshot") is Dictionary: continue
 		if not RUN_SNAPSHOT_SCHEMA._scene_has_initial_admission(bundle.snapshot): continue
-		if typeof(document.get("schema_version")) != TYPE_INT \
-				or (document.has("saved_time") and not validate_saved_time(document.saved_time)):
+		if typeof(document.get("schema_version")) != TYPE_INT:
 			return _fail(&"scene_initial_types_invalid", "initial-admission Save header must retain exact types")
 		var error := RUN_SNAPSHOT_SCHEMA._scene_initial_types_error(bundle.snapshot)
 		if not error.is_empty(): return _fail(&"scene_initial_types_invalid", error)
@@ -440,6 +448,12 @@ static func _profile_phase(profile: Dictionary, phase: String, started_us: int) 
 
 static func prepare_candidate(document: Dictionary) -> Dictionary:
 	return validate(document)
+
+## A missing or malformed Scene timestamp means unknown, never the current time.
+## Use one detached projection for admission, retained comparisons and Backup UI.
+static func normalize_optional_saved_time(value: Variant) -> Dictionary:
+	var normalized: Variant = RUN_SNAPSHOT_SCHEMA._normalize_integral_floats(value)
+	return normalized if validate_saved_time(normalized) else {}
 
 ## Optional outer metadata; absence means legacy time unknown, never current wall time.
 static func validate_saved_time(value: Variant) -> bool:

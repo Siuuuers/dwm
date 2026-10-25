@@ -1721,7 +1721,8 @@ func _inspect_backup_profiled(locator_id: String, profile: Dictionary) -> Dictio
 	if record["family"] == "legacy_day":
 		var day: Variant = snapshot.get("lifecycle", {}).get("day")
 		record["day"] = int(day) if day != null else null
-	record["saved_time"] = document.get("saved_time", {}).get("hhmm")
+	var display_time := SAVE_DOCUMENT_SCHEMA.normalize_optional_saved_time(document.get("saved_time"))
+	record["saved_time"] = display_time.get("hhmm")
 	record["loadable"] = true
 	record["load_family"] = record["family"]
 	record["load_day"] = record["day"]

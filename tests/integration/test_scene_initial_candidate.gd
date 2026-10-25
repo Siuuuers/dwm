@@ -142,6 +142,33 @@ func test_initial_candidate_ignores_retired_reason_but_preserves_exact_write_mat
 			str(WRITER.stringify(allocation).value).sha256_text(), bundle, issuer).ok)
 
 
+func test_initial_scene_time_is_optional_without_rewriting_retained_write_bytes() -> void:
+	if not _prepare(): return
+	for optional: Dictionary in [{}, {"saved_time": null}, {"saved_time": "bad"},
+			{"saved_time": {"unix_seconds": 0, "utc_offset_minutes": 0, "hhmm": "wrong"}},
+			{"saved_time": {"unix_seconds": 0.0, "utc_offset_minutes": 0.0, "hhmm": "00:00"}}]:
+		var input: Dictionary = document.duplicate(true)
+		input.erase("saved_time")
+		input.merge(optional)
+		var admitted := _validate(input)
+		assert_true(admitted.ok, str(admitted))
+		if not admitted.ok: continue
+		assert_eq(admitted.value.candidate.current_snapshot, document.current_snapshot)
+		if optional.get("saved_time") is Dictionary and optional.saved_time.get("hhmm") == "00:00":
+			assert_eq(admitted.value.candidate.saved_time, document.saved_time)
+		else:
+			assert_false(admitted.value.candidate.has("saved_time"))
+		var retained: Dictionary = materials.duplicate(true)
+		retained.autosave.outgoing_text = WRITER.stringify(input).value + "\n"
+		retained.autosave.outgoing_hash = retained.autosave.outgoing_text.sha256_text()
+		var original: Dictionary = retained.duplicate(true)
+		var checked: Dictionary = MATERIALS.validate(retained, context, receipt.transaction_id,
+			str(WRITER.stringify(allocation).value).sha256_text(), bundle, issuer)
+		assert_true(checked.ok, str(checked))
+		assert_eq(retained, original, "creation recovery retains original outgoing bytes and hash")
+		if checked.ok: assert_eq(checked.value.materials.autosave, original.autosave)
+
+
 func test_initial_candidate_refuses_prior_state_and_forged_first_reading() -> void:
 	if not _prepare(): return
 	var changed: Dictionary = document.duplicate(true)

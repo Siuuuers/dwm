@@ -146,6 +146,7 @@ func test_retained_restore_source_preserves_retired_metadata_in_historical_bundl
 	assert_true(source.ok, str(source))
 	if not source.ok: return
 	var document: Dictionary = source.value.duplicate(true)
+	document["saved_time"] = "invalid-time"
 	var earlier: Dictionary = document.current_snapshot.duplicate(true)
 	earlier.snapshot["audio_context"] = {"obsolete": true}
 	earlier.snapshot["active_app_id"] = "obsolete-app"
@@ -176,6 +177,81 @@ func test_retained_restore_source_preserves_retired_metadata_in_historical_bundl
 	operation.source_locator.document_sha256 = "0".repeat(64)
 	assert_false(manager._continuation_journal._validate_scene_source(operation).ok,
 		"retiring metadata does not bypass selected-source byte custody")
+
+
+func test_optional_scene_time_preserves_load_and_raw_source_custody() -> void:
+	assert_true(fixture_ready)
+	if not fixture_ready: return
+	var saved: Dictionary = manager.save_latest_to_slot(7)
+	assert_true(saved.ok, str(saved))
+	if not saved.ok: return
+	var source: Dictionary = STRICT.parse_object(fixture.storage.read_text("slot_7.json").value)
+	assert_true(source.ok, str(source))
+	if not source.ok: return
+	var document: Dictionary = source.value
+	var writer := preload("res://scripts/validation/CanonicalJsonWriter.gd")
+	var schema := preload("res://scripts/infrastructure/save/SaveDocumentSchema.gd")
+	var known := {"unix_seconds": 0, "utc_offset_minutes": 480, "hhmm": "08:00"}
+	var cases: Array = [{}, {"saved_time": null}, {"saved_time": "yesterday"},
+		{"saved_time": {"unix_seconds": -1, "utc_offset_minutes": 0, "hhmm": "00:00"}},
+		{"saved_time": {"unix_seconds": 0, "utc_offset_minutes": 480, "hhmm": "09:00"}},
+		{"saved_time": known},
+		{"saved_time": {"unix_seconds": 0.0, "utc_offset_minutes": 480.0, "hhmm": "08:00"}}]
+	var before_game: Dictionary = fixture.game.capture_restore_state()
+	var before_profile: Dictionary = fixture.profile.get_profile_snapshot()
+	for index: int in cases.size():
+		var input: Dictionary = document.duplicate(true)
+		input.erase("saved_time")
+		input.merge(cases[index])
+		var before: Dictionary = input.duplicate(true)
+		var admitted: Dictionary = schema.validate(input)
+		assert_true(admitted.ok, str(admitted))
+		if not admitted.ok: continue
+		assert_eq(admitted.value.candidate.current_snapshot, document.current_snapshot)
+		var expected_time: Variant = "08:00" if index >= cases.size() - 2 else null
+		if expected_time != null: assert_eq(admitted.value.candidate.saved_time, known)
+		else: assert_false(admitted.value.candidate.has("saved_time"), "unknown time is not synthesized")
+		assert_eq(input, before)
+		var raw_text: String = writer.stringify(input).value + "\n"
+		assert_true(_replace_target("slot_7.json", raw_text).ok)
+		var inspected: Dictionary = manager._inspect_backup("slot:7")
+		assert_true(inspected.ok, str(inspected))
+		if inspected.ok:
+			assert_true(inspected.value.loadable)
+			assert_eq(inspected.value.saved_time, expected_time)
+			assert_eq(inspected.value.revision, raw_text.sha256_text(), "selection binds original bytes")
+		observer.snapshots.clear()
+		var loaded: Dictionary = manager.prepare_backup_action("load", "slot:7")
+		assert_true(loaded.ok, str(loaded))
+		if loaded.ok:
+			assert_eq(observer.snapshots, [document.current_snapshot.snapshot])
+			manager.cancel_backup_action(loaded.value.token)
+		assert_eq(fixture.storage.read_text("slot_7.json").value, raw_text, "inspection and Load preparation never repair the file")
+		# Retained retry admission keeps original document/hash custody while using
+		# the same optional-time projection as ordinary player admission.
+		var current: Dictionary = input.current_snapshot
+		var operation := {"kind": "scene_restore", "transaction_id": "TEST.optional-time",
+			"selected_document": input, "source_locator": {"slot_id": "slot:7",
+				"checkpoint_id": current.snapshot.checkpoint_id,
+				"bundle_id": writer.stringify(current).value.sha256_text(),
+				"document_sha256": writer.stringify(current.snapshot).value.sha256_text()}}
+		operation["request_fingerprint"] = writer.stringify(operation).value.sha256_text()
+		var retained: Dictionary = operation.duplicate(true)
+		assert_true(manager._continuation_journal._validate_scene_source(operation).ok)
+		assert_eq(operation, retained)
+		operation.selected_document["saved_time"] = "changed-after-fingerprint"
+		assert_false(manager._continuation_journal._validate_scene_source(operation).ok,
+			"optional semantics do not weaken exact retained request custody")
+	var bad: Dictionary = document.duplicate(true)
+	bad["saved_time"] = "invalid"
+	bad.current_snapshot.snapshot.gameplay.erase("money")
+	assert_false(schema.validate(bad).ok, "optional metadata cannot excuse missing required gameplay")
+	var built: Dictionary = schema.build(&"slot", 7, &"manual", document.current_snapshot, [], {"hhmm": "invalid"})
+	assert_true(built.ok, str(built))
+	if built.ok: assert_false(built.value.has("saved_time"))
+	assert_eq(fixture.game.capture_restore_state(), before_game)
+	assert_eq(fixture.profile.get_profile_snapshot(), before_profile)
+	assert_true(manager.save_latest_to_slot(7).ok)
 
 
 func test_selected_load_prepares_current_state_once_without_older_substitution() -> void:
