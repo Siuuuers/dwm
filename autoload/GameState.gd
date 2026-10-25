@@ -4364,9 +4364,6 @@ func configure_scene_runtime_validation() -> Dictionary:
 	if not lifecycle_binding.get("ok", false): return lifecycle_binding
 	return _SCENE_FROZEN.configure_scene_validation(_identity_issuer, get_node_or_null("/root/SaveManager"))
 
-func capture_scene_current_state() -> Dictionary:
-	return _scene_snapshot_references.duplicate(true)
-
 func _scene_runtime_event_context() -> Dictionary:
 	if not is_instance_valid(_scene_event_bridge) or _identity_issuer == null:
 		return _transaction_failure(&"event_dependency_invalid", "")
@@ -4967,6 +4964,17 @@ func _advance_scene_registered_marker(accept_thought: bool, choice_id: String = 
 	var guarded: Dictionary = _mutation_gate.guard_external(&"scene_event")
 	if not guarded.get("ok", false): return guarded
 	if _scene_entry_operation.has("candidate"):
+		var retained: Dictionary = _scene_entry_operation.result
+		if retained.get("kind") == "thought_resolved":
+			var trigger: Dictionary = _scene_entry_operation.candidate.command_receipts[_scene_entry_operation.binding.trigger_command_id]
+			var retained_kind: String = trigger.scene_event.semantic.kind
+			var retry_kind: String = ("thought.accept" if choice_id.is_empty() else "thought.select") if accept_thought else retained_kind
+			if accept_thought != (retained_kind in ["thought.accept", "thought.select"]) \
+					or retry_kind != retained_kind \
+					or retained.choice != (("yes" if choice_id.is_empty() else choice_id) if accept_thought else "pass"):
+				return _transaction_failure(&"scene_thought_conflict", "retry must preserve the retained choice")
+		elif accept_thought:
+			return _transaction_failure(&"scene_thought_unavailable", "")
 		return admit_scene_target(_scene_entry_operation.binding.target_id, _scene_entry_operation.binding.trigger_command_id)
 	var marker: Dictionary = _scene_event_bridge.capture_scene_pending_marker()
 	if not marker.get("ok", false): return marker

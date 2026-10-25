@@ -995,6 +995,13 @@ static func _validate_scene_reading(candidate: Dictionary) -> Dictionary:
 			or fields.get("entry_id") != checkpoint.entry_id \
 			or checkpoint.frozen_context.get("transaction_id") != checkpoint.transaction_id:
 		return _fail(&"reading_context_invalid", "active admission and frozen wrapper must agree")
+	if candidate.scene.active_challenge.is_empty() and saved.boundary == "control":
+		var selected := SCENE_MANIFEST.scene_registration()
+		if not selected.ok: return selected
+		var node: Dictionary = session._scene_nodes[checkpoint.entry_id][saved.program_index]
+		for challenge: Dictionary in selected.value.challenges:
+			if challenge.entry_id == checkpoint.entry_id and challenge.playable_marker_id == node.get("marker_id"):
+				return _fail(&"scene_challenge_position_invalid", "held playable requires its current Challenge")
 	if not candidate.scene.active_challenge.is_empty():
 		var selected := SCENE_MANIFEST.scene_registration()
 		if not selected.ok: return selected

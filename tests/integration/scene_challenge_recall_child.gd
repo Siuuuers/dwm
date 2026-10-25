@@ -58,11 +58,26 @@ func create_recall() -> void:
 	assert_eq(started.get("code"), &"scene_activation_pending", str(started))
 	if not await _await_ready(): return
 	if not await _wait_line("line.scene.test.recall.start.one"): return
+	var reading_schema := preload("res://scripts/domain/run/RunSnapshotSchema.gd")
+	var before_playable: Dictionary = bridge.capture_reading_checkpoint(false)
+	if not _ok(before_playable): return
+	var reading_candidate := {"scene": game.capture_run_snapshot_input().scene,
+		"content_version": before_playable.value.content_version, "narrative_checkpoint": before_playable.value}
+	assert_true(reading_candidate.scene.active_challenge.is_empty())
+	assert_true(reading_schema._validate_scene_reading(reading_candidate).ok,
+		"caption before Start needs no active Challenge even when playable is next")
 	await _accept()
 	assert_eq(game.capture_run_snapshot_input().scene.active_challenge.challenge_id, RECALL.CHALLENGE_ID)
 	var held: Dictionary = bridge.capture_reading_checkpoint(false)
 	if not _ok(held): return
 	assert_eq(held.value.reading_session.boundary, "control")
+	reading_candidate.scene = game.capture_run_snapshot_input().scene
+	reading_candidate.narrative_checkpoint = held.value
+	assert_true(reading_schema._validate_scene_reading(reading_candidate).ok, "genuine held playable is valid")
+	reading_candidate.scene.active_challenge = {}
+	var missing_challenge: Dictionary = reading_schema._validate_scene_reading(reading_candidate)
+	assert_false(missing_challenge.ok, "held playable cannot lose its required current Challenge")
+	assert_eq(missing_challenge.get("code"), &"scene_challenge_position_invalid")
 	assert_eq(bridge._runtime_adapter.current_line_id(), "line.scene.test.recall.start.one")
 	assert_true(game.capture_dating_challenge_state().value.is_empty())
 	assert_eq(game.scene_challenge_outcomes, {}, "playable without closure has no outcome fact")

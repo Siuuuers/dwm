@@ -30,12 +30,18 @@ func create_multiple_thoughts() -> void:
 	var refusal = WRITE_REFUSAL.WriteRefusal.new()
 	refusal.refuse_on = 1
 	saves._storage._file_ops = refusal
-	await _click(column.get_child(0))
+	await _click(column.get_child(1))
 	assert_eq(refusal.refused, 1)
 	assert_true(game.scene_choices.is_empty(), "failed persistence cannot choose any option")
 	assert_eq(game.scene_choices, {}, "refused persistence leaves explicit choice state unchanged")
 	assert_eq(bridge._runtime_adapter.current_line_id(), OFFER)
 	saves._storage._file_ops = original
+	var changed: Dictionary = game.accept_scene_thought(stale, "first")
+	assert_eq(changed.get("code"), &"scene_thought_conflict", "a retry cannot silently commit a different choice")
+	var passed: Dictionary = game.advance_scene_registered_marker()
+	assert_eq(passed.get("code"), &"scene_thought_conflict", "Continue cannot retry a retained accepted choice")
+	assert_true(game.scene_choices.is_empty(), "conflicting retry intents do not publish the retained choice")
+	assert_eq(bridge._runtime_adapter.current_line_id(), OFFER)
 	for frame: int in 12: await get_tree().process_frame
 	await _screenshot("multiple-thought-offer")
 	await _click(column.get_child(1))
