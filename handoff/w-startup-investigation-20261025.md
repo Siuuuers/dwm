@@ -8,8 +8,9 @@ Keep the feature inventory for a later discussion.
 Use short, controlled English for updates and handoffs. This document follows
 ASD-STE100 principles. It does not claim formal compliance certification.
 
-The user reports a long launch and many resource messages. The exact elapsed
-time, installed BuildID, renderer and data state of that report are not known.
+The user reports a long launch and many resource messages. The user later
+confirmed that the delay occurs while the Godot logo is visible, before Title.
+The exact elapsed time, installed BuildID, renderer and data state are not known.
 Do not infer them from the most recent upload.
 
 ## Current version
@@ -92,6 +93,60 @@ These are hypotheses. No current resource has a measured claim to be the slowest
 The two large font files are investigation candidates, not proven causes.
 Title art mounting was only about 2–4 ms in the old menu callback. That timing
 does not include any earlier resource preload.
+
+## Follow-up: logo delay and shared dependencies
+
+The logo observation selects launch-to-Title as the immediate investigation.
+It does not identify a slow resource or prove that bootstrap has not started.
+`ApplicationBootstrap._ready()` defers `start()`. Record the stage timestamps
+and first drawn frame before assigning the visible logo interval to an owner.
+
+`MenuScene.gd` preloads BackupApp.tscn, Setting.tscn and GalleryScene.tscn.
+Their instances are created in the corresponding button handlers. Thus their
+resource loading and their screen creation occur at different points.
+Gallery also preloads its replay, practice and Dating presentation scripts.
+
+A static dependency trace found alternate paths:
+
+- `SceneRouter.gd` -> `ProductionPauseController.gd` -> `BackupApp.tscn`.
+- `DialogicBridge.gd` -> `SceneArtHoldSurface.gd` -> `UiTypography.gd` -> both
+  large Chinese font resources.
+- `MenuScene.gd` -> `DesktopTheme.gd` -> both large Chinese font resources.
+- `SettingsTheme.gd` also declares eager references to those two faces.
+
+Do not describe these paths as independent copies of a font in memory.
+They can refer to the same cached resource. They do show why changing one edge
+does not necessarily remove the resource from startup.
+
+The static trace started at 13 literal res:// autoload paths and MenuScene.tscn.
+It followed literal preload() references and scene/resource ext_resource paths.
+It found 319 unique reachable paths. Omitting only the three MenuScene scene
+preload edges left 300 paths. Backup and both Chinese fonts remained reachable.
+Menu-only reachability was 202 paths; bootstrap-only reachability was 200.
+These sets overlap. Do not add them or treat these counts as measured loads.
+The trace excludes uid:// references, dynamic loads, class_name/extends
+dependencies and engine internals. It is an incomplete static graph.
+
+Searches found no caller of UiTypography.SIMPLIFIED. UiTypography.ENGLISH has
+test callers. UiTypography.TRADITIONAL supplies Japanese/Korean story fallback.
+DesktopTheme.ENGLISH has a runtime caller in ComputerDesktop.gd. Do not delete
+all font constants as one group. Check each theme's callers and preserve fallback
+behavior when preparing the diagnostic candidate.
+
+Refine the experiment into separate variants:
+
+1. Baseline: current exported game with current fonts and menu dependencies.
+2. Menu-only variant: defer the unopened screens. Keep all font behavior intact.
+3. Font-only variant: defer unnecessary eager font references at all identified
+   owners. Retain locale-selected fonts and Japanese/Korean story fallback.
+
+Measure each variant against baseline. Do not combine them before attributing
+their costs. Check first-open Backup, Settings and Gallery latency as well as
+Title and New Acc latency. A lower static path count is not a speedup result.
+
+The existing export smoke test uses headless mode and quits after 240 iterations.
+It checks startup correctness. It does not measure a visible logo-to-Title delay.
+Use a rendered exported-game diagnostic for this investigation.
 
 ## Next session procedure
 
