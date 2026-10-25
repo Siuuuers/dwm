@@ -4328,10 +4328,12 @@ func _prepare_scene_snapshot_semantics(snapshot: Dictionary, bundle: Dictionary,
 	# not a Load prerequisite. Live dispatch still proves its current frontier.
 	var expected_choices := {}
 	var expected_outcomes := {}
+	var passage_finishes: Array[Dictionary] = []
 	if not commands.is_empty():
 		for receipt: Dictionary in commands.values():
 			var result: Dictionary = receipt.scene_event.result
-			if result.kind == "thought_resolved":
+			if result.kind == "passage_finished": passage_finishes.append(receipt)
+			elif result.kind == "thought_resolved":
 				expected_choices[result.opportunity_id] = result.choice
 			elif result.kind == "challenge_closed":
 				expected_outcomes[result.challenge_occurrence] = {
@@ -4339,6 +4341,27 @@ func _prepare_scene_snapshot_semantics(snapshot: Dictionary, bundle: Dictionary,
 	if not _SCENE_EVENT._equal(snapshot.gameplay.scene_choices, expected_choices) \
 			or not _SCENE_EVENT._equal(snapshot.gameplay.scene_challenge_outcomes, expected_outcomes):
 		return _transaction_failure(&"scene_progress_mismatch", "")
+	return _validate_scene_passage_completion(snapshot, passage_finishes, bundle)
+
+## An ordinary passage completes at its registered final caption. The existing
+## ledger proves the one finish command; no ending plan or source copy is stored.
+func _validate_scene_passage_completion(snapshot: Dictionary, finishes: Array[Dictionary], bundle: Dictionary) -> Dictionary:
+	var completed: bool = snapshot.lifecycle.get("state") == "COMPLETED" and not snapshot.lifecycle.has("ending_plan")
+	if not completed:
+		return {"ok": true} if finishes.is_empty() else _transaction_failure(&"scene_passage_completion_mismatch", "")
+	if finishes.size() != 1: return _transaction_failure(&"scene_passage_completion_missing", "")
+	var receipt: Dictionary = finishes[0]
+	var catalogue: Dictionary = preload("res://scripts/narrative/ScenePassageCatalog.gd").inspect(bundle)
+	if not catalogue.ok: return catalogue
+	var passage: Dictionary = catalogue.value.records.get(receipt.scene_event.result.passage_id, {})
+	var expanded: Dictionary = preload("res://scripts/narrative/SoloReadingSession.gd").expand_player_checkpoint(snapshot.narrative_checkpoint)
+	if not expanded.ok: return expanded
+	var checkpoint: Dictionary = expanded.value
+	if passage.is_empty() or receipt.scene_event.semantic.source.scene_occurrence != snapshot.scene.active_occurrence_id \
+			or receipt.scene_event.semantic.event_id != passage.finish_marker_id \
+			or checkpoint.entry_id != passage.entry_id or checkpoint.reading_session.boundary != "line" \
+			or checkpoint.reading_session.frontier.line_id != passage.line_ids.back():
+		return _transaction_failure(&"scene_passage_completion_mismatch", "")
 	return {"ok": true}
 
 func _install_scene_snapshot_silent(snapshot: Dictionary) -> Dictionary:
@@ -4628,7 +4651,12 @@ func _accept_scene_runtime_event(event: Dictionary, digest: String, lease: Strin
 	var registered := scene_event_registration(event)
 	if not registered.ok: return registered
 	var result := {}
-	if event.kind == "scene.transition":
+	if event.kind == "passage.finish":
+		var marker: Dictionary = _scene_event_bridge.capture_scene_pending_marker()
+		if not marker.get("ok", false) or marker.value.marker_id != event.event_id or marker.value.kind != "passage.finish" or marker.value.payload != event.payload:
+			return _transaction_failure(&"scene_passage_finish_unavailable", "")
+		result = {"kind": "passage_finished", "passage_id": event.payload.passage_id}
+	elif event.kind == "scene.transition":
 		var request := _SCENE_EVENT.scene_completion_request(event, current.value.anchor, registered.value)
 		if not request.ok: return request
 		var child: Dictionary = _identity_issuer.derive_child(request.value)
@@ -4690,9 +4718,20 @@ func _accept_scene_runtime_event(event: Dictionary, digest: String, lease: Strin
 	candidate.command_receipts[event.command_id] = receipt.value.duplicate(true)
 	if result.kind == "thought_resolved":
 		candidate.gameplay.scene_choices[result.opportunity_id] = result.choice
+	elif result.kind == "passage_finished":
+		candidate.lifecycle.state = "COMPLETED"
 	var ledger := _SCENE_EVENT.validate_selected_scene_receipts(candidate.command_receipts,
 		_identity_issuer, _scene_save_owner, candidate.contacts)
 	if not ledger.ok: return ledger
+	if result.kind == "passage_finished":
+		var profile := get_node_or_null("/root/ProfileManager")
+		if profile == null or not profile.has_method("record_scene_passage_completion"):
+			return _transaction_failure(&"scene_passage_profile_unavailable", "")
+		# Discovery is global and idempotent. A failed Run write leaves the current
+		# caption available to retry; it never routes away or rewinds Profile.
+		var unlocked: Dictionary = profile.record_scene_passage_completion(result.passage_id,
+			"passage:" + str(candidate.lifecycle.run_id) + ":gallery:" + result.passage_id)
+		if not unlocked.get("ok", false): return unlocked
 	var committed: Dictionary = _narrative_checkpoint_port.commit_scene_event(candidate, current.value.checkpoint)
 	if not committed.get("ok", false):
 		if committed.get("committed", false): return _scene_event_fatal(&"event_commit_ack_invalid")
@@ -4703,6 +4742,9 @@ func _accept_scene_runtime_event(event: Dictionary, digest: String, lease: Strin
 		return _scene_event_fatal(&"event_adoption_source_changed")
 	_command_receipts = candidate.command_receipts.duplicate(true)
 	scene_choices = candidate.gameplay.scene_choices.duplicate(true)
+	if result.kind == "passage_finished":
+		var completed: Dictionary = _run_lifecycle.commit_restore(candidate.lifecycle)
+		if not completed.get("ok", false): return _scene_event_fatal(&"scene_passage_adoption_failed")
 	return {"ok": true, "value": result.duplicate(true), "duplicate": false}
 
 var _scene_save_owner: Object
@@ -5024,6 +5066,9 @@ func _advance_scene_registered_marker(accept_thought: bool, choice_id: String = 
 	if not session.ok: return session
 	var accepted: Dictionary = _scene_event_bridge.dispatch_scene_event(session.value, event)
 	if not accepted.get("ok", false): return accepted
+	if accepted.value.kind == "passage_finished":
+		return_completed_scene_passage.call_deferred()
+		return accepted
 	if accepted.value.kind in ["scene_transition_accepted", "challenge_closed", "contact_entry_accepted", "contact_returned", "thought_resolved", "challenge_recalled"]: return admit_scene_target(accepted.value.target_id, event.command_id)
 	return accepted
 
@@ -5305,6 +5350,41 @@ func _on_scene_terminal_retired(admission_id: String, session: Dictionary) -> vo
 		_scene_event_fatal(&"scene_terminal_route_unavailable")
 		return
 	router.goto_ending()
+
+## Invoked after the finish write, or after a completed scene Load activates.
+## A pre-finish caption Load remains PLAYING and cannot take this route.
+func return_completed_scene_passage() -> void:
+	var lifecycle: Dictionary = _run_lifecycle.to_dict()
+	if lifecycle.get("state") != "COMPLETED" or lifecycle.has("ending_plan") or not _live_session_active: return
+	var guarded: Dictionary = _mutation_gate.guard_external(&"scene_entry")
+	if not guarded.get("ok", false):
+		if guarded.get("code") == &"TRANSACTION_ACTIVE" and not _mutation_gate.transaction_released.is_connected(return_completed_scene_passage):
+			_mutation_gate.transaction_released.connect(return_completed_scene_passage, CONNECT_ONE_SHOT | CONNECT_DEFERRED)
+		return
+	var callback := _on_scene_passage_retired.bind(_live_session_fact())
+	if _scene_event_bridge.scene_terminal_retired.is_connected(callback): return
+	_scene_event_bridge.scene_terminal_retired.connect(callback, CONNECT_ONE_SHOT | CONNECT_DEFERRED)
+	var retired: Dictionary = _scene_event_bridge.retire_scene_for_ending("passage:" + str(lifecycle.run_id))
+	if not retired.get("ok", false):
+		_scene_event_bridge.scene_terminal_retired.disconnect(callback)
+		_scene_event_fatal(&"scene_passage_retirement_failed")
+
+func _on_scene_passage_retired(_token: String, session: Dictionary) -> void:
+	if not _live_session_active or _live_session_fact() != session: return
+	var lifecycle: Dictionary = _run_lifecycle.to_dict()
+	if lifecycle.get("state") != "COMPLETED" or lifecycle.has("ending_plan"): return
+	var lease := _acquire_ending_lease()
+	if not lease.get("ok", false):
+		_scene_event_fatal(&"scene_passage_retirement_failed")
+		return
+	_retire_completed_ending_session()
+	var released := _release_ending_lease(lease)
+	if not released.get("ok", false): return
+	var router := get_node_or_null("/root/SceneRouter")
+	if router == null:
+		_scene_event_fatal(&"scene_passage_route_unavailable")
+		return
+	router.goto_menu()
 
 var _scene_day_allocator: Object
 var _scene_day_board: Object

@@ -1044,7 +1044,7 @@ static func validate_scene(data: Dictionary, issuer: Object) -> Dictionary:
 	var keys := data.keys()
 	keys.sort()
 	var expected := SCENE_LIFECYCLE_KEYS.duplicate()
-	var terminal: bool = data.get("state") in ["ENDING", "COMPLETED"]
+	var terminal: bool = data.get("state") == "ENDING" or (data.get("state") == "COMPLETED" and data.has("ending_plan"))
 	if terminal: expected.append("ending_plan")
 	expected.sort()
 	if keys != expected or typeof(data.get("run_id")) != TYPE_STRING or data.run_id.is_empty() \

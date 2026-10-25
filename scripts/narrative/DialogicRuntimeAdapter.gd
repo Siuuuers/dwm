@@ -598,7 +598,7 @@ static func _compile_scene_programme_timeline(timeline: DialogicTimeline, text: 
 				return {"ok": false, "code": &"scene_label_duplicate"}
 			label_nodes[event.name] = nodes.size()
 			events.append({"kind": "label", "label": str(event.name)})
-			if marker_labels.has(event.name):
+			if marker_labels.has(event.name) and marker_labels[event.name].get("kind") != "passage.start":
 				nodes.append({"kind": "control", "marker_id": marker_labels[event.name].marker_id})
 				native_indices.append(index)
 			continue

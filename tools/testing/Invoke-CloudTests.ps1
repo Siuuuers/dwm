@@ -1,6 +1,6 @@
 param(
     [Parameter(Mandatory = $true)]
-    [ValidateSet('minesweeper', 'shop', 'desktop', 'settings', 'checkpoint_diagnostics', 'new_account', 'reading_delivery', 'localization', 'dating', 'persistence', 'endings', 'audio', 'public_surfaces', 'scene_desktop_first_reveal', 'scene_round_checkpoint', 'scene_shop_checkpoint', 'scene_story_localization', 'scene_controls_localization', 'scene_apps', 'current_title', 'scene_backup_inspection', 'authored_week', 'scene_five_outcomes', 'timeline_resources', 'backup_presentation', 'profile_parse', 'backup_current_build', 'terminal_admission', 'current_quick_load', 'current_terminal_fixture', 'scene_multiple_thoughts', 'scene_challenge_recall', 'scene_same_day_supportz', 'scene_player_position', 'scene_native_restore', 'scene_day_history', 'scene_later_caption', 'scene_caption_challenge', 'scene_audio_connected', 'scene_save_metadata')]
+    [ValidateSet('minesweeper', 'shop', 'desktop', 'settings', 'checkpoint_diagnostics', 'new_account', 'reading_delivery', 'localization', 'dating', 'persistence', 'endings', 'audio', 'public_surfaces', 'scene_desktop_first_reveal', 'scene_round_checkpoint', 'scene_shop_checkpoint', 'scene_story_localization', 'scene_controls_localization', 'scene_apps', 'current_title', 'scene_backup_inspection', 'authored_week', 'scene_five_outcomes', 'timeline_resources', 'backup_presentation', 'profile_parse', 'backup_current_build', 'terminal_admission', 'current_quick_load', 'current_terminal_fixture', 'scene_multiple_thoughts', 'scene_challenge_recall', 'scene_same_day_supportz', 'scene_player_position', 'scene_native_restore', 'scene_day_history', 'scene_later_caption', 'scene_caption_challenge', 'scene_audio_connected', 'scene_save_metadata', 'scene_passage_connected', 'scene_passage_catalogue')]
     [string]$Suite
 )
 
@@ -15,6 +15,8 @@ if ($Suite -eq 'current_terminal_fixture') {
 # Deliberate, bounded UI and input regression coverage. Each path must actually
 # execute; Invoke-IsolatedGodot also rejects GUT's silent suite-load failures.
 $suites = @{
+    scene_passage_connected = @('tests/integration/test_scene_passage_connected_create.gd')
+    scene_passage_catalogue = @('tests/unit/test_scene_passage_gallery.gd')
     scene_audio_connected = @('tests/integration/test_scene_audio_connected_create.gd')
     scene_save_metadata = @(
         'tests/integration/test_scene_initial_candidate.gd'
@@ -354,6 +356,12 @@ $suites = @{
 $repositoryRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
 $output = Join-Path $repositoryRoot '.godot/ci'
 New-Item -ItemType Directory -Force -Path $output | Out-Null
+if ($Suite -eq 'scene_passage_connected') {
+    foreach ($proof in @('passage-connected-create-proof.json', 'passage-connected-load-proof.json', 'passage-connected-replay-proof.json')) {
+        $proofPath = Join-Path $output $proof
+        if (Test-Path -LiteralPath $proofPath) { Remove-Item -LiteralPath $proofPath -Force }
+    }
+}
 $testPaths = @($suites[$Suite] | ForEach-Object {
     if (-not (Test-Path -LiteralPath (Join-Path $repositoryRoot $_))) {
         throw "Requested test does not exist: $_"
@@ -370,6 +378,7 @@ $arguments = @(
 )
 # Creator and loader must share storage but never a process/registration registry.
 $loadScripts = @{
+    scene_passage_connected = 'tests/integration/test_scene_passage_connected_load.gd'
     scene_audio_connected = 'tests/integration/test_scene_audio_connected_load.gd'
     scene_later_caption = 'tests/integration/test_scene_later_caption_load.gd'
     scene_caption_challenge = 'tests/integration/test_scene_caption_challenge_load.gd'
@@ -381,7 +390,7 @@ $loadScripts = @{
     current_title = 'tests/integration/test_current_title_scene_load.gd'
 }
 $extra = @{}
-if ($Suite -in @('scene_audio_connected', 'scene_native_restore', 'scene_later_caption', 'scene_caption_challenge', 'scene_story_localization', 'scene_apps', 'current_title', 'scene_desktop_first_reveal', 'current_quick_load', 'scene_multiple_thoughts', 'scene_challenge_recall', 'scene_same_day_supportz')) { $extra.Rendered = $true }
+if ($Suite -in @('scene_passage_connected', 'scene_audio_connected', 'scene_native_restore', 'scene_later_caption', 'scene_caption_challenge', 'scene_story_localization', 'scene_apps', 'current_title', 'scene_desktop_first_reveal', 'current_quick_load', 'scene_multiple_thoughts', 'scene_challenge_recall', 'scene_same_day_supportz')) { $extra.Rendered = $true }
 if ($loadScripts.ContainsKey($Suite)) {
     $loadScript = $loadScripts[$Suite]
     if (-not (Test-Path -LiteralPath (Join-Path $repositoryRoot $loadScript))) { throw "Requested test does not exist: $loadScript" }
@@ -391,8 +400,8 @@ if ($loadScripts.ContainsKey($Suite)) {
     $extra.NextGodotArgs = @('-s', 'res://addons/gut/gut_cmdln.gd', '-gconfig=',
         "-gtest=res://$loadScript", '-gexit', '-glog=1', "-gjunit_xml_file=res://.godot/ci/$Suite-load.xml")
 }
-if ($Suite -eq 'scene_desktop_first_reveal') {
-    $settledScript = 'tests/integration/test_scene_desktop_settled_load.gd'
+if ($Suite -in @('scene_desktop_first_reveal', 'scene_passage_connected')) {
+    $settledScript = if ($Suite -eq 'scene_passage_connected') { 'tests/integration/test_scene_passage_connected_replay.gd' } else { 'tests/integration/test_scene_desktop_settled_load.gd' }
     if (-not (Test-Path -LiteralPath (Join-Path $repositoryRoot $settledScript))) { throw "Requested test does not exist: $settledScript" }
     $settledReport = Join-Path $output "$Suite-settled-load.xml"
     if (Test-Path -LiteralPath $settledReport) { Remove-Item -LiteralPath $settledReport -Force }
@@ -484,7 +493,7 @@ if ($loadScripts.ContainsKey($Suite)) {
     }
     Write-Host "${Suite}: fresh-process load case passed ($loadScript)."
 }
-if ($Suite -eq 'scene_desktop_first_reveal') {
+if ($Suite -in @('scene_desktop_first_reveal', 'scene_passage_connected')) {
     if (-not (Test-Path -LiteralPath $settledReport)) { throw 'Settled Load child did not produce its JUnit report.' }
     [xml]$settledXml = Get-Content -LiteralPath $settledReport -Raw
     $settledCases = @($settledXml.SelectNodes('//testcase'))
@@ -535,7 +544,7 @@ if (-not (Test-Path -LiteralPath $report)) { throw 'GUT did not produce its JUni
 $executed = $xml.SelectNodes('//testcase').Count
 if ($executed -eq 0) { throw 'GUT did not report any executed tests.' }
 if ($xml.SelectNodes('//failure | //error').Count -ne 0) { throw 'GUT reported test failures.' }
-if ($Suite -in @('scene_audio_connected', 'scene_save_metadata', 'scene_player_position', 'scene_native_restore', 'scene_day_history', 'scene_later_caption', 'scene_caption_challenge', 'scene_same_day_supportz', 'scene_desktop_first_reveal', 'scene_round_checkpoint', 'scene_shop_checkpoint', 'scene_story_localization', 'scene_controls_localization', 'scene_apps', 'current_title', 'scene_backup_inspection', 'authored_week', 'scene_five_outcomes', 'timeline_resources', 'backup_presentation', 'profile_parse', 'backup_current_build', 'terminal_admission', 'current_quick_load')) {
+if ($Suite -in @('scene_passage_connected', 'scene_passage_catalogue', 'scene_audio_connected', 'scene_save_metadata', 'scene_player_position', 'scene_native_restore', 'scene_day_history', 'scene_later_caption', 'scene_caption_challenge', 'scene_same_day_supportz', 'scene_desktop_first_reveal', 'scene_round_checkpoint', 'scene_shop_checkpoint', 'scene_story_localization', 'scene_controls_localization', 'scene_apps', 'current_title', 'scene_backup_inspection', 'authored_week', 'scene_five_outcomes', 'timeline_resources', 'backup_presentation', 'profile_parse', 'backup_current_build', 'terminal_admission', 'current_quick_load')) {
     foreach ($case in $xml.SelectNodes('//testcase')) {
         if ($case.GetAttribute('classname') -cnotin $suites[$Suite] -or
             $case.GetAttribute('status') -cne 'pass' -or [int]$case.GetAttribute('assertions') -le 0) {
@@ -544,7 +553,7 @@ if ($Suite -in @('scene_audio_connected', 'scene_save_metadata', 'scene_player_p
     }
     if ($xml.SelectNodes('//skipped').Count -ne 0) { throw 'Selected scene coverage was skipped.' }
 }
-if ($Suite -in @('scene_audio_connected', 'scene_save_metadata')) {
+if ($Suite -in @('scene_passage_connected', 'scene_passage_catalogue', 'scene_audio_connected', 'scene_save_metadata')) {
     # Require every concrete selected method, not merely a nonempty imported file.
     $caseEvidence = @()
     foreach ($script in $suites[$Suite]) {
@@ -559,6 +568,26 @@ if ($Suite -in @('scene_audio_connected', 'scene_save_metadata')) {
         }
         foreach ($case in $cases) {
             $caseEvidence += [ordered]@{ script = $script; method = $case.GetAttribute('name');
+                assertions = [int]$case.GetAttribute('assertions'); status = $case.GetAttribute('status') }
+        }
+    }
+    if ($Suite -eq 'scene_passage_connected') {
+        if ($loadCases[0].GetAttribute('name') -cne 'test_passage_last_caption_restore_finish_failure_retry_and_title' -or
+            $settledCases[0].GetAttribute('name') -cne 'test_completed_load_returns_title_and_gallery_replays_only_passage') {
+            throw 'Passage lane did not execute its exact fresh-process cases.'
+        }
+        $createProof = Get-Content -LiteralPath (Join-Path $output 'passage-connected-create-proof.json') -Raw | ConvertFrom-Json
+        $loadProof = Get-Content -LiteralPath (Join-Path $output 'passage-connected-load-proof.json') -Raw | ConvertFrom-Json
+        $replayProof = Get-Content -LiteralPath (Join-Path $output 'passage-connected-replay-proof.json') -Raw | ConvertFrom-Json
+        if ($createProof.process_id -eq $loadProof.finisher_process_id -or
+            $replayProof.process_id -eq $createProof.process_id -or
+            $replayProof.process_id -eq $loadProof.finisher_process_id -or
+            $replayProof.completed_creator -ne $loadProof.finisher_process_id -or
+            $replayProof.profile_unchanged -ne $true -or $replayProof.run_unchanged -ne $true -or $replayProof.finish_count -ne 1) {
+            throw 'Passage evidence must bind three distinct processes and read-only replay.'
+        }
+        foreach ($case in @($loadCases[0], $settledCases[0])) {
+            $caseEvidence += [ordered]@{ script = $case.GetAttribute('classname'); method = $case.GetAttribute('name');
                 assertions = [int]$case.GetAttribute('assertions'); status = $case.GetAttribute('status') }
         }
     }

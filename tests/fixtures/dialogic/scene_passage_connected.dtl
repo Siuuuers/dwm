@@ -1,0 +1,23 @@
+# TEST ONLY: temporary passage boundaries; no production ending prose.
+return
+
+label scene.test.a
+TEST preface. #id:line.scene.test.a.one
+label scene.test.a.start
+label scene.test.a.loop
+TEST passage first. #id:line.scene.test.a.two
+TEST passage last. #id:line.scene.test.a.three
+label scene.test.a.finish
+return
+
+label scene.test.b
+B first. #id:line.scene.test.b.one
+label scene.test.b.playable
+B second. #id:line.scene.test.b.two
+label scene.test.b.end
+return
+
+label contact.test.a
+Contact first. #id:line.contact.test.a.one
+label contact.test.a.end
+return

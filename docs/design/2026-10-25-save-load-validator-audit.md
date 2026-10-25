@@ -1,5 +1,15 @@
 # Save/Load validator audit — 25 October 2026
 
+## Ordinary passage marker experiment — corrected owner decision
+
+The owner clarified that two markers bracket an ordinary DTL ending passage. Start is passive; Finish unlocks its Gallery passage and returns to title. There is no separate ending selector or extra ending text screen. Production DTL and boundaries remain undecided: this increment uses explicitly temporary test prose only.
+
+The initial supported range is one paired `passage.start` / `passage.finish` per ordinary scene entry, identified by the same `passage_id`. Start follows the preceding caption (exclusive); Finish follows the last passage caption (inclusive). Native registration rejects jumps anywhere in that entry and non-caption controls within the range. Gallery displays exactly those registered captions through the existing read-only card surface; it dispatches no gameplay controls and writes neither Run nor Profile.
+
+Finish first durably records the idempotent Profile unlock, then saves the ordinary current-caption checkpoint with lifecycle `COMPLETED`. No `ending_plan` or copied source checkpoint is introduced. A Profile failure leaves no unlock or Run completion. A subsequent Run write failure leaves the reached-Finish discovery global, retains the last caption and PLAYING state, and offers Retry; only successful Run completion permits title return. Fresh Load of a pre-Finish save restores the caption; Load of a completed save retires to title after restoration. Loading never rewinds Gallery discovery.
+
+This is a mechanism experiment, not completion of the larger compact-save migration: existing command receipts still authenticate Finish and all other scene commands. Legacy ending fixtures retain their current compatibility path. Cloud qualification is required before acceptance; see `evidence/phase_2r/ordinary_passage_markers_20261025/README.md`.
+
 ## Owner-approved replacement direction — later 25 October discussion
 
 **Status:** requirements approved by the owner in the Save/Load discussion after PR83; implementation and performance qualification are pending. The audit below describes the existing architecture. Its reasons for retaining historical proofs do not require keeping that architecture. This section supersedes the earlier preference to optimize only duplicate terminal traversals as the immediate design direction.

@@ -535,8 +535,8 @@ static func _scene_runtime_boundary(snapshot: Dictionary) -> Dictionary:
 	if terminal: lifecycle_keys.append("ending_plan")
 	if not event._keys(lifecycle, lifecycle_keys) or not event._json_data(lifecycle) \
 			or (snapshot.route_id == "ending") != terminal \
-			or (not terminal and lifecycle.state != "PLAYING"):
-		return _fail(&"remap_scene_lifecycle_invalid", "exact scene PLAYING lifecycle required", {})
+			or (not terminal and lifecycle.state not in ["PLAYING", "COMPLETED"]):
+		return _fail(&"remap_scene_lifecycle_invalid", "exact scene lifecycle required", {})
 	var assignment := preload("res://scripts/domain/relationship/PairDeckDraw.gd").validate_scene(lifecycle.scene_assignment)
 	if not assignment.get("ok", false):
 		return _fail(&"remap_scene_lifecycle_invalid", "scene assignment receipt is invalid", {})

@@ -303,7 +303,7 @@ static func validate_scene_registration(bundle: Dictionary) -> Dictionary:
 	if not ids_lines.ok or not signals.ok or ids_lines.value.size() != lines.size(): return _scene_fail("ids coverage")
 	for id: String in lines:
 		if ids_lines.value.get(id, {}).get("owning_entry_id") != lines[id]: return _scene_fail("line owner")
-	var payloads := {"thought.options": ["opportunity_id", "options", "pass_target_id"], "thought.pass": ["opportunity_id", "yes_target_id", "pass_target_id"], "scene.transition": ["target_id"], "challenge.playable": ["challenge_id"],
+	var payloads := {"passage.start": ["passage_id"], "passage.finish": ["passage_id"], "thought.options": ["opportunity_id", "options", "pass_target_id"], "thought.pass": ["opportunity_id", "yes_target_id", "pass_target_id"], "scene.transition": ["target_id"], "challenge.playable": ["challenge_id"],
 		"challenge.end": ["challenge_id"], "contact.enter": ["contact_event_id"], "contact.return": ["contact_event_id"],
 		"challenge.recall": ["challenge_id", "never_started_target_id", "unfinished_target_id", "won_target_id", "lost_target_id", "perfect_target_id"],
 		"history.line.witness": ["entry_id", "line_id", "playback_token", "receipt_id"]}
@@ -391,6 +391,25 @@ static func validate_scene_registration(bundle: Dictionary) -> Dictionary:
 		expected_grants.sort()
 		if actual_marker_order != declared_marker_order or entries[id].allowed_signals != expected_grants:
 			return _scene_fail("marker order/grants")
+	# Initial passage replay supports linear ordinary entries only. Native nodes,
+	# not registry order alone, prove exactly which captions the player reads.
+	var passages: Dictionary = preload("res://scripts/narrative/ScenePassageCatalog.gd").inspect(bundle)
+	if not passages.ok: return passages
+	for passage: Dictionary in passages.value.records.values():
+		if entries[passage.entry_id].role != "scene": return _scene_fail("passage entry role")
+		var native: Dictionary = compiled[passage.entry_id]
+		for node: Dictionary in native.nodes:
+			if node.kind == "jump": return _scene_fail("passage entry must be linear")
+		var first: int = native.label_nodes[passage.start_label]
+		var finish: int = native.label_nodes[passage.finish_label]
+		var passage_lines: Array = []
+		for index: int in range(first, finish):
+			var node: Dictionary = native.nodes[index]
+			if node.kind != "caption" or int(node.next) != index + 1:
+				return _scene_fail("passage range must contain only captions")
+			passage_lines.append(node.line_id)
+		if passage_lines != passage.line_ids or native.nodes[finish].get("marker_id") != passage.finish_marker_id:
+			return _scene_fail("passage native range mismatch")
 	var tables := _validate_scene_tables(bundle, entries, programmes.value, compiled, markers)
 	if not tables.ok: return tables
 	return {"ok": true, "value": bundle.duplicate(true)}
