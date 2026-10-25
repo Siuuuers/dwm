@@ -118,8 +118,10 @@ jobs:
               output.write("comparison=" + str(comparison).lower() + "\n")
 
   focused-tests:
-    needs: [test-scope, public-surfaces]
-    if: ${{ always() && needs.test-scope.result == 'success' && (needs.public-surfaces.result == 'success' || needs.test-scope.outputs.focused == 'true') }}
+    # Independent suites use committed source; inventory verification remains a
+    # separate required result and cannot be satisfied by diagnostic regeneration.
+    needs: test-scope
+    if: ${{ needs.test-scope.result == 'success' }}
     name: Windows / ${{ matrix.suite }}
     runs-on: windows-2022
     timeout-minutes: ${{ matrix.suite == 'current_terminal_fixture' && 35 || 20 }}
