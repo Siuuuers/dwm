@@ -7,6 +7,7 @@ param(
     [Parameter(Mandatory)][string]$Variant,
     [ValidateSet('new_acc', 'screens', 'apps')][string]$Journey = 'new_acc',
     [ValidateSet('ProjectDefault', 'gl_compatibility')][string]$RenderingMethod = 'ProjectDefault',
+    [switch]$VerboseEngine,
     [switch]$Minimal
 )
 Set-StrictMode -Version Latest
@@ -25,6 +26,7 @@ $package = Split-Path -Parent $Executable
 $record = [ordered]@{
     case = $Case; variant = $Variant; journey = $Journey; minimal = [bool]$Minimal
     clean_exit = $false; timed_out = $false; renderer_request = $RenderingMethod
+    engine_verbose = [bool]$VerboseEngine
     executable = $Executable; profile_root = $ProfileRoot; preexisting_profile_files = $existing.Count
     package_hashes = @{}; input_profile_hashes = @{}; output_profile_hashes = @{}
     clock_note = 'Launch timestamp immediately precedes Process.Start; child UTC uses same host. Named child intervals are monotonic. Fresh user data does not imply cold OS cache.'
@@ -43,6 +45,7 @@ $start.UseShellExecute = $false
 $start.RedirectStandardOutput = $true
 $start.RedirectStandardError = $true
 $argv = @('--audio-driver', 'Dummy', '--windowed', '--resolution', '1280x720', '--log-file', (Join-Path $Output 'render.log'))
+if ($VerboseEngine) { $argv += '--verbose' }
 if ($RenderingMethod -eq 'gl_compatibility') {
     $argv += @('--rendering-method', 'gl_compatibility', '--rendering-driver', 'opengl3')
 }
@@ -149,7 +152,7 @@ try {
 }
 $summary = [ordered]@{}
 foreach ($key in $record.Keys) {
-    if ($key -in @('case', 'variant', 'journey', 'minimal', 'renderer_request', 'status', 'clean_exit', 'timed_out', 'exit_code', 'max_frame_gap_us') -or $key.EndsWith('_ms')) {
+    if ($key -in @('case', 'variant', 'journey', 'minimal', 'renderer_request', 'engine_verbose', 'status', 'clean_exit', 'timed_out', 'exit_code', 'max_frame_gap_us') -or $key.EndsWith('_ms')) {
         $summary[$key] = $record[$key]
     }
 }

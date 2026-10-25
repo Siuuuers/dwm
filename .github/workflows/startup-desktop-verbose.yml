@@ -1,0 +1,175 @@
+name: Exported desktop shutdown diagnosis
+run-name: Same-package verbose shutdown and Apps diagnosis
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [codex/startup-attribution-20261025]
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: startup-desktop-verbose-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  diagnose:
+    name: Windows / exact baseline and desktop packages, verbose shutdown
+    runs-on: windows-2022
+    timeout-minutes: 40
+    defaults:
+      run:
+        shell: pwsh
+    env:
+      STARTUP_PACKAGES: ${{ github.workspace }}/.godot/ci/startup-desktop-verbose-packages
+      STARTUP_OUTPUT: ${{ github.workspace }}/.godot/ci/startup-desktop-verbose
+      STARTUP_EVIDENCE: ${{ github.workspace }}/.godot/ci/startup-desktop-original-evidence
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 1
+          persist-credentials: true
+      - name: Prepare disposable checkout
+        run: |
+          $ErrorActionPreference = 'Stop'
+          git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          git submodule foreach --recursive 'true'
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Download exact diagnostic packages without rebuilding
+        uses: actions/download-artifact@v4
+        with:
+          artifact-ids: 12602274130
+          run-id: 40203205178
+          github-token: ${{ github.token }}
+          path: ${{ env.STARTUP_PACKAGES }}
+          merge-multiple: true
+      - name: Download original package receipts and failed-run evidence
+        uses: actions/download-artifact@v4
+        with:
+          artifact-ids: 12602104512
+          run-id: 40203205178
+          github-token: ${{ github.token }}
+          path: ${{ env.STARTUP_EVIDENCE }}
+          merge-multiple: true
+      - name: Verify pinned package bytes and retain environment
+        run: |
+          $ErrorActionPreference = 'Stop'
+          New-Item -ItemType Directory -Path $env:STARTUP_OUTPUT | Out-Null
+          $source = Get-Content (Join-Path $env:STARTUP_EVIDENCE 'source.json') -Raw | ConvertFrom-Json
+          if ($source.source -cne '47234a3395a4566e840140f1849da55a65d15521' -or $source.controller -cne '335fac8c46db73f48ec25d22424fe8690db0c385') { throw 'Original package source identity differs.' }
+          Copy-Item (Join-Path $env:STARTUP_EVIDENCE 'source.json') (Join-Path $env:STARTUP_OUTPUT 'original-source.json')
+          $expected = @{}
+          foreach ($variant in @('baseline', 'desktop')) {
+            $receiptPath = Join-Path $env:STARTUP_EVIDENCE "$variant/package.json"
+            $receipt = Get-Content $receiptPath -Raw | ConvertFrom-Json
+            if ($receipt.source -cne $source.source -or $receipt.variant -cne $variant) { throw 'Original package receipt identity differs.' }
+            $expected[$variant] = @{}
+            foreach ($entry in $receipt.files) {
+              if ($expected[$variant].ContainsKey($entry.path)) { throw 'Duplicate original package receipt path.' }
+              $expected[$variant][$entry.path] = @{ bytes = $entry.bytes; sha256 = $entry.sha256 }
+            }
+            Copy-Item $receiptPath (Join-Path $env:STARTUP_OUTPUT "$variant-package.json")
+            Copy-Item (Join-Path $env:STARTUP_EVIDENCE "$variant/startup-variant.json") (Join-Path $env:STARTUP_OUTPUT "$variant-startup-variant.json")
+            $package = Join-Path $env:STARTUP_PACKAGES "$variant/package"
+            $actual = @(Get-ChildItem $package -Recurse -File | ForEach-Object { [IO.Path]::GetRelativePath($package, $_.FullName).Replace('\', '/') })
+            if (@(Compare-Object ($actual | Sort-Object) ($expected[$variant].Keys | Sort-Object)).Count -ne 0) { throw "Package file set differs: $variant" }
+            foreach ($name in $expected[$variant].Keys) {
+              $entry = $expected[$variant][$name]
+              $path = Join-Path $package $name
+              if ((Get-Item $path).Length -ne $entry.bytes -or (Get-FileHash $path -Algorithm SHA256).Hash.ToLowerInvariant() -cne $entry.sha256) { throw "Package bytes differ: $variant/$name" }
+            }
+          }
+          $record = [ordered]@{
+            controller = (& git rev-parse HEAD).Trim()
+            source_revision = '47234a3395a4566e840140f1849da55a65d15521'
+            source_controller = '335fac8c46db73f48ec25d22424fe8690db0c385'
+            source_run_id = '40203205178'; source_artifact_id = '12602274130'; source_evidence_artifact_id = '12602104512'
+            packages = $expected
+            scope = 'Exact previously exported diagnostic bytes plus --verbose only. Shutdown/resource-owner diagnosis and Apps harness qualification; verbose timing is not performance acceptance.'
+            retained_scope = 'Each retained process uses its paired fresh New Acc data. If the fresh process reports complete gameplay but fails shutdown checks, its retained successor is diagnostic evidence only.'
+            cache_state = 'Fresh user data; OS and driver caches are not cleared'
+          }
+          $record | ConvertTo-Json -Depth 8 | Set-Content (Join-Path $env:STARTUP_OUTPUT 'packages.json') -Encoding utf8NoBOM
+          Get-CimInstance Win32_VideoController | Select-Object Name, DriverVersion, AdapterRAM |
+            ConvertTo-Json | Set-Content (Join-Path $env:STARTUP_OUTPUT 'video-controller.json') -Encoding utf8NoBOM
+          Get-CimInstance Win32_OperatingSystem | Select-Object Caption, Version, BuildNumber |
+            ConvertTo-Json | Set-Content (Join-Path $env:STARTUP_OUTPUT 'operating-system.json') -Encoding utf8NoBOM
+      - name: Collect each verbose journey without discarding failed siblings
+        timeout-minutes: 35
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $attempts = [Collections.Generic.List[object]]::new()
+          function Invoke-DiagnosticCase([string]$Variant, [string]$Case, [string]$Journey, [string]$Label, [string]$Profile) {
+            $output = Join-Path $env:STARTUP_OUTPUT "measurements/$Label"
+            $row = [ordered]@{ label = $Label; variant = $Variant; case = $Case; journey = $Journey; passed = $false; error = '' }
+            try {
+              ./tools/testing/Invoke-ExportedStartupProbe.ps1 -Executable (Join-Path $env:STARTUP_PACKAGES "$Variant/package/game.exe") -Output $output -ProfileRoot $Profile -Case $Case -Variant $Variant -Journey $Journey -VerboseEngine
+              $row.passed = $true
+            } catch {
+              $row.error = $_.Exception.Message
+              Write-Host "DIAGNOSTIC_FAILURE $Label $($row.error)"
+            } finally {
+              $resultPath = Join-Path $output 'results.json'
+              if (Test-Path -LiteralPath $resultPath) {
+                try {
+                  $result = Get-Content -LiteralPath $resultPath -Raw | ConvertFrom-Json
+                  $row.gameplay_complete = $result.complete
+                  $row.failures = $result.failures
+                } catch {
+                  $row.passed = $false
+                  $row.error += " Results receipt invalid: $($_.Exception.Message)"
+                }
+              }
+              $attempts.Add($row)
+              @($attempts.ToArray()) | ConvertTo-Json -Depth 8 | Set-Content (Join-Path $env:STARTUP_OUTPUT 'attempts.json') -Encoding utf8NoBOM
+            }
+          }
+          foreach ($variant in @('baseline', 'desktop')) {
+            $profile = Join-Path $env:STARTUP_OUTPUT "profiles/new-acc-$variant"
+            foreach ($case in @('fresh', 'retained')) {
+              Invoke-DiagnosticCase $variant $case 'new_acc' "$variant-$case" $profile
+            }
+          }
+          # Independent fresh Apps profiles cannot prewarm the New Acc pairs.
+          foreach ($variant in @('baseline', 'desktop')) {
+            Invoke-DiagnosticCase $variant 'fresh' 'apps' "$variant-apps" (Join-Path $env:STARTUP_OUTPUT "profiles/apps-$variant")
+          }
+      - name: Verify packages remained unchanged
+        if: always()
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $record = Get-Content (Join-Path $env:STARTUP_OUTPUT 'packages.json') -Raw | ConvertFrom-Json -AsHashtable
+          foreach ($variant in @('baseline', 'desktop')) {
+            $package = Join-Path $env:STARTUP_PACKAGES "$variant/package"
+            $actual = @(Get-ChildItem $package -Recurse -File | ForEach-Object { [IO.Path]::GetRelativePath($package, $_.FullName).Replace('\', '/') })
+            if (@(Compare-Object ($actual | Sort-Object) ($record.packages[$variant].Keys | Sort-Object)).Count -ne 0) { throw 'Measured package file set changed.' }
+            foreach ($name in $record.packages[$variant].Keys) {
+              $entry = $record.packages[$variant][$name]
+              $path = Join-Path $package $name
+              if ((Get-Item $path).Length -ne $entry.bytes -or (Get-FileHash $path -Algorithm SHA256).Hash.ToLowerInvariant() -cne $entry.sha256) { throw "Measured package changed: $variant/$name" }
+            }
+          }
+      - name: Retain verbose identities, logs, screenshots and current-format data
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: exported-startup-desktop-verbose-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            .godot/ci/startup-desktop-verbose/
+            !.godot/ci/startup-desktop-verbose/profiles/**/shader_cache/**
+            !.godot/ci/startup-desktop-verbose/profiles/**/pipeline_cache/**
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 7
+      - name: Report any failed or missing diagnostic journey after retention
+        if: always()
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $attempts = @(Get-Content (Join-Path $env:STARTUP_OUTPUT 'attempts.json') -Raw | ConvertFrom-Json)
+          $failed = @($attempts | Where-Object { -not $_.passed })
+          if ($attempts.Count -ne 6 -or $failed.Count -ne 0) {
+            throw "Verbose diagnosis had $($attempts.Count)/6 journeys and $($failed.Count) failures. Inspect retained resource identities and logs."
+          }
