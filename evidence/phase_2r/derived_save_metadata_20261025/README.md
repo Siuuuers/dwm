@@ -38,3 +38,18 @@ Coverage includes new-run and retained creation materials, actual saved bytes,
 optional-metadata independence, fresh-process audio restoration, visible-board
 restoration, required-state refusal and the existing rendered terminal journey.
 No performance improvement is claimed.
+
+## Initial cloud diagnosis
+
+Run [40170065034](https://github.com/Siuuuers/dwm/actions/runs/40170065034)
+qualified neither candidate nor merge. It exposed an invalid empty derived audio
+context for registrations without audio bindings; the real audio participant
+requires the canonical four-key silent context. The new metadata test also
+exposed the legacy-only calendar-day lookup in `get_save_metadata`; Scene metadata
+now reports no calendar day, matching the existing Backup inspection contract.
+
+The newly activated rendered audio lane reached 120/121 assertions in its loader.
+Its inherited fixture compared complete live reading histories, which PR92 no
+longer persists. The corrected assertion compares player checkpoint projections
+and retains native caption and board checks. These corrections require a fresh
+cloud run; the initial failures are not counted as acceptance.

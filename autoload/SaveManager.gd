@@ -591,15 +591,9 @@ func _prepare_scene_new_run_decision(target_id: String, initial_context: Diction
 	var input: Dictionary = _restore_participants.run.prepare_scene_new_run_snapshot_input(
 		allocation, profile, reading.value.receipt, _scene_new_run_bundle)
 	if not input.get("ok", false): return input
-	var audio_context: Dictionary = initial_context.audio_context.duplicate(true)
-	if _scene_new_run_bundle.get("schema_version") == 3:
-		var audio_owner: Script = load("res://scripts/data/AudioManifest.gd")
-		if audio_owner == null or not audio_owner.has_method("make_scene_context"):
-			return _fail(&"scene_audio_owner_unavailable", "")
-		var selected: Dictionary = audio_owner.call("make_scene_context", _scene_new_run_bundle,
-			reading.value.receipt.scene_admission.result.entry_id, transaction_id)
-		if not selected.get("ok", false): return selected
-		audio_context = selected.value.duplicate(true)
+	var selected_audio := RUN_SNAPSHOT_SCHEMA.derive_scene_audio_context(input.value.snapshot_input, _scene_new_run_bundle)
+	if not selected_audio.ok: return selected_audio
+	var audio_context: Dictionary = selected_audio.value
 	var built: Dictionary = RUN_SNAPSHOT_SCHEMA.build_scene_new_run_candidate(input.value.snapshot_input,
 		reading.value.checkpoint, audio_context, initial_context.content_version,
 		allocation, profile, _scene_new_run_bundle, _identity_issuer)
@@ -1545,7 +1539,7 @@ func get_save_metadata(kind: StringName, slot_id: int = -1) -> Dictionary:
 		"slot_id": document["slot_id"],
 		"save_reason": str(document["save_reason"]) if document.has("save_reason") else null,
 		"run_id": str(snapshot["run_id"]),
-		"day": int(snapshot["lifecycle"]["day"]),
+		"day": null if snapshot.get("schema_version") == 9 else int(snapshot["lifecycle"]["day"]),
 		"state": str(snapshot["lifecycle"]["state"]),
 		"checkpoint_id": str(snapshot["checkpoint_id"]),
 	}}

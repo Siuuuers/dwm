@@ -294,16 +294,13 @@ static func _validate_autosave(value: Variant, initial_context: Dictionary,
 	if not scene_assignment.is_empty():
 		var player_checkpoint := preload("res://scripts/narrative/SoloReadingSession.gd").project_player_checkpoint(initial_context.dialogic_checkpoint)
 		if not player_checkpoint.ok: return player_checkpoint
-		var audio := SAVE_DOCUMENT_SCHEMA.RUN_SNAPSHOT_SCHEMA.derive_scene_audio_context(snapshot, scene_bundle)
-		if not audio.ok: return audio
 		if document.get("schema_version") != 9 or snapshot.get("schema_version") != 9 \
 				or lifecycle.get("state") != "PLAYING" or lifecycle.get("restore_provenance") != null \
 				or lifecycle.get("scene_assignment") != scene_assignment \
 				or snapshot.get("route_id") != "scene" or initial_context.get("route_id") != "scene" \
 				or initial_context.get("active_app_id") != null \
 				or snapshot.get("content_version") != initial_context.get("content_version") \
-				or not SAVE_DOCUMENT_SCHEMA.RUN_SNAPSHOT_SCHEMA._scene_exact_value(snapshot.get("narrative_checkpoint"), player_checkpoint.value) \
-				or not SAVE_DOCUMENT_SCHEMA.RUN_SNAPSHOT_SCHEMA._scene_exact_value(audio.value, initial_context.get("audio_context")):
+				or not SAVE_DOCUMENT_SCHEMA.RUN_SNAPSHOT_SCHEMA._scene_exact_value(snapshot.get("narrative_checkpoint"), player_checkpoint.value):
 			return _fail(&"new_run_autosave_invalid", "scene Autosave differs from its allocated assignment or initial context")
 		return {"ok": true, "code": &"ok", "value": autosave.duplicate(true)}
 	if lifecycle.get("day") != 1 or lifecycle.get("state") != "PLAYING" \

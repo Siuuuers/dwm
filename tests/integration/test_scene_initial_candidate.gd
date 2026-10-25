@@ -108,6 +108,23 @@ func test_complete_initial_candidate_is_read_only_and_not_committed_authority() 
 		assert_false(SAVE.validate(document).ok, "prepared candidate must not admit ordinary Load")
 		assert_eq(document.current_snapshot.snapshot.lifecycle.scene_assignment.form, "sweet" if nonce == 0 else "dark")
 
+func test_registration_without_authored_audio_derives_valid_silence() -> void:
+	if not _prepare(): return
+	assert_ne(bundle.schema_version, 3)
+	var snapshot: Dictionary = document.current_snapshot.snapshot.duplicate(true)
+	snapshot["audio_context"] = {"music_context_id": "obsolete-track"}
+	var derived: Dictionary = RUN.derive_scene_audio_context(snapshot, bundle)
+	assert_true(derived.ok, str(derived))
+	if not derived.ok: return
+	assert_eq(derived.value, {"ambience_context": {}, "ambience_context_id": "",
+		"music_context": {}, "music_context_id": ""})
+	var audio: Node = preload("res://autoload/AudioManager.gd").new()
+	var accepted: Dictionary = audio._validate_snapshot(derived.value)
+	audio.free()
+	assert_true(accepted.ok, str(accepted))
+	assert_false(document.current_snapshot.snapshot.has("audio_context"), "canonical silence is transient participant input")
+
+
 func test_initial_candidate_ignores_retired_reason_but_preserves_exact_write_material() -> void:
 	if not _prepare(): return
 	for retired: Variant in ["day_start", "obsolete", 7, null, {"old": true}]:
