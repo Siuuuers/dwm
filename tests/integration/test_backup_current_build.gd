@@ -149,6 +149,17 @@ func test_current_session_exit_replaces_unrestorable_autosave_without_retiring_s
 	if not source.get("ok", false): return
 	var snapshot: Dictionary = source.value.current_snapshot.snapshot
 	assert_eq(snapshot.schema_version, 9, "the outgoing state is a genuine current scene save")
+	# The activation fixture uses a diagnostic board participant. Install the actual
+	# board owner before exercising a live producer; a player snapshot is not a live backup.
+	var live_board := preload("res://scripts/domain/minesweeper/DesktopBoardState.gd").new()
+	var board_plan: Dictionary = live_board.prepare_player_restore_scene(snapshot.desktop.board, fixture.issuer)
+	assert_true(board_plan.get("ok", false), str(board_plan))
+	if not board_plan.get("ok", false): return
+	assert_true(live_board.commit(board_plan.value.candidate).get("ok", false))
+	var configured: Dictionary = fixture.game.configure_desktop_snapshot_provider(func() -> Dictionary:
+		return {"board": live_board.capture(), "consequence": snapshot.desktop.consequence.duplicate(true)})
+	assert_true(configured.get("ok", false), str(configured))
+	if not configured.get("ok", false): return
 	var inputs := {"snapshot_input": fixture.game.capture_run_snapshot_input(),
 		"dialogic_checkpoint": snapshot.narrative_checkpoint, "route_id": snapshot.route_id,
 		"active_app_id": snapshot.active_app_id, "audio_context": snapshot.audio_context,
