@@ -191,3 +191,175 @@ func test_committed_checkpoint_native_failure_latches_fatal_and_retains_recovera
 	assert_eq(saved.gameplay.money, 12)
 	assert_eq(transport.writes, 1)
 	assert_eq(native.calls, 1)
+
+
+# Payment integration uses production generation and GameState allowance ownership.
+# Checkpoint transport remains the existing in-memory seam; this is not full Save9 E2E.
+func _payment_coordinator() -> RefCounted:
+	var port = preload("res://scripts/application/minesweeper/GameStateDesktopBoardPort.gd").new()
+	if not _ok(port.configure(game, fixture.issuer, game.capture_desktop_identity_context), "live payment port"): return null
+	if not _ok(port.configure_consequence_state_port(consequence), "live consequence port"): return null
+	var coordinator = preload("res://scripts/application/minesweeper/MinesweeperRoundCoordinator.gd").new()
+	coordinator._board_state = board
+	var generator = preload("res://scripts/application/minesweeper/MinesweeperBoardGenerationPort.gd").new()
+	var checkpoint = preload("res://tests/support/FakeMinesweeperCheckpointPort.gd").new()
+	if not _ok(coordinator.configure(port, checkpoint, generator, fixture.issuer), "payment coordinator"): return null
+	var durable = preload("res://tests/unit/test_desktop_paid_replacement.gd").Durable.new()
+	if not _ok(coordinator.configure_durable_checkpoint(durable,
+		preload("res://scripts/application/minesweeper/DesktopFirstRevealSnapshotComposer.gd"), consequence), "payment checkpoint"): return null
+	return coordinator
+
+
+func _payment_request(coordinator: RefCounted, difficulty: String = "") -> Dictionary:
+	var issued: Dictionary = fixture.issuer.issue(&"transaction_id")
+	assert_true(issued.ok)
+	var state: Dictionary = board.capture()
+	var request := {"transaction_id": issued.value.token, "transaction_issuer_receipt": issued.value.issuer_receipt,
+		"expected_identity": state.identity, "expected_revision": state.revision}
+	if not difficulty.is_empty():
+		request["difficulty_id"] = difficulty
+		if state.phase in ["NONE", "UNPAID_UNSTARTED"]:
+			var entry: Dictionary = coordinator.get_entry_context(difficulty)
+			assert_true(entry.ok, str(entry))
+			request.expected_identity = entry.value.identity
+	return request
+
+
+func _certify_payment_board(coordinator: RefCounted, paid: bool, remaining: int) -> bool:
+	# The production operation budget bounds preparation; permit enough slices for fallback.
+	for _slice in 2048:
+		if board.capture().phase != "PREPARING": break
+		if not _ok(coordinator.run_debug_preparation_slice(_payment_request(coordinator)), "production Debug slice"): return false
+		assert_eq(board.capture().round_paid, paid)
+		assert_eq(game.minesweeper_rounds_left, remaining, "preparation never debits allowance")
+	assert_eq(board.capture().phase, "PREPARED_UNSTARTED")
+	return board.capture().phase == "PREPARED_UNSTARTED"
+
+
+func test_next_day_debug_round_one_does_not_inherit_yesterdays_payment() -> void:
+	if not _setup(): return
+	game.minesweeper_rounds_left = 2
+	game.minesweeper_app_rounds_finished_today = 0
+	var coordinator := _payment_coordinator()
+	if coordinator == null: return
+	var request := _payment_request(coordinator, "beginner")
+	var first_identity: Dictionary = request.expected_identity.duplicate(true)
+	request["cell_index"] = 0
+	if not _ok(coordinator.reveal(request), "Day1 paid Reveal"): return
+	assert_true(board.capture().round_paid)
+	assert_eq(game.minesweeper_rounds_left, 1)
+	before = game.capture_run_snapshot_input().duplicate(true)
+	var renewal: Dictionary = game._prepare_scene_day_renewal(trigger, "TEST.target", fixture.bundle, FIXTURE.identity(fixture.lifecycle))
+	if not _ok(renewal, "renew paid day"): return
+	day_plan = renewal.value
+	var lease: Dictionary = gate.acquire(&"causal_transaction")
+	if not _ok(lease, "day lease"): return
+	_stage(lease.value.token)
+	if not _ok(game._commit_scene_target_owned(), "actual day adoption"): return
+	if not _ok(gate.release(&"causal_transaction", lease.value.token), "release day lease"): return
+	assert_eq(board.capture().phase, "NONE")
+	assert_false(board.capture().round_paid, "discarding yesterday's board clears its payment")
+	assert_eq(game.minesweeper_rounds_left, 2)
+	game.inventory["debug_key"] = 1
+	request = _payment_request(coordinator, "beginner")
+	assert_eq(request.expected_identity.run_id, first_identity.run_id)
+	assert_eq(request.expected_identity.app_round_ordinal, 1)
+	assert_eq(request.expected_identity.app_round_ordinal, first_identity.app_round_ordinal)
+	assert_ne(request.expected_identity.causal_day_instance, first_identity.causal_day_instance)
+	if not _ok(coordinator.begin_debug_preparation(request), "unpaid next-day Debug preparation"): return
+	assert_false(board.capture().round_paid)
+	assert_eq(game.minesweeper_rounds_left, 2)
+	if not _certify_payment_board(coordinator, false, 2): return
+	request = _payment_request(coordinator, "beginner")
+	request["cell_index"] = board.capture().candidate.forced_cell
+	var revealed: Dictionary = coordinator.reveal(request)
+	if not _ok(revealed, "Day2 first Reveal"): return
+	assert_true(board.capture().round_paid)
+	assert_eq(game.minesweeper_rounds_left, 1, "exactly one Day2 debit")
+	var after: Dictionary = board.capture()
+	assert_eq(coordinator.reveal(request), revealed, "acknowledged retry returns the same result")
+	assert_eq(board.capture(), after)
+	assert_eq(game.minesweeper_rounds_left, 1, "retry cannot debit twice")
+
+
+func _restore_payment_board(saved: Dictionary) -> bool:
+	var encoded: Dictionary = WRITER.stringify(saved)
+	if not _ok(encoded, "encode payment snapshot"): return false
+	var decoded: Dictionary = STRICT.parse_object(encoded.value)
+	if not _ok(decoded, "decode payment snapshot"): return false
+	var restored := BOARD.new()
+	var participant = preload("res://scripts/application/restore/DesktopBoardRestoreParticipant.gd").new(restored, fixture.issuer)
+	var prepared: Dictionary = participant.prepare({"schema_version": 9, "state": decoded.value})
+	if not _ok(prepared, "prepare fresh payment owner"): return false
+	if not _ok(participant.apply_silent(prepared.value.board_plan), "adopt restored payment board"): return false
+	if not _ok(participant.finalize(), "finalize payment participant"): return false
+	assert_eq(WRITER.stringify(restored.capture()).value, encoded.value, "serialized state stays byte-equal")
+	board = restored
+	# Fixture replaces its participant owner; the snapshot-provider callable reads this same board.
+	game._scene_day_board = board
+	return true
+
+
+func test_paid_debug_preparing_and_certified_restore_preserve_spec_and_never_charge_again() -> void:
+	if not _setup(): return
+	game.minesweeper_rounds_left = 2
+	game.minesweeper_app_rounds_finished_today = 0
+	var coordinator := _payment_coordinator()
+	if coordinator == null: return
+	var request := _payment_request(coordinator, "beginner")
+	request["cell_index"] = 0
+	if not _ok(coordinator.reveal(request), "original paid Reveal"): return
+	var original_identity: Dictionary = board.capture().identity.duplicate(true)
+	game.inventory["debug_key"] = 1
+	if not _ok(coordinator.replace_board(_payment_request(coordinator, "beginner")), "paid F5 replacement"): return
+	assert_eq(board.capture().identity, original_identity)
+	assert_true(board.capture().round_paid)
+	if not _ok(coordinator.begin_debug_preparation(_payment_request(coordinator, "beginner")), "paid Debug preparation"): return
+	var preparing: Dictionary = board.capture()
+	assert_eq(preparing.phase, "PREPARING")
+	assert_true(preparing.round_paid)
+	assert_eq(game.minesweeper_rounds_left, 1)
+	if not _restore_payment_board(preparing): return
+	# Changed live inputs cannot reconstruct or replace the frozen recipe on restoration.
+	game.inventory.erase("debug_key")
+	game.minesweeper_selected_difficulty = "expert"
+	coordinator = _payment_coordinator()
+	if coordinator == null: return
+	assert_eq(board.capture().candidate.spec, preparing.candidate.spec)
+	assert_eq(WRITER.stringify(board.capture().candidate.frontier).value,
+		WRITER.stringify(preparing.candidate.frontier).value)
+	if not _certify_payment_board(coordinator, true, 1): return
+	var certified: Dictionary = board.capture()
+	if not _restore_payment_board(certified): return
+	coordinator = _payment_coordinator()
+	if coordinator == null: return
+	request = _payment_request(coordinator, "beginner")
+	request["cell_index"] = certified.candidate.forced_cell
+	if not _ok(coordinator.reveal(request), "restored paid certified Reveal"): return
+	assert_true(board.capture().round_paid)
+	assert_eq(board.capture().board.spec, preparing.candidate.spec)
+	assert_eq(board.capture().identity, original_identity)
+	assert_eq(game.minesweeper_rounds_left, 1, "restored paid Reveal consumes no further allowance")
+
+
+func test_scene_first_reveal_failed_write_keeps_payment_and_allowance_consistent_on_retry() -> void:
+	if not _setup(): return
+	game.minesweeper_rounds_left = 2
+	game.minesweeper_app_rounds_finished_today = 0
+	var coordinator := _payment_coordinator()
+	if coordinator == null: return
+	var before_board: Dictionary = board.capture()
+	var request := _payment_request(coordinator, "beginner")
+	request["cell_index"] = 0
+	coordinator._durable_checkpoint_port.fail_write = true
+	var failed: Dictionary = coordinator.reveal(request)
+	assert_false(failed.get("ok", false))
+	assert_eq(board.capture(), before_board, "unacknowledged write cannot adopt the paid board")
+	assert_false(board.capture().round_paid)
+	assert_eq(game.minesweeper_rounds_left, 2)
+	var retried: Dictionary = coordinator.reveal(request)
+	if not _ok(retried, "retry failed first-Reveal write"): return
+	assert_true(board.capture().round_paid)
+	assert_eq(game.minesweeper_rounds_left, 1)
+	assert_eq(coordinator.reveal(request), retried)
+	assert_eq(game.minesweeper_rounds_left, 1)

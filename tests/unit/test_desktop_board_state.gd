@@ -838,6 +838,7 @@ func test_scene_historical_legacy_payment_stays_exact_and_cannot_become_live() -
 	# Supported history role only: current board is absent, original result bytes survive.
 	for key: String in ["identity", "candidate", "board", "settlement"]: saved[key] = null
 	saved.phase = "NONE"
+	saved.round_paid = false
 	var old: Dictionary = saved.command_receipts.values()[0].result.value.board.paid_start_receipt
 	old.motivation_before = 3
 	old.motivation_after = 2
@@ -1067,3 +1068,51 @@ func test_scene_dismiss_and_reset_clear_settlement_without_terminal_history() ->
 	state.reset()
 	assert_false(state.capture().settled_inspection)
 	assert_false(state.has_settled_inspection())
+
+
+func test_scene_round_paid_is_required_boolean_and_agrees_with_active_phase() -> void:
+	var fixture := _scene_fixture()
+	var saved := _scene_start(fixture)
+	if saved.is_empty(): return
+	assert_true(saved.round_paid)
+	for value: Variant in [null, 0, 1, "true", false]:
+		var changed := saved.duplicate(true)
+		changed.round_paid = value
+		assert_false(STATE.new().prepare_restore_scene(changed, fixture.issuer).ok, str(value))
+	var missing := saved.duplicate(true)
+	missing.erase("round_paid")
+	assert_false(STATE.new().prepare_restore_scene(missing, fixture.issuer).ok)
+	var cleared := STATE.dismissed_inspection_snapshot(saved)
+	assert_false(cleared.round_paid)
+	assert_true(STATE.new().prepare_restore_scene(cleared, fixture.issuer).ok)
+	cleared.round_paid = true
+	assert_false(STATE.new().prepare_restore_scene(cleared, fixture.issuer).ok)
+
+
+func test_scene_new_unpaid_preparation_ignores_previous_day_matching_round_ordinal() -> void:
+	var fixture := _scene_fixture()
+	var saved := _scene_start(fixture)
+	if saved.is_empty(): return
+	var cleared := STATE.dismissed_inspection_snapshot(saved)
+	var restored := STATE.new()
+	var restore := restored.prepare_restore_scene(cleared, fixture.issuer)
+	assert_true(restore.ok, str(restore))
+	if not restore.ok: return
+	assert_true(restored.commit(restore.value.candidate).ok)
+	var input: Dictionary = fixture.input.duplicate(true)
+	input.transaction_id = "next-day-debug"
+	input.expected_revision = cleared.revision
+	input.identity.causal_day_instance = "next-day"
+	var begun := restored.prepare_debug_candidate(input, {"frontier": {"cursor": 0}})
+	assert_true(begun.ok, str(begun))
+	if not begun.ok: return
+	assert_true(restored.commit(begun.value.candidate).ok)
+	var preparing := restored.capture()
+	assert_false(preparing.round_paid)
+	assert_false(preparing.candidate.has("paid_start_receipt"))
+	assert_eq(preparing.identity.app_round_ordinal, saved.identity.app_round_ordinal)
+	assert_eq(preparing.command_receipts[fixture.payment.transaction_id], saved.command_receipts[fixture.payment.transaction_id])
+	assert_true(STATE.new().prepare_restore_scene(preparing, fixture.issuer).ok)
+	var inconsistent := preparing.duplicate(true)
+	inconsistent.round_paid = true
+	assert_false(STATE.new().prepare_restore_scene(inconsistent, fixture.issuer).ok)

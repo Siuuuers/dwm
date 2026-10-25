@@ -67,6 +67,8 @@ var _command_receipts: Dictionary = {}
 var _terminal_receipts: Dictionary = {}
 # Scene saves own this current fact; legacy restores derive it from terminal records.
 var _settled_inspection := false
+# Current allowance consumption; preparation can be either paid or unpaid.
+var _round_paid := false
 # Structural Scene format also survives unconfigured projection/inspection clones.
 var _scene_snapshot_format := false
 # Explicit Run9 admission. Legacy owners retain their separately admitted contract.
@@ -115,6 +117,7 @@ func reset() -> void:
 	_command_receipts = {}
 	_terminal_receipts = {}
 	_settled_inspection = false
+	_round_paid = false
 
 
 ## Cheap foreground-pump readiness; full commands still use detached capture().
@@ -129,7 +132,9 @@ func capture() -> Dictionary:
 		"board": _dup_or_null(_board), "settlement": _dup_or_null(_settlement),
 		"command_receipts": _command_receipts.duplicate(true),
 	}
-	if _scene_snapshot_format: snapshot["settled_inspection"] = _settled_inspection
+	if _scene_snapshot_format:
+		snapshot["settled_inspection"] = _settled_inspection
+		snapshot["round_paid"] = _round_paid
 	else: snapshot["terminal_receipts"] = _terminal_receipts.duplicate(true)
 	return snapshot
 
@@ -144,6 +149,7 @@ func prepare_restore(snapshot: Dictionary) -> Dictionary:
 	if _scene_payment_issuer != null or snapshot.has("settled_inspection"):
 		keys.erase("terminal_receipts")
 		keys.append("settled_inspection")
+		keys.append("round_paid")
 	var shape := _exact_keys(snapshot, keys, &"snapshot_member_set_invalid")
 	if not shape.get("ok", false):
 		return shape
@@ -170,6 +176,8 @@ func prepare_restore(snapshot: Dictionary) -> Dictionary:
 	if snapshot.has("terminal_receipts") and typeof(snapshot["terminal_receipts"]) != TYPE_DICTIONARY:
 		return _fail(&"snapshot_field_invalid", "terminal_receipts must be a dictionary", {"field": "terminal_receipts"})
 	if snapshot.has("settled_inspection"):
+		var payment_status := _validate_current_payment_status(snapshot)
+		if not payment_status.ok: return payment_status
 		var settled := _validate_scene_settlement(snapshot)
 		if not settled.ok: return settled
 	if _scene_payment_issuer != null:
@@ -445,6 +453,7 @@ func commit(candidate: Dictionary) -> Dictionary:
 		_terminal_receipts = snapshot.get("terminal_receipts", {}).duplicate(true)
 		_scene_snapshot_format = snapshot.has("settled_inspection")
 		_settled_inspection = is_settled_inspection(snapshot)
+		_round_paid = bool(snapshot.get("round_paid", false))
 		return _state_view()
 
 	var transaction_id := str(candidate.get("transaction_id", ""))
@@ -477,6 +486,7 @@ func commit(candidate: Dictionary) -> Dictionary:
 	_settlement = _dup_or_null(candidate.get("settlement_after"))
 	_revision += 1
 	_settled_inspection = bool(projected.settled_inspection) if _scene_snapshot_format else is_settled_inspection(capture())
+	if _scene_snapshot_format: _round_paid = projected.round_paid
 
 	var result: Dictionary = _state_view()
 	if candidate.has("result_override"):
@@ -625,7 +635,8 @@ func shell_state() -> Dictionary:
 func prepare_unpaid_shell(input: Dictionary, difficulty: String, shell: Dictionary) -> Dictionary:
 	var checked := _validate_shell_input(input)
 	if not checked.ok: return checked
-	if _phase not in [_PHASE_NONE, _PHASE_UNPAID, _PHASE_PREPARED_UNSTARTED] or (_candidate is Dictionary and _candidate.has("paid_start_receipt")): return _fail(&"unpaid_shell_requires_unpaid_phase", "", {})
+	var paid: bool = _round_paid if _scene_snapshot_format else (_candidate is Dictionary and _candidate.has("paid_start_receipt"))
+	if _phase not in [_PHASE_NONE, _PHASE_UNPAID, _PHASE_PREPARED_UNSTARTED] or paid: return _fail(&"unpaid_shell_requires_unpaid_phase", "", {})
 	var dimensions := _CATALOG.lookup("desktop_app", difficulty)
 	if not dimensions.ok: return dimensions
 	var valid := _BOARD_SCHEMA.validate_shell(shell, dimensions.value.width, dimensions.value.height)
@@ -641,7 +652,8 @@ func prepare_paid_replacement(input: Dictionary, spec: Dictionary) -> Dictionary
 	var checked := _validate_shell_input(input)
 	if not checked.ok: return checked
 	if _phase not in [_PHASE_PAID, _PHASE_ACTIVE_VISIBLE, _PHASE_PREPARED_UNSTARTED]: return _fail(&"replacement_requires_paid_phase", "", {})
-	if _phase == _PHASE_PREPARED_UNSTARTED and not _candidate.has("paid_start_receipt"): return _fail(&"replacement_requires_paid_phase", "", {})
+	var paid: bool = _round_paid if _scene_snapshot_format else (_phase != _PHASE_PREPARED_UNSTARTED or _candidate.has("paid_start_receipt"))
+	if not paid: return _fail(&"replacement_requires_paid_phase", "", {})
 	if _phase == _PHASE_ACTIVE_VISIBLE and bool(_board.board.terminal): return _fail(&"terminal_board_cannot_replace", "", {})
 	var valid := _BOARD_SCHEMA.validate_spec(spec)
 	if not valid.ok: return valid
@@ -754,7 +766,9 @@ static func _validate_scene_settlement(snapshot: Dictionary) -> Dictionary:
 
 static func dismissed_inspection_snapshot(snapshot: Dictionary) -> Dictionary:
 	var cleared := snapshot.duplicate(true)
-	if cleared.has("settled_inspection"): cleared.settled_inspection = false
+	if cleared.has("settled_inspection"):
+		cleared.settled_inspection = false
+		cleared.round_paid = false
 	cleared["phase"] = _PHASE_NONE
 	cleared["revision"] = int(snapshot.revision) + 1
 	for key: String in ["identity", "candidate", "board", "settlement"]: cleared[key] = null
@@ -800,6 +814,9 @@ func _scene_candidate_snapshot(candidate: Dictionary) -> Dictionary:
 	for slot: String in ["identity", "candidate", "board", "settlement"]:
 		projected[slot] = candidate.get(slot + "_after")
 	if _scene_snapshot_format:
+		projected.round_paid = _round_paid
+		if projected.phase in [_PHASE_NONE, _PHASE_UNPAID]: projected.round_paid = false
+		elif candidate.get("kind") == &"first_reveal": projected.round_paid = true
 		projected.settled_inspection = _settled_inspection \
 			and projected.phase in [_PHASE_ACTIVE_VISIBLE, _PHASE_ACTIVE_SUSPENDED] \
 			and _same_typed(projected.identity, _identity) and _same_typed(projected.board, _board)
@@ -816,12 +833,26 @@ func _scene_candidate_snapshot(candidate: Dictionary) -> Dictionary:
 	return projected
 
 
+# Current payment is a fact, not a match against an earlier day's round ordinal.
+static func _validate_current_payment_status(snapshot: Dictionary) -> Dictionary:
+	if typeof(snapshot.get("round_paid")) != TYPE_BOOL:
+		return {"ok": false, "code": &"invalid_round_paid"}
+	var phase: String = str(snapshot.get("phase", ""))
+	if phase in [_PHASE_NONE, _PHASE_UNPAID] and snapshot.round_paid:
+		return {"ok": false, "code": &"invalid_round_paid"}
+	if phase in [_PHASE_PAID, _PHASE_ACTIVE_VISIBLE, _PHASE_ACTIVE_SUSPENDED, _PHASE_SETTLING] and not snapshot.round_paid:
+		return {"ok": false, "code": &"invalid_round_paid"}
+	return {"ok": true}
+
+
 func _validate_scene_payments(snapshot: Dictionary) -> Dictionary:
 	if not _PHASES.has(snapshot.get("phase")):
 		return _fail(&"invalid_scene_payment_phase", "", {})
 	var slots := _validate_phase_invariants(snapshot.phase, snapshot.get("identity"),
 		snapshot.get("candidate"), snapshot.get("board"), snapshot.get("settlement"))
 	if not slots.ok: return slots
+	var status := _validate_current_payment_status(snapshot)
+	if not status.ok: return status
 	# First-Reveal records are never compacted. Their receipt is the payment anchor;
 	# command-map keys and current identities may have been remapped by authenticated Load.
 	var anchors: Dictionary = {}
@@ -910,10 +941,10 @@ func _validate_payment_slots(view: Dictionary, anchors: Dictionary, historical: 
 		if slot == null: continue
 		if not slot is Dictionary: return _fail(&"invalid_scene_payment_slot", "", {})
 		var required: bool = key == "board" or view.phase == _PHASE_PAID
-		if not historical and key == "candidate" and view.get("identity") is Dictionary:
-			for payment: Dictionary in anchors.values():
-				if _same_typed(view.identity.get("run_id"), payment.identity.run_id) \
-						and _same_typed(view.identity.get("app_round_ordinal"), payment.identity.app_round_ordinal): required = true
+		if not historical:
+			required = view.round_paid
+			if not required and slot.has("paid_start_receipt"):
+				return _fail(&"unexpected_paid_start_receipt", "", {})
 		if not slot.has("paid_start_receipt"):
 			if required: return _fail(&"paid_start_receipt_required", "", {})
 			continue

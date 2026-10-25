@@ -2526,6 +2526,7 @@ func test_remap_preserves_scene_settlement_fact_without_creating_terminal_histor
 	var snapshot := _snapshot("old-tx-1", source_commit)
 	snapshot.desktop.board.erase("terminal_receipts")
 	snapshot.desktop.board["settled_inspection"] = true
+	snapshot.desktop.board["round_paid"] = true
 	snapshot.desktop.board.phase = "ACTIVE_VISIBLE"
 	snapshot.desktop.board.settlement = null
 	snapshot.desktop.consequence.pending = null
@@ -2538,6 +2539,7 @@ func test_remap_preserves_scene_settlement_fact_without_creating_terminal_histor
 	if not result.ok: return
 	var board: Dictionary = result.value.snapshot.desktop.board
 	assert_true(board.settled_inspection)
+	assert_true(board.round_paid)
 	assert_false(board.has("terminal_receipts"), "remapping cannot recreate the removed field")
 	assert_eq(board.identity.branch_id, "branch-new")
 	assert_true(board.command_receipts.has("new-tx-1"))

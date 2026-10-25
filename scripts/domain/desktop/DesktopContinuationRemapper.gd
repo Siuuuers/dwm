@@ -96,6 +96,7 @@ const _REMAP_TABLE: Array[Dictionary] = [
 	{"path": "desktop.board.command_receipts", "handled": true},
 	{"path": "desktop.board.terminal_receipts", "handled": true},
 	{"path": "desktop.board.settled_inspection", "handled": true},
+	{"path": "desktop.board.round_paid", "handled": true},
 	{"path": "desktop.consequence.causal_day_instance+receipt", "handled": true},
 	{"path": "desktop.consequence.pending.transaction_id+receipt", "handled": true},
 	{"path": "desktop.consequence.pending.source_commit_receipt_id+provenance", "handled": true},

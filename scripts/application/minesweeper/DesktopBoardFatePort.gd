@@ -547,6 +547,7 @@ func _build_departed_snapshot(base_snapshot: Dictionary, board_fate_receipt_id: 
 	}
 	if base_snapshot.has("settled_inspection"):
 		departed["settled_inspection"] = false
+		departed["round_paid"] = false
 	else:
 		var terminal_receipts: Dictionary = base_snapshot.terminal_receipts.duplicate(true)
 		terminal_receipts[board_fate_receipt_id] = {
@@ -628,6 +629,6 @@ func _fail(code: StringName, message: String, details: Dictionary) -> Dictionary
 
 static func _fate_for_snapshot(snapshot: Dictionary) -> StringName:
 	if _BOARD_STATE_SCRIPT.is_settled_inspection(snapshot): return &"none"
-	if snapshot.get("candidate") is Dictionary and snapshot.candidate.has("paid_start_receipt"):
+	if snapshot.get("round_paid", false) or (not snapshot.has("round_paid") and snapshot.get("candidate") is Dictionary and snapshot.candidate.has("paid_start_receipt")):
 		return &"forfeited_started"
 	return _fate_for_phase(str(snapshot.phase))
