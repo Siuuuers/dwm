@@ -131,6 +131,33 @@ func test_live_run_backup_restores_detached_scene_progress() -> void:
 	assert_eq(owner.scene_choices, baseline.backup.scene_choices)
 	assert_eq(owner.scene_challenge_outcomes, baseline.backup.scene_challenge_outcomes)
 
+func test_nested_registration_scope_restores_matching_derived_tables() -> void:
+	var manifest := preload("res://scripts/narrative/DialogicEntryManifest.gd")
+	var parsed: Dictionary = preload("res://scripts/validation/StrictJson.gd").parse_object(
+		FileAccess.get_file_as_string("res://data/manifests/scene_story_registration.json"))
+	assert_true(parsed.ok, str(parsed))
+	if not parsed.ok: return
+	var installed: Dictionary = manifest.configure_test_scene_registration(parsed.value)
+	assert_true(installed.ok, str(installed))
+	if not installed.ok: return
+	var original: Dictionary = manifest.scene_contract_tables()
+	assert_true(original.ok, str(original))
+	if not original.ok: return
+	var nested := preload("res://tests/support/SceneValidationScope.gd").new()
+	nested.install(true)
+	assert_true(manifest._scene_contract_tables.is_empty(), "registration reset clears its derived tables")
+	var replacement: Dictionary = preload("res://tests/support/SceneContactFixture.gd").install_registration()
+	assert_true(replacement.ok, str(replacement))
+	if replacement.ok:
+		assert_ne(manifest.scene_contract_tables().value.fingerprint, original.value.fingerprint)
+	nested.restore()
+	var restored: Dictionary = manifest.scene_contract_tables()
+	assert_true(restored.ok, str(restored))
+	if not restored.ok: return
+	assert_eq(restored.value, original.value, "nested fixture restores all outer registration tables")
+	assert_eq(restored.bundle, original.bundle)
+	assert_eq(restored.value.fingerprint, manifest.scene_registration_fingerprint())
+
 func before_each() -> void:
 	_scene_validation_scope.install(true)
 
