@@ -675,6 +675,14 @@ func test_old_content_autosave_backup_rolls_back_exact_bytes_and_allows_retry() 
 	assert_eq(descriptor.sha256, old_text.sha256_text())
 	assert_eq(FileAccess.get_file_as_string(path), old_text, "admission does not migrate source bytes on disk")
 	var captured_input: Dictionary = fixture.game.capture_run_snapshot_input()
+	# This activation fixture uses a diagnostic desktop participant. Expand the
+	# player projection through the real board owner before testing a live producer.
+	var live_board := preload("res://scripts/domain/minesweeper/DesktopBoardState.gd").new()
+	var board_plan: Dictionary = live_board.prepare_player_restore_scene(current_document.current_snapshot.snapshot.desktop.board, fixture.issuer)
+	assert_true(board_plan.ok, str(board_plan))
+	if not board_plan.ok: return
+	assert_true(live_board.commit(board_plan.value.candidate).ok)
+	captured_input.desktop.board = live_board.capture()
 	assert_eq(captured_input.scene, current_document.current_snapshot.snapshot.scene)
 	assert_eq(captured_input.lifecycle, current_document.current_snapshot.snapshot.lifecycle)
 	var inputs := {"snapshot_input": captured_input,

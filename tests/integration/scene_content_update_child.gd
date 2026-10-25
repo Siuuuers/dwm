@@ -45,11 +45,27 @@ func _assert_gameplay_preserved(before: Dictionary) -> void:
 		else:
 			assert_eq(after[key], before[key], "preserved saved gameplay: " + key)
 
+func _click_open_computer(host: Control) -> Array:
+	var action: Callable = host._actions.computer_open
+	var observed: Array = []
+	# Observe the real callback result; the native click and actual Bootstrap
+	# owner still perform the entire action and return their own acknowledgement.
+	host._actions.computer_open = func() -> Dictionary:
+		var result: Dictionary = await action.call()
+		observed.append(result.duplicate(true))
+		return result
+	await _click(_controls(host, "CheckComputer"))
+	host._actions.computer_open = action
+	return observed
+
 func _open_board() -> Control:
 	var host: Control = get_tree().current_scene
-	await _click(_controls(host, "CheckComputer"))
-	assert_true(host.is_computer_open())
-	if not host.is_computer_open(): return null
+	var observed: Array = await _click_open_computer(host)
+	assert_true(host.is_computer_open(), "native CheckComputer opens restored board; action=" + str(observed)
+		+ "; busy=" + str(host._busy) + "; command=" + str(game.capture_scene_challenge_command()))
+	if not host.is_computer_open():
+		await _screenshot("content-update-board-open-refused")
+		return null
 	return host.get_challenge_mount().get_node_or_null("SceneChallengePanel")
 
 func _make_active_board() -> Control:
@@ -261,13 +277,13 @@ func _verify_board_continuation(proof: Dictionary) -> bool:
 		assert_eq(game.capture_dating_challenge_state().value, proof.record)
 		assert_eq(bridge.capture_reading_checkpoint(false), source_reading)
 		assert_eq(profile.get_profile_snapshot().dating_attempts, attempts)
-		assert_true(_caption().is_reading_recovery_active())
+		assert_true(_caption().is_reading_recovery_active(), "binding write refusal displays recovery")
 		await _screenshot("content-update-binding-retry")
 		var activations := [0]
 		_caption().recovery_overlay.retry_button.activated.connect(func(): activations[0] += 1)
 		await _click(_caption().recovery_overlay.retry_button)
 		assert_eq(activations[0], 1)
-		assert_false(_caption().is_reading_recovery_active())
+		assert_false(_caption().is_reading_recovery_active(), "successful binding Retry dismisses recovery")
 		assert_eq(game.capture_dating_challenge_state().value, proof.record)
 		assert_eq(profile.get_profile_snapshot().dating_attempts, attempts)
 		assert_eq(FileAccess.get_sha256(proof.path), proof.source_sha256)
@@ -286,8 +302,24 @@ func _verify_board_continuation(proof: Dictionary) -> bool:
 	assert_eq(game.capture_dating_challenge_state().value, proof.record, "binding B does not rewrite physical A")
 	var before: Dictionary = game.capture_run_snapshot_input().gameplay.duplicate(true)
 	if case_id == "transfer_terminal":
-		await _click(_controls(get_tree().current_scene, "CheckComputer"))
-		if not await _wait_line(UPDATE.line("update.b", "following")): return false
+		var host: Control = get_tree().current_scene
+		var failures: Array = []
+		host.get_challenge_mount().child_entered_tree.connect(func(child: Node):
+			if child.has_signal("presentation_failed"):
+				child.presentation_failed.connect(func(code: StringName): failures.append(String(code))))
+		var opened: Array = await _click_open_computer(host)
+		if not await _wait_line(UPDATE.line("update.b", "following")):
+			var panel: Node = host.get_challenge_mount().get_node_or_null("SceneChallengePanel")
+			var diagnostic := {"open_result": opened, "presentation_failures": failures, "computer_open": host.is_computer_open(),
+				"caption_held": bridge.is_computer_caption_held(), "current_command": game.capture_scene_challenge_command(),
+				"panel_phase": panel.public_view.get("phase") if panel != null else null,
+				"panel_command": panel._command if panel != null else {},
+				"record_context": game.capture_dating_challenge_state().value.get("context", {}),
+				"physical_reference": game.route_context.get("dating_active_attempt_ref", {}),
+				"live_branch": game.capture_run_snapshot_input().lifecycle.branch_id}
+			print("CONTENT_UPDATE_TERMINAL_REFUSED ", diagnostic)
+			_write_json("res://.godot/ci/content-update-terminal-refusal.json", diagnostic)
+			return false
 		await _accept()
 		if not await _wait_line(UPDATE.line("update.end", "anchor")): return false
 		assert_eq(game.scene_challenge_outcomes.size(), 1)
