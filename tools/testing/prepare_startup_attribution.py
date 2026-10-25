@@ -28,7 +28,9 @@ def defer_desktop_scene(text):
     return text[:start] + body + text[end:]
 
 
-def prepare(root, variant, trace_autoloads=False):
+def prepare(root, variant, trace_autoloads=False, trace_newacc=False):
+    if trace_newacc and variant != "baseline":
+        raise ValueError("New Acc tracing is baseline-only")
     root.mkdir(parents=True, exist_ok=True)
     changes = {}
 
@@ -147,6 +149,46 @@ func _probe_start(mode: StringName = MODE_FINAL) -> Dictionary:
             "FONTS.SIMPLIFIED", 'load("res://scripts/ui/UiTypography.gd").font("zh-CN", 100, "readable")'),
             "FONTS.TRADITIONAL", 'load("res://scripts/ui/UiTypography.gd").font("zh-HK", 100, "readable")'))
 
+    if trace_newacc:
+        def trace_newacc_owner(text):
+            wrappers = [
+                ("_prepare_scene_new_run_decision", "target_id: String, initial_context: Dictionary, rng_nonce: Variant", "target_id, initial_context, rng_nonce", "decision"),
+                ("_prepare_scene_new_run_plans", "snapshot: Dictionary, allocation: Dictionary, profile_material: Dictionary", "snapshot, allocation, profile_material", "plans"),
+                ("_resume_scene_new_run", "operation: Dictionary, gate_token: String", "operation, gate_token", "resume"),
+                ("_run_scene_restore_transaction", "plans: Dictionary, journal_candidate: Variant,\n\t\troute_id: String, checkpoint_id: String, _emit_restored: bool, continuation: Dictionary,\n\t\tgate_token: String, already_applied: bool", "plans, journal_candidate, route_id, checkpoint_id, _emit_restored, continuation, gate_token, already_applied", "apply_transaction"),
+            ]
+            for name, parameters, arguments, phase in wrappers:
+                header = f"func {name}({parameters}) -> Dictionary:\n"
+                start = text.index(header)
+                end = text.find("\nfunc ", start + len(header))
+                body = text[start:end if end >= 0 else len(text)]
+                if re.search(r"\bawait\b", body):
+                    raise ValueError(f"Cannot wrap coroutine synchronously: {name}")
+                wrapper = (header + '\tvar probe := get_node("/root/StartupProbe")\n'
+                    + '\tvar began: Dictionary = probe.begin_newacc_phase()\n'
+                    + f'\tvar result: Dictionary = _probe{name}({arguments})\n'
+                    + f'\tprobe.finish_newacc_phase("newacc.{phase}", began, result)\n'
+                    + '\treturn result\n\n' + header.replace(f"func {name}(", f"func _probe{name}("))
+                text = replace_once(text, header, wrapper)
+            # These calls stay in their original owners and keep their coroutine semantics.
+            for owner, call, phase in [
+                ("_probe_resume_scene_new_run", '\tvar settled: Dictionary = call("_settle_new_run_pair", operation, false)\n', "settle_pair"),
+                ("_commit_new_run_intent", '\tvar committed: Dictionary = _continuation_journal.commit_intent(_new_run_intent)\n', "commit_intent"),
+            ]:
+                start = text.index("func " + owner + "(")
+                end = text.index("\nfunc ", start + 1)
+                body = text[start:end]
+                result = "settled" if phase == "settle_pair" else "committed"
+                body = replace_once(body, call,
+                    '\tvar probe := get_node("/root/StartupProbe")\n'
+                    + '\tvar began: Dictionary = probe.begin_newacc_phase()\n' + call
+                    + f'\tprobe.finish_newacc_phase("newacc.{phase}", began, {result})\n')
+                text = text[:start] + body + text[end:]
+            return text
+        edit("autoload/SaveManager.gd", trace_newacc_owner)
+        edit("startup_probe.gd", lambda text: replace_once(text,
+             "const TRACE_NEWACC := false", "const TRACE_NEWACC := true"))
+
     autoload_sources = {}
     if trace_autoloads:
         # Godot constructs every autoload before adding the first one to root.
@@ -205,7 +247,7 @@ func _probe_start(mode: StringName = MODE_FINAL) -> Dictionary:
             edit(path, lambda text, owner=owner: trace_constructor(text, owner))
 
     (root / "startup-variant.json").write_text(json.dumps({"variant": variant,
-        "trace_autoloads": trace_autoloads, "autoload_sources": autoload_sources,
+        "trace_autoloads": trace_autoloads, "trace_newacc": trace_newacc, "autoload_sources": autoload_sources,
         "changes": changes, "probe_sha256": hashlib.sha256((root / "startup_probe.gd").read_bytes()).hexdigest()}, indent=2), encoding="utf-8")
 
 
@@ -215,5 +257,7 @@ if __name__ == "__main__":
     parser.add_argument("--variant", choices=["baseline", "menu", "fonts", "minimal", "desktop"], required=True)
     parser.add_argument("--trace-autoloads", action="store_true",
                         help="Trace constructors in disposable exports; gaps also include loading and member initialization")
+    parser.add_argument("--trace-newacc", action="store_true",
+                        help="Time synchronous New Acc owners and inclusive validation counters")
     args = parser.parse_args()
-    prepare(args.project_root, args.variant, args.trace_autoloads)
+    prepare(args.project_root, args.variant, args.trace_autoloads, args.trace_newacc)

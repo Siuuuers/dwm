@@ -1,5 +1,6 @@
 extends Node
 ## Diagnostic export only. No game preloads: this observer must not add eager dependencies.
+const TRACE_NEWACC := false
 const FIRST_LINE := "line.Day1.one"
 const FIRST_EN := "Sylvia slides the fuller teacup onto my mat and keeps the one with the small chip on the rim for herself."
 var milestones: Dictionary = {}
@@ -11,6 +12,9 @@ var observation: Dictionary = {}
 var font_cache: Dictionary = {}
 var desktop_cache: Dictionary = {}
 var apps_observation: Dictionary = {}
+var newacc_validation_profile: Dictionary = {}
+var _newacc_timing: Variant = null
+var _newacc_scope_owned := false
 var folder := OS.get_environment("DWM_STARTUP_OUTPUT")
 var case_name := OS.get_environment("DWM_STARTUP_CASE")
 var journey := OS.get_environment("DWM_STARTUP_JOURNEY")
@@ -30,6 +34,52 @@ func finish_phase(phase: String, began: Dictionary, ok: bool = true) -> void:
 	var ended := stamp()
 	phases.append({"phase": phase, "start": began, "end": ended,
 		"elapsed_us": int(ended.ticks_us) - int(began.ticks_us), "ok": ok})
+
+func _begin_newacc_scope() -> bool:
+	if not TRACE_NEWACC: return true
+	_newacc_timing = load("res://scripts/narrative/SceneValidationTiming.gd")
+	_newacc_scope_owned = _newacc_timing.begin_scope("exported_new_acc", case_name, "button_to_caption", 0)
+	return _check(_newacc_scope_owned, "New Acc validation profiling scope unavailable")
+
+func _end_newacc_scope(ok: bool) -> void:
+	if not _newacc_scope_owned: return
+	newacc_validation_profile = _newacc_timing._record.duplicate(true)
+	newacc_validation_profile["elapsed_us"] = Time.get_ticks_usec() - _newacc_timing._started_us
+	newacc_validation_profile["ok"] = ok
+	_newacc_timing.end_scope(ok)
+	_newacc_scope_owned = false
+
+func _newacc_counters() -> Dictionary:
+	var result := {}
+	if not _newacc_scope_owned: return result
+	var record: Dictionary = _newacc_timing._record
+	for key: String in record:
+		if (key.ends_with("_calls") or key.ends_with("_us") or key.ends_with("_failures")) and typeof(record[key]) == TYPE_INT:
+			result[key] = record[key]
+	result["snapshot_validation_calls"] = record.snapshot_validations.size()
+	result["snapshot_validation_us"] = 0
+	for item: Dictionary in record.snapshot_validations:
+		result.snapshot_validation_us += int(item.elapsed_us)
+	return result
+
+func begin_newacc_phase() -> Dictionary:
+	if not _newacc_scope_owned: return {}
+	var began := stamp()
+	began["counters"] = _newacc_counters()
+	return began
+
+func finish_newacc_phase(phase: String, began: Dictionary, result: Dictionary) -> void:
+	if began.is_empty(): return
+	var ended := stamp()
+	var counters := _newacc_counters()
+	for key: String in counters:
+		counters[key] -= int(began.counters.get(key, 0))
+	var code := str(result.get("code", ""))
+	phases.append({"phase": phase, "start": began, "end": ended,
+		"elapsed_us": int(ended.ticks_us) - int(began.ticks_us),
+		"ok": bool(result.get("ok", false)) or code == "scene_activation_pending",
+		"operation_ok": bool(result.get("ok", false)), "code": code,
+		"inclusive_nested": true, "validation_counter_delta": counters})
 
 func _enter_tree() -> void:
 	mark("probe_enter_tree")
@@ -198,6 +248,7 @@ func _new_acc(menu: Node, button: Button) -> void:
 	var bridge := get_node("/root/DialogicBridge")
 	var game := get_node("/root/GameState")
 	if not await _prepare_pointer(button, "new_acc"): return
+	if not _begin_newacc_scope(): return
 	if not await _click(button, "new_acc"): return
 	var confirmed := false
 	var deadline := Time.get_ticks_msec() + 300000
@@ -228,6 +279,7 @@ func _new_acc(menu: Node, button: Button) -> void:
 				break
 		await get_tree().process_frame
 	if not _check(not observation.is_empty() and confirmed == (case_name == "retained"), "complete caption/expected consent not reached"): return
+	_end_newacc_scope(true)
 	var locale: String = get_node("/root/LocalizationManager").get_locale()
 	var texts: Dictionary = load("res://scripts/localization/StoryLocalization.gd").catalog(locale)
 	if not _check(observation.text == texts.get(FIRST_LINE, FIRST_EN), "caption differs from authored text"): return
@@ -299,6 +351,7 @@ func _apps() -> void:
 func _finish(ok: bool) -> void:
 	if finished: return
 	finished = true
+	_end_newacc_scope(ok)
 	var rendering := {}
 	for method: String in ["get_current_rendering_method", "get_current_rendering_driver_name", "get_video_adapter_name", "get_video_adapter_api_version"]:
 		if RenderingServer.has_method(method): rendering[method] = RenderingServer.call(method)
@@ -312,6 +365,8 @@ func _finish(ok: bool) -> void:
 		"autoload_trace_scope": "Optional constructor begin/end stamps. Previous constructor end to next constructor begin includes dependency loading, member initialization and engine bookkeeping. It is not pure disk time or an exclusive dependency cost. All autoloads are constructed before the first root add_child; probe_enter_tree is later than these constructors.",
 		"milestones": milestones, "phases": phases, "inputs": inputs, "observation": observation, "font_cache": font_cache,
 		"desktop_cache": desktop_cache, "apps_observation": apps_observation,
+		"trace_newacc": TRACE_NEWACC, "newacc_validation_profile": newacc_validation_profile,
+		"newacc_phase_scope": "Inclusive synchronous owner intervals and validation counter deltas overlap. Do not sum parents with children. Whole validation scope includes normal text reveal and retained consent dwell. No yield or mutation behavior is changed.",
 		"max_frame_gap_us": frame_gaps, "failures": failures, "rendering": rendering,
 		"engine": Engine.get_version_info(), "preferences": preferences, "display_server": DisplayServer.get_name(),
 		"window_size": str(get_window().size), "viewport_size": str(get_viewport().get_visible_rect().size),

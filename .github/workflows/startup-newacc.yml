@@ -1,0 +1,228 @@
+name: New Acc synchronous attribution
+run-name: New Acc synchronous attribution - baseline 47234a3
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [codex/startup-attribution-20261025]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: startup-newacc-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  measure:
+    name: Windows exported baseline with New Acc and constructor tracing
+    runs-on: windows-2022
+    timeout-minutes: 35
+    defaults:
+      run:
+        shell: pwsh
+    env:
+      STARTUP_BASE_SHA: 47234a3395a4566e840140f1849da55a65d15521
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 1
+          persist-credentials: true
+      - name: Prepare disposable checkout and source identity
+        run: |
+          $ErrorActionPreference = 'Stop'
+          git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          git submodule foreach --recursive 'true'
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          git fetch --no-tags --depth=1 origin $env:STARTUP_BASE_SHA
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $output = Join-Path $env:GITHUB_WORKSPACE '.godot/ci/startup-newacc'
+          New-Item -ItemType Directory -Path $output | Out-Null
+          "STARTUP_OUTPUT=$output" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          $receipt = [ordered]@{
+            controller = (& git rev-parse HEAD).Trim()
+            source = $env:STARTUP_BASE_SHA
+            source_tree = (& git rev-parse "$($env:STARTUP_BASE_SHA)^{tree}").Trim()
+            scope = 'Instrumented exported release baseline with synchronous New Acc phases and inclusive validation counters; not the installed Steam package or an optimization comparison'
+            source_archive_exclusions = @('evidence', '.claude')
+            cache_state = 'Fresh means empty user data; OS and driver caches are not cleared'
+            renderer = 'Production default D3D12 Forward Plus; software cloud GPU recorded by probe'
+          }
+          $receipt | ConvertTo-Json -Depth 4 | Set-Content (Join-Path $output 'source.json') -Encoding utf8NoBOM
+          Get-CimInstance Win32_VideoController | Select-Object Name, DriverVersion, AdapterRAM |
+            ConvertTo-Json | Set-Content (Join-Path $output 'video-controller.json') -Encoding utf8NoBOM
+          Get-CimInstance Win32_OperatingSystem | Select-Object Caption, Version, BuildNumber |
+            ConvertTo-Json | Set-Content (Join-Path $output 'operating-system.json') -Encoding utf8NoBOM
+      - name: Install checksum-pinned Godot and Windows export templates
+        timeout-minutes: 12
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $editorArchive = Join-Path $env:RUNNER_TEMP 'godot-4.6.3.zip'
+          Invoke-WebRequest 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_win64.exe.zip' -OutFile $editorArchive
+          if ((Get-FileHash $editorArchive -Algorithm SHA256).Hash.ToLowerInvariant() -ne 'e39986a178d585ce7ac198fb8de6ea436366dc0cc00e594810c2e3e104c04b90') {
+            throw 'Godot editor checksum mismatch.'
+          }
+          $editor = Join-Path $env:RUNNER_TEMP 'startup-godot'
+          Expand-Archive $editorArchive $editor
+          $console = Join-Path $editor 'Godot_v4.6.3-stable_win64_console.exe'
+          & $console --version
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          "GODOT_CONSOLE_PATH=$console" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          $templateArchive = Join-Path $env:RUNNER_TEMP 'startup-templates.tpz'
+          Invoke-WebRequest 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_export_templates.tpz' -OutFile $templateArchive
+          if ((Get-FileHash $templateArchive -Algorithm SHA256).Hash.ToLowerInvariant() -ne '3fbe2c0e2dec9d537ab9ec97bcf8da91dcf23357fc51f67092dd068d839290a8') {
+            throw 'Godot template checksum mismatch.'
+          }
+          $exportUser = Join-Path $env:RUNNER_TEMP 'startup-export-user'
+          $templates = Join-Path $exportUser 'appdata/Godot/export_templates/4.6.3.stable'
+          New-Item -ItemType Directory -Force -Path $templates | Out-Null
+          $archive = [IO.Compression.ZipFile]::OpenRead($templateArchive)
+          try {
+            foreach ($entry in @($archive.Entries | Where-Object { $_.FullName -match '^templates/(version\.txt|windows_(debug|release)_x86_64\.exe|[^/]+\.x86_64\.dll)$' })) {
+              [IO.Compression.ZipFileExtensions]::ExtractToFile($entry, (Join-Path $templates $entry.Name), $false)
+            }
+          } finally { $archive.Dispose() }
+          if ((Get-Content (Join-Path $templates 'version.txt') -Raw).Trim() -ne '4.6.3.stable') { throw 'Template version mismatch.' }
+          "STARTUP_EXPORT_USER=$exportUser" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+      - name: Build the baseline release package with New Acc tracing
+        timeout-minutes: 15
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $sources = Join-Path $env:RUNNER_TEMP 'startup-sources'
+          New-Item -ItemType Directory -Path $sources | Out-Null
+          $sourceArchive = Join-Path $sources 'source.tar'
+          git archive --format=tar "--output=$sourceArchive" $env:STARTUP_BASE_SHA -- . ':(exclude)evidence' ':(exclude).claude'
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $env:APPDATA = Join-Path $env:STARTUP_EXPORT_USER 'appdata'
+          $env:LOCALAPPDATA = Join-Path $env:STARTUP_EXPORT_USER 'localappdata'
+          $env:DWM_TEST_ROOT = Join-Path $env:STARTUP_EXPORT_USER 'test-root'
+          New-Item -ItemType Directory -Force -Path $env:APPDATA, $env:LOCALAPPDATA, $env:DWM_TEST_ROOT | Out-Null
+          function Invoke-CheckedEditor([string[]]$EditorArguments, [string]$LogPath) {
+            $info = [Diagnostics.ProcessStartInfo]::new()
+            $info.FileName = $env:GODOT_CONSOLE_PATH
+            $info.UseShellExecute = $false
+            $info.RedirectStandardOutput = $true
+            $info.RedirectStandardError = $true
+            foreach ($argument in $EditorArguments) { $info.ArgumentList.Add($argument) }
+            $process = [Diagnostics.Process]::new()
+            $process.StartInfo = $info
+            try {
+              if (-not $process.Start()) { throw 'Editor process did not start.' }
+              $stdout = $process.StandardOutput.ReadToEndAsync()
+              $stderr = $process.StandardError.ReadToEndAsync()
+              $timedOut = -not $process.WaitForExit(480000)
+              if ($timedOut) { $process.Kill($true); $process.WaitForExit() }
+              $text = $stdout.GetAwaiter().GetResult() + "`n" + $stderr.GetAwaiter().GetResult()
+              [IO.File]::WriteAllText($LogPath, $text)
+              if ($timedOut -or $process.ExitCode -ne 0 -or $text -match 'SCRIPT ERROR:|(?m)^\s*ERROR:|Unicode parsing error|Unexpected NUL character') {
+                Write-Host (($text -split '\r?\n' | Select-Object -Last 80) -join "`n")
+                throw "Editor failed: $LogPath exit=$($process.ExitCode) timeout=$timedOut"
+              }
+            } finally { $process.Dispose() }
+          }
+          foreach ($variant in @('baseline')) {
+            $source = Join-Path $sources $variant
+            New-Item -ItemType Directory -Path $source | Out-Null
+            tar -xf $sourceArchive -C $source
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+            python tools/testing/prepare_startup_attribution.py --project-root $source --variant $variant --trace-autoloads --trace-newacc
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+            $variantOutput = Join-Path $env:STARTUP_OUTPUT $variant
+            $package = Join-Path $variantOutput 'package'
+            New-Item -ItemType Directory -Force -Path $package | Out-Null
+            Copy-Item (Join-Path $source 'startup-variant.json') (Join-Path $variantOutput 'startup-variant.json')
+            # The prepared configuration includes the diagnostic autoload. Restore
+            # those exact bytes after Dialogic's editor scan rewrites its lookup.
+            $projectPath = Join-Path $source 'project.godot'
+            $projectBytes = [IO.File]::ReadAllBytes($projectPath)
+            Invoke-CheckedEditor @('--headless', '--path', $source, '--import') (Join-Path $variantOutput 'import.log')
+            [IO.File]::WriteAllBytes($projectPath, $projectBytes)
+            Invoke-CheckedEditor @('--headless', '--path', $source, '--export-release', 'Windows Desktop', (Join-Path $package 'game.exe')) (Join-Path $variantOutput 'export.log')
+            foreach ($required in @('game.exe', 'game.pck')) {
+              if (-not (Test-Path (Join-Path $package $required))) { throw "Missing $variant/$required" }
+            }
+            $files = @(Get-ChildItem $package -File -Recurse | Sort-Object FullName | ForEach-Object {
+              @{ path = [IO.Path]::GetRelativePath($package, $_.FullName).Replace('\', '/'); bytes = $_.Length; sha256 = (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant() }
+            })
+            @{ source = $env:STARTUP_BASE_SHA; variant = $variant; files = $files } | ConvertTo-Json -Depth 5 |
+              Set-Content (Join-Path $variantOutput 'package.json') -Encoding utf8NoBOM
+          }
+      - name: Measure two independent fresh and retained profile pairs
+        timeout-minutes: 10
+        env:
+          DWM_SCENE_VALIDATION_PROFILE: '1'
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $executable = Join-Path $env:STARTUP_OUTPUT 'baseline/package/game.exe'
+          foreach ($pair in @('pair1', 'pair2')) {
+            $profile = Join-Path $env:STARTUP_OUTPUT "profiles/$pair"
+            foreach ($case in @('fresh', 'retained')) {
+              $output = Join-Path $env:STARTUP_OUTPUT "measurements/$pair-$case"
+              ./tools/testing/Invoke-ExportedStartupProbe.ps1 -Executable $executable -Output $output -ProfileRoot $profile -Case $case -Variant baseline
+              $report = Get-Content (Join-Path $output 'results.json') -Raw | ConvertFrom-Json
+              $owners = @('StartupProbe', 'ProfileManager', 'GameState', 'SaveManager', 'LocalizationManager', 'AudioManager', 'SystemTtsCoordinator', 'WindowModeManager', 'EffectResolver', 'SceneRouter', 'InputManager', 'AccessibilityManager', 'Dialogic', 'DialogicBridge', 'ApplicationBootstrap')
+              $trace = @($report.autoload_trace)
+              if ($trace.Count -ne 2 * $owners.Count) { throw 'Incomplete autoload constructor trace.' }
+              for ($index = 0; $index -lt $owners.Count; $index++) {
+                $begin = $trace[2 * $index]
+                $end = $trace[2 * $index + 1]
+                if ($begin.owner -cne $owners[$index] -or $end.owner -cne $owners[$index] -or $begin.event -cne 'begin' -or $end.event -cne 'end') { throw 'Autoload trace owner/event order mismatch.' }
+              }
+              for ($index = 1; $index -lt $trace.Count; $index++) {
+                if ($trace[$index].ticks_us -lt $trace[$index - 1].ticks_us) { throw 'Autoload trace clock regressed.' }
+              }
+              if ($trace[-1].ticks_us -gt $report.milestones.probe_enter_tree.ticks_us) { throw 'Constructor trace extends beyond first autoload tree entry.' }
+              if (-not $report.trace_newacc -or -not $report.newacc_validation_profile.ok -or
+                  -not $report.newacc_validation_profile.inclusive_nested) { throw 'New Acc validation observation is missing or incomplete.' }
+              if ($report.newacc_validation_profile.configuration_calls -lt 1 -or
+                  $report.newacc_validation_profile.compilation_calls -lt 1) { throw 'New Acc validation scope contains no configuration/compilation work.' }
+              foreach ($name in @('decision', 'plans', 'resume', 'apply_transaction', 'settle_pair', 'commit_intent')) {
+                $samples = @($report.phases | Where-Object phase -eq "newacc.$name")
+                $minimum = if ($name -eq 'plans') { 2 } else { 1 }
+                if ($samples.Count -lt $minimum) { throw "Missing New Acc owner observations: $name" }
+                foreach ($sample in $samples) {
+                  if (-not $sample.ok -or -not $sample.inclusive_nested -or $null -eq $sample.validation_counter_delta) { throw "Invalid New Acc owner observation: $name" }
+                  if ($sample.end.ticks_us -lt $sample.start.ticks_us -or $sample.elapsed_us -lt 0) { throw 'New Acc owner clock regressed.' }
+                }
+              }
+              # Failed validation probes remain visible in the inclusive counters;
+              # they are observations, not independently interpreted failure verdicts.
+            }
+          }
+      - name: Confirm measured package remains unchanged
+        if: always()
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $receipt = Get-Content (Join-Path $env:STARTUP_OUTPUT 'baseline/package.json') -Raw | ConvertFrom-Json
+          $package = Join-Path $env:STARTUP_OUTPUT 'baseline/package'
+          $actual = @(Get-ChildItem $package -Recurse -File | ForEach-Object { [IO.Path]::GetRelativePath($package, $_.FullName).Replace('\', '/') })
+          if (@(Compare-Object ($actual | Sort-Object) ($receipt.files.path | Sort-Object)).Count -ne 0) { throw 'Measured package file set changed.' }
+          foreach ($entry in $receipt.files) {
+            $path = Join-Path $package $entry.path
+            if ((Get-Item $path).Length -ne $entry.bytes -or (Get-FileHash $path -Algorithm SHA256).Hash.ToLowerInvariant() -cne $entry.sha256) { throw "Measured package changed: $($entry.path)" }
+          }
+      - name: Retain compact timing evidence and current-format profiles
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: exported-startup-newacc-evidence-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            .godot/ci/startup-newacc/*.json
+            .godot/ci/startup-newacc/baseline/*.json
+            .godot/ci/startup-newacc/baseline/*.log
+            .godot/ci/startup-newacc/measurements/
+            .godot/ci/startup-newacc/profiles/
+            !.godot/ci/startup-newacc/profiles/**/shader_cache/**
+            !.godot/ci/startup-newacc/profiles/**/pipeline_cache/**
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 7
+      - name: Retain the exact diagnostic package separately
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: exported-startup-newacc-package-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .godot/ci/startup-newacc/baseline/package/
+          if-no-files-found: warn
+          retention-days: 7
