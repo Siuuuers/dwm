@@ -1,6 +1,7 @@
 extends RefCounted
 ## Native compilation remains the authority for text, native positions and hashes.
 const SOURCE_PATH := "res://data/manifests/authored_week_source.json"
+const REGISTRATION_PATH := "res://data/manifests/scene_story_registration.json"
 const STRICT := preload("res://scripts/validation/StrictJson.gd")
 const ADAPTER := preload("res://scripts/narrative/DialogicRuntimeAdapter.gd")
 const MANIFEST := preload("res://scripts/narrative/DialogicEntryManifest.gd")
@@ -10,6 +11,13 @@ static func prepare() -> Dictionary:
 	var parsed: Dictionary = STRICT.parse_object(FileAccess.get_file_as_string(SOURCE_PATH))
 	if not parsed.ok: return parsed
 	var source: Dictionary = parsed.value
+	# The installed catalogue supplies revision continuity only. Its old source
+	# hashes must not validate the edited DTL that this export is rebuilding.
+	var installed: Dictionary = STRICT.parse_object(FileAccess.get_file_as_string(REGISTRATION_PATH))
+	if not installed.ok: return installed
+	var previous_lines := {}
+	for entry: Dictionary in installed.value.caption_registry.entries:
+		for line: Dictionary in entry.lines: previous_lines[line.line_id] = line
 	var prepared: Dictionary = BASE.prepare()
 	if not prepared.ok: return prepared
 	var bundle: Dictionary = prepared.value.registration
@@ -61,15 +69,9 @@ static func prepare() -> Dictionary:
 			"entry_id": id, "schema_id": entry.context_schema_id, "schema_version": 1,
 			"fields": {"entry_id": {"const": id}, "entry_role": {"const": "scene"},
 				"occurrence_id": "id", "admission_receipt_id": "id"}})
-		var lines: Array = []
-		for event: Dictionary in compiled.value.events:
-			if event.kind != "text": continue
-			var index: int = lines.size()
-			if index >= spec.lines.size() or event.line_id != spec.lines[index].line_id or event.text != spec.lines[index].text:
-				return {"ok": false, "code": "authored_caption_mismatch", "entry_id": id, "index": index}
-			bundle.ids_registry.lines.append({"line_id": event.line_id, "owning_entry_id": id})
-			lines.append({"beat_id": "beat." + event.line_id, "line_id": event.line_id, "text": event.text, "revision": "1"})
-		if lines.size() != spec.lines.size(): return {"ok": false, "code": "authored_caption_count_mismatch", "entry_id": id}
+		var lines: Array = caption_lines(compiled.value.events, previous_lines)
+		for line: Dictionary in lines:
+			bundle.ids_registry.lines.append({"line_id": line.line_id, "owning_entry_id": id})
 		bundle.caption_registry.entries.append({"entry_id": id, "lines": lines})
 		bundle.scene_programme.entries.append({"entry_id": id, "content_version": 1,
 			"content_sha256": compiled.value.content_sha256, "program_sha256": compiled.value.program_sha256, "markers": spec.markers})
@@ -86,3 +88,15 @@ static func prepare() -> Dictionary:
 	var checked: Dictionary = MANIFEST.validate_scene_registration(bundle)
 	if not checked.ok: return checked
 	return {"ok": true, "value": {"registration": bundle, "first_target_id": "target." + source.first_entry_id}}
+
+## Native-compiled IDs and prose own the current text; the source adapter's old
+## line list is provenance only. Unchanged captions retain legacy read marks.
+static func caption_lines(events: Array, previous_lines: Dictionary) -> Array:
+	var lines: Array = []
+	for event: Dictionary in events:
+		if event.kind != "text": continue
+		var previous: Dictionary = previous_lines.get(event.line_id, {})
+		var revision: String = previous.revision if previous.get("text") == event.text else event.text.sha256_text()
+		lines.append({"beat_id": "beat." + event.line_id, "line_id": event.line_id,
+			"text": event.text, "revision": revision})
+	return lines

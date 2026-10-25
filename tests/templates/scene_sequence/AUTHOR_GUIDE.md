@@ -1,5 +1,31 @@
 # Author guide: reusable Challenge, echo and option pointers
 
+## Current authored-week text editing
+
+Edit `dialogic/timelines/authored_week/Day1.dtl` through `Day7.dtl` directly.
+Keep a caption's existing `#id:` when changing its wording or moving its position.
+Give each inserted caption a new unique ID. Never renumber following captions or
+reuse a deleted ID for a different story moment. The old generated-file headers
+describe the initial import; `build_playable_week.py` now refuses to overwrite
+existing authored DTL because its ordinal IDs are not safe for later edits.
+
+`data/manifests/authored_week_source.json` still owns entry, day, marker, choice,
+and Challenge bindings. Its `lines` lists are historical import provenance,
+not a second editable copy of current dialogue. Update a marker's `after_line_id`
+when changing the caption that directly precedes that control.
+
+On the cloud Godot runner, regenerate the committed registration with
+`tools/authoring/ExportSevenDayRegistration.gd`, then run the authored-week tests
+and the relevant connected journeys. Native DTL compilation owns current text,
+IDs and executable positions. Do not hand-edit generated hashes. Keep the prior
+committed registration present during regeneration: identical line ID/text pairs
+retain their revision, including legacy revision `1`; changed or new text uses
+its content hash. Repeating an export preserves these revisions. Read status
+remains shared across languages through the canonical English caption revision.
+Translation-only edits do not create a separate language-specific read mark.
+
+This authoring rule does not itself implement cross-version save restoration.
+
 This guide is for neutral replaceable templates, not story writing. It follows
 [Director scope](https://github.com/Siuuuers/dwm/pull/30#issuecomment-6236752089),
 [five-result names](https://github.com/Siuuuers/dwm/pull/30#issuecomment-6236942172)

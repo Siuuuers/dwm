@@ -593,7 +593,7 @@ if ($Suite -in @('scene_contacts', 'scene_current_creation', 'scene_current_fram
             $replayProof.process_id -eq $createProof.process_id -or
             $replayProof.process_id -eq $loadProof.finisher_process_id -or
             $replayProof.completed_creator -ne $loadProof.finisher_process_id -or
-            $replayProof.profile_unchanged -ne $true -or $replayProof.run_unchanged -ne $true -or $replayProof.finish_count -ne 1) {
+            $replayProof.only_displayed_read_marks_changed -ne $true -or $replayProof.run_unchanged -ne $true -or $replayProof.finish_count -ne 1) {
             throw 'Passage evidence must bind three distinct processes and read-only replay.'
         }
         foreach ($case in @($loadCases[0], $settledCases[0])) {

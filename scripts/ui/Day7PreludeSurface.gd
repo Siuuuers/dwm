@@ -109,8 +109,8 @@ func configure_waiting(retry: Callable, acknowledge: Callable, locale: String = 
 	_refresh_typography_preferences()
 	return {"ok": true}
 
-## Day 7 witnesses on presentation, then keeps the card until navigation. Gallery
-## replay keeps its separate completion-on-Next contract through the default mode.
+## Day 7 and scene-passage Replay witness on presentation, then keep the card
+## until navigation. Legacy Gallery cards keep completion-on-Next by default.
 func use_presentation_receipts() -> Dictionary:
 	if not _configured or is_inside_tree(): return _fail("prelude_already_configured")
 	_presentation_receipts = true

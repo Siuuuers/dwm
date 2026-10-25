@@ -1,6 +1,37 @@
 extends "res://addons/gut/test.gd"
 const WEEK := preload("res://tools/authoring/AuthoredWeekRegistration.gd")
 const CONTRACT := preload("res://scripts/domain/narrative/SceneEventContract.gd")
+const ADAPTER := preload("res://scripts/narrative/DialogicRuntimeAdapter.gd")
+
+func test_direct_dtl_edits_preserve_ids_and_only_revise_changed_text() -> void:
+	var original := "label authoring.test\n\\TEST first. #id:line.authoring.first\n\\TEST second. #id:line.authoring.second\nreturn\n"
+	var compiled: Dictionary = ADAPTER._compile_scene_programme_source(original, "authoring.test", ["authoring.test"], [])
+	assert_true(compiled.ok)
+	if not compiled.ok: return
+	var previous := {
+		"line.authoring.first": {"line_id": "line.authoring.first", "text": "TEST first.", "revision": "1"},
+		"line.authoring.second": {"line_id": "line.authoring.second", "text": "TEST second.", "revision": "retained-revision"}}
+	var unchanged: Array = WEEK.caption_lines(compiled.value.events, previous)
+	assert_eq(unchanged[0].revision, "1", "legacy witnesses keep their unchanged revision")
+	assert_eq(unchanged[1].revision, "retained-revision")
+	var edited := original.replace("TEST first.", "TEST revised first.").replace(
+		"\\TEST second.", "\\TEST inserted. #id:line.authoring.inserted\n\\TEST second.")
+	compiled = ADAPTER._compile_scene_programme_source(edited, "authoring.test", ["authoring.test"], [])
+	assert_true(compiled.ok)
+	if not compiled.ok: return
+	var lines: Array = WEEK.caption_lines(compiled.value.events, previous)
+	assert_eq(lines.map(func(line: Dictionary) -> String: return line.line_id),
+		["line.authoring.first", "line.authoring.inserted", "line.authoring.second"])
+	assert_eq(lines[0].revision, "TEST revised first.".sha256_text())
+	assert_eq(lines[1].revision, "TEST inserted.".sha256_text())
+	assert_eq(lines[2], unchanged[1], "insertion does not rename or unread a later unchanged caption")
+	var exported := {}
+	for line: Dictionary in lines: exported[line.line_id] = line
+	assert_eq(WEEK.caption_lines(compiled.value.events, exported), lines, "repeat export is stable")
+	for invalid: String in [original.replace(" #id:line.authoring.first", ""),
+			original.replace("line.authoring.second", "line.authoring.first")]:
+		assert_false(ADAPTER._compile_scene_programme_source(invalid, "authoring.test", ["authoring.test"], []).ok,
+			"native compiler still rejects missing or duplicate stable identity")
 
 func test_authored_week_compiles_and_preserves_conditional_branch_bindings() -> void:
 	var prepared: Dictionary = WEEK.prepare()

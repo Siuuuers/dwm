@@ -184,15 +184,52 @@ func replay_completed_passage_scene() -> void:
 	await _screenshot("passage-gallery-record")
 	var owner: RefCounted = gallery._replay_owner
 	var run_before: Dictionary = game.capture_run_snapshot_input().duplicate(true)
-	var profile_before: Dictionary = profile.get_profile_snapshot().duplicate(true)
 	var autosave_before := FileAccess.get_sha256("user://saves/autosave.json")
-	var profile_bytes := FileAccess.get_sha256("user://profile.json")
+	if not _ok(profile.reset_visited_history()): return
+	var profile_before: Dictionary = profile.get_profile_snapshot().duplicate(true)
 	if not _ok(owner.get_variants(PASSAGE_ID)): return
+	# A displayed card is read even when Replay closes before Next. Future cards
+	# remain unread, and the exact same revision is shared across locales.
+	await _click(gallery._replay_button)
+	for frame: int in 8: await get_tree().process_frame
+	assert_true(owner.is_playing())
+	if not owner.is_playing(): return
+	var first_beat: Dictionary = bridge._reached_replay.passage_reading._caption_variants_by_line["line.scene.test.a.two"].duplicate(true)
+	var last_beat: Dictionary = bridge._reached_replay.passage_reading._caption_variants_by_line["line.scene.test.a.three"].duplicate(true)
+	assert_true(profile.is_caption_variant_witnessed(first_beat), "drawing first card marks its exact revision before Next")
+	assert_false(profile.is_caption_variant_witnessed(last_beat), "entry does not mark unseen remaining captions")
+	assert_eq(bridge._reached_replay.passage_index, 0, "presentation acknowledgement does not advance")
+	if not _ok(owner.close()): return
+	assert_true(profile.is_caption_variant_witnessed(first_beat), "cancel preserves the displayed read mark")
+	assert_false(profile.is_caption_variant_witnessed(last_beat))
+	assert_eq(game.capture_run_snapshot_input(), run_before)
+	assert_eq(FileAccess.get_sha256("user://saves/autosave.json"), autosave_before)
+	if not _ok(profile.set_preference(&"preferences.language.primary_locale_id", "ja")): return
+	assert_true(profile.is_caption_variant_witnessed(first_beat), "locale selection shares the same read revision")
+	if not _ok(profile.set_preference(&"preferences.language.primary_locale_id", "en")): return
+	if not _ok(profile.reset_visited_history()): return
+	profile_before = profile.get_profile_snapshot().duplicate(true)
+	var profile_bytes := FileAccess.get_sha256("user://profile.json")
+	var profile_files: RefCounted = profile._storage._file_ops
+	var read_fault := ProfileWriteRefusal.new()
+	profile._storage._file_ops = read_fault
 	var finishes: Array = []
 	owner.playback_finished.connect(func(result: Dictionary): finishes.append(result))
 	await _click(gallery._replay_button)
+	for frame: int in 8: await get_tree().process_frame
+	profile._storage._file_ops = profile_files
 	assert_true(owner.is_playing())
 	if not owner.is_playing(): return
+	assert_eq(read_fault.refused, 1, "actual display attempted a physical read-mark write")
+	assert_eq(profile.get_profile_snapshot(), profile_before, "refused mark preserves Profile")
+	assert_eq(FileAccess.get_sha256("user://profile.json"), profile_bytes)
+	assert_eq(bridge._reached_replay.passage_index, 0)
+	var retry_surface: Node = bridge._reached_replay.surface
+	assert_true(retry_surface._status.visible)
+	await _click(retry_surface._next)
+	assert_true(profile.is_caption_variant_witnessed(first_beat), "Retry saves only the displayed revision")
+	assert_false(profile.is_caption_variant_witnessed(last_beat))
+	assert_eq(bridge._reached_replay.passage_index, 0, "retry acknowledgement does not skip first caption")
 	for expected: String in ["line.scene.test.a.two", "line.scene.test.a.three"]:
 		for frame: int in 5: await get_tree().process_frame
 		assert_eq(bridge._reached_replay.card.receipt.line_id, expected)
@@ -204,12 +241,19 @@ func replay_completed_passage_scene() -> void:
 	assert_eq(finishes.size(), 1)
 	assert_true(bridge._reached_replay.is_empty())
 	assert_eq(game.capture_run_snapshot_input(), run_before)
-	assert_eq(profile.get_profile_snapshot(), profile_before)
+	var after: Dictionary = profile.get_profile_snapshot().duplicate(true)
+	assert_true(profile.is_caption_variant_witnessed(first_beat))
+	assert_true(profile.is_caption_variant_witnessed(last_beat))
+	assert_eq(after.visited_line_ids.size(), 2, "Replay marks only its two displayed captions")
+	assert_eq(after.witnessed_caption_variants.size(), 2)
+	for key: String in ["visited_line_ids", "witnessed_caption_variants"]:
+		after.erase(key)
+		profile_before.erase(key)
+	assert_eq(after, profile_before, "read marks are Replay's only Profile changes")
 	assert_eq(FileAccess.get_sha256("user://saves/autosave.json"), autosave_before)
-	assert_eq(FileAccess.get_sha256("user://profile.json"), profile_bytes)
 	_write_json("res://.godot/ci/passage-connected-replay-proof.json", {"process_id": OS.get_process_id(),
 		"completed_creator": proof.finisher_process_id, "replayed_line_ids": ["line.scene.test.a.two", "line.scene.test.a.three"],
-		"profile_unchanged": true, "run_unchanged": true, "finish_count": finishes.size()})
+		"only_displayed_read_marks_changed": true, "run_unchanged": true, "finish_count": finishes.size()})
 	# Selecting an earlier Run preserves global Gallery discovery.
 	var earlier := _load_passage("slot:1")
 	assert_eq(earlier.get("code"), &"scene_activation_pending", str(earlier))

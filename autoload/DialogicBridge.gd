@@ -1802,7 +1802,8 @@ func capture_rehearsal_variables() -> Dictionary:
 	return {"ok": true, "value": {"variables": variables}}
 
 ## Registered linear DTL passages replay as the same read-only native cards
-## already used by Gallery. No gameplay owner, command dispatcher or save runs.
+## already used by Gallery. Only displayed read marks may change Profile; no Run
+## save, gameplay owner or command dispatcher runs.
 func get_scene_passage(passage_id: String) -> Dictionary:
 	var registered: Dictionary = preload("res://scripts/narrative/DialogicEntryManifest.gd").scene_registration()
 	if not registered.ok: return registered
@@ -1822,11 +1823,14 @@ func replay_scene_passage(passage_id: String) -> Dictionary:
 	if passage_id not in discovery.value.ending_ids: return _command_failure(&"ending_not_discovered")
 	var passage := get_scene_passage(passage_id)
 	if not passage.ok: return passage
+	var reading := _READING_SESSION.new()
+	var prepared: Dictionary = reading.configure_scene()
+	if not prepared.ok: return prepared
 	_replay_counter += 1
 	var dialogic := get_node_or_null("/root/Dialogic")
 	var variables: Dictionary = dialogic.current_state_info.get("variables", {}).duplicate(true) if dialogic != null else {}
 	_reached_replay = {"signature_id": passage_id, "token": "passage-replay-%d" % _replay_counter,
-		"passage": passage.value, "passage_index": 0, "variables": variables}
+		"passage": passage.value, "passage_index": 0, "variables": variables, "passage_reading": reading}
 	var card := _scene_passage_replay_card()
 	var surface := _REPLAY_CARD.new()
 	var configured: Dictionary = surface.configure(card, _acknowledge_reached_date_card, _current_locale())
@@ -1838,7 +1842,8 @@ func replay_scene_passage(passage_id: String) -> Dictionary:
 		return _reached_start_failure(_command_failure(&"replay_typography_unavailable"), passage_id)
 	_reached_replay["surface"] = surface
 	_reached_replay["card"] = card
-	surface.card_acknowledged.connect(_on_scene_passage_card_acknowledged)
+	surface.use_presentation_receipts()
+	surface.advance_requested.connect(_on_scene_passage_advance_requested)
 	add_child(surface)
 	return {"ok": true, "code": &"started", "receipt": {"entry_id": passage.value.entry_id,
 		"playback_token": _reached_replay.token}}
@@ -1851,7 +1856,7 @@ func _scene_passage_replay_card() -> Dictionary:
 		"view_token": str(_reached_replay.token) + ":" + str(_reached_replay.passage_index), "line_id": line.line_id},
 		"title": titles.get(locale, "Ending"), "body": _STORY_LOCALE.text(locale, line.line_id, line.text)}
 
-func _on_scene_passage_card_acknowledged(receipt: Dictionary, _result: Dictionary) -> void:
+func _on_scene_passage_advance_requested(receipt: Dictionary) -> void:
 	if _reached_replay.is_empty() or not _reached_replay.has("passage") or receipt != _reached_replay.card.receipt: return
 	_reached_replay.passage_index += 1
 	if _reached_replay.passage_index == _reached_replay.passage.captions.size():
@@ -1954,6 +1959,10 @@ func _acknowledge_reached_date_card(receipt: Dictionary) -> Dictionary:
 	var surface: Node = _reached_replay.surface
 	if not is_instance_valid(surface) or not _reached_replay.card in surface.get_presentation_history():
 		return _command_failure(&"replay_presentation_not_drawn")
+	if _reached_replay.has("passage_reading"):
+		var reading: RefCounted = _reached_replay.passage_reading
+		var beat: Dictionary = reading._caption_variants_by_line[receipt.line_id]
+		return _replay_profile.mark_caption_variant_witnessed(beat, reading.registry)
 	return {"ok": true}
 
 func _on_reached_date_card_acknowledged(receipt: Dictionary, _result: Dictionary) -> void:
