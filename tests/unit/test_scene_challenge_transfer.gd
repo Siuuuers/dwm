@@ -73,9 +73,14 @@ func test_ready_board_transfer_retains_flags_spec_reference_and_closes_for_new_s
 	assert_true(f.action("start").ok)
 	assert_true(f.action("flag", 0).ok)
 	var record: Dictionary = f.record()
+	var panel_before: Dictionary = f.owner.pull_scene_panel(f.token).value
 	var reference: Dictionary = f.state.route_context.dating_active_attempt_ref.duplicate(true)
 	var authority := _transfer()
 	assert_true(f.begin().ok)
+	var panel_after: Dictionary = f.owner.pull_scene_panel(f.token)
+	assert_true(panel_after.ok, str(panel_after))
+	if not panel_after.ok: return
+	assert_eq(panel_after.value, panel_before, "rendered host, cells, flags and dimensions come from frozen A")
 	assert_eq(f.record(), record)
 	assert_eq(f.state.route_context.dating_active_attempt_ref, reference)
 	authority.reject_closure = true
@@ -97,12 +102,17 @@ func test_terminal_board_transfer_keeps_terminal_state_and_closes_new_story_with
 	assert_true(f.action("start").ok)
 	assert_true(f.action("reveal", 323).ok)
 	var record: Dictionary = f.record()
+	var panel_before: Dictionary = f.owner.pull_scene_panel(f.token).value
 	assert_eq(record.phase, "terminal")
 	var source_reference: Dictionary = f.state.route_context.dating_active_attempt_ref.duplicate(true)
 	f.state.lifecycle.branch_id = "TEST.terminal.transfer.branch"
 	_transfer()
 	assert_true(f.begin().ok)
 	assert_eq(f.state.route_context.dating_active_attempt_ref, source_reference, "opening only plans the selected continuation")
+	var panel_after: Dictionary = f.owner.pull_scene_panel(f.token)
+	assert_true(panel_after.ok, str(panel_after))
+	if not panel_after.ok: return
+	assert_eq(panel_after.value, panel_before, "terminal panel still renders the frozen board without old authored profile")
 	var departure: Dictionary = f.owner.prepare_scene_departure(f.command)
 	assert_true(departure.ok, str(departure))
 	assert_eq(f.state.route_context.dating_active_attempt_ref.branch_id, "TEST.terminal.transfer.branch")

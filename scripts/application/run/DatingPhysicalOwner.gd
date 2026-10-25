@@ -188,10 +188,15 @@ func pull_scene_panel(physical_token: String) -> Dictionary:
 	if not _scene_command(): return _fail(&"scene_challenge_unadmitted")
 	var view: Dictionary = _pull_scene(physical_token)
 	if not view.get("ok", false): return view
-	var profile: Dictionary = _scene_board_profile()
-	if not profile.get("ok", false): return profile
 	var value: Dictionary = view.value.duplicate(true)
-	value.host = str(profile.value.difficulty_id)
+	if not _record.is_empty():
+		# Retained physics owns its board host and geometry even when its authored
+		# Challenge/profile has been removed from the installed story bundle.
+		value["host"] = str(_record.spec.difficulty_id)
+	else:
+		var profile: Dictionary = _scene_board_profile()
+		if not profile.get("ok", false): return profile
+		value["host"] = str(profile.value.difficulty_id)
 	if value.get("phase") != "never_started": return _ok(value)
 	var preview: Dictionary = _scene_unstarted_board()
 	if not preview.get("ok", false): return preview
