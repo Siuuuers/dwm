@@ -1,0 +1,898 @@
+[
+  {
+    "name": "forward-baseline-fresh",
+    "case": "fresh",
+    "variant": "baseline",
+    "journey": "new_acc",
+    "clean_exit": true,
+    "lifetime_ms": 30585.5493,
+    "launch_to_probe_enter_tree_ms": 7149.0,
+    "launch_to_first_title_drawn_ms": 8714.0,
+    "launch_to_title_drawn_usable_ms": 8714.0,
+    "launch_to_first_title_input_accepted_ms": 8766.0,
+    "launch_to_bootstrap_start_ms": 7285.0,
+    "new_acc_to_caption_complete_ms": 21265.651,
+    "rendering": {
+      "get_current_rendering_driver_name": "d3d12",
+      "get_current_rendering_method": "forward_plus",
+      "get_video_adapter_api_version": "12_0",
+      "get_video_adapter_name": "Microsoft Basic Render Driver"
+    },
+    "max_frame_gap_us": {
+      "new_acc": 13876038
+    },
+    "phases_ms": {
+      "bootstrap.select_and_prove_roots": 0.047,
+      "bootstrap.construct_and_inject_mutation_gate": 0.193,
+      "bootstrap.construct_identity_issuer_and_contact_commands": 3.011,
+      "registration.physical": 470.511,
+      "registration.structural": 112.366,
+      "bootstrap.initialize_saves": 976.623,
+      "bootstrap.initialize_profile": 34.072,
+      "bootstrap.initialize_localization": 291.987,
+      "bootstrap.initialize_input": 0.164,
+      "bootstrap.initialize_accessibility": 0.014,
+      "bootstrap.initialize_audio": 1.243,
+      "bootstrap.initialize_window_mode": 5.751,
+      "bootstrap.initialize_dialogic_bridge": 20.304,
+      "bootstrap.configure_restore_participants": 20.416,
+      "bootstrap.configure_day_resolution": 3.33,
+      "bootstrap.configure_minesweeper_rounds": 0.081,
+      "bootstrap.publish_application_ready": 6.891,
+      "bootstrap.total": 1365.492
+    },
+    "font_cache": {
+      "probe_enter_tree": {
+        "hc": true,
+        "sc": true
+      },
+      "title_drawn_usable": {
+        "hc": true,
+        "sc": true
+      }
+    }
+  },
+  {
+    "name": "forward-baseline-retained",
+    "case": "retained",
+    "variant": "baseline",
+    "journey": "new_acc",
+    "clean_exit": true,
+    "lifetime_ms": 32268.5048,
+    "launch_to_probe_enter_tree_ms": 5395.0,
+    "launch_to_first_title_drawn_ms": 9612.0,
+    "launch_to_title_drawn_usable_ms": 9612.0,
+    "launch_to_first_title_input_accepted_ms": 9637.0,
+    "launch_to_bootstrap_start_ms": 5526.0,
+    "new_acc_to_caption_complete_ms": 22130.288,
+    "input_to_consent_ms": 40.382,
+    "consent_dwell_ms": 37.602,
+    "confirm_to_caption_complete_ms": 22052.304,
+    "rendering": {
+      "get_current_rendering_driver_name": "d3d12",
+      "get_current_rendering_method": "forward_plus",
+      "get_video_adapter_api_version": "12_0",
+      "get_video_adapter_name": "Microsoft Basic Render Driver"
+    },
+    "max_frame_gap_us": {
+      "confirm": 13517665,
+      "new_acc": 10750
+    },
+    "phases_ms": {
+      "bootstrap.select_and_prove_roots": 0.076,
+      "bootstrap.construct_and_inject_mutation_gate": 0.146,
+      "bootstrap.construct_identity_issuer_and_contact_commands": 3.258,
+      "registration.physical": 472.551,
+      "registration.structural": 106.622,
+      "bootstrap.initialize_saves": 2284.55,
+      "bootstrap.initialize_profile": 40.021,
+      "bootstrap.initialize_localization": 296.086,
+      "bootstrap.initialize_input": 0.178,
+      "bootstrap.initialize_accessibility": 0.012,
+      "bootstrap.initialize_audio": 1.368,
+      "bootstrap.initialize_window_mode": 5.841,
+      "bootstrap.initialize_dialogic_bridge": 22.553,
+      "bootstrap.configure_restore_participants": 23.689,
+      "bootstrap.configure_day_resolution": 1.243,
+      "bootstrap.configure_minesweeper_rounds": 0.083,
+      "bootstrap.publish_application_ready": 1342.137,
+      "bootstrap.total": 4022.574
+    },
+    "font_cache": {
+      "probe_enter_tree": {
+        "hc": true,
+        "sc": true
+      },
+      "title_drawn_usable": {
+        "hc": true,
+        "sc": true
+      }
+    }
+  },
+  {
+    "name": "forward-fonts-fresh",
+    "case": "fresh",
+    "variant": "fonts",
+    "journey": "new_acc",
+    "clean_exit": true,
+    "lifetime_ms": 31143.8579,
+    "launch_to_probe_enter_tree_ms": 6963.0,
+    "launch_to_first_title_drawn_ms": 8528.0,
+    "launch_to_title_drawn_usable_ms": 8528.0,
+    "launch_to_first_title_input_accepted_ms": 8581.0,
+    "launch_to_bootstrap_start_ms": 7095.0,
+    "new_acc_to_caption_complete_ms": 22040.203,
+    "rendering": {
+      "get_current_rendering_driver_name": "d3d12",
+      "get_current_rendering_method": "forward_plus",
+      "get_video_adapter_api_version": "12_0",
+      "get_video_adapter_name": "Microsoft Basic Render Driver"
+    },
+    "max_frame_gap_us": {
+      "new_acc": 14192070
+    },
+    "phases_ms": {
+      "bootstrap.select_and_prove_roots": 0.048,
+      "bootstrap.construct_and_inject_mutation_gate": 0.141,
+      "bootstrap.construct_identity_issuer_and_contact_commands": 2.498,
+      "registration.physical": 469.196,
+      "registration.structural": 109.699,
+      "bootstrap.initialize_saves": 970.935,
+      "bootstrap.initialize_profile": 36.158,
+      "bootstrap.initialize_localization": 297.749,
+      "bootstrap.initialize_input": 0.19,
+      "bootstrap.initialize_accessibility": 0.014,
+      "bootstrap.initialize_audio": 1.326,
+      "bootstrap.initialize_window_mode": 6.033,
+      "bootstrap.initialize_dialogic_bridge": 20.379,
+      "bootstrap.configure_restore_participants": 21.371,
+      "bootstrap.configure_day_resolution": 3.376,
+      "bootstrap.configure_minesweeper_rounds": 0.084,
+      "bootstrap.publish_application_ready": 6.711,
+      "bootstrap.total": 1368.38
+    },
+    "font_cache": {
+      "probe_enter_tree": {
+        "hc": false,
+        "sc": false
+      },
+      "title_drawn_usable": {
+        "hc": false,
+        "sc": false
+      }
+    }
+  },
+  {
+    "name": "forward-fonts-retained",
+    "case": "retained",
+    "variant": "fonts",
+    "journey": "new_acc",
+    "clean_exit": true,
+    "lifetime_ms": 32179.1719,
+    "launch_to_probe_enter_tree_ms": 4796.0,
+    "launch_to_first_title_drawn_ms": 8878.0,
+    "launch_to_title_drawn_usable_ms": 8878.0,
+    "launch_to_first_title_input_accepted_ms": 8903.0,
+    "launch_to_bootstrap_start_ms": 4918.0,
+    "new_acc_to_caption_complete_ms": 22731.507,
+    "input_to_consent_ms": 39.553,
+    "consent_dwell_ms": 38.159,
+    "confirm_to_caption_complete_ms": 22653.795,
+    "rendering": {
+      "get_current_rendering_driver_name": "d3d12",
+      "get_current_rendering_method": "forward_plus",
+      "get_video_adapter_api_version": "12_0",
+      "get_video_adapter_name": "Microsoft Basic Render Driver"
+    },
+    "max_frame_gap_us": {
+      "confirm": 13920574,
+      "new_acc": 10410
+    },
+    "phases_ms": {
+      "bootstrap.select_and_prove_roots": 0.049,
+      "bootstrap.construct_and_inject_mutation_gate": 0.133,
+      "bootstrap.construct_identity_issuer_and_contact_commands": 3.191,
+      "registration.physical": 492.579,
+      "registration.structural": 114.543,
+      "bootstrap.initialize_saves": 2241.016,
+      "bootstrap.initialize_profile": 37.145,
+      "bootstrap.initialize_localization": 284.05,
+      "bootstrap.initialize_input": 0.159,
+      "bootstrap.initialize_accessibility": 0.013,
+      "bootstrap.initialize_audio": 1.214,
+      "bootstrap.initialize_window_mode": 5.746,
+      "bootstrap.initialize_dialogic_bridge": 20.455,
+      "bootstrap.configure_restore_participants": 21.543,
+      "bootstrap.configure_day_resolution": 1.077,
+      "bootstrap.configure_minesweeper_rounds": 0.075,
+      "bootstrap.publish_application_ready": 1281.298,
+      "bootstrap.total": 3898.471
+    },
+    "font_cache": {
+      "probe_enter_tree": {
+        "hc": false,
+        "sc": false
+      },
+      "title_drawn_usable": {
+        "hc": false,
+        "sc": false
+      }
+    }
+  },
+  {
+    "name": "forward-menu-fresh",
+    "case": "fresh",
+    "variant": "menu",
+    "journey": "new_acc",
+    "clean_exit": true,
+    "lifetime_ms": 30229.0198,
+    "launch_to_probe_enter_tree_ms": 6919.0,
+    "launch_to_first_title_drawn_ms": 8486.0,
+    "launch_to_title_drawn_usable_ms": 8486.0,
+    "launch_to_first_title_input_accepted_ms": 8540.0,
+    "launch_to_bootstrap_start_ms": 7049.0,
+    "new_acc_to_caption_complete_ms": 21124.285,
+    "rendering": {
+      "get_current_rendering_driver_name": "d3d12",
+      "get_current_rendering_method": "forward_plus",
+      "get_video_adapter_api_version": "12_0",
+      "get_video_adapter_name": "Microsoft Basic Render Driver"
+    },
+    "max_frame_gap_us": {
+      "new_acc": 13639888
+    },
+    "phases_ms": {
+      "bootstrap.select_and_prove_roots": 0.051,
+      "bootstrap.construct_and_inject_mutation_gate": 0.147,
+      "bootstrap.construct_identity_issuer_and_contact_commands": 2.479,
+      "registration.physical": 487.013,
+      "registration.structural": 108.134,
+      "bootstrap.initialize_saves": 980.141,
+      "bootstrap.initialize_profile": 35.536,
+      "bootstrap.initialize_localization": 291.049,
+      "bootstrap.initialize_input": 0.162,
+      "bootstrap.initialize_accessibility": 0.012,
+      "bootstrap.initialize_audio": 1.309,
+      "bootstrap.initialize_window_mode": 5.846,
+      "bootstrap.initialize_dialogic_bridge": 22.081,
+      "bootstrap.configure_restore_participants": 23.026,
+      "bootstrap.configure_day_resolution": 3.222,
+      "bootstrap.configure_minesweeper_rounds": 0.085,
+      "bootstrap.publish_application_ready": 7.255,
+      "bootstrap.total": 1373.848
+    },
+    "font_cache": {
+      "probe_enter_tree": {
+        "hc": true,
+        "sc": true
+      },
+      "title_drawn_usable": {
+        "hc": true,
+        "sc": true
+      }
+    }
+  },
+  {
+    "name": "forward-menu-retained",
+    "case": "retained",
+    "variant": "menu",
+    "journey": "new_acc",
+    "clean_exit": true,
+    "lifetime_ms": 31824.2028,
+    "launch_to_probe_enter_tree_ms": 4685.0,
+    "launch_to_first_title_drawn_ms": 8800.0,
+    "launch_to_title_drawn_usable_ms": 8800.0,
+    "launch_to_first_title_input_accepted_ms": 8826.0,
+    "launch_to_bootstrap_start_ms": 4810.0,
+    "new_acc_to_caption_complete_ms": 22515.287,
+    "input_to_consent_ms": 40.227,
+    "consent_dwell_ms": 37.735,
+    "confirm_to_caption_complete_ms": 22437.325,
+    "rendering": {
+      "get_current_rendering_driver_name": "d3d12",
+      "get_current_rendering_method": "forward_plus",
+      "get_video_adapter_api_version": "12_0",
+      "get_video_adapter_name": "Microsoft Basic Render Driver"
+    },
+    "max_frame_gap_us": {
+      "confirm": 13579652,
+      "new_acc": 10712
+    },
+    "phases_ms": {
+      "bootstrap.select_and_prove_roots": 0.05,
+      "bootstrap.construct_and_inject_mutation_gate": 0.138,
+      "bootstrap.construct_identity_issuer_and_contact_commands": 3.538,
+      "registration.physical": 454.548,
+      "registration.structural": 105.803,
+      "bootstrap.initialize_saves": 2215.602,
+      "bootstrap.initialize_profile": 36.961,
+      "bootstrap.initialize_localization": 283.074,
+      "bootstrap.initialize_input": 0.179,
+      "bootstrap.initialize_accessibility": 0.011,
+      "bootstrap.initialize_audio": 1.232,
+      "bootstrap.initialize_window_mode": 5.76,
+      "bootstrap.initialize_dialogic_bridge": 20.724,
+      "bootstrap.configure_restore_participants": 21.085,
+      "bootstrap.configure_day_resolution": 1.057,
+      "bootstrap.configure_minesweeper_rounds": 0.139,
+      "bootstrap.publish_application_ready": 1333.878,
+      "bootstrap.total": 3924.813
+    },
+    "font_cache": {
+      "probe_enter_tree": {
+        "hc": true,
+        "sc": true
+      },
+      "title_drawn_usable": {
+        "hc": true,
+        "sc": true
+      }
+    }
+  },
+  {
+    "name": "forward-minimal-fresh",
+    "case": "fresh",
+    "variant": "minimal",
+    "journey": "new_acc",
+    "clean_exit": true,
+    "lifetime_ms": 2910.1404,
+    "launch_to_probe_enter_tree_ms": 2546.0,
+    "launch_to_first_title_drawn_ms": 2572.0,
+    "launch_to_title_drawn_usable_ms": 2572.0,
+    "launch_to_first_title_input_accepted_ms": 2665.0,
+    "rendering": {
+      "get_current_rendering_driver_name": "d3d12",
+      "get_current_rendering_method": "forward_plus",
+      "get_video_adapter_api_version": "12_0",
+      "get_video_adapter_name": "Microsoft Basic Render Driver"
+    },
+    "max_frame_gap_us": {
+      "minimal": 15731
+    },
+    "phases_ms": {},
+    "font_cache": {
+      "probe_enter_tree": {
+        "hc": false,
+        "sc": false
+      }
+    }
+  },
+  {
+    "name": "reverse-baseline-fresh",
+    "case": "fresh",
+    "variant": "baseline",
+    "journey": "new_acc",
+    "clean_exit": true,
+    "lifetime_ms": 29499.3513,
+    "launch_to_probe_enter_tree_ms": 7017.0,
+    "launch_to_first_title_drawn_ms": 8570.0,
+    "launch_to_title_drawn_usable_ms": 8570.0,
+    "launch_to_first_title_input_accepted_ms": 8612.0,
+    "launch_to_bootstrap_start_ms": 7143.0,
+    "new_acc_to_caption_complete_ms": 20413.091,
+    "rendering": {
+      "get_current_rendering_driver_name": "d3d12",
+      "get_current_rendering_method": "forward_plus",
+      "get_video_adapter_api_version": "12_0",
+      "get_video_adapter_name": "Microsoft Basic Render Driver"
+    },
+    "max_frame_gap_us": {
+      "new_acc": 13159548
+    },
+    "phases_ms": {
+      "bootstrap.select_and_prove_roots": 0.042,
+      "bootstrap.construct_and_inject_mutation_gate": 0.173,
+      "bootstrap.construct_identity_issuer_and_contact_commands": 2.363,
+      "registration.physical": 498.996,
+      "registration.structural": 107.754,
+      "bootstrap.initialize_saves": 981.292,
+      "bootstrap.initialize_profile": 31.726,
+      "bootstrap.initialize_localization": 290.738,
+      "bootstrap.initialize_input": 0.168,
+      "bootstrap.initialize_accessibility": 0.013,
+      "bootstrap.initialize_audio": 1.256,
+      "bootstrap.initialize_window_mode": 5.654,
+      "bootstrap.initialize_dialogic_bridge": 20.211,
+      "bootstrap.configure_restore_participants": 19.794,
+      "bootstrap.configure_day_resolution": 2.896,
+      "bootstrap.configure_minesweeper_rounds": 0.071,
+      "bootstrap.publish_application_ready": 6.609,
+      "bootstrap.total": 1364.287
+    },
+    "font_cache": {
+      "probe_enter_tree": {
+        "hc": true,
+        "sc": true
+      },
+      "title_drawn_usable": {
+        "hc": true,
+        "sc": true
+      }
+    }
+  },
+  {
+    "name": "reverse-baseline-retained",
+    "case": "retained",
+    "variant": "baseline",
+    "journey": "new_acc",
+    "clean_exit": true,
+    "lifetime_ms": 30111.4613,
+    "launch_to_probe_enter_tree_ms": 4822.0,
+    "launch_to_first_title_drawn_ms": 8672.0,
+    "launch_to_title_drawn_usable_ms": 8672.0,
+    "launch_to_first_title_input_accepted_ms": 8696.0,
+    "launch_to_bootstrap_start_ms": 4941.0,
+    "new_acc_to_caption_complete_ms": 20873.08,
+    "input_to_consent_ms": 38.93,
+    "consent_dwell_ms": 46.057,
+    "confirm_to_caption_complete_ms": 20788.093,
+    "rendering": {
+      "get_current_rendering_driver_name": "d3d12",
+      "get_current_rendering_method": "forward_plus",
+      "get_video_adapter_api_version": "12_0",
+      "get_video_adapter_name": "Microsoft Basic Render Driver"
+    },
+    "max_frame_gap_us": {
+      "confirm": 12733668,
+      "new_acc": 10340
+    },
+    "phases_ms": {
+      "bootstrap.select_and_prove_roots": 0.042,
+      "bootstrap.construct_and_inject_mutation_gate": 0.173,
+      "bootstrap.construct_identity_issuer_and_contact_commands": 3.3,
+      "registration.physical": 463.747,
+      "registration.structural": 102.527,
+      "bootstrap.initialize_saves": 2116.209,
+      "bootstrap.initialize_profile": 33.489,
+      "bootstrap.initialize_localization": 278.181,
+      "bootstrap.initialize_input": 0.158,
+      "bootstrap.initialize_accessibility": 0.013,
+      "bootstrap.initialize_audio": 1.244,
+      "bootstrap.initialize_window_mode": 5.635,
+      "bootstrap.initialize_dialogic_bridge": 19.923,
+      "bootstrap.configure_restore_participants": 19.589,
+      "bootstrap.configure_day_resolution": 1.017,
+      "bootstrap.configure_minesweeper_rounds": 0.073,
+      "bootstrap.publish_application_ready": 1188.411,
+      "bootstrap.total": 3668.745
+    },
+    "font_cache": {
+      "probe_enter_tree": {
+        "hc": true,
+        "sc": true
+      },
+      "title_drawn_usable": {
+        "hc": true,
+        "sc": true
+      }
+    }
+  },
+  {
+    "name": "reverse-fonts-fresh",
+    "case": "fresh",
+    "variant": "fonts",
+    "journey": "new_acc",
+    "clean_exit": true,
+    "lifetime_ms": 29843.4941,
+    "launch_to_probe_enter_tree_ms": 6619.0,
+    "launch_to_first_title_drawn_ms": 8172.0,
+    "launch_to_title_drawn_usable_ms": 8172.0,
+    "launch_to_first_title_input_accepted_ms": 8217.0,
+    "launch_to_bootstrap_start_ms": 6741.0,
+    "new_acc_to_caption_complete_ms": 21102.48,
+    "rendering": {
+      "get_current_rendering_driver_name": "d3d12",
+      "get_current_rendering_method": "forward_plus",
+      "get_video_adapter_api_version": "12_0",
+      "get_video_adapter_name": "Microsoft Basic Render Driver"
+    },
+    "max_frame_gap_us": {
+      "new_acc": 13698320
+    },
+    "phases_ms": {
+      "bootstrap.select_and_prove_roots": 0.044,
+      "bootstrap.construct_and_inject_mutation_gate": 0.139,
+      "bootstrap.construct_identity_issuer_and_contact_commands": 2.411,
+      "registration.physical": 486.265,
+      "registration.structural": 108.396,
+      "bootstrap.initialize_saves": 974.975,
+      "bootstrap.initialize_profile": 35.21,
+      "bootstrap.initialize_localization": 295.728,
+      "bootstrap.initialize_input": 0.17,
+      "bootstrap.initialize_accessibility": 0.012,
+      "bootstrap.initialize_audio": 1.282,
+      "bootstrap.initialize_window_mode": 5.873,
+      "bootstrap.initialize_dialogic_bridge": 20.547,
+      "bootstrap.configure_restore_participants": 21.106,
+      "bootstrap.configure_day_resolution": 3.317,
+      "bootstrap.configure_minesweeper_rounds": 0.08,
+      "bootstrap.publish_application_ready": 6.619,
+      "bootstrap.total": 1368.79
+    },
+    "font_cache": {
+      "probe_enter_tree": {
+        "hc": false,
+        "sc": false
+      },
+      "title_drawn_usable": {
+        "hc": false,
+        "sc": false
+      }
+    }
+  },
+  {
+    "name": "reverse-fonts-retained",
+    "case": "retained",
+    "variant": "fonts",
+    "journey": "new_acc",
+    "clean_exit": true,
+    "lifetime_ms": 31793.0504,
+    "launch_to_probe_enter_tree_ms": 4760.0,
+    "launch_to_first_title_drawn_ms": 8847.0,
+    "launch_to_title_drawn_usable_ms": 8847.0,
+    "launch_to_first_title_input_accepted_ms": 8872.0,
+    "launch_to_bootstrap_start_ms": 4883.0,
+    "new_acc_to_caption_complete_ms": 22447.407,
+    "input_to_consent_ms": 39.768,
+    "consent_dwell_ms": 37.485,
+    "confirm_to_caption_complete_ms": 22370.154,
+    "rendering": {
+      "get_current_rendering_driver_name": "d3d12",
+      "get_current_rendering_method": "forward_plus",
+      "get_video_adapter_api_version": "12_0",
+      "get_video_adapter_name": "Microsoft Basic Render Driver"
+    },
+    "max_frame_gap_us": {
+      "confirm": 13636968,
+      "new_acc": 10400
+    },
+    "phases_ms": {
+      "bootstrap.select_and_prove_roots": 0.041,
+      "bootstrap.construct_and_inject_mutation_gate": 0.134,
+      "bootstrap.construct_identity_issuer_and_contact_commands": 3.276,
+      "registration.physical": 467.56,
+      "registration.structural": 108.268,
+      "bootstrap.initialize_saves": 2241.556,
+      "bootstrap.initialize_profile": 38.419,
+      "bootstrap.initialize_localization": 300.252,
+      "bootstrap.initialize_input": 0.177,
+      "bootstrap.initialize_accessibility": 0.012,
+      "bootstrap.initialize_audio": 1.31,
+      "bootstrap.initialize_window_mode": 5.813,
+      "bootstrap.initialize_dialogic_bridge": 22.472,
+      "bootstrap.configure_restore_participants": 22.152,
+      "bootstrap.configure_day_resolution": 1.146,
+      "bootstrap.configure_minesweeper_rounds": 0.082,
+      "bootstrap.publish_application_ready": 1259.664,
+      "bootstrap.total": 3897.865
+    },
+    "font_cache": {
+      "probe_enter_tree": {
+        "hc": false,
+        "sc": false
+      },
+      "title_drawn_usable": {
+        "hc": false,
+        "sc": false
+      }
+    }
+  },
+  {
+    "name": "reverse-menu-fresh",
+    "case": "fresh",
+    "variant": "menu",
+    "journey": "new_acc",
+    "clean_exit": true,
+    "lifetime_ms": 29138.036,
+    "launch_to_probe_enter_tree_ms": 6449.0,
+    "launch_to_first_title_drawn_ms": 7997.0,
+    "launch_to_title_drawn_usable_ms": 7997.0,
+    "launch_to_first_title_input_accepted_ms": 8051.0,
+    "launch_to_bootstrap_start_ms": 6577.0,
+    "new_acc_to_caption_complete_ms": 20560.478,
+    "rendering": {
+      "get_current_rendering_driver_name": "d3d12",
+      "get_current_rendering_method": "forward_plus",
+      "get_video_adapter_api_version": "12_0",
+      "get_video_adapter_name": "Microsoft Basic Render Driver"
+    },
+    "max_frame_gap_us": {
+      "new_acc": 12977091
+    },
+    "phases_ms": {
+      "bootstrap.select_and_prove_roots": 0.07,
+      "bootstrap.construct_and_inject_mutation_gate": 0.146,
+      "bootstrap.construct_identity_issuer_and_contact_commands": 2.474,
+      "registration.physical": 471.289,
+      "registration.structural": 108.579,
+      "bootstrap.initialize_saves": 959.305,
+      "bootstrap.initialize_profile": 37.404,
+      "bootstrap.initialize_localization": 293.681,
+      "bootstrap.initialize_input": 0.168,
+      "bootstrap.initialize_accessibility": 0.013,
+      "bootstrap.initialize_audio": 1.318,
+      "bootstrap.initialize_window_mode": 5.671,
+      "bootstrap.initialize_dialogic_bridge": 22.42,
+      "bootstrap.configure_restore_participants": 21.335,
+      "bootstrap.configure_day_resolution": 3.197,
+      "bootstrap.configure_minesweeper_rounds": 0.08,
+      "bootstrap.publish_application_ready": 6.703,
+      "bootstrap.total": 1355.379
+    },
+    "font_cache": {
+      "probe_enter_tree": {
+        "hc": true,
+        "sc": true
+      },
+      "title_drawn_usable": {
+        "hc": true,
+        "sc": true
+      }
+    }
+  },
+  {
+    "name": "reverse-menu-retained",
+    "case": "retained",
+    "variant": "menu",
+    "journey": "new_acc",
+    "clean_exit": true,
+    "lifetime_ms": 31263.2658,
+    "launch_to_probe_enter_tree_ms": 4491.0,
+    "launch_to_first_title_drawn_ms": 8412.0,
+    "launch_to_title_drawn_usable_ms": 8412.0,
+    "launch_to_first_title_input_accepted_ms": 8437.0,
+    "launch_to_bootstrap_start_ms": 4613.0,
+    "new_acc_to_caption_complete_ms": 22324.7,
+    "input_to_consent_ms": 38.96,
+    "consent_dwell_ms": 45.934,
+    "confirm_to_caption_complete_ms": 22239.806,
+    "rendering": {
+      "get_current_rendering_driver_name": "d3d12",
+      "get_current_rendering_method": "forward_plus",
+      "get_video_adapter_api_version": "12_0",
+      "get_video_adapter_name": "Microsoft Basic Render Driver"
+    },
+    "max_frame_gap_us": {
+      "confirm": 13683112,
+      "new_acc": 10741
+    },
+    "phases_ms": {
+      "bootstrap.select_and_prove_roots": 0.04,
+      "bootstrap.construct_and_inject_mutation_gate": 0.133,
+      "bootstrap.construct_identity_issuer_and_contact_commands": 3.168,
+      "registration.physical": 458.496,
+      "registration.structural": 99.599,
+      "bootstrap.initialize_saves": 2158.434,
+      "bootstrap.initialize_profile": 35.873,
+      "bootstrap.initialize_localization": 285.277,
+      "bootstrap.initialize_input": 0.16,
+      "bootstrap.initialize_accessibility": 0.013,
+      "bootstrap.initialize_audio": 1.228,
+      "bootstrap.initialize_window_mode": 5.568,
+      "bootstrap.initialize_dialogic_bridge": 21.128,
+      "bootstrap.configure_restore_participants": 19.595,
+      "bootstrap.configure_day_resolution": 0.96,
+      "bootstrap.configure_minesweeper_rounds": 0.075,
+      "bootstrap.publish_application_ready": 1205.405,
+      "bootstrap.total": 3738.408
+    },
+    "font_cache": {
+      "probe_enter_tree": {
+        "hc": true,
+        "sc": true
+      },
+      "title_drawn_usable": {
+        "hc": true,
+        "sc": true
+      }
+    }
+  },
+  {
+    "name": "reverse-minimal-fresh",
+    "case": "fresh",
+    "variant": "minimal",
+    "journey": "new_acc",
+    "clean_exit": true,
+    "lifetime_ms": 2904.0885,
+    "launch_to_probe_enter_tree_ms": 2644.0,
+    "launch_to_first_title_drawn_ms": 2675.0,
+    "launch_to_title_drawn_usable_ms": 2675.0,
+    "launch_to_first_title_input_accepted_ms": 2752.0,
+    "rendering": {
+      "get_current_rendering_driver_name": "d3d12",
+      "get_current_rendering_method": "forward_plus",
+      "get_video_adapter_api_version": "12_0",
+      "get_video_adapter_name": "Microsoft Basic Render Driver"
+    },
+    "max_frame_gap_us": {
+      "minimal": 1406
+    },
+    "phases_ms": {},
+    "font_cache": {
+      "probe_enter_tree": {
+        "hc": false,
+        "sc": false
+      }
+    }
+  },
+  {
+    "name": "screens-baseline",
+    "case": "fresh",
+    "variant": "baseline",
+    "journey": "screens",
+    "clean_exit": true,
+    "lifetime_ms": 9329.2132,
+    "launch_to_probe_enter_tree_ms": 6522.0,
+    "launch_to_first_title_drawn_ms": 8040.0,
+    "launch_to_title_drawn_usable_ms": 8040.0,
+    "launch_to_first_title_input_accepted_ms": 8444.0,
+    "launch_to_bootstrap_start_ms": 6645.0,
+    "settings_first_open_ms": 421.648,
+    "backup_first_open_ms": 49.791,
+    "gallery_first_open_ms": 53.892,
+    "rendering": {
+      "get_current_rendering_driver_name": "d3d12",
+      "get_current_rendering_method": "forward_plus",
+      "get_video_adapter_api_version": "12_0",
+      "get_video_adapter_name": "Microsoft Basic Render Driver"
+    },
+    "max_frame_gap_us": {
+      "backup": 24705,
+      "backup_home": 16370,
+      "gallery": 26533,
+      "gallery_home": 18856,
+      "settings": 372699,
+      "settings_home": 142455
+    },
+    "phases_ms": {
+      "bootstrap.select_and_prove_roots": 0.038,
+      "bootstrap.construct_and_inject_mutation_gate": 0.135,
+      "bootstrap.construct_identity_issuer_and_contact_commands": 2.322,
+      "registration.physical": 474.946,
+      "registration.structural": 105.982,
+      "bootstrap.initialize_saves": 953.927,
+      "bootstrap.initialize_profile": 34.276,
+      "bootstrap.initialize_localization": 282.74,
+      "bootstrap.initialize_input": 0.162,
+      "bootstrap.initialize_accessibility": 0.012,
+      "bootstrap.initialize_audio": 1.286,
+      "bootstrap.initialize_window_mode": 5.638,
+      "bootstrap.initialize_dialogic_bridge": 21.501,
+      "bootstrap.configure_restore_participants": 20.497,
+      "bootstrap.configure_day_resolution": 3.099,
+      "bootstrap.configure_minesweeper_rounds": 0.074,
+      "bootstrap.publish_application_ready": 6.518,
+      "bootstrap.total": 1333.459
+    },
+    "font_cache": {
+      "probe_enter_tree": {
+        "hc": true,
+        "sc": true
+      },
+      "title_drawn_usable": {
+        "hc": true,
+        "sc": true
+      }
+    }
+  },
+  {
+    "name": "screens-fonts",
+    "case": "fresh",
+    "variant": "fonts",
+    "journey": "screens",
+    "clean_exit": true,
+    "lifetime_ms": 9066.5902,
+    "launch_to_probe_enter_tree_ms": 6330.0,
+    "launch_to_first_title_drawn_ms": 7856.0,
+    "launch_to_title_drawn_usable_ms": 7856.0,
+    "launch_to_first_title_input_accepted_ms": 8252.0,
+    "launch_to_bootstrap_start_ms": 6453.0,
+    "settings_first_open_ms": 404.527,
+    "backup_first_open_ms": 49.122,
+    "gallery_first_open_ms": 53.794,
+    "rendering": {
+      "get_current_rendering_driver_name": "d3d12",
+      "get_current_rendering_method": "forward_plus",
+      "get_video_adapter_api_version": "12_0",
+      "get_video_adapter_name": "Microsoft Basic Render Driver"
+    },
+    "max_frame_gap_us": {
+      "backup": 24661,
+      "backup_home": 16551,
+      "gallery": 27405,
+      "gallery_home": 18687,
+      "settings": 355860,
+      "settings_home": 149045
+    },
+    "phases_ms": {
+      "bootstrap.select_and_prove_roots": 0.039,
+      "bootstrap.construct_and_inject_mutation_gate": 0.143,
+      "bootstrap.construct_identity_issuer_and_contact_commands": 2.479,
+      "registration.physical": 463.857,
+      "registration.structural": 106.268,
+      "bootstrap.initialize_saves": 947.713,
+      "bootstrap.initialize_profile": 35.859,
+      "bootstrap.initialize_localization": 291.85,
+      "bootstrap.initialize_input": 0.156,
+      "bootstrap.initialize_accessibility": 0.012,
+      "bootstrap.initialize_audio": 1.247,
+      "bootstrap.initialize_window_mode": 5.466,
+      "bootstrap.initialize_dialogic_bridge": 19.67,
+      "bootstrap.configure_restore_participants": 20.797,
+      "bootstrap.configure_day_resolution": 3.05,
+      "bootstrap.configure_minesweeper_rounds": 0.078,
+      "bootstrap.publish_application_ready": 6.813,
+      "bootstrap.total": 1336.693
+    },
+    "font_cache": {
+      "probe_enter_tree": {
+        "hc": false,
+        "sc": false
+      },
+      "title_drawn_usable": {
+        "hc": false,
+        "sc": false
+      }
+    }
+  },
+  {
+    "name": "screens-menu",
+    "case": "fresh",
+    "variant": "menu",
+    "journey": "screens",
+    "clean_exit": true,
+    "lifetime_ms": 9251.7553,
+    "launch_to_probe_enter_tree_ms": 6256.0,
+    "launch_to_first_title_drawn_ms": 7788.0,
+    "launch_to_title_drawn_usable_ms": 7788.0,
+    "launch_to_first_title_input_accepted_ms": 8185.0,
+    "launch_to_bootstrap_start_ms": 6379.0,
+    "settings_first_open_ms": 405.53,
+    "backup_first_open_ms": 48.758,
+    "gallery_first_open_ms": 253.281,
+    "rendering": {
+      "get_current_rendering_driver_name": "d3d12",
+      "get_current_rendering_method": "forward_plus",
+      "get_video_adapter_api_version": "12_0",
+      "get_video_adapter_name": "Microsoft Basic Render Driver"
+    },
+    "max_frame_gap_us": {
+      "backup": 24379,
+      "backup_home": 16349,
+      "gallery": 227486,
+      "gallery_home": 18517,
+      "settings": 357776,
+      "settings_home": 143580
+    },
+    "phases_ms": {
+      "bootstrap.select_and_prove_roots": 0.039,
+      "bootstrap.construct_and_inject_mutation_gate": 0.131,
+      "bootstrap.construct_identity_issuer_and_contact_commands": 2.361,
+      "registration.physical": 462.468,
+      "registration.structural": 101.583,
+      "bootstrap.initialize_saves": 935.037,
+      "bootstrap.initialize_profile": 33.764,
+      "bootstrap.initialize_localization": 313.431,
+      "bootstrap.initialize_input": 0.169,
+      "bootstrap.initialize_accessibility": 0.013,
+      "bootstrap.initialize_audio": 1.352,
+      "bootstrap.initialize_window_mode": 5.549,
+      "bootstrap.initialize_dialogic_bridge": 20.648,
+      "bootstrap.configure_restore_participants": 20.013,
+      "bootstrap.configure_day_resolution": 3.119,
+      "bootstrap.configure_minesweeper_rounds": 0.091,
+      "bootstrap.publish_application_ready": 6.838,
+      "bootstrap.total": 1343.954
+    },
+    "font_cache": {
+      "probe_enter_tree": {
+        "hc": true,
+        "sc": true
+      },
+      "title_drawn_usable": {
+        "hc": true,
+        "sc": true
+      }
+    }
+  }
+]
