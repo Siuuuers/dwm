@@ -1,0 +1,136 @@
+{
+  "archive": "run40203205178-regression.zip",
+  "bytes": 253202,
+  "sha256": "fd8e66f4f917991c2b77f761e76abf9444f10e51485e78babfebcf027d39cdef",
+  "crc_verified": true,
+  "member_count": 21,
+  "scope": "Compact connected Apps regression evidence: test reports, logs, screenshots and patch receipt; no exported game package.",
+  "members": [
+    {
+      "path": "ci/computer-apps-challenge-before-switch.png",
+      "bytes": 16705,
+      "crc32": "e2400f7f",
+      "sha256": "4eb9197a083b54a3d95c276d1d43f33a517511e2f20a05134703479f499878fe"
+    },
+    {
+      "path": "ci/computer-apps-challenge-return.png",
+      "bytes": 16654,
+      "crc32": "40a7fc15",
+      "sha256": "73daf6680b82fdc6f03370b7de61659a50d2f3881a5a698651a14aa5345e4f9e"
+    },
+    {
+      "path": "ci/computer-apps-contacts.png",
+      "bytes": 26849,
+      "crc32": "f92b2b5f",
+      "sha256": "ae64dfd34683c22d8c82782671167b1076a4478a27e115996afd0c8e83b6422e"
+    },
+    {
+      "path": "ci/computer-apps-fresh-load-board.png",
+      "bytes": 16527,
+      "crc32": "25370738",
+      "sha256": "e93b9b9520fd6f8badb8a4c1265f806da48929f99fa1499f5450776aefe91093"
+    },
+    {
+      "path": "ci/computer-apps-fresh-load-shop.png",
+      "bytes": 24188,
+      "crc32": "a59abaab",
+      "sha256": "c0c9e749ef51bb4f6fa16cf784e5920f61e8ad8ed14bcbeeb00949647d4085ec"
+    },
+    {
+      "path": "ci/computer-apps-home.png",
+      "bytes": 18640,
+      "crc32": "46427498",
+      "sha256": "53adf9887c3b034fe7ea8818818873f4a4981f076c2371becf59287209774ec7"
+    },
+    {
+      "path": "ci/computer-apps-ordinary-caption.png",
+      "bytes": 50445,
+      "crc32": "49f68b14",
+      "sha256": "bbe9b54dd4badb226cd5e355ed7469d61edd296fc6e7a79522cee4f4e6317741"
+    },
+    {
+      "path": "ci/computer-apps-same-caption-return.png",
+      "bytes": 15755,
+      "crc32": "3d9e1619",
+      "sha256": "26d741c2893bd135db20efff0e600050927437e9d9027b54dc63812df9da8e46"
+    },
+    {
+      "path": "ci/computer-apps-shop-before-buy.png",
+      "bytes": 24068,
+      "crc32": "d4f4ae03",
+      "sha256": "1a8695759d692b9b84bb8a8aa05adc6e89c9f23aa3513ff5800d520156213cce"
+    },
+    {
+      "path": "ci/computer-apps-shop-during-challenge.png",
+      "bytes": 25026,
+      "crc32": "e36dd193",
+      "sha256": "491b3b5b88e3ffe0595ee10b62f13c39b7be59fabb1ffec49415222c381e00ec"
+    },
+    {
+      "path": "ci/computer-apps-shop-purchased.png",
+      "bytes": 24920,
+      "crc32": "c17c72f8",
+      "sha256": "92ef98303d0f181240f09a48e363cbcba0ca375d9ae0d3871b0e04c46a2bde24"
+    },
+    {
+      "path": "ci/desktop-regression-patch.json",
+      "bytes": 457,
+      "crc32": "6450e45a",
+      "sha256": "79cf9cb31e61a8272dbffd0bf7f5cffdf6e75d3f493a568c5b2178d815781f84"
+    },
+    {
+      "path": "ci/import.log",
+      "bytes": 97006,
+      "crc32": "f1e53814",
+      "sha256": "b2e368795abf33ece533ee0632ac62301ddaaf2150dfafa1fef593f27ce3bac9"
+    },
+    {
+      "path": "ci/scene-apps-cold-load-timing.json",
+      "bytes": 208,
+      "crc32": "c549432c",
+      "sha256": "9483a84e1f6a5140982860356ed6de44c07a79ee68a8f0b362e275c3ea1c0647"
+    },
+    {
+      "path": "ci/scene-apps-create-proof.json",
+      "bytes": 54777,
+      "crc32": "361839dd",
+      "sha256": "c27be1b8dc78744ad4cec241df3e7c97109655d05b0f1edf501fa71c40c233d3"
+    },
+    {
+      "path": "ci/scene-apps-load-proof.json",
+      "bytes": 54802,
+      "crc32": "52916e80",
+      "sha256": "9dd8c83a9c5c5c1223b4529db42f66394e25a427dbea453f8332e8ce51048856"
+    },
+    {
+      "path": "ci/scene_apps-load.xml",
+      "bytes": 458,
+      "crc32": "158b1c9a",
+      "sha256": "7d2ba3e306822fe5926565a8a56eb781d4f597b5e8350b93a0605743885f9083"
+    },
+    {
+      "path": "ci/scene_apps.jsonl",
+      "bytes": 1947,
+      "crc32": "2937ada9",
+      "sha256": "3c93714868630d840541b7fbb93ff41e0d28baa6555e61c7cc7a6fc68cc141d9"
+    },
+    {
+      "path": "ci/scene_apps.xml",
+      "bytes": 470,
+      "crc32": "a8c3196a",
+      "sha256": "b43226e7ad59dd594a4e3e34ff397d97b4093781fab31944fbdbdf76e0ed1a53"
+    },
+    {
+      "path": "phase2r_logs/cloud-scene_apps-load.log",
+      "bytes": 2734,
+      "crc32": "1b0f979c",
+      "sha256": "f3180626e6e4c07ed0e451eab5c4151478c186c85d3d052c4ef2c615f72cd4a1"
+    },
+    {
+      "path": "phase2r_logs/cloud-scene_apps.log",
+      "bytes": 1189,
+      "crc32": "807853c7",
+      "sha256": "5afc22edd40fb5c364ec7be9943f3a89bf90b5bbd178c596492d6e1d8fa842e2"
+    }
+  ]
+}

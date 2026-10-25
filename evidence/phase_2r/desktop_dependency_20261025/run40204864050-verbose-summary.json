@@ -1,0 +1,642 @@
+{
+  "run_id": 40204864050,
+  "run_url": "https://github.com/Siuuuers/dwm/actions/runs/40204864050",
+  "status": "verbose_followup_completed_original_shutdown_failure_unresolved",
+  "original_run_id": 40203205178,
+  "runtime_source": "47234a3395a4566e840140f1849da55a65d15521",
+  "exact_original_package_receipts_verified": true,
+  "completed_processes": 6,
+  "strict_harness_accepted_processes": 6,
+  "verified_screenshot_manifest_entries": 20,
+  "visual_review_status": "Not performed by summary author; root reviewer handles screenshots.",
+  "archive": {
+    "archive": "run40204864050-verbose-evidence.zip",
+    "bytes": 7942800,
+    "sha256": "bd70ac12b9718542e2ae17a18b6e2547e53c70f39ed87c19064879b138246bec",
+    "crc_verified": true,
+    "member_count": 97,
+    "scope": "Retained verbose follow-up evidence, reports, screenshots and isolated game profiles. Original exported executable/PCK payloads are not in this compact archive; package hash receipts establish their identity."
+  },
+  "attempts": [
+    {
+      "label": "baseline-fresh",
+      "variant": "baseline",
+      "case": "fresh",
+      "journey": "new_acc",
+      "passed": true,
+      "error": "",
+      "gameplay_complete": true,
+      "failures": []
+    },
+    {
+      "label": "baseline-retained",
+      "variant": "baseline",
+      "case": "retained",
+      "journey": "new_acc",
+      "passed": true,
+      "error": "",
+      "gameplay_complete": true,
+      "failures": []
+    },
+    {
+      "label": "desktop-fresh",
+      "variant": "desktop",
+      "case": "fresh",
+      "journey": "new_acc",
+      "passed": true,
+      "error": "",
+      "gameplay_complete": true,
+      "failures": []
+    },
+    {
+      "label": "desktop-retained",
+      "variant": "desktop",
+      "case": "retained",
+      "journey": "new_acc",
+      "passed": true,
+      "error": "",
+      "gameplay_complete": true,
+      "failures": []
+    },
+    {
+      "label": "baseline-apps",
+      "variant": "baseline",
+      "case": "fresh",
+      "journey": "apps",
+      "passed": true,
+      "error": "",
+      "gameplay_complete": true,
+      "failures": []
+    },
+    {
+      "label": "desktop-apps",
+      "variant": "desktop",
+      "case": "fresh",
+      "journey": "apps",
+      "passed": true,
+      "error": "",
+      "gameplay_complete": true,
+      "failures": []
+    }
+  ],
+  "measurements": [
+    {
+      "name": "baseline-apps",
+      "variant": "baseline",
+      "case": "fresh",
+      "journey": "apps",
+      "complete": true,
+      "strict_harness_accepted": true,
+      "clean_exit": true,
+      "exit_code": 0,
+      "status": "collected_requires_visual_review",
+      "timings_ms": {
+        "lifetime_ms": 31774.2869,
+        "launch_to_probe_enter_tree_ms": 6848.0,
+        "launch_to_first_title_drawn_ms": 8399.0,
+        "launch_to_title_drawn_usable_ms": 8399.0,
+        "launch_to_first_title_input_accepted_ms": 8451.0,
+        "launch_to_bootstrap_start_ms": 6976.0,
+        "new_acc_to_caption_complete_ms": 21711.75,
+        "apps_first_open_ms": 153.383,
+        "apps_warm_open_ms": 127.36
+      },
+      "package_hashes": {
+        "game.exe": "91724f15024a3a545e28ccd83134403d31ce2323a38e51c95e4dfa282f732ab6",
+        "game.pck": "a57a0d60e613537fbe292f3551bf441f6d409e2caab89e6800ca490fdaf3e3d1"
+      },
+      "package_receipts_match_original_run": true,
+      "desktop_cache": {
+        "apps_first_drawn": {
+          "scene": true,
+          "script": true
+        },
+        "apps_warm_drawn": {
+          "scene": true,
+          "script": true
+        },
+        "caption_before_apps": {
+          "scene": true,
+          "script": true
+        },
+        "probe_enter_tree": {
+          "scene": true,
+          "script": true
+        },
+        "title_drawn_usable": {
+          "scene": true,
+          "script": true
+        }
+      },
+      "apps_observation": {
+        "first_control": "/root/SceneHost/SceneControlsLayer/Surface/Controls/CheckComputer",
+        "gameplay_unchanged": true,
+        "instance_id": 63483190187622,
+        "line_id": "line.Day1.one",
+        "reading_unchanged": true,
+        "same_instance": true,
+        "scene_unchanged": true,
+        "script_path": "res://scripts/ui/ComputerDesktop.gd"
+      },
+      "observation": {
+        "active": true,
+        "event_done": true,
+        "line_id": "line.Day1.one",
+        "new_run_busy": false,
+        "text": "Sylvia slides the fuller teacup onto my mat and keeps the one with the small chip on the rim for herself.",
+        "visible_ratio": 1.0
+      },
+      "max_frame_gap_us": {
+        "apps_first": 88565,
+        "apps_first_close": 95216,
+        "apps_warm": 70031,
+        "apps_warm_close": 100020,
+        "new_acc": 14001150
+      },
+      "rendering": {
+        "get_current_rendering_driver_name": "d3d12",
+        "get_current_rendering_method": "forward_plus",
+        "get_video_adapter_api_version": "12_0",
+        "get_video_adapter_name": "Microsoft Basic Render Driver"
+      },
+      "preferences": {
+        "preferences.accessibility.font_style": "pixel",
+        "preferences.accessibility.text_size": 100,
+        "preferences.language.primary_locale_id": "en",
+        "preferences.reading.auto_enabled": false,
+        "preferences.reading.reveal_speed": "normal"
+      },
+      "images": [
+        {
+          "size": 773282,
+          "name": "apps_caption_return.png",
+          "sha256": "57fef3971d775d0ba9295d96a96b1c55d755a0736cd5105e4caa27cc75bf5a90"
+        },
+        {
+          "size": 351962,
+          "name": "apps_first.png",
+          "sha256": "6ec4f7e4a6943a40b763bd9ce34cc8cdeefc94008fb9b9c1bf7918673c7a7102"
+        },
+        {
+          "size": 351962,
+          "name": "apps_warm.png",
+          "sha256": "6ec4f7e4a6943a40b763bd9ce34cc8cdeefc94008fb9b9c1bf7918673c7a7102"
+        },
+        {
+          "size": 773302,
+          "name": "caption.png",
+          "sha256": "1958b9d01f2002a45bd792dcb1756fe65e82dac641080b7297ca5e669ed9d6a3"
+        },
+        {
+          "size": 9866,
+          "name": "title.png",
+          "sha256": "2b01f0beb4d153b753ce29839f256788066c26da86a5db7ae07b16fc1fc9b53c"
+        }
+      ],
+      "shutdown_error_seen": false
+    },
+    {
+      "name": "baseline-fresh",
+      "variant": "baseline",
+      "case": "fresh",
+      "journey": "new_acc",
+      "complete": true,
+      "strict_harness_accepted": true,
+      "clean_exit": true,
+      "exit_code": 0,
+      "status": "collected_requires_visual_review",
+      "timings_ms": {
+        "lifetime_ms": 32121.4673,
+        "launch_to_probe_enter_tree_ms": 7728.0,
+        "launch_to_first_title_drawn_ms": 9370.0,
+        "launch_to_title_drawn_usable_ms": 9370.0,
+        "launch_to_first_title_input_accepted_ms": 9418.0,
+        "launch_to_bootstrap_start_ms": 7860.0,
+        "new_acc_to_caption_complete_ms": 22099.843
+      },
+      "package_hashes": {
+        "game.exe": "91724f15024a3a545e28ccd83134403d31ce2323a38e51c95e4dfa282f732ab6",
+        "game.pck": "a57a0d60e613537fbe292f3551bf441f6d409e2caab89e6800ca490fdaf3e3d1"
+      },
+      "package_receipts_match_original_run": true,
+      "desktop_cache": {
+        "probe_enter_tree": {
+          "scene": true,
+          "script": true
+        },
+        "title_drawn_usable": {
+          "scene": true,
+          "script": true
+        }
+      },
+      "apps_observation": {},
+      "observation": {
+        "active": true,
+        "event_done": true,
+        "line_id": "line.Day1.one",
+        "new_run_busy": false,
+        "text": "Sylvia slides the fuller teacup onto my mat and keeps the one with the small chip on the rim for herself.",
+        "visible_ratio": 1.0
+      },
+      "max_frame_gap_us": {
+        "new_acc": 14146158
+      },
+      "rendering": {
+        "get_current_rendering_driver_name": "d3d12",
+        "get_current_rendering_method": "forward_plus",
+        "get_video_adapter_api_version": "12_0",
+        "get_video_adapter_name": "Microsoft Basic Render Driver"
+      },
+      "preferences": {
+        "preferences.accessibility.font_style": "pixel",
+        "preferences.accessibility.text_size": 100,
+        "preferences.language.primary_locale_id": "en",
+        "preferences.reading.auto_enabled": false,
+        "preferences.reading.reveal_speed": "normal"
+      },
+      "images": [
+        {
+          "size": 773192,
+          "name": "caption.png",
+          "sha256": "d7bcebad1b7f9d4f7208631f032598be8341e84b1922496e4bb4b01e1642893b"
+        },
+        {
+          "size": 9866,
+          "name": "title.png",
+          "sha256": "2b01f0beb4d153b753ce29839f256788066c26da86a5db7ae07b16fc1fc9b53c"
+        }
+      ],
+      "shutdown_error_seen": false
+    },
+    {
+      "name": "baseline-retained",
+      "variant": "baseline",
+      "case": "retained",
+      "journey": "new_acc",
+      "complete": true,
+      "strict_harness_accepted": true,
+      "clean_exit": true,
+      "exit_code": 0,
+      "status": "collected_requires_visual_review",
+      "timings_ms": {
+        "lifetime_ms": 33662.5895,
+        "launch_to_probe_enter_tree_ms": 5251.0,
+        "launch_to_first_title_drawn_ms": 9461.0,
+        "launch_to_title_drawn_usable_ms": 9461.0,
+        "launch_to_first_title_input_accepted_ms": 9485.0,
+        "launch_to_bootstrap_start_ms": 5379.0,
+        "new_acc_to_caption_complete_ms": 23680.775,
+        "input_to_consent_ms": 38.818,
+        "consent_dwell_ms": 47.873,
+        "confirm_to_caption_complete_ms": 23594.084
+      },
+      "package_hashes": {
+        "game.exe": "91724f15024a3a545e28ccd83134403d31ce2323a38e51c95e4dfa282f732ab6",
+        "game.pck": "a57a0d60e613537fbe292f3551bf441f6d409e2caab89e6800ca490fdaf3e3d1"
+      },
+      "package_receipts_match_original_run": true,
+      "desktop_cache": {
+        "probe_enter_tree": {
+          "scene": true,
+          "script": true
+        },
+        "title_drawn_usable": {
+          "scene": true,
+          "script": true
+        }
+      },
+      "apps_observation": {},
+      "observation": {
+        "active": true,
+        "event_done": true,
+        "line_id": "line.Day1.one",
+        "new_run_busy": false,
+        "text": "Sylvia slides the fuller teacup onto my mat and keeps the one with the small chip on the rim for herself.",
+        "visible_ratio": 1.0
+      },
+      "max_frame_gap_us": {
+        "confirm": 14430351,
+        "new_acc": 9462
+      },
+      "rendering": {
+        "get_current_rendering_driver_name": "d3d12",
+        "get_current_rendering_method": "forward_plus",
+        "get_video_adapter_api_version": "12_0",
+        "get_video_adapter_name": "Microsoft Basic Render Driver"
+      },
+      "preferences": {
+        "preferences.accessibility.font_style": "pixel",
+        "preferences.accessibility.text_size": 100,
+        "preferences.language.primary_locale_id": "en",
+        "preferences.reading.auto_enabled": false,
+        "preferences.reading.reveal_speed": "normal"
+      },
+      "images": [
+        {
+          "size": 773344,
+          "name": "caption.png",
+          "sha256": "8b87adc723697d62333850f8c5eb1b9f0f25bf29d80c5e28e6fd7f1dded38270"
+        },
+        {
+          "size": 17152,
+          "name": "consent.png",
+          "sha256": "5995b8d05380123789d5572b14c3bb2817924e5fe9435a92773ab515f96d1a4c"
+        },
+        {
+          "size": 9866,
+          "name": "title.png",
+          "sha256": "2b01f0beb4d153b753ce29839f256788066c26da86a5db7ae07b16fc1fc9b53c"
+        }
+      ],
+      "shutdown_error_seen": false
+    },
+    {
+      "name": "desktop-apps",
+      "variant": "desktop",
+      "case": "fresh",
+      "journey": "apps",
+      "complete": true,
+      "strict_harness_accepted": true,
+      "clean_exit": true,
+      "exit_code": 0,
+      "status": "collected_requires_visual_review",
+      "timings_ms": {
+        "lifetime_ms": 31297.4829,
+        "launch_to_probe_enter_tree_ms": 6745.0,
+        "launch_to_first_title_drawn_ms": 8294.0,
+        "launch_to_title_drawn_usable_ms": 8294.0,
+        "launch_to_first_title_input_accepted_ms": 8319.0,
+        "launch_to_bootstrap_start_ms": 6875.0,
+        "new_acc_to_caption_complete_ms": 21323.726,
+        "apps_first_open_ms": 206.294,
+        "apps_warm_open_ms": 126.025
+      },
+      "package_hashes": {
+        "game.exe": "91724f15024a3a545e28ccd83134403d31ce2323a38e51c95e4dfa282f732ab6",
+        "game.pck": "c40f33d507ab021fa950e8d2d51ab6e04eb590053e124f546fc0335d7c92cfdc"
+      },
+      "package_receipts_match_original_run": true,
+      "desktop_cache": {
+        "apps_first_drawn": {
+          "scene": false,
+          "script": true
+        },
+        "apps_warm_drawn": {
+          "scene": false,
+          "script": true
+        },
+        "caption_before_apps": {
+          "scene": false,
+          "script": false
+        },
+        "probe_enter_tree": {
+          "scene": false,
+          "script": false
+        },
+        "title_drawn_usable": {
+          "scene": false,
+          "script": false
+        }
+      },
+      "apps_observation": {
+        "first_control": "/root/SceneHost/SceneControlsLayer/Surface/Controls/CheckComputer",
+        "gameplay_unchanged": true,
+        "instance_id": 63483055968070,
+        "line_id": "line.Day1.one",
+        "reading_unchanged": true,
+        "same_instance": true,
+        "scene_unchanged": true,
+        "script_path": "res://scripts/ui/ComputerDesktop.gd"
+      },
+      "observation": {
+        "active": true,
+        "event_done": true,
+        "line_id": "line.Day1.one",
+        "new_run_busy": false,
+        "text": "Sylvia slides the fuller teacup onto my mat and keeps the one with the small chip on the rim for herself.",
+        "visible_ratio": 1.0
+      },
+      "max_frame_gap_us": {
+        "apps_first": 138761,
+        "apps_first_close": 94007,
+        "apps_warm": 69403,
+        "apps_warm_close": 101750,
+        "new_acc": 13798037
+      },
+      "rendering": {
+        "get_current_rendering_driver_name": "d3d12",
+        "get_current_rendering_method": "forward_plus",
+        "get_video_adapter_api_version": "12_0",
+        "get_video_adapter_name": "Microsoft Basic Render Driver"
+      },
+      "preferences": {
+        "preferences.accessibility.font_style": "pixel",
+        "preferences.accessibility.text_size": 100,
+        "preferences.language.primary_locale_id": "en",
+        "preferences.reading.auto_enabled": false,
+        "preferences.reading.reveal_speed": "normal"
+      },
+      "images": [
+        {
+          "size": 773188,
+          "name": "apps_caption_return.png",
+          "sha256": "3642169242819fed89b78af486347315b1d4128f4c78cbb9957a6e54f33f2438"
+        },
+        {
+          "size": 351950,
+          "name": "apps_first.png",
+          "sha256": "f8f26a0eb3a13aef2cf840d3dc71fd15bbbbff6eb384c32f24b9ac8db9ab6bdc"
+        },
+        {
+          "size": 351950,
+          "name": "apps_warm.png",
+          "sha256": "f8f26a0eb3a13aef2cf840d3dc71fd15bbbbff6eb384c32f24b9ac8db9ab6bdc"
+        },
+        {
+          "size": 773225,
+          "name": "caption.png",
+          "sha256": "396b5c4d7a664976e3940818e88aef05b46897fd35a922e07b6a81abe89b1f38"
+        },
+        {
+          "size": 9866,
+          "name": "title.png",
+          "sha256": "2b01f0beb4d153b753ce29839f256788066c26da86a5db7ae07b16fc1fc9b53c"
+        }
+      ],
+      "shutdown_error_seen": false
+    },
+    {
+      "name": "desktop-fresh",
+      "variant": "desktop",
+      "case": "fresh",
+      "journey": "new_acc",
+      "complete": true,
+      "strict_harness_accepted": true,
+      "clean_exit": true,
+      "exit_code": 0,
+      "status": "collected_requires_visual_review",
+      "timings_ms": {
+        "lifetime_ms": 30925.9575,
+        "launch_to_probe_enter_tree_ms": 7260.0,
+        "launch_to_first_title_drawn_ms": 8947.0,
+        "launch_to_title_drawn_usable_ms": 8947.0,
+        "launch_to_first_title_input_accepted_ms": 9000.0,
+        "launch_to_bootstrap_start_ms": 7427.0,
+        "new_acc_to_caption_complete_ms": 21407.389
+      },
+      "package_hashes": {
+        "game.exe": "91724f15024a3a545e28ccd83134403d31ce2323a38e51c95e4dfa282f732ab6",
+        "game.pck": "c40f33d507ab021fa950e8d2d51ab6e04eb590053e124f546fc0335d7c92cfdc"
+      },
+      "package_receipts_match_original_run": true,
+      "desktop_cache": {
+        "probe_enter_tree": {
+          "scene": false,
+          "script": false
+        },
+        "title_drawn_usable": {
+          "scene": false,
+          "script": false
+        }
+      },
+      "apps_observation": {},
+      "observation": {
+        "active": true,
+        "event_done": true,
+        "line_id": "line.Day1.one",
+        "new_run_busy": false,
+        "text": "Sylvia slides the fuller teacup onto my mat and keeps the one with the small chip on the rim for herself.",
+        "visible_ratio": 1.0
+      },
+      "max_frame_gap_us": {
+        "new_acc": 13808698
+      },
+      "rendering": {
+        "get_current_rendering_driver_name": "d3d12",
+        "get_current_rendering_method": "forward_plus",
+        "get_video_adapter_api_version": "12_0",
+        "get_video_adapter_name": "Microsoft Basic Render Driver"
+      },
+      "preferences": {
+        "preferences.accessibility.font_style": "pixel",
+        "preferences.accessibility.text_size": 100,
+        "preferences.language.primary_locale_id": "en",
+        "preferences.reading.auto_enabled": false,
+        "preferences.reading.reveal_speed": "normal"
+      },
+      "images": [
+        {
+          "size": 773344,
+          "name": "caption.png",
+          "sha256": "8b87adc723697d62333850f8c5eb1b9f0f25bf29d80c5e28e6fd7f1dded38270"
+        },
+        {
+          "size": 9866,
+          "name": "title.png",
+          "sha256": "2b01f0beb4d153b753ce29839f256788066c26da86a5db7ae07b16fc1fc9b53c"
+        }
+      ],
+      "shutdown_error_seen": false
+    },
+    {
+      "name": "desktop-retained",
+      "variant": "desktop",
+      "case": "retained",
+      "journey": "new_acc",
+      "complete": true,
+      "strict_harness_accepted": true,
+      "clean_exit": true,
+      "exit_code": 0,
+      "status": "collected_requires_visual_review",
+      "timings_ms": {
+        "lifetime_ms": 32491.2845,
+        "launch_to_probe_enter_tree_ms": 5027.0,
+        "launch_to_first_title_drawn_ms": 9165.0,
+        "launch_to_title_drawn_usable_ms": 9165.0,
+        "launch_to_first_title_input_accepted_ms": 9190.0,
+        "launch_to_bootstrap_start_ms": 5149.0,
+        "new_acc_to_caption_complete_ms": 22789.315,
+        "input_to_consent_ms": 39.655,
+        "consent_dwell_ms": 46.804,
+        "confirm_to_caption_complete_ms": 22702.856
+      },
+      "package_hashes": {
+        "game.exe": "91724f15024a3a545e28ccd83134403d31ce2323a38e51c95e4dfa282f732ab6",
+        "game.pck": "c40f33d507ab021fa950e8d2d51ab6e04eb590053e124f546fc0335d7c92cfdc"
+      },
+      "package_receipts_match_original_run": true,
+      "desktop_cache": {
+        "probe_enter_tree": {
+          "scene": false,
+          "script": false
+        },
+        "title_drawn_usable": {
+          "scene": false,
+          "script": false
+        }
+      },
+      "apps_observation": {},
+      "observation": {
+        "active": true,
+        "event_done": true,
+        "line_id": "line.Day1.one",
+        "new_run_busy": false,
+        "text": "Sylvia slides the fuller teacup onto my mat and keeps the one with the small chip on the rim for herself.",
+        "visible_ratio": 1.0
+      },
+      "max_frame_gap_us": {
+        "confirm": 13991314,
+        "new_acc": 10525
+      },
+      "rendering": {
+        "get_current_rendering_driver_name": "d3d12",
+        "get_current_rendering_method": "forward_plus",
+        "get_video_adapter_api_version": "12_0",
+        "get_video_adapter_name": "Microsoft Basic Render Driver"
+      },
+      "preferences": {
+        "preferences.accessibility.font_style": "pixel",
+        "preferences.accessibility.text_size": 100,
+        "preferences.language.primary_locale_id": "en",
+        "preferences.reading.auto_enabled": false,
+        "preferences.reading.reveal_speed": "normal"
+      },
+      "images": [
+        {
+          "size": 773302,
+          "name": "caption.png",
+          "sha256": "1958b9d01f2002a45bd792dcb1756fe65e82dac641080b7297ca5e669ed9d6a3"
+        },
+        {
+          "size": 17152,
+          "name": "consent.png",
+          "sha256": "5995b8d05380123789d5572b14c3bb2817924e5fe9435a92773ab515f96d1a4c"
+        },
+        {
+          "size": 9866,
+          "name": "title.png",
+          "sha256": "2b01f0beb4d153b753ce29839f256788066c26da86a5db7ae07b16fc1fc9b53c"
+        }
+      ],
+      "shutdown_error_seen": false
+    }
+  ],
+  "apps_timing_observation": {
+    "scope": "One baseline-first verbose Apps pair on this runner; diagnostic observation only, not reversed-order or repeated performance acceptance.",
+    "baseline_first_open_ms": 153.383,
+    "candidate_first_open_ms": 206.294,
+    "first_open_delta_candidate_minus_baseline_ms": 52.911,
+    "baseline_warm_open_ms": 127.36,
+    "candidate_warm_open_ms": 126.025,
+    "warm_open_delta_candidate_minus_baseline_ms": -1.335,
+    "same_instance_and_unchanged_state_checks_passed": true
+  },
+  "qualified_performance_claim": false,
+  "prior_failure_disposition": "The original forward-desktop-retained ERROR: 2 resources still in use at exit remains a failed strict result. Six unchanged-package verbose launches did not reproduce it and disclosed no leaked resource identities. No fix or causal diagnosis is established; the original failure is not erased.",
+  "limitations": [
+    "Verbose logging changes timing overhead. This is a single-order diagnostic follow-up, not completion of the original 12-process matched experiment.",
+    "No comparison across different cloud runners establishes a product speedup.",
+    "Package consistency is verified from recorded hashes against original receipts; compact archive omits executable/PCK binaries.",
+    "No production merge or performance qualification follows solely from these six passes."
+  ]
+}
