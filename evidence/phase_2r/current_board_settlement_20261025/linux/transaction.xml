@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="GutTests" failures="0" tests="1" >
+  <testsuite name="tests/integration/test_scene_round_checkpoint_transaction.gd" tests="1" failures="0" skipped="0" time="2.308835" >
+      <testcase name="test_scene_round_physical_refusal_retry_conflict_and_uncertain_acknowledgment" assertions="86" status="pass" classname="tests/integration/test_scene_round_checkpoint_transaction.gd" time="2.308835" >
+      </testcase>
+  </testsuite>
+</testsuites>

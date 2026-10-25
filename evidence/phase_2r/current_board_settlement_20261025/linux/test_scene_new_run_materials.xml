@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="GutTests" failures="0" tests="4" >
+  <testsuite name="tests/unit/test_scene_new_run_materials.gd" tests="4" failures="0" skipped="0" time="0.086968" >
+      <testcase name="test_scene_profile_owner_valid_material_does_not_bypass_actual_save_validation" assertions="4" status="pass" classname="tests/unit/test_scene_new_run_materials.gd" time="0.019191" >
+      </testcase>
+      <testcase name="test_scene_creation_binding_rejects_valid_assignment_for_other_run" assertions="5" status="pass" classname="tests/unit/test_scene_new_run_materials.gd" time="0.028262" >
+      </testcase>
+      <testcase name="test_scene_creation_binding_rejects_valid_assignment_for_other_transaction" assertions="5" status="pass" classname="tests/unit/test_scene_new_run_materials.gd" time="0.02847" >
+      </testcase>
+      <testcase name="test_scene_initial_context_cannot_downgrade_or_add_legacy_dark_selector" assertions="6" status="pass" classname="tests/unit/test_scene_new_run_materials.gd" time="0.011045" >
+      </testcase>
+  </testsuite>
+</testsuites>

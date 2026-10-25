@@ -974,3 +974,96 @@ func test_scene_unpaid_debug_history_does_not_acquire_a_retroactive_payment_requ
 	if not reveal.ok: return
 	assert_true(fixture.state.commit(reveal.value.candidate).ok)
 	assert_true(STATE.new().prepare_restore_scene(fixture.state.capture(), fixture.issuer).ok)
+
+
+# Current Scene settlement is present board state; legacy history tests above remain separate.
+func _scene_terminal_snapshot(fixture: Dictionary) -> Dictionary:
+	var saved := _scene_start(fixture)
+	if saved.is_empty(): return {}
+	var reduced := REDUCER.reveal(saved.board.board, int(saved.board.board.mine_indices[0]), "TEST.terminal")
+	assert_true(reduced.ok, str(reduced))
+	if not reduced.ok: return {}
+	saved.board.board = reduced.value.board
+	assert_true(saved.board.board.terminal)
+	saved.settled_inspection = true
+	return saved
+
+func test_scene_settled_flag_is_required_boolean_and_requires_terminal_board() -> void:
+	var fixture := _scene_fixture()
+	var saved := _scene_start(fixture)
+	if saved.is_empty(): return
+	assert_false(saved.settled_inspection)
+	for invalid: Variant in [null, 0, "true", true]:
+		var changed := saved.duplicate(true)
+		changed.settled_inspection = invalid
+		assert_false(STATE.new().prepare_restore_scene(changed, fixture.issuer).ok,
+			"nonterminal board cannot carry malformed or completed settlement state")
+	var old_shape := saved.duplicate(true)
+	old_shape["terminal_receipts"] = {}
+	assert_false(STATE.new().prepare_restore_scene(old_shape, fixture.issuer).ok, "retired history is not a current field")
+	var missing := saved.duplicate(true)
+	missing.erase("settled_inspection")
+	assert_false(STATE.new().prepare_restore_scene(missing, fixture.issuer).ok, "current-build fact is required")
+	assert_eq(fixture.state.capture(), saved, "refused restores do not mutate source")
+
+func test_scene_settled_board_restores_without_terminal_history_and_preserves_visibility_and_remap() -> void:
+	var fixture := _scene_fixture()
+	var saved := _scene_terminal_snapshot(fixture)
+	if saved.is_empty(): return
+	assert_false(saved.has("terminal_receipts"))
+	var state := STATE.new()
+	var prepared := state.prepare_restore_scene(saved, fixture.issuer)
+	assert_true(prepared.ok, str(prepared))
+	if not prepared.ok: return
+	assert_true(state.commit(prepared.value.candidate).ok)
+	assert_true(state.has_settled_inspection(), "current fact alone identifies paid result inspection")
+	for visible: bool in [false, true]:
+		var live := state.capture()
+		var request := {"transaction_id": "visibility-" + str(visible), "request_fingerprint": "visibility-" + str(visible),
+			"identity": live.identity, "expected_revision": live.revision}
+		var changed := state.prepare_visibility(request, visible)
+		assert_true(changed.ok, str(changed))
+		if not changed.ok: return
+		assert_true(state.commit(changed.value.candidate).ok)
+		assert_true(state.capture().settled_inspection)
+		assert_true(state.has_settled_inspection())
+	var remapped := state.capture()
+	remapped.identity.branch_id = "restored-branch"
+	remapped.identity.desktop_timeline_generation = 2
+	var restored := STATE.new()
+	prepared = restored.prepare_restore_scene(remapped, fixture.issuer)
+	assert_true(prepared.ok, str(prepared))
+	if not prepared.ok: return
+	assert_true(restored.commit(prepared.value.candidate).ok)
+	assert_eq(restored.capture(), remapped)
+	assert_true(restored.has_settled_inspection())
+	var detached := restored.capture()
+	detached.settled_inspection = false
+	assert_true(restored.has_settled_inspection(), "captured fact is detached")
+	var cleared := STATE.dismissed_inspection_snapshot(remapped)
+	assert_false(cleared.settled_inspection)
+	assert_eq(cleared.phase, "NONE")
+
+func test_scene_dismiss_and_reset_clear_settlement_without_terminal_history() -> void:
+	var fixture := _scene_fixture()
+	var saved := _scene_terminal_snapshot(fixture)
+	if saved.is_empty(): return
+	var state := STATE.new()
+	var prepared := state.prepare_restore_scene(saved, fixture.issuer)
+	assert_true(prepared.ok, str(prepared))
+	if not prepared.ok: return
+	assert_true(state.commit(prepared.value.candidate).ok)
+	var dismissed := state.prepare_dismiss_inspection({"transaction_id": "dismiss", "request_fingerprint": "dismiss",
+		"identity": saved.identity, "expected_revision": saved.revision})
+	assert_true(dismissed.ok, str(dismissed))
+	if not dismissed.ok: return
+	assert_true(state.commit(dismissed.value.candidate).ok)
+	assert_false(state.capture().settled_inspection)
+	assert_false(state.has_settled_inspection())
+	assert_eq(state.capture().phase, "NONE")
+	prepared = state.prepare_restore_scene(saved, fixture.issuer)
+	assert_true(prepared.ok)
+	assert_true(state.commit(prepared.value.candidate).ok)
+	state.reset()
+	assert_false(state.capture().settled_inspection)
+	assert_false(state.has_settled_inspection())

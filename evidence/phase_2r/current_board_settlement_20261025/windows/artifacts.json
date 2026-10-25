@@ -1,0 +1,82 @@
+{
+  "candidate": "6b341e0cde34d57791a40c3fee5c66bc75ff85ce",
+  "run_id": 40156027730,
+  "artifacts": [
+    {
+      "id": 12585225341,
+      "name": "windows-scene_desktop_first_reveal-40156027730-1",
+      "size_in_bytes": 26802,
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12585225341",
+      "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12585225341/zip",
+      "expired": false,
+      "created_at": "2026-10-25T02:59:58Z",
+      "expires_at": "2026-11-01T02:59:57Z",
+      "updated_at": "2026-10-25T02:59:58Z",
+      "digest": "sha256:a78cc8aa175101d96be98540b3941f7d322b7f3a7b53271099de008a362497c4",
+      "workflow_run": {
+        "id": 40156027730,
+        "repository_id": 1302529453,
+        "head_repository_id": 1302529453,
+        "head_branch": "codex/board-settlement-current-20261025",
+        "head_sha": "6b341e0cde34d57791a40c3fee5c66bc75ff85ce"
+      }
+    },
+    {
+      "id": 12585015345,
+      "name": "windows-scene_round_checkpoint-40156027730-1",
+      "size_in_bytes": 9419,
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12585015345",
+      "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12585015345/zip",
+      "expired": false,
+      "created_at": "2026-10-25T02:59:31Z",
+      "expires_at": "2026-11-01T02:59:30Z",
+      "updated_at": "2026-10-25T02:59:31Z",
+      "digest": "sha256:579748742fd3e2fa94e1962a1c54e300d65609d0fc1561e564f6e998da302608",
+      "workflow_run": {
+        "id": 40156027730,
+        "repository_id": 1302529453,
+        "head_repository_id": 1302529453,
+        "head_branch": "codex/board-settlement-current-20261025",
+        "head_sha": "6b341e0cde34d57791a40c3fee5c66bc75ff85ce"
+      }
+    },
+    {
+      "id": 12584910922,
+      "name": "windows-scene_same_day_supportz-40156027730-1",
+      "size_in_bytes": 235994,
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12584910922",
+      "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12584910922/zip",
+      "expired": false,
+      "created_at": "2026-10-25T03:02:33Z",
+      "expires_at": "2026-11-01T03:02:32Z",
+      "updated_at": "2026-10-25T03:02:33Z",
+      "digest": "sha256:4f9245d1a57991549c1889c4b3811877c852d321f0b293513e65b7734517e5f4",
+      "workflow_run": {
+        "id": 40156027730,
+        "repository_id": 1302529453,
+        "head_repository_id": 1302529453,
+        "head_branch": "codex/board-settlement-current-20261025",
+        "head_sha": "6b341e0cde34d57791a40c3fee5c66bc75ff85ce"
+      }
+    },
+    {
+      "id": 12584454764,
+      "name": "windows-localization-40156027730-1",
+      "size_in_bytes": 24741,
+      "url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12584454764",
+      "archive_download_url": "https://api.github.com/repos/Siuuuers/dwm/actions/artifacts/12584454764/zip",
+      "expired": false,
+      "created_at": "2026-10-25T03:00:47Z",
+      "expires_at": "2026-11-01T03:00:47Z",
+      "updated_at": "2026-10-25T03:00:47Z",
+      "digest": "sha256:dd2633618d63df92cb02608c42d1255f313537b8c785934fed7be31b2062fac8",
+      "workflow_run": {
+        "id": 40156027730,
+        "repository_id": 1302529453,
+        "head_repository_id": 1302529453,
+        "head_branch": "codex/board-settlement-current-20261025",
+        "head_sha": "6b341e0cde34d57791a40c3fee5c66bc75ff85ce"
+      }
+    }
+  ]
+}

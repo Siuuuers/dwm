@@ -178,7 +178,7 @@ func setup(scene_tree: SceneTree) -> Dictionary:
 		"scene_choices": {}, "scene_challenge_outcomes": {},
 		"shop_purchase_counts": {}, "stats": {"pressure": 3}, "story_flags": {}}
 	var input := {"lifecycle": lifecycle, "gameplay": gameplay, "contacts": CONTACTS.make_scene_defaults(),
-		"desktop": game._empty_desktop_snapshot(identity.causal_day_instance, identity.causal_day_instance_issuer_receipt),
+		"desktop": game._empty_desktop_snapshot(identity.causal_day_instance, identity.causal_day_instance_issuer_receipt, true),
 		"scene": {"registration_sha256": MANIFEST.scene_registration_fingerprint(),
 			"active_occurrence_id": occurrence, "active_admission_receipt_id": occurrence},
 		"applied_effect_transaction_ids": [], "applied_variable_transaction_ids": [],

@@ -115,7 +115,7 @@ static func compose(base_snapshot_input: Dictionary, game_state_candidate: Dicti
 ## Pure projection of what `DesktopBoardState.commit(board_candidate)` would install, given the
 ## board's CURRENT capture (`base_board`) -- mirrors that method's own field-by-field behavior
 ## exactly (scripts/domain/minesweeper/DesktopBoardState.gd `commit()`), without mutating any live
-## object. `command_receipts` gains the one new transaction entry; `terminal_receipts` is untouched
+## object. `command_receipts` gains one entry; legacy terminal records remain untouched
 ## (first Reveal never produces terminal truth).
 static func _project_board(base_board: Dictionary, candidate: Dictionary) -> Dictionary:
 	if int(candidate["pre_revision"]) != int(base_board.get("revision", -1)):
@@ -131,13 +131,15 @@ static func _project_board(base_board: Dictionary, candidate: Dictionary) -> Dic
 		"command_kind": str(candidate["kind"]),
 		"result": candidate.result_override.duplicate(true),
 	}
-	return {"ok": true, "value": {"board": {
+	var projected := {
 		"schema_version": 1, "phase": str(candidate["phase_after"]), "revision": post_revision,
 		"identity": candidate.get("identity_after"), "candidate": candidate.get("candidate_after"),
 		"board": board_after.duplicate(true), "settlement": candidate.get("settlement_after"),
 		"command_receipts": receipts,
-		"terminal_receipts": (base_board.get("terminal_receipts", {}) as Dictionary).duplicate(true),
-	}}}
+	}
+	if base_board.has("settled_inspection"): projected["settled_inspection"] = false
+	else: projected["terminal_receipts"] = (base_board.get("terminal_receipts", {}) as Dictionary).duplicate(true)
+	return {"ok": true, "value": {"board": projected}}
 
 
 ## The coordinator owns the payment/publication result. Project it unchanged; the board

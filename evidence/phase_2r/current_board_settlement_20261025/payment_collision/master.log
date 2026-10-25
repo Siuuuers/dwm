@@ -1,0 +1,32 @@
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+---  GUT  ---
+[1m[INFO]:  [0musing [/root/.local/share/godot/app_userdata/DWM] for temporary output.
+Godot version:  4.6.3
+GUT version:  9.6.1
+[4m
+
+res://.godot/test_next_day_payment_probe.gd
+[0m* test_next_day_payment_probe
+PAYMENT_PROBE {"after_rounds":2,"before_rounds":2,"first":{"app_round_ordinal":1,"branch_id":"branch_id.3065ea36bdec636b82728a6ab6797c7527481bccb890d3cfc46ae8f41ffd37f5","causal_day_instance":"causal_day_instance.9c50802b37609cd8dd3203153d1b91955cc914ee079d9f911c4e339ce0ec6ca3","desktop_timeline_generation":0,"run_id":"run_id.c45ebb38b53fd2b6a164431e8392f368db256e2380832d6a24504720ff6cd85b"},"next":{"app_round_ordinal":1,"branch_id":"branch_id.3065ea36bdec636b82728a6ab6797c7527481bccb890d3cfc46ae8f41ffd37f5","causal_day_instance":"causal_day_instance.df71b52735f1dfbc6102ac27ca7e03add8b9118532bc3e84a8db75c790008aa7","desktop_timeline_generation":0,"run_id":"run_id.c45ebb38b53fd2b6a164431e8392f368db256e2380832d6a24504720ff6cd85b"},"result":{"code":"paid_start_receipt_required","details":{},"message":"","ok":false}}
+[1m1/1 passed.
+[0m
+
+
+
+[33m==============================================
+[0m[33m= Run Summary
+[0m[33m==============================================
+[0m
+Totals
+------
+Scripts               1
+Tests                 1
+Passing Tests         1
+Asserts              27
+Time              3.081s
+
+
+Ran Tests matching "test_next_day_payment_probe"
+[32m---- All tests passed! ----
+[0m

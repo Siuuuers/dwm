@@ -758,3 +758,23 @@ func test_fresh_round_departure_prepares_before_source_projection_then_commits_f
 	assert_true(fresh["port"].publish(frozen).get("ok", false))
 	assert_eq(fresh["board"].capture(), projection)
 	assert_eq(_ledger_records(fresh["ledger"]).size(), 1)
+
+
+func test_scene_departure_discards_preparation_without_adding_terminal_history() -> void:
+	assert_true(_coordinator._board_state.configure_scene_payments(_issuer).ok)
+	var wired := _wired()
+	if wired.is_empty(): return
+	assert_true(_begin_debug(_next_tx(), "beginner").ok)
+	var live: Dictionary = _coordinator._board_state.capture()
+	assert_eq(live.phase, "PREPARING")
+	assert_false(live.has("terminal_receipts"))
+	var result: Dictionary = wired.port.prepare_causal_departure(_schedule_request(_next_tx(), live))
+	assert_true(result.ok, str(result))
+	if not result.ok: return
+	assert_eq(result.value.board_fate_receipt.fate, "discarded_unstarted")
+	var candidate: Dictionary = result.value.board_candidate
+	assert_eq(candidate.phase, "NONE")
+	assert_false(candidate.settled_inspection)
+	assert_false(candidate.has("terminal_receipts"))
+	assert_true(wired.port.commit(candidate).ok)
+	assert_eq(_coordinator._board_state.capture(), candidate)

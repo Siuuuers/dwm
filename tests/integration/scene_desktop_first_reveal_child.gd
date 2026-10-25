@@ -20,6 +20,13 @@ func _desktop_port() -> RefCounted:
 			bootstrap.get("_desktop_identity_nonce_issuer"))): return null
 	return port
 
+func _settlement_request() -> Dictionary:
+	var issued: Dictionary = bootstrap._desktop_identity_nonce_issuer.issue(&"transaction_id")
+	if not _ok(issued): return {}
+	var board: Dictionary = bootstrap._desktop_board_state.capture()
+	return {"transaction_id": issued.value.token, "transaction_issuer_receipt": issued.value.issuer_receipt,
+		"expected_identity": board.identity.duplicate(true), "expected_revision": int(board.revision)}
+
 func _line_ready() -> bool:
 	var deadline := Time.get_ticks_msec() + 20000
 	while Time.get_ticks_msec() < deadline:
@@ -265,4 +272,65 @@ func load_scene_desktop_first_reveal() -> void:
 	proof.process_id = OS.get_process_id()
 	proof["destination_branch"] = current.lifecycle.branch_id
 	proof.ready_count = ready_count
+	# Finish the board restored by this fresh process, then save its paid result for a third process.
+	var owner: Object = bootstrap._retained_minesweeper_round_coordinator_app
+	var terminal_request := _settlement_request()
+	if terminal_request.is_empty(): return
+	terminal_request.cell_index = int(current_raw.desktop.board.board.board.mine_indices[0])
+	if not _ok(owner.reveal(terminal_request)): return
+	assert_false(bootstrap._desktop_board_state.capture().settled_inspection)
+	var completion := _settlement_request()
+	if completion.is_empty() or not _ok(owner.complete_round(completion)): return
+	var settled: Dictionary = game.capture_run_snapshot_input().duplicate(true)
+	assert_true(settled.desktop.board.settled_inspection)
+	assert_true(settled.desktop.board.board.board.terminal)
+	assert_false(settled.desktop.board.has("terminal_receipts"))
+	assert_eq(settled.gameplay.money, current_raw.gameplay.money + 1)
+	assert_eq(settled.gameplay.minesweeper_app_rounds_finished_today, 1)
+	if not _ok(saves.save_latest_to_slot(2)): return
+	proof["settled"] = DESKTOP_STATE._inspection_normalize(settled)
+	proof["settled_slot_sha256"] = FileAccess.get_sha256("user://saves/slot_2.json")
+	proof.file_hashes = _file_hashes()
+	if not _write_json(PROOF, proof): return
 	_write_json("res://.godot/ci/scene-desktop-first-reveal-load-proof.json", proof)
+
+func load_scene_desktop_settled_result() -> void:
+	var parsed: Dictionary = PARSER.parse_object(FileAccess.get_file_as_string(PROOF))
+	if not _ok(parsed): return
+	var witness: Dictionary = parsed.value
+	assert_ne(OS.get_process_id(), witness.process_id, "settled Load uses a third OS process")
+	assert_ne(OS.get_process_id(), witness.creator_process_id)
+	_same_files(witness.file_hashes)
+	assert_eq(FileAccess.get_sha256("user://saves/slot_2.json"), witness.settled_slot_sha256)
+	if not _start_services(): return
+	var backup: RefCounted = preload("res://scripts/application/backup/BackupPresentationPort.gd").new()
+	if not _ok(backup.configure(saves, "title")): return
+	var prepared: Dictionary = backup.prepare_action("load", "slot:2")
+	if not _ok(prepared): return
+	var loaded: Dictionary = backup.commit_action(prepared.value.token)
+	assert_eq(loaded.get("code"), &"scene_activation_pending", str(loaded))
+	if loaded.get("code") != &"scene_activation_pending": return
+	if not await _await_ready() or not await _line_ready(): return
+	var settled_raw: Dictionary = game.capture_run_snapshot_input().duplicate(true)
+	var settled: Dictionary = DESKTOP_STATE._inspection_normalize(settled_raw)
+	assert_true(settled.desktop.board.settled_inspection)
+	assert_true(bootstrap._desktop_board_state.has_settled_inspection())
+	assert_eq(settled.gameplay, witness.settled.gameplay, "settled Load preserves exact economy without another payment")
+	assert_eq(settled.desktop.board.board, witness.settled.desktop.board.board, "terminal layout and inspection restore exactly")
+	assert_false(settled.desktop.board.has("terminal_receipts"))
+	assert_ne(settled.desktop.board.identity.branch_id, witness.settled.desktop.board.identity.branch_id)
+	var request := _settlement_request()
+	if request.is_empty(): return
+	var owner: Object = bootstrap._retained_minesweeper_round_coordinator_app
+	for retry: int in 2:
+		var completed: Dictionary = owner.complete_round(request)
+		if not _ok(completed): return
+		assert_true(completed.get("already_applied", false))
+		assert_eq(game.capture_run_snapshot_input(), settled_raw, "cold completion retry does not repeat rewards")
+	assert_eq(FileAccess.get_sha256("user://saves/slot_2.json"), witness.settled_slot_sha256)
+	_same_files(witness.file_hashes)
+	var proof := witness.duplicate(true)
+	proof["settled_destination_branch"] = settled.lifecycle.branch_id
+	proof["settled_loader_process_id"] = OS.get_process_id()
+	proof.ready_count = ready_count
+	_write_json("res://.godot/ci/scene-desktop-settled-load-proof.json", proof)

@@ -23,6 +23,7 @@ const SAVE_CHECKPOINT_PORT := preload("res://scripts/application/run/SaveManager
 const SHOP_REGISTRY := preload("res://scripts/domain/shop/MinesweeperShopRegistry.gd")
 const DESKTOP_IDENTITY_ALLOCATION_RESTORE_PARTICIPANT := preload("res://scripts/application/restore/DesktopIdentityAllocationRestoreParticipant.gd")
 const DESKTOP_PUBLICATION_LEDGER := preload("res://scripts/infrastructure/save/DesktopPublicationLedger.gd")
+const LEGACY_BOARD_STATE := preload("res://scripts/domain/minesweeper/DesktopBoardState.gd")
 const WINDOW_MANAGER := preload("res://autoload/WindowModeManager.gd")
 const WINDOW_FIXTURES := preload("res://tests/unit/test_window_mode_manager.gd")
 
@@ -76,7 +77,8 @@ func after_each() -> void:
 
 
 ## Builds one full "process" (Bootstrap + GameState + SaveManager) over `storage_root`, exactly the
-## same graph _configure_desktop_production_graph() builds, so a second call over the SAME root
+## graph _configure_desktop_production_graph() builds, retaining a legacy calendar board owner
+## for these explicit start_new_run(route_id=main) diagnostics. A second call over the SAME root
 ## models a fresh process reopening the same on-disk state after a crash.
 func _boot_process(storage_root: String) -> Dictionary:
 	# Each graph models a new process; retain registration, not the prior graph's owners.
@@ -153,6 +155,9 @@ func _boot_process(storage_root: String) -> Dictionary:
 
 	assert_true(bootstrap.call(&"_configure_causal_day_advance_identity", coordinator).get("ok", false))
 	assert_true(bootstrap.call(&"_construct_schedule_foundation", game_state, state_port).get("ok", false))
+	# This diagnostic starts calendar Run8; current application boot defaults to a Scene Run9 board.
+	# Retain the real legacy owner before participant construction, without relabeling saved state.
+	bootstrap.set("_desktop_board_state", LEGACY_BOARD_STATE.new())
 	var restore_result: Dictionary = bootstrap.call(&"_configure_restore_participants")
 	assert_true(restore_result.get("ok", false), "restore participants: " + str(restore_result))
 	var graph_result: Dictionary = bootstrap.call(&"_configure_desktop_production_graph")

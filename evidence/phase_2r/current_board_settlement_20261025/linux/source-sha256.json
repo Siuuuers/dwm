@@ -1,0 +1,21 @@
+{
+  ".github/workflows/windows-tests.yml": "da05e960677ac9a3e5540a726d959dd5271610a41c38df89a723cea0a058769c",
+  "autoload/GameState.gd": "985b2d227ac7a67447a45f9b4edcbd08566da9572f0de834ca8bc67195bea80e",
+  "evidence/phase_2r/runtime/game_state_surface.json": "a0a0918b1fdb95874d6b245649a793a13b47e9b30bc457978fd0e3092534b27b",
+  "evidence/phase_2r/runtime/save_manager_surface.json": "884a3da3753c8758e45f8af105a5bfbc8c55ba5bd8910341f4682f1db7918f84",
+  "scripts/application/minesweeper/DesktopBoardFatePort.gd": "2d4d3a9b32b8c1405887abb601addb62ef6f1503590f364fe0785adde8a6c08a",
+  "scripts/application/minesweeper/DesktopFirstRevealSnapshotComposer.gd": "013d41e59d1714c4d2909be068ffb4af5b098611a66fe4dbbcfe1ffe2f037fb3",
+  "scripts/domain/desktop/DesktopContinuationRemapper.gd": "1b60d9438e7683b48931b84b16ba2c4d33d9727e8053c2eadaee42feaabfd537",
+  "scripts/domain/minesweeper/DesktopBoardState.gd": "af122250a49834895731387aa6622d7bd531a4fff096a1d2b66912a1bd774d95",
+  "scripts/domain/run/RunSnapshotSchema.gd": "74282bc80ab586a91d83263ea3f3c7f534e7358feb1609febf230679a22d06d8",
+  "tests/integration/scene_desktop_first_reveal_child.gd": "22d9bec47ea8dca166ac41bc24bf22ad3c73493e00cdfd0248731997e4f5f8e4",
+  "tests/integration/scene_same_day_supportz_child.gd": "fd41cedab140518eccb1541ea36635611d73b081957c390ff8e0cdaff254a628",
+  "tests/integration/test_scene_round_checkpoint_transaction.gd": "de8ffb161c06d45a4347851d359a6086ea62abc74e76c3d3fcad31b685f6e453",
+  "tests/support/SceneRunSaveFixture.gd": "5ce5a2e02963ff5b3201e1e6b73dee00dbf369622c4e2352290b22e54b0084f0",
+  "tests/unit/test_desktop_board_fate_port.gd": "9d056e13a5e14a708a63590e2fdfa1bba77174fb1ec80834952818950c665815",
+  "tests/unit/test_desktop_board_state.gd": "7ef5ca0e2be6ecb646f37d72a85a2ab945cd38b36b8c099481819548c44bd0f9",
+  "tests/unit/test_desktop_continuation_remapper.gd": "0d0e1f5e7323840c4c2f8a05af548b4a299fcd478c4a4a0b02a270c3cc6f5ee1",
+  "tools/testing/Invoke-CloudTests.ps1": "b9598ed2479b6230216c79dbbd9ac67c20d859bc02a6745212ee9667cabf0404",
+  "tests/integration/test_scene_desktop_settled_load.gd": "4c0db48be9ce90c42d99508e8b8f22c5d3636cec8c6bd0b520f9d6e30d8e1545",
+  "tests/integration/test_desktop_crash_recovery.gd": "157a3257a782413501184bdc220376c4d0f2baa7e32b0ccae4bd5fc01cde1b2e"
+}

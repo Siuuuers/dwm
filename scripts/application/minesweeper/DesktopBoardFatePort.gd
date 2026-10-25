@@ -535,22 +535,26 @@ func _finish_prepare(request: Dictionary, command_id: String, base_snapshot: Dic
 
 
 ## The target phase-NONE snapshot for a discard/forfeit: every phase-gated slot null, command_receipts
-## unchanged, and one new terminal_receipts entry (keyed by this departure's own receipt id) retaining
+## unchanged. Only legacy snapshots add a terminal_receipts entry retaining
 ## the fate/identity/revision this board departed from. `revision` advances by one, matching every
 ## other DesktopBoardState transition's own bookkeeping (own design choice; not itself exposed by any
 ## frozen board_fate_receipt field).
 func _build_departed_snapshot(base_snapshot: Dictionary, board_fate_receipt_id: String) -> Dictionary:
-	var terminal_receipts: Dictionary = (base_snapshot["terminal_receipts"] as Dictionary).duplicate(true)
-	terminal_receipts[board_fate_receipt_id] = {
-		"kind": "board_fate", "board_identity": _dup_or_null(base_snapshot["identity"]),
-		"board_revision": int(base_snapshot["revision"]),
-	}
-	return {
+	var departed := {
 		"schema_version": 1, "phase": "NONE", "revision": int(base_snapshot["revision"]) + 1,
 		"identity": null, "candidate": null, "board": null, "settlement": null,
 		"command_receipts": (base_snapshot["command_receipts"] as Dictionary).duplicate(true),
-		"terminal_receipts": terminal_receipts,
 	}
+	if base_snapshot.has("settled_inspection"):
+		departed["settled_inspection"] = false
+	else:
+		var terminal_receipts: Dictionary = base_snapshot.terminal_receipts.duplicate(true)
+		terminal_receipts[board_fate_receipt_id] = {
+			"kind": "board_fate", "board_identity": _dup_or_null(base_snapshot["identity"]),
+			"board_revision": int(base_snapshot["revision"]),
+		}
+		departed["terminal_receipts"] = terminal_receipts
+	return departed
 
 
 func _validate_common_request_types(request: Dictionary) -> Dictionary:

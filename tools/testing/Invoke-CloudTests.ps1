@@ -1,6 +1,6 @@
 param(
     [Parameter(Mandatory = $true)]
-    [ValidateSet('minesweeper', 'shop', 'desktop', 'settings', 'checkpoint_diagnostics', 'new_account', 'reading_delivery', 'localization', 'dating', 'persistence', 'endings', 'audio', 'public_surfaces', 'scene_desktop_first_reveal', 'scene_round_checkpoint', 'scene_shop_checkpoint', 'scene_story_localization', 'scene_controls_localization', 'scene_apps', 'current_title', 'scene_backup_inspection', 'authored_week', 'scene_five_outcomes', 'timeline_resources', 'backup_presentation', 'profile_parse', 'backup_current_build', 'terminal_admission', 'current_quick_load', 'current_terminal_fixture', 'scene_multiple_thoughts', 'scene_challenge_recall')]
+    [ValidateSet('minesweeper', 'shop', 'desktop', 'settings', 'checkpoint_diagnostics', 'new_account', 'reading_delivery', 'localization', 'dating', 'persistence', 'endings', 'audio', 'public_surfaces', 'scene_desktop_first_reveal', 'scene_round_checkpoint', 'scene_shop_checkpoint', 'scene_story_localization', 'scene_controls_localization', 'scene_apps', 'current_title', 'scene_backup_inspection', 'authored_week', 'scene_five_outcomes', 'timeline_resources', 'backup_presentation', 'profile_parse', 'backup_current_build', 'terminal_admission', 'current_quick_load', 'current_terminal_fixture', 'scene_multiple_thoughts', 'scene_challenge_recall', 'scene_same_day_supportz')]
     [string]$Suite
 )
 
@@ -17,6 +17,9 @@ if ($Suite -eq 'current_terminal_fixture') {
 $suites = @{
     scene_multiple_thoughts = @(
         'tests/integration/test_scene_multiple_thoughts_create.gd'
+    )
+    scene_same_day_supportz = @(
+        'tests/integration/test_scene_same_day_supportz_create.gd'
     )
     scene_challenge_recall = @(
         'tests/integration/test_scene_challenge_recall_create.gd'
@@ -357,6 +360,7 @@ $arguments = @(
 )
 # Creator and loader must share storage but never a process/registration registry.
 $loadScripts = @{
+    scene_same_day_supportz = 'tests/integration/test_scene_same_day_supportz_load.gd'
     scene_multiple_thoughts = 'tests/integration/test_scene_multiple_thoughts_load.gd'
     scene_challenge_recall = 'tests/integration/test_scene_challenge_recall_load.gd'
     scene_desktop_first_reveal = 'tests/integration/test_scene_desktop_first_reveal_load.gd'
@@ -364,7 +368,7 @@ $loadScripts = @{
     current_title = 'tests/integration/test_current_title_scene_load.gd'
 }
 $extra = @{}
-if ($Suite -in @('scene_story_localization', 'scene_apps', 'current_title', 'scene_desktop_first_reveal', 'current_quick_load', 'scene_multiple_thoughts', 'scene_challenge_recall')) { $extra.Rendered = $true }
+if ($Suite -in @('scene_story_localization', 'scene_apps', 'current_title', 'scene_desktop_first_reveal', 'current_quick_load', 'scene_multiple_thoughts', 'scene_challenge_recall', 'scene_same_day_supportz')) { $extra.Rendered = $true }
 if ($loadScripts.ContainsKey($Suite)) {
     $loadScript = $loadScripts[$Suite]
     if (-not (Test-Path -LiteralPath (Join-Path $repositoryRoot $loadScript))) { throw "Requested test does not exist: $loadScript" }
@@ -373,6 +377,15 @@ if ($loadScripts.ContainsKey($Suite)) {
     $extra.NextLogName = "cloud-$Suite-load.log"
     $extra.NextGodotArgs = @('-s', 'res://addons/gut/gut_cmdln.gd', '-gconfig=',
         "-gtest=res://$loadScript", '-gexit', '-glog=1', "-gjunit_xml_file=res://.godot/ci/$Suite-load.xml")
+}
+if ($Suite -eq 'scene_desktop_first_reveal') {
+    $settledScript = 'tests/integration/test_scene_desktop_settled_load.gd'
+    if (-not (Test-Path -LiteralPath (Join-Path $repositoryRoot $settledScript))) { throw "Requested test does not exist: $settledScript" }
+    $settledReport = Join-Path $output "$Suite-settled-load.xml"
+    if (Test-Path -LiteralPath $settledReport) { Remove-Item -LiteralPath $settledReport -Force }
+    $extra.ThirdLogName = "cloud-$Suite-settled-load.log"
+    $extra.ThirdGodotArgs = @('-s', 'res://addons/gut/gut_cmdln.gd', '-gconfig=',
+        "-gtest=res://$settledScript", '-gexit', '-glog=1', "-gjunit_xml_file=res://.godot/ci/$Suite-settled-load.xml")
 }
 # Refuse stale reports if a child exits before writing its result.
 $primaryReport = Join-Path $output "$Suite.xml"
@@ -452,6 +465,22 @@ if ($loadScripts.ContainsKey($Suite)) {
     }
     Write-Host "${Suite}: fresh-process load case passed ($loadScript)."
 }
+if ($Suite -eq 'scene_desktop_first_reveal') {
+    if (-not (Test-Path -LiteralPath $settledReport)) { throw 'Settled Load child did not produce its JUnit report.' }
+    [xml]$settledXml = Get-Content -LiteralPath $settledReport -Raw
+    $settledCases = @($settledXml.SelectNodes('//testcase'))
+    if ($settledCases.Count -ne 1 -or $settledCases[0].GetAttribute('classname') -cne $settledScript -or
+        $settledCases[0].GetAttribute('status') -cne 'pass' -or
+        [int]$settledCases[0].GetAttribute('assertions') -le 0 -or
+        $settledXml.SelectNodes('//failure | //error | //skipped').Count -ne 0) {
+        throw 'Settled Load child did not pass its selected fresh-process restoration case.'
+    }
+    $settledLog = Join-Path $repositoryRoot ".godot/phase2r_logs/cloud-$Suite-settled-load.log"
+    if (Select-String -LiteralPath $settledLog -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) {
+        throw 'Settled Load child reported script or Unicode errors.'
+    }
+    Write-Host "${Suite}: fresh-process settled load case passed ($settledScript)."
+}
 $sourceTestScript = ''
 $sourceTestName = ''
 $expectedUnreadableDiagnostics = 0
@@ -487,7 +516,7 @@ if (-not (Test-Path -LiteralPath $report)) { throw 'GUT did not produce its JUni
 $executed = $xml.SelectNodes('//testcase').Count
 if ($executed -eq 0) { throw 'GUT did not report any executed tests.' }
 if ($xml.SelectNodes('//failure | //error').Count -ne 0) { throw 'GUT reported test failures.' }
-if ($Suite -in @('scene_desktop_first_reveal', 'scene_round_checkpoint', 'scene_shop_checkpoint', 'scene_story_localization', 'scene_controls_localization', 'scene_apps', 'current_title', 'scene_backup_inspection', 'authored_week', 'scene_five_outcomes', 'timeline_resources', 'backup_presentation', 'profile_parse', 'backup_current_build', 'terminal_admission', 'current_quick_load')) {
+if ($Suite -in @('scene_same_day_supportz', 'scene_desktop_first_reveal', 'scene_round_checkpoint', 'scene_shop_checkpoint', 'scene_story_localization', 'scene_controls_localization', 'scene_apps', 'current_title', 'scene_backup_inspection', 'authored_week', 'scene_five_outcomes', 'timeline_resources', 'backup_presentation', 'profile_parse', 'backup_current_build', 'terminal_admission', 'current_quick_load')) {
     foreach ($case in $xml.SelectNodes('//testcase')) {
         if ($case.GetAttribute('classname') -cnotin $suites[$Suite] -or
             $case.GetAttribute('status') -cne 'pass' -or [int]$case.GetAttribute('assertions') -le 0) {

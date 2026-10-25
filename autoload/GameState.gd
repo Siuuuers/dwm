@@ -2326,13 +2326,17 @@ func get_mutation_gate_instance_id() -> int:
 ## Fresh `{board,consequence}` for a run that has never touched Minesweeper: NONE-phase board
 ## (DesktopBoardState's default-constructed capture) and an empty pending-free consequence bound to
 ## the given causal-day identity pair (Plan 02 Task 6, dwm-p2r.32).
-func _empty_desktop_snapshot(causal_day_instance: String, causal_day_instance_issuer_receipt: Dictionary) -> Dictionary:
+func _empty_desktop_snapshot(causal_day_instance: String, causal_day_instance_issuer_receipt: Dictionary, scene: bool = false) -> Dictionary:
 	var empty_consequence: Dictionary = _DESKTOP_CONSEQUENCE_STATE.make_empty({
 		"causal_day_instance": causal_day_instance,
 		"causal_day_instance_issuer_receipt": causal_day_instance_issuer_receipt,
 	})
+	var board: Dictionary = _DESKTOP_BOARD_STATE.new().capture()
+	if scene:
+		board.erase("terminal_receipts")
+		board["settled_inspection"] = false
 	return {
-		"board": _DESKTOP_BOARD_STATE.new().capture(),
+		"board": board,
 		"consequence": (empty_consequence["value"] as Dictionary)["state"],
 	}
 
@@ -4240,7 +4244,7 @@ func prepare_scene_new_run_snapshot_input(allocation_candidate: Dictionary, prof
 	return {"ok": true, "value": {"snapshot_input": {
 		"lifecycle": lifecycle, "gameplay": make_scene_new_run_gameplay(),
 		"contacts": _CONTACT_INVITATION_STATE.make_scene_defaults(),
-		"desktop": _empty_desktop_snapshot(identity.causal_day_instance, identity.causal_day_instance_issuer_receipt),
+		"desktop": _empty_desktop_snapshot(identity.causal_day_instance, identity.causal_day_instance_issuer_receipt, true),
 		"scene": {"registration_sha256": _SCENE_MANIFEST.scene_registration_fingerprint(),
 			"active_occurrence_id": occurrence, "active_admission_receipt_id": occurrence},
 		"applied_effect_transaction_ids": [], "applied_variable_transaction_ids": [],
@@ -5372,8 +5376,9 @@ func _prepare_scene_day_renewal(trigger: Dictionary, target_id: String, registra
 	lifecycle.causal_day_instance_issuer_receipt = next_identity.causal_day_instance_issuer_receipt.duplicate(true)
 	var desktop: Dictionary = before.desktop.duplicate(true)
 	# Discard the ordinary board without calling completion or granting rewards.
-	# Keep historical terminal receipts and revision monotonicity for stale commands.
+	# Keep revision monotonicity for stale commands.
 	desktop.board.phase = "NONE"
+	desktop.board.settled_inspection = false
 	desktop.board.revision += 1
 	for key: String in ["identity", "candidate", "board", "settlement"]: desktop.board[key] = null
 	desktop.consequence.causal_day_instance = next_identity.causal_day_instance
@@ -5965,9 +5970,7 @@ func _commit_scene_round_owned(request: Dictionary, lease: String) -> Dictionary
 	candidate.command_receipts[id] = receipt.value.duplicate(true)
 	var board_after := captured.duplicate(true)
 	board_after.revision += 1
-	board_after.terminal_receipts["round_complete." + id] = {"kind": "complete",
-		"outcome": str(captured.board.board.outcome), "app_round_ordinal": ordinal,
-		"board_sha256": completion.board_sha256}
+	board_after.settled_inspection = true
 	var prepared_board: Dictionary = _scene_round_board.prepare_restore(board_after)
 	if not prepared_board.get("ok", false): return prepared_board
 	if not _scene_round_board.is_settled_inspection(board_after):
