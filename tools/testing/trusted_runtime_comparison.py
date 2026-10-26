@@ -16,6 +16,24 @@ OWNERS = ("StartupProbe", "ProfileManager", "GameState", "SaveManager", "Localiz
 
 
 LOAD_PROBE = r'''
+var _load_draw_watch := false
+var _load_next_watch := false
+var _load_first_draw_session := {}
+
+func _observe_load_drawing() -> void:
+	if not _load_draw_watch: return
+	var bridge := get_node("/root/DialogicBridge")
+	var caption: Node = get_node("/root/SceneRouter")._production_pause._find_caption(get_tree().root)
+	if not is_instance_valid(caption) or not caption.caption_text.is_visible_in_tree(): return
+	var native: Node = caption.caption_text
+	if native.visible_ratio <= 0.0: return
+	var line: String = bridge._runtime_adapter.current_line_id()
+	if line == FIRST_LINE and not milestones.has("load_first_correct_caption_drawn"):
+		mark("load_first_correct_caption_drawn")
+		_load_first_draw_session = get_node("/root/GameState").capture_live_session().value
+	if _load_next_watch and line == "line.Day1.002" and not milestones.has("load_next_caption_drawn"):
+		mark("load_next_caption_drawn")
+
 func _load_saved(menu: Node) -> void:
 	var saves := get_node("/root/SaveManager")
 	var bridge := get_node("/root/DialogicBridge")
@@ -54,6 +72,8 @@ func _load_saved(menu: Node) -> void:
 	gap_scope = ""
 	if not _capture("backup"): return
 	if not await _prepare_pointer(app.action_buttons["load"], "load"): return
+	_load_draw_watch = true
+	RenderingServer.frame_post_draw.connect(_observe_load_drawing)
 	if not await _click(app.action_buttons["load"], "load"): return
 	deadline = Time.get_ticks_msec() + 300000
 	while Time.get_ticks_msec() < deadline:
@@ -70,27 +90,71 @@ func _load_saved(menu: Node) -> void:
 					and game.capture_live_session().value.active:
 				await RenderingServer.frame_post_draw
 				mark("load_caption_complete_drawn_idle")
-				gap_scope = ""
+				gap_scope = "load_after_caption"
+				previous_frame_us = Time.get_ticks_usec()
 				observation = {"line_id": FIRST_LINE, "text": native.get_parsed_text(), "visible_ratio": native.visible_ratio,
 					"event_done": true, "active": true, "ready_count": ready.count, "source_save_sha256": source_hash}
 				break
 		await get_tree().process_frame
 	if not _check(not observation.is_empty(), "Load did not reach the complete saved caption"): return
 	_end_newacc_scope(true)
+	# Capture the restored state before the first next-input. Run equality checks,
+	# History expansion and PNG encoding happen after the responsive drawing.
 	var current: Dictionary = game.capture_run_snapshot_input()
+	var reading: Dictionary = bridge.capture_reading_checkpoint(false)
+	var persistent_after := {}
+	for path: String in persistent_before:
+		persistent_after[path] = FileAccess.get_sha256(path) if FileAccess.file_exists(path) else "absent"
+	var input_caption: Node = get_node("/root/SceneRouter")._production_pause._find_caption(get_tree().root)
+	var native_inputs: Node = bridge._runtime_adapter._dialogic.get_subsystem("Inputs")
+	deadline = Time.get_ticks_msec() + 15000
+	while native_inputs.is_input_blocked() and Time.get_ticks_msec() < deadline:
+		await get_tree().process_frame
+	if not _check(not native_inputs.is_input_blocked(), "loaded caption never accepted input"): return
+	mark("load_first_input_ready")
+	input_caption.caption_text.grab_focus()
+	if not _check(input_caption.caption_text.has_focus(), "loaded caption did not own Accept focus"): return
+	_load_next_watch = true
+	mark("load_next_input")
+	for pressed: bool in [true, false]:
+		var event := InputEventKey.new()
+		event.keycode = KEY_ENTER
+		event.physical_keycode = KEY_ENTER
+		event.pressed = pressed
+		get_viewport().push_input(event, true)
+		await get_tree().process_frame
+	while not milestones.has("load_next_caption_drawn") and Time.get_ticks_msec() < deadline:
+		await get_tree().process_frame
+	if not _check(milestones.has("load_next_caption_drawn"), "first Accept did not draw the next saved-route caption"): return
+	if not _check(bridge._runtime_adapter.current_line_id() == "line.Day1.002", "first Accept advanced more than one line"): return
+	if not _check(game.capture_live_session().value.active and game.capture_run_snapshot_input().lifecycle.run_id == saved.lifecycle.run_id,
+		"first Accept acted on a different Run"): return
+	observation["first_draw_live_session"] = _load_first_draw_session
+	if variant == "candidate" and not _check(_load_first_draw_session.get("active", false) and _load_first_draw_session.get("run_id") == saved.lifecycle.run_id,
+		"first visible saved caption still belonged to an inactive or previous Run"): return
+	observation["next_input"] = {"line_id": "line.Day1.002", "press_count": 1, "release_count": 1,
+		"same_run": true, "text": input_caption.caption_text.get_parsed_text()}
+	# Observe one second after the first responsive draw. No deferred work is
+	# requested by the probe during this window; frame gaps expose shifted stalls.
+	await get_tree().create_timer(1.0).timeout
+	await RenderingServer.frame_post_draw
+	mark("load_post_input_observation_complete")
+	gap_scope = ""
+	_load_draw_watch = false
+	RenderingServer.frame_post_draw.disconnect(_observe_load_drawing)
 	if not _check(current.lifecycle.run_id == saved.lifecycle.run_id, "Load changed run identity"): return
 	if not _check(current.lifecycle == saved.lifecycle, "Direct Load changed saved lifecycle"): return
 	for path: String in persistent_before:
-		var after := FileAccess.get_sha256(path) if FileAccess.file_exists(path) else "absent"
-		if not _check(after == persistent_before[path], "Load changed persistent file: " + path): return
+		if not _check(persistent_after[path] == persistent_before[path], "Load changed persistent file: " + path): return
 	if not _check(current.gameplay == saved.gameplay and current.scene == saved.scene, "Load changed saved gameplay or scene"): return
 	var expanded: Dictionary = load("res://scripts/narrative/SoloReadingSession.gd").expand_player_checkpoint(saved.narrative_checkpoint)
-	var reading: Dictionary = bridge.capture_reading_checkpoint(false)
 	if not _check(expanded.get("ok", false) and reading.get("ok", false) and reading.value == expanded.value,
 		"Load did not restore the complete saved reading checkpoint"): return
 	var locale: String = get_node("/root/LocalizationManager").get_locale()
 	var texts: Dictionary = load("res://scripts/localization/StoryLocalization.gd").catalog(locale)
 	if not _check(observation.text == texts.get(FIRST_LINE, FIRST_EN), "loaded caption differs from authored text"): return
+	var next_en := "“The tables by the door are in a draught,” she says. “You always complain about your throat when you sit under the vent.”"
+	if not _check(observation.next_input.text == texts.get("line.Day1.002", next_en), "first Accept drew incorrect next text"): return
 	if not _check(FileAccess.get_sha256("user://saves/slot_1.json") == source_hash, "Load changed source save bytes"): return
 	var incomplete: Dictionary = saves._continuation_journal.list_incomplete()
 	if not _check(incomplete.get("ok", false) and incomplete.value.is_empty(), "Load journal not settled"): return
@@ -100,9 +164,9 @@ func _load_saved(menu: Node) -> void:
 	observation["source_save_preserved"] = true
 	observation["run_id"] = current.lifecycle.run_id
 	observation["branch_id"] = current.lifecycle.branch_id
-	if not _capture("loaded-caption"): return
+	if not _capture("loaded-next-caption"): return
 	observation["source_had_assignment"] = saved.lifecycle.has("scene_assignment")
-	if not await _save_after_measurement("slot:2"): return
+	if not await _save_after_measurement("slot:2", "line.Day1.002"): return
 	if not _check(FileAccess.get_sha256("user://saves/slot_1.json") == source_hash, "later Save changed original source"): return
 	_finish(true)
 '''
@@ -111,7 +175,7 @@ func _load_saved(menu: Node) -> void:
 # Setup occurs after the measured complete caption. This is the same production
 # Backup command used by the rendered title journey, not a fabricated save file.
 SAVE_PROBE = r'''
-func _save_after_measurement(locator: String) -> bool:
+func _save_after_measurement(locator: String, expected_line: String = FIRST_LINE) -> bool:
 	var pause: Node = get_node("/root/SceneRouter")._production_pause
 	var opened: Dictionary = await pause.open_scene_backup("save")
 	if not _check(opened.get("ok", false), "post-measurement Backup unavailable: " + str(opened)): return false
@@ -125,7 +189,7 @@ func _save_after_measurement(locator: String) -> bool:
 	var parsed: Dictionary = load("res://scripts/validation/StrictJson.gd").parse_object(FileAccess.get_file_as_string(path))
 	if not _check(parsed.get("ok", false), "post-measurement Save unreadable"): return false
 	var snapshot: Dictionary = parsed.value.current_snapshot.snapshot
-	if not _check(snapshot.narrative_checkpoint.reading_session.position_id == FIRST_LINE, "post-measurement Save changed position"): return false
+	if not _check(snapshot.narrative_checkpoint.reading_session.position_id == expected_line, "post-measurement Save changed position"): return false
 	if variant == "candidate" and not _check(not snapshot.lifecycle.has("scene_assignment"), "ordinary Save retained retired assignment"): return false
 	observation["later_save_sha256"] = FileAccess.get_sha256(path)
 	observation["later_save_without_assignment"] = not snapshot.lifecycle.has("scene_assignment")
@@ -173,10 +237,14 @@ def extract(folder):
             $record.login_to_backup_ms = ($m.backup_drawn_usable.ticks_us - $m.login_input.ticks_us) / 1000.0
             $record.load_action_to_ready_ms = ($m.load_ready.ticks_us - $m.load_input.ticks_us) / 1000.0
             $record.load_action_to_caption_ms = ($m.load_caption_complete_drawn_idle.ticks_us - $m.load_input.ticks_us) / 1000.0
+            $record.load_action_to_first_drawing_ms = ($m.load_first_correct_caption_drawn.ticks_us - $m.load_input.ticks_us) / 1000.0
+            $record.load_action_to_first_input_ready_ms = ($m.load_first_input_ready.ticks_us - $m.load_input.ticks_us) / 1000.0
+            $record.load_action_to_next_drawing_ms = ($m.load_next_caption_drawn.ticks_us - $m.load_input.ticks_us) / 1000.0
+            $record.load_next_input_to_drawing_ms = ($m.load_next_caption_drawn.ticks_us - $m.load_next_input.ticks_us) / 1000.0
             $record.login_to_caption_ms = ($m.load_caption_complete_drawn_idle.ticks_us - $m.login_input.ticks_us) / 1000.0
             $record.backup_dwell_ms = ($m.load_input.ticks_us - $m.backup_drawn_usable.ticks_us) / 1000.0
         } elseif ($Journey -in @('new_acc', 'apps')) {""")
-    text = replace_once(text, "elseif ($Journey -eq 'screens') { @('title.png'", "elseif ($Journey -eq 'load') { @('title.png', 'backup.png', 'loaded-caption.png') } elseif ($Journey -eq 'screens') { @('title.png'")
+    text = replace_once(text, "elseif ($Journey -eq 'screens') { @('title.png'", "elseif ($Journey -eq 'load') { @('title.png', 'backup.png', 'loaded-next-caption.png') } elseif ($Journey -eq 'screens') { @('title.png'")
     text = replace_once(text, "SCRIPT ERROR:|(?m)^ERROR:|Unicode parsing error|Unexpected NUL character",
                         "SCRIPT ERROR:|(?m)^ERROR:|ObjectDB instances leaked|Unicode parsing error|Unexpected NUL character")
     runner.write_text(text)
@@ -265,7 +333,7 @@ def prepare(root, harness):
         '\treturn result\n\n' + header.replace("func prepare_new_run_action", "func _probe_prepare_new_run_action"))
     save_text = attribute_methods(save_text, "SaveManager", (
         "_start_scene_new_run_in_memory", "_prepare_scene_new_run_plans",
-        "_run_scene_restore_transaction", "_prepare_restore", "_prepare_restore_seed",
+        "_run_scene_restore_transaction", "_prepare_restore",
         "_prepare_bundle_with_all_participants", "_commit_prepared_restore_profiled",
         "_reconstruct_restore_materials", "_resume_restore", "_drive_scene_restore_activation_owned"))
     for signal in ("route", "narrative"):
@@ -430,10 +498,16 @@ def summarize(folder):
                 assert all(item[key] == 1 for item in report["inputs"] for key in ("pressed_count", "down_count", "up_count")), name
                 if case == "load":
                     assert observed["ready_count"] == 1, name
+                    assert observed["next_input"]["line_id"] == "line.Day1.002" and observed["next_input"]["same_run"], name
+                    assert observed["next_input"]["press_count"] == observed["next_input"]["release_count"] == 1, name
+                    load_marks = report["milestones"]
+                    assert load_marks["load_first_correct_caption_drawn"]["ticks_us"] <= load_marks["load_next_input"]["ticks_us"], name
+                    assert load_marks["load_next_input"]["ticks_us"] <= load_marks["load_next_caption_drawn"]["ticks_us"], name
+                    assert load_marks["load_post_input_observation_complete"]["ticks_us"] - load_marks["load_next_caption_drawn"]["ticks_us"] >= 1000000, name
                     assert all(observed[k] for k in ("gameplay_preserved", "scene_preserved", "reading_preserved", "source_save_preserved")), name
                     seed_saves = [v for k, v in seed_hashes.items() if k.replace("\\", "/").endswith("saves/slot_1.json")]
                     assert seed_saves == [observed["source_save_sha256"]], name
-                expected_images = {"title.png", "backup.png", "loaded-caption.png"} if case == "load" else {"title.png", "caption.png"}
+                expected_images = {"title.png", "backup.png", "loaded-next-caption.png"} if case == "load" else {"title.png", "caption.png"}
                 if case == "retained": expected_images.add("consent.png")
                 assert {image["name"] for image in process["images"]} == expected_images, name
                 for image in process["images"]:
@@ -484,7 +558,7 @@ def summarize(folder):
                 key: matched["candidate"]["metrics"][key] - value
                 for key, value in matched["baseline"]["metrics"].items()
                 if key in matched["candidate"]["metrics"]}})
-    result = {"scope": "Twenty-four instrumented exported journeys on one Windows runner, four repetitions in AB/BA/AB/BA order. Fresh means empty user data, not cold OS caches; retained New Acc and Load use the same r1-baseline-fresh profile after real manual Save and Autosave. Timed New Acc ends before that save. Both variants clear audio after saving and allow 100 ms plus one frame before diagnostic exit; this teardown is outside action timing. Inclusive costs overlap and must not be summed. Screenshot hashes establish integrity; visual review remains required. Four samples per variant/case are descriptive, not statistical certainty.",
+    result = {"scope": "Twenty-four instrumented exported journeys on one Windows runner, four repetitions in AB/BA/AB/BA order. Fresh means empty user data, not cold OS caches; retained New Acc and Load use the same r1-baseline-fresh profile after real manual Save and Autosave. Timed New Acc ends before that save. Load records first visible saved-caption drawing separately from complete-caption readiness, then sends one real Accept and verifies the next authored line belongs to the restored Run. Capturing the Run, reading checkpoint and persistent-file hashes occurs before that input and is included in action-to-response timing; equality checks, History expansion and screenshots occur afterwards. A one-second post-input window records shifted frame stalls. Both variants clear audio after saving and allow 100 ms plus one frame before diagnostic exit; this teardown is outside action timing. Inclusive costs overlap and must not be summed. Screenshot hashes establish integrity; visual review remains required. Four samples per variant/case are descriptive, not statistical certainty.",
               "source": source, "package_hashes": package_hashes, "load_seed_profile_hashes": seed_hashes,
               "samples": rows, "aggregates": aggregates, "paired_differences": comparisons}
     (folder / "summary.json").write_text(json.dumps(result, indent=2), encoding="utf-8")

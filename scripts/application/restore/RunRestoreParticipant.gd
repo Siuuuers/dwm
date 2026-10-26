@@ -31,6 +31,9 @@ func validate_live_session_activation(ticket: Dictionary) -> Dictionary:
 func activate_live_session(ticket: Dictionary) -> Dictionary:
 	return _owner.activate_live_session(ticket)
 
+func activate_loaded_session(ticket: Dictionary) -> Dictionary:
+	return _owner.activate_loaded_session(ticket)
+
 func prepare(input: Dictionary) -> Dictionary:
 	_scene_creation_plan = {}
 	_scene_creation_owner = null

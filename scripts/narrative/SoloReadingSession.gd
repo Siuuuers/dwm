@@ -60,15 +60,6 @@ func _configure_scene_observed_body() -> Dictionary:
 	if cacheable and is_same(_prepared_scene_configuration.get("bundle"), bundle):
 		prepared = _prepared_scene_configuration
 	else:
-		var compiled_nodes := {}
-		# Entries in the same DTL share one native parse during this preparation only.
-		var parsed_sources := {}
-		for programme: Dictionary in bundle.scene_programme.entries:
-			var entry: Dictionary = entries[programme.entry_id]
-			var compiled := DialogicRuntimeAdapter.compile_runtime_scene_programme(entry.locators.en.path,
-				programme.entry_id, entries.keys(), programme.markers, parsed_sources)
-			if not compiled.ok: return compiled
-			compiled_nodes[programme.entry_id] = compiled.value.nodes
 		var compiled_catalogue := {}
 		var beats: Array = []
 		var variants := {}
@@ -83,7 +74,7 @@ func _configure_scene_observed_body() -> Dictionary:
 				beats.append(beat)
 				variants[beat.line_id] = beat
 		prepared = {"bundle": bundle, "manifest": bundle.entry_manifest,
-			"catalogue": compiled_catalogue, "nodes": compiled_nodes, "variants": variants,
+			"catalogue": compiled_catalogue, "variants": variants,
 			"registry": {"kind": "narrative_caption_registry", "schema_version": 1, "beats": beats}}
 		FROZEN._freeze(prepared)
 		if cacheable: _prepared_scene_configuration = prepared
@@ -93,10 +84,28 @@ func _configure_scene_observed_body() -> Dictionary:
 	manifest = prepared.manifest
 	catalogue = prepared.catalogue
 	registry = prepared.registry
-	_scene_nodes = prepared.nodes
 	_scene_bundle = bundle
 	_caption_variants_by_line = prepared.variants
 	return {"ok": true}
+
+## Compile only the selected passage. The adapter owns immutable process mappings;
+## each session keeps its own set of requested entries and its own cursor.
+func _ensure_scene_programme(entry_id: String) -> Dictionary:
+	if _scene_nodes.has(entry_id): return {"ok": true}
+	var labels: Array = []
+	var path := ""
+	for entry: Dictionary in manifest.entries:
+		labels.append(entry.entry_id)
+		if entry.entry_id == entry_id: path = entry.locators.en.path
+	for programme: Dictionary in _scene_bundle.scene_programme.entries:
+		if programme.entry_id != entry_id: continue
+		var compiled := DialogicRuntimeAdapter.compile_runtime_scene_programme(path,
+			entry_id, labels, programme.markers)
+		if not compiled.ok: return compiled
+		if not compiled.value.nodes.is_read_only(): FROZEN._freeze(compiled.value.nodes)
+		_scene_nodes[entry_id] = compiled.value.nodes
+		return {"ok": true}
+	return _fail(&"reading_entry_unavailable")
 
 ## Same synchronous initial-candidate check only. Share configuration, never the
 ## restored ledger/cursor; the sibling must construct its own first publication.
@@ -108,7 +117,7 @@ func _fork_scene_configuration() -> RefCounted:
 	sibling.manifest = manifest
 	sibling.catalogue = catalogue
 	sibling.registry = registry
-	sibling._scene_nodes = _scene_nodes
+	sibling._scene_nodes = _scene_nodes.duplicate()
 	sibling._scene_bundle = _scene_bundle
 	sibling._caption_variants_by_line = _caption_variants_by_line
 	return sibling
@@ -127,6 +136,8 @@ func begin_scene(session_token: String) -> Dictionary:
 ## index permits registered internal targets, after the owner authenticates them.
 func admit_scene(entry_id: String, context: Dictionary, index: int = 0) -> Dictionary:
 	if family != "scene" or ledger == null or not catalogue.has(entry_id): return _fail(&"reading_session_unavailable")
+	var prepared := _ensure_scene_programme(entry_id)
+	if not prepared.ok: return prepared
 	var occurrence: String = str(context.get("playback_id", ""))
 	if not LEDGER.valid_scene_frame(context, occurrence, entry_id) or index < 0 \
 			or index >= _scene_nodes[entry_id].size() or _scene_nodes[entry_id][index].kind != "caption":
@@ -307,6 +318,8 @@ static func normalize_player_checkpoint(checkpoint: Dictionary, choices: Diction
 		# A retained control's current predecessor may change without moving the
 		# held operation. It is the caption the native restore will display.
 		if current.boundary == "control":
+			var prepared: Dictionary = session._ensure_scene_programme(saved.entry_id)
+			if not prepared.ok: return prepared
 			var nodes: Array = session._scene_nodes[saved.entry_id]
 			for index: int in nodes.size():
 				if nodes[index].kind != "control" or nodes[index].marker_id != current.position_id: continue
@@ -332,6 +345,8 @@ static func normalize_player_checkpoint(checkpoint: Dictionary, choices: Diction
 			target = anchor.duplicate(true)
 		else:
 			var start: String = route.value.start_entry
+			var prepared: Dictionary = session._ensure_scene_programme(start)
+			if not prepared.ok: return prepared
 			for node: Dictionary in session._scene_nodes[start]:
 				if node.kind == "caption":
 					target = {"entry_id": start, "line_id": node.line_id}
@@ -437,7 +452,7 @@ func restore_player(saved: Dictionary, entry_id: String) -> Dictionary:
 	if family != "scene" or not FROZEN._exact(saved, keys) \
 			or typeof(saved.schema_version) != TYPE_INT or saved.schema_version != 7 \
 			or saved.registration_sha256 != fingerprint or saved.entry_id != entry_id \
-			or not _scene_nodes.has(entry_id) or saved.boundary not in ["line", "control", "between_entries"] \
+			or not catalogue.has(entry_id) or saved.boundary not in ["line", "control", "between_entries"] \
 			or not saved.position_id is String or saved.position_id.is_empty() \
 			or not saved.session_token is String or saved.session_token.strip_edges().is_empty() \
 			or not saved.occurrence_id is String or saved.occurrence_id.strip_edges().is_empty() \
@@ -445,6 +460,8 @@ func restore_player(saved: Dictionary, entry_id: String) -> Dictionary:
 			or saved.publication_serial == 9223372036854775807 \
 			or not saved.captions is Array or saved.captions.size() != 1:
 		return _fail(&"reading_checkpoint_invalid")
+	var prepared := _ensure_scene_programme(entry_id)
+	if not prepared.ok: return prepared
 	var progress := {"story_day": saved.story_day, "recovery_anchor": saved.recovery_anchor,
 		"history_sections": saved.history_sections}
 	if not TRAVERSAL.valid_player_progress(progress): return _fail(&"reading_checkpoint_invalid")
@@ -519,8 +536,10 @@ static func _scene_publication_high_water(captions: Array) -> int:
 
 func _validate_scene_base(saved: Dictionary, entry_id: String) -> Dictionary:
 	if not TRAVERSAL.valid_scene_reading_shape(saved) or saved.entry_id != entry_id \
-			or saved.registration_sha256 != fingerprint or not _scene_nodes.has(entry_id):
+			or saved.registration_sha256 != fingerprint or not catalogue.has(entry_id):
 		return _fail(&"reading_checkpoint_invalid")
+	var prepared := _ensure_scene_programme(entry_id)
+	if not prepared.ok: return prepared
 	var nodes: Array = _scene_nodes[entry_id]
 	if saved.program_index >= nodes.size(): return _fail(&"reading_frontier_invalid")
 	var node: Dictionary = nodes[saved.program_index]

@@ -1,5 +1,5 @@
 name: Trusted runtime matched comparison
-run-name: Scene snapshot admission matched comparison
+run-name: Trusted-save Load matched comparison
 
 on:
   pull_request:
@@ -14,7 +14,7 @@ concurrency:
 
 jobs:
   measure:
-    if: github.event_name == 'workflow_dispatch' || github.head_ref == 'codex/new-account-snapshot-profile-20261027'
+    if: github.event_name == 'workflow_dispatch' || github.head_ref == 'codex/trusted-save-load-20261027'
     runs-on: windows-2022
     timeout-minutes: 55
     defaults:
@@ -22,7 +22,7 @@ jobs:
         shell: pwsh
     env:
       PYTHONUTF8: "1"
-      STARTUP_BASE_SHA: 1b6b492fa7247e78432b3bf09081ef6752eeea86
+      STARTUP_BASE_SHA: 80ff6827d0137dbc1631425149bb3714499a5447
       CANDIDATE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
       DIAGNOSTIC_SHA: d72b67506e05c03f161201df7b9fc5430e2b136e
     steps:

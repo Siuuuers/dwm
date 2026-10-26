@@ -379,10 +379,13 @@ static func is_compatible_bundle(bundle: Dictionary, compatibility: Dictionary) 
 	return true
 
 static func derive_route_restore_context(snapshot: Dictionary) -> Dictionary:
-	var validated := validate(snapshot)
-	if not validated.get("ok", false):
-		return validated
-	var candidate: Dictionary = validated["value"]["candidate"]
+	# Current game-produced saves already own their gameplay facts. Legacy
+	# restore callers retain their existing admission contract.
+	var candidate := snapshot
+	if snapshot.get("schema_version") != SCENE_SCHEMA_VERSION:
+		var validated := validate(snapshot)
+		if not validated.get("ok", false): return validated
+		candidate = validated.value.candidate
 	var lifecycle: Dictionary = candidate["lifecycle"]
 	if candidate.schema_version == SCENE_SCHEMA_VERSION:
 		# Preserve the visible-board handoff when Apps opens; other windows are transient.
@@ -626,51 +629,53 @@ static var _scene_semantic_busy := false
 
 ## External save admission adapts reading to installed content once. Physical
 ## attempts, identity receipts, economy and lifecycle remain historical facts.
-static func normalize_scene_content(snapshot: Dictionary) -> Dictionary:
-	var primitive := validate_primitive_tree(snapshot)
-	if not primitive.ok: return primitive
+static func normalize_scene_content(snapshot: Dictionary, trusted: bool = false) -> Dictionary:
+	if not trusted:
+		var primitive := validate_primitive_tree(snapshot)
+		if not primitive.ok: return primitive
 	var candidate: Dictionary = _normalize_integral_floats(snapshot)
-	if candidate.get("schema_version") != SCENE_SCHEMA_VERSION \
+	if not trusted and (candidate.get("schema_version") != SCENE_SCHEMA_VERSION \
 			or not candidate.get("scene") is Dictionary or not candidate.get("gameplay") is Dictionary \
-			or not candidate.get("narrative_checkpoint") is Dictionary:
+			or not candidate.get("narrative_checkpoint") is Dictionary):
 		return _fail(&"invalid_snapshot_shape", "content normalization requires Run9")
-	var checkpoint: Dictionary = candidate.narrative_checkpoint
-	if not _scene_keys(candidate.scene, ["registration_sha256", "active_occurrence_id", "entry_id", "notification", "active_challenge", "return_to"]) \
-			or not _scene_digest(candidate.scene.registration_sha256) \
-			or not _scene_id(candidate.scene.active_occurrence_id) or not _scene_id(candidate.scene.entry_id) \
-			or not candidate.scene.notification is Dictionary or not candidate.scene.active_challenge is Dictionary \
-			or checkpoint.get("entry_id") != candidate.scene.entry_id \
-			or checkpoint.get("transaction_id") != candidate.scene.active_occurrence_id \
-			or checkpoint.get("manifest_fingerprint") != candidate.scene.registration_sha256 \
-			or checkpoint.get("content_version") != candidate.get("content_version") \
-			or not _scene_int(candidate.get("content_version"), 1):
-		return _fail(&"reading_context_invalid", "original Scene and reading wrapper must agree")
-	if not candidate.scene.active_challenge.is_empty() \
-			and (not _scene_keys(candidate.scene.active_challenge, ["challenge_id", "playable_command_id"]) \
-			or not _scene_id(candidate.scene.active_challenge.challenge_id) \
-			or not _scene_id(candidate.scene.active_challenge.playable_command_id)):
-		return _fail(&"scene_challenge_state_invalid", "invalid saved Challenge binding")
-	if not candidate.scene.notification.is_empty() \
-			and not SCENE_EVENT_CONTRACT._scene_payload("notification.set", candidate.scene.notification):
-		return _fail(&"scene_notification_invalid", "invalid saved notification")
 	var gameplay: Dictionary = candidate.gameplay
-	if not gameplay.get("scene_choices") is Dictionary or not gameplay.get("scene_challenge_outcomes") is Dictionary \
-			or not gameplay.get("route_context") is Dictionary:
-		return _fail(&"invalid_gameplay", "scene progress owners are required")
-	var progress_error := _validate_scene_progress(gameplay.scene_choices, gameplay.scene_challenge_outcomes)
-	if not progress_error.is_empty(): return _fail(&"invalid_gameplay", progress_error)
-	var route_error := _validate_scene_route_context(gameplay.route_context)
-	if not route_error.is_empty(): return _fail(&"invalid_gameplay", route_error)
+	if not trusted:
+		var checkpoint: Dictionary = candidate.narrative_checkpoint
+		if not _scene_keys(candidate.scene, ["registration_sha256", "active_occurrence_id", "entry_id", "notification", "active_challenge", "return_to"]) \
+				or not _scene_digest(candidate.scene.registration_sha256) \
+				or not _scene_id(candidate.scene.active_occurrence_id) or not _scene_id(candidate.scene.entry_id) \
+				or not candidate.scene.notification is Dictionary or not candidate.scene.active_challenge is Dictionary \
+				or checkpoint.get("entry_id") != candidate.scene.entry_id \
+				or checkpoint.get("transaction_id") != candidate.scene.active_occurrence_id \
+				or checkpoint.get("manifest_fingerprint") != candidate.scene.registration_sha256 \
+				or checkpoint.get("content_version") != candidate.get("content_version") \
+				or not _scene_int(candidate.get("content_version"), 1):
+			return _fail(&"reading_context_invalid", "original Scene and reading wrapper must agree")
+		if not candidate.scene.active_challenge.is_empty() \
+				and (not _scene_keys(candidate.scene.active_challenge, ["challenge_id", "playable_command_id"]) \
+				or not _scene_id(candidate.scene.active_challenge.challenge_id) \
+				or not _scene_id(candidate.scene.active_challenge.playable_command_id)):
+			return _fail(&"scene_challenge_state_invalid", "invalid saved Challenge binding")
+		if not candidate.scene.notification.is_empty() \
+				and not SCENE_EVENT_CONTRACT._scene_payload("notification.set", candidate.scene.notification):
+			return _fail(&"scene_notification_invalid", "invalid saved notification")
+		if not gameplay.get("scene_choices") is Dictionary or not gameplay.get("scene_challenge_outcomes") is Dictionary \
+				or not gameplay.get("route_context") is Dictionary:
+			return _fail(&"invalid_gameplay", "scene progress owners are required")
+		var progress_error := _validate_scene_progress(gameplay.scene_choices, gameplay.scene_challenge_outcomes)
+		if not progress_error.is_empty(): return _fail(&"invalid_gameplay", progress_error)
+		var route_error := _validate_scene_route_context(gameplay.route_context)
+		if not route_error.is_empty(): return _fail(&"invalid_gameplay", route_error)
 	var selected := SCENE_MANIFEST.scene_contract_tables()
 	if not selected.ok: return selected
-	if candidate.scene.registration_sha256 == SCENE_MANIFEST.scene_registration_fingerprint():
+	if not trusted and candidate.scene.registration_sha256 == SCENE_MANIFEST.scene_registration_fingerprint():
 		# An unchanged bundle is not an excuse to repair malformed current
 		# references or a forged caption/control pair.
 		var current := validate_current_scene(candidate.scene, selected.bundle)
 		if not current.ok: return current
 		var binding := _validate_scene_challenge_binding(candidate.scene, gameplay, selected.bundle)
 		if not binding.ok: return binding
-		var reading := SCENE_READING.expand_player_checkpoint(checkpoint)
+		var reading := SCENE_READING.expand_player_checkpoint(candidate.narrative_checkpoint)
 		if not reading.ok: return reading
 	# Preserve the content against which completion was decided. Rebuilt reading
 	# may fall back, but it cannot turn that completed lifecycle into a new play.
@@ -679,16 +684,19 @@ static func normalize_scene_content(snapshot: Dictionary) -> Dictionary:
 			and not candidate.lifecycle.has("completed_registration_sha256") \
 			and candidate.scene.registration_sha256 != SCENE_MANIFEST.scene_registration_fingerprint():
 		candidate.lifecycle["completed_registration_sha256"] = candidate.scene.registration_sha256
-	var normalized: Dictionary = SCENE_READING.normalize_player_checkpoint(candidate.narrative_checkpoint,
-		gameplay.scene_choices, gameplay.scene_challenge_outcomes)
-	if not normalized.ok: return normalized
-	candidate.narrative_checkpoint = normalized.value.checkpoint
-	candidate.content_version = candidate.narrative_checkpoint.content_version
-	candidate.scene.registration_sha256 = candidate.narrative_checkpoint.manifest_fingerprint
-	candidate.scene.entry_id = candidate.narrative_checkpoint.entry_id
-	if normalized.value.fallback:
-		# Notification is presentation for the previous cursor, not gameplay.
-		candidate.scene.notification = {}
+	# Unchanged content can resume the saved cursor directly. Resolve deleted
+	# lines only when the authored registration changed.
+	if not trusted or candidate.scene.registration_sha256 != SCENE_MANIFEST.scene_registration_fingerprint():
+		var normalized: Dictionary = SCENE_READING.normalize_player_checkpoint(candidate.narrative_checkpoint,
+			gameplay.scene_choices, gameplay.scene_challenge_outcomes)
+		if not normalized.ok: return normalized
+		candidate.narrative_checkpoint = normalized.value.checkpoint
+		candidate.content_version = candidate.narrative_checkpoint.content_version
+		candidate.scene.registration_sha256 = candidate.narrative_checkpoint.manifest_fingerprint
+		candidate.scene.entry_id = candidate.narrative_checkpoint.entry_id
+		if normalized.value.fallback:
+			# Notification is presentation for the previous cursor, not gameplay.
+			candidate.scene.notification = {}
 	var record: Dictionary = gameplay.route_context.get("active_dating_challenge", {})
 	for occurrence: String in gameplay.scene_challenge_outcomes:
 		var outcome: Dictionary = gameplay.scene_challenge_outcomes[occurrence]

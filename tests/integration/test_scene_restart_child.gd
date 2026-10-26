@@ -68,6 +68,9 @@ func exercise_phase(phase: String) -> void:
 		if not prepared.ok: return
 		assert_eq(prepared.value.prepared.bundle.snapshot, snapshot, "selected Load chooses the entire saved bundle")
 		started = fixture.manager.commit_prepared_restore(prepared.value.prepared)
+		assert_false(fixture.gate.is_active(), "Load installs owners without a retained mutation lease")
+		assert_false(fixture.manager.is_save_locked())
+		assert_true(fixture.game.capture_live_session().value.active, "Run is active before scene mounting")
 	assert_eq(started.get("code"), &"scene_activation_pending", str(started))
 	if started.get("code") != &"scene_activation_pending": return
 	var operation_id: String = started.transaction_id

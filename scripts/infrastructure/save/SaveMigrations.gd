@@ -6,6 +6,18 @@ extends RefCounted
 const RUN_SNAPSHOT_SCHEMA := preload("res://scripts/domain/run/RunSnapshotSchema.gd")
 const SAVE_DOCUMENT_SCHEMA := preload("res://scripts/infrastructure/save/SaveDocumentSchema.gd")
 
+## Ordinary Load owns the decoded current document. Only content-position
+## compatibility is resolved here; gameplay facts are trusted.
+static func load_current_document(raw: Dictionary) -> Dictionary:
+	if raw.get("schema_version") != SAVE_DOCUMENT_SCHEMA.SCENE_DOCUMENT_VERSION:
+		return _fail(&"unsupported_save_format", "Only current Save9 files can be loaded")
+	var normalized := RUN_SNAPSHOT_SCHEMA.normalize_scene_content(raw.current_snapshot.snapshot, true)
+	if not normalized.ok: return normalized
+	raw.current_snapshot.snapshot = normalized.value
+	raw.erase("save_reason")
+	return {"ok": true, "value": {"document": raw,
+		"legacy_profile_patch_input": {}, "migration_receipts": []}}
+
 static func migrate_document(raw: Dictionary, expected_locator: Dictionary,
 		scene_seed_receiver: Callable = Callable()) -> Dictionary:
 	var locator_error := _validate_expected_locator(expected_locator)
