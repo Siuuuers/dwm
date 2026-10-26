@@ -386,3 +386,28 @@ func test_runtime_compiler_reuses_frozen_selected_mapping_without_rereading_sour
 	assert_true(is_same(first, reused), "same process keeps its installed immutable programme")
 	assert_false(ADAPTER.compile_scene_programme(PATH, programme.entry_id, labels, programme.markers).ok,
 		"explicit artifact checking still reads physical input")
+
+func test_runtime_preparation_shares_one_native_parse_for_entries_in_one_dtl() -> void:
+	var bundle := _install_reading_source()
+	var labels: Array = []
+	for entry: Dictionary in bundle.entry_manifest.entries: labels.append(entry.entry_id)
+	# Strict fixture selection warmed its result cache; production startup does not.
+	ADAPTER._scene_compile_cache.erase(PATH)
+	var parsed_sources := {}
+	var first_timeline: DialogicTimeline
+	for programme: Dictionary in bundle.scene_programme.entries:
+		var compiled := ADAPTER.compile_runtime_scene_programme(PATH, programme.entry_id,
+			labels, programme.markers, parsed_sources)
+		assert_true(compiled.ok)
+		assert_eq(parsed_sources.size(), 1, "one physical DTL owns one invocation-local parse")
+		if parsed_sources.is_empty(): return
+		if first_timeline == null: first_timeline = parsed_sources[PATH].timeline
+		else: assert_true(is_same(first_timeline, parsed_sources[PATH].timeline),
+			"another entry must reuse the exact parsed timeline")
+		assert_eq(compiled, ADAPTER.compile_scene_programme(PATH, programme.entry_id, labels, programme.markers),
+			"shared parsing preserves the strict compiler's exact semantic and native mapping")
+	assert_gt(bundle.scene_programme.entries.size(), 1, "fixture exercises several entries")
+	parsed_sources.clear()
+	var programme: Dictionary = bundle.scene_programme.entries[0]
+	assert_true(ADAPTER.compile_runtime_scene_programme(PATH, programme.entry_id, labels, programme.markers).ok,
+		"cached semantic mappings remain valid after local native resources are released")

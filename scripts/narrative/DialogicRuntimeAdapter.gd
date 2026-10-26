@@ -511,7 +511,7 @@ static var _scene_runtime_programmes: Dictionary = {}
 static var _scene_runtime_bundle: Dictionary = {}
 
 static func compile_runtime_scene_programme(path: String, entry_label: String,
-		callable_labels: Array, markers: Array = []) -> Dictionary:
+		callable_labels: Array, markers: Array = [], parsed_sources: Dictionary = {}) -> Dictionary:
 	var owner := preload("res://scripts/narrative/DialogicEntryManifest.gd")
 	var selected := owner.scene_contract_tables()
 	if not selected.ok: return selected
@@ -521,13 +521,13 @@ static func compile_runtime_scene_programme(path: String, entry_label: String,
 	var cacheable: bool = not ProjectSettings.get_setting("dialogic/translation/enabled", false)
 	if cacheable and _scene_runtime_programmes.has(entry_label):
 		return _scene_runtime_programmes[entry_label]
-	var result := compile_scene_programme(path, entry_label, callable_labels, markers)
+	var result := _compile_scene_programme_in_registration(path, entry_label, callable_labels, markers, parsed_sources)
 	if cacheable and result.ok:
 		owner._scene_freeze(result)
 		_scene_runtime_programmes[entry_label] = result
 	return result
 
-# Only the manifest's synchronous validation loop shares this private parse scope.
+# Synchronous registration validation and session preparation each own a local parse scope.
 # Public calls start empty; neither this scope nor its native events enter the result cache.
 static func _compile_scene_programme_in_registration(path: String, entry_label: String,
 		callable_labels: Array, markers: Array, parsed_sources: Dictionary) -> Dictionary:

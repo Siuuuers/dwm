@@ -61,10 +61,12 @@ func _configure_scene_observed_body() -> Dictionary:
 		prepared = _prepared_scene_configuration
 	else:
 		var compiled_nodes := {}
+		# Entries in the same DTL share one native parse during this preparation only.
+		var parsed_sources := {}
 		for programme: Dictionary in bundle.scene_programme.entries:
 			var entry: Dictionary = entries[programme.entry_id]
 			var compiled := DialogicRuntimeAdapter.compile_runtime_scene_programme(entry.locators.en.path,
-				programme.entry_id, entries.keys(), programme.markers)
+				programme.entry_id, entries.keys(), programme.markers, parsed_sources)
 			if not compiled.ok: return compiled
 			compiled_nodes[programme.entry_id] = compiled.value.nodes
 		var compiled_catalogue := {}
