@@ -1,5 +1,5 @@
 name: Trusted runtime matched comparison
-run-name: New Account snapshot phase attribution
+run-name: Scene snapshot admission matched comparison
 
 on:
   pull_request:

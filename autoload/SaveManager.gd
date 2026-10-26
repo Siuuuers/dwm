@@ -296,6 +296,7 @@ func _commit_prepared_restore_profiled(prepared: Dictionary, profile: Dictionary
 	if scene_restore:
 		var retained := _validate_scene_restore_preparation(prepared)
 		if not retained.get("ok", false): return retained
+		prepared = _scene_restore_preparations[prepared.scene_preparation_token].prepared
 
 	var plans: Dictionary = (prepared["participant_plans"] as Dictionary).duplicate(true)
 	_save_load_profile_phase(profile, "input_copy_us")
@@ -3065,9 +3066,9 @@ func _run_scene_restore_transaction(plans: Dictionary, journal_candidate: Varian
 				expected.erase("candidate_kind")
 				if retained.get("ok", false) and CANONICAL_JSON._deep_same(retained.value.backup, expected):
 					seeded = {"ok": true}
-		elif memory_new_run:
-			# This private reset comes directly from build_scene's validated snapshot.
-			# Install it once; public commit_prepared still validates caller dictionaries.
+		elif memory_operation:
+			# Creation owns its validated reset; Load owns its retained private seed.
+			# Public commit_prepared still validates caller dictionaries.
 			seeded = _journal._install_prepared(journal_candidate)
 		else:
 			seeded = _journal.commit_prepared(journal_candidate)
