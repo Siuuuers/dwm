@@ -4,10 +4,13 @@ extends "res://addons/gut/test.gd"
 const ADAPTER := preload("res://scripts/narrative/DialogicRuntimeAdapter.gd")
 const BASE := preload("res://tests/support/SceneDayReadingFixture.gd")
 const HELD := preload("res://tests/support/SceneHeldSourceFixture.gd")
-const BRIDGE := preload("res://autoload/DialogicBridge.gd")
 const PRODUCER := preload("res://scripts/application/narrative/SaveManagerNarrativeCheckpointPort.gd")
 const LOWER := preload("res://tests/support/SceneOwnerCompositionFixture.gd")
 const STYLE := "res://dialogic/styles/witnessed_caption_style.tres"
+class CompositionBridge extends "res://autoload/DialogicBridge.gd":
+	# This detached owner uses the fixture's authored English captions.
+	func _current_locale() -> String: return "en"
+
 var _runtime: DialogicGameHandler
 var _adapter: DialogicRuntimeAdapter
 var _viewport: SubViewport
@@ -65,7 +68,7 @@ func before_each() -> void:
 	assert_true(_adapter.bind_runtime(_runtime).ok)
 	_adapter.caption_publication_recorded.connect(func(result: Dictionary) -> void: _results.append(result.duplicate(true)))
 
-	_bridge = BRIDGE.new()
+	_bridge = CompositionBridge.new()
 	autofree(_bridge)
 	_bridge._runtime_adapter = _adapter
 	_lower = LOWER.new()
