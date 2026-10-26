@@ -79,13 +79,10 @@ func _load_saved(menu: Node) -> void:
 	_end_newacc_scope(true)
 	var current: Dictionary = game.capture_run_snapshot_input()
 	if not _check(current.lifecycle.run_id == saved.lifecycle.run_id, "Load changed run identity"): return
-	if variant == "candidate":
-		if not _check(current.lifecycle == saved.lifecycle, "Direct Load changed saved lifecycle"): return
-		for path: String in persistent_before:
-			var after := FileAccess.get_sha256(path) if FileAccess.file_exists(path) else "absent"
-			if not _check(after == persistent_before[path], "Load changed persistent file: " + path): return
-	else:
-		if not _check(current.lifecycle.branch_id != saved.lifecycle.branch_id, "Baseline Load did not allocate its branch"): return
+	if not _check(current.lifecycle == saved.lifecycle, "Direct Load changed saved lifecycle"): return
+	for path: String in persistent_before:
+		var after := FileAccess.get_sha256(path) if FileAccess.file_exists(path) else "absent"
+		if not _check(after == persistent_before[path], "Load changed persistent file: " + path): return
 	if not _check(current.gameplay == saved.gameplay and current.scene == saved.scene, "Load changed saved gameplay or scene"): return
 	var expanded: Dictionary = load("res://scripts/narrative/SoloReadingSession.gd").expand_player_checkpoint(saved.narrative_checkpoint)
 	var reading: Dictionary = bridge.capture_reading_checkpoint(false)
@@ -230,6 +227,33 @@ def prepare(root, harness):
     text = replace_once(text, '\tprobe.finish_phase("registration.structural", began,',
         '\tstructural_probe.finish_phase("registration.structural", structural_began,')
     manifest.write_text(text)
+    # Diagnostic-only spans: install the same observer on both exported sources.
+    snapshot_observer_before = {relative: hashlib.sha256((root / relative).read_bytes()).hexdigest()
+        for relative in ("scripts/domain/run/RunSnapshotSchema.gd", "scripts/narrative/SceneValidationTiming.gd")}
+    profile_path = root / 'scripts/domain/run/RunSnapshotSchema.gd'
+    profile_text = profile_path.read_text()
+    profile_text = replace_once(profile_text,
+        '\tvar live := validate_scene_input_fields(snapshot_input, selected.bundle)\n',
+        '\tvar input_started_us: int = SCENE_VALIDATION_TIMING.start_sample()\n\tvar live := validate_scene_input_fields(snapshot_input, selected.bundle)\n\tSCENE_VALIDATION_TIMING.finish_sample("scene_input_validation", input_started_us, bool(live.ok))\n')
+    profile_text = replace_once(profile_text,
+        '\tvar phase_tick: int = Time.get_ticks_usec() if not observation.is_empty() else 0\n',
+        '\tvar phase_tick: int = Time.get_ticks_usec() if not observation.is_empty() else 0\n\t# Keep the historical inclusive total while measuring its disjoint children.\n\tvar pre_semantic_started_us: int = phase_tick\n')
+    profile_text = replace_once(profile_text,
+        '\tvar primitive := validate_primitive_tree(candidate)\n\tif not primitive.ok: return primitive\n\tif not _scene_keys(candidate, SCENE_TOP_KEYS)',
+        '\tvar primitive := validate_primitive_tree(candidate)\n\tif not primitive.ok: return primitive\n\tphase_tick = SCENE_VALIDATION_TIMING.snapshot_phase(observation, "normalization_primitive_us", phase_tick)\n\tif not _scene_keys(candidate, SCENE_TOP_KEYS)')
+    profile_text = replace_once(profile_text,
+        '\tvar audio := derive_scene_audio_context(candidate, bundle)\n\tif not audio.ok: return audio\n\tvar reading := _validate_scene_reading(candidate)\n\tif not reading.ok: return reading\n',
+        '\tvar audio := derive_scene_audio_context(candidate, bundle)\n\tif not audio.ok: return audio\n\tphase_tick = SCENE_VALIDATION_TIMING.snapshot_phase(observation, "owner_state_us", phase_tick)\n\tvar reading := _validate_scene_reading(candidate)\n\tif not reading.ok: return reading\n\tphase_tick = SCENE_VALIDATION_TIMING.snapshot_phase(observation, "reading_us", phase_tick)\n')
+    profile_text = replace_once(profile_text,
+        'snapshot_phase(observation, "pre_semantic_us", phase_tick)',
+        'snapshot_phase(observation, "pre_semantic_us", pre_semantic_started_us)')
+    profile_path.write_text(profile_text)
+    profile_path = root / 'scripts/narrative/SceneValidationTiming.gd'
+    profile_text = profile_path.read_text()
+    profile_text = replace_once(profile_text,
+        '\t\t"bundle_validation_failures": 0, "inclusive_nested": true, "snapshot_validations": []}',
+        '\t\t"bundle_validation_failures": 0, "scene_input_validation_calls": 0, "scene_input_validation_us": 0,\n\t\t"scene_input_validation_failures": 0, "inclusive_nested": true, "snapshot_validations": []}')
+    profile_path.write_text(profile_text)
     saves = root / "autoload/SaveManager.gd"
     save_text = saves.read_text()
     header = "func prepare_new_run_action(initial_context: Dictionary) -> Dictionary:\n"
@@ -322,6 +346,9 @@ def prepare(root, harness):
     receipt = json.loads(receipt_path.read_text())
     receipt["changes"]["scripts/narrative/DialogicEntryManifest.gd"]["after"] = hashlib.sha256(manifest.read_bytes()).hexdigest()
     receipt["changes"]["autoload/SaveManager.gd"]["after"] = hashlib.sha256(saves.read_bytes()).hexdigest()
+    for relative, before_hash in snapshot_observer_before.items():
+        attribution_paths[relative] = {"before": before_hash,
+            "after": hashlib.sha256((root / relative).read_bytes()).hexdigest()}
     for relative, change in attribution_paths.items():
         if relative in receipt["changes"]:
             receipt["changes"][relative]["after"] = change["after"]

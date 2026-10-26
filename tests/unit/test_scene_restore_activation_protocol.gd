@@ -25,6 +25,7 @@ class Checkpoints:
 	var rollbacks := 0
 	func capture_state() -> Dictionary: return {"ok": true, "value": {"backup": {}}}
 	func commit_prepared(_candidate: Dictionary) -> Dictionary: return {"ok": true}
+	func _install_prepared(_candidate: Dictionary) -> Dictionary: return {"ok": true}
 	func restore_state(_backup: Dictionary) -> Dictionary:
 		rollbacks += 1
 		return {"ok": true}
