@@ -116,8 +116,3 @@ func test_scene_content_normalization_does_not_fill_missing_owners() -> void:
 		var before := source.duplicate(true)
 		assert_false(RUN.normalize_scene_content(source).ok)
 		assert_eq(source, before)
-
-func test_legacy_reading_day_metadata_is_explicit_and_does_not_guess_unknown_entries() -> void:
-	assert_eq(RUN.READING6_STORY_DAYS.get("Day3.lavinia"), 3)
-	assert_eq(RUN.READING6_STORY_DAYS.get("ending.alone.normal"), 7)
-	assert_false(RUN.READING6_STORY_DAYS.has("Day3.invented"))

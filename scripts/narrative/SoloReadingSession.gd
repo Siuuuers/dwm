@@ -218,13 +218,14 @@ func inherit_player_progress(source_session: RefCounted, major_checkpoint: bool 
 ## Player saves retain a stable authored position and its current genuine caption.
 ## History is derived separately; full capture/restore remains the live contract.
 static func project_player_checkpoint(checkpoint: Dictionary) -> Dictionary:
+	if checkpoint.get("stage") != "scene": return {"ok": true, "value": checkpoint.duplicate(true)}
 	var reading: Variant = checkpoint.get("reading_session")
-	if not reading is Dictionary or reading.get("schema_version") not in [5, 6, 7]:
-		return {"ok": true, "value": checkpoint.duplicate(true)}
+	if not reading is Dictionary or reading.get("schema_version") not in [5, 7]:
+		return _fail(&"reading_checkpoint_invalid")
 	var session: RefCounted = load("res://scripts/narrative/SoloReadingSession.gd").new()
 	var configured: Dictionary = session.configure_scene()
 	if not configured.ok: return configured
-	if reading.schema_version in [6, 7]:
+	if reading.schema_version == 7:
 		var checked: Dictionary = session.restore_player(reading, str(checkpoint.get("entry_id", "")))
 		if not checked.ok: return checked
 		var copy := checkpoint.duplicate(true)
@@ -246,9 +247,9 @@ static func project_player_checkpoint(checkpoint: Dictionary) -> Dictionary:
 ## External save admission owns this call. It prepares current story data only;
 ## the selected save, gameplay and Profile remain untouched until restore commits.
 static func normalize_player_checkpoint(checkpoint: Dictionary, choices: Dictionary,
-		outcomes: Dictionary, story_day_hint: int = 0) -> Dictionary:
+		outcomes: Dictionary) -> Dictionary:
 	var saved: Variant = checkpoint.get("reading_session")
-	if not saved is Dictionary or saved.get("schema_version") not in [6, 7]:
+	if not saved is Dictionary or saved.get("schema_version") != 7:
 		return _fail(&"reading_checkpoint_invalid")
 	if not FROZEN._exact(checkpoint, ["entry_id", "content_version", "manifest_fingerprint", "frozen_context",
 			"transaction_id", "stage", "reading_session"]) or checkpoint.stage != "scene" \
@@ -258,8 +259,7 @@ static func normalize_player_checkpoint(checkpoint: Dictionary, choices: Diction
 			or checkpoint.transaction_id != checkpoint.frozen_context.get("transaction_id"):
 		return _fail(&"reading_checkpoint_invalid")
 	var keys := ["schema_version", "registration_sha256", "entry_id", "occurrence_id", "boundary",
-		"position_id", "session_token", "publication_serial", "captions"]
-	if saved.schema_version == 7: keys.append_array(["story_day", "recovery_anchor", "history_sections"])
+		"position_id", "session_token", "publication_serial", "captions", "story_day", "recovery_anchor", "history_sections"]
 	if not FROZEN._exact(saved, keys) or saved.get("entry_id") != checkpoint.get("entry_id") \
 			or not saved.registration_sha256 is String or not TRAVERSAL._hash(saved.registration_sha256) \
 			or not saved.entry_id is String or saved.entry_id.is_empty() \
@@ -283,30 +283,25 @@ static func normalize_player_checkpoint(checkpoint: Dictionary, choices: Diction
 		return _fail(&"reading_checkpoint_invalid")
 	if saved.boundary != "control" and saved.position_id != tail.line_id:
 		return _fail(&"reading_frontier_invalid")
-	var progress := {}
-	if saved.schema_version == 7:
-		progress = {"story_day": saved.story_day, "recovery_anchor": saved.recovery_anchor,
-			"history_sections": saved.history_sections}.duplicate(true)
-		if not TRAVERSAL.valid_player_progress(progress): return _fail(&"reading_checkpoint_invalid")
+	var progress := {"story_day": saved.story_day, "recovery_anchor": saved.recovery_anchor,
+		"history_sections": saved.history_sections}.duplicate(true)
+	if not TRAVERSAL.valid_player_progress(progress): return _fail(&"reading_checkpoint_invalid")
 	var session: RefCounted = load("res://scripts/narrative/SoloReadingSession.gd").new()
 	var configured: Dictionary = session.configure_scene()
 	if not configured.ok: return configured
 	var days: Dictionary = session._scene_bundle.scene_programme.get("story_days", {})
-	# Older unchanged registrations need no day-route recovery. Their strict
+	# Unchanged registrations without a day map need no recovery. Their strict
 	# cursor restore is sufficient; changed content still requires authored days.
 	if days.is_empty() and saved.registration_sha256 == session.fingerprint:
 		var unchanged: Dictionary = session.restore_player(saved, saved.entry_id)
 		if not unchanged.ok: return unchanged
-		var retained: Dictionary = checkpoint.duplicate(true)
-		retained.reading_session.schema_version = 7
-		retained.reading_session.merge(session.player_progress, true)
-		return {"ok": true, "value": {"checkpoint": retained,
+		return {"ok": true, "value": {"checkpoint": checkpoint.duplicate(true),
 			"story_day": session.player_progress.story_day, "fallback": false}}
-	var entry_day: int = int(days.get(saved.entry_id, progress.get("story_day", story_day_hint)))
+	var entry_day: int = int(days.get(saved.entry_id, progress.story_day))
 	if entry_day < 1 or entry_day > 7: return _fail(&"reading_history_day_unavailable")
-	var day: int = maxi(entry_day, int(progress.get("story_day", entry_day)))
+	var day: int = maxi(entry_day, int(progress.story_day))
 	if saved.registration_sha256 == session.fingerprint:
-		if saved.schema_version == 7 and saved.story_day < entry_day: return _fail(&"reading_checkpoint_invalid")
+		if saved.story_day < entry_day: return _fail(&"reading_checkpoint_invalid")
 		var original: RefCounted = session._fork_scene_configuration()
 		var valid_original: Dictionary = original.restore_player(saved, saved.entry_id)
 		if not valid_original.ok: return valid_original
@@ -316,15 +311,7 @@ static func normalize_player_checkpoint(checkpoint: Dictionary, choices: Diction
 	if saved.registration_sha256 == session.fingerprint and not route.value.entries.has(saved.entry_id):
 		return _fail(&"reading_frontier_invalid")
 	var current: Dictionary = saved.duplicate(true)
-	current.schema_version = 7
 	current.registration_sha256 = session.fingerprint
-	if progress.is_empty():
-		TRAVERSAL.append_player_caption(progress, saved.entry_id, tail.line_id, day)
-		for node: Dictionary in session._scene_nodes[route.value.start_entry]:
-			if node.kind == "caption":
-				progress.recovery_anchor = {"entry_id": route.value.start_entry, "line_id": node.line_id}
-				break
-	current.merge(progress, true)
 	current.story_day = day
 	var intact := false
 	if route.value.entries.has(saved.entry_id):
@@ -412,9 +399,11 @@ static func normalize_player_checkpoint(checkpoint: Dictionary, choices: Diction
 	return {"ok": true, "value": {"checkpoint": result, "story_day": day, "fallback": fallback}}
 
 static func expand_player_checkpoint(checkpoint: Dictionary) -> Dictionary:
+	if checkpoint.get("stage") != "scene": return {"ok": true, "value": checkpoint.duplicate(true)}
 	var reading: Variant = checkpoint.get("reading_session")
-	if not reading is Dictionary or reading.get("schema_version") not in [6, 7]:
-		return {"ok": true, "value": checkpoint.duplicate(true)}
+	if not reading is Dictionary or reading.get("schema_version") not in [5, 7]:
+		return _fail(&"reading_checkpoint_invalid")
+	if reading.schema_version == 5: return {"ok": true, "value": checkpoint.duplicate(true)}
 	var session: RefCounted = load("res://scripts/narrative/SoloReadingSession.gd").new()
 	var configured: Dictionary = session.configure_scene()
 	if not configured.ok: return configured
@@ -455,10 +444,9 @@ func _project_player_reading(saved: Dictionary) -> Dictionary:
 
 func restore_player(saved: Dictionary, entry_id: String) -> Dictionary:
 	var keys := ["schema_version", "registration_sha256", "entry_id", "occurrence_id", "boundary",
-		"position_id", "session_token", "publication_serial", "captions"]
-	if saved.get("schema_version") == 7: keys.append_array(["story_day", "recovery_anchor", "history_sections"])
+		"position_id", "session_token", "publication_serial", "captions", "story_day", "recovery_anchor", "history_sections"]
 	if family != "scene" or not FROZEN._exact(saved, keys) \
-			or typeof(saved.schema_version) != TYPE_INT or saved.schema_version not in [6, 7] \
+			or typeof(saved.schema_version) != TYPE_INT or saved.schema_version != 7 \
 			or saved.registration_sha256 != fingerprint or saved.entry_id != entry_id \
 			or not _scene_nodes.has(entry_id) or saved.boundary not in ["line", "control", "between_entries"] \
 			or not saved.position_id is String or saved.position_id.is_empty() \
@@ -468,11 +456,9 @@ func restore_player(saved: Dictionary, entry_id: String) -> Dictionary:
 			or saved.publication_serial == 9223372036854775807 \
 			or not saved.captions is Array or saved.captions.size() != 1:
 		return _fail(&"reading_checkpoint_invalid")
-	var progress := {}
-	if saved.schema_version == 7:
-		progress = {"story_day": saved.story_day, "recovery_anchor": saved.recovery_anchor,
-			"history_sections": saved.history_sections}
-		if not TRAVERSAL.valid_player_progress(progress): return _fail(&"reading_checkpoint_invalid")
+	var progress := {"story_day": saved.story_day, "recovery_anchor": saved.recovery_anchor,
+		"history_sections": saved.history_sections}
+	if not TRAVERSAL.valid_player_progress(progress): return _fail(&"reading_checkpoint_invalid")
 	var rows: Array[Dictionary] = []
 	var publications := {}
 	for value: Variant in saved.captions:
@@ -531,7 +517,6 @@ func restore_player(saved: Dictionary, entry_id: String) -> Dictionary:
 			"entry_contexts": {LEDGER.scene_frame_key(saved.occurrence_id, entry_id): frame}, "captions": rows},
 		"frontier": {"line_id": tail.beat.line_id, "publication_id": tail.publication_id} if saved.boundary == "line" else {},
 		"next_operation": null}
-	if progress.is_empty(): TRAVERSAL.append_player_caption(progress, entry_id, tail.beat.line_id, _story_day(entry_id))
 	live["player_progress"] = progress.duplicate(true)
 	return restore(live, entry_id)
 

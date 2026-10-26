@@ -601,6 +601,10 @@ func test_acknowledged_creation_retains_historical_content_bytes_but_pending_cre
 	const PARSER := preload("res://scripts/validation/StrictJson.gd")
 	var old_hash := "a".repeat(64)
 	var initial: Dictionary = historical.initial_context.dialogic_checkpoint
+	const MATERIALS := preload("res://scripts/infrastructure/save/NewRunMaterials.gd")
+	assert_true(MATERIALS._project_acknowledged_initial_checkpoint(initial, 7).ok)
+	assert_false(MATERIALS._project_acknowledged_initial_checkpoint(initial, 6).ok,
+		"obsolete compact reading is not accepted through acknowledged creation")
 	initial.manifest_fingerprint = old_hash
 	initial.reading_session.registration_sha256 = old_hash
 	initial.reading_session.ledger.frozen_context.registration_sha256 = old_hash

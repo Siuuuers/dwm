@@ -1,0 +1,48 @@
+{
+  "run_id": 40258034233,
+  "head_sha": "8f8e9cd27b6755d4ad2a9bdb01f1842520276487",
+  "artifact_id": 12623219043,
+  "case": "deleted_checkpoint",
+  "reading_schema": 7,
+  "story_day": 1,
+  "recovery_anchor": {
+    "entry_id": "update.one",
+    "line_id": "line.update.one.anchor"
+  },
+  "saved_caption": "line.update.one.middle",
+  "source_sha256": "e752bcbd86f91c483964b2f026045d14e41997eff9ddf2bbeb1c6be9e1c47b5d",
+  "load_preserves_source_sha256": true,
+  "process_ids": [
+    5128,
+    4260,
+    2780
+  ],
+  "tests": [
+    {
+      "name": "test_fresh_reload_preserves_suspended_and_bound_state",
+      "assertions": "43",
+      "status": "pass",
+      "classname": "tests/integration/test_scene_content_update_reload.gd",
+      "time": "1.922717"
+    },
+    {
+      "name": "test_create_old_content_save",
+      "assertions": "64",
+      "status": "pass",
+      "classname": "tests/integration/test_scene_content_update_create.gd",
+      "time": "4.89869"
+    },
+    {
+      "name": "test_load_current_content_without_replaying_gameplay",
+      "assertions": "62",
+      "status": "pass",
+      "classname": "tests/integration/test_scene_content_update_load.gd",
+      "time": "3.124746"
+    }
+  ],
+  "archive": "deleted-checkpoint.zip",
+  "bytes": 1699652,
+  "sha256": "0400fc50a6d5c84b691dea8383546448ba9eab2b4feb1dbd0fad70edececa1f7",
+  "visual_review": "Loaded and reloaded Day1 anchor; History contains only the retained Day1 caption.",
+  "scope": "Scenario evidence. Full candidate acceptance is recorded in PR #108. No Profile snapshots retained."
+}

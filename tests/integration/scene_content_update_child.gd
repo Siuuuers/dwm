@@ -152,11 +152,15 @@ func create_content_update() -> void:
 	var path := "user://saves/autosave.json" if locator == "autosave" else "user://saves/slot_1.json"
 	var document: Dictionary = PARSER.parse_object(FileAccess.get_file_as_string(path))
 	if not _ok(document): return
-	if case_id == "deleted_checkpoint" and not _write_previous_format(path, document.value): return
 	var saved: Dictionary = document.value.current_snapshot.snapshot
 	var reading: Dictionary = saved.narrative_checkpoint.reading_session
-	assert_eq(reading.schema_version, 6 if case_id == "deleted_checkpoint" else 7)
-	if reading.schema_version == 7: assert_lte(reading.history_sections.size(), 3)
+	assert_eq(reading.schema_version, 7)
+	assert_lte(reading.history_sections.size(), 3)
+	if case_id == "deleted_checkpoint":
+		assert_eq(reading.story_day, 1)
+		assert_eq(reading.recovery_anchor, {"entry_id": "update.one", "line_id": UPDATE.line("update.one", "anchor")},
+			"native Save retains the authored checkpoint that the next content revision deletes")
+		assert_eq(reading.captions.back().line_id, UPDATE.line("update.one", "middle"))
 	var proof := {"creator_pid": OS.get_process_id(), "case": case_id, "locator": locator, "path": path,
 		"source_sha256": FileAccess.get_sha256(path), "snapshot": saved,
 		"reading": reading, "public_board": public_board, "record": game.capture_dating_challenge_state().value.duplicate(true),
@@ -393,7 +397,7 @@ func _create_completed_update() -> void:
 	var path := "user://saves/autosave.json"
 	var parsed: Dictionary = PARSER.parse_object(FileAccess.get_file_as_string(path))
 	if not _ok(parsed): return
-	if case_id == "completed_deleted" and not _write_previous_format(path, parsed.value): return
+	if case_id == "completed_deleted" and not _write_without_completion_provenance(path, parsed.value): return
 	var snapshot: Dictionary = parsed.value.current_snapshot.snapshot
 	assert_eq(snapshot.lifecycle.state, "COMPLETED")
 	assert_eq(snapshot.lifecycle.has("completed_registration_sha256"), case_id != "completed_deleted")
@@ -434,19 +438,14 @@ func _load_completed_update(proof: Dictionary, third: bool, prior_loader_pid: in
 	if not third and not _write_json("user://content-update-current-proof.json", evidence): return
 	_write_json("res://.godot/ci/content-update-" + ("reload" if third else "load") + "-proof.json", evidence)
 
-func _write_previous_format(path: String, document: Dictionary) -> bool:
-	# TEST wire conversion follows an actual native Save/Finish. Only fields absent
-	# from the prior format are removed; gameplay, Profile and saved receipts stay real.
+func _write_without_completion_provenance(path: String, document: Dictionary) -> bool:
+	# TEST optional-lifecycle-field conversion follows an actual native Finish.
+	# Reading remains schema7; gameplay, Profile and saved receipts stay real.
 	var bundles: Array = [document.current_snapshot]
 	bundles.append_array(document.recovery_journal)
 	for bundle: Dictionary in bundles:
-		if case_id == "completed_deleted":
-			bundle.snapshot.lifecycle.erase("completed_registration_sha256")
-		else:
-			var reading: Dictionary = bundle.snapshot.narrative_checkpoint.reading_session
-			assert_eq(reading.schema_version, 7)
-			reading.schema_version = 6
-			for key: String in ["story_day", "recovery_anchor", "history_sections"]: reading.erase(key)
+		assert_eq(bundle.snapshot.narrative_checkpoint.reading_session.schema_version, 7)
+		bundle.snapshot.lifecycle.erase("completed_registration_sha256")
 	# The old registration is still installed: prove this prior-format document
 	# is admissible before the next process introduces any content change.
 	if not _ok(preload("res://scripts/infrastructure/save/SaveDocumentSchema.gd").validate(document)): return false
