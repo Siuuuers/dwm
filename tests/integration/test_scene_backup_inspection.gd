@@ -601,8 +601,8 @@ func test_later_save_load_needs_no_durable_creation_operation() -> void:
 	var prepared: Dictionary = fixture.manager.prepare_restore_autosave()
 	assert_true(prepared.ok, str(prepared))
 	if not prepared.ok: return
-	assert_eq(prepared.value.bundle.snapshot.gameplay, source.gameplay)
-	assert_eq(prepared.value.bundle.snapshot.scene, source.scene)
+	assert_eq(prepared.value.prepared.bundle.snapshot.gameplay, source.gameplay)
+	assert_eq(prepared.value.prepared.bundle.snapshot.scene, source.scene)
 	assert_eq(_observed(), before, "ordinary Load preparation preserves files and live state")
 
 func test_old_content_autosave_backup_rolls_back_exact_bytes_and_allows_retry() -> void:

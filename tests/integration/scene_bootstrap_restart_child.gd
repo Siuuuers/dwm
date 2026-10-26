@@ -94,7 +94,8 @@ func create_saved_text() -> void:
 		"command_receipts": game.capture_run_snapshot_input().command_receipts,
 		"source_branch": snapshot.lifecycle.branch_id,
 		"source_run": snapshot.run_id, "ready_count": ready_count}
-	for key: String in ["slot_sha256", "autosave_sha256", "profile_sha256"]:
+	assert_eq(proof.autosave_sha256, "", "New Acc and manual slot Save do not create Autosave")
+	for key: String in ["slot_sha256", "profile_sha256"]:
 		assert_eq(str(proof[key]).length(), 64, "physical file exists: " + key)
 	if not _write_json("user://bootstrap-restart-proof.json", proof): return
 	_write_json("res://.godot/ci/bootstrap-create-proof.json", proof)

@@ -74,7 +74,7 @@ func test_shop_checkpoint_retry_custody_and_uncertain_commit() -> void:
 	var original_files: RefCounted = storage._file_ops
 	var fault := CONTENT.WriteRefusal.new()
 	storage._file_ops = fault
-	var disk: Dictionary = storage.read_text("autosave.json")
+	assert_false(storage.exists("autosave.json"), "first purchase starts with no initial Autosave")
 	fault.refuse_on = 1
 	var refused: Dictionary = command.call()
 	assert_false(refused.get("ok", false))
@@ -83,7 +83,7 @@ func test_shop_checkpoint_retry_custody_and_uncertain_commit() -> void:
 	assert_true(refused.get("rolled_back", false))
 	assert_eq(fault.refused, 1, "physical autosave write reached")
 	assert_eq(game.capture_run_snapshot_input(), before)
-	assert_eq(storage.read_text("autosave.json"), disk)
+	assert_false(storage.exists("autosave.json"), "refused first purchase leaves Autosave absent")
 	assert_eq(profile.get_profile_snapshot(), profile_before)
 	var accepted: Dictionary = command.call()
 	if not _ok(accepted):

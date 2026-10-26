@@ -52,8 +52,12 @@ func test_new_runs_preserve_disk_and_profile_then_normal_save_load_restores_prog
 	fixture.game.inventory["debug_key"] = 1
 	fixture.game.story_flags["TEST.first.run"] = true
 	var first_inventory: Dictionary = fixture.game.inventory
+	var checkpoint_input: Dictionary = fixture.game.capture_run_snapshot_input()
+	# Diagnostic board activation does not reconstruct live retry containers.
+	# No board was started; match the real board restore owner's empty live ledger.
+	checkpoint_input.desktop.board["command_receipts"] = {}
 	var recorded: Dictionary = fixture.manager.record_stable_checkpoint({
-		"snapshot_input": fixture.game.capture_run_snapshot_input(),
+		"snapshot_input": checkpoint_input,
 		"dialogic_checkpoint": initial.narrative_checkpoint, "route_id": "scene",
 		"active_app_id": null, "audio_context": {}, "content_version": initial.content_version}, &"safe_marker")
 	assert_true(recorded.ok, str(recorded))
