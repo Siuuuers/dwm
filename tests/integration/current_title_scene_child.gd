@@ -237,11 +237,16 @@ func create_current_title_scene() -> void:
 	if not is_instance_valid(menu): return
 	assert_eq(game.capture_live_session(), retained_session)
 	assert_true(game.has_new_run_replacement())
-	if not await _press(menu.get_node_or_null("%NewAccButton")): return
-	assert_true(is_instance_valid(menu._confirmation), "retained unfinished run requires consent")
-	if not is_instance_valid(menu._confirmation): return
-	assert_eq(menu._confirmation.request.body, "The beginning is still here. Shall we enter again?")
-	if not await _press(menu._confirmation.cancel_button): return
+	# Integration check of consent ownership after raw routing, not native UI proof.
+	# The supported rendered New Acc/Logout journey is exercised above.
+	var retained_preparation: Dictionary = saves.prepare_new_run_action({
+		"route_id": "main", "dialogic_checkpoint": {}, "active_app_id": null,
+		"audio_context": {}, "content_version": 1})
+	if not _ok(retained_preparation): return
+	assert_true(retained_preparation.value.requires_confirmation, "retained unfinished run requires consent")
+	assert_true(retained_preparation.value.replaces_live)
+	assert_false(retained_preparation.value.replaces_autosave)
+	if not _ok(saves.cancel_prepared_new_run(retained_preparation.value.token)): return
 	assert_eq(game.capture_live_session(), retained_session, "cancel preserves the unfinished run")
 	assert_eq(FileAccess.get_sha256(TITLE_SLOT), proof.slot_sha256)
 	assert_false(FileAccess.file_exists(AUTOSAVE))
