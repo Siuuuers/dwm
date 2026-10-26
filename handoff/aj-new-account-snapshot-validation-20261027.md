@@ -1,4 +1,4 @@
-# New Account snapshot validation
+# Scene snapshot admission: New Account and Load
 
 Date: 2026-10-27, Hong Kong time.
 
@@ -33,8 +33,9 @@ overall New Account speedup from that PR.
 PR 117: https://github.com/Siuuuers/dwm/pull/117.
 Use its exact head checks and merge status as the final acceptance record.
 
-One outcome owns this change: New Account reaches the same first caption sooner,
-with a fresh Run and without changing prior saves or current preferences.
+Observable outcomes: New Account reaches the same first caption sooner with a fresh
+Run; Load reaches the exact selected saved caption sooner. Prior saves, current
+preferences and global unlocks remain unchanged by either admission optimization.
 
 The measured path was:
 
@@ -59,23 +60,33 @@ Keep that check. Do not add inclusive measurements to their nested child spans.
 
 ## Candidate ownership change
 
-Only `memory_new_run` uses the existing private journal `_install_prepared` method
-for its already validated reset. The production change is four added lines.
+Both in-memory scene operations use the existing private journal
+`_install_prepared` method for their already admitted reset or seed.
 
-SaveManager is the sole producer of that reset. It retains the reset internally.
+SaveManager is the sole producer of the creation reset. Load retains a detached
+private preparation when its source is admitted. At commit, it compares the public
+preparation with that retained copy, then selects the private copy **before**
+acquiring the save lock. The lock emits a synchronous capability callback: using
+the public dictionary after comparison would let a listener change the seed
+between admission and installation. No additional copy or manager is needed.
+
 Participants receive detached plans. The journal installer keeps its existing
 deep copies, sequence state, and proof clearing. Transaction rollback stays in
-the existing owner.
+the existing owner. Public `commit_prepared` still validates caller dictionaries;
+legacy recovery is unchanged. Live-input validation remains necessary.
 
-Public `commit_prepared` still validates caller-supplied dictionaries. Load and
-legacy creation keep their existing paths. There is no new manager, cache, proof
-token, or general validation bypass.
+The cloud-selected `test_scene_direct_load.gd` rejects precommit seed tampering,
+then exercises malformed and schema-valid progress replacement during the actual
+save-lock callback. Both must restore exactly the selected journal, gameplay and
+lifecycle while preserving Profile, identity and every persistent file byte.
+The diagnostic fixture controls activation; existing rendered E2E and killed-process
+tests cover the connected journey and interrupted process separately.
 
 The phase timers are test-only source overlays in the exported comparison harness.
 They are applied equally to both variants and do not become shipped runtime code.
 The observer records the source hashes before and after its changes.
 
-## Candidate comparison
+## Earlier New Account-only measurements (not merged)
 
 Runtime candidate: `4f32ccd8b96f618df531c7c68590419fec684545`.
 Baseline: accepted PR 116 head `1b6b492fa7247e78432b3bf09081ef6752eeea86`.
@@ -92,14 +103,53 @@ Evidence ZIP SHA-256:
 
 All four fresh pairs and all four retained pairs improved. Median reductions are
 about 8.9% and 7.8%. Every New Account sample changed from two full snapshot
-validations to one. The Load control varied slightly; do not claim a Load gain
-from this PR. PR 116's separate Load result is recorded above.
+validations to one. The initial Load control median increased by 0.68%. Further comparisons at
+`0a7e9051b5881909fb70afa01a1e37708378503f` increased by 4.84% and 1.33%
+(run `40360383283`, attempts 1 and 2). Nine of twelve Load pairs were slower.
+The New Account-only candidate was therefore held, despite all twelve fresh and
+twelve retained creation pairs improving. These are diagnostic results, not final
+acceptance for the expanded candidate. PR 116's separate Load result is above.
 
 There are 24 exported journeys, four pairs per case in AB/BA/AB/BA order on one
 Windows runner. Both variants use the same observer. Each action starts a new
 process. Retained cases use identical seeded data. OS caches were not cleared.
 These small samples describe these runs; they do not establish universal timings.
 Use the PR's final head checks for acceptance after the generated inventory update.
+
+## Expanded candidate acceptance
+
+Runtime candidate: `95ba7fc73d5693fe39e37fadd63910e014c994f1`.
+Tree: `dfbfb48401448b3b4471ce7dd0db94e3264ac446`.
+Cloud Windows run: https://github.com/Siuuuers/dwm/actions/runs/40365873113.
+Matched comparison: https://github.com/Siuuuers/dwm/actions/runs/40365873026.
+The matched comparison succeeded. All four pairs improved for every action:
+
+| Action median | Baseline | Candidate | Reduction |
+| --- | ---: | ---: | ---: |
+| Fresh New Account | 2179.914 ms | 1990.0955 ms | 8.71% |
+| Retained New Account, excluding confirmation dwell | 2164.406 ms | 1977.2 ms | 8.65% |
+| Load to caption | 2292.481 ms | 2113.3115 ms | 7.82% |
+
+Every sample confirmed full snapshot validation counts: New Account 2 to 1,
+Load 4 to 3. The exported-journey assertions and caption screenshot review passed.
+Evidence artifact: `12670861903`; packages: `12670898082`.
+Evidence ZIP SHA-256:
+`3007064c90834a0f4deb9c57bde0b0a9243212c655916e7d660fce948fcd3a26`.
+
+All 298 persistence tests and both interrupted-process Load checks passed.
+The initial API check found stale generated inventories. Both inventories were
+regenerated and verified in that cloud job, then copied exactly into the branch.
+Inventory artifact: `12670786592`; ZIP SHA-256:
+`e0cf97779974b1d1d9a25eeb3bb49e4df99cf96060ffa04287cfdb67dfa33292`.
+GameState inventory SHA-256:
+`a7376927eac0c5da8779f31d6bf972b54e61b9c833241097c442768781f600af`.
+SaveManager inventory SHA-256:
+`38a94d77093c52c42996f395d65a24f82ba0de7078d020d532a8a3e365f865b2`.
+
+The next commit contains only these inventories and this handoff. Final exact-head
+Windows acceptance, rendered/export jobs and its matched repeat remain pending at
+this documentation snapshot. Use PR 117's current checks/body and merge status as
+the final record. Do not infer acceptance merely from these candidate measurements.
 
 ## Further work
 
