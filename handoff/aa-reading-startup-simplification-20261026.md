@@ -1,5 +1,9 @@
 # Reading and New Acc simplification handoff — 26 October 2026
 
+> Latest continuation: [Trusted story runtime and startup performance](ac-trusted-story-runtime-20261026.md).
+> Read it first for the current validation policy, measured baseline and next work.
+> Older implementation directions below are historical where that continuation supersedes them.
+
 ## Status and first outcome
 
 This record contains the user's design decisions and a separately identified
