@@ -155,9 +155,9 @@ func prepare_day_entry(entry_id: String, context: Dictionary) -> Dictionary:
 ## and records the first actual compiled caption without touching live playback.
 func prepare_scene_initial_checkpoint(allocation_candidate: Dictionary, profile_material: Dictionary,
 		target_id: String, issuer: Object) -> Dictionary:
-	var registration := _ENTRY_MANIFEST.scene_registration()
+	var registration := _ENTRY_MANIFEST.scene_contract_tables()
 	if not registration.ok: return registration
-	var bundle: Dictionary = registration.value
+	var bundle: Dictionary = registration.bundle
 	var admitted := _MARKER_EVENT.prepare_scene_initial_admission(
 		allocation_candidate, profile_material, target_id, bundle, issuer)
 	if not admitted.ok: return admitted
@@ -267,10 +267,10 @@ func _prepare_scene_entry(entry_id: String, context: Dictionary) -> Dictionary:
 		return _command_failure(&"scene_staging_source_invalid")
 	var source: Variant = _scene_stage_source.call(binding.duplicate(true))
 	if not source is Dictionary or not source.get("ok", false): return _command_failure(&"scene_staging_source_invalid")
-	var registration := _ENTRY_MANIFEST.scene_registration()
+	var registration := _ENTRY_MANIFEST.scene_contract_tables()
 	if not registration.ok or binding.registration_sha256 != _ENTRY_MANIFEST.scene_registration_fingerprint():
 		return _command_failure(&"scene_staging_registration_invalid")
-	var bundle: Dictionary = registration.value
+	var bundle: Dictionary = registration.bundle
 	var target := {}
 	for row: Dictionary in bundle.targets:
 		if row.target_id == binding.target_id: target = row.target.duplicate(true)
@@ -1811,9 +1811,9 @@ func capture_rehearsal_variables() -> Dictionary:
 ## already used by Gallery. Only displayed read marks may change Profile; no Run
 ## save, gameplay owner or command dispatcher runs.
 func get_scene_passage(passage_id: String) -> Dictionary:
-	var registered: Dictionary = preload("res://scripts/narrative/DialogicEntryManifest.gd").scene_registration()
+	var registered: Dictionary = preload("res://scripts/narrative/DialogicEntryManifest.gd").scene_contract_tables()
 	if not registered.ok: return registered
-	var catalogue: Dictionary = preload("res://scripts/narrative/ScenePassageCatalog.gd").inspect(registered.value)
+	var catalogue: Dictionary = preload("res://scripts/narrative/ScenePassageCatalog.gd").inspect(registered.bundle)
 	if not catalogue.ok: return catalogue
 	if not catalogue.value.records.has(passage_id): return _command_failure(&"scene_passage_unavailable")
 	return {"ok": true, "value": catalogue.value.records[passage_id].duplicate(true)}
@@ -3100,7 +3100,7 @@ func _prepare_scene_reading_candidate(checkpoint: Dictionary, entry_contexts: Di
 	for key: String in ["entry_id", "manifest_fingerprint", "stage", "transaction_id"]:
 		if typeof(checkpoint.get(key)) != TYPE_STRING or checkpoint[key].strip_edges().is_empty():
 			return _command_failure(&"reading_checkpoint_invalid")
-	var selected := _ENTRY_MANIFEST.scene_registration()
+	var selected := _ENTRY_MANIFEST.scene_contract_tables()
 	if not selected.ok or checkpoint.manifest_fingerprint != _ENTRY_MANIFEST.scene_registration_fingerprint():
 		return _command_failure(&"reading_catalogue_mismatch")
 	var candidate := _READING_SESSION.new()
@@ -3116,7 +3116,7 @@ func _prepare_scene_reading_candidate(checkpoint: Dictionary, entry_contexts: Di
 			or (not entry_contexts.is_empty() and not _READING_TRAVERSAL._same(entry_contexts, saved.ledger.entry_contexts)):
 		return _command_failure(&"reading_context_invalid")
 	var path := ""
-	for entry: Dictionary in selected.value.entry_manifest.entries:
+	for entry: Dictionary in selected.bundle.entry_manifest.entries:
 		if entry.entry_id == checkpoint.entry_id:
 			if entry.content_version != checkpoint.content_version: return _command_failure(&"reading_catalogue_mismatch")
 			path = entry.locators.en.path
@@ -3124,10 +3124,10 @@ func _prepare_scene_reading_candidate(checkpoint: Dictionary, entry_contexts: Di
 	if saved.boundary == "control":
 		var labels: Array = []
 		var markers: Array = []
-		for entry: Dictionary in selected.value.entry_manifest.entries: labels.append(entry.entry_id)
-		for row: Dictionary in selected.value.scene_programme.entries:
+		for entry: Dictionary in selected.bundle.entry_manifest.entries: labels.append(entry.entry_id)
+		for row: Dictionary in selected.bundle.scene_programme.entries:
 			if row.entry_id == checkpoint.entry_id: markers = row.markers
-		var compiled := DialogicRuntimeAdapter.compile_scene_programme(path, checkpoint.entry_id, labels, markers)
+		var compiled := DialogicRuntimeAdapter.compile_runtime_scene_programme(path, checkpoint.entry_id, labels, markers)
 		if not compiled.ok: return compiled
 		var predecessor := DialogicRuntimeAdapter._scene_control_predecessor(saved, compiled.value, markers)
 		if not predecessor.ok: return predecessor
@@ -4607,9 +4607,9 @@ func _scene_caption_challenge_end() -> Dictionary:
 	if not source.get("ok", false): return source
 	var reading: Dictionary = source.value.reading
 	var index: int = int(reading.program_index) + (1 if reading.boundary == "line" else 0)
-	var registered := preload("res://scripts/narrative/DialogicEntryManifest.gd").scene_registration()
+	var registered := preload("res://scripts/narrative/DialogicEntryManifest.gd").scene_contract_tables()
 	if not registered.ok: return registered
-	for programme: Dictionary in registered.value.scene_programme.entries:
+	for programme: Dictionary in registered.bundle.scene_programme.entries:
 		if programme.entry_id == reading.entry_id:
 			return _adjacent_challenge_end(_reading_session._scene_nodes[reading.entry_id], programme.markers, index, source.value.marker)
 	return _command_failure(&"scene_marker_unavailable")

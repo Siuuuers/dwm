@@ -36,7 +36,7 @@ var player_progress: Dictionary = {}
 var _progress_serial := 0
 var _pending_checkpoint := false
 # Only immutable semantic data is shared; native playback resources and each
-# session's ledger/cursor stay separate. Physical source changes still refuse.
+# session's ledger/cursor stay separate. Installed content is fixed for this process.
 static var _prepared_scene_configuration: Dictionary = {}
 
 func configure_scene() -> Dictionary:
@@ -56,29 +56,16 @@ func _configure_scene_observed_body() -> Dictionary:
 	var entries := {}
 	for entry: Dictionary in bundle.entry_manifest.entries: entries[entry.entry_id] = entry
 	var cacheable: bool = not ProjectSettings.get_setting("dialogic/translation/enabled", false)
-	var sources := {}
-	if cacheable:
-		for entry: Dictionary in entries.values():
-			var path: String = entry.locators.en.path
-			if sources.has(path): continue
-			if not ResourceLoader.exists(path): return _fail(&"scene_programme_unavailable")
-			var source := FileAccess.open(path, FileAccess.READ)
-			if source == null: return _fail(&"scene_programme_unavailable")
-			sources[path] = source.get_buffer(source.get_length())
-			source.close()
 	var prepared := {}
-	if cacheable and is_same(_prepared_scene_configuration.get("bundle"), bundle) \
-			and _prepared_scene_configuration.sources == sources:
+	if cacheable and is_same(_prepared_scene_configuration.get("bundle"), bundle):
 		prepared = _prepared_scene_configuration
 	else:
 		var compiled_nodes := {}
 		for programme: Dictionary in bundle.scene_programme.entries:
 			var entry: Dictionary = entries[programme.entry_id]
-			var compiled := DialogicRuntimeAdapter.compile_scene_programme(entry.locators.en.path,
+			var compiled := DialogicRuntimeAdapter.compile_runtime_scene_programme(entry.locators.en.path,
 				programme.entry_id, entries.keys(), programme.markers)
 			if not compiled.ok: return compiled
-			if compiled.value.content_sha256 != programme.content_sha256 or compiled.value.program_sha256 != programme.program_sha256:
-				return _fail(&"reading_catalogue_mismatch")
 			compiled_nodes[programme.entry_id] = compiled.value.nodes
 		var compiled_catalogue := {}
 		var beats: Array = []
@@ -93,7 +80,7 @@ func _configure_scene_observed_body() -> Dictionary:
 					"presentation_signature": {"content_revision": line.revision, "variant_id": line.beat_id}}
 				beats.append(beat)
 				variants[beat.line_id] = beat
-		prepared = {"bundle": bundle, "sources": sources, "manifest": bundle.entry_manifest,
+		prepared = {"bundle": bundle, "manifest": bundle.entry_manifest,
 			"catalogue": compiled_catalogue, "nodes": compiled_nodes, "variants": variants,
 			"registry": {"kind": "narrative_caption_registry", "schema_version": 1, "beats": beats}}
 		FROZEN._freeze(prepared)

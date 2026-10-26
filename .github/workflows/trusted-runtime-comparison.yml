@@ -1,0 +1,227 @@
+name: Trusted runtime matched comparison
+run-name: Trusted runtime matched exported startup and Load timing
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: trusted-runtime-comparison-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  measure:
+    if: github.event_name == 'workflow_dispatch' || github.head_ref == 'codex/trusted-story-runtime-20261026'
+    runs-on: windows-2022
+    timeout-minutes: 55
+    defaults:
+      run:
+        shell: pwsh
+    env:
+      STARTUP_BASE_SHA: 4d214741177df293b424d08b213daff060d37e40
+      CANDIDATE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+      DIAGNOSTIC_SHA: d72b67506e05c03f161201df7b9fc5430e2b136e
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 1
+          persist-credentials: true
+      - name: Prepare pinned sources and observer
+        run: |
+          $ErrorActionPreference = 'Stop'
+          git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          git submodule foreach --recursive 'true'
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          foreach ($ref in @($env:STARTUP_BASE_SHA, $env:DIAGNOSTIC_SHA)) {
+            git fetch --no-tags --depth=1 origin $ref
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          }
+          $output = Join-Path $env:GITHUB_WORKSPACE '.godot/ci/trusted-runtime'
+          $harness = Join-Path $env:RUNNER_TEMP 'trusted-runtime-harness'
+          New-Item -ItemType Directory -Path $output | Out-Null
+          "STARTUP_OUTPUT=$output" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          "STARTUP_HARNESS=$harness" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          python tools/testing/trusted_runtime_comparison.py extract --root $harness
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          Copy-Item (Join-Path $harness 'harness.json') $output
+          [ordered]@{
+            baseline = $env:STARTUP_BASE_SHA; candidate = $env:CANDIDATE_SHA; observer = $env:DIAGNOSTIC_SHA
+            baseline_tree = (& git rev-parse "$($env:STARTUP_BASE_SHA)^{tree}").Trim()
+            candidate_tree = (& git rev-parse "$($env:CANDIDATE_SHA)^{tree}").Trim()
+            repetitions = 4
+            order = @('AB', 'BA', 'AB', 'BA'); cases = @('fresh', 'retained', 'load')
+            scope = 'Matched baseline/candidate instrumented exports on one Windows runner. Each action starts a new process. Retained uses own fresh output; every Load uses r1-baseline-fresh. OS caches are not cleared.'
+          } | ConvertTo-Json -Depth 4 | Set-Content (Join-Path $output 'source.json') -Encoding utf8NoBOM
+          Get-CimInstance Win32_VideoController | Select-Object Name, DriverVersion, AdapterRAM |
+            ConvertTo-Json | Set-Content (Join-Path $output 'video-controller.json') -Encoding utf8NoBOM
+          Get-CimInstance Win32_OperatingSystem | Select-Object Caption, Version, BuildNumber |
+            ConvertTo-Json | Set-Content (Join-Path $output 'operating-system.json') -Encoding utf8NoBOM
+      - name: Install checksum-pinned Godot and Windows export templates
+        timeout-minutes: 12
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $editorArchive = Join-Path $env:RUNNER_TEMP 'godot-4.6.3.zip'
+          Invoke-WebRequest 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_win64.exe.zip' -OutFile $editorArchive
+          if ((Get-FileHash $editorArchive -Algorithm SHA256).Hash.ToLowerInvariant() -ne 'e39986a178d585ce7ac198fb8de6ea436366dc0cc00e594810c2e3e104c04b90') {
+            throw 'Godot editor checksum mismatch.'
+          }
+          $editor = Join-Path $env:RUNNER_TEMP 'startup-godot'
+          Expand-Archive $editorArchive $editor
+          $console = Join-Path $editor 'Godot_v4.6.3-stable_win64_console.exe'
+          & $console --version
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          "GODOT_CONSOLE_PATH=$console" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          $templateArchive = Join-Path $env:RUNNER_TEMP 'startup-templates.tpz'
+          Invoke-WebRequest 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_export_templates.tpz' -OutFile $templateArchive
+          if ((Get-FileHash $templateArchive -Algorithm SHA256).Hash.ToLowerInvariant() -ne '3fbe2c0e2dec9d537ab9ec97bcf8da91dcf23357fc51f67092dd068d839290a8') {
+            throw 'Godot template checksum mismatch.'
+          }
+          $exportUser = Join-Path $env:RUNNER_TEMP 'startup-export-user'
+          $templates = Join-Path $exportUser 'appdata/Godot/export_templates/4.6.3.stable'
+          New-Item -ItemType Directory -Force -Path $templates | Out-Null
+          $archive = [IO.Compression.ZipFile]::OpenRead($templateArchive)
+          try {
+            foreach ($entry in @($archive.Entries | Where-Object { $_.FullName -match '^templates/(version\.txt|windows_(debug|release)_x86_64\.exe|[^/]+\.x86_64\.dll)$' })) {
+              [IO.Compression.ZipFileExtensions]::ExtractToFile($entry, (Join-Path $templates $entry.Name), $false)
+            }
+          } finally { $archive.Dispose() }
+          if ((Get-Content (Join-Path $templates 'version.txt') -Raw).Trim() -ne '4.6.3.stable') { throw 'Template version mismatch.' }
+          "STARTUP_EXPORT_USER=$exportUser" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+      - name: Build baseline and candidate with identical observation-only overlay
+        timeout-minutes: 25
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $sources = Join-Path $env:RUNNER_TEMP 'trusted-runtime-sources'
+          New-Item -ItemType Directory -Path $sources | Out-Null
+          $env:APPDATA = Join-Path $env:STARTUP_EXPORT_USER 'appdata'
+          $env:LOCALAPPDATA = Join-Path $env:STARTUP_EXPORT_USER 'localappdata'
+          $env:DWM_TEST_ROOT = Join-Path $env:STARTUP_EXPORT_USER 'test-root'
+          New-Item -ItemType Directory -Force -Path $env:APPDATA, $env:LOCALAPPDATA, $env:DWM_TEST_ROOT | Out-Null
+          function Invoke-CheckedEditor([string[]]$EditorArguments, [string]$LogPath) {
+            $info = [Diagnostics.ProcessStartInfo]::new()
+            $info.FileName = $env:GODOT_CONSOLE_PATH
+            $info.UseShellExecute = $false
+            $info.RedirectStandardOutput = $true
+            $info.RedirectStandardError = $true
+            foreach ($argument in $EditorArguments) { $info.ArgumentList.Add($argument) }
+            $process = [Diagnostics.Process]::new()
+            $process.StartInfo = $info
+            try {
+              if (-not $process.Start()) { throw 'Editor process did not start.' }
+              $stdout = $process.StandardOutput.ReadToEndAsync()
+              $stderr = $process.StandardError.ReadToEndAsync()
+              $timedOut = -not $process.WaitForExit(600000)
+              if ($timedOut) { $process.Kill($true); $process.WaitForExit() }
+              $text = $stdout.GetAwaiter().GetResult() + "`n" + $stderr.GetAwaiter().GetResult()
+              [IO.File]::WriteAllText($LogPath, $text)
+              if ($timedOut -or $process.ExitCode -ne 0 -or $text -match 'SCRIPT ERROR:|(?m)^\s*ERROR:|Unicode parsing error|Unexpected NUL character') {
+                Write-Host (($text -split '\r?\n' | Select-Object -Last 80) -join "`n")
+                throw "Editor failed: $LogPath exit=$($process.ExitCode) timeout=$timedOut"
+              }
+            } finally { $process.Dispose() }
+          }
+          foreach ($variant in @('baseline', 'candidate')) {
+            $sha = if ($variant -eq 'baseline') { $env:STARTUP_BASE_SHA } else { $env:CANDIDATE_SHA }
+            $sourceArchive = Join-Path $sources "$variant.tar"
+            git archive --format=tar "--output=$sourceArchive" $sha -- . ':(exclude)evidence' ':(exclude).claude'
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+            $source = Join-Path $sources $variant
+            New-Item -ItemType Directory -Path $source | Out-Null
+            tar -xf $sourceArchive -C $source
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+            python tools/testing/trusted_runtime_comparison.py prepare --root $source --harness $env:STARTUP_HARNESS
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+            $variantOutput = Join-Path $env:STARTUP_OUTPUT $variant
+            $package = Join-Path $variantOutput 'package'
+            New-Item -ItemType Directory -Force -Path $package | Out-Null
+            Copy-Item (Join-Path $source 'startup-variant.json') (Join-Path $variantOutput 'startup-variant.json')
+            $projectPath = Join-Path $source 'project.godot'
+            $projectBytes = [IO.File]::ReadAllBytes($projectPath)
+            Invoke-CheckedEditor @('--headless', '--path', $source, '--import') (Join-Path $variantOutput 'import.log')
+            [IO.File]::WriteAllBytes($projectPath, $projectBytes)
+            Invoke-CheckedEditor @('--headless', '--path', $source, '--export-release', 'Windows Desktop', (Join-Path $package 'game.exe')) (Join-Path $variantOutput 'export.log')
+            foreach ($required in @('game.exe', 'game.pck')) {
+              if (-not (Test-Path (Join-Path $package $required))) { throw "Missing $variant/$required" }
+            }
+            $files = @(Get-ChildItem $package -File -Recurse | Sort-Object FullName | ForEach-Object {
+              @{ path = [IO.Path]::GetRelativePath($package, $_.FullName).Replace('\', '/'); bytes = $_.Length; sha256 = (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant() }
+            })
+            @{ source = $sha; variant = $variant; files = $files } | ConvertTo-Json -Depth 5 |
+              Set-Content (Join-Path $variantOutput 'package.json') -Encoding utf8NoBOM
+          }
+      - name: Measure counterbalanced fresh, retained and identical-seed Load journeys
+        timeout-minutes: 25
+        env:
+          DWM_SCENE_VALIDATION_PROFILE: '1'
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $probe = Join-Path $env:STARTUP_HARNESS 'Invoke-ExportedStartupProbe.ps1'
+          $seedProfile = Join-Path $env:STARTUP_OUTPUT 'profiles/r1-baseline-fresh'
+          foreach ($repeat in 1..4) {
+            $order = if ($repeat % 2) { @('baseline', 'candidate') } else { @('candidate', 'baseline') }
+            foreach ($variant in $order) {
+              $executable = Join-Path $env:STARTUP_OUTPUT "$variant/package/game.exe"
+              $fresh = Join-Path $env:STARTUP_OUTPUT "profiles/r$repeat-$variant-fresh"
+              $output = Join-Path $env:STARTUP_OUTPUT "measurements/r$repeat-$variant-fresh"
+              & $probe -Executable $executable -Output $output -ProfileRoot $fresh -Case fresh -Variant $variant
+              $retained = Join-Path $env:STARTUP_OUTPUT "profiles/r$repeat-$variant-retained"
+              New-Item -ItemType Directory -Path $retained | Out-Null
+              Get-ChildItem -LiteralPath $fresh -Force | Copy-Item -Destination $retained -Recurse -Force
+              $output = Join-Path $env:STARTUP_OUTPUT "measurements/r$repeat-$variant-retained"
+              & $probe -Executable $executable -Output $output -ProfileRoot $retained -Case retained -Variant $variant
+              $load = Join-Path $env:STARTUP_OUTPUT "profiles/r$repeat-$variant-load"
+              New-Item -ItemType Directory -Path $load | Out-Null
+              Get-ChildItem -LiteralPath $seedProfile -Force | Copy-Item -Destination $load -Recurse -Force
+              $output = Join-Path $env:STARTUP_OUTPUT "measurements/r$repeat-$variant-load"
+              & $probe -Executable $executable -Output $output -ProfileRoot $load -Case retained -Variant $variant -Journey load
+            }
+          }
+          python tools/testing/trusted_runtime_comparison.py summarize --root $env:STARTUP_OUTPUT
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Verify measured packages remain unchanged
+        if: always()
+        run: |
+          $ErrorActionPreference = 'Stop'
+          foreach ($variant in @('baseline', 'candidate')) {
+            $receipt = Get-Content (Join-Path $env:STARTUP_OUTPUT "$variant/package.json") -Raw | ConvertFrom-Json
+            $package = Join-Path $env:STARTUP_OUTPUT "$variant/package"
+            $actual = @(Get-ChildItem $package -Recurse -File | ForEach-Object { [IO.Path]::GetRelativePath($package, $_.FullName).Replace('\', '/') })
+            if (@(Compare-Object ($actual | Sort-Object) ($receipt.files.path | Sort-Object)).Count -ne 0) { throw 'Measured package file set changed.' }
+            foreach ($entry in $receipt.files) {
+              $path = Join-Path $package $entry.path
+              if ((Get-Item $path).Length -ne $entry.bytes -or (Get-FileHash $path -Algorithm SHA256).Hash.ToLowerInvariant() -cne $entry.sha256) { throw "Measured package changed: $variant/$($entry.path)" }
+            }
+          }
+      - name: Retain timing evidence, screenshots and profiles
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: trusted-runtime-evidence-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            .godot/ci/trusted-runtime/*.json
+            .godot/ci/trusted-runtime/baseline/*.json
+            .godot/ci/trusted-runtime/baseline/*.log
+            .godot/ci/trusted-runtime/candidate/*.json
+            .godot/ci/trusted-runtime/candidate/*.log
+            .godot/ci/trusted-runtime/measurements/
+            .godot/ci/trusted-runtime/profiles/
+            !.godot/ci/trusted-runtime/profiles/**/shader_cache/**
+            !.godot/ci/trusted-runtime/profiles/**/pipeline_cache/**
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 7
+      - name: Retain exact diagnostic packages separately
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: trusted-runtime-packages-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            .godot/ci/trusted-runtime/baseline/package/
+            .godot/ci/trusted-runtime/candidate/package/
+          if-no-files-found: warn
+          retention-days: 7

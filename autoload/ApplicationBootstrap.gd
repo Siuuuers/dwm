@@ -1522,21 +1522,21 @@ func _configure_restore_participants() -> Dictionary:
 
 ## Bind creation validation before storage recovery; no live playback starts here.
 func _configure_registered_scene_creation() -> Dictionary:
-	var selected: Dictionary = DIALOGIC_ENTRY_MANIFEST.scene_registration()
+	var selected: Dictionary = DIALOGIC_ENTRY_MANIFEST.scene_contract_tables()
 	if not selected.get("ok", false):
 		return {"ok": true} if selected.get("code") == &"scene_registration_absent" else selected
 	var saves := _target(&"SaveManager")
 	var configured: Dictionary = saves.configure_scene_new_run(_target(&"DialogicBridge"))
 	if not configured.get("ok", false): return configured
 	var first_target: String = DIALOGIC_ENTRY_MANIFEST.first_target_id()
-	if first_target.is_empty() or selected.value.get("schema_version") != 3: return {"ok": true} # Older test registrations configure their own opening.
+	if first_target.is_empty() or selected.bundle.get("schema_version") != 3: return {"ok": true} # Older test registrations configure their own opening.
 	return saves.configure_scene_title_new_run(first_target)
 
 ## Complete existing scene owners only for an explicitly installed registration.
 ## The retained participant map still serves historical saves; scene transactions
 ## select their own eight-member order and never execute Schedule restoration.
 func _configure_registered_scene_runtime() -> Dictionary:
-	var selected: Dictionary = DIALOGIC_ENTRY_MANIFEST.scene_registration()
+	var selected: Dictionary = DIALOGIC_ENTRY_MANIFEST.scene_contract_tables()
 	if not selected.get("ok", false):
 		return {"ok": true} if selected.get("code") == &"scene_registration_absent" else selected
 	if not DIALOGIC_ENTRY_MANIFEST.first_target_id().is_empty() and FileAccess.file_exists("res://data/manifests/scene_ending_reading_catalogue.json") and OS.get_environment("DWM_SCENE_READING_FIXTURE") != "1" and not OS.get_cmdline_user_args().has(DIALOGIC_ENTRY_MANIFEST.SCENE_TEST_FLAG) and not OS.get_cmdline_args().has(DIALOGIC_ENTRY_MANIFEST.SCENE_TEST_FLAG):

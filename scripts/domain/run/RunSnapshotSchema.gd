@@ -142,9 +142,9 @@ static func validate(snapshot: Dictionary) -> Dictionary:
 	var version: Variant = snapshot.get("schema_version")
 	if typeof(version) == TYPE_FLOAT and is_finite(version) and version == floorf(version): version = int(version)
 	if version == SCENE_SCHEMA_VERSION:
-		var selected: Dictionary = SCENE_MANIFEST.scene_registration()
+		var selected: Dictionary = SCENE_MANIFEST.scene_contract_tables()
 		if not selected.ok: return selected
-		return validate_scene(snapshot, selected.value)
+		return validate_scene(snapshot, selected.bundle)
 	# `_normalize_integral_floats()` allocates a FRESH Dictionary/Array at every container node,
 	# so the candidate never aliases the caller and a `duplicate(true)` ahead of it only rebuilt
 	# the same tree a second time. Proof obligation for the leaves the normalizer passes through
@@ -662,14 +662,14 @@ static func normalize_scene_content(snapshot: Dictionary) -> Dictionary:
 	if not progress_error.is_empty(): return _fail(&"invalid_gameplay", progress_error)
 	var route_error := _validate_scene_route_context(gameplay.route_context)
 	if not route_error.is_empty(): return _fail(&"invalid_gameplay", route_error)
-	var selected := SCENE_MANIFEST.scene_registration()
+	var selected := SCENE_MANIFEST.scene_contract_tables()
 	if not selected.ok: return selected
 	if candidate.scene.registration_sha256 == SCENE_MANIFEST.scene_registration_fingerprint():
 		# An unchanged bundle is not an excuse to repair malformed current
 		# references or a forged caption/control pair.
-		var current := validate_current_scene(candidate.scene, selected.value)
+		var current := validate_current_scene(candidate.scene, selected.bundle)
 		if not current.ok: return current
-		var binding := _validate_scene_challenge_binding(candidate.scene, gameplay, selected.value)
+		var binding := _validate_scene_challenge_binding(candidate.scene, gameplay, selected.bundle)
 		if not binding.ok: return binding
 		var reading := SCENE_READING.expand_player_checkpoint(checkpoint)
 		if not reading.ok: return reading
@@ -702,7 +702,7 @@ static func normalize_scene_content(snapshot: Dictionary) -> Dictionary:
 	if record.is_empty() and candidate.scene.get("active_challenge") is Dictionary \
 			and not candidate.scene.active_challenge.is_empty():
 		var still_registered := false
-		for challenge: Dictionary in selected.value.challenges:
+		for challenge: Dictionary in selected.bundle.challenges:
 			if challenge.challenge_id == candidate.scene.active_challenge.get("challenge_id") \
 					and challenge.entry_id == candidate.scene.entry_id: still_registered = true
 		if not still_registered: candidate.scene.active_challenge = {}
@@ -731,9 +731,9 @@ static func build_scene(snapshot_input: Dictionary, dialogic_checkpoint: Diction
 	if route_id not in ["scene", "ending"] or not _scene_keys(snapshot_input, SCENE_INPUT_KEYS) \
 			or not snapshot_input.lifecycle is Dictionary:
 		return _fail(&"invalid_snapshot_input", "scene input requires its exact complete owner shape")
-	var selected := SCENE_MANIFEST.scene_registration()
+	var selected := SCENE_MANIFEST.scene_contract_tables()
 	if not selected.ok: return selected
-	var live := validate_scene_input_fields(snapshot_input, selected.value)
+	var live := validate_scene_input_fields(snapshot_input, selected.bundle)
 	if not live.ok: return live
 	var snapshot: Dictionary = snapshot_input.duplicate(true)
 	for member: String in ["command_receipts", "applied_effect_transaction_ids", "applied_variable_transaction_ids"]:
@@ -813,10 +813,11 @@ static func validate_scene_new_run_candidate(snapshot: Dictionary, allocation_ca
 	retained.erase("active_app_id")
 	var primitive := validate_primitive_tree(retained)
 	if not primitive.ok: return primitive
-	var selected: Dictionary = SCENE_MANIFEST.scene_registration()
+	var selected: Dictionary = SCENE_MANIFEST.scene_contract_tables()
 	if not selected.ok: return selected
-	if not _scene_exact_value(bundle, selected.value):
+	if not is_same(bundle, selected.bundle) and not _scene_exact_value(bundle, selected.bundle):
 		return _fail(&"scene_registration_mismatch", "initial candidate must use the installed registration")
+	bundle = selected.bundle
 	var candidate: Dictionary = retained.duplicate(true)
 	if not _scene_keys(candidate, SCENE_TOP_KEYS) or typeof(candidate.schema_version) != TYPE_INT \
 			or candidate.schema_version != SCENE_SCHEMA_VERSION or candidate.route_id != "scene" \
@@ -955,10 +956,11 @@ static func _validate_scene_observed_body(snapshot: Dictionary, bundle: Dictiona
 	if not type_error.is_empty(): return _fail(&"scene_initial_types_invalid", type_error)
 	if not is_instance_valid(_scene_issuer) or not is_instance_valid(_scene_authority) or _scene_semantic_busy:
 		return _fail(&"scene_validation_unavailable", "scene semantic owner unavailable or reentrant")
-	var selected: Dictionary = SCENE_MANIFEST.scene_registration()
+	var selected: Dictionary = SCENE_MANIFEST.scene_contract_tables()
 	if not selected.ok: return selected
-	if not _scene_equal(selected.value, bundle):
+	if not is_same(bundle, selected.bundle) and not _scene_exact_value(selected.bundle, bundle):
 		return _fail(&"scene_registration_mismatch", "saved data cannot select a registration")
+	bundle = selected.bundle
 	var retained := snapshot.duplicate()
 	retained.erase("audio_context")
 	retained.erase("active_app_id")
@@ -1012,13 +1014,13 @@ static func _validate_scene_observed_body(snapshot: Dictionary, bundle: Dictiona
 	# It must not call Run.validate again. A Boolean supplied by saved data is
 	# never substituted for this privately installed owner.
 	phase_tick = SCENE_VALIDATION_TIMING.snapshot_phase(observation, "pre_semantic_us", phase_tick)
-	# Normalization already detached the candidate; registration returns its own copy.
+	# Normalization detached the candidate; registration is recursively read-only.
 	# Production semantic validation reads both synchronously without publishing state.
-	var detached_bundle: Dictionary = selected.value
+	var installed_bundle: Dictionary = selected.bundle
 	phase_tick = SCENE_VALIDATION_TIMING.snapshot_phase(observation, "guard_prepare_us", phase_tick)
 	var semantic_owner: Object = _scene_authority
 	_scene_semantic_busy = true
-	var semantic: Variant = semantic_owner.call("validate_scene_snapshot_semantics", candidate, detached_bundle)
+	var semantic: Variant = semantic_owner.call("validate_scene_snapshot_semantics", candidate, installed_bundle)
 	_scene_semantic_busy = false
 	phase_tick = SCENE_VALIDATION_TIMING.snapshot_phase(observation, "semantic_us", phase_tick)
 	SCENE_VALIDATION_TIMING.snapshot_phase(observation, "guard_verify_us", phase_tick)
@@ -1084,17 +1086,17 @@ static func _validate_scene_reading(candidate: Dictionary) -> Dictionary:
 			or checkpoint.frozen_context.get("transaction_id") != checkpoint.transaction_id:
 		return _fail(&"reading_context_invalid", "active admission and frozen wrapper must agree")
 	if candidate.scene.active_challenge.is_empty() and saved.boundary == "control":
-		var selected := SCENE_MANIFEST.scene_registration()
+		var selected := SCENE_MANIFEST.scene_contract_tables()
 		if not selected.ok: return selected
 		var node: Dictionary = session._scene_nodes[checkpoint.entry_id][saved.program_index]
-		for challenge: Dictionary in selected.value.challenges:
+		for challenge: Dictionary in selected.bundle.challenges:
 			if challenge.entry_id == checkpoint.entry_id and challenge.playable_marker_id == node.get("marker_id"):
 				return _fail(&"scene_challenge_position_invalid", "held playable requires its current Challenge")
 	if not candidate.scene.active_challenge.is_empty():
-		var selected := SCENE_MANIFEST.scene_registration()
+		var selected := SCENE_MANIFEST.scene_contract_tables()
 		if not selected.ok: return selected
 		var challenge := {}
-		for row: Dictionary in selected.value.challenges:
+		for row: Dictionary in selected.bundle.challenges:
 			if row.challenge_id == candidate.scene.active_challenge.challenge_id: challenge = row
 		var nodes: Array = session._scene_nodes.get(checkpoint.entry_id, [])
 		var playable_index := -1
@@ -1115,7 +1117,7 @@ static func _validate_scene_reading(candidate: Dictionary) -> Dictionary:
 			# A suspended board cannot authorize another current playable marker.
 			if saved.boundary == "control":
 				var node: Dictionary = nodes[position]
-				for row: Dictionary in selected.value.challenges:
+				for row: Dictionary in selected.bundle.challenges:
 					if row.entry_id == checkpoint.entry_id and row.playable_marker_id == node.get("marker_id"):
 						return _fail(&"scene_challenge_position_invalid", "held playable differs from suspended Challenge")
 	return {"ok": true, "session": session}
@@ -1130,9 +1132,10 @@ static func validate_scene_input_fields(input: Dictionary, bundle: Dictionary) -
 	if not _scene_keys(input, SCENE_INPUT_KEYS): return _fail(&"invalid_snapshot_input", "incomplete scene capture")
 	var primitive := validate_primitive_tree(input)
 	if not primitive.ok: return primitive
-	var selected: Dictionary = SCENE_MANIFEST.scene_registration()
+	var selected: Dictionary = SCENE_MANIFEST.scene_contract_tables()
 	if not selected.ok: return selected
-	if not _scene_equal(selected.value, bundle): return _fail(&"scene_registration_mismatch", "unselected bundle")
+	if not is_same(bundle, selected.bundle) and not _scene_exact_value(selected.bundle, bundle): return _fail(&"scene_registration_mismatch", "unselected bundle")
+	bundle = selected.bundle
 	if not input.lifecycle is Dictionary: return _fail(&"invalid_lifecycle", "invalid scene lifecycle")
 	var lifecycle: Dictionary = RUN_LIFECYCLE.validate_scene(input.lifecycle, _scene_issuer)
 	if not lifecycle.ok: return lifecycle
@@ -1225,9 +1228,9 @@ static func _validate_current_scene_frame(frame: Dictionary, tables: Dictionary)
 ## Terminal snapshots retain the source admission and therefore its soundtrack.
 static func derive_scene_audio_context(snapshot: Dictionary, bundle: Dictionary = {}) -> Dictionary:
 	if bundle.is_empty():
-		var selected: Dictionary = SCENE_MANIFEST.scene_registration()
+		var selected: Dictionary = SCENE_MANIFEST.scene_contract_tables()
 		if not selected.ok: return selected
-		bundle = selected.value
+		bundle = selected.bundle
 	if bundle.get("schema_version") != 3:
 		# Registrations without authored audio explicitly restore silence. The
 		# AudioManager semantic contract requires all four neutral fields.

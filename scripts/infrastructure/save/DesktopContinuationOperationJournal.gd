@@ -162,10 +162,11 @@ func configure_scene_new_run_validation(bundle: Dictionary, issuer: Object) -> D
 	if issuer == null or issuer.get_script() != load("res://scripts/application/desktop/DesktopIdentityNonceIssuer.gd"):
 		return _failed(&"scene_new_run_issuer_unbound", "requires the actual identity owner")
 	if _scene_new_run_issuer != null:
-		if _scene_new_run_issuer == issuer and _CANONICAL_WRITER._deep_same(_scene_new_run_bundle, bundle):
+		if _scene_new_run_issuer == issuer and (is_same(_scene_new_run_bundle, bundle) or _CANONICAL_WRITER._deep_same(_scene_new_run_bundle, bundle)):
 			return {"ok": true}
 		return _failed(&"scene_new_run_validation_already_bound", "cannot replace creation authority")
-	_scene_new_run_bundle = bundle.duplicate(true)
+	var manifest: Script = load("res://scripts/narrative/DialogicEntryManifest.gd")
+	_scene_new_run_bundle = bundle if not manifest.prepared_scene_contract(bundle).is_empty() else bundle.duplicate(true)
 	_scene_new_run_issuer = issuer
 	return {"ok": true}
 
