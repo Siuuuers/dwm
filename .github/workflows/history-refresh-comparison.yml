@@ -1,5 +1,5 @@
-name: History refresh matched comparison
-run-name: Caption refresh and History matched comparison
+name: Trusted reading capture matched comparison
+run-name: Trusted reading capture and History matched comparison
 
 on:
   pull_request:

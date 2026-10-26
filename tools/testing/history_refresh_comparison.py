@@ -208,8 +208,16 @@ def summarize(root):
             profile = observation["history_profile"]
             assert profile["load"]["WitnessedCaptionLayer._refresh_reading_session"]["calls"] > 0
             assert profile["observer_capture"]["Observer.capture_and_hash"]["calls"] == 1
-            assert profile["first_accept"]["WitnessedCaptionLayer._project_scene_caption_memory"]["calls"] > 0
+            # The synchronous wrappers only record methods that execute. Ordinary
+            # text publication appends local scrollback and can legitimately make
+            # no refresh request or History projection. Keep those zeros visible.
+            assert profile["first_accept"]["SoloReadingSession._capture_scene"]["calls"] > 0
             metrics = dict(trusted.numeric_leaves(profile))
+            for scope in ("load", "first_accept", *(f"accept_{number:03}" for number in range(3, 31))):
+                for method in ("_on_reading_session_changed", "_on_reading_input_custody_changed",
+                               "_refresh_reading_session", "_project_scene_caption_memory"):
+                    for field in ("calls", "elapsed_us", "max_us"):
+                        metrics.setdefault(f"{scope}.WitnessedCaptionLayer.{method}.{field}", 0)
             for row in sequence:
                 metrics[row["line_id"] + ".input_to_observed_drawing_us"] = row["input_to_observed_drawing_us"]
             metrics.update({"frame_gap_us." + key: value for key, value in trusted.numeric_leaves(report["max_frame_gap_us"])})
