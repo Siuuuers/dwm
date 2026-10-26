@@ -181,11 +181,11 @@ def extract(folder):
 def attribute_methods(text, owner, names):
     """Wrap synchronous seams only; retain their signatures, results and call order."""
     for name in names:
-        match = re.search(r"^func " + re.escape(name) + r"\((.*?)\) -> (Dictionary|void):\n", text, re.M | re.S)
+        match = re.search(r"^(?:static )?func " + re.escape(name) + r"\((.*?)\) -> (Dictionary|void):\n", text, re.M | re.S)
         if match is None:
             raise ValueError(f"Missing attribution method: {owner}.{name}")
         header, arguments, returns = match.group(0), match.group(1), match.group(2)
-        body = text[match.end():].split("\nfunc ", 1)[0]
+        body = re.split(r"\n(?:static )?func ", text[match.end():], maxsplit=1)[0]
         if re.search(r"\bawait\b", body):
             raise ValueError(f"Attribution wrapper cannot change async behavior: {owner}.{name}")
         params = ", ".join(part.strip().split(":", 1)[0] for part in arguments.split(",") if part.strip())
@@ -265,6 +265,10 @@ def prepare(root, harness):
             "validate_restore_ready", "publish_restore", "finalize_restore"),
         "autoload/WindowModeManager.gd": ("prepare_restore", "capture_restore_state", "apply_restore_silent", "finalize_restore"),
         "scripts/display/WindowModePort.gd": ("apply_mode", "_write"),
+        "scripts/application/desktop/DesktopIdentityNonceIssuer.gd": (
+            "issue", "prepare_continuation_allocation", "commit_continuation_allocation"),
+        "autoload/DialogicBridge.gd": ("_build_current_scene_initial_checkpoint",),
+        "scripts/domain/run/RunSnapshotSchema.gd": ("build_scene",),
     }.items():
         path = root / relative
         before = path.read_bytes()
