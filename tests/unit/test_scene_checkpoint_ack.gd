@@ -474,3 +474,55 @@ func test_scene_route_refuses_changed_board_facts_and_reintroduced_retry_ledger(
 		assert_false(f.real.calls.has("commit"), mode)
 		assert_eq(input, before, "projection and refusal do not mutate the admitted source")
 		f.real.after_prepare = Callable()
+
+
+func test_candidate_reference_compact_persisted_matches_full_targets_without_mutation() -> void:
+	for retained: bool in [false, true]:
+		var f := _fixture(retained)
+		var projected: Dictionary = SESSION.project_player_checkpoint(f.checkpoint)
+		assert_true(projected.ok, str(projected))
+		if not projected.ok: return
+		assert_eq(projected.value.reading_session.schema_version, 7)
+		assert_eq(f.checkpoint.reading_session.schema_version, 5)
+		var snapshot := {"checkpoint_id": "run:2", "checkpoint_sequence": 2,
+			"narrative_checkpoint": projected.value}
+		var candidate := {"checkpoint_id": "run:2", "journal_candidate": {"current": {"snapshot": snapshot}},
+			"autosave_document": {"current_snapshot": {"snapshot": snapshot.duplicate(true)}}}
+		var candidate_before := candidate.duplicate(true)
+		var supplied_before: Dictionary = f.checkpoint.duplicate(true)
+		var retained_before: Dictionary = f.port._scene_entry.duplicate(true)
+		var reference: Dictionary = f.port._scene_candidate_reference(candidate, f.checkpoint)
+		assert_eq(reference, {"checkpoint_id": "run:2", "checkpoint_sequence": 2, "snapshot_sha256": _hash(snapshot)})
+		assert_eq(candidate, candidate_before)
+		assert_eq(f.checkpoint, supplied_before)
+		assert_eq(f.port._scene_entry, retained_before)
+		assert_false(f.real.calls.has("commit"), "reference lookup grants no write")
+
+func test_candidate_reference_refuses_independent_target_mismatch_and_malformed_persisted_checkpoint() -> void:
+	for mode: String in ["retained_rehashed", "supplied", "persisted", "null", "scalar", "incomplete"]:
+		var f := _fixture()
+		var projected: Dictionary = SESSION.project_player_checkpoint(f.checkpoint)
+		assert_true(projected.ok, str(projected))
+		if not projected.ok: return
+		var supplied: Dictionary = f.checkpoint.duplicate(true)
+		var persisted: Variant = projected.value.duplicate(true)
+		match mode:
+			"retained_rehashed":
+				f.port._scene_entry.checkpoint.content_version += 1
+				f.port._scene_entry.narrative_checkpoint_sha256 = _hash(f.port._scene_entry.checkpoint)
+			"supplied": supplied.content_version += 1
+			"persisted": persisted.content_version += 1
+			"null": persisted = null
+			"scalar": persisted = 7
+			"incomplete": persisted = {"stage": "scene", "reading_session": {"schema_version": 7}}
+		var snapshot := {"checkpoint_id": "run:2", "checkpoint_sequence": 2, "narrative_checkpoint": persisted}
+		var candidate := {"checkpoint_id": "run:2", "journal_candidate": {"current": {"snapshot": snapshot}},
+			"autosave_document": {"current_snapshot": {"snapshot": snapshot.duplicate(true)}}}
+		var candidate_before := candidate.duplicate(true)
+		var supplied_before := supplied.duplicate(true)
+		var retained_before: Dictionary = f.port._scene_entry.duplicate(true)
+		assert_true(f.port._scene_candidate_reference(candidate, supplied).is_empty(), mode)
+		assert_eq(candidate, candidate_before, mode)
+		assert_eq(supplied, supplied_before, mode)
+		assert_eq(f.port._scene_entry, retained_before, mode)
+		assert_false(f.real.calls.has("commit"), "refusal cannot write: " + mode)
