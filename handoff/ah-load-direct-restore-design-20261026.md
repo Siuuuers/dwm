@@ -20,7 +20,12 @@ Use cloud-only Godot execution and automated tests. The user permits direct merg
 - Ordinary gameplay Load should reuse current language, font, text size, and settings already active on the title screen. A gameplay save must not rewind settings or global unlocks. New UI reads active settings from their existing owners.
 - Keep saved gameplay values, prior story variations/choices, and Challenge results. Restore values directly; do not replay earlier gameplay.
 - A named checkpoint should own base art, scene/background, and music. DTL references that checkpoint and can issue overlay show/remove commands. Avoid scattering the same base presentation information throughout DTL.
-- Save the currently active overlay labels, in display order. A removal command targets a shown overlay label. A removed overlay needs no historical removal entry in the save. Load reconstructs active overlays directly without replaying commands.
+- Multiple overlays can be active together. Each art appears only once at a time. An authored overlay label identifies the art and its screen position. A remove command identifies the art to remove.
+- Keep active overlays in display order; newly shown overlays go on top. Repeating an already active overlay label does nothing. Removing absent art does nothing. These were the recommended semantics accepted by the user.
+- Save the currently active overlay labels, in display order. Resolve their authored art and position on Load. Do not replay show/remove commands or save removal history. Distinct labels must not accidentally create duplicate instances of the same art. If existing authoring allows the same art at different positions, inspect that use before choosing reposition semantics; the user has not explicitly selected reposition versus no-op for a different label that names already-active art.
+- If the game closes during Load, let it close. Do not record/resume the unfinished Load or add special close-time recovery. The original save remains intact; on reopening, the player can select Load again.
+- Target behavior: gameplay Load reads saved data and changes the live session without rewriting the source save or persistent player progress solely to restore it. Remove durable Load progress/acknowledgement bookkeeping made unnecessary by this rule. Normal later save operations are a separate concern.
+- Current implementation is different: it writes continuation intent, allocation/restore bookkeeping and activation acknowledgement. Do not claim Load is already read-only. Audit all persistent write paths, including identity issuance and callbacks, before implementing the new behavior.
 - Preserve exact current dialogue position within a checkpoint. Checkpoint identity and current caption position are separate. New Account starts at the checkpoint's first caption.
 - No encryption was selected. A symmetric key does not replace decoding or semantic restoration. Anti-tamper protection is not the objective.
 - The user approved proceeding with simplification after these explanations. This handoff marks a useful session boundary; no further general design interview is needed.
@@ -28,6 +33,8 @@ Use cloud-only Godot execution and automated tests. The user permits direct merg
 ## Observable next outcome
 
 Loading a current save restores the same gameplay values, exact reading position, base presentation, and active overlays. Current settings and global unlocks remain current. The player can read and click as soon as the actual UI and dialogue state are ready. Avoid redundant normalization, configuration, temporary-session construction, and repeated validation of internally prepared values.
+
+Verify that interrupted Load leaves the source save and persistent player progress unchanged, creates no resumable Load operation, and permits a later normal Load. Verify overlay position/order and removal across save/load. These are acceptance checks for the new design, not results already obtained.
 
 Do not promise a particular speedup before measurement.
 
@@ -119,7 +126,7 @@ RunSnapshotSchema.build_scene:
 Start with a bounded Load simplification, with unchanged player-visible state. Audit Profile/global ownership before removing participants. Do not delete continuation bookkeeping blindly: identify callers and older-save/global obligations first.
 Do not add background validation merely to hide redundant work. Remove unnecessary work; retain a small UI/dialogue readiness dependency before accepting input.
 Presentation-label authoring is authorized direction, but inspect existing schema and commands before choosing syntax. Do not invent a new parallel presentation manager.
-If overlays allow duplicate labels or custom transforms, inspect current behavior before choosing save representation. Ask only if the choice changes supported behavior.
+Use the confirmed one-instance-per-art overlay rule above. Keep art identity, authored position, and display order clear. Ask only if an existing use requires an unresolved behavior.
 Use focused tests for pure rules, integration tests for ownership/storage, and rendered E2E for actual restored captions/art/input.
 Finish independent audits before final acceptance testing. Compare complete Load-to-caption and fresh/retained controls with matched instrumentation.
 No local Godot execution. Do not confuse the GitHub jobs tool's first 30 results with the entire workflow. Verify overall workflow conclusion.
