@@ -1,5 +1,8 @@
 # Direct Load, New Account, and Settings Back
 
+> Current status: [accepted Load and remaining work](al-trusted-load-accepted-history-next-20261027.md#brief-review-of-aa-through-ak).
+> Read that review before using the implementation instructions below. Older status and policy statements are historical where later decisions replace them.
+
 Date: 2026-10-26. PR: https://github.com/Siuuuers/dwm/pull/116.
 
 ## User decisions

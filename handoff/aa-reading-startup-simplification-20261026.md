@@ -1,5 +1,8 @@
 # Reading and New Acc simplification handoff — 26 October 2026
 
+> Current status: [accepted Load and remaining work](al-trusted-load-accepted-history-next-20261027.md#brief-review-of-aa-through-ak).
+> Read that review before using the implementation instructions below. Older status and policy statements are historical where later decisions replace them.
+
 > Latest continuation: [Trusted story runtime and startup performance](ac-trusted-story-runtime-20261026.md).
 > Read it first for the current validation policy, measured baseline and next work.
 > Older implementation directions below are historical where that continuation supersedes them.

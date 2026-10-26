@@ -1,5 +1,8 @@
 # Current-content save migration — 26 October 2026
 
+> Current status: [accepted Load and remaining work](al-trusted-load-accepted-history-next-20261027.md#brief-review-of-aa-through-ak).
+> Read that review before using the implementation instructions below. Older status and policy statements are historical where later decisions replace them.
+
 ## Status and outcome
 
 [PR #107](https://github.com/Siuuuers/dwm/pull/107) is merged. Master commit:

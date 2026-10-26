@@ -3,6 +3,23 @@
 Date: 2026-10-27, Hong Kong time.
 Status: PR 118 merged. This record adds evidence and a next experiment, not runtime changes.
 
+## First priority: measure the remaining reading pauses
+
+The user confirmed this priority after PR 118. Keep it ahead of the older tasks below.
+
+1. Measure Load and the next few reading actions. Include a longer encountered History.
+2. Count refresh requests, executed refreshes and History projections. Measure their durations.
+3. Separate test state capture and file hashing from ordinary gameplay work.
+4. Measure History reconstruction, caption lookup, localization and copies separately.
+5. Measure the first transition to an uncompiled passage. The shared day parse does not prove that this transition is fast.
+6. Change one measured cause. Compare the complete action with the same observer on both builds.
+
+The 64.649 ms result is the largest observed candidate frame gap after the complete caption.
+It is not a measurement of History alone. The scope includes test work and the next input.
+Rendering and runner scheduling can also contribute. Their separate costs are not yet known.
+At 60 frames per second, one frame has about 16.7 ms. Use this as a reference, not an accepted guarantee.
+Duplicate refreshes are one candidate. They are not the only possible cause or a proven large saving.
+
 ## Accepted source
 
 [PR 118](https://github.com/Siuuuers/dwm/pull/118) merged at
@@ -121,3 +138,44 @@ Relevant tests:
 - tests/integration/test_witnessed_caption_runtime.gd
 
 Review callers and the test bodies before final acceptance. Keep measurement-only overlays identical between baseline and candidate. Preserve the cloud-only execution rule.
+
+## Brief review of aa through ak
+
+Review date: 2026-10-27. Source: master at `28182754e2a0cd2e1990a51bafda5de17f07bdf2`.
+This is a document and implementation-status review. It is not a new runtime acceptance test.
+The repository has aa, ab, ac, ai, aj and ak. It has no handoff files with prefixes ad through ah at this revision.
+Merged PR records 108 and 110 through 118 supply the intervening implementation status.
+PR 113 is diagnostic work. PR 115 was superseded by PR 116.
+
+| Source | Current status | Required action |
+| --- | --- | --- |
+| [aa](aa-reading-startup-simplification-20261026.md): stable IDs, shared configuration, revision-aware read marks and Replay | Implemented in PR 104 and later work. | Preserve these contracts. Do not repeat this batch. |
+| [aa](aa-reading-startup-simplification-20261026.md), [ab](ab-current-content-save-migration-20261026.md): content fallback, bounded encountered History and exact board transfer | Implemented in PR 107. Current reading-format cleanup passed in PR 108. | Preserve the previous two checkpoint sections and the current section. Show only encountered current text. Do not add read marks through History. |
+| ab: newly authored optional Contacts after a content update | Existing Contacts contracts have tests. The migration batch did not establish this rendered journey. | Add a connected case when production content includes Contacts. Do not call this a demonstrated defect. |
+| ab: automatic allocation of missing dialogue IDs | The handoff did not implement a separate authoring command. Dialogic already supplies an ID allocator. | Keep this optional. Preserve existing IDs. Inspect current authoring tools before adding anything. |
+| [ac](ac-trusted-story-runtime-20261026.md): reuse trusted shipped story tables | Implemented in PR 110. PR 118 adds lazy passage compilation and shared day parsing. | Keep exact-pack cloud validation. Do not restore repeated whole-story runtime checks. |
+| ac: nonblocking error and skip for audience-edited DTL | Explicitly deferred by PR 110. Later reviewed PRs do not record acceptance of this feature. | Keep pending after reading performance. Trace missing IDs and unsupported commands. Release the skipped event's wait. Continue if a next event exists; otherwise end dialogue cleanly. Keep other UI usable. |
+| [ai](ai-direct-load-and-settings-back-20261026.md): direct Load and Settings Back | Accepted in PR 116; confirmed by aj and later cloud runs. | Do not repeat its old pending-inventory work. |
+| [aj](aj-new-account-snapshot-validation-20261027.md): duplicate snapshot admission | Accepted in PR 117. PR 118 removes the remaining three full passes from ordinary Load. | Do not remove New Account or write-path checks by name alone. |
+| [ak](ak-trusted-save-visible-scene-first-20261027.md): trusted current saves and current scene first | Accepted in PR 118. History cost and later passage timing still need measurement. | Follow the first-priority investigation above. |
+| ai, aj, ak: named presentation checkpoints and overlays | Separate pending feature. | Use the existing art manifest. Save the checkpoint ID and ordered overlay labels. Restore directly. Clear overlays at a new checkpoint. Showing an active label or removing an absent label does nothing. |
+
+### Instructions that no longer apply
+
+- aa proposed run-level Sweet/Dark alternation and an initial Autosave. PR 111 retired both for current scene New Account. Start in memory. Preserve existing saves. Keep normal later Save behavior.
+- aa proposed a durable creation operation. PR 111 removed it from current scene New Account. Do not restore it from the old handoff. Existing identity consumers and legacy operations keep their own owners.
+- aa and ab required strict external gameplay admission. ak supersedes that rule for ordinary current-save Load. Keep the small file/JSON/version boundary and supported authored-content fallback.
+- aj described public/private plan comparison and a Load lock. ak rejected that policy; PR 118 removed those requirements from ordinary Load.
+- Title prewarming was a proposal, not an unfinished required feature. Do not add it without measured need.
+- Old diagnostic branches are not product candidates. Do not merge PR 109 or PR 113 merely to recover their measurements.
+
+### Other retained investigation limits
+
+The early launch interval still needs a fresh, separately attributed measurement before further startup changes.
+Do not reuse old unmatched launch timings as current results or attribute them wholly to fonts, disk or GPU work.
+PR 110 recorded intermittent shutdown resources. PR 111 improved diagnostic audio teardown; it did not claim a production shutdown fix.
+PR 118's accepted runs exited cleanly. Keep strict shutdown checks and investigate if the signature returns.
+These items do not replace the first-priority reading investigation.
+
+Use short sentences and direct instructions in future handoff updates. Keep measured results separate from hypotheses.
+This update follows ASD-STE100-style writing. No formal language-compliance certification is claimed.

@@ -1,5 +1,8 @@
 # Scene snapshot admission: New Account and Load
 
+> Current status: [accepted Load and remaining work](al-trusted-load-accepted-history-next-20261027.md#brief-review-of-aa-through-ak).
+> Read that review before using the implementation instructions below. Older status and policy statements are historical where later decisions replace them.
+
 Date: 2026-10-27, Hong Kong time.
 
 Latest next-session policy: [trusted save and visible scene first](ak-trusted-save-visible-scene-first-20261027.md).
