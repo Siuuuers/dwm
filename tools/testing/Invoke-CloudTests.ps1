@@ -117,6 +117,7 @@ $suites = @{
         'tests/integration/test_warm_outgoing_proof_commits.gd'
     )
     persistence = @(
+        'tests/unit/test_scene_load_active_settings.gd'
         'tests/unit/test_desktop_identity_allocation_restore_participant.gd'
         'tests/unit/test_frozen_run_context.gd'
         'tests/unit/test_profile_presentation_chronology.gd'

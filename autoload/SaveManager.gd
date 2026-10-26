@@ -2238,7 +2238,7 @@ func _prepare_restore_document_profiled(locator: Dictionary, document: Dictionar
 
 	# Load the selected saved state only. An older checkpoint is never substituted.
 	var prepared := _prepare_bundle_with_all_participants(document["current_snapshot"],
-		migration_output, document, locator, scene_seed_material)
+		migration_output, document, locator, scene_seed_material, true)
 	_save_load_profile_phase(profile, "participant_prepare_us")
 	if not prepared.get("ok", false):
 		return prepared
@@ -2260,7 +2260,7 @@ func _prepare_run_restore(bundle: Dictionary, document: Dictionary, material: Di
 	return participant.prepare({"snapshot": bundle.snapshot})
 
 func _prepare_bundle_with_all_participants(bundle: Dictionary, migration_output: Dictionary, document: Dictionary,
-		locator: Dictionary, scene_seed_material: Dictionary = {}) -> Dictionary:
+		locator: Dictionary, scene_seed_material: Dictionary = {}, reuse_current_settings: bool = false) -> Dictionary:
 	var snapshot: Dictionary = bundle["snapshot"]
 	var plans := {}
 
@@ -2288,20 +2288,27 @@ func _prepare_bundle_with_all_participants(bundle: Dictionary, migration_output:
 			return view_prep
 		plans["schedule_view"] = view_prep["value"]["schedule_view_plan"]
 
-	var profile_prep: Dictionary = _restore_participants["profile"].prepare(
-		{"legacy_profile_patch_input": migration_output["legacy_profile_patch_input"]})
-	if not profile_prep.get("ok", false):
-		return profile_prep
-	plans["profile"] = profile_prep["value"]["profile_plan"]
-	var locale_id := str(profile_prep["value"]["locale_id"])
-	var preferences: Dictionary = (plans["profile"].get("profile", {}) as Dictionary).get("preferences", {})
+	var preferences: Dictionary
+	if reuse_current_settings and snapshot.get("schema_version") == 9:
+		# Gameplay Load uses the already active application settings. Keep receipt
+		# slots for the existing recovery format, without restoring these owners.
+		plans["profile"] = {"reuse_current": true}
+		plans["localization"] = {"reuse_current": true}
+		preferences = _new_run_profile_owner.get_profile_snapshot().preferences
+	else:
+		var profile_prep: Dictionary = _restore_participants["profile"].prepare(
+			{"legacy_profile_patch_input": migration_output["legacy_profile_patch_input"]})
+		if not profile_prep.get("ok", false):
+			return profile_prep
+		plans["profile"] = profile_prep["value"]["profile_plan"]
+		var locale_id := str(profile_prep["value"]["locale_id"])
+		preferences = (plans["profile"].get("profile", {}) as Dictionary).get("preferences", {})
 
-	var loc_prep: Dictionary = _restore_participants["localization"].prepare({"locale_id": locale_id,
-		"font_style": profile_prep["value"].get("font_style", "pixel"), "text_size": profile_prep["value"].get("text_size", 100)})
-	if not loc_prep.get("ok", false):
-		return loc_prep
-	plans["localization"] = loc_prep["value"]["localization_plan"]
-
+		var loc_prep: Dictionary = _restore_participants["localization"].prepare({"locale_id": locale_id,
+			"font_style": profile_prep["value"].get("font_style", "pixel"), "text_size": profile_prep["value"].get("text_size", 100)})
+		if not loc_prep.get("ok", false):
+			return loc_prep
+		plans["localization"] = loc_prep["value"]["localization_plan"]
 	var audio_context: Dictionary
 	if snapshot.get("schema_version") == 9:
 		var derived := RUN_SNAPSHOT_SCHEMA.derive_scene_audio_context(snapshot)
@@ -3058,6 +3065,7 @@ func _run_scene_restore_transaction(plans: Dictionary, journal_candidate: Varian
 		return _scene_restore_prepare_failure(captured, committed or creating, applied, backups, gate_token, operation_id, null)
 	journal_backup = captured.value.backup
 	for key: String in _SCENE_PARTICIPANT_ORDER:
+		if key in ["profile", "localization"] and plans[key].get("reuse_current", false): continue
 		var backup: Dictionary = _restore_participants[key].capture()
 		if not backup.get("ok", false):
 			return _scene_restore_prepare_failure(backup, committed or creating, applied, backups, gate_token, operation_id, null)
@@ -3069,10 +3077,11 @@ func _run_scene_restore_transaction(plans: Dictionary, journal_candidate: Varian
 		if key == "narrative":
 			plan["route_ready_token"] = route_token.duplicate(true)
 			plan["scene_restore_operation_id"] = operation_id
-		var result: Dictionary = _restore_participants[key].apply_silent(plan)
+		var reuse_current: bool = key in ["profile", "localization"] and plan.get("reuse_current", false)
+		var result: Dictionary = {"ok": true, "value": {}} if reuse_current else _restore_participants[key].apply_silent(plan)
 		if not result.get("ok", false):
 			return _scene_restore_prepare_failure(result, committed or creating, applied, backups, gate_token, operation_id, journal_backup)
-		applied.append(key)
+		if not reuse_current: applied.append(key)
 		if key == "route": route_token = result.get("value", {}).get("route_ready_token", {})
 		if key == "run" and continuation.has("remap"):
 			var remap: Dictionary = continuation.remap
@@ -3125,6 +3134,7 @@ func _run_scene_restore_transaction(plans: Dictionary, journal_candidate: Varian
 		"checkpoint_id": checkpoint_id, "phase": "route", "route_confirmed": false,
 		"narrative_confirmed": false, "started": false, "failure": {}}
 	for key: String in _SCENE_PARTICIPANT_ORDER:
+		if key in ["profile", "localization"] and plans[key].get("reuse_current", false): continue
 		var finalized: Dictionary = _restore_participants[key].finalize()
 		if not finalized.get("ok", false): return _scene_restore_activation_failure(finalized)
 	for key: String in ["route", "narrative"]:
