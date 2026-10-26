@@ -2,6 +2,10 @@
 
 Date: 2026-10-27, Hong Kong time.
 
+Latest next-session policy: [trusted save and visible scene first](ak-trusted-save-visible-scene-first-20261027.md).
+That policy supersedes earlier validation and Load-gate requirements in this record
+where they conflict. It is approved work, not implemented behavior.
+
 ## Accepted work
 
 PR 116 is merged at `292be5200d8ac25b5e3f5bafcc40725feca891d2`.
@@ -146,10 +150,27 @@ GameState inventory SHA-256:
 SaveManager inventory SHA-256:
 `38a94d77093c52c42996f395d65a24f82ba0de7078d020d532a8a3e365f865b2`.
 
-The next commit contains only these inventories and this handoff. Final exact-head
-Windows acceptance, rendered/export jobs and its matched repeat remain pending at
-this documentation snapshot. Use PR 117's current checks/body and merge status as
-the final record. Do not infer acceptance merely from these candidate measurements.
+PR 117 is now merged at `63114b5649d2191d5fb189aa73019a880f6abb12`.
+Tested head: `3ddce8a80aaa16630fca3bb622b9fe38787fe120`.
+Both have tree `1a73ec84c32edbd8d50763fbfd4e9a7a660e8342`.
+
+Final Windows acceptance: https://github.com/Siuuuers/dwm/actions/runs/40367674636.
+All 61 required jobs passed; one comparison job was intentionally skipped.
+The separate matched run passed: https://github.com/Siuuuers/dwm/actions/runs/40367674644.
+This includes persistence, interrupted Load, five-language Settings Back, rendered
+UI, exact generated inventories and Windows export startup.
+
+| Final action median | Baseline | Candidate | Reduction |
+| --- | ---: | ---: | ---: |
+| Fresh New Account | 1729.637 ms | 1642.625 ms | 5.03% |
+| Retained New Account, excluding consent dwell | 1802.802 ms | 1661.7455 ms | 7.82% |
+| Load to complete caption | 2003.6955 ms | 1771.574 ms | 11.58% |
+
+All four pairs improved for each case in both expanded-candidate comparisons.
+Final evidence artifact: `12672031078`; packages: `12672036037`.
+Evidence ZIP SHA-256:
+`834f4d4ad66cc4b5c2bbe160bd822489c5190e254e4c82f6742004d5ffff9a0e`.
+These small cloud samples are not universal performance guarantees.
 
 ## Further work
 
