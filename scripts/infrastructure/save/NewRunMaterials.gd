@@ -382,7 +382,7 @@ static func _project_acknowledged_initial_checkpoint(checkpoint: Dictionary, ver
 	const TRAVERSAL := preload("res://scripts/narrative/ReadingTraversalOperation.gd")
 	const LEDGER := preload("res://scripts/narrative/NarrativeCaptionLedger.gd")
 	const RUN := preload("res://scripts/domain/run/RunSnapshotSchema.gd")
-	if typeof(version) != TYPE_INT or version not in [6, 7] \
+	if typeof(version) != TYPE_INT or version != 7 \
 			or not RUN._scene_keys(checkpoint, RUN.SCENE_CHECKPOINT_KEYS) \
 			or checkpoint.stage != "scene" or not checkpoint.reading_session is Dictionary \
 			or not TRAVERSAL.valid_scene_reading_shape(checkpoint.reading_session):
@@ -407,10 +407,9 @@ static func _project_acknowledged_initial_checkpoint(checkpoint: Dictionary, ver
 		"entry_id": live.entry_id, "occurrence_id": live.occurrence_id, "boundary": "line",
 		"position_id": row.beat.line_id, "session_token": live.ledger.session_token,
 		"publication_serial": serial, "captions": [{"line_id": row.beat.line_id, "publication_id": row.publication_id}]}
-	if version == 7:
-		if not live.has("player_progress"):
-			return _fail(&"new_run_autosave_invalid", "reading7 creation must retain its player progress")
-		compact.merge(live.player_progress)
+	if not live.has("player_progress"):
+		return _fail(&"new_run_autosave_invalid", "reading7 creation must retain its player progress")
+	compact.merge(live.player_progress)
 	var projected := checkpoint.duplicate(true)
 	projected.reading_session = compact
 	return {"ok": true, "value": projected}

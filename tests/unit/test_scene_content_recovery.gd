@@ -127,16 +127,19 @@ func test_valid_held_control_survives_wording_update_without_advancing() -> void
 	assert_true(expanded.ok, str(expanded))
 	if expanded.ok: assert_eq(expanded.value.reading_session.boundary, "control")
 
-func test_legacy_save_keeps_only_provable_caption_and_rejects_broken_wrapper() -> void:
+func test_obsolete_player_schema_and_missing_progress_are_rejected() -> void:
 	_install(_source())
 	var saved := _saved_second()
-	saved.reading_session.schema_version = 6
-	for key: String in ["story_day", "recovery_anchor", "history_sections"]: saved.reading_session.erase(key)
-	var normalized := SESSION.normalize_player_checkpoint(saved, {}, {})
-	assert_true(normalized.ok, str(normalized))
-	if normalized.ok:
-		assert_eq(normalized.value.checkpoint.reading_session.history_sections, [["line.scene.test.b.two"]])
-		assert_eq(normalized.value.checkpoint.reading_session.recovery_anchor.line_id, "line.scene.test.b.one")
+	var session := SESSION.new()
+	assert_true(session.configure_scene().ok)
+	for schema: int in [6, 7]:
+		var broken: Dictionary = saved.duplicate(true)
+		broken.reading_session.schema_version = schema
+		for key: String in ["story_day", "recovery_anchor", "history_sections"]: broken.reading_session.erase(key)
+		assert_false(SESSION.normalize_player_checkpoint(broken, {}, {}).ok)
+		assert_false(SESSION.project_player_checkpoint(broken).ok)
+		assert_false(SESSION.expand_player_checkpoint(broken).ok)
+		assert_false(session.restore_player(broken.reading_session, FIXTURE.B).ok)
 	saved.frozen_context.playback_id = "wrong-occurrence"
 	assert_false(SESSION.normalize_player_checkpoint(saved, {}, {}).ok)
 
@@ -247,17 +250,12 @@ func test_ordinary_lower_day_admission_does_not_rotate_high_water_history() -> v
 func test_unchanged_registration_without_days_restores_but_stale_content_requires_days() -> void:
 	_install(_source(), false)
 	var saved := _saved_second()
-	for schema: int in [6, 7]:
-		var source: Dictionary = saved.duplicate(true)
-		if schema == 6:
-			source.reading_session.schema_version = 6
-			for key: String in ["story_day", "recovery_anchor", "history_sections"]: source.reading_session.erase(key)
-		var normalized := SESSION.normalize_player_checkpoint(source, {}, {})
-		assert_true(normalized.ok, str(normalized))
-		if normalized.ok:
-			assert_eq(normalized.value.checkpoint.reading_session.schema_version, 7)
-			assert_eq(normalized.value.checkpoint.reading_session.position_id, "line.scene.test.b.two")
-			assert_false(normalized.value.fallback)
+	var normalized := SESSION.normalize_player_checkpoint(saved, {}, {})
+	assert_true(normalized.ok, str(normalized))
+	if normalized.ok:
+		assert_eq(normalized.value.checkpoint.reading_session.schema_version, 7)
+		assert_eq(normalized.value.checkpoint.reading_session.position_id, "line.scene.test.b.two")
+		assert_false(normalized.value.fallback)
 	var broken: Dictionary = saved.duplicate(true)
 	broken.reading_session.position_id = "missing"
 	broken.reading_session.captions[0].line_id = "missing"

@@ -2,13 +2,23 @@
 
 ## Status and outcome
 
-The coordinated migration is implemented on `codex/current-content-save-migration-20261026`. Cloud run
-[40236005017](https://github.com/Siuuuers/dwm/actions/runs/40236005017), head
-`458919e1625b08531bf4363fe71e6b0423fe2895`, passed all 57 gameplay/selection jobs, including all ten rendered migration
-journeys (30 fresh-process phase tests, 2,280 assertions). The stale public inventory failed, blocking three downstream
-jobs; the separate measurement job was intentionally skipped. Native regenerated inventories are now included for the
-next full qualification run. This is **not yet full-matrix acceptance or a merge claim**.
-The candidate adds player reading schema 7, admission-time normalization of current and journal snapshots, bounded
+[PR #107](https://github.com/Siuuuers/dwm/pull/107) is merged. Master commit:
+`658972f1b2ed38f5bd17a96368f0a39fb0185d21`.
+Cloud run [40236814437](https://github.com/Siuuuers/dwm/actions/runs/40236814437) passed 61 jobs.
+The separate startup measurement job was skipped by design.
+The merged tree matches the tested candidate `aa5c4f6a92f544421dcabe623c2e8319528622e0`.
+
+The user changed the save-support requirement on 26 October 2026:
+
+- The game is not released. Obsolete save formats do not need conversion.
+- Keep current saves valid after supported story edits.
+- Remove player reading schema 6 support and its old entry-to-day map.
+- Keep player reading schema 7. Keep internal live reading schema 5.
+- Test deleted-checkpoint recovery with a current-format save.
+
+This follow-up cleanup needs its own cloud acceptance. PR #107 results do not qualify new edits.
+
+The merged change adds player reading schema 7, admission-time normalization of current and journal snapshots, bounded
 encountered History, and separate story binding for retained physical Challenges. Document and Run versions remain 9.
 Ten rendered create/load/reload cases cover content edits, fallback, History, board resumption/transfer, resolved
 unfinished Challenges, and completed passages with appended/deleted final text. Focused owner and boundary tests
@@ -63,9 +73,7 @@ marks. No content update automatically resets a run.
 - History contains the previous two checkpoint sections and the current section, through the reading position, on the
   actual route. Show current wording for encountered IDs; omit deleted IDs and never backfill new unseen lines. Do not
   duplicate boundary captions or mark text read through History.
-- Current schema-6 player reading saves retain only one current caption. They cannot prove every earlier encounter after
-  edits. Preserve their provable caption and build bounded History as reading continues; do not invent an old encounter
-  list or retain old full DTL versions.
+- Obsolete schema-6 player reading saves are unsupported. Require schema 7 and its saved recovery and History data.
 - Saved choices, results, money, inventory, pressure, penalties, daily limits and other required gameplay values remain
   authoritative. Do not replace them with revised defaults or perform retroactive prerequisite adjustments.
 - Re-encountering an unresolved Challenge resumes the same physical state. A Challenge with a recorded result stays
@@ -127,8 +135,7 @@ The following records the agreed direction used for this implementation. Accepta
    removing isolated hash comparisons or by rewriting the selected save before restore succeeds.
 
 2. **Add only the required reading state.** Extend player reading with one recovery anchor and bounded encounter sections.
-   Keep the current line and text revision distinct. For schema 6, retain the known caption; if its line is gone and no
-   recovery anchor exists, use day start. Keep ordinary caption, held-control and between-entry save boundaries meaningful
+   Keep the current line and text revision distinct. Reject obsolete schema 6. Keep ordinary caption, held-control and between-entry save boundaries meaningful
    during expansion. Use current compiled DTL as the semantic source, not a second story engine.
 
 3. **Separate current story binding from physical attempt identity.** Existing Challenge context includes whole-story
@@ -163,8 +170,8 @@ managers, or removal of the new-run intent journal. Those do not follow from the
 
 - Wording changes and insertions before/after an intact saved line: same visible moment, current wording, no forced
   rewind, unchanged gameplay.
-- Deleted line; deleted latest checkpoint; schema-6 save with no checkpoint: apply the defined fallback and preserve the
-  route. Day start remains authored.
+- Deleted line or deleted latest checkpoint in schema 7: apply the defined fallback and preserve the route.
+  Day start remains authored. Reject obsolete schema 6.
 - Held Challenge-control saves and ordinary caption saves both expand into valid native playback without repeated
   publications or controls.
 - Bounded History rolls across three sections with one copy of each boundary; no inserted unseen lines; deleted IDs
