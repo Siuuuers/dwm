@@ -124,7 +124,7 @@ Do not broaden into startup renderer/font changes in the same candidate. Indepen
 - Choices, Challenge activation/results, inventory and day advance still work.
 - Normal logout saves the new run; subsequent Load restores it without replaying consequences.
 - Existing saved progress remains usable under the selected save changes.
-- UI messages reflect actual replacement behavior: New Run should not claim immediate Autosave replacement if it does not perform one.
+- Apply the exact approved confirmation sentence below. Preserve all other UI wording and placement; do not add save-explanation copy.
 
 These are normal player journeys. No new injected-crash or external-tampering test program is requested.
 
@@ -163,11 +163,15 @@ This handoff changes documentation only. No runtime removal, new cloud test resu
 
 ## Follow-up: confirmation and template ownership
 
-Owner clarification, 2026-10-26: retain the New Acc confirmation and give it weird/eerie wording. Do not remove the confirmation merely because initial Autosave replacement is removed. Exact copy is not yet selected.
+Final owner approval, 2026-10-26: retain the New Acc confirmation. Change only its existing message sentence to this exact text:
 
-Suggested copy direction: “The beginning is still here. Shall we enter again?” Use clear action labels such as “Start new run” and “Cancel”. Keep any save consequence accurate and separate from atmosphere. With the proposed preservation default, starting keeps the previous Autosave; a later real autosave replaces it. If the operation abandons an unsaved live run, disclose that actual consequence.
+> The beginning is still here. Shall we enter again?
 
-Template ownership recommendation:
+Keep all other UI wording, button labels, placement and layout unchanged. Do not add the previously suggested save-explanation sentence or rename the buttons. This final instruction supersedes the earlier copy recommendations. Runtime UI changes remain pending.
+
+The owner also approved the minimal lookup and template ownership described below. No further interview is required for that design.
+
+Approved template ownership and lookup:
 - Reuse GameState.make_scene_new_run_gameplay for fresh mutable gameplay defaults. Do not create a settings clone or a generic template manager.
 - Keep starting-content selection with DialogicEntryManifest and its canonical authored data.
 - Currently first_target_id reads the first day binding from seven_day_order.json. target.Day1 resolves in scene_story_registration.json to entry_id Day1 and label Day1.
@@ -177,4 +181,4 @@ Template ownership recommendation:
 - Keep manifest version/fingerprint metadata under its current owner rather than copying it into author-maintained start defaults.
 - A physical relocation of production story-order data out of tests/templates is optional cleanup, not a prerequisite or measured speed improvement.
 
-These are implementation recommendations; the runtime has not yet been changed.
+The confirmation sentence and minimal lookup design are owner-approved. The runtime has not yet been changed. Physical file relocation remains optional cleanup.
