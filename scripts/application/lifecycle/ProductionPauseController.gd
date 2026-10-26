@@ -832,7 +832,7 @@ func _await_scene_backup_load(pending: Dictionary) -> Dictionary:
 	if operation_id.is_empty() or _scene_load_waiting \
 			or (not _pending_scene_load.is_empty() and _pending_scene_load != operation_id) \
 			or not _services.saves.has_method("retry_scene_activation") \
-			or not _services.saves.has_method("capture_committed_scene_restore"):
+			or not _services.saves.has_method("capture_scene_restore_activation"):
 		return {"ok": false, "code": &"pause_scene_activation_unproven", "recovery_required": true,
 			"transaction_id": _pending_scene_load if not _pending_scene_load.is_empty() else operation_id}
 	var handle := _handle.duplicate(true)
@@ -852,11 +852,10 @@ func _await_scene_backup_load(pending: Dictionary) -> Dictionary:
 		result["recovery_required"] = true
 		result["transaction_id"] = operation_id
 		return result
-	var acknowledged: Dictionary = _services.saves.capture_committed_scene_restore(operation_id)
-	var live: Dictionary = _services.game_state.capture_run_snapshot_input()
-	var provenance: Variant = live.get("lifecycle", {}).get("restore_provenance")
-	if not acknowledged.get("ok", false) or not provenance is Dictionary \
-			or provenance.get("restore_transaction_id") != operation_id:
+	var acknowledged: Dictionary = _services.saves.capture_scene_restore_activation(operation_id)
+	var live: Dictionary = _services.game_state.capture_live_session()
+	if not acknowledged.get("ok", false) or not live.get("ok", false) \
+			or not live.value.get("active", false):
 		return {"ok": false, "code": &"pause_scene_activation_unproven", "recovery_required": true, "transaction_id": operation_id}
 	_pending_scene_load = ""
 	return result

@@ -1,5 +1,5 @@
 extends "res://addons/gut/test.gd"
-## Cloud child shared body. A selected Load creates a branch; never claim same-branch restart.
+## Cloud child: selected Load preserves Run identity and exact saved board state.
 const FIXTURE := preload("res://tests/support/SceneFirstRevealConnectedFixture.gd")
 const PARSER := preload("res://scripts/validation/StrictJson.gd")
 const WRITER := preload("res://scripts/validation/CanonicalJsonWriter.gd")
@@ -48,24 +48,18 @@ func create_connected(mode: String) -> void:
 	assert_eq(fixture.files.refused, 1)
 	if refused.get("ok", false) or not refused.get("rolled_back", false) or fixture.files.refused != 1: return
 	assert_eq(fixture.storage.read_text("autosave.json").value, original.value)
-	var attempt_result: Dictionary = fixture.challenge_attempt()
-	if not _ok(attempt_result): return
-	var attempt: Dictionary = attempt_result.value.duplicate(true)
-	assert_false(attempt.is_empty())
-	if attempt.is_empty(): return
-	assert_eq(attempt.revision, 1)
-	assert_true(attempt.get("materialization_receipt") is Dictionary, "first Reveal retained a real materialization receipt")
-	if not attempt.get("materialization_receipt") is Dictionary: return
-	assert_eq(attempt.materialization_receipt.first_cell_index, 323)
-	assert_eq(attempt.record.phase, "active", "real generated first Reveal must leave this deterministic fixture unfinished")
-	if attempt.record.phase != "active": return
+	var pending: Dictionary = fixture.physical.capture_reconciliation_state()
+	if not _ok(pending): return
+	var attempt: Dictionary = {"record": pending.value.pending_checkpoint.duplicate(true)}
+	assert_eq(attempt.record.phase, "active")
 	assert_true(attempt.record.board.revealed_indices.has(323))
+	assert_eq(fixture.challenge_attempt().value, {}, "Run failure creates no global Challenge progress")
 	assert_eq(fixture.panel().value.phase, "checkpoint_retry")
 	if mode == "normal":
 		var retried: Dictionary = fixture.physical.dispatch_scene_panel_action(fixture.challenge_token,
 			"retry", -1, int(fixture.panel().value.revision))
 		if not _ok(retried): return
-		assert_eq(fixture.challenge_attempt().value, attempt)
+		assert_eq(fixture.challenge_attempt().value, {})
 		assert_eq(fixture.challenge_record(), attempt.record)
 		var durable_before: String = fixture.storage.read_text("autosave.json").value
 		var profile_before: Dictionary = fixture.profile_bytes()
@@ -74,7 +68,7 @@ func create_connected(mode: String) -> void:
 		assert_eq(fixture.files.autosave_writes, writes, "duplicate first Reveal is write-free")
 		assert_eq(fixture.profile_bytes(), profile_before)
 		assert_eq(fixture.storage.read_text("autosave.json").value, durable_before)
-		assert_eq(fixture.challenge_attempt().value, attempt)
+		assert_eq(fixture.challenge_attempt().value, {})
 	elif mode != "profile_ahead":
 		fail_test("unknown connected mode")
 		return
@@ -115,7 +109,7 @@ func load_connected() -> void:
 	if not _ok(activated): return
 	assert_eq(fixture.ready_count, 1)
 	var current: Dictionary = fixture.game.capture_run_snapshot_input()
-	assert_ne(current.lifecycle.branch_id, witness.source_branch, "selected Load allocates a branch")
+	assert_eq(current.lifecycle.branch_id, witness.source_branch, "selected Load preserves the saved branch")
 	assert_eq(fixture.bridge._reading_session.boundary, "control")
 	var native: Dictionary = fixture.adapter.capture_scene_control_position(fixture.bridge._reading_session)
 	if not _ok(native): return
@@ -124,19 +118,8 @@ func load_connected() -> void:
 	if not _ok(admitted): return
 	if witness.mode == "profile_ahead": assert_eq(fixture.panel().value.phase, "never_started")
 	assert_eq(fixture.challenge_record(), witness.saved_record, "selected snapshot imports no future progress")
-	var source_attempt: Dictionary = fixture.challenge_attempt(witness.source_branch)
-	if not _ok(source_attempt): return
-	assert_eq(source_attempt.value, witness.attempt, "source Profile attempt remains exact")
+	assert_eq(fixture.challenge_attempt().value, {})
 	if witness.mode != "profile_ahead": assert_eq(fixture.panel().value.phase, "active")
-	if witness.mode != "profile_ahead":
-		var held: Dictionary = fixture.game.capture_scene_challenge_command()
-		if not _ok(held): return
-		assert_false(fixture.game.prepare_selected_scene_absence(held.value.command, held.value.bundle).ok,
-			"saved physical progress cannot authorize selected absence")
-	if witness.has("original_source_branch"):
-		var original: Dictionary = fixture.challenge_attempt(witness.original_source_branch)
-		if not _ok(original): return
-		assert_eq(original.value, witness.original_source_attempt)
 	assert_eq(fixture.profile_bytes(), witness.profile_files, "readmission is read-only")
 	assert_eq(fixture.files.autosave_writes, 0)
 	assert_eq(fixture.storage.read_text("autosave.json").value, bytes.value)
@@ -156,19 +139,20 @@ func create_selected_recovery() -> void:
 	if not _ok(selected_bytes): return
 	if not _ok(fixture.admit_challenge()): return
 	if not _ok(fixture.reveal()): return
-	var first: Dictionary = fixture.challenge_attempt().value.duplicate(true)
+	var first: Dictionary = fixture.challenge_record().duplicate(true)
 	var flag_cell := -1
 	for cell: int in 324:
-		if not first.record.board.revealed_indices.has(cell):
+		if not first.board.revealed_indices.has(cell):
 			flag_cell = cell
 			break
 	assert_gte(flag_cell, 0)
 	if flag_cell < 0: return
 	if not _ok(fixture.physical.dispatch_scene_panel_action(fixture.challenge_token,
 		"flag", flag_cell, int(fixture.panel().value.revision))): return
-	var source: Dictionary = fixture.challenge_attempt().value.duplicate(true)
-	assert_gt(source.revision, first.revision)
-	assert_true(source.record.board.flagged_indices.has(flag_cell))
+	var source: Dictionary = fixture.challenge_record().duplicate(true)
+	var source_branch: String = fixture.game.capture_run_snapshot_input().lifecycle.branch_id
+	assert_gt(source.board.revision, first.board.revision)
+	assert_true(source.board.flagged_indices.has(flag_cell))
 	var prepared: Dictionary = fixture.manager.prepare_restore_slot(1)
 	if not _ok(prepared): return
 	# Selection retains the old document. Replace its slot through the real save
@@ -192,79 +176,46 @@ func create_selected_recovery() -> void:
 	if started.get("code") != &"scene_activation_pending": return
 	if not _ok(await fixture.await_activation()): return
 	var identity: Dictionary = fixture.game.capture_run_snapshot_input().lifecycle
-	assert_ne(identity.branch_id, source.branch_id)
+	assert_eq(identity.branch_id, source_branch)
 	assert_eq(fixture.challenge_record(), {})
 	var profile_before: Dictionary = fixture.profile_bytes()
 	if not _ok(fixture.admit_challenge()): return
 	assert_eq(fixture.panel().value.phase, "never_started")
 	assert_eq(fixture.profile_bytes(), profile_before)
-	var captured: Dictionary = fixture.game.capture_scene_challenge_command()
-	if not _ok(captured): return
-	var admission: Dictionary = fixture.game.prepare_selected_scene_absence(captured.value.command, captured.value.bundle)
-	if not _ok(admission): return
-	assert_false(fixture.game.validate_selected_scene_absence(admission.value,
-		captured.value.command, captured.value.bundle, "").ok, "dictionary alone is not causal custody")
-	var lease: Dictionary = fixture.gate.acquire(&"causal_transaction")
-	if not _ok(lease): return
-	var valid: Dictionary = fixture.game.validate_selected_scene_absence(admission.value,
-		captured.value.command, captured.value.bundle, lease.value.token)
-	assert_true(valid.get("ok", false), str(valid))
-	var forged: Dictionary = admission.value.duplicate(true)
-	forged.destination_identity.branch_id = source.branch_id
-	assert_false(fixture.game.validate_selected_scene_absence(forged,
-		captured.value.command, captured.value.bundle, lease.value.token).ok)
-	if not _ok(fixture.gate.release(&"causal_transaction", lease.value.token)): return
-	var destination_backup: Dictionary = fixture.game.capture_restore_state()
-	if not _ok(destination_backup): return
-	# A real Profile filesystem refusal must leave selected absence retryable.
+	# Profile writes are unavailable throughout this new Run-owned action.
 	fixture.files.refuse_profile = true
-	var profile_refused: Dictionary = fixture.reveal()
-	assert_false(profile_refused.get("ok", false), str(profile_refused))
-	assert_eq(fixture.files.profile_refusals, 1)
-	if profile_refused.get("ok", false) or fixture.files.profile_refusals != 1: return
-	assert_eq(fixture.profile_bytes(), profile_before)
-	assert_eq(fixture.panel().value.phase, "never_started")
-	# Then commit Profile but refuse Run: destination progress must outrank absence.
 	fixture.files.refuse_on = fixture.files.autosave_writes + 1
 	var refused: Dictionary = fixture.reveal()
 	assert_false(refused.get("ok", false), str(refused))
 	assert_true(refused.get("rolled_back", false), str(refused))
 	assert_eq(fixture.files.refused, 1)
+	assert_eq(fixture.files.profile_refusals, 0)
 	if refused.get("ok", false) or not refused.get("rolled_back", false): return
-	var destination_result: Dictionary = fixture.challenge_attempt(identity.branch_id)
-	if not _ok(destination_result): return
-	var destination: Dictionary = destination_result.value.duplicate(true)
-	assert_eq(destination.revision, 1)
-	assert_eq(destination.record.spec, source.record.spec)
-	assert_eq(destination.entry_receipt, source.entry_receipt)
-	assert_eq(destination.record.board, first.record.board, "reuse initial spec, never later source moves")
-	assert_false(destination.record.board.flagged_indices.has(flag_cell))
-	assert_eq(fixture.challenge_attempt(source.branch_id).value, source)
-	# Exercise the real Run owner's same-session rollback to its selected boardless
-	# state. The journal still has SOURCE identity; do not install that as destination.
-	if not _ok(fixture.game.rollback_restore_silent(destination_backup.value)): return
-	assert_eq(fixture.challenge_record(), {})
-	if not _ok(fixture.admit_challenge()): return
+	assert_eq(fixture.profile_bytes(), profile_before)
 	assert_eq(fixture.panel().value.phase, "checkpoint_retry")
-	assert_eq(fixture.challenge_attempt(identity.branch_id).value, destination)
+	var pending: Dictionary = fixture.physical.capture_reconciliation_state()
+	if not _ok(pending): return
+	var destination: Dictionary = pending.value.pending_checkpoint.duplicate(true)
+	assert_ne(destination.spec.board_token, source.spec.board_token, "saved absence creates a new board")
+	assert_false(destination.board.flagged_indices.has(flag_cell))
 	if not _ok(fixture.physical.dispatch_scene_panel_action(fixture.challenge_token,
 		"retry", -1, int(fixture.panel().value.revision))): return
-	assert_eq(fixture.challenge_record(), destination.record)
-	assert_eq(fixture.challenge_attempt(identity.branch_id).value, destination)
+	assert_eq(fixture.challenge_record(), destination)
+	assert_eq(fixture.challenge_attempt().value, {})
+	assert_eq(fixture.profile_bytes(), profile_before)
 	assert_eq(fixture.game.capture_run_snapshot_input().lifecycle.branch_id, identity.branch_id)
-	assert_eq(fixture.challenge_attempt(source.branch_id).value, source)
 	var document: Dictionary = fixture.read_autosave()
 	if not _ok(document): return
 	if not _ok(SAVE_SCHEMA.validate(document.value)): return
 	var saved: Dictionary = document.value.current_snapshot.snapshot
-	assert_eq(saved.gameplay.route_context.active_dating_challenge, destination.record)
+	assert_eq(saved.gameplay.route_context.active_dating_challenge, destination)
 	var proof := {"phase": "create", "mode": "selected_absence", "process_id": OS.get_process_id(),
 		"storage_root": fixture.storage.describe_root(),
 		"autosave_sha256": str(fixture.storage.read_text("autosave.json").value).sha256_text(),
-		"attempt": destination, "saved_record": destination.record, "checkpoint": saved.narrative_checkpoint,
+		"attempt": destination, "saved_record": destination, "checkpoint": saved.narrative_checkpoint,
 		"profile_files": fixture.profile_bytes(), "source_branch": identity.branch_id,
-		"original_source_branch": source.branch_id, "original_source_attempt": source,
-		"scope": "retained_selected_absence_after_slot_overwrite_Profile_and_Run_refusals_same_session_rollback_readmission_then_fresh_selected_Load"}
+
+		"scope": "retained_selected_absence_after_slot_overwrite_Run_refusal_retry_without_Profile_write_then_fresh_Load"}
 	write_proof(proof, true)
 
 func _ok(result: Dictionary) -> bool:

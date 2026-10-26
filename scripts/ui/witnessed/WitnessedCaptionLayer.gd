@@ -1388,6 +1388,12 @@ func _apply_preferences() -> void:
 	configure_presentation(locale, int(text_size), _palette, high_contrast, colour_preset, large_targets, _day, font_style)
 
 func _on_locale_changed(_locale_id: String) -> void:
+	# Localization repaints the same native text and advances its reveal generation.
+	# Keep Pause's view anchor current only while the captured source still owns it.
+	if _pause_covered and is_instance_valid(caption_text) \
+			and int(_pause_view.get("caption_id", 0)) == caption_text.get_instance_id() \
+			and _pause_view.get("runtime", {}) == _pause_runtime_identity():
+		_pause_view.reveal_generation = caption_text.get_reveal_generation()
 	_cancel_speech()
 	_apply_preferences()
 	_project_scene_caption_memory()

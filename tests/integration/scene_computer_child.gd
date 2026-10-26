@@ -185,7 +185,7 @@ func load_computer_board() -> void:
 	assert_eq(panel.public_view.board, proof.board)
 	assert_eq(game.capture_dating_challenge_state().value, proof.record)
 	assert_eq(profile.get_profile_snapshot(), proof.profile, "opening restored board is read-only")
-	assert_ne(game.capture_run_snapshot_input().lifecycle.branch_id, proof.source_branch)
+	assert_eq(game.capture_run_snapshot_input().lifecycle.branch_id, proof.source_branch)
 	var restored: Dictionary = bridge.capture_reading_checkpoint(false)
 	if not _ok(restored): return
 	var expected_position: Dictionary = BOARD_READING.project_player_checkpoint(proof.checkpoint)

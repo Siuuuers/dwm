@@ -30,6 +30,12 @@ class AudioProbe extends RefCounted:
 		preferences = input.preferences.duplicate(true)
 		return {"ok": false, "code": &"audio_probe_reached"}
 
+class DesktopProbe extends RefCounted:
+	var plan_key: String
+	func _init(key: String) -> void: plan_key = key
+	func prepare(_input: Dictionary) -> Dictionary:
+		return {"ok": true, "value": {plan_key: {}}}
+
 class PrepareProbe extends "res://autoload/SaveManager.gd":
 	func _prepare_run_restore(_bundle: Dictionary, _document: Dictionary, _material: Dictionary) -> Dictionary:
 		return {"ok": true, "value": {"run_plan": {}}}
@@ -65,7 +71,8 @@ func test_ordinary_preparation_uses_current_audio_preferences_and_recovery_keeps
 	var profile := ActiveSettingsOnly.new()
 	var localization := ActiveSettingsOnly.new()
 	preparation._new_run_profile_owner = current
-	preparation._restore_participants = {"profile": profile, "localization": localization, "audio": audio}
+	preparation._restore_participants = {"profile": profile, "localization": localization, "audio": audio,
+		"desktop_consequence": DesktopProbe.new("consequence_plan"), "desktop_board": DesktopProbe.new("board_plan")}
 	var scope := preload("res://tests/support/SceneValidationScope.gd").new()
 	scope.install(true)
 	var fixture := preload("res://tests/support/SceneAudioRegistrationFixture.gd").new()
@@ -76,7 +83,7 @@ func test_ordinary_preparation_uses_current_audio_preferences_and_recovery_keeps
 		preparation.free()
 		return
 	var manifest := preload("res://scripts/narrative/DialogicEntryManifest.gd")
-	var snapshot := {"schema_version": 9, "scene": {
+	var snapshot := {"schema_version": 9, "desktop": {"consequence": {}, "board": {}}, "scene": {
 		"registration_sha256": manifest.scene_registration_fingerprint(),
 		"active_occurrence_id": "TEST.settings", "entry_id": "scene.test.b",
 		"notification": {}, "active_challenge": {}, "return_to": null}}

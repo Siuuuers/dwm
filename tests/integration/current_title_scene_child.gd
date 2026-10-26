@@ -294,7 +294,7 @@ func load_current_title_scene() -> void:
 		if not await _press(app.confirmation.confirm_button): return
 	if not await _wait_first_caption(): return
 	_assert_same_state(witness)
-	assert_ne(game.capture_run_snapshot_input().lifecycle.branch_id, witness.source_branch)
+	assert_eq(game.capture_run_snapshot_input().lifecycle.branch_id, witness.source_branch)
 	await _screenshot("current-title-loaded-day1")
 	var host: Node = get_tree().current_scene
 	if not await _press(_controls(host, "CheckComputer")): return

@@ -48,10 +48,27 @@ func test_authored_caption_languages_preserve_checkpoint_and_load() -> void:
 	var checkpoint: Dictionary = bridge.capture_reading_checkpoint(false)
 	if not _ok(checkpoint): return
 	var receipts: Dictionary = game.capture_run_snapshot_input().command_receipts.duplicate(true)
+	var pause: Node = get_node("/root/SceneRouter")._production_pause
 	for language: String in ["zh_HK", "zh_CN", "ja", "ko", "en"]:
 		assert_eq(STORY.catalog(language).size(), 1682, language + " complete catalog")
-		if not _ok(locale.set_locale(language)): return
+		if not _ok(await pause.open_scene_settings()): return
+		assert_true(get_tree().paused)
+		var settings: Control = pause.surface._hosts[&"settings"].get_content_host()
+		var changed_at := Time.get_ticks_msec()
+		if not _ok(await settings.get_controller().commit_preference(
+				&"preferences.language.primary_locale_id", language)): return
+		print("STORY_TIMING settings_language_ms=", Time.get_ticks_msec() - changed_at, " locale=", language)
 		for frame: int in 3: await get_tree().process_frame
+		var return_started := Time.get_ticks_msec()
+		await _click(pause.surface._sheet_back)
+		for frame: int in 120:
+			if not get_tree().paused: break
+			await get_tree().process_frame
+		print("STORY_TIMING settings_back_ms=", Time.get_ticks_msec() - return_started, " locale=", language)
+		assert_false(get_tree().paused, "Settings Back returns to the scene: " + str(pause.last_result))
+		if get_tree().paused: return
+		assert_true(pause._handle.is_empty())
+		assert_eq(bridge._runtime_adapter.current_line_id(), line)
 		assert_eq(caption.caption_text.get_parsed_text(), STORY.catalog(language)[line], language + " native caption")
 		assert_eq(bridge.capture_reading_checkpoint(false), checkpoint, "language preserves canonical checkpoint")
 		assert_eq(game.capture_run_snapshot_input().command_receipts, receipts, "language dispatches no story action")
@@ -107,7 +124,6 @@ func test_authored_caption_languages_preserve_checkpoint_and_load() -> void:
 	var frontier: Dictionary = bridge.capture_current_line_presentation_frontier()
 	if not _ok(frontier) or not _ok(bridge.acknowledge_current_line_presentation(frontier)): return
 	# Save/Load both use the production pause owner, which captures live reading.
-	var pause: Node = get_node("/root/SceneRouter")._production_pause
 	if not _ok(await pause.request_pause()): return
 	var backup: Object = pause._backup_port
 	var save_started := Time.get_ticks_msec()

@@ -186,7 +186,7 @@ func _load_authored(slot: int, proof: Dictionary) -> bool:
 	assert_eq(bridge.capture_reading_checkpoint(false).value, expanded.value)
 	var current: Dictionary = game.capture_run_snapshot_input()
 	assert_eq(current.lifecycle.run_id, proof.snapshot.lifecycle.run_id)
-	assert_ne(current.lifecycle.branch_id, proof.snapshot.lifecycle.branch_id)
+	assert_eq(current.lifecycle.branch_id, proof.snapshot.lifecycle.branch_id)
 	for key: String in ["gameplay", "scene"]:
 		assert_eq(current[key], proof.snapshot[key], "Load preserves " + key)
 	assert_eq(profile.get_profile_snapshot(), profile_before, "Load preserves current profile")

@@ -2315,7 +2315,7 @@ func is_current_line_presentation_acknowledged() -> bool:
 	var current := _line_presentation_context()
 	return current.get("ok", false) and _line_presentation.get("identity") == current.value \
 		and _line_presentation.get("acknowledged", false) \
-		and _is_presentation_witnessed(current.value)
+		and (_line_presentation.get("restored", false) or _is_presentation_witnessed(current.value))
 
 
 ## Opaque proof of the rendered source, even while a transaction temporarily owns writes.
@@ -2359,7 +2359,7 @@ func _auto_line_context(expected_frontier: Dictionary = {}) -> Dictionary:
 		return _command_failure(&"auto_off")
 	if _line_presentation.get("identity") != current.value \
 			or not _line_presentation.get("acknowledged", false) \
-			or not _is_presentation_witnessed(current.value):
+			or not (_line_presentation.get("restored", false) or _is_presentation_witnessed(current.value)):
 		return _command_failure(&"auto_line_unacknowledged")
 	if not _runtime_adapter.has_method("is_current_line_complete") \
 			or not _runtime_adapter.is_current_line_complete():
@@ -2381,6 +2381,7 @@ func acknowledge_current_line_presentation(expected_frontier: Dictionary) -> Dic
 	if not current.get("ok", false): return current
 	var identity: Dictionary = current.value
 	_retain_line_presentation(identity)
+	if _line_presentation.get("restored", false): _line_presentation.acknowledged = true
 	if not _line_presentation.acknowledged:
 		_line_ack_in_progress = true
 		var marked: Dictionary = _skip_profile.mark_caption_variant_witnessed(
@@ -2431,9 +2432,11 @@ func _is_presentation_witnessed(identity: Dictionary) -> bool:
 func _retain_line_presentation(identity: Dictionary) -> void:
 	var visited := _is_presentation_witnessed(identity)
 	if _line_presentation.get("identity") != identity \
-			or (_line_presentation.get("acknowledged", false) and not visited):
+			or (_line_presentation.get("acknowledged", false) and not visited and not _line_presentation.get("restored", false)):
 		_line_presentation = {"identity": identity.duplicate(true),
-			"was_visited": visited, "acknowledged": false, "unseen_stop_delivered": false}
+			"was_visited": visited, "acknowledged": false, "unseen_stop_delivered": false,
+			"restored": identity.has("caption_publication") and _scene_restore.get("restored_caption", {}) == {
+				"token": identity.token, "caption_publication": identity.caption_publication}}
 
 
 func _line_presentation_context(expected_frontier: Dictionary = {}, guard_mutation: bool = true) -> Dictionary:
@@ -3133,7 +3136,7 @@ func _prepare_scene_reading_candidate(checkpoint: Dictionary, entry_contexts: Di
 		if not predecessor.ok: return predecessor
 	return {"ok": true, "value": {"candidate": candidate, "path": path}}
 
-func stage_scene_reading_restore(checkpoint: Dictionary, operation_id: String) -> Dictionary:
+func stage_scene_reading_restore(checkpoint: Dictionary, operation_id: String, read_only_restore: bool = false) -> Dictionary:
 	var expanded := _READING_SESSION.expand_player_checkpoint(checkpoint)
 	if not expanded.ok: return expanded
 	checkpoint = expanded.value
@@ -3149,7 +3152,7 @@ func stage_scene_reading_restore(checkpoint: Dictionary, operation_id: String) -
 	if is_pause_restore_pending():
 		var staged := stage_pause_restore(checkpoint, true)
 		if not staged.ok: return staged
-	_scene_restore = {"operation_id": operation_id, "checkpoint": checkpoint.duplicate(true),
+	_scene_restore = {"operation_id": operation_id, "read_only": read_only_restore, "checkpoint": checkpoint.duplicate(true),
 		"digest": _scene_digest(checkpoint), "candidate": checked.value.candidate,
 		"path": checked.value.path, "runtime": _runtime_adapter, "started": false,
 		"in_call": false, "native_started": false, "proof": false, "confirmed": false}
@@ -3160,7 +3163,7 @@ func stage_scene_reading_restore(checkpoint: Dictionary, operation_id: String) -
 
 ## The Run participant authenticates the terminal admission before staging this reader.
 ## Retain the installed lifecycle so semantic-only readiness cannot outlive its owner.
-func stage_scene_terminal_restore(checkpoint: Dictionary, operation_id: String) -> Dictionary:
+func stage_scene_terminal_restore(checkpoint: Dictionary, operation_id: String, read_only_restore: bool = false) -> Dictionary:
 	if operation_id.strip_edges().is_empty() or not _scene_stage.is_empty() \
 			or (not _scene_restore.is_empty() and not _scene_restore.get("confirmed", false)):
 		return _command_failure(&"scene_restore_staging_invalid")
@@ -3189,7 +3192,7 @@ func stage_scene_terminal_restore(checkpoint: Dictionary, operation_id: String) 
 	if is_pause_restore_pending():
 		var staged := stage_pause_restore(checkpoint, true)
 		if not staged.ok: return staged
-	_scene_restore = {"operation_id": operation_id, "terminal": true, "lifecycle": lifecycle.duplicate(true),
+	_scene_restore = {"operation_id": operation_id, "read_only": read_only_restore, "terminal": true, "lifecycle": lifecycle.duplicate(true),
 		"checkpoint": checkpoint.duplicate(true), "digest": _scene_digest(checkpoint),
 		"candidate": candidate, "runtime": _runtime_adapter, "started": false,
 		"in_call": false, "native_started": false, "proof": false, "confirmed": false}
@@ -3374,6 +3377,15 @@ func publish_scene_activation(operation_id: String) -> Dictionary:
 	if not checked.ok: return checked
 	if _scene_restore.get("published", false): return {"ok": true}
 	_scene_restore["published"] = true
+	# Restoring a visible caption acknowledges its renderer without writing global
+	# history. The next publication resumes ordinary witnessed-text recording.
+	if _scene_restore.get("read_only", false) and not _scene_restore.checkpoint.is_empty():
+		# Pause Load publishes before the lifecycle owner unpauses the tree. Capture
+		# the native publication directly; ordinary acknowledgement stays guarded.
+		var restored_caption: Dictionary = _runtime_adapter.capture_reading_frontier()
+		if restored_caption.get("ok", false):
+			_scene_restore["restored_caption"] = {"token": _active_entry.get("token", ""),
+				"caption_publication": restored_caption.value.duplicate(true)}
 	scene_art_changed.emit()
 	reading_session_changed.emit()
 	return {"ok": true}

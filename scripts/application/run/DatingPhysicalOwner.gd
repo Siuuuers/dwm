@@ -47,10 +47,7 @@ var _scene_authority: Object
 var _scene_fatal := false
 var _scene_checkpoint_in_flight := false
 var _scene_lease := ""
-var _scene_start_admission: Dictionary = {}
-var _scene_absence_busy := false
-var _scene_absence_reentered := false
-var _scene_absence_fence: Dictionary = {}
+var _scene_first_reveal_cell := -1
 
 ## Production opt-in while the remaining semantic producers migrate separately.
 func configure_frozen_narrative_contexts() -> Dictionary:
@@ -453,10 +450,9 @@ func reconcile_restore_silent(restored_snapshot: Dictionary) -> Dictionary:
 		_clear_history_state()
 		# The reading/event owner must re-admit its authenticated command before input.
 		_admitted_command = {}
-		var recovered_scene: Dictionary = _restore_attempt(stored, true)
-		if recovered_scene.ok and _history_committed and _record != stored:
-			_pending_checkpoint = _record.duplicate(true)
-		return recovered_scene
+		_history_reference = route_context.get("dating_active_attempt_ref", {}).duplicate(true)
+		_scene_first_reveal_cell = -1
+		return _ok({})
 	var active_dating := str(restored_snapshot.get("route_id", "")) == "dating" and not stored.is_empty() \
 		and int(stored.get("context", {}).get("day", 0)) == int(snapshot.lifecycle.day)
 	if active_dating:
@@ -618,27 +614,11 @@ func _commit_attempt() -> Dictionary:
 	var effect: Dictionary = _record.applied_result.get("receipt", {}) if _record.host == "canonical_solo" else {}
 	var prepared: Dictionary
 	var committed: Dictionary
-	if selection.get("mode") == "start_from_absence":
-		selection.admission = _scene_start_admission
-		_scene_absence_fence = {"identity": _attempt_identity().duplicate(true), "record": _record.duplicate(true),
-			"command": _admitted_command, "command_value": _admitted_command.duplicate(true),
-			"bundle": _scene_bundle, "bundle_value": _scene_bundle.duplicate(true),
-			"authority": _scene_authority, "game_state": _game_state}
-		_scene_absence_busy = true
-		_scene_absence_reentered = false
-		prepared = _profile.prepare_dating_attempt(run_id, slot, branch_id, retained_record,
-			expected_revision, _first_cell_index, effect, selection, _admitted_command, _scene_bundle,
-			_scene_lease, _scene_absence_custody)
-		committed = _profile.commit_dating_attempt(prepared.value) if prepared.get("ok", false) else prepared
-		_scene_absence_busy = false
-		_scene_absence_fence = {}
-	else:
-		prepared = _profile.prepare_dating_attempt(run_id, slot, branch_id,
-			retained_record, expected_revision, _first_cell_index, effect, selection)
-		if not prepared.get("ok", false): return prepared
-		committed = _profile.commit_dating_attempt(prepared.value)
+	prepared = _profile.prepare_dating_attempt(run_id, slot, branch_id,
+		retained_record, expected_revision, _first_cell_index, effect, selection)
+	if not prepared.get("ok", false): return prepared
+	committed = _profile.commit_dating_attempt(prepared.value)
 	if committed.get("ok", false):
-		if selection.get("mode") == "start_from_absence": _record = committed.value.attempt.record.duplicate(true)
 		_select_committed_attempt(committed.value.attempt)
 		_routine_pending = false
 	return committed
@@ -698,8 +678,10 @@ func _publish_history_reference() -> Dictionary:
 
 func _apply_record_effect(silent: bool = false) -> Dictionary:
 	if _record.get("schema_version") == 4:
-		var published_scene := _publish_history_reference()
-		return _game_state.store_dating_challenge_state(_record, not silent) if published_scene.ok else published_scene
+		_history_reference = {"attempt_id": _record.spec.board_token,
+			"branch_id": str(_attempt_identity().branch_id), "generation": 1}
+		_game_state.route_context["dating_active_attempt_ref"] = _history_reference.duplicate(true)
+		return _game_state.store_dating_challenge_state(_record, not silent)
 	var rebound_context := _bind_frozen_pre_to_entered_attempt()
 	if not rebound_context.ok: return rebound_context
 	if _record.host == "canonical_solo" and not _record.applied_result.is_empty():
@@ -1581,9 +1563,6 @@ func _scene_closed_record_matches(closed: Dictionary) -> bool:
 		or (expected == "perfect" and closed.get("outcome") == "won"))
 
 func _begin_scene(command: Dictionary) -> Dictionary:
-	if _scene_absence_busy:
-		_scene_absence_reentered = true
-		return _fail(&"scene_absence_reentry")
 	if _scene_fatal: return _fail(&"scene_challenge_fatal_custody")
 	var admitted := _scene_authorize(command)
 	if not admitted.get("ok", false): return admitted
@@ -1598,42 +1577,16 @@ func _begin_scene(command: Dictionary) -> Dictionary:
 	var captured: Dictionary = _game_state.capture_dating_challenge_state()
 	if not captured.ok: return captured
 	var stored: Dictionary = captured.value
-	if not stored.is_empty():
-		if not _valid_record(stored, command): return _fail(&"scene_challenge_record_conflict")
-		_record = stored.duplicate(true)
-		_admitted_command = command.duplicate(true)
-		var resumed := _restore_attempt(command, true)
-		if not resumed.ok: return resumed
-		if _history_committed and _record != stored: _pending_checkpoint = _record.duplicate(true)
-	else:
-		# Absence is validated against the canonical Profile slot, not inferred from
-		# a missing Run pointer after Profile already accepted this operation.
-		var found: Dictionary = _profile.get_dating_attempt(str(_attempt_identity().run_id), ATTEMPTS.semantic_slot(command.context))
-		if not found.ok: return found
-		if not found.value.is_empty():
-			var current: Dictionary = _profile.get_dating_attempt(str(_attempt_identity().run_id),
-				ATTEMPTS.semantic_slot(command.context), found.value.attempt_id, str(_attempt_identity().branch_id))
-			if current.ok:
-				if not _valid_record(current.value.record, command): return _fail(&"scene_attempt_recovery_required")
-				_record = current.value.record.duplicate(true)
-				_select_committed_attempt(current.value)
-				_pending_checkpoint = _record.duplicate(true)
-			else:
-				var absence: Dictionary = _prepare_scene_absence(command)
-				if not absence.ok: return absence
-				_record = {}
-				_clear_history_state()
-		else:
-			if not _game_state.route_context.get("dating_active_attempt_ref", {}).is_empty(): return _fail(&"scene_attempt_absence_unverified")
-			_record = {}
-			_clear_history_state()
-		_admitted_command = command.duplicate(true)
+	if not stored.is_empty() and not _valid_record(stored, command):
+		return _fail(&"scene_challenge_record_conflict")
+	_record = stored.duplicate(true)
+	_clear_history_state()
+	_history_reference = _game_state.route_context.get("dating_active_attempt_ref", {}).duplicate(true)
+	_scene_first_reveal_cell = -1
+	_admitted_command = command.duplicate(true)
 	return _ok({"physical_token": _token(command.completion_transaction_id, command.command_sha256), "command_sha256": command.command_sha256})
 
 func _pull_scene(token: String) -> Dictionary:
-	if _scene_absence_busy:
-		_scene_absence_reentered = true
-		return _fail(&"scene_absence_reentry")
 	if not _scene_command(): return _fail(&"scene_challenge_unadmitted")
 	if _scene_fatal: return _fail(&"scene_challenge_fatal_custody")
 	if token != _token(_admitted_command.completion_transaction_id, _admitted_command.command_sha256): return _fail(&"scene_challenge_unavailable")
@@ -1688,14 +1641,8 @@ func _scene_unstarted_board() -> Dictionary:
 		"terminal": false, "custody": false, "cells": cells})
 
 func _scene_duplicate_first_reveal(cell_index: int, expected_revision: int) -> Dictionary:
-	if expected_revision != 0 or not _pending_checkpoint.is_empty() or not _record.get("board") is Dictionary \
-			or not _history_committed or _history_reference.is_empty():
-		return {"matched": false}
-	var exact: Dictionary = _profile.get_dating_attempt(str(_attempt_identity().run_id),
-		ATTEMPTS.semantic_slot(_record.context), str(_history_reference.attempt_id), str(_history_reference.branch_id))
-	if not exact.get("ok", false) or exact.value.record != _record \
-			or not exact.value.get("materialization_receipt") is Dictionary \
-			or int(exact.value.materialization_receipt.get("first_cell_index", -1)) != cell_index:
+	if expected_revision != 0 or cell_index != _scene_first_reveal_cell \
+			or not _pending_checkpoint.is_empty() or not _record.get("board") is Dictionary:
 		return {"matched": false}
 	return {"matched": true, "result": _pull_scene(_record.physical_token)}
 
@@ -1709,15 +1656,11 @@ func _dispatch_scene_first_reveal(token: String, index: int) -> Dictionary:
 	_scene_lease = str(lease.value.token)
 	var result: Dictionary = _scene_action("first_reveal", index)
 	_scene_lease = ""
-	_scene_start_admission = {}
 	var released: Dictionary = _attempt_gate.release(&"causal_transaction", str(lease.value.token))
 	return result if released.get("ok", false) else released
 
 func _dispatch_scene(token: String, action: String, index: int, revision: int) -> Dictionary:
 	if not _scene_input_open(): return _fail(&"scene_challenge_command_refused")
-	if _scene_absence_busy:
-		_scene_absence_reentered = true
-		return _fail(&"scene_absence_reentry")
 	var view := _pull_scene(token)
 	if not view.ok: return view
 	if action not in view.value.actions or revision != int(view.value.get("revision", 0)):
@@ -1727,7 +1670,6 @@ func _dispatch_scene(token: String, action: String, index: int, revision: int) -
 	_scene_lease = str(lease.value.token)
 	var result := _scene_action(action, index)
 	_scene_lease = ""
-	_scene_start_admission = {}
 	var released: Dictionary = _attempt_gate.release(&"causal_transaction", str(lease.value.token))
 	return result if released.ok else released
 
@@ -1757,14 +1699,8 @@ func _scene_action(action: String, index: int) -> Dictionary:
 		_first_cell_index = -1
 		_restore_history_state(prior_history)
 		return changed if not changed.ok else _fail(&"scene_challenge_record_invalid")
-	var committed := _commit_attempt()
-	if not committed.ok:
-		_record = prior
-		_first_cell_index = -1
-		_restore_history_state(prior_history)
-		return committed
+	if _first_cell_index >= 0: _scene_first_reveal_cell = _first_cell_index
 	_first_cell_index = -1
-	# Profile is now durable: preserve this exact attempt on every later failure.
 	_pending_checkpoint = _record.duplicate(true)
 	return _scene_checkpoint()
 
@@ -1773,27 +1709,7 @@ func _scene_start(first_reveal_index: int = -1) -> Dictionary:
 	var selected_result: Dictionary = _scene_board_profile()
 	if not selected_result.get("ok", false): return selected_result
 	var selected: Dictionary = selected_result.value
-	var retained: Dictionary = _profile.get_dating_attempt(str(_attempt_identity().run_id), ATTEMPTS.semantic_slot(_admitted_command.context))
-	if not retained.ok: return retained
-	var absence_selection := {}
-	var spec: Dictionary
-	if not retained.value.is_empty():
-		var absence: Dictionary = _prepare_scene_absence(_admitted_command)
-		if not absence.ok: return absence
-		_scene_start_admission = absence.value
-		var authorized: Dictionary = _validate_scene_start_absence()
-		if not authorized.ok: return authorized
-		var entry: Dictionary = retained.value.entry_receipt
-		if entry.get("record_version") != 4 or entry.context != _admitted_command.context or entry.host != "scene_challenge":
-			return _fail(&"scene_absence_entry_conflict")
-		var entry_hash: Dictionary = CANONICAL.canonical_sha256(entry)
-		if not entry_hash.ok: return entry_hash
-		absence_selection = {"mode": "start_from_absence", "admission": absence.value,
-			"attempt_id": retained.value.attempt_id, "generation": retained.value.generation,
-			"entry_sha256": entry_hash.value.sha256}
-		spec = _ok(entry.spec.duplicate(true))
-	else:
-		spec = _make_spec(str(selected.difficulty_id))
+	var spec: Dictionary = _make_spec(str(selected.difficulty_id))
 	if not spec.ok: return spec
 	for key: String in ["board_kind", "difficulty_id", "width", "height", "base_mine_count", "generator_version", "verifier_version"]:
 		if spec.value[key] != selected[key]: return _fail(&"scene_board_profile_unsupported")
@@ -1813,52 +1729,7 @@ func _scene_start(first_reveal_index: int = -1) -> Dictionary:
 		_record.envelope.forced_cell = first_reveal_index
 		_record.phase = "preparing"
 	_clear_history_state()
-	_history_selection = absence_selection if not absence_selection.is_empty() else {"mode": "fresh"}
 	return _ok({})
-
-func _prepare_scene_absence(command: Dictionary) -> Dictionary:
-	if _scene_authority != _game_state or not _scene_authority.has_method("prepare_selected_scene_absence") \
-			or not _scene_authority.has_method("validate_selected_scene_absence") \
-			or not _profile.has_method("is_scene_absence_validator_bound_to") \
-			or not _profile.is_scene_absence_validator_bound_to(_game_state):
-		return _fail(&"scene_attempt_recovery_required")
-	var frozen_command := command.duplicate(true)
-	var frozen_bundle := _scene_bundle.duplicate(true)
-	var authority: Object = _scene_authority
-	var identity: Dictionary = _attempt_identity().duplicate(true)
-	_scene_absence_busy = true
-	_scene_absence_reentered = false
-	var result: Variant = authority.prepare_selected_scene_absence(command, _scene_bundle)
-	_scene_absence_busy = false
-	if _scene_absence_reentered or identity != _attempt_identity() or command != frozen_command or _scene_bundle != frozen_bundle or authority != _scene_authority \
-			or not result is Dictionary or not result.get("ok", false) or not result.get("value") is Dictionary:
-		return _fail(&"scene_absence_not_authorized")
-	return result
-
-func _scene_absence_custody() -> bool:
-	return _scene_absence_busy and not _scene_absence_reentered and not _scene_absence_fence.is_empty() \
-		and _game_state == _scene_absence_fence.game_state and _scene_authority == _scene_absence_fence.authority \
-		and _attempt_identity() == _scene_absence_fence.identity and _record == _scene_absence_fence.record \
-		and is_same(_admitted_command, _scene_absence_fence.command) and _admitted_command == _scene_absence_fence.command_value \
-		and is_same(_scene_bundle, _scene_absence_fence.bundle) and _scene_bundle == _scene_absence_fence.bundle_value \
-		and _attempt_gate.is_lease_active(&"causal_transaction", _scene_lease)
-
-func _validate_scene_start_absence() -> Dictionary:
-	if not _attempt_gate.is_lease_active(&"causal_transaction", _scene_lease): return _fail(&"scene_absence_custody_required")
-	var admission := _scene_start_admission.duplicate(true)
-	var command := _admitted_command.duplicate(true)
-	var bundle := _scene_bundle.duplicate(true)
-	var authority: Object = _scene_authority
-	var identity := _attempt_identity().duplicate(true)
-	_scene_absence_busy = true
-	_scene_absence_reentered = false
-	var result: Variant = authority.validate_selected_scene_absence(_scene_start_admission, _admitted_command, _scene_bundle, _scene_lease)
-	_scene_absence_busy = false
-	if _scene_absence_reentered or authority != _scene_authority or identity != _attempt_identity() \
-			or admission != _scene_start_admission or command != _admitted_command or bundle != _scene_bundle \
-			or not _attempt_gate.is_lease_active(&"causal_transaction", _scene_lease):
-		return _fail(&"scene_absence_custody_changed")
-	return _ok({}) if result is Dictionary and result.get("ok", false) else _fail(&"scene_absence_not_authorized")
 
 func _scene_prepare() -> Dictionary:
 	var accepted_reveal: int = int(_record.envelope.forced_cell)
@@ -1899,6 +1770,7 @@ func _scene_checkpoint() -> Dictionary:
 		_scene_fatal = true
 		return _fail(&"scene_checkpoint_unconfirmed")
 	_pending_checkpoint = {}
+	_routine_pending = false
 	return _pull_scene(_record.physical_token)
 
 func _scene_checkpoint_reference(reference: Variant) -> bool:
@@ -1910,8 +1782,7 @@ func _scene_checkpoint_reference(reference: Variant) -> bool:
 		and reference.snapshot_sha256 is String and reference.snapshot_sha256.length() == 64 \
 		and reference.snapshot_sha256.is_valid_hex_number(false) and reference.snapshot_sha256 == reference.snapshot_sha256.to_lower()
 
-## End owns no physical mutation. It first freezes a selected prefix on its new
-## branch, then commits S, then constructs P. Closed command-map history is the lock.
+## End checkpoints the current Run record before committing its story outcome.
 func close_scene_challenge(token: String) -> Dictionary:
 	var view := _pull_scene(token)
 	if not view.ok: return view
@@ -1921,7 +1792,6 @@ func close_scene_challenge(token: String) -> Dictionary:
 	_scene_lease = str(lease.value.token)
 	var result := _close_scene_locked()
 	_scene_lease = ""
-	_scene_start_admission = {}
 	var released: Dictionary = _attempt_gate.release(&"causal_transaction", str(lease.value.token))
 	return result if released.ok else released
 
@@ -1954,15 +1824,8 @@ func _close_scene_locked() -> Dictionary:
 	var proof: Variant = null
 	var outcome := "never_started"
 	if not _record.is_empty():
-		# Even without a further move, selected Load must retain its exact prefix
-		# under the new branch before the old branch can be referenced by closure.
-		var committed := _commit_attempt()
-		if not committed.ok: return committed
-		_pending_checkpoint = _record.duplicate(true)
 		var applied := _apply_record_effect(true)
 		if not applied.ok: return applied
-		var exact: Dictionary = _profile.get_dating_attempt(str(_attempt_identity().run_id), ATTEMPTS.semantic_slot(_record.context), str(_record.spec.board_token), str(_history_reference.branch_id))
-		if not exact.ok or exact.value.record != _record or exact.value.revision != _history_revision: return _fail(&"scene_attempt_proof_mismatch")
 		_scene_checkpoint_in_flight = true
 		var source: Dictionary = _scene_authority.commit_scene_challenge_checkpoint(_record.duplicate(true), _history_reference.duplicate(true), _scene_lease)
 		_scene_checkpoint_in_flight = false
@@ -1975,22 +1838,10 @@ func _close_scene_locked() -> Dictionary:
 		_pending_checkpoint = {}
 		var hashed: Dictionary = CANONICAL.canonical_sha256(_record)
 		if not hashed.ok: return hashed
-		proof = {"run_id": exact.value.run_id, "slot_id": exact.value.slot_id, "attempt_id": exact.value.attempt_id,
-			"branch_id": exact.value.branch_id, "generation": exact.value.generation, "revision": exact.value.revision,
+		proof = {"run_id": str(_attempt_identity().run_id), "slot_id": ATTEMPTS.semantic_slot(_record.context), "attempt_id": _record.spec.board_token,
+			"branch_id": _history_reference.branch_id, "generation": _history_reference.generation, "revision": _revision() + 1,
 			"record_sha256": hashed.value.sha256, "checkpoint": source.value.checkpoint_reference.duplicate(true)}
 		outcome = "unfinished" if _record.state == "in_progress" else str(_record.state)
-	else:
-		var absent: Dictionary = _profile.get_dating_attempt(str(_attempt_identity().run_id), ATTEMPTS.semantic_slot(_admitted_command.context))
-		if not absent.ok or not _game_state.route_context.get("dating_active_attempt_ref", {}).is_empty(): return _fail(&"scene_attempt_absence_unverified")
-		if not absent.value.is_empty():
-			var current: Dictionary = _profile.get_dating_attempt(str(_attempt_identity().run_id),
-				ATTEMPTS.semantic_slot(_admitted_command.context), absent.value.attempt_id, str(_attempt_identity().branch_id))
-			if current.ok: return _fail(&"scene_attempt_recovery_required")
-			var selected: Dictionary = _prepare_scene_absence(_admitted_command)
-			if not selected.ok: return selected
-			_scene_start_admission = selected.value
-			var authorized: Dictionary = _validate_scene_start_absence()
-			if not authorized.ok: return authorized
 	var binding := _scene_story_binding()
 	if not binding.ok: return binding
 	var challenge := {}
@@ -2019,23 +1870,16 @@ func _close_scene_locked() -> Dictionary:
 
 func _flush_scene_pending() -> Dictionary:
 	# A source save may invoke its configured before-write hook. That nested hook
-	# observes an already Profile-committed exact record; it must not start a second save.
+	# observes the Run record being checkpointed; it must not start a second save.
 	if _scene_checkpoint_in_flight: return _ok({"committed": false})
 	if _scene_fatal: return _fail(&"scene_challenge_fatal_custody")
 	# Save owns a presentation pause. Already checkpointed state needs no new
 	# playable admission; actual pending writes still validate their source below.
-	if _record.is_empty() or (_history_committed and not _routine_pending and _pending_checkpoint.is_empty()): return _ok({"committed": false})
+	if _record.is_empty() or (not _routine_pending and _pending_checkpoint.is_empty()): return _ok({"committed": false})
 	var closed := _scene_closed()
 	if not closed.ok: return closed
 	if not closed.value.is_empty():
 		return _ok({"committed": false}) if _scene_closed_record_matches(closed.value) else _fail(&"scene_challenge_record_conflict")
-	# Opening a selected older prefix only plans its branch continuation. A
-	# paused Save can preserve that exact selected record/reference; no move has
-	# occurred that requires publishing a new Profile branch inside this pause.
-	if _history_selection.get("mode") == "continue" and not _routine_pending and _pending_checkpoint.is_empty() \
-			and _game_state.has_method("scene_challenge_is_suspended") \
-			and _game_state.scene_challenge_is_suspended(_record, true):
-		return _ok({"committed": false})
 	var admitted := _scene_authorize(_admitted_command)
 	if not admitted.ok: return admitted
 	var lease := {}
@@ -2045,10 +1889,8 @@ func _flush_scene_pending() -> Dictionary:
 		if not lease.ok: return lease
 		_scene_lease = str(lease.value.token)
 	var result := _ok({})
-	if _pending_checkpoint.is_empty():
-		result = _commit_attempt()
-		if result.ok: _pending_checkpoint = _record.duplicate(true)
-	if result.ok: result = _scene_checkpoint()
+	if _pending_checkpoint.is_empty(): _pending_checkpoint = _record.duplicate(true)
+	result = _scene_checkpoint()
 	_scene_lease = prior_lease
 	if not lease.is_empty():
 		var released: Dictionary = _attempt_gate.release(&"causal_transaction", str(lease.value.token))

@@ -1,5 +1,5 @@
 name: Trusted runtime matched comparison
-run-name: Load active-settings reuse matched comparison
+run-name: Direct scene Load matched comparison
 
 on:
   pull_request:
@@ -14,7 +14,7 @@ concurrency:
 
 jobs:
   measure:
-    if: github.event_name == 'workflow_dispatch' || github.head_ref == 'codex/load-current-settings-20261026'
+    if: github.event_name == 'workflow_dispatch' || github.head_ref == 'codex/direct-scene-load-20261026'
     runs-on: windows-2022
     timeout-minutes: 55
     defaults:

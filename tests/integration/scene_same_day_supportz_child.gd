@@ -98,7 +98,7 @@ func load_same_day_supportz() -> void:
 	assert_false(proof.run.desktop.board.has("terminal_receipts"))
 	assert_false(restored.desktop.board.has("terminal_receipts"), "Load does not recreate retired terminal history")
 	assert_true(restored.desktop.board.settled_inspection)
-	assert_ne(restored.desktop.board.identity.branch_id, proof.run.desktop.board.identity.branch_id)
+	assert_eq(restored.desktop.board.identity.branch_id, proof.run.desktop.board.identity.branch_id)
 	assert_true(bootstrap._desktop_board_state.has_settled_inspection())
 	var player_reading: Dictionary = preload("res://scripts/narrative/SoloReadingSession.gd").project_player_checkpoint(proof.reading)
 	if not _ok(player_reading): return

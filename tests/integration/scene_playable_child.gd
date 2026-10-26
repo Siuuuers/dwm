@@ -188,7 +188,7 @@ func load_playable() -> void:
 	assert_true(fixture.participants.route.validate_scene_activation(started.transaction_id).ok)
 	assert_true(fixture.participants.narrative.validate_scene_activation(started.transaction_id).ok)
 	var current: Dictionary = fixture.game.capture_run_snapshot_input()
-	assert_ne(current.lifecycle.branch_id, snapshot.lifecycle.branch_id)
+	assert_eq(current.lifecycle.branch_id, snapshot.lifecycle.branch_id)
 	assert_eq(current.scene, snapshot.scene)
 	assert_eq(current.gameplay, snapshot.gameplay, "route activation preserves the restored gameplay context")
 	assert_eq(current.command_receipts, snapshot.command_receipts)

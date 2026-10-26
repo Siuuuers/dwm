@@ -562,7 +562,7 @@ try {
             Require ($sourceSnapshot.Contains($key) -and $restored.Contains($key)) "RESTORE_WITNESS_FIELD_MISSING: $key"
             Require ((Canonical $sourceSnapshot[$key]) -ceq (Canonical $restored[$key])) "RESTORED_STATE_CHANGED: $key"
         }
-        Require ($restored.lifecycle.run_id -ceq $sourceSnapshot.lifecycle.run_id -and $restored.lifecycle.branch_id -cne $sourceSnapshot.lifecycle.branch_id) 'RESTORED_RUN_BRANCH_SEMANTICS'
+        Require ((Canonical $restored.lifecycle) -ceq (Canonical $sourceSnapshot.lifecycle)) 'RESTORED_RUN_LIFECYCLE_CHANGED'
         $restoredProfile = Read-Json $profilePath
         Require ((Canonical $restoredProfile) -ceq (Canonical $sourceProfile)) 'LOAD_OR_WITNESS_SAVE_CHANGED_PROFILE'
         Copy-Item -LiteralPath $profilePath -Destination (Join-Path $output 'profile-after-load.json')
