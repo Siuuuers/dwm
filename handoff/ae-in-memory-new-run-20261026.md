@@ -160,3 +160,21 @@ The evidence branch is separate. Do not merge raw evidence as a product change.
 A new session is useful now: the prior performance batch is merged, the replacement design is recorded, and implementation can start from one clear outcome. Use this handoff and the pinned design record. Do not repeat the old design interview.
 
 This handoff changes documentation only. No runtime removal, new cloud test result or further speedup is claimed.
+
+## Follow-up: confirmation and template ownership
+
+Owner clarification, 2026-10-26: retain the New Acc confirmation and give it weird/eerie wording. Do not remove the confirmation merely because initial Autosave replacement is removed. Exact copy is not yet selected.
+
+Suggested copy direction: “The beginning is still here. Shall we enter again?” Use clear action labels such as “Start new run” and “Cancel”. Keep any save consequence accurate and separate from atmosphere. With the proposed preservation default, starting keeps the previous Autosave; a later real autosave replaces it. If the operation abandons an unsaved live run, disclose that actual consequence.
+
+Template ownership recommendation:
+- Reuse GameState.make_scene_new_run_gameplay for fresh mutable gameplay defaults. Do not create a settings clone or a generic template manager.
+- Keep starting-content selection with DialogicEntryManifest and its canonical authored data.
+- Currently first_target_id reads the first day binding from seven_day_order.json. target.Day1 resolves in scene_story_registration.json to entry_id Day1 and label Day1.
+- Therefore one stable start-target reference is sufficient at the top level. Its existing target mapping resolves entry/label and the entry manifest resolves the localized source. Do not duplicate a caption ID, DTL path, music, background and settings in the New Run template.
+- A start entry/label is preferable to a first displayed-caption ID: entry initialization must establish presentation before the first visible line. The exact refactor must preserve current first-caption behavior and apply required opening commands/state.
+- Background, portraits, music and transitions belong to authored content/presentation definitions. Use existing prepared lookups; add no competing asset map solely on an unmeasured speed assumption.
+- Keep manifest version/fingerprint metadata under its current owner rather than copying it into author-maintained start defaults.
+- A physical relocation of production story-order data out of tests/templates is optional cleanup, not a prerequisite or measured speed improvement.
+
+These are implementation recommendations; the runtime has not yet been changed.
