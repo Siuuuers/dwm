@@ -42,3 +42,7 @@ The first timing attempt on this same candidate stopped at r4-candidate-retained
 - `SHA256SUMS`: individual retained-file hashes and reconstructed archive hash.
 
 Reconstruct the original ZIP by concatenating the five parts in numeric order. Its SHA-256 is `d82453a13f5c3d1264f62180424c30297e2386bd00f864fcbcf83a83fd4f33b4`. After extraction, use the candidate's `tools/testing/trusted_runtime_comparison.py summarize --root <extracted-directory>` to rerun the data-integrity checks. Exact diagnostic executables/packages were separately uploaded as artifact 12634293800; their hashes are retained here. They are instrumented diagnostics, not a new Steam upload.
+
+## Next work
+
+The [continuation handoff](../../../handoff/ad-trusted-runtime-performance-results-20261026.md) records the merged source and two independent next investigations.
