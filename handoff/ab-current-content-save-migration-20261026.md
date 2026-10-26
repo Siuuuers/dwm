@@ -12,11 +12,16 @@ The user changed the save-support requirement on 26 October 2026:
 
 - The game is not released. Obsolete save formats do not need conversion.
 - Keep current saves valid after supported story edits.
-- Remove player reading schema 6 support and its old entry-to-day map.
+- Accept the current player format through normal validation. Do not add named obsolete-version checks.
+- Remove player reading schema 6 conversion and its old entry-to-day map.
 - Keep player reading schema 7. Keep internal live reading schema 5.
 - Test deleted-checkpoint recovery with a current-format save.
 
-This follow-up cleanup needs its own cloud acceptance. PR #107 results do not qualify new edits.
+Cloud run [40258034233](https://github.com/Siuuuers/dwm/actions/runs/40258034233) passed all 57 gameplay/selection jobs.
+All ten content-update journeys passed. The inventory mismatch blocked three dependent jobs.
+The updated generic format checks and regenerated inventories need a final cloud run.
+The [retained current-format recovery evidence](../evidence/phase_2r/current_reading_format_20261026/manifest.json)
+records the schema-7 deleted-checkpoint journey. PR #108 records final acceptance.
 
 The merged change adds player reading schema 7, admission-time normalization of current and journal snapshots, bounded
 encountered History, and separate story binding for retained physical Challenges. Document and Run versions remain 9.
@@ -175,7 +180,7 @@ managers, or removal of the new-run intent journal. Those do not follow from the
 - Held Challenge-control saves and ordinary caption saves both expand into valid native playback without repeated
   publications or controls.
 - Bounded History rolls across three sections with one copy of each boundary; no inserted unseen lines; deleted IDs
-  omitted; revised History text adds no global read marks. Legacy History initially contains only provable encounters.
+  omitted; revised History text adds no global read marks. Reject player saves with missing required History data.
 - Resolved choice and every Challenge outcome survive fallback. In particular, a resolved `unfinished` outcome does not
   reopen its `in_progress` board.
 - Same unresolved Challenge resumes the selected exact board after wording change or fallback, including flags,

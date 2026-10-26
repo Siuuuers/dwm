@@ -218,10 +218,10 @@ func inherit_player_progress(source_session: RefCounted, major_checkpoint: bool 
 ## Player saves retain a stable authored position and its current genuine caption.
 ## History is derived separately; full capture/restore remains the live contract.
 static func project_player_checkpoint(checkpoint: Dictionary) -> Dictionary:
+	if checkpoint.get("stage") != "scene": return {"ok": true, "value": checkpoint.duplicate(true)}
 	var reading: Variant = checkpoint.get("reading_session")
-	if reading is Dictionary and reading.get("schema_version") == 6: return _fail(&"reading_checkpoint_invalid")
 	if not reading is Dictionary or reading.get("schema_version") not in [5, 7]:
-		return {"ok": true, "value": checkpoint.duplicate(true)}
+		return _fail(&"reading_checkpoint_invalid")
 	var session: RefCounted = load("res://scripts/narrative/SoloReadingSession.gd").new()
 	var configured: Dictionary = session.configure_scene()
 	if not configured.ok: return configured
@@ -399,10 +399,11 @@ static func normalize_player_checkpoint(checkpoint: Dictionary, choices: Diction
 	return {"ok": true, "value": {"checkpoint": result, "story_day": day, "fallback": fallback}}
 
 static func expand_player_checkpoint(checkpoint: Dictionary) -> Dictionary:
+	if checkpoint.get("stage") != "scene": return {"ok": true, "value": checkpoint.duplicate(true)}
 	var reading: Variant = checkpoint.get("reading_session")
-	if reading is Dictionary and reading.get("schema_version") == 6: return _fail(&"reading_checkpoint_invalid")
-	if not reading is Dictionary or reading.get("schema_version") != 7:
-		return {"ok": true, "value": checkpoint.duplicate(true)}
+	if not reading is Dictionary or reading.get("schema_version") not in [5, 7]:
+		return _fail(&"reading_checkpoint_invalid")
+	if reading.schema_version == 5: return {"ok": true, "value": checkpoint.duplicate(true)}
 	var session: RefCounted = load("res://scripts/narrative/SoloReadingSession.gd").new()
 	var configured: Dictionary = session.configure_scene()
 	if not configured.ok: return configured

@@ -127,12 +127,12 @@ func test_valid_held_control_survives_wording_update_without_advancing() -> void
 	assert_true(expanded.ok, str(expanded))
 	if expanded.ok: assert_eq(expanded.value.reading_session.boundary, "control")
 
-func test_obsolete_player_schema_and_missing_progress_are_rejected() -> void:
+func test_player_format_requires_supported_schema_and_progress() -> void:
 	_install(_source())
 	var saved := _saved_second()
 	var session := SESSION.new()
 	assert_true(session.configure_scene().ok)
-	for schema: int in [6, 7]:
+	for schema: int in [6, 7, 8]:
 		var broken: Dictionary = saved.duplicate(true)
 		broken.reading_session.schema_version = schema
 		for key: String in ["story_day", "recovery_anchor", "history_sections"]: broken.reading_session.erase(key)
