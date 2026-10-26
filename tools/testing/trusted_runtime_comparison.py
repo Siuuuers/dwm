@@ -123,7 +123,23 @@ func _save_after_measurement(locator: String) -> bool:
 	if variant == "candidate" and not _check(not snapshot.lifecycle.has("scene_assignment"), "ordinary Save retained retired assignment"): return false
 	observation["later_save_sha256"] = FileAccess.get_sha256(path)
 	observation["later_save_without_assignment"] = not snapshot.lifecycle.has("scene_assignment")
-	return true
+	# The diagnostic quits immediately after Save/Continue. Release looping Ogg
+	# playback through its existing owner, outside every measured interval.
+	var audio := get_node("/root/AudioManager")
+	var cleanup_started := Time.get_ticks_usec()
+	for channel: StringName in [&"music", &"ambience"]:
+		var cleared: Dictionary = audio._clear_channel(channel, true)
+		if not _check(cleared.get("ok", false), "post-measurement audio cleanup failed: " + str(cleared)): return false
+	await get_tree().create_timer(0.1).timeout
+	await get_tree().process_frame
+	var runtime: Dictionary = audio._playback_port.capture_runtime()
+	if not _check(runtime.get("ok", false), "post-measurement audio inspection failed"): return false
+	for player_id: StringName in audio.MUSIC_PLAYERS + audio.AMBIENCE_PLAYERS:
+		var player: Dictionary = runtime.value.players[player_id]
+		if not _check(not player.playing and player.stream == null, "post-measurement audio player retained playback"): return false
+	observation["audio_cleanup_us"] = Time.get_ticks_usec() - cleanup_started
+	observation["audio_cleanup_ok"] = audio.get_music_context_id().is_empty() and audio.get_ambience_context_id().is_empty()
+	return _check(observation.audio_cleanup_ok, "post-measurement audio contexts still active")
 '''
 
 
@@ -263,6 +279,7 @@ def summarize(folder):
                 observed = report["observation"]
                 assert observed["line_id"] == "line.Day1.one" and observed["event_done"] and observed["active"] and observed["visible_ratio"] == 1.0, name
                 assert len(observed["later_save_sha256"]) == 64, name
+                assert observed["audio_cleanup_ok"], name
                 if variant == "candidate":
                     assert observed["later_save_without_assignment"], name
                     if case != "load": assert observed["initial_autosave_unchanged"], name
@@ -321,7 +338,7 @@ def summarize(folder):
                 key: matched["candidate"]["metrics"][key] - value
                 for key, value in matched["baseline"]["metrics"].items()
                 if key in matched["candidate"]["metrics"]}})
-    result = {"scope": "Twenty-four instrumented exported journeys on one Windows runner, four repetitions in AB/BA/AB/BA order. Fresh means empty user data, not cold OS caches; retained New Acc and Load use the same r1-baseline-fresh profile after a real manual save. Timed New Acc ends before that save. Inclusive costs overlap and must not be summed. Screenshot hashes establish integrity; visual review remains required. Four samples per variant/case are descriptive, not statistical certainty.",
+    result = {"scope": "Twenty-four instrumented exported journeys on one Windows runner, four repetitions in AB/BA/AB/BA order. Fresh means empty user data, not cold OS caches; retained New Acc and Load use the same r1-baseline-fresh profile after a real manual save. Timed New Acc ends before that save. Both variants clear audio after saving and allow 100 ms plus one frame before diagnostic exit; this teardown is outside action timing. Inclusive costs overlap and must not be summed. Screenshot hashes establish integrity; visual review remains required. Four samples per variant/case are descriptive, not statistical certainty.",
               "source": source, "package_hashes": package_hashes, "load_seed_profile_hashes": seed_hashes,
               "samples": rows, "aggregates": aggregates, "paired_differences": comparisons}
     (folder / "summary.json").write_text(json.dumps(result, indent=2), encoding="utf-8")
