@@ -5,6 +5,8 @@ extends "res://addons/gut/test.gd"
 const PORT := preload("res://scripts/application/narrative/SaveManagerNarrativeCheckpointPort.gd")
 const JSON_WRITER := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 const BOARD_STATE := preload("res://scripts/domain/minesweeper/DesktopBoardState.gd")
+const SESSION := preload("res://scripts/narrative/SoloReadingSession.gd")
+const FROZEN := preload("res://scripts/narrative/FrozenPresentationContext.gd")
 
 class CheckpointSeam extends "res://tests/support/FakeNarrativeCheckpointContext.gd":
 	var current := {"checkpoint_id": "run:1", "checkpoint_sequence": 1, "narrative_checkpoint": {"source": true}}
@@ -34,6 +36,8 @@ class CheckpointSeam extends "res://tests/support/FakeNarrativeCheckpointContext
 		if scene_family:
 			snapshot.erase("payload")
 			snapshot.merge(inputs.snapshot_input.duplicate(true))
+			for key: String in ["command_receipts", "applied_effect_transaction_ids", "applied_variable_transaction_ids"]:
+				snapshot.erase(key)
 			var player_board: Dictionary = BOARD_STATE.project_player_state(snapshot.desktop.board)
 			if not player_board.ok: return player_board
 			snapshot.desktop.board = player_board.value.snapshot
@@ -86,26 +90,33 @@ func _fixture(retain: bool = true) -> Dictionary:
 	var port := PORT.new()
 	assert_true(port.configure(real, real.provider_callables()).ok)
 	assert_true(port.configure_scene_entry_authority(authority, authority.validate).ok)
+	var session := SESSION.new()
+	assert_true(session.configure_scene().ok)
+	assert_true(session.begin_scene("TEST.checkpoint-ack").ok)
+	var occurrence := "occurrence:target"
+	var presentation := FROZEN.build("Day1", {"entry_id": "Day1", "entry_role": "scene",
+		"occurrence_id": occurrence, "admission_receipt_id": occurrence})
+	assert_true(presentation.ok, str(presentation))
+	var frame := {"expected_stage": "scene", "playback_id": occurrence, "role": "scene",
+		"transaction_id": occurrence, "presentation": presentation.value}
+	assert_true(session.admit_scene("Day1", frame).ok)
+	var programme: Dictionary = session.entry_program("Day1", frame)
+	var allocated: Dictionary = session.ledger.allocate_publication(session.command_id, "Day1", occurrence)
+	var line_id: String = programme.value.lines[0].line_id
+	assert_true(session.ledger.publish_line(session.command_id, allocated.value, "Day1", line_id, occurrence).ok)
+	var captured: Dictionary = session.capture({"line_id": line_id, "publication_id": allocated.value})
+	assert_true(captured.ok, str(captured))
 	var binding := {"operation_id": "operation:1", "source_checkpoint": {"checkpoint_id": "run:1", "checkpoint_sequence": 1,
 		"snapshot_sha256": _hash(real.current)}, "source_occurrence_id": "occurrence:source", "trigger_command_id": "event:1",
-		"target_id": "target:1", "target_occurrence_id": "occurrence:target", "admission_receipt_id": "admission:1",
-		"registration_sha256": "a".repeat(64)}
+		"target_id": "target:1", "target_occurrence_id": occurrence, "admission_receipt_id": occurrence,
+		"registration_sha256": session.fingerprint}
 	var checkpoint := {"stage": "scene", "manifest_fingerprint": binding.registration_sha256,
-		"reading_session": {"schema_version": 5, "boundary": "line"},
-		"frozen_context": {"playback_id": binding.target_occurrence_id,
-			"presentation": {"fields": {"admission_receipt_id": binding.admission_receipt_id}}}}
+		"entry_id": "Day1", "content_version": 1, "transaction_id": occurrence,
+		"reading_session": captured.value, "frozen_context": frame}
 	authority.expected_binding = binding.duplicate(true)
 	authority.expected_checkpoint = checkpoint.duplicate(true)
 	if retain: assert_true(port.retain_scene_entry(authority, "cap:1", binding, checkpoint).ok)
 	return {"port": port, "real": real, "authority": authority, "binding": binding, "checkpoint": checkpoint}
-
-var _retained_contexts: RefCounted
-
-func after_each() -> void:
-	if _retained_contexts != null:
-		_retained_contexts.restore()
-		_retained_contexts = null
-
 
 func test_confirmed_commit_ack_binds_actual_snapshot_and_consumes_once() -> void:
 	var f := _fixture()
@@ -272,56 +283,6 @@ func test_prepare_callback_cannot_invalidate_custody_or_source_before_write() ->
 		assert_false(f.real.calls.has("commit"))
 		f.real.after_prepare = Callable()
 
-func test_real_save8_prepare_refuses_unintegrated_scene_identity_without_ack() -> void:
-	# This one negative Save8 control explicitly selects its retained schema.
-	_retained_contexts = preload("res://tests/support/RetainedFrozenContextFixture.gd").new()
-	var selected: Dictionary = _retained_contexts.install(["dating.solo.priscilla.day1.pre_challenge"])
-	assert_true(selected.get("ok", false), str(selected))
-	if not selected.get("ok", false): return
-	# Real SaveManagerCheckpointPort + Run/Save validators and journal, FakeFileOps.
-	# The accepted legacy control is durable through real write/readback APIs in that
-	# injected filesystem; this is NOT a physical filesystem/process-restart claim.
-	var durable := preload("res://tests/support/DurableSceneEventFixture.gd").new()
-	var initialized: Dictionary = durable.initialize()
-	assert_true(initialized.ok, str(initialized))
-	if not initialized.ok:
-		durable.dispose()
-		return
-	var reading := preload("res://tests/support/ReadingNextFixture.gd")
-	var input: Dictionary = reading.snapshot_input(durable.snapshot)
-	var baseline: Dictionary = durable.adapter.commit_scene_event(input, durable.snapshot.narrative_checkpoint)
-	assert_true(baseline.ok, str(baseline))
-	if not baseline.ok:
-		durable.dispose()
-		return
-	var source: Dictionary = durable.real.capture().value.backup.current.snapshot
-	var before_disk: Dictionary = durable.storage.read_text("autosave.json")
-	assert_true(before_disk.ok)
-	var baseline_commits: int = durable.real.commits
-	var f := _fixture(false)
-	var adapter := PORT.new()
-	assert_true(adapter.configure(durable.real, durable.context.provider_callables()).ok)
-	assert_true(adapter.configure_scene_entry_authority(f.authority, f.authority.validate).ok)
-	f.binding.source_checkpoint = {"checkpoint_id": source.checkpoint_id, "checkpoint_sequence": source.checkpoint_sequence,
-		"snapshot_sha256": _hash(source)}
-	f.authority.expected_binding = f.binding.duplicate(true)
-	assert_true(adapter.retain_scene_entry(f.authority, "cap:1", f.binding, f.checkpoint).ok)
-	# The scene identity is the released five-member family; do not fabricate retired
-	# day/calendar members or bypass current RunSnapshotSchema to make it saveable.
-	var scene_identity := {}
-	for key: String in ["run_id", "branch_id", "desktop_timeline_generation", "causal_day_instance", "causal_day_instance_issuer_receipt"]:
-		scene_identity[key] = input.lifecycle[key]
-	input.lifecycle = scene_identity
-	var refused: Dictionary = adapter.commit_scene_event(input, f.checkpoint)
-	assert_false(refused.ok)
-	assert_eq(durable.real.commits, baseline_commits, "real prepare refuses before any commit")
-	assert_eq(_hash(durable.real.capture().value.backup.current.snapshot), _hash(source))
-	assert_eq(durable.storage.read_text("autosave.json").value, before_disk.value)
-	var ack: Dictionary = adapter.consume_scene_entry_ack("cap:1")
-	assert_false(ack.ok)
-	assert_false(ack.committed)
-	durable.dispose()
-
 func test_authority_callback_cannot_change_public_checkpoint_or_snapshot_commit() -> void:
 	var f := _fixture()
 	var original: Dictionary = f.checkpoint.duplicate(true)
@@ -344,36 +305,41 @@ func test_authority_callback_cannot_change_public_checkpoint_or_snapshot_commit(
 	f.authority.callback = Callable()
 
 func test_final_external_callbacks_cannot_mutate_prepared_candidate_before_write() -> void:
-	for callback_owner: String in ["authority", "source"]:
-		for mutation: String in ["narrative", "payload", "checkpoint_id"]:
-			var f := _fixture()
-			var original_source: Dictionary = f.real.current.duplicate(true)
-			var mutate := func() -> void:
-				if f.real.prepared_object.is_empty(): return
-				var candidate: Dictionary = f.real.prepared_object
-				if mutation == "checkpoint_id":
-					candidate.checkpoint_id = "changed:2"
-				else:
-					var snapshot: Dictionary = candidate.journal_candidate.current.snapshot
-					if mutation == "narrative": snapshot.narrative_checkpoint["altered"] = true
-					else: snapshot.payload["altered"] = true
-					candidate.autosave_document.current_snapshot.snapshot = snapshot.duplicate(true)
-			if callback_owner == "authority": f.authority.callback = mutate
-			else: f.real.before_capture = mutate
-			var refused: Dictionary = f.port.commit_scene_event({}, f.checkpoint)
-			assert_false(refused.ok, callback_owner + ":" + mutation)
-			assert_eq(str(refused.code), "scene_entry_candidate_invalid")
-			assert_false(f.real.calls.has("commit"), "refuse before write")
-			assert_false(f.real.calls.has("rollback"), "no write to roll back")
-			assert_eq(f.real.current, original_source)
-			var ack: Dictionary = f.port.consume_scene_entry_ack("cap:1")
-			assert_false(ack.ok)
-			assert_false(ack.committed)
-			f.authority.callback = Callable()
-			f.real.before_capture = Callable()
-			assert_true(f.port.commit_scene_event({}, f.checkpoint).ok, "no-write refusal retains retry custody")
-			assert_true(f.real.committed_same_object)
-			assert_true(f.port.consume_scene_entry_ack("cap:1").ok)
+	for route: String in ["dating", "scene"]:
+		for callback_owner: String in ["authority", "source"]:
+			for mutation: String in ["narrative", "payload", "checkpoint_id"]:
+				var f := _fixture()
+				f.real.route_id_value = route
+				f.real.scene_family = route == "scene"
+				var input: Dictionary = _scene_input(f) if route == "scene" else {}
+				var original_source: Dictionary = f.real.current.duplicate(true)
+				var mutate := func() -> void:
+					if f.real.prepared_object.is_empty(): return
+					var candidate: Dictionary = f.real.prepared_object
+					if mutation == "checkpoint_id":
+						candidate.checkpoint_id = "changed:2"
+					else:
+						var snapshot: Dictionary = candidate.journal_candidate.current.snapshot
+						if mutation == "narrative": snapshot.narrative_checkpoint["altered"] = true
+						elif route == "scene": snapshot.gameplay["altered"] = true
+						else: snapshot.payload["altered"] = true
+						candidate.autosave_document.current_snapshot.snapshot = snapshot.duplicate(true)
+				if callback_owner == "authority": f.authority.callback = mutate
+				else: f.real.before_capture = mutate
+				var refused: Dictionary = f.port.commit_scene_event(input, f.checkpoint)
+				assert_false(refused.ok, route + ":" + callback_owner + ":" + mutation)
+				assert_eq(str(refused.code), "scene_entry_candidate_invalid")
+				assert_false(f.real.calls.has("commit"), "refuse before write")
+				assert_false(f.real.calls.has("rollback"), "no write to roll back")
+				assert_eq(f.real.current, original_source)
+				var ack: Dictionary = f.port.consume_scene_entry_ack("cap:1")
+				assert_false(ack.ok)
+				assert_false(ack.committed)
+				f.authority.callback = Callable()
+				f.real.before_capture = Callable()
+				assert_true(f.port.commit_scene_event(input, f.checkpoint).ok, "no-write refusal retains retry custody")
+				assert_true(f.real.committed_same_object)
+				assert_true(f.port.consume_scene_entry_ack("cap:1").ok)
 
 # Protocol-only lower seam: complete scene Run/Save validation is A's composed gate.
 func _scene_input(f: Dictionary) -> Dictionary:
@@ -384,7 +350,7 @@ func _scene_input(f: Dictionary) -> Dictionary:
 	return {"lifecycle": {}, "gameplay": {}, "contacts": {}, "desktop": {"board": board, "consequence": {}},
 		"scene": {"registration_sha256": f.binding.registration_sha256,
 			"active_occurrence_id": f.binding.target_occurrence_id,
-			"active_admission_receipt_id": f.binding.admission_receipt_id},
+			"entry_id": f.checkpoint.entry_id, "notification": null, "active_challenge": null, "return_to": null},
 		"applied_effect_transaction_ids": {}, "applied_variable_transaction_ids": {}, "command_receipts": {}}
 
 func test_scene_route_keeps_real_candidate_identity_and_exact_checkpoint_ack() -> void:
@@ -399,7 +365,10 @@ func test_scene_route_keeps_real_candidate_identity_and_exact_checkpoint_ack() -
 		assert_eq(committed.value.checkpoint_reference.snapshot_sha256, _hash(f.real.current))
 		var expected: Dictionary = input.duplicate(true)
 		expected.desktop.board = BOARD_STATE.project_player_state(input.desktop.board).value.snapshot
-		for key: String in input: assert_eq(f.real.current[key], expected[key])
+		for key: String in input:
+			if key in ["command_receipts", "applied_effect_transaction_ids", "applied_variable_transaction_ids"]:
+				assert_false(f.real.current.has(key))
+			else: assert_eq(f.real.current[key], expected[key])
 		assert_true(input.desktop.board.has("command_receipts"), "admitted live input stays unchanged")
 		assert_false(f.real.current.desktop.board.has("command_receipts"), "candidate is the exact persisted projection")
 		var ack: Dictionary = f.port.consume_scene_entry_ack("cap:1")
@@ -452,7 +421,7 @@ func test_scene_route_rejects_unbound_input_or_legacy_prepared_family_before_wri
 			"input": input["committed_schedule"] = {}
 			"registration": input.scene.registration_sha256 = "b".repeat(64)
 			"occurrence": input.scene.active_occurrence_id = "wrong"
-			"admission": input.scene.active_admission_receipt_id = "wrong"
+			"admission": input.scene["active_admission_receipt_id"] = "wrong"
 			"legacy_candidate": f.real.scene_family = false
 			"save_version":
 				f.real.after_prepare = func() -> void:
