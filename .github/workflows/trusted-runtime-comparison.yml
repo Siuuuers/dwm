@@ -1,5 +1,5 @@
 name: Trusted runtime matched comparison
-run-name: Scene activation cost attribution on merged master
+run-name: Load admitted-state reuse matched comparison
 
 on:
   pull_request:
@@ -14,7 +14,7 @@ concurrency:
 
 jobs:
   measure:
-    if: github.event_name == 'workflow_dispatch' || github.head_ref == 'codex/scene-cost-attribution-20261026'
+    if: github.event_name == 'workflow_dispatch' || github.head_ref == 'codex/load-admitted-state-20261026'
     runs-on: windows-2022
     timeout-minutes: 55
     defaults:

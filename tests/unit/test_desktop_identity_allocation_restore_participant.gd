@@ -123,6 +123,56 @@ func test_prepare_succeeds_and_reproduces_the_frozen_fingerprint() -> void:
 	assert_true(str(bundle["remap_receipt_id"]).begins_with("continuation_operation."))
 	assert_eq(rig["loader"].calls, 1, "the source is reloaded exactly once")
 
+func test_admitted_scene_allocation_preserves_selected_progress_and_matches_recovery() -> void:
+	var rig := _happy_path_rig()
+	var source: Dictionary = rig.loader.context
+	# Remapper projection fixture, not a substitute for complete Save9 admission.
+	# Rendered Load tests supply the real admitted save and current Profile.
+	source.merge({"schema_version": 9, "route_id": "scene", "run_id": "run-restore-1",
+		"scene": {"registration_sha256": "a".repeat(64), "active_occurrence_id": "TEST.occurrence",
+			"entry_id": "TEST.entry", "notification": {}, "active_challenge": {}, "return_to": null},
+		"gameplay": {"money": 37, "inventory": {"TEST.item": 2}, "choices": {"TEST.choice": "left"}},
+		"narrative_checkpoint": {"position_id": "TEST.saved.caption"}})
+	source.lifecycle = {"run_id": source.run_id, "branch_id": "TEST.source.branch",
+		"desktop_timeline_generation": 0, "causal_day_instance": "causal-day-source",
+		"causal_day_instance_issuer_receipt": source.desktop.consequence.causal_day_instance_issuer_receipt,
+		"restore_provenance": null, "state": "PLAYING"}
+	source.desktop.board.identity = {"run_id": source.run_id, "branch_id": source.lifecycle.branch_id,
+		"desktop_timeline_generation": 0, "causal_day_instance": "causal-day-source", "app_round_ordinal": 3}
+	source.desktop.board.phase = "ACTIVE"
+	source.desktop.board.board = {"cells": [0, 1, -1], "revealed": [true, false, false], "flags": [2]}
+	rig.loader.context_sha256 = _sha256(source)
+	rig.input.source_locator.document_sha256 = rig.loader.context_sha256
+	var source_before := source.duplicate(true)
+	var allocation_before: Dictionary = rig.raw_candidate.duplicate(true)
+	var participant := _participant(rig.issuer, rig.loader)
+	var recovered: Dictionary = participant.prepare(rig.input)
+	assert_true(recovered.get("ok", false), str(recovered))
+	if not recovered.get("ok", false): return
+	# This boundary only assembles the admitted values: no loader or issuer is needed.
+	var admitted: Dictionary = _participant(null, null)._prepare_admitted_allocation(source,
+		rig.input.restore_transaction_id, rig.input.transaction_issuer_receipt, rig.raw_candidate)
+	assert_true(admitted.get("ok", false), str(admitted))
+	if not admitted.get("ok", false): return
+	assert_eq(admitted, recovered, "ordinary Load and recovery produce the same complete candidate")
+	assert_eq(rig.loader.calls, 1, "only recovery reads the source")
+	assert_eq(source, source_before, "preparation preserves the selected snapshot")
+	assert_eq(rig.raw_candidate, allocation_before, "preparation preserves the allocated identities")
+	var snapshot: Dictionary = admitted.value.candidate.remapped_snapshot
+	for key: String in ["gameplay", "narrative_checkpoint", "scene"]:
+		assert_eq(snapshot[key], source_before[key], key + " is restored without replay")
+	assert_eq(snapshot.desktop.board.board, source_before.desktop.board.board, "cells and flags survive Load")
+	assert_eq(snapshot.desktop.board.identity.app_round_ordinal, 3)
+	assert_eq(snapshot.lifecycle.run_id, source_before.run_id)
+	assert_ne(snapshot.lifecycle.branch_id, source_before.lifecycle.branch_id)
+	assert_eq(snapshot.lifecycle.branch_id, allocation_before.branch_id)
+	assert_eq(snapshot.desktop.board.identity.branch_id, allocation_before.branch_id)
+	assert_eq(snapshot.desktop.consequence.causal_day_instance, allocation_before.causal_day_instance)
+	var applied: Dictionary = participant.apply_silent(admitted.value.candidate)
+	assert_true(applied.get("ok", false), str(applied))
+	snapshot.desktop.board.board.flags.append(1)
+	assert_eq(source, source_before, "installed board data cannot change the selected save data")
+
 func test_prepare_rejects_a_source_hash_mismatch() -> void:
 	if not _exists(): return
 	var rig := _happy_path_rig()
