@@ -3292,6 +3292,10 @@ func get_run_configuration() -> Dictionary:
 ## Replacement consent concerns the installed unfinished state held by this owner.
 ## A raw menu route does not abandon it. No-save Return must later invalidate its
 ## session through the actual lifecycle owner; this read seam does not implement Return.
+func has_new_run_replacement() -> bool:
+	return _run_configuration_installed and _run_lifecycle.get_state() in [&"PLAYING", &"ENDING"]
+
+
 func get_new_run_replacement_baseline() -> Dictionary:
 	var captured: Dictionary = capture_restore_state()
 	if not captured.get("ok", false):
@@ -3300,7 +3304,7 @@ func get_new_run_replacement_baseline() -> Dictionary:
 	var encoded: Dictionary = _CANONICAL_JSON.stringify(backup)
 	if not encoded.get("ok", false):
 		return {"ok": false, "code": &"new_run_replacement_unavailable"}
-	var present: bool = backup["run_configuration_installed"] and backup["lifecycle"]["state"] in ["PLAYING", "ENDING"]
+	var present := has_new_run_replacement()
 	return {"ok": true, "value": {"present": present, "revision": str(encoded["value"]).sha256_text()}}
 
 

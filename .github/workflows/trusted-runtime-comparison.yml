@@ -14,14 +14,14 @@ concurrency:
 
 jobs:
   measure:
-    if: github.event_name == 'workflow_dispatch' || github.head_ref == 'codex/in-memory-new-run-20261026'
+    if: github.event_name == 'workflow_dispatch' || github.head_ref == 'codex/new-run-presence-20261026'
     runs-on: windows-2022
     timeout-minutes: 55
     defaults:
       run:
         shell: pwsh
     env:
-      STARTUP_BASE_SHA: ff5b327a5433867f33c85644e3173d15cdef01d0
+      STARTUP_BASE_SHA: 0a15de6724ab6256953d0643eab74c6b8cb23807
       CANDIDATE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
       DIAGNOSTIC_SHA: d72b67506e05c03f161201df7b9fc5430e2b136e
     steps:
@@ -55,7 +55,7 @@ jobs:
             candidate_tree = (& git rev-parse "$($env:CANDIDATE_SHA)^{tree}").Trim()
             repetitions = 4
             order = @('AB', 'BA', 'AB', 'BA'); cases = @('fresh', 'retained', 'load')
-            scope = 'Matched baseline/candidate instrumented exports on one Windows runner. Each action starts a new process. Retained and Load use the same r1-baseline-fresh profile after a real manual save. Verbose engine logging is enabled equally to identify shutdown resources. OS caches are not cleared.'
+            scope = 'Matched baseline/candidate instrumented exports on one Windows runner. Each action starts a new process. Retained and Load use the same r1-baseline-fresh profile after real manual Save and Autosave. Verbose engine logging is enabled equally to identify shutdown resources. OS caches are not cleared.'
           } | ConvertTo-Json -Depth 4 | Set-Content (Join-Path $output 'source.json') -Encoding utf8NoBOM
           Get-CimInstance Win32_VideoController | Select-Object Name, DriverVersion, AdapterRAM |
             ConvertTo-Json | Set-Content (Join-Path $output 'video-controller.json') -Encoding utf8NoBOM

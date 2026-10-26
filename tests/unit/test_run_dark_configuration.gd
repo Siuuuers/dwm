@@ -181,3 +181,32 @@ func test_raw_gameplay_load_does_not_create_a_captured_configuration() -> void:
 	assert_false(owner.to_save_dict().has("dark_mode"))
 	assert_false(owner.to_save_dict().has("opening_seen"))
 	assert_false(owner.to_save_dict().has("tutorial_seen"))
+
+
+func test_new_run_replacement_presence_follows_installed_unfinished_lifecycle() -> void:
+	var owner := _game_state()
+	assert_false(owner.has_new_run_replacement(), "fresh owner has nothing to replace")
+	var snapshot := _snapshot(owner, false)
+	assert_false(owner.has_new_run_replacement(), "detached preparation does not install a run")
+	assert_true(owner.apply_restore_silent({"snapshot": snapshot}).ok)
+	assert_true(owner.has_new_run_replacement(), "installed unfinished run needs consent")
+	var before: Dictionary = owner.capture_restore_state()
+	watch_signals(owner)
+	assert_true(owner.has_new_run_replacement())
+	assert_eq(owner.capture_restore_state(), before, "presence is a read")
+	assert_signal_not_emitted(owner, "save_relevant_state_changed")
+	# Presence must not depend on serializing unrelated gameplay facts.
+	owner._narrative_variables["TEST.unserializable"] = Vector2(1, 2)
+	assert_true(owner.has_new_run_replacement())
+	owner._narrative_variables.erase("TEST.unserializable")
+	owner._lifecycle_set_playing_day(7)
+	var ending_fixture := preload("res://tests/support/DayResolutionReceiptFixtures.gd")
+	assert_true(owner._run_lifecycle.enter_ending(ending_fixture.ending_plan()).ok)
+	assert_true(owner.has_new_run_replacement(), "unfinished ending remains replaceable")
+	for stage: String in ["PRIMARY_PENDING", "PRIMARY_PLAYED", "EPILOGUE_PLAYED"]:
+		assert_true(owner._run_lifecycle.complete_ending_playback_stage("ending:" + stage,
+			StringName(stage), ending_fixture.playback_receipt(stage)).ok)
+	assert_true(owner._complete_run().ok)
+	assert_false(owner.has_new_run_replacement(), "completed run needs no replacement consent")
+	owner.reset_game()
+	assert_false(owner.has_new_run_replacement())
