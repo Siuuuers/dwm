@@ -1,5 +1,5 @@
 extends "res://addons/gut/test.gd"
-## Real reducer/Profile owner with existing injected End/checkpoint authority.
+## Real reducer with existing injected Run End/checkpoint authority.
 ## This checks classification and exclusive destination selection, not native entry.
 const FIXTURE := preload("res://tests/support/SceneChallengeFixture.gd")
 var f: RefCounted
@@ -41,7 +41,10 @@ func _close(outcome: String, target: String) -> void:
 	if outcome == "never_started":
 		assert_null(closed.value.attempt_proof)
 	else:
-		assert_true(FIXTURE.LEDGER.validate_attempt_proof(f.attempt().value, closed.value.attempt_proof).ok)
+		assert_eq(closed.value.attempt_proof.record_sha256, FIXTURE.CANONICAL.canonical_sha256(f.record()).value.sha256)
+		assert_eq(closed.value.attempt_proof.attempt_id, f.record().spec.board_token)
+		assert_eq(closed.value.attempt_proof.branch_id, f.state.lifecycle.branch_id)
+		assert_eq(f.attempt().value, {}, "Challenge progress does not enter global Profile")
 
 func test_not_started_view_and_refused_pre_reveal_flag_select_a() -> void:
 	assert_eq(f.owner.pull_scene_panel(f.token).value.phase, "never_started")

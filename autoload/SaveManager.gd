@@ -963,6 +963,8 @@ func reconcile_new_run_storage() -> Dictionary:
 func _reconcile_new_run_storage() -> Dictionary:
 	var admitted := _admit_new_run_journal_io()
 	if not admitted.get("ok", false): return admitted
+	var retired: Dictionary = _continuation_journal.retire_scene_restore_operations()
+	if not retired.get("ok", false): return retired
 	var listed: Dictionary = _continuation_journal.list_incomplete()
 	if not listed.get("ok", false): return listed
 	var pending: Array[Dictionary] = []
@@ -2456,6 +2458,8 @@ func reconcile_incomplete_continuations() -> Dictionary:
 		if not admitted.get("ok", false): return admitted
 	if _identity_issuer == null:
 		return _fail(&"identity_issuer_not_configured", "configure_identity_issuer first")
+	var retired: Dictionary = _continuation_journal.retire_scene_restore_operations()
+	if not retired.get("ok", false): return retired
 	var listed: Dictionary = _continuation_journal.list_incomplete()
 	if not listed.get("ok", false):
 		return listed

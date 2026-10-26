@@ -115,7 +115,7 @@ func test_terminal_board_transfer_keeps_terminal_state_and_closes_new_story_with
 	assert_eq(panel_after.value, panel_before, "terminal panel still renders the frozen board without old authored profile")
 	var departure: Dictionary = f.owner.prepare_scene_departure(f.command)
 	assert_true(departure.ok, str(departure))
-	assert_eq(f.state.route_context.dating_active_attempt_ref.branch_id, "TEST.terminal.transfer.branch")
+	assert_eq(f.state.route_context.dating_active_attempt_ref, source_reference, "departure keeps the saved Run reference")
 	assert_eq(f.record(), record, "automatic departure commits the selected prefix without revealing again")
 	assert_eq(f.owner.pull_physical(f.token).value.actions, [])
 	var closed: Dictionary = f.owner.close_scene_challenge(f.token)

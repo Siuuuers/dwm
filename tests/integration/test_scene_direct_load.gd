@@ -6,8 +6,11 @@ const ROOT_PATH := "desktop-issuer-root.json"
 const JOURNAL_PATH := "desktop-continuation-operations.json"
 var fixture: RefCounted
 var fixture_ready := false
+var validation_scope: RefCounted
 
 func before_all() -> void:
+	validation_scope = preload("res://tests/support/SceneValidationScope.gd").new()
+	validation_scope.install(true)
 	fixture = FIXTURE.new()
 	var setup: Dictionary = fixture.setup(get_tree())
 	assert_true(setup.ok, str(setup))
@@ -15,6 +18,7 @@ func before_all() -> void:
 
 func after_all() -> void:
 	if fixture != null: fixture.close()
+	if validation_scope != null: validation_scope.restore()
 
 func test_selected_load_preserves_identity_disk_and_current_settings_then_allows_normal_save() -> void:
 	assert_true(fixture_ready)

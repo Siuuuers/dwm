@@ -206,7 +206,7 @@ static func _build_current_scene_initial_checkpoint(scene: Dictionary, bundle: D
 		if entry.entry_id == entry_id: path = entry.locators.en.path
 	for programme: Dictionary in bundle.scene_programme.entries:
 		if programme.entry_id == entry_id: markers = programme.markers
-	var compiled := DialogicRuntimeAdapter.compile_scene_programme(path, entry_id, labels, markers)
+	var compiled := DialogicRuntimeAdapter.compile_runtime_scene_programme(path, entry_id, labels, markers)
 	if not compiled.ok: return compiled
 	if compiled.value.program_sha256 != target.program_sha256 or not compiled.value.label_nodes.has(target.label):
 		return {"ok": false, "code": &"scene_initial_target_invalid"}

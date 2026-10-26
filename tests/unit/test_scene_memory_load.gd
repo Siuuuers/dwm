@@ -3,6 +3,8 @@ extends "res://tests/unit/test_scene_restore_activation_protocol.gd"
 class UnusedJournal extends RefCounted:
 	var calls: Array[String] = []
 	var incomplete: Array = []
+	func retire_scene_restore_operations() -> Dictionary:
+		return {"ok": true}
 	func list_incomplete() -> Dictionary:
 		calls.append("list_incomplete")
 		return {"ok": true, "value": incomplete.duplicate(true)}

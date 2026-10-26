@@ -1,6 +1,7 @@
 {
   "schema": "save_manager_required_surface.v1",
   "symbols": [
+    {"symbol": "capture_scene_restore_activation", "kind": "function", "availability": "current", "disposition": "retain", "replacement": "", "contract_test": "test_memory_load_waits_for_ui_and_native_then_retains_only_process_local_readiness"},
     {"symbol": "save_completed", "kind": "signal", "availability": "current", "disposition": "deprecate", "replacement": "signal save_capability_changed(capability: Dictionary)", "contract_test": "test_save_family_writes_closed_relative_names"},
     {"symbol": "load_completed", "kind": "signal", "availability": "current", "disposition": "deprecate", "replacement": "signal run_restored(checkpoint_id: String, route_id: String)", "contract_test": "test_restore_preparation_and_delete_families"},
     {"symbol": "save_failed", "kind": "signal", "availability": "current", "disposition": "deprecate", "replacement": "signal save_capability_changed(capability: Dictionary)", "contract_test": "test_save_family_writes_closed_relative_names"},
@@ -79,8 +80,6 @@
     {"symbol": "configure_scene_title_new_run", "kind": "function", "availability": "current", "disposition": "retain", "replacement": "", "contract_test": "test_title_template_cancel_stale_and_same_operation_retry"},
     {"symbol": "start_scene_new_run", "kind": "function", "availability": "current", "disposition": "retain", "replacement": "", "contract_test": "test_joint_creation_persists_exact_material_before_activation_and_alternates_after_ack"},
     {"symbol": "retry_scene_activation", "kind": "function", "availability": "current", "disposition": "retain", "replacement": "", "contract_test": "test_fresh_process_selected_load_preserves_saved_caption_and_history"},
-    {"symbol": "load_restore_context", "kind": "function", "availability": "current", "disposition": "retain", "replacement": "", "contract_test": "test_fresh_process_resumes_same_operation_and_confirms_native_mount_once"},
-    {"symbol": "capture_committed_scene_restore", "kind": "function", "availability": "current", "disposition": "retain", "replacement": "", "contract_test": "test_fresh_process_selected_load_preserves_saved_caption_and_history"},
     {"symbol": "configure_scene_restore_participants", "kind": "function", "availability": "current", "disposition": "retain", "replacement": "", "contract_test": "test_real_bootstrap_scene_text_and_selected_load_keep_owner_authority"},
     {"symbol": "capture_committed_scene_creation", "kind": "function", "availability": "current", "disposition": "retain", "replacement": "", "contract_test": "test_rebuilt_other_initial_target_is_valid_preparation_but_not_committed_authority"}
   ]

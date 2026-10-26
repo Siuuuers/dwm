@@ -127,7 +127,7 @@ func happy_load(quick: bool) -> void:
 	assert_false(fixture.pause._loading)
 	assert_false(fixture.pause.surface.visible)
 	var destination: Dictionary = fixture.game.capture_run_snapshot_input()
-	assert_ne(destination.lifecycle.branch_id, source.lifecycle.branch_id)
+	assert_eq(destination.lifecycle, source.lifecycle, "Load preserves selected lifecycle")
 	assert_eq(fixture.bridge._reading_session.boundary, "line")
 	var restored_checkpoint: Dictionary = fixture.bridge.capture_reading_checkpoint(false)
 	if not _ok(restored_checkpoint): return

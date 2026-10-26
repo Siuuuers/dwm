@@ -2198,22 +2198,6 @@
       "contract_test": "test_first_reveal_real_two_store_retry_and_save"
     },
     {
-      "symbol": "prepare_selected_scene_absence",
-      "kind": "function",
-      "availability": "current",
-      "disposition": "retain",
-      "replacement": "",
-      "contract_test": "test_selected_absence_survives_source_overwrite_and_destination_retry"
-    },
-    {
-      "symbol": "validate_selected_scene_absence",
-      "kind": "function",
-      "availability": "current",
-      "disposition": "retain",
-      "replacement": "",
-      "contract_test": "test_selected_absence_survives_source_overwrite_and_destination_retry"
-    },
-    {
       "symbol": "capture_scene_challenge_closure",
       "kind": "function",
       "availability": "current",
