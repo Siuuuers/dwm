@@ -26,6 +26,10 @@ Use cloud-only Godot execution and automated tests. The user permits direct merg
 - If the game closes during Load, let it close. Do not record/resume the unfinished Load or add special close-time recovery. The original save remains intact; on reopening, the player can select Load again.
 - Target behavior: gameplay Load reads saved data and changes the live session without rewriting the source save or persistent player progress solely to restore it. Remove durable Load progress/acknowledgement bookkeeping made unnecessary by this rule. Normal later save operations are a separate concern.
 - Current implementation is different: it writes continuation intent, allocation/restore bookkeeping and activation acknowledgement. Do not claim Load is already read-only. Audit all persistent write paths, including identity issuance and callbacks, before implementing the new behavior.
+- Do not clear restoration bookkeeping on every startup or shutdown. Shutdown cleanup cannot be relied on after a crash or forced exit. Startup deletion is unsafe while existing restore code still depends on those records.
+- Retire the durable Load bookkeeping producer and its recovery consumers together. In the new design, incomplete Load state exists only in memory and disappears when the process exits.
+- If obsolete records remain from the old system, perform narrowly scoped one-time cleanup only after auditing their ownership and retiring dependencies. Identify records exclusive to Load restoration; do not delete shared identity state, other journals, saves, settings, or global progress merely because they resemble bookkeeping.
+- Treat legacy-record cleanup as a transition task, not a recurring maintenance feature. Do not add a new cleanup manager or recovery framework. If old records describe partial persistent mutations that the new design cannot interpret safely, report that concrete case before choosing a destructive policy.
 - Preserve exact current dialogue position within a checkpoint. Checkpoint identity and current caption position are separate. New Account starts at the checkpoint's first caption.
 - No encryption was selected. A symmetric key does not replace decoding or semantic restoration. Anti-tamper protection is not the objective.
 - The user approved proceeding with simplification after these explanations. This handoff marks a useful session boundary; no further general design interview is needed.
@@ -34,7 +38,7 @@ Use cloud-only Godot execution and automated tests. The user permits direct merg
 
 Loading a current save restores the same gameplay values, exact reading position, base presentation, and active overlays. Current settings and global unlocks remain current. The player can read and click as soon as the actual UI and dialogue state are ready. Avoid redundant normalization, configuration, temporary-session construction, and repeated validation of internally prepared values.
 
-Verify that interrupted Load leaves the source save and persistent player progress unchanged, creates no resumable Load operation, and permits a later normal Load. Verify overlay position/order and removal across save/load. These are acceptance checks for the new design, not results already obtained.
+Verify that interrupted Load leaves the source save and persistent player progress unchanged, creates no resumable Load operation, and permits a later normal Load. Verify overlay position/order and removal across save/load. Also verify that the transition handles obsolete Load-only records without modifying saves/global progress or breaking still-used shared records. Normal startup and shutdown must not rely on blanket journal deletion. These are acceptance checks for the new design, not results already obtained.
 
 Do not promise a particular speedup before measurement.
 
