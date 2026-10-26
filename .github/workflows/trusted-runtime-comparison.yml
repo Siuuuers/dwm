@@ -21,6 +21,7 @@ jobs:
       run:
         shell: pwsh
     env:
+      PYTHONUTF8: "1"
       STARTUP_BASE_SHA: a5ecd04ecb2724aaaf8c7462aa2b41e9f895ccc5
       CANDIDATE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
       DIAGNOSTIC_SHA: d72b67506e05c03f161201df7b9fc5430e2b136e
