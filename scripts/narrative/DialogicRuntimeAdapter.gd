@@ -78,23 +78,20 @@ func reconcile_scene_publication(session: RefCounted) -> Dictionary:
 	var frontier := capture_reading_frontier()
 	if not frontier.ok: return frontier
 	var owner := preload("res://scripts/narrative/DialogicEntryManifest.gd")
-	var selected := owner.scene_registration()
+	var selected := owner.scene_contract_tables()
 	if not selected.ok or session.fingerprint != owner.scene_registration_fingerprint():
 		return _fail(&"scene_source_registration_changed", "")
 	var labels: Array = []
 	var path := ""
 	var programme := {}
-	for entry: Dictionary in selected.value.entry_manifest.entries:
+	for entry: Dictionary in selected.bundle.entry_manifest.entries:
 		labels.append(entry.entry_id)
 		if entry.entry_id == _caption_entry: path = entry.locators.en.path
-	for row: Dictionary in selected.value.scene_programme.entries:
+	for row: Dictionary in selected.bundle.scene_programme.entries:
 		if row.entry_id == _caption_entry: programme = row
 	if programme.is_empty() or path != _requested_path: return _fail(&"scene_source_unavailable", "")
-	var compiled := compile_scene_programme(path, _caption_entry, labels, programme.markers)
+	var compiled := compile_runtime_scene_programme(path, _caption_entry, labels, programme.markers)
 	if not compiled.ok: return compiled
-	if compiled.value.program_sha256 != programme.program_sha256 \
-			or compiled.value.content_sha256 != programme.content_sha256:
-		return _fail(&"scene_source_registration_changed", "")
 	var index: int = compiled.value.native_indices.find(int(_dialogic.current_event_idx))
 	if index < 0: return _fail(&"scene_source_boundary_invalid", "")
 	var node: Dictionary = compiled.value.nodes[index]
@@ -120,23 +117,20 @@ func _scene_source_boundary(session: RefCounted, allow_suspended_read: bool = fa
 	var saved: Dictionary = session.capture({} if session.boundary == "control" else frontier.value)
 	if not saved.ok: return saved
 	var owner := preload("res://scripts/narrative/DialogicEntryManifest.gd")
-	var selected := owner.scene_registration()
+	var selected := owner.scene_contract_tables()
 	if not selected.ok or session.fingerprint != owner.scene_registration_fingerprint():
 		return _fail(&"scene_source_registration_changed", "")
 	var labels: Array = []
 	var path := ""
 	var programme := {}
-	for entry: Dictionary in selected.value.entry_manifest.entries:
+	for entry: Dictionary in selected.bundle.entry_manifest.entries:
 		labels.append(entry.entry_id)
 		if entry.entry_id == _caption_entry: path = entry.locators.en.path
-	for row: Dictionary in selected.value.scene_programme.entries:
+	for row: Dictionary in selected.bundle.scene_programme.entries:
 		if row.entry_id == _caption_entry: programme = row
 	if programme.is_empty() or path != _requested_path: return _fail(&"scene_source_unavailable", "")
-	var compiled := compile_scene_programme(path, _caption_entry, labels, programme.markers)
+	var compiled := compile_runtime_scene_programme(path, _caption_entry, labels, programme.markers)
 	if not compiled.ok: return compiled
-	if compiled.value.program_sha256 != programme.program_sha256 \
-			or compiled.value.content_sha256 != programme.content_sha256:
-		return _fail(&"scene_source_registration_changed", "")
 	var index: int = session.scene_index
 	if session.boundary == "control":
 		if not _marker_hold_current(): return _fail(&"scene_source_not_held", "")
@@ -194,9 +188,9 @@ func install_scene_target(session: RefCounted, checkpoint: Dictionary, target: D
 	var presentation := FrozenPresentationContext.validate(checkpoint.entry_id, frame.value.presentation)
 	if not presentation.ok: return presentation
 	var owner := preload("res://scripts/narrative/DialogicEntryManifest.gd")
-	var selected := owner.scene_registration()
+	var selected := owner.scene_contract_tables()
 	if not selected.ok: return selected
-	var bundle: Dictionary = selected.value
+	var bundle: Dictionary = selected.bundle
 	var registered := false
 	for row: Dictionary in bundle.targets:
 		if row.target == target: registered = true
@@ -210,9 +204,9 @@ func install_scene_target(session: RefCounted, checkpoint: Dictionary, target: D
 	var markers: Array = []
 	for row: Dictionary in bundle.scene_programme.entries:
 		if row.entry_id == checkpoint.entry_id: markers = row.markers
-	var compiled := compile_scene_programme(path, checkpoint.entry_id, labels, markers)
+	var compiled := compile_runtime_scene_programme(path, checkpoint.entry_id, labels, markers)
 	if not compiled.ok: return compiled
-	if compiled.value.program_sha256 != target.program_sha256 or not compiled.value.label_nodes.has(target.label) \
+	if not compiled.value.label_nodes.has(target.label) \
 			or compiled.value.label_nodes[target.label] != checkpoint.reading_session.program_index:
 		return _fail(&"scene_native_target_invalid", "target differs from the staged programme")
 	if source_token != null:
@@ -347,21 +341,20 @@ func _install_scene_frontier(session: RefCounted, checkpoint: Dictionary, source
 		return _fail(&"scene_restore_native_invalid", "saved context mismatch")
 	var presentation := FrozenPresentationContext.validate(checkpoint.entry_id, frame.value.presentation)
 	if not presentation.ok: return presentation
-	var selected := preload("res://scripts/narrative/DialogicEntryManifest.gd").scene_registration()
+	var selected := preload("res://scripts/narrative/DialogicEntryManifest.gd").scene_contract_tables()
 	if not selected.ok: return selected
 	var labels: Array = []
 	var path := ""
 	var programme := {}
-	for entry: Dictionary in selected.value.entry_manifest.entries:
+	for entry: Dictionary in selected.bundle.entry_manifest.entries:
 		labels.append(entry.entry_id)
 		if entry.entry_id == checkpoint.entry_id: path = entry.locators.en.path
-	for row: Dictionary in selected.value.scene_programme.entries:
+	for row: Dictionary in selected.bundle.scene_programme.entries:
 		if row.entry_id == checkpoint.entry_id: programme = row
 	if programme.is_empty(): return _fail(&"scene_restore_native_invalid", "programme unavailable")
-	var compiled := compile_scene_programme(path, checkpoint.entry_id, labels, programme.markers)
+	var compiled := compile_runtime_scene_programme(path, checkpoint.entry_id, labels, programme.markers)
 	if not compiled.ok: return compiled
-	if compiled.value.program_sha256 != programme.program_sha256 or compiled.value.content_sha256 != programme.content_sha256 \
-			or saved.program_index >= compiled.value.nodes.size():
+	if saved.program_index >= compiled.value.nodes.size():
 		return _fail(&"scene_restore_native_invalid", "installed programme changed")
 	var native_program_index: int = saved.program_index
 	var restore_frontier: Dictionary = saved.frontier.duplicate(true)
@@ -512,7 +505,29 @@ static func compile_scene_programme(path: String, entry_label: String,
 		callable_labels: Array, markers: Array = []) -> Dictionary:
 	return _compile_scene_programme_in_registration(path, entry_label, callable_labels, markers, {})
 
-# Only the manifest's synchronous validation loop shares this private parse scope.
+# The selected installed content is fixed for one process. Keep exact-artifact
+# validation on the public compiler; native playback reuses its prepared mapping.
+static var _scene_runtime_programmes: Dictionary = {}
+static var _scene_runtime_bundle: Dictionary = {}
+
+static func compile_runtime_scene_programme(path: String, entry_label: String,
+		callable_labels: Array, markers: Array = [], parsed_sources: Dictionary = {}) -> Dictionary:
+	var owner := preload("res://scripts/narrative/DialogicEntryManifest.gd")
+	var selected := owner.scene_contract_tables()
+	if not selected.ok: return selected
+	if not is_same(_scene_runtime_bundle, selected.bundle):
+		_scene_runtime_bundle = selected.bundle
+		_scene_runtime_programmes = {}
+	var cacheable: bool = not ProjectSettings.get_setting("dialogic/translation/enabled", false)
+	if cacheable and _scene_runtime_programmes.has(entry_label):
+		return _scene_runtime_programmes[entry_label]
+	var result := _compile_scene_programme_in_registration(path, entry_label, callable_labels, markers, parsed_sources)
+	if cacheable and result.ok:
+		owner._scene_freeze(result)
+		_scene_runtime_programmes[entry_label] = result
+	return result
+
+# Synchronous registration validation and session preparation each own a local parse scope.
 # Public calls start empty; neither this scope nor its native events enter the result cache.
 static func _compile_scene_programme_in_registration(path: String, entry_label: String,
 		callable_labels: Array, markers: Array, parsed_sources: Dictionary) -> Dictionary:

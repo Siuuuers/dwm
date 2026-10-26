@@ -115,7 +115,7 @@ static func _select_startup_fixture() -> Dictionary:
 	if not parsed.ok:
 		_startup_selection_error = _scene_fail("startup registration unavailable: " + path)
 		return _startup_selection_error.duplicate(true)
-	var selected := _configure_scene_registration(parsed.value)
+	var selected := configure_test_scene_registration(parsed.value) if fixture else _configure_scene_registration(parsed.value)
 	if selected.ok:
 		if fixture: _first_target_id = "target_a"
 		else:
@@ -139,13 +139,17 @@ static func first_target_id() -> String:
 static func configure_test_scene_registration(bundle: Dictionary) -> Dictionary:
 	if not OS.has_feature("debug"):
 		return _scene_fail("test_only")
-	return _configure_scene_registration(bundle)
-
-static func _configure_scene_registration(bundle: Dictionary) -> Dictionary:
 	if _registration_used or not _scene_bundle.is_empty():
 		return _scene_fail("registration_already_selected")
 	var checked := validate_scene_registration(bundle)
 	if not checked.ok: return checked
+	return _configure_scene_registration(bundle)
+
+## Runtime trusts shipped authored content. CI explicitly validates its DTL;
+## this owner prepares the registration indexes once for the installed process.
+static func _configure_scene_registration(bundle: Dictionary) -> Dictionary:
+	if _registration_used or not _scene_bundle.is_empty():
+		return _scene_fail("registration_already_selected")
 	var structural := SCENE_EVENTS.validate_bundle_structure(bundle)
 	if not structural.ok: return structural
 	_scene_contract_tables = structural.value
@@ -170,6 +174,12 @@ static func scene_contract_tables() -> Dictionary:
 	_registration_used = true
 	if _scene_bundle.is_empty(): return _fail(&"scene_registration_absent", "no scene registration selected")
 	return {"ok": true, "value": _scene_contract_tables, "bundle": _scene_bundle}
+
+## Only this exact frozen bundle can reuse the owner's prepared tables. Do not
+## select startup here: configuration itself calls the structural validator.
+static func prepared_scene_contract(bundle: Variant) -> Dictionary:
+	if _scene_bundle.is_empty() or not is_same(bundle, _scene_bundle): return {}
+	return {"ok": true, "value": _scene_contract_tables}
 
 static func scene_registration_fingerprint() -> String:
 	if not _select_startup_fixture().ok: return ""

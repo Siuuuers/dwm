@@ -322,21 +322,16 @@ func test_prepared_configuration_shares_frozen_data_but_not_reading_progress() -
 	assert_eq(first._scene_nodes[programme.entry_id], pristine.value.nodes)
 	assert_eq(second._scene_nodes[programme.entry_id], pristine.value.nodes)
 
-func test_prepared_configuration_rejects_changed_malformed_and_deleted_sources() -> void:
-	_install_reading_source()
+func test_prepared_configuration_trusts_installed_process_but_strict_validation_reads_edits() -> void:
+	var bundle := _install_reading_source()
 	var original := FileAccess.get_file_as_string(PATH)
 	assert_true(SESSION.new().configure_scene().ok)
 	var prepared: Dictionary = SESSION._prepared_scene_configuration
-	for replacement: String in [original + "\n# changed source\n", "label scene.test.a\nMissing stable identity.\nreturn\n"]:
-		_write(replacement)
-		var refused := SESSION.new()
-		assert_false(refused.configure_scene().ok, "changed physical input cannot reuse prepared nodes")
-		assert_true(refused.catalogue.is_empty(), "failed preparation does not install partial data")
-		assert_true(is_same(SESSION._prepared_scene_configuration, prepared))
-		_write(original)
-		assert_true(SESSION.new().configure_scene().ok, "restored bytes recover without retaining a failed cache")
-	DirAccess.remove_absolute(PATH)
-	assert_false(SESSION.new().configure_scene().ok, "deleted source cannot be hidden by prepared data")
+	_write(original + "\n# changed source\n")
+	assert_true(SESSION.new().configure_scene().ok, "prepared process content is immutable")
+	assert_true(is_same(SESSION._prepared_scene_configuration, prepared))
+	assert_false(MANIFEST.validate_scene_registration(bundle).ok,
+		"the separate release validator must still detect changed physical content")
 
 func test_prepared_configuration_bypasses_translation_enabled_compilation() -> void:
 	var bundle := _install_reading_source()
@@ -352,7 +347,7 @@ func test_prepared_configuration_bypasses_translation_enabled_compilation() -> v
 	_translation.add_message("Text/%s/text" % line.line_id, "TEST changed translation.")
 	TranslationServer.add_translation(_translation)
 	TranslationServer.set_locale("en")
-	assert_false(SESSION.new().configure_scene().ok, "changed translation cannot reuse the canonical registered programme")
+	assert_true(SESSION.new().configure_scene().ok, "runtime reads translated prose without re-proving the shipped hash")
 	ProjectSettings.set_setting("dialogic/translation/enabled", false)
 	var restored := SESSION.new()
 	assert_true(restored.configure_scene().ok)
@@ -375,3 +370,44 @@ func test_prepared_configuration_follows_selected_registration_identity() -> voi
 	assert_true(restored.configure_scene().ok)
 	assert_true(is_same(first._scene_bundle, restored._scene_bundle))
 	assert_eq(first._scene_nodes, restored._scene_nodes)
+
+func test_runtime_compiler_reuses_frozen_selected_mapping_without_rereading_source() -> void:
+	var bundle := _install_reading_source()
+	var labels: Array = []
+	for entry: Dictionary in bundle.entry_manifest.entries: labels.append(entry.entry_id)
+	var programme: Dictionary = bundle.scene_programme.entries[0]
+	var first := ADAPTER.compile_runtime_scene_programme(PATH, programme.entry_id, labels, programme.markers)
+	assert_true(first.ok)
+	if not first.ok: return
+	assert_true(first.is_read_only())
+	assert_true(first.value.nodes.is_read_only())
+	_write("not the installed programme")
+	var reused := ADAPTER.compile_runtime_scene_programme(PATH, programme.entry_id, labels, programme.markers)
+	assert_true(is_same(first, reused), "same process keeps its installed immutable programme")
+	assert_false(ADAPTER.compile_scene_programme(PATH, programme.entry_id, labels, programme.markers).ok,
+		"explicit artifact checking still reads physical input")
+
+func test_runtime_preparation_shares_one_native_parse_for_entries_in_one_dtl() -> void:
+	var bundle := _install_reading_source()
+	var labels: Array = []
+	for entry: Dictionary in bundle.entry_manifest.entries: labels.append(entry.entry_id)
+	# Strict fixture selection warmed its result cache; production startup does not.
+	ADAPTER._scene_compile_cache.erase(PATH)
+	var parsed_sources := {}
+	var first_timeline: DialogicTimeline
+	for programme: Dictionary in bundle.scene_programme.entries:
+		var compiled := ADAPTER.compile_runtime_scene_programme(PATH, programme.entry_id,
+			labels, programme.markers, parsed_sources)
+		assert_true(compiled.ok)
+		assert_eq(parsed_sources.size(), 1, "one physical DTL owns one invocation-local parse")
+		if parsed_sources.is_empty(): return
+		if first_timeline == null: first_timeline = parsed_sources[PATH].timeline
+		else: assert_true(is_same(first_timeline, parsed_sources[PATH].timeline),
+			"another entry must reuse the exact parsed timeline")
+		assert_eq(compiled, ADAPTER.compile_scene_programme(PATH, programme.entry_id, labels, programme.markers),
+			"shared parsing preserves the strict compiler's exact semantic and native mapping")
+	assert_gt(bundle.scene_programme.entries.size(), 1, "fixture exercises several entries")
+	parsed_sources.clear()
+	var programme: Dictionary = bundle.scene_programme.entries[0]
+	assert_true(ADAPTER.compile_runtime_scene_programme(PATH, programme.entry_id, labels, programme.markers).ok,
+		"cached semantic mappings remain valid after local native resources are released")

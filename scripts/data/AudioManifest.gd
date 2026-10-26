@@ -256,11 +256,13 @@ static func make_scene_context(registration: Dictionary, entry_id: String, admis
 					selection = _scene_selection(plan)
 	if not found:
 		return _scene_failure(&"invalid_scene_audio_context")
-	var encoded: Dictionary = SCENE_WRITER.stringify(registration)
-	if not encoded.ok:
-		return encoded
+	var fingerprint: String = checked.get("fingerprint", "")
+	if fingerprint.is_empty():
+		var encoded: Dictionary = SCENE_WRITER.stringify(registration)
+		if not encoded.ok: return encoded
+		fingerprint = str(encoded.value).sha256_text()
 	return {"ok": true, "value": {"kind": "scene_audio", "schema_version": 1,
-		"registration_sha256": str(encoded.value).sha256_text(),
+		"registration_sha256": fingerprint,
 		"admission_receipt_id": admission_receipt_id, "selection": selection}}
 
 
@@ -273,10 +275,12 @@ static func resolve_scene_context(context: Dictionary, registration: Dictionary)
 		return _scene_failure(&"invalid_scene_audio_context")
 	if typeof(context.kind) != TYPE_STRING or context.kind != "scene_audio" or typeof(context.schema_version) != TYPE_INT or context.schema_version != 1 or not _scene_id(context.admission_receipt_id) or not _scene_hash(context.registration_sha256):
 		return _scene_failure(&"invalid_scene_audio_context")
-	var encoded: Dictionary = SCENE_WRITER.stringify(registration)
-	if not encoded.ok:
-		return encoded
-	if context.registration_sha256 != str(encoded.value).sha256_text():
+	var fingerprint: String = checked.get("fingerprint", "")
+	if fingerprint.is_empty():
+		var encoded: Dictionary = SCENE_WRITER.stringify(registration)
+		if not encoded.ok: return encoded
+		fingerprint = str(encoded.value).sha256_text()
+	if context.registration_sha256 != fingerprint:
 		return _scene_failure(&"scene_audio_registration_mismatch")
 	var result: Dictionary = {"snapshot": context.duplicate(true), "record": null, "entrance_seconds": 0.0, "load_seconds": 0.0}
 	if context.selection == null:
@@ -302,6 +306,10 @@ static func resolve_scene_context(context: Dictionary, registration: Dictionary)
 static func _scene_registration(registration: Dictionary) -> Dictionary:
 	if registration.get("kind") != "scene_reading_registration" or typeof(registration.get("schema_version")) != TYPE_INT or registration.schema_version != 3:
 		return _scene_failure(&"invalid_scene_audio_registration")
+	var owner: Script = load("res://scripts/narrative/DialogicEntryManifest.gd")
+	var prepared: Dictionary = owner.prepared_scene_contract(registration)
+	if not prepared.is_empty():
+		return {"ok": true, "value": registration.audio_catalogue, "fingerprint": prepared.value.fingerprint}
 	var manifest: Variant = registration.get("entry_manifest")
 	if typeof(manifest) != TYPE_DICTIONARY or typeof(manifest.get("entries")) != TYPE_ARRAY:
 		return _scene_failure(&"invalid_scene_audio_registration")

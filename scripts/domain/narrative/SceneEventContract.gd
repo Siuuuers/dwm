@@ -296,6 +296,10 @@ static func thought_result(envelope: Dictionary) -> Dictionary:
 		"choice": choice, "target_id": target_id}
 
 static func validate_bundle_structure(bundle: Variant) -> Dictionary:
+	var manifest: Script = load("res://scripts/narrative/DialogicEntryManifest.gd")
+	if manifest == null: return _fail(&"scene_bundle_invalid")
+	var prepared: Dictionary = manifest.prepared_scene_contract(bundle)
+	if not prepared.is_empty(): return prepared
 	var started_us: int = _VALIDATION_TIMING.start_sample()
 	var result: Dictionary = _validate_bundle_structure_observed_body(bundle)
 	_VALIDATION_TIMING.finish_sample("bundle_validation", started_us, bool(result.get("ok", false)))

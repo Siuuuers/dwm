@@ -502,12 +502,12 @@ func configure_scene_new_run(bridge: Object) -> Dictionary:
 		return _fail(&"scene_new_run_not_configured", "actual Bridge and issuer required")
 	if _scene_new_run_bridge != null and _scene_new_run_bridge != bridge:
 		return _fail(&"scene_new_run_already_configured", "")
-	var selected: Dictionary = preload("res://scripts/narrative/DialogicEntryManifest.gd").scene_registration()
+	var selected: Dictionary = preload("res://scripts/narrative/DialogicEntryManifest.gd").scene_contract_tables()
 	if not selected.get("ok", false): return selected
-	var configured: Dictionary = _continuation_journal.configure_scene_new_run_validation(selected.value, _identity_issuer)
+	var configured: Dictionary = _continuation_journal.configure_scene_new_run_validation(selected.bundle, _identity_issuer)
 	if not configured.get("ok", false): return configured
 	_scene_new_run_bridge = bridge
-	_scene_new_run_bundle = selected.value.duplicate(true)
+	_scene_new_run_bundle = selected.bundle
 	return {"ok": true}
 
 ## Application configuration selects the installed opening once. The title uses its existing

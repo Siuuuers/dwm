@@ -349,7 +349,8 @@ func prepare_semantic_restore(snapshot: Dictionary, prepared_profile: Dictionary
 ## Registration comes from the process owner, never from a saved definition.
 func _installed_scene_registration() -> Dictionary:
 	var owner: Script = load("res://scripts/narrative/DialogicEntryManifest.gd")
-	return owner.scene_registration()
+	var selected: Dictionary = owner.scene_contract_tables()
+	return {"ok": true, "value": selected.bundle} if selected.ok else selected
 
 
 func _resolve_scene_snapshot(snapshot: Dictionary) -> Dictionary:

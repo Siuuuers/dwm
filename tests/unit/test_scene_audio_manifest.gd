@@ -202,3 +202,35 @@ func test_music_resolves_to_music_channel_without_new_saved_snapshot_fields() ->
 	registration.audio_catalogue.plans[0].music = "changed"
 	assert_false(MANIFEST.resolve_scene_context(made.value, registration).ok)
 
+
+func test_selected_registration_matches_independent_audio_validation_and_detaches_playback() -> void:
+	var scope := preload("res://tests/support/SceneValidationScope.gd").new()
+	scope.install(true)
+	var fixture := preload("res://tests/support/SceneAudioRegistrationFixture.gd").new()
+	var installed: Dictionary = fixture._install_registration()
+	assert_true(installed.ok, str(installed))
+	if not installed.ok:
+		scope.restore()
+		return
+	var owner := preload("res://scripts/narrative/DialogicEntryManifest.gd")
+	var selected: Dictionary = owner.scene_contract_tables().bundle
+	var detached: Dictionary = selected.duplicate(true)
+	var made: Dictionary = MANIFEST.make_scene_context(selected, "scene.test.b", "receipt.1")
+	var independent: Dictionary = MANIFEST.make_scene_context(detached, "scene.test.b", "receipt.1")
+	assert_true(made.ok, str(made))
+	assert_eq(made, independent, "prepared fingerprint and catalogue preserve the independently computed result")
+	if made.ok:
+		var resolved := MANIFEST.resolve_scene_context(made.value, selected)
+		var expected := MANIFEST.resolve_scene_context(made.value, detached)
+		assert_true(resolved.ok, str(resolved))
+		assert_eq(resolved, expected)
+		if resolved.ok:
+			resolved.value.record.asset.path = "changed"
+			resolved.value.record.plan.revision = 99
+			resolved.value.snapshot.selection.anchor_id = "changed"
+			assert_eq(selected, detached, "playback data cannot mutate the prepared story")
+			assert_eq(MANIFEST.resolve_scene_context(made.value, selected), expected)
+		detached.audio_catalogue.plans[0].revision = 2
+		assert_false(MANIFEST.resolve_scene_context(made.value, detached).ok,
+			"modified arbitrary registration cannot reuse the selected fingerprint")
+	scope.restore()

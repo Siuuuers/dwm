@@ -4062,11 +4062,11 @@ func configure_test_scene_event_registry(registry: Dictionary) -> Dictionary:
 
 func scene_event_registration(event: Dictionary) -> Dictionary:
 	if _run_lifecycle.to_dict().has("scene_assignment"):
-		var registered := _SCENE_MANIFEST.scene_registration()
+		var registered := _SCENE_MANIFEST.scene_contract_tables()
 		if not registered.ok: return registered
-		var inspected := _SCENE_EVENT.inspect_scene(event, registered.value)
+		var inspected := _SCENE_EVENT.inspect_scene(event, registered.bundle)
 		if not inspected.ok: return inspected
-		return registered
+		return {"ok": true, "value": registered.bundle}
 	var row: Dictionary = _scene_event_registry.get(event.source.entry_id, {})
 	if row.get("content_version") != event.source.content_version:
 		return _transaction_failure(&"event_registration_invalid", "entry revision unavailable")
@@ -4169,9 +4169,9 @@ func _scene_event_fatal(code: StringName) -> Dictionary:
 ## RunRestoreParticipant invokes this before any participant mutates live state.
 func validate_scene_event_snapshot(snapshot: Dictionary) -> Dictionary:
 	if snapshot.get("schema_version") == 9 and snapshot.get("scene") is Dictionary:
-		var registered := _SCENE_MANIFEST.scene_registration()
+		var registered := _SCENE_MANIFEST.scene_contract_tables()
 		if not registered.ok: return registered
-		return _NARRATIVE_VARIABLE_SCHEMA.validate_current_scene(snapshot.scene, registered.value)
+		return _NARRATIVE_VARIABLE_SCHEMA.validate_current_scene(snapshot.scene, registered.bundle)
 	var checked: Dictionary = _SCENE_EVENT.validate_receipts(snapshot.get("command_receipts", {}))
 	if not checked.ok: return checked
 	# Cursor-to-receipt proof is required even for an empty receipt map.
@@ -4235,9 +4235,9 @@ static func make_scene_new_run_gameplay() -> Dictionary:
 
 func prepare_scene_new_run_snapshot_input(allocation_candidate: Dictionary, profile_material: Dictionary,
 		admission: Dictionary, bundle: Dictionary) -> Dictionary:
-	var selected: Dictionary = _SCENE_MANIFEST.scene_registration()
+	var selected: Dictionary = _SCENE_MANIFEST.scene_contract_tables()
 	if not selected.get("ok", false): return selected
-	if not _SCENE_EVENT._equal(bundle, selected.value):
+	if not is_same(bundle, selected.bundle) and not _SCENE_EVENT._equal(bundle, selected.bundle):
 		return _transaction_failure(&"scene_registration_mismatch", "")
 	var checked: Dictionary = _SCENE_EVENT.validate_scene_initial_admission_candidate(
 		admission, allocation_candidate, profile_material, bundle, _identity_issuer)
@@ -4344,14 +4344,14 @@ func _install_scene_snapshot_silent(snapshot: Dictionary) -> Dictionary:
 	return {"ok": true}
 
 func _rollback_scene_state(source: Dictionary) -> Dictionary:
-	var selected := _SCENE_MANIFEST.scene_registration()
+	var selected := _SCENE_MANIFEST.scene_contract_tables()
 	if not selected.ok: return selected
 	var captured := {}
 	for key: String in ["lifecycle", "gameplay", "contacts", "desktop", "scene", "applied_effect_transaction_ids",
 			"applied_variable_transaction_ids", "command_receipts"]:
 		if not source.has(key): return _transaction_failure(&"invalid_run_backup", key)
 		captured[key] = source[key]
-	var validated: Dictionary = _NARRATIVE_VARIABLE_SCHEMA.validate_scene_input_fields(captured, selected.value)
+	var validated: Dictionary = _NARRATIVE_VARIABLE_SCHEMA.validate_scene_input_fields(captured, selected.bundle)
 	if not validated.get("ok", false): return validated
 	if _dating_restore_owner != null:
 		if not source.get("dating_reconciliation") is Dictionary:
@@ -4791,14 +4791,14 @@ func capture_scene_challenge_command() -> Dictionary:
 	if not held.get("ok", false): return held
 	var command := _current_scene_challenge_command(_scene_snapshot_references)
 	if not command.ok: return command
-	var registered := _SCENE_MANIFEST.scene_registration()
+	var registered := _SCENE_MANIFEST.scene_contract_tables()
 	if not registered.ok: return registered
 	var matched := false
-	for challenge: Dictionary in registered.value.challenges:
+	for challenge: Dictionary in registered.bundle.challenges:
 		if challenge.challenge_id == _scene_snapshot_references.active_challenge.challenge_id:
 			matched = challenge.entry_id == _scene_snapshot_references.entry_id and challenge.playable_marker_id == held.value.marker_id
 	if not matched: return _transaction_failure(&"scene_challenge_control_mismatch", "")
-	return {"ok": true, "value": {"command": command.value, "bundle": registered.value,
+	return {"ok": true, "value": {"command": command.value, "bundle": registered.bundle,
 		"checkpoint": held.value.checkpoint.duplicate(true)}}
 
 func _capture_retained_scene_challenge_command(expected_context: Dictionary = {}) -> Dictionary:
@@ -4806,11 +4806,11 @@ func _capture_retained_scene_challenge_command(expected_context: Dictionary = {}
 	if not command.ok: return command
 	if not expected_context.is_empty() and not _SCENE_EVENT._equal(expected_context, command.value.context):
 		return _transaction_failure(&"scene_challenge_command_refused", "")
-	var registered := _SCENE_MANIFEST.scene_registration()
+	var registered := _SCENE_MANIFEST.scene_contract_tables()
 	if not registered.ok: return registered
 	var current := _scene_runtime_event_context()
 	if not current.ok: return current
-	return {"ok": true, "value": {"command": command.value, "bundle": registered.value,
+	return {"ok": true, "value": {"command": command.value, "bundle": registered.bundle,
 		"checkpoint": current.value.checkpoint.duplicate(true)}}
 
 func validate_scene_challenge_command(command: Dictionary, bundle: Dictionary) -> Dictionary:
@@ -4988,10 +4988,10 @@ func capture_scene_challenge_closure(context: Dictionary) -> Dictionary:
 				outcome = saved
 				break
 	if outcome.is_empty(): return {"ok": true, "value": {}}
-	var registered := _SCENE_MANIFEST.scene_registration()
+	var registered := _SCENE_MANIFEST.scene_contract_tables()
 	if not registered.ok: return registered
 	var target_id := ""
-	for challenge: Dictionary in registered.value.challenges:
+	for challenge: Dictionary in registered.bundle.challenges:
 		if challenge.challenge_id == outcome.challenge_id:
 			target_id = challenge.targets.get(outcome.outcome, "")
 	return {"ok": true, "value": {"kind": "challenge_closed", "challenge_occurrence": occurrence,
@@ -5033,9 +5033,9 @@ func capture_resolved_scene_marker() -> Dictionary:
 			if not saved.is_empty(): return _transaction_failure(&"scene_challenge_recall_ambiguous", "")
 			saved = outcome
 		if not saved.is_empty():
-			var registration := _SCENE_MANIFEST.scene_registration()
+			var registration := _SCENE_MANIFEST.scene_contract_tables()
 			if not registration.ok: return registration
-			for challenge: Dictionary in registration.value.challenges:
+			for challenge: Dictionary in registration.bundle.challenges:
 				if challenge.challenge_id == marker.payload.challenge_id:
 					result = {"kind": "challenge_recalled", "outcome": saved.outcome,
 						"target_id": challenge.targets[saved.outcome]}
@@ -5159,7 +5159,7 @@ func commit_scene_challenge_closure(command: Dictionary, result: Dictionary) -> 
 	var checked := validate_scene_challenge_end(command)
 	if not checked.ok: return checked
 	var operation := _scene_end_operation.duplicate(true)
-	var registration := _SCENE_MANIFEST.scene_registration()
+	var registration := _SCENE_MANIFEST.scene_contract_tables()
 	if not registration.ok: return registration
 	var current := _scene_runtime_event_context()
 	if not current.ok: return current
@@ -5174,7 +5174,7 @@ func commit_scene_challenge_closure(command: Dictionary, result: Dictionary) -> 
 				or proof.branch_id != reference.branch_id or proof.generation != reference.generation:
 			return _transaction_failure(&"scene_attempt_proof_mismatch", "")
 	elif not record.is_empty(): return _transaction_failure(&"scene_attempt_absence_unverified", "")
-	var made := _SCENE_EVENT.make_scene_receipt(operation.event, current.value.anchor, result, registration.value)
+	var made := _SCENE_EVENT.make_scene_receipt(operation.event, current.value.anchor, result, registration.bundle)
 	if not made.ok: return made
 	if made.value.request_fingerprint != operation.digest: return _transaction_failure(&"event_digest_mismatch", "")
 	var candidate := capture_run_snapshot_input().duplicate(true)
@@ -5461,9 +5461,9 @@ func _admit_scene_target_owned(target_id: String, trigger_command_id: String, le
 		prepared_input: Dictionary = {}, recovery_trigger: Dictionary = {}) -> Dictionary:
 	var session := capture_live_session()
 	if not session.ok: return session
-	var registration := _SCENE_MANIFEST.scene_registration()
+	var registration := _SCENE_MANIFEST.scene_contract_tables()
 	if not registration.ok: return registration
-	var tables := _SCENE_EVENT.validate_bundle_structure(registration.value)
+	var tables := _SCENE_EVENT.validate_bundle_structure(registration.bundle)
 	if not tables.ok: return tables
 	var candidate: Dictionary = prepared_input.duplicate(true) if not prepared_input.is_empty() else capture_run_snapshot_input()
 	var trigger: Variant = candidate.command_receipts.get(trigger_command_id) if recovery_trigger.is_empty() else recovery_trigger
@@ -5486,7 +5486,7 @@ func _admit_scene_target_owned(target_id: String, trigger_command_id: String, le
 	var source_ref := {"checkpoint_id": source.checkpoint_id, "checkpoint_sequence": source.checkpoint_sequence,
 		"snapshot_sha256": _SCENE_EVENT._sha(source)}
 	var full_identity: Dictionary = _run_lifecycle.get_desktop_identity_context()
-	var day_plan := _prepare_scene_day_renewal(trigger, target_id, registration.value, full_identity)
+	var day_plan := _prepare_scene_day_renewal(trigger, target_id, registration.bundle, full_identity)
 	if not day_plan.ok: return day_plan
 	var next_scene := {"registration_sha256": _SCENE_MANIFEST.scene_registration_fingerprint(),
 		"active_occurrence_id": "", "entry_id": target.entry_id, "notification": {}, "active_challenge": {}, "return_to": null}
@@ -5525,10 +5525,10 @@ func _admit_scene_target_owned(target_id: String, trigger_command_id: String, le
 		"entry_id": next_scene.entry_id, "frame": frame, "binding": binding,
 		"prior_receipts": _command_receipts.duplicate(true), "prior_input": capture_run_snapshot_input(),
 		"recovery": not recovery_trigger.is_empty()}
-	if registration.value.get("schema_version") == 3:
+	if registration.bundle.get("schema_version") == 3:
 		var audio_owner: Script = load("res://scripts/data/AudioManifest.gd")
 		var audio := get_node_or_null("/root/AudioManager")
-		var selected: Dictionary = audio_owner.call("make_scene_context", registration.value, next_scene.entry_id, occurrence)
+		var selected: Dictionary = audio_owner.call("make_scene_context", registration.bundle, next_scene.entry_id, occurrence)
 		if not selected.get("ok", false): return selected
 		var audio_plan: Dictionary = audio.call("prepare_scene_admission", selected.value)
 		if not audio_plan.get("ok", false): return audio_plan
@@ -5640,7 +5640,7 @@ func capture_scene_contact_context() -> Dictionary:
 	if not identity.ok: return identity
 	# Contacts authenticate the causal issuer as well as the public identity.
 	identity.value = _run_lifecycle.get_desktop_identity_context()
-	var registration := _SCENE_MANIFEST.scene_registration()
+	var registration := _SCENE_MANIFEST.scene_contract_tables()
 	if not registration.ok: return registration
 	if _scene_snapshot_references.get("registration_sha256") != _SCENE_MANIFEST.scene_registration_fingerprint():
 		return _transaction_failure(&"scene_registration_mismatch", "")

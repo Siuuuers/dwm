@@ -26,6 +26,10 @@ func after_all() -> void:
 func test_joint_creation_persists_exact_material_before_activation_and_alternates_after_ack() -> void:
 	assert_true(fixture_ready, "joint filesystem fixture must initialize")
 	if not fixture_ready: return
+	var registration: Dictionary = MANIFEST.scene_contract_tables().bundle
+	assert_true(is_same(fixture.manager._scene_new_run_bundle, registration))
+	assert_true(is_same(fixture.manager._continuation_journal._scene_new_run_bundle, registration),
+		"New Acc and journal reuse the same frozen story while persisting player material")
 	var prior_draw_count: int = fixture.profile.get_profile_snapshot().pair_deck_draws.size()
 	var started: Dictionary = fixture.start()
 	assert_eq(started.get("code"), &"scene_activation_pending", str(started))

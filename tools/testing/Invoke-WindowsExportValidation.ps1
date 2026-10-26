@@ -276,6 +276,20 @@ func _initialize() -> void:
     notices_file.store_string(JSON.stringify({"copyright": Engine.get_copyright_info(), "licenses": Engine.get_license_info()}, "\t"))
     license_file.close()
     notices_file.close()
+    # Validate authored DTL against the registration inside the exact release pack.
+    # Players reuse prepared tables; this build gate owns the full content check.
+    var manifest: Script = load("res://scripts/narrative/DialogicEntryManifest.gd")
+    var parser: Script = load("res://scripts/validation/StrictJson.gd")
+    var registration: Dictionary = parser.parse_object(FileAccess.get_file_as_string("res://data/manifests/scene_story_registration.json"))
+    if not registration.get("ok", false):
+        push_error("Pack story registration is unavailable")
+        quit(1)
+        return
+    var authored: Dictionary = manifest.validate_scene_registration(registration.value)
+    if not authored.get("ok", false):
+        push_error("Pack authored story validation failed: " + str(authored))
+        quit(1)
+        return
     print("WINDOWS_PACK_DATA_VERIFIED count=" + str(expected.size()))
     quit(0)
 '@
