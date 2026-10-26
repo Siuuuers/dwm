@@ -54,7 +54,7 @@ func load_saved_terminal_line() -> void:
 	assert_eq(reading.value, expanded.value, "Load restores the current frame and native frontier")
 	var restored: Dictionary = game.capture_run_snapshot_input()
 	assert_eq(restored.lifecycle.run_id, proof.snapshot.lifecycle.run_id)
-	assert_ne(restored.lifecycle.branch_id, proof.snapshot.lifecycle.branch_id)
+	assert_eq(restored.lifecycle.branch_id, proof.snapshot.lifecycle.branch_id)
 	assert_eq(restored.lifecycle.state, "PLAYING", "restoring the final caption does not execute Finish")
 	for key: String in ["gameplay", "scene"]:
 		assert_eq(restored[key], proof.snapshot[key], "Load preserves " + key)

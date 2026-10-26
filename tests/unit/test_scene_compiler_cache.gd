@@ -411,3 +411,55 @@ func test_runtime_preparation_shares_one_native_parse_for_entries_in_one_dtl() -
 	var programme: Dictionary = bundle.scene_programme.entries[0]
 	assert_true(ADAPTER.compile_runtime_scene_programme(PATH, programme.entry_id, labels, programme.markers).ok,
 		"cached semantic mappings remain valid after local native resources are released")
+
+func test_initial_checkpoint_reuses_runtime_compilation_and_keeps_exact_first_caption() -> void:
+	var bundle := _install_reading_source()
+	var bridge := preload("res://autoload/DialogicBridge.gd")
+	var timing := preload("res://scripts/narrative/SceneValidationTiming.gd")
+	var scene := {"registration_sha256": MANIFEST.scene_registration_fingerprint(),
+		"active_occurrence_id": "TEST.initial.cache", "entry_id": READING.A,
+		"notification": {}, "active_challenge": {}, "return_to": null}
+	var previous := OS.get_environment("DWM_SCENE_VALIDATION_PROFILE")
+	OS.set_environment("DWM_SCENE_VALIDATION_PROFILE", "1")
+	var observed: bool = timing.begin_scope("initial_checkpoint_test", "fresh", "scene", 0)
+	assert_true(observed)
+	if not observed:
+		OS.set_environment("DWM_SCENE_VALIDATION_PROFILE", previous)
+		return
+	var cold: Dictionary = bridge._build_current_scene_initial_checkpoint(scene, bundle)
+	var cold_calls: int = timing._record.compilation_calls
+	timing.end_scope(cold.get("ok", false))
+	assert_true(timing.begin_scope("initial_checkpoint_test", "retained", "scene", 0))
+	var warm: Dictionary = bridge._build_current_scene_initial_checkpoint(scene, bundle)
+	var warm_calls: int = timing._record.compilation_calls
+	timing.end_scope(warm.get("ok", false))
+	OS.set_environment("DWM_SCENE_VALIDATION_PROFILE", previous)
+	assert_true(cold.ok, str(cold))
+	assert_true(warm.ok, str(warm))
+	if not cold.ok or not warm.ok: return
+	assert_eq(cold_calls, bundle.scene_programme.entries.size(),
+		"first target and subsequent session configuration compile each entry once")
+	assert_eq(warm_calls, 0, "retained New Account does not recompile installed entries")
+	assert_eq(warm, cold, "cache reuse preserves the complete initial checkpoint")
+	var labels: Array = []
+	var markers: Array = []
+	var target := {}
+	for entry: Dictionary in bundle.entry_manifest.entries: labels.append(entry.entry_id)
+	for programme: Dictionary in bundle.scene_programme.entries:
+		if programme.entry_id == READING.A: markers = programme.markers
+	for row: Dictionary in bundle.targets:
+		if row.target.kind == "scene" and row.target.entry_id == READING.A: target = row.target
+	var independent := ADAPTER.compile_scene_programme(PATH, READING.A, labels, markers)
+	assert_true(independent.ok, str(independent))
+	if independent.ok:
+		var index: int = independent.value.label_nodes[target.label]
+		assert_eq(cold.value.reading_session.frontier.line_id, independent.value.nodes[index].line_id,
+			"opening caption still follows the authored target label")
+	var retained := cold.duplicate(true)
+	scene.active_occurrence_id = "TEST.initial.next"
+	var next: Dictionary = bridge._build_current_scene_initial_checkpoint(scene, bundle)
+	assert_true(next.ok, str(next))
+	if next.ok:
+		assert_eq(next.value.reading_session.frontier.line_id, cold.value.reading_session.frontier.line_id)
+		assert_ne(next.value.transaction_id, cold.value.transaction_id)
+	assert_eq(cold, retained, "a later account does not mutate prior reading state")

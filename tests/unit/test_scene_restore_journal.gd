@@ -15,15 +15,19 @@ class MemoryStorage:
 	extends RefCounted
 	var text := ""
 	var writes := 0
+	var retirement_reads := 0
+	var write_paths: Array[String] = []
 	var refuse := false
 	var promote_then_refuse := false
 	func reconcile(_path: String, parser: Callable) -> Dictionary:
+		retirement_reads += 1
 		if text.is_empty(): return {"ok": true, "exists": false}
 		var parsed: Dictionary = parser.call(text)
 		if not parsed.get("ok", false): return parsed
 		return {"ok": true, "exists": true, "value": parsed["value"], "hash": text.sha256_text()}
 	func write_atomic(_path: String, value: String, validator: Callable, _backup: bool) -> Dictionary:
 		writes += 1
+		write_paths.append(_path)
 		if refuse: return {"ok": false, "code": &"diagnostic_refusal"}
 		var valid: Dictionary = validator.call(value)
 		if not valid.get("ok", false): return valid
@@ -276,3 +280,116 @@ func test_explicit_reload_observes_physical_change_and_revalidates() -> void:
 	storage.text = WRITER.stringify(physical)["value"]
 	assert_false(journal.reload_operation_from_storage(operation["transaction_id"])["ok"])
 
+
+func test_retirement_removes_only_scene_load_records_before_source_admission() -> void:
+	var old := _intent(_request())
+	var legacy := _intent(_request("b", false))
+	var material_owner := preload("res://tests/unit/test_new_run_materials.gd")
+	var material: Dictionary = material_owner.make_valid_fixture()
+	assert_true(material.ok, str(material))
+	if not material.ok: return
+	var creation := _intent(material_owner.make_intent_request(material.value))
+	assert_false(old.is_empty())
+	assert_false(legacy.is_empty())
+	assert_false(creation.is_empty())
+	var document: Dictionary = STRICT.parse_object(storage.text).value
+	document.operations[old.transaction_id].selected_document = {"obsolete": "content no longer installed"}
+	storage.text = WRITER.stringify(document).value
+	var current := JOURNAL.new()
+	assert_true(current.configure(storage, loader).ok)
+	var writes_before: int = storage.writes
+	var retired: Dictionary = current.with_creation_storage_recovery(current.retire_scene_restore_operations)
+	assert_true(retired.ok, str(retired))
+	if not retired.ok: return
+	assert_eq(retired.value.removed, 1)
+	assert_eq(storage.writes, writes_before + 1)
+	assert_eq(storage.write_paths.slice(writes_before), [JOURNAL.JOURNAL_PATH], "only journal storage is changed")
+	var retained: Dictionary = STRICT.parse_object(storage.text).value
+	assert_eq(retained.operations, {legacy.transaction_id: legacy, creation.transaction_id: creation})
+	assert_eq(loader.calls, [], "retired selected content is never reopened")
+	var reads_before: int = storage.retirement_reads
+	var second: Dictionary = current.retire_scene_restore_operations()
+	assert_true(second.ok)
+	assert_eq(storage.retirement_reads, reads_before, "later startup phase does not reread solely for retirement")
+	assert_eq(second.value.removed, 0)
+	assert_eq(storage.writes, writes_before + 1, "successful transition does not write again")
+
+func test_retirement_drops_obsolete_pending_activation_conflict() -> void:
+	var operation := _applied(_request())
+	assert_false(operation.is_empty())
+	if operation.is_empty(): return
+	assert_true(_advance(operation, JOURNAL.STAGE_COMPLETED).ok)
+	var document: Dictionary = STRICT.parse_object(storage.text).value
+	var copied: Dictionary = document.operations[operation.transaction_id].duplicate(true)
+	copied.transaction_id = "transaction_id." + "b".repeat(64)
+	document.operations[copied.transaction_id] = copied
+	storage.text = WRITER.stringify(document).value
+	var current := JOURNAL.new()
+	assert_true(current.configure(storage, loader).ok)
+	var retired: Dictionary = current.retire_scene_restore_operations()
+	assert_true(retired.ok, str(retired))
+	if not retired.ok: return
+	assert_eq(retired.value.removed, 2)
+	assert_eq(current.list_incomplete().value, [])
+
+func test_retirement_refusal_preserves_old_bytes_and_can_retry() -> void:
+	var old := _intent(_request())
+	var legacy := _intent(_request("b", false))
+	var material_owner := preload("res://tests/unit/test_new_run_materials.gd")
+	var material: Dictionary = material_owner.make_valid_fixture()
+	assert_true(material.ok, str(material))
+	if not material.ok: return
+	var creation := _intent(material_owner.make_intent_request(material.value))
+	assert_false(old.is_empty())
+	assert_false(creation.is_empty())
+	var before := storage.text
+	storage.refuse = true
+	var current := JOURNAL.new()
+	assert_true(current.configure(storage, loader).ok)
+	assert_false(current.retire_scene_restore_operations().ok)
+	assert_eq(storage.text, before, "failed cleanup leaves shared creation and legacy records untouched")
+	storage.refuse = false
+	assert_true(current.retire_scene_restore_operations().ok)
+	assert_eq(STRICT.parse_object(storage.text).value.operations,
+		{legacy.transaction_id: legacy, creation.transaction_id: creation})
+
+func test_retirement_does_not_hide_invalid_shared_records_or_mismatched_identity() -> void:
+	var old := _intent(_request())
+	assert_false(old.is_empty())
+	var original: Dictionary = STRICT.parse_object(storage.text).value
+	for invalid: Dictionary in [{"kind": "new_run", "transaction_id": "invalid"},
+			{"kind": "restore", "transaction_id": "invalid"},
+			{"kind": "scene_restore", "transaction_id": "different"}]:
+		var document := original.duplicate(true)
+		document.operations["invalid"] = invalid
+		storage.text = WRITER.stringify(document).value
+		var before := storage.text
+		var writes_before := storage.writes
+		var current := JOURNAL.new()
+		assert_true(current.configure(storage, loader).ok)
+		assert_false(current.retire_scene_restore_operations().ok)
+		assert_eq(storage.text, before)
+		assert_eq(storage.writes, writes_before)
+
+func test_retirement_of_absent_journal_does_not_create_a_file() -> void:
+	var current := JOURNAL.new()
+	assert_true(current.configure(storage, loader).ok)
+	assert_true(current.retire_scene_restore_operations().ok)
+	assert_eq(storage.text, "")
+	assert_eq(storage.writes, 0)
+
+func test_retirement_adopts_validated_document_for_following_journal_read() -> void:
+	var old := _intent(_request())
+	assert_false(old.is_empty())
+	var current := JOURNAL.new()
+	assert_true(current.configure(storage, loader).ok)
+	var reads_before: int = storage.retirement_reads
+	assert_true(current.retire_scene_restore_operations().ok)
+	assert_eq(storage.retirement_reads, reads_before + 1)
+	assert_eq(current.list_incomplete().value, [])
+	assert_eq(storage.retirement_reads, reads_before + 1, "following journal consumer reuses validated transition result")
+	current._clear_loaded_proofs()
+	assert_true(current.retire_scene_restore_operations().ok)
+	assert_eq(storage.retirement_reads, reads_before + 1, "changing validation scope does not repeat retirement")
+	assert_eq(current.list_incomplete().value, [])
+	assert_eq(storage.retirement_reads, reads_before + 2, "normal validation after creation scope still reloads")

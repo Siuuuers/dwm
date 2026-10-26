@@ -168,7 +168,8 @@ func apply_silent(plan: Dictionary) -> Dictionary:
 				or plan.scene_restore_operation_id.strip_edges().is_empty() \
 				or not _owner.has_method(method):
 			return _fail(&"scene_restore_plan_invalid", "private prepared checkpoint and current operation required")
-		var staged: Dictionary = _owner.call(method, checkpoint, plan.scene_restore_operation_id)
+		var staged: Dictionary = _owner.call(method, checkpoint, plan.scene_restore_operation_id, true) \
+			if plan.get("read_only_restore", false) else _owner.call(method, checkpoint, plan.scene_restore_operation_id)
 		if not staged.get("ok", false): return staged
 		_scene_operation = plan.scene_restore_operation_id
 		_scene_activation_proof = false

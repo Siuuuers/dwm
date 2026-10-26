@@ -133,7 +133,7 @@ func test_recover_interrupted_authored_day7_to_ending() -> void:
 	assert_eq(bridge._runtime_adapter.capture_scene_control_position(bridge._reading_session).value, reading)
 	var restored: Dictionary = game.capture_run_snapshot_input()
 	assert_eq(restored.lifecycle.run_id, source.lifecycle.run_id)
-	assert_ne(restored.lifecycle.branch_id, source.lifecycle.branch_id, "selected Load creates its own branch")
+	assert_eq(restored.lifecycle.branch_id, source.lifecycle.branch_id, "selected Load preserves the saved branch")
 	for key: String in ["gameplay", "scene", "command_receipts", "applied_effect_transaction_ids", "applied_variable_transaction_ids"]:
 		assert_eq(restored[key], source[key], "Load preserves " + key)
 	assert_eq(profile.get_profile_snapshot(), profile_before, "Load repeats no Profile consequences")

@@ -88,17 +88,14 @@ func load_same_day_supportz() -> void:
 	var restored: Dictionary = BOARD_STATE._inspection_normalize(game.capture_run_snapshot_input())
 	assert_eq(restored.gameplay, proof.run.gameplay, "Load preserves rewards and daily completion count")
 	assert_true(restored.command_receipts.is_empty(), "Load starts a fresh command session")
-	var expected_ledger: Dictionary = proof.run.desktop.consequence.shop_ledger.duplicate(true)
-	for completion: Dictionary in expected_ledger.base_completion_receipts:
-		if completion.causal_day_instance == proof.run.lifecycle.causal_day_instance:
-			completion.causal_day_instance = restored.lifecycle.causal_day_instance
-	assert_eq(restored.desktop.consequence.shop_ledger, expected_ledger, "same authored day retains eligibility under new Load identity")
+	assert_eq(restored.desktop.consequence.shop_ledger, proof.run.desktop.consequence.shop_ledger,
+		"same authored day retains eligibility and saved identity")
 	assert_eq(restored.desktop.board.board, proof.run.desktop.board.board, "settled layout and frozen spec survive")
 	assert_true(restored.desktop.board.command_receipts.is_empty(), "Load starts a fresh live board command session")
 	assert_false(proof.run.desktop.board.has("terminal_receipts"))
 	assert_false(restored.desktop.board.has("terminal_receipts"), "Load does not recreate retired terminal history")
 	assert_true(restored.desktop.board.settled_inspection)
-	assert_ne(restored.desktop.board.identity.branch_id, proof.run.desktop.board.identity.branch_id)
+	assert_eq(restored.desktop.board.identity.branch_id, proof.run.desktop.board.identity.branch_id)
 	assert_true(bootstrap._desktop_board_state.has_settled_inspection())
 	var player_reading: Dictionary = preload("res://scripts/narrative/SoloReadingSession.gd").project_player_checkpoint(proof.reading)
 	if not _ok(player_reading): return
@@ -116,11 +113,19 @@ func load_same_day_supportz() -> void:
 		var request := {"transaction_id": receipt.transaction_id, "transaction_issuer_receipt": saved.issuer_receipt,
 			"expected_identity": saved.completion.board_identity, "expected_revision": saved.completion.revision}
 		var retried: Dictionary = owner.complete_round(request)
-		assert_false(retried.get("ok", false), "pre-Load command belongs to the prior board identity")
+		assert_eq(retried.get("code"), &"scene_round_source_changed", "historical completion has an older board or revision")
 		assert_eq(BOARD_STATE._inspection_normalize(game.capture_run_snapshot_input()), restored)
 		assert_eq(saves._storage.read_text("autosave.json"), disk, "stale retry makes no new checkpoint")
 		request.expected_revision += 1
-		assert_false(owner.complete_round(request).get("ok", false), "changed historical request conflicts")
+		var revised: Dictionary = owner.complete_round(request)
+		if request.expected_identity == restored.desktop.board.identity \
+				and request.expected_revision == restored.desktop.board.revision:
+			assert_true(revised.get("ok", false), str(revised))
+			assert_true(revised.get("already_applied", false), "saved settled state prevents another reward")
+		else:
+			assert_eq(revised.get("code"), &"scene_round_source_changed", "another round cannot match the restored board")
+		assert_eq(BOARD_STATE._inspection_normalize(game.capture_run_snapshot_input()), restored)
+		assert_eq(saves._storage.read_text("autosave.json"), disk, "completion checks never write another checkpoint")
 	var issued: Dictionary = bootstrap._desktop_identity_nonce_issuer.issue(&"transaction_id")
 	if not _ok(issued): return
 	var current_board: Dictionary = bootstrap._desktop_board_state.capture()

@@ -115,7 +115,7 @@ func test_terminal_board_transfer_keeps_terminal_state_and_closes_new_story_with
 	assert_eq(panel_after.value, panel_before, "terminal panel still renders the frozen board without old authored profile")
 	var departure: Dictionary = f.owner.prepare_scene_departure(f.command)
 	assert_true(departure.ok, str(departure))
-	assert_eq(f.state.route_context.dating_active_attempt_ref.branch_id, "TEST.terminal.transfer.branch")
+	assert_eq(f.state.route_context.dating_active_attempt_ref, source_reference, "departure keeps the saved Run reference")
 	assert_eq(f.record(), record, "automatic departure commits the selected prefix without revealing again")
 	assert_eq(f.owner.pull_physical(f.token).value.actions, [])
 	var closed: Dictionary = f.owner.close_scene_challenge(f.token)
@@ -134,13 +134,13 @@ func test_selected_old_prefix_transfer_never_imports_newer_profile_moves() -> vo
 	var selected_record: Dictionary = f.record()
 	assert_true(f.action("unflag", 0).ok)
 	assert_true(f.action("reveal", 323).ok)
-	var future: Dictionary = f.attempt().value
+	var future: Dictionary = f.profile.get_profile_snapshot()
 	selected.lifecycle.branch_id = "TEST.selected.transfer.branch"
 	assert_true(f.state.rollback_restore_silent(selected).ok)
 	_transfer()
 	assert_true(f.begin().ok)
 	assert_eq(f.record(), selected_record, "transfer uses selected flags and unrevealed board")
-	assert_eq(f.attempt(future.branch_id).value, future, "source Profile prefix stays intact")
+	assert_eq(f.profile.get_profile_snapshot(), future, "Profile stays unchanged")
 	var closed: Dictionary = f.owner.close_scene_challenge(f.token)
 	assert_true(closed.ok, str(closed))
 	if closed.ok: assert_eq(closed.value.outcome, "unfinished")
@@ -246,5 +246,5 @@ func test_paused_save_of_opened_selected_prefix_keeps_source_reference_without_f
 	assert_false(f.action("reveal", 36).ok, "paused save authority grants no board input")
 	state.held = false
 	f.authority.presentation_held = false
-	assert_true(f.owner.flush_pending_attempt().ok, "unpaused explicit flush still commits the selected continuation")
-	assert_eq(state.route_context.dating_active_attempt_ref.branch_id, "TEST.paused.selected")
+	assert_true(f.owner.flush_pending_attempt().ok, "unchanged selected Run needs no new checkpoint")
+	assert_eq(state.route_context, run_before.value.backup.route_context)

@@ -25,6 +25,9 @@ func _load_saved(menu: Node) -> void:
 	if not _check(document.get("ok", false), "seed manual save is unreadable"): return
 	var saved: Dictionary = document.value.current_snapshot.snapshot
 	var source_hash := FileAccess.get_sha256("user://saves/slot_1.json")
+	var persistent_before := {}
+	for path: String in ["user://profile.json", "user://desktop-issuer-root.json", "user://saves/desktop-continuation-operations.json"]:
+		persistent_before[path] = FileAccess.get_sha256(path) if FileAccess.file_exists(path) else "absent"
 	if not _check(saved.narrative_checkpoint.reading_session.position_id == FIRST_LINE, "unexpected seed position"): return
 	var ready := {"count": 0}
 	saves.live_session_ready.connect(func() -> void:
@@ -75,8 +78,14 @@ func _load_saved(menu: Node) -> void:
 	if not _check(not observation.is_empty(), "Load did not reach the complete saved caption"): return
 	_end_newacc_scope(true)
 	var current: Dictionary = game.capture_run_snapshot_input()
-	if not _check(current.lifecycle.run_id == saved.lifecycle.run_id and current.lifecycle.branch_id != saved.lifecycle.branch_id,
-		"Load must preserve run identity and allocate a new branch"): return
+	if not _check(current.lifecycle.run_id == saved.lifecycle.run_id, "Load changed run identity"): return
+	if variant == "candidate":
+		if not _check(current.lifecycle == saved.lifecycle, "Direct Load changed saved lifecycle"): return
+		for path: String in persistent_before:
+			var after := FileAccess.get_sha256(path) if FileAccess.file_exists(path) else "absent"
+			if not _check(after == persistent_before[path], "Load changed persistent file: " + path): return
+	else:
+		if not _check(current.lifecycle.branch_id != saved.lifecycle.branch_id, "Baseline Load did not allocate its branch"): return
 	if not _check(current.gameplay == saved.gameplay and current.scene == saved.scene, "Load changed saved gameplay or scene"): return
 	var expanded: Dictionary = load("res://scripts/narrative/SoloReadingSession.gd").expand_player_checkpoint(saved.narrative_checkpoint)
 	var reading: Dictionary = bridge.capture_reading_checkpoint(false)

@@ -3,7 +3,7 @@ extends "res://addons/gut/test.gd"
 const FIXTURE := preload("res://tests/support/SceneChallengeFixture.gd")
 const LEDGER := preload("res://scripts/profile/DatingAttemptLedger.gd")
 const PORT := preload("res://scripts/application/run/DatingPresentationPort.gd")
-# This suite owns physical/Profile transaction seams. Atomic destination persistence
+# This suite owns physical/Run checkpoint seams. Atomic destination persistence
 # and receipt-free player saves are exercised by the rendered integration children.
 class SelectedClosedState extends RefCounted:
 	var record: Dictionary
@@ -34,52 +34,6 @@ func test_never_started_is_validated_absence_and_closed_occurrence_cannot_reente
 	assert_false(f.begin().ok, "retained closure authority survives physical owner recreation")
 	assert_eq(f.state.effects, 0)
 
-func test_first_start_profile_failure_publishes_no_run_or_attempt() -> void:
-	assert_true(f.begin().ok)
-	f.storage.refuse = true
-	assert_false(f.action("start").ok)
-	assert_eq(f.record(), {})
-	assert_eq(f.attempt().value, {})
-	assert_eq(f.authority.checkpoints.size(), 0)
-	f.storage.refuse = false
-	assert_true(f.action("start").ok)
-	assert_eq(f.record().phase, "ready")
-	assert_eq(f.attempt().value.record, f.record())
-
-func test_profile_before_run_failure_retains_exact_attempt_for_retry_and_cold_owner() -> void:
-	assert_true(f.begin().ok)
-	f.authority.reject_checkpoint = true
-	assert_false(f.action("start").ok)
-	var attempt: Dictionary = f.attempt().value
-	assert_eq(attempt.record.phase, "ready")
-	assert_eq(f.owner.pull_physical(f.token).value.actions, ["retry"])
-	assert_false(f.action("start").ok)
-	# Simulate lost Run write and process-local owner only. Profile remains real.
-	f.state.route_context = {}
-	assert_true(f.recreate_owner().ok)
-	assert_true(f.begin().ok)
-	assert_eq(f.owner.pull_physical(f.token).value.phase, "checkpoint_retry")
-	f.authority.reject_checkpoint = false
-	assert_true(f.action("retry").ok)
-	assert_eq(f.record(), attempt.record)
-	assert_eq(f.attempt().value.revision, attempt.revision)
-
-func test_preparing_is_committed_before_run_and_resumes_same_frontier() -> void:
-	f.state.inventory = {"debug_key": 1}
-	assert_true(f.begin().ok)
-	f.authority.reject_checkpoint = true
-	assert_false(f.action("start").ok)
-	var saved: Dictionary = f.attempt().value.record
-	assert_eq(saved.phase, "preparing")
-	assert_not_null(saved.envelope.preparation)
-	f.state.route_context = {}
-	assert_true(f.recreate_owner().ok)
-	assert_true(f.begin().ok)
-	f.authority.reject_checkpoint = false
-	assert_true(f.action("retry").ok)
-	assert_eq(f.record(), saved)
-	assert_eq(f.attempt().value.entry_receipt.keys().size(), 4)
-
 func test_terminal_state_is_recorded_at_reducer_boundary_without_dating_effects() -> void:
 	assert_true(f.begin().ok)
 	assert_true(f.action("start").ok)
@@ -89,26 +43,9 @@ func test_terminal_state_is_recorded_at_reducer_boundary_without_dating_effects(
 	assert_eq(f.record().phase, "terminal")
 	assert_eq(f.record().state, "lost")
 	assert_eq(f.record().applied_result, {})
-	assert_eq(f.attempt().value.record, f.record())
+	assert_eq(f.attempt().value, {}, "Challenge progress belongs to the Run")
 	assert_false(f.action("reveal", 37).ok)
 	assert_false(f.action("start").ok)
-	assert_eq(f.state.effects, 0)
-
-func test_perfect_survives_win_history_and_exact_closure_proof() -> void:
-	assert_true(f.begin().ok)
-	assert_true(f.action("start").ok)
-	assert_true(f.action("reveal", 323).ok)
-	assert_eq(f.record().state, "won")
-	var detail: Dictionary = f.owner.pull_physical(f.token).value.result
-	assert_false(detail.perfect_reasons.is_empty())
-	assert_eq(f.attempt().value.terminal_receipt.perfect_reasons, detail.perfect_reasons)
-	var closed: Dictionary = f.owner.close_scene_challenge(f.token)
-	assert_true(closed.ok, str(closed))
-	assert_true(LEDGER.validate_attempt_proof(f.attempt().value, closed.value.attempt_proof).ok)
-	var forged: Dictionary = closed.value.attempt_proof.duplicate(true)
-	forged.record_sha256 = "f".repeat(64)
-	assert_false(LEDGER.validate_attempt_proof(f.attempt().value, forged).ok)
-	assert_false(f.owner.close_scene_challenge(f.token).ok)
 	assert_eq(f.state.effects, 0)
 
 func test_selected_prefix_closes_on_new_branch_without_importing_terminal_or_ending_unlock() -> void:
@@ -119,7 +56,7 @@ func test_selected_prefix_closes_on_new_branch_without_importing_terminal_or_end
 	assert_true(f.action("reveal", 323).ok)
 	var old_close: Dictionary = f.owner.close_scene_challenge(f.token)
 	assert_true(old_close.ok)
-	var original: Dictionary = f.attempt().value
+	var original: Dictionary = f.profile.get_profile_snapshot()
 	selected.lifecycle.branch_id = "TEST.selected.branch"
 	assert_true(f.state.rollback_restore_silent(selected).ok)
 	assert_true(f.recreate_owner().ok)
@@ -129,10 +66,9 @@ func test_selected_prefix_closes_on_new_branch_without_importing_terminal_or_end
 	assert_true(closed.ok, str(closed))
 	assert_eq(closed.value.outcome, "unfinished")
 	assert_eq(closed.value.attempt_proof.branch_id, "TEST.selected.branch")
-	assert_eq(f.attempt(original.branch_id).value, original)
-	assert_true(LEDGER.validate_attempt_proof(original, old_close.value.attempt_proof).ok)
+	assert_eq(f.profile.get_profile_snapshot(), original)
 
-func test_selected_prestart_without_authenticated_absence_refuses_future_import() -> void:
+func test_selected_prestart_restores_absence_without_future_import() -> void:
 	assert_true(f.begin().ok)
 	var selected: Dictionary = f.state.capture_restore_state().value.backup
 	assert_true(f.action("start").ok)
@@ -140,10 +76,9 @@ func test_selected_prestart_without_authenticated_absence_refuses_future_import(
 	selected.lifecycle.branch_id = "TEST.prestart.branch"
 	assert_true(f.state.rollback_restore_silent(selected).ok)
 	assert_true(f.recreate_owner().ok)
-	var refused: Dictionary = f.begin()
-	assert_false(refused.ok)
-	assert_eq(str(refused.code), "scene_attempt_recovery_required")
-	assert_eq(f.record(), {}, "dependency remains fail-closed; future terminal is never imported")
+	assert_true(f.begin().ok)
+	assert_eq(f.owner.pull_physical(f.token).value.state, "never_started")
+	assert_eq(f.record(), {}, "future terminal is never imported")
 
 func test_close_flushes_pending_work_and_refuses_without_authenticated_end() -> void:
 	assert_true(f.begin().ok)
@@ -245,38 +180,6 @@ func test_restore_journal_flush_leaves_selected_prefix_unadmitted_and_unchanged(
 	assert_false(f.owner.pull_physical(f.token).ok)
 	assert_eq(f.owner.capture_reconciliation_state(), owner_before)
 
-func test_restore_journal_flush_refuses_profile_ahead_pending_source() -> void:
-	assert_true(f.begin().ok)
-	assert_true(f.action("start").ok)
-	var saved: Dictionary = f.state.capture_restore_state().value.backup
-	f.authority.reject_checkpoint = true
-	assert_false(f.action("flag", 0).ok)
-	var ahead: Dictionary = f.attempt().value.record
-	assert_true(f.state.rollback_restore_silent(saved).ok)
-	assert_true(f.recreate_owner().ok)
-	var lease: Dictionary = f.gate.acquire(&"restore")
-	assert_true(lease.ok)
-	assert_true(f.owner.reconcile_restore_silent({}).ok)
-	var owner_before: Dictionary = f.owner.capture_reconciliation_state()
-	assert_true(owner_before.value.admitted_command.is_empty())
-	assert_eq(owner_before.value.pending_checkpoint, ahead)
-	var run_before: Dictionary = f.state.capture_restore_state()
-	var profile_state_before: Dictionary = f.profile.get_profile_snapshot()
-	var profile_before: Dictionary = f.storage.read_text("profile.json")
-	assert_true(profile_before.ok)
-	var checkpoints_before: Array = f.authority.checkpoints.duplicate(true)
-	assert_false(f.owner.flush_pending_attempt().ok)
-	assert_eq(f.owner.capture_reconciliation_state(), owner_before)
-	assert_eq(f.state.capture_restore_state(), run_before)
-	assert_eq(f.profile.get_profile_snapshot(), profile_state_before)
-	assert_eq(f.storage.read_text("profile.json"), profile_before)
-	assert_eq(f.authority.checkpoints, checkpoints_before)
-	assert_true(f.gate.release(&"restore", lease.value.token).ok)
-	f.authority.reject_checkpoint = false
-	assert_true(f.begin().ok)
-	assert_true(f.action("retry").ok)
-	assert_eq(f.record(), ahead)
-
 func test_restore_journal_flush_refuses_unadmitted_routine_progress_and_fatal_custody() -> void:
 	assert_true(f.begin().ok)
 	assert_true(f.action("start").ok)
@@ -298,52 +201,6 @@ func test_restore_journal_flush_refuses_unadmitted_routine_progress_and_fatal_cu
 		assert_eq(f.storage.read_text("profile.json"), profile_before)
 		f.owner.set(fence, false)
 	assert_true(f.gate.release(&"restore", lease.value.token).ok)
-
-func test_same_operation_profile_ahead_with_existing_run_waits_for_source_retry() -> void:
-	assert_true(f.begin().ok)
-	assert_true(f.action("start").ok)
-	var saved: Dictionary = f.state.capture_restore_state().value.backup
-	f.authority.reject_checkpoint = true
-	assert_false(f.action("flag", 0).ok)
-	var ahead: Dictionary = f.attempt().value.record
-	assert_true(f.state.rollback_restore_silent(saved).ok)
-	assert_true(f.recreate_owner().ok)
-	assert_true(f.begin().ok)
-	assert_eq(f.owner.pull_physical(f.token).value.actions, ["retry"])
-	assert_false(f.action("reveal", 36).ok)
-	f.authority.reject_checkpoint = false
-	assert_true(f.action("retry").ok)
-	assert_eq(f.record(), ahead)
-
-func test_selected_prefix_flush_requires_confirmed_source_and_preserves_original() -> void:
-	assert_true(f.begin().ok)
-	assert_true(f.action("start").ok)
-	var selected: Dictionary = f.state.capture_restore_state().value.backup
-	assert_true(f.action("reveal", 323).ok)
-	var original: Dictionary = f.attempt().value
-	selected.lifecycle.branch_id = "TEST.flush.branch"
-	assert_true(f.state.rollback_restore_silent(selected).ok)
-	assert_true(f.recreate_owner().ok)
-	assert_true(f.begin().ok)
-	f.authority.reject_checkpoint = true
-	assert_false(f.owner.flush_pending_attempt().ok)
-	assert_eq(f.owner.pull_physical(f.token).value.actions, ["retry"])
-	assert_eq(f.attempt(original.branch_id).value, original)
-	f.authority.reject_checkpoint = false
-	assert_true(f.owner.flush_pending_attempt().ok)
-	assert_eq(f.record().phase, "ready")
-	assert_eq(f.state.route_context.dating_active_attempt_ref.branch_id, "TEST.flush.branch")
-	assert_true(f.owner.close_scene_challenge(f.token).ok)
-
-func test_failed_materialization_profile_write_does_not_poison_ready_close() -> void:
-	assert_true(f.begin().ok)
-	assert_true(f.action("start").ok)
-	f.storage.refuse = true
-	assert_false(f.action("reveal", 36).ok)
-	f.storage.refuse = false
-	var closed: Dictionary = f.owner.close_scene_challenge(f.token)
-	assert_true(closed.ok, str(closed))
-	assert_eq(closed.value.outcome, "unfinished")
 
 func test_uncertain_or_committed_checkpoint_failure_never_grants_retry_custody() -> void:
 	for failure: Dictionary in [{"ok": false, "code": &"event_commit_ack_invalid", "committed": true},
@@ -371,7 +228,7 @@ func test_same_owner_selected_absence_revokes_future_scene_and_restore_rollback_
 	var selected: Dictionary = f.state.capture_restore_state().value.backup
 	assert_true(f.action("start").ok)
 	assert_true(f.action("reveal", 323).ok)
-	var original: Dictionary = f.attempt().value
+	var original: Dictionary = f.profile.get_profile_snapshot()
 	var run_backup: Dictionary = f.state.capture_restore_state().value.backup
 	var owner_backup: Dictionary = f.owner.capture_reconciliation_state().value
 	var checkpoints: int = f.authority.checkpoints.size()
@@ -386,10 +243,9 @@ func test_same_owner_selected_absence_revokes_future_scene_and_restore_rollback_
 	assert_false(flushed.value.committed, "no scene remains to flush")
 	assert_eq(f.record(), {})
 	assert_eq(f.authority.checkpoints.size(), checkpoints)
-	assert_eq(f.attempt(original.branch_id).value, original)
-	var refused: Dictionary = f.begin()
-	assert_false(refused.ok)
-	assert_eq(str(refused.code), "scene_attempt_recovery_required")
+	assert_eq(f.profile.get_profile_snapshot(), original)
+	assert_true(f.begin().ok)
+	assert_eq(f.owner.pull_physical(f.token).value.state, "never_started")
 	assert_eq(f.record(), {})
 	# A later restore-participant failure rolls both Run and retained owner back.
 	assert_true(f.state.rollback_restore_silent(run_backup).ok)
@@ -402,7 +258,7 @@ func test_same_owner_selected_absence_discards_old_profile_ahead_retry() -> void
 	var selected: Dictionary = f.state.capture_restore_state().value.backup
 	f.authority.reject_checkpoint = true
 	assert_false(f.action("start").ok)
-	var original: Dictionary = f.attempt().value
+	var original: Dictionary = f.profile.get_profile_snapshot()
 	assert_eq(f.owner.pull_physical(f.token).value.actions, ["retry"])
 	selected.lifecycle.branch_id = "TEST.absent.pending.owner"
 	assert_true(f.state.rollback_restore_silent(selected).ok)
@@ -413,10 +269,9 @@ func test_same_owner_selected_absence_discards_old_profile_ahead_retry() -> void
 	assert_false(f.owner.flush_pending_attempt().value.committed)
 	assert_eq(f.authority.checkpoints.size(), 0)
 	assert_eq(f.record(), {})
-	assert_eq(f.attempt(original.branch_id).value, original)
-	var refused: Dictionary = f.begin()
-	assert_false(refused.ok)
-	assert_eq(str(refused.code), "scene_attempt_recovery_required")
+	assert_eq(f.profile.get_profile_snapshot(), original)
+	assert_true(f.begin().ok)
+	assert_eq(f.owner.pull_physical(f.token).value.state, "never_started")
 
 func test_same_owner_legacy_replacement_revokes_scene_admission_after_validation() -> void:
 	assert_true(f.begin().ok)
@@ -445,22 +300,6 @@ func test_same_owner_legacy_replacement_revokes_scene_admission_after_validation
 	assert_false(f.owner.flush_pending_attempt().value.committed)
 	assert_eq(f.record(), legacy, "legacy replacement retains its existing restore policy")
 	assert_eq(f.owner.pull_physical(legacy.physical_token).value.phase, "pre_challenge")
-
-func test_same_owner_same_operation_restore_keeps_profile_ahead_retry_after_readmission() -> void:
-	assert_true(f.begin().ok)
-	assert_true(f.action("start").ok)
-	var selected: Dictionary = f.state.capture_restore_state().value.backup
-	f.authority.reject_checkpoint = true
-	assert_false(f.action("flag", 0).ok)
-	var ahead: Dictionary = f.attempt().value.record
-	assert_true(f.state.rollback_restore_silent(selected).ok)
-	assert_true(f.owner.reconcile_restore_silent({}).ok)
-	assert_false(f.owner.pull_physical(f.token).ok)
-	assert_true(f.begin().ok)
-	assert_eq(f.owner.pull_physical(f.token).value.actions, ["retry"])
-	f.authority.reject_checkpoint = false
-	assert_true(f.action("retry").ok)
-	assert_eq(f.record(), ahead)
 
 func test_before_save_flush_with_no_started_board_needs_no_playable_admission() -> void:
 	assert_true(f.begin().ok)
@@ -588,3 +427,42 @@ func test_failed_finish_retries_same_board_without_duplicate_profile_or_reward()
 	for checkpoint: Dictionary in f.authority.checkpoints.slice(checkpoints.size()):
 		assert_eq(checkpoint, selected, "each Finish source checkpoint preserves the exact same board")
 	assert_eq(f.state.effects, 0)
+
+func test_scene_actions_and_closure_do_not_write_global_profile() -> void:
+	var before: Dictionary = f.storage.read_text("profile.json")
+	assert_true(f.begin().ok)
+	f.storage.refuse = true
+	assert_true(f.action("start").ok)
+	assert_true(f.action("reveal", 36).ok)
+	assert_true(f.action("reveal", 0).ok)
+	assert_true(f.owner.close_scene_challenge(f.token).ok)
+	assert_eq(f.storage.read_text("profile.json"), before)
+	assert_eq(f.attempt().value, {})
+
+func test_failed_run_checkpoint_retries_in_memory_and_restart_uses_saved_run() -> void:
+	assert_true(f.begin().ok)
+	assert_true(f.action("start").ok)
+	var saved: Dictionary = f.state.capture_restore_state().value.backup
+	f.authority.reject_checkpoint = true
+	assert_false(f.action("flag", 0).ok)
+	assert_eq(f.owner.pull_physical(f.token).value.actions, ["retry"])
+	f.authority.reject_checkpoint = false
+	assert_true(f.action("retry").ok)
+	assert_eq(f.record().envelope.shell.flagged_indices, [0])
+	assert_true(f.state.rollback_restore_silent(saved).ok)
+	assert_true(f.recreate_owner().ok)
+	assert_true(f.begin().ok)
+	assert_eq(f.record(), saved.route_context.active_dating_challenge)
+	assert_eq(f.attempt().value, {})
+
+func test_preparing_frontier_restores_exactly_from_saved_run() -> void:
+	f.state.inventory = {"debug_key": 1}
+	assert_true(f.begin().ok)
+	assert_true(f.action("start").ok)
+	var saved: Dictionary = f.record()
+	assert_eq(saved.phase, "preparing")
+	assert_not_null(saved.envelope.preparation)
+	assert_true(f.recreate_owner().ok)
+	assert_true(f.begin().ok)
+	assert_eq(f.record(), saved)
+	assert_eq(f.attempt().value, {})

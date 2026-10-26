@@ -135,6 +135,7 @@ var _validated_text_order: Array[String] = []
 # One detached canonical proof per current operation; historical receipts never change on a forward step.
 var _operation_text_cache: Dictionary = {}
 var _schema_error: StringName = &"journal_schema_invalid"
+var _scene_restore_retirement_checked := false
 
 
 func configure(storage: Object, source_loader: Object) -> Dictionary:
@@ -148,6 +149,7 @@ func configure(storage: Object, source_loader: Object) -> Dictionary:
 		return _failed(&"journal_already_configured", "journal may not replace an existing configuration")
 	_storage = storage
 	_source_loader = source_loader
+	_scene_restore_retirement_checked = false
 	_loaded = false
 	_document = {}
 	return {"ok": true}
@@ -183,6 +185,62 @@ func with_creation_storage_recovery(work: Callable) -> Dictionary:
 	_creation_storage_recovery = false
 	_clear_loaded_proofs()
 	return result
+
+
+## Application startup retires the former durable scene Load protocol before any
+## creation recovery or ordinary journal read. Shared creation/legacy records stay.
+## No migration marker is needed: after one successful write there is nothing to remove.
+func retire_scene_restore_operations() -> Dictionary:
+	var ready := _require_configured("retire_scene_restore_operations")
+	if not ready.get("ok", false): return ready
+	if _load_in_progress: return _failed(&"journal_load_reentrant", "retirement requires idle journal")
+	if _scene_restore_retirement_checked: return {"ok": true, "value": {"removed": 0}}
+	_clear_loaded_proofs()
+	var reconciled: Dictionary = _storage.call(&"reconcile", JOURNAL_PATH, Callable(self, "_parse_document"))
+	if not reconciled.get("ok", false): return _storage_failure(reconciled)
+	if not reconciled.get("exists", false):
+		_document = {"schema_version": SCHEMA_VERSION, "operations": {}}
+		_loaded = true
+		_scene_restore_retirement_checked = true
+		return {"ok": true, "value": {"removed": 0}}
+	var document: Dictionary = reconciled.value
+	var keys: Array = document.keys()
+	keys.sort()
+	if keys != DOCUMENT_KEYS or typeof(document.get("schema_version")) != TYPE_INT \
+			or document.schema_version not in [SCHEMA_VERSION, SCENE_SCHEMA_VERSION] \
+			or not document.get("operations") is Dictionary:
+		return _failed(_schema_error, "retirement requires a recognized journal envelope")
+	var removed := 0
+	for key: Variant in document.operations.keys():
+		var operation: Variant = document.operations[key]
+		if not operation is Dictionary or operation.get("kind") != "scene_restore": continue
+		if not key is String or key.is_empty() or operation.get("transaction_id") != key:
+			return _failed(_schema_error, "retired scene restore must match its operation key")
+		document.operations.erase(key)
+		removed += 1
+	# The old selected_document is deliberately not admitted against today's story.
+	# Every retained operation still passes its ordinary validation before mutation.
+	var validated := _validate_document(document)
+	if not validated.get("ok", false): return validated
+	if removed == 0:
+		_document = document.duplicate(true)
+		_loaded = true
+		_scene_restore_retirement_checked = true
+		return {"ok": true, "value": {"removed": 0}}
+	var encoded := _serialize_document(document)
+	if not encoded.get("ok", false): return encoded
+	_remember_validated_text(str(encoded.value), document)
+	# This exact transition is also allowed during early creation recovery; the
+	# general _write guard remains restricted to creation transactions there.
+	var written: Dictionary = _storage.call(&"write_atomic", JOURNAL_PATH, str(encoded.value),
+		Callable(self, "_parse_known_document"), true)
+	if not written.get("ok", false):
+		_clear_loaded_proofs()
+		return _storage_failure(written)
+	_document = document.duplicate(true)
+	_loaded = true
+	_scene_restore_retirement_checked = true
+	return {"ok": true, "value": {"removed": removed}}
 
 
 func _clear_loaded_proofs() -> void:
@@ -541,7 +599,7 @@ func reconcile_startup(transaction_id: String, issuer: Object) -> Dictionary:
 
 func _require_configured(method: String) -> Dictionary:
 	if _creation_storage_recovery and method not in ["list_incomplete", "get_operation",
-			"reconcile_startup", "advance", "record_new_run_target"]:
+			"reconcile_startup", "advance", "record_new_run_target", "retire_scene_restore_operations"]:
 		return _failed(&"creation_storage_recovery_only", method)
 	if _storage == null or _source_loader == null:
 		return _failed(&"journal_not_configured", "DesktopContinuationOperationJournal.%s before configure" % method)

@@ -114,7 +114,7 @@ func create_optional(mode: String) -> void:
 		if not departure_admission.next_admitted: return
 		assert_false(get_tree().paused)
 		assert_false(get_tree().current_scene.is_computer_open())
-		assert_ne(game.capture_run_snapshot_input().lifecycle.branch_id, source_branch)
+		assert_eq(game.capture_run_snapshot_input().lifecycle.branch_id, source_branch)
 		assert_eq(profile.get_profile_snapshot(), prior_profile, "Selected Load preserves the later source-branch attempt.")
 		assert_true(game.capture_dating_challenge_state().value.is_empty(), "Selected absence never imports the later source board.")
 		assert_eq(FileAccess.get_sha256("user://saves/slot_3.json"), selected_sha)

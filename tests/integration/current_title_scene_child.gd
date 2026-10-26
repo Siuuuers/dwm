@@ -269,14 +269,14 @@ func load_current_title_scene() -> void:
 	assert_not_null(app, "title LogIn mounts the actual Backup app")
 	if not is_instance_valid(app): return
 	if not await _press(app.drawer_buttons.get("slot:1")): return
-	# A retained Run plan still protects the exact prepared scene after source
-	# board/consequence plans have been deferred to destination allocation.
+	# Direct Load prepares the saved board/consequence state without allocating
+	# a destination identity; the selected prepared scene remains immutable.
 	var before: Dictionary = game.capture_run_snapshot_input().duplicate(true)
 	var prepared: Dictionary = app._port.prepare_action("load", "slot:1")
 	if not _ok(prepared): return
 	var opaque: Dictionary = saves._backup_actions[prepared.value.token].prepared_restore
-	assert_false(opaque.participant_plans.has("desktop_board"))
-	assert_false(opaque.participant_plans.has("desktop_consequence"))
+	assert_true(opaque.participant_plans.has("desktop_board"), "saved board is prepared directly")
+	assert_true(opaque.participant_plans.has("desktop_consequence"), "saved consequences are prepared directly")
 	assert_true(saves._same_scene_preparation(opaque, opaque.duplicate(true)))
 	assert_eq(typeof(opaque.participant_plans.run.snapshot.schema_version), TYPE_INT)
 	for changed_version: Variant in [9.0, -1]:
@@ -294,7 +294,7 @@ func load_current_title_scene() -> void:
 		if not await _press(app.confirmation.confirm_button): return
 	if not await _wait_first_caption(): return
 	_assert_same_state(witness)
-	assert_ne(game.capture_run_snapshot_input().lifecycle.branch_id, witness.source_branch)
+	assert_eq(game.capture_run_snapshot_input().lifecycle.branch_id, witness.source_branch)
 	await _screenshot("current-title-loaded-day1")
 	var host: Node = get_tree().current_scene
 	if not await _press(_controls(host, "CheckComputer")): return

@@ -108,3 +108,32 @@ func test_early_scope_rejects_changed_source_hash_and_request_binding() -> void:
 		assert_false(result.get("ok", false), damage)
 		assert_eq(storage.text, original)
 		assert_eq(storage.writes, 0)
+
+func test_startup_scope_retires_obsolete_load_before_listing_creation_recovery() -> void:
+	var storage := ObservedStorage.new()
+	var loader := RESTORE.SourceLoader.new()
+	var journal := JOURNAL.new()
+	assert_true(journal.configure(storage, loader).ok)
+	var operation := _restore_operation(journal)
+	operation.selected_document = {"obsolete": "no current story admission"}
+	storage.text = WRITER.stringify({"schema_version": 5,
+		"operations": {operation.transaction_id: operation}}).value
+	var result: Dictionary = journal.with_creation_storage_recovery(func() -> Dictionary:
+		var retired: Dictionary = journal.retire_scene_restore_operations()
+		assert_true(retired.ok, str(retired))
+		if not retired.ok: return retired
+		assert_eq(retired.value.removed, 1)
+		assert_eq(storage.reads, 1)
+		var listed: Dictionary = journal.list_incomplete()
+		assert_true(listed.ok, str(listed))
+		if listed.ok: assert_eq(listed.value, [])
+		assert_eq(storage.reads, 1, "early recovery uses the already admitted transition result")
+		assert_false(journal.prepare_intent({}).ok, "ordinary producers remain barred in early recovery")
+		return listed)
+	assert_true(result.ok, str(result))
+	assert_eq(storage.writes, 1)
+	assert_eq(loader.calls, [])
+	assert_true(journal.retire_scene_restore_operations().ok)
+	assert_eq(storage.reads, 1, "normal startup phase does not repeat the transition")
+	assert_eq(journal.list_incomplete().value, [])
+	assert_eq(storage.reads, 2, "normal validation still gets its own read")

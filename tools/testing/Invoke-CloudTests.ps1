@@ -22,7 +22,7 @@ $suites = @{
     scene_current_snapshot = @('tests/integration/test_scene_saved_event_anchor.gd')
     scene_current_creation = @('tests/integration/test_scene_joint_new_run.gd')
     scene_current_frames = @('tests/unit/test_scene_initial_frozen.gd')
-    scene_current_challenge = @('tests/unit/test_scene_challenge.gd', 'tests/unit/test_scene_challenge_transfer.gd')
+    scene_current_challenge = @('tests/unit/test_scene_challenge.gd', 'tests/unit/test_scene_absence.gd', 'tests/unit/test_scene_challenge_transfer.gd')
     scene_passage_connected = @('tests/integration/test_scene_passage_connected_create.gd')
     scene_passage_catalogue = @('tests/unit/test_scene_passage_gallery.gd')
     scene_audio_connected = @('tests/integration/test_scene_audio_connected_create.gd')
@@ -117,6 +117,10 @@ $suites = @{
         'tests/integration/test_warm_outgoing_proof_commits.gd'
     )
     persistence = @(
+        'tests/unit/test_scene_restore_journal.gd'
+        'tests/unit/test_scene_memory_load.gd'
+        'tests/integration/test_scene_direct_load.gd'
+        'tests/unit/test_scene_load_active_settings.gd'
         'tests/unit/test_desktop_identity_allocation_restore_participant.gd'
         'tests/unit/test_frozen_run_context.gd'
         'tests/unit/test_profile_presentation_chronology.gd'

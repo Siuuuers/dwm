@@ -168,7 +168,7 @@ func load_and_complete_week(stop_after_load: bool = false, witness_save: bool = 
 	assert_eq(reading.value, expanded.value, "Load neither replays nor advances the saved caption")
 	var current: Dictionary = game.capture_run_snapshot_input()
 	assert_eq(current.lifecycle.run_id, proof.source_run)
-	assert_ne(current.lifecycle.branch_id, proof.source_branch)
+	assert_eq(current.lifecycle.branch_id, proof.source_branch)
 	for key: String in ["gameplay", "scene"]:
 		assert_eq(current[key], proof.snapshot[key], "Load preserves " + key)
 	assert_eq(profile.get_profile_snapshot(), proof.profile, "Load writes no history")
@@ -347,7 +347,7 @@ func _save_restored_witness(proof: Dictionary) -> bool:
 	for key: String in ["narrative_checkpoint", "gameplay", "scene"]:
 		assert_eq(snapshot[key], proof.snapshot[key], "witness preserves " + key)
 	assert_eq(snapshot.lifecycle.run_id, proof.source_run)
-	assert_ne(snapshot.lifecycle.branch_id, proof.source_branch)
+	assert_eq(snapshot.lifecycle.branch_id, proof.source_branch)
 	assert_eq(profile.get_profile_snapshot(), proof.profile)
 	assert_eq(FileAccess.get_sha256("user://saves/slot_1.json"), proof.slot_sha256)
 	var witness_hash := FileAccess.get_sha256(PATH)

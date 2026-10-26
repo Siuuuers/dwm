@@ -225,7 +225,7 @@ func load_content_update() -> void:
 	if not await _await_ready(): return
 	_assert_gameplay_preserved(proof.snapshot.gameplay)
 	assert_eq(game.capture_run_snapshot_input().lifecycle.run_id, proof.snapshot.lifecycle.run_id)
-	assert_ne(game.capture_run_snapshot_input().lifecycle.branch_id, proof.snapshot.lifecycle.branch_id)
+	assert_eq(game.capture_run_snapshot_input().lifecycle.branch_id, proof.snapshot.lifecycle.branch_id)
 	assert_eq(game.capture_dating_challenge_state().value, proof.record, "exact selected physical prefix survives migration")
 	assert_eq(FileAccess.get_sha256(proof.path), proof.source_sha256)
 	if not UPDATE.board_case(case_id):

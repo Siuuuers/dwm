@@ -133,7 +133,7 @@ func load_saved_text() -> void:
 	assert_eq(reading.value.reading_session.program_index, witness.reading_session.program_index)
 	var current: Dictionary = game.capture_run_snapshot_input()
 	assert_eq(current.lifecycle.run_id, witness.source_run)
-	assert_ne(current.lifecycle.branch_id, witness.source_branch, "selected Load creates a fresh branch")
+	assert_eq(current.lifecycle.branch_id, witness.source_branch, "selected Load preserves the saved branch")
 	assert_eq(current.command_receipts, witness.command_receipts)
 	assert_eq(profile.get_profile_snapshot(), witness.profile, "no Profile/history consequences replay")
 	_assert_physical_bytes(witness)

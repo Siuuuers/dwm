@@ -76,10 +76,13 @@ func exercise_phase(phase: String) -> void:
 	assert_true(activated.ok, str(activated))
 	if not activated.ok: return
 	var operation: Dictionary = fixture.manager._continuation_journal.get_operation(operation_id)
-	assert_true(operation.ok, str(operation))
-	if not operation.ok: return
-	assert_eq(operation.value.activation_state, "acknowledged")
-	assert_eq(operation.value.kind, "scene_new_run" if phase == "create" else "scene_restore")
+	if phase == "create":
+		assert_true(operation.ok, str(operation))
+		if not operation.ok: return
+		assert_eq(operation.value.activation_state, "acknowledged")
+		assert_eq(operation.value.kind, "scene_new_run")
+	else:
+		assert_false(operation.ok, "Load has no durable continuation operation")
 	assert_eq(fixture.ready_count, 1)
 	assert_eq(fixture.route_confirmations, [operation_id])
 	assert_eq(fixture.narrative_confirmations, [operation_id])
@@ -101,11 +104,10 @@ func exercise_phase(phase: String) -> void:
 		if not bytes.ok: return
 		original_hash = str(bytes.value).sha256_text()
 	else:
-		assert_true(fixture.manager.capture_committed_scene_restore(operation_id).ok)
+		assert_true(fixture.manager.capture_scene_restore_activation(operation_id).ok)
 		var restored: Dictionary = fixture.game.capture_run_snapshot_input()
 		assert_eq(restored.lifecycle.run_id, snapshot.run_id)
-		assert_ne(restored.lifecycle.branch_id, snapshot.lifecycle.branch_id, "selected Load allocates a new branch")
-		assert_gt(restored.lifecycle.desktop_timeline_generation, snapshot.lifecycle.desktop_timeline_generation)
+		assert_eq(restored.lifecycle, snapshot.lifecycle, "selected Load preserves saved lifecycle")
 		assert_eq(restored.lifecycle.scene_assignment, snapshot.lifecycle.scene_assignment)
 		assert_eq(restored.scene, snapshot.scene)
 		assert_eq(fixture.profile.get_profile_snapshot(), previous_profile, "Load does not consume another form assignment")

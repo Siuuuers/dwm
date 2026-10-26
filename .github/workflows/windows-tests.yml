@@ -192,6 +192,17 @@ jobs:
         env:
           DWM_CI_SUITE: ${{ matrix.suite }}
         run: ./tools/testing/Invoke-CloudTests.ps1 -Suite $env:DWM_CI_SUITE
+      - name: Verify interrupted Load leaves persistent files unchanged
+        if: matrix.suite == 'persistence'
+        timeout-minutes: 10
+        run: |
+          foreach ($point in @('prefix', 'completed')) {
+            ./tools/testing/Invoke-SceneInterruptionProof.ps1 -Point $point
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+            $evidence = ".godot/ci/direct-load-interruption/$point"
+            New-Item -ItemType Directory -Force -Path $evidence | Out-Null
+            Copy-Item '.godot/ci/scene-interrupt*' $evidence
+          }
       - name: Render Settings uncertain-write journey
         if: matrix.suite == 'settings'
         timeout-minutes: 3
@@ -217,6 +228,7 @@ jobs:
             .godot/ci/*.json
             .godot/ci/*.xml
             .godot/ci/storage-refusal/
+            .godot/ci/direct-load-interruption/
             .godot/ci/settings-failure-render/
             .godot/ci/backup-operations/
             .godot/ci/backup-ui/

@@ -422,3 +422,34 @@ func test_reconfiguring_next_presenter_releases_old_matte_and_ignores_old_comple
 	assert_eq(old_bridge.acknowledgements, 0)
 	assert_true(replacement.has_focus())
 	replacement.free()
+
+func test_localized_repaint_under_cover_preserves_pause_source_and_can_return() -> void:
+	var captured: Dictionary = caption.capture_pause_view(_source())
+	assert_true(captured.ok)
+	assert_true(caption.cover_pause_view(captured.value))
+	var generation: int = caption.caption_text.get_reveal_generation()
+	var ratio: float = caption.caption_text.visible_ratio
+	var native_identity: Dictionary = caption._pause_runtime_identity()
+	# DialogicBridge refreshes the existing native text before locale_changed
+	# reaches the mounted caption, without publishing another story event.
+	caption.caption_text.text = "同一段對話仍然停留在原本的位置。".repeat(90)
+	caption.caption_text.visible_ratio = ratio
+	assert_gt(caption.caption_text.get_reveal_generation(), generation)
+	assert_false(caption._valid_pause_anchor(captured.value), "repaint invalidated the old reveal generation")
+	caption._on_locale_changed("zh_HK")
+	assert_eq(caption._pause_runtime_identity(), native_identity)
+	assert_true(caption.restore_pause_view(captured.value))
+	assert_true(caption.canvas.visible)
+	assert_almost_eq(caption.caption_text.visible_ratio, ratio, 0.001)
+	assert_true(runtime.paused, "the view does not release native suspension itself")
+	assert_eq(_finished, 0, "presentation repaint does not complete or replay dialogue")
+
+func test_locale_repaint_cannot_rebind_a_different_native_pause_source() -> void:
+	var captured: Dictionary = caption.capture_pause_view(_source())
+	assert_true(captured.ok)
+	assert_true(caption.cover_pause_view(captured.value))
+	runtime.current_event_idx += 1
+	caption.caption_text.text = "A different native event."
+	caption._on_locale_changed("ja")
+	assert_false(caption.restore_pause_view(captured.value))
+	assert_false(caption.canvas.visible)

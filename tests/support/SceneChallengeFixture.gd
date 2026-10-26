@@ -66,8 +66,8 @@ class Authority extends RefCounted:
 	func capture_scene_challenge_closure(_context: Dictionary) -> Dictionary:
 		return {"ok": true, "value": closures.get(state.lifecycle.branch_id, {}).duplicate(true)}
 	func commit_scene_challenge_checkpoint(record: Dictionary, reference: Dictionary, _lease: String = "") -> Dictionary:
-		var retained: Dictionary = profile.get_dating_attempt(state.lifecycle.run_id, LEDGER.semantic_slot(record.context), reference.attempt_id, reference.branch_id)
-		if not retained.ok or retained.value.record != record: return {"ok": false, "code": &"TEST.profile_not_before_run"}
+		if state.route_context.get("active_dating_challenge") != record or reference.attempt_id != record.spec.board_token:
+			return {"ok": false, "code": &"TEST.run_record_mismatch"}
 		if not checkpoint_failure.is_empty(): return checkpoint_failure.duplicate(true)
 		if reject_checkpoint: return {"ok": false, "code": &"TEST.run_refused", "committed": false}
 		checkpoints.append(record.duplicate(true))
@@ -80,8 +80,9 @@ class Authority extends RefCounted:
 		if closures.has(state.lifecycle.branch_id): return {"ok": false, "code": &"TEST.closed"}
 		if result.attempt_proof != null:
 			var proof: Dictionary = result.attempt_proof
-			var attempt: Dictionary = profile.get_dating_attempt(proof.run_id, proof.slot_id, proof.attempt_id, proof.branch_id)
-			if not attempt.ok or not LEDGER.validate_attempt_proof(attempt.value, proof).ok: return {"ok": false, "code": &"TEST.proof_invalid"}
+			var record: Dictionary = state.route_context.get("active_dating_challenge", {})
+			if record.is_empty() or proof.record_sha256 != CANONICAL.canonical_sha256(record).value.sha256:
+				return {"ok": false, "code": &"TEST.proof_invalid"}
 		closures[state.lifecycle.branch_id] = result.duplicate(true)
 		if malformed_closure: return {"ok": true, "value": {}}
 		return {"ok": true, "value": result.duplicate(true)}

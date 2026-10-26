@@ -17,6 +17,10 @@ const PRE := "dating.solo.priscilla.day1.pre_challenge"
 const POST := "dating.solo.priscilla.day1.post_challenge"
 const LINE := "fixture.solo.pre.a"
 
+# Retain the real publication method while replacing its unrelated native-proof check.
+class PublicationBridge extends "res://autoload/DialogicBridge.gd":
+	func validate_scene_activation(_operation_id: String) -> Dictionary: return {"ok": true}
+
 class RetryableFiles extends "res://tests/support/FakeFileOps.gd":
 	var reject_next_marker := false
 	func write_bytes(path: String, bytes: PackedByteArray) -> Dictionary:
@@ -263,3 +267,35 @@ func test_reveal_callback_cannot_turn_a_fresh_exact_variant_into_previously_seen
 
 func after_each() -> void:
 	_retained_reading_scope.restore()
+
+func test_restored_caption_acknowledges_without_writing_profile_then_next_caption_records() -> void:
+	_activate(_document, "restored")
+	var proof: Dictionary = _bridge.capture_current_line_presentation_frontier()
+	assert_true(proof.ok, str(proof))
+	var publishing := PublicationBridge.new()
+	add_child_autofree(publishing)
+	publishing._runtime_adapter = _native
+	publishing._active_entry = _bridge._active_entry.duplicate(true)
+	publishing._scene_restore = {"read_only": true, "checkpoint": {"saved": true}}
+	get_tree().paused = true
+	var published: Dictionary = publishing.publish_scene_activation("load")
+	get_tree().paused = false
+	assert_true(published.ok, str(published))
+	assert_eq(publishing._scene_restore.restored_caption, {"token": proof.value.token,
+		"caption_publication": proof.value.caption_publication})
+	_bridge._scene_restore = publishing._scene_restore.duplicate(true)
+	var before: Dictionary = _files.snapshot_persisted()
+	var revision: int = _profile.get_profile_revision()
+	assert_true(_bridge.acknowledge_current_line_presentation(proof).ok)
+	assert_true(_bridge.is_current_line_presentation_acknowledged())
+	assert_true(_bridge.acknowledge_current_line_presentation(proof).ok)
+	assert_eq(_files.snapshot_persisted(), before)
+	assert_eq(_profile.get_profile_revision(), revision)
+	assert_false(_profile.is_caption_variant_witnessed(proof.value.caption_variant))
+	_native.line_id = "fixture.solo.pre.b"
+	_native.publication = _publish(_bridge._reading_session, PRE, _native.line_id)
+	_native.generation += 1
+	var next: Dictionary = _bridge.capture_current_line_presentation_frontier()
+	assert_true(_bridge.acknowledge_current_line_presentation(next).ok)
+	assert_true(_profile.is_caption_variant_witnessed(next.value.caption_variant))
+	assert_eq(_profile.get_profile_revision(), revision + 1)

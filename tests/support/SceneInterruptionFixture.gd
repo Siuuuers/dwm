@@ -1,27 +1,29 @@
 extends "res://tests/support/SceneRestartFixture.gd"
-## Exact stop seam only: real journal admission and persistence are unchanged.
-## Inherited board/consequence/audio/localization participants remain diagnostic.
+## Stop within direct Load's synchronous participant pass, before readiness.
 const JSON_WRITER := preload("res://scripts/validation/CanonicalJsonWriter.gd")
-const ENTRY_MANIFEST := preload("res://scripts/narrative/DialogicEntryManifest.gd")
 
-class InterruptingJournal:
-	extends "res://scripts/infrastructure/save/DesktopContinuationOperationJournal.gd"
+class InterruptingNarrative:
+	extends "res://scripts/application/restore/NarrativeRestoreParticipant.gd"
 	var stop_point := ""
-	var after_durable_stop: Callable
-	func advance(request: Dictionary) -> Dictionary:
-		var result: Dictionary = super.advance(request)
-		if not result.get("ok", false) or stop_point.is_empty(): return result
-		var operation: Dictionary = result.value
-		if operation.get("kind") != "scene_restore": return result
-		var prefix: bool = stop_point == "prefix" and operation.stage == STAGE_APPLYING \
-			and operation.next_participant_index == 7 and operation.participant_receipts.get("route") is Dictionary
-		var completed: bool = stop_point == "completed" and operation.stage == STAGE_COMPLETED \
-			and operation.activation_state == "pending"
-		if prefix or completed:
+	var after_memory_stop: Callable
+	func apply_silent(plan: Dictionary) -> Dictionary:
+		if stop_point == "prefix":
 			stop_point = ""
-			after_durable_stop.call(operation.duplicate(true))
+			after_memory_stop.call(str(plan.scene_restore_operation_id))
+			return {"ok": false, "code": &"test_interruption_did_not_terminate"}
+		var result: Dictionary = super.apply_silent(plan)
+		if result.get("ok", false) and stop_point == "completed":
+			stop_point = ""
+			after_memory_stop.call(str(plan.scene_restore_operation_id))
 			return {"ok": false, "code": &"test_interruption_did_not_terminate"}
 		return result
+
+func setup_restart(scene_tree: SceneTree) -> Dictionary:
+	var checked: Dictionary = await super.setup_restart(scene_tree)
+	if not checked.ok: return checked
+	participants.narrative = InterruptingNarrative.new(bridge)
+	participants.narrative.scene_activation_confirmed.connect(func(id: String) -> void: narrative_confirmations.append(id))
+	return manager.configure_scene_restore_participants(participants)
 
 var interrupt_context: Dictionary = {}
 var stop_failure: Dictionary = {}
@@ -30,27 +32,28 @@ func arm_interruption(point: String, context: Dictionary) -> Dictionary:
 	if point not in ["prefix", "completed"]: return {"ok": false, "code": &"test_stop_point_invalid"}
 	interrupt_context = context.duplicate(true)
 	interrupt_context["point"] = point
-	var journal := InterruptingJournal.new()
-	var checked: Dictionary = journal.configure(storage, manager)
-	if checked.ok: checked = journal.configure_scene_new_run_validation(ENTRY_MANIFEST.scene_registration().value, issuer)
-	if not checked.ok: return checked
-	journal.stop_point = point
-	journal.after_durable_stop = _stop_after_durable_journal_write
-	manager._continuation_journal = journal
+	participants.narrative.stop_point = point
+	participants.narrative.after_memory_stop = _stop_after_memory_apply
 	return {"ok": true}
 
 func witness_path() -> String:
 	return storage.describe_root().path_join("interruption-witness.json")
 
-func _stop_after_durable_journal_write(operation: Dictionary) -> void:
-	# A separately configured real journal must read the disk, not the writer cache.
-	var reopened: Dictionary = reopen_journal()
-	if not reopened.ok:
-		stop_failure = reopened
+func persistent_files() -> Dictionary:
+	var hashes := {}
+	var directory: String = storage.describe_root()
+	for name: String in DirAccess.get_files_at(directory):
+		if name == "interruption-witness.json": continue
+		hashes[name] = FileAccess.get_sha256(directory.path_join(name))
+	return hashes
+
+func _stop_after_memory_apply(operation_id: String) -> void:
+	var reread: Dictionary = manager._continuation_journal.get_operation(operation_id)
+	if reread.ok:
+		stop_failure = {"ok": false, "code": &"test_load_wrote_operation"}
 		return
-	var reread: Dictionary = reopened.value.get_operation(operation.transaction_id)
-	if not reread.ok or not JSON_WRITER._deep_same(reread.get("value"), operation):
-		stop_failure = {"ok": false, "code": &"test_durable_stop_readback_failed", "result": reread}
+	if persistent_files() != interrupt_context.persistent_files:
+		stop_failure = {"ok": false, "code": &"test_load_changed_persistent_files"}
 		return
 	var identity: Dictionary = storage.inspect_revision("desktop-issuer-root.json")
 	if not identity.ok:
@@ -61,7 +64,7 @@ func _stop_after_durable_journal_write(operation: Dictionary) -> void:
 		return
 	var proof := interrupt_context.duplicate(true)
 	proof.merge({"phase": "stop", "process_id": OS.get_process_id(), "storage_root": storage.describe_root(),
-		"operation_id": operation.transaction_id, "operation": operation, "ready_count": ready_count,
+		"operation_id": operation_id, "operation_absent": true, "ready_count": ready_count,
 		"issuer_root_sha256": identity.value.revision,
 		"route_confirmations": route_confirmations.duplicate(), "narrative_confirmations": narrative_confirmations.duplicate(),
 		"live_route_generation": router._route_generation}, true)

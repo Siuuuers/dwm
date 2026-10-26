@@ -4287,9 +4287,7 @@ func _prepare_scene_snapshot_semantics(snapshot: Dictionary, bundle: Dictionary,
 		_terminal_reading: Dictionary = {}) -> Dictionary:
 	var current := _NARRATIVE_VARIABLE_SCHEMA.validate_current_scene(snapshot.get("scene"), bundle)
 	if not current.ok: return current
-	var profile: Node = get_node_or_null("/root/ProfileManager")
-	if profile == null: return _transaction_failure(&"scene_profile_owner_required", "")
-	var physical := _validate_scene_profile_references(snapshot, profile)
+	var physical := _validate_scene_physical_record(snapshot)
 	if not physical.ok: return physical
 	var frozen := _SCENE_FROZEN.validate(snapshot, true)
 	if not frozen.get("ok", false): return frozen
@@ -4536,7 +4534,7 @@ func continue_optional_scene_challenge() -> Dictionary:
 	configured = _dating_restore_owner.configure_scene_challenges(admitted.value.bundle, self)
 	if not configured.ok: return configured
 	# Flush while the real physical owner can acquire its own causal lease. This
-	# also recovers Profile-ahead state; absence never invokes Start or generation.
+	# keeps the selected Run state; absence never invokes Start or generation.
 	var prepared: Dictionary = _dating_restore_owner.prepare_scene_departure(admitted.value.command)
 	if not prepared.get("ok", false): return prepared
 	var acquired: Dictionary = _mutation_gate.acquire(&"causal_transaction")
@@ -4565,7 +4563,7 @@ func _continue_completed_scene_challenge_owned(lease: String) -> Dictionary:
 	var route: Dictionary = source_input.gameplay.route_context
 	var record: Dictionary = route.get("active_dating_challenge", {})
 	if not record.is_empty() and (record.get("context") != admitted.value.command.context \
-			or not _scene_challenge_profile_matches(record, route.get("dating_active_attempt_ref", {}))):
+			or not _scene_challenge_record_matches(record, route.get("dating_active_attempt_ref", {}))):
 		return _transaction_failure(&"scene_challenge_profile_mismatch", "")
 	if record.is_empty() and not route.get("dating_active_attempt_ref", {}).is_empty():
 		return _transaction_failure(&"scene_attempt_absence_unverified", "")
@@ -4714,13 +4712,8 @@ func configure_scene_challenge_runtime() -> Dictionary:
 	if not is_instance_valid(_narrative_checkpoint_port) \
 			or not _narrative_checkpoint_port.has_method("configure_scene_challenge_authority"):
 		return _transaction_failure(&"scene_checkpoint_owner_required", "")
-	var profile := get_node_or_null("/root/ProfileManager")
-	if profile == null or not profile.has_method("configure_scene_absence_validator"):
-		return _transaction_failure(&"scene_challenge_profile_unavailable", "")
-	var configured: Dictionary = _narrative_checkpoint_port.configure_scene_challenge_authority(self,
+	return _narrative_checkpoint_port.configure_scene_challenge_authority(self,
 		Callable(self, "_validate_scene_challenge_checkpoint"))
-	if not configured.get("ok", false): return configured
-	return profile.configure_scene_absence_validator(Callable(self, "validate_selected_scene_absence"))
 
 ## The story binding may consume an older frozen physical attempt. Never rename
 ## that attempt's context, spec or Profile slot to match revised story content.
@@ -4810,149 +4803,6 @@ func validate_scene_challenge_command(command: Dictionary, bundle: Dictionary) -
 	if not _SCENE_EVENT._equal(detached, current.value.command) or not _SCENE_EVENT._equal(bundle, current.value.bundle):
 		return _transaction_failure(&"scene_challenge_command_refused", "")
 	return {"ok": true}
-
-# Selected absence is a live grant over SaveManager's retained selected document.
-# Current slot bytes and the source Profile's later board cannot grant this authority.
-var _selected_scene_absence: Dictionary = {}
-var _selected_scene_absence_busy := false
-var _selected_scene_absence_reentered := false
-
-func prepare_selected_scene_absence(command: Dictionary, bundle: Dictionary) -> Dictionary:
-	if _selected_scene_absence_busy:
-		_selected_scene_absence_reentered = true
-		return _transaction_failure(&"scene_absence_reentry", "")
-	_selected_scene_absence_busy = true
-	_selected_scene_absence_reentered = false
-	var material := _capture_selected_scene_absence(command.duplicate(true), bundle.duplicate(true))
-	_selected_scene_absence_busy = false
-	if _selected_scene_absence_reentered: return _transaction_failure(&"scene_absence_reentry", "")
-	if not material.get("ok", false): return material
-	_selected_scene_absence = material.value.duplicate(true)
-	return {"ok": true, "value": _selected_scene_absence.admission.duplicate(true)}
-
-func validate_selected_scene_absence(admission: Dictionary, command: Dictionary, bundle: Dictionary, lease: String) -> Dictionary:
-	if _selected_scene_absence_busy:
-		_selected_scene_absence_reentered = true
-		return _transaction_failure(&"scene_absence_reentry", "")
-	if _selected_scene_absence.is_empty() or not is_instance_valid(_mutation_gate) \
-			or not _mutation_gate.is_lease_active(&"causal_transaction", lease):
-		return _transaction_failure(&"scene_absence_custody_required", "")
-	var retained := _selected_scene_absence.duplicate(true)
-	if not _SCENE_EVENT._equal(admission, retained.admission) \
-			or not _SCENE_EVENT._equal(command, retained.command) or not _SCENE_EVENT._equal(bundle, retained.bundle):
-		return _transaction_failure(&"scene_absence_not_authorized", "")
-	_selected_scene_absence_busy = true
-	_selected_scene_absence_reentered = false
-	var current := _capture_selected_scene_absence(command.duplicate(true), bundle.duplicate(true))
-	_selected_scene_absence_busy = false
-	if _selected_scene_absence_reentered or not current.get("ok", false) \
-			or not _SCENE_EVENT._equal(current.get("value"), retained) \
-			or not _SCENE_EVENT._equal(_selected_scene_absence, retained) \
-			or not _SCENE_EVENT._equal(admission, retained.admission) \
-			or not _SCENE_EVENT._equal(command, retained.command) or not _SCENE_EVENT._equal(bundle, retained.bundle) \
-			or not _mutation_gate.is_lease_active(&"causal_transaction", lease):
-		return _transaction_failure(&"scene_absence_not_authorized", "")
-	return {"ok": true}
-
-func _capture_selected_scene_absence(command: Dictionary, bundle: Dictionary) -> Dictionary:
-	if not _live_session_active or not _run_configuration_installed or not is_instance_valid(_scene_save_owner) \
-			or not _scene_save_owner.has_method("capture_committed_scene_restore"):
-		return _transaction_failure(&"scene_absence_not_authorized", "")
-	var session := _live_session_fact().duplicate(true)
-	var live := capture_run_snapshot_input().duplicate(true)
-	var authorized := validate_scene_challenge_command(command, bundle)
-	if not authorized.get("ok", false): return authorized
-	var route: Dictionary = live.gameplay.route_context
-	if not route.get("active_dating_challenge", {}).is_empty() or not route.get("dating_active_attempt_ref", {}).is_empty():
-		return _transaction_failure(&"scene_absence_not_authorized", "live physical state already exists")
-	var provenance: Variant = live.lifecycle.get("restore_provenance")
-	if not provenance is Dictionary: return _transaction_failure(&"scene_absence_not_authorized", "selected restore required")
-	var restored: Dictionary = _scene_save_owner.capture_committed_scene_restore(str(provenance.restore_transaction_id))
-	if not restored.get("ok", false): return restored
-	var operation: Dictionary = restored.value.operation
-	var source: Dictionary = restored.value.selected_bundle.snapshot
-	var root: Dictionary = _identity_issuer.capture_root()
-	if not root.get("ok", false): return root
-	var allocation: Variant = root.value.get("allocation_receipts", {}).get(provenance.restore_transaction_id)
-	if not allocation is Dictionary or not _SCENE_EVENT._equal(allocation, operation.get("allocation_receipt")) \
-			or _SCENE_EVENT._sha(allocation) != operation.get("allocation_candidate_fingerprint"):
-		return _transaction_failure(&"scene_absence_not_authorized", "restore allocation is not in issuer root")
-	var transaction: Dictionary = _identity_issuer.verify_issued(operation.transaction_issuer_receipt, &"transaction_id")
-	var remap: Dictionary = _identity_issuer.validate_child(provenance.remap_receipt_provenance, &"continuation_operation")
-	if not transaction.get("ok", false) or not remap.get("ok", false) \
-			or operation.transaction_id != provenance.restore_transaction_id \
-			or operation.transaction_issuer_receipt.get("receipt_id") != provenance.identity_allocation_receipt_id \
-			or provenance.remap_receipt_provenance.get("child_id") != provenance.remap_receipt_id \
-			or _SCENE_EVENT._sha(allocation.get("transaction_remap")) != provenance.transaction_remap_sha256:
-		return _transaction_failure(&"scene_absence_not_authorized", "restore provenance mismatch")
-	if source.run_id != live.lifecycle.run_id or source.lifecycle.branch_id == live.lifecycle.branch_id \
-			or provenance.source_branch_id != source.lifecycle.branch_id \
-			or provenance.source_desktop_timeline_generation != source.lifecycle.desktop_timeline_generation \
-			or provenance.source_causal_day_instance != source.lifecycle.causal_day_instance \
-			or provenance.source_issuer_observed_counter != source.lifecycle.causal_day_instance_issuer_receipt.get("counter"):
-		return _transaction_failure(&"scene_absence_not_authorized", "selected source identity mismatch")
-	var destination := {"run_id": live.lifecycle.run_id}
-	var source_identity := {"run_id": source.run_id}
-	for field: String in ["branch_id", "desktop_timeline_generation", "causal_day_instance", "causal_day_instance_issuer_receipt"]:
-		if not _SCENE_EVENT._equal(allocation.get(field), live.lifecycle.get(field)):
-			return _transaction_failure(&"scene_absence_not_authorized", "allocated destination mismatch")
-		destination[field] = live.lifecycle[field]
-		source_identity[field] = source.lifecycle[field]
-	if allocation.get("run_id") != live.lifecycle.run_id:
-		return _transaction_failure(&"scene_absence_not_authorized", "allocated run mismatch")
-	var selected_route: Dictionary = source.gameplay.route_context
-	var slot: String = preload("res://scripts/profile/DatingAttemptLedger.gd").semantic_slot(command.context)
-	if not selected_route.get("active_dating_challenge", {}).is_empty() \
-			or not selected_route.get("dating_active_attempt_ref", {}).is_empty() \
-			or selected_route.get("dating_canonical_heads", {}).has(slot):
-		return _transaction_failure(&"scene_absence_not_authorized", "selected snapshot is not pre-Reveal")
-	var selected_command := _current_scene_challenge_command(source.scene)
-	if not selected_command.ok or not _SCENE_EVENT._equal(selected_command.value, command):
-		return _transaction_failure(&"scene_absence_not_authorized", "selected current Challenge mismatch")
-	var current := _capture_retained_scene_challenge_command(command.context)
-	if not current.get("ok", false) or not _scene_absence_checkpoint_matches(source.narrative_checkpoint, current.value.checkpoint) \
-			or not _SCENE_EVENT._equal(source.scene, live.scene) \
-			or not _SCENE_EVENT._equal(capture_run_snapshot_input(), live) or not _live_session_active \
-			or not _SCENE_EVENT._equal(_live_session_fact(), session):
-		return _transaction_failure(&"scene_absence_not_authorized", "live selected control changed")
-	var admission := {"restore_transaction_id": operation.transaction_id, "source_locator": operation.source_locator.duplicate(true),
-		"source_identity": source_identity, "destination_identity": destination,
-		"allocation_receipt_id": provenance.identity_allocation_receipt_id, "remap_receipt_id": provenance.remap_receipt_id,
-		"transaction_remap_sha256": provenance.transaction_remap_sha256, "challenge_key": {
-			"run_id": live.lifecycle.run_id, "scene_occurrence": command.context.scene_occurrence,
-			"challenge_id": command.context.challenge_id, "playable_command_id": command.context.playable_command_id,
-			"registration_sha256": command.context.registration_sha256}}
-	return {"ok": true, "value": {"admission": admission, "session": session, "command": command.duplicate(true),
-		"bundle": bundle.duplicate(true), "selected_sha256": _SCENE_EVENT._sha(source)}}
-
-## Selected absence remains valid through its one durable control departure.
-## The saved traversal carries the exact selected prefix, not a guessed nearby
-## cursor or a Profile sibling's later board. No new absence authority is minted.
-func _scene_absence_checkpoint_matches(selected: Dictionary, current: Dictionary) -> bool:
-	if _scene_player_checkpoint_same(selected, current): return true
-	var selected_live := preload("res://scripts/narrative/SoloReadingSession.gd").expand_player_checkpoint(selected)
-	if not selected_live.ok: return false
-	selected = selected_live.value
-	var traversal := preload("res://scripts/narrative/ReadingTraversalOperation.gd")
-	var source: Dictionary = selected.get("reading_session", {})
-	var destination: Dictionary = current.get("reading_session", {})
-	if source.get("schema_version") != 5 or source.get("boundary") != "control" \
-			or destination.get("schema_version") != 5 or destination.get("boundary") != "line": return false
-	var checked: Dictionary = traversal.validate(destination, str(current.get("entry_id", "")))
-	if not checked.get("ok", false): return false
-	var plan: Dictionary = checked.value.plan
-	if checked.value.phase != "destination" or plan.path.size() != 1 \
-			or plan.destination.kind != "line" or not plan.traversed_captions.is_empty() \
-			or plan.destination.program_index != int(source.program_index) + 1 \
-			or not _scene_player_checkpoint_same(_scene_checkpoint_with_reading(selected, plan.source_reading), selected): return false
-	var restored := current.duplicate(true)
-	restored.reading_session = source
-	return _scene_player_checkpoint_same(restored, selected)
-
-func _scene_checkpoint_with_reading(checkpoint: Dictionary, reading: Dictionary) -> Dictionary:
-	var result := checkpoint.duplicate(true)
-	result.reading_session = reading
-	return result
 
 func _scene_player_checkpoint_same(left: Variant, right: Variant) -> bool:
 	if not left is Dictionary or not right is Dictionary: return false
@@ -5157,7 +5007,7 @@ func commit_scene_challenge_closure(command: Dictionary, result: Dictionary) -> 
 	if result.get("attempt_proof") != null:
 		var proof: Dictionary = result.attempt_proof
 		var reference: Dictionary = route_context.get("dating_active_attempt_ref", {})
-		if record.is_empty() or not _scene_challenge_profile_matches(record, reference) \
+		if record.is_empty() or not _scene_challenge_record_matches(record, reference) \
 				or proof.slot_id != preload("res://scripts/profile/DatingAttemptLedger.gd").semantic_slot(command.context) \
 				or proof.record_sha256 != _SCENE_EVENT._sha(record) or proof.attempt_id != reference.attempt_id \
 				or proof.branch_id != reference.branch_id or proof.generation != reference.generation:
@@ -5176,17 +5026,12 @@ func commit_scene_challenge_closure(command: Dictionary, result: Dictionary) -> 
 	_scene_live_closures[_SCENE_EVENT._sha(command.context)] = result.duplicate(true)
 	return {"ok": true, "committed": true, "duplicate": false, "value": result.duplicate(true)}
 
-func _scene_challenge_profile_matches(record: Dictionary, reference: Dictionary) -> bool:
+func _scene_challenge_record_matches(record: Dictionary, reference: Dictionary) -> bool:
 	const ATTEMPTS = preload("res://scripts/profile/DatingAttemptLedger.gd")
-	var profile := get_node_or_null("/root/ProfileManager")
-	if profile == null or not ATTEMPTS.validate_record(record) \
-			or not _SCENE_EVENT._keys(reference, ["attempt_id", "branch_id", "generation"]): return false
-	var live := capture_run_snapshot_input()
-	if reference.branch_id != live.lifecycle.branch_id: return false
-	var retained: Dictionary = profile.get_dating_attempt(str(live.lifecycle.run_id),
-		ATTEMPTS.semantic_slot(record.context), str(reference.attempt_id), str(reference.branch_id))
-	return retained.get("ok", false) and retained.value.generation == reference.generation \
-		and _SCENE_EVENT._equal(retained.value.record, record)
+	return ATTEMPTS.validate_record(record) \
+		and _SCENE_EVENT._keys(reference, ["attempt_id", "branch_id", "generation"]) \
+		and reference.attempt_id == record.spec.board_token \
+		and _SCENE_EVENT._id(reference.branch_id) and _SCENE_EVENT._positive_int(reference.generation)
 
 func commit_scene_challenge_checkpoint(record: Dictionary, reference: Dictionary, lease: String) -> Dictionary:
 	if not _scene_challenge_operation.is_empty() or not is_instance_valid(_mutation_gate) \
@@ -5197,7 +5042,7 @@ func commit_scene_challenge_checkpoint(record: Dictionary, reference: Dictionary
 	if record.get("context") != admitted.value.command.context \
 			or record.get("completion_transaction_id") != admitted.value.command.completion_transaction_id \
 			or record.get("command_sha256") != admitted.value.command.command_sha256 \
-			or not _scene_challenge_profile_matches(record, reference):
+			or not _scene_challenge_record_matches(record, reference):
 		return _transaction_failure(&"scene_challenge_profile_mismatch", "")
 	var live := capture_live_session()
 	if not live.ok: return live
@@ -5238,7 +5083,7 @@ func _validate_scene_challenge_checkpoint(snapshot: Dictionary, checkpoint: Dict
 		valid = _SCENE_EVENT._equal(live.value, operation.session) \
 			and _SCENE_EVENT._equal(admitted.value.checkpoint, checkpoint)
 		valid = valid and _SCENE_EVENT._equal(capture_run_snapshot_input(), snapshot) \
-			and _scene_challenge_profile_matches(operation.record, operation.reference)
+			and _scene_challenge_record_matches(operation.record, operation.reference)
 	if valid and phase != "after_commit":
 		valid = _SCENE_EVENT._sha(stable.value.bundle.snapshot) == operation.source_sha256
 	elif valid:
@@ -5588,33 +5433,19 @@ func _commit_scene_target_owned() -> Dictionary:
 		save_relevant_state_changed.emit()
 	return {"ok": true, "committed": true, "value": admitted.duplicate(true)}
 
-func _validate_scene_profile_references(snapshot: Dictionary, profile: Object) -> Dictionary:
-	const ATTEMPTS = preload("res://scripts/profile/DatingAttemptLedger.gd")
+func _validate_scene_physical_record(snapshot: Dictionary) -> Dictionary:
 	var route: Dictionary = snapshot.gameplay.route_context
 	var record: Dictionary = route.get("active_dating_challenge", {})
 	if not record.is_empty():
-		var reference: Dictionary = route.get("dating_active_attempt_ref", {})
-		var slot: String = ATTEMPTS.semantic_slot(record.context)
-		var retained: Dictionary = profile.get_dating_attempt(snapshot.run_id, slot,
-			reference.attempt_id, reference.branch_id)
-		if not retained.get("ok", false): return retained
-		if retained.value.is_empty() or retained.value.generation != reference.generation \
-				or not _SCENE_EVENT._equal(retained.value.entry_receipt, ATTEMPTS._entry(record)):
-			return _transaction_failure(&"scene_physical_profile_mismatch", "")
+		if not _scene_challenge_record_matches(record, route.get("dating_active_attempt_ref", {})):
+			return _transaction_failure(&"scene_physical_record_mismatch", "")
+		var slot: String = preload("res://scripts/profile/DatingAttemptLedger.gd").semantic_slot(record.context)
 		for outcome: Dictionary in snapshot.gameplay.scene_challenge_outcomes.values():
 			if outcome.get("physical_slot", "") != slot and not (outcome.get("physical_slot", "").is_empty() \
 					and outcome.challenge_id == record.context.challenge_id): continue
 			var expected: String = preload("res://scripts/application/run/DatingPhysicalOwner.gd").scene_closure_outcome(record, {"perfect": true})
 			if outcome.outcome != expected and not (expected == "perfect" and outcome.outcome == "won"):
 				return _transaction_failure(&"scene_challenge_outcome_mismatch", "")
-
-	for slot: String in route.get("dating_canonical_heads", {}):
-		var head: Dictionary = route.dating_canonical_heads[slot]
-		var retained: Dictionary = profile.get_dating_attempt(snapshot.run_id, slot, head.attempt_id, head.branch_id)
-		if not retained.get("ok", false): return retained
-		if retained.value.is_empty() or retained.value.entry_receipt.get("record_version") != 4:
-			return _transaction_failure(&"scene_physical_profile_mismatch", "")
-
 	return {"ok": true}
 
 

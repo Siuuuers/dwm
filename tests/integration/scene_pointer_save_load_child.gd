@@ -178,7 +178,7 @@ func run_pointer_save_load() -> void:
 	assert_eq(bridge.capture_reading_checkpoint(false), checkpoint)
 	assert_eq(profile.get_profile_snapshot(), before_load_profile, "Load replays no Profile/History consequences.")
 	assert_eq(FileAccess.get_sha256(SLOT_PATH), saved_hash, "Load preserves the selected save.")
-	assert_ne(game.capture_run_snapshot_input().lifecycle.branch_id, source_branch)
+	assert_eq(game.capture_run_snapshot_input().lifecycle.branch_id, source_branch)
 	assert_true(panel._can_interact())
 	assert_true(panel.worksheet.grid.focus_cell(flag_index), "Show the restored flag in the capture.")
 	await get_tree().process_frame

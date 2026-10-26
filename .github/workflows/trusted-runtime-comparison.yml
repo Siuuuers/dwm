@@ -1,5 +1,5 @@
 name: Trusted runtime matched comparison
-run-name: Load admitted-state reuse matched comparison
+run-name: Direct scene Load matched comparison
 
 on:
   pull_request:
@@ -14,7 +14,7 @@ concurrency:
 
 jobs:
   measure:
-    if: github.event_name == 'workflow_dispatch' || github.head_ref == 'codex/load-admitted-state-20261026'
+    if: github.event_name == 'workflow_dispatch' || github.head_ref == 'codex/direct-scene-load-20261026'
     runs-on: windows-2022
     timeout-minutes: 55
     defaults:
@@ -22,7 +22,7 @@ jobs:
         shell: pwsh
     env:
       PYTHONUTF8: "1"
-      STARTUP_BASE_SHA: a5ecd04ecb2724aaaf8c7462aa2b41e9f895ccc5
+      STARTUP_BASE_SHA: 0a3fe192f34c5ec1c1fa245d7db12a7ac2ad9bcf
       CANDIDATE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
       DIAGNOSTIC_SHA: d72b67506e05c03f161201df7b9fc5430e2b136e
     steps:

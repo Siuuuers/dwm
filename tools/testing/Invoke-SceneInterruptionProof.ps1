@@ -54,10 +54,10 @@ function Assert-ChildReport {
         throw "INTERRUPT_JUNIT_NOT_CLEAN: $Phase"
     }
 }
-# The first child is deliberately terminated inside a synchronous journal write hook.
+# The first child is deliberately terminated inside the synchronous in-memory participant pass.
 # Windows OS.kill uses TerminateProcess(..., 0); zero exit alone is never success.
 if (Test-Path -LiteralPath (Join-Path $output 'scene-interrupt-stop.xml')) { throw 'INTERRUPT_STOP_RETURNED_TO_GUT' }
-Assert-ChildReport -Phase 'resume' -ExpectedTest 'test_fresh_process_resumes_same_operation_and_confirms_native_mount_once'
+Assert-ChildReport -Phase 'resume' -ExpectedTest 'test_fresh_process_loads_original_save_without_resuming_interruption'
 $records = @(Get-Content -LiteralPath (Join-Path $output 'scene-interrupt.jsonl') | ForEach-Object { ConvertFrom-Json -InputObject $_ })
 if ($records.Count -ne 2) { throw 'INTERRUPT_WRAPPER_RECORD_COUNT' }
 for ($index = 0; $index -lt 2; $index += 1) {
@@ -105,12 +105,10 @@ foreach ($field in @('storage_root','issuer_root_sha256','autosave_sha256','run_
 }
 $expectedStorage = [IO.Path]::GetFullPath((Join-Path $records[0].test_root 'dwm_test_root/scene_restart_shared'))
 if ([IO.Path]::GetFullPath([string]$stopped.storage_root) -cne $expectedStorage) { throw 'INTERRUPT_STORAGE_ROOT_MISMATCH' }
-$expectedStage = if ($Point -eq 'prefix') { 'participants_applying' } else { 'completed' }
-$expectedIndex = if ($Point -eq 'prefix') { 7 } else { 8 }
-if ($stopped.operation.stage -cne $expectedStage -or $stopped.operation.next_participant_index -ne $expectedIndex -or
+if (-not $stopped.operation_absent -or -not $resumed.operation_absent -or
     $stopped.ready_count -ne 0 -or @($stopped.route_confirmations).Count -ne 0 -or @($stopped.narrative_confirmations).Count -ne 0 -or
-    $resumed.after_operation.stage -cne 'completed' -or $resumed.after_operation.activation_state -cne 'acknowledged' -or $resumed.ready_count -ne 1) {
-    throw 'INTERRUPT_DURABLE_STAGE_OR_READINESS_MISMATCH'
+    $resumed.ready_count -ne 1) {
+    throw 'INTERRUPT_MEMORY_ONLY_LOAD_OR_READINESS_MISMATCH'
 }
 foreach ($name in @($stopLog, $resumeLog)) {
     $path = Join-Path $repositoryRoot ".godot/phase2r_logs/$name"
@@ -118,5 +116,5 @@ foreach ($name in @($stopLog, $resumeLog)) {
         throw "INTERRUPT_CHILD_ERROR: $name"
     }
 }
-Write-Output "SCENE_INTERRUPT_INTEGRATION_PASSED: $Point; separate processes; retained operation and receipts; actual mounted/native recovery."
+Write-Output "SCENE_INTERRUPT_INTEGRATION_PASSED: $Point; separate processes; unchanged saved progress; fresh selected Load reaches mounted/native readiness."
 exit 0
