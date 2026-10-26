@@ -1,0 +1,4299 @@
+{
+  "source": {
+    "baseline": "211192562d7be919d0dfd65714153e5199762f29",
+    "candidate": "47c377251f97de802c6bf7dad3f19c0a96cfb367",
+    "observer": "d72b67506e05c03f161201df7b9fc5430e2b136e",
+    "baseline_tree": "1d547ae6a9180ac0f5715c853e3b20fe27993264",
+    "candidate_tree": "a71a1aac0e1eb48f0493ab55c2f0f692b3cbd283",
+    "repetitions": 4,
+    "order": [
+      "AB",
+      "BA",
+      "AB",
+      "BA"
+    ],
+    "cases": [
+      "fresh",
+      "retained",
+      "load"
+    ],
+    "scope": "Matched baseline/candidate instrumented exports on one Windows runner. Each action starts a new process. Retained and Load use the same r1-baseline-fresh profile after real manual Save and Autosave. Verbose engine logging is enabled equally to identify shutdown resources. OS caches are not cleared."
+  },
+  "regression_run": 40396170770,
+  "comparison_run": 40396170828,
+  "artifact_id": 12687043105,
+  "artifact_zip_sha256": "218670edb5d97a51ef7453d8a812356d89cdcdc3e5f31ee218ebf9511ab811fe",
+  "passage": {
+    "scope": "Four matched first-new-passage transitions per variant after 31 real encountered source captions. Destination absent from both runtime and strict semantic caches; same day parse already available. Native caption Enter selects the existing pass route. First correct drawing uses frame_post_draw; usable requires natural complete reveal and input readiness. One additional elapsed second is observed after usability. Cache inspection, full state checks, PNG encoding and hashes are outside timed intervals. Polling and lightweight observer wrappers remain inside; costs are inclusive and overlap. Missing synchronous counter means zero calls. Same runner and identical overlay, AB/BA/AB/BA; no cold OS-cache claim or device-wide guarantee. Nested destination PNGs require visual review in addition to integrity checks.",
+    "baseline": "211192562d7be919d0dfd65714153e5199762f29",
+    "samples": [
+      {
+        "sample": "r1-baseline-load",
+        "variant": "baseline",
+        "repetition": 1,
+        "metrics": {
+          "Caption.memory_copy.calls": 1,
+          "Caption.memory_copy.elapsed_us": 84,
+          "Caption.memory_copy.max_us": 84,
+          "Capture.ledger_snapshot_copy.calls": 132,
+          "Capture.ledger_snapshot_copy.elapsed_us": 9731,
+          "Capture.ledger_snapshot_copy.max_us": 183,
+          "Capture.saved_fields_copy.calls": 132,
+          "Capture.saved_fields_copy.elapsed_us": 1107,
+          "Capture.saved_fields_copy.max_us": 30,
+          "Compiler.file_read.calls": 2,
+          "Compiler.file_read.elapsed_us": 214,
+          "Compiler.file_read.max_us": 108,
+          "Compiler.parse_source.calls": 1,
+          "Compiler.parse_source.elapsed_us": 64664,
+          "Compiler.parse_source.max_us": 64664,
+          "Compiler.runtime_cache_hit.calls": 127,
+          "Compiler.runtime_cache_hit.elapsed_us": 369,
+          "Compiler.runtime_cache_hit.max_us": 29,
+          "Compiler.shared_parse_hit.calls": 1,
+          "Compiler.shared_parse_hit.elapsed_us": 2,
+          "Compiler.shared_parse_hit.max_us": 2,
+          "Compiler.strict_cache_hit.calls": 1,
+          "Compiler.strict_cache_hit.elapsed_us": 3,
+          "Compiler.strict_cache_hit.max_us": 3,
+          "DialogicBridge._prepare_scene_entry.calls": 1,
+          "DialogicBridge._prepare_scene_entry.elapsed_us": 97438,
+          "DialogicBridge._prepare_scene_entry.max_us": 97438,
+          "DialogicBridge.get_scene_caption_memory.calls": 1,
+          "DialogicBridge.get_scene_caption_memory.elapsed_us": 2695,
+          "DialogicBridge.get_scene_caption_memory.max_us": 2695,
+          "DialogicRuntimeAdapter._compile_scene_programme_observed_body.calls": 2,
+          "DialogicRuntimeAdapter._compile_scene_programme_observed_body.elapsed_us": 65996,
+          "DialogicRuntimeAdapter._compile_scene_programme_observed_body.max_us": 65608,
+          "DialogicRuntimeAdapter._compile_scene_programme_timeline.calls": 1,
+          "DialogicRuntimeAdapter._compile_scene_programme_timeline.elapsed_us": 466,
+          "DialogicRuntimeAdapter._compile_scene_programme_timeline.max_us": 466,
+          "DialogicRuntimeAdapter.compile_runtime_scene_programme.calls": 128,
+          "DialogicRuntimeAdapter.compile_runtime_scene_programme.elapsed_us": 2106,
+          "DialogicRuntimeAdapter.compile_runtime_scene_programme.max_us": 435,
+          "DialogicRuntimeAdapter.compile_scene_programme.calls": 1,
+          "DialogicRuntimeAdapter.compile_scene_programme.elapsed_us": 66147,
+          "DialogicRuntimeAdapter.compile_scene_programme.max_us": 66147,
+          "History.registry_lookup.calls": 1,
+          "History.registry_lookup.elapsed_us": 1877,
+          "History.registry_lookup.max_us": 1877,
+          "Localization.copy.calls": 1,
+          "Localization.copy.elapsed_us": 31,
+          "Localization.copy.max_us": 31,
+          "SceneReadingHistory.project_encountered.calls": 1,
+          "SceneReadingHistory.project_encountered.elapsed_us": 2233,
+          "SceneReadingHistory.project_encountered.max_us": 2233,
+          "SoloReadingSession._capture_scene.calls": 132,
+          "SoloReadingSession._capture_scene.elapsed_us": 16518,
+          "SoloReadingSession._capture_scene.max_us": 260,
+          "SoloReadingSession._ensure_scene_programme.calls": 109,
+          "SoloReadingSession._ensure_scene_programme.elapsed_us": 2713,
+          "SoloReadingSession._ensure_scene_programme.max_us": 479,
+          "SoloReadingSession._validate_scene_saved.calls": 63,
+          "SoloReadingSession._validate_scene_saved.elapsed_us": 1001691,
+          "SoloReadingSession._validate_scene_saved.max_us": 18982,
+          "SoloReadingSession.project_scene_day_history.calls": 1,
+          "SoloReadingSession.project_scene_day_history.elapsed_us": 2370,
+          "SoloReadingSession.project_scene_day_history.max_us": 2370,
+          "StoryLocalization.project.calls": 1,
+          "StoryLocalization.project.elapsed_us": 64,
+          "StoryLocalization.project.max_us": 64,
+          "WitnessedCaptionLayer._on_reading_session_changed.calls": 1,
+          "WitnessedCaptionLayer._on_reading_session_changed.elapsed_us": 7,
+          "WitnessedCaptionLayer._on_reading_session_changed.max_us": 7,
+          "WitnessedCaptionLayer._project_scene_caption_memory.calls": 1,
+          "WitnessedCaptionLayer._project_scene_caption_memory.elapsed_us": 3032,
+          "WitnessedCaptionLayer._project_scene_caption_memory.max_us": 3032,
+          "WitnessedCaptionLayer._refresh_reading_session.calls": 1,
+          "WitnessedCaptionLayer._refresh_reading_session.elapsed_us": 74983,
+          "WitnessedCaptionLayer._refresh_reading_session.max_us": 74983,
+          "WitnessedCaptionLayer.reproject_retained_captions.calls": 1,
+          "WitnessedCaptionLayer.reproject_retained_captions.elapsed_us": 219,
+          "WitnessedCaptionLayer.reproject_retained_captions.max_us": 219,
+          "input_to_first_correct_drawn_us": 2162327,
+          "input_to_usable_us": 2184059,
+          "max_frame_gap_us": 2158114
+        },
+        "observation": {
+          "choice": "pass",
+          "day_parse_was_ready": true,
+          "entry_id": "Day1.photo.default",
+          "image": "passage/destination.png",
+          "image_sha256": "3510ca62f328e040600a81aa4286daab856e698a6c1502341e8d58835349f9c4",
+          "line_id": "line.Day1.photo.default.001",
+          "no_yes_encounters": true,
+          "press_count": 1,
+          "release_count": 1,
+          "runtime_cache_was_absent": true,
+          "same_run": true,
+          "strict_cache_was_absent": true
+        }
+      },
+      {
+        "sample": "r1-candidate-load",
+        "variant": "candidate",
+        "repetition": 1,
+        "metrics": {
+          "Caption.memory_copy.calls": 1,
+          "Caption.memory_copy.elapsed_us": 33,
+          "Caption.memory_copy.max_us": 33,
+          "Capture.ledger_snapshot_copy.calls": 133,
+          "Capture.ledger_snapshot_copy.elapsed_us": 9700,
+          "Capture.ledger_snapshot_copy.max_us": 197,
+          "Capture.saved_fields_copy.calls": 133,
+          "Capture.saved_fields_copy.elapsed_us": 1129,
+          "Capture.saved_fields_copy.max_us": 25,
+          "Compiler.file_read.calls": 1,
+          "Compiler.file_read.elapsed_us": 96,
+          "Compiler.file_read.max_us": 96,
+          "Compiler.runtime_cache_hit.calls": 129,
+          "Compiler.runtime_cache_hit.elapsed_us": 352,
+          "Compiler.runtime_cache_hit.max_us": 10,
+          "Compiler.shared_parse_hit.calls": 1,
+          "Compiler.shared_parse_hit.elapsed_us": 3,
+          "Compiler.shared_parse_hit.max_us": 3,
+          "DialogicBridge._prepare_scene_entry.calls": 1,
+          "DialogicBridge._prepare_scene_entry.elapsed_us": 31429,
+          "DialogicBridge._prepare_scene_entry.max_us": 31429,
+          "DialogicBridge.get_scene_caption_memory.calls": 1,
+          "DialogicBridge.get_scene_caption_memory.elapsed_us": 2713,
+          "DialogicBridge.get_scene_caption_memory.max_us": 2713,
+          "DialogicRuntimeAdapter._compile_scene_programme_observed_body.calls": 1,
+          "DialogicRuntimeAdapter._compile_scene_programme_observed_body.elapsed_us": 904,
+          "DialogicRuntimeAdapter._compile_scene_programme_observed_body.max_us": 904,
+          "DialogicRuntimeAdapter._compile_scene_programme_timeline.calls": 1,
+          "DialogicRuntimeAdapter._compile_scene_programme_timeline.elapsed_us": 508,
+          "DialogicRuntimeAdapter._compile_scene_programme_timeline.max_us": 508,
+          "DialogicRuntimeAdapter.compile_runtime_scene_programme.calls": 130,
+          "DialogicRuntimeAdapter.compile_runtime_scene_programme.elapsed_us": 2605,
+          "DialogicRuntimeAdapter.compile_runtime_scene_programme.max_us": 945,
+          "History.registry_lookup.calls": 1,
+          "History.registry_lookup.elapsed_us": 1838,
+          "History.registry_lookup.max_us": 1838,
+          "Localization.copy.calls": 1,
+          "Localization.copy.elapsed_us": 43,
+          "Localization.copy.max_us": 43,
+          "SceneReadingHistory.project_encountered.calls": 1,
+          "SceneReadingHistory.project_encountered.elapsed_us": 2228,
+          "SceneReadingHistory.project_encountered.max_us": 2228,
+          "SoloReadingSession._capture_scene.calls": 133,
+          "SoloReadingSession._capture_scene.elapsed_us": 16729,
+          "SoloReadingSession._capture_scene.max_us": 286,
+          "SoloReadingSession._ensure_scene_programme.calls": 109,
+          "SoloReadingSession._ensure_scene_programme.elapsed_us": 2363,
+          "SoloReadingSession._ensure_scene_programme.max_us": 77,
+          "SoloReadingSession._validate_scene_saved.calls": 63,
+          "SoloReadingSession._validate_scene_saved.elapsed_us": 1018408,
+          "SoloReadingSession._validate_scene_saved.max_us": 18589,
+          "SoloReadingSession.project_scene_day_history.calls": 1,
+          "SoloReadingSession.project_scene_day_history.elapsed_us": 2367,
+          "SoloReadingSession.project_scene_day_history.max_us": 2367,
+          "StoryLocalization.project.calls": 1,
+          "StoryLocalization.project.elapsed_us": 89,
+          "StoryLocalization.project.max_us": 89,
+          "WitnessedCaptionLayer._on_reading_session_changed.calls": 1,
+          "WitnessedCaptionLayer._on_reading_session_changed.elapsed_us": 5,
+          "WitnessedCaptionLayer._on_reading_session_changed.max_us": 5,
+          "WitnessedCaptionLayer._project_scene_caption_memory.calls": 1,
+          "WitnessedCaptionLayer._project_scene_caption_memory.elapsed_us": 3011,
+          "WitnessedCaptionLayer._project_scene_caption_memory.max_us": 3011,
+          "WitnessedCaptionLayer._refresh_reading_session.calls": 1,
+          "WitnessedCaptionLayer._refresh_reading_session.elapsed_us": 75316,
+          "WitnessedCaptionLayer._refresh_reading_session.max_us": 75316,
+          "WitnessedCaptionLayer.reproject_retained_captions.calls": 1,
+          "WitnessedCaptionLayer.reproject_retained_captions.elapsed_us": 235,
+          "WitnessedCaptionLayer.reproject_retained_captions.max_us": 235,
+          "input_to_first_correct_drawn_us": 2117570,
+          "input_to_usable_us": 2138899,
+          "max_frame_gap_us": 2113434
+        },
+        "observation": {
+          "choice": "pass",
+          "day_parse_was_ready": true,
+          "entry_id": "Day1.photo.default",
+          "image": "passage/destination.png",
+          "image_sha256": "cce0efd01a3c74a2279577d9e4c112e38113e951c2dffa80270729b0939ea1ed",
+          "line_id": "line.Day1.photo.default.001",
+          "no_yes_encounters": true,
+          "press_count": 1,
+          "release_count": 1,
+          "runtime_cache_was_absent": true,
+          "same_run": true,
+          "strict_cache_was_absent": true
+        }
+      },
+      {
+        "sample": "r2-baseline-load",
+        "variant": "baseline",
+        "repetition": 2,
+        "metrics": {
+          "Caption.memory_copy.calls": 1,
+          "Caption.memory_copy.elapsed_us": 36,
+          "Caption.memory_copy.max_us": 36,
+          "Capture.ledger_snapshot_copy.calls": 132,
+          "Capture.ledger_snapshot_copy.elapsed_us": 10629,
+          "Capture.ledger_snapshot_copy.max_us": 185,
+          "Capture.saved_fields_copy.calls": 132,
+          "Capture.saved_fields_copy.elapsed_us": 1286,
+          "Capture.saved_fields_copy.max_us": 43,
+          "Compiler.file_read.calls": 2,
+          "Compiler.file_read.elapsed_us": 287,
+          "Compiler.file_read.max_us": 155,
+          "Compiler.parse_source.calls": 1,
+          "Compiler.parse_source.elapsed_us": 66320,
+          "Compiler.parse_source.max_us": 66320,
+          "Compiler.runtime_cache_hit.calls": 127,
+          "Compiler.runtime_cache_hit.elapsed_us": 459,
+          "Compiler.runtime_cache_hit.max_us": 12,
+          "Compiler.shared_parse_hit.calls": 1,
+          "Compiler.shared_parse_hit.elapsed_us": 3,
+          "Compiler.shared_parse_hit.max_us": 3,
+          "Compiler.strict_cache_hit.calls": 1,
+          "Compiler.strict_cache_hit.elapsed_us": 3,
+          "Compiler.strict_cache_hit.max_us": 3,
+          "DialogicBridge._prepare_scene_entry.calls": 1,
+          "DialogicBridge._prepare_scene_entry.elapsed_us": 102721,
+          "DialogicBridge._prepare_scene_entry.max_us": 102721,
+          "DialogicBridge.get_scene_caption_memory.calls": 1,
+          "DialogicBridge.get_scene_caption_memory.elapsed_us": 3092,
+          "DialogicBridge.get_scene_caption_memory.max_us": 3092,
+          "DialogicRuntimeAdapter._compile_scene_programme_observed_body.calls": 2,
+          "DialogicRuntimeAdapter._compile_scene_programme_observed_body.elapsed_us": 67798,
+          "DialogicRuntimeAdapter._compile_scene_programme_observed_body.max_us": 67379,
+          "DialogicRuntimeAdapter._compile_scene_programme_timeline.calls": 1,
+          "DialogicRuntimeAdapter._compile_scene_programme_timeline.elapsed_us": 516,
+          "DialogicRuntimeAdapter._compile_scene_programme_timeline.max_us": 516,
+          "DialogicRuntimeAdapter.compile_runtime_scene_programme.calls": 128,
+          "DialogicRuntimeAdapter.compile_runtime_scene_programme.elapsed_us": 2523,
+          "DialogicRuntimeAdapter.compile_runtime_scene_programme.max_us": 471,
+          "DialogicRuntimeAdapter.compile_scene_programme.calls": 1,
+          "DialogicRuntimeAdapter.compile_scene_programme.elapsed_us": 68225,
+          "DialogicRuntimeAdapter.compile_scene_programme.max_us": 68225,
+          "History.registry_lookup.calls": 1,
+          "History.registry_lookup.elapsed_us": 2101,
+          "History.registry_lookup.max_us": 2101,
+          "Localization.copy.calls": 1,
+          "Localization.copy.elapsed_us": 52,
+          "Localization.copy.max_us": 52,
+          "SceneReadingHistory.project_encountered.calls": 1,
+          "SceneReadingHistory.project_encountered.elapsed_us": 2581,
+          "SceneReadingHistory.project_encountered.max_us": 2581,
+          "SoloReadingSession._capture_scene.calls": 132,
+          "SoloReadingSession._capture_scene.elapsed_us": 18155,
+          "SoloReadingSession._capture_scene.max_us": 269,
+          "SoloReadingSession._ensure_scene_programme.calls": 109,
+          "SoloReadingSession._ensure_scene_programme.elapsed_us": 3465,
+          "SoloReadingSession._ensure_scene_programme.max_us": 585,
+          "SoloReadingSession._validate_scene_saved.calls": 63,
+          "SoloReadingSession._validate_scene_saved.elapsed_us": 1130298,
+          "SoloReadingSession._validate_scene_saved.max_us": 28139,
+          "SoloReadingSession.project_scene_day_history.calls": 1,
+          "SoloReadingSession.project_scene_day_history.elapsed_us": 2726,
+          "SoloReadingSession.project_scene_day_history.max_us": 2726,
+          "StoryLocalization.project.calls": 1,
+          "StoryLocalization.project.elapsed_us": 85,
+          "StoryLocalization.project.max_us": 85,
+          "WitnessedCaptionLayer._on_reading_session_changed.calls": 1,
+          "WitnessedCaptionLayer._on_reading_session_changed.elapsed_us": 7,
+          "WitnessedCaptionLayer._on_reading_session_changed.max_us": 7,
+          "WitnessedCaptionLayer._project_scene_caption_memory.calls": 1,
+          "WitnessedCaptionLayer._project_scene_caption_memory.elapsed_us": 3386,
+          "WitnessedCaptionLayer._project_scene_caption_memory.max_us": 3386,
+          "WitnessedCaptionLayer._refresh_reading_session.calls": 1,
+          "WitnessedCaptionLayer._refresh_reading_session.elapsed_us": 78701,
+          "WitnessedCaptionLayer._refresh_reading_session.max_us": 78701,
+          "WitnessedCaptionLayer.reproject_retained_captions.calls": 1,
+          "WitnessedCaptionLayer.reproject_retained_captions.elapsed_us": 227,
+          "WitnessedCaptionLayer.reproject_retained_captions.max_us": 227,
+          "input_to_first_correct_drawn_us": 2410170,
+          "input_to_usable_us": 2432090,
+          "max_frame_gap_us": 2405568
+        },
+        "observation": {
+          "choice": "pass",
+          "day_parse_was_ready": true,
+          "entry_id": "Day1.photo.default",
+          "image": "passage/destination.png",
+          "image_sha256": "7c877659e0a90c4eaf3e8a06f46bffc99c482ce768a79db2ff8eef304da8a5ae",
+          "line_id": "line.Day1.photo.default.001",
+          "no_yes_encounters": true,
+          "press_count": 1,
+          "release_count": 1,
+          "runtime_cache_was_absent": true,
+          "same_run": true,
+          "strict_cache_was_absent": true
+        }
+      },
+      {
+        "sample": "r2-candidate-load",
+        "variant": "candidate",
+        "repetition": 2,
+        "metrics": {
+          "Caption.memory_copy.calls": 1,
+          "Caption.memory_copy.elapsed_us": 33,
+          "Caption.memory_copy.max_us": 33,
+          "Capture.ledger_snapshot_copy.calls": 132,
+          "Capture.ledger_snapshot_copy.elapsed_us": 10239,
+          "Capture.ledger_snapshot_copy.max_us": 187,
+          "Capture.saved_fields_copy.calls": 132,
+          "Capture.saved_fields_copy.elapsed_us": 1192,
+          "Capture.saved_fields_copy.max_us": 28,
+          "Compiler.file_read.calls": 1,
+          "Compiler.file_read.elapsed_us": 200,
+          "Compiler.file_read.max_us": 200,
+          "Compiler.runtime_cache_hit.calls": 128,
+          "Compiler.runtime_cache_hit.elapsed_us": 416,
+          "Compiler.runtime_cache_hit.max_us": 13,
+          "Compiler.shared_parse_hit.calls": 1,
+          "Compiler.shared_parse_hit.elapsed_us": 4,
+          "Compiler.shared_parse_hit.max_us": 4,
+          "DialogicBridge._prepare_scene_entry.calls": 1,
+          "DialogicBridge._prepare_scene_entry.elapsed_us": 34943,
+          "DialogicBridge._prepare_scene_entry.max_us": 34943,
+          "DialogicBridge.get_scene_caption_memory.calls": 1,
+          "DialogicBridge.get_scene_caption_memory.elapsed_us": 2625,
+          "DialogicBridge.get_scene_caption_memory.max_us": 2625,
+          "DialogicRuntimeAdapter._compile_scene_programme_observed_body.calls": 1,
+          "DialogicRuntimeAdapter._compile_scene_programme_observed_body.elapsed_us": 1009,
+          "DialogicRuntimeAdapter._compile_scene_programme_observed_body.max_us": 1009,
+          "DialogicRuntimeAdapter._compile_scene_programme_timeline.calls": 1,
+          "DialogicRuntimeAdapter._compile_scene_programme_timeline.elapsed_us": 480,
+          "DialogicRuntimeAdapter._compile_scene_programme_timeline.max_us": 480,
+          "DialogicRuntimeAdapter.compile_runtime_scene_programme.calls": 129,
+          "DialogicRuntimeAdapter.compile_runtime_scene_programme.elapsed_us": 2994,
+          "DialogicRuntimeAdapter.compile_runtime_scene_programme.max_us": 1052,
+          "History.registry_lookup.calls": 1,
+          "History.registry_lookup.elapsed_us": 1834,
+          "History.registry_lookup.max_us": 1834,
+          "Localization.copy.calls": 1,
+          "Localization.copy.elapsed_us": 29,
+          "Localization.copy.max_us": 29,
+          "SceneReadingHistory.project_encountered.calls": 1,
+          "SceneReadingHistory.project_encountered.elapsed_us": 2187,
+          "SceneReadingHistory.project_encountered.max_us": 2187,
+          "SoloReadingSession._capture_scene.calls": 132,
+          "SoloReadingSession._capture_scene.elapsed_us": 17242,
+          "SoloReadingSession._capture_scene.max_us": 267,
+          "SoloReadingSession._ensure_scene_programme.calls": 109,
+          "SoloReadingSession._ensure_scene_programme.elapsed_us": 2677,
+          "SoloReadingSession._ensure_scene_programme.max_us": 108,
+          "SoloReadingSession._validate_scene_saved.calls": 63,
+          "SoloReadingSession._validate_scene_saved.elapsed_us": 1052095,
+          "SoloReadingSession._validate_scene_saved.max_us": 26590,
+          "SoloReadingSession.project_scene_day_history.calls": 1,
+          "SoloReadingSession.project_scene_day_history.elapsed_us": 2322,
+          "SoloReadingSession.project_scene_day_history.max_us": 2322,
+          "StoryLocalization.project.calls": 1,
+          "StoryLocalization.project.elapsed_us": 62,
+          "StoryLocalization.project.max_us": 62,
+          "WitnessedCaptionLayer._on_reading_session_changed.calls": 1,
+          "WitnessedCaptionLayer._on_reading_session_changed.elapsed_us": 5,
+          "WitnessedCaptionLayer._on_reading_session_changed.max_us": 5,
+          "WitnessedCaptionLayer._project_scene_caption_memory.calls": 1,
+          "WitnessedCaptionLayer._project_scene_caption_memory.elapsed_us": 2924,
+          "WitnessedCaptionLayer._project_scene_caption_memory.max_us": 2924,
+          "WitnessedCaptionLayer._refresh_reading_session.calls": 1,
+          "WitnessedCaptionLayer._refresh_reading_session.elapsed_us": 73345,
+          "WitnessedCaptionLayer._refresh_reading_session.max_us": 73345,
+          "WitnessedCaptionLayer.reproject_retained_captions.calls": 1,
+          "WitnessedCaptionLayer.reproject_retained_captions.elapsed_us": 238,
+          "WitnessedCaptionLayer.reproject_retained_captions.max_us": 238,
+          "input_to_first_correct_drawn_us": 2235621,
+          "input_to_usable_us": 2256998,
+          "max_frame_gap_us": 2231562
+        },
+        "observation": {
+          "choice": "pass",
+          "day_parse_was_ready": true,
+          "entry_id": "Day1.photo.default",
+          "image": "passage/destination.png",
+          "image_sha256": "7c877659e0a90c4eaf3e8a06f46bffc99c482ce768a79db2ff8eef304da8a5ae",
+          "line_id": "line.Day1.photo.default.001",
+          "no_yes_encounters": true,
+          "press_count": 1,
+          "release_count": 1,
+          "runtime_cache_was_absent": true,
+          "same_run": true,
+          "strict_cache_was_absent": true
+        }
+      },
+      {
+        "sample": "r3-baseline-load",
+        "variant": "baseline",
+        "repetition": 3,
+        "metrics": {
+          "Caption.memory_copy.calls": 1,
+          "Caption.memory_copy.elapsed_us": 34,
+          "Caption.memory_copy.max_us": 34,
+          "Capture.ledger_snapshot_copy.calls": 132,
+          "Capture.ledger_snapshot_copy.elapsed_us": 10460,
+          "Capture.ledger_snapshot_copy.max_us": 244,
+          "Capture.saved_fields_copy.calls": 132,
+          "Capture.saved_fields_copy.elapsed_us": 1219,
+          "Capture.saved_fields_copy.max_us": 27,
+          "Compiler.file_read.calls": 2,
+          "Compiler.file_read.elapsed_us": 217,
+          "Compiler.file_read.max_us": 116,
+          "Compiler.parse_source.calls": 1,
+          "Compiler.parse_source.elapsed_us": 65457,
+          "Compiler.parse_source.max_us": 65457,
+          "Compiler.runtime_cache_hit.calls": 127,
+          "Compiler.runtime_cache_hit.elapsed_us": 405,
+          "Compiler.runtime_cache_hit.max_us": 12,
+          "Compiler.shared_parse_hit.calls": 1,
+          "Compiler.shared_parse_hit.elapsed_us": 3,
+          "Compiler.shared_parse_hit.max_us": 3,
+          "Compiler.strict_cache_hit.calls": 1,
+          "Compiler.strict_cache_hit.elapsed_us": 3,
+          "Compiler.strict_cache_hit.max_us": 3,
+          "DialogicBridge._prepare_scene_entry.calls": 1,
+          "DialogicBridge._prepare_scene_entry.elapsed_us": 98827,
+          "DialogicBridge._prepare_scene_entry.max_us": 98827,
+          "DialogicBridge.get_scene_caption_memory.calls": 1,
+          "DialogicBridge.get_scene_caption_memory.elapsed_us": 2826,
+          "DialogicBridge.get_scene_caption_memory.max_us": 2826,
+          "DialogicRuntimeAdapter._compile_scene_programme_observed_body.calls": 2,
+          "DialogicRuntimeAdapter._compile_scene_programme_observed_body.elapsed_us": 66800,
+          "DialogicRuntimeAdapter._compile_scene_programme_observed_body.max_us": 66392,
+          "DialogicRuntimeAdapter._compile_scene_programme_timeline.calls": 1,
+          "DialogicRuntimeAdapter._compile_scene_programme_timeline.elapsed_us": 503,
+          "DialogicRuntimeAdapter._compile_scene_programme_timeline.max_us": 503,
+          "DialogicRuntimeAdapter.compile_runtime_scene_programme.calls": 128,
+          "DialogicRuntimeAdapter.compile_runtime_scene_programme.elapsed_us": 2374,
+          "DialogicRuntimeAdapter.compile_runtime_scene_programme.max_us": 459,
+          "DialogicRuntimeAdapter.compile_scene_programme.calls": 1,
+          "DialogicRuntimeAdapter.compile_scene_programme.elapsed_us": 67091,
+          "DialogicRuntimeAdapter.compile_scene_programme.max_us": 67091,
+          "History.registry_lookup.calls": 1,
+          "History.registry_lookup.elapsed_us": 1908,
+          "History.registry_lookup.max_us": 1908,
+          "Localization.copy.calls": 1,
+          "Localization.copy.elapsed_us": 33,
+          "Localization.copy.max_us": 33,
+          "SceneReadingHistory.project_encountered.calls": 1,
+          "SceneReadingHistory.project_encountered.elapsed_us": 2349,
+          "SceneReadingHistory.project_encountered.max_us": 2349,
+          "SoloReadingSession._capture_scene.calls": 132,
+          "SoloReadingSession._capture_scene.elapsed_us": 17700,
+          "SoloReadingSession._capture_scene.max_us": 370,
+          "SoloReadingSession._ensure_scene_programme.calls": 109,
+          "SoloReadingSession._ensure_scene_programme.elapsed_us": 3102,
+          "SoloReadingSession._ensure_scene_programme.max_us": 533,
+          "SoloReadingSession._validate_scene_saved.calls": 63,
+          "SoloReadingSession._validate_scene_saved.elapsed_us": 1063367,
+          "SoloReadingSession._validate_scene_saved.max_us": 19936,
+          "SoloReadingSession.project_scene_day_history.calls": 1,
+          "SoloReadingSession.project_scene_day_history.elapsed_us": 2509,
+          "SoloReadingSession.project_scene_day_history.max_us": 2509,
+          "StoryLocalization.project.calls": 1,
+          "StoryLocalization.project.elapsed_us": 68,
+          "StoryLocalization.project.max_us": 68,
+          "WitnessedCaptionLayer._on_reading_session_changed.calls": 1,
+          "WitnessedCaptionLayer._on_reading_session_changed.elapsed_us": 6,
+          "WitnessedCaptionLayer._on_reading_session_changed.max_us": 6,
+          "WitnessedCaptionLayer._project_scene_caption_memory.calls": 1,
+          "WitnessedCaptionLayer._project_scene_caption_memory.elapsed_us": 3111,
+          "WitnessedCaptionLayer._project_scene_caption_memory.max_us": 3111,
+          "WitnessedCaptionLayer._refresh_reading_session.calls": 1,
+          "WitnessedCaptionLayer._refresh_reading_session.elapsed_us": 80291,
+          "WitnessedCaptionLayer._refresh_reading_session.max_us": 80291,
+          "WitnessedCaptionLayer.reproject_retained_captions.calls": 1,
+          "WitnessedCaptionLayer.reproject_retained_captions.elapsed_us": 220,
+          "WitnessedCaptionLayer.reproject_retained_captions.max_us": 220,
+          "input_to_first_correct_drawn_us": 2326425,
+          "input_to_usable_us": 2348316,
+          "max_frame_gap_us": 2321653
+        },
+        "observation": {
+          "choice": "pass",
+          "day_parse_was_ready": true,
+          "entry_id": "Day1.photo.default",
+          "image": "passage/destination.png",
+          "image_sha256": "308398c08aef9a4ffb34dfdfc96911b737c933049f10ba843a87446e0dab9113",
+          "line_id": "line.Day1.photo.default.001",
+          "no_yes_encounters": true,
+          "press_count": 1,
+          "release_count": 1,
+          "runtime_cache_was_absent": true,
+          "same_run": true,
+          "strict_cache_was_absent": true
+        }
+      },
+      {
+        "sample": "r3-candidate-load",
+        "variant": "candidate",
+        "repetition": 3,
+        "metrics": {
+          "Caption.memory_copy.calls": 1,
+          "Caption.memory_copy.elapsed_us": 77,
+          "Caption.memory_copy.max_us": 77,
+          "Capture.ledger_snapshot_copy.calls": 131,
+          "Capture.ledger_snapshot_copy.elapsed_us": 10689,
+          "Capture.ledger_snapshot_copy.max_us": 228,
+          "Capture.saved_fields_copy.calls": 131,
+          "Capture.saved_fields_copy.elapsed_us": 1273,
+          "Capture.saved_fields_copy.max_us": 33,
+          "Compiler.file_read.calls": 1,
+          "Compiler.file_read.elapsed_us": 164,
+          "Compiler.file_read.max_us": 164,
+          "Compiler.runtime_cache_hit.calls": 127,
+          "Compiler.runtime_cache_hit.elapsed_us": 501,
+          "Compiler.runtime_cache_hit.max_us": 13,
+          "Compiler.shared_parse_hit.calls": 1,
+          "Compiler.shared_parse_hit.elapsed_us": 3,
+          "Compiler.shared_parse_hit.max_us": 3,
+          "DialogicBridge._prepare_scene_entry.calls": 1,
+          "DialogicBridge._prepare_scene_entry.elapsed_us": 35242,
+          "DialogicBridge._prepare_scene_entry.max_us": 35242,
+          "DialogicBridge.get_scene_caption_memory.calls": 1,
+          "DialogicBridge.get_scene_caption_memory.elapsed_us": 3127,
+          "DialogicBridge.get_scene_caption_memory.max_us": 3127,
+          "DialogicRuntimeAdapter._compile_scene_programme_observed_body.calls": 1,
+          "DialogicRuntimeAdapter._compile_scene_programme_observed_body.elapsed_us": 984,
+          "DialogicRuntimeAdapter._compile_scene_programme_observed_body.max_us": 984,
+          "DialogicRuntimeAdapter._compile_scene_programme_timeline.calls": 1,
+          "DialogicRuntimeAdapter._compile_scene_programme_timeline.elapsed_us": 492,
+          "DialogicRuntimeAdapter._compile_scene_programme_timeline.max_us": 492,
+          "DialogicRuntimeAdapter.compile_runtime_scene_programme.calls": 128,
+          "DialogicRuntimeAdapter.compile_runtime_scene_programme.elapsed_us": 3264,
+          "DialogicRuntimeAdapter.compile_runtime_scene_programme.max_us": 1045,
+          "History.registry_lookup.calls": 1,
+          "History.registry_lookup.elapsed_us": 2281,
+          "History.registry_lookup.max_us": 2281,
+          "Localization.copy.calls": 1,
+          "Localization.copy.elapsed_us": 39,
+          "Localization.copy.max_us": 39,
+          "SceneReadingHistory.project_encountered.calls": 1,
+          "SceneReadingHistory.project_encountered.elapsed_us": 2657,
+          "SceneReadingHistory.project_encountered.max_us": 2657,
+          "SoloReadingSession._capture_scene.calls": 131,
+          "SoloReadingSession._capture_scene.elapsed_us": 18070,
+          "SoloReadingSession._capture_scene.max_us": 331,
+          "SoloReadingSession._ensure_scene_programme.calls": 109,
+          "SoloReadingSession._ensure_scene_programme.elapsed_us": 3111,
+          "SoloReadingSession._ensure_scene_programme.max_us": 100,
+          "SoloReadingSession._validate_scene_saved.calls": 63,
+          "SoloReadingSession._validate_scene_saved.elapsed_us": 1202136,
+          "SoloReadingSession._validate_scene_saved.max_us": 28076,
+          "SoloReadingSession.project_scene_day_history.calls": 1,
+          "SoloReadingSession.project_scene_day_history.elapsed_us": 2801,
+          "SoloReadingSession.project_scene_day_history.max_us": 2801,
+          "StoryLocalization.project.calls": 1,
+          "StoryLocalization.project.elapsed_us": 73,
+          "StoryLocalization.project.max_us": 73,
+          "WitnessedCaptionLayer._on_reading_session_changed.calls": 1,
+          "WitnessedCaptionLayer._on_reading_session_changed.elapsed_us": 6,
+          "WitnessedCaptionLayer._on_reading_session_changed.max_us": 6,
+          "WitnessedCaptionLayer._project_scene_caption_memory.calls": 1,
+          "WitnessedCaptionLayer._project_scene_caption_memory.elapsed_us": 3469,
+          "WitnessedCaptionLayer._project_scene_caption_memory.max_us": 3469,
+          "WitnessedCaptionLayer._refresh_reading_session.calls": 1,
+          "WitnessedCaptionLayer._refresh_reading_session.elapsed_us": 111810,
+          "WitnessedCaptionLayer._refresh_reading_session.max_us": 111810,
+          "WitnessedCaptionLayer.reproject_retained_captions.calls": 1,
+          "WitnessedCaptionLayer.reproject_retained_captions.elapsed_us": 232,
+          "WitnessedCaptionLayer.reproject_retained_captions.max_us": 232,
+          "input_to_first_correct_drawn_us": 2477450,
+          "input_to_usable_us": 2498058,
+          "max_frame_gap_us": 2468831
+        },
+        "observation": {
+          "choice": "pass",
+          "day_parse_was_ready": true,
+          "entry_id": "Day1.photo.default",
+          "image": "passage/destination.png",
+          "image_sha256": "55d3bd2a6a43672c5bce9f7fd7cc008ae4c741e5297d6e89039f936d5c58c787",
+          "line_id": "line.Day1.photo.default.001",
+          "no_yes_encounters": true,
+          "press_count": 1,
+          "release_count": 1,
+          "runtime_cache_was_absent": true,
+          "same_run": true,
+          "strict_cache_was_absent": true
+        }
+      },
+      {
+        "sample": "r4-baseline-load",
+        "variant": "baseline",
+        "repetition": 4,
+        "metrics": {
+          "Caption.memory_copy.calls": 1,
+          "Caption.memory_copy.elapsed_us": 35,
+          "Caption.memory_copy.max_us": 35,
+          "Capture.ledger_snapshot_copy.calls": 131,
+          "Capture.ledger_snapshot_copy.elapsed_us": 11111,
+          "Capture.ledger_snapshot_copy.max_us": 197,
+          "Capture.saved_fields_copy.calls": 131,
+          "Capture.saved_fields_copy.elapsed_us": 1305,
+          "Capture.saved_fields_copy.max_us": 39,
+          "Compiler.file_read.calls": 2,
+          "Compiler.file_read.elapsed_us": 340,
+          "Compiler.file_read.max_us": 200,
+          "Compiler.parse_source.calls": 1,
+          "Compiler.parse_source.elapsed_us": 65337,
+          "Compiler.parse_source.max_us": 65337,
+          "Compiler.runtime_cache_hit.calls": 126,
+          "Compiler.runtime_cache_hit.elapsed_us": 497,
+          "Compiler.runtime_cache_hit.max_us": 12,
+          "Compiler.shared_parse_hit.calls": 1,
+          "Compiler.shared_parse_hit.elapsed_us": 3,
+          "Compiler.shared_parse_hit.max_us": 3,
+          "Compiler.strict_cache_hit.calls": 1,
+          "Compiler.strict_cache_hit.elapsed_us": 3,
+          "Compiler.strict_cache_hit.max_us": 3,
+          "DialogicBridge._prepare_scene_entry.calls": 1,
+          "DialogicBridge._prepare_scene_entry.elapsed_us": 102939,
+          "DialogicBridge._prepare_scene_entry.max_us": 102939,
+          "DialogicBridge.get_scene_caption_memory.calls": 1,
+          "DialogicBridge.get_scene_caption_memory.elapsed_us": 3367,
+          "DialogicBridge.get_scene_caption_memory.max_us": 3367,
+          "DialogicRuntimeAdapter._compile_scene_programme_observed_body.calls": 2,
+          "DialogicRuntimeAdapter._compile_scene_programme_observed_body.elapsed_us": 66864,
+          "DialogicRuntimeAdapter._compile_scene_programme_observed_body.max_us": 66420,
+          "DialogicRuntimeAdapter._compile_scene_programme_timeline.calls": 1,
+          "DialogicRuntimeAdapter._compile_scene_programme_timeline.elapsed_us": 522,
+          "DialogicRuntimeAdapter._compile_scene_programme_timeline.max_us": 522,
+          "DialogicRuntimeAdapter.compile_runtime_scene_programme.calls": 127,
+          "DialogicRuntimeAdapter.compile_runtime_scene_programme.elapsed_us": 2695,
+          "DialogicRuntimeAdapter.compile_runtime_scene_programme.max_us": 499,
+          "DialogicRuntimeAdapter.compile_scene_programme.calls": 1,
+          "DialogicRuntimeAdapter.compile_scene_programme.elapsed_us": 67368,
+          "DialogicRuntimeAdapter.compile_scene_programme.max_us": 67368,
+          "History.registry_lookup.calls": 1,
+          "History.registry_lookup.elapsed_us": 2348,
+          "History.registry_lookup.max_us": 2348,
+          "Localization.copy.calls": 1,
+          "Localization.copy.elapsed_us": 42,
+          "Localization.copy.max_us": 42,
+          "SceneReadingHistory.project_encountered.calls": 1,
+          "SceneReadingHistory.project_encountered.elapsed_us": 2857,
+          "SceneReadingHistory.project_encountered.max_us": 2857,
+          "SoloReadingSession._capture_scene.calls": 131,
+          "SoloReadingSession._capture_scene.elapsed_us": 18572,
+          "SoloReadingSession._capture_scene.max_us": 278,
+          "SoloReadingSession._ensure_scene_programme.calls": 109,
+          "SoloReadingSession._ensure_scene_programme.elapsed_us": 3624,
+          "SoloReadingSession._ensure_scene_programme.max_us": 594,
+          "SoloReadingSession._validate_scene_saved.calls": 63,
+          "SoloReadingSession._validate_scene_saved.elapsed_us": 1199211,
+          "SoloReadingSession._validate_scene_saved.max_us": 21810,
+          "SoloReadingSession.project_scene_day_history.calls": 1,
+          "SoloReadingSession.project_scene_day_history.elapsed_us": 3025,
+          "SoloReadingSession.project_scene_day_history.max_us": 3025,
+          "StoryLocalization.project.calls": 1,
+          "StoryLocalization.project.elapsed_us": 76,
+          "StoryLocalization.project.max_us": 76,
+          "WitnessedCaptionLayer._on_reading_session_changed.calls": 1,
+          "WitnessedCaptionLayer._on_reading_session_changed.elapsed_us": 6,
+          "WitnessedCaptionLayer._on_reading_session_changed.max_us": 6,
+          "WitnessedCaptionLayer._project_scene_caption_memory.calls": 1,
+          "WitnessedCaptionLayer._project_scene_caption_memory.elapsed_us": 3714,
+          "WitnessedCaptionLayer._project_scene_caption_memory.max_us": 3714,
+          "WitnessedCaptionLayer._refresh_reading_session.calls": 1,
+          "WitnessedCaptionLayer._refresh_reading_session.elapsed_us": 81965,
+          "WitnessedCaptionLayer._refresh_reading_session.max_us": 81965,
+          "WitnessedCaptionLayer.reproject_retained_captions.calls": 1,
+          "WitnessedCaptionLayer.reproject_retained_captions.elapsed_us": 280,
+          "WitnessedCaptionLayer.reproject_retained_captions.max_us": 280,
+          "input_to_first_correct_drawn_us": 2527827,
+          "input_to_usable_us": 2549845,
+          "max_frame_gap_us": 2523439
+        },
+        "observation": {
+          "choice": "pass",
+          "day_parse_was_ready": true,
+          "entry_id": "Day1.photo.default",
+          "image": "passage/destination.png",
+          "image_sha256": "28519173f837251c3bbe14d07fa3da1b52b53a2c189ec8391ba2c3bd58f11673",
+          "line_id": "line.Day1.photo.default.001",
+          "no_yes_encounters": true,
+          "press_count": 1,
+          "release_count": 1,
+          "runtime_cache_was_absent": true,
+          "same_run": true,
+          "strict_cache_was_absent": true
+        }
+      },
+      {
+        "sample": "r4-candidate-load",
+        "variant": "candidate",
+        "repetition": 4,
+        "metrics": {
+          "Caption.memory_copy.calls": 1,
+          "Caption.memory_copy.elapsed_us": 36,
+          "Caption.memory_copy.max_us": 36,
+          "Capture.ledger_snapshot_copy.calls": 131,
+          "Capture.ledger_snapshot_copy.elapsed_us": 11045,
+          "Capture.ledger_snapshot_copy.max_us": 193,
+          "Capture.saved_fields_copy.calls": 131,
+          "Capture.saved_fields_copy.elapsed_us": 1261,
+          "Capture.saved_fields_copy.max_us": 23,
+          "Compiler.file_read.calls": 1,
+          "Compiler.file_read.elapsed_us": 181,
+          "Compiler.file_read.max_us": 181,
+          "Compiler.runtime_cache_hit.calls": 127,
+          "Compiler.runtime_cache_hit.elapsed_us": 487,
+          "Compiler.runtime_cache_hit.max_us": 24,
+          "Compiler.shared_parse_hit.calls": 1,
+          "Compiler.shared_parse_hit.elapsed_us": 3,
+          "Compiler.shared_parse_hit.max_us": 3,
+          "DialogicBridge._prepare_scene_entry.calls": 1,
+          "DialogicBridge._prepare_scene_entry.elapsed_us": 40094,
+          "DialogicBridge._prepare_scene_entry.max_us": 40094,
+          "DialogicBridge.get_scene_caption_memory.calls": 1,
+          "DialogicBridge.get_scene_caption_memory.elapsed_us": 3264,
+          "DialogicBridge.get_scene_caption_memory.max_us": 3264,
+          "DialogicRuntimeAdapter._compile_scene_programme_observed_body.calls": 1,
+          "DialogicRuntimeAdapter._compile_scene_programme_observed_body.elapsed_us": 1027,
+          "DialogicRuntimeAdapter._compile_scene_programme_observed_body.max_us": 1027,
+          "DialogicRuntimeAdapter._compile_scene_programme_timeline.calls": 1,
+          "DialogicRuntimeAdapter._compile_scene_programme_timeline.elapsed_us": 485,
+          "DialogicRuntimeAdapter._compile_scene_programme_timeline.max_us": 485,
+          "DialogicRuntimeAdapter.compile_runtime_scene_programme.calls": 128,
+          "DialogicRuntimeAdapter.compile_runtime_scene_programme.elapsed_us": 3159,
+          "DialogicRuntimeAdapter.compile_runtime_scene_programme.max_us": 1070,
+          "History.registry_lookup.calls": 1,
+          "History.registry_lookup.elapsed_us": 2388,
+          "History.registry_lookup.max_us": 2388,
+          "Localization.copy.calls": 1,
+          "Localization.copy.elapsed_us": 40,
+          "Localization.copy.max_us": 40,
+          "SceneReadingHistory.project_encountered.calls": 1,
+          "SceneReadingHistory.project_encountered.elapsed_us": 2778,
+          "SceneReadingHistory.project_encountered.max_us": 2778,
+          "SoloReadingSession._capture_scene.calls": 131,
+          "SoloReadingSession._capture_scene.elapsed_us": 18440,
+          "SoloReadingSession._capture_scene.max_us": 273,
+          "SoloReadingSession._ensure_scene_programme.calls": 109,
+          "SoloReadingSession._ensure_scene_programme.elapsed_us": 2851,
+          "SoloReadingSession._ensure_scene_programme.max_us": 96,
+          "SoloReadingSession._validate_scene_saved.calls": 63,
+          "SoloReadingSession._validate_scene_saved.elapsed_us": 1114910,
+          "SoloReadingSession._validate_scene_saved.max_us": 23580,
+          "SoloReadingSession.project_scene_day_history.calls": 1,
+          "SoloReadingSession.project_scene_day_history.elapsed_us": 2930,
+          "SoloReadingSession.project_scene_day_history.max_us": 2930,
+          "StoryLocalization.project.calls": 1,
+          "StoryLocalization.project.elapsed_us": 75,
+          "StoryLocalization.project.max_us": 75,
+          "WitnessedCaptionLayer._on_reading_session_changed.calls": 1,
+          "WitnessedCaptionLayer._on_reading_session_changed.elapsed_us": 7,
+          "WitnessedCaptionLayer._on_reading_session_changed.max_us": 7,
+          "WitnessedCaptionLayer._project_scene_caption_memory.calls": 1,
+          "WitnessedCaptionLayer._project_scene_caption_memory.elapsed_us": 3619,
+          "WitnessedCaptionLayer._project_scene_caption_memory.max_us": 3619,
+          "WitnessedCaptionLayer._refresh_reading_session.calls": 1,
+          "WitnessedCaptionLayer._refresh_reading_session.elapsed_us": 79570,
+          "WitnessedCaptionLayer._refresh_reading_session.max_us": 79570,
+          "WitnessedCaptionLayer.reproject_retained_captions.calls": 1,
+          "WitnessedCaptionLayer.reproject_retained_captions.elapsed_us": 288,
+          "WitnessedCaptionLayer.reproject_retained_captions.max_us": 288,
+          "input_to_first_correct_drawn_us": 2334612,
+          "input_to_usable_us": 2356032,
+          "max_frame_gap_us": 2330294
+        },
+        "observation": {
+          "choice": "pass",
+          "day_parse_was_ready": true,
+          "entry_id": "Day1.photo.default",
+          "image": "passage/destination.png",
+          "image_sha256": "1e10a58093b84e8adfaf4d140d072369053872d5b1ed687326fa342e684766ec",
+          "line_id": "line.Day1.photo.default.001",
+          "no_yes_encounters": true,
+          "press_count": 1,
+          "release_count": 1,
+          "runtime_cache_was_absent": true,
+          "same_run": true,
+          "strict_cache_was_absent": true
+        }
+      }
+    ],
+    "aggregates": {
+      "baseline": {
+        "Caption.memory_copy.calls": {
+          "samples": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "median": 1.0,
+          "min": 1,
+          "max": 1
+        },
+        "Caption.memory_copy.elapsed_us": {
+          "samples": [
+            84,
+            36,
+            34,
+            35
+          ],
+          "median": 35.5,
+          "min": 34,
+          "max": 84
+        },
+        "Caption.memory_copy.max_us": {
+          "samples": [
+            84,
+            36,
+            34,
+            35
+          ],
+          "median": 35.5,
+          "min": 34,
+          "max": 84
+        },
+        "Capture.ledger_snapshot_copy.calls": {
+          "samples": [
+            132,
+            132,
+            132,
+            131
+          ],
+          "median": 132.0,
+          "min": 131,
+          "max": 132
+        },
+        "Capture.ledger_snapshot_copy.elapsed_us": {
+          "samples": [
+            9731,
+            10629,
+            10460,
+            11111
+          ],
+          "median": 10544.5,
+          "min": 9731,
+          "max": 11111
+        },
+        "Capture.ledger_snapshot_copy.max_us": {
+          "samples": [
+            183,
+            185,
+            244,
+            197
+          ],
+          "median": 191.0,
+          "min": 183,
+          "max": 244
+        },
+        "Capture.saved_fields_copy.calls": {
+          "samples": [
+            132,
+            132,
+            132,
+            131
+          ],
+          "median": 132.0,
+          "min": 131,
+          "max": 132
+        },
+        "Capture.saved_fields_copy.elapsed_us": {
+          "samples": [
+            1107,
+            1286,
+            1219,
+            1305
+          ],
+          "median": 1252.5,
+          "min": 1107,
+          "max": 1305
+        },
+        "Capture.saved_fields_copy.max_us": {
+          "samples": [
+            30,
+            43,
+            27,
+            39
+          ],
+          "median": 34.5,
+          "min": 27,
+          "max": 43
+        },
+        "Compiler.file_read.calls": {
+          "samples": [
+            2,
+            2,
+            2,
+            2
+          ],
+          "median": 2.0,
+          "min": 2,
+          "max": 2
+        },
+        "Compiler.file_read.elapsed_us": {
+          "samples": [
+            214,
+            287,
+            217,
+            340
+          ],
+          "median": 252.0,
+          "min": 214,
+          "max": 340
+        },
+        "Compiler.file_read.max_us": {
+          "samples": [
+            108,
+            155,
+            116,
+            200
+          ],
+          "median": 135.5,
+          "min": 108,
+          "max": 200
+        },
+        "Compiler.parse_source.calls": {
+          "samples": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "median": 1.0,
+          "min": 1,
+          "max": 1
+        },
+        "Compiler.parse_source.elapsed_us": {
+          "samples": [
+            64664,
+            66320,
+            65457,
+            65337
+          ],
+          "median": 65397.0,
+          "min": 64664,
+          "max": 66320
+        },
+        "Compiler.parse_source.max_us": {
+          "samples": [
+            64664,
+            66320,
+            65457,
+            65337
+          ],
+          "median": 65397.0,
+          "min": 64664,
+          "max": 66320
+        },
+        "Compiler.runtime_cache_hit.calls": {
+          "samples": [
+            127,
+            127,
+            127,
+            126
+          ],
+          "median": 127.0,
+          "min": 126,
+          "max": 127
+        },
+        "Compiler.runtime_cache_hit.elapsed_us": {
+          "samples": [
+            369,
+            459,
+            405,
+            497
+          ],
+          "median": 432.0,
+          "min": 369,
+          "max": 497
+        },
+        "Compiler.runtime_cache_hit.max_us": {
+          "samples": [
+            29,
+            12,
+            12,
+            12
+          ],
+          "median": 12.0,
+          "min": 12,
+          "max": 29
+        },
+        "Compiler.shared_parse_hit.calls": {
+          "samples": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "median": 1.0,
+          "min": 1,
+          "max": 1
+        },
+        "Compiler.shared_parse_hit.elapsed_us": {
+          "samples": [
+            2,
+            3,
+            3,
+            3
+          ],
+          "median": 3.0,
+          "min": 2,
+          "max": 3
+        },
+        "Compiler.shared_parse_hit.max_us": {
+          "samples": [
+            2,
+            3,
+            3,
+            3
+          ],
+          "median": 3.0,
+          "min": 2,
+          "max": 3
+        },
+        "Compiler.strict_cache_hit.calls": {
+          "samples": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "median": 1.0,
+          "min": 1,
+          "max": 1
+        },
+        "Compiler.strict_cache_hit.elapsed_us": {
+          "samples": [
+            3,
+            3,
+            3,
+            3
+          ],
+          "median": 3.0,
+          "min": 3,
+          "max": 3
+        },
+        "Compiler.strict_cache_hit.max_us": {
+          "samples": [
+            3,
+            3,
+            3,
+            3
+          ],
+          "median": 3.0,
+          "min": 3,
+          "max": 3
+        },
+        "DialogicBridge._prepare_scene_entry.calls": {
+          "samples": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "median": 1.0,
+          "min": 1,
+          "max": 1
+        },
+        "DialogicBridge._prepare_scene_entry.elapsed_us": {
+          "samples": [
+            97438,
+            102721,
+            98827,
+            102939
+          ],
+          "median": 100774.0,
+          "min": 97438,
+          "max": 102939
+        },
+        "DialogicBridge._prepare_scene_entry.max_us": {
+          "samples": [
+            97438,
+            102721,
+            98827,
+            102939
+          ],
+          "median": 100774.0,
+          "min": 97438,
+          "max": 102939
+        },
+        "DialogicBridge.get_scene_caption_memory.calls": {
+          "samples": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "median": 1.0,
+          "min": 1,
+          "max": 1
+        },
+        "DialogicBridge.get_scene_caption_memory.elapsed_us": {
+          "samples": [
+            2695,
+            3092,
+            2826,
+            3367
+          ],
+          "median": 2959.0,
+          "min": 2695,
+          "max": 3367
+        },
+        "DialogicBridge.get_scene_caption_memory.max_us": {
+          "samples": [
+            2695,
+            3092,
+            2826,
+            3367
+          ],
+          "median": 2959.0,
+          "min": 2695,
+          "max": 3367
+        },
+        "DialogicRuntimeAdapter._compile_scene_programme_observed_body.calls": {
+          "samples": [
+            2,
+            2,
+            2,
+            2
+          ],
+          "median": 2.0,
+          "min": 2,
+          "max": 2
+        },
+        "DialogicRuntimeAdapter._compile_scene_programme_observed_body.elapsed_us": {
+          "samples": [
+            65996,
+            67798,
+            66800,
+            66864
+          ],
+          "median": 66832.0,
+          "min": 65996,
+          "max": 67798
+        },
+        "DialogicRuntimeAdapter._compile_scene_programme_observed_body.max_us": {
+          "samples": [
+            65608,
+            67379,
+            66392,
+            66420
+          ],
+          "median": 66406.0,
+          "min": 65608,
+          "max": 67379
+        },
+        "DialogicRuntimeAdapter._compile_scene_programme_timeline.calls": {
+          "samples": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "median": 1.0,
+          "min": 1,
+          "max": 1
+        },
+        "DialogicRuntimeAdapter._compile_scene_programme_timeline.elapsed_us": {
+          "samples": [
+            466,
+            516,
+            503,
+            522
+          ],
+          "median": 509.5,
+          "min": 466,
+          "max": 522
+        },
+        "DialogicRuntimeAdapter._compile_scene_programme_timeline.max_us": {
+          "samples": [
+            466,
+            516,
+            503,
+            522
+          ],
+          "median": 509.5,
+          "min": 466,
+          "max": 522
+        },
+        "DialogicRuntimeAdapter.compile_runtime_scene_programme.calls": {
+          "samples": [
+            128,
+            128,
+            128,
+            127
+          ],
+          "median": 128.0,
+          "min": 127,
+          "max": 128
+        },
+        "DialogicRuntimeAdapter.compile_runtime_scene_programme.elapsed_us": {
+          "samples": [
+            2106,
+            2523,
+            2374,
+            2695
+          ],
+          "median": 2448.5,
+          "min": 2106,
+          "max": 2695
+        },
+        "DialogicRuntimeAdapter.compile_runtime_scene_programme.max_us": {
+          "samples": [
+            435,
+            471,
+            459,
+            499
+          ],
+          "median": 465.0,
+          "min": 435,
+          "max": 499
+        },
+        "DialogicRuntimeAdapter.compile_scene_programme.calls": {
+          "samples": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "median": 1.0,
+          "min": 1,
+          "max": 1
+        },
+        "DialogicRuntimeAdapter.compile_scene_programme.elapsed_us": {
+          "samples": [
+            66147,
+            68225,
+            67091,
+            67368
+          ],
+          "median": 67229.5,
+          "min": 66147,
+          "max": 68225
+        },
+        "DialogicRuntimeAdapter.compile_scene_programme.max_us": {
+          "samples": [
+            66147,
+            68225,
+            67091,
+            67368
+          ],
+          "median": 67229.5,
+          "min": 66147,
+          "max": 68225
+        },
+        "History.registry_lookup.calls": {
+          "samples": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "median": 1.0,
+          "min": 1,
+          "max": 1
+        },
+        "History.registry_lookup.elapsed_us": {
+          "samples": [
+            1877,
+            2101,
+            1908,
+            2348
+          ],
+          "median": 2004.5,
+          "min": 1877,
+          "max": 2348
+        },
+        "History.registry_lookup.max_us": {
+          "samples": [
+            1877,
+            2101,
+            1908,
+            2348
+          ],
+          "median": 2004.5,
+          "min": 1877,
+          "max": 2348
+        },
+        "Localization.copy.calls": {
+          "samples": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "median": 1.0,
+          "min": 1,
+          "max": 1
+        },
+        "Localization.copy.elapsed_us": {
+          "samples": [
+            31,
+            52,
+            33,
+            42
+          ],
+          "median": 37.5,
+          "min": 31,
+          "max": 52
+        },
+        "Localization.copy.max_us": {
+          "samples": [
+            31,
+            52,
+            33,
+            42
+          ],
+          "median": 37.5,
+          "min": 31,
+          "max": 52
+        },
+        "SceneReadingHistory.project_encountered.calls": {
+          "samples": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "median": 1.0,
+          "min": 1,
+          "max": 1
+        },
+        "SceneReadingHistory.project_encountered.elapsed_us": {
+          "samples": [
+            2233,
+            2581,
+            2349,
+            2857
+          ],
+          "median": 2465.0,
+          "min": 2233,
+          "max": 2857
+        },
+        "SceneReadingHistory.project_encountered.max_us": {
+          "samples": [
+            2233,
+            2581,
+            2349,
+            2857
+          ],
+          "median": 2465.0,
+          "min": 2233,
+          "max": 2857
+        },
+        "SoloReadingSession._capture_scene.calls": {
+          "samples": [
+            132,
+            132,
+            132,
+            131
+          ],
+          "median": 132.0,
+          "min": 131,
+          "max": 132
+        },
+        "SoloReadingSession._capture_scene.elapsed_us": {
+          "samples": [
+            16518,
+            18155,
+            17700,
+            18572
+          ],
+          "median": 17927.5,
+          "min": 16518,
+          "max": 18572
+        },
+        "SoloReadingSession._capture_scene.max_us": {
+          "samples": [
+            260,
+            269,
+            370,
+            278
+          ],
+          "median": 273.5,
+          "min": 260,
+          "max": 370
+        },
+        "SoloReadingSession._ensure_scene_programme.calls": {
+          "samples": [
+            109,
+            109,
+            109,
+            109
+          ],
+          "median": 109.0,
+          "min": 109,
+          "max": 109
+        },
+        "SoloReadingSession._ensure_scene_programme.elapsed_us": {
+          "samples": [
+            2713,
+            3465,
+            3102,
+            3624
+          ],
+          "median": 3283.5,
+          "min": 2713,
+          "max": 3624
+        },
+        "SoloReadingSession._ensure_scene_programme.max_us": {
+          "samples": [
+            479,
+            585,
+            533,
+            594
+          ],
+          "median": 559.0,
+          "min": 479,
+          "max": 594
+        },
+        "SoloReadingSession._validate_scene_saved.calls": {
+          "samples": [
+            63,
+            63,
+            63,
+            63
+          ],
+          "median": 63.0,
+          "min": 63,
+          "max": 63
+        },
+        "SoloReadingSession._validate_scene_saved.elapsed_us": {
+          "samples": [
+            1001691,
+            1130298,
+            1063367,
+            1199211
+          ],
+          "median": 1096832.5,
+          "min": 1001691,
+          "max": 1199211
+        },
+        "SoloReadingSession._validate_scene_saved.max_us": {
+          "samples": [
+            18982,
+            28139,
+            19936,
+            21810
+          ],
+          "median": 20873.0,
+          "min": 18982,
+          "max": 28139
+        },
+        "SoloReadingSession.project_scene_day_history.calls": {
+          "samples": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "median": 1.0,
+          "min": 1,
+          "max": 1
+        },
+        "SoloReadingSession.project_scene_day_history.elapsed_us": {
+          "samples": [
+            2370,
+            2726,
+            2509,
+            3025
+          ],
+          "median": 2617.5,
+          "min": 2370,
+          "max": 3025
+        },
+        "SoloReadingSession.project_scene_day_history.max_us": {
+          "samples": [
+            2370,
+            2726,
+            2509,
+            3025
+          ],
+          "median": 2617.5,
+          "min": 2370,
+          "max": 3025
+        },
+        "StoryLocalization.project.calls": {
+          "samples": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "median": 1.0,
+          "min": 1,
+          "max": 1
+        },
+        "StoryLocalization.project.elapsed_us": {
+          "samples": [
+            64,
+            85,
+            68,
+            76
+          ],
+          "median": 72.0,
+          "min": 64,
+          "max": 85
+        },
+        "StoryLocalization.project.max_us": {
+          "samples": [
+            64,
+            85,
+            68,
+            76
+          ],
+          "median": 72.0,
+          "min": 64,
+          "max": 85
+        },
+        "WitnessedCaptionLayer._on_reading_session_changed.calls": {
+          "samples": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "median": 1.0,
+          "min": 1,
+          "max": 1
+        },
+        "WitnessedCaptionLayer._on_reading_session_changed.elapsed_us": {
+          "samples": [
+            7,
+            7,
+            6,
+            6
+          ],
+          "median": 6.5,
+          "min": 6,
+          "max": 7
+        },
+        "WitnessedCaptionLayer._on_reading_session_changed.max_us": {
+          "samples": [
+            7,
+            7,
+            6,
+            6
+          ],
+          "median": 6.5,
+          "min": 6,
+          "max": 7
+        },
+        "WitnessedCaptionLayer._project_scene_caption_memory.calls": {
+          "samples": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "median": 1.0,
+          "min": 1,
+          "max": 1
+        },
+        "WitnessedCaptionLayer._project_scene_caption_memory.elapsed_us": {
+          "samples": [
+            3032,
+            3386,
+            3111,
+            3714
+          ],
+          "median": 3248.5,
+          "min": 3032,
+          "max": 3714
+        },
+        "WitnessedCaptionLayer._project_scene_caption_memory.max_us": {
+          "samples": [
+            3032,
+            3386,
+            3111,
+            3714
+          ],
+          "median": 3248.5,
+          "min": 3032,
+          "max": 3714
+        },
+        "WitnessedCaptionLayer._refresh_reading_session.calls": {
+          "samples": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "median": 1.0,
+          "min": 1,
+          "max": 1
+        },
+        "WitnessedCaptionLayer._refresh_reading_session.elapsed_us": {
+          "samples": [
+            74983,
+            78701,
+            80291,
+            81965
+          ],
+          "median": 79496.0,
+          "min": 74983,
+          "max": 81965
+        },
+        "WitnessedCaptionLayer._refresh_reading_session.max_us": {
+          "samples": [
+            74983,
+            78701,
+            80291,
+            81965
+          ],
+          "median": 79496.0,
+          "min": 74983,
+          "max": 81965
+        },
+        "WitnessedCaptionLayer.reproject_retained_captions.calls": {
+          "samples": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "median": 1.0,
+          "min": 1,
+          "max": 1
+        },
+        "WitnessedCaptionLayer.reproject_retained_captions.elapsed_us": {
+          "samples": [
+            219,
+            227,
+            220,
+            280
+          ],
+          "median": 223.5,
+          "min": 219,
+          "max": 280
+        },
+        "WitnessedCaptionLayer.reproject_retained_captions.max_us": {
+          "samples": [
+            219,
+            227,
+            220,
+            280
+          ],
+          "median": 223.5,
+          "min": 219,
+          "max": 280
+        },
+        "input_to_first_correct_drawn_us": {
+          "samples": [
+            2162327,
+            2410170,
+            2326425,
+            2527827
+          ],
+          "median": 2368297.5,
+          "min": 2162327,
+          "max": 2527827
+        },
+        "input_to_usable_us": {
+          "samples": [
+            2184059,
+            2432090,
+            2348316,
+            2549845
+          ],
+          "median": 2390203.0,
+          "min": 2184059,
+          "max": 2549845
+        },
+        "max_frame_gap_us": {
+          "samples": [
+            2158114,
+            2405568,
+            2321653,
+            2523439
+          ],
+          "median": 2363610.5,
+          "min": 2158114,
+          "max": 2523439
+        }
+      },
+      "candidate": {
+        "Caption.memory_copy.calls": {
+          "samples": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "median": 1.0,
+          "min": 1,
+          "max": 1
+        },
+        "Caption.memory_copy.elapsed_us": {
+          "samples": [
+            33,
+            33,
+            77,
+            36
+          ],
+          "median": 34.5,
+          "min": 33,
+          "max": 77
+        },
+        "Caption.memory_copy.max_us": {
+          "samples": [
+            33,
+            33,
+            77,
+            36
+          ],
+          "median": 34.5,
+          "min": 33,
+          "max": 77
+        },
+        "Capture.ledger_snapshot_copy.calls": {
+          "samples": [
+            133,
+            132,
+            131,
+            131
+          ],
+          "median": 131.5,
+          "min": 131,
+          "max": 133
+        },
+        "Capture.ledger_snapshot_copy.elapsed_us": {
+          "samples": [
+            9700,
+            10239,
+            10689,
+            11045
+          ],
+          "median": 10464.0,
+          "min": 9700,
+          "max": 11045
+        },
+        "Capture.ledger_snapshot_copy.max_us": {
+          "samples": [
+            197,
+            187,
+            228,
+            193
+          ],
+          "median": 195.0,
+          "min": 187,
+          "max": 228
+        },
+        "Capture.saved_fields_copy.calls": {
+          "samples": [
+            133,
+            132,
+            131,
+            131
+          ],
+          "median": 131.5,
+          "min": 131,
+          "max": 133
+        },
+        "Capture.saved_fields_copy.elapsed_us": {
+          "samples": [
+            1129,
+            1192,
+            1273,
+            1261
+          ],
+          "median": 1226.5,
+          "min": 1129,
+          "max": 1273
+        },
+        "Capture.saved_fields_copy.max_us": {
+          "samples": [
+            25,
+            28,
+            33,
+            23
+          ],
+          "median": 26.5,
+          "min": 23,
+          "max": 33
+        },
+        "Compiler.file_read.calls": {
+          "samples": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "median": 1.0,
+          "min": 1,
+          "max": 1
+        },
+        "Compiler.file_read.elapsed_us": {
+          "samples": [
+            96,
+            200,
+            164,
+            181
+          ],
+          "median": 172.5,
+          "min": 96,
+          "max": 200
+        },
+        "Compiler.file_read.max_us": {
+          "samples": [
+            96,
+            200,
+            164,
+            181
+          ],
+          "median": 172.5,
+          "min": 96,
+          "max": 200
+        },
+        "Compiler.parse_source.calls": {
+          "samples": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "median": 0.0,
+          "min": 0,
+          "max": 0
+        },
+        "Compiler.parse_source.elapsed_us": {
+          "samples": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "median": 0.0,
+          "min": 0,
+          "max": 0
+        },
+        "Compiler.parse_source.max_us": {
+          "samples": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "median": 0.0,
+          "min": 0,
+          "max": 0
+        },
+        "Compiler.runtime_cache_hit.calls": {
+          "samples": [
+            129,
+            128,
+            127,
+            127
+          ],
+          "median": 127.5,
+          "min": 127,
+          "max": 129
+        },
+        "Compiler.runtime_cache_hit.elapsed_us": {
+          "samples": [
+            352,
+            416,
+            501,
+            487
+          ],
+          "median": 451.5,
+          "min": 352,
+          "max": 501
+        },
+        "Compiler.runtime_cache_hit.max_us": {
+          "samples": [
+            10,
+            13,
+            13,
+            24
+          ],
+          "median": 13.0,
+          "min": 10,
+          "max": 24
+        },
+        "Compiler.shared_parse_hit.calls": {
+          "samples": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "median": 1.0,
+          "min": 1,
+          "max": 1
+        },
+        "Compiler.shared_parse_hit.elapsed_us": {
+          "samples": [
+            3,
+            4,
+            3,
+            3
+          ],
+          "median": 3.0,
+          "min": 3,
+          "max": 4
+        },
+        "Compiler.shared_parse_hit.max_us": {
+          "samples": [
+            3,
+            4,
+            3,
+            3
+          ],
+          "median": 3.0,
+          "min": 3,
+          "max": 4
+        },
+        "Compiler.strict_cache_hit.calls": {
+          "samples": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "median": 0.0,
+          "min": 0,
+          "max": 0
+        },
+        "Compiler.strict_cache_hit.elapsed_us": {
+          "samples": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "median": 0.0,
+          "min": 0,
+          "max": 0
+        },
+        "Compiler.strict_cache_hit.max_us": {
+          "samples": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "median": 0.0,
+          "min": 0,
+          "max": 0
+        },
+        "DialogicBridge._prepare_scene_entry.calls": {
+          "samples": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "median": 1.0,
+          "min": 1,
+          "max": 1
+        },
+        "DialogicBridge._prepare_scene_entry.elapsed_us": {
+          "samples": [
+            31429,
+            34943,
+            35242,
+            40094
+          ],
+          "median": 35092.5,
+          "min": 31429,
+          "max": 40094
+        },
+        "DialogicBridge._prepare_scene_entry.max_us": {
+          "samples": [
+            31429,
+            34943,
+            35242,
+            40094
+          ],
+          "median": 35092.5,
+          "min": 31429,
+          "max": 40094
+        },
+        "DialogicBridge.get_scene_caption_memory.calls": {
+          "samples": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "median": 1.0,
+          "min": 1,
+          "max": 1
+        },
+        "DialogicBridge.get_scene_caption_memory.elapsed_us": {
+          "samples": [
+            2713,
+            2625,
+            3127,
+            3264
+          ],
+          "median": 2920.0,
+          "min": 2625,
+          "max": 3264
+        },
+        "DialogicBridge.get_scene_caption_memory.max_us": {
+          "samples": [
+            2713,
+            2625,
+            3127,
+            3264
+          ],
+          "median": 2920.0,
+          "min": 2625,
+          "max": 3264
+        },
+        "DialogicRuntimeAdapter._compile_scene_programme_observed_body.calls": {
+          "samples": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "median": 1.0,
+          "min": 1,
+          "max": 1
+        },
+        "DialogicRuntimeAdapter._compile_scene_programme_observed_body.elapsed_us": {
+          "samples": [
+            904,
+            1009,
+            984,
+            1027
+          ],
+          "median": 996.5,
+          "min": 904,
+          "max": 1027
+        },
+        "DialogicRuntimeAdapter._compile_scene_programme_observed_body.max_us": {
+          "samples": [
+            904,
+            1009,
+            984,
+            1027
+          ],
+          "median": 996.5,
+          "min": 904,
+          "max": 1027
+        },
+        "DialogicRuntimeAdapter._compile_scene_programme_timeline.calls": {
+          "samples": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "median": 1.0,
+          "min": 1,
+          "max": 1
+        },
+        "DialogicRuntimeAdapter._compile_scene_programme_timeline.elapsed_us": {
+          "samples": [
+            508,
+            480,
+            492,
+            485
+          ],
+          "median": 488.5,
+          "min": 480,
+          "max": 508
+        },
+        "DialogicRuntimeAdapter._compile_scene_programme_timeline.max_us": {
+          "samples": [
+            508,
+            480,
+            492,
+            485
+          ],
+          "median": 488.5,
+          "min": 480,
+          "max": 508
+        },
+        "DialogicRuntimeAdapter.compile_runtime_scene_programme.calls": {
+          "samples": [
+            130,
+            129,
+            128,
+            128
+          ],
+          "median": 128.5,
+          "min": 128,
+          "max": 130
+        },
+        "DialogicRuntimeAdapter.compile_runtime_scene_programme.elapsed_us": {
+          "samples": [
+            2605,
+            2994,
+            3264,
+            3159
+          ],
+          "median": 3076.5,
+          "min": 2605,
+          "max": 3264
+        },
+        "DialogicRuntimeAdapter.compile_runtime_scene_programme.max_us": {
+          "samples": [
+            945,
+            1052,
+            1045,
+            1070
+          ],
+          "median": 1048.5,
+          "min": 945,
+          "max": 1070
+        },
+        "DialogicRuntimeAdapter.compile_scene_programme.calls": {
+          "samples": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "median": 0.0,
+          "min": 0,
+          "max": 0
+        },
+        "DialogicRuntimeAdapter.compile_scene_programme.elapsed_us": {
+          "samples": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "median": 0.0,
+          "min": 0,
+          "max": 0
+        },
+        "DialogicRuntimeAdapter.compile_scene_programme.max_us": {
+          "samples": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "median": 0.0,
+          "min": 0,
+          "max": 0
+        },
+        "History.registry_lookup.calls": {
+          "samples": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "median": 1.0,
+          "min": 1,
+          "max": 1
+        },
+        "History.registry_lookup.elapsed_us": {
+          "samples": [
+            1838,
+            1834,
+            2281,
+            2388
+          ],
+          "median": 2059.5,
+          "min": 1834,
+          "max": 2388
+        },
+        "History.registry_lookup.max_us": {
+          "samples": [
+            1838,
+            1834,
+            2281,
+            2388
+          ],
+          "median": 2059.5,
+          "min": 1834,
+          "max": 2388
+        },
+        "Localization.copy.calls": {
+          "samples": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "median": 1.0,
+          "min": 1,
+          "max": 1
+        },
+        "Localization.copy.elapsed_us": {
+          "samples": [
+            43,
+            29,
+            39,
+            40
+          ],
+          "median": 39.5,
+          "min": 29,
+          "max": 43
+        },
+        "Localization.copy.max_us": {
+          "samples": [
+            43,
+            29,
+            39,
+            40
+          ],
+          "median": 39.5,
+          "min": 29,
+          "max": 43
+        },
+        "SceneReadingHistory.project_encountered.calls": {
+          "samples": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "median": 1.0,
+          "min": 1,
+          "max": 1
+        },
+        "SceneReadingHistory.project_encountered.elapsed_us": {
+          "samples": [
+            2228,
+            2187,
+            2657,
+            2778
+          ],
+          "median": 2442.5,
+          "min": 2187,
+          "max": 2778
+        },
+        "SceneReadingHistory.project_encountered.max_us": {
+          "samples": [
+            2228,
+            2187,
+            2657,
+            2778
+          ],
+          "median": 2442.5,
+          "min": 2187,
+          "max": 2778
+        },
+        "SoloReadingSession._capture_scene.calls": {
+          "samples": [
+            133,
+            132,
+            131,
+            131
+          ],
+          "median": 131.5,
+          "min": 131,
+          "max": 133
+        },
+        "SoloReadingSession._capture_scene.elapsed_us": {
+          "samples": [
+            16729,
+            17242,
+            18070,
+            18440
+          ],
+          "median": 17656.0,
+          "min": 16729,
+          "max": 18440
+        },
+        "SoloReadingSession._capture_scene.max_us": {
+          "samples": [
+            286,
+            267,
+            331,
+            273
+          ],
+          "median": 279.5,
+          "min": 267,
+          "max": 331
+        },
+        "SoloReadingSession._ensure_scene_programme.calls": {
+          "samples": [
+            109,
+            109,
+            109,
+            109
+          ],
+          "median": 109.0,
+          "min": 109,
+          "max": 109
+        },
+        "SoloReadingSession._ensure_scene_programme.elapsed_us": {
+          "samples": [
+            2363,
+            2677,
+            3111,
+            2851
+          ],
+          "median": 2764.0,
+          "min": 2363,
+          "max": 3111
+        },
+        "SoloReadingSession._ensure_scene_programme.max_us": {
+          "samples": [
+            77,
+            108,
+            100,
+            96
+          ],
+          "median": 98.0,
+          "min": 77,
+          "max": 108
+        },
+        "SoloReadingSession._validate_scene_saved.calls": {
+          "samples": [
+            63,
+            63,
+            63,
+            63
+          ],
+          "median": 63.0,
+          "min": 63,
+          "max": 63
+        },
+        "SoloReadingSession._validate_scene_saved.elapsed_us": {
+          "samples": [
+            1018408,
+            1052095,
+            1202136,
+            1114910
+          ],
+          "median": 1083502.5,
+          "min": 1018408,
+          "max": 1202136
+        },
+        "SoloReadingSession._validate_scene_saved.max_us": {
+          "samples": [
+            18589,
+            26590,
+            28076,
+            23580
+          ],
+          "median": 25085.0,
+          "min": 18589,
+          "max": 28076
+        },
+        "SoloReadingSession.project_scene_day_history.calls": {
+          "samples": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "median": 1.0,
+          "min": 1,
+          "max": 1
+        },
+        "SoloReadingSession.project_scene_day_history.elapsed_us": {
+          "samples": [
+            2367,
+            2322,
+            2801,
+            2930
+          ],
+          "median": 2584.0,
+          "min": 2322,
+          "max": 2930
+        },
+        "SoloReadingSession.project_scene_day_history.max_us": {
+          "samples": [
+            2367,
+            2322,
+            2801,
+            2930
+          ],
+          "median": 2584.0,
+          "min": 2322,
+          "max": 2930
+        },
+        "StoryLocalization.project.calls": {
+          "samples": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "median": 1.0,
+          "min": 1,
+          "max": 1
+        },
+        "StoryLocalization.project.elapsed_us": {
+          "samples": [
+            89,
+            62,
+            73,
+            75
+          ],
+          "median": 74.0,
+          "min": 62,
+          "max": 89
+        },
+        "StoryLocalization.project.max_us": {
+          "samples": [
+            89,
+            62,
+            73,
+            75
+          ],
+          "median": 74.0,
+          "min": 62,
+          "max": 89
+        },
+        "WitnessedCaptionLayer._on_reading_session_changed.calls": {
+          "samples": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "median": 1.0,
+          "min": 1,
+          "max": 1
+        },
+        "WitnessedCaptionLayer._on_reading_session_changed.elapsed_us": {
+          "samples": [
+            5,
+            5,
+            6,
+            7
+          ],
+          "median": 5.5,
+          "min": 5,
+          "max": 7
+        },
+        "WitnessedCaptionLayer._on_reading_session_changed.max_us": {
+          "samples": [
+            5,
+            5,
+            6,
+            7
+          ],
+          "median": 5.5,
+          "min": 5,
+          "max": 7
+        },
+        "WitnessedCaptionLayer._project_scene_caption_memory.calls": {
+          "samples": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "median": 1.0,
+          "min": 1,
+          "max": 1
+        },
+        "WitnessedCaptionLayer._project_scene_caption_memory.elapsed_us": {
+          "samples": [
+            3011,
+            2924,
+            3469,
+            3619
+          ],
+          "median": 3240.0,
+          "min": 2924,
+          "max": 3619
+        },
+        "WitnessedCaptionLayer._project_scene_caption_memory.max_us": {
+          "samples": [
+            3011,
+            2924,
+            3469,
+            3619
+          ],
+          "median": 3240.0,
+          "min": 2924,
+          "max": 3619
+        },
+        "WitnessedCaptionLayer._refresh_reading_session.calls": {
+          "samples": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "median": 1.0,
+          "min": 1,
+          "max": 1
+        },
+        "WitnessedCaptionLayer._refresh_reading_session.elapsed_us": {
+          "samples": [
+            75316,
+            73345,
+            111810,
+            79570
+          ],
+          "median": 77443.0,
+          "min": 73345,
+          "max": 111810
+        },
+        "WitnessedCaptionLayer._refresh_reading_session.max_us": {
+          "samples": [
+            75316,
+            73345,
+            111810,
+            79570
+          ],
+          "median": 77443.0,
+          "min": 73345,
+          "max": 111810
+        },
+        "WitnessedCaptionLayer.reproject_retained_captions.calls": {
+          "samples": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "median": 1.0,
+          "min": 1,
+          "max": 1
+        },
+        "WitnessedCaptionLayer.reproject_retained_captions.elapsed_us": {
+          "samples": [
+            235,
+            238,
+            232,
+            288
+          ],
+          "median": 236.5,
+          "min": 232,
+          "max": 288
+        },
+        "WitnessedCaptionLayer.reproject_retained_captions.max_us": {
+          "samples": [
+            235,
+            238,
+            232,
+            288
+          ],
+          "median": 236.5,
+          "min": 232,
+          "max": 288
+        },
+        "input_to_first_correct_drawn_us": {
+          "samples": [
+            2117570,
+            2235621,
+            2477450,
+            2334612
+          ],
+          "median": 2285116.5,
+          "min": 2117570,
+          "max": 2477450
+        },
+        "input_to_usable_us": {
+          "samples": [
+            2138899,
+            2256998,
+            2498058,
+            2356032
+          ],
+          "median": 2306515.0,
+          "min": 2138899,
+          "max": 2498058
+        },
+        "max_frame_gap_us": {
+          "samples": [
+            2113434,
+            2231562,
+            2468831,
+            2330294
+          ],
+          "median": 2280928.0,
+          "min": 2113434,
+          "max": 2468831
+        }
+      }
+    }
+  },
+  "action_aggregates": {
+    "baseline": {
+      "fresh": {
+        "process.launch_to_bootstrap_start_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-fresh",
+              "value": 7608.0
+            },
+            {
+              "sample": "r2-baseline-fresh",
+              "value": 6566.0
+            },
+            {
+              "sample": "r3-baseline-fresh",
+              "value": 6491.0
+            },
+            {
+              "sample": "r4-baseline-fresh",
+              "value": 6552.0
+            }
+          ],
+          "count": 4,
+          "median": 6559.0,
+          "min": 6491.0,
+          "max": 7608.0
+        },
+        "process.launch_to_first_title_drawn_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-fresh",
+              "value": 8396.0
+            },
+            {
+              "sample": "r2-baseline-fresh",
+              "value": 7337.0
+            },
+            {
+              "sample": "r3-baseline-fresh",
+              "value": 7275.0
+            },
+            {
+              "sample": "r4-baseline-fresh",
+              "value": 7326.0
+            }
+          ],
+          "count": 4,
+          "median": 7331.5,
+          "min": 7275.0,
+          "max": 8396.0
+        },
+        "process.launch_to_first_title_input_accepted_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-fresh",
+              "value": 8438.0
+            },
+            {
+              "sample": "r2-baseline-fresh",
+              "value": 7380.0
+            },
+            {
+              "sample": "r3-baseline-fresh",
+              "value": 7329.0
+            },
+            {
+              "sample": "r4-baseline-fresh",
+              "value": 7370.0
+            }
+          ],
+          "count": 4,
+          "median": 7375.0,
+          "min": 7329.0,
+          "max": 8438.0
+        },
+        "process.launch_to_probe_enter_tree_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-fresh",
+              "value": 7483.0
+            },
+            {
+              "sample": "r2-baseline-fresh",
+              "value": 6444.0
+            },
+            {
+              "sample": "r3-baseline-fresh",
+              "value": 6367.0
+            },
+            {
+              "sample": "r4-baseline-fresh",
+              "value": 6427.0
+            }
+          ],
+          "count": 4,
+          "median": 6435.5,
+          "min": 6367.0,
+          "max": 7483.0
+        },
+        "process.launch_to_title_drawn_usable_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-fresh",
+              "value": 8396.0
+            },
+            {
+              "sample": "r2-baseline-fresh",
+              "value": 7337.0
+            },
+            {
+              "sample": "r3-baseline-fresh",
+              "value": 7275.0
+            },
+            {
+              "sample": "r4-baseline-fresh",
+              "value": 7326.0
+            }
+          ],
+          "count": 4,
+          "median": 7331.5,
+          "min": 7275.0,
+          "max": 8396.0
+        },
+        "process.lifetime_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-fresh",
+              "value": 13094.539
+            },
+            {
+              "sample": "r2-baseline-fresh",
+              "value": 11945.1218
+            },
+            {
+              "sample": "r3-baseline-fresh",
+              "value": 11918.3147
+            },
+            {
+              "sample": "r4-baseline-fresh",
+              "value": 12100.9337
+            }
+          ],
+          "count": 4,
+          "median": 12023.027750000001,
+          "min": 11918.3147,
+          "max": 13094.539
+        },
+        "process.new_acc_excluding_consent_dwell_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-fresh",
+              "value": 1100.972
+            },
+            {
+              "sample": "r2-baseline-fresh",
+              "value": 1137.89
+            },
+            {
+              "sample": "r3-baseline-fresh",
+              "value": 1122.485
+            },
+            {
+              "sample": "r4-baseline-fresh",
+              "value": 1133.808
+            }
+          ],
+          "count": 4,
+          "median": 1128.1464999999998,
+          "min": 1100.972,
+          "max": 1137.89
+        },
+        "process.new_acc_to_caption_complete_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-fresh",
+              "value": 1100.972
+            },
+            {
+              "sample": "r2-baseline-fresh",
+              "value": 1137.89
+            },
+            {
+              "sample": "r3-baseline-fresh",
+              "value": 1122.485
+            },
+            {
+              "sample": "r4-baseline-fresh",
+              "value": 1133.808
+            }
+          ],
+          "count": 4,
+          "median": 1128.1464999999998,
+          "min": 1100.972,
+          "max": 1137.89
+        }
+      },
+      "retained": {
+        "process.confirm_to_caption_complete_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-retained",
+              "value": 1067.629
+            },
+            {
+              "sample": "r2-baseline-retained",
+              "value": 1056.784
+            },
+            {
+              "sample": "r3-baseline-retained",
+              "value": 1014.993
+            },
+            {
+              "sample": "r4-baseline-retained",
+              "value": 1016.659
+            }
+          ],
+          "count": 4,
+          "median": 1036.7215,
+          "min": 1014.993,
+          "max": 1067.629
+        },
+        "process.consent_dwell_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-retained",
+              "value": 56.07
+            },
+            {
+              "sample": "r2-baseline-retained",
+              "value": 46.913
+            },
+            {
+              "sample": "r3-baseline-retained",
+              "value": 56.779
+            },
+            {
+              "sample": "r4-baseline-retained",
+              "value": 55.998
+            }
+          ],
+          "count": 4,
+          "median": 56.034,
+          "min": 46.913,
+          "max": 56.779
+        },
+        "process.input_to_consent_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-retained",
+              "value": 31.512
+            },
+            {
+              "sample": "r2-baseline-retained",
+              "value": 30.395
+            },
+            {
+              "sample": "r3-baseline-retained",
+              "value": 30.432
+            },
+            {
+              "sample": "r4-baseline-retained",
+              "value": 30.479
+            }
+          ],
+          "count": 4,
+          "median": 30.4555,
+          "min": 30.395,
+          "max": 31.512
+        },
+        "process.launch_to_bootstrap_start_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-retained",
+              "value": 4993.0
+            },
+            {
+              "sample": "r2-baseline-retained",
+              "value": 4836.0
+            },
+            {
+              "sample": "r3-baseline-retained",
+              "value": 4799.0
+            },
+            {
+              "sample": "r4-baseline-retained",
+              "value": 4904.0
+            }
+          ],
+          "count": 4,
+          "median": 4870.0,
+          "min": 4799.0,
+          "max": 4993.0
+        },
+        "process.launch_to_first_title_drawn_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-retained",
+              "value": 5762.0
+            },
+            {
+              "sample": "r2-baseline-retained",
+              "value": 5602.0
+            },
+            {
+              "sample": "r3-baseline-retained",
+              "value": 5557.0
+            },
+            {
+              "sample": "r4-baseline-retained",
+              "value": 5663.0
+            }
+          ],
+          "count": 4,
+          "median": 5632.5,
+          "min": 5557.0,
+          "max": 5762.0
+        },
+        "process.launch_to_first_title_input_accepted_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-retained",
+              "value": 5787.0
+            },
+            {
+              "sample": "r2-baseline-retained",
+              "value": 5628.0
+            },
+            {
+              "sample": "r3-baseline-retained",
+              "value": 5582.0
+            },
+            {
+              "sample": "r4-baseline-retained",
+              "value": 5688.0
+            }
+          ],
+          "count": 4,
+          "median": 5658.0,
+          "min": 5582.0,
+          "max": 5787.0
+        },
+        "process.launch_to_probe_enter_tree_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-retained",
+              "value": 4871.0
+            },
+            {
+              "sample": "r2-baseline-retained",
+              "value": 4713.0
+            },
+            {
+              "sample": "r3-baseline-retained",
+              "value": 4679.0
+            },
+            {
+              "sample": "r4-baseline-retained",
+              "value": 4785.0
+            }
+          ],
+          "count": 4,
+          "median": 4749.0,
+          "min": 4679.0,
+          "max": 4871.0
+        },
+        "process.launch_to_title_drawn_usable_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-retained",
+              "value": 5762.0
+            },
+            {
+              "sample": "r2-baseline-retained",
+              "value": 5602.0
+            },
+            {
+              "sample": "r3-baseline-retained",
+              "value": 5557.0
+            },
+            {
+              "sample": "r4-baseline-retained",
+              "value": 5663.0
+            }
+          ],
+          "count": 4,
+          "median": 5632.5,
+          "min": 5557.0,
+          "max": 5762.0
+        },
+        "process.lifetime_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-retained",
+              "value": 10235.6496
+            },
+            {
+              "sample": "r2-baseline-retained",
+              "value": 10144.3423
+            },
+            {
+              "sample": "r3-baseline-retained",
+              "value": 10149.9731
+            },
+            {
+              "sample": "r4-baseline-retained",
+              "value": 10241.4228
+            }
+          ],
+          "count": 4,
+          "median": 10192.81135,
+          "min": 10144.3423,
+          "max": 10241.4228
+        },
+        "process.new_acc_excluding_consent_dwell_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-retained",
+              "value": 1099.141
+            },
+            {
+              "sample": "r2-baseline-retained",
+              "value": 1087.179
+            },
+            {
+              "sample": "r3-baseline-retained",
+              "value": 1045.425
+            },
+            {
+              "sample": "r4-baseline-retained",
+              "value": 1047.138
+            }
+          ],
+          "count": 4,
+          "median": 1067.1585,
+          "min": 1045.425,
+          "max": 1099.141
+        },
+        "process.new_acc_to_caption_complete_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-retained",
+              "value": 1155.211
+            },
+            {
+              "sample": "r2-baseline-retained",
+              "value": 1134.092
+            },
+            {
+              "sample": "r3-baseline-retained",
+              "value": 1102.204
+            },
+            {
+              "sample": "r4-baseline-retained",
+              "value": 1103.136
+            }
+          ],
+          "count": 4,
+          "median": 1118.614,
+          "min": 1102.204,
+          "max": 1155.211
+        }
+      },
+      "load": {
+        "process.backup_dwell_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-load",
+              "value": 52.503
+            },
+            {
+              "sample": "r2-baseline-load",
+              "value": 53.462
+            },
+            {
+              "sample": "r3-baseline-load",
+              "value": 53.558
+            },
+            {
+              "sample": "r4-baseline-load",
+              "value": 54.837
+            }
+          ],
+          "count": 4,
+          "median": 53.510000000000005,
+          "min": 52.503,
+          "max": 54.837
+        },
+        "process.launch_to_bootstrap_start_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-load",
+              "value": 4923.0
+            },
+            {
+              "sample": "r2-baseline-load",
+              "value": 4937.0
+            },
+            {
+              "sample": "r3-baseline-load",
+              "value": 4829.0
+            },
+            {
+              "sample": "r4-baseline-load",
+              "value": 4810.0
+            }
+          ],
+          "count": 4,
+          "median": 4876.0,
+          "min": 4810.0,
+          "max": 4937.0
+        },
+        "process.launch_to_first_title_drawn_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-load",
+              "value": 5687.0
+            },
+            {
+              "sample": "r2-baseline-load",
+              "value": 5704.0
+            },
+            {
+              "sample": "r3-baseline-load",
+              "value": 5594.0
+            },
+            {
+              "sample": "r4-baseline-load",
+              "value": 5593.0
+            }
+          ],
+          "count": 4,
+          "median": 5640.5,
+          "min": 5593.0,
+          "max": 5704.0
+        },
+        "process.launch_to_first_title_input_accepted_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-load",
+              "value": 5764.0
+            },
+            {
+              "sample": "r2-baseline-load",
+              "value": 5784.0
+            },
+            {
+              "sample": "r3-baseline-load",
+              "value": 5674.0
+            },
+            {
+              "sample": "r4-baseline-load",
+              "value": 5671.0
+            }
+          ],
+          "count": 4,
+          "median": 5719.0,
+          "min": 5671.0,
+          "max": 5784.0
+        },
+        "process.launch_to_probe_enter_tree_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-load",
+              "value": 4802.0
+            },
+            {
+              "sample": "r2-baseline-load",
+              "value": 4818.0
+            },
+            {
+              "sample": "r3-baseline-load",
+              "value": 4708.0
+            },
+            {
+              "sample": "r4-baseline-load",
+              "value": 4690.0
+            }
+          ],
+          "count": 4,
+          "median": 4755.0,
+          "min": 4690.0,
+          "max": 4818.0
+        },
+        "process.launch_to_title_drawn_usable_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-load",
+              "value": 5687.0
+            },
+            {
+              "sample": "r2-baseline-load",
+              "value": 5704.0
+            },
+            {
+              "sample": "r3-baseline-load",
+              "value": 5594.0
+            },
+            {
+              "sample": "r4-baseline-load",
+              "value": 5593.0
+            }
+          ],
+          "count": 4,
+          "median": 5640.5,
+          "min": 5593.0,
+          "max": 5704.0
+        },
+        "process.lifetime_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-load",
+              "value": 35688.081
+            },
+            {
+              "sample": "r2-baseline-load",
+              "value": 36150.2488
+            },
+            {
+              "sample": "r3-baseline-load",
+              "value": 35991.0832
+            },
+            {
+              "sample": "r4-baseline-load",
+              "value": 36437.8487
+            }
+          ],
+          "count": 4,
+          "median": 36070.666,
+          "min": 35688.081,
+          "max": 36437.8487
+        },
+        "process.load_action_to_caption_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-load",
+              "value": 665.961
+            },
+            {
+              "sample": "r2-baseline-load",
+              "value": 678.145
+            },
+            {
+              "sample": "r3-baseline-load",
+              "value": 682.015
+            },
+            {
+              "sample": "r4-baseline-load",
+              "value": 694.269
+            }
+          ],
+          "count": 4,
+          "median": 680.0799999999999,
+          "min": 665.961,
+          "max": 694.269
+        },
+        "process.load_action_to_first_drawing_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-load",
+              "value": 638.033
+            },
+            {
+              "sample": "r2-baseline-load",
+              "value": 649.643
+            },
+            {
+              "sample": "r3-baseline-load",
+              "value": 653.77
+            },
+            {
+              "sample": "r4-baseline-load",
+              "value": 665.654
+            }
+          ],
+          "count": 4,
+          "median": 651.7065,
+          "min": 638.033,
+          "max": 665.654
+        },
+        "process.load_action_to_first_input_ready_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-load",
+              "value": 667.328
+            },
+            {
+              "sample": "r2-baseline-load",
+              "value": 679.478
+            },
+            {
+              "sample": "r3-baseline-load",
+              "value": 683.354
+            },
+            {
+              "sample": "r4-baseline-load",
+              "value": 695.642
+            }
+          ],
+          "count": 4,
+          "median": 681.4159999999999,
+          "min": 667.328,
+          "max": 695.642
+        },
+        "process.load_action_to_next_drawing_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-load",
+              "value": 732.846
+            },
+            {
+              "sample": "r2-baseline-load",
+              "value": 742.538
+            },
+            {
+              "sample": "r3-baseline-load",
+              "value": 745.211
+            },
+            {
+              "sample": "r4-baseline-load",
+              "value": 758.465
+            }
+          ],
+          "count": 4,
+          "median": 743.8745,
+          "min": 732.846,
+          "max": 758.465
+        },
+        "process.load_action_to_ready_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-load",
+              "value": 598.633
+            },
+            {
+              "sample": "r2-baseline-load",
+              "value": 609.635
+            },
+            {
+              "sample": "r3-baseline-load",
+              "value": 612.736
+            },
+            {
+              "sample": "r4-baseline-load",
+              "value": 625.151
+            }
+          ],
+          "count": 4,
+          "median": 611.1855,
+          "min": 598.633,
+          "max": 625.151
+        },
+        "process.load_next_input_to_drawing_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-load",
+              "value": 65.51
+            },
+            {
+              "sample": "r2-baseline-load",
+              "value": 63.052
+            },
+            {
+              "sample": "r3-baseline-load",
+              "value": 61.85
+            },
+            {
+              "sample": "r4-baseline-load",
+              "value": 62.816
+            }
+          ],
+          "count": 4,
+          "median": 62.934,
+          "min": 61.85,
+          "max": 65.51
+        },
+        "process.login_to_backup_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-load",
+              "value": 105.209
+            },
+            {
+              "sample": "r2-baseline-load",
+              "value": 106.264
+            },
+            {
+              "sample": "r3-baseline-load",
+              "value": 105.309
+            },
+            {
+              "sample": "r4-baseline-load",
+              "value": 108.026
+            }
+          ],
+          "count": 4,
+          "median": 105.78649999999999,
+          "min": 105.209,
+          "max": 108.026
+        },
+        "process.login_to_caption_excluding_dwell_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-load",
+              "value": 771.17
+            },
+            {
+              "sample": "r2-baseline-load",
+              "value": 784.409
+            },
+            {
+              "sample": "r3-baseline-load",
+              "value": 787.324
+            },
+            {
+              "sample": "r4-baseline-load",
+              "value": 802.295
+            }
+          ],
+          "count": 4,
+          "median": 785.8665,
+          "min": 771.17,
+          "max": 802.295
+        },
+        "process.login_to_caption_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-load",
+              "value": 823.673
+            },
+            {
+              "sample": "r2-baseline-load",
+              "value": 837.871
+            },
+            {
+              "sample": "r3-baseline-load",
+              "value": 840.882
+            },
+            {
+              "sample": "r4-baseline-load",
+              "value": 857.132
+            }
+          ],
+          "count": 4,
+          "median": 839.3765,
+          "min": 823.673,
+          "max": 857.132
+        }
+      }
+    },
+    "candidate": {
+      "fresh": {
+        "process.launch_to_bootstrap_start_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-fresh",
+              "value": 6539.0
+            },
+            {
+              "sample": "r2-candidate-fresh",
+              "value": 6414.0
+            },
+            {
+              "sample": "r3-candidate-fresh",
+              "value": 6476.0
+            },
+            {
+              "sample": "r4-candidate-fresh",
+              "value": 7122.0
+            }
+          ],
+          "count": 4,
+          "median": 6507.5,
+          "min": 6414.0,
+          "max": 7122.0
+        },
+        "process.launch_to_first_title_drawn_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-fresh",
+              "value": 7302.0
+            },
+            {
+              "sample": "r2-candidate-fresh",
+              "value": 7166.0
+            },
+            {
+              "sample": "r3-candidate-fresh",
+              "value": 7260.0
+            },
+            {
+              "sample": "r4-candidate-fresh",
+              "value": 7897.0
+            }
+          ],
+          "count": 4,
+          "median": 7281.0,
+          "min": 7166.0,
+          "max": 7897.0
+        },
+        "process.launch_to_first_title_input_accepted_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-fresh",
+              "value": 7346.0
+            },
+            {
+              "sample": "r2-candidate-fresh",
+              "value": 7218.0
+            },
+            {
+              "sample": "r3-candidate-fresh",
+              "value": 7312.0
+            },
+            {
+              "sample": "r4-candidate-fresh",
+              "value": 7950.0
+            }
+          ],
+          "count": 4,
+          "median": 7329.0,
+          "min": 7218.0,
+          "max": 7950.0
+        },
+        "process.launch_to_probe_enter_tree_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-fresh",
+              "value": 6416.0
+            },
+            {
+              "sample": "r2-candidate-fresh",
+              "value": 6291.0
+            },
+            {
+              "sample": "r3-candidate-fresh",
+              "value": 6356.0
+            },
+            {
+              "sample": "r4-candidate-fresh",
+              "value": 6998.0
+            }
+          ],
+          "count": 4,
+          "median": 6386.0,
+          "min": 6291.0,
+          "max": 6998.0
+        },
+        "process.launch_to_title_drawn_usable_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-fresh",
+              "value": 7302.0
+            },
+            {
+              "sample": "r2-candidate-fresh",
+              "value": 7166.0
+            },
+            {
+              "sample": "r3-candidate-fresh",
+              "value": 7260.0
+            },
+            {
+              "sample": "r4-candidate-fresh",
+              "value": 7897.0
+            }
+          ],
+          "count": 4,
+          "median": 7281.0,
+          "min": 7166.0,
+          "max": 7897.0
+        },
+        "process.lifetime_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-fresh",
+              "value": 12008.516
+            },
+            {
+              "sample": "r2-candidate-fresh",
+              "value": 11593.7719
+            },
+            {
+              "sample": "r3-candidate-fresh",
+              "value": 11638.6839
+            },
+            {
+              "sample": "r4-candidate-fresh",
+              "value": 12743.6302
+            }
+          ],
+          "count": 4,
+          "median": 11823.59995,
+          "min": 11593.7719,
+          "max": 12743.6302
+        },
+        "process.new_acc_excluding_consent_dwell_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-fresh",
+              "value": 1200.246
+            },
+            {
+              "sample": "r2-candidate-fresh",
+              "value": 1059.444
+            },
+            {
+              "sample": "r3-candidate-fresh",
+              "value": 1069.619
+            },
+            {
+              "sample": "r4-candidate-fresh",
+              "value": 1101.984
+            }
+          ],
+          "count": 4,
+          "median": 1085.8015,
+          "min": 1059.444,
+          "max": 1200.246
+        },
+        "process.new_acc_to_caption_complete_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-fresh",
+              "value": 1200.246
+            },
+            {
+              "sample": "r2-candidate-fresh",
+              "value": 1059.444
+            },
+            {
+              "sample": "r3-candidate-fresh",
+              "value": 1069.619
+            },
+            {
+              "sample": "r4-candidate-fresh",
+              "value": 1101.984
+            }
+          ],
+          "count": 4,
+          "median": 1085.8015,
+          "min": 1059.444,
+          "max": 1200.246
+        }
+      },
+      "retained": {
+        "process.confirm_to_caption_complete_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-retained",
+              "value": 1029.447
+            },
+            {
+              "sample": "r2-candidate-retained",
+              "value": 1016.498
+            },
+            {
+              "sample": "r3-candidate-retained",
+              "value": 1014.996
+            },
+            {
+              "sample": "r4-candidate-retained",
+              "value": 1113.004
+            }
+          ],
+          "count": 4,
+          "median": 1022.9725,
+          "min": 1014.996,
+          "max": 1113.004
+        },
+        "process.consent_dwell_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-retained",
+              "value": 56.723
+            },
+            {
+              "sample": "r2-candidate-retained",
+              "value": 57.611
+            },
+            {
+              "sample": "r3-candidate-retained",
+              "value": 56.579
+            },
+            {
+              "sample": "r4-candidate-retained",
+              "value": 47.702
+            }
+          ],
+          "count": 4,
+          "median": 56.650999999999996,
+          "min": 47.702,
+          "max": 57.611
+        },
+        "process.input_to_consent_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-retained",
+              "value": 30.266
+            },
+            {
+              "sample": "r2-candidate-retained",
+              "value": 30.954
+            },
+            {
+              "sample": "r3-candidate-retained",
+              "value": 30.927
+            },
+            {
+              "sample": "r4-candidate-retained",
+              "value": 31.77
+            }
+          ],
+          "count": 4,
+          "median": 30.9405,
+          "min": 30.266,
+          "max": 31.77
+        },
+        "process.launch_to_bootstrap_start_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-retained",
+              "value": 4785.0
+            },
+            {
+              "sample": "r2-candidate-retained",
+              "value": 4918.0
+            },
+            {
+              "sample": "r3-candidate-retained",
+              "value": 4849.0
+            },
+            {
+              "sample": "r4-candidate-retained",
+              "value": 5224.0
+            }
+          ],
+          "count": 4,
+          "median": 4883.5,
+          "min": 4785.0,
+          "max": 5224.0
+        },
+        "process.launch_to_first_title_drawn_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-retained",
+              "value": 5547.0
+            },
+            {
+              "sample": "r2-candidate-retained",
+              "value": 5672.0
+            },
+            {
+              "sample": "r3-candidate-retained",
+              "value": 5616.0
+            },
+            {
+              "sample": "r4-candidate-retained",
+              "value": 6017.0
+            }
+          ],
+          "count": 4,
+          "median": 5644.0,
+          "min": 5547.0,
+          "max": 6017.0
+        },
+        "process.launch_to_first_title_input_accepted_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-retained",
+              "value": 5572.0
+            },
+            {
+              "sample": "r2-candidate-retained",
+              "value": 5697.0
+            },
+            {
+              "sample": "r3-candidate-retained",
+              "value": 5641.0
+            },
+            {
+              "sample": "r4-candidate-retained",
+              "value": 6043.0
+            }
+          ],
+          "count": 4,
+          "median": 5669.0,
+          "min": 5572.0,
+          "max": 6043.0
+        },
+        "process.launch_to_probe_enter_tree_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-retained",
+              "value": 4665.0
+            },
+            {
+              "sample": "r2-candidate-retained",
+              "value": 4797.0
+            },
+            {
+              "sample": "r3-candidate-retained",
+              "value": 4727.0
+            },
+            {
+              "sample": "r4-candidate-retained",
+              "value": 5099.0
+            }
+          ],
+          "count": 4,
+          "median": 4762.0,
+          "min": 4665.0,
+          "max": 5099.0
+        },
+        "process.launch_to_title_drawn_usable_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-retained",
+              "value": 5547.0
+            },
+            {
+              "sample": "r2-candidate-retained",
+              "value": 5672.0
+            },
+            {
+              "sample": "r3-candidate-retained",
+              "value": 5616.0
+            },
+            {
+              "sample": "r4-candidate-retained",
+              "value": 6017.0
+            }
+          ],
+          "count": 4,
+          "median": 5644.0,
+          "min": 5547.0,
+          "max": 6017.0
+        },
+        "process.lifetime_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-retained",
+              "value": 10244.7154
+            },
+            {
+              "sample": "r2-candidate-retained",
+              "value": 10332.7554
+            },
+            {
+              "sample": "r3-candidate-retained",
+              "value": 9965.1165
+            },
+            {
+              "sample": "r4-candidate-retained",
+              "value": 11102.3905
+            }
+          ],
+          "count": 4,
+          "median": 10288.7354,
+          "min": 9965.1165,
+          "max": 11102.3905
+        },
+        "process.new_acc_excluding_consent_dwell_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-retained",
+              "value": 1059.713
+            },
+            {
+              "sample": "r2-candidate-retained",
+              "value": 1047.452
+            },
+            {
+              "sample": "r3-candidate-retained",
+              "value": 1045.923
+            },
+            {
+              "sample": "r4-candidate-retained",
+              "value": 1144.7740000000001
+            }
+          ],
+          "count": 4,
+          "median": 1053.5825,
+          "min": 1045.923,
+          "max": 1144.7740000000001
+        },
+        "process.new_acc_to_caption_complete_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-retained",
+              "value": 1116.436
+            },
+            {
+              "sample": "r2-candidate-retained",
+              "value": 1105.063
+            },
+            {
+              "sample": "r3-candidate-retained",
+              "value": 1102.502
+            },
+            {
+              "sample": "r4-candidate-retained",
+              "value": 1192.476
+            }
+          ],
+          "count": 4,
+          "median": 1110.7495,
+          "min": 1102.502,
+          "max": 1192.476
+        }
+      },
+      "load": {
+        "process.backup_dwell_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-load",
+              "value": 55.486
+            },
+            {
+              "sample": "r2-candidate-load",
+              "value": 53.0
+            },
+            {
+              "sample": "r3-candidate-load",
+              "value": 54.071
+            },
+            {
+              "sample": "r4-candidate-load",
+              "value": 54.29
+            }
+          ],
+          "count": 4,
+          "median": 54.180499999999995,
+          "min": 53.0,
+          "max": 55.486
+        },
+        "process.launch_to_bootstrap_start_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-load",
+              "value": 4958.0
+            },
+            {
+              "sample": "r2-candidate-load",
+              "value": 4787.0
+            },
+            {
+              "sample": "r3-candidate-load",
+              "value": 4958.0
+            },
+            {
+              "sample": "r4-candidate-load",
+              "value": 5283.0
+            }
+          ],
+          "count": 4,
+          "median": 4958.0,
+          "min": 4787.0,
+          "max": 5283.0
+        },
+        "process.launch_to_first_title_drawn_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-load",
+              "value": 5745.0
+            },
+            {
+              "sample": "r2-candidate-load",
+              "value": 5555.0
+            },
+            {
+              "sample": "r3-candidate-load",
+              "value": 5706.0
+            },
+            {
+              "sample": "r4-candidate-load",
+              "value": 6072.0
+            }
+          ],
+          "count": 4,
+          "median": 5725.5,
+          "min": 5555.0,
+          "max": 6072.0
+        },
+        "process.launch_to_first_title_input_accepted_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-load",
+              "value": 5818.0
+            },
+            {
+              "sample": "r2-candidate-load",
+              "value": 5633.0
+            },
+            {
+              "sample": "r3-candidate-load",
+              "value": 5775.0
+            },
+            {
+              "sample": "r4-candidate-load",
+              "value": 6152.0
+            }
+          ],
+          "count": 4,
+          "median": 5796.5,
+          "min": 5633.0,
+          "max": 6152.0
+        },
+        "process.launch_to_probe_enter_tree_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-load",
+              "value": 4837.0
+            },
+            {
+              "sample": "r2-candidate-load",
+              "value": 4666.0
+            },
+            {
+              "sample": "r3-candidate-load",
+              "value": 4839.0
+            },
+            {
+              "sample": "r4-candidate-load",
+              "value": 5155.0
+            }
+          ],
+          "count": 4,
+          "median": 4838.0,
+          "min": 4666.0,
+          "max": 5155.0
+        },
+        "process.launch_to_title_drawn_usable_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-load",
+              "value": 5745.0
+            },
+            {
+              "sample": "r2-candidate-load",
+              "value": 5555.0
+            },
+            {
+              "sample": "r3-candidate-load",
+              "value": 5706.0
+            },
+            {
+              "sample": "r4-candidate-load",
+              "value": 6072.0
+            }
+          ],
+          "count": 4,
+          "median": 5725.5,
+          "min": 5555.0,
+          "max": 6072.0
+        },
+        "process.lifetime_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-load",
+              "value": 35990.2144
+            },
+            {
+              "sample": "r2-candidate-load",
+              "value": 35699.0227
+            },
+            {
+              "sample": "r3-candidate-load",
+              "value": 36534.5438
+            },
+            {
+              "sample": "r4-candidate-load",
+              "value": 36386.4995
+            }
+          ],
+          "count": 4,
+          "median": 36188.35695,
+          "min": 35699.0227,
+          "max": 36534.5438
+        },
+        "process.load_action_to_caption_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-load",
+              "value": 852.963
+            },
+            {
+              "sample": "r2-candidate-load",
+              "value": 670.032
+            },
+            {
+              "sample": "r3-candidate-load",
+              "value": 672.407
+            },
+            {
+              "sample": "r4-candidate-load",
+              "value": 714.103
+            }
+          ],
+          "count": 4,
+          "median": 693.255,
+          "min": 670.032,
+          "max": 852.963
+        },
+        "process.load_action_to_first_drawing_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-load",
+              "value": 823.397
+            },
+            {
+              "sample": "r2-candidate-load",
+              "value": 641.613
+            },
+            {
+              "sample": "r3-candidate-load",
+              "value": 644.092
+            },
+            {
+              "sample": "r4-candidate-load",
+              "value": 684.99
+            }
+          ],
+          "count": 4,
+          "median": 664.5409999999999,
+          "min": 641.613,
+          "max": 823.397
+        },
+        "process.load_action_to_first_input_ready_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-load",
+              "value": 854.217
+            },
+            {
+              "sample": "r2-candidate-load",
+              "value": 671.407
+            },
+            {
+              "sample": "r3-candidate-load",
+              "value": 673.714
+            },
+            {
+              "sample": "r4-candidate-load",
+              "value": 715.615
+            }
+          ],
+          "count": 4,
+          "median": 694.6645000000001,
+          "min": 671.407,
+          "max": 854.217
+        },
+        "process.load_action_to_next_drawing_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-load",
+              "value": 927.312
+            },
+            {
+              "sample": "r2-candidate-load",
+              "value": 733.425
+            },
+            {
+              "sample": "r3-candidate-load",
+              "value": 734.19
+            },
+            {
+              "sample": "r4-candidate-load",
+              "value": 780.532
+            }
+          ],
+          "count": 4,
+          "median": 757.3610000000001,
+          "min": 733.425,
+          "max": 927.312
+        },
+        "process.load_action_to_ready_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-load",
+              "value": 778.548
+            },
+            {
+              "sample": "r2-candidate-load",
+              "value": 600.218
+            },
+            {
+              "sample": "r3-candidate-load",
+              "value": 604.036
+            },
+            {
+              "sample": "r4-candidate-load",
+              "value": 640.04
+            }
+          ],
+          "count": 4,
+          "median": 622.038,
+          "min": 600.218,
+          "max": 778.548
+        },
+        "process.load_next_input_to_drawing_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-load",
+              "value": 73.088
+            },
+            {
+              "sample": "r2-candidate-load",
+              "value": 62.01
+            },
+            {
+              "sample": "r3-candidate-load",
+              "value": 60.47
+            },
+            {
+              "sample": "r4-candidate-load",
+              "value": 64.906
+            }
+          ],
+          "count": 4,
+          "median": 63.458,
+          "min": 60.47,
+          "max": 73.088
+        },
+        "process.login_to_backup_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-load",
+              "value": 111.058
+            },
+            {
+              "sample": "r2-candidate-load",
+              "value": 104.894
+            },
+            {
+              "sample": "r3-candidate-load",
+              "value": 106.099
+            },
+            {
+              "sample": "r4-candidate-load",
+              "value": 107.259
+            }
+          ],
+          "count": 4,
+          "median": 106.679,
+          "min": 104.894,
+          "max": 111.058
+        },
+        "process.login_to_caption_excluding_dwell_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-load",
+              "value": 964.021
+            },
+            {
+              "sample": "r2-candidate-load",
+              "value": 774.926
+            },
+            {
+              "sample": "r3-candidate-load",
+              "value": 778.506
+            },
+            {
+              "sample": "r4-candidate-load",
+              "value": 821.3620000000001
+            }
+          ],
+          "count": 4,
+          "median": 799.934,
+          "min": 774.926,
+          "max": 964.021
+        },
+        "process.login_to_caption_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-load",
+              "value": 1019.507
+            },
+            {
+              "sample": "r2-candidate-load",
+              "value": 827.926
+            },
+            {
+              "sample": "r3-candidate-load",
+              "value": 832.577
+            },
+            {
+              "sample": "r4-candidate-load",
+              "value": 875.652
+            }
+          ],
+          "count": 4,
+          "median": 854.1145,
+          "min": 827.926,
+          "max": 1019.507
+        }
+      }
+    }
+  },
+  "accepted_commit": "adb7d03260765660ba308611db670cfe5e94e5d6"
+}

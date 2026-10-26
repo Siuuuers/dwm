@@ -1,0 +1,6940 @@
+{
+  "source": {
+    "baseline": "1592d62f9f68b02e1c0778ca083bfb8115272319",
+    "candidate": "d12778f427a6f4ac1a37b977f95dc1b3e0fc78d5",
+    "observer": "d72b67506e05c03f161201df7b9fc5430e2b136e",
+    "baseline_tree": "e959397b70f044ba324c7cb083c7e806bd8080e9",
+    "candidate_tree": "1d547ae6a9180ac0f5715c853e3b20fe27993264",
+    "repetitions": 4,
+    "order": [
+      "AB",
+      "BA",
+      "AB",
+      "BA"
+    ],
+    "cases": [
+      "fresh",
+      "retained",
+      "load"
+    ],
+    "scope": "Matched baseline/candidate instrumented exports on one Windows runner. Each action starts a new process. Retained and Load use the same r1-baseline-fresh profile after real manual Save and Autosave. Verbose engine logging is enabled equally to identify shutdown resources. OS caches are not cleared."
+  },
+  "regression_run": 40393643880,
+  "comparison_run": 40393644197,
+  "artifact_id": 12686453071,
+  "artifact_zip_sha256": "a0622f4eca52c7615045331c847726697ff7d9820294e0933e1811234e40367d",
+  "accepted_commit": "211192562d7be919d0dfd65714153e5199762f29",
+  "scope": "Four matched Load samples per variant, AB/BA/AB/BA on one Windows runner. Request callbacks, refresh executions and History projections are counted separately. Observer capture/hash is outside first-Accept frame scope and separately timed; inherited complete Load-to-response latencies remain observer-inclusive. Lightweight first-draw session capture is separately timed inside Load. Polling, text checks and matched counter bookkeeping still contribute observer overhead to frame intervals. Next 28 natural reading actions grow genuine History to 30 captions; each waits native completion before one real press/release. Observed drawing intervals can include one observation frame. Spans are inclusive and overlap; do not sum nested costs. No uncompiled passage, choice, board, locale change or long-history saved Load is timed. Screenshots retain the inherited first-Accept view before subsequent reading. Natural reveal waits are outside each subsequent input interval. Four samples are descriptive, not a device guarantee.",
+  "action_aggregates": {
+    "baseline": {
+      "fresh": {
+        "frame_gap_us.new_acc": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-fresh",
+              "value": 1583346
+            },
+            {
+              "sample": "r2-baseline-fresh",
+              "value": 1396774
+            },
+            {
+              "sample": "r3-baseline-fresh",
+              "value": 1477480
+            },
+            {
+              "sample": "r4-baseline-fresh",
+              "value": 1504059
+            }
+          ],
+          "count": 4,
+          "median": 1490769.5,
+          "min": 1396774,
+          "max": 1583346
+        },
+        "process.launch_to_bootstrap_start_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-fresh",
+              "value": 7547.0
+            },
+            {
+              "sample": "r2-baseline-fresh",
+              "value": 6590.0
+            },
+            {
+              "sample": "r3-baseline-fresh",
+              "value": 6605.0
+            },
+            {
+              "sample": "r4-baseline-fresh",
+              "value": 6787.0
+            }
+          ],
+          "count": 4,
+          "median": 6696.0,
+          "min": 6590.0,
+          "max": 7547.0
+        },
+        "process.launch_to_first_title_drawn_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-fresh",
+              "value": 8339.0
+            },
+            {
+              "sample": "r2-baseline-fresh",
+              "value": 7370.0
+            },
+            {
+              "sample": "r3-baseline-fresh",
+              "value": 7397.0
+            },
+            {
+              "sample": "r4-baseline-fresh",
+              "value": 7582.0
+            }
+          ],
+          "count": 4,
+          "median": 7489.5,
+          "min": 7370.0,
+          "max": 8339.0
+        },
+        "process.launch_to_first_title_input_accepted_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-fresh",
+              "value": 8403.0
+            },
+            {
+              "sample": "r2-baseline-fresh",
+              "value": 7413.0
+            },
+            {
+              "sample": "r3-baseline-fresh",
+              "value": 7439.0
+            },
+            {
+              "sample": "r4-baseline-fresh",
+              "value": 7626.0
+            }
+          ],
+          "count": 4,
+          "median": 7532.5,
+          "min": 7413.0,
+          "max": 8403.0
+        },
+        "process.launch_to_probe_enter_tree_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-fresh",
+              "value": 7415.0
+            },
+            {
+              "sample": "r2-baseline-fresh",
+              "value": 6466.0
+            },
+            {
+              "sample": "r3-baseline-fresh",
+              "value": 6484.0
+            },
+            {
+              "sample": "r4-baseline-fresh",
+              "value": 6660.0
+            }
+          ],
+          "count": 4,
+          "median": 6572.0,
+          "min": 6466.0,
+          "max": 7415.0
+        },
+        "process.launch_to_title_drawn_usable_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-fresh",
+              "value": 8339.0
+            },
+            {
+              "sample": "r2-baseline-fresh",
+              "value": 7370.0
+            },
+            {
+              "sample": "r3-baseline-fresh",
+              "value": 7397.0
+            },
+            {
+              "sample": "r4-baseline-fresh",
+              "value": 7582.0
+            }
+          ],
+          "count": 4,
+          "median": 7489.5,
+          "min": 7370.0,
+          "max": 8339.0
+        },
+        "process.lifetime_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-fresh",
+              "value": 14910.6596
+            },
+            {
+              "sample": "r2-baseline-fresh",
+              "value": 13313.1527
+            },
+            {
+              "sample": "r3-baseline-fresh",
+              "value": 13599.2212
+            },
+            {
+              "sample": "r4-baseline-fresh",
+              "value": 13814.4964
+            }
+          ],
+          "count": 4,
+          "median": 13706.8588,
+          "min": 13313.1527,
+          "max": 14910.6596
+        },
+        "process.new_acc_excluding_consent_dwell_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-fresh",
+              "value": 1708.133
+            },
+            {
+              "sample": "r2-baseline-fresh",
+              "value": 1505.01
+            },
+            {
+              "sample": "r3-baseline-fresh",
+              "value": 1587.926
+            },
+            {
+              "sample": "r4-baseline-fresh",
+              "value": 1611.274
+            }
+          ],
+          "count": 4,
+          "median": 1599.6,
+          "min": 1505.01,
+          "max": 1708.133
+        },
+        "process.new_acc_to_caption_complete_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-fresh",
+              "value": 1708.133
+            },
+            {
+              "sample": "r2-baseline-fresh",
+              "value": 1505.01
+            },
+            {
+              "sample": "r3-baseline-fresh",
+              "value": 1587.926
+            },
+            {
+              "sample": "r4-baseline-fresh",
+              "value": 1611.274
+            }
+          ],
+          "count": 4,
+          "median": 1599.6,
+          "min": 1505.01,
+          "max": 1708.133
+        }
+      },
+      "retained": {
+        "frame_gap_us.confirm": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-retained",
+              "value": 1554114
+            },
+            {
+              "sample": "r2-baseline-retained",
+              "value": 1459844
+            },
+            {
+              "sample": "r3-baseline-retained",
+              "value": 1419842
+            },
+            {
+              "sample": "r4-baseline-retained",
+              "value": 1463676
+            }
+          ],
+          "count": 4,
+          "median": 1461760.0,
+          "min": 1419842,
+          "max": 1554114
+        },
+        "frame_gap_us.new_acc": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-retained",
+              "value": 9670
+            },
+            {
+              "sample": "r2-baseline-retained",
+              "value": 9947
+            },
+            {
+              "sample": "r3-baseline-retained",
+              "value": 10581
+            },
+            {
+              "sample": "r4-baseline-retained",
+              "value": 9576
+            }
+          ],
+          "count": 4,
+          "median": 9808.5,
+          "min": 9576,
+          "max": 10581
+        },
+        "process.confirm_to_caption_complete_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-retained",
+              "value": 1635.691
+            },
+            {
+              "sample": "r2-baseline-retained",
+              "value": 1537.606
+            },
+            {
+              "sample": "r3-baseline-retained",
+              "value": 1496.564
+            },
+            {
+              "sample": "r4-baseline-retained",
+              "value": 1542.522
+            }
+          ],
+          "count": 4,
+          "median": 1540.0639999999999,
+          "min": 1496.564,
+          "max": 1635.691
+        },
+        "process.consent_dwell_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-retained",
+              "value": 47.724
+            },
+            {
+              "sample": "r2-baseline-retained",
+              "value": 47.693
+            },
+            {
+              "sample": "r3-baseline-retained",
+              "value": 47.408
+            },
+            {
+              "sample": "r4-baseline-retained",
+              "value": 48.405
+            }
+          ],
+          "count": 4,
+          "median": 47.7085,
+          "min": 47.408,
+          "max": 48.405
+        },
+        "process.input_to_consent_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-retained",
+              "value": 30.993
+            },
+            {
+              "sample": "r2-baseline-retained",
+              "value": 31.566
+            },
+            {
+              "sample": "r3-baseline-retained",
+              "value": 31.454
+            },
+            {
+              "sample": "r4-baseline-retained",
+              "value": 30.78
+            }
+          ],
+          "count": 4,
+          "median": 31.2235,
+          "min": 30.78,
+          "max": 31.566
+        },
+        "process.launch_to_bootstrap_start_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-retained",
+              "value": 5350.0
+            },
+            {
+              "sample": "r2-baseline-retained",
+              "value": 4987.0
+            },
+            {
+              "sample": "r3-baseline-retained",
+              "value": 5029.0
+            },
+            {
+              "sample": "r4-baseline-retained",
+              "value": 5075.0
+            }
+          ],
+          "count": 4,
+          "median": 5052.0,
+          "min": 4987.0,
+          "max": 5350.0
+        },
+        "process.launch_to_first_title_drawn_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-retained",
+              "value": 6135.0
+            },
+            {
+              "sample": "r2-baseline-retained",
+              "value": 5765.0
+            },
+            {
+              "sample": "r3-baseline-retained",
+              "value": 5820.0
+            },
+            {
+              "sample": "r4-baseline-retained",
+              "value": 5874.0
+            }
+          ],
+          "count": 4,
+          "median": 5847.0,
+          "min": 5765.0,
+          "max": 6135.0
+        },
+        "process.launch_to_first_title_input_accepted_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-retained",
+              "value": 6160.0
+            },
+            {
+              "sample": "r2-baseline-retained",
+              "value": 5793.0
+            },
+            {
+              "sample": "r3-baseline-retained",
+              "value": 5845.0
+            },
+            {
+              "sample": "r4-baseline-retained",
+              "value": 5899.0
+            }
+          ],
+          "count": 4,
+          "median": 5872.0,
+          "min": 5793.0,
+          "max": 6160.0
+        },
+        "process.launch_to_probe_enter_tree_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-retained",
+              "value": 5228.0
+            },
+            {
+              "sample": "r2-baseline-retained",
+              "value": 4867.0
+            },
+            {
+              "sample": "r3-baseline-retained",
+              "value": 4904.0
+            },
+            {
+              "sample": "r4-baseline-retained",
+              "value": 4948.0
+            }
+          ],
+          "count": 4,
+          "median": 4926.0,
+          "min": 4867.0,
+          "max": 5228.0
+        },
+        "process.launch_to_title_drawn_usable_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-retained",
+              "value": 6135.0
+            },
+            {
+              "sample": "r2-baseline-retained",
+              "value": 5765.0
+            },
+            {
+              "sample": "r3-baseline-retained",
+              "value": 5820.0
+            },
+            {
+              "sample": "r4-baseline-retained",
+              "value": 5874.0
+            }
+          ],
+          "count": 4,
+          "median": 5847.0,
+          "min": 5765.0,
+          "max": 6135.0
+        },
+        "process.lifetime_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-retained",
+              "value": 12575.016
+            },
+            {
+              "sample": "r2-baseline-retained",
+              "value": 11907.5141
+            },
+            {
+              "sample": "r3-baseline-retained",
+              "value": 12012.2731
+            },
+            {
+              "sample": "r4-baseline-retained",
+              "value": 12204.9404
+            }
+          ],
+          "count": 4,
+          "median": 12108.606749999999,
+          "min": 11907.5141,
+          "max": 12575.016
+        },
+        "process.new_acc_excluding_consent_dwell_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-retained",
+              "value": 1666.684
+            },
+            {
+              "sample": "r2-baseline-retained",
+              "value": 1569.172
+            },
+            {
+              "sample": "r3-baseline-retained",
+              "value": 1528.018
+            },
+            {
+              "sample": "r4-baseline-retained",
+              "value": 1573.3020000000001
+            }
+          ],
+          "count": 4,
+          "median": 1571.237,
+          "min": 1528.018,
+          "max": 1666.684
+        },
+        "process.new_acc_to_caption_complete_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-retained",
+              "value": 1714.408
+            },
+            {
+              "sample": "r2-baseline-retained",
+              "value": 1616.865
+            },
+            {
+              "sample": "r3-baseline-retained",
+              "value": 1575.426
+            },
+            {
+              "sample": "r4-baseline-retained",
+              "value": 1621.707
+            }
+          ],
+          "count": 4,
+          "median": 1619.286,
+          "min": 1575.426,
+          "max": 1714.408
+        }
+      },
+      "load": {
+        "frame_gap_us.accept_003": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-load",
+              "value": 87354
+            },
+            {
+              "sample": "r2-baseline-load",
+              "value": 86073
+            },
+            {
+              "sample": "r3-baseline-load",
+              "value": 84428
+            },
+            {
+              "sample": "r4-baseline-load",
+              "value": 86486
+            }
+          ],
+          "count": 4,
+          "median": 86279.5,
+          "min": 84428,
+          "max": 87354
+        },
+        "frame_gap_us.accept_004": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-load",
+              "value": 87622
+            },
+            {
+              "sample": "r2-baseline-load",
+              "value": 86719
+            },
+            {
+              "sample": "r3-baseline-load",
+              "value": 84403
+            },
+            {
+              "sample": "r4-baseline-load",
+              "value": 87033
+            }
+          ],
+          "count": 4,
+          "median": 86876.0,
+          "min": 84403,
+          "max": 87622
+        },
+        "frame_gap_us.accept_005": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-load",
+              "value": 86923
+            },
+            {
+              "sample": "r2-baseline-load",
+              "value": 88332
+            },
+            {
+              "sample": "r3-baseline-load",
+              "value": 87700
+            },
+            {
+              "sample": "r4-baseline-load",
+              "value": 86152
+            }
+          ],
+          "count": 4,
+          "median": 87311.5,
+          "min": 86152,
+          "max": 88332
+        },
+        "frame_gap_us.accept_006": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-load",
+              "value": 83074
+            },
+            {
+              "sample": "r2-baseline-load",
+              "value": 85407
+            },
+            {
+              "sample": "r3-baseline-load",
+              "value": 85924
+            },
+            {
+              "sample": "r4-baseline-load",
+              "value": 89499
+            }
+          ],
+          "count": 4,
+          "median": 85665.5,
+          "min": 83074,
+          "max": 89499
+        },
+        "frame_gap_us.accept_007": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-load",
+              "value": 90708
+            },
+            {
+              "sample": "r2-baseline-load",
+              "value": 87295
+            },
+            {
+              "sample": "r3-baseline-load",
+              "value": 89320
+            },
+            {
+              "sample": "r4-baseline-load",
+              "value": 90308
+            }
+          ],
+          "count": 4,
+          "median": 89814.0,
+          "min": 87295,
+          "max": 90708
+        },
+        "frame_gap_us.accept_008": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-load",
+              "value": 93000
+            },
+            {
+              "sample": "r2-baseline-load",
+              "value": 93035
+            },
+            {
+              "sample": "r3-baseline-load",
+              "value": 94558
+            },
+            {
+              "sample": "r4-baseline-load",
+              "value": 92937
+            }
+          ],
+          "count": 4,
+          "median": 93017.5,
+          "min": 92937,
+          "max": 94558
+        },
+        "frame_gap_us.accept_009": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-load",
+              "value": 93840
+            },
+            {
+              "sample": "r2-baseline-load",
+              "value": 91538
+            },
+            {
+              "sample": "r3-baseline-load",
+              "value": 88785
+            },
+            {
+              "sample": "r4-baseline-load",
+              "value": 92080
+            }
+          ],
+          "count": 4,
+          "median": 91809.0,
+          "min": 88785,
+          "max": 93840
+        },
+        "frame_gap_us.accept_010": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-load",
+              "value": 92170
+            },
+            {
+              "sample": "r2-baseline-load",
+              "value": 89049
+            },
+            {
+              "sample": "r3-baseline-load",
+              "value": 90035
+            },
+            {
+              "sample": "r4-baseline-load",
+              "value": 94829
+            }
+          ],
+          "count": 4,
+          "median": 91102.5,
+          "min": 89049,
+          "max": 94829
+        },
+        "frame_gap_us.accept_011": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-load",
+              "value": 96045
+            },
+            {
+              "sample": "r2-baseline-load",
+              "value": 89243
+            },
+            {
+              "sample": "r3-baseline-load",
+              "value": 91379
+            },
+            {
+              "sample": "r4-baseline-load",
+              "value": 95834
+            }
+          ],
+          "count": 4,
+          "median": 93606.5,
+          "min": 89243,
+          "max": 96045
+        },
+        "frame_gap_us.accept_012": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-load",
+              "value": 96334
+            },
+            {
+              "sample": "r2-baseline-load",
+              "value": 92171
+            },
+            {
+              "sample": "r3-baseline-load",
+              "value": 92014
+            },
+            {
+              "sample": "r4-baseline-load",
+              "value": 96169
+            }
+          ],
+          "count": 4,
+          "median": 94170.0,
+          "min": 92014,
+          "max": 96334
+        },
+        "frame_gap_us.accept_013": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-load",
+              "value": 99618
+            },
+            {
+              "sample": "r2-baseline-load",
+              "value": 89273
+            },
+            {
+              "sample": "r3-baseline-load",
+              "value": 93227
+            },
+            {
+              "sample": "r4-baseline-load",
+              "value": 94643
+            }
+          ],
+          "count": 4,
+          "median": 93935.0,
+          "min": 89273,
+          "max": 99618
+        },
+        "frame_gap_us.accept_014": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-load",
+              "value": 96281
+            },
+            {
+              "sample": "r2-baseline-load",
+              "value": 94385
+            },
+            {
+              "sample": "r3-baseline-load",
+              "value": 96642
+            },
+            {
+              "sample": "r4-baseline-load",
+              "value": 97860
+            }
+          ],
+          "count": 4,
+          "median": 96461.5,
+          "min": 94385,
+          "max": 97860
+        },
+        "frame_gap_us.accept_015": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-load",
+              "value": 98350
+            },
+            {
+              "sample": "r2-baseline-load",
+              "value": 93539
+            },
+            {
+              "sample": "r3-baseline-load",
+              "value": 93890
+            },
+            {
+              "sample": "r4-baseline-load",
+              "value": 96820
+            }
+          ],
+          "count": 4,
+          "median": 95355.0,
+          "min": 93539,
+          "max": 98350
+        },
+        "frame_gap_us.accept_016": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-load",
+              "value": 94906
+            },
+            {
+              "sample": "r2-baseline-load",
+              "value": 94178
+            },
+            {
+              "sample": "r3-baseline-load",
+              "value": 90668
+            },
+            {
+              "sample": "r4-baseline-load",
+              "value": 96016
+            }
+          ],
+          "count": 4,
+          "median": 94542.0,
+          "min": 90668,
+          "max": 96016
+        },
+        "frame_gap_us.accept_017": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-load",
+              "value": 98554
+            },
+            {
+              "sample": "r2-baseline-load",
+              "value": 96223
+            },
+            {
+              "sample": "r3-baseline-load",
+              "value": 94680
+            },
+            {
+              "sample": "r4-baseline-load",
+              "value": 97313
+            }
+          ],
+          "count": 4,
+          "median": 96768.0,
+          "min": 94680,
+          "max": 98554
+        },
+        "frame_gap_us.accept_018": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-load",
+              "value": 100845
+            },
+            {
+              "sample": "r2-baseline-load",
+              "value": 94621
+            },
+            {
+              "sample": "r3-baseline-load",
+              "value": 95363
+            },
+            {
+              "sample": "r4-baseline-load",
+              "value": 98400
+            }
+          ],
+          "count": 4,
+          "median": 96881.5,
+          "min": 94621,
+          "max": 100845
+        },
+        "frame_gap_us.accept_019": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-load",
+              "value": 101555
+            },
+            {
+              "sample": "r2-baseline-load",
+              "value": 97317
+            },
+            {
+              "sample": "r3-baseline-load",
+              "value": 104550
+            },
+            {
+              "sample": "r4-baseline-load",
+              "value": 101548
+            }
+          ],
+          "count": 4,
+          "median": 101551.5,
+          "min": 97317,
+          "max": 104550
+        },
+        "frame_gap_us.accept_020": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-load",
+              "value": 101419
+            },
+            {
+              "sample": "r2-baseline-load",
+              "value": 102242
+            },
+            {
+              "sample": "r3-baseline-load",
+              "value": 104341
+            },
+            {
+              "sample": "r4-baseline-load",
+              "value": 103564
+            }
+          ],
+          "count": 4,
+          "median": 102903.0,
+          "min": 101419,
+          "max": 104341
+        },
+        "frame_gap_us.accept_021": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-load",
+              "value": 105060
+            },
+            {
+              "sample": "r2-baseline-load",
+              "value": 98836
+            },
+            {
+              "sample": "r3-baseline-load",
+              "value": 100820
+            },
+            {
+              "sample": "r4-baseline-load",
+              "value": 99846
+            }
+          ],
+          "count": 4,
+          "median": 100333.0,
+          "min": 98836,
+          "max": 105060
+        },
+        "frame_gap_us.accept_022": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-load",
+              "value": 105848
+            },
+            {
+              "sample": "r2-baseline-load",
+              "value": 95188
+            },
+            {
+              "sample": "r3-baseline-load",
+              "value": 107958
+            },
+            {
+              "sample": "r4-baseline-load",
+              "value": 102510
+            }
+          ],
+          "count": 4,
+          "median": 104179.0,
+          "min": 95188,
+          "max": 107958
+        },
+        "frame_gap_us.accept_023": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-load",
+              "value": 109242
+            },
+            {
+              "sample": "r2-baseline-load",
+              "value": 106162
+            },
+            {
+              "sample": "r3-baseline-load",
+              "value": 103789
+            },
+            {
+              "sample": "r4-baseline-load",
+              "value": 105614
+            }
+          ],
+          "count": 4,
+          "median": 105888.0,
+          "min": 103789,
+          "max": 109242
+        },
+        "frame_gap_us.accept_024": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-load",
+              "value": 108520
+            },
+            {
+              "sample": "r2-baseline-load",
+              "value": 104279
+            },
+            {
+              "sample": "r3-baseline-load",
+              "value": 98809
+            },
+            {
+              "sample": "r4-baseline-load",
+              "value": 104285
+            }
+          ],
+          "count": 4,
+          "median": 104282.0,
+          "min": 98809,
+          "max": 108520
+        },
+        "frame_gap_us.accept_025": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-load",
+              "value": 109486
+            },
+            {
+              "sample": "r2-baseline-load",
+              "value": 99157
+            },
+            {
+              "sample": "r3-baseline-load",
+              "value": 100995
+            },
+            {
+              "sample": "r4-baseline-load",
+              "value": 102459
+            }
+          ],
+          "count": 4,
+          "median": 101727.0,
+          "min": 99157,
+          "max": 109486
+        },
+        "frame_gap_us.accept_026": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-load",
+              "value": 109062
+            },
+            {
+              "sample": "r2-baseline-load",
+              "value": 104981
+            },
+            {
+              "sample": "r3-baseline-load",
+              "value": 102789
+            },
+            {
+              "sample": "r4-baseline-load",
+              "value": 103048
+            }
+          ],
+          "count": 4,
+          "median": 104014.5,
+          "min": 102789,
+          "max": 109062
+        },
+        "frame_gap_us.accept_027": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-load",
+              "value": 111464
+            },
+            {
+              "sample": "r2-baseline-load",
+              "value": 103718
+            },
+            {
+              "sample": "r3-baseline-load",
+              "value": 102547
+            },
+            {
+              "sample": "r4-baseline-load",
+              "value": 105774
+            }
+          ],
+          "count": 4,
+          "median": 104746.0,
+          "min": 102547,
+          "max": 111464
+        },
+        "frame_gap_us.accept_028": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-load",
+              "value": 110542
+            },
+            {
+              "sample": "r2-baseline-load",
+              "value": 102027
+            },
+            {
+              "sample": "r3-baseline-load",
+              "value": 103329
+            },
+            {
+              "sample": "r4-baseline-load",
+              "value": 104893
+            }
+          ],
+          "count": 4,
+          "median": 104111.0,
+          "min": 102027,
+          "max": 110542
+        },
+        "frame_gap_us.accept_029": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-load",
+              "value": 109421
+            },
+            {
+              "sample": "r2-baseline-load",
+              "value": 105246
+            },
+            {
+              "sample": "r3-baseline-load",
+              "value": 109178
+            },
+            {
+              "sample": "r4-baseline-load",
+              "value": 106394
+            }
+          ],
+          "count": 4,
+          "median": 107786.0,
+          "min": 105246,
+          "max": 109421
+        },
+        "frame_gap_us.accept_030": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-load",
+              "value": 112264
+            },
+            {
+              "sample": "r2-baseline-load",
+              "value": 112765
+            },
+            {
+              "sample": "r3-baseline-load",
+              "value": 113991
+            },
+            {
+              "sample": "r4-baseline-load",
+              "value": 110767
+            }
+          ],
+          "count": 4,
+          "median": 112514.5,
+          "min": 110767,
+          "max": 113991
+        },
+        "frame_gap_us.first_accept": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-load",
+              "value": 67385
+            },
+            {
+              "sample": "r2-baseline-load",
+              "value": 67896
+            },
+            {
+              "sample": "r3-baseline-load",
+              "value": 71968
+            },
+            {
+              "sample": "r4-baseline-load",
+              "value": 69490
+            }
+          ],
+          "count": 4,
+          "median": 68693.0,
+          "min": 67385,
+          "max": 71968
+        },
+        "frame_gap_us.load": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-load",
+              "value": 958954
+            },
+            {
+              "sample": "r2-baseline-load",
+              "value": 952642
+            },
+            {
+              "sample": "r3-baseline-load",
+              "value": 966699
+            },
+            {
+              "sample": "r4-baseline-load",
+              "value": 958712
+            }
+          ],
+          "count": 4,
+          "median": 958833.0,
+          "min": 952642,
+          "max": 966699
+        },
+        "frame_gap_us.login": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-load",
+              "value": 29196
+            },
+            {
+              "sample": "r2-baseline-load",
+              "value": 28842
+            },
+            {
+              "sample": "r3-baseline-load",
+              "value": 31077
+            },
+            {
+              "sample": "r4-baseline-load",
+              "value": 31165
+            }
+          ],
+          "count": 4,
+          "median": 30136.5,
+          "min": 28842,
+          "max": 31165
+        },
+        "frame_gap_us.select_slot": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-load",
+              "value": 16927
+            },
+            {
+              "sample": "r2-baseline-load",
+              "value": 16836
+            },
+            {
+              "sample": "r3-baseline-load",
+              "value": 17181
+            },
+            {
+              "sample": "r4-baseline-load",
+              "value": 17209
+            }
+          ],
+          "count": 4,
+          "median": 17054.0,
+          "min": 16836,
+          "max": 17209
+        },
+        "process.backup_dwell_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-load",
+              "value": 54.096
+            },
+            {
+              "sample": "r2-baseline-load",
+              "value": 54.618
+            },
+            {
+              "sample": "r3-baseline-load",
+              "value": 55.063
+            },
+            {
+              "sample": "r4-baseline-load",
+              "value": 54.741
+            }
+          ],
+          "count": 4,
+          "median": 54.679500000000004,
+          "min": 54.096,
+          "max": 55.063
+        },
+        "process.launch_to_bootstrap_start_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-load",
+              "value": 5233.0
+            },
+            {
+              "sample": "r2-baseline-load",
+              "value": 4963.0
+            },
+            {
+              "sample": "r3-baseline-load",
+              "value": 5039.0
+            },
+            {
+              "sample": "r4-baseline-load",
+              "value": 5019.0
+            }
+          ],
+          "count": 4,
+          "median": 5029.0,
+          "min": 4963.0,
+          "max": 5233.0
+        },
+        "process.launch_to_first_title_drawn_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-load",
+              "value": 6023.0
+            },
+            {
+              "sample": "r2-baseline-load",
+              "value": 5742.0
+            },
+            {
+              "sample": "r3-baseline-load",
+              "value": 5821.0
+            },
+            {
+              "sample": "r4-baseline-load",
+              "value": 5810.0
+            }
+          ],
+          "count": 4,
+          "median": 5815.5,
+          "min": 5742.0,
+          "max": 6023.0
+        },
+        "process.launch_to_first_title_input_accepted_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-load",
+              "value": 6102.0
+            },
+            {
+              "sample": "r2-baseline-load",
+              "value": 5821.0
+            },
+            {
+              "sample": "r3-baseline-load",
+              "value": 5902.0
+            },
+            {
+              "sample": "r4-baseline-load",
+              "value": 5881.0
+            }
+          ],
+          "count": 4,
+          "median": 5891.5,
+          "min": 5821.0,
+          "max": 6102.0
+        },
+        "process.launch_to_probe_enter_tree_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-load",
+              "value": 5109.0
+            },
+            {
+              "sample": "r2-baseline-load",
+              "value": 4838.0
+            },
+            {
+              "sample": "r3-baseline-load",
+              "value": 4916.0
+            },
+            {
+              "sample": "r4-baseline-load",
+              "value": 4896.0
+            }
+          ],
+          "count": 4,
+          "median": 4906.0,
+          "min": 4838.0,
+          "max": 5109.0
+        },
+        "process.launch_to_title_drawn_usable_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-load",
+              "value": 6023.0
+            },
+            {
+              "sample": "r2-baseline-load",
+              "value": 5742.0
+            },
+            {
+              "sample": "r3-baseline-load",
+              "value": 5821.0
+            },
+            {
+              "sample": "r4-baseline-load",
+              "value": 5810.0
+            }
+          ],
+          "count": 4,
+          "median": 5815.5,
+          "min": 5742.0,
+          "max": 6023.0
+        },
+        "process.lifetime_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-load",
+              "value": 34553.7432
+            },
+            {
+              "sample": "r2-baseline-load",
+              "value": 33843.1176
+            },
+            {
+              "sample": "r3-baseline-load",
+              "value": 34129.8127
+            },
+            {
+              "sample": "r4-baseline-load",
+              "value": 33878.1853
+            }
+          ],
+          "count": 4,
+          "median": 34003.998999999996,
+          "min": 33843.1176,
+          "max": 34553.7432
+        },
+        "process.load_action_to_caption_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-load",
+              "value": 1032.21
+            },
+            {
+              "sample": "r2-baseline-load",
+              "value": 1021.16
+            },
+            {
+              "sample": "r3-baseline-load",
+              "value": 1039.837
+            },
+            {
+              "sample": "r4-baseline-load",
+              "value": 1029.533
+            }
+          ],
+          "count": 4,
+          "median": 1030.8715,
+          "min": 1021.16,
+          "max": 1039.837
+        },
+        "process.load_action_to_first_drawing_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-load",
+              "value": 974.846
+            },
+            {
+              "sample": "r2-baseline-load",
+              "value": 968.584
+            },
+            {
+              "sample": "r3-baseline-load",
+              "value": 982.568
+            },
+            {
+              "sample": "r4-baseline-load",
+              "value": 974.01
+            }
+          ],
+          "count": 4,
+          "median": 974.428,
+          "min": 968.584,
+          "max": 982.568
+        },
+        "process.load_action_to_first_input_ready_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-load",
+              "value": 1065.193
+            },
+            {
+              "sample": "r2-baseline-load",
+              "value": 1050.776
+            },
+            {
+              "sample": "r3-baseline-load",
+              "value": 1073.661
+            },
+            {
+              "sample": "r4-baseline-load",
+              "value": 1062.118
+            }
+          ],
+          "count": 4,
+          "median": 1063.6554999999998,
+          "min": 1050.776,
+          "max": 1073.661
+        },
+        "process.load_action_to_next_drawing_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-load",
+              "value": 1135.805
+            },
+            {
+              "sample": "r2-baseline-load",
+              "value": 1121.872
+            },
+            {
+              "sample": "r3-baseline-load",
+              "value": 1149.057
+            },
+            {
+              "sample": "r4-baseline-load",
+              "value": 1134.848
+            }
+          ],
+          "count": 4,
+          "median": 1135.3265000000001,
+          "min": 1121.872,
+          "max": 1149.057
+        },
+        "process.load_action_to_ready_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-load",
+              "value": 893.991
+            },
+            {
+              "sample": "r2-baseline-load",
+              "value": 887.157
+            },
+            {
+              "sample": "r3-baseline-load",
+              "value": 902.389
+            },
+            {
+              "sample": "r4-baseline-load",
+              "value": 893.827
+            }
+          ],
+          "count": 4,
+          "median": 893.909,
+          "min": 887.157,
+          "max": 902.389
+        },
+        "process.load_next_input_to_drawing_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-load",
+              "value": 70.6
+            },
+            {
+              "sample": "r2-baseline-load",
+              "value": 71.086
+            },
+            {
+              "sample": "r3-baseline-load",
+              "value": 75.385
+            },
+            {
+              "sample": "r4-baseline-load",
+              "value": 72.718
+            }
+          ],
+          "count": 4,
+          "median": 71.902,
+          "min": 70.6,
+          "max": 75.385
+        },
+        "process.login_to_backup_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-load",
+              "value": 107.287
+            },
+            {
+              "sample": "r2-baseline-load",
+              "value": 107.404
+            },
+            {
+              "sample": "r3-baseline-load",
+              "value": 110.402
+            },
+            {
+              "sample": "r4-baseline-load",
+              "value": 108.92
+            }
+          ],
+          "count": 4,
+          "median": 108.162,
+          "min": 107.287,
+          "max": 110.402
+        },
+        "process.login_to_caption_excluding_dwell_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-load",
+              "value": 1139.497
+            },
+            {
+              "sample": "r2-baseline-load",
+              "value": 1128.564
+            },
+            {
+              "sample": "r3-baseline-load",
+              "value": 1150.2389999999998
+            },
+            {
+              "sample": "r4-baseline-load",
+              "value": 1138.453
+            }
+          ],
+          "count": 4,
+          "median": 1138.975,
+          "min": 1128.564,
+          "max": 1150.2389999999998
+        },
+        "process.login_to_caption_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-load",
+              "value": 1193.593
+            },
+            {
+              "sample": "r2-baseline-load",
+              "value": 1183.182
+            },
+            {
+              "sample": "r3-baseline-load",
+              "value": 1205.302
+            },
+            {
+              "sample": "r4-baseline-load",
+              "value": 1193.194
+            }
+          ],
+          "count": 4,
+          "median": 1193.3935000000001,
+          "min": 1183.182,
+          "max": 1205.302
+        }
+      }
+    },
+    "candidate": {
+      "fresh": {
+        "frame_gap_us.new_acc": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-fresh",
+              "value": 1041532
+            },
+            {
+              "sample": "r2-candidate-fresh",
+              "value": 1042223
+            },
+            {
+              "sample": "r3-candidate-fresh",
+              "value": 1092202
+            },
+            {
+              "sample": "r4-candidate-fresh",
+              "value": 1083159
+            }
+          ],
+          "count": 4,
+          "median": 1062691.0,
+          "min": 1041532,
+          "max": 1092202
+        },
+        "process.launch_to_bootstrap_start_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-fresh",
+              "value": 7107.0
+            },
+            {
+              "sample": "r2-candidate-fresh",
+              "value": 6559.0
+            },
+            {
+              "sample": "r3-candidate-fresh",
+              "value": 6921.0
+            },
+            {
+              "sample": "r4-candidate-fresh",
+              "value": 7171.0
+            }
+          ],
+          "count": 4,
+          "median": 7014.0,
+          "min": 6559.0,
+          "max": 7171.0
+        },
+        "process.launch_to_first_title_drawn_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-fresh",
+              "value": 7875.0
+            },
+            {
+              "sample": "r2-candidate-fresh",
+              "value": 7319.0
+            },
+            {
+              "sample": "r3-candidate-fresh",
+              "value": 7699.0
+            },
+            {
+              "sample": "r4-candidate-fresh",
+              "value": 7956.0
+            }
+          ],
+          "count": 4,
+          "median": 7787.0,
+          "min": 7319.0,
+          "max": 7956.0
+        },
+        "process.launch_to_first_title_input_accepted_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-fresh",
+              "value": 7928.0
+            },
+            {
+              "sample": "r2-candidate-fresh",
+              "value": 7362.0
+            },
+            {
+              "sample": "r3-candidate-fresh",
+              "value": 7742.0
+            },
+            {
+              "sample": "r4-candidate-fresh",
+              "value": 8000.0
+            }
+          ],
+          "count": 4,
+          "median": 7835.0,
+          "min": 7362.0,
+          "max": 8000.0
+        },
+        "process.launch_to_probe_enter_tree_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-fresh",
+              "value": 6981.0
+            },
+            {
+              "sample": "r2-candidate-fresh",
+              "value": 6437.0
+            },
+            {
+              "sample": "r3-candidate-fresh",
+              "value": 6794.0
+            },
+            {
+              "sample": "r4-candidate-fresh",
+              "value": 7040.0
+            }
+          ],
+          "count": 4,
+          "median": 6887.5,
+          "min": 6437.0,
+          "max": 7040.0
+        },
+        "process.launch_to_title_drawn_usable_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-fresh",
+              "value": 7875.0
+            },
+            {
+              "sample": "r2-candidate-fresh",
+              "value": 7319.0
+            },
+            {
+              "sample": "r3-candidate-fresh",
+              "value": 7699.0
+            },
+            {
+              "sample": "r4-candidate-fresh",
+              "value": 7956.0
+            }
+          ],
+          "count": 4,
+          "median": 7787.0,
+          "min": 7319.0,
+          "max": 7956.0
+        },
+        "process.lifetime_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-fresh",
+              "value": 12523.5668
+            },
+            {
+              "sample": "r2-candidate-fresh",
+              "value": 11933.6805
+            },
+            {
+              "sample": "r3-candidate-fresh",
+              "value": 12562.7926
+            },
+            {
+              "sample": "r4-candidate-fresh",
+              "value": 12721.715
+            }
+          ],
+          "count": 4,
+          "median": 12543.1797,
+          "min": 11933.6805,
+          "max": 12721.715
+        },
+        "process.new_acc_excluding_consent_dwell_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-fresh",
+              "value": 1104.666
+            },
+            {
+              "sample": "r2-candidate-fresh",
+              "value": 1109.685
+            },
+            {
+              "sample": "r3-candidate-fresh",
+              "value": 1162.332
+            },
+            {
+              "sample": "r4-candidate-fresh",
+              "value": 1153.41
+            }
+          ],
+          "count": 4,
+          "median": 1131.5475000000001,
+          "min": 1104.666,
+          "max": 1162.332
+        },
+        "process.new_acc_to_caption_complete_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-fresh",
+              "value": 1104.666
+            },
+            {
+              "sample": "r2-candidate-fresh",
+              "value": 1109.685
+            },
+            {
+              "sample": "r3-candidate-fresh",
+              "value": 1162.332
+            },
+            {
+              "sample": "r4-candidate-fresh",
+              "value": 1153.41
+            }
+          ],
+          "count": 4,
+          "median": 1131.5475000000001,
+          "min": 1104.666,
+          "max": 1162.332
+        }
+      },
+      "retained": {
+        "frame_gap_us.confirm": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-retained",
+              "value": 1037933
+            },
+            {
+              "sample": "r2-candidate-retained",
+              "value": 980854
+            },
+            {
+              "sample": "r3-candidate-retained",
+              "value": 1113663
+            },
+            {
+              "sample": "r4-candidate-retained",
+              "value": 1049677
+            }
+          ],
+          "count": 4,
+          "median": 1043805.0,
+          "min": 980854,
+          "max": 1113663
+        },
+        "frame_gap_us.new_acc": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-retained",
+              "value": 10538
+            },
+            {
+              "sample": "r2-candidate-retained",
+              "value": 9633
+            },
+            {
+              "sample": "r3-candidate-retained",
+              "value": 9798
+            },
+            {
+              "sample": "r4-candidate-retained",
+              "value": 10525
+            }
+          ],
+          "count": 4,
+          "median": 10161.5,
+          "min": 9633,
+          "max": 10538
+        },
+        "process.confirm_to_caption_complete_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-retained",
+              "value": 1083.161
+            },
+            {
+              "sample": "r2-candidate-retained",
+              "value": 1013.916
+            },
+            {
+              "sample": "r3-candidate-retained",
+              "value": 1148.1
+            },
+            {
+              "sample": "r4-candidate-retained",
+              "value": 1087.61
+            }
+          ],
+          "count": 4,
+          "median": 1085.3854999999999,
+          "min": 1013.916,
+          "max": 1148.1
+        },
+        "process.consent_dwell_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-retained",
+              "value": 55.778
+            },
+            {
+              "sample": "r2-candidate-retained",
+              "value": 56.54
+            },
+            {
+              "sample": "r3-candidate-retained",
+              "value": 46.992
+            },
+            {
+              "sample": "r4-candidate-retained",
+              "value": 46.818
+            }
+          ],
+          "count": 4,
+          "median": 51.385,
+          "min": 46.818,
+          "max": 56.54
+        },
+        "process.input_to_consent_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-retained",
+              "value": 31.243
+            },
+            {
+              "sample": "r2-candidate-retained",
+              "value": 30.0
+            },
+            {
+              "sample": "r3-candidate-retained",
+              "value": 31.155
+            },
+            {
+              "sample": "r4-candidate-retained",
+              "value": 31.608
+            }
+          ],
+          "count": 4,
+          "median": 31.198999999999998,
+          "min": 30.0,
+          "max": 31.608
+        },
+        "process.launch_to_bootstrap_start_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-retained",
+              "value": 4932.0
+            },
+            {
+              "sample": "r2-candidate-retained",
+              "value": 5026.0
+            },
+            {
+              "sample": "r3-candidate-retained",
+              "value": 5108.0
+            },
+            {
+              "sample": "r4-candidate-retained",
+              "value": 5118.0
+            }
+          ],
+          "count": 4,
+          "median": 5067.0,
+          "min": 4932.0,
+          "max": 5118.0
+        },
+        "process.launch_to_first_title_drawn_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-retained",
+              "value": 5706.0
+            },
+            {
+              "sample": "r2-candidate-retained",
+              "value": 5817.0
+            },
+            {
+              "sample": "r3-candidate-retained",
+              "value": 5911.0
+            },
+            {
+              "sample": "r4-candidate-retained",
+              "value": 5891.0
+            }
+          ],
+          "count": 4,
+          "median": 5854.0,
+          "min": 5706.0,
+          "max": 5911.0
+        },
+        "process.launch_to_first_title_input_accepted_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-retained",
+              "value": 5731.0
+            },
+            {
+              "sample": "r2-candidate-retained",
+              "value": 5842.0
+            },
+            {
+              "sample": "r3-candidate-retained",
+              "value": 5937.0
+            },
+            {
+              "sample": "r4-candidate-retained",
+              "value": 5916.0
+            }
+          ],
+          "count": 4,
+          "median": 5879.0,
+          "min": 5731.0,
+          "max": 5937.0
+        },
+        "process.launch_to_probe_enter_tree_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-retained",
+              "value": 4811.0
+            },
+            {
+              "sample": "r2-candidate-retained",
+              "value": 4905.0
+            },
+            {
+              "sample": "r3-candidate-retained",
+              "value": 4983.0
+            },
+            {
+              "sample": "r4-candidate-retained",
+              "value": 4996.0
+            }
+          ],
+          "count": 4,
+          "median": 4944.0,
+          "min": 4811.0,
+          "max": 4996.0
+        },
+        "process.launch_to_title_drawn_usable_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-retained",
+              "value": 5706.0
+            },
+            {
+              "sample": "r2-candidate-retained",
+              "value": 5817.0
+            },
+            {
+              "sample": "r3-candidate-retained",
+              "value": 5911.0
+            },
+            {
+              "sample": "r4-candidate-retained",
+              "value": 5891.0
+            }
+          ],
+          "count": 4,
+          "median": 5854.0,
+          "min": 5706.0,
+          "max": 5911.0
+        },
+        "process.lifetime_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-retained",
+              "value": 10453.4424
+            },
+            {
+              "sample": "r2-candidate-retained",
+              "value": 10358.1259
+            },
+            {
+              "sample": "r3-candidate-retained",
+              "value": 10721.1579
+            },
+            {
+              "sample": "r4-candidate-retained",
+              "value": 10726.5806
+            }
+          ],
+          "count": 4,
+          "median": 10587.30015,
+          "min": 10358.1259,
+          "max": 10726.5806
+        },
+        "process.new_acc_excluding_consent_dwell_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-retained",
+              "value": 1114.404
+            },
+            {
+              "sample": "r2-candidate-retained",
+              "value": 1043.916
+            },
+            {
+              "sample": "r3-candidate-retained",
+              "value": 1179.255
+            },
+            {
+              "sample": "r4-candidate-retained",
+              "value": 1119.218
+            }
+          ],
+          "count": 4,
+          "median": 1116.8110000000001,
+          "min": 1043.916,
+          "max": 1179.255
+        },
+        "process.new_acc_to_caption_complete_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-retained",
+              "value": 1170.182
+            },
+            {
+              "sample": "r2-candidate-retained",
+              "value": 1100.456
+            },
+            {
+              "sample": "r3-candidate-retained",
+              "value": 1226.247
+            },
+            {
+              "sample": "r4-candidate-retained",
+              "value": 1166.036
+            }
+          ],
+          "count": 4,
+          "median": 1168.109,
+          "min": 1100.456,
+          "max": 1226.247
+        }
+      },
+      "load": {
+        "frame_gap_us.accept_003": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-load",
+              "value": 66578
+            },
+            {
+              "sample": "r2-candidate-load",
+              "value": 63204
+            },
+            {
+              "sample": "r3-candidate-load",
+              "value": 70085
+            },
+            {
+              "sample": "r4-candidate-load",
+              "value": 64749
+            }
+          ],
+          "count": 4,
+          "median": 65663.5,
+          "min": 63204,
+          "max": 70085
+        },
+        "frame_gap_us.accept_004": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-load",
+              "value": 64092
+            },
+            {
+              "sample": "r2-candidate-load",
+              "value": 62562
+            },
+            {
+              "sample": "r3-candidate-load",
+              "value": 91778
+            },
+            {
+              "sample": "r4-candidate-load",
+              "value": 64974
+            }
+          ],
+          "count": 4,
+          "median": 64533.0,
+          "min": 62562,
+          "max": 91778
+        },
+        "frame_gap_us.accept_005": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-load",
+              "value": 65862
+            },
+            {
+              "sample": "r2-candidate-load",
+              "value": 64347
+            },
+            {
+              "sample": "r3-candidate-load",
+              "value": 71753
+            },
+            {
+              "sample": "r4-candidate-load",
+              "value": 64375
+            }
+          ],
+          "count": 4,
+          "median": 65118.5,
+          "min": 64347,
+          "max": 71753
+        },
+        "frame_gap_us.accept_006": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-load",
+              "value": 65649
+            },
+            {
+              "sample": "r2-candidate-load",
+              "value": 64898
+            },
+            {
+              "sample": "r3-candidate-load",
+              "value": 69247
+            },
+            {
+              "sample": "r4-candidate-load",
+              "value": 65729
+            }
+          ],
+          "count": 4,
+          "median": 65689.0,
+          "min": 64898,
+          "max": 69247
+        },
+        "frame_gap_us.accept_007": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-load",
+              "value": 67889
+            },
+            {
+              "sample": "r2-candidate-load",
+              "value": 67678
+            },
+            {
+              "sample": "r3-candidate-load",
+              "value": 85877
+            },
+            {
+              "sample": "r4-candidate-load",
+              "value": 68476
+            }
+          ],
+          "count": 4,
+          "median": 68182.5,
+          "min": 67678,
+          "max": 85877
+        },
+        "frame_gap_us.accept_008": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-load",
+              "value": 68031
+            },
+            {
+              "sample": "r2-candidate-load",
+              "value": 68454
+            },
+            {
+              "sample": "r3-candidate-load",
+              "value": 77810
+            },
+            {
+              "sample": "r4-candidate-load",
+              "value": 67697
+            }
+          ],
+          "count": 4,
+          "median": 68242.5,
+          "min": 67697,
+          "max": 77810
+        },
+        "frame_gap_us.accept_009": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-load",
+              "value": 69693
+            },
+            {
+              "sample": "r2-candidate-load",
+              "value": 66703
+            },
+            {
+              "sample": "r3-candidate-load",
+              "value": 70741
+            },
+            {
+              "sample": "r4-candidate-load",
+              "value": 70914
+            }
+          ],
+          "count": 4,
+          "median": 70217.0,
+          "min": 66703,
+          "max": 70914
+        },
+        "frame_gap_us.accept_010": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-load",
+              "value": 69858
+            },
+            {
+              "sample": "r2-candidate-load",
+              "value": 68118
+            },
+            {
+              "sample": "r3-candidate-load",
+              "value": 77188
+            },
+            {
+              "sample": "r4-candidate-load",
+              "value": 71344
+            }
+          ],
+          "count": 4,
+          "median": 70601.0,
+          "min": 68118,
+          "max": 77188
+        },
+        "frame_gap_us.accept_011": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-load",
+              "value": 70316
+            },
+            {
+              "sample": "r2-candidate-load",
+              "value": 68920
+            },
+            {
+              "sample": "r3-candidate-load",
+              "value": 93577
+            },
+            {
+              "sample": "r4-candidate-load",
+              "value": 70580
+            }
+          ],
+          "count": 4,
+          "median": 70448.0,
+          "min": 68920,
+          "max": 93577
+        },
+        "frame_gap_us.accept_012": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-load",
+              "value": 69955
+            },
+            {
+              "sample": "r2-candidate-load",
+              "value": 68631
+            },
+            {
+              "sample": "r3-candidate-load",
+              "value": 72814
+            },
+            {
+              "sample": "r4-candidate-load",
+              "value": 70831
+            }
+          ],
+          "count": 4,
+          "median": 70393.0,
+          "min": 68631,
+          "max": 72814
+        },
+        "frame_gap_us.accept_013": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-load",
+              "value": 71013
+            },
+            {
+              "sample": "r2-candidate-load",
+              "value": 69414
+            },
+            {
+              "sample": "r3-candidate-load",
+              "value": 80505
+            },
+            {
+              "sample": "r4-candidate-load",
+              "value": 70507
+            }
+          ],
+          "count": 4,
+          "median": 70760.0,
+          "min": 69414,
+          "max": 80505
+        },
+        "frame_gap_us.accept_014": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-load",
+              "value": 71420
+            },
+            {
+              "sample": "r2-candidate-load",
+              "value": 70386
+            },
+            {
+              "sample": "r3-candidate-load",
+              "value": 74956
+            },
+            {
+              "sample": "r4-candidate-load",
+              "value": 70949
+            }
+          ],
+          "count": 4,
+          "median": 71184.5,
+          "min": 70386,
+          "max": 74956
+        },
+        "frame_gap_us.accept_015": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-load",
+              "value": 72203
+            },
+            {
+              "sample": "r2-candidate-load",
+              "value": 71578
+            },
+            {
+              "sample": "r3-candidate-load",
+              "value": 75146
+            },
+            {
+              "sample": "r4-candidate-load",
+              "value": 73118
+            }
+          ],
+          "count": 4,
+          "median": 72660.5,
+          "min": 71578,
+          "max": 75146
+        },
+        "frame_gap_us.accept_016": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-load",
+              "value": 72884
+            },
+            {
+              "sample": "r2-candidate-load",
+              "value": 71939
+            },
+            {
+              "sample": "r3-candidate-load",
+              "value": 93176
+            },
+            {
+              "sample": "r4-candidate-load",
+              "value": 74893
+            }
+          ],
+          "count": 4,
+          "median": 73888.5,
+          "min": 71939,
+          "max": 93176
+        },
+        "frame_gap_us.accept_017": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-load",
+              "value": 74306
+            },
+            {
+              "sample": "r2-candidate-load",
+              "value": 72790
+            },
+            {
+              "sample": "r3-candidate-load",
+              "value": 77818
+            },
+            {
+              "sample": "r4-candidate-load",
+              "value": 76044
+            }
+          ],
+          "count": 4,
+          "median": 75175.0,
+          "min": 72790,
+          "max": 77818
+        },
+        "frame_gap_us.accept_018": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-load",
+              "value": 75806
+            },
+            {
+              "sample": "r2-candidate-load",
+              "value": 73974
+            },
+            {
+              "sample": "r3-candidate-load",
+              "value": 82820
+            },
+            {
+              "sample": "r4-candidate-load",
+              "value": 77507
+            }
+          ],
+          "count": 4,
+          "median": 76656.5,
+          "min": 73974,
+          "max": 82820
+        },
+        "frame_gap_us.accept_019": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-load",
+              "value": 75493
+            },
+            {
+              "sample": "r2-candidate-load",
+              "value": 75369
+            },
+            {
+              "sample": "r3-candidate-load",
+              "value": 84699
+            },
+            {
+              "sample": "r4-candidate-load",
+              "value": 78396
+            }
+          ],
+          "count": 4,
+          "median": 76944.5,
+          "min": 75369,
+          "max": 84699
+        },
+        "frame_gap_us.accept_020": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-load",
+              "value": 76995
+            },
+            {
+              "sample": "r2-candidate-load",
+              "value": 76496
+            },
+            {
+              "sample": "r3-candidate-load",
+              "value": 92625
+            },
+            {
+              "sample": "r4-candidate-load",
+              "value": 79734
+            }
+          ],
+          "count": 4,
+          "median": 78364.5,
+          "min": 76496,
+          "max": 92625
+        },
+        "frame_gap_us.accept_021": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-load",
+              "value": 81852
+            },
+            {
+              "sample": "r2-candidate-load",
+              "value": 77019
+            },
+            {
+              "sample": "r3-candidate-load",
+              "value": 85250
+            },
+            {
+              "sample": "r4-candidate-load",
+              "value": 81483
+            }
+          ],
+          "count": 4,
+          "median": 81667.5,
+          "min": 77019,
+          "max": 85250
+        },
+        "frame_gap_us.accept_022": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-load",
+              "value": 80494
+            },
+            {
+              "sample": "r2-candidate-load",
+              "value": 76678
+            },
+            {
+              "sample": "r3-candidate-load",
+              "value": 89148
+            },
+            {
+              "sample": "r4-candidate-load",
+              "value": 81582
+            }
+          ],
+          "count": 4,
+          "median": 81038.0,
+          "min": 76678,
+          "max": 89148
+        },
+        "frame_gap_us.accept_023": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-load",
+              "value": 80008
+            },
+            {
+              "sample": "r2-candidate-load",
+              "value": 80904
+            },
+            {
+              "sample": "r3-candidate-load",
+              "value": 87729
+            },
+            {
+              "sample": "r4-candidate-load",
+              "value": 83161
+            }
+          ],
+          "count": 4,
+          "median": 82032.5,
+          "min": 80008,
+          "max": 87729
+        },
+        "frame_gap_us.accept_024": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-load",
+              "value": 79554
+            },
+            {
+              "sample": "r2-candidate-load",
+              "value": 78457
+            },
+            {
+              "sample": "r3-candidate-load",
+              "value": 83155
+            },
+            {
+              "sample": "r4-candidate-load",
+              "value": 82816
+            }
+          ],
+          "count": 4,
+          "median": 81185.0,
+          "min": 78457,
+          "max": 83155
+        },
+        "frame_gap_us.accept_025": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-load",
+              "value": 85901
+            },
+            {
+              "sample": "r2-candidate-load",
+              "value": 80376
+            },
+            {
+              "sample": "r3-candidate-load",
+              "value": 87377
+            },
+            {
+              "sample": "r4-candidate-load",
+              "value": 82319
+            }
+          ],
+          "count": 4,
+          "median": 84110.0,
+          "min": 80376,
+          "max": 87377
+        },
+        "frame_gap_us.accept_026": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-load",
+              "value": 81841
+            },
+            {
+              "sample": "r2-candidate-load",
+              "value": 79691
+            },
+            {
+              "sample": "r3-candidate-load",
+              "value": 86666
+            },
+            {
+              "sample": "r4-candidate-load",
+              "value": 83930
+            }
+          ],
+          "count": 4,
+          "median": 82885.5,
+          "min": 79691,
+          "max": 86666
+        },
+        "frame_gap_us.accept_027": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-load",
+              "value": 83008
+            },
+            {
+              "sample": "r2-candidate-load",
+              "value": 80956
+            },
+            {
+              "sample": "r3-candidate-load",
+              "value": 87511
+            },
+            {
+              "sample": "r4-candidate-load",
+              "value": 84357
+            }
+          ],
+          "count": 4,
+          "median": 83682.5,
+          "min": 80956,
+          "max": 87511
+        },
+        "frame_gap_us.accept_028": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-load",
+              "value": 81425
+            },
+            {
+              "sample": "r2-candidate-load",
+              "value": 84859
+            },
+            {
+              "sample": "r3-candidate-load",
+              "value": 91132
+            },
+            {
+              "sample": "r4-candidate-load",
+              "value": 84528
+            }
+          ],
+          "count": 4,
+          "median": 84693.5,
+          "min": 81425,
+          "max": 91132
+        },
+        "frame_gap_us.accept_029": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-load",
+              "value": 83369
+            },
+            {
+              "sample": "r2-candidate-load",
+              "value": 82036
+            },
+            {
+              "sample": "r3-candidate-load",
+              "value": 88273
+            },
+            {
+              "sample": "r4-candidate-load",
+              "value": 84758
+            }
+          ],
+          "count": 4,
+          "median": 84063.5,
+          "min": 82036,
+          "max": 88273
+        },
+        "frame_gap_us.accept_030": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-load",
+              "value": 84008
+            },
+            {
+              "sample": "r2-candidate-load",
+              "value": 85103
+            },
+            {
+              "sample": "r3-candidate-load",
+              "value": 95792
+            },
+            {
+              "sample": "r4-candidate-load",
+              "value": 84489
+            }
+          ],
+          "count": 4,
+          "median": 84796.0,
+          "min": 84008,
+          "max": 95792
+        },
+        "frame_gap_us.first_accept": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-load",
+              "value": 58845
+            },
+            {
+              "sample": "r2-candidate-load",
+              "value": 60154
+            },
+            {
+              "sample": "r3-candidate-load",
+              "value": 60727
+            },
+            {
+              "sample": "r4-candidate-load",
+              "value": 59628
+            }
+          ],
+          "count": 4,
+          "median": 59891.0,
+          "min": 58845,
+          "max": 60727
+        },
+        "frame_gap_us.load": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-load",
+              "value": 640926
+            },
+            {
+              "sample": "r2-candidate-load",
+              "value": 628111
+            },
+            {
+              "sample": "r3-candidate-load",
+              "value": 676697
+            },
+            {
+              "sample": "r4-candidate-load",
+              "value": 646752
+            }
+          ],
+          "count": 4,
+          "median": 643839.0,
+          "min": 628111,
+          "max": 676697
+        },
+        "frame_gap_us.login": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-load",
+              "value": 30754
+            },
+            {
+              "sample": "r2-candidate-load",
+              "value": 28493
+            },
+            {
+              "sample": "r3-candidate-load",
+              "value": 30257
+            },
+            {
+              "sample": "r4-candidate-load",
+              "value": 29030
+            }
+          ],
+          "count": 4,
+          "median": 29643.5,
+          "min": 28493,
+          "max": 30754
+        },
+        "frame_gap_us.select_slot": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-load",
+              "value": 17007
+            },
+            {
+              "sample": "r2-candidate-load",
+              "value": 16913
+            },
+            {
+              "sample": "r3-candidate-load",
+              "value": 17102
+            },
+            {
+              "sample": "r4-candidate-load",
+              "value": 16954
+            }
+          ],
+          "count": 4,
+          "median": 16980.5,
+          "min": 16913,
+          "max": 17102
+        },
+        "process.backup_dwell_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-load",
+              "value": 53.153
+            },
+            {
+              "sample": "r2-candidate-load",
+              "value": 53.134
+            },
+            {
+              "sample": "r3-candidate-load",
+              "value": 54.226
+            },
+            {
+              "sample": "r4-candidate-load",
+              "value": 54.229
+            }
+          ],
+          "count": 4,
+          "median": 53.689499999999995,
+          "min": 53.134,
+          "max": 54.229
+        },
+        "process.launch_to_bootstrap_start_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-load",
+              "value": 4919.0
+            },
+            {
+              "sample": "r2-candidate-load",
+              "value": 4887.0
+            },
+            {
+              "sample": "r3-candidate-load",
+              "value": 5239.0
+            },
+            {
+              "sample": "r4-candidate-load",
+              "value": 5071.0
+            }
+          ],
+          "count": 4,
+          "median": 4995.0,
+          "min": 4887.0,
+          "max": 5239.0
+        },
+        "process.launch_to_first_title_drawn_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-load",
+              "value": 5700.0
+            },
+            {
+              "sample": "r2-candidate-load",
+              "value": 5651.0
+            },
+            {
+              "sample": "r3-candidate-load",
+              "value": 6031.0
+            },
+            {
+              "sample": "r4-candidate-load",
+              "value": 5848.0
+            }
+          ],
+          "count": 4,
+          "median": 5774.0,
+          "min": 5651.0,
+          "max": 6031.0
+        },
+        "process.launch_to_first_title_input_accepted_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-load",
+              "value": 5771.0
+            },
+            {
+              "sample": "r2-candidate-load",
+              "value": 5729.0
+            },
+            {
+              "sample": "r3-candidate-load",
+              "value": 6112.0
+            },
+            {
+              "sample": "r4-candidate-load",
+              "value": 5927.0
+            }
+          ],
+          "count": 4,
+          "median": 5849.0,
+          "min": 5729.0,
+          "max": 6112.0
+        },
+        "process.launch_to_probe_enter_tree_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-load",
+              "value": 4793.0
+            },
+            {
+              "sample": "r2-candidate-load",
+              "value": 4767.0
+            },
+            {
+              "sample": "r3-candidate-load",
+              "value": 5112.0
+            },
+            {
+              "sample": "r4-candidate-load",
+              "value": 4947.0
+            }
+          ],
+          "count": 4,
+          "median": 4870.0,
+          "min": 4767.0,
+          "max": 5112.0
+        },
+        "process.launch_to_title_drawn_usable_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-load",
+              "value": 5700.0
+            },
+            {
+              "sample": "r2-candidate-load",
+              "value": 5651.0
+            },
+            {
+              "sample": "r3-candidate-load",
+              "value": 6031.0
+            },
+            {
+              "sample": "r4-candidate-load",
+              "value": 5848.0
+            }
+          ],
+          "count": 4,
+          "median": 5774.0,
+          "min": 5651.0,
+          "max": 6031.0
+        },
+        "process.lifetime_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-load",
+              "value": 31786.9982
+            },
+            {
+              "sample": "r2-candidate-load",
+              "value": 31891.3864
+            },
+            {
+              "sample": "r3-candidate-load",
+              "value": 32995.1482
+            },
+            {
+              "sample": "r4-candidate-load",
+              "value": 32183.0218
+            }
+          ],
+          "count": 4,
+          "median": 32037.2041,
+          "min": 31786.9982,
+          "max": 32995.1482
+        },
+        "process.load_action_to_caption_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-load",
+              "value": 684.841
+            },
+            {
+              "sample": "r2-candidate-load",
+              "value": 672.15
+            },
+            {
+              "sample": "r3-candidate-load",
+              "value": 721.47
+            },
+            {
+              "sample": "r4-candidate-load",
+              "value": 692.006
+            }
+          ],
+          "count": 4,
+          "median": 688.4235,
+          "min": 672.15,
+          "max": 721.47
+        },
+        "process.load_action_to_first_drawing_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-load",
+              "value": 656.267
+            },
+            {
+              "sample": "r2-candidate-load",
+              "value": 643.604
+            },
+            {
+              "sample": "r3-candidate-load",
+              "value": 692.156
+            },
+            {
+              "sample": "r4-candidate-load",
+              "value": 662.552
+            }
+          ],
+          "count": 4,
+          "median": 659.4095,
+          "min": 643.604,
+          "max": 692.156
+        },
+        "process.load_action_to_first_input_ready_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-load",
+              "value": 686.237
+            },
+            {
+              "sample": "r2-candidate-load",
+              "value": 673.522
+            },
+            {
+              "sample": "r3-candidate-load",
+              "value": 722.943
+            },
+            {
+              "sample": "r4-candidate-load",
+              "value": 693.531
+            }
+          ],
+          "count": 4,
+          "median": 689.884,
+          "min": 673.522,
+          "max": 722.943
+        },
+        "process.load_action_to_next_drawing_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-load",
+              "value": 748.228
+            },
+            {
+              "sample": "r2-candidate-load",
+              "value": 736.762
+            },
+            {
+              "sample": "r3-candidate-load",
+              "value": 786.91
+            },
+            {
+              "sample": "r4-candidate-load",
+              "value": 756.301
+            }
+          ],
+          "count": 4,
+          "median": 752.2645,
+          "min": 736.762,
+          "max": 786.91
+        },
+        "process.load_action_to_ready_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-load",
+              "value": 614.054
+            },
+            {
+              "sample": "r2-candidate-load",
+              "value": 601.014
+            },
+            {
+              "sample": "r3-candidate-load",
+              "value": 646.614
+            },
+            {
+              "sample": "r4-candidate-load",
+              "value": 619.782
+            }
+          ],
+          "count": 4,
+          "median": 616.918,
+          "min": 601.014,
+          "max": 646.614
+        },
+        "process.load_next_input_to_drawing_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-load",
+              "value": 61.983
+            },
+            {
+              "sample": "r2-candidate-load",
+              "value": 63.232
+            },
+            {
+              "sample": "r3-candidate-load",
+              "value": 63.957
+            },
+            {
+              "sample": "r4-candidate-load",
+              "value": 62.762
+            }
+          ],
+          "count": 4,
+          "median": 62.997,
+          "min": 61.983,
+          "max": 63.957
+        },
+        "process.login_to_backup_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-load",
+              "value": 107.816
+            },
+            {
+              "sample": "r2-candidate-load",
+              "value": 105.505
+            },
+            {
+              "sample": "r3-candidate-load",
+              "value": 109.109
+            },
+            {
+              "sample": "r4-candidate-load",
+              "value": 107.366
+            }
+          ],
+          "count": 4,
+          "median": 107.59100000000001,
+          "min": 105.505,
+          "max": 109.109
+        },
+        "process.login_to_caption_excluding_dwell_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-load",
+              "value": 792.6569999999999
+            },
+            {
+              "sample": "r2-candidate-load",
+              "value": 777.655
+            },
+            {
+              "sample": "r3-candidate-load",
+              "value": 830.579
+            },
+            {
+              "sample": "r4-candidate-load",
+              "value": 799.372
+            }
+          ],
+          "count": 4,
+          "median": 796.0145,
+          "min": 777.655,
+          "max": 830.579
+        },
+        "process.login_to_caption_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-load",
+              "value": 845.81
+            },
+            {
+              "sample": "r2-candidate-load",
+              "value": 830.789
+            },
+            {
+              "sample": "r3-candidate-load",
+              "value": 884.805
+            },
+            {
+              "sample": "r4-candidate-load",
+              "value": 853.601
+            }
+          ],
+          "count": 4,
+          "median": 849.7055,
+          "min": 830.789,
+          "max": 884.805
+        }
+      }
+    }
+  },
+  "selected_history_aggregates": {
+    "baseline": {
+      "load.SoloReadingSession._capture_scene.elapsed_us": {
+        "samples": [
+          371439,
+          360158,
+          373383,
+          365552
+        ],
+        "median": 368495.5,
+        "min": 360158,
+        "max": 373383
+      },
+      "load.SoloReadingSession.project_scene_day_history.elapsed_us": {
+        "samples": [
+          39901,
+          40232,
+          39872,
+          39351
+        ],
+        "median": 39886.5,
+        "min": 39351,
+        "max": 40232
+      },
+      "load.SceneReadingHistory.project_encountered.elapsed_us": {
+        "samples": [
+          2676,
+          2681,
+          2636,
+          2630
+        ],
+        "median": 2656.0,
+        "min": 2630,
+        "max": 2681
+      },
+      "first_accept.SoloReadingSession._capture_scene.elapsed_us": {
+        "samples": [
+          19203,
+          19542,
+          21157,
+          20260
+        ],
+        "median": 19901.0,
+        "min": 19203,
+        "max": 21157
+      },
+      "accept_030.SoloReadingSession._capture_scene.elapsed_us": {
+        "samples": [
+          33734,
+          34363,
+          35877,
+          32968
+        ],
+        "median": 34048.5,
+        "min": 32968,
+        "max": 35877
+      },
+      "line.Day1.030.input_to_observed_drawing_us": {
+        "samples": [
+          155896,
+          155300,
+          156548,
+          151501
+        ],
+        "median": 155598.0,
+        "min": 151501,
+        "max": 156548
+      },
+      "frame_gap_us.accept_030": {
+        "samples": [
+          112264,
+          112765,
+          113991,
+          110767
+        ],
+        "median": 112514.5,
+        "min": 110767,
+        "max": 113991
+      },
+      "accept_003.SoloReadingSession._capture_scene.calls": {
+        "samples": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "median": 1.0,
+        "min": 1,
+        "max": 1
+      },
+      "accept_003.WitnessedCaptionLayer._on_reading_input_custody_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_003.WitnessedCaptionLayer._on_reading_session_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_003.WitnessedCaptionLayer._project_scene_caption_memory.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_003.WitnessedCaptionLayer._refresh_reading_session.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_004.SoloReadingSession._capture_scene.calls": {
+        "samples": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "median": 1.0,
+        "min": 1,
+        "max": 1
+      },
+      "accept_004.WitnessedCaptionLayer._on_reading_input_custody_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_004.WitnessedCaptionLayer._on_reading_session_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_004.WitnessedCaptionLayer._project_scene_caption_memory.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_004.WitnessedCaptionLayer._refresh_reading_session.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_005.SoloReadingSession._capture_scene.calls": {
+        "samples": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "median": 1.0,
+        "min": 1,
+        "max": 1
+      },
+      "accept_005.WitnessedCaptionLayer._on_reading_input_custody_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_005.WitnessedCaptionLayer._on_reading_session_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_005.WitnessedCaptionLayer._project_scene_caption_memory.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_005.WitnessedCaptionLayer._refresh_reading_session.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_006.SoloReadingSession._capture_scene.calls": {
+        "samples": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "median": 1.0,
+        "min": 1,
+        "max": 1
+      },
+      "accept_006.WitnessedCaptionLayer._on_reading_input_custody_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_006.WitnessedCaptionLayer._on_reading_session_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_006.WitnessedCaptionLayer._project_scene_caption_memory.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_006.WitnessedCaptionLayer._refresh_reading_session.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_007.SoloReadingSession._capture_scene.calls": {
+        "samples": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "median": 1.0,
+        "min": 1,
+        "max": 1
+      },
+      "accept_007.WitnessedCaptionLayer._on_reading_input_custody_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_007.WitnessedCaptionLayer._on_reading_session_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_007.WitnessedCaptionLayer._project_scene_caption_memory.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_007.WitnessedCaptionLayer._refresh_reading_session.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_008.SoloReadingSession._capture_scene.calls": {
+        "samples": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "median": 1.0,
+        "min": 1,
+        "max": 1
+      },
+      "accept_008.WitnessedCaptionLayer._on_reading_input_custody_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_008.WitnessedCaptionLayer._on_reading_session_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_008.WitnessedCaptionLayer._project_scene_caption_memory.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_008.WitnessedCaptionLayer._refresh_reading_session.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_009.SoloReadingSession._capture_scene.calls": {
+        "samples": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "median": 1.0,
+        "min": 1,
+        "max": 1
+      },
+      "accept_009.WitnessedCaptionLayer._on_reading_input_custody_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_009.WitnessedCaptionLayer._on_reading_session_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_009.WitnessedCaptionLayer._project_scene_caption_memory.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_009.WitnessedCaptionLayer._refresh_reading_session.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_010.SoloReadingSession._capture_scene.calls": {
+        "samples": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "median": 1.0,
+        "min": 1,
+        "max": 1
+      },
+      "accept_010.WitnessedCaptionLayer._on_reading_input_custody_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_010.WitnessedCaptionLayer._on_reading_session_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_010.WitnessedCaptionLayer._project_scene_caption_memory.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_010.WitnessedCaptionLayer._refresh_reading_session.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_011.SoloReadingSession._capture_scene.calls": {
+        "samples": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "median": 1.0,
+        "min": 1,
+        "max": 1
+      },
+      "accept_011.WitnessedCaptionLayer._on_reading_input_custody_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_011.WitnessedCaptionLayer._on_reading_session_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_011.WitnessedCaptionLayer._project_scene_caption_memory.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_011.WitnessedCaptionLayer._refresh_reading_session.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_012.SoloReadingSession._capture_scene.calls": {
+        "samples": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "median": 1.0,
+        "min": 1,
+        "max": 1
+      },
+      "accept_012.WitnessedCaptionLayer._on_reading_input_custody_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_012.WitnessedCaptionLayer._on_reading_session_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_012.WitnessedCaptionLayer._project_scene_caption_memory.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_012.WitnessedCaptionLayer._refresh_reading_session.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_013.SoloReadingSession._capture_scene.calls": {
+        "samples": [
+          3,
+          4,
+          3,
+          4
+        ],
+        "median": 3.5,
+        "min": 3,
+        "max": 4
+      },
+      "accept_013.WitnessedCaptionLayer._on_reading_input_custody_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_013.WitnessedCaptionLayer._on_reading_session_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_013.WitnessedCaptionLayer._project_scene_caption_memory.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_013.WitnessedCaptionLayer._refresh_reading_session.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_014.SoloReadingSession._capture_scene.calls": {
+        "samples": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "median": 1.0,
+        "min": 1,
+        "max": 1
+      },
+      "accept_014.WitnessedCaptionLayer._on_reading_input_custody_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_014.WitnessedCaptionLayer._on_reading_session_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_014.WitnessedCaptionLayer._project_scene_caption_memory.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_014.WitnessedCaptionLayer._refresh_reading_session.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_015.SoloReadingSession._capture_scene.calls": {
+        "samples": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "median": 1.0,
+        "min": 1,
+        "max": 1
+      },
+      "accept_015.WitnessedCaptionLayer._on_reading_input_custody_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_015.WitnessedCaptionLayer._on_reading_session_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_015.WitnessedCaptionLayer._project_scene_caption_memory.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_015.WitnessedCaptionLayer._refresh_reading_session.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_016.SoloReadingSession._capture_scene.calls": {
+        "samples": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "median": 1.0,
+        "min": 1,
+        "max": 1
+      },
+      "accept_016.WitnessedCaptionLayer._on_reading_input_custody_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_016.WitnessedCaptionLayer._on_reading_session_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_016.WitnessedCaptionLayer._project_scene_caption_memory.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_016.WitnessedCaptionLayer._refresh_reading_session.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_017.SoloReadingSession._capture_scene.calls": {
+        "samples": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "median": 1.0,
+        "min": 1,
+        "max": 1
+      },
+      "accept_017.WitnessedCaptionLayer._on_reading_input_custody_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_017.WitnessedCaptionLayer._on_reading_session_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_017.WitnessedCaptionLayer._project_scene_caption_memory.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_017.WitnessedCaptionLayer._refresh_reading_session.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_018.SoloReadingSession._capture_scene.calls": {
+        "samples": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "median": 1.0,
+        "min": 1,
+        "max": 1
+      },
+      "accept_018.WitnessedCaptionLayer._on_reading_input_custody_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_018.WitnessedCaptionLayer._on_reading_session_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_018.WitnessedCaptionLayer._project_scene_caption_memory.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_018.WitnessedCaptionLayer._refresh_reading_session.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_019.SoloReadingSession._capture_scene.calls": {
+        "samples": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "median": 1.0,
+        "min": 1,
+        "max": 1
+      },
+      "accept_019.WitnessedCaptionLayer._on_reading_input_custody_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_019.WitnessedCaptionLayer._on_reading_session_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_019.WitnessedCaptionLayer._project_scene_caption_memory.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_019.WitnessedCaptionLayer._refresh_reading_session.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_020.SoloReadingSession._capture_scene.calls": {
+        "samples": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "median": 1.0,
+        "min": 1,
+        "max": 1
+      },
+      "accept_020.WitnessedCaptionLayer._on_reading_input_custody_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_020.WitnessedCaptionLayer._on_reading_session_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_020.WitnessedCaptionLayer._project_scene_caption_memory.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_020.WitnessedCaptionLayer._refresh_reading_session.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_021.SoloReadingSession._capture_scene.calls": {
+        "samples": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "median": 1.0,
+        "min": 1,
+        "max": 1
+      },
+      "accept_021.WitnessedCaptionLayer._on_reading_input_custody_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_021.WitnessedCaptionLayer._on_reading_session_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_021.WitnessedCaptionLayer._project_scene_caption_memory.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_021.WitnessedCaptionLayer._refresh_reading_session.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_022.SoloReadingSession._capture_scene.calls": {
+        "samples": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "median": 1.0,
+        "min": 1,
+        "max": 1
+      },
+      "accept_022.WitnessedCaptionLayer._on_reading_input_custody_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_022.WitnessedCaptionLayer._on_reading_session_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_022.WitnessedCaptionLayer._project_scene_caption_memory.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_022.WitnessedCaptionLayer._refresh_reading_session.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_023.SoloReadingSession._capture_scene.calls": {
+        "samples": [
+          3,
+          3,
+          2,
+          2
+        ],
+        "median": 2.5,
+        "min": 2,
+        "max": 3
+      },
+      "accept_023.WitnessedCaptionLayer._on_reading_input_custody_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_023.WitnessedCaptionLayer._on_reading_session_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_023.WitnessedCaptionLayer._project_scene_caption_memory.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_023.WitnessedCaptionLayer._refresh_reading_session.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_024.SoloReadingSession._capture_scene.calls": {
+        "samples": [
+          3,
+          3,
+          3,
+          3
+        ],
+        "median": 3.0,
+        "min": 3,
+        "max": 3
+      },
+      "accept_024.WitnessedCaptionLayer._on_reading_input_custody_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_024.WitnessedCaptionLayer._on_reading_session_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_024.WitnessedCaptionLayer._project_scene_caption_memory.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_024.WitnessedCaptionLayer._refresh_reading_session.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_025.SoloReadingSession._capture_scene.calls": {
+        "samples": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "median": 1.0,
+        "min": 1,
+        "max": 1
+      },
+      "accept_025.WitnessedCaptionLayer._on_reading_input_custody_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_025.WitnessedCaptionLayer._on_reading_session_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_025.WitnessedCaptionLayer._project_scene_caption_memory.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_025.WitnessedCaptionLayer._refresh_reading_session.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_026.SoloReadingSession._capture_scene.calls": {
+        "samples": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "median": 1.0,
+        "min": 1,
+        "max": 1
+      },
+      "accept_026.WitnessedCaptionLayer._on_reading_input_custody_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_026.WitnessedCaptionLayer._on_reading_session_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_026.WitnessedCaptionLayer._project_scene_caption_memory.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_026.WitnessedCaptionLayer._refresh_reading_session.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_027.SoloReadingSession._capture_scene.calls": {
+        "samples": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "median": 1.0,
+        "min": 1,
+        "max": 1
+      },
+      "accept_027.WitnessedCaptionLayer._on_reading_input_custody_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_027.WitnessedCaptionLayer._on_reading_session_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_027.WitnessedCaptionLayer._project_scene_caption_memory.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_027.WitnessedCaptionLayer._refresh_reading_session.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_028.SoloReadingSession._capture_scene.calls": {
+        "samples": [
+          3,
+          2,
+          2,
+          3
+        ],
+        "median": 2.5,
+        "min": 2,
+        "max": 3
+      },
+      "accept_028.WitnessedCaptionLayer._on_reading_input_custody_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_028.WitnessedCaptionLayer._on_reading_session_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_028.WitnessedCaptionLayer._project_scene_caption_memory.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_028.WitnessedCaptionLayer._refresh_reading_session.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_029.SoloReadingSession._capture_scene.calls": {
+        "samples": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "median": 1.0,
+        "min": 1,
+        "max": 1
+      },
+      "accept_029.WitnessedCaptionLayer._on_reading_input_custody_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_029.WitnessedCaptionLayer._on_reading_session_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_029.WitnessedCaptionLayer._project_scene_caption_memory.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_029.WitnessedCaptionLayer._refresh_reading_session.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_030.SoloReadingSession._capture_scene.calls": {
+        "samples": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "median": 1.0,
+        "min": 1,
+        "max": 1
+      },
+      "accept_030.WitnessedCaptionLayer._on_reading_input_custody_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_030.WitnessedCaptionLayer._on_reading_session_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_030.WitnessedCaptionLayer._project_scene_caption_memory.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_030.WitnessedCaptionLayer._refresh_reading_session.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "first_accept.SoloReadingSession._capture_scene.calls": {
+        "samples": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "median": 1.0,
+        "min": 1,
+        "max": 1
+      },
+      "first_accept.WitnessedCaptionLayer._on_reading_input_custody_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "first_accept.WitnessedCaptionLayer._on_reading_session_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "first_accept.WitnessedCaptionLayer._project_scene_caption_memory.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "first_accept.WitnessedCaptionLayer._refresh_reading_session.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "load.SoloReadingSession._capture_scene.calls": {
+        "samples": [
+          19,
+          19,
+          19,
+          19
+        ],
+        "median": 19.0,
+        "min": 19,
+        "max": 19
+      },
+      "load.WitnessedCaptionLayer._on_reading_input_custody_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "load.WitnessedCaptionLayer._on_reading_session_changed.calls": {
+        "samples": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "median": 1.0,
+        "min": 1,
+        "max": 1
+      },
+      "load.WitnessedCaptionLayer._project_scene_caption_memory.calls": {
+        "samples": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "median": 1.0,
+        "min": 1,
+        "max": 1
+      },
+      "load.WitnessedCaptionLayer._refresh_reading_session.calls": {
+        "samples": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "median": 1.0,
+        "min": 1,
+        "max": 1
+      },
+      "load.WitnessedCaptionLayer.reproject_retained_captions.calls": {
+        "samples": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "median": 1.0,
+        "min": 1,
+        "max": 1
+      },
+      "observer_capture.SoloReadingSession._capture_scene.calls": {
+        "samples": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "median": 1.0,
+        "min": 1,
+        "max": 1
+      },
+      "load.SoloReadingSession._validate_scene_saved.calls": {
+        "samples": [
+          22,
+          22,
+          22,
+          22
+        ],
+        "median": 22.0,
+        "min": 22,
+        "max": 22
+      }
+    },
+    "candidate": {
+      "load.SoloReadingSession._capture_scene.elapsed_us": {
+        "samples": [
+          568,
+          471,
+          587,
+          495
+        ],
+        "median": 531.5,
+        "min": 471,
+        "max": 587
+      },
+      "load.SoloReadingSession.project_scene_day_history.elapsed_us": {
+        "samples": [
+          20754,
+          21334,
+          23115,
+          20646
+        ],
+        "median": 21044.0,
+        "min": 20646,
+        "max": 23115
+      },
+      "load.SceneReadingHistory.project_encountered.elapsed_us": {
+        "samples": [
+          2793,
+          2801,
+          3335,
+          2739
+        ],
+        "median": 2797.0,
+        "min": 2739,
+        "max": 3335
+      },
+      "first_accept.SoloReadingSession._capture_scene.elapsed_us": {
+        "samples": [
+          38,
+          45,
+          45,
+          37
+        ],
+        "median": 41.5,
+        "min": 37,
+        "max": 45
+      },
+      "accept_030.SoloReadingSession._capture_scene.elapsed_us": {
+        "samples": [
+          198,
+          186,
+          186,
+          177
+        ],
+        "median": 186.0,
+        "min": 177,
+        "max": 198
+      },
+      "line.Day1.030.input_to_observed_drawing_us": {
+        "samples": [
+          126837,
+          128062,
+          139572,
+          128224
+        ],
+        "median": 128143.0,
+        "min": 126837,
+        "max": 139572
+      },
+      "frame_gap_us.accept_030": {
+        "samples": [
+          84008,
+          85103,
+          95792,
+          84489
+        ],
+        "median": 84796.0,
+        "min": 84008,
+        "max": 95792
+      },
+      "accept_003.SoloReadingSession._capture_scene.calls": {
+        "samples": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "median": 1.0,
+        "min": 1,
+        "max": 1
+      },
+      "accept_003.WitnessedCaptionLayer._on_reading_input_custody_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_003.WitnessedCaptionLayer._on_reading_session_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_003.WitnessedCaptionLayer._project_scene_caption_memory.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_003.WitnessedCaptionLayer._refresh_reading_session.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_004.SoloReadingSession._capture_scene.calls": {
+        "samples": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "median": 1.0,
+        "min": 1,
+        "max": 1
+      },
+      "accept_004.WitnessedCaptionLayer._on_reading_input_custody_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_004.WitnessedCaptionLayer._on_reading_session_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_004.WitnessedCaptionLayer._project_scene_caption_memory.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_004.WitnessedCaptionLayer._refresh_reading_session.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_005.SoloReadingSession._capture_scene.calls": {
+        "samples": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "median": 1.0,
+        "min": 1,
+        "max": 1
+      },
+      "accept_005.WitnessedCaptionLayer._on_reading_input_custody_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_005.WitnessedCaptionLayer._on_reading_session_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_005.WitnessedCaptionLayer._project_scene_caption_memory.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_005.WitnessedCaptionLayer._refresh_reading_session.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_006.SoloReadingSession._capture_scene.calls": {
+        "samples": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "median": 1.0,
+        "min": 1,
+        "max": 1
+      },
+      "accept_006.WitnessedCaptionLayer._on_reading_input_custody_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_006.WitnessedCaptionLayer._on_reading_session_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_006.WitnessedCaptionLayer._project_scene_caption_memory.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_006.WitnessedCaptionLayer._refresh_reading_session.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_007.SoloReadingSession._capture_scene.calls": {
+        "samples": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "median": 1.0,
+        "min": 1,
+        "max": 1
+      },
+      "accept_007.WitnessedCaptionLayer._on_reading_input_custody_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_007.WitnessedCaptionLayer._on_reading_session_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_007.WitnessedCaptionLayer._project_scene_caption_memory.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_007.WitnessedCaptionLayer._refresh_reading_session.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_008.SoloReadingSession._capture_scene.calls": {
+        "samples": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "median": 1.0,
+        "min": 1,
+        "max": 1
+      },
+      "accept_008.WitnessedCaptionLayer._on_reading_input_custody_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_008.WitnessedCaptionLayer._on_reading_session_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_008.WitnessedCaptionLayer._project_scene_caption_memory.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_008.WitnessedCaptionLayer._refresh_reading_session.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_009.SoloReadingSession._capture_scene.calls": {
+        "samples": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "median": 1.0,
+        "min": 1,
+        "max": 1
+      },
+      "accept_009.WitnessedCaptionLayer._on_reading_input_custody_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_009.WitnessedCaptionLayer._on_reading_session_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_009.WitnessedCaptionLayer._project_scene_caption_memory.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_009.WitnessedCaptionLayer._refresh_reading_session.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_010.SoloReadingSession._capture_scene.calls": {
+        "samples": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "median": 1.0,
+        "min": 1,
+        "max": 1
+      },
+      "accept_010.WitnessedCaptionLayer._on_reading_input_custody_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_010.WitnessedCaptionLayer._on_reading_session_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_010.WitnessedCaptionLayer._project_scene_caption_memory.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_010.WitnessedCaptionLayer._refresh_reading_session.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_011.SoloReadingSession._capture_scene.calls": {
+        "samples": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "median": 1.0,
+        "min": 1,
+        "max": 1
+      },
+      "accept_011.WitnessedCaptionLayer._on_reading_input_custody_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_011.WitnessedCaptionLayer._on_reading_session_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_011.WitnessedCaptionLayer._project_scene_caption_memory.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_011.WitnessedCaptionLayer._refresh_reading_session.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_012.SoloReadingSession._capture_scene.calls": {
+        "samples": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "median": 1.0,
+        "min": 1,
+        "max": 1
+      },
+      "accept_012.WitnessedCaptionLayer._on_reading_input_custody_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_012.WitnessedCaptionLayer._on_reading_session_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_012.WitnessedCaptionLayer._project_scene_caption_memory.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_012.WitnessedCaptionLayer._refresh_reading_session.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_013.SoloReadingSession._capture_scene.calls": {
+        "samples": [
+          2,
+          2,
+          2,
+          3
+        ],
+        "median": 2.0,
+        "min": 2,
+        "max": 3
+      },
+      "accept_013.WitnessedCaptionLayer._on_reading_input_custody_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_013.WitnessedCaptionLayer._on_reading_session_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_013.WitnessedCaptionLayer._project_scene_caption_memory.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_013.WitnessedCaptionLayer._refresh_reading_session.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_014.SoloReadingSession._capture_scene.calls": {
+        "samples": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "median": 1.0,
+        "min": 1,
+        "max": 1
+      },
+      "accept_014.WitnessedCaptionLayer._on_reading_input_custody_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_014.WitnessedCaptionLayer._on_reading_session_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_014.WitnessedCaptionLayer._project_scene_caption_memory.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_014.WitnessedCaptionLayer._refresh_reading_session.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_015.SoloReadingSession._capture_scene.calls": {
+        "samples": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "median": 1.0,
+        "min": 1,
+        "max": 1
+      },
+      "accept_015.WitnessedCaptionLayer._on_reading_input_custody_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_015.WitnessedCaptionLayer._on_reading_session_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_015.WitnessedCaptionLayer._project_scene_caption_memory.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_015.WitnessedCaptionLayer._refresh_reading_session.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_016.SoloReadingSession._capture_scene.calls": {
+        "samples": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "median": 1.0,
+        "min": 1,
+        "max": 1
+      },
+      "accept_016.WitnessedCaptionLayer._on_reading_input_custody_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_016.WitnessedCaptionLayer._on_reading_session_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_016.WitnessedCaptionLayer._project_scene_caption_memory.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_016.WitnessedCaptionLayer._refresh_reading_session.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_017.SoloReadingSession._capture_scene.calls": {
+        "samples": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "median": 1.0,
+        "min": 1,
+        "max": 1
+      },
+      "accept_017.WitnessedCaptionLayer._on_reading_input_custody_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_017.WitnessedCaptionLayer._on_reading_session_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_017.WitnessedCaptionLayer._project_scene_caption_memory.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_017.WitnessedCaptionLayer._refresh_reading_session.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_018.SoloReadingSession._capture_scene.calls": {
+        "samples": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "median": 1.0,
+        "min": 1,
+        "max": 1
+      },
+      "accept_018.WitnessedCaptionLayer._on_reading_input_custody_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_018.WitnessedCaptionLayer._on_reading_session_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_018.WitnessedCaptionLayer._project_scene_caption_memory.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_018.WitnessedCaptionLayer._refresh_reading_session.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_019.SoloReadingSession._capture_scene.calls": {
+        "samples": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "median": 1.0,
+        "min": 1,
+        "max": 1
+      },
+      "accept_019.WitnessedCaptionLayer._on_reading_input_custody_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_019.WitnessedCaptionLayer._on_reading_session_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_019.WitnessedCaptionLayer._project_scene_caption_memory.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_019.WitnessedCaptionLayer._refresh_reading_session.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_020.SoloReadingSession._capture_scene.calls": {
+        "samples": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "median": 1.0,
+        "min": 1,
+        "max": 1
+      },
+      "accept_020.WitnessedCaptionLayer._on_reading_input_custody_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_020.WitnessedCaptionLayer._on_reading_session_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_020.WitnessedCaptionLayer._project_scene_caption_memory.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_020.WitnessedCaptionLayer._refresh_reading_session.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_021.SoloReadingSession._capture_scene.calls": {
+        "samples": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "median": 1.0,
+        "min": 1,
+        "max": 1
+      },
+      "accept_021.WitnessedCaptionLayer._on_reading_input_custody_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_021.WitnessedCaptionLayer._on_reading_session_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_021.WitnessedCaptionLayer._project_scene_caption_memory.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_021.WitnessedCaptionLayer._refresh_reading_session.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_022.SoloReadingSession._capture_scene.calls": {
+        "samples": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "median": 1.0,
+        "min": 1,
+        "max": 1
+      },
+      "accept_022.WitnessedCaptionLayer._on_reading_input_custody_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_022.WitnessedCaptionLayer._on_reading_session_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_022.WitnessedCaptionLayer._project_scene_caption_memory.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_022.WitnessedCaptionLayer._refresh_reading_session.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_023.SoloReadingSession._capture_scene.calls": {
+        "samples": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "median": 1.0,
+        "min": 1,
+        "max": 1
+      },
+      "accept_023.WitnessedCaptionLayer._on_reading_input_custody_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_023.WitnessedCaptionLayer._on_reading_session_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_023.WitnessedCaptionLayer._project_scene_caption_memory.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_023.WitnessedCaptionLayer._refresh_reading_session.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_024.SoloReadingSession._capture_scene.calls": {
+        "samples": [
+          2,
+          1,
+          2,
+          2
+        ],
+        "median": 2.0,
+        "min": 1,
+        "max": 2
+      },
+      "accept_024.WitnessedCaptionLayer._on_reading_input_custody_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_024.WitnessedCaptionLayer._on_reading_session_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_024.WitnessedCaptionLayer._project_scene_caption_memory.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_024.WitnessedCaptionLayer._refresh_reading_session.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_025.SoloReadingSession._capture_scene.calls": {
+        "samples": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "median": 1.0,
+        "min": 1,
+        "max": 1
+      },
+      "accept_025.WitnessedCaptionLayer._on_reading_input_custody_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_025.WitnessedCaptionLayer._on_reading_session_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_025.WitnessedCaptionLayer._project_scene_caption_memory.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_025.WitnessedCaptionLayer._refresh_reading_session.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_026.SoloReadingSession._capture_scene.calls": {
+        "samples": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "median": 1.0,
+        "min": 1,
+        "max": 1
+      },
+      "accept_026.WitnessedCaptionLayer._on_reading_input_custody_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_026.WitnessedCaptionLayer._on_reading_session_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_026.WitnessedCaptionLayer._project_scene_caption_memory.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_026.WitnessedCaptionLayer._refresh_reading_session.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_027.SoloReadingSession._capture_scene.calls": {
+        "samples": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "median": 1.0,
+        "min": 1,
+        "max": 1
+      },
+      "accept_027.WitnessedCaptionLayer._on_reading_input_custody_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_027.WitnessedCaptionLayer._on_reading_session_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_027.WitnessedCaptionLayer._project_scene_caption_memory.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_027.WitnessedCaptionLayer._refresh_reading_session.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_028.SoloReadingSession._capture_scene.calls": {
+        "samples": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "median": 1.0,
+        "min": 1,
+        "max": 1
+      },
+      "accept_028.WitnessedCaptionLayer._on_reading_input_custody_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_028.WitnessedCaptionLayer._on_reading_session_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_028.WitnessedCaptionLayer._project_scene_caption_memory.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_028.WitnessedCaptionLayer._refresh_reading_session.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_029.SoloReadingSession._capture_scene.calls": {
+        "samples": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "median": 1.0,
+        "min": 1,
+        "max": 1
+      },
+      "accept_029.WitnessedCaptionLayer._on_reading_input_custody_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_029.WitnessedCaptionLayer._on_reading_session_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_029.WitnessedCaptionLayer._project_scene_caption_memory.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_029.WitnessedCaptionLayer._refresh_reading_session.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_030.SoloReadingSession._capture_scene.calls": {
+        "samples": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "median": 1.0,
+        "min": 1,
+        "max": 1
+      },
+      "accept_030.WitnessedCaptionLayer._on_reading_input_custody_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_030.WitnessedCaptionLayer._on_reading_session_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_030.WitnessedCaptionLayer._project_scene_caption_memory.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "accept_030.WitnessedCaptionLayer._refresh_reading_session.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "first_accept.SoloReadingSession._capture_scene.calls": {
+        "samples": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "median": 1.0,
+        "min": 1,
+        "max": 1
+      },
+      "first_accept.WitnessedCaptionLayer._on_reading_input_custody_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "first_accept.WitnessedCaptionLayer._on_reading_session_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "first_accept.WitnessedCaptionLayer._project_scene_caption_memory.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "first_accept.WitnessedCaptionLayer._refresh_reading_session.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "load.SoloReadingSession._capture_scene.calls": {
+        "samples": [
+          19,
+          19,
+          19,
+          19
+        ],
+        "median": 19.0,
+        "min": 19,
+        "max": 19
+      },
+      "load.WitnessedCaptionLayer._on_reading_input_custody_changed.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "load.WitnessedCaptionLayer._on_reading_session_changed.calls": {
+        "samples": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "median": 1.0,
+        "min": 1,
+        "max": 1
+      },
+      "load.WitnessedCaptionLayer._project_scene_caption_memory.calls": {
+        "samples": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "median": 1.0,
+        "min": 1,
+        "max": 1
+      },
+      "load.WitnessedCaptionLayer._refresh_reading_session.calls": {
+        "samples": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "median": 1.0,
+        "min": 1,
+        "max": 1
+      },
+      "load.WitnessedCaptionLayer.reproject_retained_captions.calls": {
+        "samples": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "median": 1.0,
+        "min": 1,
+        "max": 1
+      },
+      "observer_capture.SoloReadingSession._capture_scene.calls": {
+        "samples": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "median": 1.0,
+        "min": 1,
+        "max": 1
+      },
+      "load.SoloReadingSession._validate_scene_saved.calls": {
+        "samples": [
+          3,
+          3,
+          3,
+          3
+        ],
+        "median": 3.0,
+        "min": 3,
+        "max": 3
+      }
+    }
+  },
+  "capture_max_individual_call_us": {
+    "baseline": 35877,
+    "candidate": 209
+  },
+  "capture_max_total_per_accept_action_us": {
+    "baseline": 117458,
+    "candidate": 337
+  }
+}
