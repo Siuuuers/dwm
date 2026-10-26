@@ -1,0 +1,20 @@
+{
+  "baseline": "4d214741177df293b424d08b213daff060d37e40",
+  "candidate": "baa4b41cf5c852c144a9537150763462dcc73995",
+  "observer": "d72b67506e05c03f161201df7b9fc5430e2b136e",
+  "baseline_tree": "4c5c5fe325d4603f0bc907ea2afeb5c676da852d",
+  "candidate_tree": "f6dec8b3e05e5de7f0ccb08f74b41e0305b8b758",
+  "repetitions": 4,
+  "order": [
+    "AB",
+    "BA",
+    "AB",
+    "BA"
+  ],
+  "cases": [
+    "fresh",
+    "retained",
+    "load"
+  ],
+  "scope": "Matched baseline/candidate instrumented exports on one Windows runner. Each action starts a new process. Retained uses own fresh output; every Load uses r1-baseline-fresh. OS caches are not cleared."
+}
