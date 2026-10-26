@@ -1,0 +1,15 @@
+{
+  "run_id": 40263114679,
+  "measured_source": "51763f0af4d71909411ff208b3f3584516f09d37",
+  "diagnostic_head": "cb9558898099d867940edc7ddc2e5e0f28eb0898",
+  "original_artifact_id": 12624884076,
+  "original_artifact_sha256": "b104414c98a28fd7916ceb0e5c45ac06aaaaafd86be5c21ec6631a568a62306d",
+  "original_artifact_bytes": 10154610,
+  "retained_archive": "measurement-evidence.zip",
+  "retained_sha256": "79dc9a6cfa6cfd983d45697baf8285ecee3d3756b2a1638a2a9ad1b4015999e7",
+  "retained_bytes": 2727960,
+  "retention": "All non-profile JSON and logs; five representative original PNGs; contact sheets covering all32 visually reviewed PNGs. Full Profile snapshots, binaries and other original PNGs omitted. Original screenshot hashes remain in process reports.",
+  "samples": 12,
+  "load_input_files": 74,
+  "measurement_only": true
+}
