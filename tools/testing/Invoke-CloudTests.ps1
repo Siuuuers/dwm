@@ -165,6 +165,7 @@ $suites = @{
         'tests/scenario/test_day7_schedule_provenance.gd'
     )
     audio = @(
+        'tests/unit/test_scene_audio_manifest.gd'
         'tests/unit/test_audio_manager.gd'
         'tests/unit/test_audio_settings_transactions.gd'
     )

@@ -282,11 +282,11 @@ static func derive_current_scene_frames(scene: Dictionary, reading: Dictionary) 
 			or reading.registration_sha256 != scene.registration_sha256 \
 			or reading.occurrence_id != occurrence or reading.entry_id != entry_id:
 		return _fail(&"reading_scene_admission_invalid")
-	var registered := SCENE_ENTRIES.scene_registration()
+	var registered := SCENE_ENTRIES.scene_contract_tables()
 	if not registered.ok: return registered
 	var role: String = "contact" if scene.get("return_to") != null else "scene"
 	var found := false
-	for row: Dictionary in registered.value.targets:
+	for row: Dictionary in registered.bundle.targets:
 		if row.target.entry_id == entry_id and row.target.kind == role:
 			found = true
 	if not found: return _fail(&"reading_scene_admission_invalid")
@@ -327,12 +327,12 @@ static func _validate_scene_envelope(checkpoint: Dictionary) -> Dictionary:
 ## issuer custody nor accepts a Run; validate() intentionally remains fail-closed.
 static func derive_scene_frames(admissions: Dictionary, reading: Dictionary) -> Dictionary:
 	if not READING_NEXT.valid_scene_reading_shape(reading): return _fail(&"reading_session_invalid")
-	var registered := SCENE_ENTRIES.scene_registration()
+	var registered := SCENE_ENTRIES.scene_contract_tables()
 	if not registered.ok: return registered
 	if reading.registration_sha256 != SCENE_ENTRIES.scene_registration_fingerprint():
 		return _fail(&"reading_scene_registration_mismatch")
 	var targets := {}
-	for row: Dictionary in registered.value.targets: targets[row.target_id] = row.target
+	for row: Dictionary in registered.bundle.targets: targets[row.target_id] = row.target
 	var frames := {}
 	for key: Variant in reading.ledger.entry_contexts:
 		if not key is String: return _fail(&"reading_entry_context_mismatch")

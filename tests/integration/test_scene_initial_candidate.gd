@@ -295,7 +295,7 @@ func test_configuration_fork_keeps_fresh_mutable_session_state() -> void:
 	assert_true(is_same(sibling._caption_variants_by_line, reading.session._caption_variants_by_line), "frozen lookup is shared")
 	assert_true(BRIDGE.build_scene_initial_checkpoint(receipt, bundle).ok, "private fork cannot change public reconstruction")
 
-func test_next_public_build_and_candidate_validation_recheck_physical_content() -> void:
+func test_next_public_build_reuses_installed_content_and_ci_checks_physical_edits() -> void:
 	if not _prepare(): return
 	var source_path := ""
 	for entry: Dictionary in bundle.entry_manifest.entries:
@@ -309,22 +309,24 @@ func test_next_public_build_and_candidate_validation_recheck_physical_content() 
 	source.store_string(original + "\n")
 	source.close()
 	# A trailing empty line preserves the programme but changes its physical hash.
-	# Both public entries must still configure and compare current source bytes.
+	# Runtime reuses installed content; the explicit artifact check owns disk edits.
 	var rebuilt: Dictionary = BRIDGE.build_scene_initial_checkpoint(receipt, bundle)
 	var checked := _validate(document)
+	var authored := MANIFEST.validate_scene_registration(bundle)
 	source = FileAccess.open(source_path, FileAccess.WRITE)
 	assert_not_null(source)
 	if source == null: return
 	source.store_string(original)
 	source.close()
-	assert_false(rebuilt.ok)
-	assert_eq(rebuilt.get("code"), &"reading_catalogue_mismatch")
-	assert_false(checked.ok)
-	assert_eq(checked.get("code"), &"reading_catalogue_mismatch")
+	assert_true(rebuilt.ok, str(rebuilt))
+	if rebuilt.ok: assert_eq(rebuilt.value, context.dialogic_checkpoint)
+	assert_true(checked.ok, str(checked))
+	assert_false(authored.ok, "CI must reject changed physical content")
 	var restored: Dictionary = BRIDGE.build_scene_initial_checkpoint(receipt, bundle)
 	assert_true(restored.ok, str(restored))
 	if restored.ok: assert_eq(restored.value, context.dialogic_checkpoint)
-	assert_true(_validate(document).ok, "restoring source bytes permits a new fresh validation")
+	assert_true(_validate(document).ok)
+	assert_true(MANIFEST.validate_scene_registration(bundle).ok, "restored bytes pass the artifact check")
 
 func test_foreign_current_frame_is_refused_before_initial_admission() -> void:
 	if not _prepare(): return

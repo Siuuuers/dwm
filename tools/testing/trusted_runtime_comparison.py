@@ -133,6 +133,16 @@ def prepare(root, harness):
     # Baseline means an observation-only overlay on the both pinned sources.
     # Its replace_once and coroutine guards reject outdated instrumentation anchors.
     module.prepare(root, "baseline", trace_autoloads=True, trace_newacc=True)
+    # The physical check may belong to the test seam while structural preparation
+    # belongs to runtime. Observe each independently, without sharing local scope.
+    manifest = root / "scripts/narrative/DialogicEntryManifest.gd"
+    text = manifest.read_text()
+    text = replace_once(text, '\tbegan = probe.stamp()\n\tvar structural :=',
+        '\tvar structural_probe: Node = (Engine.get_main_loop() as SceneTree).root.get_node("StartupProbe")\n'
+        '\tvar structural_began: Dictionary = structural_probe.stamp()\n\tvar structural :=')
+    text = replace_once(text, '\tprobe.finish_phase("registration.structural", began,',
+        '\tstructural_probe.finish_phase("registration.structural", structural_began,')
+    manifest.write_text(text)
     probe = root / "startup_probe.gd"
     text = probe.read_text()
     text = replace_once(text, '["baseline", "desktop"]', '["baseline", "candidate", "desktop"]')
@@ -143,6 +153,7 @@ def prepare(root, harness):
     probe.write_text(text + LOAD_PROBE)
     receipt_path = root / "startup-variant.json"
     receipt = json.loads(receipt_path.read_text())
+    receipt["changes"]["scripts/narrative/DialogicEntryManifest.gd"]["after"] = hashlib.sha256(manifest.read_bytes()).hexdigest()
     receipt["newacc_probe_sha256"] = receipt["probe_sha256"]
     receipt["probe_sha256"] = hashlib.sha256(probe.read_bytes()).hexdigest()
     receipt["changes"]["startup_probe.gd"]["after"] = receipt["probe_sha256"]

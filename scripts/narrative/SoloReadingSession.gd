@@ -474,10 +474,10 @@ func restore_player(saved: Dictionary, entry_id: String) -> Dictionary:
 	if index < 0: return _fail(&"reading_frontier_invalid")
 	var tail: Dictionary = rows.back()
 	if saved.boundary == "control":
-		var registered := preload("res://scripts/narrative/DialogicEntryManifest.gd").scene_registration()
+		var registered := preload("res://scripts/narrative/DialogicEntryManifest.gd").scene_contract_tables()
 		if not registered.ok: return registered
 		var predecessor := _fail(&"reading_frontier_invalid")
-		for programme: Dictionary in registered.value.scene_programme.entries:
+		for programme: Dictionary in registered.bundle.scene_programme.entries:
 			if programme.entry_id == entry_id:
 				predecessor = DialogicRuntimeAdapter._scene_control_authored_predecessor(index, {"nodes": nodes}, programme.markers)
 		if not predecessor.ok or predecessor.value.line_id != tail.beat.line_id:
