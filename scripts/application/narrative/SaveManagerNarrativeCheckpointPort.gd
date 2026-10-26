@@ -870,13 +870,23 @@ func _scene_candidate_reference(candidate: Dictionary, checkpoint: Dictionary) -
 	if not candidate.get("journal_candidate") is Dictionary or not candidate.get("autosave_document") is Dictionary: return {}
 	var snapshot: Dictionary = _scene_bundle_snapshot(candidate.get("journal_candidate", {}).get("current"))
 	var reference := _scene_snapshot_reference(snapshot)
+	var persisted: Variant = snapshot.get("narrative_checkpoint")
+	if not persisted is Dictionary: return {}
+	var owner := preload("res://scripts/narrative/SoloReadingSession.gd")
+	var persisted_player: Dictionary = owner.project_player_checkpoint(persisted)
+	if not persisted_player.ok: return {}
 	# Entry acknowledgement names the privately retained target, never a caller's
-	# potentially callback-mutated copy. Ordinary source checkpoints use their input.
-	if not _scene_entry.is_empty() and (not _player_checkpoint_same(snapshot.get("narrative_checkpoint"), _scene_entry.checkpoint) \
-			or _fingerprint(_scene_entry.checkpoint) != _scene_entry.narrative_checkpoint_sha256):
-		return {}
-	if reference.is_empty() or reference.checkpoint_id != candidate.get("checkpoint_id") \
-			or not _player_checkpoint_same(snapshot.get("narrative_checkpoint"), checkpoint) \
+	# potentially callback-mutated copy. Reuse only this invocation's projection.
+	if not _scene_entry.is_empty():
+		var retained: Variant = _scene_entry.checkpoint
+		if not retained is Dictionary: return {}
+		var retained_player: Dictionary = owner.project_player_checkpoint(retained)
+		if not retained_player.ok or not READING_NEXT._same(persisted_player.value, retained_player.value) \
+				or _fingerprint(retained) != _scene_entry.narrative_checkpoint_sha256:
+			return {}
+	if reference.is_empty() or reference.checkpoint_id != candidate.get("checkpoint_id"): return {}
+	var supplied_player: Dictionary = owner.project_player_checkpoint(checkpoint)
+	if not supplied_player.ok or not READING_NEXT._same(persisted_player.value, supplied_player.value) \
 			or _fingerprint(_scene_bundle_snapshot(candidate.get("autosave_document", {}).get("current_snapshot"))) != reference.snapshot_sha256:
 		return {}
 	return reference
