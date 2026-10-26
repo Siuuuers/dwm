@@ -55,7 +55,7 @@ jobs:
             candidate_tree = (& git rev-parse "$($env:CANDIDATE_SHA)^{tree}").Trim()
             repetitions = 4
             order = @('AB', 'BA', 'AB', 'BA'); cases = @('fresh', 'retained', 'load')
-            scope = 'Matched baseline/candidate instrumented exports on one Windows runner. Each action starts a new process. Retained and Load use the same r1-baseline-fresh profile after a real manual save. OS caches are not cleared.'
+            scope = 'Matched baseline/candidate instrumented exports on one Windows runner. Each action starts a new process. Retained and Load use the same r1-baseline-fresh profile after a real manual save. Verbose engine logging is enabled equally to identify shutdown resources. OS caches are not cleared.'
           } | ConvertTo-Json -Depth 4 | Set-Content (Join-Path $output 'source.json') -Encoding utf8NoBOM
           Get-CimInstance Win32_VideoController | Select-Object Name, DriverVersion, AdapterRAM |
             ConvertTo-Json | Set-Content (Join-Path $output 'video-controller.json') -Encoding utf8NoBOM
@@ -168,17 +168,17 @@ jobs:
               $executable = Join-Path $env:STARTUP_OUTPUT "$variant/package/game.exe"
               $fresh = Join-Path $env:STARTUP_OUTPUT "profiles/r$repeat-$variant-fresh"
               $output = Join-Path $env:STARTUP_OUTPUT "measurements/r$repeat-$variant-fresh"
-              & $probe -Executable $executable -Output $output -ProfileRoot $fresh -Case fresh -Variant $variant
+              & $probe -Executable $executable -Output $output -ProfileRoot $fresh -Case fresh -Variant $variant -VerboseEngine
               $retained = Join-Path $env:STARTUP_OUTPUT "profiles/r$repeat-$variant-retained"
               New-Item -ItemType Directory -Path $retained | Out-Null
               Get-ChildItem -LiteralPath $seedProfile -Force | Copy-Item -Destination $retained -Recurse -Force
               $output = Join-Path $env:STARTUP_OUTPUT "measurements/r$repeat-$variant-retained"
-              & $probe -Executable $executable -Output $output -ProfileRoot $retained -Case retained -Variant $variant
+              & $probe -Executable $executable -Output $output -ProfileRoot $retained -Case retained -Variant $variant -VerboseEngine
               $load = Join-Path $env:STARTUP_OUTPUT "profiles/r$repeat-$variant-load"
               New-Item -ItemType Directory -Path $load | Out-Null
               Get-ChildItem -LiteralPath $seedProfile -Force | Copy-Item -Destination $load -Recurse -Force
               $output = Join-Path $env:STARTUP_OUTPUT "measurements/r$repeat-$variant-load"
-              & $probe -Executable $executable -Output $output -ProfileRoot $load -Case retained -Variant $variant -Journey load
+              & $probe -Executable $executable -Output $output -ProfileRoot $load -Case retained -Variant $variant -Journey load -VerboseEngine
             }
           }
           python tools/testing/trusted_runtime_comparison.py summarize --root $env:STARTUP_OUTPUT
