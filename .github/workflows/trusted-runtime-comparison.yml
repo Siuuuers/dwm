@@ -1,5 +1,5 @@
 name: Trusted runtime matched comparison
-run-name: Trusted runtime matched exported startup and Load timing
+run-name: Scene activation cost attribution on merged master
 
 on:
   pull_request:
@@ -14,14 +14,14 @@ concurrency:
 
 jobs:
   measure:
-    if: github.event_name == 'workflow_dispatch' || github.head_ref == 'codex/new-run-presence-20261026'
+    if: github.event_name == 'workflow_dispatch' || github.head_ref == 'codex/scene-cost-attribution-20261026'
     runs-on: windows-2022
     timeout-minutes: 55
     defaults:
       run:
         shell: pwsh
     env:
-      STARTUP_BASE_SHA: 0a15de6724ab6256953d0643eab74c6b8cb23807
+      STARTUP_BASE_SHA: a5ecd04ecb2724aaaf8c7462aa2b41e9f895ccc5
       CANDIDATE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
       DIAGNOSTIC_SHA: d72b67506e05c03f161201df7b9fc5430e2b136e
     steps:
@@ -183,6 +183,9 @@ jobs:
           }
           python tools/testing/trusted_runtime_comparison.py summarize --root $env:STARTUP_OUTPUT
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Print phase attribution for review
+        run: |
+          python -c "import json,os; from pathlib import Path; d=json.loads((Path(os.environ['STARTUP_OUTPUT'])/'summary.json').read_text()); print(json.dumps({v:{c:{k:x for k,x in m.items() if k.startswith(('process.', 'frame_gap_us.', 'activation.')) or (k.startswith(('phase.call.', 'phase.native.')) and k.endswith('elapsed_us'))} for c,m in cases.items()} for v,cases in d['aggregates'].items()}))"
       - name: Verify measured packages remain unchanged
         if: always()
         run: |
