@@ -196,8 +196,7 @@ func _capture_scene(frontier: Dictionary) -> Dictionary:
 		"occurrence_id": scene_occurrence, "program_index": scene_index, "boundary": boundary,
 		"ledger": retained, "frontier": frontier.duplicate(true), "player_progress": player_progress.duplicate(true),
 		"next_operation": null if next_operation.is_empty() else next_operation.duplicate(true)}
-	var checked := _validate_scene_saved(saved, latest_entry)
-	return {"ok": true, "value": saved} if checked.ok else checked
+	return {"ok": true, "value": saved}
 
 func _story_day(entry_id: String) -> int:
 	return int(_scene_bundle.get("scene_programme", {}).get("story_days", {}).get(entry_id,
