@@ -136,7 +136,9 @@ func _load_saved(menu: Node) -> void:
 		"same_run": true, "text": input_caption.caption_text.get_parsed_text()}
 	# Observe one second after the first responsive draw. No deferred work is
 	# requested by the probe during this window; frame gaps expose shifted stalls.
-	await get_tree().create_timer(1.0).timeout
+	var observe_until: int = int(milestones.load_next_caption_drawn.ticks_us) + 1000000
+	while Time.get_ticks_usec() < observe_until:
+		await get_tree().process_frame
 	await RenderingServer.frame_post_draw
 	mark("load_post_input_observation_complete")
 	gap_scope = ""

@@ -1886,6 +1886,14 @@
       "contract_test": "test_exact_activation_replay_is_idempotent_but_old_tickets_cannot_replace_later_sessions"
     },
     {
+      "symbol": "activate_loaded_session",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_selected_load_preserves_identity_disk_and_current_settings_then_allows_normal_save"
+    },
+    {
       "symbol": "retire_live_session",
       "kind": "function",
       "availability": "current",

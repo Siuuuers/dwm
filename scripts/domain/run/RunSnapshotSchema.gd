@@ -896,8 +896,8 @@ static func validate_scene_new_run_candidate(snapshot: Dictionary, allocation_ca
 			or saved.ledger.captions.size() != 1 or saved.ledger.entry_contexts.size() != 1:
 		return _fail(&"scene_initial_state_invalid", "initial reading must contain only its first caption and frame")
 	var bridge_owner: Script = load("res://autoload/DialogicBridge.gd")
-	# Reading admission just compiled every registered entry. This callback-free
-	# tail can reuse that configuration while rebuilding a wholly new ledger.
+	# Reading admission prepared the selected entry. This callback-free tail
+	# can reuse that configuration while rebuilding a wholly new ledger.
 	var initial_reading: Dictionary = bridge_owner._build_current_scene_initial_checkpoint(candidate.scene, bundle, reading.session)
 	if not initial_reading.ok: return initial_reading
 	var projected_initial: Dictionary = SCENE_READING.project_player_checkpoint(initial_reading.value)

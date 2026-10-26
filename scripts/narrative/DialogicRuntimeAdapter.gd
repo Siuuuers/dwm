@@ -509,6 +509,9 @@ static func compile_scene_programme(path: String, entry_label: String,
 # validation on the public compiler; native playback reuses its prepared mapping.
 static var _scene_runtime_programmes: Dictionary = {}
 static var _scene_runtime_bundle: Dictionary = {}
+# Parse-only timelines are never installed as live playback. Lazy entries in the
+# same day reuse this source until the installed registration changes.
+static var _scene_runtime_parsed_sources: Dictionary = {}
 
 static func compile_runtime_scene_programme(path: String, entry_label: String,
 		callable_labels: Array, markers: Array = [], parsed_sources: Dictionary = {}) -> Dictionary:
@@ -518,17 +521,22 @@ static func compile_runtime_scene_programme(path: String, entry_label: String,
 	if not is_same(_scene_runtime_bundle, selected.bundle):
 		_scene_runtime_bundle = selected.bundle
 		_scene_runtime_programmes = {}
+		_scene_runtime_parsed_sources = {}
 	var cacheable: bool = not ProjectSettings.get_setting("dialogic/translation/enabled", false)
 	if cacheable and _scene_runtime_programmes.has(entry_label):
 		return _scene_runtime_programmes[entry_label]
+	if cacheable and not parsed_sources.has(path) and _scene_runtime_parsed_sources.has(path):
+		parsed_sources[path] = _scene_runtime_parsed_sources[path]
 	var result := _compile_scene_programme_in_registration(path, entry_label, callable_labels, markers, parsed_sources)
+	if cacheable and parsed_sources.has(path):
+		_scene_runtime_parsed_sources[path] = parsed_sources[path]
 	if cacheable and result.ok:
 		owner._scene_freeze(result)
 		_scene_runtime_programmes[entry_label] = result
 	return result
 
-# Synchronous registration validation and session preparation each own a local parse scope.
-# Public calls start empty; neither this scope nor its native events enter the result cache.
+# Strict registration validation keeps its own parse scope. Runtime preparation
+# shares parse-only sources separately from the immutable semantic result cache.
 static func _compile_scene_programme_in_registration(path: String, entry_label: String,
 		callable_labels: Array, markers: Array, parsed_sources: Dictionary) -> Dictionary:
 	var timing := preload("res://scripts/narrative/SceneValidationTiming.gd")

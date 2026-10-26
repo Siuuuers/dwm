@@ -314,7 +314,8 @@ func test_prepared_configuration_shares_frozen_data_but_not_reading_progress() -
 	assert_eq(READING.checkpoint(second), retained, "advancing one session cannot advance the other")
 	var labels: Array = []
 	for entry: Dictionary in bundle.entry_manifest.entries: labels.append(entry.entry_id)
-	var programme: Dictionary = bundle.scene_programme.entries[0]
+	var programme: Dictionary = bundle.scene_programme.entries.filter(
+		func(row: Dictionary) -> bool: return row.entry_id == READING.A)[0]
 	var compiled := ADAPTER.compile_scene_programme(PATH, programme.entry_id, labels, programme.markers)
 	assert_true(compiled.ok)
 	if not compiled.ok: return
@@ -446,8 +447,8 @@ func test_initial_checkpoint_reuses_runtime_compilation_and_keeps_exact_first_ca
 	assert_true(cold.ok, str(cold))
 	assert_true(warm.ok, str(warm))
 	if not cold.ok or not warm.ok: return
-	assert_eq(cold_calls, bundle.scene_programme.entries.size(),
-		"first target and subsequent session configuration compile each entry once")
+	assert_eq(cold_calls, 1,
+		"first target compiles once; session configuration leaves other passages lazy")
 	assert_eq(warm_calls, 0, "retained New Account does not recompile installed entries")
 	assert_eq(warm, cold, "cache reuse preserves the complete initial checkpoint")
 	var labels: Array = []
@@ -497,3 +498,46 @@ func test_scene_programmes_compile_only_when_admitted_or_restored() -> void:
 	assert_true(READING.enter(restored, READING.B, "test:lazy-next").ok)
 	assert_true(restored._scene_nodes.has(READING.B), "later entry prepares when reached")
 	assert_false(restored._scene_nodes.has(READING.CONTACT), "unopened Contacts stays lazy")
+
+func test_lazy_runtime_entries_share_parse_until_registration_changes_and_bypass_translation() -> void:
+	var bundle := _install_reading_source()
+	var labels: Array = []
+	for entry: Dictionary in bundle.entry_manifest.entries: labels.append(entry.entry_id)
+	# Force a cold runtime parse instead of the strict fixture-selection result.
+	ADAPTER._scene_compile_cache.erase(PATH)
+	var first: Dictionary = bundle.scene_programme.entries[0]
+	var second: Dictionary = bundle.scene_programme.entries[1]
+	assert_true(ADAPTER.compile_runtime_scene_programme(PATH, first.entry_id, labels, first.markers).ok)
+	assert_true(ADAPTER._scene_runtime_parsed_sources.has(PATH))
+	if not ADAPTER._scene_runtime_parsed_sources.has(PATH): return
+	var parsed: DialogicTimeline = ADAPTER._scene_runtime_parsed_sources[PATH].timeline
+	assert_true(ADAPTER.compile_runtime_scene_programme(PATH, second.entry_id, labels, second.markers).ok)
+	assert_true(is_same(parsed, ADAPTER._scene_runtime_parsed_sources[PATH].timeline),
+		"separate lazy calls reuse the same day parse")
+	ProjectSettings.set_setting("dialogic/translation/enabled", true)
+	_translation = Translation.new()
+	_translation.set_locale("en")
+	var line: Dictionary = bundle.caption_registry.entries[0].lines[0]
+	_translation.add_message("Text/%s/text" % line.line_id, "TEST newly translated lazy caption.")
+	TranslationServer.add_translation(_translation)
+	TranslationServer.set_locale("en")
+	var local_parse := {}
+	var translated := ADAPTER.compile_runtime_scene_programme(PATH, first.entry_id, labels, first.markers, local_parse)
+	assert_true(translated.ok)
+	if translated.ok:
+		assert_true(translated.value.events.any(func(event: Dictionary) -> bool:
+			return event.get("text") == "TEST newly translated lazy caption."),
+			"translation-enabled compilation cannot return stale canonical prose")
+	assert_true(local_parse.is_empty(), "translation neither reads nor populates shared parse scopes")
+	assert_true(is_same(parsed, ADAPTER._scene_runtime_parsed_sources[PATH].timeline))
+	assert_false(is_same(translated, ADAPTER._scene_runtime_programmes[first.entry_id]))
+	ProjectSettings.set_setting("dialogic/translation/enabled", false)
+	var inner := SCOPE.new()
+	inner.install(true)
+	assert_true(MANIFEST.configure_test_scene_registration(bundle).ok)
+	ADAPTER._scene_compile_cache.erase(PATH)
+	assert_true(ADAPTER.compile_runtime_scene_programme(PATH, first.entry_id, labels, first.markers).ok)
+	assert_false(is_same(parsed, ADAPTER._scene_runtime_parsed_sources[PATH].timeline),
+		"new selected registration cannot retain the prior native parse")
+	assert_eq(ADAPTER._scene_runtime_programmes.keys(), [first.entry_id])
+	inner.restore()
