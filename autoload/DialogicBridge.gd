@@ -312,7 +312,7 @@ func _prepare_scene_entry(entry_id: String, context: Dictionary) -> Dictionary:
 		if entry.entry_id == entry_id: path = entry.locators.en.path
 	for programme: Dictionary in bundle.scene_programme.entries:
 		if programme.entry_id == entry_id: markers = programme.markers
-	var compiled := DialogicRuntimeAdapter.compile_scene_programme(path, entry_id, labels, markers)
+	var compiled := DialogicRuntimeAdapter.compile_runtime_scene_programme(path, entry_id, labels, markers)
 	if not compiled.ok: return compiled
 	if not compiled.value.label_nodes.has(target.label): return _command_failure(&"scene_staging_target_invalid")
 	var index: int = compiled.value.label_nodes[target.label]
