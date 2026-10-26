@@ -5,6 +5,10 @@
 **Consolidation date:** 2026-10-20  
 **Publication scope:** documentation only; no code, schema, test, workflow or PR #1 change is authorized or certified by this file. The PR metadata, not this document's existence, establishes whether it has merged.
 
+## New Run assignment amendment, 2026-10-26
+
+The owner now selects one authored starting entry for every New Run, with subsequent choices determining story progression. Temporarily retire the run-level Sweet/Dark assignment and preserve its source for possible future work. This supersedes the retained new-run form-selection requirement below; it does not remove local Challenge result variations or rewrite authored passages. See the [decision and source archive](../docs/retired-features/new-run-assignment/README.md) for implementation scope and dependencies. This documentation change does not claim runtime removal is complete.
+
 ## Authority and reading order
 
 This is a bounded approved amendment of the existing [Bible](01-core-story-bible.md), not an alternative Bible or a complete new plot. Read this amendment before the affected legacy passages. Only the explicitly superseded matters below change; unaffected fictional facts, craft guidance, source status and technical contracts retain their existing owners. This document now owns the current narrative and intended story flow together: [Sections 2–5](#2-chapter-flow-and-the-relationship-choice) guide authors, while [Section 9](#9-implementation-handoff-and-inspection-limits) retains implementation recommendations, acceptance specifications and open limits. Intended behavior is not an implementation claim.

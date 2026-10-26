@@ -53,8 +53,12 @@ func before_all() -> void:
 	assert_eq(started.get("code"), &"scene_activation_pending", str(started))
 	if started.get("code") != &"scene_activation_pending": return
 	fixture.confirm_activation()
-	fixture_ready = fixture.manager.capture_committed_scene_creation(started.transaction_id).get("ok", false)
-	assert_true(fixture_ready)
+	assert_true(fixture.game.capture_live_session().value.active)
+	assert_false(fixture.storage.exists("autosave.json"), "creation is in memory")
+	# These Backup tests inspect a real later save, not an initial creation write.
+	var saved: Dictionary = fixture.manager.autosave_latest()
+	fixture_ready = saved.get("ok", false)
+	assert_true(fixture_ready, str(saved))
 
 func after_all() -> void:
 	if fixture != null: fixture.close()
@@ -585,55 +589,21 @@ func test_scene_app_metadata_is_omitted_and_cannot_select_restore_surface() -> v
 		assert_eq(with_metadata, unchanged, "admission never edits selected bytes")
 	assert_eq(_observed(), before, "metadata admission changes no live or durable owner")
 
-func test_acknowledged_creation_retains_historical_content_bytes_but_pending_creation_stays_current() -> void:
+func test_later_save_load_needs_no_durable_creation_operation() -> void:
 	assert_true(fixture_ready)
 	if not fixture_ready: return
 	var source: Dictionary = fixture.read_autosave().value.current_snapshot.snapshot
-	var creation_id: String = source.lifecycle.scene_assignment.creation_transaction_id
+	assert_false(source.lifecycle.has("scene_assignment"))
 	var journal: RefCounted = fixture.manager._continuation_journal
-	var captured: Dictionary = journal.get_creation_operation(creation_id)
-	assert_true(captured.ok, str(captured))
-	if not captured.ok: return
-	var historical: Dictionary = captured.value.duplicate(true)
-	assert_eq(historical.activation_state, "acknowledged")
+	assert_false(journal.get_creation_operation(source.scene.active_occurrence_id).ok,
+		"in-memory New Acc creates no durable creation operation")
 	var before := _observed()
-	const WRITER := preload("res://scripts/validation/CanonicalJsonWriter.gd")
-	const PARSER := preload("res://scripts/validation/StrictJson.gd")
-	var old_hash := "a".repeat(64)
-	var initial: Dictionary = historical.initial_context.dialogic_checkpoint
-	const MATERIALS := preload("res://scripts/infrastructure/save/NewRunMaterials.gd")
-	assert_true(MATERIALS._project_acknowledged_initial_checkpoint(initial, 7).ok)
-	assert_false(MATERIALS._project_acknowledged_initial_checkpoint(initial, 6).ok,
-		"obsolete compact reading is not accepted through acknowledged creation")
-	initial.manifest_fingerprint = old_hash
-	initial.reading_session.registration_sha256 = old_hash
-	initial.reading_session.ledger.frozen_context.registration_sha256 = old_hash
-	var document: Dictionary = PARSER.parse_object(historical.new_run_materials.autosave.outgoing_text).value
-	var snapshot: Dictionary = document.current_snapshot.snapshot
-	snapshot.scene.registration_sha256 = old_hash
-	snapshot.narrative_checkpoint.manifest_fingerprint = old_hash
-	snapshot.narrative_checkpoint.reading_session.registration_sha256 = old_hash
-	var outgoing: String = WRITER.stringify(document).value + "\n"
-	historical.new_run_materials.autosave.outgoing_text = outgoing
-	historical.new_run_materials.autosave.outgoing_hash = outgoing.sha256_text()
-	historical.new_run_targets.autosave = outgoing.sha256_text()
-	historical.initial_context_sha256 = WRITER.stringify(historical.initial_context).value.sha256_text()
-	historical.request_fingerprint = WRITER.stringify({"kind": historical.kind, "transaction_id": historical.transaction_id,
-		"initial_context": historical.initial_context, "new_run_materials": historical.new_run_materials}).value.sha256_text()
-	var untouched := historical.duplicate(true)
-	var admitted: Dictionary = journal._validate_operation(historical)
-	assert_true(admitted.ok, str(admitted))
-	assert_eq(historical, untouched, "historical audit never rewrites evidence")
-	var pending := historical.duplicate(true)
-	pending.activation_state = "pending"
-	assert_false(journal._validate_operation(pending).ok, "unacknowledged activation must still reproduce current content")
-	var altered := historical.duplicate(true)
-	altered.new_run_materials.autosave.outgoing_text += " "
-	assert_false(journal._validate_operation(altered).ok, "exact outgoing bytes remain hash-bound")
-	altered = historical.duplicate(true)
-	altered.transaction_issuer_receipt.counter += 1
-	assert_false(journal._validate_operation(altered).ok, "historical creation retains its exact allocation receipt")
-	assert_eq(_observed(), before, "read-only history admission changes no owner or file")
+	var prepared: Dictionary = fixture.manager.prepare_restore_autosave()
+	assert_true(prepared.ok, str(prepared))
+	if not prepared.ok: return
+	assert_eq(prepared.value.prepared.bundle.snapshot.gameplay, source.gameplay)
+	assert_eq(prepared.value.prepared.bundle.snapshot.scene, source.scene)
+	assert_eq(_observed(), before, "ordinary Load preparation preserves files and live state")
 
 func test_old_content_autosave_backup_rolls_back_exact_bytes_and_allows_retry() -> void:
 	assert_true(fixture_ready)

@@ -125,7 +125,7 @@ func create_week() -> void:
 		"source_run": initial.lifecycle.run_id, "source_branch": snapshot.lifecycle.branch_id,
 		"profile": profile.get_profile_snapshot(),
 		"slot_sha256": FileAccess.get_sha256("user://saves/slot_1.json"),
-		"autosave_sha256": FileAccess.get_sha256("user://saves/autosave.json"),
+		"autosave_sha256": _autosave_sha256(),
 		"profile_sha256": FileAccess.get_sha256("user://profile.json")}
 	for key: String in ["slot_sha256", "autosave_sha256", "profile_sha256"]: assert_eq(str(proof[key]).length(), 64)
 	assert_eq(observed_lines.size(), 8, "first eight captions observed in order")

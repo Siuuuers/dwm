@@ -72,7 +72,7 @@ const RESTORE_PROVENANCE_KEYS: Array[String] = [
 	"source_desktop_timeline_generation", "source_issuer_observed_counter", "transaction_remap_sha256",
 ]
 
-var _scene_assignment: Dictionary = {}
+var _scene_runtime := false
 var _completed_registration_sha256 := ""
 var _scene_issuer: Object
 var _run_id := ""
@@ -103,7 +103,7 @@ var _terminal_intent_handoff: Variant = null
 ## object's own `to_dict()` output before any checkpoint or save.
 func reset(run_id: String, branch_id: String, desktop_timeline_generation: int,
 		causal_day_instance: String, identity_allocation_receipt: Dictionary, dark_mode: bool) -> void:
-	_scene_assignment = {}
+	_scene_runtime = false
 	_completed_registration_sha256 = ""
 	_run_id = run_id
 	_dark_mode = dark_mode
@@ -559,12 +559,18 @@ func prepare_terminal_handoff(request: Dictionary) -> Dictionary:
 		"lifecycle_candidate": candidate,
 	}}
 
+# Scene progress has no legacy calendar day. This shape also identifies older scene saves.
+static func is_scene(data: Dictionary) -> bool:
+	return not data.has("day")
+
+func is_scene_run() -> bool:
+	return _scene_runtime
+
 func to_dict() -> Dictionary:
-	if not _scene_assignment.is_empty():
+	if _scene_runtime:
 		var scene := get_desktop_identity_context()
 		scene["state"] = String(_state)
 		scene["restore_provenance"] = _dup_or_null(_restore_provenance)
-		scene["scene_assignment"] = _scene_assignment.duplicate(true)
 		if not _completed_registration_sha256.is_empty():
 			scene["completed_registration_sha256"] = _completed_registration_sha256
 		if _has_ending_plan: scene["ending_plan"] = _ending_plan.duplicate(true)
@@ -609,7 +615,7 @@ func restore_uninstalled_backup(data: Dictionary) -> Dictionary:
 	return {"ok": true}
 
 func prepare_restore(data: Dictionary) -> Dictionary:
-	if data.has("scene_assignment"):
+	if is_scene(data):
 		var checked := validate_scene(data, _scene_issuer)
 		if not checked.ok: return checked
 		return {"ok": true, "value": {"candidate": data.duplicate(true)}}
@@ -619,7 +625,7 @@ func prepare_restore(data: Dictionary) -> Dictionary:
 	return {"ok": true, "code": &"ok", "value": {"candidate": data.duplicate(true)}}
 
 func commit_restore(candidate: Dictionary) -> Dictionary:
-	if candidate.has("scene_assignment"):
+	if is_scene(candidate):
 		var checked := validate_scene(candidate, _scene_issuer)
 		if not checked.ok: return checked
 		_run_id = candidate.run_id
@@ -628,7 +634,7 @@ func commit_restore(candidate: Dictionary) -> Dictionary:
 		_causal_day_instance = candidate.causal_day_instance
 		_causal_day_instance_issuer_receipt = candidate.causal_day_instance_issuer_receipt.duplicate(true)
 		_restore_provenance = _dup_or_null(candidate.restore_provenance)
-		_scene_assignment = candidate.scene_assignment.duplicate(true)
+		_scene_runtime = true
 		_completed_registration_sha256 = candidate.get("completed_registration_sha256", "")
 		_state = StringName(candidate.state)
 		_plan = null
@@ -647,7 +653,7 @@ func commit_restore(candidate: Dictionary) -> Dictionary:
 		if not restored.get("ok", false):
 			return restored
 		plan = restored["value"]["plan"]
-	_scene_assignment = {}
+	_scene_runtime = false
 	_completed_registration_sha256 = ""
 	_run_id = str(candidate["run_id"])
 	_dark_mode = candidate["dark_mode"]
@@ -1036,8 +1042,7 @@ static func _fail(code: StringName, message: String) -> Dictionary:
 
 
 const SCENE_LIFECYCLE_KEYS := ["run_id", "branch_id", "desktop_timeline_generation", "causal_day_instance",
-	"causal_day_instance_issuer_receipt", "restore_provenance", "state", "scene_assignment"]
-const SCENE_ASSIGNMENT := preload("res://scripts/domain/relationship/PairDeckDraw.gd")
+	"causal_day_instance_issuer_receipt", "restore_provenance", "state"]
 
 func configure_scene_issuer(issuer: Object) -> Dictionary:
 	if not is_instance_valid(issuer) or not issuer.has_method("verify_issued") or not issuer.has_method("validate_child"):
@@ -1050,6 +1055,8 @@ static func validate_scene(data: Dictionary, issuer: Object) -> Dictionary:
 	var keys := data.keys()
 	keys.sort()
 	var expected := SCENE_LIFECYCLE_KEYS.duplicate()
+	# Old scene saves may retain the retired assignment; it no longer selects behavior.
+	if data.has("scene_assignment"): expected.append("scene_assignment")
 	var terminal: bool = data.get("state") == "ENDING" or (data.get("state") == "COMPLETED" and data.has("ending_plan"))
 	if terminal: expected.append("ending_plan")
 	if data.has("completed_registration_sha256"):
@@ -1063,8 +1070,6 @@ static func validate_scene(data: Dictionary, issuer: Object) -> Dictionary:
 		return _fail(&"invalid_scene_lifecycle", "")
 	var identity_error := _validate_desktop_identity(data)
 	if not identity_error.is_empty(): return _fail(&"invalid_scene_lifecycle", identity_error)
-	var assignment := SCENE_ASSIGNMENT.validate_scene(data.scene_assignment)
-	if not assignment.ok: return assignment
 	if terminal:
 		var ending := validate_scene_ending_plan(data.ending_plan, issuer)
 		if not ending.ok: return ending
@@ -1099,7 +1104,7 @@ const SCENE_ENDING_PLAN_KEYS := ["schema_version", "source_kind", "admission", "
 ## Source reading remains provenance, while the active checkpoint is an ending
 ## checkpoint. No numeric day or legacy eligibility is synthesized.
 func enter_scene_ending(plan: Dictionary) -> Dictionary:
-	if _state != PLAYING or _scene_assignment.is_empty():
+	if _state != PLAYING or not _scene_runtime:
 		return _fail(&"invalid_state", "scene ending requires a PLAYING scene run")
 	var checked := validate_scene_ending_plan(plan, _scene_issuer)
 	if not checked.ok: return checked

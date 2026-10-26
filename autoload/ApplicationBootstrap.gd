@@ -950,7 +950,7 @@ func _capture_paused_checkpoint_inputs() -> Dictionary:
 	var route: String = router.get_current_route_id()
 	if route not in ["main", "dating", "hospital", "ending", "scene"]:
 		return _failure(&"backup_capture_unavailable", "The paused source has no qualified gameplay capture")
-	if route == "scene" or (route == "ending" and game._run_lifecycle.to_dict().has("scene_assignment")):
+	if route == "scene" or (route == "ending" and game._run_lifecycle.is_scene_run()):
 		var checkpoint: Dictionary = bridge.capture_reading_checkpoint(false)
 		if not checkpoint.get("ok", false): return checkpoint
 		return {"ok": true, "value": {"snapshot_input": game.capture_run_snapshot_input(),
@@ -2562,7 +2562,7 @@ func _resume_live_continuation() -> void:
 	var lifecycle: Dictionary = game_state._run_lifecycle.to_dict()
 	# Scene activation is already acknowledged by SaveManager/Bridge/Router.
 	# It has no legacy calendar continuation to resume.
-	if lifecycle.has("scene_assignment"):
+	if game_state._run_lifecycle.is_scene_run():
 		_pending_live_continuation = {}
 		if lifecycle.get("state") == "COMPLETED" and not lifecycle.has("ending_plan"):
 			game_state.return_completed_scene_passage.call_deferred()

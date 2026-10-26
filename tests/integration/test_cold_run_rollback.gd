@@ -68,7 +68,8 @@ func test_scene_install_compensation_preserves_cold_state_and_configured_owners(
 		var applied: Dictionary = participant.apply_silent({"snapshot": fixture.snapshot})
 		assert_true(applied.get("ok", false), str(applied))
 		if not applied.get("ok", false): break
-		assert_true(owner.capture_restore_state().value.backup.lifecycle.has("scene_assignment"))
+		assert_true(owner._run_lifecycle.is_scene_run())
+		assert_false(owner.capture_restore_state().value.backup.lifecycle.has("scene_assignment"))
 		# Simulate progress installed before a later restore participant refuses.
 		# The empty fixture alone cannot expose leaked progress during compensation.
 		owner.scene_choices = {"test.opportunity": "second"}

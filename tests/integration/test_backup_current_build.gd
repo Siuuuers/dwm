@@ -34,8 +34,12 @@ func before_all() -> void:
 	assert_eq(started.get("code"), &"scene_activation_pending", str(started))
 	if started.get("code") != &"scene_activation_pending": return
 	fixture.confirm_activation()
-	fixture_ready = manager.capture_committed_scene_creation(started.transaction_id).get("ok", false)
-	assert_true(fixture_ready)
+	assert_true(fixture.game.capture_live_session().value.active)
+	assert_false(fixture.storage.exists("autosave.json"), "creation is in memory")
+	# These Backup tests inspect a real later save, not an initial creation write.
+	var saved: Dictionary = manager.autosave_latest()
+	fixture_ready = saved.get("ok", false)
+	assert_true(fixture_ready, str(saved))
 
 func before_each() -> void:
 	if not fixture_ready: return
