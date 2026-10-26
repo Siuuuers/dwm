@@ -36,8 +36,10 @@ class DesktopProbe extends RefCounted:
 	func prepare(_input: Dictionary) -> Dictionary:
 		return {"ok": true, "value": {plan_key: {}}}
 
-class PrepareProbe extends "res://autoload/SaveManager.gd":
-	func _prepare_run_restore(_bundle: Dictionary, _document: Dictionary, _material: Dictionary) -> Dictionary:
+class RunProbe extends RefCounted:
+	func prepare(_input: Dictionary) -> Dictionary:
+		return {"ok": true, "value": {"run_plan": {}}}
+	func _prepare_admitted_snapshot(_snapshot: Dictionary) -> Dictionary:
 		return {"ok": true, "value": {"run_plan": {}}}
 
 func test_scene_load_reuses_settings_without_capture_apply_or_publication() -> void:
@@ -65,13 +67,13 @@ func test_scene_load_failure_does_not_compensate_untouched_settings() -> void:
 		assert_eq(participants[key].calls, [])
 
 func test_ordinary_preparation_uses_current_audio_preferences_and_recovery_keeps_original_path() -> void:
-	var preparation := PrepareProbe.new()
+	var preparation := preload("res://autoload/SaveManager.gd").new()
 	var current := CurrentProfile.new()
 	var audio := AudioProbe.new()
 	var profile := ActiveSettingsOnly.new()
 	var localization := ActiveSettingsOnly.new()
 	preparation._new_run_profile_owner = current
-	preparation._restore_participants = {"profile": profile, "localization": localization, "audio": audio,
+	preparation._restore_participants = {"run": RunProbe.new(), "profile": profile, "localization": localization, "audio": audio,
 		"desktop_consequence": DesktopProbe.new("consequence_plan"), "desktop_board": DesktopProbe.new("board_plan")}
 	var scope := preload("res://tests/support/SceneValidationScope.gd").new()
 	scope.install(true)

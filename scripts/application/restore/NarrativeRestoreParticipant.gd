@@ -133,6 +133,15 @@ func prepare(input: Dictionary) -> Dictionary:
 	}
 	return {"ok": true, "code": &"ok", "value": {"narrative_plan": plan}}
 
+## Current Load has already resolved its authored position. Native staging owns
+## the reading session needed to display it; no second saved-Run admission.
+func prepare_scene_load(snapshot: Dictionary) -> Dictionary:
+	_prepared_terminal = preload("res://scripts/domain/run/RunSnapshotSchema.gd").is_scene_terminal(snapshot)
+	_prepared_scene_checkpoint = snapshot.narrative_checkpoint
+	var plan: Dictionary = {"scene_terminal_checkpoint": _prepared_scene_checkpoint} \
+		if _prepared_terminal else _prepared_scene_checkpoint
+	return {"ok": true, "value": {"narrative_plan": plan}}
+
 ## Creation/recovery-owned preparation has no public completed-creation query:
 ## the strict candidate is authenticated before retaining its silent plan.
 func prepare_scene_new_run(snapshot: Dictionary, _allocation_candidate: Dictionary, _profile_material: Dictionary,
@@ -163,7 +172,7 @@ func apply_silent(plan: Dictionary) -> Dictionary:
 		var checkpoint: Dictionary = plan.scene_terminal_checkpoint if terminal else _projected(plan)
 		var method := "stage_scene_terminal_restore" if terminal else "stage_scene_reading_restore"
 		if (terminal and not _prepared_terminal) or (not terminal and _prepared_scene_checkpoint.is_empty()) \
-				or not _same_scene_value(checkpoint, _prepared_scene_checkpoint) \
+				or (not plan.get("read_only_restore", false) and not _same_scene_value(checkpoint, _prepared_scene_checkpoint)) \
 				or typeof(plan.get("scene_restore_operation_id")) != TYPE_STRING \
 				or plan.scene_restore_operation_id.strip_edges().is_empty() \
 				or not _owner.has_method(method):

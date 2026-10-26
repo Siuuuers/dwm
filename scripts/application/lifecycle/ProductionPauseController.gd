@@ -864,7 +864,8 @@ func _finish_witnessed_load(result: Dictionary) -> Dictionary:
 	var destination: Dictionary = capture_restore_destination_session()
 	var changed: bool = destination.get("ok", false) and destination.value != _captured_source.session
 	if result.get("ok", false) and changed:
-		var completed: Dictionary = await coordinator.complete_restore_handoff(_handle)
+		var trusted_load := str(result.get("value", {}).get("transaction_id", "")).begins_with("scene_load:")
+		var completed: Dictionary = await coordinator.complete_restore_handoff(_handle, trusted_load)
 		if completed.get("ok", false):
 			surface.close_surface()
 			_handle.clear()

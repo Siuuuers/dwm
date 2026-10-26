@@ -23,20 +23,21 @@ func test_memory_load_waits_for_ui_and_native_then_retains_only_process_local_re
 	manager._continuation_journal = unused
 	manager._identity_issuer = null
 	var before: String = storage.text
+	manager._lock_owner = &""
 	var id := "scene_load:1"
 	var result: Dictionary = manager._run_scene_restore_transaction(plans, {}, "scene", "saved-caption", true,
-		{"kind": "memory_restore", "transaction_id": id}, "lease", false)
+		{"kind": "memory_restore", "transaction_id": id}, "", false)
 	assert_eq(result.get("code"), &"scene_activation_pending", str(result))
 	assert_false(manager.capture_scene_restore_activation(id).ok)
-	assert_eq(participants.run.activated, 0)
+	assert_eq(participants.run.activated, 1, "saved owners become the live Run before route mounting")
 	participants.route.confirm(id)
-	assert_eq(participants.run.activated, 0, "mounted UI alone does not enable input")
+	assert_eq(participants.run.activated, 1, "mounting does not activate another Run")
 	assert_true(participants.narrative.last_plan.read_only_restore)
 	participants.narrative.confirm(id)
 	assert_eq(participants.run.activated, 1)
 	assert_true(manager.capture_scene_restore_activation(id).ok)
 	assert_true(manager.retry_scene_activation(id).ok)
-	assert_true(gate.released)
+	assert_false(gate.released, "Load acquired no lease to release")
 	assert_eq(unused.calls, [], "Load never reads or writes durable operation bookkeeping")
 	assert_eq(storage.text, before)
 

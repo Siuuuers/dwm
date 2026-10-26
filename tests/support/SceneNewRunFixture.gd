@@ -39,6 +39,8 @@ class DiagnosticParticipant:
 			bundle: Dictionary, issuer: Object, creation_owner: Object) -> Dictionary:
 		if narrative_preparer == null: return {"ok": false, "code": &"TEST.narrative_preparer_missing"}
 		return narrative_preparer.prepare_scene_new_run(snapshot, allocation, profile_material, bundle, issuer, creation_owner)
+	func prepare_scene_load(snapshot: Dictionary) -> Dictionary:
+		return narrative_preparer.prepare_scene_load(snapshot)
 	func capture() -> Dictionary: return {"ok": true, "value": {}}
 	func apply_silent(_plan: Dictionary) -> Dictionary:
 		applies += 1

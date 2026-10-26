@@ -16,6 +16,10 @@ class ObservedRunPreparation extends RefCounted:
 		snapshots.append(input.snapshot.duplicate(true))
 		if refuse: return {"ok": false, "code": &"fixture_selected_state_refused"}
 		return delegate.prepare(input)
+	func _prepare_admitted_snapshot(snapshot: Dictionary) -> Dictionary:
+		snapshots.append(snapshot.duplicate(true))
+		if refuse: return {"ok": false, "code": &"fixture_selected_state_refused"}
+		return delegate._prepare_admitted_snapshot(snapshot)
 	func capture_live_session() -> Dictionary:
 		return delegate.capture_live_session()
 

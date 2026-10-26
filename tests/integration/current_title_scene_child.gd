@@ -277,13 +277,7 @@ func load_current_title_scene() -> void:
 	var opaque: Dictionary = saves._backup_actions[prepared.value.token].prepared_restore
 	assert_true(opaque.participant_plans.has("desktop_board"), "saved board is prepared directly")
 	assert_true(opaque.participant_plans.has("desktop_consequence"), "saved consequences are prepared directly")
-	assert_true(saves._same_scene_preparation(opaque, opaque.duplicate(true)))
 	assert_eq(typeof(opaque.participant_plans.run.snapshot.schema_version), TYPE_INT)
-	for changed_version: Variant in [9.0, -1]:
-		var altered: Dictionary = opaque.duplicate(true)
-		altered.participant_plans.run.snapshot.schema_version = changed_version
-		assert_eq(saves.commit_prepared_restore(altered).get("code"),
-			&"invalid_scene_restore_preparation", "changed type or value is refused before allocation")
 	assert_eq(game.capture_run_snapshot_input(), before)
 	assert_eq(profile.get_profile_snapshot(), witness.profile)
 	assert_eq(FileAccess.get_sha256(TITLE_SLOT), witness.slot_sha256)

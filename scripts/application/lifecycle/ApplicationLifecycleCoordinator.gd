@@ -193,7 +193,7 @@ func cancel_restore_handoff(handle: Dictionary) -> Dictionary:
 	return _success({"cancelled": true})
 
 
-func complete_restore_handoff(handle: Dictionary) -> Dictionary:
+func complete_restore_handoff(handle: Dictionary, trusted_load: bool = false) -> Dictionary:
 	if _phase not in [&"Restoring", &"RestoreCommitted"] or handle != _handle:
 		return _failure(&"invalid_suspension_handle")
 	var destination: Dictionary = _source_owner.capture_restore_destination_session()
@@ -203,8 +203,10 @@ func complete_restore_handoff(handle: Dictionary) -> Dictionary:
 		return _failure(&"pause_source_changed")
 	_restore_destination = destination.value.duplicate(true)
 	_phase = &"RestoreCommitted"
-	var acquired: Dictionary = _gate.acquire(&"restore")
-	if not acquired.get("ok", false): return acquired
+	var acquired: Dictionary = {}
+	if not trusted_load:
+		acquired = _gate.acquire(&"restore")
+		if not acquired.get("ok", false): return acquired
 	var restored: Dictionary = await _ports[1].complete_restore(handle)
 	if restored.get("ok", false):
 		destination = _source_owner.capture_restore_destination_session()
@@ -215,7 +217,7 @@ func complete_restore_handoff(handle: Dictionary) -> Dictionary:
 		restored = _ports[0].resume(handle)
 		_restore_input_released = restored.get("ok", false)
 	if restored.get("ok", false): restored = _router.release_restore_publication_hold(handle)
-	_gate.release(&"restore", acquired.value.token)
+	if not trusted_load: _gate.release(&"restore", acquired.value.token)
 	if not restored.get("ok", false): return restored
 	_suspended.clear()
 	if _owns_tree_pause: get_tree().paused = false

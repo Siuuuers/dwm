@@ -44,21 +44,18 @@ func begin_scene_publication_hold(operation_id: String) -> Dictionary:
 	if _restore_publication_handle == handle: return {"ok": true}
 	if not _scene_pause_publication.is_empty():
 		return {"ok": true} if _scene_pause_publication.operation_id == operation_id \
-			and _scene_pause_publication.handle == _restore_publication_handle \
-			and _mutation_gate != null and _mutation_gate.is_internal_owner_active(&"restore") else _startup_failure("restore_publication_busy")
+			and _scene_pause_publication.handle == _restore_publication_handle else _startup_failure("restore_publication_busy")
 	if is_restore_publication_held():
 		var current := get_tree().current_scene
 		if _restore_publication_publishing or _restore_publication_published or current == null \
 				or not _restore_publication_scene_id.is_empty() \
 				or current.get_instance_id() != _restore_publication_source_id \
-				or _mutation_gate == null or not _mutation_gate.is_internal_owner_active(&"restore") \
 				or not _scene_pause_restore_validator.is_valid():
 			return _startup_failure("restore_publication_busy")
 		var retained := _restore_publication_handle.duplicate(true)
 		var suspended: Dictionary = _scene_pause_restore_validator.call(retained)
 		if not suspended.get("ok", false): return suspended
-		if retained != _restore_publication_handle or get_tree().current_scene != current \
-				or not _mutation_gate.is_internal_owner_active(&"restore"):
+		if retained != _restore_publication_handle or get_tree().current_scene != current:
 			return _startup_failure("stale_restore_publication_hold")
 		_scene_pause_publication = {"operation_id": operation_id,
 			"handle": _restore_publication_handle.duplicate(true), "acknowledged": false}
@@ -85,7 +82,6 @@ func cancel_scene_publication_hold(operation_id: String) -> Dictionary:
 		return cancel_restore_publication_hold({"scene_restore_operation_id": operation_id})
 	if _scene_pause_publication.operation_id != operation_id or _scene_pause_publication.acknowledged \
 			or _scene_pause_publication.handle != _restore_publication_handle \
-			or _mutation_gate == null or not _mutation_gate.is_internal_owner_active(&"restore") \
 			or get_tree().current_scene == null \
 			or get_tree().current_scene.get_instance_id() != _restore_publication_source_id:
 		return _startup_failure("stale_restore_publication_hold")
@@ -99,8 +95,7 @@ func publish_scene_activation(operation_id: String) -> Dictionary:
 	if not checked.get("ok", false): return checked
 	if not _scene_pause_publication.is_empty():
 		if _scene_pause_publication.operation_id != operation_id \
-				or _scene_pause_publication.handle != _restore_publication_handle \
-				or _mutation_gate == null or not _mutation_gate.is_internal_owner_active(&"restore"):
+				or _scene_pause_publication.handle != _restore_publication_handle:
 			return _startup_failure("stale_restore_publication_hold")
 		_scene_pause_publication.acknowledged = true
 		return {"ok": true}

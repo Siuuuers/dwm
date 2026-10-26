@@ -66,6 +66,9 @@ class Participant:
 	func activate_live_session(_ticket: Dictionary) -> Dictionary:
 		activated += 1
 		return {"ok": true}
+	func activate_loaded_session(_ticket: Dictionary) -> Dictionary:
+		activated += 1
+		return {"ok": true}
 	func confirm(operation: String) -> void:
 		confirmed = true
 		scene_activation_confirmed.emit(operation)

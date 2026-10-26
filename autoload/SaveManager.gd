@@ -305,7 +305,7 @@ func _commit_prepared_restore_profiled(prepared: Dictionary, profile: Dictionary
 	var gate_token := ""
 	var gate_acquired := false
 	var lock_acquired := false
-	if has_source_locator or scene_restore:
+	if has_source_locator and not scene_restore:
 		# FIX (dwm-p2r.35.4 remediation, finding B-C1): the save lock and mutation-gate lease are the
 		# transaction's actual anti-interleave guarantee, so both must be held BEFORE the issuer mints
 		# `transaction_id` or the continuation journal commits `intent_committed` -- never after. A busy
@@ -2171,81 +2171,40 @@ func _prepare_restore(locator: Dictionary, expected_revision: String = "") -> Di
 	if not parsed.get("ok", false):
 		return _fail(&"corrupt_save_document", relative_path)
 
-	if not _player_save_format_reason(parsed["value"]).is_empty():
-		return _fail(&"unsupported_save_format", "Only current Save9 files can be loaded")
-
-	# Normalize the selected current-build document for the existing restore owners.
-	var scene_seed_material := {}
-	var migrated: Dictionary = SAVE_MIGRATIONS.migrate_document(parsed["value"],
-		{"kind": str(locator["kind"]), "slot_id": locator["slot_id"]},
-		_capture_scene_seed_material.bind(scene_seed_material))
+	# Current game-produced saves need content-position resolution, not admission.
+	var migrated: Dictionary = SAVE_MIGRATIONS.load_current_document(parsed["value"])
 	if not migrated.get("ok", false):
 		return migrated
 	var document: Dictionary = migrated["value"]["document"]
-	# Admission already returned the validated, detached document.
-	return _prepare_restore_document(locator, document, migrated["value"], scene_seed_material)
-
-## Admission owns these normalized materials. Never expose them to participants or
-## retain them beyond this synchronous preparation; recovery uses generic seeding.
-func _capture_scene_seed_material(document: Dictionary, bundles: Array, material: Dictionary) -> void:
-	material.assign({"document": document, "bundles": bundles})
-
-func _prepare_restore_seed(document: Dictionary, selected: Dictionary, material: Dictionary) -> Dictionary:
-	if not material.is_empty() and CANONICAL_JSON._deep_same(document, material.document):
-		for admitted: Dictionary in material.bundles:
-			if CANONICAL_JSON._deep_same(selected, admitted):
-				var diagnostics: Array[Dictionary] = []
-				var seed: Dictionary = _journal._prepare_seed_from_valid_bundles(material.bundles, selected, diagnostics)
-				# Generic seeding owns fresh validated bundles. Reuse must detach
-				# retained earlier bundles from the local admission material too.
-				if seed.get("ok", false):
-					seed.value.candidate.earlier = seed.value.candidate.earlier.duplicate(true)
-				return seed
-	# A participant may edit even a structurally valid input. Preserve generic
-	# validation/diagnostics whenever either document or selected bundle drifts.
-	return _journal.prepare_seed(document, selected)
+	return _prepare_restore_document(locator, document, migrated["value"])
 
 ## Prepare the selected Load for the existing restore transaction.
-func _prepare_restore_document(locator: Dictionary, document: Dictionary, migration_output: Dictionary,
-		scene_seed_material: Dictionary = {}) -> Dictionary:
+func _prepare_restore_document(locator: Dictionary, document: Dictionary, migration_output: Dictionary) -> Dictionary:
 	var profile := _save_load_profile_begin("restore_prepare", "", locator)
-	return _save_load_profile_finish(profile, _prepare_restore_document_profiled(locator, document, migration_output, profile, scene_seed_material))
+	return _save_load_profile_finish(profile, _prepare_restore_document_profiled(locator, document, migration_output, profile))
 
 
 func _prepare_restore_document_profiled(locator: Dictionary, document: Dictionary, migration_output: Dictionary,
-		profile: Dictionary, scene_seed_material: Dictionary = {}) -> Dictionary:
+		profile: Dictionary) -> Dictionary:
 	if _restore_participants.is_empty():
 		return _fail(&"TRANSACTION_PARTICIPANTS_NOT_CONFIGURED", "")
 
 	# Load the selected saved state only. An older checkpoint is never substituted.
 	var prepared := _prepare_bundle_with_all_participants(document["current_snapshot"],
-		migration_output, document, locator, scene_seed_material, true)
+		migration_output, document, locator, true)
 	_save_load_profile_phase(profile, "participant_prepare_us")
 	if not prepared.get("ok", false):
 		return prepared
 	return {"ok": true, "code": &"ok", "value": {"prepared": prepared["value"]}}
 
-## The first participant runs before any external preparation callback. Only the
-## built-in owner may consume admission's unchanged, detached current snapshot.
-func _prepare_run_restore(bundle: Dictionary, document: Dictionary, material: Dictionary) -> Dictionary:
-	var participant: Object = _restore_participants["run"]
-	if participant.get_script() == load("res://scripts/application/restore/RunRestoreParticipant.gd") \
-			and bundle.snapshot.get("schema_version") == 9 and not material.is_empty() \
-			and RUN_SNAPSHOT_SCHEMA._scene_can_reuse_reading() \
-			and RUN_SNAPSHOT_SCHEMA._scene_authority == participant._owner \
-			and RUN_SNAPSHOT_SCHEMA._scene_issuer == _identity_issuer \
-			and RUN_SNAPSHOT_SCHEMA._scene_creation_owner == self \
-			and CANONICAL_JSON._deep_same(document, material.document) \
-			and CANONICAL_JSON._deep_same(bundle, document.current_snapshot):
-		return participant._prepare_admitted_snapshot(bundle.snapshot)
-	return participant.prepare({"snapshot": bundle.snapshot})
-
 func _prepare_bundle_with_all_participants(bundle: Dictionary, migration_output: Dictionary, document: Dictionary,
-		locator: Dictionary, scene_seed_material: Dictionary = {}, direct_scene_load: bool = false) -> Dictionary:
+		locator: Dictionary, direct_scene_load: bool = false) -> Dictionary:
 	var snapshot: Dictionary = bundle["snapshot"]
 	var plans := {}
 
-	var run_prep: Dictionary = _prepare_run_restore(bundle, document, scene_seed_material)
+	var run_prep: Dictionary = _restore_participants.run._prepare_admitted_snapshot(snapshot) \
+		if direct_scene_load and snapshot.get("schema_version") == 9 \
+		else _restore_participants.run.prepare({"snapshot": snapshot})
 	if not run_prep.get("ok", false):
 		return run_prep
 	plans["run"] = run_prep["value"]["run_plan"]
@@ -2311,14 +2270,23 @@ func _prepare_bundle_with_all_participants(bundle: Dictionary, migration_output:
 		return route_prep
 	plans["route"] = route_prep["value"]["route_plan"]
 
-	var narr_prep: Dictionary = _restore_participants["narrative"].prepare(
-		{"narrative_checkpoint": snapshot["narrative_checkpoint"], "content_version": int(snapshot["content_version"]),
-		"snapshot": snapshot})
+	var narr_prep: Dictionary
+	if direct_scene_load and snapshot.get("schema_version") == 9:
+		narr_prep = _restore_participants.narrative.prepare_scene_load(snapshot)
+	else:
+		narr_prep = _restore_participants["narrative"].prepare(
+			{"narrative_checkpoint": snapshot["narrative_checkpoint"], "content_version": int(snapshot["content_version"]),
+			"snapshot": snapshot})
 	if not narr_prep.get("ok", false):
 		return narr_prep
 	plans["narrative"] = narr_prep["value"]["narrative_plan"]
 
-	var seed: Dictionary = _prepare_restore_seed(document, bundle, scene_seed_material)
+	var seed: Dictionary
+	if direct_scene_load and snapshot.get("schema_version") == 9:
+		var diagnostics: Array[Dictionary] = []
+		seed = _journal._prepare_seed_from_valid_bundles([bundle], bundle, diagnostics)
+	else:
+		seed = _journal.prepare_seed(document, bundle)
 	if not seed.get("ok", false):
 		return seed
 
@@ -2340,8 +2308,8 @@ func _prepare_bundle_with_all_participants(bundle: Dictionary, migration_output:
 		_scene_restore_preparation_counter += 1
 		var token := "scene_restore_preparation:%d" % _scene_restore_preparation_counter
 		prepared["scene_preparation_token"] = token
-		_scene_restore_preparations[token] = {"prepared": prepared.duplicate(true)}
-	return {"ok": true, "code": &"ok", "value": prepared}
+		_scene_restore_preparations[token] = {"prepared": prepared}
+	return {"ok": true, "code": &"ok", "value": prepared.duplicate(true)}
 
 ## Plan 02 Task 6 (dwm-p2r.32), Phase C2: SaveManager's own `source_loader` implementation, bound as
 ## `DesktopContinuationOperationJournal.configure(storage, self)` (initialize() above) and as
@@ -2925,30 +2893,9 @@ static func _source_identity_from_lifecycle(lifecycle: Dictionary) -> Dictionary
 func _validate_scene_restore_preparation(prepared: Dictionary) -> Dictionary:
 	var token: Variant = prepared.get("scene_preparation_token")
 	if not token is String or not _scene_restore_preparations.has(token):
-		return _fail(&"invalid_scene_restore_preparation", "private prepared scene source required")
-	var retained: Dictionary = _scene_restore_preparations[token]
-	if not _same_scene_preparation(retained.prepared, prepared):
-		return _fail(&"invalid_scene_restore_preparation", "prepared scene source changed")
+		return _fail(&"invalid_scene_restore_preparation", "selected preparation is unavailable")
+	# SaveManager owns the selected plan. Caller copies never replace that source.
 	return {"ok": true}
-
-## Prepared participant plans are process-local, not JSON round-trip values.
-## Preserve Variant types and runtime object identity while comparing detached containers.
-static func _same_scene_preparation(left: Variant, right: Variant) -> bool:
-	if typeof(left) != typeof(right): return false
-	if left is Dictionary:
-		if left.size() != right.size(): return false
-		var right_keys: Array = right.keys()
-		for key: Variant in left:
-			var index: int = right_keys.find(key)
-			if index < 0 or typeof(key) != typeof(right_keys[index]): return false
-			if not _same_scene_preparation(left[key], right[key]): return false
-		return true
-	if left is Array:
-		if left.size() != right.size(): return false
-		for index: int in left.size():
-			if not _same_scene_preparation(left[index], right[index]): return false
-		return true
-	return left == right
 
 func _scene_activation_pending(operation: Dictionary) -> bool:
 	return operation.get("kind") in ["scene_restore", "scene_new_run"] and operation.get("stage") == CONTINUATION_JOURNAL.STAGE_COMPLETED \
@@ -3087,6 +3034,10 @@ func _run_scene_restore_transaction(plans: Dictionary, journal_candidate: Varian
 				return _scene_restore_prepare_failure(completed, creating, applied, backups, gate_token, operation_id, journal_backup)
 			else:
 				return _fatal_transaction_recovery("scene_restore", [{"owner_id": "journal", "operation": "completion_state_conflict", "result": reread}])
+	if continuation.kind == "memory_restore":
+		# All saved owners are installed synchronously. Retire old input handles
+		# before mounting the destination; no Load mutation lease is needed.
+		_restore_participants.run.activate_loaded_session(activation.value)
 	_scene_restore_activation = {"operation_id": operation_id, "continuation": continuation.duplicate(true),
 		"ticket": activation.value.duplicate(true), "gate_token": gate_token, "route_id": route_id,
 		"owner": "new_run" if creating else "restore",
@@ -3111,12 +3062,12 @@ func _scene_restore_prepare_failure(failure: Dictionary, committed: bool, applie
 	var cancelled: Dictionary = _restore_participants.route.cancel_scene_publication_hold(operation_id)
 	if not cancelled.get("ok", false):
 		return _fatal_transaction_recovery("scene_restore", [{"owner_id": "route", "operation": "cancel_hold", "result": cancelled}])
-	return _rollback_transaction(&"restore", applied, backups, gate_token, true, failure, journal_backup)
+	return _rollback_transaction(&"restore", applied, backups, gate_token, _lock_owner == &"restore", failure, journal_backup)
 
 func _scene_restore_early_failure(failure: Dictionary, committed: bool, gate_token: String) -> Dictionary:
 	if committed:
 		return _fatal_transaction_recovery("scene_restore", [{"owner_id": "restore", "operation": "reconstruct", "result": failure}])
-	_release_transaction(&"restore", gate_token, true)
+	_release_transaction(&"restore", gate_token, _lock_owner == &"restore")
 	return failure
 
 func _on_scene_route_confirmed(operation_id: String) -> void:
@@ -3168,13 +3119,12 @@ func _drive_scene_restore_activation_owned() -> Dictionary:
 		var checked: Dictionary = _restore_participants[key].validate_scene_activation(operation_id)
 		if not checked.get("ok", false): return _scene_restore_activation_failure(checked)
 	var activation_owner := StringName(_scene_restore_activation.get("owner", "restore"))
-	if _mutation_gate == null or not _mutation_gate.is_lease_active(activation_owner, _scene_restore_activation.gate_token):
-		return _scene_restore_activation_failure(_fail(&"scene_restore_lease_lost", ""))
-	var ticket: Dictionary = _scene_restore_activation.ticket
-	var validated: Dictionary = _restore_participants.run.validate_live_session_activation(ticket)
-	if not validated.get("ok", false): return _scene_restore_activation_failure(validated)
-	var activated: Dictionary = _restore_participants.run.activate_live_session(ticket)
-	if not activated.get("ok", false): return _scene_restore_activation_failure(activated)
+	if _scene_restore_activation.continuation.kind != "memory_restore":
+		if _mutation_gate == null or not _mutation_gate.is_lease_active(activation_owner, _scene_restore_activation.gate_token):
+			return _scene_restore_activation_failure(_fail(&"scene_restore_lease_lost", ""))
+		var ticket: Dictionary = _scene_restore_activation.ticket
+		var activated: Dictionary = _restore_participants.run.activate_live_session(ticket)
+		if not activated.get("ok", false): return _scene_restore_activation_failure(activated)
 	if _scene_restore_activation.continuation.kind not in ["memory_new_run", "memory_restore"]:
 		var acknowledged: Dictionary = _continuation_journal.acknowledge_scene_activation(operation_id,
 			_scene_restore_activation.continuation.request_fingerprint)
@@ -3196,7 +3146,7 @@ func _drive_scene_restore_activation_owned() -> Dictionary:
 	if activation_owner == &"new_run":
 		var released := _release_new_run_custody()
 		if not released.get("ok", false): return released
-	else:
+	elif completed.continuation.kind != "memory_restore":
 		_release_transaction(&"restore", completed.gate_token, true)
 	live_session_ready.emit()
 	if activation_owner == &"restore": run_restored.emit(completed.checkpoint_id, completed.route_id)

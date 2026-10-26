@@ -217,3 +217,16 @@ func test_legacy_admission_never_offers_scene_seed_material() -> void:
 	assert_true(admitted.ok, str(admitted))
 	assert_eq(calls, [], "legacy journal admission proves primitive shape, not complete snapshots")
 	assert_eq(admitted, ADMISSION.migrate_document(raw, {"kind": "slot", "slot_id": 1}))
+
+func test_ordinary_load_refuses_unsupported_version_before_reading_runtime_state() -> void:
+	# No registration, gameplay owners or snapshot body is needed to reject a
+	# version that this build cannot interpret.
+	for version: Variant in [8, DOCUMENT.SCENE_DOCUMENT_VERSION + 1, "9", 9.5, null]:
+		var raw := {"schema_version": version}
+		var before := raw.duplicate(true)
+		var loaded: Dictionary = ADMISSION.load_current_document(raw)
+		assert_false(loaded.ok)
+		assert_eq(loaded.code, &"unsupported_save_format")
+		assert_false(loaded.has("value"))
+		assert_eq(raw, before)
+	assert_eq(ADMISSION.load_current_document({}).code, &"unsupported_save_format")

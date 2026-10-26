@@ -3150,7 +3150,7 @@ func stage_scene_reading_restore(checkpoint: Dictionary, operation_id: String, r
 		return _command_failure(&"scene_restore_control_unproven")
 	if has_active_playback() and not is_pause_restore_pending(): return _command_failure(&"narrative_playback_active")
 	if is_pause_restore_pending():
-		var staged := stage_pause_restore(checkpoint, true)
+		var staged := stage_pause_restore(checkpoint, true, read_only_restore)
 		if not staged.ok: return staged
 	_scene_restore = {"operation_id": operation_id, "read_only": read_only_restore, "checkpoint": checkpoint.duplicate(true),
 		"digest": _scene_digest(checkpoint), "candidate": checked.value.candidate,
@@ -3190,7 +3190,7 @@ func stage_scene_terminal_restore(checkpoint: Dictionary, operation_id: String, 
 		if not restored.ok: return restored
 	if has_active_playback() and not is_pause_restore_pending(): return _command_failure(&"narrative_playback_active")
 	if is_pause_restore_pending():
-		var staged := stage_pause_restore(checkpoint, true)
+		var staged := stage_pause_restore(checkpoint, true, read_only_restore)
 		if not staged.ok: return staged
 	_scene_restore = {"operation_id": operation_id, "read_only": read_only_restore, "terminal": true, "lifecycle": lifecycle.duplicate(true),
 		"checkpoint": checkpoint.duplicate(true), "digest": _scene_digest(checkpoint),
@@ -3762,10 +3762,9 @@ func is_pause_restore_pending() -> bool:
 	return not _pause_restore.is_empty() and not _pause_restore.get("applied", false)
 
 
-## Router may associate only the exact suspended source under restore custody.
+## Router associates the exact suspended source with its destination scene.
 func validate_scene_pause_restore_handle(handle: Dictionary) -> Dictionary:
-	if _mutation_gate == null or not _mutation_gate.is_internal_owner_active(&"restore") \
-			or not is_pause_restore_pending() or _pause_restore.get("cancelled", false) \
+	if not is_pause_restore_pending() or _pause_restore.get("cancelled", false) \
 			or handle.is_empty() or handle != _pause_restore.handle or handle != _pause_handle or _pause_changing:
 		return _pause_failure(&"pause_source_changed")
 	var physical := _capture_presentation_frontier()
@@ -3776,12 +3775,13 @@ func validate_scene_pause_restore_handle(handle: Dictionary) -> Dictionary:
 	return _pause_success({"suspended": true})
 
 
-func stage_pause_restore(plan: Dictionary, semantic: bool) -> Dictionary:
-	if not is_pause_restore_pending() or _pause_restore.cancelled \
-			or _mutation_gate == null or not _mutation_gate.is_internal_owner_active(&"restore"):
+func stage_pause_restore(plan: Dictionary, semantic: bool, trusted_load: bool = false) -> Dictionary:
+	if not is_pause_restore_pending() or _pause_restore.cancelled:
 		return _pause_failure(&"pause_restore_unavailable")
-	# Restore already owns the gate, so the public get_state()/frontier reader is
-	# intentionally unavailable. Verify the identical native source under that custody.
+	if not trusted_load and (_mutation_gate == null or not _mutation_gate.is_internal_owner_active(&"restore")):
+		return _pause_failure(&"pause_restore_unavailable")
+	# The existing pause owns the native source until the destination is ready.
+	# Current Load needs no additional mutation lease to stage that handoff.
 	if _pause_changing or _pause_handle != _pause_restore.handle:
 		return _pause_failure(&"pause_source_changed")
 	var physical: Dictionary = _capture_presentation_frontier()
@@ -3814,8 +3814,7 @@ func complete_pause_restore(handle: Dictionary) -> Dictionary:
 	# Scene activation already retired the source and proved the destination.
 	# Completion acknowledges that exact handoff; it must never resume it again.
 	if not handle.is_empty() and _scene_restore.get("pause_handle") == handle:
-		if _mutation_gate == null or not _mutation_gate.is_internal_owner_active(&"restore") \
-				or not _pause_handle.is_empty() or not _pause_restore.is_empty() \
+		if not _pause_handle.is_empty() or not _pause_restore.is_empty() \
 				or not _scene_restore.get("published", false):
 			return _pause_failure(&"pause_restore_unavailable")
 		var activated := validate_scene_activation(str(_scene_restore.operation_id))

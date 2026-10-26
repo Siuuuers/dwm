@@ -39,6 +39,7 @@ func test_selected_load_preserves_identity_disk_and_current_settings_then_allows
 	var disk := {}
 	for path: String in [ROOT_PATH, JOURNAL_PATH, "profile.json", "autosave.json"]:
 		disk[path] = fixture.storage.inspect_revision(path)
+	var old_session: Dictionary = fixture.game.capture_live_session().value
 	var prepared: Dictionary = fixture.manager.prepare_restore_autosave()
 	assert_true(prepared.ok, str(prepared))
 	if not prepared.ok: return
@@ -47,6 +48,12 @@ func test_selected_load_preserves_identity_disk_and_current_settings_then_allows
 	var loaded: Dictionary = fixture.manager.commit_prepared_restore(prepared.value.prepared)
 	assert_eq(loaded.get("code"), &"scene_activation_pending", str(loaded))
 	if loaded.get("code") != &"scene_activation_pending": return
+	assert_false(fixture.gate.is_active(), "ordinary Load does not retain a mutation gate")
+	assert_false(fixture.manager.is_save_locked(), "ordinary Load does not retain a save lock")
+	assert_false(fixture.game.validate_live_session(old_session).ok, "old input handles expire before route mounting")
+	var installed_session: Dictionary = fixture.game.capture_live_session().value
+	assert_true(installed_session.active)
+	assert_eq(installed_session.run_id, selected.run_id)
 	for path: String in disk:
 		assert_eq(fixture.storage.inspect_revision(path), disk[path], "pending Load leaves " + path + " unchanged")
 	assert_eq(fixture.root.capture(), root_before, "Load does not issue or allocate identities")
@@ -65,47 +72,22 @@ func test_selected_load_preserves_identity_disk_and_current_settings_then_allows
 	assert_true(saved.ok, str(saved))
 	if saved.ok: assert_eq(saved.value.current_snapshot, document.current_snapshot)
 
-	# Public preparation is checked before the lock notification. A listener may
-	# still hold that transport; only the retained private selection owns Load.
-	for mutation: String in ["malformed", "valid_progress"]:
-		var offered: Dictionary = fixture.manager.prepare_restore_autosave()
-		assert_true(offered.ok, str(offered))
-		if not offered.ok: return
-		var public_prepared: Dictionary = offered.value.prepared
-		var altered: Dictionary = public_prepared.duplicate(true)
-		altered.journal_seed.current.snapshot.gameplay.money += 1
-		assert_eq(fixture.manager.commit_prepared_restore(altered).get("code"),
-			&"invalid_scene_restore_preparation", "seed tampering before commit is refused")
-		var changed_snapshot: Dictionary = selected.duplicate(true)
-		changed_snapshot.gameplay.money += 1
-		assert_true(preload("res://scripts/domain/run/RunSnapshotSchema.gd").validate(changed_snapshot).ok,
-			"valid progress still cannot replace the selected save")
-		var storage_root: String = fixture.storage.describe_root()
-		var stored_bytes := {}
-		for filename: String in DirAccess.get_files_at(storage_root):
-			stored_bytes[filename] = FileAccess.get_file_as_bytes(storage_root.path_join(filename))
-		var callback_ran := []
-		var mutate_public := func(_capability: Dictionary) -> void:
-			if fixture.manager._lock_owner != &"restore" or not callback_ran.is_empty(): return
-			callback_ran.append(true)
-			if mutation == "malformed":
-				public_prepared.journal_seed.current.snapshot = {"invalid": true}
-			else:
-				public_prepared.journal_seed.current.snapshot = changed_snapshot
-		fixture.manager.save_capability_changed.connect(mutate_public)
-		var committed: Dictionary = fixture.manager.commit_prepared_restore(public_prepared)
-		fixture.manager.save_capability_changed.disconnect(mutate_public)
-		assert_eq(callback_ran.size(), 1, mutation)
-		assert_eq(committed.get("code"), &"scene_activation_pending", str(committed))
-		if committed.get("code") != &"scene_activation_pending": return
-		fixture.confirm_activation()
-		assert_true(fixture.manager.capture_scene_restore_activation(committed.transaction_id).ok)
-		assert_eq(fixture.manager.get_latest_stable_checkpoint().value.bundle, document.current_snapshot, mutation)
-		assert_eq(fixture.game.capture_run_snapshot_input().gameplay, selected.gameplay, mutation)
-		assert_eq(fixture.game.capture_run_snapshot_input().lifecycle, selected.lifecycle, mutation)
-		assert_eq(fixture.root.capture(), root_before, mutation)
-		assert_eq(fixture.profile.get_profile_snapshot(), profile_before, mutation)
-		var after_bytes := {}
-		for filename: String in DirAccess.get_files_at(storage_root):
-			after_bytes[filename] = FileAccess.get_file_as_bytes(storage_root.path_join(filename))
-		assert_eq(after_bytes, stored_bytes, "Load preserves all persistent bytes: " + mutation)
+	# The token selects SaveManager's plan; caller transport is not a second owner.
+	var offered: Dictionary = fixture.manager.prepare_restore_autosave()
+	assert_true(offered.ok, str(offered))
+	if not offered.ok: return
+	var transport: Dictionary = offered.value.prepared
+	transport.journal_seed.current.snapshot.gameplay.money += 1
+	var committed: Dictionary = fixture.manager.commit_prepared_restore(transport)
+	assert_eq(committed.get("code"), &"scene_activation_pending", str(committed))
+	if committed.get("code") != &"scene_activation_pending": return
+	assert_false(fixture.gate.is_active())
+	fixture.confirm_activation()
+	assert_true(fixture.manager.capture_scene_restore_activation(committed.transaction_id).ok)
+	assert_eq(fixture.manager.get_latest_stable_checkpoint().value.bundle, document.current_snapshot)
+	assert_eq(fixture.game.capture_run_snapshot_input().gameplay, selected.gameplay)
+	assert_eq(fixture.game.capture_run_snapshot_input().lifecycle, selected.lifecycle)
+	assert_eq(fixture.root.capture(), root_before)
+	assert_eq(fixture.profile.get_profile_snapshot(), profile_before)
+	for path: String in disk:
+		assert_eq(fixture.storage.inspect_revision(path), disk[path], "Load preserves persistent bytes: " + path)

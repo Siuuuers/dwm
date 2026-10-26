@@ -3248,6 +3248,15 @@ func activate_live_session(ticket: Variant) -> Dictionary:
 		_live_session_activation_ticket = ticket.duplicate(true)
 	return {"ok": true, "code": &"ok", "value": _live_session_fact()}
 
+## Current Load installs owners in one synchronous call before scene mounting.
+## The save owner supplies this process-local ticket; no Load lease is retained.
+func activate_loaded_session(ticket: Dictionary) -> Dictionary:
+	_live_session_generation += 1
+	_live_session_active = true
+	_live_session_run_id = ticket.run_id
+	_live_session_activation_ticket = ticket.duplicate(true)
+	return {"ok": true, "value": _live_session_fact()}
+
 func retire_live_session(handle: Variant) -> Dictionary:
 	if not is_instance_valid(_mutation_gate) or not _mutation_gate.is_internal_owner_active(&"session_abandonment"):
 		return _session_failure(&"session_abandonment_custody_required")
@@ -3490,8 +3499,6 @@ func apply_continuation_remap_silent(restore_transaction_id: String, identity_al
 
 func _apply_run_snapshot_silent(snapshot: Dictionary) -> Dictionary:
 	if snapshot.get("schema_version") == 9:
-		var checked: Dictionary = _NARRATIVE_VARIABLE_SCHEMA.validate(snapshot)
-		if not checked.get("ok", false): return checked
 		return _install_scene_snapshot_silent(snapshot)
 	if typeof(snapshot.get("lifecycle")) != TYPE_DICTIONARY:
 		return {"ok": false, "code": &"invalid_run_plan", "message": "snapshot.lifecycle is required"}

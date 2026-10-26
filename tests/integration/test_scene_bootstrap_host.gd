@@ -93,14 +93,7 @@ func test_real_bootstrap_scene_text_and_selected_load_keep_owner_authority() -> 
 	var prepared: Dictionary = pause._backup_port.prepare_action("load", "slot:1")
 	if not _ok(prepared): return
 	var opaque: Dictionary = saves._backup_actions[prepared.value.token].prepared_restore
-	assert_true(saves._same_scene_preparation(opaque, opaque.duplicate(true)))
 	assert_eq(typeof(opaque.participant_plans.run.snapshot.schema_version), TYPE_INT)
-	var altered: Dictionary = opaque.duplicate(true)
-	altered.participant_plans.run.snapshot.schema_version = 9.0
-	assert_eq(saves.commit_prepared_restore(altered).get("code"), &"invalid_scene_restore_preparation", "same number with a changed Variant type is not the retained plan")
-	altered = opaque.duplicate(true)
-	altered.participant_plans.run.snapshot.schema_version = -1
-	assert_eq(saves.commit_prepared_restore(altered).get("code"), &"invalid_scene_restore_preparation", "changed plan is refused before identity allocation")
 	assert_eq(game.capture_run_snapshot_input(), source)
 	assert_eq(profile.get_profile_snapshot(), profile_before)
 	if not _ok(await pause._backup_port.commit_action(prepared.value.token)): return
@@ -120,22 +113,3 @@ func test_real_bootstrap_scene_text_and_selected_load_keep_owner_authority() -> 
 
 func after_all() -> void:
 	get_tree().paused = false
-
-func test_scene_preparation_comparison_preserves_runtime_types_and_identity() -> void:
-	var owner := RefCounted.new()
-	var other := RefCounted.new()
-	var plan := {"nested": [{"kind": &"restore", "count": 1, "owner": owner}]}
-	assert_true(preload("res://autoload/SaveManager.gd")._same_scene_preparation(plan, plan.duplicate(true)))
-	for replacement: Variant in ["restore", &"changed"]:
-		var changed: Dictionary = plan.duplicate(true)
-		changed.nested[0].kind = replacement
-		assert_false(preload("res://autoload/SaveManager.gd")._same_scene_preparation(plan, changed))
-	var changed: Dictionary = plan.duplicate(true)
-	changed.nested[0].count = 1.0
-	assert_false(preload("res://autoload/SaveManager.gd")._same_scene_preparation(plan, changed))
-	changed = plan.duplicate(true)
-	changed.nested[0].owner = other
-	assert_false(preload("res://autoload/SaveManager.gd")._same_scene_preparation(plan, changed))
-	assert_false(preload("res://autoload/SaveManager.gd")._same_scene_preparation({"key": 1}, {&"key": 1}))
-	assert_false(preload("res://autoload/SaveManager.gd")._same_scene_preparation(plan, {}))
-	assert_false(preload("res://autoload/SaveManager.gd")._same_scene_preparation([1], [1, 2]))
