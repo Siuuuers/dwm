@@ -388,21 +388,21 @@ func _commit_prepared_restore_profiled(prepared: Dictionary, profile: Dictionary
 ## Drives the identity-allocation participant plus the external continuation journal's
 ## `intent_committed -> identity_allocation_committed -> participants_applying` sequence for a
 ## restore (Plan 02 Task 6, dwm-p2r.32, Phase C2, brief lines 259-293). Mints the restore transaction
-## token itself (the identity-allocation participant's frozen input requires it already minted), then
-## hands the participant everything it needs to reload+hash-verify the source independently ("reloads
-## that value's semantic locator and document hash" -- brief line 209) and reproduce the exact
-## allocation candidate this method computed the fingerprint from.
+## token itself, then reuses the admitted Scene snapshot and prepared allocation.
+## Legacy restoration reloads and verifies its source through the identity participant.
 func _begin_restore_continuation(prepared: Dictionary) -> Dictionary:
 	if _identity_allocation_participant == null:
 		return _fail(&"identity_allocation_participant_not_configured", "configure_identity_allocation_participant first")
 	if _identity_issuer == null:
 		return _fail(&"identity_issuer_not_configured", "configure_identity_issuer first")
 	var selected_document := {}
+	var selected_snapshot := {}
 	var scene_restore: bool = _prepared_is_scene_family(prepared)
 	if scene_restore:
 		var retained := _validate_scene_restore_preparation(prepared)
 		if not retained.get("ok", false): return retained
 		selected_document = retained.value.selected_document.duplicate(true)
+		selected_snapshot = retained.value.prepared.bundle.snapshot
 	var source_locator: Dictionary = prepared["source_locator"]
 	var existing_run_id := str(prepared.get("existing_run_id", ""))
 	var source_generation := int(prepared.get("source_desktop_timeline_generation", 0))
@@ -448,13 +448,20 @@ func _begin_restore_continuation(prepared: Dictionary) -> Dictionary:
 	if not intent_committed.get("ok", false):
 		return intent_committed
 
-	var identity_input := {
-		"restore_transaction_id": restore_transaction_id, "transaction_issuer_receipt": transaction_issuer_receipt,
-		"source_locator": source_locator, "existing_run_id": existing_run_id,
-		"source_desktop_timeline_generation": source_generation, "remap_source_transaction_ids": remap_ids,
-		"allocation_candidate_fingerprint": allocation_fingerprint,
-	}
-	var identity_prepared: Dictionary = _identity_allocation_participant.prepare(identity_input)
+	# The retained Scene snapshot and allocation already passed their owners above.
+	# Reuse them instead of loading and admitting the same source a second time.
+	var identity_prepared: Dictionary
+	if scene_restore:
+		identity_prepared = _identity_allocation_participant._prepare_admitted_allocation(
+			selected_snapshot, restore_transaction_id, transaction_issuer_receipt, raw_candidate)
+	else:
+		var identity_input := {
+			"restore_transaction_id": restore_transaction_id, "transaction_issuer_receipt": transaction_issuer_receipt,
+			"source_locator": source_locator, "existing_run_id": existing_run_id,
+			"source_desktop_timeline_generation": source_generation, "remap_source_transaction_ids": remap_ids,
+			"allocation_candidate_fingerprint": allocation_fingerprint,
+		}
+		identity_prepared = _identity_allocation_participant.prepare(identity_input)
 	if not identity_prepared.get("ok", false):
 		return identity_prepared
 	var identity_candidate: Dictionary = (identity_prepared["value"] as Dictionary)["candidate"]

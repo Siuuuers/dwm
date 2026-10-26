@@ -178,6 +178,32 @@ def extract(folder):
     (folder / "harness.json").write_text(json.dumps({"commit": DIAGNOSTIC, "sha256": hashes}, indent=2))
 
 
+def attribute_methods(text, owner, names):
+    """Wrap synchronous seams only; retain their signatures, results and call order."""
+    for name in names:
+        match = re.search(r"^(?:static )?func " + re.escape(name) + r"\((.*?)\) -> (Dictionary|void):\n", text, re.M | re.S)
+        if match is None:
+            raise ValueError(f"Missing attribution method: {owner}.{name}")
+        header, arguments, returns = match.group(0), match.group(1), match.group(2)
+        body = re.split(r"\n(?:static )?func ", text[match.end():], maxsplit=1)[0]
+        if re.search(r"\bawait\b", body):
+            raise ValueError(f"Attribution wrapper cannot change async behavior: {owner}.{name}")
+        params = ", ".join(part.strip().split(":", 1)[0] for part in arguments.split(",") if part.strip())
+        internal = "_attribution_body_" + name.lstrip("_")
+        call = f"{internal}({params})"
+        wrapper = header + (
+            '\tvar attribution_probe: Node = (Engine.get_main_loop() as SceneTree).root.get_node("StartupProbe")\n'
+            '\tvar attribution_began: Dictionary = attribution_probe.begin_newacc_phase()\n')
+        wrapper += (f"\tvar attribution_result: Dictionary = {call}\n" if returns == "Dictionary" else f"\t{call}\n")
+        result = "attribution_result" if returns == "Dictionary" else '{"ok": true}'
+        wrapper += f'\tattribution_probe.finish_newacc_phase("call.{owner}.{name}", attribution_began, {result})\n'
+        if returns == "Dictionary":
+            wrapper += "\treturn attribution_result\n"
+        wrapper += "\n" + header.replace("func " + name + "(", "func " + internal + "(", 1)
+        text = replace_once(text, header, wrapper)
+    return text
+
+
 def prepare(root, harness):
     spec = importlib.util.spec_from_file_location("startup_attribution", harness / HARNESS[0])
     module = importlib.util.module_from_spec(spec)
@@ -204,7 +230,63 @@ def prepare(root, harness):
         '\tvar result: Dictionary = _probe_prepare_new_run_action(initial_context)\n'
         '\tprobe.finish_newacc_phase("newacc.prepare_action", began, result)\n'
         '\treturn result\n\n' + header.replace("func prepare_new_run_action", "func _probe_prepare_new_run_action"))
+    save_text = attribute_methods(save_text, "SaveManager", (
+        "_start_scene_new_run_in_memory", "_prepare_scene_new_run_plans",
+        "_run_scene_restore_transaction", "_prepare_restore", "_prepare_restore_seed",
+        "_prepare_bundle_with_all_participants", "_commit_prepared_restore_profiled",
+        "_reconstruct_restore_materials", "_resume_restore", "_drive_scene_restore_activation_owned"))
+    for signal in ("route", "narrative"):
+        anchor = f"\t_scene_restore_activation.{signal}_confirmed = true\n"
+        save_text = replace_once(save_text, anchor, anchor +
+            f'\tget_node("/root/StartupProbe").mark("scene_{signal}_confirmed")\n')
+    # Only the active scene path is observed; legacy emit sites stay untouched.
+    anchor = '\tlive_session_ready.emit()\n\tif activation_owner == &"restore":'
+    save_text = replace_once(save_text, anchor,
+        '\tget_node("/root/StartupProbe").mark("scene_live_session_ready")\n' + anchor)
     saves.write_text(save_text)
+    attribution_paths = {}
+    participants = {
+        "Run": ("prepare_scene_new_run_snapshot_input", "prepare_scene_new_run"),
+        "Profile": ("prepare_frozen_profile",),
+        "Narrative": ("prepare_scene_new_run", "begin_scene_activation"),
+        "Route": ("begin_scene_activation",),
+        "DesktopConsequence": (), "DesktopBoard": (), "Localization": (), "Audio": (),
+    }
+    for owner, extra in participants.items():
+        relative = f"scripts/application/restore/{owner}RestoreParticipant.gd"
+        path = root / relative
+        before = path.read_bytes()
+        path.write_text(attribute_methods(path.read_text(), owner + "RestoreParticipant",
+            ("prepare", "capture", "apply_silent", "finalize") + extra))
+        attribution_paths[relative] = {"before": hashlib.sha256(before).hexdigest(),
+                                       "after": hashlib.sha256(path.read_bytes()).hexdigest()}
+    for relative, methods in {
+        "autoload/ProfileManager.gd": ("prepare_profile_document", "apply_restore_silent",
+            "validate_restore_ready", "publish_restore", "finalize_restore"),
+        "autoload/WindowModeManager.gd": ("prepare_restore", "capture_restore_state", "apply_restore_silent", "finalize_restore"),
+        "scripts/display/WindowModePort.gd": ("apply_mode", "_write"),
+        "scripts/application/desktop/DesktopIdentityNonceIssuer.gd": (
+            "issue", "prepare_continuation_allocation", "commit_continuation_allocation"),
+        "autoload/DialogicBridge.gd": ("_build_current_scene_initial_checkpoint",),
+        "scripts/domain/run/RunSnapshotSchema.gd": ("build_scene",),
+    }.items():
+        path = root / relative
+        before = path.read_bytes()
+        text = attribute_methods(path.read_text(), path.stem, methods)
+        if path.stem == "WindowModePort":
+            for index, statement in enumerate((
+                "window_set_mode(WINDOWED, MAIN)", "window_set_flag(BORDERLESS, target.borderless, MAIN)",
+                "window_set_current_screen(target.screen, MAIN)", "window_set_size(target.size, MAIN)",
+                "window_set_position(target.position, MAIN)",
+            )):
+                line = "\t_platform." + statement + "\n"
+                text = replace_once(text, line,
+                    f'\tvar native_probe_{index}: Node = (Engine.get_main_loop() as SceneTree).root.get_node("StartupProbe")\n'
+                    f'\tvar native_began_{index}: Dictionary = native_probe_{index}.begin_newacc_phase()\n' + line +
+                    f'\tnative_probe_{index}.finish_newacc_phase("native.{statement.split("(")[0]}", native_began_{index}, {{"ok": true}})\n')
+        path.write_text(text)
+        attribution_paths[relative] = {"before": hashlib.sha256(before).hexdigest(),
+                                       "after": hashlib.sha256(path.read_bytes()).hexdigest()}
     probe = root / "startup_probe.gd"
     text = probe.read_text()
     text = replace_once(text, "const TRACE_NEWACC := false", "const TRACE_NEWACC := true")
@@ -231,6 +313,11 @@ def prepare(root, harness):
     receipt = json.loads(receipt_path.read_text())
     receipt["changes"]["scripts/narrative/DialogicEntryManifest.gd"]["after"] = hashlib.sha256(manifest.read_bytes()).hexdigest()
     receipt["changes"]["autoload/SaveManager.gd"]["after"] = hashlib.sha256(saves.read_bytes()).hexdigest()
+    for relative, change in attribution_paths.items():
+        if relative in receipt["changes"]:
+            receipt["changes"][relative]["after"] = change["after"]
+        else:
+            receipt["changes"][relative] = change
     receipt["newacc_probe_sha256"] = receipt["probe_sha256"]
     receipt["probe_sha256"] = hashlib.sha256(probe.read_bytes()).hexdigest()
     receipt["changes"]["startup_probe.gd"]["after"] = receipt["probe_sha256"]
@@ -324,6 +411,11 @@ def summarize(folder):
                     metrics["process.login_to_caption_excluding_dwell_ms"] = process["login_to_caption_ms"] - process["backup_dwell_ms"]
                 else:
                     metrics["process.new_acc_excluding_consent_dwell_ms"] = process["new_acc_to_caption_complete_ms"] - process.get("consent_dwell_ms", 0)
+                milestones = report["milestones"]
+                input_key = "load_input" if case == "load" else ("confirm_input" if case == "retained" else "new_acc_input")
+                for milestone in ("scene_route_confirmed", "scene_narrative_confirmed", "scene_live_session_ready"):
+                    assert milestone in milestones, (name, milestone)
+                    metrics[f"activation.{milestone}.since_action_us"] = milestones[milestone]["ticks_us"] - milestones[input_key]["ticks_us"]
                 metrics.update({"frame_gap_us." + k: v for k, v in numeric_leaves(report["max_frame_gap_us"])})
                 metrics.update({"validation." + k: v for k, v in numeric_leaves(profile)
                                 if not k.endswith(("ordinal", "next_step_index"))})

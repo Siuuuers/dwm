@@ -94,32 +94,41 @@ func prepare(input: Dictionary) -> Dictionary:
 		return prepared_allocation
 	var raw_candidate: Dictionary = prepared_allocation["value"]
 
-	var raw_bundle := {
-		"transaction_id": restore_transaction_id,
-		"transaction_issuer_receipt": input["transaction_issuer_receipt"],
-		"branch_id": str(raw_candidate["branch_id"]),
-		"desktop_timeline_generation": int(raw_candidate["desktop_timeline_generation"]),
-		"causal_day_instance": str(raw_candidate["causal_day_instance"]),
-		"causal_day_instance_issuer_receipt": raw_candidate["causal_day_instance_issuer_receipt"],
-		"transaction_remap": raw_candidate["transaction_remap"],
-	}
-	var remapped: Dictionary = REMAPPER.prepare(reloaded_snapshot, restore_transaction_id, raw_bundle)
-	if not remapped.get("ok", false):
-		return remapped
-	var remap_value: Dictionary = remapped["value"]
-
-	var enriched_bundle := raw_bundle.duplicate(true)
-	enriched_bundle["run_id"] = str(raw_candidate["run_id"])
-	enriched_bundle["allocation_receipt_id"] = str((input["transaction_issuer_receipt"] as Dictionary).get("receipt_id", ""))
-	enriched_bundle["remap_receipt_id"] = str(remap_value["remap_receipt_id"])
-	enriched_bundle["remap_receipt_provenance"] = remap_value["remap_receipt_provenance"]
-
+	var prepared := _prepare_admitted_allocation(reloaded_snapshot, restore_transaction_id,
+		input["transaction_issuer_receipt"], raw_candidate)
+	if not prepared.get("ok", false): return prepared
 	var candidate_fingerprint := _canonical_sha256(raw_candidate)
 	if candidate_fingerprint.is_empty():
 		return _fail(&"allocation_candidate_not_canonicalizable", "the raw allocation candidate is not canonically representable")
 	if candidate_fingerprint != str(input["allocation_candidate_fingerprint"]):
 		return _fail(&"allocation_candidate_fingerprint_mismatch",
 			"the reproduced allocation candidate does not match the frozen fingerprint")
+
+	return prepared
+
+## The ordinary Scene Load owner already admitted the selected snapshot and prepared
+## this exact root allocation. Recovery and legacy preparation share the remap assembly.
+func _prepare_admitted_allocation(snapshot: Dictionary, restore_transaction_id: String,
+		transaction_issuer_receipt: Dictionary, raw_candidate: Dictionary) -> Dictionary:
+	var raw_bundle := {
+		"transaction_id": restore_transaction_id,
+		"transaction_issuer_receipt": transaction_issuer_receipt,
+		"branch_id": str(raw_candidate["branch_id"]),
+		"desktop_timeline_generation": int(raw_candidate["desktop_timeline_generation"]),
+		"causal_day_instance": str(raw_candidate["causal_day_instance"]),
+		"causal_day_instance_issuer_receipt": raw_candidate["causal_day_instance_issuer_receipt"],
+		"transaction_remap": raw_candidate["transaction_remap"],
+	}
+	var remapped: Dictionary = REMAPPER.prepare(snapshot, restore_transaction_id, raw_bundle)
+	if not remapped.get("ok", false):
+		return remapped
+	var remap_value: Dictionary = remapped["value"]
+
+	var enriched_bundle := raw_bundle.duplicate(true)
+	enriched_bundle["run_id"] = str(raw_candidate["run_id"])
+	enriched_bundle["allocation_receipt_id"] = str(transaction_issuer_receipt.get("receipt_id", ""))
+	enriched_bundle["remap_receipt_id"] = str(remap_value["remap_receipt_id"])
+	enriched_bundle["remap_receipt_provenance"] = remap_value["remap_receipt_provenance"]
 
 	return {"ok": true, "code": &"ok", "value": {"candidate": {
 		"restore_transaction_id": restore_transaction_id,
