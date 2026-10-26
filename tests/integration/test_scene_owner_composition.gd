@@ -4,10 +4,13 @@ extends "res://addons/gut/test.gd"
 const ADAPTER := preload("res://scripts/narrative/DialogicRuntimeAdapter.gd")
 const BASE := preload("res://tests/support/SceneDayReadingFixture.gd")
 const HELD := preload("res://tests/support/SceneHeldSourceFixture.gd")
-const BRIDGE := preload("res://autoload/DialogicBridge.gd")
 const PRODUCER := preload("res://scripts/application/narrative/SaveManagerNarrativeCheckpointPort.gd")
 const LOWER := preload("res://tests/support/SceneOwnerCompositionFixture.gd")
 const STYLE := "res://dialogic/styles/witnessed_caption_style.tres"
+class CompositionBridge extends "res://autoload/DialogicBridge.gd":
+	# This detached owner uses the fixture's authored English captions.
+	func _current_locale() -> String: return "en"
+
 var _runtime: DialogicGameHandler
 var _adapter: DialogicRuntimeAdapter
 var _viewport: SubViewport
@@ -65,7 +68,7 @@ func before_each() -> void:
 	assert_true(_adapter.bind_runtime(_runtime).ok)
 	_adapter.caption_publication_recorded.connect(func(result: Dictionary) -> void: _results.append(result.duplicate(true)))
 
-	_bridge = BRIDGE.new()
+	_bridge = CompositionBridge.new()
 	autofree(_bridge)
 	_bridge._runtime_adapter = _adapter
 	_lower = LOWER.new()
@@ -90,6 +93,8 @@ func _start_source(target_id: String = "target_a", hold: bool = true) -> bool:
 	# A retained parent visit is admitted by this TEST owner; native playback
 	# below supplies both B captions from actual installed text event objects.
 	assert_true(BASE.enter(_session, BASE.A, "a:parent").ok)
+	# Record the encountered parent caption before switching the live occurrence.
+	assert_true(BASE.checkpoint(_session).ok)
 	var frame := BASE.frame(BASE.B, "b:held")
 	assert_true(_session.admit_scene(BASE.B, frame).ok)
 	assert_true(_adapter.bind_caption_ledger(_session.ledger, _session.command_id,
@@ -152,8 +157,9 @@ func _assert_target(prepared: Dictionary, expected_line: String) -> void:
 	if history.ok:
 		var lines: Array = []
 		for row: Dictionary in history.value.captions: lines.append(row.line_id)
-		assert_eq(lines, ["line.scene.test.a.one", "line.scene.test.b.one",
-			"line.scene.test.b.two", expected_line])
+		var expected: Array = ["line.scene.test.b.one", "line.scene.test.b.two", expected_line]
+		if expected_line != "line.scene.test.a.one": expected.push_front("line.scene.test.a.one")
+		assert_eq(lines, expected, "encountered History retains each authored moment once")
 	var retained: Dictionary = _bridge._reading_session.ledger.snapshot()
 	_runtime.Text.about_to_show_text.emit({})
 	_runtime.Text.text_started.emit({})

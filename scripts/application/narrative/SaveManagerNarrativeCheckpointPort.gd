@@ -493,7 +493,7 @@ func _commit_scene_event_autosave(snapshot_input: Dictionary, checkpoint: Dictio
 	var candidate_hash := _fingerprint(candidate) if guarded_candidate else ""
 	if scene_route and not _scene_route_candidate_valid(candidate, snapshot_input, checkpoint):
 		return _fail(&"scene_entry_candidate_invalid", "prepared scene family differs from admitted input")
-	if not _scene_entry.is_empty() and _scene_candidate_reference(candidate, checkpoint).is_empty():
+	if not scene_route and not _scene_entry.is_empty() and _scene_candidate_reference(candidate, checkpoint).is_empty():
 		return _fail(&"scene_entry_candidate_invalid", "real prepared snapshot differs from retained target")
 
 	if not _scene_entry.is_empty():
@@ -507,7 +507,7 @@ func _commit_scene_event_autosave(snapshot_input: Dictionary, checkpoint: Dictio
 			return _fail(&"scene_entry_source_changed", "journal changed during preparation")
 		# Keep the lower port's exact prepared object, but reject mutations made by
 		# the final authority/source callbacks before crossing its write boundary.
-		if _fingerprint(candidate) != candidate_hash or _scene_candidate_reference(candidate, checkpoint).is_empty():
+		if _fingerprint(candidate) != candidate_hash or (not scene_route and _scene_candidate_reference(candidate, checkpoint).is_empty()):
 			return _fail(&"scene_entry_candidate_invalid", "prepared candidate changed before commit")
 	if scene_route and (_fingerprint(candidate) != candidate_hash or not _scene_route_candidate_valid(candidate, snapshot_input, checkpoint)):
 		return _fail(&"scene_entry_candidate_invalid", "scene candidate changed before commit")
