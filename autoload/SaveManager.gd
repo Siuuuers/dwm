@@ -3065,6 +3065,10 @@ func _run_scene_restore_transaction(plans: Dictionary, journal_candidate: Varian
 				expected.erase("candidate_kind")
 				if retained.get("ok", false) and CANONICAL_JSON._deep_same(retained.value.backup, expected):
 					seeded = {"ok": true}
+		elif memory_new_run:
+			# This private reset comes directly from build_scene's validated snapshot.
+			# Install it once; public commit_prepared still validates caller dictionaries.
+			seeded = _journal._install_prepared(journal_candidate)
 		else:
 			seeded = _journal.commit_prepared(journal_candidate)
 		if not seeded.get("ok", false):
