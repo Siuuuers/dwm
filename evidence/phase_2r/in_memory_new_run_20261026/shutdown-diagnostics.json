@@ -1,0 +1,39 @@
+[
+  {
+    "run": 40301656426,
+    "candidate_sha": "ffac0b7997ba9875dd99407cf71438762102b785",
+    "sample": "r2-candidate-fresh",
+    "complete": true,
+    "failures": [],
+    "exit_code": 0,
+    "stderr": "WARNING: ObjectDB instances leaked at exit (run with --verbose for details).\n   at: cleanup (core/object/object.cpp:2663)\nERROR: 2 resources still in use at exit (run with --verbose for details).\n   at: clear (core/io/resource.cpp:810)\n\n",
+    "resource_details": []
+  },
+  {
+    "run": 40302992271,
+    "candidate_sha": "51fa4c10e2122728343844604d3562133b2e09fd",
+    "sample": "r1-baseline-fresh",
+    "complete": true,
+    "failures": [],
+    "exit_code": 0,
+    "stderr": "WARNING: ObjectDB instances leaked at exit (run with --verbose for details).\n   at: cleanup (core/object/object.cpp:2663)\nERROR: 2 resources still in use at exit (run with --verbose for details).\n   at: clear (core/io/resource.cpp:810)\n\n",
+    "resource_details": []
+  },
+  {
+    "run": 40304686504,
+    "candidate_sha": "4cca3f422ca437712fe95458c84e81b89826d3e7",
+    "sample": "r1-baseline-load",
+    "complete": true,
+    "failures": [],
+    "exit_code": 0,
+    "stderr": "WARNING: Image format RGB8 not supported by hardware, converting to RGBA8.\n   at: _validate_texture_format (servers/rendering/renderer_rd/storage_rd/texture_storage.cpp:2426)\nWARNING: Image format RGB8 not supported by hardware, converting to RGBA8.\n   at: _validate_texture_format (servers/rendering/renderer_rd/storage_rd/texture_storage.cpp:2426)\nWARNING: ObjectDB instances leaked at exit (run with --verbose for details).\n   at: cleanup (core/object/object.cpp:2663)\nERROR: 2 resources still in use at exit.\n   at: clear (core/io/resource.cpp:805)\n\n",
+    "resource_details": [
+      "Leaked instance: AudioStreamPlaybackOggVorbis:9223377497402378301 - Reference count: 1",
+      "Leaked instance: OggPacketSequence:9223377497352049332 - Reference count: 3",
+      "Leaked instance: OggPacketSequencePlayback:9223377497419158197 - Reference count: 1",
+      "Leaked instance: AudioStreamOggVorbis:9223377497368826555 - Reference count: 1",
+      "Resource still in use: res://audio/bgm/story_theme.ogg::OggPacketSequence_flcqe (OggPacketSequence)",
+      "Resource still in use: res://audio/bgm/story_theme.ogg (AudioStreamOggVorbis)"
+    ]
+  }
+]

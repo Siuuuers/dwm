@@ -1,0 +1,94 @@
+{
+  "variant": "baseline",
+  "trace_autoloads": true,
+  "trace_newacc": false,
+  "autoload_sources": {
+    "StartupProbe": "startup_probe.gd",
+    "ProfileManager": "autoload/ProfileManager.gd",
+    "GameState": "autoload/GameState.gd",
+    "SaveManager": "autoload/SaveManager.gd",
+    "LocalizationManager": "autoload/LocalizationManager.gd",
+    "AudioManager": "autoload/AudioManager.gd",
+    "SystemTtsCoordinator": "autoload/SystemTtsCoordinator.gd",
+    "WindowModeManager": "autoload/WindowModeManager.gd",
+    "EffectResolver": "autoload/EffectResolver.gd",
+    "SceneRouter": "autoload/SceneRouter.gd",
+    "InputManager": "autoload/InputManager.gd",
+    "AccessibilityManager": "autoload/AccessibilityManager.gd",
+    "Dialogic": "addons/dialogic/Core/DialogicGameHandler.gd",
+    "DialogicBridge": "autoload/DialogicBridge.gd",
+    "ApplicationBootstrap": "autoload/ApplicationBootstrap.gd"
+  },
+  "changes": {
+    "project.godot": {
+      "before": "5e8009d890f9e4359b24bb68a59fdec1bf56ef0a3ea94be06c3e43a6d2353053",
+      "after": "4bfe3f4e2650d5333a0af87aa655411d4bece05c6832a9e49921b8bf5aeb9407"
+    },
+    "autoload/ApplicationBootstrap.gd": {
+      "before": "1ddafc9537212321b2864b40800334e1bcf35dd2c839d724b32b57e81112a18b",
+      "after": "a74dd0e07a21a654445d6331ab00f1cb87a546a7f8f5da642320d61f773fe0a1"
+    },
+    "scripts/narrative/DialogicEntryManifest.gd": {
+      "before": "37ab885855a51a0516683306c45321fd091f602e17235a1972e0bc90231b92bc",
+      "after": "8da8965c30f03afbe4fa3c55471e94402df04cc05f7d656e906ff82f097ce921"
+    },
+    "startup_probe.gd": {
+      "before": "3858f6bc8b464290c3a16348bac21fd323ed50360e64b579535ba64aca640678",
+      "after": "184440345b9c2f6544675f6129b78951970b2d06f8ccf2802541087c34d76d93"
+    },
+    "autoload/ProfileManager.gd": {
+      "before": "ace8cb8828ccf91f8ff24b3798c52edd145f09f98c4ae04f91c2e42f090c46d1",
+      "after": "79fa819f48c57f17226be3a77b49ce6ddb0d8b208012b08544cacc9b178ff4c4"
+    },
+    "autoload/GameState.gd": {
+      "before": "bac45346c7caba58d50c60b343cc804ff779a693958dfdb07735bcd5aa3375fd",
+      "after": "71ec065d8a81455d546dd3af9e566b71eab596aa58943ae4b4c54198e06499d2"
+    },
+    "autoload/SaveManager.gd": {
+      "before": "ddacdb57796fda6faf9a6737ed96a835f180253a60e9e4a1955c469c578ee84e",
+      "after": "e793cb569f5e13480c459ab97afc2afa19a3e5778e61237605130682ca55e11d"
+    },
+    "autoload/LocalizationManager.gd": {
+      "before": "86a75a0b406b6146defee01ddad9bab87bb7f01fc44625f0f609d5ada5006d85",
+      "after": "b6edf3f2436ff82f42d8f976c4f4e745d9e5c424d49b632b9cf969f045847c5f"
+    },
+    "autoload/AudioManager.gd": {
+      "before": "10e65c44339f7525979ebe70353b268ee16b394ae7cc75c0b34b8f6713a82921",
+      "after": "1d39ae86c520c2af177a86849a8a3f3b7d9ed7f02789d4d90fb6d7c7b04d5680"
+    },
+    "autoload/SystemTtsCoordinator.gd": {
+      "before": "a096b256e779e99095b03f6df3065e33c8adc37dd500c6256e47f46ba16b5a7f",
+      "after": "aa982c509af4d58d2f6e5012ccee027864e78cdedf88123ad112c2f9b9697dc7"
+    },
+    "autoload/WindowModeManager.gd": {
+      "before": "a3056e0be5889333096619de6144e97e2c4372349830bed81adebba49f6e2724",
+      "after": "61bf371d3247d5db95e822f6a6cce5c85c730c7a260db029464cfe0da2995c3c"
+    },
+    "autoload/EffectResolver.gd": {
+      "before": "2d8a72d589ab1936d63d29c470232ee2d9cdadfbfc4b48c7158ce7f0cdfea375",
+      "after": "ab30a5a116c14ea3bd4b8e55e9a4404f2023b1783cdb02c52987fd3377ca8fc5"
+    },
+    "autoload/SceneRouter.gd": {
+      "before": "c8101c7b414cda039b27a17d4d6c8950b8583f57eb8c90f366dec66dd8593cbd",
+      "after": "ab74a4292de30532c4b8f10464c7f4a6f0b9b5922d457d465d28ea321b1917d0"
+    },
+    "autoload/InputManager.gd": {
+      "before": "4b1972a334ea576c8364dad3e4361d9dccf4d583dce7382f8bb31f7a48ec7a40",
+      "after": "527ccd3e61e90e36032526e391f2b3d7dbb4c55e24e9bcb9d41f82c947b4fd3a"
+    },
+    "autoload/AccessibilityManager.gd": {
+      "before": "b4e9a0c07055f5d45ce194717b89bebf484c61578a338ac02b0bd44df3a0b1e8",
+      "after": "ebc4c913098bfbd3d47f36453996f5c0255848544c22de13fe5f9b8bb57e359e"
+    },
+    "addons/dialogic/Core/DialogicGameHandler.gd": {
+      "before": "5e8dc924b51e6d5364948943993a1609a771be1459bd58d2acd5b91815799dc7",
+      "after": "afef066a7251602816cb64957fe5918de1684e5486682dc8688d8ffc54cd7153"
+    },
+    "autoload/DialogicBridge.gd": {
+      "before": "25f83652d43844b5bb58d471b9137897961eea99e2393c3740fb497676205a80",
+      "after": "48ec11164a7ff7f1dbd58c5f3c2c404e67d1a3c02adb33e85e6c26fb6cf914aa"
+    }
+  },
+  "probe_sha256": "184440345b9c2f6544675f6129b78951970b2d06f8ccf2802541087c34d76d93",
+  "newacc_probe_sha256": "dac05a81279ed2e544d8f153f0ab00acd1b52fc618a0c7ba577773372d187d9b"
+}

@@ -1,0 +1,56 @@
+{
+  "run": 40305621045,
+  "candidate_sha": "74a6e6ce54f858ca492d4fe6db00a6375e2b2d08",
+  "workflow_conclusion": "success",
+  "manual_acceptance": "rejected: candidate-only ObjectDB warnings; warning gate subsequently strengthened",
+  "warnings": [
+    {
+      "sample": "r1-candidate-fresh",
+      "leaked_instances": [
+        "Leaked instance: GDScriptFunctionState:9223375670682323209 - Reference count: 1"
+      ]
+    },
+    {
+      "sample": "r1-candidate-retained",
+      "leaked_instances": [
+        "Leaked instance: GDScriptFunctionState:9223376025470112253 - Reference count: 1"
+      ]
+    },
+    {
+      "sample": "r2-candidate-fresh",
+      "leaked_instances": [
+        "Leaked instance: GDScriptFunctionState:9223375670665545993 - Reference count: 1"
+      ]
+    },
+    {
+      "sample": "r2-candidate-retained",
+      "leaked_instances": [
+        "Leaked instance: GDScriptFunctionState:9223376025386226173 - Reference count: 1"
+      ]
+    },
+    {
+      "sample": "r3-candidate-fresh",
+      "leaked_instances": [
+        "Leaked instance: GDScriptFunctionState:9223375670665545993 - Reference count: 1"
+      ]
+    },
+    {
+      "sample": "r3-candidate-retained",
+      "leaked_instances": [
+        "Leaked instance: GDScriptFunctionState:9223376025419780605 - Reference count: 1"
+      ]
+    },
+    {
+      "sample": "r4-candidate-fresh",
+      "leaked_instances": [
+        "Leaked instance: GDScriptFunctionState:9223375670715877641 - Reference count: 1"
+      ]
+    },
+    {
+      "sample": "r4-candidate-retained",
+      "leaked_instances": [
+        "Leaked instance: GDScriptFunctionState:9223376025436557821 - Reference count: 1"
+      ]
+    }
+  ]
+}
