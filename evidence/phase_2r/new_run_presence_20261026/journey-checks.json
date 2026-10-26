@@ -1,0 +1,3754 @@
+[
+  {
+    "sample": "r1-baseline-fresh",
+    "report": {
+      "complete": true,
+      "failures": [],
+      "observation": {
+        "active": true,
+        "audio_cleanup_ok": true,
+        "audio_cleanup_us": 79428,
+        "event_done": true,
+        "initial_autosave_unchanged": true,
+        "later_autosave_sha256": "545bf0301ed16e6fdaa3df63466d0648b8b07c9446806845b45b984c850d372a",
+        "later_save_sha256": "b9cacc728404c7b16b6b163d1ca23e53bfdd2aca075e2628810c2508a363b58e",
+        "later_save_without_assignment": true,
+        "line_id": "line.Day1.one",
+        "new_run_busy": false,
+        "text": "Sylvia slides the fuller teacup onto my mat and keeps the one with the small chip on the rim for herself.",
+        "visible_ratio": 1.0
+      },
+      "inputs": [
+        {
+          "accepted": {
+            "ticks_us": 7605476,
+            "unix_ms": 1793013348354.0
+          },
+          "down_count": 1,
+          "focused_window": true,
+          "hovered": true,
+          "label": "new_acc",
+          "path": "/root/MenuScene/MenuPanel/ButtonList/NewAccButton",
+          "point": "(160.0, 32.0)",
+          "pressed_count": 1,
+          "up_count": 1
+        }
+      ],
+      "preferences": {
+        "preferences.accessibility.font_style": "pixel",
+        "preferences.accessibility.text_size": 100,
+        "preferences.language.primary_locale_id": "en",
+        "preferences.reading.auto_enabled": false,
+        "preferences.reading.reveal_speed": "normal"
+      },
+      "rendering": {
+        "get_current_rendering_driver_name": "d3d12",
+        "get_current_rendering_method": "forward_plus",
+        "get_video_adapter_api_version": "12_0",
+        "get_video_adapter_name": "Microsoft Basic Render Driver"
+      },
+      "engine": {
+        "build": "official",
+        "hash": "7d41c59c457bd5a245092b4e7eb2d833e3b3f8c3",
+        "hex": 263683,
+        "major": 4,
+        "minor": 6,
+        "patch": 3,
+        "status": "stable",
+        "string": "4.6.3-stable (official)",
+        "timestamp": 0
+      },
+      "display_server": "Windows",
+      "milestones": {
+        "bootstrap_ready": {
+          "ticks_us": 6691043,
+          "unix_ms": 1793013347439.0
+        },
+        "bootstrap_start": {
+          "ticks_us": 6739840,
+          "unix_ms": 1793013347488.0
+        },
+        "caption_complete_drawn_idle": {
+          "ticks_us": 9744515,
+          "unix_ms": 1793013350493.0
+        },
+        "caption_first_visible": {
+          "ticks_us": 9699705,
+          "unix_ms": 1793013350448.0
+        },
+        "first_title_drawn": {
+          "ticks_us": 7562721,
+          "unix_ms": 1793013348311.0
+        },
+        "first_title_input_accepted": {
+          "ticks_us": 7605481,
+          "unix_ms": 1793013348354.0
+        },
+        "new_acc_input": {
+          "ticks_us": 7596138,
+          "unix_ms": 1793013348344.0
+        },
+        "probe_enter_tree": {
+          "ticks_us": 6603031,
+          "unix_ms": 1793013347351.0
+        },
+        "title_drawn_usable": {
+          "ticks_us": 7562736,
+          "unix_ms": 1793013348311.0
+        }
+      }
+    },
+    "process": {
+      "clean_exit": true,
+      "timed_out": false,
+      "exit_code": 0,
+      "engine_verbose": true,
+      "argv": [
+        "--audio-driver",
+        "Dummy",
+        "--windowed",
+        "--resolution",
+        "1280x720",
+        "--log-file",
+        "D:\\a\\dwm\\dwm\\.godot\\ci\\trusted-runtime\\measurements\\r1-baseline-fresh\\render.log",
+        "--verbose"
+      ],
+      "images": [
+        {
+          "name": "caption.png",
+          "size": 773222,
+          "sha256": "7ba30286dc15ef86829a5c36bbb147d828ca42243d64f7e4911ae91391994635"
+        },
+        {
+          "name": "title.png",
+          "size": 9866,
+          "sha256": "2b01f0beb4d153b753ce29839f256788066c26da86a5db7ae07b16fc1fc9b53c"
+        }
+      ],
+      "status": "collected_requires_visual_review"
+    },
+    "stderr": "WARNING: Image format RGB8 not supported by hardware, converting to RGBA8.\n   at: _validate_texture_format (servers/rendering/renderer_rd/storage_rd/texture_storage.cpp:2426)\nWARNING: Image format RGB8 not supported by hardware, converting to RGBA8.\n   at: _validate_texture_format (servers/rendering/renderer_rd/storage_rd/texture_storage.cpp:2426)\n\n"
+  },
+  {
+    "sample": "r1-baseline-load",
+    "report": {
+      "complete": true,
+      "failures": [],
+      "observation": {
+        "active": true,
+        "audio_cleanup_ok": true,
+        "audio_cleanup_us": 89041,
+        "branch_id": "branch_id.ca5ea6b3f8491c81e0aac03fc196205e873457254990b0a8bd3986dba54cd783",
+        "event_done": true,
+        "gameplay_preserved": true,
+        "later_autosave_sha256": "a1109aff1ba6c50eea24488f786a3c8f0cb1cb9f5a20f60618c6d21c63f29705",
+        "later_save_sha256": "0efe380d49a3605ad6add377ed119786f7c65f96869f1d14a6356ac4ddca40c2",
+        "later_save_without_assignment": true,
+        "line_id": "line.Day1.one",
+        "reading_preserved": true,
+        "ready_count": 1,
+        "run_id": "run_id.0099deac80ce9e108531cb77f40fe74f94e87858b3962a918fa9dc4e44b3e9cb",
+        "scene_preserved": true,
+        "source_had_assignment": false,
+        "source_save_preserved": true,
+        "source_save_sha256": "b9cacc728404c7b16b6b163d1ca23e53bfdd2aca075e2628810c2508a363b58e",
+        "text": "Sylvia slides the fuller teacup onto my mat and keeps the one with the small chip on the rim for herself.",
+        "visible_ratio": 1.0
+      },
+      "inputs": [
+        {
+          "accepted": {
+            "ticks_us": 5841824,
+            "unix_ms": 1793013373972.0
+          },
+          "down_count": 1,
+          "focused_window": true,
+          "hovered": true,
+          "label": "login",
+          "path": "/root/MenuScene/MenuPanel/ButtonList/LogInButton",
+          "point": "(160.0, 100.0)",
+          "pressed_count": 1,
+          "up_count": 1
+        },
+        {
+          "accepted": {
+            "ticks_us": 5881512,
+            "unix_ms": 1793013374011.0
+          },
+          "down_count": 1,
+          "focused_window": true,
+          "hovered": true,
+          "label": "select_slot",
+          "path": "/root/MenuScene/BackupAppHost/BackupApp/VBoxContainer/ContentMargin/ContentHost/BackupBody/Drawer2",
+          "point": "(836.0, 104.0)",
+          "pressed_count": 1,
+          "up_count": 1
+        },
+        {
+          "accepted": {
+            "ticks_us": 7959922,
+            "unix_ms": 1793013376090.0
+          },
+          "down_count": 1,
+          "focused_window": true,
+          "hovered": true,
+          "label": "load",
+          "path": "/root/MenuScene/BackupAppHost/BackupApp/VBoxContainer/ContentMargin/ContentHost/BackupBody/PinnedActions/LoadAction",
+          "point": "(1018.0, 504.0)",
+          "pressed_count": 1,
+          "up_count": 1
+        }
+      ],
+      "preferences": {
+        "preferences.accessibility.font_style": "pixel",
+        "preferences.accessibility.text_size": 100,
+        "preferences.language.primary_locale_id": "en",
+        "preferences.reading.auto_enabled": false,
+        "preferences.reading.reveal_speed": "normal"
+      },
+      "rendering": {
+        "get_current_rendering_driver_name": "d3d12",
+        "get_current_rendering_method": "forward_plus",
+        "get_video_adapter_api_version": "12_0",
+        "get_video_adapter_name": "Microsoft Basic Render Driver"
+      },
+      "engine": {
+        "build": "official",
+        "hash": "7d41c59c457bd5a245092b4e7eb2d833e3b3f8c3",
+        "hex": 263683,
+        "major": 4,
+        "minor": 6,
+        "patch": 3,
+        "status": "stable",
+        "string": "4.6.3-stable (official)",
+        "timestamp": 0
+      },
+      "display_server": "Windows",
+      "milestones": {
+        "backup_drawn_usable": {
+          "ticks_us": 5913697,
+          "unix_ms": 1793013374044.0
+        },
+        "bootstrap_ready": {
+          "ticks_us": 4960876,
+          "unix_ms": 1793013373091.0
+        },
+        "bootstrap_start": {
+          "ticks_us": 5006581,
+          "unix_ms": 1793013373136.0
+        },
+        "first_title_drawn": {
+          "ticks_us": 5762752,
+          "unix_ms": 1793013373893.0
+        },
+        "first_title_input_accepted": {
+          "ticks_us": 5841829,
+          "unix_ms": 1793013373972.0
+        },
+        "load_caption_complete_drawn_idle": {
+          "ticks_us": 8754815,
+          "unix_ms": 1793013376884.0
+        },
+        "load_input": {
+          "ticks_us": 5966321,
+          "unix_ms": 1793013374096.0
+        },
+        "load_ready": {
+          "ticks_us": 8606844,
+          "unix_ms": 1793013376736.0
+        },
+        "login_input": {
+          "ticks_us": 5808565,
+          "unix_ms": 1793013373938.0
+        },
+        "probe_enter_tree": {
+          "ticks_us": 4883160,
+          "unix_ms": 1793013373013.0
+        },
+        "select_slot_input": {
+          "ticks_us": 5864848,
+          "unix_ms": 1793013373995.0
+        },
+        "title_drawn_usable": {
+          "ticks_us": 5762764,
+          "unix_ms": 1793013373893.0
+        }
+      }
+    },
+    "process": {
+      "clean_exit": true,
+      "timed_out": false,
+      "exit_code": 0,
+      "engine_verbose": true,
+      "argv": [
+        "--audio-driver",
+        "Dummy",
+        "--windowed",
+        "--resolution",
+        "1280x720",
+        "--log-file",
+        "D:\\a\\dwm\\dwm\\.godot\\ci\\trusted-runtime\\measurements\\r1-baseline-load\\render.log",
+        "--verbose"
+      ],
+      "images": [
+        {
+          "name": "backup.png",
+          "size": 22816,
+          "sha256": "3a4c930a949f4c8f207f7c845907fe9958afd9626f415e31386db20270061226"
+        },
+        {
+          "name": "loaded-caption.png",
+          "size": 773167,
+          "sha256": "a5d04fec8ffab94a81fc60cfeb91962b4160d50b70b0c782ca332ffa7999157e"
+        },
+        {
+          "name": "title.png",
+          "size": 9866,
+          "sha256": "2b01f0beb4d153b753ce29839f256788066c26da86a5db7ae07b16fc1fc9b53c"
+        }
+      ],
+      "status": "collected_requires_visual_review"
+    },
+    "stderr": "WARNING: Image format RGB8 not supported by hardware, converting to RGBA8.\n   at: _validate_texture_format (servers/rendering/renderer_rd/storage_rd/texture_storage.cpp:2426)\nWARNING: Image format RGB8 not supported by hardware, converting to RGBA8.\n   at: _validate_texture_format (servers/rendering/renderer_rd/storage_rd/texture_storage.cpp:2426)\n\n"
+  },
+  {
+    "sample": "r1-baseline-retained",
+    "report": {
+      "complete": true,
+      "failures": [],
+      "observation": {
+        "active": true,
+        "audio_cleanup_ok": true,
+        "audio_cleanup_us": 78709,
+        "event_done": true,
+        "initial_autosave_unchanged": true,
+        "later_autosave_sha256": "d664e4e60b821ded7c70d04aaa2fbef153f62e9784c027e339ac5509f54f6532",
+        "later_save_sha256": "18d5a8cb5708e8a2f0772f88452787f11fb252080196974364d07774c870920d",
+        "later_save_without_assignment": true,
+        "line_id": "line.Day1.one",
+        "new_run_busy": false,
+        "text": "Sylvia slides the fuller teacup onto my mat and keeps the one with the small chip on the rim for herself.",
+        "visible_ratio": 1.0
+      },
+      "inputs": [
+        {
+          "accepted": {
+            "ticks_us": 5715047,
+            "unix_ms": 1793013361158.0
+          },
+          "down_count": 1,
+          "focused_window": true,
+          "hovered": true,
+          "label": "new_acc",
+          "path": "/root/MenuScene/MenuPanel/ButtonList/NewAccButton",
+          "point": "(160.0, 32.0)",
+          "pressed_count": 1,
+          "up_count": 1
+        },
+        {
+          "accepted": {
+            "ticks_us": 5801108,
+            "unix_ms": 1793013361244.0
+          },
+          "down_count": 1,
+          "focused_window": true,
+          "hovered": true,
+          "label": "confirm",
+          "path": "/root/MenuScene/@Control@22/ConfirmationSheet/@VBoxContainer@23/ConfirmationActions/ConfirmButton",
+          "point": "(936.0, 544.0)",
+          "pressed_count": 1,
+          "up_count": 1
+        }
+      ],
+      "preferences": {
+        "preferences.accessibility.font_style": "pixel",
+        "preferences.accessibility.text_size": 100,
+        "preferences.language.primary_locale_id": "en",
+        "preferences.reading.auto_enabled": false,
+        "preferences.reading.reveal_speed": "normal"
+      },
+      "rendering": {
+        "get_current_rendering_driver_name": "d3d12",
+        "get_current_rendering_method": "forward_plus",
+        "get_video_adapter_api_version": "12_0",
+        "get_video_adapter_name": "Microsoft Basic Render Driver"
+      },
+      "engine": {
+        "build": "official",
+        "hash": "7d41c59c457bd5a245092b4e7eb2d833e3b3f8c3",
+        "hex": 263683,
+        "major": 4,
+        "minor": 6,
+        "patch": 3,
+        "status": "stable",
+        "string": "4.6.3-stable (official)",
+        "timestamp": 0
+      },
+      "display_server": "Windows",
+      "milestones": {
+        "bootstrap_ready": {
+          "ticks_us": 4874432,
+          "unix_ms": 1793013360318.0
+        },
+        "bootstrap_start": {
+          "ticks_us": 4920704,
+          "unix_ms": 1793013360364.0
+        },
+        "caption_complete_drawn_idle": {
+          "ticks_us": 7839550,
+          "unix_ms": 1793013363283.0
+        },
+        "caption_first_visible": {
+          "ticks_us": 7795609,
+          "unix_ms": 1793013363239.0
+        },
+        "confirm_input": {
+          "ticks_us": 5791390,
+          "unix_ms": 1793013361235.0
+        },
+        "consent_drawn": {
+          "ticks_us": 5744955,
+          "unix_ms": 1793013361188.0
+        },
+        "first_title_drawn": {
+          "ticks_us": 5689868,
+          "unix_ms": 1793013361133.0
+        },
+        "first_title_input_accepted": {
+          "ticks_us": 5715051,
+          "unix_ms": 1793013361158.0
+        },
+        "new_acc_input": {
+          "ticks_us": 5713301,
+          "unix_ms": 1793013361156.0
+        },
+        "probe_enter_tree": {
+          "ticks_us": 4798945,
+          "unix_ms": 1793013360243.0
+        },
+        "title_drawn_usable": {
+          "ticks_us": 5689882,
+          "unix_ms": 1793013361133.0
+        }
+      }
+    },
+    "process": {
+      "clean_exit": true,
+      "timed_out": false,
+      "exit_code": 0,
+      "engine_verbose": true,
+      "argv": [
+        "--audio-driver",
+        "Dummy",
+        "--windowed",
+        "--resolution",
+        "1280x720",
+        "--log-file",
+        "D:\\a\\dwm\\dwm\\.godot\\ci\\trusted-runtime\\measurements\\r1-baseline-retained\\render.log",
+        "--verbose"
+      ],
+      "images": [
+        {
+          "name": "caption.png",
+          "size": 773167,
+          "sha256": "a5d04fec8ffab94a81fc60cfeb91962b4160d50b70b0c782ca332ffa7999157e"
+        },
+        {
+          "name": "consent.png",
+          "size": 17428,
+          "sha256": "c75b3c32b65f60f7a514e9057cc27105de7ca62c4a1c88450c5541e81b1369f9"
+        },
+        {
+          "name": "title.png",
+          "size": 9866,
+          "sha256": "2b01f0beb4d153b753ce29839f256788066c26da86a5db7ae07b16fc1fc9b53c"
+        }
+      ],
+      "status": "collected_requires_visual_review"
+    },
+    "stderr": "WARNING: Image format RGB8 not supported by hardware, converting to RGBA8.\n   at: _validate_texture_format (servers/rendering/renderer_rd/storage_rd/texture_storage.cpp:2426)\nWARNING: Image format RGB8 not supported by hardware, converting to RGBA8.\n   at: _validate_texture_format (servers/rendering/renderer_rd/storage_rd/texture_storage.cpp:2426)\n\n"
+  },
+  {
+    "sample": "r1-candidate-fresh",
+    "report": {
+      "complete": true,
+      "failures": [],
+      "observation": {
+        "active": true,
+        "audio_cleanup_ok": true,
+        "audio_cleanup_us": 79275,
+        "event_done": true,
+        "initial_autosave_unchanged": true,
+        "later_autosave_sha256": "f10d4e9970ff423630b272d195d50b3edc9e4517b37c45130f2a89fb62e081c9",
+        "later_save_sha256": "e8e90ea5da4f6a3c562e3395d82845df93643ebc624531e56855213f56e35364",
+        "later_save_without_assignment": true,
+        "line_id": "line.Day1.one",
+        "new_run_busy": false,
+        "text": "Sylvia slides the fuller teacup onto my mat and keeps the one with the small chip on the rim for herself.",
+        "visible_ratio": 1.0
+      },
+      "inputs": [
+        {
+          "accepted": {
+            "ticks_us": 7452029,
+            "unix_ms": 1793013388933.0
+          },
+          "down_count": 1,
+          "focused_window": true,
+          "hovered": true,
+          "label": "new_acc",
+          "path": "/root/MenuScene/MenuPanel/ButtonList/NewAccButton",
+          "point": "(160.0, 32.0)",
+          "pressed_count": 1,
+          "up_count": 1
+        }
+      ],
+      "preferences": {
+        "preferences.accessibility.font_style": "pixel",
+        "preferences.accessibility.text_size": 100,
+        "preferences.language.primary_locale_id": "en",
+        "preferences.reading.auto_enabled": false,
+        "preferences.reading.reveal_speed": "normal"
+      },
+      "rendering": {
+        "get_current_rendering_driver_name": "d3d12",
+        "get_current_rendering_method": "forward_plus",
+        "get_video_adapter_api_version": "12_0",
+        "get_video_adapter_name": "Microsoft Basic Render Driver"
+      },
+      "engine": {
+        "build": "official",
+        "hash": "7d41c59c457bd5a245092b4e7eb2d833e3b3f8c3",
+        "hex": 263683,
+        "major": 4,
+        "minor": 6,
+        "patch": 3,
+        "status": "stable",
+        "string": "4.6.3-stable (official)",
+        "timestamp": 0
+      },
+      "display_server": "Windows",
+      "milestones": {
+        "bootstrap_ready": {
+          "ticks_us": 6552657,
+          "unix_ms": 1793013388034.0
+        },
+        "bootstrap_start": {
+          "ticks_us": 6607535,
+          "unix_ms": 1793013388089.0
+        },
+        "caption_complete_drawn_idle": {
+          "ticks_us": 9663791,
+          "unix_ms": 1793013391144.0
+        },
+        "caption_first_visible": {
+          "ticks_us": 9621672,
+          "unix_ms": 1793013391102.0
+        },
+        "first_title_drawn": {
+          "ticks_us": 7403694,
+          "unix_ms": 1793013388885.0
+        },
+        "first_title_input_accepted": {
+          "ticks_us": 7452034,
+          "unix_ms": 1793013388933.0
+        },
+        "new_acc_input": {
+          "ticks_us": 7442626,
+          "unix_ms": 1793013388924.0
+        },
+        "probe_enter_tree": {
+          "ticks_us": 6462388,
+          "unix_ms": 1793013387943.0
+        },
+        "title_drawn_usable": {
+          "ticks_us": 7403710,
+          "unix_ms": 1793013388885.0
+        }
+      }
+    },
+    "process": {
+      "clean_exit": true,
+      "timed_out": false,
+      "exit_code": 0,
+      "engine_verbose": true,
+      "argv": [
+        "--audio-driver",
+        "Dummy",
+        "--windowed",
+        "--resolution",
+        "1280x720",
+        "--log-file",
+        "D:\\a\\dwm\\dwm\\.godot\\ci\\trusted-runtime\\measurements\\r1-candidate-fresh\\render.log",
+        "--verbose"
+      ],
+      "images": [
+        {
+          "name": "caption.png",
+          "size": 773167,
+          "sha256": "a5d04fec8ffab94a81fc60cfeb91962b4160d50b70b0c782ca332ffa7999157e"
+        },
+        {
+          "name": "title.png",
+          "size": 9866,
+          "sha256": "2b01f0beb4d153b753ce29839f256788066c26da86a5db7ae07b16fc1fc9b53c"
+        }
+      ],
+      "status": "collected_requires_visual_review"
+    },
+    "stderr": "WARNING: Image format RGB8 not supported by hardware, converting to RGBA8.\n   at: _validate_texture_format (servers/rendering/renderer_rd/storage_rd/texture_storage.cpp:2426)\nWARNING: Image format RGB8 not supported by hardware, converting to RGBA8.\n   at: _validate_texture_format (servers/rendering/renderer_rd/storage_rd/texture_storage.cpp:2426)\n\n"
+  },
+  {
+    "sample": "r1-candidate-load",
+    "report": {
+      "complete": true,
+      "failures": [],
+      "observation": {
+        "active": true,
+        "audio_cleanup_ok": true,
+        "audio_cleanup_us": 79639,
+        "branch_id": "branch_id.ca5ea6b3f8491c81e0aac03fc196205e873457254990b0a8bd3986dba54cd783",
+        "event_done": true,
+        "gameplay_preserved": true,
+        "later_autosave_sha256": "cdd6b03402bc3531671a78cf28a78af43b15f2c9331c71f8fc40ba71371653a1",
+        "later_save_sha256": "2a8001e2df5cac68c45b4c529b16d8eb67cea5b48aa2ccffe4eba54cd4188942",
+        "later_save_without_assignment": true,
+        "line_id": "line.Day1.one",
+        "reading_preserved": true,
+        "ready_count": 1,
+        "run_id": "run_id.0099deac80ce9e108531cb77f40fe74f94e87858b3962a918fa9dc4e44b3e9cb",
+        "scene_preserved": true,
+        "source_had_assignment": false,
+        "source_save_preserved": true,
+        "source_save_sha256": "b9cacc728404c7b16b6b163d1ca23e53bfdd2aca075e2628810c2508a363b58e",
+        "text": "Sylvia slides the fuller teacup onto my mat and keeps the one with the small chip on the rim for herself.",
+        "visible_ratio": 1.0
+      },
+      "inputs": [
+        {
+          "accepted": {
+            "ticks_us": 5669857,
+            "unix_ms": 1793013413482.0
+          },
+          "down_count": 1,
+          "focused_window": true,
+          "hovered": true,
+          "label": "login",
+          "path": "/root/MenuScene/MenuPanel/ButtonList/LogInButton",
+          "point": "(160.0, 100.0)",
+          "pressed_count": 1,
+          "up_count": 1
+        },
+        {
+          "accepted": {
+            "ticks_us": 5708697,
+            "unix_ms": 1793013413521.0
+          },
+          "down_count": 1,
+          "focused_window": true,
+          "hovered": true,
+          "label": "select_slot",
+          "path": "/root/MenuScene/BackupAppHost/BackupApp/VBoxContainer/ContentMargin/ContentHost/BackupBody/Drawer2",
+          "point": "(836.0, 104.0)",
+          "pressed_count": 1,
+          "up_count": 1
+        },
+        {
+          "accepted": {
+            "ticks_us": 7820856,
+            "unix_ms": 1793013415633.0
+          },
+          "down_count": 1,
+          "focused_window": true,
+          "hovered": true,
+          "label": "load",
+          "path": "/root/MenuScene/BackupAppHost/BackupApp/VBoxContainer/ContentMargin/ContentHost/BackupBody/PinnedActions/LoadAction",
+          "point": "(1018.0, 504.0)",
+          "pressed_count": 1,
+          "up_count": 1
+        }
+      ],
+      "preferences": {
+        "preferences.accessibility.font_style": "pixel",
+        "preferences.accessibility.text_size": 100,
+        "preferences.language.primary_locale_id": "en",
+        "preferences.reading.auto_enabled": false,
+        "preferences.reading.reveal_speed": "normal"
+      },
+      "rendering": {
+        "get_current_rendering_driver_name": "d3d12",
+        "get_current_rendering_method": "forward_plus",
+        "get_video_adapter_api_version": "12_0",
+        "get_video_adapter_name": "Microsoft Basic Render Driver"
+      },
+      "engine": {
+        "build": "official",
+        "hash": "7d41c59c457bd5a245092b4e7eb2d833e3b3f8c3",
+        "hex": 263683,
+        "major": 4,
+        "minor": 6,
+        "patch": 3,
+        "status": "stable",
+        "string": "4.6.3-stable (official)",
+        "timestamp": 0
+      },
+      "display_server": "Windows",
+      "milestones": {
+        "backup_drawn_usable": {
+          "ticks_us": 5740233,
+          "unix_ms": 1793013413553.0
+        },
+        "bootstrap_ready": {
+          "ticks_us": 4789367,
+          "unix_ms": 1793013412602.0
+        },
+        "bootstrap_start": {
+          "ticks_us": 4836420,
+          "unix_ms": 1793013412649.0
+        },
+        "first_title_drawn": {
+          "ticks_us": 5601801,
+          "unix_ms": 1793013413414.0
+        },
+        "first_title_input_accepted": {
+          "ticks_us": 5669862,
+          "unix_ms": 1793013413482.0
+        },
+        "load_caption_complete_drawn_idle": {
+          "ticks_us": 8654019,
+          "unix_ms": 1793013416466.0
+        },
+        "load_input": {
+          "ticks_us": 5793459,
+          "unix_ms": 1793013413606.0
+        },
+        "load_ready": {
+          "ticks_us": 8505314,
+          "unix_ms": 1793013416317.0
+        },
+        "login_input": {
+          "ticks_us": 5636260,
+          "unix_ms": 1793013413449.0
+        },
+        "probe_enter_tree": {
+          "ticks_us": 4711465,
+          "unix_ms": 1793013412524.0
+        },
+        "select_slot_input": {
+          "ticks_us": 5691693,
+          "unix_ms": 1793013413504.0
+        },
+        "title_drawn_usable": {
+          "ticks_us": 5601811,
+          "unix_ms": 1793013413414.0
+        }
+      }
+    },
+    "process": {
+      "clean_exit": true,
+      "timed_out": false,
+      "exit_code": 0,
+      "engine_verbose": true,
+      "argv": [
+        "--audio-driver",
+        "Dummy",
+        "--windowed",
+        "--resolution",
+        "1280x720",
+        "--log-file",
+        "D:\\a\\dwm\\dwm\\.godot\\ci\\trusted-runtime\\measurements\\r1-candidate-load\\render.log",
+        "--verbose"
+      ],
+      "images": [
+        {
+          "name": "backup.png",
+          "size": 22816,
+          "sha256": "3a4c930a949f4c8f207f7c845907fe9958afd9626f415e31386db20270061226"
+        },
+        {
+          "name": "loaded-caption.png",
+          "size": 773167,
+          "sha256": "a5d04fec8ffab94a81fc60cfeb91962b4160d50b70b0c782ca332ffa7999157e"
+        },
+        {
+          "name": "title.png",
+          "size": 9866,
+          "sha256": "2b01f0beb4d153b753ce29839f256788066c26da86a5db7ae07b16fc1fc9b53c"
+        }
+      ],
+      "status": "collected_requires_visual_review"
+    },
+    "stderr": "WARNING: Image format RGB8 not supported by hardware, converting to RGBA8.\n   at: _validate_texture_format (servers/rendering/renderer_rd/storage_rd/texture_storage.cpp:2426)\nWARNING: Image format RGB8 not supported by hardware, converting to RGBA8.\n   at: _validate_texture_format (servers/rendering/renderer_rd/storage_rd/texture_storage.cpp:2426)\n\n"
+  },
+  {
+    "sample": "r1-candidate-retained",
+    "report": {
+      "complete": true,
+      "failures": [],
+      "observation": {
+        "active": true,
+        "audio_cleanup_ok": true,
+        "audio_cleanup_us": 77814,
+        "event_done": true,
+        "initial_autosave_unchanged": true,
+        "later_autosave_sha256": "bf5c591ec78d41ce6811cb52a27f414b73211621f79f593cb6d45cf5987b146e",
+        "later_save_sha256": "9dd2c05af3353dbc0210311bf20c7882eb29c298b8cc5b633581be29b71e823a",
+        "later_save_without_assignment": true,
+        "line_id": "line.Day1.one",
+        "new_run_busy": false,
+        "text": "Sylvia slides the fuller teacup onto my mat and keeps the one with the small chip on the rim for herself.",
+        "visible_ratio": 1.0
+      },
+      "inputs": [
+        {
+          "accepted": {
+            "ticks_us": 5523221,
+            "unix_ms": 1793013401133.0
+          },
+          "down_count": 1,
+          "focused_window": true,
+          "hovered": true,
+          "label": "new_acc",
+          "path": "/root/MenuScene/MenuPanel/ButtonList/NewAccButton",
+          "point": "(160.0, 32.0)",
+          "pressed_count": 1,
+          "up_count": 1
+        },
+        {
+          "accepted": {
+            "ticks_us": 5619170,
+            "unix_ms": 1793013401229.0
+          },
+          "down_count": 1,
+          "focused_window": true,
+          "hovered": true,
+          "label": "confirm",
+          "path": "/root/MenuScene/@Control@22/ConfirmationSheet/@VBoxContainer@23/ConfirmationActions/ConfirmButton",
+          "point": "(936.0, 544.0)",
+          "pressed_count": 1,
+          "up_count": 1
+        }
+      ],
+      "preferences": {
+        "preferences.accessibility.font_style": "pixel",
+        "preferences.accessibility.text_size": 100,
+        "preferences.language.primary_locale_id": "en",
+        "preferences.reading.auto_enabled": false,
+        "preferences.reading.reveal_speed": "normal"
+      },
+      "rendering": {
+        "get_current_rendering_driver_name": "d3d12",
+        "get_current_rendering_method": "forward_plus",
+        "get_video_adapter_api_version": "12_0",
+        "get_video_adapter_name": "Microsoft Basic Render Driver"
+      },
+      "engine": {
+        "build": "official",
+        "hash": "7d41c59c457bd5a245092b4e7eb2d833e3b3f8c3",
+        "hex": 263683,
+        "major": 4,
+        "minor": 6,
+        "patch": 3,
+        "status": "stable",
+        "string": "4.6.3-stable (official)",
+        "timestamp": 0
+      },
+      "display_server": "Windows",
+      "milestones": {
+        "bootstrap_ready": {
+          "ticks_us": 4703707,
+          "unix_ms": 1793013400314.0
+        },
+        "bootstrap_start": {
+          "ticks_us": 4752267,
+          "unix_ms": 1793013400362.0
+        },
+        "caption_complete_drawn_idle": {
+          "ticks_us": 7607910,
+          "unix_ms": 1793013403218.0
+        },
+        "caption_first_visible": {
+          "ticks_us": 7564486,
+          "unix_ms": 1793013403175.0
+        },
+        "confirm_input": {
+          "ticks_us": 5609022,
+          "unix_ms": 1793013401219.0
+        },
+        "consent_drawn": {
+          "ticks_us": 5551702,
+          "unix_ms": 1793013401161.0
+        },
+        "first_title_drawn": {
+          "ticks_us": 5497498,
+          "unix_ms": 1793013401107.0
+        },
+        "first_title_input_accepted": {
+          "ticks_us": 5523225,
+          "unix_ms": 1793013401133.0
+        },
+        "new_acc_input": {
+          "ticks_us": 5521402,
+          "unix_ms": 1793013401131.0
+        },
+        "probe_enter_tree": {
+          "ticks_us": 4627241,
+          "unix_ms": 1793013400237.0
+        },
+        "title_drawn_usable": {
+          "ticks_us": 5497512,
+          "unix_ms": 1793013401107.0
+        }
+      }
+    },
+    "process": {
+      "clean_exit": true,
+      "timed_out": false,
+      "exit_code": 0,
+      "engine_verbose": true,
+      "argv": [
+        "--audio-driver",
+        "Dummy",
+        "--windowed",
+        "--resolution",
+        "1280x720",
+        "--log-file",
+        "D:\\a\\dwm\\dwm\\.godot\\ci\\trusted-runtime\\measurements\\r1-candidate-retained\\render.log",
+        "--verbose"
+      ],
+      "images": [
+        {
+          "name": "caption.png",
+          "size": 773167,
+          "sha256": "a5d04fec8ffab94a81fc60cfeb91962b4160d50b70b0c782ca332ffa7999157e"
+        },
+        {
+          "name": "consent.png",
+          "size": 17428,
+          "sha256": "c75b3c32b65f60f7a514e9057cc27105de7ca62c4a1c88450c5541e81b1369f9"
+        },
+        {
+          "name": "title.png",
+          "size": 9866,
+          "sha256": "2b01f0beb4d153b753ce29839f256788066c26da86a5db7ae07b16fc1fc9b53c"
+        }
+      ],
+      "status": "collected_requires_visual_review"
+    },
+    "stderr": "WARNING: Image format RGB8 not supported by hardware, converting to RGBA8.\n   at: _validate_texture_format (servers/rendering/renderer_rd/storage_rd/texture_storage.cpp:2426)\nWARNING: Image format RGB8 not supported by hardware, converting to RGBA8.\n   at: _validate_texture_format (servers/rendering/renderer_rd/storage_rd/texture_storage.cpp:2426)\n\n"
+  },
+  {
+    "sample": "r2-baseline-fresh",
+    "report": {
+      "complete": true,
+      "failures": [],
+      "observation": {
+        "active": true,
+        "audio_cleanup_ok": true,
+        "audio_cleanup_us": 79736,
+        "event_done": true,
+        "initial_autosave_unchanged": true,
+        "later_autosave_sha256": "fb381400ea7392dcf8d04802ef87dfdb8aee2c70841ff4b75f16d000e3f83f4d",
+        "later_save_sha256": "004f4228903ac42e5af5d29a0cf4d44b707b93363a4124323e503b1623abf50b",
+        "later_save_without_assignment": true,
+        "line_id": "line.Day1.one",
+        "new_run_busy": false,
+        "text": "Sylvia slides the fuller teacup onto my mat and keeps the one with the small chip on the rim for herself.",
+        "visible_ratio": 1.0
+      },
+      "inputs": [
+        {
+          "accepted": {
+            "ticks_us": 7192821,
+            "unix_ms": 1793013467102.0
+          },
+          "down_count": 1,
+          "focused_window": true,
+          "hovered": true,
+          "label": "new_acc",
+          "path": "/root/MenuScene/MenuPanel/ButtonList/NewAccButton",
+          "point": "(160.0, 32.0)",
+          "pressed_count": 1,
+          "up_count": 1
+        }
+      ],
+      "preferences": {
+        "preferences.accessibility.font_style": "pixel",
+        "preferences.accessibility.text_size": 100,
+        "preferences.language.primary_locale_id": "en",
+        "preferences.reading.auto_enabled": false,
+        "preferences.reading.reveal_speed": "normal"
+      },
+      "rendering": {
+        "get_current_rendering_driver_name": "d3d12",
+        "get_current_rendering_method": "forward_plus",
+        "get_video_adapter_api_version": "12_0",
+        "get_video_adapter_name": "Microsoft Basic Render Driver"
+      },
+      "engine": {
+        "build": "official",
+        "hash": "7d41c59c457bd5a245092b4e7eb2d833e3b3f8c3",
+        "hex": 263683,
+        "major": 4,
+        "minor": 6,
+        "patch": 3,
+        "status": "stable",
+        "string": "4.6.3-stable (official)",
+        "timestamp": 0
+      },
+      "display_server": "Windows",
+      "milestones": {
+        "bootstrap_ready": {
+          "ticks_us": 6332351,
+          "unix_ms": 1793013466241.0
+        },
+        "bootstrap_start": {
+          "ticks_us": 6379375,
+          "unix_ms": 1793013466288.0
+        },
+        "caption_complete_drawn_idle": {
+          "ticks_us": 9235097,
+          "unix_ms": 1793013469144.0
+        },
+        "caption_first_visible": {
+          "ticks_us": 9192479,
+          "unix_ms": 1793013469101.0
+        },
+        "first_title_drawn": {
+          "ticks_us": 7140616,
+          "unix_ms": 1793013467050.0
+        },
+        "first_title_input_accepted": {
+          "ticks_us": 7192827,
+          "unix_ms": 1793013467102.0
+        },
+        "new_acc_input": {
+          "ticks_us": 7183992,
+          "unix_ms": 1793013467093.0
+        },
+        "probe_enter_tree": {
+          "ticks_us": 6257677,
+          "unix_ms": 1793013466167.0
+        },
+        "title_drawn_usable": {
+          "ticks_us": 7140627,
+          "unix_ms": 1793013467050.0
+        }
+      }
+    },
+    "process": {
+      "clean_exit": true,
+      "timed_out": false,
+      "exit_code": 0,
+      "engine_verbose": true,
+      "argv": [
+        "--audio-driver",
+        "Dummy",
+        "--windowed",
+        "--resolution",
+        "1280x720",
+        "--log-file",
+        "D:\\a\\dwm\\dwm\\.godot\\ci\\trusted-runtime\\measurements\\r2-baseline-fresh\\render.log",
+        "--verbose"
+      ],
+      "images": [
+        {
+          "name": "caption.png",
+          "size": 773167,
+          "sha256": "de70f489917b7c57cf14d01001b8a44bb5b12090c28a68ef928cb579e63140c4"
+        },
+        {
+          "name": "title.png",
+          "size": 9866,
+          "sha256": "2b01f0beb4d153b753ce29839f256788066c26da86a5db7ae07b16fc1fc9b53c"
+        }
+      ],
+      "status": "collected_requires_visual_review"
+    },
+    "stderr": "WARNING: Image format RGB8 not supported by hardware, converting to RGBA8.\n   at: _validate_texture_format (servers/rendering/renderer_rd/storage_rd/texture_storage.cpp:2426)\nWARNING: Image format RGB8 not supported by hardware, converting to RGBA8.\n   at: _validate_texture_format (servers/rendering/renderer_rd/storage_rd/texture_storage.cpp:2426)\n\n"
+  },
+  {
+    "sample": "r2-baseline-load",
+    "report": {
+      "complete": true,
+      "failures": [],
+      "observation": {
+        "active": true,
+        "audio_cleanup_ok": true,
+        "audio_cleanup_us": 80831,
+        "branch_id": "branch_id.ca5ea6b3f8491c81e0aac03fc196205e873457254990b0a8bd3986dba54cd783",
+        "event_done": true,
+        "gameplay_preserved": true,
+        "later_autosave_sha256": "9759f4f1f27f4c72dff6fbb6c6d9434abba836e702f83fdd0eedb848773b288a",
+        "later_save_sha256": "e625dab1df5461b52ba9839907044f00e752580de3b3504c7efe0c325a21d1c1",
+        "later_save_without_assignment": true,
+        "line_id": "line.Day1.one",
+        "reading_preserved": true,
+        "ready_count": 1,
+        "run_id": "run_id.0099deac80ce9e108531cb77f40fe74f94e87858b3962a918fa9dc4e44b3e9cb",
+        "scene_preserved": true,
+        "source_had_assignment": false,
+        "source_save_preserved": true,
+        "source_save_sha256": "b9cacc728404c7b16b6b163d1ca23e53bfdd2aca075e2628810c2508a363b58e",
+        "text": "Sylvia slides the fuller teacup onto my mat and keeps the one with the small chip on the rim for herself.",
+        "visible_ratio": 1.0
+      },
+      "inputs": [
+        {
+          "accepted": {
+            "ticks_us": 5656382,
+            "unix_ms": 1793013491622.0
+          },
+          "down_count": 1,
+          "focused_window": true,
+          "hovered": true,
+          "label": "login",
+          "path": "/root/MenuScene/MenuPanel/ButtonList/LogInButton",
+          "point": "(160.0, 100.0)",
+          "pressed_count": 1,
+          "up_count": 1
+        },
+        {
+          "accepted": {
+            "ticks_us": 5696868,
+            "unix_ms": 1793013491663.0
+          },
+          "down_count": 1,
+          "focused_window": true,
+          "hovered": true,
+          "label": "select_slot",
+          "path": "/root/MenuScene/BackupAppHost/BackupApp/VBoxContainer/ContentMargin/ContentHost/BackupBody/Drawer2",
+          "point": "(836.0, 104.0)",
+          "pressed_count": 1,
+          "up_count": 1
+        },
+        {
+          "accepted": {
+            "ticks_us": 7904966,
+            "unix_ms": 1793013493871.0
+          },
+          "down_count": 1,
+          "focused_window": true,
+          "hovered": true,
+          "label": "load",
+          "path": "/root/MenuScene/BackupAppHost/BackupApp/VBoxContainer/ContentMargin/ContentHost/BackupBody/PinnedActions/LoadAction",
+          "point": "(1018.0, 504.0)",
+          "pressed_count": 1,
+          "up_count": 1
+        }
+      ],
+      "preferences": {
+        "preferences.accessibility.font_style": "pixel",
+        "preferences.accessibility.text_size": 100,
+        "preferences.language.primary_locale_id": "en",
+        "preferences.reading.auto_enabled": false,
+        "preferences.reading.reveal_speed": "normal"
+      },
+      "rendering": {
+        "get_current_rendering_driver_name": "d3d12",
+        "get_current_rendering_method": "forward_plus",
+        "get_video_adapter_api_version": "12_0",
+        "get_video_adapter_name": "Microsoft Basic Render Driver"
+      },
+      "engine": {
+        "build": "official",
+        "hash": "7d41c59c457bd5a245092b4e7eb2d833e3b3f8c3",
+        "hex": 263683,
+        "major": 4,
+        "minor": 6,
+        "patch": 3,
+        "status": "stable",
+        "string": "4.6.3-stable (official)",
+        "timestamp": 0
+      },
+      "display_server": "Windows",
+      "milestones": {
+        "backup_drawn_usable": {
+          "ticks_us": 5729258,
+          "unix_ms": 1793013491695.0
+        },
+        "bootstrap_ready": {
+          "ticks_us": 4774013,
+          "unix_ms": 1793013490740.0
+        },
+        "bootstrap_start": {
+          "ticks_us": 4819385,
+          "unix_ms": 1793013490786.0
+        },
+        "first_title_drawn": {
+          "ticks_us": 5578444,
+          "unix_ms": 1793013491544.0
+        },
+        "first_title_input_accepted": {
+          "ticks_us": 5656388,
+          "unix_ms": 1793013491622.0
+        },
+        "load_caption_complete_drawn_idle": {
+          "ticks_us": 8712213,
+          "unix_ms": 1793013494679.0
+        },
+        "load_input": {
+          "ticks_us": 5782540,
+          "unix_ms": 1793013491748.0
+        },
+        "load_ready": {
+          "ticks_us": 8561182,
+          "unix_ms": 1793013494527.0
+        },
+        "login_input": {
+          "ticks_us": 5623209,
+          "unix_ms": 1793013491589.0
+        },
+        "probe_enter_tree": {
+          "ticks_us": 4699376,
+          "unix_ms": 1793013490666.0
+        },
+        "select_slot_input": {
+          "ticks_us": 5679671,
+          "unix_ms": 1793013491646.0
+        },
+        "title_drawn_usable": {
+          "ticks_us": 5578456,
+          "unix_ms": 1793013491544.0
+        }
+      }
+    },
+    "process": {
+      "clean_exit": true,
+      "timed_out": false,
+      "exit_code": 0,
+      "engine_verbose": true,
+      "argv": [
+        "--audio-driver",
+        "Dummy",
+        "--windowed",
+        "--resolution",
+        "1280x720",
+        "--log-file",
+        "D:\\a\\dwm\\dwm\\.godot\\ci\\trusted-runtime\\measurements\\r2-baseline-load\\render.log",
+        "--verbose"
+      ],
+      "images": [
+        {
+          "name": "backup.png",
+          "size": 22816,
+          "sha256": "3a4c930a949f4c8f207f7c845907fe9958afd9626f415e31386db20270061226"
+        },
+        {
+          "name": "loaded-caption.png",
+          "size": 773215,
+          "sha256": "13fdb2566d33220170f8ba8613e82e07ba1a7a74380631183d07000ad01caf4d"
+        },
+        {
+          "name": "title.png",
+          "size": 9866,
+          "sha256": "2b01f0beb4d153b753ce29839f256788066c26da86a5db7ae07b16fc1fc9b53c"
+        }
+      ],
+      "status": "collected_requires_visual_review"
+    },
+    "stderr": "WARNING: Image format RGB8 not supported by hardware, converting to RGBA8.\n   at: _validate_texture_format (servers/rendering/renderer_rd/storage_rd/texture_storage.cpp:2426)\nWARNING: Image format RGB8 not supported by hardware, converting to RGBA8.\n   at: _validate_texture_format (servers/rendering/renderer_rd/storage_rd/texture_storage.cpp:2426)\n\n"
+  },
+  {
+    "sample": "r2-baseline-retained",
+    "report": {
+      "complete": true,
+      "failures": [],
+      "observation": {
+        "active": true,
+        "audio_cleanup_ok": true,
+        "audio_cleanup_us": 92114,
+        "event_done": true,
+        "initial_autosave_unchanged": true,
+        "later_autosave_sha256": "4553ee41f8b0b368c2a0e93a8d23e118d91d1a9e037b955727356dffdc05b721",
+        "later_save_sha256": "4adf68fa2dd8caab58e8e5c63edb48d8f636a97931cca483fe3f08d96169f533",
+        "later_save_without_assignment": true,
+        "line_id": "line.Day1.one",
+        "new_run_busy": false,
+        "text": "Sylvia slides the fuller teacup onto my mat and keeps the one with the small chip on the rim for herself.",
+        "visible_ratio": 1.0
+      },
+      "inputs": [
+        {
+          "accepted": {
+            "ticks_us": 5480731,
+            "unix_ms": 1793013479180.0
+          },
+          "down_count": 1,
+          "focused_window": true,
+          "hovered": true,
+          "label": "new_acc",
+          "path": "/root/MenuScene/MenuPanel/ButtonList/NewAccButton",
+          "point": "(160.0, 32.0)",
+          "pressed_count": 1,
+          "up_count": 1
+        },
+        {
+          "accepted": {
+            "ticks_us": 5576422,
+            "unix_ms": 1793013479275.0
+          },
+          "down_count": 1,
+          "focused_window": true,
+          "hovered": true,
+          "label": "confirm",
+          "path": "/root/MenuScene/@Control@22/ConfirmationSheet/@VBoxContainer@23/ConfirmationActions/ConfirmButton",
+          "point": "(936.0, 544.0)",
+          "pressed_count": 1,
+          "up_count": 1
+        }
+      ],
+      "preferences": {
+        "preferences.accessibility.font_style": "pixel",
+        "preferences.accessibility.text_size": 100,
+        "preferences.language.primary_locale_id": "en",
+        "preferences.reading.auto_enabled": false,
+        "preferences.reading.reveal_speed": "normal"
+      },
+      "rendering": {
+        "get_current_rendering_driver_name": "d3d12",
+        "get_current_rendering_method": "forward_plus",
+        "get_video_adapter_api_version": "12_0",
+        "get_video_adapter_name": "Microsoft Basic Render Driver"
+      },
+      "engine": {
+        "build": "official",
+        "hash": "7d41c59c457bd5a245092b4e7eb2d833e3b3f8c3",
+        "hex": 263683,
+        "major": 4,
+        "minor": 6,
+        "patch": 3,
+        "status": "stable",
+        "string": "4.6.3-stable (official)",
+        "timestamp": 0
+      },
+      "display_server": "Windows",
+      "milestones": {
+        "bootstrap_ready": {
+          "ticks_us": 4638612,
+          "unix_ms": 1793013478337.0
+        },
+        "bootstrap_start": {
+          "ticks_us": 4684351,
+          "unix_ms": 1793013478383.0
+        },
+        "caption_complete_drawn_idle": {
+          "ticks_us": 7601760,
+          "unix_ms": 1793013481301.0
+        },
+        "caption_first_visible": {
+          "ticks_us": 7559206,
+          "unix_ms": 1793013481258.0
+        },
+        "confirm_input": {
+          "ticks_us": 5566227,
+          "unix_ms": 1793013479265.0
+        },
+        "consent_drawn": {
+          "ticks_us": 5509489,
+          "unix_ms": 1793013479208.0
+        },
+        "first_title_drawn": {
+          "ticks_us": 5455050,
+          "unix_ms": 1793013479154.0
+        },
+        "first_title_input_accepted": {
+          "ticks_us": 5480736,
+          "unix_ms": 1793013479180.0
+        },
+        "new_acc_input": {
+          "ticks_us": 5479022,
+          "unix_ms": 1793013479178.0
+        },
+        "probe_enter_tree": {
+          "ticks_us": 4563306,
+          "unix_ms": 1793013478263.0
+        },
+        "title_drawn_usable": {
+          "ticks_us": 5455061,
+          "unix_ms": 1793013479154.0
+        }
+      }
+    },
+    "process": {
+      "clean_exit": true,
+      "timed_out": false,
+      "exit_code": 0,
+      "engine_verbose": true,
+      "argv": [
+        "--audio-driver",
+        "Dummy",
+        "--windowed",
+        "--resolution",
+        "1280x720",
+        "--log-file",
+        "D:\\a\\dwm\\dwm\\.godot\\ci\\trusted-runtime\\measurements\\r2-baseline-retained\\render.log",
+        "--verbose"
+      ],
+      "images": [
+        {
+          "name": "caption.png",
+          "size": 773215,
+          "sha256": "13fdb2566d33220170f8ba8613e82e07ba1a7a74380631183d07000ad01caf4d"
+        },
+        {
+          "name": "consent.png",
+          "size": 17428,
+          "sha256": "c75b3c32b65f60f7a514e9057cc27105de7ca62c4a1c88450c5541e81b1369f9"
+        },
+        {
+          "name": "title.png",
+          "size": 9866,
+          "sha256": "2b01f0beb4d153b753ce29839f256788066c26da86a5db7ae07b16fc1fc9b53c"
+        }
+      ],
+      "status": "collected_requires_visual_review"
+    },
+    "stderr": "WARNING: Image format RGB8 not supported by hardware, converting to RGBA8.\n   at: _validate_texture_format (servers/rendering/renderer_rd/storage_rd/texture_storage.cpp:2426)\nWARNING: Image format RGB8 not supported by hardware, converting to RGBA8.\n   at: _validate_texture_format (servers/rendering/renderer_rd/storage_rd/texture_storage.cpp:2426)\n\n"
+  },
+  {
+    "sample": "r2-candidate-fresh",
+    "report": {
+      "complete": true,
+      "failures": [],
+      "observation": {
+        "active": true,
+        "audio_cleanup_ok": true,
+        "audio_cleanup_us": 78327,
+        "event_done": true,
+        "initial_autosave_unchanged": true,
+        "later_autosave_sha256": "e426d364dfe56808e77df75941ed6513c063acbf6967fbabd50c7e66e64a65e8",
+        "later_save_sha256": "a387386f8bd681abeb4763da617eeb15c8431aa90a33b0ab3b8032a0c52811bb",
+        "later_save_without_assignment": true,
+        "line_id": "line.Day1.one",
+        "new_run_busy": false,
+        "text": "Sylvia slides the fuller teacup onto my mat and keeps the one with the small chip on the rim for herself.",
+        "visible_ratio": 1.0
+      },
+      "inputs": [
+        {
+          "accepted": {
+            "ticks_us": 7387449,
+            "unix_ms": 1793013428384.0
+          },
+          "down_count": 1,
+          "focused_window": true,
+          "hovered": true,
+          "label": "new_acc",
+          "path": "/root/MenuScene/MenuPanel/ButtonList/NewAccButton",
+          "point": "(160.0, 32.0)",
+          "pressed_count": 1,
+          "up_count": 1
+        }
+      ],
+      "preferences": {
+        "preferences.accessibility.font_style": "pixel",
+        "preferences.accessibility.text_size": 100,
+        "preferences.language.primary_locale_id": "en",
+        "preferences.reading.auto_enabled": false,
+        "preferences.reading.reveal_speed": "normal"
+      },
+      "rendering": {
+        "get_current_rendering_driver_name": "d3d12",
+        "get_current_rendering_method": "forward_plus",
+        "get_video_adapter_api_version": "12_0",
+        "get_video_adapter_name": "Microsoft Basic Render Driver"
+      },
+      "engine": {
+        "build": "official",
+        "hash": "7d41c59c457bd5a245092b4e7eb2d833e3b3f8c3",
+        "hex": 263683,
+        "major": 4,
+        "minor": 6,
+        "patch": 3,
+        "status": "stable",
+        "string": "4.6.3-stable (official)",
+        "timestamp": 0
+      },
+      "display_server": "Windows",
+      "milestones": {
+        "bootstrap_ready": {
+          "ticks_us": 6521034,
+          "unix_ms": 1793013427518.0
+        },
+        "bootstrap_start": {
+          "ticks_us": 6568521,
+          "unix_ms": 1793013427565.0
+        },
+        "caption_complete_drawn_idle": {
+          "ticks_us": 9436397,
+          "unix_ms": 1793013430432.0
+        },
+        "caption_first_visible": {
+          "ticks_us": 9395539,
+          "unix_ms": 1793013430391.0
+        },
+        "first_title_drawn": {
+          "ticks_us": 7335535,
+          "unix_ms": 1793013428332.0
+        },
+        "first_title_input_accepted": {
+          "ticks_us": 7387457,
+          "unix_ms": 1793013428384.0
+        },
+        "new_acc_input": {
+          "ticks_us": 7378503,
+          "unix_ms": 1793013428375.0
+        },
+        "probe_enter_tree": {
+          "ticks_us": 6443545,
+          "unix_ms": 1793013427440.0
+        },
+        "title_drawn_usable": {
+          "ticks_us": 7335550,
+          "unix_ms": 1793013428332.0
+        }
+      }
+    },
+    "process": {
+      "clean_exit": true,
+      "timed_out": false,
+      "exit_code": 0,
+      "engine_verbose": true,
+      "argv": [
+        "--audio-driver",
+        "Dummy",
+        "--windowed",
+        "--resolution",
+        "1280x720",
+        "--log-file",
+        "D:\\a\\dwm\\dwm\\.godot\\ci\\trusted-runtime\\measurements\\r2-candidate-fresh\\render.log",
+        "--verbose"
+      ],
+      "images": [
+        {
+          "name": "caption.png",
+          "size": 773167,
+          "sha256": "de70f489917b7c57cf14d01001b8a44bb5b12090c28a68ef928cb579e63140c4"
+        },
+        {
+          "name": "title.png",
+          "size": 9866,
+          "sha256": "2b01f0beb4d153b753ce29839f256788066c26da86a5db7ae07b16fc1fc9b53c"
+        }
+      ],
+      "status": "collected_requires_visual_review"
+    },
+    "stderr": "WARNING: Image format RGB8 not supported by hardware, converting to RGBA8.\n   at: _validate_texture_format (servers/rendering/renderer_rd/storage_rd/texture_storage.cpp:2426)\nWARNING: Image format RGB8 not supported by hardware, converting to RGBA8.\n   at: _validate_texture_format (servers/rendering/renderer_rd/storage_rd/texture_storage.cpp:2426)\n\n"
+  },
+  {
+    "sample": "r2-candidate-load",
+    "report": {
+      "complete": true,
+      "failures": [],
+      "observation": {
+        "active": true,
+        "audio_cleanup_ok": true,
+        "audio_cleanup_us": 77813,
+        "branch_id": "branch_id.ca5ea6b3f8491c81e0aac03fc196205e873457254990b0a8bd3986dba54cd783",
+        "event_done": true,
+        "gameplay_preserved": true,
+        "later_autosave_sha256": "073699d8a17a1a7915390e9e143203e4ddf87fc42e12bb564c8ce01820d0bcb8",
+        "later_save_sha256": "c22233cc43982b2650e336b5a52e83a25d61c73256cc65349dc01ef584ee5fff",
+        "later_save_without_assignment": true,
+        "line_id": "line.Day1.one",
+        "reading_preserved": true,
+        "ready_count": 1,
+        "run_id": "run_id.0099deac80ce9e108531cb77f40fe74f94e87858b3962a918fa9dc4e44b3e9cb",
+        "scene_preserved": true,
+        "source_had_assignment": false,
+        "source_save_preserved": true,
+        "source_save_sha256": "b9cacc728404c7b16b6b163d1ca23e53bfdd2aca075e2628810c2508a363b58e",
+        "text": "Sylvia slides the fuller teacup onto my mat and keeps the one with the small chip on the rim for herself.",
+        "visible_ratio": 1.0
+      },
+      "inputs": [
+        {
+          "accepted": {
+            "ticks_us": 5615936,
+            "unix_ms": 1793013452642.0
+          },
+          "down_count": 1,
+          "focused_window": true,
+          "hovered": true,
+          "label": "login",
+          "path": "/root/MenuScene/MenuPanel/ButtonList/LogInButton",
+          "point": "(160.0, 100.0)",
+          "pressed_count": 1,
+          "up_count": 1
+        },
+        {
+          "accepted": {
+            "ticks_us": 5655663,
+            "unix_ms": 1793013452681.0
+          },
+          "down_count": 1,
+          "focused_window": true,
+          "hovered": true,
+          "label": "select_slot",
+          "path": "/root/MenuScene/BackupAppHost/BackupApp/VBoxContainer/ContentMargin/ContentHost/BackupBody/Drawer2",
+          "point": "(836.0, 104.0)",
+          "pressed_count": 1,
+          "up_count": 1
+        },
+        {
+          "accepted": {
+            "ticks_us": 7667006,
+            "unix_ms": 1793013454693.0
+          },
+          "down_count": 1,
+          "focused_window": true,
+          "hovered": true,
+          "label": "load",
+          "path": "/root/MenuScene/BackupAppHost/BackupApp/VBoxContainer/ContentMargin/ContentHost/BackupBody/PinnedActions/LoadAction",
+          "point": "(1018.0, 504.0)",
+          "pressed_count": 1,
+          "up_count": 1
+        }
+      ],
+      "preferences": {
+        "preferences.accessibility.font_style": "pixel",
+        "preferences.accessibility.text_size": 100,
+        "preferences.language.primary_locale_id": "en",
+        "preferences.reading.auto_enabled": false,
+        "preferences.reading.reveal_speed": "normal"
+      },
+      "rendering": {
+        "get_current_rendering_driver_name": "d3d12",
+        "get_current_rendering_method": "forward_plus",
+        "get_video_adapter_api_version": "12_0",
+        "get_video_adapter_name": "Microsoft Basic Render Driver"
+      },
+      "engine": {
+        "build": "official",
+        "hash": "7d41c59c457bd5a245092b4e7eb2d833e3b3f8c3",
+        "hex": 263683,
+        "major": 4,
+        "minor": 6,
+        "patch": 3,
+        "status": "stable",
+        "string": "4.6.3-stable (official)",
+        "timestamp": 0
+      },
+      "display_server": "Windows",
+      "milestones": {
+        "backup_drawn_usable": {
+          "ticks_us": 5687835,
+          "unix_ms": 1793013452713.0
+        },
+        "bootstrap_ready": {
+          "ticks_us": 4735560,
+          "unix_ms": 1793013451761.0
+        },
+        "bootstrap_start": {
+          "ticks_us": 4781860,
+          "unix_ms": 1793013451808.0
+        },
+        "first_title_drawn": {
+          "ticks_us": 5538158,
+          "unix_ms": 1793013452564.0
+        },
+        "first_title_input_accepted": {
+          "ticks_us": 5615941,
+          "unix_ms": 1793013452642.0
+        },
+        "load_caption_complete_drawn_idle": {
+          "ticks_us": 8457912,
+          "unix_ms": 1793013455484.0
+        },
+        "load_input": {
+          "ticks_us": 5741086,
+          "unix_ms": 1793013452766.0
+        },
+        "load_ready": {
+          "ticks_us": 8311970,
+          "unix_ms": 1793013455338.0
+        },
+        "login_input": {
+          "ticks_us": 5583052,
+          "unix_ms": 1793013452609.0
+        },
+        "probe_enter_tree": {
+          "ticks_us": 4659432,
+          "unix_ms": 1793013451685.0
+        },
+        "select_slot_input": {
+          "ticks_us": 5638725,
+          "unix_ms": 1793013452664.0
+        },
+        "title_drawn_usable": {
+          "ticks_us": 5538170,
+          "unix_ms": 1793013452564.0
+        }
+      }
+    },
+    "process": {
+      "clean_exit": true,
+      "timed_out": false,
+      "exit_code": 0,
+      "engine_verbose": true,
+      "argv": [
+        "--audio-driver",
+        "Dummy",
+        "--windowed",
+        "--resolution",
+        "1280x720",
+        "--log-file",
+        "D:\\a\\dwm\\dwm\\.godot\\ci\\trusted-runtime\\measurements\\r2-candidate-load\\render.log",
+        "--verbose"
+      ],
+      "images": [
+        {
+          "name": "backup.png",
+          "size": 22816,
+          "sha256": "3a4c930a949f4c8f207f7c845907fe9958afd9626f415e31386db20270061226"
+        },
+        {
+          "name": "loaded-caption.png",
+          "size": 773167,
+          "sha256": "de70f489917b7c57cf14d01001b8a44bb5b12090c28a68ef928cb579e63140c4"
+        },
+        {
+          "name": "title.png",
+          "size": 9866,
+          "sha256": "2b01f0beb4d153b753ce29839f256788066c26da86a5db7ae07b16fc1fc9b53c"
+        }
+      ],
+      "status": "collected_requires_visual_review"
+    },
+    "stderr": "WARNING: Image format RGB8 not supported by hardware, converting to RGBA8.\n   at: _validate_texture_format (servers/rendering/renderer_rd/storage_rd/texture_storage.cpp:2426)\nWARNING: Image format RGB8 not supported by hardware, converting to RGBA8.\n   at: _validate_texture_format (servers/rendering/renderer_rd/storage_rd/texture_storage.cpp:2426)\n\n"
+  },
+  {
+    "sample": "r2-candidate-retained",
+    "report": {
+      "complete": true,
+      "failures": [],
+      "observation": {
+        "active": true,
+        "audio_cleanup_ok": true,
+        "audio_cleanup_us": 82875,
+        "event_done": true,
+        "initial_autosave_unchanged": true,
+        "later_autosave_sha256": "7aae9e8d842e23c2a3d0c41526227240f00bd530d763d217248f8479ad2b7a7d",
+        "later_save_sha256": "00fb275f7fe15c42863bf3a2824ebf6a3ce28458d4d43a2218237f1cc2b40d4e",
+        "later_save_without_assignment": true,
+        "line_id": "line.Day1.one",
+        "new_run_busy": false,
+        "text": "Sylvia slides the fuller teacup onto my mat and keeps the one with the small chip on the rim for herself.",
+        "visible_ratio": 1.0
+      },
+      "inputs": [
+        {
+          "accepted": {
+            "ticks_us": 5501294,
+            "unix_ms": 1793013440454.0
+          },
+          "down_count": 1,
+          "focused_window": true,
+          "hovered": true,
+          "label": "new_acc",
+          "path": "/root/MenuScene/MenuPanel/ButtonList/NewAccButton",
+          "point": "(160.0, 32.0)",
+          "pressed_count": 1,
+          "up_count": 1
+        },
+        {
+          "accepted": {
+            "ticks_us": 5596952,
+            "unix_ms": 1793013440550.0
+          },
+          "down_count": 1,
+          "focused_window": true,
+          "hovered": true,
+          "label": "confirm",
+          "path": "/root/MenuScene/@Control@22/ConfirmationSheet/@VBoxContainer@23/ConfirmationActions/ConfirmButton",
+          "point": "(936.0, 544.0)",
+          "pressed_count": 1,
+          "up_count": 1
+        }
+      ],
+      "preferences": {
+        "preferences.accessibility.font_style": "pixel",
+        "preferences.accessibility.text_size": 100,
+        "preferences.language.primary_locale_id": "en",
+        "preferences.reading.auto_enabled": false,
+        "preferences.reading.reveal_speed": "normal"
+      },
+      "rendering": {
+        "get_current_rendering_driver_name": "d3d12",
+        "get_current_rendering_method": "forward_plus",
+        "get_video_adapter_api_version": "12_0",
+        "get_video_adapter_name": "Microsoft Basic Render Driver"
+      },
+      "engine": {
+        "build": "official",
+        "hash": "7d41c59c457bd5a245092b4e7eb2d833e3b3f8c3",
+        "hex": 263683,
+        "major": 4,
+        "minor": 6,
+        "patch": 3,
+        "status": "stable",
+        "string": "4.6.3-stable (official)",
+        "timestamp": 0
+      },
+      "display_server": "Windows",
+      "milestones": {
+        "bootstrap_ready": {
+          "ticks_us": 4684374,
+          "unix_ms": 1793013439637.0
+        },
+        "bootstrap_start": {
+          "ticks_us": 4729861,
+          "unix_ms": 1793013439683.0
+        },
+        "caption_complete_drawn_idle": {
+          "ticks_us": 7584567,
+          "unix_ms": 1793013442537.0
+        },
+        "caption_first_visible": {
+          "ticks_us": 7545070,
+          "unix_ms": 1793013442498.0
+        },
+        "confirm_input": {
+          "ticks_us": 5587118,
+          "unix_ms": 1793013440540.0
+        },
+        "consent_drawn": {
+          "ticks_us": 5529933,
+          "unix_ms": 1793013440483.0
+        },
+        "first_title_drawn": {
+          "ticks_us": 5476071,
+          "unix_ms": 1793013440429.0
+        },
+        "first_title_input_accepted": {
+          "ticks_us": 5501299,
+          "unix_ms": 1793013440454.0
+        },
+        "new_acc_input": {
+          "ticks_us": 5499468,
+          "unix_ms": 1793013440452.0
+        },
+        "probe_enter_tree": {
+          "ticks_us": 4608382,
+          "unix_ms": 1793013439562.0
+        },
+        "title_drawn_usable": {
+          "ticks_us": 5476090,
+          "unix_ms": 1793013440429.0
+        }
+      }
+    },
+    "process": {
+      "clean_exit": true,
+      "timed_out": false,
+      "exit_code": 0,
+      "engine_verbose": true,
+      "argv": [
+        "--audio-driver",
+        "Dummy",
+        "--windowed",
+        "--resolution",
+        "1280x720",
+        "--log-file",
+        "D:\\a\\dwm\\dwm\\.godot\\ci\\trusted-runtime\\measurements\\r2-candidate-retained\\render.log",
+        "--verbose"
+      ],
+      "images": [
+        {
+          "name": "caption.png",
+          "size": 773167,
+          "sha256": "de70f489917b7c57cf14d01001b8a44bb5b12090c28a68ef928cb579e63140c4"
+        },
+        {
+          "name": "consent.png",
+          "size": 17428,
+          "sha256": "c75b3c32b65f60f7a514e9057cc27105de7ca62c4a1c88450c5541e81b1369f9"
+        },
+        {
+          "name": "title.png",
+          "size": 9866,
+          "sha256": "2b01f0beb4d153b753ce29839f256788066c26da86a5db7ae07b16fc1fc9b53c"
+        }
+      ],
+      "status": "collected_requires_visual_review"
+    },
+    "stderr": "WARNING: Image format RGB8 not supported by hardware, converting to RGBA8.\n   at: _validate_texture_format (servers/rendering/renderer_rd/storage_rd/texture_storage.cpp:2426)\nWARNING: Image format RGB8 not supported by hardware, converting to RGBA8.\n   at: _validate_texture_format (servers/rendering/renderer_rd/storage_rd/texture_storage.cpp:2426)\n\n"
+  },
+  {
+    "sample": "r3-baseline-fresh",
+    "report": {
+      "complete": true,
+      "failures": [],
+      "observation": {
+        "active": true,
+        "audio_cleanup_ok": true,
+        "audio_cleanup_us": 78486,
+        "event_done": true,
+        "initial_autosave_unchanged": true,
+        "later_autosave_sha256": "f8969200ca88688746ce7478049d855af57b164d6bb92af5867925bf75f7b9ea",
+        "later_save_sha256": "b453967e00c52cdeee3029ace384a8d2bfde644a5851449cafeec1381e57fb5d",
+        "later_save_without_assignment": true,
+        "line_id": "line.Day1.one",
+        "new_run_busy": false,
+        "text": "Sylvia slides the fuller teacup onto my mat and keeps the one with the small chip on the rim for herself.",
+        "visible_ratio": 1.0
+      },
+      "inputs": [
+        {
+          "accepted": {
+            "ticks_us": 7340097,
+            "unix_ms": 1793013506762.0
+          },
+          "down_count": 1,
+          "focused_window": true,
+          "hovered": true,
+          "label": "new_acc",
+          "path": "/root/MenuScene/MenuPanel/ButtonList/NewAccButton",
+          "point": "(160.0, 32.0)",
+          "pressed_count": 1,
+          "up_count": 1
+        }
+      ],
+      "preferences": {
+        "preferences.accessibility.font_style": "pixel",
+        "preferences.accessibility.text_size": 100,
+        "preferences.language.primary_locale_id": "en",
+        "preferences.reading.auto_enabled": false,
+        "preferences.reading.reveal_speed": "normal"
+      },
+      "rendering": {
+        "get_current_rendering_driver_name": "d3d12",
+        "get_current_rendering_method": "forward_plus",
+        "get_video_adapter_api_version": "12_0",
+        "get_video_adapter_name": "Microsoft Basic Render Driver"
+      },
+      "engine": {
+        "build": "official",
+        "hash": "7d41c59c457bd5a245092b4e7eb2d833e3b3f8c3",
+        "hex": 263683,
+        "major": 4,
+        "minor": 6,
+        "patch": 3,
+        "status": "stable",
+        "string": "4.6.3-stable (official)",
+        "timestamp": 0
+      },
+      "display_server": "Windows",
+      "milestones": {
+        "bootstrap_ready": {
+          "ticks_us": 6455046,
+          "unix_ms": 1793013505876.0
+        },
+        "bootstrap_start": {
+          "ticks_us": 6504820,
+          "unix_ms": 1793013505926.0
+        },
+        "caption_complete_drawn_idle": {
+          "ticks_us": 9422418,
+          "unix_ms": 1793013508844.0
+        },
+        "caption_first_visible": {
+          "ticks_us": 9378942,
+          "unix_ms": 1793013508800.0
+        },
+        "first_title_drawn": {
+          "ticks_us": 7288121,
+          "unix_ms": 1793013506709.0
+        },
+        "first_title_input_accepted": {
+          "ticks_us": 7340105,
+          "unix_ms": 1793013506762.0
+        },
+        "new_acc_input": {
+          "ticks_us": 7330900,
+          "unix_ms": 1793013506752.0
+        },
+        "probe_enter_tree": {
+          "ticks_us": 6374098,
+          "unix_ms": 1793013505795.0
+        },
+        "title_drawn_usable": {
+          "ticks_us": 7288134,
+          "unix_ms": 1793013506709.0
+        }
+      }
+    },
+    "process": {
+      "clean_exit": true,
+      "timed_out": false,
+      "exit_code": 0,
+      "engine_verbose": true,
+      "argv": [
+        "--audio-driver",
+        "Dummy",
+        "--windowed",
+        "--resolution",
+        "1280x720",
+        "--log-file",
+        "D:\\a\\dwm\\dwm\\.godot\\ci\\trusted-runtime\\measurements\\r3-baseline-fresh\\render.log",
+        "--verbose"
+      ],
+      "images": [
+        {
+          "name": "caption.png",
+          "size": 773215,
+          "sha256": "13fdb2566d33220170f8ba8613e82e07ba1a7a74380631183d07000ad01caf4d"
+        },
+        {
+          "name": "title.png",
+          "size": 9866,
+          "sha256": "2b01f0beb4d153b753ce29839f256788066c26da86a5db7ae07b16fc1fc9b53c"
+        }
+      ],
+      "status": "collected_requires_visual_review"
+    },
+    "stderr": "WARNING: Image format RGB8 not supported by hardware, converting to RGBA8.\n   at: _validate_texture_format (servers/rendering/renderer_rd/storage_rd/texture_storage.cpp:2426)\nWARNING: Image format RGB8 not supported by hardware, converting to RGBA8.\n   at: _validate_texture_format (servers/rendering/renderer_rd/storage_rd/texture_storage.cpp:2426)\n\n"
+  },
+  {
+    "sample": "r3-baseline-load",
+    "report": {
+      "complete": true,
+      "failures": [],
+      "observation": {
+        "active": true,
+        "audio_cleanup_ok": true,
+        "audio_cleanup_us": 81038,
+        "branch_id": "branch_id.ca5ea6b3f8491c81e0aac03fc196205e873457254990b0a8bd3986dba54cd783",
+        "event_done": true,
+        "gameplay_preserved": true,
+        "later_autosave_sha256": "0ff228f580bd63edb31bbed87285f5f13c8de38cc6283ed1e79530e03ae7cc57",
+        "later_save_sha256": "2cc5093742b50fab8ffef35e166ab471c80db194a5d75e8e638aef34797c580b",
+        "later_save_without_assignment": true,
+        "line_id": "line.Day1.one",
+        "reading_preserved": true,
+        "ready_count": 1,
+        "run_id": "run_id.0099deac80ce9e108531cb77f40fe74f94e87858b3962a918fa9dc4e44b3e9cb",
+        "scene_preserved": true,
+        "source_had_assignment": false,
+        "source_save_preserved": true,
+        "source_save_sha256": "b9cacc728404c7b16b6b163d1ca23e53bfdd2aca075e2628810c2508a363b58e",
+        "text": "Sylvia slides the fuller teacup onto my mat and keeps the one with the small chip on the rim for herself.",
+        "visible_ratio": 1.0
+      },
+      "inputs": [
+        {
+          "accepted": {
+            "ticks_us": 5644323,
+            "unix_ms": 1793013531644.0
+          },
+          "down_count": 1,
+          "focused_window": true,
+          "hovered": true,
+          "label": "login",
+          "path": "/root/MenuScene/MenuPanel/ButtonList/LogInButton",
+          "point": "(160.0, 100.0)",
+          "pressed_count": 1,
+          "up_count": 1
+        },
+        {
+          "accepted": {
+            "ticks_us": 5684951,
+            "unix_ms": 1793013531684.0
+          },
+          "down_count": 1,
+          "focused_window": true,
+          "hovered": true,
+          "label": "select_slot",
+          "path": "/root/MenuScene/BackupAppHost/BackupApp/VBoxContainer/ContentMargin/ContentHost/BackupBody/Drawer2",
+          "point": "(836.0, 104.0)",
+          "pressed_count": 1,
+          "up_count": 1
+        },
+        {
+          "accepted": {
+            "ticks_us": 7839820,
+            "unix_ms": 1793013533840.0
+          },
+          "down_count": 1,
+          "focused_window": true,
+          "hovered": true,
+          "label": "load",
+          "path": "/root/MenuScene/BackupAppHost/BackupApp/VBoxContainer/ContentMargin/ContentHost/BackupBody/PinnedActions/LoadAction",
+          "point": "(1018.0, 504.0)",
+          "pressed_count": 1,
+          "up_count": 1
+        }
+      ],
+      "preferences": {
+        "preferences.accessibility.font_style": "pixel",
+        "preferences.accessibility.text_size": 100,
+        "preferences.language.primary_locale_id": "en",
+        "preferences.reading.auto_enabled": false,
+        "preferences.reading.reveal_speed": "normal"
+      },
+      "rendering": {
+        "get_current_rendering_driver_name": "d3d12",
+        "get_current_rendering_method": "forward_plus",
+        "get_video_adapter_api_version": "12_0",
+        "get_video_adapter_name": "Microsoft Basic Render Driver"
+      },
+      "engine": {
+        "build": "official",
+        "hash": "7d41c59c457bd5a245092b4e7eb2d833e3b3f8c3",
+        "hex": 263683,
+        "major": 4,
+        "minor": 6,
+        "patch": 3,
+        "status": "stable",
+        "string": "4.6.3-stable (official)",
+        "timestamp": 0
+      },
+      "display_server": "Windows",
+      "milestones": {
+        "backup_drawn_usable": {
+          "ticks_us": 5717865,
+          "unix_ms": 1793013531717.0
+        },
+        "bootstrap_ready": {
+          "ticks_us": 4766475,
+          "unix_ms": 1793013530766.0
+        },
+        "bootstrap_start": {
+          "ticks_us": 4810970,
+          "unix_ms": 1793013530810.0
+        },
+        "first_title_drawn": {
+          "ticks_us": 5565614,
+          "unix_ms": 1793013531565.0
+        },
+        "first_title_input_accepted": {
+          "ticks_us": 5644329,
+          "unix_ms": 1793013531644.0
+        },
+        "load_caption_complete_drawn_idle": {
+          "ticks_us": 8651872,
+          "unix_ms": 1793013534652.0
+        },
+        "load_input": {
+          "ticks_us": 5771728,
+          "unix_ms": 1793013531772.0
+        },
+        "load_ready": {
+          "ticks_us": 8497038,
+          "unix_ms": 1793013534497.0
+        },
+        "login_input": {
+          "ticks_us": 5610986,
+          "unix_ms": 1793013531610.0
+        },
+        "probe_enter_tree": {
+          "ticks_us": 4692513,
+          "unix_ms": 1793013530692.0
+        },
+        "select_slot_input": {
+          "ticks_us": 5667778,
+          "unix_ms": 1793013531667.0
+        },
+        "title_drawn_usable": {
+          "ticks_us": 5565646,
+          "unix_ms": 1793013531566.0
+        }
+      }
+    },
+    "process": {
+      "clean_exit": true,
+      "timed_out": false,
+      "exit_code": 0,
+      "engine_verbose": true,
+      "argv": [
+        "--audio-driver",
+        "Dummy",
+        "--windowed",
+        "--resolution",
+        "1280x720",
+        "--log-file",
+        "D:\\a\\dwm\\dwm\\.godot\\ci\\trusted-runtime\\measurements\\r3-baseline-load\\render.log",
+        "--verbose"
+      ],
+      "images": [
+        {
+          "name": "backup.png",
+          "size": 22816,
+          "sha256": "3a4c930a949f4c8f207f7c845907fe9958afd9626f415e31386db20270061226"
+        },
+        {
+          "name": "loaded-caption.png",
+          "size": 773215,
+          "sha256": "13fdb2566d33220170f8ba8613e82e07ba1a7a74380631183d07000ad01caf4d"
+        },
+        {
+          "name": "title.png",
+          "size": 9866,
+          "sha256": "2b01f0beb4d153b753ce29839f256788066c26da86a5db7ae07b16fc1fc9b53c"
+        }
+      ],
+      "status": "collected_requires_visual_review"
+    },
+    "stderr": "WARNING: Image format RGB8 not supported by hardware, converting to RGBA8.\n   at: _validate_texture_format (servers/rendering/renderer_rd/storage_rd/texture_storage.cpp:2426)\nWARNING: Image format RGB8 not supported by hardware, converting to RGBA8.\n   at: _validate_texture_format (servers/rendering/renderer_rd/storage_rd/texture_storage.cpp:2426)\n\n"
+  },
+  {
+    "sample": "r3-baseline-retained",
+    "report": {
+      "complete": true,
+      "failures": [],
+      "observation": {
+        "active": true,
+        "audio_cleanup_ok": true,
+        "audio_cleanup_us": 79651,
+        "event_done": true,
+        "initial_autosave_unchanged": true,
+        "later_autosave_sha256": "363ffd69b3c798cf7ba0d7f6487af2d494b8de8edf70d50410b41ebc7923567a",
+        "later_save_sha256": "a645522a77ddf6e4524a30d37fb28d6b01cb821a409c254b406b48bef7cf72ae",
+        "later_save_without_assignment": true,
+        "line_id": "line.Day1.one",
+        "new_run_busy": false,
+        "text": "Sylvia slides the fuller teacup onto my mat and keeps the one with the small chip on the rim for herself.",
+        "visible_ratio": 1.0
+      },
+      "inputs": [
+        {
+          "accepted": {
+            "ticks_us": 5563931,
+            "unix_ms": 1793013519187.0
+          },
+          "down_count": 1,
+          "focused_window": true,
+          "hovered": true,
+          "label": "new_acc",
+          "path": "/root/MenuScene/MenuPanel/ButtonList/NewAccButton",
+          "point": "(160.0, 32.0)",
+          "pressed_count": 1,
+          "up_count": 1
+        },
+        {
+          "accepted": {
+            "ticks_us": 5660557,
+            "unix_ms": 1793013519284.0
+          },
+          "down_count": 1,
+          "focused_window": true,
+          "hovered": true,
+          "label": "confirm",
+          "path": "/root/MenuScene/@Control@22/ConfirmationSheet/@VBoxContainer@23/ConfirmationActions/ConfirmButton",
+          "point": "(936.0, 544.0)",
+          "pressed_count": 1,
+          "up_count": 1
+        }
+      ],
+      "preferences": {
+        "preferences.accessibility.font_style": "pixel",
+        "preferences.accessibility.text_size": 100,
+        "preferences.language.primary_locale_id": "en",
+        "preferences.reading.auto_enabled": false,
+        "preferences.reading.reveal_speed": "normal"
+      },
+      "rendering": {
+        "get_current_rendering_driver_name": "d3d12",
+        "get_current_rendering_method": "forward_plus",
+        "get_video_adapter_api_version": "12_0",
+        "get_video_adapter_name": "Microsoft Basic Render Driver"
+      },
+      "engine": {
+        "build": "official",
+        "hash": "7d41c59c457bd5a245092b4e7eb2d833e3b3f8c3",
+        "hex": 263683,
+        "major": 4,
+        "minor": 6,
+        "patch": 3,
+        "status": "stable",
+        "string": "4.6.3-stable (official)",
+        "timestamp": 0
+      },
+      "display_server": "Windows",
+      "milestones": {
+        "bootstrap_ready": {
+          "ticks_us": 4732491,
+          "unix_ms": 1793013518356.0
+        },
+        "bootstrap_start": {
+          "ticks_us": 4777891,
+          "unix_ms": 1793013518401.0
+        },
+        "caption_complete_drawn_idle": {
+          "ticks_us": 7688950,
+          "unix_ms": 1793013521312.0
+        },
+        "caption_first_visible": {
+          "ticks_us": 7646323,
+          "unix_ms": 1793013521270.0
+        },
+        "confirm_input": {
+          "ticks_us": 5649924,
+          "unix_ms": 1793013519273.0
+        },
+        "consent_drawn": {
+          "ticks_us": 5594006,
+          "unix_ms": 1793013519217.0
+        },
+        "first_title_drawn": {
+          "ticks_us": 5538443,
+          "unix_ms": 1793013519162.0
+        },
+        "first_title_input_accepted": {
+          "ticks_us": 5563936,
+          "unix_ms": 1793013519187.0
+        },
+        "new_acc_input": {
+          "ticks_us": 5562168,
+          "unix_ms": 1793013519186.0
+        },
+        "probe_enter_tree": {
+          "ticks_us": 4657878,
+          "unix_ms": 1793013518281.0
+        },
+        "title_drawn_usable": {
+          "ticks_us": 5538457,
+          "unix_ms": 1793013519162.0
+        }
+      }
+    },
+    "process": {
+      "clean_exit": true,
+      "timed_out": false,
+      "exit_code": 0,
+      "engine_verbose": true,
+      "argv": [
+        "--audio-driver",
+        "Dummy",
+        "--windowed",
+        "--resolution",
+        "1280x720",
+        "--log-file",
+        "D:\\a\\dwm\\dwm\\.godot\\ci\\trusted-runtime\\measurements\\r3-baseline-retained\\render.log",
+        "--verbose"
+      ],
+      "images": [
+        {
+          "name": "caption.png",
+          "size": 773215,
+          "sha256": "13fdb2566d33220170f8ba8613e82e07ba1a7a74380631183d07000ad01caf4d"
+        },
+        {
+          "name": "consent.png",
+          "size": 17428,
+          "sha256": "c75b3c32b65f60f7a514e9057cc27105de7ca62c4a1c88450c5541e81b1369f9"
+        },
+        {
+          "name": "title.png",
+          "size": 9866,
+          "sha256": "2b01f0beb4d153b753ce29839f256788066c26da86a5db7ae07b16fc1fc9b53c"
+        }
+      ],
+      "status": "collected_requires_visual_review"
+    },
+    "stderr": "WARNING: Image format RGB8 not supported by hardware, converting to RGBA8.\n   at: _validate_texture_format (servers/rendering/renderer_rd/storage_rd/texture_storage.cpp:2426)\nWARNING: Image format RGB8 not supported by hardware, converting to RGBA8.\n   at: _validate_texture_format (servers/rendering/renderer_rd/storage_rd/texture_storage.cpp:2426)\n\n"
+  },
+  {
+    "sample": "r3-candidate-fresh",
+    "report": {
+      "complete": true,
+      "failures": [],
+      "observation": {
+        "active": true,
+        "audio_cleanup_ok": true,
+        "audio_cleanup_us": 85790,
+        "event_done": true,
+        "initial_autosave_unchanged": true,
+        "later_autosave_sha256": "9580725a63a19b25ca48572e41b468672cd0da9214dd2a94350fedca2dc6db0b",
+        "later_save_sha256": "5b601748e43a7ac604e4124ffeb78834abb3f7de17fcc1f8df983f9ac5170d1f",
+        "later_save_without_assignment": true,
+        "line_id": "line.Day1.one",
+        "new_run_busy": false,
+        "text": "Sylvia slides the fuller teacup onto my mat and keeps the one with the small chip on the rim for herself.",
+        "visible_ratio": 1.0
+      },
+      "inputs": [
+        {
+          "accepted": {
+            "ticks_us": 7313146,
+            "unix_ms": 1793013546603.0
+          },
+          "down_count": 1,
+          "focused_window": true,
+          "hovered": true,
+          "label": "new_acc",
+          "path": "/root/MenuScene/MenuPanel/ButtonList/NewAccButton",
+          "point": "(160.0, 32.0)",
+          "pressed_count": 1,
+          "up_count": 1
+        }
+      ],
+      "preferences": {
+        "preferences.accessibility.font_style": "pixel",
+        "preferences.accessibility.text_size": 100,
+        "preferences.language.primary_locale_id": "en",
+        "preferences.reading.auto_enabled": false,
+        "preferences.reading.reveal_speed": "normal"
+      },
+      "rendering": {
+        "get_current_rendering_driver_name": "d3d12",
+        "get_current_rendering_method": "forward_plus",
+        "get_video_adapter_api_version": "12_0",
+        "get_video_adapter_name": "Microsoft Basic Render Driver"
+      },
+      "engine": {
+        "build": "official",
+        "hash": "7d41c59c457bd5a245092b4e7eb2d833e3b3f8c3",
+        "hex": 263683,
+        "major": 4,
+        "minor": 6,
+        "patch": 3,
+        "status": "stable",
+        "string": "4.6.3-stable (official)",
+        "timestamp": 0
+      },
+      "display_server": "Windows",
+      "milestones": {
+        "bootstrap_ready": {
+          "ticks_us": 6454129,
+          "unix_ms": 1793013545744.0
+        },
+        "bootstrap_start": {
+          "ticks_us": 6501560,
+          "unix_ms": 1793013545792.0
+        },
+        "caption_complete_drawn_idle": {
+          "ticks_us": 9364129,
+          "unix_ms": 1793013548654.0
+        },
+        "caption_first_visible": {
+          "ticks_us": 9319687,
+          "unix_ms": 1793013548610.0
+        },
+        "first_title_drawn": {
+          "ticks_us": 7260944,
+          "unix_ms": 1793013546551.0
+        },
+        "first_title_input_accepted": {
+          "ticks_us": 7313151,
+          "unix_ms": 1793013546603.0
+        },
+        "new_acc_input": {
+          "ticks_us": 7304406,
+          "unix_ms": 1793013546595.0
+        },
+        "probe_enter_tree": {
+          "ticks_us": 6378981,
+          "unix_ms": 1793013545669.0
+        },
+        "title_drawn_usable": {
+          "ticks_us": 7260960,
+          "unix_ms": 1793013546551.0
+        }
+      }
+    },
+    "process": {
+      "clean_exit": true,
+      "timed_out": false,
+      "exit_code": 0,
+      "engine_verbose": true,
+      "argv": [
+        "--audio-driver",
+        "Dummy",
+        "--windowed",
+        "--resolution",
+        "1280x720",
+        "--log-file",
+        "D:\\a\\dwm\\dwm\\.godot\\ci\\trusted-runtime\\measurements\\r3-candidate-fresh\\render.log",
+        "--verbose"
+      ],
+      "images": [
+        {
+          "name": "caption.png",
+          "size": 773235,
+          "sha256": "afb48580209a73d71c6ac24d10c26ff2ca285c8684d69699409b58c64feaf33a"
+        },
+        {
+          "name": "title.png",
+          "size": 9866,
+          "sha256": "2b01f0beb4d153b753ce29839f256788066c26da86a5db7ae07b16fc1fc9b53c"
+        }
+      ],
+      "status": "collected_requires_visual_review"
+    },
+    "stderr": "WARNING: Image format RGB8 not supported by hardware, converting to RGBA8.\n   at: _validate_texture_format (servers/rendering/renderer_rd/storage_rd/texture_storage.cpp:2426)\nWARNING: Image format RGB8 not supported by hardware, converting to RGBA8.\n   at: _validate_texture_format (servers/rendering/renderer_rd/storage_rd/texture_storage.cpp:2426)\n\n"
+  },
+  {
+    "sample": "r3-candidate-load",
+    "report": {
+      "complete": true,
+      "failures": [],
+      "observation": {
+        "active": true,
+        "audio_cleanup_ok": true,
+        "audio_cleanup_us": 77667,
+        "branch_id": "branch_id.ca5ea6b3f8491c81e0aac03fc196205e873457254990b0a8bd3986dba54cd783",
+        "event_done": true,
+        "gameplay_preserved": true,
+        "later_autosave_sha256": "4b4a144657bed0e0584767408e550542782e21050eb40adf12ecb1f2ebe44cc0",
+        "later_save_sha256": "7ff21917d9e4c8dad5731b6bbe3685b81b4fad8dcc8b58fb3fb0800c77330111",
+        "later_save_without_assignment": true,
+        "line_id": "line.Day1.one",
+        "reading_preserved": true,
+        "ready_count": 1,
+        "run_id": "run_id.0099deac80ce9e108531cb77f40fe74f94e87858b3962a918fa9dc4e44b3e9cb",
+        "scene_preserved": true,
+        "source_had_assignment": false,
+        "source_save_preserved": true,
+        "source_save_sha256": "b9cacc728404c7b16b6b163d1ca23e53bfdd2aca075e2628810c2508a363b58e",
+        "text": "Sylvia slides the fuller teacup onto my mat and keeps the one with the small chip on the rim for herself.",
+        "visible_ratio": 1.0
+      },
+      "inputs": [
+        {
+          "accepted": {
+            "ticks_us": 5629323,
+            "unix_ms": 1793013571311.0
+          },
+          "down_count": 1,
+          "focused_window": true,
+          "hovered": true,
+          "label": "login",
+          "path": "/root/MenuScene/MenuPanel/ButtonList/LogInButton",
+          "point": "(160.0, 100.0)",
+          "pressed_count": 1,
+          "up_count": 1
+        },
+        {
+          "accepted": {
+            "ticks_us": 5669379,
+            "unix_ms": 1793013571351.0
+          },
+          "down_count": 1,
+          "focused_window": true,
+          "hovered": true,
+          "label": "select_slot",
+          "path": "/root/MenuScene/BackupAppHost/BackupApp/VBoxContainer/ContentMargin/ContentHost/BackupBody/Drawer2",
+          "point": "(836.0, 104.0)",
+          "pressed_count": 1,
+          "up_count": 1
+        },
+        {
+          "accepted": {
+            "ticks_us": 7675220,
+            "unix_ms": 1793013573357.0
+          },
+          "down_count": 1,
+          "focused_window": true,
+          "hovered": true,
+          "label": "load",
+          "path": "/root/MenuScene/BackupAppHost/BackupApp/VBoxContainer/ContentMargin/ContentHost/BackupBody/PinnedActions/LoadAction",
+          "point": "(1018.0, 504.0)",
+          "pressed_count": 1,
+          "up_count": 1
+        }
+      ],
+      "preferences": {
+        "preferences.accessibility.font_style": "pixel",
+        "preferences.accessibility.text_size": 100,
+        "preferences.language.primary_locale_id": "en",
+        "preferences.reading.auto_enabled": false,
+        "preferences.reading.reveal_speed": "normal"
+      },
+      "rendering": {
+        "get_current_rendering_driver_name": "d3d12",
+        "get_current_rendering_method": "forward_plus",
+        "get_video_adapter_api_version": "12_0",
+        "get_video_adapter_name": "Microsoft Basic Render Driver"
+      },
+      "engine": {
+        "build": "official",
+        "hash": "7d41c59c457bd5a245092b4e7eb2d833e3b3f8c3",
+        "hex": 263683,
+        "major": 4,
+        "minor": 6,
+        "patch": 3,
+        "status": "stable",
+        "string": "4.6.3-stable (official)",
+        "timestamp": 0
+      },
+      "display_server": "Windows",
+      "milestones": {
+        "backup_drawn_usable": {
+          "ticks_us": 5702953,
+          "unix_ms": 1793013571385.0
+        },
+        "bootstrap_ready": {
+          "ticks_us": 4737537,
+          "unix_ms": 1793013570420.0
+        },
+        "bootstrap_start": {
+          "ticks_us": 4782923,
+          "unix_ms": 1793013570465.0
+        },
+        "first_title_drawn": {
+          "ticks_us": 5550525,
+          "unix_ms": 1793013571232.0
+        },
+        "first_title_input_accepted": {
+          "ticks_us": 5629328,
+          "unix_ms": 1793013571311.0
+        },
+        "load_caption_complete_drawn_idle": {
+          "ticks_us": 8470275,
+          "unix_ms": 1793013574153.0
+        },
+        "load_input": {
+          "ticks_us": 5756332,
+          "unix_ms": 1793013571438.0
+        },
+        "load_ready": {
+          "ticks_us": 8321610,
+          "unix_ms": 1793013574004.0
+        },
+        "login_input": {
+          "ticks_us": 5595503,
+          "unix_ms": 1793013571277.0
+        },
+        "probe_enter_tree": {
+          "ticks_us": 4662921,
+          "unix_ms": 1793013570345.0
+        },
+        "select_slot_input": {
+          "ticks_us": 5652310,
+          "unix_ms": 1793013571334.0
+        },
+        "title_drawn_usable": {
+          "ticks_us": 5550535,
+          "unix_ms": 1793013571232.0
+        }
+      }
+    },
+    "process": {
+      "clean_exit": true,
+      "timed_out": false,
+      "exit_code": 0,
+      "engine_verbose": true,
+      "argv": [
+        "--audio-driver",
+        "Dummy",
+        "--windowed",
+        "--resolution",
+        "1280x720",
+        "--log-file",
+        "D:\\a\\dwm\\dwm\\.godot\\ci\\trusted-runtime\\measurements\\r3-candidate-load\\render.log",
+        "--verbose"
+      ],
+      "images": [
+        {
+          "name": "backup.png",
+          "size": 22816,
+          "sha256": "3a4c930a949f4c8f207f7c845907fe9958afd9626f415e31386db20270061226"
+        },
+        {
+          "name": "loaded-caption.png",
+          "size": 773235,
+          "sha256": "afb48580209a73d71c6ac24d10c26ff2ca285c8684d69699409b58c64feaf33a"
+        },
+        {
+          "name": "title.png",
+          "size": 9866,
+          "sha256": "2b01f0beb4d153b753ce29839f256788066c26da86a5db7ae07b16fc1fc9b53c"
+        }
+      ],
+      "status": "collected_requires_visual_review"
+    },
+    "stderr": "WARNING: Image format RGB8 not supported by hardware, converting to RGBA8.\n   at: _validate_texture_format (servers/rendering/renderer_rd/storage_rd/texture_storage.cpp:2426)\nWARNING: Image format RGB8 not supported by hardware, converting to RGBA8.\n   at: _validate_texture_format (servers/rendering/renderer_rd/storage_rd/texture_storage.cpp:2426)\n\n"
+  },
+  {
+    "sample": "r3-candidate-retained",
+    "report": {
+      "complete": true,
+      "failures": [],
+      "observation": {
+        "active": true,
+        "audio_cleanup_ok": true,
+        "audio_cleanup_us": 77745,
+        "event_done": true,
+        "initial_autosave_unchanged": true,
+        "later_autosave_sha256": "8474439bed8b59e4a8c110c0a74ca1857490720d39bf5304dabccc99fd9ecae6",
+        "later_save_sha256": "996c6249c5eb6c31335ce1b2f171314356f9dba328033c57f8d109c4b41a01df",
+        "later_save_without_assignment": true,
+        "line_id": "line.Day1.one",
+        "new_run_busy": false,
+        "text": "Sylvia slides the fuller teacup onto my mat and keeps the one with the small chip on the rim for herself.",
+        "visible_ratio": 1.0
+      },
+      "inputs": [
+        {
+          "accepted": {
+            "ticks_us": 5714683,
+            "unix_ms": 1793013559072.0
+          },
+          "down_count": 1,
+          "focused_window": true,
+          "hovered": true,
+          "label": "new_acc",
+          "path": "/root/MenuScene/MenuPanel/ButtonList/NewAccButton",
+          "point": "(160.0, 32.0)",
+          "pressed_count": 1,
+          "up_count": 1
+        },
+        {
+          "accepted": {
+            "ticks_us": 5810371,
+            "unix_ms": 1793013559168.0
+          },
+          "down_count": 1,
+          "focused_window": true,
+          "hovered": true,
+          "label": "confirm",
+          "path": "/root/MenuScene/@Control@22/ConfirmationSheet/@VBoxContainer@23/ConfirmationActions/ConfirmButton",
+          "point": "(936.0, 544.0)",
+          "pressed_count": 1,
+          "up_count": 1
+        }
+      ],
+      "preferences": {
+        "preferences.accessibility.font_style": "pixel",
+        "preferences.accessibility.text_size": 100,
+        "preferences.language.primary_locale_id": "en",
+        "preferences.reading.auto_enabled": false,
+        "preferences.reading.reveal_speed": "normal"
+      },
+      "rendering": {
+        "get_current_rendering_driver_name": "d3d12",
+        "get_current_rendering_method": "forward_plus",
+        "get_video_adapter_api_version": "12_0",
+        "get_video_adapter_name": "Microsoft Basic Render Driver"
+      },
+      "engine": {
+        "build": "official",
+        "hash": "7d41c59c457bd5a245092b4e7eb2d833e3b3f8c3",
+        "hex": 263683,
+        "major": 4,
+        "minor": 6,
+        "patch": 3,
+        "status": "stable",
+        "string": "4.6.3-stable (official)",
+        "timestamp": 0
+      },
+      "display_server": "Windows",
+      "milestones": {
+        "bootstrap_ready": {
+          "ticks_us": 4887600,
+          "unix_ms": 1793013558245.0
+        },
+        "bootstrap_start": {
+          "ticks_us": 4933462,
+          "unix_ms": 1793013558291.0
+        },
+        "caption_complete_drawn_idle": {
+          "ticks_us": 7797453,
+          "unix_ms": 1793013561155.0
+        },
+        "caption_first_visible": {
+          "ticks_us": 7756917,
+          "unix_ms": 1793013561114.0
+        },
+        "confirm_input": {
+          "ticks_us": 5799917,
+          "unix_ms": 1793013559157.0
+        },
+        "consent_drawn": {
+          "ticks_us": 5743261,
+          "unix_ms": 1793013559101.0
+        },
+        "first_title_drawn": {
+          "ticks_us": 5689241,
+          "unix_ms": 1793013559047.0
+        },
+        "first_title_input_accepted": {
+          "ticks_us": 5714687,
+          "unix_ms": 1793013559072.0
+        },
+        "new_acc_input": {
+          "ticks_us": 5712747,
+          "unix_ms": 1793013559070.0
+        },
+        "probe_enter_tree": {
+          "ticks_us": 4813319,
+          "unix_ms": 1793013558171.0
+        },
+        "title_drawn_usable": {
+          "ticks_us": 5689253,
+          "unix_ms": 1793013559047.0
+        }
+      }
+    },
+    "process": {
+      "clean_exit": true,
+      "timed_out": false,
+      "exit_code": 0,
+      "engine_verbose": true,
+      "argv": [
+        "--audio-driver",
+        "Dummy",
+        "--windowed",
+        "--resolution",
+        "1280x720",
+        "--log-file",
+        "D:\\a\\dwm\\dwm\\.godot\\ci\\trusted-runtime\\measurements\\r3-candidate-retained\\render.log",
+        "--verbose"
+      ],
+      "images": [
+        {
+          "name": "caption.png",
+          "size": 773235,
+          "sha256": "afb48580209a73d71c6ac24d10c26ff2ca285c8684d69699409b58c64feaf33a"
+        },
+        {
+          "name": "consent.png",
+          "size": 17428,
+          "sha256": "c75b3c32b65f60f7a514e9057cc27105de7ca62c4a1c88450c5541e81b1369f9"
+        },
+        {
+          "name": "title.png",
+          "size": 9866,
+          "sha256": "2b01f0beb4d153b753ce29839f256788066c26da86a5db7ae07b16fc1fc9b53c"
+        }
+      ],
+      "status": "collected_requires_visual_review"
+    },
+    "stderr": "WARNING: Image format RGB8 not supported by hardware, converting to RGBA8.\n   at: _validate_texture_format (servers/rendering/renderer_rd/storage_rd/texture_storage.cpp:2426)\nWARNING: Image format RGB8 not supported by hardware, converting to RGBA8.\n   at: _validate_texture_format (servers/rendering/renderer_rd/storage_rd/texture_storage.cpp:2426)\n\n"
+  },
+  {
+    "sample": "r4-baseline-fresh",
+    "report": {
+      "complete": true,
+      "failures": [],
+      "observation": {
+        "active": true,
+        "audio_cleanup_ok": true,
+        "audio_cleanup_us": 85638,
+        "event_done": true,
+        "initial_autosave_unchanged": true,
+        "later_autosave_sha256": "2bcede422dd3fed047f527eba7fbcc4e82f61f57fc00b32eeaf2562ad66d8b54",
+        "later_save_sha256": "f30cf312175f0f1933a14f9c4688baa764c137b02690f34514fef0fa59261cd0",
+        "later_save_without_assignment": true,
+        "line_id": "line.Day1.one",
+        "new_run_busy": false,
+        "text": "Sylvia slides the fuller teacup onto my mat and keeps the one with the small chip on the rim for herself.",
+        "visible_ratio": 1.0
+      },
+      "inputs": [
+        {
+          "accepted": {
+            "ticks_us": 7183430,
+            "unix_ms": 1793013624558.0
+          },
+          "down_count": 1,
+          "focused_window": true,
+          "hovered": true,
+          "label": "new_acc",
+          "path": "/root/MenuScene/MenuPanel/ButtonList/NewAccButton",
+          "point": "(160.0, 32.0)",
+          "pressed_count": 1,
+          "up_count": 1
+        }
+      ],
+      "preferences": {
+        "preferences.accessibility.font_style": "pixel",
+        "preferences.accessibility.text_size": 100,
+        "preferences.language.primary_locale_id": "en",
+        "preferences.reading.auto_enabled": false,
+        "preferences.reading.reveal_speed": "normal"
+      },
+      "rendering": {
+        "get_current_rendering_driver_name": "d3d12",
+        "get_current_rendering_method": "forward_plus",
+        "get_video_adapter_api_version": "12_0",
+        "get_video_adapter_name": "Microsoft Basic Render Driver"
+      },
+      "engine": {
+        "build": "official",
+        "hash": "7d41c59c457bd5a245092b4e7eb2d833e3b3f8c3",
+        "hex": 263683,
+        "major": 4,
+        "minor": 6,
+        "patch": 3,
+        "status": "stable",
+        "string": "4.6.3-stable (official)",
+        "timestamp": 0
+      },
+      "display_server": "Windows",
+      "milestones": {
+        "bootstrap_ready": {
+          "ticks_us": 6322763,
+          "unix_ms": 1793013623697.0
+        },
+        "bootstrap_start": {
+          "ticks_us": 6369238,
+          "unix_ms": 1793013623744.0
+        },
+        "caption_complete_drawn_idle": {
+          "ticks_us": 9286621,
+          "unix_ms": 1793013626661.0
+        },
+        "caption_first_visible": {
+          "ticks_us": 9243139,
+          "unix_ms": 1793013626618.0
+        },
+        "first_title_drawn": {
+          "ticks_us": 7131370,
+          "unix_ms": 1793013624507.0
+        },
+        "first_title_input_accepted": {
+          "ticks_us": 7183434,
+          "unix_ms": 1793013624558.0
+        },
+        "new_acc_input": {
+          "ticks_us": 7173177,
+          "unix_ms": 1793013624548.0
+        },
+        "probe_enter_tree": {
+          "ticks_us": 6247961,
+          "unix_ms": 1793013623623.0
+        },
+        "title_drawn_usable": {
+          "ticks_us": 7131381,
+          "unix_ms": 1793013624507.0
+        }
+      }
+    },
+    "process": {
+      "clean_exit": true,
+      "timed_out": false,
+      "exit_code": 0,
+      "engine_verbose": true,
+      "argv": [
+        "--audio-driver",
+        "Dummy",
+        "--windowed",
+        "--resolution",
+        "1280x720",
+        "--log-file",
+        "D:\\a\\dwm\\dwm\\.godot\\ci\\trusted-runtime\\measurements\\r4-baseline-fresh\\render.log",
+        "--verbose"
+      ],
+      "images": [
+        {
+          "name": "caption.png",
+          "size": 773286,
+          "sha256": "ae0ecbba74f0f18a8280e5900ce4160630ab7bc9f183e91de7c692a59ee7e920"
+        },
+        {
+          "name": "title.png",
+          "size": 9866,
+          "sha256": "2b01f0beb4d153b753ce29839f256788066c26da86a5db7ae07b16fc1fc9b53c"
+        }
+      ],
+      "status": "collected_requires_visual_review"
+    },
+    "stderr": "WARNING: Image format RGB8 not supported by hardware, converting to RGBA8.\n   at: _validate_texture_format (servers/rendering/renderer_rd/storage_rd/texture_storage.cpp:2426)\nWARNING: Image format RGB8 not supported by hardware, converting to RGBA8.\n   at: _validate_texture_format (servers/rendering/renderer_rd/storage_rd/texture_storage.cpp:2426)\n\n"
+  },
+  {
+    "sample": "r4-baseline-load",
+    "report": {
+      "complete": true,
+      "failures": [],
+      "observation": {
+        "active": true,
+        "audio_cleanup_ok": true,
+        "audio_cleanup_us": 82702,
+        "branch_id": "branch_id.ca5ea6b3f8491c81e0aac03fc196205e873457254990b0a8bd3986dba54cd783",
+        "event_done": true,
+        "gameplay_preserved": true,
+        "later_autosave_sha256": "2ac402cbafc3e8801cb8ca3236ae26380317306c1e3b7923b91fc03f093ce7b0",
+        "later_save_sha256": "db6821e39f6a31812728382fbbe855452c1197274d055ea0beeccfa573575df6",
+        "later_save_without_assignment": true,
+        "line_id": "line.Day1.one",
+        "reading_preserved": true,
+        "ready_count": 1,
+        "run_id": "run_id.0099deac80ce9e108531cb77f40fe74f94e87858b3962a918fa9dc4e44b3e9cb",
+        "scene_preserved": true,
+        "source_had_assignment": false,
+        "source_save_preserved": true,
+        "source_save_sha256": "b9cacc728404c7b16b6b163d1ca23e53bfdd2aca075e2628810c2508a363b58e",
+        "text": "Sylvia slides the fuller teacup onto my mat and keeps the one with the small chip on the rim for herself.",
+        "visible_ratio": 1.0
+      },
+      "inputs": [
+        {
+          "accepted": {
+            "ticks_us": 5622430,
+            "unix_ms": 1793013649457.0
+          },
+          "down_count": 1,
+          "focused_window": true,
+          "hovered": true,
+          "label": "login",
+          "path": "/root/MenuScene/MenuPanel/ButtonList/LogInButton",
+          "point": "(160.0, 100.0)",
+          "pressed_count": 1,
+          "up_count": 1
+        },
+        {
+          "accepted": {
+            "ticks_us": 5662852,
+            "unix_ms": 1793013649498.0
+          },
+          "down_count": 1,
+          "focused_window": true,
+          "hovered": true,
+          "label": "select_slot",
+          "path": "/root/MenuScene/BackupAppHost/BackupApp/VBoxContainer/ContentMargin/ContentHost/BackupBody/Drawer2",
+          "point": "(836.0, 104.0)",
+          "pressed_count": 1,
+          "up_count": 1
+        },
+        {
+          "accepted": {
+            "ticks_us": 7769495,
+            "unix_ms": 1793013651604.0
+          },
+          "down_count": 1,
+          "focused_window": true,
+          "hovered": true,
+          "label": "load",
+          "path": "/root/MenuScene/BackupAppHost/BackupApp/VBoxContainer/ContentMargin/ContentHost/BackupBody/PinnedActions/LoadAction",
+          "point": "(1018.0, 504.0)",
+          "pressed_count": 1,
+          "up_count": 1
+        }
+      ],
+      "preferences": {
+        "preferences.accessibility.font_style": "pixel",
+        "preferences.accessibility.text_size": 100,
+        "preferences.language.primary_locale_id": "en",
+        "preferences.reading.auto_enabled": false,
+        "preferences.reading.reveal_speed": "normal"
+      },
+      "rendering": {
+        "get_current_rendering_driver_name": "d3d12",
+        "get_current_rendering_method": "forward_plus",
+        "get_video_adapter_api_version": "12_0",
+        "get_video_adapter_name": "Microsoft Basic Render Driver"
+      },
+      "engine": {
+        "build": "official",
+        "hash": "7d41c59c457bd5a245092b4e7eb2d833e3b3f8c3",
+        "hex": 263683,
+        "major": 4,
+        "minor": 6,
+        "patch": 3,
+        "status": "stable",
+        "string": "4.6.3-stable (official)",
+        "timestamp": 0
+      },
+      "display_server": "Windows",
+      "milestones": {
+        "backup_drawn_usable": {
+          "ticks_us": 5694876,
+          "unix_ms": 1793013649530.0
+        },
+        "bootstrap_ready": {
+          "ticks_us": 4730846,
+          "unix_ms": 1793013648566.0
+        },
+        "bootstrap_start": {
+          "ticks_us": 4776187,
+          "unix_ms": 1793013648611.0
+        },
+        "first_title_drawn": {
+          "ticks_us": 5544404,
+          "unix_ms": 1793013649379.0
+        },
+        "first_title_input_accepted": {
+          "ticks_us": 5622436,
+          "unix_ms": 1793013649457.0
+        },
+        "load_caption_complete_drawn_idle": {
+          "ticks_us": 8588072,
+          "unix_ms": 1793013652423.0
+        },
+        "load_input": {
+          "ticks_us": 5748074,
+          "unix_ms": 1793013649583.0
+        },
+        "load_ready": {
+          "ticks_us": 8440302,
+          "unix_ms": 1793013652275.0
+        },
+        "login_input": {
+          "ticks_us": 5589421,
+          "unix_ms": 1793013649424.0
+        },
+        "probe_enter_tree": {
+          "ticks_us": 4656050,
+          "unix_ms": 1793013648491.0
+        },
+        "select_slot_input": {
+          "ticks_us": 5645766,
+          "unix_ms": 1793013649481.0
+        },
+        "title_drawn_usable": {
+          "ticks_us": 5544417,
+          "unix_ms": 1793013649379.0
+        }
+      }
+    },
+    "process": {
+      "clean_exit": true,
+      "timed_out": false,
+      "exit_code": 0,
+      "engine_verbose": true,
+      "argv": [
+        "--audio-driver",
+        "Dummy",
+        "--windowed",
+        "--resolution",
+        "1280x720",
+        "--log-file",
+        "D:\\a\\dwm\\dwm\\.godot\\ci\\trusted-runtime\\measurements\\r4-baseline-load\\render.log",
+        "--verbose"
+      ],
+      "images": [
+        {
+          "name": "backup.png",
+          "size": 22816,
+          "sha256": "3a4c930a949f4c8f207f7c845907fe9958afd9626f415e31386db20270061226"
+        },
+        {
+          "name": "loaded-caption.png",
+          "size": 773286,
+          "sha256": "ae0ecbba74f0f18a8280e5900ce4160630ab7bc9f183e91de7c692a59ee7e920"
+        },
+        {
+          "name": "title.png",
+          "size": 9866,
+          "sha256": "2b01f0beb4d153b753ce29839f256788066c26da86a5db7ae07b16fc1fc9b53c"
+        }
+      ],
+      "status": "collected_requires_visual_review"
+    },
+    "stderr": "WARNING: Image format RGB8 not supported by hardware, converting to RGBA8.\n   at: _validate_texture_format (servers/rendering/renderer_rd/storage_rd/texture_storage.cpp:2426)\nWARNING: Image format RGB8 not supported by hardware, converting to RGBA8.\n   at: _validate_texture_format (servers/rendering/renderer_rd/storage_rd/texture_storage.cpp:2426)\n\n"
+  },
+  {
+    "sample": "r4-baseline-retained",
+    "report": {
+      "complete": true,
+      "failures": [],
+      "observation": {
+        "active": true,
+        "audio_cleanup_ok": true,
+        "audio_cleanup_us": 80422,
+        "event_done": true,
+        "initial_autosave_unchanged": true,
+        "later_autosave_sha256": "e9be12d32263e9ed0e5f8e869d34b979a95ace70ffd8aec0e8210c6dd69ed367",
+        "later_save_sha256": "e28f013138c5227628df3c692fd0dd1b675b54a452543a677955c78d33939e7f",
+        "later_save_without_assignment": true,
+        "line_id": "line.Day1.one",
+        "new_run_busy": false,
+        "text": "Sylvia slides the fuller teacup onto my mat and keeps the one with the small chip on the rim for herself.",
+        "visible_ratio": 1.0
+      },
+      "inputs": [
+        {
+          "accepted": {
+            "ticks_us": 5659963,
+            "unix_ms": 1793013637041.0
+          },
+          "down_count": 1,
+          "focused_window": true,
+          "hovered": true,
+          "label": "new_acc",
+          "path": "/root/MenuScene/MenuPanel/ButtonList/NewAccButton",
+          "point": "(160.0, 32.0)",
+          "pressed_count": 1,
+          "up_count": 1
+        },
+        {
+          "accepted": {
+            "ticks_us": 5745745,
+            "unix_ms": 1793013637127.0
+          },
+          "down_count": 1,
+          "focused_window": true,
+          "hovered": true,
+          "label": "confirm",
+          "path": "/root/MenuScene/@Control@22/ConfirmationSheet/@VBoxContainer@23/ConfirmationActions/ConfirmButton",
+          "point": "(936.0, 544.0)",
+          "pressed_count": 1,
+          "up_count": 1
+        }
+      ],
+      "preferences": {
+        "preferences.accessibility.font_style": "pixel",
+        "preferences.accessibility.text_size": 100,
+        "preferences.language.primary_locale_id": "en",
+        "preferences.reading.auto_enabled": false,
+        "preferences.reading.reveal_speed": "normal"
+      },
+      "rendering": {
+        "get_current_rendering_driver_name": "d3d12",
+        "get_current_rendering_method": "forward_plus",
+        "get_video_adapter_api_version": "12_0",
+        "get_video_adapter_name": "Microsoft Basic Render Driver"
+      },
+      "engine": {
+        "build": "official",
+        "hash": "7d41c59c457bd5a245092b4e7eb2d833e3b3f8c3",
+        "hex": 263683,
+        "major": 4,
+        "minor": 6,
+        "patch": 3,
+        "status": "stable",
+        "string": "4.6.3-stable (official)",
+        "timestamp": 0
+      },
+      "display_server": "Windows",
+      "milestones": {
+        "bootstrap_ready": {
+          "ticks_us": 4811187,
+          "unix_ms": 1793013636191.0
+        },
+        "bootstrap_start": {
+          "ticks_us": 4856716,
+          "unix_ms": 1793013636237.0
+        },
+        "caption_complete_drawn_idle": {
+          "ticks_us": 7795684,
+          "unix_ms": 1793013639176.0
+        },
+        "caption_first_visible": {
+          "ticks_us": 7751774,
+          "unix_ms": 1793013639132.0
+        },
+        "confirm_input": {
+          "ticks_us": 5735897,
+          "unix_ms": 1793013637117.0
+        },
+        "consent_drawn": {
+          "ticks_us": 5689725,
+          "unix_ms": 1793013637071.0
+        },
+        "first_title_drawn": {
+          "ticks_us": 5634761,
+          "unix_ms": 1793013637016.0
+        },
+        "first_title_input_accepted": {
+          "ticks_us": 5659968,
+          "unix_ms": 1793013637041.0
+        },
+        "new_acc_input": {
+          "ticks_us": 5658189,
+          "unix_ms": 1793013637039.0
+        },
+        "probe_enter_tree": {
+          "ticks_us": 4735895,
+          "unix_ms": 1793013636116.0
+        },
+        "title_drawn_usable": {
+          "ticks_us": 5634774,
+          "unix_ms": 1793013637016.0
+        }
+      }
+    },
+    "process": {
+      "clean_exit": true,
+      "timed_out": false,
+      "exit_code": 0,
+      "engine_verbose": true,
+      "argv": [
+        "--audio-driver",
+        "Dummy",
+        "--windowed",
+        "--resolution",
+        "1280x720",
+        "--log-file",
+        "D:\\a\\dwm\\dwm\\.godot\\ci\\trusted-runtime\\measurements\\r4-baseline-retained\\render.log",
+        "--verbose"
+      ],
+      "images": [
+        {
+          "name": "caption.png",
+          "size": 773286,
+          "sha256": "ae0ecbba74f0f18a8280e5900ce4160630ab7bc9f183e91de7c692a59ee7e920"
+        },
+        {
+          "name": "consent.png",
+          "size": 17428,
+          "sha256": "c75b3c32b65f60f7a514e9057cc27105de7ca62c4a1c88450c5541e81b1369f9"
+        },
+        {
+          "name": "title.png",
+          "size": 9866,
+          "sha256": "2b01f0beb4d153b753ce29839f256788066c26da86a5db7ae07b16fc1fc9b53c"
+        }
+      ],
+      "status": "collected_requires_visual_review"
+    },
+    "stderr": "WARNING: Image format RGB8 not supported by hardware, converting to RGBA8.\n   at: _validate_texture_format (servers/rendering/renderer_rd/storage_rd/texture_storage.cpp:2426)\nWARNING: Image format RGB8 not supported by hardware, converting to RGBA8.\n   at: _validate_texture_format (servers/rendering/renderer_rd/storage_rd/texture_storage.cpp:2426)\n\n"
+  },
+  {
+    "sample": "r4-candidate-fresh",
+    "report": {
+      "complete": true,
+      "failures": [],
+      "observation": {
+        "active": true,
+        "audio_cleanup_ok": true,
+        "audio_cleanup_us": 77468,
+        "event_done": true,
+        "initial_autosave_unchanged": true,
+        "later_autosave_sha256": "79fdb91d0685d2e6a99307a7b307ea9c94572ffbecc626ff8db4eddfc81ddeed",
+        "later_save_sha256": "4ff32426fcbe850ba9a25a46f4581a6f75bc3f62a2d94366886bffb4ee9f7224",
+        "later_save_without_assignment": true,
+        "line_id": "line.Day1.one",
+        "new_run_busy": false,
+        "text": "Sylvia slides the fuller teacup onto my mat and keeps the one with the small chip on the rim for herself.",
+        "visible_ratio": 1.0
+      },
+      "inputs": [
+        {
+          "accepted": {
+            "ticks_us": 7199586,
+            "unix_ms": 1793013585805.0
+          },
+          "down_count": 1,
+          "focused_window": true,
+          "hovered": true,
+          "label": "new_acc",
+          "path": "/root/MenuScene/MenuPanel/ButtonList/NewAccButton",
+          "point": "(160.0, 32.0)",
+          "pressed_count": 1,
+          "up_count": 1
+        }
+      ],
+      "preferences": {
+        "preferences.accessibility.font_style": "pixel",
+        "preferences.accessibility.text_size": 100,
+        "preferences.language.primary_locale_id": "en",
+        "preferences.reading.auto_enabled": false,
+        "preferences.reading.reveal_speed": "normal"
+      },
+      "rendering": {
+        "get_current_rendering_driver_name": "d3d12",
+        "get_current_rendering_method": "forward_plus",
+        "get_video_adapter_api_version": "12_0",
+        "get_video_adapter_name": "Microsoft Basic Render Driver"
+      },
+      "engine": {
+        "build": "official",
+        "hash": "7d41c59c457bd5a245092b4e7eb2d833e3b3f8c3",
+        "hex": 263683,
+        "major": 4,
+        "minor": 6,
+        "patch": 3,
+        "status": "stable",
+        "string": "4.6.3-stable (official)",
+        "timestamp": 0
+      },
+      "display_server": "Windows",
+      "milestones": {
+        "bootstrap_ready": {
+          "ticks_us": 6319953,
+          "unix_ms": 1793013584926.0
+        },
+        "bootstrap_start": {
+          "ticks_us": 6366919,
+          "unix_ms": 1793013584973.0
+        },
+        "caption_complete_drawn_idle": {
+          "ticks_us": 9317275,
+          "unix_ms": 1793013587924.0
+        },
+        "caption_first_visible": {
+          "ticks_us": 9273756,
+          "unix_ms": 1793013587880.0
+        },
+        "first_title_drawn": {
+          "ticks_us": 7155204,
+          "unix_ms": 1793013585761.0
+        },
+        "first_title_input_accepted": {
+          "ticks_us": 7199593,
+          "unix_ms": 1793013585805.0
+        },
+        "new_acc_input": {
+          "ticks_us": 7189080,
+          "unix_ms": 1793013585795.0
+        },
+        "probe_enter_tree": {
+          "ticks_us": 6244807,
+          "unix_ms": 1793013584851.0
+        },
+        "title_drawn_usable": {
+          "ticks_us": 7155219,
+          "unix_ms": 1793013585761.0
+        }
+      }
+    },
+    "process": {
+      "clean_exit": true,
+      "timed_out": false,
+      "exit_code": 0,
+      "engine_verbose": true,
+      "argv": [
+        "--audio-driver",
+        "Dummy",
+        "--windowed",
+        "--resolution",
+        "1280x720",
+        "--log-file",
+        "D:\\a\\dwm\\dwm\\.godot\\ci\\trusted-runtime\\measurements\\r4-candidate-fresh\\render.log",
+        "--verbose"
+      ],
+      "images": [
+        {
+          "name": "caption.png",
+          "size": 773235,
+          "sha256": "afb48580209a73d71c6ac24d10c26ff2ca285c8684d69699409b58c64feaf33a"
+        },
+        {
+          "name": "title.png",
+          "size": 9866,
+          "sha256": "2b01f0beb4d153b753ce29839f256788066c26da86a5db7ae07b16fc1fc9b53c"
+        }
+      ],
+      "status": "collected_requires_visual_review"
+    },
+    "stderr": "WARNING: Image format RGB8 not supported by hardware, converting to RGBA8.\n   at: _validate_texture_format (servers/rendering/renderer_rd/storage_rd/texture_storage.cpp:2426)\nWARNING: Image format RGB8 not supported by hardware, converting to RGBA8.\n   at: _validate_texture_format (servers/rendering/renderer_rd/storage_rd/texture_storage.cpp:2426)\n\n"
+  },
+  {
+    "sample": "r4-candidate-load",
+    "report": {
+      "complete": true,
+      "failures": [],
+      "observation": {
+        "active": true,
+        "audio_cleanup_ok": true,
+        "audio_cleanup_us": 78814,
+        "branch_id": "branch_id.ca5ea6b3f8491c81e0aac03fc196205e873457254990b0a8bd3986dba54cd783",
+        "event_done": true,
+        "gameplay_preserved": true,
+        "later_autosave_sha256": "2ff3353aa0b2aad8927dcca220a11dd32f098b21d3ec88c9ddfd58e593166adb",
+        "later_save_sha256": "3c328dc1e3c4696e7bf1aa2b5772ca6c684a8fb547a1a065cfc131c3416d7c6f",
+        "later_save_without_assignment": true,
+        "line_id": "line.Day1.one",
+        "reading_preserved": true,
+        "ready_count": 1,
+        "run_id": "run_id.0099deac80ce9e108531cb77f40fe74f94e87858b3962a918fa9dc4e44b3e9cb",
+        "scene_preserved": true,
+        "source_had_assignment": false,
+        "source_save_preserved": true,
+        "source_save_sha256": "b9cacc728404c7b16b6b163d1ca23e53bfdd2aca075e2628810c2508a363b58e",
+        "text": "Sylvia slides the fuller teacup onto my mat and keeps the one with the small chip on the rim for herself.",
+        "visible_ratio": 1.0
+      },
+      "inputs": [
+        {
+          "accepted": {
+            "ticks_us": 5519951,
+            "unix_ms": 1793013610171.0
+          },
+          "down_count": 1,
+          "focused_window": true,
+          "hovered": true,
+          "label": "login",
+          "path": "/root/MenuScene/MenuPanel/ButtonList/LogInButton",
+          "point": "(160.0, 100.0)",
+          "pressed_count": 1,
+          "up_count": 1
+        },
+        {
+          "accepted": {
+            "ticks_us": 5559468,
+            "unix_ms": 1793013610211.0
+          },
+          "down_count": 1,
+          "focused_window": true,
+          "hovered": true,
+          "label": "select_slot",
+          "path": "/root/MenuScene/BackupAppHost/BackupApp/VBoxContainer/ContentMargin/ContentHost/BackupBody/Drawer2",
+          "point": "(836.0, 104.0)",
+          "pressed_count": 1,
+          "up_count": 1
+        },
+        {
+          "accepted": {
+            "ticks_us": 7563075,
+            "unix_ms": 1793013612214.0
+          },
+          "down_count": 1,
+          "focused_window": true,
+          "hovered": true,
+          "label": "load",
+          "path": "/root/MenuScene/BackupAppHost/BackupApp/VBoxContainer/ContentMargin/ContentHost/BackupBody/PinnedActions/LoadAction",
+          "point": "(1018.0, 504.0)",
+          "pressed_count": 1,
+          "up_count": 1
+        }
+      ],
+      "preferences": {
+        "preferences.accessibility.font_style": "pixel",
+        "preferences.accessibility.text_size": 100,
+        "preferences.language.primary_locale_id": "en",
+        "preferences.reading.auto_enabled": false,
+        "preferences.reading.reveal_speed": "normal"
+      },
+      "rendering": {
+        "get_current_rendering_driver_name": "d3d12",
+        "get_current_rendering_method": "forward_plus",
+        "get_video_adapter_api_version": "12_0",
+        "get_video_adapter_name": "Microsoft Basic Render Driver"
+      },
+      "engine": {
+        "build": "official",
+        "hash": "7d41c59c457bd5a245092b4e7eb2d833e3b3f8c3",
+        "hex": 263683,
+        "major": 4,
+        "minor": 6,
+        "patch": 3,
+        "status": "stable",
+        "string": "4.6.3-stable (official)",
+        "timestamp": 0
+      },
+      "display_server": "Windows",
+      "milestones": {
+        "backup_drawn_usable": {
+          "ticks_us": 5591546,
+          "unix_ms": 1793013610243.0
+        },
+        "bootstrap_ready": {
+          "ticks_us": 4664358,
+          "unix_ms": 1793013609316.0
+        },
+        "bootstrap_start": {
+          "ticks_us": 4709834,
+          "unix_ms": 1793013609361.0
+        },
+        "first_title_drawn": {
+          "ticks_us": 5460215,
+          "unix_ms": 1793013610111.0
+        },
+        "first_title_input_accepted": {
+          "ticks_us": 5519956,
+          "unix_ms": 1793013610171.0
+        },
+        "load_caption_complete_drawn_idle": {
+          "ticks_us": 8357990,
+          "unix_ms": 1793013613009.0
+        },
+        "load_input": {
+          "ticks_us": 5643999,
+          "unix_ms": 1793013610295.0
+        },
+        "load_ready": {
+          "ticks_us": 8210321,
+          "unix_ms": 1793013612862.0
+        },
+        "login_input": {
+          "ticks_us": 5486438,
+          "unix_ms": 1793013610138.0
+        },
+        "probe_enter_tree": {
+          "ticks_us": 4588053,
+          "unix_ms": 1793013609240.0
+        },
+        "select_slot_input": {
+          "ticks_us": 5542664,
+          "unix_ms": 1793013610194.0
+        },
+        "title_drawn_usable": {
+          "ticks_us": 5460263,
+          "unix_ms": 1793013610112.0
+        }
+      }
+    },
+    "process": {
+      "clean_exit": true,
+      "timed_out": false,
+      "exit_code": 0,
+      "engine_verbose": true,
+      "argv": [
+        "--audio-driver",
+        "Dummy",
+        "--windowed",
+        "--resolution",
+        "1280x720",
+        "--log-file",
+        "D:\\a\\dwm\\dwm\\.godot\\ci\\trusted-runtime\\measurements\\r4-candidate-load\\render.log",
+        "--verbose"
+      ],
+      "images": [
+        {
+          "name": "backup.png",
+          "size": 22816,
+          "sha256": "3a4c930a949f4c8f207f7c845907fe9958afd9626f415e31386db20270061226"
+        },
+        {
+          "name": "loaded-caption.png",
+          "size": 773286,
+          "sha256": "ae0ecbba74f0f18a8280e5900ce4160630ab7bc9f183e91de7c692a59ee7e920"
+        },
+        {
+          "name": "title.png",
+          "size": 9866,
+          "sha256": "2b01f0beb4d153b753ce29839f256788066c26da86a5db7ae07b16fc1fc9b53c"
+        }
+      ],
+      "status": "collected_requires_visual_review"
+    },
+    "stderr": "WARNING: Image format RGB8 not supported by hardware, converting to RGBA8.\n   at: _validate_texture_format (servers/rendering/renderer_rd/storage_rd/texture_storage.cpp:2426)\nWARNING: Image format RGB8 not supported by hardware, converting to RGBA8.\n   at: _validate_texture_format (servers/rendering/renderer_rd/storage_rd/texture_storage.cpp:2426)\n\n"
+  },
+  {
+    "sample": "r4-candidate-retained",
+    "report": {
+      "complete": true,
+      "failures": [],
+      "observation": {
+        "active": true,
+        "audio_cleanup_ok": true,
+        "audio_cleanup_us": 78808,
+        "event_done": true,
+        "initial_autosave_unchanged": true,
+        "later_autosave_sha256": "666889db047fce197e143e478a47819016bf1223411571367c450a826f42853d",
+        "later_save_sha256": "a2d68f3e703085baf6b4335fd1e3848aa0d5d5414e4df724e4f9715f4adb250a",
+        "later_save_without_assignment": true,
+        "line_id": "line.Day1.one",
+        "new_run_busy": false,
+        "text": "Sylvia slides the fuller teacup onto my mat and keeps the one with the small chip on the rim for herself.",
+        "visible_ratio": 1.0
+      },
+      "inputs": [
+        {
+          "accepted": {
+            "ticks_us": 5568407,
+            "unix_ms": 1793013598044.0
+          },
+          "down_count": 1,
+          "focused_window": true,
+          "hovered": true,
+          "label": "new_acc",
+          "path": "/root/MenuScene/MenuPanel/ButtonList/NewAccButton",
+          "point": "(160.0, 32.0)",
+          "pressed_count": 1,
+          "up_count": 1
+        },
+        {
+          "accepted": {
+            "ticks_us": 5663401,
+            "unix_ms": 1793013598139.0
+          },
+          "down_count": 1,
+          "focused_window": true,
+          "hovered": true,
+          "label": "confirm",
+          "path": "/root/MenuScene/@Control@22/ConfirmationSheet/@VBoxContainer@23/ConfirmationActions/ConfirmButton",
+          "point": "(936.0, 544.0)",
+          "pressed_count": 1,
+          "up_count": 1
+        }
+      ],
+      "preferences": {
+        "preferences.accessibility.font_style": "pixel",
+        "preferences.accessibility.text_size": 100,
+        "preferences.language.primary_locale_id": "en",
+        "preferences.reading.auto_enabled": false,
+        "preferences.reading.reveal_speed": "normal"
+      },
+      "rendering": {
+        "get_current_rendering_driver_name": "d3d12",
+        "get_current_rendering_method": "forward_plus",
+        "get_video_adapter_api_version": "12_0",
+        "get_video_adapter_name": "Microsoft Basic Render Driver"
+      },
+      "engine": {
+        "build": "official",
+        "hash": "7d41c59c457bd5a245092b4e7eb2d833e3b3f8c3",
+        "hex": 263683,
+        "major": 4,
+        "minor": 6,
+        "patch": 3,
+        "status": "stable",
+        "string": "4.6.3-stable (official)",
+        "timestamp": 0
+      },
+      "display_server": "Windows",
+      "milestones": {
+        "bootstrap_ready": {
+          "ticks_us": 4731755,
+          "unix_ms": 1793013597208.0
+        },
+        "bootstrap_start": {
+          "ticks_us": 4777411,
+          "unix_ms": 1793013597253.0
+        },
+        "caption_complete_drawn_idle": {
+          "ticks_us": 7686801,
+          "unix_ms": 1793013600163.0
+        },
+        "caption_first_visible": {
+          "ticks_us": 7641542,
+          "unix_ms": 1793013600117.0
+        },
+        "confirm_input": {
+          "ticks_us": 5653200,
+          "unix_ms": 1793013598129.0
+        },
+        "consent_drawn": {
+          "ticks_us": 5596667,
+          "unix_ms": 1793013598072.0
+        },
+        "first_title_drawn": {
+          "ticks_us": 5542890,
+          "unix_ms": 1793013598019.0
+        },
+        "first_title_input_accepted": {
+          "ticks_us": 5568412,
+          "unix_ms": 1793013598044.0
+        },
+        "new_acc_input": {
+          "ticks_us": 5566678,
+          "unix_ms": 1793013598042.0
+        },
+        "probe_enter_tree": {
+          "ticks_us": 4655470,
+          "unix_ms": 1793013597132.0
+        },
+        "title_drawn_usable": {
+          "ticks_us": 5542903,
+          "unix_ms": 1793013598019.0
+        }
+      }
+    },
+    "process": {
+      "clean_exit": true,
+      "timed_out": false,
+      "exit_code": 0,
+      "engine_verbose": true,
+      "argv": [
+        "--audio-driver",
+        "Dummy",
+        "--windowed",
+        "--resolution",
+        "1280x720",
+        "--log-file",
+        "D:\\a\\dwm\\dwm\\.godot\\ci\\trusted-runtime\\measurements\\r4-candidate-retained\\render.log",
+        "--verbose"
+      ],
+      "images": [
+        {
+          "name": "caption.png",
+          "size": 773235,
+          "sha256": "afb48580209a73d71c6ac24d10c26ff2ca285c8684d69699409b58c64feaf33a"
+        },
+        {
+          "name": "consent.png",
+          "size": 17428,
+          "sha256": "c75b3c32b65f60f7a514e9057cc27105de7ca62c4a1c88450c5541e81b1369f9"
+        },
+        {
+          "name": "title.png",
+          "size": 9866,
+          "sha256": "2b01f0beb4d153b753ce29839f256788066c26da86a5db7ae07b16fc1fc9b53c"
+        }
+      ],
+      "status": "collected_requires_visual_review"
+    },
+    "stderr": "WARNING: Image format RGB8 not supported by hardware, converting to RGBA8.\n   at: _validate_texture_format (servers/rendering/renderer_rd/storage_rd/texture_storage.cpp:2426)\nWARNING: Image format RGB8 not supported by hardware, converting to RGBA8.\n   at: _validate_texture_format (servers/rendering/renderer_rd/storage_rd/texture_storage.cpp:2426)\n\n"
+  }
+]

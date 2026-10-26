@@ -1,0 +1,281 @@
+{
+  "source": {
+    "baseline": "0a15de6724ab6256953d0643eab74c6b8cb23807",
+    "candidate": "7f63b6dc9b31a9283bb87ddc26dcaa4fe84e3791",
+    "observer": "d72b67506e05c03f161201df7b9fc5430e2b136e",
+    "baseline_tree": "15c7fa52fb9a80d54ea982f886a9062bb1ce85cb",
+    "candidate_tree": "f2fa11fb98c2e99eb6a7457598f98b7163cf8dfd",
+    "repetitions": 4,
+    "order": [
+      "AB",
+      "BA",
+      "AB",
+      "BA"
+    ],
+    "cases": [
+      "fresh",
+      "retained",
+      "load"
+    ],
+    "scope": "Matched baseline/candidate instrumented exports on one Windows runner. Each action starts a new process. Retained and Load use the same r1-baseline-fresh profile after real manual Save and Autosave. Verbose engine logging is enabled equally to identify shutdown resources. OS caches are not cleared."
+  },
+  "run": 40312173100,
+  "aggregates": {
+    "baseline": {
+      "fresh": {
+        "phase.newacc.prepare_action[0].elapsed_us": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-fresh",
+              "value": 1059
+            },
+            {
+              "sample": "r2-baseline-fresh",
+              "value": 1112
+            },
+            {
+              "sample": "r3-baseline-fresh",
+              "value": 1066
+            },
+            {
+              "sample": "r4-baseline-fresh",
+              "value": 1079
+            }
+          ],
+          "count": 4,
+          "median": 1072.5,
+          "min": 1059,
+          "max": 1112
+        },
+        "process.new_acc_excluding_consent_dwell_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-fresh",
+              "value": 1577.198
+            },
+            {
+              "sample": "r2-baseline-fresh",
+              "value": 1895.582
+            },
+            {
+              "sample": "r3-baseline-fresh",
+              "value": 1832.172
+            },
+            {
+              "sample": "r4-baseline-fresh",
+              "value": 1823.263
+            }
+          ],
+          "count": 4,
+          "median": 1827.7175,
+          "min": 1577.198,
+          "max": 1895.582
+        }
+      },
+      "retained": {
+        "phase.newacc.prepare_action[0].elapsed_us": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-retained",
+              "value": 837
+            },
+            {
+              "sample": "r2-baseline-retained",
+              "value": 896
+            },
+            {
+              "sample": "r3-baseline-retained",
+              "value": 1063
+            },
+            {
+              "sample": "r4-baseline-retained",
+              "value": 1001
+            }
+          ],
+          "count": 4,
+          "median": 948.5,
+          "min": 837,
+          "max": 1063
+        },
+        "process.new_acc_excluding_consent_dwell_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-retained",
+              "value": 1723.439
+            },
+            {
+              "sample": "r2-baseline-retained",
+              "value": 1788.054
+            },
+            {
+              "sample": "r3-baseline-retained",
+              "value": 1927.111
+            },
+            {
+              "sample": "r4-baseline-retained",
+              "value": 1662.0890000000002
+            }
+          ],
+          "count": 4,
+          "median": 1755.7465000000002,
+          "min": 1662.0890000000002,
+          "max": 1927.111
+        }
+      },
+      "load": {
+        "process.login_to_caption_excluding_dwell_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-load",
+              "value": 2504.587
+            },
+            {
+              "sample": "r2-baseline-load",
+              "value": 2567.842
+            },
+            {
+              "sample": "r3-baseline-load",
+              "value": 2645.355
+            },
+            {
+              "sample": "r4-baseline-load",
+              "value": 2244.119
+            }
+          ],
+          "count": 4,
+          "median": 2536.2145,
+          "min": 2244.119,
+          "max": 2645.355
+        }
+      }
+    },
+    "candidate": {
+      "fresh": {
+        "phase.newacc.prepare_action[0].elapsed_us": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-fresh",
+              "value": 283
+            },
+            {
+              "sample": "r2-candidate-fresh",
+              "value": 320
+            },
+            {
+              "sample": "r3-candidate-fresh",
+              "value": 320
+            },
+            {
+              "sample": "r4-candidate-fresh",
+              "value": 284
+            }
+          ],
+          "count": 4,
+          "median": 302.0,
+          "min": 283,
+          "max": 320
+        },
+        "process.new_acc_excluding_consent_dwell_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-fresh",
+              "value": 1933.804
+            },
+            {
+              "sample": "r2-candidate-fresh",
+              "value": 1766.85
+            },
+            {
+              "sample": "r3-candidate-fresh",
+              "value": 1803.85
+            },
+            {
+              "sample": "r4-candidate-fresh",
+              "value": 1699.118
+            }
+          ],
+          "count": 4,
+          "median": 1785.35,
+          "min": 1699.118,
+          "max": 1933.804
+        }
+      },
+      "retained": {
+        "phase.newacc.prepare_action[0].elapsed_us": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-retained",
+              "value": 228
+            },
+            {
+              "sample": "r2-candidate-retained",
+              "value": 236
+            },
+            {
+              "sample": "r3-candidate-retained",
+              "value": 160
+            },
+            {
+              "sample": "r4-candidate-retained",
+              "value": 228
+            }
+          ],
+          "count": 4,
+          "median": 228.0,
+          "min": 160,
+          "max": 236
+        },
+        "process.new_acc_excluding_consent_dwell_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-retained",
+              "value": 1799.902
+            },
+            {
+              "sample": "r2-candidate-retained",
+              "value": 1845.6570000000002
+            },
+            {
+              "sample": "r3-candidate-retained",
+              "value": 1554.3780000000002
+            },
+            {
+              "sample": "r4-candidate-retained",
+              "value": 1724.924
+            }
+          ],
+          "count": 4,
+          "median": 1762.413,
+          "min": 1554.3780000000002,
+          "max": 1845.6570000000002
+        }
+      },
+      "load": {
+        "process.login_to_caption_excluding_dwell_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-load",
+              "value": 2622.757
+            },
+            {
+              "sample": "r2-candidate-load",
+              "value": 2656.2960000000003
+            },
+            {
+              "sample": "r3-candidate-load",
+              "value": 2497.0739999999996
+            },
+            {
+              "sample": "r4-candidate-load",
+              "value": 2459.183
+            }
+          ],
+          "count": 4,
+          "median": 2559.9155,
+          "min": 2459.183,
+          "max": 2656.2960000000003
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "files": [
+    {
+      "bytes": 104659456,
+      "sha256": "91724f15024a3a545e28ccd83134403d31ce2323a38e51c95e4dfa282f732ab6",
+      "path": "game.exe"
+    },
+    {
+      "bytes": 79862652,
+      "sha256": "15b120dce460d37a985caa3a2ad16f7b44db572646a84bd485de885b0db56411",
+      "path": "game.pck"
+    }
+  ],
+  "source": "0a15de6724ab6256953d0643eab74c6b8cb23807",
+  "variant": "baseline"
+}

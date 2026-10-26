@@ -1,0 +1,16 @@
+{
+  "files": [
+    {
+      "bytes": 104659456,
+      "sha256": "91724f15024a3a545e28ccd83134403d31ce2323a38e51c95e4dfa282f732ab6",
+      "path": "game.exe"
+    },
+    {
+      "bytes": 79862812,
+      "sha256": "a7837fe44ab750e8f64ec53829e5b95df1f80a678e8dda01ccdbb4cbeee743a3",
+      "path": "game.pck"
+    }
+  ],
+  "source": "60e1d47484fc33073935d6e5e1ba05cceb2a48d5",
+  "variant": "candidate"
+}
