@@ -123,6 +123,10 @@ func _save_after_measurement(locator: String) -> bool:
 	if variant == "candidate" and not _check(not snapshot.lifecycle.has("scene_assignment"), "ordinary Save retained retired assignment"): return false
 	observation["later_save_sha256"] = FileAccess.get_sha256(path)
 	observation["later_save_without_assignment"] = not snapshot.lifecycle.has("scene_assignment")
+	# Seed a real later Autosave so retained New Acc still exercises consent.
+	var autosaved: Dictionary = get_node("/root/SaveManager").autosave_latest()
+	if not _check(autosaved.get("ok", false), "post-measurement Autosave failed: " + str(autosaved)): return false
+	observation["later_autosave_sha256"] = FileAccess.get_sha256("user://saves/autosave.json")
 	# The diagnostic quits immediately after Save/Continue. Release looping Ogg
 	# playback through its existing owner, outside every measured interval.
 	var audio := get_node("/root/AudioManager")
@@ -191,6 +195,16 @@ def prepare(root, harness):
     text = replace_once(text, '\tprobe.finish_phase("registration.structural", began,',
         '\tstructural_probe.finish_phase("registration.structural", structural_began,')
     manifest.write_text(text)
+    saves = root / "autoload/SaveManager.gd"
+    save_text = saves.read_text()
+    header = "func prepare_new_run_action(initial_context: Dictionary) -> Dictionary:\n"
+    save_text = replace_once(save_text, header, header +
+        '\tvar probe := get_node("/root/StartupProbe")\n'
+        '\tvar began: Dictionary = probe.begin_newacc_phase()\n'
+        '\tvar result: Dictionary = _probe_prepare_new_run_action(initial_context)\n'
+        '\tprobe.finish_newacc_phase("newacc.prepare_action", began, result)\n'
+        '\treturn result\n\n' + header.replace("func prepare_new_run_action", "func _probe_prepare_new_run_action"))
+    saves.write_text(save_text)
     probe = root / "startup_probe.gd"
     text = probe.read_text()
     text = replace_once(text, "const TRACE_NEWACC := false", "const TRACE_NEWACC := true")
@@ -216,6 +230,7 @@ def prepare(root, harness):
     receipt_path = root / "startup-variant.json"
     receipt = json.loads(receipt_path.read_text())
     receipt["changes"]["scripts/narrative/DialogicEntryManifest.gd"]["after"] = hashlib.sha256(manifest.read_bytes()).hexdigest()
+    receipt["changes"]["autoload/SaveManager.gd"]["after"] = hashlib.sha256(saves.read_bytes()).hexdigest()
     receipt["newacc_probe_sha256"] = receipt["probe_sha256"]
     receipt["probe_sha256"] = hashlib.sha256(probe.read_bytes()).hexdigest()
     receipt["changes"]["startup_probe.gd"]["after"] = receipt["probe_sha256"]
@@ -280,12 +295,12 @@ def summarize(folder):
                 assert profile["configuration_calls"] >= 1 and profile["compilation_calls"] >= 0, name
                 observed = report["observation"]
                 assert observed["line_id"] == "line.Day1.one" and observed["event_done"] and observed["active"] and observed["visible_ratio"] == 1.0, name
-                assert len(observed["later_save_sha256"]) == 64, name
+                assert len(observed["later_save_sha256"]) == 64 and len(observed["later_autosave_sha256"]) == 64, name
                 assert observed["audio_cleanup_ok"], name
                 if variant == "candidate":
                     assert observed["later_save_without_assignment"], name
                     if case != "load": assert observed["initial_autosave_unchanged"], name
-                if case == "load": assert observed["source_had_assignment"], "Load must exercise the real prior-format save"
+                if case == "load": assert not observed["source_had_assignment"], "Load must use the current baseline save format"
                 labels = [item["label"] for item in report["inputs"]]
                 expected_labels = ["login", "select_slot", "load"] if case == "load" else (["new_acc", "confirm"] if case == "retained" else ["new_acc"])
                 assert labels == expected_labels, (name, labels)
@@ -302,6 +317,7 @@ def summarize(folder):
                     data = (run / image["name"]).read_bytes()
                     assert len(data) == image["size"] and data and hashlib.sha256(data).hexdigest() == image["sha256"], name
                 phases = report["phases"]
+                if case != "load": assert sum(item["phase"] == "newacc.prepare_action" for item in phases) == 1, name
                 assert sum(item["phase"] == "bootstrap.total" for item in phases) == 1 and all(item["ok"] for item in phases), name
                 metrics = {"process." + k: v for k, v in process.items() if k.endswith("_ms") and not k.endswith("unix_ms")}
                 if case == "load":
@@ -340,7 +356,7 @@ def summarize(folder):
                 key: matched["candidate"]["metrics"][key] - value
                 for key, value in matched["baseline"]["metrics"].items()
                 if key in matched["candidate"]["metrics"]}})
-    result = {"scope": "Twenty-four instrumented exported journeys on one Windows runner, four repetitions in AB/BA/AB/BA order. Fresh means empty user data, not cold OS caches; retained New Acc and Load use the same r1-baseline-fresh profile after a real manual save. Timed New Acc ends before that save. Both variants clear audio after saving and allow 100 ms plus one frame before diagnostic exit; this teardown is outside action timing. Inclusive costs overlap and must not be summed. Screenshot hashes establish integrity; visual review remains required. Four samples per variant/case are descriptive, not statistical certainty.",
+    result = {"scope": "Twenty-four instrumented exported journeys on one Windows runner, four repetitions in AB/BA/AB/BA order. Fresh means empty user data, not cold OS caches; retained New Acc and Load use the same r1-baseline-fresh profile after real manual Save and Autosave. Timed New Acc ends before that save. Both variants clear audio after saving and allow 100 ms plus one frame before diagnostic exit; this teardown is outside action timing. Inclusive costs overlap and must not be summed. Screenshot hashes establish integrity; visual review remains required. Four samples per variant/case are descriptive, not statistical certainty.",
               "source": source, "package_hashes": package_hashes, "load_seed_profile_hashes": seed_hashes,
               "samples": rows, "aggregates": aggregates, "paired_differences": comparisons}
     (folder / "summary.json").write_text(json.dumps(result, indent=2), encoding="utf-8")

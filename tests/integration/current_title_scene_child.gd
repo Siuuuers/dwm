@@ -147,6 +147,7 @@ func create_current_title_scene() -> void:
 	if not _ok(profile.set_preference(&"preferences.reading.auto_enabled", false)): return
 	if not _ok(profile.set_preference(&"preferences.reading.reveal_speed", "fast")): return
 	if not _ok(get_node("/root/LocalizationManager").set_locale("en")): return
+	assert_false(game.has_new_run_replacement(), "fresh boot has no installed unfinished run")
 	var initial_profile: Dictionary = profile.get_profile_snapshot().duplicate(true)
 	assert_false(FileAccess.file_exists(AUTOSAVE))
 	var menu: Node = await _title_menu()
@@ -154,6 +155,7 @@ func create_current_title_scene() -> void:
 	await _screenshot("current-title-menu")
 	if not await _press(menu.get_node_or_null("%NewAccButton")): return
 	if not await _wait_first_caption(): return
+	assert_true(game.has_new_run_replacement(), "New Acc installs an unfinished run")
 	var before: Dictionary = _current_proof()
 	assert_false(FileAccess.file_exists(AUTOSAVE), "New Acc starts without writing Autosave")
 	assert_false(game.capture_run_snapshot_input().lifecycle.has("scene_assignment"))
@@ -209,6 +211,7 @@ func create_current_title_scene() -> void:
 	if not await _press(pause.surface.return_button): return
 	for frame: int in 5: await get_tree().process_frame
 	assert_false(game.capture_live_session().value.active, "Logout retires the live run")
+	assert_false(game.has_new_run_replacement(), "abandoned run needs no replacement consent")
 	assert_false(FileAccess.file_exists(AUTOSAVE), "Logout retains its explicit no-save behavior")
 	assert_eq(FileAccess.get_sha256(TITLE_SLOT), proof.slot_sha256)
 	ready_count = 0
@@ -228,6 +231,25 @@ func create_current_title_scene() -> void:
 	first_inventory["TEST.prior_run"] = 1
 	assert_false(game.inventory.has("TEST.prior_run"), "prior run mutation cannot reach the new inventory")
 	await _screenshot("current-title-second-new-acc")
+	# A raw route change preserves the unfinished owner; unlike Logout it does not abandon.
+	var retained_session: Dictionary = game.capture_live_session()
+	menu = await _title_menu()
+	if not is_instance_valid(menu): return
+	assert_eq(game.capture_live_session(), retained_session)
+	assert_true(game.has_new_run_replacement())
+	# Integration check of consent ownership after raw routing, not native UI proof.
+	# The supported rendered New Acc/Logout journey is exercised above.
+	var retained_preparation: Dictionary = saves.prepare_new_run_action({
+		"route_id": "main", "dialogic_checkpoint": {}, "active_app_id": null,
+		"audio_context": {}, "content_version": 1})
+	if not _ok(retained_preparation): return
+	assert_true(retained_preparation.value.requires_confirmation, "retained unfinished run requires consent")
+	assert_true(retained_preparation.value.replaces_live)
+	assert_false(retained_preparation.value.replaces_autosave)
+	if not _ok(saves.cancel_prepared_new_run(retained_preparation.value.token)): return
+	assert_eq(game.capture_live_session(), retained_session, "cancel preserves the unfinished run")
+	assert_eq(FileAccess.get_sha256(TITLE_SLOT), proof.slot_sha256)
+	assert_false(FileAccess.file_exists(AUTOSAVE))
 
 func load_current_title_scene() -> void:
 	assert_ne(DisplayServer.get_name(), "headless", "current title proof requires rendering")

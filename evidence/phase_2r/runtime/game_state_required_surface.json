@@ -1902,6 +1902,14 @@
       "contract_test": "test_installed_availability_and_dark_are_restored_with_full_rollback"
     },
     {
+      "symbol": "has_new_run_replacement",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_new_run_replacement_presence_follows_installed_unfinished_lifecycle"
+    },
+    {
       "symbol": "get_new_run_replacement_baseline",
       "kind": "function",
       "availability": "current",

@@ -716,16 +716,15 @@ func prepare_new_run_action(initial_context: Dictionary) -> Dictionary:
 	var admitted: Dictionary = _mutation_gate.guard_external(&"new_run_prepare")
 	if not admitted.get("ok", false): return admitted
 	if not _scene_title_new_run_target.is_empty():
-		var live := _capture_prepared_live_baseline()
-		if not live.ok: return live
+		var replaces_live: bool = _restore_participants.run.has_new_run_replacement()
 		_prepared_new_run_counter += 1
 		var token := "prepared-new-run-%d-%d" % [get_instance_id(), _prepared_new_run_counter]
 		_prepared_new_run = {"token": token, "scene_target_id": _scene_title_new_run_target,
-			"initial_context": _scene_title_new_run_context, "live": live.value}
+			"initial_context": _scene_title_new_run_context}
 		var occupied: bool = _storage.exists("autosave.json")
 		return {"ok": true, "value": {"token": token,
-			"requires_confirmation": live.value.present or occupied,
-			"replaces_live": live.value.present, "replaces_autosave": occupied}}
+			"requires_confirmation": replaces_live or occupied,
+			"replaces_live": replaces_live, "replaces_autosave": occupied}}
 	var profile: Dictionary = _new_run_profile_owner.prepare_new_run_consumption(
 		_new_run_profile_owner.get_profile_revision())
 	if not profile.get("ok", false): return profile
