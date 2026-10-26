@@ -15,12 +15,12 @@ class MemoryStorage:
 	extends RefCounted
 	var text := ""
 	var writes := 0
-	var reads := 0
+	var retirement_reads := 0
 	var write_paths: Array[String] = []
 	var refuse := false
 	var promote_then_refuse := false
 	func reconcile(_path: String, parser: Callable) -> Dictionary:
-		reads += 1
+		retirement_reads += 1
 		if text.is_empty(): return {"ok": true, "exists": false}
 		var parsed: Dictionary = parser.call(text)
 		if not parsed.get("ok", false): return parsed
@@ -307,10 +307,10 @@ func test_retirement_removes_only_scene_load_records_before_source_admission() -
 	var retained: Dictionary = STRICT.parse_object(storage.text).value
 	assert_eq(retained.operations, {legacy.transaction_id: legacy, creation.transaction_id: creation})
 	assert_eq(loader.calls, [], "retired selected content is never reopened")
-	var reads_before: int = storage.reads
+	var reads_before: int = storage.retirement_reads
 	var second: Dictionary = current.retire_scene_restore_operations()
 	assert_true(second.ok)
-	assert_eq(storage.reads, reads_before, "later startup phase does not reread solely for retirement")
+	assert_eq(storage.retirement_reads, reads_before, "later startup phase does not reread solely for retirement")
 	assert_eq(second.value.removed, 0)
 	assert_eq(storage.writes, writes_before + 1, "successful transition does not write again")
 
@@ -383,13 +383,13 @@ func test_retirement_adopts_validated_document_for_following_journal_read() -> v
 	assert_false(old.is_empty())
 	var current := JOURNAL.new()
 	assert_true(current.configure(storage, loader).ok)
-	var reads_before: int = storage.reads
+	var reads_before: int = storage.retirement_reads
 	assert_true(current.retire_scene_restore_operations().ok)
-	assert_eq(storage.reads, reads_before + 1)
+	assert_eq(storage.retirement_reads, reads_before + 1)
 	assert_eq(current.list_incomplete().value, [])
-	assert_eq(storage.reads, reads_before + 1, "following journal consumer reuses validated transition result")
+	assert_eq(storage.retirement_reads, reads_before + 1, "following journal consumer reuses validated transition result")
 	current._clear_loaded_proofs()
 	assert_true(current.retire_scene_restore_operations().ok)
-	assert_eq(storage.reads, reads_before + 1, "changing validation scope does not repeat retirement")
+	assert_eq(storage.retirement_reads, reads_before + 1, "changing validation scope does not repeat retirement")
 	assert_eq(current.list_incomplete().value, [])
-	assert_eq(storage.reads, reads_before + 2, "normal validation after creation scope still reloads")
+	assert_eq(storage.retirement_reads, reads_before + 2, "normal validation after creation scope still reloads")

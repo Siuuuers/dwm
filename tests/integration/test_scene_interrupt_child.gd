@@ -30,6 +30,9 @@ func interrupt_selected_load() -> void:
 	assert_true(activated.ok, str(activated))
 	if not activated.ok: return
 	assert_eq(fixture.ready_count, 1)
+	var saved: Dictionary = fixture.manager.autosave_latest()
+	assert_true(saved.ok, str(saved))
+	if not saved.ok: return
 	if point == "completed":
 		# This is a live selected Load: the real source must be suspended before the
 		# restore participant may replace it, as the production Pause caller requires.
@@ -142,7 +145,11 @@ func resume_interrupted_load() -> void:
 	assert_true(identity.value.get("exists", false))
 	assert_true(FIXTURE._valid_sha256(identity.value.get("revision")))
 	assert_eq(identity.value.revision, witness.issuer_root_sha256, "recovery mints no second transaction or allocation")
-	var checkpoint: Dictionary = witness.snapshot.narrative_checkpoint
+	var expanded: Dictionary = preload("res://scripts/narrative/SoloReadingSession.gd").expand_player_checkpoint(
+		witness.snapshot.narrative_checkpoint)
+	assert_true(expanded.ok, str(expanded))
+	if not expanded.ok: return
+	var checkpoint: Dictionary = expanded.value
 	assert_true(WRITER._deep_same(fixture.adapter.capture_reading_frontier().value, checkpoint.reading_session.frontier))
 	assert_eq(fixture.adapter.current_line_id(), str(checkpoint.reading_session.frontier.line_id))
 	assert_true(WRITER._deep_same(fixture.bridge._reading_session.ledger.snapshot(), checkpoint.reading_session.ledger))

@@ -599,7 +599,7 @@ func reconcile_startup(transaction_id: String, issuer: Object) -> Dictionary:
 
 func _require_configured(method: String) -> Dictionary:
 	if _creation_storage_recovery and method not in ["list_incomplete", "get_operation",
-			"reconcile_startup", "advance", "record_new_run_target"]:
+			"reconcile_startup", "advance", "record_new_run_target", "retire_scene_restore_operations"]:
 		return _failed(&"creation_storage_recovery_only", method)
 	if _storage == null or _source_loader == null:
 		return _failed(&"journal_not_configured", "DesktopContinuationOperationJournal.%s before configure" % method)
