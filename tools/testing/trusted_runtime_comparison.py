@@ -167,6 +167,8 @@ def extract(folder):
             $record.backup_dwell_ms = ($m.load_input.ticks_us - $m.backup_drawn_usable.ticks_us) / 1000.0
         } elseif ($Journey -in @('new_acc', 'apps')) {""")
     text = replace_once(text, "elseif ($Journey -eq 'screens') { @('title.png'", "elseif ($Journey -eq 'load') { @('title.png', 'backup.png', 'loaded-caption.png') } elseif ($Journey -eq 'screens') { @('title.png'")
+    text = replace_once(text, "SCRIPT ERROR:|(?m)^ERROR:|Unicode parsing error|Unexpected NUL character",
+                        "SCRIPT ERROR:|(?m)^ERROR:|ObjectDB instances leaked|Unicode parsing error|Unexpected NUL character")
     runner.write_text(text)
     hashes["load_runner_sha256"] = hashlib.sha256(runner.read_bytes()).hexdigest()
     (folder / "harness.json").write_text(json.dumps({"commit": DIAGNOSTIC, "sha256": hashes}, indent=2))
@@ -268,7 +270,7 @@ def summarize(folder):
                     assert process["input_profile_hashes"] == expected, f"{name}: complete input profile differs from its seed"
                 logs = "\n".join((run / item).read_text(encoding="utf-8-sig", errors="replace")
                                  for item in ("stdout.log", "stderr.log", "render.log"))
-                assert not re.search(r"SCRIPT ERROR:|^\s*ERROR:|Unicode parsing error|Unexpected NUL character", logs, re.M), name
+                assert not re.search(r"SCRIPT ERROR:|^\s*ERROR:|ObjectDB instances leaked|Unicode parsing error|Unexpected NUL character", logs, re.M), name
                 trace = report["autoload_trace"]
                 assert [(t["owner"], t["event"]) for t in trace] == [(o, e) for o in OWNERS for e in ("begin", "end")], name
                 assert all(b["ticks_us"] >= a["ticks_us"] for a, b in zip(trace, trace[1:])), name

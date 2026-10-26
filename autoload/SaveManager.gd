@@ -785,11 +785,6 @@ func commit_prepared_new_run_responsive(token: String) -> Dictionary:
 	_new_run_busy = true
 	_new_run_slice_started_us = Time.get_ticks_usec()
 	var result: Dictionary = await _commit_prepared_new_run(true)
-	# Scene mounting spans frames, but this creation has no durable recovery operation.
-	while result.get("code") == &"scene_activation_pending" and not _scene_restore_activation.is_empty() \
-			and _scene_restore_activation.continuation.kind == "memory_new_run":
-		await get_tree().process_frame
-		result = {"ok": true} if _scene_restore_activation.is_empty() else _drive_scene_restore_activation()
 	_new_run_busy = false
 	return result
 
