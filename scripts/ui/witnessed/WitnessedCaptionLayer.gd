@@ -78,6 +78,7 @@ var _load_activation_focus_id := 0
 var _reading_input_owner: Node
 var _reading_profile: Object
 var _reading_owner_generation := 0
+var _reading_refresh_pending := false
 var _reading_recovery: Dictionary = {}
 var _reading_retry_in_progress := false
 var _recovery_bound := false
@@ -566,9 +567,15 @@ func _configure_history_presentation() -> bool:
 		_caption_theme, _localization, _reading_input_owner, _history_overlay_admitted)
 
 func _on_reading_session_changed() -> void:
+	_request_reading_refresh()
+
+func _request_reading_refresh() -> void:
+	if _reading_refresh_pending: return
+	_reading_refresh_pending = true
 	_refresh_reading_session.call_deferred()
 
 func _refresh_reading_session() -> void:
+	_reading_refresh_pending = false
 	if not is_inside_tree(): return
 	if not _ending_caption_handoff and _project_ending_caption_memory(): _layout_stack()
 	if not is_instance_valid(_transport_bridge) or not _transport_bridge.has_method("capture_current_line_presentation_frontier"): return
@@ -875,7 +882,7 @@ func _on_reading_input_custody_changed() -> void:
 	# Restore can publish its destination while source input/tree suspension is
 	# still held. Re-read after the handoff settles; never retain that temporary
 	# refusal as the new caption's permanent Accept/Next frontier.
-	_refresh_reading_session.call_deferred()
+	_request_reading_refresh()
 
 func _retire_transport() -> void:
 	_cancel_speech()
