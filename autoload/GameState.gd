@@ -650,7 +650,7 @@ func configure_identity_issuer(identity_issuer: Object) -> Dictionary:
 ## Uses the same pure preparation as commit so UI content can be checked before any read or
 ## acceptance mutation. The authentic issuer proof is required even for this detached candidate.
 func preview_open_contact(friend_id: String, command_id: String, command_issuer_receipt: Dictionary) -> Dictionary:
-	if _run_lifecycle.to_dict().has("scene_assignment"):
+	if _run_lifecycle.is_scene_run():
 		return _prepare_scene_contact_read(friend_id, command_id, command_issuer_receipt)
 	var day7_admitted := require_day7_presentations_complete()
 	if not day7_admitted.get("ok", false): return day7_admitted
@@ -839,7 +839,7 @@ func configure_contact_checkpoint_writer(writer: Callable) -> Dictionary:
 	return {"ok": true}
 
 func open_contact(friend_id: String, command_id: String, command_issuer_receipt: Dictionary) -> Dictionary:
-	if _run_lifecycle.to_dict().has("scene_assignment"):
+	if _run_lifecycle.is_scene_run():
 		return _commit_scene_contact_command("read", friend_id, command_id, command_issuer_receipt)
 	var replayed: bool = (contacts.get("transaction_receipts", {}) as Dictionary).has(command_id)
 	var opened := preview_open_contact(friend_id, command_id, command_issuer_receipt)
@@ -3029,7 +3029,7 @@ func capture_restore_state() -> Dictionary:
 		if not captured.get("ok", false): return captured
 		dating_backup = captured.value.duplicate(true)
 	var gameplay := to_save_dict().duplicate(true)
-	if _run_lifecycle.to_dict().has("scene_assignment"):
+	if _run_lifecycle.is_scene_run():
 		gameplay = capture_run_snapshot_input().gameplay
 	gameplay["narrative_variables"] = _narrative_variables.duplicate(true)
 	return {"ok": true, "code": &"ok", "value": {"backup": {
@@ -3284,10 +3284,9 @@ static func _session_failure(code: StringName) -> Dictionary:
 func get_run_configuration() -> Dictionary:
 	if not _run_configuration_installed:
 		return {"ok": false, "code": &"run_configuration_unavailable"}
-	var lifecycle: Dictionary = _run_lifecycle.to_dict()
-	if lifecycle.has("scene_assignment"):
-		return {"ok": true, "value": {"dark_mode": lifecycle.scene_assignment.form == "dark"}}
-	return {"ok": true, "value": {"dark_mode": lifecycle["dark_mode"]}}
+	if _run_lifecycle.is_scene_run():
+		return {"ok": true, "value": {"dark_mode": false}}
+	return {"ok": true, "value": {"dark_mode": _run_lifecycle.to_dict()["dark_mode"]}}
 
 
 ## Replacement consent concerns the installed unfinished state held by this owner.
@@ -3323,7 +3322,7 @@ func _capture_desktop_snapshot() -> Dictionary:
 
 
 func capture_run_snapshot_input() -> Dictionary:
-	if _run_lifecycle.to_dict().has("scene_assignment"):
+	if _run_lifecycle.is_scene_run():
 		var scene_gameplay := {}
 		for key: String in SCENE_GAMEPLAY_KEYS:
 			var value: Variant = _narrative_variables if key == "narrative_variables" else get(key)
@@ -3404,7 +3403,7 @@ func rollback_restore_silent(backup: Dictionary) -> Dictionary:
 		return {"ok": false, "code": &"invalid_run_backup", "message": "run backup requires gameplay and lifecycle"}
 	if typeof(source.get("run_configuration_installed")) != TYPE_BOOL:
 		return {"ok": false, "code": &"invalid_run_backup", "message": "run installation evidence is required"}
-	if source.lifecycle.has("scene_assignment"):
+	if _RUN_LIFECYCLE_SCRIPT.is_scene(source.lifecycle):
 		return _rollback_scene_state(source)
 	var gameplay_check: Dictionary = _prepare_note_restore_gameplay(source["gameplay"])
 	if not gameplay_check.get("ok", false):
@@ -4061,7 +4060,7 @@ func configure_test_scene_event_registry(registry: Dictionary) -> Dictionary:
 	return {"ok": true}
 
 func scene_event_registration(event: Dictionary) -> Dictionary:
-	if _run_lifecycle.to_dict().has("scene_assignment"):
+	if _run_lifecycle.is_scene_run():
 		var registered := _SCENE_MANIFEST.scene_contract_tables()
 		if not registered.ok: return registered
 		var inspected := _SCENE_EVENT.inspect_scene(event, registered.bundle)
@@ -4081,7 +4080,7 @@ func scene_event_registration(event: Dictionary) -> Dictionary:
 	return {"ok": true, "value": record}
 
 func scene_event_context() -> Dictionary:
-	if _run_lifecycle.to_dict().has("scene_assignment"):
+	if _run_lifecycle.is_scene_run():
 		return _scene_runtime_event_context()
 	if not is_instance_valid(_scene_event_bridge) or _identity_issuer == null:
 		return _transaction_failure(&"event_dependency_invalid", "")
@@ -4118,7 +4117,7 @@ func lookup_scene_event(command_id: String, digest: String) -> Dictionary:
 		"value": receipt.scene_event.result.duplicate(true)}
 
 func accept_scene_event(event: Dictionary, digest: String, lease: String) -> Dictionary:
-	if _run_lifecycle.to_dict().has("scene_assignment"):
+	if _run_lifecycle.is_scene_run():
 		return _accept_scene_runtime_event(event, digest, lease)
 	if not is_instance_valid(_mutation_gate) or not _mutation_gate.is_lease_active(&"causal_transaction", lease):
 		return _transaction_failure(&"event_lease_lost", "")
@@ -4216,8 +4215,7 @@ const _SCENE_MANIFEST := preload("res://scripts/narrative/DialogicEntryManifest.
 const _SCENE_FROZEN := preload("res://scripts/narrative/FrozenRunContext.gd")
 var _scene_snapshot_references: Dictionary = {}
 
-# Only SaveManager's retained creation path can prepare/apply this plan. Ordinary
-# restore still uses committed admission authority, never this candidate seam.
+# SaveManager owns the fresh in-memory run plan and its activation lease.
 var _scene_new_run_plan: Dictionary = {}
 var _scene_new_run_plan_owner: Object
 
@@ -4233,41 +4231,32 @@ static func make_scene_new_run_gameplay() -> Dictionary:
 		"shop_purchase_counts": {}, "stats": {"pressure": 3}, "story_flags": {}}
 	return gameplay
 
-func prepare_scene_new_run_snapshot_input(allocation_candidate: Dictionary, profile_material: Dictionary,
-		admission: Dictionary, bundle: Dictionary) -> Dictionary:
-	var selected: Dictionary = _SCENE_MANIFEST.scene_contract_tables()
-	if not selected.get("ok", false): return selected
-	if not is_same(bundle, selected.bundle) and not _SCENE_EVENT._equal(bundle, selected.bundle):
-		return _transaction_failure(&"scene_registration_mismatch", "")
-	var checked: Dictionary = _SCENE_EVENT.validate_scene_initial_admission_candidate(
-		admission, allocation_candidate, profile_material, bundle, _identity_issuer)
-	if not checked.get("ok", false): return checked
-	var identity: Dictionary = admission.scene_admission.source_identity.duplicate(true)
+func prepare_scene_new_run_snapshot_input(allocation_candidate: Dictionary, entry_id: String,
+		occurrence: String) -> Dictionary:
+	var identity := {}
+	for key: String in ["run_id", "branch_id", "desktop_timeline_generation", "causal_day_instance",
+			"causal_day_instance_issuer_receipt"]:
+		identity[key] = allocation_candidate[key]
 	var lifecycle: Dictionary = identity.duplicate(true)
-	lifecycle.merge({"state": "PLAYING", "restore_provenance": null,
-		"scene_assignment": profile_material.scene_assignment.receipt.duplicate(true)})
-	var occurrence: String = admission.transaction_id
+	lifecycle.merge({"state": "PLAYING", "restore_provenance": null})
 	return {"ok": true, "value": {"snapshot_input": {
 		"lifecycle": lifecycle, "gameplay": make_scene_new_run_gameplay(),
 		"contacts": _CONTACT_INVITATION_STATE.make_scene_defaults(),
 		"desktop": _empty_desktop_snapshot(identity.causal_day_instance, identity.causal_day_instance_issuer_receipt, true),
 		"scene": {"registration_sha256": _SCENE_MANIFEST.scene_registration_fingerprint(),
-			"active_occurrence_id": occurrence, "entry_id": admission.scene_admission.result.entry_id,
+			"active_occurrence_id": occurrence, "entry_id": entry_id,
 			"notification": {}, "active_challenge": {}, "return_to": null},
 		"applied_effect_transaction_ids": [], "applied_variable_transaction_ids": [],
-		"command_receipts": {occurrence: admission.duplicate(true)}}}}
+		"command_receipts": {}}}}
 
-func prepare_scene_new_run(snapshot: Dictionary, allocation_candidate: Dictionary, profile_material: Dictionary,
-		bundle: Dictionary, issuer: Object, creation_owner: Object) -> Dictionary:
+func prepare_scene_new_run(snapshot: Dictionary, _allocation_candidate: Dictionary, _profile_material: Dictionary,
+		_bundle: Dictionary, issuer: Object, creation_owner: Object) -> Dictionary:
 	_scene_new_run_plan = {}
 	_scene_new_run_plan_owner = null
 	if not is_instance_valid(creation_owner) or creation_owner != get_node_or_null("/root/SaveManager") \
 			or issuer != _identity_issuer or not is_instance_valid(_mutation_gate) \
 			or not _mutation_gate.is_internal_owner_active(&"new_run"):
 		return _transaction_failure(&"scene_creation_owner_required", "")
-	var checked: Dictionary = _NARRATIVE_VARIABLE_SCHEMA.validate_scene_new_run_candidate(
-		snapshot, allocation_candidate, profile_material, bundle, issuer)
-	if not checked.get("ok", false): return checked
 	_scene_new_run_plan = {"snapshot": snapshot.duplicate(true)}
 	_scene_new_run_plan_owner = creation_owner
 	return {"ok": true, "value": {"run_plan": _scene_new_run_plan.duplicate(true)}}
@@ -4296,10 +4285,6 @@ func _prepare_scene_snapshot_semantics(snapshot: Dictionary, bundle: Dictionary,
 	if not current.ok: return current
 	var profile: Node = get_node_or_null("/root/ProfileManager")
 	if profile == null: return _transaction_failure(&"scene_profile_owner_required", "")
-	var assignment: Dictionary = profile.get_pair_deck_draw(snapshot.run_id)
-	if not assignment.get("ok", false): return assignment
-	if not _SCENE_EVENT._equal(assignment.get("value"), snapshot.lifecycle.scene_assignment):
-		return _transaction_failure(&"scene_assignment_profile_mismatch", "")
 	var physical := _validate_scene_profile_references(snapshot, profile)
 	if not physical.ok: return physical
 	var frozen := _SCENE_FROZEN.validate(snapshot, true)
@@ -5634,7 +5619,7 @@ func _validate_scene_profile_references(snapshot: Dictionary, profile: Object) -
 var _scene_contact_operation: Dictionary = {}
 
 func capture_scene_contact_context() -> Dictionary:
-	if not _run_lifecycle.to_dict().has("scene_assignment") or not _live_session_active:
+	if not _run_lifecycle.is_scene_run() or not _live_session_active:
 		return _transaction_failure(&"scene_contact_unavailable", "")
 	var identity := capture_desktop_identity_context()
 	if not identity.ok: return identity
@@ -5903,7 +5888,7 @@ func configure_scene_round_runtime(board: Object, reward: Object) -> Dictionary:
 	return {"ok": true}
 
 func scene_round_completion_active() -> bool:
-	return _run_lifecycle.to_dict().has("scene_assignment")
+	return _run_lifecycle.is_scene_run()
 
 func commit_scene_round_completion(request: Dictionary) -> Dictionary:
 	if not _scene_round_operation.is_empty() or not is_instance_valid(_mutation_gate) \

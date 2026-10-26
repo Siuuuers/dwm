@@ -21,10 +21,10 @@ func _load_saved(menu: Node) -> void:
 	var bridge := get_node("/root/DialogicBridge")
 	var game := get_node("/root/GameState")
 	var parser := load("res://scripts/validation/StrictJson.gd")
-	var document: Dictionary = parser.parse_object(FileAccess.get_file_as_string("user://saves/autosave.json"))
-	if not _check(document.get("ok", false), "seed autosave is unreadable"): return
+	var document: Dictionary = parser.parse_object(FileAccess.get_file_as_string("user://saves/slot_1.json"))
+	if not _check(document.get("ok", false), "seed manual save is unreadable"): return
 	var saved: Dictionary = document.value.current_snapshot.snapshot
-	var source_hash := FileAccess.get_sha256("user://saves/autosave.json")
+	var source_hash := FileAccess.get_sha256("user://saves/slot_1.json")
 	if not _check(saved.narrative_checkpoint.reading_session.position_id == FIRST_LINE, "unexpected seed position"): return
 	var ready := {"count": 0}
 	saves.live_session_ready.connect(func() -> void:
@@ -42,8 +42,10 @@ func _load_saved(menu: Node) -> void:
 				and app.action_buttons.has("load") and not app.action_buttons["load"].disabled:
 			break
 		await get_tree().process_frame
-	if not _check(is_instance_valid(app) and app.is_visible_in_tree() and app.selected_locator == "autosave" \
-			and app.action_buttons.has("load") and not app.action_buttons["load"].disabled, "autosave Load unavailable"): return
+	if not _check(is_instance_valid(app) and app.is_visible_in_tree() and app.drawer_buttons.has("slot:1"), "manual save drawer unavailable"): return
+	if not await _prepare_pointer(app.drawer_buttons["slot:1"], "select_slot"): return
+	if not await _click(app.drawer_buttons["slot:1"], "select_slot"): return
+	if not _check(app.selected_locator == "slot:1" and not app.action_buttons["load"].disabled, "manual save Load unavailable"): return
 	await RenderingServer.frame_post_draw
 	mark("backup_drawn_usable")
 	gap_scope = ""
@@ -67,7 +69,7 @@ func _load_saved(menu: Node) -> void:
 				mark("load_caption_complete_drawn_idle")
 				gap_scope = ""
 				observation = {"line_id": FIRST_LINE, "text": native.get_parsed_text(), "visible_ratio": native.visible_ratio,
-					"event_done": true, "active": true, "ready_count": ready.count, "source_autosave_sha256": source_hash}
+					"event_done": true, "active": true, "ready_count": ready.count, "source_save_sha256": source_hash}
 				break
 		await get_tree().process_frame
 	if not _check(not observation.is_empty(), "Load did not reach the complete saved caption"): return
@@ -83,17 +85,45 @@ func _load_saved(menu: Node) -> void:
 	var locale: String = get_node("/root/LocalizationManager").get_locale()
 	var texts: Dictionary = load("res://scripts/localization/StoryLocalization.gd").catalog(locale)
 	if not _check(observation.text == texts.get(FIRST_LINE, FIRST_EN), "loaded caption differs from authored text"): return
-	if not _check(FileAccess.get_sha256("user://saves/autosave.json") == source_hash, "Load changed source autosave bytes"): return
+	if not _check(FileAccess.get_sha256("user://saves/slot_1.json") == source_hash, "Load changed source save bytes"): return
 	var incomplete: Dictionary = saves._continuation_journal.list_incomplete()
 	if not _check(incomplete.get("ok", false) and incomplete.value.is_empty(), "Load journal not settled"): return
 	observation["gameplay_preserved"] = true
 	observation["scene_preserved"] = true
 	observation["reading_preserved"] = true
-	observation["autosave_preserved"] = true
+	observation["source_save_preserved"] = true
 	observation["run_id"] = current.lifecycle.run_id
 	observation["branch_id"] = current.lifecycle.branch_id
 	if not _capture("loaded-caption"): return
+	observation["source_had_assignment"] = saved.lifecycle.has("scene_assignment")
+	if not await _save_after_measurement("slot:2"): return
+	if not _check(FileAccess.get_sha256("user://saves/slot_1.json") == source_hash, "later Save changed original source"): return
 	_finish(true)
+'''
+
+
+# Setup occurs after the measured complete caption. This is the same production
+# Backup command used by the rendered title journey, not a fabricated save file.
+SAVE_PROBE = r'''
+func _save_after_measurement(locator: String) -> bool:
+	var pause: Node = get_node("/root/SceneRouter")._production_pause
+	var opened: Dictionary = await pause.open_scene_backup("save")
+	if not _check(opened.get("ok", false), "post-measurement Backup unavailable: " + str(opened)): return false
+	var prepared: Dictionary = pause._backup_port.prepare_action("save", locator)
+	if not _check(prepared.get("ok", false), "post-measurement Save preparation failed: " + str(prepared)): return false
+	var saved: Dictionary = pause._backup_port.commit_action(prepared.value.token)
+	if not _check(saved.get("ok", false), "post-measurement Save failed: " + str(saved)): return false
+	var resumed: Dictionary = await pause.request_continue()
+	if not _check(resumed.get("ok", false), "post-measurement Continue failed"): return false
+	var path := "user://saves/slot_" + locator.trim_prefix("slot:") + ".json"
+	var parsed: Dictionary = load("res://scripts/validation/StrictJson.gd").parse_object(FileAccess.get_file_as_string(path))
+	if not _check(parsed.get("ok", false), "post-measurement Save unreadable"): return false
+	var snapshot: Dictionary = parsed.value.current_snapshot.snapshot
+	if not _check(snapshot.narrative_checkpoint.reading_session.position_id == FIRST_LINE, "post-measurement Save changed position"): return false
+	if variant == "candidate" and not _check(not snapshot.lifecycle.has("scene_assignment"), "ordinary Save retained retired assignment"): return false
+	observation["later_save_sha256"] = FileAccess.get_sha256(path)
+	observation["later_save_without_assignment"] = not snapshot.lifecycle.has("scene_assignment")
+	return true
 '''
 
 
@@ -130,9 +160,9 @@ def prepare(root, harness):
     spec = importlib.util.spec_from_file_location("startup_attribution", harness / HARNESS[0])
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
-    # Baseline means an observation-only overlay on the both pinned sources.
-    # Its replace_once and coroutine guards reject outdated instrumentation anchors.
-    module.prepare(root, "baseline", trace_autoloads=True, trace_newacc=True)
+    # Observe the same complete action on both sources. Do not wrap retired
+    # creation functions or require their internal phase structure to survive.
+    module.prepare(root, "baseline", trace_autoloads=True, trace_newacc=False)
     # The physical check may belong to the test seam while structural preparation
     # belongs to runtime. Observe each independently, without sharing local scope.
     manifest = root / "scripts/narrative/DialogicEntryManifest.gd"
@@ -145,12 +175,26 @@ def prepare(root, harness):
     manifest.write_text(text)
     probe = root / "startup_probe.gd"
     text = probe.read_text()
+    text = replace_once(text, "const TRACE_NEWACC := false", "const TRACE_NEWACC := true")
     text = replace_once(text, '["baseline", "desktop"]', '["baseline", "candidate", "desktop"]')
     text = text.replace('(variant == "baseline")', '(variant in ["baseline", "candidate"])')
     text = replace_once(text, "func _begin_newacc_scope() -> bool:", 'func _begin_newacc_scope(scope: String = "exported_new_acc") -> bool:')
     text = replace_once(text, 'begin_scope("exported_new_acc", case_name, "button_to_caption", 0)', 'begin_scope(scope, case_name, "button_to_caption", 0)')
     text = replace_once(text, 'if journey == "screens":\n\t\tawait _screens(menu)', 'if journey == "load":\n\t\tawait _load_saved(menu)\n\telif journey == "screens":\n\t\tawait _screens(menu)')
-    probe.write_text(text + LOAD_PROBE)
+    text = replace_once(text, 'func _new_acc(menu: Node, button: Button) -> void:\n',
+        'func _new_acc(menu: Node, button: Button) -> void:\n'
+        '\tvar autosave_before := FileAccess.get_sha256("user://saves/autosave.json") if FileAccess.file_exists("user://saves/autosave.json") else ""\n'
+        '\tvar profile_before: Dictionary = get_node("/root/ProfileManager").get_profile_snapshot()\n')
+    text = replace_once(text, '\tif not _capture("caption"): return\n',
+        '\tvar autosave_after := FileAccess.get_sha256("user://saves/autosave.json") if FileAccess.file_exists("user://saves/autosave.json") else ""\n'
+        '\tvar profile_after: Dictionary = get_node("/root/ProfileManager").get_profile_snapshot()\n'
+        '\tif variant == "candidate":\n'
+        '\t\tif not _check(autosave_after == autosave_before, "New Acc wrote Autosave"): return\n'
+        '\t\tif not _check(profile_after.preferences == profile_before.preferences and profile_after.pair_deck_draws == profile_before.pair_deck_draws, "New Acc changed settings or assignments"): return\n'
+        '\tobservation["initial_autosave_unchanged"] = autosave_after == autosave_before\n'
+        '\tif not _capture("caption"): return\n'
+        '\tif not await _save_after_measurement("slot:1"): return\n')
+    probe.write_text(text + LOAD_PROBE + SAVE_PROBE)
     receipt_path = root / "startup-variant.json"
     receipt = json.loads(receipt_path.read_text())
     receipt["changes"]["scripts/narrative/DialogicEntryManifest.gd"]["after"] = hashlib.sha256(manifest.read_bytes()).hexdigest()
@@ -201,10 +245,10 @@ def summarize(folder):
                 if case == "fresh":
                     assert not process["input_profile_hashes"] and process["preexisting_profile_files"] == 0, name
                     fresh_hashes = process["output_profile_hashes"]
-                    assert fresh_hashes and any(k.replace("\\", "/").endswith("saves/autosave.json") for k in fresh_hashes), name
+                    assert fresh_hashes and any(k.replace("\\", "/").endswith("saves/slot_1.json") for k in fresh_hashes), name
                     if repetition == 1 and variant == "baseline": seed_hashes = fresh_hashes
                 else:
-                    expected = fresh_hashes if case == "retained" else seed_hashes
+                    expected = seed_hashes
                     assert process["input_profile_hashes"] == expected, f"{name}: complete input profile differs from its seed"
                 logs = "\n".join((run / item).read_text(encoding="utf-8-sig", errors="replace")
                                  for item in ("stdout.log", "stderr.log", "render.log"))
@@ -218,15 +262,20 @@ def summarize(folder):
                 assert profile["configuration_calls"] >= 1 and profile["compilation_calls"] >= 0, name
                 observed = report["observation"]
                 assert observed["line_id"] == "line.Day1.one" and observed["event_done"] and observed["active"] and observed["visible_ratio"] == 1.0, name
+                assert len(observed["later_save_sha256"]) == 64, name
+                if variant == "candidate":
+                    assert observed["later_save_without_assignment"], name
+                    if case != "load": assert observed["initial_autosave_unchanged"], name
+                if case == "load": assert observed["source_had_assignment"], "Load must exercise the real prior-format save"
                 labels = [item["label"] for item in report["inputs"]]
-                expected_labels = ["login", "load"] if case == "load" else (["new_acc", "confirm"] if case == "retained" else ["new_acc"])
+                expected_labels = ["login", "select_slot", "load"] if case == "load" else (["new_acc", "confirm"] if case == "retained" else ["new_acc"])
                 assert labels == expected_labels, (name, labels)
                 assert all(item[key] == 1 for item in report["inputs"] for key in ("pressed_count", "down_count", "up_count")), name
                 if case == "load":
                     assert observed["ready_count"] == 1, name
-                    assert all(observed[k] for k in ("gameplay_preserved", "scene_preserved", "reading_preserved", "autosave_preserved")), name
-                    seed_autosaves = [v for k, v in seed_hashes.items() if k.replace("\\", "/").endswith("saves/autosave.json")]
-                    assert seed_autosaves == [observed["source_autosave_sha256"]], name
+                    assert all(observed[k] for k in ("gameplay_preserved", "scene_preserved", "reading_preserved", "source_save_preserved")), name
+                    seed_saves = [v for k, v in seed_hashes.items() if k.replace("\\", "/").endswith("saves/slot_1.json")]
+                    assert seed_saves == [observed["source_save_sha256"]], name
                 expected_images = {"title.png", "backup.png", "loaded-caption.png"} if case == "load" else {"title.png", "caption.png"}
                 if case == "retained": expected_images.add("consent.png")
                 assert {image["name"] for image in process["images"]} == expected_images, name
@@ -272,7 +321,7 @@ def summarize(folder):
                 key: matched["candidate"]["metrics"][key] - value
                 for key, value in matched["baseline"]["metrics"].items()
                 if key in matched["candidate"]["metrics"]}})
-    result = {"scope": "Twenty-four instrumented exported journeys on one Windows runner, four repetitions in AB/BA/AB/BA order. Fresh means empty user data, not cold OS caches; retained New Acc uses its own fresh output; every Load uses the same r1-baseline-fresh profile. Inclusive costs overlap and must not be summed. Screenshot hashes establish integrity; visual review remains required. Four samples per variant/case are descriptive, not statistical certainty.",
+    result = {"scope": "Twenty-four instrumented exported journeys on one Windows runner, four repetitions in AB/BA/AB/BA order. Fresh means empty user data, not cold OS caches; retained New Acc and Load use the same r1-baseline-fresh profile after a real manual save. Timed New Acc ends before that save. Inclusive costs overlap and must not be summed. Screenshot hashes establish integrity; visual review remains required. Four samples per variant/case are descriptive, not statistical certainty.",
               "source": source, "package_hashes": package_hashes, "load_seed_profile_hashes": seed_hashes,
               "samples": rows, "aggregates": aggregates, "paired_differences": comparisons}
     (folder / "summary.json").write_text(json.dumps(result, indent=2), encoding="utf-8")

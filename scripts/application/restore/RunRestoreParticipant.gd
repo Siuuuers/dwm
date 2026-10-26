@@ -48,9 +48,9 @@ func _prepare_admitted_snapshot(snapshot: Dictionary) -> Dictionary:
 	_scene_creation_owner = null
 	return {"ok": true, "code": &"ok", "value": {"run_plan": {"snapshot": snapshot.duplicate(true)}}}
 
-func prepare_scene_new_run_snapshot_input(allocation_candidate: Dictionary, profile_material: Dictionary,
-		admission: Dictionary, bundle: Dictionary) -> Dictionary:
-	return _owner.prepare_scene_new_run_snapshot_input(allocation_candidate, profile_material, admission, bundle)
+func prepare_scene_new_run_snapshot_input(allocation_candidate: Dictionary, entry_id: String,
+		occurrence: String) -> Dictionary:
+	return _owner.prepare_scene_new_run_snapshot_input(allocation_candidate, entry_id, occurrence)
 
 func prepare_scene_new_run(snapshot: Dictionary, allocation_candidate: Dictionary, profile_material: Dictionary,
 		bundle: Dictionary, issuer: Object, creation_owner: Object) -> Dictionary:

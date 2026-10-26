@@ -6,6 +6,7 @@ const STORY_TEXT := preload("res://scripts/localization/StoryLocalization.gd")
 const CURRENT_ART := preload("res://scripts/data/ArtManifest.gd")
 const TITLE_PROOF := "user://current-title-scene-proof.json"
 const TITLE_SLOT := "user://saves/slot_1.json"
+const AUTOSAVE := "user://saves/autosave.json"
 const FIRST_LINE := "line.Day1.one"
 
 func _screenshot(label: String) -> void:
@@ -146,12 +147,18 @@ func create_current_title_scene() -> void:
 	if not _ok(profile.set_preference(&"preferences.reading.auto_enabled", false)): return
 	if not _ok(profile.set_preference(&"preferences.reading.reveal_speed", "fast")): return
 	if not _ok(get_node("/root/LocalizationManager").set_locale("en")): return
+	var initial_profile: Dictionary = profile.get_profile_snapshot().duplicate(true)
+	assert_false(FileAccess.file_exists(AUTOSAVE))
 	var menu: Node = await _title_menu()
 	if not is_instance_valid(menu): return
 	await _screenshot("current-title-menu")
 	if not await _press(menu.get_node_or_null("%NewAccButton")): return
 	if not await _wait_first_caption(): return
 	var before: Dictionary = _current_proof()
+	assert_false(FileAccess.file_exists(AUTOSAVE), "New Acc starts without writing Autosave")
+	assert_false(game.capture_run_snapshot_input().lifecycle.has("scene_assignment"))
+	assert_eq(before.profile.preferences, initial_profile.preferences, "New Acc preserves preferences")
+	assert_eq(before.profile.pair_deck_draws, initial_profile.pair_deck_draws, "New Acc makes no assignment")
 	await _screenshot("current-title-day1")
 	var host: Node = get_tree().current_scene
 	if not await _press(_controls(host, "CheckComputer")): return
@@ -176,6 +183,8 @@ func create_current_title_scene() -> void:
 	var written: Dictionary = PARSER.parse_object(FileAccess.get_file_as_string(TITLE_SLOT))
 	if not _ok(written): return
 	assert_eq(written.value.schema_version, 9)
+	assert_false(written.value.current_snapshot.snapshot.lifecycle.has("scene_assignment"))
+	assert_false(FileAccess.file_exists(AUTOSAVE), "manual slot Save does not create an Autosave")
 	assert_eq(written.value.recovery_journal, [], "the real manual Save emits no fallback snapshots")
 	await _screenshot("current-title-save")
 	if not await _press(pause.surface._sheet_back): return
@@ -187,6 +196,38 @@ func create_current_title_scene() -> void:
 	assert_eq(str(proof.slot_sha256).length(), 64)
 	if not _write_json(TITLE_PROOF, proof): return
 	_write_json("res://.godot/ci/current-title-scene-create-proof.json", proof)
+	# The existing Scene Apps Logout is intentionally an unsaved Return to Title.
+	# Exercise it before a second New Acc, keeping the real first manual save.
+	var first_inventory: Dictionary = game.inventory
+	if not host.is_computer_open():
+		if not await _press(_controls(host, "CheckComputer")): return
+	var desktop: Control = host.get_computer_mount().get_node_or_null("SceneComputerDesktop")
+	assert_not_null(desktop)
+	if desktop == null: return
+	if not await _press(desktop.launcher_buttons[&"logout"]): return
+	assert_true(pause.surface.confirmation.is_visible_in_tree())
+	if not await _press(pause.surface.return_button): return
+	for frame: int in 5: await get_tree().process_frame
+	assert_false(game.capture_live_session().value.active, "Logout retires the live run")
+	assert_false(FileAccess.file_exists(AUTOSAVE), "Logout retains its explicit no-save behavior")
+	assert_eq(FileAccess.get_sha256(TITLE_SLOT), proof.slot_sha256)
+	ready_count = 0
+	menu = get_tree().current_scene
+	if not await _press(menu.get_node_or_null("%NewAccButton")): return
+	if is_instance_valid(menu) and is_instance_valid(menu._confirmation):
+		assert_eq(menu._confirmation.request.body, "The beginning is still here. Shall we enter again?")
+		if not await _press(menu._confirmation.confirm_button): return
+	if not await _wait_first_caption(): return
+	var second: Dictionary = _current_proof()
+	assert_ne(second.source_run, proof.source_run, "each New Acc receives its own run identity")
+	assert_eq(second.gameplay, before.gameplay, "second New Acc restores the same fresh defaults")
+	assert_eq(second.profile, proof.profile, "second opening preserves preferences, unlocks and prior read marks")
+	assert_eq(second.slot_sha256, proof.slot_sha256, "New Acc preserves the previous manual save")
+	assert_false(FileAccess.file_exists(AUTOSAVE), "second New Acc remains in memory")
+	assert_false(is_same(first_inventory, game.inventory), "runs own separate mutable inventory containers")
+	first_inventory["TEST.prior_run"] = 1
+	assert_false(game.inventory.has("TEST.prior_run"), "prior run mutation cannot reach the new inventory")
+	await _screenshot("current-title-second-new-acc")
 
 func load_current_title_scene() -> void:
 	assert_ne(DisplayServer.get_name(), "headless", "current title proof requires rendering")

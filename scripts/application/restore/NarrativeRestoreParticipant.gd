@@ -135,17 +135,13 @@ func prepare(input: Dictionary) -> Dictionary:
 
 ## Creation/recovery-owned preparation has no public completed-creation query:
 ## the strict candidate is authenticated before retaining its silent plan.
-func prepare_scene_new_run(snapshot: Dictionary, allocation_candidate: Dictionary, profile_material: Dictionary,
-		bundle: Dictionary, issuer: Object, creation_owner: Object) -> Dictionary:
+func prepare_scene_new_run(snapshot: Dictionary, _allocation_candidate: Dictionary, _profile_material: Dictionary,
+		_bundle: Dictionary, _issuer: Object, creation_owner: Object) -> Dictionary:
 	_prepared_scene_checkpoint = {}
 	if not is_instance_valid(creation_owner) or creation_owner.get_script() != load("res://autoload/SaveManager.gd") \
 			or not _owner is Node or not _owner.is_inside_tree() \
 			or creation_owner != _owner.get_node_or_null("/root/SaveManager"):
 		return _fail(&"scene_creation_owner_required", "actual continuation owner required")
-	var schema: Script = load("res://scripts/domain/run/RunSnapshotSchema.gd")
-	var checked: Dictionary = schema.validate_scene_new_run_candidate(
-		snapshot, allocation_candidate, profile_material, bundle, issuer)
-	if not checked.get("ok", false): return checked
 	var checkpoint: Dictionary = snapshot.narrative_checkpoint
 	var expanded := preload("res://scripts/narrative/SoloReadingSession.gd").expand_player_checkpoint(checkpoint)
 	if not expanded.ok: return expanded

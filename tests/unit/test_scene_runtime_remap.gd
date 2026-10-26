@@ -16,10 +16,7 @@ func _source() -> Dictionary:
 	return {"schema_version": 9, "route_id": "scene", "run_id": "TEST.run",
 		"lifecycle": {"run_id": "TEST.run", "branch_id": "TEST.old.branch", "desktop_timeline_generation": 0,
 			"causal_day_instance": "TEST.old.causal", "causal_day_instance_issuer_receipt": consequence.causal_day_instance_issuer_receipt,
-			"restore_provenance": null, "state": "PLAYING",
-			"scene_assignment": {"ruleset_id": "scene.new_run.alternating.v1", "form": "sweet",
-				"selection_kind": "initial_random", "rng_nonce": 0, "predecessor_run_id": null,
-				"predecessor_assignment_sha256": null, "creation_transaction_id": "TEST.creation"}},
+			"restore_provenance": null, "state": "PLAYING"},
 		"scene": {"registration_sha256": "a".repeat(64), "active_occurrence_id": "TEST.contact.occurrence",
 			"entry_id": "TEST.contact.entry", "notification": {}, "active_challenge": {},
 			"return_to": {"parent": {"active_occurrence_id": "TEST.parent", "entry_id": "TEST.parent.entry",
@@ -50,7 +47,7 @@ func test_scene_without_live_commands_preserves_all_historical_and_logical_refer
 	for key: String in ["scene", "contacts", "narrative_checkpoint", "gameplay"]:
 		assert_eq(candidate[key], source[key], key)
 	assert_false(candidate.has("audio_context"), "remapping keeps presentation metadata out of player state")
-	assert_eq(candidate.lifecycle.scene_assignment, source.lifecycle.scene_assignment, "Load preserves assigned form and creation receipt")
+	assert_false(candidate.lifecycle.has("scene_assignment"), "current Load needs no run-level assignment")
 	assert_eq(candidate.lifecycle.branch_id, "TEST.new.branch")
 	assert_eq(candidate.lifecycle.causal_day_instance, "TEST.new.causal")
 	assert_null(candidate.lifecycle.restore_provenance, "A attaches new provenance in its lifecycle participant")

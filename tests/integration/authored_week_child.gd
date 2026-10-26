@@ -144,7 +144,7 @@ func _save_authored(slot: int, label: String) -> Dictionary:
 		"registration_sha256": AUTHORED_MANIFEST.scene_registration_fingerprint(),
 		"checkpoint": snapshot.narrative_checkpoint, "snapshot": snapshot, "saved_native": native,
 		"profile": profile.get_profile_snapshot(), "slot_sha256": FileAccess.get_sha256(path),
-		"autosave_sha256": FileAccess.get_sha256("user://saves/autosave.json"),
+		"autosave_sha256": _autosave_sha256(),
 		"profile_sha256": FileAccess.get_sha256("user://profile.json"),
 		"observed_lines": observed_lines.duplicate(), "timings": _timings.duplicate(true), "day_elapsed_ms": _day_timings(),
 		"window_size": [get_window().size.x, get_window().size.y],

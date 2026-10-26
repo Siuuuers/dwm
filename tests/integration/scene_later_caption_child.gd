@@ -76,7 +76,7 @@ func _accept(wait_for_input: bool = true) -> void:
 
 func _assert_source_files(proof: Dictionary, phase: String = "after Load") -> void:
 	assert_eq(FileAccess.get_sha256("user://saves/slot_1.json"), proof.slot_sha256, phase + ": source slot unchanged")
-	assert_eq(FileAccess.get_sha256("user://saves/autosave.json"), proof.autosave_sha256, phase + ": source autosave unchanged")
+	assert_eq(_autosave_sha256(), proof.autosave_sha256, phase + ": source autosave unchanged")
 	assert_eq(FileAccess.get_sha256("user://profile.json"), proof.profile_sha256, phase + ": global Profile unchanged")
 
 func create_later_caption() -> void:
@@ -147,7 +147,7 @@ func create_later_caption() -> void:
 	var proof := {"process_id": OS.get_process_id(), "user_dir": ProjectSettings.globalize_path("user://"),
 		"checkpoint": snapshot.narrative_checkpoint, "source_native": visible, "saved_native": saved_native,
 		"slot_sha256": FileAccess.get_sha256("user://saves/slot_1.json"),
-		"autosave_sha256": FileAccess.get_sha256("user://saves/autosave.json"),
+		"autosave_sha256": _autosave_sha256(),
 		"profile_sha256": FileAccess.get_sha256("user://profile.json"),
 		"profile": profile.get_profile_snapshot(), "gameplay": snapshot.gameplay,
 		"scene": snapshot.scene}

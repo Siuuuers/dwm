@@ -1,10 +1,9 @@
 extends "res://addons/gut/test.gd"
 ## Admission diagnostics with real journal validators and memory storage. The retained
 ## Save9 envelope deliberately lacks Run semantics: early inspection may classify it,
-## but no ordinary Load may accept it. Physical pair recovery has integration coverage.
+## but no ordinary Load may accept it. New Run pair recovery is retired.
 const JOURNAL := preload("res://scripts/infrastructure/save/DesktopContinuationOperationJournal.gd")
 const RESTORE := preload("res://tests/unit/test_scene_restore_journal.gd")
-const MATERIALS := preload("res://tests/unit/test_new_run_materials.gd")
 const WRITER := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 
 class ObservedStorage extends RESTORE.MemoryStorage:
@@ -109,44 +108,3 @@ func test_early_scope_rejects_changed_source_hash_and_request_binding() -> void:
 		assert_false(result.get("ok", false), damage)
 		assert_eq(storage.text, original)
 		assert_eq(storage.writes, 0)
-
-func test_creation_recovery_can_reconcile_and_record_ordered_pair_targets() -> void:
-	var built: Dictionary = MATERIALS.make_valid_fixture()
-	assert_true(built.get("ok", false), str(built))
-	if not built.get("ok", false): return
-	var fixture: Dictionary = built.value
-	var storage := ObservedStorage.new()
-	var loader := RESTORE.SourceLoader.new()
-	var journal := JOURNAL.new()
-	assert_true(journal.configure(storage, loader).ok)
-	var prepared: Dictionary = journal.prepare_intent(MATERIALS.make_intent_request(fixture))
-	assert_true(prepared.get("ok", false), str(prepared))
-	if not prepared.get("ok", false): return
-	assert_true(journal.commit_intent(prepared.value).ok)
-	var result: Dictionary = journal.with_creation_storage_recovery(func() -> Dictionary:
-		var recovered: Dictionary = journal.reconcile_startup(fixture.transaction_id, RESTORE.IssuerShapeOnly.new())
-		assert_true(recovered.get("ok", false), str(recovered))
-		if not recovered.get("ok", false): return recovered
-		var fetched: Dictionary = journal.get_operation(fixture.transaction_id)
-		assert_true(fetched.get("ok", false), str(fetched))
-		if not fetched.get("ok", false): return fetched
-		var request := _advance_request(fetched.value)
-		request.allocation_receipt = fixture.allocation_candidate
-		var allocated: Dictionary = journal.advance(request)
-		assert_true(allocated.get("ok", false), str(allocated))
-		if not allocated.get("ok", false): return allocated
-		for target: String in JOURNAL.NEW_RUN_TARGET_ORDER:
-			var recorded: Dictionary = journal.record_new_run_target(fixture.transaction_id, fixture.request_fingerprint,
-				StringName(target), journal._expected_new_run_target_revision(allocated.value, target))
-			assert_true(recorded.get("ok", false), str(recorded))
-			if not recorded.get("ok", false): return recorded
-		return {"ok": true})
-	assert_true(result.get("ok", false), str(result))
-	var reread: Dictionary = journal.get_operation(fixture.transaction_id)
-	assert_true(reread.get("ok", false), str(reread))
-	if not reread.get("ok", false): return
-	assert_eq(reread.value.new_run_materials, fixture.materials)
-	assert_eq(reread.value.stage, JOURNAL.STAGE_ALLOCATED, "Early scope did not publish live participant activation.")
-	assert_eq(reread.value.new_run_targets, {"identity": fixture.allocation_fingerprint,
-		"autosave": fixture.materials.autosave.outgoing_hash, "profile": fixture.materials.profile.outgoing_hash})
-	assert_eq(loader.calls, [])

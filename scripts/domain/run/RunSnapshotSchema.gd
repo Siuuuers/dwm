@@ -603,7 +603,6 @@ const SCENE_MANIFEST := preload("res://scripts/narrative/DialogicEntryManifest.g
 const SCENE_CONTACTS := preload("res://scripts/domain/contact/ContactInvitationState.gd")
 const SCENE_READING := preload("res://scripts/narrative/SoloReadingSession.gd")
 const SCENE_ATTEMPTS := preload("res://scripts/profile/DatingAttemptLedger.gd")
-const SCENE_ASSIGNMENT := preload("res://scripts/domain/relationship/PairDeckDraw.gd")
 const SCENE_CANONICAL := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 const SCENE_CAPABILITIES := preload("res://scripts/domain/minesweeper/MinesweeperCapabilityRules.gd")
 const SCENE_INPUT_KEYS := ["lifecycle", "gameplay", "contacts", "desktop", "scene",
@@ -611,7 +610,7 @@ const SCENE_INPUT_KEYS := ["lifecycle", "gameplay", "contacts", "desktop", "scen
 const SCENE_TOP_KEYS := ["checkpoint_id", "checkpoint_sequence", "contacts", "content_version",
 	"desktop", "gameplay", "lifecycle", "narrative_checkpoint", "route_id", "run_id", "scene", "schema_version"]
 const SCENE_LIFECYCLE_KEYS := ["run_id", "branch_id", "desktop_timeline_generation", "causal_day_instance",
-	"causal_day_instance_issuer_receipt", "restore_provenance", "state", "scene_assignment"]
+	"causal_day_instance_issuer_receipt", "restore_provenance", "state"]
 const SCENE_GAMEPLAY_KEYS := ["coins", "inventory",
 	"minesweeper_app_rounds_finished_today", "minesweeper_money_earned_today", "minesweeper_rng_seed",
 	"minesweeper_round_floor", "minesweeper_rounds_left", "minesweeper_selected_difficulty", "minesweeper_task_rewards_claimed",
@@ -825,7 +824,7 @@ static func validate_scene_new_run_candidate(snapshot: Dictionary, allocation_ca
 			or not _scene_int(candidate.checkpoint_sequence, 1, 1) \
 			or candidate.checkpoint_id != candidate.run_id + ":1":
 		return _fail(&"invalid_snapshot_shape", "initial Run9 requires the exact sequence-one scene shape")
-	if not _scene_keys(candidate.lifecycle, SCENE_LIFECYCLE_KEYS) \
+	if not _scene_keys(candidate.lifecycle, SCENE_LIFECYCLE_KEYS + ["scene_assignment"]) \
 			or candidate.lifecycle.state != "PLAYING" or candidate.lifecycle.restore_provenance != null:
 		return _fail(&"scene_initial_state_invalid", "initial candidate cannot contain prior state")
 	var materials := SCENE_EVENT_CONTRACT._validate_initial_materials(allocation_candidate, profile_material, issuer)
@@ -975,14 +974,14 @@ static func _validate_scene_observed_body(snapshot: Dictionary, bundle: Dictiona
 		return _fail(&"invalid_snapshot_shape", "invalid Run9 header or member set")
 	if not candidate.lifecycle is Dictionary or candidate.lifecycle.get("run_id") != candidate.run_id:
 		return _fail(&"invalid_lifecycle", "scene lifecycle must belong to its Run")
+	# Old Run9 saves keep their progress; the retired run-level form is no longer state.
+	candidate.lifecycle.erase("scene_assignment")
 	var lifecycle_keys := SCENE_LIFECYCLE_KEYS.duplicate()
 	if candidate.lifecycle.has("completed_registration_sha256"): lifecycle_keys.append("completed_registration_sha256")
 	if not _scene_keys(candidate.lifecycle, lifecycle_keys) or candidate.lifecycle.state not in ["PLAYING", "COMPLETED"]:
 		return _fail(&"invalid_lifecycle", "current Scene uses ordinary passage lifecycle")
 	var lifecycle: Dictionary = RUN_LIFECYCLE.validate_scene(candidate.lifecycle, _scene_issuer)
 	if not lifecycle.ok: return lifecycle
-	var assignment: Dictionary = SCENE_ASSIGNMENT.validate_scene(candidate.lifecycle.scene_assignment)
-	if not assignment.ok: return assignment
 	if not candidate.contacts is Dictionary:
 		return _fail(&"invalid_snapshot_shape", "Contacts must be an object")
 	var current := validate_current_scene(candidate.scene, bundle)
@@ -1009,8 +1008,8 @@ static func _validate_scene_observed_body(snapshot: Dictionary, bundle: Dictiona
 	if not audio.ok: return audio
 	var reading := _validate_scene_reading(candidate)
 	if not reading.ok: return reading
-	# The live owner checks current physical Profile references, assignment
-	# creation and the reading frame without executing prior story controls.
+	# The live owner checks current physical Profile references and the reading
+	# frame without executing prior story controls.
 	# It must not call Run.validate again. A Boolean supplied by saved data is
 	# never substituted for this privately installed owner.
 	phase_tick = SCENE_VALIDATION_TIMING.snapshot_phase(observation, "pre_semantic_us", phase_tick)

@@ -13,6 +13,9 @@ var game: Node
 var profile: Node
 var ready_count := 0
 
+func _autosave_sha256() -> String:
+	return FileAccess.get_sha256("user://saves/autosave.json") if FileAccess.file_exists("user://saves/autosave.json") else ""
+
 func _ok(result: Dictionary) -> bool:
 	assert_true(result.get("ok", false), str(result))
 	return result.get("ok", false)
@@ -84,7 +87,7 @@ func create_saved_text() -> void:
 	var proof := {"phase": "create", "process_id": OS.get_process_id(),
 		"user_dir": ProjectSettings.globalize_path("user://"),
 		"slot_sha256": FileAccess.get_sha256("user://saves/slot_1.json"),
-		"autosave_sha256": FileAccess.get_sha256("user://saves/autosave.json"),
+		"autosave_sha256": _autosave_sha256(),
 		"profile_sha256": FileAccess.get_sha256("user://profile.json"),
 		"profile": profile.get_profile_snapshot(),
 		"reading_session": snapshot.narrative_checkpoint.reading_session,
@@ -149,5 +152,5 @@ func load_saved_text() -> void:
 
 func _assert_physical_bytes(witness: Dictionary) -> void:
 	assert_eq(FileAccess.get_sha256("user://saves/slot_1.json"), witness.slot_sha256)
-	assert_eq(FileAccess.get_sha256("user://saves/autosave.json"), witness.autosave_sha256)
+	assert_eq(_autosave_sha256(), witness.autosave_sha256)
 	assert_eq(FileAccess.get_sha256("user://profile.json"), witness.profile_sha256)

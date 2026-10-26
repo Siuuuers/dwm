@@ -107,14 +107,14 @@ func load_and_finish_passage_scene() -> void:
 	var profile_fault := ProfileWriteRefusal.new()
 	var profile_before: Dictionary = profile.get_profile_snapshot().duplicate(true)
 	var profile_bytes := FileAccess.get_sha256("user://profile.json")
-	var run_bytes := FileAccess.get_sha256("user://saves/autosave.json")
+	var run_bytes := _autosave_sha256()
 	profile._storage._file_ops = profile_fault
 	await _click(_caption().transport_rail._next_button)
 	profile._storage._file_ops = profile_files
 	assert_eq(profile_fault.refused, 1)
 	assert_eq(profile.get_profile_snapshot(), profile_before)
 	assert_eq(FileAccess.get_sha256("user://profile.json"), profile_bytes)
-	assert_eq(FileAccess.get_sha256("user://saves/autosave.json"), run_bytes)
+	assert_eq(_autosave_sha256(), run_bytes)
 	assert_eq(game.capture_run_snapshot_input().lifecycle.state, "PLAYING")
 	assert_eq(get_tree().current_scene.scene_file_path, HOST)
 	assert_false(PASSAGE_ID in profile.get_profile_snapshot().gallery_unlocks)
@@ -124,11 +124,11 @@ func load_and_finish_passage_scene() -> void:
 	var fault := CONTENT.WriteRefusal.new()
 	fault.refuse_on = 1
 	saves._storage._file_ops = fault
-	var before := FileAccess.get_sha256("user://saves/autosave.json")
+	var before := _autosave_sha256()
 	await _click(_caption().recovery_overlay.retry_button)
 	saves._storage._file_ops = files
 	assert_eq(fault.refused, 1)
-	assert_eq(FileAccess.get_sha256("user://saves/autosave.json"), before)
+	assert_eq(_autosave_sha256(), before)
 	assert_true(PASSAGE_ID in profile.get_profile_snapshot().gallery_unlocks, "global finish discovery survives failed Run write")
 	assert_eq(game.capture_run_snapshot_input().lifecycle.state, "PLAYING")
 	assert_eq(get_tree().current_scene.scene_file_path, HOST, "write refusal cannot retire the caption")
@@ -156,7 +156,7 @@ func load_and_finish_passage_scene() -> void:
 	assert_eq(FileAccess.get_sha256("user://saves/slot_1.json"), proof.slot_1_sha256)
 	assert_eq(FileAccess.get_sha256("user://saves/slot_2.json"), proof.slot_2_sha256)
 	proof["finisher_process_id"] = OS.get_process_id()
-	proof["completed_sha256"] = FileAccess.get_sha256("user://saves/autosave.json")
+	proof["completed_sha256"] = _autosave_sha256()
 	if not _write_json("user://passage-proof.json", proof): return
 	await _screenshot("passage-title-after-finish")
 	_write_json("res://.godot/ci/passage-connected-load-proof.json", proof)
@@ -167,7 +167,7 @@ func replay_completed_passage_scene() -> void:
 	var proof: Dictionary = parsed.value
 	assert_ne(OS.get_process_id(), proof.process_id)
 	assert_ne(OS.get_process_id(), proof.finisher_process_id)
-	assert_eq(FileAccess.get_sha256("user://saves/autosave.json"), proof.completed_sha256)
+	assert_eq(_autosave_sha256(), proof.completed_sha256)
 	if not _start_services(): return
 	var loaded := _load_passage("autosave")
 	assert_true(loaded.get("ok", false) or loaded.get("code") == &"scene_activation_pending", str(loaded))
@@ -191,7 +191,7 @@ func replay_completed_passage_scene() -> void:
 	await _screenshot("passage-gallery-record")
 	var owner: RefCounted = gallery._replay_owner
 	var run_before: Dictionary = game.capture_run_snapshot_input().duplicate(true)
-	var autosave_before := FileAccess.get_sha256("user://saves/autosave.json")
+	var autosave_before := _autosave_sha256()
 	if not _ok(profile.reset_visited_history()): return
 	var profile_before: Dictionary = profile.get_profile_snapshot().duplicate(true)
 	if not _ok(owner.get_variants(PASSAGE_ID)): return
@@ -210,7 +210,7 @@ func replay_completed_passage_scene() -> void:
 	assert_true(profile.is_caption_variant_witnessed(first_beat), "cancel preserves the displayed read mark")
 	assert_false(profile.is_caption_variant_witnessed(last_beat))
 	assert_eq(game.capture_run_snapshot_input(), run_before)
-	assert_eq(FileAccess.get_sha256("user://saves/autosave.json"), autosave_before)
+	assert_eq(_autosave_sha256(), autosave_before)
 	var localization: Node = get_node("/root/LocalizationManager")
 	if not _ok(localization.set_locale("ja")): return
 	assert_eq(localization.get_locale(), "ja")
@@ -262,7 +262,7 @@ func replay_completed_passage_scene() -> void:
 		after.erase(key)
 		profile_before.erase(key)
 	assert_eq(after, profile_before, "read marks are Replay's only Profile changes")
-	assert_eq(FileAccess.get_sha256("user://saves/autosave.json"), autosave_before)
+	assert_eq(_autosave_sha256(), autosave_before)
 	_write_json("res://.godot/ci/passage-connected-replay-proof.json", {"process_id": OS.get_process_id(),
 		"completed_creator": proof.finisher_process_id, "replayed_line_ids": ["line.scene.test.a.two", "line.scene.test.a.three"],
 		"only_displayed_read_marks_changed": true, "run_unchanged": true, "finish_count": finishes.size()})

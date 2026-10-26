@@ -34,5 +34,51 @@
   "standalone_historical": [{"current_commit":"46bc029f5219fdc39d5d6859765c0fd412f91252","historical_commit":"e5db010715c187cc775341d204391f527dc334ea","path":"tests/integration/verify_new_acc_latency.gd","source_sha256":"7f5529564e54f974df431ab408c2f3c0bb39bf7940c05862f3ed61e7eb5f7738","historical_command":"./tools/testing/Invoke-CloudTests.ps1 -Suite new_account","current_counterpart_suite":"current_title","scope_note":"Current authored startup correctness; no claim of equivalent legacy latency measurements."}],
   "retained_first_reveal_selection": {"source_commit":"e5cf80a5417c05bd0bb7fa2f60f59e8905e839a6","path":"tests/integration/test_minesweeper_first_reveal_transaction.gd","source_sha256":"6d7b2a4ab9a4e61226137f177588d4471630075062f9ee6d893e11107d3f003a","reason":"Three durable cases assert retired motivation charges; the original seven-case source remains unchanged.","retained_current_cases":"tests/integration/test_desktop_first_reveal_adapter.gd","current_counterpart_suite":"scene_desktop_first_reveal","scope_note":"Current real-filesystem refusal/retry, complete Run9 persistence, and fresh selected Load without another charge. Does not reproduce the historical post-checkpoint/pre-live-adoption crash injection matrix."},
   "retained_terminal_input": {"source_commit":"a1858992e4fc0e520f467b22c87f9e8391915c9e","suite":"terminal_admission","archive":"evidence/phase_2r/current_ci_20261023/final_retention/run39988834004/original-12517208437.zip","current_counterpart_suite":"current_terminal_fixture","scope_note":"Archived saves have the prior Scene9 relationship fields. The current short rendered fixture generates compatible saves and checks terminal restoration and completion; it does not reproduce the full authored-week traversal or establish a latency comparison."},
-  "current_isolated_suites": {"scene_desktop_first_reveal":"tests/integration/test_scene_desktop_first_reveal_create.gd","scene_round_checkpoint":"tests/integration/test_scene_round_checkpoint_transaction.gd","scene_shop_checkpoint":"tests/integration/test_scene_shop_checkpoint_transaction.gd","scene_story_localization":"tests/integration/test_story_localization.gd","scene_controls_localization":"tests/integration/test_scene_controls_localization.gd","scene_apps":"tests/integration/test_scene_apps_connected_create.gd","current_title":"tests/integration/test_current_title_scene_create.gd"}
+  "current_isolated_suites": {"scene_desktop_first_reveal":"tests/integration/test_scene_desktop_first_reveal_create.gd","scene_round_checkpoint":"tests/integration/test_scene_round_checkpoint_transaction.gd","scene_shop_checkpoint":"tests/integration/test_scene_shop_checkpoint_transaction.gd","scene_story_localization":"tests/integration/test_story_localization.gd","scene_controls_localization":"tests/integration/test_scene_controls_localization.gd","scene_apps":"tests/integration/test_scene_apps_connected_create.gd","current_title":"tests/integration/test_current_title_scene_create.gd"},
+  "in_memory_new_run_retirement": {
+    "source_commit": "ff5b327a5433867f33c85644e3173d15cdef01d0",
+    "decision": "handoff/ae-in-memory-new-run-20261026.md at d16847ddca93cfa90a854e535f85e3e0a2b4915c",
+    "reason": "Owner retired initial Autosave, run-level Sweet/Dark assignment and interrupted New Run recovery. Old source remains available at the exact revision; these promises no longer gate current runtime.",
+    "sources": [
+      {
+        "path": "tests/integration/test_scene_joint_new_run.gd",
+        "source_sha256": "5ae2dc61c5c5026d6c4e33bc9da3d56777a015e55d1df022306dba4207bb282d",
+        "retired_methods": [
+          "test_joint_creation_persists_exact_material_before_activation_and_alternates_after_ack",
+          "test_rebuilt_other_initial_target_is_valid_preparation_but_not_committed_authority",
+          "test_committed_receipt_survives_evolved_checkpoint_and_unrelated_profile_write",
+          "test_initial_receipt_rechecks_registration_and_physical_profile_after_success",
+          "test_schema_without_creation_owner_cannot_borrow_semantic_creation_authority"
+        ]
+      },
+      {
+        "path": "tests/integration/test_scene_initial_candidate.gd",
+        "source_sha256": "e2398542979b259a13a166a05424240b0b36d19c5cf2cd027291577d8d11ed6e",
+        "retired_methods": [
+          "test_complete_initial_candidate_is_read_only_and_not_committed_authority",
+          "test_initial_candidate_ignores_retired_reason_but_preserves_exact_write_material",
+          "test_initial_scene_time_is_optional_without_rewriting_retained_write_bytes",
+          "test_initial_candidate_refuses_prior_state_and_forged_first_reading",
+          "test_raw_initial_identity_and_save_header_float_types_are_refused_before_normalization",
+          "test_candidate_requires_installed_registration_and_complete_profile_material",
+          "test_initial_validation_preserves_canonical_input_and_prepared_position",
+          "test_restorable_foreign_first_publication_is_not_used_as_initial_expected_ledger",
+          "test_foreign_current_frame_is_refused_before_initial_admission"
+        ]
+      },
+      {
+        "path": "tests/unit/test_scene_creation_storage_recovery.gd",
+        "source_sha256": "5fe309dc34139d9a950aeb598211f7f9a3aee35673bcc6f05c51541239c6a6e2",
+        "retired_methods": [
+          "test_creation_recovery_can_reconcile_and_record_ordered_pair_targets"
+        ]
+      }
+    ],
+    "current_counterpart_suites": [
+      "scene_current_creation",
+      "scene_save_metadata",
+      "current_title"
+    ],
+    "retained_scope": "Ordinary Load recovery tests in test_scene_creation_storage_recovery.gd remain selected. Initial reading configuration isolation, runtime content reuse with build-time physical validation, audio silence and current frame consistency remain covered. Rendered current_title and matched Windows comparison own connected player-journey evidence."
+  }
 }

@@ -529,7 +529,9 @@ static func _scene_runtime_boundary(snapshot: Dictionary) -> Dictionary:
 		if snapshot.has(retired): return _fail(&"remap_scene_family_invalid", "retired scene member: " + retired, {})
 	var lifecycle: Variant = snapshot.get("lifecycle")
 	var lifecycle_keys := ["run_id", "branch_id", "desktop_timeline_generation", "causal_day_instance",
-		"causal_day_instance_issuer_receipt", "restore_provenance", "state", "scene_assignment"]
+		"causal_day_instance_issuer_receipt", "restore_provenance", "state"]
+	if lifecycle is Dictionary and lifecycle.has("scene_assignment"):
+		lifecycle_keys.append("scene_assignment")
 	if lifecycle is Dictionary and lifecycle.has("completed_registration_sha256"):
 		if lifecycle.get("state") != "COMPLETED" or not event._hash(lifecycle.completed_registration_sha256):
 			return _fail(&"remap_scene_lifecycle_invalid", "completion registration requires completed passage", {})
@@ -537,9 +539,6 @@ static func _scene_runtime_boundary(snapshot: Dictionary) -> Dictionary:
 	if not event._keys(lifecycle, lifecycle_keys) or not event._json_data(lifecycle) \
 			or lifecycle.state not in ["PLAYING", "COMPLETED"]:
 		return _fail(&"remap_scene_lifecycle_invalid", "exact scene lifecycle required", {})
-	var assignment := preload("res://scripts/domain/relationship/PairDeckDraw.gd").validate_scene(lifecycle.scene_assignment)
-	if not assignment.get("ok", false):
-		return _fail(&"remap_scene_lifecycle_invalid", "scene assignment receipt is invalid", {})
 	for key: String in ["run_id", "branch_id", "causal_day_instance"]:
 		if not event._id(lifecycle[key]): return _fail(&"remap_scene_lifecycle_invalid", key, {})
 	if typeof(lifecycle.desktop_timeline_generation) != TYPE_INT or lifecycle.desktop_timeline_generation < 0 \

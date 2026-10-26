@@ -43,7 +43,7 @@ func _line_ready() -> bool:
 
 func _file_hashes() -> Dictionary:
 	return {"slot_sha256": FileAccess.get_sha256("user://saves/slot_1.json"),
-		"autosave_sha256": FileAccess.get_sha256("user://saves/autosave.json"),
+		"autosave_sha256": _autosave_sha256(),
 		"profile_sha256": FileAccess.get_sha256("user://profile.json")}
 
 func _same_files(hashes: Dictionary) -> void:
@@ -213,7 +213,7 @@ func create_scene_desktop_first_reveal() -> void:
 	assert_eq(after.command_receipts, before.command_receipts, "ordinary scene frontier has no extra story consequences")
 	assert_eq(profile.get_profile_snapshot(), history)
 	assert_eq(FileAccess.get_sha256("user://saves/slot_1.json"), hashes.slot_sha256)
-	assert_ne(FileAccess.get_sha256("user://saves/autosave.json"), hashes.autosave_sha256)
+	assert_ne(_autosave_sha256(), hashes.autosave_sha256)
 	var committed: Dictionary = saves.get_latest_stable_checkpoint()
 	if not _ok(committed): return
 	var snapshot: Dictionary = committed.value.bundle.snapshot
