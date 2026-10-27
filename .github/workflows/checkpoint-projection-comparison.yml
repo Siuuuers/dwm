@@ -14,7 +14,7 @@ concurrency:
 
 jobs:
   measure:
-    if: github.event_name == 'workflow_dispatch' || github.head_ref == 'codex/checkpoint-projection-20261027'
+    if: github.event_name == 'workflow_dispatch' || github.head_ref == 'codex/compact-checkpoint-20261027'
     runs-on: windows-2022
     timeout-minutes: 70
     defaults:
@@ -22,7 +22,7 @@ jobs:
         shell: pwsh
     env:
       PYTHONUTF8: "1"
-      STARTUP_BASE_SHA: c9aeee8fe12b5f0dd88bfca5d2bf3cf778150efd
+      STARTUP_BASE_SHA: f3231bc90c645288d4106e11693a4a805a4a23da
       CANDIDATE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
       DIAGNOSTIC_SHA: d72b67506e05c03f161201df7b9fc5430e2b136e
     steps:
