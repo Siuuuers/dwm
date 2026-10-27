@@ -356,10 +356,10 @@ func _click_logout_control(button: Button) -> void:
 
 func _logout_journey(game: Node) -> void:
 	var storage: RefCounted = root.get_node("SaveManager").get("_storage")
-	var autosave_before: Dictionary = storage.read_text("autosave.json")
-	if not _check(autosave_before.get("ok", false), "Logout fixture has an earlier Autosave"): return
-	var saved_document: Dictionary = JSON.parse_string(str(autosave_before.value))
-	var saved_gameplay: Dictionary = saved_document.current_snapshot.snapshot.gameplay
+	var autosave_before: Dictionary = storage.inspect_revision("autosave.json")
+	if not _check(autosave_before.get("ok", false) and autosave_before.value.exists, "Logout fixture has an earlier Autosave"): return
+	var saved_snapshot: Dictionary = JSON.parse_string(str(autosave_before.value.text)).current_snapshot.snapshot
+	var saved_gameplay: Dictionary = saved_snapshot.gameplay
 	# A live-only change must be discarded by Logout, never written into the earlier save.
 	game.money += 37
 	var desktop: Node = current_scene.find_child("ComputerDesktop", true, false)
@@ -384,7 +384,7 @@ func _logout_journey(game: Node) -> void:
 	await _frames()
 	if not _check(current_scene.has_node("%LogInButton"), "Logout returns to title"): return
 	if not _check(not game.capture_live_session().value.active, "Logout retires live session"): return
-	if not _check(storage.read_text("autosave.json") == autosave_before, "Logout leaves earlier Autosave bytes unchanged"): return
+	if not _check(storage.inspect_revision("autosave.json") == autosave_before, "Logout leaves earlier Autosave bytes unchanged"): return
 	var login: Button = current_scene.get_node("%LogInButton")
 	if not _check(not login.disabled, "saved Login is enabled"): return
 	login.pressed.emit()
@@ -402,8 +402,8 @@ func _logout_journey(game: Node) -> void:
 	var resumed: Dictionary = game.capture_live_session().value
 	if not _check(resumed.active and resumed != session, "Login activates a fresh session handle"): return
 	var restored_desktop: Node = current_scene.find_child("ComputerDesktop", true, false)
-	if not _check(restored_desktop.icon_grid.visible and restored_desktop.get("_active_id") == &"", "Earlier Autosave restores launcher, never consent"): return
-	if not _check(restored_desktop.get("_host_state").capture_persistent_state().active_app_id == null, "restored canonical workspace remains launcher"): return
+	if not _check(restored_desktop.icon_grid.visible == (saved_snapshot.active_app_id == null), "Earlier Autosave restores its recorded workspace"): return
+	if not _check(restored_desktop.get("_host_state").capture_persistent_state().active_app_id == saved_snapshot.active_app_id, "restored canonical app matches the earlier save"): return
 	if not _check(game.money == saved_gameplay.money, "Login restores saved money and discards unsaved progress"): return
 	print("PLAYABLE_LOGOUT_PASS: actual no-save Logout -> unchanged earlier Autosave -> Login -> restored saved desktop")
 	quit(0)
