@@ -11,15 +11,13 @@ func _clock(clock: Label) -> void:
 func _reading_layout() -> void:
 	var layer: Node = _caption()
 	var rail: Control = layer.transport_rail
-	_clock(rail.clock_label)
-	assert_eq(rail.position + rail.clock_label.position, Vector2(1128, 656))
-	assert_eq(rail.clock_label.size, Vector2(152, 64))
-	assert_eq(layer.scroll.get_rect().end.y, 592.0, "caption window ends before upper transport")
+	assert_false(rail.has_node("AudienceClock"), "Scene rail no longer carries a clock")
+	assert_eq(layer.scroll.get_rect().end.y, 592.0, "caption window retains its established height")
 	assert_eq(layer.scroll.size.y, 208.0, "100% caption window keeps its reading height")
 	for name: String in ["Skip", "Auto", "Next"]:
 		var button: Control = rail.get_node(name)
 		assert_true(button.is_visible_in_tree())
-		assert_eq(rail.position.y + button.position.y, 592.0)
+		assert_eq(rail.position.y + button.position.y, 656.0)
 		assert_gte(button.position.x, 640.0)
 		assert_false(layer.scroll.get_global_rect().intersects(button.get_global_rect()))
 	assert_eq(rail.get_node("Next").get_rect().end.x, 1280.0)
@@ -27,9 +25,8 @@ func _reading_layout() -> void:
 		var button: Control = rail.get_node(name)
 		assert_true(button.is_visible_in_tree())
 		assert_eq(rail.position.y + button.position.y, 656.0)
-		assert_false(button.get_rect().intersects(rail.clock_label.get_rect()))
 
-func test_clock_and_upper_transport_on_title_ordinary_and_ending() -> void:
+func test_title_clock_and_flat_scene_transport() -> void:
 	if not _start_services(): return
 	assert_eq(DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path("res://.godot/ci")), OK)
 	if not _ok(profile.set_preference(&"preferences.reading.auto_enabled", false)): return
@@ -60,7 +57,7 @@ func test_clock_and_upper_transport_on_title_ordinary_and_ending() -> void:
 	assert_true(get_tree().current_scene is EndingScene)
 	var rail: Control = _caption().transport_rail
 	assert_true(rail.ending_layout)
-	assert_false(rail.clock_label.is_visible_in_tree())
+	assert_false(rail.has_node("AudienceClock"))
 	assert_eq(rail.position, Vector2(0, 656))
 	assert_eq(rail.size, Vector2(1280, 64))
 	var previous_right := 0.0

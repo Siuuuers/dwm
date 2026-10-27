@@ -1206,7 +1206,11 @@ func capture_current_speech_presentation() -> Dictionary:
 			or int(identity.get("publication_generation", -1)) != _speech_publication_generation \
 			or str(_speech_publication.get("content_locale", "")) != str(owner.get("content_locale", "")):
 		return _command_failure(&"speech_presentation_changed")
-	return {"ok": true, "code": &"ok", "value": _speech_publication.duplicate(true), "receipt": {}}
+	var publication := _speech_publication.duplicate(true)
+	var thoughts := capture_self_talk_presentation()
+	if thoughts.ok and not str(thoughts.value.current_thought).is_empty():
+		publication.primary_text += "\n" + str(thoughts.value.current_thought)
+	return {"ok": true, "code": &"ok", "value": publication, "receipt": {}}
 
 
 func _on_playback_start_failed(failure: Dictionary, halt_runtime: bool = false) -> void:
@@ -1875,9 +1879,12 @@ func _scene_passage_replay_card() -> Dictionary:
 	var line: Dictionary = _reached_replay.passage.captions[_reached_replay.passage_index]
 	var locale := _current_locale()
 	var titles := {"en": "Ending", "zh-CN": "结局", "zh-HK": "結局", "ja": "エンディング", "ko": "엔딩"}
+	var body: String = _STORY_LOCALE.text(locale, line.line_id, line.text)
+	if line.has("self_talk"):
+		body += "\n\n" + _STORY_LOCALE.text(locale, line.self_talk.line_id, line.self_talk.text)
 	return {"receipt": {"entry_id": _reached_replay.passage.entry_id,
 		"view_token": str(_reached_replay.token) + ":" + str(_reached_replay.passage_index), "line_id": line.line_id},
-		"title": titles.get(locale, "Ending"), "body": _STORY_LOCALE.text(locale, line.line_id, line.text)}
+		"title": titles.get(locale, "Ending"), "body": body}
 
 func _on_scene_passage_advance_requested(receipt: Dictionary) -> void:
 	if _reached_replay.is_empty() or not _reached_replay.has("passage") or receipt != _reached_replay.card.receipt: return
@@ -2404,9 +2411,14 @@ func acknowledge_current_line_presentation(expected_frontier: Dictionary) -> Dic
 	if _line_presentation.get("restored", false): _line_presentation.acknowledged = true
 	if not _line_presentation.acknowledged:
 		_line_ack_in_progress = true
-		var marked: Dictionary = _skip_profile.mark_caption_variant_witnessed(
-			identity.caption_variant, _reading_session.registry) if identity.has("caption_variant") \
-			else _skip_profile.mark_line_visited(str(identity.line_id))
+		var marked: Dictionary
+		if identity.has("caption_variant") and _reading_session.family == "scene":
+			var beats: Array[Dictionary] = _reading_session.scene_pair_beats(identity.line_id)
+			marked = _skip_profile.merge_caption_history(beats, _reading_session.registry) if beats.size() > 1 \
+				else _skip_profile.mark_caption_variant_witnessed(identity.caption_variant, _reading_session.registry)
+		else:
+			marked = _skip_profile.mark_caption_variant_witnessed(identity.caption_variant, _reading_session.registry) \
+				if identity.has("caption_variant") else _skip_profile.mark_line_visited(str(identity.line_id))
 		_line_ack_in_progress = false
 		if (marked.get("fatal", false) or marked.get("code") == &"indeterminate_commit") \
 				and is_instance_valid(_skip_profile) and _skip_profile.get_instance_id() == identity.profile_id:
@@ -2445,6 +2457,10 @@ func _line_witness_stage_allowed() -> bool:
 
 
 func _is_presentation_witnessed(identity: Dictionary) -> bool:
+	if identity.has("caption_variant") and has_reading_session() and _reading_session.family == "scene":
+		for beat: Dictionary in _reading_session.scene_pair_beats(identity.line_id):
+			if not _skip_profile.is_caption_variant_witnessed(beat): return false
+		return true
 	return _skip_profile.is_caption_variant_witnessed(identity.caption_variant) \
 		if identity.has("caption_variant") else _skip_profile.is_line_visited(str(identity.line_id))
 
@@ -3013,8 +3029,34 @@ func get_scene_caption_memory(expected_presentation: Dictionary) -> Dictionary:
 	if not current.ok: return current
 	var projected: Dictionary = _scene_day_history(current.value.caption_publication)
 	if not projected.ok: return projected
+	projected.value.captions = projected.value.captions.filter(func(row: Dictionary) -> bool: return not row.get("self_talk", false))
 	projected.value["presentation"] = current.duplicate(true)
 	return _STORY_LOCALE.project(projected, _current_locale())
+
+
+var _self_talk_cache_key: Array = []
+var _self_talk_cache: Dictionary = {}
+
+## Presentation cache is rebuilt at a new primary publication or locale change.
+## The session's encountered IDs remain the sole History authority.
+func capture_self_talk_presentation() -> Dictionary:
+	if not has_reading_session() or _reading_session.family != "scene":
+		_self_talk_cache_key.clear()
+		_self_talk_cache.clear()
+		return {"ok": true, "value": {"rows": [], "live_start": 0, "current_thought": "", "current_thought_id": ""}}
+	var captured: Dictionary = _runtime_adapter.capture_reading_frontier()
+	if not captured.ok: return captured
+	var key: Array = [_reading_session.get_instance_id(), captured.value, _current_locale()]
+	if key == _self_talk_cache_key: return _self_talk_cache
+	var projected: Dictionary = _reading_session.project_self_talk(captured.value)
+	if not projected.ok: return projected
+	for row: Dictionary in projected.value.rows:
+		row.text = _STORY_LOCALE.text(_current_locale(), row.id, row.text)
+	projected.value.current_thought = _STORY_LOCALE.text(_current_locale(),
+		projected.value.current_thought_id, projected.value.current_thought)
+	_self_talk_cache_key = key
+	_self_talk_cache = projected
+	return projected
 
 
 func get_reading_history() -> Dictionary:
@@ -3028,6 +3070,8 @@ func get_reading_history() -> Dictionary:
 		if not captured.ok: return captured
 		frontier = captured.value
 	var history: Dictionary = _scene_day_history(frontier) if _reading_session.family == "scene" else _reading_session.project(frontier)
+	if history.ok and _reading_session.family == "scene":
+		history.value.captions = history.value.captions.filter(func(row: Dictionary) -> bool: return not row.get("self_talk", false))
 	return _STORY_LOCALE.project(history, _current_locale())
 
 

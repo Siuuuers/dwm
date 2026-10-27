@@ -607,6 +607,9 @@ static func _compile_scene_programme_timeline(timeline: DialogicTimeline, text: 
 	var label_nodes := {}
 	var marker_labels := {}
 	var seen_lines := {}
+	var thought_pending := false
+	var pair_caption_index := -1
+	var clear_pending := false
 	for marker: Variant in markers:
 		if not marker is Dictionary or not marker.get("label") is String or marker_labels.has(marker.label):
 			return {"ok": false, "code": &"scene_marker_invalid"}
@@ -614,6 +617,8 @@ static func _compile_scene_programme_timeline(timeline: DialogicTimeline, text: 
 	for index: int in timeline.events.size():
 		var event: DialogicEvent = timeline.events[index]
 		if event is DialogicLabelEvent:
+			pair_caption_index = -1
+			if thought_pending or clear_pending: return {"ok": false, "code": &"scene_self_talk_without_text"}
 			if event.name == entry_label:
 				found += 1
 				selected = true
@@ -628,7 +633,17 @@ static func _compile_scene_programme_timeline(timeline: DialogicTimeline, text: 
 				nodes.append({"kind": "control", "marker_id": marker_labels[event.name].marker_id})
 				native_indices.append(index)
 			continue
-		if not selected or event is DialogicCommentEvent: continue
+		if not selected: continue
+		if event is DialogicCommentEvent:
+			if event.text.strip_edges() == "self-talk":
+				thought_pending = true
+				events.append({"kind": "self_talk"})
+			elif event.text.strip_edges() == "self-talk-clear":
+				clear_pending = true
+				events.append({"kind": "self_talk_clear"})
+			continue
+		if thought_pending and not event is DialogicTextEvent:
+			return {"ok": false, "code": &"scene_self_talk_without_text"}
 		if event is DialogicTextEvent:
 			var parts := event.get_property_translation_key("text").split("/")
 			var line_id: String = parts[1] if parts.size() == 3 and parts[0] == "Text" and parts[2] == "text" else ""
@@ -638,7 +653,18 @@ static func _compile_scene_programme_timeline(timeline: DialogicTimeline, text: 
 				return {"ok": false, "code": &"scene_text_invalid"}
 			seen_lines[line_id] = true
 			events.append({"kind": "text", "line_id": line_id, "text": prose})
+			if thought_pending:
+				if pair_caption_index < 0 or pair_caption_index != nodes.size() - 1 or nodes.back().kind != "caption" or nodes.back().has("self_talk") or clear_pending:
+					return {"ok": false, "code": &"scene_self_talk_without_caption"}
+				nodes.back()["self_talk"] = {"line_id": line_id, "text": prose, "native_index": index}
+				thought_pending = false
+				pair_caption_index = -1
+				continue
+			pair_caption_index = nodes.size()
 			nodes.append({"kind": "caption", "line_id": line_id, "next": nodes.size() + 1})
+			if clear_pending:
+				nodes.back()["self_talk_clear"] = true
+				clear_pending = false
 		elif event is DialogicJumpEvent:
 			if event.timeline != null or not event.timeline_identifier.is_empty() or event.label_name.is_empty():
 				return {"ok": false, "code": &"scene_jump_invalid"}
@@ -660,6 +686,7 @@ static func _compile_scene_programme_timeline(timeline: DialogicTimeline, text: 
 		else:
 			return {"ok": false, "code": &"scene_executable_event_refused"}
 		native_indices.append(index)
+	if thought_pending or clear_pending: return {"ok": false, "code": &"scene_self_talk_without_text"}
 	if found != 1 or nodes.is_empty(): return {"ok": false, "code": &"scene_entry_invalid"}
 	for label: String in label_nodes:
 		if int(label_nodes[label]) >= nodes.size():
@@ -718,6 +745,8 @@ var _caption_generation := 0
 var _caption_publication := ""
 var _caption_event: DialogicTextEvent
 var _caption_line := ""
+var _paired_next_index := -1
+var _scene_native_next: Dictionary = {}
 var _caption_restore_frontier: Dictionary = {}
 var _caption_restore_queued := false
 var _prepared_reading_seek: Dictionary = {}
@@ -760,6 +789,8 @@ func bind_runtime(dialogic: Node) -> Dictionary:
 	_dialogic = dialogic
 	if _qualified_runtime and dialogic.has_method("set_caption_handoff_guard"):
 		dialogic.set_caption_handoff_guard(_begin_caption_handoff)
+	if _qualified_runtime and dialogic.has_method("set_reading_next_index"):
+		dialogic.set_reading_next_index(_reading_next_native_index)
 	_activity_phase = "live" if _dialogic.get("current_timeline") != null else ""
 	if _qualified_runtime:
 		_runtime_generation = int(dialogic.get_timeline_generation())
@@ -814,6 +845,20 @@ func _on_caption_about_to_show(_info: Dictionary) -> void:
 	if not _caption_source_is_current(): return
 	_caption_event = _current_skip_text(true)
 	_caption_line = _authored_line_id(_caption_event)
+	_paired_next_index = -1
+	if not _scene_caption_occurrence.is_empty() and _scene_native_next.is_empty():
+		var registered := preload("res://scripts/narrative/DialogicEntryManifest.gd").scene_contract_tables()
+		if registered.ok:
+			var labels: Array = []
+			for entry: Dictionary in registered.bundle.entry_manifest.entries: labels.append(entry.entry_id)
+			for programme: Dictionary in registered.bundle.scene_programme.entries:
+				if programme.entry_id != _caption_entry: continue
+				var compiled := compile_runtime_scene_programme(_requested_path, _caption_entry, labels, programme.markers)
+				if not compiled.ok: continue
+				for index: int in compiled.value.nodes.size():
+					if compiled.value.nodes[index].kind == "caption":
+						_scene_native_next[int(compiled.value.native_indices[index])] = int(compiled.value.native_indices[compiled.value.nodes[index].next])
+	_paired_next_index = int(_scene_native_next.get(int(_dialogic.current_event_idx), -1))
 	var same_scene_activation := false
 	if not _scene_caption_occurrence.is_empty():
 		if _caption_event == null: return
@@ -931,6 +976,8 @@ func _retire_caption_binding() -> void:
 	_scene_activation_generation = -1
 	_scene_caption_occurrence = ""
 	_caption_line = ""
+	_paired_next_index = -1
+	_scene_native_next.clear()
 	_caption_restore_frontier = {}
 	_caption_restore_queued = false
 	_prepared_reading_seek = {}
@@ -1697,10 +1744,17 @@ func _is_single_skip_line(event: DialogicTextEvent) -> bool:
 			and ProjectSettings.get_setting("dialogic/text/split_at_new_lines", false))
 
 
+func _reading_next_native_index(fallback: int) -> int:
+	if _paired_next_index >= 0 and _caption_source_is_current() and _caption_event != null \
+			and int(_dialogic.current_event_idx) + 1 == fallback \
+			and _dialogic.current_timeline_events[_dialogic.current_event_idx] == _caption_event:
+		return _paired_next_index
+	return fallback
+
 func classify_next_event() -> StringName:
 	if _current_skip_text() == null:
 		return &"validation_error"
-	var index := int(_dialogic.current_event_idx) + 1
+	var index := _reading_next_native_index(int(_dialogic.current_event_idx) + 1)
 	if index >= _dialogic.current_timeline_events.size():
 		return &"scene_transition"
 	# Decode a detached copy: peeking never changes or executes the standing event.

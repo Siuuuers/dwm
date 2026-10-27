@@ -48,7 +48,7 @@ func _run() -> void:
 	host._localization = locale
 	host._profile = profile
 	var actions := {}
-	for action: String in ["computer_open", "computer_close", "settings", "backup", "save", "load"]:
+	for action: String in ["computer_open", "computer_close", "apps", "contacts"]:
 		actions[action] = _dispatch
 	host.configure_scene_controls(actions)
 	viewport.add_child(host)
@@ -91,13 +91,13 @@ func _inspect(host: Control, locale: Node, language: String, style: String, perc
 	var previous := Rect2()
 	var rectangles := {}
 	var keys := {"CheckComputer": "scene.controls.close_computer" if host.is_computer_open() else "scene.controls.check_computer",
-		"Settings": "ui.pause.settings", "Backup": "ui.pause.backup", "Save": "button.save", "Load": "button.load"}
+		"Apps": "scene.controls.apps", "Contacts": "app.contacts"}
 	for child: Node in controls.get_children():
-		if not child is Button: continue
+		if not child is Button or not child.visible: continue
 		var button := child as Button
 		_check(not button.text.is_empty() and not button.text.begins_with("[missing:") and not button.text.begins_with("[format_error:"), id + ": populated copy " + button.name)
-		_check(button.text == locale.t(keys[str(button.name)]), id + ": localized label " + button.name)
-		_check(button.accessibility_name == button.text, id + ": accessible label " + button.name)
+		_check(button.accessibility_name == locale.t(keys[str(button.name)]), id + ": localized accessible label " + button.name)
+		_check(button.text == ("^" if button.name == "CheckComputer" else button.accessibility_name), id + ": visible label " + button.name)
 		_check(not button.disabled, id + ": enabled control " + button.name)
 		var bounds := button.get_global_rect()
 		var face: Font = button.get_theme_font("font")

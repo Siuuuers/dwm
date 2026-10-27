@@ -121,8 +121,8 @@ func test_central_pointer_drag_clamps_and_preserves_existing_focus_and_children(
 	var changes: Array[float] = []
 	_split.split_changed.connect(func(width: float): changes.append(width))
 	var handle := _split.get_node("SplitDragHandle") as Control
-	assert_eq(handle.size, Vector2(64, 64), "drag affordance is a large target")
-	assert_eq(handle.position, Vector2(416, 328), "large target stays wholly on Angela's side")
+	assert_eq(handle.size, Vector2(24, 720), "divider has a full-height invisible interaction strip")
+	assert_eq(handle.position, Vector2(456, 0), "interaction strip stays wholly on the first panel side")
 	var angela_id := _angela.get_instance_id()
 	var computer_id := _computer.get_instance_id()
 	assert_true(_mouse_button(Vector2(472, 360), true))
@@ -331,3 +331,14 @@ func test_escape_cancels_pointer_preview_without_a_commit() -> void:
 	assert_eq(_split.get_angela_width(), 480.0)
 	assert_true(changes.is_empty())
 	assert_true(_commits.is_empty(), "Escape retires a preview without saving")
+
+
+func test_divider_drag_is_available_near_top_and_bottom_without_a_visible_grip() -> void:
+	for y: float in [24.0, 696.0]:
+		_split.set_angela_width(480)
+		await _settle()
+		assert_true(_mouse_button(Vector2(479, y), true))
+		assert_true(_mouse_motion(Vector2(439, y), Vector2(-40, 0)))
+		assert_true(_mouse_button(Vector2(439, y), false))
+		await _settle()
+		assert_eq(_split.get_angela_width(), 440.0)

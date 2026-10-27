@@ -1978,6 +1978,8 @@ func test_assistive_caption_callbacks_retire_on_hide_pause_and_same_text_replace
 	var hidden_action := _caption_accessibility_action()
 	caption.caption_text.hide()
 	caption.caption_text.show()
+	# Showing resumes organic reveal; keep this input-lifetime fixture stationary.
+	caption.caption_text.set_process(false)
 	await _settle()
 	hidden_action.call(null)
 	assert_eq(_finished, 0, "hide/show cannot resurrect a retained action")
@@ -1985,6 +1987,7 @@ func test_assistive_caption_callbacks_retire_on_hide_pause_and_same_text_replace
 	runtime.paused = true
 	paused_action.call(null)
 	runtime.paused = false
+	caption.caption_text.set_process(false)
 	await _settle()
 	paused_action.call(null)
 	assert_eq(_finished, 0, "Pause/resume cannot resurrect the source action")
@@ -2027,6 +2030,10 @@ func test_assistive_review_current_returns_to_live_caption_without_advancing() -
 	assert_true(caption.review_current.visible)
 	var action := _caption_accessibility_action(caption.review_current)
 	action.call(null)
+	assert_eq(_finished, finished_before, "the review action itself never finishes live text")
+	# Return-to-live correctly resumes typing; exclude organic completion from
+	# this stale-action test while leaving runtime input and callbacks active.
+	caption.caption_text.set_process(false)
 	await _settle()
 	assert_false(caption.review_current.visible, "Normal Accept exits transient review first")
 	assert_true(caption.caption_text.visible)
@@ -2124,3 +2131,53 @@ func test_continue_projection_uses_existing_surface_and_follows_source_admission
 	await _settle()
 	assert_eq(_finished, 1)
 	assert_eq(runtime.current_event_idx, 0)
+
+func test_self_talk_review_holds_caption_and_returns_without_advancing() -> void:
+	if not await _mount_root_accept_fixture("One.\nTwo still revealing."): return
+	await _next_caption()
+	var thoughts := [{"id":"a", "text":"One\nTwo"}, {"id":"b", "text":"Three\nFour"}]
+	caption.self_talk.project(thoughts, 0)
+	caption.self_talk.review_rows(1)
+	var before := _stack_invariants()
+	assert_true(caption.self_talk.is_reviewing())
+	assert_false(caption.caption_text.is_processing())
+	assert_false(caption.call("_automatic_line_admitted"))
+	assert_false(caption.call("_transport_admitted"))
+	assert_false(caption.call("_before_normal_accept"), "first accept returns to live only")
+	assert_false(caption.self_talk.is_reviewing())
+	caption.caption_text.set_process(false)
+	assert_eq(_stack_invariants(), before)
+	assert_eq(caption.get_caption_projection().review_offset, 0, "thought review never changes caption cursor")
+
+func test_self_talk_review_pauses_pending_effect_with_caption_visible() -> void:
+	var fixture := await _mount_speech_fixture()
+	if fixture.is_empty(): return
+	var effects: Array[String] = []
+	runtime.text_signal.connect(func(argument: String): effects.append(argument))
+	runtime.start(_timeline("One.\nTwo.\nThree.\n[signal=entered][pause=0.3!][signal=resumed]Live text."))
+	await _settle()
+	for step: int in 3: await _next_caption()
+	for frame: int in 40:
+		if effects == ["entered"]: break
+		await get_tree().create_timer(0.01).timeout
+	assert_eq(effects, ["entered"])
+	var speech_count: int = fixture.speech.requests.size()
+	caption.self_talk.project([{"id":"a", "text":"First\nSecond"}, {"id":"b", "text":"Third\nFourth"}], 0)
+	caption.self_talk.review_rows(1)
+	await _settle()
+	var before := _stack_invariants()
+	assert_true(caption.caption_text.visible, "thought review retains the live caption on screen")
+	assert_false(caption.caption_text.is_processing())
+	assert_true(fixture.speech.active_source.is_empty())
+	await get_tree().create_timer(0.5).timeout
+	assert_eq(effects, ["entered"], "thought review holds the native pending effect")
+	assert_eq(_stack_invariants(), before)
+	caption.self_talk.return_to_live()
+	await _settle()
+	assert_eq(fixture.speech.requests.size(), speech_count, "review return never restarts speech")
+	for frame: int in 80:
+		if effects == ["entered", "resumed"]: break
+		await get_tree().create_timer(0.01).timeout
+	assert_eq(effects, ["entered", "resumed"])
+	assert_eq(runtime.current_event_idx, before.event)
+	assert_eq(_history(), before.history)

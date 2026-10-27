@@ -8,7 +8,7 @@ signal drag_changed(active: bool)
 const MIN_ANGELA_WIDTH := 320.0
 const MAX_ANGELA_WIDTH := 480.0
 const MIN_COMPUTER_WIDTH := 800.0
-const HANDLE_SIZE := Vector2(64, 64)
+const HANDLE_SIZE := Vector2(24, 64)
 const WIDTH_STEP := 2.0
 const KEYBOARD_STEP := 16.0
 const HANDLE_ACCESSIBILITY_COPY := {
@@ -23,7 +23,6 @@ const HANDLE_ACCESSIBILITY_COPY := {
 class SplitDragHandle extends Control:
 	var separator_height := 0.0
 	var separator_color := Color(0.65, 0.68, 0.72)
-	var grip_color := Color(0.11, 0.14, 0.18)
 	var focus_color := Color(0.95, 0.78, 0.30)
 	var preview_offset := 0.0
 	var preview_visible := false
@@ -33,15 +32,13 @@ class SplitDragHandle extends Control:
 		focus_exited.connect(queue_redraw)
 
 	func _draw() -> void:
-		draw_rect(Rect2(63, -position.y, 2, separator_height), separator_color)
-		var grip := Rect2(30, 16, 28, 32)
-		draw_rect(grip, grip_color)
-		draw_rect(grip, separator_color, false, 2)
-		draw_polyline(PackedVector2Array([Vector2(47, 24), Vector2(39, 32), Vector2(47, 40)]), separator_color, 2)
+		var seam := size.x - 1.0
+		draw_rect(Rect2(seam, 0, 2, separator_height), separator_color)
 		if preview_visible:
-			draw_rect(Rect2(63 + preview_offset, -position.y, 2, separator_height), focus_color)
+			draw_rect(Rect2(seam + preview_offset, 0, 2, separator_height), focus_color)
 		if has_focus():
-			draw_rect(Rect2(2, 2, 60, 60), focus_color, false, 2)
+			draw_rect(Rect2(seam - 2, 0, 4, separator_height), focus_color)
+
 
 
 var _angela_width := MAX_ANGELA_WIDTH
@@ -217,14 +214,11 @@ func _layout_children() -> void:
 	if panes.size() >= 2:
 		fit_child_in_rect(panes[1], Rect2(_angela_width, 0,
 			maxf(0, size.x - _angela_width), size.y))
-	var handle_position := Vector2(_angela_width - HANDLE_SIZE.x,
-		maxf(0, (size.y - HANDLE_SIZE.y) * 0.5))
-	fit_child_in_rect(_handle, Rect2(handle_position, HANDLE_SIZE))
+	var handle_position := Vector2(_angela_width - HANDLE_SIZE.x, 0)
+	fit_child_in_rect(_handle, Rect2(handle_position, Vector2(HANDLE_SIZE.x, size.y)))
 	_handle.separator_height = size.y
 	if has_theme_color(&"font_color", &"Label"):
 		_handle.separator_color = get_theme_color(&"font_color", &"Label")
-	if has_theme_color(&"face", &"Desktop"):
-		_handle.grip_color = get_theme_color(&"face", &"Desktop")
 	if has_theme_color(&"focus", &"Desktop"):
 		_handle.focus_color = get_theme_color(&"focus", &"Desktop")
 	_handle.queue_redraw()

@@ -346,8 +346,15 @@ func timeline_exists(timeline:Variant) -> bool:
 
 
 ## Handles the next event.
+var _reading_next_index: Callable
+
+func set_reading_next_index(resolver: Callable) -> void:
+	_reading_next_index = resolver
+
 func handle_next_event(_ignore_argument: Variant = "") -> void:
-	handle_event(current_event_idx+1)
+	var next := current_event_idx + 1
+	if _reading_next_index.is_valid(): next = int(_reading_next_index.call(next))
+	handle_event(next)
 
 
 ## Handles the event at the given index [param event_index].

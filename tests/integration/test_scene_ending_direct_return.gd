@@ -10,7 +10,7 @@ func _ending_layout_observation(prior_layout_ref: WeakRef) -> Dictionary:
 		"prior_layout_alive": is_instance_valid(prior_layout),
 		"prior_layout_in_tree": is_instance_valid(prior_layout) and prior_layout.is_inside_tree(),
 		"layout_id": 0, "style": "", "caption_script": "",
-		"ending_layout": false, "clock_visible": true,
+		"ending_layout": false, "clock_present": true,
 		"lifecycle": game._run_lifecycle.to_dict().duplicate(true),
 		"reading_checkpoint": bridge.capture_reading_checkpoint(false).duplicate(true)}
 	if is_instance_valid(active):
@@ -21,7 +21,7 @@ func _ending_layout_observation(prior_layout_ref: WeakRef) -> Dictionary:
 	if is_instance_valid(current_caption):
 		result.caption_script = current_caption.get_script().resource_path
 		result.ending_layout = current_caption.transport_rail.ending_layout
-		result.clock_visible = current_caption.transport_rail.clock_label.is_visible_in_tree()
+		result.clock_present = current_caption.transport_rail.has_node("AudienceClock")
 	return result
 
 func _capture_ending_layout() -> Dictionary:
@@ -83,7 +83,7 @@ func test_direct_ending_accept_returns_without_save() -> void:
 	assert_ne(observation.layout_id, prior_layout_id, "ending selects its own layout after the ordinary layout retires")
 	assert_false(observation.prior_layout_in_tree)
 	assert_true(observation.ending_layout, "EndingScene retains its accepted six bottom controls")
-	assert_false(observation.clock_visible, "ending does not borrow the ordinary clock")
+	assert_false(observation.clock_present, "ending has no rail clock")
 	assert_eq(ProjectSettings.get_setting("dialogic/layout/default_style", ""), default_style)
 	assert_eq(ProjectSettings.get_setting("dialogic/layout/end_behaviour", 0), end_behaviour)
 	# Comparative measurement only: retain the short route's real Accept and all

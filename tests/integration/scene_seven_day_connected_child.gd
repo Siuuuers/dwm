@@ -387,7 +387,7 @@ func _record_witness_ending(prior_ref: WeakRef, prior_id: int, ending_ready: boo
 		"style": style.resource_path if style != null else "",
 		"caption_script": caption.get_script().resource_path if is_instance_valid(caption) else "",
 		"ending_layout": caption.transport_rail.ending_layout if is_instance_valid(caption) else false,
-		"clock_visible": caption.transport_rail.clock_label.is_visible_in_tree() if is_instance_valid(caption) else true,
+		"clock_present": caption.transport_rail.has_node("AudienceClock") if is_instance_valid(caption) else true,
 		"lifecycle": game._run_lifecycle.to_dict().duplicate(true),
 		"reading_checkpoint": bridge.capture_reading_checkpoint(false).duplicate(true)}
 	await _screenshot("seven-day-witness-ending")
@@ -400,7 +400,7 @@ func _record_witness_ending(prior_ref: WeakRef, prior_id: int, ending_ready: boo
 	assert_eq(observation.caption_script, "res://scripts/ui/witnessed/WitnessedCaptionLayer.gd")
 	assert_true(observation.layout_id != 0)
 	assert_false(observation.ending_layout)
-	assert_true(observation.clock_visible)
+	assert_false(observation.clock_present, "Scene rail has no clock")
 
 func _save_ending_caption() -> bool:
 	var checkpoint: Dictionary = bridge.capture_reading_checkpoint(false)

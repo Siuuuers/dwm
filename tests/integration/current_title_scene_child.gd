@@ -168,6 +168,7 @@ func create_current_title_scene() -> void:
 	if not host.is_computer_open(): return
 	assert_eq(bridge.capture_reading_checkpoint(false).value, before.reading)
 	await _screenshot("current-title-computer")
+	if not await _press(_controls(host, "CheckComputer")): return
 	if not await _press(_controls(host, "Save")): return
 	var pause: Node = get_node("/root/SceneRouter")._production_pause
 	assert_true(pause.can_save_backup(), str(pause.last_result))

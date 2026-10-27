@@ -8,7 +8,7 @@ const PROFILE := preload("res://autoload/ProfileManager.gd")
 const STORAGE := preload("res://scripts/infrastructure/storage/JsonFileStorage.gd")
 const FILES := preload("res://tests/support/FakeFileOps.gd")
 const LEFTS := [0, 640, 852, 212, 426, 1066]
-const TOPS := [64, 0, 0, 64, 64, 0]
+const TOPS := [64, 64, 64, 64, 64, 64]
 const WIDTHS := [212, 212, 214, 214, 214, 214]
 const COPY := {
 	"en": ["History", "Skip", "Auto", "Save", "Load", "Next", "On", "Off"],
@@ -62,26 +62,22 @@ func _has_load_contract(rail: Control) -> bool:
 	return false
 
 
-func test_commands_and_clock_use_separate_nonoverlapping_footer_rows() -> void:
+func test_six_commands_share_one_nonoverlapping_footer_row() -> void:
 	var rail := _new_rail()
 	assert_true(rail.configure_presentation(CAPTION_THEME.build("en", 100, "AfterHours"), "en"))
 	add_child_autofree(rail)
 	assert_eq(rail.position, Vector2(0, 592))
 	assert_eq(rail.size, Vector2(1280, 128))
-	assert_eq(rail.get_child_count(), 7, "six existing controls and one noninteractive clock")
+	assert_eq(rail.get_child_count(), 6, "six controls without an audience clock")
 	for index: int in NAMES.size():
 		var button := rail.get_child(index) as Button
 		assert_not_null(button)
 		assert_eq(button.name, NAMES[index])
 		assert_eq(button.position, Vector2(LEFTS[index], TOPS[index]), NAMES[index])
 		assert_eq(button.size, Vector2(WIDTHS[index], 64), NAMES[index])
-		assert_false(button.get_rect().intersects(rail.clock_label.get_rect()))
 		for other: String in NAMES:
 			if other != NAMES[index]:
 				assert_false(button.get_rect().intersects(rail.get_node(other).get_rect()))
-	assert_eq(rail.clock_label.get_rect(), Rect2(1128, 64, 152, 64))
-	assert_eq(rail.clock_label.focus_mode, Control.FOCUS_NONE)
-	assert_eq(rail.clock_label.mouse_filter, Control.MOUSE_FILTER_IGNORE)
 
 
 func test_ending_layout_restores_ordinary_layout_without_replacing_controls() -> void:
@@ -90,14 +86,12 @@ func test_ending_layout_restores_ordinary_layout_without_replacing_controls() ->
 	var original_next: Node = rail.get_node("Next")
 	rail.set_ending_layout(true)
 	assert_true(rail.ending_layout)
-	assert_false(rail.clock_label.visible)
 	assert_eq(rail.position, Vector2(0, 656))
 	assert_eq(rail.size, Vector2(1280, 64))
 	for index: int in NAMES.size():
 		assert_eq(rail.get_node(NAMES[index]).position, Vector2(LEFTS[index], 0))
 	rail.set_ending_layout(false)
 	assert_false(rail.ending_layout)
-	assert_true(rail.clock_label.visible)
 	assert_eq(rail.position, Vector2(0, 592))
 	assert_eq(rail.size, Vector2(1280, 128))
 	assert_same(rail.get_node("Next"), original_next)
@@ -301,8 +295,6 @@ func test_mounted_locale_and_size_transitions_keep_the_selected_face_and_fixed_l
 			assert_true(rail.bind_localization(_localization), context)
 			# WitnessedCaptionLayer publishes the rail theme before Canvas.theme.
 			assert_true(rail.configure_presentation(presentation, language, percent, font_style), context)
-			assert_eq(rail.clock_label.get_theme_font_size("font_size"), int(24 * percent / 100.0), context + ": clock text size")
-			assert_eq(rail.clock_label.get_rect(), Rect2(1128, 64, 152, 64), context + ": clock stays bottom right")
 			canvas.theme = presentation
 			await get_tree().process_frame
 			await get_tree().process_frame

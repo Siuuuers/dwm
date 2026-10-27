@@ -32,6 +32,8 @@ var scene_occurrence := ""
 var scene_index := 0
 var _scene_nodes: Dictionary = {}
 var _scene_text: Dictionary = {}
+var _scene_display: Dictionary = {}
+var _scene_thought_ids: Dictionary = {}
 var _scene_bundle: Dictionary = {}
 var player_progress: Dictionary = {}
 var _progress_serial := 0
@@ -105,6 +107,10 @@ func _ensure_scene_programme(entry_id: String) -> Dictionary:
 		if not compiled.ok: return compiled
 		if not compiled.value.nodes.is_read_only(): FROZEN._freeze(compiled.value.nodes)
 		_scene_nodes[entry_id] = compiled.value.nodes
+		for node: Dictionary in compiled.value.nodes:
+			if node.kind != "caption": continue
+			_scene_display[node.line_id] = node
+			if node.has("self_talk"): _scene_thought_ids[node.self_talk.line_id] = true
 		for event: Dictionary in compiled.value.events:
 			if event.kind == "text": _scene_text[event.line_id] = event.text
 		return {"ok": true}
@@ -122,6 +128,8 @@ func _fork_scene_configuration() -> RefCounted:
 	sibling.registry = registry
 	sibling._scene_nodes = _scene_nodes.duplicate()
 	sibling._scene_text = _scene_text.duplicate()
+	sibling._scene_display = _scene_display.duplicate()
+	sibling._scene_thought_ids = _scene_thought_ids.duplicate()
 	sibling._scene_bundle = _scene_bundle
 	sibling._caption_variants_by_line = _caption_variants_by_line
 	return sibling
@@ -197,6 +205,9 @@ func _capture_scene(frontier: Dictionary) -> Dictionary:
 		if row.occurrence_id == scene_occurrence and row.beat.owning_entry_id == latest_entry:
 			TRAVERSAL.append_player_caption(player_progress, latest_entry, row.beat.line_id,
 				_story_day(latest_entry), _pending_checkpoint)
+			var thought: Dictionary = _scene_display.get(row.beat.line_id, {}).get("self_talk", {})
+			if not thought.is_empty():
+				TRAVERSAL.append_player_caption(player_progress, latest_entry, thought.line_id, _story_day(latest_entry))
 			_pending_checkpoint = false
 		_progress_serial = serial
 	var saved := {"schema_version": 5, "registration_sha256": fingerprint, "entry_id": latest_entry,
@@ -567,6 +578,11 @@ func prepare_scene_control_continuation() -> Dictionary:
 		"path": [{"from": scene_index, "to": target}], "traversed_captions": [],
 		"destination": {"kind": "line", "program_index": target, "caption": {
 			"publication_id": allocation.value, "occurrence_id": scene_occurrence, "beat": beat.duplicate(true)}}}
+	var paired_lines := {}
+	for edge: Dictionary in plan.path:
+		var target_node: Dictionary = nodes[edge.to]
+		if target_node.has("self_talk"): paired_lines[target_node.line_id] = target_node.self_talk.line_id
+	if not paired_lines.is_empty(): plan["paired_lines"] = paired_lines
 	var checked := TRAVERSAL.validate_scene_path(plan, nodes)
 	return {"ok": true, "value": plan} if checked.ok else checked
 
@@ -602,6 +618,10 @@ func prepare_scene_next(frontier: Dictionary, is_witnessed: Callable) -> Diction
 			var beat: Dictionary = _caption_variants_by_line[next.line_id]
 			var witnessed: Variant = is_witnessed.call(beat.duplicate(true))
 			if typeof(witnessed) != TYPE_BOOL: return _fail(&"reading_next_witness_invalid")
+			if next.has("self_talk"):
+				var thought_witnessed: Variant = is_witnessed.call(_caption_variants_by_line[next.self_talk.line_id].duplicate(true))
+				if typeof(thought_witnessed) != TYPE_BOOL: return _fail(&"reading_next_witness_invalid")
+				witnessed = witnessed and thought_witnessed
 			var allocation := candidate.allocate_publication(command_id, latest_entry, scene_occurrence)
 			if not allocation.ok: return allocation
 			var publication := candidate.publish_caption(command_id, allocation.value, beat, scene_occurrence)
@@ -615,6 +635,11 @@ func prepare_scene_next(frontier: Dictionary, is_witnessed: Callable) -> Diction
 		index = target
 	var plan := {"schema_version": 3, "entry_id": latest_entry, "source_reading": reading,
 		"path": path, "traversed_captions": captions, "destination": destination}
+	var paired_lines := {}
+	for edge: Dictionary in plan.path:
+		var target_node: Dictionary = nodes[edge.to]
+		if target_node.has("self_talk"): paired_lines[target_node.line_id] = target_node.self_talk.line_id
+	if not paired_lines.is_empty(): plan["paired_lines"] = paired_lines
 	var checked := TRAVERSAL.validate_scene_path(plan, nodes)
 	return {"ok": true, "value": plan} if checked.ok else checked
 
@@ -633,12 +658,44 @@ func project_scene_day_history(frontier: Dictionary, _choices: Dictionary, _outc
 		_scene_bundle, captured.value.player_progress.history_sections)
 	var rows: Array = projected.value.captions
 	for row: Dictionary in rows:
+		_ensure_scene_programme(row.entry_id)
 		if _scene_text.has(row.line_id): row.text = _scene_text[row.line_id]
-	if rows.is_empty() or rows.back().line_id != tail.beat.line_id or rows.back().entry_id != latest_entry:
+	var thought: Dictionary = _scene_display.get(tail.beat.line_id, {}).get("self_talk", {})
+	var expected_tail: String = tail.beat.line_id
+	if not thought.is_empty() and rows.any(func(row: Dictionary) -> bool: return row.line_id == thought.line_id):
+		expected_tail = thought.line_id
+	if rows.is_empty() or rows.back().line_id != expected_tail or rows.back().entry_id != latest_entry:
 		return _fail(&"reading_frontier_invalid")
-	rows.back().publication_id = tail.publication_id
+	for row: Dictionary in rows:
+		if row.line_id == tail.beat.line_id: row.publication_id = tail.publication_id
+		if _scene_thought_ids.has(row.line_id): row["self_talk"] = true
 	return {"ok": true, "value": {"captions": rows, "frontier": frontier.duplicate(true),
 		"session_id": command_id, "occurrence_id": scene_occurrence}}
+
+## One native command frontier, with two independent authored read identities.
+func scene_pair_beats(line_id: String) -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	if _caption_variants_by_line.has(line_id): result.append(_caption_variants_by_line[line_id])
+	var thought: Dictionary = _scene_display.get(line_id, {}).get("self_talk", {})
+	if not thought.is_empty(): result.append(_caption_variants_by_line[thought.line_id])
+	return result
+
+func project_self_talk(frontier: Dictionary) -> Dictionary:
+	var captured := _capture_scene(frontier)
+	if not captured.ok: return captured
+	var rows: Array[Dictionary] = []
+	var live_start := 0
+	for section: Array in player_progress.get("history_sections", []):
+		for id: String in section:
+			if not _caption_variants_by_line.has(id): continue
+			var prepared := _ensure_scene_programme(_caption_variants_by_line[id].owning_entry_id)
+			if not prepared.ok: return prepared
+			if _scene_display.get(id, {}).get("self_talk_clear", false): live_start = rows.size()
+			if _scene_thought_ids.has(id): rows.append({"id": id, "text": _scene_text[id]})
+	var thought: Dictionary = _scene_display.get(frontier.get("line_id", ""), {}).get("self_talk", {})
+	if not thought.is_empty() and not rows.any(func(row: Dictionary) -> bool: return row.id == thought.line_id): thought = {}
+	return {"ok": true, "value": {"rows": rows, "live_start": live_start,
+		"current_thought": thought.get("text", ""), "current_thought_id": thought.get("line_id", "")}}
 
 func _project_scene(frontier: Dictionary) -> Dictionary:
 	var captured := _capture_scene(frontier)

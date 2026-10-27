@@ -9,7 +9,9 @@ static func valid_id(value: Variant) -> bool:
 				or (character >= "0" and character <= "9") or character in [".", "_", "-"]): return false
 	return true
 
-static func inspect(bundle: Dictionary) -> Dictionary:
+static var _display_by_programme: Dictionary = {}
+
+static func inspect(bundle: Dictionary, compiled: Dictionary = {}) -> Dictionary:
 	if not bundle.get("scene_programme") is Dictionary or not bundle.scene_programme.get("entries") is Array \
 			or not bundle.get("caption_registry") is Dictionary or not bundle.caption_registry.get("entries") is Array:
 		return _fail(&"scene_passage_registration_invalid")
@@ -36,6 +38,30 @@ static func inspect(bundle: Dictionary) -> Dictionary:
 		if not _marker(start) or not _marker(finish) or start.payload.passage_id != finish.payload.passage_id \
 				or not captions.has(entry.entry_id) or records.has(start.payload.passage_id):
 			return _fail(&"scene_passage_pair_invalid")
+		var thought_ids := {}
+		var paired_text := {}
+		if bundle.has("entry_manifest"):
+			var key: String = entry.entry_id + ":" + entry.content_sha256
+			if not _display_by_programme.has(key):
+				var native: Dictionary = compiled.get(entry.entry_id, {})
+				if native.is_empty():
+					var labels: Array = []
+					var path := ""
+					for locator: Dictionary in bundle.entry_manifest.entries:
+						labels.append(locator.entry_id)
+						if locator.entry_id == entry.entry_id: path = locator.locators.en.path
+					var prepared := DialogicRuntimeAdapter.compile_scene_programme(path, entry.entry_id, labels, entry.markers)
+					if not prepared.ok: return prepared
+					native = prepared.value
+				var thoughts := {}
+				var pairs := {}
+				for node: Dictionary in native.nodes:
+					if node.has("self_talk"):
+						thoughts[node.self_talk.line_id] = true
+						pairs[node.line_id] = {"line_id": node.self_talk.line_id, "text": node.self_talk.text}
+				_display_by_programme[key] = {"thoughts": thoughts, "pairs": pairs}
+			thought_ids = _display_by_programme[key].thoughts
+			paired_text = _display_by_programme[key].pairs
 		var lines: Array = captions[entry.entry_id]
 		var indices := {}
 		for index: int in lines.size():
@@ -43,6 +69,10 @@ static func inspect(bundle: Dictionary) -> Dictionary:
 					or not lines[index].get("text") is String or indices.has(lines[index].line_id):
 				return _fail(&"scene_passage_registration_invalid")
 			indices[lines[index].line_id] = index
+		if not thought_ids.is_empty():
+			lines = lines.filter(func(line: Dictionary) -> bool: return not thought_ids.has(line.line_id))
+			indices.clear()
+			for index: int in lines.size(): indices[lines[index].line_id] = index
 		# Empty preceding-line identity means the passive label is at entry start.
 		var start_index: int = -1 if start.after_line_id == "" else int(indices.get(start.after_line_id, -2))
 		if start_index < -1 or not indices.has(finish.after_line_id) \
@@ -57,6 +87,8 @@ static func inspect(bundle: Dictionary) -> Dictionary:
 				if index >= first - 1 and index <= last:
 					return _fail(&"scene_passage_control_inside_range")
 		var selected: Array = lines.slice(first, last + 1).duplicate(true)
+		for line: Dictionary in selected:
+			if paired_text.has(line.line_id): line["self_talk"] = paired_text[line.line_id].duplicate(true)
 		var line_ids: Array[String] = []
 		for line: Dictionary in selected: line_ids.append(line.line_id)
 		records[start.payload.passage_id] = {"passage_id": start.payload.passage_id,

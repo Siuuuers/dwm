@@ -1,0 +1,21 @@
+# SYNTHETIC TEST ONLY. No production story content.
+return
+
+label scene.test.a
+TEST caption one. #id:line.scene.test.a.one
+# self-talk
+FIRST thought. #id:line.scene.test.a.thought_one
+TEST caption two stays partially revealed long enough to inspect the immediately visible thought beside it. #id:line.scene.test.a.two
+# self-talk
+SECOND thought spans wrapped rows in the narrow self-talk panel. #id:line.scene.test.a.thought_two
+TEST caption three has no attached thought. #id:line.scene.test.a.three
+TEST caption four. #id:line.scene.test.a.four
+# self-talk
+THIRD thought. #id:line.scene.test.a.thought_three
+TEST caption five. #id:line.scene.test.a.five
+# self-talk
+FOURTH thought. #id:line.scene.test.a.thought_four
+label scene.test.a.loop
+# self-talk-clear
+TEST caption six explicitly clears the live thoughts. #id:line.scene.test.a.six
+jump scene.test.a.loop

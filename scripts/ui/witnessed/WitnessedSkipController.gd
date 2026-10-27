@@ -113,11 +113,9 @@ func _process(_delta: float) -> void:
 	_step_in_progress = false
 	if generation != _generation or not _skip_active:
 		return
-	if not _is_configured() or not _is_admitted():
-		stop_skip()
-		return
-	if generation != _generation or not _skip_active:
-		return
+	# Native advance publishes its replacement before that event finishes
+	# settling. Check the new frontier before the next step, not inside this
+	# completed step's call stack; that temporary refusal is not a Skip stop.
 	if not result is Dictionary or not result.get("ok", false):
 		stop_skip()
 		return

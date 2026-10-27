@@ -211,6 +211,27 @@ func test_external_auto_on_and_admission_loss_stop_without_an_extra_step() -> vo
 	assert_eq(f.bridge.calls, [], "lost admission prevents the next narrative mutation")
 
 
+func test_successful_step_waits_for_next_frame_to_admit_replacement_caption() -> void:
+	var f := _fixture()
+	assert_true(f.controller.toggle_skip().get("ok", false))
+	f.controller.set_process(false)
+	f.bridge.during_step = func() -> void: f.custody.admitted = false
+	f.controller._process(0.0)
+	assert_true(f.controller.is_skip_active(), "native replacement can settle after advance returns")
+	assert_eq(f.bridge.calls.size(), 1)
+	f.bridge.during_step = Callable()
+	f.custody.admitted = true
+	await get_tree().process_frame
+	f.controller._process(0.0)
+	assert_true(f.controller.is_skip_active())
+	assert_eq(f.bridge.calls.size(), 2, "settled replacement is admitted before the next mutation")
+	f.custody.admitted = false
+	await get_tree().process_frame
+	f.controller._process(0.0)
+	assert_false(f.controller.is_skip_active(), "a refusal still present at the next step stops Skip")
+	assert_eq(f.bridge.calls.size(), 2, "no mutation runs without admission")
+
+
 func test_profile_restore_retires_skip_even_when_auto_remains_off() -> void:
 	var f := _fixture()
 	assert_true(f.controller.toggle_skip().get("ok", false))
