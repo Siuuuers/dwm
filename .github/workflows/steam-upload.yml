@@ -1,5 +1,5 @@
 name: Steam private upload
-run-name: Steam ${{ inputs.mode || 'upload' }} - accepted Save and Load 4db5cff - game.exe
+run-name: Steam ${{ inputs.mode }} - accepted Save and Load 4db5cff - game.exe
 permissions:
   contents: read
   actions: read
@@ -8,7 +8,6 @@ concurrency:
   cancel-in-progress: false
 jobs:
   build:
-    if: github.event_name == 'workflow_dispatch' || github.event.head_commit.message == 'Upload accepted Save and Load build 4db5cff to Steam'
     name: Export accepted Save and Load build
     runs-on: windows-2022
     timeout-minutes: 35
@@ -212,7 +211,7 @@ jobs:
       env:
         STEAM_USERNAME: ${{ secrets.STEAM_USERNAME }}
         STEAM_CONFIG_VDF: ${{ secrets.STEAM_CONFIG_VDF }}
-        UPLOAD_MODE: ${{ inputs.mode || 'upload' }}
+        UPLOAD_MODE: ${{ inputs.mode }}
       run: |
         import base64, json, hashlib, os, pathlib, re, shutil, subprocess, sys, urllib.request, zipfile
         root = pathlib.Path(os.environ['RUNNER_TEMP']) / 'dwm-steam'
@@ -334,9 +333,6 @@ jobs:
     needs: build
     if: ${{ !cancelled() && needs.build.result == 'success' }}
 'on':
-  push:
-    branches:
-    - codex/steam-save-load-20261027
   workflow_dispatch:
     inputs:
       mode:

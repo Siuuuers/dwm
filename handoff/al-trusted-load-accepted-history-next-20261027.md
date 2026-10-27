@@ -1,5 +1,7 @@
 # Trusted Load accepted; measure duplicate History refresh next
 
+> Status review, 2026-10-27: [current completion audit and Steam build](ay-al-status-and-steam-build-20261027.md). The pending labels below are historical. Approved runtime work is complete or superseded; production checkpoint bindings remain unauthored. Further performance work is deferred under [ax](ax-save-load-improvement-backlog-20261027.md).
+
 > Later plan: [named presentation checkpoints and checkpoint-only Autosave](ar-named-checkpoint-autosave-plan-20261027.md) changes future Autosave scheduling and presentation-feature priority. It is approved but not implemented. Historical measurements below remain valid; [aq](aq-trusted-reading-accepted-20261027.md) records accepted runtime and edited-DTL behavior.
 
 Date: 2026-10-27, Hong Kong time.
