@@ -40,8 +40,38 @@ func _save_slot(slot: int) -> bool:
 		await get_tree().process_frame
 	assert_true(save_button._admitted(), "visible Save rail must admit a fresh press")
 	if not save_button._admitted(): return false
-	await _click(save_button)
 	var sheet: Node = get_node("/root/SceneRouter")._production_pause
+	var trace: Array = []
+	var capture := func(stage: String) -> void:
+		var focused := get_viewport().gui_get_focus_owner()
+		trace.append({"stage":stage, "frame":Engine.get_process_frames(),
+			"generation":save_button._generation, "retired_frame":save_button._retired_frame,
+			"candidate":save_button._candidate.duplicate(true), "fresh":save_button._fresh_contact,
+			"contacts":save_button._contacts.duplicate(true), "blocked":save_button._blocked_contacts.duplicate(true),
+			"physical":save_button._input_owner.get_physical_contacts(), "admitted":save_button._admitted(),
+			"cached_can_save":_caption().transport_rail._can_save, "disabled":save_button.disabled,
+			"rail_projection":[_caption().transport_rail._can_skip, _caption().transport_rail._can_auto,
+				_caption().transport_rail._can_next, _caption().transport_rail._can_load,
+				_caption().transport_rail._can_history, _caption().transport_rail._can_save],
+			"load_pending":_caption()._load_pending, "pause_covered":_caption()._pause_covered,
+			"waiting_text":_caption()._line_waiting_for_text,
+			"focus":str(focused.get_path()) if focused != null else "", "rect":str(save_button.get_global_rect()),
+			"paused":get_tree().paused, "sheet_visible":is_instance_valid(sheet.surface) and sheet.surface.visible,
+			"can_save":sheet.can_save_backup(), "last_result":sheet.last_result.duplicate(true)})
+	var observe_gui := func(event: InputEvent) -> void: capture.call("gui:" + event.as_text())
+	var observe_activation := func() -> void: capture.call("activated")
+	var observe_frame := func() -> void: capture.call("frame")
+	save_button.gui_input.connect(observe_gui)
+	save_button.activated.connect(observe_activation)
+	get_tree().process_frame.connect(observe_frame)
+	capture.call("before")
+	await _click(save_button)
+	capture.call("after")
+	save_button.gui_input.disconnect(observe_gui)
+	save_button.activated.disconnect(observe_activation)
+	get_tree().process_frame.disconnect(observe_frame)
+	_write_json("res://.godot/ci/save-rail-slot-%d.json" % slot, {"trace":trace})
+	if not sheet.can_save_backup(): print("SAVE_RAIL_TRACE " + JSON.stringify(trace))
 	assert_true(sheet.can_save_backup(), str(sheet.last_result))
 	if not sheet.can_save_backup(): return false
 	var prepared: Dictionary = sheet._backup_port.prepare_action("save", "slot:%d" % slot)
