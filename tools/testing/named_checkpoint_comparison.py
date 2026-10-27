@@ -21,11 +21,11 @@ METHODS = {
         "write_atomic", "write_atomic_reconciled", "write_atomic_if_revision"),
 }
 STORAGE_METHODS = tuple(
-    f"{Path(path).stem}.{name}"
+    f"{'GameSaveStorage' if Path(path).stem == 'JsonFileStorage' else Path(path).stem}.{name}"
     for path, names in METHODS.items() if Path(path).stem != "SaveManagerNarrativeCheckpointPort"
     for name in names
 )
-WRITE_METHODS = tuple(name for name in STORAGE_METHODS if name.startswith("JsonFileStorage."))
+WRITE_METHODS = tuple(name for name in STORAGE_METHODS if name.startswith("GameSaveStorage."))
 
 
 def prepare(root, harness):
@@ -39,9 +39,20 @@ def prepare(root, harness):
         path.write_text(transform(path.read_text()), encoding="utf-8")
         receipt["changes"].setdefault(relative, {"before": before})["after"] = hashlib.sha256(path.read_bytes()).hexdigest()
 
+    def instrument(text, owner, names):
+        text = passage.history.wrap(text, owner, names)
+        if owner == "JsonFileStorage":
+            for name in names:
+                line = f'\thistory_probe.history_finish("{owner}.{name}", history_began)\n'
+                text = passage.history.trusted.replace_once(text, line, line +
+                    f'\thistory_probe.history_finish("{owner}.{name}.file." + relative_path, history_began)\n'
+                    '\tif relative_path.get_file() != "profile.json":\n'
+                    f'\t\thistory_probe.history_finish("GameSaveStorage.{name}", history_began)\n')
+        return text
+
     for relative, names in METHODS.items():
         edit(relative, lambda text, owner=Path(relative).stem, names=names:
-             passage.history.wrap(text, owner, names))
+             instrument(text, owner, names))
 
     def probe(text):
         replace = passage.history.trusted.replace_once
@@ -54,11 +65,11 @@ def prepare(root, harness):
             '\tif variant == "candidate" and not _check(passage_autosave_before == passage_autosave_after, "ordinary passage changed Autosave bytes"): return false\n'
             '\tobservation["passage"] = {"entry_id": PASSAGE_ENTRY, "line_id": PASSAGE_LINE,\n'
             '\t\t"autosave_before": passage_autosave_before, "autosave_after": passage_autosave_after,\n')
-        text = replace(text, '\tvar prepared: Dictionary = pause._backup_port.prepare_action("save", locator)\n',
+        text = replace(text, '\tvar opened: Dictionary = await pause.open_scene_backup("save")\n',
             '\tvar prior_scope := history_scope\n'
             '\thistory_scope = "manual_save"\n'
             '\tvar manual_save_began := Time.get_ticks_usec()\n'
-            '\tvar prepared: Dictionary = pause._backup_port.prepare_action("save", locator)\n')
+            '\tvar opened: Dictionary = await pause.open_scene_backup("save")\n')
         text = replace(text, '\tvar saved: Dictionary = pause._backup_port.commit_action(prepared.value.token)\n',
             '\tvar saved: Dictionary = pause._backup_port.commit_action(prepared.value.token)\n'
             '\tvar manual_save_elapsed := Time.get_ticks_usec() - manual_save_began\n'
@@ -70,8 +81,9 @@ def prepare(root, harness):
     edit("startup_probe.gd", probe)
     receipt["probe_sha256"] = receipt["changes"]["startup_probe.gd"]["after"]
     receipt["named_checkpoint_observer"] = {
-        "scope": "Ordinary passage storage calls and unchanged bytes; complete explicit manual Save prepare/commit action after Backup opens.",
+        "scope": "Ordinary passage storage calls and unchanged bytes; complete explicit manual Save action from Backup opening/live capture through command commit.",
         "storage_methods": STORAGE_METHODS,
+        "independent_storage": "Profile writes remain recorded by method and exact relative path, but are excluded from the game-progress zero-write requirement. All other storage paths remain included.",
         "named_arrival": "Not measured: the baseline has no named-checkpoint authoring feature.",
     }
     receipt_path.write_text(json.dumps(receipt, indent=2), encoding="utf-8")
@@ -137,8 +149,8 @@ def summarize(root):
         "storage_and_manual_save_paired_differences": paired,
         "limitations": [
             "Named checkpoint arrival is not measured; baseline has no equivalent authored feature. Separate candidate integration/rendered evidence is required.",
-            "Manual Save timing covers prepare_action plus commit_action after Backup opens, not physical-button-to-painted-confirmation latency.",
-            "Storage counters count method invocations, including nested calls; do not add nested counts or durations as independent writes or speed gains.",
+            "Manual Save timing covers open_scene_backup (including live capture), prepare_action and commit_action; it is API-action latency, not physical-button-to-painted-confirmation latency.",
+            "Independent profile.json persistence is retained and reported separately; every other storage path is subject to the zero-write rule. Storage counters count method invocations, including nested calls; do not add nested counts or durations as independent writes or speed gains.",
             "Four same-run counterbalanced samples are descriptive. Fresh user data does not imply cold OS caches.",
         ],
     })

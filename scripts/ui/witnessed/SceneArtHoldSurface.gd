@@ -27,11 +27,13 @@ var _retired := false
 var _covered := false
 var _await_neutral := true
 var _anchor: Dictionary = {}
+var _named_presentation: Dictionary = {}
 var _capture_id := 0
 var _input_owner: Node
 
 func configure(entry_id: String, token: String, percent: int = 100,
-		locale: String = "en", show_portraits: bool = true, font_style: String = "pixel") -> bool:
+		locale: String = "en", show_portraits: bool = true, font_style: String = "pixel",
+		named_presentation: Dictionary = {}) -> bool:
 	# Standalone legacy callers may mount before LocalizationManager initializes.
 	if locale.is_empty(): locale = "en"
 	if not configure_presentation(locale, percent, _palette, _high_contrast,
@@ -39,6 +41,7 @@ func configure(entry_id: String, token: String, percent: int = 100,
 	_token = token
 	_entry_id = entry_id
 	_show_portraits = show_portraits
+	_named_presentation = named_presentation.duplicate(true)
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	focus_mode = Control.FOCUS_NONE
 	size = Vector2(1280, 720)
@@ -95,10 +98,8 @@ func configure_presentation(locale: String = "en", text_percent: int = 100,
 	return true
 
 func _configure_art() -> void:
-	var bridge := get_node_or_null("/root/DialogicBridge")
-	var source: Dictionary = bridge.get_current_scene_art() if bridge != null else {}
-	if source.has("presentation"):
-		art.configure_presentation(source.presentation, _percent, false, _show_portraits)
+	if not _named_presentation.is_empty():
+		art.configure_presentation(_named_presentation, _percent, false, _show_portraits)
 	else:
 		art.configure_entry(_entry_id, _percent, false, _show_portraits)
 

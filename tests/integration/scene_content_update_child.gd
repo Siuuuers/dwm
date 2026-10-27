@@ -107,6 +107,7 @@ func create_content_update() -> void:
 		await _create_completed_update()
 		return
 	var locator := "slot:1"
+	var terminal_capture := {}
 	var public_board := {}
 	if UPDATE.board_case(case_id):
 		var panel: Control = await _make_active_board()
@@ -115,10 +116,12 @@ func create_content_update() -> void:
 		if case_id == "transfer_terminal":
 			var files: RefCounted = saves._storage._file_ops
 			var fault := WRITE_REFUSAL.WriteRefusal.new()
+			fault.refuse_on = 1
+			var autosave_before := _autosave_sha256()
+			saves._storage._file_ops = fault
 			panel.presentation_changed.connect(func():
-				if panel.public_view.get("phase") == "terminal":
-					fault.refuse_on = 1
-					saves._storage._file_ops = fault)
+				if panel.public_view.get("phase") == "terminal" and terminal_capture.is_empty():
+					terminal_capture.merge(bootstrap._capture_paused_checkpoint_inputs(), true))
 			var record: Dictionary = game.capture_dating_challenge_state().value
 			var mine: int = record.board.mine_indices[0]
 			# Remove a flag if the selected mine owns it before revealing.
@@ -131,10 +134,15 @@ func create_content_update() -> void:
 			await _click(panel.worksheet.grid.cell_nodes[mine])
 			for frame: int in 8: await get_tree().process_frame
 			saves._storage._file_ops = files
-			assert_eq(fault.refused, 1, "terminal physical checkpoint precedes refused automatic story continuation")
-			assert_true(game.scene_challenge_outcomes.is_empty(), "terminal board has no recorded story result yet")
-			assert_eq(game.capture_dating_challenge_state().value.state, "lost")
-			locator = "autosave"
+			assert_eq(fault.refused, 0, "terminal board and ordinary continuation do not save")
+			assert_eq(_autosave_sha256(), autosave_before)
+			if not _ok(terminal_capture): return
+			assert_true(terminal_capture.value.snapshot_input.gameplay.scene_challenge_outcomes.is_empty(), "captured terminal board precedes its story result")
+			assert_eq(terminal_capture.value.snapshot_input.gameplay.route_context.active_dating_challenge.state, "lost")
+			# Deliberately save the exact terminal capture before story continuation;
+			# no injected storage failure is needed to stop normal live progression.
+			if not _ok(saves.record_stable_checkpoint(terminal_capture.value, &"manual_save")): return
+			if not _ok(saves.save_latest_to_slot(1)): return
 		else:
 			await _click(_controls(get_tree().current_scene, "CheckComputer"))
 			if case_id == "resolved_unfinished":
@@ -149,7 +157,7 @@ func create_content_update() -> void:
 		var target := UPDATE.line("update.four" if case_id == "history" else "update.one",
 			"last" if case_id in ["invalid_choice", "invalid_choice_missing_default"] else "middle")
 		if not await _walk_to(target): return
-	if locator == "slot:1" and not await _save_partner(1): return
+	if terminal_capture.is_empty() and not await _save_partner(1): return
 	var path := "user://saves/autosave.json" if locator == "autosave" else "user://saves/slot_1.json"
 	var document: Dictionary = PARSER.parse_object(FileAccess.get_file_as_string(path))
 	if not _ok(document): return
@@ -169,7 +177,7 @@ func create_content_update() -> void:
 		assert_eq(reading.captions.back().line_id, UPDATE.line("update.one", "middle"))
 	var proof := {"creator_pid": OS.get_process_id(), "case": case_id, "locator": locator, "path": path,
 		"source_sha256": FileAccess.get_sha256(path), "snapshot": saved,
-		"reading": reading, "public_board": public_board, "record": game.capture_dating_challenge_state().value.duplicate(true),
+		"reading": reading, "public_board": public_board, "record": saved.gameplay.route_context.get("active_dating_challenge", {}).duplicate(true),
 		"profile": profile.get_profile_snapshot().duplicate(true)}
 	if not _write_json(PROOF, proof): return
 	_write_json("res://.godot/ci/content-update-create-proof.json", proof)
@@ -285,33 +293,26 @@ func _verify_board_continuation(proof: Dictionary) -> bool:
 	var outcomes_before: Dictionary = game.scene_challenge_outcomes.duplicate(true)
 	if not await _walk_to(UPDATE.line("update.b", "cue")): return false
 	if case_id == "transfer_active":
-		# Persist suspension before admitting B, then refuse a real binding write.
+		# Manual Save retains suspended A. Admitting B is a live-only operation.
 		if not await _save_partner(2): return false
 		var source: Dictionary = game.capture_run_snapshot_input().duplicate(true)
-		var source_reading: Dictionary = bridge.capture_reading_checkpoint(false)
 		var attempts: Dictionary = profile.get_profile_snapshot().dating_attempts.duplicate(true)
 		var files: RefCounted = saves._storage._file_ops
 		var fault := WRITE_REFUSAL.WriteRefusal.new()
 		fault.refuse_on = 1
+		var autosave_before := _autosave_sha256()
 		saves._storage._file_ops = fault
 		await _accept()
 		saves._storage._file_ops = files
-		assert_eq(fault.refused, 1)
-		assert_eq(game.capture_run_snapshot_input().gameplay, source.gameplay)
-		assert_eq(game.capture_dating_challenge_state().value, proof.record)
-		assert_eq(bridge.capture_reading_checkpoint(false), source_reading)
-		assert_eq(profile.get_profile_snapshot().dating_attempts, attempts)
-		assert_true(_caption().is_reading_recovery_active(), "binding write refusal displays recovery")
-		await _screenshot("content-update-binding-retry")
-		var activations := [0]
-		_caption().recovery_overlay.retry_button.activated.connect(func(): activations[0] += 1)
-		await _click(_caption().recovery_overlay.retry_button)
-		assert_eq(activations[0], 1)
-		assert_false(_caption().is_reading_recovery_active(), "successful binding Retry dismisses recovery")
+		assert_eq(fault.refused, 0, "binding B never attempts a game-save write")
+		assert_eq(_autosave_sha256(), autosave_before)
+		assert_false(_caption().is_reading_recovery_active(), "live binding requires no storage retry")
 		assert_eq(game.capture_dating_challenge_state().value, proof.record)
 		assert_eq(profile.get_profile_snapshot().dating_attempts, attempts)
 		assert_eq(FileAccess.get_sha256(proof.path), proof.source_sha256)
-		binding_retry = {"refused_writes": fault.refused, "retry_activations": activations[0],
+		await _screenshot("content-update-binding-live")
+		binding_retry = {"refused_writes": fault.refused, "retry_activations": 0,
+			"autosave_unchanged": _autosave_sha256() == autosave_before,
 			"suspended_slot_sha256": FileAccess.get_sha256("user://saves/slot_2.json"),
 			"suspended_gameplay": source.gameplay}
 	else:
@@ -380,8 +381,9 @@ func reload_current_content() -> void:
 		await _load_completed_update(proof.old_source, true, int(proof.loader_pid))
 		return
 	if case_id == "transfer_active":
-		assert_eq(proof.binding_retry.refused_writes, 1)
-		assert_eq(proof.binding_retry.retry_activations, 1)
+		assert_eq(proof.binding_retry.refused_writes, 0)
+		assert_eq(proof.binding_retry.retry_activations, 0)
+		assert_true(proof.binding_retry.autosave_unchanged)
 		assert_eq(FileAccess.get_sha256("user://saves/slot_2.json"), proof.binding_retry.suspended_slot_sha256)
 		if not await _load_partner(2, true): return
 		if not await _wait_line(UPDATE.line("update.b", "cue")): return
@@ -405,7 +407,7 @@ func reload_current_content() -> void:
 	await _screenshot("content-update-" + case_id + "-reloaded")
 	_write_json("res://.godot/ci/content-update-reload-proof.json", {"case": case_id,
 		"creator_pid": proof.old_source.creator_pid, "loader_pid": proof.loader_pid,
-		"reload_pid": OS.get_process_id(), "binding_retry": case_id == "transfer_active" and proof.binding_retry.refused_writes == 1 and proof.binding_retry.retry_activations == 1,
+		"reload_pid": OS.get_process_id(), "binding_live": case_id == "transfer_active" and proof.binding_retry.refused_writes == 0 and proof.binding_retry.retry_activations == 0 and proof.binding_retry.autosave_unchanged,
 		"binding_retry_detail": proof.binding_retry,
 		"slot_sha256": proof.slot_sha256})
 
@@ -415,12 +417,24 @@ func _create_completed_update() -> void:
 	assert_eq(game.capture_run_snapshot_input().lifecycle.state, "PLAYING")
 	assert_false(UPDATE.FINISH in profile.get_profile_snapshot().gallery_unlocks)
 	await _screenshot("content-update-completed-old-final-caption")
+	var autosave_before := _autosave_sha256()
+	var completed_capture := {}
+	bridge.next_request_finished.connect(func(_frontier: Dictionary, result: Dictionary) -> void:
+		if result.get("ok", false):
+			completed_capture.merge(get_node("/root/ApplicationBootstrap")._capture_paused_checkpoint_inputs(), true), CONNECT_ONE_SHOT)
 	await _accept()
 	if not await _wait_route(MENU): return
 	assert_eq(game._run_lifecycle.to_dict().state, "COMPLETED")
 	assert_eq(game.capture_run_snapshot_input().gameplay, gameplay, "Finish grants no repeated gameplay reward")
 	assert_false(game.capture_live_session().value.active)
-	var path := "user://saves/autosave.json"
+	assert_eq(_autosave_sha256(), autosave_before, "Finish does not create an Autosave")
+	if not _ok(completed_capture): return
+	assert_eq(completed_capture.value.snapshot_input.lifecycle.state, "COMPLETED")
+	# Deliberately save the captured completed Run through the real save owner;
+	# the production Finish itself has no automatic game-save side effect.
+	if not _ok(saves.record_stable_checkpoint(completed_capture.value, &"manual_save")): return
+	if not _ok(saves.save_latest_to_slot(4)): return
+	var path := "user://saves/slot_4.json"
 	var parsed: Dictionary = PARSER.parse_object(FileAccess.get_file_as_string(path))
 	if not _ok(parsed): return
 	if case_id == "completed_deleted" and not _write_without_completion_provenance(path, parsed.value): return
@@ -429,7 +443,7 @@ func _create_completed_update() -> void:
 	assert_eq(snapshot.lifecycle.has("completed_registration_sha256"), case_id != "completed_deleted")
 	assert_eq(snapshot.narrative_checkpoint.reading_session.captions.back().line_id, UPDATE.line("update.end", "last"))
 	assert_true(UPDATE.FINISH in profile.get_profile_snapshot().gallery_unlocks)
-	var proof := {"creator_pid": OS.get_process_id(), "case": case_id, "locator": "autosave", "path": path,
+	var proof := {"creator_pid": OS.get_process_id(), "case": case_id, "locator": "slot:4", "path": path,
 		"source_sha256": FileAccess.get_sha256(path), "snapshot": snapshot,
 		"profile": profile.get_profile_snapshot().duplicate(true), "profile_sha256": FileAccess.get_sha256("user://profile.json")}
 	if not _write_json(PROOF, proof): return
@@ -525,7 +539,7 @@ func _load_missing_content(proof: Dictionary, quit_process: bool, prior_loader_p
 	var evidence := {"case": case_id, "creator_pid": proof.creator_pid,
 		"loader_pid": prior_loader_pid if quit_process else OS.get_process_id(),
 		"reload_pid": OS.get_process_id() if quit_process else 0,
-		"source_sha256": proof.source_sha256, "source_filename": "autosave.json" if case_id == "completed_deleted" else "slot_1.json",
+		"source_sha256": proof.source_sha256, "source_filename": "slot_4.json" if case_id == "completed_deleted" else "slot_1.json",
 		"autosave_sha256": autosave_before, "missing_id": missing_id,
 		"old_source": proof, "assertions": get_assert_count(), "failures": get_fail_count(), "quit_activated": false}
 	if not quit_process:

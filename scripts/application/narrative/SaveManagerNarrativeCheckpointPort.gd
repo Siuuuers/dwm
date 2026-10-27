@@ -429,6 +429,23 @@ func _publish_scene_event(snapshot_input: Dictionary, checkpoint: Dictionary) ->
 	return {"ok": true, "durable": false,
 		"value": {"publication": {"kind": "live", "state_sha256": state_hash}}}
 
+## Reuse the retained Run owner selection for both real-write paths.
+func _capture_scene_target_audio(audio: Dictionary) -> Dictionary:
+	if not _scene_validate(_scene_entry, "commit"):
+		return _fail(&"scene_entry_custody_invalid", "audio capture requires retained entry")
+	_scene_callback_busy = true
+	var captured_audio: Variant = _scene_audio_source.call(_scene_entry.binding.duplicate(true))
+	_scene_callback_busy = false
+	if not captured_audio is Dictionary or not captured_audio.get("ok", false):
+		return _fail(&"scene_entry_audio_unavailable", "Run owner refused target audio capture")
+	if not _scene_validate(_scene_entry, "commit"):
+		return _fail(&"scene_entry_custody_invalid", "source changed during audio capture")
+	if captured_audio.get("value") != null:
+		if not captured_audio.value is Dictionary:
+			return _fail(&"scene_entry_audio_invalid", "target context must be an object")
+		audio = {"ok": true, "value": captured_audio.value.duplicate(true)}
+	return audio
+
 ## Only an explicitly authored checkpoint arrival selects this write. The staged
 ## target already includes its first caption, presentation and action consequences.
 func _save_named_presentation(snapshot_input: Dictionary, checkpoint: Dictionary) -> Dictionary:
@@ -438,11 +455,16 @@ func _save_named_presentation(snapshot_input: Dictionary, checkpoint: Dictionary
 	var checkpoint_hash := _fingerprint(checkpoint)
 	var active := _call_provider("active_app_id", [])
 	if not active.ok: return active
+	var audio := _call_provider("audio_context", [])
+	if not audio.ok: return audio
+	if _scene_audio_source.is_valid():
+		audio = _capture_scene_target_audio(audio)
+		if not audio.ok: return audio
 	var content := _call_provider("content_version", [])
 	if not content.ok: return content
 	var captured: Dictionary = _real_port.capture()
 	if not captured.get("ok", false): return captured
-	var inputs := _checkpoint_inputs(active.value, {}, content.value, checkpoint, "scene", snapshot_input)
+	var inputs := _checkpoint_inputs(active.value, audio.value, content.value, checkpoint, "scene", snapshot_input)
 	var prepared: Dictionary = _real_port.prepare(inputs, &"safe_marker", {"kind": &"autosave", "reason": &"automatic"})
 	if not prepared.get("ok", false): return prepared
 	var candidate: Dictionary = prepared.value.candidate
@@ -495,19 +517,8 @@ func _commit_scene_event_autosave(snapshot_input: Dictionary, checkpoint: Dictio
 	var audio := _call_provider("audio_context", [])
 	if not audio.ok: return audio
 	if scene_route and not _scene_entry.is_empty() and _scene_audio_source.is_valid():
-		if not _scene_validate(_scene_entry, "commit"):
-			return _fail(&"scene_entry_custody_invalid", "audio capture requires retained entry")
-		_scene_callback_busy = true
-		var captured_audio: Variant = _scene_audio_source.call(_scene_entry.binding.duplicate(true))
-		_scene_callback_busy = false
-		if not captured_audio is Dictionary or not captured_audio.get("ok", false):
-			return _fail(&"scene_entry_audio_unavailable", "Run owner refused target audio capture")
-		if not _scene_validate(_scene_entry, "commit"):
-			return _fail(&"scene_entry_custody_invalid", "source changed during audio capture")
-		if captured_audio.get("value") != null:
-			if not captured_audio.value is Dictionary:
-				return _fail(&"scene_entry_audio_invalid", "target context must be an object")
-			audio = {"ok": true, "value": captured_audio.value.duplicate(true)}
+		audio = _capture_scene_target_audio(audio)
+		if not audio.ok: return audio
 	var content := _call_provider("content_version", [])
 	if not content.ok: return content
 	var inputs := _checkpoint_inputs(active.value, audio.value, content.value, checkpoint, route.value, snapshot_input)

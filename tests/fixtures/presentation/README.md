@@ -9,7 +9,8 @@ Do not replace the existing assets or scenes with this fixture.
 - Set `scene_entry_id` to an existing art `scenes` key. That record supplies the
   background, base portraits, CG and split-panel preference.
 - Set `audio_plan_id` to an existing AudioManifest plan ID, or an empty string for
-  silence. The test example references the current `template.shared.music.plan`.
+  silence. The test example references the synthetic `template.shared.music.plan`; replace
+  it with a plan from your installed story registration.
 - Add each overlay label once under `overlay_labels`. Set `asset_id` to an existing
   art asset. Two labels may use the same image at different positions.
 - `rect` is `[x, y, width, height]` relative to the full scene art aperture. Values
@@ -20,17 +21,18 @@ The live Run retains `{checkpoint_id, overlays}`. Showing an active label
 and removing an absent label are no-ops. A new checkpoint clears that ordered
 list. Loading resolves the retained list directly and does not enter a checkpoint.
 
-The fixture does not trigger Autosave or designate any story location. Arrival
-markers and Run persistence are integrated by the narrative owner separately.
+The fixture is not installed in the production catalog and designates no story
+location. Installing an explicit checkpoint binding makes that authored arrival
+produce one Autosave; overlay-only bindings do not save.
 
 ## Bind existing entry labels
 
 Add `presentation_entries` beside the other members. Each key is an explicitly
-authored, registered entry label. Its value is an ordered array of commands:
+authored entry ID from the story registration (which resolves its DTL label). Its value is an ordered array of commands:
 
 ```json
 {
-  "Your.Entry.Label": [
+  "your.registered.entry.id": [
     {"kind": "checkpoint", "id": "your.checkpoint"},
     {"kind": "show", "id": "your.art.label"},
     {"kind": "remove", "id": "another.art.label"}

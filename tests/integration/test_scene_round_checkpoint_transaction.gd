@@ -119,7 +119,12 @@ func test_scene_round_live_custody_duplicate_and_manual_save() -> void:
 	assert_eq(game.capture_run_snapshot_input(), after)
 	assert_true(lower_trap.calls.is_empty())
 	actual_port._real_port = lower
-	if not _ok(saves.save_latest_to_slot(1)): return
+	var pause: Node = get_node("/root/SceneRouter")._production_pause
+	if not _ok(await pause.open_scene_backup("save")): return
+	var prepared: Dictionary = pause._backup_port.prepare_action("save", "slot:1")
+	if not _ok(prepared): return
+	if not _ok(pause._backup_port.commit_action(prepared.value.token)): return
+	if not _ok(await pause.request_continue()): return
 	var written: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("user://saves/slot_1.json"))
 	assert_eq(written.schema_version, 9)
 	assert_true(written.current_snapshot.snapshot.desktop.board.settled_inspection)

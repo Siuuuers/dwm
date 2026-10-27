@@ -623,6 +623,9 @@ if ($contentUpdate -or $Suite -in @('named_presentation', 'scene_checkpoint_ack'
         }
         $createProof = Get-Content -LiteralPath (Join-Path $output 'passage-connected-create-proof.json') -Raw | ConvertFrom-Json
         $loadProof = Get-Content -LiteralPath (Join-Path $output 'passage-connected-load-proof.json') -Raw | ConvertFrom-Json
+        if ($loadProof.finish_game_save_writes -ne 0 -or $loadProof.autosave_unchanged -ne $true) {
+            throw 'Ordinary Finish must preserve Autosave without a game-save write.'
+        }
         $replayProof = Get-Content -LiteralPath (Join-Path $output 'passage-connected-replay-proof.json') -Raw | ConvertFrom-Json
         if ($createProof.process_id -eq $loadProof.finisher_process_id -or
             $replayProof.process_id -eq $createProof.process_id -or
@@ -651,8 +654,8 @@ if ($contentUpdate -or $Suite -in @('named_presentation', 'scene_checkpoint_ack'
             $reloadProof.reload_pid -eq $loadProof.loader_pid -or $loadProof.source_sha256 -cne $createProof.source_sha256) {
             throw 'Content update evidence must bind the selected case, source and three distinct processes.'
         }
-        if ($contentUpdateCase -eq 'transfer_active' -and $reloadProof.binding_retry -ne $true) {
-            throw 'Active transfer must prove physical write refusal and successful Retry.'
+        if ($contentUpdateCase -eq 'transfer_active' -and $reloadProof.binding_live -ne $true) {
+            throw 'Active transfer must preserve the physical board without a game-save write or Retry.'
         }
         if ($contentErrorQuit) {
             # Real Quit ends GUT before JUnit can be finalized. Require its explicit
@@ -667,7 +670,7 @@ if ($contentUpdate -or $Suite -in @('named_presentation', 'scene_checkpoint_ack'
             $exits = @(Get-Content -LiteralPath (Join-Path $output "$Suite.jsonl") | ForEach-Object { $_ | ConvertFrom-Json })
             $quitExit = @($exits | Where-Object { [IO.Path]::GetFileName($_.log_path) -ceq "cloud-$Suite-settled-load.log" })
             if ($quitExit.Count -ne 1 -or $quitExit[0].exit_code -ne 0) { throw 'Production Quit did not exit successfully.' }
-            $expectedSource = if ($contentUpdateCase -eq 'completed_deleted') { 'autosave.json' } else { 'slot_1.json' }
+            $expectedSource = if ($contentUpdateCase -eq 'completed_deleted') { 'slot_4.json' } else { 'slot_1.json' }
             $savedPath = Join-Path (Join-Path $quitExit[0].user_dir 'saves') $expectedSource
             if ((Get-FileHash -LiteralPath $savedPath -Algorithm SHA256).Hash.ToLowerInvariant() -cne $createProof.source_sha256) {
                 throw 'Failed Load or Quit changed the existing source save.'

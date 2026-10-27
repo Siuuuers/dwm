@@ -127,7 +127,8 @@ func create_week() -> void:
 		"slot_sha256": FileAccess.get_sha256("user://saves/slot_1.json"),
 		"autosave_sha256": _autosave_sha256(),
 		"profile_sha256": FileAccess.get_sha256("user://profile.json")}
-	for key: String in ["slot_sha256", "autosave_sha256", "profile_sha256"]: assert_eq(str(proof[key]).length(), 64)
+	for key: String in ["slot_sha256", "profile_sha256"]: assert_eq(str(proof[key]).length(), 64)
+	assert_eq(proof.autosave_sha256, "", "ordinary seven-day reading never creates Autosave")
 	assert_eq(observed_lines.size(), 8, "first eight captions observed in order")
 	if not _write_json(WEEK_PROOF, proof): return
 	_write_json("res://.godot/ci/scene-seven-day-create-proof.json", proof)
@@ -230,8 +231,13 @@ func load_and_complete_week(stop_after_load: bool = false, witness_save: bool = 
 	# This opt-in journey keeps slot 2 as the restored Day4 witness, like export.
 	# The original ending-save/terminal-load journey remains unchanged by default.
 	if not witness_save and not await _save_ending_caption(): return
+	var autosave_before := _autosave_sha256()
+	var completed_capture := {}
 	var finish_results: Array[Dictionary] = []
-	bridge.next_request_finished.connect(func(_frontier: Dictionary, result: Dictionary) -> void: finish_results.append(result.duplicate(true)), CONNECT_ONE_SHOT)
+	bridge.next_request_finished.connect(func(_frontier: Dictionary, result: Dictionary) -> void:
+		finish_results.append(result.duplicate(true))
+		if witness_save and result.get("ok", false):
+			completed_capture.merge(get_node("/root/ApplicationBootstrap")._capture_paused_checkpoint_inputs(), true), CONNECT_ONE_SHOT)
 	_ending_phase("ending_completion.begin")
 	await _accept()
 	_ending_phase("ending_completion.accept_return")
@@ -244,10 +250,7 @@ func load_and_complete_week(stop_after_load: bool = false, witness_save: bool = 
 	assert_eq(finished.state, "COMPLETED")
 	assert_false(finished.has("ending_plan"), "completion is ordinary lifecycle state")
 	assert_false(game.capture_live_session().value.active, "completion retires live authority")
-	var durable: Dictionary = PARSER.parse_object(FileAccess.get_file_as_string("user://saves/autosave.json"))
-	if not _ok(durable): return
-	assert_eq(durable.value.current_snapshot.snapshot.lifecycle.state, "COMPLETED", "completion durable before Title")
-	assert_false(durable.value.current_snapshot.snapshot.lifecycle.has("ending_plan"))
+	assert_eq(_autosave_sha256(), autosave_before, "ordinary Finish does not write a game save")
 	assert_eq(FileAccess.get_sha256("user://saves/slot_1.json"), proof.slot_sha256, "ending preserves source save")
 	await _screenshot("seven-day-completed-title")
 	var completed_profile: Dictionary = profile.get_profile_snapshot().duplicate(true)
@@ -259,9 +262,12 @@ func load_and_complete_week(stop_after_load: bool = false, witness_save: bool = 
 		var witness: Dictionary = PARSER.parse_object(FileAccess.get_file_as_string("res://.godot/ci/scene-seven-day-witness-proof.json"))
 		if not _ok(witness): return
 		assert_eq(FileAccess.get_sha256("user://saves/slot_2.json"), witness.value.slot_sha256, "ending preserves restored Day4 witness")
-		# Retain exact terminal bytes before the existing New Acc tail replaces autosave.
+		# Explicit fixture Save preserves the actual completed capture for review.
+		if not _ok(completed_capture): return
+		if not _ok(saves.record_stable_checkpoint(completed_capture.value, &"manual_save")): return
+		if not _ok(saves.save_latest_to_slot(3)): return
 		var terminal_files := {}
-		for name: String in ["saves/autosave.json", "profile.json"]:
+		for name: String in ["saves/slot_3.json", "profile.json"]:
 			var source := "user://" + name
 			var destination := "res://.godot/ci/scene-seven-day-completed-" + name.get_file()
 			var copied: int = DirAccess.copy_absolute(ProjectSettings.globalize_path(source), ProjectSettings.globalize_path(destination))

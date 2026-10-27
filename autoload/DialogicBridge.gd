@@ -862,7 +862,7 @@ func _try_begin_art_hold(path: String, label_or_index: Variant) -> bool:
 	if profile != null and profile.has_method("get_preference"):
 		percent = int(profile.get_preference(&"preferences.accessibility.text_size", 100))
 	var view := _ART_HOLD_VIEW.new()
-	if not view.configure(source.entry_id, token, percent, _current_locale(), source.show_portraits):
+	if not view.configure(source.entry_id, token, percent, _current_locale(), source.show_portraits, "pixel", source.get("presentation", {})):
 		view.free()
 		return false
 	var layer := CanvasLayer.new()

@@ -2372,6 +2372,14 @@
       "kind": "function",
       "replacement": "",
       "symbol": "scene_challenge_is_suspended"
+    },
+    {
+      "symbol": "get_scene_presentation",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_named_arrival_manual_save_load_and_ordinary_overlay_continuation"
     }
   ]
 }

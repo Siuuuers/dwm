@@ -26,26 +26,24 @@ func create_multiple_thoughts() -> void:
 	assert_false(game.accept_scene_thought(stale, "missing").ok)
 	assert_true(game.scene_choices.is_empty())
 	assert_eq(game.scene_choices, {}, "invalid selection does not choose an option")
+	await _screenshot("multiple-thought-offer")
 	var original: RefCounted = saves._storage._file_ops
 	var refusal = WRITE_REFUSAL.WriteRefusal.new()
 	refusal.refuse_on = 1
+	var autosave_before: Dictionary = saves._storage.read_text("autosave.json")
+	var manual_before := FileAccess.get_sha256("user://saves/slot_1.json")
 	saves._storage._file_ops = refusal
 	await _click(column.get_child(1))
-	assert_eq(refusal.refused, 1)
-	assert_true(game.scene_choices.is_empty(), "failed persistence cannot choose any option")
-	assert_eq(game.scene_choices, {}, "refused persistence leaves explicit choice state unchanged")
-	assert_eq(bridge._runtime_adapter.current_line_id(), OFFER)
+	if not await _wait_line("line.scene.test.partner.lavinia.after"):
+		saves._storage._file_ops = original
+		return
+	assert_eq(refusal.refused, 0, "ordinary choice never attempts an automatic save")
+	assert_eq(saves._storage.read_text("autosave.json"), autosave_before)
+	assert_eq(FileAccess.get_sha256("user://saves/slot_1.json"), manual_before)
 	saves._storage._file_ops = original
 	var changed: Dictionary = game.accept_scene_thought(stale, "first")
-	assert_eq(changed.get("code"), &"scene_thought_conflict", "a retry cannot silently commit a different choice")
-	var passed: Dictionary = game.advance_scene_registered_marker()
-	assert_eq(passed.get("code"), &"scene_thought_conflict", "Continue cannot retry a retained accepted choice")
-	assert_true(game.scene_choices.is_empty(), "conflicting retry intents do not publish the retained choice")
-	assert_eq(bridge._runtime_adapter.current_line_id(), OFFER)
-	for frame: int in 12: await get_tree().process_frame
-	await _screenshot("multiple-thought-offer")
-	await _click(column.get_child(1))
-	if not await _wait_line("line.scene.test.partner.lavinia.after"): return
+	assert_false(changed.get("ok", false), "stale offer cannot replace the published choice")
+	assert_eq(game.scene_choices, {"TEST.partner": "second"})
 	assert_eq(game.scene_choices.size(), 1)
 	assert_eq(game.scene_choices["TEST.partner"], "second")
 	assert_eq(game.capture_run_snapshot_input().scene.entry_id, "scene.test.partner.lavinia")

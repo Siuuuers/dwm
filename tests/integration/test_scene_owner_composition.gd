@@ -84,18 +84,32 @@ func before_each() -> void:
 			return {"ok": true, "value": _binding.duplicate(true)}).ok)
 	_adapter.reading_frontier_restored.connect(_bridge._on_reading_frontier_restored)
 
+func _frame(entry: String, occurrence: String) -> Dictionary:
+	var frame := BASE.frame(entry, occurrence)
+	frame.presentation.fields.admission_receipt_id = occurrence
+	return frame
+
 func _start_source(target_id: String = "target_a", hold: bool = true) -> bool:
 	_binding = HELD.binding(target_id, "a:parent" if target_id == "return_a" else "a:next")
+	_binding.admission_receipt_id = _binding.target_occurrence_id
 	var created := BASE.create_session()
 	assert_true(created.ok, str(created))
 	if not created.ok: return false
 	_session = created.value
 	# A retained parent visit is admitted by this TEST owner; native playback
 	# below supplies both B captions from actual installed text event objects.
-	assert_true(BASE.enter(_session, BASE.A, "a:parent").ok)
+	assert_true(_session.admit_scene(BASE.A, _frame(BASE.A, "a:parent")).ok)
+	var parent_programme: Dictionary = _session.entry_program(BASE.A, _frame(BASE.A, "a:parent"))
+	assert_true(parent_programme.ok, str(parent_programme))
+	if not parent_programme.ok: return false
+	var parent_allocation: Dictionary = _session.ledger.allocate_publication(_session.command_id, BASE.A, "a:parent")
+	assert_true(parent_allocation.ok, str(parent_allocation))
+	if not parent_allocation.ok: return false
+	assert_true(_session.ledger.publish_line(_session.command_id, parent_allocation.value, BASE.A,
+		parent_programme.value.lines[0].line_id, "a:parent").ok)
 	# Record the encountered parent caption before switching the live occurrence.
 	assert_true(BASE.checkpoint(_session).ok)
-	var frame := BASE.frame(BASE.B, "b:held")
+	var frame := _frame(BASE.B, "b:held")
 	assert_true(_session.admit_scene(BASE.B, frame).ok)
 	assert_true(_adapter.bind_caption_ledger(_session.ledger, _session.command_id,
 		BASE.B, false, "b:held").ok)
@@ -133,7 +147,7 @@ func _start_source(target_id: String = "target_a", hold: bool = true) -> bool:
 	return true
 
 func _prepare() -> Dictionary:
-	return _bridge.prepare_day_entry(BASE.A, BASE.frame(BASE.A, _binding.target_occurrence_id))
+	return _bridge.prepare_day_entry(BASE.A, _frame(BASE.A, _binding.target_occurrence_id))
 
 func _assert_source_unchanged() -> void:
 	assert_same(_bridge._reading_session, _session)
