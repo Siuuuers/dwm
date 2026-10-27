@@ -1682,7 +1682,8 @@ func _layout_self_talk() -> void:
 	var panel_width := 480.0
 	if is_instance_valid(_dating_split_surface): panel_width = _dating_split_surface.get_portrait_width()
 	self_talk.position = Vector2(16, 16)
-	self_talk.configure(_caption_theme, maxf(32, panel_width - 48), _self_talk_input_admitted)
+	var pane_name: String = _localization.t("witnessed.self_talk.name") if is_instance_valid(_localization) else ""
+	self_talk.configure(_caption_theme, maxf(32, panel_width - 48), _self_talk_input_admitted, pane_name)
 
 func _refresh_self_talk() -> void:
 	if not is_instance_valid(self_talk) or not is_instance_valid(_transport_bridge) or not _transport_bridge.has_method("capture_self_talk_presentation"): return

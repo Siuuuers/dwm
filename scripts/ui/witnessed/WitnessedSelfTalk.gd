@@ -13,6 +13,7 @@ var _live_line_start := 0
 var _font: Font
 var _font_size := 20
 var _ink := Color.WHITE
+var _pane_name := ""
 var _admission: Callable
 var _drag_y := 0.0
 var _touch_index := -1
@@ -22,12 +23,12 @@ func _init() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	focus_mode = Control.FOCUS_ALL
 	clip_contents = true
-	accessibility_name = "Self-talk"
 	focus_entered.connect(queue_redraw)
 	focus_exited.connect(queue_redraw)
 
-func configure(next_theme: Theme, width: float, admission: Callable) -> void:
+func configure(next_theme: Theme, width: float, admission: Callable, pane_name: String = "") -> void:
 	_admission = admission
+	_pane_name = pane_name
 	var next_font := next_theme.get_font(&"normal_font", &"RichTextLabel")
 	var next_size := next_theme.get_font_size(&"normal_font_size", &"RichTextLabel")
 	var changed := _font != next_font or _font_size != next_size or size.x != width
@@ -36,6 +37,7 @@ func configure(next_theme: Theme, width: float, admission: Callable) -> void:
 	_ink = next_theme.get_color(&"default_color", &"RichTextLabel")
 	size.x = width
 	if changed: _shape()
+	else: _update_window()
 	queue_redraw()
 
 func project(rows: Array, live_start: int) -> void:
@@ -110,7 +112,7 @@ func _update_window() -> void:
 	var copy := PackedStringArray()
 	for row: Dictionary in _visible_rows():
 		copy.append(str(_rows[row.entry].text).substr(row.start, row.end - row.start))
-	accessibility_name = "\n".join(copy)
+	accessibility_name = _pane_name if copy.is_empty() else "\n".join(copy)
 	queue_redraw()
 
 func _visible_rows() -> Array[Dictionary]:

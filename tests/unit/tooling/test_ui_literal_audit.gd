@@ -399,3 +399,17 @@ func test_story_projection_owners_do_not_exempt_sibling_literals() -> void:
 		var sibling: String = snippet.replace(expressions[path], expressions[path] + ' + "Untranslated sibling"')
 		assert_false(_script(path, sibling).get("ok", true), "story projection does not own extra UI copy")
 		assert_false(_script("res://scripts/ui/Fixture.gd", snippet).get("ok", true), "ownership is path-specific")
+
+func test_computer_caret_has_exact_decorative_owner_and_localized_accessible_name() -> void:
+	var scene_path := "res://scenes/narrative/SceneHost.tscn"
+	var scene := _scene(scene_path, FileAccess.get_file_as_string(scene_path))
+	assert_true(scene.get("ok", false), JSON.stringify(scene))
+	if scene.get("ok", false):
+		assert_eq(_record(scene.value, "text", '"^"').get("disposition"), "decorative")
+	var script_path := "res://scripts/ui/SceneHost.gd"
+	var scanned := _script(script_path, FileAccess.get_file_as_string(script_path))
+	assert_true(scanned.get("ok", false), JSON.stringify(scanned))
+	if scanned.get("ok", false):
+		assert_eq(_record(scanned.value, "text", '"^"').get("disposition"), "decorative")
+		var expression := '_localization.t("scene.controls.close_computer" if _computer_open else "scene.controls.check_computer")'
+		assert_eq(_record(scanned.value, "accessibility_name", expression).get("disposition"), "localized_call")

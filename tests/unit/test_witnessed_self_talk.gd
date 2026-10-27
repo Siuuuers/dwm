@@ -57,3 +57,20 @@ func test_reflow_preserves_review_identity_and_three_row_limit() -> void:
 	assert_eq(after.visible_rows[0].id, anchor.id)
 	assert_lte(after.visible_rows[0].start, anchor.start)
 	assert_gte(after.visible_rows[0].end, anchor.start)
+
+func test_cleared_panel_keeps_localized_accessible_name() -> void:
+	var panel := _panel()
+	var rows := [{"id":"a", "text":"Synthetic thought"}]
+	panel.project(rows, 1)
+	for locale: String in ["en", "zh_CN", "zh_HK", "ja", "ko"]:
+		var catalogue: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://localization/ui/" + locale + ".json"))
+		var pane_name := ""
+		for entry: Dictionary in catalogue.messages:
+			if entry.id == "witnessed.self_talk.name": pane_name = entry.text
+		assert_false(pane_name.is_empty())
+		panel.configure(CAPTION_THEME.build(locale.replace("_", "-"), 100, "AfterHours"), 400, Callable(), pane_name)
+		assert_eq(panel.get_projection().visible_rows.size(), 0)
+		assert_eq(panel.accessibility_name, pane_name)
+		panel.review_rows(1)
+		assert_eq(panel.accessibility_name, "Synthetic thought")
+		panel.return_to_live()

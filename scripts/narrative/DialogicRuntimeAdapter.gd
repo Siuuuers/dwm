@@ -608,6 +608,7 @@ static func _compile_scene_programme_timeline(timeline: DialogicTimeline, text: 
 	var marker_labels := {}
 	var seen_lines := {}
 	var thought_pending := false
+	var pair_caption_index := -1
 	var clear_pending := false
 	for marker: Variant in markers:
 		if not marker is Dictionary or not marker.get("label") is String or marker_labels.has(marker.label):
@@ -616,6 +617,7 @@ static func _compile_scene_programme_timeline(timeline: DialogicTimeline, text: 
 	for index: int in timeline.events.size():
 		var event: DialogicEvent = timeline.events[index]
 		if event is DialogicLabelEvent:
+			pair_caption_index = -1
 			if thought_pending or clear_pending: return {"ok": false, "code": &"scene_self_talk_without_text"}
 			if event.name == entry_label:
 				found += 1
@@ -652,11 +654,13 @@ static func _compile_scene_programme_timeline(timeline: DialogicTimeline, text: 
 			seen_lines[line_id] = true
 			events.append({"kind": "text", "line_id": line_id, "text": prose})
 			if thought_pending:
-				if nodes.is_empty() or nodes.back().kind != "caption" or nodes.back().has("self_talk") or clear_pending:
+				if pair_caption_index < 0 or pair_caption_index != nodes.size() - 1 or nodes.back().kind != "caption" or nodes.back().has("self_talk") or clear_pending:
 					return {"ok": false, "code": &"scene_self_talk_without_caption"}
 				nodes.back()["self_talk"] = {"line_id": line_id, "text": prose, "native_index": index}
 				thought_pending = false
+				pair_caption_index = -1
 				continue
+			pair_caption_index = nodes.size()
 			nodes.append({"kind": "caption", "line_id": line_id, "next": nodes.size() + 1})
 			if clear_pending:
 				nodes.back()["self_talk_clear"] = true

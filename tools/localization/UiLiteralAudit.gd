@@ -13,6 +13,10 @@ const VALID_DISPOSITIONS := ["localized_binding", "localized_call", "runtime_dat
 ## Exact dormant scene values with a current, inspectable presenter. Including the literal in the
 ## key prevents changed copy from silently inheriting an obsolete disposition.
 const SCENE_LITERAL_OWNERS := {
+	"res://scenes/narrative/SceneHost.tscn|SceneControlsLayer/Surface/Controls/CheckComputer|text|^": {
+		"disposition": "decorative", "key": "", "reason": "computer caret glyph with a localized open/close accessible name",
+		"owner_path": "res://scripts/ui/SceneHost.gd",
+		"markers": ['computer.text = "^"', 'computer.accessibility_name = _localization.t("scene.controls.close_computer" if _computer_open else "scene.controls.check_computer")']},
 	"res://scenes/narrative/SceneHost.tscn|SceneControlsLayer/Surface/ThoughtYes|text|Yes": {
 		"disposition": "localized_call", "key": "scene.thought.yes",
 		"reason": "SceneHost refreshes the thought control from the catalogue before presentation",
@@ -80,6 +84,8 @@ const SCRIPT_LOCALIZATION_HELPERS := {
 }
 
 const SCRIPT_LITERAL_OWNERS := {
+	'res://scripts/ui/SceneHost.gd|text|"^"': {"disposition": "decorative", "key": "", "reason": "computer caret glyph; its accessible name comes from the current open/close catalogue key",
+		"marker": 'computer.accessibility_name = _localization.t("scene.controls.close_computer" if _computer_open else "scene.controls.check_computer")'},
 	'res://scripts/ui/SceneHost.gd|text|preload("res://scripts/localization/StoryLocalization.gd").text(locale, key, option.text)': {"disposition": "localized_call", "key": "dynamic", "reason": "story choice catalogue lookup with its registered source fallback"},
 	'res://scripts/ui/witnessed/WitnessedCaptionLayer.gd|text|preload("res://scripts/localization/StoryLocalization.gd").display_markup(retained.text)': {"disposition": "runtime_data", "key": "", "reason": "display markup for already projected story captions; resource path is not display copy"},
 	'res://scripts/ui/witnessed/WitnessedHistory.gd|text|preload("res://scripts/localization/StoryLocalization.gd").display_markup(_captions[index])': {"disposition": "runtime_data", "key": "", "reason": "display markup for retained story history; resource path is not display copy"},
@@ -98,7 +104,7 @@ const SCRIPT_LITERAL_OWNERS := {
 ## Exact expression digests keep component-owned locale tables reviewable without granting a
 ## general exemption to any expression that happens to contain locale names.
 const SCRIPT_EXPRESSION_OWNERS := {
-	"res://scripts/ui/SceneHost.gd|text|63ba9546beba1a05053429cb38304c066a977ff7b9fbd98a551cdd1e4cd929e1": {"key": "SceneHost.computer_toggle.inline", "reason": "exact conditional lookup of both registered computer-control catalogue keys"},
+	"res://scripts/ui/SceneHost.gd|accessibility_name|63ba9546beba1a05053429cb38304c066a977ff7b9fbd98a551cdd1e4cd929e1": {"key": "SceneHost.computer_toggle.inline", "reason": "exact conditional lookup of both registered computer-control catalogue keys"},
 	"res://scripts/ui/ComputerDesktop.gd|text|567dce303cc7221d63217020065864b73436623b13998a5acc2c07cb797159d2": {"key": "ComputerDesktop.launcher.inline", "reason": "exact current launcher title, configured home caption and complete five-locale unavailable fallback"},
 	"res://scripts/ui/ComputerDesktop.gd|text|8430a485cab6df7fed0e8ee884372956dad0bc4415f7aec12594bfe4acb58bd8": {"key": "ComputerDesktop.launcher.inline", "reason": "exact five-locale launcher label and unavailable fallback"},
 	"res://scripts/ui/ComputerDesktop.gd|accessibility_name|bb0b77d6035e06ce98e92d2a75870d80cfa834bbb4627b7df21c87e20b04e094": {"key": "ComputerDesktop.local_time.inline", "reason": "exact five-locale local-time label"},

@@ -7,16 +7,23 @@ const MANIFEST := preload("res://scripts/narrative/DialogicEntryManifest.gd")
 const ADAPTER := preload("res://scripts/narrative/DialogicRuntimeAdapter.gd")
 var _captures := 0
 
+func _self_talk_markers() -> Array:
+	return []
+
 func _install_content_registration() -> Dictionary:
 	var content: RefCounted = CONTENT.new()
 	var built: Dictionary = content._registration_bundle()
 	if not built.ok: return built
 	var bundle: Dictionary = built.value
+	var markers: Array = _self_talk_markers()
 	var labels: Array = []
 	for entry: Dictionary in bundle.entry_manifest.entries:
 		labels.append(entry.entry_id)
-		if entry.entry_id == "scene.test.a": entry.locators.en.path = SELF_TALK_DTL
-	var compiled: Dictionary = ADAPTER.compile_scene_programme(SELF_TALK_DTL, "scene.test.a", labels, [])
+		if entry.entry_id == "scene.test.a":
+			entry.locators.en.path = SELF_TALK_DTL
+			for marker: Dictionary in markers:
+				if marker.kind not in entry.allowed_signals: entry.allowed_signals.append(marker.kind)
+	var compiled: Dictionary = ADAPTER.compile_scene_programme(SELF_TALK_DTL, "scene.test.a", labels, markers)
 	if not compiled.ok: return compiled
 	var lines: Array = AUTHORING.caption_lines(compiled.value.events, {})
 	for row: Dictionary in bundle.caption_registry.entries:
@@ -30,6 +37,7 @@ func _install_content_registration() -> Dictionary:
 	bundle.ids_registry.lines = registered
 	for programme: Dictionary in bundle.scene_programme.entries:
 		if programme.entry_id == "scene.test.a":
+			programme.markers = markers
 			programme.content_sha256 = compiled.value.content_sha256
 			programme.program_sha256 = compiled.value.program_sha256
 	for row: Dictionary in bundle.targets:
@@ -108,10 +116,15 @@ func _resize_review(caption: Node, panel: Control) -> void:
 	assert_gte(resized.visible_rows[0].end, anchor.start)
 	assert_eq(bridge.capture_reading_checkpoint(false), before, "divider input never advances")
 	await _capture_self_talk("resized-review")
+	var localization: Node = get_node("/root/LocalizationManager")
 	for locale: String in ["zh-HK", "ja", "en"]:
-		assert_true(caption.configure_presentation(locale, 150, "AfterHours"))
+		# The rail and captions share the actual locale owner; a foreign tuple is
+		# deliberately refused. Exercise its normal change path before resizing text.
+		if not _ok(localization.set_locale(locale)): return
+		for frame: int in 3: await get_tree().process_frame
+		assert_true(caption.configure_presentation(locale, 150, "AfterHours"), "accepted locale/font tuple " + locale)
 		await get_tree().process_frame
-		assert_lte(panel.get_projection().visible_rows.size(), 3)
+		assert_lte(panel.get_projection().visible_rows.size(), 3, "three-row budget after " + locale + " font reflow")
 		assert_eq(bridge.capture_reading_checkpoint(false), before, "locale/font reflow does not republish")
-	assert_true(caption.configure_presentation("en", 100, "AfterHours"))
+	assert_true(caption.configure_presentation("en", 100, "AfterHours"), "restore matching English 100% presentation")
 

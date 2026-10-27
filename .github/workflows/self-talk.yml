@@ -20,7 +20,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        suite: [self_talk_unit, self_talk_runtime, self_talk_ui, self_talk_skip, self_talk_journey, self_talk_review, scene_day_history, scene_direct_controls]
+        suite: [self_talk_unit, self_talk_runtime, self_talk_ui, self_talk_skip, self_talk_journey, self_talk_review, self_talk_transport, scene_day_history, scene_direct_controls]
     defaults:
       run:
         shell: pwsh

@@ -1,8 +1,9 @@
 # Self-talk implementation plan
 
 Updated: 28 October 2026, Hong Kong time.
-Status: design handoff; runtime implementation has not started. The row budget
-and retention behavior are selected.
+Status: implementation candidate on `feat/self-talk-paired-reading`; cloud
+acceptance pending. The row budget, retention, instant thought reveal and
+caption-then-thought speech behavior are selected.
 Parent: [Current and future feature plan](2026-10-28-current-and-future-feature-plan.md).
 
 ## Owner decisions
@@ -148,16 +149,32 @@ Use focused commits and tests for each behavior, followed by the integrated
 journey. Keep self-talk the first priority. Do not couple acceptance of this UI
 work to Shop, decorative ink marks, Gallery library or dissolve implementation.
 
-## Remaining bounded authoring details
+## Selected authoring syntax
 
-Select exact marker spelling and explicit-clear syntax through the existing
-DTL authoring path. The display marker applies to one line only. Orphan marker
-handling and multiple consecutive marked thoughts must be inspected before
-expanding beyond the selected one-caption/one-thought case. Do not infer that
-every label or actionable thought choice is this display marker.
+Use a standalone DTL comment `# self-talk` immediately before the thought text,
+after its primary caption. Both text records retain their own `#id:` identity:
 
-The two display questions are closed: three rendered rows total, and retention
-until new thought rows displace old rows or an explicit clear occurs.
+```text
+TEST caption. #id:fixture.caption
+# self-talk
+TEST attached thought. #id:fixture.thought
+```
+
+`# self-talk-clear` immediately before an ordinary caption clears the live
+thought window when that caption appears. It does not erase encountered IDs.
+The marker is metadata, not an extra reading step. Only the selected contiguous
+one-caption/one-thought case is supported; orphan and multiple attached thoughts
+are authoring errors. Existing actionable `thought.options` and `thought.pass`
+controls retain their separate meanings.
+
+The ordinary caption remains the single command/save frontier. Its attached
+thought has a separate authored identity in the existing encountered History
+and Global read witnesses. No second persistent transcript or compact save
+schema was introduced. Load preserves the saved encountered IDs.
+
+Existing Gallery passage cards display caption then attached thought in the
+same card. This preserves their existing paired step and read-only behavior;
+it does not implement the deferred Global Gallery library.
 
 ## Cloud acceptance
 
