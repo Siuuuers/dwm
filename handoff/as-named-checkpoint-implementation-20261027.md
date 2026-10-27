@@ -4,6 +4,8 @@ Date: 2026-10-27.
 Implementation: [PR 133](https://github.com/Siuuuers/dwm/pull/133).
 Read that PR for the exact accepted commit, cloud runs and merge status.
 This record continues [ar](ar-named-checkpoint-autosave-plan-20261027.md).
+Next plan: [trusted live Save and repeated reading validation](at-trusted-live-save-plan-20261027.md).
+That plan takes priority over the general registry investigation below.
 
 ## Player behavior
 
