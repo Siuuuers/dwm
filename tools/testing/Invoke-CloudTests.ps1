@@ -595,7 +595,7 @@ if ($contentUpdate -or $Suite -in @('scene_checkpoint_ack', 'scene_owner_composi
     }
     if ($xml.SelectNodes('//skipped').Count -ne 0) { throw 'Selected scene coverage was skipped.' }
 }
-if ($contentUpdate -or $Suite -in @('scene_checkpoint_ack', 'scene_owner_composition', 'scene_content_contracts', 'scene_contacts', 'scene_current_creation', 'scene_current_frames', 'scene_current_challenge', 'scene_current_snapshot', 'scene_passage_connected', 'scene_passage_catalogue', 'scene_audio_connected', 'scene_save_metadata')) {
+if ($contentUpdate -or $Suite -in @('scene_checkpoint_ack', 'scene_owner_composition', 'scene_content_contracts', 'scene_contacts', 'scene_current_creation', 'scene_current_frames', 'scene_current_challenge', 'scene_current_snapshot', 'scene_passage_connected', 'scene_passage_catalogue', 'scene_audio_connected', 'scene_save_metadata', 'scene_player_position')) {
     # Require every concrete selected method, not merely a nonempty imported file.
     $caseEvidence = @()
     foreach ($script in $suites[$Suite]) {

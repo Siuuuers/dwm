@@ -227,14 +227,9 @@ static func project_player_checkpoint(checkpoint: Dictionary) -> Dictionary:
 	if reading.schema_version == 7:
 		var checked: Dictionary = session.restore_player(reading, str(checkpoint.get("entry_id", "")))
 		if not checked.ok: return checked
-		var copy := checkpoint.duplicate(true)
-		var expanded: Dictionary = session.capture({"line_id": reading.captions.back().line_id,
-			"publication_id": reading.captions.back().publication_id} if reading.boundary == "line" else {})
-		if not expanded.ok: return expanded
-		var projected: Dictionary = session._project_player_reading(expanded.value)
-		if not projected.ok: return projected
-		copy.reading_session = projected.value
-		return {"ok": true, "value": copy}
+		# Accepted compact state is already canonical; comparison needs a detached
+		# copy, not another expansion and restoration of the same position.
+		return {"ok": true, "value": checkpoint.duplicate(true)}
 	var restored: Dictionary = session.restore(reading, str(checkpoint.get("entry_id", "")))
 	if not restored.ok: return restored
 	var projected: Dictionary = session._project_player_reading(reading)

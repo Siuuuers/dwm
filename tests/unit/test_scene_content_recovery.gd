@@ -96,6 +96,36 @@ func test_wording_and_insertion_keep_saved_moment_and_only_encountered_history()
 		["line.scene.test.b.one", "line.scene.test.b.two"])
 	assert_eq(projected.value.captions.back().text, "B revised second.")
 
+func test_compact_completion_projection_preserves_position_and_detaches_history() -> void:
+	_install(_source().replace("jump scene.test.a.loop", "return"))
+	var made := FIXTURE.create_session()
+	assert_true(made.ok, str(made))
+	if not made.ok: return
+	var session: RefCounted = made.value
+	assert_true(FIXTURE.enter(session, FIXTURE.A, "test:completion").ok)
+	assert_true(FIXTURE.advance_detached(session).ok)
+	assert_true(FIXTURE.advance_detached(session).ok)
+	assert_eq(session.boundary, "between_entries")
+	var captured: Dictionary = session.capture({})
+	assert_true(captured.ok, str(captured))
+	if not captured.ok: return
+	var checkpoint := {"entry_id": FIXTURE.A, "stage": "scene", "reading_session": captured.value}
+	var compact := SESSION.project_player_checkpoint(checkpoint)
+	assert_true(compact.ok, str(compact))
+	if not compact.ok: return
+	var before: Dictionary = compact.value.duplicate(true)
+	var projected := SESSION.project_player_checkpoint(compact.value)
+	assert_eq(projected, compact, "natural completion retains its last caption and completed boundary")
+	if not projected.ok: return
+	var restored := SESSION.new()
+	assert_true(restored.configure_scene().ok)
+	assert_true(restored.restore_player(projected.value.reading_session, FIXTURE.A).ok)
+	assert_eq(restored.boundary, "between_entries")
+	assert_eq(restored.scene_index, session.scene_index)
+	projected.value.reading_session.captions[0].line_id = "changed.caption"
+	projected.value.reading_session.history_sections[0].append("changed.history")
+	assert_eq(compact.value, before, "completion projection is detached")
+
 func test_deleted_line_uses_anchor_and_deleted_anchor_uses_day_start() -> void:
 	_install(_source())
 	var saved := _saved_second()

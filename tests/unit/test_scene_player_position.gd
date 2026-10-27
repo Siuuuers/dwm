@@ -84,6 +84,25 @@ func test_held_control_keeps_authored_predecessor_without_traversal_proof() -> v
 	assert_eq(restored.prepare_scene_control_continuation(), session.prepare_scene_control_continuation(),
 		"transition control still requires route-owner departure")
 
+func test_compact_line_and_control_projection_is_idempotent_and_detached() -> void:
+	for held: bool in [false, true]:
+		var session := _session(FIXTURE.B)
+		if session == null: return
+		assert_true(FIXTURE.advance_detached(session).ok)
+		if held: assert_true(FIXTURE.advance_detached(session).ok)
+		var player := SESSION.project_player_checkpoint(_checkpoint(session))
+		assert_true(player.ok, str(player))
+		if not player.ok: return
+		var before: Dictionary = player.value.duplicate(true)
+		var projected := SESSION.project_player_checkpoint(player.value)
+		assert_eq(projected, player, "line and held control retain exact compact state")
+		if not projected.ok: return
+		projected.value.reading_session.captions[0].line_id = "changed.caption"
+		projected.value.reading_session.history_sections[0].append("changed.history")
+		projected.value.reading_session.recovery_anchor.line_id = "changed.anchor"
+		projected.value.frozen_context.presentation.fields.entry_id = "changed.context"
+		assert_eq(player.value, before, "mutating a projected checkpoint cannot change its source")
+
 func test_invalid_locator_memory_and_compatibility_refuse_before_adoption() -> void:
 	var session := _session()
 	if session == null: return
@@ -100,6 +119,11 @@ func test_invalid_locator_memory_and_compatibility_refuse_before_adoption() -> v
 			"publication_serial": bad.publication_serial = 0
 			"captions": bad.captions.append(bad.captions[0].duplicate(true))
 		assert_false(session.restore_player(bad, session.latest_entry).ok, field)
+		var checkpoint: Dictionary = player.value.duplicate(true)
+		checkpoint.reading_session = bad
+		var unchanged := checkpoint.duplicate(true)
+		assert_false(SESSION.project_player_checkpoint(checkpoint).ok, field)
+		assert_eq(checkpoint, unchanged, "failed projection leaves supplied checkpoint intact")
 		assert_eq(_checkpoint(session), before, "refusal leaves live state intact: " + field)
 
 func test_compact_publication_requires_canonical_positive_unexhausted_counter() -> void:
