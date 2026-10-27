@@ -1,5 +1,7 @@
 # Trusted Load accepted; measure duplicate History refresh next
 
+> Later plan: [named presentation checkpoints and checkpoint-only Autosave](ar-named-checkpoint-autosave-plan-20261027.md) changes future Autosave scheduling and presentation-feature priority. It is approved but not implemented. Historical measurements below remain valid; [aq](aq-trusted-reading-accepted-20261027.md) records accepted runtime and edited-DTL behavior.
+
 Date: 2026-10-27, Hong Kong time.
 Status: PR 118 merged. This record adds evidence and a next experiment, not runtime changes.
 
