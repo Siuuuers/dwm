@@ -3,6 +3,8 @@
 Date: 2026-10-27, Hong Kong time.
 Status: PR 124 merged and accepted.
 
+Next-work amendment: [ap](ap-trusted-checkpoints-edited-dtl-20261027.md) records the later user-approved checkpoint and edited-DTL policy. It supersedes the refusal-preservation and edited-DTL scope instructions below. The measurements and accepted implementation in this file remain historical evidence.
+
 ## Scope
 
 Continue [an](an-checkpoint-reference-20261027.md). Measure the same native Enter transition from line.Day1.031 to line.Day1.photo.default.001, preserving the pass choice, Run identity, encountered History and subsequent Save/Autosave.
