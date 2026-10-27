@@ -73,11 +73,19 @@ Required behavior:
 - Save/Load preserves or reconstructs the required self-talk position and display.
 - Global read identity remains stable; UI animation does not create extra read marks.
 
-Before implementation, settle the exact label syntax and its scope (one line or a
-bounded section), and when displayed self-talk clears or is replaced. Same-DTL
-ordering removes the need to merge two independently advancing transcripts.
-Ordered publication, stable read IDs and exact restoration still use existing
-reading/History ownership. No new narrative content is selected here.
+The marker applies to one self-talk line in the same DTL, paired with the
+preceding caption. Both appear together in one reading step, without an extra
+Advance. The self-talk view fills from the top and shows at most THREE RENDERED
+TEXT ROWS TOTAL, counting wrapping. New thought rows push oldest rows out.
+A caption without attached self-talk retains the existing thoughts. Clear only
+through an explicit clear, not automatically when ordinary dialogue resumes.
+This differs from the current caption code's three-entry limit; do not silently
+change ordinary caption behavior as part of this clarification.
+
+The [separate self-talk implementation plan](2026-10-28-self-talk-implementation-plan.md)
+owns the detailed handoff and cloud acceptance. Exact marker/clear spelling
+remains an implementation detail. Preserve stable IDs, ordered History and
+direct restoration; no new narrative content is selected here.
 
 ## Additional current UI request
 
