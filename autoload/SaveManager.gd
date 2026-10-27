@@ -92,6 +92,7 @@ var _restore_participants: Dictionary = {}
 var _backup_actions: Dictionary = {}
 var _backup_action_sequence := 0
 var _backup_capture_provider: Callable
+var _backup_capture_available: Callable
 var _paused_desktop_admission: Callable
 var _backup_capture_configured := false
 ## Bytes-only parser reuse. Schema/content admission and all storage custody checks
@@ -103,14 +104,19 @@ var _document_parse_cache_text_bytes := 0
 
 ## Bootstrap owns the live desktop source. Fixtures without this provider retain
 ## their explicit latest-stable contract; production never silently falls back.
-func configure_backup_capture_provider(provider: Callable, paused_desktop_admission: Callable = Callable()) -> Dictionary:
+func configure_backup_capture_provider(provider: Callable, paused_desktop_admission: Callable = Callable(),
+		available: Callable = Callable()) -> Dictionary:
 	if not provider.is_valid() or provider.get_argument_count() != 0 or provider.get_object_id() == 0:
 		return _fail(&"invalid_backup_capture_provider", "A bound zero-argument provider is required")
 	if paused_desktop_admission.is_valid() and paused_desktop_admission.get_argument_count() != 1:
 		return _fail(&"invalid_backup_capture_provider", "Paused desktop admission takes exact capture inputs")
-	if _backup_capture_configured and (_backup_capture_provider != provider or _paused_desktop_admission != paused_desktop_admission):
+	if not available.is_null() and (not available.is_valid() or available.get_argument_count() != 0):
+		return _fail(&"invalid_backup_capture_provider", "Availability takes no capture inputs")
+	if _backup_capture_configured and (_backup_capture_provider != provider or _paused_desktop_admission != paused_desktop_admission \
+			or _backup_capture_available != available):
 		return _fail(&"backup_capture_already_configured", "")
 	_backup_capture_provider = provider
+	_backup_capture_available = available
 	_paused_desktop_admission = paused_desktop_admission
 	_backup_capture_configured = true
 	return {"ok": true}
@@ -1522,6 +1528,11 @@ func get_backup_save_capability() -> Dictionary:
 	if not get_latest_stable_checkpoint().get("ok", false):
 		return {"enabled": false, "reason": "no_stable_checkpoint"}
 	if _backup_capture_configured:
+		if not _backup_capture_provider.is_valid():
+			return {"enabled": false, "reason": "backup_capture_unavailable"}
+		if not _backup_capture_available.is_null():
+			var enabled: bool = _backup_capture_available.is_valid() and _backup_capture_available.call()
+			return {"enabled": enabled, "reason": "" if enabled else "backup_capture_unavailable"}
 		var captured := _capture_backup_inputs()
 		if not captured.get("ok", false):
 			return {"enabled": false, "reason": str(captured.get("code", "backup_capture_unavailable"))}
@@ -1891,23 +1902,14 @@ func _capture_backup_inputs() -> Dictionary:
 	if not (desktop or dating or hospital or ending or scene) or (not narrative.is_empty() and (not (dating or hospital or ending or scene) or not narrative.has("reading_session"))) \
 			or inputs["snapshot_input"]["lifecycle"].get("state") != ("ENDING" if ending else "PLAYING"):
 		return _fail(&"backup_capture_unavailable", "A qualified desktop or admitted reading capture is required")
-	if not narrative.is_empty():
-		# Full Run composition below performs the same cross-owner validation.
-		# This capture boundary also refuses malformed/foreign reading sessions
-		# before returning an apparently qualified source to Backup's token flow.
+	if not narrative.is_empty() and not inputs.snapshot_input.has("scene"):
+		# Scene capture already comes from the live reading owner. Preparation
+		# builds its complete Run9 candidate once; capability and freshness reads
+		# do not need to construct another snapshot or restore temporary ledgers.
+		# Keep the historical non-scene reading admission at this boundary.
 		var snapshot: Dictionary = inputs["snapshot_input"].duplicate(true)
 		snapshot["route_id"] = inputs["route_id"]
 		snapshot["narrative_checkpoint"] = narrative
-		if inputs.snapshot_input.has("scene"):
-			# Run9 authority is validated against its real schema-built document,
-			# never a live input dictionary with a fabricated version field.
-			var sequence: Dictionary = _journal.peek_next_sequence(str(inputs.snapshot_input.lifecycle.get("run_id", "")))
-			if not sequence.get("ok", false): return sequence
-			var built: Dictionary = RUN_SNAPSHOT_SCHEMA.build(_compose_live_checkpoint_input(inputs.snapshot_input),
-				narrative, inputs.route_id, inputs.active_app_id, inputs.audio_context,
-				inputs.content_version, sequence.value.checkpoint_sequence)
-			if not built.get("ok", false): return built
-			snapshot = built.value.snapshot
 		var reading: Dictionary = preload("res://scripts/narrative/FrozenRunContext.gd").validate_reading_checkpoint(narrative, snapshot)
 		if not reading.get("ok", false): return reading
 	return {"ok": true, "value": inputs}
@@ -1940,7 +1942,7 @@ func _prepare_backup_capture() -> Dictionary:
 		inputs["route_id"], inputs["active_app_id"], inputs["audio_context"], inputs["content_version"], sequence["value"]["checkpoint_sequence"])
 	if not built.get("ok", false):
 		return built
-	var prepared: Dictionary = _journal.prepare_record(built["value"]["snapshot"], &"manual_save")
+	var prepared: Dictionary = _journal.prepare_record(built["value"]["snapshot"], &"manual_save", built["value"]["snapshot"])
 	if not prepared.get("ok", false):
 		return prepared
 	if _backup_journal_hash() != journal_hash:

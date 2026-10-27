@@ -61,7 +61,8 @@ class RecoverySaves extends Node:
 			return _pending()
 		return {"ok": true, "value": {"resumed": [transaction_id]}}
 
-	func configure_backup_capture_provider(_provider: Callable, _paused_desktop_admission: Callable = Callable()) -> Dictionary:
+	func configure_backup_capture_provider(_provider: Callable, _paused_desktop_admission: Callable = Callable(),
+			_available: Callable = Callable()) -> Dictionary:
 		backup_bind_count += 1
 		return {"ok": true}
 

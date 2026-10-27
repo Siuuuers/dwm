@@ -2921,9 +2921,8 @@ func can_capture_reading_checkpoint() -> bool:
 				and _runtime_adapter.has_method("capture_scene_control_position") \
 				and _runtime_adapter.has_method("project_scene_control_frontier") \
 				and _runtime_adapter.project_scene_control_frontier(_reading_session).get("ok", false)
-		var retained: Dictionary = _reading_session.ledger.snapshot()
-		var frame := preload("res://scripts/narrative/NarrativeCaptionLedger.gd").resolve_scene_frame(
-			retained.entry_contexts, _reading_session.scene_occurrence, _reading_session.latest_entry)
+		var frame: Dictionary = _reading_session.ledger.check_session(_reading_session.command_id,
+			_reading_session.latest_entry, _reading_session.scene_occurrence)
 		if not frame.ok or not _READING_TRAVERSAL._same(frame.value, _active_entry.get("frozen_context")):
 			return false
 		return _runtime_adapter.can_capture_reading_frontier()

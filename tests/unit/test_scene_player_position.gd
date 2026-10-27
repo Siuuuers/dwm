@@ -151,7 +151,7 @@ func test_live_projection_preserves_loop_history_and_multiple_occurrences() -> v
 		projected.value.reading_session.history_sections[0].append("changed.history")
 		assert_eq(live, before, "compact History does not alias the live capture")
 
-func test_live_projection_keeps_wrapper_and_required_compact_reference_checks() -> void:
+func test_live_projection_keeps_wrapper_checks_and_restore_owns_reference_checks() -> void:
 	var session := _session(FIXTURE.B)
 	if session == null: return
 	assert_true(FIXTURE.advance_detached(session).ok)
@@ -165,7 +165,13 @@ func test_live_projection_keeps_wrapper_and_required_compact_reference_checks() 
 			"caption": bad.reading_session.ledger.captions.back().beat.line_id = "line.missing"
 			"publication": bad.reading_session.ledger.captions.back().publication_id = "invented"
 		var before := bad.duplicate(true)
-		assert_false(SESSION.project_player_checkpoint(bad).ok, changed)
+		var projected := SESSION.project_player_checkpoint(bad)
+		if changed in ["wrapper", "control"]:
+			assert_false(projected.ok, changed)
+		else:
+			assert_true(projected.ok, "live projection does not restore a temporary session")
+			if projected.ok:
+				assert_false(session.restore_player(projected.value.reading_session, session.latest_entry).ok, changed)
 		assert_eq(bad, before, "refusal leaves captured source intact")
 
 func test_invalid_locator_memory_and_compatibility_refuse_before_adoption() -> void:

@@ -396,10 +396,9 @@ func _project_player_reading(saved: Dictionary) -> Dictionary:
 	if progress.is_empty():
 		TRAVERSAL.append_player_caption(progress, saved.entry_id, captions.back().line_id, _story_day(saved.entry_id))
 	compact.merge(progress)
-	# Authoritative current position must also resolve without the removed history.
-	var candidate: RefCounted = _fork_scene_configuration()
-	var checked: Dictionary = candidate.restore_player(compact, saved.entry_id)
-	return {"ok": true, "value": compact} if checked.ok else checked
+	# The live reading owner already admitted this position. Projection does not
+	# install a session, so it must not reconstruct a ledger to check its own output.
+	return {"ok": true, "value": compact}
 
 func restore_player(saved: Dictionary, entry_id: String) -> Dictionary:
 	if not catalogue.has(entry_id):

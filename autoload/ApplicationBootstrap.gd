@@ -634,7 +634,8 @@ func _run_stage(stage_id: StringName, mode: StringName) -> Dictionary:
 			var graph := _configure_desktop_production_graph()
 			if not graph.get("ok", false):
 				return graph
-			var capture_bound: Dictionary = _target(&"SaveManager").configure_backup_capture_provider(_capture_backup_checkpoint_inputs, _admit_paused_desktop_backup)
+			var capture_bound: Dictionary = _target(&"SaveManager").configure_backup_capture_provider(
+				_capture_backup_checkpoint_inputs, _admit_paused_desktop_backup, _can_capture_backup_checkpoint_inputs)
 			if not capture_bound.get("ok", false): return capture_bound
 			var pause_router := _target(&"SceneRouter")
 			if pause_router.has_signal("restore_publication_released") and not pause_router.is_connected("restore_publication_released", _queue_live_continuation):
@@ -928,6 +929,17 @@ func _active_app_id_context() -> Variant:
 	# The host owns StringName IDs; the narrative provider owns primitive Strings.
 	# Preserve null and malformed values so the strict consumer can still refuse.
 	return String(active) if typeof(active) == TYPE_STRING_NAME else active
+
+## Scene availability belongs to the retained Pause owner, without Save capture.
+func _can_capture_backup_checkpoint_inputs() -> bool:
+	if not _state.get("ready", false) or _application_gate == null or _checkpoint_provider_bundle.is_empty():
+		return false
+	if not _application_gate.guard_external(&"backup_capture").get("ok", false): return false
+	var router := _target(&"SceneRouter")
+	if router != null and get_tree().paused and router.get_current_route_id() == "scene":
+		return router.can_capture_pause_backup_checkpoint_inputs()
+	return _capture_backup_checkpoint_inputs().get("ok", false)
+
 
 ## One pure desktop capture. Physical route readiness and narrative inactivity are
 ## required; a semantic route token or an old journal entry cannot stand in for them.
