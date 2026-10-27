@@ -1,9 +1,9 @@
 # Self-talk implementation plan
 
 Updated: 28 October 2026, Hong Kong time.
-Status: implementation candidate on `feat/self-talk-paired-reading`; cloud
-acceptance pending. The row budget, retention, instant thought reveal and
-caption-then-thought speech behavior are selected.
+Implementation and cloud acceptance: [PR #140](https://github.com/Siuuuers/dwm/pull/140).
+The PR records merge status and final cloud checks. The row budget, retention,
+instant thought reveal and caption-then-thought speech behavior are selected.
 Parent: [Current and future feature plan](2026-10-28-current-and-future-feature-plan.md).
 
 ## Owner decisions
@@ -178,7 +178,16 @@ it does not implement the deferred Global Gallery library.
 
 ## Cloud acceptance
 
-Godot and PowerShell execution stays in GitHub Actions.
+Godot and PowerShell execution stays in GitHub Actions. The existing Windows
+workflow includes the focused self-talk suites, actual Auto/Skip journeys and a
+separate-process physical Load check. Its public-surface, export and rendered
+regressions remain enabled. No standalone duplicate workflow is retained.
+
+Skip-all was reproduced stopping during native caption replacement before the
+new frontier settled. Its controller now checks admission before the next
+mutation; required boundaries, explicit retirement and failures still stop it.
+The unread-text regression passed in the diagnostic cloud run; use the PR checks
+for acceptance of the complete final candidate.
 
 - One Advance displays a caption and attached thought together; there is no
   extra self-talk progression step.
