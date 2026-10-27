@@ -1978,6 +1978,8 @@ func test_assistive_caption_callbacks_retire_on_hide_pause_and_same_text_replace
 	var hidden_action := _caption_accessibility_action()
 	caption.caption_text.hide()
 	caption.caption_text.show()
+	# Showing resumes organic reveal; keep this input-lifetime fixture stationary.
+	caption.caption_text.set_process(false)
 	await _settle()
 	hidden_action.call(null)
 	assert_eq(_finished, 0, "hide/show cannot resurrect a retained action")
@@ -1985,6 +1987,7 @@ func test_assistive_caption_callbacks_retire_on_hide_pause_and_same_text_replace
 	runtime.paused = true
 	paused_action.call(null)
 	runtime.paused = false
+	caption.caption_text.set_process(false)
 	await _settle()
 	paused_action.call(null)
 	assert_eq(_finished, 0, "Pause/resume cannot resurrect the source action")
@@ -2027,6 +2030,10 @@ func test_assistive_review_current_returns_to_live_caption_without_advancing() -
 	assert_true(caption.review_current.visible)
 	var action := _caption_accessibility_action(caption.review_current)
 	action.call(null)
+	assert_eq(_finished, finished_before, "the review action itself never finishes live text")
+	# Return-to-live correctly resumes typing; exclude organic completion from
+	# this stale-action test while leaving runtime input and callbacks active.
+	caption.caption_text.set_process(false)
 	await _settle()
 	assert_false(caption.review_current.visible, "Normal Accept exits transient review first")
 	assert_true(caption.caption_text.visible)

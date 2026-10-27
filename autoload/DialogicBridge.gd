@@ -3070,6 +3070,8 @@ func get_reading_history() -> Dictionary:
 		if not captured.ok: return captured
 		frontier = captured.value
 	var history: Dictionary = _scene_day_history(frontier) if _reading_session.family == "scene" else _reading_session.project(frontier)
+	if history.ok and _reading_session.family == "scene":
+		history.value.captions = history.value.captions.filter(func(row: Dictionary) -> bool: return not row.get("self_talk", false))
 	return _STORY_LOCALE.project(history, _current_locale())
 
 

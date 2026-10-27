@@ -62,11 +62,6 @@ func test_scene_skip_all_crosses_unread_text_and_stops_before_challenge() -> voi
 	assert_false(_fixture.profile.is_line_visited(LAST))
 	var skip: Button = layer.transport_rail.get_node("Skip")
 	assert_false(skip.disabled, "current Scene admits Skip through the live owner")
-	layer.skip_controller.state_changed.connect(func() -> void:
-		if layer.skip_controller.is_skip_active(): return
-		print("DWM_SCENE_SKIP_STOP " + JSON.stringify({"stack": get_stack(),
-			"line": _fixture.adapter.current_line_id(), "waiting": layer._line_waiting_for_text,
-			"admitted": layer._transport_admitted(), "context": _fixture.bridge.capture_current_line_presentation_frontier()})))
 	skip.grab_focus()
 	for pressed: bool in [true, false]:
 		var key := InputEventKey.new()

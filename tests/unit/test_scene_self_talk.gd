@@ -55,3 +55,23 @@ func test_existing_passage_card_keeps_attached_thought_in_same_step() -> void:
 	var card: Dictionary = bridge._scene_passage_replay_card()
 	assert_eq(card.body, "Caption.\n\nThought.")
 	assert_eq(card.receipt.line_id, "a")
+
+class HistorySession extends RefCounted:
+	var family := "scene"
+	var boundary := "between_entries"
+
+class HistoryBridge extends "res://autoload/DialogicBridge.gd":
+	var encountered := [{"line_id": "caption", "text": "Caption."},
+		{"line_id": "thought", "text": "Thought.", "self_talk": true}]
+	func can_capture_reading_checkpoint() -> bool:
+		return true
+	func _scene_day_history(_frontier: Dictionary) -> Dictionary:
+		return {"ok": true, "value": {"captions": encountered.duplicate(true)}}
+
+func test_public_history_excludes_thoughts_without_removing_encountered_ids() -> void:
+	var bridge: Node = add_child_autofree(HistoryBridge.new())
+	bridge._reading_session = HistorySession.new()
+	var result: Dictionary = bridge.get_reading_history()
+	assert_true(result.ok)
+	assert_eq(result.value.captions.map(func(row: Dictionary) -> String: return row.line_id), ["caption"])
+	assert_eq(bridge.encountered.map(func(row: Dictionary) -> String: return row.line_id), ["caption", "thought"])

@@ -61,8 +61,8 @@ without creating new publications or read marks.
 
 ## Self-talk scrollback
 
-Players can scroll within the self-talk panel to review earlier thoughts and
-return to the latest thoughts. The three-rendered-row rule limits the visible
+Thought scrollback is available only inside the self-talk panel. Players can
+scroll there to review earlier thoughts and return to the latest thoughts. The three-rendered-row rule limits the visible
 window, not the amount of previously encountered text available for review.
 
 Reuse the existing encountered reading/History source, filtered to self-talk

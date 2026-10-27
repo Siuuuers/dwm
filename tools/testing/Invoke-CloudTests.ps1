@@ -18,7 +18,7 @@ if ($Suite -eq 'current_terminal_fixture') {
 # Deliberate, bounded UI and input regression coverage. Each path must actually
 # execute; Invoke-IsolatedGodot also rejects GUT's silent suite-load failures.
 $suites = @{
-    self_talk_unit = @('tests/unit/test_scene_self_talk.gd', 'tests/unit/test_witnessed_self_talk.gd')
+    self_talk_unit = @('tests/unit/test_scene_self_talk.gd', 'tests/unit/test_witnessed_self_talk.gd', 'tests/unit/test_witnessed_skip_controller.gd')
     self_talk_review = @('tests/integration/test_witnessed_caption_runtime.gd')
     self_talk_transport = @('tests/ui/render_self_talk_transport.gd')
     self_talk_runtime = @('tests/integration/test_scene_native_activation_runtime.gd')

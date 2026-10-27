@@ -55,10 +55,19 @@ func _capture_self_talk(label: String) -> void:
 	_captures += 1
 
 func _history_ids() -> Array:
-	var result: Dictionary = bridge.get_reading_history()
-	if not _ok(result): return []
+	var captured: Dictionary = bridge.capture_reading_checkpoint(false)
+	if not _ok(captured): return []
 	var ids: Array = []
-	for row: Dictionary in result.value.captions: ids.append(row.line_id)
+	var caption_ids: Array = []
+	for section: Array in captured.value.player_progress.history_sections:
+		for id: String in section:
+			ids.append(id)
+			if not id.begins_with("line.scene.test.a.thought_"): caption_ids.append(id)
+	var history: Dictionary = bridge.get_reading_history()
+	if not _ok(history): return ids
+	var visible_ids: Array = []
+	for row: Dictionary in history.value.captions: visible_ids.append(row.line_id)
+	assert_eq(visible_ids, caption_ids, "general History contains captions only; paired IDs remain in saved encounters")
 	return ids
 
 func _wheel_thought(older: bool) -> void:
@@ -117,7 +126,7 @@ func _resize_review(caption: Node, panel: Control) -> void:
 	assert_eq(bridge.capture_reading_checkpoint(false), before, "divider input never advances")
 	await _capture_self_talk("resized-review")
 	var localization: Node = get_node("/root/LocalizationManager")
-	for locale: String in ["zh-HK", "ja", "en"]:
+	for locale: String in ["zh_HK", "ja", "en"]:
 		# The rail and captions share the actual locale owner; a foreign tuple is
 		# deliberately refused. Exercise its normal change path before resizing text.
 		if not _ok(localization.set_locale(locale)): return
