@@ -237,8 +237,11 @@ static func project_player_checkpoint(checkpoint: Dictionary) -> Dictionary:
 		# Accepted compact state is already canonical; comparison needs a detached
 		# copy, not another expansion and restoration of the same position.
 		return {"ok": true, "value": checkpoint.duplicate(true)}
-	var restored: Dictionary = session.restore(reading, str(checkpoint.get("entry_id", "")))
-	if not restored.ok: return restored
+	if reading.entry_id != checkpoint.get("entry_id"): return _fail(&"reading_checkpoint_invalid")
+	# Schema 5 comes from an owned live capture. Conversion needs the programme,
+	# not reconstruction of its historical ledger or transient traversal proof.
+	var prepared: Dictionary = session._ensure_scene_programme(reading.entry_id)
+	if not prepared.ok: return prepared
 	var projected: Dictionary = session._project_player_reading(reading)
 	if not projected.ok: return projected
 	var result := checkpoint.duplicate(true)
@@ -378,8 +381,12 @@ func _project_player_reading(saved: Dictionary) -> Dictionary:
 			captions.append({"line_id": row.beat.line_id, "publication_id": row.publication_id})
 	if captions.is_empty(): return _fail(&"reading_frontier_invalid")
 	captions = [captions.back()]
-	var node: Dictionary = _scene_nodes[saved.entry_id][saved.program_index]
-	var position: String = node.marker_id if saved.boundary == "control" else captions.back().line_id
+	var position: String = captions.back().line_id
+	if saved.boundary == "control":
+		var nodes: Array = _scene_nodes[saved.entry_id]
+		if saved.program_index < 0 or saved.program_index >= nodes.size() or nodes[saved.program_index].kind != "control":
+			return _content_error("Missing dialogue control in passage: " + saved.entry_id, {"entry_id": saved.entry_id})
+		position = nodes[saved.program_index].marker_id
 	var compact := {"schema_version": 7, "registration_sha256": fingerprint,
 		"entry_id": saved.entry_id, "occurrence_id": saved.occurrence_id,
 		"boundary": saved.boundary, "position_id": position,
