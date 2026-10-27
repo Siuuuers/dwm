@@ -119,8 +119,10 @@ strip, preserve reasonable minimum panel sizes, and ensure dragging cannot
 advance dialogue. Retain keyboard/controller resizing access without requiring
 a visible knob. Check resize, cancellation and text fitting in cloud tests.
 
-This UI request is accepted, but its position relative to 2 → 3 → 9 → 1 is not
-specified. Keep self-talk first; coordinate geometry when building its region.
+Include this UI request in the self-talk/History implementation effort, before
+Shop and the dissolve. Keep self-talk first, then integrate bottom controls,
+computer caret and divider dragging in separately verified stages. The self-talk
+handoff records combined acceptance; this does not require a single large commit.
 
 ## Reported defect: Skip all does not skip
 
