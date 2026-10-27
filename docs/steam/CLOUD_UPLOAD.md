@@ -1,6 +1,35 @@
 # Steam cloud export and upload
 
-## Current verified build — 25 October 2026
+## Current verified build — 27 October 2026
+
+Steam BuildID: **26245899**. AppID: **5199120**. DepotID: **5199121**.
+Runtime source: `4db5cff4576be4163b40ff383062a6cd0284042f`.
+Executable: `game.exe`, with `game.pck`.
+
+[Run 40521206789](https://github.com/Siuuuers/dwm/actions/runs/40521206789) passed
+fresh Windows export, package hashes, license/media checks, isolated executable
+startup, SteamPipe preview and upload. It contains the accepted Save/Load and
+Quick completion changes from PRs 136 and 137. No Steam branch was set live.
+Select this BuildID on the intended test branch before installing it.
+Confirm that the Windows launch option is `game.exe`.
+
+The gameplay changes passed 67 cloud jobs on PR 137's final candidate; the selected
+source also contains the subsequent documentation updates. The upload separately
+validated the freshly exported package. It does not establish installed-client
+acceptance or completion of unfinished UI and story authoring.
+
+[Current scoped feature audit](../../handoff/ay-al-status-and-steam-build-20261027.md)
+records the status of handoff al. Named checkpoint/overlay machinery exists, but
+production story bindings are not yet authored. Further Save/Load optimization is deferred.
+
+The authorized upload used a one-time exact-message trigger on its dedicated
+branch. That trigger was removed after success. The retained manual workflow pins
+the source above. Do not rerun the successful upload just to obtain its BuildID.
+Future uploads need a deliberate source selection; dispatching this pinned workflow
+does not automatically build future master.
+
+
+## Historical verified build — 25 October 2026
 
 Steam BuildID: **26196642**. AppID: **5199120**. DepotID: **5199121**.
 Runtime source: `cf60203f077ad0bb39a0d2b06068988153fb53c3` (merged PR #97).
