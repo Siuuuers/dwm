@@ -742,6 +742,7 @@ var _caption_publication := ""
 var _caption_event: DialogicTextEvent
 var _caption_line := ""
 var _paired_next_index := -1
+var _scene_native_next: Dictionary = {}
 var _caption_restore_frontier: Dictionary = {}
 var _caption_restore_queued := false
 var _prepared_reading_seek: Dictionary = {}
@@ -841,7 +842,7 @@ func _on_caption_about_to_show(_info: Dictionary) -> void:
 	_caption_event = _current_skip_text(true)
 	_caption_line = _authored_line_id(_caption_event)
 	_paired_next_index = -1
-	if not _scene_caption_occurrence.is_empty():
+	if not _scene_caption_occurrence.is_empty() and _scene_native_next.is_empty():
 		var registered := preload("res://scripts/narrative/DialogicEntryManifest.gd").scene_contract_tables()
 		if registered.ok:
 			var labels: Array = []
@@ -850,9 +851,10 @@ func _on_caption_about_to_show(_info: Dictionary) -> void:
 				if programme.entry_id != _caption_entry: continue
 				var compiled := compile_runtime_scene_programme(_requested_path, _caption_entry, labels, programme.markers)
 				if not compiled.ok: continue
-				var index: int = compiled.value.native_indices.find(int(_dialogic.current_event_idx))
-				if index >= 0 and compiled.value.nodes[index].kind == "caption":
-					_paired_next_index = int(compiled.value.native_indices[compiled.value.nodes[index].next])
+				for index: int in compiled.value.nodes.size():
+					if compiled.value.nodes[index].kind == "caption":
+						_scene_native_next[int(compiled.value.native_indices[index])] = int(compiled.value.native_indices[compiled.value.nodes[index].next])
+	_paired_next_index = int(_scene_native_next.get(int(_dialogic.current_event_idx), -1))
 	var same_scene_activation := false
 	if not _scene_caption_occurrence.is_empty():
 		if _caption_event == null: return
@@ -971,6 +973,7 @@ func _retire_caption_binding() -> void:
 	_scene_caption_occurrence = ""
 	_caption_line = ""
 	_paired_next_index = -1
+	_scene_native_next.clear()
 	_caption_restore_frontier = {}
 	_caption_restore_queued = false
 	_prepared_reading_seek = {}

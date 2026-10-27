@@ -20,6 +20,7 @@ jobs:
     outputs:
       focused: ${{ steps.scope.outputs.focused }}
       comparison: ${{ steps.scope.outputs.comparison }}
+      self_talk: ${{ steps.scope.outputs.self_talk }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -72,6 +73,7 @@ jobs:
                       rest = rest.replace(state, b"")
                   bodies.append(rest)
               return bodies[0] == bodies[1]
+          self_talk = False
           focused = False
           comparison = False
           previous = ""
@@ -79,6 +81,8 @@ jobs:
               diff = subprocess.run(["git", "diff", "--name-only", "-z", base, "HEAD"], capture_output=True)
               if diff.returncode == 0:
                   paths = set(diff.stdout.decode().strip("\0").split("\0"))
+                  self_talk_paths = {'tests/ui/render_self_talk_base.gd', 'tests/integration/test_scene_controls_localization.gd', 'addons/dialogic/Modules/Text/subsystem_text.gd', 'tests/unit/test_witnessed_self_talk.gd', 'autoload/DialogicBridge.gd', 'scripts/ui/SceneHost.gd', 'tests/integration/test_scene_skip_all.gd', 'docs/agent/2026-10-28-self-talk-implementation-plan.md', 'tests/fixtures/dialogic/scene_self_talk_render.dtl', 'tests/ui/render_self_talk_load.gd', 'tools/testing/Invoke-CloudTests.ps1', 'tests/integration/scene_computer_child.gd', 'scripts/ui/witnessed/WitnessedSelfTalk.gd', 'scripts/narrative/DialogicEntryManifest.gd', '.github/workflows/self-talk.yml', 'scenes/narrative/SceneHost.tscn', 'tests/ui/render_scene_controls_localization.gd', 'scripts/narrative/ScenePassageCatalog.gd', 'evidence/phase_2r/runtime/save_manager_surface.json', 'tests/integration/test_witnessed_caption_runtime.gd', 'scripts/narrative/DialogicRuntimeAdapter.gd', 'tests/scene/test_scene_host_controls.gd', 'tests/ui/render_self_talk_journey.gd', 'scripts/ui/witnessed/WitnessedTransportRail.gd', 'tests/fixtures/dialogic/scene_skip_all.dtl', 'scripts/ui/witnessed/WitnessedCaptionLayer.gd', 'tests/unit/test_desktop_panel_split.gd', 'evidence/phase_2r/runtime/game_state_surface.json', 'scripts/narrative/ReadingTraversalOperation.gd', 'tests/unit/test_scene_self_talk.gd', 'scripts/ui/desktop/DesktopPanelSplit.gd', 'addons/dialogic/Core/DialogicGameHandler.gd', '.github/workflows/windows-tests.yml', 'tests/unit/test_witnessed_transport_rail.gd', 'tests/integration/current_title_scene_child.gd', 'scripts/narrative/SoloReadingSession.gd'}
+                  self_talk = bool(paths) and paths <= self_talk_paths and bool(paths & {"scripts/ui/witnessed/WitnessedSelfTalk.gd", "tests/unit/test_scene_self_talk.gd", "tests/ui/render_self_talk_journey.gd"})
                   comparison_paths = paths
                   previous = event.get("before", "") if event.get("action") == "synchronize" else ""
                   if re.fullmatch(r"[0-9a-f]{40}", previous):
@@ -96,6 +100,7 @@ jobs:
           # Current native Save/Load and terminal fixtures qualify incompatible schemas;
           # skipping this old-input measurement does not establish a speedup.
           comparison = comparison or (focused and not previous)
+          if self_talk: comparison = False
           if comparison:
               archive = "evidence/phase_2r/current_ci_20261023/final_retention/run39988834004/original-12517208437.zip"
               with zipfile.ZipFile(archive) as retained:
@@ -114,6 +119,7 @@ jobs:
                       print("Archived startup/Load measurement is incompatible with " + ref + "; current-build correctness coverage remains required.")
           print("Selected " + ("runtime resource/Backup coverage" if focused else "full validation"))
           with open(os.environ["GITHUB_OUTPUT"], "a") as output:
+              output.write(f"self_talk={str(self_talk).lower()}\n")
               output.write("focused=" + str(focused).lower() + "\n")
               output.write("comparison=" + str(comparison).lower() + "\n")
 
@@ -128,7 +134,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        suite: ${{ fromJSON(needs.test-scope.outputs.focused == 'true' && '["timeline_resources","backup_presentation","profile_parse","authored_week","scene_backup_inspection","scene_progress_schema","current_title"]' || '["named_presentation","minesweeper","shop","desktop","settings","checkpoint_diagnostics","new_account","reading_delivery","localization","dating","persistence","endings","audio","scene_desktop_first_reveal","scene_round_checkpoint","scene_shop_checkpoint","scene_story_localization","scene_controls_localization","scene_apps","current_title","scene_backup_inspection","scene_progress_schema","authored_week","scene_five_outcomes","timeline_resources","profile_parse","backup_current_build","current_terminal_fixture","current_quick_load","scene_direct_controls","scene_multiple_thoughts","scene_challenge_recall","scene_same_day_supportz","scene_player_position","scene_native_restore","scene_day_history","scene_later_caption","scene_caption_challenge","scene_audio_connected","scene_save_metadata","scene_passage_connected","scene_passage_catalogue","scene_contacts","scene_current_creation","scene_current_frames","scene_current_challenge","scene_current_snapshot","scene_content_update_wording","scene_content_update_deleted_line","scene_content_update_deleted_checkpoint","scene_content_update_history","scene_content_update_active_board","scene_content_update_transfer_active","scene_content_update_transfer_terminal","scene_content_update_resolved_unfinished","scene_content_update_completed_appended","scene_content_update_completed_deleted","scene_content_update_invalid_choice","scene_content_update_invalid_choice_missing_default","scene_content_contracts","scene_checkpoint_ack","scene_owner_composition"]') }}
+        suite: ${{ fromJSON(needs.test-scope.outputs.self_talk == 'true' && '["self_talk_unit","self_talk_runtime","self_talk_ui","self_talk_skip","self_talk_journey","self_talk_review","scene_day_history","scene_direct_controls","scene_later_caption","scene_caption_challenge","scene_passage_catalogue","scene_passage_connected","scene_story_localization","scene_controls_localization","current_title","scene_apps"]' || needs.test-scope.outputs.focused == 'true' && '["timeline_resources","backup_presentation","profile_parse","authored_week","scene_backup_inspection","scene_progress_schema","current_title"]' || '["named_presentation","minesweeper","shop","desktop","settings","checkpoint_diagnostics","new_account","reading_delivery","localization","dating","persistence","endings","audio","scene_desktop_first_reveal","scene_round_checkpoint","scene_shop_checkpoint","scene_story_localization","scene_controls_localization","scene_apps","current_title","scene_backup_inspection","scene_progress_schema","authored_week","scene_five_outcomes","timeline_resources","profile_parse","backup_current_build","current_terminal_fixture","current_quick_load","scene_direct_controls","scene_multiple_thoughts","scene_challenge_recall","scene_same_day_supportz","scene_player_position","scene_native_restore","scene_day_history","scene_later_caption","scene_caption_challenge","scene_audio_connected","scene_save_metadata","scene_passage_connected","scene_passage_catalogue","scene_contacts","scene_current_creation","scene_current_frames","scene_current_challenge","scene_current_snapshot","scene_content_update_wording","scene_content_update_deleted_line","scene_content_update_deleted_checkpoint","scene_content_update_history","scene_content_update_active_board","scene_content_update_transfer_active","scene_content_update_transfer_terminal","scene_content_update_resolved_unfinished","scene_content_update_completed_appended","scene_content_update_completed_deleted","scene_content_update_invalid_choice","scene_content_update_invalid_choice_missing_default","scene_content_contracts","scene_checkpoint_ack","scene_owner_composition"]') }}
     defaults:
       run:
         shell: pwsh

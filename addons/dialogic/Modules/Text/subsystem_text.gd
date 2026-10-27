@@ -455,7 +455,8 @@ func _effect_context_is_current(text_node: Control, batch_generation: int, node_
 
 
 func _effect_is_foreground(text_node: Control) -> bool:
-	return not dialogic.paused and text_node.is_visible_in_tree()
+	return not dialogic.paused and text_node.is_visible_in_tree() \
+		and (not text_node is DialogicNode_DialogText or text_node.is_processing())
 
 
 func execute_effects(current_index:int, text_node:Control, skipping := false) -> void:

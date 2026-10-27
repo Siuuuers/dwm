@@ -661,12 +661,14 @@ func project_scene_day_history(frontier: Dictionary, _choices: Dictionary, _outc
 		_ensure_scene_programme(row.entry_id)
 		if _scene_text.has(row.line_id): row.text = _scene_text[row.line_id]
 	var thought: Dictionary = _scene_display.get(tail.beat.line_id, {}).get("self_talk", {})
-	var expected_tail: String = thought.get("line_id", tail.beat.line_id)
+	var expected_tail: String = tail.beat.line_id
+	if not thought.is_empty() and rows.any(func(row: Dictionary) -> bool: return row.line_id == thought.line_id):
+		expected_tail = thought.line_id
 	if rows.is_empty() or rows.back().line_id != expected_tail or rows.back().entry_id != latest_entry:
 		return _fail(&"reading_frontier_invalid")
 	for row: Dictionary in rows:
 		if row.line_id == tail.beat.line_id: row.publication_id = tail.publication_id
-		row["self_talk"] = _scene_thought_ids.has(row.line_id)
+		if _scene_thought_ids.has(row.line_id): row["self_talk"] = true
 	return {"ok": true, "value": {"captions": rows, "frontier": frontier.duplicate(true),
 		"session_id": command_id, "occurrence_id": scene_occurrence}}
 
@@ -691,6 +693,7 @@ func project_self_talk(frontier: Dictionary) -> Dictionary:
 			if _scene_display.get(id, {}).get("self_talk_clear", false): live_start = rows.size()
 			if _scene_thought_ids.has(id): rows.append({"id": id, "text": _scene_text[id]})
 	var thought: Dictionary = _scene_display.get(frontier.get("line_id", ""), {}).get("self_talk", {})
+	if not thought.is_empty() and not rows.any(func(row: Dictionary) -> bool: return row.id == thought.line_id): thought = {}
 	return {"ok": true, "value": {"rows": rows, "live_start": live_start,
 		"current_thought": thought.get("text", ""), "current_thought_id": thought.get("line_id", "")}}
 

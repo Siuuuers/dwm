@@ -15,50 +15,75 @@ concurrency:
 jobs:
   reading:
     name: Self-talk / ${{ matrix.suite }}
-    runs-on: ubuntu-24.04
+    runs-on: windows-2022
     timeout-minutes: 25
     strategy:
       fail-fast: false
       matrix:
         suite: [self_talk_unit, self_talk_runtime, self_talk_ui, self_talk_skip, self_talk_journey, self_talk_review, scene_day_history, scene_direct_controls]
-    env:
-      LIBGL_ALWAYS_SOFTWARE: '1'
-      XDG_DATA_HOME: ${{ github.workspace }}/.godot/ci/import-user/data
-      DWM_TEST_ROOT: ${{ github.workspace }}/.godot/ci/import-user/test-root
-      DWM_RENDER_OUTPUT: ${{ github.workspace }}/.godot/ci/self-talk-render
+    defaults:
+      run:
+        shell: pwsh
     steps:
       - uses: actions/checkout@v7
         with:
+          # The schedule-gate contract inspects its immutable historical seals.
+          fetch-depth: 1
+          # Defer credential removal until the post-job cleanup, after the
+          # malformed gitlinks are removed from this disposable runner's index.
           persist-credentials: true
-      - name: Prepare disposable checkout
+      - name: Prepare disposable checkout for credential cleanup
         run: |
+          $ErrorActionPreference = 'Stop'
+          # These legacy tooling gitlinks have no .gitmodules URLs. Git's
+          # submodule foreach reads the index even with sparse checkout.
+          # The source commit and working files remain unchanged.
           git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           git submodule foreach --recursive 'true'
-      - name: Install Godot and software display
-        timeout-minutes: 12
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Install Godot 4.6.3 standard
         run: |
-          sudo sed -i 's|http://azure.archive.ubuntu.com/ubuntu|https://archive.ubuntu.com/ubuntu|g' /etc/apt/apt-mirrors.txt
-          sudo apt-get update
-          sudo apt-get install --yes --no-install-recommends xvfb xauth libgl1-mesa-dri libspeechd2
-          archive="$RUNNER_TEMP/godot-4.6.3-linux.zip"
-          curl --fail --location --retry 3 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_linux.x86_64.zip' --output "$archive"
-          printf '%s  %s\n' 'd0bc2113065e481c9c2c2b2c37daa4e8be3fe9e27f0ab9ab0b6096e9a37907f3' "$archive" | sha256sum --check
-          unzip -q "$archive" -d "$RUNNER_TEMP/godot-4.6.3-linux"
-          editor="$RUNNER_TEMP/godot-4.6.3-linux/Godot_v4.6.3-stable_linux.x86_64"
-          chmod +x "$editor"
-          echo "GODOT_CONSOLE_PATH=$editor" >> "$GITHUB_ENV"
+          $ErrorActionPreference = 'Stop'
+          $archive = Join-Path $env:RUNNER_TEMP 'godot-4.6.3.zip'
+          Invoke-WebRequest -Uri 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_win64.exe.zip' -OutFile $archive
+          # SHA256 published with the official 4.6.3-stable release asset.
+          $expected = 'e39986a178d585ce7ac198fb8de6ea436366dc0cc00e594810c2e3e104c04b90'
+          if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expected) {
+            throw 'Godot archive checksum mismatch.'
+          }
+          $editor = Join-Path $env:RUNNER_TEMP 'godot-4.6.3'
+          Expand-Archive -LiteralPath $archive -DestinationPath $editor
+          $console = Join-Path $editor 'Godot_v4.6.3-stable_win64_console.exe'
+          if (-not (Test-Path -LiteralPath $console)) { throw 'Godot console executable missing.' }
+          "GODOT_CONSOLE_PATH=$console" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          & $console --version
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Import project
         timeout-minutes: 8
         run: |
-          mkdir -p "$DWM_RENDER_OUTPUT" "$XDG_DATA_HOME" "$DWM_TEST_ROOT"
-          "$GODOT_CONSOLE_PATH" --headless --path "$GITHUB_WORKSPACE" --import --log-file "$DWM_RENDER_OUTPUT/import.log"
-          if grep -E 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' "$DWM_RENDER_OUTPUT/import.log"; then exit 1; fi
+          $ErrorActionPreference = 'Stop'
+          $output = Join-Path $env:GITHUB_WORKSPACE '.godot/ci'
+          $env:APPDATA = Join-Path $output 'import-user/appdata'
+          $env:LOCALAPPDATA = Join-Path $output 'import-user/localappdata'
+          $env:DWM_TEST_ROOT = Join-Path $output 'import-user/test-root'
+          New-Item -ItemType Directory -Force -Path $output, $env:APPDATA, $env:LOCALAPPDATA, $env:DWM_TEST_ROOT | Out-Null
+          & $env:GODOT_CONSOLE_PATH --headless --path $env:GITHUB_WORKSPACE --import --log-file "$output/import.log"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          if (Select-String -Path "$output/import.log" -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) {
+            throw 'Project import reported script errors; inspect import.log.'
+          }
+      - name: Restore committed project settings after editor import
+        run: |
+          # Dialogic's editor scan rewrites its timeline lookup during import.
+          # Execute the committed configuration with the freshly imported assets.
           git restore -- project.godot
-      - name: Run isolated player behavior checks
-        timeout-minutes: 10
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Run focused regression suite
+        timeout-minutes: ${{ matrix.suite == 'current_terminal_fixture' && 30 || 10 }}
         env:
           DWM_CI_SUITE: ${{ matrix.suite }}
-        run: xvfb-run -a pwsh -NoProfile -File tools/testing/Invoke-CloudTests.ps1 -Suite "$DWM_CI_SUITE"
+        run: ./tools/testing/Invoke-CloudTests.ps1 -Suite $env:DWM_CI_SUITE
       - name: Upload results and rendered evidence
         if: always()
         uses: actions/upload-artifact@v4

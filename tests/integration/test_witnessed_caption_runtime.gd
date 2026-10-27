@@ -2141,3 +2141,36 @@ func test_self_talk_review_holds_caption_and_returns_without_advancing() -> void
 	caption.caption_text.set_process(false)
 	assert_eq(_stack_invariants(), before)
 	assert_eq(caption.get_caption_projection().review_offset, 0, "thought review never changes caption cursor")
+
+func test_self_talk_review_pauses_pending_effect_with_caption_visible() -> void:
+	var fixture := await _mount_speech_fixture()
+	if fixture.is_empty(): return
+	var effects: Array[String] = []
+	runtime.text_signal.connect(func(argument: String): effects.append(argument))
+	runtime.start(_timeline("One.\nTwo.\nThree.\n[signal=entered][pause=0.3!][signal=resumed]Live text."))
+	await _settle()
+	for step: int in 3: await _next_caption()
+	for frame: int in 40:
+		if effects == ["entered"]: break
+		await get_tree().create_timer(0.01).timeout
+	assert_eq(effects, ["entered"])
+	var speech_count: int = fixture.speech.requests.size()
+	caption.self_talk.project([{"id":"a", "text":"First\nSecond"}, {"id":"b", "text":"Third\nFourth"}], 0)
+	caption.self_talk.review_rows(1)
+	await _settle()
+	var before := _stack_invariants()
+	assert_true(caption.caption_text.visible, "thought review retains the live caption on screen")
+	assert_false(caption.caption_text.is_processing())
+	assert_true(fixture.speech.active_source.is_empty())
+	await get_tree().create_timer(0.5).timeout
+	assert_eq(effects, ["entered"], "thought review holds the native pending effect")
+	assert_eq(_stack_invariants(), before)
+	caption.self_talk.return_to_live()
+	await _settle()
+	assert_eq(fixture.speech.requests.size(), speech_count, "review return never restarts speech")
+	for frame: int in 80:
+		if effects == ["entered", "resumed"]: break
+		await get_tree().create_timer(0.01).timeout
+	assert_eq(effects, ["entered", "resumed"])
+	assert_eq(runtime.current_event_idx, before.event)
+	assert_eq(_history(), before.history)

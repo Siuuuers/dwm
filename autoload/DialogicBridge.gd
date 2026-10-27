@@ -1879,9 +1879,12 @@ func _scene_passage_replay_card() -> Dictionary:
 	var line: Dictionary = _reached_replay.passage.captions[_reached_replay.passage_index]
 	var locale := _current_locale()
 	var titles := {"en": "Ending", "zh-CN": "结局", "zh-HK": "結局", "ja": "エンディング", "ko": "엔딩"}
+	var body: String = _STORY_LOCALE.text(locale, line.line_id, line.text)
+	if line.has("self_talk"):
+		body += "\n\n" + _STORY_LOCALE.text(locale, line.self_talk.line_id, line.self_talk.text)
 	return {"receipt": {"entry_id": _reached_replay.passage.entry_id,
 		"view_token": str(_reached_replay.token) + ":" + str(_reached_replay.passage_index), "line_id": line.line_id},
-		"title": titles.get(locale, "Ending"), "body": _STORY_LOCALE.text(locale, line.line_id, line.text)}
+		"title": titles.get(locale, "Ending"), "body": body}
 
 func _on_scene_passage_advance_requested(receipt: Dictionary) -> void:
 	if _reached_replay.is_empty() or not _reached_replay.has("passage") or receipt != _reached_replay.card.receipt: return
@@ -3038,7 +3041,9 @@ var _self_talk_cache: Dictionary = {}
 ## The session's encountered IDs remain the sole History authority.
 func capture_self_talk_presentation() -> Dictionary:
 	if not has_reading_session() or _reading_session.family != "scene":
-		return _command_failure(&"reading_frontier_unavailable")
+		_self_talk_cache_key.clear()
+		_self_talk_cache.clear()
+		return {"ok": true, "value": {"rows": [], "live_start": 0, "current_thought": "", "current_thought_id": ""}}
 	var captured: Dictionary = _runtime_adapter.capture_reading_frontier()
 	if not captured.ok: return captured
 	var key: Array = [_reading_session.get_instance_id(), captured.value, _current_locale()]
