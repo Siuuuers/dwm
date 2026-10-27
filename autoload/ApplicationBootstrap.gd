@@ -300,6 +300,11 @@ func show_content_error(result: Dictionary) -> void:
 		"confirm": "Quit", "cancelable": false, "warning": false}
 	confirmation.finished.connect(func(_accepted: bool): get_tree().quit())
 	_content_error_layer.add_child(confirmation)
+	# This fatal dialog lives outside the active scene. Suspend the other root
+	# branches too, so delayed scene focus restoration cannot steal Quit.
+	for root_child: Node in get_tree().root.get_children():
+		if root_child != self: confirmation._suspend(root_child)
+	confirmation.confirm_button.grab_focus()
 	get_tree().paused = true
 
 func _exit_tree() -> void:

@@ -513,6 +513,7 @@ func _load_missing_content(proof: Dictionary, quit_process: bool, prior_loader_p
 		await get_tree().process_frame
 	for frame: int in 5: await get_tree().process_frame
 	assert_true(is_instance_valid(confirmation) and confirmation.is_visible_in_tree(), "Escape cannot dismiss the content error")
+	assert_eq(get_viewport().gui_get_focus_owner(), confirmation.confirm_button, "Quit retains keyboard focus after Escape and background frames")
 	assert_true(get_tree().paused)
 	assert_true(bootstrap._application_gate.is_fatal_latched())
 	assert_false(saves.save_latest_to_slot(3).get("ok", false), "failed continuation cannot save")
@@ -539,5 +540,17 @@ func _load_missing_content(proof: Dictionary, quit_process: bool, prior_loader_p
 		evidence.assertions = get_assert_count()
 		evidence.failures = get_fail_count()
 		_write_json("res://.godot/ci/content-update-reload-proof.json", evidence))
-	await _click(confirmation.confirm_button)
+	if case_id == "invalid_choice_missing_default":
+		# Use the modal's existing focus: grabbing it here would hide background
+		# controls stealing focus while the failed reading scene remains mounted.
+		for pressed: bool in [true, false]:
+			var enter := InputEventKey.new()
+			enter.keycode = KEY_ENTER
+			enter.physical_keycode = KEY_ENTER
+			enter.pressed = pressed
+			get_viewport().push_input(enter, true)
+			await get_tree().process_frame
+		for frame: int in 4: await get_tree().process_frame
+	else:
+		await _click(confirmation.confirm_button)
 	fail_test("Production Quit did not terminate the process")
