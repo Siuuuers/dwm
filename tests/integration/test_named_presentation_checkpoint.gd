@@ -258,6 +258,10 @@ func test_named_arrival_manual_save_load_and_ordinary_overlay_continuation() -> 
 	# Refuse a real named write with an existing Autosave, then retry the retained
 	# target admission. The prior durable save remains the recovery point.
 	if not await _load_backup("slot:1", "contact.test.a", "line.contact.test.a.one"): return
+	assert_eq(persisted.gameplay.money, 37, "the previous Autosave contains the earlier state")
+	game.change_money(1)
+	assert_eq(game.capture_run_snapshot_input().gameplay.money, 38,
+		"different real state prevents identical durable bytes from satisfying the refused write")
 	var before_refusal_writes: int = files.autosave_writes
 	files.refuse_on = before_refusal_writes + 1
 	var refusal_observer := ArrivalObserver.new()
@@ -304,7 +308,7 @@ func test_named_arrival_manual_save_load_and_ordinary_overlay_continuation() -> 
 	if not retry_results.is_empty(): assert_true(retry_results[0].get("ok", false), str(retry_results[0]))
 	var retry_usec := Time.get_ticks_usec() - retry_started
 	assert_eq(game.capture_run_snapshot_input().scene.presentation, initial)
-	assert_eq(game.capture_run_snapshot_input().gameplay.money, 37)
+	assert_eq(game.capture_run_snapshot_input().gameplay.money, 38)
 	assert_eq(game.contacts, child.contacts)
 	var retry_hash := _autosave_sha256()
 	var writes_before_load: int = files.autosave_writes
@@ -312,7 +316,7 @@ func test_named_arrival_manual_save_load_and_ordinary_overlay_continuation() -> 
 	assert_eq(files.autosave_writes, writes_before_load, "Autosave Load never writes another Autosave")
 	assert_eq(_autosave_sha256(), retry_hash)
 	assert_eq(game.capture_run_snapshot_input().scene.presentation, initial)
-	assert_eq(game.capture_run_snapshot_input().gameplay.money, 37)
+	assert_eq(game.capture_run_snapshot_input().gameplay.money, 38)
 	assert_eq(game.contacts, child.contacts, "Load never replays Contacts consequences")
 	_assert_mounted_overlays(0)
 	_assert_music([0, 1000, 0, 1000, 0, 1000])
