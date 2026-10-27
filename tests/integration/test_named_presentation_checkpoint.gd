@@ -82,6 +82,22 @@ func _assert_mounted_overlays(expected: int) -> void:
 			assert_eq(view._overlays.get_child_count(), expected)
 	assert_true(found, "named art is mounted on the visible native caption layout")
 
+func _wait_native_input() -> bool:
+	for frame: int in 240:
+		var caption: Node = _caption()
+		if caption != null and caption._next_admitted() and caption.accept_input.is_source_admitted(): return true
+		await get_tree().process_frame
+	var caption: Node = _caption()
+	var diagnostic := {"input_state": get_node("/root/InputManager").get_state(),
+		"input_admitted": get_node("/root/InputManager").is_source_input_admitted(),
+		"caption_present": caption != null}
+	if caption != null:
+		diagnostic["presented_line"] = caption._presented_line
+		diagnostic["next_admitted"] = caption._next_admitted()
+		diagnostic["source_admitted"] = caption.accept_input.is_source_admitted()
+	_write_json("res://.godot/ci/named-presentation-input-timeout.json", diagnostic)
+	return _ok({"ok": false, "code": "TEST.native_input_timeout", "details": diagnostic})
+
 func _load_backup(locator: String, entry: String, line: String) -> bool:
 	var pause: Node = get_node("/root/SceneRouter")._production_pause
 	var previous_ready := ready_count
@@ -94,7 +110,8 @@ func _load_backup(locator: String, entry: String, line: String) -> bool:
 		await get_tree().process_frame
 	assert_eq(ready_count, previous_ready + 1)
 	if ready_count != previous_ready + 1: return false
-	return await _wait_line(entry, line)
+	if not await _wait_line(entry, line): return false
+	return await _wait_native_input()
 
 func test_named_arrival_manual_save_load_and_ordinary_overlay_continuation() -> void:
 	if not _start_services(): return
@@ -151,6 +168,7 @@ func test_named_arrival_manual_save_load_and_ordinary_overlay_continuation() -> 
 		await get_tree().process_frame
 	assert_eq(ready_count, 2)
 	if ready_count != 2 or not await _wait_line("contact.test.a", "line.contact.test.a.one"): return
+	if not await _wait_native_input(): return
 	assert_eq(game.capture_run_snapshot_input().scene.presentation, expected)
 	assert_eq(game.capture_run_snapshot_input().gameplay.money, 37)
 	assert_eq(game.contacts, child.contacts)
@@ -187,8 +205,6 @@ func test_named_arrival_manual_save_load_and_ordinary_overlay_continuation() -> 
 	var arrival_started := Time.get_ticks_usec()
 	await _click(loaded_caption.caption_text)
 	var caption_dispatched := not observer.envelope.is_empty()
-	if not caption_dispatched:
-		await _click(loaded_caption.transport_rail._next_button)
 	_write_json("res://.godot/ci/named-presentation-return-diagnostic.json", {
 		"before": input_diagnostic, "caption_dispatched": caption_dispatched,
 		"dispatched": not observer.envelope.is_empty(), "result": observer.result,
@@ -196,7 +212,7 @@ func test_named_arrival_manual_save_load_and_ordinary_overlay_continuation() -> 
 		"pending_marker": bridge.capture_scene_pending_marker(),
 		"entry_candidate": game._scene_entry_operation.has("candidate")})
 	assert_true(caption_dispatched, "real caption click dispatches Contacts return after Load")
-	assert_false(observer.envelope.is_empty(), "real caption or Next input dispatches Contacts return")
+	assert_false(observer.envelope.is_empty(), "real caption input dispatches Contacts return")
 	assert_true(observer.result.get("ok", false), "named return dispatch: " + str(observer.result))
 	var arrived: bool = await _wait_line("scene.test.a", "line.scene.test.a.two")
 	bridge._scene_event_port = observer.delegate
@@ -248,10 +264,19 @@ func test_named_arrival_manual_save_load_and_ordinary_overlay_continuation() -> 
 	assert_true(game._scene_entry_operation.has("candidate"), "definite refusal retains exact retry target")
 	if not game._scene_entry_operation.has("candidate"): return
 	var binding: Dictionary = game._scene_entry_operation.binding.duplicate(true)
+	assert_eq(binding.target_id, "return_a")
+	assert_false(str(binding.trigger_command_id).is_empty())
+	assert_true(_caption().is_reading_recovery_active(), "failed named arrival exposes native Retry")
+	assert_true(_caption()._recovery_action_admitted(), "retained named target admits its recovery action")
+	await _screenshot("named-presentation-write-refused")
+	var retry_results: Array = []
+	bridge.next_request_finished.connect(func(_frontier: Dictionary, result: Dictionary) -> void:
+		retry_results.append(result.duplicate(true)), CONNECT_ONE_SHOT)
 	var retry_started := Time.get_ticks_usec()
-	var retry: Dictionary = game.admit_scene_target(binding.target_id, binding.trigger_command_id)
-	if not _ok(retry): return
+	await _click(_caption().recovery_overlay.retry_button)
 	if not await _wait_line("scene.test.a", "line.scene.test.a.two"): return
+	assert_eq(retry_results.size(), 1, "native Retry completes exactly one request")
+	if not retry_results.is_empty(): assert_true(retry_results[0].get("ok", false), str(retry_results[0]))
 	var retry_usec := Time.get_ticks_usec() - retry_started
 	assert_eq(game.capture_run_snapshot_input().scene.presentation, initial)
 	assert_eq(game.capture_run_snapshot_input().gameplay.money, 37)

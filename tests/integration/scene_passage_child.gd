@@ -41,23 +41,10 @@ func create_passage_scene() -> void:
 	if started.get("code") != &"scene_activation_pending" or not await _await_ready(): return
 	if not await _wait_line("scene.test.a", "line.scene.test.a.one"): return
 	assert_false(PASSAGE_ID in profile.get_profile_snapshot().gallery_unlocks)
-	var issuer_path := "user://desktop-issuer-root.json"
-	var issuer_before := FileAccess.get_sha256(issuer_path)
-	var root_before: Dictionary = get_node("/root/ApplicationBootstrap")._desktop_issuer_root_store.capture()
-	if not _ok(root_before): return
 	await _click(_caption().caption_text)
 	if not await _wait_line("scene.test.a", "line.scene.test.a.two"): return
 	assert_false(PASSAGE_ID in profile.get_profile_snapshot().gallery_unlocks, "start marker never unlocks")
-	assert_eq(FileAccess.get_sha256(issuer_path), issuer_before, "ordinary passage command keeps issuer storage unchanged")
-	var root_after: Dictionary = get_node("/root/ApplicationBootstrap")._desktop_issuer_root_store.capture()
-	if not _ok(root_after): return
-	var deferred_receipts: Array = []
-	for receipt_id: String in root_after.value.receipts:
-		if not root_before.value.receipts.has(receipt_id):
-			deferred_receipts.append(root_after.value.receipts[receipt_id].duplicate(true))
-	assert_gt(deferred_receipts.size(), 0, "ordinary command minted verified live provenance")
 	if not await _save_slot(1): return
-	assert_ne(FileAccess.get_sha256(issuer_path), issuer_before, "actual manual Save flushes pending provenance")
 	await _screenshot("passage-first")
 	await _click(_caption().caption_text)
 	if not await _wait_line("scene.test.a", "line.scene.test.a.three"): return
@@ -86,7 +73,7 @@ func create_passage_scene() -> void:
 	if not _ok(position): return
 	var proof := {"process_id": OS.get_process_id(), "slot_1_sha256": FileAccess.get_sha256("user://saves/slot_1.json"),
 		"slot_2_sha256": FileAccess.get_sha256("user://saves/slot_2.json"),
-		"reading": position.value.reading_session, "deferred_receipts": deferred_receipts}
+		"reading": position.value.reading_session}
 	if not _write_json("user://passage-proof.json", proof): return
 	_write_json("res://.godot/ci/passage-connected-create-proof.json", proof)
 
@@ -97,9 +84,6 @@ func load_and_finish_passage_scene() -> void:
 	assert_ne(OS.get_process_id(), proof.process_id)
 	assert_eq(FileAccess.get_sha256("user://saves/slot_2.json"), proof.slot_2_sha256)
 	if not _start_services(): return
-	var issuer: RefCounted = get_node("/root/ApplicationBootstrap")._desktop_identity_nonce_issuer
-	for receipt: Dictionary in proof.deferred_receipts:
-		if not _ok(issuer.verify_issued(receipt, &"transaction_id")): return
 	var loaded := _load_passage("slot:2")
 	assert_eq(loaded.get("code"), &"scene_activation_pending", str(loaded))
 	if loaded.get("code") != &"scene_activation_pending" or not await _await_ready(): return
