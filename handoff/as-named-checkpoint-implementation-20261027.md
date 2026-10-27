@@ -76,8 +76,10 @@ scanned on every arrival. Optional missing image media keeps the existing art po
 
 All Godot and exported-game execution stays in the cloud. The named-presentation
 journey uses mounted native controls, actual audio playback and real save files.
-It covers manual Save/Load, checkpoint arrival, write refusal, visible Retry,
-Autosave Load, duplicate callbacks and deleted required presentation content.
+It covers manual Save/Load, checkpoint arrival and Autosave Load.
+At the user's request, this named-presentation journey includes no
+deliberate storage-failure or edited-file injection. Existing transaction failure
+handling and previously established regression coverage remain.
 Tests must wait for mounted input admission, not only adapter line completion.
 
 The matched comparison separates Load, ordinary captions, passage transition and

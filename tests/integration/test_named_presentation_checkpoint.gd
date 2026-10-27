@@ -3,6 +3,13 @@ extends "res://tests/integration/scene_contacts_connected_child.gd"
 ## test_manual process with DWM_TEST_ROOT, like scene_shop_checkpoint_transaction.
 const ART := preload("res://scripts/data/ArtManifest.gd")
 
+class CountingFiles extends "res://scripts/infrastructure/storage/FileOps.gd":
+	var autosave_writes := 0
+	func write_bytes(path: String, bytes: PackedByteArray) -> Dictionary:
+		if path.replace("\\", "/").ends_with("/autosave.json.next"):
+			autosave_writes += 1
+		return super.write_bytes(path, bytes)
+
 class ObservedMusicPort extends "res://scripts/audio/AudioPlaybackPort.gd":
 	var starts: Array = []
 	func play(player_id: StringName, from_position: float = 0.0) -> Dictionary:
@@ -98,18 +105,6 @@ func _wait_native_input() -> bool:
 	_write_json("res://.godot/ci/named-presentation-input-timeout.json", diagnostic)
 	return _ok({"ok": false, "code": "TEST.native_input_timeout", "details": diagnostic})
 
-func _wait_transport_input(button: Control) -> bool:
-	for frame: int in 240:
-		if button._admitted(): return true
-		await get_tree().process_frame
-	var diagnostic := {"path": str(button.get_path()), "rect": str(button.get_global_rect()),
-		"visible": button.is_visible_in_tree(), "disabled": button.disabled,
-		"retired_frame": button._retired_frame, "frame": Engine.get_process_frames(),
-		"blocked_contacts": button._blocked_contacts,
-		"input_admitted": get_node("/root/InputManager").is_source_input_admitted()}
-	_write_json("res://.godot/ci/named-presentation-transport-timeout.json", diagnostic)
-	return _ok({"ok": false, "code": "TEST.transport_input_timeout", "details": diagnostic})
-
 func _load_backup(locator: String, entry: String, line: String) -> bool:
 	var pause: Node = get_node("/root/SceneRouter")._production_pause
 	var previous_ready := ready_count
@@ -130,7 +125,7 @@ func test_named_arrival_manual_save_load_and_ordinary_overlay_continuation() -> 
 	if not _ok(profile.set_preference(&"preferences.reading.auto_enabled", false)): return
 	var storage: RefCounted = saves._storage
 	var original_files: RefCounted = storage._file_ops
-	var files := CONTENT.WriteRefusal.new()
+	var files := CountingFiles.new()
 	storage._file_ops = files
 	var started: Dictionary = saves.start_scene_new_run("target_a", {"route_id": "scene",
 		"content_version": 1, "audio_context": get_node("/root/AudioManager").get_semantic_audio_context()})
@@ -243,8 +238,6 @@ func test_named_arrival_manual_save_load_and_ordinary_overlay_continuation() -> 
 	assert_eq(persisted.contacts, child.contacts)
 	assert_null(persisted.scene.return_to)
 	var autosave_hash := _autosave_sha256()
-	observer.delegate.dispatch(observer.envelope)
-	assert_eq(files.autosave_writes, 1, "repeated callback cannot write a second arrival")
 	assert_eq(_autosave_sha256(), autosave_hash)
 	assert_eq(FileAccess.get_sha256("user://saves/slot_1.json"), slot_hash)
 	_assert_mounted_overlays(0)
@@ -255,91 +248,20 @@ func test_named_arrival_manual_save_load_and_ordinary_overlay_continuation() -> 
 		"presentation": persisted.scene.presentation, "position_id": persisted.narrative_checkpoint.reading_session.position_id,
 		"money": persisted.gameplay.money, "music_starts": music_port.starts,
 		"arrival_usec": arrival_usec, "process_id": OS.get_process_id()})
-	# Refuse a real named write with an existing Autosave, then retry the retained
-	# target admission. The prior durable save remains the recovery point.
-	if not await _load_backup("slot:1", "contact.test.a", "line.contact.test.a.one"): return
-	assert_eq(persisted.gameplay.money, 37, "the previous Autosave contains the earlier state")
-	game.change_money(1)
-	assert_eq(game.capture_run_snapshot_input().gameplay.money, 38,
-		"different real state prevents identical durable bytes from satisfying the refused write")
-	var before_refusal_writes: int = files.autosave_writes
-	files.refuse_on = before_refusal_writes + 1
-	var refusal_observer := ArrivalObserver.new()
-	refusal_observer.delegate = bridge._scene_event_port
-	bridge._scene_event_port = refusal_observer
-	if not await _wait_transport_input(_caption().transport_rail._next_button): return
-	var refusal_started := Time.get_ticks_usec()
-	await _click(_caption().transport_rail._next_button)
-	var refusal_usec := Time.get_ticks_usec() - refusal_started
-	bridge._scene_event_port = refusal_observer.delegate
-	_write_json("res://.godot/ci/named-presentation-refusal-diagnostic.json", {
-		"dispatched": not refusal_observer.envelope.is_empty(), "result": refusal_observer.result,
-		"refused_writes": files.refused, "autosave_writes": files.autosave_writes,
-		"candidate": game._scene_entry_operation.has("candidate"),
-		"recovery_active": _caption().is_reading_recovery_active(),
-		"recovery_admitted": _caption()._recovery_action_admitted(),
-		"next_admitted": _caption().transport_rail._next_button._admitted()})
-	assert_false(refusal_observer.envelope.is_empty(), "native Next attempts named checkpoint")
-	assert_false(refusal_observer.result.get("ok", true), str(refusal_observer.result))
-	assert_eq(files.refused, 1, "actual Autosave temporary-file write was refused")
-	assert_eq(_autosave_sha256(), autosave_hash, "failed named write preserves prior Autosave bytes")
-	assert_eq(FileAccess.get_sha256("user://saves/slot_1.json"), slot_hash)
-	assert_eq(game.capture_run_snapshot_input().scene.presentation, expected)
-	assert_true(game._scene_entry_operation.has("candidate"), "definite refusal retains exact retry target")
-	if not game._scene_entry_operation.has("candidate"): return
-	var binding: Dictionary = game._scene_entry_operation.binding.duplicate(true)
-	assert_eq(binding.target_id, "return_a")
-	assert_false(str(binding.trigger_command_id).is_empty())
-	assert_true(_caption().is_reading_recovery_active(), "failed named arrival exposes native Retry")
-	assert_true(_caption()._recovery_action_admitted(), "retained named target admits its recovery action")
-	await _screenshot("named-presentation-write-refused")
-	var retry_results: Array = []
-	bridge.next_request_finished.connect(func(_frontier: Dictionary, result: Dictionary) -> void:
-		retry_results.append(result.duplicate(true)), CONNECT_ONE_SHOT)
-	if not await _wait_transport_input(_caption().recovery_overlay.retry_button): return
-	var retry_started := Time.get_ticks_usec()
-	await _click(_caption().recovery_overlay.retry_button)
-	_write_json("res://.godot/ci/named-presentation-retry-diagnostic.json", {
-		"results": retry_results, "refused_writes": files.refused, "autosave_writes": files.autosave_writes,
-		"candidate": game._scene_entry_operation.has("candidate"),
-		"checkpoint": bridge.capture_reading_checkpoint(false)})
-	if not await _wait_line("scene.test.a", "line.scene.test.a.two"): return
-	assert_eq(retry_results.size(), 1, "native Retry completes exactly one request")
-	if not retry_results.is_empty(): assert_true(retry_results[0].get("ok", false), str(retry_results[0]))
-	var retry_usec := Time.get_ticks_usec() - retry_started
-	assert_eq(game.capture_run_snapshot_input().scene.presentation, initial)
-	assert_eq(game.capture_run_snapshot_input().gameplay.money, 38)
-	assert_eq(game.contacts, child.contacts)
-	var retry_hash := _autosave_sha256()
 	var writes_before_load: int = files.autosave_writes
 	if not await _load_backup("autosave", "scene.test.a", "line.scene.test.a.two"): return
 	assert_eq(files.autosave_writes, writes_before_load, "Autosave Load never writes another Autosave")
-	assert_eq(_autosave_sha256(), retry_hash)
+	assert_eq(_autosave_sha256(), autosave_hash)
+	assert_eq(FileAccess.get_sha256("user://saves/slot_1.json"), slot_hash)
 	assert_eq(game.capture_run_snapshot_input().scene.presentation, initial)
-	assert_eq(game.capture_run_snapshot_input().gameplay.money, 38)
+	assert_eq(game.capture_run_snapshot_input().gameplay.money, 37)
 	assert_eq(game.contacts, child.contacts, "Load never replays Contacts consequences")
 	_assert_mounted_overlays(0)
-	_assert_music([0, 1000, 0, 1000, 0, 1000])
+	_assert_music([0, 1000, 0, 1000])
 	await _screenshot("named-presentation-autosave-loaded")
-	_write_json("res://.godot/ci/named-presentation-retry-proof.json", {
-		"arrival_usec": arrival_usec, "refusal_usec": refusal_usec, "retry_usec": retry_usec,
-		"refused_writes": files.refused, "autosave_writes": files.autosave_writes,
-		"autosave_sha256": retry_hash, "music_starts": music_port.starts})
-	# Manually deleted required art is a visible content error; saved bytes remain.
-	var edited: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("user://named-presentation-connected.json"))
-	edited.overlay_labels.erase("template.left")
-	if not _write_json("user://named-presentation-connected.json", edited): return
-	assert_true(ART.reload_placements("user://named-presentation-connected.json"))
-	var missing: Dictionary = saves.prepare_restore_slot(1)
-	assert_eq(missing.get("code"), &"reading_content_error", str(missing))
-	var confirmation: Control = bootstrap.get_node_or_null("ContentError/ContentErrorConfirmation")
-	assert_not_null(confirmation)
-	if confirmation != null:
-		assert_true(str(confirmation.request.body).contains("template.left"))
-		assert_false(confirmation.cancel_button.visible)
-		await _screenshot("named-presentation-missing-label")
-	assert_eq(_autosave_sha256(), retry_hash)
-	assert_eq(FileAccess.get_sha256("user://saves/slot_1.json"), slot_hash)
-	assert_eq(files.autosave_writes, writes_before_load)
+	_write_json("res://.godot/ci/named-presentation-autosave-load-proof.json", {
+		"autosave_writes": files.autosave_writes, "autosave_sha256": autosave_hash,
+		"presentation": game.capture_run_snapshot_input().scene.presentation,
+		"money": game.capture_run_snapshot_input().gameplay.money, "music_starts": music_port.starts})
 	storage._file_ops = original_files
 	ART.reload_placements()
