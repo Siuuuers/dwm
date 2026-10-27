@@ -32,7 +32,12 @@ between different runners. PR 136 reduced repeated reading validations from 12 t
 its [retained report](../evidence/phase_2r/save_reading_reuse_20261027/README.md) includes
 the matched Save, passage and Load evidence.
 
-The next bounded candidate is semantic reading reuse. Run schema validation already
+First enable existing `DWM_SAVE_LOAD_PROFILE` phase timings in a cloud diagnostic
+and measure native F5 to the first drawn Saved notice. The measured reading-validation
+and storage spans overlap and account for only part of the full Save path. Use
+that evidence to choose the next cut; do not assume remaining reconstruction dominates.
+
+One bounded candidate is semantic reading reuse. Run schema validation already
 has the expanded checkpoint, but GameState and FrozenRunContext expand it again.
 Use existing owner boundaries. Preserve independent public calls, custom two-argument
 semantic delegates, required frame checks and raw reading5 projection behavior.
