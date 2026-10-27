@@ -57,14 +57,14 @@ func test_compact_position_preserves_current_caption_and_continues_without_id_re
 	var expanded := SESSION.expand_player_checkpoint(player.value)
 	assert_true(expanded.ok, str(expanded))
 	if not expanded.ok: return
-	var restored := SESSION.new()
-	assert_true(restored.configure_scene().ok)
-	assert_true(restored.restore_player(saved, session.latest_entry).ok)
+	var restored: RefCounted = expanded.session
 	assert_eq(restored.project(FIXTURE.frontier(restored)).value.captions.size(), 1)
 	assert_eq(restored.project_scene_caption_memory(FIXTURE.frontier(restored)).value.captions.size(), 1)
 	assert_eq(SESSION.project_player_checkpoint(expanded.value), player)
 	assert_true(FIXTURE.advance_detached(restored).ok, "fresh live traversal works after bounded restoration")
 	assert_eq(FIXTURE.frontier(restored).publication_id, "caption:10")
+	assert_eq(expanded.value.reading_session.frontier.publication_id, "caption:9",
+		"continuing the retained owner leaves its captured checkpoint detached")
 
 func test_held_control_keeps_authored_predecessor_without_traversal_proof() -> void:
 	var session := _session(FIXTURE.B)

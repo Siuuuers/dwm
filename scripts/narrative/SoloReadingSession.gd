@@ -372,7 +372,9 @@ static func expand_player_checkpoint(checkpoint: Dictionary) -> Dictionary:
 	if not captured.ok: return captured
 	var result := checkpoint.duplicate(true)
 	result.reading_session = captured.value
-	return {"ok": true, "value": result}
+	# Keep the constructed owner available to synchronous schema checks.
+	# The session is operation-local and is never part of the saved checkpoint.
+	return {"ok": true, "value": result, "session": session}
 
 func _project_player_reading(saved: Dictionary) -> Dictionary:
 	var captions: Array[Dictionary] = []

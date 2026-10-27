@@ -1,5 +1,5 @@
-name: Trusted live Save matched comparison
-run-name: Trusted live Save matched comparison
+name: Save reading reuse matched comparison
+run-name: Save reading reuse matched comparison
 
 on:
   pull_request:
@@ -14,7 +14,7 @@ concurrency:
 
 jobs:
   measure:
-    if: github.event_name == 'workflow_dispatch' || github.head_ref == 'codex/trusted-live-save-20261027'
+    if: github.event_name == 'workflow_dispatch' || github.head_ref == 'codex/save-reading-reuse-20261027'
     runs-on: windows-2022
     timeout-minutes: 70
     defaults:
@@ -22,7 +22,7 @@ jobs:
         shell: pwsh
     env:
       PYTHONUTF8: "1"
-      STARTUP_BASE_SHA: 93c3198639a54c9b392754d462d62fc7a9a3db70
+      STARTUP_BASE_SHA: 278fe58b674058aba2cfde143139380ef3c81d85
       CANDIDATE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
       DIAGNOSTIC_SHA: d72b67506e05c03f161201df7b9fc5430e2b136e
     steps:

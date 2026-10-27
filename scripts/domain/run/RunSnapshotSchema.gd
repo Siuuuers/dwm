@@ -888,9 +888,7 @@ static func validate_scene_new_run_candidate(snapshot: Dictionary, allocation_ca
 		return {"ok": true, "code": &"ok", "value": {"candidate": candidate}}
 	var reading := _validate_scene_reading(candidate)
 	if not reading.ok: return reading
-	var expanded: Dictionary = SCENE_READING.expand_player_checkpoint(candidate.narrative_checkpoint)
-	if not expanded.ok: return expanded
-	var checkpoint: Dictionary = expanded.value
+	var checkpoint: Dictionary = reading.checkpoint
 	var saved: Dictionary = checkpoint.reading_session
 	if checkpoint.transaction_id != transaction_id or checkpoint.entry_id != candidate.scene.entry_id \
 			or typeof(checkpoint.content_version) != TYPE_INT or typeof(saved.schema_version) != TYPE_INT \
@@ -1082,11 +1080,14 @@ static func _validate_scene_reading(candidate: Dictionary) -> Dictionary:
 	if saved.get("schema_version") != 5 or saved.get("occurrence_id") != candidate.scene.active_occurrence_id \
 			or saved.get("entry_id") != checkpoint.entry_id or checkpoint.entry_id != candidate.scene.entry_id:
 		return _fail(&"reading_context_invalid", "active occurrence and reading5 must agree")
-	var session := SCENE_READING.new()
-	var configured: Dictionary = session.configure_scene()
-	if not configured.ok: return configured
-	var restored: Dictionary = session.restore(saved, checkpoint.entry_id)
-	if not restored.ok: return restored
+	var session: RefCounted = expanded.get("session")
+	if session == null:
+		# Expanded reading5 inputs still require their own restoration.
+		session = SCENE_READING.new()
+		var configured: Dictionary = session.configure_scene()
+		if not configured.ok: return configured
+		var restored: Dictionary = session.restore(saved, checkpoint.entry_id)
+		if not restored.ok: return restored
 	if not checkpoint.frozen_context.get("presentation") is Dictionary:
 		return _fail(&"reading_context_invalid", "frozen presentation must be an object")
 	var fields: Variant = checkpoint.frozen_context.presentation.get("fields")
@@ -1130,7 +1131,7 @@ static func _validate_scene_reading(candidate: Dictionary) -> Dictionary:
 				for row: Dictionary in selected.bundle.challenges:
 					if row.entry_id == checkpoint.entry_id and row.playable_marker_id == node.get("marker_id"):
 						return _fail(&"scene_challenge_position_invalid", "held playable differs from suspended Challenge")
-	return {"ok": true, "session": session}
+	return {"ok": true, "session": session, "checkpoint": checkpoint}
 
 ## For the actual GameState rollback/capture owner. This validates the complete
 ## captured input without inventing a narrative checkpoint. Full save admission
