@@ -223,6 +223,41 @@ This is separate from the per-run Notes app:
 Checkpoint discovery and individual line discovery are separate facts.
 A destination label alone may not encode the full path condition.
 
+## Save-slot ink marks
+
+Owner-selected behavior: all save types receive marks, including numbered manual
+slots, Quick Save and Autosave. Each successful save adds a fresh splash at the
+original colour/opacity. Older splashes on that same slot fade by a fixed
+percentage per subsequent successful overwrite and may eventually disappear.
+Age is measured in saves to that slot, not elapsed time or opening the save screen.
+
+For old marks use alpha_new = q * alpha_old, with 0 < q < 1, then append
+the fresh mark at alpha_0. A mark aged k overwrites has alpha_0 * q^k.
+Keep the ink hue stable; fading means reduced opacity, not changing its meaning.
+
+Proposed visual tuning, not an owner-selected constant: q = 0.65 (35% opacity
+reduction per overwrite), discard marks below 5% of fresh opacity, and retain
+at most eight marks including the fresh one. Tune against the actual slot surface.
+Keep storage and drawing bounded; do not accumulate an unlimited splash history.
+
+Use stable procedural shapes/seeds so reopening the screen does not reroll marks.
+Only successful saves age/add marks; failures, repaint, Load, or repeated delivery
+of the same completion must not do so. Marks belong to the destination slot,
+not story chronology: loading an earlier run must not rewind the slot's visual
+overwrite history. Choose the smallest persistence integration after inspecting
+existing slot metadata; this plan does not select a second save journal or schema.
+
+The mark is decorative. Keep slot text, thumbnails, focus and success/error
+feedback legible. Do not imply a failed save succeeded. The feature is not tied
+to a Shop purchase unless separately selected.
+
+Code-only art can combine a smooth irregular radial blot, a few directional
+streaks and sparse satellite droplets. Keep visual randomness separate from
+gameplay RNG. New art assets are optional.
+
+Status: selected behavior, not implemented. Its scheduling has not been assigned;
+the existing self-talk → History → Shop → transition priority remains unchanged.
+
 ## Verification and continuation
 
 Run Godot and PowerShell validation only in GitHub Actions. Reuse existing owners
