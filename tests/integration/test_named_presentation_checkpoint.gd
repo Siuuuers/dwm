@@ -92,7 +92,9 @@ func _assert_mounted_overlays(expected: int) -> void:
 func _wait_native_input() -> bool:
 	for frame: int in 240:
 		var caption: Node = _caption()
-		if caption != null and caption._next_admitted() and caption.accept_input.is_source_admitted(): return true
+		if caption != null and caption.accept_input.is_source_admitted() \
+				and caption._presented_line.get("ok", false) \
+				and caption._presented_line == bridge.capture_current_line_presentation_frontier(): return true
 		await get_tree().process_frame
 	var caption: Node = _caption()
 	var diagnostic := {"input_state": get_node("/root/InputManager").get_state(),
