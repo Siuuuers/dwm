@@ -2,6 +2,10 @@ extends "res://tests/support/ScenePauseLoadTestBase.gd"
 ## Real native source and retained sheet/save owners. The capture callback supplies
 ## the fixture's canonical owners; no successful Save/Load acknowledgement is faked.
 var _capture_calls := 0
+var _desktop_board := preload("res://scripts/domain/minesweeper/DesktopBoardState.gd").new()
+
+func _capture_desktop_inputs() -> Dictionary:
+	return {"board": _desktop_board.capture(), "consequence": fixture.game._desktop_snapshot.consequence.duplicate(true)}
 
 func _capture_scene_inputs() -> Dictionary:
 	_capture_calls += 1
@@ -12,7 +16,12 @@ func _capture_scene_inputs() -> Dictionary:
 		"content_version": 1, "dialogic_checkpoint": checkpoint.value}}
 
 func test_direct_scene_sheets_save_and_load_without_pause_menu() -> void:
-	if not fixture_ready or not _ok(await fixture.start_text()): return
+	if not fixture_ready: return
+	# Restore the player board through its real owner before capturing live Save inputs.
+	fixture.participants.desktop_board = preload("res://scripts/application/restore/DesktopBoardRestoreParticipant.gd").new(_desktop_board, fixture.issuer)
+	if not _ok(fixture.manager.configure_scene_restore_participants(fixture.participants)): return
+	if not _ok(fixture.game.configure_desktop_snapshot_provider(_capture_desktop_inputs)): return
+	if not _ok(await fixture.start_text()): return
 	fixture.pause._services["backup_capture"] = Callable(self, "_capture_scene_inputs")
 	if not _ok(fixture.manager.configure_backup_capture_provider(
 		Callable(fixture.pause, "capture_backup_checkpoint_inputs"), Callable(),
