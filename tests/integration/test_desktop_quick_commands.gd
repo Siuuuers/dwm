@@ -312,7 +312,7 @@ func test_f5_commits_current_quick_through_real_owner_without_displacing_backup_
 		assert_eq(edge.remaining_seconds,remaining,"font preference does not restart status lifetime")
 	assert_signal_not_emitted(edge,"status_announced")
 	var captures := _source.captures
-	_source.inputs.snapshot_input.gameplay.money += 1
+	_source.inputs.snapshot_input.gameplay["money"] = 1
 	edge.advance_eligible_time(0.25)
 	assert_eq(edge.key, &"saved", "Saved reports the completed action after ordinary gameplay changes")
 	assert_eq(_source.captures, captures, "displaying Saved does not capture live save state")
