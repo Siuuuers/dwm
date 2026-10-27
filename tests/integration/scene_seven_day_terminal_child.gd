@@ -63,6 +63,7 @@ func load_saved_terminal_line() -> void:
 	assert_eq(FileAccess.get_sha256("user://profile.json"), profile_hash)
 	assert_eq(FileAccess.get_sha256(TERMINAL_SLOT), proof.slot_sha256)
 	await _screenshot("seven-day-terminal-restored-full")
+	var autosave_before := _autosave_sha256()
 	await _accept()
 	if not await _wait_route(MENU): return
 	var finished: Dictionary = game._run_lifecycle.to_dict()
@@ -71,10 +72,7 @@ func load_saved_terminal_line() -> void:
 	assert_false(game.capture_live_session().value.active)
 	assert_eq(profile.get_profile_snapshot().gallery_transaction_receipts,
 		profile_before.gallery_transaction_receipts, "Finish reuses the existing global passage discovery")
-	var durable: Dictionary = PARSER.parse_object(FileAccess.get_file_as_string("user://saves/autosave.json"))
-	if not _ok(durable): return
-	assert_eq(durable.value.current_snapshot.snapshot.lifecycle.state, "COMPLETED")
-	assert_false(durable.value.current_snapshot.snapshot.lifecycle.has("ending_plan"))
+	assert_eq(_autosave_sha256(), autosave_before, "ordinary Finish preserves prior Autosave")
 	assert_eq(FileAccess.get_sha256(TERMINAL_SLOT), proof.slot_sha256)
 	assert_eq(FileAccess.get_sha256("user://saves/slot_1.json"), slot1_hash)
 	await _screenshot("seven-day-terminal-restored-completed-title")
@@ -94,7 +92,7 @@ func load_saved_terminal_line() -> void:
 	assert_false(gallery._replay_button.disabled)
 	var run_before: Dictionary = game.capture_run_snapshot_input().duplicate(true)
 	var global_before: Dictionary = profile.get_profile_snapshot().duplicate(true)
-	var autosave_hash := FileAccess.get_sha256("user://saves/autosave.json")
+	var autosave_hash := _autosave_sha256()
 	profile_hash = FileAccess.get_sha256("user://profile.json")
 	var owner: RefCounted = gallery._replay_owner
 	var finishes: Array = []
@@ -113,7 +111,7 @@ func load_saved_terminal_line() -> void:
 	assert_true(bridge._reached_replay.is_empty())
 	assert_eq(game.capture_run_snapshot_input(), run_before)
 	assert_eq(profile.get_profile_snapshot(), global_before)
-	assert_eq(FileAccess.get_sha256("user://saves/autosave.json"), autosave_hash)
+	assert_eq(_autosave_sha256(), autosave_hash)
 	assert_eq(FileAccess.get_sha256("user://profile.json"), profile_hash)
 	_write_json("res://.godot/ci/scene-seven-day-terminal-load-proof.json", {
 		"loader_process_id": OS.get_process_id(), "creator_process_id": proof.process_id,

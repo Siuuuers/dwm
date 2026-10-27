@@ -1,0 +1,5412 @@
+{
+  "status": "strict summary passed",
+  "run_id": 40472873648,
+  "artifact_id": 12719828149,
+  "artifact_sha256": "2063eadd81d5e28c80ee72904ff3b91859b8dfee0058633d0158e21ef7f99d51",
+  "source": {
+    "baseline": "249b66bc0158353e0e576daf89768096665e95b7",
+    "candidate": "29809590a2792529445d75bacbb5939d30fc7927",
+    "observer": "d72b67506e05c03f161201df7b9fc5430e2b136e",
+    "baseline_tree": "c6bbdb0afddaafb11084c019b9f7686053b83d32",
+    "candidate_tree": "dbf2415cd03f74bbd7c59f93c41914074d5fe169",
+    "repetitions": 4,
+    "order": [
+      "AB",
+      "BA",
+      "AB",
+      "BA"
+    ],
+    "cases": [
+      "fresh",
+      "retained",
+      "load"
+    ],
+    "scope": "Matched baseline/candidate instrumented exports on one Windows runner. Each action starts a new process. Retained and Load use the same r1-baseline-fresh profile after real manual Save and Autosave. Verbose engine logging is enabled equally to identify shutdown resources. OS caches are not cleared."
+  },
+  "raw_samples": [
+    {
+      "variant": "baseline",
+      "repetition": 1,
+      "metrics_ms": {
+        "load_first_draw": 683.22,
+        "load_complete_caption": 708.595,
+        "load_input_ready": 710.073,
+        "first_accept_draw": 62.036,
+        "typical_caption_run_median": 112.9965,
+        "passage_first_draw": 1702.048,
+        "passage_usable": 1722.335,
+        "manual_save_complete": 2386.155,
+        "fresh_manual_save_complete": 2376.614,
+        "retained_manual_save_complete": 2368.662
+      },
+      "caption_samples": [
+        {
+          "input_to_observed_drawing_us": 105397,
+          "line_id": "line.Day1.003",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 106622,
+          "line_id": "line.Day1.004",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 105835,
+          "line_id": "line.Day1.005",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 105588,
+          "line_id": "line.Day1.006",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 107494,
+          "line_id": "line.Day1.007",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 108320,
+          "line_id": "line.Day1.008",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 111875,
+          "line_id": "line.Day1.009",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 108315,
+          "line_id": "line.Day1.010",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 107841,
+          "line_id": "line.Day1.011",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 109064,
+          "line_id": "line.Day1.012",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 110431,
+          "line_id": "line.Day1.013",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 110786,
+          "line_id": "line.Day1.014",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 111532,
+          "line_id": "line.Day1.015",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 114118,
+          "line_id": "line.Day1.016",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 111619,
+          "line_id": "line.Day1.017",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 115780,
+          "line_id": "line.Day1.018",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 115907,
+          "line_id": "line.Day1.019",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 118713,
+          "line_id": "line.Day1.020",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 117435,
+          "line_id": "line.Day1.021",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 119522,
+          "line_id": "line.Day1.022",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 122631,
+          "line_id": "line.Day1.023",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 122069,
+          "line_id": "line.Day1.024",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 120682,
+          "line_id": "line.Day1.025",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 123070,
+          "line_id": "line.Day1.026",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 123805,
+          "line_id": "line.Day1.027",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 122083,
+          "line_id": "line.Day1.028",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 122873,
+          "line_id": "line.Day1.029",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 123739,
+          "line_id": "line.Day1.030",
+          "press_count": 1,
+          "release_count": 1
+        }
+      ],
+      "passage_autosave_unchanged": false,
+      "storage_profiles": {
+        "accept_003": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 18379,
+            "max_us": 18379
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 18385,
+            "max_us": 18385
+          }
+        },
+        "accept_004": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 19071,
+            "max_us": 19071
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 19076,
+            "max_us": 19076
+          }
+        },
+        "accept_005": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 19325,
+            "max_us": 19325
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 19331,
+            "max_us": 19331
+          }
+        },
+        "accept_006": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 19924,
+            "max_us": 19924
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 19929,
+            "max_us": 19929
+          }
+        },
+        "accept_007": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 20520,
+            "max_us": 20520
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 20525,
+            "max_us": 20525
+          }
+        },
+        "accept_008": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 21090,
+            "max_us": 21090
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 21095,
+            "max_us": 21095
+          }
+        },
+        "accept_009": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 22198,
+            "max_us": 22198
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 22203,
+            "max_us": 22203
+          }
+        },
+        "accept_010": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 22413,
+            "max_us": 22413
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 22418,
+            "max_us": 22418
+          }
+        },
+        "accept_011": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 23250,
+            "max_us": 23250
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 23256,
+            "max_us": 23256
+          }
+        },
+        "accept_012": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 23300,
+            "max_us": 23300
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 23305,
+            "max_us": 23305
+          }
+        },
+        "accept_013": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 24425,
+            "max_us": 24425
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 24430,
+            "max_us": 24430
+          }
+        },
+        "accept_014": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 24526,
+            "max_us": 24526
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 24531,
+            "max_us": 24531
+          }
+        },
+        "accept_015": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 24917,
+            "max_us": 24917
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 24922,
+            "max_us": 24922
+          }
+        },
+        "accept_016": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 25940,
+            "max_us": 25940
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 25945,
+            "max_us": 25945
+          }
+        },
+        "accept_017": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 25762,
+            "max_us": 25762
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 25767,
+            "max_us": 25767
+          }
+        },
+        "accept_018": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 27108,
+            "max_us": 27108
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 27113,
+            "max_us": 27113
+          }
+        },
+        "accept_019": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 27328,
+            "max_us": 27328
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 27333,
+            "max_us": 27333
+          }
+        },
+        "accept_020": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 28859,
+            "max_us": 28859
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 28864,
+            "max_us": 28864
+          }
+        },
+        "accept_021": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 28574,
+            "max_us": 28574
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 28579,
+            "max_us": 28579
+          }
+        },
+        "accept_022": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 29514,
+            "max_us": 29514
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 29520,
+            "max_us": 29520
+          }
+        },
+        "accept_023": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 30472,
+            "max_us": 30472
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 30477,
+            "max_us": 30477
+          }
+        },
+        "accept_024": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 30772,
+            "max_us": 30772
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 30777,
+            "max_us": 30777
+          }
+        },
+        "accept_025": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 31215,
+            "max_us": 31215
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 31220,
+            "max_us": 31220
+          }
+        },
+        "accept_026": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 32096,
+            "max_us": 32096
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 32101,
+            "max_us": 32101
+          }
+        },
+        "accept_027": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 32786,
+            "max_us": 32786
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 32791,
+            "max_us": 32791
+          }
+        },
+        "accept_028": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 32419,
+            "max_us": 32419
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 32424,
+            "max_us": 32424
+          }
+        },
+        "accept_029": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 33274,
+            "max_us": 33274
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 33279,
+            "max_us": 33279
+          }
+        },
+        "accept_030": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 33558,
+            "max_us": 33558
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 33563,
+            "max_us": 33563
+          }
+        },
+        "first_accept": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 17430,
+            "max_us": 17430
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 17435,
+            "max_us": 17435
+          }
+        },
+        "load": {},
+        "observer_capture": {},
+        "passage_transition": {
+          "GameSaveStorage.write_atomic": {
+            "calls": 3,
+            "elapsed_us": 8810,
+            "max_us": 3588
+          },
+          "JsonFileStorage.write_atomic": {
+            "calls": 4,
+            "elapsed_us": 43282,
+            "max_us": 34498
+          },
+          "JsonFileStorage.write_atomic.file.autosave.json": {
+            "calls": 1,
+            "elapsed_us": 2107,
+            "max_us": 2107
+          },
+          "JsonFileStorage.write_atomic.file.desktop-issuer-root.json": {
+            "calls": 2,
+            "elapsed_us": 6695,
+            "max_us": 3586
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 34504,
+            "max_us": 34504
+          },
+          "SaveManagerCheckpointPort.capture": {
+            "calls": 4,
+            "elapsed_us": 266,
+            "max_us": 78
+          },
+          "SaveManagerCheckpointPort.commit": {
+            "calls": 1,
+            "elapsed_us": 294374,
+            "max_us": 294374
+          },
+          "SaveManagerCheckpointPort.prepare": {
+            "calls": 1,
+            "elapsed_us": 579972,
+            "max_us": 579972
+          },
+          "SaveManagerNarrativeCheckpointPort._commit_scene_event_autosave": {
+            "calls": 1,
+            "elapsed_us": 1084538,
+            "max_us": 1084538
+          },
+          "SaveManagerNarrativeCheckpointPort._scene_candidate_reference": {
+            "calls": 3,
+            "elapsed_us": 191508,
+            "max_us": 64801
+          },
+          "SaveManagerNarrativeCheckpointPort.commit_scene_event": {
+            "calls": 1,
+            "elapsed_us": 1089320,
+            "max_us": 1089320
+          }
+        }
+      },
+      "manual_save_profile": {
+        "Capture.ledger_snapshot_copy": {
+          "calls": 40,
+          "elapsed_us": 1637,
+          "max_us": 129
+        },
+        "Capture.saved_fields_copy": {
+          "calls": 40,
+          "elapsed_us": 302,
+          "max_us": 24
+        },
+        "Compiler.runtime_cache_hit": {
+          "calls": 40,
+          "elapsed_us": 308,
+          "max_us": 15
+        },
+        "DialogicRuntimeAdapter.compile_runtime_scene_programme": {
+          "calls": 40,
+          "elapsed_us": 842,
+          "max_us": 34
+        },
+        "GameSaveStorage.write_atomic_if_revision": {
+          "calls": 1,
+          "elapsed_us": 150319,
+          "max_us": 150319
+        },
+        "JsonFileStorage.write_atomic_if_revision": {
+          "calls": 1,
+          "elapsed_us": 150312,
+          "max_us": 150312
+        },
+        "JsonFileStorage.write_atomic_if_revision.file.slot_2.json": {
+          "calls": 1,
+          "elapsed_us": 150317,
+          "max_us": 150317
+        },
+        "SoloReadingSession._capture_scene": {
+          "calls": 40,
+          "elapsed_us": 2771,
+          "max_us": 170
+        },
+        "SoloReadingSession._ensure_scene_programme": {
+          "calls": 80,
+          "elapsed_us": 3476,
+          "max_us": 116
+        },
+        "SoloReadingSession._validate_scene_saved": {
+          "calls": 40,
+          "elapsed_us": 785709,
+          "max_us": 20817
+        },
+        "WitnessedCaptionLayer._on_reading_input_custody_changed": {
+          "calls": 1,
+          "elapsed_us": 30,
+          "max_us": 30
+        }
+      }
+    },
+    {
+      "variant": "baseline",
+      "repetition": 2,
+      "metrics_ms": {
+        "load_first_draw": 675.075,
+        "load_complete_caption": 700.365,
+        "load_input_ready": 701.881,
+        "first_accept_draw": 62.305,
+        "typical_caption_run_median": 116.05,
+        "passage_first_draw": 1695.874,
+        "passage_usable": 1716.64,
+        "manual_save_complete": 2356.615,
+        "fresh_manual_save_complete": 2316.683,
+        "retained_manual_save_complete": 2400.279
+      },
+      "caption_samples": [
+        {
+          "input_to_observed_drawing_us": 105247,
+          "line_id": "line.Day1.003",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 105151,
+          "line_id": "line.Day1.004",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 104396,
+          "line_id": "line.Day1.005",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 106159,
+          "line_id": "line.Day1.006",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 108771,
+          "line_id": "line.Day1.007",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 109038,
+          "line_id": "line.Day1.008",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 111129,
+          "line_id": "line.Day1.009",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 108952,
+          "line_id": "line.Day1.010",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 108732,
+          "line_id": "line.Day1.011",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 111197,
+          "line_id": "line.Day1.012",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 110443,
+          "line_id": "line.Day1.013",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 111875,
+          "line_id": "line.Day1.014",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 119213,
+          "line_id": "line.Day1.015",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 117048,
+          "line_id": "line.Day1.016",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 114581,
+          "line_id": "line.Day1.017",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 116453,
+          "line_id": "line.Day1.018",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 115647,
+          "line_id": "line.Day1.019",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 117406,
+          "line_id": "line.Day1.020",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 118905,
+          "line_id": "line.Day1.021",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 118336,
+          "line_id": "line.Day1.022",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 120467,
+          "line_id": "line.Day1.023",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 121163,
+          "line_id": "line.Day1.024",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 121573,
+          "line_id": "line.Day1.025",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 123784,
+          "line_id": "line.Day1.026",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 122663,
+          "line_id": "line.Day1.027",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 123504,
+          "line_id": "line.Day1.028",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 123852,
+          "line_id": "line.Day1.029",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 122967,
+          "line_id": "line.Day1.030",
+          "press_count": 1,
+          "release_count": 1
+        }
+      ],
+      "passage_autosave_unchanged": false,
+      "storage_profiles": {
+        "accept_003": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 18037,
+            "max_us": 18037
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 18042,
+            "max_us": 18042
+          }
+        },
+        "accept_004": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 18775,
+            "max_us": 18775
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 18780,
+            "max_us": 18780
+          }
+        },
+        "accept_005": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 19277,
+            "max_us": 19277
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 19283,
+            "max_us": 19283
+          }
+        },
+        "accept_006": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 19848,
+            "max_us": 19848
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 19853,
+            "max_us": 19853
+          }
+        },
+        "accept_007": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 20656,
+            "max_us": 20656
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 20661,
+            "max_us": 20661
+          }
+        },
+        "accept_008": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 21356,
+            "max_us": 21356
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 21360,
+            "max_us": 21360
+          }
+        },
+        "accept_009": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 21760,
+            "max_us": 21760
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 21765,
+            "max_us": 21765
+          }
+        },
+        "accept_010": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 22481,
+            "max_us": 22481
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 22486,
+            "max_us": 22486
+          }
+        },
+        "accept_011": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 22775,
+            "max_us": 22775
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 22780,
+            "max_us": 22780
+          }
+        },
+        "accept_012": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 23522,
+            "max_us": 23522
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 23526,
+            "max_us": 23526
+          }
+        },
+        "accept_013": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 24099,
+            "max_us": 24099
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 24104,
+            "max_us": 24104
+          }
+        },
+        "accept_014": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 24696,
+            "max_us": 24696
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 24701,
+            "max_us": 24701
+          }
+        },
+        "accept_015": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 25571,
+            "max_us": 25571
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 25576,
+            "max_us": 25576
+          }
+        },
+        "accept_016": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 26170,
+            "max_us": 26170
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 26175,
+            "max_us": 26175
+          }
+        },
+        "accept_017": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 26323,
+            "max_us": 26323
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 26329,
+            "max_us": 26329
+          }
+        },
+        "accept_018": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 27025,
+            "max_us": 27025
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 27031,
+            "max_us": 27031
+          }
+        },
+        "accept_019": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 27398,
+            "max_us": 27398
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 27404,
+            "max_us": 27404
+          }
+        },
+        "accept_020": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 28149,
+            "max_us": 28149
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 28154,
+            "max_us": 28154
+          }
+        },
+        "accept_021": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 29081,
+            "max_us": 29081
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 29087,
+            "max_us": 29087
+          }
+        },
+        "accept_022": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 29184,
+            "max_us": 29184
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 29189,
+            "max_us": 29189
+          }
+        },
+        "accept_023": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 29881,
+            "max_us": 29881
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 29886,
+            "max_us": 29886
+          }
+        },
+        "accept_024": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 30564,
+            "max_us": 30564
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 30570,
+            "max_us": 30570
+          }
+        },
+        "accept_025": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 30907,
+            "max_us": 30907
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 30912,
+            "max_us": 30912
+          }
+        },
+        "accept_026": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 32596,
+            "max_us": 32596
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 32602,
+            "max_us": 32602
+          }
+        },
+        "accept_027": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 32129,
+            "max_us": 32129
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 32134,
+            "max_us": 32134
+          }
+        },
+        "accept_028": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 32746,
+            "max_us": 32746
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 32766,
+            "max_us": 32766
+          }
+        },
+        "accept_029": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 33656,
+            "max_us": 33656
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 33661,
+            "max_us": 33661
+          }
+        },
+        "accept_030": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 33478,
+            "max_us": 33478
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 33483,
+            "max_us": 33483
+          }
+        },
+        "first_accept": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 17562,
+            "max_us": 17562
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 17568,
+            "max_us": 17568
+          }
+        },
+        "load": {},
+        "observer_capture": {},
+        "passage_transition": {
+          "GameSaveStorage.write_atomic": {
+            "calls": 3,
+            "elapsed_us": 8823,
+            "max_us": 3641
+          },
+          "JsonFileStorage.write_atomic": {
+            "calls": 4,
+            "elapsed_us": 43049,
+            "max_us": 34253
+          },
+          "JsonFileStorage.write_atomic.file.autosave.json": {
+            "calls": 1,
+            "elapsed_us": 2206,
+            "max_us": 2206
+          },
+          "JsonFileStorage.write_atomic.file.desktop-issuer-root.json": {
+            "calls": 2,
+            "elapsed_us": 6608,
+            "max_us": 3638
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 34259,
+            "max_us": 34259
+          },
+          "SaveManagerCheckpointPort.capture": {
+            "calls": 4,
+            "elapsed_us": 241,
+            "max_us": 63
+          },
+          "SaveManagerCheckpointPort.commit": {
+            "calls": 1,
+            "elapsed_us": 288787,
+            "max_us": 288787
+          },
+          "SaveManagerCheckpointPort.prepare": {
+            "calls": 1,
+            "elapsed_us": 582586,
+            "max_us": 582586
+          },
+          "SaveManagerNarrativeCheckpointPort._commit_scene_event_autosave": {
+            "calls": 1,
+            "elapsed_us": 1083841,
+            "max_us": 1083841
+          },
+          "SaveManagerNarrativeCheckpointPort._scene_candidate_reference": {
+            "calls": 3,
+            "elapsed_us": 193856,
+            "max_us": 65969
+          },
+          "SaveManagerNarrativeCheckpointPort.commit_scene_event": {
+            "calls": 1,
+            "elapsed_us": 1088481,
+            "max_us": 1088481
+          }
+        }
+      },
+      "manual_save_profile": {
+        "Capture.ledger_snapshot_copy": {
+          "calls": 40,
+          "elapsed_us": 1610,
+          "max_us": 87
+        },
+        "Capture.saved_fields_copy": {
+          "calls": 40,
+          "elapsed_us": 287,
+          "max_us": 10
+        },
+        "Compiler.runtime_cache_hit": {
+          "calls": 40,
+          "elapsed_us": 311,
+          "max_us": 20
+        },
+        "DialogicRuntimeAdapter.compile_runtime_scene_programme": {
+          "calls": 40,
+          "elapsed_us": 820,
+          "max_us": 33
+        },
+        "GameSaveStorage.write_atomic_if_revision": {
+          "calls": 1,
+          "elapsed_us": 146528,
+          "max_us": 146528
+        },
+        "JsonFileStorage.write_atomic_if_revision": {
+          "calls": 1,
+          "elapsed_us": 146521,
+          "max_us": 146521
+        },
+        "JsonFileStorage.write_atomic_if_revision.file.slot_2.json": {
+          "calls": 1,
+          "elapsed_us": 146526,
+          "max_us": 146526
+        },
+        "SoloReadingSession._capture_scene": {
+          "calls": 40,
+          "elapsed_us": 2724,
+          "max_us": 133
+        },
+        "SoloReadingSession._ensure_scene_programme": {
+          "calls": 80,
+          "elapsed_us": 3366,
+          "max_us": 105
+        },
+        "SoloReadingSession._validate_scene_saved": {
+          "calls": 40,
+          "elapsed_us": 771082,
+          "max_us": 20471
+        },
+        "WitnessedCaptionLayer._on_reading_input_custody_changed": {
+          "calls": 1,
+          "elapsed_us": 28,
+          "max_us": 28
+        }
+      }
+    },
+    {
+      "variant": "baseline",
+      "repetition": 3,
+      "metrics_ms": {
+        "load_first_draw": 676.628,
+        "load_complete_caption": 702.29,
+        "load_input_ready": 703.771,
+        "first_accept_draw": 62.566,
+        "typical_caption_run_median": 115.714,
+        "passage_first_draw": 1718.929,
+        "passage_usable": 1740.012,
+        "manual_save_complete": 2414.868,
+        "fresh_manual_save_complete": 2360.72,
+        "retained_manual_save_complete": 2388.957
+      },
+      "caption_samples": [
+        {
+          "input_to_observed_drawing_us": 105483,
+          "line_id": "line.Day1.003",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 105280,
+          "line_id": "line.Day1.004",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 104711,
+          "line_id": "line.Day1.005",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 105075,
+          "line_id": "line.Day1.006",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 107949,
+          "line_id": "line.Day1.007",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 108840,
+          "line_id": "line.Day1.008",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 109832,
+          "line_id": "line.Day1.009",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 110157,
+          "line_id": "line.Day1.010",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 109867,
+          "line_id": "line.Day1.011",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 111958,
+          "line_id": "line.Day1.012",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 110613,
+          "line_id": "line.Day1.013",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 110953,
+          "line_id": "line.Day1.014",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 112599,
+          "line_id": "line.Day1.015",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 115489,
+          "line_id": "line.Day1.016",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 115939,
+          "line_id": "line.Day1.017",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 115975,
+          "line_id": "line.Day1.018",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 116090,
+          "line_id": "line.Day1.019",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 117692,
+          "line_id": "line.Day1.020",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 118947,
+          "line_id": "line.Day1.021",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 121101,
+          "line_id": "line.Day1.022",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 124273,
+          "line_id": "line.Day1.023",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 122019,
+          "line_id": "line.Day1.024",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 121817,
+          "line_id": "line.Day1.025",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 123231,
+          "line_id": "line.Day1.026",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 124089,
+          "line_id": "line.Day1.027",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 125163,
+          "line_id": "line.Day1.028",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 124189,
+          "line_id": "line.Day1.029",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 143910,
+          "line_id": "line.Day1.030",
+          "press_count": 1,
+          "release_count": 1
+        }
+      ],
+      "passage_autosave_unchanged": false,
+      "storage_profiles": {
+        "accept_003": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 18578,
+            "max_us": 18578
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 18583,
+            "max_us": 18583
+          }
+        },
+        "accept_004": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 18937,
+            "max_us": 18937
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 18942,
+            "max_us": 18942
+          }
+        },
+        "accept_005": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 19450,
+            "max_us": 19450
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 19455,
+            "max_us": 19455
+          }
+        },
+        "accept_006": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 20099,
+            "max_us": 20099
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 20104,
+            "max_us": 20104
+          }
+        },
+        "accept_007": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 20464,
+            "max_us": 20464
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 20469,
+            "max_us": 20469
+          }
+        },
+        "accept_008": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 21155,
+            "max_us": 21155
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 21161,
+            "max_us": 21161
+          }
+        },
+        "accept_009": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 21771,
+            "max_us": 21771
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 21776,
+            "max_us": 21776
+          }
+        },
+        "accept_010": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 22858,
+            "max_us": 22858
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 22864,
+            "max_us": 22864
+          }
+        },
+        "accept_011": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 23230,
+            "max_us": 23230
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 23236,
+            "max_us": 23236
+          }
+        },
+        "accept_012": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 24038,
+            "max_us": 24038
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 24045,
+            "max_us": 24045
+          }
+        },
+        "accept_013": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 24410,
+            "max_us": 24410
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 24416,
+            "max_us": 24416
+          }
+        },
+        "accept_014": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 24499,
+            "max_us": 24499
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 24504,
+            "max_us": 24504
+          }
+        },
+        "accept_015": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 25551,
+            "max_us": 25551
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 25556,
+            "max_us": 25556
+          }
+        },
+        "accept_016": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 26565,
+            "max_us": 26565
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 26571,
+            "max_us": 26571
+          }
+        },
+        "accept_017": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 26849,
+            "max_us": 26849
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 26854,
+            "max_us": 26854
+          }
+        },
+        "accept_018": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 26945,
+            "max_us": 26945
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 26950,
+            "max_us": 26950
+          }
+        },
+        "accept_019": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 27664,
+            "max_us": 27664
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 27670,
+            "max_us": 27670
+          }
+        },
+        "accept_020": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 28427,
+            "max_us": 28427
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 28433,
+            "max_us": 28433
+          }
+        },
+        "accept_021": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 29606,
+            "max_us": 29606
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 29612,
+            "max_us": 29612
+          }
+        },
+        "accept_022": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 30044,
+            "max_us": 30044
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 30049,
+            "max_us": 30049
+          }
+        },
+        "accept_023": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 31211,
+            "max_us": 31211
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 31216,
+            "max_us": 31216
+          }
+        },
+        "accept_024": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 30848,
+            "max_us": 30848
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 30853,
+            "max_us": 30853
+          }
+        },
+        "accept_025": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 31770,
+            "max_us": 31770
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 31775,
+            "max_us": 31775
+          }
+        },
+        "accept_026": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 32300,
+            "max_us": 32300
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 32306,
+            "max_us": 32306
+          }
+        },
+        "accept_027": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 33177,
+            "max_us": 33177
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 33184,
+            "max_us": 33184
+          }
+        },
+        "accept_028": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 33537,
+            "max_us": 33537
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 33543,
+            "max_us": 33543
+          }
+        },
+        "accept_029": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 33750,
+            "max_us": 33750
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 33756,
+            "max_us": 33756
+          }
+        },
+        "accept_030": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 41848,
+            "max_us": 41848
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 41858,
+            "max_us": 41858
+          }
+        },
+        "first_accept": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 17757,
+            "max_us": 17757
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 17762,
+            "max_us": 17762
+          }
+        },
+        "load": {},
+        "observer_capture": {},
+        "passage_transition": {
+          "GameSaveStorage.write_atomic": {
+            "calls": 3,
+            "elapsed_us": 8668,
+            "max_us": 3675
+          },
+          "JsonFileStorage.write_atomic": {
+            "calls": 4,
+            "elapsed_us": 44171,
+            "max_us": 35529
+          },
+          "JsonFileStorage.write_atomic.file.autosave.json": {
+            "calls": 1,
+            "elapsed_us": 2131,
+            "max_us": 2131
+          },
+          "JsonFileStorage.write_atomic.file.desktop-issuer-root.json": {
+            "calls": 2,
+            "elapsed_us": 6528,
+            "max_us": 3672
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 35536,
+            "max_us": 35536
+          },
+          "SaveManagerCheckpointPort.capture": {
+            "calls": 4,
+            "elapsed_us": 233,
+            "max_us": 66
+          },
+          "SaveManagerCheckpointPort.commit": {
+            "calls": 1,
+            "elapsed_us": 292526,
+            "max_us": 292526
+          },
+          "SaveManagerCheckpointPort.prepare": {
+            "calls": 1,
+            "elapsed_us": 586528,
+            "max_us": 586528
+          },
+          "SaveManagerNarrativeCheckpointPort._commit_scene_event_autosave": {
+            "calls": 1,
+            "elapsed_us": 1093708,
+            "max_us": 1093708
+          },
+          "SaveManagerNarrativeCheckpointPort._scene_candidate_reference": {
+            "calls": 3,
+            "elapsed_us": 196298,
+            "max_us": 65979
+          },
+          "SaveManagerNarrativeCheckpointPort.commit_scene_event": {
+            "calls": 1,
+            "elapsed_us": 1098473,
+            "max_us": 1098473
+          }
+        }
+      },
+      "manual_save_profile": {
+        "Capture.ledger_snapshot_copy": {
+          "calls": 40,
+          "elapsed_us": 1632,
+          "max_us": 97
+        },
+        "Capture.saved_fields_copy": {
+          "calls": 40,
+          "elapsed_us": 291,
+          "max_us": 12
+        },
+        "Compiler.runtime_cache_hit": {
+          "calls": 40,
+          "elapsed_us": 309,
+          "max_us": 15
+        },
+        "DialogicRuntimeAdapter.compile_runtime_scene_programme": {
+          "calls": 40,
+          "elapsed_us": 853,
+          "max_us": 40
+        },
+        "GameSaveStorage.write_atomic_if_revision": {
+          "calls": 1,
+          "elapsed_us": 148775,
+          "max_us": 148775
+        },
+        "JsonFileStorage.write_atomic_if_revision": {
+          "calls": 1,
+          "elapsed_us": 148767,
+          "max_us": 148767
+        },
+        "JsonFileStorage.write_atomic_if_revision.file.slot_2.json": {
+          "calls": 1,
+          "elapsed_us": 148772,
+          "max_us": 148772
+        },
+        "SoloReadingSession._capture_scene": {
+          "calls": 40,
+          "elapsed_us": 2790,
+          "max_us": 138
+        },
+        "SoloReadingSession._ensure_scene_programme": {
+          "calls": 80,
+          "elapsed_us": 3410,
+          "max_us": 110
+        },
+        "SoloReadingSession._validate_scene_saved": {
+          "calls": 40,
+          "elapsed_us": 779538,
+          "max_us": 20388
+        },
+        "WitnessedCaptionLayer._on_reading_input_custody_changed": {
+          "calls": 1,
+          "elapsed_us": 33,
+          "max_us": 33
+        }
+      }
+    },
+    {
+      "variant": "baseline",
+      "repetition": 4,
+      "metrics_ms": {
+        "load_first_draw": 682.446,
+        "load_complete_caption": 708.268,
+        "load_input_ready": 709.793,
+        "first_accept_draw": 63.615,
+        "typical_caption_run_median": 115.581,
+        "passage_first_draw": 1712.997,
+        "passage_usable": 1733.552,
+        "manual_save_complete": 2375.555,
+        "fresh_manual_save_complete": 2393.035,
+        "retained_manual_save_complete": 2418.798
+      },
+      "caption_samples": [
+        {
+          "input_to_observed_drawing_us": 106877,
+          "line_id": "line.Day1.003",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 104814,
+          "line_id": "line.Day1.004",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 104604,
+          "line_id": "line.Day1.005",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 106192,
+          "line_id": "line.Day1.006",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 108292,
+          "line_id": "line.Day1.007",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 108882,
+          "line_id": "line.Day1.008",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 110593,
+          "line_id": "line.Day1.009",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 109564,
+          "line_id": "line.Day1.010",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 108962,
+          "line_id": "line.Day1.011",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 111196,
+          "line_id": "line.Day1.012",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 111342,
+          "line_id": "line.Day1.013",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 112707,
+          "line_id": "line.Day1.014",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 114455,
+          "line_id": "line.Day1.015",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 115679,
+          "line_id": "line.Day1.016",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 115483,
+          "line_id": "line.Day1.017",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 117950,
+          "line_id": "line.Day1.018",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 117498,
+          "line_id": "line.Day1.019",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 118008,
+          "line_id": "line.Day1.020",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 118563,
+          "line_id": "line.Day1.021",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 120453,
+          "line_id": "line.Day1.022",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 121602,
+          "line_id": "line.Day1.023",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 121874,
+          "line_id": "line.Day1.024",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 120207,
+          "line_id": "line.Day1.025",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 122161,
+          "line_id": "line.Day1.026",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 122807,
+          "line_id": "line.Day1.027",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 124960,
+          "line_id": "line.Day1.028",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 124166,
+          "line_id": "line.Day1.029",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 123077,
+          "line_id": "line.Day1.030",
+          "press_count": 1,
+          "release_count": 1
+        }
+      ],
+      "passage_autosave_unchanged": false,
+      "storage_profiles": {
+        "accept_003": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 18484,
+            "max_us": 18484
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 18490,
+            "max_us": 18490
+          }
+        },
+        "accept_004": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 18948,
+            "max_us": 18948
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 18953,
+            "max_us": 18953
+          }
+        },
+        "accept_005": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 19413,
+            "max_us": 19413
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 19418,
+            "max_us": 19418
+          }
+        },
+        "accept_006": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 20133,
+            "max_us": 20133
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 20138,
+            "max_us": 20138
+          }
+        },
+        "accept_007": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 20732,
+            "max_us": 20732
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 20737,
+            "max_us": 20737
+          }
+        },
+        "accept_008": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 21448,
+            "max_us": 21448
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 21453,
+            "max_us": 21453
+          }
+        },
+        "accept_009": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 21963,
+            "max_us": 21963
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 21968,
+            "max_us": 21968
+          }
+        },
+        "accept_010": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 22299,
+            "max_us": 22299
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 22304,
+            "max_us": 22304
+          }
+        },
+        "accept_011": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 23026,
+            "max_us": 23026
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 23032,
+            "max_us": 23032
+          }
+        },
+        "accept_012": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 24196,
+            "max_us": 24196
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 24202,
+            "max_us": 24202
+          }
+        },
+        "accept_013": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 24496,
+            "max_us": 24496
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 24501,
+            "max_us": 24501
+          }
+        },
+        "accept_014": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 25295,
+            "max_us": 25295
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 25301,
+            "max_us": 25301
+          }
+        },
+        "accept_015": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 25899,
+            "max_us": 25899
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 25905,
+            "max_us": 25905
+          }
+        },
+        "accept_016": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 26693,
+            "max_us": 26693
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 26699,
+            "max_us": 26699
+          }
+        },
+        "accept_017": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 27037,
+            "max_us": 27037
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 27042,
+            "max_us": 27042
+          }
+        },
+        "accept_018": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 27648,
+            "max_us": 27648
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 27654,
+            "max_us": 27654
+          }
+        },
+        "accept_019": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 27961,
+            "max_us": 27961
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 27967,
+            "max_us": 27967
+          }
+        },
+        "accept_020": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 28555,
+            "max_us": 28555
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 28561,
+            "max_us": 28561
+          }
+        },
+        "accept_021": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 28867,
+            "max_us": 28867
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 28872,
+            "max_us": 28872
+          }
+        },
+        "accept_022": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 29988,
+            "max_us": 29988
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 29993,
+            "max_us": 29993
+          }
+        },
+        "accept_023": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 30195,
+            "max_us": 30195
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 30201,
+            "max_us": 30201
+          }
+        },
+        "accept_024": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 30792,
+            "max_us": 30792
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 30797,
+            "max_us": 30797
+          }
+        },
+        "accept_025": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 31581,
+            "max_us": 31581
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 31587,
+            "max_us": 31587
+          }
+        },
+        "accept_026": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 31825,
+            "max_us": 31825
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 31832,
+            "max_us": 31832
+          }
+        },
+        "accept_027": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 32516,
+            "max_us": 32516
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 32522,
+            "max_us": 32522
+          }
+        },
+        "accept_028": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 33576,
+            "max_us": 33576
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 33582,
+            "max_us": 33582
+          }
+        },
+        "accept_029": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 33739,
+            "max_us": 33739
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 33745,
+            "max_us": 33745
+          }
+        },
+        "accept_030": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 33912,
+            "max_us": 33912
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 33918,
+            "max_us": 33918
+          }
+        },
+        "first_accept": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 17908,
+            "max_us": 17908
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 17913,
+            "max_us": 17913
+          }
+        },
+        "load": {},
+        "observer_capture": {},
+        "passage_transition": {
+          "GameSaveStorage.write_atomic": {
+            "calls": 3,
+            "elapsed_us": 9034,
+            "max_us": 3700
+          },
+          "JsonFileStorage.write_atomic": {
+            "calls": 4,
+            "elapsed_us": 44609,
+            "max_us": 35602
+          },
+          "JsonFileStorage.write_atomic.file.autosave.json": {
+            "calls": 1,
+            "elapsed_us": 2161,
+            "max_us": 2161
+          },
+          "JsonFileStorage.write_atomic.file.desktop-issuer-root.json": {
+            "calls": 2,
+            "elapsed_us": 6864,
+            "max_us": 3697
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 35609,
+            "max_us": 35609
+          },
+          "SaveManagerCheckpointPort.capture": {
+            "calls": 4,
+            "elapsed_us": 243,
+            "max_us": 68
+          },
+          "SaveManagerCheckpointPort.commit": {
+            "calls": 1,
+            "elapsed_us": 295432,
+            "max_us": 295432
+          },
+          "SaveManagerCheckpointPort.prepare": {
+            "calls": 1,
+            "elapsed_us": 588264,
+            "max_us": 588264
+          },
+          "SaveManagerNarrativeCheckpointPort._commit_scene_event_autosave": {
+            "calls": 1,
+            "elapsed_us": 1098787,
+            "max_us": 1098787
+          },
+          "SaveManagerNarrativeCheckpointPort._scene_candidate_reference": {
+            "calls": 3,
+            "elapsed_us": 196500,
+            "max_us": 66197
+          },
+          "SaveManagerNarrativeCheckpointPort.commit_scene_event": {
+            "calls": 1,
+            "elapsed_us": 1103565,
+            "max_us": 1103565
+          }
+        }
+      },
+      "manual_save_profile": {
+        "Capture.ledger_snapshot_copy": {
+          "calls": 40,
+          "elapsed_us": 1594,
+          "max_us": 102
+        },
+        "Capture.saved_fields_copy": {
+          "calls": 40,
+          "elapsed_us": 285,
+          "max_us": 11
+        },
+        "Compiler.runtime_cache_hit": {
+          "calls": 40,
+          "elapsed_us": 325,
+          "max_us": 14
+        },
+        "DialogicRuntimeAdapter.compile_runtime_scene_programme": {
+          "calls": 40,
+          "elapsed_us": 843,
+          "max_us": 29
+        },
+        "GameSaveStorage.write_atomic_if_revision": {
+          "calls": 1,
+          "elapsed_us": 149282,
+          "max_us": 149282
+        },
+        "JsonFileStorage.write_atomic_if_revision": {
+          "calls": 1,
+          "elapsed_us": 149274,
+          "max_us": 149274
+        },
+        "JsonFileStorage.write_atomic_if_revision.file.slot_2.json": {
+          "calls": 1,
+          "elapsed_us": 149280,
+          "max_us": 149280
+        },
+        "SoloReadingSession._capture_scene": {
+          "calls": 40,
+          "elapsed_us": 2738,
+          "max_us": 143
+        },
+        "SoloReadingSession._ensure_scene_programme": {
+          "calls": 80,
+          "elapsed_us": 3357,
+          "max_us": 90
+        },
+        "SoloReadingSession._validate_scene_saved": {
+          "calls": 40,
+          "elapsed_us": 784218,
+          "max_us": 20793
+        },
+        "WitnessedCaptionLayer._on_reading_input_custody_changed": {
+          "calls": 1,
+          "elapsed_us": 30,
+          "max_us": 30
+        }
+      }
+    },
+    {
+      "variant": "candidate",
+      "repetition": 1,
+      "metrics_ms": {
+        "load_first_draw": 677.367,
+        "load_complete_caption": 702.916,
+        "load_input_ready": 704.423,
+        "first_accept_draw": 63.682,
+        "typical_caption_run_median": 117.341,
+        "passage_first_draw": 648.608,
+        "passage_usable": 669.25,
+        "manual_save_complete": 2499.603,
+        "fresh_manual_save_complete": 2313.974,
+        "retained_manual_save_complete": 2359.634
+      },
+      "caption_samples": [
+        {
+          "input_to_observed_drawing_us": 104164,
+          "line_id": "line.Day1.003",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 106061,
+          "line_id": "line.Day1.004",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 103783,
+          "line_id": "line.Day1.005",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 104750,
+          "line_id": "line.Day1.006",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 109077,
+          "line_id": "line.Day1.007",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 107518,
+          "line_id": "line.Day1.008",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 109215,
+          "line_id": "line.Day1.009",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 108754,
+          "line_id": "line.Day1.010",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 107728,
+          "line_id": "line.Day1.011",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 128930,
+          "line_id": "line.Day1.012",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 117310,
+          "line_id": "line.Day1.013",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 112238,
+          "line_id": "line.Day1.014",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 116358,
+          "line_id": "line.Day1.015",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 113747,
+          "line_id": "line.Day1.016",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 114498,
+          "line_id": "line.Day1.017",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 123460,
+          "line_id": "line.Day1.018",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 117372,
+          "line_id": "line.Day1.019",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 120363,
+          "line_id": "line.Day1.020",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 119563,
+          "line_id": "line.Day1.021",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 125625,
+          "line_id": "line.Day1.022",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 145893,
+          "line_id": "line.Day1.023",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 121549,
+          "line_id": "line.Day1.024",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 139463,
+          "line_id": "line.Day1.025",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 130007,
+          "line_id": "line.Day1.026",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 123317,
+          "line_id": "line.Day1.027",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 127877,
+          "line_id": "line.Day1.028",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 127291,
+          "line_id": "line.Day1.029",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 129318,
+          "line_id": "line.Day1.030",
+          "press_count": 1,
+          "release_count": 1
+        }
+      ],
+      "passage_autosave_unchanged": true,
+      "storage_profiles": {
+        "accept_003": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 17888,
+            "max_us": 17888
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 17893,
+            "max_us": 17893
+          }
+        },
+        "accept_004": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 18809,
+            "max_us": 18809
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 18815,
+            "max_us": 18815
+          }
+        },
+        "accept_005": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 19335,
+            "max_us": 19335
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 19341,
+            "max_us": 19341
+          }
+        },
+        "accept_006": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 20218,
+            "max_us": 20218
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 20223,
+            "max_us": 20223
+          }
+        },
+        "accept_007": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 22458,
+            "max_us": 22458
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 22463,
+            "max_us": 22463
+          }
+        },
+        "accept_008": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 21135,
+            "max_us": 21135
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 21141,
+            "max_us": 21141
+          }
+        },
+        "accept_009": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 21549,
+            "max_us": 21549
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 21554,
+            "max_us": 21554
+          }
+        },
+        "accept_010": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 22366,
+            "max_us": 22366
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 22371,
+            "max_us": 22371
+          }
+        },
+        "accept_011": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 22642,
+            "max_us": 22642
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 22647,
+            "max_us": 22647
+          }
+        },
+        "accept_012": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 34582,
+            "max_us": 34582
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 34591,
+            "max_us": 34591
+          }
+        },
+        "accept_013": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 26362,
+            "max_us": 26362
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 26368,
+            "max_us": 26368
+          }
+        },
+        "accept_014": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 24576,
+            "max_us": 24576
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 24582,
+            "max_us": 24582
+          }
+        },
+        "accept_015": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 28347,
+            "max_us": 28347
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 28352,
+            "max_us": 28352
+          }
+        },
+        "accept_016": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 26102,
+            "max_us": 26102
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 26108,
+            "max_us": 26108
+          }
+        },
+        "accept_017": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 26793,
+            "max_us": 26793
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 26799,
+            "max_us": 26799
+          }
+        },
+        "accept_018": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 35095,
+            "max_us": 35095
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 35101,
+            "max_us": 35101
+          }
+        },
+        "accept_019": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 28267,
+            "max_us": 28267
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 28273,
+            "max_us": 28273
+          }
+        },
+        "accept_020": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 28307,
+            "max_us": 28307
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 28313,
+            "max_us": 28313
+          }
+        },
+        "accept_021": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 28897,
+            "max_us": 28897
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 28902,
+            "max_us": 28902
+          }
+        },
+        "accept_022": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 29983,
+            "max_us": 29983
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 29988,
+            "max_us": 29988
+          }
+        },
+        "accept_023": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 46479,
+            "max_us": 46479
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 46486,
+            "max_us": 46486
+          }
+        },
+        "accept_024": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 30913,
+            "max_us": 30913
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 30919,
+            "max_us": 30919
+          }
+        },
+        "accept_025": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 46497,
+            "max_us": 46497
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 46504,
+            "max_us": 46504
+          }
+        },
+        "accept_026": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 40211,
+            "max_us": 40211
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 40216,
+            "max_us": 40216
+          }
+        },
+        "accept_027": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 31989,
+            "max_us": 31989
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 31995,
+            "max_us": 31995
+          }
+        },
+        "accept_028": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 32749,
+            "max_us": 32749
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 32754,
+            "max_us": 32754
+          }
+        },
+        "accept_029": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 33680,
+            "max_us": 33680
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 33685,
+            "max_us": 33685
+          }
+        },
+        "accept_030": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 36340,
+            "max_us": 36340
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 36346,
+            "max_us": 36346
+          }
+        },
+        "first_accept": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 18063,
+            "max_us": 18063
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 18068,
+            "max_us": 18068
+          }
+        },
+        "load": {},
+        "observer_capture": {},
+        "passage_transition": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 38219,
+            "max_us": 38219
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 38226,
+            "max_us": 38226
+          },
+          "SaveManagerNarrativeCheckpointPort.commit_scene_event": {
+            "calls": 1,
+            "elapsed_us": 9279,
+            "max_us": 9279
+          }
+        }
+      },
+      "manual_save_profile": {
+        "Capture.ledger_snapshot_copy": {
+          "calls": 40,
+          "elapsed_us": 1580,
+          "max_us": 87
+        },
+        "Capture.saved_fields_copy": {
+          "calls": 40,
+          "elapsed_us": 311,
+          "max_us": 14
+        },
+        "Compiler.runtime_cache_hit": {
+          "calls": 40,
+          "elapsed_us": 307,
+          "max_us": 17
+        },
+        "DialogicRuntimeAdapter.compile_runtime_scene_programme": {
+          "calls": 40,
+          "elapsed_us": 857,
+          "max_us": 39
+        },
+        "GameSaveStorage.write_atomic": {
+          "calls": 1,
+          "elapsed_us": 2202,
+          "max_us": 2202
+        },
+        "GameSaveStorage.write_atomic_if_revision": {
+          "calls": 1,
+          "elapsed_us": 157018,
+          "max_us": 157018
+        },
+        "JsonFileStorage.write_atomic": {
+          "calls": 1,
+          "elapsed_us": 2194,
+          "max_us": 2194
+        },
+        "JsonFileStorage.write_atomic.file.desktop-issuer-root.json": {
+          "calls": 1,
+          "elapsed_us": 2199,
+          "max_us": 2199
+        },
+        "JsonFileStorage.write_atomic_if_revision": {
+          "calls": 1,
+          "elapsed_us": 157011,
+          "max_us": 157011
+        },
+        "JsonFileStorage.write_atomic_if_revision.file.slot_2.json": {
+          "calls": 1,
+          "elapsed_us": 157015,
+          "max_us": 157015
+        },
+        "SoloReadingSession._capture_scene": {
+          "calls": 40,
+          "elapsed_us": 2778,
+          "max_us": 139
+        },
+        "SoloReadingSession._ensure_scene_programme": {
+          "calls": 80,
+          "elapsed_us": 3595,
+          "max_us": 138
+        },
+        "SoloReadingSession._validate_scene_saved": {
+          "calls": 40,
+          "elapsed_us": 814348,
+          "max_us": 31360
+        },
+        "WitnessedCaptionLayer._on_reading_input_custody_changed": {
+          "calls": 1,
+          "elapsed_us": 30,
+          "max_us": 30
+        }
+      }
+    },
+    {
+      "variant": "candidate",
+      "repetition": 2,
+      "metrics_ms": {
+        "load_first_draw": 670.046,
+        "load_complete_caption": 695.266,
+        "load_input_ready": 696.718,
+        "first_accept_draw": 61.676,
+        "typical_caption_run_median": 114.8755,
+        "passage_first_draw": 614.884,
+        "passage_usable": 635.524,
+        "manual_save_complete": 2360.191,
+        "fresh_manual_save_complete": 2296.679,
+        "retained_manual_save_complete": 2357.299
+      },
+      "caption_samples": [
+        {
+          "input_to_observed_drawing_us": 105171,
+          "line_id": "line.Day1.003",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 104804,
+          "line_id": "line.Day1.004",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 104535,
+          "line_id": "line.Day1.005",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 106411,
+          "line_id": "line.Day1.006",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 106817,
+          "line_id": "line.Day1.007",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 108224,
+          "line_id": "line.Day1.008",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 110176,
+          "line_id": "line.Day1.009",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 109125,
+          "line_id": "line.Day1.010",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 107663,
+          "line_id": "line.Day1.011",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 108914,
+          "line_id": "line.Day1.012",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 108630,
+          "line_id": "line.Day1.013",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 111251,
+          "line_id": "line.Day1.014",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 112154,
+          "line_id": "line.Day1.015",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 114991,
+          "line_id": "line.Day1.016",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 114760,
+          "line_id": "line.Day1.017",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 115856,
+          "line_id": "line.Day1.018",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 120169,
+          "line_id": "line.Day1.019",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 117541,
+          "line_id": "line.Day1.020",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 118074,
+          "line_id": "line.Day1.021",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 119294,
+          "line_id": "line.Day1.022",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 120354,
+          "line_id": "line.Day1.023",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 120253,
+          "line_id": "line.Day1.024",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 119078,
+          "line_id": "line.Day1.025",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 121568,
+          "line_id": "line.Day1.026",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 122212,
+          "line_id": "line.Day1.027",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 125653,
+          "line_id": "line.Day1.028",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 124520,
+          "line_id": "line.Day1.029",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 123143,
+          "line_id": "line.Day1.030",
+          "press_count": 1,
+          "release_count": 1
+        }
+      ],
+      "passage_autosave_unchanged": true,
+      "storage_profiles": {
+        "accept_003": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 18073,
+            "max_us": 18073
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 18079,
+            "max_us": 18079
+          }
+        },
+        "accept_004": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 18845,
+            "max_us": 18845
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 18850,
+            "max_us": 18850
+          }
+        },
+        "accept_005": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 19299,
+            "max_us": 19299
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 19304,
+            "max_us": 19304
+          }
+        },
+        "accept_006": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 20228,
+            "max_us": 20228
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 20233,
+            "max_us": 20233
+          }
+        },
+        "accept_007": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 20546,
+            "max_us": 20546
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 20552,
+            "max_us": 20552
+          }
+        },
+        "accept_008": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 20987,
+            "max_us": 20987
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 20992,
+            "max_us": 20992
+          }
+        },
+        "accept_009": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 21619,
+            "max_us": 21619
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 21624,
+            "max_us": 21624
+          }
+        },
+        "accept_010": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 22515,
+            "max_us": 22515
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 22521,
+            "max_us": 22521
+          }
+        },
+        "accept_011": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 22913,
+            "max_us": 22913
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 22919,
+            "max_us": 22919
+          }
+        },
+        "accept_012": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 23481,
+            "max_us": 23481
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 23487,
+            "max_us": 23487
+          }
+        },
+        "accept_013": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 23673,
+            "max_us": 23673
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 23677,
+            "max_us": 23677
+          }
+        },
+        "accept_014": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 24327,
+            "max_us": 24327
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 24333,
+            "max_us": 24333
+          }
+        },
+        "accept_015": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 25332,
+            "max_us": 25332
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 25338,
+            "max_us": 25338
+          }
+        },
+        "accept_016": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 26442,
+            "max_us": 26442
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 26448,
+            "max_us": 26448
+          }
+        },
+        "accept_017": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 26468,
+            "max_us": 26468
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 26473,
+            "max_us": 26473
+          }
+        },
+        "accept_018": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 27136,
+            "max_us": 27136
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 27141,
+            "max_us": 27141
+          }
+        },
+        "accept_019": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 28124,
+            "max_us": 28124
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 28129,
+            "max_us": 28129
+          }
+        },
+        "accept_020": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 28393,
+            "max_us": 28393
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 28399,
+            "max_us": 28399
+          }
+        },
+        "accept_021": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 29183,
+            "max_us": 29183
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 29188,
+            "max_us": 29188
+          }
+        },
+        "accept_022": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 29334,
+            "max_us": 29334
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 29340,
+            "max_us": 29340
+          }
+        },
+        "accept_023": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 29725,
+            "max_us": 29725
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 29731,
+            "max_us": 29731
+          }
+        },
+        "accept_024": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 30487,
+            "max_us": 30487
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 30492,
+            "max_us": 30492
+          }
+        },
+        "accept_025": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 30958,
+            "max_us": 30958
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 30963,
+            "max_us": 30963
+          }
+        },
+        "accept_026": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 31674,
+            "max_us": 31674
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 31679,
+            "max_us": 31679
+          }
+        },
+        "accept_027": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 32217,
+            "max_us": 32217
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 32221,
+            "max_us": 32221
+          }
+        },
+        "accept_028": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 33798,
+            "max_us": 33798
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 33803,
+            "max_us": 33803
+          }
+        },
+        "accept_029": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 33990,
+            "max_us": 33990
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 33996,
+            "max_us": 33996
+          }
+        },
+        "accept_030": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 33735,
+            "max_us": 33735
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 33739,
+            "max_us": 33739
+          }
+        },
+        "first_accept": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 17466,
+            "max_us": 17466
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 17472,
+            "max_us": 17472
+          }
+        },
+        "load": {},
+        "observer_capture": {},
+        "passage_transition": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 35516,
+            "max_us": 35516
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 35521,
+            "max_us": 35521
+          },
+          "SaveManagerNarrativeCheckpointPort.commit_scene_event": {
+            "calls": 1,
+            "elapsed_us": 9133,
+            "max_us": 9133
+          }
+        }
+      },
+      "manual_save_profile": {
+        "Capture.ledger_snapshot_copy": {
+          "calls": 40,
+          "elapsed_us": 1725,
+          "max_us": 135
+        },
+        "Capture.saved_fields_copy": {
+          "calls": 40,
+          "elapsed_us": 313,
+          "max_us": 28
+        },
+        "Compiler.runtime_cache_hit": {
+          "calls": 40,
+          "elapsed_us": 291,
+          "max_us": 14
+        },
+        "DialogicRuntimeAdapter.compile_runtime_scene_programme": {
+          "calls": 40,
+          "elapsed_us": 858,
+          "max_us": 61
+        },
+        "GameSaveStorage.write_atomic": {
+          "calls": 1,
+          "elapsed_us": 2333,
+          "max_us": 2333
+        },
+        "GameSaveStorage.write_atomic_if_revision": {
+          "calls": 1,
+          "elapsed_us": 151597,
+          "max_us": 151597
+        },
+        "JsonFileStorage.write_atomic": {
+          "calls": 1,
+          "elapsed_us": 2327,
+          "max_us": 2327
+        },
+        "JsonFileStorage.write_atomic.file.desktop-issuer-root.json": {
+          "calls": 1,
+          "elapsed_us": 2331,
+          "max_us": 2331
+        },
+        "JsonFileStorage.write_atomic_if_revision": {
+          "calls": 1,
+          "elapsed_us": 151589,
+          "max_us": 151589
+        },
+        "JsonFileStorage.write_atomic_if_revision.file.slot_2.json": {
+          "calls": 1,
+          "elapsed_us": 151594,
+          "max_us": 151594
+        },
+        "SoloReadingSession._capture_scene": {
+          "calls": 40,
+          "elapsed_us": 2913,
+          "max_us": 175
+        },
+        "SoloReadingSession._ensure_scene_programme": {
+          "calls": 80,
+          "elapsed_us": 3460,
+          "max_us": 126
+        },
+        "SoloReadingSession._validate_scene_saved": {
+          "calls": 40,
+          "elapsed_us": 773908,
+          "max_us": 20280
+        },
+        "WitnessedCaptionLayer._on_reading_input_custody_changed": {
+          "calls": 1,
+          "elapsed_us": 31,
+          "max_us": 31
+        }
+      }
+    },
+    {
+      "variant": "candidate",
+      "repetition": 3,
+      "metrics_ms": {
+        "load_first_draw": 688.994,
+        "load_complete_caption": 714.832,
+        "load_input_ready": 716.323,
+        "first_accept_draw": 63.242,
+        "typical_caption_run_median": 114.981,
+        "passage_first_draw": 614.509,
+        "passage_usable": 635.604,
+        "manual_save_complete": 2428.277,
+        "fresh_manual_save_complete": 2406.509,
+        "retained_manual_save_complete": 2477.414
+      },
+      "caption_samples": [
+        {
+          "input_to_observed_drawing_us": 107600,
+          "line_id": "line.Day1.003",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 106549,
+          "line_id": "line.Day1.004",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 105797,
+          "line_id": "line.Day1.005",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 109039,
+          "line_id": "line.Day1.006",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 109341,
+          "line_id": "line.Day1.007",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 111284,
+          "line_id": "line.Day1.008",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 110491,
+          "line_id": "line.Day1.009",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 109810,
+          "line_id": "line.Day1.010",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 109381,
+          "line_id": "line.Day1.011",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 110305,
+          "line_id": "line.Day1.012",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 112178,
+          "line_id": "line.Day1.013",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 113694,
+          "line_id": "line.Day1.014",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 114281,
+          "line_id": "line.Day1.015",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 115122,
+          "line_id": "line.Day1.016",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 114840,
+          "line_id": "line.Day1.017",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 116886,
+          "line_id": "line.Day1.018",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 118081,
+          "line_id": "line.Day1.019",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 118911,
+          "line_id": "line.Day1.020",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 119823,
+          "line_id": "line.Day1.021",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 120224,
+          "line_id": "line.Day1.022",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 121602,
+          "line_id": "line.Day1.023",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 121770,
+          "line_id": "line.Day1.024",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 121475,
+          "line_id": "line.Day1.025",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 122487,
+          "line_id": "line.Day1.026",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 123832,
+          "line_id": "line.Day1.027",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 124356,
+          "line_id": "line.Day1.028",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 123797,
+          "line_id": "line.Day1.029",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 124685,
+          "line_id": "line.Day1.030",
+          "press_count": 1,
+          "release_count": 1
+        }
+      ],
+      "passage_autosave_unchanged": true,
+      "storage_profiles": {
+        "accept_003": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 18837,
+            "max_us": 18837
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 18842,
+            "max_us": 18842
+          }
+        },
+        "accept_004": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 19200,
+            "max_us": 19200
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 19206,
+            "max_us": 19206
+          }
+        },
+        "accept_005": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 19805,
+            "max_us": 19805
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 19810,
+            "max_us": 19810
+          }
+        },
+        "accept_006": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 20074,
+            "max_us": 20074
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 20080,
+            "max_us": 20080
+          }
+        },
+        "accept_007": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 20936,
+            "max_us": 20936
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 20943,
+            "max_us": 20943
+          }
+        },
+        "accept_008": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 21392,
+            "max_us": 21392
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 21398,
+            "max_us": 21398
+          }
+        },
+        "accept_009": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 22035,
+            "max_us": 22035
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 22042,
+            "max_us": 22042
+          }
+        },
+        "accept_010": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 22479,
+            "max_us": 22479
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 22484,
+            "max_us": 22484
+          }
+        },
+        "accept_011": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 23322,
+            "max_us": 23322
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 23328,
+            "max_us": 23328
+          }
+        },
+        "accept_012": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 23858,
+            "max_us": 23858
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 23864,
+            "max_us": 23864
+          }
+        },
+        "accept_013": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 24883,
+            "max_us": 24883
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 24889,
+            "max_us": 24889
+          }
+        },
+        "accept_014": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 25109,
+            "max_us": 25109
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 25114,
+            "max_us": 25114
+          }
+        },
+        "accept_015": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 25908,
+            "max_us": 25908
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 25914,
+            "max_us": 25914
+          }
+        },
+        "accept_016": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 26095,
+            "max_us": 26095
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 26100,
+            "max_us": 26100
+          }
+        },
+        "accept_017": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 26574,
+            "max_us": 26574
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 26604,
+            "max_us": 26604
+          }
+        },
+        "accept_018": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 27071,
+            "max_us": 27071
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 27077,
+            "max_us": 27077
+          }
+        },
+        "accept_019": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 28074,
+            "max_us": 28074
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 28080,
+            "max_us": 28080
+          }
+        },
+        "accept_020": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 28565,
+            "max_us": 28565
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 28570,
+            "max_us": 28570
+          }
+        },
+        "accept_021": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 29211,
+            "max_us": 29211
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 29217,
+            "max_us": 29217
+          }
+        },
+        "accept_022": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 29548,
+            "max_us": 29548
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 29553,
+            "max_us": 29553
+          }
+        },
+        "accept_023": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 30026,
+            "max_us": 30026
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 30031,
+            "max_us": 30031
+          }
+        },
+        "accept_024": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 30930,
+            "max_us": 30930
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 30936,
+            "max_us": 30936
+          }
+        },
+        "accept_025": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 31583,
+            "max_us": 31583
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 31589,
+            "max_us": 31589
+          }
+        },
+        "accept_026": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 32054,
+            "max_us": 32054
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 32059,
+            "max_us": 32059
+          }
+        },
+        "accept_027": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 32681,
+            "max_us": 32681
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 32686,
+            "max_us": 32686
+          }
+        },
+        "accept_028": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 33365,
+            "max_us": 33365
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 33370,
+            "max_us": 33370
+          }
+        },
+        "accept_029": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 33543,
+            "max_us": 33543
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 33548,
+            "max_us": 33548
+          }
+        },
+        "accept_030": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 34160,
+            "max_us": 34160
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 34166,
+            "max_us": 34166
+          }
+        },
+        "first_accept": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 17732,
+            "max_us": 17732
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 17737,
+            "max_us": 17737
+          }
+        },
+        "load": {},
+        "observer_capture": {},
+        "passage_transition": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 35094,
+            "max_us": 35094
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 35100,
+            "max_us": 35100
+          },
+          "SaveManagerNarrativeCheckpointPort.commit_scene_event": {
+            "calls": 1,
+            "elapsed_us": 9000,
+            "max_us": 9000
+          }
+        }
+      },
+      "manual_save_profile": {
+        "Capture.ledger_snapshot_copy": {
+          "calls": 40,
+          "elapsed_us": 1741,
+          "max_us": 125
+        },
+        "Capture.saved_fields_copy": {
+          "calls": 40,
+          "elapsed_us": 317,
+          "max_us": 22
+        },
+        "Compiler.runtime_cache_hit": {
+          "calls": 40,
+          "elapsed_us": 314,
+          "max_us": 15
+        },
+        "DialogicRuntimeAdapter.compile_runtime_scene_programme": {
+          "calls": 40,
+          "elapsed_us": 852,
+          "max_us": 51
+        },
+        "GameSaveStorage.write_atomic": {
+          "calls": 1,
+          "elapsed_us": 2330,
+          "max_us": 2330
+        },
+        "GameSaveStorage.write_atomic_if_revision": {
+          "calls": 1,
+          "elapsed_us": 157593,
+          "max_us": 157593
+        },
+        "JsonFileStorage.write_atomic": {
+          "calls": 1,
+          "elapsed_us": 2323,
+          "max_us": 2323
+        },
+        "JsonFileStorage.write_atomic.file.desktop-issuer-root.json": {
+          "calls": 1,
+          "elapsed_us": 2328,
+          "max_us": 2328
+        },
+        "JsonFileStorage.write_atomic_if_revision": {
+          "calls": 1,
+          "elapsed_us": 157586,
+          "max_us": 157586
+        },
+        "JsonFileStorage.write_atomic_if_revision.file.slot_2.json": {
+          "calls": 1,
+          "elapsed_us": 157590,
+          "max_us": 157590
+        },
+        "SoloReadingSession._capture_scene": {
+          "calls": 40,
+          "elapsed_us": 2895,
+          "max_us": 163
+        },
+        "SoloReadingSession._ensure_scene_programme": {
+          "calls": 80,
+          "elapsed_us": 3433,
+          "max_us": 120
+        },
+        "SoloReadingSession._validate_scene_saved": {
+          "calls": 40,
+          "elapsed_us": 808190,
+          "max_us": 21529
+        },
+        "WitnessedCaptionLayer._on_reading_input_custody_changed": {
+          "calls": 1,
+          "elapsed_us": 30,
+          "max_us": 30
+        }
+      }
+    },
+    {
+      "variant": "candidate",
+      "repetition": 4,
+      "metrics_ms": {
+        "load_first_draw": 679.979,
+        "load_complete_caption": 706.059,
+        "load_input_ready": 707.538,
+        "first_accept_draw": 63.799,
+        "typical_caption_run_median": 115.2755,
+        "passage_first_draw": 620.684,
+        "passage_usable": 641.23,
+        "manual_save_complete": 2428.723,
+        "fresh_manual_save_complete": 2451.669,
+        "retained_manual_save_complete": 2451.23
+      },
+      "caption_samples": [
+        {
+          "input_to_observed_drawing_us": 107052,
+          "line_id": "line.Day1.003",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 106130,
+          "line_id": "line.Day1.004",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 105521,
+          "line_id": "line.Day1.005",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 107977,
+          "line_id": "line.Day1.006",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 107861,
+          "line_id": "line.Day1.007",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 110014,
+          "line_id": "line.Day1.008",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 112122,
+          "line_id": "line.Day1.009",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 111110,
+          "line_id": "line.Day1.010",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 109875,
+          "line_id": "line.Day1.011",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 110512,
+          "line_id": "line.Day1.012",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 111814,
+          "line_id": "line.Day1.013",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 113535,
+          "line_id": "line.Day1.014",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 113760,
+          "line_id": "line.Day1.015",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 114847,
+          "line_id": "line.Day1.016",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 115704,
+          "line_id": "line.Day1.017",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 116674,
+          "line_id": "line.Day1.018",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 117699,
+          "line_id": "line.Day1.019",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 118223,
+          "line_id": "line.Day1.020",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 119981,
+          "line_id": "line.Day1.021",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 120403,
+          "line_id": "line.Day1.022",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 121314,
+          "line_id": "line.Day1.023",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 121287,
+          "line_id": "line.Day1.024",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 119805,
+          "line_id": "line.Day1.025",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 122822,
+          "line_id": "line.Day1.026",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 123848,
+          "line_id": "line.Day1.027",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 125210,
+          "line_id": "line.Day1.028",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 125549,
+          "line_id": "line.Day1.029",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 125418,
+          "line_id": "line.Day1.030",
+          "press_count": 1,
+          "release_count": 1
+        }
+      ],
+      "passage_autosave_unchanged": true,
+      "storage_profiles": {
+        "accept_003": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 18741,
+            "max_us": 18741
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 18746,
+            "max_us": 18746
+          }
+        },
+        "accept_004": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 18967,
+            "max_us": 18967
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 18973,
+            "max_us": 18973
+          }
+        },
+        "accept_005": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 19842,
+            "max_us": 19842
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 19874,
+            "max_us": 19874
+          }
+        },
+        "accept_006": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 20422,
+            "max_us": 20422
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 20427,
+            "max_us": 20427
+          }
+        },
+        "accept_007": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 20499,
+            "max_us": 20499
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 20504,
+            "max_us": 20504
+          }
+        },
+        "accept_008": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 21679,
+            "max_us": 21679
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 21684,
+            "max_us": 21684
+          }
+        },
+        "accept_009": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 22254,
+            "max_us": 22254
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 22259,
+            "max_us": 22259
+          }
+        },
+        "accept_010": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 22811,
+            "max_us": 22811
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 22816,
+            "max_us": 22816
+          }
+        },
+        "accept_011": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 23684,
+            "max_us": 23684
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 23689,
+            "max_us": 23689
+          }
+        },
+        "accept_012": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 23805,
+            "max_us": 23805
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 23810,
+            "max_us": 23810
+          }
+        },
+        "accept_013": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 24575,
+            "max_us": 24575
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 24581,
+            "max_us": 24581
+          }
+        },
+        "accept_014": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 25001,
+            "max_us": 25001
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 25007,
+            "max_us": 25007
+          }
+        },
+        "accept_015": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 25756,
+            "max_us": 25756
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 25761,
+            "max_us": 25761
+          }
+        },
+        "accept_016": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 26394,
+            "max_us": 26394
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 26399,
+            "max_us": 26399
+          }
+        },
+        "accept_017": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 27003,
+            "max_us": 27003
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 27009,
+            "max_us": 27009
+          }
+        },
+        "accept_018": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 27603,
+            "max_us": 27603
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 27609,
+            "max_us": 27609
+          }
+        },
+        "accept_019": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 28132,
+            "max_us": 28132
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 28137,
+            "max_us": 28137
+          }
+        },
+        "accept_020": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 28667,
+            "max_us": 28667
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 28673,
+            "max_us": 28673
+          }
+        },
+        "accept_021": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 29550,
+            "max_us": 29550
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 29555,
+            "max_us": 29555
+          }
+        },
+        "accept_022": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 29779,
+            "max_us": 29779
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 29785,
+            "max_us": 29785
+          }
+        },
+        "accept_023": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 30194,
+            "max_us": 30194
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 30200,
+            "max_us": 30200
+          }
+        },
+        "accept_024": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 30868,
+            "max_us": 30868
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 30874,
+            "max_us": 30874
+          }
+        },
+        "accept_025": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 31009,
+            "max_us": 31009
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 31014,
+            "max_us": 31014
+          }
+        },
+        "accept_026": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 32261,
+            "max_us": 32261
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 32266,
+            "max_us": 32266
+          }
+        },
+        "accept_027": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 33139,
+            "max_us": 33139
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 33144,
+            "max_us": 33144
+          }
+        },
+        "accept_028": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 33720,
+            "max_us": 33720
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 33725,
+            "max_us": 33725
+          }
+        },
+        "accept_029": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 34327,
+            "max_us": 34327
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 34333,
+            "max_us": 34333
+          }
+        },
+        "accept_030": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 34872,
+            "max_us": 34872
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 34877,
+            "max_us": 34877
+          }
+        },
+        "first_accept": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 18182,
+            "max_us": 18182
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 18187,
+            "max_us": 18187
+          }
+        },
+        "load": {},
+        "observer_capture": {},
+        "passage_transition": {
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 35882,
+            "max_us": 35882
+          },
+          "JsonFileStorage.write_atomic.file.profile.json": {
+            "calls": 1,
+            "elapsed_us": 35887,
+            "max_us": 35887
+          },
+          "SaveManagerNarrativeCheckpointPort.commit_scene_event": {
+            "calls": 1,
+            "elapsed_us": 9363,
+            "max_us": 9363
+          }
+        }
+      },
+      "manual_save_profile": {
+        "Capture.ledger_snapshot_copy": {
+          "calls": 40,
+          "elapsed_us": 1660,
+          "max_us": 92
+        },
+        "Capture.saved_fields_copy": {
+          "calls": 40,
+          "elapsed_us": 299,
+          "max_us": 11
+        },
+        "Compiler.runtime_cache_hit": {
+          "calls": 40,
+          "elapsed_us": 350,
+          "max_us": 19
+        },
+        "DialogicRuntimeAdapter.compile_runtime_scene_programme": {
+          "calls": 40,
+          "elapsed_us": 907,
+          "max_us": 34
+        },
+        "GameSaveStorage.write_atomic": {
+          "calls": 1,
+          "elapsed_us": 2333,
+          "max_us": 2333
+        },
+        "GameSaveStorage.write_atomic_if_revision": {
+          "calls": 1,
+          "elapsed_us": 154790,
+          "max_us": 154790
+        },
+        "JsonFileStorage.write_atomic": {
+          "calls": 1,
+          "elapsed_us": 2325,
+          "max_us": 2325
+        },
+        "JsonFileStorage.write_atomic.file.desktop-issuer-root.json": {
+          "calls": 1,
+          "elapsed_us": 2330,
+          "max_us": 2330
+        },
+        "JsonFileStorage.write_atomic_if_revision": {
+          "calls": 1,
+          "elapsed_us": 154783,
+          "max_us": 154783
+        },
+        "JsonFileStorage.write_atomic_if_revision.file.slot_2.json": {
+          "calls": 1,
+          "elapsed_us": 154788,
+          "max_us": 154788
+        },
+        "SoloReadingSession._capture_scene": {
+          "calls": 40,
+          "elapsed_us": 2820,
+          "max_us": 138
+        },
+        "SoloReadingSession._ensure_scene_programme": {
+          "calls": 80,
+          "elapsed_us": 3551,
+          "max_us": 106
+        },
+        "SoloReadingSession._validate_scene_saved": {
+          "calls": 40,
+          "elapsed_us": 801824,
+          "max_us": 22157
+        },
+        "WitnessedCaptionLayer._on_reading_input_custody_changed": {
+          "calls": 1,
+          "elapsed_us": 29,
+          "max_us": 29
+        }
+      }
+    }
+  ],
+  "metrics": {
+    "load_first_draw": {
+      "baseline_ms": [
+        683.22,
+        675.075,
+        676.628,
+        682.446
+      ],
+      "candidate_ms": [
+        677.367,
+        670.046,
+        688.994,
+        679.979
+      ],
+      "paired_candidate_minus_baseline_ms": [
+        -5.8530000000000655,
+        -5.028999999999996,
+        12.365999999999985,
+        -2.4669999999999845
+      ],
+      "baseline_median_ms": 679.537,
+      "candidate_median_ms": 678.673,
+      "median_pair_delta_ms": -3.7479999999999905,
+      "slower_pairs": 1,
+      "median_ratio_percent": -0.12714539458484886
+    },
+    "load_complete_caption": {
+      "baseline_ms": [
+        708.595,
+        700.365,
+        702.29,
+        708.268
+      ],
+      "candidate_ms": [
+        702.916,
+        695.266,
+        714.832,
+        706.059
+      ],
+      "paired_candidate_minus_baseline_ms": [
+        -5.678999999999974,
+        -5.099000000000046,
+        12.54200000000003,
+        -2.20900000000006
+      ],
+      "baseline_median_ms": 705.279,
+      "candidate_median_ms": 704.4875,
+      "median_pair_delta_ms": -3.654000000000053,
+      "slower_pairs": 1,
+      "median_ratio_percent": -0.11222509106325607
+    },
+    "load_input_ready": {
+      "baseline_ms": [
+        710.073,
+        701.881,
+        703.771,
+        709.793
+      ],
+      "candidate_ms": [
+        704.423,
+        696.718,
+        716.323,
+        707.538
+      ],
+      "paired_candidate_minus_baseline_ms": [
+        -5.649999999999977,
+        -5.163000000000011,
+        12.552000000000021,
+        -2.2549999999999955
+      ],
+      "baseline_median_ms": 706.7819999999999,
+      "candidate_median_ms": 705.9805,
+      "median_pair_delta_ms": -3.709000000000003,
+      "slower_pairs": 1,
+      "median_ratio_percent": -0.11340130337217369
+    },
+    "first_accept_draw": {
+      "baseline_ms": [
+        62.036,
+        62.305,
+        62.566,
+        63.615
+      ],
+      "candidate_ms": [
+        63.682,
+        61.676,
+        63.242,
+        63.799
+      ],
+      "paired_candidate_minus_baseline_ms": [
+        1.6460000000000008,
+        -0.6289999999999978,
+        0.6759999999999948,
+        0.1839999999999975
+      ],
+      "baseline_median_ms": 62.435500000000005,
+      "candidate_median_ms": 63.462,
+      "median_pair_delta_ms": 0.42999999999999616,
+      "slower_pairs": 3,
+      "median_ratio_percent": 1.644096707802456
+    },
+    "typical_caption_run_median": {
+      "baseline_ms": [
+        112.9965,
+        116.05,
+        115.714,
+        115.581
+      ],
+      "candidate_ms": [
+        117.341,
+        114.8755,
+        114.981,
+        115.2755
+      ],
+      "paired_candidate_minus_baseline_ms": [
+        4.3444999999999965,
+        -1.1744999999999948,
+        -0.7330000000000041,
+        -0.3055000000000092
+      ],
+      "baseline_median_ms": 115.64750000000001,
+      "candidate_median_ms": 115.12825,
+      "median_pair_delta_ms": -0.5192500000000067,
+      "slower_pairs": 1,
+      "median_ratio_percent": -0.448993709332246
+    },
+    "passage_first_draw": {
+      "baseline_ms": [
+        1702.048,
+        1695.874,
+        1718.929,
+        1712.997
+      ],
+      "candidate_ms": [
+        648.608,
+        614.884,
+        614.509,
+        620.684
+      ],
+      "paired_candidate_minus_baseline_ms": [
+        -1053.44,
+        -1080.99,
+        -1104.42,
+        -1092.313
+      ],
+      "baseline_median_ms": 1707.5225,
+      "candidate_median_ms": 617.784,
+      "median_pair_delta_ms": -1086.6515,
+      "slower_pairs": 0,
+      "median_ratio_percent": -63.81986181734063
+    },
+    "passage_usable": {
+      "baseline_ms": [
+        1722.335,
+        1716.64,
+        1740.012,
+        1733.552
+      ],
+      "candidate_ms": [
+        669.25,
+        635.524,
+        635.604,
+        641.23
+      ],
+      "paired_candidate_minus_baseline_ms": [
+        -1053.085,
+        -1081.116,
+        -1104.408,
+        -1092.322
+      ],
+      "baseline_median_ms": 1727.9434999999999,
+      "candidate_median_ms": 638.417,
+      "median_pair_delta_ms": -1086.719,
+      "slower_pairs": 0,
+      "median_ratio_percent": -63.0533637239875
+    },
+    "manual_save_complete": {
+      "baseline_ms": [
+        2386.155,
+        2356.615,
+        2414.868,
+        2375.555
+      ],
+      "candidate_ms": [
+        2499.603,
+        2360.191,
+        2428.277,
+        2428.723
+      ],
+      "paired_candidate_minus_baseline_ms": [
+        113.44799999999987,
+        3.576000000000022,
+        13.409000000000106,
+        53.16800000000012
+      ],
+      "baseline_median_ms": 2380.855,
+      "candidate_median_ms": 2428.5,
+      "median_pair_delta_ms": 33.28850000000011,
+      "slower_pairs": 4,
+      "median_ratio_percent": 2.0011718479285845
+    },
+    "fresh_manual_save_complete": {
+      "baseline_ms": [
+        2376.614,
+        2316.683,
+        2360.72,
+        2393.035
+      ],
+      "candidate_ms": [
+        2313.974,
+        2296.679,
+        2406.509,
+        2451.669
+      ],
+      "paired_candidate_minus_baseline_ms": [
+        -62.63999999999987,
+        -20.003999999999905,
+        45.789000000000215,
+        58.634000000000015
+      ],
+      "baseline_median_ms": 2368.667,
+      "candidate_median_ms": 2360.2415,
+      "median_pair_delta_ms": 12.892500000000155,
+      "slower_pairs": 2,
+      "median_ratio_percent": -0.3557063952003281
+    },
+    "retained_manual_save_complete": {
+      "baseline_ms": [
+        2368.662,
+        2400.279,
+        2388.957,
+        2418.798
+      ],
+      "candidate_ms": [
+        2359.634,
+        2357.299,
+        2477.414,
+        2451.23
+      ],
+      "paired_candidate_minus_baseline_ms": [
+        -9.027999999999793,
+        -42.98000000000002,
+        88.45700000000033,
+        32.432000000000244
+      ],
+      "baseline_median_ms": 2394.618,
+      "candidate_median_ms": 2405.432,
+      "median_pair_delta_ms": 11.702000000000226,
+      "slower_pairs": 2,
+      "median_ratio_percent": 0.45159603744731047
+    }
+  },
+  "limitations": [
+    "Four AB/BA/AB/BA repetitions on one Windows runner; no cold OS cache or statistical certainty claim.",
+    "Full manual Save includes opening save UI/live capture and prepare+commit; not physical button-to-paint latency.",
+    "Load timing includes observer capture/hashes; all variants identical overlay.",
+    "Typical caption value is each run median of authored captions003\u2013030; all 28 raw values retained.",
+    "Named checkpoint arrival timing not measured.",
+    "Inclusive counters overlap; never sum nested write counters."
+  ]
+}

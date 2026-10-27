@@ -4224,6 +4224,7 @@ const SCENE_GAMEPLAY_KEYS := ["coins", "inventory", "minesweeper_app_rounds_fini
 	"shop_purchase_counts", "stats", "story_flags"]
 const _SCENE_MANIFEST := preload("res://scripts/narrative/DialogicEntryManifest.gd")
 const _SCENE_FROZEN := preload("res://scripts/narrative/FrozenRunContext.gd")
+const _PRESENTATION_ART := preload("res://scripts/data/ArtManifest.gd")
 var _scene_snapshot_references: Dictionary = {}
 
 # SaveManager owns the fresh in-memory run plan and its activation lease.
@@ -4242,8 +4243,21 @@ static func make_scene_new_run_gameplay() -> Dictionary:
 		"shop_purchase_counts": {}, "stats": {"pressure": 3}, "story_flags": {}}
 	return gameplay
 
+## Art views read the same state that manual Save captures; they own no overlay state.
+func get_scene_presentation() -> Dictionary:
+	var state: Dictionary = _scene_snapshot_references.get("presentation", {})
+	if state.is_empty(): return {}
+	var resolved := _PRESENTATION_ART.resolve_presentation(state.checkpoint_id, state.overlays)
+	return resolved.value if resolved.ok else {}
+
 func prepare_scene_new_run_snapshot_input(allocation_candidate: Dictionary, entry_id: String,
 		occurrence: String) -> Dictionary:
+	var presentation := _PRESENTATION_ART.apply_entry_presentation(entry_id, {})
+	if not presentation.ok: return presentation
+	var scene := {"registration_sha256": _SCENE_MANIFEST.scene_registration_fingerprint(),
+		"active_occurrence_id": occurrence, "entry_id": entry_id,
+		"notification": {}, "active_challenge": {}, "return_to": null}
+	if not presentation.value.state.is_empty(): scene["presentation"] = presentation.value.state
 	var identity := {}
 	for key: String in ["run_id", "branch_id", "desktop_timeline_generation", "causal_day_instance",
 			"causal_day_instance_issuer_receipt"]:
@@ -4254,9 +4268,7 @@ func prepare_scene_new_run_snapshot_input(allocation_candidate: Dictionary, entr
 		"lifecycle": lifecycle, "gameplay": make_scene_new_run_gameplay(),
 		"contacts": _CONTACT_INVITATION_STATE.make_scene_defaults(),
 		"desktop": _empty_desktop_snapshot(identity.causal_day_instance, identity.causal_day_instance_issuer_receipt, true),
-		"scene": {"registration_sha256": _SCENE_MANIFEST.scene_registration_fingerprint(),
-			"active_occurrence_id": occurrence, "entry_id": entry_id,
-			"notification": {}, "active_challenge": {}, "return_to": null},
+		"scene": scene,
 		"applied_effect_transaction_ids": [], "applied_variable_transaction_ids": [],
 		"command_receipts": {}}}}
 
@@ -4574,12 +4586,6 @@ func _continue_completed_scene_challenge_owned(lease: String) -> Dictionary:
 		return _transaction_failure(&"scene_challenge_profile_mismatch", "")
 	if record.is_empty() and not route.get("dating_active_attempt_ref", {}).is_empty():
 		return _transaction_failure(&"scene_attempt_absence_unverified", "")
-	var stable: Dictionary = _scene_save_owner.get_latest_stable_checkpoint()
-	if not stable.get("ok", false): return stable
-	var snapshot: Dictionary = stable.value.bundle.snapshot
-	if snapshot.get("gameplay", {}).get("route_context") != route \
-			or not _scene_player_checkpoint_same(snapshot.get("narrative_checkpoint"), admitted.value.checkpoint):
-		return _transaction_failure(&"scene_challenge_completion_not_saved", "")
 	var context := _scene_runtime_event_context()
 	if not context.ok: return context
 	var material := {"source_context": context.value.duplicate(true), "source_input": source_input,
@@ -4811,13 +4817,6 @@ func validate_scene_challenge_command(command: Dictionary, bundle: Dictionary) -
 		return _transaction_failure(&"scene_challenge_command_refused", "")
 	return {"ok": true}
 
-func _scene_player_checkpoint_same(left: Variant, right: Variant) -> bool:
-	if not left is Dictionary or not right is Dictionary: return false
-	var owner := preload("res://scripts/narrative/SoloReadingSession.gd")
-	var a: Dictionary = owner.project_player_checkpoint(left)
-	var b: Dictionary = owner.project_player_checkpoint(right)
-	return a.ok and b.ok and _SCENE_EVENT._equal(a.value, b.value)
-
 var _scene_live_closures: Dictionary = {}
 
 func capture_scene_challenge_closure(context: Dictionary) -> Dictionary:
@@ -4929,7 +4928,7 @@ func _advance_scene_registered_marker(accept_thought: bool, choice_id: String = 
 		var acquired: Dictionary = _mutation_gate.acquire(&"causal_transaction")
 		if not acquired.ok: return acquired
 		var lease: String = acquired.value.token
-		var issued: Dictionary = _identity_issuer.issue(&"transaction_id")
+		var issued: Dictionary = _identity_issuer.issue_deferred(&"transaction_id")
 		var resumed: Dictionary = issued
 		if issued.ok:
 			var trigger := {"scene_event": {"semantic": {"source": context.value.source.duplicate(true)},
@@ -4965,7 +4964,8 @@ func _advance_scene_registered_marker(accept_thought: bool, choice_id: String = 
 			return _transaction_failure(&"scene_playable_retry_mismatch", "")
 		event = retry_event.duplicate(true)
 	else:
-		var issued: Dictionary = _identity_issuer.issue(&"transaction_id")
+		# Live commands persist their provenance only when the owning Run is saved.
+		var issued: Dictionary = _identity_issuer.issue_deferred(&"transaction_id")
 		if not issued.get("ok", false): return issued
 		event = {"schema_version": 2, "source": current.value.source.duplicate(true),
 			"event_id": marker.value.marker_id, "kind": ("thought.select" if marker.value.kind == "thought.options" else "thought.accept") if accept_thought else marker.value.kind, "payload": marker.value.payload.duplicate(true),
@@ -5071,16 +5071,9 @@ func commit_scene_challenge_checkpoint(record: Dictionary, reference: Dictionary
 	if candidate.gameplay.route_context.get("active_dating_challenge") != record \
 			or candidate.gameplay.route_context.get("dating_active_attempt_ref") != reference:
 		return _transaction_failure(&"scene_challenge_candidate_mismatch", "")
-	var stable: Dictionary = _scene_save_owner.get_latest_stable_checkpoint()
-	if not stable.get("ok", false): return stable
-	var source: Dictionary = stable.value.bundle.snapshot
-	if source.run_id != candidate.lifecycle.run_id \
-			or not _scene_player_checkpoint_same(source.narrative_checkpoint, admitted.value.checkpoint):
-		return _transaction_failure(&"scene_challenge_source_changed", "")
 	_scene_challenge_operation = {"lease": lease, "session": live.value.duplicate(true),
 		"snapshot": candidate, "checkpoint": admitted.value.checkpoint.duplicate(true),
-		"record": record.duplicate(true), "reference": reference.duplicate(true),
-		"source_sha256": _SCENE_EVENT._sha(source)}
+		"record": record.duplicate(true), "reference": reference.duplicate(true)}
 	var saved: Dictionary = _narrative_checkpoint_port.commit_scene_challenge(candidate.duplicate(true),
 		admitted.value.checkpoint.duplicate(true))
 	_scene_challenge_operation = {}
@@ -5098,28 +5091,12 @@ func _validate_scene_challenge_checkpoint(snapshot: Dictionary, checkpoint: Dict
 	_scene_challenge_validating = true
 	var live := capture_live_session()
 	var admitted := _capture_retained_scene_challenge_command()
-	var stable: Dictionary = _scene_save_owner.get_latest_stable_checkpoint()
-	var valid: bool = live.get("ok", false) and admitted.get("ok", false) and stable.get("ok", false)
+	var valid: bool = live.get("ok", false) and admitted.get("ok", false)
 	if valid:
 		valid = _SCENE_EVENT._equal(live.value, operation.session) \
 			and _SCENE_EVENT._equal(admitted.value.checkpoint, checkpoint)
 		valid = valid and _SCENE_EVENT._equal(capture_run_snapshot_input(), snapshot) \
 			and _scene_challenge_record_matches(operation.record, operation.reference)
-	if valid and phase != "after_commit":
-		valid = _SCENE_EVENT._sha(stable.value.bundle.snapshot) == operation.source_sha256
-	elif valid:
-		var saved: Dictionary = stable.value.bundle.snapshot
-		valid = _scene_player_checkpoint_same(saved.get("narrative_checkpoint"), checkpoint)
-		var player_board: Dictionary = _DESKTOP_BOARD_STATE.project_player_state(snapshot.desktop.board)
-		var expected_desktop: Dictionary = snapshot.desktop.duplicate(true)
-		if player_board.ok: expected_desktop.board = player_board.value.snapshot
-		else: valid = false
-		for key: String in snapshot:
-			if key in ["command_receipts", "applied_effect_transaction_ids", "applied_variable_transaction_ids"]: continue
-			# The durable checkpoint omits transient retries; the earlier
-			# live source and lease checks still compare complete owner state.
-			var expected: Variant = expected_desktop if key == "desktop" else snapshot[key]
-			if not _SCENE_EVENT._equal(saved.get(key), expected): valid = false
 	_scene_challenge_validating = false
 	return valid and _SCENE_EVENT._equal(operation, _scene_challenge_operation) \
 		and _mutation_gate.is_lease_active(&"causal_transaction", operation.lease)
@@ -5152,9 +5129,9 @@ func capture_scene_entry_audio(binding: Dictionary) -> Dictionary:
 func validate_scene_entry_staging_source(binding: Dictionary) -> Dictionary:
 	if _scene_entry_operation.is_empty() or not _SCENE_EVENT._equal(binding, _scene_entry_operation.binding) \
 			or not _mutation_gate.is_lease_active(&"causal_transaction", _scene_entry_operation.lease) \
-			or not _SCENE_EVENT._equal(_command_receipts, _scene_entry_operation.candidate.command_receipts if _scene_entry_operation.get("durably_committed", false) else _scene_entry_operation.prior_receipts):
+			or not _SCENE_EVENT._equal(_command_receipts, _scene_entry_operation.candidate.command_receipts if _scene_entry_operation.get("live_published", false) else _scene_entry_operation.prior_receipts):
 		return _transaction_failure(&"scene_staging_source_invalid", "")
-	if _scene_entry_operation.has("prior_input") and not _scene_entry_operation.get("durably_committed", false) \
+	if _scene_entry_operation.has("prior_input") and not _scene_entry_operation.get("live_published", false) \
 			and not _SCENE_EVENT._equal(capture_run_snapshot_input(), _scene_entry_operation.prior_input):
 		return _transaction_failure(&"scene_day_source_changed", "")
 	if not _live_session_active or _scene_entry_operation.live_session != _live_session_fact():
@@ -5337,16 +5314,15 @@ func _admit_scene_target_owned(target_id: String, trigger_command_id: String, le
 			"details": {"target_id": target_id}}
 	var target: Dictionary = tables.value.targets[target_id].target
 	if target.kind == "ending": return _transaction_failure(&"scene_target_unavailable", "ordinary DTL Finish is required")
-	var stable: Dictionary = _scene_save_owner.get_latest_stable_checkpoint()
-	if not stable.get("ok", false): return stable
-	var source: Dictionary = stable.value.bundle.snapshot
-	var source_ref := {"checkpoint_id": source.checkpoint_id, "checkpoint_sequence": source.checkpoint_sequence,
-		"snapshot_sha256": _SCENE_EVENT._sha(source)}
+	var source_ref := {"kind": "live", "state_sha256": _SCENE_EVENT._sha(capture_run_snapshot_input())}
 	var full_identity: Dictionary = _run_lifecycle.get_desktop_identity_context()
 	var day_plan := _prepare_scene_day_renewal(trigger, target_id, registration.bundle, full_identity)
 	if not day_plan.ok: return day_plan
 	var next_scene := {"registration_sha256": _SCENE_MANIFEST.scene_registration_fingerprint(),
 		"active_occurrence_id": "", "entry_id": target.entry_id, "notification": {}, "active_challenge": {}, "return_to": null}
+	var visual := _PRESENTATION_ART.apply_entry_presentation(target.entry_id, _scene_snapshot_references.get("presentation", {}))
+	if not visual.ok: return visual
+	if not visual.value.state.is_empty(): next_scene["presentation"] = visual.value.state
 	var physical: Dictionary = candidate.gameplay.route_context.get("active_dating_challenge", {})
 	if not physical.is_empty() and not scene_physical_consumed(physical, candidate.gameplay.scene_challenge_outcomes):
 		next_scene.active_challenge = _scene_snapshot_references.active_challenge.duplicate(true)
@@ -5356,7 +5332,7 @@ func _admit_scene_target_owned(target_id: String, trigger_command_id: String, le
 			return _transaction_failure(&"scene_contact_parent_invalid", "")
 		next_scene.merge(_scene_snapshot_references.return_to.parent.duplicate(true), true)
 	else:
-		var issued: Dictionary = _identity_issuer.issue(&"transaction_id")
+		var issued: Dictionary = _identity_issuer.issue_deferred(&"transaction_id")
 		if not issued.get("ok", false): return issued
 		next_scene.active_occurrence_id = issued.value.token
 		if trigger.scene_event.result.kind == "contact_entry_accepted":
@@ -5365,6 +5341,7 @@ func _admit_scene_target_owned(target_id: String, trigger_command_id: String, le
 			var parent: Dictionary = _scene_snapshot_references.duplicate(true)
 			parent.erase("registration_sha256")
 			parent.erase("return_to")
+			parent.erase("presentation")
 			next_scene.return_to = {"parent": parent, "target_id": contact.return_target_id, "contact_event_id": contact_id}
 	var occurrence: String = next_scene.active_occurrence_id
 	var presentation := preload("res://scripts/narrative/FrozenPresentationContext.gd").build(next_scene.entry_id,
@@ -5381,11 +5358,17 @@ func _admit_scene_target_owned(target_id: String, trigger_command_id: String, le
 	_scene_entry_operation = {"lease": lease, "live_session": session.value,
 		"entry_id": next_scene.entry_id, "frame": frame, "binding": binding,
 		"prior_receipts": _command_receipts.duplicate(true), "prior_input": capture_run_snapshot_input(),
-		"recovery": not recovery_trigger.is_empty()}
-	if registration.bundle.get("schema_version") == 3:
+		"recovery": not recovery_trigger.is_empty(), "named_autosave": visual.value.autosave}
+	if registration.bundle.get("schema_version") == 3 and (visual.value.autosave or not next_scene.has("presentation")):
 		var audio_owner: Script = load("res://scripts/data/AudioManifest.gd")
 		var audio := get_node_or_null("/root/AudioManager")
-		var selected: Dictionary = audio_owner.call("make_scene_context", registration.bundle, next_scene.entry_id, occurrence)
+		var selected: Dictionary
+		if next_scene.has("presentation"):
+			var resolved := _PRESENTATION_ART.resolve_presentation(next_scene.presentation.checkpoint_id, next_scene.presentation.overlays)
+			if not resolved.ok: return resolved
+			selected = audio_owner.call("make_named_presentation_context", registration.bundle, resolved.value.audio_plan_id, occurrence)
+		else:
+			selected = audio_owner.call("make_scene_context", registration.bundle, next_scene.entry_id, occurrence)
 		if not selected.get("ok", false): return selected
 		var audio_plan: Dictionary = audio.call("prepare_scene_admission", selected.value)
 		if not audio_plan.get("ok", false): return audio_plan
@@ -5417,11 +5400,11 @@ func _commit_scene_target_owned() -> Dictionary:
 	var candidate: Dictionary = _scene_entry_operation.candidate.duplicate(true)
 	var staged: Dictionary = _scene_entry_operation.staged.duplicate(true)
 	var admitted: Dictionary = _scene_entry_operation.admitted.duplicate(true)
-	var committed: Dictionary = _narrative_checkpoint_port.commit_scene_event(candidate, staged.narrative_checkpoint)
+	var committed: Dictionary = _narrative_checkpoint_port.commit_scene_event(candidate, staged.narrative_checkpoint, true) if _scene_entry_operation.get("named_autosave", false) else _narrative_checkpoint_port.commit_scene_event(candidate, staged.narrative_checkpoint)
 	if not committed.get("ok", false):
 		if committed.get("committed", false): return _scene_event_fatal(&"scene_entry_commit_uncertain")
 		return committed
-	_scene_entry_operation["durably_committed"] = true
+	_scene_entry_operation["live_published"] = true
 	if _scene_entry_operation.has("day_plan"):
 		var day_plan: Dictionary = _scene_entry_operation.day_plan
 		var adopted_board: Dictionary = _scene_day_board.commit(day_plan.board_candidate)
@@ -5473,7 +5456,7 @@ func _validate_scene_physical_record(snapshot: Dictionary) -> Dictionary:
 
 
 # Scene correspondence shares the canonical Contacts bag; the detached candidate
-# is checkpointed before live adoption and guarded across lower-owner callbacks.
+# is published before live adoption and guarded across lower-owner callbacks.
 var _scene_contact_operation: Dictionary = {}
 
 func capture_scene_contact_context() -> Dictionary:

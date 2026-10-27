@@ -36,7 +36,7 @@ func _shop_command(item: String) -> Callable:
 	return game.commit_scene_shop_purchase.bind(item, 1, issued.value.token,
 		issued.value.issuer_receipt, source.value)
 
-func test_shop_checkpoint_retry_custody_and_uncertain_commit() -> void:
+func test_shop_live_purchase_custody_duplicate_and_manual_save() -> void:
 	if not _start_services(): return
 	var started: Dictionary = saves.start_scene_new_run("target_a", {"route_id": "scene",
 		"content_version": 1, "audio_context": get_node("/root/AudioManager").get_semantic_audio_context()})
@@ -44,7 +44,7 @@ func test_shop_checkpoint_retry_custody_and_uncertain_commit() -> void:
 	if started.get("code") != &"scene_activation_pending" or not await _await_ready(): return
 	if not await _wait_line("scene.test.a", "line.scene.test.a.one"): return
 	# Economy fixture through the existing owner, not invented completion/claim
-	# receipts. The first accepted purchase checkpoints this funding as well.
+	# receipts. Manual Save later persists the funding and purchase together.
 	game.change_money(200)
 	var before: Dictionary = game.capture_run_snapshot_input().duplicate(true)
 	var reading: Dictionary = bridge.capture_reading_checkpoint(false)
@@ -55,7 +55,7 @@ func test_shop_checkpoint_retry_custody_and_uncertain_commit() -> void:
 	var probe := CustodyFault.new()
 	probe.port = actual_port
 	game._narrative_checkpoint_port = probe
-	for phase: String in ["before_prepare", "before_commit"]:
+	for phase: String in ["before_prepare", "after_commit"]:
 		probe.phase = phase
 		var prior_hits: int = probe.hits
 		var refused: Dictionary = command.call()
@@ -76,15 +76,11 @@ func test_shop_checkpoint_retry_custody_and_uncertain_commit() -> void:
 	storage._file_ops = fault
 	assert_false(storage.exists("autosave.json"), "first purchase starts with no initial Autosave")
 	fault.refuse_on = 1
-	var refused: Dictionary = command.call()
-	assert_false(refused.get("ok", false))
-	assert_eq(refused.get("code"), &"write_not_committed")
-	assert_false(refused.get("committed", false))
-	assert_true(refused.get("rolled_back", false))
-	assert_eq(fault.refused, 1, "physical autosave write reached")
-	assert_eq(game.capture_run_snapshot_input(), before)
-	assert_false(storage.exists("autosave.json"), "refused first purchase leaves Autosave absent")
-	assert_eq(profile.get_profile_snapshot(), profile_before)
+	var lower: Object = actual_port._real_port
+	var lower_trap := preload("res://tests/support/FakeNarrativeCheckpointContext.gd").new()
+	lower_trap.prepare_ok = false
+	lower_trap.commit_ok = false
+	actual_port._real_port = lower_trap
 	var accepted: Dictionary = command.call()
 	if not _ok(accepted):
 		storage._file_ops = original_files
@@ -98,17 +94,13 @@ func test_shop_checkpoint_retry_custody_and_uncertain_commit() -> void:
 	assert_eq(after.contacts, before.contacts)
 	assert_eq(after.desktop, before.desktop)
 	assert_eq(bridge.capture_reading_checkpoint(false), reading)
+	assert_true(lower_trap.calls.is_empty(), "purchase never captures or prepares storage")
+	assert_eq(fault.autosave_writes, 0, "ordinary purchase performs no physical Autosave write")
+	assert_eq(fault.refused, 0, "armed storage failure is never reached")
+	assert_false(storage.exists("autosave.json"))
+	assert_eq(profile.get_profile_snapshot(), profile_before)
 	var writes: int = fault.autosave_writes
 	var accepted_disk: Dictionary = storage.read_text("autosave.json")
-	# Preserve integer tokens so the full gameplay comparison checks exact saved values.
-	var parsed_disk: Dictionary = PARSER.parse_object(str(accepted_disk.value))
-	if not _ok(parsed_disk):
-		storage._file_ops = original_files
-		return
-	var persisted: Dictionary = parsed_disk.value
-	assert_false(persisted.current_snapshot.snapshot.has("command_receipts"),
-		"player save retains purchase effects without the live retry receipt")
-	assert_eq(persisted.current_snapshot.snapshot.gameplay, after.gameplay)
 	assert_true(after.command_receipts.has(accepted.receipt.transaction_id), "live duplicate still has its acknowledgement")
 	var invalid_input: Dictionary = after.duplicate(true)
 	invalid_input.scene.entry_id = "missing.entry"
@@ -138,28 +130,17 @@ func test_shop_checkpoint_retry_custody_and_uncertain_commit() -> void:
 	if supportz.is_valid(): assert_false(supportz.call().get("ok", false), "no fabricated base completions")
 	assert_eq(game.capture_run_snapshot_input(), after)
 	assert_eq(fault.autosave_writes, writes)
+	assert_true(lower_trap.calls.is_empty())
+	actual_port._real_port = lower
 	storage._file_ops = original_files
-	# Last fault: real durable write succeeds, then custody is lost. The owner
-	# must latch recovery instead of publishing or allowing a fresh debit.
-	var uncertain_command: Callable = _shop_command("quiet_tea")
-	if not uncertain_command.is_valid(): return
-	probe.phase = "after_commit"
-	probe.revoke_lease = false
-	game._narrative_checkpoint_port = probe
-	var uncertain: Dictionary = uncertain_command.call()
-	game._narrative_checkpoint_port = actual_port
-	assert_false(uncertain.get("ok", false))
-	assert_true(uncertain.get("committed", false), str(uncertain))
-	assert_eq(game.capture_run_snapshot_input(), after, "no publication after uncertain durable commit")
-	assert_ne(storage.read_text("autosave.json"), accepted_disk, "candidate was physically committed")
-	var stable: Dictionary = saves.get_latest_stable_checkpoint()
-	if _ok(stable):
-		var durable: Dictionary = stable.value.bundle.snapshot
-		assert_eq(durable.gameplay.money, after.gameplay.money - catalogue.get_shop_item("quiet_tea").price)
-		assert_eq(durable.gameplay.inventory.get("quiet_tea", 0), after.gameplay.inventory.get("quiet_tea", 0) + 1)
-		assert_false(durable.has("command_receipts"),
-			"uncertain durable purchase retains effects without either live purchase receipt")
-	assert_false(game._mutation_gate.guard_external(&"scene_shop").get("ok", false), "fatal latch blocks another debit")
+	# The exact live effects become durable only through an explicit manual Save.
+	if not await _save_slot(1): return
+	var parsed_disk: Dictionary = PARSER.parse_object(FileAccess.get_file_as_string("user://saves/slot_1.json"))
+	if not _ok(parsed_disk): return
+	var persisted: Dictionary = parsed_disk.value.current_snapshot.snapshot
+	assert_eq(persisted.gameplay, after.gameplay)
+	assert_false(persisted.has("command_receipts"), "save omits the process-local duplicate cache")
+	assert_false(storage.exists("autosave.json"), "manual Save does not create an Autosave")
 	_write_json("res://.godot/ci/scene-shop-transaction-proof.json", {"custody_faults": probe.hits,
-		"physical_refusals": fault.refused, "accepted_receipt": receipt,
-		"uncertain_committed": uncertain.get("committed", false), "process_id": OS.get_process_id()})
+		"automatic_writes": fault.autosave_writes, "storage_preparations": lower_trap.calls.size(),
+		"accepted_receipt": receipt, "process_id": OS.get_process_id()})

@@ -47,6 +47,8 @@ func create_caption_challenge() -> void:
 	var marker: Dictionary = bridge.capture_scene_pending_marker()
 	if not _ok(marker): return
 	assert_eq(marker.value.kind, "challenge.end")
+	var cue_capture: Dictionary = bootstrap._capture_paused_checkpoint_inputs()
+	if not _ok(cue_capture) or not _ok(saves.record_stable_checkpoint(cue_capture.value, &"manual_save")): return
 	if not _ok(saves.save_latest_to_slot(1)): return
 	var manual_sha := FileAccess.get_sha256("user://saves/slot_1.json")
 	var cue_document: Dictionary = PARSER.parse_object(FileAccess.get_file_as_string("user://saves/slot_1.json"))
@@ -89,6 +91,8 @@ func create_caption_challenge() -> void:
 	if not await _wait_caption("line.scene.test.a.one"): return
 	var visible: Dictionary = bridge.capture_current_line_presentation_frontier()
 	if not _ok(visible) or not _ok(bridge.acknowledge_current_line_presentation(visible)): return
+	var closed_capture: Dictionary = bootstrap._capture_paused_checkpoint_inputs()
+	if not _ok(closed_capture) or not _ok(saves.record_stable_checkpoint(closed_capture.value, &"manual_save")): return
 	if not _ok(saves.save_latest_to_slot(2)): return
 	var closed_document: Dictionary = PARSER.parse_object(FileAccess.get_file_as_string("user://saves/slot_2.json"))
 	if not _ok(closed_document): return

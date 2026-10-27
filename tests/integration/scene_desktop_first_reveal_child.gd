@@ -1,5 +1,5 @@
 extends "res://tests/integration/scene_bootstrap_restart_child.gd"
-## FINAL scene owners, actual filesystem refusal, and separate-process selected Load.
+## FINAL scene owners, no intermediate game-save calls, and separate-process manual Load.
 ## Production presentation commands exercise the retained desktop coordinator; this
 ## is connected owner coverage, not a claim of desktop UI availability on SceneHost.
 const PRESENTATION := preload("res://scripts/application/minesweeper/MinesweeperPresentationPort.gd")
@@ -15,6 +15,32 @@ class ObservedFiles extends "res://scripts/infrastructure/storage/FileOps.gd":
 		if path.replace("\\", "/").ends_with("/autosave.json.next") and result.get("code") == &"write_failed":
 			refused_writes += 1
 		return result
+
+class UnexpectedCheckpointCalls extends RefCounted:
+	var calls: Array[String] = []
+	func preview_checkpoint_id(_run_id: String) -> Dictionary:
+		calls.append("preview")
+		return {"ok": false, "code": &"TEST.unexpected_checkpoint_preview"}
+	func capture() -> Dictionary:
+		calls.append("capture")
+		return {"ok": false, "code": &"TEST.unexpected_checkpoint_capture"}
+	func prepare_checkpoint(_inputs: Dictionary, _kind: StringName, _write: Dictionary) -> Dictionary:
+		calls.append("prepare")
+		return {"ok": false, "code": &"TEST.unexpected_checkpoint_prepare"}
+	func commit_checkpoint(_candidate: Dictionary) -> Dictionary:
+		calls.append("commit")
+		return {"ok": false, "code": &"TEST.unexpected_checkpoint_commit"}
+	func rollback(_backup: Dictionary) -> Dictionary:
+		calls.append("rollback")
+		return {"ok": false, "code": &"TEST.unexpected_checkpoint_rollback"}
+
+func _save_live_slot(slot: int) -> bool:
+	# This fixture operates the production board owner without a mounted desktop
+	# Save button. Capture real Run + reading state, then explicitly save it.
+	var captured: Dictionary = bootstrap._capture_paused_checkpoint_inputs()
+	if not _ok(captured): return false
+	if not _ok(saves.record_stable_checkpoint(captured.value, &"manual_save")): return false
+	return _ok(saves.save_latest_to_slot(slot))
 
 func _desktop_port() -> RefCounted:
 	var port: RefCounted = PRESENTATION.new()
@@ -134,7 +160,7 @@ func create_scene_desktop_first_reveal() -> void:
 	if not await _line_ready(): return
 	assert_eq(get_tree().current_scene.scene_file_path, HOST)
 	assert_eq(ready_count, 1)
-	if not _ok(saves.save_latest_to_slot(1)): return
+	if not _save_live_slot(1): return
 	var port: RefCounted = _desktop_port()
 	if port == null: return
 	var projected: Dictionary = port.pull("beginner")
@@ -151,50 +177,26 @@ func create_scene_desktop_first_reveal() -> void:
 	assert_eq(saves.get_latest_stable_checkpoint(), stable)
 	assert_eq(profile.get_profile_snapshot(), history)
 	_same_files(hashes)
-	# A real directory at the destination refuses FileAccess.WRITE on Windows.
-	# The observer calls production FileOps unchanged and records that exact failure.
+	# Even physically blocked Autosave storage must not affect live First Reveal.
 	var blocked := ProjectSettings.globalize_path("user://saves/autosave.json.next")
 	assert_eq(DirAccess.make_dir_absolute(blocked), OK)
 	if not DirAccess.dir_exists_absolute(blocked): return
 	var original_files: RefCounted = saves._storage._file_ops
 	var observed := ObservedFiles.new()
 	saves._storage._file_ops = observed
-	var refused: Dictionary = port.dispatch("reveal", 0, int(projected.value.revision))
-	if observed.refused_writes == 0:
-		# Diagnostic-only failure path: presentation intentionally hides owner errors.
-		# Keep the filesystem obstruction in place and mint a genuine production
-		# transaction to expose the first failing owner boundary without fake success.
-		var issued: Dictionary = port._mint_transaction()
-		var diagnostic: Dictionary = issued
-		if issued.get("ok", false):
-			var identity: Variant = port.get("_identity")
-			diagnostic = bootstrap.get("_retained_minesweeper_round_coordinator_app").reveal({
-				"transaction_id": str(issued.value.token),
-				"transaction_issuer_receipt": issued.value.issuer_receipt.duplicate(true),
-				"expected_identity": identity.duplicate(true) if identity is Dictionary else null,
-				"expected_revision": int(port.get("_revision")), "cell_index": 0,
-				"difficulty_id": str(port.get("_difficulty"))})
-		print("SCENE_DESKTOP_FIRST_REVEAL_OWNER_DIAGNOSTIC ", JSON.stringify({
-			"ok": diagnostic.get("ok", false), "code": str(diagnostic.get("code", "")),
-			"message": str(diagnostic.get("message", "")).left(1000),
-			"details": str(diagnostic.get("details", {})).left(2400)}))
-		saves._storage._file_ops = original_files
-		assert_eq(DirAccess.remove_absolute(blocked), OK)
-		fail_test("First Reveal did not reach the obstructed autosave; see owner diagnostic")
-		return
+	var owner: Object = bootstrap._retained_minesweeper_round_coordinator_app
+	var original_checkpoint: Object = owner._durable_checkpoint_port
+	var checkpoints := UnexpectedCheckpointCalls.new()
+	owner._durable_checkpoint_port = checkpoints
+	var revealed: Dictionary = port.dispatch("reveal", 0, int(projected.value.revision))
+	owner._durable_checkpoint_port = original_checkpoint
 	saves._storage._file_ops = original_files
 	assert_eq(DirAccess.remove_absolute(blocked), OK)
-	assert_false(refused.get("ok", false), str(refused))
-	assert_eq(observed.refused_writes, 1, "real autosave write was attempted and refused")
-	assert_eq(game.capture_run_snapshot_input(), before, "no debit, board installation or Run receipt on refusal")
-	assert_eq(saves.get_latest_stable_checkpoint(), stable)
-	assert_eq(profile.get_profile_snapshot(), history)
-	_same_files(hashes)
-	# A fresh presentation request retries the same observable action after storage repair.
-	projected = port.pull("beginner")
-	if not _ok(projected): return
-	var revealed: Dictionary = port.dispatch("reveal", 0, int(projected.value.revision))
 	if not _ok(revealed): return
+	assert_true(checkpoints.calls.is_empty(), "no checkpoint preview, capture, preparation or commit")
+	assert_eq(observed.refused_writes, 0)
+	assert_eq(saves.get_latest_stable_checkpoint(), stable, "live Reveal does not advance the save journal")
+	_same_files(hashes)
 	var after: Dictionary = game.capture_run_snapshot_input()
 	assert_eq(typeof(after.desktop.board.board.board.outcome), TYPE_STRING_NAME)
 	assert_eq(after.gameplay.minesweeper_rounds_left, before.gameplay.minesweeper_rounds_left - 1)
@@ -213,23 +215,23 @@ func create_scene_desktop_first_reveal() -> void:
 	assert_eq(after.command_receipts, before.command_receipts, "ordinary scene frontier has no extra story consequences")
 	assert_eq(profile.get_profile_snapshot(), history)
 	assert_eq(FileAccess.get_sha256("user://saves/slot_1.json"), hashes.slot_sha256)
-	assert_ne(_autosave_sha256(), hashes.autosave_sha256)
+	assert_eq(_autosave_sha256(), hashes.autosave_sha256)
+	if not _save_live_slot(1): return
 	var committed: Dictionary = saves.get_latest_stable_checkpoint()
 	if not _ok(committed): return
 	var snapshot: Dictionary = committed.value.bundle.snapshot
 	_assert_scene_snapshot(snapshot, reading.value.reading_session, after)
 	_assert_board_identity_admission(snapshot, after)
-	var disk: Dictionary = PARSER.parse_object(FileAccess.get_file_as_string("user://saves/autosave.json"))
+	var disk: Dictionary = PARSER.parse_object(FileAccess.get_file_as_string("user://saves/slot_1.json"))
 	if not _ok(disk): return
 	assert_eq(disk.value.schema_version, 9)
-	assert_eq(disk.value.current_snapshot.snapshot, snapshot, "physical Save9 carries the complete committed Run9")
-	if not _ok(saves.save_latest_to_slot(1)): return
-	assert_eq(game.capture_run_snapshot_input(), after, "serializing autosave and selected slot leaves live state untouched")
+	assert_eq(disk.value.current_snapshot.snapshot, snapshot, "manual Save9 carries the complete current Run9")
+	assert_eq(game.capture_run_snapshot_input(), after, "manual serialization leaves live state untouched")
 	assert_eq(typeof(game.capture_run_snapshot_input().desktop.board.board.board.outcome), TYPE_STRING_NAME)
 	var proof := {"phase": "create", "process_id": OS.get_process_id(),
 		"user_dir": ProjectSettings.globalize_path("user://"), "file_hashes": _file_hashes(),
 		"run": DESKTOP_STATE._inspection_normalize(after), "profile": history, "reading_session": snapshot.narrative_checkpoint.reading_session,
-		"ready_count": ready_count, "refused_writes": observed.refused_writes}
+		"ready_count": ready_count, "refused_writes": observed.refused_writes, "checkpoint_calls": checkpoints.calls.size()}
 	if not _write_json(PROOF, proof): return
 	_write_json("res://.godot/ci/scene-desktop-first-reveal-create-proof.json", proof)
 
@@ -327,7 +329,8 @@ func load_scene_desktop_first_reveal() -> void:
 	assert_false(settled.desktop.board.has("terminal_receipts"))
 	assert_eq(settled.gameplay.money, current_raw.gameplay.money + 1)
 	assert_eq(settled.gameplay.minesweeper_app_rounds_finished_today, 1)
-	if not _ok(saves.save_latest_to_slot(2)): return
+	_same_files(witness.file_hashes)
+	if not _save_live_slot(2): return
 	proof["settled"] = DESKTOP_STATE._inspection_normalize(settled)
 	proof["settled_slot_sha256"] = FileAccess.get_sha256("user://saves/slot_2.json")
 	proof.file_hashes = _file_hashes()
@@ -370,7 +373,22 @@ func load_scene_desktop_settled_result() -> void:
 		assert_eq(game.capture_run_snapshot_input(), settled_raw, "cold completion retry does not repeat rewards")
 	assert_eq(FileAccess.get_sha256("user://saves/slot_2.json"), witness.settled_slot_sha256)
 	_same_files(witness.file_hashes)
+	# Changing the next board after Load is also a live action, even if storage refuses.
+	var configuration := _settlement_request()
+	if configuration.is_empty(): return
+	configuration["difficulty_id"] = "intermediate"
+	var checkpoints := UnexpectedCheckpointCalls.new()
+	var checkpoint_port: Object = owner._durable_checkpoint_port
+	owner._durable_checkpoint_port = checkpoints
+	var configured: Dictionary = owner.select_difficulty(configuration)
+	owner._durable_checkpoint_port = checkpoint_port
+	if not _ok(configured): return
+	assert_eq(checkpoints.calls, [], "board selection does not prepare or write a checkpoint")
+	assert_eq(game.capture_run_snapshot_input().gameplay.minesweeper_selected_difficulty, "intermediate")
+	assert_eq(FileAccess.get_sha256("user://saves/slot_2.json"), witness.settled_slot_sha256)
+	_same_files(witness.file_hashes)
 	var proof := witness.duplicate(true)
+	proof["configuration_checkpoint_calls"] = checkpoints.calls.size()
 	proof["settled_destination_branch"] = settled.lifecycle.branch_id
 	proof["settled_loader_process_id"] = OS.get_process_id()
 	proof.ready_count = ready_count

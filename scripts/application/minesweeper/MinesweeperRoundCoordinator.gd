@@ -1086,8 +1086,6 @@ func _first_reveal(request: Dictionary) -> Dictionary:
 			["checkpoint_port", func(): return _checkpoint_port.call(&"rollback", checkpoint_backup)],
 		], seal)
 
-	if captured.has("round_paid"):
-		return board_candidate.result_override.duplicate(true)
 	var published: Dictionary = _state_port.call(&"publish", publication)
 	if not published.get("ok", false):
 		return _fail(&"FIRST_REVEAL_COMMITTED_UNPUBLISHED", "",
@@ -1190,12 +1188,14 @@ func _first_reveal_durable(request: Dictionary) -> Dictionary:
 		return reveal_result
 	var board: Dictionary = (reveal_result["value"] as Dictionary)["board"]
 
-	var run_id := str(identity["run_id"])
-	var preview: Dictionary = _durable_checkpoint_port.call(&"preview_checkpoint_id", run_id)
-	profile_tick = _consequence_profile_phase(profile, "preview_checkpoint_us", profile_tick)
-	if not preview.get("ok", false):
-		return preview
-	var expected_checkpoint_id := str((preview["value"] as Dictionary)["checkpoint_id"])
+	# Scene boards keep a live payment fact, not a saved-checkpoint receipt.
+	# Only the legacy board format needs a durable checkpoint identity.
+	var expected_checkpoint_id := ""
+	if not captured.has("round_paid"):
+		var preview: Dictionary = _durable_checkpoint_port.call(&"preview_checkpoint_id", str(identity["run_id"]))
+		profile_tick = _consequence_profile_phase(profile, "preview_checkpoint_us", profile_tick)
+		if not preview.get("ok", false): return preview
+		expected_checkpoint_id = str(preview.value.checkpoint_id)
 
 	var board_candidate_for_port := {
 		"identity": identity, "difficulty_id": str(request["difficulty_id"]),
@@ -1230,6 +1230,21 @@ func _first_reveal_durable(request: Dictionary) -> Dictionary:
 	if not validated.get("ok", false):
 		return validated
 
+	if captured.has("round_paid"):
+		# Adopt the same admitted owner candidates without preparing a save.
+		board_candidate.result_override = {"ok": true, "code": &"first_reveal_committed",
+			"value": {"revision": int(captured.revision) + 1}, "receipt": {}}
+		var backup: Dictionary = _state_port.call(&"capture")
+		if not backup.get("ok", false): return backup
+		var state_result: Dictionary = _state_port.call(&"commit", game_state_candidate)
+		if not state_result.get("ok", false): return state_result
+		var board_result := _board_state.commit(board_candidate)
+		if not board_result.get("ok", false):
+			return _rollback_participants("board_commit", transaction_id, [
+				["state_port", func(): return _state_port.call(&"rollback", backup.value.backup)],
+			], board_result)
+		return _consequence_profile_result(profile, board_candidate.result_override.duplicate(true))
+
 	var base_captured: Dictionary = _state_port.call(&"capture_base_snapshot_input")
 	profile_tick = _consequence_profile_phase(profile, "capture_base_snapshot_us", profile_tick)
 	if not base_captured.get("ok", false):
@@ -1242,9 +1257,6 @@ func _first_reveal_durable(request: Dictionary) -> Dictionary:
 		"value": {"receipt": receipt.duplicate(true), "publication": publication.duplicate(true)},
 		"receipt": {},
 	}
-	if captured.has("round_paid"):
-		board_candidate.result_override = {"ok": true, "code": &"first_reveal_committed",
-			"value": {"revision": int(captured.revision) + 1}, "receipt": {}}
 
 	var composed: Dictionary = _snapshot_composer.call(&"compose", base_snapshot_input,
 		game_state_candidate, board_candidate, consequence_candidate)
@@ -1294,8 +1306,6 @@ func _first_reveal_durable(request: Dictionary) -> Dictionary:
 			["checkpoint_port", func(): return _durable_checkpoint_port.call(&"rollback", checkpoint_backup)],
 		], board_commit)
 
-	if captured.has("round_paid"):
-		return board_candidate.result_override.duplicate(true)
 	var published: Dictionary = _state_port.call(&"publish", publication)
 	_consequence_profile_phase(profile, "publish_us", profile_tick)
 	if not published.get("ok", false):
@@ -1845,8 +1855,8 @@ func _paid_shell_reveal(request: Dictionary) -> Dictionary:
 	return committed
 
 
-## Existing Autosave participant is the sole durable writer. No payment, completion or
-## consequence candidate is made here. Its physical backup restores disk on failed adoption.
+## Scene board-only actions publish live state. The legacy path retains its Autosave
+## participant and physical backup. Neither path creates a payment or completion.
 func _commit_cost_free_candidate(candidate: Dictionary, selected_difficulty: String = "") -> Dictionary:
 	var token := ""
 	if _consequence_gate != null:
@@ -1862,6 +1872,16 @@ func _commit_cost_free_candidate(candidate: Dictionary, selected_difficulty: Str
 
 func _commit_cost_free_under_lease(candidate: Dictionary, selected_difficulty: String) -> Dictionary:
 	var before := _board_state.capture()
+	if before.has("round_paid"):
+		var live_committed := _board_state.commit(candidate)
+		if not live_committed.ok: return live_committed
+		if not selected_difficulty.is_empty():
+			var live_selected: Dictionary = _state_port.call(&"commit", {"board_only": true, "selected_difficulty": selected_difficulty})
+			if not live_selected.ok:
+				return _rollback_participants("cost_free_selection", str(candidate.transaction_id), [
+					["board", func(): return _restore_board_state(before)],
+				], live_selected)
+		return live_committed
 	var projected := _BOARD_STATE.new()
 	var restore := projected.prepare_restore(before)
 	if not restore.ok: return restore

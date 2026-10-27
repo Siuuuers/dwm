@@ -1,0 +1,20 @@
+{
+  "baseline": "249b66bc0158353e0e576daf89768096665e95b7",
+  "candidate": "29809590a2792529445d75bacbb5939d30fc7927",
+  "observer": "d72b67506e05c03f161201df7b9fc5430e2b136e",
+  "baseline_tree": "c6bbdb0afddaafb11084c019b9f7686053b83d32",
+  "candidate_tree": "dbf2415cd03f74bbd7c59f93c41914074d5fe169",
+  "repetitions": 4,
+  "order": [
+    "AB",
+    "BA",
+    "AB",
+    "BA"
+  ],
+  "cases": [
+    "fresh",
+    "retained",
+    "load"
+  ],
+  "scope": "Matched baseline/candidate instrumented exports on one Windows runner. Each action starts a new process. Retained and Load use the same r1-baseline-fresh profile after real manual Save and Autosave. Verbose engine logging is enabled equally to identify shutdown resources. OS caches are not cleared."
+}

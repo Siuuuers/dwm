@@ -1,7 +1,7 @@
 # Named presentation checkpoints and checkpoint-only Autosave
 
 Date: 2026-10-27, Hong Kong time.
-Status: User-approved behavior and implementation plan. Runtime implementation is pending.
+Status: User-approved behavior and implementation plan. See [the implementation record](as-named-checkpoint-implementation-20261027.md) and PR 133 for implementation, exact acceptance evidence and merge status.
 Baseline reviewed: master `c122bf55dd1595d219ed7add4a3d811ddf52cc23`.
 
 ## Scope and precedence
@@ -124,4 +124,4 @@ Report mixed or slower cases. Do not claim a universal gain from fewer calls or 
 
 Read this amendment and aq, then inspect current master and applicable repository instructions.
 The two product questions are settled: use named presentation checkpoints, and retain only manual Save between them.
-Implementation and matched cloud acceptance remain pending. This document changes no runtime code.
+Use the linked implementation record and PR 133 to determine remaining work. This plan records the approved behavior; it does not itself change runtime code.

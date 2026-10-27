@@ -234,3 +234,23 @@ func test_selected_registration_matches_independent_audio_validation_and_detache
 		assert_false(MANIFEST.resolve_scene_context(made.value, detached).ok,
 			"modified arbitrary registration cannot reuse the selected fingerprint")
 	scope.restore()
+
+func test_named_presentation_selects_existing_plan_without_entry_binding() -> void:
+	var registration := _registration()
+	var named := MANIFEST.make_named_presentation_context(registration, "TEST.audio.01", "receipt.1")
+	assert_true(named.ok)
+	assert_eq(named, MANIFEST.make_scene_context(registration, "scene.test.b", "receipt.1"))
+	var resolved := MANIFEST.resolve_scene_context(named.value, registration)
+	assert_true(resolved.ok)
+	assert_eq(resolved.value.load_seconds, 1.0)
+	assert_eq(resolved.value.record.plan.plan_id, "TEST.audio.01")
+	var silence := MANIFEST.make_named_presentation_context(registration, "", "receipt.1")
+	assert_true(silence.ok)
+	assert_null(silence.value.selection)
+	assert_null(MANIFEST.resolve_scene_context(silence.value, registration).value.record)
+	var missing := MANIFEST.make_named_presentation_context(registration, "missing", "receipt.1")
+	assert_false(missing.ok)
+	assert_eq(missing.code, &"reading_content_error")
+	assert_eq(missing.details.audio_plan_id, "missing")
+	assert_true(str(missing.message).contains("missing"))
+	assert_false(MANIFEST.make_named_presentation_context(registration, "TEST.audio.01", "").ok)

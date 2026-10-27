@@ -52,8 +52,7 @@ class SimulatedCheckpointPort:
 		var writer := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 		return {"ok": true, "value": {"capability_id": capability, "operation_id": binding.operation_id,
 			"source_checkpoint": binding.source_checkpoint.duplicate(true),
-			"target_checkpoint": {"checkpoint_id": "held:test:target", "checkpoint_sequence": 2,
-				"snapshot_sha256": "3".repeat(64)},
+			"target_publication": {"kind": "live", "state_sha256": str(writer.stringify(checkpoint).value).sha256_text()},
 			"binding_sha256": "0".repeat(64) if corrupt else str(writer.stringify(binding).value).sha256_text(),
 			"narrative_checkpoint_sha256": str(writer.stringify(checkpoint).value).sha256_text()}}
 

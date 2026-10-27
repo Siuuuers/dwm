@@ -1766,21 +1766,19 @@ func _scene_checkpoint() -> Dictionary:
 	if not saved.get("ok", false):
 		_retain_scene_failure_custody(saved)
 		return saved
-	if not _scene_checkpoint_reference(saved.get("value", {}).get("checkpoint_reference")):
+	if not _scene_publication_reference(saved.get("value", {}).get("publication")):
 		_scene_fatal = true
 		return _fail(&"scene_checkpoint_unconfirmed")
 	_pending_checkpoint = {}
 	_routine_pending = false
 	return _pull_scene(_record.physical_token)
 
-func _scene_checkpoint_reference(reference: Variant) -> bool:
+func _scene_publication_reference(reference: Variant) -> bool:
 	if not reference is Dictionary: return false
 	var keys: Array = reference.keys(); keys.sort()
-	return keys == ["checkpoint_id", "checkpoint_sequence", "snapshot_sha256"] \
-		and reference.checkpoint_id is String and not reference.checkpoint_id.is_empty() \
-		and typeof(reference.checkpoint_sequence) == TYPE_INT and reference.checkpoint_sequence >= 0 \
-		and reference.snapshot_sha256 is String and reference.snapshot_sha256.length() == 64 \
-		and reference.snapshot_sha256.is_valid_hex_number(false) and reference.snapshot_sha256 == reference.snapshot_sha256.to_lower()
+	return keys == ["kind", "state_sha256"] and reference.kind == "live" \
+		and reference.state_sha256 is String and reference.state_sha256.length() == 64 \
+		and reference.state_sha256.is_valid_hex_number(false) and reference.state_sha256 == reference.state_sha256.to_lower()
 
 ## End checkpoints the current Run record before committing its story outcome.
 func close_scene_challenge(token: String) -> Dictionary:
@@ -1832,7 +1830,7 @@ func _close_scene_locked() -> Dictionary:
 		if not source.get("ok", false):
 			_retain_scene_failure_custody(source)
 			return source
-		if not _scene_checkpoint_reference(source.get("value", {}).get("checkpoint_reference")):
+		if not _scene_publication_reference(source.get("value", {}).get("publication")):
 			_scene_fatal = true
 			return _fail(&"scene_checkpoint_unconfirmed")
 		_pending_checkpoint = {}
@@ -1840,7 +1838,7 @@ func _close_scene_locked() -> Dictionary:
 		if not hashed.ok: return hashed
 		proof = {"run_id": str(_attempt_identity().run_id), "slot_id": ATTEMPTS.semantic_slot(_record.context), "attempt_id": _record.spec.board_token,
 			"branch_id": _history_reference.branch_id, "generation": _history_reference.generation, "revision": _revision() + 1,
-			"record_sha256": hashed.value.sha256, "checkpoint": source.value.checkpoint_reference.duplicate(true)}
+			"record_sha256": hashed.value.sha256, "publication": source.value.publication.duplicate(true)}
 		outcome = "unfinished" if _record.state == "in_progress" else str(_record.state)
 	var binding := _scene_story_binding()
 	if not binding.ok: return binding

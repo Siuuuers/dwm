@@ -125,28 +125,33 @@ func load_and_finish_passage_scene() -> void:
 	fault.refuse_on = 1
 	saves._storage._file_ops = fault
 	var before := _autosave_sha256()
-	await _click(_caption().recovery_overlay.retry_button)
-	saves._storage._file_ops = files
-	assert_eq(fault.refused, 1)
-	assert_eq(_autosave_sha256(), before)
-	assert_true(PASSAGE_ID in profile.get_profile_snapshot().gallery_unlocks, "global finish discovery survives failed Run write")
-	assert_eq(game.capture_run_snapshot_input().lifecycle.state, "PLAYING")
-	assert_eq(get_tree().current_scene.scene_file_path, HOST, "write refusal cannot retire the caption")
-	assert_eq(bridge._runtime_adapter.current_line_id(), "line.scene.test.a.three")
-	assert_true(_caption().is_reading_recovery_active())
-	await _screenshot("passage-finish-retry")
+	var completed_capture := {}
 	var finish_results: Array[Dictionary] = []
-	bridge.next_request_finished.connect(func(_frontier: Dictionary, result: Dictionary) -> void: finish_results.append(result.duplicate(true)), CONNECT_ONE_SHOT)
+	bridge.next_request_finished.connect(func(_frontier: Dictionary, result: Dictionary) -> void:
+		finish_results.append(result.duplicate(true))
+		if result.get("ok", false):
+			completed_capture.merge(get_node("/root/ApplicationBootstrap")._capture_paused_checkpoint_inputs(), true), CONNECT_ONE_SHOT)
+	await _screenshot("passage-finish-retry")
 	await _click(_caption().recovery_overlay.retry_button)
 	if not await _wait_menu():
+		saves._storage._file_ops = files
 		print("PASSAGE_FINISH_RESULTS " + JSON.stringify(finish_results))
 		return
+	saves._storage._file_ops = files
+	assert_eq(fault.refused, 0, "ordinary Finish never attempts a game-save write")
+	assert_eq(_autosave_sha256(), before, "Finish preserves the previous Autosave")
+	if not _ok(completed_capture): return
+	assert_eq(completed_capture.value.snapshot_input.lifecycle.state, "COMPLETED")
+	# Finish retires immediately. Seed the fresh-process fixture with an explicit
+	# manual save of the actual completed owner capture, without editing its data.
+	if not _ok(saves.record_stable_checkpoint(completed_capture.value, &"manual_save")): return
+	if not _ok(saves.save_latest_to_slot(3)): return
 	assert_true(PASSAGE_ID in profile.get_profile_snapshot().gallery_unlocks)
 	var latest: Dictionary = saves.get_latest_stable_checkpoint()
 	if not _ok(latest): return
 	assert_eq(latest.value.bundle.snapshot.lifecycle.state, "COMPLETED")
 	assert_false(latest.value.bundle.snapshot.lifecycle.has("ending_plan"))
-	var completed_file: Dictionary = PARSER.parse_object(FileAccess.get_file_as_string("user://saves/autosave.json"))
+	var completed_file: Dictionary = PARSER.parse_object(FileAccess.get_file_as_string("user://saves/slot_3.json"))
 	if not _ok(completed_file): return
 	for key: String in ["command_receipts", "applied_effect_transaction_ids", "applied_variable_transaction_ids"]:
 		assert_false(completed_file.value.current_snapshot.snapshot.has(key), "completed player snapshot omits " + key)
@@ -156,7 +161,9 @@ func load_and_finish_passage_scene() -> void:
 	assert_eq(FileAccess.get_sha256("user://saves/slot_1.json"), proof.slot_1_sha256)
 	assert_eq(FileAccess.get_sha256("user://saves/slot_2.json"), proof.slot_2_sha256)
 	proof["finisher_process_id"] = OS.get_process_id()
-	proof["completed_sha256"] = _autosave_sha256()
+	proof["completed_sha256"] = FileAccess.get_sha256("user://saves/slot_3.json")
+	proof["finish_game_save_writes"] = fault.refused
+	proof["autosave_unchanged"] = _autosave_sha256() == before
 	if not _write_json("user://passage-proof.json", proof): return
 	await _screenshot("passage-title-after-finish")
 	_write_json("res://.godot/ci/passage-connected-load-proof.json", proof)
@@ -167,9 +174,9 @@ func replay_completed_passage_scene() -> void:
 	var proof: Dictionary = parsed.value
 	assert_ne(OS.get_process_id(), proof.process_id)
 	assert_ne(OS.get_process_id(), proof.finisher_process_id)
-	assert_eq(_autosave_sha256(), proof.completed_sha256)
+	assert_eq(FileAccess.get_sha256("user://saves/slot_3.json"), proof.completed_sha256)
 	if not _start_services(): return
-	var loaded := _load_passage("autosave")
+	var loaded := _load_passage("slot:3")
 	assert_true(loaded.get("ok", false) or loaded.get("code") == &"scene_activation_pending", str(loaded))
 	if not await _wait_menu(): return
 	assert_true(PASSAGE_ID in profile.get_profile_snapshot().gallery_unlocks)

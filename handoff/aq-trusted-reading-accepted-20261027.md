@@ -1,6 +1,6 @@
 # Trusted checkpoint conversion and edited DTL
 
-> Later plan: [named presentation checkpoints and checkpoint-only Autosave](ar-named-checkpoint-autosave-plan-20261027.md) changes future Autosave scheduling and presentation-feature priority. It is approved but not implemented. Accepted runtime, edited-DTL behavior and historical measurements remain below.
+> Later plan: [named presentation checkpoints and checkpoint-only Autosave](ar-named-checkpoint-autosave-plan-20261027.md) changes future Autosave scheduling and presentation-feature priority. See [the implementation record](as-named-checkpoint-implementation-20261027.md) and its linked PR for implementation and merge status. Accepted edited-DTL behavior and historical measurements remain below.
 
 Date: 2026-10-27, Hong Kong time.
 Status: PRs 127, 128 and 129 merged after cloud acceptance. No runtime work is pending from these three changes.

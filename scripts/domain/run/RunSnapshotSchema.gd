@@ -638,10 +638,13 @@ static func normalize_scene_content(snapshot: Dictionary, trusted: bool = false)
 			or not candidate.get("scene") is Dictionary or not candidate.get("gameplay") is Dictionary \
 			or not candidate.get("narrative_checkpoint") is Dictionary):
 		return _fail(&"invalid_snapshot_shape", "content normalization requires Run9")
+	if trusted or candidate.scene.get("registration_sha256") != SCENE_MANIFEST.scene_registration_fingerprint():
+		var presentation := _resolve_scene_presentation(candidate.scene)
+		if not presentation.ok: return presentation
 	var gameplay: Dictionary = candidate.gameplay
 	if not trusted:
 		var checkpoint: Dictionary = candidate.narrative_checkpoint
-		if not _scene_keys(candidate.scene, ["registration_sha256", "active_occurrence_id", "entry_id", "notification", "active_challenge", "return_to"]) \
+		if not _scene_current_keys(candidate.scene) \
 				or not _scene_digest(candidate.scene.registration_sha256) \
 				or not _scene_id(candidate.scene.active_occurrence_id) or not _scene_id(candidate.scene.entry_id) \
 				or not candidate.scene.notification is Dictionary or not candidate.scene.active_challenge is Dictionary \
@@ -851,7 +854,7 @@ static func validate_scene_new_run_candidate(snapshot: Dictionary, allocation_ca
 		var audio := derive_scene_audio_context(candidate, bundle)
 		if not audio.ok: return audio
 	else:
-		if not _scene_keys(candidate.scene, ["registration_sha256", "active_occurrence_id", "entry_id", "notification", "active_challenge", "return_to"]) \
+		if not _scene_current_keys(candidate.scene) \
 				or candidate.scene.registration_sha256 != acknowledged_checkpoint.manifest_fingerprint \
 				or candidate.scene.entry_id != acknowledged_checkpoint.entry_id \
 				or acknowledged_checkpoint.transaction_id != transaction_id \
@@ -1174,7 +1177,7 @@ static func validate_scene_input_fields(input: Dictionary, bundle: Dictionary) -
 
 ## Current Scene facts have one registration owner. No command history is needed.
 static func validate_current_scene(scene: Variant, bundle: Dictionary) -> Dictionary:
-	if not _scene_keys(scene, ["registration_sha256", "active_occurrence_id", "entry_id", "notification", "active_challenge", "return_to"]) \
+	if not _scene_current_keys(scene) \
 			or scene.registration_sha256 != SCENE_MANIFEST.scene_registration_fingerprint():
 		return _fail(&"scene_registration_mismatch", "current Scene must use installed registration")
 	var registered := SCENE_EVENT_CONTRACT.validate_bundle_structure(bundle)
@@ -1184,7 +1187,9 @@ static func validate_current_scene(scene: Variant, bundle: Dictionary) -> Dictio
 		return _fail(&"scene_registration_mismatch", "current Scene cannot select another bundle")
 	var frame := _validate_current_scene_frame(scene, tables)
 	if not frame.ok: return frame
-	if scene.return_to == null: return {"ok": true}
+	var presentation := _resolve_scene_presentation(scene)
+	if not presentation.ok: return presentation
+	if scene.return_to == null: return presentation
 	var back: Variant = scene.return_to
 	if not _scene_keys(back, ["parent", "target_id", "contact_event_id"]) \
 			or not _scene_keys(back.parent, ["active_occurrence_id", "entry_id", "notification", "active_challenge"]) \
@@ -1199,7 +1204,7 @@ static func validate_current_scene(scene: Variant, bundle: Dictionary) -> Dictio
 			or contact.entry_id != scene.entry_id or contact.return_target_id != back.target_id \
 			or target.kind != "return" or target.entry_id != back.parent.entry_id:
 		return _fail(&"scene_contact_parent_invalid", "Contacts return differs from its registered parent")
-	return {"ok": true}
+	return presentation
 
 static func _validate_scene_challenge_binding(scene: Dictionary, gameplay: Dictionary, bundle: Dictionary) -> Dictionary:
 	if scene.active_challenge.is_empty(): return {"ok": true}
@@ -1239,8 +1244,10 @@ static func derive_scene_audio_context(snapshot: Dictionary, bundle: Dictionary 
 		if not selected.ok: return selected
 		bundle = selected.bundle
 	if bundle.get("schema_version") != 3:
-		# Registrations without authored audio explicitly restore silence. The
-		# AudioManager semantic contract requires all four neutral fields.
+		var presentation := _resolve_scene_presentation(snapshot.get("scene", {}))
+		if not presentation.ok: return presentation
+		if not presentation.value.is_empty() and not str(presentation.value.audio_plan_id).is_empty():
+			return _fail(&"scene_audio_owner_unavailable", "named presentation requires its authored audio plan")
 		return {"ok": true, "value": {"ambience_context": {}, "ambience_context_id": "",
 			"music_context": {}, "music_context_id": ""}}
 	var current := validate_current_scene(snapshot.get("scene"), bundle)
@@ -1248,7 +1255,26 @@ static func derive_scene_audio_context(snapshot: Dictionary, bundle: Dictionary 
 	var owner: Script = load("res://scripts/data/AudioManifest.gd")
 	if owner == null or not owner.has_method("make_scene_context"):
 		return _fail(&"scene_audio_owner_unavailable", "canonical audio owner required")
+	if not current.value.is_empty():
+		return owner.call("make_named_presentation_context", bundle,
+			current.value.audio_plan_id, snapshot.scene.active_occurrence_id)
 	return owner.call("make_scene_context", bundle, snapshot.scene.entry_id, snapshot.scene.active_occurrence_id)
+
+
+static func _scene_current_keys(scene: Variant) -> bool:
+	var keys := ["registration_sha256", "active_occurrence_id", "entry_id", "notification", "active_challenge", "return_to"]
+	if scene is Dictionary and scene.has("presentation"): keys.append("presentation")
+	return _scene_keys(scene, keys)
+
+
+static func _resolve_scene_presentation(scene: Dictionary) -> Dictionary:
+	if not scene.has("presentation"): return {"ok": true, "value": {}}
+	var saved: Variant = scene.presentation
+	if not _scene_keys(saved, ["checkpoint_id", "overlays"]) \
+			or not saved.checkpoint_id is String or not saved.overlays is Array:
+		return _fail(&"scene_presentation_invalid", "saved presentation requires checkpoint ID and ordered overlay labels")
+	return preload("res://scripts/data/ArtManifest.gd").resolve_presentation(saved.checkpoint_id, saved.overlays)
+
 
 static func _validate_scene_gameplay(gameplay: Variant) -> String:
 	if not _scene_keys(gameplay, SCENE_GAMEPLAY_KEYS): return "unexpected scene gameplay members"

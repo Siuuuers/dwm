@@ -76,8 +76,7 @@ class SimulatedCheckpointPort:
 		var checkpoint_json: Dictionary = writer.stringify(checkpoint)
 		return {"ok": true, "value": {"capability_id": capability, "operation_id": binding.operation_id,
 			"source_checkpoint": binding.source_checkpoint.duplicate(true),
-			"target_checkpoint": {"checkpoint_id": "test:target-checkpoint", "checkpoint_sequence": 1,
-				"snapshot_sha256": "1".repeat(64)},
+			"target_publication": {"kind": "live", "state_sha256": str(checkpoint_json.value).sha256_text()},
 			"binding_sha256": "0".repeat(64) if corrupt_hash else str(binding_json.value).sha256_text(),
 			"narrative_checkpoint_sha256": str(checkpoint_json.value).sha256_text()}}
 
@@ -277,9 +276,8 @@ func test_synchronous_restore_then_native_failure_retains_committed_target_witho
 		assert_true(fixture.bridge._active_entry.is_empty(), failure)
 		assert_signal_not_emitted(fixture.bridge, "reading_session_changed",
 			"a synchronous success callback cannot briefly publish before install returns")
-		assert_eq(fixture.bridge._scene_stage.get("committed_checkpoint"),
-			{"checkpoint_id": "test:target-checkpoint", "checkpoint_sequence": 1,
-				"snapshot_sha256": "1".repeat(64)}, failure)
+		assert_eq(fixture.bridge._scene_stage.get("live_publication"),
+			{"kind": "live", "state_sha256": fixture.bridge._scene_stage.checkpoint_sha256}, failure)
 		assert_eq(fixture.bridge._scene_stage.transport, prepared.value, failure)
 		assert_true(fixture.bridge._scene_stage.has("native_failure"), failure)
 		assert_eq(fixture.native.installations, 1, failure)

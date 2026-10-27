@@ -110,6 +110,10 @@ func create_contacts_scene() -> void:
 	await _click(_controls(host, "CheckComputer"))
 	assert_false(host.is_computer_open())
 	assert_eq(game.capture_run_snapshot_input().scene, parent.scene)
+	var issuer_path := "user://desktop-issuer-root.json"
+	var issuer_before := FileAccess.get_sha256(issuer_path)
+	var root_before: Dictionary = bootstrap._desktop_issuer_root_store.capture()
+	if not _ok(root_before): return
 	await _click(_caption().caption_text)
 	if not await _wait_line("contact.test.a", "line.contact.test.a.one"): return
 	var child: Dictionary = game.capture_run_snapshot_input()
@@ -120,12 +124,21 @@ func create_contacts_scene() -> void:
 	assert_eq(child.gameplay.route_context, parent.gameplay.route_context)
 	assert_eq(child.contacts, read_contacts)
 	await _screenshot("contacts-child-before-save")
+	assert_eq(FileAccess.get_sha256(issuer_path), issuer_before, "ordinary contact entry keeps issuer storage unchanged")
+	var root_after: Dictionary = bootstrap._desktop_issuer_root_store.capture()
+	if not _ok(root_after): return
+	var deferred_receipts: Array = []
+	for receipt_id: String in root_after.value.receipts:
+		if not root_before.value.receipts.has(receipt_id):
+			deferred_receipts.append(root_after.value.receipts[receipt_id].duplicate(true))
+	assert_eq(deferred_receipts.size(), 2, "contact command and target occurrence mint live provenance")
 	if not await _save_slot(1): return
+	assert_ne(FileAccess.get_sha256(issuer_path), issuer_before, "actual manual Save flushes pending provenance")
 	var saved: Dictionary = PARSER.parse_object(FileAccess.get_file_as_string("user://saves/slot_1.json"))
 	if not _ok(saved): return
 	_check_contact_state(saved.value.current_snapshot.snapshot)
 	var proof := {"process_id": OS.get_process_id(), "parent_scene": parent.scene,
-		"child_scene": child.scene, "contacts": read_contacts,
+		"child_scene": child.scene, "contacts": read_contacts, "deferred_receipts": deferred_receipts,
 		"board": child.gameplay.route_context.active_dating_challenge.board,
 		"checkpoint": saved.value.current_snapshot.snapshot.narrative_checkpoint,
 		"slot_sha256": FileAccess.get_sha256("user://saves/slot_1.json")}
@@ -140,6 +153,8 @@ func load_contacts_scene() -> void:
 	assert_ne(OS.get_process_id(), proof.process_id)
 	assert_eq(FileAccess.get_sha256("user://saves/slot_1.json"), proof.slot_sha256)
 	if not _start_services(): return
+	for receipt: Dictionary in proof.deferred_receipts:
+		if not _ok(bootstrap._desktop_identity_nonce_issuer.verify_issued(receipt, &"transaction_id")): return
 	var backup: RefCounted = preload("res://scripts/application/backup/BackupPresentationPort.gd").new()
 	if not _ok(backup.configure(saves, "title")): return
 	var prepared: Dictionary = backup.prepare_action("load", "slot:1")

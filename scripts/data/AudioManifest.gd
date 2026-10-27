@@ -256,6 +256,30 @@ static func make_scene_context(registration: Dictionary, entry_id: String, admis
 					selection = _scene_selection(plan)
 	if not found:
 		return _scene_failure(&"invalid_scene_audio_context")
+	return _make_scene_selection_context(registration, checked, selection, admission_receipt_id)
+
+
+## Named presentation selects an existing plan independently of the reading entry.
+static func make_named_presentation_context(registration: Dictionary, plan_id: String,
+		admission_receipt_id: String) -> Dictionary:
+	var checked: Dictionary = _scene_registration(registration)
+	if not checked.ok: return checked
+	if not _scene_id(admission_receipt_id): return _scene_failure(&"invalid_scene_audio_context")
+	var selection: Variant = null
+	if not plan_id.is_empty():
+		for plan: Dictionary in checked.value.plans:
+			if plan.plan_id == plan_id:
+				selection = _scene_selection(plan)
+				break
+		if selection == null:
+			return {"ok": false, "code": &"reading_content_error",
+				"message": "Required presentation music plan is missing: " + plan_id,
+				"details": {"audio_plan_id": plan_id}}
+	return _make_scene_selection_context(registration, checked, selection, admission_receipt_id)
+
+
+static func _make_scene_selection_context(registration: Dictionary, checked: Dictionary,
+		selection: Variant, admission_receipt_id: String) -> Dictionary:
 	var fingerprint: String = checked.get("fingerprint", "")
 	if fingerprint.is_empty():
 		var encoded: Dictionary = SCENE_WRITER.stringify(registration)

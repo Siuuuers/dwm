@@ -90,9 +90,8 @@ func _audio_checkpoint() -> Dictionary:
 	var registered: Dictionary = REGISTRY.scene_registration()
 	if not _ok(registered): return {}
 	assert_eq(registered.value.schema_version, 3)
-	var selected: Dictionary = saves.get_latest_stable_checkpoint()
-	if not _ok(selected): return {}
-	var snapshot: Dictionary = selected.value.bundle.snapshot
+	# Inspect current live audio ownership; the journal may precede ordinary reading.
+	var snapshot: Dictionary = game.capture_run_snapshot_input()
 	var occurrence: String = snapshot.scene.active_occurrence_id
 	var entry: String = snapshot.scene.entry_id
 	var expected: Dictionary = AUDIO_MANIFEST.make_scene_context(registered.value, entry, occurrence)
@@ -131,6 +130,8 @@ func load_audio_scene() -> void:
 	assert_ne(OS.get_process_id(), parsed.value.process_id)
 	assert_gte(continuity.size(), 1)
 	# Saving the restored and continued board must retain the same audio identity.
+	var captured: Dictionary = bootstrap._capture_paused_checkpoint_inputs()
+	if not _ok(captured) or not _ok(saves.record_stable_checkpoint(captured.value, &"manual_save")): return
 	if not _ok(saves.save_latest_to_slot(2)): return
 	assert_eq(_audio_checkpoint(), context)
 	_assert_saved_audio("user://saves/slot_2.json", context)
@@ -205,7 +206,7 @@ func _finish_to_silent_target(source: Dictionary) -> Dictionary:
 	await _click(panel.worksheet.grid.cell_nodes[mine])
 	var arrived := false
 	var deadline := Time.get_ticks_msec() + 15000
-	# A synchronous durable transition can finish in the last awaited frame.
+	# A synchronous live transition can finish in the last awaited frame.
 	# Inspect that completed frame before declaring timeout; this is not a
 	# performance deadline or permission to retry the game operation.
 	while true:
