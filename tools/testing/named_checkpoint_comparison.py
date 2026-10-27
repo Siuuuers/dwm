@@ -1,18 +1,19 @@
-"""Matched ordinary passage, Load and manual Save after checkpoint-only Autosave.
+"""Matched trusted live Save, ordinary passage and Load against current master.
 
-Reuse the existing native-input observer without requiring the removed automatic
-write path to execute. Named checkpoint arrival requires its separate authored
-integration journey and is deliberately not claimed by this comparison.
+Both variants retain checkpoint-only Autosave. Reuse the native-input observer
+and attribute reading validation through selected synchronous owner frames.
+Named checkpoint arrival remains covered by its separate integration journey.
 """
 import argparse
 import hashlib
 import json
+import re
 from pathlib import Path
 from statistics import median
 
 import passage_compilation_comparison as passage
 
-BASELINE = "249b66bc0158353e0e576daf89768096665e95b7"
+BASELINE = "93c3198639a54c9b392754d462d62fc7a9a3db70"
 METHODS = {
     "scripts/application/narrative/SaveManagerNarrativeCheckpointPort.gd": (
         "commit_scene_event", "_commit_scene_event_autosave", "_scene_candidate_reference"),
@@ -54,15 +55,66 @@ def prepare(root, harness):
         edit(relative, lambda text, owner=Path(relative).stem, names=names:
              instrument(text, owner, names))
 
+    # Explicit synchronous observer frames also work in release exports, where
+    # get_stack() does not provide a GDScript debug stack. These are selected
+    # owner seams, not a claim to record every intervening helper.
+    attribution = {
+        "autoload/SaveManager.gd": (
+            "get_backup_save_capability", "prepare_backup_action", "commit_backup_action",
+            "_capture_backup_inputs", "_prepare_backup_capture"),
+        "scripts/application/backup/BackupPresentationPort.gd": (
+            "get_projection", "prepare_action", "commit_action"),
+        "scripts/application/lifecycle/ProductionPauseController.gd": (
+            "prepare_backup_save", "_capture_scene_reading_backup_inputs"),
+        "autoload/DialogicBridge.gd": ("capture_reading_checkpoint",),
+        "scripts/domain/run/RunSnapshotSchema.gd": (
+            "build_scene", "normalize_scene_content", "_validate_scene_reading"),
+        "scripts/narrative/SoloReadingSession.gd": (
+            "capture", "validate_saved", "restore", "project_player_checkpoint"),
+    }
+
+    def attribute(text, owner, names):
+        for name in names:
+            match = re.search(r"^(?:static )?func " + re.escape(name) +
+                              r"\(([^)]*)\) -> Dictionary:\n", text, re.M)
+            if not match:
+                raise ValueError(f"Missing attribution seam {owner}.{name}")
+            header, arguments = match.group(0), match.group(1)
+            body = re.split(r"\n(?:static )?func ", text[match.end():], maxsplit=1)[0]
+            if re.search(r"\bawait\b", body):
+                raise ValueError(f"Cannot attribute async seam {owner}.{name}")
+            params = ", ".join(part.strip().split(":", 1)[0]
+                               for part in arguments.split(",") if part.strip())
+            internal = "_save_observed_" + name.lstrip("_")
+            wrapper = header + (
+                '\tvar save_probe: Node = (Engine.get_main_loop() as SceneTree).root.get_node("StartupProbe")\n'
+                f'\tsave_probe.save_callers.append("{owner}.{name}")\n'
+                f'\tvar save_result: Dictionary = {internal}({params})\n'
+                '\tsave_probe.save_callers.pop_back()\n'
+                '\treturn save_result\n\n')
+            wrapper += header.replace("func " + name + "(", "func " + internal + "(", 1)
+            text = passage.history.trusted.replace_once(text, header, wrapper)
+        return text
+
+    for relative, names in attribution.items():
+        edit(relative, lambda text, owner=Path(relative).stem, names=names:
+             attribute(text, owner, names))
+    edit("scripts/narrative/SoloReadingSession.gd", lambda text:
+         passage.history.trusted.replace_once(text,
+             '\thistory_probe.history_finish("SoloReadingSession._validate_scene_saved", history_began)\n',
+             '\thistory_probe.history_finish("SoloReadingSession._validate_scene_saved", history_began)\n'
+             '\thistory_probe.history_finish("SaveValidation.callers." + " > ".join(history_probe.save_callers), history_began)\n'))
+
     def probe(text):
         replace = passage.history.trusted.replace_once
+        text = replace(text, 'var history_samples := {}\n', 'var history_samples := {}\nvar save_callers: Array[String] = []\n')
         # Inspect bytes before and after the operation, never inside the timing.
         text = replace(text, '\t# All cache inspection and translation lookup end before the timed action.\n',
             '\tvar passage_autosave_before := FileAccess.get_sha256("user://saves/autosave.json") if FileAccess.file_exists("user://saves/autosave.json") else ""\n'
             '\t# All cache inspection and translation lookup end before the timed action.\n')
         text = replace(text, '\tobservation["passage"] = {"entry_id": PASSAGE_ENTRY, "line_id": PASSAGE_LINE,\n',
             '\tvar passage_autosave_after := FileAccess.get_sha256("user://saves/autosave.json") if FileAccess.file_exists("user://saves/autosave.json") else ""\n'
-            '\tif variant == "candidate" and not _check(passage_autosave_before == passage_autosave_after, "ordinary passage changed Autosave bytes"): return false\n'
+            '\tif not _check(passage_autosave_before == passage_autosave_after, "ordinary passage changed Autosave bytes"): return false\n'
             '\tobservation["passage"] = {"entry_id": PASSAGE_ENTRY, "line_id": PASSAGE_LINE,\n'
             '\t\t"autosave_before": passage_autosave_before, "autosave_after": passage_autosave_after,\n')
         text = replace(text, '\tvar opened: Dictionary = await pause.open_scene_backup("save")\n',
@@ -83,8 +135,9 @@ def prepare(root, harness):
     receipt["named_checkpoint_observer"] = {
         "scope": "Ordinary passage storage calls and unchanged bytes; complete explicit manual Save action from Backup opening/live capture through command commit.",
         "storage_methods": STORAGE_METHODS,
+        "validation_attribution": "Selected synchronous owner frames in SaveValidation.callers.*; identical overlay on both variants. Inclusive timings overlap. This is not a complete engine stack.",
         "independent_storage": "Profile writes remain recorded by method and exact relative path, but are excluded from the game-progress zero-write requirement. All other storage paths remain included.",
-        "named_arrival": "Not measured: the baseline has no named-checkpoint authoring feature.",
+        "named_arrival": "Not measured by this passage/Save/Load journey; covered by separate regression journeys.",
     }
     receipt_path.write_text(json.dumps(receipt, indent=2), encoding="utf-8")
 
@@ -117,14 +170,8 @@ def summarize(root):
                     for scope in ordinary_scopes:
                         counts = _counts(profiles.get(scope, {}))
                         metrics.update({scope + "." + method + ".calls": count for method, count in counts.items()})
-                        if variant == "candidate":
-                            assert not any(counts.values()), (name, scope, counts)
-                    if variant == "baseline":
-                        counts = _counts(profiles["passage_transition"])
-                        assert counts["SaveManagerCheckpointPort.prepare"] > 0, (name, "baseline preparation observer absent")
-                        assert sum(counts[method] for method in WRITE_METHODS) > 0, (name, "baseline storage observer absent")
-                    else:
-                        assert observed["passage"]["autosave_before"] == observed["passage"]["autosave_after"]
+                        assert not any(counts.values()), (name, scope, counts)
+                    assert observed["passage"]["autosave_before"] == observed["passage"]["autosave_after"]
                 samples.append({"sample": name, "variant": variant, "case": case, "repetition": repetition, "metrics": metrics})
     aggregates = {}
     for variant in ("baseline", "candidate"):
@@ -143,12 +190,12 @@ def summarize(root):
                 key: rows["candidate"].get(key, 0) - rows["baseline"].get(key, 0)
                 for key in sorted(set(rows["candidate"]) | set(rows["baseline"]))}})
     result.update({
-        "experiment": "Remove automatic intermediate storage while preserving live reading and later explicit saves.",
+        "experiment": "Simplify trusted live Save against accepted checkpoint-only Autosave master.",
         "storage_and_manual_save_samples": samples,
         "storage_and_manual_save_aggregates": aggregates,
         "storage_and_manual_save_paired_differences": paired,
         "limitations": [
-            "Named checkpoint arrival is not measured; baseline has no equivalent authored feature. Separate candidate integration/rendered evidence is required.",
+            "Named checkpoint arrival is not measured here; existing integration/rendered regression coverage remains required.",
             "Manual Save timing covers open_scene_backup (including live capture), prepare_action and commit_action; it is API-action latency, not physical-button-to-painted-confirmation latency.",
             "Independent profile.json persistence is retained and reported separately; every other storage path is subject to the zero-write rule. Storage counters count method invocations, including nested calls; do not add nested counts or durations as independent writes or speed gains.",
             "Four same-run counterbalanced samples are descriptive. Fresh user data does not imply cold OS caches.",

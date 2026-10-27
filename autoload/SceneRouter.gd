@@ -191,6 +191,9 @@ func capture_pause_backup_checkpoint_inputs() -> Dictionary:
 		return {"ok": false, "code": &"pause_backup_unavailable"}
 	return _production_pause.capture_backup_checkpoint_inputs()
 
+func can_capture_pause_backup_checkpoint_inputs() -> bool:
+	return is_instance_valid(_production_pause) and _production_pause.can_save_backup()
+
 
 func can_open_witnessed_backup_load(caption: Node) -> bool:
 	return is_instance_valid(_production_pause) \
