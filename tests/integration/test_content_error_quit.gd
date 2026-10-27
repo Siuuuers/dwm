@@ -30,6 +30,9 @@ func test_content_error_keeps_missing_id_visible_and_blocks_saving_until_quit() 
 	assert_eq(confirmation.process_mode, Node.PROCESS_MODE_INHERIT)
 	assert_true(confirmation.can_process(), "Quit remains interactive while the game is paused")
 	assert_true(confirmation.is_visible_in_tree())
+	assert_eq(underlying.focus_behavior_recursive, Control.FOCUS_BEHAVIOR_DISABLED)
+	# Live Next completion restores its saved canvas custody after reporting failure.
+	underlying.focus_behavior_recursive = Control.FOCUS_BEHAVIOR_INHERITED
 	underlying.grab_focus()
 	assert_same(get_viewport().gui_get_focus_owner(), confirmation.confirm_button,
 		"a late underlying focus restore cannot steal Quit")
