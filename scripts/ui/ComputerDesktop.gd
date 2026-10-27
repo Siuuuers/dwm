@@ -683,11 +683,11 @@ func _scene_confirmation_theme() -> Theme:
 
 func _present_logout_confirmation(retry: bool = false, forward_only: bool = false) -> Dictionary:
 	var body: String = {
-		"en": "Log out could not finish. Please try again." if retry else "Save your progress and log out?",
-		"zh-CN": "暂时无法登出。请重试。" if retry else "保存进度并登出？",
-		"zh-HK": "暫時無法登出。請重試。" if retry else "儲存進度並登出？",
-		"ja": "ログアウトを完了できませんでした。再試行してください。" if retry else "進行状況を保存してログアウトしますか？",
-		"ko": "로그아웃을 완료하지 못했습니다. 다시 시도하세요." if retry else "진행 상황을 저장하고 로그아웃할까요?",
+		"en": "Log out could not finish. Please try again." if retry else "Log out without saving?",
+		"zh-CN": "暂时无法登出。请重试。" if retry else "不保存进度并登出？",
+		"zh-HK": "暫時無法登出。請重試。" if retry else "不儲存進度並登出？",
+		"ja": "ログアウトを完了できませんでした。再試行してください。" if retry else "保存せずにログアウトしますか？",
+		"ko": "로그아웃을 완료하지 못했습니다. 다시 시도하세요." if retry else "저장하지 않고 로그아웃할까요?",
 	}[_locale]
 	var confirm: String = {"en": "Retry", "zh-CN": "重试", "zh-HK": "重試", "ja": "再試行", "ko": "다시 시도"}[_locale] if retry else {"en": "Yes", "zh-CN": "是", "zh-HK": "是", "ja": "はい", "ko": "예"}[_locale]
 	var cancel: String = {"en": "No", "zh-CN": "否", "zh-HK": "否", "ja": "いいえ", "ko": "아니요"}[_locale]
@@ -701,7 +701,7 @@ func _present_logout_confirmation(retry: bool = false, forward_only: bool = fals
 	return shown
 
 func _confirm_logout() -> void:
-	var result: Dictionary = _session_exit.return_to_title(true)
+	var result: Dictionary = _session_exit.return_to_title()
 	if not result.get("ok", false):
 		# A retired session can only retry its existing forward exit operation.
 		_present_logout_confirmation(true, result.get("code") == &"exit_route_retry_required")

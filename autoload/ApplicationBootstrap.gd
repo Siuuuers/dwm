@@ -2243,32 +2243,12 @@ func _capture_live_desktop_snapshot() -> Dictionary:
 	return {"board": _desktop_board_state.capture(), "consequence": consequence.value.state}
 
 
-func _capture_exit_checkpoint_inputs() -> Dictionary:
-	if _application_gate == null or not _application_gate.is_internal_owner_active(&"session_abandonment"):
-		return _failure(&"session_abandonment_required", "")
-	if _checkpoint_provider_bundle.is_empty(): return _failure(&"exit_capture_unavailable", "")
-	var game_state := _target(&"GameState")
-	var view: Dictionary = _retained_schedule_view_controller.snapshot()
-	if not view.get("ok", false): return view
-	var inputs := {"snapshot_input": game_state.capture_run_snapshot_input()}
-	inputs.snapshot_input["schedule_view"] = view.value.view
-	for key in _checkpoint_provider_bundle:
-		inputs[key] = (_checkpoint_provider_bundle[key] as Callable).call()
-	# The Logout confirmation itself is not a resumable app. The saved board keeps its
-	# suspended state and can be reopened normally from the launcher.
-	if inputs.route_id != "main" or not inputs.dialogic_checkpoint.is_empty():
-		return _failure(&"exit_capture_unavailable", "Logout requires the stable desktop")
-	inputs.active_app_id = null
-	return {"ok": true, "value": inputs}
-
-
 func configure_session_exit_desktop(desktop: Node) -> Dictionary:
 	if desktop == null or not desktop.has_method("configure_session_exit"):
 		return _failure(&"invalid_exit_desktop", "")
 	if desktop.has_meta("session_exit"): return {"ok": true}
 	var exit: RefCounted = preload("res://scripts/application/desktop/SessionExitCoordinator.gd").new()
-	var configured: Dictionary = exit.configure(_target(&"GameState"), _target(&"SaveManager"),
-		_target(&"SceneRouter"), _application_gate, Callable(self, "_capture_exit_checkpoint_inputs"))
+	var configured: Dictionary = exit.configure(_target(&"GameState"), _target(&"SceneRouter"), _application_gate)
 	if not configured.get("ok", false): return configured
 	configured = desktop.configure_session_exit(exit)
 	if configured.get("ok", false): desktop.set_meta("session_exit", exit)

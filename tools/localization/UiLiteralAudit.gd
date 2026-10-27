@@ -110,7 +110,7 @@ const SCRIPT_EXPRESSION_OWNERS := {
 	"res://scripts/ui/ContactListApp.gd|text|4f886814c95d889987571a7fa00139fcd0b29e1ea6d17a2b3dc1c81855a657d9": {"key": "ContactListApp.unavailable.inline", "reason": "exact five-locale unavailable status"},
 	"res://scripts/ui/ContactListApp.gd|text|7a09fd68c19e8573416dce17ffb9ad6526316dc6f90ed20f3785b90041b841f5": {"key": "ContactListApp.reply.inline", "reason": "exact five-locale Reply control"},
 	"res://scripts/ui/ContactListApp.gd|text|0b61ddbf34775e4b381910ac7b828afa5a693d20f391e2234951fe32f026ae50": {"key": "ContactListApp.failure.inline", "reason": "exact five-locale reply failure"},
-	"res://scripts/ui/LogOutApp.gd|text|d28930b9f4337db1435dd9223a4e2b3bb27815320c800ea14d07102f5a9d61cd": {"key": "LogOutApp.prompt.inline", "reason": "exact five-locale logout prompt"},
+	"res://scripts/ui/LogOutApp.gd|text|dcfdba70fb4cea09da1c6476c0fc6d7f9ad7c1e2b3038474ae174ca20fd9a06e": {"key": "LogOutApp.prompt.inline", "reason": "exact five-locale logout prompt"},
 	"res://scripts/ui/LogOutApp.gd|text|179901d02594c411921a0f552748c492d47d8c8d2777f7060f5febd56130d9f2": {"key": "LogOutApp.failure.inline", "reason": "exact five-locale logout failure"},
 	"res://scripts/ui/MenuScene.gd|accessibility_name|fc2ccbb45adbff45cc08a8114b5a68797a46df59669e0c5f91fa7feeaa9a796b": {"key": "MenuScene.return.inline", "reason": "exact five-locale Return projection"},
 	"res://scripts/ui/MenuScene.gd|text|7f53f5f8ba26b4d80d2b1cb0cf6ac3b4ce601a0e8aff33bbfff4c800d4001119": {"key": "MenuScene.unavailable.inline", "reason": "exact five-locale unavailable projection"},
