@@ -113,6 +113,13 @@ func test_compact_completion_projection_preserves_position_and_detaches_history(
 	var compact := SESSION.project_player_checkpoint(checkpoint)
 	assert_true(compact.ok, str(compact))
 	if not compact.ok: return
+	var admitted := SESSION.new()
+	assert_true(admitted.configure_scene().ok)
+	assert_true(admitted.restore(captured.value, FIXTURE.A).ok)
+	assert_eq(compact.value.reading_session, admitted._project_player_reading(captured.value).value,
+		"natural completion conversion equals full-admission conversion")
+	assert_eq(compact.value.reading_session.captions, [{"line_id": "line.scene.test.a.two", "publication_id": "caption:2"}])
+	assert_eq(compact.value.reading_session.history_sections, [["line.scene.test.a.one", "line.scene.test.a.two"]])
 	var before: Dictionary = compact.value.duplicate(true)
 	var projected := SESSION.project_player_checkpoint(compact.value)
 	assert_eq(projected, compact, "natural completion retains its last caption and completed boundary")

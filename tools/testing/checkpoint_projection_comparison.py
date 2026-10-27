@@ -1,4 +1,4 @@
-"""Compare edited-DTL continuation against admitted compact checkpoints.
+"""Compare direct live-checkpoint conversion without full-ledger reconstruction.
 
 Reuse the checkpoint-reference observer and complete 24-process native journey.
 Observed counts, rather than predicted reductions, determine the final report.
@@ -9,7 +9,7 @@ from pathlib import Path
 
 import checkpoint_reference_comparison as reference
 
-BASELINE = "eb2464d158b651d8425b41e1d838bafd6477770a"
+BASELINE = "d706fc3fe55484d8c8791c0781f7d258643c6449"
 
 
 def summarize(root):
@@ -17,7 +17,7 @@ def summarize(root):
     reference.BASELINE = BASELINE
     reference.summarize(root)
     result = json.loads((root / "checkpoint-reference-summary.json").read_text(encoding="utf-8"))
-    result["experiment"] = "Preserve valid saved positions and report required edited-DTL failures at continuation boundaries; compare normal reading paths against the compact-checkpoint candidate."
+    result["experiment"] = "Construct the compact checkpoint from its owned live capture without reconstructing its full ledger; retain compact reference resolution."
     (root / "checkpoint-projection-summary.json").write_text(json.dumps(result, indent=2), encoding="utf-8")
     selected = (
         "SaveManagerNarrativeCheckpointPort._scene_candidate_reference.calls",

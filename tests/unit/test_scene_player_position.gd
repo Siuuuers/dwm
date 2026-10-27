@@ -103,6 +103,71 @@ func test_compact_line_and_control_projection_is_idempotent_and_detached() -> vo
 		projected.value.frozen_context.presentation.fields.entry_id = "changed.context"
 		assert_eq(player.value, before, "mutating a projected checkpoint cannot change its source")
 
+func test_live_projection_preserves_loop_history_and_multiple_occurrences() -> void:
+	for held: bool in [false, true]:
+		var session := _session()
+		if session == null: return
+		for step: int in 3: assert_true(FIXTURE.advance_detached(session).ok)
+		assert_true(FIXTURE.enter(session, FIXTURE.B, "TEST.second.occurrence").ok)
+		assert_true(FIXTURE.advance_detached(session).ok)
+		var captured: Dictionary = FIXTURE.checkpoint(session)
+		assert_true(captured.ok, str(captured))
+		if not captured.ok: return
+		var live: Dictionary = captured.value
+		if held:
+			assert_true(FIXTURE.advance_detached(session).ok)
+			live.reading_session = session.capture({}).value
+		var before := live.duplicate(true)
+		# Differential oracle retains the former full admission before conversion.
+		var admitted := SESSION.new()
+		assert_true(admitted.configure_scene().ok)
+		assert_true(admitted.restore(live.reading_session, FIXTURE.B).ok)
+		var expected := live.duplicate(true)
+		expected.reading_session = admitted._project_player_reading(live.reading_session).value
+		var projected := SESSION.project_player_checkpoint(live)
+		assert_true(projected.ok, str(projected))
+		if not projected.ok: return
+		assert_eq(projected.value, expected, "direct conversion equals full-admission conversion")
+		assert_eq(live, before, "conversion changes neither ledger nor traversal proof")
+		var saved: Dictionary = projected.value.reading_session
+		assert_eq(saved.captions, [{"line_id": "line.scene.test.b.two", "publication_id": "caption:6"}])
+		assert_eq(saved.occurrence_id, "TEST.second.occurrence")
+		assert_eq(saved.publication_serial, 6)
+		assert_eq(saved.history_sections, [["line.scene.test.a.one", "line.scene.test.a.two",
+			"line.scene.test.b.one", "line.scene.test.b.two"]])
+		assert_false(saved.has("ledger"))
+		assert_false(saved.has("next_operation"))
+		var restored := SESSION.new()
+		assert_true(restored.configure_scene().ok)
+		assert_true(restored.restore_player(saved, FIXTURE.B).ok)
+		assert_eq(restored.scene_index, session.scene_index)
+		assert_eq(restored.boundary, session.boundary)
+		if not held:
+			assert_true(FIXTURE.advance_detached(session).ok)
+			assert_true(FIXTURE.advance_detached(restored).ok)
+			assert_eq(restored.boundary, "control")
+			assert_eq(restored.scene_index, session.scene_index)
+		assert_eq(restored.prepare_scene_control_continuation(), session.prepare_scene_control_continuation())
+		projected.value.reading_session.history_sections[0].append("changed.history")
+		assert_eq(live, before, "compact History does not alias the live capture")
+
+func test_live_projection_keeps_wrapper_and_required_compact_reference_checks() -> void:
+	var session := _session(FIXTURE.B)
+	if session == null: return
+	assert_true(FIXTURE.advance_detached(session).ok)
+	assert_true(FIXTURE.advance_detached(session).ok)
+	var checkpoint := _checkpoint(session)
+	for changed: String in ["wrapper", "control", "caption", "publication"]:
+		var bad := checkpoint.duplicate(true)
+		match changed:
+			"wrapper": bad.entry_id = FIXTURE.A
+			"control": bad.reading_session.program_index = 999
+			"caption": bad.reading_session.ledger.captions.back().beat.line_id = "line.missing"
+			"publication": bad.reading_session.ledger.captions.back().publication_id = "invented"
+		var before := bad.duplicate(true)
+		assert_false(SESSION.project_player_checkpoint(bad).ok, changed)
+		assert_eq(bad, before, "refusal leaves captured source intact")
+
 func test_invalid_locator_memory_and_compatibility_refuse_before_adoption() -> void:
 	var session := _session()
 	if session == null: return
