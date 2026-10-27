@@ -1,0 +1,1612 @@
+{
+  "scope": "Four matched first-new-passage transitions per variant, using the unchanged real-input passage journey and all inherited 24-process checks. Named caller phases, reference checks, checkpoint equality, player-checkpoint projection and restore are synchronous inclusive spans. Saved-state validation retains the existing observer, not a second wrapper. Nested costs overlap and must not be added. Counts are observed, not forced to the predicted reduction. Missing measured methods are zero. Full state, history, screenshots and hashes stay outside the passage timing interval; matched polling and wrapper overhead remain. One runner, AB/BA/AB/BA, no cold OS-cache or universal device claim.",
+  "source": {
+    "baseline": "f3231bc90c645288d4106e11693a4a805a4a23da",
+    "candidate": "eb2464d158b651d8425b41e1d838bafd6477770a",
+    "observer": "d72b67506e05c03f161201df7b9fc5430e2b136e",
+    "baseline_tree": "938e948fcb4d6cd57b64dc718471cc5f1083ebe9",
+    "candidate_tree": "b6bf38ffa476f4b473836363f785f3c4b76dcfff",
+    "repetitions": 4,
+    "order": [
+      "AB",
+      "BA",
+      "AB",
+      "BA"
+    ],
+    "cases": [
+      "fresh",
+      "retained",
+      "load"
+    ],
+    "scope": "Matched baseline/candidate instrumented exports on one Windows runner. Each action starts a new process. Retained and Load use the same r1-baseline-fresh profile after real manual Save and Autosave. Verbose engine logging is enabled equally to identify shutdown resources. OS caches are not cleared."
+  },
+  "samples": [
+    {
+      "sample": "r1-baseline-load",
+      "variant": "baseline",
+      "repetition": 1,
+      "metrics": {
+        "SaveManagerNarrativeCheckpointPort.commit_scene_event.calls": 1,
+        "SaveManagerNarrativeCheckpointPort.commit_scene_event.elapsed_us": 1432289,
+        "SaveManagerNarrativeCheckpointPort.commit_scene_event.max_us": 1432289,
+        "SaveManagerNarrativeCheckpointPort._commit_scene_event_autosave.calls": 1,
+        "SaveManagerNarrativeCheckpointPort._commit_scene_event_autosave.elapsed_us": 1427707,
+        "SaveManagerNarrativeCheckpointPort._commit_scene_event_autosave.max_us": 1427707,
+        "SaveManagerNarrativeCheckpointPort._scene_route_candidate_valid.calls": 2,
+        "SaveManagerNarrativeCheckpointPort._scene_route_candidate_valid.elapsed_us": 275721,
+        "SaveManagerNarrativeCheckpointPort._scene_route_candidate_valid.max_us": 138807,
+        "SaveManagerNarrativeCheckpointPort._scene_committed_reference.calls": 1,
+        "SaveManagerNarrativeCheckpointPort._scene_committed_reference.elapsed_us": 140726,
+        "SaveManagerNarrativeCheckpointPort._scene_committed_reference.max_us": 140726,
+        "SaveManagerNarrativeCheckpointPort._scene_candidate_reference.calls": 3,
+        "SaveManagerNarrativeCheckpointPort._scene_candidate_reference.elapsed_us": 414316,
+        "SaveManagerNarrativeCheckpointPort._scene_candidate_reference.max_us": 140080,
+        "SaveManagerNarrativeCheckpointPort._player_checkpoint_same.calls": 0,
+        "SaveManagerNarrativeCheckpointPort._player_checkpoint_same.elapsed_us": 0,
+        "SaveManagerNarrativeCheckpointPort._player_checkpoint_same.max_us": 0,
+        "SaveManagerNarrativeCheckpointPort._scene_control_source_matches.calls": 1,
+        "SaveManagerNarrativeCheckpointPort._scene_control_source_matches.elapsed_us": 6,
+        "SaveManagerNarrativeCheckpointPort._scene_control_source_matches.max_us": 6,
+        "GameState._scene_player_checkpoint_same.calls": 0,
+        "GameState._scene_player_checkpoint_same.elapsed_us": 0,
+        "GameState._scene_player_checkpoint_same.max_us": 0,
+        "SoloReadingSession.project_player_checkpoint.calls": 10,
+        "SoloReadingSession.project_player_checkpoint.elapsed_us": 449919,
+        "SoloReadingSession.project_player_checkpoint.max_us": 46769,
+        "SoloReadingSession.restore.calls": 40,
+        "SoloReadingSession.restore.elapsed_us": 812305,
+        "SoloReadingSession.restore.max_us": 22248,
+        "SoloReadingSession._validate_scene_saved.calls": 41,
+        "SoloReadingSession._validate_scene_saved.elapsed_us": 833271,
+        "SoloReadingSession._validate_scene_saved.max_us": 22211,
+        "SoloReadingSession._capture_scene.calls": 124,
+        "SoloReadingSession._capture_scene.elapsed_us": 18339,
+        "SoloReadingSession._capture_scene.max_us": 285,
+        "input_to_first_correct_drawn_us": 2069568,
+        "input_to_usable_us": 2089672,
+        "max_frame_gap_us": 2062840
+      }
+    },
+    {
+      "sample": "r1-candidate-load",
+      "variant": "candidate",
+      "repetition": 1,
+      "metrics": {
+        "SaveManagerNarrativeCheckpointPort.commit_scene_event.calls": 1,
+        "SaveManagerNarrativeCheckpointPort.commit_scene_event.elapsed_us": 1358325,
+        "SaveManagerNarrativeCheckpointPort.commit_scene_event.max_us": 1358325,
+        "SaveManagerNarrativeCheckpointPort._commit_scene_event_autosave.calls": 1,
+        "SaveManagerNarrativeCheckpointPort._commit_scene_event_autosave.elapsed_us": 1353345,
+        "SaveManagerNarrativeCheckpointPort._commit_scene_event_autosave.max_us": 1353345,
+        "SaveManagerNarrativeCheckpointPort._scene_route_candidate_valid.calls": 2,
+        "SaveManagerNarrativeCheckpointPort._scene_route_candidate_valid.elapsed_us": 231717,
+        "SaveManagerNarrativeCheckpointPort._scene_route_candidate_valid.max_us": 118426,
+        "SaveManagerNarrativeCheckpointPort._scene_committed_reference.calls": 1,
+        "SaveManagerNarrativeCheckpointPort._scene_committed_reference.elapsed_us": 111814,
+        "SaveManagerNarrativeCheckpointPort._scene_committed_reference.max_us": 111814,
+        "SaveManagerNarrativeCheckpointPort._scene_candidate_reference.calls": 3,
+        "SaveManagerNarrativeCheckpointPort._scene_candidate_reference.elapsed_us": 341365,
+        "SaveManagerNarrativeCheckpointPort._scene_candidate_reference.max_us": 117674,
+        "SaveManagerNarrativeCheckpointPort._player_checkpoint_same.calls": 0,
+        "SaveManagerNarrativeCheckpointPort._player_checkpoint_same.elapsed_us": 0,
+        "SaveManagerNarrativeCheckpointPort._player_checkpoint_same.max_us": 0,
+        "SaveManagerNarrativeCheckpointPort._scene_control_source_matches.calls": 1,
+        "SaveManagerNarrativeCheckpointPort._scene_control_source_matches.elapsed_us": 6,
+        "SaveManagerNarrativeCheckpointPort._scene_control_source_matches.max_us": 6,
+        "GameState._scene_player_checkpoint_same.calls": 0,
+        "GameState._scene_player_checkpoint_same.elapsed_us": 0,
+        "GameState._scene_player_checkpoint_same.max_us": 0,
+        "SoloReadingSession.project_player_checkpoint.calls": 10,
+        "SoloReadingSession.project_player_checkpoint.elapsed_us": 375839,
+        "SoloReadingSession.project_player_checkpoint.max_us": 46070,
+        "SoloReadingSession.restore.calls": 37,
+        "SoloReadingSession.restore.elapsed_us": 741880,
+        "SoloReadingSession.restore.max_us": 22032,
+        "SoloReadingSession._validate_scene_saved.calls": 38,
+        "SoloReadingSession._validate_scene_saved.elapsed_us": 761859,
+        "SoloReadingSession._validate_scene_saved.max_us": 21993,
+        "SoloReadingSession._capture_scene.calls": 121,
+        "SoloReadingSession._capture_scene.elapsed_us": 17873,
+        "SoloReadingSession._capture_scene.max_us": 296,
+        "input_to_first_correct_drawn_us": 1998428,
+        "input_to_usable_us": 2020394,
+        "max_frame_gap_us": 1993794
+      }
+    },
+    {
+      "sample": "r2-baseline-load",
+      "variant": "baseline",
+      "repetition": 2,
+      "metrics": {
+        "SaveManagerNarrativeCheckpointPort.commit_scene_event.calls": 1,
+        "SaveManagerNarrativeCheckpointPort.commit_scene_event.elapsed_us": 1316168,
+        "SaveManagerNarrativeCheckpointPort.commit_scene_event.max_us": 1316168,
+        "SaveManagerNarrativeCheckpointPort._commit_scene_event_autosave.calls": 1,
+        "SaveManagerNarrativeCheckpointPort._commit_scene_event_autosave.elapsed_us": 1311352,
+        "SaveManagerNarrativeCheckpointPort._commit_scene_event_autosave.max_us": 1311352,
+        "SaveManagerNarrativeCheckpointPort._scene_route_candidate_valid.calls": 2,
+        "SaveManagerNarrativeCheckpointPort._scene_route_candidate_valid.elapsed_us": 252839,
+        "SaveManagerNarrativeCheckpointPort._scene_route_candidate_valid.max_us": 129430,
+        "SaveManagerNarrativeCheckpointPort._scene_committed_reference.calls": 1,
+        "SaveManagerNarrativeCheckpointPort._scene_committed_reference.elapsed_us": 115454,
+        "SaveManagerNarrativeCheckpointPort._scene_committed_reference.max_us": 115454,
+        "SaveManagerNarrativeCheckpointPort._scene_candidate_reference.calls": 3,
+        "SaveManagerNarrativeCheckpointPort._scene_candidate_reference.elapsed_us": 366099,
+        "SaveManagerNarrativeCheckpointPort._scene_candidate_reference.max_us": 128654,
+        "SaveManagerNarrativeCheckpointPort._player_checkpoint_same.calls": 0,
+        "SaveManagerNarrativeCheckpointPort._player_checkpoint_same.elapsed_us": 0,
+        "SaveManagerNarrativeCheckpointPort._player_checkpoint_same.max_us": 0,
+        "SaveManagerNarrativeCheckpointPort._scene_control_source_matches.calls": 1,
+        "SaveManagerNarrativeCheckpointPort._scene_control_source_matches.elapsed_us": 6,
+        "SaveManagerNarrativeCheckpointPort._scene_control_source_matches.max_us": 6,
+        "GameState._scene_player_checkpoint_same.calls": 0,
+        "GameState._scene_player_checkpoint_same.elapsed_us": 0,
+        "GameState._scene_player_checkpoint_same.max_us": 0,
+        "SoloReadingSession.project_player_checkpoint.calls": 10,
+        "SoloReadingSession.project_player_checkpoint.elapsed_us": 403687,
+        "SoloReadingSession.project_player_checkpoint.max_us": 46821,
+        "SoloReadingSession.restore.calls": 40,
+        "SoloReadingSession.restore.elapsed_us": 724360,
+        "SoloReadingSession.restore.max_us": 22359,
+        "SoloReadingSession._validate_scene_saved.calls": 41,
+        "SoloReadingSession._validate_scene_saved.elapsed_us": 743568,
+        "SoloReadingSession._validate_scene_saved.max_us": 22314,
+        "SoloReadingSession._capture_scene.calls": 124,
+        "SoloReadingSession._capture_scene.elapsed_us": 20603,
+        "SoloReadingSession._capture_scene.max_us": 1980,
+        "input_to_first_correct_drawn_us": 1947827,
+        "input_to_usable_us": 1969522,
+        "max_frame_gap_us": 1943308
+      }
+    },
+    {
+      "sample": "r2-candidate-load",
+      "variant": "candidate",
+      "repetition": 2,
+      "metrics": {
+        "SaveManagerNarrativeCheckpointPort.commit_scene_event.calls": 1,
+        "SaveManagerNarrativeCheckpointPort.commit_scene_event.elapsed_us": 1304154,
+        "SaveManagerNarrativeCheckpointPort.commit_scene_event.max_us": 1304154,
+        "SaveManagerNarrativeCheckpointPort._commit_scene_event_autosave.calls": 1,
+        "SaveManagerNarrativeCheckpointPort._commit_scene_event_autosave.elapsed_us": 1299339,
+        "SaveManagerNarrativeCheckpointPort._commit_scene_event_autosave.max_us": 1299339,
+        "SaveManagerNarrativeCheckpointPort._scene_route_candidate_valid.calls": 2,
+        "SaveManagerNarrativeCheckpointPort._scene_route_candidate_valid.elapsed_us": 226153,
+        "SaveManagerNarrativeCheckpointPort._scene_route_candidate_valid.max_us": 114377,
+        "SaveManagerNarrativeCheckpointPort._scene_committed_reference.calls": 1,
+        "SaveManagerNarrativeCheckpointPort._scene_committed_reference.elapsed_us": 106737,
+        "SaveManagerNarrativeCheckpointPort._scene_committed_reference.max_us": 106737,
+        "SaveManagerNarrativeCheckpointPort._scene_candidate_reference.calls": 3,
+        "SaveManagerNarrativeCheckpointPort._scene_candidate_reference.elapsed_us": 330784,
+        "SaveManagerNarrativeCheckpointPort._scene_candidate_reference.max_us": 113669,
+        "SaveManagerNarrativeCheckpointPort._player_checkpoint_same.calls": 0,
+        "SaveManagerNarrativeCheckpointPort._player_checkpoint_same.elapsed_us": 0,
+        "SaveManagerNarrativeCheckpointPort._player_checkpoint_same.max_us": 0,
+        "SaveManagerNarrativeCheckpointPort._scene_control_source_matches.calls": 1,
+        "SaveManagerNarrativeCheckpointPort._scene_control_source_matches.elapsed_us": 6,
+        "SaveManagerNarrativeCheckpointPort._scene_control_source_matches.max_us": 6,
+        "GameState._scene_player_checkpoint_same.calls": 0,
+        "GameState._scene_player_checkpoint_same.elapsed_us": 0,
+        "GameState._scene_player_checkpoint_same.max_us": 0,
+        "SoloReadingSession.project_player_checkpoint.calls": 10,
+        "SoloReadingSession.project_player_checkpoint.elapsed_us": 364068,
+        "SoloReadingSession.project_player_checkpoint.max_us": 44090,
+        "SoloReadingSession.restore.calls": 37,
+        "SoloReadingSession.restore.elapsed_us": 706281,
+        "SoloReadingSession.restore.max_us": 21360,
+        "SoloReadingSession._validate_scene_saved.calls": 38,
+        "SoloReadingSession._validate_scene_saved.elapsed_us": 726448,
+        "SoloReadingSession._validate_scene_saved.max_us": 21325,
+        "SoloReadingSession._capture_scene.calls": 121,
+        "SoloReadingSession._capture_scene.elapsed_us": 20355,
+        "SoloReadingSession._capture_scene.max_us": 2214,
+        "input_to_first_correct_drawn_us": 1944873,
+        "input_to_usable_us": 1967020,
+        "max_frame_gap_us": 1940031
+      }
+    },
+    {
+      "sample": "r3-baseline-load",
+      "variant": "baseline",
+      "repetition": 3,
+      "metrics": {
+        "SaveManagerNarrativeCheckpointPort.commit_scene_event.calls": 1,
+        "SaveManagerNarrativeCheckpointPort.commit_scene_event.elapsed_us": 1296353,
+        "SaveManagerNarrativeCheckpointPort.commit_scene_event.max_us": 1296353,
+        "SaveManagerNarrativeCheckpointPort._commit_scene_event_autosave.calls": 1,
+        "SaveManagerNarrativeCheckpointPort._commit_scene_event_autosave.elapsed_us": 1291880,
+        "SaveManagerNarrativeCheckpointPort._commit_scene_event_autosave.max_us": 1291880,
+        "SaveManagerNarrativeCheckpointPort._scene_route_candidate_valid.calls": 2,
+        "SaveManagerNarrativeCheckpointPort._scene_route_candidate_valid.elapsed_us": 249863,
+        "SaveManagerNarrativeCheckpointPort._scene_route_candidate_valid.max_us": 128194,
+        "SaveManagerNarrativeCheckpointPort._scene_committed_reference.calls": 1,
+        "SaveManagerNarrativeCheckpointPort._scene_committed_reference.elapsed_us": 119692,
+        "SaveManagerNarrativeCheckpointPort._scene_committed_reference.max_us": 119692,
+        "SaveManagerNarrativeCheckpointPort._scene_candidate_reference.calls": 3,
+        "SaveManagerNarrativeCheckpointPort._scene_candidate_reference.elapsed_us": 367477,
+        "SaveManagerNarrativeCheckpointPort._scene_candidate_reference.max_us": 127468,
+        "SaveManagerNarrativeCheckpointPort._player_checkpoint_same.calls": 0,
+        "SaveManagerNarrativeCheckpointPort._player_checkpoint_same.elapsed_us": 0,
+        "SaveManagerNarrativeCheckpointPort._player_checkpoint_same.max_us": 0,
+        "SaveManagerNarrativeCheckpointPort._scene_control_source_matches.calls": 1,
+        "SaveManagerNarrativeCheckpointPort._scene_control_source_matches.elapsed_us": 5,
+        "SaveManagerNarrativeCheckpointPort._scene_control_source_matches.max_us": 5,
+        "GameState._scene_player_checkpoint_same.calls": 0,
+        "GameState._scene_player_checkpoint_same.elapsed_us": 0,
+        "GameState._scene_player_checkpoint_same.max_us": 0,
+        "SoloReadingSession.project_player_checkpoint.calls": 10,
+        "SoloReadingSession.project_player_checkpoint.elapsed_us": 398880,
+        "SoloReadingSession.project_player_checkpoint.max_us": 43772,
+        "SoloReadingSession.restore.calls": 40,
+        "SoloReadingSession.restore.elapsed_us": 712541,
+        "SoloReadingSession.restore.max_us": 21437,
+        "SoloReadingSession._validate_scene_saved.calls": 41,
+        "SoloReadingSession._validate_scene_saved.elapsed_us": 731636,
+        "SoloReadingSession._validate_scene_saved.max_us": 21401,
+        "SoloReadingSession._capture_scene.calls": 124,
+        "SoloReadingSession._capture_scene.elapsed_us": 17970,
+        "SoloReadingSession._capture_scene.max_us": 305,
+        "input_to_first_correct_drawn_us": 1916062,
+        "input_to_usable_us": 1938275,
+        "max_frame_gap_us": 1911315
+      }
+    },
+    {
+      "sample": "r3-candidate-load",
+      "variant": "candidate",
+      "repetition": 3,
+      "metrics": {
+        "SaveManagerNarrativeCheckpointPort.commit_scene_event.calls": 1,
+        "SaveManagerNarrativeCheckpointPort.commit_scene_event.elapsed_us": 1281460,
+        "SaveManagerNarrativeCheckpointPort.commit_scene_event.max_us": 1281460,
+        "SaveManagerNarrativeCheckpointPort._commit_scene_event_autosave.calls": 1,
+        "SaveManagerNarrativeCheckpointPort._commit_scene_event_autosave.elapsed_us": 1276815,
+        "SaveManagerNarrativeCheckpointPort._commit_scene_event_autosave.max_us": 1276815,
+        "SaveManagerNarrativeCheckpointPort._scene_route_candidate_valid.calls": 2,
+        "SaveManagerNarrativeCheckpointPort._scene_route_candidate_valid.elapsed_us": 200241,
+        "SaveManagerNarrativeCheckpointPort._scene_route_candidate_valid.max_us": 105390,
+        "SaveManagerNarrativeCheckpointPort._scene_committed_reference.calls": 1,
+        "SaveManagerNarrativeCheckpointPort._scene_committed_reference.elapsed_us": 122302,
+        "SaveManagerNarrativeCheckpointPort._scene_committed_reference.max_us": 122302,
+        "SaveManagerNarrativeCheckpointPort._scene_candidate_reference.calls": 3,
+        "SaveManagerNarrativeCheckpointPort._scene_candidate_reference.elapsed_us": 320367,
+        "SaveManagerNarrativeCheckpointPort._scene_candidate_reference.max_us": 121615,
+        "SaveManagerNarrativeCheckpointPort._player_checkpoint_same.calls": 0,
+        "SaveManagerNarrativeCheckpointPort._player_checkpoint_same.elapsed_us": 0,
+        "SaveManagerNarrativeCheckpointPort._player_checkpoint_same.max_us": 0,
+        "SaveManagerNarrativeCheckpointPort._scene_control_source_matches.calls": 1,
+        "SaveManagerNarrativeCheckpointPort._scene_control_source_matches.elapsed_us": 6,
+        "SaveManagerNarrativeCheckpointPort._scene_control_source_matches.max_us": 6,
+        "GameState._scene_player_checkpoint_same.calls": 0,
+        "GameState._scene_player_checkpoint_same.elapsed_us": 0,
+        "GameState._scene_player_checkpoint_same.max_us": 0,
+        "SoloReadingSession.project_player_checkpoint.calls": 10,
+        "SoloReadingSession.project_player_checkpoint.elapsed_us": 350657,
+        "SoloReadingSession.project_player_checkpoint.max_us": 48146,
+        "SoloReadingSession.restore.calls": 37,
+        "SoloReadingSession.restore.elapsed_us": 695575,
+        "SoloReadingSession.restore.max_us": 25787,
+        "SoloReadingSession._validate_scene_saved.calls": 38,
+        "SoloReadingSession._validate_scene_saved.elapsed_us": 720011,
+        "SoloReadingSession._validate_scene_saved.max_us": 25739,
+        "SoloReadingSession._capture_scene.calls": 121,
+        "SoloReadingSession._capture_scene.elapsed_us": 18293,
+        "SoloReadingSession._capture_scene.max_us": 290,
+        "input_to_first_correct_drawn_us": 1913889,
+        "input_to_usable_us": 1936261,
+        "max_frame_gap_us": 1909297
+      }
+    },
+    {
+      "sample": "r4-baseline-load",
+      "variant": "baseline",
+      "repetition": 4,
+      "metrics": {
+        "SaveManagerNarrativeCheckpointPort.commit_scene_event.calls": 1,
+        "SaveManagerNarrativeCheckpointPort.commit_scene_event.elapsed_us": 1216094,
+        "SaveManagerNarrativeCheckpointPort.commit_scene_event.max_us": 1216094,
+        "SaveManagerNarrativeCheckpointPort._commit_scene_event_autosave.calls": 1,
+        "SaveManagerNarrativeCheckpointPort._commit_scene_event_autosave.elapsed_us": 1211400,
+        "SaveManagerNarrativeCheckpointPort._commit_scene_event_autosave.max_us": 1211400,
+        "SaveManagerNarrativeCheckpointPort._scene_route_candidate_valid.calls": 2,
+        "SaveManagerNarrativeCheckpointPort._scene_route_candidate_valid.elapsed_us": 220411,
+        "SaveManagerNarrativeCheckpointPort._scene_route_candidate_valid.max_us": 110978,
+        "SaveManagerNarrativeCheckpointPort._scene_committed_reference.calls": 1,
+        "SaveManagerNarrativeCheckpointPort._scene_committed_reference.elapsed_us": 115831,
+        "SaveManagerNarrativeCheckpointPort._scene_committed_reference.max_us": 115831,
+        "SaveManagerNarrativeCheckpointPort._scene_candidate_reference.calls": 3,
+        "SaveManagerNarrativeCheckpointPort._scene_candidate_reference.elapsed_us": 334152,
+        "SaveManagerNarrativeCheckpointPort._scene_candidate_reference.max_us": 115192,
+        "SaveManagerNarrativeCheckpointPort._player_checkpoint_same.calls": 0,
+        "SaveManagerNarrativeCheckpointPort._player_checkpoint_same.elapsed_us": 0,
+        "SaveManagerNarrativeCheckpointPort._player_checkpoint_same.max_us": 0,
+        "SaveManagerNarrativeCheckpointPort._scene_control_source_matches.calls": 1,
+        "SaveManagerNarrativeCheckpointPort._scene_control_source_matches.elapsed_us": 6,
+        "SaveManagerNarrativeCheckpointPort._scene_control_source_matches.max_us": 6,
+        "GameState._scene_player_checkpoint_same.calls": 0,
+        "GameState._scene_player_checkpoint_same.elapsed_us": 0,
+        "GameState._scene_player_checkpoint_same.max_us": 0,
+        "SoloReadingSession.project_player_checkpoint.calls": 10,
+        "SoloReadingSession.project_player_checkpoint.elapsed_us": 362343,
+        "SoloReadingSession.project_player_checkpoint.max_us": 38260,
+        "SoloReadingSession.restore.calls": 40,
+        "SoloReadingSession.restore.elapsed_us": 667082,
+        "SoloReadingSession.restore.max_us": 19294,
+        "SoloReadingSession._validate_scene_saved.calls": 41,
+        "SoloReadingSession._validate_scene_saved.elapsed_us": 684446,
+        "SoloReadingSession._validate_scene_saved.max_us": 19265,
+        "SoloReadingSession._capture_scene.calls": 125,
+        "SoloReadingSession._capture_scene.elapsed_us": 17086,
+        "SoloReadingSession._capture_scene.max_us": 272,
+        "input_to_first_correct_drawn_us": 1793280,
+        "input_to_usable_us": 1814963,
+        "max_frame_gap_us": 1789036
+      }
+    },
+    {
+      "sample": "r4-candidate-load",
+      "variant": "candidate",
+      "repetition": 4,
+      "metrics": {
+        "SaveManagerNarrativeCheckpointPort.commit_scene_event.calls": 1,
+        "SaveManagerNarrativeCheckpointPort.commit_scene_event.elapsed_us": 1192592,
+        "SaveManagerNarrativeCheckpointPort.commit_scene_event.max_us": 1192592,
+        "SaveManagerNarrativeCheckpointPort._commit_scene_event_autosave.calls": 1,
+        "SaveManagerNarrativeCheckpointPort._commit_scene_event_autosave.elapsed_us": 1187941,
+        "SaveManagerNarrativeCheckpointPort._commit_scene_event_autosave.max_us": 1187941,
+        "SaveManagerNarrativeCheckpointPort._scene_route_candidate_valid.calls": 2,
+        "SaveManagerNarrativeCheckpointPort._scene_route_candidate_valid.elapsed_us": 200376,
+        "SaveManagerNarrativeCheckpointPort._scene_route_candidate_valid.max_us": 101596,
+        "SaveManagerNarrativeCheckpointPort._scene_committed_reference.calls": 1,
+        "SaveManagerNarrativeCheckpointPort._scene_committed_reference.elapsed_us": 94746,
+        "SaveManagerNarrativeCheckpointPort._scene_committed_reference.max_us": 94746,
+        "SaveManagerNarrativeCheckpointPort._scene_candidate_reference.calls": 3,
+        "SaveManagerNarrativeCheckpointPort._scene_candidate_reference.elapsed_us": 293029,
+        "SaveManagerNarrativeCheckpointPort._scene_candidate_reference.max_us": 100873,
+        "SaveManagerNarrativeCheckpointPort._player_checkpoint_same.calls": 0,
+        "SaveManagerNarrativeCheckpointPort._player_checkpoint_same.elapsed_us": 0,
+        "SaveManagerNarrativeCheckpointPort._player_checkpoint_same.max_us": 0,
+        "SaveManagerNarrativeCheckpointPort._scene_control_source_matches.calls": 1,
+        "SaveManagerNarrativeCheckpointPort._scene_control_source_matches.elapsed_us": 6,
+        "SaveManagerNarrativeCheckpointPort._scene_control_source_matches.max_us": 6,
+        "GameState._scene_player_checkpoint_same.calls": 0,
+        "GameState._scene_player_checkpoint_same.elapsed_us": 0,
+        "GameState._scene_player_checkpoint_same.max_us": 0,
+        "SoloReadingSession.project_player_checkpoint.calls": 10,
+        "SoloReadingSession.project_player_checkpoint.elapsed_us": 321988,
+        "SoloReadingSession.project_player_checkpoint.max_us": 40185,
+        "SoloReadingSession.restore.calls": 37,
+        "SoloReadingSession.restore.elapsed_us": 640697,
+        "SoloReadingSession.restore.max_us": 21758,
+        "SoloReadingSession._validate_scene_saved.calls": 38,
+        "SoloReadingSession._validate_scene_saved.elapsed_us": 660075,
+        "SoloReadingSession._validate_scene_saved.max_us": 21724,
+        "SoloReadingSession._capture_scene.calls": 121,
+        "SoloReadingSession._capture_scene.elapsed_us": 17780,
+        "SoloReadingSession._capture_scene.max_us": 270,
+        "input_to_first_correct_drawn_us": 1801172,
+        "input_to_usable_us": 1823057,
+        "max_frame_gap_us": 1796772
+      }
+    }
+  ],
+  "aggregates": {
+    "baseline": {
+      "GameState._scene_player_checkpoint_same.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "GameState._scene_player_checkpoint_same.elapsed_us": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "GameState._scene_player_checkpoint_same.max_us": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "SaveManagerNarrativeCheckpointPort._commit_scene_event_autosave.calls": {
+        "samples": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "median": 1.0,
+        "min": 1,
+        "max": 1
+      },
+      "SaveManagerNarrativeCheckpointPort._commit_scene_event_autosave.elapsed_us": {
+        "samples": [
+          1427707,
+          1311352,
+          1291880,
+          1211400
+        ],
+        "median": 1301616.0,
+        "min": 1211400,
+        "max": 1427707
+      },
+      "SaveManagerNarrativeCheckpointPort._commit_scene_event_autosave.max_us": {
+        "samples": [
+          1427707,
+          1311352,
+          1291880,
+          1211400
+        ],
+        "median": 1301616.0,
+        "min": 1211400,
+        "max": 1427707
+      },
+      "SaveManagerNarrativeCheckpointPort._player_checkpoint_same.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "SaveManagerNarrativeCheckpointPort._player_checkpoint_same.elapsed_us": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "SaveManagerNarrativeCheckpointPort._player_checkpoint_same.max_us": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "SaveManagerNarrativeCheckpointPort._scene_candidate_reference.calls": {
+        "samples": [
+          3,
+          3,
+          3,
+          3
+        ],
+        "median": 3.0,
+        "min": 3,
+        "max": 3
+      },
+      "SaveManagerNarrativeCheckpointPort._scene_candidate_reference.elapsed_us": {
+        "samples": [
+          414316,
+          366099,
+          367477,
+          334152
+        ],
+        "median": 366788.0,
+        "min": 334152,
+        "max": 414316
+      },
+      "SaveManagerNarrativeCheckpointPort._scene_candidate_reference.max_us": {
+        "samples": [
+          140080,
+          128654,
+          127468,
+          115192
+        ],
+        "median": 128061.0,
+        "min": 115192,
+        "max": 140080
+      },
+      "SaveManagerNarrativeCheckpointPort._scene_committed_reference.calls": {
+        "samples": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "median": 1.0,
+        "min": 1,
+        "max": 1
+      },
+      "SaveManagerNarrativeCheckpointPort._scene_committed_reference.elapsed_us": {
+        "samples": [
+          140726,
+          115454,
+          119692,
+          115831
+        ],
+        "median": 117761.5,
+        "min": 115454,
+        "max": 140726
+      },
+      "SaveManagerNarrativeCheckpointPort._scene_committed_reference.max_us": {
+        "samples": [
+          140726,
+          115454,
+          119692,
+          115831
+        ],
+        "median": 117761.5,
+        "min": 115454,
+        "max": 140726
+      },
+      "SaveManagerNarrativeCheckpointPort._scene_control_source_matches.calls": {
+        "samples": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "median": 1.0,
+        "min": 1,
+        "max": 1
+      },
+      "SaveManagerNarrativeCheckpointPort._scene_control_source_matches.elapsed_us": {
+        "samples": [
+          6,
+          6,
+          5,
+          6
+        ],
+        "median": 6.0,
+        "min": 5,
+        "max": 6
+      },
+      "SaveManagerNarrativeCheckpointPort._scene_control_source_matches.max_us": {
+        "samples": [
+          6,
+          6,
+          5,
+          6
+        ],
+        "median": 6.0,
+        "min": 5,
+        "max": 6
+      },
+      "SaveManagerNarrativeCheckpointPort._scene_route_candidate_valid.calls": {
+        "samples": [
+          2,
+          2,
+          2,
+          2
+        ],
+        "median": 2.0,
+        "min": 2,
+        "max": 2
+      },
+      "SaveManagerNarrativeCheckpointPort._scene_route_candidate_valid.elapsed_us": {
+        "samples": [
+          275721,
+          252839,
+          249863,
+          220411
+        ],
+        "median": 251351.0,
+        "min": 220411,
+        "max": 275721
+      },
+      "SaveManagerNarrativeCheckpointPort._scene_route_candidate_valid.max_us": {
+        "samples": [
+          138807,
+          129430,
+          128194,
+          110978
+        ],
+        "median": 128812.0,
+        "min": 110978,
+        "max": 138807
+      },
+      "SaveManagerNarrativeCheckpointPort.commit_scene_event.calls": {
+        "samples": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "median": 1.0,
+        "min": 1,
+        "max": 1
+      },
+      "SaveManagerNarrativeCheckpointPort.commit_scene_event.elapsed_us": {
+        "samples": [
+          1432289,
+          1316168,
+          1296353,
+          1216094
+        ],
+        "median": 1306260.5,
+        "min": 1216094,
+        "max": 1432289
+      },
+      "SaveManagerNarrativeCheckpointPort.commit_scene_event.max_us": {
+        "samples": [
+          1432289,
+          1316168,
+          1296353,
+          1216094
+        ],
+        "median": 1306260.5,
+        "min": 1216094,
+        "max": 1432289
+      },
+      "SoloReadingSession._capture_scene.calls": {
+        "samples": [
+          124,
+          124,
+          124,
+          125
+        ],
+        "median": 124.0,
+        "min": 124,
+        "max": 125
+      },
+      "SoloReadingSession._capture_scene.elapsed_us": {
+        "samples": [
+          18339,
+          20603,
+          17970,
+          17086
+        ],
+        "median": 18154.5,
+        "min": 17086,
+        "max": 20603
+      },
+      "SoloReadingSession._capture_scene.max_us": {
+        "samples": [
+          285,
+          1980,
+          305,
+          272
+        ],
+        "median": 295.0,
+        "min": 272,
+        "max": 1980
+      },
+      "SoloReadingSession._validate_scene_saved.calls": {
+        "samples": [
+          41,
+          41,
+          41,
+          41
+        ],
+        "median": 41.0,
+        "min": 41,
+        "max": 41
+      },
+      "SoloReadingSession._validate_scene_saved.elapsed_us": {
+        "samples": [
+          833271,
+          743568,
+          731636,
+          684446
+        ],
+        "median": 737602.0,
+        "min": 684446,
+        "max": 833271
+      },
+      "SoloReadingSession._validate_scene_saved.max_us": {
+        "samples": [
+          22211,
+          22314,
+          21401,
+          19265
+        ],
+        "median": 21806.0,
+        "min": 19265,
+        "max": 22314
+      },
+      "SoloReadingSession.project_player_checkpoint.calls": {
+        "samples": [
+          10,
+          10,
+          10,
+          10
+        ],
+        "median": 10.0,
+        "min": 10,
+        "max": 10
+      },
+      "SoloReadingSession.project_player_checkpoint.elapsed_us": {
+        "samples": [
+          449919,
+          403687,
+          398880,
+          362343
+        ],
+        "median": 401283.5,
+        "min": 362343,
+        "max": 449919
+      },
+      "SoloReadingSession.project_player_checkpoint.max_us": {
+        "samples": [
+          46769,
+          46821,
+          43772,
+          38260
+        ],
+        "median": 45270.5,
+        "min": 38260,
+        "max": 46821
+      },
+      "SoloReadingSession.restore.calls": {
+        "samples": [
+          40,
+          40,
+          40,
+          40
+        ],
+        "median": 40.0,
+        "min": 40,
+        "max": 40
+      },
+      "SoloReadingSession.restore.elapsed_us": {
+        "samples": [
+          812305,
+          724360,
+          712541,
+          667082
+        ],
+        "median": 718450.5,
+        "min": 667082,
+        "max": 812305
+      },
+      "SoloReadingSession.restore.max_us": {
+        "samples": [
+          22248,
+          22359,
+          21437,
+          19294
+        ],
+        "median": 21842.5,
+        "min": 19294,
+        "max": 22359
+      },
+      "input_to_first_correct_drawn_us": {
+        "samples": [
+          2069568,
+          1947827,
+          1916062,
+          1793280
+        ],
+        "median": 1931944.5,
+        "min": 1793280,
+        "max": 2069568
+      },
+      "input_to_usable_us": {
+        "samples": [
+          2089672,
+          1969522,
+          1938275,
+          1814963
+        ],
+        "median": 1953898.5,
+        "min": 1814963,
+        "max": 2089672
+      },
+      "max_frame_gap_us": {
+        "samples": [
+          2062840,
+          1943308,
+          1911315,
+          1789036
+        ],
+        "median": 1927311.5,
+        "min": 1789036,
+        "max": 2062840
+      }
+    },
+    "candidate": {
+      "GameState._scene_player_checkpoint_same.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "GameState._scene_player_checkpoint_same.elapsed_us": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "GameState._scene_player_checkpoint_same.max_us": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "SaveManagerNarrativeCheckpointPort._commit_scene_event_autosave.calls": {
+        "samples": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "median": 1.0,
+        "min": 1,
+        "max": 1
+      },
+      "SaveManagerNarrativeCheckpointPort._commit_scene_event_autosave.elapsed_us": {
+        "samples": [
+          1353345,
+          1299339,
+          1276815,
+          1187941
+        ],
+        "median": 1288077.0,
+        "min": 1187941,
+        "max": 1353345
+      },
+      "SaveManagerNarrativeCheckpointPort._commit_scene_event_autosave.max_us": {
+        "samples": [
+          1353345,
+          1299339,
+          1276815,
+          1187941
+        ],
+        "median": 1288077.0,
+        "min": 1187941,
+        "max": 1353345
+      },
+      "SaveManagerNarrativeCheckpointPort._player_checkpoint_same.calls": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "SaveManagerNarrativeCheckpointPort._player_checkpoint_same.elapsed_us": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "SaveManagerNarrativeCheckpointPort._player_checkpoint_same.max_us": {
+        "samples": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "median": 0.0,
+        "min": 0,
+        "max": 0
+      },
+      "SaveManagerNarrativeCheckpointPort._scene_candidate_reference.calls": {
+        "samples": [
+          3,
+          3,
+          3,
+          3
+        ],
+        "median": 3.0,
+        "min": 3,
+        "max": 3
+      },
+      "SaveManagerNarrativeCheckpointPort._scene_candidate_reference.elapsed_us": {
+        "samples": [
+          341365,
+          330784,
+          320367,
+          293029
+        ],
+        "median": 325575.5,
+        "min": 293029,
+        "max": 341365
+      },
+      "SaveManagerNarrativeCheckpointPort._scene_candidate_reference.max_us": {
+        "samples": [
+          117674,
+          113669,
+          121615,
+          100873
+        ],
+        "median": 115671.5,
+        "min": 100873,
+        "max": 121615
+      },
+      "SaveManagerNarrativeCheckpointPort._scene_committed_reference.calls": {
+        "samples": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "median": 1.0,
+        "min": 1,
+        "max": 1
+      },
+      "SaveManagerNarrativeCheckpointPort._scene_committed_reference.elapsed_us": {
+        "samples": [
+          111814,
+          106737,
+          122302,
+          94746
+        ],
+        "median": 109275.5,
+        "min": 94746,
+        "max": 122302
+      },
+      "SaveManagerNarrativeCheckpointPort._scene_committed_reference.max_us": {
+        "samples": [
+          111814,
+          106737,
+          122302,
+          94746
+        ],
+        "median": 109275.5,
+        "min": 94746,
+        "max": 122302
+      },
+      "SaveManagerNarrativeCheckpointPort._scene_control_source_matches.calls": {
+        "samples": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "median": 1.0,
+        "min": 1,
+        "max": 1
+      },
+      "SaveManagerNarrativeCheckpointPort._scene_control_source_matches.elapsed_us": {
+        "samples": [
+          6,
+          6,
+          6,
+          6
+        ],
+        "median": 6.0,
+        "min": 6,
+        "max": 6
+      },
+      "SaveManagerNarrativeCheckpointPort._scene_control_source_matches.max_us": {
+        "samples": [
+          6,
+          6,
+          6,
+          6
+        ],
+        "median": 6.0,
+        "min": 6,
+        "max": 6
+      },
+      "SaveManagerNarrativeCheckpointPort._scene_route_candidate_valid.calls": {
+        "samples": [
+          2,
+          2,
+          2,
+          2
+        ],
+        "median": 2.0,
+        "min": 2,
+        "max": 2
+      },
+      "SaveManagerNarrativeCheckpointPort._scene_route_candidate_valid.elapsed_us": {
+        "samples": [
+          231717,
+          226153,
+          200241,
+          200376
+        ],
+        "median": 213264.5,
+        "min": 200241,
+        "max": 231717
+      },
+      "SaveManagerNarrativeCheckpointPort._scene_route_candidate_valid.max_us": {
+        "samples": [
+          118426,
+          114377,
+          105390,
+          101596
+        ],
+        "median": 109883.5,
+        "min": 101596,
+        "max": 118426
+      },
+      "SaveManagerNarrativeCheckpointPort.commit_scene_event.calls": {
+        "samples": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "median": 1.0,
+        "min": 1,
+        "max": 1
+      },
+      "SaveManagerNarrativeCheckpointPort.commit_scene_event.elapsed_us": {
+        "samples": [
+          1358325,
+          1304154,
+          1281460,
+          1192592
+        ],
+        "median": 1292807.0,
+        "min": 1192592,
+        "max": 1358325
+      },
+      "SaveManagerNarrativeCheckpointPort.commit_scene_event.max_us": {
+        "samples": [
+          1358325,
+          1304154,
+          1281460,
+          1192592
+        ],
+        "median": 1292807.0,
+        "min": 1192592,
+        "max": 1358325
+      },
+      "SoloReadingSession._capture_scene.calls": {
+        "samples": [
+          121,
+          121,
+          121,
+          121
+        ],
+        "median": 121.0,
+        "min": 121,
+        "max": 121
+      },
+      "SoloReadingSession._capture_scene.elapsed_us": {
+        "samples": [
+          17873,
+          20355,
+          18293,
+          17780
+        ],
+        "median": 18083.0,
+        "min": 17780,
+        "max": 20355
+      },
+      "SoloReadingSession._capture_scene.max_us": {
+        "samples": [
+          296,
+          2214,
+          290,
+          270
+        ],
+        "median": 293.0,
+        "min": 270,
+        "max": 2214
+      },
+      "SoloReadingSession._validate_scene_saved.calls": {
+        "samples": [
+          38,
+          38,
+          38,
+          38
+        ],
+        "median": 38.0,
+        "min": 38,
+        "max": 38
+      },
+      "SoloReadingSession._validate_scene_saved.elapsed_us": {
+        "samples": [
+          761859,
+          726448,
+          720011,
+          660075
+        ],
+        "median": 723229.5,
+        "min": 660075,
+        "max": 761859
+      },
+      "SoloReadingSession._validate_scene_saved.max_us": {
+        "samples": [
+          21993,
+          21325,
+          25739,
+          21724
+        ],
+        "median": 21858.5,
+        "min": 21325,
+        "max": 25739
+      },
+      "SoloReadingSession.project_player_checkpoint.calls": {
+        "samples": [
+          10,
+          10,
+          10,
+          10
+        ],
+        "median": 10.0,
+        "min": 10,
+        "max": 10
+      },
+      "SoloReadingSession.project_player_checkpoint.elapsed_us": {
+        "samples": [
+          375839,
+          364068,
+          350657,
+          321988
+        ],
+        "median": 357362.5,
+        "min": 321988,
+        "max": 375839
+      },
+      "SoloReadingSession.project_player_checkpoint.max_us": {
+        "samples": [
+          46070,
+          44090,
+          48146,
+          40185
+        ],
+        "median": 45080.0,
+        "min": 40185,
+        "max": 48146
+      },
+      "SoloReadingSession.restore.calls": {
+        "samples": [
+          37,
+          37,
+          37,
+          37
+        ],
+        "median": 37.0,
+        "min": 37,
+        "max": 37
+      },
+      "SoloReadingSession.restore.elapsed_us": {
+        "samples": [
+          741880,
+          706281,
+          695575,
+          640697
+        ],
+        "median": 700928.0,
+        "min": 640697,
+        "max": 741880
+      },
+      "SoloReadingSession.restore.max_us": {
+        "samples": [
+          22032,
+          21360,
+          25787,
+          21758
+        ],
+        "median": 21895.0,
+        "min": 21360,
+        "max": 25787
+      },
+      "input_to_first_correct_drawn_us": {
+        "samples": [
+          1998428,
+          1944873,
+          1913889,
+          1801172
+        ],
+        "median": 1929381.0,
+        "min": 1801172,
+        "max": 1998428
+      },
+      "input_to_usable_us": {
+        "samples": [
+          2020394,
+          1967020,
+          1936261,
+          1823057
+        ],
+        "median": 1951640.5,
+        "min": 1823057,
+        "max": 2020394
+      },
+      "max_frame_gap_us": {
+        "samples": [
+          1993794,
+          1940031,
+          1909297,
+          1796772
+        ],
+        "median": 1924664.0,
+        "min": 1796772,
+        "max": 1993794
+      }
+    }
+  },
+  "paired_differences": [
+    {
+      "repetition": 1,
+      "candidate_minus_baseline": {
+        "GameState._scene_player_checkpoint_same.calls": 0,
+        "GameState._scene_player_checkpoint_same.elapsed_us": 0,
+        "GameState._scene_player_checkpoint_same.max_us": 0,
+        "SaveManagerNarrativeCheckpointPort._commit_scene_event_autosave.calls": 0,
+        "SaveManagerNarrativeCheckpointPort._commit_scene_event_autosave.elapsed_us": -74362,
+        "SaveManagerNarrativeCheckpointPort._commit_scene_event_autosave.max_us": -74362,
+        "SaveManagerNarrativeCheckpointPort._player_checkpoint_same.calls": 0,
+        "SaveManagerNarrativeCheckpointPort._player_checkpoint_same.elapsed_us": 0,
+        "SaveManagerNarrativeCheckpointPort._player_checkpoint_same.max_us": 0,
+        "SaveManagerNarrativeCheckpointPort._scene_candidate_reference.calls": 0,
+        "SaveManagerNarrativeCheckpointPort._scene_candidate_reference.elapsed_us": -72951,
+        "SaveManagerNarrativeCheckpointPort._scene_candidate_reference.max_us": -22406,
+        "SaveManagerNarrativeCheckpointPort._scene_committed_reference.calls": 0,
+        "SaveManagerNarrativeCheckpointPort._scene_committed_reference.elapsed_us": -28912,
+        "SaveManagerNarrativeCheckpointPort._scene_committed_reference.max_us": -28912,
+        "SaveManagerNarrativeCheckpointPort._scene_control_source_matches.calls": 0,
+        "SaveManagerNarrativeCheckpointPort._scene_control_source_matches.elapsed_us": 0,
+        "SaveManagerNarrativeCheckpointPort._scene_control_source_matches.max_us": 0,
+        "SaveManagerNarrativeCheckpointPort._scene_route_candidate_valid.calls": 0,
+        "SaveManagerNarrativeCheckpointPort._scene_route_candidate_valid.elapsed_us": -44004,
+        "SaveManagerNarrativeCheckpointPort._scene_route_candidate_valid.max_us": -20381,
+        "SaveManagerNarrativeCheckpointPort.commit_scene_event.calls": 0,
+        "SaveManagerNarrativeCheckpointPort.commit_scene_event.elapsed_us": -73964,
+        "SaveManagerNarrativeCheckpointPort.commit_scene_event.max_us": -73964,
+        "SoloReadingSession._capture_scene.calls": -3,
+        "SoloReadingSession._capture_scene.elapsed_us": -466,
+        "SoloReadingSession._capture_scene.max_us": 11,
+        "SoloReadingSession._validate_scene_saved.calls": -3,
+        "SoloReadingSession._validate_scene_saved.elapsed_us": -71412,
+        "SoloReadingSession._validate_scene_saved.max_us": -218,
+        "SoloReadingSession.project_player_checkpoint.calls": 0,
+        "SoloReadingSession.project_player_checkpoint.elapsed_us": -74080,
+        "SoloReadingSession.project_player_checkpoint.max_us": -699,
+        "SoloReadingSession.restore.calls": -3,
+        "SoloReadingSession.restore.elapsed_us": -70425,
+        "SoloReadingSession.restore.max_us": -216,
+        "input_to_first_correct_drawn_us": -71140,
+        "input_to_usable_us": -69278,
+        "max_frame_gap_us": -69046
+      }
+    },
+    {
+      "repetition": 2,
+      "candidate_minus_baseline": {
+        "GameState._scene_player_checkpoint_same.calls": 0,
+        "GameState._scene_player_checkpoint_same.elapsed_us": 0,
+        "GameState._scene_player_checkpoint_same.max_us": 0,
+        "SaveManagerNarrativeCheckpointPort._commit_scene_event_autosave.calls": 0,
+        "SaveManagerNarrativeCheckpointPort._commit_scene_event_autosave.elapsed_us": -12013,
+        "SaveManagerNarrativeCheckpointPort._commit_scene_event_autosave.max_us": -12013,
+        "SaveManagerNarrativeCheckpointPort._player_checkpoint_same.calls": 0,
+        "SaveManagerNarrativeCheckpointPort._player_checkpoint_same.elapsed_us": 0,
+        "SaveManagerNarrativeCheckpointPort._player_checkpoint_same.max_us": 0,
+        "SaveManagerNarrativeCheckpointPort._scene_candidate_reference.calls": 0,
+        "SaveManagerNarrativeCheckpointPort._scene_candidate_reference.elapsed_us": -35315,
+        "SaveManagerNarrativeCheckpointPort._scene_candidate_reference.max_us": -14985,
+        "SaveManagerNarrativeCheckpointPort._scene_committed_reference.calls": 0,
+        "SaveManagerNarrativeCheckpointPort._scene_committed_reference.elapsed_us": -8717,
+        "SaveManagerNarrativeCheckpointPort._scene_committed_reference.max_us": -8717,
+        "SaveManagerNarrativeCheckpointPort._scene_control_source_matches.calls": 0,
+        "SaveManagerNarrativeCheckpointPort._scene_control_source_matches.elapsed_us": 0,
+        "SaveManagerNarrativeCheckpointPort._scene_control_source_matches.max_us": 0,
+        "SaveManagerNarrativeCheckpointPort._scene_route_candidate_valid.calls": 0,
+        "SaveManagerNarrativeCheckpointPort._scene_route_candidate_valid.elapsed_us": -26686,
+        "SaveManagerNarrativeCheckpointPort._scene_route_candidate_valid.max_us": -15053,
+        "SaveManagerNarrativeCheckpointPort.commit_scene_event.calls": 0,
+        "SaveManagerNarrativeCheckpointPort.commit_scene_event.elapsed_us": -12014,
+        "SaveManagerNarrativeCheckpointPort.commit_scene_event.max_us": -12014,
+        "SoloReadingSession._capture_scene.calls": -3,
+        "SoloReadingSession._capture_scene.elapsed_us": -248,
+        "SoloReadingSession._capture_scene.max_us": 234,
+        "SoloReadingSession._validate_scene_saved.calls": -3,
+        "SoloReadingSession._validate_scene_saved.elapsed_us": -17120,
+        "SoloReadingSession._validate_scene_saved.max_us": -989,
+        "SoloReadingSession.project_player_checkpoint.calls": 0,
+        "SoloReadingSession.project_player_checkpoint.elapsed_us": -39619,
+        "SoloReadingSession.project_player_checkpoint.max_us": -2731,
+        "SoloReadingSession.restore.calls": -3,
+        "SoloReadingSession.restore.elapsed_us": -18079,
+        "SoloReadingSession.restore.max_us": -999,
+        "input_to_first_correct_drawn_us": -2954,
+        "input_to_usable_us": -2502,
+        "max_frame_gap_us": -3277
+      }
+    },
+    {
+      "repetition": 3,
+      "candidate_minus_baseline": {
+        "GameState._scene_player_checkpoint_same.calls": 0,
+        "GameState._scene_player_checkpoint_same.elapsed_us": 0,
+        "GameState._scene_player_checkpoint_same.max_us": 0,
+        "SaveManagerNarrativeCheckpointPort._commit_scene_event_autosave.calls": 0,
+        "SaveManagerNarrativeCheckpointPort._commit_scene_event_autosave.elapsed_us": -15065,
+        "SaveManagerNarrativeCheckpointPort._commit_scene_event_autosave.max_us": -15065,
+        "SaveManagerNarrativeCheckpointPort._player_checkpoint_same.calls": 0,
+        "SaveManagerNarrativeCheckpointPort._player_checkpoint_same.elapsed_us": 0,
+        "SaveManagerNarrativeCheckpointPort._player_checkpoint_same.max_us": 0,
+        "SaveManagerNarrativeCheckpointPort._scene_candidate_reference.calls": 0,
+        "SaveManagerNarrativeCheckpointPort._scene_candidate_reference.elapsed_us": -47110,
+        "SaveManagerNarrativeCheckpointPort._scene_candidate_reference.max_us": -5853,
+        "SaveManagerNarrativeCheckpointPort._scene_committed_reference.calls": 0,
+        "SaveManagerNarrativeCheckpointPort._scene_committed_reference.elapsed_us": 2610,
+        "SaveManagerNarrativeCheckpointPort._scene_committed_reference.max_us": 2610,
+        "SaveManagerNarrativeCheckpointPort._scene_control_source_matches.calls": 0,
+        "SaveManagerNarrativeCheckpointPort._scene_control_source_matches.elapsed_us": 1,
+        "SaveManagerNarrativeCheckpointPort._scene_control_source_matches.max_us": 1,
+        "SaveManagerNarrativeCheckpointPort._scene_route_candidate_valid.calls": 0,
+        "SaveManagerNarrativeCheckpointPort._scene_route_candidate_valid.elapsed_us": -49622,
+        "SaveManagerNarrativeCheckpointPort._scene_route_candidate_valid.max_us": -22804,
+        "SaveManagerNarrativeCheckpointPort.commit_scene_event.calls": 0,
+        "SaveManagerNarrativeCheckpointPort.commit_scene_event.elapsed_us": -14893,
+        "SaveManagerNarrativeCheckpointPort.commit_scene_event.max_us": -14893,
+        "SoloReadingSession._capture_scene.calls": -3,
+        "SoloReadingSession._capture_scene.elapsed_us": 323,
+        "SoloReadingSession._capture_scene.max_us": -15,
+        "SoloReadingSession._validate_scene_saved.calls": -3,
+        "SoloReadingSession._validate_scene_saved.elapsed_us": -11625,
+        "SoloReadingSession._validate_scene_saved.max_us": 4338,
+        "SoloReadingSession.project_player_checkpoint.calls": 0,
+        "SoloReadingSession.project_player_checkpoint.elapsed_us": -48223,
+        "SoloReadingSession.project_player_checkpoint.max_us": 4374,
+        "SoloReadingSession.restore.calls": -3,
+        "SoloReadingSession.restore.elapsed_us": -16966,
+        "SoloReadingSession.restore.max_us": 4350,
+        "input_to_first_correct_drawn_us": -2173,
+        "input_to_usable_us": -2014,
+        "max_frame_gap_us": -2018
+      }
+    },
+    {
+      "repetition": 4,
+      "candidate_minus_baseline": {
+        "GameState._scene_player_checkpoint_same.calls": 0,
+        "GameState._scene_player_checkpoint_same.elapsed_us": 0,
+        "GameState._scene_player_checkpoint_same.max_us": 0,
+        "SaveManagerNarrativeCheckpointPort._commit_scene_event_autosave.calls": 0,
+        "SaveManagerNarrativeCheckpointPort._commit_scene_event_autosave.elapsed_us": -23459,
+        "SaveManagerNarrativeCheckpointPort._commit_scene_event_autosave.max_us": -23459,
+        "SaveManagerNarrativeCheckpointPort._player_checkpoint_same.calls": 0,
+        "SaveManagerNarrativeCheckpointPort._player_checkpoint_same.elapsed_us": 0,
+        "SaveManagerNarrativeCheckpointPort._player_checkpoint_same.max_us": 0,
+        "SaveManagerNarrativeCheckpointPort._scene_candidate_reference.calls": 0,
+        "SaveManagerNarrativeCheckpointPort._scene_candidate_reference.elapsed_us": -41123,
+        "SaveManagerNarrativeCheckpointPort._scene_candidate_reference.max_us": -14319,
+        "SaveManagerNarrativeCheckpointPort._scene_committed_reference.calls": 0,
+        "SaveManagerNarrativeCheckpointPort._scene_committed_reference.elapsed_us": -21085,
+        "SaveManagerNarrativeCheckpointPort._scene_committed_reference.max_us": -21085,
+        "SaveManagerNarrativeCheckpointPort._scene_control_source_matches.calls": 0,
+        "SaveManagerNarrativeCheckpointPort._scene_control_source_matches.elapsed_us": 0,
+        "SaveManagerNarrativeCheckpointPort._scene_control_source_matches.max_us": 0,
+        "SaveManagerNarrativeCheckpointPort._scene_route_candidate_valid.calls": 0,
+        "SaveManagerNarrativeCheckpointPort._scene_route_candidate_valid.elapsed_us": -20035,
+        "SaveManagerNarrativeCheckpointPort._scene_route_candidate_valid.max_us": -9382,
+        "SaveManagerNarrativeCheckpointPort.commit_scene_event.calls": 0,
+        "SaveManagerNarrativeCheckpointPort.commit_scene_event.elapsed_us": -23502,
+        "SaveManagerNarrativeCheckpointPort.commit_scene_event.max_us": -23502,
+        "SoloReadingSession._capture_scene.calls": -4,
+        "SoloReadingSession._capture_scene.elapsed_us": 694,
+        "SoloReadingSession._capture_scene.max_us": -2,
+        "SoloReadingSession._validate_scene_saved.calls": -3,
+        "SoloReadingSession._validate_scene_saved.elapsed_us": -24371,
+        "SoloReadingSession._validate_scene_saved.max_us": 2459,
+        "SoloReadingSession.project_player_checkpoint.calls": 0,
+        "SoloReadingSession.project_player_checkpoint.elapsed_us": -40355,
+        "SoloReadingSession.project_player_checkpoint.max_us": 1925,
+        "SoloReadingSession.restore.calls": -3,
+        "SoloReadingSession.restore.elapsed_us": -26385,
+        "SoloReadingSession.restore.max_us": 2464,
+        "input_to_first_correct_drawn_us": 7892,
+        "input_to_usable_us": 8094,
+        "max_frame_gap_us": 7736
+      }
+    }
+  ],
+  "experiment": "Return a detached admitted compact checkpoint without expanding, projecting and restoring it again; no cross-callback cache.",
+  "acceptance": {
+    "pr": 127,
+    "merge_sha": "b3934ce7ffa0a8872c7b647d02f6ae2d40c90eea",
+    "candidate_tree": "b6bf38ffa476f4b473836363f785f3c4b76dcfff",
+    "regression_run": 40450801857,
+    "executed_jobs": 63,
+    "skipped_historical_benchmark_jobs": 1,
+    "matched_run": 40450801886,
+    "exported_journeys": 24,
+    "reviewed_destination_screenshots": 8,
+    "artifact_id": 12710548346,
+    "artifact_zip_sha256": "a89d92d099f6ee2cb15625fa9236e7625f51d1ce7e243e214027f5a40899e5c5",
+    "interpretation": "Verified simplification. No meaningful complete-transition speedup established; paired first-drawing changes are mixed."
+  },
+  "startup_and_load": {
+    "baseline": {
+      "fresh": {
+        "process.new_acc_to_caption_complete_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-fresh",
+              "value": 1229.22
+            },
+            {
+              "sample": "r2-baseline-fresh",
+              "value": 1151.475
+            },
+            {
+              "sample": "r3-baseline-fresh",
+              "value": 1170.869
+            },
+            {
+              "sample": "r4-baseline-fresh",
+              "value": 1093.409
+            }
+          ],
+          "count": 4,
+          "median": 1161.172,
+          "min": 1093.409,
+          "max": 1229.22
+        }
+      },
+      "retained": {
+        "process.new_acc_to_caption_complete_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-retained",
+              "value": 1213.943
+            },
+            {
+              "sample": "r2-baseline-retained",
+              "value": 1190.445
+            },
+            {
+              "sample": "r3-baseline-retained",
+              "value": 1167.743
+            },
+            {
+              "sample": "r4-baseline-retained",
+              "value": 1142.978
+            }
+          ],
+          "count": 4,
+          "median": 1179.094,
+          "min": 1142.978,
+          "max": 1213.943
+        }
+      },
+      "load": {
+        "process.load_action_to_caption_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-baseline-load",
+              "value": 715.762
+            },
+            {
+              "sample": "r2-baseline-load",
+              "value": 709.426
+            },
+            {
+              "sample": "r3-baseline-load",
+              "value": 703.897
+            },
+            {
+              "sample": "r4-baseline-load",
+              "value": 670.612
+            }
+          ],
+          "count": 4,
+          "median": 706.6615,
+          "min": 670.612,
+          "max": 715.762
+        }
+      }
+    },
+    "candidate": {
+      "fresh": {
+        "process.new_acc_to_caption_complete_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-fresh",
+              "value": 1196.887
+            },
+            {
+              "sample": "r2-candidate-fresh",
+              "value": 1162.216
+            },
+            {
+              "sample": "r3-candidate-fresh",
+              "value": 1198.143
+            },
+            {
+              "sample": "r4-candidate-fresh",
+              "value": 1155.842
+            }
+          ],
+          "count": 4,
+          "median": 1179.5515,
+          "min": 1155.842,
+          "max": 1198.143
+        }
+      },
+      "retained": {
+        "process.new_acc_to_caption_complete_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-retained",
+              "value": 1232.226
+            },
+            {
+              "sample": "r2-candidate-retained",
+              "value": 1208.557
+            },
+            {
+              "sample": "r3-candidate-retained",
+              "value": 1159.808
+            },
+            {
+              "sample": "r4-candidate-retained",
+              "value": 1137.318
+            }
+          ],
+          "count": 4,
+          "median": 1184.1825,
+          "min": 1137.318,
+          "max": 1232.226
+        }
+      },
+      "load": {
+        "process.load_action_to_caption_ms": {
+          "raw_samples": [
+            {
+              "sample": "r1-candidate-load",
+              "value": 714.443
+            },
+            {
+              "sample": "r2-candidate-load",
+              "value": 701.471
+            },
+            {
+              "sample": "r3-candidate-load",
+              "value": 686.529
+            },
+            {
+              "sample": "r4-candidate-load",
+              "value": 688.223
+            }
+          ],
+          "count": 4,
+          "median": 694.847,
+          "min": 686.529,
+          "max": 714.443
+        }
+      }
+    }
+  }
+}
