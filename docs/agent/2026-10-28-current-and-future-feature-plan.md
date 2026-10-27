@@ -48,12 +48,18 @@ shared infrastructure.
 
 ## First priority: self-talk and History
 
-Keep a distinct transparent, top-aligned self-talk region, driven by the main
-scene. Do not invent new story prose or a second independently advancing timeline.
+Reuse the former Angela stat-panel region/layout as the self-talk presentation
+reference, with transparent background and top-aligned text. Locate the historical
+implementation before adapting it; the owner's recollection that it predates PR #1
+is a search lead, not a verified revision. Reuse geometry/component structure where
+suitable, not Angela identity, stat bindings or the retired HUD.
+Do not invent new story prose or a second independently advancing timeline.
 Use labeled sample content to prove mechanics before production authoring.
 
-The owner proposes a self-talk label to identify the channel. Use explicit
-authored identity; do not infer self-talk from punctuation or displayed prose.
+Self-talk labels are in the SAME DTL as ordinary scene dialogue. This supersedes
+the earlier separate-self-talk-DTL proposal. DTL order therefore supplies the
+shared reading sequence; labels select the presentation destination.
+Use explicit authored identity; do not infer self-talk from punctuation or prose.
 A label can identify/route the text, but does not alone implement ordered publication
 or persistence. Reuse the existing reading and History owner.
 
@@ -67,9 +73,11 @@ Required behavior:
 - Save/Load preserves or reconstructs the required self-talk position and display.
 - Global read identity remains stable; UI animation does not create extra read marks.
 
-Before implementation, settle the exact label syntax, whether to retain the earlier
-separate-DTL source arrangement, and when a displayed thought clears or is replaced.
-These are adapter/display decisions; no new narrative content is selected here.
+Before implementation, settle the exact label syntax and its scope (one line or a
+bounded section), and when displayed self-talk clears or is replaced. Same-DTL
+ordering removes the need to merge two independently advancing transcripts.
+Ordered publication, stable read IDs and exact restoration still use existing
+reading/History ownership. No new narrative content is selected here.
 
 ## Additional current UI request
 
@@ -78,16 +86,30 @@ The owner requests a bottom bar rather than the retired right-hand arrangement:
 - Put all six buttons at the bottom.
 - Use a clickable upward caret `^` for the computer control, visually like the
   existing panel adjustment handle but pointing upward.
-- Place it second from the left, attached to the six-button bar.
+- Place the caret ABOVE the second button from the left. It is an additional
+  attached computer control, not a replacement for one of the six buttons.
 - Remove the clock and the current notification bar.
 - Keep captions mostly centered.
 - Keep an accessible name and usable hit target for the visually symbol-only caret.
 - Do not restore a Pause menu. Current Scene play already bypasses it.
   Internal suspension code still supports Settings, Backup and Logout.
 
-The exact six controls and their order have not been enumerated. Confirm whether
-the caret is one of the six or an attached additional control before changing
-navigation/focus. Do not guess the remaining five controls.
+Source inspection of WitnessedTransportRail.gd confirms six commands:
+History, Save, Load, Skip, Auto and Next. Its current horizontal bay order is
+History → Save → Load → Skip → Auto → Next, although the last three are raised
+into an upper row. Preserve that horizontal order when flattening to the bottom
+unless the owner requests another order; the caret then sits above Save.
+
+Remove the duplicate top-left Scene control stack, including Computer,
+Settings, Backup, Save and Load buttons. Preserve the functions through the
+bottom rail and the computer's existing app access. Removing these buttons is
+not deletion of Settings, Backup or their shared suspension/transaction owners.
+
+Remove the visible left/right adjustment knobs. Resize panels by dragging the
+divider line itself. Give the thin visible line a wider invisible interaction
+strip, preserve reasonable minimum panel sizes, and ensure dragging cannot
+advance dialogue. Retain keyboard/controller resizing access without requiring
+a visible knob. Check resize, cancellation and text fitting in cloud tests.
 
 This UI request is accepted, but its position relative to 2 → 3 → 9 → 1 is not
 specified. Keep self-talk first; coordinate geometry when building its region.
@@ -135,14 +157,24 @@ a genuinely new run resets it. Do not convert these purchases into Global unlock
 Do not grant notes in this slice. Cap one does not approve a future automatic
 return to cap three if Notes is reopened.
 
-### Proposed cosmetic effects, not approved
+### Cosmetic direction and code-only implementation proposal
 
-Prefer optional visual treatments that do not change story rules, text readability,
+The owner likes the proposed cosmetic direction. Exact activation, scope and
+combination rules remain to be selected. Prefer visual treatments that do not change story rules, text readability,
 button positions or caption geometry:
 
 - crystal stutters: restrained glass-like edge highlights.
 - inked silk string: a fine thread-like accent on existing panel boundaries.
 - letter with wax seal: a small wax-seal detail on suitable existing paper surfaces.
+
+All three can be rendered entirely in code using a small custom Control:
+short lines/polygons for glass highlights, a polyline for thread accents, and
+layered irregular polygons/circles with a simple inset mark for a stylized wax seal.
+No external image asset is required for these restrained graphic treatments.
+Hand-painted texture, realistic glass/refraction or a detailed embossed emblem
+would be optional additional art, not a requirement for the first version.
+Prefer static cached drawing with redraws on ownership/theme/size changes,
+not continuous animation or one node per decorative segment.
 
 These could become alternative theme treatments rather than three competing layout
 systems. Do not implement forced layout shifts, flashing, or a new customization
