@@ -7,7 +7,7 @@ const PARSER := preload("res://scripts/validation/StrictJson.gd")
 const CONTACT := preload("res://tests/support/SceneContactFixture.gd")
 const CHALLENGE := preload("res://tests/support/SceneChallengeFixture.gd")
 const STORY := "res://tests/fixtures/dialogic/_scene_content_update.dtl"
-const CASES := ["wording", "deleted_line", "deleted_checkpoint", "history", "active_board", "transfer_active", "transfer_terminal", "resolved_unfinished", "completed_appended", "completed_deleted"]
+const CASES := ["wording", "deleted_line", "deleted_checkpoint", "history", "active_board", "transfer_active", "transfer_terminal", "resolved_unfinished", "completed_appended", "completed_deleted", "invalid_choice", "invalid_choice_missing_default"]
 const A := "TEST.update.A"
 const B := "TEST.update.B"
 const FINISH := "passage.TEST.content_update"
@@ -26,6 +26,21 @@ static func line(entry: String, suffix: String) -> String:
 
 static func install(updated: bool, case_id: String) -> Dictionary:
 	if case_id not in CASES: return {"ok": false, "code": &"TEST.content_update_case_required"}
+	if updated and case_id in ["invalid_choice", "invalid_choice_missing_default"]:
+		# Keep shipped registration fixed. Only the second case edits DTL bytes,
+		# so the required default fails when execution first needs its passage.
+		var installed := install(false, case_id)
+		if not installed.ok or case_id == "invalid_choice": return installed
+		var source := FileAccess.get_file_as_string(STORY)
+		var start := source.find("label update.two\n")
+		var finish := source.find("label update.three\n", start)
+		if start < 0 or finish < 0: return {"ok": false, "code": &"TEST.default_passage_missing"}
+		source = source.substr(0, start) + source.substr(finish)
+		var edited := FileAccess.open(STORY, FileAccess.WRITE)
+		if edited == null: return {"ok": false, "code": &"TEST.content_update_write_failed"}
+		edited.store_string(source)
+		edited.close()
+		return installed
 	var parsed: Dictionary = PARSER.parse_object(FileAccess.get_file_as_string("res://tests/fixtures/dialogic/scene_reading_registration.json"))
 	if not parsed.ok: return parsed
 	var bundle: Dictionary = parsed.value
@@ -58,7 +73,6 @@ static func install(updated: bool, case_id: String) -> Dictionary:
 		var captions: Array = ["anchor", "middle", "last"]
 		if id in ["update.a", "update.b"]: captions = ["cue", "following"]
 		var remove_a: bool = updated and case_id in ["transfer_active", "transfer_terminal", "resolved_unfinished"] and id == "update.a"
-		if remove_a: captions = ["following"]
 		if updated and id == "update.one" and case_id in ["deleted_line", "deleted_checkpoint"]:
 			captions.erase("middle")
 			if case_id == "deleted_checkpoint": captions.erase("anchor")
@@ -76,7 +90,13 @@ static func install(updated: bool, case_id: String) -> Dictionary:
 			markers.append({"marker_id": id + ".choice", "label": id + ".choice", "after_line_id": last,
 				"kind": "thought.pass", "payload": {"opportunity_id": "TEST.choice." + id,
 				"yes_target_id": "target." + destination + ".yes", "pass_target_id": "target." + destination}})
-		elif id in ["update.a", "update.b"] and not remove_a:
+		elif remove_a:
+			# Transfer tests preserve the saved cue and held marker identity. The
+			# updated marker leaves A without closing its retained physical board;
+			# B must bind that exact board, not benefit from deleted-ID recovery.
+			markers = [{"marker_id": id + ".playable", "label": id + ".playable", "after_line_id": line(id, "cue"),
+				"kind": "scene.transition", "payload": {"target_id": "target.update.after_a"}}]
+		elif id in ["update.a", "update.b"]:
 			var challenge_id := A if id == "update.a" else B
 			markers = [{"marker_id": id + ".playable", "label": id + ".playable", "after_line_id": line(id, "cue"),
 				"kind": "challenge.playable", "payload": {"challenge_id": challenge_id}},

@@ -1,6 +1,6 @@
 param(
     [Parameter(Mandatory = $true)]
-    [ValidateSet('minesweeper', 'shop', 'desktop', 'settings', 'checkpoint_diagnostics', 'new_account', 'reading_delivery', 'localization', 'dating', 'persistence', 'endings', 'audio', 'public_surfaces', 'scene_desktop_first_reveal', 'scene_round_checkpoint', 'scene_shop_checkpoint', 'scene_story_localization', 'scene_controls_localization', 'scene_apps', 'current_title', 'scene_backup_inspection', 'scene_progress_schema', 'authored_week', 'scene_five_outcomes', 'timeline_resources', 'backup_presentation', 'profile_parse', 'backup_current_build', 'terminal_admission', 'current_quick_load', 'current_terminal_fixture', 'scene_multiple_thoughts', 'scene_challenge_recall', 'scene_same_day_supportz', 'scene_player_position', 'scene_native_restore', 'scene_day_history', 'scene_later_caption', 'scene_caption_challenge', 'scene_audio_connected', 'scene_save_metadata', 'scene_passage_connected', 'scene_passage_catalogue', 'scene_contacts', 'scene_current_creation', 'scene_current_frames', 'scene_current_challenge', 'scene_current_snapshot', 'scene_content_update_wording', 'scene_content_update_deleted_line', 'scene_content_update_deleted_checkpoint', 'scene_content_update_history', 'scene_content_update_active_board', 'scene_content_update_transfer_active', 'scene_content_update_transfer_terminal', 'scene_content_update_resolved_unfinished', 'scene_content_update_completed_appended', 'scene_content_update_completed_deleted', 'scene_content_contracts', 'scene_checkpoint_ack', 'scene_owner_composition')]
+    [ValidateSet('minesweeper', 'shop', 'desktop', 'settings', 'checkpoint_diagnostics', 'new_account', 'reading_delivery', 'localization', 'dating', 'persistence', 'endings', 'audio', 'public_surfaces', 'scene_desktop_first_reveal', 'scene_round_checkpoint', 'scene_shop_checkpoint', 'scene_story_localization', 'scene_controls_localization', 'scene_apps', 'current_title', 'scene_backup_inspection', 'scene_progress_schema', 'authored_week', 'scene_five_outcomes', 'timeline_resources', 'backup_presentation', 'profile_parse', 'backup_current_build', 'terminal_admission', 'current_quick_load', 'current_terminal_fixture', 'scene_multiple_thoughts', 'scene_challenge_recall', 'scene_same_day_supportz', 'scene_player_position', 'scene_native_restore', 'scene_day_history', 'scene_later_caption', 'scene_caption_challenge', 'scene_audio_connected', 'scene_save_metadata', 'scene_passage_connected', 'scene_passage_catalogue', 'scene_contacts', 'scene_current_creation', 'scene_current_frames', 'scene_current_challenge', 'scene_current_snapshot', 'scene_content_update_wording', 'scene_content_update_deleted_line', 'scene_content_update_deleted_checkpoint', 'scene_content_update_history', 'scene_content_update_active_board', 'scene_content_update_transfer_active', 'scene_content_update_transfer_terminal', 'scene_content_update_resolved_unfinished', 'scene_content_update_completed_appended', 'scene_content_update_completed_deleted', 'scene_content_update_invalid_choice', 'scene_content_update_invalid_choice_missing_default', 'scene_content_contracts', 'scene_checkpoint_ack', 'scene_owner_composition')]
     [string]$Suite
 )
 
@@ -8,6 +8,7 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 $contentUpdate = $Suite.StartsWith('scene_content_update_')
 $contentUpdateCase = if ($contentUpdate) { $Suite.Substring('scene_content_update_'.Length) } else { '' }
+$contentErrorQuit = $contentUpdateCase -in @('deleted_line', 'deleted_checkpoint', 'completed_deleted', 'invalid_choice_missing_default')
 
 if ($Suite -eq 'current_terminal_fixture') {
     & (Join-Path $PSScriptRoot 'Invoke-CurrentTerminalFixture.ps1')
@@ -18,7 +19,7 @@ if ($Suite -eq 'current_terminal_fixture') {
 # execute; Invoke-IsolatedGodot also rejects GUT's silent suite-load failures.
 $suites = @{
     scene_contacts = @('tests/integration/test_scene_contacts_connected_create.gd')
-    scene_content_contracts = @('tests/unit/test_scene_event_contract.gd', 'tests/unit/test_scene_contact_events.gd')
+    scene_content_contracts = @('tests/unit/test_scene_event_contract.gd', 'tests/unit/test_scene_contact_events.gd', 'tests/integration/test_content_error_quit.gd', 'tests/integration/test_content_error_preserves_saves.gd')
     scene_current_snapshot = @('tests/integration/test_scene_saved_event_anchor.gd')
     scene_current_creation = @('tests/integration/test_scene_joint_new_run.gd')
     scene_current_frames = @('tests/unit/test_scene_initial_frozen.gd')
@@ -417,12 +418,13 @@ if ($contentUpdate) { $loadScripts[$Suite] = 'tests/integration/test_scene_conte
 $extra = @{}
 if ($contentUpdate) {
     $extra.Rendered = $true
+    if ($contentErrorQuit) { $extra.KeepRoot = $true }
     foreach ($phase in @('create', 'load', 'reload')) {
         $proofPath = Join-Path $output "content-update-$phase-proof.json"
         if (Test-Path -LiteralPath $proofPath) { Remove-Item -LiteralPath $proofPath -Force }
     }
 }
-if ($Suite -in @('scene_contacts', 'scene_passage_connected', 'scene_audio_connected', 'scene_native_restore', 'scene_owner_composition', 'scene_later_caption', 'scene_caption_challenge', 'scene_story_localization', 'scene_apps', 'current_title', 'scene_desktop_first_reveal', 'current_quick_load', 'scene_multiple_thoughts', 'scene_challenge_recall', 'scene_same_day_supportz')) { $extra.Rendered = $true }
+if ($Suite -in @('scene_content_contracts', 'scene_contacts', 'scene_passage_connected', 'scene_audio_connected', 'scene_native_restore', 'scene_owner_composition', 'scene_later_caption', 'scene_caption_challenge', 'scene_story_localization', 'scene_apps', 'current_title', 'scene_desktop_first_reveal', 'current_quick_load', 'scene_multiple_thoughts', 'scene_challenge_recall', 'scene_same_day_supportz')) { $extra.Rendered = $true }
 if ($loadScripts.ContainsKey($Suite)) {
     $loadScript = $loadScripts[$Suite]
     if (-not (Test-Path -LiteralPath (Join-Path $repositoryRoot $loadScript))) { throw "Requested test does not exist: $loadScript" }
@@ -535,7 +537,7 @@ if ($loadScripts.ContainsKey($Suite)) {
     }
     Write-Host "${Suite}: fresh-process load case passed ($loadScript)."
 }
-if ($contentUpdate -or $Suite -in @('scene_desktop_first_reveal', 'scene_passage_connected')) {
+if (($contentUpdate -and -not $contentErrorQuit) -or $Suite -in @('scene_desktop_first_reveal', 'scene_passage_connected')) {
     if (-not (Test-Path -LiteralPath $settledReport)) { throw 'Settled Load child did not produce its JUnit report.' }
     [xml]$settledXml = Get-Content -LiteralPath $settledReport -Raw
     $settledCases = @($settledXml.SelectNodes('//testcase'))
@@ -635,7 +637,7 @@ if ($contentUpdate -or $Suite -in @('scene_checkpoint_ack', 'scene_owner_composi
     }
     if ($contentUpdate) {
         if ($loadCases[0].GetAttribute('name') -cne 'test_load_current_content_without_replaying_gameplay' -or
-            $settledCases[0].GetAttribute('name') -cne 'test_fresh_reload_preserves_suspended_and_bound_state') {
+            (-not $contentErrorQuit -and $settledCases[0].GetAttribute('name') -cne 'test_fresh_reload_preserves_suspended_and_bound_state')) {
             throw 'Content update did not execute its exact fresh-process cases.'
         }
         $createProof = Get-Content -LiteralPath (Join-Path $output 'content-update-create-proof.json') -Raw | ConvertFrom-Json
@@ -651,7 +653,35 @@ if ($contentUpdate -or $Suite -in @('scene_checkpoint_ack', 'scene_owner_composi
         if ($contentUpdateCase -eq 'transfer_active' -and $reloadProof.binding_retry -ne $true) {
             throw 'Active transfer must prove physical write refusal and successful Retry.'
         }
-        foreach ($case in @($loadCases[0], $settledCases[0])) {
+        if ($contentErrorQuit) {
+            # Real Quit ends GUT before JUnit can be finalized. Require its explicit
+            # completed assertions and native-button receipt, plus external exit proof.
+            $quitLog = Join-Path $repositoryRoot ".godot/phase2r_logs/cloud-$Suite-settled-load.log"
+            if (-not (Select-String -LiteralPath $quitLog -Pattern '^\* test_fresh_reload_preserves_suspended_and_bound_state$' -Quiet) -or
+                (Select-String -LiteralPath $quitLog -Pattern 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' -Quiet) -or
+                $reloadProof.quit_activated -ne $true -or $reloadProof.failures -ne 0 -or $reloadProof.assertions -le 0 -or
+                $reloadProof.source_sha256 -cne $createProof.source_sha256) {
+                throw 'Content-error child did not prove passing assertions and production Quit.'
+            }
+            $exits = @(Get-Content -LiteralPath (Join-Path $output "$Suite.jsonl") | ForEach-Object { $_ | ConvertFrom-Json })
+            $quitExit = @($exits | Where-Object { [IO.Path]::GetFileName($_.log_path) -ceq "cloud-$Suite-settled-load.log" })
+            if ($quitExit.Count -ne 1 -or $quitExit[0].exit_code -ne 0) { throw 'Production Quit did not exit successfully.' }
+            $expectedSource = if ($contentUpdateCase -eq 'completed_deleted') { 'autosave.json' } else { 'slot_1.json' }
+            $savedPath = Join-Path (Join-Path $quitExit[0].user_dir 'saves') $expectedSource
+            if ((Get-FileHash -LiteralPath $savedPath -Algorithm SHA256).Hash.ToLowerInvariant() -cne $createProof.source_sha256) {
+                throw 'Failed Load or Quit changed the existing source save.'
+            }
+            $autosavePath = Join-Path (Join-Path $quitExit[0].user_dir 'saves') 'autosave.json'
+            $autosaveHash = if (Test-Path -LiteralPath $autosavePath) { (Get-FileHash -LiteralPath $autosavePath -Algorithm SHA256).Hash.ToLowerInvariant() } else { '' }
+            if ($autosaveHash -cne $reloadProof.autosave_sha256 -or
+                (Test-Path -LiteralPath (Join-Path (Join-Path $quitExit[0].user_dir 'saves') 'slot_3.json'))) {
+                throw 'Failed content continuation wrote a save or autosave.'
+            }
+            $caseEvidence += [ordered]@{ script = $settledScript; method = 'test_fresh_reload_preserves_suspended_and_bound_state';
+                assertions = [int]$reloadProof.assertions; status = 'pass'; production_quit_exit = 0; source_unchanged_after_exit = $true }
+            $contentCases = @($loadCases[0])
+        } else { $contentCases = @($loadCases[0], $settledCases[0]) }
+        foreach ($case in $contentCases) {
             $caseEvidence += [ordered]@{ script = $case.GetAttribute('classname'); method = $case.GetAttribute('name');
                 assertions = [int]$case.GetAttribute('assertions'); status = $case.GetAttribute('status') }
         }

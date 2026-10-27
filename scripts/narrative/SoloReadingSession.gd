@@ -31,6 +31,7 @@ var marker_frontier: Dictionary = {}
 var scene_occurrence := ""
 var scene_index := 0
 var _scene_nodes: Dictionary = {}
+var _scene_text: Dictionary = {}
 var _scene_bundle: Dictionary = {}
 var player_progress: Dictionary = {}
 var _progress_serial := 0
@@ -104,8 +105,10 @@ func _ensure_scene_programme(entry_id: String) -> Dictionary:
 		if not compiled.ok: return compiled
 		if not compiled.value.nodes.is_read_only(): FROZEN._freeze(compiled.value.nodes)
 		_scene_nodes[entry_id] = compiled.value.nodes
+		for event: Dictionary in compiled.value.events:
+			if event.kind == "text": _scene_text[event.line_id] = event.text
 		return {"ok": true}
-	return _fail(&"reading_entry_unavailable")
+	return _content_error("Missing passage: " + entry_id, {"entry_id": entry_id})
 
 ## Same synchronous initial-candidate check only. Share configuration, never the
 ## restored ledger/cursor; the sibling must construct its own first publication.
@@ -118,6 +121,7 @@ func _fork_scene_configuration() -> RefCounted:
 	sibling.catalogue = catalogue
 	sibling.registry = registry
 	sibling._scene_nodes = _scene_nodes.duplicate()
+	sibling._scene_text = _scene_text.duplicate()
 	sibling._scene_bundle = _scene_bundle
 	sibling._caption_variants_by_line = _caption_variants_by_line
 	return sibling
@@ -142,6 +146,9 @@ func admit_scene(entry_id: String, context: Dictionary, index: int = 0) -> Dicti
 	if not LEDGER.valid_scene_frame(context, occurrence, entry_id) or index < 0 \
 			or index >= _scene_nodes[entry_id].size() or _scene_nodes[entry_id][index].kind != "caption":
 		return _fail(&"reading_context_invalid")
+	var line_id: String = _scene_nodes[entry_id][index].line_id
+	if not _caption_variants_by_line.has(line_id):
+		return _content_error("Unregistered dialogue ID: " + line_id, {"entry_id": entry_id, "line_id": line_id})
 	var admitted := ledger.admit_entry_context(command_id, entry_id, context, occurrence)
 	if not admitted.ok: return admitted
 	if not latest_entry.is_empty() and boundary == "control":
@@ -240,8 +247,8 @@ static func project_player_checkpoint(checkpoint: Dictionary) -> Dictionary:
 
 ## External save admission owns this call. It prepares current story data only;
 ## the selected save, gameplay and Profile remain untouched until restore commits.
-static func normalize_player_checkpoint(checkpoint: Dictionary, choices: Dictionary,
-		outcomes: Dictionary) -> Dictionary:
+static func normalize_player_checkpoint(checkpoint: Dictionary, _choices: Dictionary,
+		_outcomes: Dictionary) -> Dictionary:
 	var saved: Variant = checkpoint.get("reading_session")
 	if not saved is Dictionary or saved.get("schema_version") != 7:
 		return _fail(&"reading_checkpoint_invalid")
@@ -283,118 +290,47 @@ static func normalize_player_checkpoint(checkpoint: Dictionary, choices: Diction
 	var session: RefCounted = load("res://scripts/narrative/SoloReadingSession.gd").new()
 	var configured: Dictionary = session.configure_scene()
 	if not configured.ok: return configured
-	var days: Dictionary = session._scene_bundle.scene_programme.get("story_days", {})
-	# Unchanged registrations without a day map need no recovery. Their strict
-	# cursor restore is sufficient; changed content still requires authored days.
-	if days.is_empty() and saved.registration_sha256 == session.fingerprint:
-		var unchanged: Dictionary = session.restore_player(saved, saved.entry_id)
-		if not unchanged.ok: return unchanged
-		return {"ok": true, "value": {"checkpoint": checkpoint.duplicate(true),
-			"story_day": session.player_progress.story_day, "fallback": false}}
-	var entry_day: int = int(days.get(saved.entry_id, progress.story_day))
-	if entry_day < 1 or entry_day > 7: return _fail(&"reading_history_day_unavailable")
-	var day: int = maxi(entry_day, int(progress.story_day))
-	if saved.registration_sha256 == session.fingerprint:
-		if saved.story_day < entry_day: return _fail(&"reading_checkpoint_invalid")
-		var original: RefCounted = session._fork_scene_configuration()
-		var valid_original: Dictionary = original.restore_player(saved, saved.entry_id)
-		if not valid_original.ok: return valid_original
-	var history := load("res://scripts/narrative/SceneReadingHistory.gd")
-	var route: Dictionary = history.current_day_route(session._scene_bundle, entry_day, choices, outcomes)
-	if not route.ok: return route
-	if saved.registration_sha256 == session.fingerprint and not route.value.entries.has(saved.entry_id):
-		return _fail(&"reading_frontier_invalid")
 	var current: Dictionary = saved.duplicate(true)
 	current.registration_sha256 = session.fingerprint
-	current.story_day = day
-	var intact := false
-	if route.value.entries.has(saved.entry_id):
-		# A retained control's current predecessor may change without moving the
-		# held operation. It is the caption the native restore will display.
-		if current.boundary == "control":
-			var prepared: Dictionary = session._ensure_scene_programme(saved.entry_id)
-			if not prepared.ok: return prepared
-			var nodes: Array = session._scene_nodes[saved.entry_id]
-			for index: int in nodes.size():
-				if nodes[index].kind != "control" or nodes[index].marker_id != current.position_id: continue
-				for programme: Dictionary in session._scene_bundle.scene_programme.entries:
-					if programme.entry_id != saved.entry_id: continue
-					var preceding := DialogicRuntimeAdapter._scene_control_authored_predecessor(index, {"nodes": nodes}, programme.markers)
-					if preceding.ok: current.captions[0].line_id = preceding.value.line_id
-		var candidate: RefCounted = session._fork_scene_configuration()
-		var checked: Dictionary = candidate.restore_player(current, current.entry_id)
-		intact = checked.ok
-		# If an entry gained new text after a formerly terminal caption, the
-		# intact moment still wins over a checkpoint rewind.
-		if not intact and current.boundary == "between_entries":
-			current.boundary = "line"
-			candidate = session._fork_scene_configuration()
-			intact = candidate.restore_player(current, current.entry_id).ok
-	var fallback := not intact
-	if fallback:
-		var anchor: Dictionary = progress.recovery_anchor
-		var target := {}
-		if route.value.entries.has(anchor.entry_id) and session._caption_variants_by_line.has(anchor.line_id) \
-				and session._caption_variants_by_line[anchor.line_id].owning_entry_id == anchor.entry_id:
-			target = anchor.duplicate(true)
-		else:
-			var start: String = route.value.start_entry
-			var prepared: Dictionary = session._ensure_scene_programme(start)
-			if not prepared.ok: return prepared
-			for node: Dictionary in session._scene_nodes[start]:
-				if node.kind == "caption":
-					target = {"entry_id": start, "line_id": node.line_id}
-					break
-		if target.is_empty(): return _fail(&"reading_history_day_unavailable")
-		current.entry_id = target.entry_id
-		current.boundary = "line"
-		current.position_id = target.line_id
-		current.captions[0].line_id = target.line_id
-		current.recovery_anchor = target
-	# Keep only provable encountered IDs through the restored caption. No
-	# route reconstruction may backfill newly inserted text into History.
-	var sections: Array = []
-	var found := false
-	var restored_line: String = current.captions[0].line_id
-	for section: Array in current.history_sections:
-		var kept: Array = []
-		for line_id: String in section:
-			if not session._caption_variants_by_line.has(line_id): continue
-			var owner: String = session._caption_variants_by_line[line_id].owning_entry_id
-			if days.get(owner, entry_day) == entry_day and not route.value.entries.has(owner): continue
-			if int(days.get(owner, day)) > day: continue
-			kept.append(line_id)
-			if line_id == restored_line:
-				found = true
-				break
-		sections.append(kept)
-		if found: break
-	if not found:
-		if fallback:
-			var previous_sections: Array = []
-			for section: Array in sections:
-				var previous: Array = []
-				for line_id: String in section:
-					var owner: String = session._caption_variants_by_line[line_id].owning_entry_id
-					if int(days.get(owner, entry_day)) < entry_day: previous.append(line_id)
-				if not previous.is_empty(): previous_sections.append(previous)
-			previous_sections.append([restored_line])
-			while previous_sections.size() > 3: previous_sections.pop_front()
-			sections = previous_sections
-		else:
-			if sections.is_empty(): sections.append([])
-			sections.back().append(restored_line)
-	current.history_sections = sections
+	var days: Dictionary = session._scene_bundle.scene_programme.get("story_days", {})
+	current.story_day = maxi(int(saved.story_day), int(days.get(saved.entry_id, saved.story_day)))
+	# A retained control remains the same operation if preceding prose changed.
+	# First prove that the saved caption still exists; deleted IDs never rewind.
+	if current.boundary == "control":
+		var prepared: Dictionary = session._ensure_scene_programme(current.entry_id)
+		if not prepared.ok: return prepared
+		var nodes: Array = session._scene_nodes[current.entry_id]
+		var saved_line: String = current.captions[0].line_id
+		var saved_line_found := false
+		for node: Dictionary in nodes:
+			if node.kind == "caption" and node.line_id == saved_line: saved_line_found = true
+		if not saved_line_found:
+			return _content_error("Missing dialogue ID: " + saved_line,
+				{"entry_id": current.entry_id, "line_id": saved_line})
+		for index: int in nodes.size():
+			if nodes[index].kind != "control" or nodes[index].marker_id != current.position_id: continue
+			for programme: Dictionary in session._scene_bundle.scene_programme.entries:
+				if programme.entry_id != current.entry_id: continue
+				var preceding := DialogicRuntimeAdapter._scene_control_authored_predecessor(index, {"nodes": nodes}, programme.markers)
+				if preceding.ok:
+					current.captions[0].line_id = preceding.value.line_id
+					if current.history_sections.back().is_empty() or current.history_sections.back().back() != preceding.value.line_id:
+						current.history_sections.back().append(preceding.value.line_id)
+	# Identity owns restoration. Changed prose or a removed past choice does not
+	# move a saved caption to a recovery anchor or to the start of a day.
 	var restored: Dictionary = session.restore_player(current, current.entry_id)
+	# New prose after the former last caption preserves that caption. Completion
+	# remains owned by the Run lifecycle, not by this presentation cursor.
+	if not restored.ok and current.boundary == "between_entries":
+		current.boundary = "line"
+		restored = session.restore_player(current, current.entry_id)
 	if not restored.ok: return restored
 	var result := checkpoint.duplicate(true)
-	result.entry_id = current.entry_id
 	result.content_version = session.catalogue[current.entry_id].content_version
 	result.manifest_fingerprint = session.fingerprint
-	result.transaction_id = current.occurrence_id
 	result.frozen_context = session.ledger.snapshot().entry_contexts[LEDGER.scene_frame_key(current.occurrence_id, current.entry_id)].duplicate(true)
 	result.reading_session = current
-	return {"ok": true, "value": {"checkpoint": result, "story_day": day, "fallback": fallback}}
+	return {"ok": true, "value": {"checkpoint": result, "story_day": current.story_day, "fallback": false}}
 
 static func expand_player_checkpoint(checkpoint: Dictionary) -> Dictionary:
 	if checkpoint.get("stage") != "scene": return {"ok": true, "value": checkpoint.duplicate(true)}
@@ -441,6 +377,8 @@ func _project_player_reading(saved: Dictionary) -> Dictionary:
 	return {"ok": true, "value": compact} if checked.ok else checked
 
 func restore_player(saved: Dictionary, entry_id: String) -> Dictionary:
+	if not catalogue.has(entry_id):
+		return _content_error("Missing passage: " + entry_id, {"entry_id": entry_id, "position_id": saved.get("position_id", "")})
 	var keys := ["schema_version", "registration_sha256", "entry_id", "occurrence_id", "boundary",
 		"position_id", "session_token", "publication_serial", "captions", "story_day", "recovery_anchor", "history_sections"]
 	if family != "scene" or not FROZEN._exact(saved, keys) \
@@ -455,7 +393,11 @@ func restore_player(saved: Dictionary, entry_id: String) -> Dictionary:
 			or not saved.captions is Array or saved.captions.size() != 1:
 		return _fail(&"reading_checkpoint_invalid")
 	var prepared := _ensure_scene_programme(entry_id)
-	if not prepared.ok: return prepared
+	if not prepared.ok:
+		if prepared.get("code") == &"reading_content_error":
+			prepared.details["position_id"] = saved.position_id
+			prepared.message += "\nSaved dialogue position: " + saved.position_id
+		return prepared
 	var progress := {"story_day": saved.story_day, "recovery_anchor": saved.recovery_anchor,
 		"history_sections": saved.history_sections}
 	if not TRAVERSAL.valid_player_progress(progress): return _fail(&"reading_checkpoint_invalid")
@@ -463,12 +405,16 @@ func restore_player(saved: Dictionary, entry_id: String) -> Dictionary:
 	var publications := {}
 	for value: Variant in saved.captions:
 		if not value is Dictionary or not FROZEN._exact(value, ["line_id", "publication_id"]) \
-				or not value.line_id is String or not _caption_variants_by_line.has(value.line_id) \
+				or not value.line_id is String \
 				or not value.publication_id is String or value.publication_id.strip_edges().is_empty() \
 				or value.publication_id != "caption:%d" % saved.publication_serial \
 				or publications.has(value.publication_id): return _fail(&"reading_frontier_invalid")
+		if not _caption_variants_by_line.has(value.line_id):
+			return _content_error("Missing dialogue ID: " + value.line_id, {"entry_id": entry_id, "line_id": value.line_id})
 		var beat: Dictionary = _caption_variants_by_line[value.line_id]
-		if beat.owning_entry_id != entry_id: return _fail(&"reading_frontier_invalid")
+		if beat.owning_entry_id != entry_id:
+			return _content_error("Dialogue ID is not in this passage: " + value.line_id,
+				{"entry_id": entry_id, "line_id": value.line_id})
 		publications[value.publication_id] = true
 		rows.append({"publication_id": value.publication_id, "occurrence_id": saved.occurrence_id,
 			"beat": beat.duplicate(true)})
@@ -482,9 +428,12 @@ func restore_player(saved: Dictionary, entry_id: String) -> Dictionary:
 		var node: Dictionary = nodes[cursor]
 		if (saved.boundary == "control" and node.kind == "control" and node.marker_id == saved.position_id) \
 				or (saved.boundary != "control" and node.kind == "caption" and node.line_id == saved.position_id):
-			if index >= 0: return _fail(&"reading_frontier_invalid")
+			if index >= 0:
+				return _content_error("Ambiguous dialogue position: " + saved.position_id,
+					{"entry_id": entry_id, "position_id": saved.position_id})
 			index = cursor
-	if index < 0: return _fail(&"reading_frontier_invalid")
+	if index < 0:
+		return _content_error("Missing dialogue position: " + saved.position_id, {"entry_id": entry_id, "position_id": saved.position_id})
 	var tail: Dictionary = rows.back()
 	if saved.boundary == "control":
 		var registered := preload("res://scripts/narrative/DialogicEntryManifest.gd").scene_contract_tables()
@@ -494,7 +443,8 @@ func restore_player(saved: Dictionary, entry_id: String) -> Dictionary:
 			if programme.entry_id == entry_id:
 				predecessor = DialogicRuntimeAdapter._scene_control_authored_predecessor(index, {"nodes": nodes}, programme.markers)
 		if not predecessor.ok or predecessor.value.line_id != tail.beat.line_id:
-			return _fail(&"reading_frontier_invalid")
+			return _content_error("Cannot restore held dialogue control: " + saved.position_id,
+				{"entry_id": entry_id, "position_id": saved.position_id, "line_id": tail.beat.line_id})
 	else:
 		if tail.beat.line_id != saved.position_id: return _fail(&"reading_frontier_invalid")
 		if saved.boundary == "between_entries":
@@ -504,7 +454,8 @@ func restore_player(saved: Dictionary, entry_id: String) -> Dictionary:
 				visited[index] = true
 				index = nodes[index].next
 			if index < 0 or index >= nodes.size() or nodes[index].kind != "completion":
-				return _fail(&"reading_frontier_invalid")
+				return _content_error("Dialogue no longer ends at: " + saved.position_id,
+					{"entry_id": entry_id, "position_id": saved.position_id})
 	var presentation := FROZEN.build(entry_id, {"entry_id": entry_id, "entry_role": "scene",
 		"occurrence_id": saved.occurrence_id, "admission_receipt_id": saved.occurrence_id})
 	if not presentation.ok: return presentation
@@ -570,13 +521,16 @@ func prepare_scene_control_continuation() -> Dictionary:
 	var nodes: Array = _scene_nodes[latest_entry]
 	var node: Dictionary = nodes[scene_index]
 	var target: int = scene_index + 1
-	if node.kind != "control" or target >= nodes.size() or nodes[target].kind != "caption": return _fail(&"reading_next_path_invalid")
+	if node.kind != "control" or target >= nodes.size() or nodes[target].kind != "caption": return _content_error("Cannot continue dialogue in: " + latest_entry, {"entry_id": latest_entry, "program_index": scene_index})
 	var reading: Dictionary = TRAVERSAL.without_operation(source.value)
 	var candidate := LEDGER.new()
 	var retained: Dictionary = reading.ledger
 	var copied := candidate.restore_snapshot(command_id, retained.frozen_context, manifest, registry,
 		retained, retained.entry_contexts, true, true)
 	if not copied.ok: return copied
+	if not _caption_variants_by_line.has(nodes[target].line_id):
+		return _content_error("Unregistered dialogue ID: " + nodes[target].line_id,
+			{"entry_id": latest_entry, "line_id": nodes[target].line_id})
 	var beat: Dictionary = _caption_variants_by_line[nodes[target].line_id]
 	var allocation := candidate.allocate_publication(command_id, latest_entry, scene_occurrence)
 	if not allocation.ok: return allocation
@@ -607,15 +561,18 @@ func prepare_scene_next(frontier: Dictionary, is_witnessed: Callable) -> Diction
 	var destination := {}
 	var visited := {}
 	while destination.is_empty():
-		if visited.has(index): return _fail(&"reading_next_path_invalid")
+		if visited.has(index): return _content_error("Cannot continue dialogue in: " + latest_entry, {"entry_id": latest_entry, "program_index": scene_index})
 		visited[index] = true
 		var node: Dictionary = nodes[index]
-		if node.kind not in ["caption", "jump"]: return _fail(&"reading_next_path_invalid")
+		if node.kind not in ["caption", "jump"]: return _content_error("Cannot continue dialogue in: " + latest_entry, {"entry_id": latest_entry, "program_index": scene_index})
 		var target: int = node.next
 		path.append({"from": index, "to": target})
 		var next: Dictionary = nodes[target]
 		var backward: bool = node.kind == "jump" and target <= index
 		if next.kind == "caption":
+			if not _caption_variants_by_line.has(next.line_id):
+				return _content_error("Unregistered dialogue ID: " + next.line_id,
+					{"entry_id": latest_entry, "line_id": next.line_id})
 			var beat: Dictionary = _caption_variants_by_line[next.line_id]
 			var witnessed: Variant = is_witnessed.call(beat.duplicate(true))
 			if typeof(witnessed) != TYPE_BOOL: return _fail(&"reading_next_witness_invalid")
@@ -628,7 +585,7 @@ func prepare_scene_next(frontier: Dictionary, is_witnessed: Callable) -> Diction
 			else: captions.append(row)
 		elif next.kind in ["control", "completion"]:
 			destination = {"kind": next.kind, "program_index": target, "caption": null}
-		elif backward: return _fail(&"reading_next_path_invalid")
+		elif backward: return _content_error("Cannot continue dialogue in: " + latest_entry, {"entry_id": latest_entry, "program_index": scene_index})
 		index = target
 	var plan := {"schema_version": 3, "entry_id": latest_entry, "source_reading": reading,
 		"path": path, "traversed_captions": captions, "destination": destination}
@@ -649,6 +606,8 @@ func project_scene_day_history(frontier: Dictionary, _choices: Dictionary, _outc
 	var projected: Dictionary = load("res://scripts/narrative/SceneReadingHistory.gd").project_encountered(
 		_scene_bundle, captured.value.player_progress.history_sections)
 	var rows: Array = projected.value.captions
+	for row: Dictionary in rows:
+		if _scene_text.has(row.line_id): row.text = _scene_text[row.line_id]
 	if rows.is_empty() or rows.back().line_id != tail.beat.line_id or rows.back().entry_id != latest_entry:
 		return _fail(&"reading_frontier_invalid")
 	rows.back().publication_id = tail.publication_id
@@ -1045,7 +1004,10 @@ func entry_program(entry_id: String, context: Dictionary = {}) -> Dictionary:
 	if family == "scene":
 		if not catalogue.has(entry_id): return _fail(&"reading_entry_unavailable")
 		if not context.is_empty() and not LEDGER.valid_scene_frame(context, str(context.get("playback_id", "")), entry_id): return _fail(&"reading_context_invalid")
-		return {"ok": true, "value": catalogue[entry_id].duplicate(true)}
+		var programme: Dictionary = catalogue[entry_id].duplicate(true)
+		for line: Dictionary in programme.lines:
+			if _scene_text.has(line.line_id): line.text = _scene_text[line.line_id]
+		return {"ok": true, "value": programme}
 	if not catalogue.has(entry_id): return _fail(&"reading_entry_unavailable")
 	if catalogue_schema_version == 1:
 		var row: Dictionary = catalogue[entry_id].duplicate(true)
@@ -1175,6 +1137,9 @@ static func _hospital_entry(entry_id: String) -> bool:
 	for day: int in range(1, 8):
 		if entry_id == "hospital.faint.day%d" % day: return true
 	return false
+
+static func _content_error(message: String, details: Dictionary) -> Dictionary:
+	return {"ok": false, "code": &"reading_content_error", "message": message, "details": details}
 
 static func _fail(code: StringName) -> Dictionary:
 	return {"ok": false, "code": code, "message": ""}

@@ -106,10 +106,11 @@ func test_missing_new_prerequisites_do_not_force_rewind_of_an_intact_anchor() ->
 	assert_true(selected.ok)
 	assert_false(selected.value.entries.has("Day1.photo.yes"))
 
-func test_invalid_or_ambiguous_saved_facts_do_not_admit_their_destination() -> void:
+func test_invalid_choice_uses_default_and_ambiguous_outcome_does_not_admit_destination() -> void:
 	var invalid := HISTORY.current_day_route(_bundle, 1, {"Day1.photo": "invalid"}, {})
 	assert_true(invalid.ok)
 	assert_false(invalid.value.entries.has("Day1.photo.yes"))
+	assert_true(invalid.value.entries.has("Day1.photo.default"))
 	var outcomes := _outcomes({"Day1.challenge": "won"})
 	outcomes["another"] = {"challenge_id": "Day1.challenge", "outcome": "lost"}
 	var ambiguous := HISTORY.current_day_route(_bundle, 1, {"Day1.photo": "pass"}, outcomes)
@@ -141,3 +142,11 @@ func test_encounter_projection_is_detached_and_never_backfills_or_duplicates() -
 func after_all() -> void:
 	for entry: Dictionary in _bundle.entry_manifest.entries:
 		if entry.role == "scene": assert_true(_covered.has(entry.entry_id), "every authored scene branch covered: " + entry.entry_id)
+
+func test_removed_option_selects_authored_default_in_route_projection() -> void:
+	var marker := {"kind": "thought.options", "payload": {"opportunity_id": "TEST.choice",
+		"pass_target_id": "target.default", "options": [{"choice_id": "kept", "target_id": "target.kept"}]}}
+	var selected := HISTORY._select_target(marker, {"TEST.choice": "removed"}, {}, {})
+	assert_true(selected.ok)
+	assert_eq(selected.value, "target.default")
+	assert_eq(HISTORY._select_target(marker, {"TEST.choice": "kept"}, {}, {}).value, "target.kept")

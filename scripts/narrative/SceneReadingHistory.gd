@@ -69,10 +69,10 @@ static func _select_target(marker: Dictionary, choices: Dictionary, outcomes: Di
 			var choice: Variant = choices[payload.opportunity_id]
 			if choice == "pass": return {"ok": true, "value": payload.pass_target_id}
 			if marker.kind == "thought.pass":
-				return {"ok": true, "value": payload.yes_target_id} if choice == "yes" else _fail(&"reading_history_choice_invalid")
+				return {"ok": true, "value": payload.yes_target_id if choice == "yes" else payload.pass_target_id}
 			for option: Dictionary in payload.options:
 				if choice == option.choice_id: return {"ok": true, "value": option.target_id}
-			return _fail(&"reading_history_choice_invalid")
+			return {"ok": true, "value": payload.pass_target_id}
 		"challenge.end", "challenge.recall":
 			var found := ""
 			for row: Variant in outcomes.values():

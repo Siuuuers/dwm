@@ -4848,7 +4848,7 @@ func capture_scene_challenge_closure(context: Dictionary) -> Dictionary:
 var _scene_end_operation: Dictionary = {}
 
 func advance_scene_registered_marker(retry_event: Dictionary = {}) -> Dictionary:
-	return _advance_scene_registered_marker(false, "", retry_event)
+	return _scene_content_result(_advance_scene_registered_marker(false, "", retry_event))
 
 ## Choice intent receives a live presentation proof and optional registered choice ID.
 ## Targets remain owner data; an omitted ID preserves the legacy Yes command.
@@ -4857,7 +4857,13 @@ func accept_scene_thought(expected: Dictionary, choice_id: String = "") -> Dicti
 	if expected.is_empty(): return _transaction_failure(&"presentation_frontier_changed", "")
 	var current: Dictionary = _scene_event_bridge._line_presentation_context(expected)
 	if not current.get("ok", false): return current
-	return _advance_scene_registered_marker(true, choice_id)
+	return _scene_content_result(_advance_scene_registered_marker(true, choice_id))
+
+func _scene_content_result(result: Dictionary) -> Dictionary:
+	if result.get("code") == &"reading_content_error" and is_inside_tree():
+		var bootstrap := get_node_or_null("/root/ApplicationBootstrap")
+		if bootstrap != null: bootstrap.show_content_error(result)
+	return result
 
 ## Saved outcomes/choices decide recovery traversal; this projection writes nothing.
 func capture_resolved_scene_marker() -> Dictionary:
@@ -4867,9 +4873,17 @@ func capture_resolved_scene_marker() -> Dictionary:
 	var result := {}
 	if marker.kind in ["thought.pass", "thought.options"] and scene_choices.has(marker.payload.opportunity_id):
 		var choice: String = scene_choices[marker.payload.opportunity_id]
-		var target: String = marker.payload.pass_target_id if choice == "pass" else (
-			_SCENE_EVENT.thought_option_target(marker.payload, choice) if marker.kind == "thought.options" else marker.payload.yes_target_id)
-		if target.is_empty(): return _transaction_failure(&"scene_saved_choice_unavailable", "")
+		var target := ""
+		if marker.kind == "thought.options":
+			target = _SCENE_EVENT.thought_option_target(marker.payload, choice)
+		elif choice == "yes":
+			target = marker.payload.yes_target_id
+		if choice == "pass" or target.is_empty():
+			choice = "pass"
+			target = marker.payload.pass_target_id
+		if target.is_empty():
+			return {"ok": false, "code": &"reading_content_error", "message": "The authored default route is missing.",
+				"details": {"opportunity_id": marker.payload.opportunity_id, "target_id": target}}
 		result = {"kind": "thought_resolved", "opportunity_id": marker.payload.opportunity_id,
 			"choice": choice, "target_id": target}
 	elif marker.kind in ["challenge.playable", "challenge.end"]:
@@ -5316,9 +5330,11 @@ func _admit_scene_target_owned(target_id: String, trigger_command_id: String, le
 				or recovery_trigger.scene_event.semantic.source != source_context.value.source:
 			return _transaction_failure(&"scene_recovery_source_changed", "")
 	if not trigger is Dictionary or trigger.get("scene_event", {}).get("result", {}).get("target_id") != target_id \
-			or trigger.scene_event.semantic.source.scene_occurrence != _scene_snapshot_references.active_occurrence_id \
-			or not tables.value.targets.has(target_id):
+			or trigger.scene_event.semantic.source.scene_occurrence != _scene_snapshot_references.active_occurrence_id:
 		return _transaction_failure(&"scene_admission_trigger_mismatch", "")
+	if not tables.value.targets.has(target_id):
+		return {"ok": false, "code": &"reading_content_error", "message": "The required route does not resolve: " + target_id,
+			"details": {"target_id": target_id}}
 	var target: Dictionary = tables.value.targets[target_id].target
 	if target.kind == "ending": return _transaction_failure(&"scene_target_unavailable", "ordinary DTL Finish is required")
 	var stable: Dictionary = _scene_save_owner.get_latest_stable_checkpoint()
