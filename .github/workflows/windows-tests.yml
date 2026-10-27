@@ -82,7 +82,6 @@ jobs:
               if diff.returncode == 0:
                   paths = set(diff.stdout.decode().strip("\0").split("\0"))
                   self_talk_paths = {
-                      '.github/workflows/self-talk.yml',
                       '.github/workflows/windows-tests.yml',
                       'addons/dialogic/Core/DialogicGameHandler.gd',
                       'addons/dialogic/Modules/Text/subsystem_text.gd',
@@ -113,6 +112,11 @@ jobs:
                       'tests/fixtures/dialogic/scene_skip_all.dtl',
                       'tests/integration/current_title_scene_child.gd',
                       'tests/integration/scene_computer_child.gd',
+                      'tests/integration/scene_contacts_connected_child.gd',
+                      'tests/integration/scene_seven_day_connected_child.gd',
+                      'tests/integration/test_scene_clock_layout.gd',
+                      'tests/integration/test_scene_ending_direct_return.gd',
+                      'tests/ui/render_delivery_dialogue.gd',
                       'tests/integration/test_scene_controls_localization.gd',
                       'tests/integration/test_scene_skip_all.gd',
                       'tests/integration/test_witnessed_caption_runtime.gd',

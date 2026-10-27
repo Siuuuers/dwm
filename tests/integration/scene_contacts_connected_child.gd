@@ -26,7 +26,21 @@ func _wait_line(entry: String, line: String) -> bool:
 	return false
 
 func _save_slot(slot: int) -> bool:
-	await _click(_controls(get_tree().current_scene, "Save"))
+	var host: Control = get_tree().current_scene
+	# The canonical Save command is on the reading rail, held behind Computer.
+	if host.is_computer_open(): await _click(_controls(host, "CheckComputer"))
+	assert_false(host.is_computer_open())
+	var save_button: Control = _controls(host, "Save")
+	assert_true(save_button.is_visible_in_tree(), "Save uses the visible bottom rail")
+	if not save_button.is_visible_in_tree(): return false
+	# Native reveal completion can precede the rail's projection by one frame.
+	# Wait for the actual button's fresh-contact admission before pressing it.
+	var deadline := Time.get_ticks_msec() + 10000
+	while not save_button._admitted() and Time.get_ticks_msec() < deadline:
+		await get_tree().process_frame
+	assert_true(save_button._admitted(), "visible Save rail must admit a fresh press")
+	if not save_button._admitted(): return false
+	await _click(save_button)
 	var sheet: Node = get_node("/root/SceneRouter")._production_pause
 	assert_true(sheet.can_save_backup(), str(sheet.last_result))
 	if not sheet.can_save_backup(): return false

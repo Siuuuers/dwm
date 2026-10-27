@@ -59,7 +59,7 @@ func _history_ids() -> Array:
 	if not _ok(captured): return []
 	var ids: Array = []
 	var caption_ids: Array = []
-	for section: Array in captured.value.player_progress.history_sections:
+	for section: Array in captured.value.reading_session.player_progress.history_sections:
 		for id: String in section:
 			ids.append(id)
 			if not id.begins_with("line.scene.test.a.thought_"): caption_ids.append(id)
