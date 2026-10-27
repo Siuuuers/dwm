@@ -25,7 +25,11 @@ actual drawing and durable Quick storage, and checks no capture while the notice
 is visible. PR 137 records final results. No end-to-end Quick Save latency claim
 is made.
 
-## Next performance work
+## Deferred performance work
+
+Priority update: [Save and Load improvement backlog](ax-save-load-improvement-backlog-20261027.md).
+Further optimization is deferred. Prioritize unfinished player-facing functions.
+The following profiling steps apply only when performance work resumes.
 
 Use the accepted current master as the next baseline. Do not compare absolute times
 between different runners. PR 136 reduced repeated reading validations from 12 to 8;
