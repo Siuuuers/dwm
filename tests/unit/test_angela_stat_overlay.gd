@@ -37,7 +37,7 @@ func _assert_handle_theme(expected: Theme) -> void:
 	var handle: Control = _split.get_node("SplitDragHandle")
 	assert_same(_split.theme, expected)
 	assert_eq(handle.separator_color, expected.get_color("font_color", "Label"))
-	assert_eq(handle.grip_color, expected.get_color("face", "Desktop"))
+	assert_eq(handle.size, Vector2(24, 720), "full-height divider input strip")
 	assert_eq(handle.focus_color, expected.get_color("focus", "Desktop"))
 	assert_false(handle.accessibility_name.is_empty())
 	assert_false(handle.accessibility_description.is_empty())

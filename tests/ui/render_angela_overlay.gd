@@ -133,7 +133,7 @@ func _show(fixture: Dictionary) -> void:
 		for frame in 3: await RenderingServer.frame_post_draw
 		var pixels: Image = viewport.get_texture().get_image()
 		check(not pixels.is_empty() and pixels.get_size() == Vector2i(1280, 720), fixture.name + ": full framebuffer")
-		var art_image := pixels.get_region(Rect2i(0, 0, width - 64, 720))
+		var art_image := pixels.get_region(Rect2i(0, 0, width - 2, 720))
 		if not art_pixels.has(width): art_pixels[width] = art_image
 		check(art_image.get_data() == art_pixels[width].get_data(), fixture.name + ": same-width unobstructed artwork pixels unchanged")
 		check(pixels.save_png(folder.path_join(fixture.name + ".png")) == OK, fixture.name + ": screenshot saved")
@@ -150,10 +150,9 @@ func _check_geometry(fixture: Dictionary) -> void:
 	var split: Control = main.get_node("RootHBox")
 	var handle: Control = split._handle
 	check(split.theme == desktop.theme, name + ": divider mirrors retained desktop theme")
-	check(handle.size == Vector2(64, 64), name + ": divider retains safe hit target")
+	check(handle.size == Vector2(24, 720), name + ": divider retains full-height input strip")
 	check(angela.get_global_rect().encloses(handle.get_global_rect()), name + ": divider stays on Angela side")
-	check(handle.grip_color == desktop.theme.get_color("face", "Desktop"), name + ": actual divider backing follows palette")
-	check(handle.separator_color == desktop.theme.get_color("ink", "Desktop"), name + ": actual divider cue follows palette")
+	check(handle.separator_color == desktop.theme.get_color("ink", "Desktop"), name + ": actual divider seam follows palette")
 	check(handle.focus_color == desktop.theme.get_color("focus", "Desktop"), name + ": actual divider focus follows palette")
 	check(art.get_child_count() > 0, name + ": authored art layers present")
 	for layer: Node in art.get_children():
@@ -181,7 +180,7 @@ func _check_centered_crop() -> void:
 	if DisplayServer.get_name() != "headless":
 		for frame in 3: await RenderingServer.frame_post_draw
 		var reference: Image = viewport.get_texture().get_image()
-		_compare_crop(art_pixels[480], reference.get_region(Rect2i(0, 0, 478 - 64, 720)), 1, 478)
+		_compare_crop(art_pixels[480], reference.get_region(Rect2i(0, 0, 478 - 2, 720)), 1, 478)
 	main.get_node("RootHBox").set_angela_width(480)
 	await settle()
 

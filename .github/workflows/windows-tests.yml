@@ -117,6 +117,8 @@ jobs:
                       'tests/integration/test_scene_clock_layout.gd',
                       'tests/integration/test_scene_ending_direct_return.gd',
                       'tests/ui/render_delivery_dialogue.gd',
+                      'tests/ui/render_angela_overlay.gd',
+                      'tests/unit/test_angela_stat_overlay.gd',
                       'tests/integration/test_scene_controls_localization.gd',
                       'tests/integration/test_scene_skip_all.gd',
                       'tests/integration/test_witnessed_caption_runtime.gd',
