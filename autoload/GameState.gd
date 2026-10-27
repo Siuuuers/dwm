@@ -4817,13 +4817,6 @@ func validate_scene_challenge_command(command: Dictionary, bundle: Dictionary) -
 		return _transaction_failure(&"scene_challenge_command_refused", "")
 	return {"ok": true}
 
-func _scene_player_checkpoint_same(left: Variant, right: Variant) -> bool:
-	if not left is Dictionary or not right is Dictionary: return false
-	var owner := preload("res://scripts/narrative/SoloReadingSession.gd")
-	var a: Dictionary = owner.project_player_checkpoint(left)
-	var b: Dictionary = owner.project_player_checkpoint(right)
-	return a.ok and b.ok and _SCENE_EVENT._equal(a.value, b.value)
-
 var _scene_live_closures: Dictionary = {}
 
 func capture_scene_challenge_closure(context: Dictionary) -> Dictionary:
@@ -4935,7 +4928,7 @@ func _advance_scene_registered_marker(accept_thought: bool, choice_id: String = 
 		var acquired: Dictionary = _mutation_gate.acquire(&"causal_transaction")
 		if not acquired.ok: return acquired
 		var lease: String = acquired.value.token
-		var issued: Dictionary = _identity_issuer.issue(&"transaction_id")
+		var issued: Dictionary = _identity_issuer.issue_deferred(&"transaction_id")
 		var resumed: Dictionary = issued
 		if issued.ok:
 			var trigger := {"scene_event": {"semantic": {"source": context.value.source.duplicate(true)},
@@ -4971,7 +4964,8 @@ func _advance_scene_registered_marker(accept_thought: bool, choice_id: String = 
 			return _transaction_failure(&"scene_playable_retry_mismatch", "")
 		event = retry_event.duplicate(true)
 	else:
-		var issued: Dictionary = _identity_issuer.issue(&"transaction_id")
+		# Live commands persist their provenance only when the owning Run is saved.
+		var issued: Dictionary = _identity_issuer.issue_deferred(&"transaction_id")
 		if not issued.get("ok", false): return issued
 		event = {"schema_version": 2, "source": current.value.source.duplicate(true),
 			"event_id": marker.value.marker_id, "kind": ("thought.select" if marker.value.kind == "thought.options" else "thought.accept") if accept_thought else marker.value.kind, "payload": marker.value.payload.duplicate(true),
@@ -5338,7 +5332,7 @@ func _admit_scene_target_owned(target_id: String, trigger_command_id: String, le
 			return _transaction_failure(&"scene_contact_parent_invalid", "")
 		next_scene.merge(_scene_snapshot_references.return_to.parent.duplicate(true), true)
 	else:
-		var issued: Dictionary = _identity_issuer.issue(&"transaction_id")
+		var issued: Dictionary = _identity_issuer.issue_deferred(&"transaction_id")
 		if not issued.get("ok", false): return issued
 		next_scene.active_occurrence_id = issued.value.token
 		if trigger.scene_event.result.kind == "contact_entry_accepted":
@@ -5462,7 +5456,7 @@ func _validate_scene_physical_record(snapshot: Dictionary) -> Dictionary:
 
 
 # Scene correspondence shares the canonical Contacts bag; the detached candidate
-# is checkpointed before live adoption and guarded across lower-owner callbacks.
+# is published before live adoption and guarded across lower-owner callbacks.
 var _scene_contact_operation: Dictionary = {}
 
 func capture_scene_contact_context() -> Dictionary:

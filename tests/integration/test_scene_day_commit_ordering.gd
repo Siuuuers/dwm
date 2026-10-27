@@ -354,23 +354,25 @@ func test_paid_debug_preparing_and_certified_restore_preserve_spec_and_never_cha
 	assert_eq(game.minesweeper_rounds_left, 1, "restored paid Reveal consumes no further allowance")
 
 
-func test_scene_first_reveal_failed_write_keeps_payment_and_allowance_consistent_on_retry() -> void:
+func test_scene_first_reveal_ignores_storage_failure_and_consumes_allowance_once() -> void:
 	if not _setup(): return
 	game.minesweeper_rounds_left = 2
 	game.minesweeper_app_rounds_finished_today = 0
 	var coordinator := _payment_coordinator()
 	if coordinator == null: return
-	var before_board: Dictionary = board.capture()
 	var request := _payment_request(coordinator, "beginner")
 	request["cell_index"] = 0
-	coordinator._durable_checkpoint_port.fail_write = true
-	var failed: Dictionary = coordinator.reveal(request)
-	assert_false(failed.get("ok", false))
-	assert_eq(board.capture(), before_board, "unacknowledged write cannot adopt the paid board")
-	assert_false(board.capture().round_paid)
-	assert_eq(game.minesweeper_rounds_left, 2)
+	var durable: RefCounted = coordinator._durable_checkpoint_port
+	var prior_disk: Dictionary = durable.disk.duplicate(true)
+	var prior_journal: Dictionary = durable.journal.duplicate(true)
+	durable.fail_write = true
 	var retried: Dictionary = coordinator.reveal(request)
-	if not _ok(retried, "retry failed first-Reveal write"): return
+	if not _ok(retried, "first Reveal publishes live despite unavailable storage"): return
+	assert_eq(durable.prepares, 0)
+	assert_eq(durable.writes, 0)
+	assert_eq(durable.disk, prior_disk)
+	assert_eq(durable.journal, prior_journal)
+	assert_true(durable.fail_write, "no write consumed the configured storage fault")
 	assert_eq(retried, {"ok": true, "code": &"first_reveal_committed",
 		"value": {"revision": board.capture().revision}, "receipt": {}},
 		"genuine live retry retains only its acknowledgement, not a board/payment/publication archive")

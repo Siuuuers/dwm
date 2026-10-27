@@ -489,12 +489,14 @@ func test_named_presentation_view_orders_and_positions_overlays_and_clears_them_
 
 func test_only_explicit_entry_bindings_produce_presentation_commands() -> void:
 	assert_true(_script.call(&"reload_placements", PRESENTATION_FIXTURE))
-	assert_eq(_script.call(&"get_presentation_commands", "unbound.entry"), [])
-	var commands: Array = _script.call(&"get_presentation_commands", "template.entry.checkpoint")
+	assert_eq(_script.call(&"get_presentation_commands", "unbound.entry"), {"ok": true, "value": []})
+	var result: Dictionary = _script.call(&"get_presentation_commands", "template.entry.checkpoint")
+	assert_true(result.ok)
+	var commands: Array = result.value
 	assert_eq(commands, [{"kind": "checkpoint", "id": "template.checkpoint"}])
 	commands[0].id = "changed"
 	assert_eq(_script.call(&"get_presentation_commands", "template.entry.checkpoint"),
-		[{"kind": "checkpoint", "id": "template.checkpoint"}])
+		{"ok": true, "value": [{"kind": "checkpoint", "id": "template.checkpoint"}]})
 
 func test_entry_presentation_commands_clear_once_and_keep_ordered_idempotent_overlays() -> void:
 	assert_true(_script.call(&"reload_placements", PRESENTATION_FIXTURE))
@@ -517,3 +519,46 @@ func test_entry_presentation_commands_clear_once_and_keep_ordered_idempotent_ove
 	assert_eq(_script.call(&"apply_entry_presentation", "template.entry.checkpoint", shown.value.state), entered)
 	var carried: Dictionary = _script.call(&"apply_entry_presentation", "unbound.entry", shown.value.state)
 	assert_eq(carried, shown, "unbound entries carry presentation without Autosave")
+
+
+func test_missing_presentation_references_use_the_persistent_content_error_boundary() -> void:
+	assert_true(_script.call(&"reload_placements", PRESENTATION_FIXTURE))
+	for request: Array in [["missing.checkpoint", []], ["template.checkpoint", ["missing.overlay"]]]:
+		var result: Dictionary = _script.call(&"resolve_presentation", request[0], request[1])
+		assert_false(result.ok)
+		assert_eq(result.code, &"reading_content_error")
+		assert_true(str(result.message).contains(result.details.reference_id))
+	var malformed: Dictionary = _script.call(&"resolve_presentation", "template.checkpoint", [42])
+	assert_eq(malformed.code, &"presentation_overlay_invalid", "wrong saved types remain structural refusals")
+
+
+func test_malformed_requested_entry_commands_report_content_error_without_mutating_state() -> void:
+	var catalog: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(PRESENTATION_FIXTURE))
+	var prior := {"checkpoint_id": "template.checkpoint", "overlays": ["template.left"]}
+	for malformed: Variant in [42, {}, ["show"], [{"kind": "show"}],
+			[{"kind": "show", "id": 42}], [{"kind": "show", "id": ""}], [{"kind": "unknown", "id": "template.left"}]]:
+		catalog.presentation_entries["broken.entry"] = malformed
+		var file := FileAccess.open("user://malformed-presentation-commands.json", FileAccess.WRITE)
+		file.store_string(JSON.stringify(catalog))
+		file.close()
+		assert_true(_script.call(&"reload_placements", "user://malformed-presentation-commands.json"))
+		var result: Dictionary = _script.call(&"apply_entry_presentation", "broken.entry", prior)
+		assert_false(result.ok)
+		assert_eq(result.code, &"reading_content_error")
+		assert_eq(result.details.entry_id, "broken.entry")
+		assert_eq(prior, {"checkpoint_id": "template.checkpoint", "overlays": ["template.left"]})
+		assert_true((_script.call(&"apply_entry_presentation", "unbound.entry", prior) as Dictionary).ok,
+			"unused edited entries are not scanned on another arrival")
+
+
+func test_malformed_named_reference_containers_report_content_error() -> void:
+	for key: String in ["presentation_checkpoints", "overlay_labels"]:
+		var catalog: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(PRESENTATION_FIXTURE))
+		catalog[key] = []
+		var file := FileAccess.open("user://malformed-presentation-container.json", FileAccess.WRITE)
+		file.store_string(JSON.stringify(catalog))
+		file.close()
+		assert_true(_script.call(&"reload_placements", "user://malformed-presentation-container.json"))
+		var result: Dictionary = _script.call(&"resolve_presentation", "template.checkpoint", ["template.left"])
+		assert_false(result.ok)
+		assert_eq(result.code, &"reading_content_error")

@@ -202,8 +202,8 @@ func _commit_reading_next_autosave(checkpoint: Dictionary, operation_id: String,
 			"narrative_fingerprint": _fingerprint(checkpoint)}}
 
 
-## The caller owns receipt admission and live adoption. This seam commits its detached
-## complete snapshot through the existing journal/autosave transaction, without a cache.
+## The caller owns receipt admission and live adoption. Ordinary Scene events
+## publish in memory; explicit named arrivals also use the existing save transaction.
 func commit_scene_event(snapshot_input: Dictionary, checkpoint: Dictionary, named_autosave: bool = false) -> Dictionary:
 	if not _configured: return _fail(&"not_configured", "configure first")
 	if _next_commit_in_progress or _active_owner != &"" or _scene_callback_busy or not _scene_control.is_empty():

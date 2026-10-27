@@ -271,7 +271,10 @@ static func make_named_presentation_context(registration: Dictionary, plan_id: S
 			if plan.plan_id == plan_id:
 				selection = _scene_selection(plan)
 				break
-		if selection == null: return _scene_failure(&"invalid_scene_audio_selection")
+		if selection == null:
+			return {"ok": false, "code": &"reading_content_error",
+				"message": "Required presentation music plan is missing: " + plan_id,
+				"details": {"audio_plan_id": plan_id}}
 	return _make_scene_selection_context(registration, checked, selection, admission_receipt_id)
 
 

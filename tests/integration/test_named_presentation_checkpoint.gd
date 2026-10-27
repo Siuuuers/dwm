@@ -82,6 +82,19 @@ func _assert_mounted_overlays(expected: int) -> void:
 			assert_eq(view._overlays.get_child_count(), expected)
 	assert_true(found, "named art is mounted on the visible native caption layout")
 
+func _load_backup(locator: String, entry: String, line: String) -> bool:
+	var pause: Node = get_node("/root/SceneRouter")._production_pause
+	var previous_ready := ready_count
+	if not _ok(await pause.request_pause()): return false
+	var prepared: Dictionary = pause._backup_port.prepare_action("load", locator)
+	if not _ok(prepared): return false
+	if not _ok(await pause._backup_port.commit_action(prepared.value.token)): return false
+	for frame: int in 240:
+		if ready_count > previous_ready: break
+		await get_tree().process_frame
+	assert_eq(ready_count, previous_ready + 1)
+	return ready_count == previous_ready + 1 and await _wait_line(entry, line)
+
 func test_named_arrival_manual_save_load_and_ordinary_overlay_continuation() -> void:
 	if not _start_services(): return
 	if not _ok(profile.set_preference(&"preferences.reading.auto_enabled", false)): return
@@ -149,16 +162,44 @@ func test_named_arrival_manual_save_load_and_ordinary_overlay_continuation() -> 
 	observer.delegate = bridge._scene_event_port
 	bridge._scene_event_port = observer
 	assert_true(bridge.capture_scene_pending_marker().get("ok", false), "loaded contact exposes return marker")
-	await _click(_caption().caption_text)
+	var loaded_caption: Node = _caption()
+	var focused: Control = get_viewport().gui_get_focus_owner()
+	var input_diagnostic := {
+		"caption_path": str(loaded_caption.get_path()),
+		"caption_rect": str(loaded_caption.caption_text.get_global_rect()),
+		"caption_visible": loaded_caption.caption_text.is_visible_in_tree(),
+		"focused": str(focused.get_path()) if focused != null else "",
+		"pause_covered": loaded_caption._pause_covered,
+		"next_admitted": loaded_caption._next_admitted(),
+		"source_admitted": loaded_caption.accept_input.is_source_admitted(),
+		"await_neutral": loaded_caption.accept_input._await_initial_neutral,
+		"tree_paused": get_tree().paused, "accept_foreground": loaded_caption.accept_input._foreground,
+		"runtime_paused": loaded_caption.accept_input._runtime.get("paused"),
+		"input_admitted": get_node("/root/InputManager").is_source_input_admitted(),
+		"input_quarantine": get_node("/root/InputManager")._resume_quarantine,
+		"input_state": get_node("/root/InputManager").get_state(),
+		"physical_contacts": get_node("/root/InputManager").get_physical_contacts(),
+		"pause_loading": pause._loading, "pause_busy": pause._busy,
+		"bridge_state": bridge.get_state(),
+		"presented_line": loaded_caption._presented_line,
+		"current_scene": str(get_tree().current_scene.get_path())}
+	var arrival_started := Time.get_ticks_usec()
+	await _click(loaded_caption.caption_text)
+	var caption_dispatched := not observer.envelope.is_empty()
+	if not caption_dispatched:
+		await _click(loaded_caption.transport_rail._next_button)
 	_write_json("res://.godot/ci/named-presentation-return-diagnostic.json", {
+		"before": input_diagnostic, "caption_dispatched": caption_dispatched,
 		"dispatched": not observer.envelope.is_empty(), "result": observer.result,
 		"autosave_writes": files.autosave_writes,
 		"pending_marker": bridge.capture_scene_pending_marker(),
 		"entry_candidate": game._scene_entry_operation.has("candidate")})
-	assert_false(observer.envelope.is_empty(), "real input dispatches Contacts return")
+	assert_true(caption_dispatched, "real caption click dispatches Contacts return after Load")
+	assert_false(observer.envelope.is_empty(), "real caption or Next input dispatches Contacts return")
 	assert_true(observer.result.get("ok", false), "named return dispatch: " + str(observer.result))
 	var arrived: bool = await _wait_line("scene.test.a", "line.scene.test.a.two")
 	bridge._scene_event_port = observer.delegate
+	var arrival_usec := Time.get_ticks_usec() - arrival_started
 	if not arrived: return
 	assert_true(observer.result.get("ok", false), str(observer.result))
 	assert_eq(game.capture_run_snapshot_input().scene.presentation, initial)
@@ -184,6 +225,66 @@ func test_named_arrival_manual_save_load_and_ordinary_overlay_continuation() -> 
 		"manual_save_sha256": slot_hash, "autosave_sha256": autosave_hash,
 		"presentation": persisted.scene.presentation, "position_id": persisted.narrative_checkpoint.reading_session.position_id,
 		"money": persisted.gameplay.money, "music_starts": music_port.starts,
-		"process_id": OS.get_process_id()})
+		"arrival_usec": arrival_usec, "process_id": OS.get_process_id()})
+	# Refuse a real named write with an existing Autosave, then retry the retained
+	# target admission. The prior durable save remains the recovery point.
+	if not await _load_backup("slot:1", "contact.test.a", "line.contact.test.a.one"): return
+	var before_refusal_writes: int = files.autosave_writes
+	files.refuse_on = before_refusal_writes + 1
+	var refusal_observer := ArrivalObserver.new()
+	refusal_observer.delegate = bridge._scene_event_port
+	bridge._scene_event_port = refusal_observer
+	var refusal_started := Time.get_ticks_usec()
+	await _click(_caption().transport_rail._next_button)
+	var refusal_usec := Time.get_ticks_usec() - refusal_started
+	bridge._scene_event_port = refusal_observer.delegate
+	assert_false(refusal_observer.envelope.is_empty(), "native Next attempts named checkpoint")
+	assert_false(refusal_observer.result.get("ok", true), str(refusal_observer.result))
+	assert_eq(files.refused, 1, "actual Autosave temporary-file write was refused")
+	assert_eq(_autosave_sha256(), autosave_hash, "failed named write preserves prior Autosave bytes")
+	assert_eq(FileAccess.get_sha256("user://saves/slot_1.json"), slot_hash)
+	assert_eq(game.capture_run_snapshot_input().scene.presentation, expected)
+	assert_true(game._scene_entry_operation.has("candidate"), "definite refusal retains exact retry target")
+	if not game._scene_entry_operation.has("candidate"): return
+	var binding: Dictionary = game._scene_entry_operation.binding.duplicate(true)
+	var retry_started := Time.get_ticks_usec()
+	var retry: Dictionary = game.admit_scene_target(binding.target_id, binding.trigger_command_id)
+	if not _ok(retry): return
+	if not await _wait_line("scene.test.a", "line.scene.test.a.two"): return
+	var retry_usec := Time.get_ticks_usec() - retry_started
+	assert_eq(game.capture_run_snapshot_input().scene.presentation, initial)
+	assert_eq(game.capture_run_snapshot_input().gameplay.money, 37)
+	assert_eq(game.contacts, child.contacts)
+	var retry_hash := _autosave_sha256()
+	var writes_before_load: int = files.autosave_writes
+	if not await _load_backup("autosave", "scene.test.a", "line.scene.test.a.two"): return
+	assert_eq(files.autosave_writes, writes_before_load, "Autosave Load never writes another Autosave")
+	assert_eq(_autosave_sha256(), retry_hash)
+	assert_eq(game.capture_run_snapshot_input().scene.presentation, initial)
+	assert_eq(game.capture_run_snapshot_input().gameplay.money, 37)
+	assert_eq(game.contacts, child.contacts, "Load never replays Contacts consequences")
+	_assert_mounted_overlays(0)
+	_assert_music([0, 1000, 0, 1000, 0, 1000])
+	await _screenshot("named-presentation-autosave-loaded")
+	_write_json("res://.godot/ci/named-presentation-retry-proof.json", {
+		"arrival_usec": arrival_usec, "refusal_usec": refusal_usec, "retry_usec": retry_usec,
+		"refused_writes": files.refused, "autosave_writes": files.autosave_writes,
+		"autosave_sha256": retry_hash, "music_starts": music_port.starts})
+	# Manually deleted required art is a visible content error; saved bytes remain.
+	var edited: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("user://named-presentation-connected.json"))
+	edited.overlay_labels.erase("template.left")
+	if not _write_json("user://named-presentation-connected.json", edited): return
+	assert_true(ART.reload_placements("user://named-presentation-connected.json"))
+	var missing: Dictionary = saves.prepare_restore_slot(1)
+	assert_eq(missing.get("code"), &"reading_content_error", str(missing))
+	var confirmation: Control = bootstrap.get_node_or_null("ContentError/ContentErrorConfirmation")
+	assert_not_null(confirmation)
+	if confirmation != null:
+		assert_true(str(confirmation.request.body).contains("template.left"))
+		assert_false(confirmation.cancel_button.visible)
+		await _screenshot("named-presentation-missing-label")
+	assert_eq(_autosave_sha256(), retry_hash)
+	assert_eq(FileAccess.get_sha256("user://saves/slot_1.json"), slot_hash)
+	assert_eq(files.autosave_writes, writes_before_load)
 	storage._file_ops = original_files
 	ART.reload_placements()
