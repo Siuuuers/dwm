@@ -1,5 +1,5 @@
 name: Checkpoint projection matched comparison
-run-name: Scene checkpoint projection matched comparison
+run-name: Edited DTL continuation matched comparison
 
 on:
   pull_request:
@@ -14,7 +14,7 @@ concurrency:
 
 jobs:
   measure:
-    if: github.event_name == 'workflow_dispatch' || github.head_ref == 'codex/compact-checkpoint-20261027'
+    if: github.event_name == 'workflow_dispatch' || github.head_ref == 'codex/edited-dtl-20261027'
     runs-on: windows-2022
     timeout-minutes: 70
     defaults:
@@ -22,7 +22,7 @@ jobs:
         shell: pwsh
     env:
       PYTHONUTF8: "1"
-      STARTUP_BASE_SHA: f3231bc90c645288d4106e11693a4a805a4a23da
+      STARTUP_BASE_SHA: eb2464d158b651d8425b41e1d838bafd6477770a
       CANDIDATE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
       DIAGNOSTIC_SHA: d72b67506e05c03f161201df7b9fc5430e2b136e
     steps:

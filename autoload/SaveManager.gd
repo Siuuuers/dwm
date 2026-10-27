@@ -279,9 +279,9 @@ func commit_prepared_restore(prepared: Dictionary) -> Dictionary:
 		_scene_restore_commit_busy = true
 		var scene_result := _commit_prepared_restore_profiled(prepared, {})
 		_scene_restore_commit_busy = false
-		return scene_result
+		return _content_result(scene_result)
 	var profile := _save_load_profile_begin("restore_commit", "", "")
-	return _save_load_profile_finish(profile, _commit_prepared_restore_profiled(prepared, profile))
+	return _content_result(_save_load_profile_finish(profile, _commit_prepared_restore_profiled(prepared, profile)))
 
 
 func _commit_prepared_restore_profiled(prepared: Dictionary, profile: Dictionary) -> Dictionary:
@@ -532,7 +532,7 @@ func start_scene_new_run(target_id: String, initial_context: Dictionary, _rng_no
 	_new_run_busy = false
 	if not result.ok and _scene_restore_activation.is_empty():
 		_release_new_run_custody()
-	return result
+	return _content_result(result)
 
 ## A new run has no durable creation transaction. Keep only the allocated identities
 ## that later board/day/save operations use, and pass fresh state straight to activation.
@@ -2150,7 +2150,16 @@ func _write_latest(locator: Dictionary, save_reason: String, session_exit: bool 
 	slot_metadata_changed.emit()
 	return result
 
+func _content_result(result: Dictionary) -> Dictionary:
+	if result.get("code") == &"reading_content_error" and is_inside_tree():
+		var bootstrap := get_node_or_null("/root/ApplicationBootstrap")
+		if bootstrap != null: bootstrap.show_content_error(result)
+	return result
+
 func _prepare_restore(locator: Dictionary, expected_revision: String = "") -> Dictionary:
+	return _content_result(_prepare_restore_content(locator, expected_revision))
+
+func _prepare_restore_content(locator: Dictionary, expected_revision: String) -> Dictionary:
 	if locator.is_empty():
 		return _fail(&"INVALID_SAVE_REFERENCE", "")
 	if _storage == null:
@@ -3086,7 +3095,9 @@ func _on_scene_restore_failed(operation_id: String, result: Dictionary) -> void:
 
 func _scene_restore_activation_failure(failure: Dictionary) -> Dictionary:
 	if not _scene_restore_activation.is_empty(): _scene_restore_activation.failure = failure.duplicate(true)
-	return _fatal_transaction_recovery("scene_restore", [{"owner_id": "restore", "operation": "activate", "result": failure}])
+	var fatal := _fatal_transaction_recovery("scene_restore", [{"owner_id": "restore", "operation": "activate", "result": failure}])
+	if failure.get("code") == &"reading_content_error": return _content_result(failure)
+	return fatal
 
 func _drive_scene_restore_activation() -> Dictionary:
 	if _scene_activation_busy: return _fail(&"scene_restore_busy", "")

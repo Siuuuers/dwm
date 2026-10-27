@@ -160,6 +160,7 @@ var _profile_storage: RefCounted
 ## The run-save storage root; retained so the identity ledger can flush before every save.
 var _saves_storage: RefCounted = null
 var _application_gate: Object = null
+var _content_error_layer: CanvasLayer
 var _desktop_issuer_root_store: RefCounted = null
 var _desktop_identity_nonce_issuer: RefCounted = null
 ## The ONE day-resolution state port and coordinator (dwm-p2r.13 Plan-01 Task 6). Retained here so
@@ -274,6 +275,43 @@ var _state := {
 
 func _ready() -> void:
 	call_deferred("start", _requested_mode_from_debug_args())
+
+## A broken required content reference cannot publish or save another state.
+## Keep the first diagnosis on screen until the player chooses Quit.
+func show_content_error(result: Dictionary) -> void:
+	if is_instance_valid(_content_error_layer): return
+	var projected: Dictionary = FATAL_DIAGNOSTIC_PROJECTOR.project_failure(
+		"content", "continuation", result.get("code", &"reading_content_error"), result, [])
+	if _application_gate != null:
+		_application_gate.latch_fatal(projected.value.failure)
+	_content_error_layer = CanvasLayer.new()
+	_content_error_layer.name = "ContentError"
+	_content_error_layer.layer = 128
+	_content_error_layer.process_mode = Node.PROCESS_MODE_ALWAYS
+	add_child(_content_error_layer)
+	var confirmation := preload("res://scripts/ui/desktop/DesktopConfirmation.gd").new()
+	confirmation.name = "ContentErrorConfirmation"
+	confirmation.theme = preload("res://scripts/ui/backup/BackupTheme.gd").build("en", 100)
+	var message: String = str(result.get("message", result.get("code", "reading_content_error")))
+	for key: String in ["line_id", "position_id", "target_id"]:
+		var id: String = str(result.get("details", {}).get(key, ""))
+		if not id.is_empty() and id not in message: message += "\n" + id
+	confirmation.request = {"title": "Cannot continue", "body": message,
+		"confirm": "Quit", "cancelable": false, "warning": false}
+	confirmation.finished.connect(func(_accepted: bool): get_tree().quit())
+	_content_error_layer.add_child(confirmation)
+	# This fatal dialog lives outside the active scene. Suspend the other root
+	# branches too. An in-flight Next may still restore its prior focus custody.
+	for root_child: Node in get_tree().root.get_children():
+		if root_child != self: confirmation._suspend(root_child)
+	var viewport := get_viewport()
+	var retain_quit_focus := func(control: Control) -> void:
+		if control != confirmation.confirm_button:
+			confirmation.confirm_button.grab_focus()
+	viewport.gui_focus_changed.connect(retain_quit_focus)
+	confirmation.tree_exiting.connect(func(): viewport.gui_focus_changed.disconnect(retain_quit_focus))
+	confirmation.confirm_button.grab_focus()
+	get_tree().paused = true
 
 func _exit_tree() -> void:
 	_release_runtime_dependencies()

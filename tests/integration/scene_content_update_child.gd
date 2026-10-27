@@ -146,12 +146,18 @@ func create_content_update() -> void:
 				assert_eq(game.scene_challenge_outcomes.values()[0].outcome, "unfinished")
 				assert_eq(game.capture_dating_challenge_state().value.state, "in_progress")
 	else:
-		var target := UPDATE.line("update.four" if case_id == "history" else "update.one", "middle")
+		var target := UPDATE.line("update.four" if case_id == "history" else "update.one",
+			"last" if case_id in ["invalid_choice", "invalid_choice_missing_default"] else "middle")
 		if not await _walk_to(target): return
 	if locator == "slot:1" and not await _save_partner(1): return
 	var path := "user://saves/autosave.json" if locator == "autosave" else "user://saves/slot_1.json"
 	var document: Dictionary = PARSER.parse_object(FileAccess.get_file_as_string(path))
 	if not _ok(document): return
+	if case_id in ["invalid_choice", "invalid_choice_missing_default"]:
+		# Deliberate saved-input fixture: a formerly authored option is absent.
+		# Retain the real Run, reading position and all gameplay consequences.
+		document.value.current_snapshot.snapshot.gameplay.scene_choices["TEST.choice.update.one"] = "retired"
+		if not _write_json(path, document.value): return
 	var saved: Dictionary = document.value.current_snapshot.snapshot
 	var reading: Dictionary = saved.narrative_checkpoint.reading_session
 	assert_eq(reading.schema_version, 7)
@@ -213,6 +219,12 @@ func load_content_update() -> void:
 	assert_eq(FileAccess.get_sha256(proof.path), proof.source_sha256)
 	if not _start_services(): return
 	assert_eq(case_id, proof.case)
+	if case_id in ["invalid_choice", "invalid_choice_missing_default"]:
+		assert_eq(preload("res://scripts/narrative/DialogicEntryManifest.gd").scene_registration_fingerprint(),
+			proof.snapshot.scene.registration_sha256, "file-only edit does not rebuild the shipped registry")
+	if case_id in ["deleted_line", "deleted_checkpoint", "completed_deleted", "invalid_choice_missing_default"]:
+		await _load_missing_content(proof, false)
+		return
 	if UPDATE.completed_case(case_id):
 		await _load_completed_update(proof, false)
 		return
@@ -229,17 +241,25 @@ func load_content_update() -> void:
 	assert_eq(game.capture_dating_challenge_state().value, proof.record, "exact selected physical prefix survives migration")
 	assert_eq(FileAccess.get_sha256(proof.path), proof.source_sha256)
 	if not UPDATE.board_case(case_id):
-		var expected := UPDATE.line("update.four" if case_id == "history" else "update.one", "middle")
-		if case_id == "deleted_line": expected = UPDATE.line("update.one", "anchor")
-		elif case_id == "deleted_checkpoint": expected = UPDATE.line("Day1", "anchor")
+		var expected := UPDATE.line("update.four" if case_id == "history" else "update.one",
+			"last" if case_id == "invalid_choice" else "middle")
 		if not await _wait_line(expected): return
 		if case_id == "wording": assert_eq(_native_observation().text, "TEST update.one middle revised.")
 		await _history_assertions(proof)
+		if case_id == "invalid_choice":
+			await _accept()
+			if not await _wait_line(UPDATE.line("update.two", "anchor")): return
+			_assert_gameplay_preserved(proof.snapshot.gameplay)
+			assert_eq(game.scene_choices["TEST.choice.update.one"], "retired", "fallback does not replay or rewrite old consequences")
+			assert_eq(FileAccess.get_sha256(proof.path), proof.source_sha256)
 		if case_id == "wording":
 			await _accept()
 			if not await _wait_line(UPDATE.line("update.one", "inserted_after")): return
 			assert_eq(game.capture_run_snapshot_input().gameplay, proof.snapshot.gameplay, "new prose changes no gameplay")
 	else:
+		if case_id in ["transfer_active", "transfer_terminal"]:
+			assert_eq(bridge._runtime_adapter.current_line_id(), proof.reading.captions.back().line_id,
+				"board transfer starts at the retained saved cue, without a recovery rewind")
 		if not await _verify_board_continuation(proof): return
 	await _screenshot("content-update-" + case_id + "-loaded")
 	if not await _save_partner(3): return
@@ -350,9 +370,12 @@ func reload_current_content() -> void:
 	var proof: Dictionary = parsed.value
 	assert_ne(OS.get_process_id(), proof.loader_pid)
 	assert_ne(OS.get_process_id(), proof.old_source.creator_pid)
-	if not UPDATE.completed_case(str(proof.case)):
+	if str(proof.case) not in ["deleted_line", "deleted_checkpoint", "completed_deleted", "invalid_choice_missing_default"] and not UPDATE.completed_case(str(proof.case)):
 		assert_eq(FileAccess.get_sha256("user://saves/slot_3.json"), proof.slot_sha256)
 	if not _start_services(): return
+	if case_id in ["deleted_line", "deleted_checkpoint", "completed_deleted", "invalid_choice_missing_default"]:
+		await _load_missing_content(proof.old_source, true, int(proof.loader_pid))
+		return
 	if UPDATE.completed_case(case_id):
 		await _load_completed_update(proof.old_source, true, int(proof.loader_pid))
 		return
@@ -367,6 +390,9 @@ func reload_current_content() -> void:
 		assert_false(game.capture_scene_challenge_command().get("ok", false), "suspended physical A has no playable native B authority")
 		await _screenshot("content-update-suspended-reloaded")
 	if not await _load_partner(3, case_id != "transfer_active"): return
+	if case_id == "invalid_choice":
+		if not await _wait_line(UPDATE.line("update.two", "anchor")): return
+		assert_eq(game.scene_choices["TEST.choice.update.one"], "retired")
 	_assert_gameplay_preserved(proof.snapshot.gameplay)
 	assert_eq(game.capture_dating_challenge_state().value, proof.snapshot.gameplay.route_context.get("active_dating_challenge", {}))
 	assert_eq(game.capture_run_snapshot_input().scene.active_challenge, proof.snapshot.scene.active_challenge)
@@ -450,3 +476,81 @@ func _write_without_completion_provenance(path: String, document: Dictionary) ->
 	# is admissible before the next process introduces any content change.
 	if not _ok(preload("res://scripts/infrastructure/save/SaveDocumentSchema.gd").validate(document)): return false
 	return _write_json(path, document)
+
+## The final child deliberately exits through the production Quit button. Its
+## external runner verifies exit status and source bytes after the process ends.
+func _load_missing_content(proof: Dictionary, quit_process: bool, prior_loader_pid: int = 0) -> void:
+	process_mode = Node.PROCESS_MODE_ALWAYS
+	var autosave_before := _autosave_sha256()
+	var backup := preload("res://scripts/application/backup/BackupPresentationPort.gd").new()
+	if not _ok(backup.configure(saves, "title")): return
+	var result: Dictionary = backup.prepare_action("load", proof.locator)
+	if result.get("ok", false): result = backup.commit_action(result.value.token)
+	if case_id == "invalid_choice_missing_default":
+		assert_eq(result.get("code"), &"scene_activation_pending", str(result))
+		if not await _await_ready() or not await _wait_line(UPDATE.line("update.one", "last")): return
+		_assert_gameplay_preserved(proof.snapshot.gameplay)
+		if not bridge.next_request_finished.is_connected(_observe_next_result):
+			bridge.next_request_finished.connect(_observe_next_result)
+		await _accept()
+		result = last_next_result
+		_assert_gameplay_preserved(proof.snapshot.gameplay)
+	assert_false(result.get("ok", false), str(result))
+	assert_eq(result.get("code"), &"reading_content_error", str(result))
+	var error_layer: Node = bootstrap.get_node_or_null("ContentError")
+	assert_not_null(error_layer)
+	if error_layer == null: return
+	var confirmation: Control = error_layer.get_node("ContentErrorConfirmation")
+	var missing_id := "update.two" if case_id == "invalid_choice_missing_default" else (
+		UPDATE.line("update.end", "last") if case_id == "completed_deleted" else UPDATE.line("update.one", "middle"))
+	assert_true(str(confirmation.request.body).contains(missing_id), "the visible diagnosis identifies the saved dialogue ID")
+	assert_false(confirmation.cancel_button.visible)
+	for pressed: bool in [true, false]:
+		var cancel := InputEventAction.new()
+		cancel.action = &"ui_cancel"
+		cancel.pressed = pressed
+		get_viewport().push_input(cancel, true)
+		await get_tree().process_frame
+	for frame: int in 5: await get_tree().process_frame
+	assert_true(is_instance_valid(confirmation) and confirmation.is_visible_in_tree(), "Escape cannot dismiss the content error")
+	assert_eq(get_viewport().gui_get_focus_owner(), confirmation.confirm_button, "Quit retains keyboard focus after Escape and background frames")
+	assert_true(get_tree().paused)
+	assert_true(bootstrap._application_gate.is_fatal_latched())
+	assert_false(saves.save_latest_to_slot(3).get("ok", false), "failed continuation cannot save")
+	assert_false(saves.autosave_latest().get("ok", false), "failed continuation cannot autosave")
+	assert_eq(FileAccess.get_sha256(proof.path), proof.source_sha256)
+	assert_eq(_autosave_sha256(), autosave_before)
+	assert_false(FileAccess.file_exists("user://saves/slot_3.json"))
+	await _screenshot("content-update-" + case_id + ("-quit" if quit_process else "-error"))
+	var evidence := {"case": case_id, "creator_pid": proof.creator_pid,
+		"loader_pid": prior_loader_pid if quit_process else OS.get_process_id(),
+		"reload_pid": OS.get_process_id() if quit_process else 0,
+		"source_sha256": proof.source_sha256, "source_filename": "autosave.json" if case_id == "completed_deleted" else "slot_1.json",
+		"autosave_sha256": autosave_before, "missing_id": missing_id,
+		"old_source": proof, "assertions": get_assert_count(), "failures": get_fail_count(), "quit_activated": false}
+	if not quit_process:
+		if not _write_json("user://content-update-current-proof.json", evidence): return
+		_write_json("res://.godot/ci/content-update-load-proof.json", evidence)
+		# End this assertion child normally so GUT writes its complete JUnit.
+		get_tree().paused = false
+		return
+	if get_fail_count() != 0: return
+	confirmation.finished.connect(func(accepted: bool):
+		evidence.quit_activated = accepted
+		evidence.assertions = get_assert_count()
+		evidence.failures = get_fail_count()
+		_write_json("res://.godot/ci/content-update-reload-proof.json", evidence))
+	if case_id == "invalid_choice_missing_default":
+		# Use the modal's existing focus: grabbing it here would hide background
+		# controls stealing focus while the failed reading scene remains mounted.
+		for pressed: bool in [true, false]:
+			var enter := InputEventKey.new()
+			enter.keycode = KEY_ENTER
+			enter.physical_keycode = KEY_ENTER
+			enter.pressed = pressed
+			get_viewport().push_input(enter, true)
+			await get_tree().process_frame
+		for frame: int in 4: await get_tree().process_frame
+	else:
+		await _click(confirmation.confirm_button)
+	fail_test("Production Quit did not terminate the process")

@@ -533,6 +533,9 @@ static func compile_runtime_scene_programme(path: String, entry_label: String,
 	if cacheable and result.ok:
 		owner._scene_freeze(result)
 		_scene_runtime_programmes[entry_label] = result
+	if not result.ok:
+		return {"ok": false, "code": &"reading_content_error", "message": "Cannot read passage: " + entry_label,
+			"details": {"entry_id": entry_label, "path": path, "cause": str(result.get("code", ""))}}
 	return result
 
 # Strict registration validation keeps its own parse scope. Runtime preparation

@@ -171,6 +171,35 @@ func test_saved_choice_projection_selects_stored_route_without_mutating_progress
 	if selected.ok: assert_eq(selected.value.target_id, "TEST.kept")
 	assert_eq(game.scene_choices, {"TEST.choice": "kept"})
 
+func test_removed_saved_choice_uses_authored_default_without_rewriting_progress() -> void:
+	var game: Node = autofree(GAME.new())
+	var bridge := HeldMarker.new()
+	game._scene_event_bridge = bridge
+	game.scene_choices = {"TEST.choice": "removed"}
+	for kind: String in ["thought.pass", "thought.options"]:
+		bridge.marker = {"kind": kind, "payload": {"opportunity_id": "TEST.choice",
+			"pass_target_id": "TEST.pass", "yes_target_id": "TEST.yes",
+			"options": [{"choice_id": "kept", "target_id": "TEST.kept"}]}}
+		var selected: Dictionary = game.capture_resolved_scene_marker()
+		assert_true(selected.ok, str(selected))
+		if selected.ok:
+			assert_eq(selected.value.choice, "pass")
+			assert_eq(selected.value.target_id, "TEST.pass")
+		assert_eq(game.scene_choices, {"TEST.choice": "removed"}, "projection must not replay or rewrite consequences")
+
+func test_removed_saved_choice_cannot_invent_a_missing_default() -> void:
+	var game: Node = autofree(GAME.new())
+	var bridge := HeldMarker.new()
+	bridge.marker = {"kind": "thought.options", "payload": {"opportunity_id": "TEST.choice",
+		"pass_target_id": "", "options": [{"choice_id": "kept", "target_id": "TEST.kept"}]}}
+	game._scene_event_bridge = bridge
+	game.scene_choices = {"TEST.choice": "removed"}
+	var selected: Dictionary = game.capture_resolved_scene_marker()
+	assert_false(selected.ok)
+	assert_eq(selected.code, &"reading_content_error")
+	assert_eq(selected.details.opportunity_id, "TEST.choice")
+	assert_eq(game.scene_choices, {"TEST.choice": "removed"})
+
 func test_resolved_story_challenge_cannot_reopen_an_unfinished_board() -> void:
 	assert_true(f.begin().ok)
 	assert_true(f.action("start").ok)

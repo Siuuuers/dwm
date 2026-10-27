@@ -126,23 +126,123 @@ func test_compact_completion_projection_preserves_position_and_detaches_history(
 	projected.value.reading_session.history_sections[0].append("changed.history")
 	assert_eq(compact.value, before, "completion projection is detached")
 
-func test_deleted_line_uses_anchor_and_deleted_anchor_uses_day_start() -> void:
+func test_deleted_saved_line_reports_identity_without_rewind_or_mutating_save() -> void:
 	_install(_source())
 	var saved := _saved_second()
+	var before := saved.duplicate(true)
 	_install(_source().replace("B second. #id:line.scene.test.b.two\n", ""))
 	var normalized := SESSION.normalize_player_checkpoint(saved, {}, {})
-	assert_true(normalized.ok, str(normalized))
-	if not normalized.ok: return
-	assert_true(normalized.value.fallback)
-	assert_eq(normalized.value.checkpoint.reading_session.position_id, "line.scene.test.b.one")
-	saved.reading_session.recovery_anchor.line_id = "deleted.checkpoint"
-	normalized = SESSION.normalize_player_checkpoint(saved, {}, {})
-	assert_true(normalized.ok, str(normalized))
-	if normalized.ok:
-		assert_eq(normalized.value.checkpoint.reading_session.position_id, "line.scene.test.b.one")
-		assert_eq(normalized.value.checkpoint.reading_session.history_sections, [["line.scene.test.b.one"]])
+	assert_false(normalized.ok)
+	assert_eq(normalized.code, &"reading_content_error")
+	assert_eq(normalized.details.line_id, "line.scene.test.b.two")
+	assert_eq(saved, before, "failed continuation must not replace the selected saved state")
 
-func test_valid_held_control_survives_wording_update_without_advancing() -> void:
+func test_file_only_wording_edit_preserves_id_and_uses_current_text() -> void:
+	_install(_source())
+	var saved := _saved_second()
+	var fingerprint: String = MANIFEST.scene_registration_fingerprint()
+	_edit_file_only(_source().replace("B second.", "Manually revised second."))
+	var session := SESSION.new()
+	assert_true(session.configure_scene().ok)
+	var restored: Dictionary = session.restore_player(saved.reading_session, FIXTURE.B)
+	assert_true(restored.ok, str(restored))
+	if not restored.ok: return
+	assert_eq(MANIFEST.scene_registration_fingerprint(), fingerprint, "the shipped registry was not rebuilt")
+	var projected: Dictionary = session.project_scene_day_history(FIXTURE.frontier(session), {}, {})
+	assert_true(projected.ok, str(projected))
+	assert_eq(projected.value.captions.back().text, "Manually revised second.")
+	assert_eq(projected.value.captions.back().line_id, "line.scene.test.b.two")
+	assert_eq(session.player_progress.history_sections, saved.reading_session.history_sections)
+
+func test_file_only_deleted_saved_line_reports_missing_position() -> void:
+	_install(_source())
+	var saved := _saved_second()
+	var before := saved.duplicate(true)
+	_edit_file_only(_source().replace("B second. #id:line.scene.test.b.two\n", ""))
+	var expanded: Dictionary = SESSION.expand_player_checkpoint(saved)
+	assert_false(expanded.ok)
+	assert_eq(expanded.code, &"reading_content_error")
+	assert_eq(expanded.details.position_id, "line.scene.test.b.two")
+	assert_eq(saved, before)
+
+func test_file_only_unregistered_next_line_preserves_the_saved_frontier() -> void:
+	_install(_source())
+	var saved := _saved_second()
+	_edit_file_only(_source().replace("label scene.test.b.end", "Inserted line. #id:line.manual.unregistered\nlabel scene.test.b.end"))
+	var session := SESSION.new()
+	assert_true(session.configure_scene().ok)
+	assert_true(session.restore_player(saved.reading_session, FIXTURE.B).ok)
+	var frontier: Dictionary = FIXTURE.frontier(session)
+	var before: Dictionary = session.capture(frontier)
+	var next: Dictionary = session.prepare_scene_next(frontier, func(_beat: Dictionary) -> bool: return false)
+	assert_false(next.ok)
+	assert_eq(next.code, &"reading_content_error")
+	assert_eq(next.details.line_id, "line.manual.unregistered")
+	assert_eq(session.capture(frontier), before, "failed Next cannot become a saved frontier")
+
+func test_file_only_append_after_completed_caption_keeps_its_id() -> void:
+	var original: String = _source().replace("jump scene.test.a.loop", "return")
+	_install(original)
+	var made := FIXTURE.create_session()
+	assert_true(made.ok)
+	if not made.ok: return
+	var session: RefCounted = made.value
+	assert_true(FIXTURE.enter(session, FIXTURE.A, "test:completed-file-edit").ok)
+	assert_true(FIXTURE.advance_detached(session).ok)
+	assert_true(FIXTURE.advance_detached(session).ok)
+	assert_eq(session.boundary, "between_entries")
+	var checkpoint: Dictionary = FIXTURE.checkpoint(session)
+	assert_true(checkpoint.ok, str(checkpoint))
+	if not checkpoint.ok: return
+	checkpoint.value.reading_session = session.capture({}).value
+	var compact: Dictionary = SESSION.project_player_checkpoint(checkpoint.value)
+	assert_true(compact.ok, str(compact))
+	if not compact.ok: return
+	var saved: Dictionary = compact.value
+	var original_expansion: Dictionary = SESSION.expand_player_checkpoint(saved)
+	assert_true(original_expansion.ok, str(original_expansion))
+	if not original_expansion.ok: return
+	saved.frozen_context = original_expansion.value.reading_session.ledger.entry_contexts.values()[0].duplicate(true)
+	saved.transaction_id = saved.reading_session.occurrence_id
+	var before := saved.duplicate(true)
+	var fingerprint: String = MANIFEST.scene_registration_fingerprint()
+	_edit_file_only(original.replace("A loop. #id:line.scene.test.a.two", "A loop. #id:line.scene.test.a.two\nAppended prose. #id:line.manual.appended"))
+	var expanded: Dictionary = SESSION.expand_player_checkpoint(saved)
+	assert_true(expanded.ok, str(expanded))
+	if not expanded.ok: return
+	assert_eq(MANIFEST.scene_registration_fingerprint(), fingerprint)
+	assert_eq(expanded.value.reading_session.boundary, "line")
+	assert_eq(expanded.value.reading_session.frontier.line_id, "line.scene.test.a.two")
+	assert_eq(expanded.value.reading_session.player_progress.history_sections, saved.reading_session.history_sections)
+	assert_eq(saved, before, "adapting a content boundary leaves source save unchanged")
+	_edit_file_only(original.replace("A loop. #id:line.scene.test.a.two\n", ""))
+	var missing: Dictionary = SESSION.expand_player_checkpoint(saved)
+	assert_false(missing.ok, "boundary adaptation must never rewind a missing saved ID")
+	assert_eq(missing.code, &"reading_content_error")
+	assert_eq(saved, before)
+
+func test_file_only_insert_before_held_control_preserves_control_when_authored_predecessor_remains() -> void:
+	_install(_source())
+	var saved := _saved_second(true)
+	_edit_file_only(_source().replace("B second. #id:line.scene.test.b.two", "Inserted prose. #id:line.manual.inserted\nB second. #id:line.scene.test.b.two"))
+	var expanded: Dictionary = SESSION.expand_player_checkpoint(saved)
+	assert_true(expanded.ok, str(expanded))
+	if not expanded.ok: return
+	assert_eq(expanded.value.reading_session.boundary, "control")
+	assert_eq(expanded.value.reading_session.ledger.captions.back().beat.line_id, "line.scene.test.b.two")
+	assert_eq(expanded.value.reading_session.player_progress.history_sections, saved.reading_session.history_sections)
+
+func _edit_file_only(text: String) -> void:
+	var file := FileAccess.open(PATH, FileAccess.WRITE)
+	file.store_string(text)
+	file.close()
+	# A fresh game process has no runtime programme cache. Keep the shipped
+	# registration untouched while simulating that process boundary.
+	ADAPTER._scene_runtime_programmes = {}
+	ADAPTER._scene_runtime_parsed_sources = {}
+	ADAPTER._scene_compile_cache.erase(PATH)
+
+func test_nonplayable_held_control_resumes_same_caption_after_content_update() -> void:
 	_install(_source())
 	var saved := _saved_second(true)
 	assert_eq(saved.reading_session.boundary, "control")
@@ -151,11 +251,15 @@ func test_valid_held_control_survives_wording_update_without_advancing() -> void
 	assert_true(normalized.ok, str(normalized))
 	if not normalized.ok: return
 	assert_false(normalized.value.fallback)
-	assert_eq(normalized.value.checkpoint.reading_session.boundary, "control")
-	assert_eq(normalized.value.checkpoint.reading_session.position_id, "scene.test.b.end")
+	assert_eq(normalized.value.checkpoint.reading_session.boundary, "line")
+	assert_eq(normalized.value.checkpoint.reading_session.position_id, "line.scene.test.b.two")
+	assert_eq(normalized.value.checkpoint.reading_session.history_sections, saved.reading_session.history_sections,
+		"changing the current marker does not replay or backfill history")
 	var expanded := SESSION.expand_player_checkpoint(normalized.value.checkpoint)
 	assert_true(expanded.ok, str(expanded))
-	if expanded.ok: assert_eq(expanded.value.reading_session.boundary, "control")
+	if expanded.ok:
+		assert_eq(expanded.value.reading_session.boundary, "line")
+		assert_eq(expanded.value.reading_session.frontier.line_id, "line.scene.test.b.two")
 
 func test_player_format_requires_supported_schema_and_progress() -> void:
 	_install(_source())
@@ -277,7 +381,7 @@ func test_ordinary_lower_day_admission_does_not_rotate_high_water_history() -> v
 		assert_eq(captured.value.player_progress.history_sections.back().slice(0, previous.history_sections.back().size()),
 			previous.history_sections.back(), "ordinary entry extends the existing section")
 
-func test_unchanged_registration_without_days_restores_but_stale_content_requires_days() -> void:
+func test_wording_change_does_not_require_a_day_route_map() -> void:
 	_install(_source(), false)
 	var saved := _saved_second()
 	var normalized := SESSION.normalize_player_checkpoint(saved, {}, {})
@@ -292,5 +396,5 @@ func test_unchanged_registration_without_days_restores_but_stale_content_require
 	assert_false(SESSION.normalize_player_checkpoint(broken, {}, {}).ok)
 	_install(_source().replace("B second.", "B changed."), false)
 	var stale := SESSION.normalize_player_checkpoint(saved, {}, {})
-	assert_false(stale.ok)
-	assert_eq(stale.code, &"reading_history_day_unavailable")
+	assert_true(stale.ok, str(stale))
+	if stale.ok: assert_eq(stale.value.checkpoint.reading_session.position_id, "line.scene.test.b.two")

@@ -208,11 +208,13 @@ static func _build_current_scene_initial_checkpoint(scene: Dictionary, bundle: D
 		if programme.entry_id == entry_id: markers = programme.markers
 	var compiled := DialogicRuntimeAdapter.compile_runtime_scene_programme(path, entry_id, labels, markers)
 	if not compiled.ok: return compiled
-	if compiled.value.program_sha256 != target.program_sha256 or not compiled.value.label_nodes.has(target.label):
-		return {"ok": false, "code": &"scene_initial_target_invalid"}
+	if not compiled.value.label_nodes.has(target.label):
+		return _READING_SESSION._content_error("Missing dialogue target: " + target.label,
+			{"entry_id": entry_id, "label": target.label})
 	var index: int = compiled.value.label_nodes[target.label]
 	if index < 0 or index >= compiled.value.nodes.size() or compiled.value.nodes[index].kind != "caption":
-		return {"ok": false, "code": &"scene_initial_target_invalid"}
+		return _READING_SESSION._content_error("Dialogue target has no caption: " + target.label,
+			{"entry_id": entry_id, "label": target.label})
 	var presentation := FrozenPresentationContext.build(entry_id, {"entry_id": entry_id,
 		"entry_role": "scene", "occurrence_id": occurrence, "admission_receipt_id": occurrence})
 	if not presentation.ok: return presentation
@@ -314,8 +316,13 @@ func _prepare_scene_entry(entry_id: String, context: Dictionary) -> Dictionary:
 		if programme.entry_id == entry_id: markers = programme.markers
 	var compiled := DialogicRuntimeAdapter.compile_runtime_scene_programme(path, entry_id, labels, markers)
 	if not compiled.ok: return compiled
-	if not compiled.value.label_nodes.has(target.label): return _command_failure(&"scene_staging_target_invalid")
+	if not compiled.value.label_nodes.has(target.label):
+		return _READING_SESSION._content_error("Missing dialogue target: " + target.label,
+			{"entry_id": entry_id, "target_id": binding.target_id, "label": target.label})
 	var index: int = compiled.value.label_nodes[target.label]
+	if index < 0 or index >= compiled.value.nodes.size() or compiled.value.nodes[index].kind != "caption":
+		return _READING_SESSION._content_error("Dialogue target has no caption: " + target.label,
+			{"entry_id": entry_id, "target_id": binding.target_id, "label": target.label})
 	var admitted: Dictionary = candidate.admit_scene(entry_id, context, index)
 	if not admitted.ok: return admitted
 	var line_id: String = compiled.value.nodes[index].line_id
@@ -2129,6 +2136,9 @@ func request_next(expected_frontier: Dictionary) -> Dictionary:
 	# instead of retaining Node-owned await chains across their own destruction.
 	var retained_frontier := expected_frontier.duplicate(true)
 	var result: Dictionary = await _perform_next(retained_frontier)
+	if result.get("code") == &"reading_content_error" and is_inside_tree():
+		var bootstrap := get_node_or_null("/root/ApplicationBootstrap")
+		if bootstrap != null: bootstrap.show_content_error(result)
 	if result.get("code") != &"coalesced":
 		next_request_finished.emit(retained_frontier, result.duplicate(true))
 	return result
