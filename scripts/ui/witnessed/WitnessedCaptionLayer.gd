@@ -2,6 +2,7 @@ extends DialogicLayoutLayer
 ## Transient public caption copies, not canonical History, receipts, or restore ownership.
 
 const CAPTION_THEME := preload("res://scripts/ui/witnessed/WitnessedCaptionTheme.gd")
+const SELF_TALK := preload("res://scripts/ui/witnessed/WitnessedSelfTalk.gd")
 const HISTORY := preload("res://scripts/ui/witnessed/WitnessedHistory.gd")
 const RUN_PRESENTATION := preload("res://scripts/ui/witnessed/WitnessedRunPresentation.gd")
 const FIELD_TOP := {100: 384, 125: 328, 150: 264}
@@ -9,6 +10,8 @@ const FIELD_BOTTOM := 592
 const PROFILE_COLOUR_PRESETS := {
 	"standard": "standard", "protan": "protan", "deutan": "deutan", "tritan": "tritan",
 }
+
+var self_talk: SELF_TALK
 
 var _locale := "en"
 var _text_percent := 100
@@ -124,6 +127,12 @@ func _ready() -> void:
 	get_scroll_bar().focus_mode = Control.FOCUS_NONE
 	for leaf: RichTextLabel in [older, previous, review_current, caption_text]:
 		leaf.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	self_talk = SELF_TALK.new()
+	self_talk.name = "SelfTalk"
+	canvas.add_child(self_talk)
+	self_talk.review_changed.connect(_on_self_talk_review_changed)
+	self_talk.return_to_live_requested.connect(self_talk.return_to_live)
+	self_talk.input_started.connect(accept_input.cancel_pending_accept)
 	configure_presentation(_locale, _text_percent, _palette, _high_contrast, _colour_preset, _large_targets, _day, _font_style)
 	_profile = get_node_or_null("/root/ProfileManager")
 	_localization = get_node_or_null("/root/LocalizationManager")
@@ -235,7 +244,7 @@ func _cancel_speech() -> void:
 		_speech_owner.stop_source(retired_source, &"source_retired")
 
 func _speech_admitted() -> bool:
-	return _review_offset == 0 and not _pause_covered and _reading_source_admitted() and _has_caption() \
+	return not _is_reviewing() and not _pause_covered and _reading_source_admitted() and _has_caption() \
 		and accept_input.is_source_admitted() and not skip_controller.is_skip_active()
 
 func _speech_allows_auto(expected_frontier: Dictionary) -> bool:
@@ -324,6 +333,9 @@ func configure_reading_transport(profile: Object, bridge: Object) -> bool:
 
 
 func _before_normal_accept() -> bool:
+	if is_instance_valid(self_talk) and self_talk.is_reviewing():
+		self_talk.return_to_live()
+		return false
 	if _review_offset > 0:
 		_set_review_offset(0)
 		return false
@@ -340,7 +352,7 @@ func _before_normal_accept() -> bool:
 	return true
 
 func _acknowledge_visible_line() -> bool:
-	if _review_offset > 0 or is_next_transport_active(): return false
+	if _is_reviewing() or is_next_transport_active(): return false
 	if _line_waiting_for_text: return false
 	var has_proof: bool = _presented_line.get("ok", false)
 	if not is_instance_valid(_transport_bridge) \
@@ -350,6 +362,7 @@ func _acknowledge_visible_line() -> bool:
 		return not _transport_bridge.call("requires_line_presentation_acknowledgement")
 	# A rendered canonical proof stays mandatory if a callback replaces its owner.
 	if _pause_covered or not _has_caption() or not caption_text.is_visible_in_tree(): return false
+	_refresh_self_talk()
 	var result: Dictionary = _transport_bridge.call("acknowledge_current_line_presentation", _presented_line)
 	if result.get("ok", false): _auto_resume_pending = true
 	return result.get("ok", false)
@@ -364,7 +377,7 @@ func _capture_presented_line() -> void:
 
 
 func _automatic_line_admitted() -> bool:
-	if _review_offset > 0: return false
+	if _is_reviewing(): return false
 	if _line_waiting_for_text: return false
 	var has_proof: bool = _presented_line.get("ok", false)
 	if not is_instance_valid(_transport_bridge) \
@@ -376,7 +389,7 @@ func _automatic_line_admitted() -> bool:
 		and bool(_transport_bridge.call("is_current_line_presentation_acknowledged"))
 
 func _transport_admitted() -> bool:
-	if _review_offset > 0: return false
+	if _is_reviewing(): return false
 	return _transport_configured and _transport_input_bound and not _pause_covered \
 		and not _line_waiting_for_text and is_instance_valid(transport_rail) \
 		and transport_rail.is_visible_in_tree() and accept_input.is_source_admitted() \
@@ -393,7 +406,7 @@ func is_next_transport_active() -> bool:
 		and bool(_transport_bridge.call("is_next_traversal_active")))
 
 func _next_admitted() -> bool:
-	return _next_input_bound and _auto_configured and _review_offset == 0 and not _pause_covered \
+	return _next_input_bound and _auto_configured and not _is_reviewing() and not _pause_covered \
 		and not _line_waiting_for_text and _reading_source_admitted() and _has_caption() \
 		and _presented_line.get("ok", false) and transport_rail.is_visible_in_tree() \
 		and accept_input.is_source_admitted() and is_instance_valid(_transport_bridge) \
@@ -570,6 +583,7 @@ func _on_reading_session_changed() -> void:
 
 func _refresh_reading_session() -> void:
 	if not is_inside_tree(): return
+	_refresh_self_talk()
 	if not _ending_caption_handoff and _project_ending_caption_memory(): _layout_stack()
 	if not is_instance_valid(_transport_bridge) or not _transport_bridge.has_method("capture_current_line_presentation_frontier"): return
 	var changed: bool = _presented_line != _transport_bridge.call("capture_current_line_presentation_frontier")
@@ -612,7 +626,7 @@ func _auto_controller_admitted() -> bool:
 		and _reading_recovery.get("kind") in [&"auto", &"next"] and _recovery_action_admitted())
 
 func _auto_button_admitted() -> bool:
-	return _review_offset == 0 and _auto_configured and _auto_input_bound and not _pause_covered \
+	return not _is_reviewing() and _auto_configured and _auto_input_bound and not _pause_covered \
 		and not _line_waiting_for_text and _presented_line.get("ok", false) \
 		and transport_rail.is_visible_in_tree() and accept_input.is_source_admitted() \
 		and is_instance_valid(_transport_bridge) \
@@ -660,6 +674,9 @@ func _sync_transport() -> void:
 		transport_rail.set_ending_layout(ending)
 		canvas.queue_redraw()
 	transport_rail.visible = not rehearsal and not _computer_caption_held()
+	if is_instance_valid(self_talk):
+		self_talk.visible = self_talk.has_history() and _timed_hold_frontier.is_empty()
+		self_talk.focus_mode = Control.FOCUS_ALL if self_talk.visible and _reading_source_admitted() else Control.FOCUS_NONE
 	if _ending_caption_handoff or not _timed_hold_frontier.is_empty():
 		transport_rail.project(false, false, skip_controller.is_auto_enabled(), false, false, false, false, false)
 	else:
@@ -668,6 +685,9 @@ func _sync_transport() -> void:
 	var ring: Array[Control] = []
 	if not _ending_caption_handoff and _timed_hold_frontier.is_empty(): ring.append(review_current if _review_offset > 0 else caption_text)
 	var names: PackedStringArray = []
+	if is_instance_valid(self_talk) and self_talk.visible and self_talk.focus_mode != Control.FOCUS_NONE:
+		ring.append(self_talk)
+		names.append("SelfTalk")
 	if is_instance_valid(_dating_split_surface) and is_dating_split_input_admitted():
 		var handle: Control = _dating_split_surface.get_split_handle()
 		if is_instance_valid(handle) and handle.is_visible_in_tree() and handle.focus_mode != Control.FOCUS_NONE:
@@ -1069,6 +1089,8 @@ func _bind_dating_split_surface() -> void:
 		if layer == null or layer.get_parent() != get_parent() or layer.get_script() == null \
 				or layer.get_script().resource_path != "res://scripts/ui/witnessed/WitnessedArtLayer.gd": continue
 		_dating_split_surface = surface as Control
+		if not surface.is_connected("split_changed", _on_self_talk_split_changed):
+			surface.connect("split_changed", _on_self_talk_split_changed)
 		_dating_split_surface.set_split_input_admission(is_dating_split_input_admitted)
 		return
 
@@ -1109,6 +1131,7 @@ func configure_presentation(locale: String = "en", text_percent: int = 100, pale
 	_colour_preset = colour_preset
 	_large_targets = large_targets
 	_caption_theme = next_theme
+	_layout_self_talk()
 	_configure_speech_status()
 	_configure_history_presentation()
 	if is_instance_valid(canvas):
@@ -1292,6 +1315,7 @@ func _on_about_to_show_text(_info: Dictionary) -> void:
 	_speech_candidate = true
 
 func _on_text_started(info: Dictionary) -> void:
+	if is_instance_valid(self_talk): self_talk.return_to_live()
 	if _ending_caption_handoff and get_node("/root/Dialogic").current_timeline == null: return
 	_sync_timed_hold_projection()
 	if not _has_caption():
@@ -1344,7 +1368,7 @@ func _sync_native_processing() -> void:
 			caption_text.visible_characters = -1
 		caption_text.set_process(false)
 		return
-	if _review_offset > 0 or _pause_covered or not _reading_recovery.is_empty() or is_next_transport_active():
+	if _is_reviewing() or _pause_covered or not _reading_recovery.is_empty() or is_next_transport_active():
 		caption_text.set_process(false)
 		return
 	if caption_text.get_parsed_text().is_empty():
@@ -1398,6 +1422,7 @@ func _on_locale_changed(_locale_id: String) -> void:
 	_apply_preferences()
 	_project_scene_caption_memory()
 	_project_ending_caption_memory()
+	_refresh_self_talk()
 	_request_layout()
 	_configure_recovery_presentation()
 
@@ -1635,3 +1660,36 @@ func _on_computer_hold_changed() -> void:
 	_sync_native_processing()
 	_sync_transport()
 
+
+func _is_reviewing() -> bool:
+	return _review_offset > 0 or (is_instance_valid(self_talk) and self_talk.is_reviewing())
+
+func _self_talk_input_admitted() -> bool:
+	return not _pause_covered and _reading_source_admitted() and is_instance_valid(accept_input) and accept_input.is_source_admitted()
+
+func _on_self_talk_review_changed() -> void:
+	_retire_transport()
+	accept_input.cancel_pending_accept()
+	_sync_native_processing()
+	_sync_transport()
+
+func _on_self_talk_split_changed(_rect: Rect2) -> void:
+	_layout_self_talk()
+
+func _layout_self_talk() -> void:
+	if not is_instance_valid(self_talk) or _caption_theme == null: return
+	# Former StatHud inset in the left AngelaCanvas; only geometry is retained.
+	var panel_width := 480.0
+	if is_instance_valid(_dating_split_surface): panel_width = _dating_split_surface.get_portrait_width()
+	self_talk.position = Vector2(16, 16)
+	self_talk.configure(_caption_theme, maxf(32, panel_width - 48), _self_talk_input_admitted)
+
+func _refresh_self_talk() -> void:
+	if not is_instance_valid(self_talk) or not is_instance_valid(_transport_bridge) or not _transport_bridge.has_method("capture_self_talk_presentation"): return
+	var captured: Dictionary = _transport_bridge.capture_self_talk_presentation()
+	if not captured.get("ok", false):
+		if _transport_bridge.has_method("has_reading_session") and not _transport_bridge.has_reading_session():
+			self_talk.project([], 0)
+		return
+	self_talk.project(captured.value.rows, captured.value.live_start)
+	_layout_self_talk()

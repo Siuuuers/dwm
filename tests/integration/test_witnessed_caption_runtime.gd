@@ -2124,3 +2124,20 @@ func test_continue_projection_uses_existing_surface_and_follows_source_admission
 	await _settle()
 	assert_eq(_finished, 1)
 	assert_eq(runtime.current_event_idx, 0)
+
+func test_self_talk_review_holds_caption_and_returns_without_advancing() -> void:
+	if not await _mount_root_accept_fixture("One.\nTwo still revealing."): return
+	await _next_caption()
+	var thoughts := [{"id":"a", "text":"One\nTwo"}, {"id":"b", "text":"Three\nFour"}]
+	caption.self_talk.project(thoughts, 0)
+	caption.self_talk.review_rows(1)
+	var before := _stack_invariants()
+	assert_true(caption.self_talk.is_reviewing())
+	assert_false(caption.caption_text.is_processing())
+	assert_false(caption.call("_automatic_line_admitted"))
+	assert_false(caption.call("_transport_admitted"))
+	assert_false(caption.call("_before_normal_accept"), "first accept returns to live only")
+	assert_false(caption.self_talk.is_reviewing())
+	caption.caption_text.set_process(false)
+	assert_eq(_stack_invariants(), before)
+	assert_eq(caption.get_caption_projection().review_offset, 0, "thought review never changes caption cursor")

@@ -3,8 +3,7 @@ extends Control
 
 const TYPOGRAPHY := preload("res://scripts/ui/UiTypography.gd")
 const CONTROL_KEYS := {
-	"Settings": "ui.pause.settings", "Backup": "ui.pause.backup",
-	"Apps": "scene.controls.apps", "Save": "button.save", "Load": "button.load", "Contacts": "app.contacts",
+	"Apps": "scene.controls.apps", "Contacts": "app.contacts",
 }
 
 var _actions: Dictionary = {}
@@ -19,9 +18,10 @@ var _profile: Node
 
 func _ready() -> void:
 	$SceneControlsLayer/Surface/ThoughtYes.pressed.connect(_accept_thought)
+	get_challenge_mount().child_entered_tree.connect(_fit_challenge)
 	_bind_presentation()
 	$SceneControlsLayer/Surface/Controls/CheckComputer.pressed.connect(_toggle_computer)
-	for action: String in ["settings", "backup", "save", "load", "contacts", "apps"]:
+	for action: String in ["contacts", "apps"]:
 		get_node("SceneControlsLayer/Surface/Controls/" + action.capitalize()).pressed.connect(_invoke.bind(action))
 	if _actions.is_empty():
 		var bootstrap := get_node_or_null("/root/ApplicationBootstrap")
@@ -35,6 +35,11 @@ func configure_scene_controls(actions: Dictionary) -> void:
 
 func get_challenge_mount() -> Control:
 	return $SceneControlsLayer/Surface/ChallengeMount
+
+func _fit_challenge(panel: Node) -> void:
+	if panel is Control:
+		# Keep the native board geometry; reserve the left caret without clipping.
+		panel.scale = Vector2.ONE * (928.0 / 960.0)
 
 func get_computer_mount() -> Control:
 	return $SceneControlsLayer/Surface/ComputerMount
@@ -91,7 +96,7 @@ func _refresh_presentation(_locale_id: String = "") -> void:
 	presentation.default_font = TYPOGRAPHY.font(locale, percent, font_style)
 	presentation.default_font_size = TYPOGRAPHY.font_size(locale, percent, 24, font_style)
 	# Keep scene chrome typography out of the independently owned Challenge mount.
-	var controls: VBoxContainer = $SceneControlsLayer/Surface/Controls
+	var controls: Control = $SceneControlsLayer/Surface/Controls
 	controls.theme = presentation
 	$SceneControlsLayer/Surface/ThoughtYes.theme = presentation
 	var story_presentation := presentation.duplicate() as Theme
@@ -104,8 +109,9 @@ func _refresh_presentation(_locale_id: String = "") -> void:
 		button.text = _localization.t(CONTROL_KEYS[control_name])
 		button.accessibility_name = button.text
 	var computer: Button = controls.get_node("CheckComputer")
-	computer.text = _localization.t("scene.controls.close_computer" if _computer_open else "scene.controls.check_computer")
-	computer.accessibility_name = computer.text
+	computer.text = "^"
+	computer.accessibility_name = _localization.t("scene.controls.close_computer" if _computer_open else "scene.controls.check_computer")
+	computer.tooltip_text = computer.accessibility_name
 
 func _toggle_computer() -> void:
 	# Consume before awaiting: closing must not forward this click into dialogue.
@@ -140,7 +146,7 @@ func _update_controls() -> void:
 	if not is_inside_tree(): return
 	var computer: Callable = _actions.get("computer_close" if _computer_open else "computer_open", Callable())
 	$SceneControlsLayer/Surface/Controls/CheckComputer.disabled = _busy or not computer.is_valid()
-	for action: String in ["settings", "backup", "save", "load", "contacts", "apps"]:
+	for action: String in ["contacts", "apps"]:
 		var callback: Callable = _actions.get(action, Callable())
 		get_node("SceneControlsLayer/Surface/Controls/" + action.capitalize()).disabled = _busy or not callback.is_valid()
 

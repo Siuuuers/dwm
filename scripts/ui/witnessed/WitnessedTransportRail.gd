@@ -12,18 +12,15 @@ signal next_requested
 const TRANSPORT_BUTTON := preload("res://scripts/ui/witnessed/WitnessedTransportButton.gd")
 const SETTINGS_PALETTES := preload("res://scripts/settings/SettingsPaletteRegistry.gd")
 
-const ROUTINE_CLOCK := preload("res://scripts/ui/desktop/RoutineClock.gd")
-
 const RAIL_POSITION := Vector2(0, 592)
 const RAIL_SIZE := Vector2(1280, 128)
 # Keep the existing command widths and owners; only their presentation bays move.
 const CONTROL_RECTS := {
 	&"history": Rect2(0, 64, 212, 64), &"save": Rect2(212, 64, 214, 64),
-	&"load": Rect2(426, 64, 214, 64), &"skip": Rect2(640, 0, 212, 64),
-	&"auto": Rect2(852, 0, 214, 64), &"next": Rect2(1066, 0, 214, 64),
+	&"load": Rect2(426, 64, 214, 64), &"skip": Rect2(640, 64, 212, 64),
+	&"auto": Rect2(852, 64, 214, 64), &"next": Rect2(1066, 64, 214, 64),
 }
 var ending_layout := false
-var clock_label: Label
 const PLATE_INSET := 4.0
 const CONTROL_IDS: Array[StringName] = [&"history", &"skip", &"auto", &"save", &"load", &"next"]
 const LOCALES := ["en", "zh-CN", "zh-HK", "ja", "ko"]
@@ -102,8 +99,6 @@ func configure_presentation(presentation_theme: Theme, locale: String, text_perc
 	_filed = filed
 	theme = presentation_theme
 	_ensure_controls()
-	clock_label.set_presentation(normalized, text_percent, font_style)
-	clock_label.add_theme_color_override("font_color", roles[&"text"])
 	_apply_projection()
 	queue_redraw()
 	return true
@@ -272,14 +267,12 @@ func set_ending_layout(enabled: bool) -> void:
 	for id: StringName in CONTROL_IDS:
 		var bay: Rect2 = CONTROL_RECTS[id]
 		_buttons[id].position = Vector2(bay.position.x, 0) if enabled else bay.position
-	clock_label.visible = not enabled
 	queue_redraw()
 
 
 func _draw() -> void:
 	if not ending_layout and not _roles.is_empty():
 		draw_rect(Rect2(0, 64, 1280, 64), _roles[&"deep"])
-		draw_rect(Rect2(640, 0, 640, 64), _roles[&"deep"])
 
 
 func _ensure_controls() -> void:
@@ -308,11 +301,6 @@ func _ensure_controls() -> void:
 		button.draw.connect(_draw_button_focus.bind(button))
 		add_child(button)
 		_buttons[id] = button
-	clock_label = ROUTINE_CLOCK.new()
-	clock_label.name = "AudienceClock"
-	clock_label.position = Vector2(1128, 64)
-	clock_label.size = Vector2(152, 64)
-	add_child(clock_label)
 	_skip_button = _buttons[&"skip"] as TRANSPORT_BUTTON
 	_auto_button = _buttons[&"auto"] as TRANSPORT_BUTTON
 	_load_button = _buttons[&"load"] as TRANSPORT_BUTTON

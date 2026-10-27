@@ -30,6 +30,8 @@ func _caption() -> Node:
 	return get_node("/root/SceneRouter")._production_pause._find_caption(get_tree().root)
 
 func _controls(host: Node, name: String) -> Control:
+	if name in ["Save", "Load"]:
+		return _caption().transport_rail.get_node(name)
 	return host.get_node("SceneControlsLayer/Surface/Controls/" + name)
 
 func _start_playable() -> bool:
@@ -130,7 +132,8 @@ func create_computer_board() -> void:
 	await _click(_controls(host, "CheckComputer"))
 	assert_eq(panel.public_view.board, saved_board)
 	assert_eq(game.capture_dating_challenge_state().value, record)
-	# Enter the actual direct Save sheet from the open computer.
+	# Return from the computer, then enter the actual bottom-rail Save sheet.
+	await _click(_controls(host, "CheckComputer"))
 	await _click(_controls(host, "Save"))
 	var sheet: Node = get_node("/root/SceneRouter")._production_pause
 	assert_false(host.is_computer_open())

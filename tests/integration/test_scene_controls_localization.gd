@@ -38,7 +38,7 @@ func _mount_host() -> void:
 	_host._localization = _locale
 	_host._profile = _profile
 	var actions := {}
-	for action: String in ["computer_open", "computer_close", "settings", "backup", "save", "load"]:
+	for action: String in ["computer_open", "computer_close", "apps", "contacts"]:
 		actions[action] = _dispatch.bind(action)
 	_host.configure_scene_controls(actions)
 	_surface.add_child(_host)
@@ -57,12 +57,8 @@ func test_live_locale_change_preserves_admitted_open_state_focus_and_dispatch() 
 	computer.grab_focus()
 	for language: String in ["zh_HK", "zh_CN", "ja", "ko", "en"]:
 		assert_true(_locale.set_locale(language).get("ok", false))
-		assert_eq(computer.text, _locale.t("scene.controls.close_computer"))
-		assert_eq(computer.accessibility_name, computer.text)
-		assert_eq(_button("Settings").text, _locale.t("ui.pause.settings"))
-		assert_eq(_button("Backup").text, _locale.t("ui.pause.backup"))
-		assert_eq(_button("Save").text, _locale.t("button.save"))
-		assert_eq(_button("Load").text, _locale.t("button.load"))
+		assert_eq(computer.accessibility_name, _locale.t("scene.controls.close_computer"))
+		assert_eq(computer.text, "^")
 		assert_true(computer.has_focus(), "presentation refresh retains focused button")
 		assert_true(_host.is_computer_open())
 		assert_true(_host.get_challenge_mount().visible)
@@ -70,11 +66,11 @@ func test_live_locale_change_preserves_admitted_open_state_focus_and_dispatch() 
 	_allow = false
 	computer.pressed.emit()
 	assert_true(_host.is_computer_open())
-	assert_eq(computer.text, _locale.t("scene.controls.close_computer"))
+	assert_eq(computer.accessibility_name, _locale.t("scene.controls.close_computer"))
 	_allow = true
 	computer.pressed.emit()
 	assert_false(_host.is_computer_open())
-	assert_eq(computer.text, _locale.t("scene.controls.check_computer"))
+	assert_eq(computer.accessibility_name, _locale.t("scene.controls.check_computer"))
 	assert_eq(_calls, ["computer_open", "computer_close", "computer_close"])
 
 func test_committed_typography_refresh_is_scoped_and_keeps_controls_live() -> void:
@@ -94,8 +90,8 @@ func test_committed_typography_refresh_is_scoped_and_keeps_controls_live() -> vo
 			assert_true(computer.has_focus())
 			assert_false(computer.disabled)
 	assert_eq(_calls, [], "font changes dispatch no action")
-	_button("Save").pressed.emit()
-	assert_eq(_calls, ["save"], "action routing still works")
+	_button("CheckComputer").pressed.emit()
+	assert_eq(_calls, ["computer_open"], "action routing still works")
 
 func test_freed_host_drops_subscriptions_and_replacement_projects_current_preferences() -> void:
 	var locale_connections: int = _locale.locale_changed.get_connections().size()
@@ -109,7 +105,7 @@ func test_freed_host_drops_subscriptions_and_replacement_projects_current_prefer
 	assert_true(_locale.set_font_style("readable").get("ok", false))
 	assert_true(_profile.set_preference(&"preferences.accessibility.text_size", 150).get("ok", false))
 	_mount_host()
-	assert_eq(_button("CheckComputer").text, _locale.t("scene.controls.check_computer"))
+	assert_eq(_button("CheckComputer").accessibility_name, _locale.t("scene.controls.check_computer"))
 	assert_same(_button("CheckComputer").get_theme_font("font"), TYPOGRAPHY.font("ko", 150, "readable"))
 	assert_eq(_locale.locale_changed.get_connections().size(), locale_connections)
 	assert_eq(_profile.profile_restored.get_connections().size(), restore_connections)

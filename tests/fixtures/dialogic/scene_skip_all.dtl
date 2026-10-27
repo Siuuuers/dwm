@@ -1,0 +1,22 @@
+# TEST ONLY: ordinary unread captions before Challenge; not production story.
+return
+
+label scene.test.a
+A first. #id:line.scene.test.a.one
+label scene.test.a.loop
+A loop. #id:line.scene.test.a.two
+jump scene.test.a.loop
+
+label scene.test.b
+B first. #id:line.scene.test.b.one
+TEST skip middle. #id:line.scene.test.b.skip_middle
+TEST skip last. #id:line.scene.test.b.skip_last
+label scene.test.b.playable
+B second. #id:line.scene.test.b.two
+label scene.test.b.end
+return
+
+label contact.test.a
+Contact first. #id:line.contact.test.a.one
+label contact.test.a.end
+return

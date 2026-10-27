@@ -26,6 +26,10 @@ Parent: [Current and future feature plan](2026-10-28-current-and-future-feature-
   in this slice, as requested by the owner.
 - The self-talk panel supports scrolling back to previously displayed thoughts.
   Leaving the live three-row window does not delete a thought from scrollback.
+- The caption uses the selected typewriter speed; its attached thought appears
+  instantly when the paired step is presented.
+- Read Aloud speaks the caption followed by the attached thought through the
+  existing single speech owner. Retained older thoughts are not spoken again.
 - Main reading controls own progression, including holding while the computer
   is open. Self-talk has no separate Advance, Auto or Skip controls.
 
@@ -103,9 +107,19 @@ Any future change to historical scope or clear semantics needs an explicit decis
 9. Use explicitly synthetic fixture content first. Do not author story canon.
 
 The pairing must also be reflected in Auto timing, Skip and instant reveal.
-Do not allow Auto to advance while the paired thought is still revealing.
-Inspect existing read-aloud ownership: avoid overlapping two speech streams.
+Thoughts are instant; Auto waits for the caption reveal and the existing speech
+completion barrier, including the attached thought when Read Aloud is enabled.
+Use one ordered speech stream, caption then thought.
 No separate self-talk database, runtime or per-frame history reconstruction.
+
+## Located historical layout
+
+The former component is `scenes/shared/StatHud.tscn` at revision
+`4321b520a3c4f16c32a4f6c90f044f3b75e0dd20` (20 September 2026).
+`scenes/main/MainGameScene.tscn` mounted it under
+`RootHBox/AngelaPanel/AngelaCanvas`, top aligned with 16 px top/left/right
+insets. The left and computer panel stretch ratios were 3:5. Reuse the layout
+reference only, without the old stat or character bindings.
 
 ## Coordinated scene UI work
 

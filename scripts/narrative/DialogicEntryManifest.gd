@@ -385,10 +385,13 @@ static func validate_scene_registration(bundle: Dictionary) -> Dictionary:
 		for signal_id: String in native_signals:
 			if signal_id not in expected_signals: return _scene_fail("DTL signal coverage")
 		# A marker must immediately follow its authenticated source caption label boundary.
+		var thought_ids := {}
+		for node: Dictionary in native.value.nodes:
+			if node.has("self_talk"): thought_ids[node.self_talk.line_id] = true
 		var last_line := ""
 		var actual_marker_order: Array = []
 		for event: Dictionary in native.value.events:
-			if event.kind == "text": last_line = event.line_id
+			if event.kind == "text" and not thought_ids.has(event.line_id): last_line = event.line_id
 			if event.kind == "label" and marker_labels.has(event.label):
 				actual_marker_order.append(event.label)
 				for marker: Dictionary in row.markers:
@@ -404,7 +407,7 @@ static func validate_scene_registration(bundle: Dictionary) -> Dictionary:
 			return _scene_fail("marker order/grants")
 	# Initial passage replay supports linear ordinary entries only. Native nodes,
 	# not registry order alone, prove exactly which captions the player reads.
-	var passages: Dictionary = preload("res://scripts/narrative/ScenePassageCatalog.gd").inspect(bundle)
+	var passages: Dictionary = preload("res://scripts/narrative/ScenePassageCatalog.gd").inspect(bundle, compiled)
 	if not passages.ok: return passages
 	for passage: Dictionary in passages.value.records.values():
 		if entries[passage.entry_id].role != "scene": return _scene_fail("passage entry role")

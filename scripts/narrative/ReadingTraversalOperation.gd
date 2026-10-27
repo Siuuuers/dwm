@@ -351,6 +351,9 @@ static func _create_scene_operation(plan: Dictionary, phase: String) -> Dictiona
 
 static func _validate_scene_plan_shape(plan: Dictionary) -> Dictionary:
 	var keys := ["schema_version", "entry_id", "source_reading", "path", "traversed_captions", "destination"]
+	if plan.has("paired_lines"):
+		keys.append("paired_lines")
+		if not plan.paired_lines is Dictionary: return _fail(&"reading_next_plan_invalid")
 	if plan.has("major_checkpoint"):
 		keys.append("major_checkpoint")
 		if not plan.major_checkpoint is bool: return _fail(&"reading_next_plan_invalid")
@@ -408,10 +411,16 @@ static func _scene_projection(plan: Dictionary, phase: String) -> Dictionary:
 		for row: Dictionary in plan.traversed_captions:
 			append_player_caption(result.player_progress, row.beat.owning_entry_id, row.beat.line_id,
 				result.player_progress.story_day)
+			if plan.get("paired_lines", {}).has(row.beat.line_id):
+				append_player_caption(result.player_progress, row.beat.owning_entry_id,
+					plan.paired_lines[row.beat.line_id], result.player_progress.story_day)
 		if plan.destination.kind == "line":
 			var beat: Dictionary = plan.destination.caption.beat
 			append_player_caption(result.player_progress, beat.owning_entry_id, beat.line_id,
 				result.player_progress.story_day, plan.get("major_checkpoint", false))
+			if plan.get("paired_lines", {}).has(beat.line_id):
+				append_player_caption(result.player_progress, beat.owning_entry_id,
+					plan.paired_lines[beat.line_id], result.player_progress.story_day)
 	return result
 
 static func valid_player_progress(value: Variant) -> bool:
@@ -491,6 +500,11 @@ static func _validate_scene_path(plan: Dictionary, nodes: Array) -> Dictionary:
 		if source_node.get("kind") != "control": return _fail(&"reading_next_source_invalid")
 	elif source_node.get("kind") != "caption" or source_node.get("line_id") != source.frontier.line_id:
 		return _fail(&"reading_next_source_invalid")
+	var expected_pairs := {}
+	for edge: Dictionary in plan.path:
+		if edge.to < nodes.size() and nodes[edge.to].has("self_talk"):
+			expected_pairs[nodes[edge.to].line_id] = nodes[edge.to].self_talk.line_id
+	if plan.get("paired_lines", {}) != expected_pairs: return _fail(&"reading_next_path_invalid")
 	var expected_lines: Array = []
 	var stopped := false
 	var visited := {}
