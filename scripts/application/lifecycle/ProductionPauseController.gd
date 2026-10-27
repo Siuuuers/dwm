@@ -341,8 +341,7 @@ func request_pause(show_surface: bool = true) -> Dictionary:
 	var bound: Dictionary = coordinator.bind_source(_scene, self)
 	if not bound.get("ok", false): return bound
 	_exit = EXIT.new()
-	var configured: Dictionary = _exit.configure(_services.game_state, _services.saves, _router,
-		_services.gate, Callable(self, "_unused_save_capture"))
+	var configured: Dictionary = _exit.configure(_services.game_state, _router, _services.gate)
 	if not configured.get("ok", false): return configured
 	configured = _exit.configure_retirement(Callable(self, "_retire_pause"))
 	if not configured.get("ok", false): return configured
@@ -387,7 +386,7 @@ func request_return() -> Dictionary:
 		return _failure(&"pause_busy")
 	_busy = true
 	surface.set_interactive(false)
-	last_result = _exit.return_to_title(false)
+	last_result = _exit.return_to_title()
 	_busy = false
 	if last_result.get("ok", false):
 		last_result = coordinator.finish_retirement(_handle)
@@ -402,9 +401,6 @@ func request_return() -> Dictionary:
 
 func _retire_pause() -> Dictionary:
 	return coordinator.retire_suspended_source(_handle)
-
-func _unused_save_capture() -> Dictionary:
-	return _failure(&"pause_save_unavailable")
 
 ## The bridge proves a native Text or transient artwork frontier; the current scene and
 ## full live-session handle prove its run custody. Artwork never fabricates a text witness.

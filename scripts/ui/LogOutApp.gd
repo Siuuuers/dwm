@@ -1,6 +1,6 @@
 extends PanelContainer
 class_name LogOutApp
-## Confirmed Logout saves the current desktop before retiring its live session.
+## Confirmed Logout retires its live session without saving game progress.
 signal window_hidden
 
 @onready var confirm_label: Label = %ConfirmLabel
@@ -20,7 +20,7 @@ func configure_exit(owner: Object, locale: String) -> Dictionary:
 		return {"ok": false, "code": &"logout_unavailable"}
 	_exit = owner
 	_locale = locale if locale in ["en", "zh-CN", "zh-HK", "ja", "ko"] else "en"
-	confirm_label.text = {"en": "Save your progress and log out?", "zh-CN": "保存进度并登出？", "zh-HK": "儲存進度並登出？", "ja": "進行状況を保存してログアウトしますか？", "ko": "진행 상황을 저장하고 로그아웃할까요?"}[_locale]
+	confirm_label.text = {"en": "Log out without saving?", "zh-CN": "不保存进度并登出？", "zh-HK": "不儲存進度並登出？", "ja": "保存せずにログアウトしますか？", "ko": "저장하지 않고 로그아웃할까요?"}[_locale]
 	return {"ok": true}
 
 func configure_desktop_home(button: Button) -> void: _home = button
@@ -38,7 +38,7 @@ func _on_yes_pressed() -> void:
 	_busy = true
 	yes_button.disabled = true
 	no_button.disabled = true
-	var result: Dictionary = _exit.return_to_title(true)
+	var result: Dictionary = _exit.return_to_title()
 	if result.get("ok", false): return
 	# A post-retirement route failure admits only retrying the same confirmed exit.
 	_busy = result.get("code") == &"exit_route_retry_required"
@@ -52,5 +52,5 @@ func _on_yes_pressed() -> void:
 		yes_button.pressed.connect(_retry_exit)
 
 func _retry_exit() -> void:
-	var result: Dictionary = _exit.return_to_title(true)
+	var result: Dictionary = _exit.return_to_title()
 	if not result.get("ok", false): yes_button.grab_focus()

@@ -11,8 +11,8 @@ class ExitOwner extends RefCounted:
 	var host: RefCounted
 	var results: Array[Dictionary] = []
 	var captures: Array[Dictionary] = []
-	func return_to_title(save_before_exit: bool) -> Dictionary:
-		captures.append({"save": save_before_exit, "desktop": host.capture_persistent_state()})
+	func return_to_title() -> Dictionary:
+		captures.append({"desktop": host.capture_persistent_state()})
 		return results.pop_front() if not results.is_empty() else {"ok": true}
 
 var _viewport: SubViewport
@@ -67,6 +67,7 @@ func test_launcher_logout_keeps_workspace_and_cache_then_cancel_restores_exact_f
 	assert_eq(_viewport.gui_get_focus_owner(), consent.cancel_button)
 	assert_eq(consent.cancel_button.accessibility_name, "No")
 	assert_eq(consent.accessibility_name, "Log out")
+	assert_eq(consent.request.body, "Log out without saving?")
 	assert_eq(_desktop.icon_grid.focus_behavior_recursive, Control.FOCUS_BEHAVIOR_DISABLED)
 	assert_eq(_desktop.icon_grid.mouse_behavior_recursive, Control.MOUSE_BEHAVIOR_DISABLED)
 	assert_false(_desktop.open_app(&"settings").ok)
@@ -92,8 +93,8 @@ func test_back_cancels_without_saving_and_restores_launcher_focus() -> void:
 	assert_eq(_viewport.gui_get_focus_owner(), _desktop.launcher_buttons[&"logout"])
 	assert_eq(_exit.captures, [])
 
-func test_failed_save_keeps_retry_cancel_and_retry_captures_launcher_only() -> void:
-	_exit.results = [{"ok": false, "code": &"write_not_committed"}, {"ok": true}]
+func test_failed_exit_keeps_retry_cancel_and_retry_captures_launcher_only() -> void:
+	_exit.results = [{"ok": false, "code": &"exit_route_unavailable"}, {"ok": true}]
 	_desktop.launcher_buttons[&"logout"].pressed.emit()
 	var initial: Control = _desktop._confirmation
 	var initial_id := initial.get_instance_id()
@@ -105,7 +106,7 @@ func test_failed_save_keeps_retry_cancel_and_retry_captures_launcher_only() -> v
 	assert_eq(retry.confirm_button.accessibility_name, "Retry")
 	assert_false(retry.cancel_button.disabled)
 	assert_eq(_viewport.gui_get_focus_owner(), retry.cancel_button)
-	assert_eq(_exit.captures, [{"save": true, "desktop": {"active_app_id": null}}])
+	assert_eq(_exit.captures, [{"desktop": {"active_app_id": null}}])
 	await _click(retry.confirm_button)
 	assert_eq(_exit.captures.size(), 2)
 	assert_eq(_exit.captures[1], _exit.captures[0])

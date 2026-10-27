@@ -31,7 +31,7 @@ layout_mode = 2
 [node name="ConfirmLabel" type="Label" parent="VBox"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "Are you sure you want to log out?"
+text = "Log out without saving?"
 
 [node name="ButtonRow" type="HBoxContainer" parent="VBox"]
 layout_mode = 2

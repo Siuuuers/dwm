@@ -16,15 +16,6 @@ class RunOwner extends RefCounted:
 		handle.generation += 1
 		return {"ok": true}
 
-class Saves extends RefCounted:
-	var gate: Object
-	var writes := 0
-	var fail_write := false
-	func save_session_exit_checkpoint(_inputs: Dictionary, _handle: Dictionary) -> Dictionary:
-		if not gate.is_internal_owner_active(&"session_abandonment"): return {"ok": false}
-		writes += 1
-		return {"ok": not fail_write, "code": &"write_failed" if fail_write else &"ok"}
-
 class Router extends RefCounted:
 	var gate: Object
 	var preparations := 0
@@ -48,58 +39,50 @@ func _fixture() -> Dictionary:
 	var gate := GATE.new()
 	var run := RunOwner.new()
 	run.gate = gate
-	var saves := Saves.new()
-	saves.gate = gate
 	var router := Router.new()
 	router.gate = gate
 	var exit := EXIT.new()
-	assert_true(exit.configure(run, saves, router, gate, func() -> Dictionary:
-		return {"ok": true, "value": {"snapshot_input": {"run_id": "run-exit"}}}).ok)
-	return {"run": run, "gate": gate, "saves": saves, "router": router, "exit": exit}
+	assert_true(exit.configure(run, router, gate).ok)
+	return {"run": run, "gate": gate, "router": router, "exit": exit}
 
-func test_return_retires_without_saving_and_logout_saves_before_retirement() -> void:
-	for should_save: bool in [false, true]:
-		var f := _fixture()
-		assert_true(f.exit.return_to_title(should_save).ok)
-		assert_eq(f.saves.writes, 1 if should_save else 0)
-		assert_eq(f.run.retire_calls, 1)
-		assert_eq(f.router.publications, 1)
-		assert_false(f.gate.is_active())
-		assert_false(f.run.handle.active)
-
-func test_failed_save_keeps_the_live_run_and_route_then_retry_is_safe() -> void:
+func test_exit_retires_without_save_dependencies() -> void:
 	var f := _fixture()
-	f.saves.fail_write = true
-	assert_false(f.exit.return_to_title(true).ok)
+	assert_true(f.exit.return_to_title().ok)
+	assert_eq(f.run.retire_calls, 1)
+	assert_eq(f.router.publications, 1)
+	assert_false(f.gate.is_active())
+	assert_false(f.run.handle.active)
+
+func test_failed_route_preparation_keeps_live_run_then_retry_is_safe() -> void:
+	var f := _fixture()
+	f.router.fail_preparation = true
+	assert_false(f.exit.return_to_title().ok)
 	assert_true(f.run.handle.active)
 	assert_eq(f.run.retire_calls, 0)
 	assert_eq(f.router.publications, 0)
 	assert_false(f.gate.is_active())
-	f.saves.fail_write = false
-	assert_true(f.exit.return_to_title(true).ok)
+	f.router.fail_preparation = false
+	assert_true(f.exit.return_to_title().ok)
 	assert_eq(f.run.retire_calls, 1)
 
-func test_post_retirement_route_failure_keeps_custody_and_retry_does_not_repeat_save() -> void:
+func test_post_retirement_route_failure_keeps_custody_and_retry_does_not_repeat_retirement() -> void:
 	var f := _fixture()
 	f.router.fail_publication_once = true
-	assert_false(f.exit.return_to_title(true).ok)
+	assert_false(f.exit.return_to_title().ok)
 	assert_true(f.gate.is_internal_owner_active(&"session_abandonment"))
 	assert_false(f.run.handle.active)
-	assert_false(f.exit.return_to_title(false).ok)
-	assert_true(f.exit.return_to_title(true).ok)
-	assert_eq(f.saves.writes, 1)
+	assert_true(f.exit.return_to_title().ok)
 	assert_eq(f.run.retire_calls, 1)
 	assert_false(f.gate.is_active())
 
 func test_stale_exit_view_and_foreign_custody_do_not_prepare_or_save() -> void:
 	var f := _fixture()
 	f.run.handle.generation += 1
-	assert_false(f.exit.return_to_title(true).ok)
+	assert_false(f.exit.return_to_title().ok)
 	assert_eq(f.router.preparations, 0)
-	assert_eq(f.saves.writes, 0)
 	f = _fixture()
 	assert_true(f.gate.acquire(&"restore").ok)
-	assert_false(f.exit.return_to_title(false).ok)
+	assert_false(f.exit.return_to_title().ok)
 	assert_eq(f.router.preparations, 0)
 
 
@@ -111,11 +94,10 @@ func test_paused_custody_cleanup_failure_stays_forward_only_before_title_publica
 		assert_false(f.run.handle.active)
 		assert_true(f.gate.is_internal_owner_active(&"session_abandonment"))
 		return {"ok": calls[0] > 1}).ok)
-	assert_eq(f.exit.return_to_title(false).get("code"), &"exit_route_retry_required")
+	assert_eq(f.exit.return_to_title().get("code"), &"exit_route_retry_required")
 	assert_eq(f.router.publications, 0)
 	assert_true(f.gate.is_active())
-	assert_true(f.exit.return_to_title(false).ok)
+	assert_true(f.exit.return_to_title().ok)
 	assert_eq(f.run.retire_calls, 1)
 	assert_eq(f.router.publications, 1)
-	assert_eq(f.saves.writes, 0)
 	assert_eq(calls[0], 2)
