@@ -311,6 +311,15 @@ static func normalize_player_checkpoint(checkpoint: Dictionary, _choices: Dictio
 			if nodes[index].kind != "control" or nodes[index].marker_id != current.position_id: continue
 			for programme: Dictionary in session._scene_bundle.scene_programme.entries:
 				if programme.entry_id != current.entry_id: continue
+				for marker: Dictionary in programme.markers:
+					if marker.marker_id != current.position_id: continue
+					# Only a playable Challenge owns a persistent held-control UI.
+					# If current content replaced it, resume the same saved caption;
+					# the next input resolves the new marker without replaying consequences.
+					if marker.kind != "challenge.playable":
+						current.boundary = "line"
+						current.position_id = saved_line
+				if current.boundary == "line": break
 				var preceding := DialogicRuntimeAdapter._scene_control_authored_predecessor(index, {"nodes": nodes}, programme.markers)
 				if preceding.ok:
 					current.captions[0].line_id = preceding.value.line_id

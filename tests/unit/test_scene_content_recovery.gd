@@ -242,7 +242,7 @@ func _edit_file_only(text: String) -> void:
 	ADAPTER._scene_runtime_parsed_sources = {}
 	ADAPTER._scene_compile_cache.erase(PATH)
 
-func test_valid_held_control_survives_wording_update_without_advancing() -> void:
+func test_nonplayable_held_control_resumes_same_caption_after_content_update() -> void:
 	_install(_source())
 	var saved := _saved_second(true)
 	assert_eq(saved.reading_session.boundary, "control")
@@ -251,11 +251,15 @@ func test_valid_held_control_survives_wording_update_without_advancing() -> void
 	assert_true(normalized.ok, str(normalized))
 	if not normalized.ok: return
 	assert_false(normalized.value.fallback)
-	assert_eq(normalized.value.checkpoint.reading_session.boundary, "control")
-	assert_eq(normalized.value.checkpoint.reading_session.position_id, "scene.test.b.end")
+	assert_eq(normalized.value.checkpoint.reading_session.boundary, "line")
+	assert_eq(normalized.value.checkpoint.reading_session.position_id, "line.scene.test.b.two")
+	assert_eq(normalized.value.checkpoint.reading_session.history_sections, saved.reading_session.history_sections,
+		"changing the current marker does not replay or backfill history")
 	var expanded := SESSION.expand_player_checkpoint(normalized.value.checkpoint)
 	assert_true(expanded.ok, str(expanded))
-	if expanded.ok: assert_eq(expanded.value.reading_session.boundary, "control")
+	if expanded.ok:
+		assert_eq(expanded.value.reading_session.boundary, "line")
+		assert_eq(expanded.value.reading_session.frontier.line_id, "line.scene.test.b.two")
 
 func test_player_format_requires_supported_schema_and_progress() -> void:
 	_install(_source())
