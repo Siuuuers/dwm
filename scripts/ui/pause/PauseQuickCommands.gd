@@ -215,8 +215,13 @@ func _commit(action: String) -> void:
 		var restored := _source_snapshot()
 		if restored.get("scene_id") != _source.get("scene_id") or restored.get("source") != _source.get("source"): return
 		_source = restored
+	if action == "save" and result.get("ok", false):
+		# Each completed Save gets its own notice, without recapturing live state.
+		edge.clear_status()
+		_publish("saved", {}, _source)
+		return
 	var now: Dictionary = _port.get_quick_capability(action)
-	_publish("saved" if result.get("ok", false) else "unavailable", now.get("value", {}).get("condition", {}), _source_snapshot())
+	_publish("unavailable", now.get("value", {}).get("condition", {}), _source_snapshot())
 	if action == "load": _restore_focus()
 
 func _cancel_pending() -> void:

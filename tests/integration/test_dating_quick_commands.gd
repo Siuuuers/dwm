@@ -63,6 +63,9 @@ class Physical extends FIXTURE.PORT:
 
 class Saves extends RefCounted:
 	var saved := 0
+	var capability_calls := 0
+	var capability_calls_at_save := 0
+	var condition_checks := 0
 	var loaded := 0
 	var revision := 1
 	var sequence := 0
@@ -75,9 +78,11 @@ class Saves extends RefCounted:
 			"day": 3, "saved_time": "12:30", "fallback": false, "load_day": 3, "load_saved_time": "12:30",
 			"reason": "", "loadable": true, "operation_allowed": true}}
 	func get_backup_quick_capability(action: String) -> Dictionary:
+		capability_calls += 1
 		return {"ok": true, "value": {"enabled": true, "status_key": "",
 			"condition": {"action": action, "revision": revision}}}
 	func is_quick_condition_current(condition: Dictionary) -> bool:
+		condition_checks += 1
 		return condition.get("revision") == revision
 	func prepare_quick_backup_action(action: String) -> Dictionary:
 		var result := prepare_backup_action(action, "quick")
@@ -94,6 +99,7 @@ class Saves extends RefCounted:
 		pending.erase(token)
 		if action == "save":
 			saved += 1
+			capability_calls_at_save = capability_calls
 			return {"ok": true}
 		loaded += 1
 		if on_load.is_valid(): on_load.call()
@@ -238,12 +244,26 @@ func test_save_uses_shared_owner_without_pause_or_focus_move_and_quarantines_rep
 	assert_same(_viewport.gui_get_focus_owner(), focus)
 	assert_eq(_quick().edge.key, &"saved")
 	assert_eq(_quick().edge.focus_mode, Control.FOCUS_NONE)
+	assert_eq(_saves.capability_calls, _saves.capability_calls_at_save, "completion does not recapture Quick capability")
+	var edge: Label = _quick().edge
+	edge.set_process(false)
+	var condition_checks := _saves.condition_checks
+	_saves.revision += 1
+	var board_revision: int = _scene._physical_view.board.revision
+	_scene._dispatch_action("flag", 0)
+	assert_gt(_scene._physical_view.board.revision, board_revision, "ordinary play changes the actual board")
+	_quick()._process(0.0)
+	edge.advance_eligible_time(0.25)
+	assert_eq(edge.key, &"saved", "completion remains a fact when board and save conditions change")
+	assert_eq(_saves.condition_checks, condition_checks, "Saved does not poll save conditions")
+	assert_eq(edge.remaining_seconds, 1.75)
 	_key(KEY_F5, true, true)
 	_key(KEY_F5, true)
 	assert_eq(_saves.saved, 1)
 	_key(KEY_F5, false)
 	_tap(KEY_F5)
 	assert_eq(_saves.saved, 2)
+	assert_eq(edge.remaining_seconds, 2.0, "a new completed Save gets a new two-second notice")
 
 func test_load_consent_freezes_real_terminal_settlement_and_cancel_keeps_source() -> void:
 	_paint_terminal()
@@ -372,6 +392,15 @@ func test_reading_quick_save_owns_callbacks_and_retires_transport_before_reveal(
 	assert_false(get_tree().paused)
 	assert_null(_scene._confirmation)
 	assert_eq(_quick().edge.key, &"saved")
+	var edge: Label = _quick().edge
+	edge.set_process(false)
+	var condition_checks := _saves.condition_checks
+	_reading_caption._speech_generation += 1
+	_quick()._process(0.0)
+	edge.advance_eligible_time(0.25)
+	assert_eq(edge.key, &"saved", "the next caption publication does not invalidate a completed Save")
+	assert_eq(_saves.condition_checks, condition_checks)
+	assert_eq(edge.remaining_seconds, 1.75)
 
 func test_reading_quick_load_delegates_exact_caption_without_local_token_or_consent() -> void:
 	_mount_reading_caption()

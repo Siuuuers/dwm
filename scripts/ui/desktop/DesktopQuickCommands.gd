@@ -156,8 +156,13 @@ func _request(action: String) -> void:
 	_in_operation = false
 	last_result = result.duplicate(true)
 	if not is_inside_tree() or not _base_admitted() or _source_snapshot() != _source: return
+	if result.get("ok", false):
+		# Each completed Save gets its own notice, without recapturing live state.
+		edge.clear_status()
+		_publish("saved", {}, _source)
+		return
 	var now: Dictionary = _port.get_quick_capability("save")
-	_publish("saved" if result.get("ok", false) else "unavailable", now.get("value", {}).get("condition", {}), _source)
+	_publish("unavailable", now.get("value", {}).get("condition", {}), _source)
 
 func _confirm_load() -> void:
 	var token := _pending_token
@@ -208,13 +213,17 @@ func _restore_focus() -> void:
 			replacement = app.drawer_buttons.get(app.selected_locator)
 		if is_instance_valid(replacement) and replacement.get_focus_mode_with_override() != Control.FOCUS_NONE: replacement.grab_focus()
 
+func _status_source(source: Dictionary, _key: StringName) -> Dictionary:
+	return source
+
 func _publish(key: String, condition: Dictionary, source: Dictionary) -> void:
-	if condition.is_empty() or not is_instance_valid(edge): return
+	if (condition.is_empty() and key != "saved") or not is_instance_valid(edge): return
 	_refresh_edge()
 	var captured := condition.duplicate(true)
-	var context := source.duplicate(true)
+	var context := _status_source(source, StringName(key)).duplicate(true)
 	edge.publish_status(StringName(key), {"condition": captured, "source": context}, func() -> bool:
-		return is_instance_valid(_port) and _source_snapshot() == context and _port.is_quick_condition_current(captured))
+		return is_instance_valid(_port) and _status_source(_source_snapshot(), StringName(key)) == context \
+			and (captured.is_empty() or _port.is_quick_condition_current(captured)))
 
 func _process(delta: float) -> void:
 	if not is_instance_valid(edge) or not edge.is_inside_tree(): return
@@ -223,7 +232,7 @@ func _process(delta: float) -> void:
 	if current_source != _observed_source:
 		_observed_source = current_source
 		retain_contacts()
-		if edge.current_binding.get("source", {}) != current_source: edge.clear_status()
+		if edge.current_binding.get("source", {}) != _status_source(current_source, edge.key): edge.clear_status()
 	var admitted := _admitted()
 	if admitted != _was_admitted:
 		retain_contacts()
