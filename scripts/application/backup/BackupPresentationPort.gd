@@ -89,9 +89,12 @@ func is_quick_condition_current(condition: Dictionary) -> bool:
 	return _quick_available(str(condition.get("action", ""))) and _owner.is_quick_condition_current(condition)
 
 func prepare_quick_action(action: String) -> Dictionary:
-	var capability := get_quick_capability(action)
-	if not capability.get("ok", false) or not capability.get("value", {}).get("enabled", false):
-		return _quick_refusal(capability)
+	# Save preparation owns its capability check. Only host admission belongs here.
+	# Keep Load's existing refusal projection and the conditions on refused hosts.
+	if action != "save" or not _quick_available(action) or not _pending.is_empty():
+		var capability := get_quick_capability(action)
+		if not capability.get("ok", false) or not capability.get("value", {}).get("enabled", false):
+			return _quick_refusal(capability)
 	var prepared: Dictionary = _owner.prepare_quick_backup_action(action)
 	if not prepared.get("ok", false):
 		return prepared.duplicate(true)

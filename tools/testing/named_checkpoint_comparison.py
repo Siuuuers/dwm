@@ -13,7 +13,7 @@ from statistics import median
 
 import passage_compilation_comparison as passage
 
-BASELINE = "93c3198639a54c9b392754d462d62fc7a9a3db70"
+BASELINE = "278fe58b674058aba2cfde143139380ef3c81d85"
 METHODS = {
     "scripts/application/narrative/SaveManagerNarrativeCheckpointPort.gd": (
         "commit_scene_event", "_commit_scene_event_autosave", "_scene_candidate_reference"),
