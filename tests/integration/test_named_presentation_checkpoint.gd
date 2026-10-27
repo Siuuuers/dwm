@@ -93,7 +93,8 @@ func _load_backup(locator: String, entry: String, line: String) -> bool:
 		if ready_count > previous_ready: break
 		await get_tree().process_frame
 	assert_eq(ready_count, previous_ready + 1)
-	return ready_count == previous_ready + 1 and await _wait_line(entry, line)
+	if ready_count != previous_ready + 1: return false
+	return await _wait_line(entry, line)
 
 func test_named_arrival_manual_save_load_and_ordinary_overlay_continuation() -> void:
 	if not _start_services(): return
