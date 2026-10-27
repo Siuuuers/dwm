@@ -24,6 +24,8 @@ Parent: [Current and future feature plan](2026-10-28-current-and-future-feature-
   invent an automatic clear merely because ordinary dialogue resumes.
 - Do not add special handling for a single entry exceeding three wrapped rows
   in this slice, as requested by the owner.
+- The self-talk panel supports scrolling back to previously displayed thoughts.
+  Leaving the live three-row window does not delete a thought from scrollback.
 - Main reading controls own progression, including holding while the computer
   is open. Self-talk has no separate Advance, Auto or Skip controls.
 
@@ -51,6 +53,32 @@ source text or fragments its stable line identity in History.
 Compute the full wrapped layout before typewriter reveal so reveal progress
 does not repeatedly move existing rows. Reflow on divider/font/locale changes
 without creating new publications or read marks.
+
+## Self-talk scrollback
+
+Players can scroll within the self-talk panel to review earlier thoughts and
+return to the latest thoughts. The three-rendered-row rule limits the visible
+window, not the amount of previously encountered text available for review.
+
+Reuse the existing encountered reading/History source, filtered to self-talk
+identities in their original order. Follow the current caption history scope;
+do not expose unvisited branches or turn this into the deferred Global Gallery
+library. Do not introduce a second persistent transcript.
+
+Scrolling is a presentation operation. It must not advance DTL, activate a
+choice, restart typewriter reveal, duplicate History, change Global read marks,
+or replay scene effects. Consume wheel/drag input inside the panel so it cannot
+fall through to ordinary caption advancement or divider dragging.
+
+Keep self-talk review position independent of ordinary caption scroll position.
+Apply the existing caption review/return-to-live behavior where compatible;
+inspect how it handles Auto/Skip and incoming publications before adapting it.
+A return to the live view restores the latest thought window without advancing
+the story. Preserve a stable text anchor when resizing or changing font/locale.
+
+An explicit clear empties the live self-talk display; it does not delete already
+encountered thoughts from History or prevent reviewing them through scrollback.
+Any future change to historical scope or clear semantics needs an explicit decision.
 
 ## Suggested minimal implementation
 
@@ -102,6 +130,13 @@ Godot and PowerShell execution stays in GitHub Actions.
 - A caption without self-talk retains the existing thought window unchanged.
   Explicit clear removes the display without deleting History.
 - Width/font/locale reflow preserves the three-row budget and stable read identity.
+- Scroll back to thoughts displaced from the live window, then return to latest.
+  Verify correct ordering, no unvisited text and no change to story/read state.
+- Scroll input does not advance captions or activate controls; ordinary caption
+  and self-talk review positions do not overwrite each other.
+- Explicit clear empties the live view while earlier thoughts remain reviewable.
+- Exercise review during Auto/Skip and incoming publications using the existing
+  caption review contract, without duplicate publication or skipped paired steps.
 - History has exact caption/thought order and no duplicates after refresh/reopen.
 - Save/Load restores the pair and window without replaying effects.
 - Auto, Skip, reveal completion and computer hold operate on the paired step.
