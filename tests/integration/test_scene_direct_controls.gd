@@ -20,8 +20,8 @@ func test_direct_scene_sheets_save_and_load_without_pause_menu() -> void:
 	# Restore the player board through its real owner before capturing live Save inputs.
 	fixture.participants.desktop_board = preload("res://scripts/application/restore/DesktopBoardRestoreParticipant.gd").new(_desktop_board, fixture.issuer)
 	if not _ok(fixture.manager.configure_scene_restore_participants(fixture.participants)): return
-	if not _ok(fixture.game.configure_desktop_snapshot_provider(_capture_desktop_inputs)): return
 	if not _ok(await fixture.start_text()): return
+	if not _ok(fixture.game.configure_desktop_snapshot_provider(_capture_desktop_inputs)): return
 	fixture.pause._services["backup_capture"] = Callable(self, "_capture_scene_inputs")
 	if not _ok(fixture.manager.configure_backup_capture_provider(
 		Callable(fixture.pause, "capture_backup_checkpoint_inputs"), Callable(),
