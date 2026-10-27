@@ -342,6 +342,15 @@ static func expand_player_checkpoint(checkpoint: Dictionary) -> Dictionary:
 	var configured: Dictionary = session.configure_scene()
 	if not configured.ok: return configured
 	var restored: Dictionary = session.restore_player(reading, str(checkpoint.get("entry_id", "")))
+	if not restored.ok and restored.get("code") == &"reading_content_error" \
+			and reading.boundary in ["control", "between_entries"]:
+		# A manual file edit need not change registration. Reuse the content
+		# boundary adaptation only after actual restoration finds a changed path.
+		var normalized := normalize_player_checkpoint(checkpoint, {}, {})
+		if not normalized.ok: return normalized
+		checkpoint = normalized.value.checkpoint
+		reading = checkpoint.reading_session
+		restored = session.restore_player(reading, checkpoint.entry_id)
 	if not restored.ok: return restored
 	var frontier := {}
 	if reading.boundary == "line":

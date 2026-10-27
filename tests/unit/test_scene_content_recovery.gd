@@ -180,6 +180,58 @@ func test_file_only_unregistered_next_line_preserves_the_saved_frontier() -> voi
 	assert_eq(next.details.line_id, "line.manual.unregistered")
 	assert_eq(session.capture(frontier), before, "failed Next cannot become a saved frontier")
 
+func test_file_only_append_after_completed_caption_keeps_its_id() -> void:
+	var original: String = _source().replace("jump scene.test.a.loop", "return")
+	_install(original)
+	var made := FIXTURE.create_session()
+	assert_true(made.ok)
+	if not made.ok: return
+	var session: RefCounted = made.value
+	assert_true(FIXTURE.enter(session, FIXTURE.A, "test:completed-file-edit").ok)
+	assert_true(FIXTURE.advance_detached(session).ok)
+	assert_true(FIXTURE.advance_detached(session).ok)
+	assert_eq(session.boundary, "between_entries")
+	var checkpoint: Dictionary = FIXTURE.checkpoint(session)
+	assert_true(checkpoint.ok, str(checkpoint))
+	if not checkpoint.ok: return
+	checkpoint.value.reading_session = session.capture({}).value
+	var compact: Dictionary = SESSION.project_player_checkpoint(checkpoint.value)
+	assert_true(compact.ok, str(compact))
+	if not compact.ok: return
+	var saved: Dictionary = compact.value
+	var original_expansion: Dictionary = SESSION.expand_player_checkpoint(saved)
+	assert_true(original_expansion.ok, str(original_expansion))
+	if not original_expansion.ok: return
+	saved.frozen_context = original_expansion.value.reading_session.ledger.entry_contexts.values()[0].duplicate(true)
+	saved.transaction_id = saved.reading_session.occurrence_id
+	var before := saved.duplicate(true)
+	var fingerprint: String = MANIFEST.scene_registration_fingerprint()
+	_edit_file_only(original.replace("A loop. #id:line.scene.test.a.two", "A loop. #id:line.scene.test.a.two\nAppended prose. #id:line.manual.appended"))
+	var expanded: Dictionary = SESSION.expand_player_checkpoint(saved)
+	assert_true(expanded.ok, str(expanded))
+	if not expanded.ok: return
+	assert_eq(MANIFEST.scene_registration_fingerprint(), fingerprint)
+	assert_eq(expanded.value.reading_session.boundary, "line")
+	assert_eq(expanded.value.reading_session.frontier.line_id, "line.scene.test.a.two")
+	assert_eq(expanded.value.reading_session.player_progress.history_sections, saved.reading_session.history_sections)
+	assert_eq(saved, before, "adapting a content boundary leaves source save unchanged")
+	_edit_file_only(original.replace("A loop. #id:line.scene.test.a.two\n", ""))
+	var missing: Dictionary = SESSION.expand_player_checkpoint(saved)
+	assert_false(missing.ok, "boundary adaptation must never rewind a missing saved ID")
+	assert_eq(missing.code, &"reading_content_error")
+	assert_eq(saved, before)
+
+func test_file_only_insert_before_held_control_preserves_control_when_authored_predecessor_remains() -> void:
+	_install(_source())
+	var saved := _saved_second(true)
+	_edit_file_only(_source().replace("B second. #id:line.scene.test.b.two", "Inserted prose. #id:line.manual.inserted\nB second. #id:line.scene.test.b.two"))
+	var expanded: Dictionary = SESSION.expand_player_checkpoint(saved)
+	assert_true(expanded.ok, str(expanded))
+	if not expanded.ok: return
+	assert_eq(expanded.value.reading_session.boundary, "control")
+	assert_eq(expanded.value.reading_session.ledger.captions.back().beat.line_id, "line.scene.test.b.two")
+	assert_eq(expanded.value.reading_session.player_progress.history_sections, saved.reading_session.history_sections)
+
 func _edit_file_only(text: String) -> void:
 	var file := FileAccess.open(PATH, FileAccess.WRITE)
 	file.store_string(text)
