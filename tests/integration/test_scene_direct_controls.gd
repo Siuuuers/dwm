@@ -56,3 +56,36 @@ func test_direct_scene_sheets_save_and_load_without_pause_menu() -> void:
 	assert_false(get_tree().paused)
 	assert_false(fixture.pause.surface.visible)
 	assert_eq(fixture.bridge._reading_session.boundary, "line")
+	# Exercise native F5 after the connected manual Save/Load journey above.
+	_test_stage = "quick_save_completion"
+	if not _ok(await fixture.pause.open_scene_backup("save")): return
+	var quick: Node = fixture.pause._quick_commands
+	var edge: Label = quick.edge
+	edge.set_process(false)
+	var draws := [0]
+	edge.draw.connect(func() -> void: draws[0] += 1)
+	captures_before = _capture_calls
+	for pressed: bool in [true, false]:
+		var key := InputEventKey.new()
+		key.keycode = KEY_F5
+		key.physical_keycode = KEY_F5
+		key.pressed = pressed
+		get_tree().root.push_input(key, true)
+	if not _ok(quick.last_result): return
+	assert_true(fixture.storage.exists("quicksave.json"))
+	assert_gt(_capture_calls, captures_before, "native Quick Save captures the restored live reading state")
+	await RenderingServer.frame_post_draw
+	assert_gt(draws[0], 0, "Saved reaches an actual rendered frame")
+	assert_true(edge.is_visible_in_tree())
+	assert_eq(edge.key, &"saved")
+	assert_eq(edge.remaining_seconds, 2.0)
+	captures_before = _capture_calls
+	await get_tree().create_timer(0.3, true).timeout
+	edge.advance_eligible_time(0.3)
+	await RenderingServer.frame_post_draw
+	assert_true(edge.is_visible_in_tree())
+	assert_eq(edge.key, &"saved")
+	assert_eq(_capture_calls, captures_before, "visible completion does not recapture reading after the condition-poll interval")
+	edge.advance_eligible_time(1.7)
+	assert_eq(edge.key, &"")
+	assert_false(edge.visible, "completion expires after two eligible seconds")

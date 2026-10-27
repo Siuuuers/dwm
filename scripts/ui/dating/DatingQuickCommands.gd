@@ -55,6 +55,11 @@ func _source_snapshot() -> Dictionary:
 		source["recovery"] = _notice_caption.is_reading_recovery_active()
 	return source
 
+func _status_source(source: Dictionary, key: StringName) -> Dictionary:
+	if key != &"saved" or source.is_empty(): return source
+	# Completion belongs to this presentation, not its changing board or caption.
+	return {"scene": source.scene, "command": source.command, "digest": source.digest}
+
 func _base_admitted() -> bool:
 	return _foreground and _source_is_current() and _desktop.is_visible_in_tree() \
 		and _desktop.can_process() and not get_tree().paused \
@@ -146,8 +151,13 @@ func _request(action: String) -> void:
 	_in_operation = false
 	last_result = result.duplicate(true)
 	if not is_inside_tree() or not _base_admitted() or _source_snapshot() != _source: return
+	if result.get("ok", false):
+		# Each completed Save gets its own notice, without recapturing live state.
+		edge.clear_status()
+		_publish("saved", {}, _source)
+		return
 	var now: Dictionary = _port.get_quick_capability("save")
-	_publish("saved" if result.get("ok", false) else "unavailable", now.get("value", {}).get("condition", {}), _source)
+	_publish("unavailable", now.get("value", {}).get("condition", {}), _source)
 
 func _confirm_load() -> void:
 	var token := _pending_token
@@ -186,9 +196,9 @@ func _restore_focus() -> void:
 func _publish(key: String, condition: Dictionary, source: Dictionary) -> void:
 	if not is_instance_valid(edge): return
 	var captured := condition.duplicate(true)
-	var context := source.duplicate(true)
+	var context := _status_source(source, StringName(key)).duplicate(true)
 	edge.publish_status(StringName(key), {"condition": captured, "source": context}, func() -> bool:
-		return _base_admitted() and _source_snapshot() == context \
+		return _base_admitted() and _status_source(_source_snapshot(), StringName(key)) == context \
 			and (captured.is_empty() or _port.is_quick_condition_current(captured)))
 	_refresh_edge()
 

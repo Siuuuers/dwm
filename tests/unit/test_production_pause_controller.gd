@@ -585,7 +585,9 @@ class DatingSaveState extends DATING_FIXTURE.State:
 class DatingCapture extends RefCounted:
 	var snapshot: Dictionary
 	var state: Object
+	var captures := 0
 	func capture() -> Dictionary:
+		captures += 1
 		var current := snapshot.duplicate(true)
 		current.gameplay["route_context"] = state.route_context.duplicate(true)
 		current.gameplay.route_context["active_dating_challenge"] = state.saved.duplicate(true)
@@ -892,7 +894,15 @@ func test_paused_quick_save_uses_real_dating_capture_without_changing_focus_or_b
 	assert_eq(backup.active_mode, mode)
 	assert_same(get_viewport().gui_get_focus_owner(), focused)
 	assert_eq(controller.surface.entered_action, &"")
-	assert_eq(controller._quick_commands.edge.key, &"saved")
+	var edge: Label = controller._quick_commands.edge
+	edge.set_process(false)
+	controller._quick_commands._process(0.0)
+	assert_true(edge.is_visible_in_tree(), "publish the eligible notice before charging visible time")
+	var captures: int = fixture.capture.captures
+	edge.advance_eligible_time(0.25)
+	assert_eq(edge.key, &"saved")
+	assert_eq(fixture.capture.captures, captures, "Saved does not recapture the paused gameplay state")
+	assert_eq(edge.remaining_seconds, 1.75)
 	# This fixture deliberately has no restore graph. Replacing its existing
 	# Quick save still succeeds because Save does not prepare restoration.
 	var written := _quick_write_count(fixture.files)
@@ -900,6 +910,7 @@ func test_paused_quick_save_uses_real_dating_capture_without_changing_focus_or_b
 	_quick_native_key(KEY_F5, true)
 	assert_true(controller._quick_commands.last_result.get("ok", false))
 	assert_eq(controller._quick_commands.edge.key, &"saved")
+	assert_eq(edge.remaining_seconds, 2.0, "replacement completion starts its own visible lifetime")
 	assert_gt(_quick_write_count(fixture.files), written, "a fresh press writes the replacement")
 	written = _quick_write_count(fixture.files)
 	assert_eq(controller._handle, held)

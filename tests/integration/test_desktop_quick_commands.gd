@@ -53,7 +53,9 @@ class CaptureSource extends Node:
 	var inputs: Dictionary = {}
 	var available := true
 	var after_capture := Callable()
+	var captures := 0
 	func capture() -> Dictionary:
+		captures += 1
 		var result := {"ok": true, "value": inputs.duplicate(true)} if available else {"ok": false, "code": &"backup_capture_unavailable"}
 		if after_capture.is_valid(): after_capture.call()
 		return result
@@ -309,6 +311,14 @@ func test_f5_commits_current_quick_through_real_owner_without_displacing_backup_
 		assert_eq(edge.current_binding,binding,"font preference does not replace the published saved fact")
 		assert_eq(edge.remaining_seconds,remaining,"font preference does not restart status lifetime")
 	assert_signal_not_emitted(edge,"status_announced")
+	var captures := _source.captures
+	_source.inputs.snapshot_input.gameplay["money"] = 1
+	edge.advance_eligible_time(0.25)
+	assert_eq(edge.key, &"saved", "Saved reports the completed action after ordinary gameplay changes")
+	assert_eq(_source.captures, captures, "displaying Saved does not capture live save state")
+	assert_eq(edge.current_binding.condition, {})
+	edge.advance_eligible_time(1.75)
+	assert_eq(edge.key, &"", "Saved expires after two visible seconds")
 
 
 func test_f9_refuses_legacy_quick_without_displacing_backup_or_focus() -> void:

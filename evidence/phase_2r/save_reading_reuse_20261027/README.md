@@ -38,3 +38,28 @@ Verified ZIP SHA-256: `e0fbd64262da3b1f9994c4e4a0d72e328199ee40563b9ef9e7ec55978
 
 Initial regression passed 63 jobs and found stale generated API inventories. The cloud
 generated and verified both replacement inventories. PR 136 records final acceptance.
+
+## Final acceptance
+
+[Final regression](https://github.com/Siuuuers/dwm/actions/runs/40503361601) passed all
+67 executed jobs; one historical comparison was skipped.
+[Final comparison](https://github.com/Siuuuers/dwm/actions/runs/40503361009) passed all
+24 journeys on candidate `4901df5a2213591ea6702550fd46024e02a6f7e0`.
+PR 136 merged as `0dae7e22cccf8453679b82e63536e67973023175`.
+
+| Median | Baseline ms | Candidate ms |
+| --- | ---: | ---: |
+| Manual Save, fresh | 946.52 | 879.06 |
+| Manual Save, retained | 933.09 | 887.76 |
+| Manual Save, longer reading | 964.77 | 903.75 |
+| Passage first correct drawing | 594.61 | 605.76 |
+| Passage usable | 616.00 | 626.70 |
+| Load first drawing | 635.85 | 639.22 |
+
+Longer-reading Save improved 6.3%. All four pairs improved in all three Save cases.
+Scene validations fell from 12 to 8 in every pair. The ordinary-caption
+median-of-medians was 116.85 ms before and 115.66 ms after. Passage drawing was
+1.9% slower and Load was 0.5% slower. No passage or Load gain is claimed.
+
+`final-measurement.json` retains the final samples. Artifact: `12734476648`.
+Verified ZIP SHA-256: `39396fad3b800ead4baedc050db301b8e2e17681dfffa6b981145dcfa6a61c99`.

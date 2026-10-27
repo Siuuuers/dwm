@@ -1,0 +1,3994 @@
+{
+  "source": {
+    "baseline": "278fe58b674058aba2cfde143139380ef3c81d85",
+    "candidate": "4901df5a2213591ea6702550fd46024e02a6f7e0",
+    "observer": "d72b67506e05c03f161201df7b9fc5430e2b136e",
+    "baseline_tree": "46ba2244d901165aa407c1ac41e23ba814ea7ce5",
+    "candidate_tree": "dc7e5fc19dbaa4f25a00854e54c4478ada858cab",
+    "repetitions": 4,
+    "order": [
+      "AB",
+      "BA",
+      "AB",
+      "BA"
+    ],
+    "cases": [
+      "fresh",
+      "retained",
+      "load"
+    ],
+    "scope": "Matched baseline/candidate instrumented exports on one Windows runner. Each action starts a new process. Retained and Load use the same r1-baseline-fresh profile after real manual Save and Autosave. Verbose engine logging is enabled equally to identify shutdown resources. OS caches are not cleared."
+  },
+  "artifact_id": 12734476648,
+  "artifact_sha256": "39396fad3b800ead4baedc050db301b8e2e17681dfffa6b981145dcfa6a61c99",
+  "samples": [
+    {
+      "sample": "r1-baseline-fresh",
+      "complete": true,
+      "failures": [],
+      "manual_save": {
+        "action_elapsed_us": 970432,
+        "expected_line": "line.Day1.one",
+        "locator": "slot:1",
+        "profile": {
+          "Capture.ledger_snapshot_copy": {
+            "calls": 20,
+            "elapsed_us": 195,
+            "max_us": 17
+          },
+          "Capture.saved_fields_copy": {
+            "calls": 20,
+            "elapsed_us": 172,
+            "max_us": 46
+          },
+          "Compiler.runtime_cache_hit": {
+            "calls": 13,
+            "elapsed_us": 70,
+            "max_us": 30
+          },
+          "DialogicRuntimeAdapter.compile_runtime_scene_programme": {
+            "calls": 13,
+            "elapsed_us": 210,
+            "max_us": 44
+          },
+          "GameSaveStorage.write_atomic_if_revision": {
+            "calls": 1,
+            "elapsed_us": 131833,
+            "max_us": 131833
+          },
+          "JsonFileStorage.write_atomic_if_revision": {
+            "calls": 1,
+            "elapsed_us": 131826,
+            "max_us": 131826
+          },
+          "JsonFileStorage.write_atomic_if_revision.file.slot_1.json": {
+            "calls": 1,
+            "elapsed_us": 131830,
+            "max_us": 131830
+          },
+          "SaveValidation.callers.BackupPresentationPort.commit_action > SaveManager.commit_backup_action > RunSnapshotSchema._validate_scene_reading > SoloReadingSession.restore": {
+            "calls": 4,
+            "elapsed_us": 65795,
+            "max_us": 17361
+          },
+          "SaveValidation.callers.BackupPresentationPort.commit_action > SaveManager.commit_backup_action > SoloReadingSession.restore": {
+            "calls": 2,
+            "elapsed_us": 32382,
+            "max_us": 16496
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > RunSnapshotSchema._validate_scene_reading > SoloReadingSession.restore": {
+            "calls": 2,
+            "elapsed_us": 38954,
+            "max_us": 22429
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > SaveManager._prepare_backup_capture > RunSnapshotSchema.build_scene > RunSnapshotSchema._validate_scene_reading > SoloReadingSession.restore": {
+            "calls": 2,
+            "elapsed_us": 36879,
+            "max_us": 19624
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > SaveManager._prepare_backup_capture > RunSnapshotSchema.build_scene > SoloReadingSession.restore": {
+            "calls": 1,
+            "elapsed_us": 16457,
+            "max_us": 16457
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > SoloReadingSession.restore": {
+            "calls": 1,
+            "elapsed_us": 15987,
+            "max_us": 15987
+          },
+          "SoloReadingSession._capture_scene": {
+            "calls": 20,
+            "elapsed_us": 526,
+            "max_us": 63
+          },
+          "SoloReadingSession._ensure_scene_programme": {
+            "calls": 21,
+            "elapsed_us": 1269,
+            "max_us": 143
+          },
+          "SoloReadingSession._validate_scene_saved": {
+            "calls": 12,
+            "elapsed_us": 206371,
+            "max_us": 22418
+          },
+          "WitnessedCaptionLayer._on_reading_input_custody_changed": {
+            "calls": 1,
+            "elapsed_us": 27,
+            "max_us": 27
+          }
+        }
+      },
+      "passage": {},
+      "history_sequence": []
+    },
+    {
+      "sample": "r1-baseline-load",
+      "complete": true,
+      "failures": [],
+      "manual_save": {
+        "action_elapsed_us": 1107133,
+        "expected_line": "line.Day1.photo.default.001",
+        "locator": "slot:2",
+        "profile": {
+          "Capture.ledger_snapshot_copy": {
+            "calls": 20,
+            "elapsed_us": 1208,
+            "max_us": 198
+          },
+          "Capture.saved_fields_copy": {
+            "calls": 20,
+            "elapsed_us": 185,
+            "max_us": 51
+          },
+          "Compiler.runtime_cache_hit": {
+            "calls": 13,
+            "elapsed_us": 55,
+            "max_us": 7
+          },
+          "DialogicRuntimeAdapter.compile_runtime_scene_programme": {
+            "calls": 13,
+            "elapsed_us": 209,
+            "max_us": 21
+          },
+          "GameSaveStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 2741,
+            "max_us": 2741
+          },
+          "GameSaveStorage.write_atomic_if_revision": {
+            "calls": 1,
+            "elapsed_us": 150583,
+            "max_us": 150583
+          },
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 2733,
+            "max_us": 2733
+          },
+          "JsonFileStorage.write_atomic.file.desktop-issuer-root.json": {
+            "calls": 1,
+            "elapsed_us": 2737,
+            "max_us": 2737
+          },
+          "JsonFileStorage.write_atomic_if_revision": {
+            "calls": 1,
+            "elapsed_us": 150576,
+            "max_us": 150576
+          },
+          "JsonFileStorage.write_atomic_if_revision.file.slot_2.json": {
+            "calls": 1,
+            "elapsed_us": 150580,
+            "max_us": 150580
+          },
+          "SaveValidation.callers.BackupPresentationPort.commit_action > SaveManager.commit_backup_action > RunSnapshotSchema._validate_scene_reading > SoloReadingSession.restore": {
+            "calls": 4,
+            "elapsed_us": 87743,
+            "max_us": 28795
+          },
+          "SaveValidation.callers.BackupPresentationPort.commit_action > SaveManager.commit_backup_action > SoloReadingSession.restore": {
+            "calls": 2,
+            "elapsed_us": 36914,
+            "max_us": 18785
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > RunSnapshotSchema._validate_scene_reading > SoloReadingSession.restore": {
+            "calls": 2,
+            "elapsed_us": 34836,
+            "max_us": 18455
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > SaveManager._prepare_backup_capture > RunSnapshotSchema.build_scene > RunSnapshotSchema._validate_scene_reading > SoloReadingSession.restore": {
+            "calls": 2,
+            "elapsed_us": 33274,
+            "max_us": 17336
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > SaveManager._prepare_backup_capture > RunSnapshotSchema.build_scene > SoloReadingSession.restore": {
+            "calls": 1,
+            "elapsed_us": 16121,
+            "max_us": 16121
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > SoloReadingSession.restore": {
+            "calls": 1,
+            "elapsed_us": 16271,
+            "max_us": 16271
+          },
+          "SoloReadingSession._capture_scene": {
+            "calls": 20,
+            "elapsed_us": 1972,
+            "max_us": 292
+          },
+          "SoloReadingSession._ensure_scene_programme": {
+            "calls": 21,
+            "elapsed_us": 997,
+            "max_us": 94
+          },
+          "SoloReadingSession._validate_scene_saved": {
+            "calls": 12,
+            "elapsed_us": 225051,
+            "max_us": 28782
+          },
+          "WitnessedCaptionLayer._on_reading_input_custody_changed": {
+            "calls": 1,
+            "elapsed_us": 33,
+            "max_us": 33
+          }
+        }
+      },
+      "passage": {
+        "autosave_after": "6f94796c8bf72f84fd2c2e26e7f51dae72d21ed98e423c47593fab10bcce13d5",
+        "autosave_before": "6f94796c8bf72f84fd2c2e26e7f51dae72d21ed98e423c47593fab10bcce13d5",
+        "choice": "pass",
+        "day_parse_was_ready": true,
+        "entry_id": "Day1.photo.default",
+        "image": "passage/destination.png",
+        "image_sha256": "74b98910adf11fbef5282d28ed33e1d661db83b0804bef46036fb69851be2e2e",
+        "line_id": "line.Day1.photo.default.001",
+        "no_yes_encounters": true,
+        "press_count": 1,
+        "release_count": 1,
+        "runtime_cache_was_absent": true,
+        "same_run": true,
+        "strict_cache_was_absent": true
+      },
+      "history_sequence": [
+        {
+          "input_to_observed_drawing_us": 112717,
+          "line_id": "line.Day1.003",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 110400,
+          "line_id": "line.Day1.004",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 115930,
+          "line_id": "line.Day1.005",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 111399,
+          "line_id": "line.Day1.006",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 117153,
+          "line_id": "line.Day1.007",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 115566,
+          "line_id": "line.Day1.008",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 110916,
+          "line_id": "line.Day1.009",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 111653,
+          "line_id": "line.Day1.010",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 112523,
+          "line_id": "line.Day1.011",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 112323,
+          "line_id": "line.Day1.012",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 119653,
+          "line_id": "line.Day1.013",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 122033,
+          "line_id": "line.Day1.014",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 114841,
+          "line_id": "line.Day1.015",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 119571,
+          "line_id": "line.Day1.016",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 118981,
+          "line_id": "line.Day1.017",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 125756,
+          "line_id": "line.Day1.018",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 120085,
+          "line_id": "line.Day1.019",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 126157,
+          "line_id": "line.Day1.020",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 121226,
+          "line_id": "line.Day1.021",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 124098,
+          "line_id": "line.Day1.022",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 122896,
+          "line_id": "line.Day1.023",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 123411,
+          "line_id": "line.Day1.024",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 127825,
+          "line_id": "line.Day1.025",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 123602,
+          "line_id": "line.Day1.026",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 128604,
+          "line_id": "line.Day1.027",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 135158,
+          "line_id": "line.Day1.028",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 128755,
+          "line_id": "line.Day1.029",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 124652,
+          "line_id": "line.Day1.030",
+          "press_count": 1,
+          "release_count": 1
+        }
+      ]
+    },
+    {
+      "sample": "r1-baseline-retained",
+      "complete": true,
+      "failures": [],
+      "manual_save": {
+        "action_elapsed_us": 984755,
+        "expected_line": "line.Day1.one",
+        "locator": "slot:1",
+        "profile": {
+          "Capture.ledger_snapshot_copy": {
+            "calls": 20,
+            "elapsed_us": 195,
+            "max_us": 17
+          },
+          "Capture.saved_fields_copy": {
+            "calls": 20,
+            "elapsed_us": 118,
+            "max_us": 10
+          },
+          "Compiler.runtime_cache_hit": {
+            "calls": 13,
+            "elapsed_us": 45,
+            "max_us": 7
+          },
+          "DialogicRuntimeAdapter.compile_runtime_scene_programme": {
+            "calls": 13,
+            "elapsed_us": 181,
+            "max_us": 18
+          },
+          "GameSaveStorage.write_atomic_if_revision": {
+            "calls": 1,
+            "elapsed_us": 148778,
+            "max_us": 148778
+          },
+          "JsonFileStorage.write_atomic_if_revision": {
+            "calls": 1,
+            "elapsed_us": 148771,
+            "max_us": 148771
+          },
+          "JsonFileStorage.write_atomic_if_revision.file.slot_1.json": {
+            "calls": 1,
+            "elapsed_us": 148776,
+            "max_us": 148776
+          },
+          "SaveValidation.callers.BackupPresentationPort.commit_action > SaveManager.commit_backup_action > RunSnapshotSchema._validate_scene_reading > SoloReadingSession.restore": {
+            "calls": 4,
+            "elapsed_us": 68202,
+            "max_us": 18088
+          },
+          "SaveValidation.callers.BackupPresentationPort.commit_action > SaveManager.commit_backup_action > SoloReadingSession.restore": {
+            "calls": 2,
+            "elapsed_us": 32747,
+            "max_us": 17281
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > RunSnapshotSchema._validate_scene_reading > SoloReadingSession.restore": {
+            "calls": 2,
+            "elapsed_us": 32394,
+            "max_us": 17094
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > SaveManager._prepare_backup_capture > RunSnapshotSchema.build_scene > RunSnapshotSchema._validate_scene_reading > SoloReadingSession.restore": {
+            "calls": 2,
+            "elapsed_us": 36286,
+            "max_us": 19212
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > SaveManager._prepare_backup_capture > RunSnapshotSchema.build_scene > SoloReadingSession.restore": {
+            "calls": 1,
+            "elapsed_us": 16147,
+            "max_us": 16147
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > SoloReadingSession.restore": {
+            "calls": 1,
+            "elapsed_us": 15739,
+            "max_us": 15739
+          },
+          "SoloReadingSession._capture_scene": {
+            "calls": 20,
+            "elapsed_us": 477,
+            "max_us": 42
+          },
+          "SoloReadingSession._ensure_scene_programme": {
+            "calls": 21,
+            "elapsed_us": 1157,
+            "max_us": 104
+          },
+          "SoloReadingSession._validate_scene_saved": {
+            "calls": 12,
+            "elapsed_us": 201428,
+            "max_us": 19201
+          },
+          "WitnessedCaptionLayer._on_reading_input_custody_changed": {
+            "calls": 1,
+            "elapsed_us": 28,
+            "max_us": 28
+          }
+        }
+      },
+      "passage": {},
+      "history_sequence": []
+    },
+    {
+      "sample": "r1-candidate-fresh",
+      "complete": true,
+      "failures": [],
+      "manual_save": {
+        "action_elapsed_us": 879850,
+        "expected_line": "line.Day1.one",
+        "locator": "slot:1",
+        "profile": {
+          "Capture.ledger_snapshot_copy": {
+            "calls": 20,
+            "elapsed_us": 191,
+            "max_us": 16
+          },
+          "Capture.saved_fields_copy": {
+            "calls": 20,
+            "elapsed_us": 111,
+            "max_us": 9
+          },
+          "Compiler.runtime_cache_hit": {
+            "calls": 9,
+            "elapsed_us": 34,
+            "max_us": 6
+          },
+          "DialogicRuntimeAdapter.compile_runtime_scene_programme": {
+            "calls": 9,
+            "elapsed_us": 132,
+            "max_us": 20
+          },
+          "GameSaveStorage.write_atomic_if_revision": {
+            "calls": 1,
+            "elapsed_us": 119428,
+            "max_us": 119428
+          },
+          "JsonFileStorage.write_atomic_if_revision": {
+            "calls": 1,
+            "elapsed_us": 119421,
+            "max_us": 119421
+          },
+          "JsonFileStorage.write_atomic_if_revision.file.slot_1.json": {
+            "calls": 1,
+            "elapsed_us": 119425,
+            "max_us": 119425
+          },
+          "SaveValidation.callers.BackupPresentationPort.commit_action > SaveManager.commit_backup_action > RunSnapshotSchema._validate_scene_reading > SoloReadingSession.restore": {
+            "calls": 2,
+            "elapsed_us": 34641,
+            "max_us": 17482
+          },
+          "SaveValidation.callers.BackupPresentationPort.commit_action > SaveManager.commit_backup_action > SoloReadingSession.restore": {
+            "calls": 2,
+            "elapsed_us": 33739,
+            "max_us": 17230
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > RunSnapshotSchema._validate_scene_reading > SoloReadingSession.restore": {
+            "calls": 1,
+            "elapsed_us": 18742,
+            "max_us": 18742
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > SaveManager._prepare_backup_capture > RunSnapshotSchema.build_scene > RunSnapshotSchema._validate_scene_reading > SoloReadingSession.restore": {
+            "calls": 1,
+            "elapsed_us": 17550,
+            "max_us": 17550
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > SaveManager._prepare_backup_capture > RunSnapshotSchema.build_scene > SoloReadingSession.restore": {
+            "calls": 1,
+            "elapsed_us": 16414,
+            "max_us": 16414
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > SoloReadingSession.restore": {
+            "calls": 1,
+            "elapsed_us": 16908,
+            "max_us": 16908
+          },
+          "SoloReadingSession._capture_scene": {
+            "calls": 20,
+            "elapsed_us": 452,
+            "max_us": 38
+          },
+          "SoloReadingSession._ensure_scene_programme": {
+            "calls": 17,
+            "elapsed_us": 816,
+            "max_us": 105
+          },
+          "SoloReadingSession._validate_scene_saved": {
+            "calls": 8,
+            "elapsed_us": 137937,
+            "max_us": 18733
+          },
+          "WitnessedCaptionLayer._on_reading_input_custody_changed": {
+            "calls": 1,
+            "elapsed_us": 29,
+            "max_us": 29
+          }
+        }
+      },
+      "passage": {},
+      "history_sequence": []
+    },
+    {
+      "sample": "r1-candidate-load",
+      "complete": true,
+      "failures": [],
+      "manual_save": {
+        "action_elapsed_us": 875478,
+        "expected_line": "line.Day1.photo.default.001",
+        "locator": "slot:2",
+        "profile": {
+          "Capture.ledger_snapshot_copy": {
+            "calls": 20,
+            "elapsed_us": 1044,
+            "max_us": 140
+          },
+          "Capture.saved_fields_copy": {
+            "calls": 20,
+            "elapsed_us": 129,
+            "max_us": 11
+          },
+          "Compiler.runtime_cache_hit": {
+            "calls": 9,
+            "elapsed_us": 34,
+            "max_us": 6
+          },
+          "DialogicRuntimeAdapter.compile_runtime_scene_programme": {
+            "calls": 9,
+            "elapsed_us": 123,
+            "max_us": 18
+          },
+          "GameSaveStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 2732,
+            "max_us": 2732
+          },
+          "GameSaveStorage.write_atomic_if_revision": {
+            "calls": 1,
+            "elapsed_us": 126424,
+            "max_us": 126424
+          },
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 2725,
+            "max_us": 2725
+          },
+          "JsonFileStorage.write_atomic.file.desktop-issuer-root.json": {
+            "calls": 1,
+            "elapsed_us": 2729,
+            "max_us": 2729
+          },
+          "JsonFileStorage.write_atomic_if_revision": {
+            "calls": 1,
+            "elapsed_us": 126417,
+            "max_us": 126417
+          },
+          "JsonFileStorage.write_atomic_if_revision.file.slot_2.json": {
+            "calls": 1,
+            "elapsed_us": 126421,
+            "max_us": 126421
+          },
+          "SaveValidation.callers.BackupPresentationPort.commit_action > SaveManager.commit_backup_action > RunSnapshotSchema._validate_scene_reading > SoloReadingSession.restore": {
+            "calls": 2,
+            "elapsed_us": 35312,
+            "max_us": 18037
+          },
+          "SaveValidation.callers.BackupPresentationPort.commit_action > SaveManager.commit_backup_action > SoloReadingSession.restore": {
+            "calls": 2,
+            "elapsed_us": 32863,
+            "max_us": 16646
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > RunSnapshotSchema._validate_scene_reading > SoloReadingSession.restore": {
+            "calls": 1,
+            "elapsed_us": 17540,
+            "max_us": 17540
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > SaveManager._prepare_backup_capture > RunSnapshotSchema.build_scene > RunSnapshotSchema._validate_scene_reading > SoloReadingSession.restore": {
+            "calls": 1,
+            "elapsed_us": 17408,
+            "max_us": 17408
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > SaveManager._prepare_backup_capture > RunSnapshotSchema.build_scene > SoloReadingSession.restore": {
+            "calls": 1,
+            "elapsed_us": 16325,
+            "max_us": 16325
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > SoloReadingSession.restore": {
+            "calls": 1,
+            "elapsed_us": 16261,
+            "max_us": 16261
+          },
+          "SoloReadingSession._capture_scene": {
+            "calls": 20,
+            "elapsed_us": 1666,
+            "max_us": 182
+          },
+          "SoloReadingSession._ensure_scene_programme": {
+            "calls": 17,
+            "elapsed_us": 575,
+            "max_us": 74
+          },
+          "SoloReadingSession._validate_scene_saved": {
+            "calls": 8,
+            "elapsed_us": 135653,
+            "max_us": 18028
+          },
+          "WitnessedCaptionLayer._on_reading_input_custody_changed": {
+            "calls": 1,
+            "elapsed_us": 29,
+            "max_us": 29
+          }
+        }
+      },
+      "passage": {
+        "autosave_after": "6f94796c8bf72f84fd2c2e26e7f51dae72d21ed98e423c47593fab10bcce13d5",
+        "autosave_before": "6f94796c8bf72f84fd2c2e26e7f51dae72d21ed98e423c47593fab10bcce13d5",
+        "choice": "pass",
+        "day_parse_was_ready": true,
+        "entry_id": "Day1.photo.default",
+        "image": "passage/destination.png",
+        "image_sha256": "163edbfb0742bf1b119c4917065d45c9a6f1257ef5652fc6fc48f80b8bb0e6d1",
+        "line_id": "line.Day1.photo.default.001",
+        "no_yes_encounters": true,
+        "press_count": 1,
+        "release_count": 1,
+        "runtime_cache_was_absent": true,
+        "same_run": true,
+        "strict_cache_was_absent": true
+      },
+      "history_sequence": [
+        {
+          "input_to_observed_drawing_us": 109257,
+          "line_id": "line.Day1.003",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 108439,
+          "line_id": "line.Day1.004",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 106874,
+          "line_id": "line.Day1.005",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 108069,
+          "line_id": "line.Day1.006",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 110090,
+          "line_id": "line.Day1.007",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 112592,
+          "line_id": "line.Day1.008",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 112593,
+          "line_id": "line.Day1.009",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 110812,
+          "line_id": "line.Day1.010",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 109186,
+          "line_id": "line.Day1.011",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 111114,
+          "line_id": "line.Day1.012",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 111057,
+          "line_id": "line.Day1.013",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 113668,
+          "line_id": "line.Day1.014",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 112703,
+          "line_id": "line.Day1.015",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 115019,
+          "line_id": "line.Day1.016",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 117771,
+          "line_id": "line.Day1.017",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 117294,
+          "line_id": "line.Day1.018",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 118544,
+          "line_id": "line.Day1.019",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 120365,
+          "line_id": "line.Day1.020",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 119998,
+          "line_id": "line.Day1.021",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 125066,
+          "line_id": "line.Day1.022",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 124713,
+          "line_id": "line.Day1.023",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 124171,
+          "line_id": "line.Day1.024",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 125003,
+          "line_id": "line.Day1.025",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 124587,
+          "line_id": "line.Day1.026",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 124993,
+          "line_id": "line.Day1.027",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 127081,
+          "line_id": "line.Day1.028",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 127782,
+          "line_id": "line.Day1.029",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 126611,
+          "line_id": "line.Day1.030",
+          "press_count": 1,
+          "release_count": 1
+        }
+      ]
+    },
+    {
+      "sample": "r1-candidate-retained",
+      "complete": true,
+      "failures": [],
+      "manual_save": {
+        "action_elapsed_us": 877832,
+        "expected_line": "line.Day1.one",
+        "locator": "slot:1",
+        "profile": {
+          "Capture.ledger_snapshot_copy": {
+            "calls": 20,
+            "elapsed_us": 194,
+            "max_us": 17
+          },
+          "Capture.saved_fields_copy": {
+            "calls": 20,
+            "elapsed_us": 107,
+            "max_us": 8
+          },
+          "Compiler.runtime_cache_hit": {
+            "calls": 9,
+            "elapsed_us": 32,
+            "max_us": 6
+          },
+          "DialogicRuntimeAdapter.compile_runtime_scene_programme": {
+            "calls": 9,
+            "elapsed_us": 124,
+            "max_us": 17
+          },
+          "GameSaveStorage.write_atomic_if_revision": {
+            "calls": 1,
+            "elapsed_us": 119400,
+            "max_us": 119400
+          },
+          "JsonFileStorage.write_atomic_if_revision": {
+            "calls": 1,
+            "elapsed_us": 119392,
+            "max_us": 119392
+          },
+          "JsonFileStorage.write_atomic_if_revision.file.slot_1.json": {
+            "calls": 1,
+            "elapsed_us": 119396,
+            "max_us": 119396
+          },
+          "SaveValidation.callers.BackupPresentationPort.commit_action > SaveManager.commit_backup_action > RunSnapshotSchema._validate_scene_reading > SoloReadingSession.restore": {
+            "calls": 2,
+            "elapsed_us": 36913,
+            "max_us": 19477
+          },
+          "SaveValidation.callers.BackupPresentationPort.commit_action > SaveManager.commit_backup_action > SoloReadingSession.restore": {
+            "calls": 2,
+            "elapsed_us": 36301,
+            "max_us": 18945
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > RunSnapshotSchema._validate_scene_reading > SoloReadingSession.restore": {
+            "calls": 1,
+            "elapsed_us": 16945,
+            "max_us": 16945
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > SaveManager._prepare_backup_capture > RunSnapshotSchema.build_scene > RunSnapshotSchema._validate_scene_reading > SoloReadingSession.restore": {
+            "calls": 1,
+            "elapsed_us": 17699,
+            "max_us": 17699
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > SaveManager._prepare_backup_capture > RunSnapshotSchema.build_scene > SoloReadingSession.restore": {
+            "calls": 1,
+            "elapsed_us": 16404,
+            "max_us": 16404
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > SoloReadingSession.restore": {
+            "calls": 1,
+            "elapsed_us": 16401,
+            "max_us": 16401
+          },
+          "SoloReadingSession._capture_scene": {
+            "calls": 20,
+            "elapsed_us": 451,
+            "max_us": 37
+          },
+          "SoloReadingSession._ensure_scene_programme": {
+            "calls": 17,
+            "elapsed_us": 786,
+            "max_us": 98
+          },
+          "SoloReadingSession._validate_scene_saved": {
+            "calls": 8,
+            "elapsed_us": 140600,
+            "max_us": 19468
+          },
+          "WitnessedCaptionLayer._on_reading_input_custody_changed": {
+            "calls": 1,
+            "elapsed_us": 29,
+            "max_us": 29
+          }
+        }
+      },
+      "passage": {},
+      "history_sequence": []
+    },
+    {
+      "sample": "r2-baseline-fresh",
+      "complete": true,
+      "failures": [],
+      "manual_save": {
+        "action_elapsed_us": 946271,
+        "expected_line": "line.Day1.one",
+        "locator": "slot:1",
+        "profile": {
+          "Capture.ledger_snapshot_copy": {
+            "calls": 20,
+            "elapsed_us": 209,
+            "max_us": 39
+          },
+          "Capture.saved_fields_copy": {
+            "calls": 20,
+            "elapsed_us": 116,
+            "max_us": 12
+          },
+          "Compiler.runtime_cache_hit": {
+            "calls": 13,
+            "elapsed_us": 42,
+            "max_us": 5
+          },
+          "DialogicRuntimeAdapter.compile_runtime_scene_programme": {
+            "calls": 13,
+            "elapsed_us": 175,
+            "max_us": 19
+          },
+          "GameSaveStorage.write_atomic_if_revision": {
+            "calls": 1,
+            "elapsed_us": 133818,
+            "max_us": 133818
+          },
+          "JsonFileStorage.write_atomic_if_revision": {
+            "calls": 1,
+            "elapsed_us": 133811,
+            "max_us": 133811
+          },
+          "JsonFileStorage.write_atomic_if_revision.file.slot_1.json": {
+            "calls": 1,
+            "elapsed_us": 133816,
+            "max_us": 133816
+          },
+          "SaveValidation.callers.BackupPresentationPort.commit_action > SaveManager.commit_backup_action > RunSnapshotSchema._validate_scene_reading > SoloReadingSession.restore": {
+            "calls": 4,
+            "elapsed_us": 67073,
+            "max_us": 17995
+          },
+          "SaveValidation.callers.BackupPresentationPort.commit_action > SaveManager.commit_backup_action > SoloReadingSession.restore": {
+            "calls": 2,
+            "elapsed_us": 32262,
+            "max_us": 16214
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > RunSnapshotSchema._validate_scene_reading > SoloReadingSession.restore": {
+            "calls": 2,
+            "elapsed_us": 32934,
+            "max_us": 17110
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > SaveManager._prepare_backup_capture > RunSnapshotSchema.build_scene > RunSnapshotSchema._validate_scene_reading > SoloReadingSession.restore": {
+            "calls": 2,
+            "elapsed_us": 33093,
+            "max_us": 17409
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > SaveManager._prepare_backup_capture > RunSnapshotSchema.build_scene > SoloReadingSession.restore": {
+            "calls": 1,
+            "elapsed_us": 16127,
+            "max_us": 16127
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > SoloReadingSession.restore": {
+            "calls": 1,
+            "elapsed_us": 16012,
+            "max_us": 16012
+          },
+          "SoloReadingSession._capture_scene": {
+            "calls": 20,
+            "elapsed_us": 489,
+            "max_us": 68
+          },
+          "SoloReadingSession._ensure_scene_programme": {
+            "calls": 21,
+            "elapsed_us": 1164,
+            "max_us": 126
+          },
+          "SoloReadingSession._validate_scene_saved": {
+            "calls": 12,
+            "elapsed_us": 197425,
+            "max_us": 17987
+          },
+          "WitnessedCaptionLayer._on_reading_input_custody_changed": {
+            "calls": 1,
+            "elapsed_us": 35,
+            "max_us": 35
+          }
+        }
+      },
+      "passage": {},
+      "history_sequence": []
+    },
+    {
+      "sample": "r2-baseline-load",
+      "complete": true,
+      "failures": [],
+      "manual_save": {
+        "action_elapsed_us": 966537,
+        "expected_line": "line.Day1.photo.default.001",
+        "locator": "slot:2",
+        "profile": {
+          "Capture.ledger_snapshot_copy": {
+            "calls": 20,
+            "elapsed_us": 1136,
+            "max_us": 134
+          },
+          "Capture.saved_fields_copy": {
+            "calls": 20,
+            "elapsed_us": 131,
+            "max_us": 10
+          },
+          "Compiler.runtime_cache_hit": {
+            "calls": 13,
+            "elapsed_us": 51,
+            "max_us": 8
+          },
+          "DialogicRuntimeAdapter.compile_runtime_scene_programme": {
+            "calls": 13,
+            "elapsed_us": 189,
+            "max_us": 21
+          },
+          "GameSaveStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 2694,
+            "max_us": 2694
+          },
+          "GameSaveStorage.write_atomic_if_revision": {
+            "calls": 1,
+            "elapsed_us": 145373,
+            "max_us": 145373
+          },
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 2687,
+            "max_us": 2687
+          },
+          "JsonFileStorage.write_atomic.file.desktop-issuer-root.json": {
+            "calls": 1,
+            "elapsed_us": 2691,
+            "max_us": 2691
+          },
+          "JsonFileStorage.write_atomic_if_revision": {
+            "calls": 1,
+            "elapsed_us": 145366,
+            "max_us": 145366
+          },
+          "JsonFileStorage.write_atomic_if_revision.file.slot_2.json": {
+            "calls": 1,
+            "elapsed_us": 145370,
+            "max_us": 145370
+          },
+          "SaveValidation.callers.BackupPresentationPort.commit_action > SaveManager.commit_backup_action > RunSnapshotSchema._validate_scene_reading > SoloReadingSession.restore": {
+            "calls": 4,
+            "elapsed_us": 67530,
+            "max_us": 18020
+          },
+          "SaveValidation.callers.BackupPresentationPort.commit_action > SaveManager.commit_backup_action > SoloReadingSession.restore": {
+            "calls": 2,
+            "elapsed_us": 32214,
+            "max_us": 16168
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > RunSnapshotSchema._validate_scene_reading > SoloReadingSession.restore": {
+            "calls": 2,
+            "elapsed_us": 33285,
+            "max_us": 17453
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > SaveManager._prepare_backup_capture > RunSnapshotSchema.build_scene > RunSnapshotSchema._validate_scene_reading > SoloReadingSession.restore": {
+            "calls": 2,
+            "elapsed_us": 33831,
+            "max_us": 17856
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > SaveManager._prepare_backup_capture > RunSnapshotSchema.build_scene > SoloReadingSession.restore": {
+            "calls": 1,
+            "elapsed_us": 16154,
+            "max_us": 16154
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > SoloReadingSession.restore": {
+            "calls": 1,
+            "elapsed_us": 15965,
+            "max_us": 15965
+          },
+          "SoloReadingSession._capture_scene": {
+            "calls": 20,
+            "elapsed_us": 1762,
+            "max_us": 179
+          },
+          "SoloReadingSession._ensure_scene_programme": {
+            "calls": 21,
+            "elapsed_us": 844,
+            "max_us": 78
+          },
+          "SoloReadingSession._validate_scene_saved": {
+            "calls": 12,
+            "elapsed_us": 198897,
+            "max_us": 18011
+          },
+          "WitnessedCaptionLayer._on_reading_input_custody_changed": {
+            "calls": 1,
+            "elapsed_us": 26,
+            "max_us": 26
+          }
+        }
+      },
+      "passage": {
+        "autosave_after": "6f94796c8bf72f84fd2c2e26e7f51dae72d21ed98e423c47593fab10bcce13d5",
+        "autosave_before": "6f94796c8bf72f84fd2c2e26e7f51dae72d21ed98e423c47593fab10bcce13d5",
+        "choice": "pass",
+        "day_parse_was_ready": true,
+        "entry_id": "Day1.photo.default",
+        "image": "passage/destination.png",
+        "image_sha256": "fb48077a4f475f486f4c4284d25224b442a0fbdb618b133d703365b9895d1f1a",
+        "line_id": "line.Day1.photo.default.001",
+        "no_yes_encounters": true,
+        "press_count": 1,
+        "release_count": 1,
+        "runtime_cache_was_absent": true,
+        "same_run": true,
+        "strict_cache_was_absent": true
+      },
+      "history_sequence": [
+        {
+          "input_to_observed_drawing_us": 107354,
+          "line_id": "line.Day1.003",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 104925,
+          "line_id": "line.Day1.004",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 104429,
+          "line_id": "line.Day1.005",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 108296,
+          "line_id": "line.Day1.006",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 110036,
+          "line_id": "line.Day1.007",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 109367,
+          "line_id": "line.Day1.008",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 109435,
+          "line_id": "line.Day1.009",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 109455,
+          "line_id": "line.Day1.010",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 112987,
+          "line_id": "line.Day1.011",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 110056,
+          "line_id": "line.Day1.012",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 111457,
+          "line_id": "line.Day1.013",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 111788,
+          "line_id": "line.Day1.014",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 113790,
+          "line_id": "line.Day1.015",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 113992,
+          "line_id": "line.Day1.016",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 114354,
+          "line_id": "line.Day1.017",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 114380,
+          "line_id": "line.Day1.018",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 116782,
+          "line_id": "line.Day1.019",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 117413,
+          "line_id": "line.Day1.020",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 118270,
+          "line_id": "line.Day1.021",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 120771,
+          "line_id": "line.Day1.022",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 122037,
+          "line_id": "line.Day1.023",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 122592,
+          "line_id": "line.Day1.024",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 121441,
+          "line_id": "line.Day1.025",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 122380,
+          "line_id": "line.Day1.026",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 124549,
+          "line_id": "line.Day1.027",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 124772,
+          "line_id": "line.Day1.028",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 125275,
+          "line_id": "line.Day1.029",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 123918,
+          "line_id": "line.Day1.030",
+          "press_count": 1,
+          "release_count": 1
+        }
+      ]
+    },
+    {
+      "sample": "r2-baseline-retained",
+      "complete": true,
+      "failures": [],
+      "manual_save": {
+        "action_elapsed_us": 929251,
+        "expected_line": "line.Day1.one",
+        "locator": "slot:1",
+        "profile": {
+          "Capture.ledger_snapshot_copy": {
+            "calls": 20,
+            "elapsed_us": 219,
+            "max_us": 28
+          },
+          "Capture.saved_fields_copy": {
+            "calls": 20,
+            "elapsed_us": 115,
+            "max_us": 9
+          },
+          "Compiler.runtime_cache_hit": {
+            "calls": 13,
+            "elapsed_us": 51,
+            "max_us": 13
+          },
+          "DialogicRuntimeAdapter.compile_runtime_scene_programme": {
+            "calls": 13,
+            "elapsed_us": 164,
+            "max_us": 24
+          },
+          "GameSaveStorage.write_atomic_if_revision": {
+            "calls": 1,
+            "elapsed_us": 133127,
+            "max_us": 133127
+          },
+          "JsonFileStorage.write_atomic_if_revision": {
+            "calls": 1,
+            "elapsed_us": 133120,
+            "max_us": 133120
+          },
+          "JsonFileStorage.write_atomic_if_revision.file.slot_1.json": {
+            "calls": 1,
+            "elapsed_us": 133124,
+            "max_us": 133124
+          },
+          "SaveValidation.callers.BackupPresentationPort.commit_action > SaveManager.commit_backup_action > RunSnapshotSchema._validate_scene_reading > SoloReadingSession.restore": {
+            "calls": 4,
+            "elapsed_us": 65493,
+            "max_us": 17103
+          },
+          "SaveValidation.callers.BackupPresentationPort.commit_action > SaveManager.commit_backup_action > SoloReadingSession.restore": {
+            "calls": 2,
+            "elapsed_us": 32021,
+            "max_us": 16076
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > RunSnapshotSchema._validate_scene_reading > SoloReadingSession.restore": {
+            "calls": 2,
+            "elapsed_us": 33102,
+            "max_us": 17241
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > SaveManager._prepare_backup_capture > RunSnapshotSchema.build_scene > RunSnapshotSchema._validate_scene_reading > SoloReadingSession.restore": {
+            "calls": 2,
+            "elapsed_us": 33001,
+            "max_us": 17212
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > SaveManager._prepare_backup_capture > RunSnapshotSchema.build_scene > SoloReadingSession.restore": {
+            "calls": 1,
+            "elapsed_us": 15701,
+            "max_us": 15701
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > SoloReadingSession.restore": {
+            "calls": 1,
+            "elapsed_us": 16324,
+            "max_us": 16324
+          },
+          "SoloReadingSession._capture_scene": {
+            "calls": 20,
+            "elapsed_us": 490,
+            "max_us": 46
+          },
+          "SoloReadingSession._ensure_scene_programme": {
+            "calls": 21,
+            "elapsed_us": 1098,
+            "max_us": 103
+          },
+          "SoloReadingSession._validate_scene_saved": {
+            "calls": 12,
+            "elapsed_us": 195560,
+            "max_us": 17232
+          },
+          "WitnessedCaptionLayer._on_reading_input_custody_changed": {
+            "calls": 1,
+            "elapsed_us": 38,
+            "max_us": 38
+          }
+        }
+      },
+      "passage": {},
+      "history_sequence": []
+    },
+    {
+      "sample": "r2-candidate-fresh",
+      "complete": true,
+      "failures": [],
+      "manual_save": {
+        "action_elapsed_us": 920603,
+        "expected_line": "line.Day1.one",
+        "locator": "slot:1",
+        "profile": {
+          "Capture.ledger_snapshot_copy": {
+            "calls": 20,
+            "elapsed_us": 202,
+            "max_us": 17
+          },
+          "Capture.saved_fields_copy": {
+            "calls": 20,
+            "elapsed_us": 122,
+            "max_us": 10
+          },
+          "Compiler.runtime_cache_hit": {
+            "calls": 9,
+            "elapsed_us": 35,
+            "max_us": 6
+          },
+          "DialogicRuntimeAdapter.compile_runtime_scene_programme": {
+            "calls": 9,
+            "elapsed_us": 143,
+            "max_us": 20
+          },
+          "GameSaveStorage.write_atomic_if_revision": {
+            "calls": 1,
+            "elapsed_us": 123010,
+            "max_us": 123010
+          },
+          "JsonFileStorage.write_atomic_if_revision": {
+            "calls": 1,
+            "elapsed_us": 123003,
+            "max_us": 123003
+          },
+          "JsonFileStorage.write_atomic_if_revision.file.slot_1.json": {
+            "calls": 1,
+            "elapsed_us": 123008,
+            "max_us": 123008
+          },
+          "SaveValidation.callers.BackupPresentationPort.commit_action > SaveManager.commit_backup_action > RunSnapshotSchema._validate_scene_reading > SoloReadingSession.restore": {
+            "calls": 2,
+            "elapsed_us": 35770,
+            "max_us": 17980
+          },
+          "SaveValidation.callers.BackupPresentationPort.commit_action > SaveManager.commit_backup_action > SoloReadingSession.restore": {
+            "calls": 2,
+            "elapsed_us": 33789,
+            "max_us": 17222
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > RunSnapshotSchema._validate_scene_reading > SoloReadingSession.restore": {
+            "calls": 1,
+            "elapsed_us": 17969,
+            "max_us": 17969
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > SaveManager._prepare_backup_capture > RunSnapshotSchema.build_scene > RunSnapshotSchema._validate_scene_reading > SoloReadingSession.restore": {
+            "calls": 1,
+            "elapsed_us": 18600,
+            "max_us": 18600
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > SaveManager._prepare_backup_capture > RunSnapshotSchema.build_scene > SoloReadingSession.restore": {
+            "calls": 1,
+            "elapsed_us": 17238,
+            "max_us": 17238
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > SoloReadingSession.restore": {
+            "calls": 1,
+            "elapsed_us": 17044,
+            "max_us": 17044
+          },
+          "SoloReadingSession._capture_scene": {
+            "calls": 20,
+            "elapsed_us": 500,
+            "max_us": 40
+          },
+          "SoloReadingSession._ensure_scene_programme": {
+            "calls": 17,
+            "elapsed_us": 877,
+            "max_us": 131
+          },
+          "SoloReadingSession._validate_scene_saved": {
+            "calls": 8,
+            "elapsed_us": 140350,
+            "max_us": 18592
+          },
+          "WitnessedCaptionLayer._on_reading_input_custody_changed": {
+            "calls": 1,
+            "elapsed_us": 30,
+            "max_us": 30
+          }
+        }
+      },
+      "passage": {},
+      "history_sequence": []
+    },
+    {
+      "sample": "r2-candidate-load",
+      "complete": true,
+      "failures": [],
+      "manual_save": {
+        "action_elapsed_us": 906916,
+        "expected_line": "line.Day1.photo.default.001",
+        "locator": "slot:2",
+        "profile": {
+          "Capture.ledger_snapshot_copy": {
+            "calls": 20,
+            "elapsed_us": 1054,
+            "max_us": 174
+          },
+          "Capture.saved_fields_copy": {
+            "calls": 20,
+            "elapsed_us": 130,
+            "max_us": 12
+          },
+          "Compiler.runtime_cache_hit": {
+            "calls": 9,
+            "elapsed_us": 39,
+            "max_us": 7
+          },
+          "DialogicRuntimeAdapter.compile_runtime_scene_programme": {
+            "calls": 9,
+            "elapsed_us": 142,
+            "max_us": 25
+          },
+          "GameSaveStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 2622,
+            "max_us": 2622
+          },
+          "GameSaveStorage.write_atomic_if_revision": {
+            "calls": 1,
+            "elapsed_us": 126137,
+            "max_us": 126137
+          },
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 2615,
+            "max_us": 2615
+          },
+          "JsonFileStorage.write_atomic.file.desktop-issuer-root.json": {
+            "calls": 1,
+            "elapsed_us": 2619,
+            "max_us": 2619
+          },
+          "JsonFileStorage.write_atomic_if_revision": {
+            "calls": 1,
+            "elapsed_us": 126130,
+            "max_us": 126130
+          },
+          "JsonFileStorage.write_atomic_if_revision.file.slot_2.json": {
+            "calls": 1,
+            "elapsed_us": 126134,
+            "max_us": 126134
+          },
+          "SaveValidation.callers.BackupPresentationPort.commit_action > SaveManager.commit_backup_action > RunSnapshotSchema._validate_scene_reading > SoloReadingSession.restore": {
+            "calls": 2,
+            "elapsed_us": 36872,
+            "max_us": 18526
+          },
+          "SaveValidation.callers.BackupPresentationPort.commit_action > SaveManager.commit_backup_action > SoloReadingSession.restore": {
+            "calls": 2,
+            "elapsed_us": 34640,
+            "max_us": 17557
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > RunSnapshotSchema._validate_scene_reading > SoloReadingSession.restore": {
+            "calls": 1,
+            "elapsed_us": 18133,
+            "max_us": 18133
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > SaveManager._prepare_backup_capture > RunSnapshotSchema.build_scene > RunSnapshotSchema._validate_scene_reading > SoloReadingSession.restore": {
+            "calls": 1,
+            "elapsed_us": 17761,
+            "max_us": 17761
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > SaveManager._prepare_backup_capture > RunSnapshotSchema.build_scene > SoloReadingSession.restore": {
+            "calls": 1,
+            "elapsed_us": 16541,
+            "max_us": 16541
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > SoloReadingSession.restore": {
+            "calls": 1,
+            "elapsed_us": 17472,
+            "max_us": 17472
+          },
+          "SoloReadingSession._capture_scene": {
+            "calls": 20,
+            "elapsed_us": 1701,
+            "max_us": 220
+          },
+          "SoloReadingSession._ensure_scene_programme": {
+            "calls": 17,
+            "elapsed_us": 692,
+            "max_us": 122
+          },
+          "SoloReadingSession._validate_scene_saved": {
+            "calls": 8,
+            "elapsed_us": 141362,
+            "max_us": 18517
+          },
+          "WitnessedCaptionLayer._on_reading_input_custody_changed": {
+            "calls": 1,
+            "elapsed_us": 29,
+            "max_us": 29
+          }
+        }
+      },
+      "passage": {
+        "autosave_after": "6f94796c8bf72f84fd2c2e26e7f51dae72d21ed98e423c47593fab10bcce13d5",
+        "autosave_before": "6f94796c8bf72f84fd2c2e26e7f51dae72d21ed98e423c47593fab10bcce13d5",
+        "choice": "pass",
+        "day_parse_was_ready": true,
+        "entry_id": "Day1.photo.default",
+        "image": "passage/destination.png",
+        "image_sha256": "7a1876e48f0717ea61207704b9671688aa5ecb4ab2643727d0abb172bf49e7b7",
+        "line_id": "line.Day1.photo.default.001",
+        "no_yes_encounters": true,
+        "press_count": 1,
+        "release_count": 1,
+        "runtime_cache_was_absent": true,
+        "same_run": true,
+        "strict_cache_was_absent": true
+      },
+      "history_sequence": [
+        {
+          "input_to_observed_drawing_us": 108090,
+          "line_id": "line.Day1.003",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 106534,
+          "line_id": "line.Day1.004",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 105913,
+          "line_id": "line.Day1.005",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 107813,
+          "line_id": "line.Day1.006",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 108751,
+          "line_id": "line.Day1.007",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 110469,
+          "line_id": "line.Day1.008",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 111350,
+          "line_id": "line.Day1.009",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 109610,
+          "line_id": "line.Day1.010",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 110228,
+          "line_id": "line.Day1.011",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 112100,
+          "line_id": "line.Day1.012",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 111835,
+          "line_id": "line.Day1.013",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 112685,
+          "line_id": "line.Day1.014",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 113856,
+          "line_id": "line.Day1.015",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 116072,
+          "line_id": "line.Day1.016",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 115185,
+          "line_id": "line.Day1.017",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 116418,
+          "line_id": "line.Day1.018",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 119942,
+          "line_id": "line.Day1.019",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 119674,
+          "line_id": "line.Day1.020",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 118710,
+          "line_id": "line.Day1.021",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 119611,
+          "line_id": "line.Day1.022",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 120407,
+          "line_id": "line.Day1.023",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 120446,
+          "line_id": "line.Day1.024",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 120670,
+          "line_id": "line.Day1.025",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 121485,
+          "line_id": "line.Day1.026",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 121837,
+          "line_id": "line.Day1.027",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 124634,
+          "line_id": "line.Day1.028",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 126965,
+          "line_id": "line.Day1.029",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 125765,
+          "line_id": "line.Day1.030",
+          "press_count": 1,
+          "release_count": 1
+        }
+      ]
+    },
+    {
+      "sample": "r2-candidate-retained",
+      "complete": true,
+      "failures": [],
+      "manual_save": {
+        "action_elapsed_us": 881020,
+        "expected_line": "line.Day1.one",
+        "locator": "slot:1",
+        "profile": {
+          "Capture.ledger_snapshot_copy": {
+            "calls": 20,
+            "elapsed_us": 194,
+            "max_us": 18
+          },
+          "Capture.saved_fields_copy": {
+            "calls": 20,
+            "elapsed_us": 125,
+            "max_us": 24
+          },
+          "Compiler.runtime_cache_hit": {
+            "calls": 9,
+            "elapsed_us": 31,
+            "max_us": 5
+          },
+          "DialogicRuntimeAdapter.compile_runtime_scene_programme": {
+            "calls": 9,
+            "elapsed_us": 119,
+            "max_us": 17
+          },
+          "GameSaveStorage.write_atomic_if_revision": {
+            "calls": 1,
+            "elapsed_us": 117467,
+            "max_us": 117467
+          },
+          "JsonFileStorage.write_atomic_if_revision": {
+            "calls": 1,
+            "elapsed_us": 117460,
+            "max_us": 117460
+          },
+          "JsonFileStorage.write_atomic_if_revision.file.slot_1.json": {
+            "calls": 1,
+            "elapsed_us": 117465,
+            "max_us": 117465
+          },
+          "SaveValidation.callers.BackupPresentationPort.commit_action > SaveManager.commit_backup_action > RunSnapshotSchema._validate_scene_reading > SoloReadingSession.restore": {
+            "calls": 2,
+            "elapsed_us": 34905,
+            "max_us": 17632
+          },
+          "SaveValidation.callers.BackupPresentationPort.commit_action > SaveManager.commit_backup_action > SoloReadingSession.restore": {
+            "calls": 2,
+            "elapsed_us": 32821,
+            "max_us": 16414
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > RunSnapshotSchema._validate_scene_reading > SoloReadingSession.restore": {
+            "calls": 1,
+            "elapsed_us": 17654,
+            "max_us": 17654
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > SaveManager._prepare_backup_capture > RunSnapshotSchema.build_scene > RunSnapshotSchema._validate_scene_reading > SoloReadingSession.restore": {
+            "calls": 1,
+            "elapsed_us": 18056,
+            "max_us": 18056
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > SaveManager._prepare_backup_capture > RunSnapshotSchema.build_scene > SoloReadingSession.restore": {
+            "calls": 1,
+            "elapsed_us": 16856,
+            "max_us": 16856
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > SoloReadingSession.restore": {
+            "calls": 1,
+            "elapsed_us": 16621,
+            "max_us": 16621
+          },
+          "SoloReadingSession._capture_scene": {
+            "calls": 20,
+            "elapsed_us": 476,
+            "max_us": 53
+          },
+          "SoloReadingSession._ensure_scene_programme": {
+            "calls": 17,
+            "elapsed_us": 782,
+            "max_us": 100
+          },
+          "SoloReadingSession._validate_scene_saved": {
+            "calls": 8,
+            "elapsed_us": 136859,
+            "max_us": 18047
+          },
+          "WitnessedCaptionLayer._on_reading_input_custody_changed": {
+            "calls": 1,
+            "elapsed_us": 32,
+            "max_us": 32
+          }
+        }
+      },
+      "passage": {},
+      "history_sequence": []
+    },
+    {
+      "sample": "r3-baseline-fresh",
+      "complete": true,
+      "failures": [],
+      "manual_save": {
+        "action_elapsed_us": 917611,
+        "expected_line": "line.Day1.one",
+        "locator": "slot:1",
+        "profile": {
+          "Capture.ledger_snapshot_copy": {
+            "calls": 20,
+            "elapsed_us": 191,
+            "max_us": 17
+          },
+          "Capture.saved_fields_copy": {
+            "calls": 20,
+            "elapsed_us": 105,
+            "max_us": 9
+          },
+          "Compiler.runtime_cache_hit": {
+            "calls": 13,
+            "elapsed_us": 46,
+            "max_us": 6
+          },
+          "DialogicRuntimeAdapter.compile_runtime_scene_programme": {
+            "calls": 13,
+            "elapsed_us": 170,
+            "max_us": 18
+          },
+          "GameSaveStorage.write_atomic_if_revision": {
+            "calls": 1,
+            "elapsed_us": 134137,
+            "max_us": 134137
+          },
+          "JsonFileStorage.write_atomic_if_revision": {
+            "calls": 1,
+            "elapsed_us": 134130,
+            "max_us": 134130
+          },
+          "JsonFileStorage.write_atomic_if_revision.file.slot_1.json": {
+            "calls": 1,
+            "elapsed_us": 134134,
+            "max_us": 134134
+          },
+          "SaveValidation.callers.BackupPresentationPort.commit_action > SaveManager.commit_backup_action > RunSnapshotSchema._validate_scene_reading > SoloReadingSession.restore": {
+            "calls": 4,
+            "elapsed_us": 66002,
+            "max_us": 17432
+          },
+          "SaveValidation.callers.BackupPresentationPort.commit_action > SaveManager.commit_backup_action > SoloReadingSession.restore": {
+            "calls": 2,
+            "elapsed_us": 32141,
+            "max_us": 16135
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > RunSnapshotSchema._validate_scene_reading > SoloReadingSession.restore": {
+            "calls": 2,
+            "elapsed_us": 32253,
+            "max_us": 16773
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > SaveManager._prepare_backup_capture > RunSnapshotSchema.build_scene > RunSnapshotSchema._validate_scene_reading > SoloReadingSession.restore": {
+            "calls": 2,
+            "elapsed_us": 33030,
+            "max_us": 17274
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > SaveManager._prepare_backup_capture > RunSnapshotSchema.build_scene > SoloReadingSession.restore": {
+            "calls": 1,
+            "elapsed_us": 15717,
+            "max_us": 15717
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > SoloReadingSession.restore": {
+            "calls": 1,
+            "elapsed_us": 15802,
+            "max_us": 15802
+          },
+          "SoloReadingSession._capture_scene": {
+            "calls": 20,
+            "elapsed_us": 450,
+            "max_us": 37
+          },
+          "SoloReadingSession._ensure_scene_programme": {
+            "calls": 21,
+            "elapsed_us": 1063,
+            "max_us": 99
+          },
+          "SoloReadingSession._validate_scene_saved": {
+            "calls": 12,
+            "elapsed_us": 194865,
+            "max_us": 17424
+          },
+          "WitnessedCaptionLayer._on_reading_input_custody_changed": {
+            "calls": 1,
+            "elapsed_us": 37,
+            "max_us": 37
+          }
+        }
+      },
+      "passage": {},
+      "history_sequence": []
+    },
+    {
+      "sample": "r3-baseline-load",
+      "complete": true,
+      "failures": [],
+      "manual_save": {
+        "action_elapsed_us": 939733,
+        "expected_line": "line.Day1.photo.default.001",
+        "locator": "slot:2",
+        "profile": {
+          "Capture.ledger_snapshot_copy": {
+            "calls": 20,
+            "elapsed_us": 1154,
+            "max_us": 251
+          },
+          "Capture.saved_fields_copy": {
+            "calls": 20,
+            "elapsed_us": 126,
+            "max_us": 10
+          },
+          "Compiler.runtime_cache_hit": {
+            "calls": 13,
+            "elapsed_us": 47,
+            "max_us": 6
+          },
+          "DialogicRuntimeAdapter.compile_runtime_scene_programme": {
+            "calls": 13,
+            "elapsed_us": 169,
+            "max_us": 17
+          },
+          "GameSaveStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 2629,
+            "max_us": 2629
+          },
+          "GameSaveStorage.write_atomic_if_revision": {
+            "calls": 1,
+            "elapsed_us": 137420,
+            "max_us": 137420
+          },
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 2621,
+            "max_us": 2621
+          },
+          "JsonFileStorage.write_atomic.file.desktop-issuer-root.json": {
+            "calls": 1,
+            "elapsed_us": 2626,
+            "max_us": 2626
+          },
+          "JsonFileStorage.write_atomic_if_revision": {
+            "calls": 1,
+            "elapsed_us": 137414,
+            "max_us": 137414
+          },
+          "JsonFileStorage.write_atomic_if_revision.file.slot_2.json": {
+            "calls": 1,
+            "elapsed_us": 137418,
+            "max_us": 137418
+          },
+          "SaveValidation.callers.BackupPresentationPort.commit_action > SaveManager.commit_backup_action > RunSnapshotSchema._validate_scene_reading > SoloReadingSession.restore": {
+            "calls": 4,
+            "elapsed_us": 69258,
+            "max_us": 18219
+          },
+          "SaveValidation.callers.BackupPresentationPort.commit_action > SaveManager.commit_backup_action > SoloReadingSession.restore": {
+            "calls": 2,
+            "elapsed_us": 32085,
+            "max_us": 16073
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > RunSnapshotSchema._validate_scene_reading > SoloReadingSession.restore": {
+            "calls": 2,
+            "elapsed_us": 31773,
+            "max_us": 16298
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > SaveManager._prepare_backup_capture > RunSnapshotSchema.build_scene > RunSnapshotSchema._validate_scene_reading > SoloReadingSession.restore": {
+            "calls": 2,
+            "elapsed_us": 32954,
+            "max_us": 17271
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > SaveManager._prepare_backup_capture > RunSnapshotSchema.build_scene > SoloReadingSession.restore": {
+            "calls": 1,
+            "elapsed_us": 16168,
+            "max_us": 16168
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > SoloReadingSession.restore": {
+            "calls": 1,
+            "elapsed_us": 15702,
+            "max_us": 15702
+          },
+          "SoloReadingSession._capture_scene": {
+            "calls": 20,
+            "elapsed_us": 1784,
+            "max_us": 304
+          },
+          "SoloReadingSession._ensure_scene_programme": {
+            "calls": 21,
+            "elapsed_us": 819,
+            "max_us": 78
+          },
+          "SoloReadingSession._validate_scene_saved": {
+            "calls": 12,
+            "elapsed_us": 197863,
+            "max_us": 18211
+          },
+          "WitnessedCaptionLayer._on_reading_input_custody_changed": {
+            "calls": 1,
+            "elapsed_us": 25,
+            "max_us": 25
+          }
+        }
+      },
+      "passage": {
+        "autosave_after": "6f94796c8bf72f84fd2c2e26e7f51dae72d21ed98e423c47593fab10bcce13d5",
+        "autosave_before": "6f94796c8bf72f84fd2c2e26e7f51dae72d21ed98e423c47593fab10bcce13d5",
+        "choice": "pass",
+        "day_parse_was_ready": true,
+        "entry_id": "Day1.photo.default",
+        "image": "passage/destination.png",
+        "image_sha256": "6de9a2d7f6afc9d092e7ccbe40d430f1e38b18853d5f6f9bebf07f761aa68009",
+        "line_id": "line.Day1.photo.default.001",
+        "no_yes_encounters": true,
+        "press_count": 1,
+        "release_count": 1,
+        "runtime_cache_was_absent": true,
+        "same_run": true,
+        "strict_cache_was_absent": true
+      },
+      "history_sequence": [
+        {
+          "input_to_observed_drawing_us": 106111,
+          "line_id": "line.Day1.003",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 105006,
+          "line_id": "line.Day1.004",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 105412,
+          "line_id": "line.Day1.005",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 106251,
+          "line_id": "line.Day1.006",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 109076,
+          "line_id": "line.Day1.007",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 109813,
+          "line_id": "line.Day1.008",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 109147,
+          "line_id": "line.Day1.009",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 108899,
+          "line_id": "line.Day1.010",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 109834,
+          "line_id": "line.Day1.011",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 109505,
+          "line_id": "line.Day1.012",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 109320,
+          "line_id": "line.Day1.013",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 110561,
+          "line_id": "line.Day1.014",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 113787,
+          "line_id": "line.Day1.015",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 113670,
+          "line_id": "line.Day1.016",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 114858,
+          "line_id": "line.Day1.017",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 120362,
+          "line_id": "line.Day1.018",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 117204,
+          "line_id": "line.Day1.019",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 116268,
+          "line_id": "line.Day1.020",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 118270,
+          "line_id": "line.Day1.021",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 117902,
+          "line_id": "line.Day1.022",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 119283,
+          "line_id": "line.Day1.023",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 119866,
+          "line_id": "line.Day1.024",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 118231,
+          "line_id": "line.Day1.025",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 120949,
+          "line_id": "line.Day1.026",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 121082,
+          "line_id": "line.Day1.027",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 122729,
+          "line_id": "line.Day1.028",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 122777,
+          "line_id": "line.Day1.029",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 123301,
+          "line_id": "line.Day1.030",
+          "press_count": 1,
+          "release_count": 1
+        }
+      ]
+    },
+    {
+      "sample": "r3-baseline-retained",
+      "complete": true,
+      "failures": [],
+      "manual_save": {
+        "action_elapsed_us": 936937,
+        "expected_line": "line.Day1.one",
+        "locator": "slot:1",
+        "profile": {
+          "Capture.ledger_snapshot_copy": {
+            "calls": 20,
+            "elapsed_us": 182,
+            "max_us": 17
+          },
+          "Capture.saved_fields_copy": {
+            "calls": 20,
+            "elapsed_us": 108,
+            "max_us": 11
+          },
+          "Compiler.runtime_cache_hit": {
+            "calls": 13,
+            "elapsed_us": 52,
+            "max_us": 9
+          },
+          "DialogicRuntimeAdapter.compile_runtime_scene_programme": {
+            "calls": 13,
+            "elapsed_us": 183,
+            "max_us": 19
+          },
+          "GameSaveStorage.write_atomic_if_revision": {
+            "calls": 1,
+            "elapsed_us": 134080,
+            "max_us": 134080
+          },
+          "JsonFileStorage.write_atomic_if_revision": {
+            "calls": 1,
+            "elapsed_us": 134072,
+            "max_us": 134072
+          },
+          "JsonFileStorage.write_atomic_if_revision.file.slot_1.json": {
+            "calls": 1,
+            "elapsed_us": 134077,
+            "max_us": 134077
+          },
+          "SaveValidation.callers.BackupPresentationPort.commit_action > SaveManager.commit_backup_action > RunSnapshotSchema._validate_scene_reading > SoloReadingSession.restore": {
+            "calls": 4,
+            "elapsed_us": 66615,
+            "max_us": 17693
+          },
+          "SaveValidation.callers.BackupPresentationPort.commit_action > SaveManager.commit_backup_action > SoloReadingSession.restore": {
+            "calls": 2,
+            "elapsed_us": 32973,
+            "max_us": 16835
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > RunSnapshotSchema._validate_scene_reading > SoloReadingSession.restore": {
+            "calls": 2,
+            "elapsed_us": 32708,
+            "max_us": 17136
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > SaveManager._prepare_backup_capture > RunSnapshotSchema.build_scene > RunSnapshotSchema._validate_scene_reading > SoloReadingSession.restore": {
+            "calls": 2,
+            "elapsed_us": 33057,
+            "max_us": 17437
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > SaveManager._prepare_backup_capture > RunSnapshotSchema.build_scene > SoloReadingSession.restore": {
+            "calls": 1,
+            "elapsed_us": 16086,
+            "max_us": 16086
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > SoloReadingSession.restore": {
+            "calls": 1,
+            "elapsed_us": 15777,
+            "max_us": 15777
+          },
+          "SoloReadingSession._capture_scene": {
+            "calls": 20,
+            "elapsed_us": 457,
+            "max_us": 46
+          },
+          "SoloReadingSession._ensure_scene_programme": {
+            "calls": 21,
+            "elapsed_us": 1119,
+            "max_us": 112
+          },
+          "SoloReadingSession._validate_scene_saved": {
+            "calls": 12,
+            "elapsed_us": 197137,
+            "max_us": 17686
+          },
+          "WitnessedCaptionLayer._on_reading_input_custody_changed": {
+            "calls": 1,
+            "elapsed_us": 37,
+            "max_us": 37
+          }
+        }
+      },
+      "passage": {},
+      "history_sequence": []
+    },
+    {
+      "sample": "r3-candidate-fresh",
+      "complete": true,
+      "failures": [],
+      "manual_save": {
+        "action_elapsed_us": 851248,
+        "expected_line": "line.Day1.one",
+        "locator": "slot:1",
+        "profile": {
+          "Capture.ledger_snapshot_copy": {
+            "calls": 20,
+            "elapsed_us": 190,
+            "max_us": 19
+          },
+          "Capture.saved_fields_copy": {
+            "calls": 20,
+            "elapsed_us": 121,
+            "max_us": 17
+          },
+          "Compiler.runtime_cache_hit": {
+            "calls": 9,
+            "elapsed_us": 49,
+            "max_us": 21
+          },
+          "DialogicRuntimeAdapter.compile_runtime_scene_programme": {
+            "calls": 9,
+            "elapsed_us": 151,
+            "max_us": 33
+          },
+          "GameSaveStorage.write_atomic_if_revision": {
+            "calls": 1,
+            "elapsed_us": 114569,
+            "max_us": 114569
+          },
+          "JsonFileStorage.write_atomic_if_revision": {
+            "calls": 1,
+            "elapsed_us": 114562,
+            "max_us": 114562
+          },
+          "JsonFileStorage.write_atomic_if_revision.file.slot_1.json": {
+            "calls": 1,
+            "elapsed_us": 114566,
+            "max_us": 114566
+          },
+          "SaveValidation.callers.BackupPresentationPort.commit_action > SaveManager.commit_backup_action > RunSnapshotSchema._validate_scene_reading > SoloReadingSession.restore": {
+            "calls": 2,
+            "elapsed_us": 34096,
+            "max_us": 17092
+          },
+          "SaveValidation.callers.BackupPresentationPort.commit_action > SaveManager.commit_backup_action > SoloReadingSession.restore": {
+            "calls": 2,
+            "elapsed_us": 32366,
+            "max_us": 16289
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > RunSnapshotSchema._validate_scene_reading > SoloReadingSession.restore": {
+            "calls": 1,
+            "elapsed_us": 16875,
+            "max_us": 16875
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > SaveManager._prepare_backup_capture > RunSnapshotSchema.build_scene > RunSnapshotSchema._validate_scene_reading > SoloReadingSession.restore": {
+            "calls": 1,
+            "elapsed_us": 17463,
+            "max_us": 17463
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > SaveManager._prepare_backup_capture > RunSnapshotSchema.build_scene > SoloReadingSession.restore": {
+            "calls": 1,
+            "elapsed_us": 16450,
+            "max_us": 16450
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > SoloReadingSession.restore": {
+            "calls": 1,
+            "elapsed_us": 16089,
+            "max_us": 16089
+          },
+          "SoloReadingSession._capture_scene": {
+            "calls": 20,
+            "elapsed_us": 457,
+            "max_us": 44
+          },
+          "SoloReadingSession._ensure_scene_programme": {
+            "calls": 17,
+            "elapsed_us": 783,
+            "max_us": 115
+          },
+          "SoloReadingSession._validate_scene_saved": {
+            "calls": 8,
+            "elapsed_us": 133287,
+            "max_us": 17456
+          },
+          "WitnessedCaptionLayer._on_reading_input_custody_changed": {
+            "calls": 1,
+            "elapsed_us": 28,
+            "max_us": 28
+          }
+        }
+      },
+      "passage": {},
+      "history_sequence": []
+    },
+    {
+      "sample": "r3-candidate-load",
+      "complete": true,
+      "failures": [],
+      "manual_save": {
+        "action_elapsed_us": 900589,
+        "expected_line": "line.Day1.photo.default.001",
+        "locator": "slot:2",
+        "profile": {
+          "Capture.ledger_snapshot_copy": {
+            "calls": 20,
+            "elapsed_us": 1181,
+            "max_us": 198
+          },
+          "Capture.saved_fields_copy": {
+            "calls": 20,
+            "elapsed_us": 146,
+            "max_us": 18
+          },
+          "Compiler.runtime_cache_hit": {
+            "calls": 9,
+            "elapsed_us": 38,
+            "max_us": 8
+          },
+          "DialogicRuntimeAdapter.compile_runtime_scene_programme": {
+            "calls": 9,
+            "elapsed_us": 135,
+            "max_us": 21
+          },
+          "GameSaveStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 2797,
+            "max_us": 2797
+          },
+          "GameSaveStorage.write_atomic_if_revision": {
+            "calls": 1,
+            "elapsed_us": 121823,
+            "max_us": 121823
+          },
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 2789,
+            "max_us": 2789
+          },
+          "JsonFileStorage.write_atomic.file.desktop-issuer-root.json": {
+            "calls": 1,
+            "elapsed_us": 2794,
+            "max_us": 2794
+          },
+          "JsonFileStorage.write_atomic_if_revision": {
+            "calls": 1,
+            "elapsed_us": 121816,
+            "max_us": 121816
+          },
+          "JsonFileStorage.write_atomic_if_revision.file.slot_2.json": {
+            "calls": 1,
+            "elapsed_us": 121820,
+            "max_us": 121820
+          },
+          "SaveValidation.callers.BackupPresentationPort.commit_action > SaveManager.commit_backup_action > RunSnapshotSchema._validate_scene_reading > SoloReadingSession.restore": {
+            "calls": 2,
+            "elapsed_us": 35722,
+            "max_us": 18087
+          },
+          "SaveValidation.callers.BackupPresentationPort.commit_action > SaveManager.commit_backup_action > SoloReadingSession.restore": {
+            "calls": 2,
+            "elapsed_us": 33998,
+            "max_us": 17080
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > RunSnapshotSchema._validate_scene_reading > SoloReadingSession.restore": {
+            "calls": 1,
+            "elapsed_us": 17342,
+            "max_us": 17342
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > SaveManager._prepare_backup_capture > RunSnapshotSchema.build_scene > RunSnapshotSchema._validate_scene_reading > SoloReadingSession.restore": {
+            "calls": 1,
+            "elapsed_us": 17540,
+            "max_us": 17540
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > SaveManager._prepare_backup_capture > RunSnapshotSchema.build_scene > SoloReadingSession.restore": {
+            "calls": 1,
+            "elapsed_us": 16291,
+            "max_us": 16291
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > SoloReadingSession.restore": {
+            "calls": 1,
+            "elapsed_us": 16290,
+            "max_us": 16290
+          },
+          "SoloReadingSession._capture_scene": {
+            "calls": 20,
+            "elapsed_us": 1849,
+            "max_us": 242
+          },
+          "SoloReadingSession._ensure_scene_programme": {
+            "calls": 17,
+            "elapsed_us": 592,
+            "max_us": 77
+          },
+          "SoloReadingSession._validate_scene_saved": {
+            "calls": 8,
+            "elapsed_us": 137118,
+            "max_us": 18080
+          },
+          "WitnessedCaptionLayer._on_reading_input_custody_changed": {
+            "calls": 1,
+            "elapsed_us": 31,
+            "max_us": 31
+          }
+        }
+      },
+      "passage": {
+        "autosave_after": "6f94796c8bf72f84fd2c2e26e7f51dae72d21ed98e423c47593fab10bcce13d5",
+        "autosave_before": "6f94796c8bf72f84fd2c2e26e7f51dae72d21ed98e423c47593fab10bcce13d5",
+        "choice": "pass",
+        "day_parse_was_ready": true,
+        "entry_id": "Day1.photo.default",
+        "image": "passage/destination.png",
+        "image_sha256": "c1dbe1c41bdf6f8476681303d63f52222d15a22664e5e1a4ca3d8e9ea93eea3b",
+        "line_id": "line.Day1.photo.default.001",
+        "no_yes_encounters": true,
+        "press_count": 1,
+        "release_count": 1,
+        "runtime_cache_was_absent": true,
+        "same_run": true,
+        "strict_cache_was_absent": true
+      },
+      "history_sequence": [
+        {
+          "input_to_observed_drawing_us": 108016,
+          "line_id": "line.Day1.003",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 105584,
+          "line_id": "line.Day1.004",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 106661,
+          "line_id": "line.Day1.005",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 110463,
+          "line_id": "line.Day1.006",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 113202,
+          "line_id": "line.Day1.007",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 111747,
+          "line_id": "line.Day1.008",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 113814,
+          "line_id": "line.Day1.009",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 110271,
+          "line_id": "line.Day1.010",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 111434,
+          "line_id": "line.Day1.011",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 110837,
+          "line_id": "line.Day1.012",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 112191,
+          "line_id": "line.Day1.013",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 112112,
+          "line_id": "line.Day1.014",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 113375,
+          "line_id": "line.Day1.015",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 117189,
+          "line_id": "line.Day1.016",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 113973,
+          "line_id": "line.Day1.017",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 117966,
+          "line_id": "line.Day1.018",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 116847,
+          "line_id": "line.Day1.019",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 116257,
+          "line_id": "line.Day1.020",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 119611,
+          "line_id": "line.Day1.021",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 120729,
+          "line_id": "line.Day1.022",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 123318,
+          "line_id": "line.Day1.023",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 120908,
+          "line_id": "line.Day1.024",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 119876,
+          "line_id": "line.Day1.025",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 125091,
+          "line_id": "line.Day1.026",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 123260,
+          "line_id": "line.Day1.027",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 125250,
+          "line_id": "line.Day1.028",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 123154,
+          "line_id": "line.Day1.029",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 123296,
+          "line_id": "line.Day1.030",
+          "press_count": 1,
+          "release_count": 1
+        }
+      ]
+    },
+    {
+      "sample": "r3-candidate-retained",
+      "complete": true,
+      "failures": [],
+      "manual_save": {
+        "action_elapsed_us": 894498,
+        "expected_line": "line.Day1.one",
+        "locator": "slot:1",
+        "profile": {
+          "Capture.ledger_snapshot_copy": {
+            "calls": 20,
+            "elapsed_us": 211,
+            "max_us": 29
+          },
+          "Capture.saved_fields_copy": {
+            "calls": 20,
+            "elapsed_us": 110,
+            "max_us": 9
+          },
+          "Compiler.runtime_cache_hit": {
+            "calls": 9,
+            "elapsed_us": 32,
+            "max_us": 6
+          },
+          "DialogicRuntimeAdapter.compile_runtime_scene_programme": {
+            "calls": 9,
+            "elapsed_us": 121,
+            "max_us": 19
+          },
+          "GameSaveStorage.write_atomic_if_revision": {
+            "calls": 1,
+            "elapsed_us": 119447,
+            "max_us": 119447
+          },
+          "JsonFileStorage.write_atomic_if_revision": {
+            "calls": 1,
+            "elapsed_us": 119440,
+            "max_us": 119440
+          },
+          "JsonFileStorage.write_atomic_if_revision.file.slot_1.json": {
+            "calls": 1,
+            "elapsed_us": 119444,
+            "max_us": 119444
+          },
+          "SaveValidation.callers.BackupPresentationPort.commit_action > SaveManager.commit_backup_action > RunSnapshotSchema._validate_scene_reading > SoloReadingSession.restore": {
+            "calls": 2,
+            "elapsed_us": 34835,
+            "max_us": 17631
+          },
+          "SaveValidation.callers.BackupPresentationPort.commit_action > SaveManager.commit_backup_action > SoloReadingSession.restore": {
+            "calls": 2,
+            "elapsed_us": 32452,
+            "max_us": 16322
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > RunSnapshotSchema._validate_scene_reading > SoloReadingSession.restore": {
+            "calls": 1,
+            "elapsed_us": 16866,
+            "max_us": 16866
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > SaveManager._prepare_backup_capture > RunSnapshotSchema.build_scene > RunSnapshotSchema._validate_scene_reading > SoloReadingSession.restore": {
+            "calls": 1,
+            "elapsed_us": 18400,
+            "max_us": 18400
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > SaveManager._prepare_backup_capture > RunSnapshotSchema.build_scene > SoloReadingSession.restore": {
+            "calls": 1,
+            "elapsed_us": 16288,
+            "max_us": 16288
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > SoloReadingSession.restore": {
+            "calls": 1,
+            "elapsed_us": 16128,
+            "max_us": 16128
+          },
+          "SoloReadingSession._capture_scene": {
+            "calls": 20,
+            "elapsed_us": 476,
+            "max_us": 45
+          },
+          "SoloReadingSession._ensure_scene_programme": {
+            "calls": 17,
+            "elapsed_us": 766,
+            "max_us": 105
+          },
+          "SoloReadingSession._validate_scene_saved": {
+            "calls": 8,
+            "elapsed_us": 134916,
+            "max_us": 18391
+          },
+          "WitnessedCaptionLayer._on_reading_input_custody_changed": {
+            "calls": 1,
+            "elapsed_us": 37,
+            "max_us": 37
+          }
+        }
+      },
+      "passage": {},
+      "history_sequence": []
+    },
+    {
+      "sample": "r4-baseline-fresh",
+      "complete": true,
+      "failures": [],
+      "manual_save": {
+        "action_elapsed_us": 946759,
+        "expected_line": "line.Day1.one",
+        "locator": "slot:1",
+        "profile": {
+          "Capture.ledger_snapshot_copy": {
+            "calls": 20,
+            "elapsed_us": 199,
+            "max_us": 19
+          },
+          "Capture.saved_fields_copy": {
+            "calls": 20,
+            "elapsed_us": 114,
+            "max_us": 10
+          },
+          "Compiler.runtime_cache_hit": {
+            "calls": 13,
+            "elapsed_us": 45,
+            "max_us": 5
+          },
+          "DialogicRuntimeAdapter.compile_runtime_scene_programme": {
+            "calls": 13,
+            "elapsed_us": 186,
+            "max_us": 19
+          },
+          "GameSaveStorage.write_atomic_if_revision": {
+            "calls": 1,
+            "elapsed_us": 136271,
+            "max_us": 136271
+          },
+          "JsonFileStorage.write_atomic_if_revision": {
+            "calls": 1,
+            "elapsed_us": 136264,
+            "max_us": 136264
+          },
+          "JsonFileStorage.write_atomic_if_revision.file.slot_1.json": {
+            "calls": 1,
+            "elapsed_us": 136268,
+            "max_us": 136268
+          },
+          "SaveValidation.callers.BackupPresentationPort.commit_action > SaveManager.commit_backup_action > RunSnapshotSchema._validate_scene_reading > SoloReadingSession.restore": {
+            "calls": 4,
+            "elapsed_us": 66270,
+            "max_us": 17548
+          },
+          "SaveValidation.callers.BackupPresentationPort.commit_action > SaveManager.commit_backup_action > SoloReadingSession.restore": {
+            "calls": 2,
+            "elapsed_us": 32015,
+            "max_us": 16233
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > RunSnapshotSchema._validate_scene_reading > SoloReadingSession.restore": {
+            "calls": 2,
+            "elapsed_us": 33574,
+            "max_us": 17401
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > SaveManager._prepare_backup_capture > RunSnapshotSchema.build_scene > RunSnapshotSchema._validate_scene_reading > SoloReadingSession.restore": {
+            "calls": 2,
+            "elapsed_us": 33675,
+            "max_us": 17497
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > SaveManager._prepare_backup_capture > RunSnapshotSchema.build_scene > SoloReadingSession.restore": {
+            "calls": 1,
+            "elapsed_us": 17246,
+            "max_us": 17246
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > SoloReadingSession.restore": {
+            "calls": 1,
+            "elapsed_us": 16012,
+            "max_us": 16012
+          },
+          "SoloReadingSession._capture_scene": {
+            "calls": 20,
+            "elapsed_us": 473,
+            "max_us": 44
+          },
+          "SoloReadingSession._ensure_scene_programme": {
+            "calls": 21,
+            "elapsed_us": 1189,
+            "max_us": 146
+          },
+          "SoloReadingSession._validate_scene_saved": {
+            "calls": 12,
+            "elapsed_us": 198708,
+            "max_us": 17540
+          },
+          "WitnessedCaptionLayer._on_reading_input_custody_changed": {
+            "calls": 1,
+            "elapsed_us": 33,
+            "max_us": 33
+          }
+        }
+      },
+      "passage": {},
+      "history_sequence": []
+    },
+    {
+      "sample": "r4-baseline-load",
+      "complete": true,
+      "failures": [],
+      "manual_save": {
+        "action_elapsed_us": 962993,
+        "expected_line": "line.Day1.photo.default.001",
+        "locator": "slot:2",
+        "profile": {
+          "Capture.ledger_snapshot_copy": {
+            "calls": 20,
+            "elapsed_us": 1055,
+            "max_us": 128
+          },
+          "Capture.saved_fields_copy": {
+            "calls": 20,
+            "elapsed_us": 198,
+            "max_us": 69
+          },
+          "Compiler.runtime_cache_hit": {
+            "calls": 13,
+            "elapsed_us": 50,
+            "max_us": 7
+          },
+          "DialogicRuntimeAdapter.compile_runtime_scene_programme": {
+            "calls": 13,
+            "elapsed_us": 190,
+            "max_us": 20
+          },
+          "GameSaveStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 2665,
+            "max_us": 2665
+          },
+          "GameSaveStorage.write_atomic_if_revision": {
+            "calls": 1,
+            "elapsed_us": 140001,
+            "max_us": 140001
+          },
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 2658,
+            "max_us": 2658
+          },
+          "JsonFileStorage.write_atomic.file.desktop-issuer-root.json": {
+            "calls": 1,
+            "elapsed_us": 2662,
+            "max_us": 2662
+          },
+          "JsonFileStorage.write_atomic_if_revision": {
+            "calls": 1,
+            "elapsed_us": 139995,
+            "max_us": 139995
+          },
+          "JsonFileStorage.write_atomic_if_revision.file.slot_2.json": {
+            "calls": 1,
+            "elapsed_us": 139999,
+            "max_us": 139999
+          },
+          "SaveValidation.callers.BackupPresentationPort.commit_action > SaveManager.commit_backup_action > RunSnapshotSchema._validate_scene_reading > SoloReadingSession.restore": {
+            "calls": 4,
+            "elapsed_us": 68982,
+            "max_us": 18441
+          },
+          "SaveValidation.callers.BackupPresentationPort.commit_action > SaveManager.commit_backup_action > SoloReadingSession.restore": {
+            "calls": 2,
+            "elapsed_us": 32811,
+            "max_us": 16772
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > RunSnapshotSchema._validate_scene_reading > SoloReadingSession.restore": {
+            "calls": 2,
+            "elapsed_us": 35289,
+            "max_us": 18100
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > SaveManager._prepare_backup_capture > RunSnapshotSchema.build_scene > RunSnapshotSchema._validate_scene_reading > SoloReadingSession.restore": {
+            "calls": 2,
+            "elapsed_us": 33034,
+            "max_us": 17443
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > SaveManager._prepare_backup_capture > RunSnapshotSchema.build_scene > SoloReadingSession.restore": {
+            "calls": 1,
+            "elapsed_us": 15614,
+            "max_us": 15614
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > SoloReadingSession.restore": {
+            "calls": 1,
+            "elapsed_us": 16625,
+            "max_us": 16625
+          },
+          "SoloReadingSession._capture_scene": {
+            "calls": 20,
+            "elapsed_us": 1757,
+            "max_us": 201
+          },
+          "SoloReadingSession._ensure_scene_programme": {
+            "calls": 21,
+            "elapsed_us": 874,
+            "max_us": 81
+          },
+          "SoloReadingSession._validate_scene_saved": {
+            "calls": 12,
+            "elapsed_us": 202267,
+            "max_us": 18432
+          },
+          "WitnessedCaptionLayer._on_reading_input_custody_changed": {
+            "calls": 1,
+            "elapsed_us": 30,
+            "max_us": 30
+          }
+        }
+      },
+      "passage": {
+        "autosave_after": "6f94796c8bf72f84fd2c2e26e7f51dae72d21ed98e423c47593fab10bcce13d5",
+        "autosave_before": "6f94796c8bf72f84fd2c2e26e7f51dae72d21ed98e423c47593fab10bcce13d5",
+        "choice": "pass",
+        "day_parse_was_ready": true,
+        "entry_id": "Day1.photo.default",
+        "image": "passage/destination.png",
+        "image_sha256": "69818167c0df0873f31c87d7c4f8e695f299c640ae1597159bf8ff527b815ece",
+        "line_id": "line.Day1.photo.default.001",
+        "no_yes_encounters": true,
+        "press_count": 1,
+        "release_count": 1,
+        "runtime_cache_was_absent": true,
+        "same_run": true,
+        "strict_cache_was_absent": true
+      },
+      "history_sequence": [
+        {
+          "input_to_observed_drawing_us": 109139,
+          "line_id": "line.Day1.003",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 106785,
+          "line_id": "line.Day1.004",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 108226,
+          "line_id": "line.Day1.005",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 109201,
+          "line_id": "line.Day1.006",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 111870,
+          "line_id": "line.Day1.007",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 113002,
+          "line_id": "line.Day1.008",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 110754,
+          "line_id": "line.Day1.009",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 109410,
+          "line_id": "line.Day1.010",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 109366,
+          "line_id": "line.Day1.011",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 111217,
+          "line_id": "line.Day1.012",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 111192,
+          "line_id": "line.Day1.013",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 112200,
+          "line_id": "line.Day1.014",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 117968,
+          "line_id": "line.Day1.015",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 135514,
+          "line_id": "line.Day1.016",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 128303,
+          "line_id": "line.Day1.017",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 131496,
+          "line_id": "line.Day1.018",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 124063,
+          "line_id": "line.Day1.019",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 124584,
+          "line_id": "line.Day1.020",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 118339,
+          "line_id": "line.Day1.021",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 120221,
+          "line_id": "line.Day1.022",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 120203,
+          "line_id": "line.Day1.023",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 119089,
+          "line_id": "line.Day1.024",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 119445,
+          "line_id": "line.Day1.025",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 121314,
+          "line_id": "line.Day1.026",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 122817,
+          "line_id": "line.Day1.027",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 124773,
+          "line_id": "line.Day1.028",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 122490,
+          "line_id": "line.Day1.029",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 124725,
+          "line_id": "line.Day1.030",
+          "press_count": 1,
+          "release_count": 1
+        }
+      ]
+    },
+    {
+      "sample": "r4-baseline-retained",
+      "complete": true,
+      "failures": [],
+      "manual_save": {
+        "action_elapsed_us": 925640,
+        "expected_line": "line.Day1.one",
+        "locator": "slot:1",
+        "profile": {
+          "Capture.ledger_snapshot_copy": {
+            "calls": 20,
+            "elapsed_us": 185,
+            "max_us": 15
+          },
+          "Capture.saved_fields_copy": {
+            "calls": 20,
+            "elapsed_us": 107,
+            "max_us": 8
+          },
+          "Compiler.runtime_cache_hit": {
+            "calls": 13,
+            "elapsed_us": 46,
+            "max_us": 7
+          },
+          "DialogicRuntimeAdapter.compile_runtime_scene_programme": {
+            "calls": 13,
+            "elapsed_us": 178,
+            "max_us": 21
+          },
+          "GameSaveStorage.write_atomic_if_revision": {
+            "calls": 1,
+            "elapsed_us": 133703,
+            "max_us": 133703
+          },
+          "JsonFileStorage.write_atomic_if_revision": {
+            "calls": 1,
+            "elapsed_us": 133696,
+            "max_us": 133696
+          },
+          "JsonFileStorage.write_atomic_if_revision.file.slot_1.json": {
+            "calls": 1,
+            "elapsed_us": 133700,
+            "max_us": 133700
+          },
+          "SaveValidation.callers.BackupPresentationPort.commit_action > SaveManager.commit_backup_action > RunSnapshotSchema._validate_scene_reading > SoloReadingSession.restore": {
+            "calls": 4,
+            "elapsed_us": 65088,
+            "max_us": 16934
+          },
+          "SaveValidation.callers.BackupPresentationPort.commit_action > SaveManager.commit_backup_action > SoloReadingSession.restore": {
+            "calls": 2,
+            "elapsed_us": 31956,
+            "max_us": 16066
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > RunSnapshotSchema._validate_scene_reading > SoloReadingSession.restore": {
+            "calls": 2,
+            "elapsed_us": 32748,
+            "max_us": 17033
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > SaveManager._prepare_backup_capture > RunSnapshotSchema.build_scene > RunSnapshotSchema._validate_scene_reading > SoloReadingSession.restore": {
+            "calls": 2,
+            "elapsed_us": 32730,
+            "max_us": 17180
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > SaveManager._prepare_backup_capture > RunSnapshotSchema.build_scene > SoloReadingSession.restore": {
+            "calls": 1,
+            "elapsed_us": 15711,
+            "max_us": 15711
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > SoloReadingSession.restore": {
+            "calls": 1,
+            "elapsed_us": 15637,
+            "max_us": 15637
+          },
+          "SoloReadingSession._capture_scene": {
+            "calls": 20,
+            "elapsed_us": 439,
+            "max_us": 38
+          },
+          "SoloReadingSession._ensure_scene_programme": {
+            "calls": 21,
+            "elapsed_us": 1107,
+            "max_us": 132
+          },
+          "SoloReadingSession._validate_scene_saved": {
+            "calls": 12,
+            "elapsed_us": 193796,
+            "max_us": 17171
+          },
+          "WitnessedCaptionLayer._on_reading_input_custody_changed": {
+            "calls": 1,
+            "elapsed_us": 27,
+            "max_us": 27
+          }
+        }
+      },
+      "passage": {},
+      "history_sequence": []
+    },
+    {
+      "sample": "r4-candidate-fresh",
+      "complete": true,
+      "failures": [],
+      "manual_save": {
+        "action_elapsed_us": 878262,
+        "expected_line": "line.Day1.one",
+        "locator": "slot:1",
+        "profile": {
+          "Capture.ledger_snapshot_copy": {
+            "calls": 20,
+            "elapsed_us": 198,
+            "max_us": 21
+          },
+          "Capture.saved_fields_copy": {
+            "calls": 20,
+            "elapsed_us": 104,
+            "max_us": 8
+          },
+          "Compiler.runtime_cache_hit": {
+            "calls": 9,
+            "elapsed_us": 33,
+            "max_us": 6
+          },
+          "DialogicRuntimeAdapter.compile_runtime_scene_programme": {
+            "calls": 9,
+            "elapsed_us": 129,
+            "max_us": 18
+          },
+          "GameSaveStorage.write_atomic_if_revision": {
+            "calls": 1,
+            "elapsed_us": 122307,
+            "max_us": 122307
+          },
+          "JsonFileStorage.write_atomic_if_revision": {
+            "calls": 1,
+            "elapsed_us": 122299,
+            "max_us": 122299
+          },
+          "JsonFileStorage.write_atomic_if_revision.file.slot_1.json": {
+            "calls": 1,
+            "elapsed_us": 122304,
+            "max_us": 122304
+          },
+          "SaveValidation.callers.BackupPresentationPort.commit_action > SaveManager.commit_backup_action > RunSnapshotSchema._validate_scene_reading > SoloReadingSession.restore": {
+            "calls": 2,
+            "elapsed_us": 35546,
+            "max_us": 17781
+          },
+          "SaveValidation.callers.BackupPresentationPort.commit_action > SaveManager.commit_backup_action > SoloReadingSession.restore": {
+            "calls": 2,
+            "elapsed_us": 33162,
+            "max_us": 16603
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > RunSnapshotSchema._validate_scene_reading > SoloReadingSession.restore": {
+            "calls": 1,
+            "elapsed_us": 17882,
+            "max_us": 17882
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > SaveManager._prepare_backup_capture > RunSnapshotSchema.build_scene > RunSnapshotSchema._validate_scene_reading > SoloReadingSession.restore": {
+            "calls": 1,
+            "elapsed_us": 17665,
+            "max_us": 17665
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > SaveManager._prepare_backup_capture > RunSnapshotSchema.build_scene > SoloReadingSession.restore": {
+            "calls": 1,
+            "elapsed_us": 16482,
+            "max_us": 16482
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > SoloReadingSession.restore": {
+            "calls": 1,
+            "elapsed_us": 16943,
+            "max_us": 16943
+          },
+          "SoloReadingSession._capture_scene": {
+            "calls": 20,
+            "elapsed_us": 461,
+            "max_us": 38
+          },
+          "SoloReadingSession._ensure_scene_programme": {
+            "calls": 17,
+            "elapsed_us": 833,
+            "max_us": 105
+          },
+          "SoloReadingSession._validate_scene_saved": {
+            "calls": 8,
+            "elapsed_us": 137621,
+            "max_us": 17873
+          },
+          "WitnessedCaptionLayer._on_reading_input_custody_changed": {
+            "calls": 1,
+            "elapsed_us": 34,
+            "max_us": 34
+          }
+        }
+      },
+      "passage": {},
+      "history_sequence": []
+    },
+    {
+      "sample": "r4-candidate-load",
+      "complete": true,
+      "failures": [],
+      "manual_save": {
+        "action_elapsed_us": 913749,
+        "expected_line": "line.Day1.photo.default.001",
+        "locator": "slot:2",
+        "profile": {
+          "Capture.ledger_snapshot_copy": {
+            "calls": 20,
+            "elapsed_us": 1132,
+            "max_us": 200
+          },
+          "Capture.saved_fields_copy": {
+            "calls": 20,
+            "elapsed_us": 141,
+            "max_us": 18
+          },
+          "Compiler.runtime_cache_hit": {
+            "calls": 9,
+            "elapsed_us": 35,
+            "max_us": 8
+          },
+          "DialogicRuntimeAdapter.compile_runtime_scene_programme": {
+            "calls": 9,
+            "elapsed_us": 138,
+            "max_us": 20
+          },
+          "GameSaveStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 2728,
+            "max_us": 2728
+          },
+          "GameSaveStorage.write_atomic_if_revision": {
+            "calls": 1,
+            "elapsed_us": 126978,
+            "max_us": 126978
+          },
+          "JsonFileStorage.write_atomic": {
+            "calls": 1,
+            "elapsed_us": 2721,
+            "max_us": 2721
+          },
+          "JsonFileStorage.write_atomic.file.desktop-issuer-root.json": {
+            "calls": 1,
+            "elapsed_us": 2725,
+            "max_us": 2725
+          },
+          "JsonFileStorage.write_atomic_if_revision": {
+            "calls": 1,
+            "elapsed_us": 126971,
+            "max_us": 126971
+          },
+          "JsonFileStorage.write_atomic_if_revision.file.slot_2.json": {
+            "calls": 1,
+            "elapsed_us": 126975,
+            "max_us": 126975
+          },
+          "SaveValidation.callers.BackupPresentationPort.commit_action > SaveManager.commit_backup_action > RunSnapshotSchema._validate_scene_reading > SoloReadingSession.restore": {
+            "calls": 2,
+            "elapsed_us": 36074,
+            "max_us": 18559
+          },
+          "SaveValidation.callers.BackupPresentationPort.commit_action > SaveManager.commit_backup_action > SoloReadingSession.restore": {
+            "calls": 2,
+            "elapsed_us": 33761,
+            "max_us": 17092
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > RunSnapshotSchema._validate_scene_reading > SoloReadingSession.restore": {
+            "calls": 1,
+            "elapsed_us": 17953,
+            "max_us": 17953
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > SaveManager._prepare_backup_capture > RunSnapshotSchema.build_scene > RunSnapshotSchema._validate_scene_reading > SoloReadingSession.restore": {
+            "calls": 1,
+            "elapsed_us": 18464,
+            "max_us": 18464
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > SaveManager._prepare_backup_capture > RunSnapshotSchema.build_scene > SoloReadingSession.restore": {
+            "calls": 1,
+            "elapsed_us": 16600,
+            "max_us": 16600
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > SoloReadingSession.restore": {
+            "calls": 1,
+            "elapsed_us": 16891,
+            "max_us": 16891
+          },
+          "SoloReadingSession._capture_scene": {
+            "calls": 20,
+            "elapsed_us": 1781,
+            "max_us": 244
+          },
+          "SoloReadingSession._ensure_scene_programme": {
+            "calls": 17,
+            "elapsed_us": 629,
+            "max_us": 76
+          },
+          "SoloReadingSession._validate_scene_saved": {
+            "calls": 8,
+            "elapsed_us": 139684,
+            "max_us": 18550
+          },
+          "WitnessedCaptionLayer._on_reading_input_custody_changed": {
+            "calls": 1,
+            "elapsed_us": 30,
+            "max_us": 30
+          }
+        }
+      },
+      "passage": {
+        "autosave_after": "6f94796c8bf72f84fd2c2e26e7f51dae72d21ed98e423c47593fab10bcce13d5",
+        "autosave_before": "6f94796c8bf72f84fd2c2e26e7f51dae72d21ed98e423c47593fab10bcce13d5",
+        "choice": "pass",
+        "day_parse_was_ready": true,
+        "entry_id": "Day1.photo.default",
+        "image": "passage/destination.png",
+        "image_sha256": "c1dbe1c41bdf6f8476681303d63f52222d15a22664e5e1a4ca3d8e9ea93eea3b",
+        "line_id": "line.Day1.photo.default.001",
+        "no_yes_encounters": true,
+        "press_count": 1,
+        "release_count": 1,
+        "runtime_cache_was_absent": true,
+        "same_run": true,
+        "strict_cache_was_absent": true
+      },
+      "history_sequence": [
+        {
+          "input_to_observed_drawing_us": 109560,
+          "line_id": "line.Day1.003",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 108739,
+          "line_id": "line.Day1.004",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 109476,
+          "line_id": "line.Day1.005",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 109414,
+          "line_id": "line.Day1.006",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 111039,
+          "line_id": "line.Day1.007",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 112508,
+          "line_id": "line.Day1.008",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 114292,
+          "line_id": "line.Day1.009",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 112432,
+          "line_id": "line.Day1.010",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 111766,
+          "line_id": "line.Day1.011",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 112129,
+          "line_id": "line.Day1.012",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 115806,
+          "line_id": "line.Day1.013",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 117273,
+          "line_id": "line.Day1.014",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 116209,
+          "line_id": "line.Day1.015",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 118706,
+          "line_id": "line.Day1.016",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 114208,
+          "line_id": "line.Day1.017",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 116295,
+          "line_id": "line.Day1.018",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 118938,
+          "line_id": "line.Day1.019",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 118628,
+          "line_id": "line.Day1.020",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 121274,
+          "line_id": "line.Day1.021",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 121785,
+          "line_id": "line.Day1.022",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 123380,
+          "line_id": "line.Day1.023",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 124094,
+          "line_id": "line.Day1.024",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 121236,
+          "line_id": "line.Day1.025",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 121961,
+          "line_id": "line.Day1.026",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 125933,
+          "line_id": "line.Day1.027",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 126069,
+          "line_id": "line.Day1.028",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 125463,
+          "line_id": "line.Day1.029",
+          "press_count": 1,
+          "release_count": 1
+        },
+        {
+          "input_to_observed_drawing_us": 126102,
+          "line_id": "line.Day1.030",
+          "press_count": 1,
+          "release_count": 1
+        }
+      ]
+    },
+    {
+      "sample": "r4-candidate-retained",
+      "complete": true,
+      "failures": [],
+      "manual_save": {
+        "action_elapsed_us": 924412,
+        "expected_line": "line.Day1.one",
+        "locator": "slot:1",
+        "profile": {
+          "Capture.ledger_snapshot_copy": {
+            "calls": 20,
+            "elapsed_us": 201,
+            "max_us": 16
+          },
+          "Capture.saved_fields_copy": {
+            "calls": 20,
+            "elapsed_us": 117,
+            "max_us": 8
+          },
+          "Compiler.runtime_cache_hit": {
+            "calls": 9,
+            "elapsed_us": 57,
+            "max_us": 24
+          },
+          "DialogicRuntimeAdapter.compile_runtime_scene_programme": {
+            "calls": 9,
+            "elapsed_us": 165,
+            "max_us": 41
+          },
+          "GameSaveStorage.write_atomic_if_revision": {
+            "calls": 1,
+            "elapsed_us": 129748,
+            "max_us": 129748
+          },
+          "JsonFileStorage.write_atomic_if_revision": {
+            "calls": 1,
+            "elapsed_us": 129741,
+            "max_us": 129741
+          },
+          "JsonFileStorage.write_atomic_if_revision.file.slot_1.json": {
+            "calls": 1,
+            "elapsed_us": 129745,
+            "max_us": 129745
+          },
+          "SaveValidation.callers.BackupPresentationPort.commit_action > SaveManager.commit_backup_action > RunSnapshotSchema._validate_scene_reading > SoloReadingSession.restore": {
+            "calls": 2,
+            "elapsed_us": 37839,
+            "max_us": 19042
+          },
+          "SaveValidation.callers.BackupPresentationPort.commit_action > SaveManager.commit_backup_action > SoloReadingSession.restore": {
+            "calls": 2,
+            "elapsed_us": 35351,
+            "max_us": 17737
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > RunSnapshotSchema._validate_scene_reading > SoloReadingSession.restore": {
+            "calls": 1,
+            "elapsed_us": 18595,
+            "max_us": 18595
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > SaveManager._prepare_backup_capture > RunSnapshotSchema.build_scene > RunSnapshotSchema._validate_scene_reading > SoloReadingSession.restore": {
+            "calls": 1,
+            "elapsed_us": 18424,
+            "max_us": 18424
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > SaveManager._prepare_backup_capture > RunSnapshotSchema.build_scene > SoloReadingSession.restore": {
+            "calls": 1,
+            "elapsed_us": 17561,
+            "max_us": 17561
+          },
+          "SaveValidation.callers.BackupPresentationPort.prepare_action > SaveManager.prepare_backup_action > SoloReadingSession.restore": {
+            "calls": 1,
+            "elapsed_us": 17268,
+            "max_us": 17268
+          },
+          "SoloReadingSession._capture_scene": {
+            "calls": 20,
+            "elapsed_us": 476,
+            "max_us": 39
+          },
+          "SoloReadingSession._ensure_scene_programme": {
+            "calls": 17,
+            "elapsed_us": 911,
+            "max_us": 125
+          },
+          "SoloReadingSession._validate_scene_saved": {
+            "calls": 8,
+            "elapsed_us": 144950,
+            "max_us": 19032
+          },
+          "WitnessedCaptionLayer._on_reading_input_custody_changed": {
+            "calls": 1,
+            "elapsed_us": 30,
+            "max_us": 30
+          }
+        }
+      },
+      "passage": {},
+      "history_sequence": []
+    }
+  ]
+}
