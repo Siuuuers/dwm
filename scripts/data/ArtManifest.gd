@@ -69,6 +69,66 @@ static func get_scene_art(entry_id: String) -> Dictionary:
 	return {"background": str(value.get("background", "")), "portraits": portraits,
 		"cg": str(value.get("cg", ""))}
 
+## Explicit entry-label bindings; absent entries do not imply checkpoint arrival.
+static func get_presentation_commands(entry_id: String) -> Array:
+	return _catalog().get("presentation_entries", {}).get(entry_id, []).duplicate(true)
+
+## Apply one authored arrival to detached live state. Load calls resolution only.
+static func apply_entry_presentation(entry_id: String, previous: Dictionary) -> Dictionary:
+	var state := previous.duplicate(true)
+	var autosave := false
+	for command: Dictionary in get_presentation_commands(entry_id):
+		match command.get("kind", ""):
+			"checkpoint":
+				state = {"checkpoint_id": command.id, "overlays": []}
+				autosave = true
+			"show", "remove":
+				if state.is_empty():
+					return {"ok": false, "code": &"presentation_checkpoint_required", "reference": entry_id}
+				if command.kind == "show":
+					if not state.overlays.has(command.id): state.overlays.append(command.id)
+				else:
+					state.overlays.erase(command.id)
+			_:
+				return {"ok": false, "code": &"presentation_command_invalid", "reference": entry_id}
+	if not state.is_empty():
+		var resolved := resolve_presentation(state.checkpoint_id, state.overlays)
+		if not resolved.ok: return resolved
+	return {"ok": true, "value": {"state": state, "autosave": autosave}}
+
+## Named checkpoints reuse the existing scene art and audio plan identities. This
+## resolves saved presentation directly; it never enters a checkpoint or saves.
+static func resolve_presentation(checkpoint_id: String, overlay_labels: Array) -> Dictionary:
+	var catalog := _catalog()
+	var checkpoint: Variant = catalog.get("presentation_checkpoints", {}).get(checkpoint_id)
+	if not checkpoint is Dictionary or not checkpoint.get("scene_entry_id") is String \
+			or not checkpoint.get("audio_plan_id") is String:
+		return {"ok": false, "code": &"presentation_checkpoint_missing", "reference": checkpoint_id}
+	var entry_id: String = checkpoint.scene_entry_id
+	if not catalog.scenes.has(entry_id):
+		return {"ok": false, "code": &"presentation_scene_missing", "reference": entry_id}
+	var overlays: Array = []
+	var seen := {}
+	for label: Variant in overlay_labels:
+		if not label is String or seen.has(label):
+			return {"ok": false, "code": &"presentation_overlay_invalid", "reference": str(label)}
+		var overlay: Variant = catalog.get("overlay_labels", {}).get(label)
+		if not overlay is Dictionary or not overlay.get("asset_id") is String \
+				or not overlay.get("rect") is Array or overlay.rect.size() != 4:
+			return {"ok": false, "code": &"presentation_overlay_missing", "reference": label}
+		for component: Variant in overlay.rect:
+			if typeof(component) not in [TYPE_INT, TYPE_FLOAT] or not is_finite(float(component)):
+				return {"ok": false, "code": &"presentation_overlay_invalid", "reference": label}
+		if overlay.rect[2] <= 0 or overlay.rect[3] <= 0:
+			return {"ok": false, "code": &"presentation_overlay_invalid", "reference": label}
+		seen[label] = true
+		overlays.append({"label": label, "asset_id": overlay.asset_id, "rect": overlay.rect.duplicate()})
+	var presentation := get_scene_art(entry_id)
+	presentation.merge({"checkpoint_id": checkpoint_id, "scene_entry_id": entry_id,
+		"split_panels": uses_split_panels(entry_id), "audio_plan_id": checkpoint.audio_plan_id,
+		"overlays": overlays})
+	return {"ok": true, "value": presentation}
+
 static func get_expected_art_paths() -> Dictionary:
 	var result: Dictionary = {}
 	var assets: Dictionary = _catalog().get("assets", {}).duplicate(true)

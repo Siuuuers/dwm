@@ -272,7 +272,7 @@ func test_foreign_native_playback_during_confirmed_ack_retains_target_under_fata
 	assert_true(_port.consumed)
 	assert_true(_bridge._scene_stage_fatal)
 	assert_eq(_bridge._scene_stage.transport, prepared.value)
-	assert_true(_bridge._scene_stage.has("committed_checkpoint"))
+	assert_true(_bridge._scene_stage.has("live_publication"))
 	assert_eq(_bridge._scene_stage.candidate.ledger.snapshot(),
 		prepared.value.narrative_checkpoint.reading_session.ledger)
 	assert_same(_bridge._reading_session, _session,
@@ -333,7 +333,7 @@ func test_confirmed_native_failure_retains_committed_target_without_second_adopt
 	assert_true(_port.consumed)
 	assert_true(_bridge._scene_stage_fatal)
 	assert_eq(_bridge._scene_stage.transport, prepared.value)
-	assert_true(_bridge._scene_stage.has("committed_checkpoint"))
+	assert_true(_bridge._scene_stage.has("live_publication"))
 	assert_eq(_bridge._scene_stage.candidate.ledger.snapshot(),
 		prepared.value.narrative_checkpoint.reading_session.ledger)
 	assert_eq(_session.ledger.snapshot(), _source_snapshot.reading_session.ledger)

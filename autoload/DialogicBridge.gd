@@ -259,7 +259,7 @@ func _prepare_scene_entry(entry_id: String, context: Dictionary) -> Dictionary:
 		return _command_failure(&"scene_staging_binding_invalid")
 	for field: String in ["operation_id", "target_id", "target_occurrence_id", "admission_receipt_id", "registration_sha256"]:
 		if not binding[field] is String or binding[field].strip_edges().is_empty(): return _command_failure(&"scene_staging_binding_invalid")
-	if not FrozenPresentationContext._primitive(binding) or not _scene_checkpoint_ref(binding.source_checkpoint):
+	if not FrozenPresentationContext._primitive(binding) or not (_scene_checkpoint_ref(binding.source_checkpoint) or _scene_publication_ref(binding.source_checkpoint)):
 		return _command_failure(&"scene_staging_binding_invalid")
 	if has_reading_session():
 		if _reading_session.family != "scene" or binding.source_occurrence_id != _reading_session.scene_occurrence \
@@ -379,20 +379,20 @@ func _commit_scene_entry(candidate: Dictionary) -> Dictionary:
 		return _command_failure(&"scene_staging_ack_unavailable")
 	var value: Variant = ack.get("value")
 	if not value is Dictionary or not _exact_keys(value, ["capability_id", "operation_id", "source_checkpoint",
-			"target_checkpoint", "binding_sha256", "narrative_checkpoint_sha256"]) \
+			"target_publication", "binding_sha256", "narrative_checkpoint_sha256"]) \
 			or value.capability_id != candidate.capability_id or value.operation_id != _scene_stage.binding.operation_id \
 			or not _READING_TRAVERSAL._same(value.source_checkpoint, _scene_stage.binding.source_checkpoint) \
 			or value.binding_sha256 != _scene_stage.binding_sha256 \
 			or value.narrative_checkpoint_sha256 != _scene_stage.checkpoint_sha256:
 		_scene_stage_fatal = true
 		return _command_failure(&"scene_staging_ack_invalid")
-	var target_ref: Variant = value.target_checkpoint
-	if not _scene_checkpoint_ref(target_ref):
+	var target_ref: Variant = value.target_publication
+	if not _scene_publication_ref(target_ref) or target_ref.state_sha256 != _scene_stage.checkpoint_sha256:
 		_scene_stage_fatal = true
 		return _command_failure(&"scene_staging_ack_invalid")
 	# Confirmation changes failure custody before any native/caller callback.
 	_scene_stage_fatal = true
-	_scene_stage["committed_checkpoint"] = target_ref.duplicate(true)
+	_scene_stage["live_publication"] = target_ref.duplicate(true)
 	var confirmed_source: Variant = _scene_stage_source.call(_scene_stage.binding.duplicate(true))
 	if not confirmed_source is Dictionary or not confirmed_source.get("ok", false):
 		return _command_failure(&"scene_staging_source_invalid")
@@ -474,6 +474,10 @@ static func _scene_checkpoint_ref(value: Variant) -> bool:
 		and value.checkpoint_id is String and not value.checkpoint_id.is_empty() \
 		and typeof(value.checkpoint_sequence) == TYPE_INT and value.checkpoint_sequence >= 0 \
 		and _READING_TRAVERSAL._hash(value.snapshot_sha256)
+
+static func _scene_publication_ref(value: Variant) -> bool:
+	return value is Dictionary and _exact_keys(value, ["kind", "state_sha256"]) \
+		and value.kind == "live" and _READING_TRAVERSAL._hash(value.state_sha256)
 
 static func _scene_digest(value: Dictionary) -> String:
 	var encoded := _CANONICAL_JSON.stringify(value)
@@ -812,7 +816,13 @@ func get_current_scene_art() -> Dictionary:
 				if contacts is Dictionary:
 					var schedule: Dictionary = game._canonical_committed_schedule() if game.has_method("_canonical_committed_schedule") else {}
 					show_portraits = _HOSPITAL_ART.art_participants(contacts, context, schedule) == ["sylvia"]
-	return {"entry_id": entry_id, "show_portraits": show_portraits}
+	var source := {"entry_id": entry_id, "show_portraits": show_portraits}
+	if _active_entry.get("stage") == "scene":
+		var game := get_node_or_null("/root/GameState") if is_inside_tree() else null
+		if game != null:
+			var presentation: Dictionary = game.get_scene_presentation()
+			if not presentation.is_empty(): source["presentation"] = presentation
+	return source
 
 ## Conservative source proof for an art-only pause before native execution.
 static func is_return_only_entry(path: String, label_or_index: Variant) -> bool:
@@ -1203,7 +1213,7 @@ func _on_playback_start_failed(failure: Dictionary, halt_runtime: bool = false) 
 	if not _scene_restore.is_empty() and _scene_restore.get("native_started", false) and not _scene_restore.get("confirmed", false):
 		_fail_scene_activation(failure)
 		return
-	if _scene_stage.has("committed_checkpoint"):
+	if _scene_stage.has("live_publication"):
 		_scene_stage_fatal = true
 		_scene_stage["native_failure"] = failure.duplicate(true)
 		return
@@ -3489,7 +3499,7 @@ func _on_reading_frontier_restored(result: Dictionary) -> void:
 			_scene_restore.proof = true
 			if not _scene_restore.in_call: _confirm_scene_activation()
 		return
-	if _scene_stage.has("committed_checkpoint"):
+	if _scene_stage.has("live_publication"):
 		if not result.get("ok", false):
 			_on_playback_start_failed(result, true)
 		elif _scene_stage.get("installing", false):
@@ -3509,7 +3519,7 @@ func _on_reading_frontier_restored(result: Dictionary) -> void:
 
 func _on_reading_publication(result: Dictionary) -> void:
 	if not _scene_stage.is_empty():
-		if not result.get("ok", false) and _scene_stage.has("committed_checkpoint"):
+		if not result.get("ok", false) and _scene_stage.has("live_publication"):
 			_on_playback_start_failed(result, true)
 		return
 	if _reached_replay.has("caption_ledger") and not result.get("ok", false):
@@ -4481,9 +4491,11 @@ func _commit_scene_playable_owned(event: Dictionary, prepared: Dictionary, lease
 	var ack: Dictionary = _scene_stage_port.consume_scene_control_ack(_scene_playable.token)
 	if not ack.get("ok", false): return {"ok": false, "code": &"scene_playable_ack_unavailable", "committed": true}
 	var value: Variant = ack.get("value")
-	if not value is Dictionary or not _exact_keys(value, ["source_checkpoint", "target_checkpoint", "material_sha256"]) \
-			or not _scene_checkpoint_ref(value.source_checkpoint) or not _scene_checkpoint_ref(value.target_checkpoint) \
-			or not _READING_TRAVERSAL._same(value.target_checkpoint, committed.value.get("checkpoint_reference")) \
+	if not value is Dictionary or not _exact_keys(value, ["source_publication", "target_publication", "material_sha256"]) \
+			or not _scene_publication_ref(value.source_publication) or not _scene_publication_ref(value.target_publication) \
+			or value.source_publication.state_sha256 != _scene_digest(_scene_playable.material.source_checkpoint) \
+			or value.target_publication.state_sha256 != _scene_digest(_scene_playable.material.checkpoint) \
+			or not _READING_TRAVERSAL._same(value.target_publication, committed.value.get("publication")) \
 			or value.material_sha256 != _scene_digest(_scene_playable.material) or not _scene_playable_current():
 		return {"ok": false, "code": &"scene_playable_ack_invalid", "committed": true}
 	var checkpoint: Dictionary = _scene_playable.material.checkpoint.duplicate(true)
@@ -4495,7 +4507,7 @@ func _commit_scene_playable_owned(event: Dictionary, prepared: Dictionary, lease
 		if not continued.get("ok", false):
 			return {"ok": false, "code": continued.get("code", &"scene_continuation_native_refused"), "committed": true}
 		_scene_playable = {}
-		return {"ok": true, "value": {"checkpoint": checkpoint, "checkpoint_reference": value.target_checkpoint}}
+		return {"ok": true, "value": {"checkpoint": checkpoint, "publication": value.target_publication}}
 	var installed: Dictionary = _runtime_adapter.install_scene_control(_scene_playable.candidate,
 		checkpoint.reading_session.duplicate(true), _scene_playable.native_token)
 	if not installed.get("ok", false):
@@ -4507,7 +4519,7 @@ func _commit_scene_playable_owned(event: Dictionary, prepared: Dictionary, lease
 	_scene_playable = {}
 	# GameState must adopt the receipt before the UI observes this new control.
 	# dispatch_scene_event publishes after the command port releases its lease.
-	return {"ok": true, "value": {"checkpoint": checkpoint, "checkpoint_reference": value.target_checkpoint}}
+	return {"ok": true, "value": {"checkpoint": checkpoint, "publication": value.target_publication}}
 
 func validate_scene_control_authority(token: RefCounted, material: Dictionary, phase: String) -> Dictionary:
 	if _scene_playable_validating or not _scene_playable_busy or _scene_playable.is_empty() \

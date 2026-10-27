@@ -50,7 +50,7 @@ func configure(entry_id: String, token: String, percent: int = 100,
 	art = ART_VIEW.new()
 	art.name = "SceneArt"
 	add_child(art)
-	art.configure_entry(entry_id, percent, false, show_portraits)
+	_configure_art()
 	art.set_split_input_admission(_split_input_admitted)
 	art.draw.connect(_on_art_drawn)
 	_footer = ColorRect.new()
@@ -90,9 +90,17 @@ func configure_presentation(locale: String = "en", text_percent: int = 100,
 	# Colour/locale changes retain all art objects and textures. Only text scale
 	# changes the authored aperture, as it did before run presentation was added.
 	if resize_art and is_instance_valid(art):
-		art.configure_entry(_entry_id, _percent, false, _show_portraits)
+		_configure_art()
 	_apply_presentation()
 	return true
+
+func _configure_art() -> void:
+	var bridge := get_node_or_null("/root/DialogicBridge")
+	var source: Dictionary = bridge.get_current_scene_art() if bridge != null else {}
+	if source.has("presentation"):
+		art.configure_presentation(source.presentation, _percent, false, _show_portraits)
+	else:
+		art.configure_entry(_entry_id, _percent, false, _show_portraits)
 
 func configure_run_presentation(owner: Object) -> bool:
 	var installed: Dictionary = RUN_PRESENTATION.read(owner)

@@ -674,12 +674,14 @@ static func _completion_matches(parent: Dictionary, request: Dictionary, complet
 ## Shape only: GameState closure admission joins this retained physical slot to
 ## the exact selected record/ref and the current authenticated story binding.
 static func _attempt_proof(proof: Variant, run_id: String) -> bool:
-	if not _keys(proof, ["run_id", "slot_id", "attempt_id", "branch_id", "generation", "revision", "record_sha256", "checkpoint"]): return false
+	if not _keys(proof, ["run_id", "slot_id", "attempt_id", "branch_id", "generation", "revision", "record_sha256", "publication"]): return false
 	if not _id(proof.run_id) or not _id(proof.slot_id) or proof.run_id != run_id \
 			or not str(proof.slot_id).begins_with("scene.challenge.") \
 			or not _hash(str(proof.slot_id).trim_prefix("scene.challenge.")): return false
 	return _id(proof.attempt_id) and _id(proof.branch_id) and _positive_int(proof.generation) \
-		and _positive_int(proof.revision) and _hash(proof.record_sha256) and _checkpoint(proof.checkpoint)
+		and _positive_int(proof.revision) and _hash(proof.record_sha256) \
+		and _keys(proof.publication, ["kind", "state_sha256"]) \
+		and proof.publication.kind == "live" and _hash(proof.publication.state_sha256)
 
 static func validate_scene_admission(result: Variant, bundle: Dictionary) -> Dictionary:
 	var checked := validate_bundle_structure(bundle)

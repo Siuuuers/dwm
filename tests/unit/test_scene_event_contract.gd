@@ -269,8 +269,7 @@ func test_challenge_closure_separates_never_started_from_exact_attempt_proof() -
 	assert_false(CONTRACT.validate_scene_result(event, result, bundle).ok)
 	result.attempt_proof = {"run_id": event.source.run_id, "slot_id": "scene.challenge." + occurrence,
 		"attempt_id": "TEST.board.token", "branch_id": "TEST.branch", "generation": 1, "revision": 1,
-		"record_sha256": "a".repeat(64), "checkpoint": {"checkpoint_id": "TEST.checkpoint",
-			"checkpoint_sequence": 1, "snapshot_sha256": "b".repeat(64)}}
+		"record_sha256": "a".repeat(64), "publication": {"kind": "live", "state_sha256": "b".repeat(64)}}
 	for outcome: String in ["unfinished", "lost", "won"]:
 		result.outcome = outcome
 		assert_true(CONTRACT.validate_scene_result(event, result, bundle).ok, outcome)

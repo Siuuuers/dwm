@@ -204,7 +204,7 @@ func _commit_reading_next_autosave(checkpoint: Dictionary, operation_id: String,
 
 ## The caller owns receipt admission and live adoption. This seam commits its detached
 ## complete snapshot through the existing journal/autosave transaction, without a cache.
-func commit_scene_event(snapshot_input: Dictionary, checkpoint: Dictionary) -> Dictionary:
+func commit_scene_event(snapshot_input: Dictionary, checkpoint: Dictionary, named_autosave: bool = false) -> Dictionary:
 	if not _configured: return _fail(&"not_configured", "configure first")
 	if _next_commit_in_progress or _active_owner != &"" or _scene_callback_busy or not _scene_control.is_empty():
 		return _fail(&"transaction_in_progress", "another checkpoint command owns publication")
@@ -225,17 +225,21 @@ func commit_scene_event(snapshot_input: Dictionary, checkpoint: Dictionary) -> D
 				or not _scene_validate(_scene_entry, "commit"):
 			return _fail(&"scene_entry_custody_invalid", "no retained Bridge candidate")
 	_next_commit_in_progress = true
-	var result := _commit_scene_event_autosave(snapshot_input, checkpoint)
+	var result := _publish_scene_event(snapshot_input, checkpoint) if checkpoint.get("stage") == "scene" else _commit_scene_event_autosave(snapshot_input, checkpoint)
+	if result.get("ok", false) and named_autosave:
+		var saved := _save_named_presentation(snapshot_input, checkpoint)
+		if not saved.get("ok", false): result = saved
+		else: result["durable"] = true
 	if scene_entry:
 		if result.get("ok", false):
-			var reference: Variant = result.get("value", {}).get("checkpoint_reference")
-			if not _scene_reference_valid(reference):
+			var reference: Variant = result.get("value", {}).get("publication")
+			if not _scene_publication_valid(reference):
 				_scene_entry.state = "uncertain"
 				result = {"ok": false, "code": &"scene_entry_commit_uncertain", "committed": true}
 			else:
 				_scene_entry.state = "committed"
 				_scene_entry.ack = {"capability_id": _scene_entry.capability_id, "operation_id": _scene_entry.binding.operation_id,
-					"source_checkpoint": _scene_entry.binding.source_checkpoint.duplicate(true), "target_checkpoint": reference.duplicate(true),
+					"source_checkpoint": _scene_entry.binding.source_checkpoint.duplicate(true), "target_publication": reference.duplicate(true),
 					"binding_sha256": _scene_entry.binding_sha256, "narrative_checkpoint_sha256": _scene_entry.narrative_checkpoint_sha256}
 		elif result.get("committed", false) or str(result.get("code", "")) == "APPLICATION_FATAL":
 			_scene_entry.state = "uncertain"
@@ -279,19 +283,12 @@ func commit_scene_challenge(snapshot_input: Dictionary, checkpoint: Dictionary) 
 	_scene_challenge = {"input": snapshot_input, "checkpoint": checkpoint,
 		"input_hash": _fingerprint(snapshot_input), "checkpoint_hash": _fingerprint(checkpoint)}
 	var result: Dictionary
-	var captured: Dictionary = _real_port.capture()
-	if not captured.get("ok", false) or not captured.get("value", {}).get("backup") is Dictionary:
-		result = _fail(&"scene_challenge_source_unavailable", "real journal capture required")
-	elif not _scene_reference_valid(_scene_snapshot_reference(_scene_bundle_snapshot(captured.value.backup.get("current")))):
-		result = _fail(&"scene_challenge_source_unavailable", "stable journal source required")
+	if not _scene_challenge_validate("before_prepare"):
+		result = _fail(&"scene_challenge_custody_invalid", "Run owner refused publication")
 	else:
-		_scene_challenge["source_hash"] = _fingerprint(captured.value.backup)
-		if _scene_challenge.source_hash.is_empty() or not _scene_challenge_validate("before_prepare"):
-			result = _fail(&"scene_challenge_custody_invalid", "Run owner refused preparation")
-		else:
-			result = _commit_scene_event_autosave(snapshot_input, checkpoint)
-			if result.get("ok", false) and not _scene_challenge_validate("after_commit"):
-				result = {"ok": false, "code": &"scene_challenge_commit_uncertain", "committed": true}
+		result = _publish_scene_event(snapshot_input, checkpoint)
+		if result.get("ok", false) and not _scene_challenge_validate("after_commit"):
+			result = _fail(&"scene_challenge_custody_invalid", "Run owner changed before adoption")
 	_scene_challenge = {}
 	_next_commit_in_progress = false
 	if not result.get("ok", false) and not result.has("committed") and not result.get("rolled_back", false):
@@ -389,30 +386,12 @@ func _commit_scene_mutation(snapshot_input: Dictionary, checkpoint: Dictionary, 
 	_scene_mutation = {"input": snapshot_input, "checkpoint": checkpoint,
 		"input_hash": _fingerprint(snapshot_input), "checkpoint_hash": _fingerprint(checkpoint), "kind": kind, "authority": authority, "validator": validator}
 	var result: Dictionary
-	var captured: Dictionary = _real_port.capture()
-	if not captured.get("ok", false) or not captured.get("value", {}).get("backup") is Dictionary:
-		result = _fail(StringName(prefix + "_source_unavailable"), "real journal capture required")
-	elif not _scene_reference_valid(_scene_snapshot_reference(_scene_bundle_snapshot(captured.value.backup.get("current")))):
-		result = _fail(StringName(prefix + "_source_unavailable"), "stable journal source required")
-	elif kind in ["shop", "round"] and not _player_checkpoint_same(_scene_bundle_snapshot(captured.value.backup.get("current")).get("narrative_checkpoint"), _scene_mutation.checkpoint):
-		result = _fail(StringName(prefix + "_source_changed"), "mutation must retain the exact stable reading checkpoint")
+	if not _scene_mutation_validate("before_prepare"):
+		result = _fail(StringName(prefix + "_custody_invalid"), "Run owner refused publication")
 	else:
-		_scene_mutation["source_hash"] = _fingerprint(captured.value.backup)
-		if _scene_mutation.source_hash.is_empty() or not _scene_mutation_validate("before_prepare"):
-			result = _fail(StringName(prefix + "_custody_invalid"), "Run owner refused preparation")
-		else:
-			result = _commit_scene_event_autosave(snapshot_input, checkpoint)
-			if result.get("ok", false) and not _scene_mutation_validate("after_commit"):
-				result = {"ok": false, "code": StringName(prefix + "_commit_uncertain"), "committed": true}
-			if result.get("ok", false) and kind in ["shop", "round"]:
-				# A post-write owner callback cannot displace the acknowledged journal.
-				var confirmed: Dictionary = _real_port.capture()
-				var reference := _scene_snapshot_reference(_scene_bundle_snapshot(confirmed.get("value", {}).get("backup", {}).get("current")))
-				if not confirmed.get("ok", false) or reference.is_empty() \
-						or reference != result.get("value", {}).get("checkpoint_reference") \
-						or _fingerprint(snapshot_input) != _scene_mutation.input_hash \
-						or _fingerprint(checkpoint) != _scene_mutation.checkpoint_hash:
-					result = {"ok": false, "code": StringName(prefix + "_commit_uncertain"), "committed": true}
+		result = _publish_scene_event(snapshot_input, checkpoint)
+		if result.get("ok", false) and not _scene_mutation_validate("after_commit"):
+			result = _fail(StringName(prefix + "_custody_invalid"), "Run owner changed before adoption")
 	_scene_mutation = {}
 	_next_commit_in_progress = false
 	if not result.get("ok", false) and not result.has("committed") and not result.get("rolled_back", false):
@@ -435,6 +414,68 @@ func _scene_mutation_source_matches(captured: Dictionary) -> bool:
 	return captured.get("ok", false) and captured.get("value", {}).get("backup") is Dictionary \
 		and _fingerprint(captured.value.backup) == _scene_mutation.get("source_hash", "")
 
+
+## A live acknowledgement authorizes owner adoption. It carries no checkpoint ID
+## and performs no snapshot preparation, journal mutation, storage or readback.
+func _publish_scene_event(snapshot_input: Dictionary, checkpoint: Dictionary) -> Dictionary:
+	if not _scene_route_input_valid(snapshot_input, checkpoint):
+		return _fail(&"scene_event_input_invalid", "scene input differs from its reading owner")
+	if not _scene_entry.is_empty() and not _scene_validate(_scene_entry, "commit"):
+		return _fail(&"scene_entry_custody_invalid", "Bridge refused publication")
+	if not _scene_control.is_empty() and not _scene_control_validate("commit"):
+		return _fail(&"scene_control_custody_invalid", "Bridge refused publication")
+	var state_hash := _fingerprint(checkpoint)
+	if state_hash.is_empty(): return _fail(&"scene_event_input_invalid", "reading publication is not serializable")
+	return {"ok": true, "durable": false,
+		"value": {"publication": {"kind": "live", "state_sha256": state_hash}}}
+
+## Only an explicitly authored checkpoint arrival selects this write. The staged
+## target already includes its first caption, presentation and action consequences.
+func _save_named_presentation(snapshot_input: Dictionary, checkpoint: Dictionary) -> Dictionary:
+	if _scene_entry.is_empty() or not snapshot_input.scene.has("presentation"):
+		return _fail(&"presentation_checkpoint_unavailable", "an authored arrival is required")
+	var input_hash := _fingerprint(snapshot_input)
+	var checkpoint_hash := _fingerprint(checkpoint)
+	var active := _call_provider("active_app_id", [])
+	if not active.ok: return active
+	var content := _call_provider("content_version", [])
+	if not content.ok: return content
+	var captured: Dictionary = _real_port.capture()
+	if not captured.get("ok", false): return captured
+	var inputs := _checkpoint_inputs(active.value, {}, content.value, checkpoint, "scene", snapshot_input)
+	var prepared: Dictionary = _real_port.prepare(inputs, &"safe_marker", {"kind": &"autosave", "reason": &"automatic"})
+	if not prepared.get("ok", false): return prepared
+	var candidate: Dictionary = prepared.value.candidate
+	var candidate_hash := _fingerprint(candidate)
+	if not candidate.get("storage_backup") is Dictionary or candidate_hash.is_empty() \
+			or not _scene_route_candidate_valid(candidate, snapshot_input, checkpoint):
+		return _fail(&"scene_entry_candidate_invalid", "named checkpoint differs from its live target")
+	if not _scene_validate(_scene_entry, "commit") \
+			or _fingerprint(snapshot_input) != input_hash or _fingerprint(checkpoint) != checkpoint_hash \
+			or _fingerprint(candidate) != candidate_hash:
+		return _fail(&"scene_entry_custody_invalid", "source changed before the named checkpoint write")
+	var committed: Dictionary = _real_port.commit(candidate)
+	if _fingerprint(candidate) != candidate_hash:
+		return {"ok": false, "code": &"scene_entry_commit_uncertain", "committed": true}
+	if not committed.get("ok", false):
+		if committed.get("committed", false) or str(committed.get("code", "")) == "APPLICATION_FATAL": return committed
+		var rolled: Dictionary = _real_port.rollback({"journal_backup": captured.value.backup,
+			"storage_backup": candidate.storage_backup})
+		if not rolled.get("ok", false):
+			rolled["committed"] = true
+			return rolled
+		return committed
+	var checkpoint_id: Variant = committed.get("value", {}).get("checkpoint_id")
+	if not checkpoint_id is String or checkpoint_id.is_empty() or checkpoint_id != candidate.get("checkpoint_id") \
+			or not _scene_validate(_scene_entry, "commit") \
+			or _fingerprint(snapshot_input) != input_hash or _fingerprint(checkpoint) != checkpoint_hash \
+			or _fingerprint(candidate) != candidate_hash or _scene_committed_reference(candidate, checkpoint).is_empty():
+		return {"ok": false, "code": &"scene_entry_commit_uncertain", "committed": true}
+	return {"ok": true}
+
+func _scene_publication_valid(value: Variant) -> bool:
+	return value is Dictionary and _exact_keys(value, ["kind", "state_sha256"]) \
+		and value.kind == "live" and _scene_hash(value.state_sha256)
 
 func _commit_scene_event_autosave(snapshot_input: Dictionary, checkpoint: Dictionary) -> Dictionary:
 	if not _scene_control.is_empty() and not _scene_control_validate("commit"):
@@ -594,7 +635,9 @@ func _scene_route_input_valid(input: Dictionary, checkpoint: Dictionary) -> bool
 			or not _exact_keys(input, SCENE_INPUT_KEYS) or checkpoint.get("stage") != "scene": return false
 	for key: String in ["lifecycle", "gameplay", "contacts", "desktop", "scene", "command_receipts"]:
 		if not input.get(key) is Dictionary: return false
-	if not _exact_keys(input.scene, ["registration_sha256", "active_occurrence_id", "entry_id", "notification", "active_challenge", "return_to"]): return false
+	var scene_keys: Array = ["registration_sha256", "active_occurrence_id", "entry_id", "notification", "active_challenge", "return_to"]
+	if input.scene.has("presentation"): scene_keys.append("presentation")
+	if not _exact_keys(input.scene, scene_keys): return false
 	if input.scene.registration_sha256 != checkpoint.get("manifest_fingerprint") or not _scene_hash(input.scene.registration_sha256): return false
 	var frame: Variant = checkpoint.get("frozen_context")
 	if not frame is Dictionary or not frame.get("presentation") is Dictionary \
@@ -664,7 +707,7 @@ func retain_scene_entry(authority: Object, capability_id: String, binding: Dicti
 		return _fail(&"scene_entry_custody_invalid", "")
 	if not _exact_keys(binding, ["operation_id", "source_checkpoint", "source_occurrence_id", "trigger_command_id",
 			"target_id", "target_occurrence_id", "admission_receipt_id", "registration_sha256"]) \
-			or not _scene_reference_valid(binding.get("source_checkpoint")):
+			or not (_scene_reference_valid(binding.get("source_checkpoint")) or _scene_publication_valid(binding.get("source_checkpoint"))):
 		return _fail(&"scene_entry_binding_invalid", "")
 	for field: String in ["operation_id", "target_id", "target_occurrence_id", "admission_receipt_id"]:
 		if not binding[field] is String or binding[field].strip_edges().is_empty():
@@ -701,14 +744,6 @@ func consume_scene_entry_ack(capability_id: String) -> Dictionary:
 	if not _scene_validate(_scene_entry, "consume"): return _fail(&"scene_entry_custody_invalid", "Bridge refused consumption")
 	if _scene_entry.state != "committed":
 		return {"ok": false, "code": &"scene_entry_ack_unavailable", "committed": _scene_entry.state != "prepared"}
-	# A later journal replacement cannot transfer this capability to another target.
-	_scene_callback_busy = true
-	var captured: Dictionary = _real_port.capture()
-	_scene_callback_busy = false
-	var current: Dictionary = _scene_bundle_snapshot(captured.get("value", {}).get("backup", {}).get("current"))
-	if not captured.get("ok", false) or _fingerprint(_scene_snapshot_reference(current)) != _fingerprint(_scene_entry.ack.target_checkpoint):
-		_scene_entry.state = "uncertain"
-		return {"ok": false, "code": &"scene_entry_commit_uncertain", "committed": true}
 	var result: Dictionary = _scene_entry.ack.duplicate(true)
 	_scene_used[capability_id] = true
 	_scene_entry = {}
@@ -790,22 +825,13 @@ func commit_scene_control(token: RefCounted) -> Dictionary:
 
 func _commit_scene_control_owned() -> Dictionary:
 	var material: Dictionary = _scene_control.material
-	if _scene_control.state == "prepared":
-		var source := _commit_scene_event_autosave(material.source_input, material.source_checkpoint)
-		if not source.get("ok", false): return source
-		var source_reference: Variant = source.get("value", {}).get("checkpoint_reference")
-		if not _scene_reference_valid(source_reference):
-			return {"ok": false, "code": &"scene_control_source_ack_invalid", "committed": true}
-		_scene_control["source_reference"] = source_reference.duplicate(true)
-		_scene_control.state = "source_committed"
-	var destination := _commit_scene_event_autosave(material.snapshot_input, material.checkpoint)
+	var destination := _publish_scene_event(material.snapshot_input, material.checkpoint)
 	if not destination.get("ok", false): return destination
-	var reference: Variant = destination.get("value", {}).get("checkpoint_reference")
-	if not _scene_reference_valid(reference):
-		return {"ok": false, "code": &"scene_control_ack_invalid", "committed": true}
 	_scene_control.state = "committed"
-	_scene_control["ack"] = {"source_checkpoint": _scene_control.source_reference.duplicate(true),
-		"target_checkpoint": reference.duplicate(true), "material_sha256": _fingerprint(material)}
+	_scene_control["ack"] = {
+		"source_publication": {"kind": "live", "state_sha256": _fingerprint(material.source_checkpoint)},
+		"target_publication": destination.value.publication.duplicate(true),
+		"material_sha256": _fingerprint(material)}
 	return destination
 
 func consume_scene_control_ack(token: RefCounted) -> Dictionary:
@@ -816,15 +842,6 @@ func consume_scene_control_ack(token: RefCounted) -> Dictionary:
 		return {"ok": false, "code": &"scene_control_ack_unavailable", "committed": _scene_control.state == "uncertain"}
 	if not _scene_control_validate("consume"):
 		return {"ok": false, "code": &"scene_control_custody_invalid", "committed": true}
-	_scene_callback_busy = true
-	var captured: Dictionary = _real_port.capture()
-	_scene_callback_busy = false
-	var current := _scene_bundle_snapshot(captured.get("value", {}).get("backup", {}).get("current"))
-	if not captured.get("ok", false) \
-			or not READING_NEXT._same(_scene_snapshot_reference(current), _scene_control.ack.target_checkpoint) \
-			or not _scene_control_validate("consume"):
-		_scene_control.state = "uncertain"
-		return {"ok": false, "code": &"scene_control_ack_invalid", "committed": true}
 	var ack: Dictionary = _scene_control.ack.duplicate(true)
 	_scene_control = {}
 	return {"ok": true, "value": ack}

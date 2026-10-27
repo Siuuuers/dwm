@@ -25,8 +25,11 @@ func refresh_art() -> void:
 	var percent := 100
 	if _profile != null and _profile.has_method("get_preference"):
 		percent = int(_profile.get_preference(&"preferences.accessibility.text_size", 100))
-	_view.configure_entry(str(source.get("entry_id", "")), percent, false,
-		bool(source.get("show_portraits", false)), true)
+	if source.has("presentation"):
+		_view.configure_presentation(source.presentation, percent, false, bool(source.get("show_portraits", false)), true)
+	else:
+		_view.configure_entry(str(source.get("entry_id", "")), percent, false,
+			bool(source.get("show_portraits", false)), true)
 
 func _on_preference_changed(path: StringName, _value: Variant) -> void:
 	if path == &"preferences.accessibility.text_size": refresh_art()

@@ -72,8 +72,7 @@ class Authority extends RefCounted:
 		if reject_checkpoint: return {"ok": false, "code": &"TEST.run_refused", "committed": false}
 		checkpoints.append(record.duplicate(true))
 		if unconfirmed: return {"ok": true, "value": {}}
-		return {"ok": true, "value": {"checkpoint_reference": {"checkpoint_id": "TEST.source.%d" % checkpoints.size(),
-			"checkpoint_sequence": checkpoints.size(), "snapshot_sha256": CANONICAL.canonical_sha256({"TEST.injected_snapshot": record}).value.sha256}}}
+		return {"ok": true, "value": {"publication": {"kind": "live", "state_sha256": CANONICAL.canonical_sha256({"TEST.injected_snapshot": record}).value.sha256}}}
 	func commit_scene_challenge_closure(candidate: Dictionary, result: Dictionary) -> Dictionary:
 		if not validate_scene_challenge_command(candidate, bundle).ok or not held_end or reject_closure:
 			return {"ok": false, "code": &"TEST.closure_refused", "committed": false}

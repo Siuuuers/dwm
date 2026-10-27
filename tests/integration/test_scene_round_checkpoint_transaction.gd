@@ -47,7 +47,7 @@ func _terminal_board() -> bool:
 	assert_false(bootstrap._desktop_board_state.capture().settled_inspection)
 	return true
 
-func test_scene_round_physical_refusal_retry_conflict_and_uncertain_acknowledgment() -> void:
+func test_scene_round_live_custody_duplicate_and_manual_save() -> void:
 	if not _start_services(): return
 	var started: Dictionary = saves.start_scene_new_run("target_a", {"route_id": "scene",
 		"content_version": 1, "audio_context": get_node("/root/AudioManager").get_semantic_audio_context()})
@@ -70,7 +70,7 @@ func test_scene_round_physical_refusal_retry_conflict_and_uncertain_acknowledgme
 	var probe := CustodyFault.new()
 	probe.port = actual_port
 	game._narrative_checkpoint_port = probe
-	for phase: String in ["before_prepare", "before_commit"]:
+	for phase: String in ["before_prepare", "after_commit"]:
 		probe.phase = phase
 		var hits: int = probe.hits
 		var refused: Dictionary = owner.complete_round(request)
@@ -80,19 +80,12 @@ func test_scene_round_physical_refusal_retry_conflict_and_uncertain_acknowledgme
 		assert_eq(game.capture_run_snapshot_input(), before)
 		assert_eq(bridge.capture_reading_checkpoint(false), reading)
 	game._narrative_checkpoint_port = actual_port
-	var blocked := ProjectSettings.globalize_path("user://saves/autosave.json.next")
-	assert_eq(DirAccess.make_dir_absolute(blocked), OK)
-	if not DirAccess.dir_exists_absolute(blocked): return
 	var disk: Dictionary = saves._storage.read_text("autosave.json")
-	var refused: Dictionary = owner.complete_round(request)
-	assert_eq(DirAccess.remove_absolute(blocked), OK)
-	assert_false(refused.get("ok", false), str(refused))
-	assert_false(refused.get("committed", false))
-	assert_true(refused.get("rolled_back", false), str(refused))
-	assert_eq(game.capture_run_snapshot_input(), before)
-	assert_eq(saves._storage.read_text("autosave.json"), disk)
-	assert_false(bootstrap._desktop_board_state.has_settled_inspection())
-	assert_false(bootstrap._desktop_board_state.capture().settled_inspection)
+	var lower: Object = actual_port._real_port
+	var lower_trap := preload("res://tests/support/FakeNarrativeCheckpointContext.gd").new()
+	lower_trap.prepare_ok = false
+	lower_trap.commit_ok = false
+	actual_port._real_port = lower_trap
 	var accepted: Dictionary = owner.complete_round(request)
 	if not _ok(accepted): return
 	var after: Dictionary = game.capture_run_snapshot_input().duplicate(true)
@@ -109,14 +102,8 @@ func test_scene_round_physical_refusal_retry_conflict_and_uncertain_acknowledgme
 	assert_eq(after.contacts, before.contacts)
 	assert_eq(bridge.capture_reading_checkpoint(false), reading)
 	var accepted_disk: Dictionary = saves._storage.read_text("autosave.json")
-	var written: Dictionary = JSON.parse_string(str(accepted_disk.value))
-	assert_eq(written.schema_version, 9)
-	assert_eq(written.recovery_journal, [], "the real round checkpoint emits no fallback snapshots")
-	assert_true(written.current_snapshot.snapshot.desktop.board.settled_inspection,
-		"settled state and the reward share one durable checkpoint")
-	assert_eq(written.current_snapshot.snapshot.gameplay.money, after.gameplay.money)
-	assert_false(written.current_snapshot.snapshot.has("command_receipts"),
-		"player save omits the app-round retry receipt while retaining settlement")
+	assert_eq(accepted_disk, disk, "settlement leaves the last durable save unchanged")
+	assert_true(lower_trap.calls.is_empty(), "ordinary settlement never captures, prepares or writes storage")
 	if not _ok(owner.complete_round(request)): return
 	assert_eq(game.capture_run_snapshot_input(), after)
 	assert_eq(saves._storage.read_text("autosave.json"), accepted_disk)
@@ -130,25 +117,12 @@ func test_scene_round_physical_refusal_retry_conflict_and_uncertain_acknowledgme
 	changed.expected_revision += 1
 	assert_false(owner.complete_round(changed).get("ok", false))
 	assert_eq(game.capture_run_snapshot_input(), after)
-	# Start the second real ordinary board. Discard only the settled inspection.
-	game.inventory.erase("debug_key")
-	var port: RefCounted = _desktop_port()
-	if not _ok(port.pull("beginner")): return
-	var configuration: Dictionary = owner.get_configuration_context()
-	if not _ok(configuration): return
-	var replacement := _request()
-	replacement.difficulty_id = "beginner"
-	if not _ok(owner.replace_board(replacement)): return
-	assert_false(bootstrap._desktop_board_state.capture().settled_inspection, "replacement clears old settlement")
-	if not await _terminal_board(): return
-	request = _request()
-	before = game.capture_run_snapshot_input().duplicate(true)
-	probe.phase = "after_commit"
-	game._narrative_checkpoint_port = probe
-	var uncertain: Dictionary = owner.complete_round(request)
-	game._narrative_checkpoint_port = actual_port
-	assert_false(uncertain.get("ok", false), str(uncertain))
-	assert_true(uncertain.get("committed", false), str(uncertain))
-	assert_eq(game.capture_run_snapshot_input(), before, "uncertain acknowledgment must not adopt live effects")
-	assert_false(bootstrap._desktop_board_state.has_settled_inspection())
-	assert_false(bootstrap._desktop_board_state.capture().settled_inspection)
+	assert_true(lower_trap.calls.is_empty())
+	actual_port._real_port = lower
+	if not _ok(saves.save_latest_to_slot(1)): return
+	var written: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("user://saves/slot_1.json"))
+	assert_eq(written.schema_version, 9)
+	assert_true(written.current_snapshot.snapshot.desktop.board.settled_inspection)
+	assert_eq(written.current_snapshot.snapshot.gameplay.money, after.gameplay.money)
+	assert_false(written.current_snapshot.snapshot.has("command_receipts"))
+	assert_eq(saves._storage.read_text("autosave.json"), disk, "manual Save leaves Autosave unchanged")

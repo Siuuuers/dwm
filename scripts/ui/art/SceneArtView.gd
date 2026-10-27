@@ -20,6 +20,7 @@ var _portrait_background: TextureRect
 var _portrait_panel: Control
 var _scene_panel: Control
 var _split: PANEL_SPLIT
+var _overlays: Control
 var _cg: TextureRect
 var _entry_id := ""
 var _dating_split := false
@@ -78,10 +79,38 @@ func configure_entry(entry_id: String, text_percent: int = 100,
 		ART.get_texture(str(placement.get("cg", ""))), text_percent, challenge, entry_id.begins_with("dating.") or split_panels,
 		&"solo" if entry_id.begins_with("dating.solo.") else &"group", caption_overlay)
 
+## Consume one resolved presentation; the Run owns checkpoint/overlay state.
+func configure_presentation(presentation: Dictionary, text_percent: int = 100,
+		challenge: bool = false, show_portraits: bool = true, caption_overlay: bool = false) -> void:
+	_entry_id = presentation.scene_entry_id
+	var portraits: Array[Texture2D] = []
+	if show_portraits or presentation.split_panels:
+		for asset_id: String in presentation.portraits:
+			portraits.append(ART.get_texture(asset_id))
+	configure_textures(ART.get_texture(presentation.background), portraits,
+		ART.get_texture(presentation.cg), text_percent, challenge,
+		_entry_id.begins_with("dating.") or presentation.split_panels,
+		&"solo" if _entry_id.begins_with("dating.solo.") else &"group", caption_overlay)
+	_overlays.size = size
+	for overlay: Dictionary in presentation.overlays:
+		var texture := ART.get_texture(overlay.asset_id)
+		if texture == null: continue # Existing optional-art policy.
+		var rect := _texture_rect("Overlay%d" % _overlays.get_child_count(), TextureRect.STRETCH_KEEP_ASPECT_CENTERED)
+		rect.set_meta("overlay_label", overlay.label)
+		rect.reparent(_overlays)
+		rect.texture = texture
+		rect.position = Vector2(overlay.rect[0], overlay.rect[1]) * size
+		rect.size = Vector2(overlay.rect[2], overlay.rect[3]) * size
+	move_child(_overlays, get_child_count() - 1)
+	visible = visible or _overlays.get_child_count() > 0
+
 func configure_textures(background: Texture2D, portraits: Array[Texture2D], cg: Texture2D = null,
 		text_percent: int = 100, challenge: bool = false, dating_overlay: bool = false,
 		preference_scope: StringName = &"", caption_overlay: bool = false) -> void:
 	_build()
+	for overlay: Node in _overlays.get_children():
+		_overlays.remove_child(overlay)
+		overlay.queue_free()
 	var previous_count := _portrait_count
 	var previous_split := _dating_split
 	var previous_scope := _preference_scope
@@ -235,6 +264,11 @@ func _build() -> void:
 		_portrait_slots.append(slot)
 		_portraits.append(_texture_rect("PortraitLeft" if index == 0 else "PortraitRight", TextureRect.STRETCH_KEEP_ASPECT_CENTERED))
 	_cg = _texture_rect("EndingCG", TextureRect.STRETCH_KEEP_ASPECT_CENTERED)
+	_overlays = Control.new()
+	_overlays.name = "Overlays"
+	_overlays.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_overlays.focus_mode = Control.FOCUS_NONE
+	add_child(_overlays)
 	_split.split_changed.connect(_on_split_changed)
 	_split.width_committed.connect(_on_split_width_committed)
 	_split.drag_changed.connect(func(active: bool): split_drag_changed.emit(active))

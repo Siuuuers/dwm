@@ -8,13 +8,26 @@ func _read(path: String) -> Dictionary:
 	assert_true(parsed.get("ok", false), "%s: %s" % [path, parsed])
 	return parsed.get("value", {})
 
-func test_every_immutable_subset_record_remains_in_catalogs_exactly() -> void:
+func test_legacy_subset_records_remain_except_approved_no_save_logout_copy() -> void:
 	var evidence := _read("res://evidence/phase_2r/localization/legacy_subset_fingerprint.json")
 	for locale in ["en", "zh_CN", "zh_HK"]:
 		var catalog := _read("res://localization/ui/%s.json" % locale)
 		var current := {}
 		for message in catalog["messages"]: current[message["id"]] = message["text"]
-		for frozen in evidence["records"][locale]: assert_eq(current.get(frozen["id"]), frozen["text"], "%s:%s" % [locale, frozen["id"]])
+		for frozen in evidence["records"][locale]:
+			# The checkpoint-only saving policy explicitly changes the Logout promise.
+			if frozen["id"] == "logout.confirm": continue
+			assert_eq(current.get(frozen["id"]), frozen["text"], "%s:%s" % [locale, frozen["id"]])
+
+func test_logout_copy_explicitly_says_no_save_in_all_five_locales() -> void:
+	var prompts := {"en": "Log out without saving?", "zh_CN": "不保存进度并登出？",
+		"zh_HK": "不儲存進度並登出？", "ja": "保存せずにログアウトしますか？", "ko": "저장하지 않고 로그아웃할까요?"}
+	for locale: String in prompts:
+		var catalog := _read("res://localization/ui/%s.json" % locale)
+		var messages := {}
+		for message: Dictionary in catalog.messages: messages[message.id] = message.text
+		assert_eq(messages.get("logout.confirm"), prompts[locale], locale)
+
 
 func test_immutable_fingerprint_matches_exact_50_25_25_records() -> void:
 	var evidence := _read("res://evidence/phase_2r/localization/legacy_subset_fingerprint.json")

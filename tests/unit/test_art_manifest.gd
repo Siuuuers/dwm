@@ -428,3 +428,92 @@ func test_legacy_path_apis_now_describe_optional_placements_without_inventing_pa
 	assert_eq(_script.call(&"get_expected_size", "res://art/fabricated/primary.png"), Vector2i.ZERO)
 	assert_eq(_script.call(&"get_daily_main_scene_paths", 0), {})
 	assert_false((_script.call(&"get_daily_main_scene_paths", 1) as Dictionary).is_empty())
+
+
+# Named presentation resolution is separate from legacy required-visual records.
+const PRESENTATION_FIXTURE := "res://tests/fixtures/presentation/named_checkpoints.json"
+const ART_VIEW := preload("res://scripts/ui/art/SceneArtView.gd")
+
+func after_each() -> void:
+	if _script != null: _script.call(&"reload_placements")
+
+func test_named_presentation_resolves_base_music_and_ordered_overlay_labels_without_aliasing() -> void:
+	assert_true(_script.call(&"reload_placements", PRESENTATION_FIXTURE))
+	var labels := ["template.right", "template.left"]
+	var resolved: Dictionary = _script.call(&"resolve_presentation", "template.checkpoint", labels)
+	assert_true(resolved.ok)
+	if not resolved.ok: return
+	assert_eq(resolved.value.background, "template.background")
+	assert_eq(resolved.value.audio_plan_id, "template.shared.music.plan")
+	assert_eq(resolved.value.overlays[0].label, "template.right")
+	assert_eq(resolved.value.overlays[1].label, "template.left")
+	resolved.value.overlays[0].rect[0] = 99
+	labels.clear()
+	var again: Dictionary = _script.call(&"resolve_presentation", "template.checkpoint", ["template.right"])
+	assert_eq(float(again.value.overlays[0].rect[0]), 0.5)
+
+func test_named_presentation_reports_missing_saved_references_and_duplicate_labels() -> void:
+	assert_true(_script.call(&"reload_placements", PRESENTATION_FIXTURE))
+	for request: Array in [["missing", []], ["template.checkpoint", ["missing"]],
+			["template.checkpoint", ["template.left", "template.left"]]]:
+		var result: Dictionary = _script.call(&"resolve_presentation", request[0], request[1])
+		assert_false(result.ok)
+		assert_false(str(result.reference).is_empty())
+
+func test_named_presentation_view_orders_and_positions_overlays_and_clears_them_on_replacement() -> void:
+	assert_true(_script.call(&"reload_placements", PRESENTATION_FIXTURE))
+	var resolved: Dictionary = _script.call(&"resolve_presentation", "template.checkpoint",
+		["template.right", "template.left"])
+	assert_true(resolved.ok)
+	if not resolved.ok: return
+	var view := ART_VIEW.new()
+	view.bind_view_preferences(null)
+	add_child_autofree(view)
+	view.configure_presentation(resolved.value, 100, false, true, true)
+	assert_eq(view.size, Vector2(1280, 656))
+	assert_eq(view._overlays.get_child_count(), 2)
+	if view._overlays.get_child_count() != 2: return
+	assert_eq(view._overlays.get_child(0).get_meta("overlay_label"), "template.right")
+	assert_eq(view._overlays.get_child(0).position, Vector2(640, 0))
+	assert_eq(view._overlays.get_child(1).size, Vector2(640, 656))
+	assert_eq(view._overlays.mouse_filter, Control.MOUSE_FILTER_IGNORE)
+	assert_eq(view._overlays.get_child(0).mouse_filter, Control.MOUSE_FILTER_IGNORE)
+	var cleared: Dictionary = _script.call(&"resolve_presentation", "template.empty", [])
+	assert_true(cleared.ok)
+	view.configure_presentation(cleared.value, 100, false, true, true)
+	assert_eq(view._overlays.get_child_count(), 0)
+	view.configure_presentation(resolved.value, 150)
+	assert_eq(view._overlays.get_child(0).size, Vector2(640, 328))
+	view.configure_entry("template.scene")
+	assert_eq(view._overlays.get_child_count(), 0, "legacy entry rendering cannot retain stale overlays")
+
+func test_only_explicit_entry_bindings_produce_presentation_commands() -> void:
+	assert_true(_script.call(&"reload_placements", PRESENTATION_FIXTURE))
+	assert_eq(_script.call(&"get_presentation_commands", "unbound.entry"), [])
+	var commands: Array = _script.call(&"get_presentation_commands", "template.entry.checkpoint")
+	assert_eq(commands, [{"kind": "checkpoint", "id": "template.checkpoint"}])
+	commands[0].id = "changed"
+	assert_eq(_script.call(&"get_presentation_commands", "template.entry.checkpoint"),
+		[{"kind": "checkpoint", "id": "template.checkpoint"}])
+
+func test_entry_presentation_commands_clear_once_and_keep_ordered_idempotent_overlays() -> void:
+	assert_true(_script.call(&"reload_placements", PRESENTATION_FIXTURE))
+	var initial: Dictionary = _script.call(&"apply_entry_presentation", "unbound.entry", {})
+	assert_eq(initial, {"ok": true, "value": {"state": {}, "autosave": false}})
+	assert_false((_script.call(&"apply_entry_presentation", "template.entry.show", {}) as Dictionary).ok)
+	var entered: Dictionary = _script.call(&"apply_entry_presentation", "template.entry.checkpoint", {})
+	assert_true(entered.ok)
+	assert_true(entered.value.autosave)
+	var shown: Dictionary = _script.call(&"apply_entry_presentation", "template.entry.show", entered.value.state)
+	assert_true(shown.ok)
+	assert_false(shown.value.autosave)
+	assert_eq(shown.value.state.overlays, ["template.left", "template.right"])
+	assert_eq(entered.value.state.overlays, [], "live input is not mutated before publication")
+	var repeated: Dictionary = _script.call(&"apply_entry_presentation", "template.entry.show", shown.value.state)
+	assert_eq(repeated, shown, "showing active labels cannot duplicate or reorder them")
+	var removed: Dictionary = _script.call(&"apply_entry_presentation", "template.entry.remove", shown.value.state)
+	assert_eq(removed.value.state.overlays, ["template.right"])
+	assert_eq(_script.call(&"apply_entry_presentation", "template.entry.remove", removed.value.state), removed)
+	assert_eq(_script.call(&"apply_entry_presentation", "template.entry.checkpoint", shown.value.state), entered)
+	var carried: Dictionary = _script.call(&"apply_entry_presentation", "unbound.entry", shown.value.state)
+	assert_eq(carried, shown, "unbound entries carry presentation without Autosave")

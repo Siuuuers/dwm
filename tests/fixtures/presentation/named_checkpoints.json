@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "assets": {
+    "template.background": {
+      "path": "res://icon.svg"
+    },
+    "template.art": {
+      "path": "res://icon.svg"
+    }
+  },
+  "scenes": {
+    "template.scene": {
+      "background": "template.background",
+      "portraits": [],
+      "cg": ""
+    }
+  },
+  "presentation_checkpoints": {
+    "template.checkpoint": {
+      "scene_entry_id": "template.scene",
+      "audio_plan_id": "template.shared.music.plan"
+    },
+    "template.empty": {
+      "scene_entry_id": "template.scene",
+      "audio_plan_id": ""
+    }
+  },
+  "overlay_labels": {
+    "template.left": {
+      "asset_id": "template.art",
+      "rect": [
+        0,
+        0,
+        0.5,
+        1
+      ]
+    },
+    "template.right": {
+      "asset_id": "template.art",
+      "rect": [
+        0.5,
+        0,
+        0.5,
+        1
+      ]
+    }
+  },
+  "presentation_entries": {
+    "template.entry.checkpoint": [
+      {
+        "kind": "checkpoint",
+        "id": "template.checkpoint"
+      }
+    ],
+    "template.entry.show": [
+      {
+        "kind": "show",
+        "id": "template.left"
+      },
+      {
+        "kind": "show",
+        "id": "template.right"
+      }
+    ],
+    "template.entry.remove": [
+      {
+        "kind": "remove",
+        "id": "template.left"
+      }
+    ]
+  }
+}

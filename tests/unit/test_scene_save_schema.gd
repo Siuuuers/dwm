@@ -116,3 +116,51 @@ func test_scene_content_normalization_does_not_fill_missing_owners() -> void:
 		var before := source.duplicate(true)
 		assert_false(RUN.normalize_scene_content(source).ok)
 		assert_eq(source, before)
+
+func test_optional_named_presentation_preserves_old_entry_audio_and_restores_named_selection() -> void:
+	var scope := preload("res://tests/support/SceneValidationScope.gd").new()
+	scope.install(true)
+	var fixture := preload("res://tests/support/SceneAudioRegistrationFixture.gd").new()
+	var installed: Dictionary = fixture._install_registration()
+	assert_true(installed.ok, str(installed))
+	if not installed.ok:
+		scope.restore()
+		return
+	var manifest := preload("res://scripts/narrative/DialogicEntryManifest.gd")
+	var art := preload("res://scripts/data/ArtManifest.gd")
+	var bundle: Dictionary = manifest.scene_contract_tables().bundle
+	var scene := {"registration_sha256": manifest.scene_registration_fingerprint(),
+		"active_occurrence_id": "receipt.presentation", "entry_id": "scene.test.a",
+		"notification": {}, "active_challenge": {}, "return_to": null}
+	var original := scene.duplicate(true)
+	assert_true(RUN.validate_current_scene(scene, bundle).ok)
+	var old_audio := RUN.derive_scene_audio_context({"scene": scene}, bundle)
+	assert_true(old_audio.ok)
+	assert_null(old_audio.value.selection, "absent presentation keeps the entry's silence")
+	assert_eq(scene, original, "old Save9 state is not assigned an invented checkpoint")
+	var catalog: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(
+		"res://tests/fixtures/presentation/named_checkpoints.json"))
+	catalog.presentation_checkpoints["template.checkpoint"].audio_plan_id = "TEST.audio.01"
+	var file := FileAccess.open("user://named-presentation-schema.json", FileAccess.WRITE)
+	file.store_string(JSON.stringify(catalog))
+	file.close()
+	assert_true(art.reload_placements("user://named-presentation-schema.json"))
+	scene["presentation"] = {"checkpoint_id": "template.checkpoint", "overlays": ["template.right", "template.left"]}
+	var before := scene.duplicate(true)
+	var admitted := RUN.validate_current_scene(scene, bundle)
+	assert_true(admitted.ok, str(admitted))
+	var audio := RUN.derive_scene_audio_context({"scene": scene}, bundle)
+	assert_true(audio.ok, str(audio))
+	if audio.ok: assert_eq(audio.value.selection.plan_id, "TEST.audio.01")
+	assert_eq(scene, before, "resolution preserves saved order and exact state")
+	scene.presentation.checkpoint_id = "template.empty"
+	audio = RUN.derive_scene_audio_context({"scene": scene}, bundle)
+	assert_true(audio.ok)
+	if audio.ok: assert_null(audio.value.selection, "empty plan explicitly stops earlier music")
+	scene.presentation.overlays.append("missing.label")
+	assert_false(RUN.validate_current_scene(scene, bundle).ok)
+	assert_false(RUN.derive_scene_audio_context({"scene": scene}, bundle).ok)
+	scene.presentation = {"checkpoint_id": "missing.checkpoint", "overlays": []}
+	assert_false(RUN.validate_current_scene(scene, bundle).ok)
+	art.reload_placements()
+	scope.restore()

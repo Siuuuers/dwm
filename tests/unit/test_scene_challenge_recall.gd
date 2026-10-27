@@ -33,8 +33,7 @@ func _closure(event: Dictionary, outcome: String, command_id: String = "TEST.clo
 	if outcome != "never_started":
 		proof = {"run_id": envelope.source.run_id, "slot_id": "scene.challenge." + occurrence,
 			"attempt_id": "TEST.attempt", "branch_id": envelope.source.branch_id, "generation": 1, "revision": 1,
-			"record_sha256": "a".repeat(64), "checkpoint": {"checkpoint_id": "TEST.checkpoint",
-				"checkpoint_sequence": 1, "snapshot_sha256": "b".repeat(64)}}
+			"record_sha256": "a".repeat(64), "publication": {"kind": "live", "state_sha256": "b".repeat(64)}}
 	var result := {"kind": "challenge_closed", "outcome": outcome, "target_id": FIXTURE.target_id(outcome),
 		"challenge_occurrence": occurrence, "playable_command_id": "TEST.playable", "attempt_proof": proof}
 	var anchor := {"session_id": envelope.source.scene_occurrence, "entry_id": FIXTURE.START,
