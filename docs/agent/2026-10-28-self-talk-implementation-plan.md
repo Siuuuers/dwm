@@ -107,6 +107,33 @@ Do not allow Auto to advance while the paired thought is still revealing.
 Inspect existing read-aloud ownership: avoid overlapping two speech streams.
 No separate self-talk database, runtime or per-frame history reconstruction.
 
+## Coordinated scene UI work
+
+Include the previously selected computer controls, bottom rail and divider changes
+in the same implementation effort as self-talk. These share scene geometry,
+wrapping, focus and input routing. Implement and verify in small stages rather
+than one undifferentiated rewrite.
+
+1. Establish the self-talk pair, History and scrollback behavior first.
+2. Put History, Save, Load, Skip, Auto and Next in one bottom row, preserving that
+   left-to-right order and the existing command owners.
+3. Put the additional upward computer caret above Save, the second button.
+   Preserve computer open/close, held reading, exact return and focus behavior.
+4. Remove the duplicate top-left Scene button stack. Keep Settings and Backup
+   reachable through the computer; preserve Save/Load via the bottom rail.
+5. Remove the clock/current notification bar and visible panel adjustment knobs.
+   Resize by dragging the divider line with a wider invisible hit target.
+   Preserve non-pointer resizing access, minimum sizes and cancellation.
+6. Run combined cloud journeys covering resized self-talk, scrollback, computer
+   open/close and the six commands. Scroll/drag/caret clicks must not leak into
+   dialogue advancement. Verify the three-row budget after resize.
+7. Reproduce and fix the reported Skip-all defect through its actual owner if
+   confirmed; test unread-text advancement, not just button appearance.
+
+Use focused commits and tests for each behavior, followed by the integrated
+journey. Keep self-talk the first priority. Do not couple acceptance of this UI
+work to Shop, decorative ink marks, Gallery library or dissolve implementation.
+
 ## Remaining bounded authoring details
 
 Select exact marker spelling and explicit-clear syntax through the existing
