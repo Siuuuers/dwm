@@ -1,6 +1,7 @@
 extends Control
 ## Opaque, inspect-only projection. The retained lifecycle owner suspends the source.
 signal close_requested
+const TYPOGRAPHY := preload("res://scripts/ui/UiTypography.gd")
 
 class HistoryClose extends Button:
 	var admitted: Callable
@@ -55,6 +56,8 @@ var _back_contact := ""
 var _blocked_contacts: Dictionary = {}
 var _input_owner: Node
 var _roles: Dictionary = {}
+var _text_percent := 100
+var _font_style := "pixel"
 
 func _init() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -127,6 +130,10 @@ func configure(presentation: Theme, localization: Object, input_owner: Node, adm
 	_input_owner = input_owner
 	_admission = admission
 	theme = presentation.duplicate()
+	if localization.has_method("get_presentation_profile"):
+		var preferences: Dictionary = localization.get_presentation_profile()
+		_text_percent = int(preferences.get("text_size", 100))
+		_font_style = str(preferences.get("font_style", "pixel"))
 	_heading.text = String(localization.t("witnessed.transport.history"))
 	close_button.text = String(localization.t("button.close"))
 	var locale := String(localization.call("get_locale")).replace("_", "-")
@@ -137,7 +144,7 @@ func configure(presentation: Theme, localization: Object, input_owner: Node, adm
 	_heading.add_theme_color_override(&"font_color", _roles[&"text"])
 	for row: Node in _rows.get_children():
 		if row is RichTextLabel:
-			row.language = locale
+			if not row.has_meta("content_locale"): row.language = locale
 			row.add_theme_color_override(&"default_color", _roles[&"text"])
 	if _active: set_interactive(_interactive)
 	var plane := _plate(_roles[&"current"], Color.TRANSPARENT)
@@ -158,35 +165,31 @@ func configure(presentation: Theme, localization: Object, input_owner: Node, adm
 
 func present(captions: Array) -> bool:
 	if _roles.is_empty() or not _admission.is_valid() or _admission.call() != true or captions.is_empty(): return false
+	var rows: Array[Dictionary] = []
 	for caption: Variant in captions:
-		if typeof(caption) != TYPE_STRING or String(caption).strip_edges().is_empty(): return false
-	_captions.assign(captions)
+		if caption is String:
+			if caption.strip_edges().is_empty(): return false
+			rows.append({"text": caption, "content_locale": close_button.language, "secondary_text": "", "secondary_locale": ""})
+		elif caption is Dictionary and caption.has("text"):
+			rows.append({"text": caption.text, "content_locale": caption.get("content_locale", close_button.language),
+				"secondary_text": caption.get("secondary_text", ""), "secondary_locale": caption.get("secondary_locale", "")})
+		else: return false
+	_captions.clear()
 	for child: Node in _rows.get_children():
 		_rows.remove_child(child)
 		child.queue_free()
-	for index: int in _captions.size():
+	for index: int in rows.size():
+		var row: Dictionary = rows[index]
+		_captions.append(row.text)
 		if index > 0:
 			var separator := HSeparator.new()
 			separator.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			separator.add_theme_stylebox_override(&"separator", _plate(_roles[&"rule"], Color.TRANSPARENT))
 			separator.custom_minimum_size.y = 2
 			_rows.add_child(separator)
-		var label := RichTextLabel.new()
-		label.name = "Caption%d" % index
-		label.bbcode_enabled = true
-		label.selection_enabled = false
-		label.focus_mode = Control.FOCUS_NONE
-		label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		label.fit_content = true
-		label.scroll_active = false
-		label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		label.add_theme_stylebox_override(&"normal", StyleBoxEmpty.new())
-		label.add_theme_color_override(&"default_color", _roles[&"text"])
-		label.add_theme_color_override(&"font_outline_color", Color.TRANSPARENT)
-		label.add_theme_constant_override(&"outline_size", 0)
-		label.language = close_button.language
-		label.text = preload("res://scripts/localization/StoryLocalization.gd").display_markup(_captions[index])
-		_rows.add_child(label)
+		_add_caption(str(row.text), str(row.content_locale), "Caption%d" % index)
+		if not str(row.secondary_text).is_empty():
+			_add_caption(str(row.secondary_text), str(row.secondary_locale), "Secondary%d" % index)
 	_active = true
 	set_interactive(true)
 	reading_scroll.scroll_vertical = 0
@@ -194,6 +197,28 @@ func present(captions: Array) -> bool:
 	reading_scroll.grab_focus()
 	queue_accessibility_update()
 	return true
+
+func _add_caption(text: String, locale: String, node_name: String) -> void:
+	var label := RichTextLabel.new()
+	label.name = node_name
+	label.bbcode_enabled = true
+	label.selection_enabled = false
+	label.focus_mode = Control.FOCUS_NONE
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	label.fit_content = true
+	label.scroll_active = false
+	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	label.add_theme_stylebox_override(&"normal", StyleBoxEmpty.new())
+	label.add_theme_color_override(&"default_color", _roles[&"text"])
+	label.add_theme_color_override(&"font_outline_color", Color.TRANSPARENT)
+	label.add_theme_constant_override(&"outline_size", 0)
+	label.language = locale.replace("_", "-")
+	label.set_meta("content_locale", locale)
+	var font := TYPOGRAPHY.story_font(locale, _text_percent, _font_style)
+	for role: StringName in [&"normal_font", &"bold_font", &"italics_font", &"bold_italics_font", &"mono_font"]:
+		label.add_theme_font_override(role, font)
+	label.text = preload("res://scripts/localization/StoryLocalization.gd").display_markup(text)
+	_rows.add_child(label)
 
 func set_interactive(enabled: bool) -> void:
 	_interactive = enabled

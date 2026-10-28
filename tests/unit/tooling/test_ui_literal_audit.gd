@@ -390,7 +390,7 @@ func test_story_projection_owners_do_not_exempt_sibling_literals() -> void:
 	var expressions := {
 		"res://scripts/ui/SceneHost.gd": 'preload("res://scripts/localization/StoryLocalization.gd").text(locale, key, option.text)',
 		"res://scripts/ui/witnessed/WitnessedCaptionLayer.gd": 'preload("res://scripts/localization/StoryLocalization.gd").display_markup(retained.text)',
-		"res://scripts/ui/witnessed/WitnessedHistory.gd": 'preload("res://scripts/localization/StoryLocalization.gd").display_markup(_captions[index])',
+		"res://scripts/ui/witnessed/WitnessedHistory.gd": 'preload("res://scripts/localization/StoryLocalization.gd").display_markup(text)',
 	}
 	for path: String in expressions:
 		var snippet: String = "extends Control\nfunc refresh():\n\tlabel.text = " + expressions[path] + "\n"

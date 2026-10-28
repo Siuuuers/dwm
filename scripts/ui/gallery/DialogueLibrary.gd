@@ -2,6 +2,7 @@ extends Control
 ## A read-only projection. Only accepted story reading changes discovery membership.
 signal navigation_changed
 signal empty_focus_requested
+const TYPOGRAPHY := preload("res://scripts/ui/UiTypography.gd")
 const CATALOGUE := preload("res://scripts/narrative/DialogueLibraryCatalogue.gd")
 const DEFAULT_COPY := {"empty": "Dialogue appears here after you reach a passage in the story.",
 	"unread": "Unread dialogue", "thought": "Self-talk", "passage": "Passage dialogue"}
@@ -23,6 +24,8 @@ func configure(profile: Object) -> void:
 			profile.dialogue_library_changed.connect(refresh)
 		if profile.has_signal("profile_restored"):
 			profile.profile_restored.connect(_on_profile_restored)
+		if profile.has_signal("preference_changed"):
+			profile.preference_changed.connect(_on_preference_changed)
 
 func configure_copy(copy: Dictionary, locale: String) -> void:
 	_copy = copy.duplicate()
@@ -66,7 +69,10 @@ func refresh() -> void:
 	var paper_had_focus := _scroll.has_focus()
 	var had_focus := paper_had_focus
 	for row: Button in _rows: had_focus = had_focus or row.has_focus()
-	_passages = CATALOGUE.reached_passages(_profile.get_dialogue_library(), _locale) if is_instance_valid(_profile) and _profile.has_method("get_dialogue_library") else []
+	var secondary := ""
+	if is_instance_valid(_profile) and _profile.has_method("get_preference") and _profile.get_preference(&"preferences.language.dual_enabled", false):
+		secondary = str(_profile.get_preference(&"preferences.language.secondary_locale_id", ""))
+	_passages = CATALOGUE.reached_passages(_profile.get_dialogue_library(), _locale, secondary) if is_instance_valid(_profile) and _profile.has_method("get_dialogue_library") else []
 	for row: Button in _rows:
 		_index.remove_child(row)
 		row.queue_free()
@@ -116,9 +122,15 @@ func _show_passage(retain_scroll: bool) -> void:
 		_add_text(str(passage.title))
 		for entry: Dictionary in passage.entries:
 			# Unread prose never enters a Label, tooltip, metadata or accessibility name.
-			var wording := str(entry.text) if entry.read else str(_copy.unread)
-			if str(entry.kind) == "thought": wording = str(_copy.thought) + "\n" + wording
-			_add_text(wording)
+			if entry.read:
+				if str(entry.kind) == "thought": _add_text(str(_copy.thought))
+				_add_text(str(entry.text), str(entry.content_locale))
+				if not str(entry.secondary_text).is_empty():
+					_add_text(str(entry.secondary_text), str(entry.secondary_locale))
+			else:
+				var wording := str(_copy.unread)
+				if str(entry.kind) == "thought": wording = str(_copy.thought) + "\n" + wording
+				_add_text(wording)
 			if not str(entry.requirements).is_empty(): _add_text(str(entry.requirements))
 		break
 	_scroll.set_deferred("scroll_vertical", offset)
@@ -133,11 +145,18 @@ func _show_passage(retain_scroll: bool) -> void:
 	_scroll.focus_neighbor_right = _scroll.get_path()
 	navigation_changed.emit()
 
-func _add_text(text: String) -> void:
+func _add_text(text: String, content_locale: String = "") -> void:
 	var label := Label.new()
 	label.text = text
 	label.accessibility_name = text
-	label.language = _locale.replace("_", "-")
+	label.language = (_locale if content_locale.is_empty() else content_locale).replace("_", "-")
+	if not content_locale.is_empty():
+		var percent := 100
+		var style := "pixel"
+		if _profile.has_method("get_preference"):
+			percent = int(_profile.get_preference(&"preferences.accessibility.text_size", 100))
+			style = str(_profile.get_preference(&"preferences.accessibility.font_style", "pixel"))
+		label.add_theme_font_override("font", TYPOGRAPHY.story_font(content_locale, percent, style))
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	label.add_theme_color_override("font_color", get_theme_color("ink", "Gallery"))
@@ -168,3 +187,7 @@ func _on_passage_input(event: InputEvent) -> void:
 
 func _on_profile_restored(_snapshot: Dictionary) -> void:
 	refresh()
+
+func _on_preference_changed(path: StringName, _value: Variant) -> void:
+	if path in [&"preferences.language.secondary_locale_id", &"preferences.language.dual_enabled"]:
+		refresh()

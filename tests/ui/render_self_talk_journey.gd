@@ -1,5 +1,7 @@
 extends "res://tests/ui/render_self_talk_base.gd"
 
+const STORY_LOCALE := preload("res://scripts/localization/StoryLocalization.gd")
+
 func test_rendered_pair_review_clear_and_physical_save_load() -> void:
 	assert_ne(DisplayServer.get_name(), "headless", "this acceptance requires a real renderer")
 	if DisplayServer.get_name() == "headless": return
@@ -46,6 +48,51 @@ func test_rendered_pair_review_clear_and_physical_save_load() -> void:
 		"line.scene.test.a.thought_three", "line.scene.test.a.five", "line.scene.test.a.thought_four"])
 	assert_eq(panel.get_projection().visible_rows.size(), 3)
 	assert_ne(panel.get_projection().visible_rows[0].id, "line.scene.test.a.thought_one", "oldest rows leave live window")
+	# Synthetic translations exercise the real attached-thought view; no production
+	# wording or registration is changed, and the following mono journey is retained.
+	var thought_sources: Dictionary = bridge.capture_self_talk_presentation().value
+	var source_catalog := STORY_LOCALE.catalog("en").duplicate(true)
+	var secondary_catalog := STORY_LOCALE.catalog("zh_HK").duplicate(true)
+	for index: int in thought_sources.rows.size():
+		var thought: Dictionary = thought_sources.rows[index]
+		STORY_LOCALE.catalog("en")[thought.id] = thought.text
+		STORY_LOCALE.catalog("zh_HK")[thought.id] = "合成測試想法%d。" % (index + 1)
+	var prior_secondary: String = profile.get_preference(&"preferences.language.secondary_locale_id", "zh_HK")
+	var prior_size: int = profile.get_preference(&"preferences.accessibility.text_size", 100)
+	var before_dual: Dictionary = bridge.capture_reading_checkpoint(false)
+	var primary_speech: Dictionary = bridge.capture_current_speech_presentation()
+	assert_true(primary_speech.get("ok", false))
+	_ok(profile.set_preference(&"preferences.language.secondary_locale_id", "zh_HK"))
+	_ok(profile.set_preference(&"preferences.language.dual_enabled", true))
+	for percent: int in [100, 125, 150]:
+		_ok(profile.set_preference(&"preferences.accessibility.text_size", percent))
+		for frame: int in 4: await get_tree().process_frame
+		var paired: Dictionary = bridge.capture_self_talk_presentation().value
+		assert_eq(paired.rows.size(), thought_sources.rows.size())
+		assert_eq(paired.rows.back().id, "line.scene.test.a.thought_four")
+		assert_eq(paired.rows.back().text, thought_sources.rows.back().text)
+		assert_eq(paired.rows.back().content_locale, "en")
+		assert_eq(paired.rows.back().secondary_text, "合成測試想法4。")
+		assert_eq(paired.rows.back().secondary_locale, "zh_HK")
+		var dual_panel: Dictionary = panel.get_projection()
+		assert_true(dual_panel.dual_enabled)
+		assert_true(dual_panel.visible_rows.all(func(row: Dictionary) -> bool: return row.id == "line.scene.test.a.thought_four"))
+		assert_true(dual_panel.visible_rows.any(func(row: Dictionary) -> bool: return row.locale == "en" and not row.secondary))
+		assert_true(dual_panel.visible_rows.any(func(row: Dictionary) -> bool: return row.locale == "zh_HK" and row.secondary))
+		assert_lte(panel.size.y, 216.0, "both thought languages remain inside the bounded panel")
+		assert_eq(bridge.capture_reading_checkpoint(false), before_dual, "language and size do not republish a thought")
+		assert_eq(_history_ids(), ids)
+		assert_eq(bridge.capture_current_speech_presentation(), primary_speech, "Secondary is never appended to Primary speech")
+		await _capture_self_talk("synthetic-bilingual-latest-%d" % percent)
+	STORY_LOCALE._catalogs["en"] = source_catalog
+	STORY_LOCALE._catalogs["zh_HK"] = secondary_catalog
+	_ok(profile.set_preference(&"preferences.language.dual_enabled", false))
+	_ok(profile.set_preference(&"preferences.language.secondary_locale_id", prior_secondary))
+	_ok(profile.set_preference(&"preferences.accessibility.text_size", prior_size))
+	for frame: int in 4: await get_tree().process_frame
+	assert_false(panel.get_projection().dual_enabled)
+	assert_eq(panel.get_projection().visible_rows.size(), 3)
+	assert_eq(bridge.capture_self_talk_presentation().value.rows, thought_sources.rows)
 	var checkpoint: Dictionary = bridge.capture_reading_checkpoint(false)
 	if not _ok(checkpoint): return
 	var profile_before: Dictionary = profile.get_profile_snapshot().duplicate(true)

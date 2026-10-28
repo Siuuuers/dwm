@@ -115,7 +115,7 @@ static func discovery_for_beat(beat: Dictionary, checkpoint_id: String) -> Dicti
 	return {"checkpoint_id": checkpoint_id, "witness_id": witness_id}
 
 
-static func reached_passages(discovery: Dictionary, locale: String = "en") -> Array[Dictionary]:
+static func reached_passages(discovery: Dictionary, locale: String = "en", secondary: String = "") -> Array[Dictionary]:
 	if not ensure_loaded().ok: return []
 	var reached: Array = discovery.get("checkpoints", [])
 	var witnessed: Dictionary = discovery.get("witnesses", {})
@@ -125,9 +125,22 @@ static func reached_passages(discovery: Dictionary, locale: String = "en") -> Ar
 		var entries: Array[Dictionary] = []
 		for entry: Dictionary in passage.entries:
 			var read: bool = witnessed.has(entry.witness_id)
-			entries.append({"read": read, "kind": entry.kind,
-				"text": (str(entry.text[locale]) if entry.text.has(locale) else STORY_TEXT.text(locale, entry.line_id, entry.text.en)) if read else "",
-				"requirements": _condition_text(entry.requirements, locale)})
+			var row := {"read": read, "kind": entry.kind, "text": "", "content_locale": locale,
+				"secondary_text": "", "secondary_locale": "", "requirements": _condition_text(entry.requirements, locale)}
+			if read:
+				row.merge(STORY_TEXT.pair(locale, secondary, entry.line_id, entry.text.en), true)
+				# Explicit authoring fixtures and generated catalogues share the same exact
+				# witness binding. Their supplied translations override the shared adapter.
+				if not str(entry.text.get(locale, "")).is_empty():
+					row.text = entry.text[locale]
+					row.content_locale = locale
+				if not secondary.is_empty() and not str(entry.text.get(secondary, "")).is_empty():
+					row.secondary_text = entry.text[secondary]
+					row.secondary_locale = secondary
+				if row.secondary_locale == row.content_locale:
+					row.secondary_text = ""
+					row.secondary_locale = ""
+			entries.append(row)
 		result.append({"id": passage.id, "title": _text(passage.title, locale), "entries": entries})
 	return result
 

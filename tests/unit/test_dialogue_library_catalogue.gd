@@ -65,3 +65,23 @@ func test_authoring_reports_unregistered_exact_variant_without_replacing_catalog
 	assert_false(result.ok)
 	assert_eq(result.code, &"library_beat_unregistered")
 	assert_eq(CATALOGUE.reached_passages(FIXTURE.discovery()), before)
+
+func test_bilingual_projection_pairs_exact_read_variant_and_masks_both_unread_languages() -> void:
+	var discovery := FIXTURE.discovery()
+	var before := discovery.duplicate(true)
+	for locales: Array in [["en", "zh_HK"], ["zh_HK", "en"]]:
+		var passages := CATALOGUE.reached_passages(discovery, locales[0], locales[1])
+		var row: Dictionary = passages[0].entries[0]
+		assert_eq(row.content_locale, locales[0])
+		assert_eq(row.secondary_locale, locales[1])
+		assert_eq(row.text, "TEST read caption." if locales[0] == "en" else "測試已讀對白。")
+		assert_eq(row.secondary_text, "TEST read caption." if locales[1] == "en" else "測試已讀對白。")
+		for index: int in [1, 2, 3]:
+			assert_eq(passages[0].entries[index].text, "")
+			assert_eq(passages[0].entries[index].secondary_text, "")
+		assert_eq(discovery, before, "language projection cannot change discoveries")
+	var missing: Dictionary = CATALOGUE.reached_passages(discovery, "ja", "en")[0].entries[0]
+	assert_eq(missing.content_locale, "en", "missing Primary truthfully identifies source fallback")
+	assert_eq(missing.secondary_text, "", "same English fallback appears only once")
+	var absent: Dictionary = CATALOGUE.reached_passages(discovery, "en", "ko")[0].entries[0]
+	assert_eq(absent.secondary_text, "", "missing Secondary has no invented row")

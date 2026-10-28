@@ -4,6 +4,7 @@ extends Control
 const TRANSITION_SURFACE := preload("res://scripts/ui/witnessed/SceneTransitionOverlay.gd")
 const TRANSPORT_RAIL := preload("res://scripts/ui/witnessed/WitnessedTransportRail.gd")
 const TYPOGRAPHY := preload("res://scripts/ui/UiTypography.gd")
+const STORY_TEXT := preload("res://scripts/localization/StoryLocalization.gd")
 
 var _actions: Dictionary = {}
 var _computer_open := false
@@ -100,7 +101,8 @@ func _bind_presentation() -> void:
 	_refresh_presentation()
 
 func _on_presentation_preference_changed(path: StringName, _value: Variant) -> void:
-	if path in [&"preferences.accessibility.text_size", &"preferences.accessibility.font_style"]:
+	if path in [&"preferences.accessibility.text_size", &"preferences.accessibility.font_style",
+			&"preferences.language.secondary_locale_id", &"preferences.language.dual_enabled"]:
 		_refresh_presentation()
 
 func _on_presentation_profile_restored(_snapshot: Dictionary) -> void:
@@ -251,23 +253,82 @@ func _refresh_thought_options(options: Array) -> void:
 	var column: HBoxContainer = panel.get_node("Options")
 	panel.visible = not options.is_empty()
 	var locale: String = _localization.get_locale() if _localization != null else "en"
-	var offer := {"options": options, "frontier": _thought_frontier, "locale": locale} if panel.visible else {}
+	var secondary := ""
+	var percent := 100
+	var font_style := "pixel"
+	if _profile != null:
+		if _profile.get_preference(&"preferences.language.dual_enabled", false):
+			secondary = str(_profile.get_preference(&"preferences.language.secondary_locale_id", ""))
+		percent = int(_profile.get_preference(&"preferences.accessibility.text_size", 100))
+		font_style = str(_profile.get_preference(&"preferences.accessibility.font_style", "pixel"))
+	var offer := {"options": options, "frontier": _thought_frontier, "locale": locale,
+		"secondary": secondary, "percent": percent, "font_style": font_style} if panel.visible else {}
 	if offer == _thought_options_offer: return
 	_thought_options_offer = offer.duplicate(true)
+	var focused := -1
+	var child_index := 0
 	for child: Node in column.get_children():
+		if child is Control and child.has_focus(): focused = child_index
+		child_index += 1
 		column.remove_child(child)
 		child.queue_free()
+	var marker: Dictionary = get_node("/root/DialogicBridge").capture_scene_pending_marker() if panel.visible else {}
+	var paired_height := 0.0
 	for option: Dictionary in options:
 		var button := Button.new()
-		var marker: Dictionary = get_node("/root/DialogicBridge").capture_scene_pending_marker()
 		var key := "choice.%s.%s" % [marker.get("value", {}).get("payload", {}).get("opportunity_id", ""), option.choice_id]
-		button.text = preload("res://scripts/localization/StoryLocalization.gd").text(locale, key, option.text)
-		button.accessibility_name = button.text
+		var pair := STORY_TEXT.pair(locale, secondary, key, option.text)
+		button.text = pair.text
+		button.language = str(pair.content_locale).replace("_", "-")
+		button.accessibility_name = pair.text
+		button.add_theme_font_override("font", TYPOGRAPHY.story_font(pair.content_locale, percent, font_style))
 		button.custom_minimum_size = Vector2(0, 52)
 		button.size_flags_vertical = Control.SIZE_EXPAND_FILL
+		# Label minimum sizes are available only after entering the tree. Mount
+		# before measuring the pair so its full text also owns the hit rectangle.
+		column.add_child(button)
+		if not pair.secondary_text.is_empty():
+			button.text = ""
+			# The two locale-tagged labels name one actionable option.
+			button.accessibility_name = ""
+			var wording := VBoxContainer.new()
+			wording.name = "Wording"
+			wording.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			wording.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+			wording.offset_left = 12
+			wording.offset_right = -12
+			wording.offset_top = 8
+			wording.offset_bottom = -8
+			wording.alignment = BoxContainer.ALIGNMENT_CENTER
+			wording.add_theme_constant_override("separation", 0)
+			button.add_child(wording)
+			for part: Dictionary in [{"name": "Primary", "text": pair.text, "locale": pair.content_locale},
+					{"name": "Secondary", "text": pair.secondary_text, "locale": pair.secondary_locale}]:
+				var label := Label.new()
+				label.name = part.name
+				label.text = part.text
+				label.language = str(part.locale).replace("_", "-")
+				label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+				label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+				label.add_theme_font_override("font", TYPOGRAPHY.story_font(part.locale, percent, font_style))
+				label.add_theme_font_size_override("font_size", TYPOGRAPHY.font_size(part.locale, percent, 24, font_style))
+				wording.add_child(label)
+			button.accessibility_labeled_by_nodes = [NodePath("Wording/Primary"), NodePath("Wording/Secondary")]
+			button.custom_minimum_size = wording.get_combined_minimum_size() + Vector2(24, 16)
+			paired_height = maxf(paired_height, button.custom_minimum_size.y + 18)
 		# Each visible button owns the presentation proof it was created for.
 		button.pressed.connect(_select_thought.bind(str(option.choice_id), _thought_frontier.duplicate(true)))
-		column.add_child(button)
+	if is_instance_valid(_thought_panel):
+		_thought_panel.set_choice_row_height(paired_height)
+		_layout_thought_controls()
+	if focused >= 0 and focused < column.get_child_count():
+		var focused_button: Control = column.get_child(focused)
+		focused_button.grab_focus()
+		# follow_focus initially sees the newly mounted, unsorted HBox. Reveal
+		# the retained choice again after its translated minimum sizes settle.
+		await get_tree().process_frame
+		if is_instance_valid(focused_button) and focused_button.has_focus():
+			panel.ensure_control_visible(focused_button)
 
 func _accept_thought() -> void:
 	_select_thought("", _thought_frontier.duplicate(true))

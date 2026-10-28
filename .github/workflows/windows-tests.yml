@@ -18,6 +18,7 @@ jobs:
     name: Select current change coverage
     runs-on: ubuntu-24.04
     outputs:
+      bilingual_reading: ${{ steps.scope.outputs.bilingual_reading }}
       dialogue_library: ${{ steps.scope.outputs.dialogue_library }}
       focused: ${{ steps.scope.outputs.focused }}
       comparison: ${{ steps.scope.outputs.comparison }}
@@ -82,6 +83,7 @@ jobs:
                       rest = rest.replace(state, b"")
                   bodies.append(rest)
               return bodies[0] == bodies[1]
+          bilingual_reading = False
           dialogue_library = False
           playtest_polish = False
           self_talk = False
@@ -95,6 +97,47 @@ jobs:
               diff = subprocess.run(["git", "diff", "--name-only", "-z", base, "HEAD"], capture_output=True)
               if diff.returncode == 0:
                   paths = set(diff.stdout.decode().strip("\0").split("\0"))
+                  # Bilingual projection changes reading semantics, not only visual layout.
+                  bilingual_paths = {
+                      'tests/unit/tooling/test_ui_literal_audit.gd',
+                      'tools/localization/UiLiteralAudit.gd',
+                      '.github/workflows/windows-tests.yml',
+                      'tools/testing/Invoke-CloudTests.ps1',
+                      'autoload/DialogicBridge.gd', 'autoload/LocalizationManager.gd',
+                      'scripts/localization/StoryLocalization.gd',
+                      'scripts/ui/SceneHost.gd', 'scripts/ui/SettingsContent.gd',
+                      'scripts/ui/witnessed/WitnessedCaptionLayer.gd',
+                      'scripts/ui/witnessed/WitnessedSelfTalk.gd',
+                      'scripts/ui/witnessed/WitnessedHistory.gd',
+                      'scripts/ui/gallery/DialogueLibrary.gd',
+                      'scripts/narrative/DialogueLibraryCatalogue.gd',
+                      'tests/unit/test_story_bilingual_projection.gd',
+                      'tests/unit/test_witnessed_self_talk.gd',
+                      'tests/integration/test_witnessed_caption_runtime.gd',
+                      'tests/integration/test_bilingual_reading.gd',
+                      'tests/integration/test_bilingual_reading.gd.uid',
+                      'tests/integration/test_bilingual_reading_load.gd',
+                      'tests/integration/test_bilingual_reading_load.gd.uid',
+                      'tests/unit/test_dialogue_library_catalogue.gd',
+                      'tests/unit/test_dialogue_library_ui.gd',
+                      'tests/unit/test_witnessed_reading_rail.gd',
+                      'tests/integration/test_story_localization.gd',
+                      'tests/ui/render_dialogue_library.gd',
+                      'tests/ui/render_self_talk_choices.gd',
+                      'tests/ui/render_authored_self_talk_choices.gd',
+                      'tests/ui/render_bilingual_choices.gd',
+                      'tests/ui/render_self_talk_journey.gd',
+                      'tests/scene/test_scene_host_controls.gd',
+                      'tests/scene/test_settings_localization_scene.gd',
+                      'localization/story/README.md',
+                      'docs/agent/2026-10-29-bilingual-reading-handoff.md',
+                      'docs/agent/2026-10-28-current-and-future-feature-plan.md',
+                      'evidence/phase_2r/runtime/game_state_surface.json',
+                      'evidence/phase_2r/runtime/save_manager_surface.json',
+                  }
+                  bilingual_reading = bool(paths) and paths <= bilingual_paths and bool(paths & {
+                      'scripts/localization/StoryLocalization.gd',
+                      'tests/unit/test_story_bilingual_projection.gd'})
                   library_paths = {
                       '.github/workflows/windows-tests.yml',
                       'autoload/ProfileManager.gd', 'autoload/DialogicBridge.gd',
@@ -361,7 +404,7 @@ jobs:
           # Current native Save/Load and terminal fixtures qualify incompatible schemas;
           # skipping this old-input measurement does not establish a speedup.
           comparison = comparison or (focused and not previous)
-          if dialogue_library or playtest_polish or self_talk or shop_cosmetics or scene_transition or save_ink: comparison = False
+          if bilingual_reading or dialogue_library or playtest_polish or self_talk or shop_cosmetics or scene_transition or save_ink: comparison = False
           if comparison:
               archive = "evidence/phase_2r/current_ci_20261023/final_retention/run39988834004/original-12517208437.zip"
               archive_bytes = subprocess.run(["git", "show", "HEAD:" + archive], capture_output=True, check=True).stdout
@@ -379,8 +422,9 @@ jobs:
                   if keys != saved_keys:
                       comparison = False
                       print("Archived startup/Load measurement is incompatible with " + ref + "; current-build correctness coverage remains required.")
-          print("Selected " + ("runtime resource/Backup coverage" if focused else "full validation"))
+          print("Selected " + ("bilingual reading coverage" if bilingual_reading else "runtime resource/Backup coverage" if focused else "full validation"))
           with open(os.environ["GITHUB_OUTPUT"], "a") as output:
+              output.write(f"bilingual_reading={str(bilingual_reading).lower()}\n")
               output.write(f"dialogue_library={str(dialogue_library).lower()}\n")
               output.write(f"playtest_polish={str(playtest_polish).lower()}\n")
               output.write(f"save_ink={str(save_ink).lower()}\n")
@@ -401,7 +445,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        suite: ${{ fromJSON(needs.test-scope.outputs.dialogue_library == 'true' && '["dialogue_library","authored_week","scene_checkpoint_ack","scene_content_update_wording","scene_story_localization","named_presentation","settings","persistence","new_account","current_title","current_quick_load","scene_native_restore","scene_transition_journey","self_talk_journey","scene_multiple_thoughts","scene_direct_controls","scene_controls_localization","scene_passage_catalogue","scene_passage_connected","reading_delivery","localization"]' || needs.test-scope.outputs.playtest_polish == 'true' && '["shop_cosmetic_journey","self_talk_choices","authored_self_talk_choices","self_talk_unit","self_talk_runtime","self_talk_ui","self_talk_skip","self_talk_journey","self_talk_review","self_talk_transport","scene_multiple_thoughts","scene_contacts","scene_apps","scene_computer","scene_controls_localization","scene_caption_challenge","scene_direct_controls","save_ink_pixels","save_ink_journey","save_ink_storage","save_ink_backup_refresh","current_quick_load","scene_transition_pixels","scene_transition_journey","scene_transition_auto","scene_transition_reduced","settings","desktop","current_title"]' || needs.test-scope.outputs.save_ink == 'true' && '["save_ink_journey","save_ink_pixels","save_ink_storage","save_ink_backup_refresh","current_quick_load","current_title","self_talk_journey","scene_transition_journey","scene_apps"]' || needs.test-scope.outputs.scene_transition == 'true' && '["scene_transition_pixels","scene_transition_journey","scene_transition_auto","scene_transition_reduced","self_talk_journey","self_talk_transport","self_talk_skip","scene_apps","scene_day_history","scene_direct_controls","current_title","scene_controls_localization"]' || needs.test-scope.outputs.shop_cosmetics == 'true' && '["shop_cosmetic_unit","shop_cosmetic_layout","shop_cosmetic_buy","shop_cosmetic_supportz","shop_cosmetic_legacy","shop_cosmetic_blank","shop_cosmetic_journey","scene_apps","scene_same_day_supportz","self_talk_journey","current_title","scene_controls_localization"]' || needs.test-scope.outputs.self_talk == 'true' && '["self_talk_unit","self_talk_runtime","self_talk_ui","self_talk_skip","self_talk_journey","self_talk_review","self_talk_transport","scene_day_history","scene_direct_controls","scene_later_caption","scene_caption_challenge","scene_passage_catalogue","scene_passage_connected","scene_story_localization","scene_controls_localization","current_title","scene_apps"]' || needs.test-scope.outputs.focused == 'true' && '["timeline_resources","backup_presentation","profile_parse","authored_week","scene_backup_inspection","scene_progress_schema","current_title"]' || '["dialogue_library","self_talk_choices","authored_self_talk_choices","named_presentation","minesweeper","shop","desktop","settings","checkpoint_diagnostics","new_account","reading_delivery","localization","dating","persistence","endings","audio","scene_desktop_first_reveal","scene_round_checkpoint","scene_shop_checkpoint","scene_story_localization","scene_controls_localization","scene_apps","current_title","scene_backup_inspection","scene_progress_schema","authored_week","scene_five_outcomes","timeline_resources","profile_parse","backup_current_build","current_terminal_fixture","current_quick_load","scene_direct_controls","scene_multiple_thoughts","scene_challenge_recall","scene_same_day_supportz","scene_player_position","scene_native_restore","scene_day_history","scene_later_caption","scene_caption_challenge","scene_audio_connected","scene_save_metadata","scene_passage_connected","scene_passage_catalogue","scene_contacts","scene_current_creation","scene_current_frames","scene_current_challenge","scene_current_snapshot","scene_content_update_wording","scene_content_update_deleted_line","scene_content_update_deleted_checkpoint","scene_content_update_history","scene_content_update_active_board","scene_content_update_transfer_active","scene_content_update_transfer_terminal","scene_content_update_resolved_unfinished","scene_content_update_completed_appended","scene_content_update_completed_deleted","scene_content_update_invalid_choice","scene_content_update_invalid_choice_missing_default","scene_content_contracts","scene_checkpoint_ack","scene_owner_composition"]') }}
+        suite: ${{ fromJSON(needs.test-scope.outputs.bilingual_reading == 'true' && '["bilingual_reading","dialogue_library","authored_week","scene_checkpoint_ack","scene_story_localization","settings","persistence","current_title","current_quick_load","scene_native_restore","scene_multiple_thoughts","scene_direct_controls","scene_controls_localization","self_talk_unit","self_talk_skip","self_talk_journey","self_talk_transport","self_talk_choices","authored_self_talk_choices","scene_transition_pixels","scene_transition_journey","scene_transition_auto","scene_transition_reduced","reading_delivery","localization"]' || needs.test-scope.outputs.dialogue_library == 'true' && '["dialogue_library","authored_week","scene_checkpoint_ack","scene_content_update_wording","scene_story_localization","named_presentation","settings","persistence","new_account","current_title","current_quick_load","scene_native_restore","scene_transition_journey","self_talk_journey","scene_multiple_thoughts","scene_direct_controls","scene_controls_localization","scene_passage_catalogue","scene_passage_connected","reading_delivery","localization"]' || needs.test-scope.outputs.playtest_polish == 'true' && '["shop_cosmetic_journey","self_talk_choices","authored_self_talk_choices","self_talk_unit","self_talk_runtime","self_talk_ui","self_talk_skip","self_talk_journey","self_talk_review","self_talk_transport","scene_multiple_thoughts","scene_contacts","scene_apps","scene_computer","scene_controls_localization","scene_caption_challenge","scene_direct_controls","save_ink_pixels","save_ink_journey","save_ink_storage","save_ink_backup_refresh","current_quick_load","scene_transition_pixels","scene_transition_journey","scene_transition_auto","scene_transition_reduced","settings","desktop","current_title"]' || needs.test-scope.outputs.save_ink == 'true' && '["save_ink_journey","save_ink_pixels","save_ink_storage","save_ink_backup_refresh","current_quick_load","current_title","self_talk_journey","scene_transition_journey","scene_apps"]' || needs.test-scope.outputs.scene_transition == 'true' && '["scene_transition_pixels","scene_transition_journey","scene_transition_auto","scene_transition_reduced","self_talk_journey","self_talk_transport","self_talk_skip","scene_apps","scene_day_history","scene_direct_controls","current_title","scene_controls_localization"]' || needs.test-scope.outputs.shop_cosmetics == 'true' && '["shop_cosmetic_unit","shop_cosmetic_layout","shop_cosmetic_buy","shop_cosmetic_supportz","shop_cosmetic_legacy","shop_cosmetic_blank","shop_cosmetic_journey","scene_apps","scene_same_day_supportz","self_talk_journey","current_title","scene_controls_localization"]' || needs.test-scope.outputs.self_talk == 'true' && '["self_talk_unit","self_talk_runtime","self_talk_ui","self_talk_skip","self_talk_journey","self_talk_review","self_talk_transport","scene_day_history","scene_direct_controls","scene_later_caption","scene_caption_challenge","scene_passage_catalogue","scene_passage_connected","scene_story_localization","scene_controls_localization","current_title","scene_apps"]' || needs.test-scope.outputs.focused == 'true' && '["timeline_resources","backup_presentation","profile_parse","authored_week","scene_backup_inspection","scene_progress_schema","current_title"]' || '["bilingual_reading","dialogue_library","self_talk_choices","authored_self_talk_choices","named_presentation","minesweeper","shop","desktop","settings","checkpoint_diagnostics","new_account","reading_delivery","localization","dating","persistence","endings","audio","scene_desktop_first_reveal","scene_round_checkpoint","scene_shop_checkpoint","scene_story_localization","scene_controls_localization","scene_apps","current_title","scene_backup_inspection","scene_progress_schema","authored_week","scene_five_outcomes","timeline_resources","profile_parse","backup_current_build","current_terminal_fixture","current_quick_load","scene_direct_controls","scene_multiple_thoughts","scene_challenge_recall","scene_same_day_supportz","scene_player_position","scene_native_restore","scene_day_history","scene_later_caption","scene_caption_challenge","scene_audio_connected","scene_save_metadata","scene_passage_connected","scene_passage_catalogue","scene_contacts","scene_current_creation","scene_current_frames","scene_current_challenge","scene_current_snapshot","scene_content_update_wording","scene_content_update_deleted_line","scene_content_update_deleted_checkpoint","scene_content_update_history","scene_content_update_active_board","scene_content_update_transfer_active","scene_content_update_transfer_terminal","scene_content_update_resolved_unfinished","scene_content_update_completed_appended","scene_content_update_completed_deleted","scene_content_update_invalid_choice","scene_content_update_invalid_choice_missing_default","scene_content_contracts","scene_checkpoint_ack","scene_owner_composition"]') }}
     defaults:
       run:
         shell: pwsh
@@ -461,10 +505,16 @@ jobs:
           git restore -- project.godot
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Run focused regression suite
+        id: focused_regression
         timeout-minutes: ${{ matrix.suite == 'current_terminal_fixture' && 30 || 10 }}
         env:
           DWM_CI_SUITE: ${{ matrix.suite }}
         run: ./tools/testing/Invoke-CloudTests.ps1 -Suite $env:DWM_CI_SUITE
+      - name: Run bilingual choices with a fresh registration and profile
+        # Share checkout/import, but never mix fixture and authored registration in one process.
+        if: ${{ !cancelled() && matrix.suite == 'bilingual_reading' && steps.focused_regression.outcome != 'skipped' }}
+        timeout-minutes: 10
+        run: ./tools/testing/Invoke-CloudTests.ps1 -Suite bilingual_choices
       - name: Verify interrupted Load leaves persistent files unchanged
         if: matrix.suite == 'persistence'
         timeout-minutes: 10
