@@ -89,8 +89,8 @@ func _ensure_artwork_gallery() -> void:
 	_dialogue.configure(_profile)
 	_dialogue.navigation_changed.connect(refresh_return_navigation)
 	_dialogue.empty_focus_requested.connect(_focus_return)
-	add_child(_dialogue)
 	_dialogue.hide()
+	add_child(_dialogue)
 	_gallery_tabs = HBoxContainer.new()
 	_gallery_tabs.name = "GalleryTabs"
 	_gallery_tabs.position = _canvas.position + Vector2(32, 0)

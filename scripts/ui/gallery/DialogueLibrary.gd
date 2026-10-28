@@ -62,7 +62,7 @@ func _ready() -> void:
 	refresh()
 
 func refresh() -> void:
-	if not is_node_ready(): return
+	if not is_node_ready() or not is_visible_in_tree(): return
 	var paper_had_focus := _scroll.has_focus()
 	var had_focus := paper_had_focus
 	for row: Button in _rows: had_focus = had_focus or row.has_focus()

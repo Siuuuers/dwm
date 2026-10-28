@@ -621,7 +621,7 @@ func mark_caption_variant_witnessed(beat: Dictionary, registry: Dictionary, chec
 	var witness_id: String = admitted.value.witness_id
 	var discovery: Dictionary = DIALOGUE_LIBRARY.discovery_for_beat(admitted.value.beat, checkpoint_id) if not checkpoint_id.is_empty() else {}
 	var library: Dictionary = _profile.dialogue_library
-	var discovered := not discovery.is_empty() and (discovery.checkpoint_id not in library.checkpoints \
+	var discovered: bool = not discovery.is_empty() and (discovery.checkpoint_id not in library.checkpoints \
 		or (not discovery.witness_id.is_empty() and not library.witnesses.has(discovery.witness_id)))
 	if not discovered and _profile.witnessed_caption_variants.has(witness_id):
 		return {"ok": true, "code": &"ok", "value": {"witness_id": witness_id}, "unchanged": true}
