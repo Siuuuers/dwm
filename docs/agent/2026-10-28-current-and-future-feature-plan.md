@@ -336,5 +336,28 @@ no clock strip; the desktop retains its existing header/clock. No clock is added
 
 Ink is darker, larger and more scattered across the slot paper, including a soft
 smudge and additional droplets. Preserve stable seeds, destination-owned saves,
-0.65 fading, text legibility and focus geometry. Cloud rendered checks and a new
-Steam test upload are pending; do not treat this plan as acceptance evidence.
+0.65 fading, text legibility and focus geometry.
+
+PR #145 merged runtime commit `554bfd5f9a2bcb97c940b25c04c899b60729199e`.
+Cloud acceptance [run 40676307856](https://github.com/Siuuuers/dwm/actions/runs/40676307856)
+passed all 18 selected gameplay suites, public API contracts, Windows exported
+startup, Linux rendering and Gallery checks (23 successful jobs; one unrelated
+performance comparison skipped). The merge tree matches the accepted candidate.
+Rendered review includes the shipped Day1 thought/Yes offer and its Save/Load,
+large-text choice scrolling, held Challenge/Home return and whole-paper ink.
+
+The ink pixel test measures the 0.65 rule on isolated paint because overlapping
+translucent shapes do not have linear final-pixel contrast. The shared choice
+Save/Load test waits for actual transport tap admission before clicking once.
+No runtime timing workaround was introduced. All caption text, line IDs and
+read-mark revisions remain unchanged across 92 registered entries.
+
+Steam test upload [run 40677954412](https://github.com/Siuuuers/dwm/actions/runs/40677954412)
+confirmed **BuildID 26268561**, AppID 5199120 / DepotID 5199121, from the merged
+runtime above. Fresh `game.exe` / `game.pck` export and launch validation passed,
+and SteamPipe preview produced its manifest before upload. No Steam branch was
+set live. The upload workflow retains this exact source pin and returns to manual
+dispatch after the one-time test trigger is removed.
+
+This completes the requested playtest correction pass, not every deferred feature
+or final literary classification of the 15 temporary thought bindings.
