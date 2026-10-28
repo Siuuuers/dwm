@@ -52,6 +52,7 @@ func create_apps_scene() -> void:
 	if not await _wait_line("scene.test.b", "line.scene.test.b.one"): return
 	assert_false(game.capture_scene_challenge_command().get("ok", false), "Ordinary caption precedes Playable admission.")
 	var host: Control = get_tree().current_scene
+	assert_true(game.change_money(45), "canonical economy owner funds the cosmetic purchase fixture")
 	var before: Dictionary = game.capture_run_snapshot_input().duplicate(true)
 	var reading: Dictionary = bridge.capture_reading_checkpoint(false).value.duplicate(true)
 	await _screenshot("apps-ordinary-caption")

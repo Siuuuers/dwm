@@ -66,5 +66,5 @@ func _cosmetic_pixels(shell: Control) -> Dictionary:
 	var hashes := {}
 	for item_id: String in COSMETICS:
 		var region: Rect2 = canvas.get_global_transform_with_canvas() * regions[item_id]
-		hashes[item_id] = pixels.get_region(Rect2i(region)).get_data().sha256_text()
+		hashes[item_id] = pixels.get_region(Rect2i(region)).get_data().hex_encode().sha256_text()
 	return hashes
