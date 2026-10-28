@@ -30,6 +30,10 @@ jobs:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 2
+          # Coverage selection needs trees and a few lazily read source blobs, not assets.
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /.github/workflows/windows-tests.yml
           persist-credentials: true
       - name: Prepare disposable checkout for credential cleanup
         run: |
@@ -39,7 +43,7 @@ jobs:
         id: scope
         shell: python
         run: |
-          import json, os, re, subprocess, zipfile
+          import io, json, os, re, subprocess, zipfile
           event = json.load(open(os.environ["GITHUB_EVENT_PATH"]))
           base = event.get("pull_request", {}).get("base", {}).get("sha") or event.get("before", "")
           allowed = {
@@ -347,7 +351,8 @@ jobs:
           if dialogue_library or playtest_polish or self_talk or shop_cosmetics or scene_transition or save_ink: comparison = False
           if comparison:
               archive = "evidence/phase_2r/current_ci_20261023/final_retention/run39988834004/original-12517208437.zip"
-              with zipfile.ZipFile(archive) as retained:
+              archive_bytes = subprocess.run(["git", "show", "HEAD:" + archive], capture_output=True, check=True).stdout
+              with zipfile.ZipFile(io.BytesIO(archive_bytes)) as retained:
                   slots = [name for name in retained.namelist() if name.endswith("terminal-root/saves/slot_2.json")]
                   if len(slots) != 1:
                       raise RuntimeError("Archived comparison must identify one terminal slot")
