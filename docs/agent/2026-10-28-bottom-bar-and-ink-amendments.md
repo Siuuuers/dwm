@@ -1,7 +1,7 @@
 # Bottom bar, computer and save-ink amendments
 
 Date: 2026-10-28. Status: implemented in [PR #147](https://github.com/Siuuuers/dwm/pull/147); the PR records final cloud acceptance and merge status.
-Code inspected at `76c39d0a4acb33f858fba18b6c2bc9ad7cdb24c4`. This handoff changes documentation only.
+Original handoff inspected code at `76c39d0a4acb33f858fba18b6c2bc9ad7cdb24c4`; implementation and acceptance are recorded below.
 
 Read AGENTS.md and CLAUDE.md, then recheck the branch head before implementation. This record supersedes the caret-above-bar, six-control and active save-ink requirements in the current feature plan and earlier handoffs. Other accepted behavior stays in force.
 
@@ -53,7 +53,7 @@ Run Godot and PowerShell only in GitHub Actions. Reuse/extend existing scene-con
 - Saves: numbered, Quick and Autosave work without splashes; existing files with and without ink metadata load; subsequent saves omit active ink data; failure/delete/reopen do not recreate decorations. Preserve text, timestamps, selection/focus, recovery behavior and saved run data.
 - Regression: self-talk scrollback and paired reading, divider dragging, pixel dissolve input hold, and retained computer/Challenge navigation still work. Update layout-dependent transition masks if the moved tag/rail changes their exclusion geometry.
 
-Documentation preparation verified the cited code and preserved the drawer source. No runtime implementation or new cloud test run is claimed by this handoff.
+The original documentation-only handoff verified the cited code and preserved the drawer source. The implementation record below supersedes its pending status.
 
 ## Implementation record
 
@@ -90,3 +90,19 @@ read before the in-memory new run had written any save. Original full-target che
 remain in force; no failed assertion was removed to accept the implementation.
 Canonical inventory regeneration is diagnostic only; committed inventories must
 pass a later read-only cloud check before merge.
+
+## Final accepted cloud evidence
+
+Tested revision: `0f26deca7e522d3bffc3e51dc84a5e6e58859f44`.
+[Cloud run 40717838949](https://github.com/Siuuuers/dwm/actions/runs/40717838949) completed successfully: 33 jobs passed,
+including all 28 focused suites, committed public inventories checked read-only,
+native caption discovery/Normal Accept, Windows exported-release startup, Gallery,
+and Linux desktop/dialogue/localization/font rendering. The geometry renderer
+verified 80 captures. The matched startup/Load job was intentionally skipped;
+skipped performance workflows are not acceptance or evidence of a speedup.
+
+The broader renderer's previous On/Off text expectation was updated to verify
+names-only labels, full accessible state and distinct selected background colors.
+An independent review confirmed the inherited font renderer exercises the same
+checks. This final record-only update changes no runtime, test, workflow or inventory
+from the tested revision. PR #147 remains the authority for merge status.
