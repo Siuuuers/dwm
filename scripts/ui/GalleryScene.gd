@@ -93,12 +93,16 @@ func _ensure_artwork_gallery() -> void:
 	add_child(_dialogue)
 	_gallery_tabs = HBoxContainer.new()
 	_gallery_tabs.name = "GalleryTabs"
+	_gallery_tabs.add_theme_constant_override("separation", 24)
 	_gallery_tabs.position = _canvas.position + Vector2(32, 0)
 	add_child(_gallery_tabs)
 	for key: String in ["gallery.tab.records", "gallery.tab.artwork", "gallery.tab.dialogue"]:
 		var button := Button.new()
 		button.text = _localized(key)
 		button.set_meta(&"copy_key", key)
+		button.toggle_mode = true
+		button.button_pressed = key == "gallery.tab." + _active_tab
+		button.theme_type_variation = &"GalleryDarkAction"
 		button.add_theme_font_size_override("font_size", 20)
 		button.pressed.connect(_show_gallery_tab.bind(key.trim_prefix("gallery.tab.")))
 		_gallery_tabs.add_child(button)
@@ -121,8 +125,11 @@ func _refresh_artwork_copy() -> void:
 		button.accessibility_name = button.text
 
 func _show_gallery_tab(tab: String) -> void:
-	if has_active_rehearsal() or (_replay_owner != null and _replay_owner.is_playing()): return
-	_active_tab = tab
+	var blocked := has_active_rehearsal() or (_replay_owner != null and _replay_owner.is_playing())
+	if not blocked: _active_tab = tab
+	for button: Button in _gallery_tabs.get_children():
+		button.set_pressed_no_signal(str(button.get_meta(&"copy_key")) == "gallery.tab." + _active_tab)
+	if blocked: return
 	_canvas.visible = tab == "records"
 	_artwork.visible = tab == "artwork"
 	_dialogue.visible = tab == "dialogue"
@@ -822,16 +829,16 @@ func refresh_return_navigation() -> void:
 		dialogue_sequence.append_array(_dialogue.focus_controls())
 		dialogue_sequence.append(_return_button)
 		var dialogue_tab: Button = _gallery_tabs.get_child(2)
-		var selected_row: Control = _return_button
+		var dialogue_selected_row: Control = _return_button
 		if not _dialogue._rows.is_empty():
 			_dialogue._rows[0].focus_neighbor_top = dialogue_tab.get_path()
 			_dialogue._rows.back().focus_neighbor_bottom = _return_button.get_path()
 			_return_button.focus_neighbor_top = _dialogue._rows.back().get_path()
-			selected_row = _dialogue._scroll.get_node(_dialogue._scroll.focus_neighbor_left)
+			dialogue_selected_row = _dialogue._scroll.get_node(_dialogue._scroll.focus_neighbor_left)
 		else:
 			_return_button.focus_neighbor_top = dialogue_tab.get_path()
 		for tab: Button in _gallery_tabs.get_children():
-			tab.focus_neighbor_bottom = selected_row.get_path()
+			tab.focus_neighbor_bottom = dialogue_selected_row.get_path()
 		for index: int in dialogue_sequence.size():
 			dialogue_sequence[index].focus_previous = dialogue_sequence[posmod(index - 1, dialogue_sequence.size())].get_path()
 			dialogue_sequence[index].focus_next = dialogue_sequence[(index + 1) % dialogue_sequence.size()].get_path()

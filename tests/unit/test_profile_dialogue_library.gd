@@ -5,6 +5,7 @@ const PROFILE := preload("res://autoload/ProfileManager.gd")
 const SCHEMA := preload("res://scripts/profile/ProfileSchema.gd")
 const STORAGE := preload("res://scripts/infrastructure/storage/JsonFileStorage.gd")
 const FILES := preload("res://tests/support/FakeFileOps.gd")
+const JSON_RULES := preload("res://scripts/validation/JsonSchemaValidator.gd")
 
 func before_each() -> void:
 	assert_true(FIXTURE.install().ok)
@@ -103,3 +104,15 @@ func test_write_real_profile_for_fresh_process() -> void:
 	assert_true(profile.initialize(STORAGE.new(root)).ok)
 	assert_true(_read(profile).ok)
 	assert_eq(profile.get_dialogue_library(), FIXTURE.discovery())
+
+func test_machine_schema_accepts_current_discovery_and_omitted_v10_library() -> void:
+	var machine: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://schemas/profile.schema.json"))
+	var profile := SCHEMA.make_defaults()
+	profile.dialogue_library = FIXTURE.discovery()
+	assert_true(JSON_RULES.validate(profile, machine).ok)
+	assert_true(SCHEMA.validate(profile).ok, "library remains independent from Skip history")
+	profile.erase("dialogue_library")
+	assert_true(JSON_RULES.validate(profile, machine).ok, "pre-library v10 documents remain admitted")
+	var normalized: Dictionary = SCHEMA.validate(profile)
+	assert_true(normalized.ok)
+	if normalized.ok: assert_eq(normalized.value.dialogue_library, {"checkpoints": [], "witnesses": {}})
