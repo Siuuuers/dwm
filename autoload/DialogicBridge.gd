@@ -24,6 +24,7 @@ signal scene_art_changed
 signal scene_transition_changed(active: bool)
 signal computer_hold_changed
 signal reading_session_changed
+signal reading_languages_changed
 signal scene_terminal_retired(admission_id: String)
 signal scene_activation_confirmed(operation_id: String)
 signal scene_activation_failed(operation_id: String, result: Dictionary)
@@ -647,6 +648,30 @@ func _ready() -> void:
 	var localization := get_node_or_null("/root/LocalizationManager")
 	if localization != null:
 		localization.locale_changed.connect(_refresh_story_language)
+	var profile := get_node_or_null("/root/ProfileManager")
+	if profile != null:
+		profile.preference_changed.connect(_on_reading_language_preference_changed)
+
+func _on_reading_language_preference_changed(path: StringName, _value: Variant) -> void:
+	if path in [&"preferences.language.secondary_locale_id", &"preferences.language.dual_enabled"]:
+		_self_talk_cache_key.clear()
+		reading_languages_changed.emit()
+
+func _secondary_reading_locale() -> String:
+	var profile := get_node_or_null("/root/ProfileManager")
+	if profile == null or not profile.get_preference(&"preferences.language.dual_enabled", false): return ""
+	return str(profile.get_preference(&"preferences.language.secondary_locale_id", ""))
+
+## Presentation of one native event; neither translation creates a publication.
+func capture_current_bilingual_presentation() -> Dictionary:
+	var line := _story_line()
+	var secondary := _secondary_reading_locale()
+	if line.is_empty():
+		return {"ok": true, "value": {"text": "", "content_locale": _current_locale(),
+			"secondary_text": "", "secondary_locale": "", "dual_enabled": not secondary.is_empty()}}
+	var pair := _STORY_LOCALE.pair(_current_locale(), secondary, line.line_id, line.text)
+	pair["dual_enabled"] = not secondary.is_empty()
+	return {"ok": true, "value": pair}
 
 func _story_line() -> Dictionary:
 	var runtime := get_node_or_null("/root/Dialogic")
@@ -669,7 +694,9 @@ func _refresh_story_language(_locale: String) -> void:
 	# Repaint the same native event; never advance, republish or alter its ledger.
 	_speech_publication.clear()
 	var line := _story_line()
-	if line.is_empty() or not _STORY_LOCALE.catalog("en").has(line.line_id): return
+	if line.is_empty() or not _STORY_LOCALE.catalog("en").has(line.line_id):
+		reading_languages_changed.emit()
+		return
 	var runtime := get_node_or_null("/root/Dialogic")
 	var translated: String = runtime.Text.parse_text(line.text, 0)
 	runtime.current_state_info["text"] = translated
@@ -679,6 +706,7 @@ func _refresh_story_language(_locale: String) -> void:
 		node.text = translated
 		node.visible_ratio = ratio
 		runtime.current_state_info["text_parsed"] = node.get_parsed_text()
+	reading_languages_changed.emit()
 
 
 
@@ -3085,7 +3113,7 @@ func get_ending_caption_memory() -> Dictionary:
 	var frontier := {}
 	if _reading_session.boundary == "line":
 		frontier = {"line_id": rows.back().beat.line_id, "publication_id": rows.back().publication_id}
-	return _STORY_LOCALE.project(_reading_session.project(frontier), _current_locale())
+	return _STORY_LOCALE.project(_reading_session.project(frontier), _current_locale(), _secondary_reading_locale())
 
 
 ## Read-only display reconstruction bound to the renderer's exact live proof.
@@ -3099,7 +3127,7 @@ func get_scene_caption_memory(expected_presentation: Dictionary) -> Dictionary:
 	if not projected.ok: return projected
 	projected.value.captions = projected.value.captions.filter(func(row: Dictionary) -> bool: return not row.get("self_talk", false))
 	projected.value["presentation"] = current.duplicate(true)
-	return _STORY_LOCALE.project(projected, _current_locale())
+	return _STORY_LOCALE.project(projected, _current_locale(), _secondary_reading_locale())
 
 
 var _self_talk_cache_key: Array = []
@@ -3114,12 +3142,12 @@ func capture_self_talk_presentation() -> Dictionary:
 		return {"ok": true, "value": {"rows": [], "live_start": 0, "current_thought": "", "current_thought_id": ""}}
 	var captured: Dictionary = _runtime_adapter.capture_reading_frontier()
 	if not captured.ok: return captured
-	var key: Array = [_reading_session.get_instance_id(), captured.value, _current_locale()]
+	var key: Array = [_reading_session.get_instance_id(), captured.value, _current_locale(), _secondary_reading_locale()]
 	if key == _self_talk_cache_key: return _self_talk_cache
 	var projected: Dictionary = _reading_session.project_self_talk(captured.value)
 	if not projected.ok: return projected
 	for row: Dictionary in projected.value.rows:
-		row.text = _STORY_LOCALE.text(_current_locale(), row.id, row.text)
+		row.merge(_STORY_LOCALE.pair(_current_locale(), _secondary_reading_locale(), row.id, row.text), true)
 	projected.value.current_thought = _STORY_LOCALE.text(_current_locale(),
 		projected.value.current_thought_id, projected.value.current_thought)
 	_self_talk_cache_key = key
@@ -3140,7 +3168,7 @@ func get_reading_history() -> Dictionary:
 	var history: Dictionary = _scene_day_history(frontier) if _reading_session.family == "scene" else _reading_session.project(frontier)
 	if history.ok and _reading_session.family == "scene":
 		history.value.captions = history.value.captions.filter(func(row: Dictionary) -> bool: return not row.get("self_talk", false))
-	return _STORY_LOCALE.project(history, _current_locale())
+	return _STORY_LOCALE.project(history, _current_locale(), _secondary_reading_locale())
 
 
 ## History and caption scrolling share the same bounded encountered-ID projection.

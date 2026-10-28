@@ -125,7 +125,7 @@ func test_history_is_plain_opaque_caption_projection_with_two_focus_anchors() ->
 				"display styling preserves literal caption text, including markup-like brackets")
 			assert_eq(row.get_theme_constant(&"outline_size"), 0, "Dating text outline does not leak into History")
 	assert_eq(labels, 3, "only public captions enter the ledger")
-	assert_false(history.present([{"text": "Private source structure"}]))
+	assert_false(history.present([{}]))
 	assert_eq(history.get_captions().size(), 3, "malformed publication changes nothing")
 	history.dismiss()
 	assert_false(history.visible)
@@ -313,3 +313,28 @@ func test_next_completion_requires_exact_source_and_current_callback_generation(
 	assert_true(fixture.host.completed[0].retry)
 	fixture.bridge.next_request_finished.emit(fixture.request.frontier, fixture.bridge.result)
 	assert_eq(fixture.host.completed.size(), 1, "the terminal notification cannot be consumed twice")
+
+func test_history_pairs_languages_with_one_event_separator_and_preserves_source() -> void:
+	var history := HISTORY.new()
+	add_child_autofree(history)
+	assert_true(history.configure(THEME.build("en", 100, "AfterHours"), _localization, _input_owner, _admission.is_admitted))
+	var source := [{"text": "TEST primary caption.", "content_locale": "en",
+		"secondary_text": "測試副語言對白。", "secondary_locale": "zh_HK"},
+		{"text": "TEST later caption.", "content_locale": "en",
+		"secondary_text": "", "secondary_locale": ""}]
+	var before := source.duplicate(true)
+	assert_true(history.present(source))
+	assert_eq(history.get_captions(), ["TEST primary caption.", "TEST later caption."])
+	assert_eq(source, before)
+	var primary: RichTextLabel = history._rows.get_node("Caption0")
+	var secondary: RichTextLabel = history._rows.get_node("Secondary0")
+	assert_eq(primary.language, "en")
+	assert_eq(secondary.language, "zh-HK")
+	assert_eq(secondary.get_parsed_text(), source[0].secondary_text)
+	assert_eq(secondary.focus_mode, Control.FOCUS_NONE)
+	assert_same(secondary.get_theme_font("normal_font"), preload("res://scripts/ui/UiTypography.gd").story_font("zh_HK", 100))
+	assert_null(history._rows.get_node_or_null("Secondary1"))
+	var separators := 0
+	for child: Node in history._rows.get_children():
+		if child is HSeparator: separators += 1
+	assert_eq(separators, 1, "translations are presentations of one event")

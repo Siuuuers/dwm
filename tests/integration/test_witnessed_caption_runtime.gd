@@ -2182,3 +2182,54 @@ func test_self_talk_review_pauses_pending_effect_with_caption_visible() -> void:
 	assert_eq(effects, ["entered", "resumed"])
 	assert_eq(runtime.current_event_idx, before.event)
 	assert_eq(_history(), before.history)
+
+func test_dual_caption_pair_shares_native_reveal_and_keeps_current_pair_only() -> void:
+	if not _mount(): return
+	runtime.start(_timeline("Synthetic primary caption still revealing."))
+	await _settle()
+	caption.caption_text.set_process(false)
+	var before := _history()
+	caption.set("_dual_enabled", true)
+	caption.set("_bilingual", {"text": caption.caption_text.get_parsed_text(), "content_locale":"en",
+		"secondary_text":"這是長度不同的測試翻譯。", "secondary_locale":"zh_HK", "dual_enabled":true})
+	assert_true(caption.reproject_retained_captions(["Older synthetic caption.", "Previous synthetic caption."]))
+	caption.call("_layout_stack")
+	caption.caption_text.visible_ratio = 0.5
+	caption.call("_sync_secondary_reveal")
+	assert_almost_eq(caption.secondary_caption.visible_ratio, caption.caption_text.visible_ratio, 0.001)
+	assert_eq(caption.get_caption_projection().caption_window, [caption.caption_text.get_parsed_text()])
+	assert_false(caption.older.visible)
+	assert_false(caption.previous.visible)
+	assert_true(caption.secondary_caption.visible)
+	assert_eq(caption.secondary_caption.language, "zh-HK")
+	assert_lte(caption.caption_text.position.y + caption.caption_text.size.y, caption.secondary_caption.position.y)
+	caption.caption_text.finish_text()
+	assert_eq(caption.secondary_caption.visible_ratio, 1.0)
+	assert_eq(runtime.current_event_idx, 0)
+	assert_eq(_history(), before)
+	caption.set("_dual_enabled", false)
+	caption.call("_layout_stack")
+	assert_false(caption.secondary_caption.visible)
+	assert_eq(caption.get_caption_projection().caption_window.size(), 3)
+
+func test_long_dual_caption_preserves_all_text_in_bounded_viewport() -> void:
+	if not _mount(): return
+	runtime.start(_timeline("Synthetic primary caption."))
+	await _settle()
+	caption.caption_text.finish_text()
+	var copy := "Long synthetic translated wording remains available through the existing scroll viewport. ".repeat(24)
+	caption.set("_dual_enabled", true)
+	caption.set("_bilingual", {"text": caption.caption_text.get_parsed_text(), "content_locale":"en",
+		"secondary_text":copy, "secondary_locale":"en", "dual_enabled":true})
+	for percent: int in [100, 125, 150]:
+		assert_true(caption.configure_presentation("en", percent, "AfterHours"))
+		caption.call("_layout_stack", true)
+		await _settle()
+		var projected: Dictionary = caption.get_caption_projection()
+		assert_eq(caption.secondary_caption.get_parsed_text(), copy)
+		assert_gt(projected.scroll_extent, 0.0)
+		assert_eq(projected.field_rect.end.y, float(TRANSPORT_RAIL.BAR_TOP))
+		caption.get_scroll_bar().value = caption.get_scroll_bar().max_value
+		await _settle()
+		var secondary_bottom: float = caption.scroll.position.y + caption.secondary_caption.position.y + caption.secondary_caption.size.y - caption.get_scroll_bar().value
+		assert_almost_eq(secondary_bottom, float(TRANSPORT_RAIL.BAR_TOP), 2.0)

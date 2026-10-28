@@ -46,3 +46,31 @@ The native test covers actual captions, live switching, History, all bundled
 font sizes/styles, unchanged checkpoints/receipts and save/load. With a graphical
 display it also captures one enlarged-caption screenshot per translated locale.
 Translations are authored drafts, not a claim of independent native-editor review.
+
+## Simultaneous reading projections
+
+Primary and Secondary use these same catalogues. `StoryLocalization.pair` resolves
+one stable ID into `text`/`content_locale` and optional
+`secondary_text`/`secondary_locale`. The actual content locale follows the text:
+a missing Primary falls back to English; missing Secondary is omitted. English
+source can serve as Secondary, but a Primary that already fell back to English
+never repeats it. Turning dual mode off passes an empty Secondary locale.
+Translations do not allocate publications, witnesses, choices or history entries.
+
+To author a replacement caption or thought, keep its explicit DTL `#id:line.*`
+identity, update the corresponding English catalogue value, then add its translated
+values under that same ID. A thought is a native `# self-talk` attachment with its
+own line ID; do not pair translations by row position. Choice labels use
+`choice.<opportunity_id>.<choice_id>` from their existing authored option binding.
+Different variants with different meaning need distinct semantic IDs, even when
+the English prose happens to match. A changed source that no longer matches the
+English catalogue displays its new source until the catalogue is updated; it does
+not select a stale translation.
+
+Run the existing cloud registration export after changing DTL or option bindings,
+then the catalogue validation and reading tests in a fresh process. The generated
+History and Gallery projections consume those identities and source text; do not
+copy prose into a separate library catalogue. Cached translation files load once
+per process, with no source-file scan per caption. The synthetic unit samples in
+`test_story_bilingual_projection.gd` prove pairing across all registered writing
+systems and missing translations; they are not production translation approval.

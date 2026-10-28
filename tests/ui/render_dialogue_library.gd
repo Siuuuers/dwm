@@ -155,6 +155,28 @@ func test_rendered_gallery_keeps_unread_shape_fixed_and_browsing_read_only() -> 
 			assert_eq(files.snapshot_persisted(), bytes, "opening, tabs, scrolling and requirements have no persistence writes")
 			assert_eq(DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path("res://.godot/ci")), OK)
 			assert_eq(viewport.get_texture().get_image().save_png("res://.godot/ci/dialogue-library-%s-%d.png" % [locale, percent]), OK)
+	assert_true(localization.set_locale("en").ok)
+	assert_true(profile.set_preference(&"preferences.language.secondary_locale_id", "zh_HK").ok)
+	assert_true(profile.set_preference(&"preferences.language.dual_enabled", true).ok)
+	for percent: int in [100, 125, 150]:
+		assert_true(profile.set_preference(&"preferences.accessibility.text_size", percent).ok)
+		await _settle()
+		var languages: Array[String] = []
+		for label: Label in library._paper.get_children():
+			if label.text in ["TEST read caption.", "測試已讀對白。"]:
+				languages.append(label.language)
+				assert_lte(label.get_minimum_size().x, library._scroll.size.x)
+				assert_eq(label.accessibility_name, label.text)
+		assert_eq(languages, ["en", "zh-HK"], "Primary precedes Secondary in reading order")
+		_assert_hidden(gallery)
+		var discovery_before: Dictionary = profile.get_dialogue_library()
+		library.refresh()
+		assert_eq(profile.get_dialogue_library(), discovery_before)
+		assert_eq(viewport.get_texture().get_image().save_png("res://.godot/ci/dialogue-library-dual-%d.png" % percent), OK)
+	assert_true(profile.set_preference(&"preferences.language.dual_enabled", false).ok)
+	await _settle()
+	for label: Label in library._paper.get_children():
+		assert_ne(label.text, "測試已讀對白。", "turning dual off removes Secondary without changing discovery")
 	gallery._show_gallery_tab("records")
 	assert_true(profile.reset_dialogue_library().ok)
 	assert_eq(library._rows.size(), 1, "hidden library skips rebuilding during Profile publication")
@@ -170,7 +192,7 @@ func test_rendered_gallery_keeps_unread_shape_fixed_and_browsing_read_only() -> 
 	assert_true(profile.is_caption_variant_witnessed(beat))
 	library.refresh()
 	assert_eq(library._rows.size(), 0, "old Skip history cannot refill a reset library")
-	print("DIALOGUE_LIBRARY_RENDER_COMPLETED captures=4")
+	print("DIALOGUE_LIBRARY_RENDER_COMPLETED captures=7")
 
 func _assert_hidden(node: Node) -> void:
 	if node is Label or node is Button:

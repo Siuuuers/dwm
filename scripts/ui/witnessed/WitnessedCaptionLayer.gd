@@ -12,6 +12,10 @@ const PROFILE_COLOUR_PRESETS := {
 }
 
 var self_talk: SELF_TALK
+var secondary_caption: RichTextLabel
+var _dual_enabled := false
+var _bilingual: Dictionary = {}
+var _paired_scrollback: Array = []
 
 var _locale := "en"
 var _text_percent := 100
@@ -119,6 +123,8 @@ func _ready() -> void:
 	caption_text.gui_input.connect(_on_caption_input)
 	caption_text.visibility_changed.connect(_on_caption_visibility_changed)
 	caption_text.started_revealing_text.connect(_sync_native_processing)
+	caption_text.continued_revealing_text.connect(func(_character: String) -> void: _sync_secondary_reveal())
+	caption_text.finished_revealing_text.connect(_sync_secondary_reveal)
 	caption_text.focus_entered.connect(caption_text.queue_redraw)
 	caption_text.focus_exited.connect(caption_text.queue_redraw)
 	background_input.gui_input.connect(_on_background_input)
@@ -126,6 +132,15 @@ func _ready() -> void:
 	stack.gui_input.connect(_on_passive_input.bind(stack))
 	canvas.draw.connect(_draw_canvas)
 	get_scroll_bar().focus_mode = Control.FOCUS_NONE
+	secondary_caption = RichTextLabel.new()
+	secondary_caption.name = "SecondaryCaption"
+	secondary_caption.bbcode_enabled = true
+	secondary_caption.scroll_active = false
+	secondary_caption.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	secondary_caption.focus_mode = Control.FOCUS_NONE
+	secondary_caption.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	secondary_caption.hide()
+	stack.add_child(secondary_caption)
 	for leaf: RichTextLabel in [older, previous, review_current, caption_text]:
 		leaf.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	self_talk = SELF_TALK.new()
@@ -143,7 +158,10 @@ func _ready() -> void:
 	transport_rail.bind_localization(_localization)
 	if _profile != null and _profile.has_signal("preference_changed"):
 		_profile.connect("preference_changed", _on_preference_changed)
-	if _localization != null and _localization.has_signal("locale_changed"):
+	var language_bridge := get_node_or_null("/root/DialogicBridge")
+	if language_bridge != null and language_bridge.has_signal("reading_languages_changed"):
+		language_bridge.connect("reading_languages_changed", _on_reading_languages_changed)
+	elif _localization != null and _localization.has_signal("locale_changed"):
 		_localization.connect("locale_changed", _on_locale_changed)
 	var run_owner: Object = _run_owner if is_instance_valid(_run_owner) else get_node_or_null("/root/GameState")
 	_apply_preferences()
@@ -571,10 +589,7 @@ func _on_history_requested() -> void:
 	var history: Dictionary = _transport_bridge.call("get_reading_history")
 	if not history.get("ok", false): return
 	var source: Dictionary = history.value
-	var captions: Array[String] = []
-	for row: Variant in source.get("captions", []):
-		if not row is Dictionary or typeof(row.get("text")) != TYPE_STRING or String(row.text).strip_edges().is_empty(): return
-		captions.append(row.text)
+	var captions: Array = source.get("captions", [])
 	if captions.is_empty(): return
 	_history_source = {"session_id": source.session_id, "frontier": source.frontier.duplicate(true)}
 	var focused := get_viewport().gui_get_focus_owner()
@@ -625,6 +640,7 @@ func _on_reading_session_changed() -> void:
 
 func _refresh_reading_session() -> void:
 	if not is_inside_tree(): return
+	_refresh_bilingual_caption()
 	_refresh_self_talk()
 	if not _ending_caption_handoff and _project_ending_caption_memory(): _layout_stack()
 	if not is_instance_valid(_transport_bridge) or not _transport_bridge.has_method("capture_current_line_presentation_frontier"): return
@@ -1179,6 +1195,7 @@ func configure_presentation(locale: String = "en", text_percent: int = 100, pale
 	_large_targets = large_targets
 	_caption_theme = next_theme
 	_layout_self_talk()
+	_apply_story_fonts()
 	_configure_speech_status()
 	_configure_history_presentation()
 	if is_instance_valid(canvas):
@@ -1212,6 +1229,7 @@ func reset_caption_stack() -> void:
 	_presented_line.clear()
 	_retained.clear()
 	_scrollback.clear()
+	_paired_scrollback.clear()
 	_review_offset = 0
 	if is_instance_valid(accept_input): accept_input.set_review_caption(null)
 	if was_reviewing and is_instance_valid(caption_text) and not caption_text.get_parsed_text().is_empty():
@@ -1251,6 +1269,7 @@ func _project_ending_caption_memory() -> bool:
 	if not projected.get("ok", false): return false
 	var rows: Array = projected.value.captions
 	if rows.is_empty() or rows.back().text != caption_text.get_parsed_text(): return false
+	_paired_scrollback = rows.slice(0, rows.size() - 1)
 	_ending_caption_session = projected.value.session_id
 	_ending_caption_handoff = false
 	_retained.clear()
@@ -1274,6 +1293,7 @@ func _project_scene_caption_memory() -> bool:
 	var preceding: Array = []
 	for index: int in range(rows.size() - 1): preceding.append(rows[index].text)
 	if not reproject_retained_captions(preceding, true): return false
+	_paired_scrollback = rows.slice(0, rows.size() - 1)
 	_scene_caption_memory = memory.duplicate(true)
 	return true
 
@@ -1306,7 +1326,7 @@ func get_caption_projection() -> Dictionary:
 	var visible_leaves: Array[Rect2] = []
 	var timed_hold := not _timed_hold_frontier.is_empty()
 	if mounted and not timed_hold:
-		for leaf: RichTextLabel in [older, previous, review_current, caption_text]:
+		for leaf: RichTextLabel in [older, previous, review_current, caption_text, secondary_caption]:
 			if not leaf.visible or leaf.get_parsed_text().is_empty():
 				continue
 			var rect := _leaf_rect(leaf)
@@ -1316,6 +1336,9 @@ func get_caption_projection() -> Dictionary:
 				visible_leaves.append(visible_rect)
 	var current_rect := _leaf_rect(caption_text) if mounted and not timed_hold else Rect2()
 	return {
+		"dual_enabled": _dual_enabled, "secondary_text": secondary_caption.get_parsed_text() if mounted else "",
+		"secondary_visible_ratio": secondary_caption.visible_ratio if mounted else 0.0,
+		"secondary_locale": secondary_caption.language if mounted else "",
 		"locale": _locale, "text_percent": _text_percent, "palette": _palette, "day": _day,
 		"high_contrast": _high_contrast, "colour_preset": _colour_preset,
 		"large_targets": _large_targets,
@@ -1374,6 +1397,7 @@ func _on_text_started(info: Dictionary) -> void:
 			_retained.pop_front()
 	# Only already-parsed display text crosses this seam; never character/portrait data.
 	_current_copy = caption_text.get_parsed_text()
+	_refresh_bilingual_caption()
 	_review_offset = 0
 	accept_input.set_review_caption(null)
 	_layout_stack(true)
@@ -1458,6 +1482,45 @@ func _apply_preferences() -> void:
 		return
 	configure_presentation(locale, int(text_size), _palette, high_contrast, colour_preset, large_targets, _day, font_style)
 
+func _on_reading_languages_changed() -> void:
+	_refresh_bilingual_caption()
+	_on_locale_changed(_locale)
+	if _history_open:
+		var history: Dictionary = _transport_bridge.get_reading_history()
+		if history.get("ok", false): _history_overlay.present(history.value.captions)
+
+func _refresh_bilingual_caption() -> void:
+	var bridge: Object = _transport_bridge if is_instance_valid(_transport_bridge) else get_node_or_null("/root/DialogicBridge")
+	if bridge == null or not bridge.has_method("capture_current_bilingual_presentation"): return
+	var projected: Dictionary = bridge.capture_current_bilingual_presentation()
+	if not projected.get("ok", false): return
+	_bilingual = projected.value
+	var was_dual := _dual_enabled
+	_dual_enabled = bool(_bilingual.get("dual_enabled", false))
+	if was_dual != _dual_enabled and _review_offset > 0: _set_review_offset(0)
+	_apply_story_fonts()
+	_request_layout()
+
+func _apply_story_fonts() -> void:
+	if not is_instance_valid(secondary_caption) or _caption_theme == null: return
+	var row := _bilingual
+	if _review_offset > 0 and not _paired_scrollback.is_empty():
+		row = _paired_scrollback[clampi(_paired_scrollback.size() - _review_offset, 0, _paired_scrollback.size() - 1)]
+	var primary: RichTextLabel = review_current if _review_offset > 0 else caption_text
+	for item: Dictionary in [{"leaf": primary, "locale": row.get("content_locale", _locale)},
+			{"leaf": secondary_caption, "locale": row.get("secondary_locale", _locale)}]:
+		var locale: String = item.locale if not str(item.locale).is_empty() else _locale
+		var font := CAPTION_THEME.TYPOGRAPHY.story_font(locale, _text_percent, _font_style)
+		item.leaf.language = locale.replace("_", "-")
+		for role: StringName in [&"normal_font", &"bold_font", &"italics_font", &"bold_italics_font", &"mono_font"]:
+			if item.leaf.get_theme_font(role) != font: item.leaf.add_theme_font_override(role, font)
+	var secondary_text: String = preload("res://scripts/localization/StoryLocalization.gd").display_markup(str(row.get("secondary_text", ""))) if _dual_enabled else ""
+	if secondary_caption.text != secondary_text: secondary_caption.text = secondary_text
+
+func _sync_secondary_reveal() -> void:
+	if not is_instance_valid(secondary_caption): return
+	secondary_caption.visible_ratio = caption_text.visible_ratio if _review_offset == 0 else 1.0
+
 func _on_locale_changed(_locale_id: String) -> void:
 	# Localization repaints the same native text and advances its reveal generation.
 	# Keep Pause's view anchor current only while the captured source still owns it.
@@ -1482,6 +1545,7 @@ func _on_preference_changed(path: StringName, _value: Variant) -> void:
 
 func _process(_delta: float) -> void:
 	_sync_timed_hold_projection()
+	_sync_secondary_reveal()
 	if not _scene_transition_held() and (_speech_pending or not _speech_source.is_empty()) and not _speech_admitted(): _cancel_speech()
 	if not _reading_recovery.is_empty() and not _reading_request_matches(_reading_recovery):
 		_dismiss_reading_recovery(false)
@@ -1520,6 +1584,7 @@ func _layout_stack(publication: bool = false, desired_scroll: float = -1.0) -> v
 	scroll.position = Vector2(16, FIELD_TOP[_text_percent])
 	scroll.size = Vector2(1248, FIELD_BOTTOM - FIELD_TOP[_text_percent])
 	var window := _caption_window()
+	_apply_story_fonts()
 	for retained: RichTextLabel in [older, previous, review_current]:
 		retained.bbcode_enabled = true
 	older.text = window[0] if window.size() == 3 else ""
@@ -1530,8 +1595,10 @@ func _layout_stack(publication: bool = false, desired_scroll: float = -1.0) -> v
 	older.visible = _has_caption() and window.size() == 3
 	previous.visible = _has_caption() and window.size() >= 2
 	review_current.visible = _has_caption() and _review_offset > 0
+	secondary_caption.visible = _has_caption() and _dual_enabled and not secondary_caption.text.is_empty()
+	_sync_secondary_reveal()
 	var leaves: Array[RichTextLabel] = []
-	for leaf: RichTextLabel in [older, previous, review_current, caption_text]:
+	for leaf: RichTextLabel in [older, previous, review_current, caption_text, secondary_caption]:
 		if leaf.visible and not leaf.get_parsed_text().is_empty():
 			leaves.append(leaf)
 	var width := 1248.0
@@ -1593,8 +1660,8 @@ func _restore_scroll(generation: int, value: float, publication: bool) -> void:
 		return
 	if (publication or _publication_pending) and _has_caption():
 		var top := caption_text.position.y
-		var bottom := top + caption_text.size.y
-		if caption_text.size.y > scroll.size.y or top < value:
+		var bottom := secondary_caption.position.y + secondary_caption.size.y if secondary_caption.visible else top + caption_text.size.y
+		if bottom - top > scroll.size.y or top < value:
 			value = top
 		elif bottom > value + scroll.size.y:
 			value = bottom - scroll.size.y
@@ -1671,6 +1738,10 @@ func _handle_input(event: InputEvent, current: bool, source_control: Control = n
 	scroll.accept_event()
 
 func _caption_window() -> Array[String]:
+	if _dual_enabled:
+		if _review_offset > 0:
+			return [_scrollback[_scrollback.size() - _review_offset]]
+		return [caption_text.get_parsed_text()] if is_instance_valid(caption_text) and not caption_text.get_parsed_text().is_empty() else []
 	if _review_offset == 0:
 		var result := _retained.duplicate()
 		if is_instance_valid(caption_text) and not caption_text.get_parsed_text().is_empty():
@@ -1680,7 +1751,7 @@ func _caption_window() -> Array[String]:
 	return _scrollback.slice(maxi(0, end - 2), end + 1)
 
 func _set_review_offset(value: int) -> void:
-	var next := clampi(value, 0, maxi(0, _scrollback.size() - 2))
+	var next := clampi(value, 0, maxi(0, _scrollback.size() if _dual_enabled else _scrollback.size() - 2))
 	if next == _review_offset: return
 	if _review_offset == 0: _live_scroll = get_scroll_bar().value
 	_review_offset = next
@@ -1740,7 +1811,7 @@ func _layout_self_talk() -> void:
 	if is_instance_valid(_dating_split_surface): panel_width = _dating_split_surface.get_portrait_width()
 	self_talk.position = Vector2(16, 16)
 	var pane_name: String = _localization.t("witnessed.self_talk.name") if is_instance_valid(_localization) else ""
-	self_talk.configure(_caption_theme, maxf(32, panel_width - 48), _self_talk_input_admitted, pane_name)
+	self_talk.configure(_caption_theme, maxf(32, panel_width - 48), _self_talk_input_admitted, pane_name, _dual_enabled, _text_percent, _font_style)
 
 func _refresh_self_talk() -> void:
 	if not is_instance_valid(self_talk) or not is_instance_valid(_transport_bridge) or not _transport_bridge.has_method("capture_self_talk_presentation"): return

@@ -20,11 +20,28 @@ static func has_translation(locale: String, line_id: String, source: String) -> 
 static func text(locale: String, line_id: String, source: String) -> String:
 	return str(catalog(locale)[line_id]) if has_translation(locale, line_id, source) else source
 
-static func project(result: Dictionary, locale: String) -> Dictionary:
+## A source fallback is English even when the requested presentation locale differs.
+static func resolve(locale: String, line_id: String, source: String) -> Dictionary:
+	var translated := has_translation(locale, line_id, source)
+	return {"text": str(catalog(locale)[line_id]) if translated else source,
+		"content_locale": locale if translated else "en"}
+
+## Both rows describe one semantic line. Missing Secondary never copies Primary.
+static func pair(primary: String, secondary: String, line_id: String, source: String) -> Dictionary:
+	var result := resolve(primary, line_id, source)
+	result["secondary_text"] = ""
+	result["secondary_locale"] = ""
+	if not secondary.is_empty() and secondary != result.content_locale \
+			and (secondary == "en" or has_translation(secondary, line_id, source)):
+		result.secondary_text = text(secondary, line_id, source)
+		result.secondary_locale = secondary
+	return result
+
+static func project(result: Dictionary, locale: String, secondary: String = "") -> Dictionary:
 	if not result.get("ok", false): return result
 	var copy := result.duplicate(true)
 	for row: Dictionary in copy.get("value", {}).get("captions", []):
-		row.text = text(locale, str(row.get("line_id", "")), str(row.text))
+		row.merge(pair(locale, secondary, str(row.get("line_id", "")), str(row.text)), true)
 	return copy
 
 ## Keep the combining marks in parsed text (and save comparisons), but draw the
