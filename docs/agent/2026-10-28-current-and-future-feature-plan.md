@@ -1,6 +1,6 @@
 # Current and future feature plan
 
-Updated: 28 October 2026, Hong Kong time.
+Updated: 29 October 2026, Hong Kong time.
 
 This is the owner's current feature-selection record for Siuuuers/dwm.
 Implementation priority is **2 → 3 → 9 → 1**: self-talk, its History integration,
@@ -15,6 +15,25 @@ The PR records final export/UI acceptance and merge status.
 Pixel transitions are complete in [PR #142](https://github.com/Siuuuers/dwm/pull/142),
 accepted by [run 40650052235](https://github.com/Siuuuers/dwm/actions/runs/40650052235).
 
+
+## Current status and next session — October 29
+
+The owner reports the essential feature pass complete. PRs #147 and #148 are confirmed merged; reviewed master is `5a065a155b573d2a8502f2c9c84bb97547d7bba2`. Existing linked cloud records establish their acceptance; this documentation update runs no new runtime tests.
+
+| Completed scope | Record |
+| --- | --- |
+| Self-talk, paired reading/History, panel scrollback, divider dragging, initial bottom controls and Skip all fix | PR #140 |
+| Replacement Shop catalogue, three one-per-run purchases and initial procedural decorations | PR #141 |
+| Explicit DTL pixel dissolve and input hold | PR #142 |
+| Production playtest thought bindings, thought choices and computer navigation corrections | PR #145; temporary thought classification is not final authoring |
+| Remove save ink; seven evenly spaced controls; direct computer Settings; compact Skip/Auto; visible disabled labels under computer | PR #147 |
+| Final computer tag attached to Save while preserving dialogue bottom at y612 | PR #148; supersedes earlier row-to-tag-top alignment |
+
+**Next: read-only dialogue library inside Gallery (ID 12).** Use the [new implementation handoff](2026-10-29-gallery-dialogue-library-handoff.md), including the October 29 interview and CI efficiency requirements. Include paired self-talk; show all requirements through choice actions/consequences and Challenge results. Use a separate library reset. No speculative migration for an unshipped game. Mask appearance still awaits clarification. Sample checkpoints first; production placement remains deferred.
+
+**Cosmetic polish remains open:** the owner finds the crystal stutters, inked silk string and wax-sealed letter effects too simple and insufficiently expressive of the intended procedural design. Their purchase/ownership implementation is complete; their visual finish is not accepted as final. Keep this separate from the library implementation; inspect code and screenshots before proposing the next visual treatment.
+
+Older sections retain original implementation requirements and evidence. Where they say six controls, active save ink, above-bar caret or dialogue-to-tag alignment, the completed amendments above take precedence.
 
 ## Latest amendment: ink retirement and seven-command bottom bar
 
@@ -51,7 +70,7 @@ Numbers retain the audit's identifiers so later discussions can refer to them.
 | 9 | Replacement Shop catalogue | Implemented in PR #141. Three new items each have a cap of one per run; see PR for final acceptance. |
 | 10 | Purchases unlocking nine per-run notes | Future work, deferred further. Do not wire note unlocks into the next Shop change. |
 | 11 | Owned-keepsake ambient sounds | Future work. |
-| 12 | Read-only dialogue library in Gallery | Future work; preserve the settled design below. |
+| 12 | Read-only dialogue library in Gallery | Next implementation target; see October 29 handoff and interview decisions. |
 | 13 | Production named checkpoints and overlay bindings | Future authoring. Existing engine support stays. |
 | 14 | Second sustained route and second ending | Future story work. |
 | 15 | Simultaneous two-language captions and History | Future work. |
@@ -246,7 +265,7 @@ Reuse a single progress controller and shader/rank mask if appropriate.
 Keep visual randomness separate from gameplay RNG. Do not create thousands of
 individual cell nodes.
 
-## Preserved future Gallery library design
+## Gallery library design — next implementation target
 
 This is separate from the per-run Notes app:
 
@@ -259,6 +278,8 @@ This is separate from the per-run Notes app:
 - Map choice/Challenge labels to localized condition descriptions.
 - Show all required conditions and preserve actual AND/OR relationships.
 - Use sample checkpoints first; author production placements later.
+
+October 29 additions: include paired self-talk, describe all conditions through actions/consequences, and provide an independent library-only reset. See the handoff for ownership/reset implications and the pending mask choice.
 
 Checkpoint discovery and individual line discovery are separate facts.
 A destination label alone may not encode the full path condition.
