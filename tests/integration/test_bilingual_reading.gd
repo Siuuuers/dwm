@@ -48,8 +48,18 @@ func test_native_pair_settings_missing_translation_and_current_profile_load() ->
 	# Each change uses the actual Settings owner while the caption is held.
 	for pair: Array in [["en", "zh_HK"], ["zh_HK", "en"], ["ja", "ko"], ["ko", "zh_CN"]]:
 		if not _ok(await pause.open_scene_settings()): return
-		var controller: Object = pause.surface._hosts[&"settings"].get_content_host().get_controller()
+		var content: Control = pause.surface._hosts[&"settings"].get_content_host()
+		content.select_category("language")
+		var controller: Object = content.get_controller()
+		for path: StringName in [&"preferences.language.primary_locale_id", &"preferences.language.dual_enabled", &"preferences.language.secondary_locale_id"]:
+			assert_true(controller._controls.has(path), "player can configure " + str(path))
+			if not controller._controls.has(path): return
+		if not _ok(await controller.commit_preference(&"preferences.language.dual_enabled", false)): return
+		assert_true(controller._controls[&"preferences.language.secondary_locale_id"].disabled)
+		if not _ok(await controller.commit_preference(&"preferences.language.dual_enabled", true)): return
+		assert_false(controller._controls[&"preferences.language.secondary_locale_id"].disabled)
 		if not _ok(await controller.commit_preference(&"preferences.language.primary_locale_id", pair[0])): return
+		for frame: int in 3: await get_tree().process_frame
 		if not _ok(await controller.commit_preference(&"preferences.language.secondary_locale_id", pair[1])): return
 		for frame: int in 3: await get_tree().process_frame
 		assert_eq(bridge.capture_current_bilingual_presentation().value.secondary_locale, pair[1])

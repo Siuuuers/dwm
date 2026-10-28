@@ -103,3 +103,34 @@ PR #149 already introduced blobless sparse coverage-selection checkout; preserve
 ## Next session sequence
 
 Inspect existing translation/content owners and real translation availability; choose the minimal stable-identity adapter. Implement preference-driven projection, then live pairs and choices, then History/library integration. Verify cloud behavior and screenshots before marking complete. Update the feature plan and this handoff with exact evidence and remaining translation coverage. No further owner interview is required for the choices settled above; ask only if source inspection reveals a material design conflict.
+
+## Implementation record — PR #151
+
+The existing `StoryLocalization` cached catalogue is the display adapter. Its
+`resolve`/`pair` projection retains the English source comparison and adds actual
+content-locale metadata plus an optional Secondary. Native Dialogic translation
+remains disabled: there is one source timeline, publication, choice and witness.
+No runtime DTL scan or parallel translation framework was introduced.
+
+`DialogicBridge` publishes reading-language changes and projects existing caption,
+History and thought identities. Live Secondary follows the native reveal fraction
+and completion signals; the native Primary remains the speech source and the sole
+Auto/Advance gate. Caption pairs occupy the existing bounded viewport above the
+bar. Dual self-talk retains the latest thought pair with bounded scrolling;
+single-language mode retains its three-row window. Each translated choice is one
+button with two locale-specific labels and the existing horizontal scrolling.
+
+History retains its existing caption-event membership; thought scrollback remains
+in the self-talk panel. Gallery resolves prose only after the exact variant is
+unlocked, then renders its available pair. Conditions and labels stay in the UI
+language. Production checkpoint bindings/catalogue population remain deferred.
+
+The current authored-week catalogues contain matching keys for 1,666 caption and
+thought IDs plus 16 choice labels in each of `zh_HK`, `zh_CN`, `ja` and `ko`.
+The Python source/catalogue validator verified keys, names, NFC and plain text.
+These are authored drafts, not independently reviewed translations. Synthetic
+fixtures exercise additional pairing, missing translations and long-text cases.
+See `localization/story/README.md` for the edit/export authoring loop.
+
+Cloud acceptance is still in progress. Do not treat this implementation record as
+an accepted runtime or translation-quality result until the evidence below is filled.

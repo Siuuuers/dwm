@@ -284,6 +284,9 @@ func _refresh_thought_options(options: Array) -> void:
 		button.add_theme_font_override("font", TYPOGRAPHY.story_font(pair.content_locale, percent, font_style))
 		button.custom_minimum_size = Vector2(0, 52)
 		button.size_flags_vertical = Control.SIZE_EXPAND_FILL
+		# Label minimum sizes are available only after entering the tree. Mount
+		# before measuring the pair so its full text also owns the hit rectangle.
+		column.add_child(button)
 		if not pair.secondary_text.is_empty():
 			button.text = ""
 			# The two locale-tagged labels name one actionable option.
@@ -315,7 +318,6 @@ func _refresh_thought_options(options: Array) -> void:
 			paired_height = maxf(paired_height, button.custom_minimum_size.y + 18)
 		# Each visible button owns the presentation proof it was created for.
 		button.pressed.connect(_select_thought.bind(str(option.choice_id), _thought_frontier.duplicate(true)))
-		column.add_child(button)
 	if is_instance_valid(_thought_panel):
 		_thought_panel.set_choice_row_height(paired_height)
 		_layout_thought_controls()

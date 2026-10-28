@@ -103,7 +103,7 @@ jobs:
                       'tools/testing/Invoke-CloudTests.ps1',
                       'autoload/DialogicBridge.gd', 'autoload/LocalizationManager.gd',
                       'scripts/localization/StoryLocalization.gd',
-                      'scripts/ui/SceneHost.gd',
+                      'scripts/ui/SceneHost.gd', 'scripts/ui/SettingsContent.gd',
                       'scripts/ui/witnessed/WitnessedCaptionLayer.gd',
                       'scripts/ui/witnessed/WitnessedSelfTalk.gd',
                       'scripts/ui/witnessed/WitnessedHistory.gd',
@@ -123,6 +123,7 @@ jobs:
                       'tests/ui/render_authored_self_talk_choices.gd',
                       'tests/ui/render_bilingual_choices.gd',
                       'tests/scene/test_scene_host_controls.gd',
+                      'tests/scene/test_settings_localization_scene.gd',
                       'localization/story/README.md',
                       'docs/agent/2026-10-29-bilingual-reading-handoff.md',
                       'docs/agent/2026-10-28-current-and-future-feature-plan.md',
@@ -416,7 +417,7 @@ jobs:
                   if keys != saved_keys:
                       comparison = False
                       print("Archived startup/Load measurement is incompatible with " + ref + "; current-build correctness coverage remains required.")
-          print("Selected " + ("runtime resource/Backup coverage" if focused else "full validation"))
+          print("Selected " + ("bilingual reading coverage" if bilingual_reading else "runtime resource/Backup coverage" if focused else "full validation"))
           with open(os.environ["GITHUB_OUTPUT"], "a") as output:
               output.write(f"bilingual_reading={str(bilingual_reading).lower()}\n")
               output.write(f"dialogue_library={str(dialogue_library).lower()}\n")
