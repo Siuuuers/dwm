@@ -321,7 +321,14 @@ func _refresh_thought_options(options: Array) -> void:
 	if is_instance_valid(_thought_panel):
 		_thought_panel.set_choice_row_height(paired_height)
 		_layout_thought_controls()
-	if focused >= 0 and focused < column.get_child_count(): column.get_child(focused).grab_focus()
+	if focused >= 0 and focused < column.get_child_count():
+		var focused_button: Control = column.get_child(focused)
+		focused_button.grab_focus()
+		# follow_focus initially sees the newly mounted, unsorted HBox. Reveal
+		# the retained choice again after its translated minimum sizes settle.
+		await get_tree().process_frame
+		if is_instance_valid(focused_button) and focused_button.has_focus():
+			panel.ensure_control_visible(focused_button)
 
 func _accept_thought() -> void:
 	_select_thought("", _thought_frontier.duplicate(true))

@@ -441,6 +441,7 @@ $methodFilters = @{
 if ($methodFilters.ContainsKey($Suite)) { $arguments += "-gunit_test_name=$($methodFilters[$Suite])" }
 # Creator and loader must share storage but never a process/registration registry.
 $loadScripts = @{
+    bilingual_reading = 'tests/integration/test_bilingual_reading_load.gd'
     dialogue_library = 'tests/integration/test_dialogue_library_load.gd'
     save_ink_journey = 'tests/ui/render_save_ink_load.gd'
     scene_transition_journey = 'tests/ui/render_scene_transition_load.gd'

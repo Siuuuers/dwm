@@ -65,6 +65,11 @@ func test_bilingual_choices_keep_one_option_and_one_branch() -> void:
 	second = row.get_child(1)
 	assert_eq(second.get_child_count(), 0, "single mode restores the original native button")
 	assert_eq(second.text, "測試：第二個較長的選項")
+	assert_true(second.has_focus(), "dual-off keeps the same option focused")
+	assert_gt(scroll.scroll_horizontal, 0, "retained focus scrolls after translated reflow")
+	assert_true(scroll.get_global_rect().has_point(second.get_global_rect().get_center()),
+		"the physical choice tap stays within the visible scroll viewport")
+	await _screenshot("bilingual-choices-single-before-selection")
 	await _click(second)
 	if not await _wait_line("line.scene.test.partner.lavinia.after"): return
 	assert_eq(game.scene_choices, {"TEST.partner": "second"}, "one activation commits one branch")

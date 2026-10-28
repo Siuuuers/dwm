@@ -188,3 +188,10 @@ func test_native_pair_settings_missing_translation_and_current_profile_load() ->
 	assert_eq(profile.get_preference(&"preferences.language.secondary_locale_id", ""), "en")
 	assert_eq(FileAccess.get_sha256("user://saves/slot_1.json"), saved_sha)
 	await _screenshot("bilingual-current-preferences-load")
+	# The runner starts the loader in a second OS process with this same user root.
+	_write_json("user://bilingual-restart-proof.json", {
+		"process_id": OS.get_process_id(), "user_dir": ProjectSettings.globalize_path("user://"),
+		"slot_sha256": saved_sha, "profile_sha256": FileAccess.get_sha256("user://profile.json"),
+		"witnesses": profile.get_profile_snapshot().witnessed_caption_variants,
+		"library": profile.get_dialogue_library(),
+		"command_receipts": game.capture_run_snapshot_input().command_receipts})
