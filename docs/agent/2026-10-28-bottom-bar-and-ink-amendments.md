@@ -106,3 +106,13 @@ names-only labels, full accessible state and distinct selected background colors
 An independent review confirmed the inherited font renderer exercises the same
 checks. This final record-only update changes no runtime, test, workflow or inventory
 from the tested revision. PR #147 remains the authority for merge status.
+
+## October 29 attachment amendment
+
+Keep the accepted dialogue placement: its last rendered row still ends at y612.
+Move only the computer tag to attach to Save. Its 48×48 target spans y608–656;
+the 32×24 tag body spans y632–656, with a four-pixel painted connector meeting
+the inset Save face at y660. The connector is decorative; computer and Save
+activation targets remain separate. This supersedes the earlier row-to-tag-top
+alignment requirement. Existing cosmetics decorate the open computer only;
+include the existing purchase journey for fresh open/closed screenshots.

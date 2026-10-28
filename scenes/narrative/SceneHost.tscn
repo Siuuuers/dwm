@@ -68,9 +68,9 @@ mouse_filter = 2
 [node name="CheckComputer" type="Button" parent="SceneControlsLayer/Surface/Controls"]
 layout_mode = 0
 offset_left = 250.2857
-offset_top = 600.0
+offset_top = 608.0
 offset_right = 298.2857
-offset_bottom = 648.0
+offset_bottom = 656.0
 custom_minimum_size = Vector2(48, 48)
 
 [node name="ComputerHome" type="Button" parent="SceneControlsLayer/Surface/Controls"]

@@ -289,7 +289,7 @@ func _caption_capture(name: String, language: String, percent: int, offset: int,
 		check(projection.get("dating_overlay", false), name + ": dating overlay selected automatically")
 		check(dating_art.size == Vector2(1280, 656), name + ": artwork extends behind every caption")
 		check(dating_art._background.texture != null, name + ": actual dating painting loaded")
-		check(projection.visible_leaf_rects.back().end.y == 612, name + ": captions meet the computer tag boundary")
+		check(projection.visible_leaf_rects.back().end.y == 612, name + ": captions retain the approved bar-top boundary")
 
 	else:
 		check(not projection.get("dating_overlay", false), name + ": ordinary caption retains ordinary input admission")
@@ -451,7 +451,7 @@ func _check_challenge_art_pixels(pixels: Image, name: String) -> void:
 
 func _check_dating_art_pixels(pixels: Image, name: String) -> void:
 	# Alpha-only reference leaves native text, focus and timeline state untouched.
-	# Compare the caption field ending at the visible tag/bar top. The footer
+	# Compare the caption field ending at the approved bar top. The footer
 	# below y612 intentionally covers artwork, unlike transparent captions.
 	var before := _native_state()
 	var focus: Control = viewport.gui_get_focus_owner()

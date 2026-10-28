@@ -56,8 +56,8 @@ func test_computer_apps_remain_and_duplicate_scene_commands_are_removed() -> voi
 
 func test_caret_is_within_bar_separate_from_save_and_outside_computer_and_challenge() -> void:
 	var caret: Button = _host.get_node("SceneControlsLayer/Surface/Controls/CheckComputer")
-	assert_true(caret.get_rect().is_equal_approx(Rect2(250.2857, 600, 48, 48)))
-	assert_eq(caret.position.y + (caret.size.y - 24) / 2, 612.0)
+	assert_true(caret.get_rect().is_equal_approx(Rect2(250.2857, 608, 48, 48)))
+	assert_eq(caret.get_rect().end.y, 656.0, "tag body ends at Save target; paint bridges its four-pixel inset")
 	assert_false(caret.get_rect().intersects(Rect2(1280.0 / 7, 656, 1280.0 / 7, 64)))
 	assert_eq(caret.text, "", "pictogram has no font baseline offset")
 	assert_false(caret.get_global_rect().intersects(_host.get_challenge_mount().get_global_rect()))
