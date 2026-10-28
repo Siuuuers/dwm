@@ -1,7 +1,7 @@
 # Gallery dialogue library handoff
 
 Date: 29 October 2026, Hong Kong.
-Status: next implementation target; documentation only. Mask appearance awaits owner clarification.
+Status: next implementation target; documentation only. Fixed placeholder approved; ready for implementation planning.
 Reviewed master: `5a065a155b573d2a8502f2c9c84bb97547d7bba2`.
 
 ## Scope and settled owner decisions
@@ -20,13 +20,13 @@ Build a read-only dialogue library inside Gallery, reached from the title screen
 - Treat this as an unshipped game. Do not add migration/version-history machinery for future dialogue rewrites. Reuse existing content identity rules where possible; this is not permission to reset player data or weaken existing validation.
 - Browsing and inspecting conditions must not mark anything read, advance story, unlock variants, replay DTL or mutate run state. Explicit library reset is the sole intended library write action.
 
-## One unresolved visual choice
+## Approved unread placeholder
 
-The owner asked for an explanation before choosing the mask appearance:
-1. Fixed placeholder: each unread entry says something like “Unread dialogue” in a compact standard row, independent of its hidden text length.
-2. Text-shaped mask: hide letters with bars/blocks while retaining approximate line length and wrapping.
+Owner selected the fixed placeholder on October 29. Each unread entry uses the same compact, localized placeholder, independent of the hidden dialogue's length or wrapping. Do not render text-shaped bars or reserve space based on hidden text. “Unread dialogue” is suitable default UI copy; exact localization is an implementation detail.
 
-Recommendation: fixed placeholder, simpler and quieter, revealing less about the text. Not yet approved. In both options, condition descriptions remain visible and accessible; hidden text must not leak through accessibility names, tooltips, search or copy. No exact placeholder wording is approved yet.
+Condition descriptions remain visible and accessible beneath the placeholder, showing all required choice actions/consequences and Challenge results. Hidden dialogue must not leak through accessibility names, tooltips, search or copy. Check that short and long unread source text produce the same placeholder treatment.
+
+No further owner design answer is currently required for the sample-first implementation. Ask only if inspection reveals a material conflict with the settled behavior.
 
 ## Source-grounded implementation starting points
 
@@ -49,7 +49,7 @@ Recommended first presentation: Dialogue tab, reached checkpoint index, readable
 
 ## Implementation stages
 
-1. Inspect existing Gallery/Profile/reading owners and reset behavior; settle the mask choice.
+1. Inspect existing Gallery/Profile/reading owners and reset behavior; apply the approved fixed placeholder.
 2. Add the minimal sample catalogue and independently resettable Global library discovery using the accepted reading publication path.
 3. Add read-only Gallery rendering and explicit library reset, preserving existing tabs and navigation.
 4. Validate cloud persistence, input, accessibility and rendering; update this record with tested SHA, PR and accepted evidence. Production authoring is a later task.
