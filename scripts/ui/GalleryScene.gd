@@ -125,7 +125,7 @@ func _refresh_artwork_copy() -> void:
 		button.accessibility_name = button.text
 
 func _show_gallery_tab(tab: String) -> void:
-	var blocked := has_active_rehearsal() or (_replay_owner != null and _replay_owner.is_playing())
+	var blocked: bool = has_active_rehearsal() or (_replay_owner != null and _replay_owner.is_playing())
 	if not blocked: _active_tab = tab
 	for button: Button in _gallery_tabs.get_children():
 		button.set_pressed_no_signal(str(button.get_meta(&"copy_key")) == "gallery.tab." + _active_tab)
