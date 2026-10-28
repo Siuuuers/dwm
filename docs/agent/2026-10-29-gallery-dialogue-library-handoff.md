@@ -1,8 +1,8 @@
 # Gallery dialogue library handoff
 
 Date: 29 October 2026, Hong Kong.
-Status: next implementation target; documentation only. Fixed placeholder approved; ready for implementation planning.
-Reviewed master: `5a065a155b573d2a8502f2c9c84bb97547d7bba2`.
+Status: sample-first implementation in PR #149; cloud acceptance passed. Production checkpoint placement remains deferred.
+Implementation base: `09c13dc6a37c4a5bfb8fbc3771ea48ba4f730b94`.
 
 ## Scope and settled owner decisions
 
@@ -79,6 +79,47 @@ Measure checkout/download, setup, test and queue/wait costs separately before an
 
 The initial library implementation changes persistence and discovery semantics: it is **not visual-only**. Retain Profile/reset, exact witness and Save/Load checks as well as relevant Gallery layout/input/accessibility/transition checks. Record reduced wall time and runner time honestly; fewer jobs or lines alone do not prove improvement. Keep workflow optimization scoped and separately reviewable.
 
+## Implementation record
+
+[PR #149](https://github.com/Siuuuers/dwm/pull/149) adds the Dialogue tab and
+`DialogueLibraryCatalogue`, an ordered authored index validated once against exact
+registered beats and named checkpoints. Conditions are localized descriptions with
+explicit AND/OR grouping. The UI projection omits unread prose entirely; scrolling
+never evaluates story rules. Hidden library views defer rebuilding until reopened.
+
+Profile owns optional `dialogue_library` membership, separate from Skip history.
+Existing v10 profiles normalize an omitted field to empty, with no historical
+backfill or format-version bump. The machine schema admits the same optional field.
+The accepted live Scene acknowledgment supplies the actual current checkpoint;
+restored captions and replay do not establish new discovery. Already-read captions
+can rediscover after an explicit library reset. Settings uses the existing reset
+confirmation flow, preserving saves, Artwork, ending records and Skip history.
+
+The production catalogue is intentionally empty. Sample registration is confined
+to tests; this implementation does not assign checkpoints or classify production
+prose. Production authoring and its registration binding remain a later task.
+
+Final candidate: `c78714a846facc308d2238e4220f22e4ecf94bc8`.
+Cloud validation: [run 40753040886](https://github.com/Siuuuers/dwm/actions/runs/40753040886), passed: 22 successful jobs; the optional matched startup/Load job was intentionally skipped.
+Coverage includes sample exact variants and unseen thoughts, combined/alternative
+requirements, fresh-process persistence, native checkpoint/Load/reset/reread,
+two real New Runs, rendered English/Traditional Chinese at 100% and 150%, directional
+focus, scoped resets, and existing reading/input/transition/Save/Load regressions.
+The library suite passed 35 cases / 2,579 assertions including fresh-process Load.
+All four sample screenshots were inspected. Windows release startup, public API
+contracts, committed inventory verification, and both Linux rendered jobs passed.
+The final evidence-only commit changes this handoff; runtime, tests, workflow and
+inventory data remain identical to the tested candidate above.
+
+Coverage selection now uses a blobless sparse checkout and lazily reads source
+and the optional comparison archive. The immediately preceding full-fetch run
+40749557980 spent about 93 seconds fetching; run 40750219330 spent about 0.36 seconds.
+The final acceptance run fetched in about 0.46 seconds. All three runs selected the same 17 suites. These are observed CI fetch timings, not a game
+performance or universal wall-time claim. Public inventories remain independently
+verified against committed data; their reference lists were refreshed from cloud
+generation and the scanner's exact source-reference rules.
+
 ## Separate cosmetic follow-up
 
 The owner reports that the three Shop item decorations look too simple and do not sufficiently express the intended code-drawn design. Catalogue, ownership and purchase caps are implemented; aesthetic acceptance is reopened. Do not call the visual result final or silently redesign it in the library work. Future polish should compare the intended glass highlights, silk boundary thread and wax-sealed letter with current code and screenshots, then agree a concrete visual direction. Procedural code remains possible; external art is not automatically required.
+
