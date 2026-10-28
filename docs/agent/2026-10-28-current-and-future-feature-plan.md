@@ -8,8 +8,10 @@ Shop catalogue, then the pixel transition. Self-talk comes first.
 Self-talk, panel-only thought scrollback, bottom controls, divider dragging and Skip all
 are merged in [PR #140](https://github.com/Siuuuers/dwm/pull/140), accepted by
 [cloud run 40592589829](https://github.com/Siuuuers/dwm/actions/runs/40592589829).
-The Shop implementation is [PR #141](https://github.com/Siuuuers/dwm/pull/141);
-cloud acceptance is pending.
+The Shop implementation is [PR #141](https://github.com/Siuuuers/dwm/pull/141).
+Its twelve focused suites and rendered three-process journey pass in
+[run 40640560154](https://github.com/Siuuuers/dwm/actions/runs/40640560154).
+The PR records final export/UI acceptance and merge status.
 
 ## Sources and precedence
 
@@ -37,7 +39,7 @@ Numbers retain the audit's identifiers so later discussions can refer to them.
 | 6 | Right-center caption relocation | Retire. Keep the current mostly centered presentation. |
 | 7 | Separate opening before Day 1 | Retire as a required feature. The opening was an example of flexible starting-point selection, not mandatory content. The owner considers existing start selection sufficient; do not add a prologue. |
 | 8 | Notes desktop app | Future work; not part of the next Shop change. |
-| 9 | Replacement Shop catalogue | Implement third. Three new items each have a cap of one per run. |
+| 9 | Replacement Shop catalogue | Implemented in PR #141. Three new items each have a cap of one per run; see PR for final acceptance. |
 | 10 | Purchases unlocking nine per-run notes | Future work, deferred further. Do not wire note unlocks into the next Shop change. |
 | 11 | Owned-keepsake ambient sounds | Future work. |
 | 12 | Read-only dialogue library in Gallery | Future work; preserve the settled design below. |
