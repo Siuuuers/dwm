@@ -295,8 +295,10 @@ run snapshots; old files without marks remain supported. The existing Backup dra
 draws the decoration. Use the proposed 0.65 fading and eight-mark bound as the first
 visual tuning, verified against text and focus readability in cloud rendering.
 Implementation is [PR #143](https://github.com/Siuuuers/dwm/pull/143).
-Its PR records final cloud acceptance and merge status; implementation alone does
-not establish completion.
+Completed in PR #143, accepted by [run 40653276347](https://github.com/Siuuuers/dwm/actions/runs/40653276347).
+The combined runtime is uploaded as Steam BuildID **26265268**, source `5cc02fd`;
+[the upload record](../steam/CLOUD_UPLOAD.md) distinguishes upload from live-branch
+selection and installed-client testing.
 
 ## Verification and continuation
 
@@ -305,8 +307,8 @@ and relevant tests. Add focused checks for ordered self-talk, exact Save/Load,
 duplicate suppression, the selected Shop caps, Skip all behavior and transition
 input behavior when those slices are implemented.
 
-No runtime change, new cloud acceptance, timing improvement or Steam upload is
-claimed by this record. Further Save/Load profiling stays deferred.
+Completed runtime slices and their cloud acceptance are recorded above. No timing
+improvement is claimed. Further Save/Load profiling stays deferred.
 
 Update this same plan as decisions change. Record the implementation PR and
 accepted evidence against each completed row; do not use a merged PR alone as

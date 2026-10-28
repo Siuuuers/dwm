@@ -1,6 +1,34 @@
 # Steam cloud export and upload
 
-## Current verified build — 27 October 2026
+## Current verified build — 28 October 2026
+
+Steam BuildID: **26265268**. AppID: **5199120**. DepotID: **5199121**.
+Runtime source: `5cc02fd261c8c837c70b50f381a79f1894415be4`.
+Executable: `game.exe`, with `game.pck`.
+
+[Run 40655556276](https://github.com/Siuuuers/dwm/actions/runs/40655556276)
+passed fresh Windows export, isolated executable startup, package hashes,
+license/media checks, SteamPipe preview and upload. Steam returned the BuildID
+above. This includes merged self-talk and bottom controls (PR #140), Shop
+cosmetics (#141), pixel transitions (#142), and save-slot ink (#143).
+The final runtime tree passed [run 40653276347](https://github.com/Siuuuers/dwm/actions/runs/40653276347).
+
+No Steam branch was set live. Select BuildID **26265268** on the intended private
+test branch and retain the Windows launch option `game.exe` before installing.
+Installed-client testing and public release are not established by this upload.
+
+The current implementation batch is complete. Notes and note unlocks, keepsake
+ambient sounds, dual-language display, further Contacts/story content, and
+production named-checkpoint/overlay authoring remain deferred; see the
+[current feature plan](../agent/2026-10-28-current-and-future-feature-plan.md).
+Do not interpret the upload as completion of the whole game.
+
+The exact-message trigger on `build/steam-20261028` was used once for this
+authorized upload and removed after success. The retained manual workflow now
+pins this exact runtime source. Existing repository secrets supplied credentials;
+authentication material was not published. Do not rerun merely to obtain BuildID.
+
+## Historical verified build — 27 October 2026
 
 Steam BuildID: **26245899**. AppID: **5199120**. DepotID: **5199121**.
 Runtime source: `4db5cff4576be4163b40ff383062a6cd0284042f`.
