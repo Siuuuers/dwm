@@ -110,7 +110,7 @@ func prepare_purchase(item: Dictionary, quote: Dictionary, transaction_id: Strin
 	var item_id := str(item.get("item_id", ""))
 	if item_id in _RETIRED_ITEM_IDS:
 		return _fail(&"retired_shop_item", "", {})
-	if item_id in _NOTE_RULES.ITEM_IDS:
+	if item_id in _NOTE_RULES.ITEM_IDS and item.get("effect_ids", []) != ["inventory:add:" + item_id]:
 		return _prepare_note(item, quote, transaction_id)
 	if item_id not in _CAPABILITY_ITEM_IDS and item_id != _SUPPORTZ_ITEM_ID:
 		return _prepare_ordinary(item, quote, transaction_id)
@@ -154,7 +154,7 @@ func commit(candidate: Dictionary) -> Dictionary:
 		return ready
 	if candidate.get("item_id", "") in _RETIRED_ITEM_IDS:
 		return _fail(&"retired_shop_item", "", {})
-	if candidate.get("item_id", "") in _NOTE_RULES.ITEM_IDS:
+	if candidate.has("ordinary_source_gameplay") and candidate.get("item_id", "") in _NOTE_RULES.ITEM_IDS:
 		var checked := validate_note_candidate(candidate)
 		if not checked.get("ok", false): return checked
 		var live: Dictionary = _game_state.to_save_dict()

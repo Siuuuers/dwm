@@ -45,19 +45,19 @@ func test_week_tint_and_accessibility_reach_plate_cards_without_filtering_specim
 	var expected: Dictionary = SHOP_THEME.resolve(&"midnight", 7, false, "protan")
 	for role: String in expected:
 		assert_eq(f.shop.theme.get_color(role, "Shop"), expected[role], role)
-	assert_eq(f.shop.cards.size(), 12)
-	assert_eq(f.shop.page_count, 2)
-	assert_true(f.shop._records[6].blank)
+	assert_eq(f.shop.cards.size(), 8)
+	assert_eq(f.shop.page_count, 1)
+	assert_true(f.shop._records[8].blank)
 	assert_false(f.shop.cards.has("supportz"))
 	for card: Button in f.shop.cards.values():
 		assert_eq(card.get("_roles"), expected)
-	assert_same(f.shop.cards.wine.get("_art"), f.rows[0].card_art,
+	assert_same(f.shop.cards.crystal_stutters.get("_art"), f.rows[0].card_art,
 		"The specimen texture remains the source texture.")
 	assert_same(f.shop._art.texture, f.rows[0].inspector_art)
 	assert_eq(f.shop._art.modulate, Color.WHITE)
 	assert_eq(f.shop._art.self_modulate, Color.WHITE)
-	assert_eq(f.shop.cards.wine.modulate, Color.WHITE)
-	assert_eq(f.shop.cards.wine.self_modulate, Color.WHITE)
+	assert_eq(f.shop.cards.crystal_stutters.modulate, Color.WHITE)
+	assert_eq(f.shop.cards.crystal_stutters.self_modulate, Color.WHITE)
 	assert_eq(WEEK_TINT.tint_for_day(1), 0.0)
 
 func test_both_standard_palettes_publish_exact_roles_to_plate_and_all_cards() -> void:
@@ -80,13 +80,13 @@ func test_both_standard_palettes_publish_exact_roles_to_plate_and_all_cards() ->
 		assert_eq(expected.paper_focus_inner, Color("644000"))
 		for role: String in expected:
 			assert_eq(f.shop.theme.get_color(role, "Shop"), expected[role], "%s %s" % [palette, role])
-		assert_eq(f.shop.get("_records").size(), 13)
-		assert_true(f.shop.get("_records")[6].blank, "Supportz remains the fixed structural blank slot.")
-		assert_eq(f.shop.cards.size(), 12)
+		assert_eq(f.shop.get("_records").size(), 9)
+		assert_true(f.shop.get("_records")[8].blank, "Supportz remains the fixed structural blank slot.")
+		assert_eq(f.shop.cards.size(), 8)
 		for card in f.shop.cards.values(): assert_eq(card.get("_roles"), expected)
-		assert_eq(f.shop.cards.wine.get("_roles").selected_plane, Color("789083"))
-		assert_eq(f.shop.cards.wine.get("_roles").dark_focus_inner, Color("a9935f"))
-		assert_eq(f.shop.cards.wine.get("_roles").structure, expected.primary_ink)
+		assert_eq(f.shop.cards.crystal_stutters.get("_roles").selected_plane, Color("789083"))
+		assert_eq(f.shop.cards.crystal_stutters.get("_roles").dark_focus_inner, Color("a9935f"))
+		assert_eq(f.shop.cards.crystal_stutters.get("_roles").structure, expected.primary_ink)
 		assert_eq(f.shop.page_label.get_theme_color("font_color"), expected.secondary_dark_copy, "Pager uses secondary copy on the controlled-dark rail.")
 		assert_eq(f.shop.previous_button.get_theme_color("font_disabled_color"), expected.primary_dark_copy, "A terminal pager keeps readable copy while Disabled.")
 		assert_eq(f.shop.get("_meta_price").get_theme_color("font_color"), expected.primary_ink, "Inspector facts use laminate ink.")
@@ -99,7 +99,7 @@ func test_invalid_palette_preserves_the_mounted_snapshot_and_presentation() -> v
 	var f := _fixture("en", 100, false, &"midnight")
 	await _settle()
 	var shop = f.shop
-	shop.cards.pineapple_bun.pressed.emit()
+	shop.cards.inked_silk_string.pressed.emit()
 	var old_theme: Theme = shop.theme
 	var old_records: Array = shop.get("_records")
 	var result: Dictionary = shop.configure_shop([], "zh_CN", 150, true, &"unknown")
@@ -109,15 +109,15 @@ func test_invalid_palette_preserves_the_mounted_snapshot_and_presentation() -> v
 	assert_same(shop.theme, old_theme)
 	assert_eq(shop.get("_records"), old_records)
 	assert_eq(shop.get("_palette"), &"midnight")
-	assert_eq(shop.selected_id, "pineapple_bun")
-	assert_true(shop.cards.pineapple_bun.visible)
+	assert_eq(shop.selected_id, "inked_silk_string")
+	assert_true(shop.cards.inked_silk_string.visible)
 
 func test_invalid_day_or_accessibility_preset_preserves_mounted_shop() -> void:
 	var f := _fixture("en", 100, false, &"midnight", 5, false, "deutan")
 	await _settle()
-	f.shop.cards.pineapple_bun.pressed.emit()
-	f.shop.cards.pineapple_bun.grab_focus()
-	var old_card: Button = f.shop.cards.pineapple_bun
+	f.shop.cards.inked_silk_string.pressed.emit()
+	f.shop.cards.inked_silk_string.grab_focus()
+	var old_card: Button = f.shop.cards.inked_silk_string
 	var old_theme: Theme = f.shop.theme
 	var old_records: Array = f.shop._records.duplicate(true)
 	for invalid: Dictionary in [
@@ -129,9 +129,9 @@ func test_invalid_day_or_accessibility_preset_preserves_mounted_shop() -> void:
 			invalid.day, false, invalid.preset)
 		assert_false(result.ok)
 		assert_same(f.shop.theme, old_theme)
-		assert_same(f.shop.cards.pineapple_bun, old_card)
+		assert_same(f.shop.cards.inked_silk_string, old_card)
 		assert_eq(f.shop._records, old_records)
-		assert_eq(f.shop.selected_id, "pineapple_bun")
+		assert_eq(f.shop.selected_id, "inked_silk_string")
 		assert_true(old_card.has_focus())
 
 func _settle() -> void:
@@ -155,10 +155,10 @@ func test_every_locale_and_size_keeps_full_catalog_inside_the_plate() -> void:
 				assert_true(shop.last_result.ok,"%s %s %s%%" % [font_style,locale,percent])
 				assert_eq(shop.size, Vector2(800, 656))
 				assert_eq(shop.get_node("VBoxContainer/TopBar").visible, false)
-				assert_eq(shop.cards.size(), 12)
+				assert_eq(shop.cards.size(), 8)
 				assert_eq(shop.page_capacity, 9)
-				assert_eq(shop.page_count, 2)
-				assert_true(shop.cards.wine.has_focus())
+				assert_eq(shop.page_count, 1)
+				assert_true(shop.cards.crystal_stutters.has_focus())
 				var seen: Array[String] = []
 				for page in shop.page_count:
 					assert_true(shop.last_result.ok, "%s %s %s%% page %s: %s" % [font_style, locale, percent, page, str(shop.last_result)])
@@ -216,49 +216,39 @@ func test_enlarged_japanese_coin_metadata_fits_the_pinned_band() -> void:
 			assert_lte(price.position.x + price.size.x + 16, state.position.x)
 			f.root.hide()
 
-func test_selection_quantity_and_page_memory_are_presentation_only() -> void:
+func test_selection_is_single_purchase_on_one_page() -> void:
 	var f := _fixture()
 	await _settle()
 	var shop = f.shop
-	shop.quantity_buttons.maximum.pressed.emit()
-	assert_eq(shop.quantity, 4)
-	assert_eq(f.rows[0].legal_max, 4)
-	shop.cards.pineapple_bun.grab_focus()
-	assert_eq(shop.selected_id, "pineapple_bun", "Focus immediately inspects the item.")
-	shop.cards.pineapple_bun.pressed.emit()
-	assert_eq(shop.selected_id, "pineapple_bun")
-	assert_eq(shop.quantity, 1)
-	shop.next_button.pressed.emit()
-	await _settle()
-	shop.cards.debug_key.pressed.emit()
-	assert_eq(shop.selected_id, "debug_key")
-	for button in shop.quantity_buttons.values(): assert_false(button.visible)
-	shop.previous_button.pressed.emit()
-	await _settle()
-	assert_eq(shop.selected_id, "pineapple_bun")
-	shop.next_button.pressed.emit()
-	await _settle()
-	assert_eq(shop.selected_id, "debug_key")
-	assert_eq(shop.quantity, 1)
+	assert_eq(shop.page_count, 1)
+	assert_eq(f.rows[0].legal_max, 1)
+	for item_id: String in shop.cards:
+		shop.cards[item_id].pressed.emit()
+		assert_eq(shop.selected_id, item_id)
+		assert_eq(shop.quantity, 1)
+		for button in shop.quantity_buttons.values(): assert_false(button.visible)
+	assert_true(shop.previous_button.disabled)
+	assert_true(shop.next_button.disabled)
 
-func test_keyboard_focus_inspects_immediately_and_returns_from_inspector() -> void:
+
+func test_keyboard_focus_inspects_immediately_and_stays_in_single_purchase_grid() -> void:
 	var f := _fixture()
 	await _settle()
 	var shop = f.shop
 	await _key(KEY_RIGHT)
-	assert_true(shop.cards.pineapple_bun.has_focus())
-	assert_eq(shop.selected_id, "pineapple_bun")
+	assert_true(shop.cards.inked_silk_string.has_focus())
+	assert_eq(shop.selected_id, "inked_silk_string")
 	await _key(KEY_ENTER)
-	assert_eq(shop.selected_id, "pineapple_bun")
+	assert_eq(shop.selected_id, "inked_silk_string")
 	await _key(KEY_RIGHT)
-	assert_true(shop.cards.quiet_tea.has_focus())
+	assert_true(shop.cards.letter_with_wax_seal.has_focus())
 	await _key(KEY_RIGHT)
-	assert_true(shop.quantity_buttons.plus.has_focus())
+	assert_true(shop.cards.letter_with_wax_seal.has_focus())
 	await _key(KEY_LEFT)
-	assert_true(shop.cards.quiet_tea.has_focus())
+	assert_true(shop.cards.inked_silk_string.has_focus())
 	f.home.grab_focus()
 	await _key(KEY_TAB)
-	assert_true(shop.cards.wine.has_focus())
+	assert_true(shop.cards.crystal_stutters.has_focus())
 
 func test_missing_projection_recovers_without_partial_cards_then_reopens() -> void:
 	var f := _fixture()
@@ -280,7 +270,7 @@ func test_missing_projection_recovers_without_partial_cards_then_reopens() -> vo
 	provider.rows = f.rows
 	assert_true(shop.refresh_view().ok)
 	await _settle()
-	assert_true(shop.cards.wine.visible)
+	assert_true(shop.cards.crystal_stutters.visible)
 	assert_true(shop.info_scroll.visible)
 	assert_true(shop.next_button.visible)
 
@@ -296,7 +286,7 @@ func test_only_overflowing_information_enters_traversal() -> void:
 	shop.info_scroll.grab_focus()
 	await _key(KEY_END)
 	assert_gt(shop.info_scroll.scroll_vertical, 0)
-	shop.cards.pineapple_bun.pressed.emit()
+	shop.cards.inked_silk_string.pressed.emit()
 	await _settle()
 	assert_eq(shop.info_scroll.scroll_vertical, 0)
 	assert_eq(shop.info_scroll.focus_mode, Control.FOCUS_NONE)
@@ -308,25 +298,24 @@ func test_sold_out_and_unaffordable_products_keep_truthful_quantity_state() -> v
 	f.rows[0].legal_max = 0
 	f.shop.configure_shop(f.rows)
 	await _settle()
-	assert_true(f.shop.cards.wine.visible)
-	assert_eq(f.shop.cards.wine.availability_label.text, "Sold out")
-	assert_eq(f.shop.get("_total_label").text, "$55")
+	assert_true(f.shop.cards.crystal_stutters.visible)
+	assert_eq(f.shop.cards.crystal_stutters.availability_label.text, "Sold out")
+	assert_eq(f.shop.get("_total_label").text, "$45")
 	for button in f.shop.quantity_buttons.values(): assert_false(button.visible)
 	f.rows[0].available = true
 	f.shop.configure_shop(f.rows)
 	await _settle()
 	assert_eq(f.shop.quantity, 1)
 	for button in f.shop.quantity_buttons.values():
-		assert_true(button.visible)
-		assert_true(button.disabled)
+		assert_false(button.visible)
 
 func test_new_snapshot_resets_quantity_and_preserves_external_home_focus() -> void:
 	var f := _fixture()
 	await _settle()
-	f.shop.quantity_buttons.maximum.pressed.emit()
-	assert_eq(f.shop.quantity, 4)
+	assert_false(f.shop.quantity_buttons.maximum.visible)
+	assert_eq(f.shop.quantity, 1)
 	f.home.grab_focus()
-	f.rows[0].legal_max = 2
+	f.rows[0].legal_max = 0
 	f.shop.configure_shop(f.rows)
 	await _settle()
 	assert_eq(f.shop.quantity, 1)
@@ -335,7 +324,7 @@ func test_new_snapshot_resets_quantity_and_preserves_external_home_focus() -> vo
 func test_failed_snapshot_returns_owned_focus_to_home() -> void:
 	var f := _fixture()
 	await _settle()
-	assert_true(f.shop.cards.wine.has_focus())
+	assert_true(f.shop.cards.crystal_stutters.has_focus())
 	var provider := CatalogProvider.new()
 	provider.rows = []
 	assert_false(f.shop.configure_catalog(provider).ok)
@@ -365,36 +354,27 @@ func test_right_edge_without_an_inspector_action_is_a_deliberate_noop() -> void:
 	f.rows[2].legal_max = 0
 	f.shop.configure_shop(f.rows)
 	await _settle()
-	f.shop.cards.quiet_tea.grab_focus()
+	f.shop.cards.letter_with_wax_seal.grab_focus()
 	await _key(KEY_RIGHT)
-	assert_true(f.shop.cards.quiet_tea.has_focus(), "Accepted spatial law consumes Right when no inspector action exists.")
+	assert_true(f.shop.cards.letter_with_wax_seal.has_focus(), "Accepted spatial law consumes Right when no inspector action exists.")
 
-func test_bottom_card_on_last_page_reaches_previous_and_disabled_keys_leave_focus() -> void:
+func test_bottom_card_keeps_focus_when_single_page_navigation_is_disabled() -> void:
 	var f := _fixture()
-	await _settle()
-	f.shop.next_button.pressed.emit()
 	await _settle()
 	f.shop.cards.pocket_calculator_keepsake.grab_focus()
 	await _key(KEY_DOWN)
-	assert_true(f.shop.previous_button.has_focus())
-	f.shop.previous_button.pressed.emit()
-	await _settle()
-	f.shop.quantity_buttons.maximum.grab_focus()
-	await _key(KEY_ENTER)
-	assert_true(f.shop.quantity_buttons.minimum.has_focus())
+	assert_true(f.shop.cards.pocket_calculator_keepsake.has_focus())
+	assert_true(f.shop.previous_button.disabled)
+	assert_true(f.shop.next_button.disabled)
 
-func test_exact_quantity_that_cannot_fit_recovers_instead_of_clipping_or_capping() -> void:
+
+func test_single_purchase_total_fits_without_quantity_controls() -> void:
 	var f := _fixture()
 	await _settle()
-	f.rows[0].legal_max = 123456789
-	f.shop.configure_shop(f.rows)
-	await _settle()
-	f.shop.quantity_buttons.maximum.pressed.emit()
-	await _settle()
-	assert_eq(f.shop.quantity, 123456789)
-	assert_eq(f.shop.last_result.code, "shop_dock_does_not_fit")
-	assert_false(f.shop.info_scroll.visible)
-	assert_eq(f.shop.status_label.text, "Unavailable")
+	assert_eq(f.shop.quantity, 1)
+	assert_eq(f.shop.get("_total_label").text, "$45")
+	assert_true(f.shop.last_result.ok)
+	for button in f.shop.quantity_buttons.values(): assert_false(button.visible)
 
 
 class CatalogProvider extends RefCounted:
@@ -428,17 +408,17 @@ class Preferences extends RefCounted:
 func test_rejected_direct_configuration_preserves_valid_projection_quantity_and_focus() -> void:
 	var f := _fixture()
 	await _settle()
-	f.shop.cards.pineapple_bun.grab_focus()
-	f.shop.quantity_buttons.maximum.pressed.emit()
-	f.shop.cards.pineapple_bun.grab_focus()
-	var old_card: Button = f.shop.cards.pineapple_bun
+	f.shop.cards.inked_silk_string.grab_focus()
+	assert_false(f.shop.quantity_buttons.maximum.visible)
+	f.shop.cards.inked_silk_string.grab_focus()
+	var old_card: Button = f.shop.cards.inked_silk_string
 	var old_theme: Theme = f.shop.theme
 	assert_false(f.shop.configure_shop([],"en",100).ok)
 	assert_false(f.shop.configure_shop(f.rows,"unsupported",150).ok)
 	await _settle()
-	assert_same(f.shop.cards.pineapple_bun,old_card)
+	assert_same(f.shop.cards.inked_silk_string,old_card)
 	assert_same(f.shop.theme,old_theme)
-	assert_eq(f.shop.quantity,4)
+	assert_eq(f.shop.quantity,1)
 	assert_true(old_card.has_focus())
 	assert_true(f.shop.last_result.ok)
 
@@ -449,21 +429,21 @@ func test_catalog_owner_updates_preserve_selection_page_focus_and_reset_only_cha
 	provider.rows = f.rows
 	assert_true(f.shop.configure_catalog(provider).ok)
 	await _settle()
-	f.shop.cards.pineapple_bun.grab_focus()
-	f.shop.quantity_buttons.maximum.pressed.emit()
-	f.shop.cards.pineapple_bun.grab_focus()
-	var old_card: Button = f.shop.cards.pineapple_bun
+	f.shop.cards.inked_silk_string.grab_focus()
+	assert_false(f.shop.quantity_buttons.maximum.visible)
+	f.shop.cards.inked_silk_string.grab_focus()
+	var old_card: Button = f.shop.cards.inked_silk_string
 	provider.catalog_changed.emit()
 	await _settle()
-	assert_same(f.shop.cards.pineapple_bun,old_card,"An identical owner delivery does not rebuild or restart quantity")
-	assert_eq(f.shop.quantity,4)
-	provider.rows[0].legal_max = 2
+	assert_same(f.shop.cards.inked_silk_string,old_card,"An identical owner delivery does not rebuild or restart quantity")
+	assert_eq(f.shop.quantity,1)
+	provider.rows[0].legal_max = 0
 	provider.catalog_changed.emit()
 	await _settle()
-	assert_eq(f.shop.selected_id,"pineapple_bun")
+	assert_eq(f.shop.selected_id,"inked_silk_string")
 	assert_eq(f.shop.page_index,0)
 	assert_eq(f.shop.quantity,1)
-	assert_true(f.shop.cards.pineapple_bun.has_focus(),"The inspector and purchase target follow the focused merchandise")
+	assert_true(f.shop.cards.inked_silk_string.has_focus(),"The inspector and purchase target follow the focused merchandise")
 	var replacement := CatalogProvider.new()
 	replacement.rows = f.rows
 	assert_false(f.shop.configure_catalog(replacement).ok)
@@ -478,7 +458,7 @@ func test_localized_shared_reflow_preserves_quantity_semantic_focus_and_informat
 	var preferences := Preferences.new()
 	assert_true(f.shop.configure_catalog(provider,preferences,preferences).ok)
 	await _settle()
-	f.shop.quantity_buttons.maximum.pressed.emit()
+	assert_false(f.shop.quantity_buttons.maximum.visible)
 	f.shop.info_scroll.grab_focus()
 	f.shop.info_scroll.scroll_vertical = 30
 	preferences.locale = "zh_HK"
@@ -488,14 +468,14 @@ func test_localized_shared_reflow_preserves_quantity_semantic_focus_and_informat
 	assert_eq(f.shop._locale,"zh_HK")
 	assert_eq(f.shop._percent,150)
 	assert_true(f.shop._large)
-	assert_eq(f.shop.quantity,4,"Localized copy is presentation reflow, not a fresh economic snapshot")
+	assert_eq(f.shop.quantity,1,"Localized copy is presentation reflow, not a fresh economic snapshot")
 	assert_true(f.shop.info_scroll.has_focus())
 	assert_eq(f.shop.info_scroll.scroll_vertical,30)
-	assert_eq(f.shop._name_label.text,COPY.item_name("zh_HK","wine"))
-	var card: Button = f.shop.cards.wine
+	assert_eq(f.shop._name_label.text,COPY.item_name("zh_HK","crystal_stutters"))
+	var card: Button = f.shop.cards.crystal_stutters
 	preferences.publish_size(110)
 	await _settle()
-	assert_same(f.shop.cards.wine,card)
+	assert_same(f.shop.cards.crystal_stutters,card)
 	assert_eq(f.shop._percent,150)
 
 func test_hidden_catalog_and_preferences_defer_without_changing_shared_home_navigation() -> void:
@@ -506,23 +486,23 @@ func test_hidden_catalog_and_preferences_defer_without_changing_shared_home_navi
 	var preferences := Preferences.new()
 	assert_true(f.shop.configure_catalog(provider,preferences,preferences).ok)
 	await _settle()
-	f.shop.cards.pineapple_bun.grab_focus()
+	f.shop.cards.inked_silk_string.grab_focus()
 	f.shop.hide_window()
 	f.home.grab_focus()
 	var home_next: NodePath = f.home.focus_next
-	var card: Button = f.shop.cards.pineapple_bun
-	provider.rows[0].legal_max = 2
+	var card: Button = f.shop.cards.inked_silk_string
+	provider.rows[0].legal_max = 0
 	provider.catalog_changed.emit()
 	preferences.publish_size(150)
 	await _settle()
-	assert_same(f.shop.cards.pineapple_bun,card)
+	assert_same(f.shop.cards.inked_silk_string,card)
 	assert_true(f.home.has_focus())
 	assert_eq(f.home.focus_next,home_next)
 	f.shop.show_window()
 	await _settle()
-	assert_true(f.shop.cards.pineapple_bun.has_focus())
+	assert_true(f.shop.cards.inked_silk_string.has_focus())
 	assert_eq(f.shop._percent,150)
-	assert_eq(f.shop._records[0].legal_max,2)
+	assert_eq(f.shop._records[0].legal_max,0)
 
 func test_modal_custody_defers_reconstruction_and_rejects_synthetic_lower_actions() -> void:
 	var f := _fixture()
@@ -532,24 +512,24 @@ func test_modal_custody_defers_reconstruction_and_rejects_synthetic_lower_action
 	var preferences := Preferences.new()
 	assert_true(f.shop.configure_catalog(provider,preferences,preferences).ok)
 	await _settle()
-	var card: Button = f.shop.cards.pineapple_bun
+	var card: Button = f.shop.cards.inked_silk_string
 	f.shop.focus_behavior_recursive = Control.FOCUS_BEHAVIOR_DISABLED
 	f.home.grab_focus()
 	preferences.publish_size(150)
-	f.shop.quantity_buttons.maximum.pressed.emit()
+	assert_false(f.shop.quantity_buttons.maximum.visible)
 	card.pressed.emit()
 	f.shop.next_button.pressed.emit()
 	await _settle()
-	assert_same(f.shop.cards.pineapple_bun,card)
+	assert_same(f.shop.cards.inked_silk_string,card)
 	assert_eq(f.shop.quantity,1)
-	assert_eq(f.shop.selected_id,"wine")
+	assert_eq(f.shop.selected_id,"crystal_stutters")
 	assert_eq(f.shop.page_index,0)
 	assert_false(f.shop.can_return_home())
 	assert_true(f.home.has_focus())
 	f.shop.focus_behavior_recursive = Control.FOCUS_BEHAVIOR_INHERITED
 	card.grab_focus()
 	await _settle()
-	assert_true(f.shop.cards.pineapple_bun.has_focus())
+	assert_true(f.shop.cards.inked_silk_string.has_focus())
 	assert_eq(f.shop._percent,150)
 	assert_true(f.shop.can_return_home())
 
@@ -569,7 +549,7 @@ func test_owner_snapshot_cancels_held_native_page_contact_and_provider_failure_i
 	await _settle()
 	assert_true(f.shop.next_button.is_pressed())
 	assert_false(f.shop.can_return_home())
-	provider.rows[0].legal_max = 2
+	provider.rows[0].legal_max = 0
 	provider.catalog_changed.emit()
 	await _settle()
 	var released := InputEventKey.new()
@@ -589,7 +569,7 @@ func test_owner_snapshot_cancels_held_native_page_contact_and_provider_failure_i
 	f.shop.show_window()
 	await _settle()
 	assert_true(f.shop.last_result.ok)
-	assert_eq(f.shop.cards.size(),12)
+	assert_eq(f.shop.cards.size(),8)
 
 
 func test_native_back_keeps_hidden_return_admission_and_cached_semantic_focus() -> void:
@@ -599,7 +579,7 @@ func test_native_back_keeps_hidden_return_admission_and_cached_semantic_focus() 
 	provider.rows = f.rows
 	assert_true(f.shop.configure_catalog(provider).ok)
 	await _settle()
-	f.shop.cards.pineapple_bun.grab_focus()
+	f.shop.cards.inked_silk_string.grab_focus()
 	var returns: Array[bool] = []
 	f.shop.window_hidden.connect(func():
 		returns.append(f.shop.can_return_home())
@@ -611,7 +591,7 @@ func test_native_back_keeps_hidden_return_admission_and_cached_semantic_focus() 
 	assert_true(f.shop.can_return_home(),"Host pre-open Home admission does not depend on visibility")
 	f.shop.show_window()
 	await _settle()
-	assert_true(f.shop.cards.pineapple_bun.has_focus())
+	assert_true(f.shop.cards.inked_silk_string.has_focus())
 
 
 func test_hidden_prepare_validates_fresh_owner_before_open_without_home_custody_writes() -> void:
@@ -647,8 +627,8 @@ func test_cached_validation_after_localized_hidden_change_preserves_quantity_wit
 	var preferences := Preferences.new()
 	assert_true(f.shop.configure_catalog(provider,preferences,preferences).ok)
 	await _settle()
-	f.shop.quantity_buttons.maximum.pressed.emit()
-	assert_eq(f.shop.quantity,4)
+	assert_false(f.shop.quantity_buttons.maximum.visible)
+	assert_eq(f.shop.quantity,1)
 	f.shop.hide_window()
 	f.home.grab_focus()
 	preferences.locale = "zh_HK"
@@ -658,13 +638,13 @@ func test_cached_validation_after_localized_hidden_change_preserves_quantity_wit
 	assert_true(f.shop.prepare_show_window().ok)
 	f.shop.show_window()
 	await _settle()
-	assert_eq(f.shop.quantity,4)
+	assert_eq(f.shop.quantity,1)
 	assert_eq(f.shop._locale,"zh_HK")
-	provider.rows[0].legal_max = 2
+	provider.rows[0].legal_max = 0
 	assert_true(f.shop.refresh_view().ok,"An unsignaled changed economic snapshot still resets quantity")
 	await _settle()
 	assert_eq(f.shop.quantity,1)
-	assert_eq(f.shop._records[0].legal_max,2)
+	assert_eq(f.shop._records[0].legal_max,0)
 
 func test_hidden_external_focus_does_not_block_opening_or_current_catalog_refresh() -> void:
 	var f := _fixture()
@@ -681,12 +661,12 @@ func test_hidden_external_focus_does_not_block_opening_or_current_catalog_refres
 	assert_same(get_viewport().gui_get_focus_owner(),retired_launcher,"Exercise native hidden-focus behavior")
 	f.shop.show_window()
 	await _settle()
-	assert_true(f.shop.cards.wine.has_focus())
+	assert_true(f.shop.cards.crystal_stutters.has_focus())
 	retired_launcher.grab_focus()
-	provider.rows[0].legal_max = 2
+	provider.rows[0].legal_max = 0
 	provider.catalog_changed.emit()
 	await _settle()
-	assert_eq(f.shop._records[0].legal_max,2,"A retired hidden control has no modal custody")
+	assert_eq(f.shop._records[0].legal_max,0,"A retired hidden control has no modal custody")
 
 
 func test_detached_shop_retires_queued_focus_and_ignores_owner_publications_until_remounted() -> void:
@@ -697,7 +677,7 @@ func test_detached_shop_retires_queued_focus_and_ignores_owner_publications_unti
 	var preferences := Preferences.new()
 	assert_true(f.shop.configure_catalog(provider,preferences,preferences).ok)
 	await _settle()
-	f.shop.cards.pineapple_bun.grab_focus()
+	f.shop.cards.inked_silk_string.grab_focus()
 	var remembered: String = f.shop._remembered_focus
 	f.shop._focus_selected.call_deferred()
 	f.shop.configure_shop(f.rows,"en",125)
@@ -706,7 +686,7 @@ func test_detached_shop_retires_queued_focus_and_ignores_owner_publications_unti
 	assert_true(f.shop.is_node_ready(),"Detached nodes remain ready; readiness is not viewport custody")
 	var revision: int = f.shop._measurement_revision
 	var calls: int = provider.calls.size()
-	provider.rows[0].legal_max = 2
+	provider.rows[0].legal_max = 0
 	provider.catalog_changed.emit()
 	preferences.publish_size(150)
 	f.shop._remember_focus()
@@ -721,8 +701,8 @@ func test_detached_shop_retires_queued_focus_and_ignores_owner_publications_unti
 	f.shop.show_window()
 	await _settle()
 	assert_eq(f.shop._percent,150)
-	assert_eq(f.shop._records[0].legal_max,2)
-	assert_true(f.shop.cards.pineapple_bun.has_focus())
+	assert_eq(f.shop._records[0].legal_max,0)
+	assert_true(f.shop.cards.inked_silk_string.has_focus())
 
 func test_queued_ancestor_rejects_shop_focus_and_layout_before_native_deletion() -> void:
 	var f := _fixture()
@@ -749,11 +729,11 @@ func test_remount_resumes_retired_measurement_with_identical_catalog_and_prefere
 	provider.rows = f.rows
 	assert_true(f.shop.configure_catalog(provider).ok)
 	await _settle()
-	f.shop.cards.pineapple_bun.grab_focus()
-	provider.rows[0].legal_max = 2
+	f.shop.cards.inked_silk_string.grab_focus()
+	provider.rows[0].legal_max = 0
 	provider.catalog_changed.emit()
 	assert_true(f.shop._catalog_layout_pending)
-	assert_false(f.shop.cards.pineapple_bun.visible,"Rebuild awaits full-font measurement")
+	assert_false(f.shop.cards.inked_silk_string.visible,"Rebuild awaits full-font measurement")
 	f.root.remove_child(f.shop)
 	f.home.grab_focus()
 	await _settle()
@@ -763,8 +743,8 @@ func test_remount_resumes_retired_measurement_with_identical_catalog_and_prefere
 	await _settle()
 	assert_false(f.shop._catalog_layout_pending)
 	assert_true(f.shop.last_result.ok)
-	assert_true(f.shop.cards.pineapple_bun.is_visible_in_tree())
-	assert_true(f.shop.cards.pineapple_bun.has_focus())
-	assert_eq(f.shop.selected_id,"pineapple_bun")
-	assert_eq(f.shop._records[0].legal_max,2)
-	assert_gt(f.shop.cards.pineapple_bun.size.y,0.0)
+	assert_true(f.shop.cards.inked_silk_string.is_visible_in_tree())
+	assert_true(f.shop.cards.inked_silk_string.has_focus())
+	assert_eq(f.shop.selected_id,"inked_silk_string")
+	assert_eq(f.shop._records[0].legal_max,0)
+	assert_gt(f.shop.cards.inked_silk_string.size.y,0.0)

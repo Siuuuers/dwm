@@ -16,8 +16,8 @@ var _scene_presentation := false
 var cards: Dictionary = {}
 var page_index := 0
 var page_capacity := 9
-var page_count := 2
-var selected_id := "wine"
+var page_count := 1
+var selected_id := "crystal_stutters"
 var quantity := 1
 var _item_quantities: Dictionary = {}
 var previous_button: Button
@@ -512,7 +512,7 @@ func _measure_catalog(revision: int) -> void:
 	for card in cards.values():
 		card.refresh_layout()
 	page_capacity = 9
-	page_count = 2
+	page_count = maxi(1, ceili(float(_records.size()) / page_capacity))
 	page_index = int(_index_of(selected_id) / page_capacity) if cards.has(selected_id) else 0
 	for card in cards.values(): card.size = Vector2(144, 176)
 	_show_page(_focus_after_layout)
@@ -769,7 +769,7 @@ func _restore_supportz_focus() -> void:
 	if not _has_host_custody(): return
 	_refresh_supportz()
 	_wire_focus()
-	var target: Control = _supportz_button if _supportz_button.visible else cards.get("spa_coupon")
+	var target: Control = _supportz_button if _supportz_button.visible else cards.get("pocket_calculator_keepsake")
 	if is_instance_valid(target) and target.is_visible_in_tree(): target.grab_focus()
 
 func _dispatch_purchase(item_id: String, requested_quantity: int) -> void:

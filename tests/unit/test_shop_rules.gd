@@ -112,9 +112,9 @@ func before_each() -> void:
 	_dc = DataCatalog.new()
 
 
-func test_thirteen_shop_items() -> void:
+func test_nine_shop_items() -> void:
 	var items := _dc.get_shop_items()
-	assert_eq(items.size(), 13, "exactly 13 shop item templates")
+	assert_eq(items.size(), 9, "eight public items and secret Supportz")
 
 
 func test_supportz_properties() -> void:
@@ -137,8 +137,6 @@ func test_currencies_valid() -> void:
 
 
 func test_gift_items_flagged() -> void:
-	var pineapple := _dc.get_shop_item("pineapple_bun")
-	assert_true(bool(pineapple["is_gift"]), "pineapple_bun is a gift")
 	var priscilla_gift := _dc.get_shop_item("priscilla_gift")
 	assert_true(bool(priscilla_gift["is_special_gift"]), "priscilla_gift is a special gift")
 
@@ -279,8 +277,13 @@ func test_shop_projection_equals_the_registry_records() -> void:
 			"%s max_purchases is derived from cap.per_branch" % item_id)
 
 
-func test_retired_items_are_absent_and_mixed_items_keep_only_pressure() -> void:
-	for item_id: String in ["coffee", "pep_note", "bandage_pack", "healthy_meal", "protein_box"]:
+func test_replaced_items_are_absent_and_cosmetics_use_inventory() -> void:
+	for item_id: String in ["coffee", "pep_note", "bandage_pack", "healthy_meal", "protein_box",
+			"wine", "pineapple_bun", "quiet_tea", "soft_blanket", "weighted_plush", "spa_coupon", "premium_care"]:
 		assert_true(_dc.get_shop_item(item_id).is_empty(), item_id)
-	for item_id: String in ["wine", "premium_care"]:
-		assert_eq(_dc.get_shop_item(item_id).effect_ids, ["pressure:-4"])
+	for item_id: String in ["crystal_stutters", "inked_silk_string", "letter_with_wax_seal"]:
+		var item: Dictionary = _dc.get_shop_item(item_id)
+		assert_eq(item.effect_ids, ["inventory:add:" + item_id])
+		assert_eq(item.price, 45)
+		assert_eq(item.currency, "money")
+		assert_eq(item.max_purchases, 1)

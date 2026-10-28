@@ -51,12 +51,12 @@ class RetryProvider extends Provider:
 func test_buy_control_dispatches_selected_quantity_and_refreshes_the_catalog() -> void:
 	var provider := Provider.new()
 	var shop := await _shop(provider)
-	shop.quantity_buttons.maximum.pressed.emit()
-	assert_eq(shop.quantity, 4)
+	assert_false(shop.quantity_buttons.maximum.visible)
+	assert_eq(shop.quantity, 1)
 	assert_not_null(shop.get("_buy_button"))
 	shop.get("_buy_button").pressed.emit()
 	await _settle()
-	assert_eq(provider.purchases, [{"item_id": "wine", "quantity": 4}])
+	assert_eq(provider.purchases, [{"item_id": "crystal_stutters", "quantity": 1}])
 	assert_eq(shop.quantity, 1, "the provider publication resets quantity against the new owner snapshot")
 
 
@@ -73,11 +73,11 @@ func test_supportz_rechecks_eligibility_when_ordinary_catalog_does_not_change() 
 	assert_eq(shop.refresh_view(true).code, "unchanged")
 	assert_true(supportz.visible, "completing both base rounds must unlock the unchanged blank slot")
 	assert_false(supportz.disabled)
-	assert_eq(supportz.position, Vector2(0, 368), "page one lower-left slot follows the retained catalogue")
+	assert_eq(supportz.position, Vector2(304, 368), "page one lower-right slot follows the retained catalogue")
 	assert_eq(supportz.text, "", "eligibility never adds a visible secret name")
 	assert_eq(supportz.accessibility_name, "Blank shop card")
-	assert_eq(shop.page_count, 2)
-	assert_eq(shop.selected_id, "wine")
+	assert_eq(shop.page_count, 1)
+	assert_eq(shop.selected_id, "crystal_stutters")
 	provider.supportz_eligible = false
 	shop.refresh_view(true)
 	assert_false(supportz.visible, "day/branch exhaustion must also refresh without changing ordinary rows")
@@ -95,15 +95,15 @@ func test_supportz_activation_asks_price_only_and_yes_purchases_once() -> void:
 	assert_eq(sheet.get("_price_body").text, "$45")
 	assert_false(sheet.request.warning)
 	assert_false(shop.can_return_home(), "the sheet owns Home custody")
-	assert_eq(shop.cards.wine.get_focus_mode_with_override(), Control.FOCUS_NONE)
+	assert_eq(shop.cards.crystal_stutters.get_focus_mode_with_override(), Control.FOCUS_NONE)
 	assert_eq(get_viewport().gui_get_focus_owner(), sheet.cancel_button)
 	sheet.confirm_button.pressed.emit()
 	sheet.confirm_button.pressed.emit()
 	await _settle()
 	assert_eq(provider.purchases, [{"item_id": "supportz", "quantity": 1}])
 	assert_false(supportz.visible)
-	assert_eq(shop.selected_id, "spa_coupon", "Returning focus also restores the ordinary inspector")
-	assert_eq(get_viewport().gui_get_focus_owner(), shop.cards.spa_coupon)
+	assert_eq(shop.selected_id, "pocket_calculator_keepsake", "Returning focus also restores the ordinary inspector")
+	assert_eq(get_viewport().gui_get_focus_owner(), shop.cards.pocket_calculator_keepsake)
 
 func test_supportz_purchase_departure_does_not_touch_a_retired_viewport() -> void:
 	var provider := Provider.new()
@@ -143,7 +143,7 @@ func test_supportz_yes_revalidates_and_keeps_refusal_inside_the_sheet() -> void:
 	assert_eq(sheet.get("_price_body").text, "$45\n\nUnavailable")
 	sheet.cancel_button.pressed.emit()
 	await _settle()
-	assert_eq(get_viewport().gui_get_focus_owner(), shop.cards.spa_coupon)
+	assert_eq(get_viewport().gui_get_focus_owner(), shop.cards.pocket_calculator_keepsake)
 
 func test_supportz_failed_transaction_never_closes_the_sheet_as_success() -> void:
 	var provider := Provider.new()
@@ -185,56 +185,56 @@ func test_supportz_failed_save_can_retry_through_the_retained_owner() -> void:
 
 func test_supportz_directional_focus_reaches_blank_slot_and_returns_to_grid() -> void:
 	var shop := await _shop(Provider.new())
-	shop.cards.soft_blanket.grab_focus()
+	shop.cards.bookend_keepsake.grab_focus()
 	var down := InputEventAction.new()
 	down.action = &"ui_down"
 	down.pressed = true
-	shop._card_input(down, "soft_blanket")
+	shop._card_input(down, "bookend_keepsake")
 	assert_eq(get_viewport().gui_get_focus_owner(), shop.get("_supportz_button"))
 	var up := InputEventAction.new()
 	up.action = &"ui_up"
 	up.pressed = true
 	shop._card_input(up, "supportz")
-	assert_eq(get_viewport().gui_get_focus_owner(), shop.cards.soft_blanket)
+	assert_eq(get_viewport().gui_get_focus_owner(), shop.cards.bookend_keepsake)
 
-func test_supportz_is_absent_on_page_two() -> void:
+func test_supportz_stays_on_the_only_page() -> void:
 	var shop := await _shop(Provider.new())
 	shop.next_button.pressed.emit()
 	await _settle()
-	assert_eq(shop.page_index, 1)
-	assert_false(shop.get("_supportz_button").visible)
-	assert_eq(shop.page_count, 2)
+	assert_eq(shop.page_index, 0)
+	assert_true(shop.get("_supportz_button").visible)
+	assert_eq(shop.page_count, 1)
 
 
 func test_focus_and_pointer_inspect_without_purchase_and_preserve_each_item_quantity() -> void:
 	var provider := Provider.new()
 	var shop := await _shop(provider)
-	provider.rows[0].description = "A bottle from the campus shop."
-	provider.rows[1].description = "A bun from the campus shop."
+	provider.rows[0].description = "A crystal ornament from the campus shop."
+	provider.rows[1].description = "An inked silk string from the campus shop."
 	provider.catalog_changed.emit()
 	await _settle()
-	shop.quantity_buttons.maximum.pressed.emit()
-	assert_eq(shop.quantity, 4)
-	shop.cards.pineapple_bun.grab_focus()
-	assert_eq(shop.selected_id, "pineapple_bun", "No Enter press is needed")
-	assert_eq(shop.get("_name_label").text, "Pineapple Bun")
+	assert_false(shop.quantity_buttons.maximum.visible)
+	assert_eq(shop.quantity, 1)
+	shop.cards.inked_silk_string.grab_focus()
+	assert_eq(shop.selected_id, "inked_silk_string", "No Enter press is needed")
+	assert_eq(shop.get("_name_label").text, "inked silk string")
 	assert_eq(shop.get("_description_label").text, provider.rows[1].description)
 	assert_eq(shop.quantity, 1, "A different item does not inherit another item's batch")
-	assert_true(shop.cards.pineapple_bun.selected)
-	shop.cards.wine.get_node("PointerSurface").mouse_entered.emit()
-	assert_eq(shop.selected_id, "wine", "The child pointer surface owns native hover")
-	assert_eq(shop.quantity, 4, "Returning from a preview restores the edited quantity")
-	assert_eq(shop.get("_name_label").text, "Wine")
+	assert_true(shop.cards.inked_silk_string.selected)
+	shop.cards.crystal_stutters.get_node("PointerSurface").mouse_entered.emit()
+	assert_eq(shop.selected_id, "crystal_stutters", "The child pointer surface owns native hover")
+	assert_eq(shop.quantity, 1, "Returning from a preview restores the edited quantity")
+	assert_eq(shop.get("_name_label").text, "crystal stutters")
 	assert_eq(shop.get("_description_label").text, provider.rows[0].description)
-	assert_true(shop.cards.wine.selected)
-	assert_false(shop.cards.pineapple_bun.selected)
+	assert_true(shop.cards.crystal_stutters.selected)
+	assert_false(shop.cards.inked_silk_string.selected)
 	assert_true(provider.purchases.is_empty(), "Inspection never dispatches a purchase")
-	assert_eq(shop.get("_buy_button").accessibility_name, "Buy: Wine × 4")
+	assert_eq(shop.get("_buy_button").accessibility_name, "Buy: crystal stutters × 1")
 	shop.get("_buy_button").pressed.emit()
 	await _settle()
-	assert_eq(provider.purchases, [{"item_id": "wine", "quantity": 4}])
-	shop.cards.pineapple_bun.grab_focus()
-	shop.cards.wine.grab_focus()
+	assert_eq(provider.purchases, [{"item_id": "crystal_stutters", "quantity": 1}])
+	shop.cards.inked_silk_string.grab_focus()
+	shop.cards.crystal_stutters.grab_focus()
 	assert_eq(shop.quantity, 1, "A successful purchase retires that item's old batch draft")
 
 
@@ -245,27 +245,27 @@ func test_inspection_does_not_retarget_a_held_buy_action() -> void:
 	buy.toggle_mode = true
 	buy.set_pressed_no_signal(true)
 	assert_true(buy.is_pressed())
-	shop.cards.pineapple_bun.get_node("PointerSurface").mouse_entered.emit()
-	assert_eq(shop.selected_id, "wine")
-	assert_eq(shop.get("_name_label").text, "Wine")
+	shop.cards.inked_silk_string.get_node("PointerSurface").mouse_entered.emit()
+	assert_eq(shop.selected_id, "crystal_stutters")
+	assert_eq(shop.get("_name_label").text, "crystal stutters")
 	assert_true(provider.purchases.is_empty())
 	buy.set_pressed_no_signal(false)
 	buy.toggle_mode = false
-	shop.cards.pineapple_bun.get_node("PointerSurface").mouse_entered.emit()
-	assert_eq(shop.selected_id, "pineapple_bun")
+	shop.cards.inked_silk_string.get_node("PointerSurface").mouse_entered.emit()
+	assert_eq(shop.selected_id, "inked_silk_string")
 
 
 func test_changed_catalog_retires_all_saved_item_quantities() -> void:
 	var provider := Provider.new()
 	var shop := await _shop(provider)
-	shop.quantity_buttons.maximum.pressed.emit()
-	shop.cards.pineapple_bun.grab_focus()
-	shop.quantity_buttons.maximum.pressed.emit()
-	provider.rows[0].legal_max = 2
+	assert_false(shop.quantity_buttons.maximum.visible)
+	shop.cards.inked_silk_string.grab_focus()
+	assert_false(shop.quantity_buttons.maximum.visible)
+	provider.rows[0].legal_max = 0
 	provider.catalog_changed.emit()
 	await _settle()
 	assert_eq(shop.quantity, 1)
-	shop.cards.wine.grab_focus()
+	shop.cards.crystal_stutters.grab_focus()
 	assert_eq(shop.quantity, 1, "A changed owner snapshot invalidates every old maximum")
 
 func _shop(provider: Provider) -> Control:

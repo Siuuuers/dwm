@@ -296,3 +296,34 @@ func _force_sequence_committed(wired: Dictionary, transaction_id: String) -> voi
 	var prepared: Dictionary = consequence_state.prepare_restore(live)
 	assert_true(prepared.get("ok", false), JSON.stringify(prepared))
 	consequence_state.commit((prepared["value"] as Dictionary)["candidate"])
+
+
+func test_current_cosmetics_use_ordinary_inventory_without_a_note_catalogue() -> void:
+	var wired: Dictionary = _wired()
+	if wired.is_empty(): return
+	var game: Node = wired.gs
+	game.money = 300
+	var catalog := preload("res://scripts/data/DataCatalog.gd").new()
+	for item_id: String in ["crystal_stutters", "inked_silk_string", "letter_with_wax_seal"]:
+		game.shop_purchase_counts[item_id] = 3
+		var before: Dictionary = game.to_save_dict().duplicate(true)
+		var item: Dictionary = catalog.get_shop_item(item_id)
+		item["item_id"] = item_id
+		item["quantity"] = 1
+		var transaction: Dictionary = _mint_transaction(wired.issuer)
+		var quote := {"item_id": item_id, "currency": item.currency, "price": item.price}
+		var prepared: Dictionary = wired.state_port.prepare_purchase(item, quote,
+			transaction.transaction_id, transaction.transaction_issuer_receipt)
+		assert_true(prepared.get("ok", false), str(prepared))
+		if not prepared.get("ok", false): return
+		assert_false(prepared.value.candidate.has("ordinary_source_gameplay"), "ordinary candidate, not deferred Notes")
+		assert_eq(game.to_save_dict(), before, "prepare leaves live owner unchanged")
+		assert_true(wired.state_port.commit(prepared.value.candidate).get("ok", false))
+		assert_eq(game.money, int(before.money) - 45)
+		assert_eq(game.inventory.get(item_id), 1)
+		assert_eq(game.shop_purchase_counts, before.shop_purchase_counts)
+		var after: Dictionary = game.to_save_dict()
+		for key: String in before:
+			if key not in ["money", "inventory"]: assert_eq(after[key], before[key], key)
+		assert_false(wired.state_port.prepare_purchase(item, quote,
+			transaction.transaction_id, transaction.transaction_issuer_receipt).get("ok", false))

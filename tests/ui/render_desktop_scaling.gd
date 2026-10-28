@@ -206,7 +206,7 @@ func _run() -> void:
 	check(opened.get("ok",false),"shop opened")
 	if opened.get("ok",false):
 		await settle()
-		opened.value.app.cards.wine.grab_focus()
+		opened.value.app.cards.crystal_stutters.grab_focus()
 		await pair("shop")
 		await _shop_samples(opened.value.app,catalog)
 		desktop.app_scroll.ensure_control_visible(opened.value.app._buy_button)
@@ -310,7 +310,7 @@ func _shop_samples(app: Control, catalog: RefCounted) -> void:
 	await settle()
 	app.previous_button.pressed.emit()
 	await settle()
-	app.cards.wine.grab_focus()
+	app.cards.crystal_stutters.grab_focus()
 	await settle()
 	check(catalog.rows == original,"Shop art previews restore their isolated public facts")
 

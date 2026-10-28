@@ -7,21 +7,15 @@ extends RefCounted
 ## Dictionaries/scalars detach; art resources are immutable owner-retained references.
 
 const _ORDER := [
-	"wine", "pineapple_bun", "quiet_tea",
-	"soft_blanket", "weighted_plush", "spa_coupon", "supportz",
-	"premium_care", "lucky_charm",
-	"debug_key", "bookend_keepsake", "metronome_keepsake",
-	"pocket_calculator_keepsake",
+	"crystal_stutters", "inked_silk_string", "letter_with_wax_seal",
+	"lucky_charm", "debug_key", "bookend_keepsake", "metronome_keepsake",
+	"pocket_calculator_keepsake", "supportz",
 ]
 
 const _CATALOG := {
-	"wine": [55, "money", true],
-	"pineapple_bun": [10, "money", true],
-	"quiet_tea": [15, "money", true],
-	"soft_blanket": [25, "money", true],
-	"weighted_plush": [35, "money", true],
-	"spa_coupon": [45, "money", false],
-	"premium_care": [1, "minesweeper_coin", true],
+	"crystal_stutters": [45, "money", false],
+	"inked_silk_string": [45, "money", false],
+	"letter_with_wax_seal": [45, "money", false],
 	"lucky_charm": [1, "minesweeper_coin", false],
 	"debug_key": [3, "minesweeper_coin", false],
 	"bookend_keepsake": [3, "minesweeper_coin", false],

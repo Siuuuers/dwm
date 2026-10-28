@@ -5,7 +5,10 @@ Updated: 28 October 2026, Hong Kong time.
 This is the owner's current feature-selection record for Siuuuers/dwm.
 Implementation priority is **2 → 3 → 9 → 1**: self-talk, its History integration,
 Shop catalogue, then the pixel transition. Self-talk comes first.
-This document records decisions; it does not claim that these changes are implemented.
+Self-talk, panel-only thought scrollback, bottom controls, divider dragging and Skip all
+are merged in [PR #140](https://github.com/Siuuuers/dwm/pull/140), accepted by
+[cloud run 40592589829](https://github.com/Siuuuers/dwm/actions/runs/40592589829).
+The Shop implementation is the next candidate; cloud acceptance is pending.
 
 ## Sources and precedence
 
@@ -26,8 +29,8 @@ Numbers retain the audit's identifiers so later discussions can refer to them.
 | ID | Feature | Current decision |
 | --- | --- | --- |
 | 1 | Pixel/noise scene transition | Implement fourth; not urgent. Presentation details below. |
-| 2 | Separate self-talk presentation | Implement first. |
-| 3 | Ordered self-talk History and restoration | Implement second, using explicit self-talk labels and the existing reading owner. |
+| 2 | Separate self-talk presentation | Complete in PR #140. |
+| 3 | Ordered self-talk History and restoration | Complete in PR #140; thought scrollback stays inside the self-talk panel. |
 | 4 | DTL-driven notifications | Future work. Remove the current notification bar; no replacement notification surface is selected. |
 | 5 | Old unified right-hand control-bar proposal | Retire. Do not move the interface to the old right-hand layout. The new bottom-bar request below replaces this proposal. |
 | 6 | Right-center caption relocation | Retire. Keep the current mostly centered presentation. |
@@ -127,7 +130,7 @@ handoff records combined acceptance; this does not require a single large commit
 ## Reported defect: Skip all does not skip
 
 The owner reports that Skip fails even when configured to skip all text.
-Status: reported, not yet reproduced or fixed.
+Status: fixed in PR #140. Cloud acceptance covers advancement and required stops.
 
 Reproduce in the current Scene path on the cloud runner. Trace the selected
 preference through Settings, the transport rail and actual reading progression.
@@ -149,9 +152,9 @@ Keep the existing retained item rules unless explicitly changed.
 
 | Order | Item | Price | Current rule |
 | --- | --- | --- | --- |
-| 1 | crystal stutters | 45 money | One purchase per run; effect not yet selected. |
-| 2 | inked silk string | 45 money | One purchase per run; effect not yet selected. |
-| 3 | letter with wax seal | 45 money | One purchase per run; effect not yet selected. |
+| 1 | crystal stutters | 45 money | One purchase per run; automatic computer decoration. |
+| 2 | inked silk string | 45 money | One purchase per run; automatic computer decoration. |
+| 3 | letter with wax seal | 45 money | One purchase per run; automatic computer decoration. |
 | 4 | Lucky Charm | 1 coin | Preserve existing upgrade and cap. |
 | 5 | Debug Key | 3 coins | Preserve existing upgrade and cap. |
 | 6 | Bookend | 3 coins | Preserve existing keepsake ownership. |
@@ -169,8 +172,9 @@ return to cap three if Notes is reopened.
 
 ### Cosmetic direction and code-only implementation proposal
 
-The owner likes the proposed cosmetic direction. Exact activation, scope and
-combination rules remain to be selected. Prefer visual treatments that do not change story rules, text readability,
+Proceeding with the recommended defaults after the owner requested continuation:
+automatic activation on purchase, stacked accents, and computer-only scope.
+Visual treatments must not change story rules, text readability,
 button positions or caption geometry:
 
 - crystal stutters: restrained glass-like edge highlights.
@@ -188,9 +192,10 @@ not continuous animation or one node per decorative segment.
 
 These could become alternative theme treatments rather than three competing layout
 systems. Do not implement forced layout shifts, flashing, or a new customization
-manager merely to give the items an effect. Their selection, combination rules,
-reversibility and scope still need an owner decision. Do not present an inert
-purchase as a completed feature without selecting its purpose.
+manager merely to give the items an effect. Ownership comes from the existing per-run inventory; Load restores it and a new
+run clears it. Crystal highlights and silk accents frame the computer. The wax
+letter sits on the desktop wallpaper and hides while an app is open. No separate
+customization manager, Notes unlock, or saved cosmetic state is introduced.
 
 ## Fourth priority: pixel transition
 

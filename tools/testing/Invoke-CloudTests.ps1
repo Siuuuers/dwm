@@ -1,6 +1,6 @@
 param(
     [Parameter(Mandatory = $true)]
-    [ValidateSet('self_talk_unit', 'self_talk_runtime', 'self_talk_ui', 'self_talk_skip', 'self_talk_journey', 'self_talk_review', 'self_talk_transport', 'minesweeper', 'shop', 'desktop', 'settings', 'checkpoint_diagnostics', 'new_account', 'reading_delivery', 'localization', 'dating', 'persistence', 'endings', 'audio', 'public_surfaces', 'scene_desktop_first_reveal', 'scene_round_checkpoint', 'scene_shop_checkpoint', 'scene_story_localization', 'scene_controls_localization', 'scene_apps', 'current_title', 'scene_backup_inspection', 'scene_progress_schema', 'authored_week', 'scene_five_outcomes', 'timeline_resources', 'backup_presentation', 'profile_parse', 'backup_current_build', 'terminal_admission', 'current_quick_load', 'scene_direct_controls', 'current_terminal_fixture', 'scene_multiple_thoughts', 'scene_challenge_recall', 'scene_same_day_supportz', 'scene_player_position', 'scene_native_restore', 'scene_day_history', 'scene_later_caption', 'scene_caption_challenge', 'scene_audio_connected', 'scene_save_metadata', 'scene_passage_connected', 'scene_passage_catalogue', 'scene_contacts', 'scene_current_creation', 'scene_current_frames', 'scene_current_challenge', 'scene_current_snapshot', 'scene_content_update_wording', 'scene_content_update_deleted_line', 'scene_content_update_deleted_checkpoint', 'scene_content_update_history', 'scene_content_update_active_board', 'scene_content_update_transfer_active', 'scene_content_update_transfer_terminal', 'scene_content_update_resolved_unfinished', 'scene_content_update_completed_appended', 'scene_content_update_completed_deleted', 'scene_content_update_invalid_choice', 'scene_content_update_invalid_choice_missing_default', 'scene_content_contracts', 'scene_checkpoint_ack', 'scene_owner_composition', 'named_presentation')]
+    [ValidateSet('shop_cosmetic_unit', 'shop_cosmetic_layout', 'shop_cosmetic_buy', 'shop_cosmetic_supportz', 'shop_cosmetic_legacy', 'shop_cosmetic_blank', 'shop_cosmetic_journey', 'self_talk_unit', 'self_talk_runtime', 'self_talk_ui', 'self_talk_skip', 'self_talk_journey', 'self_talk_review', 'self_talk_transport', 'minesweeper', 'shop', 'desktop', 'settings', 'checkpoint_diagnostics', 'new_account', 'reading_delivery', 'localization', 'dating', 'persistence', 'endings', 'audio', 'public_surfaces', 'scene_desktop_first_reveal', 'scene_round_checkpoint', 'scene_shop_checkpoint', 'scene_story_localization', 'scene_controls_localization', 'scene_apps', 'current_title', 'scene_backup_inspection', 'scene_progress_schema', 'authored_week', 'scene_five_outcomes', 'timeline_resources', 'backup_presentation', 'profile_parse', 'backup_current_build', 'terminal_admission', 'current_quick_load', 'scene_direct_controls', 'current_terminal_fixture', 'scene_multiple_thoughts', 'scene_challenge_recall', 'scene_same_day_supportz', 'scene_player_position', 'scene_native_restore', 'scene_day_history', 'scene_later_caption', 'scene_caption_challenge', 'scene_audio_connected', 'scene_save_metadata', 'scene_passage_connected', 'scene_passage_catalogue', 'scene_contacts', 'scene_current_creation', 'scene_current_frames', 'scene_current_challenge', 'scene_current_snapshot', 'scene_content_update_wording', 'scene_content_update_deleted_line', 'scene_content_update_deleted_checkpoint', 'scene_content_update_history', 'scene_content_update_active_board', 'scene_content_update_transfer_active', 'scene_content_update_transfer_terminal', 'scene_content_update_resolved_unfinished', 'scene_content_update_completed_appended', 'scene_content_update_completed_deleted', 'scene_content_update_invalid_choice', 'scene_content_update_invalid_choice_missing_default', 'scene_content_contracts', 'scene_checkpoint_ack', 'scene_owner_composition', 'named_presentation')]
     [string]$Suite
 )
 
@@ -18,6 +18,14 @@ if ($Suite -eq 'current_terminal_fixture') {
 # Deliberate, bounded UI and input regression coverage. Each path must actually
 # execute; Invoke-IsolatedGodot also rejects GUT's silent suite-load failures.
 $suites = @{
+    shop_cosmetic_unit = @('tests/unit/test_shop_cosmetic_catalogue.gd', 'tests/unit/test_desktop_cosmetics.gd')
+    shop_cosmetic_layout = @('tests/scene/test_shop_plate.gd')
+    shop_cosmetic_buy = @('tests/unit/test_shop_app_purchase_bridge.gd')
+    shop_cosmetic_supportz = @('tests/unit/test_shop_app_purchase_bridge.gd')
+    shop_cosmetic_legacy = @('tests/integration/test_minesweeper_shop_transaction.gd')
+    shop_cosmetic_blank = @('tests/scene/test_shop_blank_rendered.gd')
+    shop_cosmetic_journey = @('tests/ui/render_shop_cosmetics_create.gd')
+
     self_talk_unit = @('tests/unit/test_scene_self_talk.gd', 'tests/unit/test_witnessed_self_talk.gd', 'tests/unit/test_witnessed_skip_controller.gd')
     self_talk_review = @('tests/integration/test_witnessed_caption_runtime.gd')
     self_talk_transport = @('tests/ui/render_self_talk_transport.gd')
@@ -409,8 +417,17 @@ $arguments = @(
     '-glog=1'
     "-gjunit_xml_file=res://.godot/ci/$Suite.xml"
 )
+# Select ordinary player behavior without running unrelated refusal fixtures.
+$methodFilters = @{
+    shop_cosmetic_layout = 'test_every_locale_and_size_keeps_full_catalog_inside_the_plate'
+    shop_cosmetic_buy = 'test_buy_control_dispatches_selected_quantity_and_refreshes_the_catalog'
+    shop_cosmetic_supportz = 'test_supportz_activation_asks_price_only_and_yes_purchases_once'
+    shop_cosmetic_legacy = 'test_current_cosmetics_use_ordinary_inventory_without_a_note_catalogue'
+}
+if ($methodFilters.ContainsKey($Suite)) { $arguments += "-gunit_test_name=$($methodFilters[$Suite])" }
 # Creator and loader must share storage but never a process/registration registry.
 $loadScripts = @{
+    shop_cosmetic_journey = 'tests/ui/render_shop_cosmetics_load.gd'
     self_talk_journey = 'tests/ui/render_self_talk_load.gd'
     scene_contacts = 'tests/integration/test_scene_contacts_connected_load.gd'
     scene_passage_connected = 'tests/integration/test_scene_passage_connected_load.gd'
@@ -434,7 +451,7 @@ if ($contentUpdate) {
         if (Test-Path -LiteralPath $proofPath) { Remove-Item -LiteralPath $proofPath -Force }
     }
 }
-if ($Suite -in @('self_talk_runtime', 'self_talk_ui', 'self_talk_skip', 'self_talk_journey', 'self_talk_review', 'self_talk_transport', 'named_presentation', 'scene_content_contracts', 'scene_contacts', 'scene_passage_connected', 'scene_audio_connected', 'scene_native_restore', 'scene_owner_composition', 'scene_later_caption', 'scene_caption_challenge', 'scene_story_localization', 'scene_apps', 'current_title', 'scene_desktop_first_reveal', 'current_quick_load', 'scene_direct_controls', 'scene_multiple_thoughts', 'scene_challenge_recall', 'scene_same_day_supportz')) { $extra.Rendered = $true }
+if ($Suite -in @('shop_cosmetic_unit', 'shop_cosmetic_layout', 'shop_cosmetic_buy', 'shop_cosmetic_supportz', 'shop_cosmetic_legacy', 'shop_cosmetic_blank', 'shop_cosmetic_journey', 'self_talk_runtime', 'self_talk_ui', 'self_talk_skip', 'self_talk_journey', 'self_talk_review', 'self_talk_transport', 'named_presentation', 'scene_content_contracts', 'scene_contacts', 'scene_passage_connected', 'scene_audio_connected', 'scene_native_restore', 'scene_owner_composition', 'scene_later_caption', 'scene_caption_challenge', 'scene_story_localization', 'scene_apps', 'current_title', 'scene_desktop_first_reveal', 'current_quick_load', 'scene_direct_controls', 'scene_multiple_thoughts', 'scene_challenge_recall', 'scene_same_day_supportz')) { $extra.Rendered = $true }
 if ($loadScripts.ContainsKey($Suite)) {
     $loadScript = $loadScripts[$Suite]
     if (-not (Test-Path -LiteralPath (Join-Path $repositoryRoot $loadScript))) { throw "Requested test does not exist: $loadScript" }
@@ -444,8 +461,8 @@ if ($loadScripts.ContainsKey($Suite)) {
     $extra.NextGodotArgs = @('-s', 'res://addons/gut/gut_cmdln.gd', '-gconfig=',
         "-gtest=res://$loadScript", '-gexit', '-glog=1', "-gjunit_xml_file=res://.godot/ci/$Suite-load.xml")
 }
-if ($contentUpdate -or $Suite -in @('scene_desktop_first_reveal', 'scene_passage_connected')) {
-    $settledScript = if ($contentUpdate) { 'tests/integration/test_scene_content_update_reload.gd' } elseif ($Suite -eq 'scene_passage_connected') { 'tests/integration/test_scene_passage_connected_replay.gd' } else { 'tests/integration/test_scene_desktop_settled_load.gd' }
+if ($contentUpdate -or $Suite -in @('scene_desktop_first_reveal', 'scene_passage_connected', 'shop_cosmetic_journey')) {
+    $settledScript = if ($Suite -eq 'shop_cosmetic_journey') { 'tests/ui/render_shop_cosmetics_new_run.gd' } elseif ($contentUpdate) { 'tests/integration/test_scene_content_update_reload.gd' } elseif ($Suite -eq 'scene_passage_connected') { 'tests/integration/test_scene_passage_connected_replay.gd' } else { 'tests/integration/test_scene_desktop_settled_load.gd' }
     if (-not (Test-Path -LiteralPath (Join-Path $repositoryRoot $settledScript))) { throw "Requested test does not exist: $settledScript" }
     $settledReport = Join-Path $output "$Suite-settled-load.xml"
     if (Test-Path -LiteralPath $settledReport) { Remove-Item -LiteralPath $settledReport -Force }
@@ -547,7 +564,7 @@ if ($loadScripts.ContainsKey($Suite)) {
     }
     Write-Host "${Suite}: fresh-process load case passed ($loadScript)."
 }
-if (($contentUpdate -and -not $contentErrorQuit) -or $Suite -in @('scene_desktop_first_reveal', 'scene_passage_connected')) {
+if (($contentUpdate -and -not $contentErrorQuit) -or $Suite -in @('scene_desktop_first_reveal', 'scene_passage_connected', 'shop_cosmetic_journey')) {
     if (-not (Test-Path -LiteralPath $settledReport)) { throw 'Settled Load child did not produce its JUnit report.' }
     [xml]$settledXml = Get-Content -LiteralPath $settledReport -Raw
     $settledCases = @($settledXml.SelectNodes('//testcase'))
@@ -598,7 +615,7 @@ if (-not (Test-Path -LiteralPath $report)) { throw 'GUT did not produce its JUni
 $executed = $xml.SelectNodes('//testcase').Count
 if ($executed -eq 0) { throw 'GUT did not report any executed tests.' }
 if ($xml.SelectNodes('//failure | //error').Count -ne 0) { throw 'GUT reported test failures.' }
-if ($contentUpdate -or $Suite -in @('named_presentation', 'scene_checkpoint_ack', 'scene_owner_composition', 'scene_content_contracts', 'scene_contacts', 'scene_current_creation', 'scene_current_frames', 'scene_current_challenge', 'scene_current_snapshot', 'scene_passage_connected', 'scene_passage_catalogue', 'scene_audio_connected', 'scene_save_metadata', 'scene_player_position', 'scene_native_restore', 'scene_day_history', 'scene_later_caption', 'scene_caption_challenge', 'scene_same_day_supportz', 'scene_desktop_first_reveal', 'scene_round_checkpoint', 'scene_shop_checkpoint', 'scene_story_localization', 'scene_controls_localization', 'scene_apps', 'current_title', 'scene_backup_inspection', 'scene_progress_schema', 'authored_week', 'scene_five_outcomes', 'timeline_resources', 'backup_presentation', 'profile_parse', 'backup_current_build', 'terminal_admission', 'current_quick_load', 'scene_direct_controls')) {
+if ($Suite.StartsWith('shop_cosmetic_') -or $contentUpdate -or $Suite -in @('named_presentation', 'scene_checkpoint_ack', 'scene_owner_composition', 'scene_content_contracts', 'scene_contacts', 'scene_current_creation', 'scene_current_frames', 'scene_current_challenge', 'scene_current_snapshot', 'scene_passage_connected', 'scene_passage_catalogue', 'scene_audio_connected', 'scene_save_metadata', 'scene_player_position', 'scene_native_restore', 'scene_day_history', 'scene_later_caption', 'scene_caption_challenge', 'scene_same_day_supportz', 'scene_desktop_first_reveal', 'scene_round_checkpoint', 'scene_shop_checkpoint', 'scene_story_localization', 'scene_controls_localization', 'scene_apps', 'current_title', 'scene_backup_inspection', 'scene_progress_schema', 'authored_week', 'scene_five_outcomes', 'timeline_resources', 'backup_presentation', 'profile_parse', 'backup_current_build', 'terminal_admission', 'current_quick_load', 'scene_direct_controls')) {
     foreach ($case in $xml.SelectNodes('//testcase')) {
         if ($case.GetAttribute('classname') -cnotin $suites[$Suite] -or
             $case.GetAttribute('status') -cne 'pass' -or [int]$case.GetAttribute('assertions') -le 0) {
@@ -606,6 +623,12 @@ if ($contentUpdate -or $Suite -in @('named_presentation', 'scene_checkpoint_ack'
         }
     }
     if ($xml.SelectNodes('//skipped').Count -ne 0) { throw 'Selected scene coverage was skipped.' }
+}
+if ($methodFilters.ContainsKey($Suite)) {
+    $cases = @($xml.SelectNodes('//testcase'))
+    if ($cases.Count -ne 1 -or $cases[0].GetAttribute('name') -cne $methodFilters[$Suite]) {
+        throw 'Selected Shop method did not execute exactly.'
+    }
 }
 if ($contentUpdate -or $Suite -in @('named_presentation', 'scene_checkpoint_ack', 'scene_owner_composition', 'scene_content_contracts', 'scene_contacts', 'scene_current_creation', 'scene_current_frames', 'scene_current_challenge', 'scene_current_snapshot', 'scene_passage_connected', 'scene_passage_catalogue', 'scene_audio_connected', 'scene_save_metadata', 'scene_player_position')) {
     # Require every concrete selected method, not merely a nonempty imported file.

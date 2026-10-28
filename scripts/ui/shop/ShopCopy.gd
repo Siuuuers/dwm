@@ -47,36 +47,89 @@ const _TEXT := {
 
 const _ITEM_NAMES := {
 	"en": {
-		"wine": "Wine", "pineapple_bun": "Pineapple Bun",
-		"quiet_tea": "Quiet Tea",
-		"soft_blanket": "Soft Blanket", "weighted_plush": "Weighted Plush",
-		"spa_coupon": "Spa Coupon",
-		"premium_care": "Premium Care", "lucky_charm": "Lucky Charm",
-		"debug_key": "Debug Key", "bookend_keepsake": "Bookend",
+		"crystal_stutters": "crystal stutters",
+		"inked_silk_string": "inked silk string",
+		"letter_with_wax_seal": "letter with wax seal",
+		"lucky_charm": "Lucky Charm",
+		"debug_key": "Debug Key",
+		"bookend_keepsake": "Bookend",
 		"metronome_keepsake": "Metronome",
-		"pocket_calculator_keepsake": "Pocket Calculator",
+		"pocket_calculator_keepsake": "Pocket Calculator"
 	},
 	"zh_CN": {
-		"wine": "葡萄酒", "pineapple_bun": "菠萝包",
-		"quiet_tea": "清茶", "soft_blanket": "柔软毛毯",
-		"weighted_plush": "加重毛绒玩具", "spa_coupon": "水疗券",
-		"premium_care": "高级护理用品", "lucky_charm": "幸运符",
-		"debug_key": "调试键", "bookend_keepsake": "书挡",
+		"crystal_stutters": "水晶碎光",
+		"inked_silk_string": "墨染丝线",
+		"letter_with_wax_seal": "火漆封缄信",
+		"lucky_charm": "幸运符",
+		"debug_key": "调试键",
+		"bookend_keepsake": "书挡",
 		"metronome_keepsake": "节拍器",
-		"pocket_calculator_keepsake": "袖珍计算器",
+		"pocket_calculator_keepsake": "袖珍计算器"
 	},
 	"zh_HK": {
-		"wine": "葡萄酒", "pineapple_bun": "菠蘿包",
-		"quiet_tea": "清茶", "soft_blanket": "柔軟毛毯",
-		"weighted_plush": "加重毛絨玩具", "spa_coupon": "水療券",
-		"premium_care": "高級護理用品", "lucky_charm": "幸運符",
-		"debug_key": "除錯鍵", "bookend_keepsake": "書擋",
+		"crystal_stutters": "水晶碎光",
+		"inked_silk_string": "墨染絲線",
+		"letter_with_wax_seal": "火漆封緘信",
+		"lucky_charm": "幸運符",
+		"debug_key": "除錯鍵",
+		"bookend_keepsake": "書擋",
 		"metronome_keepsake": "節拍器",
-		"pocket_calculator_keepsake": "袖珍計算器",
+		"pocket_calculator_keepsake": "袖珍計算器"
 	},
-	"ja": {"wine": "ワイン", "pineapple_bun": "パイナップルパン", "quiet_tea": "安らぎのお茶", "soft_blanket": "柔らかな毛布", "weighted_plush": "重みのあるぬいぐるみ", "spa_coupon": "スパ利用券", "premium_care": "上質なケア用品", "lucky_charm": "幸運のお守り", "debug_key": "デバッグキー", "bookend_keepsake": "ブックエンド", "metronome_keepsake": "メトロノーム", "pocket_calculator_keepsake": "ポケット電卓"},
-	"ko": {"wine": "와인", "pineapple_bun": "파인애플 번", "quiet_tea": "차분한 차", "soft_blanket": "부드러운 담요", "weighted_plush": "무게감 있는 봉제 인형", "spa_coupon": "스파 이용권", "premium_care": "고급 케어 용품", "lucky_charm": "행운의 부적", "debug_key": "디버그 키", "bookend_keepsake": "북엔드", "metronome_keepsake": "메트로놈", "pocket_calculator_keepsake": "휴대용 계산기"},
+	"ja": {
+		"crystal_stutters": "水晶のさざめき",
+		"inked_silk_string": "墨染めの絹糸",
+		"letter_with_wax_seal": "封蝋付きの手紙",
+		"lucky_charm": "幸運のお守り",
+		"debug_key": "デバッグキー",
+		"bookend_keepsake": "ブックエンド",
+		"metronome_keepsake": "メトロノーム",
+		"pocket_calculator_keepsake": "ポケット電卓"
+	},
+	"ko": {
+		"crystal_stutters": "수정의 속삭임",
+		"inked_silk_string": "먹빛 비단실",
+		"letter_with_wax_seal": "밀랍 봉인 편지",
+		"lucky_charm": "행운의 부적",
+		"debug_key": "디버그 키",
+		"bookend_keepsake": "북엔드",
+		"metronome_keepsake": "메트로놈",
+		"pocket_calculator_keepsake": "휴대용 계산기"
+	}
 }
+
+
+const _ITEM_DESCRIPTIONS := {
+	"en": {
+		"crystal_stutters": "Adds quiet glass highlights to computer edges for this run.",
+		"inked_silk_string": "Adds a fine ink-thread accent to the computer frame for this run.",
+		"letter_with_wax_seal": "Adds a small paper-and-wax detail to the desktop wallpaper for this run."
+	},
+	"zh_CN": {
+		"crystal_stutters": "本次游玩中，为电脑边缘添上柔和的玻璃微光。",
+		"inked_silk_string": "本次游玩中，为电脑边框添上一缕细细的墨色丝线。",
+		"letter_with_wax_seal": "本次游玩中，为桌面壁纸添上一处纸张与火漆装饰。"
+	},
+	"zh_HK": {
+		"crystal_stutters": "本次遊玩中，為電腦邊緣添上柔和的玻璃微光。",
+		"inked_silk_string": "本次遊玩中，為電腦邊框添上一縷細細的墨色絲線。",
+		"letter_with_wax_seal": "本次遊玩中，為桌面桌布添上一處紙張與火漆裝飾。"
+	},
+	"ja": {
+		"crystal_stutters": "今回のプレイ中、コンピューターの縁に静かなガラスの輝きを添えます。",
+		"inked_silk_string": "今回のプレイ中、コンピューターの枠に細い墨色の糸を添えます。",
+		"letter_with_wax_seal": "今回のプレイ中、デスクトップの壁紙に小さな紙と封蝋の飾りを添えます。"
+	},
+	"ko": {
+		"crystal_stutters": "이번 플레이 동안 컴퓨터 가장자리에 은은한 유리빛을 더합니다.",
+		"inked_silk_string": "이번 플레이 동안 컴퓨터 테두리에 가느다란 먹빛 실 장식을 더합니다.",
+		"letter_with_wax_seal": "이번 플레이 동안 바탕 화면에 작은 종이와 밀랍 장식을 더합니다."
+	}
+}
+
+
+static func item_description(locale: String, item_id: String) -> String:
+	return _ITEM_DESCRIPTIONS.get(_locale_id(locale), {}).get(item_id, "")
 
 
 static func text(locale: String, key: String) -> String:
