@@ -373,6 +373,7 @@ static func _scene_source_readback(durable: Dictionary, plan: Dictionary, comman
 	document.erase("save_reason")
 	var keys := ["schema_version", "kind", "slot_id", "current_snapshot", "recovery_journal"]
 	if document.has("saved_time"): keys.append("saved_time")
+	if document.has("ink_marks"): keys.append("ink_marks")
 	if not event._keys(document, keys) or typeof(document.schema_version) != TYPE_INT \
 			or not document.recovery_journal is Array:
 		return _scene_source_failure("checkpoint document envelope")

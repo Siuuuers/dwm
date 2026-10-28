@@ -1770,6 +1770,7 @@ func _validate_retained_scene_envelope(document: Dictionary) -> Dictionary:
 	var keys: Array[String] = _SAVE_DOCUMENT.SCENE_DOCUMENT_KEYS.duplicate()
 	if document.has("save_reason"): keys.append("save_reason")
 	if document.has("saved_time"): keys.append("saved_time")
+	if document.has("ink_marks"): keys.append("ink_marks")
 	var shape := _exact_keys(document, keys)
 	if not shape.get("ok", false): return shape
 	if typeof(document.kind) != TYPE_STRING \

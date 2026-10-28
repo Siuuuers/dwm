@@ -215,6 +215,7 @@ func _project_record(source: Dictionary, capability: Dictionary, admitted: bool)
 	# unknown; neither the UI nor this port infers family from a missing day.
 	record["family"] = source.get("family")
 	record["load_family"] = source.get("load_family")
+	record["ink_marks"] = source.get("ink_marks", []).duplicate()
 	var accessible: bool = source.has("revision") and source.get("operation_allowed", false)
 	record["actions"] = {
 		"save": admitted and _context != "title" and accessible and capability.get("enabled", false) and source["locator"] != "autosave",

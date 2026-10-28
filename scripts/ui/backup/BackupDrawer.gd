@@ -8,6 +8,7 @@ var selected := false:
 		selected = value
 		queue_redraw()
 var unavailable := false
+var ink_marks: Array = []
 var identity_label: Label
 var state_label: Label
 var _layout_queued := false
@@ -37,10 +38,11 @@ func _label(node_name: String, at: Vector2, bounds: Vector2) -> Label:
 	add_child(label)
 	return label
 
-func present(identity: String, state: String, is_unavailable: bool) -> void:
+func present(identity: String, state: String, is_unavailable: bool, marks: Array = []) -> void:
 	identity_label.text = identity
 	state_label.text = state
 	unavailable = is_unavailable
+	ink_marks = marks.duplicate()
 	for label in [identity_label, state_label]:
 		label.add_theme_color_override("font_color", get_theme_color("paper_ink", "Backup"))
 	accessibility_name = identity + ", " + state
@@ -81,6 +83,35 @@ func _draw() -> void:
 	var face := get_theme_color("filed" if selected else "face", "Backup")
 	draw_rect(Rect2(Vector2.ZERO, size), face)
 	draw_rect(Rect2(0, 4, size.x, 156), get_theme_color("paper", "Backup"))
+	# Persisted seeds reproduce each splash; age only changes opacity. This local
+	# generator never advances gameplay RNG, and drawing has no process loop.
+	var random := RandomNumberGenerator.new()
+	for index: int in ink_marks.size():
+		var opacity := pow(0.65, ink_marks.size() - index - 1)
+		if opacity < 0.05: continue
+		random.seed = ink_marks[index]
+		var center := Vector2(random.randf_range(30.0, size.x - 30.0), random.randf_range(112.0, 132.0))
+		var radius := random.randf_range(7.0, 12.0)
+		var phase := random.randf_range(0.0, TAU)
+		var squash := random.randf_range(0.65, 0.9)
+		var colour := Color(ink, 0.22 * opacity)
+		var outline := PackedVector2Array()
+		for point: int in 32:
+			var angle := TAU * point / 32.0
+			var edge := radius * (1.0 + 0.18 * sin(angle * 3.0 + phase) + 0.12 * cos(angle * 5.0 - phase))
+			outline.append(center + Vector2(cos(angle), sin(angle) * squash) * edge)
+		draw_colored_polygon(outline, colour)
+		for streak: int in 3:
+			var angle := random.randf_range(0.0, TAU)
+			var direction := Vector2(cos(angle), sin(angle))
+			var side := direction.orthogonal() * 1.4
+			var start := center + direction * radius * 0.65
+			var tip := center + direction * random.randf_range(15.0, 21.0)
+			draw_colored_polygon(PackedVector2Array([start - side, start + side, tip]), colour)
+		for droplet: int in 3:
+			var angle := random.randf_range(0.0, TAU)
+			var at := center + Vector2(cos(angle), sin(angle)) * random.randf_range(16.0, 24.0)
+			draw_circle(at, random.randf_range(0.8, 1.7), colour)
 	# Stable filing lip; authored fingerprint/Bloom material is not synthesized.
 	draw_rect(Rect2(floorf((size.x - 48) / 4.0) * 2.0, 168, 48, 8), ink if selected else get_theme_color("structure", "Backup"))
 	if unavailable:

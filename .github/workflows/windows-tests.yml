@@ -22,6 +22,7 @@ jobs:
       comparison: ${{ steps.scope.outputs.comparison }}
       self_talk: ${{ steps.scope.outputs.self_talk }}
       shop_cosmetics: ${{ steps.scope.outputs.shop_cosmetics }}
+      save_ink: ${{ steps.scope.outputs.save_ink }}
       scene_transition: ${{ steps.scope.outputs.scene_transition }}
     steps:
       - uses: actions/checkout@v7
@@ -77,6 +78,7 @@ jobs:
               return bodies[0] == bodies[1]
           self_talk = False
           shop_cosmetics = False
+          save_ink = False
           scene_transition = False
           focused = False
           comparison = False
@@ -85,6 +87,27 @@ jobs:
               diff = subprocess.run(["git", "diff", "--name-only", "-z", base, "HEAD"], capture_output=True)
               if diff.returncode == 0:
                   paths = set(diff.stdout.decode().strip("\0").split("\0"))
+                  ink_paths = {
+                      '.github/workflows/windows-tests.yml',
+                      'autoload/SaveManager.gd',
+                      'docs/agent/2026-10-28-current-and-future-feature-plan.md',
+                      'evidence/phase_2r/runtime/game_state_surface.json',
+                      'evidence/phase_2r/runtime/save_manager_surface.json',
+                      'scripts/application/backup/BackupPresentationPort.gd',
+                      'scripts/application/run/SaveManagerCheckpointPort.gd',
+                      'scripts/domain/desktop/DesktopContinuationRemapper.gd',
+                      'scripts/infrastructure/save/DesktopContinuationOperationJournal.gd',
+                      'scripts/infrastructure/save/SaveDocumentSchema.gd',
+                      'scripts/ui/BackupApp.gd',
+                      'scripts/ui/backup/BackupDrawer.gd',
+                      'tests/ui/render_save_ink_base.gd',
+                      'tests/ui/render_save_ink_create.gd',
+                      'tests/ui/render_save_ink_load.gd',
+                      'tests/ui/render_save_ink_pixels.gd',
+                      'tests/unit/test_save_ink_storage.gd',
+                      'tools/testing/Invoke-CloudTests.ps1',
+                  }
+                  save_ink = bool(paths) and paths <= ink_paths and "autoload/SaveManager.gd" in paths
                   transition_paths = {
                       '.github/workflows/windows-tests.yml',
                       'autoload/DialogicBridge.gd',
@@ -220,7 +243,7 @@ jobs:
           # Current native Save/Load and terminal fixtures qualify incompatible schemas;
           # skipping this old-input measurement does not establish a speedup.
           comparison = comparison or (focused and not previous)
-          if self_talk or shop_cosmetics or scene_transition: comparison = False
+          if self_talk or shop_cosmetics or scene_transition or save_ink: comparison = False
           if comparison:
               archive = "evidence/phase_2r/current_ci_20261023/final_retention/run39988834004/original-12517208437.zip"
               with zipfile.ZipFile(archive) as retained:
@@ -239,6 +262,7 @@ jobs:
                       print("Archived startup/Load measurement is incompatible with " + ref + "; current-build correctness coverage remains required.")
           print("Selected " + ("runtime resource/Backup coverage" if focused else "full validation"))
           with open(os.environ["GITHUB_OUTPUT"], "a") as output:
+              output.write(f"save_ink={str(save_ink).lower()}\n")
               output.write(f"scene_transition={str(scene_transition).lower()}\n")
               output.write(f"shop_cosmetics={str(shop_cosmetics).lower()}\n")
               output.write(f"self_talk={str(self_talk).lower()}\n")
@@ -256,7 +280,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        suite: ${{ fromJSON(needs.test-scope.outputs.scene_transition == 'true' && '["scene_transition_pixels","scene_transition_journey","scene_transition_auto","scene_transition_reduced","self_talk_journey","self_talk_transport","self_talk_skip","scene_apps","scene_day_history","scene_direct_controls","current_title","scene_controls_localization"]' || needs.test-scope.outputs.shop_cosmetics == 'true' && '["shop_cosmetic_unit","shop_cosmetic_layout","shop_cosmetic_buy","shop_cosmetic_supportz","shop_cosmetic_legacy","shop_cosmetic_blank","shop_cosmetic_journey","scene_apps","scene_same_day_supportz","self_talk_journey","current_title","scene_controls_localization"]' || needs.test-scope.outputs.self_talk == 'true' && '["self_talk_unit","self_talk_runtime","self_talk_ui","self_talk_skip","self_talk_journey","self_talk_review","self_talk_transport","scene_day_history","scene_direct_controls","scene_later_caption","scene_caption_challenge","scene_passage_catalogue","scene_passage_connected","scene_story_localization","scene_controls_localization","current_title","scene_apps"]' || needs.test-scope.outputs.focused == 'true' && '["timeline_resources","backup_presentation","profile_parse","authored_week","scene_backup_inspection","scene_progress_schema","current_title"]' || '["named_presentation","minesweeper","shop","desktop","settings","checkpoint_diagnostics","new_account","reading_delivery","localization","dating","persistence","endings","audio","scene_desktop_first_reveal","scene_round_checkpoint","scene_shop_checkpoint","scene_story_localization","scene_controls_localization","scene_apps","current_title","scene_backup_inspection","scene_progress_schema","authored_week","scene_five_outcomes","timeline_resources","profile_parse","backup_current_build","current_terminal_fixture","current_quick_load","scene_direct_controls","scene_multiple_thoughts","scene_challenge_recall","scene_same_day_supportz","scene_player_position","scene_native_restore","scene_day_history","scene_later_caption","scene_caption_challenge","scene_audio_connected","scene_save_metadata","scene_passage_connected","scene_passage_catalogue","scene_contacts","scene_current_creation","scene_current_frames","scene_current_challenge","scene_current_snapshot","scene_content_update_wording","scene_content_update_deleted_line","scene_content_update_deleted_checkpoint","scene_content_update_history","scene_content_update_active_board","scene_content_update_transfer_active","scene_content_update_transfer_terminal","scene_content_update_resolved_unfinished","scene_content_update_completed_appended","scene_content_update_completed_deleted","scene_content_update_invalid_choice","scene_content_update_invalid_choice_missing_default","scene_content_contracts","scene_checkpoint_ack","scene_owner_composition"]') }}
+        suite: ${{ fromJSON(needs.test-scope.outputs.save_ink == 'true' && '["save_ink_journey","save_ink_pixels","save_ink_storage","save_ink_backup_refresh","current_quick_load","current_title","self_talk_journey","scene_transition_journey","scene_apps"]' || needs.test-scope.outputs.scene_transition == 'true' && '["scene_transition_pixels","scene_transition_journey","scene_transition_auto","scene_transition_reduced","self_talk_journey","self_talk_transport","self_talk_skip","scene_apps","scene_day_history","scene_direct_controls","current_title","scene_controls_localization"]' || needs.test-scope.outputs.shop_cosmetics == 'true' && '["shop_cosmetic_unit","shop_cosmetic_layout","shop_cosmetic_buy","shop_cosmetic_supportz","shop_cosmetic_legacy","shop_cosmetic_blank","shop_cosmetic_journey","scene_apps","scene_same_day_supportz","self_talk_journey","current_title","scene_controls_localization"]' || needs.test-scope.outputs.self_talk == 'true' && '["self_talk_unit","self_talk_runtime","self_talk_ui","self_talk_skip","self_talk_journey","self_talk_review","self_talk_transport","scene_day_history","scene_direct_controls","scene_later_caption","scene_caption_challenge","scene_passage_catalogue","scene_passage_connected","scene_story_localization","scene_controls_localization","current_title","scene_apps"]' || needs.test-scope.outputs.focused == 'true' && '["timeline_resources","backup_presentation","profile_parse","authored_week","scene_backup_inspection","scene_progress_schema","current_title"]' || '["named_presentation","minesweeper","shop","desktop","settings","checkpoint_diagnostics","new_account","reading_delivery","localization","dating","persistence","endings","audio","scene_desktop_first_reveal","scene_round_checkpoint","scene_shop_checkpoint","scene_story_localization","scene_controls_localization","scene_apps","current_title","scene_backup_inspection","scene_progress_schema","authored_week","scene_five_outcomes","timeline_resources","profile_parse","backup_current_build","current_terminal_fixture","current_quick_load","scene_direct_controls","scene_multiple_thoughts","scene_challenge_recall","scene_same_day_supportz","scene_player_position","scene_native_restore","scene_day_history","scene_later_caption","scene_caption_challenge","scene_audio_connected","scene_save_metadata","scene_passage_connected","scene_passage_catalogue","scene_contacts","scene_current_creation","scene_current_frames","scene_current_challenge","scene_current_snapshot","scene_content_update_wording","scene_content_update_deleted_line","scene_content_update_deleted_checkpoint","scene_content_update_history","scene_content_update_active_board","scene_content_update_transfer_active","scene_content_update_transfer_terminal","scene_content_update_resolved_unfinished","scene_content_update_completed_appended","scene_content_update_completed_deleted","scene_content_update_invalid_choice","scene_content_update_invalid_choice_missing_default","scene_content_contracts","scene_checkpoint_ack","scene_owner_composition"]') }}
     defaults:
       run:
         shell: pwsh
