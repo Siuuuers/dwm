@@ -1,5 +1,5 @@
 name: Steam private upload
-run-name: Steam ${{ inputs.mode }} - accepted self-talk Shop transitions and ink 5cc02fd - game.exe
+run-name: Steam ${{ inputs.mode || 'upload' }} - playtest self-talk and UI corrections 554bfd5 - game.exe
 permissions:
   contents: read
   actions: read
@@ -8,7 +8,8 @@ concurrency:
   cancel-in-progress: false
 jobs:
   build:
-    name: Export accepted self-talk Shop transitions and ink build
+    if: github.event_name == 'workflow_dispatch' || github.event.head_commit.message == 'Upload verified playtest build 554bfd5'
+    name: Export playtest self-talk and UI corrections build
     runs-on: windows-2022
     timeout-minutes: 35
     defaults:
@@ -18,7 +19,7 @@ jobs:
     - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       with:
         persist-credentials: true
-        ref: 5cc02fd261c8c837c70b50f381a79f1894415be4
+        ref: 554bfd5f9a2bcb97c940b25c04c899b60729199e
     - name: Prepare disposable checkout for credential cleanup
       run: |
         $ErrorActionPreference = 'Stop'
@@ -143,7 +144,7 @@ jobs:
         import hashlib, json, pathlib, shutil, zipfile
         root = pathlib.Path('.godot/ci/windows-export')
         receipt = json.loads((root / 'validation.json').read_text(encoding='utf-8-sig'))
-        assert receipt['ok'] and receipt['commit'] == '5cc02fd261c8c837c70b50f381a79f1894415be4'
+        assert receipt['ok'] and receipt['commit'] == '554bfd5f9a2bcb97c940b25c04c899b60729199e'
         dest = pathlib.Path('steam-package')
         dest.mkdir()
         with zipfile.ZipFile(root / 'DWM-windows-x86_64-validation.zip') as archive:
@@ -211,7 +212,7 @@ jobs:
       env:
         STEAM_USERNAME: ${{ secrets.STEAM_USERNAME }}
         STEAM_CONFIG_VDF: ${{ secrets.STEAM_CONFIG_VDF }}
-        UPLOAD_MODE: ${{ inputs.mode }}
+        UPLOAD_MODE: ${{ inputs.mode || 'upload' }}
       run: |
         import base64, json, hashlib, os, pathlib, re, shutil, subprocess, sys, urllib.request, zipfile
         root = pathlib.Path(os.environ['RUNNER_TEMP']) / 'dwm-steam'
@@ -242,7 +243,7 @@ jobs:
             stop('Decoded configuration is not a Steam config.vdf. Check the source file privately.')
         source = pathlib.Path('game-build')
         receipt = json.loads(pathlib.Path('receipt/steam-package-receipt.json').read_text(encoding='utf-8-sig'))
-        if not receipt['ok'] or receipt['commit'] != '5cc02fd261c8c837c70b50f381a79f1894415be4':
+        if not receipt['ok'] or receipt['commit'] != '554bfd5f9a2bcb97c940b25c04c899b60729199e':
             stop('Export receipt does not identify the requested validated source.')
         expected = {entry['path'] for entry in receipt['files']}
         actual = {p.relative_to(source).as_posix() for p in source.rglob('*') if p.is_file()}
@@ -256,7 +257,7 @@ jobs:
                 stop('Downloaded runtime file hash mismatch.')
         shutil.copytree(source, content, dirs_exist_ok=True)
         files = sorted(p for p in content.rglob('*') if p.is_file())
-        report('Runtime source: 5cc02fd261c8c837c70b50f381a79f1894415be4. Accepted self-talk, bottom controls, Shop cosmetics, pixel transitions and save-slot ink from PRs 140 through 143; fresh Windows export verified. Deferred features and production story bindings remain outside this build completion claim.')
+        report('Runtime source: 554bfd5f9a2bcb97c940b25c04c899b60729199e. Accepted playtest corrections from PR 145; 15 temporary production thought bindings, enclosed choice row, compact computer controls and expanded save ink. Fresh Windows export verified; broader deferred features remain outside this claim.')
         report('AppID 5199120; DepotID 5199121. No SetLive directive. This is an upload test, not release approval.')
         for p in files:
             report(p.relative_to(content).as_posix() + ' — SHA256 ' + hashlib.sha256(p.read_bytes()).hexdigest())
@@ -304,7 +305,7 @@ jobs:
             encoded = ''
             script = root / 'app_build_5199120.vdf'
             def build(preview):
-                script.write_text('"AppBuild" { "AppID" "5199120" "Desc" "DWM accepted self-talk Shop transitions and ink source 5cc02fd" '
+                script.write_text('"AppBuild" { "AppID" "5199120" "Desc" "DWM playtest self-talk and UI corrections source 554bfd5" '
                     + '"ContentRoot" "' + content.as_posix() + '" "BuildOutput" "' + output.as_posix()
                     + '" "Preview" "' + str(preview) + '" "Depots" { "5199121" { '
                     + '"FileMapping" { "LocalPath" "*" "DepotPath" "." "Recursive" "1" } } } }', encoding='utf-8')
@@ -333,6 +334,8 @@ jobs:
     needs: build
     if: ${{ !cancelled() && needs.build.result == 'success' }}
 'on':
+  push:
+    branches: [build/playtest-ui-20261028]
   workflow_dispatch:
     inputs:
       mode:
