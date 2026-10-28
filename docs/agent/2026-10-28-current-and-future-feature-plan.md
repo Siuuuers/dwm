@@ -15,6 +15,11 @@ The PR records final export/UI acceptance and merge status.
 Pixel transitions are complete in [PR #142](https://github.com/Siuuuers/dwm/pull/142),
 accepted by [run 40650052235](https://github.com/Siuuuers/dwm/actions/runs/40650052235).
 
+
+## Latest amendment: ink retirement and seven-command bottom bar
+
+Implementation pending. The [October 28 playtest amendment handoff](2026-10-28-bottom-bar-and-ink-amendments.md) supersedes the older active-ink, six-command and above-bar-caret instructions below. Remove save splashes for now; preserve their [design and source](../retired-features/save-slot-ink/README.md). Place the computer tag on the bar, align the lowest dialogue row bottom to its visible top, add direct computer Settings as a seventh evenly spaced command, omit visible Skip/Auto On/Off suffixes, and retain disabled bar labels under the open computer overlay. Prior implementation and test records remain historical evidence, not completion of these new amendments.
+
 ## Sources and precedence
 
 - [Original October 7 design amendment](https://github.com/Siuuuers/dwm/pull/1#issuecomment-6034620330).
@@ -256,7 +261,7 @@ This is separate from the per-run Notes app:
 Checkpoint discovery and individual line discovery are separate facts.
 A destination label alone may not encode the full path condition.
 
-## Save-slot ink marks
+## Save-slot ink marks (retired by latest amendment; historical record)
 
 Owner-selected behavior: all save types receive marks, including numbered manual
 slots, Quick Save and Autosave. Each successful save adds a fresh splash at the
