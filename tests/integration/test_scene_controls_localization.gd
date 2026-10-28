@@ -124,3 +124,19 @@ func test_profile_restore_refreshes_typography_only_after_publication() -> void:
 	assert_eq(computer.get_theme_font_size("font_size"), 24)
 	assert_true(computer.has_focus())
 	assert_eq(_calls, [], "restored presentation does not replay actions")
+
+func test_rendered_caret_points_toward_next_computer_state() -> void:
+	if DisplayServer.get_name() == "headless":
+		pending("Requires rendered cloud scene controls suite")
+		return
+	_surface.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	for opened: bool in [false, true]:
+		_host.set_computer_open(opened)
+		await get_tree().process_frame
+		await RenderingServer.frame_post_draw
+		var picture := _surface.get_texture().get_image()
+		var center := Vector2i(_button("CheckComputer").get_global_rect().get_center())
+		var top := picture.get_pixel(center.x, center.y - 2).get_luminance()
+		var bottom := picture.get_pixel(center.x, center.y + 2).get_luminance()
+		assert_true(bottom > top + 0.1 if opened else top > bottom + 0.1,
+			"Visible caret points down when open and up when closed")

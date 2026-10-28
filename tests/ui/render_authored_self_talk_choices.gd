@@ -24,6 +24,17 @@ func test_production_thought_and_yes_share_panel_and_restore_together() -> void:
 	if not _ok(speech): return
 	assert_eq(speech.value.primary_text, "Her face in this one, too.\nAsk for another photograph.")
 	await _screenshot("authored-self-talk-offer")
+	var before_pause: Dictionary = bridge.capture_reading_checkpoint(false)
+	await _click(_caption().transport_rail.get_node("Save"))
+	var paused_sheet: Node = get_node("/root/SceneRouter")._production_pause
+	assert_false(pane.is_visible_in_tree(), "Save covers the reading panel")
+	assert_false(yes.is_visible_in_tree(), "covered choices leave pointer and focus traversal immediately")
+	assert_true(get_tree().current_scene.get_thought_controls().is_empty())
+	await _click(paused_sheet.surface._sheet_back)
+	for frame: int in 12: await get_tree().process_frame
+	assert_true(pane.is_visible_in_tree())
+	assert_true(yes.is_visible_in_tree(), "returning from Save restores the unresolved offer")
+	assert_eq(bridge.capture_reading_checkpoint(false), before_pause)
 	var saved: Dictionary = await _save_authored(1, "self-talk-offer")
 	if saved.is_empty(): return
 	await _accept()

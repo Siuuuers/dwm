@@ -183,6 +183,11 @@ func _update_controls() -> void:
 func configure_thought_panel(panel: Control) -> void:
 	_thought_panel = panel
 	panel.resized.connect(_layout_thought_controls)
+	# Choices share the caption canvas lifetime despite living in this control layer.
+	var caption_canvas: CanvasItem = panel.get_parent()
+	caption_canvas.visibility_changed.connect(func() -> void:
+		_thought_poll = 0.0
+		_process(0.0))
 	_layout_thought_controls()
 	_thought_poll = 0.0
 
@@ -222,7 +227,8 @@ func _process(delta: float) -> void:
 		if game == null: available = false
 		else: available = not game.scene_choices.has(marker.value.payload.opportunity_id)
 	_thought_frontier = bridge.capture_current_line_presentation_frontier() if available else {}
-	var shown: bool = available and _thought_frontier.get("ok", false) and is_instance_valid(_thought_panel)
+	var shown: bool = available and _thought_frontier.get("ok", false) and is_instance_valid(_thought_panel) \
+		and _thought_panel.get_parent().is_visible_in_tree()
 	if is_instance_valid(_thought_panel):
 		_thought_panel.set_choice_row_visible(shown)
 		_layout_thought_controls()
