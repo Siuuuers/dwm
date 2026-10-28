@@ -31,7 +31,7 @@ The owner reports the essential feature pass complete. PRs #147 and #148 are con
 
 **Gallery library complete as a reusable system:** PR #149 is merged at `f919b3ce0dc2b49ab5f9912b9b816ec390720dbb`; PR #150's replaceable DTL/checkpoint authoring extension is merged at `9d2a62c907723ee2ca8af901d458d352adb1e848`. The [library handoff](2026-10-29-gallery-dialogue-library-handoff.md) records accepted cloud runs 40753040886 and 40766840297. Production checkpoint placement/catalogue population remains separate authoring work; current DTL is replaceable draft.
 
-**Next: bilingual reading (ID 15).** Follow the [bilingual handoff](2026-10-29-bilingual-reading-handoff.md). Reuse existing player-selected Primary/Secondary locales and dual toggle. Include captions, self-talk, choices, History and unlocked library dialogue; menus/interface metadata remain single-language and Read Aloud remains Primary-only. Show the current caption pair and latest thought pair, with older content in scrollback/History. Missing Secondary means Primary alone. This is a reusable selected-language system, not a fixed English/Chinese pair or a claim that the draft story is fully translated.
+**Bilingual reading (ID 15) implemented in PR #151.** The [bilingual handoff](2026-10-29-bilingual-reading-handoff.md) records accepted candidate `642ea80257cdee23b201af2d0fffd9faa4914e88`, cloud run 40789115880 and screenshot evidence. Existing player-selected Primary/Secondary locales and dual toggle now drive captions, self-talk, choices, History and unlocked library dialogue. Menus stay single-language and Read Aloud stays Primary-only. Current caption/latest thought pairs retain older scrollback; missing Secondary shows Primary alone. Draft translations still need editorial review, and production Gallery checkpoint bindings remain authoring work.
 
 **Cosmetic polish remains open:** the owner finds the crystal stutters, inked silk string and wax-sealed letter effects too simple and insufficiently expressive of the intended procedural design. Their purchase/ownership implementation is complete; their visual finish is not accepted as final. Keep this separate from the library implementation; inspect code and screenshots before proposing the next visual treatment.
 
@@ -75,7 +75,7 @@ Numbers retain the audit's identifiers so later discussions can refer to them.
 | 12 | Read-only dialogue library in Gallery | Complete in merged PR #149; replaceable authoring extension in PR #150. Production catalogue population remains authoring work. |
 | 13 | Production named checkpoints and overlay bindings | Future authoring. Existing engine support stays. |
 | 14 | Second sustained route and second ending | Future story work. |
-| 15 | Simultaneous two-language reading | Next target; October 29 handoff extends scope to self-talk, choices and library dialogue using existing selected Primary/Secondary locales. |
+| 15 | Simultaneous two-language reading | Implemented in PR #151; cloud run 40789115880 covers captions, self-talk, choices, History and unlocked Gallery using selected Primary/Secondary locales. |
 | 16 | Current-story Contacts messages and replies | Future work. Retain existing Contacts functionality. |
 
 Future work is not an instruction to add dormant controls, save fields or speculative
