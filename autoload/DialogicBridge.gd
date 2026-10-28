@@ -4684,7 +4684,7 @@ func dispatch_scene_event(live_session: Dictionary, envelope: Dictionary) -> Dic
 	if not current_scene and not _runtime_adapter.has_method("dispatch_scene_event_acknowledged"):
 		return _command_failure(&"event_dependency_invalid")
 	_scene_event_dispatching = true
-	var transitioning := current_scene and envelope.get("kind") == "scene.transition" and _begin_scene_transition()
+	var transitioning: bool = current_scene and envelope.get("kind") == "scene.transition" and _begin_scene_transition()
 	var result: Dictionary
 	if current_scene:
 		# The Scene owner stages and commits its destination with the consequences.
