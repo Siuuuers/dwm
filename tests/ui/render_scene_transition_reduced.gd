@@ -10,5 +10,5 @@ func test_reduced_motion_swaps_without_snapshot_animation() -> void:
 	assert_true(get_node("/root/AccessibilityManager").should_reduce_motion())
 	assert_false(game.capture_scene_challenge_command().get("ok", false))
 	await _screenshot("scene-transition-reduced-destination")
-	_write_json("res://.godot/ci/scene-transition-reduced.json", {"events": transition_events, "frames": transition_frames})
+	if not _write_json("res://.godot/ci/scene-transition-reduced.json", {"events": transition_events, "frames": transition_frames}): return
 	print("SCENE_TRANSITION_REDUCED_COMPLETED")

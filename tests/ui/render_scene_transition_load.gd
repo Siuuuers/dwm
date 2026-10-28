@@ -33,6 +33,6 @@ func test_fresh_process_load_restores_destination_without_transition() -> void:
 	assert_eq(FileAccess.get_sha256("user://saves/slot_1.json"), proof.slot_sha256)
 	assert_eq(FileAccess.get_sha256("user://profile.json"), proof.profile_sha256)
 	await _screenshot("scene-transition-fresh-load")
-	_write_json("res://.godot/ci/scene-transition-load.json", {"process_id": OS.get_process_id(),
-		"creator_process_id": proof.creator_process_id, "slot_sha256": proof.slot_sha256})
+	if not _write_json("res://.godot/ci/scene-transition-load.json", {"process_id": OS.get_process_id(),
+		"creator_process_id": proof.creator_process_id, "slot_sha256": proof.slot_sha256}): return
 	print("SCENE_TRANSITION_LOAD_COMPLETED")

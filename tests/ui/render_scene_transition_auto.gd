@@ -11,5 +11,5 @@ func test_auto_waits_for_visible_transition_destination() -> void:
 	assert_eq(bridge._runtime_adapter.current_line_id(), TARGET_LINE)
 	assert_false(game.capture_scene_challenge_command().get("ok", false), "Auto has not consumed the hidden incoming caption")
 	await _screenshot("scene-transition-auto-destination")
-	_write_json("res://.godot/ci/scene-transition-auto.json", {"events": transition_events, "frames": transition_frames})
+	if not _write_json("res://.godot/ci/scene-transition-auto.json", {"events": transition_events, "frames": transition_frames}): return
 	print("SCENE_TRANSITION_AUTO_COMPLETED")

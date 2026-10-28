@@ -25,7 +25,7 @@ func test_manual_transition_discards_input_then_saves_visible_destination() -> v
 	if not await _wait_transition_finished(): return
 	assert_false(transition_frames.is_empty(), "actual transition frames were observed")
 	assert_false(transition_frames.filter(func(frame: Dictionary) -> bool:
-		return frame.has_capture and frame.has_tween and frame.progress > 0.0 and frame.progress < 1.0).is_empty(),
+		return frame.has_capture and frame.has_tween and frame.progress_millionths > 0 and frame.progress_millionths < 1000000).is_empty(),
 		"an actual captured intermediate frame progressed through the dissolve")
 	assert_gte(int(transition_events[1].ticks_usec) - int(transition_events[0].ticks_usec), 200000,
 		"normal motion includes the selected 250 ms animation")
@@ -40,6 +40,6 @@ func test_manual_transition_discards_input_then_saves_visible_destination() -> v
 	assert_true(game.capture_scene_challenge_command().get("ok", false), "fresh post-transition input reaches the next authored control")
 	assert_eq(bridge._reading_session.boundary, "control")
 	assert_false(profile.is_line_visited("line.scene.test.b.two"))
-	_write_json("res://.godot/ci/scene-transition-create.json", {"events": transition_events,
-		"frames": transition_frames, "process_id": OS.get_process_id(), "mid_capture": mid_capture})
+	if not _write_json("res://.godot/ci/scene-transition-create.json", {"events": transition_events,
+		"frames": transition_frames, "process_id": OS.get_process_id(), "mid_capture": mid_capture}): return
 	print("SCENE_TRANSITION_CREATE_COMPLETED")

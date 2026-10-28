@@ -26,7 +26,7 @@ func _process(_delta: float) -> void:
 	var host: Control = get_tree().current_scene
 	var row := {"ticks_usec": Time.get_ticks_usec(), "line_id": bridge._runtime_adapter.current_line_id(),
 		"target_read": profile.is_line_visited(TARGET_LINE), "auto_admitted": bridge.can_auto_advance_current_line(),
-		"has_capture": host.transition_surface.texture != null, "progress": bridge._scene_transition_progress,
+		"has_capture": host.transition_surface.texture != null, "progress_millionths": roundi(bridge._scene_transition_progress * 1000000.0),
 		"has_tween": bridge._scene_transition_tween != null}
 	transition_frames.append(row)
 	assert_false(row.target_read, "covered destination is never globally witnessed")
