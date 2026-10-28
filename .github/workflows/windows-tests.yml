@@ -99,6 +99,7 @@ jobs:
                   paths = set(diff.stdout.decode().strip("\0").split("\0"))
                   # Bilingual projection changes reading semantics, not only visual layout.
                   bilingual_paths = {
+                      'tools/localization/UiLiteralAudit.gd',
                       '.github/workflows/windows-tests.yml',
                       'tools/testing/Invoke-CloudTests.ps1',
                       'autoload/DialogicBridge.gd', 'autoload/LocalizationManager.gd',
