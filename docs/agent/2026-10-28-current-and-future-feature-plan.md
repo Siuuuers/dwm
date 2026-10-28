@@ -29,7 +29,7 @@ The owner reports the essential feature pass complete. PRs #147 and #148 are con
 | Remove save ink; seven evenly spaced controls; direct computer Settings; compact Skip/Auto; visible disabled labels under computer | PR #147 |
 | Final computer tag attached to Save while preserving dialogue bottom at y612 | PR #148; supersedes earlier row-to-tag-top alignment |
 
-**Next: read-only dialogue library inside Gallery (ID 12).** Use the [new implementation handoff](2026-10-29-gallery-dialogue-library-handoff.md), including the October 29 interview and CI efficiency requirements. Include paired self-talk; show all requirements through choice actions/consequences and Challenge results. Use a separate library reset. No speculative migration for an unshipped game. Mask appearance still awaits clarification. Sample checkpoints first; production placement remains deferred.
+**Next: read-only dialogue library inside Gallery (ID 12).** Use the [new implementation handoff](2026-10-29-gallery-dialogue-library-handoff.md), including the October 29 interview and CI efficiency requirements. Include paired self-talk; show all requirements through choice actions/consequences and Challenge results. Use a separate library reset. No speculative migration for an unshipped game. Unread entries use the approved fixed placeholder, independent of hidden text length. Sample checkpoints first; production placement remains deferred.
 
 **Cosmetic polish remains open:** the owner finds the crystal stutters, inked silk string and wax-sealed letter effects too simple and insufficiently expressive of the intended procedural design. Their purchase/ownership implementation is complete; their visual finish is not accepted as final. Keep this separate from the library implementation; inspect code and screenshots before proposing the next visual treatment.
 
@@ -279,7 +279,7 @@ This is separate from the per-run Notes app:
 - Show all required conditions and preserve actual AND/OR relationships.
 - Use sample checkpoints first; author production placements later.
 
-October 29 additions: include paired self-talk, describe all conditions through actions/consequences, and provide an independent library-only reset. See the handoff for ownership/reset implications and the pending mask choice.
+October 29 additions: include paired self-talk, describe all conditions through actions/consequences, and provide an independent library-only reset. See the handoff for ownership/reset implications and the approved fixed placeholder.
 
 Checkpoint discovery and individual line discovery are separate facts.
 A destination label alone may not encode the full path condition.
