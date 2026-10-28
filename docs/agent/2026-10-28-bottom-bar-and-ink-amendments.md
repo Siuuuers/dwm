@@ -116,3 +116,12 @@ the inset Save face at y660. The connector is decorative; computer and Save
 activation targets remain separate. This supersedes the earlier row-to-tag-top
 alignment requirement. Existing cosmetics decorate the open computer only;
 include the existing purchase journey for fresh open/closed screenshots.
+
+Implemented in [PR #148](https://github.com/Siuuuers/dwm/pull/148). Tested revision
+`20030ab5ece6d4ce5252352d3afd7acbbeaedd14` passed
+[cloud run 40730217570](https://github.com/Siuuuers/dwm/actions/runs/40730217570):
+34 successful jobs, including 29 focused suites, 80 geometry captures, native
+caption/API contracts, Windows exported startup and broader rendering. The
+unrelated matched startup/Load job was intentionally skipped. Purchase screenshots
+show all three owned decorations on computer Home and the unchanged reading
+scene after closing it. This acceptance-record update changes documentation only.
