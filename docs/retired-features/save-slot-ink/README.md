@@ -1,7 +1,7 @@
 # Save-slot ink retirement
 
 Decision: 2026-10-28, owner playtest amendment.
-Status: removal requested; this documentation commit does not remove runtime code.
+Status: active runtime decoration removed in [PR #147](https://github.com/Siuuuers/dwm/pull/147); see that PR for cloud acceptance and merge status.
 Inspected master: `76c39d0a4acb33f858fba18b6c2bc9ad7cdb24c4`.
 
 ## Decision

@@ -1,6 +1,6 @@
 # Bottom bar, computer and save-ink amendments
 
-Date: 2026-10-28. Status: implementation in [PR #147](https://github.com/Siuuuers/dwm/pull/147); cloud acceptance pending.
+Date: 2026-10-28. Status: implemented in [PR #147](https://github.com/Siuuuers/dwm/pull/147); the PR records final cloud acceptance and merge status.
 Code inspected at `76c39d0a4acb33f858fba18b6c2bc9ad7cdb24c4`. This handoff changes documentation only.
 
 Read AGENTS.md and CLAUDE.md, then recheck the branch head before implementation. This record supersedes the caret-above-bar, six-control and active save-ink requirements in the current feature plan and earlier handoffs. Other accepted behavior stays in force.
@@ -61,7 +61,8 @@ PR #147 implements the seven-command rail using the recommended order, with Sett
 last. The existing transport rail owns the bar top and bay width; caption, tag and
 transition exclusion share that geometry. The 32×24 visible tag begins at y612,
 with a separate 48×48 hit target above the Save text target. The caption aligns its
-last shaped text row rather than its padded interaction box.
+last shaped text row while retaining its complete interaction box: spare bottom
+padding moves above that row instead of clipping the target.
 
 Settings uses the existing cached desktop SettingsApp and shared preference store.
 Back returns to computer Home; the computer close control returns to the held caption.
@@ -74,7 +75,18 @@ boundary. New saves omit it; loading/reopening existing saves does not rewrite t
 
 Cloud coverage reuses the existing suites and connects the previously uninvoked
 scene-controls renderer. Its 80 presentation captures cover font/locale/size tuples,
-scaled viewports and ending layouts; synthetic display text is explicitly labeled.
+scaled viewports with Large Targets and ending layouts; synthetic display text is
+explicitly labeled. Full caption hit-target enclosure is checked separately from text alignment.
 Connected computer and app journeys separately establish actual command/custody effects.
-Godot and PowerShell run only in GitHub Actions. Acceptance results are pending;
-source review and screenshot-harness existence alone are not runtime acceptance.
+Godot and PowerShell run only in GitHub Actions. The PR records the accepted run,
+tested SHA and final status; source review and screenshot-harness existence alone
+are not runtime acceptance. Runtime candidate `4e3812d4bc2fb70beeae9b8558ef5a6dbb58f72c`
+is exercised in [run 40713707007](https://github.com/Siuuuers/dwm/actions/runs/40713707007).
+
+The first diagnostic [run 40711816468](https://github.com/Siuuuers/dwm/actions/runs/40711816468)
+exposed a clipped large caption target, corrected by the padding relocation above.
+Its other failures were outdated geometry/fixture expectations, including an Autosave
+read before the in-memory new run had written any save. Original full-target checks
+remain in force; no failed assertion was removed to accept the implementation.
+Canonical inventory regeneration is diagnostic only; committed inventories must
+pass a later read-only cloud check before merge.
