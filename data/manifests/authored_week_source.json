@@ -12,7 +12,7 @@
         {
           "marker_id": "Day1.thought",
           "label": "Day1.thought",
-          "after_line_id": "line.Day1.031",
+          "after_line_id": "line.Day1.030",
           "kind": "thought.pass",
           "payload": {
             "opportunity_id": "Day1.photo",
@@ -2475,7 +2475,7 @@
         {
           "marker_id": "Day2.thought",
           "label": "Day2.thought",
-          "after_line_id": "line.Day2.036",
+          "after_line_id": "line.Day2.035",
           "kind": "thought.pass",
           "payload": {
             "opportunity_id": "Day2.food",
@@ -3856,7 +3856,7 @@
         {
           "marker_id": "Day2.result.D.thought",
           "label": "Day2.result.D.thought",
-          "after_line_id": "line.Day2.result.D.048",
+          "after_line_id": "line.Day2.result.D.047",
           "kind": "thought.options",
           "payload": {
             "opportunity_id": "Day2.threshold",
@@ -4593,7 +4593,7 @@
         {
           "marker_id": "Day3.thought",
           "label": "Day3.thought",
-          "after_line_id": "line.Day3.088",
+          "after_line_id": "line.Day3.087",
           "kind": "thought.pass",
           "payload": {
             "opportunity_id": "Day3.partner",
@@ -6726,7 +6726,7 @@
         {
           "marker_id": "Day4.thought",
           "label": "Day4.thought",
-          "after_line_id": "line.Day4.067",
+          "after_line_id": "line.Day4.066",
           "kind": "thought.pass",
           "payload": {
             "opportunity_id": "Day4.pastille",
@@ -7573,7 +7573,7 @@
         {
           "marker_id": "Day4.D.thought",
           "label": "Day4.D.thought",
-          "after_line_id": "line.Day4.D.018",
+          "after_line_id": "line.Day4.D.017",
           "kind": "thought.options",
           "payload": {
             "opportunity_id": "Day4.aftermath",
@@ -8330,7 +8330,7 @@
         {
           "marker_id": "Day5.cheek.thought",
           "label": "Day5.cheek.thought",
-          "after_line_id": "line.Day5.cheek.004",
+          "after_line_id": "line.Day5.cheek.003",
           "kind": "thought.pass",
           "payload": {
             "opportunity_id": "Day5.cheek",
@@ -8733,7 +8733,7 @@
         {
           "marker_id": "Day5.D.thought",
           "label": "Day5.D.thought",
-          "after_line_id": "line.Day5.D.020",
+          "after_line_id": "line.Day5.D.019",
           "kind": "thought.options",
           "payload": {
             "opportunity_id": "Day5.aftermath",
@@ -9153,7 +9153,7 @@
         {
           "marker_id": "Day6.thought",
           "label": "Day6.thought",
-          "after_line_id": "line.Day6.117",
+          "after_line_id": "line.Day6.116",
           "kind": "thought.pass",
           "payload": {
             "opportunity_id": "Day6.rehearsal",
@@ -10266,7 +10266,7 @@
         {
           "marker_id": "Day6.D.thought",
           "label": "Day6.D.thought",
-          "after_line_id": "line.Day6.D.012",
+          "after_line_id": "line.Day6.D.011",
           "kind": "thought.options",
           "payload": {
             "opportunity_id": "Day6.aftermath",
@@ -10584,7 +10584,7 @@
         {
           "marker_id": "Day7.thought",
           "label": "Day7.thought",
-          "after_line_id": "line.Day7.028",
+          "after_line_id": "line.Day7.027",
           "kind": "thought.pass",
           "payload": {
             "opportunity_id": "Day7.clipboard",
@@ -10958,7 +10958,7 @@
         {
           "marker_id": "Day7.crossed.D.recording.thought",
           "label": "Day7.crossed.D.recording.thought",
-          "after_line_id": "line.Day7.crossed.D.recording.006",
+          "after_line_id": "line.Day7.crossed.D.recording.005",
           "kind": "thought.options",
           "payload": {
             "opportunity_id": "Day7.crossed.D.recording.aftermath",
@@ -11027,7 +11027,7 @@
         {
           "marker_id": "Day7.crossed.D.no_recording.thought",
           "label": "Day7.crossed.D.no_recording.thought",
-          "after_line_id": "line.Day7.crossed.D.no_recording.006",
+          "after_line_id": "line.Day7.crossed.D.no_recording.005",
           "kind": "thought.options",
           "payload": {
             "opportunity_id": "Day7.crossed.D.no_recording.aftermath",
@@ -11306,7 +11306,7 @@
         {
           "marker_id": "Day7.untouched.D.recording.thought",
           "label": "Day7.untouched.D.recording.thought",
-          "after_line_id": "line.Day7.untouched.D.recording.006",
+          "after_line_id": "line.Day7.untouched.D.recording.005",
           "kind": "thought.options",
           "payload": {
             "opportunity_id": "Day7.untouched.D.recording.aftermath",
@@ -11375,7 +11375,7 @@
         {
           "marker_id": "Day7.untouched.D.no_recording.thought",
           "label": "Day7.untouched.D.no_recording.thought",
-          "after_line_id": "line.Day7.untouched.D.no_recording.004",
+          "after_line_id": "line.Day7.untouched.D.no_recording.003",
           "kind": "thought.options",
           "payload": {
             "opportunity_id": "Day7.untouched.D.no_recording.aftermath",

@@ -16,7 +16,7 @@ func create_multiple_thoughts() -> void:
 	if not await _wait_line(OFFER) or not await _save_partner(1): return
 	for frame: int in 12: await get_tree().process_frame
 	var host: Control = get_tree().current_scene
-	var column: VBoxContainer = host.get_node("SceneControlsLayer/Surface/ThoughtOptions/Options")
+	var column: HBoxContainer = host.get_node("SceneControlsLayer/Surface/ThoughtOptions/Options")
 	assert_eq(column.get_child_count(), 2)
 	assert_false(host.get_node("SceneControlsLayer/Surface/ThoughtYes").visible)
 	if column.get_child_count() != 2: return
@@ -33,6 +33,8 @@ func create_multiple_thoughts() -> void:
 	var autosave_before: Dictionary = saves._storage.read_text("autosave.json")
 	var manual_before := FileAccess.get_sha256("user://saves/slot_1.json")
 	saves._storage._file_ops = refusal
+	column.get_child(1).grab_focus()
+	for frame: int in 3: await get_tree().process_frame
 	await _click(column.get_child(1))
 	if not await _wait_line("line.scene.test.partner.lavinia.after"):
 		saves._storage._file_ops = original

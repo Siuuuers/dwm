@@ -18,6 +18,9 @@ var _admission: Callable
 var _drag_y := 0.0
 var _touch_index := -1
 var _drag_rows := 0.0
+var _choice_row_visible := false
+var _text_height := 72.0
+var _choice_height := 70.0
 
 func _init() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
@@ -25,6 +28,22 @@ func _init() -> void:
 	clip_contents = true
 	focus_entered.connect(queue_redraw)
 	focus_exited.connect(queue_redraw)
+
+func _ready() -> void:
+	var host := get_tree().current_scene
+	if host != null and host.has_method("configure_thought_panel"):
+		host.configure_thought_panel(self)
+
+func set_choice_row_visible(shown: bool) -> void:
+	if _choice_row_visible == shown: return
+	_choice_row_visible = shown
+	_update_window()
+
+func has_choice_row() -> bool:
+	return _choice_row_visible
+
+func get_choice_row_rect() -> Rect2:
+	return Rect2(global_position + Vector2(0, _text_height + 8), Vector2(size.x, _choice_height))
 
 func configure(next_theme: Theme, width: float, admission: Callable, pane_name: String = "") -> void:
 	_admission = admission
@@ -107,8 +126,10 @@ func _shape() -> void:
 func _update_window() -> void:
 	var line_height := ceilf(_font.get_height(_font_size)) if _font != null else 24.0
 	for row: Dictionary in _visible_rows(): line_height = maxf(line_height, float(row.height))
-	size.y = line_height * 3
-	visible = not _rows.is_empty()
+	_text_height = line_height * 3
+	_choice_height = maxf(52, line_height + 16) + 18
+	size.y = _text_height + 8 + _choice_height if _choice_row_visible else _text_height
+	visible = not _rows.is_empty() or _choice_row_visible
 	var copy := PackedStringArray()
 	for row: Dictionary in _visible_rows():
 		copy.append(str(_rows[row.entry].text).substr(row.start, row.end - row.start))
@@ -171,6 +192,7 @@ func _gui_input(event: InputEvent) -> void:
 		_drag_rows -= event.delta.y * 20
 		_scroll_drag()
 	elif event is InputEventKey and event.pressed:
+		if event.keycode not in [KEY_UP, KEY_PAGEUP, KEY_DOWN, KEY_PAGEDOWN, KEY_END, KEY_ENTER, KEY_SPACE]: return
 		input_started.emit()
 		if event.keycode in [KEY_UP, KEY_PAGEUP]: review_rows(1)
 		elif event.keycode in [KEY_DOWN, KEY_PAGEDOWN]: review_rows(-1)
@@ -178,7 +200,7 @@ func _gui_input(event: InputEvent) -> void:
 	accept_event()
 
 func _scroll_drag() -> void:
-	var height := maxf(1, size.y / 3)
+	var height := maxf(1, _text_height / 3)
 	var count := int(_drag_rows / height)
 	if count == 0: return
 	_drag_rows -= count * height

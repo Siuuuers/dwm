@@ -52,6 +52,24 @@ func test_authored_week_compiles_and_preserves_conditional_branch_bindings() -> 
 	for entry: Dictionary in bundle.scene_programme.entries: entries[entry.entry_id] = entry
 	assert_eq(entries.size(), 92)
 	assert_eq(bundle.challenges.size(), 9, "mutually exclusive Day3 and clipboard branches share the seven-day journey")
+	var paths := {}
+	var labels: Array = []
+	for entry: Dictionary in bundle.entry_manifest.entries:
+		paths[entry.entry_id] = entry.locators.en.path
+		labels.append(entry.entry_id)
+	var paired_offers := 0
+	for entry: Dictionary in bundle.scene_programme.entries:
+		for marker: Dictionary in entry.markers:
+			if marker.kind not in ["thought.pass", "thought.options"]: continue
+			var compiled: Dictionary = ADAPTER.compile_scene_programme(paths[entry.entry_id], entry.entry_id, labels, entry.markers)
+			assert_true(compiled.ok, entry.entry_id)
+			if not compiled.ok: return
+			var control: int = compiled.value.label_nodes[marker.label]
+			var preceding: Dictionary = compiled.value.nodes[control - 1]
+			assert_eq(preceding.line_id, marker.after_line_id, "offer remains anchored to its paired caption frontier")
+			assert_true(preceding.has("self_talk"), "each shipped offer has the selected testing thought")
+			paired_offers += 1
+	assert_eq(paired_offers, 15)
 	var threshold: Dictionary = entries["Day2.result.D"].markers[0]
 	assert_eq(threshold.kind, "thought.options")
 	assert_eq(threshold.payload.pass_target_id, "target.Day2.threshold.benchmark")

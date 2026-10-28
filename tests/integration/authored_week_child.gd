@@ -10,8 +10,8 @@ const AUTHORED_ROUTE := [
 	"Day4", "Day4.pastille.default", "Day4.impulse", "Day4.A",
 	"Day5", "Day5.impulse", "Day5.A", "Day6", "Day6.rehearsal.default", "Day6.impulse", "Day6.A",
 	"Day7", "Day7.clipboard.default", "Day7.untouched.impulse", "Day7.A", "ending.alone.normal"]
-const DAY4_INDEX := 468
-const ENDING_INDEX := 814
+const DAY4_INDEX := 465
+const ENDING_INDEX := 808
 var _expected: Array[Dictionary] = []
 var _timings: Array[Dictionary] = []
 var _texts: Dictionary = {}
@@ -43,17 +43,23 @@ func _setup_authored() -> bool:
 	_texts = AUTHORED_TEXT.catalog("en")
 	var selected: Dictionary = AUTHORED_MANIFEST.scene_registration()
 	if not _ok(selected): return false
-	var entries := {}
-	for entry: Dictionary in selected.value.caption_registry.entries: entries[entry.entry_id] = entry.lines
+	var labels: Array = []
+	var paths := {}
+	var programmes := {}
+	for entry: Dictionary in selected.value.entry_manifest.entries:
+		labels.append(entry.entry_id)
+		paths[entry.entry_id] = entry.locators.en.path
+	for entry: Dictionary in selected.value.scene_programme.entries: programmes[entry.entry_id] = entry
 	for entry_id: String in AUTHORED_ROUTE:
-		assert_true(entries.has(entry_id), entry_id)
-		if not entries.has(entry_id): return false
-		for line: Dictionary in entries[entry_id]:
-			_expected.append({"entry_id": entry_id, "line_id": line.line_id})
-	assert_eq(_expected.size(), 836, "pinned authored default route census")
+		var compiled: Dictionary = preload("res://scripts/narrative/DialogicRuntimeAdapter.gd").compile_scene_programme(
+			paths[entry_id], entry_id, labels, programmes[entry_id].markers)
+		if not _ok(compiled): return false
+		for node: Dictionary in compiled.value.nodes:
+			if node.kind == "caption": _expected.append({"entry_id": entry_id, "line_id": node.line_id})
+	assert_eq(_expected.size(), 830, "pinned authored default route census")
 	assert_eq(_expected[DAY4_INDEX].line_id, "line.Day4.one")
 	assert_eq(_expected[ENDING_INDEX].line_id, "line.ending.alone.normal.001")
-	return _expected.size() == 836
+	return _expected.size() == 830
 
 func _wait_line(line_id: String) -> bool:
 	var deadline := Time.get_ticks_msec() + 30000
@@ -217,7 +223,7 @@ func create_authored_week() -> void:
 	get_node("/root/SceneRouter").goto_menu()
 	if not await _new_from_title(1): return
 	if not await _walk_authored(1, DAY4_INDEX): return
-	assert_eq(observed_lines.size(), 469)
+	assert_eq(observed_lines.size(), 466)
 	assert_true(game.capture_dating_challenge_state().value.is_empty())
 	await _save_authored(1, "day4")
 
@@ -236,7 +242,7 @@ func load_authored_week() -> void:
 	var ending_proof: Dictionary = await _save_authored(2, "ending")
 	if ending_proof.is_empty(): return
 	if not await _walk_authored(ENDING_INDEX + 1, _expected.size() - 1): return
-	assert_eq(observed_lines.size(), 368)
+	assert_eq(observed_lines.size(), 365)
 	var finished: Dictionary = await _complete_authored()
 	if finished.is_empty(): return
 	var completed_profile: Dictionary = profile.get_profile_snapshot()

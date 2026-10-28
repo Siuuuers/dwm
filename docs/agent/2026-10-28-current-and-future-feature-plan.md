@@ -313,3 +313,28 @@ improvement is claimed. Further Save/Load profiling stays deferred.
 Update this same plan as decisions change. Record the implementation PR and
 accepted evidence against each completed row; do not use a merged PR alone as
 proof that every design item is complete.
+
+## Playtest corrections selected after Steam build 26265268
+
+The owner reported missing self-talk in the shipped story, detached choice controls,
+large/off-center computer caret, redundant Apps/Contacts buttons, and faint localized
+save ink. The earlier self-talk acceptance proved synthetic paired content; shipped
+DTL had no annotations. Engine completion did not establish production binding.
+
+For this test build, explicitly route the existing line immediately before each
+thought offer into self-talk without rewriting prose or changing its line ID.
+This is a temporary presentation selection for playtesting, not final literary
+classification. Keep both the caption and thought in the existing paired reading
+step. Dialogue choices occupy one horizontally scrollable row in the same panel,
+beneath the retained three thought-text rows.
+
+Make the computer tag visually smaller with a centered up-chevron while closed and
+a down-chevron while open. Remove external Apps/Contacts text shortcuts. A small
+Home pictogram preserves return from the held Challenge to desktop apps; selecting
+Minesweeper there returns to that same held Challenge. The standalone Challenge has
+no clock strip; the desktop retains its existing header/clock. No clock is added.
+
+Ink is darker, larger and more scattered across the slot paper, including a soft
+smudge and additional droplets. Preserve stable seeds, destination-owned saves,
+0.65 fading, text legibility and focus geometry. Cloud rendered checks and a new
+Steam test upload are pending; do not treat this plan as acceptance evidence.

@@ -58,7 +58,7 @@ func test_live_locale_change_preserves_admitted_open_state_focus_and_dispatch() 
 	for language: String in ["zh_HK", "zh_CN", "ja", "ko", "en"]:
 		assert_true(_locale.set_locale(language).get("ok", false))
 		assert_eq(computer.accessibility_name, _locale.t("scene.controls.close_computer"))
-		assert_eq(computer.text, "^")
+		assert_eq(computer.text, "", "centered chevron is drawn independently of font metrics")
 		assert_true(computer.has_focus(), "presentation refresh retains focused button")
 		assert_true(_host.is_computer_open())
 		assert_true(_host.get_challenge_mount().visible)

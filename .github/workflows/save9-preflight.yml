@@ -1,6 +1,8 @@
-name: Save9 admission preflight
+name: Playtest story registration preflight
 on:
   workflow_dispatch:
+  push:
+    branches: [fix/playtest-ui-polish]
 permissions:
   contents: read
 concurrency:
@@ -67,23 +69,21 @@ jobs:
           # Execute the committed configuration with the freshly imported assets.
           git restore -- project.godot
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Compile and validate authored self-talk bindings
+        run: |
+          & $env:GODOT_CONSOLE_PATH --headless --path $env:GITHUB_WORKSPACE -s res://tools/authoring/ExportSevenDayRegistration.gd
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          & $env:GODOT_CONSOLE_PATH --headless --path $env:GITHUB_WORKSPACE -s res://tools/authoring/ExportSevenDayRegistration.gd -- --validate-seven-day-export
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Generate current caller inventories
         run: ./tools/testing/Invoke-PublicSurfaceValidation.ps1 -Regenerate -EmitPayloads
-      - name: Verify current Save9 admission
-        run: ./tools/testing/Invoke-CloudTests.ps1 -Suite scene_backup_inspection
-      - name: Verify current Backup storage
-        run: ./tools/testing/Invoke-CloudTests.ps1 -Suite backup_current_build
-      - name: Verify current Quick Load
-        run: ./tools/testing/Invoke-CloudTests.ps1 -Suite current_quick_load
-      - name: Measure fresh Save9 and fresh-process Load
-        timeout-minutes: 25
-        run: ./tools/testing/Invoke-FreshSaveLoad.ps1
-      - name: Preserve preflight evidence
+      - name: Preserve generated registration and inventories
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: save9-preflight-${{ github.run_id }}-${{ github.run_attempt }}
+          name: playtest-registration-${{ github.run_id }}
           path: |
+            data/manifests/scene_story_registration.json
             .godot/ci/
             .godot/phase2r_logs/
             evidence/phase_2r/runtime/game_state_surface.json
