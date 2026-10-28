@@ -130,6 +130,7 @@ jobs:
                       'tests/unit/test_witnessed_timed_hold.gd',
                       'tests/unit/test_witnessed_pause_view.gd',
                       'tests/ui/render_delivery_dialogue.gd',
+                      'tests/ui/render_japanese_korean_ui.gd',
                   })
                   # Combined bottom-bar, computer Settings and ink-retirement acceptance.
                   playtest_polish_paths.update({
