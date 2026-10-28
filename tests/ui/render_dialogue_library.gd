@@ -162,7 +162,13 @@ func test_rendered_gallery_keeps_unread_shape_fixed_and_browsing_read_only() -> 
 		assert_true(profile.set_preference(&"preferences.accessibility.text_size", percent).ok)
 		await _settle()
 		var languages: Array[String] = []
+		var previous_label: Label
 		for label: Label in library._paper.get_children():
+			assert_gte(label.size.y, label.get_minimum_size().y, "shaped text retains its full height")
+			if previous_label != null:
+				assert_gte(label.position.y - previous_label.position.y - previous_label.size.y, 16.0,
+					"translations and following labels retain their vertical spacing")
+			previous_label = label
 			if label.text in ["TEST read caption.", "測試已讀對白。"]:
 				languages.append(label.language)
 				assert_lte(label.get_minimum_size().x, library._scroll.size.x)

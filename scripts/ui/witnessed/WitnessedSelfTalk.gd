@@ -179,7 +179,8 @@ func _update_window() -> void:
 	for row: Dictionary in _visible_rows():
 		copy.append(str(row.text).substr(row.start, row.end - row.start))
 	accessibility_name = _pane_name if copy.is_empty() or _dual else "\n".join(copy)
-	var visible_lines := _visible_rows() if _dual else []
+	var visible_lines: Array[Dictionary] = []
+	if _dual: visible_lines = _visible_rows()
 	while _accessible_lines.size() > visible_lines.size():
 		var stale: AccessibleThoughtLine = _accessible_lines.pop_back()
 		remove_child(stale)

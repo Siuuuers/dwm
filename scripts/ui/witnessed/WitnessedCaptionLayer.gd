@@ -1755,9 +1755,12 @@ func _handle_input(event: InputEvent, current: bool, source_control: Control = n
 
 func _caption_window() -> Array[String]:
 	if _dual_enabled:
+		var pair: Array[String] = []
 		if _review_offset > 0:
-			return [_scrollback[_scrollback.size() - _review_offset]]
-		return [caption_text.get_parsed_text()] if is_instance_valid(caption_text) and not caption_text.get_parsed_text().is_empty() else []
+			pair.append(_scrollback[_scrollback.size() - _review_offset])
+		elif is_instance_valid(caption_text) and not caption_text.get_parsed_text().is_empty():
+			pair.append(caption_text.get_parsed_text())
+		return pair
 	if _review_offset == 0:
 		var result := _retained.duplicate()
 		if is_instance_valid(caption_text) and not caption_text.get_parsed_text().is_empty():

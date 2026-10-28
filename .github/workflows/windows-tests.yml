@@ -499,10 +499,16 @@ jobs:
           git restore -- project.godot
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Run focused regression suite
+        id: focused_regression
         timeout-minutes: ${{ matrix.suite == 'current_terminal_fixture' && 30 || 10 }}
         env:
           DWM_CI_SUITE: ${{ matrix.suite }}
         run: ./tools/testing/Invoke-CloudTests.ps1 -Suite $env:DWM_CI_SUITE
+      - name: Run bilingual choices with a fresh registration and profile
+        # Share checkout/import, but never mix fixture and authored registration in one process.
+        if: ${{ !cancelled() && matrix.suite == 'bilingual_reading' && steps.focused_regression.outcome != 'skipped' }}
+        timeout-minutes: 10
+        run: ./tools/testing/Invoke-CloudTests.ps1 -Suite bilingual_choices
       - name: Verify interrupted Load leaves persistent files unchanged
         if: matrix.suite == 'persistence'
         timeout-minutes: 10

@@ -658,7 +658,7 @@ func _on_reading_language_preference_changed(path: StringName, _value: Variant) 
 		reading_languages_changed.emit()
 
 func _secondary_reading_locale() -> String:
-	var profile := get_node_or_null("/root/ProfileManager")
+	var profile := get_node_or_null("/root/ProfileManager") if is_inside_tree() else null
 	if profile == null or not profile.get_preference(&"preferences.language.dual_enabled", false): return ""
 	return str(profile.get_preference(&"preferences.language.secondary_locale_id", ""))
 
