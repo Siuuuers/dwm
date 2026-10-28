@@ -177,6 +177,8 @@ func _ready() -> void:
 	configure_reading_transport(_profile, get_node_or_null("/root/DialogicBridge"))
 	if is_instance_valid(_transport_bridge) and _transport_bridge.has_signal("computer_hold_changed"):
 		_transport_bridge.connect("computer_hold_changed", _on_computer_hold_changed)
+	if is_instance_valid(_transport_bridge) and _transport_bridge.has_signal("scene_transition_changed"):
+		_transport_bridge.connect("scene_transition_changed", _on_scene_transition_changed)
 	configure_speech(_profile, get_node_or_null("/root/DialogicBridge"), get_node_or_null("/root/SystemTtsCoordinator"))
 	auto_controller.bind_completion_barrier(_speech_allows_auto)
 	var input_owner := get_node_or_null("/root/InputManager")
@@ -253,6 +255,7 @@ func _speech_allows_auto(expected_frontier: Dictionary) -> bool:
 		or not _speech_owner.is_speaking(_speech_source))
 
 func _speak_publication(generation: int) -> void:
+	if _scene_transition_held(): return
 	if generation != _speech_generation or not _speech_candidate: return
 	# Consume once even when Off, unavailable, restored, or denied. Preferences,
 	# focus return and duplicate native signals cannot replay this publication.
@@ -352,6 +355,7 @@ func _before_normal_accept() -> bool:
 	return true
 
 func _acknowledge_visible_line() -> bool:
+	if _scene_transition_held(): return false
 	if _is_reviewing() or is_next_transport_active(): return false
 	if _line_waiting_for_text: return false
 	var has_proof: bool = _presented_line.get("ok", false)
@@ -396,8 +400,30 @@ func _transport_admitted() -> bool:
 		and is_instance_valid(_transport_bridge) \
 		and bool(_transport_bridge.call("can_skip_current_line"))
 
+func _scene_transition_held() -> bool:
+	return is_instance_valid(_transport_bridge) and _transport_bridge.has_method("is_scene_transition_active") \
+		and _transport_bridge.is_scene_transition_active()
+
+func _on_scene_transition_changed(active: bool) -> void:
+	# Retire both edges: a press during the dissolve cannot become a fresh action.
+	accept_input.retire_input()
+	transport_rail.retire_input()
+	auto_controller.retire_current()
+	if active:
+		_cancel_speech()
+	else:
+		_refresh_reading_session()
+		_acknowledge_visible_line()
+		if _speech_candidate:
+			_speech_pending = true
+			_speak_publication.call_deferred(_speech_generation)
+		_auto_resume_pending = true
+	_sync_native_processing()
+	_sync_transport()
+
+
 func _reading_source_admitted() -> bool:
-	return not _computer_caption_held() and not _ending_caption_handoff and _timed_hold_frontier.is_empty() and _reading_recovery.is_empty() and not _load_pending and not _history_pending and not _history_open \
+	return not _scene_transition_held() and not _computer_caption_held() and not _ending_caption_handoff and _timed_hold_frontier.is_empty() and _reading_recovery.is_empty() and not _load_pending and not _history_pending and not _history_open \
 		and not is_next_transport_active()
 
 func is_next_transport_active() -> bool:
@@ -1332,7 +1358,7 @@ func _on_text_started(info: Dictionary) -> void:
 	_layout_stack(true)
 	_capture_presented_line()
 	_acknowledge_visible_line()
-	if _speech_candidate and not is_next_transport_active():
+	if _speech_candidate and not is_next_transport_active() and not _scene_transition_held():
 		_speech_pending = true
 		_speak_publication.call_deferred(_speech_generation)
 
@@ -1354,7 +1380,7 @@ func _on_caption_visibility_changed() -> void:
 	_request_layout()
 
 func _sync_native_processing() -> void:
-	if _computer_caption_held():
+	if _scene_transition_held() or _computer_caption_held():
 		caption_text.set_process(false)
 		return
 	if _ending_caption_handoff:
@@ -1435,7 +1461,7 @@ func _on_preference_changed(path: StringName, _value: Variant) -> void:
 
 func _process(_delta: float) -> void:
 	_sync_timed_hold_projection()
-	if (_speech_pending or not _speech_source.is_empty()) and not _speech_admitted(): _cancel_speech()
+	if not _scene_transition_held() and (_speech_pending or not _speech_source.is_empty()) and not _speech_admitted(): _cancel_speech()
 	if not _reading_recovery.is_empty() and not _reading_request_matches(_reading_recovery):
 		_dismiss_reading_recovery(false)
 	_sync_transport()

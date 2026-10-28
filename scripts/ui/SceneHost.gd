@@ -1,6 +1,7 @@
 extends Control
 ## Scene chrome only. Bootstrap owns admission, persistence, and panel mounting.
 
+const TRANSITION_SURFACE := preload("res://scripts/ui/witnessed/SceneTransitionOverlay.gd")
 const TYPOGRAPHY := preload("res://scripts/ui/UiTypography.gd")
 const CONTROL_KEYS := {
 	"Apps": "scene.controls.apps", "Contacts": "app.contacts",
@@ -15,8 +16,20 @@ var _thought_frontier: Dictionary = {}
 var _thought_poll := 0.0
 var _thought_options_offer: Dictionary = {}
 var _profile: Node
+var _transition_bridge: Node
+var transition_surface: Control
 
 func _ready() -> void:
+	var transition_layer := CanvasLayer.new()
+	transition_layer.name = "SceneTransitionLayer"
+	transition_layer.layer = 19
+	add_child(transition_layer)
+	transition_surface = TRANSITION_SURFACE.new()
+	transition_surface.caret = $SceneControlsLayer/Surface/Controls/CheckComputer
+	transition_layer.add_child(transition_surface)
+	_transition_bridge = get_node_or_null("/root/DialogicBridge")
+	if _transition_bridge != null:
+		_transition_bridge.configure_scene_transition_surface(transition_surface)
 	$SceneControlsLayer/Surface/ThoughtYes.pressed.connect(_accept_thought)
 	get_challenge_mount().child_entered_tree.connect(_fit_challenge)
 	_bind_presentation()
@@ -116,7 +129,7 @@ func _refresh_presentation(_locale_id: String = "") -> void:
 func _toggle_computer() -> void:
 	# Consume before awaiting: closing must not forward this click into dialogue.
 	get_viewport().set_input_as_handled()
-	if _busy: return
+	if _busy or (is_instance_valid(_transition_bridge) and _transition_bridge.is_scene_transition_active()): return
 	var opening := not _computer_open
 	var action := "computer_open" if opening else "computer_close"
 	var callback: Callable = _actions.get(action, Callable())
@@ -132,7 +145,7 @@ func _toggle_computer() -> void:
 
 func _invoke(action: String) -> void:
 	get_viewport().set_input_as_handled()
-	if _busy: return
+	if _busy or (is_instance_valid(_transition_bridge) and _transition_bridge.is_scene_transition_active()): return
 	var callback: Callable = _actions.get(action, Callable())
 	if not callback.is_valid(): return
 	_busy = true

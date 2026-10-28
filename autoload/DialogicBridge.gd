@@ -21,6 +21,7 @@ signal ending_playback_finished(playback_token: String, ending_id: String, recei
 signal ending_playback_failed(playback_token: String, ending_id: String, result: Dictionary)
 signal ending_playback_retired(playback_token: String, ending_id: String)
 signal scene_art_changed
+signal scene_transition_changed(active: bool)
 signal computer_hold_changed
 signal reading_session_changed
 signal scene_terminal_retired(admission_id: String)
@@ -45,6 +46,64 @@ var _scene_stage_fatal := false
 var _scene_stage_busy := false
 var _scene_stage_phase := ""
 var _scene_authority_validating := false
+
+# Presentation-only custody survives native layout replacement; nothing is saved.
+var _scene_transition_surface: Control
+var _scene_transition_active := false
+var _scene_transition_progress := 1.0
+var _scene_transition_generation := 0
+var _scene_transition_reduced := false
+var _scene_transition_tween: Tween
+
+func configure_scene_transition_surface(surface: Control) -> void:
+	if surface == _scene_transition_surface: return
+	_clear_scene_transition()
+	if is_instance_valid(_scene_transition_surface):
+		_scene_transition_surface.tree_exiting.disconnect(_clear_scene_transition)
+	_scene_transition_surface = surface
+	if surface != null: surface.tree_exiting.connect(_clear_scene_transition)
+
+func is_scene_transition_active() -> bool:
+	return _scene_transition_active
+
+func _begin_scene_transition() -> bool:
+	if DisplayServer.get_name() == "headless" or not is_instance_valid(_scene_transition_surface) \
+			or not _scene_transition_surface.is_inside_tree(): return false
+	var accessibility := get_node_or_null("/root/AccessibilityManager")
+	_scene_transition_reduced = accessibility != null and accessibility.should_reduce_motion()
+	if not _scene_transition_reduced and not _scene_transition_surface.call("capture_source"): return false
+	_scene_transition_generation += 1
+	_scene_transition_active = true
+	_scene_transition_progress = 0.0
+	scene_transition_changed.emit(true)
+	return true
+
+func _reveal_scene_transition(generation: int) -> void:
+	# Called deferred from adoption, after the event port releases its causal lease.
+	if generation != _scene_transition_generation or not _scene_transition_active: return
+	await RenderingServer.frame_post_draw
+	if generation != _scene_transition_generation or not _scene_transition_active: return
+	if _scene_transition_reduced:
+		_clear_scene_transition()
+		return
+	_scene_transition_tween = create_tween()
+	_scene_transition_tween.tween_method(_set_scene_transition_progress, 0.0, 1.0, 0.25)
+	_scene_transition_tween.finished.connect(_clear_scene_transition)
+
+func _set_scene_transition_progress(progress: float) -> void:
+	_scene_transition_progress = progress
+	_scene_transition_surface.call("set_progress", progress)
+
+func _clear_scene_transition() -> void:
+	_scene_transition_generation += 1
+	if _scene_transition_tween != null:
+		_scene_transition_tween.kill()
+		_scene_transition_tween = null
+	if is_instance_valid(_scene_transition_surface): _scene_transition_surface.call("clear_capture")
+	_scene_transition_progress = 1.0
+	if not _scene_transition_active: return
+	_scene_transition_active = false
+	scene_transition_changed.emit(false)
 
 func configure_scene_staging(port: Object, source_validator: Callable, context_provider: Callable) -> Dictionary:
 	if _scene_stage_busy or _scene_stage_port != null or port == null or has_active_playback() or has_reading_session() \
@@ -467,6 +526,7 @@ func _adopt_scene_target() -> Dictionary:
 	_scene_stage_fatal = false
 	scene_art_changed.emit()
 	reading_session_changed.emit()
+	if _scene_transition_active: _reveal_scene_transition.call_deferred(_scene_transition_generation)
 	return {"ok": true}
 
 static func _scene_checkpoint_ref(value: Variant) -> bool:
@@ -1220,6 +1280,7 @@ func _on_playback_start_failed(failure: Dictionary, halt_runtime: bool = false) 
 	if _scene_stage.has("live_publication"):
 		_scene_stage_fatal = true
 		_scene_stage["native_failure"] = failure.duplicate(true)
+		_clear_scene_transition()
 		return
 	_close_art_hold()
 	if _runtime_adapter != null and _runtime_adapter.has_method("release_frozen_presentation"):
@@ -2476,6 +2537,7 @@ func _retain_line_presentation(identity: Dictionary) -> void:
 
 
 func _line_presentation_context(expected_frontier: Dictionary = {}, guard_mutation: bool = true) -> Dictionary:
+	if guard_mutation and _scene_transition_active: return _command_failure(&"scene_transition_active")
 	if guard_mutation and is_computer_caption_held(): return _command_failure(&"computer_caption_held")
 	if is_rehearsal_playback(): return _command_failure(&"rehearsal_commit_denied")
 	if _active_entry.is_empty(): return _command_failure(&"no_active_entry")
@@ -2913,6 +2975,7 @@ func retire_reading_session() -> void:
 	_hospital_reading_token = ""
 	_hospital_reading_completed = false
 	_reading_session = null
+	_clear_scene_transition()
 	_reading_restore_adoption = false
 	_reading_adoption_checkpoint = {}
 	reading_session_changed.emit()
@@ -3316,6 +3379,7 @@ func begin_scene_activation(operation_id: String) -> Dictionary:
 	for signal_name: String in ["reading_frontier_restored", "playback_start_failed"]:
 		var callback := Callable(self, "_on_" + signal_name)
 		if not _runtime_adapter.is_connected(signal_name, callback): _runtime_adapter.connect(signal_name, callback)
+	_clear_scene_transition()
 	_scene_restore.started = true
 	_start_scene_restore_native(operation_id)
 	if _scene_restore.has("failure"): return _scene_restore.failure.duplicate(true)
@@ -4228,6 +4292,7 @@ func abort_current_entry(code: StringName) -> Dictionary:
 	# Clear BEFORE halting: the physical end signal the halt provokes must find no active entry,
 	# so an aborted playback can never reach the completion port (the stale-completion law).
 	_active_entry = {}
+	_clear_scene_transition()
 	if not _ending_reading.is_empty() and entry.get("frozen_context") == _ending_reading.frame:
 		var ending := _ending_reading.duplicate(true)
 		_ending_reading.clear()
@@ -4619,6 +4684,7 @@ func dispatch_scene_event(live_session: Dictionary, envelope: Dictionary) -> Dic
 	if not current_scene and not _runtime_adapter.has_method("dispatch_scene_event_acknowledged"):
 		return _command_failure(&"event_dependency_invalid")
 	_scene_event_dispatching = true
+	var transitioning: bool = current_scene and envelope.get("kind") == "scene.transition" and _begin_scene_transition()
 	var result: Dictionary
 	if current_scene:
 		# The Scene owner stages and commits its destination with the consequences.
@@ -4637,6 +4703,8 @@ func dispatch_scene_event(live_session: Dictionary, envelope: Dictionary) -> Dic
 	if result.get("committed", false) and not result.get("ok", false):
 		_mutation_gate.latch_fatal({"source": &"scene_event", "phase": &"acknowledgement",
 			"code": result.get("code", &"event_ack_interrupted"), "details": {"committed": true}})
+	if transitioning and (not result.get("ok", false) or result.get("duplicate", false) or result.get("found", false)):
+		_clear_scene_transition()
 	return result
 
 ## Expose only a currently authenticated held marker, never a guessed UI command.
