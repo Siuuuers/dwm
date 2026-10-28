@@ -8,7 +8,7 @@ const STORAGE := preload("res://scripts/infrastructure/storage/JsonFileStorage.g
 const FILES := preload("res://tests/support/FakeFileOps.gd")
 const CAPTION := preload("res://scenes/ui/witnessed/WitnessedCaptionLayer.tscn")
 const COMMANDS := ["History", "Save", "Load", "Skip", "Auto", "Next", "Settings"]
-const FIXTURE_TEXT := "Synthetic layout fixture: the last rendered dialogue row meets the visible computer tag. This deliberately long sentence wraps naturally while preserving the selected font and full text size."
+const FIXTURE_TEXT := "Synthetic layout fixture: the dialogue stays fixed while the computer tag attaches to Save. This deliberately long sentence wraps naturally while preserving the selected font and full text size."
 const TYPOGRAPHY := preload("res://scripts/ui/UiTypography.gd")
 var _failures: Array[String] = []
 var _samples: Array[Dictionary] = []
@@ -116,19 +116,23 @@ func _capture(host: Control, locale: Node, language: String, style: String, perc
 	var rectangles := _inspect(host, locale, language, style, percent, id)
 	var rail: Control = _caption.transport_rail
 	var caret: Button = host.get_node("SceneControlsLayer/Surface/Controls/CheckComputer")
-	var tag := Rect2(caret.get_global_rect().get_center() - Vector2(16, 12), Vector2(32, 24))
+	var tag := Rect2(caret.global_position + Vector2(8, 24), Vector2(32, 24))
 	var leaf: RichTextLabel = _caption.caption_text
 	leaf.release_focus()
 	_check(_caption.scroll.get_global_rect().encloses(leaf.get_global_rect()), id + ": complete caption hit target fits its aperture")
 	_check(leaf.size.y >= (64.0 if variant == "scaled" else 48.0), id + ": full requested caption target height")
 	var row_bottom := leaf.global_position.y + leaf.get_theme_stylebox("normal").get_content_margin(SIDE_TOP) + leaf.get_content_height()
 	_check(leaf.get_line_count() > 1, id + ": synthetic text actually wraps")
-	_check(absf(row_bottom - tag.position.y) <= 1.0, id + ": rendered content bottom meets visible tag top: " + str(row_bottom))
+	_check(absf(row_bottom - 612.0) <= 1.0, id + ": approved rendered content bottom stays fixed: " + str(row_bottom))
 	_check(not caret.get_global_rect().intersects(rail.get_node("Save").get_global_rect()), id + ": Save and tag have separate hit targets")
 	var final: Transform2D = _viewport.get_final_transform()
 	var drawn_row: Vector2 = final * leaf.get_global_transform_with_canvas() * Vector2(0, leaf.get_theme_stylebox("normal").get_content_margin(SIDE_TOP) + leaf.get_content_height())
-	var drawn_tag: Vector2 = final * caret.get_global_transform_with_canvas() * ((caret.size - Vector2(32, 24)) * 0.5)
-	_check(absf(drawn_row.y - drawn_tag.y) <= 1.25, id + ": alignment survives viewport scale")
+	var drawn_tag: Vector2 = final * caret.get_global_transform_with_canvas() * Vector2(8, 24)
+	_check(absf(drawn_row.y - (final * Vector2(0, 612)).y) <= 1.25, id + ": caption placement survives viewport scale")
+	var save: Button = rail.get_node("Save")
+	var save_face_top := save.global_position.y - (save.get_theme_stylebox("normal") as StyleBoxFlat).get_expand_margin(SIDE_TOP)
+	_check(is_equal_approx(tag.end.y + 4, save_face_top), id + ": tag paint touches visible Save face")
+	_check(caret.get_global_rect().encloses(tag), id + ": tag body remains inside full computer hit target")
 	var centers: Array[float] = []
 	for command: String in COMMANDS:
 		var button: Button = rail.get_node(command)
@@ -148,7 +152,7 @@ func _capture(host: Control, locale: Node, language: String, style: String, perc
 		_check(is_equal_approx(centers[index] - centers[index - 1], 1280.0 / 7.0), id + ": even command centers")
 	_check(rail.get_node("Auto").theme_type_variation == &"WitnessedTransportMode", id + ": selected Auto survives disabled projection")
 	_samples.append({"id": id, "buttons": rectangles, "centers": centers, "row_bottom": row_bottom,
-		"tag_top": tag.position.y, "drawn_row_bottom": drawn_row.y, "drawn_tag_top": drawn_tag.y,
+		"tag_top": tag.position.y, "tag_paint_bottom": tag.end.y + 4, "save_face_top": save_face_top, "drawn_row_bottom": drawn_row.y, "drawn_tag_top": drawn_tag.y,
 		"wrapped_lines": leaf.get_line_count(), "viewport": str(_viewport.size), "large_targets": variant == "scaled"})
 	if DisplayServer.get_name() == "headless": return
 	await RenderingServer.frame_post_draw
@@ -168,7 +172,11 @@ func _capture(host: Control, locale: Node, language: String, style: String, perc
 				ink_bottom = y
 	_check(ink_bottom >= int(drawn_row.y) - last_row_height, id + ": native last-row glyph ink exists")
 	_samples.back()["native_ink_bottom"] = ink_bottom
-	var center := Vector2i(final * caret.get_global_transform_with_canvas() * (caret.size * 0.5))
+	var center := Vector2i(final * caret.get_global_transform_with_canvas() * Vector2(24, 36))
+	var attachment := Vector2i(final * Vector2(tag.get_center().x, tag.end.y + 2))
+	var beside := Vector2i(final * Vector2(tag.end.x + 4, tag.end.y + 2))
+	_check(picture.get_pixelv(attachment).get_luminance() > picture.get_pixelv(beside).get_luminance() + 0.005,
+		id + ": connector pixels fill the Save face inset")
 	var top := picture.get_pixel(center.x, center.y - 2).get_luminance()
 	var bottom := picture.get_pixel(center.x, center.y + 2).get_luminance()
 	_check(bottom > top + 0.1 if opened else top > bottom + 0.1, id + ": visible chevron orientation")

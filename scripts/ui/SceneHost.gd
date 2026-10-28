@@ -33,7 +33,7 @@ func _ready() -> void:
 	get_challenge_mount().child_entered_tree.connect(_fit_challenge)
 	_bind_presentation()
 	var computer: Button = $SceneControlsLayer/Surface/Controls/CheckComputer
-	computer.position = Vector2(TRANSPORT_RAIL.BAY_WIDTH * 1.5 - 24, TRANSPORT_RAIL.BAR_TOP - 12)
+	computer.position = Vector2(TRANSPORT_RAIL.BAY_WIDTH * 1.5 - 24, TRANSPORT_RAIL.RAIL_POSITION.y + TRANSPORT_RAIL.CONTROL_RECTS[&"save"].position.y - 48)
 	computer.pressed.connect(_toggle_computer)
 	for state: String in ["normal", "hover", "pressed", "focus", "disabled"]:
 		computer.add_theme_stylebox_override(state, StyleBoxEmpty.new())
@@ -135,10 +135,10 @@ func _refresh_presentation(_locale_id: String = "") -> void:
 
 func _draw_computer_caret() -> void:
 	var button: Button = $SceneControlsLayer/Surface/Controls/CheckComputer
-	var tag := Rect2((button.size - Vector2(32, 24)) * 0.5, Vector2(32, 24))
+	var tag := Rect2(Vector2((button.size.x - 32) * 0.5, button.size.y - 24), Vector2(32, 24))
 	var ink := button.get_theme_color("font_disabled_color" if button.disabled else "font_color")
-	button.draw_rect(tag, Color(0.08, 0.08, 0.09, 0.8))
-	var center := button.size * 0.5
+	button.draw_rect(Rect2(tag.position, tag.size + Vector2(0, TRANSPORT_RAIL.PLATE_INSET)), Color(0.08, 0.08, 0.09, 0.8))
+	var center := tag.get_center()
 	var rise := -2.5 if _computer_open else 2.5
 	button.draw_polyline(PackedVector2Array([center + Vector2(-5, rise), center + Vector2(0, -rise), center + Vector2(5, rise)]), ink, 2.0, true)
 	if button.is_hovered() or button.is_pressed(): button.draw_line(tag.position + Vector2(6, 22), tag.end - Vector2(6, 2), ink, 1.0)

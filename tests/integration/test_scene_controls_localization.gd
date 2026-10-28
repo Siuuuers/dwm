@@ -135,7 +135,7 @@ func test_rendered_caret_points_toward_next_computer_state() -> void:
 		await get_tree().process_frame
 		await RenderingServer.frame_post_draw
 		var picture := _surface.get_texture().get_image()
-		var center := Vector2i(_button("CheckComputer").get_global_rect().get_center())
+		var center := Vector2i(_button("CheckComputer").global_position + Vector2(24, 36))
 		var top := picture.get_pixel(center.x, center.y - 2).get_luminance()
 		var bottom := picture.get_pixel(center.x, center.y + 2).get_luminance()
 		assert_true(bottom > top + 0.1 if opened else top > bottom + 0.1,

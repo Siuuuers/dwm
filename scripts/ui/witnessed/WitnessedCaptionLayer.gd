@@ -1566,7 +1566,7 @@ func _measure_leaves(leaves: Array[RichTextLabel], width: float) -> float:
 		var height := maxi(minimum, int(ceil((content_height + 32) / 2.0)) * 2)
 		# Keep the entire focus/pointer target inside the viewport. On the last
 		# leaf, place its spare height above the shaped text so the row and
-		# target share the visible tag's top edge without clipping the target.
+		# target retain the approved bar-top boundary without clipping the target.
 		var material := leaf.get_theme_stylebox("normal")
 		if not leaf.has_theme_stylebox_override("normal"):
 			material = material.duplicate()
