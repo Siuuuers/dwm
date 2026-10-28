@@ -12,19 +12,34 @@ func _open_partner_backup(command: String) -> Node:
 	var button: Button = _controls(get_tree().current_scene, command)
 	var deadline := Time.get_ticks_msec() + 5000
 	var admission := "_save_admitted" if command == "Save" else "_load_admitted"
-	# Native text DONE precedes the rail's next presentation/admission update.
-	while Time.get_ticks_msec() < deadline:
-		if button.is_visible_in_tree() and not button.disabled and caption.call(admission): break
+	var inputs: Node = bridge._runtime_adapter._dialogic.get_subsystem("Inputs")
+	# Wait for native input readiness and the rail's own physical-contact admission;
+	# caption capability alone does not establish a fresh, non-retired button tap.
+	while inputs.is_input_blocked() and Time.get_ticks_msec() < deadline:
 		await get_tree().process_frame
-	assert_true(button.is_visible_in_tree() and not button.disabled and caption.call(admission), command + " is ready for real input")
-	if not button.is_visible_in_tree() or button.disabled or not caption.call(admission): return null
+	await RenderingServer.frame_post_draw
+	while Time.get_ticks_msec() < deadline:
+		if not inputs.is_input_blocked() and button._admitted() and caption.call(admission): break
+		await get_tree().process_frame
+	assert_true(not inputs.is_input_blocked() and button._admitted() and caption.call(admission), command + " is ready for a complete physical tap")
+	if inputs.is_input_blocked() or not button._admitted() or not caption.call(admission): return null
+	var activation := {"count": 0}
+	var observe_activation := func() -> void: activation.count += 1
+	button.activated.connect(observe_activation)
+	var before_click := {"generation": button._generation, "retired_frame": button._retired_frame,
+		"frame": Engine.get_process_frames()}
 	await _click(button)
+	button.activated.disconnect(observe_activation)
+	var after_click := {"generation": button._generation, "retired_frame": button._retired_frame,
+		"frame": Engine.get_process_frames()}
 	var sheet: Node = get_node("/root/SceneRouter")._production_pause
 	deadline = Time.get_ticks_msec() + 5000
 	while sheet._backup_port == null and Time.get_ticks_msec() < deadline:
 		await get_tree().process_frame
 	assert_not_null(sheet._backup_port, command + " mounts the real Backup port")
 	if sheet._backup_port == null:
+		print("PARTNER_BACKUP_OPEN_FAILURE ", JSON.stringify({"command": command, "before": before_click,
+			"after": after_click, "activated": activation.count, "pause_result": sheet.last_result}))
 		await _screenshot("partner-backup-open-failed")
 		return null
 	return sheet
