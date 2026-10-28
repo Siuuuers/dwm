@@ -289,7 +289,7 @@ func _caption_capture(name: String, language: String, percent: int, offset: int,
 		check(projection.get("dating_overlay", false), name + ": dating overlay selected automatically")
 		check(dating_art.size == Vector2(1280, 656), name + ": artwork extends behind every caption")
 		check(dating_art._background.texture != null, name + ": actual dating painting loaded")
-		check(projection.visible_leaf_rects.back().end.y == 592, name + ": captions retain their established lower boundary")
+		check(projection.visible_leaf_rects.back().end.y == 612, name + ": captions meet the computer tag boundary")
 
 	else:
 		check(not projection.get("dating_overlay", false), name + ": ordinary caption retains ordinary input admission")
@@ -299,20 +299,21 @@ func _caption_capture(name: String, language: String, percent: int, offset: int,
 		check(leaf.get_theme_constant("outline_size") == 2, name + ": dark outline remains visible")
 	var rail: Control = caption.transport_rail
 	var rail_geometry: Array[Dictionary] = []
-	# The current footer has six commands in one bottom row.
-	var bays := {"History": Rect2(0,64,212,64), "Skip": Rect2(640,64,212,64),
-		"Auto": Rect2(852,64,214,64), "Save": Rect2(212,64,214,64),
-		"Load": Rect2(426,64,214,64), "Next": Rect2(1066,64,214,64)}
+	# Seven commands retain evenly spaced centers beneath the separate tag.
+	var bays := {}
+	var commands := ["History", "Save", "Load", "Skip", "Auto", "Next", "Settings"]
+	for index in commands.size():
+		bays[commands[index]] = Rect2(index * (1280.0 / 7.0), 64, 1280.0 / 7.0, 64)
 	check(rail.get_rect() == Rect2(0,592,1280,128), name + ": footer allocation fits viewport")
-	check(rail.get_child_count() == 6, name + ": six commands")
+	check(rail.get_child_count() == 7, name + ": seven commands")
 	check(not rail.has_node("AudienceClock"), name + ": Scene rail has no clock")
 	for button_name: String in bays:
 		var button := rail.get_node(button_name) as Button
 		var expected_bay: Rect2 = bays[button_name]
-		check(button.get_rect() == expected_bay, name + ": fixed unclipped rail bay " + button.name)
+		check(button.position.is_equal_approx(expected_bay.position) and button.size.is_equal_approx(expected_bay.size), name + ": fixed unclipped rail bay " + button.name)
 		for other_name: String in bays:
 			if other_name != button_name:
-				check(not button.get_rect().intersects(rail.get_node(other_name).get_rect()), name + ": command bays do not overlap")
+				check(not button.get_rect().grow(-0.001).intersects(rail.get_node(other_name).get_rect().grow(-0.001)), name + ": command bays do not overlap")
 		var font := button.get_theme_font("font")
 		var font_size := button.get_theme_font_size("font_size")
 		var plate := button.get_theme_stylebox("normal")
@@ -450,8 +451,8 @@ func _check_challenge_art_pixels(pixels: Image, name: String) -> void:
 
 func _check_dating_art_pixels(pixels: Image, name: String) -> void:
 	# Alpha-only reference leaves native text, focus and timeline state untouched.
-	# Compare the current caption field, ending above the two-row footer. The
-	# command plates at y592..656 intentionally cover artwork, unlike captions.
+	# Compare the caption field ending at the visible tag/bar top. The footer
+	# below y612 intentionally covers artwork, unlike transparent captions.
 	var before := _native_state()
 	var focus: Control = viewport.gui_get_focus_owner()
 	var visible_modulate: Color = caption.canvas.modulate
@@ -464,9 +465,9 @@ func _check_dating_art_pixels(pixels: Image, name: String) -> void:
 	var colors := {}
 	var mismatches := 0
 	var top: int = int(caption.get_caption_projection().field_rect.position.y)
-	check(caption.get_caption_projection().field_rect.end.y == 592, name + ": pixel sample field ends above commands")
+	check(caption.get_caption_projection().field_rect.end.y == 612, name + ": pixel sample field ends above commands")
 	for x: int in [8, 20, 100, 200, 1080, 1180, 1260]:
-		for y: int in range(top, 592, 4):
+		for y: int in range(top, 612, 4):
 			var point := Vector2i(x, y)
 			var expected := artwork.get_pixelv(point)
 			colors[expected.to_html()] = true

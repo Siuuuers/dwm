@@ -6,7 +6,7 @@ const SELF_TALK := preload("res://scripts/ui/witnessed/WitnessedSelfTalk.gd")
 const HISTORY := preload("res://scripts/ui/witnessed/WitnessedHistory.gd")
 const RUN_PRESENTATION := preload("res://scripts/ui/witnessed/WitnessedRunPresentation.gd")
 const FIELD_TOP := {100: 384, 125: 328, 150: 264}
-const FIELD_BOTTOM := 592
+const FIELD_BOTTOM := preload("res://scripts/ui/witnessed/WitnessedTransportRail.gd").BAR_TOP
 const PROFILE_COLOUR_PRESETS := {
 	"standard": "standard", "protan": "protan", "deutan": "deutan", "tritan": "tritan",
 }
@@ -64,6 +64,7 @@ var _load_input_bound := false
 var _save_input_bound := false
 var _history_input_bound := false
 var _next_input_bound := false
+var _settings_input_bound := false
 var _next_pending := false
 var _next_request: Dictionary = {}
 var _next_request_retry := false
@@ -164,6 +165,7 @@ func _ready() -> void:
 	transport_rail.save_requested.connect(_on_save_requested)
 	transport_rail.history_requested.connect(_on_history_requested)
 	transport_rail.next_requested.connect(_on_next_requested)
+	transport_rail.settings_requested.connect(_on_settings_requested)
 	_next_matte = ColorRect.new()
 	_next_matte.name = "NextMatte"
 	_next_matte.size = Vector2(1280, 720)
@@ -194,6 +196,7 @@ func _ready() -> void:
 	_save_input_bound = transport_rail.bind_save_admission(_save_admitted, input_owner)
 	_history_input_bound = transport_rail.bind_history_admission(_history_admitted, input_owner)
 	_next_input_bound = transport_rail.bind_next_admission(_next_admitted, input_owner)
+	_settings_input_bound = transport_rail.bind_settings_admission(_settings_admitted, input_owner)
 	var history_layer := CanvasLayer.new()
 	history_layer.name = "HistoryLayer"
 	history_layer.layer = 101
@@ -494,6 +497,19 @@ func _settle_next_publication() -> void:
 		_speech_pending = true
 		_speak_publication.call_deferred(_speech_generation)
 
+func _settings_admitted() -> bool:
+	var host := get_tree().current_scene
+	return _settings_input_bound and not _pause_covered and _reading_source_admitted() \
+		and transport_rail.is_visible_in_tree() and accept_input.is_source_admitted() \
+		and host != null and host.has_method("can_open_settings") and host.can_open_settings()
+
+func _on_settings_requested() -> void:
+	if not _settings_admitted(): return
+	transport_rail.retire_input()
+	accept_input.retire_input()
+	await get_tree().current_scene.open_settings()
+	_sync_transport()
+
 func _load_admitted() -> bool:
 	return _load_input_bound and not _load_pending and not _pause_covered \
 		and not _line_waiting_for_text and _reading_recovery.is_empty() and _has_caption() \
@@ -699,15 +715,15 @@ func _sync_transport() -> void:
 	if transport_rail.ending_layout != ending:
 		transport_rail.set_ending_layout(ending)
 		canvas.queue_redraw()
-	transport_rail.visible = not rehearsal and not _computer_caption_held()
+	transport_rail.visible = not rehearsal
 	if is_instance_valid(self_talk):
 		self_talk.visible = (self_talk.has_history() or self_talk.has_choice_row()) and _timed_hold_frontier.is_empty()
 		self_talk.focus_mode = Control.FOCUS_ALL if self_talk.visible and _reading_source_admitted() else Control.FOCUS_NONE
-	if _ending_caption_handoff or not _timed_hold_frontier.is_empty():
-		transport_rail.project(false, false, skip_controller.is_auto_enabled(), false, false, false, false, false)
+	if _ending_caption_handoff or not _timed_hold_frontier.is_empty() or _computer_caption_held():
+		transport_rail.project(false, skip_controller.is_skip_active(), skip_controller.is_auto_enabled(), false, false, false, false, false, false)
 	else:
 		transport_rail.project(_transport_admitted(), skip_controller.is_skip_active(),
-			skip_controller.is_auto_enabled(), _auto_button_admitted(), _load_admitted(), _history_admitted(), _save_admitted(), _next_admitted())
+			skip_controller.is_auto_enabled(), _auto_button_admitted(), _load_admitted(), _history_admitted(), _save_admitted(), _next_admitted(), _settings_admitted())
 	var ring: Array[Control] = []
 	if not _ending_caption_handoff and _timed_hold_frontier.is_empty(): ring.append(review_current if _review_offset > 0 else caption_text)
 	var names: PackedStringArray = []
@@ -724,7 +740,7 @@ func _sync_transport() -> void:
 		if is_instance_valid(handle) and handle.is_visible_in_tree() and handle.focus_mode != Control.FOCUS_NONE:
 			ring.append(handle)
 			names.append("Split:%d" % handle.get_instance_id())
-	for name: String in ["History", "Skip", "Auto", "Save", "Load", "Next"]:
+	for name: String in ["History", "Save", "Load", "Skip", "Auto", "Next", "Settings"]:
 		var command: Control = transport_rail.get_node(name)
 		if command.focus_mode != Control.FOCUS_NONE:
 			ring.append(command)
@@ -1546,7 +1562,17 @@ func _measure_leaves(leaves: Array[RichTextLabel], width: float) -> float:
 	for leaf: RichTextLabel in leaves:
 		leaf.size.x = width
 		var minimum := 64 if _large_targets and leaf == caption_text else 52
-		var height := maxi(minimum, int(ceil((leaf.get_content_height() + 32) / 2.0)) * 2)
+		var content_height := leaf.get_content_height()
+		var height := maxi(minimum, int(ceil((content_height + 32) / 2.0)) * 2)
+		# Keep the entire focus/pointer target inside the viewport. On the last
+		# leaf, place its spare height above the shaped text so the row and
+		# target share the visible tag's top edge without clipping the target.
+		var material := leaf.get_theme_stylebox("normal")
+		if not leaf.has_theme_stylebox_override("normal"):
+			material = material.duplicate()
+			leaf.add_theme_stylebox_override("normal", material)
+		material.set_content_margin(SIDE_TOP, height - content_height if leaf == leaves.back() else 16)
+		material.set_content_margin(SIDE_BOTTOM, 0 if leaf == leaves.back() else 16)
 		leaf.update_minimum_size()
 		leaf.size = Vector2(width, height)
 		total += leaf.size.y
@@ -1676,7 +1702,7 @@ func _leaf_rect(leaf: RichTextLabel) -> Rect2:
 func _draw_canvas() -> void:
 	if _caption_theme == null or transport_rail.ending_layout:
 		return
-	canvas.draw_rect(Rect2(0, 656, 1280, 64), _color(&"deep"))
+	canvas.draw_rect(Rect2(0, FIELD_BOTTOM, 1280, 720 - FIELD_BOTTOM), _color(&"deep"))
 
 func _color(role: StringName) -> Color:
 	return _caption_theme.get_color(role, &"WitnessedCaption")

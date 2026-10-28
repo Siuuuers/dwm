@@ -150,7 +150,7 @@ func configure_scene_shell_actions(external_action: Callable, input_admission: C
 
 func _activate_launcher(app_id: StringName) -> void:
 	if _scene_external_busy: return
-	if _scene_navigation and _scene_external_action.is_valid() and app_id in [&"settings", &"backup", &"logout", &"minesweeper"]:
+	if _scene_navigation and _scene_external_action.is_valid() and app_id in [&"backup", &"logout", &"minesweeper"]:
 		if not _touch_input_admitted(): return
 		_scene_external_busy = true
 		var result: Variant = await _scene_external_action.call(app_id)
@@ -727,7 +727,7 @@ func _cancel_logout() -> void:
 func open_app(app_id: StringName) -> Dictionary:
 	if _scene_input_admission.is_valid() and not bool(_scene_input_admission.call()):
 		return {"ok": false, "code": &"scene_desktop_input_unavailable"}
-	if _scene_external_action.is_valid() and app_id in [&"settings", &"backup", &"logout"]:
+	if _scene_external_action.is_valid() and app_id in [&"backup", &"logout"]:
 		return {"ok": false, "code": &"scene_external_action_required"}
 	if _scene_navigation_failed: return _route_failure(&"scene_navigation_dispatch_failed")
 	if _run_configuration_required and (not _run_configuration_ready or _run_configuration_masked):
@@ -959,8 +959,8 @@ func return_home() -> Dictionary:
 	if _scene_navigation_failed or (_scene_navigation and _run_configuration_masked): return {"ok": false, "code": &"desktop_home_rejected"}
 	if is_instance_valid(_confirmation): return {"ok": false, "code": &"desktop_modal_active"}
 	if _active_id == &"":
-		# Restored sheets now use the external pause host, not a cached app window.
-		# An explicit Home request still belongs to the canonical desktop owner.
+		# Restored sheets may not have a cached app window yet. An explicit Home
+		# request still belongs to the canonical desktop owner.
 		if _scene_navigation and _scene_external_action.is_valid() \
 				and _host_state.get_state().get("active_app_id") in [&"settings", &"backup"]:
 			return _scene_navigate(&"", true)

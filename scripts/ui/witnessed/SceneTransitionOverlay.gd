@@ -25,8 +25,8 @@ func capture_source() -> bool:
 	size = get_viewport().get_visible_rect().size
 	var final := get_viewport().get_final_transform()
 	_dissolve.set_shader_parameter("source_size", Vector2(source.get_size()))
-	# Rail's container starts at592, but its buttons and matte start at656.
-	_dissolve.set_shader_parameter("rail_top", (final * Vector2(0, 656)).y)
+	# Exclude the visible bar, including its upper computer-tag strip.
+	_dissolve.set_shader_parameter("rail_top", (final * Vector2(0, preload("res://scripts/ui/witnessed/WitnessedTransportRail.gd").BAR_TOP)).y)
 	_dissolve.set_shader_parameter("caret_rect", Vector4.ZERO)
 	_dissolve.set_shader_parameter("divider_rect", Vector4.ZERO)
 	_dissolve.set_shader_parameter("preview_rect", Vector4.ZERO)

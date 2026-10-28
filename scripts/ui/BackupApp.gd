@@ -369,7 +369,6 @@ func _projection_records(result: Variant, require_family: bool) -> Dictionary:
 func _scene_record_valid(record: Variant, locator: String) -> bool:
 	var fields := ["locator", "state", "family", "day", "saved_time", "fallback",
 		"load_family", "load_day", "load_saved_time", "reason", "actions"]
-	if record is Dictionary and record.has("ink_marks"): fields.append("ink_marks")
 	if not record is Dictionary or record.size() != fields.size() or not record.has_all(fields):
 		return false
 	if record.locator != locator or record.state not in ["empty", "occupied", "unavailable"]:
@@ -456,7 +455,7 @@ func _refresh_presentation() -> void:
 		var identity_key := "slot" if locator.begins_with("slot:") else str(locator)
 		var compact := _compact_text(identity_key, identity, {"n": locator.trim_prefix("slot:")})
 		var visible_identity := _fit_caption(identity, compact, drawer.identity_label)
-		drawer.present(visible_identity, _record_state(_records[locator]), _records[locator].state == "unavailable", _records[locator].get("ink_marks", []))
+		drawer.present(visible_identity, _record_state(_records[locator]), _records[locator].state == "unavailable")
 		drawer.accessibility_name = identity + ", " + _record_state(_records[locator])
 		drawer.tooltip_text = identity if visible_identity != identity else ""
 	for mode in mode_buttons:

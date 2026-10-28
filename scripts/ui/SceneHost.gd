@@ -2,6 +2,7 @@ extends Control
 ## Scene chrome only. Bootstrap owns admission, persistence, and panel mounting.
 
 const TRANSITION_SURFACE := preload("res://scripts/ui/witnessed/SceneTransitionOverlay.gd")
+const TRANSPORT_RAIL := preload("res://scripts/ui/witnessed/WitnessedTransportRail.gd")
 const TYPOGRAPHY := preload("res://scripts/ui/UiTypography.gd")
 
 var _actions: Dictionary = {}
@@ -32,6 +33,7 @@ func _ready() -> void:
 	get_challenge_mount().child_entered_tree.connect(_fit_challenge)
 	_bind_presentation()
 	var computer: Button = $SceneControlsLayer/Surface/Controls/CheckComputer
+	computer.position = Vector2(TRANSPORT_RAIL.BAY_WIDTH * 1.5 - 24, TRANSPORT_RAIL.BAR_TOP - 12)
 	computer.pressed.connect(_toggle_computer)
 	for state: String in ["normal", "hover", "pressed", "focus", "disabled"]:
 		computer.add_theme_stylebox_override(state, StyleBoxEmpty.new())
@@ -158,6 +160,14 @@ func _toggle_computer() -> void:
 		set_computer_open(opening)
 	_busy = false
 	_update_controls()
+
+func can_open_settings() -> bool:
+	var callback: Callable = _actions.get("settings", Callable())
+	return not _busy and not _computer_open and callback.is_valid() \
+		and not (is_instance_valid(_transition_bridge) and _transition_bridge.is_scene_transition_active())
+
+func open_settings() -> void:
+	if can_open_settings(): await _invoke("settings")
 
 func _invoke(action: String) -> void:
 	get_viewport().set_input_as_handled()

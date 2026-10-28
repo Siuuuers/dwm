@@ -275,8 +275,7 @@ func prepare(checkpoint_inputs: Dictionary, checkpoint_kind: StringName, disk_wr
 		tick = _profile_phase(profile, "backup_us", tick)
 		if not backup.get("ok", false):
 			return _profile_result(profile, backup)
-		candidate["storage_backup"] = backup["value"]["descriptor"]
-		candidate["autosave_document"]["ink_marks"] = SAVE_DOCUMENT_SCHEMA.next_ink_marks(backup.value.ink_marks)
+		candidate["storage_backup"] = backup["value"]
 	_prepared_text_validations = validated_texts
 	_prepared_validation_checkpoint = checkpoint_id
 	_prepared_validation_frame = Engine.get_process_frames()
@@ -957,7 +956,6 @@ func _fatal_rollback(phase: String, run_id: String, raw_diagnostics: Array) -> D
 	return _gate.guard_external(&"save_checkpoint_recovery")
 
 func _capture_storage_backup(relative_path: String, validated_texts: Dictionary) -> Dictionary:
-	var ink_marks: Array = []
 	var existed: bool = _storage().exists(relative_path)
 	var descriptor := {
 		"relative_path": relative_path,
@@ -988,11 +986,9 @@ func _capture_storage_backup(relative_path: String, validated_texts: Dictionary)
 		var validation := _cached_document_text_proof(text, validated_texts)
 		if not validation.get("ok", false):
 			return validation
-		var proof: Dictionary = validated_texts.get(text, _proven_document_validations.get(text, {}))
-		ink_marks = proof.value.get("ink_marks", []).duplicate()
 		descriptor["validated_text"] = text
 		descriptor["sha256"] = text.sha256_text()
-	return {"ok": true, "code": &"ok", "value": {"descriptor": descriptor, "ink_marks": ink_marks}}
+	return {"ok": true, "code": &"ok", "value": descriptor}
 
 func _clear_prepared_text_validation() -> void:
 	_prepared_text_validations = {}

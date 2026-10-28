@@ -26,11 +26,27 @@ func _click(control: Control) -> void:
 		await get_tree().process_frame
 	for frame: int in 3: await get_tree().process_frame
 
+func _keyboard(key: Key, pressed: bool) -> void:
+	var event := InputEventKey.new()
+	event.keycode = key
+	event.physical_keycode = key
+	event.pressed = pressed
+	get_viewport().push_input(event, true)
+	await get_tree().process_frame
+
+func _controller(button: JoyButton, pressed: bool) -> void:
+	var event := InputEventJoypadButton.new()
+	event.button_index = button
+	event.device = 0
+	event.pressed = pressed
+	get_viewport().push_input(event, true)
+	await get_tree().process_frame
+
 func _caption() -> Node:
 	return get_node("/root/SceneRouter")._production_pause._find_caption(get_tree().root)
 
 func _controls(host: Node, name: String) -> Control:
-	if name in ["Save", "Load"]:
+	if name in ["History", "Save", "Load", "Skip", "Auto", "Next", "Settings"]:
 		return _caption().transport_rail.get_node(name)
 	return host.get_node("SceneControlsLayer/Surface/Controls/" + name)
 
@@ -88,7 +104,35 @@ func create_computer_board() -> void:
 	if caption == null: return
 	assert_true(caption.auto_controller.is_auto_enabled())
 	assert_false(caption._reading_source_admitted())
-	assert_false(caption.transport_rail.visible, "computer owns foreground controls")
+	assert_true(caption.transport_rail.visible, "computer overlays the retained rail")
+	for command: String in ["History", "Save", "Load", "Skip", "Auto", "Next", "Settings"]:
+		var button: Button = caption.transport_rail.get_node(command)
+		assert_true(button.visible)
+		assert_true(button.disabled)
+		await _click(button)
+		button.emit_signal("activated")
+		assert_true(host.is_computer_open())
+		assert_eq(bridge.capture_reading_checkpoint(false), checkpoint, command + " cannot advance held reading")
+		assert_eq(profile.get_profile_snapshot(), profile_before, command + " cannot mutate held preferences or History")
+		assert_false(caption._history_open)
+		assert_false(caption._load_pending)
+	# Disabled commands leave focus traversal. Physical acceptance and the
+	# supported Save/Load shortcuts must not escape into the reading beneath.
+	get_viewport().gui_release_focus()
+	var quick_before := FileAccess.get_sha256("user://saves/quicksave.json") if FileAccess.file_exists("user://saves/quicksave.json") else ""
+	for key: Key in [KEY_ENTER, KEY_SPACE, KEY_F5, KEY_F9]:
+		await _keyboard(key, true)
+		await _keyboard(key, false)
+	for button: JoyButton in [JOY_BUTTON_A, JOY_BUTTON_LEFT_STICK, JOY_BUTTON_RIGHT_STICK]:
+		await _controller(button, true)
+		await _controller(button, false)
+	assert_eq(bridge.capture_reading_checkpoint(false), checkpoint, "keyboard, controller and shortcuts cannot advance held reading")
+	assert_eq(profile.get_profile_snapshot(), profile_before, "alternate inputs cannot toggle Auto or add History")
+	assert_false(caption._history_open)
+	assert_false(caption._load_pending)
+	assert_true(host.is_computer_open())
+	assert_eq(FileAccess.get_sha256("user://saves/quicksave.json") if FileAccess.file_exists("user://saves/quicksave.json") else "", quick_before,
+		"held Save shortcut cannot write a Quick save")
 	assert_false(caption.caption_text.is_processing())
 	assert_false(bridge.can_auto_advance_current_line())
 	# Longer than the default Auto delay; this checkpoint is an authored control
@@ -122,9 +166,16 @@ func create_computer_board() -> void:
 	assert_eq(bridge.capture_reading_checkpoint(false), checkpoint, "board click cannot advance captions")
 	var record: Dictionary = game.capture_dating_challenge_state().value.duplicate(true)
 	assert_false(record.is_empty())
+	get_viewport().gui_release_focus()
+	await _keyboard(KEY_ENTER, true)
 	await _click(_controls(host, "CheckComputer"))
 	assert_false(host.is_computer_open())
 	assert_false(bridge.is_computer_caption_held())
+	_controls(host, "Save").grab_focus()
+	await _keyboard(KEY_ENTER, false)
+	for frame: int in 3: await get_tree().process_frame
+	assert_false(caption._load_pending, "held acceptance cannot activate Save after the overlay closes")
+	assert_false(get_tree().paused)
 	assert_true(caption.transport_rail.visible, "closing restores dialogue controls")
 	assert_eq(profile.get_preference(&"preferences.reading.auto_enabled", false), auto_before)
 	assert_true(caption.auto_controller.is_auto_enabled())

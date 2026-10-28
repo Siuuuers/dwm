@@ -197,11 +197,11 @@ func _check_transport_labels() -> void:
 			var width := button.get_theme_font("font").get_string_size(button.text, HORIZONTAL_ALIGNMENT_LEFT, -1, button.get_theme_font_size("font_size")).x
 			check(width <= available + 0.01, "transport complete state label fits: %s (%spx text, %spx available, %spx font)" % [button.text, width, available, button.get_theme_font_size("font_size")])
 			var enabled: bool = states[0] if id == "skip" else states[1]
-			visible_states[id][enabled] = button.text
+			visible_states[id][enabled] = (style as StyleBoxFlat).bg_color
 			var full_copy := "%s · %s" % [locale.t("witnessed.transport." + id), locale.t("witnessed.transport.on" if enabled else "witnessed.transport.off")]
-			check(button.accessibility_name == full_copy, "transport full accessible state: " + full_copy)
+			check(button.text == locale.t("witnessed.transport." + id) and button.accessibility_name == full_copy, "transport name and accessible state: " + full_copy)
 	for id: String in visible_states:
-		check(visible_states[id][false] != visible_states[id][true], "transport on and off remain visibly distinct: " + id)
+		check(visible_states[id][false] != visible_states[id][true], "transport mode styling remains visibly distinct: " + id)
 	check(rail.project(original[0], original[1], original[2], original[3], original[4]), "restore transport projection")
 
 func _title_and_gallery(language: String) -> void:

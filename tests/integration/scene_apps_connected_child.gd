@@ -57,7 +57,69 @@ func create_apps_scene() -> void:
 	var before: Dictionary = game.capture_run_snapshot_input().duplicate(true)
 	var reading: Dictionary = bridge.capture_reading_checkpoint(false).value.duplicate(true)
 	await _screenshot("apps-ordinary-caption")
-	var shell: Control = await _open_apps(host)
+	# The direct seventh command uses the existing desktop Settings, without
+	# entering Pause or admitting the available story Challenge.
+	var profile_before: Dictionary = profile.get_profile_snapshot().duplicate(true)
+	var blocked: Dictionary = bootstrap._application_gate.acquire(&"restore")
+	if not _ok(blocked): return
+	var refused: Dictionary = bootstrap.open_scene_settings(host)
+	assert_eq(refused.get("code"), &"TRANSACTION_ACTIVE")
+	assert_false(host.is_computer_open())
+	assert_false(bridge.is_computer_caption_held())
+	assert_eq(bridge.capture_reading_checkpoint(false).value, reading)
+	assert_eq(profile.get_profile_snapshot(), profile_before)
+	if not _ok(bootstrap._application_gate.release(&"restore", blocked.value.token)): return
+	await _click(_caption().transport_rail.get_node("Settings"))
+	var shell: Control = _apps_shell(host)
+	assert_not_null(shell)
+	if shell == null: return
+	assert_eq(shell._active_id, &"settings")
+	assert_true(host.is_computer_open())
+	assert_true(bridge.is_computer_caption_held())
+	assert_false(get_tree().paused)
+	assert_false(get_node("/root/SceneRouter")._production_pause.surface.is_visible_in_tree())
+	assert_false(game.capture_scene_challenge_command().get("ok", false))
+	assert_eq(profile.get_profile_snapshot(), profile_before, "Opening Settings adds no History/read marks.")
+	var settings: Control = shell._cached_app_windows[&"settings"]
+	var content: Control = settings.get_content_host()
+	assert_true(content._scene_presentation)
+	assert_null(content._run_day)
+	await _click(content._rails["reading"])
+	var auto: BaseButton = content.controls[&"preferences.reading.auto_enabled"]
+	assert_true(auto.is_visible_in_tree())
+	await _click(auto)
+	assert_true(profile.get_preference(&"preferences.reading.auto_enabled", false))
+	assert_true(_caption().auto_controller.is_auto_enabled())
+	assert_eq(bridge.capture_reading_checkpoint(false).value, reading)
+	await _click(auto)
+	assert_false(profile.get_preference(&"preferences.reading.auto_enabled", true))
+	await _screenshot("apps-direct-settings")
+	# Back from the category rail returns to Home; closing the computer returns
+	# to the exact caption, and reopening reuses the existing Settings instance.
+	content.focus_rail()
+	for pressed: bool in [true, false]:
+		var back := InputEventKey.new()
+		back.keycode = KEY_ESCAPE
+		back.physical_keycode = KEY_ESCAPE
+		back.pressed = pressed
+		get_viewport().push_input(back, true)
+		await get_tree().process_frame
+	for frame: int in 3: await get_tree().process_frame
+	assert_eq(shell._active_id, &"")
+	assert_true(host.is_computer_open())
+	if not await _launch_app(shell, &"settings"): return
+	assert_same(shell._cached_app_windows[&"settings"], settings)
+	await _click(_controls(host, "CheckComputer"))
+	assert_false(host.is_computer_open())
+	assert_false(bridge.is_computer_caption_held())
+	assert_eq(bridge.capture_reading_checkpoint(false).value, reading)
+	await _click(_caption().transport_rail.get_node("Settings"))
+	assert_same(shell._cached_app_windows[&"settings"], settings)
+	assert_true(settings.is_visible_in_tree())
+	await _click(_controls(host, "CheckComputer"))
+	assert_false(host.is_computer_open())
+	assert_eq(bridge.capture_reading_checkpoint(false).value, reading)
+	shell = await _open_apps(host)
 	if shell == null: return
 	if not await _launch_app(shell, &"shop"): return
 	var shop: Control = shell._cached_app_windows.get(&"shop")
@@ -102,6 +164,17 @@ func create_apps_scene() -> void:
 	# Admit Playable through caption input, then start a physical challenge board.
 	await _click(_caption().caption_text)
 	if not _ok(game.capture_scene_challenge_command()): return
+	var available_reading: Dictionary = bridge.capture_reading_checkpoint(false).value.duplicate(true)
+	var available_challenge: Dictionary = game.capture_dating_challenge_state().value.duplicate(true)
+	await _click(_caption().transport_rail.get_node("Settings"))
+	assert_eq(shell._active_id, &"settings")
+	assert_true(host.is_computer_open())
+	assert_eq(game.capture_dating_challenge_state().value, available_challenge,
+		"Opening Settings does not start an available Challenge.")
+	assert_eq(bridge.capture_reading_checkpoint(false).value, available_reading)
+	await _screenshot("apps-settings-available-challenge")
+	await _click(_controls(host, "CheckComputer"))
+	assert_eq(game.capture_dating_challenge_state().value, available_challenge)
 	await _click(_controls(host, "CheckComputer"))
 	var panel: Control = host.get_challenge_mount().get_node_or_null("SceneChallengePanel")
 	assert_not_null(panel)
@@ -114,8 +187,21 @@ func create_apps_scene() -> void:
 	var board: Dictionary = panel.public_view.board.duplicate(true)
 	var held: Dictionary = bridge.capture_reading_checkpoint(false).value.duplicate(true)
 	await _screenshot("apps-challenge-before-switch")
-	shell = await _open_apps(host)
-	if shell == null: return
+	# Close the held Challenge, then use the direct Settings command. It must
+	# retain the board and cue; Home → Minesweeper resumes that same panel.
+	await _click(_controls(host, "CheckComputer"))
+	assert_false(host.is_computer_open())
+	await _click(_caption().transport_rail.get_node("Settings"))
+	assert_true(host.is_computer_open())
+	assert_true(bridge.is_computer_caption_held())
+	assert_true(shell.is_visible_in_tree())
+	assert_same(shell._cached_app_windows[&"settings"], settings)
+	assert_eq(shell._active_id, &"settings")
+	assert_false(panel.is_visible_in_tree())
+	assert_eq(panel.public_view.board, board)
+	assert_eq(game.capture_dating_challenge_state().value, record)
+	assert_eq(bridge.capture_reading_checkpoint(false).value, held)
+	await _screenshot("apps-settings-held-challenge")
 	if not await _launch_app(shell, &"shop"): return
 	assert_eq(game.capture_dating_challenge_state().value, record)
 	await _screenshot("apps-shop-during-challenge")

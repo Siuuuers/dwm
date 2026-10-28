@@ -2,18 +2,18 @@ extends GutTest
 
 const RAIL := preload("res://scripts/ui/witnessed/WitnessedTransportRail.gd")
 const CAPTION_THEME := preload("res://scripts/ui/witnessed/WitnessedCaptionTheme.gd")
-const NAMES := ["History", "Skip", "Auto", "Save", "Load", "Next"]
+const NAMES := ["History", "Save", "Load", "Skip", "Auto", "Next", "Settings"]
 const LOCALIZATION := preload("res://autoload/LocalizationManager.gd")
 const PROFILE := preload("res://autoload/ProfileManager.gd")
 const STORAGE := preload("res://scripts/infrastructure/storage/JsonFileStorage.gd")
 const FILES := preload("res://tests/support/FakeFileOps.gd")
-const LEFTS := [0, 640, 852, 212, 426, 1066]
-const TOPS := [64, 64, 64, 64, 64, 64]
-const WIDTHS := [212, 212, 214, 214, 214, 214]
+const LEFTS := [0, RAIL.BAY_WIDTH, RAIL.BAY_WIDTH * 2, RAIL.BAY_WIDTH * 3, RAIL.BAY_WIDTH * 4, RAIL.BAY_WIDTH * 5, RAIL.BAY_WIDTH * 6]
+const TOPS := [64, 64, 64, 64, 64, 64, 64]
+const WIDTHS := [RAIL.BAY_WIDTH, RAIL.BAY_WIDTH, RAIL.BAY_WIDTH, RAIL.BAY_WIDTH, RAIL.BAY_WIDTH, RAIL.BAY_WIDTH, RAIL.BAY_WIDTH]
 const COPY := {
-	"en": ["History", "Skip", "Auto", "Save", "Load", "Next", "On", "Off"],
-	"zh-CN": ["\u5386\u53f2", "\u8df3\u8fc7", "\u81ea\u52a8", "\u4fdd\u5b58", "\u8bfb\u53d6", "\u4e0b\u4e00\u6b65", "\u5f00", "\u5173"],
-	"zh-HK": ["\u6b77\u53f2", "\u8df3\u904e", "\u81ea\u52d5", "\u5132\u5b58", "\u8f09\u5165", "\u4e0b\u4e00\u6b65", "\u958b", "\u95dc"],
+	"en": ["History", "Save", "Load", "Skip", "Auto", "Next", "Settings"],
+	"zh-CN": ["历史", "保存", "读取", "跳过", "自动", "下一步", "设定"],
+	"zh-HK": ["歷史", "儲存", "載入", "跳過", "自動", "下一步", "設定"],
 }
 
 
@@ -62,22 +62,22 @@ func _has_load_contract(rail: Control) -> bool:
 	return false
 
 
-func test_six_commands_share_one_nonoverlapping_footer_row() -> void:
+func test_seven_commands_share_one_nonoverlapping_footer_row() -> void:
 	var rail := _new_rail()
 	assert_true(rail.configure_presentation(CAPTION_THEME.build("en", 100, "AfterHours"), "en"))
 	add_child_autofree(rail)
 	assert_eq(rail.position, Vector2(0, 592))
 	assert_eq(rail.size, Vector2(1280, 128))
-	assert_eq(rail.get_child_count(), 6, "six controls without an audience clock")
+	assert_eq(rail.get_child_count(), 7, "seven controls without an audience clock")
 	for index: int in NAMES.size():
 		var button := rail.get_child(index) as Button
 		assert_not_null(button)
 		assert_eq(button.name, NAMES[index])
-		assert_eq(button.position, Vector2(LEFTS[index], TOPS[index]), NAMES[index])
-		assert_eq(button.size, Vector2(WIDTHS[index], 64), NAMES[index])
+		assert_lte(button.position.distance_to(Vector2(LEFTS[index], TOPS[index])), 0.001, NAMES[index])
+		assert_lte(button.size.distance_to(Vector2(WIDTHS[index], 64)), 0.001, NAMES[index])
 		for other: String in NAMES:
 			if other != NAMES[index]:
-				assert_false(button.get_rect().intersects(rail.get_node(other).get_rect()))
+				assert_lte(button.get_rect().intersection(rail.get_node(other).get_rect()).size.x, 0.001)
 
 
 func test_ending_layout_restores_ordinary_layout_without_replacing_controls() -> void:
@@ -89,14 +89,14 @@ func test_ending_layout_restores_ordinary_layout_without_replacing_controls() ->
 	assert_eq(rail.position, Vector2(0, 656))
 	assert_eq(rail.size, Vector2(1280, 64))
 	for index: int in NAMES.size():
-		assert_eq(rail.get_node(NAMES[index]).position, Vector2(LEFTS[index], 0))
+		assert_lte(rail.get_node(NAMES[index]).position.distance_to(Vector2(LEFTS[index], 0)), 0.001)
 	rail.set_ending_layout(false)
 	assert_false(rail.ending_layout)
 	assert_eq(rail.position, Vector2(0, 592))
 	assert_eq(rail.size, Vector2(1280, 128))
 	assert_same(rail.get_node("Next"), original_next)
 	for index: int in NAMES.size():
-		assert_eq(rail.get_node(NAMES[index]).position, Vector2(LEFTS[index], TOPS[index]))
+		assert_lte(rail.get_node(NAMES[index]).position.distance_to(Vector2(LEFTS[index], TOPS[index])), 0.001)
 
 
 func test_projection_keeps_placeholders_visible_disabled_and_modes_truthful() -> void:
@@ -109,16 +109,16 @@ func test_projection_keeps_placeholders_visible_disabled_and_modes_truthful() ->
 		assert_true(button.visible)
 		assert_eq(button.disabled, name != "Skip", name)
 		assert_eq(button.focus_mode, Control.FOCUS_ALL if name == "Skip" else Control.FOCUS_NONE, name)
-	assert_eq((rail.get_node("Skip") as Button).text, "Skip \u00b7 Off")
-	assert_eq((rail.get_node("Auto") as Button).text, "Auto \u00b7 On",
-		"profile Auto remains visibly On although its unowned command is disabled")
+	assert_eq((rail.get_node("Skip") as Button).text, "Skip")
+	assert_eq((rail.get_node("Auto") as Button).text, "Auto",
+		"profile Auto retains selected styling although its command is disabled")
 	assert_eq((rail.get_node("Auto") as Button).theme_type_variation, &"WitnessedTransportMode")
 	assert_false(rail.project(true, true, true), "the forbidden Auto-plus-Skip projection is refused")
-	assert_eq((rail.get_node("Skip") as Button).text, "Skip \u00b7 Off", "a refused projection changes nothing")
-	assert_eq((rail.get_node("Auto") as Button).text, "Auto \u00b7 On")
+	assert_eq((rail.get_node("Skip") as Button).text, "Skip", "a refused projection changes nothing")
+	assert_eq((rail.get_node("Auto") as Button).text, "Auto")
 	assert_true(rail.project(true, true, false))
-	assert_eq((rail.get_node("Skip") as Button).text, "Skip \u00b7 On")
-	assert_eq((rail.get_node("Auto") as Button).text, "Auto \u00b7 Off")
+	assert_eq((rail.get_node("Skip") as Button).text, "Skip")
+	assert_eq((rail.get_node("Auto") as Button).text, "Auto")
 	assert_true(rail.project(false, false, false))
 	assert_true((rail.get_node("Skip") as Button).disabled)
 	assert_eq((rail.get_node("Skip") as Button).focus_mode, Control.FOCUS_NONE)
@@ -256,8 +256,6 @@ func test_all_locales_and_text_sizes_keep_complete_labels_inside_their_plates() 
 			for index: int in NAMES.size():
 				var button := rail.get_child(index) as Button
 				var expected: String = COPY[locale][index]
-				if index == 1: expected += " \u00b7 " + COPY[locale][7]
-				if index == 2: expected += " \u00b7 " + COPY[locale][6]
 				assert_eq(button.text, expected, context + "/" + NAMES[index])
 				assert_false(button.clip_text, context + "/" + NAMES[index])
 				assert_eq(button.text_overrun_behavior, TextServer.OVERRUN_NO_TRIMMING,
@@ -308,8 +306,8 @@ func test_mounted_locale_and_size_transitions_keep_the_selected_face_and_fixed_l
 					var detail := context + "/" + id + "/" + str(modes)
 					assert_same(button.get_theme_font("font"), presentation.default_font, detail + ": selected face")
 					assert_eq(button.get_theme_font_size("font_size"), presentation.default_font_size, detail + ": full size")
-					assert_eq(button.position, Vector2(LEFTS[index], TOPS[index]), detail + ": fixed position")
-					assert_eq(button.size, Vector2(WIDTHS[index], 64), detail + ": fixed bay")
+					assert_lte(button.position.distance_to(Vector2(LEFTS[index], TOPS[index])), 0.001, detail + ": fixed position")
+					assert_lte(button.size.distance_to(Vector2(WIDTHS[index], 64)), 0.001, detail + ": fixed bay")
 					assert_lte(button.get_combined_minimum_size().y, 64.0, detail + ": native minimum fits the rail")
 					var plate: StyleBox = button.get_theme_stylebox("normal")
 					var available := button.size.x - plate.get_content_margin(SIDE_LEFT) - plate.get_content_margin(SIDE_RIGHT)
@@ -319,16 +317,16 @@ func test_mounted_locale_and_size_transitions_keep_the_selected_face_and_fixed_l
 					var width := button.get_theme_font("font").get_string_size(button.text,
 						HORIZONTAL_ALIGNMENT_LEFT, -1, button.get_theme_font_size("font_size")).x
 					assert_lte(width, available + 0.01, detail + ": complete visible label fits actual margins")
-					var full: String = _localization.t("witnessed.transport." + id)
+					var key := "ui.pause.settings" if id == "settings" else "witnessed.transport." + id
+					var full: String = _localization.t(key)
 					if id in ["skip", "auto"]:
 						var enabled: bool = modes[0] if id == "skip" else modes[1]
 						full += " · " + _localization.t("witnessed.transport.on" if enabled else "witnessed.transport.off")
 						mode_labels[id][enabled] = button.text
 					assert_eq(button.accessibility_name, full, detail + ": full accessible label")
-					if language not in ["ja", "ko"] or id not in ["skip", "auto"]:
-						assert_eq(button.text, full, detail + ": full visible label")
+					assert_eq(button.text, _localization.t(key), detail + ": name-only visible label")
 			for id: String in mode_labels:
-				assert_ne(mode_labels[id][false], mode_labels[id][true], context + "/" + id + ": visible on/off distinction")
+				assert_eq(mode_labels[id][false], mode_labels[id][true], context + "/" + id + ": mode does not lengthen its name")
 
 
 func test_materials_use_caption_roles_and_skip_signal_stays_admission_bound() -> void:
@@ -450,14 +448,14 @@ func test_missing_catalog_owner_disables_commands_and_invalid_rebind_preserves_l
 	assert_false(rail.bind_localization(null))
 	assert_true(rail.bind_localization(_localization))
 	assert_false(skip.disabled)
-	assert_eq(skip.text, "Skip \u00b7 Off")
+	assert_eq(skip.text, "Skip")
 	assert_false(rail.bind_localization(RefCounted.new()))
-	assert_eq(skip.text, "Skip \u00b7 Off", "a refused replacement retains the valid owner")
+	assert_eq(skip.text, "Skip", "a refused replacement retains the valid owner")
 	var theme_before: Theme = rail.theme
 	assert_false(rail.configure_presentation(CAPTION_THEME.build("zh-CN", 100, "AfterHours"), "zh-CN"),
 		"a font locale cannot get ahead of the committed catalog locale")
 	assert_same(rail.theme, theme_before)
-	assert_eq(skip.text, "Skip \u00b7 Off")
+	assert_eq(skip.text, "Skip")
 
 
 func test_live_catalog_switch_retires_old_input_and_keeps_controls_and_modes() -> void:
@@ -473,8 +471,8 @@ func test_live_catalog_switch_retires_old_input_and_keeps_controls_and_modes() -
 	assert_true(rail.configure_presentation(CAPTION_THEME.build("zh-CN", 100, "AfterHours"), "zh-CN"))
 	assert_same(rail.get_node("Skip"), skip)
 	assert_same(rail.get_node("Auto"), auto)
-	assert_eq(skip.text, "\u8df3\u8fc7 \u00b7 \u5f00")
-	assert_eq(auto.text, "\u81ea\u52a8 \u00b7 \u5173")
+	assert_eq(skip.text, "\u8df3\u8fc7")
+	assert_eq(auto.text, "\u81ea\u52a8")
 	assert_gt(skip._generation, generation, "a prior-language activation is retired")
 	assert_gt(auto._generation, auto_generation, "Auto retires with its prior-language label")
 
@@ -492,5 +490,33 @@ func test_binding_a_different_catalog_locale_waits_for_the_matching_theme_tuple(
 	assert_eq(skip.text, "", "new copy does not appear under the old language/font")
 	assert_same(rail.theme, theme_before)
 	assert_true(rail.configure_presentation(CAPTION_THEME.build("zh-HK", 100, "AfterHours"), "zh-HK"))
-	assert_eq(skip.text, "\u8df3\u904e \u00b7 \u95dc")
+	assert_eq(skip.text, "\u8df3\u904e")
 	assert_false(skip.disabled)
+
+
+func test_settings_has_independent_admission_and_retires_held_input() -> void:
+	var rail := _new_rail()
+	assert_true(rail.configure_presentation(CAPTION_THEME.build("en", 100, "AfterHours"), "en"))
+	var admission := Admission.new()
+	var input_owner := InputOwner.new()
+	add_child_autofree(input_owner)
+	add_child_autofree(rail)
+	assert_true(rail.bind_settings_admission(admission.is_admitted, input_owner))
+	assert_true(rail.project(false, false, false, false, false, false, false, false, true))
+	var settings: Button = rail.get_node("Settings")
+	assert_false(settings.disabled)
+	await get_tree().process_frame
+	var generation: int = settings.get("_generation")
+	watch_signals(rail)
+	settings.emit_signal("activated")
+	assert_signal_emit_count(rail, "settings_requested", 1)
+	admission.allowed = false
+	settings.emit_signal("activated")
+	assert_signal_emit_count(rail, "settings_requested", 1)
+	assert_true(rail.project(false, false, false))
+	assert_true(settings.visible)
+	assert_true(settings.disabled)
+	admission.allowed = true
+	assert_true(rail.project(false, false, false, false, false, false, false, false, true))
+	settings.call("_on_accessibility_click", null, generation)
+	assert_signal_emit_count(rail, "settings_requested", 1, "held input cannot fire after closing computer")

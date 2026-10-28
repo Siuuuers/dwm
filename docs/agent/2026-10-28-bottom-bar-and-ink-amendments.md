@@ -1,7 +1,7 @@
 # Bottom bar, computer and save-ink amendments
 
-Date: 2026-10-28. Status: owner-selected requirements; implementation pending.
-Code inspected at `76c39d0a4acb33f858fba18b6c2bc9ad7cdb24c4`. This handoff changes documentation only.
+Date: 2026-10-28. Status: implemented in [PR #147](https://github.com/Siuuuers/dwm/pull/147); the PR records final cloud acceptance and merge status.
+Original handoff inspected code at `76c39d0a4acb33f858fba18b6c2bc9ad7cdb24c4`; implementation and acceptance are recorded below.
 
 Read AGENTS.md and CLAUDE.md, then recheck the branch head before implementation. This record supersedes the caret-above-bar, six-control and active save-ink requirements in the current feature plan and earlier handoffs. Other accepted behavior stays in force.
 
@@ -53,4 +53,56 @@ Run Godot and PowerShell only in GitHub Actions. Reuse/extend existing scene-con
 - Saves: numbered, Quick and Autosave work without splashes; existing files with and without ink metadata load; subsequent saves omit active ink data; failure/delete/reopen do not recreate decorations. Preserve text, timestamps, selection/focus, recovery behavior and saved run data.
 - Regression: self-talk scrollback and paired reading, divider dragging, pixel dissolve input hold, and retained computer/Challenge navigation still work. Update layout-dependent transition masks if the moved tag/rail changes their exclusion geometry.
 
-Documentation preparation verified the cited code and preserved the drawer source. No runtime implementation or new cloud test run is claimed by this handoff.
+The original documentation-only handoff verified the cited code and preserved the drawer source. The implementation record below supersedes its pending status.
+
+## Implementation record
+
+PR #147 implements the seven-command rail using the recommended order, with Settings
+last. The existing transport rail owns the bar top and bay width; caption, tag and
+transition exclusion share that geometry. The 32×24 visible tag begins at y612,
+with a separate 48×48 hit target above the Save text target. The caption aligns its
+last shaped text row while retaining its complete interaction box: spare bottom
+padding moves above that row instead of clipping the target.
+
+Settings uses the existing cached desktop SettingsApp and shared preference store.
+Back returns to computer Home; the computer close control returns to the held caption.
+Available and held Challenges retain their existing owner and state. No Pause menu,
+second Settings implementation, story changes or new art are added.
+
+Ink production/projection/drawing is removed, including the checkpoint-port producer.
+The save schema accepts and discards historical decorative metadata at its existing
+boundary. New saves omit it; loading/reopening existing saves does not rewrite them.
+
+Cloud coverage reuses the existing suites and connects the previously uninvoked
+scene-controls renderer. Its 80 presentation captures cover font/locale/size tuples,
+scaled viewports with Large Targets and ending layouts; synthetic display text is
+explicitly labeled. Full caption hit-target enclosure is checked separately from text alignment.
+Connected computer and app journeys separately establish actual command/custody effects.
+Godot and PowerShell run only in GitHub Actions. The PR records the accepted run,
+tested SHA and final status; source review and screenshot-harness existence alone
+are not runtime acceptance. Runtime candidate `4e3812d4bc2fb70beeae9b8558ef5a6dbb58f72c`
+is exercised in [run 40713707007](https://github.com/Siuuuers/dwm/actions/runs/40713707007).
+
+The first diagnostic [run 40711816468](https://github.com/Siuuuers/dwm/actions/runs/40711816468)
+exposed a clipped large caption target, corrected by the padding relocation above.
+Its other failures were outdated geometry/fixture expectations, including an Autosave
+read before the in-memory new run had written any save. Original full-target checks
+remain in force; no failed assertion was removed to accept the implementation.
+Canonical inventory regeneration is diagnostic only; committed inventories must
+pass a later read-only cloud check before merge.
+
+## Final accepted cloud evidence
+
+Tested revision: `0f26deca7e522d3bffc3e51dc84a5e6e58859f44`.
+[Cloud run 40717838949](https://github.com/Siuuuers/dwm/actions/runs/40717838949) completed successfully: 33 jobs passed,
+including all 28 focused suites, committed public inventories checked read-only,
+native caption discovery/Normal Accept, Windows exported-release startup, Gallery,
+and Linux desktop/dialogue/localization/font rendering. The geometry renderer
+verified 80 captures. The matched startup/Load job was intentionally skipped;
+skipped performance workflows are not acceptance or evidence of a speedup.
+
+The broader renderer's previous On/Off text expectation was updated to verify
+names-only labels, full accessible state and distinct selected background colors.
+An independent review confirmed the inherited font renderer exercises the same
+checks. This final record-only update changes no runtime, test, workflow or inventory
+from the tested revision. PR #147 remains the authority for merge status.
