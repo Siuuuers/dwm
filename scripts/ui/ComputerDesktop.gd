@@ -150,7 +150,7 @@ func configure_scene_shell_actions(external_action: Callable, input_admission: C
 
 func _activate_launcher(app_id: StringName) -> void:
 	if _scene_external_busy: return
-	if _scene_navigation and _scene_external_action.is_valid() and app_id in [&"settings", &"backup", &"logout"]:
+	if _scene_navigation and _scene_external_action.is_valid() and app_id in [&"settings", &"backup", &"logout", &"minesweeper"]:
 		if not _touch_input_admitted(): return
 		_scene_external_busy = true
 		var result: Variant = await _scene_external_action.call(app_id)

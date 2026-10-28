@@ -701,7 +701,7 @@ func _sync_transport() -> void:
 		canvas.queue_redraw()
 	transport_rail.visible = not rehearsal and not _computer_caption_held()
 	if is_instance_valid(self_talk):
-		self_talk.visible = self_talk.has_history() and _timed_hold_frontier.is_empty()
+		self_talk.visible = (self_talk.has_history() or self_talk.has_choice_row()) and _timed_hold_frontier.is_empty()
 		self_talk.focus_mode = Control.FOCUS_ALL if self_talk.visible and _reading_source_admitted() else Control.FOCUS_NONE
 	if _ending_caption_handoff or not _timed_hold_frontier.is_empty():
 		transport_rail.project(false, false, skip_controller.is_auto_enabled(), false, false, false, false, false)
@@ -714,6 +714,11 @@ func _sync_transport() -> void:
 	if is_instance_valid(self_talk) and self_talk.visible and self_talk.focus_mode != Control.FOCUS_NONE:
 		ring.append(self_talk)
 		names.append("SelfTalk")
+		var host := get_tree().current_scene
+		if host != null and host.has_method("get_thought_controls"):
+			for choice: Control in host.get_thought_controls():
+				ring.append(choice)
+				names.append("Thought:%d" % choice.get_instance_id())
 	if is_instance_valid(_dating_split_surface) and is_dating_split_input_admitted():
 		var handle: Control = _dating_split_surface.get_split_handle()
 		if is_instance_valid(handle) and handle.is_visible_in_tree() and handle.focus_mode != Control.FOCUS_NONE:

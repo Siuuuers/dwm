@@ -44,11 +44,10 @@ func test_refused_open_does_not_display_an_unadmitted_panel() -> void:
 	assert_false(_host.get_challenge_mount().visible)
 
 func test_computer_apps_remain_and_duplicate_scene_commands_are_removed() -> void:
-	for name: String in ["Settings", "Backup", "Save", "Load"]:
+	for name: String in ["Settings", "Backup", "Save", "Load", "Apps", "Contacts"]:
 		assert_false(_host.has_node("SceneControlsLayer/Surface/Controls/" + name))
-	for action: String in ["apps", "contacts"]:
-		_host.get_node("SceneControlsLayer/Surface/Controls/" + action.capitalize()).pressed.emit()
-	assert_eq(_actions.calls, ["apps", "contacts"])
+	_host.get_node("SceneControlsLayer/Surface/Controls/ComputerHome").pressed.emit()
+	assert_eq(_actions.calls, ["apps"])
 	assert_null(_host.find_child("Pause", true, false))
 	assert_null(_host.find_child("Start", true, false))
 	assert_false(_host.is_computer_open())
@@ -57,8 +56,8 @@ func test_computer_apps_remain_and_duplicate_scene_commands_are_removed() -> voi
 
 func test_caret_is_above_save_and_outside_computer_and_challenge() -> void:
 	var caret: Button = _host.get_node("SceneControlsLayer/Surface/Controls/CheckComputer")
-	assert_eq(caret.get_rect(), Rect2(287, 592, 64, 64))
-	assert_eq(caret.text, "^")
+	assert_eq(caret.get_rect(), Rect2(295, 600, 48, 48))
+	assert_eq(caret.text, "", "pictogram has no font baseline offset")
 	assert_false(caret.get_global_rect().intersects(_host.get_challenge_mount().get_global_rect()))
 	assert_false(caret.get_global_rect().intersects(_host.get_computer_mount().get_global_rect()))
 	var board := Control.new()

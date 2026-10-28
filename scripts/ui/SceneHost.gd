@@ -3,9 +3,6 @@ extends Control
 
 const TRANSITION_SURFACE := preload("res://scripts/ui/witnessed/SceneTransitionOverlay.gd")
 const TYPOGRAPHY := preload("res://scripts/ui/UiTypography.gd")
-const CONTROL_KEYS := {
-	"Apps": "scene.controls.apps", "Contacts": "app.contacts",
-}
 
 var _actions: Dictionary = {}
 var _computer_open := false
@@ -15,6 +12,7 @@ var _localization: Node
 var _thought_frontier: Dictionary = {}
 var _thought_poll := 0.0
 var _thought_options_offer: Dictionary = {}
+var _thought_panel: Control
 var _profile: Node
 var _transition_bridge: Node
 var transition_surface: Control
@@ -33,9 +31,15 @@ func _ready() -> void:
 	$SceneControlsLayer/Surface/ThoughtYes.pressed.connect(_accept_thought)
 	get_challenge_mount().child_entered_tree.connect(_fit_challenge)
 	_bind_presentation()
-	$SceneControlsLayer/Surface/Controls/CheckComputer.pressed.connect(_toggle_computer)
-	for action: String in ["contacts", "apps"]:
-		get_node("SceneControlsLayer/Surface/Controls/" + action.capitalize()).pressed.connect(_invoke.bind(action))
+	var computer: Button = $SceneControlsLayer/Surface/Controls/CheckComputer
+	computer.pressed.connect(_toggle_computer)
+	for state: String in ["normal", "hover", "pressed", "focus", "disabled"]:
+		computer.add_theme_stylebox_override(state, StyleBoxEmpty.new())
+	computer.draw.connect(_draw_computer_caret)
+	for event: Signal in [computer.focus_entered, computer.focus_exited, computer.mouse_entered,
+		computer.mouse_exited, computer.button_down, computer.button_up]:
+		event.connect(computer.queue_redraw)
+	$SceneControlsLayer/Surface/Controls/ComputerHome.pressed.connect(_invoke.bind("apps"))
 	if _actions.is_empty():
 		var bootstrap := get_node_or_null("/root/ApplicationBootstrap")
 		if bootstrap != null and bootstrap.has_method("configure_scene_host_view"):
@@ -66,14 +70,14 @@ func set_computer_content_visible(shown: bool) -> void:
 func _update_computer_visibility() -> void:
 	$SceneControlsLayer/Surface/ComputerMount.visible = _computer_open and _computer_content_visible
 	$SceneControlsLayer/Surface/ChallengeMount.visible = _computer_open and not _computer_content_visible
-	$SceneControlsLayer/Surface/Controls/Contacts.visible = _computer_open
-	$SceneControlsLayer/Surface/Controls/Apps.visible = _computer_open
+	$SceneControlsLayer/Surface/Controls/ComputerHome.visible = _computer_open and not _computer_content_visible
 
 func is_computer_open() -> bool:
 	return _computer_open
 
 func set_computer_open(open: bool) -> void:
 	_computer_open = open
+	$SceneControlsLayer/Surface/Controls/CheckComputer.queue_redraw()
 	_update_computer_visibility()
 	_refresh_presentation()
 	_update_controls()
@@ -117,14 +121,26 @@ func _refresh_presentation(_locale_id: String = "") -> void:
 	$SceneControlsLayer/Surface/ThoughtOptions.theme = story_presentation
 	$SceneControlsLayer/Surface/ThoughtYes.text = _localization.t("scene.thought.yes")
 	$SceneControlsLayer/Surface/ThoughtYes.accessibility_name = $SceneControlsLayer/Surface/ThoughtYes.text
-	for control_name: String in CONTROL_KEYS:
-		var button: Button = controls.get_node(control_name)
-		button.text = _localization.t(CONTROL_KEYS[control_name])
-		button.accessibility_name = button.text
+	var home: Button = controls.get_node("ComputerHome")
+	home.theme = preload("res://scripts/ui/desktop/DesktopTheme.gd").build(locale, percent, &"midnight", 0.0, false, "standard", font_style)
+	home.accessibility_name = _localization.t("scene.controls.apps")
+	home.tooltip_text = home.accessibility_name
 	var computer: Button = controls.get_node("CheckComputer")
-	computer.text = "^"
+	computer.text = ""
+	computer.queue_redraw()
 	computer.accessibility_name = _localization.t("scene.controls.close_computer" if _computer_open else "scene.controls.check_computer")
 	computer.tooltip_text = computer.accessibility_name
+
+func _draw_computer_caret() -> void:
+	var button: Button = $SceneControlsLayer/Surface/Controls/CheckComputer
+	var tag := Rect2((button.size - Vector2(32, 24)) * 0.5, Vector2(32, 24))
+	var ink := button.get_theme_color("font_disabled_color" if button.disabled else "font_color")
+	button.draw_rect(tag, Color(0.08, 0.08, 0.09, 0.8))
+	var center := button.size * 0.5
+	var rise := -2.5 if _computer_open else 2.5
+	button.draw_polyline(PackedVector2Array([center + Vector2(-5, rise), center + Vector2(0, -rise), center + Vector2(5, rise)]), ink, 2.0, true)
+	if button.is_hovered() or button.is_pressed(): button.draw_line(tag.position + Vector2(6, 22), tag.end - Vector2(6, 2), ink, 1.0)
+	if button.has_focus(): button.draw_rect(tag.grow(2), ink, false, 1.0)
 
 func _toggle_computer() -> void:
 	# Consume before awaiting: closing must not forward this click into dialogue.
@@ -159,12 +175,41 @@ func _update_controls() -> void:
 	if not is_inside_tree(): return
 	var computer: Callable = _actions.get("computer_close" if _computer_open else "computer_open", Callable())
 	$SceneControlsLayer/Surface/Controls/CheckComputer.disabled = _busy or not computer.is_valid()
-	for action: String in ["contacts", "apps"]:
-		var callback: Callable = _actions.get(action, Callable())
-		get_node("SceneControlsLayer/Surface/Controls/" + action.capitalize()).disabled = _busy or not callback.is_valid()
+	var apps: Callable = _actions.get("apps", Callable())
+	$SceneControlsLayer/Surface/Controls/ComputerHome.disabled = _busy or not apps.is_valid()
 
 ## Read-only offer projection. The captured presentation proof is retained until
 ## the button is pressed, so Load or native movement cannot borrow a fresh token.
+func configure_thought_panel(panel: Control) -> void:
+	_thought_panel = panel
+	panel.resized.connect(_layout_thought_controls)
+	# Choices share the caption canvas lifetime despite living in this control layer.
+	var caption_canvas: CanvasItem = panel.get_parent()
+	caption_canvas.visibility_changed.connect(func() -> void:
+		_thought_poll = 0.0
+		_process(0.0))
+	_layout_thought_controls()
+	_thought_poll = 0.0
+
+func _layout_thought_controls() -> void:
+	if not is_instance_valid(_thought_panel): return
+	var rect: Rect2 = _thought_panel.get_choice_row_rect()
+	var options: ScrollContainer = $SceneControlsLayer/Surface/ThoughtOptions
+	options.position = rect.position
+	options.size = rect.size
+	var yes: Button = $SceneControlsLayer/Surface/ThoughtYes
+	yes.position = rect.position
+	yes.size = Vector2(minf(140, rect.size.x), rect.size.y - 18)
+
+func get_thought_controls() -> Array[Control]:
+	var result: Array[Control] = []
+	var yes: Button = $SceneControlsLayer/Surface/ThoughtYes
+	if yes.is_visible_in_tree() and not yes.disabled: result.append(yes)
+	if $SceneControlsLayer/Surface/ThoughtOptions.is_visible_in_tree():
+		for button: Button in $SceneControlsLayer/Surface/ThoughtOptions/Options.get_children():
+			if not button.disabled: result.append(button)
+	return result
+
 func _process(delta: float) -> void:
 	_thought_poll -= delta
 	if _thought_poll > 0.0: return
@@ -175,20 +220,25 @@ func _process(delta: float) -> void:
 	# reconstruct its complete saved history on this periodic display query.
 	var held_control: bool = bridge != null and bridge.project_scene_optional_frontier(false).get("ok", false)
 	var marker: Dictionary = bridge.capture_scene_pending_marker() if bridge != null and not held_control else {}
-	var available: bool = not _busy and not _computer_open and marker.get("ok", false) and marker.value.kind in ["thought.pass", "thought.options"]
+	var available: bool = not _busy and not _computer_open and marker.get("ok", false) \
+		and not bridge.is_scene_transition_active() and marker.value.kind in ["thought.pass", "thought.options"]
 	if available:
 		var game := get_node_or_null("/root/GameState")
 		if game == null: available = false
 		else: available = not game.scene_choices.has(marker.value.payload.opportunity_id)
 	_thought_frontier = bridge.capture_current_line_presentation_frontier() if available else {}
-	var shown: bool = available and _thought_frontier.get("ok", false)
+	var shown: bool = available and _thought_frontier.get("ok", false) and is_instance_valid(_thought_panel) \
+		and _thought_panel.get_parent().is_visible_in_tree()
+	if is_instance_valid(_thought_panel):
+		_thought_panel.set_choice_row_visible(shown)
+		_layout_thought_controls()
 	button.visible = shown and marker.value.kind == "thought.pass"
 	button.disabled = not button.visible
 	_refresh_thought_options(marker.value.payload.options if shown and marker.value.kind == "thought.options" else [])
 
 func _refresh_thought_options(options: Array) -> void:
 	var panel: ScrollContainer = $SceneControlsLayer/Surface/ThoughtOptions
-	var column: VBoxContainer = panel.get_node("Options")
+	var column: HBoxContainer = panel.get_node("Options")
 	panel.visible = not options.is_empty()
 	var locale: String = _localization.get_locale() if _localization != null else "en"
 	var offer := {"options": options, "frontier": _thought_frontier, "locale": locale} if panel.visible else {}
@@ -203,9 +253,8 @@ func _refresh_thought_options(options: Array) -> void:
 		var key := "choice.%s.%s" % [marker.get("value", {}).get("payload", {}).get("opportunity_id", ""), option.choice_id]
 		button.text = preload("res://scripts/localization/StoryLocalization.gd").text(locale, key, option.text)
 		button.accessibility_name = button.text
-		button.custom_minimum_size = Vector2(0, 60)
-		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		button.custom_minimum_size = Vector2(0, 52)
+		button.size_flags_vertical = Control.SIZE_EXPAND_FILL
 		# Each visible button owns the presentation proof it was created for.
 		button.pressed.connect(_select_thought.bind(str(option.choice_id), _thought_frontier.duplicate(true)))
 		column.add_child(button)

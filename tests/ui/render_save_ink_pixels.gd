@@ -29,11 +29,13 @@ func test_stable_splashes_fade_without_changing_labels_or_focus() -> void:
 	var aged: Image = viewport.get_texture().get_image()
 	assert_eq([drawer.identity_label.get_rect(), drawer.state_label.get_rect()], label_rects)
 	assert_eq(drawer.accessibility_name, "Manual 1, Saved")
-	assert_eq(_ink_hash(bare.get_region(Rect2i(24, 20, 188, 80))),
-		_ink_hash(aged.get_region(Rect2i(24, 20, 188, 80))), "ink never changes caption pixels")
+	_assert_glyphs_above_ink(drawer, bare, aged)
 	var faded_pixels := 0
 	var fresh_pixels := 0
-	for y: int in range(106, 178):
+	var paper_colour := drawer.get_theme_color("paper", "Backup")
+	var ink_colour := drawer.get_theme_color("paper_ink", "Backup")
+	var full_contrast := absf(paper_colour.r - ink_colour.r) + absf(paper_colour.g - ink_colour.g) + absf(paper_colour.b - ink_colour.b)
+	for y: int in range(30, 178):
 		for x: int in range(28, 208):
 			var background := bare.get_pixel(x, y)
 			var old_pixel := first.get_pixel(x, y)
@@ -42,8 +44,13 @@ func test_stable_splashes_fade_without_changing_labels_or_focus() -> void:
 			if old_pixel != background and new_pixel == background:
 				var before_distance := absf(old_pixel.r - background.r) + absf(old_pixel.g - background.g) + absf(old_pixel.b - background.b)
 				var after_distance := absf(actual.r - background.r) + absf(actual.g - background.g) + absf(actual.b - background.b)
-				if before_distance > 0.08:
-					assert_almost_eq(after_distance / before_distance, 0.65, 0.09, "same old splash fades by selected proportion")
+				assert_lt(after_distance, before_distance, "every old-only painted pixel becomes lighter")
+				# Overlapping halo/body/streak alpha composes nonlinearly. Measure the
+				# 0.65 paint-opacity rule on isolated 32% core/droplet pixels instead.
+				var coverage := before_distance / full_contrast
+				if absf(background.r - paper_colour.r) < 0.005 and absf(background.g - paper_colour.g) < 0.005 \
+						and absf(background.b - paper_colour.b) < 0.005 and coverage > 0.30 and coverage < 0.34:
+					assert_almost_eq(after_distance / before_distance, 0.65, 0.025, "isolated old paint fades by selected proportion")
 					faded_pixels += 1
 			elif old_pixel == background and new_pixel != background:
 				assert_eq(actual, new_pixel, "new splash retains original opacity")
@@ -57,6 +64,9 @@ func test_stable_splashes_fade_without_changing_labels_or_focus() -> void:
 	drawer.present("Manual 1", "Saved", false, marks)
 	await _settle_ink_pixels()
 	var full: Image = viewport.get_texture().get_image()
+	# The same saved seeds now spread over the paper instead of a lower strip.
+	for region: Rect2i in [Rect2i(28, 30, 88, 74), Rect2i(116, 30, 88, 74), Rect2i(28, 104, 88, 74), Rect2i(116, 104, 88, 74)]:
+		assert_ne(_ink_hash(full.get_region(region)), _ink_hash(bare.get_region(region)), "splashes reach each paper quadrant")
 	drawer.present("Manual 1", "Saved", false, marks.slice(1))
 	await _settle_ink_pixels()
 	assert_eq(_ink_hash(viewport.get_texture().get_image()), _ink_hash(full), "age seven is below five percent and disappears")
@@ -82,17 +92,7 @@ func test_stable_splashes_fade_without_changing_labels_or_focus() -> void:
 	assert_eq([drawer.identity_label.get_rect(), drawer.state_label.get_rect()], large_rects, "150 percent production labels keep their layout")
 	for rect: Rect2 in large_rects:
 		assert_true(Rect2(0, 4, drawer.size.x, 156).encloses(rect), "150 percent labels remain inside the paper")
-	var glyph_color := drawer.get_theme_color("paper_ink", "Backup")
-	var glyph_pixels := 0
-	for label: Label in [drawer.identity_label, drawer.state_label]:
-		var bounds := Rect2i(label.get_global_rect()).intersection(Rect2i(0, 0, 240, 220))
-		for y: int in range(bounds.position.y, bounds.end.y):
-			for x: int in range(bounds.position.x, bounds.end.x):
-				var before := large_bare.get_pixel(x, y)
-				if absf(before.r - glyph_color.r) < 0.005 and absf(before.g - glyph_color.g) < 0.005 and absf(before.b - glyph_color.b) < 0.005:
-					assert_eq(large_ink.get_pixel(x, y), before, "opaque large glyph remains above the ink")
-					glyph_pixels += 1
-	assert_gt(glyph_pixels, 0)
+	_assert_glyphs_above_ink(drawer, large_bare, large_ink)
 	assert_eq(DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path("res://.godot/ci")), OK)
 	for item: Array in [["bare", bare], ["fresh", first], ["aged", aged], ["bounded", full], ["focus", focused], ["large-text", large_ink]]:
 		assert_eq(item[1].save_png("res://.godot/ci/save-ink-pixels-" + item[0] + ".png"), OK)
@@ -104,3 +104,16 @@ func _settle_ink_pixels() -> void:
 
 func _ink_hash(pixels: Image) -> String:
 	return pixels.get_data().hex_encode().sha256_text()
+
+func _assert_glyphs_above_ink(drawer: Button, bare: Image, painted: Image) -> void:
+	var glyph_color := drawer.get_theme_color("paper_ink", "Backup")
+	var glyph_pixels := 0
+	for label: Label in [drawer.identity_label, drawer.state_label]:
+		var bounds := Rect2i(label.get_global_rect()).intersection(Rect2i(0, 0, 240, 220))
+		for y: int in range(bounds.position.y, bounds.end.y):
+			for x: int in range(bounds.position.x, bounds.end.x):
+				var before := bare.get_pixel(x, y)
+				if absf(before.r - glyph_color.r) < 0.005 and absf(before.g - glyph_color.g) < 0.005 and absf(before.b - glyph_color.b) < 0.005:
+					assert_eq(painted.get_pixel(x, y), before, "opaque glyph remains above the ink")
+					glyph_pixels += 1
+	assert_gt(glyph_pixels, 0)

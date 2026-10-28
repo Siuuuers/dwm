@@ -67,6 +67,11 @@ func _run() -> void:
 					if percent == 150 and DisplayServer.get_name() != "headless":
 						await RenderingServer.frame_post_draw
 						var picture := viewport.get_texture().get_image()
+						var caret: Button = host.get_node("SceneControlsLayer/Surface/Controls/CheckComputer")
+						var center := Vector2i(caret.get_global_rect().get_center())
+						var top := picture.get_pixel(center.x, center.y - 2).get_luminance()
+						var bottom := picture.get_pixel(center.x, center.y + 2).get_luminance()
+						_check(bottom > top + 0.1 if opened else top > bottom + 0.1, id + ": drawn caret points down when open and up when closed")
 						if _check(not picture.is_empty() and picture.save_png(_folder.path_join(id + ".png")) == OK, id + " screenshot"):
 							_captures += 1
 	_check(_samples.size() == 60, "all 60 locale/style/size/state combinations")
@@ -91,13 +96,13 @@ func _inspect(host: Control, locale: Node, language: String, style: String, perc
 	var previous := Rect2()
 	var rectangles := {}
 	var keys := {"CheckComputer": "scene.controls.close_computer" if host.is_computer_open() else "scene.controls.check_computer",
-		"Apps": "scene.controls.apps", "Contacts": "app.contacts"}
+		"ComputerHome": "scene.controls.apps"}
 	for child: Node in controls.get_children():
 		if not child is Button or not child.visible: continue
 		var button := child as Button
-		_check(not button.text.is_empty() and not button.text.begins_with("[missing:") and not button.text.begins_with("[format_error:"), id + ": populated copy " + button.name)
+		_check(not button.accessibility_name.is_empty() and not button.accessibility_name.begins_with("[missing:"), id + ": populated accessible copy " + button.name)
 		_check(button.accessibility_name == locale.t(keys[str(button.name)]), id + ": localized accessible label " + button.name)
-		_check(button.text == ("^" if button.name == "CheckComputer" else button.accessibility_name), id + ": visible label " + button.name)
+		_check(button.text.is_empty(), id + ": visible label " + button.name)
 		_check(not button.disabled, id + ": enabled control " + button.name)
 		var bounds := button.get_global_rect()
 		var face: Font = button.get_theme_font("font")

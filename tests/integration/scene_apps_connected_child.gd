@@ -10,7 +10,8 @@ func _open_apps(host: Control) -> Control:
 	if not host.is_computer_open(): await _click(_controls(host, "CheckComputer"))
 	assert_true(host.is_computer_open())
 	if not host.is_computer_open(): return null
-	await _click(_controls(host, "Apps"))
+	if _controls(host, "ComputerHome").is_visible_in_tree():
+		await _click(_controls(host, "ComputerHome"))
 	var shell := _apps_shell(host)
 	assert_not_null(shell)
 	if shell != null: assert_true(shell.is_visible_in_tree())
@@ -89,6 +90,9 @@ func create_apps_scene() -> void:
 	await _click(shell.home_button)
 	assert_eq(shell._active_id, &"")
 	await _screenshot("apps-home")
+	if not await _launch_app(shell, &"minesweeper"): return
+	assert_true(shell.is_visible_in_tree(), "Without a held Challenge, Minesweeper uses the ordinary desktop app.")
+	assert_false(game.capture_scene_challenge_command().get("ok", false))
 	await _click(_controls(host, "CheckComputer"))
 	assert_false(host.is_computer_open())
 	assert_true(_caption().caption_text.is_visible_in_tree())
@@ -115,6 +119,15 @@ func create_apps_scene() -> void:
 	if not await _launch_app(shell, &"shop"): return
 	assert_eq(game.capture_dating_challenge_state().value, record)
 	await _screenshot("apps-shop-during-challenge")
+	await _click(shell.home_button)
+	await _click(shell.launcher_buttons[&"minesweeper"])
+	assert_true(panel.is_visible_in_tree(), "Home → Minesweeper returns to the held story Challenge.")
+	assert_same(host.get_challenge_mount().get_node("SceneChallengePanel"), panel)
+	assert_false(shell.is_visible_in_tree())
+	assert_eq(panel.public_view.board, board)
+	assert_eq(game.capture_dating_challenge_state().value, record, "Reopening preserves the durable Challenge record.")
+	assert_eq(bridge.capture_reading_checkpoint(false).value, held)
+	await _screenshot("apps-home-minesweeper-challenge-return")
 	await _click(_controls(host, "CheckComputer"))
 	await _click(_controls(host, "CheckComputer"))
 	assert_true(panel.is_visible_in_tree())

@@ -3022,6 +3022,10 @@ func open_scene_apps(host: Control) -> Dictionary:
 	return {"ok": true}
 
 func _open_scene_external_app(app_id: StringName, host: Control) -> Dictionary:
+	if app_id == &"minesweeper":
+		if _target(&"GameState").capture_scene_challenge_command().get("ok", false):
+			return open_scene_computer(host)
+		return host.get_computer_mount().get_node("SceneComputerDesktop").open_app(app_id)
 	if app_id == &"settings": return await open_scene_settings(host)
 	if app_id == &"backup": return await open_scene_backup(host, "backup")
 	if app_id != &"logout" or not _scene_host_admitted(host): return _failure(&"scene_host_unavailable", "")
