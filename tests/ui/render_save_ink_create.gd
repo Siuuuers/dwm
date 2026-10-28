@@ -2,7 +2,7 @@ extends "res://tests/ui/render_save_ink_base.gd"
 
 func test_all_save_types_omit_ink_and_existing_ink_remains_loadable() -> void:
 	if not await _begin_ink_run(): return
-	assert_false(_ink_document("autosave.json").has("ink_marks"), "new run Autosave omits ink")
+	assert_false(FileAccess.file_exists("user://saves/autosave.json"), "new Scene runs start in memory")
 	if not _ok(saves.autosave_latest()): return
 	assert_false(_ink_document("autosave.json").has("ink_marks"))
 	var sheet: Node = await _ink_sheet()

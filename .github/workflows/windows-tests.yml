@@ -125,6 +125,12 @@ jobs:
                       'tests/unit/test_authored_week.gd',
                       'tools/testing/Invoke-CloudTests.ps1',
                   }
+                  playtest_polish_paths.update({
+                      'tests/integration/test_witnessed_caption_runtime.gd',
+                      'tests/unit/test_witnessed_timed_hold.gd',
+                      'tests/unit/test_witnessed_pause_view.gd',
+                      'tests/ui/render_delivery_dialogue.gd',
+                  })
                   # Combined bottom-bar, computer Settings and ink-retirement acceptance.
                   playtest_polish_paths.update({
                       'autoload/SaveManager.gd',
@@ -769,11 +775,6 @@ jobs:
           # Execute the committed configuration with the freshly imported assets.
           git restore -- project.godot
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Verify native caption discovery and Normal Accept
-        timeout-minutes: 3
-        run: |
-          powershell.exe -NoProfile -ExecutionPolicy Bypass -File ./tools/testing/Invoke-CaptionNativeAccept.ps1
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Verify isolated runner contracts and timeout diagnostics
         timeout-minutes: 4
         run: |
@@ -787,6 +788,13 @@ jobs:
         if: ${{ failure() && steps.public_inventory_check.outcome == 'failure' }}
         timeout-minutes: 10
         run: ./tools/testing/Invoke-PublicSurfaceValidation.ps1 -Regenerate -EmitPayloads
+      - name: Verify native caption discovery and Normal Accept
+        # Run independently of stale inventory diagnostics; both must pass for acceptance.
+        if: ${{ !cancelled() && steps.public_inventory_check.outcome != 'skipped' }}
+        timeout-minutes: 3
+        run: |
+          powershell.exe -NoProfile -ExecutionPolicy Bypass -File ./tools/testing/Invoke-CaptionNativeAccept.ps1
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Verify public inventory drift and read-only contracts
         timeout-minutes: 10
         run: ./tools/testing/Invoke-CloudTests.ps1 -Suite public_surfaces

@@ -82,11 +82,13 @@ func _run() -> void:
 				for opened: bool in [false, true]:
 					await _capture(host, locale, language, style, percent, opened, "baseline")
 				if percent == 150:
+					_check(_caption.configure_presentation(language, percent, "AfterHours", false, "standard", true, 1, style), "scaled large-target caption tuple")
 					viewport.size = Vector2i(1600, 900)
 					viewport.global_canvas_transform = Transform2D(0.0, Vector2(1.25, 1.25), 0.0, Vector2.ZERO)
 					await _capture(host, locale, language, style, percent, false, "scaled")
 					viewport.global_canvas_transform = Transform2D.IDENTITY
 					viewport.size = Vector2i(1280, 720)
+					_check(_caption.configure_presentation(language, percent, "AfterHours", false, "standard", false, 1, style), "restore ordinary caption tuple")
 					_caption.transport_rail.set_ending_layout(true)
 					await _capture(host, locale, language, style, percent, false, "ending")
 					_caption.transport_rail.set_ending_layout(false)
@@ -117,6 +119,8 @@ func _capture(host: Control, locale: Node, language: String, style: String, perc
 	var tag := Rect2(caret.get_global_rect().get_center() - Vector2(16, 12), Vector2(32, 24))
 	var leaf: RichTextLabel = _caption.caption_text
 	leaf.release_focus()
+	_check(_caption.scroll.get_global_rect().encloses(leaf.get_global_rect()), id + ": complete caption hit target fits its aperture")
+	_check(leaf.size.y >= (64.0 if variant == "scaled" else 48.0), id + ": full requested caption target height")
 	var row_bottom := leaf.global_position.y + leaf.get_theme_stylebox("normal").get_content_margin(SIDE_TOP) + leaf.get_content_height()
 	_check(leaf.get_line_count() > 1, id + ": synthetic text actually wraps")
 	_check(absf(row_bottom - tag.position.y) <= 1.0, id + ": rendered content bottom meets visible tag top: " + str(row_bottom))
@@ -145,7 +149,7 @@ func _capture(host: Control, locale: Node, language: String, style: String, perc
 	_check(rail.get_node("Auto").theme_type_variation == &"WitnessedTransportMode", id + ": selected Auto survives disabled projection")
 	_samples.append({"id": id, "buttons": rectangles, "centers": centers, "row_bottom": row_bottom,
 		"tag_top": tag.position.y, "drawn_row_bottom": drawn_row.y, "drawn_tag_top": drawn_tag.y,
-		"wrapped_lines": leaf.get_line_count(), "viewport": str(_viewport.size)})
+		"wrapped_lines": leaf.get_line_count(), "viewport": str(_viewport.size), "large_targets": variant == "scaled"})
 	if DisplayServer.get_name() == "headless": return
 	await RenderingServer.frame_post_draw
 	var picture := _viewport.get_texture().get_image()

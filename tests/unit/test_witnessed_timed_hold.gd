@@ -114,7 +114,7 @@ func test_admitted_hold_withdraws_caption_and_all_command_edges_but_keeps_statio
 	assert_null(viewport.gui_get_focus_owner())
 	assert_true(caption.transport_rail.is_visible_in_tree())
 	assert_eq(caption.transport_rail.get_rect(), rail_rect)
-	for name: String in ["History", "Skip", "Auto", "Save", "Load", "Next"]:
+	for name: String in ["History", "Save", "Load", "Skip", "Auto", "Next", "Settings"]:
 		var command: BaseButton = caption.transport_rail.get_node(name)
 		assert_true(command.disabled, name)
 		assert_eq(command.focus_mode, Control.FOCUS_NONE, name)

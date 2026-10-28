@@ -1,6 +1,7 @@
 extends GutTest
 ## Synthetic pixel proof; the connected journey separately owns reading/input timing.
 const SURFACE := preload("res://scripts/ui/witnessed/SceneTransitionOverlay.gd")
+const RAIL := preload("res://scripts/ui/witnessed/WitnessedTransportRail.gd")
 const ART_LAYER := preload("res://scenes/ui/witnessed/WitnessedArtLayer.tscn")
 
 func test_pixel_dissolve_covers_story_and_preserves_live_controls() -> void:
@@ -19,8 +20,8 @@ func test_pixel_dissolve_covers_story_and_preserves_live_controls() -> void:
 	var caption := _label(viewport, Vector2(620, 420), "SYNTHETIC CAPTION")
 	var thought := _label(viewport, Vector2(32, 32), "SYNTHETIC THOUGHT")
 	var rail := ColorRect.new()
-	rail.position = Vector2(0, 656)
-	rail.size = Vector2(1280, 64)
+	rail.position = Vector2(0, RAIL.BAR_TOP)
+	rail.size = Vector2(1280, 720 - RAIL.BAR_TOP)
 	rail.color = Color("683d20")
 	viewport.add_child(rail)
 	var button := Button.new()
@@ -33,11 +34,15 @@ func test_pixel_dissolve_covers_story_and_preserves_live_controls() -> void:
 	var chrome := CanvasLayer.new()
 	chrome.layer = 20
 	viewport.add_child(chrome)
-	var caret := ColorRect.new()
-	caret.position = Vector2(287, 592)
-	caret.size = Vector2(64, 64)
-	caret.color = Color(0.8, 0.6, 0.2, 0.5)
+	var caret := Control.new()
+	caret.position = Vector2(RAIL.BAY_WIDTH * 1.5 - 24, RAIL.BAR_TOP - 12)
+	caret.size = Vector2(48, 48)
 	chrome.add_child(caret)
+	var tag := ColorRect.new()
+	tag.position = Vector2(8, 12)
+	tag.size = Vector2(32, 24)
+	tag.color = Color(0.8, 0.6, 0.2, 0.5)
+	caret.add_child(tag)
 	var capture_layer := CanvasLayer.new()
 	capture_layer.layer = 19
 	viewport.add_child(capture_layer)
@@ -56,7 +61,7 @@ func test_pixel_dissolve_covers_story_and_preserves_live_controls() -> void:
 	caption.add_theme_color_override("font_color", Color("ffb657"))
 	thought.add_theme_color_override("font_color", Color("ffb657"))
 	rail.color = Color("1d816d")
-	caret.color = Color(0.2, 0.8, 0.9, 0.5)
+	tag.color = Color(0.2, 0.8, 0.9, 0.5)
 	await _settle()
 	handle.separator_color = Color.CYAN
 	handle.queue_redraw()
@@ -70,9 +75,9 @@ func test_pixel_dissolve_covers_story_and_preserves_live_controls() -> void:
 	var start: Image = viewport.get_texture().get_image()
 	var content := {"background": Rect2i(700, 120, 160, 80), "portrait": Rect2i(80, 180, 160, 80),
 		"caption": Rect2i(620, 420, 360, 48), "thought": Rect2i(32, 32, 360, 48),
-		"lower_art": Rect2i(700, 610, 160, 32)}
+		"lower_art": Rect2i(700, int(RAIL.BAR_TOP) - 32, 160, 32)}
 	var line: Rect2 = handle.get_global_transform_with_canvas() * Rect2(handle.size.x - 1, 0, 2, handle.separator_height)
-	var controls := {"rail": Rect2i(20, 670, 180, 32), "caret": Rect2i(287, 592, 64, 64),
+	var controls := {"rail": Rect2i(20, int(RAIL.BAR_TOP), 180, 32), "caret": Rect2i(caret.get_global_rect()),
 		"divider": Rect2i(line)}
 	for name: String in content:
 		assert_eq(_hash(start.get_region(content[name])), _hash(old.get_region(content[name])), name + " retains outgoing pixels at zero")

@@ -219,7 +219,7 @@ func test_next_matte_retains_native_composition_and_excludes_input_pause_and_rai
 	assert_false(caption.caption_text.is_processing())
 	assert_false(caption._reading_source_admitted())
 	assert_false(caption.capture_pause_view(_source()).get("ok", true), "Pause cannot capture an intermediate seek")
-	for name: String in ["History", "Skip", "Auto", "Save", "Load", "Next"]:
+	for name: String in ["History", "Save", "Load", "Skip", "Auto", "Next", "Settings"]:
 		assert_true(caption.transport_rail.get_node(name).disabled, name + " cannot observe the intermediate source")
 	runtime.paused = false
 	for pressed: bool in [true, false]:

@@ -4,6 +4,7 @@ extends GutTest
 
 const STYLE := "res://dialogic/styles/witnessed_caption_style.tres"
 const LAYER := "res://scripts/ui/witnessed/WitnessedCaptionLayer.gd"
+const TRANSPORT_RAIL := preload("res://scripts/ui/witnessed/WitnessedTransportRail.gd")
 const BRIDGE := preload("res://autoload/DialogicBridge.gd")
 var runtime: DialogicGameHandler
 var viewport: SubViewport
@@ -499,8 +500,8 @@ func test_presentation_matrix_preserves_live_reveal_history_and_event_position()
 						assert_true(caption.configure_presentation(locale,percent,palette,high_contrast,preset))
 						await _settle()
 						var projection: Dictionary = caption.get_caption_projection()
-						var height: int = {100:208,125:264,150:328}[percent]
-						assert_eq(projection.field_rect,Rect2(0,592-height,1280,height))
+						var top: int = {100:384,125:328,150:264}[percent]
+						assert_eq(projection.field_rect,Rect2(0,top,1280,TRANSPORT_RAIL.BAR_TOP-top))
 						assert_eq(projection.font_size,int(24*percent/100.0))
 						assert_true(projection.field_rect.encloses(projection.caption_visible_rect))
 						assert_true(projection.caption_visible_rect.has_area(),"current caption intersects the common viewport")

@@ -1,6 +1,6 @@
 # Bottom bar, computer and save-ink amendments
 
-Date: 2026-10-28. Status: owner-selected requirements; implementation pending.
+Date: 2026-10-28. Status: implementation in [PR #147](https://github.com/Siuuuers/dwm/pull/147); cloud acceptance pending.
 Code inspected at `76c39d0a4acb33f858fba18b6c2bc9ad7cdb24c4`. This handoff changes documentation only.
 
 Read AGENTS.md and CLAUDE.md, then recheck the branch head before implementation. This record supersedes the caret-above-bar, six-control and active save-ink requirements in the current feature plan and earlier handoffs. Other accepted behavior stays in force.
@@ -54,3 +54,27 @@ Run Godot and PowerShell only in GitHub Actions. Reuse/extend existing scene-con
 - Regression: self-talk scrollback and paired reading, divider dragging, pixel dissolve input hold, and retained computer/Challenge navigation still work. Update layout-dependent transition masks if the moved tag/rail changes their exclusion geometry.
 
 Documentation preparation verified the cited code and preserved the drawer source. No runtime implementation or new cloud test run is claimed by this handoff.
+
+## Implementation record
+
+PR #147 implements the seven-command rail using the recommended order, with Settings
+last. The existing transport rail owns the bar top and bay width; caption, tag and
+transition exclusion share that geometry. The 32×24 visible tag begins at y612,
+with a separate 48×48 hit target above the Save text target. The caption aligns its
+last shaped text row rather than its padded interaction box.
+
+Settings uses the existing cached desktop SettingsApp and shared preference store.
+Back returns to computer Home; the computer close control returns to the held caption.
+Available and held Challenges retain their existing owner and state. No Pause menu,
+second Settings implementation, story changes or new art are added.
+
+Ink production/projection/drawing is removed, including the checkpoint-port producer.
+The save schema accepts and discards historical decorative metadata at its existing
+boundary. New saves omit it; loading/reopening existing saves does not rewrite them.
+
+Cloud coverage reuses the existing suites and connects the previously uninvoked
+scene-controls renderer. Its 80 presentation captures cover font/locale/size tuples,
+scaled viewports and ending layouts; synthetic display text is explicitly labeled.
+Connected computer and app journeys separately establish actual command/custody effects.
+Godot and PowerShell run only in GitHub Actions. Acceptance results are pending;
+source review and screenshot-harness existence alone are not runtime acceptance.

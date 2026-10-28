@@ -18,7 +18,7 @@ accepted by [run 40650052235](https://github.com/Siuuuers/dwm/actions/runs/40650
 
 ## Latest amendment: ink retirement and seven-command bottom bar
 
-Implementation pending. The [October 28 playtest amendment handoff](2026-10-28-bottom-bar-and-ink-amendments.md) supersedes the older active-ink, six-command and above-bar-caret instructions below. Remove save splashes for now; preserve their [design and source](../retired-features/save-slot-ink/README.md). Place the computer tag on the bar, align the lowest dialogue row bottom to its visible top, add direct computer Settings as a seventh evenly spaced command, omit visible Skip/Auto On/Off suffixes, and retain disabled bar labels under the open computer overlay. Prior implementation and test records remain historical evidence, not completion of these new amendments.
+Implementation in [PR #147](https://github.com/Siuuuers/dwm/pull/147), pending cloud acceptance. The [October 28 playtest amendment handoff](2026-10-28-bottom-bar-and-ink-amendments.md) supersedes the older active-ink, six-command and above-bar-caret instructions below. Remove save splashes for now; preserve their [design and source](../retired-features/save-slot-ink/README.md). Place the computer tag on the bar, align the lowest dialogue row bottom to its visible top, add direct computer Settings as a seventh evenly spaced command, omit visible Skip/Auto On/Off suffixes, and retain disabled bar labels under the open computer overlay. Prior implementation and test records remain historical evidence, not completion of these new amendments.
 
 ## Sources and precedence
 

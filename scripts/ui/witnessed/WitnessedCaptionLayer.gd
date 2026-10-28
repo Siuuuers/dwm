@@ -1542,12 +1542,6 @@ func _layout_stack(publication: bool = false, desired_scroll: float = -1.0) -> v
 		left_inset = gutter if _dating_overlay else 0.0
 		width -= gutter + left_inset
 		total = _measure_leaves(leaves, width)
-	# Align the last shaped text row, excluding the native leaf's trailing
-	# padding and enlarged focus target, with the visible computer tag.
-	if not leaves.is_empty():
-		var last := leaves.back() as RichTextLabel
-		var text_bottom := last.get_theme_stylebox("normal").get_content_margin(SIDE_TOP) + last.get_content_height()
-		total -= maxf(0.0, last.size.y - text_bottom)
 	var cursor := maxf(0, scroll.size.y - total)
 	for leaf: RichTextLabel in leaves:
 		leaf.position = Vector2(left_inset, cursor)
@@ -1568,7 +1562,17 @@ func _measure_leaves(leaves: Array[RichTextLabel], width: float) -> float:
 	for leaf: RichTextLabel in leaves:
 		leaf.size.x = width
 		var minimum := 64 if _large_targets and leaf == caption_text else 52
-		var height := maxi(minimum, int(ceil((leaf.get_content_height() + 32) / 2.0)) * 2)
+		var content_height := leaf.get_content_height()
+		var height := maxi(minimum, int(ceil((content_height + 32) / 2.0)) * 2)
+		# Keep the entire focus/pointer target inside the viewport. On the last
+		# leaf, place its spare height above the shaped text so the row and
+		# target share the visible tag's top edge without clipping the target.
+		var material := leaf.get_theme_stylebox("normal")
+		if not leaf.has_theme_stylebox_override("normal"):
+			material = material.duplicate()
+			leaf.add_theme_stylebox_override("normal", material)
+		material.set_content_margin(SIDE_TOP, height - content_height if leaf == leaves.back() else 16)
+		material.set_content_margin(SIDE_BOTTOM, 0 if leaf == leaves.back() else 16)
 		leaf.update_minimum_size()
 		leaf.size = Vector2(width, height)
 		total += leaf.size.y

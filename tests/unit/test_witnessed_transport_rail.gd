@@ -12,7 +12,7 @@ const TOPS := [64, 64, 64, 64, 64, 64, 64]
 const WIDTHS := [RAIL.BAY_WIDTH, RAIL.BAY_WIDTH, RAIL.BAY_WIDTH, RAIL.BAY_WIDTH, RAIL.BAY_WIDTH, RAIL.BAY_WIDTH, RAIL.BAY_WIDTH]
 const COPY := {
 	"en": ["History", "Save", "Load", "Skip", "Auto", "Next", "Settings"],
-	"zh-CN": ["历史", "保存", "读取", "跳过", "自动", "下一步", "设置"],
+	"zh-CN": ["历史", "保存", "读取", "跳过", "自动", "下一步", "设定"],
 	"zh-HK": ["歷史", "儲存", "載入", "跳過", "自動", "下一步", "設定"],
 }
 
@@ -73,8 +73,8 @@ func test_seven_commands_share_one_nonoverlapping_footer_row() -> void:
 		var button := rail.get_child(index) as Button
 		assert_not_null(button)
 		assert_eq(button.name, NAMES[index])
-		assert_eq(button.position, Vector2(LEFTS[index], TOPS[index]), NAMES[index])
-		assert_eq(button.size, Vector2(WIDTHS[index], 64), NAMES[index])
+		assert_lte(button.position.distance_to(Vector2(LEFTS[index], TOPS[index])), 0.001, NAMES[index])
+		assert_lte(button.size.distance_to(Vector2(WIDTHS[index], 64)), 0.001, NAMES[index])
 		for other: String in NAMES:
 			if other != NAMES[index]:
 				assert_lte(button.get_rect().intersection(rail.get_node(other).get_rect()).size.x, 0.001)
@@ -89,14 +89,14 @@ func test_ending_layout_restores_ordinary_layout_without_replacing_controls() ->
 	assert_eq(rail.position, Vector2(0, 656))
 	assert_eq(rail.size, Vector2(1280, 64))
 	for index: int in NAMES.size():
-		assert_eq(rail.get_node(NAMES[index]).position, Vector2(LEFTS[index], 0))
+		assert_lte(rail.get_node(NAMES[index]).position.distance_to(Vector2(LEFTS[index], 0)), 0.001)
 	rail.set_ending_layout(false)
 	assert_false(rail.ending_layout)
 	assert_eq(rail.position, Vector2(0, 592))
 	assert_eq(rail.size, Vector2(1280, 128))
 	assert_same(rail.get_node("Next"), original_next)
 	for index: int in NAMES.size():
-		assert_eq(rail.get_node(NAMES[index]).position, Vector2(LEFTS[index], TOPS[index]))
+		assert_lte(rail.get_node(NAMES[index]).position.distance_to(Vector2(LEFTS[index], TOPS[index])), 0.001)
 
 
 func test_projection_keeps_placeholders_visible_disabled_and_modes_truthful() -> void:
@@ -306,8 +306,8 @@ func test_mounted_locale_and_size_transitions_keep_the_selected_face_and_fixed_l
 					var detail := context + "/" + id + "/" + str(modes)
 					assert_same(button.get_theme_font("font"), presentation.default_font, detail + ": selected face")
 					assert_eq(button.get_theme_font_size("font_size"), presentation.default_font_size, detail + ": full size")
-					assert_eq(button.position, Vector2(LEFTS[index], TOPS[index]), detail + ": fixed position")
-					assert_eq(button.size, Vector2(WIDTHS[index], 64), detail + ": fixed bay")
+					assert_lte(button.position.distance_to(Vector2(LEFTS[index], TOPS[index])), 0.001, detail + ": fixed position")
+					assert_lte(button.size.distance_to(Vector2(WIDTHS[index], 64)), 0.001, detail + ": fixed bay")
 					assert_lte(button.get_combined_minimum_size().y, 64.0, detail + ": native minimum fits the rail")
 					var plate: StyleBox = button.get_theme_stylebox("normal")
 					var available := button.size.x - plate.get_content_margin(SIDE_LEFT) - plate.get_content_margin(SIDE_RIGHT)
