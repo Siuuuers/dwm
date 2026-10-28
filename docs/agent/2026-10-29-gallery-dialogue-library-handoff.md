@@ -1,7 +1,7 @@
 # Gallery dialogue library handoff
 
 Date: 29 October 2026, Hong Kong.
-Status: sample-first implementation in PR #149; cloud acceptance passed. Production checkpoint placement remains deferred.
+Status: sample-first implementation in PR #149; cloud acceptance passed. Current DTL is replaceable draft material; checkpoint authoring remains data-driven.
 Implementation base: `09c13dc6a37c4a5bfb8fbc3771ea48ba4f730b94`.
 
 ## Scope and settled owner decisions
@@ -123,3 +123,21 @@ generation and the scanner's exact source-reference rules.
 
 The owner reports that the three Shop item decorations look too simple and do not sufficiently express the intended code-drawn design. Catalogue, ownership and purchase caps are implemented; aesthetic acceptance is reopened. Do not call the visual result final or silently redesign it in the library work. Future polish should compare the intended glass highlights, silk boundary thread and wax-sealed letter with current code and screenshots, then agree a concrete visual direction. Procedural code remains possible; external art is not automatically required.
 
+
+## Replaceable draft authoring clarification — October 29
+
+The owner clarified that current DTL is draft, not final game content. The next
+implementation goal is a reusable function and convenient add/change checkpoint
+workflow, not approval of fixed Day 1 passage locations. No proposed Day 1 group
+from the prior conversation becomes canonical through this engineering work.
+
+The existing art placement manifest owns checkpoint definitions and arrival
+bindings, plus optional `dialogue_library` titles, ordered entry selectors and
+condition descriptions. Native DTL compilation supplies prose, exact identities
+and self-talk pairing to a generated library projection. No manually copied
+dialogue or parallel story evaluator is required. The existing checkpoint
+presentation/Autosave behavior remains unchanged.
+
+See [the authoring template](../../../tests/fixtures/presentation/README.md) for
+add, move, rename, remove, draft replacement, cloud export and saved-ID semantics.
+Cloud acceptance for this authoring extension is pending.
