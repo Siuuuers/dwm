@@ -42,6 +42,11 @@ func test_authored_week_compiles_and_preserves_conditional_branch_bindings() -> 
 		FileAccess.get_file_as_string("res://data/manifests/scene_story_registration.json"))
 	assert_true(parsed.ok, "installed registration is strict JSON")
 	if not parsed.ok: return
+	var library: Dictionary = preload("res://scripts/validation/StrictJson.gd").parse_object(
+		FileAccess.get_file_as_string("res://data/manifests/dialogue_library_registration.json"))
+	assert_true(library.ok, "installed library is strict JSON")
+	if not library.ok: return
+	assert_eq(library.value, prepared.value.dialogue_library, "installed library matches current native DTL export")
 	var bundle: Dictionary = parsed.value
 	assert_true(writer.stringify(bundle).value == writer.stringify(prepared.value.registration).value,
 		"installed JSON matches the native-generated registration")

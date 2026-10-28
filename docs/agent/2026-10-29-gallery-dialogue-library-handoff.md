@@ -1,7 +1,7 @@
 # Gallery dialogue library handoff
 
 Date: 29 October 2026, Hong Kong.
-Status: sample-first implementation in PR #149; cloud acceptance passed. Production checkpoint placement remains deferred.
+Status: sample-first library and replaceable-DTL authoring accepted in PRs #149 and #150. No fixed story placements are selected.
 Implementation base: `09c13dc6a37c4a5bfb8fbc3771ea48ba4f730b94`.
 
 ## Scope and settled owner decisions
@@ -123,3 +123,39 @@ generation and the scanner's exact source-reference rules.
 
 The owner reports that the three Shop item decorations look too simple and do not sufficiently express the intended code-drawn design. Catalogue, ownership and purchase caps are implemented; aesthetic acceptance is reopened. Do not call the visual result final or silently redesign it in the library work. Future polish should compare the intended glass highlights, silk boundary thread and wax-sealed letter with current code and screenshots, then agree a concrete visual direction. Procedural code remains possible; external art is not automatically required.
 
+
+## Replaceable draft authoring clarification — October 29
+
+The owner clarified that current DTL is draft, not final game content. The next
+implementation goal is a reusable function and convenient add/change checkpoint
+workflow, not approval of fixed Day 1 passage locations. No proposed Day 1 group
+from the prior conversation becomes canonical through this engineering work.
+
+The existing art placement manifest owns checkpoint definitions and arrival
+bindings, plus optional `dialogue_library` titles, ordered entry selectors and
+condition descriptions. Native DTL compilation supplies prose, exact identities
+and self-talk pairing to a generated library projection. No manually copied
+dialogue or parallel story evaluator is required. The existing checkpoint
+presentation/Autosave behavior remains unchanged.
+
+See [the authoring template](../../../tests/fixtures/presentation/README.md) for
+add, move, rename, remove, draft replacement, cloud export and saved-ID semantics.
+Authoring extension: [PR #150](https://github.com/Siuuuers/dwm/pull/150).
+Candidate: `2c61517652aea98070c594ae6fc5c73f430dd660`.
+Cloud validation: [run 40766840297](https://github.com/Siuuuers/dwm/actions/runs/40766840297), passed: 26 successful jobs, including 21 regression suites, public API/inventory verification, Windows exported release startup, and both Linux rendered jobs. The optional matched startup/Load job was intentionally skipped.
+The five new native-compiler authoring tests passed; the complete library suite
+plus fresh-process Load passed 40 cases / 2,653 assertions. Authored-week parity
+also passed against the committed generated files. This slice adds no fixed
+production placement and does not change the current draft's prose.
+The initial diagnostic run found stale source-reference inventories: one moved
+test line and five new autosave test references. Their refreshed bytes match
+cloud-generated inventories, and the corrected run passed read-only verification.
+
+The supported authoring loop is edit, cloud export, validation, and fresh process.
+A raw DTL edit without export is not a live Gallery preview: its generated prose
+remains the last exported version. No per-caption source scans or runtime compiler
+are introduced to hide a missing export.
+
+The final evidence-only commit updates this handoff. Runtime, tests, workflow,
+generated library and public inventories remain identical to the accepted
+candidate above. Godot and PowerShell validation ran only in GitHub Actions.

@@ -6,6 +6,8 @@ const STRICT := preload("res://scripts/validation/StrictJson.gd")
 const ADAPTER := preload("res://scripts/narrative/DialogicRuntimeAdapter.gd")
 const MANIFEST := preload("res://scripts/narrative/DialogicEntryManifest.gd")
 const BASE := preload("res://tests/templates/seven_day/SevenDayTemplates.gd")
+const ART_PATH := "res://data/manifests/art_placements.json"
+const LIBRARY := preload("res://scripts/narrative/DialogueLibraryCatalogue.gd")
 
 static func prepare() -> Dictionary:
 	var parsed: Dictionary = STRICT.parse_object(FileAccess.get_file_as_string(SOURCE_PATH))
@@ -45,6 +47,7 @@ static func prepare() -> Dictionary:
 	for signal_id: String in signal_ids:
 		bundle.ids_registry.signals.append({"signal_id": signal_id, "payload_fields": payloads[signal_id]})
 	var ids: Array = []
+	var compiled_entries := {}
 	for spec: Dictionary in source.entries: ids.append(spec.entry_id)
 	for spec: Dictionary in source.entries:
 		var id: String = spec.entry_id
@@ -53,6 +56,7 @@ static func prepare() -> Dictionary:
 		bundle.scene_programme.story_days[id] = spec.story_day
 		var compiled: Dictionary = ADAPTER.compile_scene_programme(spec.path, id, ids, spec.markers)
 		if not compiled.ok: return compiled
+		compiled_entries[id] = compiled.value
 		if spec.role != "scene": return {"ok": false, "code": "authored_scene_role_required"}
 		var grants: Array = ["history.line.witness"]
 		for marker: Dictionary in spec.markers:
@@ -87,7 +91,74 @@ static func prepare() -> Dictionary:
 	bundle.audio_catalogue.bindings.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return a.entry_id < b.entry_id)
 	var checked: Dictionary = MANIFEST.validate_scene_registration(bundle)
 	if not checked.ok: return checked
-	return {"ok": true, "value": {"registration": bundle, "first_target_id": "target." + source.first_entry_id}}
+	var placements: Dictionary = STRICT.parse_object(FileAccess.get_file_as_string(ART_PATH))
+	if not placements.ok: return placements
+	var library := prepare_dialogue_library(placements.value, bundle, compiled_entries)
+	if not library.ok: return library
+	return {"ok": true, "value": {"registration": bundle, "dialogue_library": library.value,
+		"first_target_id": "target." + source.first_entry_id}}
+
+## Authors select entry groups, never copy dialogue, revisions or thought roles.
+## The native compiler and freshly rebuilt caption registry supply those facts.
+static func prepare_dialogue_library(placements: Dictionary, registration: Dictionary,
+		compiled_entries: Dictionary) -> Dictionary:
+	var authored: Variant = placements.get("dialogue_library", {})
+	var checkpoints: Variant = placements.get("presentation_checkpoints", {})
+	var bindings: Variant = placements.get("presentation_entries", {})
+	if not authored is Dictionary or not authored.get("passages", []) is Array \
+			or not authored.get("condition_labels", {}) is Dictionary \
+			or not checkpoints is Dictionary or not bindings is Dictionary:
+		return {"ok": false, "code": &"library_authoring_invalid"}
+	var bound_checkpoints := {}
+	for entry_id: Variant in bindings:
+		if not entry_id is String or not compiled_entries.has(entry_id):
+			return {"ok": false, "code": &"library_authoring_entry_unknown", "reference": str(entry_id)}
+		if not bindings[entry_id] is Array:
+			return {"ok": false, "code": &"library_authoring_invalid"}
+		for command: Variant in bindings[entry_id]:
+			if not command is Dictionary:
+				return {"ok": false, "code": &"library_authoring_invalid"}
+			if command.get("kind") == "checkpoint":
+				if not command.get("id") is String or not checkpoints.has(command.id):
+					return {"ok": false, "code": &"library_checkpoint_invalid"}
+				bound_checkpoints[command.id] = true
+	var lines_by_entry := {}
+	var registered_beats: Array = []
+	for entry: Dictionary in registration.caption_registry.entries:
+		var lines := {}
+		for line: Dictionary in entry.lines:
+			var beat := {"beat_id": line.beat_id, "line_id": line.line_id,
+				"owning_entry_id": entry.entry_id, "presentation_signature": {
+					"content_revision": line.revision, "variant_id": line.beat_id}}
+			lines[line.line_id] = {"beat": beat, "text": {"en": line.text}}
+			registered_beats.append(beat)
+		lines_by_entry[entry.entry_id] = lines
+	var passages: Array = []
+	for passage: Variant in authored.get("passages", []):
+		if not passage is Dictionary or not passage.get("entries") is Array:
+			return {"ok": false, "code": &"library_authoring_invalid"}
+		if not bound_checkpoints.has(passage.get("id")):
+			return {"ok": false, "code": &"library_checkpoint_unbound", "reference": str(passage.get("id"))}
+		var expanded := {"id": passage.get("id"), "title": passage.get("title"), "entries": []}
+		for selector: Variant in passage.entries:
+			if not selector is Dictionary or not selector.get("entry_id") is String \
+					or not lines_by_entry.has(selector.entry_id) or not compiled_entries.has(selector.entry_id):
+				return {"ok": false, "code": &"library_authoring_entry_unknown", "reference": str(selector)}
+			var lines: Dictionary = lines_by_entry[selector.entry_id]
+			for node: Dictionary in compiled_entries[selector.entry_id].nodes:
+				if node.kind != "caption": continue
+				var ids: Array = [node.line_id]
+				if node.has("self_talk"): ids.append(node.self_talk.line_id)
+				for index: int in ids.size():
+					var row: Dictionary = lines[ids[index]].duplicate(true)
+					row["kind"] = "caption" if index == 0 else "thought"
+					row["requirements"] = selector.get("requirements", {})
+					expanded.entries.append(row)
+		passages.append(expanded)
+	var conditions: Dictionary = authored.get("condition_labels", {})
+	var checked: Dictionary = LIBRARY.prepare(passages, registered_beats, checkpoints, conditions)
+	if not checked.ok: return checked
+	return {"ok": true, "value": {"passages": passages, "condition_labels": conditions.duplicate(true)}}
 
 ## Native-compiled IDs and prose own the current text; the source adapter's old
 ## line list is provenance only. Unchanged captions retain legacy read marks.
