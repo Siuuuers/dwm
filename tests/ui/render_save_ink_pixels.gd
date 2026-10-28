@@ -71,14 +71,17 @@ func test_stable_splashes_fade_without_changing_labels_or_focus() -> void:
 		_ink_hash(focus_bare.get_region(Rect2i(14, 10, 208, 18))), "focus perimeter remains unchanged")
 	drawer.release_focus()
 	drawer.theme = THEME.build_scene("en", 150)
-	drawer.present("Manual 1", "Saved at 12:34\nScene checkpoint", false, [])
+	# Match the Scene Backup projection: slot identity and frozen HH:MM.
+	drawer.present("Slot 1", "12:34", false, [])
 	await _settle_ink_pixels()
 	var large_bare: Image = viewport.get_texture().get_image()
 	var large_rects := [drawer.identity_label.get_rect(), drawer.state_label.get_rect()]
-	drawer.present("Manual 1", "Saved at 12:34\nScene checkpoint", false, marks)
+	drawer.present("Slot 1", "12:34", false, marks)
 	await _settle_ink_pixels()
 	var large_ink: Image = viewport.get_texture().get_image()
-	assert_eq([drawer.identity_label.get_rect(), drawer.state_label.get_rect()], large_rects, "150 percent multi-line text keeps its layout")
+	assert_eq([drawer.identity_label.get_rect(), drawer.state_label.get_rect()], large_rects, "150 percent production labels keep their layout")
+	for rect: Rect2 in large_rects:
+		assert_true(Rect2(0, 4, drawer.size.x, 156).encloses(rect), "150 percent labels remain inside the paper")
 	var glyph_color := drawer.get_theme_color("paper_ink", "Backup")
 	var glyph_pixels := 0
 	for label: Label in [drawer.identity_label, drawer.state_label]:

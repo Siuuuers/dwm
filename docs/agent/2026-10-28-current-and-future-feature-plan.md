@@ -294,7 +294,9 @@ Keep bounded integer seeds as optional destination-document metadata, outside re
 run snapshots; old files without marks remain supported. The existing Backup drawer
 draws the decoration. Use the proposed 0.65 fading and eight-mark bound as the first
 visual tuning, verified against text and focus readability in cloud rendering.
-Cloud acceptance is pending; implementation and validation must precede completion.
+Implementation is [PR #143](https://github.com/Siuuuers/dwm/pull/143).
+Its PR records final cloud acceptance and merge status; implementation alone does
+not establish completion.
 
 ## Verification and continuation
 

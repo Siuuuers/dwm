@@ -22,7 +22,7 @@ func test_existing_unmarked_document_and_detached_marked_roundtrip() -> void:
 	if not built.get("ok", false): return
 	assert_false(built.value.has("ink_marks"), "old documents require no new decoration")
 	assert_true(SCHEMA.validate(built.value).get("ok", false))
-	built.value.ink_marks = [17, 420, 9123]
+	built.value["ink_marks"] = [17, 420, 9123]
 	var checked: Dictionary = SCHEMA.validate(built.value)
 	assert_true(checked.get("ok", false), str(checked))
 	if not checked.get("ok", false): return
