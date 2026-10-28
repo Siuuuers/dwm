@@ -8,7 +8,8 @@ Shop catalogue, then the pixel transition. Self-talk comes first.
 Self-talk, panel-only thought scrollback, bottom controls, divider dragging and Skip all
 are merged in [PR #140](https://github.com/Siuuuers/dwm/pull/140), accepted by
 [cloud run 40592589829](https://github.com/Siuuuers/dwm/actions/runs/40592589829).
-The Shop implementation is the next candidate; cloud acceptance is pending.
+The Shop implementation is [PR #141](https://github.com/Siuuuers/dwm/pull/141);
+cloud acceptance is pending.
 
 ## Sources and precedence
 

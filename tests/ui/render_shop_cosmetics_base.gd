@@ -65,6 +65,6 @@ func _cosmetic_pixels(shell: Control) -> Dictionary:
 		"letter_with_wax_seal": Rect2(canvas.size.x - 61, bottom - 55, 38, 28)}
 	var hashes := {}
 	for item_id: String in COSMETICS:
-		var region: Rect2 = canvas.get_global_transform_with_canvas() * regions[item_id]
+		var region: Rect2 = get_tree().root.get_final_transform() * canvas.get_global_transform_with_canvas() * regions[item_id]
 		hashes[item_id] = pixels.get_region(Rect2i(region)).get_data().hex_encode().sha256_text()
 	return hashes

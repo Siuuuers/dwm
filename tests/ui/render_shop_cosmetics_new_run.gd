@@ -8,6 +8,7 @@ func test_new_run_clears_cosmetics_without_changing_saved_run() -> void:
 	if not await _begin_cosmetic_run(): return
 	assert_eq(game.inventory, proof.initial_inventory, "new run starts from its own inventory")
 	for item_id: String in COSMETICS: assert_eq(game.inventory.get(item_id, 0), 0)
+	assert_true(game.change_money(45), "fund fresh-run affordability through the economy owner")
 	var shell: Control = await _open_apps(get_tree().current_scene)
 	if shell == null: return
 	_assert_cosmetic_overlay(shell, false)
