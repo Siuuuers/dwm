@@ -2233,3 +2233,26 @@ func test_long_dual_caption_preserves_all_text_in_bounded_viewport() -> void:
 		await _settle()
 		var secondary_bottom: float = caption.scroll.position.y + caption.secondary_caption.position.y + caption.secondary_caption.size.y - caption.get_scroll_bar().value
 		assert_almost_eq(secondary_bottom, float(TRANSPORT_RAIL.BAR_TOP), 2.0)
+
+func test_retained_caption_fonts_follow_actual_content_locale_and_retire_replaced_pairs() -> void:
+	if not _mount(): return
+	runtime.start(_timeline("Current source caption."))
+	await _settle()
+	caption.caption_text.set_process(false)
+	_bind_caption_fixture_locale("zh-HK")
+	assert_true(caption.configure_presentation("zh-HK", 100, "AfterHours"))
+	caption.set("_bilingual", {"text":"Current source caption.", "content_locale":"en", "secondary_text":"", "secondary_locale":""})
+	caption.set("_paired_scrollback", [
+		{"text":"較早的測試", "content_locale":"zh_HK"},
+		{"text":"English source fallback.", "content_locale":"en"},
+		{"text":"日本語のテスト", "content_locale":"ja"}])
+	assert_true(caption.reproject_retained_captions(["較早的測試", "English source fallback.", "日本語のテスト"], true))
+	assert_eq(caption.older.language, "en")
+	assert_eq(caption.previous.language, "ja")
+	assert_same(caption.older.get_theme_font("normal_font"), preload("res://scripts/ui/UiTypography.gd").story_font("en", 100))
+	caption.call("_set_review_offset", 1)
+	assert_eq(caption.review_current.language, "ja")
+	assert_eq(caption.older.language, "zh-HK")
+	assert_eq(caption.previous.language, "en")
+	assert_true(caption.reproject_retained_captions(["Replacement transient text."], true))
+	assert_true(caption.get("_paired_scrollback").is_empty(), "Unrelated transient copies cannot borrow an old semantic translation")

@@ -110,9 +110,50 @@ func test_native_pair_settings_missing_translation_and_current_profile_load() ->
 	for frame: int in 4: await get_tree().process_frame
 	assert_eq(caption.secondary_caption.get_parsed_text(), translated)
 	# One physical Advance moves both presentations to exactly one next beat.
+	if not _ok(profile.set_preference(&"preferences.reading.reveal_speed", "slow")): return
 	await _click(caption.caption_text)
 	for frame: int in 20: await get_tree().process_frame
 	assert_eq(bridge._runtime_adapter.current_line_id(), "line.Day1.002")
+	var native: DialogicNode_DialogText = caption.caption_text
+	assert_true(native.revealing, "exercise an unfinished native reveal, not a fully shown pair")
+	if not native.revealing: return
+	# Hold the remaining duration deterministically while using native input and
+	# reveal completion. This changes no text, publication or story position.
+	native.active_speed = 10.0
+	assert_gt(native.visible_ratio, 0.0)
+	assert_lt(native.visible_ratio, 1.0)
+	assert_almost_eq(caption.secondary_caption.visible_ratio, native.visible_ratio, 0.001)
+	var partial_checkpoint: Dictionary = bridge.capture_reading_checkpoint(false)
+	var partial_receipts: Dictionary = game.capture_run_snapshot_input().command_receipts.duplicate(true)
+	var partial_ratio: float = native.visible_ratio
+	if not _ok(profile.set_preference(&"preferences.language.secondary_locale_id", "ja")): return
+	for frame: int in 3: await get_tree().process_frame
+	assert_true(native.revealing)
+	assert_almost_eq(native.visible_ratio, partial_ratio, 0.001)
+	assert_almost_eq(caption.secondary_caption.visible_ratio, native.visible_ratio, 0.001)
+	assert_eq(caption.secondary_caption.get_parsed_text(), STORY.catalog("ja")["line.Day1.002"])
+	assert_eq(bridge.capture_reading_checkpoint(false), partial_checkpoint)
+	assert_eq(game.capture_run_snapshot_input().command_receipts, partial_receipts)
+	if not _ok(profile.set_preference(&"preferences.reading.auto_delay", "long")): return
+	if not _ok(profile.set_preference(&"preferences.reading.auto_enabled", true)): return
+	assert_false(caption.auto_controller._armed, "Auto cannot count down while the pair is revealing")
+	caption.auto_controller._process(10.0)
+	assert_eq(bridge._runtime_adapter.current_line_id(), "line.Day1.002")
+	await _click(caption.caption_text)
+	for frame: int in 4: await get_tree().process_frame
+	assert_false(native.revealing, "one Advance completes both texts")
+	assert_eq(native.visible_ratio, 1.0)
+	assert_eq(caption.secondary_caption.visible_ratio, 1.0)
+	assert_eq(bridge._runtime_adapter.current_line_id(), "line.Day1.002", "reveal press does not advance")
+	assert_true(caption.auto_controller._armed, "the shared completion starts one Auto delay")
+	caption.auto_controller.set_process(false)
+	caption.auto_controller._process(0.0)
+	caption.auto_controller._process(0.5)
+	assert_eq(bridge._runtime_adapter.current_line_id(), "line.Day1.002", "Auto retains the existing reading delay")
+	caption.auto_controller._process(4.1)
+	for frame: int in 20: await get_tree().process_frame
+	if not _ok(profile.set_preference(&"preferences.reading.auto_enabled", false)): return
+	assert_eq(bridge._runtime_adapter.current_line_id(), "line.Day1.003", "one Auto completion advances one semantic beat")
 	if not _ok(bridge._runtime_adapter.reveal_current_line(true)): return
 	for frame: int in 5: await get_tree().process_frame
 	var frontier: Dictionary = bridge.capture_current_line_presentation_frontier()
@@ -131,9 +172,9 @@ func test_native_pair_settings_missing_translation_and_current_profile_load() ->
 	ready_count = 0
 	if not _ok(await backup.commit_action(prepared.value.token)) or not await _await_ready(): return
 	for frame: int in 6: await get_tree().process_frame
-	assert_eq(bridge._runtime_adapter.current_line_id(), "line.Day1.002")
-	assert_eq(_caption().caption_text.get_parsed_text(), STORY.catalog("ja")["line.Day1.002"])
-	assert_eq(_caption().secondary_caption.get_parsed_text(), STORY.catalog("en")["line.Day1.002"])
+	assert_eq(bridge._runtime_adapter.current_line_id(), "line.Day1.003")
+	assert_eq(_caption().caption_text.get_parsed_text(), STORY.catalog("ja")["line.Day1.003"])
+	assert_eq(_caption().secondary_caption.get_parsed_text(), STORY.catalog("en")["line.Day1.003"])
 	assert_eq(profile.get_preference(&"preferences.language.secondary_locale_id", ""), "en")
 	assert_eq(FileAccess.get_sha256("user://saves/slot_1.json"), saved_sha)
 	await _screenshot("bilingual-current-preferences-load")

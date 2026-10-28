@@ -1292,8 +1292,8 @@ func _project_scene_caption_memory() -> bool:
 	if _scene_caption_memory == memory: return true
 	var preceding: Array = []
 	for index: int in range(rows.size() - 1): preceding.append(rows[index].text)
-	if not reproject_retained_captions(preceding, true): return false
 	_paired_scrollback = rows.slice(0, rows.size() - 1)
+	if not reproject_retained_captions(preceding, true): return false
 	_scene_caption_memory = memory.duplicate(true)
 	return true
 
@@ -1304,6 +1304,15 @@ func reproject_retained_captions(captions: Array, full_scrollback: bool = false)
 	for copy: Variant in captions:
 		if typeof(copy) != TYPE_STRING or String(copy).strip_edges().is_empty():
 			return false
+	# Pair metadata belongs only to these exact encountered copies. Legacy callers
+	# may replace transient text without supplying semantic translation rows.
+	var matching_pairs := _paired_scrollback.size() == captions.size()
+	if matching_pairs:
+		for index: int in captions.size():
+			if _paired_scrollback[index].text != captions[index]:
+				matching_pairs = false
+				break
+	if not matching_pairs: _paired_scrollback.clear()
 	if _review_offset > 0: _set_review_offset(0)
 	# Authenticated memory refresh changes only older copies, not current speech.
 	if not full_scrollback: _cancel_speech()
@@ -1450,6 +1459,7 @@ func _sync_native_processing() -> void:
 		if not _retained.is_empty() or not _current_copy.is_empty():
 			_retained.clear()
 			_scrollback.clear()
+			_paired_scrollback.clear()
 			_review_offset = 0
 			accept_input.set_review_caption(null)
 			_current_copy = ""
@@ -1507,8 +1517,14 @@ func _apply_story_fonts() -> void:
 	if _review_offset > 0 and not _paired_scrollback.is_empty():
 		row = _paired_scrollback[clampi(_paired_scrollback.size() - _review_offset, 0, _paired_scrollback.size() - 1)]
 	var primary: RichTextLabel = review_current if _review_offset > 0 else caption_text
-	for item: Dictionary in [{"leaf": primary, "locale": row.get("content_locale", _locale)},
-			{"leaf": secondary_caption, "locale": row.get("secondary_locale", _locale)}]:
+	var leaves := [{"leaf": primary, "locale": row.get("content_locale", _locale)},
+		{"leaf": secondary_caption, "locale": row.get("secondary_locale", _locale)}]
+	var end := _paired_scrollback.size() - _review_offset
+	for index: int in 2:
+		var source_index := end - 2 + index
+		var locale: String = _paired_scrollback[source_index].get("content_locale", _locale) if source_index >= 0 and source_index < _paired_scrollback.size() else _locale
+		leaves.append({"leaf": older if index == 0 else previous, "locale": locale})
+	for item: Dictionary in leaves:
 		var locale: String = item.locale if not str(item.locale).is_empty() else _locale
 		var font := CAPTION_THEME.TYPOGRAPHY.story_font(locale, _text_percent, _font_style)
 		item.leaf.language = locale.replace("_", "-")
