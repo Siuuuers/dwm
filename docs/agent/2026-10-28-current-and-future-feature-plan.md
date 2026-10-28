@@ -213,12 +213,25 @@ Settled in the interview:
 - Prepare incoming resources before revealing them; visual effects do not remove
   blocking resource-loading cost.
 
-The recovered October 7 design also selected a glossy right-hand Loading panel,
-left dimming and a minimum one-second duration even when resources are cached.
-The recent interview discussed a short dissolve and an immediate Reduced Motion
-alternative without resolving those older details. Keep the glossy panel, text,
-dimming, exact duration and Reduced Motion timing as open keep/amend/remove choices.
-Do not silently implement either interpretation.
+The owner requested continuation with the recommended defaults on October 28:
+250 ms pixel dissolve, no glossy Loading panel, no left dimming or forced minimum
+wait, and an immediate prepared swap with Reduced Motion. These supersede the
+older one-second Loading-panel proposal.
+
+Implementation candidate: Bridge owns one transient presentation hold across
+native layout replacement. The persistent SceneHost captures the outgoing frame
+once; a deterministic pixel mask reveals the prepared destination. Rail, caret
+and divider pixels are excluded. Incoming caption typing, speech, read marks,
+Auto and Advance remain held until the effect completes. Both edges retire held
+input. This introduces no saved transition phase, gameplay RNG, or per-frame
+framebuffer copy. Initial admission and Load do not animate.
+
+Cloud acceptance must prove discarded presses during the effect, release before
+a fresh Advance, no hidden incoming read marks, Auto admission, Skip's marker
+stop, Reduced Motion, and Save/Load at the completed destination. Screenshot
+checks must cover content pixels and unchanged control regions. The existing
+synchronous resource preparation still determines readiness; no loading-speed
+improvement is claimed.
 
 Reuse a single progress controller and shader/rank mask if appropriate.
 Keep visual randomness separate from gameplay RNG. Do not create thousands of
