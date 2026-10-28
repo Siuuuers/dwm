@@ -15,6 +15,7 @@ func _manager(storage: Object) -> Node:
 func test_v4_profile_upgrade_preserves_facts_without_inventing_pair_witnesses() -> void:
 	var old: Dictionary = SCHEMA.make_defaults()
 	old.schema_version = 4
+	old.erase("dialogue_library")
 	old.erase("observer_evidence")
 	old.erase("pair_deck_draws")
 	old.erase("reached_presentations")

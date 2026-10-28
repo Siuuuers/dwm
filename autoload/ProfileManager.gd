@@ -7,6 +7,7 @@ signal preference_changed(path: StringName, value: Variant)
 signal gallery_changed(ending_id: String, unlocked: bool)
 signal visited_history_changed(line_id: String, visited: bool)
 signal caption_variant_witness_changed(witness_id: String, witnessed: bool)
+signal dialogue_library_changed()
 signal input_mappings_changed(action_id: StringName)
 signal controls_bindings_changed()
 signal profile_reset(section: StringName)
@@ -18,6 +19,7 @@ const OBSERVER_EVIDENCE := preload("res://scripts/profile/ObserverEvidence.gd")
 const PAIR_DECK := preload("res://scripts/domain/relationship/PairDeckDraw.gd")
 const PRESENTATION_SIGNATURE := preload("res://scripts/domain/narrative/PresentationSignature.gd")
 const CAPTION_WITNESSES := preload("res://scripts/profile/CaptionWitnessLedger.gd")
+const DIALOGUE_LIBRARY := preload("res://scripts/narrative/DialogueLibraryCatalogue.gd")
 const MIGRATION := preload("res://scripts/profile/ProfileMigration.gd")
 const PREFERENCE_REGISTRY := preload("res://scripts/settings/SettingsPreferenceRegistry.gd")
 const STRICT_JSON := preload("res://scripts/validation/StrictJson.gd")
@@ -474,7 +476,7 @@ func commit_prepared_profile(candidate: Dictionary, defer_signals: bool = false,
 	return _commit_profile_candidate(candidate, defer_signals, expected_revision)
 
 
-func _commit_profile_candidate(candidate: Dictionary, defer_signals: bool = false, expected_revision: int = -1, allow_dating_reset: bool = false, allow_gallery_reset: bool = false, allow_visited_reset: bool = false) -> Dictionary:
+func _commit_profile_candidate(candidate: Dictionary, defer_signals: bool = false, expected_revision: int = -1, allow_dating_reset: bool = false, allow_gallery_reset: bool = false, allow_visited_reset: bool = false, allow_library_reset: bool = false) -> Dictionary:
 	var revision_check := _check_profile_revision(expected_revision)
 	if not revision_check.get("ok", false):
 		return revision_check
@@ -501,6 +503,8 @@ func _commit_profile_candidate(candidate: Dictionary, defer_signals: bool = fals
 			var stored_profile: Dictionary = _profile_text_validator(str(stored.value.get("text", "")))
 			if not stored_profile.ok or _scene_assignment_records(stored_profile.value.pair_deck_draws) != scene_draws:
 				return _failure(&"scene_assignment_joint_new_run_required", "Silent adoption cannot persist an uncommitted assignment")
+	if not allow_library_reset and not _preserves_dialogue_library(_profile.dialogue_library, detached.dialogue_library):
+		return _failure(&"dialogue_library_rewind", "Only Clear Dialogue Library or full Profile reset may remove discoveries")
 	if not allow_visited_reset and not CAPTION_WITNESSES.preserves(_profile.witnessed_caption_variants, detached.witnessed_caption_variants):
 		return _failure(&"caption_witness_rewind", "Only Clear Visited History or full Profile reset may remove exact caption witnesses")
 	if not allow_dating_reset and not DATING_ATTEMPTS.preserves(_profile.dating_attempts, detached.dating_attempts):
@@ -607,7 +611,7 @@ func is_caption_variant_witnessed(beat: Dictionary) -> bool:
 
 ## The visible presentation owner supplies its admitted registry row. Both exact
 ## and base-line history become durable in one commit; registration alone writes nothing.
-func mark_caption_variant_witnessed(beat: Dictionary, registry: Dictionary) -> Dictionary:
+func mark_caption_variant_witnessed(beat: Dictionary, registry: Dictionary, checkpoint_id: String = "") -> Dictionary:
 	var guarded := _guard(&"profile_commit")
 	if not guarded.ok: return guarded
 	if not _initialized: return _failure(&"not_initialized", "ProfileManager is not initialized")
@@ -615,9 +619,14 @@ func mark_caption_variant_witnessed(beat: Dictionary, registry: Dictionary) -> D
 	var admitted := CAPTION_WITNESSES.admit(beat, registry)
 	if not admitted.ok: return admitted
 	var witness_id: String = admitted.value.witness_id
-	if CAPTION_WITNESSES.contains(_profile.witnessed_caption_variants, admitted.value.beat):
+	var discovery: Dictionary = DIALOGUE_LIBRARY.discovery_for_beat(admitted.value.beat, checkpoint_id) if not checkpoint_id.is_empty() else {}
+	var library: Dictionary = _profile.dialogue_library
+	var discovered: bool = not discovery.is_empty() and (discovery.checkpoint_id not in library.checkpoints \
+		or (not discovery.witness_id.is_empty() and not library.witnesses.has(discovery.witness_id)))
+	if not discovered and _profile.witnessed_caption_variants.has(witness_id):
 		return {"ok": true, "code": &"ok", "value": {"witness_id": witness_id}, "unchanged": true}
 	var candidate := _profile.duplicate(true)
+	_discover_dialogue(candidate.dialogue_library, discovery)
 	candidate.witnessed_caption_variants[witness_id] = admitted.value.beat
 	if beat.line_id not in candidate.visited_line_ids:
 		candidate.visited_line_ids.append(beat.line_id)
@@ -627,7 +636,7 @@ func mark_caption_variant_witnessed(beat: Dictionary, registry: Dictionary) -> D
 ## The presentation owner supplies only captions actually presented in its session.
 ## Registry membership validates descriptors; it is not evidence of presentation.
 ## History status means a new base line, even when a new exact variant is committed.
-func merge_caption_history(beats: Array[Dictionary], registry: Dictionary, expected_revision: int = -1) -> Dictionary:
+func merge_caption_history(beats: Array[Dictionary], registry: Dictionary, expected_revision: int = -1, checkpoint_id: String = "") -> Dictionary:
 	var guarded := _guard(&"profile_commit")
 	if not guarded.ok: return guarded
 	if not _initialized: return _failure(&"not_initialized", "ProfileManager is not initialized")
@@ -643,8 +652,10 @@ func merge_caption_history(beats: Array[Dictionary], registry: Dictionary, expec
 	var changed := false
 	var history_added := false
 	for witness_id: String in admitted_beats:
-		if candidate.witnessed_caption_variants.has(witness_id): continue
 		var beat: Dictionary = admitted_beats[witness_id]
+		var discovery: Dictionary = DIALOGUE_LIBRARY.discovery_for_beat(beat, checkpoint_id) if not checkpoint_id.is_empty() else {}
+		if _discover_dialogue(candidate.dialogue_library, discovery): changed = true
+		if candidate.witnessed_caption_variants.has(witness_id): continue
 		candidate.witnessed_caption_variants[witness_id] = beat
 		changed = true
 		if beat.line_id not in candidate.visited_line_ids:
@@ -655,6 +666,20 @@ func merge_caption_history(beats: Array[Dictionary], registry: Dictionary, expec
 	var committed := _commit_profile_candidate(candidate, false, expected_revision)
 	if not committed.ok: return committed
 	return {"ok": true, "code": &"ok", "value": {"history_added": history_added}}
+
+
+## Accepted visible reading supplies the actual checkpoint. Replayed history and
+## ordinary ledger restoration leave this argument empty and discover nothing.
+static func _discover_dialogue(library: Dictionary, discovery: Dictionary) -> bool:
+	if discovery.is_empty(): return false
+	var changed := false
+	if discovery.checkpoint_id not in library.checkpoints:
+		library.checkpoints.append(discovery.checkpoint_id)
+		changed = true
+	if not discovery.witness_id.is_empty() and not library.witnesses.has(discovery.witness_id):
+		library.witnesses[discovery.witness_id] = true
+		changed = true
+	return changed
 
 
 ## Only physical presentation owners call this after a counted event or ending.
@@ -1384,6 +1409,26 @@ func reset_visited_history(expected_revision: int = -1) -> Dictionary:
 	return _commit_reset(candidate, &"visited_history", expected_revision)
 
 
+func get_dialogue_library() -> Dictionary:
+	return _profile.get("dialogue_library", {"checkpoints": [], "witnesses": {}}).duplicate(true)
+
+
+func reset_dialogue_library(expected_revision: int = -1) -> Dictionary:
+	if not _initialized:
+		return _failure(&"not_initialized", "ProfileManager is not initialized")
+	var checked := _check_profile_revision(expected_revision)
+	if not checked.ok: return checked
+	var candidate := _profile.duplicate(true)
+	candidate.dialogue_library = {"checkpoints": [], "witnesses": {}}
+	return _commit_reset(candidate, &"dialogue_library", expected_revision)
+
+
+static func _preserves_dialogue_library(before: Dictionary, after: Dictionary) -> bool:
+	for checkpoint_id: String in before.checkpoints:
+		if checkpoint_id not in after.checkpoints: return false
+	return CAPTION_WITNESSES.preserves(before.witnesses, after.witnesses)
+
+
 func reset_gallery(expected_revision: int = -1) -> Dictionary:
 	if not _initialized:
 		return _failure(&"not_initialized", "ProfileManager is not initialized")
@@ -1433,6 +1478,8 @@ func apply_restore_silent(plan: Dictionary) -> Dictionary:
 	var validation := SCHEMA.validate(candidate)
 	if not validation.get("ok", false):
 		return validation
+	if not _preserves_dialogue_library(_profile.dialogue_library, validation.value.dialogue_library):
+		return _failure(&"dialogue_library_rewind", "Run restoration cannot rewind library discoveries")
 	if not CAPTION_WITNESSES.preserves(_profile.witnessed_caption_variants, validation.value.witnessed_caption_variants):
 		return _failure(&"caption_witness_rewind", "Run restoration cannot rewind exact caption witnesses")
 	if not DATING_ATTEMPTS.preserves(_profile.dating_attempts, validation.value.dating_attempts):
@@ -1484,7 +1531,7 @@ func _commit_reset(candidate: Dictionary, section: StringName, expected_revision
 func _commit_prepared_reset(candidate: Dictionary, section: StringName, expected_revision: int = -1) -> Dictionary:
 	var guarded := _guard(&"profile_commit")
 	if not guarded.get("ok", false): return guarded
-	var result := _commit_profile_candidate(candidate, true, expected_revision, section == &"entire_profile", section == &"gallery", section in [&"visited_history", &"entire_profile"])
+	var result := _commit_profile_candidate(candidate, true, expected_revision, section == &"entire_profile", section == &"gallery", section in [&"visited_history", &"entire_profile"], section in [&"dialogue_library", &"entire_profile"])
 	if not result.get("ok", false):
 		return result
 	var publication_id: String = result["value"]["publication_id"]
@@ -1612,6 +1659,8 @@ func _build_publication(old: Dictionary, current: Dictionary) -> Dictionary:
 		var after: bool = current.witnessed_caption_variants.has(witness_id)
 		if before != after:
 			changes.append({"kind": &"caption_witness", "id": witness_id, "value": after})
+	if old.dialogue_library != current.dialogue_library:
+		changes.append({"kind": &"dialogue_library"})
 	return {"changes": changes}
 
 
@@ -1630,6 +1679,8 @@ func _publish(publication: Dictionary) -> void:
 				visited_history_changed.emit(change["id"], change["value"])
 			&"caption_witness":
 				caption_variant_witness_changed.emit(change["id"], change["value"])
+			&"dialogue_library":
+				dialogue_library_changed.emit()
 	if publication.has("reset_section"):
 		profile_reset.emit(publication["reset_section"])
 

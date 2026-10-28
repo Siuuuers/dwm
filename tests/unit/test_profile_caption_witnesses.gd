@@ -146,6 +146,7 @@ func test_v9_upgrade_preserves_old_facts_and_grants_no_exact_credit() -> void:
 	var old := SCHEMA.make_defaults()
 	old.schema_version = 9
 	old.erase("witnessed_caption_variants")
+	old.erase("dialogue_library")
 	old.visited_line_ids = [_beat().line_id]
 	old.preferences.audio.music_volume = 0.37
 	var before := old.duplicate(true)

@@ -377,7 +377,7 @@ func test_scene_thought_and_computer_toggle_owners_are_exact() -> void:
 	var changed := _scene(scene_path, scene_source.replace('text = "Yes"', 'text = "Always yes"'))
 	assert_false(changed.get("ok", true), "changed thought copy cannot inherit the Yes owner")
 	var expression := '_localization.t("scene.controls.close_computer" if _computer_open else "scene.controls.check_computer")'
-	var snippet := "extends Control\nfunc refresh():\n\tbutton.text = " + expression + "\n"
+	var snippet := "extends Control\nfunc refresh():\n\tbutton.accessibility_name = " + expression + "\n"
 	var exact := _script("res://scripts/ui/SceneHost.gd", snippet)
 	assert_true(exact.get("ok", false), JSON.stringify(exact))
 	var changed_key := _script("res://scripts/ui/SceneHost.gd", snippet.replace("scene.controls.check_computer", "Untranslated sibling"))
@@ -400,16 +400,18 @@ func test_story_projection_owners_do_not_exempt_sibling_literals() -> void:
 		assert_false(_script(path, sibling).get("ok", true), "story projection does not own extra UI copy")
 		assert_false(_script("res://scripts/ui/Fixture.gd", snippet).get("ok", true), "ownership is path-specific")
 
-func test_computer_caret_has_exact_decorative_owner_and_localized_accessible_name() -> void:
+func test_code_drawn_computer_caret_has_no_text_literal_and_localized_accessible_name() -> void:
 	var scene_path := "res://scenes/narrative/SceneHost.tscn"
 	var scene := _scene(scene_path, FileAccess.get_file_as_string(scene_path))
 	assert_true(scene.get("ok", false), JSON.stringify(scene))
 	if scene.get("ok", false):
-		assert_eq(_record(scene.value, "text", '"^"').get("disposition"), "decorative")
+		assert_true(_record(scene.value, "text", '"^"').is_empty(), "the code-drawn tag has no scene caret text")
 	var script_path := "res://scripts/ui/SceneHost.gd"
 	var scanned := _script(script_path, FileAccess.get_file_as_string(script_path))
 	assert_true(scanned.get("ok", false), JSON.stringify(scanned))
 	if scanned.get("ok", false):
-		assert_eq(_record(scanned.value, "text", '"^"').get("disposition"), "decorative")
+		assert_true(_record(scanned.value, "text", '"^"').is_empty(), "the code-drawn tag has no script caret text")
+		assert_true(FileAccess.get_file_as_string(script_path).contains('computer.text = ""'))
+		assert_eq(_record(scanned.value, "text", '""').get("disposition"), "runtime_data")
 		var expression := '_localization.t("scene.controls.close_computer" if _computer_open else "scene.controls.check_computer")'
 		assert_eq(_record(scanned.value, "accessibility_name", expression).get("disposition"), "localized_call")

@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "DWM profile schema v10",
-  "description": "Profile v10: seventeen exact roots; exact registered caption witnesses alongside preserved reached signatures, immutable first-witness chronology, Dating, evidence, settings and history. GDScript validates witness hashes, visited-line membership, the complete disjoint chronology partition and monotonic writes.",
+  "description": "Profile v10: seventeen required roots plus optional independently resettable dialogue-library discovery. GDScript normalizes an omitted library to empty without backfill and validates witness hashes, visited-line membership, the complete disjoint chronology partition and monotonic writes.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -24,6 +24,23 @@
     "reached_presentation_chronology"
   ],
   "properties": {
+    "dialogue_library": {
+      "type": "object",
+      "description": "Independent Global discovery membership. An omitted field normalizes to empty; historical read witnesses do not imply checkpoint arrival. Runtime validates exact SHA-256 witness keys and preserves membership until library-only or full Profile reset.",
+      "additionalProperties": false,
+      "required": ["checkpoints", "witnesses"],
+      "properties": {
+        "checkpoints": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1}
+        },
+        "witnesses": {
+          "type": "object",
+          "additionalProperties": {"type": "boolean", "const": true}
+        }
+      }
+    },
     "dating_attempts": {
       "type": "object",
       "description": "Run IDs map semantic slots to retained attempts and branch-specific latest progress; saved runs own canonical head pointers. DatingAttemptLedger.gd additionally validates board truth, exact receipt payloads, identities and monotonic transitions.",

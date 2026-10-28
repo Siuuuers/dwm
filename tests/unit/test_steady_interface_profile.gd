@@ -98,6 +98,7 @@ func test_v2_through_v7_historical_documents_admit_only_missing_steady_default()
 func _historical_source(version: int) -> Dictionary:
 	var source := SCHEMA.make_defaults()
 	source.schema_version = version
+	source.erase("dialogue_library")
 	source.preferences.accessibility.erase("steady_interface")
 	if version < 10: source.erase("witnessed_caption_variants")
 	if version < 9: source.erase("reached_presentation_chronology")

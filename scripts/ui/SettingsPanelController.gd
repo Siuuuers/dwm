@@ -524,7 +524,7 @@ func is_commit_pending() -> bool:
 
 
 func reset_profile(method: String, expected_revision: int = -1) -> void:
-	if not _interactive() or _busy or method not in ["reset_controls", "reset_preferences", "reset_visited_history", "reset_gallery", "reset_entire_profile"] or not _profile.has_method(method):
+	if not _interactive() or _busy or method not in ["reset_controls", "reset_preferences", "reset_visited_history", "reset_gallery", "reset_dialogue_library", "reset_entire_profile"] or not _profile.has_method(method):
 		return
 	if method == "reset_entire_profile" and not _content.can_reset_entire_profile():
 		_content.set_general_status("settings.status.failed")

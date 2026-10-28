@@ -745,12 +745,21 @@ func _native_snapshot(caption: Node) -> Dictionary:
 		"full_history": runtime.History.full_event_history_content.duplicate(),
 		"visited": runtime.History.visited_event_history_content.duplicate(true)}
 
-func _assert_dating_leaf(leaf: RichTextLabel, percent: int) -> void:
+func _assert_dating_leaf(leaf: RichTextLabel, percent: int, final_leaf: bool = false) -> void:
 	assert_eq(leaf.horizontal_alignment, HORIZONTAL_ALIGNMENT_CENTER, str(leaf.name))
 	assert_true(leaf.get_theme_stylebox(&"normal") is StyleBoxEmpty, "transparent subtitle leaf: " + str(leaf.name))
 	assert_true(leaf.get_theme_stylebox(&"focus") is StyleBoxEmpty, "no focus rectangle: " + str(leaf.name))
-	for side in [SIDE_LEFT, SIDE_TOP, SIDE_RIGHT, SIDE_BOTTOM]:
+	for side in [SIDE_LEFT, SIDE_RIGHT]:
 		assert_eq(leaf.get_theme_stylebox(&"normal").get_content_margin(side), 16.0)
+	var material: StyleBox = leaf.get_theme_stylebox(&"normal")
+	if final_leaf:
+		assert_gte(material.get_content_margin(SIDE_TOP), 32.0, "final target keeps its spare height above text")
+		assert_eq(material.get_content_margin(SIDE_BOTTOM), 0.0)
+		assert_almost_eq(material.get_content_margin(SIDE_TOP) + leaf.get_content_height(), leaf.size.y, 0.01,
+			"final text and full interaction target share the approved lower boundary")
+	else:
+		assert_eq(material.get_content_margin(SIDE_TOP), 16.0)
+		assert_eq(material.get_content_margin(SIDE_BOTTOM), 16.0)
 	assert_eq(leaf.get_theme_color(&"default_color"), Color.WHITE)
 	assert_eq(leaf.get_theme_constant(&"outline_size"), 2)
 	var outline := leaf.get_theme_color(&"font_outline_color")
@@ -768,11 +777,11 @@ func test_dating_subtitles_keep_all_four_labels_transparent_and_centered_at_each
 		assert_true(caption.configure_presentation("en", percent))
 		await _settle()
 		for leaf: RichTextLabel in [caption.older, caption.previous, caption.review_current, caption.caption_text]:
-			_assert_dating_leaf(leaf, percent)
+			_assert_dating_leaf(leaf, percent, leaf == caption.caption_text)
 		var projection: Dictionary = caption.get_caption_projection()
 		assert_eq(projection.caption_window, ["Two.", "Three.", "Four still revealing."])
 		assert_eq(projection.visible_leaf_rects.size(), 3)
-		assert_almost_eq(projection.caption_rect.end.y, caption.transport_rail.position.y, 0.01, "caption stack sits just above controls")
+		assert_almost_eq(projection.caption_rect.end.y, 612.0, 0.01, "caption retains the approved final-row boundary")
 		for rect: Rect2 in projection.leaf_rects:
 			assert_almost_eq(rect.get_center().x, 640.0, 0.01, "subtitle region is centered")
 			assert_lte(rect.end.y, 656.0)
@@ -823,7 +832,7 @@ func test_long_dating_caption_stays_centered_and_scrollable_with_both_scrollbar_
 		bar.value = projection.scroll_extent
 		await _settle()
 		projection = caption.get_caption_projection()
-		assert_almost_eq(projection.caption_rect.end.y, 592.0, 0.01, "the final words remain reachable above controls")
+		assert_almost_eq(projection.caption_rect.end.y, 612.0, 0.01, "the final words remain reachable at the approved boundary")
 		assert_gt(projection.visible_leaf_rects.size(), 0)
 		for rect: Rect2 in projection.visible_leaf_rects:
 			assert_true(projection.field_rect.encloses(rect))
@@ -842,7 +851,7 @@ func test_dating_review_and_hospital_scope_reset_preserve_native_text_and_histor
 	await _settle()
 	assert_eq(caption.get_caption_projection().caption_window, ["One.", "Two.", "Three."])
 	assert_false(native.visible)
-	_assert_dating_leaf(caption.review_current, 100)
+	_assert_dating_leaf(caption.review_current, 100, true)
 	assert_eq(_native_snapshot(caption), before, "review remains a projection of already-seen text")
 	assert_false(caption.call("_before_normal_accept"), "first accept returns to live without advancing")
 	native.set_process(false)
@@ -866,7 +875,7 @@ func test_dating_review_and_hospital_scope_reset_preserve_native_text_and_histor
 	await _settle()
 	assert_true(caption.get_caption_projection().get("dating_overlay", false))
 	assert_eq(mounted.art.size, Vector2(1280, 656))
-	_assert_dating_leaf(native, 100)
+	_assert_dating_leaf(native, 100, true)
 	assert_eq(_native_snapshot(caption), before)
 
 func _mount_root_split_fixture() -> Dictionary:

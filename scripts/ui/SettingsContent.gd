@@ -26,7 +26,7 @@ const CATEGORY_FIELDS: Dictionary = {
 const RESET_METHODS: Dictionary = {
 	"controls": "reset_controls",
 	"preferences": "reset_preferences", "visited_history": "reset_visited_history",
-	"gallery": "reset_gallery", "entire_profile": "reset_entire_profile",
+	"gallery": "reset_gallery", "dialogue_library": "reset_dialogue_library", "entire_profile": "reset_entire_profile",
 }
 
 var _scene_presentation := false
@@ -256,7 +256,7 @@ func _build_content() -> void:
 			sheet.add_child(_controls_sheet)
 			_add_resets(sheet, ["controls"])
 		if category == "records":
-			_add_resets(sheet, ["preferences", "visited_history", "gallery", "entire_profile"])
+			_add_resets(sheet, ["preferences", "visited_history", "gallery", "dialogue_library", "entire_profile"])
 	_general_status = _label("")
 	_general_status.name = "SettingsStatus"
 	$SheetScroll/Sheets.add_child(_general_status)

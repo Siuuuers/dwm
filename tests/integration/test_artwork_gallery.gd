@@ -68,7 +68,7 @@ func test_gallery_preview_modal_keys_and_return_focus() -> void:
 	assert_true(gallery.configure_title_host(home, null, profile).get("ok", false))
 	add_child_autofree(gallery)
 	gallery.open_in_title_host()
-	gallery._show_gallery_tab(true)
+	gallery._show_gallery_tab("artwork")
 	# Both mounting and opening schedule entry focus; settle those before selecting preview.
 	await get_tree().process_frame
 	var artwork: Control = gallery._artwork
@@ -148,7 +148,7 @@ func test_canonical_locales_refresh_artwork_tabs_preview_and_open_viewer_without
 	assert_true(gallery.configure_title_host(home, localization, profile).get("ok", false))
 	add_child_autofree(gallery)
 	gallery.open_in_title_host()
-	gallery._show_gallery_tab(true)
+	gallery._show_gallery_tab("artwork")
 	await get_tree().process_frame
 	var artwork: Control = gallery._artwork
 	artwork.select_picture("picture1")
