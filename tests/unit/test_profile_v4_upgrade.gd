@@ -132,6 +132,7 @@ func test_invalid_v1_skip_is_the_only_repair_and_the_repaired_archive_is_valid()
 func test_v3_upgrade_closes_legacy_replay_without_inventing_archived_values() -> void:
 	var source := SCHEMA.make_defaults()
 	source.schema_version = 3
+	source.erase("dialogue_library")
 	source.erase("observer_evidence")
 	source.erase("pair_deck_draws")
 	source.erase("reached_presentations")

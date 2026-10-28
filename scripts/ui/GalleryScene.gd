@@ -10,6 +10,7 @@ const RECORD_PAPER := preload("res://scripts/ui/gallery/GalleryRecordPaper.gd")
 const VERSION_REGISTER := preload("res://scripts/ui/gallery/GalleryVersionRegister.gd")
 const ART_MANIFEST := preload("res://scripts/data/ArtManifest.gd")
 const ARTWORK_GALLERY := preload("res://scripts/ui/gallery/ArtworkGallery.gd")
+const DIALOGUE_LIBRARY := preload("res://scripts/ui/gallery/DialogueLibrary.gd")
 const REPLAY_OWNER := preload("res://scripts/application/ending/GalleryReplayOwner.gd")
 const PRACTICE_HOST := preload("res://scripts/ui/gallery/GalleryRehearsalHost.gd")
 const DATING_PRESENTATION := preload("res://scripts/ui/DatingScene.gd")
@@ -67,7 +68,8 @@ var _replay_return_hidden := false
 var _record_catalog: RefCounted = RECORD_CATALOG.new()
 var _artwork: Control
 var _gallery_tabs: HBoxContainer
-var _artwork_active := false
+var _active_tab := "records"
+var _dialogue: Control
 var _art_return_was_visible := false
 
 func _ensure_artwork_gallery() -> void:
@@ -80,16 +82,25 @@ func _ensure_artwork_gallery() -> void:
 	_artwork.viewer_visibility_changed.connect(_on_art_viewer_changed)
 	add_child(_artwork)
 	_artwork.hide()
+	_dialogue = DIALOGUE_LIBRARY.new()
+	_dialogue.name = "DialogueLibrary"
+	_dialogue.position = _canvas.position + Vector2(32, 48)
+	_dialogue.size = Vector2(896, 576)
+	_dialogue.configure(_profile)
+	_dialogue.navigation_changed.connect(refresh_return_navigation)
+	_dialogue.empty_focus_requested.connect(_focus_return)
+	add_child(_dialogue)
+	_dialogue.hide()
 	_gallery_tabs = HBoxContainer.new()
 	_gallery_tabs.name = "GalleryTabs"
 	_gallery_tabs.position = _canvas.position + Vector2(32, 0)
 	add_child(_gallery_tabs)
-	for key: String in ["gallery.tab.records", "gallery.tab.artwork"]:
+	for key: String in ["gallery.tab.records", "gallery.tab.artwork", "gallery.tab.dialogue"]:
 		var button := Button.new()
 		button.text = _localized(key)
 		button.set_meta(&"copy_key", key)
 		button.add_theme_font_size_override("font_size", 20)
-		button.pressed.connect(_show_gallery_tab.bind(key == "gallery.tab.artwork"))
+		button.pressed.connect(_show_gallery_tab.bind(key.trim_prefix("gallery.tab.")))
 		_gallery_tabs.add_child(button)
 	_refresh_artwork_copy()
 	refresh_return_navigation()
@@ -101,20 +112,21 @@ func _refresh_artwork_copy() -> void:
 		var parameters: Dictionary = {"number": "{number}"} if key == "title" else ({"title": "{title}"} if key in ["view", "open"] else {})
 		copy[key] = _localized("gallery.artwork." + key, parameters)
 	_artwork.configure_copy(copy)
+	var dialogue_copy := {}
+	for key: String in DIALOGUE_LIBRARY.DEFAULT_COPY:
+		dialogue_copy[key] = _localized("gallery.dialogue." + key)
+	_dialogue.configure_copy(dialogue_copy, str(_localization.get_locale()) if _localization != null else "en")
 	for button: Button in _gallery_tabs.get_children():
 		button.text = _localized(str(button.get_meta(&"copy_key")))
 		button.accessibility_name = button.text
 
-func _show_gallery_tab(artwork: bool) -> void:
+func _show_gallery_tab(tab: String) -> void:
 	if has_active_rehearsal() or (_replay_owner != null and _replay_owner.is_playing()): return
-	_artwork_active = artwork
-	_canvas.visible = not artwork
-	_artwork.visible = artwork
-	if artwork:
-		_artwork.refresh()
-		_artwork.focus_first()
-	else:
-		_focus_entry()
+	_active_tab = tab
+	_canvas.visible = tab == "records"
+	_artwork.visible = tab == "artwork"
+	_dialogue.visible = tab == "dialogue"
+	_focus_entry()
 	refresh_return_navigation()
 
 func _on_art_viewer_changed(active: bool) -> void:
@@ -445,7 +457,11 @@ func _focus_return() -> void:
 
 func _focus_entry() -> void:
 	if not is_visible_in_tree(): return
-	if _artwork_active and is_instance_valid(_artwork):
+	if _active_tab == "dialogue" and is_instance_valid(_dialogue):
+		_dialogue.refresh()
+		if not _dialogue.focus_first(): _return_button.grab_focus()
+		return
+	if _active_tab == "artwork" and is_instance_valid(_artwork):
 		_artwork.refresh()
 		_artwork.focus_first()
 		return
@@ -721,6 +737,9 @@ func _localized(key: String, parameters: Dictionary = {}) -> String:
 		return ARTWORK_GALLERY.DEFAULT_COPY.get(key.trim_prefix("gallery.artwork."), "")
 	if key == "gallery.tab.records": return "Records"
 	if key == "gallery.tab.artwork": return "Artwork"
+	if key == "gallery.tab.dialogue": return "Dialogue"
+	if key.begins_with("gallery.dialogue."):
+		return DIALOGUE_LIBRARY.DEFAULT_COPY.get(key.trim_prefix("gallery.dialogue."), "")
 	return STATUS_FALLBACK.get(key, "Gallery is unavailable.")
 
 func _on_locale_changed(_locale: String) -> void:
@@ -797,7 +816,30 @@ func _relayout_rows() -> void:
 
 func refresh_return_navigation() -> void:
 	if not is_node_ready() or not is_visible_in_tree() or not is_instance_valid(_return_button): return
-	if _artwork_active and is_instance_valid(_artwork):
+	if _active_tab == "dialogue" and is_instance_valid(_dialogue):
+		var dialogue_sequence: Array[Control] = []
+		for tab: Button in _gallery_tabs.get_children(): dialogue_sequence.append(tab)
+		dialogue_sequence.append_array(_dialogue.focus_controls())
+		dialogue_sequence.append(_return_button)
+		var dialogue_tab: Button = _gallery_tabs.get_child(2)
+		var selected_row: Control = _return_button
+		if not _dialogue._rows.is_empty():
+			_dialogue._rows[0].focus_neighbor_top = dialogue_tab.get_path()
+			_dialogue._rows.back().focus_neighbor_bottom = _return_button.get_path()
+			_return_button.focus_neighbor_top = _dialogue._rows.back().get_path()
+			selected_row = _dialogue._scroll.get_node(_dialogue._scroll.focus_neighbor_left)
+		else:
+			_return_button.focus_neighbor_top = dialogue_tab.get_path()
+		for tab: Button in _gallery_tabs.get_children():
+			tab.focus_neighbor_bottom = selected_row.get_path()
+		for index: int in dialogue_sequence.size():
+			dialogue_sequence[index].focus_previous = dialogue_sequence[posmod(index - 1, dialogue_sequence.size())].get_path()
+			dialogue_sequence[index].focus_next = dialogue_sequence[(index + 1) % dialogue_sequence.size()].get_path()
+		return
+	_return_button.focus_neighbor_top = NodePath()
+	if is_instance_valid(_gallery_tabs):
+		for tab: Button in _gallery_tabs.get_children(): tab.focus_neighbor_bottom = NodePath()
+	if _active_tab == "artwork" and is_instance_valid(_artwork):
 		var art_sequence: Array[Control] = []
 		for tab: Button in _gallery_tabs.get_children(): art_sequence.append(tab)
 		for row: Button in _artwork._rows:
@@ -884,4 +926,3 @@ func _on_index_input(event: InputEvent) -> void:
 		_index_offset += amount
 		_update_scroll()
 		_index_viewport.accept_event()
-

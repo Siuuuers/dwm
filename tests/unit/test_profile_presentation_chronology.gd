@@ -42,6 +42,7 @@ func _id(signature: Dictionary) -> String:
 func _v8(signatures: Array) -> Dictionary:
 	var source := SCHEMA.make_defaults()
 	source.schema_version = 8
+	source.erase("dialogue_library")
 	source.erase("reached_presentation_chronology")
 	source.erase("witnessed_caption_variants")
 	for signature: Dictionary in signatures:

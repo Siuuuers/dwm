@@ -72,6 +72,7 @@ func test_v6_migration_retains_original_attempt_progress_and_receipts() -> void:
 	var flat: Dictionary = LEDGER._prepare_flat({}, "run-a", SLOT, "branch-a", record, 0, 323).value.ledger
 	var old := PROFILE.make_defaults()
 	old.schema_version = 6
+	old.erase("dialogue_library")
 	old.erase("observer_evidence")
 	old.erase("pair_deck_draws")
 	old.erase("reached_presentations")

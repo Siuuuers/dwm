@@ -21,7 +21,7 @@ const V5_ROOT_KEYS := ["schema_version", "gallery_unlocks", "gallery_transaction
 const V7_ROOT_KEYS := ["schema_version", "gallery_unlocks", "gallery_transaction_receipts", "visited_line_ids", "preferences", "input_mappings", "controls_bindings", "controls_import_pending", "migration_receipts", "legacy_preferences_v1", "pair_form_witness_receipts", "dating_attempts"]
 const V8_ROOT_KEYS := ["schema_version", "gallery_unlocks", "gallery_transaction_receipts", "visited_line_ids", "preferences", "input_mappings", "controls_bindings", "controls_import_pending", "migration_receipts", "legacy_preferences_v1", "pair_form_witness_receipts", "dating_attempts", "observer_evidence", "pair_deck_draws", "reached_presentations"]
 const V9_ROOT_KEYS := ["schema_version", "gallery_unlocks", "gallery_transaction_receipts", "visited_line_ids", "preferences", "input_mappings", "controls_bindings", "controls_import_pending", "migration_receipts", "legacy_preferences_v1", "pair_form_witness_receipts", "dating_attempts", "observer_evidence", "pair_deck_draws", "reached_presentations", "reached_presentation_chronology"]
-const ROOT_KEYS := ["schema_version", "gallery_unlocks", "gallery_transaction_receipts", "visited_line_ids", "preferences", "input_mappings", "controls_bindings", "controls_import_pending", "migration_receipts", "legacy_preferences_v1", "pair_form_witness_receipts", "dating_attempts", "observer_evidence", "pair_deck_draws", "reached_presentations", "reached_presentation_chronology", "witnessed_caption_variants"]
+const ROOT_KEYS := ["schema_version", "gallery_unlocks", "gallery_transaction_receipts", "visited_line_ids", "preferences", "input_mappings", "controls_bindings", "controls_import_pending", "migration_receipts", "legacy_preferences_v1", "pair_form_witness_receipts", "dating_attempts", "observer_evidence", "pair_deck_draws", "reached_presentations", "reached_presentation_chronology", "witnessed_caption_variants", "dialogue_library"]
 const PAIR_FORMS := ["ambiguous_sweet", "ambiguous_dark", "love_sweet", "love_dark"]
 const MIGRATION_RECEIPT_KEYS := ["legacy_game_state_profile_v1", "legacy_input_bindings_v1", "invalid_persisted_skip_mode_v1"]
 const PREFERENCE_GROUPS := ["language", "reading", "audio", "display", "accessibility", "exceptional_replay", "dark_mode"]
@@ -112,6 +112,7 @@ static func make_defaults() -> Dictionary:
 		"reached_presentation_chronology": {"first_witnessed": [], "legacy_unordered": []},
 		"visited_line_ids": [],
 		"witnessed_caption_variants": {},
+		"dialogue_library": {"checkpoints": [], "witnesses": {}},
 		"preferences": preferences,
 		"input_mappings": {},
 		"controls_bindings": CONTROLS_RULES.defaults(),
@@ -280,6 +281,10 @@ static func _validate_modern_document(source: Dictionary, version: int, root_key
 		return _invalid("schema_version", "schema_version must be an integer")
 	if profile["schema_version"] != version:
 		return _failure(&"unsupported_profile_schema", "schema_version", "profile schema version is unsupported")
+	# Existing profiles gain empty membership, never inferred historical discoveries.
+	var admitted_library_default := version >= 10 and not profile.has("dialogue_library")
+	if admitted_library_default:
+		profile["dialogue_library"] = {"checkpoints": [], "witnesses": {}}
 	var exact := _require_keys(profile, root_keys, "profile")
 	if not exact.get("ok", false): return exact
 	var gallery := _validate_unique_strings(profile["gallery_unlocks"], "gallery_unlocks", ENDING_IDS)
@@ -336,15 +341,34 @@ static func _validate_modern_document(source: Dictionary, version: int, root_key
 		var chronology := _validate_presentation_chronology(profile)
 		if not chronology.ok: return chronology
 	if version >= 10:
+		var library := _validate_dialogue_library(profile.dialogue_library)
+		if not library.ok: return library
 		var captions := CAPTION_WITNESSES.validate(profile["witnessed_caption_variants"])
 		if not captions.ok: return captions
 		for beat: Dictionary in profile.witnessed_caption_variants.values():
 			if beat.line_id not in profile.visited_line_ids:
 				return _invalid("witnessed_caption_variants", "An exact caption witness also retains its base-line visit")
 	var result := {"ok": true, "code": &"ok", "value": profile}
-	if admitted_view_defaults or admitted_steady_default or admitted_window_default or admitted_font_default or admitted_panel_widths:
+	if admitted_view_defaults or admitted_steady_default or admitted_window_default or admitted_font_default or admitted_panel_widths or admitted_library_default:
 		result["migrated"] = true
 	return result
+
+
+## Library membership survives clearing Skip history; it is not a projection of it.
+static func _validate_dialogue_library(value: Variant) -> Dictionary:
+	if not value is Dictionary:
+		return _invalid("dialogue_library", "Library membership must be an object")
+	var exact := _require_keys(value, ["checkpoints", "witnesses"], "dialogue_library")
+	if not exact.ok: return exact
+	var checkpoints := _validate_unique_strings(value.checkpoints, "dialogue_library.checkpoints")
+	if not checkpoints.ok: return checkpoints
+	if not value.witnesses is Dictionary:
+		return _invalid("dialogue_library.witnesses", "Witness membership must be an object")
+	for witness_id: Variant in value.witnesses:
+		if not witness_id is String or witness_id.length() != 64 or not witness_id.is_valid_hex_number(false) \
+				or typeof(value.witnesses[witness_id]) != TYPE_BOOL or not value.witnesses[witness_id]:
+			return _invalid("dialogue_library.witnesses", "Each member must be an exact caption identity")
+	return {"ok": true, "code": &"ok"}
 
 
 ## Each reached signature has exactly one provenance: first-witness sequence or unknown legacy order.

@@ -144,6 +144,7 @@ func test_v5_upgrade_adds_empty_ledger_and_preserves_other_profile_facts() -> vo
 	var old: Dictionary = PROFILE.make_defaults()
 	old.erase("dating_attempts")
 	old.schema_version = 5
+	old.erase("dialogue_library")
 	old.erase("observer_evidence")
 	old.erase("pair_deck_draws")
 	old.erase("reached_presentations")

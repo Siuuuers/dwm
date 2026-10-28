@@ -2475,8 +2475,13 @@ func acknowledge_current_line_presentation(expected_frontier: Dictionary) -> Dic
 		var marked: Dictionary
 		if identity.has("caption_variant") and _reading_session.family == "scene":
 			var beats: Array[Dictionary] = _reading_session.scene_pair_beats(identity.line_id)
-			marked = _skip_profile.merge_caption_history(beats, _reading_session.registry) if beats.size() > 1 \
-				else _skip_profile.mark_caption_variant_witnessed(identity.caption_variant, _reading_session.registry)
+			# Discovery belongs to this accepted live presentation, not restored
+			# History or catalogue membership. Attached thoughts retain exact identities.
+			var game := get_node_or_null("/root/GameState") if is_inside_tree() else null
+			var presentation: Dictionary = game.get_scene_presentation() if game != null else {}
+			var checkpoint_id: String = presentation.get("checkpoint_id", "")
+			marked = _skip_profile.merge_caption_history(beats, _reading_session.registry, -1, checkpoint_id) if beats.size() > 1 \
+				else _skip_profile.mark_caption_variant_witnessed(identity.caption_variant, _reading_session.registry, checkpoint_id)
 		else:
 			marked = _skip_profile.mark_caption_variant_witnessed(identity.caption_variant, _reading_session.registry) \
 				if identity.has("caption_variant") else _skip_profile.mark_line_visited(str(identity.line_id))

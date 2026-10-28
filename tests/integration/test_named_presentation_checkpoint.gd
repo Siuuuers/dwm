@@ -2,6 +2,7 @@ extends "res://tests/integration/scene_contacts_connected_child.gd"
 ## Real FINAL owners/native caption input/physical files. Run in its own
 ## test_manual process with DWM_TEST_ROOT, like scene_shop_checkpoint_transaction.
 const ART := preload("res://scripts/data/ArtManifest.gd")
+const LIBRARY := preload("res://scripts/narrative/DialogueLibraryCatalogue.gd")
 
 class CountingFiles extends "res://scripts/infrastructure/storage/FileOps.gd":
 	var autosave_writes := 0
@@ -79,7 +80,27 @@ func _install_content_registration() -> Dictionary:
 			"ambience_asset_id": null, "entrance_ms": 0, "load_anchor_id": "TEST.presentation.load",
 			"load_anchor_ms": 1000, "authorial": true, "essential": false, "missing_media": "silence",
 			"music": "TEST.presentation.asset", "cues": []}], "bindings": bindings}
-	return preload("res://scripts/narrative/DialogicEntryManifest.gd").configure_test_scene_registration(bundle)
+	var registered: Dictionary = preload("res://scripts/narrative/DialogicEntryManifest.gd").configure_test_scene_registration(bundle)
+	if not registered.ok: return registered
+	var reading := preload("res://scripts/narrative/SoloReadingSession.gd").new()
+	var configured: Dictionary = reading.configure_scene()
+	if not configured.ok: return configured
+	var entries: Array = []
+	for entry: Dictionary in bundle.caption_registry.entries:
+		if entry.entry_id not in ["scene.test.a", "contact.test.a"]: continue
+		for line: Dictionary in entry.lines:
+			for beat: Dictionary in reading.registry.beats:
+				if beat.line_id == line.line_id:
+					entries.append({"beat": beat, "kind": "caption", "text": {"en": line.text}, "requirements": {}})
+	return LIBRARY.configure([{"id": "template.checkpoint", "title": {"en": "Sample arrival"},
+		"entries": entries}], reading.registry.beats, catalog.presentation_checkpoints)
+
+func _wait_library_count(expected: int) -> bool:
+	for frame: int in 240:
+		if profile.get_dialogue_library().witnesses.size() == expected: return true
+		await get_tree().process_frame
+	assert_eq(profile.get_dialogue_library().witnesses.size(), expected, "accepted native captions publish exact library discoveries")
+	return false
 
 func _assert_mounted_overlays(expected: int) -> void:
 	var found := false
@@ -124,6 +145,7 @@ func _load_backup(locator: String, entry: String, line: String) -> bool:
 
 func test_named_arrival_manual_save_load_and_ordinary_overlay_continuation() -> void:
 	if not _start_services(): return
+	assert_eq(profile.get_dialogue_library(), {"checkpoints": [], "witnesses": {}})
 	if not _ok(profile.set_preference(&"preferences.reading.auto_enabled", false)): return
 	var storage: RefCounted = saves._storage
 	var original_files: RefCounted = storage._file_ops
@@ -134,6 +156,8 @@ func test_named_arrival_manual_save_load_and_ordinary_overlay_continuation() -> 
 	assert_eq(started.get("code"), &"scene_activation_pending", str(started))
 	if started.get("code") != &"scene_activation_pending" or not await _await_ready(): return
 	if not await _wait_line("scene.test.a", "line.scene.test.a.one"): return
+	if not await _wait_library_count(1): return
+	assert_eq(profile.get_dialogue_library().checkpoints, ["template.checkpoint"])
 	var initial := {"checkpoint_id": "template.checkpoint", "overlays": []}
 	assert_eq(game.capture_run_snapshot_input().scene.presentation, initial)
 	assert_eq(files.autosave_writes, 0, "New Account installs named presentation without saving")
@@ -152,6 +176,8 @@ func test_named_arrival_manual_save_load_and_ordinary_overlay_continuation() -> 
 	if not _ok(game.resolve_scene_contact_facts(["TEST.fact.read"])): return
 	await _click(_caption().caption_text)
 	if not await _wait_line("contact.test.a", "line.contact.test.a.one"): return
+	if not await _wait_library_count(2): return
+	var before_load: Dictionary = profile.get_dialogue_library()
 	var child: Dictionary = game.capture_run_snapshot_input().duplicate(true)
 	var expected := {"checkpoint_id": "template.checkpoint", "overlays": ["template.left"]}
 	assert_eq(child.scene.presentation, expected)
@@ -178,6 +204,7 @@ func test_named_arrival_manual_save_load_and_ordinary_overlay_continuation() -> 
 	assert_eq(ready_count, 2)
 	if ready_count != 2 or not await _wait_line("contact.test.a", "line.contact.test.a.one"): return
 	if not await _wait_native_input(): return
+	assert_eq(profile.get_dialogue_library(), before_load, "Load preserves Global discoveries without publishing old History")
 	assert_eq(game.capture_run_snapshot_input().scene.presentation, expected)
 	assert_eq(game.capture_run_snapshot_input().gameplay.money, 37)
 	assert_eq(game.contacts, child.contacts)
@@ -227,6 +254,8 @@ func test_named_arrival_manual_save_load_and_ordinary_overlay_continuation() -> 
 	bridge._scene_event_port = observer.delegate
 	var arrival_usec := Time.get_ticks_usec() - arrival_started
 	if not arrived: return
+	if not await _wait_library_count(3): return
+	var after_arrival: Dictionary = profile.get_dialogue_library()
 	assert_true(observer.result.get("ok", false), str(observer.result))
 	assert_eq(game.capture_run_snapshot_input().scene.presentation, initial)
 	assert_eq(files.autosave_writes, 1, "one explicit named arrival writes exactly once")
@@ -252,6 +281,7 @@ func test_named_arrival_manual_save_load_and_ordinary_overlay_continuation() -> 
 		"arrival_usec": arrival_usec, "process_id": OS.get_process_id()})
 	var writes_before_load: int = files.autosave_writes
 	if not await _load_backup("autosave", "scene.test.a", "line.scene.test.a.two"): return
+	assert_eq(profile.get_dialogue_library(), after_arrival)
 	assert_eq(files.autosave_writes, writes_before_load, "Autosave Load never writes another Autosave")
 	assert_eq(_autosave_sha256(), autosave_hash)
 	assert_eq(FileAccess.get_sha256("user://saves/slot_1.json"), slot_hash)
@@ -265,5 +295,23 @@ func test_named_arrival_manual_save_load_and_ordinary_overlay_continuation() -> 
 		"autosave_writes": files.autosave_writes, "autosave_sha256": autosave_hash,
 		"presentation": game.capture_run_snapshot_input().scene.presentation,
 		"money": game.capture_run_snapshot_input().gameplay.money, "music_starts": music_port.starts})
+	var read_history: Dictionary = profile.get_profile_snapshot()
+	if not _ok(profile.reset_dialogue_library()): return
+	assert_eq(profile.get_dialogue_library(), {"checkpoints": [], "witnesses": {}})
+	assert_eq(profile.get_profile_snapshot().witnessed_caption_variants, read_history.witnessed_caption_variants)
+	assert_eq(FileAccess.get_sha256("user://saves/slot_1.json"), slot_hash)
+	assert_eq(_autosave_sha256(), autosave_hash)
+	if not await _load_backup("slot:1", "contact.test.a", "line.contact.test.a.one"): return
+	assert_eq(profile.get_dialogue_library(), {"checkpoints": [], "witnesses": {}}, "restoring a known caption must not repopulate a reset library")
+	await _click(_caption().caption_text)
+	if not await _wait_line("scene.test.a", "line.scene.test.a.two"): return
+	if not await _wait_library_count(1): return
+	var rediscovered: Array = LIBRARY.reached_passages(profile.get_dialogue_library(), "en")
+	assert_eq(rediscovered.size(), 1)
+	var read_rows: Array = rediscovered[0].entries.filter(func(row: Dictionary) -> bool: return row.read)
+	assert_eq(read_rows.size(), 1, "only the newly presented line returns after library reset")
+	_write_json("res://.godot/ci/named-presentation-library-proof.json", {"before_load": before_load,
+		"after_arrival": after_arrival, "rediscovered": profile.get_dialogue_library()})
 	storage._file_ops = original_files
 	ART.reload_placements()
+	LIBRARY.configure([], [], {})
