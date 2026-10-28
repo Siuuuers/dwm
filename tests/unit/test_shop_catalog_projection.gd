@@ -3,18 +3,14 @@ extends "res://addons/gut/test.gd"
 const CATALOG_PROJECTION := preload("res://scripts/ui/shop/ShopCatalogProjection.gd")
 
 const ORDER := [
-	"wine", "pineapple_bun", "quiet_tea",
-	"soft_blanket", "weighted_plush", "spa_coupon", "supportz",
-	"premium_care", "lucky_charm",
-	"debug_key", "bookend_keepsake", "metronome_keepsake",
-	"pocket_calculator_keepsake",
+	"crystal_stutters", "inked_silk_string", "letter_with_wax_seal",
+	"lucky_charm", "debug_key", "bookend_keepsake", "metronome_keepsake",
+	"pocket_calculator_keepsake", "supportz",
 ]
 const SPECS := {
-	"wine": [55, "money", true],
-	"pineapple_bun": [10, "money", true],
-	"quiet_tea": [15, "money", true], "soft_blanket": [25, "money", true],
-	"weighted_plush": [35, "money", true], "spa_coupon": [45, "money", false],
-	"premium_care": [1, "minesweeper_coin", true],
+	"crystal_stutters": [45, "money", false],
+	"inked_silk_string": [45, "money", false],
+	"letter_with_wax_seal": [45, "money", false],
 	"lucky_charm": [1, "minesweeper_coin", false],
 	"debug_key": [3, "minesweeper_coin", false],
 	"bookend_keepsake": [3, "minesweeper_coin", false],
@@ -32,7 +28,7 @@ func test_shuffled_owner_rows_are_reordered_and_private_keys_are_removed() -> vo
 
 	assert_true(result["ok"])
 	assert_eq(_ids(result["value"]), ORDER)
-	var projected: Dictionary = result["value"][12]
+	var projected: Dictionary = result["value"][7]
 	assert_eq(projected.keys().size(), 10)
 	assert_false(projected.has("effect_ids"))
 	assert_false(projected.has("purchase_count"))
@@ -51,15 +47,15 @@ func test_rejects_missing_duplicate_unknown_and_old_keepsake_ids() -> void:
 	assert_false(CATALOG_PROJECTION.project(missing)["ok"])
 
 	var duplicate := _valid_rows()
-	duplicate[11] = duplicate[0].duplicate()
+	duplicate[7] = duplicate[0].duplicate()
 	assert_eq(CATALOG_PROJECTION.project(duplicate)["code"], "duplicate_item_id")
 
 	var unknown := _valid_rows()
-	unknown[11]["id"] = "unknown_item"
+	unknown[7]["id"] = "unknown_item"
 	assert_eq(CATALOG_PROJECTION.project(unknown)["code"], "unknown_item_id")
 
 	var old_keepsake := _valid_rows()
-	old_keepsake[9]["id"] = "priscilla_gift"
+	old_keepsake[5]["id"] = "priscilla_gift"
 	assert_eq(CATALOG_PROJECTION.project(old_keepsake)["code"], "unknown_item_id")
 
 
@@ -77,7 +73,7 @@ func test_rejects_bad_price_art_and_field_types() -> void:
 	assert_eq(CATALOG_PROJECTION.project(bad_type)["code"], "invalid_legal_max")
 
 	var non_record := _valid_rows()
-	non_record[0] = "wine"
+	non_record[0] = "crystal_stutters"
 	assert_eq(CATALOG_PROJECTION.project(non_record)["code"], "invalid_item_type")
 
 
@@ -86,7 +82,7 @@ func test_sold_out_item_stays_in_its_fixed_slot() -> void:
 	rows[0]["available"] = false
 	rows[0]["legal_max"] = 0
 	var value: Array = CATALOG_PROJECTION.project(rows)["value"]
-	assert_eq(value[0]["id"], "wine")
+	assert_eq(value[0]["id"], "crystal_stutters")
 	assert_false(value[0]["available"])
 	assert_eq(value[0]["legal_max"], 0)
 
@@ -102,13 +98,13 @@ func test_maximum_cannot_overflow_exact_currency_total() -> void:
 	rows[0].available = true
 	rows[0].legal_max = 0
 	assert_true(CATALOG_PROJECTION.project(rows).ok)
-	rows[5].legal_max = 2
+	rows[5].legal_max = 0
 	assert_eq(CATALOG_PROJECTION.project(rows).code, "invalid_legal_max")
 
 
 func test_supportz_blank_has_only_public_blank_fields_in_both_states() -> void:
 	for eligible: bool in [false, true]:
-		var blank: Dictionary = CATALOG_PROJECTION.project(_valid_rows(), eligible)["value"][6]
+		var blank: Dictionary = CATALOG_PROJECTION.project(_valid_rows(), eligible)["value"][8]
 		assert_eq(blank, {"id": "supportz", "blank": true, "actionable": eligible})
 
 
@@ -119,7 +115,7 @@ func test_projected_records_are_detached_from_owner_record_mutation() -> void:
 	rows[0]["name"] = "Changed"
 	rows[0]["description"] = "Changed"
 	rows[0]["private"] = true
-	assert_eq(result["value"][0]["name"], "Wine")
+	assert_eq(result["value"][0]["name"], "Crystal Stutters")
 	assert_eq(result["value"][0]["description"], "A sealed vending cup.")
 	assert_false(result["value"][0].has("private"))
 
@@ -137,7 +133,7 @@ func _valid_rows() -> Array:
 			"currency": spec[1],
 			"available": true,
 			"batchable": spec[2],
-			"legal_max": 4 if spec[2] else 1,
+			"legal_max": 1,
 			"card_art": _texture(28, 28),
 			"inspector_art": _texture(56, 56),
 		})

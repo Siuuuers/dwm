@@ -21,6 +21,7 @@ jobs:
       focused: ${{ steps.scope.outputs.focused }}
       comparison: ${{ steps.scope.outputs.comparison }}
       self_talk: ${{ steps.scope.outputs.self_talk }}
+      shop_cosmetics: ${{ steps.scope.outputs.shop_cosmetics }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -74,6 +75,7 @@ jobs:
                   bodies.append(rest)
               return bodies[0] == bodies[1]
           self_talk = False
+          shop_cosmetics = False
           focused = False
           comparison = False
           previous = ""
@@ -81,6 +83,48 @@ jobs:
               diff = subprocess.run(["git", "diff", "--name-only", "-z", base, "HEAD"], capture_output=True)
               if diff.returncode == 0:
                   paths = set(diff.stdout.decode().strip("\0").split("\0"))
+                  shop_cosmetic_paths = {
+                      '.github/workflows/windows-tests.yml',
+                      'autoload/EffectResolver.gd',
+                      'docs/agent/2026-10-28-current-and-future-feature-plan.md',
+                      'evidence/phase_2r/runtime/game_state_surface.json',
+                      'evidence/phase_2r/runtime/save_manager_surface.json',
+                      'scripts/application/shop/GameStateMinesweeperShopPort.gd',
+                      'scripts/application/shop/MinesweeperShopPurchaseParticipant.gd',
+                      'scripts/application/shop/ShopPresentationPort.gd',
+                      'scripts/data/DataCatalog.gd',
+                      'scripts/ui/ComputerDesktop.gd',
+                      'scripts/ui/ShopApp.gd',
+                      'scripts/ui/shop/ShopCatalogProjection.gd',
+                      'scripts/ui/shop/ShopCopy.gd',
+                      'scripts/ui/shop/ShopItemArt.gd',
+                      'tests/integration/scene_apps_connected_child.gd',
+                      'tests/integration/test_minesweeper_shop_transaction.gd',
+                      'tests/integration/test_scene_shop_checkpoint_transaction.gd',
+                      'tests/integration/test_shop_desktop_host.gd',
+                      'tests/integration/test_ui_art_placements.gd',
+                      'tests/manual/verify_shop_desktop_native.gd',
+                      'tests/scene/render_shop_palettes.gd',
+                      'tests/scene/test_shop_blank_rendered.gd',
+                      'tests/scene/test_shop_plate.gd',
+                      'tests/ui/render_desktop_scaling.gd',
+                      'tests/ui/render_japanese_korean_ui.gd',
+                      'tests/ui/render_shop_cosmetics_base.gd',
+                      'tests/ui/render_shop_cosmetics_create.gd',
+                      'tests/ui/render_shop_cosmetics_load.gd',
+                      'tests/ui/render_shop_cosmetics_new_run.gd',
+                      'tests/unit/test_desktop_cosmetics.gd',
+                      'tests/unit/test_scene_shop_presentation_port.gd',
+                      'tests/unit/test_scene_shop_purchase_rules.gd',
+                      'tests/unit/test_shop_app_purchase_bridge.gd',
+                      'tests/unit/test_shop_catalog_projection.gd',
+                      'tests/unit/test_shop_copy.gd',
+                      'tests/unit/test_shop_cosmetic_catalogue.gd',
+                      'tests/unit/test_shop_presentation_port.gd',
+                      'tests/unit/test_shop_rules.gd',
+                      'tools/testing/Invoke-CloudTests.ps1',
+                  }
+                  shop_cosmetics = bool(paths) and paths <= shop_cosmetic_paths and "scripts/data/DataCatalog.gd" in paths
                   self_talk_paths = {
                       '.github/workflows/windows-tests.yml',
                       'addons/dialogic/Core/DialogicGameHandler.gd',
@@ -155,7 +199,7 @@ jobs:
           # Current native Save/Load and terminal fixtures qualify incompatible schemas;
           # skipping this old-input measurement does not establish a speedup.
           comparison = comparison or (focused and not previous)
-          if self_talk: comparison = False
+          if self_talk or shop_cosmetics: comparison = False
           if comparison:
               archive = "evidence/phase_2r/current_ci_20261023/final_retention/run39988834004/original-12517208437.zip"
               with zipfile.ZipFile(archive) as retained:
@@ -174,6 +218,7 @@ jobs:
                       print("Archived startup/Load measurement is incompatible with " + ref + "; current-build correctness coverage remains required.")
           print("Selected " + ("runtime resource/Backup coverage" if focused else "full validation"))
           with open(os.environ["GITHUB_OUTPUT"], "a") as output:
+              output.write(f"shop_cosmetics={str(shop_cosmetics).lower()}\n")
               output.write(f"self_talk={str(self_talk).lower()}\n")
               output.write("focused=" + str(focused).lower() + "\n")
               output.write("comparison=" + str(comparison).lower() + "\n")
@@ -189,7 +234,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        suite: ${{ fromJSON(needs.test-scope.outputs.self_talk == 'true' && '["self_talk_unit","self_talk_runtime","self_talk_ui","self_talk_skip","self_talk_journey","self_talk_review","self_talk_transport","scene_day_history","scene_direct_controls","scene_later_caption","scene_caption_challenge","scene_passage_catalogue","scene_passage_connected","scene_story_localization","scene_controls_localization","current_title","scene_apps"]' || needs.test-scope.outputs.focused == 'true' && '["timeline_resources","backup_presentation","profile_parse","authored_week","scene_backup_inspection","scene_progress_schema","current_title"]' || '["named_presentation","minesweeper","shop","desktop","settings","checkpoint_diagnostics","new_account","reading_delivery","localization","dating","persistence","endings","audio","scene_desktop_first_reveal","scene_round_checkpoint","scene_shop_checkpoint","scene_story_localization","scene_controls_localization","scene_apps","current_title","scene_backup_inspection","scene_progress_schema","authored_week","scene_five_outcomes","timeline_resources","profile_parse","backup_current_build","current_terminal_fixture","current_quick_load","scene_direct_controls","scene_multiple_thoughts","scene_challenge_recall","scene_same_day_supportz","scene_player_position","scene_native_restore","scene_day_history","scene_later_caption","scene_caption_challenge","scene_audio_connected","scene_save_metadata","scene_passage_connected","scene_passage_catalogue","scene_contacts","scene_current_creation","scene_current_frames","scene_current_challenge","scene_current_snapshot","scene_content_update_wording","scene_content_update_deleted_line","scene_content_update_deleted_checkpoint","scene_content_update_history","scene_content_update_active_board","scene_content_update_transfer_active","scene_content_update_transfer_terminal","scene_content_update_resolved_unfinished","scene_content_update_completed_appended","scene_content_update_completed_deleted","scene_content_update_invalid_choice","scene_content_update_invalid_choice_missing_default","scene_content_contracts","scene_checkpoint_ack","scene_owner_composition"]') }}
+        suite: ${{ fromJSON(needs.test-scope.outputs.shop_cosmetics == 'true' && '["shop_cosmetic_unit","shop_cosmetic_layout","shop_cosmetic_buy","shop_cosmetic_supportz","shop_cosmetic_legacy","shop_cosmetic_blank","shop_cosmetic_journey","scene_apps","scene_same_day_supportz","self_talk_journey","current_title","scene_controls_localization"]' || needs.test-scope.outputs.self_talk == 'true' && '["self_talk_unit","self_talk_runtime","self_talk_ui","self_talk_skip","self_talk_journey","self_talk_review","self_talk_transport","scene_day_history","scene_direct_controls","scene_later_caption","scene_caption_challenge","scene_passage_catalogue","scene_passage_connected","scene_story_localization","scene_controls_localization","current_title","scene_apps"]' || needs.test-scope.outputs.focused == 'true' && '["timeline_resources","backup_presentation","profile_parse","authored_week","scene_backup_inspection","scene_progress_schema","current_title"]' || '["named_presentation","minesweeper","shop","desktop","settings","checkpoint_diagnostics","new_account","reading_delivery","localization","dating","persistence","endings","audio","scene_desktop_first_reveal","scene_round_checkpoint","scene_shop_checkpoint","scene_story_localization","scene_controls_localization","scene_apps","current_title","scene_backup_inspection","scene_progress_schema","authored_week","scene_five_outcomes","timeline_resources","profile_parse","backup_current_build","current_terminal_fixture","current_quick_load","scene_direct_controls","scene_multiple_thoughts","scene_challenge_recall","scene_same_day_supportz","scene_player_position","scene_native_restore","scene_day_history","scene_later_caption","scene_caption_challenge","scene_audio_connected","scene_save_metadata","scene_passage_connected","scene_passage_catalogue","scene_contacts","scene_current_creation","scene_current_frames","scene_current_challenge","scene_current_snapshot","scene_content_update_wording","scene_content_update_deleted_line","scene_content_update_deleted_checkpoint","scene_content_update_history","scene_content_update_active_board","scene_content_update_transfer_active","scene_content_update_transfer_terminal","scene_content_update_resolved_unfinished","scene_content_update_completed_appended","scene_content_update_completed_deleted","scene_content_update_invalid_choice","scene_content_update_invalid_choice_missing_default","scene_content_contracts","scene_checkpoint_ack","scene_owner_composition"]') }}
     defaults:
       run:
         shell: pwsh

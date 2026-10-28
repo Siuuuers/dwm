@@ -9,6 +9,13 @@ func _gameplay() -> Dictionary:
 		"minesweeper_round_floor": 0, "shop_purchase_counts": {}, "untouched": ["retained"]}
 
 func _item(id: String) -> Dictionary:
+	# Historical authored records retain generic rule coverage without returning them to sale.
+	var historical := {
+		"wine": {"id": "wine", "currency": "money", "price": 55, "max_purchases": 3, "effect_ids": ["pressure:-4"]},
+		"quiet_tea": {"id": "quiet_tea", "currency": "money", "price": 15, "max_purchases": 3, "effect_ids": ["inventory:add:quiet_tea"]},
+		"pineapple_bun": {"id": "pineapple_bun", "currency": "money", "price": 10, "max_purchases": 7, "effect_ids": ["inventory:add:pineapple_bun"]},
+	}
+	if historical.has(id): return historical[id].duplicate(true)
 	var catalogue: Variant = CATALOG.new()
 	return catalogue.get_shop_item(id)
 
@@ -156,3 +163,19 @@ func test_invalid_currency_and_price_are_refused() -> void:
 	for price: Variant in [0, -1, 1.0, true]:
 		item.price = price
 		assert_false(RULES.prepare(_gameplay(), item, 1).ok)
+
+func test_cosmetic_ownership_is_once_per_run_and_does_not_unlock_notes() -> void:
+	for item_id: String in ["crystal_stutters", "inked_silk_string", "letter_with_wax_seal"]:
+		var state: Dictionary = _gameplay()
+		state.shop_purchase_counts[item_id] = 3
+		var item: Dictionary = _item(item_id)
+		var result: Dictionary = RULES.prepare(state, item, 1)
+		assert_true(result.ok, item_id)
+		if not result.ok: continue
+		assert_eq(result.value.gameplay.money, 55)
+		assert_eq(result.value.gameplay.inventory, {item_id: 1})
+		assert_eq(result.value.gameplay.stats, state.stats)
+		assert_eq(result.value.gameplay.shop_purchase_counts, state.shop_purchase_counts)
+		assert_false(RULES.prepare(result.value.gameplay, item, 1).ok, "second purchase refused")
+		assert_false(RULES.prepare(state, item, 2).ok, "one item per purchase")
+		assert_true(RULES.prepare(_gameplay(), item, 1).ok, "fresh run owns none")

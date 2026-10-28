@@ -153,7 +153,7 @@ func _get_item_record(item_id: String, quantity: int) -> Dictionary:
 	if _catalog == null: return _fail(&"unregistered_shop_item", "", {})
 	var item: Dictionary = _catalog.get_shop_item(item_id)
 	if item.is_empty(): return _fail(&"unregistered_shop_item", "", {})
-	if item_id in _NOTE_RULES.ITEM_IDS:
+	if item_id in _NOTE_RULES.ITEM_IDS and item.get("effect_ids", []) != ["inventory:add:" + item_id]:
 		if quantity != 1: return _fail(&"invalid_quantity", "", {})
 		if typeof(item.get("currency")) != TYPE_STRING or item.currency != "money" \
 				or typeof(item.get("price")) != TYPE_INT or item.price != 45 \
@@ -568,7 +568,7 @@ func validate_recovery_action(action_candidate: Dictionary, action_receipt: Dict
 		return _fail(&"action_receipt_source_kind_mismatch", "", {})
 	if str(action_candidate.get("transaction_id", "")) != str(receipt["transaction_id"]):
 		return _fail(&"invalid_action_candidate", "action_candidate.transaction_id must match action_receipt", {})
-	if action_candidate.get("item_id", "") in _NOTE_RULES.ITEM_IDS:
+	if action_candidate.has("ordinary_source_gameplay") and action_candidate.get("item_id", "") in _NOTE_RULES.ITEM_IDS:
 		var checked: Dictionary = _state_port.call(&"validate_note_candidate", action_candidate)
 		if not checked.get("ok", false): return checked
 		if action_candidate.ordinary_source_gameplay.get("day") != receipt.get("day"):
@@ -598,7 +598,7 @@ func commit_recovery_action(action_candidate: Dictionary, action_receipt: Dictio
 	if str(action_candidate.get("transaction_id", "")) != transaction_id:
 		return _fail(&"invalid_action_candidate", "action_candidate.transaction_id must match action_receipt", {})
 
-	if action_candidate.get("item_id", "") in _NOTE_RULES.ITEM_IDS:
+	if action_candidate.has("ordinary_source_gameplay") and action_candidate.get("item_id", "") in _NOTE_RULES.ITEM_IDS:
 		var checked: Dictionary = _state_port.call(&"validate_note_candidate", action_candidate)
 		if not checked.get("ok", false): return checked
 		if action_candidate.ordinary_source_gameplay.get("day") != receipt.get("day"):

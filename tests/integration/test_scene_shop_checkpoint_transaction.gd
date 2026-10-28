@@ -49,7 +49,7 @@ func test_shop_live_purchase_custody_duplicate_and_manual_save() -> void:
 	var before: Dictionary = game.capture_run_snapshot_input().duplicate(true)
 	var reading: Dictionary = bridge.capture_reading_checkpoint(false)
 	var profile_before: Dictionary = profile.get_profile_snapshot().duplicate(true)
-	var command: Callable = _shop_command("soft_blanket")
+	var command: Callable = _shop_command("crystal_stutters")
 	if not command.is_valid(): return
 	var actual_port: Object = game._narrative_checkpoint_port
 	var probe := CustodyFault.new()
@@ -87,8 +87,10 @@ func test_shop_live_purchase_custody_duplicate_and_manual_save() -> void:
 		return
 	var after: Dictionary = game.capture_run_snapshot_input().duplicate(true)
 	var catalogue: Variant = preload("res://scripts/data/DataCatalog.gd").new()
-	assert_eq(after.gameplay.money, before.gameplay.money - catalogue.get_shop_item("soft_blanket").price)
-	assert_eq(after.gameplay.stats.pressure, maxi(0, before.gameplay.stats.pressure - 2))
+	assert_eq(after.gameplay.money, before.gameplay.money - catalogue.get_shop_item("crystal_stutters").price)
+	assert_eq(after.gameplay.stats, before.gameplay.stats)
+	assert_eq(after.gameplay.inventory.get("crystal_stutters"), 1)
+	assert_eq(after.gameplay.shop_purchase_counts, before.gameplay.shop_purchase_counts)
 	assert_eq(after.command_receipts.size(), before.command_receipts.size() + 1)
 	assert_eq(after.scene, before.scene, "purchase never advances authored frontier")
 	assert_eq(after.contacts, before.contacts)
@@ -116,7 +118,7 @@ func test_shop_live_purchase_custody_duplicate_and_manual_save() -> void:
 	assert_eq(storage.read_text("autosave.json"), accepted_disk)
 	var receipt: Dictionary = accepted.receipt
 	var context: Dictionary = game.capture_scene_shop_context()
-	var conflict: Dictionary = game.commit_scene_shop_purchase("quiet_tea", 1, receipt.transaction_id,
+	var conflict: Dictionary = game.commit_scene_shop_purchase("inked_silk_string", 1, receipt.transaction_id,
 		receipt.scene_shop_purchase.issuer_receipt, context.value)
 	assert_false(conflict.get("ok", false))
 	assert_eq(conflict.get("code"), &"scene_shop_command_conflict")
@@ -124,7 +126,7 @@ func test_shop_live_purchase_custody_duplicate_and_manual_save() -> void:
 	var stale_source: Dictionary = context.value.duplicate(true)
 	stale_source.scene_occurrence = "TEST.other-occurrence"
 	if _ok(stale_issue):
-		assert_false(game.commit_scene_shop_purchase("quiet_tea", 1, stale_issue.value.token,
+		assert_false(game.commit_scene_shop_purchase("inked_silk_string", 1, stale_issue.value.token,
 			stale_issue.value.issuer_receipt, stale_source).get("ok", false), "unaccepted request must match source occurrence")
 	var supportz: Callable = _shop_command("supportz")
 	if supportz.is_valid(): assert_false(supportz.call().get("ok", false), "no fabricated base completions")
@@ -141,6 +143,22 @@ func test_shop_live_purchase_custody_duplicate_and_manual_save() -> void:
 	assert_eq(persisted.gameplay, after.gameplay)
 	assert_false(persisted.has("command_receipts"), "save omits the process-local duplicate cache")
 	assert_false(storage.exists("autosave.json"), "manual Save does not create an Autosave")
+	var backup: RefCounted = preload("res://scripts/application/backup/BackupPresentationPort.gd").new()
+	if not _ok(backup.configure(saves, "title")): return
+	var prepared_load: Dictionary = backup.prepare_action("load", "slot:1")
+	if not _ok(prepared_load): return
+	var loaded: Dictionary = backup.commit_action(prepared_load.value.token)
+	assert_eq(loaded.get("code"), &"scene_activation_pending", str(loaded))
+	if loaded.get("code") != &"scene_activation_pending" or not await _await_ready(): return
+	if not await _wait_line("scene.test.a", "line.scene.test.a.one"): return
+	assert_eq(game.inventory.get("crystal_stutters"), 1, "manual Load retains cosmetic ownership")
+	var second_purchase: Callable = _shop_command("crystal_stutters")
+	if second_purchase.is_valid(): assert_false(second_purchase.call().get("ok", false), "Load does not re-enable owned cosmetic")
+	var fresh: Dictionary = saves.start_scene_new_run("target_a", {"route_id": "scene",
+		"content_version": 1, "audio_context": get_node("/root/AudioManager").get_semantic_audio_context()})
+	assert_eq(fresh.get("code"), &"scene_activation_pending", str(fresh))
+	if fresh.get("code") != &"scene_activation_pending" or not await _await_ready(): return
+	assert_false(game.inventory.has("crystal_stutters"), "genuinely new run resets cosmetic ownership")
 	_write_json("res://.godot/ci/scene-shop-transaction-proof.json", {"custody_faults": probe.hits,
 		"automatic_writes": fault.autosave_writes, "storage_preparations": lower_trap.calls.size(),
 		"accepted_receipt": receipt, "process_id": OS.get_process_id()})

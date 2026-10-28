@@ -206,7 +206,7 @@ func _run() -> void:
 	check(opened.get("ok",false),"shop opened")
 	if opened.get("ok",false):
 		await settle()
-		opened.value.app.cards.wine.grab_focus()
+		opened.value.app.cards.crystal_stutters.grab_focus()
 		await pair("shop")
 		await _shop_samples(opened.value.app,catalog)
 		desktop.app_scroll.ensure_control_visible(opened.value.app._buy_button)
@@ -275,12 +275,11 @@ func _run() -> void:
 
 func _shop_samples(app: Control, catalog: RefCounted) -> void:
 	var original: Array = catalog.rows.duplicate(true)
-	app.next_button.pressed.emit()
-	await settle()
-	check(app.page_index == 1,"Shop page two reached without a purchase")
+	check(app.page_count == 1 and app.page_index == 0,"Shop catalogue fits on one page")
+	check(app.previous_button.disabled and app.next_button.disabled,"Single-page Shop has no pagination action")
 	await _hover_shop_item(app,"debug_key")
-	await pair("shop-page-two")
-	# Lucky Charm is now on page one; keep this page-two sample on Bookend.
+	await pair("shop-capabilities")
+	# Keep the retained keepsake inspectable after its stock is exhausted.
 	var matches: Array = catalog.rows.filter(func(row: Dictionary) -> bool: return row.id == "bookend_keepsake")
 	check(matches.size() == 1,"sold-out preview has one exact ordinary item")
 	if matches.size() != 1: return
@@ -292,13 +291,13 @@ func _shop_samples(app: Control, catalog: RefCounted) -> void:
 	await settle()
 	await _hover_shop_item(app,"bookend_keepsake")
 	check(app.cards.bookend_keepsake.availability_label.text == "Sold out","sold-out item remains inspectable")
-	await capture("shop-page-two-sold-out",960)
+	await capture("shop-keepsake-sold-out",960)
 	profile.present_font("readable")
 	profile.present(150,true)
 	profile.present_contrast(true)
 	await settle()
 	await _hover_shop_item(app,"pocket_calculator_keepsake")
-	await capture("shop-page-two-readable-large-contrast",960)
+	await capture("shop-keepsake-readable-large-contrast",960)
 	for index: int in original.size():
 		check(catalog.rows[index].card_art == original[index].card_art
 			and catalog.rows[index].inspector_art == original[index].inspector_art,"Shop preferences and sold-out state retain item art")
@@ -308,9 +307,7 @@ func _shop_samples(app: Control, catalog: RefCounted) -> void:
 	profile.present(100,false)
 	profile.present_font("pixel")
 	await settle()
-	app.previous_button.pressed.emit()
-	await settle()
-	app.cards.wine.grab_focus()
+	app.cards.crystal_stutters.grab_focus()
 	await settle()
 	check(catalog.rows == original,"Shop art previews restore their isolated public facts")
 
@@ -331,7 +328,10 @@ func _hover_shop_item(app: Control, item_id: String) -> void:
 
 func _check_shop_geometry(name: String) -> void:
 	var app: Control = desktop._cached_app_windows[&"shop"]
-	check(app.cards.size() == 12 and not app.cards.has("supportz"),name+": twelve catalog items and the blank position gains no card or art target")
+	check(app.cards.size() == 8 and app._records.size() == 9 and not app.cards.has("supportz"),
+		name+": eight catalog items and the blank position gains no card or art target")
+	check(app._records[8].id == "supportz" and app._records[8].blank,
+		name+": Supportz stays in the final blank slot")
 	for row: Dictionary in app._records:
 		if row.blank: continue
 		check(app.cards[row.id].get("_art") == row.card_art,name+": card keeps matching production art for "+row.id)

@@ -52,6 +52,7 @@ func create_apps_scene() -> void:
 	if not await _wait_line("scene.test.b", "line.scene.test.b.one"): return
 	assert_false(game.capture_scene_challenge_command().get("ok", false), "Ordinary caption precedes Playable admission.")
 	var host: Control = get_tree().current_scene
+	assert_true(game.change_money(45), "canonical economy owner funds the cosmetic purchase fixture")
 	var before: Dictionary = game.capture_run_snapshot_input().duplicate(true)
 	var reading: Dictionary = bridge.capture_reading_checkpoint(false).value.duplicate(true)
 	await _screenshot("apps-ordinary-caption")
@@ -62,9 +63,9 @@ func create_apps_scene() -> void:
 	assert_not_null(shop)
 	if shop == null: return
 	assert_true(shop.is_visible_in_tree())
-	assert_true(shop.cards["pineapple_bun"].is_visible_in_tree())
-	await _click(shop.cards["pineapple_bun"])
-	assert_eq(shop.selected_id, "pineapple_bun")
+	assert_true(shop.cards["inked_silk_string"].is_visible_in_tree())
+	await _click(shop.cards["inked_silk_string"])
+	assert_eq(shop.selected_id, "inked_silk_string")
 	assert_eq(shop.quantity, 1)
 	assert_true(shop._buy_button.is_visible_in_tree())
 	assert_false(shop._buy_button.disabled)
@@ -72,8 +73,8 @@ func create_apps_scene() -> void:
 	await _click(shop._buy_button)
 	if not _ok(shop._purchase_result): return
 	var bought: Dictionary = game.capture_run_snapshot_input().duplicate(true)
-	assert_eq(bought.gameplay.money, before.gameplay.money - 10)
-	assert_eq(bought.gameplay.inventory.get("pineapple_bun", 0), before.gameplay.inventory.get("pineapple_bun", 0) + 1)
+	assert_eq(bought.gameplay.money, before.gameplay.money - 45)
+	assert_eq(bought.gameplay.inventory.get("inked_silk_string", 0), before.gameplay.inventory.get("inked_silk_string", 0) + 1)
 	assert_eq(_shop_receipts().size(), 1)
 	assert_eq(bought.scene, before.scene, "Purchase does not advance the story occurrence.")
 	assert_eq(bridge.capture_reading_checkpoint(false).value, reading, "Purchase preserves the visible beat.")

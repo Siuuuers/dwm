@@ -7,10 +7,8 @@ const ITEM_ART := preload("res://scripts/ui/shop/ShopItemArt.gd")
 const ART_MANIFEST := preload("res://scripts/data/ArtManifest.gd")
 
 const PUBLIC_ORDER := [
-	"wine", "pineapple_bun", "quiet_tea",
-	"soft_blanket", "weighted_plush", "spa_coupon",
-	"premium_care", "lucky_charm", "debug_key",
-	"bookend_keepsake", "metronome_keepsake", "pocket_calculator_keepsake",
+	"crystal_stutters", "inked_silk_string", "letter_with_wax_seal",
+	"lucky_charm", "debug_key", "bookend_keepsake", "metronome_keepsake", "pocket_calculator_keepsake",
 ]
 
 
@@ -142,11 +140,11 @@ func before_each() -> void:
 	assert_true(configured.get("ok", false), JSON.stringify(configured))
 
 
-func test_catalog_projects_all_current_items_from_the_authoritative_thirteen_templates() -> void:
+func test_catalog_projects_all_current_items_from_the_authoritative_nine_templates() -> void:
 	var result: Dictionary = _port.get_catalog("zh_CN")
 	assert_true(result.get("ok", false), JSON.stringify(result))
 	var rows: Array = result["value"]
-	assert_eq(rows.size(), 12, "Supportz remains the secret structural position")
+	assert_eq(rows.size(), 8, "Supportz remains the secret structural position")
 	var ids: Array = []
 	var art_signatures: Array[String] = []
 	for row: Dictionary in rows:
@@ -175,11 +173,11 @@ func test_catalog_projects_all_current_items_from_the_authoritative_thirteen_tem
 	assert_eq(ids, PUBLIC_ORDER)
 	assert_null(ITEM_ART.texture("supportz",28),"The secret position gains no public artwork")
 	assert_null(ITEM_ART.texture("supportz",56))
-	assert_eq(rows[0]["name"], "葡萄酒")
-	assert_eq(rows[0]["unit_price"], 55)
-	assert_eq(rows[0]["legal_max"], 3)
-	assert_eq(rows[9]["id"], "bookend_keepsake")
-	assert_eq(rows[9]["unit_price"], 3)
+	assert_eq(rows[0]["name"], preload("res://scripts/ui/shop/ShopCopy.gd").item_name("zh_CN", "crystal_stutters"))
+	assert_eq(rows[0]["unit_price"], 45)
+	assert_eq(rows[0]["legal_max"], 1)
+	assert_eq(rows[5]["id"], "bookend_keepsake")
+	assert_eq(rows[5]["unit_price"], 3)
 
 
 func test_item_art_cache_survives_locale_reconfiguration_and_sold_out_facts() -> void:
@@ -195,8 +193,8 @@ func test_item_art_cache_survives_locale_reconfiguration_and_sold_out_facts() ->
 				assert_eq(localized[index][key],original[index][key],language+": art does not change "+key)
 	_game_state.inventory["lucky_charm"] = 1
 	var sold_out: Array = _port.get_catalog("en").value
-	assert_false(sold_out[7].available)
-	assert_eq(sold_out[7].legal_max,0)
+	assert_false(sold_out[3].available)
+	assert_eq(sold_out[3].legal_max,0)
 	for index: int in original.size():
 		assert_same(sold_out[index].card_art,original[index].card_art)
 		assert_same(sold_out[index].inspector_art,original[index].inspector_art)
@@ -220,7 +218,7 @@ func test_valid_authored_item_pair_takes_precedence_over_code_art() -> void:
 		var path := "res://tests/fixtures/shop-authored-%d.png" % size
 		texture.take_over_path(path)
 		authored.append(texture)
-		ART_MANIFEST.set_overlay_info("shop","wine."+("card" if size == 28 else "inspector"),
+		ART_MANIFEST.set_overlay_info("shop","crystal_stutters."+("card" if size == 28 else "inspector"),
 			path,Vector2i(size,size),"test fixture")
 	var rows: Array = _port.get_catalog("en").value
 	assert_same(rows[0].card_art,authored[0])
@@ -232,13 +230,13 @@ func test_valid_authored_item_pair_takes_precedence_over_code_art() -> void:
 
 
 func test_ordinary_quantity_uses_the_same_durable_consequence_flow() -> void:
-	var result: Dictionary = _port.purchase("wine", 3)
+	var result: Dictionary = _port.purchase("crystal_stutters", 1)
 	assert_true(result.get("ok", false), JSON.stringify(result))
 	assert_true(_game_state.effect_requests.is_empty(), "presentation cannot apply effects outside the durable flow")
 	assert_eq(_participant.quote_requests.size(), 1)
-	assert_eq(_participant.quote_requests[0].quantity, 3)
+	assert_eq(_participant.quote_requests[0].quantity, 1)
 	assert_eq(_participant.prepare_requests.size(), 1)
-	assert_eq(_participant.prepare_requests[0].item_id, "wine")
+	assert_eq(_participant.prepare_requests[0].item_id, "crystal_stutters")
 	assert_eq(_consequence.requests.size(), 1)
 
 
@@ -261,17 +259,17 @@ func test_special_item_uses_one_participant_and_completes_the_existing_consequen
 
 
 func test_quantity_caps_owned_items_funds_and_shared_gate_fail_closed_before_issuance() -> void:
-	assert_eq(_port.purchase("wine", 4).get("code"), &"shop_quantity_exceeds_batch_cap")
+	assert_eq(_port.purchase("crystal_stutters", 4).get("code"), &"shop_quantity_exceeds_batch_cap")
 	assert_eq(_issuer.next, 0)
 	_game_state.inventory["lucky_charm"] = 1
 	assert_eq(_port.purchase("lucky_charm", 1).get("code"), &"shop_item_already_owned")
 	assert_eq(_issuer.next, 0)
 	_game_state.money = -30
-	assert_eq(_port.purchase("wine", 1).get("code"), &"insufficient_funds")
+	assert_eq(_port.purchase("crystal_stutters", 1).get("code"), &"insufficient_funds")
 	assert_eq(_issuer.next, 0)
 	var lease: Dictionary = _gate.acquire(&"causal_transaction")
 	assert_true(lease.get("ok", false))
-	assert_eq(_port.purchase("wine", 1).get("code"), &"TRANSACTION_ACTIVE")
+	assert_eq(_port.purchase("crystal_stutters", 1).get("code"), &"TRANSACTION_ACTIVE")
 	assert_eq(_issuer.next, 0)
 
 
@@ -285,7 +283,7 @@ func test_configuration_requires_the_same_mutation_gate_as_game_state() -> void:
 
 func test_retained_shop_from_previous_session_cannot_spend_in_a_loaded_run() -> void:
 	_game_state.session.generation += 1
-	assert_false(_port.purchase("wine", 1).ok)
+	assert_false(_port.purchase("crystal_stutters", 1).ok)
 	assert_eq(_game_state.effect_requests.size(), 0)
 
 
@@ -320,9 +318,9 @@ func test_supportz_real_admission_requires_both_current_day_ordinals_and_honors_
 func test_pending_purchase_reports_real_retained_recovery_until_retry_finishes() -> void:
 	assert_false(_port.has_pending_purchase())
 	_consequence.fail_next = true
-	assert_false(_port.purchase("wine", 1).ok)
+	assert_false(_port.purchase("crystal_stutters", 1).ok)
 	assert_true(_port.has_pending_purchase())
-	assert_true(_port.purchase("wine", 1).ok)
+	assert_true(_port.purchase("crystal_stutters", 1).ok)
 	assert_false(_port.has_pending_purchase())
 	assert_eq(_participant.prepare_requests.size(), 1, "retry resumes the original purchase")
 

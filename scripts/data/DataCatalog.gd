@@ -24,25 +24,18 @@ const FRIEND_IDS := _CONTACT_STATE.FRIEND_IDS
 # THREE ROWS CARRY NO FACTS. supportz, lucky_charm and debug_key are owned by
 # MinesweeperShopRegistry, so their rows keep only presentation the registry does not carry -- the
 # secret/gift flags -- and their currency, price, effect_ids and max_purchases are projected from
-# the registry record (max_purchases from cap.per_branch). They stay at their original indices
-# because a row must exist for them regardless: test_supportz_properties requires the secret and
-# visibility flags, which no registry record holds. Keeping the row in place therefore preserves
-# shop order for free (dwm-p2r.16 DECISION 12.7). A row is recognized as delegated by carrying no
-# "currency" key.
+# the registry record (max_purchases from cap.per_branch). The secret Supportz row is last;
+# a delegated row is recognized by carrying no "currency" key.
 const _SHOP_ROWS := [
-	{"id": "wine", "currency": "money", "price": 55, "effects": ["pressure:-4"], "max": 3},
-	{"id": "pineapple_bun", "currency": "money", "price": 10, "effects": ["inventory:add:pineapple_bun"], "max": 7, "gift": true},
-	{"id": "quiet_tea", "currency": "money", "price": 15, "effects": ["inventory:add:quiet_tea"], "max": 3, "gift": true},
-	{"id": "soft_blanket", "currency": "money", "price": 25, "effects": ["pressure:-2"], "max": 3},
-	{"id": "weighted_plush", "currency": "money", "price": 35, "effects": ["pressure:-3"], "max": 2},
-	{"id": "spa_coupon", "currency": "money", "price": 45, "effects": ["pressure:-4"], "max": 1},
-	{"id": "supportz", "secret": true},
-	{"id": "premium_care", "currency": "minesweeper_coin", "price": 1, "effects": ["pressure:-4"], "max": 2},
+	{"id": "crystal_stutters", "currency": "money", "price": 45, "effects": ["inventory:add:crystal_stutters"], "max": 1},
+	{"id": "inked_silk_string", "currency": "money", "price": 45, "effects": ["inventory:add:inked_silk_string"], "max": 1},
+	{"id": "letter_with_wax_seal", "currency": "money", "price": 45, "effects": ["inventory:add:letter_with_wax_seal"], "max": 1},
+	{"id": "lucky_charm"},
+	{"id": "debug_key"},
 	{"id": "priscilla_gift", "currency": "minesweeper_coin", "price": 3, "effects": ["inventory:add:priscilla_gift"], "max": 1, "gift": true, "special": true},
 	{"id": "lavinia_gift", "currency": "minesweeper_coin", "price": 3, "effects": ["inventory:add:lavinia_gift"], "max": 1, "gift": true, "special": true},
 	{"id": "sylvia_gift", "currency": "minesweeper_coin", "price": 3, "effects": ["inventory:add:sylvia_gift"], "max": 1, "gift": true, "special": true},
-	{"id": "lucky_charm"},
-	{"id": "debug_key"},
+	{"id": "supportz", "secret": true},
 ]
 
 const _TASK_IDS := [
