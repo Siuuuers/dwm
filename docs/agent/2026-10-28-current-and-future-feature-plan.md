@@ -12,6 +12,8 @@ The Shop implementation is [PR #141](https://github.com/Siuuuers/dwm/pull/141).
 Its twelve focused suites and rendered three-process journey pass in
 [run 40640560154](https://github.com/Siuuuers/dwm/actions/runs/40640560154).
 The PR records final export/UI acceptance and merge status.
+Pixel transitions are complete in [PR #142](https://github.com/Siuuuers/dwm/pull/142),
+accepted by [run 40650052235](https://github.com/Siuuuers/dwm/actions/runs/40650052235).
 
 ## Sources and precedence
 
@@ -31,7 +33,7 @@ Numbers retain the audit's identifiers so later discussions can refer to them.
 
 | ID | Feature | Current decision |
 | --- | --- | --- |
-| 1 | Pixel/noise scene transition | Implement fourth; not urgent. Presentation details below. |
+| 1 | Pixel/noise scene transition | Complete in PR #142. Presentation details below. |
 | 2 | Separate self-talk presentation | Complete in PR #140. |
 | 3 | Ordered self-talk History and restoration | Complete in PR #140; thought scrollback stays inside the self-talk panel. |
 | 4 | DTL-driven notifications | Future work. Remove the current notification bar; no replacement notification surface is selected. |
@@ -218,7 +220,7 @@ The owner requested continuation with the recommended defaults on October 28:
 wait, and an immediate prepared swap with Reduced Motion. These supersede the
 older one-second Loading-panel proposal.
 
-Implementation candidate: Bridge owns one transient presentation hold across
+Implemented in PR #142: Bridge owns one transient presentation hold across
 native layout replacement. The persistent SceneHost captures the outgoing frame
 once; a deterministic pixel mask reveals the prepared destination. Rail, caret
 and divider pixels are excluded. Incoming caption typing, speech, read marks,
@@ -286,8 +288,15 @@ Code-only art can combine a smooth irregular radial blot, a few directional
 streaks and sparse satellite droplets. Keep visual randomness separate from
 gameplay RNG. New art assets are optional.
 
-Status: selected behavior, not implemented. Its scheduling has not been assigned;
-the existing self-talk → History → Shop → transition priority remains unchanged.
+Current slice: save-slot ink marks, after the completed self-talk → History → Shop →
+transition sequence. The owner selected **Delete clears the slot’s marks** on October 28.
+Keep bounded integer seeds as optional destination-document metadata, outside restored
+run snapshots; old files without marks remain supported. The existing Backup drawer
+draws the decoration. Use the proposed 0.65 fading and eight-mark bound as the first
+visual tuning, verified against text and focus readability in cloud rendering.
+Implementation is [PR #143](https://github.com/Siuuuers/dwm/pull/143).
+Its PR records final cloud acceptance and merge status; implementation alone does
+not establish completion.
 
 ## Verification and continuation
 

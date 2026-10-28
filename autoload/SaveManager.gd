@@ -848,7 +848,8 @@ func _capture_prepared_autosave_baseline() -> Dictionary:
 		return _fail(&"invalid_autosave_revision_evidence", "")
 	var occupied: bool = bool(source["exists"]) and (text == null or not str(text).is_empty())
 	return {"ok": true, "code": &"ok", "value": {
-		"revision": str(source["revision"]), "occupied": occupied}}
+		"revision": str(source["revision"]), "occupied": occupied,
+		"ink_marks": _ink_marks_from_text(text)}}
 
 func _capture_prepared_live_baseline() -> Dictionary:
 	var participant: Object = _restore_participants.get("run")
@@ -998,6 +999,7 @@ func _prepare_new_run_decision(initial_context: Dictionary) -> Dictionary:
 	if not source.get("ok", false): return source
 	return _prepare_new_run_decision_from_sources(initial_context, profile["value"], {
 		"revision": source["value"]["revision"],
+		"ink_marks": _ink_marks_from_text(source["value"].get("text")),
 		"occupied": bool(source["value"]["exists"]) and (source["value"]["text"] == null
 			or not str(source["value"]["text"]).is_empty()),
 	})
@@ -1043,6 +1045,7 @@ func _prepare_new_run_decision_from_sources(initial_context: Dictionary,
 	var document: Dictionary = SAVE_DOCUMENT_SCHEMA.build(&"autosave", null, &"day_start",
 		reset["value"]["candidate"]["current"], [], _capture_saved_time())
 	if not document.get("ok", false): return document
+	document.value["ink_marks"] = SAVE_DOCUMENT_SCHEMA.next_ink_marks(autosave_source.get("ink_marks", []))
 	var serialized: Dictionary = CANONICAL_JSON.stringify(document["value"])
 	if not serialized.get("ok", false): return serialized
 	var outgoing := str(serialized["value"]) + "\n"
@@ -1663,7 +1666,7 @@ func _inspect_backup_profiled(locator_id: String, profile: Dictionary) -> Dictio
 	var evidence: Dictionary = inspected["value"]
 	var record := {"locator": locator_id, "revision": evidence["revision"],
 		"state": "empty" if not evidence["exists"] else "unavailable", "family": null, "day": null,
-		"saved_time": null, "fallback": false, "load_family": null, "load_day": null, "load_saved_time": null,
+		"saved_time": null, "ink_marks": [], "fallback": false, "load_family": null, "load_day": null, "load_saved_time": null,
 		"reason": "", "loadable": false, "operation_allowed": _backup_guard().get("ok", false)}
 	if not evidence["exists"]:
 		return {"ok": true, "value": record}
@@ -1693,6 +1696,7 @@ func _inspect_backup_profiled(locator_id: String, profile: Dictionary) -> Dictio
 		record["day"] = int(day) if day != null else null
 	var display_time := SAVE_DOCUMENT_SCHEMA.normalize_optional_saved_time(document.get("saved_time"))
 	record["saved_time"] = display_time.get("hhmm")
+	record["ink_marks"] = SAVE_DOCUMENT_SCHEMA.normalize_optional_ink_marks(document.get("ink_marks"))
 	record["loadable"] = true
 	record["load_family"] = record["family"]
 	record["load_day"] = record["day"]
@@ -1741,6 +1745,7 @@ func _prepare_backup_action_profiled(action: String, locator_id: String, profile
 		_save_load_profile_phase(profile, "document_build_us")
 		if not built.get("ok", false):
 			return built
+		built.value["ink_marks"] = SAVE_DOCUMENT_SCHEMA.next_ink_marks(record.ink_marks)
 		candidate["document"] = built["value"]
 		candidate["stable_hash"] = _canonical_sha256(stable["value"]["bundle"])
 		_save_load_profile_phase(profile, "stable_hash_us")
@@ -1964,6 +1969,12 @@ func _backup_locator(locator_id: String) -> Dictionary:
 		return {}
 	return _resolve_locator_from_slot_id(locator_id)
 
+func _ink_marks_from_text(text: Variant) -> Array:
+	if text == null or str(text).is_empty(): return []
+	var parsed: Dictionary = _parse_document_text(text)
+	if not parsed.get("ok", false): return []
+	return SAVE_DOCUMENT_SCHEMA.normalize_optional_ink_marks(parsed.value.get("ink_marks"))
+
 func _capture_saved_time() -> Dictionary:
 	var instant := int(Time.get_unix_time_from_system())
 	var offset := int(Time.get_time_zone_from_system()["bias"])
@@ -2110,9 +2121,6 @@ func _write_latest(locator: Dictionary, save_reason: String, session_exit: bool 
 	if not built.get("ok", false):
 		save_failed.emit(built)
 		return built
-	var canonical: Dictionary = CANONICAL_JSON.stringify(built["value"])
-	if not canonical.get("ok", false):
-		return _fail(&"canonical_serialization_failed", "")
 	var relative_path := str(locator["relative_path"])
 	# The previous target is replaceable data, not a restoration prerequisite.
 	# Bind this write to its exact bytes so a competing write is still refused.
@@ -2120,6 +2128,10 @@ func _write_latest(locator: Dictionary, save_reason: String, session_exit: bool 
 	if not inspected.get("ok", false):
 		save_failed.emit(inspected)
 		return inspected
+	built.value["ink_marks"] = SAVE_DOCUMENT_SCHEMA.next_ink_marks(_ink_marks_from_text(inspected.value.get("text")))
+	var canonical: Dictionary = CANONICAL_JSON.stringify(built["value"])
+	if not canonical.get("ok", false):
+		return _fail(&"canonical_serialization_failed", "")
 	var written: Dictionary = _storage.write_atomic_if_revision(
 		relative_path, str(canonical["value"]) + "\n", _document_text_validator,
 		str(inspected["value"]["revision"]))

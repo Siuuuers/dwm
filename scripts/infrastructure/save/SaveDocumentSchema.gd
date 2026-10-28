@@ -12,6 +12,7 @@ extends RefCounted
 
 const DOCUMENT_VERSION := 8
 const SCENE_DOCUMENT_VERSION := 9
+const MAX_INK_MARKS := 8
 
 const RUN_SNAPSHOT_SCHEMA := preload("res://scripts/domain/run/RunSnapshotSchema.gd")
 
@@ -146,6 +147,7 @@ static func validate_scene_new_run_candidate(document: Dictionary, allocation_ca
 	if not primitive.ok: return primitive
 	var expected := SCENE_DOCUMENT_KEYS.duplicate()
 	if document.has("saved_time"): expected.append("saved_time")
+	if document.has("ink_marks"): expected.append("ink_marks")
 	if not RUN_SNAPSHOT_SCHEMA._scene_keys(document, expected) \
 			or typeof(document.schema_version) != TYPE_INT or document.schema_version != SCENE_DOCUMENT_VERSION \
 			or document.kind != "autosave" or document.slot_id != null \
@@ -226,6 +228,9 @@ static func _validate_document(document: Dictionary, proven_journal: Array,
 	# projected here: retired reason and malformed time cannot reject valid progress.
 	var candidate := {}
 	for key: Variant in document:
+		if key == "ink_marks":
+			candidate[key] = normalize_optional_ink_marks(document[key])
+			continue
 		if document.get("schema_version") == SCENE_DOCUMENT_VERSION:
 			if key == "save_reason": continue
 			if key == "saved_time":
@@ -244,6 +249,7 @@ static func _validate_document(document: Dictionary, proven_journal: Array,
 	var expected := (SCENE_DOCUMENT_KEYS if candidate.get("schema_version") == SCENE_DOCUMENT_VERSION else DOCUMENT_KEYS).duplicate()
 	if candidate.has("saved_time"):
 		expected.append("saved_time")
+	if candidate.has("ink_marks"): expected.append("ink_marks")
 	expected.sort()
 	if keys != Array(expected):
 		return _fail(&"invalid_document_shape", "unexpected document keys: " + str(keys))
@@ -449,6 +455,22 @@ static func _profile_phase(profile: Dictionary, phase: String, started_us: int) 
 
 static func prepare_candidate(document: Dictionary) -> Dictionary:
 	return validate(document)
+
+## Decorative destination metadata never participates in restored run state.
+static func normalize_optional_ink_marks(value: Variant) -> Array:
+	if not value is Array: return []
+	var marks: Array = []
+	for seed: Variant in value:
+		if typeof(seed) != TYPE_INT or seed < 1 or seed > 2147483647: return []
+		marks.append(seed)
+	return marks.slice(maxi(0, marks.size() - MAX_INK_MARKS))
+
+static func next_ink_marks(previous: Array) -> Array:
+	var marks: Array = previous.slice(maxi(0, previous.size() - MAX_INK_MARKS + 1))
+	var visual_rng := RandomNumberGenerator.new()
+	visual_rng.randomize()
+	marks.append(visual_rng.randi_range(1, 2147483647))
+	return marks
 
 ## A missing or malformed Scene timestamp means unknown, never the current time.
 ## Use one detached projection for admission, retained comparisons and Backup UI.
