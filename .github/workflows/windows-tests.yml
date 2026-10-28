@@ -115,6 +115,7 @@ jobs:
                       'tests/integration/scene_apps_connected_child.gd',
                       'tests/integration/scene_contacts_connected_child.gd',
                       'tests/integration/scene_multiple_thoughts_child.gd',
+                      'tests/integration/scene_partner_fork_child.gd',
                       'tests/integration/test_scene_controls_localization.gd',
                       'tests/scene/test_scene_host_controls.gd',
                       'tests/ui/render_authored_self_talk_choices.gd',

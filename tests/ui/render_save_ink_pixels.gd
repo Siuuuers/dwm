@@ -32,6 +32,9 @@ func test_stable_splashes_fade_without_changing_labels_or_focus() -> void:
 	_assert_glyphs_above_ink(drawer, bare, aged)
 	var faded_pixels := 0
 	var fresh_pixels := 0
+	var paper_colour := drawer.get_theme_color("paper", "Backup")
+	var ink_colour := drawer.get_theme_color("paper_ink", "Backup")
+	var full_contrast := absf(paper_colour.r - ink_colour.r) + absf(paper_colour.g - ink_colour.g) + absf(paper_colour.b - ink_colour.b)
 	for y: int in range(30, 178):
 		for x: int in range(28, 208):
 			var background := bare.get_pixel(x, y)
@@ -41,8 +44,13 @@ func test_stable_splashes_fade_without_changing_labels_or_focus() -> void:
 			if old_pixel != background and new_pixel == background:
 				var before_distance := absf(old_pixel.r - background.r) + absf(old_pixel.g - background.g) + absf(old_pixel.b - background.b)
 				var after_distance := absf(actual.r - background.r) + absf(actual.g - background.g) + absf(actual.b - background.b)
-				if before_distance > 0.08:
-					assert_almost_eq(after_distance / before_distance, 0.65, 0.09, "same old splash fades by selected proportion")
+				assert_lt(after_distance, before_distance, "every old-only painted pixel becomes lighter")
+				# Overlapping halo/body/streak alpha composes nonlinearly. Measure the
+				# 0.65 paint-opacity rule on isolated 32% core/droplet pixels instead.
+				var coverage := before_distance / full_contrast
+				if absf(background.r - paper_colour.r) < 0.005 and absf(background.g - paper_colour.g) < 0.005 \
+						and absf(background.b - paper_colour.b) < 0.005 and coverage > 0.30 and coverage < 0.34:
+					assert_almost_eq(after_distance / before_distance, 0.65, 0.025, "isolated old paint fades by selected proportion")
 					faded_pixels += 1
 			elif old_pixel == background and new_pixel != background:
 				assert_eq(actual, new_pixel, "new splash retains original opacity")

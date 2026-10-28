@@ -7,9 +7,31 @@ const OFFER := "line.scene.test.partner.shared.offer"
 func _install_content_registration() -> Dictionary:
 	return PARTNER.install()
 
-func _save_partner(slot: int) -> bool:
-	await _click(_controls(get_tree().current_scene, "Save"))
+func _open_partner_backup(command: String) -> Node:
+	var caption: Node = _caption()
+	var button: Button = _controls(get_tree().current_scene, command)
+	var deadline := Time.get_ticks_msec() + 5000
+	var admission := "_save_admitted" if command == "Save" else "_load_admitted"
+	# Native text DONE precedes the rail's next presentation/admission update.
+	while Time.get_ticks_msec() < deadline:
+		if button.is_visible_in_tree() and not button.disabled and caption.call(admission): break
+		await get_tree().process_frame
+	assert_true(button.is_visible_in_tree() and not button.disabled and caption.call(admission), command + " is ready for real input")
+	if not button.is_visible_in_tree() or button.disabled or not caption.call(admission): return null
+	await _click(button)
 	var sheet: Node = get_node("/root/SceneRouter")._production_pause
+	deadline = Time.get_ticks_msec() + 5000
+	while sheet._backup_port == null and Time.get_ticks_msec() < deadline:
+		await get_tree().process_frame
+	assert_not_null(sheet._backup_port, command + " mounts the real Backup port")
+	if sheet._backup_port == null:
+		await _screenshot("partner-backup-open-failed")
+		return null
+	return sheet
+
+func _save_partner(slot: int) -> bool:
+	var sheet: Node = await _open_partner_backup("Save")
+	if sheet == null: return false
 	var prepared: Dictionary = sheet._backup_port.prepare_action("save", "slot:" + str(slot))
 	if not _ok(prepared): return false
 	if not _ok(await sheet._backup_port.commit_action(prepared.value.token)): return false
@@ -23,8 +45,9 @@ func _load_partner(slot: int, initial: bool = false) -> bool:
 		backup = preload("res://scripts/application/backup/BackupPresentationPort.gd").new()
 		if not _ok(backup.configure(saves, "title")): return false
 	else:
-		await _click(_controls(get_tree().current_scene, "Load"))
-		backup = get_node("/root/SceneRouter")._production_pause._backup_port
+		var sheet: Node = await _open_partner_backup("Load")
+		if sheet == null: return false
+		backup = sheet._backup_port
 	var prepared: Dictionary = backup.prepare_action("load", "slot:" + str(slot))
 	if not _ok(prepared): return false
 	var count := ready_count
