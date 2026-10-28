@@ -8,27 +8,26 @@ signal load_requested
 signal history_requested
 signal save_requested
 signal next_requested
+signal settings_requested
 
 const TRANSPORT_BUTTON := preload("res://scripts/ui/witnessed/WitnessedTransportButton.gd")
 const SETTINGS_PALETTES := preload("res://scripts/settings/SettingsPaletteRegistry.gd")
 
 const RAIL_POSITION := Vector2(0, 592)
 const RAIL_SIZE := Vector2(1280, 128)
-# Keep the existing command widths and owners; only their presentation bays move.
+const BAR_TOP := 612.0
+const BAY_WIDTH := 1280.0 / 7.0
 const CONTROL_RECTS := {
-	&"history": Rect2(0, 64, 212, 64), &"save": Rect2(212, 64, 214, 64),
-	&"load": Rect2(426, 64, 214, 64), &"skip": Rect2(640, 64, 212, 64),
-	&"auto": Rect2(852, 64, 214, 64), &"next": Rect2(1066, 64, 214, 64),
+	&"history": Rect2(0, 64, BAY_WIDTH, 64), &"save": Rect2(BAY_WIDTH, 64, BAY_WIDTH, 64),
+	&"load": Rect2(BAY_WIDTH * 2, 64, BAY_WIDTH, 64), &"skip": Rect2(BAY_WIDTH * 3, 64, BAY_WIDTH, 64),
+	&"auto": Rect2(BAY_WIDTH * 4, 64, BAY_WIDTH, 64), &"next": Rect2(BAY_WIDTH * 5, 64, BAY_WIDTH, 64),
+	&"settings": Rect2(BAY_WIDTH * 6, 64, BAY_WIDTH, 64),
 }
 var ending_layout := false
 const PLATE_INSET := 4.0
-const CONTROL_IDS: Array[StringName] = [&"history", &"skip", &"auto", &"save", &"load", &"next"]
+const CONTROL_IDS: Array[StringName] = [&"history", &"save", &"load", &"skip", &"auto", &"next", &"settings"]
 const LOCALES := ["en", "zh-CN", "zh-HK", "ja", "ko"]
-const COMPACT_COPY := {
-	"ja": {&"skip": "早送り", &"auto": "オート", &"on": "入", &"off": "切"},
-	"ko": {&"skip": "스킵", &"auto": "자동", &"on": "켬", &"off": "끔"},
-}
-const COPY_IDS: Array[StringName] = [&"history", &"skip", &"auto", &"save", &"load", &"next", &"on", &"off", &"next_help"]
+const COPY_IDS: Array[StringName] = [&"history", &"skip", &"auto", &"save", &"load", &"next", &"settings", &"on", &"off", &"next_help"]
 
 
 var _locale := "en"
@@ -41,12 +40,14 @@ var _load_button: TRANSPORT_BUTTON
 var _history_button: TRANSPORT_BUTTON
 var _save_button: TRANSPORT_BUTTON
 var _next_button: TRANSPORT_BUTTON
+var _settings_button: TRANSPORT_BUTTON
 var _admission: Callable
 var _auto_admission: Callable
 var _load_admission: Callable
 var _history_admission: Callable
 var _save_admission: Callable
 var _next_admission: Callable
+var _settings_admission: Callable
 var _input_owner: Node
 var _auto_input_owner: Node
 var _load_input_owner: Node
@@ -56,6 +57,7 @@ var _can_load := false
 var _can_history := false
 var _can_save := false
 var _can_next := false
+var _can_settings := false
 var _skip_active := false
 var _auto_enabled := false
 var _projection_initialized := false
@@ -126,7 +128,7 @@ func bind_localization(localization: Object) -> bool:
 func _read_copy(localization: Object) -> Dictionary:
 	var result := {}
 	for id: StringName in COPY_IDS:
-		var key := "witnessed.transport." + String(id)
+		var key := "ui.pause.settings" if id == &"settings" else "witnessed.transport." + String(id)
 		if localization.call("has_key", key) != true: return {}
 		var copy: Variant = localization.call("t", key)
 		if typeof(copy) != TYPE_STRING or String(copy).strip_edges().is_empty(): return {}
@@ -191,15 +193,23 @@ func bind_next_admission(admission: Callable, input_owner: Node) -> bool:
 	return true
 
 
+func bind_settings_admission(admission: Callable, input_owner: Node) -> bool:
+	if not admission.is_valid() or not is_instance_valid(input_owner): return false
+	_ensure_controls()
+	if not _settings_button.bind_admission(admission, input_owner): return false
+	_settings_admission = admission
+	return true
+
+
 func project(can_skip: bool, skip_active: bool, auto_enabled: bool, can_auto: bool = false,
-		can_load: bool = false, can_history: bool = false, can_save: bool = false, can_next: bool = false) -> bool:
+		can_load: bool = false, can_history: bool = false, can_save: bool = false, can_next: bool = false, can_settings: bool = false) -> bool:
 	if skip_active and auto_enabled:
 		return false
 	_ensure_controls()
 	if _projection_initialized and can_skip == _can_skip \
 			and skip_active == _skip_active and auto_enabled == _auto_enabled \
 			and can_auto == _can_auto and can_load == _can_load \
-			and can_history == _can_history and can_save == _can_save and can_next == _can_next:
+			and can_history == _can_history and can_save == _can_save and can_next == _can_next and can_settings == _can_settings:
 		return true
 	# Every semantic state change is an input-generation boundary. If disabling
 	# the focused command releases Focus, its focus_exited signal performs this
@@ -228,6 +238,11 @@ func project(can_skip: bool, skip_active: bool, auto_enabled: bool, can_auto: bo
 		_next_button.release_focus()
 	else:
 		_next_button.retire_input()
+	if not can_settings and _settings_button.has_focus():
+		_settings_button.release_focus()
+	else:
+		_settings_button.retire_input()
+	_can_settings = can_settings
 	_can_next = can_next
 	_can_history = can_history
 	_can_save = can_save
@@ -254,6 +269,8 @@ func retire_input() -> void:
 		_save_button.retire_input()
 	if is_instance_valid(_next_button):
 		_next_button.retire_input()
+	if is_instance_valid(_settings_button):
+		_settings_button.retire_input()
 
 
 func set_ending_layout(enabled: bool) -> void:
@@ -272,7 +289,7 @@ func set_ending_layout(enabled: bool) -> void:
 
 func _draw() -> void:
 	if not ending_layout and not _roles.is_empty():
-		draw_rect(Rect2(0, 64, 1280, 64), _roles[&"deep"])
+		draw_rect(Rect2(0, BAR_TOP - RAIL_POSITION.y, 1280, 720 - BAR_TOP), _roles[&"deep"])
 
 
 func _ensure_controls() -> void:
@@ -307,12 +324,14 @@ func _ensure_controls() -> void:
 	_history_button = _buttons[&"history"] as TRANSPORT_BUTTON
 	_save_button = _buttons[&"save"] as TRANSPORT_BUTTON
 	_next_button = _buttons[&"next"] as TRANSPORT_BUTTON
+	_settings_button = _buttons[&"settings"] as TRANSPORT_BUTTON
 	_skip_button.activated.connect(_on_skip_activated)
 	_auto_button.activated.connect(_on_auto_activated)
 	_load_button.activated.connect(_on_load_activated)
 	_history_button.activated.connect(_on_history_activated)
 	_save_button.activated.connect(_on_save_activated)
 	_next_button.activated.connect(_on_next_activated)
+	_settings_button.activated.connect(_on_settings_activated)
 
 
 func _apply_projection() -> void:
@@ -322,7 +341,7 @@ func _apply_projection() -> void:
 		var button: Button = _buttons[id]
 		button.language = _locale
 		var enabled_mode := (id == &"skip" and _skip_active) or (id == &"auto" and _auto_enabled)
-		button.text = _label(id, enabled_mode)
+		button.text = String(_copy.get(id, ""))
 		button.accessibility_name = _full_label(id, enabled_mode)
 		button.tooltip_text = button.accessibility_name if button.text != button.accessibility_name else ""
 		if id == &"next":
@@ -331,7 +350,7 @@ func _apply_projection() -> void:
 		var command_available := (id == &"skip" and _can_skip) \
 			or (id == &"auto" and _can_auto) or (id == &"load" and _can_load) \
 			or (id == &"history" and _can_history) or (id == &"save" and _can_save) \
-			or (id == &"next" and _can_next)
+			or (id == &"next" and _can_next) or (id == &"settings" and _can_settings)
 		button.disabled = not command_available or _copy.is_empty() or not is_instance_valid(_localization)
 		button.focus_mode = Control.FOCUS_NONE if button.disabled else Control.FOCUS_ALL
 		button.theme_type_variation = &"WitnessedTransportMode" if enabled_mode else &"WitnessedTransportButton"
@@ -341,17 +360,6 @@ func _apply_projection() -> void:
 		# transition. Reapply its fixed bay after publishing the final material.
 		button.size = button.custom_minimum_size
 		button.queue_redraw()
-
-
-func _label(id: StringName, enabled_mode: bool) -> String:
-	var full := _full_label(id, enabled_mode)
-	if not COMPACT_COPY.has(_locale) or id not in [&"skip", &"auto"] or full.is_empty(): return full
-	var button: Button = _buttons[id]
-	var font := button.get_theme_font("font")
-	var text_width := font.get_string_size(full, HORIZONTAL_ALIGNMENT_LEFT, -1, button.get_theme_font_size("font_size")).x
-	if text_width <= button.size.x - 20.0: return full
-	var compact: Dictionary = COMPACT_COPY[_locale]
-	return "%s%s%s" % [compact[id], "・" if _locale == "ja" else "·", compact[&"on"] if enabled_mode else compact[&"off"]]
 
 
 func _full_label(id: StringName, enabled_mode: bool) -> String:
@@ -469,3 +477,9 @@ func _on_next_activated() -> void:
 	if not _can_next or not _next_admission.is_valid() or not bool(_next_admission.call()):
 		return
 	next_requested.emit()
+
+
+func _on_settings_activated() -> void:
+	if not _can_settings or not _settings_admission.is_valid() or not bool(_settings_admission.call()):
+		return
+	settings_requested.emit()

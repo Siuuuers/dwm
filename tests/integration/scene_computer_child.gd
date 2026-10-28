@@ -30,7 +30,7 @@ func _caption() -> Node:
 	return get_node("/root/SceneRouter")._production_pause._find_caption(get_tree().root)
 
 func _controls(host: Node, name: String) -> Control:
-	if name in ["Save", "Load"]:
+	if name in ["History", "Save", "Load", "Skip", "Auto", "Next", "Settings"]:
 		return _caption().transport_rail.get_node(name)
 	return host.get_node("SceneControlsLayer/Surface/Controls/" + name)
 
@@ -88,7 +88,18 @@ func create_computer_board() -> void:
 	if caption == null: return
 	assert_true(caption.auto_controller.is_auto_enabled())
 	assert_false(caption._reading_source_admitted())
-	assert_false(caption.transport_rail.visible, "computer owns foreground controls")
+	assert_true(caption.transport_rail.visible, "computer overlays the retained rail")
+	for command: String in ["History", "Save", "Load", "Skip", "Auto", "Next", "Settings"]:
+		var button: Button = caption.transport_rail.get_node(command)
+		assert_true(button.visible)
+		assert_true(button.disabled)
+		await _click(button)
+		button.emit_signal("activated")
+		assert_true(host.is_computer_open())
+		assert_eq(bridge.capture_reading_checkpoint(false), checkpoint, command + " cannot advance held reading")
+		assert_eq(profile.get_profile_snapshot(), profile_before, command + " cannot mutate held preferences or History")
+		assert_false(caption._history_open)
+		assert_false(caption._load_pending)
 	assert_false(caption.caption_text.is_processing())
 	assert_false(bridge.can_auto_advance_current_line())
 	# Longer than the default Auto delay; this checkpoint is an authored control

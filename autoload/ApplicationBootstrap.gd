@@ -2904,10 +2904,10 @@ func close_scene_computer(host: Control) -> Dictionary:
 	return {"ok": true}
 
 func open_scene_settings(host: Control) -> Dictionary:
-	if not _scene_host_admitted(host): return _failure(&"scene_host_unavailable", "")
-	var closed: Dictionary = close_scene_computer(host)
-	if not closed.get("ok", false): return closed
-	return await _target(&"SceneRouter")._production_pause.open_scene_settings()
+	var opened := open_scene_apps(host)
+	if not opened.get("ok", false): return opened
+	var desktop: Control = host.get_computer_mount().get_node("SceneComputerDesktop")
+	return desktop.open_app(&"settings")
 
 func open_scene_backup(host: Control, mode: String) -> Dictionary:
 	if not _scene_host_admitted(host): return _failure(&"scene_host_unavailable", "")
@@ -2946,6 +2946,9 @@ func _prepare_scene_desktop_app(app_id: StringName, app: Control, ports: Diction
 	if not configuration.get("ok", false): return configuration
 	var palette: StringName = &"midnight" if configuration.value.dark_mode else &"after_hours"
 	match app_id:
+		&"settings":
+			var configured: Dictionary = app.configure_scene_run_presentation(palette)
+			return app.get_desktop_ready_result() if configured.get("ok", false) else configured
 		&"contacts": return app.configure_scene_presentation(ports.contacts, locale, profile, palette)
 		&"shop": return app.configure_scene_catalog(ports.shop, locale, profile, palette)
 		&"minesweeper": return app.configure_scene_presentation(ports.panel, locale, profile, _target(&"InputManager"), palette)
@@ -3026,7 +3029,6 @@ func _open_scene_external_app(app_id: StringName, host: Control) -> Dictionary:
 		if _target(&"GameState").capture_scene_challenge_command().get("ok", false):
 			return open_scene_computer(host)
 		return host.get_computer_mount().get_node("SceneComputerDesktop").open_app(app_id)
-	if app_id == &"settings": return await open_scene_settings(host)
 	if app_id == &"backup": return await open_scene_backup(host, "backup")
 	if app_id != &"logout" or not _scene_host_admitted(host): return _failure(&"scene_host_unavailable", "")
 	var closed := close_scene_computer(host)
