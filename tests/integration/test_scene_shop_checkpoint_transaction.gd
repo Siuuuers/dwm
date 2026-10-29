@@ -143,22 +143,57 @@ func test_shop_live_purchase_custody_duplicate_and_manual_save() -> void:
 	assert_eq(persisted.gameplay, after.gameplay)
 	assert_false(persisted.has("command_receipts"), "save omits the process-local duplicate cache")
 	assert_false(storage.exists("autosave.json"), "manual Save does not create an Autosave")
-	var backup: RefCounted = preload("res://scripts/application/backup/BackupPresentationPort.gd").new()
-	if not _ok(backup.configure(saves, "title")): return
-	var prepared_load: Dictionary = backup.prepare_action("load", "slot:1")
+	var slot_hash := FileAccess.get_sha256("user://saves/slot_1.json")
+	# A live caption loads through its native Pause-owned Backup handoff.
+	var load_button: Control = _controls(get_tree().current_scene, "Load")
+	var deadline := Time.get_ticks_msec() + 10000
+	await RenderingServer.frame_post_draw
+	while not load_button._admitted() and Time.get_ticks_msec() < deadline:
+		await RenderingServer.frame_post_draw
+	assert_true(load_button._admitted(), "rendered Load rail admits a fresh press")
+	if not load_button._admitted(): return
+	await _click(load_button)
+	var pause: Node = get_node("/root/SceneRouter")._production_pause
+	assert_true(pause.can_load_backup(), str(pause.last_result))
+	if not pause.can_load_backup(): return
+	var prepared_load: Dictionary = pause._backup_port.prepare_action("load", "slot:1")
 	if not _ok(prepared_load): return
-	var loaded: Dictionary = backup.commit_action(prepared_load.value.token)
-	assert_eq(loaded.get("code"), &"scene_activation_pending", str(loaded))
-	if loaded.get("code") != &"scene_activation_pending" or not await _await_ready(): return
+	assert_true(prepared_load.value.confirmation_required)
+	ready_count = 0
+	var loaded: Dictionary = await pause._backup_port.commit_action(prepared_load.value.token)
+	if not _ok(loaded) or not await _await_ready(): return
+	assert_eq(ready_count, 1, "one Ready belongs to this Load")
+	assert_false(pause.surface.visible)
+	assert_eq(FileAccess.get_sha256("user://saves/slot_1.json"), slot_hash)
 	if not await _wait_line("scene.test.a", "line.scene.test.a.one"): return
 	assert_eq(game.inventory.get("crystal_stutters"), 1, "manual Load retains cosmetic ownership")
 	var second_purchase: Callable = _shop_command("crystal_stutters")
 	if second_purchase.is_valid(): assert_false(second_purchase.call().get("ok", false), "Load does not re-enable owned cosmetic")
+	# Retire the live run through the existing Logout confirmation before New Acc.
+	var host: Control = get_tree().current_scene
+	await _click(_controls(host, "CheckComputer"))
+	assert_true(host.is_computer_open())
+	if not host.is_computer_open(): return
+	var desktop: Control = host.get_computer_mount().get_node_or_null("SceneComputerDesktop")
+	assert_not_null(desktop)
+	if desktop == null: return
+	await _click(desktop.launcher_buttons[&"logout"])
+	assert_true(pause.surface.confirmation.is_visible_in_tree())
+	if not pause.surface.confirmation.is_visible_in_tree(): return
+	await _click(pause.surface.return_button)
+	for frame: int in 5: await get_tree().process_frame
+	assert_false(game.capture_live_session().value.active)
+	assert_eq(get_tree().current_scene.scene_file_path, "res://scenes/menu/MenuScene.tscn")
+	assert_eq(FileAccess.get_sha256("user://saves/slot_1.json"), slot_hash)
+	assert_false(storage.exists("autosave.json"), "Logout does not invent an Autosave")
+	ready_count = 0
 	var fresh: Dictionary = saves.start_scene_new_run("target_a", {"route_id": "scene",
 		"content_version": 1, "audio_context": get_node("/root/AudioManager").get_semantic_audio_context()})
 	assert_eq(fresh.get("code"), &"scene_activation_pending", str(fresh))
 	if fresh.get("code") != &"scene_activation_pending" or not await _await_ready(): return
+	assert_eq(ready_count, 1, "one Ready belongs to the new run")
 	assert_false(game.inventory.has("crystal_stutters"), "genuinely new run resets cosmetic ownership")
+	assert_eq(FileAccess.get_sha256("user://saves/slot_1.json"), slot_hash, "new run preserves the owned-cosmetic save")
 	_write_json("res://.godot/ci/scene-shop-transaction-proof.json", {"custody_faults": probe.hits,
 		"automatic_writes": fault.autosave_writes, "storage_preparations": lower_trap.calls.size(),
 		"accepted_receipt": receipt, "process_id": OS.get_process_id()})
