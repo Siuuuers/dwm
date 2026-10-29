@@ -1,0 +1,50 @@
+name: DTL pocket editor
+on:
+  pull_request:
+    paths: ['tools/dtl-editor/**', '.github/workflows/dtl-editor.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: dtl-editor-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+jobs:
+  editor:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install browser test dependency outside the project
+        run: |
+          npm install --prefix "$RUNNER_TEMP/editor-browser" --no-audit --no-fund playwright@1.62.1
+          "$RUNNER_TEMP/editor-browser/node_modules/.bin/playwright" install --with-deps chromium
+      - name: Exercise source editing and rendered import/export journey
+        timeout-minutes: 3
+        env:
+          NODE_PATH: ${{ runner.temp }}/editor-browser/node_modules
+          EDITOR_ARTIFACT_DIR: ${{ runner.temp }}/editor-evidence
+        run: node tools/dtl-editor/test.cjs --browser
+      - name: Install Godot 4.6.3
+        run: |
+          curl --fail --location --retry 3 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_linux.x86_64.zip' --output "$RUNNER_TEMP/godot.zip"
+          printf '%s  %s\n' 'd0bc2113065e481c9c2c2b2c37daa4e8be3fe9e27f0ab9ab0b6096e9a37907f3' "$RUNNER_TEMP/godot.zip" | sha256sum --check
+          unzip -q "$RUNNER_TEMP/godot.zip" -d "$RUNNER_TEMP/editor-godot"
+          chmod +x "$RUNNER_TEMP/editor-godot/Godot_v4.6.3-stable_linux.x86_64"
+          echo "GODOT=$RUNNER_TEMP/editor-godot/Godot_v4.6.3-stable_linux.x86_64" >> "$GITHUB_ENV"
+      - name: Accept the browser-exported timeline through the project exporter
+        run: |
+          cp "$RUNNER_TEMP/editor-evidence/Day1.dtl" dialogic/timelines/authored_week/Day1.dtl
+          "$GODOT" --headless --path . --import --log-file "$RUNNER_TEMP/editor-evidence/import.log"
+          "$GODOT" --headless --path . --script res://tools/authoring/ExportSevenDayRegistration.gd --log-file "$RUNNER_TEMP/editor-evidence/export.log"
+          "$GODOT" --headless --path . --script res://tools/authoring/ExportSevenDayRegistration.gd --log-file "$RUNNER_TEMP/editor-evidence/validate.log" -- --validate-seven-day-export
+          if grep -E 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' "$RUNNER_TEMP/editor-evidence/"*.log; then exit 1; fi
+          grep '^SEVEN_DAY_REGISTRATION_EXPORTED ' "$RUNNER_TEMP/editor-evidence/export.log"
+          grep '^SEVEN_DAY_EXPORT_VALIDATED ' "$RUNNER_TEMP/editor-evidence/validate.log"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: dtl-editor-evidence
+          path: ${{ runner.temp }}/editor-evidence
