@@ -1,8 +1,6 @@
 name: DTL-first authoring preflight
 
 on:
-  push:
-    branches: [ci/dtl-feedback-20261029]
   workflow_dispatch:
     inputs:
       check_generated:
@@ -174,7 +172,7 @@ jobs:
         run: |
           git diff --exit-code -- data/manifests/scene_story_registration.json data/manifests/dialogue_library_registration.json data/manifests/story_start.json evidence/phase_2r/runtime/game_state_surface.json evidence/phase_2r/runtime/save_manager_surface.json
       - name: Measure current reading with fresh isolated processes
-        if: ${{ inputs.reading_baseline == true || github.event_name == 'push' }}
+        if: ${{ inputs.reading_baseline == true }}
         timeout-minutes: 8
         shell: python
         run: |

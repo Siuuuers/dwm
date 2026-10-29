@@ -1,0 +1,103 @@
+{
+  "source_sha": "6fcb5a879992272ae63aad24d82940547bd03ed9",
+  "scope": "shipped Day1 New Acc and three ordinary next captions; fresh process/profile, OS caches uncontrolled; fast reveal; software rendered editor, not exported-player latency",
+  "repetitions": 3,
+  "actions": [
+    {
+      "operation": "fresh_process_new_acc",
+      "line_id": "line.Day1.one",
+      "input_to_first_draw_us": {
+        "samples": [
+          623362,
+          583951,
+          568565
+        ],
+        "median": 583951,
+        "min": 568565,
+        "max": 623362
+      },
+      "input_to_usable_us": {
+        "samples": [
+          638837,
+          599258,
+          585594
+        ],
+        "median": 599258,
+        "min": 585594,
+        "max": 638837
+      }
+    },
+    {
+      "operation": "warm_programme_next",
+      "line_id": "line.Day1.002",
+      "input_to_first_draw_us": {
+        "samples": [
+          48653,
+          48583,
+          60825
+        ],
+        "median": 48653,
+        "min": 48583,
+        "max": 60825
+      },
+      "input_to_usable_us": {
+        "samples": [
+          734287,
+          731701,
+          734121
+        ],
+        "median": 734121,
+        "min": 731701,
+        "max": 734287
+      }
+    },
+    {
+      "operation": "warm_programme_next",
+      "line_id": "line.Day1.003",
+      "input_to_first_draw_us": {
+        "samples": [
+          55949,
+          46870,
+          48587
+        ],
+        "median": 48587,
+        "min": 46870,
+        "max": 55949
+      },
+      "input_to_usable_us": {
+        "samples": [
+          407521,
+          401892,
+          388414
+        ],
+        "median": 401892,
+        "min": 388414,
+        "max": 407521
+      }
+    },
+    {
+      "operation": "warm_programme_next",
+      "line_id": "line.Day1.004",
+      "input_to_first_draw_us": {
+        "samples": [
+          49686,
+          49506,
+          50557
+        ],
+        "median": 49686,
+        "min": 49506,
+        "max": 50557
+      },
+      "input_to_usable_us": {
+        "samples": [
+          288459,
+          292825,
+          287518
+        ],
+        "median": 288459,
+        "min": 287518,
+        "max": 292825
+      }
+    }
+  ]
+}

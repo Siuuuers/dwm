@@ -166,3 +166,7 @@ or a speed threshold; update the probe deliberately when replacing that opening.
 Fresh processes do not establish cold OS caches. These software-rendered editor
 measurements do not establish exported-player, cross-entry transition or Load
 latency.
+
+[The initial observation](../../evidence/phase_2r/dtl_feedback_20261029/reading-baseline/summary.json)
+and [preparation provenance](../../evidence/phase_2r/dtl_feedback_20261029/preparation.json)
+retain the first baseline; they do not demonstrate a speedup.

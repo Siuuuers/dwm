@@ -1,0 +1,18 @@
+{
+  "preparation_run": 40870682330,
+  "preparation_job": 123436622426,
+  "preparation_source_sha": "6fcb5a879992272ae63aad24d82940547bd03ed9",
+  "preparation_artifact": 12896096510,
+  "artifact_sha256": "eb406947a4244101402f85aef81ba30e04fed24459df7c802f538e1a2ee25acc",
+  "result": "success",
+  "baseline_processes": 3,
+  "baseline_samples": 12,
+  "baseline_assertions_per_process": 49,
+  "limits": [
+    "Observation-only baseline, no measured before/after speedup.",
+    "Software-rendered Godot editor after bootstrap; fresh process/profile does not imply cold OS caches.",
+    "Next-caption usable time includes intentional reveal and input-delay behavior.",
+    "No cross-entry, Load, or exported-player latency measurement.",
+    "Representative final-caption screenshot retained from repetition 1; each raw report retains its original screenshot hash."
+  ]
+}
