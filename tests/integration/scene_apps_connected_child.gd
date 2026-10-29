@@ -59,9 +59,44 @@ func create_apps_scene() -> void:
 	var before: Dictionary = game.capture_run_snapshot_input().duplicate(true)
 	var reading: Dictionary = bridge.capture_reading_checkpoint(false).value.duplicate(true)
 	await _screenshot("apps-ordinary-caption")
+	var profile_before: Dictionary = profile.get_profile_snapshot().duplicate(true)
+	# History uses the real Pause owner and returns to the same physical command.
+	var caption: Node = _caption()
+	var history_button: Control = caption.transport_rail.get_node("History")
+	var history_before: Array = bridge.get_reading_history().value.captions.duplicate(true)
+	for keyboard_entry: bool in [true, false]:
+		if keyboard_entry:
+			history_button.grab_focus()
+			await _keyboard(KEY_ENTER, true)
+			await _keyboard(KEY_ENTER, false)
+		else:
+			await _click(history_button)
+		for frame: int in 3: await get_tree().process_frame
+		assert_true(caption._history_open)
+		assert_true(get_tree().paused, "History acquires production Pause custody")
+		var history: Control = caption._history_overlay
+		assert_true(history.is_visible_in_tree())
+		assert_true(history.reading_scroll.has_focus(), "History starts on its readable document")
+		await _keyboard(KEY_PAGEDOWN, true)
+		await _keyboard(KEY_PAGEDOWN, false)
+		await _keyboard(KEY_PAGEUP, true)
+		await _keyboard(KEY_PAGEUP, false)
+		assert_eq(bridge.get_reading_history().value.captions, history_before, "History paging does not publish or duplicate captions")
+		await _screenshot("apps-history-keyboard" if keyboard_entry else "apps-history-pointer")
+		if keyboard_entry:
+			await _keyboard(KEY_ESCAPE, true)
+			await _keyboard(KEY_ESCAPE, false)
+		else:
+			await _click(history.close_button)
+		for frame: int in 3: await get_tree().process_frame
+		assert_false(caption._history_open)
+		assert_false(get_tree().paused)
+		assert_true(history_button.has_focus(), "History close restores its invoking control")
+		assert_eq(bridge.capture_reading_checkpoint(false).value, reading, "History preserves the exact reading position")
+		assert_eq(game.capture_run_snapshot_input(), before, "History adds no gameplay consequence")
+		assert_eq(profile.get_profile_snapshot(), profile_before, "History adds no read marks or profile changes")
 	# The direct seventh command uses the existing desktop Settings, without
 	# entering Pause or admitting the available story Challenge.
-	var profile_before: Dictionary = profile.get_profile_snapshot().duplicate(true)
 	var blocked: Dictionary = bootstrap._application_gate.acquire(&"restore")
 	if not _ok(blocked): return
 	var refused: Dictionary = bootstrap.open_scene_settings(host)

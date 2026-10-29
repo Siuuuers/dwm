@@ -204,7 +204,8 @@ class ReadabilityCoverageTests(unittest.TestCase):
         matrix = re.search(r"needs.test-scope.outputs.readability == 'true' && '([^']+)'", WORKFLOW)
         self.assertIsNotNone(matrix)
         actual = json.loads(matrix[1])
-        required = {'scene_apps', 'scene_computer', 'self_talk_ui', 'scene_direct_controls',
+        required = {'backup_current_build',
+                    'scene_apps', 'scene_computer', 'self_talk_ui', 'scene_direct_controls',
                     'scene_day_history', 'current_quick_load',
                     'settings', 'minesweeper', 'shop', 'desktop', 'localization', 'reading_delivery',
                     'dialogue_library', 'bilingual_reading', 'self_talk_choices',
