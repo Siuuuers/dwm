@@ -52,6 +52,14 @@ func _desktop_samples(language: String) -> void:
 	main.get_node("%ComputerPanel").add_child(desktop)
 	viewport.add_child(main)
 	desktop._foreground_eligible = true
+	# The shared desktop owner and preferences must be bound before any app opens.
+	var host := SCHEDULE.HOST.new()
+	host.reset(1)
+	var shop_fixture := SHOP.FIXTURES.new()
+	var catalog := SHOP.CatalogFixture.new()
+	catalog.rows = shop_fixture._valid_rows()
+	shop_fixture.free()
+	check(desktop.configure_shop(catalog, locale, profile, host, 1).get("ok", false), "Shop catalog and shared desktop owners")
 	check(desktop.configure_backup_port(QUICK.RecordsFixture.new()).get("ok", false), "Backup records")
 	if check(desktop.open_app(&"backup").get("ok", false), "Backup open"):
 		await capture("backup", language, 100, main)
@@ -62,16 +70,10 @@ func _desktop_samples(language: String) -> void:
 		"audio": null, "tts": null, "input": null, "window": null})
 	desktop.app_window_host.add_child(settings)
 	desktop._cached_app_windows[&"settings"] = settings
-	if check(desktop.open_app(&"settings").get("ok", false), "Settings open"):
+	var settings_opened: Dictionary = desktop.open_app(&"settings")
+	if check(settings_opened.get("ok", false), "Settings open: " + str(settings_opened)):
 		await capture("settings", language, 100, main)
 	desktop.return_home()
-	var host := SCHEDULE.HOST.new()
-	host.reset(1)
-	var shop_fixture := SHOP.FIXTURES.new()
-	var catalog := SHOP.CatalogFixture.new()
-	catalog.rows = shop_fixture._valid_rows()
-	shop_fixture.free()
-	check(desktop.configure_shop(catalog, locale, profile, host, 1).get("ok", false), "Shop catalog")
 	var opened: Dictionary = desktop.open_app(&"shop")
 	if check(opened.get("ok", false), "Shop open"):
 		await settle()

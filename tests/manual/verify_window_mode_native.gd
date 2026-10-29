@@ -70,6 +70,12 @@ func _verify_port() -> void:
 		var usable := DisplayServer.screen_get_usable_rect(observed.value.screen)
 		_check(observed.value.mode == DisplayServer.WINDOW_MODE_WINDOWED, "borderless_not_fullscreen")
 		_check(observed.value.position == usable.position and observed.value.size == usable.size, "exact_current_usable_bounds")
+		var repeated: Dictionary = _port.apply_mode("borderless")
+		_check(repeated.get("ok", false), "repeat_borderless")
+		_check(_port.capture_output().get("value", {}) == observed.value, "repeat_borderless_exact_readback")
+		var unchanged: Dictionary = _port.restore_output(observed.value)
+		_check(unchanged.get("ok", false), "restore_matching_borderless")
+		_check(_port.capture_output().get("value", {}) == observed.value, "restore_matching_borderless_exact_readback")
 	else:
 		_check(false, "capture_borderless")
 	if _failed: return

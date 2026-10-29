@@ -94,6 +94,8 @@ func _read() -> Dictionary:
 		"position": _platform.window_get_position(MAIN), "size": _platform.window_get_size(MAIN)}
 
 func _write(target: Dictionary) -> void:
+	# Reapplying proven geometry must not disturb the native window.
+	if _read() == target: return
 	# Geometry setters are ignored in maximized/fullscreen mode. Restore that mode
 	# last; never overwrite unrelated flags (topmost, resizability, transparency).
 	_platform.window_set_mode(WINDOWED, MAIN)

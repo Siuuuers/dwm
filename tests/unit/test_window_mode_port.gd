@@ -72,6 +72,22 @@ func test_borderless_uses_current_screen_usable_bounds_and_preserves_foreign_fla
 		assert_eq(operation.back(), DisplayServer.MAIN_WINDOW_ID)
 		if operation[0] == "flag": assert_eq(operation[1], DisplayServer.WINDOW_FLAG_BORDERLESS)
 
+func test_repeated_borderless_apply_and_exact_restore_preserve_native_output() -> void:
+	var platform := Platform.new()
+	var port := PORT.new(platform)
+	assert_true(port.apply_mode("borderless").ok)
+	var snapshot: Dictionary = port.capture_output().value
+	platform.operations.clear()
+	assert_true(port.apply_mode("borderless").ok)
+	assert_true(port.restore_output(snapshot).ok)
+	assert_true(platform.operations.is_empty(), "matching geometry needs no native setters")
+	assert_eq(port.capture_output().value, snapshot)
+	platform.size.x -= 1
+	assert_false(port.output_matches("borderless"))
+	assert_true(port.apply_mode("borderless").ok)
+	assert_false(platform.operations.is_empty(), "actual geometry drift still requires repair")
+	assert_eq(port.capture_output().value, snapshot)
+
 func test_windowed_uses_baseline_without_fullscreen_and_readback_detects_external_drift() -> void:
 	var platform := Platform.new()
 	var port := PORT.new(platform)

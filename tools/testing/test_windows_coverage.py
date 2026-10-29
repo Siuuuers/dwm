@@ -112,7 +112,7 @@ class ReadabilityCoverageTests(unittest.TestCase):
     def test_complete_readability_slice_selects_its_coverage(self):
         paths = self.approved_paths()
         for candidate in (paths, {'scripts/settings/SettingsPreferenceRegistry.gd'},
-                          {'scripts/ui/GalleryScene.gd'}, {'tools/dtl-editor/index.html'}):
+                          {'scripts/display/WindowModePort.gd'}, {'scripts/ui/GalleryScene.gd'}, {'tools/dtl-editor/index.html'}):
             with self.subTest(paths=candidate):
                 result = select(candidate)
                 self.assertEqual(result['readability'], 'true')
@@ -150,6 +150,8 @@ class ReadabilityCoverageTests(unittest.TestCase):
             'tools/testing/test_windows_coverage.py',
         }
         self.assertEqual(select(paths)['readability'], 'true')
+        self.assertEqual(select(paths | {'scripts/display/WindowModePort.gd',
+                                       'tests/unit/test_window_mode_port.gd'})['readability'], 'true')
 
     def test_unreviewed_runtime_and_evidence_keep_broad_coverage(self):
         for extra in ('autoload/SaveManager.gd', 'autoload/ProfileManager.gd',
@@ -166,10 +168,11 @@ class ReadabilityCoverageTests(unittest.TestCase):
                              'save_ink', 'scene_transition', 'focused'):
                     self.assertEqual(result[mode], 'false', mode)
 
-    def test_runtime_allowlist_has_only_the_two_reviewed_owners(self):
+    def test_runtime_allowlist_has_only_the_three_reviewed_owners(self):
         runtime = {path for path in self.approved_paths()
                    if path.startswith(('autoload/', 'scripts/', 'scenes/', 'data/', 'dialogic/'))}
-        self.assertEqual(runtime, {'scripts/settings/SettingsPreferenceRegistry.gd',
+        self.assertEqual(runtime, {'scripts/display/WindowModePort.gd',
+                                   'scripts/settings/SettingsPreferenceRegistry.gd',
                                    'scripts/ui/GalleryScene.gd'})
 
     def test_readability_matrix_retains_required_registered_suites(self):

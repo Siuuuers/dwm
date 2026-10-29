@@ -257,6 +257,7 @@ jobs:
                       'evidence/readability/2026-10-30/gallery-150.png',
                       'evidence/readability/2026-10-30/editor-desktop.png',
                       'evidence/readability/2026-10-30/editor-mobile.png',
+                      'scripts/display/WindowModePort.gd',
                       'scripts/settings/SettingsPreferenceRegistry.gd',
                       'scripts/ui/GalleryScene.gd',
                       'tests/manual/verify_window_mode_native.gd',
@@ -268,6 +269,7 @@ jobs:
                       'tests/unit/test_settings_preference_registry.gd',
                       'tests/unit/test_settings_window_transactions.gd',
                       'tests/unit/test_window_mode_manager.gd',
+                      'tests/unit/test_window_mode_port.gd',
                       'tests/ui/render_readability_measurements.gd',
                       'tests/ui/render_ui_readability.gd',
                       'tests/ui/render_ui_readability.gd.uid',
@@ -280,6 +282,7 @@ jobs:
                       'tools/testing/test_windows_coverage.py',
                   }
                   readability = bool(paths) and paths <= readability_paths and bool(paths & {
+                      'scripts/display/WindowModePort.gd',
                       'scripts/settings/SettingsPreferenceRegistry.gd', 'scripts/ui/GalleryScene.gd',
                       'tests/ui/render_ui_readability.gd', 'tools/dtl-editor/index.html'})
                   # Bilingual projection changes reading semantics, not only visual layout.
