@@ -1112,19 +1112,18 @@ func _ensure_runtime_adapter(dialogic: Node) -> Dictionary:
 
 
 var _scene_control_audio_encounter := ""
-var _next_suppresses_sfx := false
 
 func _on_scene_audio_cues_requested(cues: Array, suppress_sfx: bool) -> void:
 	var game := get_node_or_null("/root/GameState")
 	if game == null: return
-	var applied: Dictionary = game.apply_scene_audio_cues(cues, suppress_sfx or _next_suppresses_sfx or _skip_audio_pending)
+	var applied: Dictionary = game.apply_scene_audio_cues(cues, suppress_sfx or _skip_audio_pending)
 	if not applied.ok: _runtime_adapter.halt_with_error(applied)
 
 func apply_scene_arrival_audio(cues: Array) -> Dictionary:
 	if cues.is_empty(): return {"ok": true}
 	var runtime := get_node_or_null("/root/Dialogic")
 	return get_node("/root/GameState").apply_scene_audio_cues(cues,
-		_next_suppresses_sfx or (runtime != null and runtime.Inputs.auto_skip.enabled))
+		(runtime != null and runtime.Inputs.auto_skip.enabled))
 
 ## A held control is crossed by its admitted command, not by native playback.
 ## Retain one activation key so a retry cannot repeat its one-shot sounds.
@@ -1148,7 +1147,7 @@ func apply_scene_control_audio(marker_id: String) -> Dictionary:
 	if encounter == _scene_control_audio_encounter: return {"ok": true}
 	var game := get_node_or_null("/root/GameState")
 	var runtime := get_node_or_null("/root/Dialogic")
-	var applied: Dictionary = game.apply_scene_audio_cues(cues, _next_suppresses_sfx or (runtime != null and runtime.Inputs.auto_skip.enabled))
+	var applied: Dictionary = game.apply_scene_audio_cues(cues, (runtime != null and runtime.Inputs.auto_skip.enabled))
 	if applied.ok: _scene_control_audio_encounter = encounter
 	return applied
 
@@ -2282,11 +2281,11 @@ func is_next_traversal_active() -> bool:
 	return _next_active
 
 
-func request_next(expected_frontier: Dictionary, suppress_sfx: bool = true) -> Dictionary:
+func request_next(expected_frontier: Dictionary) -> Dictionary:
 	# This owner survives native layout removal. Presenters subscribe to completion
 	# instead of retaining Node-owned await chains across their own destruction.
 	var retained_frontier := expected_frontier.duplicate(true)
-	var result: Dictionary = await _perform_next(retained_frontier, suppress_sfx)
+	var result: Dictionary = await _perform_next(retained_frontier)
 	if result.get("code") == &"reading_content_error" and is_inside_tree():
 		var bootstrap := get_node_or_null("/root/ApplicationBootstrap")
 		if bootstrap != null: bootstrap.show_content_error(result)
@@ -2295,11 +2294,10 @@ func request_next(expected_frontier: Dictionary, suppress_sfx: bool = true) -> D
 	return result
 
 
-func _perform_next(expected_frontier: Dictionary, suppress_sfx: bool = true) -> Dictionary:
+func _perform_next(expected_frontier: Dictionary) -> Dictionary:
 	if _next_admitting:
 		return {"ok": true, "code": &"coalesced"} if expected_frontier == _admitting_frontier else _command_failure(&"reading_next_command_conflict")
 	_next_admitting = true
-	_next_suppresses_sfx = suppress_sfx
 	_admitting_frontier = expected_frontier.duplicate(true)
 	var result: Dictionary
 	if has_reading_session() and _reading_session.family == "scene" and _reading_session.boundary == "control":
@@ -2314,7 +2312,6 @@ func _perform_next(expected_frontier: Dictionary, suppress_sfx: bool = true) -> 
 	else:
 		result = await _perform_caption_next(expected_frontier)
 	_next_admitting = false
-	_next_suppresses_sfx = false
 	_admitting_frontier = {}
 	return result
 

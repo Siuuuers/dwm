@@ -75,6 +75,8 @@ a cue after the destination label belongs to the arrival.
 
 For an existing registered control marker, place its cues between the label
 and its registered signal. Cues after that signal belong to the next caption.
+For a registered Finish, put the final music/SFX cues before its Finish signal;
+Finish leaves the passage, so a trailing Return is not another encounter.
 
 Music persists until another cue changes or stops it. Selecting the active ID
 again does not restart it; stop then play to restart. Explicit named-checkpoint
@@ -82,8 +84,8 @@ audio still overrides the previous selection, followed by any inline arrival cue
 Hidden transition preparation must not emit sounds.
 
 Manual reading and Auto play one-shot effects. Skip consumes them silently;
-supported Next control traversal also suppresses effects. Ordinary Scene captions
-retain their existing unavailable Next behavior. A genuine later
+Next retains its existing stop rules: reached destination cues play normally;
+ordinary Scene captions retain their existing unavailable Next behavior. A genuine later
 story encounter can play the sound again. Load, language changes, repaint,
 History, library browsing and Settings return do not replay crossed effects.
 

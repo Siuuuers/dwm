@@ -364,12 +364,12 @@ func _before_normal_accept() -> bool:
 		_set_review_offset(0)
 		return false
 	if _presented_line.get("value", {}).get("kind") == "scene_optional_control":
-		if _next_admitted(): _request_reading_command(&"next", true, false)
+		if _next_admitted(): _request_reading_command(&"next", true)
 		return false
 	if not _acknowledge_visible_line(): return false
 	if is_instance_valid(_transport_bridge) and _transport_bridge.has_method("capture_scene_pending_marker") \
 			and _transport_bridge.capture_scene_pending_marker().get("ok", false):
-		if _next_admitted(): _request_reading_command(&"next", true, false)
+		if _next_admitted(): _request_reading_command(&"next", true)
 		# The acknowledged marker owner handles this accept; native labels/Return
 		# must never run independently of its saved receipt.
 		return false
@@ -772,11 +772,11 @@ func _on_skip_requested() -> void:
 	if _transport_admitted():
 		_request_reading_command(&"skip", not skip_controller.is_skip_active())
 
-func _request_reading_command(kind: StringName, target: bool, suppress_sfx: bool = true) -> void:
+func _request_reading_command(kind: StringName, target: bool) -> void:
 	if not _recovery_bound or not _reading_recovery.is_empty() or _next_pending: return
 	if kind != &"next": _cancel_speech()
 	var focused := get_viewport().gui_get_focus_owner()
-	var request := {"kind": kind, "target": target, "suppress_sfx": suppress_sfx, "frontier": _presented_line.duplicate(true),
+	var request := {"kind": kind, "target": target, "frontier": _presented_line.duplicate(true),
 		"profile_id": _reading_profile.get_instance_id(), "bridge_id": _transport_bridge.get_instance_id(),
 		"profile_revision": _reading_profile_revision(), "owner_generation": _reading_owner_generation,
 		"runtime": _pause_runtime_identity(), "focus_id": focused.get_instance_id() if focused != null else 0,
@@ -809,7 +809,7 @@ func _execute_reading_command(request: Dictionary, retry: bool = false) -> Dicti
 	_sync_transport()
 	# Bridge lifetime spans native Return. No presenter-owned coroutine may await
 	# it: the native layout can be removed and freed before durable settlement.
-	_transport_bridge.call("request_next", request.frontier.duplicate(true), request.get("suppress_sfx", true))
+	_transport_bridge.call("request_next", request.frontier.duplicate(true))
 	return {"pending": true}
 
 func _retire_next_request() -> void:

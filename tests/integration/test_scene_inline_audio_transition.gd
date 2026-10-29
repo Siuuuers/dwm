@@ -117,9 +117,11 @@ func test_checkpoint_then_inline_selection_is_saved_before_destination_audio() -
 	assert_eq(_starts("SFX"), source_sfx + 2, "new playable encounter emits its effect")
 	if not await _load_inline(3, false): return
 	assert_eq(_starts("SFX"), source_sfx + 2, "Load does not replay entry effects")
-	await _accept()
+	assert_true(_caption()._next_admitted(), "adjacent playable marker is a supported Next destination")
+	await _click(_caption().transport_rail.get_node("Next"))
 	assert_eq(bridge.capture_reading_checkpoint(false).value.reading_session.boundary, "control")
-	assert_eq(_starts("SFX"), source_sfx + 3, "crossing the same marker after Load is a new encounter")
+	assert_eq(_starts("SFX"), source_sfx + 3,
+		"Next crosses this marker directly without bypassing a caption, so its new encounter plays SFX")
 	await _screenshot("inline-audio-checkpoint")
 	_write_json("res://.godot/ci/inline-audio-transition.json", {"precommit": before_commit,
 		"starts": observed.starts, "renderer": DisplayServer.get_name()})
