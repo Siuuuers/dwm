@@ -225,6 +225,7 @@ func _ready() -> void:
 	desktop_canvas.move_child(cosmetic_overlay, notification_layer.get_index())
 	cosmetic_overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	cosmetic_overlay.draw.connect(_draw_cosmetics)
+	status_label.visibility_changed.connect(_refresh_cosmetics)
 	resized.connect(queue_redraw)
 	resized.connect(_layout_desktop)
 	_layout_desktop()
@@ -1348,24 +1349,62 @@ func _draw_cosmetics() -> void:
 	var owned: Dictionary = _cosmetic_inventory_owner.inventory
 	var edge := theme.get_color("structure", "Desktop")
 	var light := theme.get_color("ink", "Desktop")
-	var accent := theme.get_color("focus", "Desktop")
+	var face := theme.get_color("face", "Desktop")
+	var accent := theme.get_color("focus", "Desktop").lerp(edge, 0.6)
 	var width := desktop_canvas.size.x
 	var bottom := desktop_canvas.size.y - 64.0 - _quick_status_band_height()
-	# Only the outer eight pixels decorate apps; no content or input geometry moves.
+	var home := _active_id == &""
+	# App decoration stays in the top/left eight pixels, clear of the right scroll rail.
 	if int(owned.get("crystal_stutters", 0)) > 0:
-		for origin: Vector2 in [Vector2(4, 4), Vector2(width - 44, 4)]:
-			cosmetic_overlay.draw_line(origin, origin + Vector2(36, 0), light, 1)
-			cosmetic_overlay.draw_line(origin + Vector2(8, 3), origin + Vector2(28, 3), edge, 1)
-		cosmetic_overlay.draw_line(Vector2(4, 4), Vector2(4, 36), light, 1)
-		cosmetic_overlay.draw_line(Vector2(width - 4, 4), Vector2(width - 4, 36), light, 1)
+		for origin: Vector2 in [Vector2(5, 2), Vector2(width - 78, 2)]:
+			for shard: int in 3:
+				var base := origin + Vector2(shard * 19, 0)
+				var depth := (16.0 - shard * 3.0) if home else (5.0 - shard)
+				var tip := base + Vector2(8, depth)
+				var ridge := base + Vector2(13, 3 if home else 1)
+				var end := base + Vector2(23, 0)
+				cosmetic_overlay.draw_colored_polygon(PackedVector2Array([base, tip, ridge]), edge.lerp(light, 0.18))
+				cosmetic_overlay.draw_colored_polygon(PackedVector2Array([ridge, tip, end]), face.lerp(light, 0.3))
+				cosmetic_overlay.draw_line(base, tip, light, 1, true)
+				cosmetic_overlay.draw_line(tip, ridge, light.lerp(edge, 0.45), 1, true)
 	if int(owned.get("inked_silk_string", 0)) > 0:
-		cosmetic_overlay.draw_line(Vector2(2, 44), Vector2(2, bottom - 4), edge, 1)
-		cosmetic_overlay.draw_line(Vector2(2, bottom - 4), Vector2(width - 12, bottom - 4), edge, 1)
-		cosmetic_overlay.draw_circle(Vector2(5, bottom - 7), 2, accent, false, 1)
-	if _active_id == &"" and int(owned.get("letter_with_wax_seal", 0)) > 0:
-		var paper := Rect2(width - 60, bottom - 54, 36, 26)
-		cosmetic_overlay.draw_rect(paper, theme.get_color("face", "Desktop"))
+		var thread := PackedVector2Array()
+		var shadow := PackedVector2Array()
+		var start := Vector2(12 if home else 3, 46)
+		var finish := Vector2(12 if home else 3, bottom - 18)
+		for step: int in 25:
+			var t := step / 24.0
+			var point := start.bezier_interpolate(Vector2(3, bottom * 0.35), Vector2(18 if home else 5, bottom * 0.7), finish, t)
+			thread.append(point)
+			shadow.append(point + Vector2(1, 1))
+		cosmetic_overlay.draw_polyline(shadow, face.darkened(0.25), 3, true)
+		cosmetic_overlay.draw_polyline(thread, edge, 2, true)
+		cosmetic_overlay.draw_polyline(thread, light.lerp(edge, 0.6), 1, true)
+		var knot := 3.0 if home else 1.5
+		cosmetic_overlay.draw_arc(finish + Vector2(0, -knot), knot, 0, TAU, 12, edge, 2, true)
+		cosmetic_overlay.draw_line(finish, finish + Vector2(knot, 7), light.lerp(edge, 0.6), 1, true)
+	# The Home feedback band and failure text retain their unobstructed space.
+	if home and not status_label.visible and int(owned.get("letter_with_wax_seal", 0)) > 0:
+		var paper := Rect2(width - 100, bottom - 140, 72, 44)
+		if paper.position.y < icon_grid.get_rect().end.y + 12: return
+		var top_left := paper.position
+		var top_right := Vector2(paper.end.x, paper.position.y)
+		var bottom_left := Vector2(paper.position.x, paper.end.y)
+		var fold := paper.position + Vector2(36, 27)
+		cosmetic_overlay.draw_rect(Rect2(paper.position + Vector2(2, 3), paper.size), face.darkened(0.3))
+		cosmetic_overlay.draw_rect(paper, face.lerp(light, 0.68))
+		cosmetic_overlay.draw_colored_polygon(PackedVector2Array([bottom_left, fold, paper.end]), face.lerp(light, 0.45))
+		cosmetic_overlay.draw_line(bottom_left, fold, edge, 1)
+		cosmetic_overlay.draw_line(paper.end, fold, edge, 1)
+		cosmetic_overlay.draw_colored_polygon(PackedVector2Array([top_left, top_right, fold]), face.lerp(light, 0.8))
+		cosmetic_overlay.draw_polyline(PackedVector2Array([top_left, fold, top_right]), edge, 1, true)
 		cosmetic_overlay.draw_rect(paper, edge, false, 1)
-		cosmetic_overlay.draw_line(paper.position, paper.get_center(), edge, 1)
-		cosmetic_overlay.draw_line(Vector2(paper.end.x, paper.position.y), paper.get_center(), edge, 1)
-		cosmetic_overlay.draw_circle(paper.get_center(), 4, accent)
+		var seal := PackedVector2Array()
+		var center := fold + Vector2(0, 1)
+		for step: int in 20:
+			var angle := TAU * step / 20.0
+			seal.append(center + Vector2.from_angle(angle) * (7.5 + 0.6 * sin(angle * 3)))
+		cosmetic_overlay.draw_circle(center + Vector2(1, 1), 8, edge)
+		cosmetic_overlay.draw_colored_polygon(seal, accent)
+		cosmetic_overlay.draw_arc(center, 5, PI, TAU, 12, light.lerp(accent, 0.65), 1, true)
+		cosmetic_overlay.draw_arc(center, 4, 0, TAU, 16, edge, 1, true)

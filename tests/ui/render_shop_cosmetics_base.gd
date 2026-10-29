@@ -60,9 +60,9 @@ func _cosmetic_pixels(shell: Control) -> Dictionary:
 	var canvas: Control = shell.desktop_canvas
 	var bottom: float = canvas.size.y - 64.0 - shell._quick_status_band_height()
 	# Separate regions avoid app text, balances, focus and other decorations.
-	var regions := {"crystal_stutters": Rect2(3, 3, 39, 7),
-		"inked_silk_string": Rect2(0, 48, 5, 40),
-		"letter_with_wax_seal": Rect2(canvas.size.x - 61, bottom - 55, 38, 28)}
+	var regions := {"crystal_stutters": Rect2(3, 1, 64, 19),
+		"inked_silk_string": Rect2(1, 48, 20, 40),
+		"letter_with_wax_seal": Rect2(canvas.size.x - 101, bottom - 141, 76, 49)}
 	var hashes := {}
 	for item_id: String in COSMETICS:
 		var region: Rect2 = get_tree().root.get_final_transform() * canvas.get_global_transform_with_canvas() * regions[item_id]
