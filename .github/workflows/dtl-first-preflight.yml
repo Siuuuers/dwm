@@ -64,11 +64,14 @@ jobs:
           "$GODOT_CONSOLE_PATH" --headless --path "$GITHUB_WORKSPACE" --import --log-file "$GITHUB_WORKSPACE/.godot/ci/dtl-first/import.log"
           if grep -E 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' .godot/ci/dtl-first/import.log; then exit 1; fi
           git restore -- project.godot
-      - name: Install software display for rendered acceptance
+      - name: Install software display and native speech for rendered acceptance
         run: |
           sudo sed -i 's|http://azure.archive.ubuntu.com/ubuntu|https://archive.ubuntu.com/ubuntu|g' /etc/apt/apt-mirrors.txt
           sudo apt-get update
-          sudo apt-get install --yes --no-install-recommends xvfb xauth libgl1-mesa-dri
+          sudo apt-get install --yes --no-install-recommends xvfb xauth libgl1-mesa-dri pulseaudio pulseaudio-utils libspeechd2 speech-dispatcher speech-dispatcher-audio-plugins speech-dispatcher-espeak-ng
+      - name: Start and verify native Linux speech service
+        timeout-minutes: 2
+        run: bash tools/testing/start_cloud_speech.sh
       - name: Export deterministically and validate in a fresh process
         id: export_story
         run: |
@@ -165,6 +168,7 @@ jobs:
             tests/**/*.gd.uid
             tools/authoring/*.gd.uid
             .godot/ci/dtl-first/
+            .godot/ci/cloud-speech/
             .godot/ci/inline-presentation*.json
             .godot/ci/computer-inline-presentation*.png
           include-hidden-files: true
