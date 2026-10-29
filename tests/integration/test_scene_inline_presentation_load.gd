@@ -62,5 +62,21 @@ func test_fresh_load_restores_composition_and_music_without_story_commands() -> 
 	assert_eq(FileAccess.get_sha256(legacy_path), legacy_sha)
 	assert_eq(_autosave_sha256(), proof.value.autosave_sha256)
 	await _screenshot("compatible-presentation-default-loaded")
+	# The next genuine encounter uses the installed base as its live source and
+	# checkpoints that composition together with the newly selected music.
+	if not await _advance_to("line.scene.test.a.three"): return
+	_assert_art("template.background", [])
+	_assert_selection("TEST.inline.a")
+	assert_eq(files.autosave_writes, 1, "only the newly reached checkpoint writes Autosave")
+	var resumed: Dictionary = PARSER.parse_object(FileAccess.get_file_as_string("user://saves/autosave.json"))
+	if not _ok(resumed): return
+	assert_eq(resumed.value.current_snapshot.snapshot.scene.presentation.background, "template.background")
+	assert_eq(resumed.value.current_snapshot.snapshot.scene.presentation.overlays, [])
+	assert_eq(resumed.value.current_snapshot.snapshot.scene.presentation.checkpoint_id, "template.checkpoint")
+	assert_eq(resumed.value.current_snapshot.snapshot.scene.music_plan_id, "TEST.inline.a")
+	assert_eq(resumed.value.current_snapshot.snapshot.narrative_checkpoint.reading_session.position_id,
+		"line.scene.test.a.three")
+	assert_eq(FileAccess.get_sha256(legacy_path), legacy_sha)
+	assert_eq(_starts("SFX"), 0)
 	storage._file_ops = original_files
 	ART.reload_placements()
