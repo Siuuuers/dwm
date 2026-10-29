@@ -1,0 +1,184 @@
+name: DTL-first authoring preflight
+
+on:
+  workflow_dispatch:
+    inputs:
+      check_generated:
+        description: Require committed generated outputs to be current
+        type: boolean
+        default: false
+  pull_request:
+    paths:
+      - '.github/workflows/dtl-first-preflight.yml'
+      - 'tools/authoring/**'
+      - 'autoload/**'
+      - 'scripts/**'
+      - 'data/manifests/**'
+      - 'dialogic/timelines/authored_week/**'
+      - 'tests/integration/**'
+      - 'tests/unit/test_dtl_*.gd'
+      - 'tests/unit/test_scene_art_cue_compiler.gd'
+      - 'tests/unit/test_scene_inline_presentation.gd'
+
+permissions:
+  contents: read
+concurrency:
+  group: dtl-first-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  authoring:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      LIBGL_ALWAYS_SOFTWARE: '1'
+      XDG_DATA_HOME: ${{ github.workspace }}/.godot/phase2r_tests/dtl-first/import/data
+      DWM_TEST_ROOT: ${{ github.workspace }}/.godot/phase2r_tests/dtl-first/import/test-root
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: true
+      - name: Prepare disposable checkout
+        run: |
+          git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
+          git submodule foreach --recursive 'true'
+          mkdir -p .godot/ci/dtl-first
+          git rev-parse HEAD > .godot/ci/dtl-first/candidate-sha.txt
+      - name: Install Godot 4.6.3 standard
+        run: |
+          archive="$RUNNER_TEMP/godot-4.6.3-linux.zip"
+          curl --fail --location --retry 3 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_linux.x86_64.zip' --output "$archive"
+          printf '%s  %s\n' 'd0bc2113065e481c9c2c2b2c37daa4e8be3fe9e27f0ab9ab0b6096e9a37907f3' "$archive" | sha256sum --check
+          unzip -q "$archive" -d "$RUNNER_TEMP/godot-4.6.3-linux"
+          editor="$RUNNER_TEMP/godot-4.6.3-linux/Godot_v4.6.3-stable_linux.x86_64"
+          chmod +x "$editor"
+          echo "GODOT_CONSOLE_PATH=$editor" >> "$GITHUB_ENV"
+          "$editor" --version
+      - name: Import once
+        id: import_project
+        timeout-minutes: 8
+        run: |
+          mkdir -p "$XDG_DATA_HOME" "$DWM_TEST_ROOT"
+          "$GODOT_CONSOLE_PATH" --headless --path "$GITHUB_WORKSPACE" --import --log-file "$GITHUB_WORKSPACE/.godot/ci/dtl-first/import.log"
+          if grep -E 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' .godot/ci/dtl-first/import.log; then exit 1; fi
+          git restore -- project.godot
+      - name: Install software display and native speech for rendered acceptance
+        run: |
+          sudo sed -i 's|http://azure.archive.ubuntu.com/ubuntu|https://archive.ubuntu.com/ubuntu|g' /etc/apt/apt-mirrors.txt
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends xvfb xauth libgl1-mesa-dri pulseaudio pulseaudio-utils libspeechd2 speech-dispatcher speech-dispatcher-audio-plugins speech-dispatcher-espeak-ng
+      - name: Start and verify native Linux speech service
+        timeout-minutes: 2
+        run: bash tools/testing/start_cloud_speech.sh
+      - name: Export deterministically and validate in a fresh process
+        id: export_story
+        run: |
+          export XDG_DATA_HOME="$GITHUB_WORKSPACE/.godot/phase2r_tests/dtl-first/export/data"
+          export DWM_TEST_ROOT="$GITHUB_WORKSPACE/.godot/phase2r_tests/dtl-first/export/test-root"
+          mkdir -p "$XDG_DATA_HOME" "$DWM_TEST_ROOT"
+          timeout 180s "$GODOT_CONSOLE_PATH" --headless --path "$GITHUB_WORKSPACE" --log-file "$GITHUB_WORKSPACE/.godot/ci/dtl-first/export.log" -s res://tools/authoring/ExportSevenDayRegistration.gd
+          sha256sum data/manifests/scene_story_registration.json data/manifests/dialogue_library_registration.json data/manifests/story_start.json > .godot/ci/dtl-first/generated.sha256
+          timeout 180s "$GODOT_CONSOLE_PATH" --headless --path "$GITHUB_WORKSPACE" --log-file "$GITHUB_WORKSPACE/.godot/ci/dtl-first/export-repeat.log" -s res://tools/authoring/ExportSevenDayRegistration.gd
+          sha256sum --check .godot/ci/dtl-first/generated.sha256
+          timeout 180s "$GODOT_CONSOLE_PATH" --headless --path "$GITHUB_WORKSPACE" --log-file "$GITHUB_WORKSPACE/.godot/ci/dtl-first/export-check.log" -s res://tools/authoring/ExportSevenDayRegistration.gd -- --validate-seven-day-export
+          if grep -E 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' .godot/ci/dtl-first/export*.log; then exit 1; fi
+          grep '^SEVEN_DAY_REGISTRATION_EXPORTED ' .godot/ci/dtl-first/export.log
+          grep '^SEVEN_DAY_EXPORT_VALIDATED ' .godot/ci/dtl-first/export-check.log
+      - name: Record stale generated output
+        run: |
+          git diff --name-only -- data/manifests/scene_story_registration.json data/manifests/dialogue_library_registration.json data/manifests/story_start.json > .godot/ci/dtl-first/stale-generated.txt
+          if [ -s .godot/ci/dtl-first/stale-generated.txt ]; then
+            echo '::notice::Generated registration changed; retain the artifact before final acceptance.'
+            cat .godot/ci/dtl-first/stale-generated.txt
+          fi
+      - name: Require current committed output for final acceptance
+        if: ${{ github.event_name == 'pull_request' || inputs.check_generated == true }}
+        run: git diff --exit-code -- data/manifests/scene_story_registration.json data/manifests/dialogue_library_registration.json data/manifests/story_start.json
+      - name: Test authoring and rendered presentation with isolated storage
+        shell: python
+        run: |
+          import json, os, pathlib, re, subprocess, xml.etree.ElementTree as ET
+          root = pathlib.Path.cwd()
+          output = root / '.godot/ci/dtl-first'
+          groups = {
+              'authoring': ['tests/unit/test_dtl_story_source.gd', 'tests/unit/test_dtl_library_authoring.gd', 'tests/unit/test_dtl_replacement_export.gd'],
+              'presentation': ['tests/unit/test_scene_art_cue_compiler.gd', 'tests/unit/test_scene_inline_presentation.gd', 'tests/unit/test_scene_audio_cue_compiler.gd'],
+              'regressions': ['tests/unit/test_scene_save_schema.gd', 'tests/unit/test_art_manifest.gd', 'tests/unit/test_art_placements.gd', 'tests/unit/test_dialogue_library_authoring.gd'],
+              'runtime': ['tests/integration/test_scene_inline_presentation.gd'],
+              'runtime-load': ['tests/integration/test_scene_inline_presentation_load.gd'],
+          }
+          evidence = []
+          for name, scripts in groups.items():
+              env = os.environ.copy()
+              for key, folder in [('XDG_DATA_HOME', 'data'), ('DWM_TEST_ROOT', 'test-root')]:
+                  storage = 'runtime' if name == 'runtime-load' else name
+                  path = root / '.godot/phase2r_tests/dtl-first' / storage / folder
+                  path.mkdir(parents=True, exist_ok=name == 'runtime-load')
+                  env[key] = str(path)
+              report = output / (name + '.xml')
+              log = output / (name + '.log')
+              display = ['xvfb-run', '-a', env['GODOT_CONSOLE_PATH'], '--rendering-method', 'gl_compatibility', '--audio-driver', 'Dummy'] if name.startswith('runtime') else [env['GODOT_CONSOLE_PATH'], '--headless']
+              subprocess.run(display + ['--path', str(root),
+                  '--log-file', str(log), '-s', 'res://addons/gut/gut_cmdln.gd', '-gconfig=',
+                  '-gtest=' + ','.join('res://' + script for script in scripts), '-gexit', '-glog=1',
+                  '-gjunit_xml_file=res://.godot/ci/dtl-first/' + name + '.xml'], env=env, check=True, timeout=300)
+              assert not re.search(r'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character', log.read_text()), log
+              results = ET.parse(report)
+              assert not results.findall('.//failure') and not results.findall('.//error') and not results.findall('.//skipped'), name
+              for script in scripts:
+                  expected = sorted(re.findall(r'^func (test_\w+)\(', (root / script).read_text(), re.M))
+                  cases = [case for case in results.findall('.//testcase') if case.get('classname') == script]
+                  assert expected and sorted(case.get('name') for case in cases) == expected, script
+                  assert all(case.get('status') == 'pass' and int(case.get('assertions', '0')) > 0 for case in cases), script
+                  evidence.extend({'script': script, 'method': case.get('name'), 'assertions': int(case.get('assertions'))} for case in cases)
+          (output / 'test-acceptance.json').write_text(json.dumps(evidence, indent=2) + '\n')
+      - name: Verify Gallery replay caption collection
+        timeout-minutes: 5
+        env:
+          XDG_DATA_HOME: ${{ github.workspace }}/.godot/phase2r_tests/dtl-first/gallery-collection/data
+          DWM_TEST_ROOT: ${{ github.workspace }}/.godot/phase2r_tests/dtl-first/gallery-collection/test-root
+          DWM_GALLERY_COLLECTION_OUTPUT: ${{ github.workspace }}/.godot/ci/dtl-first/gallery-collection
+        run: |
+          mkdir -p "$DWM_GALLERY_COLLECTION_OUTPUT" "$XDG_DATA_HOME" "$DWM_TEST_ROOT"
+          timeout 240s xvfb-run -a "$GODOT_CONSOLE_PATH" --path "$GITHUB_WORKSPACE" --rendering-method gl_compatibility --audio-driver Dummy --log-file "$DWM_GALLERY_COLLECTION_OUTPUT/render.log" --script res://tests/ui/render_gallery_caption_collection.gd -- --phase2r-bootstrap-mode=final
+          if grep -E 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' "$DWM_GALLERY_COLLECTION_OUTPUT/render.log"; then exit 1; fi
+          grep '^GALLERY_CAPTION_COLLECTION_RENDER_VERIFIED' "$DWM_GALLERY_COLLECTION_OUTPUT/render.log"
+      - name: Generate and check public inventories
+        if: ${{ !cancelled() && steps.import_project.outcome == 'success' && steps.export_story.outcome == 'success' }}
+        run: |
+          export XDG_DATA_HOME="$GITHUB_WORKSPACE/.godot/phase2r_tests/dtl-first/inventory/data"
+          export DWM_TEST_ROOT="$GITHUB_WORKSPACE/.godot/phase2r_tests/dtl-first/inventory/test-root"
+          mkdir -p "$XDG_DATA_HOME" "$DWM_TEST_ROOT"
+          for target in game_state save_manager; do
+            owner=GameState
+            if [ "$target" = save_manager ]; then owner=SaveManager; fi
+            for mode in generate check; do
+              args=()
+              if [ "$mode" = check ]; then args+=(--check); fi
+              log="$GITHUB_WORKSPACE/.godot/ci/dtl-first/$target-$mode.log"
+              timeout 180s "$GODOT_CONSOLE_PATH" --headless --path "$GITHUB_WORKSPACE" --log-file "$log" -s res://tools/runtime/generate_public_surface_inventory.gd -- \
+                "--script=res://autoload/$owner.gd" "--required=res://evidence/phase_2r/runtime/${target}_required_surface.json" \
+                "--output=res://evidence/phase_2r/runtime/${target}_surface.json" \
+                --search-root=res://autoload --search-root=res://scripts --search-root=res://scenes --search-root=res://tests "${args[@]}"
+              if grep -E 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' "$log"; then exit 1; fi
+              grep '^SURFACE_INVENTORY: PASS$' "$log"
+            done
+          done
+      - name: Retain generated output and exact candidate evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dtl-first-preflight-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            data/manifests/scene_story_registration.json
+            data/manifests/dialogue_library_registration.json
+            data/manifests/story_start.json
+            evidence/phase_2r/runtime/*surface.json
+            tests/**/*.gd.uid
+            tools/authoring/*.gd.uid
+            .godot/ci/dtl-first/
+            .godot/ci/cloud-speech/
+            .godot/ci/inline-presentation*.json
+            .godot/ci/computer-inline-presentation*.png
+          include-hidden-files: true
+          retention-days: 7

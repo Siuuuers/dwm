@@ -2,6 +2,8 @@
 return
 
 label Day6
+# story entry day=6
+# art scene draft.reading.late
 \At the top of the stairs, my right hand rises to knock on the flat door; my left hand holds the closed long black umbrella. #id:line.Day6.one
 \Just before my knuckles reach the wood, the door swings inward. #id:line.Day6.002
 \Lavinia stands on the threshold in her stockinged feet. Without a word, her hand takes the closed long umbrella from my left hand and sets it inside the hallway stand. #id:line.Day6.003
@@ -121,9 +123,12 @@ label Day6
 # self-talk
 \Stand up and read the next line right between her knees. #id:line.Day6.117
 label Day6.thought
+# story marker {"kind":"thought.pass","payload":{"opportunity_id":"Day6.rehearsal","yes_target_id":"target.Day6.rehearsal.yes","pass_target_id":"target.Day6.rehearsal.default"}}
 return
 
 label Day6.rehearsal.yes
+# story entry day=6
+# art scene draft.reading.late
 \My chair slides back an inch on the rug. Two unhurried paces close the gap between the low table and the sofa until my shins brush the hem of her skirt right between her knees. #id:line.Day6.rehearsal.yes.001
 \Lavinia does not lean back, though she has to tilt her chin up to keep my face in view. #id:line.Day6.rehearsal.yes.002
 \“I'd do it again if you limped,” I read, low and level. #id:line.Day6.rehearsal.yes.003
@@ -133,9 +138,12 @@ label Day6.rehearsal.yes
 \Lavinia's hand rises and closes hard around my wrist braced beside her neck—her nails pressing into the pulse point, holding my arm against her collarbone instead of pushing it away. #id:line.Day6.rehearsal.yes.007
 \When her hand loosens around my wrist, I give the closed notebook back to her. #id:line.Day6.rehearsal.yes.008
 label Day6.rehearsal.yes.next
+# story marker {"kind":"scene.transition","payload":{"target_id":"target.Day6.impulse"}}
 return
 
 label Day6.rehearsal.default
+# story entry day=6
+# art scene draft.reading.late
 \From the chair across the low table, my gaze stays on her mouth instead of the paper. #id:line.Day6.rehearsal.default.001
 \“I'd do it again if you limped.” #id:line.Day6.rehearsal.default.002
 \“A little flat,” Lavinia says, resting her chin on her knuckles. “You were much more convincing before I went away. Read the next one.” #id:line.Day6.rehearsal.default.003
@@ -143,9 +151,13 @@ label Day6.rehearsal.default
 \Lavinia reaches across the low table, draws the green notebook from between my fingers, and closes it across her lap. #id:line.Day6.rehearsal.default.005
 \“You see?” she says softly. “You didn't need to edit a single word.” #id:line.Day6.rehearsal.default.006
 label Day6.rehearsal.default.next
+# story marker {"kind":"scene.transition","payload":{"target_id":"target.Day6.impulse"}}
 return
 
 label Day6.impulse
+# story entry day=6
+# art scene draft.reading.late
+# story challenge {"challenge_id":"Day6.challenge","playable_marker_id":"Day6.impulse.playable","end_marker_id":"Day6.impulse.end","board_profile_id":"week.canonical_solo","targets":{"never_started":"target.Day6.A","unfinished":"target.Day6.B","won":"target.Day6.C","lost":"target.Day6.D","perfect":"target.Day6.E"}}
 \On the television screen, the corridor door clicks shut without a word of dialogue. #id:line.Day6.impulse.001
 \Lavinia holds the closed green notebook against her lap. #id:line.Day6.impulse.002
 \“That line at the bottom wasn't written for you,” she says. #id:line.Day6.impulse.003
@@ -154,10 +166,14 @@ label Day6.impulse
 \“No.” #id:line.Day6.impulse.006
 \Take the line at the bottom off the page and stay the night. #id:line.Day6.impulse.007
 label Day6.impulse.playable
+# story marker {"kind":"challenge.playable","payload":{"challenge_id":"Day6.challenge"}}
 label Day6.impulse.end
+# story marker {"kind":"challenge.end","payload":{"challenge_id":"Day6.challenge"}}
 return
 
 label Day6.A
+# story entry day=6
+# art scene draft.reading.late
 \“I'm asking about tonight,” I say quietly, not reaching for the notebook. “I'd like to stay longer.” #id:line.Day6.A.001
 \Lavinia looks at me for a long beat, then sets the green notebook on the shelf behind her head. #id:line.Day6.A.002
 \“Then stay.” #id:line.Day6.A.003
@@ -167,9 +183,12 @@ label Day6.A
 \“I know. I preferred it that way.” #id:line.Day6.A.007
 \As I begin to ask whether the man on the television has reached the stairs yet, Lavinia returns the earlier track not to its beginning, but directly to the middle passage our voices covered before—letting my sentence and her answer cover the exact same bars of music a second time. #id:line.Day6.A.008
 label Day6.A.next
+# story marker {"kind":"scene.transition","payload":{"target_id":"target.Day7"}}
 return
 
 label Day6.B
+# story entry day=6
+# art scene draft.reading.late
 \My fingers touch the linen corner of the notebook on her lap, then draw back. #id:line.Day6.B.001
 \“You have morning call tomorrow. I shouldn't keep you up if you want the room to yourself.” #id:line.Day6.B.002
 \Lavinia watches me from the corner of the sofa. #id:line.Day6.B.003
@@ -178,9 +197,12 @@ label Day6.B
 \“I invited you.” #id:line.Day6.B.006
 \Neither of us moves closer; the stronger tea cools in the two porcelain cups while the corridor tape runs on. #id:line.Day6.B.007
 label Day6.B.next
+# story marker {"kind":"scene.transition","payload":{"target_id":"target.Day7"}}
 return
 
 label Day6.C
+# story entry day=6
+# art scene draft.reading.late
 \“You wrote both parts,” I say quietly. “Did you write what happens after she says that?” #id:line.Day6.C.001
 \“No. The page ended.” #id:line.Day6.C.002
 \“May I sit with you first?” #id:line.Day6.C.003
@@ -190,9 +212,12 @@ label Day6.C
 \“Sit down,” she says. “And watch the film, not me.” #id:line.Day6.C.007
 \On the sofa, less than an inch separates our shoulders. While I point out that the man on the screen is wearing a different raincoat in the next doorway, Lavinia reaches for her phone and returns the first piano track directly to the middle passage our voices covered earlier—letting our ongoing conversation cover the music again as her shoulder settles against mine. #id:line.Day6.C.008
 label Day6.C.next
+# story marker {"kind":"scene.transition","payload":{"target_id":"target.Day7"}}
 return
 
 label Day6.D
+# story entry day=6
+# art scene draft.reading.late
 \One hand reaches down, takes the closed green notebook from her lap, and opens it back to the marked page. #id:line.Day6.D.001
 \Before Lavinia can catch my wrist, two fingers pinch the bottom margin—where Don't ask her to stay is underlined twice—and tear the narrow strip of paper cleanly along the crease. #id:line.Day6.D.002
 \Lavinia's breath catches in her throat. #id:line.Day6.D.003
@@ -207,29 +232,41 @@ label Day6.D
 # self-talk
 \“Only the cup with the chip,” I murmur, and slide my right arm around her waist—my palm settling flat over the thin wool at her ribs—until her back presses into the sofa cushions beneath me. #id:line.Day6.D.012
 label Day6.D.thought
+# story marker {"kind":"thought.options","payload":{"opportunity_id":"Day6.aftermath","options":[{"choice_id":"word","text":"Make her say the crossed-out word she wrote first on the page.","target_id":"target.Day6.D.word"},{"choice_id":"dark","text":"Reach over and switch off the television so the room goes dark.","target_id":"target.Day6.D.dark"}],"pass_target_id":"target.Day6.D.default"}}
 return
 
 label Day6.D.default
+# story entry day=6
+# art scene draft.reading.late
 \Beneath me on the cushion, Lavinia's fingers uncurl from my twisted cuff only to slide up inside my sleeve, holding my forearm against her ribs while her mouth parts against mine—warm and bitter-sweet with the stronger tea. #id:line.Day6.D.default.001
 \“I told you to watch the film,” she whispers against my lips without opening her eyes. #id:line.Day6.D.default.002
 \“I'm watching,” I murmur against her throat. #id:line.Day6.D.default.003
 \On the television screen behind our shoulders, the man in the raincoat opens another door onto the exact same corridor. Neither of us turns to look. #id:line.Day6.D.default.004
 label Day6.D.default.next
+# story marker {"kind":"scene.transition","payload":{"target_id":"target.Day7"}}
 return
 
 label Day6.D.word
+# story entry day=6
+# art scene draft.reading.late
 \“You wrote leave first,” I whisper against her lips, my thumb tracing the rib seam beneath her cardigan. “Why did you cross it out?” #id:line.Day6.D.word.001
 \“Because you never listen to leave,” she breathes, pulling my mouth down to hers as the screen flickers blue across the rug. #id:line.Day6.D.word.002
 label Day6.D.word.next
+# story marker {"kind":"scene.transition","payload":{"target_id":"target.Day7"}}
 return
 
 label Day6.D.dark
+# story entry day=6
+# art scene draft.reading.late
 \Without lifting my weight from her waist, my left hand reaches blindly behind the sofa arm and presses the power switch on the television set. #id:line.Day6.D.dark.001
 \The blue corridor collapses into a single white pinpoint and vanishes, leaving only the corner lamp and Lavinia's hands pulling me down by the collar. #id:line.Day6.D.dark.002
 label Day6.D.dark.next
+# story marker {"kind":"scene.transition","payload":{"target_id":"target.Day7"}}
 return
 
 label Day6.E
+# story entry day=6
+# art scene draft.reading.late
 \“You wrote both parts,” I say quietly. “Did you write what happens after she says that?” #id:line.Day6.E.001
 \“No. The page ended.” #id:line.Day6.E.002
 \“May I sit with you first?” #id:line.Day6.E.003
@@ -246,5 +283,6 @@ label Day6.E
 \Lavinia's shoulder rises and falls warmly against my chest. #id:line.Day6.E.014
 \Let the tape run all night if you like. The door is already shut behind us. #id:line.Day6.E.015
 label Day6.E.next
+# story marker {"kind":"scene.transition","payload":{"target_id":"target.Day7"}}
 return
 

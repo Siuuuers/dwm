@@ -4,6 +4,7 @@ const TEMPLATES := preload("res://tools/authoring/AuthoredWeekRegistration.gd")
 const WRITER := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 const REGISTRATION_PATH := "res://data/manifests/scene_story_registration.json"
 const LIBRARY_PATH := "res://data/manifests/dialogue_library_registration.json"
+const START_PATH := "res://data/manifests/story_start.json"
 
 func _initialize() -> void:
 	# Registry selection is immutable. Validate in a fresh normal-story process,
@@ -21,6 +22,9 @@ func _initialize() -> void:
 		quit(1)
 		return
 	if not _write(LIBRARY_PATH, prepared.value.dialogue_library):
+		quit(1)
+		return
+	if not _write(START_PATH, {"target_id": prepared.value.first_target_id}):
 		quit(1)
 		return
 	print("SEVEN_DAY_REGISTRATION_EXPORTED first_target_id=" + prepared.value.first_target_id)

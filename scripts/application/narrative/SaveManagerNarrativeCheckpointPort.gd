@@ -204,6 +204,21 @@ func _commit_reading_next_autosave(checkpoint: Dictionary, operation_id: String,
 
 ## The caller owns receipt admission and live adoption. Ordinary Scene events
 ## publish in memory; explicit named arrivals also use the existing save transaction.
+## Inline checkpoint commands save the reconciled live caption and its resolved
+## presentation. They do not stage another entry or replay its arrival commands.
+func commit_scene_presentation_checkpoint(snapshot_input: Dictionary, checkpoint: Dictionary) -> Dictionary:
+	if not _configured: return _fail(&"not_configured", "configure first")
+	if _next_commit_in_progress or _active_owner != &"" or _scene_callback_busy \
+			or not _scene_entry.is_empty() or not _scene_control.is_empty():
+		return _fail(&"transaction_in_progress", "another checkpoint command owns publication")
+	if checkpoint.get("stage") != "scene" or checkpoint.get("reading_session", {}).get("boundary") != "line" \
+			or not snapshot_input.get("scene", {}).has("presentation"):
+		return _fail(&"presentation_checkpoint_unavailable", "an authored live caption is required")
+	_next_commit_in_progress = true
+	var result := _commit_scene_event_autosave(snapshot_input.duplicate(true), checkpoint.duplicate(true))
+	_next_commit_in_progress = false
+	return result
+
 func commit_scene_event(snapshot_input: Dictionary, checkpoint: Dictionary, named_autosave: bool = false) -> Dictionary:
 	if not _configured: return _fail(&"not_configured", "configure first")
 	if _next_commit_in_progress or _active_owner != &"" or _scene_callback_busy or not _scene_control.is_empty():

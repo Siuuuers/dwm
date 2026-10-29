@@ -3537,6 +3537,7 @@ func _apply_run_snapshot_silent(snapshot: Dictionary) -> Dictionary:
 	if typeof(desktop) == TYPE_DICTIONARY:
 		_desktop_snapshot = (desktop as Dictionary).duplicate(true)
 	_scene_snapshot_references = {}
+	_scene_presentation_checkpoint_pending = false
 	_run_configuration_installed = true
 	return {"ok": true, "code": &"ok"}
 
@@ -4247,7 +4248,8 @@ static func make_scene_new_run_gameplay() -> Dictionary:
 func get_scene_presentation() -> Dictionary:
 	var state: Dictionary = _scene_snapshot_references.get("presentation", {})
 	if state.is_empty(): return {}
-	var resolved := _PRESENTATION_ART.resolve_presentation(state.checkpoint_id, state.overlays)
+	if state.has("background"): return state.duplicate(true)
+	var resolved := _PRESENTATION_ART.resolve_saved_presentation(state)
 	return resolved.value if resolved.ok else {}
 
 func prepare_scene_new_run_snapshot_input(allocation_candidate: Dictionary, entry_id: String,
@@ -4260,8 +4262,11 @@ func prepare_scene_new_run_snapshot_input(allocation_candidate: Dictionary, entr
 	if not presentation.value.state.is_empty(): scene["presentation"] = presentation.value.state
 	var registration := _SCENE_MANIFEST.scene_contract_tables()
 	if not registration.ok: return registration
+	var art_arrival := prepare_scene_presentation_arrival(scene, registration.bundle, "")
+	if not art_arrival.ok: return art_arrival
+	if not art_arrival.value.state.is_empty(): scene["presentation"] = art_arrival.value.state
 	if registration.bundle.get("audio_catalogue", {}).get("schema_version") == 3:
-		var arrival := prepare_scene_audio_arrival(scene, registration.bundle, "", true)
+		var arrival := prepare_scene_audio_arrival(scene, registration.bundle, "", not scene.get("presentation", {}).has("background"))
 		if not arrival.ok: return arrival
 		scene["music_plan_id"] = arrival.value.music_plan_id
 	var identity := {}
@@ -4339,6 +4344,12 @@ func _validate_scene_passage_completion(snapshot: Dictionary, bundle: Dictionary
 	return _transaction_failure(&"scene_passage_completion_mismatch", "")
 
 func _install_scene_snapshot_silent(snapshot: Dictionary) -> Dictionary:
+	var presentation_default := {}
+	if not snapshot.scene.has("presentation"):
+		var registered := _SCENE_MANIFEST.scene_contract_tables()
+		if registered.ok:
+			var declared := _scene_entry_presentation_commands(snapshot.scene, registered.bundle, "")
+			if declared.ok: presentation_default = _PRESENTATION_ART.entry_base_presentation(declared.value)
 	var lifecycle: Dictionary = _run_lifecycle.commit_restore(snapshot.lifecycle)
 	if not lifecycle.get("ok", false): return lifecycle
 	_apply_gameplay_silent(snapshot.gameplay)
@@ -4348,6 +4359,8 @@ func _install_scene_snapshot_silent(snapshot: Dictionary) -> Dictionary:
 	contacts = snapshot.contacts.duplicate(true)
 	_desktop_snapshot = snapshot.desktop.duplicate(true)
 	_scene_snapshot_references = snapshot.scene.duplicate(true)
+	if not presentation_default.is_empty(): _scene_snapshot_references["presentation"] = presentation_default
+	_scene_presentation_checkpoint_pending = false
 	_command_receipts = snapshot.get("command_receipts", {}).duplicate(true)
 	_scene_live_closures = snapshot.get("scene_live_closures", {}).duplicate(true)
 	_applied_effect_transaction_ids = snapshot.get("applied_effect_transaction_ids", []).duplicate(true)
@@ -4601,6 +4614,10 @@ func _continue_completed_scene_challenge_owned(lease: String) -> Dictionary:
 	_scene_playable_operation = {}
 	if not continued.get("ok", false) and continued.get("committed", false):
 		return _scene_event_fatal(continued.get("code", &"scene_continuation_native_refused"))
+	if continued.get("ok", false):
+		_scene_snapshot_references = continued.value.scene.duplicate(true)
+		if continued.value.presentation_autosave: mark_scene_presentation_checkpoint_pending()
+		_scene_event_bridge.scene_art_changed.emit()
 	return continued
 
 func _accept_scene_runtime_event(event: Dictionary, digest: String, lease: String) -> Dictionary:
@@ -5129,6 +5146,56 @@ func scene_entry_staging_context(entry_id: String, frame: Dictionary) -> Diction
 	if not checked.ok: return checked
 	return {"ok": true, "value": _scene_entry_operation.binding.duplicate(true)}
 
+var _scene_presentation_checkpoint_pending := false
+
+func _scene_entry_presentation_commands(scene: Dictionary, bundle: Dictionary, label: String) -> Dictionary:
+	var labels: Array = []
+	var path := ""
+	var markers: Array = []
+	for entry: Dictionary in bundle.entry_manifest.entries:
+		labels.append(entry.entry_id)
+		if entry.entry_id == scene.entry_id: path = entry.locators.en.path
+	for programme: Dictionary in bundle.scene_programme.entries:
+		if programme.entry_id == scene.entry_id: markers = programme.markers
+	if label.is_empty(): label = scene.entry_id
+	var compiled := preload("res://scripts/narrative/DialogicRuntimeAdapter.gd").compile_runtime_scene_programme(path, scene.entry_id, labels, markers)
+	if not compiled.ok: return compiled
+	if not compiled.value.label_nodes.has(label): return _transaction_failure(&"scene_native_target_invalid", label)
+	return {"ok": true, "value": compiled.value.nodes[compiled.value.label_nodes[label]].get("presentation_commands", [])}
+
+func prepare_scene_presentation_arrival(scene: Dictionary, bundle: Dictionary, label: String) -> Dictionary:
+	var selected := _scene_entry_presentation_commands(scene, bundle, label)
+	if not selected.ok: return selected
+	var commands: Array = selected.value
+	var previous: Dictionary = scene.get("presentation", {})
+	if previous.is_empty() and not commands.is_empty(): previous = _PRESENTATION_ART.make_scene_presentation(scene.entry_id)
+	var resolved := _PRESENTATION_ART.apply_presentation_commands(commands, previous)
+	if resolved.ok: resolved.value["commands"] = commands
+	return resolved
+
+func apply_scene_presentation_commands(commands: Array) -> Dictionary:
+	if commands.is_empty(): return {"ok": true}
+	var previous: Dictionary = _scene_snapshot_references.get("presentation", {})
+	if previous.is_empty(): previous = _PRESENTATION_ART.make_scene_presentation(_scene_snapshot_references.entry_id)
+	var applied := _PRESENTATION_ART.apply_presentation_commands(commands, previous)
+	if not applied.ok: return applied
+	_scene_snapshot_references["presentation"] = applied.value.state
+	_scene_presentation_checkpoint_pending = _scene_presentation_checkpoint_pending or applied.value.autosave
+	return {"ok": true}
+
+## The native command precedes its caption; save only after that frontier is admitted.
+func mark_scene_presentation_checkpoint_pending() -> void:
+	_scene_presentation_checkpoint_pending = true
+
+func finish_scene_presentation_checkpoint() -> Dictionary:
+	if not _scene_presentation_checkpoint_pending: return {"ok": true}
+	var checkpoint: Dictionary = _scene_event_bridge.capture_reading_checkpoint()
+	if not checkpoint.ok: return checkpoint
+	var committed: Dictionary = _narrative_checkpoint_port.commit_scene_presentation_checkpoint(
+		capture_run_snapshot_input(), checkpoint.value)
+	if committed.ok: _scene_presentation_checkpoint_pending = false
+	return committed
+
 ## Authored arrivals are resolved without touching playback. The committed scene
 ## stores only this selection, while SFX remain transient forward encounters.
 func prepare_scene_audio_arrival(scene: Dictionary, bundle: Dictionary, label: String,
@@ -5136,7 +5203,7 @@ func prepare_scene_audio_arrival(scene: Dictionary, bundle: Dictionary, label: S
 	var audio_owner := preload("res://scripts/data/AudioManifest.gd")
 	var context: Dictionary
 	if reset_default and scene.has("presentation"):
-		var presentation := _PRESENTATION_ART.resolve_presentation(scene.presentation.checkpoint_id, scene.presentation.overlays)
+		var presentation := _PRESENTATION_ART.resolve_saved_presentation(scene.presentation)
 		if not presentation.ok: return presentation
 		context = audio_owner.make_named_presentation_context(bundle, presentation.value.audio_plan_id, scene.active_occurrence_id)
 	elif not reset_default and scene.has("music_plan_id"):
@@ -5419,6 +5486,9 @@ func _admit_scene_target_owned(target_id: String, trigger_command_id: String, le
 	if _scene_snapshot_references.has("music_plan_id"):
 		next_scene["music_plan_id"] = _scene_snapshot_references.music_plan_id
 	var occurrence: String = next_scene.active_occurrence_id
+	var art_arrival := prepare_scene_presentation_arrival(next_scene, registration.bundle, target.label)
+	if not art_arrival.ok: return art_arrival
+	if not art_arrival.value.state.is_empty(): next_scene["presentation"] = art_arrival.value.state
 	var presentation := preload("res://scripts/narrative/FrozenPresentationContext.gd").build(next_scene.entry_id,
 		{"entry_id": next_scene.entry_id, "entry_role": "scene", "occurrence_id": occurrence,
 			"admission_receipt_id": occurrence})
@@ -5433,9 +5503,9 @@ func _admit_scene_target_owned(target_id: String, trigger_command_id: String, le
 	_scene_entry_operation = {"lease": lease, "live_session": session.value,
 		"entry_id": next_scene.entry_id, "frame": frame, "binding": binding,
 		"prior_receipts": _command_receipts.duplicate(true), "prior_input": capture_run_snapshot_input(),
-		"recovery": not recovery_trigger.is_empty(), "named_autosave": visual.value.autosave}
+		"recovery": not recovery_trigger.is_empty(), "named_autosave": visual.value.autosave or art_arrival.value.autosave}
 	if registration.bundle.get("audio_catalogue", {}).get("schema_version") == 3:
-		var arrival := prepare_scene_audio_arrival(next_scene, registration.bundle, target.label, visual.value.autosave)
+		var arrival := prepare_scene_audio_arrival(next_scene, registration.bundle, target.label, visual.value.autosave and not next_scene.get("presentation", {}).has("background"))
 		if not arrival.ok: return arrival
 		next_scene["music_plan_id"] = arrival.value.music_plan_id
 		var audio := get_node_or_null("/root/AudioManager")
@@ -5450,7 +5520,7 @@ func _admit_scene_target_owned(target_id: String, trigger_command_id: String, le
 		var audio := get_node_or_null("/root/AudioManager")
 		var selected: Dictionary
 		if next_scene.has("presentation"):
-			var resolved := _PRESENTATION_ART.resolve_presentation(next_scene.presentation.checkpoint_id, next_scene.presentation.overlays)
+			var resolved := _PRESENTATION_ART.resolve_saved_presentation(next_scene.presentation)
 			if not resolved.ok: return resolved
 			selected = audio_owner.make_named_presentation_context(registration.bundle, resolved.value.audio_plan_id, occurrence)
 		else:

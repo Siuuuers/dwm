@@ -93,7 +93,7 @@ static var _registration_used := false
 static var _startup_selection_checked := false
 static var _startup_selection_error: Dictionary = {}
 const SCENE_STORY_BUNDLE_PATH := "res://data/manifests/scene_story_registration.json"
-const SCENE_STORY_ORDER_PATH := "res://tests/templates/scene_sequence/seven_day_order.json"
+const SCENE_STORY_ORDER_PATH := "res://data/manifests/story_start.json"
 static var _first_target_id := ""
 const SCENE_TEST_FLAG := "--scene-reading-fixture"
 const SCENE_TEST_BUNDLE_PATH := "res://tests/fixtures/dialogic/scene_reading_registration.json"
@@ -120,10 +120,10 @@ static func _select_startup_fixture() -> Dictionary:
 		if fixture: _first_target_id = "target_a"
 		else:
 			var order := STRICT_JSON.parse_object(FileAccess.get_file_as_string(SCENE_STORY_ORDER_PATH))
-			if not order.ok or not order.value.get("order") is Array or order.value.order.is_empty():
+			if not order.ok or not order.value.get("target_id") is String:
 				selected = _scene_fail("story order unavailable")
 			else:
-				_first_target_id = str(order.value.bindings.get(order.value.order[0], {}).get("target_id", ""))
+				_first_target_id = order.value.target_id
 				var found := false
 				for row: Dictionary in _scene_bundle.targets:
 					if row.target_id == _first_target_id and row.target.kind == "scene": found = true
@@ -363,6 +363,8 @@ static func validate_scene_registration(bundle: Dictionary) -> Dictionary:
 		# Authored references are admitted with the installed programme, never
 		# searched or revalidated while a player advances through captions.
 		for node: Dictionary in native.value.nodes:
+			var art_commands: Dictionary = preload("res://scripts/data/ArtManifest.gd").validate_presentation_commands(node.get("presentation_commands", []))
+			if not art_commands.ok: return art_commands
 			for cue: Dictionary in node.get("audio_cues", []):
 				if not inline_audio: return _scene_fail("inline audio requires catalogue version 3")
 				if cue.kind == "music" and not cue.id.is_empty() and not audio_plans.has(cue.id):

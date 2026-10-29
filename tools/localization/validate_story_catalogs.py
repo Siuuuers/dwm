@@ -20,8 +20,10 @@ def read(path):
 
 
 source = {}
-days = sorted((ROOT / "dialogic/timelines/authored_week").glob("Day*.dtl"))
-assert {path.name for path in days} == {f"Day{day}.dtl" for day in range(1, 8)}, "Expected Day1.dtl through Day7.dtl"
+config = read(ROOT / "data/manifests/authored_week_source.json")
+timeline_root = ROOT / config["timeline_root"].removeprefix("res://")
+days = sorted(timeline_root.rglob("*.dtl"))
+assert days, "No authored DTL files"
 for path in days:
     before = len(source)
     for line in path.read_text(encoding="utf-8").splitlines():
@@ -47,7 +49,11 @@ def choices(value):
             choices(child)
 
 
-choices(read(ROOT / "data/manifests/authored_week_source.json"))
+for path in days:
+    for line in path.read_text(encoding="utf-8").splitlines():
+        if line.strip().startswith("# story marker "):
+            choices(json.loads(line.strip().removeprefix("# story marker "),
+                               object_pairs_hook=unique_object))
 choice_count = len(source) - caption_count
 assert read(ROOT / "localization/story/en.json") == source, "English source drift"
 for locale in ("zh_HK", "zh_CN", "ja", "ko"):

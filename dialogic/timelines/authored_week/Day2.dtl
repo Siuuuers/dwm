@@ -2,6 +2,8 @@
 return
 
 label Day2
+# story entry day=2
+# art scene draft.reading.early
 \Lavinia closes the door on the music from the bar. Her coat goes over the back of the chair. #id:line.Day2.one
 \She sits at the corner of the table, close enough that one menu will do. #id:line.Day2.002
 \Her fingers brush the cuff of my right sleeve before she opens the card. #id:line.Day2.003
@@ -40,9 +42,12 @@ label Day2
 # self-talk
 \I could ask her to feed me. #id:line.Day2.036
 label Day2.thought
+# story marker {"kind":"thought.pass","payload":{"opportunity_id":"Day2.food","yes_target_id":"target.Day2.food.yes","pass_target_id":"target.Day2.food.default"}}
 return
 
 label Day2.food.yes
+# story entry day=2
+# art scene draft.reading.early
 \“Give me a bite.” #id:line.Day2.food.yes.001
 \“You have a fork.” #id:line.Day2.food.yes.002
 \“I know.” #id:line.Day2.food.yes.003
@@ -53,18 +58,25 @@ label Day2.food.yes
 \When I sit back, she pushes the plate into the space between us. #id:line.Day2.food.yes.008
 \“Now eat your own.” #id:line.Day2.food.yes.009
 label Day2.food.yes.next
+# story marker {"kind":"scene.transition","payload":{"target_id":"target.Day2.answer"}}
 return
 
 label Day2.food.default
+# story entry day=2
+# art scene draft.reading.early
 \“I should have ordered yours.” #id:line.Day2.food.default.001
 \“You're eating it.” #id:line.Day2.food.default.002
 \I take another piece before she draws the plate back. #id:line.Day2.food.default.003
 \“Some of it.” #id:line.Day2.food.default.004
 \She leaves it between us. #id:line.Day2.food.default.005
 label Day2.food.default.next
+# story marker {"kind":"scene.transition","payload":{"target_id":"target.Day2.answer"}}
 return
 
 label Day2.answer
+# story entry day=2
+# art scene draft.reading.early
+# story challenge {"challenge_id":"Day2.challenge","playable_marker_id":"Day2.answer.playable","end_marker_id":"Day2.answer.end","board_profile_id":"week.canonical_solo","targets":{"never_started":"target.Day2.result.A","unfinished":"target.Day2.result.B","won":"target.Day2.result.C","lost":"target.Day2.result.D","perfect":"target.Day2.result.E"}}
 \Her elbow stays on the corner of the wood. #id:line.Day2.answer.001
 \“What?” I ask. #id:line.Day2.answer.002
 \“I told you yesterday not to look too pleased.” #id:line.Day2.answer.003
@@ -85,10 +97,14 @@ label Day2.answer
 \The edge of the plate against my wrist. Her hand still open beneath mine. #id:line.Day2.answer.018
 \I could tell her I wanted her to stay. #id:line.Day2.answer.019
 label Day2.answer.playable
+# story marker {"kind":"challenge.playable","payload":{"challenge_id":"Day2.challenge"}}
 label Day2.answer.end
+# story marker {"kind":"challenge.end","payload":{"challenge_id":"Day2.challenge"}}
 return
 
 label Day2.result.A
+# story entry day=2
+# art scene draft.reading.early
 \“Of course I did.” #id:line.Day2.result.A.001
 \“Then why do I have to ask?” #id:line.Day2.result.A.002
 \“I wanted you here, Lavinia.” #id:line.Day2.result.A.003
@@ -121,9 +137,12 @@ label Day2.result.A
 \She opens the door before I can answer. #id:line.Day2.result.A.030
 \At my desk, I open the conversation. Good night. I add her name and send it. The lamp is still on when I put the phone down. #id:line.Day2.result.A.031
 label Day2.result.A.next
+# story marker {"kind":"scene.transition","payload":{"target_id":"target.Day3"}}
 return
 
 label Day2.result.B
+# story entry day=2
+# art scene draft.reading.early
 \“I don't want to start that tonight.” #id:line.Day2.result.B.001
 \“I'm asking about you.” #id:line.Day2.result.B.002
 \“I know.” #id:line.Day2.result.B.003
@@ -143,9 +162,12 @@ label Day2.result.B
 \She leaves. #id:line.Day2.result.B.017
 \The conversation is open at my desk. About what you asked. I leave the words there while I take off my watch. When I pick up the phone again, I remove them and close the conversation. #id:line.Day2.result.B.018
 label Day2.result.B.next
+# story marker {"kind":"scene.transition","payload":{"target_id":"target.Day3"}}
 return
 
 label Day2.result.C
+# story entry day=2
+# art scene draft.reading.early
 \“Yes. I wanted you here.” #id:line.Day2.result.C.001
 \“And you decided I should be.” #id:line.Day2.result.C.002
 \“I wanted it to be possible.” #id:line.Day2.result.C.003
@@ -189,9 +211,12 @@ label Day2.result.C
 \Priscilla, message\: Good night, Lavinia. #id:line.Day2.result.C.041
 \I leave the conversation open while I turn off the lamp. #id:line.Day2.result.C.042
 label Day2.result.C.next
+# story marker {"kind":"scene.transition","payload":{"target_id":"target.Day3"}}
 return
 
 label Day2.result.E
+# story entry day=2
+# art scene draft.reading.early
 \“Yes. I wanted you here.” #id:line.Day2.result.E.001
 \Someone else is listening. #id:line.Day2.result.E.002
 \“And you decided I should be.” #id:line.Day2.result.E.003
@@ -236,9 +261,12 @@ label Day2.result.E
 \Priscilla, message\: Good night, Lavinia. #id:line.Day2.result.E.042
 \I leave the conversation open while I turn off the lamp. #id:line.Day2.result.E.043
 label Day2.result.E.next
+# story marker {"kind":"scene.transition","payload":{"target_id":"target.Day3"}}
 return
 
 label Day2.result.D
+# story entry day=2
+# art scene draft.reading.early
 \“Did you want me to stay?” #id:line.Day2.result.D.001
 \“Yes.” #id:line.Day2.result.D.002
 \Her thumb does not move. #id:line.Day2.result.D.003
@@ -289,9 +317,12 @@ label Day2.result.D
 # self-talk
 \Stay beside the door and wait for her hand. #id:line.Day2.result.D.048
 label Day2.result.D.thought
+# story marker {"kind":"thought.options","payload":{"opportunity_id":"Day2.threshold","options":[{"choice_id":"stay","text":"Go back to the table and ask her to stay.","target_id":"target.Day2.threshold.stay"},{"choice_id":"cruel","text":"Ask her again while her hand is in my hair.","target_id":"target.Day2.threshold.cruel"}],"pass_target_id":"target.Day2.threshold.benchmark"}}
 return
 
 label Day2.threshold.stay
+# story entry day=2
+# art scene draft.reading.early
 \The door opens. Music from the bar fills the pause. I go back to my chair. #id:line.Day2.threshold.stay.001
 \Lavinia remains in the doorway. #id:line.Day2.threshold.stay.002
 \“You're still smiling.” #id:line.Day2.threshold.stay.003
@@ -310,9 +341,12 @@ label Day2.threshold.stay
 \She laughs and takes a piece anyway. #id:line.Day2.threshold.stay.016
 \My cheek pulls when I smile. #id:line.Day2.threshold.stay.017
 label Day2.threshold.stay.next
+# story marker {"kind":"scene.transition","payload":{"target_id":"target.Day3"}}
 return
 
 label Day2.threshold.benchmark
+# story entry day=2
+# art scene draft.reading.early
 \She does not immediately pass. Her hand comes up again. #id:line.Day2.threshold.benchmark.001
 \I draw back. #id:line.Day2.threshold.benchmark.002
 \The hand stops. #id:line.Day2.threshold.benchmark.003
@@ -338,9 +372,12 @@ label Day2.threshold.benchmark
 \Priscilla, message\: Good night, Lavinia. #id:line.Day2.threshold.benchmark.023
 \The message goes through. I turn off the lamp and leave the phone face up. #id:line.Day2.threshold.benchmark.024
 label Day2.threshold.benchmark.next
+# story marker {"kind":"scene.transition","payload":{"target_id":"target.Day3"}}
 return
 
 label Day2.threshold.cruel
+# story entry day=2
+# art scene draft.reading.early
 \She does not immediately pass. Her hand comes up again. #id:line.Day2.threshold.cruel.001
 \I draw back. #id:line.Day2.threshold.cruel.002
 \The hand stops. #id:line.Day2.threshold.cruel.003
@@ -361,5 +398,6 @@ label Day2.threshold.cruel
 \“Lavinia.” #id:line.Day2.threshold.cruel.018
 \The door closes. #id:line.Day2.threshold.cruel.019
 label Day2.threshold.cruel.next
+# story marker {"kind":"scene.transition","payload":{"target_id":"target.Day3"}}
 return
 

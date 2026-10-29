@@ -4,6 +4,7 @@ extends SceneTree
 ## without inheriting its canonical run, Save/Load, or ending-completion setup.
 
 const FIXTURE := preload("res://tests/support/GalleryCollectionFixture.gd")
+const ART := preload("res://scripts/data/ArtManifest.gd")
 const MENU := preload("res://scenes/menu/MenuScene.tscn")
 const ENTRY := "ending.alone.normal"
 const FIRST := "fixture.ending.first"
@@ -59,6 +60,19 @@ func _run() -> void:
 	var startup: Dictionary = root.get_node("ApplicationBootstrap").get_startup_state()
 	_setup_results.append({"stage": "startup", "result": startup.duplicate(true)})
 	if not _check(startup.get("ready", false), "production startup not ready"):
+		_finish()
+		return
+	# This TEST replay selects its backdrop explicitly; production entry bindings are DTL-owned.
+	var fixture_art: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(ART.PLACEMENTS_PATH))
+	fixture_art.scenes[ENTRY] = fixture_art.scenes["draft.ending"].duplicate(true)
+	var fixture_art_path := _folder.path_join("fixture-art-placements.json")
+	var fixture_art_file := FileAccess.open(fixture_art_path, FileAccess.WRITE)
+	if not _check(fixture_art_file != null, "fixture art catalogue unavailable"):
+		_finish()
+		return
+	fixture_art_file.store_string(JSON.stringify(fixture_art))
+	fixture_art_file.close()
+	if not _check(ART.reload_placements(fixture_art_path), "fixture art selection rejected"):
 		_finish()
 		return
 	_bridge = root.get_node("DialogicBridge")
@@ -430,6 +444,7 @@ func _check(value: bool, detail: String) -> bool:
 	return value
 
 func _finish() -> void:
+	ART.reload_placements()
 	if DirAccess.dir_exists_absolute(_folder):
 		var report := FileAccess.open(_folder.path_join("measurements.json"), FileAccess.WRITE)
 		if report != null:

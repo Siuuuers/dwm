@@ -1,0 +1,22 @@
+label scene.test.a
+# art scene template.scene
+# art background template.background
+# art show template.left slot=portrait
+# audio music TEST.inline.a
+# audio sfx TEST.inline.hit
+\First artwork caption. #id:line.scene.test.a.one
+# art background template.art
+# art show template.right slot=portrait
+# art show template.left slot=letter
+# audio music TEST.inline.b
+# audio sfx TEST.inline.hit
+\Changed background and portrait. #id:line.scene.test.a.two
+# checkpoint template.checkpoint
+# audio music TEST.inline.a
+\Checkpoint keeps the visible composition. #id:line.scene.test.a.three
+label scene.test.a.loop
+# art hide portrait
+\The letter remains. #id:line.scene.test.a.four
+# art show template.right slot=portrait
+\The portrait returns above the letter. #id:line.scene.test.a.five
+jump scene.test.a.loop

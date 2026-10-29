@@ -19,6 +19,16 @@ static func reload_placements(path: String = PLACEMENTS_PATH) -> bool:
 	if not parsed.get("assets") is Dictionary or not parsed.get("scenes") is Dictionary:
 		return false
 	_placements = parsed
+	# JSON imports every coordinate as a float. Use the same integral-number
+	# representation as saved Run state before retaining resolved rectangles.
+	var overlays: Variant = _placements.get("overlay_labels", {})
+	if overlays is Dictionary:
+		for preset: Variant in overlays.values():
+			if preset is Dictionary and preset.get("rect") is Array:
+				for index: int in preset.rect.size():
+					var component: Variant = preset.rect[index]
+					if component is float and is_finite(component) and component == floorf(component):
+						preset.rect[index] = int(component)
 	return true
 
 static func _catalog() -> Dictionary:
@@ -100,16 +110,128 @@ static func apply_entry_presentation(entry_id: String, previous: Dictionary) -> 
 			"show", "remove":
 				if state.is_empty():
 					return {"ok": false, "code": &"presentation_checkpoint_required", "reference": entry_id}
-				if command.kind == "show":
+				if state.has("background"):
+					var inline_command := {"kind": "show", "id": command.id, "slot": command.id} if command.kind == "show" else {"kind": "hide", "slot": command.id}
+					var applied := apply_presentation_commands([inline_command], state)
+					if not applied.ok: return applied
+					state = applied.value.state
+				elif command.kind == "show":
 					if not state.overlays.has(command.id): state.overlays.append(command.id)
 				else:
 					state.overlays.erase(command.id)
 			_:
 				return {"ok": false, "code": &"presentation_command_invalid", "reference": entry_id}
 	if not state.is_empty():
-		var resolved := resolve_presentation(state.checkpoint_id, state.overlays)
+		var resolved := resolve_saved_presentation(state)
 		if not resolved.ok: return resolved
 	return {"ok": true, "value": {"state": state, "autosave": autosave}}
+
+## Inline story commands resolve once into the Run-owned visible state.
+static func validate_presentation_commands(commands: Array) -> Dictionary:
+	for command: Dictionary in commands:
+		if command.kind == "scene":
+			if not _catalog().get("scenes", {}).has(command.id):
+				return _presentation_reference_error("scene preset", command.id)
+			var scene := get_scene_art(command.id)
+			for asset_id: String in [scene.background, scene.cg] + scene.portraits:
+				if not asset_id.is_empty() and _asset(asset_id).is_empty():
+					return _presentation_reference_error("scene asset", asset_id)
+		if command.kind == "background" and _asset(command.id).is_empty():
+			return _presentation_reference_error("background", command.id)
+		if command.kind == "show":
+			var preset: Dictionary = _catalog().get("overlay_labels", {}).get(command.id, {})
+			if preset.is_empty() or _asset(str(preset.get("asset_id", ""))).is_empty() \
+					or not preset.get("rect") is Array or preset.rect.size() != 4:
+				return _presentation_reference_error("overlay", command.id)
+			for component: Variant in preset.rect:
+				if typeof(component) not in [TYPE_INT, TYPE_FLOAT] or not is_finite(float(component)):
+					return _presentation_reference_error("overlay rectangle", command.id)
+			if preset.rect[2] <= 0 or preset.rect[3] <= 0:
+				return _presentation_reference_error("overlay rectangle", command.id)
+	return {"ok": true}
+
+static func make_scene_presentation(entry_id: String) -> Dictionary:
+	var state := get_scene_art(entry_id)
+	state.merge({"checkpoint_id": "", "scene_entry_id": entry_id, "split_panels": uses_split_panels(entry_id),
+		"audio_plan_id": "", "overlays": []})
+	return state
+
+## Older compatible captions omitted presentation and used their entry's base
+## layout. Resolve only that declaration; never replay arrival or inline commands.
+static func entry_base_presentation(commands: Array) -> Dictionary:
+	var preset_id := ""
+	for command: Dictionary in commands:
+		if command.kind == "scene": preset_id = command.id
+	return make_scene_presentation(preset_id) if not preset_id.is_empty() else {}
+
+static func apply_presentation_commands(commands: Array, previous: Dictionary) -> Dictionary:
+	if commands.is_empty(): return {"ok": true, "value": {"state": previous.duplicate(true), "autosave": false}}
+	var state: Dictionary
+	if previous.is_empty():
+		state = {"checkpoint_id": "", "scene_entry_id": "", "background": "", "portraits": [],
+			"cg": "", "split_panels": false, "audio_plan_id": "", "overlays": []}
+	elif previous.has("background"):
+		state = previous.duplicate(true)
+	else:
+		var resolved := resolve_saved_presentation(previous)
+		if not resolved.ok: return resolved
+		state = resolved.value.duplicate(true)
+		for overlay: Dictionary in state.overlays:
+			if not overlay.has("slot"): overlay["slot"] = overlay.label
+	var autosave := false
+	for command: Dictionary in commands:
+		match command.kind:
+			"scene":
+				var preset := get_scene_art(command.id)
+				state.merge(preset, true)
+				state.scene_entry_id = command.id
+				state.split_panels = uses_split_panels(command.id)
+			"background": state.background = command.id
+			"checkpoint":
+				state.checkpoint_id = command.id
+				autosave = true
+			"show":
+				var preset: Dictionary = _catalog().get("overlay_labels", {}).get(command.id, {})
+				if preset.is_empty(): return _presentation_reference_error("overlay", command.id)
+				var overlay := {"slot": command.slot, "label": command.id,
+					"asset_id": preset.asset_id, "rect": preset.rect.duplicate()}
+				var position := -1
+				for index: int in state.overlays.size():
+					if state.overlays[index].slot == command.slot: position = index
+				if position < 0: state.overlays.append(overlay)
+				else: state.overlays[position] = overlay
+			"hide":
+				for index: int in range(state.overlays.size() - 1, -1, -1):
+					if state.overlays[index].slot == command.slot: state.overlays.remove_at(index)
+	return {"ok": true, "value": {"state": state, "autosave": autosave}}
+
+## Load resolves the saved visible selection directly, never executing commands.
+static func resolve_saved_presentation(state: Dictionary) -> Dictionary:
+	if state.is_empty(): return {"ok": true, "value": {}}
+	if not state.has("background"):
+		if state.size() != 2 or not state.get("checkpoint_id") is String or not state.get("overlays") is Array:
+			return _presentation_reference_error("saved presentation", "shape")
+		return resolve_presentation(state.checkpoint_id, state.overlays)
+	if state.size() != 8 or not state.get("checkpoint_id") is String or not state.get("scene_entry_id") is String \
+			or not state.get("background") is String or not state.get("portraits") is Array \
+			or not state.get("cg") is String or not state.get("split_panels") is bool \
+			or not state.get("audio_plan_id") is String or not state.get("overlays") is Array:
+		return _presentation_reference_error("saved presentation", "shape")
+	var slots := {}
+	for overlay: Variant in state.overlays:
+		if not overlay is Dictionary or overlay.size() != 4 or not overlay.get("slot") is String \
+				or not overlay.get("label") is String or not overlay.get("asset_id") is String \
+				or not overlay.get("rect") is Array or overlay.rect.size() != 4 or slots.has(overlay.slot):
+			return _presentation_reference_error("saved overlay", "shape")
+		for component: Variant in overlay.rect:
+			if typeof(component) not in [TYPE_INT, TYPE_FLOAT] or not is_finite(float(component)):
+				return _presentation_reference_error("saved overlay", "rectangle")
+		if overlay.rect[2] <= 0 or overlay.rect[3] <= 0:
+			return _presentation_reference_error("saved overlay", "rectangle")
+		slots[overlay.slot] = true
+	for portrait: Variant in state.portraits:
+		if not portrait is String: return _presentation_reference_error("saved portrait", "shape")
+	return {"ok": true, "value": state.duplicate(true)}
 
 ## Named checkpoints reuse the existing scene art and audio plan identities. This
 ## resolves saved presentation directly; it never enters a checkpoint or saves.

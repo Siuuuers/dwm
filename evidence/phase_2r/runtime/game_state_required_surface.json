@@ -2396,6 +2396,38 @@
       "disposition": "retain",
       "replacement": "",
       "contract_test": "test_checkpoint_then_inline_selection_is_saved_before_destination_audio"
+    },
+    {
+      "symbol": "apply_scene_presentation_commands",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_inline_art_checkpoint_and_load_keep_current_composition_without_replay"
+    },
+    {
+      "symbol": "finish_scene_presentation_checkpoint",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_inline_art_checkpoint_and_load_keep_current_composition_without_replay"
+    },
+    {
+      "symbol": "mark_scene_presentation_checkpoint_pending",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_inline_art_checkpoint_and_load_keep_current_composition_without_replay"
+    },
+    {
+      "symbol": "prepare_scene_presentation_arrival",
+      "kind": "function",
+      "availability": "current",
+      "disposition": "retain",
+      "replacement": "",
+      "contract_test": "test_inline_art_checkpoint_and_load_keep_current_composition_without_replay"
     }
   ]
 }
