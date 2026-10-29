@@ -72,6 +72,7 @@ func _fixture(bind_window: bool = true) -> Dictionary:
 	var profile := PROFILE.new()
 	add_child_autofree(profile)
 	assert_true(profile.initialize(STORAGE.new("settings-window.memory", files)).ok)
+	assert_true(profile.set_preference(WINDOW_MODE, "windowed").ok)
 	var gate := GATE.new()
 	assert_true(profile.configure_mutation_gate(gate).ok)
 	var port := AudioPort.new()
@@ -149,15 +150,15 @@ func test_invalid_stale_and_gate_refusals_happen_before_capture_or_output() -> v
 func test_reset_that_changes_window_refuses_unbound_or_unavailable_output_before_audio() -> void:
 	for bind: bool in [false, true]:
 		var f := _fixture(bind)
-		assert_true(f.profile.set_preference(WINDOW_MODE, "borderless").ok)
-		f.window.state.window_mode = "borderless"
+		assert_true(f.profile.set_preference(WINDOW_MODE, "windowed").ok)
+		f.window.state.window_mode = "windowed"
 		f.window.available = false
 		var revision: int = f.profile.get_profile_revision()
 		f.trace.clear()
 		assert_eq(f.helper.commit_settings_profile_reset("settings", &"reset_preferences", revision).code, &"settings_window_unavailable")
 		assert_true(f.trace.is_empty())
 		assert_eq(f.profile.get_profile_revision(), revision)
-		assert_eq(f.profile.get_preference(WINDOW_MODE), "borderless")
+		assert_eq(f.profile.get_preference(WINDOW_MODE), "windowed")
 
 func test_disk_failure_restores_exact_resized_window_before_audio_compensation() -> void:
 	var f := _fixture()
@@ -178,23 +179,23 @@ func test_disk_failure_restores_exact_resized_window_before_audio_compensation()
 
 func test_reset_combines_audio_window_and_one_profile_reset_publication() -> void:
 	var f := _fixture()
-	assert_true(f.profile.set_preferences({MUSIC: 0.2, WINDOW_MODE: "borderless"}).ok)
-	f.window.state = {"window_mode": "borderless", "rect": Rect2i(0, 0, 1600, 900)}
+	assert_true(f.profile.set_preferences({MUSIC: 0.2, WINDOW_MODE: "windowed"}).ok)
+	f.window.state = {"window_mode": "windowed", "rect": Rect2i(0, 0, 1600, 900)}
 	f.trace.clear()
 	var revision: int = f.profile.get_profile_revision()
 	var resets: Array = []
 	f.profile.profile_reset.connect(func(section): resets.append([section, f.window.get_applied_mode(), f.audio._settings[&"music"].volume]))
 	assert_true(f.helper.commit_settings_profile_reset("settings", &"reset_preferences", revision).ok)
 	assert_eq(f.profile.get_profile_revision(), revision + 1)
-	assert_eq(resets, [[&"preferences", "windowed", 0.8]])
-	assert_eq(f.profile.get_preference(WINDOW_MODE), "windowed")
+	assert_eq(resets, [[&"preferences", "borderless", 0.8]])
+	assert_eq(f.profile.get_preference(WINDOW_MODE), "borderless")
 	assert_eq(f.trace.count("window_capture"), 1)
 	assert_eq(f.trace.count("window_apply"), 1)
 
 func test_failed_reset_restores_both_outputs_without_partial_profile_adoption() -> void:
 	var f := _fixture()
-	assert_true(f.profile.set_preferences({MUSIC: 0.2, WINDOW_MODE: "borderless"}).ok)
-	f.window.state = {"window_mode": "borderless", "rect": Rect2i(13, 27, 1600, 900)}
+	assert_true(f.profile.set_preferences({MUSIC: 0.2, WINDOW_MODE: "windowed"}).ok)
+	f.window.state = {"window_mode": "windowed", "rect": Rect2i(13, 27, 1600, 900)}
 	var before: Dictionary = f.window.state.duplicate(true)
 	var profile: Dictionary = f.profile.get_profile_snapshot()
 	var revision: int = f.profile.get_profile_revision()
@@ -246,8 +247,8 @@ func test_unproved_window_compensation_latches_shared_fatal() -> void:
 
 func test_window_apply_failure_compensates_audio_and_retains_exact_prior_geometry() -> void:
 	var f := _fixture()
-	assert_true(f.profile.set_preferences({MUSIC: 0.2, WINDOW_MODE: "borderless"}).ok)
-	f.window.state = {"window_mode": "borderless", "rect": Rect2i(13, 27, 1600, 900)}
+	assert_true(f.profile.set_preferences({MUSIC: 0.2, WINDOW_MODE: "windowed"}).ok)
+	f.window.state = {"window_mode": "windowed", "rect": Rect2i(13, 27, 1600, 900)}
 	var before: Dictionary = f.window.state.duplicate(true)
 	var profile: Dictionary = f.profile.get_profile_snapshot()
 	var revision: int = f.profile.get_profile_revision()

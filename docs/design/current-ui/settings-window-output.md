@@ -5,11 +5,18 @@ Windowed and Borderless choices to the native main window. Windowed offers
 1280 × 720, 1600 × 900 and 1920 × 1080 client-size presets. The picker disables
 choices that do not fit the current monitor with ordinary frame space. A saved
 size reopened on a smaller monitor is fitted proportionally without rewriting
-the preference. Borderless uses the current display's usable rectangle without
-exclusive fullscreen, retaining the selected Windowed size for the return trip. A rejected operation restores the prior physical window,
+the preference. Borderless requests native maximization with the borderless flag,
+so Windows owns the current display's usable rectangle without exclusive fullscreen.
+It retains the selected Windowed size for the return trip. A rejected operation restores the prior physical window,
 selected option, and meaningful focus, then presents the existing factual error.
 Changes use immediate native readback and existing exact rollback; there is no
 new confirmation timer, exclusive-resolution switch, or render-scale preference.
+
+Borderless is the default for fresh profiles and explicit preference/full-profile
+resets. Existing saved Windowed or Borderless choices survive startup unchanged.
+`SettingsPreferenceRegistry` owns that default; Profile defaults and resets derive
+it from the registry. The 1920×1080 readability target does not force monitor
+resolution or change usable-desktop Borderless into full-monitor fullscreen.
 
 WindowModeManager owns platform output through WindowModePort. The shared
 SettingsOutputTransactions coordinator retains one Profile prepare/commit/
@@ -19,8 +26,19 @@ it does not own display APIs. Window ownership binds once to the same Profile
 and coordinator. A failed initialization can retry only with those exact owners.
 
 Window output captures mode, borderless flag, screen, position, and size. It
-changes only those fields and verifies native readback. Rejection restores exact
-captured geometry, including a resized Windowed state. A newer committed Profile
+changes only those fields and verifies native readback. Windowed output and rollback
+retain exact captured geometry, including a manually resized window. Maximized
+output and rollback verify mode, borderless flag and screen; Windows owns their
+geometry. Godot 4.6.3 adjusts the reported size of borderless maximized windows,
+so the adapter does not feed those adjusted dimensions back into native setters.
+Godot can report Windowed mode for the same usable rectangle after a maximize
+request. Readback accepts this only with the borderless flag and exact usable-
+desktop position and size; no polling or timer is added to the transaction. The
+native test independently proves exact physical bounds at two frame-separated
+samples after port application, manager initialization and preference reset.
+When no desktop area is reserved, Godot may substitute nonexclusive fullscreen
+for borderless maximization. This is accepted only when its reported rectangle
+exactly equals the usable desktop. Exclusive fullscreen is never equivalent. A newer committed Profile
 takes precedence over an older rollback target. Combined output compensation
 runs window before audio; ambiguous compensation latches the shared fatal gate.
 
@@ -32,8 +50,12 @@ participants. This preserves the existing eight ordinary journal participants
 plus identity allocation, existing save format, and primitive profile receipts.
 
 The native adapter currently proves Windows behavior. It uses synchronous
-setters and actual native geometry getters, following Godot's
-[Windows implementation](https://github.com/godotengine/godot/blob/4.6/platform/windows/display_server_windows.cpp).
+setters and native state getters, following Godot's
+[Windows implementation](https://github.com/godotengine/godot/blob/4.6.3-stable/platform/windows/display_server_windows.cpp).
+The native test waits across frame boundaries and independently compares Win32
+`GetClientRect`/`ClientToScreen` with `GetMonitorInfo.rcWork` using a DPI-aware
+PowerShell helper. The comparison requires exact physical usable-desktop bounds;
+there is no pixel tolerance or copied engine size-offset calculation.
 Unverified backends and headless processes report unavailable. They do not supply
 dummy success or native-window acceptance. Bootstrap retains logical readiness
 there while omitting unavailable physical window composition; the Settings row

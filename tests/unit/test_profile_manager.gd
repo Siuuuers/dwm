@@ -78,6 +78,24 @@ func test_defaults_are_schema_valid_and_exact() -> void:
 	assert_eq(profile["gallery_transaction_receipts"], {})
 	assert_eq(profile["migration_receipts"].size(), 3)
 
+func test_display_default_preserves_saved_choices_until_explicit_reset() -> void:
+	var fixture := _new_manager()
+	var manager: Node = fixture.manager
+	var path := &"preferences.display.window_mode"
+	assert_eq(manager.get_preference(path), "borderless", "A fresh profile uses borderless")
+	for mode: String in ["windowed", "borderless"]:
+		assert_true(manager.set_preference(path, mode).get("ok", false))
+		var restarted: Node = autofree(_manager_script.new())
+		var files: RefCounted = _fake_ops_script.new(fixture.ops.snapshot_persisted())
+		assert_true(restarted.initialize(_storage_script.new(ROOT, files)).get("ok", false))
+		assert_eq(restarted.get_preference(path), mode, "Existing display choice survives restart")
+		assert_true(restarted.set_preference(path, "windowed").get("ok", false))
+		assert_true(restarted.reset_preferences().get("ok", false))
+		assert_eq(restarted.get_preference(path), "borderless", "Preferences reset uses current defaults")
+		assert_true(restarted.set_preference(path, "windowed").get("ok", false))
+		assert_true(restarted.reset_entire_profile().get("ok", false))
+		assert_eq(restarted.get_preference(path), "borderless", "Entire-profile reset uses current defaults")
+
 func test_schema_rejects_unknown_nested_fields_bad_types_and_aliases() -> void:
 	var profile: Dictionary = _schema.call(&"make_defaults")
 	profile["preferences"]["audio"]["unknown"] = true

@@ -350,7 +350,7 @@ registry:
 | Ambience | 0–100%, mute | 65%, unmuted |
 | SFX | 0–100%, mute | 80%, unmuted |
 | Mute When Inactive | Off / On | On |
-| Window Mode | Windowed / Borderless | Windowed |
+| Window Mode | Windowed / Borderless | Borderless |
 | Text Size | 100% / 125% / 150% | 100% |
 | Large Targets | Off / On | Off |
 | High Contrast | Off / On | Off |
@@ -1087,15 +1087,18 @@ presented only after foreground return.
 
 ### 11.1 Window Mode
 
-Display contains only `Window Mode` with literal `Windowed` and `Borderless`.
-Windowed defaults and uses the 1280×720 logical baseline. Borderless uses the
-current display's usable bounds.
+Display contains `Window Mode` with literal `Windowed` and `Borderless`, plus
+windowed client-size presets. Borderless is the fresh-profile and explicit-reset
+default, using the current display's usable bounds; existing saved choices are
+preserved. Windowed retains its 1280×720 default client-size preference and offers
+1600×900 and 1920×1080 where desktop space permits. The logical design baseline
+remains 1280×720. This follows the [30 October readability handoff](../../agent/2026-10-30-readability-and-dtl-guidance-handoff.md).
 
 The window coordinator prepares, applies, verifies, persists, and publishes
 one atomic result. A genuine across-frame platform operation may own custody.
 Rejection restores the exact prior mode, Selected option, and meaningful Focus,
 then shows concise factual Error. There is no half-selected mode, exclusive
-fullscreen, resolution picker, fake restart requirement, or silent fallback.
+fullscreen, exclusive-resolution picker, fake restart requirement, or silent fallback.
 
 ### 11.2 Dark is absent from Settings
 
@@ -1284,7 +1287,7 @@ are never Settings rows or reset casualties.
 | Reading/Auto/Skip | defaults | preserve | preserve | preserve | defaults |
 | Read Aloud/rate | defaults | preserve | preserve | preserve | defaults |
 | Master/channels/inactive mute | audible defaults | preserve | preserve | preserve | defaults |
-| Window mode | Windowed | preserve | preserve | preserve | defaults |
+| Window mode | Borderless | preserve | preserve | preserve | defaults |
 | Text/targets/contrast/motion/shake/colour | defaults | preserve | preserve | preserve | defaults |
 | Input bindings | preserve | defaults | preserve | preserve | defaults |
 | Exceptional replay choice | Off | preserve | preserve | Off | Off |

@@ -30,3 +30,35 @@ dependencies. `node tools/dtl-editor/test.cjs --browser` additionally requires
 Playwright and its Chromium browser. The cloud workflow retains desktop/mobile
 screenshots and an exported real Day1 fixture, then checks that fixture using the
 existing Godot project exporter. It never changes committed game content.
+
+Writing guidance aims for one source caption per visual row. Choose the source's
+writing language; this never translates or changes it. Captions and thoughts use
+separate reference widths. A diamond beside a source line is a gentle editorial
+notice: focus it with the keyboard or point to it for the explanation, and activate
+it to return to that line. The current source line also shows its visible-character
+count. Notices update after import, edits and undo, and never prevent export.
+
+The self-contained page embeds `readability-profile.json`; their equality is
+checked by the tests. A profile marked `pending` deliberately applies no length
+targets. Measured profiles use 125% text at the 1920 × 1080 reference presentation,
+with one conservative range per language across Pixel and Readable fonts. The
+lower end is an editorial target, not a guaranteed maximum; font shaping, words,
+punctuation, mixed scripts and panel resizing can change the result. The profile's
+revision and evidence fields identify the renderer measurement provenance.
+
+Counts use browser `Intl.Segmenter` grapheme clusters, including spaces and
+punctuation. The supported source form is a plain escaped DTL text line, with
+optional stable `#id:`. IDs, the initial escape and escaped colons are excluded. An adjacent
+`# self-talk` selects thought guidance. Source continuations, draft markup and
+dynamic text receive a review notice without a character target. Authored BBCode
+is not interpreted or stripped: the current scene compiler admits plain prose,
+not that formatting syntax. Draft export remains available for correction and
+project validation. This page does not recreate Godot shaping or claim exact rows,
+clipping, or pixel-width percentages. Use a modern browser with `Intl.Segmenter`.
+
+Refresh after a font or layout change by running the Readability measurements
+workflow, inspecting its captures, then running
+`node tools/dtl-editor/update-profile.cjs path/to/results.json`. This regenerates
+both the versioned profile and offline copy from the renderer's boundary strings.
+Add `--check` to compare the current measurements with committed ranges without
+rewriting either file.

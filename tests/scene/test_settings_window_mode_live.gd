@@ -62,6 +62,7 @@ func before_each() -> void:
 	_audio = AUDIO.new(_playback)
 	for owner: Node in [_profile, _localization, _input, _audio]: add_child(owner)
 	assert_true(_profile.initialize(STORAGE.new("settings-window-live.memory", _files)).ok)
+	assert_true(_profile.set_preference(WINDOW_PATH, "windowed").ok)
 	assert_true(_localization.initialize(_profile).ok)
 	assert_true(_input.initialize(_profile).ok)
 	assert_true(_audio.initialize(_profile).ok)
@@ -209,7 +210,7 @@ func test_actual_preferences_confirmation_resets_both_outputs_once_and_preserves
 	assert_true(proposed.ok)
 	assert_true(_profile.commit_controls_change(proposed.value).ok)
 	var controls: Dictionary = _profile.get_controls_binding_snapshot().value.bindings.duplicate(true)
-	for change: Array in [[WINDOW_PATH, "borderless"], [&"preferences.audio.master_volume", 0.35],
+	for change: Array in [[WINDOW_PATH, "windowed"], [&"preferences.audio.master_volume", 0.35],
 		[&"preferences.audio.music_muted", true], [&"preferences.audio.output_mode", "mono"]]:
 		assert_true((await _content.get_controller().commit_preference(change[0], change[1])).ok)
 	_content.select_category("records")
@@ -227,10 +228,10 @@ func test_actual_preferences_confirmation_resets_both_outputs_once_and_preserves
 	await _tap(KEY_ENTER)
 	assert_false(dialog.visible)
 	assert_eq(_profile.get_profile_revision(), revision + 1)
-	assert_eq(resets, [[&"preferences", "windowed", "stereo"]])
-	assert_eq(_profile.get_preference(WINDOW_PATH), "windowed")
-	assert_eq(_physical.state.mode, "windowed")
-	assert_eq(_window.get_applied_mode(), "windowed")
+	assert_eq(resets, [[&"preferences", "borderless", "stereo"]])
+	assert_eq(_profile.get_preference(WINDOW_PATH), "borderless")
+	assert_eq(_physical.state.mode, "borderless")
+	assert_eq(_window.get_applied_mode(), "borderless")
 	assert_eq(_profile.get_preference(&"preferences.language.primary_locale_id"), "zh_CN")
 	assert_eq(_localization.get_locale(), "zh_CN")
 	assert_eq(_profile.get_controls_binding_snapshot().value.bindings, controls)

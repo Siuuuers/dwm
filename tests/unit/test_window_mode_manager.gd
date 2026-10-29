@@ -48,11 +48,12 @@ class PhysicalWindow extends RefCounted:
 		state = snapshot.duplicate(true)
 		return {"ok": true}
 
-func _fixture(available: bool = true, initialize_window: bool = true) -> Dictionary:
+func _fixture(available: bool = true, initialize_window: bool = true, mode: String = "windowed") -> Dictionary:
 	var files := MemoryFiles.new()
 	var profile := PROFILE.new()
 	add_child_autofree(profile)
 	assert_true(profile.initialize(STORAGE.new("window-manager.memory", files)).ok)
+	if not mode.is_empty(): assert_true(profile.set_preference(PATH, mode).ok)
 	var gate := GATE.new()
 	assert_true(profile.configure_mutation_gate(gate).ok)
 	var audio_port := AUDIO_PORT.new()
@@ -71,6 +72,14 @@ func _fixture(available: bool = true, initialize_window: bool = true) -> Diction
 		assert_true(initialized.ok)
 	return {"owner": owner, "port": port, "profile": profile, "files": files,
 		"audio": audio, "audio_port": audio_port, "gate": gate, "initialized": initialized}
+
+func test_fresh_profile_initializes_borderless_without_rewriting_preferences() -> void:
+	var f := _fixture(true, true, "")
+	assert_eq(f.profile.get_preference(PATH), "borderless")
+	assert_eq(f.profile.get_profile_revision(), 1, "Window initialization does not rewrite fresh preferences")
+	assert_eq(f.owner.get_applied_mode(), "borderless")
+	assert_true(f.port.output_matches("borderless"))
+	assert_eq(f.port.operations, [["apply", "borderless"]])
 
 func test_ready_owner_commits_once_through_real_profile_and_shared_output_transaction() -> void:
 	var f := _fixture()

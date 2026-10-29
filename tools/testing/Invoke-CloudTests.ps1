@@ -302,6 +302,7 @@ $suites = @{
         'tests/unit/test_window_mode_manager.gd'
         'tests/unit/test_window_mode_port.gd'
         'tests/unit/test_bootstrap_window_output.gd'
+        'tests/unit/test_profile_window_restore.gd'
         'tests/scene/test_settings_window_mode_live.gd'
         'tests/scene/test_settings_audio_live.gd'
         'tests/scene/test_settings_reset_confirmation.gd'

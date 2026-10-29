@@ -39,7 +39,7 @@ func _fixture(available: bool = true, mode: String = "windowed") -> Dictionary:
 	var profile := PROFILE.new()
 	autofree(profile)
 	assert_true(profile.initialize(STORAGE.new("bootstrap-window.memory", FILES.new())).ok)
-	if mode != "windowed": assert_true(profile.set_preference(&"preferences.display.window_mode", mode).ok)
+	assert_true(profile.set_preference(&"preferences.display.window_mode", mode).ok)
 	var audio := AUDIO.new(AUDIO_PORT.new())
 	autofree(audio)
 	assert_true(audio.initialize(profile).ok)

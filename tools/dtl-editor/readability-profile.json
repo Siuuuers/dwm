@@ -1,0 +1,1205 @@
+{
+  "version": 1,
+  "pending": false,
+  "reference": {
+    "revision": "34185bafc858888fe9c7fab330b3fc0548d6a8c9",
+    "evidence": "tests/ui/render_readability_measurements.gd",
+    "textPercent": 125,
+    "renderPixels": [
+      1920,
+      1080
+    ],
+    "logical": [
+      1280,
+      720
+    ],
+    "fonts": [
+      "pixel",
+      "readable"
+    ],
+    "godot": "4.6.3-stable (official)",
+    "scope": "Observed one-row boundaries for three rotations of committed prose, both fonts and mono/bilingual configurations. Lower end is a conservative editorial target, never a fit guarantee."
+  },
+  "locales": {
+    "en": {
+      "caption": {
+        "width": 1216,
+        "range": [
+          81,
+          120
+        ],
+        "observations": [
+          {
+            "font": "pixel",
+            "dual": false,
+            "characters": 81,
+            "width": 1216,
+            "fontSize": 30,
+            "text": "Sylvia slides the fuller teacup onto my mat and keeps the one with the small chip",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "pixel",
+            "dual": false,
+            "characters": 83,
+            "width": 1216,
+            "fontSize": 30,
+            "text": "Her free hand reaches across the corner of the table. Two cool fingers slip beneath",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "pixel",
+            "dual": false,
+            "characters": 83,
+            "width": 1216,
+            "fontSize": 30,
+            "text": "She brings her phone between us. In the picture, the gaze is dropped slightly below",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "pixel",
+            "dual": true,
+            "characters": 81,
+            "width": 1216,
+            "fontSize": 30,
+            "text": "Sylvia slides the fuller teacup onto my mat and keeps the one with the small chip",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "pixel",
+            "dual": true,
+            "characters": 83,
+            "width": 1216,
+            "fontSize": 30,
+            "text": "Her free hand reaches across the corner of the table. Two cool fingers slip beneath",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "pixel",
+            "dual": true,
+            "characters": 83,
+            "width": 1216,
+            "fontSize": 30,
+            "text": "She brings her phone between us. In the picture, the gaze is dropped slightly below",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "readable",
+            "dual": false,
+            "characters": 120,
+            "width": 1216,
+            "fontSize": 25,
+            "text": "Sylvia slides the fuller teacup onto my mat and keeps the one with the small chip on the rim for herself. Her free hand ",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "readable",
+            "dual": false,
+            "characters": 118,
+            "width": 1216,
+            "fontSize": 25,
+            "text": "Her free hand reaches across the corner of the table. Two cool fingers slip beneath the lapel of my blouse, smooth the",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "readable",
+            "dual": false,
+            "characters": 117,
+            "width": 1216,
+            "fontSize": 25,
+            "text": "She brings her phone between us. In the picture, the gaze is dropped slightly below the lens—still toward the table w",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "readable",
+            "dual": true,
+            "characters": 120,
+            "width": 1216,
+            "fontSize": 25,
+            "text": "Sylvia slides the fuller teacup onto my mat and keeps the one with the small chip on the rim for herself. Her free hand ",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "readable",
+            "dual": true,
+            "characters": 118,
+            "width": 1216,
+            "fontSize": 25,
+            "text": "Her free hand reaches across the corner of the table. Two cool fingers slip beneath the lapel of my blouse, smooth the",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "readable",
+            "dual": true,
+            "characters": 117,
+            "width": 1216,
+            "fontSize": 25,
+            "text": "She brings her phone between us. In the picture, the gaze is dropped slightly below the lens—still toward the table w",
+            "nextPrefixRows": 2
+          }
+        ]
+      },
+      "thought": {
+        "width": 432,
+        "range": [
+          29,
+          42
+        ],
+        "observations": [
+          {
+            "font": "pixel",
+            "dual": false,
+            "characters": 29,
+            "width": 432,
+            "fontSize": 30,
+            "text": "Sylvia slides the fuller teac",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "pixel",
+            "dual": false,
+            "characters": 29,
+            "width": 432,
+            "fontSize": 30,
+            "text": "Her free hand reaches across ",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "pixel",
+            "dual": false,
+            "characters": 29,
+            "width": 432,
+            "fontSize": 30,
+            "text": "She brings her phone between ",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "pixel",
+            "dual": true,
+            "characters": 29,
+            "width": 432,
+            "fontSize": 30,
+            "text": "Sylvia slides the fuller teac",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "pixel",
+            "dual": true,
+            "characters": 29,
+            "width": 432,
+            "fontSize": 30,
+            "text": "Her free hand reaches across ",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "pixel",
+            "dual": true,
+            "characters": 29,
+            "width": 432,
+            "fontSize": 30,
+            "text": "She brings her phone between ",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "readable",
+            "dual": false,
+            "characters": 42,
+            "width": 432,
+            "fontSize": 25,
+            "text": "Sylvia slides the fuller teacup onto my ma",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "readable",
+            "dual": false,
+            "characters": 41,
+            "width": 432,
+            "fontSize": 25,
+            "text": "Her free hand reaches across the corner o",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "readable",
+            "dual": false,
+            "characters": 40,
+            "width": 432,
+            "fontSize": 25,
+            "text": "She brings her phone between us. In the ",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "readable",
+            "dual": true,
+            "characters": 42,
+            "width": 432,
+            "fontSize": 25,
+            "text": "Sylvia slides the fuller teacup onto my ma",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "readable",
+            "dual": true,
+            "characters": 41,
+            "width": 432,
+            "fontSize": 25,
+            "text": "Her free hand reaches across the corner o",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "readable",
+            "dual": true,
+            "characters": 40,
+            "width": 432,
+            "fontSize": 25,
+            "text": "She brings her phone between us. In the ",
+            "nextPrefixRows": 2
+          }
+        ]
+      }
+    },
+    "zh_HK": {
+      "caption": {
+        "width": 1216,
+        "range": [
+          40,
+          52
+        ],
+        "observations": [
+          {
+            "font": "pixel",
+            "dual": false,
+            "characters": 43,
+            "width": 1216,
+            "fontSize": 30,
+            "text": "Sylvia把較滿的茶杯推到我的杯墊上，把杯沿有個小缺口的那隻留給自己。 她空着的手越",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "pixel",
+            "dual": false,
+            "characters": 40,
+            "width": 1216,
+            "fontSize": 30,
+            "text": "她空着的手越過桌角。兩根微涼的手指探進我襯衫的翻領下，把亞麻布順着鎖骨撫平，未等",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "pixel",
+            "dual": false,
+            "characters": 41,
+            "width": 1216,
+            "fontSize": 30,
+            "text": "她把電話移到我們之間。照片裏，視線落在鏡頭稍下方——仍朝着訊息亮起的桌面——而Sy",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "pixel",
+            "dual": true,
+            "characters": 43,
+            "width": 1216,
+            "fontSize": 30,
+            "text": "Sylvia把較滿的茶杯推到我的杯墊上，把杯沿有個小缺口的那隻留給自己。 她空着的手越",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "pixel",
+            "dual": true,
+            "characters": 40,
+            "width": 1216,
+            "fontSize": 30,
+            "text": "她空着的手越過桌角。兩根微涼的手指探進我襯衫的翻領下，把亞麻布順着鎖骨撫平，未等",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "pixel",
+            "dual": true,
+            "characters": 41,
+            "width": 1216,
+            "fontSize": 30,
+            "text": "她把電話移到我們之間。照片裏，視線落在鏡頭稍下方——仍朝着訊息亮起的桌面——而Sy",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "readable",
+            "dual": false,
+            "characters": 52,
+            "width": 1216,
+            "fontSize": 25,
+            "text": "Sylvia把較滿的茶杯推到我的杯墊上，把杯沿有個小缺口的那隻留給自己。 她空着的手越過桌角。兩根微涼的",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "readable",
+            "dual": false,
+            "characters": 48,
+            "width": 1216,
+            "fontSize": 25,
+            "text": "她空着的手越過桌角。兩根微涼的手指探進我襯衫的翻領下，把亞麻布順着鎖骨撫平，未等布料暖和起來便收",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "readable",
+            "dual": false,
+            "characters": 51,
+            "width": 1216,
+            "fontSize": 25,
+            "text": "她把電話移到我們之間。照片裏，視線落在鏡頭稍下方——仍朝着訊息亮起的桌面——而Sylvia拍到的自己，",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "readable",
+            "dual": true,
+            "characters": 52,
+            "width": 1216,
+            "fontSize": 25,
+            "text": "Sylvia把較滿的茶杯推到我的杯墊上，把杯沿有個小缺口的那隻留給自己。 她空着的手越過桌角。兩根微涼的",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "readable",
+            "dual": true,
+            "characters": 48,
+            "width": 1216,
+            "fontSize": 25,
+            "text": "她空着的手越過桌角。兩根微涼的手指探進我襯衫的翻領下，把亞麻布順着鎖骨撫平，未等布料暖和起來便收",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "readable",
+            "dual": true,
+            "characters": 51,
+            "width": 1216,
+            "fontSize": 25,
+            "text": "她把電話移到我們之間。照片裏，視線落在鏡頭稍下方——仍朝着訊息亮起的桌面——而Sylvia拍到的自己，",
+            "nextPrefixRows": 2
+          }
+        ]
+      },
+      "thought": {
+        "width": 432,
+        "range": [
+          14,
+          20
+        ],
+        "observations": [
+          {
+            "font": "pixel",
+            "dual": false,
+            "characters": 17,
+            "width": 432,
+            "fontSize": 30,
+            "text": "Sylvia把較滿的茶杯推到我的杯",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "pixel",
+            "dual": false,
+            "characters": 14,
+            "width": 432,
+            "fontSize": 30,
+            "text": "她空着的手越過桌角。兩根微涼",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "pixel",
+            "dual": false,
+            "characters": 14,
+            "width": 432,
+            "fontSize": 30,
+            "text": "她把電話移到我們之間。照片裏",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "pixel",
+            "dual": true,
+            "characters": 17,
+            "width": 432,
+            "fontSize": 30,
+            "text": "Sylvia把較滿的茶杯推到我的杯",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "pixel",
+            "dual": true,
+            "characters": 14,
+            "width": 432,
+            "fontSize": 30,
+            "text": "她空着的手越過桌角。兩根微涼",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "pixel",
+            "dual": true,
+            "characters": 14,
+            "width": 432,
+            "fontSize": 30,
+            "text": "她把電話移到我們之間。照片裏",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "readable",
+            "dual": false,
+            "characters": 20,
+            "width": 432,
+            "fontSize": 25,
+            "text": "Sylvia把較滿的茶杯推到我的杯墊上，",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "readable",
+            "dual": false,
+            "characters": 17,
+            "width": 432,
+            "fontSize": 25,
+            "text": "她空着的手越過桌角。兩根微涼的手指",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "readable",
+            "dual": false,
+            "characters": 17,
+            "width": 432,
+            "fontSize": 25,
+            "text": "她把電話移到我們之間。照片裏，視線",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "readable",
+            "dual": true,
+            "characters": 20,
+            "width": 432,
+            "fontSize": 25,
+            "text": "Sylvia把較滿的茶杯推到我的杯墊上，",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "readable",
+            "dual": true,
+            "characters": 17,
+            "width": 432,
+            "fontSize": 25,
+            "text": "她空着的手越過桌角。兩根微涼的手指",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "readable",
+            "dual": true,
+            "characters": 17,
+            "width": 432,
+            "fontSize": 25,
+            "text": "她把電話移到我們之間。照片裏，視線",
+            "nextPrefixRows": 2
+          }
+        ]
+      }
+    },
+    "zh_CN": {
+      "caption": {
+        "width": 1216,
+        "range": [
+          40,
+          52
+        ],
+        "observations": [
+          {
+            "font": "pixel",
+            "dual": false,
+            "characters": 43,
+            "width": 1216,
+            "fontSize": 30,
+            "text": "Sylvia把较满的茶杯推到我的杯垫上，把杯沿有个小缺口的那只留给自己。 她空着的手越",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "pixel",
+            "dual": false,
+            "characters": 40,
+            "width": 1216,
+            "fontSize": 30,
+            "text": "她空着的手越过桌角。两根微凉的手指探进我衬衫的翻领下，把亚麻布顺着锁骨抚平，未等",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "pixel",
+            "dual": false,
+            "characters": 41,
+            "width": 1216,
+            "fontSize": 30,
+            "text": "她把手机移到我们之间。照片里，视线落在镜头稍下方——仍朝着消息亮起的桌面——而Sy",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "pixel",
+            "dual": true,
+            "characters": 43,
+            "width": 1216,
+            "fontSize": 30,
+            "text": "Sylvia把较满的茶杯推到我的杯垫上，把杯沿有个小缺口的那只留给自己。 她空着的手越",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "pixel",
+            "dual": true,
+            "characters": 40,
+            "width": 1216,
+            "fontSize": 30,
+            "text": "她空着的手越过桌角。两根微凉的手指探进我衬衫的翻领下，把亚麻布顺着锁骨抚平，未等",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "pixel",
+            "dual": true,
+            "characters": 41,
+            "width": 1216,
+            "fontSize": 30,
+            "text": "她把手机移到我们之间。照片里，视线落在镜头稍下方——仍朝着消息亮起的桌面——而Sy",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "readable",
+            "dual": false,
+            "characters": 52,
+            "width": 1216,
+            "fontSize": 25,
+            "text": "Sylvia把较满的茶杯推到我的杯垫上，把杯沿有个小缺口的那只留给自己。 她空着的手越过桌角。两根微凉的",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "readable",
+            "dual": false,
+            "characters": 48,
+            "width": 1216,
+            "fontSize": 25,
+            "text": "她空着的手越过桌角。两根微凉的手指探进我衬衫的翻领下，把亚麻布顺着锁骨抚平，未等布料暖和起来便收",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "readable",
+            "dual": false,
+            "characters": 51,
+            "width": 1216,
+            "fontSize": 25,
+            "text": "她把手机移到我们之间。照片里，视线落在镜头稍下方——仍朝着消息亮起的桌面——而Sylvia拍到的自己，",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "readable",
+            "dual": true,
+            "characters": 52,
+            "width": 1216,
+            "fontSize": 25,
+            "text": "Sylvia把较满的茶杯推到我的杯垫上，把杯沿有个小缺口的那只留给自己。 她空着的手越过桌角。两根微凉的",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "readable",
+            "dual": true,
+            "characters": 48,
+            "width": 1216,
+            "fontSize": 25,
+            "text": "她空着的手越过桌角。两根微凉的手指探进我衬衫的翻领下，把亚麻布顺着锁骨抚平，未等布料暖和起来便收",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "readable",
+            "dual": true,
+            "characters": 51,
+            "width": 1216,
+            "fontSize": 25,
+            "text": "她把手机移到我们之间。照片里，视线落在镜头稍下方——仍朝着消息亮起的桌面——而Sylvia拍到的自己，",
+            "nextPrefixRows": 2
+          }
+        ]
+      },
+      "thought": {
+        "width": 432,
+        "range": [
+          14,
+          20
+        ],
+        "observations": [
+          {
+            "font": "pixel",
+            "dual": false,
+            "characters": 17,
+            "width": 432,
+            "fontSize": 30,
+            "text": "Sylvia把较满的茶杯推到我的杯",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "pixel",
+            "dual": false,
+            "characters": 14,
+            "width": 432,
+            "fontSize": 30,
+            "text": "她空着的手越过桌角。两根微凉",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "pixel",
+            "dual": false,
+            "characters": 14,
+            "width": 432,
+            "fontSize": 30,
+            "text": "她把手机移到我们之间。照片里",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "pixel",
+            "dual": true,
+            "characters": 17,
+            "width": 432,
+            "fontSize": 30,
+            "text": "Sylvia把较满的茶杯推到我的杯",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "pixel",
+            "dual": true,
+            "characters": 14,
+            "width": 432,
+            "fontSize": 30,
+            "text": "她空着的手越过桌角。两根微凉",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "pixel",
+            "dual": true,
+            "characters": 14,
+            "width": 432,
+            "fontSize": 30,
+            "text": "她把手机移到我们之间。照片里",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "readable",
+            "dual": false,
+            "characters": 20,
+            "width": 432,
+            "fontSize": 25,
+            "text": "Sylvia把较满的茶杯推到我的杯垫上，",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "readable",
+            "dual": false,
+            "characters": 17,
+            "width": 432,
+            "fontSize": 25,
+            "text": "她空着的手越过桌角。两根微凉的手指",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "readable",
+            "dual": false,
+            "characters": 17,
+            "width": 432,
+            "fontSize": 25,
+            "text": "她把手机移到我们之间。照片里，视线",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "readable",
+            "dual": true,
+            "characters": 20,
+            "width": 432,
+            "fontSize": 25,
+            "text": "Sylvia把较满的茶杯推到我的杯垫上，",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "readable",
+            "dual": true,
+            "characters": 17,
+            "width": 432,
+            "fontSize": 25,
+            "text": "她空着的手越过桌角。两根微凉的手指",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "readable",
+            "dual": true,
+            "characters": 17,
+            "width": 432,
+            "fontSize": 25,
+            "text": "她把手机移到我们之间。照片里，视线",
+            "nextPrefixRows": 2
+          }
+        ]
+      }
+    },
+    "ja": {
+      "caption": {
+        "width": 1216,
+        "range": [
+          40,
+          52
+        ],
+        "observations": [
+          {
+            "font": "pixel",
+            "dual": false,
+            "characters": 43,
+            "width": 1216,
+            "fontSize": 30,
+            "text": "Sylviaはお茶の多いほうのカップを私のマットに滑らせ、縁が少し欠けたほうを自分の手",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "pixel",
+            "dual": false,
+            "characters": 40,
+            "width": 1216,
+            "fontSize": 30,
+            "text": "空いた手がテーブルの角を越えて伸びる。冷たい二本の指がブラウスの襟の下に入り、鎖",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "pixel",
+            "dual": false,
+            "characters": 40,
+            "width": 1216,
+            "fontSize": 30,
+            "text": "彼女がスマートフォンを二人の間へ持ってくる。写真の中の視線はレンズより少し下、メ",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "pixel",
+            "dual": true,
+            "characters": 43,
+            "width": 1216,
+            "fontSize": 30,
+            "text": "Sylviaはお茶の多いほうのカップを私のマットに滑らせ、縁が少し欠けたほうを自分の手",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "pixel",
+            "dual": true,
+            "characters": 40,
+            "width": 1216,
+            "fontSize": 30,
+            "text": "空いた手がテーブルの角を越えて伸びる。冷たい二本の指がブラウスの襟の下に入り、鎖",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "pixel",
+            "dual": true,
+            "characters": 40,
+            "width": 1216,
+            "fontSize": 30,
+            "text": "彼女がスマートフォンを二人の間へ持ってくる。写真の中の視線はレンズより少し下、メ",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "readable",
+            "dual": false,
+            "characters": 52,
+            "width": 1216,
+            "fontSize": 25,
+            "text": "Sylviaはお茶の多いほうのカップを私のマットに滑らせ、縁が少し欠けたほうを自分の手元に残す。 空いた",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "readable",
+            "dual": false,
+            "characters": 48,
+            "width": 1216,
+            "fontSize": 25,
+            "text": "空いた手がテーブルの角を越えて伸びる。冷たい二本の指がブラウスの襟の下に入り、鎖骨に沿ってリネン",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "readable",
+            "dual": false,
+            "characters": 48,
+            "width": 1216,
+            "fontSize": 25,
+            "text": "彼女がスマートフォンを二人の間へ持ってくる。写真の中の視線はレンズより少し下、メッセージの光った",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "readable",
+            "dual": true,
+            "characters": 52,
+            "width": 1216,
+            "fontSize": 25,
+            "text": "Sylviaはお茶の多いほうのカップを私のマットに滑らせ、縁が少し欠けたほうを自分の手元に残す。 空いた",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "readable",
+            "dual": true,
+            "characters": 48,
+            "width": 1216,
+            "fontSize": 25,
+            "text": "空いた手がテーブルの角を越えて伸びる。冷たい二本の指がブラウスの襟の下に入り、鎖骨に沿ってリネン",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "readable",
+            "dual": true,
+            "characters": 48,
+            "width": 1216,
+            "fontSize": 25,
+            "text": "彼女がスマートフォンを二人の間へ持ってくる。写真の中の視線はレンズより少し下、メッセージの光った",
+            "nextPrefixRows": 2
+          }
+        ]
+      },
+      "thought": {
+        "width": 432,
+        "range": [
+          14,
+          20
+        ],
+        "observations": [
+          {
+            "font": "pixel",
+            "dual": false,
+            "characters": 17,
+            "width": 432,
+            "fontSize": 30,
+            "text": "Sylviaはお茶の多いほうのカッ",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "pixel",
+            "dual": false,
+            "characters": 14,
+            "width": 432,
+            "fontSize": 30,
+            "text": "空いた手がテーブルの角を越え",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "pixel",
+            "dual": false,
+            "characters": 14,
+            "width": 432,
+            "fontSize": 30,
+            "text": "彼女がスマートフォンを二人の",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "pixel",
+            "dual": true,
+            "characters": 17,
+            "width": 432,
+            "fontSize": 30,
+            "text": "Sylviaはお茶の多いほうのカッ",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "pixel",
+            "dual": true,
+            "characters": 14,
+            "width": 432,
+            "fontSize": 30,
+            "text": "空いた手がテーブルの角を越え",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "pixel",
+            "dual": true,
+            "characters": 14,
+            "width": 432,
+            "fontSize": 30,
+            "text": "彼女がスマートフォンを二人の",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "readable",
+            "dual": false,
+            "characters": 20,
+            "width": 432,
+            "fontSize": 25,
+            "text": "Sylviaはお茶の多いほうのカップを私",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "readable",
+            "dual": false,
+            "characters": 17,
+            "width": 432,
+            "fontSize": 25,
+            "text": "空いた手がテーブルの角を越えて伸び",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "readable",
+            "dual": false,
+            "characters": 17,
+            "width": 432,
+            "fontSize": 25,
+            "text": "彼女がスマートフォンを二人の間へ持",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "readable",
+            "dual": true,
+            "characters": 20,
+            "width": 432,
+            "fontSize": 25,
+            "text": "Sylviaはお茶の多いほうのカップを私",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "readable",
+            "dual": true,
+            "characters": 17,
+            "width": 432,
+            "fontSize": 25,
+            "text": "空いた手がテーブルの角を越えて伸び",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "readable",
+            "dual": true,
+            "characters": 17,
+            "width": 432,
+            "fontSize": 25,
+            "text": "彼女がスマートフォンを二人の間へ持",
+            "nextPrefixRows": 2
+          }
+        ]
+      }
+    },
+    "ko": {
+      "caption": {
+        "width": 1216,
+        "range": [
+          46,
+          71
+        ],
+        "observations": [
+          {
+            "font": "pixel",
+            "dual": false,
+            "characters": 51,
+            "width": 1216,
+            "fontSize": 30,
+            "text": "Sylvia는 차가 더 많이 담긴 잔을 내 매트 위로 밀어 놓고, 가장자리가 조금 이 빠진 ",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "pixel",
+            "dual": false,
+            "characters": 46,
+            "width": 1216,
+            "fontSize": 30,
+            "text": "빈손이 탁자 모서리를 가로질러 다가온다. 서늘한 두 손가락이 블라우스 깃 아래로 들",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "pixel",
+            "dual": false,
+            "characters": 47,
+            "width": 1216,
+            "fontSize": 30,
+            "text": "그녀가 둘 사이로 휴대전화를 가져온다. 사진 속 시선은 렌즈보다 조금 아래, 메시지가",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "pixel",
+            "dual": true,
+            "characters": 51,
+            "width": 1216,
+            "fontSize": 30,
+            "text": "Sylvia는 차가 더 많이 담긴 잔을 내 매트 위로 밀어 놓고, 가장자리가 조금 이 빠진 ",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "pixel",
+            "dual": true,
+            "characters": 46,
+            "width": 1216,
+            "fontSize": 30,
+            "text": "빈손이 탁자 모서리를 가로질러 다가온다. 서늘한 두 손가락이 블라우스 깃 아래로 들",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "pixel",
+            "dual": true,
+            "characters": 47,
+            "width": 1216,
+            "fontSize": 30,
+            "text": "그녀가 둘 사이로 휴대전화를 가져온다. 사진 속 시선은 렌즈보다 조금 아래, 메시지가",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "readable",
+            "dual": false,
+            "characters": 71,
+            "width": 1216,
+            "fontSize": 25,
+            "text": "Sylvia는 차가 더 많이 담긴 잔을 내 매트 위로 밀어 놓고, 가장자리가 조금 이 빠진 잔은 자기 앞에 둔다. 빈손이 탁자 ",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "readable",
+            "dual": false,
+            "characters": 64,
+            "width": 1216,
+            "fontSize": 25,
+            "text": "빈손이 탁자 모서리를 가로질러 다가온다. 서늘한 두 손가락이 블라우스 깃 아래로 들어와 쇄골 위의 리넨을 반듯하게 ",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "readable",
+            "dual": false,
+            "characters": 68,
+            "width": 1216,
+            "fontSize": 25,
+            "text": "그녀가 둘 사이로 휴대전화를 가져온다. 사진 속 시선은 렌즈보다 조금 아래, 메시지가 켜졌던 탁자 쪽을 향해 있다. Syl",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "readable",
+            "dual": true,
+            "characters": 71,
+            "width": 1216,
+            "fontSize": 25,
+            "text": "Sylvia는 차가 더 많이 담긴 잔을 내 매트 위로 밀어 놓고, 가장자리가 조금 이 빠진 잔은 자기 앞에 둔다. 빈손이 탁자 ",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "readable",
+            "dual": true,
+            "characters": 64,
+            "width": 1216,
+            "fontSize": 25,
+            "text": "빈손이 탁자 모서리를 가로질러 다가온다. 서늘한 두 손가락이 블라우스 깃 아래로 들어와 쇄골 위의 리넨을 반듯하게 ",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "readable",
+            "dual": true,
+            "characters": 68,
+            "width": 1216,
+            "fontSize": 25,
+            "text": "그녀가 둘 사이로 휴대전화를 가져온다. 사진 속 시선은 렌즈보다 조금 아래, 메시지가 켜졌던 탁자 쪽을 향해 있다. Syl",
+            "nextPrefixRows": 2
+          }
+        ]
+      },
+      "thought": {
+        "width": 432,
+        "range": [
+          15,
+          27
+        ],
+        "observations": [
+          {
+            "font": "pixel",
+            "dual": false,
+            "characters": 19,
+            "width": 432,
+            "fontSize": 30,
+            "text": "Sylvia는 차가 더 많이 담긴 ",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "pixel",
+            "dual": false,
+            "characters": 15,
+            "width": 432,
+            "fontSize": 30,
+            "text": "빈손이 탁자 모서리를 가로질",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "pixel",
+            "dual": false,
+            "characters": 16,
+            "width": 432,
+            "fontSize": 30,
+            "text": "그녀가 둘 사이로 휴대전화를 ",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "pixel",
+            "dual": true,
+            "characters": 19,
+            "width": 432,
+            "fontSize": 30,
+            "text": "Sylvia는 차가 더 많이 담긴 ",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "pixel",
+            "dual": true,
+            "characters": 15,
+            "width": 432,
+            "fontSize": 30,
+            "text": "빈손이 탁자 모서리를 가로질",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "pixel",
+            "dual": true,
+            "characters": 16,
+            "width": 432,
+            "fontSize": 30,
+            "text": "그녀가 둘 사이로 휴대전화를 ",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "readable",
+            "dual": false,
+            "characters": 27,
+            "width": 432,
+            "fontSize": 25,
+            "text": "Sylvia는 차가 더 많이 담긴 잔을 내 매트 ",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "readable",
+            "dual": false,
+            "characters": 22,
+            "width": 432,
+            "fontSize": 25,
+            "text": "빈손이 탁자 모서리를 가로질러 다가온다.",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "readable",
+            "dual": false,
+            "characters": 22,
+            "width": 432,
+            "fontSize": 25,
+            "text": "그녀가 둘 사이로 휴대전화를 가져온다. ",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "readable",
+            "dual": true,
+            "characters": 27,
+            "width": 432,
+            "fontSize": 25,
+            "text": "Sylvia는 차가 더 많이 담긴 잔을 내 매트 ",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "readable",
+            "dual": true,
+            "characters": 22,
+            "width": 432,
+            "fontSize": 25,
+            "text": "빈손이 탁자 모서리를 가로질러 다가온다.",
+            "nextPrefixRows": 2
+          },
+          {
+            "font": "readable",
+            "dual": true,
+            "characters": 22,
+            "width": 432,
+            "fontSize": 25,
+            "text": "그녀가 둘 사이로 휴대전화를 가져온다. ",
+            "nextPrefixRows": 2
+          }
+        ]
+      }
+    }
+  }
+}

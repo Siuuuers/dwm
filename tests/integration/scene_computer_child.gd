@@ -17,10 +17,18 @@ func _click(control: Control) -> void:
 	if test_overlay is CanvasLayer: test_overlay.hide()
 	var point := control.get_global_transform_with_canvas() * (control.size / 2.0)
 	for pressed: bool in [true, false]:
+		# BaseButton admits mouse-down only after hover. Keep this synthetic
+		# pointer at the target even if native window events arrive between frames.
+		var motion := InputEventMouseMotion.new()
+		motion.position = point
+		motion.global_position = point
+		motion.button_mask = 0 if pressed else MOUSE_BUTTON_MASK_LEFT
+		get_viewport().push_input(motion, true)
 		var event := InputEventMouseButton.new()
 		event.position = point
 		event.global_position = point
 		event.button_index = MOUSE_BUTTON_LEFT
+		event.button_mask = MOUSE_BUTTON_MASK_LEFT if pressed else 0
 		event.pressed = pressed
 		get_viewport().push_input(event, true)
 		await get_tree().process_frame

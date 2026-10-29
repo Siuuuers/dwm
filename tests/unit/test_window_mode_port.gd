@@ -16,6 +16,8 @@ class Platform extends RefCounted:
 	var operations: Array = []
 	var ignore_size := false
 	var ignore_mode := false
+	var maximize_mode := DisplayServer.WINDOW_MODE_MAXIMIZED
+	var maximize_bounds := Rect2i()
 	func get_name() -> String: return backend
 	func get_window_list() -> PackedInt32Array: return windows
 	func get_screen_count() -> int: return screens.size()
@@ -27,7 +29,12 @@ class Platform extends RefCounted:
 	func window_get_size(_window: int) -> Vector2i: return size
 	func window_set_mode(value: int, window: int) -> void:
 		operations.append(["mode", value, window])
-		if not ignore_mode: mode = value
+		if not ignore_mode:
+			mode = maximize_mode if value == DisplayServer.WINDOW_MODE_MAXIMIZED else value
+			if value == DisplayServer.WINDOW_MODE_MAXIMIZED:
+				var bounds: Rect2i = maximize_bounds if maximize_bounds.has_area() else screens[screen]
+				position = bounds.position
+				size = bounds.size
 	func window_set_flag(flag: int, value: bool, window: int) -> void:
 		operations.append(["flag", flag, value, window])
 		flags[flag] = value
@@ -59,7 +66,7 @@ func test_borderless_uses_current_screen_usable_bounds_and_preserves_foreign_fla
 	var platform := Platform.new()
 	var port := PORT.new(platform)
 	assert_true(port.apply_mode("borderless").ok)
-	assert_eq(platform.mode, DisplayServer.WINDOW_MODE_WINDOWED)
+	assert_eq(platform.mode, DisplayServer.WINDOW_MODE_MAXIMIZED)
 	assert_true(platform.flags[DisplayServer.WINDOW_FLAG_BORDERLESS])
 	assert_eq(platform.position, Vector2i(-1600, 40))
 	assert_eq(platform.size, Vector2i(1600, 860))
@@ -71,6 +78,23 @@ func test_borderless_uses_current_screen_usable_bounds_and_preserves_foreign_fla
 	for operation: Array in platform.operations:
 		assert_eq(operation.back(), DisplayServer.MAIN_WINDOW_ID)
 		if operation[0] == "flag": assert_eq(operation[1], DisplayServer.WINDOW_FLAG_BORDERLESS)
+
+func test_repeated_borderless_apply_and_exact_restore_preserve_native_output() -> void:
+	var platform := Platform.new()
+	var port := PORT.new(platform)
+	assert_true(port.apply_mode("borderless").ok)
+	var snapshot: Dictionary = port.capture_output().value
+	platform.operations.clear()
+	assert_true(port.apply_mode("borderless").ok)
+	assert_true(port.restore_output(snapshot).ok)
+	assert_true(platform.operations.is_empty(), "matching geometry needs no native setters")
+	assert_eq(port.capture_output().value, snapshot)
+	platform.mode = DisplayServer.WINDOW_MODE_WINDOWED
+	platform.size.y -= 1
+	assert_false(port.output_matches("borderless"))
+	assert_true(port.apply_mode("borderless").ok)
+	assert_false(platform.operations.is_empty(), "leaving native maximization still requires repair")
+	assert_eq(port.capture_output().value, snapshot)
 
 func test_windowed_uses_baseline_without_fullscreen_and_readback_detects_external_drift() -> void:
 	var platform := Platform.new()
@@ -86,13 +110,14 @@ func test_windowed_uses_baseline_without_fullscreen_and_readback_detects_externa
 
 func test_restore_proves_exact_prior_mode_screen_position_size_and_borderless() -> void:
 	var platform := Platform.new()
+	platform.mode = DisplayServer.WINDOW_MODE_WINDOWED
 	var port := PORT.new(platform)
 	var captured: Dictionary = port.capture_output().value
 	assert_true(port.apply_mode("borderless").ok)
 	platform.screen = 0
 	assert_true(port.restore_output(captured).ok)
 	assert_eq(port.capture_output().value, captured)
-	assert_eq(platform.operations.back(), ["mode", DisplayServer.WINDOW_MODE_MAXIMIZED, DisplayServer.MAIN_WINDOW_ID])
+	assert_eq(platform.operations.back(), ["position", captured.position, DisplayServer.MAIN_WINDOW_ID])
 	assert_true(platform.flags[DisplayServer.WINDOW_FLAG_ALWAYS_ON_TOP])
 	assert_true(platform.flags[DisplayServer.WINDOW_FLAG_RESIZE_DISABLED])
 
@@ -138,15 +163,17 @@ func test_silent_setter_failure_cannot_claim_apply_or_restoration_success() -> v
 	var port := PORT.new(platform)
 	var snapshot: Dictionary = port.capture_output().value
 	platform.ignore_size = true
-	assert_eq(port.apply_mode("borderless").code, &"window_output_unproven")
+	assert_eq(port.apply_mode("windowed").code, &"window_output_unproven")
 	assert_false(port.output_matches("borderless"))
 	platform.ignore_size = false
-	assert_true(port.apply_mode("borderless").ok)
+	assert_true(port.apply_mode("windowed").ok)
 	platform.ignore_mode = true
 	assert_eq(port.restore_output(snapshot).code, &"window_output_restore_unproven")
 	platform.ignore_mode = false
 	assert_true(port.restore_output(snapshot).ok)
-	assert_eq(port.capture_output().value, snapshot)
+	assert_eq(port.capture_output().value.mode, snapshot.mode)
+	assert_eq(port.capture_output().value.screen, snapshot.screen)
+	assert_eq(port.capture_output().value.borderless, snapshot.borderless)
 
 
 class EmbeddedEngine extends RefCounted:
@@ -199,3 +226,51 @@ func test_borderless_ignores_window_size_and_keeps_native_usable_bounds() -> voi
 	assert_eq(platform.size, platform.screens[1].size)
 	assert_eq(platform.position, platform.screens[1].position)
 	assert_true(port.output_matches("borderless", "1920x1080"))
+
+func test_maximized_restore_leaves_geometry_to_native_window_manager() -> void:
+	var platform := Platform.new()
+	var port := PORT.new(platform)
+	var snapshot: Dictionary = port.capture_output().value
+	assert_true(port.apply_mode("windowed").ok)
+	platform.operations.clear()
+	assert_true(port.restore_output(snapshot).ok)
+	assert_eq(platform.mode, DisplayServer.WINDOW_MODE_MAXIMIZED)
+	assert_eq(platform.screen, snapshot.screen)
+	for operation: Array in platform.operations:
+		assert_false(operation[0] in ["size", "position"], "maximized restoration never writes managed geometry")
+	platform.operations.clear()
+	platform.size.y -= 2 # A backend-adjusted client report does not undo OS maximization.
+	assert_true(port.restore_output(snapshot).ok)
+	assert_true(platform.operations.is_empty())
+
+func test_native_nonexclusive_fullscreen_substitution_requires_exact_usable_bounds() -> void:
+	var platform := Platform.new()
+	platform.maximize_mode = DisplayServer.WINDOW_MODE_FULLSCREEN
+	var port := PORT.new(platform)
+	assert_true(port.apply_mode("borderless").ok)
+	assert_true(port.output_matches("borderless"))
+	var target: Dictionary = port.capture_output().value
+	target.mode = DisplayServer.WINDOW_MODE_MAXIMIZED
+	platform.operations.clear()
+	assert_true(port.restore_output(target).ok)
+	assert_true(platform.operations.is_empty())
+	platform.maximize_bounds = Rect2i(platform.screens[1].position, platform.screens[1].size - Vector2i(1, 0))
+	platform.mode = DisplayServer.WINDOW_MODE_WINDOWED
+	platform.size.x -= 1 # Start outside the already-proven no-op state.
+	assert_eq(port.apply_mode("borderless").code, &"window_output_unproven")
+	assert_false(port.output_matches("borderless"))
+	platform.maximize_bounds = Rect2i()
+	platform.maximize_mode = DisplayServer.WINDOW_MODE_EXCLUSIVE_FULLSCREEN
+	assert_eq(port.apply_mode("borderless").code, &"window_output_unproven")
+	assert_false(port.output_matches("borderless"))
+
+func test_pending_maximize_windowed_report_requires_exact_usable_bounds() -> void:
+	var platform := Platform.new()
+	platform.maximize_mode = DisplayServer.WINDOW_MODE_WINDOWED
+	var port := PORT.new(platform)
+	assert_true(port.apply_mode("borderless").ok)
+	assert_true(port.output_matches("borderless"))
+	platform.size.y -= 1
+	assert_false(port.output_matches("borderless"))
+	platform.maximize_bounds = Rect2i(platform.position, platform.size)
+	assert_eq(port.apply_mode("borderless").code, &"window_output_unproven")
