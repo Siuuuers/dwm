@@ -5,12 +5,15 @@ extends Control
 signal presentation_failed(code: StringName)
 signal presentation_changed()
 signal closed()
+signal home_requested()
 
 const WORKSHEET := preload("res://scripts/ui/minesweeper/MinesweeperWorksheet.gd")
 const DOCK := preload("res://scripts/ui/minesweeper/MinesweeperDock.gd")
 const PANEL_SIZE := Vector2(960, 656)
 const CELL_ACTIONS := [&"reveal", &"flag", &"unflag", &"chord"]
 
+var home_button: Button
+var toolbar: HBoxContainer
 var worksheet: Control
 var dock: Control
 var public_view: Dictionary = {}
@@ -41,6 +44,17 @@ func _init() -> void:
 	dock = DOCK.new()
 	dock.name = "Dock"
 	add_child(dock)
+	toolbar = HBoxContainer.new()
+	toolbar.name = "ChallengeToolbar"
+	toolbar.add_theme_constant_override("separation", 8)
+	add_child(toolbar)
+	home_button = preload("res://scripts/ui/desktop/DesktopHomeButton.gd").new()
+	home_button.name = "Home"
+	home_button.current_on_launcher = false
+	home_button.custom_minimum_size = Vector2(64, 64)
+	home_button.pressed.connect(func():
+		if _can_interact(): home_requested.emit())
+	toolbar.add_child(home_button)
 	worksheet.cell_action_requested.connect(_dispatch)
 	worksheet.grid.mode_changed.connect(func(_mode: StringName): _apply_availability())
 	worksheet.information_closed.connect(_apply_availability)
@@ -107,20 +121,31 @@ func refresh() -> bool:
 		return _fail(&"scene_panel_invalid_view")
 	if not worksheet.grid.can_present(value.board): return _fail(&"scene_panel_invalid_view")
 	if _host != value.host:
+		for button: Button in dock.buttons.values():
+			if button.get_parent() != dock: button.reparent(dock, false)
 		if not dock.configure_scene(value.host, _locale, _percent, _large, _palette,
 				_high_contrast, _colour_preset, _font_style): return _fail(&"scene_panel_invalid_view")
 		# The scene host provides direct controls; no Pause surface here.
 		dock.buttons.pause.hide()
-		var reclaimed_width: float = dock.buttons.pause.size.x + DOCK.GAP
 		for key: String in ["flag", "drag", "rules"]:
-			dock.buttons[key].position.x += reclaimed_width / 2.0
-		var view_height: int = WORKSHEET.view_controls_height(_locale, dock.theme, _large)
-		var band := Vector2i(480, (int(PANEL_SIZE.y) - int(dock.size.y) - view_height) / 2)
+			dock.buttons[key].reparent(toolbar, false)
+		home_button.theme = preload("res://scripts/ui/desktop/DesktopTheme.gd").build(_locale, _percent, &"midnight", 0.0, false, "standard", _font_style)
+		home_button.accessibility_name = {"en": "Home", "zh_CN": "主頁", "zh_HK": "主頁", "ja": "ホーム", "ko": "홈"}.get(_locale.replace("-", "_"), "Home")
+		home_button.tooltip_text = home_button.accessibility_name
+		worksheet.set_footer_host(toolbar)
+		toolbar.move_child(worksheet.view_controls, -1)
+		var bar_height := maxi(64, WORKSHEET.view_controls_height(_locale, dock.theme, _large))
+		for key: String in ["flag", "drag", "rules"]:
+			bar_height = maxi(bar_height, int(dock.buttons[key].custom_minimum_size.y))
+		var band := Vector2i(480, (int(PANEL_SIZE.y) - bar_height - 8) / 2)
 		if not worksheet.configure_scene(value.host, _locale, _percent, _large, _palette, band,
 				_high_contrast, _colour_preset, _font_style):
 			return _fail(&"scene_panel_invalid_view")
 		_host = value.host
-		dock.position = Vector2(0, worksheet.size.y)
+		dock.hide()
+		toolbar.position = Vector2(8, worksheet.size.y + 4)
+		toolbar.size = Vector2(PANEL_SIZE.x - 16, bar_height)
+		queue_redraw()
 	# Detach the publication once; never derive a substitute board after refusal.
 	var publication: Dictionary = value.duplicate(true)
 	if not worksheet.present(publication.board): return _fail(&"scene_panel_invalid_view")
@@ -138,6 +163,7 @@ func _apply_availability() -> void:
 	if worksheet == null or dock == null or not is_inside_tree(): return
 	var blocked := not _can_interact()
 	worksheet.set_interaction_blocked(blocked)
+	home_button.disabled = blocked
 	var actions: Array = []
 	if not blocked and not public_view.get("board", {}).get("custody", true):
 		actions = ["reveal", "flag", "drag", "rules"]
@@ -169,3 +195,8 @@ func _fail(code: StringName) -> bool:
 	_apply_availability()
 	presentation_failed.emit(code)
 	return false
+
+func _draw() -> void:
+	if toolbar == null or dock.theme == null: return
+	draw_rect(Rect2(0, toolbar.position.y - 4, PANEL_SIZE.x, PANEL_SIZE.y - toolbar.position.y + 4),
+		dock.theme.get_color("controlled_face", "Minesweeper"))

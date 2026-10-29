@@ -128,8 +128,8 @@ func test_real_locale_transaction_reprojects_mounted_gallery_face_and_language_c
 		await get_tree().process_frame
 		assert_eq(localization.get_locale(), locale)
 		assert_eq(profile.get_preference(&"preferences.language.primary_locale_id"), locale)
-		var expected: Theme = GALLERY_THEME.build(locale, 100, &"after_hours")
-		assert_eq(gallery.theme.default_font_size, FONT_SIZES[100])
+		var expected: Theme = GALLERY_THEME.build(locale, 125, &"after_hours")
+		assert_eq(gallery.theme.default_font_size, FONT_SIZES[125])
 		assert_eq(gallery.theme.default_font.resource_path, expected.default_font.resource_path)
 		assert_eq(gallery.get_node("%ReplayStatus").language, locale.replace("_", "-"))
 		assert_eq(gallery.get_node("%ReplayButton").language, locale.replace("_", "-"))
@@ -139,7 +139,7 @@ func test_real_locale_transaction_reprojects_mounted_gallery_face_and_language_c
 		assert_eq(row.caption.text, row.text)
 		assert_eq(row.caption.language, row.language)
 		assert_eq(row.caption.get_theme_default_font().resource_path, expected.default_font.resource_path)
-		assert_eq(row.caption.get_theme_default_font_size(), FONT_SIZES[100])
+		assert_eq(row.caption.get_theme_default_font_size(), FONT_SIZES[125])
 		assert_false(row.caption.clip_text)
 		assert_eq(row.caption.max_lines_visible, -1)
 

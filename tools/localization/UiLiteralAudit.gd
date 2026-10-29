@@ -104,6 +104,8 @@ const SCRIPT_LITERAL_OWNERS := {
 ## Exact expression digests keep component-owned locale tables reviewable without granting a
 ## general exemption to any expression that happens to contain locale names.
 const SCRIPT_EXPRESSION_OWNERS := {
+	"res://scripts/ui/SceneChallengePanel.gd|accessibility_name|441da015212b0545140f4046640bbfa702d2c9287106cedc5758f401f1a462ec": {"key": "SceneChallengePanel.home.inline", "reason": "exact five-locale Home accessibility label"},
+	"res://scripts/ui/ShopApp.gd|text|c18c69be1ae8bc0ffbe44db0b168ccaeddf9281ddecdc02288b6e47377ebe804": {"key": "ShopApp.balances.inline", "reason": "money and coin amounts formatted by the existing localized price owner"},
 	"res://scripts/ui/SceneHost.gd|accessibility_name|63ba9546beba1a05053429cb38304c066a977ff7b9fbd98a551cdd1e4cd929e1": {"key": "SceneHost.computer_toggle.inline", "reason": "exact conditional lookup of both registered computer-control catalogue keys"},
 	"res://scripts/ui/ComputerDesktop.gd|text|567dce303cc7221d63217020065864b73436623b13998a5acc2c07cb797159d2": {"key": "ComputerDesktop.launcher.inline", "reason": "exact current launcher title, configured home caption and complete five-locale unavailable fallback"},
 	"res://scripts/ui/ComputerDesktop.gd|text|8430a485cab6df7fed0e8ee884372956dad0bc4415f7aec12594bfe4acb58bd8": {"key": "ComputerDesktop.launcher.inline", "reason": "exact five-locale launcher label and unavailable fallback"},

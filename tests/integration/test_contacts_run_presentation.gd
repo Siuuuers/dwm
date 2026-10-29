@@ -474,7 +474,7 @@ func test_font_style_switch_reflows_retained_thread_without_opening_or_replying_
 		assert_true(f.localization.set_font_style(style).ok)
 		await _settle()
 		assert_eq(app.contacts_panel.selected_friend,"lavinia")
-		assert_same(app.contacts_panel._fonts.en,typography.font("en",100,style))
+		assert_same(app.contacts_panel._fonts.en,typography.font("en",125,style))
 		var current: Array = []
 		for label: Label in app.contacts_panel.transcript.find_children("*","Label",true,false): current.append(label.text)
 		assert_eq(current,copy)

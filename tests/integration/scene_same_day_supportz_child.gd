@@ -31,6 +31,7 @@ func create_same_day_supportz() -> void:
 	assert_eq(_ordinary_board().identity.app_round_ordinal, 2)
 	if not await _launch_app(shell, &"shop"): return
 	var shop: Control = shell._cached_app_windows[&"shop"]
+	await _show_supportz_page(shell, shop)
 	assert_true(shop._supportz_button.is_visible_in_tree())
 	assert_false(shop._supportz_button.disabled)
 	await _screenshot("same-day-supportz-eligible-before-save")
@@ -144,6 +145,7 @@ func load_same_day_supportz() -> void:
 	await _screenshot("same-day-fresh-load-settled-board")
 	if not await _launch_app(shell, &"shop"): return
 	var shop: Control = shell._cached_app_windows[&"shop"]
+	await _show_supportz_page(shell, shop)
 	assert_true(shop._supportz_button.is_visible_in_tree(), "same-day completed rounds remain eligible after Load")
 	assert_false(shop._supportz_button.disabled)
 	await _screenshot("same-day-fresh-load-supportz-eligible")

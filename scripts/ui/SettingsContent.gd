@@ -16,11 +16,11 @@ const INPUT_REGISTRY := preload("res://scripts/settings/ControlsActionRegistry.g
 const CONTROLS_SHEET := preload("res://scripts/ui/SettingsControlsSheet.gd")
 const CATEGORY_FIELDS: Dictionary = {
 	"language": ["language.primary_locale_id", "language.dual_enabled", "language.secondary_locale_id"],
-	"reading": ["reading.reveal_speed", "reading.auto_enabled", "reading.auto_delay", "reading.skip_mode", "reading.read_aloud_enabled", "reading.read_aloud_rate"],
+	"reading": ["accessibility.font_style", "accessibility.text_size", "reading.reveal_speed", "reading.auto_enabled", "reading.auto_delay", "reading.skip_mode", "reading.read_aloud_enabled", "reading.read_aloud_rate"],
 	"audio": ["audio.master_volume", "audio.master_muted", "audio.music_volume", "audio.music_muted", "audio.ambience_volume", "audio.ambience_muted", "audio.sfx_volume", "audio.sfx_muted", "audio.mute_when_inactive", "audio.output_mode"],
 	"display": ["display.window_mode", "display.window_size"],
 	"controls": [],
-	"accessibility": ["accessibility.font_style", "accessibility.text_size", "accessibility.large_targets", "accessibility.high_contrast", "accessibility.reduced_motion", "accessibility.steady_interface", "accessibility.screen_shake", "accessibility.colour_differentiation", "accessibility.sound_detail_text"],
+	"accessibility": ["accessibility.large_targets", "accessibility.high_contrast", "accessibility.reduced_motion", "accessibility.steady_interface", "accessibility.screen_shake", "accessibility.colour_differentiation", "accessibility.sound_detail_text"],
 	"records": ["exceptional_replay.available", "exceptional_replay.replay_full", "dark_mode.next_run_enabled"],
 }
 const RESET_METHODS: Dictionary = {

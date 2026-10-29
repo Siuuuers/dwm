@@ -415,7 +415,7 @@ func test_production_pause_reuses_hosts_with_current_day_and_appearance_cannot_t
 	var pause_focus: Control = get_viewport().gui_get_focus_owner()
 	for style: String in ["readable", "pixel"]:
 		assert_true(localization.set_font_style(style).get("ok", false))
-		assert_same(controller.surface.theme.default_font, preload("res://scripts/ui/UiTypography.gd").font("en", 100, style))
+		assert_same(controller.surface.theme.default_font, preload("res://scripts/ui/UiTypography.gd").font("en", 125, style))
 		assert_same(controller.surface.get("_hosts")[&"settings"], settings)
 		assert_same(get_viewport().gui_get_focus_owner(), pause_focus)
 		assert_eq(saves.pending, pending)

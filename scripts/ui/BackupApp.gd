@@ -466,6 +466,7 @@ func _refresh_presentation() -> void:
 		button.set_caption(visible_copy)
 		button.accessibility_name = full
 		button.tooltip_text = full if visible_copy != full else ""
+	_layout_presentation_geometry()
 	var record: Dictionary = _records[selected_locator]
 	var facts := [_identity(selected_locator), _record_state(record)]
 	if selected_locator == "autosave":
@@ -881,6 +882,14 @@ func _right_width() -> float:
 func _layout_presentation_geometry() -> void:
 	if not is_instance_valid(info_scroll):
 		return
+	var mode_left := 16.0
+	for button: Button in mode_buttons.values():
+		var face := button.get_theme_font("font")
+		var points := button.get_theme_font_size("font_size")
+		button.position.x = mode_left
+		button.size.x = maxf(96.0, ceilf((face.get_string_size(button.accessibility_name, HORIZONTAL_ALIGNMENT_LEFT, -1, points).x + 24.0) / 2.0) * 2.0)
+		button._sync_caption()
+		mode_left += button.size.x + 16.0
 	var right_width := _right_width()
 	info_scroll.size.x = right_width
 	_info_overlay.size.x = right_width

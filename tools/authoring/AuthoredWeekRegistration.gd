@@ -34,7 +34,7 @@ static func prepare(source_path: String = SOURCE_PATH) -> Dictionary:
 	bundle.targets = []
 	bundle.challenges = source.challenges.duplicate(true)
 	bundle.board_profiles = [{"board_profile_id": "week.canonical_solo", "board_kind": "solo_challenge",
-		"difficulty_id": "canonical_solo", "width": 18, "height": 18, "base_mine_count": 36,
+		"difficulty_id": "canonical_solo", "width": 8, "height": 8, "base_mine_count": 10,
 		"generator_version": "dwm_generator_v1", "verifier_version": "visible_deduction_v1", "capability_policy_id": "owned_inventory_v1"}]
 	var payloads := {"history.line.witness": ["entry_id", "line_id", "playback_token", "receipt_id"],
 		"passage.start": ["passage_id"], "passage.finish": ["passage_id"],

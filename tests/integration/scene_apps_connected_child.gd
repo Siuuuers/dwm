@@ -10,8 +10,10 @@ func _open_apps(host: Control) -> Control:
 	if not host.is_computer_open(): await _click(_controls(host, "CheckComputer"))
 	assert_true(host.is_computer_open())
 	if not host.is_computer_open(): return null
-	if _controls(host, "ComputerHome").is_visible_in_tree():
-		await _click(_controls(host, "ComputerHome"))
+	if host.get_challenge_mount().is_visible_in_tree():
+		var panel: Control = host.get_challenge_mount().get_node("SceneChallengePanel")
+		assert_true(panel.home_button.is_visible_in_tree())
+		await _click(panel.home_button)
 	var shell := _apps_shell(host)
 	assert_not_null(shell)
 	if shell != null: assert_true(shell.is_visible_in_tree())

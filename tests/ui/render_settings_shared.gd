@@ -101,17 +101,34 @@ func _render_failure() -> void:
 	if not _check(_content.find_child("LanguageCategory", true, false).has_focus(), "Pause Right did not enter the Language rail"):
 		await _finish(false)
 		return
-	# Use separate settled inputs, as a player does. Selecting a hidden sheet and
-	# grabbing its fourth control in the same frame can read pre-layout geometry.
-	for category: String in ["reading", "audio", "display", "controls", "accessibility"]:
+	# Visit typography in Reading, then continue to Accessibility using settled
+	# keyboard inputs so each selected sheet has completed layout.
+	await _key(KEY_DOWN)
+	var reading_rail: Control = _content.find_child("ReadingCategory", true, false)
+	if not _check(reading_rail.has_focus(), "keyboard category route diverged at reading"):
+		await _finish(false)
+		return
+	await _key(KEY_RIGHT)
+	for field: String in ["font_style", "text_size"]:
+		if field != "font_style": await _key(KEY_TAB)
+		var target: Control = _content.control_for(StringName("preferences.accessibility." + field))
+		if not _check(target.has_focus() and _content.sheet_scroll.get_global_rect().encloses(target.get_global_rect().grow(8)),
+			"keyboard target or its focus perimeter is offscreen: " + field):
+			await _finish(false)
+			return
+	await _key(KEY_LEFT)
+	if not _check(reading_rail.has_focus(), "keyboard return did not restore the Reading rail"):
+		await _finish(false)
+		return
+	for category: String in ["audio", "display", "controls", "accessibility"]:
 		await _key(KEY_DOWN)
 		var rail: Control = _content.find_child(category.to_pascal_case() + "Category", true, false)
 		if not _check(rail.has_focus(), "keyboard category route diverged at " + category):
 			await _finish(false)
 			return
 	await _key(KEY_RIGHT)
-	for field: String in ["font_style", "text_size", "large_targets", "high_contrast"]:
-		if field != "font_style": await _key(KEY_TAB)
+	for field: String in ["large_targets", "high_contrast"]:
+		if field != "large_targets": await _key(KEY_TAB)
 		var target: Control = _content.control_for(StringName("preferences.accessibility." + field))
 		if not _check(target.has_focus() and _content.sheet_scroll.get_global_rect().encloses(target.get_global_rect().grow(8)),
 			"keyboard target or its focus perimeter is offscreen: " + field):
@@ -127,7 +144,7 @@ func _render_failure() -> void:
 	if not await _capture("en", 100, "failure-before"):
 		await _finish(false)
 		return
-	_records[-1]["navigation"] = {"transport": "Viewport key events", "category_keys": 5, "sheet_tabs": 3,
+	_records[-1]["navigation"] = {"transport": "Viewport key events", "category_keys": 5, "sheet_tabs": 2,
 		"target": "preferences.accessibility.high_contrast", "focus_perimeter_visible": true,
 		"profile_unchanged": true, "persisted_unchanged": true, "file_operations": navigation_operations,
 		"profile_revision": navigation_revision,

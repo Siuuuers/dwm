@@ -1,7 +1,7 @@
 extends Button
 class_name ShopItemBox
 ## Ordinary public product card. Shop owns inspection, selection, and purchases.
-## The fixed 3-by-3 catalog measures adaptive text bands at every supported size.
+## The catalog measures complete text bands and paginates at every supported size.
 ## Host custody transitions use set_admitted(), not direct writes to disabled.
 
 signal inspection_requested
@@ -101,16 +101,26 @@ func refresh_layout() -> void:
 	var host_font_size := get_theme_font_size("font_size")
 	var card_font_size := 24 if host_font_size >= 30 else (20 if host_font_size >= 25 else 16)
 	var line_height := ceilf(get_theme_font("font").get_height(card_font_size))
-	var name_height := line_height * 2
+	var heights: Array[float] = []
+	for index in 3:
+		var label: Label = [name_label, price_label, availability_label][index]
+		label.add_theme_font_size_override("font_size", card_font_size)
+		label.text = _copy[index] if _copy.size() == 3 else ""
+		label.size = Vector2(120 if index == 2 else 128, 0)
+		var measured := get_theme_font("font").get_multiline_string_size(label.text, HORIZONTAL_ALIGNMENT_LEFT,
+			label.size.x, card_font_size, -1, TextServer.BREAK_MANDATORY | TextServer.BREAK_WORD_BOUND | TextServer.BREAK_ADAPTIVE)
+		heights.append(maxf(line_height * (2 if index == 0 else 1), ceilf(measured.y)))
+	var name_height := heights[0]
 	var band_gap := 2.0
-	var copy_height := name_height + line_height * 2 + band_gap * 2
-	var copy_top := 168.0 - copy_height
+	var copy_height := name_height + heights[1] + heights[2] + band_gap * 2
+	var card_height := maxf(176, ceilf((copy_height + 40) / 2.0) * 2.0)
+	var copy_top := card_height - 8.0 - copy_height
 	var art_size := clampf(floorf(copy_top - 12.0), 12.0, 56.0)
 	_art_rect = Rect2(floorf((144.0 - art_size) / 2.0), 8, art_size, art_size)
 	var bands: Array[Rect2] = [
 		Rect2(8, copy_top, 128, name_height),
-		Rect2(8, copy_top + name_height + band_gap, 128, line_height),
-		Rect2(8, copy_top + name_height + line_height + band_gap * 2, 120, line_height),
+		Rect2(8, copy_top + name_height + band_gap, 128, heights[1]),
+		Rect2(8, copy_top + name_height + heights[1] + band_gap * 2, 120, heights[2]),
 	]
 	var labels := [name_label, price_label, availability_label]
 	for index in labels.size():
@@ -119,7 +129,7 @@ func refresh_layout() -> void:
 		label.text = _copy[index] if _copy.size() == 3 else ""
 		label.position = bands[index].position
 		label.size = bands[index].size
-	custom_minimum_size = Vector2(144, 176)
+	custom_minimum_size = Vector2(144, card_height)
 	queue_redraw()
 
 func cancel_contact() -> void:

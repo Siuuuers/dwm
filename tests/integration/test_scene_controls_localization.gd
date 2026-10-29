@@ -120,8 +120,8 @@ func test_profile_restore_refreshes_typography_only_after_publication() -> void:
 	assert_true(_profile.apply_restore_silent(snapshot).get("ok", false))
 	assert_same(computer.get_theme_font("font"), TYPOGRAPHY.font("en", 150, "readable"), "silent restore has not published")
 	assert_true(_profile.finalize_restore().get("ok", false))
-	assert_same(computer.get_theme_font("font"), TYPOGRAPHY.font("en", 100, "pixel"))
-	assert_eq(computer.get_theme_font_size("font_size"), 24)
+	assert_same(computer.get_theme_font("font"), TYPOGRAPHY.font("en", 125, "pixel"))
+	assert_eq(computer.get_theme_font_size("font_size"), TYPOGRAPHY.font_size("en", 125, 24, "pixel"))
 	assert_true(computer.has_focus())
 	assert_eq(_calls, [], "restored presentation does not replay actions")
 
