@@ -1,0 +1,63 @@
+name: Readability measurements
+on:
+  push:
+    branches: [codex/readability-dtl-guidance]
+    paths: ['tests/ui/render*readability*.gd', '.github/workflows/readability.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: readability-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  measure:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      LIBGL_ALWAYS_SOFTWARE: '1'
+      XDG_DATA_HOME: ${{ github.workspace }}/.godot/readability-user/data
+      DWM_TEST_ROOT: ${{ github.workspace }}/.godot/readability-user/test-root
+      DWM_RENDER_OUTPUT: ${{ github.workspace }}/.godot/ci/readability
+    steps:
+      - uses: actions/checkout@v7
+      - name: Prepare disposable checkout for credential cleanup
+        run: |
+          git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
+          git submodule foreach --recursive 'true'
+      - name: Install pinned Godot and software renderer
+        run: |
+          sudo sed -i 's|http://azure.archive.ubuntu.com/ubuntu|https://archive.ubuntu.com/ubuntu|g' /etc/apt/apt-mirrors.txt
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends xvfb xauth libgl1-mesa-dri libspeechd2
+          curl --fail --location --retry 3 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/Godot_v4.6.3-stable_linux.x86_64.zip' --output "$RUNNER_TEMP/godot.zip"
+          printf '%s  %s\n' 'd0bc2113065e481c9c2c2b2c37daa4e8be3fe9e27f0ab9ab0b6096e9a37907f3' "$RUNNER_TEMP/godot.zip" | sha256sum --check
+          unzip -q "$RUNNER_TEMP/godot.zip" -d "$RUNNER_TEMP/godot"
+          chmod +x "$RUNNER_TEMP/godot/Godot_v4.6.3-stable_linux.x86_64"
+          echo "GODOT_CONSOLE_PATH=$RUNNER_TEMP/godot/Godot_v4.6.3-stable_linux.x86_64" >> "$GITHUB_ENV"
+      - name: Import project
+        run: |
+          mkdir -p "$DWM_RENDER_OUTPUT" "$XDG_DATA_HOME" "$DWM_TEST_ROOT"
+          "$GODOT_CONSOLE_PATH" --headless --path . --import --log-file "$DWM_RENDER_OUTPUT/import.log"
+          if grep -E 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' "$DWM_RENDER_OUTPUT/import.log"; then exit 1; fi
+          git restore -- project.godot
+      - name: Measure real caption and thought layouts
+        run: |
+          timeout 360s xvfb-run -a -s '-screen 0 1920x1080x24' "$GODOT_CONSOLE_PATH" --path . --rendering-method gl_compatibility --rendering-driver opengl3 --audio-driver Dummy --log-file "$DWM_RENDER_OUTPUT/render.log" --script res://tests/ui/render_readability_measurements.gd
+          if grep -E 'SCRIPT ERROR:|ERROR: Failed to load' "$DWM_RENDER_OUTPUT/render.log"; then exit 1; fi
+      - name: Audit current UI readability
+        if: ${{ !cancelled() }}
+        env:
+          DWM_RENDER_OUTPUT: ${{ github.workspace }}/.godot/ci/readability/ui
+          XDG_DATA_HOME: ${{ github.workspace }}/.godot/ui-readability-user/data
+          DWM_TEST_ROOT: ${{ github.workspace }}/.godot/ui-readability-user/test-root
+        run: |
+          mkdir -p "$DWM_RENDER_OUTPUT" "$XDG_DATA_HOME" "$DWM_TEST_ROOT"
+          timeout 480s xvfb-run -a -s '-screen 0 1920x1080x24' "$GODOT_CONSOLE_PATH" --path . --rendering-method gl_compatibility --rendering-driver opengl3 --audio-driver Dummy --log-file "$DWM_RENDER_OUTPUT/render.log" --script res://tests/ui/render_ui_readability.gd
+          if grep -E 'SCRIPT ERROR:|ERROR: Failed to load' "$DWM_RENDER_OUTPUT/render.log"; then exit 1; fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: readability-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .godot/ci/readability/
+          include-hidden-files: true
+          if-no-files-found: error
