@@ -370,6 +370,7 @@ $suites = @{
         'tests/integration/test_dialogic_timed_hold_runtime.gd'
         'tests/integration/test_narrative_caption_ledger_runtime.gd'
         'tests/unit/test_witnessed_reading_rail.gd'
+        'tests/unit/test_witnessed_transport_button.gd'
         'tests/unit/test_reading_pause_save.gd'
         'tests/unit/test_dialogic_pause_recovery.gd'
         'tests/unit/test_pause_surface.gd'

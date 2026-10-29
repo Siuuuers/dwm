@@ -67,8 +67,9 @@ func _ready() -> void:
 func refresh() -> void:
 	if not is_node_ready() or not is_visible_in_tree(): return
 	var paper_had_focus := _scroll.has_focus()
-	var had_focus := paper_had_focus
-	for row: Button in _rows: had_focus = had_focus or row.has_focus()
+	var focused_id := ""
+	for index: int in _rows.size():
+		if _rows[index].has_focus(): focused_id = str(_passages[index].id)
 	var secondary := ""
 	if is_instance_valid(_profile) and _profile.has_method("get_preference") and _profile.get_preference(&"preferences.language.dual_enabled", false):
 		secondary = str(_profile.get_preference(&"preferences.language.secondary_locale_id", ""))
@@ -78,6 +79,7 @@ func refresh() -> void:
 		row.queue_free()
 	_rows.clear()
 	var retained := false
+	var focus_row: Button
 	for passage: Dictionary in _passages:
 		var row := Button.new()
 		row.text = str(passage.title)
@@ -91,6 +93,7 @@ func refresh() -> void:
 		row.pressed.connect(select_passage.bind(str(passage.id)))
 		_index.add_child(row)
 		_rows.append(row)
+		if str(passage.id) == focused_id: focus_row = row
 		retained = retained or str(passage.id) == _selected
 	if not retained: _selected = str(_passages[0].id) if not _passages.is_empty() else ""
 	_empty.text = str(_copy.empty)
@@ -100,8 +103,9 @@ func refresh() -> void:
 	_scroll.visible = not _passages.is_empty()
 	_scroll.accessibility_name = str(_copy.passage)
 	_show_passage(retained)
-	if had_focus:
+	if paper_had_focus or not focused_id.is_empty():
 		if paper_had_focus and not _passages.is_empty(): _scroll.grab_focus()
+		elif focus_row != null: focus_row.grab_focus()
 		elif not focus_first(): empty_focus_requested.emit()
 	navigation_changed.emit()
 

@@ -197,6 +197,9 @@ func _ready() -> void:
 	configure_reading_transport(_profile, get_node_or_null("/root/DialogicBridge"))
 	if is_instance_valid(_transport_bridge) and _transport_bridge.has_signal("computer_hold_changed"):
 		_transport_bridge.connect("computer_hold_changed", _on_computer_hold_changed)
+	var scene_host := get_tree().current_scene
+	if scene_host != null and scene_host.has_signal("scene_controls_changed"):
+		scene_host.connect("scene_controls_changed", _sync_transport)
 	if is_instance_valid(_transport_bridge) and _transport_bridge.has_signal("scene_transition_changed"):
 		_transport_bridge.connect("scene_transition_changed", _on_scene_transition_changed)
 	configure_speech(_profile, get_node_or_null("/root/DialogicBridge"), get_node_or_null("/root/SystemTtsCoordinator"))

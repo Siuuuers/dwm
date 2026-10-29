@@ -43,6 +43,48 @@ func test_refused_open_does_not_display_an_unadmitted_panel() -> void:
 	assert_false(_host.is_computer_open())
 	assert_false(_host.get_challenge_mount().visible)
 
+func test_settings_close_restores_invoker_after_hiding_desktop_focus() -> void:
+	var prior_scene := get_tree().current_scene
+	_host.reparent(get_tree().root)
+	get_tree().current_scene = _host
+	var settings := Button.new()
+	_host.add_child(settings)
+	var launcher := Button.new()
+	_host.get_computer_mount().add_child(launcher)
+	_host.configure_scene_controls({
+		"computer_open": _actions.dispatch.bind("computer_open"),
+		"settings": func() -> Dictionary:
+			_host.set_computer_content_visible(true)
+			_host.set_computer_open(true)
+			launcher.grab_focus()
+			return {"ok": true},
+		"computer_close": func() -> Dictionary:
+			launcher.grab_focus()
+			return {"ok": true}})
+	settings.grab_focus()
+	await _host.open_settings()
+	assert_true(launcher.has_focus())
+	_host.get_node("SceneControlsLayer/Surface/Controls/CheckComputer").pressed.emit()
+	await get_tree().process_frame
+	await get_tree().process_frame
+	assert_true(settings.has_focus(), "Closing the computer returns to its direct Settings invoker")
+	await _host.open_settings()
+	settings.disabled = true
+	_host.get_node("SceneControlsLayer/Surface/Controls/CheckComputer").pressed.emit()
+	await get_tree().process_frame
+	assert_true(_host.get_node("SceneControlsLayer/Surface/Controls/CheckComputer").has_focus(), "An unavailable invoker falls back to the computer caret")
+	settings.disabled = false
+	settings.grab_focus()
+	await _host.open_settings()
+	_host.get_node("SceneControlsLayer/Surface/Controls/CheckComputer").pressed.emit()
+	var sheet := Button.new()
+	_host.add_child(sheet)
+	sheet.grab_focus()
+	await get_tree().process_frame
+	assert_true(sheet.has_focus(), "Closing must not steal focus from a newly opened sheet")
+	get_tree().current_scene = prior_scene
+	_host.reparent(self)
+
 func test_computer_apps_remain_and_duplicate_scene_commands_are_removed() -> void:
 	for name: String in ["Settings", "Backup", "Save", "Load", "Apps", "Contacts"]:
 		assert_false(_host.has_node("SceneControlsLayer/Surface/Controls/" + name))

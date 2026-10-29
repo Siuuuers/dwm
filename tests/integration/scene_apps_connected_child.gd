@@ -59,9 +59,44 @@ func create_apps_scene() -> void:
 	var before: Dictionary = game.capture_run_snapshot_input().duplicate(true)
 	var reading: Dictionary = bridge.capture_reading_checkpoint(false).value.duplicate(true)
 	await _screenshot("apps-ordinary-caption")
+	var profile_before: Dictionary = profile.get_profile_snapshot().duplicate(true)
+	# History uses the real Pause owner and returns to the same physical command.
+	var caption: Node = _caption()
+	var history_button: Control = caption.transport_rail.get_node("History")
+	var history_before: Array = bridge.get_reading_history().value.captions.duplicate(true)
+	for keyboard_entry: bool in [true, false]:
+		if keyboard_entry:
+			history_button.grab_focus()
+			await _keyboard(KEY_ENTER, true)
+			await _keyboard(KEY_ENTER, false)
+		else:
+			await _click(history_button)
+		for frame: int in 3: await get_tree().process_frame
+		assert_true(caption._history_open)
+		assert_true(get_tree().paused, "History acquires production Pause custody")
+		var history: Control = caption._history_overlay
+		assert_true(history.is_visible_in_tree())
+		assert_true(history.reading_scroll.has_focus(), "History starts on its readable document")
+		await _keyboard(KEY_PAGEDOWN, true)
+		await _keyboard(KEY_PAGEDOWN, false)
+		await _keyboard(KEY_PAGEUP, true)
+		await _keyboard(KEY_PAGEUP, false)
+		assert_eq(bridge.get_reading_history().value.captions, history_before, "History paging does not publish or duplicate captions")
+		await _screenshot("apps-history-keyboard" if keyboard_entry else "apps-history-pointer")
+		if keyboard_entry:
+			await _keyboard(KEY_ESCAPE, true)
+			await _keyboard(KEY_ESCAPE, false)
+		else:
+			await _click(history.close_button)
+		for frame: int in 3: await get_tree().process_frame
+		assert_false(caption._history_open)
+		assert_false(get_tree().paused)
+		assert_true(history_button.has_focus(), "History close restores its invoking control")
+		assert_eq(bridge.capture_reading_checkpoint(false).value, reading, "History preserves the exact reading position")
+		assert_eq(game.capture_run_snapshot_input(), before, "History adds no gameplay consequence")
+		assert_eq(profile.get_profile_snapshot(), profile_before, "History adds no read marks or profile changes")
 	# The direct seventh command uses the existing desktop Settings, without
 	# entering Pause or admitting the available story Challenge.
-	var profile_before: Dictionary = profile.get_profile_snapshot().duplicate(true)
 	var blocked: Dictionary = bootstrap._application_gate.acquire(&"restore")
 	if not _ok(blocked): return
 	var refused: Dictionary = bootstrap.open_scene_settings(host)
@@ -86,6 +121,13 @@ func create_apps_scene() -> void:
 	var content: Control = settings.get_content_host()
 	assert_true(content._scene_presentation)
 	assert_null(content._run_day)
+	for step: int in 24:
+		await _keyboard(KEY_TAB, true)
+		await _keyboard(KEY_TAB, false)
+		var focused := get_viewport().gui_get_focus_owner()
+		assert_true(focused != null and (shell.is_ancestor_of(focused) or focused == _controls(host, "CheckComputer")), "Computer traversal stays on the active surface")
+	await _click(_caption().caption_text)
+	assert_false(_caption().caption_text.has_focus(), "The blocked caption cannot take focus from the computer")
 	await _click(content._rails["reading"])
 	var auto: BaseButton = content.controls[&"preferences.reading.auto_enabled"]
 	assert_true(auto.is_visible_in_tree())
@@ -114,12 +156,14 @@ func create_apps_scene() -> void:
 	await _click(_controls(host, "CheckComputer"))
 	assert_false(host.is_computer_open())
 	assert_false(bridge.is_computer_caption_held())
+	assert_true(_caption().transport_rail.get_node("Settings").has_focus(), "Closing returns focus to the direct Settings invoker")
 	assert_eq(bridge.capture_reading_checkpoint(false).value, reading)
 	await _click(_caption().transport_rail.get_node("Settings"))
 	assert_same(shell._cached_app_windows[&"settings"], settings)
 	assert_true(settings.is_visible_in_tree())
 	await _click(_controls(host, "CheckComputer"))
 	assert_false(host.is_computer_open())
+	assert_true(_caption().transport_rail.get_node("Settings").has_focus(), "Cached Settings preserves the same return target")
 	assert_eq(bridge.capture_reading_checkpoint(false).value, reading)
 	shell = await _open_apps(host)
 	if shell == null: return

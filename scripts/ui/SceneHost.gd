@@ -1,5 +1,6 @@
 extends Control
 ## Scene chrome only. Bootstrap owns admission, persistence, and panel mounting.
+signal scene_controls_changed
 
 const TRANSITION_SURFACE := preload("res://scripts/ui/witnessed/SceneTransitionOverlay.gd")
 const TRANSPORT_RAIL := preload("res://scripts/ui/witnessed/WitnessedTransportRail.gd")
@@ -9,6 +10,7 @@ const STORY_TEXT := preload("res://scripts/localization/StoryLocalization.gd")
 var _actions: Dictionary = {}
 var _computer_open := false
 var _computer_content_visible := false
+var _computer_return_focus: WeakRef
 var _busy := false
 var _localization: Node
 var _thought_frontier: Dictionary = {}
@@ -79,11 +81,28 @@ func is_computer_open() -> bool:
 	return _computer_open
 
 func set_computer_open(open: bool) -> void:
+	var closing := _computer_open and not open
 	_computer_open = open
 	$SceneControlsLayer/Surface/Controls/CheckComputer.queue_redraw()
 	_update_computer_visibility()
 	_refresh_presentation()
 	_update_controls()
+	if closing:
+		_restore_computer_focus.call_deferred(_computer_return_focus)
+		_computer_return_focus = null
+
+func _restore_computer_focus(invoker: WeakRef) -> void:
+	if not is_inside_tree() or is_queued_for_deletion() or get_tree().current_scene != self or _computer_open: return
+	var caret: Button = $SceneControlsLayer/Surface/Controls/CheckComputer
+	var target: Control = invoker.get_ref() as Control if invoker != null else null
+	var focused := get_viewport().gui_get_focus_owner()
+	# A newly opened sheet owns its own focus after computer closure.
+	if focused != null and focused != target and focused != caret: return
+	if not is_instance_valid(target) or not target.is_visible_in_tree() \
+			or target.get_focus_mode_with_override() == Control.FOCUS_NONE \
+			or target is BaseButton and target.disabled:
+		target = caret
+	if target.is_visible_in_tree() and not (target is BaseButton and target.disabled): target.grab_focus()
 
 func _bind_presentation() -> void:
 	if _localization == null:
@@ -151,6 +170,7 @@ func _toggle_computer() -> void:
 	get_viewport().set_input_as_handled()
 	if _busy or (is_instance_valid(_transition_bridge) and _transition_bridge.is_scene_transition_active()): return
 	var opening := not _computer_open
+	if opening: _computer_return_focus = weakref($SceneControlsLayer/Surface/Controls/CheckComputer)
 	var action := "computer_open" if opening else "computer_close"
 	var callback: Callable = _actions.get(action, Callable())
 	if not callback.is_valid(): return
@@ -176,6 +196,9 @@ func _invoke(action: String) -> void:
 	if _busy or (is_instance_valid(_transition_bridge) and _transition_bridge.is_scene_transition_active()): return
 	var callback: Callable = _actions.get(action, Callable())
 	if not callback.is_valid(): return
+	if action == "settings" and not _computer_open:
+		var focused := get_viewport().gui_get_focus_owner()
+		_computer_return_focus = weakref(focused) if focused != null else null
 	_busy = true
 	_update_controls()
 	await callback.call()
@@ -189,6 +212,7 @@ func _update_controls() -> void:
 	$SceneControlsLayer/Surface/Controls/CheckComputer.disabled = _busy or not computer.is_valid()
 	var apps: Callable = _actions.get("apps", Callable())
 	$SceneControlsLayer/Surface/Controls/ComputerHome.disabled = _busy or not apps.is_valid()
+	scene_controls_changed.emit()
 
 ## Read-only offer projection. The captured presentation proof is retained until
 ## the button is pressed, so Load or native movement cannot borrow a fresh token.

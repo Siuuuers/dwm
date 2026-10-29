@@ -316,7 +316,7 @@ func _ensure_controls() -> void:
 		button.disabled = true
 		button.focus_entered.connect(button.queue_redraw)
 		button.focus_exited.connect(button.queue_redraw)
-		button.draw.connect(_draw_button_focus.bind(button))
+		button.draw.connect(_draw_button_state.bind(button))
 		add_child(button)
 		_buttons[id] = button
 	_skip_button = _buttons[&"skip"] as TRANSPORT_BUTTON
@@ -378,7 +378,9 @@ func _apply_button_material(button: Button, mode_on: bool) -> void:
 	button.add_theme_stylebox_override(&"hover", _plate(face, state_edge, 2))
 	button.add_theme_stylebox_override(&"pressed", _plate(face, state_edge, 4))
 	button.add_theme_stylebox_override(&"hover_pressed", _plate(face, state_edge, 4))
-	button.add_theme_stylebox_override(&"disabled", _plate(face, state_edge, 4))
+	var disabled := _plate(face, state_edge, 0)
+	disabled.border_width_bottom = 4
+	button.add_theme_stylebox_override(&"disabled", disabled)
 	button.add_theme_stylebox_override(&"focus", StyleBoxEmpty.new())
 	# Measure the native shaped line, including fallback glyphs, before adding
 	# padding. Font.get_height() alone can undercount that line at 150%.
@@ -407,10 +409,14 @@ func _plate(fill: Color, edge: Color, edge_width: int) -> StyleBoxFlat:
 	return result
 
 
-func _draw_button_focus(button: Button) -> void:
-	if button.disabled or not button.has_focus() or _roles.is_empty():
+func _draw_button_state(button: TRANSPORT_BUTTON) -> void:
+	if button.disabled or _roles.is_empty():
 		return
 	var mode_on := button.theme_type_variation == &"WitnessedTransportMode"
+	if not button._candidate.is_empty():
+		var edge: Color = _roles[&"field"] if mode_on else _roles[&"rule"]
+		button.draw_rect(Rect2(Vector2(6, 6), button.size - Vector2(12, 12)), edge, false, 4.0)
+	if not button.has_focus(): return
 	var colours := [_roles[&"deep"], _roles[&"field"]] if mode_on \
 		else [_roles[&"focus_outer"], _roles[&"focus_inner"]]
 	var frames := _focus_rects(button.size)
