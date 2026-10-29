@@ -1,0 +1,102 @@
+"""Exercise the workflow's real coverage selector without Godot or a checkout fetch."""
+import contextlib
+import io
+import json
+import os
+from pathlib import Path
+import re
+import subprocess
+import tempfile
+import textwrap
+import unittest
+from unittest.mock import patch
+import zipfile
+
+ROOT = Path(__file__).resolve().parents[2]
+WORKFLOW = (ROOT / '.github/workflows/windows-tests.yml').read_text()
+SELECTOR = textwrap.dedent(WORKFLOW.split('        shell: python\n        run: |\n', 1)[1].split('\n  focused-tests:', 1)[0])
+DAY = 'dialogic/timelines/authored_week/Day1.dtl'
+GENERATED = {
+    'data/manifests/scene_story_registration.json',
+    'data/manifests/dialogue_library_registration.json',
+    'data/manifests/story_start.json',
+}
+
+
+def select(paths, event_name='pull_request'):
+    def git(args, **kwargs):
+        if args[:3] == ['git', 'diff', '--name-only']:
+            return subprocess.CompletedProcess(args, 0, ('\0'.join(sorted(paths)) + '\0').encode())
+        # An unrelated runtime edit may invoke the existing archived benchmark
+        # compatibility check. Supply an intentionally incompatible old fixture.
+        if args[:2] == ['git', 'show'] and args[2].endswith('.zip'):
+            archive = io.BytesIO()
+            with zipfile.ZipFile(archive, 'w') as output:
+                output.writestr('terminal-root/saves/slot_2.json', json.dumps({
+                    'current_snapshot': {'snapshot': {'gameplay': {}}}}))
+            return subprocess.CompletedProcess(args, 0, archive.getvalue())
+        if args[:2] == ['git', 'show'] and args[2].endswith(':scripts/domain/run/RunSnapshotSchema.gd'):
+            return subprocess.CompletedProcess(args, 0, b'const SCENE_GAMEPLAY_KEYS := ["current"]')
+        raise AssertionError('Unexpected selector command: ' + repr(args))
+
+    with tempfile.TemporaryDirectory() as temporary:
+        event = Path(temporary) / 'event.json'
+        output = Path(temporary) / 'output'
+        event.write_text(json.dumps({'pull_request': {'base': {'sha': 'a' * 40}}}))
+        with patch.dict(os.environ, {'GITHUB_EVENT_NAME': event_name,
+                                     'GITHUB_EVENT_PATH': str(event), 'GITHUB_OUTPUT': str(output)}), \
+                patch('subprocess.run', side_effect=git), contextlib.redirect_stdout(io.StringIO()):
+            exec(compile(SELECTOR, 'windows-tests.yml:scope', 'exec'), {})
+        return dict(line.split('=', 1) for line in output.read_text().splitlines())
+
+
+class WindowsCoverageTests(unittest.TestCase):
+    def test_dtl_only_and_generated_companions_select_content(self):
+        for paths in ({DAY}, {DAY} | GENERATED | {'docs/agent/dtl-story-authoring.md'}):
+            with self.subTest(paths=paths):
+                result = select(paths)
+                self.assertEqual(result['dtl_content'], 'true')
+                self.assertEqual(result['dtl_first'], 'false')
+                self.assertEqual(result['comparison'], 'false')
+
+    def test_new_nested_timeline_selects_content(self):
+        self.assertEqual(select({'dialogic/timelines/authored_week/chapter/opening.dtl'})['dtl_content'], 'true')
+
+    def test_companions_without_dtl_do_not_select_content(self):
+        self.assertEqual(select(GENERATED)['dtl_content'], 'false')
+
+    def test_unreviewed_sources_keep_broad_coverage(self):
+        for path in ('autoload/GameState.gd', 'scripts/domain/run/RunSnapshotSchema.gd',
+                     'data/manifests/authored_week_source.json', 'localization/story/en.csv',
+                     'dialogic/timelines/other.dtl', 'tools/testing/test_windows_coverage.py'):
+            with self.subTest(path=path):
+                result = select({DAY, path})
+                for mode in ('dtl_content', 'dtl_first', 'inline_audio', 'reading_layout', 'focused'):
+                    self.assertEqual(result[mode], 'false', mode)
+
+    def test_empty_and_manual_dispatch_keep_broad_coverage(self):
+        self.assertEqual(select(set())['dtl_content'], 'false')
+        result = select({DAY}, 'workflow_dispatch')
+        self.assertTrue(all(value == 'false' for value in result.values()))
+
+    def test_existing_reviewed_migration_still_selects_dtl_first(self):
+        result = select({DAY, 'tools/authoring/DtlStorySource.gd'})
+        self.assertEqual(result['dtl_first'], 'true')
+        self.assertEqual(result['dtl_content'], 'false')
+
+    def test_content_matrix_retains_all_manual_edit_suites(self):
+        # Read the actual matrix expansion and runner's accepted suite names.
+        include = re.search(r"include: \$\{\{ fromJSON\(needs.test-scope.outputs.dtl_content == 'true' && '([^']+)'", WORKFLOW)
+        self.assertIsNotNone(include)
+        actual = {item['suite'] for item in json.loads(include[1])}
+        runner = (ROOT / 'tools/testing/Invoke-CloudTests.ps1').read_text()
+        accepted = set(re.findall(r"'(scene_content_update_\w+)'", runner.split('[string]$Suite', 1)[0]))
+        self.assertEqual(len(accepted), 12)
+        self.assertEqual(actual, accepted)
+        base = re.search(r"fromJSON\(\(needs.test-scope.outputs.dtl_content == 'true' \|\| needs.test-scope.outputs.dtl_first == 'true'\) && '([^']+)'", WORKFLOW)
+        self.assertIsNotNone(base)
+        self.assertEqual(len(json.loads(base[1])), 29)
+
+
+if __name__ == '__main__':
+    unittest.main()

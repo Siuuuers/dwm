@@ -19,6 +19,7 @@ jobs:
     runs-on: ubuntu-24.04
     outputs:
       dtl_first: ${{ steps.scope.outputs.dtl_first }}
+      dtl_content: ${{ steps.scope.outputs.dtl_content }}
       inline_audio: ${{ steps.scope.outputs.inline_audio }}
       reading_layout: ${{ steps.scope.outputs.reading_layout }}
       bilingual_reading: ${{ steps.scope.outputs.bilingual_reading }}
@@ -38,17 +39,22 @@ jobs:
           sparse-checkout-cone-mode: false
           sparse-checkout: |
             /.github/workflows/windows-tests.yml
+            /tools/testing/test_windows_coverage.py
+            /tools/testing/Invoke-CloudTests.ps1
           persist-credentials: true
       - name: Prepare disposable checkout for credential cleanup
         run: |
           git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
           git submodule foreach --recursive 'true'
+      - name: Verify coverage selection
+        run: python tools/testing/test_windows_coverage.py
       - name: Select narrow runtime coverage or full validation
         id: scope
         shell: python
         run: |
           import io, json, os, re, subprocess, zipfile
-          event = json.load(open(os.environ["GITHUB_EVENT_PATH"]))
+          with open(os.environ["GITHUB_EVENT_PATH"]) as event_file:
+              event = json.load(event_file)
           base = event.get("pull_request", {}).get("base", {}).get("sha") or event.get("before", "")
           allowed = {
               "scripts/narrative/DialogicRuntimeAdapter.gd",
@@ -87,6 +93,7 @@ jobs:
                   bodies.append(rest)
               return bodies[0] == bodies[1]
           dtl_first = False
+          dtl_content = False
           inline_audio = False
           reading_layout = False
           bilingual_reading = False
@@ -160,6 +167,20 @@ jobs:
                   dtl_first = "tools/authoring/DtlStorySource.gd" in paths and all(
                       p in dtl_first_paths or (p.endswith(".gd.uid") and p[:-4] in dtl_first_paths)
                       for p in paths)
+                  # Ordinary DTL edits retain the reviewed runtime suites and
+                  # manual-content Save/Load cases. Runtime or root-config edits
+                  # do not qualify through this content-only route.
+                  dtl_content_sources = {
+                      p for p in paths
+                      if p.startswith("dialogic/timelines/authored_week/") and p.endswith(".dtl")
+                  }
+                  dtl_content_companions = {
+                      "data/manifests/scene_story_registration.json",
+                      "data/manifests/dialogue_library_registration.json",
+                      "data/manifests/story_start.json",
+                      "docs/agent/dtl-story-authoring.md",
+                  }
+                  dtl_content = bool(dtl_content_sources) and paths <= dtl_content_sources | dtl_content_companions
                   inline_audio_paths = {
                       'tests/unit/test_witnessed_pause_view.gd',
                       'tests/unit/test_witnessed_reading_rail.gd',
@@ -526,7 +547,7 @@ jobs:
           # Current native Save/Load and terminal fixtures qualify incompatible schemas;
           # skipping this old-input measurement does not establish a speedup.
           comparison = comparison or (focused and not previous)
-          if dtl_first or reading_layout or bilingual_reading or dialogue_library or playtest_polish or self_talk or shop_cosmetics or scene_transition or save_ink: comparison = False
+          if dtl_content or dtl_first or reading_layout or bilingual_reading or dialogue_library or playtest_polish or self_talk or shop_cosmetics or scene_transition or save_ink: comparison = False
           if comparison:
               archive = "evidence/phase_2r/current_ci_20261023/final_retention/run39988834004/original-12517208437.zip"
               archive_bytes = subprocess.run(["git", "show", "HEAD:" + archive], capture_output=True, check=True).stdout
@@ -544,9 +565,10 @@ jobs:
                   if keys != saved_keys:
                       comparison = False
                       print("Archived startup/Load measurement is incompatible with " + ref + "; current-build correctness coverage remains required.")
-          print("Selected " + ("DTL compiler/save/runtime coverage" if dtl_first else "reading layout coverage" if reading_layout else "bilingual reading coverage" if bilingual_reading else "runtime resource/Backup coverage" if focused else "full validation"))
+          print("Selected " + ("DTL content and manual-edit recovery coverage" if dtl_content else "DTL compiler/save/runtime coverage" if dtl_first else "reading layout coverage" if reading_layout else "bilingual reading coverage" if bilingual_reading else "runtime resource/Backup coverage" if focused else "full validation"))
           with open(os.environ["GITHUB_OUTPUT"], "a") as output:
               output.write(f"dtl_first={str(dtl_first).lower()}\n")
+              output.write(f"dtl_content={str(dtl_content).lower()}\n")
               output.write(f"inline_audio={str(inline_audio).lower()}\n")
               output.write(f"reading_layout={str(reading_layout).lower()}\n")
               output.write(f"bilingual_reading={str(bilingual_reading).lower()}\n")
@@ -570,7 +592,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        suite: ${{ fromJSON(needs.test-scope.outputs.dtl_first == 'true' && '["dtl_first_authoring","scene_inline_presentation","scene_inline_audio_unit","scene_inline_audio_transition","scene_inline_audio_transport","authored_week","named_presentation","bilingual_reading","dialogue_library","self_talk_journey","self_talk_transport","self_talk_skip","scene_native_restore","scene_current_creation","scene_day_history","scene_direct_controls","scene_multiple_thoughts","scene_contacts","current_quick_load","scene_player_position","scene_transition_pixels","scene_transition_journey","scene_transition_auto","scene_transition_reduced","scene_checkpoint_ack","scene_current_snapshot","scene_caption_challenge","current_title","scene_controls_localization"]' || needs.test-scope.outputs.inline_audio == 'true' && '["scene_inline_audio_unit","scene_inline_audio_transition","scene_inline_audio","scene_inline_audio_transport","authored_week","named_presentation","bilingual_reading","self_talk_journey","self_talk_transport","self_talk_skip","scene_native_restore","scene_current_creation","scene_day_history","scene_direct_controls","scene_multiple_thoughts","scene_contacts","current_quick_load","scene_player_position","scene_transition_pixels","scene_transition_journey","scene_transition_auto","scene_transition_reduced"]' || needs.test-scope.outputs.reading_layout == 'true' && '["bilingual_reading","self_talk_review","self_talk_ui","self_talk_journey","self_talk_transport","scene_controls_localization","scene_direct_controls","scene_caption_challenge","scene_transition_pixels","scene_transition_journey","scene_transition_auto","scene_transition_reduced","reading_delivery","settings","endings"]' || needs.test-scope.outputs.bilingual_reading == 'true' && '["bilingual_reading","dialogue_library","authored_week","scene_checkpoint_ack","scene_story_localization","settings","persistence","current_title","current_quick_load","scene_native_restore","scene_multiple_thoughts","scene_direct_controls","scene_controls_localization","self_talk_unit","self_talk_skip","self_talk_journey","self_talk_transport","self_talk_choices","authored_self_talk_choices","scene_transition_pixels","scene_transition_journey","scene_transition_auto","scene_transition_reduced","reading_delivery","localization"]' || needs.test-scope.outputs.dialogue_library == 'true' && '["dialogue_library","authored_week","scene_checkpoint_ack","scene_content_update_wording","scene_story_localization","named_presentation","settings","persistence","new_account","current_title","current_quick_load","scene_native_restore","scene_transition_journey","self_talk_journey","scene_multiple_thoughts","scene_direct_controls","scene_controls_localization","scene_passage_catalogue","scene_passage_connected","reading_delivery","localization"]' || needs.test-scope.outputs.playtest_polish == 'true' && '["shop_cosmetic_journey","self_talk_choices","authored_self_talk_choices","self_talk_unit","self_talk_runtime","self_talk_ui","self_talk_skip","self_talk_journey","self_talk_review","self_talk_transport","scene_multiple_thoughts","scene_contacts","scene_apps","scene_computer","scene_controls_localization","scene_caption_challenge","scene_direct_controls","save_ink_pixels","save_ink_journey","save_ink_storage","save_ink_backup_refresh","current_quick_load","scene_transition_pixels","scene_transition_journey","scene_transition_auto","scene_transition_reduced","settings","desktop","current_title"]' || needs.test-scope.outputs.save_ink == 'true' && '["save_ink_journey","save_ink_pixels","save_ink_storage","save_ink_backup_refresh","current_quick_load","current_title","self_talk_journey","scene_transition_journey","scene_apps"]' || needs.test-scope.outputs.scene_transition == 'true' && '["scene_transition_pixels","scene_transition_journey","scene_transition_auto","scene_transition_reduced","self_talk_journey","self_talk_transport","self_talk_skip","scene_apps","scene_day_history","scene_direct_controls","current_title","scene_controls_localization"]' || needs.test-scope.outputs.shop_cosmetics == 'true' && '["shop_cosmetic_unit","shop_cosmetic_layout","shop_cosmetic_buy","shop_cosmetic_supportz","shop_cosmetic_legacy","shop_cosmetic_blank","shop_cosmetic_journey","scene_apps","scene_same_day_supportz","self_talk_journey","current_title","scene_controls_localization"]' || needs.test-scope.outputs.self_talk == 'true' && '["self_talk_unit","self_talk_runtime","self_talk_ui","self_talk_skip","self_talk_journey","self_talk_review","self_talk_transport","scene_day_history","scene_direct_controls","scene_later_caption","scene_caption_challenge","scene_passage_catalogue","scene_passage_connected","scene_story_localization","scene_controls_localization","current_title","scene_apps"]' || needs.test-scope.outputs.focused == 'true' && '["timeline_resources","backup_presentation","profile_parse","authored_week","scene_backup_inspection","scene_progress_schema","current_title"]' || '["bilingual_reading","dialogue_library","self_talk_choices","authored_self_talk_choices","named_presentation","minesweeper","shop","desktop","settings","checkpoint_diagnostics","new_account","reading_delivery","localization","dating","persistence","endings","audio","scene_desktop_first_reveal","scene_round_checkpoint","scene_shop_checkpoint","scene_story_localization","scene_controls_localization","scene_apps","current_title","scene_backup_inspection","scene_progress_schema","authored_week","scene_five_outcomes","timeline_resources","profile_parse","backup_current_build","current_terminal_fixture","current_quick_load","scene_direct_controls","scene_multiple_thoughts","scene_challenge_recall","scene_same_day_supportz","scene_player_position","scene_native_restore","scene_day_history","scene_later_caption","scene_caption_challenge","scene_audio_connected","scene_save_metadata","scene_passage_connected","scene_passage_catalogue","scene_contacts","scene_current_creation","scene_current_frames","scene_current_challenge","scene_current_snapshot","scene_content_update_wording","scene_content_update_deleted_line","scene_content_update_deleted_checkpoint","scene_content_update_history","scene_content_update_active_board","scene_content_update_transfer_active","scene_content_update_transfer_terminal","scene_content_update_resolved_unfinished","scene_content_update_completed_appended","scene_content_update_completed_deleted","scene_content_update_invalid_choice","scene_content_update_invalid_choice_missing_default","scene_content_contracts","scene_checkpoint_ack","scene_owner_composition"]') }}
+        suite: ${{ fromJSON((needs.test-scope.outputs.dtl_content == 'true' || needs.test-scope.outputs.dtl_first == 'true') && '["dtl_first_authoring","scene_inline_presentation","scene_inline_audio_unit","scene_inline_audio_transition","scene_inline_audio_transport","authored_week","named_presentation","bilingual_reading","dialogue_library","self_talk_journey","self_talk_transport","self_talk_skip","scene_native_restore","scene_current_creation","scene_day_history","scene_direct_controls","scene_multiple_thoughts","scene_contacts","current_quick_load","scene_player_position","scene_transition_pixels","scene_transition_journey","scene_transition_auto","scene_transition_reduced","scene_checkpoint_ack","scene_current_snapshot","scene_caption_challenge","current_title","scene_controls_localization"]' || needs.test-scope.outputs.inline_audio == 'true' && '["scene_inline_audio_unit","scene_inline_audio_transition","scene_inline_audio","scene_inline_audio_transport","authored_week","named_presentation","bilingual_reading","self_talk_journey","self_talk_transport","self_talk_skip","scene_native_restore","scene_current_creation","scene_day_history","scene_direct_controls","scene_multiple_thoughts","scene_contacts","current_quick_load","scene_player_position","scene_transition_pixels","scene_transition_journey","scene_transition_auto","scene_transition_reduced"]' || needs.test-scope.outputs.reading_layout == 'true' && '["bilingual_reading","self_talk_review","self_talk_ui","self_talk_journey","self_talk_transport","scene_controls_localization","scene_direct_controls","scene_caption_challenge","scene_transition_pixels","scene_transition_journey","scene_transition_auto","scene_transition_reduced","reading_delivery","settings","endings"]' || needs.test-scope.outputs.bilingual_reading == 'true' && '["bilingual_reading","dialogue_library","authored_week","scene_checkpoint_ack","scene_story_localization","settings","persistence","current_title","current_quick_load","scene_native_restore","scene_multiple_thoughts","scene_direct_controls","scene_controls_localization","self_talk_unit","self_talk_skip","self_talk_journey","self_talk_transport","self_talk_choices","authored_self_talk_choices","scene_transition_pixels","scene_transition_journey","scene_transition_auto","scene_transition_reduced","reading_delivery","localization"]' || needs.test-scope.outputs.dialogue_library == 'true' && '["dialogue_library","authored_week","scene_checkpoint_ack","scene_content_update_wording","scene_story_localization","named_presentation","settings","persistence","new_account","current_title","current_quick_load","scene_native_restore","scene_transition_journey","self_talk_journey","scene_multiple_thoughts","scene_direct_controls","scene_controls_localization","scene_passage_catalogue","scene_passage_connected","reading_delivery","localization"]' || needs.test-scope.outputs.playtest_polish == 'true' && '["shop_cosmetic_journey","self_talk_choices","authored_self_talk_choices","self_talk_unit","self_talk_runtime","self_talk_ui","self_talk_skip","self_talk_journey","self_talk_review","self_talk_transport","scene_multiple_thoughts","scene_contacts","scene_apps","scene_computer","scene_controls_localization","scene_caption_challenge","scene_direct_controls","save_ink_pixels","save_ink_journey","save_ink_storage","save_ink_backup_refresh","current_quick_load","scene_transition_pixels","scene_transition_journey","scene_transition_auto","scene_transition_reduced","settings","desktop","current_title"]' || needs.test-scope.outputs.save_ink == 'true' && '["save_ink_journey","save_ink_pixels","save_ink_storage","save_ink_backup_refresh","current_quick_load","current_title","self_talk_journey","scene_transition_journey","scene_apps"]' || needs.test-scope.outputs.scene_transition == 'true' && '["scene_transition_pixels","scene_transition_journey","scene_transition_auto","scene_transition_reduced","self_talk_journey","self_talk_transport","self_talk_skip","scene_apps","scene_day_history","scene_direct_controls","current_title","scene_controls_localization"]' || needs.test-scope.outputs.shop_cosmetics == 'true' && '["shop_cosmetic_unit","shop_cosmetic_layout","shop_cosmetic_buy","shop_cosmetic_supportz","shop_cosmetic_legacy","shop_cosmetic_blank","shop_cosmetic_journey","scene_apps","scene_same_day_supportz","self_talk_journey","current_title","scene_controls_localization"]' || needs.test-scope.outputs.self_talk == 'true' && '["self_talk_unit","self_talk_runtime","self_talk_ui","self_talk_skip","self_talk_journey","self_talk_review","self_talk_transport","scene_day_history","scene_direct_controls","scene_later_caption","scene_caption_challenge","scene_passage_catalogue","scene_passage_connected","scene_story_localization","scene_controls_localization","current_title","scene_apps"]' || needs.test-scope.outputs.focused == 'true' && '["timeline_resources","backup_presentation","profile_parse","authored_week","scene_backup_inspection","scene_progress_schema","current_title"]' || '["bilingual_reading","dialogue_library","self_talk_choices","authored_self_talk_choices","named_presentation","minesweeper","shop","desktop","settings","checkpoint_diagnostics","new_account","reading_delivery","localization","dating","persistence","endings","audio","scene_desktop_first_reveal","scene_round_checkpoint","scene_shop_checkpoint","scene_story_localization","scene_controls_localization","scene_apps","current_title","scene_backup_inspection","scene_progress_schema","authored_week","scene_five_outcomes","timeline_resources","profile_parse","backup_current_build","current_terminal_fixture","current_quick_load","scene_direct_controls","scene_multiple_thoughts","scene_challenge_recall","scene_same_day_supportz","scene_player_position","scene_native_restore","scene_day_history","scene_later_caption","scene_caption_challenge","scene_audio_connected","scene_save_metadata","scene_passage_connected","scene_passage_catalogue","scene_contacts","scene_current_creation","scene_current_frames","scene_current_challenge","scene_current_snapshot","scene_content_update_wording","scene_content_update_deleted_line","scene_content_update_deleted_checkpoint","scene_content_update_history","scene_content_update_active_board","scene_content_update_transfer_active","scene_content_update_transfer_terminal","scene_content_update_resolved_unfinished","scene_content_update_completed_appended","scene_content_update_completed_deleted","scene_content_update_invalid_choice","scene_content_update_invalid_choice_missing_default","scene_content_contracts","scene_checkpoint_ack","scene_owner_composition"]') }}
+        include: ${{ fromJSON(needs.test-scope.outputs.dtl_content == 'true' && '[{"suite":"scene_content_update_wording"},{"suite":"scene_content_update_deleted_line"},{"suite":"scene_content_update_deleted_checkpoint"},{"suite":"scene_content_update_history"},{"suite":"scene_content_update_active_board"},{"suite":"scene_content_update_transfer_active"},{"suite":"scene_content_update_transfer_terminal"},{"suite":"scene_content_update_resolved_unfinished"},{"suite":"scene_content_update_completed_appended"},{"suite":"scene_content_update_completed_deleted"},{"suite":"scene_content_update_invalid_choice"},{"suite":"scene_content_update_invalid_choice_missing_default"}]' || '[]') }}
     defaults:
       run:
         shell: pwsh
@@ -790,7 +813,7 @@ jobs:
           retention-days: 7
 
   windows-export:
-    needs: [test-scope, public-surfaces]
+    needs: test-scope
     if: needs.test-scope.outputs.focused != 'true'
     name: Windows / exported release startup
     runs-on: windows-2022
@@ -1045,7 +1068,7 @@ jobs:
           retention-days: 7
 
   rendered-journeys:
-    needs: [test-scope, public-surfaces]
+    needs: test-scope
     if: needs.test-scope.outputs.focused != 'true' && needs.test-scope.outputs.inline_audio != 'true'
     name: Rendered current Gallery components
     runs-on: ubuntu-24.04
@@ -1146,7 +1169,7 @@ jobs:
           if-no-files-found: error
           retention-days: 7
   rendered-desktop:
-    needs: [test-scope, public-surfaces]
+    needs: test-scope
     if: needs.test-scope.outputs.focused != 'true' && needs.test-scope.outputs.inline_audio != 'true'
     name: Rendered desktop and dialogue / Linux software OpenGL
     runs-on: ubuntu-24.04

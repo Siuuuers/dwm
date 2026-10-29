@@ -138,8 +138,31 @@ start owner. Never hand-edit these generated files to repair a DTL declaration.
 
 The DTL-first cloud preflight imports once, exports twice to check determinism,
 validates in a fresh process, exercises synthetic replacement content, and retains
-generated outputs and exact candidate evidence. Final acceptance checks committed
-outputs are current, rendered reading/Load behavior, and the Windows package.
+generated outputs and exact candidate evidence. Finish caller/save reviews and
+inspect focused screenshots before freezing a candidate for full acceptance.
+
+For preparation, dispatch the preflight with `check_generated=false`. It collects
+behavioral results and both public inventories even when generated files are stale.
+Take the three manifests and two inventories from that same candidate's artifact
+and commit them together. PR acceptance checks all five against committed bytes
+after collecting results; regenerating an inventory is not acceptance by itself.
+
+DTL-only changes under `dialogic/timelines/authored_week/` (including nested files)
+may accompany the three generated manifests and this guide. They select the 29 DTL
+runtime suites plus all 12 manual-content-update Save/Load suites. Changes to the
+source-root configuration or unrelated runtime owners retain broader coverage.
+Export, Gallery rendering and desktop/dialogue rendering start after coverage
+selection, alongside public-contract checks; every applicable result must pass.
 Draft-content replacement does not migrate or delete existing user saves.
 
 Compatible earlier saves that omit resolved presentation use only the current entry's declared `# art scene` base preset on Load. This preserves the existing caption's background, portraits and split layout without replaying checkpoints, inline artwork, or audio cues, and without rewriting the saved file. It does not infer later artwork or migrate replaced draft story content.
+
+For an optional timing baseline, dispatch with `reading_baseline=true`. This probe
+is tied to the current shipped Day1 opening: three isolated processes each record
+New Acc and three next-caption inputs, with first visible drawing and fully
+revealed/input-ready drawing measured separately. Raw samples, source/content
+fingerprints and screenshots are retained. It is not a story acceptance contract
+or a speed threshold; update the probe deliberately when replacing that opening.
+Fresh processes do not establish cold OS caches. These software-rendered editor
+measurements do not establish exported-player, cross-entry transition or Load
+latency.

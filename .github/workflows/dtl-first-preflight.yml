@@ -1,10 +1,16 @@
 name: DTL-first authoring preflight
 
 on:
+  push:
+    branches: [ci/dtl-feedback-20261029]
   workflow_dispatch:
     inputs:
       check_generated:
         description: Require committed generated outputs to be current
+        type: boolean
+        default: false
+      reading_baseline:
+        description: Measure the current Day1 opening (fixed baseline content)
         type: boolean
         default: false
   pull_request:
@@ -91,9 +97,6 @@ jobs:
             echo '::notice::Generated registration changed; retain the artifact before final acceptance.'
             cat .godot/ci/dtl-first/stale-generated.txt
           fi
-      - name: Require current committed output for final acceptance
-        if: ${{ github.event_name == 'pull_request' || inputs.check_generated == true }}
-        run: git diff --exit-code -- data/manifests/scene_story_registration.json data/manifests/dialogue_library_registration.json data/manifests/story_start.json
       - name: Test authoring and rendered presentation with isolated storage
         shell: python
         run: |
@@ -164,6 +167,62 @@ jobs:
               grep '^SURFACE_INVENTORY: PASS$' "$log"
             done
           done
+      # Keep collecting behavior and generated files when preparation finds stale output.
+      # Final acceptance still requires every generated owner to match committed bytes.
+      - name: Require current committed output for final acceptance
+        if: ${{ !cancelled() && steps.import_project.outcome == 'success' && steps.export_story.outcome == 'success' && (github.event_name == 'pull_request' || inputs.check_generated == true) }}
+        run: |
+          git diff --exit-code -- data/manifests/scene_story_registration.json data/manifests/dialogue_library_registration.json data/manifests/story_start.json evidence/phase_2r/runtime/game_state_surface.json evidence/phase_2r/runtime/save_manager_surface.json
+      - name: Measure current reading with fresh isolated processes
+        if: ${{ inputs.reading_baseline == true || github.event_name == 'push' }}
+        timeout-minutes: 8
+        shell: python
+        run: |
+          import hashlib, json, os, pathlib, re, statistics, subprocess, xml.etree.ElementTree as ET
+          root = pathlib.Path.cwd()
+          output = root / '.godot/ci/dtl-first/reading-baseline'
+          output.mkdir()
+          source = subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip()
+          script = 'tests/integration/test_current_reading_baseline.gd'
+          reports = []
+          for repetition in range(1, 4):
+              folder = output / str(repetition)
+              folder.mkdir()
+              env = os.environ.copy()
+              for key, name in [('XDG_DATA_HOME', 'data'), ('DWM_TEST_ROOT', 'test-root')]:
+                  path = root / '.godot/phase2r_tests/reading-baseline' / str(repetition) / name
+                  path.mkdir(parents=True)
+                  env[key] = str(path)
+              env['DWM_READING_BASELINE_OUTPUT'] = str(folder)
+              env['DWM_READING_BASELINE_SHA'] = source
+              report = folder / 'result.xml'
+              log = folder / 'render.log'
+              subprocess.run(['xvfb-run', '-a', env['GODOT_CONSOLE_PATH'], '--rendering-method', 'gl_compatibility',
+                  '--audio-driver', 'Dummy', '--path', str(root), '--log-file', str(log),
+                  '-s', 'res://addons/gut/gut_cmdln.gd', '-gconfig=', '-gtest=res://' + script,
+                  '-gexit', '-glog=1', '-gjunit_xml_file=' + str(report)], env=env, check=True, timeout=150)
+              assert not re.search(r'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character', log.read_text()), log
+              cases = ET.parse(report).findall('.//testcase')
+              assert len(cases) == 1 and cases[0].get('classname') == script
+              assert cases[0].get('name') == 'test_current_content_native_input_reading_baseline'
+              assert cases[0].get('status') == 'pass' and int(cases[0].get('assertions', '0')) > 0
+              observed = json.loads((folder / 'samples.json').read_text())
+              assert observed['source_sha'] == source and len(observed['samples']) == 4
+              assert observed['renderer'] != 'headless'
+              assert hashlib.sha256((folder / 'last-caption.png').read_bytes()).hexdigest() == observed['screenshot_sha256']
+              assert [row['line_id'] for row in observed['samples']] == ['line.Day1.one', 'line.Day1.002', 'line.Day1.003', 'line.Day1.004']
+              for row in observed['samples']:
+                  assert row['input_us'] <= row['first_draw_us'] <= row['usable_us']
+              reports.append(observed)
+          assert len({row['process_id'] for row in reports}) == 3
+          summary = {'source_sha': source, 'scope': reports[0]['scope'], 'repetitions': 3, 'actions': []}
+          for index in range(4):
+              rows = [report['samples'][index] for report in reports]
+              summary['actions'].append({'operation': rows[0]['operation'], 'line_id': rows[0]['line_id'],
+                  **{key: {'samples': values, 'median': statistics.median(values), 'min': min(values), 'max': max(values)}
+                  for key in ['input_to_first_draw_us', 'input_to_usable_us']
+                  for values in [[row[key] for row in rows]]}})
+          (output / 'summary.json').write_text(json.dumps(summary, indent=2) + '\n')
       - name: Retain generated output and exact candidate evidence
         if: always()
         uses: actions/upload-artifact@v4
