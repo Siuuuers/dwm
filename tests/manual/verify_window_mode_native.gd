@@ -107,6 +107,9 @@ func _verify_manager_pipeline() -> void:
 	initialized = _manager.initialize(_profile, _audio.get_settings_output_transactions())
 	_check(initialized.get("ok", false), "window_manager_initialized")
 	if not initialized.get("ok", false): return
+	_check(_profile.get_preference(PATH) == "borderless", "fresh_profile_borderless")
+	_check(_manager.get_applied_mode() == "borderless" and _port.output_matches("borderless"), "fresh_native_borderless")
+	_check(_manager.commit_settings_window_preference("native-window-verification", "windowed").ok, "select_windowed_before_commit_proof")
 	var revision: int = _profile.get_profile_revision()
 	var published: Array = []
 	_profile.preference_changed.connect(func(path, value): published.append([String(path), value]))
@@ -126,6 +129,12 @@ func _verify_manager_pipeline() -> void:
 		_check(_profile.get_preference(&"preferences.display.window_size") == id, "profile_size_" + id)
 		_check(_port.output_matches("windowed", id), "native_size_" + id)
 		_check(not gate.is_fatal_latched(), "size_gate_healthy_" + id)
+
+	var reset: Dictionary = _audio.get_settings_output_transactions().commit_settings_profile_reset(
+		"native-window-verification", &"reset_preferences", _profile.get_profile_revision())
+	_check(reset.get("ok", false), "reset_preferences")
+	_check(_profile.get_preference(PATH) == "borderless", "reset_profile_borderless")
+	_check(_manager.get_applied_mode() == "borderless" and _port.output_matches("borderless"), "reset_native_borderless")
 
 
 func _serialize(snapshot: Dictionary) -> Dictionary:

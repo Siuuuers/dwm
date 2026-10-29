@@ -48,6 +48,27 @@ assert.equal(DTL.issues('# audio music a fade=\n# art show x\n# checkpoint').len
 assert.equal(DTL.issues(original).length,0);
 console.log('PASS: source preservation, caption-pair insertion, all nine controls and local feedback.');
 
+// Small synthetic limits test advisory policy only; these are not game measurements.
+const sampleProfile={pending:false,locales:{en:{caption:{range:[4,7]},thought:{range:[2,3]}}}};
+assert.deepEqual(JSON.parse(JSON.stringify(DTL.profile)),JSON.parse(fs.readFileSync(path.join(__dirname,'readability-profile.json'),'utf8')),'offline profile matches its versioned source');
+const counting='\\Cafe\u0301 👩‍👩‍👧‍👦\\: #id:stable\n# self-talk\n# comment\n\\三文字 #id:thought';
+const counts=DTL.guidance(counting,'en',sampleProfile);
+assert.equal(counts[0].count,7,'combining accent and family emoji are one visible character each; ID/colon escape omitted');
+assert.equal(counts[1].kind,'thought'); assert.equal(counts[1].line,4); assert.equal(counts[1].count,3);
+assert.match(counts[1].message,/conservative 2-character/);
+assert.equal(DTL.guidance('\\four #id:a','en',sampleProfile)[0].message,'');
+assert.equal(DTL.guidance('\\four#id:a','en',sampleProfile)[0].count,4,'Dialogic ID separator does not require whitespace');
+assert.equal(DTL.guidance('\\five! #id:a','en',sampleProfile)[0].message.includes('Wrapping may be fine'),true);
+assert.equal(DTL.guidance('\\five! #id:a','en',{pending:true,locales:{}})[0].message,'');
+assert.match(DTL.guidance('\\first[br]second #id:a','en',sampleProfile)[0].message,/outside plain-prose guidance/);
+assert.equal(DTL.guidance('\\{player_name} #id:a','en',sampleProfile)[0].count,null);
+assert.equal(DTL.guidance('\\[b]word[/b] #id:a','en',sampleProfile)[0].count,null,'authored markup is not interpreted as admitted formatting');
+assert.equal(DTL.guidance('\\<draft> #id:a','en',sampleProfile)[0].count,null);
+assert.equal(DTL.guidance('label x\n# checkpoint x\nreturn','en',sampleProfile).length,0);
+assert.equal(counting,'\\Cafe\u0301 👩‍👩‍👧‍👦\\: #id:stable\n# self-talk\n# comment\n\\三文字 #id:thought','guidance never rewrites source');
+console.log('PASS: grapheme counts, separate thought targets, source rows and advisory-only policy.');
+
+
 async function browserJourney() {
  const {chromium} = require('playwright');
  const browser = await chromium.launch({headless:true});
@@ -79,6 +100,30 @@ async function browserJourney() {
  await insert('checkpoint','room.arrival','\\Thought');
  assert.deepEqual(await exported(),Buffer.from('\uFEFF'+mixed.replace('\\Caption','# checkpoint room.arrival\r\n\\Caption')));
  await page.getByRole('button',{name:'Undo edit',exact:true}).click(); assert.deepEqual(await exported(),bytes);
+
+ // Draft markup stays exportable but gets a plain-prose guidance notice; it is not admitted game syntax.
+ const adviceSource='\\Short caption. #id:caption\r\n# self-talk\r\n\\First[br]second. #id:thought';
+ await load('advice.dtl',Buffer.from('\uFEFF'+adviceSource));
+ const marker=page.locator('#lineMarkers button[data-line="3"]');
+ await marker.focus();
+ assert.equal(await marker.evaluate(node=>document.activeElement===node),true);
+ assert.match(await page.locator('#lineAdvice').innerText(),/Line 3 · thought: Draft markup/);
+ await marker.press('Enter');
+ assert.equal(await page.locator('#source').evaluate(node=>node.value.slice(0,node.selectionStart).split('\n').length),3);
+ await page.locator('#language').selectOption('zh_HK');
+ assert.deepEqual(await exported(),Buffer.from('\uFEFF'+adviceSource),'language selection and advice preserve original bytes');
+ await page.locator('#source').fill('\n'+DTL.normalize(adviceSource));
+ assert.equal(await page.locator('#lineMarkers button[data-line="4"]').count(),1,'marker follows source edits');
+ await page.getByRole('button',{name:'Undo edit',exact:true}).click();
+ assert.equal(await page.locator('#lineMarkers button[data-line="3"]').count(),1,'marker follows undo');
+ await page.locator('#language').selectOption('en');
+ const distantAdvice='# spacer\n'.repeat(60)+DTL.normalize(adviceSource);
+ await load('long-advice.dtl',Buffer.from(distantAdvice));
+ await page.locator('#lineMarkers button[data-line="63"]').focus();
+ assert.ok(await page.locator('#source').evaluate(node=>node.scrollTop>0),'keyboard focus brings distant advice into view');
+ assert.equal(await page.evaluate(()=>document.getElementById('lineMarkers').style.transform),'translateY('+await page.locator('#source').evaluate(node=>-node.scrollTop)+'px)');
+ assert.deepEqual(await exported(),Buffer.from(distantAdvice));
+
  await load('Day1.dtl',Buffer.from(original)); assert.deepEqual(await exported(),Buffer.from(original));
  const caption='\\Sylvia slides';
  await insert('label','editor.preview',caption);

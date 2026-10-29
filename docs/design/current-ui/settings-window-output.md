@@ -11,6 +11,12 @@ selected option, and meaningful focus, then presents the existing factual error.
 Changes use immediate native readback and existing exact rollback; there is no
 new confirmation timer, exclusive-resolution switch, or render-scale preference.
 
+Borderless is the default for fresh profiles and explicit preference/full-profile
+resets. Existing saved Windowed or Borderless choices survive startup unchanged.
+`SettingsPreferenceRegistry` owns that default; Profile defaults and resets derive
+it from the registry. The 1920×1080 readability target does not force monitor
+resolution or change usable-desktop Borderless into full-monitor fullscreen.
+
 WindowModeManager owns platform output through WindowModePort. The shared
 SettingsOutputTransactions coordinator retains one Profile prepare/commit/
 publication sequence across audio, window changes, and preference resets.

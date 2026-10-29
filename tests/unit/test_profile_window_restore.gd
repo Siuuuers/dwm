@@ -74,6 +74,7 @@ func _make_profile(suffix: String) -> Node:
 	var profile: Node = PROFILE.new()
 	add_child_autofree(profile)
 	assert_true(profile.initialize(STORAGE.new("profile-window-restore/" + suffix, FILES.new())).get("ok", false))
+	_set_mode(profile, "windowed")
 	return profile
 
 func _set_mode(profile: Node, mode: String) -> void:

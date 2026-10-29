@@ -103,7 +103,6 @@ func _ensure_artwork_gallery() -> void:
 		button.toggle_mode = true
 		button.button_pressed = key == "gallery.tab." + _active_tab
 		button.theme_type_variation = &"GalleryDarkAction"
-		button.add_theme_font_size_override("font_size", 20)
 		button.pressed.connect(_show_gallery_tab.bind(key.trim_prefix("gallery.tab.")))
 		_gallery_tabs.add_child(button)
 	_refresh_artwork_copy()

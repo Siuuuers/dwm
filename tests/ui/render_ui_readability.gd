@@ -42,6 +42,55 @@ func _run() -> void:
 		root.move_child(retained.node, retained.index)
 	quit(0 if failures.is_empty() else 1)
 
+func _desktop_samples(language: String) -> void:
+	main = SPLIT.MAIN.instantiate()
+	desktop = SPLIT.DESKTOP.instantiate()
+	desktop.set_script(SHELL.IsolatedDesktop)
+	desktop.configure_run_configuration(SHELL.RunConfigurationFixture.new())
+	main._computer_desktop_instance = desktop
+	main.get_node("%ComputerPanel").add_theme_stylebox_override("panel", StyleBoxEmpty.new())
+	main.get_node("%ComputerPanel").add_child(desktop)
+	viewport.add_child(main)
+	desktop._foreground_eligible = true
+	check(desktop.configure_backup_port(QUICK.RecordsFixture.new()).get("ok", false), "Backup records")
+	if check(desktop.open_app(&"backup").get("ok", false), "Backup open"):
+		await capture("backup", language, 100, main)
+	desktop.return_home()
+	var settings: Control = preload("res://scenes/apps/SettingsApp.tscn").instantiate()
+	var content: Control = settings.get_node("SettingsContent")
+	content.configure_services({"profile": profile, "localization": locale, "volume": SETTINGS.MemoryVolume.new(),
+		"audio": null, "tts": null, "input": null, "window": null})
+	desktop.app_window_host.add_child(settings)
+	desktop._cached_app_windows[&"settings"] = settings
+	if check(desktop.open_app(&"settings").get("ok", false), "Settings open"):
+		await capture("settings", language, 100, main)
+	desktop.return_home()
+	var host := SCHEDULE.HOST.new()
+	host.reset(1)
+	var shop_fixture := SHOP.FIXTURES.new()
+	var catalog := SHOP.CatalogFixture.new()
+	catalog.rows = shop_fixture._valid_rows()
+	shop_fixture.free()
+	check(desktop.configure_shop(catalog, locale, profile, host, 1).get("ok", false), "Shop catalog")
+	var opened: Dictionary = desktop.open_app(&"shop")
+	if check(opened.get("ok", false), "Shop open"):
+		await settle()
+		opened.value.app.cards.crystal_stutters.grab_focus()
+		await capture("shop", language, 100, main)
+	desktop.return_home()
+	var mine_fixture := MINES.new()
+	var mine_port := SPLIT.ShellMinesweeperPort.new()
+	mine_port.desktop_owner = desktop
+	mine_port.view = mine_fixture._view()
+	mine_port.live_view = mine_port.view.duplicate(true)
+	mine_fixture.free()
+	check(desktop.configure_minesweeper(mine_port, locale, profile).get("ok", false), "Mines owners")
+	opened = desktop.open_app(&"minesweeper")
+	if check(opened.get("ok", false), "Mines open"):
+		await capture("minesweeper", language, 100, main)
+	main.queue_free()
+	await settle()
+
 func capture(surface: String, language: String, _percent: int, scene: Node) -> void:
 	if surface not in ["gallery", "backup", "settings", "shop", "minesweeper"]: return
 	var key := language + ":" + surface
@@ -50,7 +99,7 @@ func capture(surface: String, language: String, _percent: int, scene: Node) -> v
 	var previous_size: int = profile.get_preference(&"preferences.accessibility.text_size")
 	var previous_style: String = profile.get_preference(&"preferences.accessibility.font_style")
 	for style: String in ["pixel", "readable"]:
-		check(profile.set_preference(&"preferences.accessibility.font_style", style).get("ok", false), "style " + style)
+		check(locale.set_font_style(style).get("ok", false), "style " + style)
 		for percent: int in [125, 150]:
 			check(profile.set_preference(&"preferences.accessibility.text_size", percent).get("ok", false), "size " + str(percent))
 			await settle()
@@ -73,13 +122,24 @@ func capture(surface: String, language: String, _percent: int, scene: Node) -> v
 					await _record(surface + "-" + tab, language, percent, style, scene)
 			else:
 				await _record(surface, language, percent, style, scene)
+				if surface == "backup":
+					var backup: Control = desktop._cached_app_windows[&"backup"]
+					desktop.app_scroll.ensure_control_visible(backup.drawer_buttons["slot:7"])
+					await _record(surface + "-bottom", language, percent, style, scene)
+					check(desktop.app_scroll.get_global_rect().grow(0.5).encloses(backup.drawer_buttons["slot:7"].get_global_rect()), "Backup last drawer reachable")
+					desktop.app_scroll.scroll_vertical = 0
 	check(profile.set_preference(&"preferences.accessibility.text_size", previous_size).get("ok", false), "restore size")
-	check(profile.set_preference(&"preferences.accessibility.font_style", previous_style).get("ok", false), "restore style")
+	check(locale.set_font_style(previous_style).get("ok", false), "restore style")
 	await settle()
 
 func _record(surface: String, language: String, percent: int, style: String, scene: Node) -> void:
 	await settle()
 	_sample_id = "%s-%s-%d-%s" % [surface, language, percent, style]
+	if surface.begins_with("backup"):
+		_check_backup_geometry(desktop._cached_app_windows[&"backup"])
+	if surface == "minesweeper":
+		for issue: String in DESKTOP_RENDER.mines_control_layout_failures(desktop._cached_app_windows[&"minesweeper"].panel):
+			check(false, _sample_id + ": " + issue)
 	print("UI_READABILITY_SAMPLE ", _sample_id)
 	var metrics: Array[Dictionary] = []
 	_measure_readability(scene, metrics)
@@ -113,7 +173,7 @@ func _measure_readability(node: Node, metrics: Array[Dictionary]) -> void:
 			check(label.size.x + 0.5 >= minimum.x, _sample_id + ": label width " + label.text)
 		metrics.append({"node": str(label.get_path()), "text": label.text, "font_size": label.get_theme_font_size("font_size"),
 			"size": [label.size.x, label.size.y], "minimum": [minimum.x, minimum.y], "rows": label.get_line_count()})
-	elif node is Button and not node.text.is_empty():
+	elif node is Button and not node.text.is_empty() and node.get_theme_color("font_color").a > 0.0:
 		var button := node as Button
 		var font := button.get_theme_font("font")
 		var font_size := button.get_theme_font_size("font_size")
@@ -138,7 +198,7 @@ func _history_samples(language: String) -> void:
 	var history := READING_FIXTURE.HISTORY.new()
 	viewport.add_child(history)
 	for style: String in ["pixel", "readable"]:
-		check(profile.set_preference(&"preferences.accessibility.font_style", style).get("ok", false), "History style")
+		check(locale.set_font_style(style).get("ok", false), "History style")
 		for percent: int in [125, 150]:
 			check(profile.set_preference(&"preferences.accessibility.text_size", percent).get("ok", false), "History size")
 			check(history.configure(CAPTION_THEME.build(language, percent, "AfterHours", false, "standard", false, 1, false, style), locale, input, func() -> bool: return true), "History configure")
@@ -147,5 +207,5 @@ func _history_samples(language: String) -> void:
 	history.queue_free()
 	input.queue_free()
 	await settle()
-	check(profile.set_preference(&"preferences.accessibility.font_style", "pixel").get("ok", false), "restore History style")
+	check(locale.set_font_style("pixel").get("ok", false), "restore History style")
 	check(profile.set_preference(&"preferences.accessibility.text_size", 100).get("ok", false), "restore History size")

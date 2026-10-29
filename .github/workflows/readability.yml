@@ -1,8 +1,7 @@
 name: Readability measurements
 on:
-  push:
-    branches: [codex/readability-dtl-guidance]
-    paths: ['tests/ui/render*readability*.gd', '.github/workflows/readability.yml']
+  pull_request:
+    paths: ['scripts/ui/**', 'scripts/settings/SettingsPreferenceRegistry.gd', 'tests/ui/render*readability*.gd', 'tools/dtl-editor/**', '.github/workflows/readability.yml']
   workflow_dispatch:
 permissions:
   contents: read
@@ -44,6 +43,7 @@ jobs:
         run: |
           timeout 360s xvfb-run -a -s '-screen 0 1920x1080x24' "$GODOT_CONSOLE_PATH" --path . --rendering-method gl_compatibility --rendering-driver opengl3 --audio-driver Dummy --log-file "$DWM_RENDER_OUTPUT/render.log" --script res://tests/ui/render_readability_measurements.gd -- --phase2r-bootstrap-mode=test_manual
           if grep -E 'SCRIPT ERROR:|ERROR: Failed to load' "$DWM_RENDER_OUTPUT/render.log"; then exit 1; fi
+          node tools/dtl-editor/update-profile.cjs "$DWM_RENDER_OUTPUT/results.json" --check
       - uses: actions/upload-artifact@v4
         if: always()
         with:
