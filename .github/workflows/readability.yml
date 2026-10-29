@@ -42,8 +42,18 @@ jobs:
           git restore -- project.godot
       - name: Measure real caption and thought layouts
         run: |
-          timeout 360s xvfb-run -a -s '-screen 0 1920x1080x24' "$GODOT_CONSOLE_PATH" --path . --rendering-method gl_compatibility --rendering-driver opengl3 --audio-driver Dummy --log-file "$DWM_RENDER_OUTPUT/render.log" --script res://tests/ui/render_readability_measurements.gd
+          timeout 360s xvfb-run -a -s '-screen 0 1920x1080x24' "$GODOT_CONSOLE_PATH" --path . --rendering-method gl_compatibility --rendering-driver opengl3 --audio-driver Dummy --log-file "$DWM_RENDER_OUTPUT/render.log" --script res://tests/ui/render_readability_measurements.gd -- --phase2r-bootstrap-mode=test_manual
           if grep -E 'SCRIPT ERROR:|ERROR: Failed to load' "$DWM_RENDER_OUTPUT/render.log"; then exit 1; fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: readability-measurements-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            .godot/ci/readability/*.json
+            .godot/ci/readability/*.png
+            .godot/ci/readability/*.log
+          include-hidden-files: true
+          if-no-files-found: error
       - name: Audit current UI readability
         if: ${{ !cancelled() }}
         env:
@@ -52,12 +62,12 @@ jobs:
           DWM_TEST_ROOT: ${{ github.workspace }}/.godot/ui-readability-user/test-root
         run: |
           mkdir -p "$DWM_RENDER_OUTPUT" "$XDG_DATA_HOME" "$DWM_TEST_ROOT"
-          timeout 480s xvfb-run -a -s '-screen 0 1920x1080x24' "$GODOT_CONSOLE_PATH" --path . --rendering-method gl_compatibility --rendering-driver opengl3 --audio-driver Dummy --log-file "$DWM_RENDER_OUTPUT/render.log" --script res://tests/ui/render_ui_readability.gd
+          timeout 480s xvfb-run -a -s '-screen 0 1920x1080x24' "$GODOT_CONSOLE_PATH" --path . --rendering-method gl_compatibility --rendering-driver opengl3 --audio-driver Dummy --log-file "$DWM_RENDER_OUTPUT/render.log" --script res://tests/ui/render_ui_readability.gd -- --phase2r-bootstrap-mode=test_manual
           if grep -E 'SCRIPT ERROR:|ERROR: Failed to load' "$DWM_RENDER_OUTPUT/render.log"; then exit 1; fi
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: readability-${{ github.run_id }}-${{ github.run_attempt }}
-          path: .godot/ci/readability/
+          name: readability-ui-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .godot/ci/readability/ui/
           include-hidden-files: true
           if-no-files-found: error

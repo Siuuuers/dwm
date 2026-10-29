@@ -80,6 +80,7 @@ func capture(surface: String, language: String, _percent: int, scene: Node) -> v
 func _record(surface: String, language: String, percent: int, style: String, scene: Node) -> void:
 	await settle()
 	_sample_id = "%s-%s-%d-%s" % [surface, language, percent, style]
+	print("UI_READABILITY_SAMPLE ", _sample_id)
 	var metrics: Array[Dictionary] = []
 	_measure_readability(scene, metrics)
 	check(not metrics.is_empty(), _sample_id + ": visible text exists")
