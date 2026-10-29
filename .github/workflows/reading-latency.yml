@@ -1,4 +1,4 @@
-name: Native reading latency diagnostic
+name: Bilingual screenshot acceptance
 
 on:
   push:
@@ -15,12 +15,11 @@ concurrency:
 jobs:
   measure:
     runs-on: windows-2022
-    timeout-minutes: 45
+    timeout-minutes: 20
     defaults:
       run:
         shell: pwsh
     env:
-      BASELINE_SHA: 2b58ab1a0d2becac3f91d76ac7a9b25f165b9c96
       CANDIDATE_SHA: ${{ github.sha }}
       PYTHONUTF8: '1'
     steps:
@@ -28,21 +27,19 @@ jobs:
         with:
           fetch-depth: 1
           persist-credentials: true
-      - name: Prepare matched source worktrees
+      - name: Prepare candidate screenshot source
         run: |
           $ErrorActionPreference = 'Stop'
           git update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          git fetch --no-tags --depth=1 origin $env:BASELINE_SHA
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           $sources = Join-Path $env:RUNNER_TEMP 'reading-latency-sources'
           $output = Join-Path $env:GITHUB_WORKSPACE '.godot/ci/reading-latency-comparison'
           New-Item -ItemType Directory -Force -Path $sources, $output | Out-Null
           "READING_SOURCES=$sources" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
           "READING_OUTPUT=$output" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
-          foreach ($variant in @('baseline', 'candidate')) {
+          foreach ($variant in @('candidate')) {
             $source = Join-Path $sources $variant
-            $revision = if ($variant -eq 'baseline') { $env:BASELINE_SHA } else { $env:CANDIDATE_SHA }
+            $revision = $env:CANDIDATE_SHA
             git worktree add --detach $source $revision
             if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
             git -C $source update-index --force-remove -- .claude/skills/godot-prompter/1.10.0 .claude/skills/superpowers/6.1.1
@@ -55,10 +52,10 @@ jobs:
             Copy-Item (Join-Path $source '.godot/ci/reading-latency-instrumentation.json') (Join-Path $output "$variant-instrumentation.json")
           }
           [ordered]@{
-            baseline = $env:BASELINE_SHA; candidate = $env:CANDIDATE_SHA
-            order = @('baseline', 'candidate', 'candidate', 'baseline')
-            cases = @('dual-100', 'mono-100', 'dual-150', 'mono-150')
-            scope = 'Rendered editor-run native reading on one Windows runner. Identical observation wrappers; independent process/profile per sample. Imports are outside measured spans. OS caches are not cleared. Inclusive nested method spans must not be summed. Diagnostic-only first candidate is an A/A sanity check, not a speedup claim.'
+            candidate = $env:CANDIDATE_SHA
+            order = @('candidate')
+            cases = @('dual-100', 'dual-150')
+            scope = 'Candidate-only screenshot acceptance at dual 100% and 150%, after focused self-talk assertions. Independent process/profile for each capture. No matched baseline or speedup claim. Earlier A/A evidence remains in run 40827427676; retained timing fields here are diagnostic only.'
           } | ConvertTo-Json -Depth 5 | Set-Content (Join-Path $output 'source.json') -Encoding utf8NoBOM
       - name: Install checksum-pinned Godot
         run: |
@@ -72,11 +69,11 @@ jobs:
           "GODOT_CONSOLE_PATH=$console" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
           & $console --version
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Import both sources outside measured spans
+      - name: Import candidate
         timeout-minutes: 12
         run: |
           $ErrorActionPreference = 'Stop'
-          foreach ($variant in @('baseline', 'candidate')) {
+          foreach ($variant in @('candidate')) {
             $source = Join-Path $env:READING_SOURCES $variant
             $env:APPDATA = Join-Path $source '.godot/import-user/appdata'
             $env:LOCALAPPDATA = Join-Path $source '.godot/import-user/localappdata'
@@ -89,15 +86,30 @@ jobs:
             git -C $source restore -- project.godot
             if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           }
-      - name: Measure counterbalanced native journeys
-        timeout-minutes: 25
+      - name: Verify focused self-talk behavior
+        timeout-minutes: 10
         run: |
           $ErrorActionPreference = 'Stop'
-          foreach ($case in @('dual-100', 'mono-100', 'dual-150', 'mono-150')) {
+          $source = Join-Path $env:READING_SOURCES 'candidate'
+          $capture = Join-Path $env:READING_OUTPUT 'self-talk-unit'
+          New-Item -ItemType Directory -Force -Path $capture | Out-Null
+          try {
+            & (Join-Path $source 'tools/testing/Invoke-CloudTests.ps1') -Suite self_talk_unit
+            $result = $LASTEXITCODE
+          } finally {
+            Get-ChildItem (Join-Path $source '.godot/ci') -Filter 'self_talk_unit*' -File | Copy-Item -Destination $capture
+            Get-ChildItem (Join-Path $source '.godot/phase2r_logs') -Filter 'cloud-self_talk_unit*' -File | Copy-Item -Destination $capture
+          }
+          if ($result -ne 0) { exit $result }
+      - name: Capture dual-language native journeys
+        timeout-minutes: 10
+        run: |
+          $ErrorActionPreference = 'Stop'
+          foreach ($case in @('dual-100', 'dual-150')) {
             $env:DWM_READING_DUAL = if ($case.StartsWith('dual')) { '1' } else { '0' }
             $env:DWM_READING_TEXT_SIZE = $case.Split('-')[1]
             $sample = 0
-            foreach ($variant in @('baseline', 'candidate', 'candidate', 'baseline')) {
+            foreach ($variant in @('candidate')) {
               $sample += 1
               $source = Join-Path $env:READING_SOURCES $variant
               $capture = Join-Path $env:READING_OUTPUT "$case-$sample-$variant"
