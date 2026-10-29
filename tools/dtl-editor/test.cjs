@@ -23,6 +23,9 @@ const spaced = 'label room\n#  art background picture3\n# a note\n\\Caption. #id
 assert.equal(DTL.insertion(spaced,spaced.indexOf('\\Caption'),'label arrival').text,spaced.replace('#  art','label arrival\n#  art'));
 assert.equal(DTL.insertion(spaced,spaced.indexOf('\\Thought'),'# checkpoint x').text,spaced.replace('\\Caption','# checkpoint x\n\\Caption'));
 assert.equal(DTL.issues('#  audio sfx stop').length,1);
+const metadata='label room\n# story  entry day=1\n# art background picture3\n\\Caption #id:c';
+assert.equal(DTL.insertion(metadata,metadata.indexOf('\\Caption'),'label local').text,metadata.replace('# art','label local\n# art'));
+assert.throws(()=>DTL.insertion('label room\n# art background picture3\n# story entry day=1\n\\Caption #id:c',80,'label local'));
 assert.throws(() => DTL.insertion(pair,pair.indexOf('return'),'# checkpoint end'), /caption/);
 const expected = [
  ['label','room.arrival','','','label room.arrival'],
@@ -50,7 +53,7 @@ async function browserJourney() {
  const browser = await chromium.launch({headless:true});
  try {
  const page = await browser.newPage({viewport:{width:1280,height:900}});
- const errors=[]; page.on('pageerror',error=>errors.push(error.message));
+ const errors=[]; page.on('pageerror',error=>{ errors.push(error.message); console.error('Browser error:',error.message); });
  await page.goto('file://' + path.join(__dirname,'index.html'));
  async function load(name,buffer) {
   await page.locator('#file').setInputFiles({name,mimeType:'text/plain',buffer});

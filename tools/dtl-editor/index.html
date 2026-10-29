@@ -75,7 +75,10 @@ const DTL = (() => {
    throw Error('Click a caption with a #id: marker. Insertions go before that caption, outside its self-talk pair.');
   // A new label must precede pending cues; otherwise a jump would bypass them.
   if (newLine.startsWith('label ')) {
-   while (row > 0 && trivia(lines[row - 1]) && !/^story (entry|marker)\b/.test(comment(lines[row - 1]) || '')) row--;
+   while (row > 0 && trivia(lines[row - 1]) && !/^story\s+(entry|marker)\b/.test(comment(lines[row - 1]) || '')) row--;
+   for (let i = row - 1; i >= 0 && trivia(lines[i]); i--) {
+    if (/^(art|audio|checkpoint|self-talk-clear)\b/.test(comment(lines[i]) || '')) throw Error('Move the existing cues below the story declaration before adding a label here.');
+   }
   }
   const position = lines.slice(0, row).reduce((n, line) => n + line.length + 1, 0);
   return {text: text.slice(0, position) + newLine + '\n' + text.slice(position), position, row};
@@ -159,7 +162,7 @@ if (typeof document !== 'undefined') {
   } catch (error) { $('message').textContent = 'Could not import this file as UTF-8 DTL. ' + error.message; }
   $('file').value = '';
  };
- source.oninput = () => { remember(); raw = DTL.reconcile(raw,source.value); cursor = source.selectionStart; refresh(); };
+ source.oninput = () => { const next = DTL.reconcile(raw,source.value); if (next !== raw) { remember(); raw = next; } cursor = source.selectionStart; refresh(); };
  for (const event of ['click','keyup','select']) source.addEventListener(event,() => {cursor = source.selectionStart; position();});
  $('controls').oninput = preview;
  $('controls').onsubmit = event => {
