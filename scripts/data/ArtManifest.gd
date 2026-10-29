@@ -156,6 +156,14 @@ static func make_scene_presentation(entry_id: String) -> Dictionary:
 		"audio_plan_id": "", "overlays": []})
 	return state
 
+## Older compatible captions omitted presentation and used their entry's base
+## layout. Resolve only that declaration; never replay arrival or inline commands.
+static func entry_base_presentation(commands: Array) -> Dictionary:
+	var preset_id := ""
+	for command: Dictionary in commands:
+		if command.kind == "scene": preset_id = command.id
+	return make_scene_presentation(preset_id) if not preset_id.is_empty() else {}
+
 static func apply_presentation_commands(commands: Array, previous: Dictionary) -> Dictionary:
 	if commands.is_empty(): return {"ok": true, "value": {"state": previous.duplicate(true), "autosave": false}}
 	var state: Dictionary

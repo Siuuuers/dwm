@@ -141,3 +141,5 @@ validates in a fresh process, exercises synthetic replacement content, and retai
 generated outputs and exact candidate evidence. Final acceptance checks committed
 outputs are current, rendered reading/Load behavior, and the Windows package.
 Draft-content replacement does not migrate or delete existing user saves.
+
+Compatible earlier saves that omit resolved presentation use only the current entry's declared `# art scene` base preset on Load. This preserves the existing caption's background, portraits and split layout without replaying checkpoints, inline artwork, or audio cues, and without rewriting the saved file. It does not infer later artwork or migrate replaced draft story content.

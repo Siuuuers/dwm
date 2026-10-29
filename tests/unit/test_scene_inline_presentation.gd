@@ -136,3 +136,32 @@ func test_catalogue_rectangles_keep_the_saved_numeric_representation() -> void:
 	var writer := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 	assert_eq(writer.stringify(selected.value.state), writer.stringify(normalized),
 		"checkpoint admission must compare the same retained and persisted composition")
+
+func test_missing_saved_presentation_resolves_only_declared_entry_base() -> void:
+	var state := ART.entry_base_presentation([
+		{"kind": "scene", "id": "template.scene"},
+		{"kind": "background", "id": "template.art"},
+		{"kind": "show", "id": "template.left", "slot": "portrait"},
+		{"kind": "checkpoint", "id": "not.reached.by.load"}])
+	assert_eq(state.background, "template.background")
+	assert_eq(state.scene_entry_id, "template.scene")
+	assert_eq(state.portraits, [])
+	assert_false(state.split_panels)
+	assert_eq(state.overlays, [])
+	assert_eq(state.checkpoint_id, "")
+	assert_eq(state.audio_plan_id, "")
+	assert_eq(ART.entry_base_presentation([{"kind": "checkpoint", "id": "ignored"}]), {})
+
+func test_preserved_early_late_and_ending_entry_defaults_resolve_exact_base_fields() -> void:
+	assert_true(ART.reload_placements())
+	for preset_id: String in ["draft.reading.early", "draft.reading.late", "draft.ending"]:
+		var state := ART.entry_base_presentation([{"kind": "scene", "id": preset_id}])
+		var expected := ART.get_scene_art(preset_id)
+		assert_eq(state.background, expected.background, preset_id)
+		assert_eq(state.portraits, expected.portraits, preset_id)
+		assert_eq(state.cg, expected.cg, preset_id)
+		assert_eq(state.split_panels, ART.uses_split_panels(preset_id), preset_id)
+		assert_eq(state.scene_entry_id, preset_id)
+		assert_eq(state.overlays, [])
+		assert_eq(state.checkpoint_id, "")
+		assert_eq(state.audio_plan_id, "")

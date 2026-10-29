@@ -29,5 +29,28 @@ func test_fresh_load_restores_composition_and_music_without_story_commands() -> 
 		"starts": observed.starts, "autosave_writes": files.autosave_writes,
 		"slot_4_sha256": FileAccess.get_sha256("user://saves/slot_4.json"),
 		"autosave_sha256": _autosave_sha256(), "renderer": DisplayServer.get_name()})
+	# Earlier compatible saves omitted presentation. Keep the stable caption and
+	# saved BGM, resolving only its entry's declared base without replaying cues.
+	game._scene_snapshot_references.erase("presentation")
+	if not _ok(saves.save_latest_to_slot(5)): return
+	var legacy_path := "user://saves/slot_5.json"
+	var legacy_sha := FileAccess.get_sha256(legacy_path)
+	var legacy: Dictionary = PARSER.parse_object(FileAccess.get_file_as_string(legacy_path))
+	if not _ok(legacy): return
+	assert_false(legacy.value.current_snapshot.snapshot.scene.has("presentation"))
+	if not await _load_inline(5, false): return
+	assert_eq(bridge._runtime_adapter.current_line_id(), "line.scene.test.a.two")
+	_assert_art("template.background", [])
+	var base: Dictionary = game.capture_run_snapshot_input().scene.presentation
+	assert_eq(base.scene_entry_id, "template.scene")
+	assert_eq(base.checkpoint_id, "")
+	assert_eq(base.portraits, [])
+	assert_false(base.split_panels)
+	_assert_selection("TEST.inline.b")
+	assert_eq(_starts("SFX"), 0)
+	assert_eq(files.autosave_writes, 0)
+	assert_eq(FileAccess.get_sha256(legacy_path), legacy_sha)
+	assert_eq(_autosave_sha256(), proof.value.autosave_sha256)
+	await _screenshot("compatible-presentation-default-loaded")
 	storage._file_ops = original_files
 	ART.reload_placements()

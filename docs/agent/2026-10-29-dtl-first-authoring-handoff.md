@@ -1,8 +1,12 @@
 # DTL-first story authoring
 
 Date: 29 October 2026, Hong Kong.
-Status: design selected; implementation pending. Documentation only.
+Status: implemented in [PR #155](https://github.com/Siuuuers/dwm/pull/155); final acceptance and merge pending.
 Reviewed master: `19276f9f5f28490e1b1eba0d654c8a27f1accb39`.
+
+The design and baseline below are retained as the implementation requirements.
+Use the [DTL story authoring guide](dtl-story-authoring.md) for current syntax and
+the completion record below for candidate evidence.
 
 ## Owner goal and interview
 
@@ -28,7 +32,7 @@ Do not infer branching conditions from friendly label names or automatically tra
 
 Use one explicitly configured source directory or existing source-file inventory. If all timelines remain under that root, discover them deterministically so adding a DTL file does not require repeating each entry in JSON. Scan only at export, never every frame/caption. Do not guess the starting entry from file sort order: require one explicit start declaration.
 
-## Proposed surface, not implemented syntax
+## Original proposed surface
 
 Illustrative commands, subject to parser integration review:
 
@@ -45,7 +49,11 @@ Example caption. #id:line.day1.room.001
 Another caption. #id:line.day1.room.002
 ```
 
-Only the audio spellings above are already documented working syntax. The new story/art/checkpoint spellings are proposals. Do not paste them into production and claim they work until implemented and tested. Preserve current supported audio, self-talk and transition conventions rather than renaming them gratuitously.
+At handoff time, only the audio spellings above were implemented. PR #155 implements
+the story/art/checkpoint surface and adds explicit reusable scene presets, typed
+marker/Challenge declarations, and Gallery membership metadata. The
+[current guide](dtl-story-authoring.md) is the syntax authority; audio, self-talk
+and transition conventions retain their existing meanings.
 
 A label plus explicit entry metadata generates its registration and target. It is not an Autosave. Artwork commands change persistent presentation without an Autosave. An explicit checkpoint invokes existing checkpoint semantics. A music command uses the implemented AudioManager path.
 
@@ -66,7 +74,7 @@ Keep commands on the reached side of their destination label, so jumping and seq
 11. Preserve seven-day gameplay, selected-language rendering, current control layout, and audio behavior. No arbitrary-length chapter system, new scripting VM or live runtime compiler.
 12. Ordinary comments remain ordinary comments. Recognized directive prefixes must validate strictly; typos must not silently disappear as comments. Use the native compiler and source locations where possible rather than maintaining a competing full DTL parser.
 
-## Current implementation starting points
+## Implementation baseline
 
 - `tools/authoring/AuthoredWeekRegistration.gd` currently reads `data/manifests/authored_week_source.json` for entries, start, days, markers and Challenge definitions, compiles each entry, and validates day 1–7.
 - Its audio catalogue export now accepts stable music/SFX asset definitions and generates hashes/durations. Keep this ability; music/SFX placement is already DTL-owned.
@@ -103,4 +111,42 @@ All Godot and PowerShell execution runs in GitHub Actions. Inspect rendered artw
 
 ## Completion record
 
-Pending. Update this section and the feature plan only after runtime implementation, cloud checks and the documented replacement-story workflow are verified.
+Implementation candidate: `585f05d513ba126c045599f8a5d1afbe474078a7` in
+[PR #155](https://github.com/Siuuuers/dwm/pull/155). Runtime/authoring source is the
+same as candidate `f1e4d769dc05d40c5f4554b9ec416abe000bea6a`; the later candidate
+adds the native Linux speech setup needed by rendered preflight.
+
+Implemented scope:
+- DTL owns 92 explicit entries, the start/day declarations, 102 routing markers
+  and nine Challenge definitions. The duplicate JSON entry/marker/Challenge
+  lists are removed. Ordinary labels remain local; invalid declarations and
+  registered entries without an initial caption fail during export.
+- Existing entry-bound artwork is now selected explicitly in DTL from three
+  reusable presets. Inline scene/background/show/hide commands retain named slot
+  order and do not save or reset music.
+- Checkpoints capture the final resolved artwork and selected BGM of their next
+  accepted caption. Commands before that caption form one reading boundary;
+  checkpoint arrival is separate from Gallery membership.
+- Gallery groups and condition references come from DTL metadata, while localized
+  titles/condition labels and reusable art/audio catalogues remain external.
+  Export writes the registrations and the explicit `story_start.json` target.
+- Save/Load restores resolved composition and music directly without replaying
+  previous commands, SFX or checkpoint writes. Existing seven-day gameplay,
+  stable line IDs and prose are retained; no draft-save migration or deletion is
+  added. No reading-speed improvement is claimed from code removal alone.
+
+Evidence recorded so far:
+- [Linux preflight 40855222948](https://github.com/Siuuuers/dwm/actions/runs/40855222948)
+  succeeds on `585f05d`: deterministic export, fresh-process validation, synthetic
+  replacement-story tests, rendered presentation/Load checks and public inventories.
+- [Windows presentation job 123382181481](https://github.com/Siuuuers/dwm/actions/runs/40854542415/job/123382181481)
+  succeeds on `f1e4d76`, including the rendered producer and separate-process Load.
+  That run was later cancelled and is not whole-run acceptance evidence.
+- [Final Windows acceptance run 40855222994](https://github.com/Siuuuers/dwm/actions/runs/40855222994)
+  is still running on `585f05d`. Its DTL authoring and rendered presentation suites
+  have passed; remaining gameplay/public-surface, Windows export/startup and broader
+  render results must finish before final acceptance and merge are recorded.
+
+Production checkpoint placement, Gallery population and final story prose remain
+authoring work. The reusable authoring workflow is implemented; this record does
+not yet claim final release acceptance or a merged PR.

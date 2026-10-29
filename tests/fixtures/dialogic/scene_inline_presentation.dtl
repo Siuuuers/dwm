@@ -1,4 +1,5 @@
 label scene.test.a
+# art scene template.scene
 # art background template.background
 # art show template.left slot=portrait
 # audio music TEST.inline.a

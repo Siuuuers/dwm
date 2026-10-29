@@ -4344,6 +4344,12 @@ func _validate_scene_passage_completion(snapshot: Dictionary, bundle: Dictionary
 	return _transaction_failure(&"scene_passage_completion_mismatch", "")
 
 func _install_scene_snapshot_silent(snapshot: Dictionary) -> Dictionary:
+	var presentation_default := {}
+	if not snapshot.scene.has("presentation"):
+		var registered := _SCENE_MANIFEST.scene_contract_tables()
+		if registered.ok:
+			var declared := _scene_entry_presentation_commands(snapshot.scene, registered.bundle, "")
+			if declared.ok: presentation_default = _PRESENTATION_ART.entry_base_presentation(declared.value)
 	var lifecycle: Dictionary = _run_lifecycle.commit_restore(snapshot.lifecycle)
 	if not lifecycle.get("ok", false): return lifecycle
 	_apply_gameplay_silent(snapshot.gameplay)
@@ -4353,6 +4359,7 @@ func _install_scene_snapshot_silent(snapshot: Dictionary) -> Dictionary:
 	contacts = snapshot.contacts.duplicate(true)
 	_desktop_snapshot = snapshot.desktop.duplicate(true)
 	_scene_snapshot_references = snapshot.scene.duplicate(true)
+	if not presentation_default.is_empty(): _scene_snapshot_references["presentation"] = presentation_default
 	_scene_presentation_checkpoint_pending = false
 	_command_receipts = snapshot.get("command_receipts", {}).duplicate(true)
 	_scene_live_closures = snapshot.get("scene_live_closures", {}).duplicate(true)
@@ -5141,7 +5148,7 @@ func scene_entry_staging_context(entry_id: String, frame: Dictionary) -> Diction
 
 var _scene_presentation_checkpoint_pending := false
 
-func prepare_scene_presentation_arrival(scene: Dictionary, bundle: Dictionary, label: String) -> Dictionary:
+func _scene_entry_presentation_commands(scene: Dictionary, bundle: Dictionary, label: String) -> Dictionary:
 	var labels: Array = []
 	var path := ""
 	var markers: Array = []
@@ -5154,7 +5161,12 @@ func prepare_scene_presentation_arrival(scene: Dictionary, bundle: Dictionary, l
 	var compiled := preload("res://scripts/narrative/DialogicRuntimeAdapter.gd").compile_runtime_scene_programme(path, scene.entry_id, labels, markers)
 	if not compiled.ok: return compiled
 	if not compiled.value.label_nodes.has(label): return _transaction_failure(&"scene_native_target_invalid", label)
-	var commands: Array = compiled.value.nodes[compiled.value.label_nodes[label]].get("presentation_commands", [])
+	return {"ok": true, "value": compiled.value.nodes[compiled.value.label_nodes[label]].get("presentation_commands", [])}
+
+func prepare_scene_presentation_arrival(scene: Dictionary, bundle: Dictionary, label: String) -> Dictionary:
+	var selected := _scene_entry_presentation_commands(scene, bundle, label)
+	if not selected.ok: return selected
+	var commands: Array = selected.value
 	var previous: Dictionary = scene.get("presentation", {})
 	if previous.is_empty() and not commands.is_empty(): previous = _PRESENTATION_ART.make_scene_presentation(scene.entry_id)
 	var resolved := _PRESENTATION_ART.apply_presentation_commands(commands, previous)
