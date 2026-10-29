@@ -17,6 +17,7 @@ signal playback_start_failed(result: Dictionary)
 signal caption_publication_recorded(result: Dictionary)
 signal reading_frontier_restored(result: Dictionary)
 signal reading_seek_finished(result: Dictionary)
+signal scene_audio_cues_requested(cues: Array, suppress_sfx: bool)
 
 const CLEAR_KEEP_VARIABLES := 1
 const SCENE_JSON := preload("res://scripts/validation/CanonicalJsonWriter.gd")
@@ -610,6 +611,7 @@ static func _compile_scene_programme_timeline(timeline: DialogicTimeline, text: 
 	var thought_pending := false
 	var pair_caption_index := -1
 	var clear_pending := false
+	var audio_pending: Array = []
 	for marker: Variant in markers:
 		if not marker is Dictionary or not marker.get("label") is String or marker_labels.has(marker.label):
 			return {"ok": false, "code": &"scene_marker_invalid"}
@@ -617,6 +619,10 @@ static func _compile_scene_programme_timeline(timeline: DialogicTimeline, text: 
 	for index: int in timeline.events.size():
 		var event: DialogicEvent = timeline.events[index]
 		if event is DialogicLabelEvent:
+			# Cues belong after destination labels: a jump must never
+			# inherit an instruction which appeared before its destination.
+			if not audio_pending.is_empty():
+				return {"ok": false, "code": &"scene_audio_before_label"}
 			pair_caption_index = -1
 			if thought_pending or clear_pending: return {"ok": false, "code": &"scene_self_talk_without_text"}
 			if event.name == entry_label:
@@ -635,7 +641,15 @@ static func _compile_scene_programme_timeline(timeline: DialogicTimeline, text: 
 			continue
 		if not selected: continue
 		if event is DialogicCommentEvent:
-			if event.text.strip_edges() == "self-talk":
+			var comment: String = event.text.strip_edges()
+			if comment == "audio" or comment.begins_with("audio ") or comment.begins_with("audio\t"):
+				if thought_pending: return {"ok": false, "code": &"scene_audio_splits_self_talk"}
+				var cue := _parse_scene_audio_cue(comment)
+				if not cue.ok: return cue
+				audio_pending.append(cue.value)
+				events.append({"kind": "audio", "cue": cue.value})
+			elif comment == "self-talk":
+				if not audio_pending.is_empty(): return {"ok": false, "code": &"scene_audio_splits_self_talk"}
 				thought_pending = true
 				events.append({"kind": "self_talk"})
 			elif event.text.strip_edges() == "self-talk-clear":
@@ -682,10 +696,18 @@ static func _compile_scene_programme_timeline(timeline: DialogicTimeline, text: 
 			if not matches or event.argument_type != DialogicSignalEvent.ArgumentTypes.STRING:
 				return {"ok": false, "code": &"scene_signal_invalid"}
 			events.append({"kind": "signal", "signal_id": signal_id})
+			if not audio_pending.is_empty():
+				if nodes.back().kind != "control": return {"ok": false, "code": &"scene_audio_before_signal"}
+				nodes.back()["audio_cues"] = nodes.back().get("audio_cues", []) + audio_pending
+				audio_pending = []
 			continue # held registered label owns dispatch; native signal never runs first
 		else:
 			return {"ok": false, "code": &"scene_executable_event_refused"}
+		if not audio_pending.is_empty():
+			nodes.back()["audio_cues"] = audio_pending
+			audio_pending = []
 		native_indices.append(index)
+	if not audio_pending.is_empty(): return {"ok": false, "code": &"scene_audio_without_position"}
 	if thought_pending or clear_pending: return {"ok": false, "code": &"scene_self_talk_without_text"}
 	if found != 1 or nodes.is_empty(): return {"ok": false, "code": &"scene_entry_invalid"}
 	for label: String in label_nodes:
@@ -714,6 +736,26 @@ static func _compile_scene_programme_timeline(timeline: DialogicTimeline, text: 
 	return {"ok": true, "value": {"events": events, "nodes": nodes, "label_nodes": label_nodes,
 		"native_indices": native_indices, "content_sha256": text.sha256_text(),
 		"program_sha256": str(encoded.value).sha256_text()}}
+
+static func _parse_scene_audio_cue(comment: String) -> Dictionary:
+	var words := comment.replace("\t", " ").split(" ", false)
+	if words.size() < 3 or words.size() > 4 or words[1] not in ["music", "sfx"]:
+		return {"ok": false, "code": &"scene_audio_invalid"}
+	var id: String = words[2]
+	var id_pattern := RegEx.create_from_string("\\A[A-Za-z0-9_][A-Za-z0-9_.-]*\\z")
+	if id_pattern.search(id) == null or (words[1] == "sfx" and id == "stop"):
+		return {"ok": false, "code": &"scene_audio_invalid"}
+	var fade := 0.0
+	if words.size() == 4:
+		if words[1] != "music" or not words[3].begins_with("fade="):
+			return {"ok": false, "code": &"scene_audio_invalid"}
+		var duration: String = words[3].trim_prefix("fade=")
+		if not duration.is_valid_float(): return {"ok": false, "code": &"scene_audio_invalid"}
+		fade = duration.to_float()
+		if not is_finite(fade) or fade < 0.0: return {"ok": false, "code": &"scene_audio_invalid"}
+	return {"ok": true, "value": {"kind": words[1], "id": "" if id == "stop" else id,
+		"fade_seconds": fade}}
+
 const CLEAR_KEEP_TEXT := 4
 const REQUIRED_METHODS := ["start", "start_timeline", "end_timeline", "handle_next_event", "handle_event", "clear", "has_subsystem", "get_subsystem"]
 const REQUIRED_SIGNALS := ["timeline_started", "timeline_ended", "event_handled", "signal_event"]
@@ -747,6 +789,7 @@ var _caption_event: DialogicTextEvent
 var _caption_line := ""
 var _paired_next_index := -1
 var _scene_native_next: Dictionary = {}
+var _scene_native_audio: Dictionary = {}
 var _caption_restore_frontier: Dictionary = {}
 var _caption_restore_queued := false
 var _prepared_reading_seek: Dictionary = {}
@@ -841,23 +884,33 @@ func _caption_source_is_current() -> bool:
 		and str(_dialogic.current_timeline.resource_path) == _requested_path
 
 
+func _prepare_scene_native_mappings() -> void:
+	if _scene_caption_occurrence.is_empty() or not _scene_native_next.is_empty(): return
+	var registered := preload("res://scripts/narrative/DialogicEntryManifest.gd").scene_contract_tables()
+	if not registered.ok: return
+	var labels: Array = []
+	for entry: Dictionary in registered.bundle.entry_manifest.entries: labels.append(entry.entry_id)
+	for programme: Dictionary in registered.bundle.scene_programme.entries:
+		if programme.entry_id != _caption_entry: continue
+		var compiled := compile_runtime_scene_programme(_requested_path, _caption_entry, labels, programme.markers)
+		if not compiled.ok: return
+		for index: int in compiled.value.nodes.size():
+			var node: Dictionary = compiled.value.nodes[index]
+			var native_index: int = compiled.value.native_indices[index]
+			if node.kind == "caption":
+				_scene_native_next[native_index] = int(compiled.value.native_indices[node.next])
+			# Held controls are executed by the acknowledged traversal owner.
+			if node.kind != "control" and node.has("audio_cues"):
+				_scene_native_audio[native_index] = node.audio_cues
+		return
+
+
 func _on_caption_about_to_show(_info: Dictionary) -> void:
 	if not _caption_source_is_current(): return
 	_caption_event = _current_skip_text(true)
 	_caption_line = _authored_line_id(_caption_event)
 	_paired_next_index = -1
-	if not _scene_caption_occurrence.is_empty() and _scene_native_next.is_empty():
-		var registered := preload("res://scripts/narrative/DialogicEntryManifest.gd").scene_contract_tables()
-		if registered.ok:
-			var labels: Array = []
-			for entry: Dictionary in registered.bundle.entry_manifest.entries: labels.append(entry.entry_id)
-			for programme: Dictionary in registered.bundle.scene_programme.entries:
-				if programme.entry_id != _caption_entry: continue
-				var compiled := compile_runtime_scene_programme(_requested_path, _caption_entry, labels, programme.markers)
-				if not compiled.ok: continue
-				for index: int in compiled.value.nodes.size():
-					if compiled.value.nodes[index].kind == "caption":
-						_scene_native_next[int(compiled.value.native_indices[index])] = int(compiled.value.native_indices[compiled.value.nodes[index].next])
+	_prepare_scene_native_mappings()
 	_paired_next_index = int(_scene_native_next.get(int(_dialogic.current_event_idx), -1))
 	var same_scene_activation := false
 	if not _scene_caption_occurrence.is_empty():
@@ -978,6 +1031,7 @@ func _retire_caption_binding() -> void:
 	_caption_line = ""
 	_paired_next_index = -1
 	_scene_native_next.clear()
+	_scene_native_audio.clear()
 	_caption_restore_frontier = {}
 	_caption_restore_queued = false
 	_prepared_reading_seek = {}
@@ -1868,6 +1922,15 @@ func _on_qualified_timeline_ended(generation: int) -> void:
 
 
 func _on_event_handled(resource: Variant) -> void:
+	if _caption_source_is_current() and not _scene_caption_occurrence.is_empty():
+		_prepare_scene_native_mappings()
+		# Dialogic's execute() queues _execute(). This callback therefore runs
+		# before the caption, jump or return. Staged arrival/Load/Next owners
+		# already applied their selection and must not replay these effects.
+		var index := int(_dialogic.current_event_idx)
+		if _caption_restore_frontier.is_empty() and _caption_seek_result.is_empty() \
+				and not _scene_control_installing and _scene_native_audio.has(index):
+			scene_audio_cues_requested.emit(_scene_native_audio[index], _dialogic.Inputs.auto_skip.enabled)
 	event_handled_signal.emit(resource)
 
 

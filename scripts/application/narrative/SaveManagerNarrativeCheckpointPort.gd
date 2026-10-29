@@ -648,6 +648,7 @@ func _scene_route_input_valid(input: Dictionary, checkpoint: Dictionary) -> bool
 		if not input.get(key) is Dictionary: return false
 	var scene_keys: Array = ["registration_sha256", "active_occurrence_id", "entry_id", "notification", "active_challenge", "return_to"]
 	if input.scene.has("presentation"): scene_keys.append("presentation")
+	if input.scene.has("music_plan_id"): scene_keys.append("music_plan_id")
 	if not _exact_keys(input.scene, scene_keys): return false
 	if input.scene.registration_sha256 != checkpoint.get("manifest_fingerprint") or not _scene_hash(input.scene.registration_sha256): return false
 	var frame: Variant = checkpoint.get("frozen_context")

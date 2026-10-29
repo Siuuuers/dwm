@@ -291,3 +291,98 @@ func test_music_apply_failure_restores_prior_music_output_and_snapshot() -> void
 	assert_eq(_manager.apply_scene_admission(plan.value).get("code"), &"injected_audio_failure")
 	assert_eq(_manager.capture_restore_state().value, before)
 
+
+
+func _inline_registration() -> void:
+	_manager.registration.audio_catalogue.schema_version = 3
+	var catalogue: Dictionary = _manager.registration.audio_catalogue
+	catalogue.assets[0]["gain_db"] = -6.0
+	catalogue.plans[0].music = catalogue.plans[0].ambience_asset_id
+	catalogue.plans[0].ambience_asset_id = null
+	var second: Dictionary = catalogue.plans[0].duplicate(true)
+	second.plan_id = "TEST.audio.02"
+	catalogue.plans.append(second)
+
+
+func _inline_admit(plan_id: String, fade: float = 0.0, occurrence: String = "admission.inline") -> Dictionary:
+	var context: Dictionary = MANIFEST.make_named_presentation_context(_manager.registration, plan_id, occurrence)
+	assert_true(context.ok, str(context))
+	var prepared: Dictionary = _manager.prepare_scene_admission(context.value, fade)
+	assert_true(prepared.ok, str(prepared))
+	return _manager.apply_scene_admission(prepared.value)
+
+
+func test_inline_same_music_across_occurrences_keeps_playhead_and_gain() -> void:
+	_inline_registration()
+	assert_true(_inline_admit("TEST.audio.01").ok)
+	assert_true(_port.players[&"MusicB"].playing)
+	assert_eq(_port.players[&"MusicB"].db, -6.0)
+	_port.players[&"MusicB"].playback_position = 2.5
+	var operations := _port.operations.size()
+	assert_true(_inline_admit("TEST.audio.01", 0.5, "admission.next").unchanged)
+	assert_eq(_port.operations.size(), operations, "same selection uses cached media without playback work")
+	assert_eq(_port.players[&"MusicB"].playback_position, 2.5)
+	assert_eq(_manager.get_semantic_audio_context().admission_receipt_id, "admission.next")
+
+
+func test_inline_crossfade_stop_and_superseding_play_keep_only_latest_track() -> void:
+	_inline_registration()
+	assert_true(_inline_admit("TEST.audio.01").ok)
+	assert_true(_inline_admit("TEST.audio.02", 0.8).ok)
+	assert_eq(_manager.get_semantic_audio_context().selection.plan_id, "TEST.audio.02")
+	assert_true(_port.players[&"MusicA"].playing)
+	assert_true(_port.players[&"MusicB"].playing)
+	assert_eq(_port.active_tweens[&"music"].duration, 0.8)
+	assert_true(_inline_admit("", 0.4).ok)
+	assert_null(_manager.get_semantic_audio_context().selection, "fade-out selects silence immediately")
+	assert_eq(_port.active_tweens[&"music"].tracks.size(), 2, "stop fades both participants")
+	assert_true(_inline_admit("TEST.audio.01", 0.2).ok)
+	assert_true(_port.complete_tween(&"music").ok)
+	assert_true(_port.players[&"MusicB"].playing)
+	assert_eq(_port.players[&"MusicB"].db, -6.0)
+	assert_false(_port.players[&"MusicA"].playing)
+	assert_null(_port.players[&"MusicA"].stream)
+	assert_true(_port.active_tweens.is_empty())
+	assert_eq(_manager.get_semantic_audio_context().selection.plan_id, "TEST.audio.01")
+	assert_true(_inline_admit("").ok)
+	_assert_long_lived_silence()
+
+
+func test_inline_sfx_is_nonlooping_and_does_not_change_music_or_user_output() -> void:
+	_inline_registration()
+	assert_true(_inline_admit("TEST.audio.01").ok)
+	var semantic: Dictionary = _manager.get_semantic_audio_context()
+	var output: Dictionary = _port.bus_states.duplicate(true)
+	assert_true(_manager.play_scene_sfx("TEST.audio.asset.01").ok)
+	assert_true(_port.players[&"SFX0"].playing)
+	assert_eq(_port.players[&"SFX0"].db, -6.0)
+	assert_eq(_port.players[&"SFX0"].stream.loop_mode, AudioStreamWAV.LOOP_DISABLED)
+	assert_eq(_port.players[&"MusicB"].stream.loop_mode, AudioStreamWAV.LOOP_FORWARD)
+	assert_eq(_manager.get_semantic_audio_context(), semantic)
+	assert_eq(_port.bus_states, output)
+	assert_true(_manager.play_scene_sfx("TEST.audio.asset.01").ok)
+	assert_true(_port.players[&"SFX1"].playing, "a genuine later encounter can play again")
+
+
+func test_inline_load_during_fades_restores_selection_at_start_and_clears_transients() -> void:
+	_inline_registration()
+	assert_true(_inline_admit("TEST.audio.01").ok)
+	assert_true(_inline_admit("TEST.audio.02", 0.8).ok)
+	assert_true(_manager.play_scene_sfx("TEST.audio.asset.01").ok)
+	var context: Dictionary = _manager.get_semantic_audio_context()
+	var plan: Dictionary = _manager.prepare_semantic_restore(context, _profile_snapshot())
+	assert_true(plan.ok)
+	assert_true(_manager.apply_restore_silent(plan.value).ok)
+	assert_true(_port.active_tweens.is_empty())
+	assert_true(_port.players[&"MusicA"].playing)
+	assert_false(_port.players[&"MusicB"].playing)
+	assert_eq(_port.players[&"MusicA"].playback_position, 0.0, "inline load uses authored entrance, never prior playhead or old anchor")
+	assert_false(_port.players[&"SFX0"].playing)
+	assert_eq(_manager.get_semantic_audio_context(), context)
+	assert_true(_manager.finalize_restore().ok)
+	assert_true(_inline_admit("", 0.4).ok)
+	plan = _manager.prepare_semantic_restore(_manager.get_semantic_audio_context(), _profile_snapshot())
+	assert_true(plan.ok)
+	assert_true(_manager.apply_restore_silent(plan.value).ok)
+	_assert_long_lived_silence()
+	assert_true(_port.active_tweens.is_empty())

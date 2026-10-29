@@ -333,6 +333,13 @@ static func validate_scene_registration(bundle: Dictionary) -> Dictionary:
 	if not programmes.ok or programmes.value.size() != entries.size(): return _scene_fail("programme coverage")
 	var compiled := {}
 	var markers := {}
+	var audio_plans := {}
+	var audio_assets := {}
+	var inline_audio: bool = bundle.get("audio_catalogue", {}).get("schema_version", 0) >= 3
+	if inline_audio:
+		for plan: Dictionary in bundle.audio_catalogue.plans:
+			if plan.music != null: audio_plans[plan.plan_id] = true
+		for asset: Dictionary in bundle.audio_catalogue.assets: audio_assets[asset.asset_id] = true
 	# Invocation-local only: native parsing is shared across entries in one DTL,
 	# while every entry still reads current bytes and validates its own programme.
 	var parsed_sources := {}
@@ -353,6 +360,15 @@ static func validate_scene_registration(bundle: Dictionary) -> Dictionary:
 		if not native.ok: return native
 		if row.content_sha256 != native.value.content_sha256 or row.program_sha256 != native.value.program_sha256:
 			return _scene_fail("programme hash")
+		# Authored references are admitted with the installed programme, never
+		# searched or revalidated while a player advances through captions.
+		for node: Dictionary in native.value.nodes:
+			for cue: Dictionary in node.get("audio_cues", []):
+				if not inline_audio: return _scene_fail("inline audio requires catalogue version 3")
+				if cue.kind == "music" and not cue.id.is_empty() and not audio_plans.has(cue.id):
+					return _scene_fail("unknown inline music plan: " + cue.id)
+				if cue.kind == "sfx" and not audio_assets.has(cue.id):
+					return _scene_fail("unknown inline sound asset: " + cue.id)
 		compiled[id] = native.value
 		var native_lines: Array = []
 		var native_signals: Array = []

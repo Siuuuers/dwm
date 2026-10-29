@@ -3,6 +3,7 @@ extends RefCounted
 
 const BGM_DIR := "res://audio/bgm/"
 const AMBIENCE_DIR := "res://audio/ambience/"
+const SFX_DIR := "res://audio/sfx/"
 const UI_DIR := "res://audio/ui/"
 const EXT := ".ogg"
 
@@ -179,7 +180,7 @@ const SCENE_WRITER := preload("res://scripts/validation/CanonicalJsonWriter.gd")
 static func validate_scene_catalogue(catalogue: Variant, entry_ids: Array) -> Dictionary:
 	if not _scene_keys(catalogue, ["kind", "schema_version", "assets", "plans", "bindings"]):
 		return _scene_failure()
-	if typeof(catalogue.kind) != TYPE_STRING or catalogue.kind != "scene_audio_catalogue" or typeof(catalogue.schema_version) != TYPE_INT or catalogue.schema_version not in [1, 2]:
+	if typeof(catalogue.kind) != TYPE_STRING or catalogue.kind != "scene_audio_catalogue" or typeof(catalogue.schema_version) != TYPE_INT or catalogue.schema_version not in [1, 2, 3]:
 		return _scene_failure()
 	for field: String in ["assets", "plans", "bindings"]:
 		if typeof(catalogue[field]) != TYPE_ARRAY:
@@ -192,7 +193,12 @@ static func validate_scene_catalogue(catalogue: Variant, entry_ids: Array) -> Di
 	var assets: Dictionary = {}
 	var previous: String = ""
 	for asset: Variant in catalogue.assets:
-		if not _scene_keys(asset, ["asset_id", "path", "sha256", "duration_ms"]):
+		var asset_keys := ["asset_id", "path", "sha256", "duration_ms"]
+		if catalogue.schema_version == 3 and asset is Dictionary and asset.has("gain_db"):
+			asset_keys.append("gain_db")
+			if typeof(asset.gain_db) not in [TYPE_INT, TYPE_FLOAT] or not is_finite(float(asset.gain_db)):
+				return _scene_failure()
+		if not _scene_keys(asset, asset_keys):
 			return _scene_failure()
 		if not _scene_id(asset.asset_id) or asset.asset_id <= previous or not _scene_hash(asset.sha256):
 			return _scene_failure()
@@ -208,7 +214,7 @@ static func validate_scene_catalogue(catalogue: Variant, entry_ids: Array) -> Di
 		# Version 1 remains ambience-only. Version 2 admits one authored bed on
 		# its proper channel; it does not combine independent channel timelines.
 		var asset_id: Variant = plan.ambience_asset_id
-		if catalogue.schema_version == 2 and plan.music != null:
+		if catalogue.schema_version >= 2 and plan.music != null:
 			if plan.ambience_asset_id != null: return _scene_failure()
 			asset_id = plan.music
 		if not _scene_id(plan.plan_id) or plan.plan_id <= previous or not _scene_id(asset_id) or not assets.has(asset_id):
@@ -306,7 +312,7 @@ static func resolve_scene_context(context: Dictionary, registration: Dictionary)
 		fingerprint = str(encoded.value).sha256_text()
 	if context.registration_sha256 != fingerprint:
 		return _scene_failure(&"scene_audio_registration_mismatch")
-	var result: Dictionary = {"snapshot": context.duplicate(true), "record": null, "entrance_seconds": 0.0, "load_seconds": 0.0}
+	var result: Dictionary = {"snapshot": context.duplicate(true), "record": null, "entrance_seconds": 0.0, "load_seconds": 0.0, "inline_audio": checked.value.schema_version >= 3}
 	if context.selection == null:
 		return {"ok": true, "value": result}
 	if not _scene_keys(context.selection, ["plan_id", "plan_revision", "variant_id", "anchor_id"]):
@@ -322,7 +328,7 @@ static func resolve_scene_context(context: Dictionary, registration: Dictionary)
 				result.record = {"asset": asset.duplicate(true), "plan": plan.duplicate(true)}
 				if plan.music != null: result["channel"] = &"music"
 				result.entrance_seconds = float(plan.entrance_ms) / 1000.0
-				result.load_seconds = float(plan.load_anchor_ms) / 1000.0
+				result.load_seconds = result.entrance_seconds if result.inline_audio else float(plan.load_anchor_ms) / 1000.0
 				return {"ok": true, "value": result}
 	return _scene_failure(&"invalid_scene_audio_selection")
 
@@ -375,8 +381,10 @@ static func _scene_path(value: Variant, catalogue_version: int = 1) -> bool:
 	if typeof(value) != TYPE_STRING:
 		return false
 	var prefix := "res://tests/fixtures/audio/"
-	if catalogue_version == 2 and value.begins_with(BGM_DIR) and value.ends_with(".ogg"):
+	if catalogue_version >= 2 and value.begins_with(BGM_DIR) and value.ends_with(".ogg"):
 		prefix = BGM_DIR
+	if catalogue_version >= 3 and value.begins_with(SFX_DIR) and value.ends_with(".ogg"):
+		prefix = SFX_DIR
 	if not value.begins_with(prefix): return false
 	var relative: String = value.trim_prefix(prefix)
 	if relative.is_empty() or "\\" in relative or ":" in relative or "%" in relative:

@@ -135,7 +135,10 @@ func prepare(input: Dictionary) -> Dictionary:
 
 ## Current Load has already resolved its authored position. Native staging owns
 ## the reading session needed to display it; no second saved-Run admission.
+var _prepared_scene_arrival_cues: Array = []
+
 func prepare_scene_load(snapshot: Dictionary) -> Dictionary:
+	_prepared_scene_arrival_cues = []
 	_prepared_terminal = preload("res://scripts/domain/run/RunSnapshotSchema.gd").is_scene_terminal(snapshot)
 	_prepared_scene_checkpoint = snapshot.narrative_checkpoint
 	var plan: Dictionary = {"scene_terminal_checkpoint": _prepared_scene_checkpoint} \
@@ -161,6 +164,12 @@ func prepare_scene_new_run(snapshot: Dictionary, _allocation_candidate: Dictiona
 	var admitted: Dictionary = _owner.validate_reading_checkpoint(checkpoint, frames.value.entry_contexts)
 	if not admitted.get("ok", false): return admitted
 	_prepared_scene_checkpoint = checkpoint.duplicate(true)
+	_prepared_scene_arrival_cues = []
+	if _bundle.get("audio_catalogue", {}).get("schema_version") == 3:
+		var game: Node = _owner.get_node("/root/GameState")
+		var arrival: Dictionary = game.prepare_scene_audio_arrival(snapshot.scene, _bundle, "")
+		if not arrival.ok: return arrival
+		_prepared_scene_arrival_cues = arrival.value.cues
 	return {"ok": true, "value": {"narrative_plan": checkpoint.duplicate(true)}}
 
 func apply_silent(plan: Dictionary) -> Dictionary:
@@ -180,6 +189,8 @@ func apply_silent(plan: Dictionary) -> Dictionary:
 		var staged: Dictionary = _owner.call(method, checkpoint, plan.scene_restore_operation_id, true) \
 			if plan.get("read_only_restore", false) else _owner.call(method, checkpoint, plan.scene_restore_operation_id)
 		if not staged.get("ok", false): return staged
+		if not _prepared_scene_arrival_cues.is_empty():
+			_owner._scene_restore["arrival_audio_cues"] = _prepared_scene_arrival_cues
 		_scene_operation = plan.scene_restore_operation_id
 		_scene_activation_proof = false
 		_scene_activation_notified = false

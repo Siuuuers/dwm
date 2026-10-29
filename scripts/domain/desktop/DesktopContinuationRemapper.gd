@@ -550,7 +550,7 @@ static func _scene_runtime_boundary(snapshot: Dictionary) -> Dictionary:
 			or causal.purpose != "causal_day_instance" or causal.token != lifecycle.causal_day_instance:
 		return _fail(&"remap_scene_lifecycle_invalid", "causal pair mismatch", {})
 	var scene: Variant = snapshot.get("scene")
-	if not scene is Dictionary or not event._keys(scene, ["registration_sha256", "active_occurrence_id", "entry_id", "notification", "active_challenge", "return_to"] + (["presentation"] if scene.has("presentation") else [])) \
+	if not scene is Dictionary or not event._keys(scene, ["registration_sha256", "active_occurrence_id", "entry_id", "notification", "active_challenge", "return_to"] + (["presentation"] if scene.has("presentation") else []) + (["music_plan_id"] if scene.has("music_plan_id") else [])) \
 			or not event._json_data(scene):
 		return _fail(&"remap_scene_references_invalid", "exact scene references required", {})
 	for key: String in ["registration_sha256", "active_occurrence_id", "entry_id"]:

@@ -1111,9 +1111,51 @@ func _ensure_runtime_adapter(dialogic: Node) -> Dictionary:
 	return {"ok": true}
 
 
+var _scene_control_audio_encounter := ""
+
+func _on_scene_audio_cues_requested(cues: Array, suppress_sfx: bool) -> void:
+	var game := get_node_or_null("/root/GameState")
+	if game == null: return
+	var applied: Dictionary = game.apply_scene_audio_cues(cues, suppress_sfx or _skip_audio_pending)
+	if not applied.ok: _runtime_adapter.halt_with_error(applied)
+
+func apply_scene_arrival_audio(cues: Array) -> Dictionary:
+	if cues.is_empty(): return {"ok": true}
+	var runtime := get_node_or_null("/root/Dialogic")
+	return get_node("/root/GameState").apply_scene_audio_cues(cues,
+		(runtime != null and runtime.Inputs.auto_skip.enabled))
+
+## A held control is crossed by its admitted command, not by native playback.
+## Retain one activation key so a retry cannot repeat its one-shot sounds.
+func apply_scene_control_audio(marker_id: String) -> Dictionary:
+	if not has_reading_session() or _reading_session.family != "scene": return {"ok": true}
+	var index: int = _reading_session.scene_index + (1 if _reading_session.boundary == "line" else 0)
+	var nodes: Array = _reading_session._scene_nodes[_reading_session.latest_entry]
+	# A restored held control has already crossed its own cues. A subsequent
+	# adjacent control (for example End) is a new encounter.
+	if _reading_session.boundary == "control" and nodes[index].get("marker_id") == marker_id:
+		return {"ok": true}
+	while index < nodes.size() and nodes[index].kind == "control":
+		if nodes[index].marker_id == marker_id: break
+		index += 1
+	if index >= nodes.size() or nodes[index].get("marker_id") != marker_id: return {"ok": true}
+	var cues: Array = nodes[index].get("audio_cues", [])
+	if cues.is_empty(): return {"ok": true}
+	var frontier: Dictionary = _runtime_adapter.capture_reading_frontier()
+	if not frontier.ok: return frontier
+	var encounter: String = _reading_session.scene_occurrence + ":" + str(frontier.value.publication_id) + ":" + marker_id
+	if encounter == _scene_control_audio_encounter: return {"ok": true}
+	var game := get_node_or_null("/root/GameState")
+	var runtime := get_node_or_null("/root/Dialogic")
+	var applied: Dictionary = game.apply_scene_audio_cues(cues, (runtime != null and runtime.Inputs.auto_skip.enabled))
+	if applied.ok: _scene_control_audio_encounter = encounter
+	return applied
+
 func _connect_runtime_adapter(adapter: RefCounted) -> void:
 	_runtime_adapter = adapter
 	_connect_speech_runtime()
+	if adapter.has_signal("scene_audio_cues_requested") and not adapter.is_connected("scene_audio_cues_requested", _on_scene_audio_cues_requested):
+		adapter.connect("scene_audio_cues_requested", _on_scene_audio_cues_requested)
 	if adapter.has_signal("reading_frontier_restored") and not adapter.is_connected("reading_frontier_restored", _on_reading_frontier_restored):
 		adapter.connect("reading_frontier_restored", _on_reading_frontier_restored)
 	if adapter.has_signal("caption_publication_recorded") and not adapter.is_connected("caption_publication_recorded", _on_reading_publication):
@@ -2157,6 +2199,8 @@ const _SKIP_POLICY := preload("res://scripts/narrative/SkipPolicy.gd")
 var _skip_profile: Object = null
 var _skip_mode: StringName = _SKIP_POLICY.READ_ONLY
 var _skip_step_in_progress := false
+# A native event executes on the next tick, after request_skip_step returns.
+var _skip_audio_pending := false
 static var _skip_line_owners: Dictionary = {}
 static var _line_witness_stages: Array = []
 var _line_presentation: Dictionary = {}
@@ -2683,8 +2727,10 @@ func _perform_skip_step() -> Dictionary:
 			and next_boundary != &"validation_error":
 		_line_presentation.unseen_stop_delivered = true
 	if bool(decision["advance"]):
+		_skip_audio_pending = true
 		var advanced: Dictionary = _runtime_adapter.advance_one_event()
 		if not advanced.get("ok", false):
+			_skip_audio_pending = false
 			return advanced
 	return {"ok": true, "code": &"ok", "value": decision.duplicate(true), "receipt": {
 		"line_id": line_id,
@@ -3442,6 +3488,14 @@ func _start_scene_restore_native(operation_id: String) -> void:
 	if _scene_restore.get("terminal", false):
 		_start_terminal_restore_native()
 		return
+	# Load abandons the previous forward encounter, including its SFX suppression.
+	_scene_control_audio_encounter = ""
+	_skip_audio_pending = false
+	var arrival_audio: Dictionary = apply_scene_arrival_audio(_scene_restore.get("arrival_audio_cues", []))
+	if not arrival_audio.ok:
+		_fail_scene_activation(arrival_audio)
+		return
+	_scene_restore.erase("arrival_audio_cues")
 	_scene_restore.native_started = true
 	_scene_restore.in_call = true
 	var installed: Dictionary = _runtime_adapter.restore_scene_frontier(_scene_restore.candidate,
@@ -3658,6 +3712,7 @@ func _on_reading_frontier_restored(result: Dictionary) -> void:
 
 
 func _on_reading_publication(result: Dictionary) -> void:
+	_skip_audio_pending = false
 	if not _scene_stage.is_empty():
 		if not result.get("ok", false) and _scene_stage.has("live_publication"):
 			_on_playback_start_failed(result, true)
@@ -4643,6 +4698,9 @@ func _commit_scene_playable_owned(event: Dictionary, prepared: Dictionary, lease
 	if departing:
 		var candidate: RefCounted = _scene_playable.candidate
 		var source_token: RefCounted = _scene_playable.native_token
+		var arrival_cues: Array = candidate._scene_nodes[candidate.latest_entry][checkpoint.reading_session.program_index].get("audio_cues", [])
+		var audio: Dictionary = apply_scene_arrival_audio(arrival_cues)
+		if not audio.ok: return {"ok": false, "code": audio.code, "committed": true}
 		_reading_session = candidate
 		var continued: Dictionary = _runtime_adapter.install_scene_continuation(candidate, checkpoint, source_token)
 		if not continued.get("ok", false):
