@@ -122,3 +122,17 @@ func test_legacy_fixture_overlay_bindings_can_follow_inline_art() -> void:
 	if legacy_remove.ok:
 		assert_eq(legacy_remove.value.state.overlays.size(), 1)
 		assert_eq(legacy_remove.value.state.overlays[0].label, "template.right")
+
+func test_catalogue_rectangles_keep_the_saved_numeric_representation() -> void:
+	var selected := ART.apply_presentation_commands([{"kind": "show", "id": "template.left", "slot": "portrait"}], {})
+	assert_true(selected.ok)
+	if not selected.ok: return
+	var rectangle: Array = selected.value.state.overlays[0].rect
+	assert_eq(typeof(rectangle[0]), TYPE_INT)
+	assert_eq(typeof(rectangle[1]), TYPE_INT)
+	assert_eq(typeof(rectangle[2]), TYPE_FLOAT)
+	assert_eq(typeof(rectangle[3]), TYPE_INT)
+	var normalized: Dictionary = preload("res://scripts/domain/run/RunSnapshotSchema.gd")._normalize_integral_floats(selected.value.state)
+	var writer := preload("res://scripts/validation/CanonicalJsonWriter.gd")
+	assert_eq(writer.stringify(selected.value.state), writer.stringify(normalized),
+		"checkpoint admission must compare the same retained and persisted composition")

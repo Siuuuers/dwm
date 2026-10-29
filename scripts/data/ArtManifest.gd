@@ -19,6 +19,16 @@ static func reload_placements(path: String = PLACEMENTS_PATH) -> bool:
 	if not parsed.get("assets") is Dictionary or not parsed.get("scenes") is Dictionary:
 		return false
 	_placements = parsed
+	# JSON imports every coordinate as a float. Use the same integral-number
+	# representation as saved Run state before retaining resolved rectangles.
+	var overlays: Variant = _placements.get("overlay_labels", {})
+	if overlays is Dictionary:
+		for preset: Variant in overlays.values():
+			if preset is Dictionary and preset.get("rect") is Array:
+				for index: int in preset.rect.size():
+					var component: Variant = preset.rect[index]
+					if component is float and is_finite(component) and component == floorf(component):
+						preset.rect[index] = int(component)
 	return true
 
 static func _catalog() -> Dictionary:
