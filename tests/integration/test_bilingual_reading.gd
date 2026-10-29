@@ -45,6 +45,13 @@ func test_native_pair_settings_missing_translation_and_current_profile_load() ->
 	var witnesses: Dictionary = profile.get_profile_snapshot().witnessed_caption_variants.duplicate(true)
 	var library: Dictionary = profile.get_dialogue_library().duplicate(true)
 	var pause: Node = get_node("/root/SceneRouter")._production_pause
+	# Same authored line and artwork, without Secondary, for spacing comparison.
+	if not _ok(profile.set_preference(&"preferences.language.dual_enabled", false)): return
+	for percent: int in [100, 150]:
+		if not _ok(profile.set_preference(&"preferences.accessibility.text_size", percent)): return
+		for frame: int in 4: await get_tree().process_frame
+		await _screenshot("bilingual-reference-mono-en-" + str(percent))
+	if not _ok(profile.set_preference(&"preferences.language.dual_enabled", true)): return
 	# Each change uses the actual Settings owner while the caption is held.
 	for pair: Array in [["en", "zh_HK"], ["zh_HK", "en"], ["ja", "ko"], ["ko", "zh_CN"]]:
 		if not _ok(await pause.open_scene_settings()): return
@@ -93,7 +100,7 @@ func test_native_pair_settings_missing_translation_and_current_profile_load() ->
 				assert_lte(rect.end.y, caption.FIELD_BOTTOM, "paired text stays above controls")
 			assert_eq(caption.secondary_caption.get_theme_font_size("normal_font_size"),
 				caption.caption_text.get_theme_font_size("normal_font_size"), "Secondary retains accessibility size")
-		await _screenshot("bilingual-" + str(pair[0]) + "-" + str(pair[1]))
+			await _screenshot("bilingual-" + str(pair[0]) + "-" + str(pair[1]) + "-" + str(percent))
 	# Missing authored Secondary is a normal authoring state, not another fallback row.
 	var secondary: Dictionary = STORY.catalog("zh_CN")
 	var translated: String = secondary[line]

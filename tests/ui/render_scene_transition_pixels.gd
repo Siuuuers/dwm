@@ -20,8 +20,8 @@ func test_pixel_dissolve_covers_story_and_preserves_live_controls() -> void:
 	var caption := _label(viewport, Vector2(620, 420), "SYNTHETIC CAPTION")
 	var thought := _label(viewport, Vector2(32, 32), "SYNTHETIC THOUGHT")
 	var rail := ColorRect.new()
-	rail.position = Vector2(0, RAIL.BAR_TOP)
-	rail.size = Vector2(1280, 720 - RAIL.BAR_TOP)
+	rail.position = Vector2(0, RAIL.CONTROL_TOP)
+	rail.size = Vector2(1280, 720 - RAIL.CONTROL_TOP)
 	rail.color = Color("683d20")
 	viewport.add_child(rail)
 	var button := Button.new()
@@ -75,9 +75,9 @@ func test_pixel_dissolve_covers_story_and_preserves_live_controls() -> void:
 	var start: Image = viewport.get_texture().get_image()
 	var content := {"background": Rect2i(700, 120, 160, 80), "portrait": Rect2i(80, 180, 160, 80),
 		"caption": Rect2i(620, 420, 360, 48), "thought": Rect2i(32, 32, 360, 48),
-		"lower_art": Rect2i(700, int(RAIL.BAR_TOP) - 32, 160, 32)}
+		"lower_art": Rect2i(700, int(RAIL.CONTROL_TOP) - 32, 160, 32)}
 	var line: Rect2 = handle.get_global_transform_with_canvas() * Rect2(handle.size.x - 1, 0, 2, handle.separator_height)
-	var controls := {"rail": Rect2i(20, int(RAIL.BAR_TOP), 180, 32), "caret": Rect2i(caret.get_global_rect()),
+	var controls := {"rail": Rect2i(20, int(RAIL.CONTROL_TOP), 180, 32), "caret": Rect2i(caret.get_global_rect()),
 		"divider": Rect2i(line)}
 	for name: String in content:
 		assert_eq(_hash(start.get_region(content[name])), _hash(old.get_region(content[name])), name + " retains outgoing pixels at zero")

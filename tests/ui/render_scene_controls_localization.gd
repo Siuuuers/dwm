@@ -2,6 +2,8 @@ extends SceneTree
 ## Production chrome, caption and rail with isolated preferences and synthetic text.
 ## Presentation evidence only; connected journeys own command/custody acceptance.
 const HOST := preload("res://scenes/narrative/SceneHost.tscn")
+const ART_VIEW := preload("res://scripts/ui/art/SceneArtView.gd")
+const FIXTURE_ART := Color("254f95")
 const PROFILE := preload("res://autoload/ProfileManager.gd")
 const LOCALIZATION := preload("res://autoload/LocalizationManager.gd")
 const STORAGE := preload("res://scripts/infrastructure/storage/JsonFileStorage.gd")
@@ -59,6 +61,12 @@ func _run() -> void:
 		actions[action] = _dispatch
 	host.configure_scene_controls(actions)
 	viewport.add_child(host)
+	var art := ART_VIEW.new()
+	viewport.add_child(art)
+	var art_pixels := Image.create(8, 8, false, Image.FORMAT_RGB8)
+	art_pixels.fill(FIXTURE_ART)
+	var portraits: Array[Texture2D] = []
+	art.configure_textures(ImageTexture.create_from_image(art_pixels), portraits, null, 100, false, false, &"", true)
 	_caption = CAPTION.instantiate()
 	viewport.add_child(_caption)
 	# Geometry uses the production layer with synthetic display text. Disable its
@@ -96,7 +104,7 @@ func _run() -> void:
 	_check(_dispatches == 0, "presentation changes dispatch no game commands")
 	if DisplayServer.get_name() != "headless": _check(_captures == 80, "all 80 presentation screenshots")
 	var report := {"ok": _failures.is_empty(), "renderer": DisplayServer.get_name(), "samples": _samples,
-		"captures": _captures, "failures": _failures, "fixture": "Production SceneHost, caption and seven-command rail; synthetic wrapped English display text, isolated real locale/profile. No board or live reading session; command effects belong to connected journeys."}
+		"captures": _captures, "failures": _failures, "fixture": "Production SceneHost, caption and seven-command rail; synthetic wrapped English display text and solid scene-art texture, isolated real locale/profile. No board or live reading session; command effects belong to connected journeys."}
 	var file := FileAccess.open(_folder.path_join("results.json"), FileAccess.WRITE)
 	if _check(file != null, "result file"):
 		file.store_string(JSON.stringify(report, "\t"))
@@ -157,6 +165,13 @@ func _capture(host: Control, locale: Node, language: String, style: String, perc
 	if DisplayServer.get_name() == "headless": return
 	await RenderingServer.frame_post_draw
 	var picture := _viewport.get_texture().get_image()
+	# Sample across the former blank strip, away from the separate computer tag.
+	for source_y: int in [618, 632, 654]:
+		for source_x: int in [100, 640, 1180]:
+			var art_point := Vector2i(final * Vector2(source_x, source_y))
+			var art_pixel := picture.get_pixelv(art_point)
+			_check(absf(art_pixel.r - FIXTURE_ART.r) + absf(art_pixel.g - FIXTURE_ART.g) + absf(art_pixel.b - FIXTURE_ART.b) < 0.03,
+				id + ": scene art reaches the command row at " + str(art_point))
 	# Confirm that native glyphs were painted near the measured last row, rather
 	# than accepting empty containers or geometry-only screenshots.
 	var ink := leaf.get_theme_color("default_color")
