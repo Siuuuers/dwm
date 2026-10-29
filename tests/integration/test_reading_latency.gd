@@ -60,7 +60,9 @@ func test_native_enter_to_first_draw_and_history_after_thirty() -> void:
 		var admitted := false
 		for frame: int in 180:
 			if caption.accept_input.is_source_admitted() and not caption.caption_text.revealing \
-					and bridge.can_auto_advance_current_line():
+					and caption.caption_text.visible_ratio == 1.0 \
+					and bridge.is_current_line_presentation_acknowledged() \
+					and not get_node("/root/Dialogic").get_subsystem("Inputs").is_input_blocked():
 				admitted = true
 				break
 			await get_tree().process_frame
