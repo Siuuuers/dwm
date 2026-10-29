@@ -1642,11 +1642,14 @@ func _layout_stack(publication: bool = false, desired_scroll: float = -1.0) -> v
 
 func _measure_leaves(leaves: Array[RichTextLabel], width: float) -> float:
 	var total := 0.0
+	var paired := secondary_caption in leaves
 	for leaf: RichTextLabel in leaves:
 		leaf.size.x = width
 		var minimum := 64 if _large_targets and leaf == caption_text else 52
 		var content_height := leaf.get_content_height()
 		var height := maxi(minimum, int(ceil((content_height + 32) / 2.0)) * 2)
+		if paired and leaf == secondary_caption:
+			height = int(ceil((content_height + leaf.get_theme_constant("line_separation")) / 2.0)) * 2
 		# Keep the entire focus/pointer target inside the viewport. On the last
 		# leaf, place its spare height above the shaped text so the row and
 		# target retain the approved bar-top boundary without clipping the target.
@@ -1654,8 +1657,11 @@ func _measure_leaves(leaves: Array[RichTextLabel], width: float) -> float:
 		if not leaf.has_theme_stylebox_override("normal"):
 			material = material.duplicate()
 			leaf.add_theme_stylebox_override("normal", material)
-		material.set_content_margin(SIDE_TOP, height - content_height if leaf == leaves.back() else 16)
-		material.set_content_margin(SIDE_BOTTOM, 0 if leaf == leaves.back() else 16)
+		# A translation continues the same text block with native line spacing.
+		# Keep the Primary's spare pointer-target height above the pair, not
+		# between the two languages. The passive Secondary needs no target padding.
+		material.set_content_margin(SIDE_TOP, height - content_height if paired or leaf == leaves.back() else 16)
+		material.set_content_margin(SIDE_BOTTOM, 0 if paired or leaf == leaves.back() else 16)
 		leaf.update_minimum_size()
 		leaf.size = Vector2(width, height)
 		total += leaf.size.y
@@ -1792,7 +1798,7 @@ func _leaf_rect(leaf: RichTextLabel) -> Rect2:
 func _draw_canvas() -> void:
 	if _caption_theme == null or transport_rail.ending_layout:
 		return
-	canvas.draw_rect(Rect2(0, FIELD_BOTTOM, 1280, 720 - FIELD_BOTTOM), _color(&"deep"))
+	canvas.draw_rect(Rect2(0, transport_rail.CONTROL_TOP, 1280, 720 - transport_rail.CONTROL_TOP), _color(&"deep"))
 
 func _color(role: StringName) -> Color:
 	return _caption_theme.get_color(role, &"WitnessedCaption")

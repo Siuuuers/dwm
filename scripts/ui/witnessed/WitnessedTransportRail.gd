@@ -23,6 +23,7 @@ const CONTROL_RECTS := {
 	&"auto": Rect2(BAY_WIDTH * 4, 64, BAY_WIDTH, 64), &"next": Rect2(BAY_WIDTH * 5, 64, BAY_WIDTH, 64),
 	&"settings": Rect2(BAY_WIDTH * 6, 64, BAY_WIDTH, 64),
 }
+const CONTROL_TOP: float = RAIL_POSITION.y + CONTROL_RECTS[&"history"].position.y
 var ending_layout := false
 const PLATE_INSET := 4.0
 const CONTROL_IDS: Array[StringName] = [&"history", &"save", &"load", &"skip", &"auto", &"next", &"settings"]
@@ -289,7 +290,7 @@ func set_ending_layout(enabled: bool) -> void:
 
 func _draw() -> void:
 	if not ending_layout and not _roles.is_empty():
-		draw_rect(Rect2(0, BAR_TOP - RAIL_POSITION.y, 1280, 720 - BAR_TOP), _roles[&"deep"])
+		draw_rect(Rect2(0, CONTROL_TOP - RAIL_POSITION.y, 1280, 720 - CONTROL_TOP), _roles[&"deep"])
 
 
 func _ensure_controls() -> void:

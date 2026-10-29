@@ -69,6 +69,8 @@ func test_seven_commands_share_one_nonoverlapping_footer_row() -> void:
 	assert_eq(rail.position, Vector2(0, 592))
 	assert_eq(rail.size, Vector2(1280, 128))
 	assert_eq(rail.get_child_count(), 7, "seven controls without an audience clock")
+	assert_eq(RAIL.CONTROL_TOP, 656.0, "opaque footer starts with the command row")
+	assert_gt(RAIL.CONTROL_TOP, RAIL.BAR_TOP, "caption clearance keeps the scene art visible")
 	for index: int in NAMES.size():
 		var button := rail.get_child(index) as Button
 		assert_not_null(button)

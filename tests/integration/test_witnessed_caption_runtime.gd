@@ -2212,6 +2212,43 @@ func test_dual_caption_pair_shares_native_reveal_and_keeps_current_pair_only() -
 	assert_false(caption.secondary_caption.visible)
 	assert_eq(caption.get_caption_projection().caption_window.size(), 3)
 
+func test_dual_caption_uses_native_line_spacing_at_every_text_size() -> void:
+	if not _mount(): return
+	var copy := "Caption spacing reference."
+	runtime.start(_timeline(copy))
+	await _settle()
+	caption.caption_text.finish_text()
+	caption.set("_dual_enabled", true)
+	caption.set("_bilingual", {"text": copy, "content_locale":"en",
+		"secondary_text":copy, "secondary_locale":"en", "dual_enabled":true})
+	var reference := RichTextLabel.new()
+	reference.scroll_active = false
+	reference.size = Vector2(1248, 400)
+	caption.canvas.add_child(reference)
+	reference.hide()
+	for percent: int in [100, 125, 150]:
+		for large: bool in [false, true]:
+			assert_true(caption.configure_presentation("en", percent, "AfterHours", false, "standard", large))
+			caption.call("_layout_stack")
+			reference.text = copy
+			await _settle()
+			var one_line: int = reference.get_content_height()
+			reference.text = copy + "\n" + copy
+			await _settle()
+			var native_gap: float = reference.get_content_height() - 2.0 * one_line
+			var primary: RichTextLabel = caption.caption_text
+			var secondary: RichTextLabel = caption.secondary_caption
+			var primary_bottom: float = primary.position.y + primary.get_theme_stylebox("normal").get_content_margin(SIDE_TOP) + primary.get_content_height()
+			var secondary_top: float = secondary.position.y + secondary.get_theme_stylebox("normal").get_content_margin(SIDE_TOP)
+			assert_almost_eq(secondary_top - primary_bottom, native_gap, 1.0,
+				"paired languages match two native lines, allowing only pixel-lattice rounding")
+			assert_gte(primary.size.y, 64.0 if large else 52.0, "Primary retains its pointer target")
+			assert_almost_eq(caption.scroll.position.y + secondary.position.y + secondary.size.y,
+				float(TRANSPORT_RAIL.BAR_TOP), 1.0, "pair stays on the caption baseline")
+			assert_eq(primary.get_theme_font_size("normal_font_size"), reference.get_theme_font_size("normal_font_size"))
+			assert_eq(secondary.get_theme_font_size("normal_font_size"), reference.get_theme_font_size("normal_font_size"))
+	reference.queue_free()
+
 func test_long_dual_caption_preserves_all_text_in_bounded_viewport() -> void:
 	if not _mount(): return
 	runtime.start(_timeline("Synthetic primary caption."))

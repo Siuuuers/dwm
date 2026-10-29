@@ -25,13 +25,16 @@ func capture_source() -> bool:
 	size = get_viewport().get_visible_rect().size
 	var final := get_viewport().get_final_transform()
 	_dissolve.set_shader_parameter("source_size", Vector2(source.get_size()))
-	# Exclude the visible bar, including its upper computer-tag strip.
-	_dissolve.set_shader_parameter("rail_top", (final * Vector2(0, preload("res://scripts/ui/witnessed/WitnessedTransportRail.gd").BAR_TOP)).y)
+	# Exclude the command row; the separate caret mask preserves its live tag.
+	_dissolve.set_shader_parameter("rail_top", (final * Vector2(0, preload("res://scripts/ui/witnessed/WitnessedTransportRail.gd").CONTROL_TOP)).y)
 	_dissolve.set_shader_parameter("caret_rect", Vector4.ZERO)
 	_dissolve.set_shader_parameter("divider_rect", Vector4.ZERO)
 	_dissolve.set_shader_parameter("preview_rect", Vector4.ZERO)
 	if is_instance_valid(caret) and caret.is_visible_in_tree():
-		var rect: Rect2 = final * caret.get_global_transform_with_canvas() * Rect2(Vector2.ZERO, caret.size)
+		# Only the painted tag (including its focus stroke) stays live. The
+		# transparent part of its larger hit target remains scene artwork.
+		var tag := Rect2(Vector2((caret.size.x - 32) * 0.5, caret.size.y - 24), Vector2(32, 24)).grow(3)
+		var rect: Rect2 = final * caret.get_global_transform_with_canvas() * tag
 		_dissolve.set_shader_parameter("caret_rect", Vector4(rect.position.x, rect.position.y, rect.size.x, rect.size.y))
 	for surface: Node in get_tree().get_nodes_in_group("dating_split_surface"):
 		if surface.get_viewport() != get_viewport(): continue
