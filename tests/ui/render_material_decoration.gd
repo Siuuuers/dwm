@@ -16,6 +16,8 @@ func _run() -> void:
 		return
 	viewport = SubViewport.new()
 	viewport.size = Vector2i(1920, 1080)
+	viewport.size_2d_override = Vector2i(1280, 720)
+	viewport.size_2d_override_stretch = true
 	viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 	viewport.handle_input_locally = true
 	viewport.gui_embed_subwindows = true
@@ -57,7 +59,7 @@ func _run() -> void:
 		check(viewport.gui_get_focus_owner() == focused, item + " preserves focus")
 		if item == "letter_with_wax_seal" and OS.get_environment("DWM_MATERIAL_BASELINE") != "1":
 			var canvas: Control = desktop.desktop_canvas
-			var region := Rect2i(canvas.get_global_transform_with_canvas() * Rect2(canvas.size.x - 110, 0, 110, canvas.size.y - 144))
+			var region := Rect2i(viewport.get_final_transform() * canvas.get_global_transform_with_canvas() * Rect2(canvas.size.x - 110, 0, 110, canvas.size.y - 144))
 			desktop.status_label.text = "Preview failure"
 			desktop.status_label.show()
 			var failure: Image = await _material_capture("letter-status-visible", true, false)
@@ -105,6 +107,7 @@ func _run() -> void:
 	check(not desktop.cosmetic_overlay.visible, "empty inventory removes decoration")
 	if OS.get_environment("DWM_MATERIAL_BASELINE") != "1":
 		viewport.size = Vector2i(1920, 720)
+		viewport.size_2d_override = Vector2i(1280, 480)
 		main.get_node("RootHBox").set_angela_width(720)
 		var short_bare: Image = await _material_capture("short-none")
 		check(desktop.desktop_canvas.size.y <= 480, "short fixture has insufficient logical height")

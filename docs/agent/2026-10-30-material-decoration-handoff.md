@@ -168,9 +168,10 @@ neutral ring seal without narrative meaning. App accents avoid the right scrollb
 The letter fits between launcher controls and Home quick feedback, scales modestly
 when space is limited, and yields entirely to failure feedback or very short layouts.
 
-The first cloud comparison exposed an overstrict fixed-size letter guard at normal
-1920×1080 and crystal silhouettes resembling pennants; the revised candidate fixes
-both. Rendered checks now require each item to produce visible pixels, verify the
+The first cloud comparison exposed an overstrict fixed-size letter guard in a wide
+direct-canvas fixture and crystal silhouettes resembling pennants; the revised candidate
+fixes both. Final primary previews match the game: a 1280×720 logical canvas stretched
+to 1920×1080. The earlier wide-canvas result is not a normal shipped-layout defect. Rendered checks now require each item to produce visible pixels, verify the
 letter is absent over apps and failure feedback, and cover both fonts, 125/150%,
 two palettes, high contrast, narrow and short layouts. Purchase/Load/new-run checks
 remain the existing real-owner journey. Exact revisions, final screenshots, cloud
