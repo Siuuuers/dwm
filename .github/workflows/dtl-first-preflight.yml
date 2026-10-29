@@ -132,6 +132,17 @@ jobs:
                   assert all(case.get('status') == 'pass' and int(case.get('assertions', '0')) > 0 for case in cases), script
                   evidence.extend({'script': script, 'method': case.get('name'), 'assertions': int(case.get('assertions'))} for case in cases)
           (output / 'test-acceptance.json').write_text(json.dumps(evidence, indent=2) + '\n')
+      - name: Verify Gallery replay caption collection
+        timeout-minutes: 5
+        env:
+          XDG_DATA_HOME: ${{ github.workspace }}/.godot/phase2r_tests/dtl-first/gallery-collection/data
+          DWM_TEST_ROOT: ${{ github.workspace }}/.godot/phase2r_tests/dtl-first/gallery-collection/test-root
+          DWM_GALLERY_COLLECTION_OUTPUT: ${{ github.workspace }}/.godot/ci/dtl-first/gallery-collection
+        run: |
+          mkdir -p "$DWM_GALLERY_COLLECTION_OUTPUT" "$XDG_DATA_HOME" "$DWM_TEST_ROOT"
+          timeout 240s xvfb-run -a "$GODOT_CONSOLE_PATH" --path "$GITHUB_WORKSPACE" --rendering-method gl_compatibility --audio-driver Dummy --log-file "$DWM_GALLERY_COLLECTION_OUTPUT/render.log" --script res://tests/ui/render_gallery_caption_collection.gd -- --phase2r-bootstrap-mode=final
+          if grep -E 'SCRIPT ERROR:|ERROR: Failed to load|Unicode parsing error|Unexpected NUL character' "$DWM_GALLERY_COLLECTION_OUTPUT/render.log"; then exit 1; fi
+          grep '^GALLERY_CAPTION_COLLECTION_RENDER_VERIFIED' "$DWM_GALLERY_COLLECTION_OUTPUT/render.log"
       - name: Generate and check public inventories
         if: ${{ !cancelled() && steps.import_project.outcome == 'success' && steps.export_story.outcome == 'success' }}
         run: |

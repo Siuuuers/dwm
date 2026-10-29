@@ -1004,10 +1004,10 @@ func _prepare_scene_art() -> void:
 	scene_art_changed.emit()
 	var source := get_current_scene_art()
 	var art: Dictionary = source.get("presentation", _SCENE_ART.get_scene_art(source.entry_id))
-	# Hospital and dating own this caption style even without optional artwork.
+	# Hospital, dating and collected Gallery captions own this style without artwork.
 	var hospital := str(source.entry_id) == "hospital.faint" or str(source.entry_id).begins_with("hospital.faint.")
 	var dating := str(source.entry_id).begins_with("dating.")
-	if not hospital and not dating and (str(source.entry_id).is_empty() or (str(art.get("background", "")).is_empty() \
+	if not hospital and not dating and not _reached_replay.has("caption_ledger") and (str(source.entry_id).is_empty() or (str(art.get("background", "")).is_empty() \
 		and art.get("portraits", []).is_empty() and str(art.get("cg", "")).is_empty())): return
 	_prepare_witnessed_style()
 
