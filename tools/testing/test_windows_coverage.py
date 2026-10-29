@@ -119,6 +119,38 @@ class ReadabilityCoverageTests(unittest.TestCase):
                 self.assertEqual(result['focused'], 'false')
                 self.assertEqual(result['comparison'], 'false')
 
+    def test_complete_pr_includes_the_already_committed_measurement_harness(self):
+        # PR 159 base a0e3bb4 -> head 73d6c2f. The first measurement commit
+        # predates the working-tree edits and must still participate in selection.
+        paths = {
+            '.github/workflows/readability.yml',
+            '.github/workflows/windows-tests.yml',
+            'docs/design/current-ui/settings-window-output.md',
+            'docs/design/current-ui/settings.md',
+            'evidence/readability/2026-10-30/measurements.json',
+            'scripts/settings/SettingsPreferenceRegistry.gd',
+            'scripts/ui/GalleryScene.gd',
+            'tests/manual/verify_window_mode_native.gd',
+            'tests/scene/test_settings_localization_scene.gd',
+            'tests/scene/test_settings_window_mode_live.gd',
+            'tests/ui/render_readability_measurements.gd',
+            'tests/ui/render_ui_readability.gd',
+            'tests/unit/test_bootstrap_window_output.gd',
+            'tests/unit/test_profile_manager.gd',
+            'tests/unit/test_profile_window_restore.gd',
+            'tests/unit/test_settings_preference_registry.gd',
+            'tests/unit/test_settings_window_transactions.gd',
+            'tests/unit/test_window_mode_manager.gd',
+            'tools/dtl-editor/README.md',
+            'tools/dtl-editor/index.html',
+            'tools/dtl-editor/readability-profile.json',
+            'tools/dtl-editor/test.cjs',
+            'tools/dtl-editor/update-profile.cjs',
+            'tools/testing/Invoke-CloudTests.ps1',
+            'tools/testing/test_windows_coverage.py',
+        }
+        self.assertEqual(select(paths)['readability'], 'true')
+
     def test_unreviewed_runtime_and_evidence_keep_broad_coverage(self):
         for extra in ('autoload/SaveManager.gd', 'autoload/ProfileManager.gd',
                       'autoload/GameState.gd', 'scripts/narrative/DialogicRuntimeAdapter.gd',

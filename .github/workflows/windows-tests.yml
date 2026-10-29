@@ -268,6 +268,7 @@ jobs:
                       'tests/unit/test_settings_preference_registry.gd',
                       'tests/unit/test_settings_window_transactions.gd',
                       'tests/unit/test_window_mode_manager.gd',
+                      'tests/ui/render_readability_measurements.gd',
                       'tests/ui/render_ui_readability.gd',
                       'tests/ui/render_ui_readability.gd.uid',
                       'tools/dtl-editor/README.md',
