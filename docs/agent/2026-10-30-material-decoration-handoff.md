@@ -130,3 +130,30 @@ Follow repository cloud test conventions and retain relevant layout, input, tran
 ## Completion record
 
 Record chosen visual direction and any changed placement rules, PR/revision, before/after screenshots at normal size, test evidence and limitations. Distinguish a working prototype from owner-accepted visual finish.
+
+## Follow-up: broader UI aesthetic review
+
+The owner also requests investigation of broader UI aesthetics. Add a baseline UI review before finalizing the purchased objects. This authorizes review and proposals, not an indiscriminate redesign.
+
+Source evidence: scripts/settings/SettingsPaletteRegistry.gd already provides dark blue/green surfaces, warm paper/ink, structural borders, selection/focus roles and authored high-contrast/color-vision variants. Preserve that visual foundation. No fresh screenshots were inspected for this follow-up, so the candidates below are not confirmed visual defects.
+
+Review candidates:
+- Hierarchy: distinguish screen titles, section headings, body text and secondary metadata through existing typography, spacing and restrained color roles. Do not shrink readable body text to create hierarchy.
+- Borders: identify redundant nested outlines; retain clear panel separation, actionable affordances and focus rings.
+- Surfaces/depth: compare subtle contact shadows or edge highlights on floating panels with flatter reading surfaces. Avoid uniform gloss or heavy blur.
+- Composition: align headings, lists, item artwork and action rows to clear shared anchors; use spacing to group related content, not identical gaps everywhere.
+- Color emphasis: keep strong accents meaningful for selection/focus/actions; decorations should not compete with them.
+- Material coherence: paper-like Save/Load and Gallery surfaces, quieter computer framing, and the three purchased objects should share lighting and edge treatment.
+- Small details: consistent icon stroke weight/optical alignment and corner/border treatment where applicable; preserve established functional symbols.
+
+Suggested review sequence:
+1. Capture current reading scene, desktop, Shop, Save/Load, Settings and Gallery at the reference configuration.
+2. Identify the strongest two or three visible opportunities with marked before/after comparisons.
+3. Prototype one coherent baseline treatment, then add each purchased item and all three.
+4. Evaluate both the unpurchased and decorated experience; do not make baseline usability depend on buying decoration.
+
+Scope clarification: the earlier "no-item state stays unchanged" acceptance applies to the purchase-effect implementation alone. If the owner chooses a separate baseline UI refinement, document it independently and compare old baseline → refined baseline → refined baseline with purchases. Do not grant purchased material motifs globally.
+
+Respect completed interaction, 125/150% readability, palettes and approved caption/control geometry. If proposed font, content width or padding changes affect reading layout, rerun the Godot measurements and refresh DTL guidance; never leave authoring profiles stale. Prefer refinements that preserve reading metrics.
+
+The implementation handoff must report screenshot-backed observations separately from aesthetic preferences. The previous material-style/motion questions remain open.
